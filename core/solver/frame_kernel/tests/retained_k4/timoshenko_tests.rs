@@ -582,17 +582,23 @@ fn timoshenko_k4stf_k4src_block_encoding() {
     assert_eq!(source.encoding_with(None), source.encoding());
     assert_eq!(source.encoding_with(Some(&empty)), source.encoding());
     assert_eq!(source.stiffness_encoding_with(Some(&empty)), source.stiffness_encoding());
-    let mut block = Vec::new();
+    let mut block = b"TSH\x01".to_vec();
     block.extend_from_slice(&2u32.to_le_bytes());
     for member in 0u32..2 {
         block.extend_from_slice(&member.to_le_bytes());
         block.extend_from_slice(&0.25f64.to_bits().to_le_bytes());
     }
+    // Version 2 for a non-empty sidecar: the sixth byte, then the framed block.
     let stf = source.stiffness_encoding();
-    assert_eq!(source.stiffness_encoding_with(Some(&set)), [stf.clone(), block.clone()].concat());
+    let v2 = |mut bytes: Vec<u8>| {
+        assert_eq!(bytes[5], 1);
+        bytes[5] = TIMOSHENKO_VERSION;
+        bytes
+    };
+    assert_eq!(source.stiffness_encoding_with(Some(&set)), [v2(stf.clone()), block.clone()].concat());
     // K4SRC: header and stiffness part (constraint values included), the block, then the rest.
     let split = stf.len() + 8 * source.constraints().len();
-    let src = source.encoding();
+    let src = v2(source.encoding());
     assert_eq!(source.encoding_with(Some(&set)), [&src[..split], &block[..], &src[split..]].concat());
     // A different leaf moves both identities.
     let other = leaves(&source, 0.5);
@@ -643,3 +649,57 @@ fn timoshenko_sidecar_preserves_receipt_layouts() {
 /// Measured on base 3826a62881 (a scratch copy of the crate at that commit).
 const PINNED_LAYOUTS: [usize; 14] = [88, 248, 192, 16, 160, 16, 448, 1328, 56, 24, 168, 32, 40, 56];
 const PINNED_SECTION_LAYOUT_BYTES: [usize; 8] = [3888, 144, 400, 80, 2144, 56, 24, 8];
+
+/// Codex review of 38ccfd4d8b (BLOCKING, repaired): with an untagged block
+/// after the stiffness part, this Timoshenko source and this Euler–Bernoulli
+/// source had identical 280-byte K4SRC encodings and prepared identities (the
+/// sidecar read as the Euler–Bernoulli source's load prefix). With the
+/// version-2 header and the framed block they differ, as do their K4STF
+/// identities and every recorded identity derived from them.
+#[test]
+fn k4src_timoshenko_encodings_are_injective() {
+    use super::super::adaptive::PreparedCaseSource;
+    let common = SourceParts {
+        nodes: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+        members: vec![StraightMember { id: 0, node_i: 0, node_j: 1, elastic_modulus: 2.0, shear_modulus: 1.0,
+            area: 1.0, second_moment_y: 1.0, second_moment_z: 1.0, torsion_constant: 1.0, y_reference: [0.0, 1.0, 0.0] }],
+        constraints: Component::ALL.iter().map(|&component| Constraint { dof: Dof { node: 0, component }, value: 0.0 }).collect(),
+        ..Default::default()
+    };
+    let t = PrimitiveSource::new(SourceParts {
+        stations: vec![Station { id: 0, member: 0, fraction: f64::from_bits(0x3ff00000) }],
+        ..common.clone()
+    })
+    .unwrap();
+    let set = TimoshenkoLeafSet::new(&t, vec![TimoshenkoLeaf { member: 0, shear_area: f64::from_bits(0x3f62610000000f00) }]).unwrap();
+    let source_id = String::from_utf8(vec![0x61, 0x62, 0x3f, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]).unwrap();
+    let eb = PrimitiveSource::new(SourceParts {
+        loads: vec![NodalLoad { dof: Dof { node: 0, component: Component::Ux }, source_id, value: 1.0 }],
+        ..common
+    })
+    .unwrap();
+    assert_ne!(t.encoding_with(Some(&set)), eb.encoding());
+    assert_ne!(t.stiffness_encoding_with(Some(&set)), eb.stiffness_encoding());
+    assert_eq!((t.encoding_with(Some(&set))[5], eb.encoding()[5]), (TIMOSHENKO_VERSION, 1));
+    let pt = PreparedCaseSource::new_with_shear(MemberSourceRef::nodal(&t), &set).unwrap();
+    let pe = PreparedCaseSource::new(eb.clone()).unwrap();
+    assert_ne!(pt.identity(), pe.identity());
+    assert_ne!(pt.stiffness_identity(), pe.stiffness_identity());
+    // The recorded sources (SourceOrigin identity and stiffness) and the
+    // selected owners' identities differ too.
+    let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[1, 1], &[]).unwrap()).unwrap();
+    let a = invocation.solve_timoshenko_cases(&[MemberSourceRef::nodal(&t)], &set, CaseLimit::new(u64::MAX)).unwrap();
+    let b = invocation.solve_member_cases(&[MemberSourceRef::nodal(&eb)], CaseLimit::new(u64::MAX)).unwrap();
+    let origins = invocation.sources();
+    assert_ne!(origins[0].identity, origins[1].identity);
+    assert_ne!(origins[0].stiffness, origins[1].stiffness);
+    if let (ExecutionOutcome::Selected(x), ExecutionOutcome::Selected(y)) = (&a[0].outcome, &b[0].outcome) {
+        assert_ne!(x.evidence().source_encoding, y.evidence().source_encoding);
+    }
+    // The version-2 bytes begin with the version-1 header except the sixth byte,
+    // and the block opens with its tag right after the stiffness part.
+    let v2 = t.encoding_with(Some(&set));
+    let stiffness_len = t.stiffness_encoding().len() + 8 * t.constraints().len();
+    assert_eq!(&v2[..5], b"K4SRC");
+    assert_eq!(&v2[stiffness_len..stiffness_len + 4], TIMOSHENKO_BLOCK_TAG);
+}

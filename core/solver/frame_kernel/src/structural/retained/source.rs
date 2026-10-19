@@ -360,12 +360,15 @@ impl TimoshenkoLeafSet {
     pub fn is_empty(&self) -> bool {
         self.leaves.is_empty()
     }
-    /// The K4STF/K4SRC Timoshenko block (§4.2): the count, then each entry's
-    /// member and shear-area bits. Written only for a non-empty set.
+    /// The K4STF/K4SRC Timoshenko block (§4.2), explicitly framed: the tag
+    /// `TIMOSHENKO_BLOCK_TAG`, the count, then each entry's member and
+    /// shear-area bits (12 bytes each). Written only for a non-empty set, and
+    /// only inside a version-2 encoding (`TIMOSHENKO_VERSION`).
     pub(crate) fn encode_block(&self, out: &mut Vec<u8>) {
         if self.leaves.is_empty() {
             return;
         }
+        out.extend_from_slice(TIMOSHENKO_BLOCK_TAG);
         put_u32(out, self.leaves.len() as u32);
         for leaf in &self.leaves {
             put_u32(out, leaf.member);
@@ -373,6 +376,13 @@ impl TimoshenkoLeafSet {
         }
     }
 }
+
+/// The K4SRC/K4STF version byte of an encoding that carries a non-empty
+/// Timoshenko sidecar (O4 §4.2). Euler–Bernoulli and empty-sidecar encodings
+/// keep version 1 and today's bytes.
+pub const TIMOSHENKO_VERSION: u8 = 2;
+/// The tag that opens the Timoshenko block inside a version-2 encoding.
+pub const TIMOSHENKO_BLOCK_TAG: &[u8; 4] = b"TSH\x01";
 
 /// A station on a member at a binary64 fraction of its chord (0 at node i).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -1025,11 +1035,29 @@ impl PrimitiveSource {
         self.encoding_with(None)
     }
 
-    /// K4SRC with O4's Timoshenko block after the stiffness part (§4.2),
-    /// present only for a non-empty sidecar; `None` or an empty set gives
-    /// `encoding()`'s bytes.
+    /// K4SRC with O4's Timoshenko sidecar (§4.2). `None` or an empty set
+    /// gives `encoding()`'s bytes (version 1). A non-empty set gives version
+    /// 2: `K4SRC\x02`, the stiffness part, the framed block (`TSH\x01`, the
+    /// count n ≥ 1, n × (member u32, shear-area bits u64)), then the same
+    /// loads, stations and supports as version 1.
+    ///
+    /// **Injectivity over (source, sidecar).** Every version-1 field is a
+    /// fixed-width scalar or a u32-count-prefixed list of fixed-width records
+    /// and u32-length-prefixed strings, so the version-1 bytes parse back
+    /// uniquely, left to right, to the source; version 2 inserts, at a
+    /// position the parse reaches deterministically (the end of the
+    /// count-delimited stiffness part), a block whose tag and count delimit
+    /// it exactly, so version-2 bytes parse back uniquely to (source, set).
+    /// No Euler–Bernoulli (version-1) encoding equals a Timoshenko
+    /// (version-2) one: their sixth bytes are 0x01 and 0x02. (The untagged
+    /// revision let a sidecar be read as a version-1 load prefix; the
+    /// regression `k4src_timoshenko_encodings_are_injective` keeps that pair.)
     pub fn encoding_with(&self, shear: Option<&TimoshenkoLeafSet>) -> Vec<u8> {
+        let shear = shear.filter(|s| !s.is_empty());
         let mut out = b"K4SRC\x01".to_vec();
+        if shear.is_some() {
+            out[5] = TIMOSHENKO_VERSION;
+        }
         self.encode_stiffness_part(&mut out, true);
         if let Some(set) = shear {
             set.encode_block(&mut out);
@@ -1070,11 +1098,19 @@ impl PrimitiveSource {
         self.stiffness_encoding_with(None)
     }
 
-    /// K4STF with O4's Timoshenko block appended after the stiffness part
-    /// (§4.2): every leaf that enters formation is in the factor-reuse
-    /// identity. `None` or an empty set gives `stiffness_encoding()`'s bytes.
+    /// K4STF with O4's Timoshenko sidecar (§4.2): every leaf that enters
+    /// formation is in the factor-reuse identity. `None` or an empty set gives
+    /// `stiffness_encoding()`'s bytes (version 1); a non-empty set gives
+    /// `K4STF\x02`, the stiffness part and the framed block. Injective by the
+    /// argument of `encoding_with` (the version byte separates the two
+    /// families; the count-delimited stiffness part and the tagged, counted
+    /// block parse back uniquely).
     pub fn stiffness_encoding_with(&self, shear: Option<&TimoshenkoLeafSet>) -> Vec<u8> {
+        let shear = shear.filter(|s| !s.is_empty());
         let mut out = b"K4STF\x01".to_vec();
+        if shear.is_some() {
+            out[5] = TIMOSHENKO_VERSION;
+        }
         self.encode_stiffness_part(&mut out, false);
         if let Some(set) = shear {
             set.encode_block(&mut out);
