@@ -3306,7 +3306,9 @@ fn operand_preparations(b: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn Fn
                 && p["operational"]["old_coverage"] == "complete"
                 && new.iter().all(|o| o["result"]["kind"] == "ready")
                 && s["material_basis_ref"] == p["material_basis_ref"])?;
-            wf(pm.iter().all(|m| exact_work(&m["work"]))
+            // O4 §4.6: a member's reduced record's work is held to the same exactness
+            // (absent, `Null` is exact).
+            wf(pm.iter().all(|m| exact_work(&m["work"]) && exact_work(&m["reduced"]["work"]))
                 && old.iter().chain(new).all(|o| exact_work(&o["work"]))
                 && p["adapter"]["fault"].is_null())?;
         }
@@ -3426,8 +3428,10 @@ fn g5_products(source: &Value) -> VResult {
                     .as_object()
                     .is_some_and(|o| o.values().all(|v| v == "completed"))
                 && new.iter().all(|o| o["result"]["kind"] == "ready"))?;
+            // O4 §4.6: a member's reduced record's work is held to the same exactness
+            // (absent, `Null` is exact).
             wf(exact_work(proof)
-                && pm.iter().all(|m| exact_work(&m["work"]))
+                && pm.iter().all(|m| exact_work(&m["work"]) && exact_work(&m["reduced"]["work"]))
                 && old.iter().chain(new).all(|o| exact_work(&o["work"]))
                 && a["adapter"]["fault"].is_null()
                 && exact_work(&a["overlay_work"])

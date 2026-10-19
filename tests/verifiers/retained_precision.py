@@ -1314,7 +1314,8 @@ def _g5_products(body, rows_by_case, route=None):
             fail(all(v == "completed" for v in a["stages"].values()) and len(pm) == len(old) == len(new) and all(m["result"]["kind"] == "prepared" for m in pm))
             fail(a["operational"]["old_coverage"] == "complete" and proof is not None and all(v["kind"] == "passed" for v in proof["checks"].values()))
             fail(all(m["result"]["kind"] == "ready" for m in new))
-            wf(_exact_work(proof) and all(_exact_work(m["work"]) for m in pm) and a["adapter"]["fault"] is None and not a["g5a_work"]["lost"] and not a["overlay_work"]["lost"])
+            # O4 §4.6: a member's reduced record's work is held to the same exactness (absent is exact).
+            wf(_exact_work(proof) and all(_exact_work(m["work"]) and _exact_work((m.get("reduced") or {}).get("work")) for m in pm) and a["adapter"]["fault"] is None and not a["g5a_work"]["lost"] and not a["overlay_work"]["lost"])
             expected = [i for i,r in enumerate(rows_by_case[case["basis_ref"]["ref_id"]]) if _owner_projected(case,r,source,route)]
             fail([x["row_index"] for x in proof["projection_outcomes"]] == expected)
         if case["status"] == "selected": fail(a["result"]["kind"] == "ready")
@@ -2861,7 +2862,7 @@ def _g5_operand_preparations(body, fail, wf):
             fail(len(pm) == len(record["operational"]["old"]) == len(new) and all(m["result"]["kind"] == "prepared" for m in pm)
                  and record["operational"]["old_coverage"] == "complete" and all(m["result"]["kind"] == "ready" for m in new))
             fail(_at(body["sources"], record["source_ref"])["material_basis_ref"] == record["material_basis_ref"])
-            wf(all(_exact_work(m["work"]) for m in pm) and record["adapter"]["fault"] is None)
+            wf(all(_exact_work(m["work"]) and _exact_work((m.get("reduced") or {}).get("work")) for m in pm) and record["adapter"]["fault"] is None)
         result = {"kind": "ready"} if prepared else {"kind": "unavailable", "error": record["result"]["error"]}
         for ok in _accounting_rules({"proof": None, "result": result, "preparation": record["preparation"], "operational": record["operational"], "adapter": record["adapter"]}): wf(ok)
 
