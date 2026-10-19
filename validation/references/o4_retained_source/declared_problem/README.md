@@ -124,7 +124,7 @@ half the bound) must pass. Repair round 1 makes the synthetic receipt complete
 in the product's shapes (rows, published-row universe, endpoint sections,
 section functionals, support norms, translation norms, a general transform).
 It adds positive cases for a member along global y and for a section authored
-in mm, plus the "Repair round 1" negatives below. Repair round 2 adds 28 more negatives and round 3 another 19 (below). Result: 87 of 87 as expected.
+in mm, plus the "Repair round 1" negatives below. Repair round 2 adds 28 more negatives, round 3 another 19 and round 4 three cases (below). Result: 90 of 90 as expected.
 
 The **real-data controls** (`--controls`) must each fail: every Timoshenko
 dump against its Euler–Bernoulli twin's envelope (96 of 96 failed), every
@@ -564,6 +564,30 @@ line:
 | phi2 | 336 / 0 | 80 | 336, all passed | — |
 
 Worst margins are unchanged.
+
+## Repair round 4 (after independent review of `dda31354be`)
+
+Round 3's `i_unique_declared_spring_dofs` treated a spring's DOF as its
+identity, which falsely failed valid documents. The review's product-produced
+case splits the root RX spring of 1e-4 N·m/rad into two distinct supports of
+5e-5 each, on the same DOF.
+- **The repair.** Distinct springs may now share a DOF. Their stiffnesses
+  were already summed exactly into K. `b_spring_terms` now compares the
+  declared spring stiffness terms with the springs' exact per-DOF sums,
+  instead of skipping the comparison when DOFs repeat.
+- **Still rejected.** A repeated spring id or support id, and a byte-identical
+  spring record twice (`i_unique_declared_spring_records`).
+- **Self-test cases.**
+  - Positive: two distinct parallel springs of 2 × 5e-5 pass.
+  - Positive: their declared problem solves to exactly the combined spring's
+    answer (u and 60 node, member and anchor functionals equal).
+  - Negative: two springs with one spring id (`i_unique_declared_springs`).
+- **The review's product runs.** Both modes of the parallel-spring case pass
+  under the repaired oracle.
+
+Full rerun after round 4: `run.sh` rc 0, self-test 90 of 90. j2 192/192 PASS (controls 96/96/144, none passed
+wrongly); rf 32/32 (16/16/24, none); judged 18 PASS, 326 not selected; phi2 336 PASS, 80 not selected; all
+required triples (192/32/18/336) selected and passed; zero FAIL.
 
 ## Reproduce
 

@@ -532,7 +532,7 @@ def solve_declared(ns, fp, case=None, src=None):
                        ("frames", [f["element_id"] for f in ns["frames"]]),
                        ("springs", [s["spring_id"] for s in ns["springs"]]),
                        ("spring_supports", [s["support_id"] for s in ns["springs"]]),
-                       ("spring_dofs", [s["dof"] for s in ns["springs"]]),
+                       ("spring_records", list(ns["springs"])),  # a byte-identical spring record twice
                        ("prescribed", [p["dof"] for p in ns["prescribed"]]),
                        ("free_dofs", list(ns["free_dofs"])),
                        ("functionals", [f["functional_id"] for f in fp["functions"]]),
@@ -576,8 +576,12 @@ def solve_declared(ns, fp, case=None, src=None):
     for t in ns["stiffness_terms"]:
         if t["owner"]["kind"] == "spring":
             spring_terms[(t["row"], t["col"])] = spring_terms.get((t["row"], t["col"]), F(0)) + b2q(t["value_bits"])
-    case.check("b_spring_terms", spring_terms == {(d, d): k for d, k, _, _ in springs} if len({d for d, *_ in springs}) == len(springs) else True,
-               "declared spring stiffness terms differ from the springs")
+    # round 4: distinct springs may act in parallel on one DOF; their stiffnesses sum exactly
+    want_terms = {}
+    for d, k, _, _ in springs:
+        want_terms[(d, d)] = want_terms.get((d, d), F(0)) + k
+    case.check("b_spring_terms", {key: v for key, v in spring_terms.items() if v != 0} == {key: v for key, v in want_terms.items() if v != 0},
+               "declared spring stiffness terms differ from the springs' per-DOF sums")
     f = [F(0)] * n
     eig = {}
     for t in ns["force_terms"]:
@@ -1579,7 +1583,7 @@ def summarize(reports):
 
 # ----------------------------------------------------------------------------- self-test
 
-def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=False, eig_on_x=False, mm=False):
+def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=False, eig_on_x=False, mm=False, split_spring=False):
     """A hand-made, internally consistent dump, envelope and request in the product's shapes.
 
     One member root -> tip (along global x, or along global y with `rotate`), an anchor at the root on
@@ -1612,6 +1616,8 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
     dof_map = [{"node_id": nodes[i // 6], "component": COMPONENTS6[i % 6], "displacement_unit": "m" if i % 6 < 3 else "rad",
                 "action_unit": "N" if i % 6 < 3 else "N*m"} for i in range(12)]
     k_spring = 1.0e-4
+    spring_ids = ["spring", "spring-2"] if split_spring else ["spring"]
+    k_each = k_spring / len(spring_ids)  # exact: 1e-4 / 2 is a binary64 halving
     loads = {6: 0.001, 7: 0.002, 8: -0.003, 9: 1e-8, 10: -0.0005, 11: 0.0006}
     P = 1000.0
     f_local = [0.0] * 12
@@ -1630,7 +1636,8 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
     Gq = matmul(transpose([[F(x) for x in r] for r in T]), matmul([[F(x) for x in r] for r in Kl], [[F(x) for x in r] for r in T]))
     stiffness_terms = [{"row": i, "col": j, "owner": {"id": "member", "kind": "frame"}, "value_bits": f2b(float(Gq[i][j]))}
                        for i in range(12) for j in range(12) if Gq[i][j] != 0]
-    stiffness_terms.append({"row": 3, "col": 3, "owner": {"id": "spring", "kind": "spring"}, "value_bits": f2b(k_spring)})
+    for sid in spring_ids:
+        stiffness_terms.append({"row": 3, "col": 3, "owner": {"id": sid, "kind": "spring"}, "value_bits": f2b(k_each)})
     fi = {"area_bits": f2b(A), "coordinates_bits": [[f2b(0.0)] * 3, [f2b(x) for x in tip]], "iy_bits": f2b(I), "iz_bits": f2b(I),
           "length_bits": f2b(L), "shear_modulus_bits": f2b(G), "torsion_constant_bits": f2b(J), "young_modulus_bits": f2b(E)}
     if As is not None:
@@ -1644,8 +1651,8 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
     eps = rn(F(P) / (F(E) * F(A)))
     ns = {"case_id": "case", "dof_map": dof_map, "force_terms": force_terms, "frames": [frame], "free_dofs": [3, 6, 7, 8, 9, 10, 11],
           "prescribed": [{"dof": d, "support_id": "anchor", "value_bits": f2b(v)} for d, v in anchor.items()],
-          "springs": [{"dof": 3, "ground_movement_bits": f2b(0.0), "node_id": "root", "spring_id": "spring",
-                       "stiffness_bits": f2b(k_spring), "support_id": "spring"}],
+          "springs": [{"dof": 3, "ground_movement_bits": f2b(0.0), "node_id": "root", "spring_id": sid,
+                       "stiffness_bits": f2b(k_each), "support_id": sid} for sid in spring_ids],
           "stiffness_terms": stiffness_terms,
           "load_reference_state": {"eigen_loads": [{"axial_load_bits": f2b(rn(F(E) * F(A) * F(eps))), "eigenstrain_bits": f2b(eps), "pipe_id": "member"}],
                                    "members": [{"pipe_id": "member", "E_bits": f2b(E), "nu_bits": f2b(nu)}]}}
@@ -1740,16 +1747,17 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
                                          "displacement_terms": terms, "offset_terms": offs, "coordinate_system": "global",
                                          "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"},
                                         f"result:support:anchor:{comp}")
-    for comp in SUPPORT_COMPONENTS:
-        terms = [{"dof": 3, "coefficient_terms": [{"factors": [const(-k_spring)]}]}] if comp == "Mx" else []
-        sup_ids[("spring", comp)] = add({"quantity": "support_action_component", "component": comp, "location": "node",
-                                         "unit": "N" if comp[0] == "F" else "N*m", "owner": {"id": "spring", "kind": "support"},
-                                         "displacement_terms": terms, "coordinate_system": "global",
-                                         "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"},
-                                        f"result:support:spring:{comp}")
-    add({"quantity": "support_action_component", "component": "Mx", "location": "node", "unit": "N*m", "owner": {"id": "spring", "kind": "spring"},
-         "displacement_terms": [{"dof": 3, "coefficient_terms": [{"factors": [const(-k_spring)]}]}],
-         "sign_convention": "spring_on_structure", "coordinate_system": "global"}, None)
+    for sid in spring_ids:
+        for comp in SUPPORT_COMPONENTS:
+            terms = [{"dof": 3, "coefficient_terms": [{"factors": [const(-k_each)]}]}] if comp == "Mx" else []
+            sup_ids[(sid, comp)] = add({"quantity": "support_action_component", "component": comp, "location": "node",
+                                        "unit": "N" if comp[0] == "F" else "N*m", "owner": {"id": sid, "kind": "support"},
+                                        "displacement_terms": terms, "coordinate_system": "global",
+                                        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"},
+                                       f"result:support:{sid}:{comp}")
+        add({"quantity": "support_action_component", "component": "Mx", "location": "node", "unit": "N*m", "owner": {"id": sid, "kind": "spring"},
+             "displacement_terms": [{"dof": 3, "coefficient_terms": [{"factors": [const(-k_each)]}]}],
+             "sign_convention": "spring_on_structure", "coordinate_system": "global"}, None)
 
     ns_text = json.dumps({"domain": "source_blocks_normalized_source_v1", "payload": ns}, sort_keys=True, separators=(",", ":"))
     ns_hash = hashlib.sha256(ns_text.encode()).hexdigest()
@@ -1846,7 +1854,7 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
         rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None,
                      "recipe_id": "retained_source_endpoint_normal_max_v1", "input_result_ids": []})
     derived = []
-    for sup in ("anchor", "spring"):
+    for sup in ["anchor"] + spring_ids:
         for recipe, comps, unit in (("support_force_norm_scaled_checked_v1", ("Fx", "Fy", "Fz"), "N"),
                                     ("support_moment_norm_scaled_checked_v1", ("Mx", "My", "Mz"), "N*m")):
             fids = [sup_ids[(sup, c)] for c in comps]
@@ -2366,6 +2374,30 @@ def selftest():
         ep = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["endpoints"][1]
         ep["value_pa"], ep["interval_pa"] = -1.0, [-1.0, ep["interval_pa"][1] + 1.0]
     expect("(r3-E2) a negative maximum endpoint estimate inside a wide interval", *mutated(endpoint_negative, rehash=False), "timo", False, "c_maximum_endpoint_claims")
+
+    # repair round 4: distinct parallel springs on one DOF are valid and equal the combined spring exactly
+    split = synth("timo", "both", split_spring=True)
+    expect("(r4) two distinct parallel springs (2 x 5e-5) on the root RX DOF pass", *split, "timo", True)
+    one = synth("timo", "both")
+
+    def exact_by_identity(dump):
+        ns_ = json.loads(dump["records"][0]["normalized_source_text"])["payload"]
+        fp_ = json.loads(dump["records"][0]["functional_plan_text"])["payload"]
+        ctx_ = solve_declared(ns_, fp_)
+        keyed = {}
+        for fid, (_, fn) in ctx_["by_id"].items():
+            if fn["quantity"] in ("nodal_translation", "nodal_rotation", "member_end_action", "member_station_action") \
+                    or (fn["quantity"] == "support_action_component" and fn["owner"]["id"] == "anchor"):
+                keyed[(fn["quantity"], fn["owner"]["id"], fn["location"], fn["component"])] = ctx_["exact"][fid]
+        return ctx_["u"], keyed
+    u1, k1 = exact_by_identity(one[0])
+    u2, k2 = exact_by_identity(split[0])
+    record("(r4) the parallel-spring declared problem solves to the combined spring's exact answer", u1 == u2 and k1 == k2,
+           f"u equal {u1 == u2}; {len(k1)} node, member and anchor functionals equal {k1 == k2}")
+
+    def dup_spring_id(ns, fp, e, r, d):
+        ns["payload"]["springs"][1]["spring_id"] = ns["payload"]["springs"][0]["spring_id"]
+    expect("(r4) two springs with one spring id", *mutated(dup_spring_id, split_spring=True), "timo", False, "i_unique_declared_springs")
 
     # repair round 1, items 6 and 7: batch-level vacuity, the required-selection list and mode errors
     good = synth("timo", "both")
