@@ -137,6 +137,8 @@ CA_REFUSED = {
     "the wall": lambda s: s.update(corrosion_allowance={"value": 0.01, "unit": "m"}),
     "above the wall (mm)": lambda s: s.update(corrosion_allowance={"value": 20.0, "unit": "mm"}),
     "with the mill tolerance, the wall": lambda s: s.update(corrosion_allowance={"value": 0.006, "unit": "m"}, mill_tolerance={"value": 4.0, "unit": "mm"}),
+    # c_m + c_a rounds to t while (t - c_m) - c_a stays positive: the section sum decides.
+    "the section sum at the rounding boundary": lambda s: s.update(corrosion_allowance={"value": 0.0029999999999999996, "unit": "m"}, mill_tolerance={"value": 0.007, "unit": "m"}),
 }
 CA_ADMITTED = {
     "unchanged": lambda s: None,

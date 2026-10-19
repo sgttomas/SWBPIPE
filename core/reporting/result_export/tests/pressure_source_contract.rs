@@ -261,6 +261,8 @@ fn captured_exact_document_requires_an_admitted_corrosion_allowance() {
             ("the wall", Some(json!({"value": 0.01, "unit": "m"})), None),
             ("above the wall", Some(json!({"value": 20.0, "unit": "mm"})), None),
             ("with the mill tolerance, the wall", Some(json!({"value": 0.006, "unit": "m"})), Some(json!({"value": 4.0, "unit": "mm"}))),
+            // c_m + c_a rounds to t while (t - c_m) - c_a stays positive: the section sum decides.
+            ("the section sum at the rounding boundary", Some(json!({"value": 0.0029999999999999996, "unit": "m"})), Some(json!({"value": 0.007, "unit": "m"}))),
             ("beside a non-length mill tolerance", Some(json!({"value": 0.0, "unit": "m"})), Some(json!({"value": 1.0, "unit": "N"}))),
             ("beside a negative mill tolerance", Some(json!({"value": 0.0, "unit": "m"})), Some(json!({"value": -0.001, "unit": "m"}))),
         ] {
