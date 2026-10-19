@@ -2,7 +2,8 @@
 # O4 declared-problem oracle: regenerate the J2 twins, run the product's dump entry and the
 # headless runner on each twin in both solver modes, then run the oracle's self-test, the
 # judged runs and the real-data controls. Then (R2b) the same for RF's PIN-OFF-345 twins and the
-# frozen unit's judged-set documents, with a selection census. Generated files stay in scratch.
+# frozen unit's judged-set documents, and (R2c) invented sensitive phi ~ 2 documents, each with a
+# selection census. Generated files stay in scratch.
 #
 # Environment (defaults are the T3 host's):
 #   O4DP_T3        T3 root holding tools/t3_cargo.sh and tools/t3_slot.sh  (the worktree's parent directory)
@@ -54,7 +55,9 @@ echo "== R2b: RF PIN-OFF-345 twins and the frozen judged set"
 FROZEN_CASES="$SCRATCH/frozen_cases.json"
 git -C "$PROJECT" show "$FROZEN:projects/chirality-piping/validation/references/o4_retained_source/cases.json" > "$FROZEN_CASES"
 python3 -I -B "$HERE/twins.py" extended "$PROJECT" "$SCRATCH/ext" "$FROZEN_CASES" "$FROZEN_TWINS"
-for SET in rf judged; do
+echo "== R2c: invented sensitive phi ~ 2 documents"
+python3 -I -B "$HERE/twins.py" phi2 "$SCRATCH/ext"
+for SET in rf judged phi2; do
   rm -rf "$SCRATCH/ext/$SET/runs"
   ( cd "$PROJECT/core/product_physics" && "$T3/tools/t3_slot.sh" python3 -I -B "$HERE/twins.py" run \
       "$SCRATCH/ext/$SET/index.json" "$SCRATCH/ext/$SET/runs" "$TEST_BIN" "$RUNNER" "$PROJECT/core/product_physics" ) > "$SCRATCH/ext/$SET.run.log" 2>&1
@@ -66,10 +69,12 @@ python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/rf/index.json" --runs "$SC
 # Require zero FAIL cases, and that every error is exactly a run the census records as not selected.
 python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/judged/index.json" --runs "$SCRATCH/ext/judged/runs" \
     --out "$SCRATCH/ext/judged/report.json" > "$SCRATCH/ext/judged/oracle.log" || true
+python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/phi2/index.json" --runs "$SCRATCH/ext/phi2/runs" \
+    --out "$SCRATCH/ext/phi2/report.json" > "$SCRATCH/ext/phi2/oracle.log" || true
 python3 -I -B - "$SCRATCH/ext" <<'PY'
 import json, sys
 ext = sys.argv[1]
-for name in ("rf", "judged"):
+for name in ("rf", "judged", "phi2"):
     report = json.load(open(f"{ext}/{name}/report.json"))
     census = {(r["twin"], r["mode"]): r for r in json.load(open(f"{ext}/{name}/census.json"))}
     counts = report["summary"]["counts"]["all=all"] if report["summary"]["cases"] else {"PASS": 0, "FAIL": 0}

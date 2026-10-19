@@ -257,10 +257,102 @@ block search refusing an order above 4.
   sensitive document containing such a member or a product hook that attempts
   the source route on a passing case; both are outside this unit's inputs.
 
+## R2c: invented sensitive documents at φ ≈ 2, (3,4,0) and (1,2,2)
+
+The φ = 2 and (1,2,2) documents of the judged set pass the ordinary checks, so
+the source route never forms them (R2b). R2c closes that gap with invented
+single-member documents modelled on RF PIN-OFF-345 (`twins.py phi2`). The
+oracle, `BOUND.md` and `bound.json` are unchanged.
+
+**Layouts.**
+- `rf` (RF PIN-OFF-345's own layout): translations pinned at both ends, a soft
+  RX spring at N0 and two moments at N1. For a member in the plane z = 0 the
+  free rotations form an order-4 block.
+- `zhinge`, for members with all three direction components nonzero: under
+  the `rf` layout their six rotations form one block, and the product refuses
+  it (`UnsupportedBlock { order: 6 }`, kept as the `P122-RF-CONTROL` design).
+  In `zhinge`, N0 is pinned with RX and RY restrained; N1 has UZ, RX and RY
+  restrained; there is a soft RZ spring at N0 and one RZ moment at N1. The
+  rigid rotation about global Z through N0 is held only by the spring. The
+  free DOFs RZ0, RZ1, UX1 and UY1 form one block of order 4, and k_θθ' enters
+  its RZ0–RZ1 coupling.
+
+**Springs and operands.** k/a = 1e-8 and 1e-12, with a = G·J/L and k rounded
+to a power of two. Loads are powers of two, and E is chosen so that
+G = E/(2(1+ν)) is exact. With full-mantissa springs and loads, and with a second
+(force) load in `zhinge`, the attempts selected but ended
+`SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` (`Exact(Budget)` at the
+finalization replay, charged 7,999,9xx of 8,000,000). These choices bring them
+under the limit.
+
+**φ values** (φ_annular, the exact annulus with κ_E, in rationals; π cancels):
+
+| Design | Layout | Direction, placement | Section | φ_annular − 2 | Declared φ* − 2 (from the payload's leaves) |
+|---|---|---|---|---|---|
+| P345-NEAR | rf | (3,4,0), origin | SA | +9.98e-16 | +1.09e-15 |
+| P345-PLUS11 / -MINUS11 | rf | (3,4,0), origin | SA | +1.00e-11 / −1.00e-11 | +1.00e-11 / −1.00e-11 |
+| P345-OFF | rf | (3,4,0), offset (1024, 2048, 16) | SA | +5.78e-12 | +5.78e-12 |
+| P122-NEAR | zhinge | (1,2,2), origin | SA | −5.5e-17 | +3.88e-16 |
+| P122-PLUS11 / -MINUS11 | zhinge | (1,2,2), origin | SA | +1.00e-11 / −1.00e-11 | +1.00e-11 / −1.00e-11 |
+| P122-OFF | zhinge | (1,2,2), offset (100, 200, 300) | SA | +2.42e-14 | +2.43e-14 |
+| PEXACT-A, -B | zhinge | (39,9,6), (353,23,8) (the frozen unit's) | SA, SB | 0 exactly | — (Timoshenko not selected) |
+| PEXACT-C | rf | (866,1925,0), origin | SC | 0 exactly | +1.32e-16 |
+| PEXACT-D | rf | (373,3880,0), origin | SD | 0 exactly | — (Timoshenko not selected) |
+
+SA and SB are the frozen unit's φ = 2 sections. No section was found that puts
+φ = 2 exactly on a (3,4,0) or (1,2,2) member: that needs L² = r_o²·Q with Q
+a rational square. The search covered ν = n/2^k (k ≤ 12, −1 < ν < ½) and
+r_i/r_o = a/b (b < 200), and found none. A planar member only needs Q to be a
+sum of two rational squares, which is common. So SC (ν = 1/16,
+r_i/r_o = 3/4) and SD (ν = 1/16, r_i/r_o = 2/3) give φ = 2 exactly on skew
+members in the plane z = 0, which carry the `rf` layout. Each design has the
+zero, mill, ca and both allowances, its Euler–Bernoulli twin, both k/a values
+and both modes: 416 runs.
+
+**Selection.** 336 of 416 runs select. Not selected:
+- P122-RF-CONTROL (32 runs): `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`,
+  `UnsupportedBlock { order: 6 }`. At 1e-12 in `dense_scrutiny`, the
+  Euler–Bernoulli twins also end `MODEL_INCOMPLETE`
+  (`NUMERICAL_INTEGRITY_UNRESOLVED`).
+- PEXACT-A, -B and -D Timoshenko (48 runs): selected, then
+  `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` with `Exact(Budget)` at the
+  finalization replay. Selection alone charges 4.36M (A) and 4.73M (B) of the
+  8M case limit, which the replay then exceeds. PEXACT-D at 1e-12 in
+  `dense_scrutiny` also ends `NUMERICAL_INTEGRITY_UNRESOLVED`. Their
+  Euler–Bernoulli twins select.
+
+**Results.** **336 of 336 selected cases PASS, 0 FAIL.**
+- By layout: `rf` 176, `zhinge` 160. By shear model: Euler–Bernoulli 192,
+  Timoshenko 144 (P345 64, P122 64, PEXACT-C 16). Each allowance class 84;
+  each mode 168.
+- Projections: largest |value − exact|/absolute bound 0.433; largest relative
+  error 2.33e-16; smallest endpoint slack 2.49e-16 relative.
+- K_local share of the bound, largest per role. Timoshenko: k_axial 0.572
+  (N = 2), k_torsion 0.283, k_vv 0.159, k_θθ' 0.144, k_θθ 0.094, k_vθ 0.082.
+  Euler–Bernoulli: k_axial 0.572, k_vθ 0.548, k_vv 0.348, k_θθ and k_θθ'
+  0.286, k_torsion 0.283.
+- **k_θθ' near φ = 2** (absolute bound, N = 18,
+  S = (φ* + |2 − φ*|)·EI/(L(1 + φ*))). No declared k_θθ' was exactly zero;
+  each design's matrix is the same in every allowance twin and mode:
+
+  | Design | Declared k_θθ' | Exact k_θθ'* | S | Share of bound |
+  |---|---|---|---|---|
+  | PEXACT-C (φ_annular = 2) | +1.069e-9 | −3.179e-10 (opposite sign) | 4.82e6 | 0.144 |
+  | P345-NEAR | −6.777e-8 | −8.316e-8 | 1.53e8 | 0.051 |
+  | P122-NEAR | −3.388e-8 | −2.958e-8 | 1.53e8 | 0.014 |
+  | P122-OFF | −1.830e-6 | −1.851e-6 | 1.53e8 | 0.071 |
+  | P345-OFF | −4.408e-4 | −4.408e-4 | 1.53e8 | 0.010 |
+  | P345-PLUS11 / -MINUS11 | ∓7.63e-4 | ∓7.63e-4 | 1.53e8 | 0.042 / 0.032 |
+  | P122-PLUS11 / -MINUS11 | ∓7.63e-4 | ∓7.63e-4 | 1.53e8 | 0.060 / 0.070 |
+
+  At φ ≈ 2 the declared entry carries no correct relative digits, and at
+  PEXACT-C not even its sign. It still lies well within the absolute bound
+  that BOUND.md derives for the cancelling entry.
+
 ## Reproduce
 
 ```
-./run.sh                          # everything: twins, builds, 568 product runs, self-test, oracle, controls, census (about 10 min)
+./run.sh                          # everything: twins, builds, 984 product runs, self-test, oracle, controls, census (about 20 min)
 python3 -I oracle.py --selftest   # the self-test alone
 python3 -I oracle.py --dump D.json --envelope E.json --request R.json --theory timo --allowance both
 ```

@@ -21,6 +21,7 @@ Usage: python3 -I twins.py <project-root> <out-dir> [<frozen-twins-cases.json>]
        python3 -I twins.py run <index.json> <runs-dir> <dump-test-binary> <openpipestress-runner> <product_physics-dir>
        python3 -I twins.py extended <project-root> <out-dir> <frozen-cases.json> <frozen-twins-cases.json>
        python3 -I twins.py census <index.json> <runs-dir> <census.json>
+       python3 -I twins.py phi2 <out-dir>
 Writes <out-dir>/<family>-<name>+<variant>+<theory>.request.json (the
 `{materials?, model}` request) and <out-dir>/index.json.
 """
@@ -29,6 +30,7 @@ import json
 import os
 import sys
 from fractions import Fraction
+from fractions import Fraction as F
 
 REQUESTS = [
     ("physics_source", "n05"), ("physics_source", "n06"), ("physics_source", "n05_unicode"),
@@ -299,6 +301,156 @@ def extended(root, out, frozen_cases_path, frozen_twins_path):
     print(f"twins: wrote {len(index)} judged-set requests")
 
 
+# ----------------------------------------------------------------------------- R2c: invented sensitive phi ~ 2 documents
+
+# Sections from the frozen unit's README (its PHI2-EXACT sections): SA has r_i/r_o = 1/10 with
+# nu = 1/8, SB has r_i/r_o = 20/31 with nu = 1/32. E is chosen so that G = E/(2(1+nu)) is exact.
+PHI2_SECTIONS = {
+    "SA": {"D": 0.3125, "t": 0.140625, "nu": F(1, 8), "E": 9.0 * 2.0 ** 34},     # G = 2^36 exactly
+    "SB": {"D": 0.2421875, "t": 0.04296875, "nu": F(1, 32), "E": 33.0 * 2.0 ** 33},  # G = 2^37 exactly
+    # R2c's planar exact sections: nu = 1/16 and r_i/r_o = 3/4 or 2/3 make the phi = 2 length's square
+    # L^2 = r_o^2 Q a sum of two rational squares, so a member along (866, 1925, 0) or (373, 3880, 0)
+    # has phi = 2 exactly while staying in the plane z = 0 (RF layout, order-4 block).
+    "SC": {"D": 1360.0 / 8192, "t": 170.0 / 8192, "nu": F(1, 16), "E": 17.0 * 2.0 ** 32},     # G = 2^36 exactly
+    "SD": {"D": 2652.0 / 16384, "t": 442.0 / 16384, "nu": F(1, 16), "E": 17.0 * 2.0 ** 32},
+}
+
+
+def annular_phi(D, t, nu, L2):
+    """phi of the exact annulus with the energy-matched kappa_E: r_o^2 Dk / ((1+nu)(1+m^2) L^2) (pi cancels)."""
+    ro = F(D) / 2
+    m = (ro - F(t)) / ro
+    c = (8 * nu + 14) * nu + 7
+    Dk = c * (1 - m * m) ** 2 + 48 * m * m * (1 + nu) ** 2
+    return ro * ro * Dk / ((1 + nu) * (1 + m * m) * L2)
+
+
+def phi2_length2(D, t, nu):
+    """L^2 at which the annular phi is exactly 2."""
+    return annular_phi(D, t, nu, F(1)) / 2
+
+
+def phi2_documents():
+    """Invented single-case documents near phi = 2, modelled on RF PIN-OFF-345 (BOUND.md section 4.1 harness)."""
+    designs = []
+
+    def scale_for(direction, section, rel=0.0, grid=None):
+        sec = PHI2_SECTIONS[section]
+        L2 = phi2_length2(sec["D"], sec["t"], sec["nu"])
+        n2 = sum(d * d for d in direction)
+        target = (float(L2 / n2)) ** 0.5 * (1.0 + rel)
+        if grid is not None:
+            target = round(target / grid) * grid
+        return target
+
+    def exact_scale(direction, target, offset):
+        """The binary64 scale nearest the target for which every coordinate offset + d*s is exact."""
+        import math
+        grid = math.ulp(target)
+        while True:
+            base = round(target / grid)
+            cands = [(base + i) * grid for i in range(-2, 3)]
+            ok = [c for c in cands if all(F(offset[k] + direction[k] * c) - F(offset[k]) == F(direction[k]) * F(c) for k in range(3))]
+            if ok:
+                return min(ok, key=lambda c: abs(F(c) - F(target)))
+            grid *= 2
+
+    def add(name, direction, section, layout, rel=0.0, offset=(0.0, 0.0, 0.0), grid=None, scale=None, yref=(0.0, 0.0, 1.0)):
+        sv = scale if scale is not None else exact_scale(direction, scale_for(direction, section, rel, grid), offset)
+        n0 = [offset[k] for k in range(3)]
+        n1 = [offset[k] + direction[k] * sv for k in range(3)]
+        for k in range(3):
+            if F(n1[k]) - F(n0[k]) != F(direction[k]) * F(sv):
+                raise SystemExit(f"twins: {name}: coordinate {k} is not exact")
+        sec = PHI2_SECTIONS[section]
+        L2 = sum((F(n1[k]) - F(n0[k])) ** 2 for k in range(3))
+        phi = annular_phi(sec["D"], sec["t"], sec["nu"], L2)
+        designs.append({"name": name, "direction": direction, "section": section, "layout": layout, "yref": list(yref),
+                        "n0": n0, "n1": n1, "L2": L2, "phi_annular": phi})
+    # (3,4,0): RF PIN-OFF-345's layout (translations pinned at both ends, soft RX spring at N0)
+    add("P345-NEAR", (3, 4, 0), "SA", "rf")                       # nearest binary64 scale: phi - 2 ~ 1e-16
+    add("P345-PLUS11", (3, 4, 0), "SA", "rf", rel=-2.5e-12)       # phi ~ 2 + 1e-11
+    add("P345-MINUS11", (3, 4, 0), "SA", "rf", rel=2.5e-12)       # phi ~ 2 - 1e-11
+    add("P345-OFF", (3, 4, 0), "SA", "rf", offset=(1024.0, 2048.0, 16.0), grid=2.0 ** -41)
+    # (1,2,2): the RF layout is an order-6 rotation block (control); the "Z-hinge" layout keeps order 4
+    add("P122-RF-CONTROL", (1, 2, 2), "SA", "rf")
+    add("P122-NEAR", (1, 2, 2), "SA", "zhinge")
+    add("P122-PLUS11", (1, 2, 2), "SA", "zhinge", rel=-2.5e-12)
+    add("P122-MINUS11", (1, 2, 2), "SA", "zhinge", rel=2.5e-12)
+    add("P122-OFF", (1, 2, 2), "SA", "zhinge", offset=(100.0, 200.0, 300.0), grid=2.0 ** -43)
+    # phi = 2 exactly in rationals: the frozen unit's PHI2-EXACT directions and sections
+    add("PEXACT-A", (39, 9, 6), "SA", "zhinge", scale=2.0 ** -7)
+    add("PEXACT-B", (353, 23, 8), "SB", "zhinge", scale=2.0 ** -10)
+    add("PEXACT-C", (866, 1925, 0), "SC", "rf", scale=2.0 ** -13)
+    add("PEXACT-D", (373, 3880, 0), "SD", "rf", scale=2.0 ** -14)
+    return designs
+
+
+def phi2_request(design, ratio, variant, theory):
+    sec = PHI2_SECTIONS[design["section"]]
+    nu = float(sec["nu"])
+    E = sec["E"]
+    G = F(E) / (2 * (1 + sec["nu"]))
+    ro, ri = F(sec["D"]) / 2, F(sec["D"]) / 2 - F(sec["t"])
+    J = (ro ** 4 - ri ** 4) * F(314159265358979, 10 ** 14) / 2
+    L = float(design["L2"]) ** 0.5
+    # k/a with a = G*J/L (the frozen README's torsional coefficient), rounded to a power of two, and
+    # power-of-two loads: short operands keep the exact method's metered work under its 8,000,000 limit
+    # (the first R2c attempt with full-mantissa k and loads ended in a Budget refusal at finalization replay).
+    import math
+    k = 2.0 ** round(math.log2(float(ratio * G * J / F(L))))
+    t = sec["t"]
+    cm = 0.125 * t if variant in ("mill", "both") else 0.0
+    ca = (0.0015 if t >= 0.006 else 0.25 * t) if variant in ("ca", "both") else 0.0
+    doc = {"shear_model": THEORIES[theory], "material": {"id": "steel", "elastic_modulus_Pa": E, "poisson_ratio": nu},
+           "nodes": [{"id": "N0", "xyz_m": design["n0"]}, {"id": "N1", "xyz_m": design["n1"]}],
+           "members": [{"id": "M1", "from": "N0", "to": "N1", "outside_diameter_m": sec["D"], "wall_thickness_m": t,
+                        "mill_tolerance_m": cm, "corrosion_allowance_m": ca, "y_reference": design["yref"]}],
+           "pressure_regions": []}
+    if design["layout"] == "rf":
+        doc["supports"] = [{"id": "rigid:N0", "node": "N0", "kind": "rigid", "restraints": ["UX", "UY", "UZ"]},
+                           {"id": "spring:N0", "node": "N0", "kind": "spring", "dof": "RX", "stiffness": k, "unit": "N*m/rad"},
+                           {"id": "rigid:N1", "node": "N1", "kind": "rigid", "restraints": ["UX", "UY", "UZ"]}]
+        doc["loads"] = [{"id": "l0", "node": "N1", "kind": "moment", "direction": "x", "value": k / 16, "unit": "N*m"},
+                        {"id": "l1", "node": "N1", "kind": "moment", "direction": "y", "value": k / 8, "unit": "N*m"}]
+    else:
+        # Z-hinge: rigid rotation about global Z through N0 is held only by the soft RZ spring;
+        # free DOFs are RZ0, RZ1, UX1 and UY1 (one block of order <= 4).
+        doc["supports"] = [{"id": "rigid:N0", "node": "N0", "kind": "rigid", "restraints": ["UX", "UY", "UZ", "RX", "RY"]},
+                           {"id": "spring:N0", "node": "N0", "kind": "spring", "dof": "RZ", "stiffness": k, "unit": "N*m/rad"},
+                           {"id": "rigid:N1", "node": "N1", "kind": "rigid", "restraints": ["UZ", "RX", "RY"]}]
+        # One moment only: with a second (force) load the Timoshenko attempts exceeded the 8,000,000
+        # work limit at the finalization replay (Budget), so the force is left out.
+        doc["loads"] = [{"id": "l0", "node": "N1", "kind": "moment", "direction": "z", "value": k / 16, "unit": "N*m"}]
+    return doc
+
+
+def phi2(out):
+    pdir = os.path.join(out, "phi2")
+    os.makedirs(pdir, exist_ok=True)
+    index = []
+    for design in phi2_documents():
+        for ratio_name, ratio in (("r1e-08", F(1, 10 ** 8)), ("r1e-12", F(1, 10 ** 12))):
+            for theory in THEORIES:
+                for variant in VARIANTS:
+                    name = f"{design['name']}-{ratio_name}"
+                    twin = f"{name}|{variant}|{theory}"
+                    doc = phi2_request(design, ratio, variant, theory)
+                    req = judged_request(doc, f"invented:o4-phi2:{twin}", f"O4 phi2 {twin}")
+                    path = os.path.join(pdir, twin.replace("|", "+") + ".request.json")
+                    with open(path, "w", encoding="utf-8") as fh:
+                        json.dump(req, fh, ensure_ascii=False, sort_keys=True)
+                    index.append({"twin": twin, "family": "phi2_" + design["layout"], "name": name, "variant": variant,
+                                  "theory": theory, "direction": list(design["direction"]), "section": design["section"],
+                                  "phi_annular": str(design["phi_annular"]),
+                                  "phi_annular_minus_2": float(design["phi_annular"] - 2),
+                                  "request": path, "load_cases": ["case"]})
+        print(f"twins: {design['name']:16s} {design['layout']:6s} dir {design['direction']} phi_annular - 2 = {float(design['phi_annular'] - 2):.3e}")
+    with open(os.path.join(pdir, "index.json"), "w", encoding="utf-8") as fh:
+        json.dump(index, fh, ensure_ascii=False, indent=1)
+    print(f"twins: wrote {len(index)} phi2 requests")
+
+
 def census(index_path, runs, out_path):
     """The selection census: per run, whether the source route selected, and the product's stated reason if not."""
     with open(index_path, encoding="utf-8") as fh:
@@ -351,6 +503,9 @@ def census(index_path, runs, out_path):
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "extended":
         extended(*sys.argv[2:6])
+        return
+    if len(sys.argv) > 1 and sys.argv[1] == "phi2":
+        phi2(sys.argv[2])
         return
     if len(sys.argv) > 1 and sys.argv[1] == "census":
         census(*sys.argv[2:5])
