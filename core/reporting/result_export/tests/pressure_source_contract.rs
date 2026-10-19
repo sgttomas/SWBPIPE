@@ -73,6 +73,11 @@ fn captured_contract_fixes_the_expected_source_reader() {
         ("/request/model/pressure_contract", json!({"version":"2.0.0", "mode":"exact_straight_pressure_v2"})),
         ("/request/model/pressure_contract", json!({"version":"3.0.0", "mode":ps::PRESSURE_PROFILE})),
         ("/request/model/schema_version", json!("0.4.0")),
+        // O4 (§3.4): an unknown, null or non-string shear model, and an extra contract member.
+        ("/request/model/pressure_contract/shear_model", json!("cowper")),
+        ("/request/model/pressure_contract/shear_model", Value::Null),
+        ("/request/model/pressure_contract/shear_model", json!(5)),
+        ("/request/model/pressure_contract", json!({"version":"3.0.0", "mode":ps::PRESSURE_PROFILE, "shear_model":"euler_bernoulli", "shear_factor":0.5})),
     ] {
         let mut other = captured.clone();
         *other.pointer_mut(pointer).unwrap() = value;
@@ -80,6 +85,13 @@ fn captured_contract_fixes_the_expected_source_reader() {
         assert_eq!(ps::validate(&source(), Some(&other)), Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into()), "{pointer}");
     }
     assert_eq!(ps::validate_in(&json!({}), Some(&captured), ps::SourceContract::PressureV3), Err("PHYSICS_SOURCE_IDENTITY".into()));
+    // O4 (§3.4): either admitted shear model is the exact contract; a top-level
+    // shear model is still refused.
+    let mut timoshenko = captured.clone();
+    *timoshenko.pointer_mut("/request/model/pressure_contract/shear_model").unwrap() = json!("timoshenko_annulus_energy_v1");
+    assert_eq!(ps::SourceContract::from_invocation(&timoshenko), Ok(ps::SourceContract::PressureV3));
+    timoshenko["request"]["model"]["shear_model"] = json!("timoshenko_annulus_energy_v1");
+    assert_eq!(ps::SourceContract::from_invocation(&timoshenko), Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into()));
 }
 
 #[test]
@@ -213,16 +225,20 @@ fn rebound(statement: &Value, captured: &Value) -> Value {
     out
 }
 
-/// B7b (ccb19ba0bf; b7-plan "Exact-contract fields"): the captured exact document
-/// declares an explicit length-valued zero corrosion allowance on every pipe section.
-/// On the 0.3-style statement and on its load/reference-state twin, a captured
-/// allowance of 0.001 m, an absent or a null allowance, or one of the wrong dimension
-/// is refused (PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE), with or without the
-/// receipt's invocation digest rebound to it; the unbound and transport readings of
+/// B7b (ccb19ba0bf; b7-plan "Exact-contract fields") and O4 (DEL-04-08 Design
+/// `o4-source-extension.md` §3.4): the captured exact document declares an explicit
+/// length-valued, finite corrosion allowance c_a >= 0 with c_m + c_a < t on every pipe
+/// section; zero is no longer required. On the 0.3-style statement and on its
+/// load/reference-state twin, an absent or a null allowance, one of the wrong dimension, a
+/// negative one, one equal to or above the wall, or one that with the mill tolerance
+/// reaches the wall is refused (PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE), with or without
+/// the receipt's invocation digest rebound to it; the unbound and transport readings of
 /// the rebound statement are unchanged. An explicit zero in another length unit, rebound,
-/// reads as the genuine statement does.
+/// reads as the genuine statement does. An admitted nonzero allowance passes this check and
+/// is then refused by the evidence's by-value binding (the statement's sections carry
+/// c_a = 0), never by this code.
 #[test]
-fn captured_exact_document_requires_zero_corrosion_allowances() {
+fn captured_exact_document_requires_an_admitted_corrosion_allowance() {
     const CA: &str = "/request/model/pipe_segments/0/section/corrosion_allowance";
     const CODE: &str = "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE";
     let (resolved, resolved_invocation) = load_state();
@@ -235,11 +251,20 @@ fn captured_exact_document_requires_zero_corrosion_allowances() {
         let mut millimetres = captured.clone();
         *millimetres.pointer_mut(CA).unwrap() = json!({"value": 0.0, "unit": "mm"});
         assert_eq!(ps::validate(&rebound(&statement, &millimetres), Some(&millimetres)), genuine, "{label}: 0 mm");
-        for (what, value) in [
-            ("0.001 m", Some(json!({"value": 0.001, "unit": "m"}))),
-            ("absent", None),
-            ("null", Some(Value::Null)),
-            ("wrong dimension", Some(json!({"value": 0.0, "unit": "Pa"}))),
+        let wall = captured.pointer("/request/model/pipe_segments/0/section/wall_thickness").unwrap().clone();
+        assert_eq!(wall, json!({"unit": "m", "value": 0.01}), "{label}: the wall the over-wall values reach");
+        for (what, value, mill) in [
+            ("absent", None, None),
+            ("null", Some(Value::Null), None),
+            ("wrong dimension", Some(json!({"value": 0.0, "unit": "Pa"})), None),
+            ("negative", Some(json!({"value": -0.001, "unit": "m"})), None),
+            ("the wall", Some(json!({"value": 0.01, "unit": "m"})), None),
+            ("above the wall", Some(json!({"value": 20.0, "unit": "mm"})), None),
+            ("with the mill tolerance, the wall", Some(json!({"value": 0.006, "unit": "m"})), Some(json!({"value": 4.0, "unit": "mm"}))),
+            // c_m + c_a rounds to t while (t - c_m) - c_a stays positive: the section sum decides.
+            ("the section sum at the rounding boundary", Some(json!({"value": 0.0029999999999999996, "unit": "m"})), Some(json!({"value": 0.007, "unit": "m"}))),
+            ("beside a non-length mill tolerance", Some(json!({"value": 0.0, "unit": "m"})), Some(json!({"value": 1.0, "unit": "N"}))),
+            ("beside a negative mill tolerance", Some(json!({"value": 0.0, "unit": "m"})), Some(json!({"value": -0.001, "unit": "m"}))),
         ] {
             let mut other = captured.clone();
             match value {
@@ -247,6 +272,9 @@ fn captured_exact_document_requires_zero_corrosion_allowances() {
                 None => {
                     other.pointer_mut("/request/model/pipe_segments/0/section").unwrap().as_object_mut().unwrap().remove("corrosion_allowance");
                 }
+            }
+            if let Some(mill) = mill {
+                other.pointer_mut("/request/model/pipe_segments/0/section").unwrap()["mill_tolerance"] = mill;
             }
             let ctx = format!("{label}: {what}");
             assert_eq!(ps::validate(&statement, Some(&other)), Err(CODE.into()), "{ctx}");
@@ -257,6 +285,28 @@ fn captured_exact_document_requires_zero_corrosion_allowances() {
             assert_eq!(ps::validate_transport_metadata(&resealed), Ok(()), "{ctx}: transport");
             let refs = vec![json!({"ref_type": "load_case", "ref_id": "case"})];
             assert_ne!(sc::numerical_use_standing_with_context(&resealed, &refs, Some(&other)), "numerically_eligible", "{ctx}");
+        }
+        // Admitted values (with and without a mill tolerance) pass the allowance check. The
+        // statement's sections carry c_a = 0, so its by-value section binding refuses it
+        // through the reader verdict (G2's model checks); the raw reading of the 0.3-style
+        // statement refuses it too, and the resolved one is never eligible (T1).
+        for (what, value, mill) in [
+            ("0.001 m", json!({"value": 0.001, "unit": "m"}), None),
+            ("1 mm beside a 0.5 mm mill tolerance", json!({"value": 1.0, "unit": "mm"}), Some(json!({"value": 0.5, "unit": "mm"}))),
+        ] {
+            let mut other = captured.clone();
+            *other.pointer_mut(CA).unwrap() = value;
+            if let Some(mill) = mill {
+                other.pointer_mut("/request/model/pipe_segments/0/section").unwrap()["mill_tolerance"] = mill;
+            }
+            let resealed = rebound(&statement, &other);
+            let (raw, verdict) = if genuine == Ok(true) {
+                (Err("PHYSICS_SOURCE_ACTUAL_SOURCE_GEOMETRY".to_string()), "PHYSICS_SOURCE_ACTUAL_SOURCE_GEOMETRY")
+            } else {
+                (Ok(false), "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY")
+            };
+            assert_eq!(ps::validate(&resealed, Some(&other)), raw, "{label}: {what}");
+            assert_eq!(reader_verdict::validate("pressure-source", &resealed, None, Some(&other))["error"]["code"], verdict, "{label}: {what}");
         }
     }
 }
@@ -288,13 +338,14 @@ fn with_second_pipe(captured: &Value, allowance: Option<Value>) -> Value {
 /// its load/reference-state twin a second pipe is appended to the captured model and the
 /// receipt's invocation digest rebound to it (`rebound`). `check_invocation` is the first
 /// step of `validate_in` (after `from_invocation`, which reads no pipe), so a second pipe
-/// carrying 0.001 m, no allowance, a null one or one of the wrong dimension is refused
-/// PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE, deterministically, bound and through the
-/// reader verdict, while the first pipe keeps its explicit 0 m. With an explicit 0 m on the
-/// second pipe the allowance check passes and the statement is refused later instead, by
-/// the receipt's coverage of the captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE:
-/// its sources name one member, the model two pipes), never for the allowance; a
-/// first-section-only check would give that code for every value above.
+/// carrying no allowance, a null one, one of the wrong dimension, a negative one or one
+/// reaching the wall is refused PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE, deterministically,
+/// bound and through the reader verdict, while the first pipe keeps its explicit 0 m. With
+/// an explicit 0 m or (O4 §3.4) an admitted 0.001 m on the second pipe the allowance check
+/// passes and the statement is refused later instead, by the receipt's coverage of the
+/// captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE: its sources name one member,
+/// the model two pipes), never for the allowance; a first-section-only check would give
+/// that code for every refused value above.
 #[test]
 fn captured_allowance_is_required_on_every_pipe_section() {
     const CODE: &str = "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE";
@@ -305,15 +356,18 @@ fn captured_allowance_is_required_on_every_pipe_section() {
         ("load/reference-state n06", resolved, resolved_invocation, Ok(false)),
     ] {
         assert_eq!(ps::validate(&statement, Some(&captured)), genuine, "{label}: control");
-        let zero = with_second_pipe(&captured, Some(json!({"value": 0.0, "unit": "m"})));
-        let resealed = rebound(&statement, &zero);
-        assert_eq!(ps::validate(&resealed, Some(&zero)), Err(LATER.into()), "{label}: second pipe 0 m");
-        assert_eq!(reader_verdict::validate("pressure-source", &resealed, None, Some(&zero))["error"]["code"], LATER, "{label}: second pipe 0 m");
+        for (what, admitted) in [("0 m", json!({"value": 0.0, "unit": "m"})), ("0.001 m", json!({"value": 0.001, "unit": "m"}))] {
+            let second = with_second_pipe(&captured, Some(admitted));
+            let resealed = rebound(&statement, &second);
+            assert_eq!(ps::validate(&resealed, Some(&second)), Err(LATER.into()), "{label}: second pipe {what}");
+            assert_eq!(reader_verdict::validate("pressure-source", &resealed, None, Some(&second))["error"]["code"], LATER, "{label}: second pipe {what}");
+        }
         for (what, value) in [
-            ("0.001 m", Some(json!({"value": 0.001, "unit": "m"}))),
             ("absent", None),
             ("null", Some(Value::Null)),
             ("wrong dimension", Some(json!({"value": 0.0, "unit": "Pa"}))),
+            ("negative", Some(json!({"value": -0.001, "unit": "m"}))),
+            ("the wall", Some(json!({"value": 0.01, "unit": "m"}))),
         ] {
             let other = with_second_pipe(&captured, value);
             let ctx = format!("{label}: second pipe {what}");

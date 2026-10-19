@@ -316,6 +316,63 @@ fn bare(id: String, kind: &str, value: f64, unit: &str, entity: &str) -> ResultI
         metadata: None,
     }
 }
+/// One station's straight stress components on one section, with the
+/// publication-range checks each basis's rows must pass (MPa range, torsion
+/// intermediate and the open-formula summary range).
+fn checked_station_stress(
+    actions: &[f64; 6],
+    section: &DerivedSection,
+) -> Result<open_pipe_stress_stress_recovery::StressComponents, ReceiptError> {
+    let stress = recover_section_stress(actions, section);
+    if !stress.findings.is_empty() {
+        return Err(bad("straight stress source unavailable"));
+    }
+    let c = &stress.components;
+    if [
+        c.axial_normal,
+        c.bending_normal_y,
+        c.bending_normal_z,
+        c.torsional_shear,
+    ]
+    .iter()
+    .any(|v| v.is_none_or(|v| !v.is_finite()))
+    {
+        return Err(bad("straight stress finite check"));
+    }
+    for (value, action) in [
+        (c.axial_normal.unwrap(), actions[0]),
+        (c.bending_normal_y.unwrap(), actions[4]),
+        (c.bending_normal_z.unwrap(), actions[5]),
+        (c.torsional_shear.unwrap(), actions[3]),
+    ] {
+        // MPa is the actual component publication unit. Pa can still
+        // meet the criterion when this division loses too much range.
+        let mpa = value / 1e6;
+        if (action == 0.0 && (value != 0.0 || mpa != 0.0))
+            || (action != 0.0 && (!mpa.is_normal() || !value.is_normal()))
+        {
+            return Err(bad("straight stress MPa publication range"));
+        }
+    }
+    if actions[3] != 0.0 && !(actions[3] * section.torsion_radius).is_normal() {
+        return Err(bad("straight stress torsion intermediate range"));
+    }
+    let local = open_formula_summary_mpa(&stress).ok_or_else(|| bad("summary unavailable"))?;
+    let nonzero_normal = [
+        c.axial_normal.unwrap(),
+        c.bending_normal_y.unwrap(),
+        c.bending_normal_z.unwrap(),
+    ]
+    .iter()
+    .any(|v| *v != 0.0);
+    if !local.is_finite()
+        || (nonzero_normal && !local.is_normal())
+        || (!nonzero_normal && local != 0.0)
+    {
+        return Err(bad("stress summary MPa publication range"));
+    }
+    Ok(stress.components)
+}
 pub(super) struct Derived {
     pub(super) row: ResultItem,
     pub(super) recipe: &'static str,
@@ -381,10 +438,11 @@ pub(super) fn derived_for(
             .sections
             .get(&m.member_id)
             .ok_or_else(|| bad("derived section source"))?;
-        // D-5: the source-derived stress rows are published per basis. A
-        // selected case's bases coincide (`prepare_sources` declines nonzero
-        // mill tolerance and allowance), so the reduced twin binds the same
-        // functional and the same section, bit for bit.
+        // D-5 and O4 (DEL-04-08 Design `o4-source-extension.md` §3.2): the
+        // source-derived stress rows are published per basis, each from the
+        // same section actions on its own section: the nominal (built)
+        // section and the reduced section. Where the two are bit-equal the
+        // reduced row is the nominal row bit for bit.
         let bases = input
             .built
             .exact_sections
@@ -392,9 +450,6 @@ pub(super) fn derived_for(
             .copied()
             .ok_or_else(|| bad("derived section bases"))?;
         let reduced = exact_basis_section(bases, pressure_exact::SectionBasis::Reduced);
-        if !same_stress_section(&reduced, section) {
-            return Err(bad("derived stress section bases differ"));
-        }
         for (s, location) in [
             (0, "end_i"),
             (1, "quarter_1"),
@@ -403,61 +458,15 @@ pub(super) fn derived_for(
             (4, "end_j"),
         ] {
             let actions: [f64; 6] = m.sections[s];
-            let stress = recover_section_stress(&actions, section);
-            if !stress.findings.is_empty() {
-                return Err(bad("straight stress source unavailable"));
-            }
-            let c = &stress.components;
-            if [
-                c.axial_normal,
-                c.bending_normal_y,
-                c.bending_normal_z,
-                c.torsional_shear,
-            ]
-            .iter()
-            .any(|v| v.is_none_or(|v| !v.is_finite()))
-            {
-                return Err(bad("straight stress finite check"));
-            }
-            for (value, action) in [
-                (c.axial_normal.unwrap(), actions[0]),
-                (c.bending_normal_y.unwrap(), actions[4]),
-                (c.bending_normal_z.unwrap(), actions[5]),
-                (c.torsional_shear.unwrap(), actions[3]),
-            ] {
-                // MPa is the actual component publication unit. Pa can still
-                // meet the criterion when this division loses too much range.
-                let mpa = value / 1e6;
-                if (action == 0.0 && (value != 0.0 || mpa != 0.0))
-                    || (action != 0.0 && (!mpa.is_normal() || !value.is_normal()))
-                {
-                    return Err(bad("straight stress MPa publication range"));
-                }
-            }
-            if actions[3] != 0.0 && !(actions[3] * section.torsion_radius).is_normal() {
-                return Err(bad("straight stress torsion intermediate range"));
-            }
-            let local = open_formula_summary_mpa(&stress)
-                .ok_or_else(|| bad("summary unavailable"))?;
-            let nonzero_normal = [
-                c.axial_normal.unwrap(),
-                c.bending_normal_y.unwrap(),
-                c.bending_normal_z.unwrap(),
-            ]
-            .iter()
-            .any(|v| *v != 0.0);
-            if !local.is_finite()
-                || (nonzero_normal && !local.is_normal())
-                || (!nonzero_normal && local != 0.0)
-            {
-                return Err(bad("stress summary MPa publication range"));
+            let mut components = Vec::with_capacity(2);
+            for basis_section in [section, &reduced] {
+                components.push(checked_station_stress(&actions, basis_section)?);
             }
             let mut generated = Vec::new();
             push_basis_twins(&mut generated, true, bad("derived stress twin rows"), |rows, basis| {
-                // The reduced section is bit-equal to the nominal one (above).
                 let c = match basis {
-                    pressure_exact::SectionBasis::Nominal => *c,
-                    pressure_exact::SectionBasis::Reduced => recover_section_stress(&actions, &reduced).components,
+                    pressure_exact::SectionBasis::Nominal => components[0],
+                    pressure_exact::SectionBasis::Reduced => components[1],
                 };
                 if s == 0 || s == 4 {
                     append_endpoint_stress_results(

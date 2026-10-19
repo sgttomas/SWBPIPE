@@ -720,8 +720,14 @@ fn the_d5_geometry_is_rederived_in_its_fixed_order() {
     assert_eq!(refused(&doc), "SOURCE_PHYSICS_SECTION_BASES");
 }
 
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §3.4): `PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE`
+/// is retired. The invocation check no longer refuses a nonzero mill tolerance; it binds
+/// by value through `ACTUAL_SOURCE_GEOMETRY` and its range through the D-5 rederivation. A
+/// present mill tolerance that is not a finite length >= 0, or that with the allowance
+/// reaches the wall, leaves the section sum unestablished and is refused with the
+/// allowance (`PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE`).
 #[test]
-fn pressure_source_1_refuses_nonzero_mill_tolerance() {
+fn pressure_source_1_admits_mill_tolerance_within_the_section_sum() {
     let request: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
     )).unwrap();
@@ -729,12 +735,14 @@ fn pressure_source_1_refuses_nonzero_mill_tolerance() {
     let source = json!({});
     let invocation = json!({"request": request, "solver_mode": "sparse_interactive"});
     let first = physics_source::validate(&source, Some(&invocation)).unwrap_err();
-    assert!(!first.contains("ACTUAL_MILL_TOLERANCE"), "{first}");
-    for (value, refused) in [(json!({"value": 0.5, "unit": "mm"}), true), (json!({"value": 1, "unit": "N"}), true),
-        (json!({"value": "0", "unit": "mm"}), true), (json!({"value": 0, "unit": "mm"}), false), (Value::Null, false)] {
+    assert!(!first.contains("ACTUAL_MILL_TOLERANCE") && !first.contains("ACTUAL_CORROSION_ALLOWANCE"), "{first}");
+    for (value, refused) in [(json!({"value": 0.5, "unit": "mm"}), false), (json!({"value": 9.999, "unit": "mm"}), false),
+        (json!({"value": 0, "unit": "mm"}), false), (Value::Null, false), (json!({"value": 10, "unit": "mm"}), true),
+        (json!({"value": -0.5, "unit": "mm"}), true), (json!({"value": 1, "unit": "N"}), true), (json!({"value": "0", "unit": "mm"}), true)] {
         let mut changed = invocation.clone();
         changed["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = value.clone();
         let outcome = physics_source::validate(&source, Some(&changed)).unwrap_err();
-        assert_eq!(outcome == "PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE", refused, "{value}: {outcome}");
+        assert!(!outcome.contains("ACTUAL_MILL_TOLERANCE"), "{value}: {outcome}");
+        assert_eq!(outcome == "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE", refused, "{value}: {outcome}");
     }
 }

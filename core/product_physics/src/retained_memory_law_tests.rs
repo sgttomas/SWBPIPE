@@ -373,7 +373,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // torsion-constant control writes both D-5 section bases, and it gains
             // the test `actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract`
             // (its include is a request fixture); the suffix still holds no production.
-            complete_suffix_sha256: "56fd8e51997255e667387c2f78ecb9d0fdac2c9657e56972a3b6d8bd8ca12757",
+            // Re-audited at O4 S1 (source slice): only that closed test changed, renamed
+            // `actual_materials_bind_each_section_beam_theory_to_the_contract_selection`
+            // (both admitted contracts and an unknown one; the same request-fixture
+            // include); no include, path module, static or production entered the suffix.
+            complete_suffix_sha256: "79dd258fcedcac126713dc385f12e2020908064f64b7435ae8b0fede5d9b82d0",
             production_resume: None,
             trailing_test: None,
         })),
