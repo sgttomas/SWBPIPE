@@ -129,7 +129,39 @@ fn retained_timoshenko_entries_follow_the_fixed_schedule() {
     let cs = ctx.div(&w(9.0), &w(13.0)).unwrap();
     assert_eq!(t.d1[1], ctx.add(&w(3.0), &cs).unwrap());
     assert_eq!(t.d2[1], ctx.sub(&cs, &w(3.0)).unwrap());
-    assert!(t.dbar[1].cmp_value(&ctx.add(&w(3.0), &cs).unwrap().mul_pow2(1).unwrap()).is_ge());
+    // d̄ = RU(c + c_s)·2 exactly (λ = 2, rounded upward).
+    let mut s2 = ExactWideSum::new();
+    let up = super::super::directed::add_toward(&mut ctx, &mut s2, &w(3.0), &cs, super::super::directed::Toward::Up).unwrap();
+    assert_eq!(t.dbar[1], up.mul_pow2(1).unwrap());
+    assert!(t.dbar[1].cmp_value(&ctx.add(&w(3.0), &cs).unwrap().mul_pow2(1).unwrap()).is_gt(), "9/13 is inexact: RU > RN");
+    // The schedule at every precision on a skew member (each step one rounding).
+    for p in [128u32, 256, 512, 1024] {
+        let skew = PrimitiveSource::new(SourceParts {
+            nodes: vec![[0.0; 3], [1.0, 2.0, 3.0]],
+            members: vec![StraightMember { id: 0, node_i: 0, node_j: 1, elastic_modulus: 2.0, shear_modulus: 5.0,
+                area: 3.0, second_moment_y: 2.0, second_moment_z: 35.0 / 12.0, torsion_constant: 2.0,
+                y_reference: [0.0, 1.0, 0.0] }],
+            ..Default::default()
+        }).unwrap();
+        let set = TimoshenkoLeafSet::new(&skew, vec![TimoshenkoLeaf { member: 0, shear_area: 1.0 }]).unwrap();
+        let mut c = WideContext::<16>::new(p).unwrap();
+        let mut sm = ExactWideSum::new();
+        let ops: Vec<MemberOperators<16>> =
+            form_members_with(&mut c, &mut sm, &StageGuard::unlimited(), &skew, Some(&set)).unwrap();
+        let (m, t) = (&ops[0], ops[0].timoshenko.unwrap());
+        let s = c.mul(&Wide::<16>::from_f64(5.0).unwrap(), &Wide::<16>::from_f64(1.0).unwrap()).unwrap();
+        let sl = c.mul(&s, &m.length).unwrap();
+        for (plane, cc) in [m.bend_z, m.bend_y].iter().enumerate() {
+            let t3 = c.mul(&Wide::<16>::from_f64(3.0).unwrap(), cc).unwrap();
+            let phi = c.div(&t3.mul_pow2(2).unwrap(), &sl).unwrap();
+            let op = c.add(&Wide::<16>::ONE, &phi).unwrap();
+            let cs = c.div(&t3, &op).unwrap();
+            assert_eq!(t.d1[plane], c.add(cc, &cs).unwrap(), "d1 p={p}");
+            assert_eq!(t.d2[plane], c.sub(&cs, cc).unwrap(), "d2 p={p}");
+            let up = super::super::directed::add_toward(&mut c, &mut sm, cc, &cs, super::super::directed::Toward::Up).unwrap();
+            assert_eq!(t.dbar[plane], up.mul_pow2(1).unwrap(), "dbar p={p}");
+        }
+    }
     // The Euler–Bernoulli member keeps no Timoshenko entries.
     let eb: Vec<MemberOperators<4>> =
         form_members_with(&mut ctx, &mut sum, &StageGuard::unlimited(), &source, None).unwrap();
