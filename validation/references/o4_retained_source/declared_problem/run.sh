@@ -1,7 +1,8 @@
 #!/bin/bash
 # O4 declared-problem oracle: regenerate the J2 twins, run the product's dump entry and the
 # headless runner on each twin in both solver modes, then run the oracle's self-test, the
-# judged runs and the real-data controls. Generated twins, dumps and envelopes stay in scratch.
+# judged runs and the real-data controls. Then (R2b) the same for RF's PIN-OFF-345 twins and the
+# frozen unit's judged-set documents, with a selection census. Generated files stay in scratch.
 #
 # Environment (defaults are the T3 host's):
 #   O4DP_T3        T3 root holding tools/t3_cargo.sh and tools/t3_slot.sh  (the worktree's parent directory)
@@ -48,3 +49,37 @@ echo "== oracle"
 python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/twins/index.json" --runs "$SCRATCH/runs" \
     --out "$SCRATCH/report.json" --controls | tee "$SCRATCH/oracle.log" | grep -E '"(PASS|FAIL)"|failed_as_required|passed_wrongly|FAIL' | head -80
 echo "report: $SCRATCH/report.json"
+
+echo "== R2b: RF PIN-OFF-345 twins and the frozen judged set"
+FROZEN_CASES="$SCRATCH/frozen_cases.json"
+git -C "$PROJECT" show "$FROZEN:projects/chirality-piping/validation/references/o4_retained_source/cases.json" > "$FROZEN_CASES"
+python3 -I -B "$HERE/twins.py" extended "$PROJECT" "$SCRATCH/ext" "$FROZEN_CASES" "$FROZEN_TWINS"
+for SET in rf judged; do
+  rm -rf "$SCRATCH/ext/$SET/runs"
+  ( cd "$PROJECT/core/product_physics" && "$T3/tools/t3_slot.sh" python3 -I -B "$HERE/twins.py" run \
+      "$SCRATCH/ext/$SET/index.json" "$SCRATCH/ext/$SET/runs" "$TEST_BIN" "$RUNNER" "$PROJECT/core/product_physics" ) > "$SCRATCH/ext/$SET.run.log" 2>&1
+  python3 -I -B "$HERE/twins.py" census "$SCRATCH/ext/$SET/index.json" "$SCRATCH/ext/$SET/runs" "$SCRATCH/ext/$SET/census.json"
+done
+python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/rf/index.json" --runs "$SCRATCH/ext/rf/runs" \
+    --out "$SCRATCH/ext/rf/report.json" --controls > "$SCRATCH/ext/rf/oracle.log"
+# The judged set: unselected documents have no receipt, which the oracle lists as an error and exits 1.
+# Require zero FAIL cases, and that every error is exactly a run the census records as not selected.
+python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/judged/index.json" --runs "$SCRATCH/ext/judged/runs" \
+    --out "$SCRATCH/ext/judged/report.json" > "$SCRATCH/ext/judged/oracle.log" || true
+python3 -I -B - "$SCRATCH/ext" <<'PY'
+import json, sys
+ext = sys.argv[1]
+for name in ("rf", "judged"):
+    report = json.load(open(f"{ext}/{name}/report.json"))
+    census = {(r["twin"], r["mode"]): r for r in json.load(open(f"{ext}/{name}/census.json"))}
+    counts = report["summary"]["counts"]["all=all"] if report["summary"]["cases"] else {"PASS": 0, "FAIL": 0}
+    bad = []
+    for f in report["summary"]["failures"]:
+        if "errors" in f and f["errors"] == ["envelope carries no source_block_recovery receipt"] and not census[(f["twin"], f["mode"])]["selected"]:
+            continue
+        bad.append(f)
+    sel = sum(r["selected"] for r in census.values())
+    print(f"{name}: {sel} of {len(census)} runs selected; cases PASS {counts['PASS']} FAIL {counts['FAIL']}; unexplained failures {len(bad)}")
+    if bad:
+        sys.exit(1)
+PY

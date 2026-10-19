@@ -18,8 +18,8 @@ These results do not establish acceptance.
 |---|---|
 | `BOUND.md`, `bound.json` | The per-entry K_local bound and its machine form. Frozen and committed (`674a7df342`) before any dump, envelope or other product output was produced or opened. `oracle.py` re-derives every count from BOUND.md's formulas and refuses a `bound.json` that disagrees |
 | `oracle.py` | Standard library only (`fractions`, `hashlib`, `json`, `struct`, `math`). The judge, the self-test and the real-data controls |
-| `twins.py` | Re-authors J2's twelve source requests into twins, and runs the product's dump entry and the headless runner on them |
-| `run.sh` | Regenerates the twins, builds through the T3 cargo wrapper, runs both product entries in both modes under one T3 slot, then runs the self-test, the oracle and the controls. Twins, dumps, envelopes and the report stay in scratch |
+| `twins.py` | Re-authors J2's twelve source requests into twins; converts RF's PIN-OFF-345 census requests and the frozen unit's judged-set documents into product requests (R2b); runs the product's dump entry and the headless runner on them; writes the selection census |
+| `run.sh` | Regenerates the twins and documents, builds through the T3 cargo wrapper, runs both product entries in both modes under one T3 slot, then runs the self-test, the oracle, the controls and the census. Twins, dumps, envelopes and reports stay in scratch |
 
 ## Independence
 
@@ -43,6 +43,11 @@ Inputs read:
   Its generators and `oracle.json` were not opened.
 - The twelve J2 request inputs
   `fixtures/product_preview/pressure_source/{physics_source,load_reference_source}/*.request.json`.
+- R2b, input only: `fixtures/results/j7_rf_census_inputs.json`, using only the
+  RF-SKEW-T-PIN-OFF-345 r1e-08 and r1e-12 requests, decoded by the rule of
+  `expand` (lines 1–92 of `tools/fixtures/retained_precision_corpus.py`,
+  re-implemented in `twins.py`; the module is not imported); and the frozen
+  unit's `cases.json` documents (inputs only; `oracle.json` was not opened).
 - To obtain the published envelopes (the dump entry writes only the dump), the
   headless runner's command-line plumbing: `core/runner/headless/Cargo.toml`,
   `src/bin/headless_preview_runner.rs`, the argument and input parts of
@@ -188,10 +193,74 @@ Worst margins:
 
 No finding. Nothing failed.
 
+## R2b: RF congruence twins and the frozen judged set
+
+`oracle.py`, `BOUND.md` and `bound.json` are unchanged from `25e2689576` and
+`674a7df342`. `twins.py` gains two converters:
+- **RF PIN-OFF-345.** Each census request (model 0.3.0, contract without a
+  shear model, sections without allowances) becomes model 0.6.0 with an
+  explicit `shear_model`, `mill_tolerance` and `corrosion_allowance`, in the
+  same eight forms as the J2 twins; all 16 allowance pairs agree with the
+  frozen RF twins. One (3,4,0) member of L = 5 m, pinned translations at both
+  ends, a soft RX spring at N0 and two moments at N1.
+- **Judged set.** Each of the frozen unit's 172 `cases.json` documents (33
+  designs, every one inside the source family and D1) becomes one model 0.6.0
+  request per README "Binding": one load case `case`, rigid supports as
+  anchors on exactly their DOFs, grounded springs on one DOF, explicit section
+  lengths including `mill_tolerance`, and empty pressure regions.
+
+### Selection census (both modes)
+
+| Documents | Runs | Selected | Product's stated reason where not selected |
+|---|---|---|---|
+| RF PIN-OFF-345 r1e-08, r1e-12, all 8 twins | 32 | 32 | — (level `complete_identified_declared_member_congruence`) |
+| CONTRAST-STIFF (zero, mill, both; EB and Timoshenko) | 12 | 12 | — |
+| SHORT-MEMBER Euler–Bernoulli (zero, ca, both) | 6 | 6 | — |
+| SHORT-MEMBER Timoshenko | 6 | 0 | ordinary `NUMERICAL_INTEGRITY_CHECKS_PASSED` (quality Passed); no source attempt, envelope pressure-2 |
+| SOFT-RUN r1e-08, r1e-12 | 20 | 0 | `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`: `Exact(UnsupportedBlock { order: 10 })` at Preparation (ordinary Sensitive) |
+| SOFT-TORSION r1e-08, r1e-12 | 16 | 0 | `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`: `UnsupportedBlock { order: 7 }`; in `dense_scrutiny`, r1e-12 also ends `MODEL_INCOMPLETE` (`NUMERICAL_INTEGRITY_UNRESOLVED`, nonpositive pivot) |
+| RFLIKE-SKEWT-PIN-OFF-345 r1e-08, r1e-12 (tee) | 48 | 0 | `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`: `UnsupportedBlock { order: 10 }`; in `dense_scrutiny`, r1e-12 also ends `MODEL_INCOMPLETE` (`NUMERICAL_INTEGRITY_UNRESOLVED`) |
+| All other 25 designs, including SKEW345-*, SKEW122-* ((1,2,2) congruence), PROP-PHI2-EXACT-A/B, PROP-PHI2-NEAR-X/-345-OFF, CAPS-LOOP-32 | 236 | 0 | ordinary `NUMERICAL_INTEGRITY_CHECKS_PASSED` (quality Passed); the source route is not attempted and the envelope is pressure-2 |
+
+So 50 of 376 runs reach the source route. No document is declined by family
+name: every non-selection is either the ordinary route passing or the exact
+block search refusing an order above 4.
+
+### Results
+
+**All 50 selected cases PASS, 0 FAIL** (RF 32, judged set 18).
+- RF: Euler–Bernoulli 16, Timoshenko 16; zero, mill, ca and both 8 each;
+  each mode 16. The real-data controls fail as required (cross-theory 16 of
+  16, Euler–Bernoulli reference on Timoshenko K 16 of 16, cross-allowance 24
+  of 24).
+- Judged set: CONTRAST-STIFF 12 (Euler–Bernoulli 6, Timoshenko 6), SHORT-MEMBER
+  6 (Euler–Bernoulli); zero 6, mill 4, ca 2, both 6; each mode 9.
+- Worst projection margins: |value − exact|/absolute bound 0.381 (RF) and
+  0.403 (SHORT-MEMBER); relative error at most 2.16e-16; smallest endpoint
+  slack 2.46e-16 relative.
+- K_local share of the bound, largest per role:
+
+  | Role (N) | RF Timoshenko (φ = 0.0108) | RF Euler–Bernoulli | CONTRAST-STIFF Timoshenko (φ 1.6e-4 to 28.1) | Judged-set Euler–Bernoulli |
+  |---|---|---|---|---|
+  | k_axial (2) | 0.059 | 0.059 | 0.288 | 0.288 |
+  | k_torsion (2) | 0.225 | 0.225 | 0.356 | 0.356 |
+  | k_vv (13 / 5) | 0.041 | 0.009 | 0.040 | 0.226 |
+  | k_vθ (12 / 4) | 0.057 | 0.314 | 0.043 | 0.120 |
+  | k_θθ (18 / 3) | 0.026 | 0.012 | 0.054 | 0.087 |
+  | k_θθ' (18 / 3) | 0.051 | 0.012 | 0.043 | 0.087 |
+
+- **φ ≈ 2: no row reached.** The four PROP-PHI2 designs (φ = 2 exactly, and
+  2 + 1.4e-16 and 2 − 3.3e-11) pass the ordinary checks in every twin and mode,
+  so the product never forms or commits their declared problem, and there is
+  no dump to judge. The same holds for the (1,2,2) congruence members of
+  SKEW122-CANT, -FRAME-OFF and -YREF-Z. Reaching them needs either a
+  sensitive document containing such a member or a product hook that attempts
+  the source route on a passing case; both are outside this unit's inputs.
+
 ## Reproduce
 
 ```
-./run.sh                          # everything: twins, builds, 192 product runs, self-test, oracle, controls (about 3 min)
+./run.sh                          # everything: twins, builds, 568 product runs, self-test, oracle, controls, census (about 10 min)
 python3 -I oracle.py --selftest   # the self-test alone
 python3 -I oracle.py --dump D.json --envelope E.json --request R.json --theory timo --allowance both
 ```
