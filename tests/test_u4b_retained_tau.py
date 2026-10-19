@@ -3,8 +3,8 @@ route L's τ with the invocation.
 
 The preview base read at G7 is model-free; with the invocation the reader then runs the preview model checks on its
 projection, so a τ row one ulp off (its publication and receipt resealed) is refused at G7 with this language's base
-code. The inputs are the committed W1-L successors (the milestone successor and the failed-ordinary CX-F cases); until
-S5 regenerates them with their derived rows they carry no τ row, and the check is skipped by name rather than passed.
+code. The inputs are the committed W1-L successors (the milestone successor and the failed-ordinary CX-F cases), as
+T4-S7's public regeneration published them with their derived rows; each carries τ rows.
 The Rust reader's twin of this check runs on the live successors (product_physics `s4_retained_tests`).
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 """
@@ -41,8 +41,7 @@ def _rehash(source):
 @pytest.mark.parametrize("label,source,invocation", _successors(), ids=lambda v: v if isinstance(v, str) else "")
 def test_a_tampered_tau_is_refused_at_g7_with_the_invocation(label, source, invocation):
     at = next((i for i, row in enumerate(source["results"]) if row.get("kind") == SHEAR_MAX), None)
-    if at is None:
-        pytest.skip(f"{label}: the committed successor predates the derived rows (S5 regenerates it)")
+    assert at is not None, f"{label}: the committed successor carries its derived rows"
     doc = deepcopy(source)
     doc["results"][at]["value"] = math.nextafter(doc["results"][at]["value"], math.inf)
     _rehash(doc)

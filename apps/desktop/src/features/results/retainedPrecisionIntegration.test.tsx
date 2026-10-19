@@ -251,7 +251,7 @@ describe("the inputs and the pinned identity", () => {
     const table = previewPhysicsRetainedSemanticContract as Json;
     expect(table.semantic_contract_id).toBe(RETAINED_PRECISION_ID);
     // B4/D1: failed ordinary attempts add one distinct requested-mode signature.
-    expect(table.rows).toStrictEqual([...previewPhysicsSemanticContract.rows, {"signature_id":"preview-physics-retained-requested-mode-basis","kind":"retained_precision_requested_mode_basis","unit":"mode_code","component":"requested_solver_mode","source_physical_semantic_dimension":"dimensionless","derivative_target_dimension":"dimensionless","category":"solver_mode","family":null,"canonical_disposition":"disclosed","legacy_declared_dimension":"dimensionless","legacy_run_creation_admission":"accepts_with_legacy_dimension_equal_new_semantics","governing_ratio_eligible":false}]);
+    expect(table.rows).toStrictEqual([...previewPhysicsSemanticContract.rows, {"signature_id":"preview-physics-retained-requested-mode-basis","kind":"retained_precision_requested_mode_basis","unit":"mode_code","component":"requested_solver_mode","source_physical_semantic_dimension":"dimensionless","derivative_target_dimension":"dimensionless","category":"solver_mode","family":null,"canonical_disposition":"disclosed","legacy_declared_dimension":"dimensionless","legacy_run_creation_admission":"accepts_with_legacy_dimension_equal_new_semantics","governing_ratio_eligible":false,"combination_algebra":"never_combined"}]);
     // The Rust reader reads the successor's rows by this table.
     const rows = readerRowSemantics(source);
     for (const row of source.results) { const signature = rows(row).signature; if (signature) expect(table.rows).toContainEqual(signature); }
@@ -474,11 +474,12 @@ describe("the post-U7 standing rules (seams, independent of the reader's flag)",
   it("counts withheld rows by standing (Rust classification_summary_from)", async () => {
     const validation = await validateRetainedPrecision(source);
     const notCurrent = classificationSummaryFrom(validation, source, requested);
-    expect(notCurrent).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: 1, withheld: 97 }]);
+    expect(notCurrent).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 15, input_derived: 3, non_quantity: 1, withheld: 112 }]);
+    // T4-U4b: the 15 derived rows are not_covered, so Current withholds them beside the 69 absolute rows.
     const current = classificationSummaryFrom({ ...validation, invocation_bound: true, numerical_eligible: true }, source, requested);
-    expect(current[0].withheld).toBe(69);
+    expect(current[0].withheld).toBe(69 + 15);
     const uncovered: RetainedPrecisionValidation = { ...validation, invocation_bound: true, numerical_eligible: true, classifications: validation.classifications.map((row, i) => i === 1 ? { ...row, class: "not_covered", scale_bits: null, bound_bits: null } : row) };
-    expect(classificationSummaryFrom(uncovered, source, requested)[0]).toMatchObject({ not_covered: 1, withheld: 69 + 1 - (validation.classifications[1].class === "absolute_verified" ? 1 : 0) });
+    expect(classificationSummaryFrom(uncovered, source, requested)[0]).toMatchObject({ not_covered: 15 + 1, withheld: 69 + 15 + 1 - (validation.classifications[1].class === "absolute_verified" ? 1 : 0) });
     // Rows count only toward their own case.
     const split: RetainedPrecisionValidation = { ...validation, classifications: validation.classifications.map((row, i) => i < 10 ? { ...row, basis_ref: { ref_type: "load_case", ref_id: "second" } } : row) };
     const counts = classificationSummaryFrom(split, twoCase(), two).map(c => [c.case_id, c.relative_verified + c.absolute_verified + c.not_covered + c.input_derived + c.non_quantity]);
@@ -494,8 +495,8 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     expect(numericalResultStanding(received, withLoadCases(model, ["other"])).findings).toStrictEqual([RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE]);
     expect(numericalResultStanding(received, null).eligible).toBe(false);
     expect(retainedPrecisionInvocation(received, model)).toStrictEqual(invocation);
-    expect(classificationSummary(received, model)[0].withheld).toBe(69);
-    expect(classificationSummary(received, null)[0].withheld).toBe(97);
+    expect(classificationSummary(received, model)[0].withheld).toBe(69 + 15);
+    expect(classificationSummary(received, null)[0].withheld).toBe(97 + 15);
     invokeMock.mockReset();
     invokeMock.mockImplementation(async (command: string, args: Json) => {
       expect(command).toBe("run_rule_checks");
@@ -510,7 +511,7 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     // Saved or copied bytes still never register.
     expect(numericalResultStanding(structuredClone(received), model).findings).toStrictEqual([RETAINED_PRECISION_VALIDATION_REQUIRED]);
   });
-  it("a not_covered row is labelled, refused and counted (fabricated class; no statement has one)", async () => {
+  it("a not_covered row is labelled, refused and counted (fabricated class, beside the 15 derived not_covered rows)", async () => {
     u7.simulate = true;
     const { source, model } = milestone(mode);
     const target = source.results.find(row => row.kind === "global_nodal_rotation_x")!;
@@ -520,14 +521,15 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     expect(resultRowLabel(target, received)).toBe(N_RP_NOT_COVERED);
     expect(knownSemanticNotices(received).map(n => n.id)).toContain("retained-precision-not-covered:case");
     expect(ruleBindingPrecheck(received, { solverInputs: [{ input_id: "x", name: "x", dimension: "angle", unit_ref: "rad", solver_result_ref: { result_id: target.id } }], valueInputs: [], valueSlots: [], libraryInputs: [] })).toStrictEqual([{ input_id: "x", result_id: target.id, reason: RULE_QUANTITY_NOT_COVERED, notice: N_RP_NOT_COVERED }]);
-    expect(classificationSummary(received, model)[0].not_covered).toBe(1);
+    expect(classificationSummary(received, model)[0].not_covered).toBe(15 + 1);
   });
   it("without absolute rows there is no absolute summary notice", async () => {
     u7.simulate = true; u7.noAbsolute = true;
     const { source, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
-    expect(classificationSummary(received, model)[0]).toMatchObject({ absolute_verified: 0, not_covered: 0 });
-    expect(knownSemanticNotices(received).map(n => n.id)).toStrictEqual(["headline-label"]);
+    expect(classificationSummary(received, model)[0]).toMatchObject({ absolute_verified: 0, not_covered: 15 });
+    // T4-U4b: the derived rows' not-covered notice remains.
+    expect(knownSemanticNotices(received).map(n => n.id)).toStrictEqual(["headline-label", "retained-precision-not-covered:case"]);
     expect(ruleBindingRefusal(received, received.results[3])).toBeNull();
   });
 });
@@ -590,7 +592,7 @@ describe.each(MODES)("%s: the rule-check gate and binding refusals", (mode) => {
     const { source, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
     // U7: Current for the captured model, so only the absolute rows are withheld.
-    expect(classificationSummary(received, model)).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: 1, withheld: 69 }]);
+    expect(classificationSummary(received, model)).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 15, input_derived: 3, non_quantity: 1, withheld: 69 + 15 }]);
     expect(classificationSummary(structuredClone(received), model)).toStrictEqual([]);
     expect(classificationSummary(null)).toStrictEqual([]);
   });
@@ -772,9 +774,9 @@ describe("the declared differences, with TypeScript's expectations", () => {
     expect(retainedPrecisionStanding(received, model).findings).toStrictEqual([RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED]);
     const validation = retainedPrecisionRegistration(received)!.validation!;
     const requested = model.load_cases.map(c => ({ ref_type: "load_case", ref_id: c.id }));
-    expect(classificationSummaryFrom(validation, received, requested)[0].withheld).toBe(69);
+    expect(classificationSummaryFrom(validation, received, requested)[0].withheld).toBe(69 + 15);
     const notCurrent = classificationSummaryFrom(validation, received, []);
-    expect(notCurrent[0].withheld).toBe(97);
+    expect(notCurrent[0].withheld).toBe(97 + 15);
     expect(classificationSummary(received, model)).toStrictEqual(notCurrent);
   });
   // An additional TypeScript input for the same declared difference (I67-F1): a
@@ -927,7 +929,7 @@ describe.each(MODES)("%s: the class notices do not depend on standing (U7 slice 
     expect(knownSemanticNotices(eligible)).toStrictEqual(heldNotices);
     const withModel = classificationSummary(eligible, model), withoutModel = classificationSummary(eligible);
     expect(withModel.map(({ withheld: _w, ...counts }) => counts)).toStrictEqual(withoutModel.map(({ withheld: _w, ...counts }) => counts));
-    expect([withModel[0].withheld, withoutModel[0].withheld]).toStrictEqual([69, 97]);
+    expect([withModel[0].withheld, withoutModel[0].withheld]).toStrictEqual([69 + 15, 97 + 15]);
   });
 });
 
@@ -1047,6 +1049,8 @@ describe("notices, labels and the results-panel standing text", () => {
     let checked = 0;
     for (const row of received.results) {
       const c = classes.get(row.id)!, label = resultRowLabel(row, received);
+      // T4-U4b: the derived rows are not_covered and labelled so.
+      if (c.class === "not_covered") { expect(label, row.id).toBe(N_RP_NOT_COVERED); continue; }
       if (c.class !== "absolute_verified") { expect(label === null || !label.includes("Uncovered quantity"), row.id).toBe(true); continue; }
       const match = /±(\S+) (\S+), below/.exec(label!)!;
       expect(Number(match[1])).toBeGreaterThanOrEqual(decodeBinary64(c.bound_bits!));
@@ -1059,7 +1063,7 @@ describe("notices, labels and the results-panel standing text", () => {
     const headline = received.results.find(row => row.id === received.summary.max_open_formula_stress!.result_ref)!;
     expect(resultRowLabel(headline, received)).toBe(`${retainedAbsoluteNotice(classes.get(headline.id)!.bound_bits!, headline.unit)} ${N_HEADLINE}`);
     const notices = knownSemanticNotices(received);
-    expect(notices.map(n => n.id)).toStrictEqual(["headline-label", "retained-precision-absolute:case"]);
+    expect(notices.map(n => n.id)).toStrictEqual(["headline-label", "retained-precision-absolute:case", "retained-precision-not-covered:case"]);
     expect(notices[1].text).toContain("69 quantities verified only to an absolute bound");
     // Unregistered: no class is known, so no row is presented as verified.
     const copy = structuredClone(received);
@@ -1074,7 +1078,9 @@ describe("notices, labels and the results-panel standing text", () => {
     const text = screen.getByTestId("numerical-result-standing").textContent!;
     expect(text).toBe(retainedPrecisionStandingText(received));
     expect(text).toContain("receipt validated by the retained-precision reader against the actual invocation");
-    expect(text).not.toMatch(/sensitive|Numerical integrity:/);
+    // The limitation text names a "sensitive" member recovery check (T4-U5b); the ordinary
+    // numerical_quality status would read "Numerical integrity: sensitive.".
+    expect(text).not.toMatch(/Numerical integrity:|: sensitive\./);
     const absolute = received.results.find(row => retainedRowClasses(received)!.get(row.id)!.class === "absolute_verified" && row.unit === "N")!;
     expect(screen.getByTestId(`result-row-label-${absolute.id}`).textContent).toContain("Uncovered quantity: verified only to an absolute bound");
     expect(screen.getByTestId("results-notice-retained-precision-absolute:case")).toBeTruthy();

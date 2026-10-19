@@ -442,7 +442,8 @@ it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',com
  for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,absolute.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
  // Relative-verified and input-derived combination rows keep their witnesses.
  for(const c of combinationClasses.filter(c=>c.class==='relative_verified'||c.class==='input_derived'))expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===c.result_id)).toBe(true);
- expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED')).toBe(false);
+ // No combination row is not_covered; the load cases' T4-U4b derived rows are (never combined).
+ expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED'&&combinationRows.some(r=>r.id===d.source.ref))).toBe(false);
  await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
  await expect(validateStressNeutralExportPacket(structuredClone(packet))).resolves.toBeUndefined();
 });
@@ -467,7 +468,8 @@ it.each(['w_cb4a_sparse_interactive','w_cb2_sparse_interactive'])('%s: R-COMB-1 
  expect(classes.every(c=>c.class==='not_covered'||c.class==='non_quantity')).toBe(true);
  const uncovered=classes.filter(c=>c.class==='not_covered');
  expect(uncovered.length).toBeGreaterThan(0);
- const findings=packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED');
+ // The load cases' T4-U4b derived rows are also not_covered and withheld; these are the combination rows' findings.
+ const findings=packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED'&&combinationRows.some(r=>r.id===d.source.ref));
  expect(findings.map((d:any)=>d.source.ref).sort()).toEqual(uncovered.map(c=>c.result_id).sort());
  for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,uncovered.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
  for(const c of classes.filter(c=>c.class==='non_quantity'))expect(packet.diagnostics.some((d:any)=>d.source?.ref===c.result_id&&String(d.code).includes('RETAINED-PRECISION'))).toBe(false);

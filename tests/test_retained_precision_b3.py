@@ -19,6 +19,7 @@ import pytest
 from tests.verifiers import retained_precision as rp
 from tests.verifiers import compatibility as compatibility_verifier
 from tests.verifiers import section_basis as sb
+from tests.verifiers import u4b
 
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -281,8 +282,22 @@ def d5_rows(source):
     published on the nominal section and immediately followed by its reduced twin, with the same value (the bases
     coincide on this route); the receipt's references follow the nominal row (a reduced twin is outside the receipt's
     row universe, as W1-E stages it); the basis-free headline is null and each basis has its own."""
-    renamed, rows = {}, []
+    renamed, rows, derived = {}, [], {}
+    before = list(source["results"])
     for row in source["results"]:
+        if row["kind"] in DERIVED_KINDS:
+            # T4-U4b (U4B-RP): each derived not-covered row on both bases, nominal then reduced, each binding its own
+            # position; σ± keep their values, τ takes the exact sign and the evidence's ν and basis annulus.
+            for basis in sb.BASES:
+                twin = deepcopy(row)
+                twin["id"] = _d5_id(row["id"], basis)
+                twin["metadata"]["basis"] = row["metadata"]["basis"] + sb.SEPARATOR + basis
+                if row["kind"] == u4b.SHEAR_MAX:
+                    twin["metadata"]["sign_convention"] = u4b.SHEAR_SIGN_EXACT
+                    twin["value"] = _exact_tau(source, before, row)
+                rows.append(twin)
+            derived[row["id"]] = [_d5_id(row["id"], basis) for basis in sb.BASES]
+            continue
         if row["kind"] not in sb.STRESS_KINDS:
             rows.append(row)
             continue
@@ -302,6 +317,27 @@ def d5_rows(source):
 
     source["results"] = rows
     source["retained_precision"]["body"] = rename(source["retained_precision"]["body"])
+    body = source["retained_precision"]["body"]
+    if derived:
+        # Projection outcomes name bound rows of their case: a stress row's reduced twin shares its nominal twin's
+        # row, each derived row binds its own, so the indices follow their rows.
+        case_of = lambda r: (r.get("basis_ref") or {}).get("ref_id")
+        bound = [r for r in rows if not (((r.get("metadata") or {}).get("basis") or "").endswith(sb.SEPARATOR + sb.REDUCED) and r["kind"] not in DERIVED_KINDS)]
+        for attempt in body["product_attempts"]:
+            if not isinstance(attempt, dict) or (attempt.get("owner_ref") or {}).get("kind") != "case" or not isinstance(attempt.get("proof"), dict):
+                continue
+            cid = body["cases"][attempt["owner_ref"]["index"]]["basis_ref"]["ref_id"]
+            old_ids = [r["id"] for r in before if case_of(r) == cid]
+            new_ids = [r["id"] for r in bound if case_of(r) == cid]
+            for o in attempt["proof"].get("projection_outcomes") or []:
+                i = o.get("row_index")
+                if isinstance(i, int) and not isinstance(i, bool) and i < len(old_ids):
+                    rid = old_ids[i]
+                    o["row_index"] = new_ids.index(renamed.get(rid) or (derived[rid][0] if rid in derived else rid))
+        for case in body["cases"]:
+            selection = case.get("selection")
+            if isinstance(selection, dict) and isinstance(selection.get("not_covered"), list):
+                selection["not_covered"] = [x for i in selection["not_covered"] for x in derived.get(i, [i])]
     summary = {}
     for key, value in source["summary"].items():
         summary[key] = None if key == "max_open_formula_stress" else value
@@ -309,6 +345,22 @@ def d5_rows(source):
             for basis in sb.BASES:
                 summary["max_open_formula_stress_" + basis] = None if value is None else dict(value, result_ref=_d5_id(value["result_ref"], basis))
     source["summary"] = summary
+
+
+DERIVED_KINDS = (u4b.EXTREME, u4b.SHEAR_MAX)
+
+
+def _exact_tau(source, rows, row):
+    """τ on the exact re-statement: |V| c_b / 1e6, V from the row's case, member and station shear rows, c_b from the
+    evidence's ν and the member's basis annulus (§2.4's fixed sequence)."""
+    case, pipe, location = row["basis_ref"]["ref_id"], row["entity_ref"], row["metadata"]["location"]
+    shear = lambda kind: next(r["value"] for r in rows if r["basis_ref"]["ref_id"] == case and r["entity_ref"] == pipe and r["kind"] == kind
+                              and r["metadata"]["location"] == location)
+    evidence = next(c for c in source["contract_evidence"]["exact_cases"] if c["load_case_id"] == case)
+    section = next(x for x in evidence["pipe_sections"] if x["pipe_id"] == pipe)
+    nu = next(x for x in evidence["pipe_materials"] if x["pipe_id"] == pipe)["nu"]
+    factor = u4b.shear_factor(nu, section["ro_m"], section["nominal_section"]["ri_m"], section["nominal_section"]["I_m4"])
+    return u4b.shear_maximum(shear("element_local_shear_force_y"), shear("element_local_shear_force_z"), factor)
 
 
 def d5_extrema(extrema):
@@ -651,8 +703,16 @@ def test_b3b_m3x_synthetic_base_is_eligible_and_classified_as_the_milestone(mode
     assert got["numerical_eligible"] is True and got["standing"] == "eligible" and got["invocation_bound"] is True
     # T4-U6 (D-5): a stress row is classified on its nominal id, and its reduced twin takes the same class.
     stress = {row["id"] for row in base_source["results"] if row["kind"] in sb.STRESS_KINDS}
+    derived = {row["id"] for row in base_source["results"] if row["kind"] in DERIVED_KINDS}
+    published = {row["id"]: row for row in source["results"]}
     expected = []
     for cls in want["classifications"]:
+        if cls["result_id"] in derived:
+            # T4-U4b: each derived row's twins are not covered, at their own published values (τ on the exact basis).
+            expected += [dict(cls, result_id=_d5_id(cls["result_id"], basis),
+                              normalized_bits=rp.bits(rp._normalized(published[_d5_id(cls["result_id"], basis)])))
+                         for basis in sb.BASES]
+            continue
         if cls["result_id"] not in stress:
             expected.append(cls)
             continue
