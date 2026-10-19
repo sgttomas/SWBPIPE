@@ -622,6 +622,7 @@ fn timoshenko_k4stf_k4src_block_encoding() {
 /// `ProductMemberFacts`), `ProductRecipe`, the `TraceCopyWork`-recorded kernel
 /// structs, `SectionPreparationWork.layout_bytes` and the proof's seven
 /// serialized capacities. The sidecars live beside them.
+#[cfg(target_pointer_width = "64")]
 #[test]
 fn timoshenko_sidecar_preserves_receipt_layouts() {
     use std::mem::size_of;
