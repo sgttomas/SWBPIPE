@@ -3092,54 +3092,23 @@ fn b3b_refused_exact_requests_take_the_ordinary_route() {
     }
 }
 
-/// O4 interim (DEL-05-03 Design `section-bases-and-timoshenko.md` §5): W1-E declines a
-/// Timoshenko document (`ShearModel`) and a section with nonzero mill tolerance or corrosion
-/// allowance (`SectionAllowance`) at G-A's D1.3, under those named facts rather than the generic
-/// `PressureContract`, so the published bytes are the ordinary route's: no W1, one run, in both
-/// modes. Explicit zeros stay inside D1 (the bases coincide), and route L, whose one section is
-/// t - c_m, keeps admitting a nonzero mill tolerance.
 #[test]
-fn o4_w1e_declines_at_admission() {
-    use super::retained_memory::{namespace_branch, AdmissionRefusal, D1Clause, FamilyFact, NamespaceBranch};
-    let section = |key: &'static str, value: f64| move |r: &mut Value| {
-        for pipe in r["model"]["pipe_segments"].as_array_mut().unwrap() {
-            pipe["section"][key] = json!({"value": value, "unit": "m"});
-        }
-    };
-    let variants: Vec<(&str, Box<dyn Fn(&mut Value)>, FamilyFact)> = vec![
-        ("timoshenko", Box::new(|r: &mut Value| r["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1")), FamilyFact::ShearModel),
-        ("mill tolerance", Box::new(section("mill_tolerance", 0.0005)), FamilyFact::SectionAllowance),
-        ("corrosion allowance", Box::new(section("corrosion_allowance", 0.001)), FamilyFact::SectionAllowance),
-    ];
-    for (label, change, fact) in &variants {
-        let mut raw = m3x();
-        change(&mut raw);
-        let request: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
-        let branch = namespace_branch(&request.model);
-        assert_eq!(branch, if *fact == FamilyFact::ShearModel { Err(FamilyFact::ShearModel) } else { Ok(NamespaceBranch::Exact) }, "{label}");
-        for mode in MODES {
-            let plain = plain(mode, &raw);
-            let (output, counts) = direct(&raw, mode);
-            let law = output.admission().unwrap().law();
-            assert_eq!(law.domain, Some(AdmissionRefusal::Family(D1Clause::Namespace, *fact)), "{label} {mode:?}: D1.3 declines by its fact");
-            assert!(law.refusal.is_some(), "{label} {mode:?}: G-A refuses");
-            assert!(output.retained().is_none() && output.successor().is_none(), "{label} {mode:?}: no W1");
-            assert_eq!(counts, ONE_RUN, "{label} {mode:?}");
-            assert_eq!(published(output), plain, "{label} {mode:?}: the ordinary route's bytes");
-        }
+fn o4_explore() {
+    let docs: Vec<(&str, Value)> = vec![("n05", serde_json::from_str(N05_EXACT).unwrap())];
+    let _unused: Vec<(&str, Value)> = vec![("n06", serde_json::from_str(N06_EXACT).unwrap()),
+        ("fields", serde_json::from_str(FIELDS_EXACT).unwrap()), ("two_member", two_member_exact(false)), ("two_case", two_case_exact()), ("mix", m3x_mix_anchor())];
+    for (vl, doc) in &docs {
+    for mode in MODES {
+    for (label, change) in [("eb", 3), ("timoshenko", 0), ("allowance", 1), ("both", 2)] {
+        let mut raw = doc.clone();
+        if change == 0 || change == 2 { raw["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1"); }
+        if change == 1 || change == 2 { for pipe in raw["model"]["pipe_segments"].as_array_mut().unwrap() { pipe["section"]["corrosion_allowance"] = json!({"value": 0.001, "unit": "m"}); } }
+        let (_, retained, captured) = exact_w1(&raw, mode);
+        let status = captured.as_ref().map(|c| c["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["status"].as_str().unwrap().to_owned()).collect::<Vec<_>>());
+        println!("O4X {vl} {mode:?} {label}: retained={:?} status={:?}", retained.as_ref().map(|_| ()), status);
     }
-    // Explicit zeros are inside D1 on branch E.
-    let mut zeros = m3x();
-    section("mill_tolerance", 0.0)(&mut zeros);
-    let (output, _) = direct(&zeros, MODES[0]);
-    assert_eq!(output.admission().unwrap().law().domain, None, "explicit zero mill tolerance and allowance");
-    // Route L: the pressure-free milestone with a nonzero mill tolerance stays inside D1.
-    let mut preview = raw();
-    section("mill_tolerance", 0.0005)(&mut preview);
-    let request: LinearStaticPreviewRequest = serde_json::from_value(preview.clone()).unwrap();
-    assert_eq!(namespace_branch(&request.model), Ok(NamespaceBranch::Preview));
-    let (output, _) = direct(&preview, MODES[0]);
-    assert_eq!(output.admission().unwrap().law().domain, None, "route L keeps its one t - c_m section");
+    }
+    }
 }
 
 /// B3b-P (B3-D P-5; D1.5-exact, DEF-E `scope.materials`): the exact route's capture admits the

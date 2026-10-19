@@ -3193,6 +3193,94 @@
             ],
             "additionalProperties": false
           }
+        },
+        "reduced": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "prepared"
+                    },
+                    "section": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/Bits"
+                      },
+                      "minItems": 5,
+                      "maxItems": 5
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "section"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "refused"
+                    },
+                    "error": {
+                      "$ref": "#/$defs/SectionError"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "work": {
+              "$ref": "#/$defs/PrepWork"
+            },
+            "conversions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "property": {
+                    "enum": [
+                      "area",
+                      "second_moment",
+                      "polar_moment",
+                      "section_modulus",
+                      "radius"
+                    ]
+                  },
+                  "endpoint": {
+                    "enum": [
+                      "lo",
+                      "hi",
+                      "exact"
+                    ]
+                  },
+                  "outcome": {
+                    "$ref": "#/$defs/Conversion"
+                  }
+                },
+                "required": [
+                  "property",
+                  "endpoint",
+                  "outcome"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "result",
+            "work",
+            "conversions"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -3781,6 +3869,61 @@
             "actual_radius",
             "actual_second_moment",
             "actual_polar_moment"
+          ],
+          "additionalProperties": false
+        },
+        "shear_area": {
+          "$ref": "#/$defs/Bits"
+        },
+        "reduced": {
+          "type": "object",
+          "properties": {
+            "area": {
+              "$ref": "#/$defs/Bits"
+            },
+            "section_modulus": {
+              "$ref": "#/$defs/Bits"
+            },
+            "geometry": {
+              "type": "object",
+              "properties": {
+                "route": {
+                  "enum": [
+                    "preview",
+                    "exact"
+                  ]
+                },
+                "normalized_od": {
+                  "$ref": "#/$defs/Bits"
+                },
+                "effective_wall": {
+                  "$ref": "#/$defs/Bits"
+                },
+                "actual_radius": {
+                  "$ref": "#/$defs/Bits"
+                },
+                "actual_second_moment": {
+                  "$ref": "#/$defs/Bits"
+                },
+                "actual_polar_moment": {
+                  "$ref": "#/$defs/Bits"
+                }
+              },
+              "required": [
+                "route",
+                "normalized_od",
+                "effective_wall",
+                "actual_radius",
+                "actual_second_moment",
+                "actual_polar_moment"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "area",
+            "section_modulus",
+            "geometry"
           ],
           "additionalProperties": false
         }
@@ -5293,6 +5436,25 @@
               },
               "torsional_stiffness": {
                 "$ref": "#/$defs/Bits"
+              },
+              "shear_area": {
+                "$ref": "#/$defs/Bits"
+              },
+              "reduced": {
+                "type": "object",
+                "properties": {
+                  "area": {
+                    "$ref": "#/$defs/Bits"
+                  },
+                  "section_modulus": {
+                    "$ref": "#/$defs/Bits"
+                  }
+                },
+                "required": [
+                  "area",
+                  "section_modulus"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [

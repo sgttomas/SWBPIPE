@@ -41,7 +41,7 @@ pub(super) const EXACT_SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.
 pub(super) const EXACT_PROFILE_ID: &str = "exact_straight_retained_w1a_v2";
 pub(super) const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 pub(super) const EXACT_DEFINITION_SHA256: &str =
-    "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948";
+    "8d2bc091712e744a6182a6e6ecd73e9e40916e8530f52e44fe1eeb2415b78fae";
 /// B3b-P (B3-D P-9; REVISION_01 §2, S-1): the route descriptor the serializer takes its
 /// route-specific members from, never a module constant: the successor's identity and profile,
 /// every product attempt's `definition_id`, the preparation payload's `definition_sha256` (C3
@@ -1060,13 +1060,25 @@ fn case_source_at(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSo
     // W1-E admits only documents with zero mill tolerance and zero allowance, so the nominal
     // and reduced sections coincide and this one term binds both `nominal_section` and
     // `reduced_section` of the case evidence (`effective_wall` is the nominal wall t).
+    // O4 (DEL-04-08 Design `o4-source-extension.md` §4.6): a Timoshenko member's term gains
+    // `shear_area` (its prepared leaf A_s,prep) and a distinct-basis member's `reduced` (its
+    // prepared reduced section on the wall t_r); every other term keeps its keys and bytes.
     let mut section_terms = Vec::with_capacity(capture.facts.len());
     for (i, f) in capture.facts.iter().enumerate() {
         let op = operational_new.get(i).and_then(|o| o.result.as_ref().ok()).ok_or(assoc("sources[].section_terms[]"))?;
-        section_terms.push(json!({"member":i,"area":e.bits(f.area,P),"section_modulus":e.bits(f.section_modulus,P),"length":e.bits(op.length,P),
+        let mut term = json!({"member":i,"area":e.bits(f.area,P),"section_modulus":e.bits(f.section_modulus,P),"length":e.bits(op.length,P),
             "axial_stiffness":e.bits(op.axial,P),"torsional_stiffness":e.bits(op.torsion,P),
             "geometry":{"route":route_wire(capture.route()).geometry_route,"normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(f.effective_wall,P),"actual_radius":e.bits(f.radius,P),
-                "actual_second_moment":e.bits(f.second_moment,P),"actual_polar_moment":e.bits(f.torsion_constant,P)}}));
+                "actual_second_moment":e.bits(f.second_moment,P),"actual_polar_moment":e.bits(f.torsion_constant,P)}});
+        if let Some(leaf) = capture.timoshenko.as_ref().and_then(|set| set.leaves().iter().find(|l| l.member == f.member)) {
+            term["shear_area"] = e.bits(leaf.shear_area, P);
+        }
+        if let Some(r) = capture.reduced_facts.iter().find(|r| r.member == f.member) {
+            term["reduced"] = json!({"area":e.bits(r.area,P),"section_modulus":e.bits(r.section_modulus,P),
+                "geometry":{"route":route_wire(capture.route()).geometry_route,"normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(r.effective_wall,P),
+                    "actual_radius":e.bits(r.radius,P),"actual_second_moment":e.bits(r.second_moment,P),"actual_polar_moment":e.bits(r.torsion_constant,P)}});
+        }
+        section_terms.push(term);
     }
     let mut entry=json!({"index":source_id,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":e.basis_ref(case_index),
         "kernel_source_sha256":sha_hex(&origin.identity),"stiffness_sha256":sha_hex(&origin.stiffness),
@@ -1259,8 +1271,16 @@ fn selection(e: &Enc, owner: &k::RetainedSolve, capture: &rp::ProductCapture,
     for (i, f) in capture.facts.iter().enumerate() {
         let op = attempt.operational_new.get(i).and_then(|o| o.result.as_ref().ok()).ok_or(assoc("cases[].selection.section_terms[]"))?;
         let member = capture.members.get(i).ok_or(assoc("cases[].selection.section_terms[].member_id"))?;
-        section_terms.push(json!({"member_id":member.id,"area":e.bits(f.area,P),"section_modulus":e.bits(f.section_modulus,P),"length":e.bits(op.length,P),
-            "axial_stiffness":e.bits(op.axial,P),"torsional_stiffness":e.bits(op.torsion,P)}));
+        let mut term = json!({"member_id":member.id,"area":e.bits(f.area,P),"section_modulus":e.bits(f.section_modulus,P),"length":e.bits(op.length,P),
+            "axial_stiffness":e.bits(op.axial,P),"torsional_stiffness":e.bits(op.torsion,P)});
+        // O4 §4.6: the same presence rules as the source terms; length and stiffnesses stay nominal.
+        if let Some(leaf) = capture.timoshenko.as_ref().and_then(|set| set.leaves().iter().find(|l| l.member == f.member)) {
+            term["shear_area"] = e.bits(leaf.shear_area, P);
+        }
+        if let Some(r) = capture.reduced_facts.iter().find(|r| r.member == f.member) {
+            term["reduced"] = json!({"area":e.bits(r.area,P),"section_modulus":e.bits(r.section_modulus,P)});
+        }
+        section_terms.push(term);
     }
     let mut absolute = Vec::new();
     let mut not_covered = Vec::new();
@@ -1397,9 +1417,11 @@ fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>, capture: &rp::Produc
     value
 }
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)]
 fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_index: usize, source_ref: Option<usize>, run_ref: Option<usize>,
-    result: Value, capture: &rp::ProductCapture) -> Value {
-    let members = preparation_members(e, view.members, view.preparation_work);
+    result: Value, capture: &rp::ProductCapture, reduced: &[rp::ReducedPreparation]) -> Value {
+    let mut members = preparation_members(e, view.members, view.preparation_work);
+    attach_reduced_preparations(e, &mut members, reduced);
     let names = ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"];
     let mut stages_v = Map::new();
     for (n, s) in names.iter().zip(view.stages.iter()) {
@@ -1447,11 +1469,45 @@ fn preparation_members(e: &Enc, entries: &[rr::PreparationEntry], preparation_wo
                 "outcome":conversion(e,&c.outcome)})).collect::<Vec<_>>()})
     }).collect()
 }
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §4.6): a distinct-basis member's reduced
+/// annulus preparation record, `preparation.members[].reduced`, the closed `{result, work,
+/// conversions}` of that run, beside the member's own (nominal) fields. Absent for every other
+/// member, so a document without distinct bases keeps its bytes.
+fn reduced_preparation_value(e: &Enc, r: &rp::ReducedPreparation) -> Value {
+    const PROPS: [&str; 5] = ["area", "second_moment", "polar_moment", "section_modulus", "radius"];
+    const P: &str = "product_attempts[].preparation.members[].reduced";
+    let mut copies = k::TraceCopyWork::default();
+    let w = &r.work;
+    let result = match &r.result {
+        Ok(b) => json!({"kind":"prepared","section":b.bits().iter().map(|x|e.ubits(*x,P)).collect::<Vec<_>>()}),
+        Err(err) => json!({"kind":"refused","error":section_error(e,err)}),
+    };
+    json!({"result":result,"work":{"numeric":numeric(e,&w.numeric_trace(&mut copies)),"initialized_endpoints":e.count(w.initialized_endpoints),"conversions":e.count(w.conversions),
+            "checks":e.count(w.checks),"endpoint_assignments":e.count(w.endpoint_assignments),"layout_bytes":w.layout_bytes},
+        "conversions":w.conversion_outcomes().iter().flatten().map(|c|json!({"property":PROPS.get(c.property).map_or_else(||e.untranslated("product_attempts[].preparation.members[].reduced.conversions[].property"),|p|json!(p)),
+            "endpoint":match c.endpoint { k::PreparationEndpoint::Lo=>"lo", k::PreparationEndpoint::Hi=>"hi", k::PreparationEndpoint::Exact=>"exact" },
+            "outcome":conversion(e,&c.outcome)})).collect::<Vec<_>>()})
+}
+fn attach_reduced_preparations(e: &Enc, members: &mut [Value], reduced: &[rp::ReducedPreparation]) {
+    for r in reduced {
+        match members.iter_mut().find(|m| m["member"] == json!(r.member)).and_then(Value::as_object_mut) {
+            Some(m) => { m.insert("reduced".into(), reduced_preparation_value(e, r)); }
+            None => e.fail(ReceiptCheck::Association, "product_attempts[].preparation.members[].reduced"),
+        }
+    }
+}
 /// C3 §2's preparation payload; its `definition_sha256` is the route's table-bound definition H
 /// (B3b-P; B3-D REVISION_01 S-1): DEF-E's on the exact route, DEF-O's on the preview route.
 fn preparation_payload(a: &Value, route: rp::W1Route) -> Value {
-    let members = a["preparation"]["members"].as_array().map(|ms| ms.iter().map(|m| json!({
-        "member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect::<Vec<_>>());
+    // O4 §4.6: a distinct-basis member's reduced section joins its payload entry (absent for
+    // every other member, so their payload bytes are unchanged).
+    let members = a["preparation"]["members"].as_array().map(|ms| ms.iter().map(|m| {
+        let mut entry = json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]});
+        if let Some(reduced) = m.get("reduced") {
+            entry["reduced_section"] = reduced["result"]["section"].clone();
+        }
+        entry
+    }).collect::<Vec<_>>());
     json!({"definition_id":a["definition_id"],"definition_sha256":route_wire(route).definition_sha256,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],
         "material_basis_ref":a["material_basis_ref"],"members":members})
 }
@@ -2173,7 +2229,7 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
         let results = results.get(case_scope.row_range(results.len())).ok_or(assoc("results"))?;
         // D-5 on route E: a reduced-basis twin binds no kernel quantity (its value
         // is its nominal row's), so the bound rows are the case's other rows.
-        let row_ids: Vec<String> = results.iter().filter(|r| !rp::reduced_twin_wire(pc.route(), r)).map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
+        let row_ids: Vec<String> = results.iter().filter(|r| !rp::reduced_twin_wire(pc.route(), &pc.distinct_bases, r)).map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
         if rows.len() != row_ids.len() || rows.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {
             return Err(assoc("cases[].selection.absolute_verified"));
         }
@@ -2181,7 +2237,7 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
         let (records, terminal) = kernel_outcome(e, &case.outcome);
         let run_v = run_value(e, run, records, terminal, request)?;
         let mut source = case_source(e, pc, owner.source(), inv, run, request, case_id, &view)?;
-        let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
+        let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc, &attempt.parts.reduced_preparations);
         bind_preparation(&mut source, &attempt_v, attempt.attempt, pc.route())?;
         let source_identity = {
             let mut binding = source.clone();
@@ -2218,7 +2274,7 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
             if view.prepared_source.is_some() || ordinal.is_some() {
                 return Err(fail(ReceiptCheck::Untranslated, "sources[].kernel_source_sha256"));
             }
-            let attempt_v = product_attempt(e, &view, attempt.attempt, request, None, None, json!({"kind":"unavailable","error":error}), pc);
+            let attempt_v = product_attempt(e, &view, attempt.attempt, request, None, None, json!({"kind":"unavailable","error":error}), pc, &attempt.parts.reduced_preparations);
             let part = json!({"status":"unavailable","reason":{"code":"source_unavailable","phase":"preparation","cause":cause},
                 "diagnostic_ref":diagnostic_ref,"run":null,"source_ref":null});
             Ok((attempt_v, None, part))
@@ -2238,7 +2294,7 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
                 (_, "selected") => ("facade_certificate".to_owned(), "facade"),
                 (_, other) => (format!("kernel_{other}"), "kernel"),
             };
-            let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
+            let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc, &attempt.parts.reduced_preparations);
             if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
                 bind_preparation(&mut source_v, &attempt_v, attempt.attempt, pc.route())?;
             }
