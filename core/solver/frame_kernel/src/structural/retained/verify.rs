@@ -30,7 +30,7 @@ use super::adaptive::{
     lme, next_up, AttemptStop, CasePrep, GroupPrep, Shared, Solved, Stage, StageGuard, StageWork,
 };
 use super::assemble::{
-    assemble_bounded, form_directional, form_members, BoundedCoefficients, Contribution,
+    assemble_bounded, form_directional, form_members_with, BoundedCoefficients, Contribution,
     DirectionalBlock, MemberOperators, Structure,
 };
 use super::bound::{
@@ -41,7 +41,7 @@ use super::directed::{add_toward, binary64_up, mul_toward, round_toward, Toward}
 use super::factor::Ordering;
 use super::ledger::RetainedLedger;
 use super::recover::{recover, Kind, QuantityId, QuantityMeta};
-use super::source::PrimitiveSource;
+use super::source::{PrimitiveSource, TimoshenkoLeafSet};
 use super::wide::multi::{AttemptWork, SupportedWidth, WideContext};
 use super::wide::Wide;
 use super::wide_sum::{ExactWideSum, SumWork};
@@ -161,9 +161,11 @@ where
             sum.add_product(ctx, &inv, &d(transverse + 6), false)?;
             e[index] = stage(ctx, sum, rounding)?;
         }
-        let (bz, by) = (m.bend_z.abs(), m.bend_y.abs());
-        let (four_z, two_z) = (bz.mul_pow2(2)?, bz.mul_pow2(1)?);
-        let (four_y, two_y) = (by.mul_pow2(2)?, by.mul_pow2(1)?);
+        // |D|: Euler–Bernoulli's (4|c|, 2|c|), or a Timoshenko member's D̄
+        // (O4 §4.2: Q̄ = D̄·ē).
+        let bounded = m.bounded();
+        let (four_z, two_z) = bounded.absolute_bending(0)?;
+        let (four_y, two_y) = bounded.absolute_bending(1)?;
         let mut q = [zero; 6];
         for (index, terms) in [
             [(m.axial.abs(), 0usize), (zero, 0)],
@@ -484,9 +486,27 @@ pub(crate) struct VerifySpent<T> {
 }
 
 /// Builds `VerifyShared` from the verification precision's shared stages.
+#[cfg(test)]
 pub(crate) fn build_verify_shared<const L: usize, const R: usize, const W: usize>(
     shared: &Shared<L, R>,
     source: &PrimitiveSource,
+    group: &GroupPrep,
+    guard: StageGuard,
+) -> VerifySpent<VerifyShared<L, W>>
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
+    build_verify_shared_with::<L, R, W>(shared, source, None, group, guard)
+}
+
+/// `build_verify_shared` with the case's Timoshenko sidecar (O4 §4.2), which
+/// re-forms the members at q_W with their leaves.
+pub(crate) fn build_verify_shared_with<const L: usize, const R: usize, const W: usize>(
+    shared: &Shared<L, R>,
+    source: &PrimitiveSource,
+    shear: Option<&TimoshenkoLeafSet>,
     group: &GroupPrep,
     guard: StageGuard,
 ) -> VerifySpent<VerifyShared<L, W>>
@@ -542,7 +562,7 @@ where
             )
         } else {
             let gw = guard.with_base(lme(&ctx))?;
-            let members_w = form_members(&mut ctx_w, &mut sum, &gw, source)?;
+            let members_w = form_members_with(&mut ctx_w, &mut sum, &gw, source, shear)?;
             let directional_w = form_directional(&mut ctx_w, &mut sum, source)?;
             (
                 members_w.iter().map(full_ke).collect(),

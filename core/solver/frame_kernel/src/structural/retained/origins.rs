@@ -535,6 +535,90 @@ impl RecordedInvocation {
         Ok(out)
     }
 
+    /// O4 §4.2: the member cases of a Timoshenko document, each formed with
+    /// the one sidecar `shear`. The sidecar is associated with every case
+    /// source first (`TimoshenkoCaseError::Association`, before any record,
+    /// work or capacity use); then this is `solve_member_cases` with the
+    /// Timoshenko block in every K4SRC and K4STF identity. An empty set is
+    /// `solve_member_cases` exactly.
+    pub fn solve_timoshenko_cases(
+        &mut self,
+        sources: &[super::source::MemberSourceRef<'_>],
+        shear: &super::source::TimoshenkoLeafSet,
+        limit: CaseLimit,
+    ) -> Result<Vec<RecordedCase>, super::adaptive::TimoshenkoCaseError> {
+        use super::adaptive::TimoshenkoCaseError as E;
+        if shear.is_empty() {
+            return self.solve_member_cases(sources, limit).map_err(E::Origin);
+        }
+        for source in sources {
+            shear.validate(source.source()).map_err(E::Association)?;
+        }
+        let next = self
+            .used_cases
+            .checked_add(sources.len())
+            .ok_or(E::Origin(OriginError::CountRange("case ordinal")))?;
+        if self.store.calls.len() >= self.capacity.calls
+            || next > self.capacity.cases
+            || !self.runs_fit(sources.len())
+        {
+            return Err(E::Origin(OriginError::Capacity));
+        }
+        let mut owners = reserved(sources.len()).map_err(E::Origin)?;
+        let mut source_refs = reserved(sources.len()).map_err(E::Origin)?;
+        let run_refs = reserved(sources.len()).map_err(E::Origin)?;
+        let out = reserved(sources.len()).map_err(E::Origin)?;
+        let source_base = self.store.sources.len();
+        for (position, source) in sources.iter().enumerate() {
+            let owner = NativeOwner::Case(self.used_cases + position);
+            let id = self.store.sources.len();
+            self.store.sources.push(SourceOrigin {
+                id,
+                owner,
+                identity: source.encoding_with(Some(shear)),
+                stiffness: source.source().stiffness_encoding_with(Some(shear)),
+                combination_ledger: None,
+            });
+            owners.push(owner);
+            source_refs.push(id);
+        }
+        self.used_cases = next;
+        let call = self.store.calls.len();
+        let before = self.meter.checked_charged();
+        self.store.calls.push(CallOrigin {
+            id: call,
+            kind: CallKind::CaseBatch,
+            owners,
+            requested_operands: Vec::new(),
+            sources: source_refs,
+            runs: run_refs,
+            invocation_before: before,
+            invocation_after: before,
+            result: CallResult::Runs,
+        });
+        let group_base = self.store.groups.len();
+        let recording = BatchRecording {
+            store: &mut self.store,
+            call,
+            source_base,
+            group_base,
+        };
+        let out = adaptive::solve_shear_cases_projected(
+            sources,
+            shear,
+            limit,
+            &mut self.meter,
+            Some(recording),
+            out,
+            |core, run| RecordedCase {
+                outcome: core.outcome,
+                run: run.expect("recorded case has actual run"),
+            },
+        );
+        self.store.calls[call].invocation_after = self.meter.checked_charged();
+        Ok(out)
+    }
+
     /// SF-1: a case batch of `n` keeps one Run for every remaining declared
     /// combination: runs.len() + n + (combinations - used) <= runs. Dormant
     /// under `for_calls`; under `for_invocation` it stops a batch spending a
@@ -569,7 +653,7 @@ impl RecordedInvocation {
             id,
             owner: NativeOwner::Case(self.used_cases),
             identity: prepared.identity().to_vec(),
-            stiffness: prepared.source().stiffness_encoding(),
+            stiffness: prepared.stiffness_identity(),
             combination_ledger: None,
         });
         self.used_cases = next;
@@ -703,7 +787,7 @@ impl RecordedInvocation {
             id: source,
             owner,
             identity: prep.identity.clone(),
-            stiffness: prep.source.stiffness_encoding(),
+            stiffness: prep.stiffness_identity(),
             combination_ledger: Some(prep.ledger.encoding()),
         });
         self.store.calls[call].sources.push(source);

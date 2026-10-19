@@ -242,10 +242,11 @@ pub(crate) fn validate_preps(operands: &[(f64, &CasePrep)]) -> Result<(), Combin
         return Err(CombinationReason::OperandMemberLoads);
     }
     let first = operands[0].1;
-    let identity = first.source.stiffness_encoding();
+    // O4 §4.2: the K4STF identity carries a Timoshenko operand's block.
+    let identity = first.stiffness_identity();
     let (stations, supports) = (first.source.stations(), first.source.supports());
     if operands.iter().any(|(_, o)| {
-        o.source.stiffness_encoding() != identity
+        o.stiffness_identity() != identity
             || o.layout != first.layout
             || o.source.stations() != stations
             || o.source.supports() != supports

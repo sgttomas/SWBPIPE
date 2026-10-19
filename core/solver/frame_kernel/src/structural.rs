@@ -54,7 +54,9 @@ pub mod retained_api {
         Component, Constraint, DirectionalSpring, Dof, MemberProperty, NodalLoad, PrimitiveSource,
         SourceError, SourceParts, Spring, SpringKind, Station, StraightMember, SupportGroup,
         UniformMemberLoad, MemberLoadSet, MemberLoadError, MemberSourceRef,
+        TimoshenkoLeaf, TimoshenkoLeafError, TimoshenkoLeafSet,
     };
+    pub use super::retained::adaptive::TimoshenkoCaseError;
     pub use super::retained::verify::{e_hat, phi_512, resolution_hats, PHI_SCALE_BITS};
     pub use super::retained::wide::multi::{AttemptWork, Binary64Outcome, WidthWork};
     pub use super::retained::wide::WideError;
