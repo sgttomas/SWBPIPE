@@ -80,7 +80,7 @@ STREAM_SH = ("fn hash(domain: &'static str, payload: &Value) -> Result<String, R
              "    Ok(format!(\"{:x}\", hasher.finalize()))\n}\n")
 STREAM_RS = ("pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {\n"
              "    domain_digest(domain, DomainPayload::Value(payload))\n}\n",
-             "pub(crate) fn domain_hash_without(domain: &str, object: &serde_json::Map<String, Value>, omit: &str) -> Result<String, String> {\n"
+             "pub fn domain_hash_without(domain: &str, object: &serde_json::Map<String, Value>, omit: &str) -> Result<String, String> {\n"
              "    domain_digest(domain, DomainPayload::ObjectWithout(object, omit))\n}\n",
              "fn domain_digest(domain: &str, payload: DomainPayload<'_>) -> Result<String, String> {\n"
              "    let mut hasher = Sha256::new();\n"

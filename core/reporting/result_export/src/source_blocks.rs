@@ -182,7 +182,7 @@ pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {
 }
 /// `domain_hash` of an object less its top-level member `omit`, without a
 /// copy of the object.
-pub(crate) fn domain_hash_without(domain: &str, object: &serde_json::Map<String, Value>, omit: &str) -> Result<String, String> {
+pub fn domain_hash_without(domain: &str, object: &serde_json::Map<String, Value>, omit: &str) -> Result<String, String> {
     domain_digest(domain, DomainPayload::ObjectWithout(object, omit))
 }
 fn domain_digest(domain: &str, payload: DomainPayload<'_>) -> Result<String, String> {
@@ -1821,6 +1821,3 @@ mod rf16_failure_block_order_tests {
         assert!(!shape_in(&json!("unsupported"), &case["outcome"], &schema));
     }
 }
-#[cfg(test)]
-#[path = "hash_corpus_tests.rs"]
-mod hash_corpus_tests;

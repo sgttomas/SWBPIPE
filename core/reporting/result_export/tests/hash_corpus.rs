@@ -6,7 +6,7 @@
 //! alike through both paths. `T4_S6_HASH_CORPUS_ROOT` replaces the two roots
 //! with one supplied directory (T4-S6 ran it over the whole project). The
 //! former path lives only here.
-use super::{domain_hash, domain_hash_without};
+use open_pipe_stress_result_export::source_blocks::{domain_hash, domain_hash_without};
 use open_pipe_stress_canonical_json::{canonical_json_checked_v1_text, checked_v1_domain_canonical, DomainPayload};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
