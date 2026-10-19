@@ -228,11 +228,11 @@ impl Enc {
 fn sha_hex(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
-/// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))) (C1 §3),
-/// streamed from the borrowed payload into the hasher (T4-S6; DEL-05-03
-/// Design §9): no wrapper copy, serialized text, re-parse or canonical text is
-/// held, and the digest and every refusal are the former path's
-/// (`checked_v1_domain_canonical`).
+/// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))) (C1 §3): the
+/// one canonical writer streams the borrowed payload into the hasher (T4-S6,
+/// DEL-04-08 Design retained-pricing-rules.md §8.8, S6-HS). No wrapper copy,
+/// serialized text, re-parse or canonical text is held; the digest and every
+/// refusal are the former path's (`checked_v1_domain_canonical`).
 pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {
     let mut hasher = Sha256::new();
     checked_v1_domain_canonical(domain, DomainPayload::Value(payload), &mut ByteSink(|bytes: &[u8]| hasher.update(bytes))).ok()?;
