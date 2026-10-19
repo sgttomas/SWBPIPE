@@ -199,6 +199,10 @@ fn carries_group(model: &Value) -> bool {
 enum DispatchDisposition<'a> {
     PressureHealthy(bool),
     PressureFinding(&'a str),
+    /// A pressure-source statement whose reading finds `code` and whose
+    /// standing token is `needs_recompute` (G2's model-check findings on a
+    /// load/reference-state statement, which is never eligible).
+    PressureFindingNeedsRecompute(&'a str),
     HeaderRefused(&'a str),
     /// A retired v2 identity, refused by name at header dispatch.
     HeaderRetiredV2,
@@ -234,6 +238,13 @@ fn checked_dispatch(
             "pressure_source",
             json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":PRESSURE_SOURCE_TABLE_SHA256}),
             "unsupported",
+            json!([code]),
+            Value::Null,
+        ),
+        DispatchDisposition::PressureFindingNeedsRecompute(code) => (
+            "pressure_source",
+            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":PRESSURE_SOURCE_TABLE_SHA256}),
+            "needs_recompute",
             json!([code]),
             Value::Null,
         ),
@@ -480,19 +491,31 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
     );
     // B7b F1 and O4 (DEL-04-08 Design `o4-source-extension.md` §3.4): every
     // pipe section of the captured exact document declares an explicit
-    // length-valued, finite corrosion allowance c_a >= 0 with c_m + c_a < t
-    // (zero is no longer required: a nonzero allowance binds by value, through
-    // ACTUAL_SOURCE_GEOMETRY). A genuine statement coherently bound to an
-    // invocation whose allowance is negative, absent or null (its invocation
-    // commitment and receipt resealed to that invocation) is refused on the
-    // bound read; the unbound and transported reads cannot see the invocation
-    // and read the statement as before (admitted, not numerically eligible;
-    // transport passes). The committed J2 corpus regenerates with the O4
-    // limitation slice; until then it holds B7b's `nonzero` entry.
-    for (label, allowance) in [
-        ("negative", Some(json!({"value": -0.001, "unit": "m"}))),
-        ("absent", None),
-        ("null", Some(Value::Null)),
+    // length-valued, finite corrosion allowance c_a >= 0 with c_m + c_a < t.
+    // A genuine statement coherently bound to an invocation whose allowance is
+    // changed (its invocation commitment and receipt resealed to that
+    // invocation) is refused on the bound read; the unbound and transported
+    // reads cannot see the invocation and read the statement as before
+    // (admitted, not numerically eligible; transport passes).
+    // - `nonzero` (0.001 m, the statement's sections stating 0 m): a tampered
+    //   allowance. O4 admits the value, so the allowance check passes and the
+    //   by-value section binding refuses it: ACTUAL_SOURCE_GEOMETRY on a
+    //   pre-0.4 statement; on a load/reference-state statement (never
+    //   eligible, its materials not read raw) G2's model check,
+    //   SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY, with standing needs_recompute.
+    // - `absent`, `null` and (O4) `negative`: outside the contract, refused
+    //   by the allowance check.
+    // The committed J2 corpus regenerates with the O4 limitation slice.
+    let tampered = if control.family.resolved() {
+        ("SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY", true)
+    } else {
+        ("PHYSICS_SOURCE_ACTUAL_SOURCE_GEOMETRY", false)
+    };
+    for (label, allowance, (code, recompute)) in [
+        ("nonzero", Some(json!({"value": 0.001, "unit": "m"})), tampered),
+        ("absent", None, ("PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE", false)),
+        ("null", Some(Value::Null), ("PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE", false)),
+        ("negative", Some(json!({"value": -0.001, "unit": "m"})), ("PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE", false)),
     ] {
         let mut captured = invocation.clone();
         for pipe in captured["request"]["model"]["pipe_segments"].as_array_mut().unwrap() {
@@ -511,11 +534,12 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         bound["source_block_recovery"]["body"]["invocation"]["value"] =
             json!(domain_commitment("source_blocks_invocation_v1", &captured));
         reseal_receipt(&mut bound);
-        add_context_entry(
+        add_context_entry_with(
             format!("{prefix}:F1-captured-corrosion-allowance-{label}"),
             &bound,
             &captured,
-            "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE",
+            code,
+            if recompute { DispatchDisposition::PressureFindingNeedsRecompute(code) } else { DispatchDisposition::PressureFinding(code) },
             entries,
         );
         // Coherence: the resealed statement binds the changed invocation, so
@@ -726,6 +750,16 @@ fn add_context_entry(
     code: &str,
     entries: &mut Vec<Value>,
 ) {
+    add_context_entry_with(id, source, invocation, code, DispatchDisposition::PressureFinding(code), entries)
+}
+fn add_context_entry_with(
+    id: String,
+    source: &Value,
+    invocation: &Value,
+    code: &str,
+    disposition: DispatchDisposition<'_>,
+    entries: &mut Vec<Value>,
+) {
     let model = &invocation["request"]["model"];
     let validation = rv::validate("pressure-source", source, Some(model), Some(invocation));
     check_refusal(&validation, code);
@@ -737,7 +771,7 @@ fn add_context_entry(
     assert_eq!(transport, json!({"ok":true}));
     entries.push(json!({"id":id,"reader":"pressure-source","source":source,"invocation":invocation,
         "transport_source":transported,"expected":{"validation":validation,"unbound":unbound,"transport":transport,
-        "dispatch":checked_dispatch(source,model,invocation,DispatchDisposition::PressureFinding(code))}}));
+        "dispatch":checked_dispatch(source,model,invocation,disposition)}}));
 }
 fn add_selected_pressure_entries(control: &Control, ordinary: &Control, entries: &mut Vec<Value>) {
     let selected = control.joined.source["source_block_recovery"]["body"]["cases"]
