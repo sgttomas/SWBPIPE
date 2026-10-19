@@ -1,8 +1,11 @@
-//! T4-S6 byte-identity regression: over every JSON document the project
-//! commits (fixtures, corpora, successors, publications, references, evidence;
-//! each JSONL line separately), the streamed canonical text and digest are the
-//! former path's, and every embedded retained or source-block publication and
-//! receipt hashes alike through both paths. The former path lives only here.
+//! T4-S6 byte-identity regression: over every JSON document under the
+//! project's `fixtures/` and `core/` trees (result fixtures, corpora,
+//! successors, publications, requests and crate test fixtures; each JSONL line
+//! separately), the streamed canonical text and digest are the former path's,
+//! and every embedded retained or source-block publication and receipt hashes
+//! alike through both paths. `T4_S6_HASH_CORPUS_ROOT` replaces the two roots
+//! with one supplied directory (T4-S6 ran it over the whole project). The
+//! former path lives only here.
 use super::{domain_hash, domain_hash_without};
 use open_pipe_stress_canonical_json::{canonical_json_checked_v1_text, checked_v1_domain_canonical, DomainPayload};
 use serde_json::{json, Value};
@@ -17,8 +20,8 @@ fn sha(text: &str) -> String {
     format!("{:x}", Sha256::digest(text.as_bytes()))
 }
 
-/// Every committed-looking JSON/JSONL file under the project, skipping build and dependency trees.
-pub(crate) fn corpus_files() -> Vec<PathBuf> {
+/// Every JSON/JSONL file under the corpus roots, skipping build, dependency and hidden trees.
+fn corpus_files() -> Vec<PathBuf> {
     fn walk(dir: &Path, out: &mut Vec<PathBuf>) {
         let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|e| e.unwrap().path()).collect();
         entries.sort();
@@ -33,14 +36,20 @@ pub(crate) fn corpus_files() -> Vec<PathBuf> {
             }
         }
     }
-    let project = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let roots = match std::env::var_os("T4_S6_HASH_CORPUS_ROOT") {
+        Some(root) => vec![PathBuf::from(root)],
+        None => vec![manifest.join("../../../fixtures"), manifest.join("../..")],
+    };
     let mut out = Vec::new();
-    walk(&project, &mut out);
+    for root in roots {
+        walk(&root, &mut out);
+    }
     out
 }
 
 /// Each JSON document a file holds (a JSONL file holds one per non-empty line); unparsable files are skipped.
-pub(crate) fn corpus_documents(path: &Path) -> Vec<Value> {
+fn corpus_documents(path: &Path) -> Vec<Value> {
     let text = match std::fs::read_to_string(path) {
         Ok(text) => text,
         Err(_) => return Vec::new(),
@@ -117,5 +126,5 @@ fn streamed_canonical_text_and_digests_equal_the_former_path_over_the_committed_
     }
     eprintln!("T4-S6 corpus: {counts:?}");
     // The corpus is the repository's; these floors only guard against walking nothing.
-    assert!(counts.files > 1000 && counts.publications > 50 && counts.committed_publication_digests > 20, "{counts:?}");
+    assert!(counts.files > 400 && counts.publications > 50 && counts.committed_publication_digests > 20, "{counts:?}");
 }

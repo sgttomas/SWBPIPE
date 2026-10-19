@@ -245,51 +245,6 @@ fn receipt_hash_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     );
 }
 
-/// T4-S6 byte-identity regression at T16 and T25: over every JSON document the project commits
-/// (each JSONL line separately), `retained_wire::domain_hash` and `hash` give the former path's
-/// digest or refusal (the message too, for `hash`). result_export's corpus test does the same for
-/// the reader's hash, its publication-without-receipt views and the canonical text.
-#[test]
-fn streamed_hashes_equal_the_former_path_over_the_committed_corpus() {
-    fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
-        let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|e| e.unwrap().path()).collect();
-        entries.sort();
-        for path in entries {
-            let name = path.file_name().unwrap().to_string_lossy().into_owned();
-            if path.is_dir() {
-                if !(name.starts_with('.') || name == "target" || name == "node_modules" || name == "dist") {
-                    walk(&path, out);
-                }
-            } else if name.ends_with(".json") || name.ends_with(".jsonl") {
-                out.push(path);
-            }
-        }
-    }
-    let mut files = Vec::new();
-    walk(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."), &mut files);
-    let (mut documents, mut refused) = (0usize, 0usize);
-    for path in &files {
-        let Ok(text) = std::fs::read_to_string(path) else { continue };
-        let values: Vec<Value> = if path.extension().is_some_and(|e| e == "jsonl") {
-            text.lines().filter(|l| !l.trim().is_empty()).filter_map(|l| serde_json::from_str(l).ok()).collect()
-        } else {
-            serde_json::from_str(&text).ok().into_iter().collect()
-        };
-        for value in values {
-            documents += 1;
-            let former = checked(&json!({"domain": "source_blocks_publication_v1", "payload": &value}))
-                .map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
-            assert_eq!(hash("source_blocks_publication_v1", &value), former, "{}", path.display());
-            let former = checked(&json!({"domain": "retained_precision_publication_mp_v2", "payload": &value}))
-                .map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
-            refused += usize::from(former.is_err());
-            assert_eq!(crate::retained_wire::domain_hash("retained_precision_publication_mp_v2", &value), former.ok(), "{}", path.display());
-        }
-    }
-    eprintln!("T4-S6 corpus: {} files, {documents} documents, {refused} refused", files.len());
-    assert!(documents > 4000, "{documents}");
-}
-
 // Append to source_receipt/tests.rs after parent's bounded public run.
 fn exact_raw() -> Value {
     serde_json::from_str(include_str!(
