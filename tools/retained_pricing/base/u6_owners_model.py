@@ -163,8 +163,12 @@ def stream_route(vf, lmax, eps):
     temporary of the longest string (to_vec starts at 128 B and doubles: <= max(128, 2(eps*lmax + 2)), one at a
     time), the number-rendering temporaries and a retained depth*128 B frame allowance (<= depth*8*16 + 144 + 128 B,
     as the former route charged), and the per-object sorted key vectors (with_capacity(len) of 8-byte references,
-    live along the current path; charged for every entry at s(&str)). SHA-256 state is on the stack. Nothing else
-    allocates: no wrapper, text, parse tree, seen set, escape scratch or canonical output."""
+    live along the current path; charged for every entry at s(&str) = 16 B). The 16 B per entry covers the 8 B key
+    reference and up to 8 B of `keys.sort_by`'s stable-sort scratch: std's stable sort sorts len <= 512 references
+    in its 4 KiB stack buffer and otherwise allocates one heap scratch of at most len references (8 B each), freed
+    when `sorted_keys` returns, before the writer descends; so at most one scratch is live, and it is within the
+    charge of the object being sorted. SHA-256 state is on the stack. Nothing else allocates: no wrapper, text,
+    parse tree, seen set, escape scratch or canonical output. No coefficient changes."""
     from g3lib import B, s
     return B(max(128, 2 * (eps * lmax + 2))) + B(vf.depth * 8 * 16 + 144 + 128) + s("&str") * vf.ent
 

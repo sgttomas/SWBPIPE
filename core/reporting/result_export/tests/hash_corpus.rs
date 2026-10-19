@@ -3,7 +3,10 @@
 //! successors, publications, requests and crate test fixtures; each JSONL line
 //! separately), the streamed canonical text and digest are the former path's,
 //! and every embedded retained or source-block publication and receipt hashes
-//! alike through both paths. `T4_S6_HASH_CORPUS_ROOT` replaces the two roots
+//! alike through both paths. Every receipt hashes to its committed
+//! `receipt_sha256`, and every publication is either an original (its digest is
+//! its committed `publication_sha256`) or a transported derivative carrying an
+//! original's receipt unchanged. `T4_S6_HASH_CORPUS_ROOT` replaces the two roots
 //! with one supplied directory (T4-S6 ran it over the whole project). The
 //! former path lives only here.
 use open_pipe_stress_result_export::source_blocks::{domain_hash, domain_hash_without};
@@ -70,13 +73,24 @@ struct Counts {
     publications: usize,
     receipts: usize,
     committed_publication_digests: usize,
+    transported_publications: usize,
     committed_receipt_digests: usize,
 }
 
+/// One embedded publication: where it is, its digest through the former path, its
+/// committed `publication_sha256` and its receipt.
+struct Publication {
+    at: String,
+    digest: Result<String, String>,
+    committed: Option<String>,
+    receipt: Value,
+}
+
 /// Publications and receipts: any object carrying a retained or source-block receipt.
-fn embedded(value: &Value, counts: &mut Counts) {
+/// Every receipt must hash, through both paths, to its committed `receipt_sha256`.
+fn embedded(value: &Value, at: &str, counts: &mut Counts, publications: &mut Vec<Publication>) {
     match value {
-        Value::Array(items) => items.iter().for_each(|v| embedded(v, counts)),
+        Value::Array(items) => items.iter().enumerate().for_each(|(i, v)| embedded(v, &format!("{at}/{i}"), counts, publications)),
         Value::Object(map) => {
             for (key, domain, receipt_domain) in [
                 ("retained_precision", "retained_precision_publication_mp_v2", "retained_precision_receipt_mp_v2"),
@@ -86,29 +100,63 @@ fn embedded(value: &Value, counts: &mut Counts) {
                 let mut public = value.clone();
                 public.as_object_mut().unwrap().remove(key);
                 let former = former_text(domain, &public).map(|t| sha(&t));
-                assert_eq!(domain_hash_without(domain, map, key), former, "{key} publication");
+                assert_eq!(domain_hash_without(domain, map, key), former, "{key} publication at {at}");
                 counts.publications += 1;
-                if former.as_ref().ok().map(String::as_str) == receipt["body"]["publication_sha256"].as_str() {
-                    counts.committed_publication_digests += 1;
+                // A receipt is an object with a `body` and a `receipt_sha256` (a schema's
+                // property of the same name is not one).
+                if !(receipt["body"].is_object() && receipt.get("receipt_sha256").is_some()) {
+                    continue;
                 }
-                if receipt.get("body").is_some() {
-                    let former = former_text(receipt_domain, &receipt["body"]).map(|t| sha(&t));
-                    assert_eq!(domain_hash(receipt_domain, &receipt["body"]), former, "{key} receipt");
-                    counts.receipts += 1;
-                    if former.as_ref().ok().map(String::as_str) == receipt["receipt_sha256"].as_str() {
-                        counts.committed_receipt_digests += 1;
-                    }
-                }
+                let receipt_former = former_text(receipt_domain, &receipt["body"]).map(|t| sha(&t));
+                assert_eq!(domain_hash(receipt_domain, &receipt["body"]), receipt_former, "{key} receipt at {at}");
+                counts.receipts += 1;
+                assert_eq!(
+                    receipt_former.as_ref().ok().map(String::as_str),
+                    receipt["receipt_sha256"].as_str(),
+                    "{key} receipt at {at}: committed receipt_sha256"
+                );
+                counts.committed_receipt_digests += 1;
+                publications.push(Publication {
+                    at: format!("{at} ({key})"),
+                    digest: former,
+                    committed: receipt["body"]["publication_sha256"].as_str().map(str::to_owned),
+                    receipt: receipt.clone(),
+                });
             }
-            map.values().for_each(|v| embedded(v, counts));
+            map.iter().for_each(|(k, v)| embedded(v, &format!("{at}/{k}"), counts, publications));
         }
         _ => {}
+    }
+}
+
+/// The publication anchors. A publication whose digest equals its committed
+/// `publication_sha256` is an original publication. Any other is a transported
+/// derivative (a document, analysis run, stress-neutral or derivative envelope that
+/// carries its source's receipt unchanged): its digest differs, as expected, and it
+/// must carry, byte for byte, the receipt of an original publication in the corpus
+/// whose digest is the committed one. Nothing else is accepted.
+fn check_anchors(publications: &[Publication], counts: &mut Counts) {
+    let originals: Vec<&Publication> =
+        publications.iter().filter(|p| p.committed.is_some() && p.digest.as_ref().ok() == p.committed.as_ref()).collect();
+    for p in publications {
+        let committed = p.committed.as_deref().unwrap_or_else(|| panic!("{}: no committed publication_sha256", p.at));
+        if p.digest.as_deref().ok() == Some(committed) {
+            counts.committed_publication_digests += 1;
+            continue;
+        }
+        let anchor = originals
+            .iter()
+            .find(|o| o.committed.as_deref() == Some(committed))
+            .unwrap_or_else(|| panic!("{}: publication_sha256 {committed} is neither its own digest nor an original publication's", p.at));
+        assert_eq!(p.receipt, anchor.receipt, "{}: transported receipt differs from its original at {}", p.at, anchor.at);
+        counts.transported_publications += 1;
     }
 }
 
 #[test]
 fn streamed_canonical_text_and_digests_equal_the_former_path_over_the_committed_corpus() {
     let mut counts = Counts::default();
+    let mut publications = Vec::new();
     for path in corpus_files() {
         let documents = corpus_documents(&path);
         counts.files += usize::from(!documents.is_empty());
@@ -121,10 +169,13 @@ fn streamed_canonical_text_and_digests_equal_the_former_path_over_the_committed_
             assert_eq!(streamed, former, "canonical text of {}", path.display());
             assert_eq!(domain_hash(domain, &document), former.as_ref().map(|t| sha(t)).map_err(Clone::clone), "digest of {}", path.display());
             if former.is_ok() { counts.accepted += 1 } else { counts.refused += 1 }
-            embedded(&document, &mut counts);
+            embedded(&document, &path.display().to_string(), &mut counts, &mut publications);
         }
     }
+    check_anchors(&publications, &mut counts);
     eprintln!("T4-S6 corpus: {counts:?}");
+    assert_eq!(counts.committed_receipt_digests, counts.receipts, "every receipt matches its committed digest");
+    assert_eq!(counts.committed_publication_digests + counts.transported_publications, counts.receipts, "{counts:?}");
     // The corpus is the repository's; these floors only guard against walking nothing.
     assert!(counts.files > 400 && counts.publications > 50 && counts.committed_publication_digests > 20, "{counts:?}");
 }
