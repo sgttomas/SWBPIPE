@@ -124,7 +124,7 @@ half the bound) must pass. Repair round 1 makes the synthetic receipt complete
 in the product's shapes (rows, published-row universe, endpoint sections,
 section functionals, support norms, translation norms, a general transform).
 It adds positive cases for a member along global y and for a section authored
-in mm, plus the "Repair round 1" negatives below. Result: 40 of 40 as expected.
+in mm, plus the "Repair round 1" negatives below. Repair round 2 adds 28 more negatives (below). Result: 68 of 68 as expected.
 
 The **real-data controls** (`--controls`) must each fail: every Timoshenko
 dump against its Euler–Bernoulli twin's envelope (96 of 96 failed), every
@@ -393,6 +393,99 @@ unchanged and the exclusion is now stated.
 Worst margins are unchanged by the repairs. Largest projection |value −
 exact|/absolute bound: 0.433. Largest K_local share of the bound: 0.572
 (k_axial). Largest k_θθ' share: 0.144 (PEXACT-C).
+
+## Repair round 2 (after independent review of `74ca180d2c`)
+
+The review confirmed items 4–7 and the BOUND addendum, but showed that
+evidence was bound only to its own labels, that the norm comparison was not
+sign-safe, that duplicate published ids collapsed before checking, and that
+list lengths did not establish identities. The repairs follow a principle
+rather than the individual probes. `BOUND.md`, `bound.json` and
+`required_selection.json` are unchanged.
+
+- **(a) The expected public identity map** (`expected_public_rows`). From the
+  declared problem's nodes, members and supports, every public row of a
+  selected case is listed by its identity: entity, kind, component, location,
+  coordinate system, unit and section basis. Each identity is mapped to the
+  evidence it must carry: the functional for a projection; the member,
+  station, action and basis leaves for a stress row; the member and basis
+  leaves for a maximum; the support's three components for a norm; the node's
+  distinct UX/UY/UZ rows for a translation norm; and the expected input rows
+  for U4b's derived rows (σ⁺/σ⁻ from the same station's and basis's axial and
+  bending rows, τ_v,max from its two shear rows). The case's published
+  identities must equal this set exactly, each once (`p_public_identity_map`).
+- **(b) Binding by the public row's identity** (`public_binding`).
+  Expectations come from the row's identity, never from the evidence's labels,
+  and the evidence's labels must then agree (`p_projection_bound_to_row`,
+  `p_stress_bound_to_row`, `p_maximum_bound_to_row`,
+  `p_support_norm_bound_to_row`, `p_translation_inputs_are_the_node_translations`,
+  `p_derived_row_inputs`).
+- **(c) Raw duplicates.** Published ids are checked for duplicates in the raw
+  list before any dict is built (`i_unique_published_rows`). Projections,
+  receipt rows, stress checks, norm checks and maxima are also checked on their
+  raw lists.
+- **(d) Set equality, not lengths.** Endpoint fractions must be exactly
+  {0, 1} (endpoint sections and maxima), and section stations exactly
+  {0, ¼, ½, ¾, 1} with the six distinct actions. Translation inputs must be
+  exactly the owning node's distinct UX/UY/UZ rows, and derived-row inputs
+  exactly their expected rows.
+- **(e) Sign-safe claims.** The comparison `sqrt_in`/`max_in` is exact and
+  sign-safe: a negative upper limit never holds a root. For projections,
+  support norms and maxima:
+  - norm and maximum values, absolute bounds and relative bounds must be ≥ 0;
+  - the relative bound must not exceed the binary64 1e-9 limit, and the stated
+    limit must equal it;
+  - the interval must lie within value ± absolute bound, and the absolute
+    bound within relative bound × |value|. These are the published claims'
+    own form, holding on all 34,812 real projections, 3,080 norms and 1,228
+    maxima;
+  - |value − exact| ≤ absolute bound, checked directly;
+  - the claimed relative accuracy must hold against the exact value,
+    independently of the absolute bound.
+
+  Every evidence action (stress, endpoint, station, maximum) must lie within
+  1e-9 of the exact functional, with interval width at most 2e-9 of its value.
+
+**Invariants and the evasions that test them.** Each evasion is a permanent
+self-test negative that must fail at the named check. E1–E8 are Codex's
+evasions; A1–A20 are ours.
+
+| Invariant | Check | Evasions (must fail) |
+|---|---|---|
+| Each public identity appears exactly once and is expected | `p_public_identity_map` | A2 a stress row relabelled to another station; A3 a maximum row relabelled to MPa; A19 a row relabelled to an undeclared member |
+| A published id appears once in the raw list | `i_unique_published_rows` | E6 a duplicate row with a wrong value placed first |
+| Raw evidence lists have unique ids | `i_unique_*` | A13 a duplicated receipt row; A14 a duplicated stress check with a wrong action |
+| A projection is the functional its row's identity names | `p_projection_bound_to_row` | A1 two projections' functionals and values swapped; A18 a projection's result_id pointed at another row |
+| A stress check is its row's member, station, action and basis leaves | `p_stress_bound_to_row` | E1 y/z values swapped with their evidence ids; round 1's bending-z bound to axial |
+| A maximum is its row's member and basis | `p_maximum_bound_to_row` | E2 nominal/reduced swapped with their evidence ids |
+| A support norm is its row's support's three components | `p_support_norm_bound_to_row` | E3 force-norm rows swapped across supports |
+| A translation norm's inputs are its node's distinct UX/UY/UZ rows; its value is that node's exact norm | `p_translation_inputs_are_the_node_translations`, `b_translation_norm` | E8 inputs [UX, UX, UX]; A16 a value 1e-3 off |
+| Derived rows' inputs are their expected rows | `p_derived_row_inputs` | A15 inputs pointed at another station |
+| Endpoints are exactly {0, 1}; stations exactly the five, each with six distinct actions | `i_endpoint_sections_inventory`, `b_evidence_list_lengths`, `i_section_functionals_inventory` | E7 end i twice in an endpoint section; A11 end i twice in a maximum; A17 a station twice |
+| Norm, maximum and projection claims are nonnegative and self-consistent, within the 1e-9 limit | `b_derived_norm_claims_consistent`, `c_maximum_claims_consistent`, `b_projection_claims_consistent` | A4 projection interval and bound inflated; A5 1e-6 off with self-consistent claims above the limit; A6 negative projection bound; A9 negative maximum; A20 negative norm bound |
+| The value lies within its absolute bound of the exact value (sign-safe) | `b_derived_norm_value`, `c_maximum_contains_exact`, `b_projection_contains_exact` | E4 negative norm with the small original bound; A7 a projection, its interval and row sign-flipped |
+| The claimed relative accuracy holds against the exact value | `b_derived_norm_relative_claim`, `c_maximum_relative_claim`, `b_projection_relative_claim` | E5 norm 1234567 with an inflated bound and a tiny relative claim; A10 the same for a maximum |
+| An evidence action lies within 1e-9 of the exact functional | `b_action_accuracy` | A8 an action 1e-6 off inside a widened interval, with its row recomputed from it |
+| A norm's component values are its projections | `b_derived_component_is_projection` | A12 a component value changed with its interval widened |
+
+Codex's 13 round-2 mutant inputs, rerun through the command line against the
+repaired oracle:
+- all 11 actionable or control mutants exit 1 at the intended check;
+- the baseline passes;
+- `wrong_projection_functional_index` passes, as the review itself concluded
+  it should: projections carry no index field.
+
+**Not judged** (stated, not hidden):
+- U4b's derived-row values (σ⁺/σ⁻, τ_v,max; their inputs are bound);
+- the receipt's `supports[].components[].action_terms` metadata (support
+  values are judged through their projections);
+- the maximum's governing-endpoint label (`station_fraction`, `locations`).
+  The maximum's value is judged over both endpoints.
+
+**Full rerun after round 2** (`run.sh`, rc 0; self-test 68 of 68): j2 192/192
+PASS (controls 96/96/144 failed as required, 0 wrongly passed); rf 32/32 (16/16/24, 0); judged 18 PASS, 326
+not selected; phi2 336 PASS, 80 not selected; every required triple selected and passed (192/32/18/336),
+zero FAIL. Worst margins are unchanged.
 
 ## Reproduce
 

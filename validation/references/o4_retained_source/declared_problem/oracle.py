@@ -115,6 +115,28 @@ def sqrt_down(x):
     return F(math.isqrt(a * b * m * m), b * m)
 
 
+def sqrt_in(s2, lo, hi):
+    """lo <= sqrt(s2) <= hi exactly, sign-safe (round 2 (e)): a negative hi can never hold a square root."""
+    return (lo <= 0 or lo * lo <= s2) and hi >= 0 and s2 <= hi * hi
+
+
+def max_in(terms, Z, lo, hi):
+    """lo <= max_i(a_i + sqrt(s_i)/Z) <= hi exactly, for terms (a_i, s_i) and Z > 0."""
+    def at_least(a_, s_, bound_):  # a + sqrt(s)/Z >= bound
+        d = (bound_ - a_) * Z
+        return d <= 0 or d * d <= s_
+
+    def at_most(a_, s_, bound_):  # a + sqrt(s)/Z <= bound
+        d = (bound_ - a_) * Z
+        return d >= 0 and s_ <= d * d
+    return bool(terms) and any(at_least(a_, s_, lo) for a_, s_ in terms) and all(at_most(a_, s_, hi) for a_, s_ in terms)
+
+
+def rel_in(x, v, rel):
+    """|v - x| <= rel*|x| for exact x (the claimed relative accuracy against the exact value)."""
+    return v == x if x == 0 else abs(v - x) <= rel * abs(x)
+
+
 def rho(k):
     """Upper bound of (1 - eps)^(-k) - 1 for k a nonnegative multiple of 1/2, exact for integers."""
     k = F(k)
@@ -433,6 +455,8 @@ def envelope_of(doc):
 
 def judge(dump, envelope_doc, request, bound, theory=None, allowance=None):
     envelope = envelope_of(envelope_doc)
+    raw_ids = [r.get("id") for r in envelope.get("results", [])]
+    dup_ids = sorted({i for i in raw_ids if raw_ids.count(i) > 1}, key=str)  # round 2 (c): before any dict
     results = {r["id"]: r for r in envelope.get("results", [])}
     sbr = envelope.get("source_block_recovery")
     out = {"publication_link": None, "cases": [], "unselected": [], "errors": []}
@@ -457,7 +481,7 @@ def judge(dump, envelope_doc, request, bound, theory=None, allowance=None):
         case = Case(record["case_id"])
         try:
             judge_record(case, record, receipt_cases.get(record["case_id"]), evidence.get(record["case_id"]),
-                         results, request, bound, theory, allowance, out["publication_link"])
+                         results, request, bound, theory, allowance, out["publication_link"], dup_ids)
         except Exception as exc:  # a malformed dump is a failure, never a pass
             case.check("oracle_completed", False, f"{type(exc).__name__}: {exc}")
         out["cases"].append(case.report())
@@ -760,7 +784,8 @@ def inventory(case, ns, fp, rc, extrema, case_rows, frames):
     src = rc.get("source") or {}
     es = [e["pipe_id"] for e in src.get("endpoint_sections", [])]
     sf = [e["pipe_id"] for e in src.get("section_functionals", [])]
-    case.check("i_endpoint_sections_inventory", sorted(es) == sorted(frames) and all(len(e["endpoints"]) == 2 for e in src.get("endpoint_sections", [])),
+    case.check("i_endpoint_sections_inventory", sorted(es) == sorted(frames) and all(
+        sorted(ep["station_fraction"] for ep in e["endpoints"]) == [0, 1] for e in src.get("endpoint_sections", [])),
                f"endpoint sections {es} for members {sorted(frames)}")
     case.check("i_section_functionals_inventory", sorted(sf) == sorted(frames) and all(
         sorted(st["station_fraction"] for st in e["stations"]) == [0, 0.25, 0.5, 0.75, 1] for e in src.get("section_functionals", [])),
@@ -768,7 +793,146 @@ def inventory(case, ns, fp, rc, extrema, case_rows, frames):
     return {"projections": by_fid, "translation_norms": translation_norms}
 
 
-def judge_record(case, record, rc, ev, results, request, bound, theory, allowance, publication_link):
+RELATIVE_LIMIT = F(1e-9)  # the receipt's relative_limit constant, the binary64 1e-9 (schema const)
+AXES = {"X": "x", "Y": "y", "Z": "z"}
+
+
+def public_identity(row):
+    """A published row's public identity: what it claims to be, independent of its id and of any evidence."""
+    m = row.get("metadata") or {}
+    b = m.get("basis") or ""
+    basis = b.split("section_basis=", 1)[1].split(";")[0].strip() if "section_basis=" in b else None
+    return (row.get("entity_ref"), row.get("kind"), m.get("component"), m.get("location"), m.get("coordinate_system"), row.get("unit"), basis)
+
+
+def expected_public_rows(ns, frames):
+    """Round 2 (a): every public row of a selected case, derived from the declared problem (nodes, members,
+    supports), each mapped to the evidence it must carry. Kinds and metadata are the public vocabulary of the
+    pressure-source-1 rows."""
+    nodes = []
+    for d in ns["dof_map"]:
+        if d["node_id"] not in nodes:
+            nodes.append(d["node_id"])
+    supports = sorted({p["support_id"] for p in ns["prescribed"]} | {s["support_id"] for s in ns["springs"]})
+    want = {}
+    for node in nodes:
+        for comp in COMPONENTS6:
+            axis = comp[1].lower()
+            if comp[0] == "U":
+                ident = (node, f"global_nodal_displacement_{axis}", f"nodal_displacement_{axis}", "node", "global", "mm", None)
+                want[ident] = ("projection", ("nodal_translation", node, "node", comp))
+            else:
+                ident = (node, f"global_nodal_rotation_{axis}", f"nodal_rotation_{axis}", "node", "global", "rad", None)
+                want[ident] = ("projection", ("nodal_rotation", node, "node", comp))
+        want[(node, "displacement_magnitude", None, None, None, "mm", None)] = ("translation_norm", node)
+    for m in frames:
+        for comp in ACTION_INDEX:
+            unit = "N" if ACTION_INDEX[comp] < 3 else "N*m"
+            for loc in ("end_i", "end_j"):
+                want[(m, f"element_local_{comp}", comp, loc, "element_local", unit, None)] = ("projection", ("member_end_action", m, loc, comp))
+            for loc in INTERIOR:
+                want[(m, f"element_local_{comp}", comp, loc, "element_local", unit, None)] = ("projection", ("member_station_action", m, loc, comp))
+        for loc in STATION_FRACTION:
+            for basis in ("nominal_section", "reduced_section"):
+                for comp in STRESS_COMPONENTS:
+                    want[(m, f"element_local_{comp}", comp, loc, "element_local", "MPa", basis)] = ("stress", m, loc, comp, basis)
+                stress_inputs = [(m, f"element_local_{c}", c, loc, "element_local", "MPa", basis)
+                                 for c in ("axial_normal_stress", "bending_normal_stress_y", "bending_normal_stress_z")]
+                for extreme in ("sigma_plus", "sigma_minus"):
+                    want[(m, "element_local_normal_stress_extreme", extreme, loc, "pipe_section", "MPa", basis)] = ("dnq", stress_inputs)
+                shear_inputs = [(m, f"element_local_{c}", c, loc, "element_local", "N", None) for c in ("shear_force_y", "shear_force_z")]
+                want[(m, "element_local_transverse_shear_stress_maximum", "tau_v_max", loc, "pipe_section", "MPa", basis)] = ("dnq", shear_inputs)
+        for basis in ("nominal_section", "reduced_section"):
+            want[(m, "pipe_elastic_normal_stress_maximum_v2", "maximum_absolute_normal_stress", "governing_station", "pipe_section", "Pa", basis)] = ("maximum", m, basis)
+    for sup in supports:
+        for comp in SUPPORT_COMPONENTS:
+            want[(sup, "support_reaction_component_v2", comp, "node", "global", "N" if comp[0] == "F" else "N*m", None)] = \
+                ("projection", ("support_action_component", sup, "node", comp))
+        want[(sup, "support_reaction_force_magnitude_v2", "force_magnitude", "node", "global", "N", None)] = ("support_norm", sup, "force")
+        want[(sup, "support_reaction_moment_magnitude_v2", "moment_magnitude", "node", "global", "N*m", None)] = ("support_norm", sup, "moment")
+    return want
+
+
+def public_binding(case, ns, fp, rc, extrema, case_rows, frames, by_id):
+    """Round 2 (b): bind every evidence item to the public row it vouches for by that row's full identity.
+
+    Expectations come from the row's identity (entity, kind, component, location, basis, unit), never from the
+    evidence's own labels; the evidence's labels must then agree. Returns the node of each translation norm row."""
+    want = expected_public_rows(ns, frames)
+    ident_of = {rid: public_identity(row) for rid, row in case_rows.items()}
+    idents = list(ident_of.values())
+    dup = sorted({i for i in idents if idents.count(i) > 1}, key=str)
+    missing = [k for k in want if k not in idents]
+    extra = [i for i in idents if i not in want]
+    case.check("p_public_identity_map", not dup and not missing and not extra,
+               f"public rows: duplicated identities {dup[:3]}, missing {missing[:3]}, unexpected {extra[:3]}")
+    id_of = {}
+    for rid, ident in ident_of.items():
+        id_of.setdefault(ident, rid)
+    fid_of = {}
+    for fid, (_, fn) in by_id.items():
+        if not (fn["quantity"] == "support_action_component" and fn["owner"]["kind"] == "spring"):
+            fid_of.setdefault((fn["quantity"], fn["owner"]["id"], fn["location"], fn["component"]), fid)
+    rows = {r["result_id"]: r for r in rc.get("rows", [])}
+    proj = {p["projection_id"]: p for p in rc.get("projections", [])}
+    stress = {sc["result_id"]: sc for sc in rc.get("section_stress_checks", [])}
+    derived = {dc["result_id"]: dc for dc in rc.get("derived_checks", [])}
+    maxima = {mx["result_id"]: mx for mx in extrema}
+    stress_action = {"axial_normal_stress": "axial_force", "bending_normal_stress_y": "bending_moment_y",
+                     "bending_normal_stress_z": "bending_moment_z", "torsional_shear_stress": "torsional_moment"}
+    node_of_norm = {}
+    for rid, ident in ident_of.items():
+        spec = want.get(ident)
+        r = rows.get(rid)
+        if spec is None or r is None:
+            continue
+        kind = spec[0]
+        if kind == "projection":
+            p = proj.get(r.get("projection_id")) if r["treatment"] == "qualified_projection" else None
+            case.check("p_projection_bound_to_row", p is not None and p["functional_id"] == fid_of.get(spec[1]) and p["result_id"] == rid,
+                       f"{rid} {ident}: its projection is not the functional {spec[1]}")
+        elif kind == "stress":
+            _, m, loc, comp, basis = spec
+            sc = stress.get(rid) if r["recipe_id"] == "retained_source_straight_stress_v1" else None
+            leaves = basis_leaves(frames[m]["frame"], basis)
+            ok = sc is not None and sc["functional_id"] == fid_of.get(("member_station_action", m, loc, stress_action[comp])) \
+                and sc["pipe_id"] == m and sc["location"] == loc and sc["component"] == comp \
+                and sc["result_id"].endswith(":reduced-section" if basis == "reduced_section" else ":nominal-section") \
+                and f2b(sc["parameters"]["area_m2"]) == leaves["area"] and f2b(sc["parameters"]["section_modulus_m3"]) == leaves["section_modulus"] \
+                and f2b(sc["parameters"]["torsion_constant_m4"]) == leaves["torsion_constant"] \
+                and f2b(sc["parameters"]["torsion_radius_m"]) == leaves["torsion_radius"]
+            case.check("p_stress_bound_to_row", ok, f"{rid} {ident}: its stress check is not the {stress_action[comp]} action of {m} at {loc} on {basis}")
+        elif kind == "maximum":
+            _, m, basis = spec
+            mx = maxima.get(rid) if r["recipe_id"] == "retained_source_endpoint_normal_max_v1" else None
+            leaves = basis_leaves(frames[m]["frame"], basis)
+            ok = mx is not None and mx["pipe_id"] == m and mx["section_basis"] == basis \
+                and f2b(mx["area_m2"]) == leaves["area"] and f2b(mx["section_modulus_m3"]) == leaves["section_modulus"]
+            case.check("p_maximum_bound_to_row", ok, f"{rid} {ident}: its maximum evidence is not {m} on {basis}")
+        elif kind == "support_norm":
+            _, sup, which = spec
+            recipe = f"support_{which}_norm_scaled_checked_v1"
+            comps = ("Fx", "Fy", "Fz") if which == "force" else ("Mx", "My", "Mz")
+            dc = derived.get(rid) if r["recipe_id"] == recipe else None
+            expect_ids = [fid_of.get(("support_action_component", sup, "node", c)) for c in comps]
+            ok = dc is not None and dc["support_id"] == sup and dc["recipe_id"] == recipe and list(dc["functional_ids"]) == expect_ids
+            case.check("p_support_norm_bound_to_row", ok, f"{rid} {ident}: its norm check is not {sup}'s {which} components")
+        elif kind == "translation_norm":
+            node = spec[1]
+            expect_ids = [id_of.get(i) for i, s_ in want.items() if s_[0] == "projection" and s_[1][0] == "nodal_translation" and s_[1][1] == node]
+            got = list(r.get("input_result_ids", []))
+            ok = r["recipe_id"] == "translation_norm_scaled_v1" and len(got) == 3 and len(set(got)) == 3 and set(got) == set(expect_ids)
+            case.check("p_translation_inputs_are_the_node_translations", ok, f"{rid}: inputs {got} are not {node}'s distinct UX, UY, UZ rows {expect_ids}")
+            node_of_norm[rid] = node
+        elif kind == "dnq":
+            expect_ids = [id_of.get(i) for i in spec[1]]
+            got = list(r.get("input_result_ids", []))
+            ok = r["treatment"] == "derived_not_qualified" and len(got) == len(set(got)) == len(expect_ids) and set(got) == set(expect_ids)
+            case.check("p_derived_row_inputs", ok, f"{rid}: inputs {got} are not {expect_ids}")
+    return node_of_norm
+
+
+def judge_record(case, record, rc, ev, results, request, bound, theory, allowance, publication_link, dup_ids=()):
     # (a) commitments ---------------------------------------------------------------
     ns_text, fp_text = record["normalized_source_text"], record["functional_plan_text"]
     ns_hash = hashlib.sha256(ns_text.encode("utf-8")).hexdigest()
@@ -810,6 +974,7 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
     # inventories: every published row of the case is accounted for, every expected functional and
     # evidence item exists exactly once, and every reference resolves (repair round 1, item 1)
     cid = record["case_id"]
+    case.check("i_unique_published_rows", not dup_ids, f"duplicate published row ids (a dict would keep only one): {list(dup_ids)[:5]}")
     case_rows = {}
     for row in results.values():
         if (row.get("basis_ref") or {}).get("ref_id") == cid:
@@ -817,6 +982,14 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
     ev_extrema = [mx for mx in (ev or {}).get("pipe_stress_extrema", []) if mx.get("basis") == "retained_source_endpoint_normal_max_v1"]
     inv = inventory(case, ns, fp, rc, ev_extrema, case_rows, frames)
     projections = inv["projections"]
+    node_of_norm = public_binding(case, ns, fp, rc, ev_extrema, case_rows, frames, by_id)
+
+    def action_contains(name, act, x, where):
+        """An evidence action: its interval holds the exact value and its value is within the relative limit."""
+        contains(name, act["interval"], x, where, act["value"])
+        a, lo, hi = qf(act["value"]), qf(act["interval"][0]), qf(act["interval"][1])
+        case.check("b_action_accuracy", lo <= hi and rel_in(x, a, RELATIVE_LIMIT) and hi - lo <= 2 * RELATIVE_LIMIT * abs(a),
+                   f"{where}: action {act['value']!r} [{act['interval'][0]!r}, {act['interval'][1]!r}] is not within 1e-9 of exact {float(x):.17g}")
 
     for p in rc["projections"]:
         fid = p["functional_id"]
@@ -837,6 +1010,13 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
         err = abs(qf(p["value"]) - x)
         ab = qf(p["absolute_error_bound"])
         case.check("b_projection_absolute_bound", err <= ab, f"{where}: |value - exact| = {float(err):.3e} > absolute_error_bound {p['absolute_error_bound']!r}")
+        v, rl = qf(p["value"]), qf(p["relative_error_bound"])
+        lo_, hi_ = qf(p["interval"][0]), qf(p["interval"][1])
+        claims = ab >= 0 and 0 <= rl <= RELATIVE_LIMIT and qf(p["relative_limit"]) == RELATIVE_LIMIT and lo_ <= hi_ \
+            and v - ab <= lo_ and hi_ <= v + ab and (ab <= rl * abs(v) * (1 + F(1, 2 ** 50)) if v else ab == 0)
+        case.check("b_projection_claims_consistent", claims,
+                   f"{where}: bound claims inconsistent (abs {p['absolute_error_bound']!r}, rel {p['relative_error_bound']!r}, interval {p['interval']!r})")
+        case.check("b_projection_relative_claim", x == 0 or rel_in(x, v, rl), f"{where}: |value - exact| exceeds the claimed relative bound {p['relative_error_bound']!r}")
         if ab > 0:
             case.metric_max("b_projection_absolute_bound:max_usage", err / ab, where)
         row = case_rows.get(p["result_id"])
@@ -866,7 +1046,7 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             case.check("b_evidence_list_lengths", len(ep["actions"]) == len(ep["functional_ids"]) == 3, f"endpoint {es['pipe_id']}: list lengths")
             for fid, act in zip(ep["functional_ids"], ep["actions"]):
                 if fid in exact:
-                    contains("b_endpoint_action_contains_exact", act["interval"], exact[fid], f"endpoint {es['pipe_id']} {ep['station_fraction']} {fid}", act["value"])
+                    action_contains("b_endpoint_action_contains_exact", act, exact[fid], f"endpoint {es['pipe_id']} {ep['station_fraction']} {fid}")
     station_loc = {0: "end_i", 0.25: "quarter_1", 0.5: "midspan", 0.75: "quarter_3", 1: "end_j"}
     for sf in srcblk.get("section_functionals", []):
         for st in sf["stations"]:
@@ -878,7 +1058,7 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
                               [("member_station_action", sf["pipe_id"], loc, c) for c in comps])
             for fid, act in zip(st["functional_ids"], st["actions"]):
                 if fid in exact:
-                    contains("b_station_action_contains_exact", act["interval"], exact[fid], f"station {sf['pipe_id']} {st['station_fraction']} {fid}", act["value"])
+                    action_contains("b_station_action_contains_exact", act, exact[fid], f"station {sf['pipe_id']} {st['station_fraction']} {fid}")
     for dc in rc.get("derived_checks", []):
         names = ("Fx", "Fy", "Fz") if dc["recipe_id"] == "support_force_norm_scaled_checked_v1" else ("Mx", "My", "Mz")
         unit = "N" if names[0] == "Fx" else "N*m"
@@ -893,22 +1073,28 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
         for fid, iv, val in zip(dc["functional_ids"], dc["intervals"], dc["values"]):
             contains("b_derived_component_contains_exact", iv, exact[fid], f"{dc['result_id']} {fid}", val)
             proj = projections.get(fid)
-            case.check("b_derived_component_is_projection", proj is not None and proj["value"] == val,
+            case.check("b_derived_component_is_projection", proj is not None and proj["value"] == val and list(proj["interval"]) == list(iv),
                        f"{dc['result_id']} {fid}: component value {val!r} is not its projection's")
             comps.append(exact[fid])
         s2 = sum((c * c for c in comps), F(0))
         lo, hi = qf(dc["interval"][0]), qf(dc["interval"][1])
-        ok = (lo <= 0 or lo * lo <= s2) and hi >= 0 and hi * hi >= s2
+        ok = sqrt_in(s2, lo, hi)
         case.check("b_derived_norm_contains_exact", ok, f"{dc['result_id']}: [{dc['interval'][0]!r}, {dc['interval'][1]!r}] does not contain sqrt({float(s2):.17g})")
-        # the published value (item 3): inside its interval, within its absolute bound of the exact norm, and published
-        v, ab = qf(dc["value"]), qf(dc["absolute_error_bound"])
-        within = lo <= v <= hi and (v - ab <= 0 or (v - ab) ** 2 <= s2) and (v + ab) ** 2 >= s2
-        case.check("b_derived_norm_value", within and qf(dc["relative_error_bound"]) <= qf(dc["relative_limit"]),
+        # the published value (round 1 item 3, round 2 (e)): sign-safe, nonnegative claims, and both the
+        # absolute and the relative claim must hold against the exact norm independently
+        v, ab, rl = qf(dc["value"]), qf(dc["absolute_error_bound"]), qf(dc["relative_error_bound"])
+        claims = v >= 0 and ab >= 0 and 0 <= lo <= v <= hi and 0 <= rl <= RELATIVE_LIMIT and qf(dc["relative_limit"]) == RELATIVE_LIMIT \
+            and v - ab <= lo and hi <= v + ab and (ab <= rl * v * (1 + F(1, 2 ** 50)) if v else ab == 0)
+        case.check("b_derived_norm_claims_consistent", claims,
+                   f"{dc['result_id']}: claims inconsistent (value {dc['value']!r}, abs {dc['absolute_error_bound']!r}, rel {dc['relative_error_bound']!r}, interval {dc['interval']!r})")
+        case.check("b_derived_norm_value", v >= 0 and sqrt_in(s2, v - ab, v + ab),
                    f"{dc['result_id']}: value {dc['value']!r} (bound {dc['absolute_error_bound']!r}) does not hold sqrt({float(s2):.17g})")
+        case.check("b_derived_norm_relative_claim", (v == 0) if s2 == 0 else (rl < 1 and sqrt_in(s2, v / (1 + rl), v / (1 - rl))),
+                   f"{dc['result_id']}: value {dc['value']!r} is not within the claimed relative bound {dc['relative_error_bound']!r} of sqrt({float(s2):.17g})")
         row = case_rows.get(dc["result_id"])
         case.check("b_derived_norm_published_row", row is not None and row["value"] == dc["value"] and row.get("unit") == unit,
                    f"{dc['result_id']}: published row {None if row is None else (row['value'], row.get('unit'))!r} is not the check's value {dc['value']!r} {unit}")
-    for rid, node in inv["translation_norms"].items():
+    for rid, node in node_of_norm.items():
         comps = [exact.get(next((f for f, (_, fn) in by_id.items() if fn["quantity"] == "nodal_translation" and fn["owner"]["id"] == node and fn["component"] == c), None)) for c in ("UX", "UY", "UZ")]
         row = case_rows[rid]
         if None in comps:
@@ -962,7 +1148,7 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             case.check("c_stress_bound_to_its_action", False, f"{rid}: functional {fid}/{sc['functional_index']} is not the {stress_action[comp]} station action of {sc['pipe_id']} at {sc['location']}")
             continue
         case.check("c_stress_bound_to_its_action", True)
-        contains("c_stress_action_contains_exact", sc["action"]["interval"], x, rid, sc["action"]["value"])
+        action_contains("c_stress_action_contains_exact", sc["action"], x, rid)
         a = qf(sc["action"]["value"])
         if comp == "axial_normal_stress":
             pa, ops = a / qf(par["area_m2"]), 2
@@ -1020,33 +1206,34 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
                    f"{mx['result_id']}: A/Z are not the payload's {mx['section_basis']} leaves")
         A_, Z_ = qf(mx["area_m2"]), qf(mx["section_modulus_m3"])
         lo, hi = qf(mx["value_lower_pa"]), qf(mx["value_upper_pa"])
-        lower_ok, upper_ok = False, True
+        terms = []
         fractions = sorted(ep["station_fraction"] for ep in mx["endpoints"])
         case.check("b_evidence_list_lengths", fractions == [0, 1], f"{mx['result_id']}: endpoints are not the two ends")
+        endpoints_ok = A_ > 0 and Z_ > 0
         for ep in mx["endpoints"]:
             loc = {0: "end_i", 1: "end_j"}.get(ep["station_fraction"])
             if not bound_functionals(f"{mx['result_id']} endpoint {ep['station_fraction']}", ep["functional_ids"], ep["functional_indices"],
                                      [("member_station_action", mx["pipe_id"], loc, c) for c in ("axial_force", "bending_moment_y", "bending_moment_z")]) \
                     or len(ep["actions"]) != 3:
-                upper_ok = False
+                endpoints_ok = False
                 continue
             N, My, Mz = (exact[fid] for fid in ep["functional_ids"])
             for fid, act in zip(ep["functional_ids"], ep["actions"]):
-                contains("c_maximum_action_contains_exact", act["interval"], exact[fid], f"{mx['result_id']} {fid}", act["value"])
-            a_ = abs(N) / A_
-            s2 = My * My + Mz * Mz
-            l_ = (lo - a_) * Z_
-            h_ = (hi - a_) * Z_
-            if l_ <= 0 or l_ * l_ <= s2:
-                lower_ok = True
-            if not (h_ >= 0 and h_ * h_ >= s2):
-                upper_ok = False
+                action_contains("c_maximum_action_contains_exact", act, exact[fid], f"{mx['result_id']} {fid}")
+            a_, s2 = abs(N) / A_, My * My + Mz * Mz
+            terms.append((a_, s2))
             elo, ehi = qf(ep["interval_pa"][0]), qf(ep["interval_pa"][1])
-            ok = (elo - a_) * Z_ <= 0 or ((elo - a_) * Z_) ** 2 <= s2
-            ok = ok and (ehi - a_) * Z_ >= 0 and ((ehi - a_) * Z_) ** 2 >= s2
-            case.check("c_maximum_endpoint_contains_exact", ok, f"{mx['result_id']} endpoint {ep['station_fraction']}: interval_pa does not contain the exact endpoint value")
-        case.check("c_maximum_contains_exact", lower_ok and upper_ok and lo <= qf(mx["value_pa"]) <= hi,
-                   f"{mx['result_id']}: [{mx['value_lower_pa']!r}, {mx['value_upper_pa']!r}] does not contain the exact maximum")
+            case.check("c_maximum_endpoint_contains_exact", Z_ > 0 and elo <= qf(ep["value_pa"]) <= ehi and max_in([(a_, s2)], Z_, elo, ehi),
+                       f"{mx['result_id']} endpoint {ep['station_fraction']}: interval_pa does not contain the exact endpoint value")
+        v, ab, rl = qf(mx["value_pa"]), qf(mx["absolute_error_bound_pa"]), qf(mx["relative_error_bound"])
+        claims = v >= 0 and ab >= 0 and 0 <= lo <= v <= hi and 0 <= rl <= RELATIVE_LIMIT and qf(mx["relative_limit"]) == RELATIVE_LIMIT \
+            and v - ab <= lo and hi <= v + ab and (ab <= rl * v * (1 + F(1, 2 ** 50)) if v else ab == 0)
+        case.check("c_maximum_claims_consistent", claims,
+                   f"{mx['result_id']}: claims inconsistent (value {mx['value_pa']!r}, abs {mx['absolute_error_bound_pa']!r}, rel {mx['relative_error_bound']!r}, [{mx['value_lower_pa']!r}, {mx['value_upper_pa']!r}])")
+        case.check("c_maximum_contains_exact", endpoints_ok and max_in(terms, Z_, lo, hi) and max_in(terms, Z_, v - ab, v + ab),
+                   f"{mx['result_id']}: [{mx['value_lower_pa']!r}, {mx['value_upper_pa']!r}] or value +- bound does not contain the exact maximum")
+        case.check("c_maximum_relative_claim", endpoints_ok and rl < 1 and (max_in(terms, Z_, v / (1 + rl), v / (1 - rl)) if v else max_in(terms, Z_, F(0), F(0))),
+                   f"{mx['result_id']}: value {mx['value_pa']!r} is not within the claimed relative bound {mx['relative_error_bound']!r} of the exact maximum")
         row = case_rows.get(mx["result_id"])
         if row is None:
             ok = False
@@ -1511,8 +1698,27 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
     basis_ref = {"ref_type": "load_case", "ref_id": "case"}
     projections, results, rows = [], [], []
 
-    def publish(rid, value, unit):
-        results.append({"id": rid, "value": value, "unit": unit, "basis_ref": basis_ref})
+    def publish(rid, value, unit, entity, kind, component=None, location=None, cs=None, section_basis=None):
+        row = {"id": rid, "value": value, "unit": unit, "basis_ref": basis_ref, "entity_ref": entity, "kind": kind}
+        if component is not None:
+            row["metadata"] = {"component": component, "location": location, "coordinate_system": cs,
+                               "basis": "synthetic" + (f"; section_basis={section_basis}" if section_basis else "")}
+        results.append(row)
+
+    def claims(v, lo, hi):
+        """Bound claims in the product's form: the interval within value +- abs, abs within rel*|value|."""
+        ab = ru(max(F(v) - F(lo), F(hi) - F(v), F(0)))
+        return ab, (ru(F(ab) / abs(F(v))) if v else 0.0)
+
+    def public_of(fn):
+        q, comp = fn["quantity"], fn["component"]
+        if q in ("nodal_translation", "nodal_rotation"):
+            axis = comp[1].lower()
+            kind = f"global_nodal_displacement_{axis}" if q == "nodal_translation" else f"global_nodal_rotation_{axis}"
+            return (fn["owner"]["id"], kind, kind.replace("global_", ""), "node", "global")
+        if q in ("member_end_action", "member_station_action"):
+            return (fn["owner"]["id"], f"element_local_{comp}", comp, fn["location"], "element_local")
+        return (fn["owner"]["id"], "support_reaction_component_v2", comp, "node", "global")
 
     def act(fid):
         x = exact[fid]
@@ -1525,11 +1731,12 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
         err = abs(F(v) - x)
         basis = "exact_zero" if x == 0 else ("exact_identity" if err == 0 else "outward_interval")
         pid = "projection:" + fn["functional_id"]
+        ab, rl = claims(v, rd(x), ru(x))
         projections.append({"projection_id": pid, "functional_id": fn["functional_id"], "result_id": fn["result_ids"][0],
                             "quantity": fn["quantity"], "value": v, "value_bits": f2b(v), "unit": fn["unit"], "interval": [rd(x), ru(x)],
-                            "absolute_error_bound": ru(err), "relative_error_bound": ru(err / abs(x)) if x else 0.0,
-                            "relative_limit": 1e-9, "basis": basis})
-        publish(fn["result_ids"][0], v, fn["unit"])
+                            "absolute_error_bound": ab, "relative_error_bound": rl, "relative_limit": 1e-9, "basis": basis})
+        ent, kind, comp_, loc_, cs_ = public_of(fn)
+        publish(fn["result_ids"][0], v, fn["unit"], ent, kind, comp_, loc_, cs_)
         rows.append({"result_id": fn["result_ids"][0], "treatment": "qualified_projection", "projection_id": pid,
                      "recipe_id": None, "input_result_ids": []})
     checks = []
@@ -1547,7 +1754,7 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
                                "component": comp, "functional_index": index_of[fid], "functional_id": fid, "action": a, "parameters": par})
                 v = a["value"]
                 val = (v / aa) / 1e6 if comp == "axial_normal_stress" else ((v / zz) / 1e6 if comp.startswith("bending") else (v * (D / 2) / jj) / 1e6)
-                publish(rid, val, "MPa")
+                publish(rid, val, "MPa", "member", f"element_local_{comp}", comp, loc, "element_local", basis.replace("-", "_"))
                 rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None,
                              "recipe_id": "retained_source_straight_stress_v1", "input_result_ids": []})
     extrema = []
@@ -1563,10 +1770,13 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
                          "actions": [act(f_) for f_ in fids], "value_pa": rn(hi_), "interval_pa": [rd(lo_), ru(hi_)]})
         lo_m, hi_m = max(v[0] for v in vals), max(v[1] for v in vals)
         rid = f"result:elastic-maximum:member:{basis}"
+        ab, rl = claims(rn(hi_m), rd(lo_m), ru(hi_m))
         extrema.append({"basis": "retained_source_endpoint_normal_max_v1", "pipe_id": "member", "section_basis": basis, "result_id": rid,
                         "area_m2": aa, "section_modulus_m3": zz, "value_pa": rn(hi_m), "value_lower_pa": rd(lo_m), "value_upper_pa": ru(hi_m),
+                        "absolute_error_bound_pa": ab, "relative_error_bound": rl, "relative_limit": 1e-9,
                         "endpoints": eps_, "load_case_id": "case"})
-        publish(rid, rn(hi_m), "Pa")
+        publish(rid, rn(hi_m), "Pa", "member", "pipe_elastic_normal_stress_maximum_v2", "maximum_absolute_normal_stress",
+                "governing_station", "pipe_section", basis)
         rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None,
                      "recipe_id": "retained_source_endpoint_normal_max_v1", "input_result_ids": []})
     derived = []
@@ -1578,20 +1788,34 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
             lo_, hi_ = sqrt_down(s2), sqrt_up(s2)
             v = rn(hi_)
             rid = f"result:support:{sup}:{'force' if unit == 'N' else 'moment'}_magnitude"
+            ab, rl = claims(v, rd(lo_), ru(hi_))
             derived.append({"result_id": rid, "recipe_id": recipe, "support_id": sup, "functional_ids": fids,
                             "functional_indices": [index_of[f_] for f_ in fids], "values": [rn(exact[f_]) for f_ in fids],
                             "intervals": [[rd(exact[f_]), ru(exact[f_])] for f_ in fids], "value": v, "interval": [rd(lo_), ru(hi_)],
-                            "absolute_error_bound": ru(max(abs(F(v) - lo_), abs(F(v) - hi_))), "relative_error_bound": 1e-15 if s2 else 0.0,
-                            "relative_limit": 1e-9})
-            publish(rid, v, unit)
+                            "absolute_error_bound": ab, "relative_error_bound": rl, "relative_limit": 1e-9})
+            which = "force" if unit == "N" else "moment"
+            publish(rid, v, unit, sup, f"support_reaction_{which}_magnitude_v2", f"{which}_magnitude", "node", "global")
             rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None, "recipe_id": recipe,
                          "input_result_ids": [f"result:support:{sup}:{c}" for c in comps]})
     for node in nodes:
         comps = [exact[nodal_ids[(node, c)]] for c in ("UX", "UY", "UZ")]
         rid = f"result:disp:{node}"
-        publish(rid, rn(sqrt_up(sum((c * c for c in comps), F(0)))), "mm")
+        publish(rid, rn(sqrt_up(sum((c * c for c in comps), F(0)))), "mm", node, "displacement_magnitude")
         rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None, "recipe_id": "translation_norm_scaled_v1",
                      "input_result_ids": [f"result:disp:{node}:{c}" for c in ("ux", "uy", "uz")]})
+    for loc in STATION_FRACTION:
+        shear_rows = [f"result:force:member:{loc}:{c}" for c in ("shear_force_y", "shear_force_z")]
+        for basis in ("nominal-section", "reduced-section"):
+            stress_rows = [f"result:stress:member:{loc}:{slug}:{basis}" for slug in ("axial-normal", "bending-normal-y", "bending-normal-z")]
+            for extreme in ("sigma_plus", "sigma_minus"):
+                rid = f"result:stress:member:{loc}:{extreme}:{basis}"
+                publish(rid, 0.0, "MPa", "member", "element_local_normal_stress_extreme", extreme, loc, "pipe_section", basis.replace("-", "_"))
+                rows.append({"result_id": rid, "treatment": "derived_not_qualified", "projection_id": None,
+                             "recipe_id": "section_extremes_from_published_stress_rows_v1", "input_result_ids": stress_rows})
+            rid = f"result:stress:member:{loc}:tau:{basis}"
+            publish(rid, 0.0, "MPa", "member", "element_local_transverse_shear_stress_maximum", "tau_v_max", loc, "pipe_section", basis.replace("-", "_"))
+            rows.append({"result_id": rid, "treatment": "derived_not_qualified", "projection_id": None,
+                         "recipe_id": "transverse_shear_from_published_shear_rows_v1", "input_result_ids": shear_rows})
     endpoint_sections = [{"pipe_id": "member", "endpoints": [dict((k, v) for k, v in ep.items() if k in ("station_fraction", "functional_ids", "functional_indices", "actions"))
                                                          for ep in extrema[0]["endpoints"]]}]
     section_functionals = [{"pipe_id": "member", "stations": [
@@ -1815,6 +2039,187 @@ def selftest():
 
     expect("(s) shear area from 5/6, consistently", *synth("timo", "both", as_hook=lambda As, A: A * (5.0 / 6.0)), "timo", False, "s_shear_area_is_u8_kappa_hat_times_area")
     expect("(d) frame theory differs from the request", *synth("timo", "zero"), "eb", False, "d_frame_theory_matches_request")
+
+    # repair round 2: Codex's eight evasions and our own adversarial pass (swap, duplicate, relabel,
+    # sign-flip, bound-inflate). Each must fail at its intended check.
+    def row_id(e, pred):
+        return next(x["id"] for x in e["results"] if pred(x))
+
+    def ident(x):
+        return public_identity(x)
+
+    def swap_stress_yz(ns, fp, e, r, d):  # Codex E1
+        for basis in ("nominal-section", "reduced-section"):
+            cks = [c for c in env_case(e)["section_stress_checks"] if c["location"] == "end_i" and c["result_id"].endswith(":" + basis)]
+            a = next(c for c in cks if c["component"] == "bending_normal_stress_y")
+            z = next(c for c in cks if c["component"] == "bending_normal_stress_z")
+            ar, zr = row_of(e, a["result_id"]), row_of(e, z["result_id"])
+            ar["value"], zr["value"] = zr["value"], ar["value"]
+            a["result_id"], z["result_id"] = z["result_id"], a["result_id"]
+    expect("(r2-E1) stress y/z values swapped with their evidence ids", *mutated(swap_stress_yz, rehash=False), "timo", False, "p_stress_bound_to_row")
+
+    def swap_maxima(ns, fp, e, r, d):  # Codex E2
+        mx = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"]
+        a, z = mx[0], mx[1]
+        ar, zr = row_of(e, a["result_id"]), row_of(e, z["result_id"])
+        ar["value"], zr["value"] = zr["value"], ar["value"]
+        a["result_id"], z["result_id"] = z["result_id"], a["result_id"]
+    expect("(r2-E2) nominal/reduced maximum rows swapped with their evidence ids", *mutated(swap_maxima, rehash=False), "timo", False, "p_maximum_bound_to_row")
+
+    def swap_support_norms(ns, fp, e, r, d):  # Codex E3
+        cks = [c for c in env_case(e)["derived_checks"] if c["recipe_id"] == "support_force_norm_scaled_checked_v1"]
+        a, z = cks[0], cks[-1]
+        ar, zr = row_of(e, a["result_id"]), row_of(e, z["result_id"])
+        ar["value"], zr["value"] = zr["value"], ar["value"]
+        a["result_id"], z["result_id"] = z["result_id"], a["result_id"]
+    expect("(r2-E3) support force-norm rows swapped across supports (anchor's norm published as zero)", *mutated(swap_support_norms, rehash=False), "timo", False, "p_support_norm_bound_to_row")
+
+    def negative_norm(ns, fp, e, r, d):  # Codex E4
+        dc = next(c for c in env_case(e)["derived_checks"] if c["value"] != 0)
+        v = dc["value"]
+        dc["interval"], dc["value"] = [-2 * v, 2 * v], -2 * v
+        row_of(e, dc["result_id"])["value"] = dc["value"]
+    expect("(r2-E4) negative support norm with its small original bound", *mutated(negative_norm, rehash=False), "timo", False, "b_derived_norm_value")
+
+    def inflated_norm(ns, fp, e, r, d):  # Codex E5
+        dc = next(c for c in env_case(e)["derived_checks"] if c["value"] != 0)
+        dc["value"] = dc["absolute_error_bound"] = 1234567.0
+        dc["interval"] = [0.0, 1234567.0]
+        row_of(e, dc["result_id"])["value"] = 1234567.0
+    expect("(r2-E5) support norm 1234567 with an inflated absolute bound and a tiny relative claim", *mutated(inflated_norm, rehash=False), "timo", False, "b_derived_norm_relative_claim")
+
+    def duplicate_row(ns, fp, e, r, d):  # Codex E6
+        bad = copy.deepcopy(e["results"][0])
+        bad["value"] = 1234567.0
+        e["results"].insert(0, bad)
+    expect("(r2-E6) a duplicate published row with a wrong value placed first", *mutated(duplicate_row, rehash=False), "timo", False, "i_unique_published_rows")
+
+    def endpoint_twice(ns, fp, e, r, d):  # Codex E7
+        es = env_case(e)["source"]["endpoint_sections"][0]
+        es["endpoints"] = [copy.deepcopy(es["endpoints"][0]) for _ in range(2)]
+    expect("(r2-E7) endpoint section lists end i twice", *mutated(endpoint_twice, rehash=False), "timo", False, "i_endpoint_sections_inventory")
+
+    def translation_same_input(ns, fp, e, r, d):  # Codex E8
+        cr = next(x for x in env_case(e)["rows"] if x["recipe_id"] == "translation_norm_scaled_v1")
+        cr["input_result_ids"] = [cr["input_result_ids"][0]] * 3
+    expect("(r2-E8) translation norm inputs [UX, UX, UX]", *mutated(translation_same_input, rehash=False), "timo", False, "p_translation_inputs_are_the_node_translations")
+
+    def swap_projections(ns, fp, e, r, d):  # A1 swap
+        ps = env_case(e)["projections"]
+        a = next(p for p in ps if p["result_id"] == "result:force:member:end_i:shear_force_y")
+        z = next(p for p in ps if p["result_id"] == "result:force:member:end_i:shear_force_z")
+        for key in ("functional_id", "value", "value_bits", "interval", "absolute_error_bound", "relative_error_bound", "basis"):
+            a[key], z[key] = z[key], a[key]
+        row_of(e, a["result_id"])["value"], row_of(e, z["result_id"])["value"] = a["value"], z["value"]
+    expect("(r2-A1) two projections' functionals and values swapped under their rows", *mutated(swap_projections, rehash=False), "timo", False, "p_projection_bound_to_row")
+
+    def relabel_location(ns, fp, e, r, d):  # A2 relabel
+        row = row_of(e, "result:stress:member:end_i:bending-normal-y:nominal-section")
+        row["metadata"]["location"] = "quarter_1"
+    expect("(r2-A2) a stress row relabelled to another station", *mutated(relabel_location, rehash=False), "timo", False, "p_public_identity_map")
+
+    def relabel_unit(ns, fp, e, r, d):  # A19 relabel
+        mx = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]
+        row_of(e, mx["result_id"])["unit"] = "MPa"
+    expect("(r2-A3) a maximum row relabelled to MPa", *mutated(relabel_unit, rehash=False), "timo", False, "p_public_identity_map")
+
+    def inflate_projection(ns, fp, e, r, d):  # A4 bound-inflate
+        p = next(p for p in env_case(e)["projections"] if p["value"] != 0)
+        p["absolute_error_bound"] = 1.0
+        p["interval"] = [p["value"] - 1.0, p["value"] + 1.0]
+    expect("(r2-A4) projection interval and absolute bound inflated, relative claim kept", *mutated(inflate_projection, rehash=False), "timo", False, "b_projection_claims_consistent")
+
+    def wrong_projection_consistent(ns, fp, e, r, d):  # A5 value off 1e-6 with inflated, self-consistent claims
+        p = next(p for p in env_case(e)["projections"] if p["value"] != 0 and p["result_id"].startswith("result:force"))
+        v = p["value"] * (1 + 1e-6)
+        ab = abs(v) * 2e-6
+        p.update({"value": v, "value_bits": f2b(v), "absolute_error_bound": ab, "relative_error_bound": 2e-6, "interval": [v - ab, v + ab]})
+        row_of(e, p["result_id"])["value"] = v
+    expect("(r2-A5) projection 1e-6 off with self-consistent claims above the 1e-9 limit", *mutated(wrong_projection_consistent, rehash=False), "timo", False, "b_projection_claims_consistent")
+
+    def negative_bound(ns, fp, e, r, d):  # A7 sign-flip of a bound
+        p = next(p for p in env_case(e)["projections"] if p["basis"] == "exact_identity" and p["value"] != 0)
+        p["absolute_error_bound"] = -1.0
+    expect("(r2-A6) a negative projection absolute bound", *mutated(negative_bound, rehash=False), "timo", False, "b_projection_claims_consistent")
+
+    def flip_projection(ns, fp, e, r, d):  # A8 sign-flip of a value
+        p = next(p for p in env_case(e)["projections"] if p["value"] != 0)
+        p["value"], p["interval"] = -p["value"], [-p["interval"][1], -p["interval"][0]]
+        p["value_bits"] = f2b(p["value"])
+        row_of(e, p["result_id"])["value"] = p["value"]
+    expect("(r2-A7) a projection value, interval and row sign-flipped together", *mutated(flip_projection, rehash=False), "timo", False, "b_projection_contains_exact")
+
+    def wrong_action(ns, fp, e, r, d):  # A9 action off 1e-6 with a widened interval, stress recomputed from it
+        for sc in env_case(e)["section_stress_checks"]:
+            if sc["component"] == "bending_normal_stress_y" and sc["location"] == "end_i":
+                a = sc["action"]["value"] * (1 + 1e-6)
+                sc["action"] = {"value": a, "interval": [min(a, sc["action"]["interval"][0]) * 1.01 if a < 0 else min(a, sc["action"]["interval"][0]) * 0.99,
+                                                         max(a, sc["action"]["interval"][1]) * 0.99 if a < 0 else max(a, sc["action"]["interval"][1]) * 1.01]}
+                row_of(e, sc["result_id"])["value"] = (a / sc["parameters"]["section_modulus_m3"]) / 1e6
+    expect("(r2-A8) stress action 1e-6 off inside a widened interval, row recomputed from it", *mutated(wrong_action, rehash=False), "timo", False, "b_action_accuracy")
+
+    def negative_maximum(ns, fp, e, r, d):  # A10 sign-flip / bound-inflate a maximum
+        mx = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]
+        mx["value_pa"] = mx["value_lower_pa"] = -mx["value_pa"]
+        row_of(e, mx["result_id"])["value"] = mx["value_pa"]
+    expect("(r2-A9) a negative maximum", *mutated(negative_maximum, rehash=False), "timo", False, "c_maximum_claims_consistent")
+
+    def inflated_maximum(ns, fp, e, r, d):
+        mx = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]
+        mx["value_pa"] = mx["value_upper_pa"] = mx["absolute_error_bound_pa"] = 1234567.0
+        mx["value_lower_pa"] = 0.0
+        row_of(e, mx["result_id"])["value"] = 1234567.0
+    expect("(r2-A10) maximum 1234567 with an inflated absolute bound and a tiny relative claim", *mutated(inflated_maximum, rehash=False), "timo", False, "c_maximum_relative_claim")
+
+    def maximum_endpoint_twice(ns, fp, e, r, d):  # A11 duplicate
+        mx = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]
+        mx["endpoints"] = [copy.deepcopy(mx["endpoints"][0]) for _ in range(2)]
+    expect("(r2-A11) maximum evidence lists end i twice", *mutated(maximum_endpoint_twice, rehash=False), "timo", False, "b_evidence_list_lengths")
+
+    def norm_component_copied(ns, fp, e, r, d):  # A12 relabel a component value
+        dc = next(c for c in env_case(e)["derived_checks"] if c["value"] != 0)
+        dc["values"][0] = dc["values"][0] * 2 if dc["values"][0] else 1.0
+        dc["intervals"][0] = [min(dc["intervals"][0][0], dc["values"][0]) - 1, max(dc["intervals"][0][1], dc["values"][0]) + 1]
+    expect("(r2-A12) a support norm component value not its projection (interval widened)", *mutated(norm_component_copied, rehash=False), "timo", False, "b_derived_component_is_projection")
+
+    def duplicate_receipt_row(ns, fp, e, r, d):  # A13 duplicate
+        env_case(e)["rows"].append(copy.deepcopy(env_case(e)["rows"][0]))
+    expect("(r2-A13) a duplicated receipt row", *mutated(duplicate_receipt_row, rehash=False), "timo", False, "i_unique_receipt_rows")
+
+    def duplicate_stress_check(ns, fp, e, r, d):  # A14 duplicate, second wrong
+        bad = copy.deepcopy(env_case(e)["section_stress_checks"][0])
+        bad["action"]["value"] = bad["action"]["value"] * 2 + 1
+        env_case(e)["section_stress_checks"].append(bad)
+    expect("(r2-A14) a duplicated stress check with a wrong action", *mutated(duplicate_stress_check, rehash=False), "timo", False, "i_unique_stress_checks")
+
+    def dnq_inputs_relabelled(ns, fp, e, r, d):  # A15 relabel inputs
+        cr = next(x for x in env_case(e)["rows"] if x["recipe_id"] == "section_extremes_from_published_stress_rows_v1")
+        cr["input_result_ids"] = [i.replace("end_i", "end_j") for i in cr["input_result_ids"]]
+    expect("(r2-A15) a derived row's inputs pointed at another station", *mutated(dnq_inputs_relabelled, rehash=False), "timo", False, "p_derived_row_inputs")
+
+    def translation_value(ns, fp, e, r, d):  # A16
+        rid = next(x["result_id"] for x in env_case(e)["rows"] if x["recipe_id"] == "translation_norm_scaled_v1" and row_of(e, x["result_id"])["value"] != 0)
+        row_of(e, rid)["value"] *= 1.001
+    expect("(r2-A16) a translation norm value 1e-3 off", *mutated(translation_value, rehash=False), "timo", False, "b_translation_norm")
+
+    def station_twice(ns, fp, e, r, d):  # A17 duplicate
+        sf = env_case(e)["source"]["section_functionals"][0]
+        sf["stations"][2] = copy.deepcopy(sf["stations"][1])
+    expect("(r2-A17) a section-functional station listed twice", *mutated(station_twice, rehash=False), "timo", False, "i_section_functionals_inventory")
+
+    def projection_row_mismatch(ns, fp, e, r, d):  # A18 relabel a projection's row
+        ps = env_case(e)["projections"]
+        ps[0]["result_id"] = ps[1]["result_id"]
+    expect("(r2-A18) a projection's result_id pointed at another row", *mutated(projection_row_mismatch, rehash=False), "timo", False, "p_projection_bound_to_row")
+
+    def member_relabel(ns, fp, e, r, d):  # A19 relabel entity
+        row_of(e, "result:force:member:end_i:axial_force")["entity_ref"] = "ghost"
+    expect("(r2-A19) a row relabelled to an undeclared member", *mutated(member_relabel, rehash=False), "timo", False, "p_public_identity_map")
+
+    def norm_negative_bound(ns, fp, e, r, d):  # A20 sign-flip a norm bound
+        dc = next(c for c in env_case(e)["derived_checks"] if c["value"] != 0)
+        dc["absolute_error_bound"] = -dc["absolute_error_bound"] - 1e-30
+    expect("(r2-A20) a negative support-norm absolute bound", *mutated(norm_negative_bound, rehash=False), "timo", False, "b_derived_norm_claims_consistent")
 
     # repair round 1, items 6 and 7: batch-level vacuity, the required-selection list and mode errors
     good = synth("timo", "both")
