@@ -343,6 +343,11 @@ fn sum(values: impl IntoIterator<Item = u64>) -> VResult<u64> {
 fn hash(domain: &str, v: &Value, gate: &'static str, code: &str) -> VResult<String> {
     crate::source_blocks::domain_hash(domain, v).map_err(|_| error(gate, code))
 }
+/// `hash` of the object `v` without its member `omit`, from the borrowed object (no clone; T4-S6).
+fn hash_without(domain: &str, v: &Value, omit: &str, gate: &'static str, code: &str) -> VResult<String> {
+    let object = v.as_object().ok_or_else(|| error(gate, code))?;
+    crate::source_blocks::domain_hash_without(domain, object, omit).map_err(|_| error(gate, code))
+}
 fn schema() -> &'static Value {
     static S: OnceLock<Value> = OnceLock::new();
     S.get_or_init(|| {
@@ -798,15 +803,11 @@ fn g1(source: &Value, raw: bool, route: &Route) -> VResult {
         "RECEIPT_MISMATCH",
     )?;
     if raw {
-        let mut public = source.clone();
-        public
-            .as_object_mut()
-            .ok_or_else(|| error("G1", "RECEIPT_MISMATCH"))?
-            .remove("retained_precision");
         need(
-            hash(
+            hash_without(
                 "retained_precision_publication_mp_v2",
-                &public,
+                source,
+                "retained_precision",
                 "G1",
                 "RECEIPT_MISMATCH",
             )? == r["body"]["publication_sha256"],

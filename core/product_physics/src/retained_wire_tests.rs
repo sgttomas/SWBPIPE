@@ -383,11 +383,12 @@ fn u1_exact_or_abandon_counts() {
     assert_eq!((count, failures.len()), (json!({"kind":"exact","value":0}), 0));
 }
 
-/// U6-DH (DEL-05-03 Design §9): `domain_hash` serializes a borrowed `{domain, payload}` wrapper
-/// instead of copying the payload into a new `Value`. Its text, and so its canonical form and
-/// hash, is the former `json!({"domain": d, "payload": p})` object's, byte for byte, over the
-/// in-tree definition and table, every hashed domain name and adversarial payloads (key order,
-/// escapes, non-ASCII, signed zero, extreme numbers, nesting, a payload naming `domain`).
+/// U6-DH, T4-S6 (DEL-05-03 Design §9): `domain_hash` streams the checked canonical text of the
+/// borrowed `{domain, payload}` into the hasher. Its hash, and its refusal (None), are the former
+/// path's — `json!({"domain": d, "payload": p})`, serialized, checked-parsed, canonicalized, hashed —
+/// over the in-tree definition and table, every hashed domain name and adversarial payloads (key
+/// order, escapes, non-ASCII, signed zero, extreme and unsafe numbers, nesting at and past the
+/// parser's depth, a payload naming `domain`). The former path lives only here.
 #[test]
 fn u6_dh_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
@@ -395,18 +396,23 @@ fn u6_dh_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     let table: Value = serde_json::from_str(TABLE).unwrap();
     let adversarial = json!({"z": [1, -0.0, 1e-300, 1.7976931348623157e308, 18446744073709551615u64, -9223372036854775808i64],
         "a": {"payload": null, "domain": "inner", "": [], "\u{1F600}\"\\\n": {}}, "m": [true, false, null, "\u{0}\u{1f}\u{7f}é"]});
-    let payloads = [definition, table, adversarial, json!(null), json!([]), json!({}), json!("text"), json!(0.1)];
+    let nest = |depth: usize| (0..depth).fold(json!("x"), |inner, _| json!([inner]));
+    let safe = json!({"z": [1, -0.0, 1e-300, 9007199254740991u64, -9007199254740991i64, 5e-324], "a": {"\u{1F600}": "\u{0}"}});
+    let mut payloads = vec![definition, table, adversarial, safe, json!(null), json!([]), json!({}), json!("text"), json!(0.1)];
+    payloads.extend([125, 126, 127, 128].map(nest));
     let domains = ["retained_precision_formation_v1", "retained_precision_publication_mp_v2", "retained_precision_receipt_mp_v2",
         "retained_precision_preparation_v1", "retained_precision_operand_preparation_v1", "retained_precision_source_mp_v2", "", "a\"b\\c\u{1F600}"];
+    let mut refused = 0;
     for domain in domains {
         for payload in &payloads {
             let former = serde_json::to_string(&json!({"domain": domain, "payload": payload.clone()})).unwrap();
-            assert_eq!(wire::domain_text(domain, payload).as_deref(), Some(former.as_str()), "{domain}: text");
-            // A payload the checked canonical form refuses is refused alike (None).
             let expected = canonical_json_checked_v1_text(&former).ok().map(|c| format!("{:x}", Sha256::digest(c.as_bytes())));
+            refused += usize::from(expected.is_none());
             assert_eq!(wire::domain_hash(domain, payload), expected, "{domain}: hash");
         }
     }
+    // The adversarial payload's unsafe integers and the two deepest nestings refuse under every domain.
+    assert_eq!(refused, 3 * domains.len());
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &payloads[0]).as_deref(), Some(wire::DEFINITION_SHA256));
 }
 

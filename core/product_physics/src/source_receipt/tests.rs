@@ -194,13 +194,13 @@ fn receipt_domain_hashes_are_acyclic_and_distinct() {
     );
 }
 
-/// D3 X1 budget: `hash` serializes a borrowed `{domain, payload}` wrapper instead of copying
-/// the payload (a whole selected-source publication) into a new `Value`. Its serialized text,
-/// its checked canonical text and its hash are the former `json!({"domain": d, "payload": p})`
-/// object's, byte for byte (and a payload the checked form refuses is refused alike), over
-/// every receipt domain and representative payloads: a selected pressure-source-1 publication
-/// envelope, its receipt body, a case evidence block, the invocation wrapper and adversarial
-/// values (key order, escapes, non-ASCII, signed zero, extreme numbers, a payload naming
+/// D3 X1 budget (U6-SH, T4-S6): `hash` streams the checked canonical text of the borrowed
+/// `{domain, payload}` (a whole selected-source publication, for one) into the hasher. Its hash
+/// and its refusal, message included, are the former path's — `json!({"domain": d, "payload": p})`,
+/// serialized, checked-parsed, canonicalized, hashed — over every receipt domain and representative
+/// payloads: a selected pressure-source-1 publication envelope, its receipt body, a case evidence
+/// block, the invocation wrapper and adversarial values (key order, escapes, non-ASCII, signed
+/// zero, extreme and unsafe numbers, nesting at and past the parser's depth, a payload naming
 /// `domain`). The former construction lives only here.
 #[test]
 fn receipt_hash_borrowed_wrapper_text_and_hash_are_the_former_objects() {
@@ -221,28 +221,73 @@ fn receipt_hash_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     let invocation = json!({"request": exact_raw(), "solver_mode": "dense_scrutiny"});
     let adversarial = json!({"z": [1, -0.0, 1e-300, 1.7976931348623157e308, 18446744073709551615u64, -9223372036854775808i64],
         "a": {"payload": null, "domain": "inner", "": [], "\u{1F600}\"\\\n": {}}, "m": [true, false, null, "\u{0}\u{1f}\u{7f}é"]});
-    let payloads = [publication, envelope.clone(), body.clone(), case, invocation, adversarial, json!(null), json!([]), json!({}), json!("text"), json!(0.1), json!(-0.0)];
+    let nest = |depth: usize| (0..depth).fold(json!({"\u{1}é": [0.5]}), |inner, i| if i % 2 == 0 { json!([inner]) } else { json!({"k": inner, "a": "\""}) });
+    let mut payloads = vec![publication, envelope.clone(), body.clone(), case, invocation, adversarial, json!(null), json!([]), json!({}), json!("text"), json!(0.1), json!(-0.0)];
+    payloads.extend([123, 124, 125, 126].map(nest));
     let domains: [&'static str; 10] = ["source_blocks_invocation_v1", "source_blocks_publication_v1", "source_blocks_receipt_v1",
         "pressure_source_case_evidence_v1", "physics_source_case_evidence_v1", "load_reference_state_resolved_evidence_v1",
         "source_blocks_normalized_source_v1", "source_blocks_functional_plan_v1", "", "a\"b\\c\u{1F600}"];
+    let mut refused = 0;
     for domain in domains {
         for payload in &payloads {
-            let wrapper = former(domain, payload);
-            assert_eq!(
-                serde_json::to_string(&DomainPayload { domain, payload }).unwrap(),
-                serde_json::to_string(&wrapper).unwrap(),
-                "{domain}: serialized text"
-            );
-            assert_eq!(hash_text(domain, payload), checked(&wrapper), "{domain}: checked text");
-            let expected = checked(&wrapper).map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
+            let expected = checked(&former(domain, payload)).map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
+            refused += usize::from(expected.is_err());
             assert_eq!(hash(domain, payload), expected, "{domain}: hash");
         }
     }
+    // The adversarial payload's unsafe integers and the two deepest nestings (the leaf object adds
+    // a level and its array another) refuse under every domain, with the former messages.
+    assert_eq!(refused, 3 * domains.len());
     // The committed selected-source receipt digest is reproduced from its own body.
     assert_eq!(
         hash("source_blocks_receipt_v1", &body).unwrap(),
         envelope["source_block_recovery"]["receipt_sha256"].as_str().unwrap()
     );
+}
+
+/// T4-S6 byte-identity regression at T16 and T25: over every JSON document the project commits
+/// (each JSONL line separately), `retained_wire::domain_hash` and `hash` give the former path's
+/// digest or refusal (the message too, for `hash`). result_export's corpus test does the same for
+/// the reader's hash, its publication-without-receipt views and the canonical text.
+#[test]
+fn streamed_hashes_equal_the_former_path_over_the_committed_corpus() {
+    fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
+        let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|e| e.unwrap().path()).collect();
+        entries.sort();
+        for path in entries {
+            let name = path.file_name().unwrap().to_string_lossy().into_owned();
+            if path.is_dir() {
+                if !(name.starts_with('.') || name == "target" || name == "node_modules" || name == "dist") {
+                    walk(&path, out);
+                }
+            } else if name.ends_with(".json") || name.ends_with(".jsonl") {
+                out.push(path);
+            }
+        }
+    }
+    let mut files = Vec::new();
+    walk(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."), &mut files);
+    let (mut documents, mut refused) = (0usize, 0usize);
+    for path in &files {
+        let Ok(text) = std::fs::read_to_string(path) else { continue };
+        let values: Vec<Value> = if path.extension().is_some_and(|e| e == "jsonl") {
+            text.lines().filter(|l| !l.trim().is_empty()).filter_map(|l| serde_json::from_str(l).ok()).collect()
+        } else {
+            serde_json::from_str(&text).ok().into_iter().collect()
+        };
+        for value in values {
+            documents += 1;
+            let former = checked(&json!({"domain": "source_blocks_publication_v1", "payload": &value}))
+                .map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
+            assert_eq!(hash("source_blocks_publication_v1", &value), former, "{}", path.display());
+            let former = checked(&json!({"domain": "retained_precision_publication_mp_v2", "payload": &value}))
+                .map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
+            refused += usize::from(former.is_err());
+            assert_eq!(crate::retained_wire::domain_hash("retained_precision_publication_mp_v2", &value), former.ok(), "{}", path.display());
+        }
+    }
+    eprintln!("T4-S6 corpus: {} files, {documents} documents, {refused} refused", files.len());
+    assert!(documents > 4000, "{documents}");
 }
 
 // Append to source_receipt/tests.rs after parent's bounded public run.
