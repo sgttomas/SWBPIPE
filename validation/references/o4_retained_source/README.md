@@ -12,6 +12,12 @@ code or product output.
 **Status: Frozen; not yet refuted.** A separate TASK must refute this unit
 before any product output is compared with it (U6/U8 §7, "Independence").
 These references do not establish acceptance.
+- **The judged set** (`cases.json`, `oracle.json`). As the coordinator relayed,
+  a separate refuting TASK reproduced all 111,636 values and every
+  discriminator and raised one MINOR finding: the J2 and RF source-control
+  twins were missing. The frozen status strings are unchanged.
+- **The source twins** (`source_twins_*.json`) answer that finding. They are
+  frozen and not yet refuted.
 
 **Not in this unit.** Section 5's declared-problem oracle for the source route
 needs a product test-only dump of the private normalized payload and
@@ -28,9 +34,9 @@ appears (F-PIP-1), and no `domains/piping-design/` artifact was used (DEC-043).
 
 The author TASK read no product implementation: nothing under `core/`,
 `apps/`, `tests/` (verifiers included), `tools/retained_pricing/` or
-`schemas/`, no product result, envelope, receipt or digest, and no J2 or RF
-request. No product build or run was used. Expected values come only from the
-engine's and this generator's arithmetic.
+`schemas/`, and no product result, envelope, receipt or digest. No product
+build or run was used. Expected values come only from the engine's and these
+generators' arithmetic.
 
 Read:
 - `../kd5_timoshenko/`: `README.md`, `kd5t_engine.py` (whole), `run.sh` and
@@ -50,16 +56,29 @@ Read:
   (`retained_precision_prepared_{ordinary,exact}_v1.json`), only the string
   values matching a hull or section-modulus pattern. The definition used is
   `rows.component_stress`: "admitted-K bending Z is hull(actual Z,I_K/c)".
+- For the source twins only, under a later steer, three input-only sources,
+  each pinned by SHA-256 in `generators/o4_source_twins.py`:
+  - the twelve J2 request inputs,
+    `fixtures/product_preview/pressure_source/{physics_source,load_reference_source}/<name>.request.json`,
+    each holding only {materials, model}. No `*.raw.json` was opened;
+  - the RF census inputs, `fixtures/results/j7_rf_census_inputs.json`, which
+    are written from the frozen T3 R1 references and carry no expected values.
+    Only the two PIN-OFF-345 r1e-08 and r1e-12 requests are used;
+  - lines 1–92 of `tools/fixtures/retained_precision_corpus.py`, to find its
+    DAG decoder. Only `expand` is used. Nothing else under `tools/` was read.
 
 ## Files
 
 | File | Role |
 |---|---|
 | `generators/o4_reference.py` | Standard library only. The judged set, the admitted-readout mode, the rows, the discriminators, every cross-check, the precision recheck and the writer |
+| `generators/o4_source_twins.py` | Standard library only. Re-authors the J2 and RF source requests (see "Source-control twins"), with SHA-256 pins on every input, and freezes them through `o4_reference.py`'s pipeline |
 | `cases.json` | 172 request-agnostic case documents (33 designs), one per line |
 | `oracle.json` | Header (conventions, criterion, census, discriminator summary, cross-check record) and, one line per case, the derived leaves, both readouts' rows, the readout gap, the binary64 proxy and the discriminators. `cases_sha256` binds `cases.json` |
-| `run.sh` | Regenerates every frozen file in memory, compares byte for byte, then runs `shasum -a 256 -c SHA256SUMS` |
-| `SHA256SUMS` | Hashes of the five files above |
+| `source_twins_cases.json` | The source scope table (each source load case, frozen or out of scope with its reasons), the input pins and 104 twin documents, one per line |
+| `source_twins_oracle.json` | As `oracle.json`, for the twins. `cases_sha256` binds `source_twins_cases.json` |
+| `run.sh` | Regenerates every frozen file of both generators in memory, compares byte for byte, then runs `shasum -a 256 -c SHA256SUMS` |
+| `SHA256SUMS` | Hashes of the eight files above |
 
 ## The two readouts
 
@@ -127,6 +146,14 @@ Every value is `[decimal with 40 significant digits, binary64]`. The binary64
 is a JSON number written in shortest round-trip form. It is the correctly
 rounded value of the exact quantity, and the precision recheck confirms it.
 
+A value within working precision of a binary64 midpoint is taken as an exact
+tie and rounded half to even, as the exact value is. Such ties are real:
+statically determinate rows are sums of binary64 inputs, as in the source
+twins' 0.0006 + 0.5·0.002. The rational re-solve compares every rational
+value's binary64 with `Fraction`'s correctly rounded conversion, so it checks
+this rule independently. Adding the rule changed no frozen value of the
+judged set.
+
 **Exact zeros**, written `["0", 0.0]`, follow t4_u4b's two rules:
 - **Known exactly.** A value computed as exactly zero. Examples are the
   out-of-plane components of planar designs and the components a spring does
@@ -174,7 +201,8 @@ precision. The written bytes do not differ.
     member stiffness is then π times a rational matrix, so u = u′/π, end actions
     are rational and stresses are rational/π.
   - Coverage: 156 documents and 270 readouts. Every one of their 68,476 written
-    values agrees at 40 digits.
+    values agrees at 40 digits, and every rational value's binary64 (57,418)
+    is the correctly rounded one.
   - Not reached: 16 documents. These are the 8 `PHI2-EXACT` documents
     (irrational length), the 4 `SKEW122-YREF-Z` documents (irrational frame)
     and the 4 `CAPS-LOOP-32` documents (186 free DOFs, above the 72-DOF limit).
@@ -201,7 +229,13 @@ precision. The written bytes do not differ.
 
 ## The judged set
 
-The set is 172 single-case documents from 33 designs. Each design has a
+The judged set has two parts:
+- `cases.json`: 172 invented documents from 33 designs (this section);
+- `source_twins_cases.json`: 104 re-authorings of 13 J2 and RF source load
+  cases ("Source-control twins").
+
+In both, every document is single-case. The 172 invented documents come from
+33 designs. Each design has a
 Euler–Bernoulli and a Timoshenko twin of every allowance variant. Every
 document is within the source family and W1-E's D1 domain:
 - straight members only;
@@ -296,32 +330,96 @@ large rigid motions.
 | Source-control-style and RF-style documents | 96 and 24 |
 | D1 caps documents | 4 |
 
-## Twins of the source controls: invented, not sourced
+## Source-control twins (`o4_source_twins.py`)
 
-Section 5 asks for Timoshenko and nonzero-allowance re-authorings of J2's
-twelve source requests and of RF's PIN-OFF-345 r1e-08 and r1e-12 cases. Their
-inputs could not be sourced independently, so this unit does not contain those
-twins.
-- **J2.** The J2 corpus (`fixtures/results/pressure_source_reader_corpus.json`,
-  per b7-plan) is a generated product output that carries each request
-  together with its envelope and receipt. Its raw requests are product test
-  fixtures. The author could not isolate the authored inputs without opening
-  product output or product directories, so opened neither.
-- **RF.** RF's design text names the case: a skew tee on pins with (3,4,0)
-  members, placed at an offset; spring ratios 1e-8 and 1e-12; block profile
-  [4,2]; the R.N0.UZ row. It does not give the inputs.
+Section 5 asks for Timoshenko and nonzero-allowance re-authorings, in memory,
+of J2's twelve source requests and of RF's PIN-OFF-345 r1e-08 and r1e-12
+cases. The first freeze could not source their inputs independently, and the
+refuting TASK recorded that gap as its one MINOR finding. A later steer allowed
+the input-only files named under "Independence", and this section closes the
+gap.
 
-In their place:
-- twelve invented source-family designs, marked `source_control_style`;
-- the two `RFLIKE-SKEWT-PIN-OFF-345` designs, invented from RF's description.
-  Each carries both theories and the full allowance matrix (zero, mill, ca,
-  both, roundaway, mixed).
+**Re-authoring.**
+- Each source load case is mapped into this unit's request-agnostic document
+  form. The map converts units exactly, to SI, and refuses any conversion that
+  is not exactly a binary64 number. It takes base E and ν, and requires an
+  authored `shear_modulus` to equal E/(2(1+ν)) exactly, because both readouts
+  derive G from E and ν.
+- A load/reference-state group is in scope only when it resolves to plain nodal
+  loads:
+  - explicit base properties;
+  - unchanged-reference thermal states;
+  - no boundary motion;
+  - a reference configuration with `fit: none`;
+  - factors that keep each magnitude exactly a binary64 number.
 
-None of these is a re-authoring of J2 or RF bytes. When the product binds
-J2's and RF's in-memory re-authorings, `exact_readouts()` (or
-`generators/o4_reference.py --solve DOC.json`) gives both readouts of any
-request-agnostic document by the same code path. Those values are not frozen,
-and this unit's refutation does not cover them.
+  It then becomes its factored nodal loads.
+- The RF census requests (model 0.3.0, contract without a shear model,
+  sections without allowances) are re-authored, as the census does, to an
+  explicit shear model and explicit mill tolerance and allowance. Despite its
+  name, RF-SKEW-T-PIN-OFF-345 is one (3,4,0) member: translations are pinned at
+  both ends, a soft RX spring sits at N0 (0.00864 and 8.64e-7 N·m/rad), and the
+  two moments act at N1. This unit's invented `RFLIKE` tee designs read "T" as
+  a tee and stay in the judged set as a separate design.
+- For each in-scope load case there are eight documents:
+  - the Euler–Bernoulli zero-allowance re-authoring, a harness-validation twin;
+  - its Timoshenko twin;
+  - Euler–Bernoulli and Timoshenko twins with `mill`, `ca` and `both` sections,
+    using the judged set's allowance values.
+
+  Each document is frozen through `o4_reference.py`'s own pipeline: both
+  readouts, the same rows, format, discriminators, cross-checks and
+  110/150-digit recheck.
+
+**Scope, per source load case** (`source_twins_cases.json` `scope`):
+
+| Source | Load case | Status |
+|---|---|---|
+| J2 physics_source n05, n06, n05_unicode, n05_units, fields | `case` (`case:温度:α` in n05_unicode) | frozen, 8 twins each |
+| J2 physics_source mixed | `case` | frozen, 8 twins |
+| J2 physics_source mixed | `case:ordinary-pressure` | out of scope: a present pressure region; `modulus_basis_ref` (a named-point modulus basis) |
+| J2 physics_source mixed_units | `case` | frozen, 8 twins |
+| J2 physics_source mixed_units | `case:ordinary-pressure` | out of scope: a present pressure region; `modulus_basis_temperature` (a temperature modulus basis) |
+| J2 load_reference_source n05, n06, fields | `case` | frozen, 8 twins each. The group is factor-1.0 nodal loads with no eigenstrain or motion |
+| J2 load_reference_source mixed | `case` | frozen, 8 twins |
+| J2 load_reference_source mixed | `case:ordinary-pressure` | out of scope: a present pressure region; material selection `exact_point` |
+| J2 load_reference_source eigen_motion | `case:join` | out of scope. Its support `stop` has family `line_stop`, outside rigid anchors and linear springs. The other four reasons are eigenstrains and prescribed motions: thermal state `explicit_interval_strain`; boundary motion UY and RZ on `anchor`; boundary motion UX on `stop`; reference-configuration fit `fit_strain` |
+| RF-SKEW-T-PIN-OFF-345-r1e-08, -r1e-12 | `case` | frozen, 8 twins each |
+
+Of the 17 source load cases, 13 are frozen (104 documents) and 4 are out of
+scope. Nothing out of scope is approximated or partly frozen. A request's
+in-scope load case is frozen on its own, since load cases are independent
+linear problems: those cases use base E, and the other case's temperature
+points enter only through its own modulus basis.
+
+**Checks and results.**
+- Precision: all 24,944 written values, and every other field, are identical
+  at 110 and 150 digits. No value needed the residue snap.
+- Rational re-solve: all 104 admitted readouts, 13,616 values, of which 13,200
+  are binary64 values, all correct. The annular readout is not re-solved
+  because every document has a spring.
+- Allowance invariance: 10,440 values.
+- Theory independence: 11,224 values. Every source structure is statically
+  determinate, so its actions are identical in both theories.
+- Readout gaps: none above one tolerance.
+- Binary64 indicator: every Euler–Bernoulli zero-allowance twin exceeds 1e-9.
+  It is 2.1e-6 on the J2 1e-4 springs and 1.5e-7 and 2.2e-3 on RF. On the
+  1e-12 spring of the J2 n06 requests, a plain binary64 elimination meets an
+  exactly zero pivot, recorded as "singular in binary64".
+- Discriminators: most J2 requests load only torsion, which is
+  theory-independent. So the shear mutants are discriminable only on the `fields`
+  and RF twins: 8 of 52 Timoshenko documents, smallest listed 6.8e5
+  tolerances.
+  - `reduced_rows_copied_from_nominal`: discriminable in all 78 documents with
+    distinct bases.
+  - `annular_lane_reuses_kappa_hat`: not discriminable in any twin.
+
+**What remains.** These twins are re-authorings of the source inputs as they
+are committed. If J2's or RF's inputs change, the pinned SHA-256 refuses and
+the twins need a re-freeze and a new refutation.
+`exact_readouts()` (`o4_reference.py --solve DOC.json`) still gives both
+readouts of any other document by the same code path; such values are not
+frozen.
 
 ## Discriminators
 
@@ -396,6 +494,9 @@ The proxy shows which designs defeat an ordinary binary64 solve:
   shear-flexible, so the proxy reaches only 1.8e-12;
 - no other document exceeds 1e-9.
 
+Where a plain binary64 elimination meets an exactly zero pivot, the proxy is
+recorded as "singular in binary64". This occurs only in the source twins.
+
 The proxy is not the product's Passed/Sensitive gate. That gate is product-side
 and is not computed here.
 
@@ -409,7 +510,8 @@ requires that they reproduce today's numbers.
 
 The binding test runs them first, against both readouts. Zero judged breaches
 on them validates the harness: the builder, unit conversion, row mapping and
-interval judging. A breach there is a harness or reference fault, not an O4
+interval judging. The source twins add 13 such documents, the
+Euler–Bernoulli zero-allowance re-authorings of the J2 and RF load cases. A breach there is a harness or reference fault, not an O4
 fault. On these documents the reduced rows equal the nominal rows (asserted).
 
 ## Binding
@@ -438,7 +540,11 @@ rows, kinds, ids or request fields beyond the case documents.
    1e-9 of any point of the interval. The source route's declared-problem
    containment needs the later oracle unit. Both solver modes and both typed
    and captured entries are product-side repetitions of the same documents.
-4. **Stability.** Oracle values never move to match a product. Request SHA-256
+4. **Source twins.** A twin document is the in-memory re-authoring of its
+   pinned source request's load case (`source` names the file, its SHA-256 and
+   the load case). The binding test re-authors J2's and RF's requests the same
+   way and judges them against these rows.
+5. **Stability.** Oracle values never move to match a product. Request SHA-256
    values may be added once requests exist; that changes only the bindings and
    the files' hashes.
 
@@ -461,10 +567,13 @@ rows, kinds, ids or request fields beyond the case documents.
 ./run.sh                                               # check: about 2 s on 12 workers
 python3 -I -B generators/o4_reference.py --workers 1   # the same check in one process
 python3 -I -B generators/o4_reference.py --write       # intentional re-freeze only
+python3 -I -B generators/o4_source_twins.py            # check the source twins alone
+python3 -I -B generators/o4_source_twins.py --write    # intentional re-freeze of the twins only
 ```
 
 Check mode fails on any byte difference, on any unexpected or missing file, on
-an engine whose SHA-256 differs, and on any failed cross-check.
+an engine or source input whose SHA-256 differs, and on any failed
+cross-check.
 
 **Re-freeze rules.**
 - No value changes to match a product output. A disagreement goes back to this

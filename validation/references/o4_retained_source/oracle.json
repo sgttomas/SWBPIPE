@@ -452,6 +452,7 @@
    "documents_ineligible": 16,
    "readouts_resolved": 270,
    "values_compared": 68476,
+   "binary64_compared": 57418,
    "all_identical_at_40_digits": true
   },
   "phi_exactly_2_rational": 8,

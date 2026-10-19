@@ -31,6 +31,7 @@ import hashlib
 import json
 import math
 import os
+import struct
 import sys
 from decimal import Decimal, getcontext, localcontext
 from fractions import Fraction
@@ -733,13 +734,30 @@ def flatten(rows, prefix=""):
             yield p, v
 
 
+def b64(x):
+    """The binary64 of an exact value from its working-precision approximant.
+
+    A value within working precision of a binary64 midpoint is an exact tie (sums of binary64 inputs
+    land on midpoints); it is rounded half to even, as the exact value is. The rational re-solve checks
+    this rule independently wherever it reaches."""
+    f = float(x)
+    if D(f) == x:
+        return f
+    nb = math.nextafter(f, math.inf if D(f) < x else -math.inf)
+    mid = (D(f) + D(nb)) / 2
+    if abs(x - mid) <= abs(x) * D(10) ** (-(getcontext().prec - 20)):
+        bits = struct.unpack("<Q", struct.pack("<d", f))[0]
+        return f if bits % 2 == 0 else nb
+    return f
+
+
 def fmt(x, snap_check=True):
     """[decimal with 40 significant digits, binary64]; exact zero as ["0", 0.0]."""
     if x == 0:
         return ["0", 0.0]
     if snap_check and abs(x) < MIN_WRITTEN:
         raise AssertionError(f"written nonzero below {MIN_WRITTEN}: {x}")
-    return [format(x, ".39e"), float(x)]
+    return [format(x, ".39e"), b64(x)]
 
 
 def fmt_value(v, snap_check=True):
@@ -983,6 +1001,8 @@ def binary64_proxy(doc, exact_rows):
     for col in range(nf):
         piv = max(range(col, nf), key=lambda r: abs(a[r][col]))
         a[col], a[piv] = a[piv], a[col]
+        if a[col][col] == 0.0:
+            return {"worst_scaled_error": "singular in binary64", "exceeds_1e-9": True}
         for r in range(col + 1, nf):
             if a[r][col] != 0.0:
                 fac = a[r][col] / a[col][col]
@@ -1073,15 +1093,18 @@ def frac_solve(a, b):
 
 
 def frac_text(q, pi_div=False, sqrt_extra=None):
-    """40-digit text of an exact value (optionally divided by pi), for comparison with the written rows."""
+    """40-digit text of an exact value (optionally divided by pi), for comparison with the written rows.
+
+    A rational value also carries its correctly rounded binary64 (Fraction rounds half to even)."""
     if q == 0 and not sqrt_extra:
-        return "0"
+        return ("0", 0.0)
     with localcontext() as ctx:
         ctx.prec = getcontext().prec + 20
         x = D(q.numerator) / D(q.denominator)
         if pi_div:
             x = x / E.PI
-        return format(x, ".39e") if x != 0 else "0"
+        text = format(x, ".39e") if x != 0 else "0"
+    return text if pi_div else (text, float(q))
 
 
 def fraction_check(case, written):
@@ -1123,7 +1146,7 @@ def fraction_check(case, written):
     springs = [s for s in doc["supports"] if s["kind"] == "spring"]
     Ef, nuf = doc["material"]["elastic_modulus_Pa"], doc["material"]["poisson_ratio"]
     Eq, nuq = Fraction(Ef), Fraction(nuf)
-    out = {"eligible": True, "values_compared": 0, "readouts": []}
+    out = {"eligible": True, "values_compared": 0, "binary64_compared": 0, "readouts": []}
     for readout in ("admitted", "annular"):
         if readout == "annular" and springs:
             continue
@@ -1243,16 +1266,18 @@ def fraction_check(case, written):
                 exact[f"support_reaction:{s['id']}:{c}"] = frac_text(v)
         got = {}
         for path, v in flatten(written[readout]):
-            if isinstance(v, dict):
-                got[path + ":lower"] = v["lower"][0]
-                got[path + ":upper"] = v["upper"][0]
-            else:
-                got[path] = v[0]
+            got[path] = v
         if set(got) != set(exact):
             raise AssertionError("rational re-solve row universe differs")
         for k, v in exact.items():
-            if got[k] != v:
-                raise AssertionError(f"rational re-solve differs at {case['id']} {readout} {k}: {got[k]} vs {v}")
+            g = got[k]
+            if isinstance(v, tuple):
+                ok = g[0] == v[0] and (g[1] == v[1] or (v[0] == "0" and g[1] == 0.0))
+                out["binary64_compared"] += 1
+            else:
+                ok = g[0] == v
+            if not ok:
+                raise AssertionError(f"rational re-solve differs at {case['id']} {readout} {k}: {g} vs {v}")
         out["values_compared"] += len(exact)
         out["readouts"].append(readout)
     return out
@@ -1647,6 +1672,7 @@ def build(workers):
                                  "documents_ineligible": sum(1 for f in frac if not f["eligible"]),
                                  "readouts_resolved": sum(len(f.get("readouts", [])) for f in frac),
                                  "values_compared": sum(f.get("values_compared", 0) for f in frac),
+                                 "binary64_compared": sum(f.get("binary64_compared", 0) for f in frac),
                                  "all_identical_at_40_digits": True},
             "phi_exactly_2_rational": n_phi2,
             "closed_form_values": sum(work[cid][2]["closed_form"] for cid in ids),
@@ -1681,7 +1707,8 @@ def dump_lines(doc, key, _unused):
 
 
 FROZEN = ("cases.json", "oracle.json")
-SUMMED = ("README.md", "cases.json", "oracle.json", "run.sh", "generators/o4_reference.py")
+SUMMED = ("README.md", "cases.json", "oracle.json", "run.sh", "generators/o4_reference.py",
+          "generators/o4_source_twins.py", "source_twins_cases.json", "source_twins_oracle.json")
 
 
 def sha256sums():
