@@ -1312,6 +1312,9 @@ persistence (AGENTS.md). Both solver modes run throughout.
    census checks.
 5. **S5, registration.** D3, registration, the one public regeneration, corpora and census
    refresh, and reconciliation.
+6. **S6, hashing reduction (added after the D3 attribution).** One canonical writer over the
+   borrowed Value with a sink (§6), byte-identity regression, the pricing corrections, then D3
+   and registration on that source.
 
 S2 and S3 touch the same producer, tables and readers. They proceed in that order on one
 branch.
