@@ -2576,7 +2576,10 @@ fn fault_owner<'a>(a: &'a Value, path: &[String]) -> Option<&'a Value> {
     let proof = &a["proof"];
     let p = |i: usize| path.get(i).map(String::as_str);
     let index = |i: usize| path.get(i).and_then(|x| x.parse::<usize>().ok());
-    let owner = if (p(0), p(1)) == (Some("preparation"), Some("members")) {
+    let owner = if (p(0), p(1), p(3)) == (Some("preparation"), Some("members"), Some("reduced")) {
+        // O4 §4.6: a fault inside a member's reduced record is owned by that record's work.
+        index(2).map(|i| &a["preparation"]["members"][i]["reduced"]["work"])
+    } else if (p(0), p(1)) == (Some("preparation"), Some("members")) {
         index(2).map(|i| &a["preparation"]["members"][i]["work"])
     } else if (p(0), p(1), p(2)) == (Some("result"), Some("error"), Some("section")) {
         list(&a["preparation"]["members"]).last().map(|m| &m["work"])
@@ -2674,8 +2677,11 @@ fn accounting_rules(a: &Value) -> [bool; 4] {
     });
     let mut r4 = true;
     for m in list(&a["preparation"]["members"]) {
-        if m["result"]["kind"] != "prepared" && m["result"]["error"]["kind"] == "accounting" {
-            r4 &= statuses(&m["work"]) != 0;
+        // O4 §4.6: the same rule for a member's reduced record and its own work.
+        for record in [m, &m["reduced"]] {
+            if record.is_object() && record["result"]["kind"] != "prepared" && record["result"]["error"]["kind"] == "accounting" {
+                r4 &= statuses(&record["work"]) != 0;
+            }
         }
     }
     let error = &a["result"]["error"];
@@ -2885,6 +2891,38 @@ fn member_checks(a: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn FnMut(boo
         }
         if let Some(n) = exact_count(&m["work"]["conversions"]) {
             wf(n == cv.len() as u64)?;
+        }
+        // O4 (DEL-04-08 Design `o4-source-extension.md` §4.6): a distinct-basis member's
+        // reduced record is a preparation record like the member's own, read by the same
+        // rules: present only beside a prepared member; conversions in property order,
+        // each of an admitted kind; a prepared result's nine normal, positive conversions
+        // equal to its section; a refused reduced annulus ends the preparation (the last
+        // member); its conversion count equation is WORK.
+        if let Some(r) = m.get("reduced") {
+            pf(prepared)?;
+            let reduced_prepared = r["result"]["kind"] == "prepared";
+            if !reduced_prepared {
+                pf(r["result"]["kind"] == "refused" && j + 1 == pm.len())?;
+            }
+            let rc = list(&r["conversions"]);
+            pf(rc.len() <= 9)?;
+            for (k, v) in rc.iter().enumerate() {
+                pf(v["property"] == props[k].0
+                    && v["endpoint"] == props[k].1
+                    && conversion_kind_ok(&v["outcome"]))?;
+                if reduced_prepared {
+                    let idx = if k < 8 { k / 2 } else { 4 };
+                    pf(v["outcome"]["kind"] == "normal"
+                        && v["outcome"]["value"] == r["result"]["section"][idx]
+                        && f(&v["outcome"]["value"]) >= f64::MIN_POSITIVE)?;
+                }
+            }
+            if reduced_prepared {
+                pf(rc.len() == 9)?;
+            }
+            if let Some(n) = exact_count(&r["work"]["conversions"]) {
+                wf(n == rc.len() as u64)?;
+            }
         }
     }
     for (j, op) in new.iter().enumerate() {

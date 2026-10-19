@@ -273,6 +273,9 @@ def _fault_owner(a, path):
     """R3' owner scopes (checkpoint A, D8): a member's PreparationWork, a lane's LaneWork, the values
     completion, else the whole ProofTrace."""
     proof = a["proof"]
+    if path[:2] == ("preparation", "members") and path[3:4] == ("reduced",):
+        # O4 §4.6: a fault inside a member's reduced record is owned by that record's work.
+        return a["preparation"]["members"][path[2]]["reduced"]["work"]
     if path[:2] == ("preparation", "members"):
         return a["preparation"]["members"][path[2]]["work"]
     if path[:3] == ("result", "error", "section"):
@@ -345,8 +348,11 @@ def _accounting_rules(a):
             r3 = r3 and owner is not None and o["fault"] in STATUS_FAULTS and STATUS_FAULTS[o["fault"]] <= _statuses(owner)
     r4 = True
     for m in a["preparation"]["members"]:
-        e = m["result"].get("error") if m["result"]["kind"] != "prepared" else None
-        if isinstance(e, dict) and e.get("kind") == "accounting": r4 = r4 and bool(_statuses(m["work"]))
+        # O4 §4.6: the same rule for a member's reduced record and its own work.
+        for record in (m, m.get("reduced")):
+            if not isinstance(record, dict): continue
+            e = record["result"].get("error") if record["result"]["kind"] != "prepared" else None
+            if isinstance(e, dict) and e.get("kind") == "accounting": r4 = r4 and bool(_statuses(record["work"]))
     section = (error or {}).get("section") if (error or {}).get("kind") == "preparation" else None
     if isinstance(section, dict) and section.get("kind") == "accounting":
         members = a["preparation"]["members"]
@@ -1366,6 +1372,25 @@ def _g5_preparation_members(a, prefix_ok, fail, wf):
                 outcome = conversion["outcome"]
                 idx = k // 2 if k < 8 else 4
                 fail(outcome["kind"] == "normal" and outcome["value"] == m["result"]["section"][idx] and from_bits(outcome["value"]) >= 2.0 ** -1022)
+        # O4 (DEL-04-08 Design o4-source-extension.md §4.6): a distinct-basis member's reduced record is a preparation
+        # record like the member's own, read by the same rules: present only beside a prepared member; conversions in
+        # property order, each of an admitted kind; a prepared result's nine normal, positive conversions equal to its
+        # section; a refused reduced annulus ends the preparation (the last member); its conversion count is WORK.
+        if "reduced" in m:
+            r = m["reduced"]
+            fail(ready)
+            reduced_ready = r["result"]["kind"] == "prepared"
+            if not reduced_ready: fail(r["result"]["kind"] == "refused" and j == len(pm) - 1)
+            conversions = r["conversions"]
+            fail(len(conversions) <= 9)
+            for k, conversion in enumerate(conversions):
+                fail((conversion["property"], conversion["endpoint"]) == props[k] and _conversion_kind_ok(conversion["outcome"]))
+                if reduced_ready:
+                    outcome = conversion["outcome"]
+                    idx = k // 2 if k < 8 else 4
+                    fail(outcome["kind"] == "normal" and outcome["value"] == r["result"]["section"][idx] and from_bits(outcome["value"]) >= 2.0 ** -1022)
+            if reduced_ready: fail(len(conversions) == 9)
+            if _count(r["work"]["conversions"]) is not None: wf(_count(r["work"]["conversions"]) == len(conversions))
 
 
 def _diagnostic_endpoint(value):

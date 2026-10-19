@@ -4784,6 +4784,42 @@ fn o4_w1e_successor_fixtures_are_the_live_successors() {
     assert!(document == include_str!("../../../fixtures/results/retained_precision_o4_w1e_mixed_successor_sparse_interactive.json"),
         "the mixed fixture is the live O4 successor document, byte for byte");
 }
+/// O4 (review repair, §4.7 G8): a Timoshenko dual-basis document with a sourced unavailable case
+/// (control B with its case repeated as `case-2`, c_a = 1 mm; case 1's freeze faulted by the test hook), the shared corpus's base for
+/// G8's checks on a source no selection binds (G5b reads selected cases only). `O4_W1E_OUT=<dir>` writes it.
+#[test]
+fn o4_w1e_unavailable_fixture_is_the_live_successor() {
+    let mode = MODES[0];
+    let mut raw = o4_control(O4_TIM, 0.001, None, None);
+    let mut second = raw["model"]["load_cases"][0].clone();
+    second["id"] = json!("case-2");
+    for load in second["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    hooks::fail_freeze_of_case(1);
+    let (_, retained, captured) = exact_w1(&raw, mode);
+    assert!(hooks::armed_names().is_empty(), "the freeze hook is consumed");
+    let successor = captured.unwrap_or_else(|| panic!("{retained:?}"));
+    let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+    let verdict = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)).unwrap();
+    assert!(verdict.invocation_bound && !verdict.numerical_eligible);
+    let b = &successor["retained_precision"]["body"];
+    assert_eq!((b["cases"][0]["status"].as_str(), b["cases"][1]["status"].as_str()), (Some("selected"), Some("unavailable")));
+    assert!(!b["cases"][1]["source_ref"].is_null(), "a sourced unavailable case");
+    let terms = |i: usize| b["sources"][i]["section_terms"][0].clone();
+    for i in 0..2 {
+        assert!(terms(i).get("reduced").is_some() && terms(i).get("shear_area").is_some(), "source {i}: both sidecars");
+    }
+    let document = serde_json::to_string_pretty(&json!({"id": format!("o4_w1e_unavailable_{}", mode.as_str()), "source": successor,
+        "invocation": invocation})).unwrap();
+    if let Some(dir) = std::env::var_os("O4_W1E_OUT") {
+        std::fs::write(std::path::Path::new(&dir).join(format!("retained_precision_o4_w1e_unavailable_successor_{}.json", mode.as_str())), &document).unwrap();
+        return;
+    }
+    assert!(document == include_str!("../../../fixtures/results/retained_precision_o4_w1e_unavailable_successor_sparse_interactive.json"),
+        "the unavailable-case fixture is the live O4 successor document, byte for byte");
+}
 /// RV123's two-member m3x with M2's 1 mm corrosion allowance (M1 none): one distinct-basis member.
 fn o4_w1e_mixed_request() -> Value {
     let mut raw = two_member_exact(false);
