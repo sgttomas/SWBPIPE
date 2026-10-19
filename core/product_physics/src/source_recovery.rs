@@ -796,31 +796,12 @@ fn prepare_sources(
     if !input.built.connectors.is_empty() {
         return Err(unsupported("objective connector is not a straight source family"));
     }
-    // O4 interim (owner, 2026-10-12: "Scope extension after B7b"; DEL-05-03
-    // Design `section-bases-and-timoshenko.md` §5): the source method has one
-    // Euler-Bernoulli section, so a Timoshenko document and a pipe section with
-    // a second (reduced) basis are declined by name, after the D7 declines and
-    // the budget refusal above. These are document facts: such a document
-    // publishes ordinary pressure-2 rows and never becomes a composite. They
-    // apply to exact-contract documents only, the documents D-5 gives two
-    // bases: the pressure-free preview route keeps its one (t - c_m) section
-    // and its source recovery unchanged.
-    if super::pressure_runtime::is_exact(input.model) {
-        if input.model.pressure_contract.as_ref().and_then(|contract| contract.shear_model.as_deref())
-            == Some("timoshenko_annulus_energy_v1")
-        {
-            return Err(unsupported(
-                "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation",
-            ));
-        }
-        let nonzero = |q: &Option<Quantity>| q.as_ref().is_some_and(|q| q.value != 0.0);
-        if input.model.pipe_segments.iter().any(|pipe| nonzero(&pipe.section.mill_tolerance)) {
-            return Err(unsupported("nonzero mill tolerance is not a retained-source section basis"));
-        }
-        if input.model.pipe_segments.iter().any(|pipe| nonzero(&pipe.section.corrosion_allowance)) {
-            return Err(unsupported("nonzero corrosion allowance is not a retained-source section basis"));
-        }
-    }
+    // O4 (DEL-04-08 Design `o4-source-extension.md` §3.1, §3.2): a
+    // timoshenko_annulus_energy_v1 document and a nonzero mill tolerance or
+    // corrosion allowance are admitted. The declared operand is each frame's
+    // own binary64 local matrix (closed against the pipe element and the
+    // assembly below), and the stress rows are published on each section
+    // basis from the same retained functionals.
     if input.force.len() != n
         || input.stiffness.len() != n
         || input.stiffness.iter().any(|row| row.len() != n)
@@ -3109,4 +3090,4 @@ mod j7_t4_consequences;
 
 #[cfg(test)]
 #[path = "source_recovery/j7_rf_census.rs"]
-mod j7_rf_census;
+pub(crate) mod j7_rf_census;

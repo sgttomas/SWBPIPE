@@ -987,3 +987,7 @@ mod tests;
 #[cfg(test)]
 #[path = "source_receipt/pressure_source_context_tests.rs"]
 mod pressure_source_context_tests;
+// O4 (DEL-04-08 Design `o4-source-extension.md` §3, §6): the Timoshenko and
+// dual-basis source route, its work law and its declared-problem dump.
+#[cfg(test)]
+mod o4_source_tests;
