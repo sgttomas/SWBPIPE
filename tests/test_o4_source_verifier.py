@@ -49,9 +49,15 @@ def reseal(source):
     return source
 
 
+# The Python base verifier names a twin-rule failure by its own text (``physics_evidence.py``), not by Rust's code.
+PYTHON_NAMES = {"SOURCE_PHYSICS_ROW_BASIS_SECTION": "SOURCE_PHYSICS_EVIDENCE_INVALID: stress basis section"}
+
+
 def refused_by_both(source, invocation, code):
-    with pytest.raises(ValueError, match=f"^{code}$"):
+    python = PYTHON_NAMES.get(code, code)
+    with pytest.raises(ValueError) as refused:
         ps.validate_physics_source(deepcopy(source), deepcopy(invocation))
+    assert str(refused.value) == python
     with pytest.raises(rust_reader.ReaderRefusal) as rust:
         rust_reader.validate("pressure-source", source, invocation=invocation)
     assert rust.value.code == code

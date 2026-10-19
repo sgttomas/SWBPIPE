@@ -136,7 +136,7 @@ def _corrosion_allowances(model):
         allowance = length(_get(section, "corrosion_allowance"))
         wall = length(_get(section, "wall_thickness"))
         tolerance = 0.0 if _get(section, "mill_tolerance") is None else length(_get(section, "mill_tolerance"))
-        admitted = (allowance is not None and wall is not None and tolerance is not None and allowance >= 0
+        admitted = (allowance is not None and wall is not None and tolerance is not None and allowance >= 0 and tolerance >= 0
                     and tolerance + allowance < wall and sb.reduced_wall(wall, tolerance, allowance) > 0)
         _require(admitted, "ACTUAL_CORROSION_ALLOWANCE")
 

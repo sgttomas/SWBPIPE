@@ -478,15 +478,19 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         "PHYSICS_SOURCE_ACTUAL_LOAD_REFERENCE_CONTEXT",
         entries,
     );
-    // B7b F1: every pipe section of the captured exact document declares an
-    // explicit length-valued zero corrosion allowance. A genuine statement
-    // coherently bound to an invocation whose allowance is nonzero, absent or
-    // null (its invocation commitment and receipt resealed to that invocation)
-    // is refused on the bound read; the unbound and transported reads cannot
-    // see the invocation and read the statement as before (admitted, not
-    // numerically eligible; transport passes).
+    // B7b F1 and O4 (DEL-04-08 Design `o4-source-extension.md` §3.4): every
+    // pipe section of the captured exact document declares an explicit
+    // length-valued, finite corrosion allowance c_a >= 0 with c_m + c_a < t
+    // (zero is no longer required: a nonzero allowance binds by value, through
+    // ACTUAL_SOURCE_GEOMETRY). A genuine statement coherently bound to an
+    // invocation whose allowance is negative, absent or null (its invocation
+    // commitment and receipt resealed to that invocation) is refused on the
+    // bound read; the unbound and transported reads cannot see the invocation
+    // and read the statement as before (admitted, not numerically eligible;
+    // transport passes). The committed J2 corpus regenerates with the O4
+    // limitation slice; until then it holds B7b's `nonzero` entry.
     for (label, allowance) in [
-        ("nonzero", Some(json!({"value": 0.001, "unit": "m"}))),
+        ("negative", Some(json!({"value": -0.001, "unit": "m"}))),
         ("absent", None),
         ("null", Some(Value::Null)),
     ] {

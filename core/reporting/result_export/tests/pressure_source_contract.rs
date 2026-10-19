@@ -73,6 +73,11 @@ fn captured_contract_fixes_the_expected_source_reader() {
         ("/request/model/pressure_contract", json!({"version":"2.0.0", "mode":"exact_straight_pressure_v2"})),
         ("/request/model/pressure_contract", json!({"version":"3.0.0", "mode":ps::PRESSURE_PROFILE})),
         ("/request/model/schema_version", json!("0.4.0")),
+        // O4 (§3.4): an unknown, null or non-string shear model, and an extra contract member.
+        ("/request/model/pressure_contract/shear_model", json!("cowper")),
+        ("/request/model/pressure_contract/shear_model", Value::Null),
+        ("/request/model/pressure_contract/shear_model", json!(5)),
+        ("/request/model/pressure_contract", json!({"version":"3.0.0", "mode":ps::PRESSURE_PROFILE, "shear_model":"euler_bernoulli", "shear_factor":0.5})),
     ] {
         let mut other = captured.clone();
         *other.pointer_mut(pointer).unwrap() = value;
@@ -80,6 +85,13 @@ fn captured_contract_fixes_the_expected_source_reader() {
         assert_eq!(ps::validate(&source(), Some(&other)), Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into()), "{pointer}");
     }
     assert_eq!(ps::validate_in(&json!({}), Some(&captured), ps::SourceContract::PressureV3), Err("PHYSICS_SOURCE_IDENTITY".into()));
+    // O4 (§3.4): either admitted shear model is the exact contract; a top-level
+    // shear model is still refused.
+    let mut timoshenko = captured.clone();
+    *timoshenko.pointer_mut("/request/model/pressure_contract/shear_model").unwrap() = json!("timoshenko_annulus_energy_v1");
+    assert_eq!(ps::SourceContract::from_invocation(&timoshenko), Ok(ps::SourceContract::PressureV3));
+    timoshenko["request"]["model"]["shear_model"] = json!("timoshenko_annulus_energy_v1");
+    assert_eq!(ps::SourceContract::from_invocation(&timoshenko), Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into()));
 }
 
 #[test]
