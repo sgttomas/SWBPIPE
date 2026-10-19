@@ -49,6 +49,20 @@ J7_RF_CENSUS_INPUTS = {
     'validation/references/t3_r1/REFERENCES/references.py',
 }
 
+# The synthetic reader-control bases' writer and the files it reads or writes (exact files): its --check
+# test reproduces the committed corpus from them.
+SYNTHETIC_BASES_TEST = 'tests/test_retained_precision_synthetic_bases.py'
+SYNTHETIC_BASES_INPUTS = {
+    'tools/fixtures/retained_precision_synthetic_bases.py',
+    'tools/fixtures/retained_precision_corpus.py',
+    'fixtures/results/retained_precision_cases.json',
+    'fixtures/results/retained_precision_b2_parity_probes.json',
+    'fixtures/results/retained_precision_milestone_successor_sparse_interactive.json',
+    'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json',
+    'fixtures/results/semantic_contract_v0_3_physics_retained_1.json',
+    'fixtures/canonical_hash/cases.json',
+}
+
 
 def helper_consumers(project, helper):
     """Direct test imports of the established shared test helpers only."""
@@ -139,6 +153,8 @@ def select(project, plan):
             patterns.extend(helper_consumers(project, local))
             if local in J7_RF_CENSUS_INPUTS:
                 patterns.append(J7_RF_CENSUS_TEST)
+            if local in SYNTHETIC_BASES_INPUTS:
+                patterns.append(SYNTHETIC_BASES_TEST)
             patterns.extend(PINNED_FIXTURE_READERS.get(local, []))
             if local.startswith('core/model_transform/'):
                 patterns.extend(['tests/test_analytical_solver_boundary_adapter.py',
