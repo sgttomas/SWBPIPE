@@ -19,7 +19,11 @@ on 2026-10-16, which found no wrong frozen value and no loosening.
 the re-frozen references onto rows, evidence, criteria and absences. It reuses
 the unchanged warrants of `INDEPENDENT_REVIEW_T4-U4A.md` (the U4a tangent
 mapping) and `INDEPENDENT_REVIEW_T4-RV28.md`; T4-RV3 and T4-RV4 refuted the
-references. `ADMISSION.json` binds the T4-U6 review by SHA-256. Without
+references. Since T4-U4b/U5b, `INDEPENDENT_REVIEW_T4-U4B-U5B.md` (verdict ADMIT)
+checked the epoch-4 delta (pressure-2, model 0.6.0 submitted copies, the arc
+maximum no longer a declared absence, the corrected nodal displacement), reusing
+the T4-U6, U4a and RV28 warrants. `ADMISSION.json` binds the T4-U4b/U5b review
+by SHA-256. Without
 `ADMISSION.json`, every generated reference is `pending_independent_review`
 and every profile is a draft, so the gate refuses the package. Admission
 changes statuses only, never a value or rule. It is a development-comparison
@@ -50,8 +54,9 @@ material-library, component-library or code-rule data.
 |---|---|---|
 | `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-2 table only. |
 | `MANIFEST.json` | yes | `openpipestress.exact_pressure_qualification_manifest/1`: one entry per case, binding each case file by path and sha256. |
-| `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the T4-U6 review by path and sha256. |
-| `INDEPENDENT_REVIEW_T4-U6.md` | yes | The independent T4-U6 section-basis mapping review, bound by `ADMISSION.json`. |
+| `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the T4-U4b/U5b review by path and sha256. |
+| `INDEPENDENT_REVIEW_T4-U4B-U5B.md` | yes | The independent T4-U4b/U5b delta review, bound by `ADMISSION.json`. |
+| `INDEPENDENT_REVIEW_T4-U6.md` | yes | The independent T4-U6 section-basis mapping review; it admitted the D-5 package. |
 | `INDEPENDENT_REVIEW_T4-U4A.md` | yes | The independent U4a tangent-mapping review; it admitted the pre-D-5 package. |
 | `INDEPENDENT_REVIEW_T4-RV28.md` | yes | The preserved historical review of the unchanged basis. |
 | `cases/` | no (`.gitignore`) | Five files per case, written by `--write`: `runner_input`, `preview_request`, `selectors`, `reference`, `criteria`. |
@@ -133,7 +138,7 @@ Totals:
 **Row selectors.** These use the first-static shape
 `{id, kind, unit, entity_ref, basis_ref, metadata, dimension}`:
 
-- `dimension` and the result family come from the pinned pressure-1 table.
+- `dimension` and the result family come from the pinned pressure-2 table.
 - The row ID and published metadata follow the producer's naming
   (`metadata()` and `row_id()` in the generator). They were identified once
   from producer output.
@@ -261,7 +266,7 @@ with `max(absolute, relative*max(|observed|, |expected|))`.
 2. Name an admitted package and a reviewed reader binding,
    `openpipestress.exact_pressure_consistency_binding/2`. The binding lists
    the adapter's three `DEPENDENCIES` (the Rust reader's source, the
-   pressure-1 table and the unit authority), and its entry is
+   pressure-2 table and the unit authority), and its entry is
    `validate_pressure_evidence`. The verdict is the Rust product reader's,
    taken from the explicitly built `openpipestress-runner read pressure` named
    by `OPENPIPESTRESS_RUNNER_BIN`.
