@@ -207,7 +207,10 @@ def main():
         raise ValueError('Python runner requires explicit selected coverage')
     selected = select(project, plan)
     print(json.dumps({'selected': selected}, indent=2), flush=True)
-    return 0 if args.dry_run else subprocess.run([sys.executable, '-m', 'pytest', '-q', *selected], cwd=project).returncode
+    # The full selection runs in parallel, one module per worker as tools/run_affected_tests.py does; the
+    # controller builds the test binaries once before the workers start (tests/conftest.py).
+    command = [sys.executable, '-m', 'pytest', '-q', '-n', 'auto', '--dist', 'loadscope', *selected]
+    return 0 if args.dry_run else subprocess.run(command, cwd=project).returncode
 
 
 if __name__ == '__main__':
