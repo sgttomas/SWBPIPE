@@ -5598,9 +5598,9 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// and the m3x successors are the D-5 regeneration, so all eight digests moved once more (the
 /// N2b pair were 89e57eb9... and c2e661d0...; N2 5bcef58c... and f2d7bbea...; F2 849bf31b...,
 /// 29d6c537..., cb5edc48... and 84aeda36...); RV120's restated inputs and the R1 record carry them.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["0d4e9ff32ac62eda27381fa2a77edf84cc0c0cce8b42ce1866ffdc9a0a38d151", "132d98a9912a389784736e8ed301235550983d98c45749a7e85ce0b46494cbbe"];
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["19f94ef318caa533f8f32f40812807bd4ccab55b685777d0ba082d17cb5b2ff1", "b9232716595881ae06d807f12ce1be939de2d9339fa909cd8363642f0ffe6116"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["28f4b47fc2b4e4825219ebb38c62a2ad549c52fc2f135b4a35c732aa314b5ef6", "51e72fa37f2c7e8ef685b8c3e3616678415566598bfb454f2d855c9f21da0bbd"];
+const RV120_N2_INPUTS: [&str; 2] = ["41b9866c26ab46bbb8d492ac13596c99079570de6c44add4d65335cf37d2f869", "a3580bd0a3426463b597ab8b89e09ff0020a579595d5b31761a303fcfaec6a92"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5609,10 +5609,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "8f5b9c8ddd6de0e2a26428f7fa28fbb74e1556f14d245dbc1820d29cfbbc85b7"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "f6c5ec4c0569c4aa92b3c7b116e27de9debf75b9d054100da14c43f33e62e72f"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "76ecd82541d91231b837720e22515f974f8ffdfead92436896de72bbb4e37e44"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "40c716110f79050b7ac26167b81d0f4682da48fe52c0d7d68cab64560b66b095"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "eff92fdd45f4182c6ccdb73753bed8a6946374f3e656d8330e98cb8c216df98f"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "0de13ab83224913d9739e72d81990a89784ff7475e7f7fbfa0661c730213284d"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "d54ce46c7d5e570a8e70ba44814d1a43e19e78ad3fe9bb9c747210a6eb459451"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "ae5926bd3cedacc7b71917ef495e76421523d3e287d8e76a9cecff7ca4d49c9f"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
