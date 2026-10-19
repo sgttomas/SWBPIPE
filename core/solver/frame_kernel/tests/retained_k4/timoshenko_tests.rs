@@ -222,7 +222,8 @@ fn ratio(actual: Wide<16>, lo: &str, bound: Wide<16>) -> f64 {
     }
     let diff = sum.round(&mut ctx).unwrap().abs();
     let r = ctx.div(&diff, &bound).unwrap();
-    r.to_binary64().value().unwrap_or(f64::INFINITY)
+    // A ratio below the binary64 range is reported as 0.
+    r.to_binary64().value().unwrap_or(if r.exponent() < 0 { 0.0 } else { f64::INFINITY })
 }
 
 struct Case {
@@ -235,7 +236,7 @@ struct Case {
     rows: Vec<(String, String)>,
 }
 
-const FRACTIONS: [f64; 5] = [0.0, 0.25, 1.0 / 3.0, 1.0 - f64::EPSILON / 2.0, 1.0];
+const FRACTIONS: [f64; 5] = [0.0, 0.25, 1.0 / 3.0, 1.0 - f64::EPSILON, 1.0];
 
 fn reference_cases() -> Vec<Case> {
     let text = include_str!("timoshenko_member.txt");
@@ -416,3 +417,196 @@ fn retained_timoshenko_recovery_error_is_bounded_by_69uE() {
     assert!(worst <= 69.0, "{worst}");
     eprintln!("recovery_error_is_bounded_by_69uE: {tested} rows, worst |q-R*|/(2^-P·E_q) = {worst:.3}");
 }
+
+#[allow(dead_code)]
+#[path = "models.rs"]
+mod models;
+
+fn timoshenko_twin(source: &PrimitiveSource, shear_ratio: f64) -> TimoshenkoLeafSet {
+    let leaves = source.members().iter()
+        .map(|m| TimoshenkoLeaf { member: m.id, shear_area: m.area * shear_ratio }).collect();
+    TimoshenkoLeafSet::new(source, leaves).unwrap()
+}
+
+/// §4.4 item 7 and §4.2's note on D̄: the D̄-inflated path through E, the
+/// p = 512 Φ floor, body scales, classes and absolute bounds, exercised on a
+/// whole retained solve. SKEW-K1E-60 selects at 512. Its Timoshenko twin with
+/// a very stiff shear leaf (φ ≈ 0) solves the Euler–Bernoulli state to many
+/// digits, while D̄ = RU(2(c + c_s)) ≈ 8c per entry replaces (4c, 2c): its
+/// E_mo, so its Φ_mo, is larger (never smaller), and its published classes
+/// and absolute bounds are exactly the floored classification of its own
+/// values, extents and Φ.
+#[test]
+fn retained_timoshenko_d_bar_path_through_e_and_the_512_floor() {
+    use super::super::adaptive::{classify_rows_floored, RowClass};
+    use super::super::verify::{e_hat, phi_512};
+    let source = models::model("SKEW-K1E-60").source();
+    let eb = solve(&source, None);
+    let stiff = solve(&source, Some(&timoshenko_twin(&source, 1e12)));
+    let soft = solve(&source, Some(&timoshenko_twin(&source, 0.5)));
+    assert_eq!(eb.selected_precision(), 512);
+    for owner in [&stiff, &soft] {
+        let p = owner.selected_precision();
+        let evidence = owner.evidence();
+        // Φ = fl↑(2^-438·ê) from E's own published bits, per body (512 only).
+        assert_eq!(evidence.floor.is_some(), p == 512);
+        let mut floors = Vec::new();
+        for (b, fo, mo) in &evidence.resolution_scale {
+            let eh = e_hat([f64::from_bits(*fo), f64::from_bits(*mo)], owner.prep.extents[*b as usize]);
+            floors.push([phi_512(eh[0]), phi_512(eh[1])]);
+            if let Some(floor) = &evidence.floor {
+                let (_, ffo, fmo) = floor.iter().find(|f| f.0 == *b).unwrap();
+                assert_eq!((*ffo, *fmo), (phi_512(eh[0]).to_bits(), phi_512(eh[1]).to_bits()));
+            }
+        }
+        // Classes and absolute bounds: the floored classification of the
+        // published values with the body extents and (at 512) Φ.
+        let values: Vec<_> = owner.publish().rows.iter().map(|r| r.value).collect();
+        let floor = evidence.floor.as_ref().map(|_| floors.as_slice());
+        let again = classify_rows_floored(&owner.prep.layout, &values, &owner.prep.extents, floor);
+        for (a, b) in owner.publish().rows.iter().zip(&again.rows) {
+            assert_eq!(a.class, b.class, "{:?}", a.id);
+        }
+        let absolute = owner.publish().rows.iter()
+            .filter(|r| matches!(r.class, RowClass::AbsoluteVerified { .. })).count();
+        assert_eq!(absolute, evidence.absolute_verified.len());
+    }
+    // The D̄-inflated E: the near-Euler–Bernoulli state, a larger E_mo and Φ_mo.
+    if stiff.selected_precision() == 512 {
+        for ((b, _, mo_eb), (_, _, mo_t)) in eb.evidence().resolution_scale.iter().zip(&stiff.evidence().resolution_scale) {
+            assert!(f64::from_bits(*mo_t) >= f64::from_bits(*mo_eb), "body {b}");
+        }
+        let (fe, ft) = (eb.evidence().floor.as_ref().unwrap(), stiff.evidence().floor.as_ref().unwrap());
+        for (a, t) in fe.iter().zip(ft) {
+            assert!(f64::from_bits(t.2) >= f64::from_bits(a.2));
+        }
+    }
+    eprintln!("D-bar/E/floor: EB p={} stiff p={} soft p={}; E_mo EB {:?} stiff {:?}",
+        eb.selected_precision(), stiff.selected_precision(), soft.selected_precision(),
+        eb.evidence().resolution_scale.iter().map(|e| f64::from_bits(e.2)).collect::<Vec<_>>(),
+        stiff.evidence().resolution_scale.iter().map(|e| f64::from_bits(e.2)).collect::<Vec<_>>());
+}
+
+// ------------------------------------------- §4.2: the sidecar and its identity
+
+/// §4.2: association of the member-only sidecar. A sidecar entry without its
+/// member, a Timoshenko document's member without its entry and a repeated
+/// entry refuse with `RETAINED_TIMOSHENKO_REFUSAL`; a non-normal shear area
+/// refuses by name; `from_frame` keeps refusing a Timoshenko frame and
+/// `from_frame_with_leaf` builds the member with its entry.
+#[test]
+fn timoshenko_sidecar_association_and_constructors() {
+    use super::{RetainedMemberRefusal, RETAINED_TIMOSHENKO_REFUSAL};
+    let source = cantilever(2.0, 2, 0.75, 0.5, 1, 1.0);
+    let leaf = |member, shear_area| TimoshenkoLeaf { member, shear_area };
+    let ok = TimoshenkoLeafSet::new(&source, vec![leaf(1, 0.25), leaf(0, 0.25)]).unwrap();
+    assert_eq!(ok.leaves().iter().map(|l| l.member).collect::<Vec<_>>(), vec![0, 1]);
+    assert!(TimoshenkoLeafSet::new(&source, vec![]).unwrap().is_empty());
+    for (leaves, want) in [
+        (vec![leaf(0, 0.25), leaf(1, 0.25), leaf(9, 0.25)], TimoshenkoLeafError::UnknownMember(9)),
+        (vec![leaf(0, 0.25)], TimoshenkoLeafError::MissingMember(1)),
+        (vec![leaf(0, 0.25), leaf(0, 0.5), leaf(1, 0.25)], TimoshenkoLeafError::DuplicateMember(0)),
+        (vec![leaf(0, 0.25), leaf(1, 0.0)], TimoshenkoLeafError::ShearArea(1)),
+        (vec![leaf(0, f64::MIN_POSITIVE / 2.0), leaf(1, 0.25)], TimoshenkoLeafError::ShearArea(0)),
+        (vec![leaf(0, f64::INFINITY), leaf(1, 0.25)], TimoshenkoLeafError::ShearArea(0)),
+    ] {
+        assert_eq!(TimoshenkoLeafSet::new(&source, leaves).unwrap_err(), want);
+    }
+    for e in [TimoshenkoLeafError::UnknownMember(9), TimoshenkoLeafError::MissingMember(1), TimoshenkoLeafError::DuplicateMember(0)] {
+        assert_eq!(e.reason(), RETAINED_TIMOSHENKO_REFUSAL);
+    }
+    // A case call whose sidecar does not associate refuses before any record.
+    let other = cantilever(2.0, 1, 0.75, 0.5, 1, 1.0);
+    let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[1], &[]).unwrap()).unwrap();
+    let error = invocation
+        .solve_timoshenko_cases(&[MemberSourceRef::nodal(&other)], &ok, CaseLimit::new(u64::MAX)).unwrap_err();
+    assert!(matches!(error, super::super::adaptive::TimoshenkoCaseError::Association(TimoshenkoLeafError::UnknownMember(1))));
+    assert!(invocation.calls().is_empty() && invocation.sources().is_empty());
+    // FK frames.
+    let section = crate::FrameSection::timoshenko(2.0, 5.0, 3.0, 11.0, 7.0, 2.0, 0.375).unwrap();
+    let frame = crate::FrameElement::new(crate::FrameNode::new(0, [0.0; 3]).unwrap(),
+        crate::FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(), section, [0.0, 1.0, 0.0]).unwrap();
+    assert_eq!(StraightMember::from_frame(4, &frame).unwrap_err(), RetainedMemberRefusal::Timoshenko);
+    let (member, entry) = StraightMember::from_frame_with_leaf(4, &frame).unwrap();
+    assert_eq!(entry, Some(TimoshenkoLeaf { member: 4, shear_area: 0.375 }));
+    assert_eq!((member.area, member.second_moment_y, member.second_moment_z), (3.0, 11.0, 7.0));
+    let eb = crate::FrameElement { section: crate::FrameSection::new(2.0, 5.0, 3.0, 11.0, 7.0, 2.0).unwrap(), ..frame };
+    assert_eq!(StraightMember::from_frame_with_leaf(4, &eb).unwrap(), (StraightMember::from_frame(4, &eb).unwrap(), None));
+    // The prepared leaf law: A_s,prep = RN(κ̂·A_prep) by FK's shear_area.
+    let kappa = crate::shear::annulus_energy_shear_factor(0.077, 0.084, 0.3).unwrap();
+    let prepared = TimoshenkoLeaf::prepared(3, kappa, 0.0035408).unwrap();
+    assert_eq!(prepared.shear_area.to_bits(), (kappa * 0.0035408).to_bits());
+}
+
+/// §4.2: K4STF and K4SRC carry the Timoshenko block (count, then each entry's
+/// member and shear-area bits) after the stiffness part, only for a non-empty
+/// sidecar; every Euler–Bernoulli source keeps its bytes. The recorded case
+/// sources, the case identity and the group identity bind every leaf.
+#[test]
+fn timoshenko_k4stf_k4src_block_encoding() {
+    let source = cantilever(2.0, 2, 0.75, 0.5, 1, 1.0);
+    let set = leaves(&source, 0.25);
+    let empty = TimoshenkoLeafSet::new(&source, vec![]).unwrap();
+    assert_eq!(source.encoding_with(None), source.encoding());
+    assert_eq!(source.encoding_with(Some(&empty)), source.encoding());
+    assert_eq!(source.stiffness_encoding_with(Some(&empty)), source.stiffness_encoding());
+    let mut block = Vec::new();
+    block.extend_from_slice(&2u32.to_le_bytes());
+    for member in 0u32..2 {
+        block.extend_from_slice(&member.to_le_bytes());
+        block.extend_from_slice(&0.25f64.to_bits().to_le_bytes());
+    }
+    let stf = source.stiffness_encoding();
+    assert_eq!(source.stiffness_encoding_with(Some(&set)), [stf.clone(), block.clone()].concat());
+    // K4SRC: header and stiffness part (constraint values included), the block, then the rest.
+    let split = stf.len() + 8 * source.constraints().len();
+    let src = source.encoding();
+    assert_eq!(source.encoding_with(Some(&set)), [&src[..split], &block[..], &src[split..]].concat());
+    // A different leaf moves both identities.
+    let other = leaves(&source, 0.5);
+    assert_ne!(source.stiffness_encoding_with(Some(&other)), source.stiffness_encoding_with(Some(&set)));
+    // Recorded identities bind the block; the Euler–Bernoulli call keeps today's bytes.
+    let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[1, 1], &[]).unwrap()).unwrap();
+    let refs = [MemberSourceRef::nodal(&source)];
+    let timoshenko = invocation.solve_timoshenko_cases(&refs, &set, CaseLimit::new(u64::MAX)).unwrap();
+    let eb = invocation.solve_member_cases(&refs, CaseLimit::new(u64::MAX)).unwrap();
+    let origins = invocation.sources();
+    assert_eq!(origins[0].identity, source.encoding_with(Some(&set)));
+    assert_eq!(origins[0].stiffness, source.stiffness_encoding_with(Some(&set)));
+    assert_eq!(origins[1].identity, source.encoding());
+    assert_eq!(origins[1].stiffness, source.stiffness_encoding());
+    let (ExecutionOutcome::Selected(t), ExecutionOutcome::Selected(e)) = (&timoshenko[0].outcome, &eb[0].outcome) else {
+        panic!("both select");
+    };
+    assert_eq!(t.evidence().source_encoding, source.encoding_with(Some(&set)));
+    assert_eq!(e.evidence().source_encoding, source.encoding());
+    assert_eq!(t.prep.stiffness_identity(), source.stiffness_encoding_with(Some(&set)));
+    assert_eq!(e.prep.stiffness_identity(), source.stiffness_encoding());
+}
+
+/// §4.2, §4.5: the receipt-recorded layouts O4 must not grow, pinned at their
+/// pre-O4 sizes (checked against base 3826a62881): the adapter's types
+/// (`StraightMember`, `PrimitiveSource`, `SourceParts`, `MemberSourceRef`,
+/// `ProductMemberFacts`), `ProductRecipe`, the `TraceCopyWork`-recorded kernel
+/// structs, `SectionPreparationWork.layout_bytes` and the proof's seven
+/// serialized capacities. The sidecars live beside them.
+#[test]
+fn timoshenko_sidecar_preserves_receipt_layouts() {
+    use std::mem::size_of;
+    use crate::structural::retained_api as k;
+    let sizes = [
+        size_of::<StraightMember>(), size_of::<PrimitiveSource>(), size_of::<SourceParts>(),
+        size_of::<MemberSourceRef<'static>>(), size_of::<k::ProductMemberFacts>(), size_of::<k::ProductRecipe>(),
+        size_of::<k::LaneWorkTrace<'static>>(), size_of::<k::ProductProofTrace<'static>>(),
+        size_of::<super::super::product_certificate::final_case::CoverageFacts>(),
+        size_of::<k::ProductFailureView<'static>>(), size_of::<k::NumericTrace>(), size_of::<k::TraceCopyWork>(),
+        size_of::<k::PreparationConversion>(), size_of::<k::PreparedAnnulus>(),
+    ];
+    eprintln!("LAYOUTS {sizes:?}");
+    assert_eq!(sizes, PINNED_LAYOUTS);
+    let spent = k::prepare_product_annulus(0.1, 0.005);
+    assert_eq!(spent.work().layout_bytes, PINNED_SECTION_LAYOUT_BYTES);
+}
+/// Measured on base 3826a62881 (a scratch copy of the crate at that commit).
+const PINNED_LAYOUTS: [usize; 14] = [88, 248, 192, 16, 160, 16, 448, 1328, 56, 24, 168, 32, 40, 56];
+const PINNED_SECTION_LAYOUT_BYTES: [usize; 8] = [3888, 144, 400, 80, 2144, 56, 24, 8];

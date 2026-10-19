@@ -1410,6 +1410,43 @@ pub(crate) fn test_alpha_operands(
     }
     Ok((blocks, members))
 }
+/// O4 §4.3 (test-only): one member's lane quantities as `run` forms them
+/// for `law`: its Timoshenko entries and D-entry gaps, the coefficient gaps,
+/// ℓ, the exact-length enclosure, its shear rigidities and its η row
+/// contributions (`eta_member` over the view's free positions).
+#[cfg(test)]
+pub(crate) struct MemberLaneProbe {
+    pub(crate) t: Option<[[Enclosure; 2]; 2]>,
+    pub(crate) tgap: Option<[[Endpoint; 2]; 2]>,
+    pub(crate) dd: [Endpoint; 4],
+    pub(crate) lower_length: Endpoint,
+    pub(crate) length: Enclosure,
+    pub(crate) shear: Option<ShearEnclosures>,
+    pub(crate) eta: Vec<Endpoint>,
+}
+#[cfg(test)]
+pub(crate) fn test_member_lane(
+    view: &SourceBridgeView<'_>,
+    law: &ProposedMemberLaw<'_>,
+    i: usize,
+    readout: ReadoutLaw,
+) -> Result<MemberLaneProbe, Error> {
+    let mut w = ResidualWork::new();
+    w.readout_law = readout;
+    let c = coefficients(view, law, i, &mut w)?;
+    let m = member(view, law, i, &mut w)?;
+    let mut eta = buffer(view.group().ordering.free.len(), Endpoint::ZERO)?;
+    eta_member(view, &m, dofs(law.member), &mut eta, &mut w)?;
+    Ok(MemberLaneProbe {
+        t: m.t,
+        tgap: m.tgap,
+        dd: m.dd,
+        lower_length: m.lower_length,
+        length: m.length,
+        shear: c.shear().copied(),
+        eta,
+    })
+}
 #[cfg(test)]
 pub(crate) fn test_arithmetic_controls() {
     let mut w = ResidualWork::new();

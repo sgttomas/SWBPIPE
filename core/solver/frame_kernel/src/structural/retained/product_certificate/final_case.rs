@@ -1666,6 +1666,10 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts], 
 #[path = "../../../../tests/retained_k4/product_final_case_tests.rs"]
 mod product_final_case_tests;
 
+#[cfg(test)]
+#[path = "../../../../tests/retained_k4/o4_product_tests.rs"]
+mod o4_product_tests;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ProductSummaryCoverage {
     pub body: u32,
