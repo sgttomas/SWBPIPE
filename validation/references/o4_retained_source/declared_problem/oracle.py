@@ -58,7 +58,30 @@ SUPPORT_COMPONENTS = {"Fx": "UX", "Fy": "UY", "Fz": "UZ", "Mx": "RX", "My": "RY"
 ACTION_INDEX = {"axial_force": 0, "shear_force_y": 1, "shear_force_z": 2,
                 "torsional_moment": 3, "bending_moment_y": 4, "bending_moment_z": 5}
 STATION_FRACTION = {"end_i": F(0), "quarter_1": F(1, 4), "midspan": F(1, 2), "quarter_3": F(3, 4), "end_j": F(1)}
-UNIT_FACTOR = {"m": F(1), "mm": F(1000), "rad": F(1), "N": F(1), "N*m": F(1)}
+UNIT_FACTOR = {"m": F(1), "mm": F(1000), "rad": F(1), "N": F(1), "N*m": F(1)}  # value in unit = SI value * factor
+DECLARED_SI = {"U": ("m", "N"), "R": ("rad", "N*m")}  # the declared problem's DOF units (dof_map), required SI
+
+
+def public_unit(quantity, component):
+    """Round 3: the public unit of a functional's quantity, from the public vocabulary, never from the evidence."""
+    if quantity == "nodal_translation":
+        return "mm"
+    if quantity == "nodal_rotation":
+        return "rad"
+    if quantity in ("member_end_action", "member_station_action"):
+        return "N" if ACTION_INDEX.get(component, 9) < 3 else "N*m"
+    if quantity == "support_action_component":
+        return "N" if component.startswith("F") else "N*m"
+    return None
+
+
+def dups(seq):
+    """Duplicate keys of a raw list (checked before any dict is built from it)."""
+    seen, out = set(), set()
+    for x in seq:
+        key = json.dumps(x, sort_keys=True) if isinstance(x, (dict, list)) else x
+        (out if key in seen else seen).add(key)
+    return sorted(out, key=str)
 
 
 # ----------------------------------------------------------------------------- numbers
@@ -379,6 +402,8 @@ def kappa_hat(D, t, nu):
 
 def request_member(request, element_id):
     model = request["model"]
+    if dups([p["id"] for p in model.get("pipe_segments", [])]) or dups([m["id"] for m in model.get("materials", [])]):
+        return None  # ambiguous request: the supplementary screens are not judged
     pipe = next((p for p in model["pipe_segments"] if p["id"] == element_id), None)
     if pipe is None:
         return None
@@ -468,6 +493,13 @@ def judge(dump, envelope_doc, request, bound, theory=None, allowance=None):
         return out
     body = sbr["body"]
     out["publication_link"] = dump.get("publication_sha256") == body.get("publication_sha256")
+    # round 3: duplicate case identities are rejected on the raw lists, before any dict collapses them
+    case_dups = {"receipt cases": dups([c["basis_ref"]["ref_id"] for c in body["cases"]]),
+                 "contract-evidence cases": dups([c.get("load_case_id") for c in envelope.get("contract_evidence", {}).get("exact_cases", [])]),
+                 "dump records": dups([r["case_id"] for r in dump["records"]])}
+    for what, d_ in case_dups.items():
+        if d_:
+            out["errors"].append(f"duplicate {what}: {d_}")
     receipt_cases = {c["basis_ref"]["ref_id"]: c for c in body["cases"]}
     evidence = {c["load_case_id"]: c for c in envelope.get("contract_evidence", {}).get("exact_cases", [])}
     recorded = {r["case_id"] for r in dump["records"]}
@@ -479,6 +511,7 @@ def judge(dump, envelope_doc, request, bound, theory=None, allowance=None):
             out["errors"].append(f"selected case {cid} has no dump record")
     for record in dump["records"]:
         case = Case(record["case_id"])
+        case.check("i_unique_cases", not any(case_dups.values()), f"duplicate case identities: { {k: v for k, v in case_dups.items() if v} }")
         try:
             judge_record(case, record, receipt_cases.get(record["case_id"]), evidence.get(record["case_id"]),
                          results, request, bound, theory, allowance, out["publication_link"], dup_ids)
@@ -494,6 +527,21 @@ def solve_declared(ns, fp, case=None, src=None):
     src = src if src is not None else {"free_dofs": list(ns["free_dofs"]), "prescribed_dofs": sorted(p["dof"] for p in ns["prescribed"])}
     # (b) the declared problem ----------------------------------------------------------
     n = len(ns["dof_map"])
+    # round 3: every keyed list of the declared problem is unique before a dict is built from it
+    for name, keys in (("dof_map", [(d["node_id"], d["component"]) for d in ns["dof_map"]]),
+                       ("frames", [f["element_id"] for f in ns["frames"]]),
+                       ("springs", [s["spring_id"] for s in ns["springs"]]),
+                       ("spring_supports", [s["support_id"] for s in ns["springs"]]),
+                       ("spring_dofs", [s["dof"] for s in ns["springs"]]),
+                       ("prescribed", [p["dof"] for p in ns["prescribed"]]),
+                       ("free_dofs", list(ns["free_dofs"])),
+                       ("functionals", [f["functional_id"] for f in fp["functions"]]),
+                       ("eigen_loads", [e["pipe_id"] for e in (ns.get("load_reference_state") or {}).get("eigen_loads", [])]),
+                       ("load_state_members", [m["pipe_id"] for m in (ns.get("load_reference_state") or {}).get("members", [])])):
+        d_ = dups(keys)
+        case.check(f"i_unique_declared_{name}", not d_, f"duplicate declared {name}: {d_[:5]}")
+    case.check("b_declared_units_si", all((d["displacement_unit"], d["action_unit"]) == DECLARED_SI[d["component"][0]] for d in ns["dof_map"]),
+               "the declared DOF units are not SI (m or rad, N or N*m)")
     dof_of = {(d["node_id"], d["component"]): i for i, d in enumerate(ns["dof_map"])}
     K = [[F(0)] * n for _ in range(n)]
     frames = {}
@@ -569,9 +617,12 @@ def solve_declared(ns, fp, case=None, src=None):
 
     def physics_value(fn):
         q, comp, owner = fn["quantity"], fn["component"], fn["owner"]
-        if fn["unit"] not in UNIT_FACTOR:
-            raise ValueError(f"unknown unit {fn['unit']}")
-        uf = UNIT_FACTOR[fn["unit"]]
+        # round 3: the exact value is formed in the quantity's public unit, converted from the declared SI by a
+        # factor derived from the two units; the functional's own unit is only compared, never used
+        pu = public_unit(q, comp)
+        if pu is None:
+            raise ValueError(f"no public unit for {q}/{comp}")
+        uf = UNIT_FACTOR[pu]
         if q in ("nodal_translation", "nodal_rotation"):
             return u[dof_of[(owner["id"], comp)]] * uf
         if q == "member_end_action":
@@ -641,6 +692,8 @@ def solve_declared(ns, fp, case=None, src=None):
     exact = {}
     by_id = {}
     for idx, fn in enumerate(fp["functions"]):
+        case.check("b_functional_unit_is_public_unit", fn["unit"] == public_unit(fn["quantity"], fn["component"]),
+                   f"{fn['functional_id']} ({fn['quantity']} {fn['component']}): unit {fn['unit']!r} is not the public {public_unit(fn['quantity'], fn['component'])!r}")
         x = physics_value(fn)
         pv = plan_value(fn)
         exact[fn["functional_id"]] = x
@@ -998,6 +1051,9 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             continue
         x = exact[fid]
         where = f"{p['projection_id']} {p['result_id']}"
+        fn_ = by_id[fid][1]
+        case.check("b_projection_unit_is_public_unit", p["unit"] == public_unit(fn_["quantity"], fn_["component"]),
+                   f"{p['projection_id']}: unit {p['unit']!r} is not the public {public_unit(fn_['quantity'], fn_['component'])!r}")
         case.check("b_projection_result_is_functional_row", p["result_id"] in by_id[fid][1]["result_ids"],
                    f"{where}: result_id is not one of the functional's published rows")
         contains("b_projection_contains_exact", p["interval"], x, where, p["value"])
@@ -1223,6 +1279,9 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             a_, s2 = abs(N) / A_, My * My + Mz * Mz
             terms.append((a_, s2))
             elo, ehi = qf(ep["interval_pa"][0]), qf(ep["interval_pa"][1])
+            ev_ = qf(ep["value_pa"])
+            case.check("c_maximum_endpoint_claims", 0 <= elo <= ev_ <= ehi and (ehi - elo <= 2 * RELATIVE_LIMIT * ev_ if ev_ else elo == ehi == 0),
+                       f"{mx['result_id']} endpoint {ep['station_fraction']}: value_pa {ep['value_pa']!r} and interval_pa {ep['interval_pa']!r} are not a nonnegative enclosure within 1e-9")
             case.check("c_maximum_endpoint_contains_exact", Z_ > 0 and elo <= qf(ep["value_pa"]) <= ehi and max_in([(a_, s2)], Z_, elo, ehi),
                        f"{mx['result_id']} endpoint {ep['station_fraction']}: interval_pa does not contain the exact endpoint value")
         v, ab, rl = qf(mx["value_pa"]), qf(mx["absolute_error_bound_pa"]), qf(mx["relative_error_bound"])
@@ -1379,6 +1438,10 @@ def judge_batch(index, load, bound, required, echo=True):
                       f"unselected={[u['case_id'] for u in rep['unselected']]} errors={rep['errors']}", flush=True)
     summary = summarize(reports)
     batch = []
+    if dups([e["twin"] for e in index]):
+        batch.append(f"duplicate documents in the index: {dups([e['twin'] for e in index])[:5]}")
+    if dups([list(t) for t in required]):
+        batch.append(f"duplicate required triples: {dups([list(t) for t in required])[:5]}")
     if not index:
         batch.append("vacuous: the index has no entries")
     if summary["cases"] == 0:
@@ -1446,6 +1509,8 @@ def run_controls(index_path, runs_dir, bound):
 
 
 def control_batch(index_list, load, load_request, bound):
+    if dups([e["twin"] for e in index_list]):
+        raise SystemExit(f"oracle: duplicate documents in the control index: {dups([e['twin'] for e in index_list])[:5]}")
     index = {e["twin"]: e for e in index_list}
     counts = {"cross_theory": [0, 0], "eb_reference_on_timo_k": [0, 0], "cross_allowance": [0, 0]}
     failures = {"cross_theory": set(), "cross_allowance": set()}
@@ -1544,7 +1609,8 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=Fa
     T = [[R[i % 3][j % 3] if i // 3 == j // 3 else 0.0 for j in range(12)] for i in range(12)]
     tip = [0.0, L, 0.0] if rotate else [L, 0.0, 0.0]
     nodes = ["root", "tip"]
-    dof_map = [{"node_id": nodes[i // 6], "component": COMPONENTS6[i % 6], "displacement_unit": "m", "action_unit": "N"} for i in range(12)]
+    dof_map = [{"node_id": nodes[i // 6], "component": COMPONENTS6[i % 6], "displacement_unit": "m" if i % 6 < 3 else "rad",
+                "action_unit": "N" if i % 6 < 3 else "N*m"} for i in range(12)]
     k_spring = 1.0e-4
     loads = {6: 0.001, 7: 0.002, 8: -0.003, 9: 1e-8, 10: -0.0005, 11: 0.0006}
     P = 1000.0
@@ -2221,6 +2287,86 @@ def selftest():
         dc["absolute_error_bound"] = -dc["absolute_error_bound"] - 1e-30
     expect("(r2-A20) a negative support-norm absolute bound", *mutated(norm_negative_bound, rehash=False), "timo", False, "b_derived_norm_claims_consistent")
 
+    # repair round 3: functional units bound to the public unit; duplicates rejected at every keyed level
+    def coherent_metre_lowering(ns, fp, e, r, d):  # Codex P1: tip translations lowered in m, public rows in mm
+        for fn in fp["payload"]["functions"]:
+            if fn["quantity"] != "nodal_translation" or fn["owner"]["id"] != "tip":
+                continue
+            fn["unit"] = "m"
+            for t_ in fn["displacement_terms"]:
+                for ct in t_["coefficient_terms"]:
+                    for fac in ct["factors"]:
+                        fac["bits"] = f2b(1.0)
+            p = next(p for p in env_case(e)["projections"] if p["functional_id"] == fn["functional_id"])
+            v = p["value"] / 1000.0
+            ab = abs(v) * 1e-12
+            p.update({"value": v, "value_bits": f2b(v), "basis": "outward_interval" if v else "exact_zero",
+                      "absolute_error_bound": ab, "relative_error_bound": 1e-12 if v else 0.0, "interval": [v - 0.9 * ab, v + 0.9 * ab]})
+            row_of(e, p["result_id"])["value"] = v
+        row_of(e, "result:disp:tip")["value"] /= 1000.0
+    expect("(r3-U1) tip translations lowered coherently in m under mm rows (Codex)", *mutated(coherent_metre_lowering), "timo", False, "b_functional_unit_is_public_unit")
+
+    def force_unit_mm(ns, fp, e, r, d):  # Codex: a force functional labelled mm with a factor 1000
+        fn = next(f for f in fp["payload"]["functions"] if f["quantity"] == "member_end_action" and f["component"] == "shear_force_y")
+        fn["unit"], fn["final_unit_factor"]["bits"] = "mm", f2b(1000.0)
+    expect("(r3-U2) a force functional labelled mm with a factor 1000 (Codex)", *mutated(force_unit_mm), "timo", False, "b_functional_unit_is_public_unit")
+
+    def moment_unit_nmm(ns, fp, e, r, d):  # variant: coherent N*mm lowering of a moment under an N*m row
+        fn = next(f for f in fp["payload"]["functions"] if f["quantity"] == "member_end_action" and f["component"] == "bending_moment_z" and f["location"] == "end_j")
+        fn["unit"], fn["final_unit_factor"]["bits"] = "N*mm", f2b(1000.0)
+    expect("(r3-U3) a moment functional lowered in N*mm under an N*m row", *mutated(moment_unit_nmm), "timo", False, "b_functional_unit_is_public_unit")
+
+    def rotation_unit_deg(ns, fp, e, r, d):  # variant: a rotation functional labelled deg
+        fn = next(f for f in fp["payload"]["functions"] if f["quantity"] == "nodal_rotation")
+        fn["unit"] = "deg"
+    expect("(r3-U4) a rotation functional labelled deg", *mutated(rotation_unit_deg), "timo", False, "b_functional_unit_is_public_unit")
+
+    def projection_unit_m(ns, fp, e, r, d):  # variant: the projection's unit differs from its functional's public unit
+        p = next(p for p in env_case(e)["projections"] if p["unit"] == "mm")
+        p["unit"] = "m"
+    expect("(r3-U5) a translation projection labelled m", *mutated(projection_unit_m, rehash=False), "timo", False, "b_projection_unit_is_public_unit")
+
+    def declared_units_mm(ns, fp, e, r, d):  # variant: the declared problem's DOF units not SI
+        for dm in ns["payload"]["dof_map"]:
+            if dm["component"].startswith("U"):
+                dm["displacement_unit"] = "mm"
+    expect("(r3-U6) declared translation DOFs in mm", *mutated(declared_units_mm), "timo", False, "b_declared_units_si")
+
+    def dup_receipt_case(ns, fp, e, r, d):  # Codex P2: an earlier duplicate receipt case with a bad interval
+        bad = copy.deepcopy(env_case(e))
+        p = next(p for p in bad["projections"] if p["value"] != 0)
+        p["interval"] = [1234567.0, 1234567.0]
+        e["source_block_recovery"]["body"]["cases"].insert(0, bad)
+    expect("(r3-D1) a duplicate receipt case with a bad interval placed first (Codex)", *mutated(dup_receipt_case, rehash=False), "timo", False, "i_unique_cases")
+
+    def dup_evidence_case(ns, fp, e, r, d):  # Codex P2: an earlier duplicate contract-evidence case with a bad maximum
+        bad = copy.deepcopy(e["contract_evidence"]["exact_cases"][0])
+        bad["pipe_stress_extrema"][0]["value_lower_pa"] = 1234567.0
+        e["contract_evidence"]["exact_cases"].insert(0, bad)
+    expect("(r3-D2) a duplicate contract-evidence case with a bad maximum placed first (Codex)", *mutated(dup_evidence_case, rehash=False), "timo", False, "i_unique_cases")
+
+    def dup_record(ns, fp, e, r, d):
+        d["records"].append(copy.deepcopy(d["records"][0]))
+    expect("(r3-D3) a duplicate dump record", *mutated(dup_record, rehash=False), "timo", False, "i_unique_cases")
+    for label, fn_, check in (
+            ("(r3-D4) a duplicate declared DOF", lambda ns, fp, e, r, d: ns["payload"]["dof_map"].__setitem__(1, copy.deepcopy(ns["payload"]["dof_map"][0])), "i_unique_declared_dof_map"),
+            ("(r3-D5) a duplicate declared frame", lambda ns, fp, e, r, d: ns["payload"]["frames"].append(copy.deepcopy(ns["payload"]["frames"][0])), "i_unique_declared_frames"),
+            ("(r3-D6) a duplicate declared spring", lambda ns, fp, e, r, d: ns["payload"]["springs"].append(copy.deepcopy(ns["payload"]["springs"][0])), "i_unique_declared_springs"),
+            ("(r3-D7) a duplicate declared prescribed DOF", lambda ns, fp, e, r, d: ns["payload"]["prescribed"].append(copy.deepcopy(ns["payload"]["prescribed"][0])), "i_unique_declared_prescribed"),
+            ("(r3-D8) a duplicate plan functional id", lambda ns, fp, e, r, d: fp["payload"]["functions"][1].__setitem__("functional_id", fp["payload"]["functions"][0]["functional_id"]), "i_unique_declared_functionals"),
+            ("(r3-D9) a duplicate eigenload record", lambda ns, fp, e, r, d: ns["payload"]["load_reference_state"]["eigen_loads"].append(copy.deepcopy(ns["payload"]["load_reference_state"]["eigen_loads"][0])), "i_unique_declared_eigen_loads")):
+        expect(label, *mutated(fn_), "timo", False, check)
+
+    def endpoint_huge(ns, fp, e, r, d):  # Codex note: an auxiliary endpoint estimate huge inside a wide interval
+        ep = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["endpoints"][0]
+        ep["value_pa"], ep["interval_pa"] = 1234567.0, [0.0, 1234567.0]
+    expect("(r3-E1) a maximum endpoint estimate 1234567 inside a wide interval", *mutated(endpoint_huge, rehash=False), "timo", False, "c_maximum_endpoint_claims")
+
+    def endpoint_negative(ns, fp, e, r, d):
+        ep = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["endpoints"][1]
+        ep["value_pa"], ep["interval_pa"] = -1.0, [-1.0, ep["interval_pa"][1] + 1.0]
+    expect("(r3-E2) a negative maximum endpoint estimate inside a wide interval", *mutated(endpoint_negative, rehash=False), "timo", False, "c_maximum_endpoint_claims")
+
     # repair round 1, items 6 and 7: batch-level vacuity, the required-selection list and mode errors
     good = synth("timo", "both")
     entry = {"twin": "synth|both|timo", "family": "synth", "name": "synth", "variant": "both", "theory": "timo"}
@@ -2245,6 +2391,10 @@ def selftest():
     record("(r6) an empty required-selection list fails the batch", s3["verdict"] == "FAIL", f"{s3['batch_failures']}")
     c0 = control_batch([], lambda *a: None, lambda e: None, bound)
     record("(r6) empty control set is vacuous", set(c0["vacuous"]) == {"cross_theory", "eb_reference_on_timo_k", "cross_allowance"}, f"vacuous {c0['vacuous']}")
+    _, s5 = judge_batch([entry, dict(entry)], loader(), bound, req, echo=False)
+    record("(r3-D10) a duplicate document in the batch index fails the batch", s5["verdict"] == "FAIL" and any("duplicate documents" in b for b in s5["batch_failures"]), f"{s5['batch_failures']}")
+    _, s6 = judge_batch([entry], loader(), bound, req + req[:1], echo=False)
+    record("(r3-D11) a duplicate required triple fails the batch", s6["verdict"] == "FAIL" and any("duplicate required" in b for b in s6["batch_failures"]), f"{s6['batch_failures']}")
     reps, s4 = judge_batch([entry], loader(dump_mode="dense_scrutiny"), bound, req, echo=False)
     kept = any("solver_mode" in e_ for rp in reps for e_ in rp["errors"])
     record("(r7) a solver-mode mismatch is kept and fails the batch", kept and s4["verdict"] == "FAIL", f"errors {[rp['errors'] for rp in reps]}")

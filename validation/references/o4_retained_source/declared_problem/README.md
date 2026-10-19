@@ -124,7 +124,7 @@ half the bound) must pass. Repair round 1 makes the synthetic receipt complete
 in the product's shapes (rows, published-row universe, endpoint sections,
 section functionals, support norms, translation norms, a general transform).
 It adds positive cases for a member along global y and for a section authored
-in mm, plus the "Repair round 1" negatives below. Repair round 2 adds 28 more negatives (below). Result: 68 of 68 as expected.
+in mm, plus the "Repair round 1" negatives below. Repair round 2 adds 28 more negatives and round 3 another 19 (below). Result: 87 of 87 as expected.
 
 The **real-data controls** (`--controls`) must each fail: every Timoshenko
 dump against its Euler–Bernoulli twin's envelope (96 of 96 failed), every
@@ -486,6 +486,84 @@ repaired oracle:
 PASS (controls 96/96/144 failed as required, 0 wrongly passed); rf 32/32 (16/16/24, 0); judged 18 PASS, 326
 not selected; phi2 336 PASS, 80 not selected; every required triple selected and passed (192/32/18/336),
 zero FAIL. Worst margins are unchanged.
+
+## Repair round 3 (after independent review of `209ce66ba6`)
+
+The review confirmed every round-2 repair. It also ruled that the three
+not-judged items do not undermine M3-O4's source-interval criterion, so the
+derived σ±/τ values stay out of scope. Two findings remained, and both are
+repaired. `BOUND.md`, `bound.json` and `required_selection.json` are
+unchanged.
+
+1. **Functional units bound to the public unit (P1).**
+   - Each quantity's public unit comes from the public vocabulary
+     (`public_unit`): mm for translations, rad for rotations, N for forces,
+     N·m for moments.
+   - The exact value is formed in that unit from the declared problem's SI
+     values. The conversion factor is derived from the two units and never
+     read from the evidence.
+   - Every functional's unit must equal its public unit
+     (`b_functional_unit_is_public_unit`), and so must every projection's
+     (`b_projection_unit_is_public_unit`).
+   - The declared DOF units must be SI (`b_declared_units_si`).
+
+   A coherent lowering in another unit therefore fails at the unit binding,
+   at the plan-versus-statics check and at interval containment.
+2. **Duplicates at every keyed level (P2).** Raw lists are checked for
+   duplicate keys before any dict is built (`dups`):
+   - receipt cases, contract-evidence cases and dump records
+     (`i_unique_cases`, which also errors the run);
+   - the declared problem's DOFs, frames, springs (by spring, support and
+     DOF), prescribed and free DOFs, plan functionals, eigenloads and
+     load-state members (`i_unique_declared_*`);
+   - published rows, projections, receipt rows, stress checks, norm checks
+     and maxima (rounds 1–2);
+   - the batch index's documents and the required triples (batch failure).
+
+   An ambiguous request (duplicate pipe or material ids) makes its
+   supplementary screens not judged. A sweep of the oracle found no other
+   list-to-dict conversion ahead of its uniqueness check.
+3. **Auxiliary endpoint estimates** (closing the review's non-actionable
+   note). Each maximum endpoint's `value_pa` and `interval_pa` must form a
+   nonnegative enclosure within 1e-9 (`c_maximum_endpoint_claims`). This
+   holds on all 2,456 real endpoints.
+
+Permanent self-test negatives:
+
+| Case | Fails at |
+|---|---|
+| r3-U1 tip translations lowered coherently in m under mm rows (Codex) | `b_functional_unit_is_public_unit` |
+| r3-U2 a force functional labelled mm with a factor 1000 (Codex) | `b_functional_unit_is_public_unit` |
+| r3-U3 a moment functional lowered in N·mm under an N·m row | `b_functional_unit_is_public_unit` |
+| r3-U4 a rotation functional labelled deg | `b_functional_unit_is_public_unit` |
+| r3-U5 a translation projection labelled m | `b_projection_unit_is_public_unit` |
+| r3-U6 declared translation DOFs in mm | `b_declared_units_si` |
+| r3-D1 a duplicate receipt case with a bad interval placed first (Codex) | `i_unique_cases` |
+| r3-D2 a duplicate contract-evidence case with a bad maximum placed first (Codex) | `i_unique_cases` |
+| r3-D3 a duplicate dump record | `i_unique_cases` |
+| r3-D4 to D9 a duplicate declared DOF, frame, spring, prescribed DOF, plan functional id, eigenload record | `i_unique_declared_*` |
+| r3-D10 a duplicate document in the batch index; r3-D11 a duplicate required triple | batch failure |
+| r3-E1 an endpoint estimate 1234567 inside a wide interval; r3-E2 a negative one | `c_maximum_endpoint_claims` |
+
+All 45 of the review's round-3 mutant inputs were rerun through the command
+line:
+- every actionable probe exits 1, the two unit and two duplicate-case probes
+  included;
+- the baseline passes;
+- the three declared exclusions pass, as ruled;
+- the two auxiliary endpoint-estimate probes, which the review left
+  non-actionable, now also fail at `c_maximum_endpoint_claims`.
+
+**Full rerun after round 3** (`run.sh` rc 0; self-test 87 of 87):
+
+| Set | Cases PASS / FAIL | Not selected | Required triples | Controls (failed as required / passed wrongly) |
+|---|---|---|---|---|
+| j2 | 192 / 0 | 0 | 192, all passed | 96/96/144, none wrongly passed |
+| rf | 32 / 0 | 0 | 32, all passed | 16/16/24, none wrongly passed |
+| judged | 18 / 0 | 326 | 18, all passed | — |
+| phi2 | 336 / 0 | 80 | 336, all passed | — |
+
+Worst margins are unchanged.
 
 ## Reproduce
 
