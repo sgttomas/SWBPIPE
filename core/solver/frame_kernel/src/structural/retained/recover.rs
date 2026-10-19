@@ -341,10 +341,10 @@ where
             sum.add_product(ctx, inv, &d[transverse + 6], sign)?;
             e[index] = sum.round(ctx)?;
         }
-        let four_z = m.bend_z.mul_pow2(2)?;
-        let two_z = m.bend_z.mul_pow2(1)?;
-        let four_y = m.bend_y.mul_pow2(2)?;
-        let two_y = m.bend_y.mul_pow2(1)?;
+        // Q = D·e: Euler–Bernoulli's exact (4c, 2c), or a Timoshenko member's
+        // signed (d₁, d₂) (O4 §4.2).
+        let (four_z, two_z) = m.bending(0)?;
+        let (four_y, two_y) = m.bending(1)?;
         let mut q = [zero; 6];
         for (index, terms) in [
             [(m.axial, 0usize), (zero, 0)],

@@ -195,6 +195,70 @@ struct Majorants {
     inv: Endpoint,
     dg: [Endpoint; 4],
     dd: [Endpoint; 4],
+    /// O4 §4.3: a Timoshenko member's bending majorants per plane [z, y] as
+    /// [diagonal, off-diagonal]: `tg` the d̄ majorant (c + c_s at ℓ, both
+    /// entries), `td` the D-entry gaps [|Δd₁|, |Δd₂|] at the exact length.
+    t: Option<([[Endpoint; 2]; 2], [[Endpoint; 2]; 2])>,
+}
+/// O4 §4.3: one plane's (d₁, d₂) enclosures from EI and K_s at a length
+/// enclosure; d₂ = c_s − c is signed, formed endpoint by endpoint.
+fn timoshenko_plane(
+    work: &mut BridgeWork,
+    ei: Enclosure,
+    ks: Enclosure,
+    length: Enclosure,
+) -> Result<(Enclosure, Enclosure), BridgeError> {
+    let n = &mut work.numeric;
+    let c = n.div(ei, length)?;
+    let l2 = n.mul(length, length)?;
+    let twelve = n.mul(Enclosure::point(pos_lift(12.0)?), ei)?;
+    let den = n.mul(ks, l2)?;
+    let phi = n.div(twelve, den)?;
+    let op = n.add(Enclosure::point(Endpoint::ONE), phi)?.positive()?;
+    let t3 = n.mul(Enclosure::point(pos_lift(3.0)?), c)?;
+    let cs = n.div(t3, op)?;
+    let d1 = n.add(c, cs)?;
+    let d2 = Enclosure {
+        lo: n.scalar(Entry::Sub, &cs.lo, &c.hi, Toward::Down)?,
+        hi: n.scalar(Entry::Sub, &cs.hi, &c.lo, Toward::Up)?,
+    };
+    Ok((d1, d2))
+}
+/// The outward maximum of |x − y| over x ∈ a, y ∈ b.
+fn outward_gap(work: &mut BridgeWork, a: Enclosure, b: Enclosure) -> Result<Endpoint, BridgeError> {
+    let up = work.numeric.scalar(Entry::Sub, &a.hi, &b.lo, Toward::Up)?;
+    let down = work.numeric.scalar(Entry::Sub, &b.hi, &a.lo, Toward::Up)?;
+    Ok(max(Endpoint::ZERO, max(up, down)))
+}
+/// An outward enclosure of the exact member length √(Σ(x_j − x_i)²).
+fn exact_length(work: &mut BridgeWork, xi: [f64; 3], xj: [f64; 3]) -> Result<Enclosure, BridgeError> {
+    let mut lo = Endpoint::ZERO;
+    let mut hi = Endpoint::ZERO;
+    for k in 0..3 {
+        let d = work.numeric.sub_pair(&lift(xj[k])?, &lift(xi[k])?)?;
+        let crossing = d.lo.cmp_value(&Endpoint::ZERO) != Ordering::Greater
+            && d.hi.cmp_value(&Endpoint::ZERO) != Ordering::Less;
+        let small = if crossing { Endpoint::ZERO } else { min(d.lo.abs(), d.hi.abs()) };
+        let large = max(d.lo.abs(), d.hi.abs());
+        let s_lo = work.numeric.scalar(Entry::Mul, &small, &small, Toward::Down)?;
+        let s_hi = work.numeric.scalar(Entry::Mul, &large, &large, Toward::Up)?;
+        lo = work.numeric.scalar(Entry::Add, &lo, &s_lo, Toward::Down)?;
+        hi = work.numeric.scalar(Entry::Add, &hi, &s_hi, Toward::Up)?;
+    }
+    let mut root = |v: Endpoint, t: Toward| -> Result<Endpoint, BridgeError> {
+        work.numeric.begin(Entry::Sqrt)?;
+        let spent = directed::certificate::sqrt_endpoint(&v, t);
+        work.numeric.wide.merge(&spent.work());
+        work.numeric.sums.merge(&spent.sum_work());
+        work.numeric.status = work.numeric.status.join(spent.status());
+        let result = spent.result().copied().map_err(|e| match e {
+            directed::certificate::HelperError::Arithmetic(e) => NumericError::Arithmetic(e),
+            _ => NumericError::Arithmetic(AttemptStop::WorkAccounting(WorkFault::Inconsistent)),
+        });
+        Ok(work.numeric.checked(result)?)
+    };
+    let length = Enclosure { lo: root(lo, Toward::Down)?, hi: root(hi, Toward::Up)? };
+    Ok(length.positive()?)
 }
 fn majorants(
     view: &SourceBridgeView<'_>,
@@ -249,7 +313,41 @@ fn majorants(
         dg[k] = work.div(c.coefficients[k].hi, ell)?;
         dd[k] = work.div(c.coefficient_differences[k], ell)?;
     }
-    Ok(Majorants { inv, dg, dd })
+    // O4 §4.3: a Timoshenko member. The d̄ majorant may use ℓ, since
+    // c + c_s = EI/L + 3EI·L/(L² + k) decreases in L (max over x of
+    // 3x(1−x)/(1+x)² is 3/8 < 1); the D-entry gaps are formed at the exact
+    // length, since a Timoshenko gap is not monotone in L.
+    let mut c = c;
+    let t = match view.owner().timoshenko() {
+        None => None,
+        Some(set) => {
+            let a_s = match set.leaves().get(index) {
+                Some(leaf) if leaf.member == m.id => leaf.shear_area,
+                _ => return Err(BridgeError::MemberOwner),
+            };
+            shear_rigidity(&input, &mut c, a_s, &mut work.numeric)?;
+            let shear = *c.shear().ok_or(BridgeError::MemberOwner)?;
+            let length = exact_length(
+                work,
+                view.source().nodes()[m.node_i as usize],
+                view.source().nodes()[m.node_j as usize],
+            )?;
+            let mut tg = [[Endpoint::ZERO; 2]; 2];
+            let mut td = [[Endpoint::ZERO; 2]; 2];
+            for plane in 0..2 {
+                let (d1_l, _) =
+                    timoshenko_plane(work, c.coefficients[2 + plane], shear.annular(), Enclosure::point(ell))?;
+                tg[plane] = [d1_l.hi, d1_l.hi];
+                let (g1, g2) = timoshenko_plane(work, c.coefficients[2 + plane], shear.annular(), length)?;
+                let admitted = Enclosure::point(shear.admitted());
+                let (k1, k2) =
+                    timoshenko_plane(work, Enclosure::point(c.admitted_products[2 + plane]), admitted, length)?;
+                td[plane] = [outward_gap(work, g1, k1)?, outward_gap(work, g2, k2)?];
+            }
+            Some((tg, td))
+        }
+    };
+    Ok(Majorants { inv, dg, dd, t })
 }
 // The exact structural patterns from I33/RV45: 48 Bbar and 16 Hbar entries.
 fn b_entry(r: usize, j: usize, inv: Endpoint) -> Option<Endpoint> {
@@ -290,6 +388,7 @@ fn b_forward(
 }
 fn d_apply(
     d: &[Endpoint; 4],
+    t: Option<&[[Endpoint; 2]; 2]>,
     x: &[Endpoint; 6],
     work: &mut BridgeWork,
 ) -> Result<[Endpoint; 6], BridgeError> {
@@ -309,7 +408,13 @@ fn d_apply(
         work.visit()?;
         work.d_products = work.d_products.add(WorkTotal::exact_count(1));
         work.check()?;
-        let term = work.mul(shift(&d[property], power)?, x[c])?;
+        // O4 §4.3: a Timoshenko plane's majorant entries replace the 4/2
+        // pattern on the bending rows.
+        let entry = match (t, property) {
+            (Some(t), 2 | 3) => t[property - 2][usize::from(r != c)],
+            _ => shift(&d[property], power)?,
+        };
+        let term = work.mul(entry, x[c])?;
         out[r] = work.add(out[r], term)?;
     }
     Ok(out)
@@ -346,11 +451,12 @@ fn transpose(
 fn product(
     inv: Endpoint,
     d: &[Endpoint; 4],
+    t: Option<&[[Endpoint; 2]; 2]>,
     x: &[Endpoint; 12],
     work: &mut BridgeWork,
 ) -> Result<[Endpoint; 6], BridgeError> {
     let bx = b_forward(inv, x, work)?;
-    d_apply(d, &bx, work)
+    d_apply(d, t, &bx, work)
 }
 fn set_error(
     view: &SourceBridgeView<'_>,
@@ -468,8 +574,9 @@ fn run<'a>(
             s[k] = scaled(&view, globals[k], Endpoint::ONE)?;
             mag[k] = motion(&view, globals[k], work)?;
         }
-        let de = product(m.inv, &m.dd, &s, work)?;
-        let dv = product(m.inv, &m.dd, &mag, work)?;
+        let td = m.t.as_ref().map(|t| &t.1);
+        let de = product(m.inv, &m.dd, td, &s, work)?;
+        let dv = product(m.inv, &m.dd, td, &mag, work)?;
         let e = transpose(m.inv, &de, false, work)?;
         let v = transpose(m.inv, &dv, false, work)?;
         for k in 0..12 {
@@ -537,8 +644,8 @@ fn run<'a>(
             t[k] = correction(&view, &tau, globals[k])?;
             mag[k] = motion(&view, globals[k], work)?;
         }
-        let response = product(m.inv, &m.dg, &t, work)?;
-        let coefficient = product(m.inv, &m.dd, &mag, work)?;
+        let response = product(m.inv, &m.dg, m.t.as_ref().map(|t| &t.0), &t, work)?;
+        let coefficient = product(m.inv, &m.dd, m.t.as_ref().map(|t| &t.1), &mag, work)?;
         let mut basic = [Endpoint::ZERO; 6];
         for k in 0..6 {
             basic[k] = work.add(response[k], coefficient[k])?;

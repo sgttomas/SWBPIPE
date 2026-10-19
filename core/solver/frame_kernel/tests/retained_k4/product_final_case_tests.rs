@@ -1294,7 +1294,7 @@ fn b2k_k07_view_admits_p2_refuses_corruption_and_keeps_native_data_flags() {
         let mut prescribed = p.prescribed.clone();
         f(&mut prescribed);
         changed.prep = std::sync::Arc::new(adaptive::CasePrep { source: p.source.clone(), ledger: p.ledger.clone(),
-            member_loads: None, formed_ledger: std::sync::OnceLock::new(),
+            member_loads: None, timoshenko: None, formed_ledger: std::sync::OnceLock::new(),
             prescribed, factors: p.factors.clone(), identity: p.identity.clone(), layout: p.layout.clone(),
             extents: p.extents.clone() });
         let spent = changed.source_bridge_view(changed.source(), &changed.evidence().source_encoding, changed.selected_precision());

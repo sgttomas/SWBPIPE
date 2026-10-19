@@ -9,7 +9,8 @@
 //! only; no pipe table or code value.
 use open_pipe_stress_frame_kernel::shear::{annulus_energy_shear_factor, shear_area, ShearFactorError};
 use open_pipe_stress_frame_kernel::structural::retained_api::{
-    RetainedMemberRefusal, StraightMember, RETAINED_TIMOSHENKO_REFUSAL,
+    RetainedMemberRefusal, StraightMember, TimoshenkoLeaf, TimoshenkoLeafError,
+    RETAINED_TIMOSHENKO_REFUSAL,
 };
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness, local_stiffness, reduce_system, solve_dense, BeamTheory,
@@ -952,8 +953,10 @@ fn timoshenko_k2b_census_uses_the_actual_phi_exponents() {
 
 // --------------------------------------------- the W1 retained assembler
 
-/// Design §3.6: the retained W1 element stays Euler–Bernoulli and refuses a
-/// Timoshenko leaf by name.
+/// Design §3.6 and O4 §4.2 (DEL-04-08 `o4-source-extension.md`):
+/// `StraightMember::from_frame` refuses a Timoshenko leaf by name; the
+/// retained Timoshenko member is formed only with its sidecar entry
+/// (`from_frame_with_leaf`), and the text stays the association refusal.
 #[test]
 fn retained_member_refuses_a_timoshenko_leaf_by_name() {
     let eb = FrameSection::new(2.0, 1.0, 3.0, 4.0, 5.0, 6.0).unwrap();
@@ -972,6 +975,10 @@ fn retained_member_refuses_a_timoshenko_leaf_by_name() {
     let frame = element(3, 7, [0.0; 3], [1.0, 2.0, 3.0], ts, [0.0, 0.0, 1.0]);
     assert_eq!(StraightMember::from_frame(9, &frame), Err(RetainedMemberRefusal::Timoshenko));
     assert_eq!(RetainedMemberRefusal::Timoshenko.reason(), RETAINED_TIMOSHENKO_REFUSAL);
+    let (with_leaf, leaf) = StraightMember::from_frame_with_leaf(9, &frame).unwrap();
+    assert_eq!(with_leaf, member);
+    assert_eq!(leaf, Some(TimoshenkoLeaf { member: 9, shear_area: 1.5 }));
+    assert_eq!(TimoshenkoLeafError::MissingMember(9).reason(), RETAINED_TIMOSHENKO_REFUSAL);
     assert_eq!(
         RETAINED_TIMOSHENKO_REFUSAL,
         "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation"
