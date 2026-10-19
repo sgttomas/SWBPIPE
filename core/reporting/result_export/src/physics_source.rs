@@ -59,10 +59,11 @@ impl SourceContract {
 /// b7-plan "Exact-contract fields" and O4 (§3.4): every pipe section of the
 /// captured exact document declares an explicit length-valued, finite
 /// corrosion allowance c_a >= 0, with c_m + c_a < t and a positive reduced
-/// wall (t - c_m) - c_a (c_m = 0 where the mill tolerance is absent or null).
-/// Absent, null, malformed, non-length, negative or over-wall allowances are
-/// outside the contract the producer admits, so a statement bound to such an
-/// invocation is refused. Zero is no longer required: the mill tolerance and
+/// wall (t - c_m) - c_a (c_m = 0 where the mill tolerance is absent or null;
+/// a present one must be a finite length c_m >= 0, else the section sum
+/// cannot be established). Absent, null, malformed, non-length, negative or
+/// over-wall allowances are outside the contract the producer admits, so a
+/// statement bound to such an invocation is refused. Zero is no longer required: the mill tolerance and
 /// allowance bind by value through `ACTUAL_SOURCE_GEOMETRY`, and the section
 /// bases through the shared D-5 rederivation (`section_basis::section`).
 fn corrosion_allowances(model: &Value) -> Result<(), String> {
@@ -78,6 +79,7 @@ fn corrosion_allowances(model: &Value) -> Result<(), String> {
             };
             Some(
                 allowance >= 0.0
+                    && tolerance >= 0.0
                     && tolerance + allowance < wall
                     && crate::section_basis::reduced_wall(wall, tolerance, allowance) > 0.0,
             )
@@ -1457,9 +1459,11 @@ mod review_repair_tests {
         }
     }
     #[test]
-    fn actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract() {
-        // T4-U8 (§3.6, §5): pressure-source-1 and G8 step 5 admit euler_bernoulli
-        // contracts only; each captured section states the model it selects.
+    fn actual_materials_bind_each_section_beam_theory_to_the_contract_selection() {
+        // T4-U8 (§3.6, §5) and O4 (§3.4): each captured section states the
+        // model its contract selects for a straight member
+        // (`section_basis::selected_model`, arc = false), under either
+        // admitted contract; a contract naming no admitted model fails closed.
         let request: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
         ))
@@ -1480,15 +1484,28 @@ mod review_repair_tests {
         let check = |invocation: &Value, beam: Value| {
             actual_materials(invocation, &invocation["request"]["model"]["load_cases"][0], &exact(invocation, beam))
         };
+        let euler = json!({"model": crate::section_basis::EULER_BERNOULLI});
         let timoshenko = json!({"model": crate::section_basis::TIMOSHENKO, "shear_factor": 0.5, "shear_area_m2": 1e-3});
-        assert_eq!(check(&invocation, json!({"model": crate::section_basis::EULER_BERNOULLI})), Ok(()));
+        assert_eq!(check(&invocation, euler.clone()), Ok(()));
         for beam in [timoshenko.clone(), json!({"model": "cowper"}), Value::Null] {
             assert_eq!(check(&invocation, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
         }
-        // Any other contract fails closed, even where the section agrees with it.
+        // A Timoshenko contract selects Timoshenko for its straight members
+        // (kappa and A_s are the evidence reader's, `section_basis::beam_theory`).
         let mut other = invocation.clone();
         other["request"]["model"]["pressure_contract"]["shear_model"] = json!(crate::section_basis::TIMOSHENKO);
-        assert_eq!(check(&other, timoshenko), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+        assert_eq!(check(&other, timoshenko.clone()), Ok(()));
+        for beam in [euler.clone(), json!({"model": "cowper"}), Value::Null] {
+            assert_eq!(check(&other, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+        }
+        // A contract naming no admitted model fails closed, whatever the section states.
+        for shear in [json!("cowper"), Value::Null, json!(5)] {
+            let mut unknown = invocation.clone();
+            unknown["request"]["model"]["pressure_contract"]["shear_model"] = shear;
+            for beam in [euler.clone(), timoshenko.clone(), json!({"model": "cowper"})] {
+                assert_eq!(check(&unknown, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+            }
+        }
     }
     #[test]
     fn normalized_named_point_and_strict_bracket_match_actual_materials() {

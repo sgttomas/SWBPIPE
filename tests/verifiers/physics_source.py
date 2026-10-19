@@ -10,12 +10,13 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
 independently captured full invocation, a current model document 0.6.0 with the exact contract.
 
-T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5): the retained-source route admits only
-euler_bernoulli documents with zero corrosion allowance and zero mill tolerance on every pipe section
-(``PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE``), where the two section bases coincide. The receipt keeps its one
-source section and binds it bit for bit to both ``nominal_section`` and ``reduced_section``; each reduced
-source stress row binds the same check as its nominal twin and is bit-equal to it; maxima, coverage and the
-composite headlines are per basis.
+T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5) and O4 (DEL-04-08 Design
+``o4-source-extension.md`` §3.4): the retained-source route admits both shear models
+(``euler_bernoulli``, ``timoshenko_annulus_energy_v1``) and any length-valued corrosion allowance c_a >= 0 with
+c_m + c_a < t. Each transported ``pipe_sections`` entry is its D-5 and Timoshenko rederivation
+(``section_basis.section``/``beam_theory``); each basis's stress checks and maximum bind that basis's own
+section; a reduced source stress check shares its nominal twin's functional and action, and its value is
+recomputed on the reduced section. Maxima, coverage and the composite headlines are per basis.
 """
 from __future__ import annotations
 
@@ -45,10 +46,10 @@ PRESSURE_PROFILE = "exact_pressure_v3"
 # T4-U4b §4.3: + the straight derived signatures (sigma+, sigma-, tau on both bases): 94 over 53.
 PRESSURE_TABLE_SHA256 = "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
-# The current model document and the one exact contract a captured invocation must author
-# (b7-plan "Current model format"): 0.6.0, `pressure_contract` present, Euler-Bernoulli only.
+# The current model document and the exact contract a captured invocation must author
+# (b7-plan "Current model format"; O4 §3.4): 0.6.0, `pressure_contract` present, either shear model.
 MODEL_VERSION = "0.6.0"
-EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": PRESSURE_PROFILE, "shear_model": "euler_bernoulli"}
+SHEAR_MODELS = (sb.EULER_BERNOULLI, sb.TIMOSHENKO)
 
 
 class SourceContract(Enum):
@@ -87,15 +88,17 @@ class SourceContract(Enum):
         """The captured model's contract: a current 0.6.0 document with the exact v3 contract and no outer
         shear key, as Rust's `from_invocation`; anything else is refused."""
         model = _get(_get(invocation, "request"), "model")
+        contract = _get(model, "pressure_contract")
         if (_get(model, "schema_version") == MODEL_VERSION and isinstance(model, Mapping) and "shear_model" not in model
-                and _get(model, "pressure_contract") == EXACT_PRESSURE_CONTRACT):
+                and isinstance(contract, Mapping) and len(contract) == 3 and contract.get("version") == "3.0.0"
+                and contract.get("mode") == PRESSURE_PROFILE and isinstance(contract.get("shear_model"), str)
+                and contract.get("shear_model") in SHEAR_MODELS):
             return SourceContract.PRESSURE_V3
         raise ValueError("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED")
 
     def check_invocation(self, invocation):
         SourceContract.from_invocation(invocation)
-        _zero_corrosion_allowances(_get(_get(invocation, "request"), "model"))
-        _zero_mill_tolerances(_get(_get(invocation, "request"), "model"))
+        _corrosion_allowances(_get(_get(invocation, "request"), "model"))
 
     def check_received(self, source):
         header = _get(_get(source, "producer"), "semantic_contract_id")
@@ -108,42 +111,45 @@ class SourceContract(Enum):
 def _get(value, key): return value.get(key) if isinstance(value, Mapping) else None
 
 
-def _zero_corrosion_allowances(model):
-    """Rust `zero_corrosion_allowances` (b7-plan "Exact-contract fields"): every pipe section of the captured exact
-    document declares an explicit length-valued zero corrosion allowance (its `normalized_quantity`, exactly 0.0);
-    absent, null, malformed, non-length or nonzero allowances refuse the statement bound to that invocation."""
+def _corrosion_allowances(model):
+    """Rust `corrosion_allowances` (b7-plan "Exact-contract fields"; O4 §3.4): every pipe section of the captured
+    exact document declares an explicit length-valued, finite corrosion allowance c_a >= 0 with c_m + c_a < t and a
+    positive reduced wall (t - c_m) - c_a (c_m = 0 where the mill tolerance is absent or null). Absent, null,
+    malformed, non-length, negative or over-wall allowances refuse the statement bound to that invocation; zero is
+    no longer required."""
     pipes = _get(model, "pipe_segments")
     _require(isinstance(pipes, list), "ARRAY")
     from .units import to_canonical
-    for pipe in pipes:
-        quantity = _get(_get(pipe, "section"), "corrosion_allowance")
+
+    def length(quantity):
         value, unit = _get(quantity, "value"), _get(quantity, "unit")
+        if not (type(value) in (int, float) and math.isfinite(value) and isinstance(unit, str) and bool(unit)):
+            return None
         try:
-            zero = (type(value) in (int, float) and math.isfinite(value) and isinstance(unit, str) and bool(unit)
-                    and to_canonical(value, unit, "length") == 0.0)
+            converted = to_canonical(value, unit, "length")
         except (ValueError, OverflowError):
-            zero = False
-        _require(zero, "ACTUAL_CORROSION_ALLOWANCE")
+            return None
+        return converted if math.isfinite(converted) else None
+
+    for pipe in pipes:
+        section = _get(pipe, "section")
+        allowance = length(_get(section, "corrosion_allowance"))
+        wall = length(_get(section, "wall_thickness"))
+        tolerance = 0.0 if _get(section, "mill_tolerance") is None else length(_get(section, "mill_tolerance"))
+        admitted = (allowance is not None and wall is not None and tolerance is not None and allowance >= 0
+                    and tolerance + allowance < wall and sb.reduced_wall(wall, tolerance, allowance) > 0)
+        _require(admitted, "ACTUAL_CORROSION_ALLOWANCE")
 
 
-def _zero_mill_tolerances(model):
-    """Rust `zero_mill_tolerances` (T4-U6 §5, O4): pressure-source-1's selected response has coincident bases, so every
-    pipe section's mill tolerance is zero (an absent or null mill tolerance is zero, as the producer reads it); a
-    present malformed, non-length or nonzero mill tolerance refuses the statement bound to that invocation."""
-    pipes = _get(model, "pipe_segments")
-    _require(isinstance(pipes, list), "ARRAY")
-    from .units import to_canonical
-    for pipe in pipes:
-        quantity = _get(_get(pipe, "section"), "mill_tolerance")
-        if quantity is None:
-            continue
-        value, unit = _get(quantity, "value"), _get(quantity, "unit")
-        try:
-            zero = (type(value) in (int, float) and math.isfinite(value) and isinstance(unit, str) and bool(unit)
-                    and to_canonical(value, unit, "length") == 0.0)
-        except (ValueError, OverflowError):
-            zero = False
-        _require(zero, "ACTUAL_MILL_TOLERANCE")
+def _rederived_section(section, materials):
+    """Rust `rederived_section` (O4 §3.4): one composite `pipe_sections` entry through the shared D-5 and Timoshenko
+    rederivation (`section_basis.section`, `section_basis.beam_theory` with the case's nu, no realized arc);
+    returns its beam-theory model."""
+    sections = sb.section(section)
+    material = next((m for m in materials if isinstance(m, Mapping) and m.get("pipe_id") == section.get("pipe_id")), None)
+    _require(material is not None and physical._number(material.get("nu")), "SECTION_MATERIAL")
+    sb.beam_theory(sections, material["nu"], False)
+    return sections["beam"]["model"]
 
 
 def model_carries_load_state(model: Any) -> bool:
@@ -243,10 +249,14 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
         cid = case["load_case_id"]
         pressure = [p for p in evidence["pressure"] if p["load_case_id"] == cid]
         _require(case["recovery_method"] == record["selected_method"], "RECOVERY_METHOD")
-        # T4-U6/U8 (§5, O4): a pressure-source-1 document is euler_bernoulli with zero mill tolerance and zero corrosion
-        # allowance on every pipe section (document facts), so its two bases coincide.
-        _require(all(s.get("mill_tolerance_m") == 0 and s.get("corrosion_allowance_m") == 0 and s.get("beam_theory") == {"model": sb.EULER_BERNOULLI}
-                     and s.get("nominal_section") == s.get("reduced_section") for s in case["pipe_sections"]), "SECTION_BASES")
+        # O4 (§3.4): each section entry's nominal section, reduced section and beam theory are their D-5 and
+        # Timoshenko rederivation from its captured authored values and the case's nu, and the case's straight
+        # members share one shear model. Coincident bases remain bit-equal; distinct bases are admitted.
+        try:
+            models = {_rederived_section(s, case["pipe_materials"]) for s in case["pipe_sections"]}
+        except (ValueError, KeyError, TypeError):
+            models = None
+        _require(models is not None and len(models) <= 1, "SECTION_BASES")
         proof = {"exact_case": case, "pressure": pressure}
         if resolved:
             state = next((s for s in evidence["load_reference_states"] if s["load_case_id"] == cid), None)
@@ -351,9 +361,9 @@ def _maximum_link(case: Mapping[str, Any], ex: Mapping[str, Any], receipt_case: 
     _require(ex["source_identity_sha256"] == plan["retained_identity_sha256"], "MAXIMUM_SOURCE_IDENTITY")
     section = next((s for s in case["pipe_sections"] if s["pipe_id"] == ex["pipe_id"]), None)
     endpoints = next((s for s in plan["endpoint_sections"] if s["pipe_id"] == ex["pipe_id"]), None)
-    # T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
+    # O4 (§3.2, §3.4): each basis's maximum binds that basis's own section, A and Z bit for bit.
     _require(section is not None and endpoints is not None and ex.get("section_basis") in sb.BASES
-             and all(_same(ex["area_m2"], section[b]["As_m2"]) and _same(ex["section_modulus_m3"], section[b]["Z_m3"]) for b in sb.BASES), "MAXIMUM_SECTION")
+             and _same(ex["area_m2"], section[ex["section_basis"]]["As_m2"]) and _same(ex["section_modulus_m3"], section[ex["section_basis"]]["Z_m3"]), "MAXIMUM_SECTION")
     for index, endpoint in enumerate(ex["endpoints"]):
         # T4-U6 (A2): the maximum's endpoint is the endpoint section's, bit for bit.
         _require(sb.bit_equal({k: endpoint[k] for k in ("station_fraction", "functional_indices", "functional_ids", "actions")}, endpoints["endpoints"][index]), "MAXIMUM_ENDPOINT_SOURCE")
@@ -471,19 +481,24 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
     exact = next(c for c in source["contract_evidence"]["exact_cases"] if c["load_case_id"] == case["basis_ref"]["ref_id"])
     section = next(s for s in exact["pipe_sections"] if s["pipe_id"] == row["entity_ref"])
     params = check["parameters"]
-    # T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
-    _require(all(params == {"area_m2":section[b]["As_m2"],"section_modulus_m3":section[b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[b]["J_m4"],"pa_per_mpa":1e6} for b in sb.BASES), "STRESS_SECTION_PARAMETERS")
-    # T4-U6 (§5): a reduced row binds the same functional and section as its nominal twin and is bit-equal to it.
+    # O4 (§3.2, §3.4): a check's parameters are its own row's basis section (As_m2, Z_m3, J_m4, ro_m). They first name
+    # one of the two bases' sections (both, where the bases coincide); once the row's basis is read, they must be
+    # that basis's.
+    basis_parameters = lambda b: params == {"area_m2":section[b]["As_m2"],"section_modulus_m3":section[b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[b]["J_m4"],"pa_per_mpa":1e6}
+    _require(any(basis_parameters(b) for b in sb.BASES), "STRESS_SECTION_PARAMETERS")
     token = sb.split_token(row["metadata"].get("basis"))
     _require(token is not None and sb.id_basis(row["id"]) == token[1], "STRESS_SECTION_BASIS")
+    _require(basis_parameters(token[1]), "STRESS_SECTION_PARAMETERS")
+    # T4-U6 (§5) and O4 (§3.4): a reduced row's check shares recipe, pipe, location, component, functional and action
+    # with its nominal twin, bit for bit; its parameters are the reduced section's (above) and its value is
+    # recomputed below, so it equals its twin's only where the sections do.
     if token[1] == sb.REDUCED:
         twin_id = sb.twin_id(row["id"])
         twin = next((r for r in source["results"] if r["id"] == twin_id), None)
         twins = [c for c in case["section_stress_checks"] if c["result_id"] == twin_id]
         _require(twin is not None and len(twins) == 1 and sb.split_token(twin["metadata"].get("basis")) == (token[0], sb.NOMINAL)
                  and all(twins[0][k] == check[k] for k in ("recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id"))
-                 and all(sb.bit_equal(twins[0][k], check[k]) for k in ("action", "parameters"))
-                 and _same(row["value"], twin["value"]), "STRESS_BASIS_TWIN")
+                 and sb.bit_equal(twins[0]["action"], check["action"]), "STRESS_BASIS_TWIN")
     action = check["action"]["value"]
     if component == 3 and action != 0:
         intermediate = action * params["torsion_radius_m"]
@@ -629,11 +644,11 @@ def _actual_materials(invocation, actual, exact, canonical):
     model = invocation["request"]["model"]
     materials = {m["id"]:m for m in (invocation["request"].get("materials") or model.get("materials", []))}
     _require(len(model["pipe_segments"]) == len(exact["pipe_sections"]) == len(exact["pipe_materials"]),"ACTUAL_MATERIAL_COVERAGE")
-    # T4-U8 (§3.6, §5): each section states the beam theory the captured contract selects for its member. Both callers
-    # admit only euler_bernoulli contracts (`SourceContract.from_invocation`, G8's exact namespace), which select
-    # Euler-Bernoulli for a realized arc and a straight member alike (`section_basis.selected_model`); any other
-    # contract fails closed.
+    # T4-U8 (§3.6, §5) and O4 (§3.4): each section states the beam theory the captured contract selects for its
+    # straight member (`section_basis.selected_model`, arc = false; neither caller admits a realized arc). A contract
+    # naming no admitted model fails closed; G8's exact namespace still admits only euler_bernoulli contracts.
     shear_model = _get(_get(model, "pressure_contract"), "shear_model")
+    shear_model = shear_model if isinstance(shear_model, str) and shear_model in SHEAR_MODELS else None
     for pipe,section,material in zip(model["pipe_segments"],exact["pipe_sections"],exact["pipe_materials"]):
         _require(pipe["id"] == section["pipe_id"] == material["pipe_id"] and pipe["material"] == material["material_id"],"ACTUAL_MATERIAL_MEMBER")
         authored_section = pipe["section"]
@@ -645,7 +660,7 @@ def _actual_materials(invocation, actual, exact, canonical):
         by_value = lambda a, b: type(b) in (int, float) and math.isfinite(b) and a == b
         _require(_same(canonical(authored_section["outside_diameter"],"length"),section["outside_diameter_m"]) and _same(canonical(authored_section["wall_thickness"],"length"),section["wall_thickness_m"])
                  and by_value(tolerance,section["mill_tolerance_m"]) and allowance is not None and by_value(allowance,section["corrosion_allowance_m"]),"ACTUAL_SOURCE_GEOMETRY")
-        _require(shear_model == sb.EULER_BERNOULLI and _get(section.get("beam_theory"), "model") == shear_model,"ACTUAL_SHEAR_MODEL")
+        _require(shear_model is not None and _get(section.get("beam_theory"), "model") == sb.selected_model(shear_model, False),"ACTUAL_SHEAR_MODEL")
         authored = materials[pipe["material"]]
         _require(authored.get("constitutive_basis") == material["constitutive_basis"],"ACTUAL_CONSTITUTIVE_BASIS")
         e,nu,alpha = _selected_material(authored,actual,canonical)

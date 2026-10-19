@@ -12,6 +12,8 @@ use std::collections::{BTreeMap, BTreeSet};
 mod composite;
 #[cfg(test)]
 pub(crate) use source::take_observed_congruence_members;
+#[cfg(test)]
+pub(crate) use source::with_source_dump;
 mod endpoint_maximum;
 mod rows;
 mod source;
