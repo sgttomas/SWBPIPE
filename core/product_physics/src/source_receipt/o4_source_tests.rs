@@ -601,26 +601,41 @@ fn predicted_identity_delta(a: &Captured, b: &Captured) -> i128 {
     delta
 }
 
-/// O4 §3.5 (the D5/MJ9 law; no charging rule changes): for a newly admitted
-/// document against its Euler-Bernoulli, zero-allowance twin, every
-/// finalization and publication term is derived here from the actual inputs
-/// and the actual charging sites, and the sum reconciles with the counters
-/// exactly:
-/// - ΔI, the serialized identity's length delta, predicted from the authored
-///   mill tolerances and the declared local matrices and equal to the actual;
-/// - the first identity digest's 12·ΔI and the endpoint-maximum calls,
-///   (RECIPE_WORK + 128) for each extra reduced-basis call at each of the
-///   publication loop and the composite pass (2·4,224 = 8,448 per member
-///   whose sections differ, none for sections that round away);
-/// - ΔF_k = 2·(12·ΔI + 12·ΔE + ΔD), with the published rows' lengths unchanged;
-/// - ΔP = 0 (no published row or diagnostic is added): the publication charge
-///   moves by 24·ΔE, and on a Timoshenko twin also by the ordinary report's
-///   diagnostic text, which P counts as before.
+/// O4 §3.5 (the D5/MJ9 law; no charging rule changes), as measured here: for
+/// a document newly admitted under O4 against its Euler-Bernoulli,
+/// zero-allowance twin, every term is derived from the actual inputs and the
+/// actual charging sites, and the sum reconciles with the case, publication
+/// and invocation counters exactly:
+/// - ΔI, the serialized source identity's length delta, is predicted from the
+///   operands and equals the actual. The identity changes only through a
+///   present mill tolerance's value bits or a Timoshenko frame's local-matrix
+///   bits; the corrosion allowance is not an identity operand, so an
+///   allowance-only change has ΔI = 0.
+/// - Method work moves by 5·ΔI wherever the identity changes, from the exact
+///   Context's `source_preflight` identity charge at each call: 2·ΔI in the
+///   live attempt (`Context::prepare`, `retained_charge`), 2·ΔI in the
+///   captured replay (the same two) and 1·ΔI at `check_binding_with_budget`.
+///   With unchanged declared matrices (the Euler-Bernoulli twins) that is the
+///   whole method delta (asserted); a Timoshenko matrix also moves the metered
+///   method work, which is measured, not predicted (its binding-check delta is
+///   asserted to be ΔI where the descriptor terms are unchanged).
+/// - The publication loop adds the first identity digest's 12·ΔI and, for
+///   each extra reduced-basis endpoint-maximum call, RECIPE_WORK + 128; the
+///   composite pass adds the same call again: 2·4,224 = 8,448 per member whose
+///   stress sections differ, none where they are bit-equal (values that round
+///   away included).
+/// - Finalization: ΔF_k = 2·(12·ΔI + 12·ΔE + ΔD), including the encoded
+///   request's charges (ΔE, its checked canonical byte delta) and the
+///   descriptor terms ΔD; the published rows' lengths are unchanged.
+/// - Publication: 24·ΔE + ΔP. No published row or diagnostic is added; P moves
+///   only through existing diagnostics' text bytes, ΔP = 12·Δ(diagnostic
+///   bytes), asserted exactly. ΔP = 0 for the Euler-Bernoulli twins
+///   (asserted); a Timoshenko twin can have ΔP ≠ 0, because the ordinary
+///   report of its changed matrix and the selected summary state other numbers.
 ///
-/// Method work (the live attempt, the captured replay and the binding check)
-/// moves where the declared matrices are unchanged (Euler-Bernoulli twins)
-/// only by the exact Context's identity charges, 5·ΔI (asserted), and is
-/// measured, not predicted, where a Timoshenko matrix changes it.
+/// Existing Euler-Bernoulli, zero-allowance documents are unchanged: their
+/// publications, work counters included, stay byte-identical
+/// (`o4_euler_bernoulli_sources_keep_their_numbers`).
 #[test]
 fn o4_source_work_deltas_follow_the_d5_law() {
     let zero_fields = with_section(fields(), 0, Some(0.0), 0.0);
