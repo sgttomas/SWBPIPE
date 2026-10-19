@@ -5327,15 +5327,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13",
-        "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df",
+        "71c02b807b11bd3427dcba4247fa032686c51a73c3a45140496707346eadbe20",
+        "6ea6b5e467321f4737903693c1ebc2f69026822282f4ca50118ea237ac89e478",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1",
-        "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab",
+        "e79cf22962616be33e29d78a74c09a0c42376464194287f6c7a1b036a5cf36eb",
+        "3ff95ee0d87c20661be1eb22f260afe096ebcd0777dce8f05f4dab2416d5af62",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5598,9 +5598,13 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// and the m3x successors are the D-5 regeneration, so all eight digests moved once more (the
 /// N2b pair were 89e57eb9... and c2e661d0...; N2 5bcef58c... and f2d7bbea...; F2 849bf31b...,
 /// 29d6c537..., cb5edc48... and 84aeda36...); RV120's restated inputs and the R1 record carry them.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["19f94ef318caa533f8f32f40812807bd4ccab55b685777d0ba082d17cb5b2ff1", "b9232716595881ae06d807f12ce1be939de2d9339fa909cd8363642f0ffe6116"];
+/// O4 (W1-E): DEF-E's revision moved every exact base's DEF-E-bound hashes (preparation, source
+/// identity, publication and receipt), so all eight moved again (N2b were 19f94ef3... and
+/// b9232716...; N2 41b9866c... and a3580bd0...; F2 eff92fdd..., 0de13ab8..., d54ce46c... and
+/// ae5926bd...); RV120's inputs were re-derived by `test_rv120_inputs_write` from `B3B_INPUTS_OUT`.
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["4629e5a08173622847d036f876f0ff3caa503acdb1961574247a55b178723c7b", "07b489997576054793ebefb234728fd916cd531e81e60bdacebab7dab5e05e06"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["41b9866c26ab46bbb8d492ac13596c99079570de6c44add4d65335cf37d2f869", "a3580bd0a3426463b597ab8b89e09ff0020a579595d5b31761a303fcfaec6a92"];
+const RV120_N2_INPUTS: [&str; 2] = ["058a80b479cfb3230755467419c067ef784f86d1a5b6cabbbca11de1ba40cdfc", "8af71308fac4e1601b3369897ffc18749d3f58c159c6ecebee0fd08bbca12310"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5609,10 +5613,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "eff92fdd45f4182c6ccdb73753bed8a6946374f3e656d8330e98cb8c216df98f"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "0de13ab83224913d9739e72d81990a89784ff7475e7f7fbfa0661c730213284d"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "d54ce46c7d5e570a8e70ba44814d1a43e19e78ad3fe9bb9c747210a6eb459451"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "ae5926bd3cedacc7b71917ef495e76421523d3e287d8e76a9cecff7ca4d49c9f"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "ed2da5be246839beb9787ca7891a44d76f011adbc14316ffed3a952da7ca3fd5"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "5a6043e9fa3018fac96b047773867135c700479af71564cdb2d2b32f5ce6eb7a"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "40cb1329474d148159ebd58a670f15152e78ba04ebcbbf6b1c4d9be7ca9d3032"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "9bafbc249bfdb12299f301982a98bd8ca0a1fe5f8ef19c0c1e1cd8c221d7d34a"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
@@ -6999,12 +7003,13 @@ fn current_inherited_b2_contexts() {
     }
 }
 
-/// B7b (ccb19ba0bf; DEF-E's G8 and b7-plan "Exact-contract fields"): D1.3's exact
-/// namespace requires every pipe section of the invocation to declare a length-valued
-/// zero corrosion allowance; the preview namespace requires none. On lane P's genuine
-/// W1 exact successors (both modes), an invocation whose pipe carries 0.001 m, no
-/// allowance, a null one or one of the wrong dimension, its digest rebound and the
-/// receipt resealed (`apply_on`), is refused bound at G8 INVOCATION_MISMATCH while its
+/// B7b (ccb19ba0bf; DEF-E's G8 and b7-plan "Exact-contract fields"), as O4 (§4.7) revises it:
+/// D1.3's exact namespace requires every pipe section of the invocation to declare a
+/// length-valued, finite allowance >= 0 with c_m + c_a < t; the preview namespace requires
+/// none. On lane P's genuine W1 exact successors (both modes), an invocation whose pipe
+/// carries a negative or over-wall allowance, no allowance, a null one or one of the wrong
+/// dimension, its digest rebound and the receipt resealed (`apply_on`), is refused bound at
+/// G8 INVOCATION_MISMATCH while its
 /// unbound and transport readings are unchanged; an explicit zero in millimetres reads
 /// as the genuine successor. A preview successor (the committed milestone successors
 /// and the shared corpus's ordinary bases) whose invocation adds an allowance is
@@ -7027,10 +7032,11 @@ fn b7b_corrosion_allowance_namespace_at_g8() {
         let (source, invocation) = reseal(&doc, vec![set(ca.clone(), json!({"value": 0.0, "unit": "mm"}))]);
         assert_eq!(readings(&source, &invocation), genuine, "{name}: 0 mm");
         for (what, edit) in [
-            ("0.001 m", set(ca.clone(), json!({"value": 0.001, "unit": "m"}))),
+            ("-0.001 m", set(ca.clone(), json!({"value": -0.001, "unit": "m"}))),
             ("absent", remove(ca.clone())),
             ("null", set(ca.clone(), Value::Null)),
             ("wrong dimension", set(ca.clone(), json!({"value": 0.0, "unit": "Pa"}))),
+            ("over the wall", set(ca.clone(), json!({"value": 1.0, "unit": "m"}))),
         ] {
             let (source, invocation) = reseal(&doc, vec![edit]);
             assert_eq!(
@@ -7039,6 +7045,15 @@ fn b7b_corrosion_allowance_namespace_at_g8() {
                 "{name}: {what}"
             );
         }
+        // O4 (DEL-04-08 Design `o4-source-extension.md` §4.7): a nonzero allowance is inside
+        // the namespace; G8's D-5 rederivation refuses this receipt, whose section term has no
+        // `reduced` for the now distinct reduced wall.
+        let (source, invocation) = reseal(&doc, vec![set(ca.clone(), json!({"value": 0.001, "unit": "m"}))]);
+        assert_eq!(
+            readings(&source, &invocation),
+            json!({"bound": gate("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH"), "unbound": genuine["unbound"], "transport": genuine["transport"]}),
+            "{name}: 0.001 m"
+        );
     }
     let milestones = ["sparse_interactive", "dense_scrutiny"].map(|mode| {
         let path = format!("{}/../../../fixtures/results/retained_precision_milestone_successor_{mode}.json", env!("CARGO_MANIFEST_DIR"));
@@ -7078,7 +7093,8 @@ fn n1_allowance(pipe: usize) -> Value {
 fn n1_refused(pipe: usize) -> [(&'static str, Value); 4] {
     use serde_json::json;
     [
-        ("0.001 m", set(n1_allowance(pipe), json!({"value": 0.001, "unit": "m"}))),
+        // O4 (§4.7): a nonzero allowance is inside the namespace; a negative one is not.
+        ("-0.001 m", set(n1_allowance(pipe), json!({"value": -0.001, "unit": "m"}))),
         ("absent", remove(n1_allowance(pipe))),
         ("null", set(n1_allowance(pipe), Value::Null)),
         ("wrong dimension", set(n1_allowance(pipe), json!({"value": 0.0, "unit": "Pa"}))),

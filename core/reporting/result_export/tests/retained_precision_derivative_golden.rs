@@ -72,24 +72,25 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 ];
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
+/// O4 (W1-E): re-pinned with the exact goldens after DEF-E's revision (only DEF-E-bound hashes moved).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13",
-        "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df",
+        "71c02b807b11bd3427dcba4247fa032686c51a73c3a45140496707346eadbe20",
+        "6ea6b5e467321f4737903693c1ebc2f69026822282f4ca50118ea237ac89e478",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1",
-        "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab",
+        "e79cf22962616be33e29d78a74c09a0c42376464194287f6c7a1b036a5cf36eb",
+        "3ff95ee0d87c20661be1eb22f260afe096ebcd0777dce8f05f4dab2416d5af62",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "730fb6e44e8a8dd4f6d4712fb40c7f9968c317c4faa707d4a6af62086bc3702c"),
-    ("dense_scrutiny", "5e7b0ca939e136bbf4fae45c6db9727b804535d6edc445283963fcc30afc906a"),
+    ("sparse_interactive", "df09036930c6d996526114984549264b4ac71564d63af134089dfeccb636cd70"),
+    ("dense_scrutiny", "429869bbc01aab1584571fb5b7e888db23e9603bf0d2eda77c37cf9f07100c36"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21
