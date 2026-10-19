@@ -17,12 +17,14 @@ import runpy
 # ProductRecipe::NotCovered and complete_not_covered; retained_precision.rs derived_kind and route L's G7
 # u4b_evidence::preview_model_checks; result_export lib.rs's u4b_evidence module), priced by U4B-W1 and U4B-RD,
 # and the -2 identities and table hashes (retained_wire.rs, retained_precision.rs).
+# T4-S6 D3 (§8.8, S6-HS): retained_wire.rs's domain_hash streams its digest and retained_precision.rs's G1 hashes the
+# publication without cloning the source; neither touches a member-path owner.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": '6114335b6660a7f2905009741ea94dee5fbf6c42aa69fc4d15ac968b5d520713',
-    "core/product_physics/src/retained_wire.rs": "aa80df2e71601c052014bdd958b77bd50906da42bf51594fe0c1f3762daf8f13",
+    "core/product_physics/src/retained_wire.rs": "0ed778f1b64699e60b8b7cf624ba7f6d62693a6f75256cbb17a699122b2e1602",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "2dbbdd9c9fcdfc87aa0b7358c6a7661e20eded94b64e482ec62dcdbbaedce7a4",
-    "core/reporting/result_export/src/retained_precision.rs": "a78aff7d126ed82ab97309430ec98d3dc0e6fc7b11462d606bf54498568a0587",
+    "core/reporting/result_export/src/retained_precision.rs": "85e7f8d886a4f18a3e07cf39b7b1e3b5ff84f8d48268a853fd987c5c4af6fd93",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "817de6a975e7a95a9bfe8bbe660cc40807f66e31d923db860615daaf61223909",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "2efa421b47fa147f3233dcdc236f414f0f80a9019b19b4d181782a90d4eb7d98",

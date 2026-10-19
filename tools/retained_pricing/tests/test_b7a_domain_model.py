@@ -285,3 +285,26 @@ def test_closed_reader_inventory_preimage_refuses_drift(change):
         inventory.append("fixtures/results/semantic_contract_v0_3_pressure_source_1.json")
     with pytest.raises(ValueError, match="historical reader static inventory changed"):
         MODEL["reader_static_files"](SOURCE, inventory)
+
+
+def test_failed_envelope_formulation_text_is_read_from_the_current_literals(tmp_path, monkeypatch):
+    """T4-S6 (Codex correction, §8.8): the failed Preview manifest's formulation allowance is the larger of its two
+    forms' literal bytes (3,138 B over 9 limitations at T4-S6), not the B7a basis's 2,035 B; a lengthened literal
+    raises it and a changed structure stops."""
+    monkeypatch.syspath_prepend(str(PRICING / "base"))
+    assert MODEL["formulation_content"](SOURCE) == (9, 3138)
+    pp, lib = "core/product_physics/src/preview_physics.rs", "core/product_physics/src/lib.rs"
+    for file in (pp, lib):
+        (tmp_path / file).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(SOURCE / file, tmp_path / file)
+    text = (tmp_path / pp).read_text()
+    old = '"Signed support actions for rigid restraints'
+    assert text.count(old) == 1
+    (tmp_path / pp).write_text(text.replace(old, '"Signed support actions for all rigid restraints'))
+    assert MODEL["formulation_content"](tmp_path) == (9, 3142)
+    (tmp_path / pp).write_text(text.replace("pub(crate) const LIMITATIONS: [&str; 7] = [", "pub(crate) const LIMITATIONS: [&str; 7]=["))
+    with pytest.raises(ValueError):
+        MODEL["formulation_content"](tmp_path)
+    atoms = {"s(MechanicsEnvelope)": 4096, "s(String)": 24}
+    assert (MODEL["failed_envelope_copy"](3, 128, SOURCE).ev(atoms)
+            - MODEL["failed_envelope_copy"](3, 128).ev(atoms)) == 3 * (3138 - 2035)

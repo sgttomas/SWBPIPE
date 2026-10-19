@@ -212,6 +212,11 @@ See the W1 section of the governing retained-pricing rules for the inventories.
 Route L's P_final takes the producer's `FAILED_MEMBER_ROWS` (U4B-RL) and route E's the U4b census (U4B-RP). See
 the governing rules' §8.8.
 
+T4-S6's streamed publication hashes (S6-HS) are read by `u6_owners_model.py` from each site's exact text and the
+canonical writer's pinned production code, and priced by its `stream_route` in `g4_caps.py` and `t25_g4.py`; the
+former U6-DH/U6-SH forms keep their prices. The same section holds T4-S6's U4B-W1, U4B-NQ, U5B-CG and failed Preview
+formulation corrections.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

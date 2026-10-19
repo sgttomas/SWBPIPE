@@ -10,7 +10,10 @@ import re
 # and finalize constructors stay absent and finalize_composite/finalize_for stay unique.
 # T4-S5 D3 (retained-pricing-rules.md §7.6, U4B-NQ): rows.rs adds only bind_for's derived_not_qualified loop and the
 # new not_qualified_inputs/not_qualified_for; the four retired sites and the retired constructors stay absent.
-SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '27a20f06463c0c77a113ddb9c973079cf8aef2fd9820626667c05506f6ac5c85','core/product_physics/src/source_receipt.rs': 'a74f58877c0fe80bc8b5e36f55af2524c366a85c97a0137e92711539cb23f8c9'}
+# T4-S6 D3 (§8.8, S6-HS): source_receipt.rs's `hash` streams the checked canonical text into SHA-256 (hash_text and
+# DomainPayload deleted, -9 lines before the constructors); the retired constructors stay absent and
+# finalize_composite/finalize_for stay unique.
+SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '27a20f06463c0c77a113ddb9c973079cf8aef2fd9820626667c05506f6ac5c85','core/product_physics/src/source_receipt.rs': 'cd1f62c6598019ff48b5a580f439ae1669e52cbdbed1c53fc9d6a5e38dd4952b'}
 ROW_FILE = "core/product_physics/src/source_receipt/rows.rs"
 RETIRED_IDS = {
     ROW_FILE + ":390": {"primary[&s.functional_indices[c]].id": {"bytes": 1024, "source": "RES"}},

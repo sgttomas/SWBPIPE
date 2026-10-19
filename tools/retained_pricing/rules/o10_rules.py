@@ -1621,6 +1621,27 @@ if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
     if "pub(crate) const BOTH: [SectionBasis; 2]" not in _text_of(PP_ + "pressure_exact/source_geometry.rs"):
         raise SystemExit("U4B-L: SectionBasis::BOTH is no longer two bases")
     _U4L = O10 + "U4B-L: "
+    # U4B-NQ (T4-S6, Codex correction; §8.8): not_qualified_for's filter admits only the U4b derived kinds. They are
+    # pushed only by u4b_rows (append_station_quantities and the failed-manifest placeholders, bodies pinned by
+    # u4b_u5b_owners_model), at most sigma+, sigma- and tau_v,max at the five STATIONS on the two bases of each member
+    # (30 per member; realized arcs are absent, P2), so both filtered loops run <= 30m times, not P_final.
+    _nq_base = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base")
+    __import__("sys").path.append(_nq_base)        # the owners model imports g3lib from base/
+    _nq_model = __import__("runpy").run_path(_os.path.join(_nq_base, "u4b_u5b_owners_model.py"))
+    __import__("sys").path.remove(_nq_base)
+    _nq_state = _nq_model["inspect"](_SNAP)
+    if _nq_state["not_qualified"] and _nq_state["station_quantities"] and _nq_model["NOT_QUALIFIED_PER_MEMBER"] == 30:
+        _pp_src = _os.path.join(_SNAP, PP_)
+        _pp_files = [_os.path.relpath(_os.path.join(_d, _n), _SNAP) for _d, _, _ns in _os.walk(_pp_src) for _n in _ns
+                     if _n.endswith(".rs") and not _n.endswith("_tests.rs") and "tests" not in _os.path.relpath(_d, _pp_src).split(_os.sep)]
+        _literal = sum(_text_of(_f).count('"element_local_normal_stress_extreme"') + _text_of(_f).count('"element_local_transverse_shear_stress_maximum"')
+                       for _f in _pp_files)
+        _args = {_f: _text_of(_f).count("EXTREME_KIND, ") + _text_of(_f).count("SHEAR_MAX_KIND, ") for _f in _pp_files}
+        if _literal != 2 or {_f: _c for _f, _c in _args.items() if _c} != {_U4R: 4}:
+            raise SystemExit(f"U4B-NQ: the derived kinds' producers changed ({_literal}, {_args}); re-review the 30m bound")
+        _NQ_BOUND, _NQ_WHY = "30*m", "<= 30 per member: sigma+/sigma-/tau_v,max at five stations on two bases"
+    else:
+        _NQ_BOUND, _NQ_WHY = "P", "<= P_final"
     _P2 = " (P2: D1 refuses every model with components, so no realized arc, component association or connector exists)"
     O10_LOOPS_LAST += [
         ("for location in STATIONS", "5", _U4L + "STATIONS is the fixed five-station array (checked above)",
@@ -1649,9 +1670,9 @@ if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
         ('for row in results.iter().filter(|r| r[" "][" "] == case_id)', "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:u4b_cases"]),
         ("for (position, row) in published.iter().enumerate()", "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:validate_physics_evidence_in"]),
         ("for r in view.case_rows()", "P", O10 + "U4B-W1: one case's rows (<= P_final)", ["retained_product.rs:prepared_not_covered"]),
-        ("for d in not_qualified_for(rows)?", "P", O10 + "U4B-NQ: one derived treatment per row of the selected case (<= P_final)", ["source_receipt/rows.rs:bind_for"]),
-        ("for row in rows.iter().filter(|r| r.kind == u4b_rows::EXTREME_KIND || r.kind == u4b_rows::SHEAR_MAX_KIND)", "P",
-         O10 + "U4B-NQ: one pass over the selected case's rows (<= P_final)", ["source_receipt/rows.rs:not_qualified_for"]),
+        ("for d in not_qualified_for(rows)?", _NQ_BOUND, O10 + "U4B-NQ: one derived treatment per derived row of the selected case (" + _NQ_WHY + ")", ["source_receipt/rows.rs:bind_for"]),
+        ("for row in rows.iter().filter(|r| r.kind == u4b_rows::EXTREME_KIND || r.kind == u4b_rows::SHEAR_MAX_KIND)", _NQ_BOUND,
+         O10 + "U4B-NQ: the selected case's sigma+/sigma-/tau_v,max rows (" + _NQ_WHY + ")", ["source_receipt/rows.rs:not_qualified_for"]),
         ("iter:input_result_ids: inputs.iter().map", "3", O10 + "U4B-NQ: at most three formula inputs per derived row", ["source_receipt/rows.rs:not_qualified_for"]),
     ]
 if fnkey("tie_rods", _CN_FK) or _os.path.exists(_os.path.join(_SNAP, _TR)):

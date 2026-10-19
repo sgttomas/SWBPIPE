@@ -21,6 +21,7 @@ EVID = "core/reporting/result_export/src/u4b_evidence.rs"
 PREV = "core/reporting/result_export/src/preview_physics_evidence.rs"
 PHYS = "core/reporting/result_export/src/physics_evidence.rs"
 ROWS = "core/product_physics/src/source_receipt/rows.rs"
+NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
 
 BODY_PINS = {
     (LIB, "published_nodal_displacements"): "83648eba3d0101586f558439d1198591659ecd706db07b5447feed75421dbe02",
@@ -145,6 +146,20 @@ def inspect(snapshot):
         raise SystemExit("U4B-RD: u4b_evidence's Index without its readers; re-review the owner it prices")
     # U4B-NQ: bind_for's derived_not_qualified treatments.
     out["not_qualified"] = _pinned(snapshot, [(ROWS, "not_qualified_for"), (ROWS, "not_qualified_inputs")], "U4B-NQ")
+    # U5B-CG (T4-S6): the evidence's contribution-group vector, one usize pushed per frame/curved element and per
+    # ground spring into a Vec::new() and moved into the dense or sparse AssemblyEvidence.
+    ni = _read(snapshot, NI)
+    group_lines = ["    groups: Vec<usize>,\n", "            groups: Vec::new(),\n",
+                   "        self.groups.push(self.contributions.len());\n",
+                   "            result.groups.push(result.contributions.len());\n"]
+    counts = [ni.count(line) if ni is not None else 0 for line in group_lines]
+    moves = ni.count("            contribution_groups: parts.groups,\n") if ni is not None else 0
+    if all(c == 0 for c in counts) and moves == 0:
+        out["contribution_groups"] = False
+    elif all(c == 1 for c in counts) and moves == 2 and ni.count("groups.push(") == 2:
+        out["contribution_groups"] = True
+    else:
+        raise SystemExit("U5B-CG: structural_adapter.rs's contribution groups changed; re-review the owner it prices")
     return out
 
 
@@ -164,6 +179,12 @@ def ordinary_station_quantities():
             + s("StationExtreme") * pushcap(BASES))
 
 
+def contribution_groups(m, springs):
+    """U5B-CG: one evidence owner's contribution-group vector, 8·pushcap(m + s) (no curved element or connector on D1:
+    P2, P3); the dense and sparse evidences each own one, so it is charged wherever their contributions are."""
+    return B(8 * pushcap(m + springs))
+
+
 def absorption_flags(N):
     """U5B-AB: `vec![false; n]` of the system's N DOFs, live inside one contribution-sum call."""
     return B(N)
@@ -174,12 +195,24 @@ def producer_not_covered(m):
     return Xc("NotCoveredOperands", m)
 
 
+def grown_from(capacity, pushes):
+    """The capacity of a Vec that starts at exactly `capacity` (a clone) and takes `pushes` pushes: RawVec's amortized
+    growth doubles the capacity (at least to the required length, at least 4) whenever a push meets a full Vec."""
+    cap = capacity
+    for length in range(capacity + 1, capacity + pushes + 1):
+        if length > cap:
+            cap = max(2 * cap, length, 4)
+    return cap
+
+
 def failed_manifest_additions(m, d_env):
     """U4B-W1: failed_manifest's out_of_domain (adapter reserve of m Option<f64>, exact) and the diagnostics clone
-    (exact capacity, already in the staged copy) grown by <= m Poisson warnings: the grown backing at
-    pushcap(d_env + m) and its previous backing, beside the clone's own capacity."""
-    grown = pushcap(d_env + m)
-    return Xc("Option<f64>", m) + s("Diagnostic") * (grown + grown // 2)
+    grown by <= m Poisson warnings. `ordinary.diagnostics.clone()` has exactly d_env slots (already in the staged
+    copy), so the first push reallocates to 2·d_env (T4-S6: was pushcap(d_env + m) plus half of it, below 2·d_env
+    whenever d_env + m does not reach a power of two); the replaced d_env backing is the staged copy's own capacity.
+    Every grown backing is charged here, beside it."""
+    grown = grown_from(d_env, m) if m > 0 else 0
+    return Xc("Option<f64>", m) + s("Diagnostic") * grown
 
 
 def reader_working_sets(rows, cases, m, raw_tree):

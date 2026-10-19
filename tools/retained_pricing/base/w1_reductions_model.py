@@ -42,9 +42,11 @@ RF_PINS = {
 # guard/shadow/insert/call texts (checked below) are unchanged. lib.rs's U4b rows, preview_physics.rs's kind predicates
 # and texts, retained_wire.rs's two hashes, certified_publication.rs's tie-rod groups and certified_recovery.rs's
 # tie-rod/displacement additions change no reduction's owner or lifetime.
+# T4-S6 D3 (§8.8, S6-HS): retained_wire.rs's domain_hash streams its digest (domain_text and DomainPayload deleted);
+# no reduction's owner or lifetime changes.
 REDUCED_PINS = {
     "core/product_physics/src/lib.rs": "a3354c083872cdaa64dd895afb14e2b9d0b72f0b445e0c9f8df78255d2ae8950",
-    "core/product_physics/src/retained_wire.rs": "aa80df2e71601c052014bdd958b77bd50906da42bf51594fe0c1f3762daf8f13",
+    "core/product_physics/src/retained_wire.rs": "0ed778f1b64699e60b8b7cf624ba7f6d62693a6f75256cbb17a699122b2e1602",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
     "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",

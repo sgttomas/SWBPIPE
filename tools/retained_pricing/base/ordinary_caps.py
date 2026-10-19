@@ -73,6 +73,8 @@ import u4b_u5b_owners_model as _u45_model
 _u45 = _u45_model.inspect(_snapshot) if _snapshot else {"published_displacements": False, "station_quantities": False,
                                                         "absorption": False}
 _AB = _u45_model.absorption_flags(N) if _u45["absorption"] else X()
+# U5B-CG (T4-S6, §8.8): each AssemblyEvidence's contribution-group vector beside its contributions.
+_CG = _u45_model.contribution_groups(m, sp) if _u45.get("contribution_groups") else X()
 _mc = __import__("g3lib").g4_caps()
 CC, LL = (_mc["c"], _mc["L"]) if which == "caps" else (1, l)   # I82: requested cases, total loads
 if _wide:
@@ -266,7 +268,8 @@ def typed_core(mode):
             B(8 * (N + 1) + 16 * Z + 16 * Z + 16 * Z) + V("StiffnessContribution", C)
             + Xc("Option<[f64;3]>", n) + V("(usize,usize,bool)", m) + B(8 * pushcap(sp))
             + Xc("FrameElement", m) * 2 + Xc("(usize,f64)", sp) * 2
-            + _FM * 3)   # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _FM * 3    # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _CG)       # U5B-CG
         # Sparse typed preparation (BOUND :63)
         out["Sparse typed preparation"] = (
             B(8 * (F + 1) + 3 * 8 * appendcap(Zf) + 8 * Zf + 8 * F + 8 * F + 4 * F)
@@ -290,7 +293,8 @@ def typed_core(mode):
             Mat(8, N, N) * 2 + Mat(8, N, N) * 2 + V("StiffnessContribution", C) + Xc("Option<[f64;3]>", n)
             + V("(usize,usize,bool)", m) + B(8 * pushcap(sp)) + Xc("FrameElement", m) * 2
             + Xc("(usize,f64)", sp) * 2 + Mat(8, N, N) * 3
-            + _FM * 3)   # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _FM * 3    # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _CG)       # U5B-CG
         out["Dense typed preparation + Cholesky"] = (Mat(8, F, F) + B(8 * F + 4 * F) + Mat(8, F, F)
                                                      + V("PivotEvidence", F))
         dense_headers = (s("Vec<Expansion>") * N + s("Expansion") * (N * N)) * 2
@@ -499,7 +503,7 @@ add("Final aggregation (results + rows_by_base_id clone + id_map)", "Aggregation
 if _wide:
     _map_req, _map_mov = _wide_model.record_map(_named_cases, ID)
     add("Independent combination modulus record map (B7a stage 1)", "AggregationSuffix", _map_req, _map_mov)
-    add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID))
+    add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID, _snapshot))
 add("Preview tree final copy (envelope evidence)", "AggregationSuffix", PREVIEW)
 # Closed formed guard construction pays the native row headers, both source
 # lists, maps, fired backing/moving storage and six independently cloned items.
