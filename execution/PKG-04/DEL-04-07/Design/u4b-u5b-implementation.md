@@ -1174,9 +1174,10 @@ source (D3).
   String sink serves only where text is needed. Digests and refusals are unchanged, including
   the 128-level recursion limit. The estimated headroom after it is at least +2.93 GB in every
   phase. Registration follows on that source (S6).
-- **Headroom.** The tightest phase today is merged dense W4, with 113,188,985 B of headroom. If
-  the actual-source evaluation does not fit, the measured shortfall goes to HELP_HUMAN before
-  any budget change (Decision 22).
+- **Headroom.** Before the epoch the tightest phase was merged dense W4, with 113,188,985 B of
+  headroom. The registered epoch-4 profile (S7) fits all 70 evaluations; its tightest phase is
+  merged dense W3, with +2,923,863,736 B (retained-pricing-rules.md §9–§10 record the
+  registration).
 
 ## 7. Evidence plan
 
