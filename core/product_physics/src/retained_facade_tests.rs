@@ -3092,22 +3092,340 @@ fn b3b_refused_exact_requests_take_the_ordinary_route() {
     }
 }
 
+// ---- O4 (DEL-04-08 Design `o4-source-extension.md` §4.1, §4.2, §4.5, §4.6, §6): W1-E's admitted
+// Timoshenko and dual-basis documents ----
+//
+// The controls are m3x with N1 at (2, 4, 4) and a D = 0.4 m, t = 0.02 m section (moments only, control A), or with a
+// 0.01 N global-X tip force added (control B, which publishes on the Timoshenko documents only). They were chosen,
+// as §8's coupling rule 2 asks, where the receipt's native body scales and the final rows agree: m3x itself in its
+// Timoshenko form withdraws at G5b SCALE_MISMATCH (the W1 repair's second corner), which the fallback test pins.
+// No row here is near phi = 2, and no test asserts a row's relative class.
+
+/// One O4 control: `shear` the contract's shear model, `allowance` and `mill` each pipe section's corrosion
+/// allowance and (when given) mill tolerance in m, and `force` the optional global-X tip force in N.
+fn o4_control(shear: &str, allowance: f64, mill: Option<f64>, force: Option<f64>) -> Value {
+    let mut raw = m3x();
+    let m = &mut raw["model"];
+    m["pressure_contract"]["shear_model"] = json!(shear);
+    m["nodes"][1]["position"] = json!({"x": 2.0, "y": 4.0, "z": 4.0});
+    for pipe in m["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["outside_diameter"] = json!({"value": 0.4, "unit": "m"});
+        pipe["section"]["wall_thickness"] = json!({"value": 0.02, "unit": "m"});
+        pipe["section"]["corrosion_allowance"] = json!({"value": allowance, "unit": "m"});
+        if let Some(mill) = mill {
+            pipe["section"]["mill_tolerance"] = json!({"value": mill, "unit": "m"});
+        }
+    }
+    if let Some(force) = force {
+        m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(json!({"id": "load:3", "category": "concentrated_force",
+            "target": {"type": "node", "node": "N1"}, "direction": "UX", "magnitude": {"value": force, "unit": "N"}, "dimension": "force",
+            "provenance": "invented_t3_p1_detection_input_no_library_data"}));
+    }
+    raw
+}
+const O4_EB: &str = "euler_bernoulli";
+/// G-A's D1 verdict of `raw` (the domain clauses, independent of the build's profile status).
+fn o4_domain(raw: &Value, mode: PreviewSolverMode) -> Option<super::retained_memory::AdmissionRefusal> {
+    let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    super::retained_memory::assess(&capture, &request, super::retained_memory::Entry::Direct, RETAINED_LIMIT).law().domain
+}
+const O4_TIM: &str = "timoshenko_annulus_energy_v1";
+/// The published W1-E successor of `raw` in `mode` (the private driver; RS validated it at precommit).
+fn o4_published(label: &str, raw: &Value, mode: PreviewSolverMode) -> Value {
+    let (envelope, retained, captured) = exact_w1(raw, mode);
+    let successor = captured.unwrap_or_else(|| panic!("{label} {mode:?}: {retained:?}"));
+    let plain = plain(mode, raw);
+    exact_outcome(label, &retained, &successor, &envelope, &plain, &[]);
+    assert_eq!(successor["producer"]["semantic_contract_id"], json!(super::retained_wire::EXACT_SEMANTIC_ID), "{label}");
+    successor
+}
+fn o4_body(successor: &Value) -> &Value { &successor["retained_precision"]["body"] }
+fn o4_rows<'a>(successor: &'a Value, kind: &str, basis: &str) -> Vec<&'a Value> {
+    successor["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind
+        && r["metadata"]["basis"].as_str().is_some_and(|b| b.ends_with(&format!("; section_basis={basis}")))).collect()
+}
+fn o4_f(v: &Value) -> f64 { f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap()) }
+/// The receipt's row universe of case 0: the published rows less the overlaid reduced twins (the reader's
+/// `rows_for`): its `absolute_verified` and `not_covered` ids and every bound row's verdict index follow it.
+fn o4_universe(successor: &Value) -> Vec<String> {
+    let body = o4_body(successor);
+    let source = &body["sources"][body["cases"][0]["source_ref"].as_u64().unwrap() as usize];
+    let distinct: Vec<&str> = source["section_terms"].as_array().unwrap().iter().filter(|t| t.get("reduced").is_some())
+        .map(|t| source["id_maps"]["members"][t["member"].as_u64().unwrap() as usize]["id"].as_str().unwrap()).collect();
+    successor["results"].as_array().unwrap().iter().filter(|r| {
+        let reduced = !super::retained_product::derived_kind(r["kind"].as_str().unwrap())
+            && r["metadata"]["basis"].as_str().is_some_and(|b| b.ends_with("; section_basis=reduced_section"));
+        !reduced || distinct.contains(&r["entity_ref"].as_str().unwrap())
+    }).map(|r| r["id"].as_str().unwrap().to_owned()).collect()
+}
+
+/// O4 §4.1, §4.2, §6 (replaces `o4_w1e_declines_at_admission`): G-A admits a Timoshenko document on branch E (no
+/// `ShearModel` fact), the case is selected and published, in both modes. Every section term, in both shapes, carries
+/// the prepared shear-area leaf A_s,prep = RN(κ̂·A_prep), κ̂ the evidence's factor and A_prep the prepared nominal
+/// area; the evidence states that leaf; and the source's K4SRC and K4STF carry the Timoshenko block, so their hashes
+/// differ from the Euler–Bernoulli twin's, whose receipt has no `shear_area`.
 #[test]
-fn o4_explore() {
-    let docs: Vec<(&str, Value)> = vec![("n05", serde_json::from_str(N05_EXACT).unwrap())];
-    let _unused: Vec<(&str, Value)> = vec![("n06", serde_json::from_str(N06_EXACT).unwrap()),
-        ("fields", serde_json::from_str(FIELDS_EXACT).unwrap()), ("two_member", two_member_exact(false)), ("two_case", two_case_exact()), ("mix", m3x_mix_anchor())];
-    for (vl, doc) in &docs {
+fn o4_w1e_timoshenko_case_is_admitted_and_selected() {
+    use super::retained_memory::{namespace_branch, NamespaceBranch};
     for mode in MODES {
-    for (label, change) in [("eb", 3), ("timoshenko", 0), ("allowance", 1), ("both", 2)] {
-        let mut raw = doc.clone();
-        if change == 0 || change == 2 { raw["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1"); }
-        if change == 1 || change == 2 { for pipe in raw["model"]["pipe_segments"].as_array_mut().unwrap() { pipe["section"]["corrosion_allowance"] = json!({"value": 0.001, "unit": "m"}); } }
-        let (_, retained, captured) = exact_w1(&raw, mode);
-        let status = captured.as_ref().map(|c| c["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["status"].as_str().unwrap().to_owned()).collect::<Vec<_>>());
-        println!("O4X {vl} {mode:?} {label}: retained={:?} status={:?}", retained.as_ref().map(|_| ()), status);
+        let raw = o4_control(O4_TIM, 0.0, None, None);
+        let request: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
+        assert_eq!(namespace_branch(&request.model), Ok(NamespaceBranch::Exact), "{mode:?}");
+        assert_eq!(o4_domain(&raw, mode), None, "{mode:?}: inside D1");
+        let successor = o4_published("timoshenko", &raw, mode);
+        let twin = o4_published("timoshenko eb twin", &o4_control(O4_EB, 0.0, None, None), mode);
+        let body = o4_body(&successor);
+        assert_eq!(body["cases"][0]["status"], json!("selected"), "{mode:?}");
+        let source = &body["sources"][0];
+        let sections = successor["contract_evidence"]["exact_cases"][0]["pipe_sections"].as_array().unwrap();
+        for (term, selection) in source["section_terms"].as_array().unwrap().iter().zip(body["cases"][0]["selection"]["section_terms"].as_array().unwrap()) {
+            let p = sections.iter().find(|p| p["pipe_id"] == selection["member_id"]).unwrap();
+            let kappa = p["beam_theory"]["shear_factor"].as_f64().unwrap();
+            let leaf = o4_f(&term["shear_area"]);
+            assert_eq!(leaf.to_bits(), open_pipe_stress_frame_kernel::shear::shear_area(kappa, o4_f(&term["area"])).unwrap().to_bits(), "{mode:?}: A_s,prep");
+            assert_eq!((&selection["shear_area"], p["beam_theory"]["shear_area_m2"].as_f64().unwrap().to_bits()), (&term["shear_area"], leaf.to_bits()), "{mode:?}");
+            assert!(term.get("reduced").is_none() && selection.get("reduced").is_none(), "{mode:?}: coincident bases");
+        }
+        let twin_source = &o4_body(&twin)["sources"][0];
+        assert!(twin_source["section_terms"].as_array().unwrap().iter().all(|t| t.get("shear_area").is_none()), "{mode:?}");
+        for key in ["kernel_source_sha256", "stiffness_sha256"] {
+            assert_ne!(source[key], twin_source[key], "{mode:?}: {key} carries the Timoshenko block");
+        }
     }
+}
+
+/// O4 §4.1, §4.5 (replaces the `SectionAllowance` decline): a nonzero corrosion allowance, a nonzero mill tolerance and
+/// both, on Euler–Bernoulli and Timoshenko documents, are inside D1, selected and published in both modes; each
+/// member's source term carries `reduced` on the wall t_r = (t − c_m) − c_a, and its preparation record the reduced run.
+#[test]
+fn o4_w1e_dual_basis_case_is_admitted() {
+    for (label, shear, allowance, mill) in [("allowance", O4_EB, 0.001, None), ("mill", O4_EB, 0.0, Some(0.0005)),
+        ("both", O4_EB, 0.001, Some(0.0005)), ("timoshenko allowance", O4_TIM, 0.001, Some(0.0005))] {
+        for mode in MODES {
+            let raw = o4_control(shear, allowance, mill, None);
+            assert_eq!(o4_domain(&raw, mode), None, "{label} {mode:?}: inside D1");
+            let successor = o4_published(label, &raw, mode);
+            let body = o4_body(&successor);
+            let term = &body["sources"][0]["section_terms"][0];
+            let tr = (0.02 - mill.unwrap_or(0.0)) - allowance;
+            assert_eq!(o4_f(&term["reduced"]["geometry"]["effective_wall"]).to_bits(), tr.to_bits(), "{label} {mode:?}: t_r");
+            assert_eq!(o4_f(&term["geometry"]["effective_wall"]).to_bits(), 0.02f64.to_bits(), "{label} {mode:?}: the nominal wall");
+            let member = &body["product_attempts"][0]["preparation"]["members"][0];
+            assert_eq!(member["reduced"]["result"]["section"], json!([term["reduced"]["area"], term["reduced"]["geometry"]["actual_second_moment"],
+                term["reduced"]["geometry"]["actual_polar_moment"], term["reduced"]["section_modulus"], term["reduced"]["geometry"]["actual_radius"]]), "{label} {mode:?}");
+            assert_eq!(body["cases"][0]["selection"]["section_terms"][0]["reduced"], json!({"area": term["reduced"]["area"], "section_modulus": term["reduced"]["section_modulus"]}));
+        }
     }
+}
+
+/// O4 §2, §4.5: stiffness uses the nominal wall t. A dual-basis document's kernel source (K4STF and K4SRC, the
+/// members' A, I, J), its nodal displacements and its nominal stress rows are bit-identical to its zero-allowance twin's;
+/// only the reduced section, its rows and the request differ.
+#[test]
+fn o4_w1e_stiffness_uses_the_nominal_wall() {
+    for mode in MODES {
+        let dual = o4_published("dual", &o4_control(O4_EB, 0.001, Some(0.0005), None), mode);
+        let twin = o4_published("twin", &o4_control(O4_EB, 0.0, None, None), mode);
+        let (a, b) = (&o4_body(&dual)["sources"][0], &o4_body(&twin)["sources"][0]);
+        for key in ["kernel_source_sha256", "stiffness_sha256", "id_maps"] {
+            assert_eq!(a[key], b[key], "{mode:?}: {key}");
+        }
+        for kind in ["global_nodal_displacement_x", "global_nodal_rotation_z", "element_local_bending_moment_y"] {
+            let values = |s: &Value| s["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind).map(|r| r["value"].clone()).collect::<Vec<_>>();
+            assert_eq!(values(&dual), values(&twin), "{mode:?}: {kind}");
+        }
+        assert_eq!(o4_rows(&dual, "element_local_bending_normal_stress_y", "nominal_section").iter().map(|r| &r["value"]).collect::<Vec<_>>(),
+            o4_rows(&twin, "element_local_bending_normal_stress_y", "nominal_section").iter().map(|r| &r["value"]).collect::<Vec<_>>(), "{mode:?}");
+    }
+}
+
+/// O4 §4.5: where the two sections differ, each reduced stress and maximum row is certified on the reduced section as
+/// a receipt row (in the universe, with its own class and value), not overlaid: its value differs from its nominal
+/// twin's by the section ratio (the same resultant over its own A, Z or J), and its maximum record is formed on the
+/// reduced section.
+#[test]
+fn o4_w1e_distinct_bases_certify_reduced_rows() {
+    for mode in MODES {
+        let successor = o4_published("dual", &o4_control(O4_EB, 0.001, None, None), mode);
+        let universe = o4_universe(&successor);
+        let term = &o4_body(&successor)["sources"][0]["section_terms"][0];
+        let (zn, zr) = (o4_f(&term["section_modulus"]), o4_f(&term["reduced"]["section_modulus"]));
+        let nominal = o4_rows(&successor, "element_local_bending_normal_stress_y", "nominal_section");
+        let reduced = o4_rows(&successor, "element_local_bending_normal_stress_y", "reduced_section");
+        assert_eq!(nominal.len(), reduced.len());
+        let mut nonzero = 0;
+        for (n, r) in nominal.iter().zip(&reduced) {
+            assert!(universe.contains(&r["id"].as_str().unwrap().to_owned()), "{mode:?}: a receipt row");
+            let (vn, vr) = (n["value"].as_f64().unwrap(), r["value"].as_f64().unwrap());
+            if vn != 0.0 {
+                nonzero += 1;
+                assert_ne!(vn.to_bits(), vr.to_bits(), "{mode:?}: certified on its own section");
+                assert!(((vn * zn) - (vr * zr)).abs() <= 1e-9 * (vn * zn).abs(), "{mode:?}: the same resultant");
+            }
+        }
+        assert!(nonzero > 0);
+        let maxima = o4_rows(&successor, "pipe_elastic_normal_stress_maximum_v2", "reduced_section");
+        assert!(maxima.iter().all(|r| universe.contains(&r["id"].as_str().unwrap().to_owned())));
+        let extrema = successor["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"].as_array().unwrap();
+        assert_ne!(extrema[0]["value_upper_pa"], extrema[1]["value_upper_pa"], "{mode:?}: the reduced maximum is its own");
+        assert_eq!(universe.len(), successor["results"].as_array().unwrap().len(), "{mode:?}: no overlaid twin remains");
+    }
+}
+
+/// O4 §4.5: where the walls agree (an allowance that rounds away, c_a = 2^-80·t), the sections are one, the twin keeps
+/// today's overlay: no `reduced` key, the reduced rows outside the universe, carrying their nominal twins' values.
+#[test]
+fn o4_w1e_bit_equal_bases_keep_the_overlay() {
+    let ca = 0.02 * 2f64.powi(-80);
+    assert_eq!(((0.02 - 0.0) - ca).to_bits(), 0.02f64.to_bits());
+    for mode in MODES {
+        let successor = o4_published("rounds away", &o4_control(O4_EB, ca, None, None), mode);
+        let body = o4_body(&successor);
+        assert!(body["sources"][0]["section_terms"].as_array().unwrap().iter().all(|t| t.get("reduced").is_none()), "{mode:?}");
+        assert!(body["product_attempts"][0]["preparation"]["members"].as_array().unwrap().iter().all(|m| m.get("reduced").is_none()));
+        let universe = o4_universe(&successor);
+        let nominal = o4_rows(&successor, "element_local_axial_normal_stress", "nominal_section");
+        let reduced = o4_rows(&successor, "element_local_axial_normal_stress", "reduced_section");
+        for (n, r) in nominal.iter().zip(&reduced) {
+            assert_eq!(n["value"].as_f64().unwrap().to_bits(), r["value"].as_f64().unwrap().to_bits(), "{mode:?}: overlaid");
+            assert!(!universe.contains(&r["id"].as_str().unwrap().to_owned()));
+        }
+    }
+}
+
+/// O4 §4.5 (`o4_overlay_equality_includes_the_wall`): the overlay rule compares {As, Z, I, J, wall}. With t = 0.1 m
+/// on D = 0.4 m and c_a = t − pred(t), the reduced wall is the predecessor of t while the prepared A, Z, I and J round
+/// equal, so the annular lane's annuli still differ: the member has a reduced section and its reduced rows are
+/// certified, not overlaid.
+#[test]
+fn o4_overlay_equality_includes_the_wall() {
+    let t = 0.1f64;
+    let tr = f64::from_bits(t.to_bits() - 1);
+    let ca = t - tr;
+    assert_eq!(((t - 0.0) - ca).to_bits(), tr.to_bits());
+    let [a, i, j, z, _] = k::prepare_product_annulus(0.4, t).result().unwrap().section_bits().values();
+    let [ar, ir, jr, zr, _] = k::prepare_product_annulus(0.4, tr).result().unwrap().section_bits().values();
+    assert_eq!([a, i, j, z].map(f64::to_bits), [ar, ir, jr, zr].map(f64::to_bits), "A, Z, I and J round equal");
+    for mode in MODES {
+        let mut raw = o4_control(O4_EB, ca, None, None);
+        raw["model"]["pipe_segments"][0]["section"]["wall_thickness"]["value"] = json!(t);
+        let successor = o4_published("wall only", &raw, mode);
+        let term = &o4_body(&successor)["sources"][0]["section_terms"][0];
+        assert_eq!(o4_f(&term["reduced"]["geometry"]["effective_wall"]).to_bits(), tr.to_bits(), "{mode:?}");
+        let universe = o4_universe(&successor);
+        assert!(o4_rows(&successor, "element_local_axial_normal_stress", "reduced_section").iter()
+            .all(|r| universe.contains(&r["id"].as_str().unwrap().to_owned())), "{mode:?}: certified, not overlaid");
+    }
+}
+
+/// O4 §4.2 (`prepared_shear_area_follows_the_prepared_area`): at D = 0.168 m, t = 0.007 m, ν = 0.3 the ordinary leaf
+/// RN(κ̂·A_ordinary) and the prepared leaf RN(κ̂·A_prep) differ. The producer's sidecar takes the prepared leaf, its
+/// association records both, and the published evidence states it; the pressure-2 base reader's beam-theory check (G7)
+/// accepts the prepared leaf with the prepared nominal area and refuses the ordinary one.
+#[test]
+fn prepared_shear_area_follows_the_prepared_area() {
+    use open_pipe_stress_result_export::section_basis as sb;
+    let (d, t, nu) = (0.168, 0.007, 0.3);
+    let mut raw = o4_control(O4_TIM, 0.0, None, None);
+    for pipe in raw["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["outside_diameter"]["value"] = json!(d);
+        pipe["section"]["wall_thickness"]["value"] = json!(t);
+    }
+    raw["model"]["materials"][0]["poisson_ratio"]["value"] = json!(nu);
+    let mode = MODES[0];
+    let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    let prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
+    let c = prepared.capture();
+    let kappa = c.exact_members[0].kappa.unwrap();
+    let ordinary = c.exact_members[0].ordinary_shear_area.unwrap();
+    let a_prep = c.facts[0].area;
+    let leaf = c.timoshenko.as_ref().unwrap().leaves()[0].shear_area;
+    let prep_leaf = open_pipe_stress_frame_kernel::shear::shear_area(kappa, a_prep).unwrap();
+    assert_ne!(ordinary.to_bits(), prep_leaf.to_bits(), "the ordinary and prepared leaves differ at this control");
+    assert_eq!(leaf.to_bits(), prep_leaf.to_bits(), "the sidecar carries A_s,prep");
+    // The published evidence (the successor precommit received, whatever its reader outcome).
+    let (_, _, captured) = exact_w1(&raw, mode);
+    let successor = captured.expect("the case is selected and staged");
+    let mut entry = successor["contract_evidence"]["exact_cases"][0]["pipe_sections"][0].clone();
+    assert_eq!(entry["beam_theory"]["shear_area_m2"].as_f64().unwrap().to_bits(), prep_leaf.to_bits());
+    assert_eq!(sb::beam_theory(&sb::section(&entry).unwrap(), nu, false), Ok(()), "G7 accepts the prepared leaf");
+    entry["beam_theory"]["shear_area_m2"] = json!(ordinary);
+    assert_eq!(sb::beam_theory(&sb::section(&entry).unwrap(), nu, false), Err("SOURCE_PHYSICS_SHEAR_FACTOR".into()), "G7 refuses the ordinary leaf");
+}
+
+/// O4 §4.5 (U4b's derived rows on route E): on a distinct-basis member, σ⁺/σ⁻ of the reduced basis are
+/// `normal_stress_extremes` of the reduced stress rows of the same station, and τ_v,max of the reduced basis uses c_b
+/// from the reduced annulus (r_i = D/2 − t_r, Î_r) with the shear rows, not the nominal annulus; the case selects (the
+/// "derived operand identity" refusal is not reached). Control B (Timoshenko, with a tip force) has nonzero shear.
+#[test]
+fn o4_w1e_reduced_derived_rows_use_their_own_basis() {
+    use open_pipe_stress_stress_recovery::section_stress_quantities as q;
+    for mode in MODES {
+        let successor = o4_published("derived", &o4_control(O4_TIM, 0.001, Some(0.0005), Some(0.01)), mode);
+        let value = |kind: &str, basis: &str, location: &str, component: Option<&str>| -> f64 {
+            let rows = o4_rows(&successor, kind, basis);
+            let row = rows.iter().find(|r| r["metadata"]["location"] == location && component.is_none_or(|c| r["metadata"]["component"] == c)).unwrap();
+            row["value"].as_f64().unwrap()
+        };
+        let section = &successor["contract_evidence"]["exact_cases"][0]["pipe_sections"][0];
+        let nu = 0.25;
+        let mut shear_seen = false;
+        for location in ["quarter_1", "midspan", "quarter_3"] {
+            for basis in ["nominal_section", "reduced_section"] {
+                let e = q::normal_stress_extremes(value("element_local_axial_normal_stress", basis, location, None),
+                    value("element_local_bending_normal_stress_y", basis, location, None), value("element_local_bending_normal_stress_z", basis, location, None));
+                assert_eq!(value(u4b_rows::EXTREME_KIND, basis, location, Some("sigma_plus")).to_bits(), e.sigma_plus.to_bits(), "{mode:?} {basis} {location}");
+                assert_eq!(value(u4b_rows::EXTREME_KIND, basis, location, Some("sigma_minus")).to_bits(), e.sigma_minus.to_bits(), "{mode:?} {basis} {location}");
+            }
+            let shear = |kind: &str| successor["results"].as_array().unwrap().iter().find(|r| r["kind"] == kind && r["metadata"]["location"] == location).unwrap()["value"].as_f64().unwrap();
+            let (vy, vz) = (shear("element_local_shear_force_y"), shear("element_local_shear_force_z"));
+            shear_seen |= vy != 0.0 || vz != 0.0;
+            for basis in ["nominal_section", "reduced_section"] {
+                let a = &section[basis];
+                let factor = q::saint_venant_shear_factor(nu, section["ro_m"].as_f64().unwrap(), section["outside_diameter_m"].as_f64().unwrap() * 0.5 - a["wall_m"].as_f64().unwrap(), a["I_m4"].as_f64().unwrap()).unwrap();
+                assert_eq!(value(u4b_rows::SHEAR_MAX_KIND, basis, location, None).to_bits(), q::transverse_shear_maximum_mpa(vy, vz, factor).to_bits(), "{mode:?} {basis} {location}: c_b from its own annulus");
+            }
+        }
+        assert!(shear_seen, "{mode:?}: the control has nonzero shear");
+        assert_ne!(value(u4b_rows::SHEAR_MAX_KIND, "nominal_section", "midspan", None).to_bits(), value(u4b_rows::SHEAR_MAX_KIND, "reduced_section", "midspan", None).to_bits());
+    }
+}
+
+/// O4 §4.5 (`o4_w1e_twin_predicate_is_per_member`): a mixed document (RV123's two-member m3x, M2 with a 1 mm
+/// allowance, M1 with none). The case selects; M2's reduced rows are receipt rows and M1's reduced twins keep their
+/// overlay; every bound not-covered row's kernel recipe index is its own bound position (the index the kernel's
+/// `complete_not_covered` checks). Each consumer site's metadata-only mutant fails closed (recorded with the PR).
+#[test]
+fn o4_w1e_twin_predicate_is_per_member() {
+    for mode in MODES {
+        let mut raw = two_member_exact(false);
+        raw["model"]["pipe_segments"][1]["section"]["corrosion_allowance"] = json!({"value": 0.001, "unit": "m"});
+        let successor = o4_published("mixed", &raw, mode);
+        let body = o4_body(&successor);
+        let terms = body["sources"][0]["section_terms"].as_array().unwrap();
+        assert!(terms[0].get("reduced").is_none() && terms[1].get("reduced").is_some(), "{mode:?}");
+        let universe = o4_universe(&successor);
+        for r in o4_rows(&successor, "element_local_axial_normal_stress", "reduced_section") {
+            let bound = universe.contains(&r["id"].as_str().unwrap().to_owned());
+            assert_eq!(bound, r["entity_ref"] == "M2", "{mode:?}: {}", r["id"]);
+        }
+        // The bound positions: the committed one-case candidate's rows, bound by the producer itself.
+        let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
+        prepared.solve_native().unwrap();
+        let candidate = prepared.project_candidate().unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.error));
+        let c = candidate.capture();
+        let k::ExecutionOutcome::Selected(owner) = &c.native.as_ref().unwrap().outcome else { panic!("selected") };
+        let rows = c.bind_rows(candidate.envelope(), owner).unwrap();
+        let mut derived = 0;
+        for (index, row) in rows.iter().enumerate() {
+            if let k::ProductRecipe::NotCovered { row } = row.recipe {
+                derived += 1;
+                assert_eq!(row as usize, index, "{mode:?}: the NotCovered index is the bound position");
+            }
+        }
+        assert_eq!(derived, body["cases"][0]["selection"]["not_covered"].as_array().unwrap().len(), "{mode:?}");
+        assert_eq!(rows.len(), universe.len(), "{mode:?}: the bound rows are the receipt's universe");
     }
 }
 
@@ -4385,3 +4703,68 @@ mod s4_retained_tests;
 
 #[path = "w1_successor_census_tests.rs"]
 mod w1_successor_census_tests;
+
+/// O4 §8 coupling rule 2: m3x's Timoshenko twin is selected and staged, and RS withdraws it at G5b SCALE_MISMATCH (the
+/// receipt's native body scale and the final rows' scale differ by one ulp: the W1 repair's second corner, which O4
+/// does not change). W1 falls back to the ordinary pressure-2 owner; nothing edits a scale to pass.
+#[test]
+fn o4_w1e_m3x_timoshenko_withdraws_at_the_body_scale_corner() {
+    for mode in MODES {
+        let mut raw = m3x();
+        raw["model"]["pressure_contract"]["shear_model"] = json!(O4_TIM);
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        assert_eq!(o4_body(&captured.expect("staged"))["cases"][0]["status"], json!("selected"), "{mode:?}");
+        assert!(matches!(&retained, Err(W1Fallback::Precommit { gate: "G5b", code }) if code == "RETAINED_PRECISION_SCALE_MISMATCH"), "{mode:?}: {retained:?}");
+        assert_eq!(envelope.producer.semantic_contract_id, exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID, "{mode:?}: the ordinary owner");
+    }
+}
+
+/// O4 §4.2, §4.5 (`timoshenko_sidecar_preserves_receipt_layouts`, PP side): the sidecars keep every receipt-recorded
+/// layout. The layouts the adapter records keep their sizes, and the full adapter counters (counts, fault and the
+/// capacity arrays) of every committed route-L and route-E successor equal the live producer's.
+#[test]
+fn timoshenko_sidecar_preserves_receipt_layouts() {
+    use std::mem::size_of;
+    assert_eq!([size_of::<k::StraightMember>(), size_of::<rp::PreparedAssociation>(), size_of::<k::ProductMemberFacts>(), size_of::<k::ProductRecipe>(),
+        size_of::<k::PreparedAnnulus>(), size_of::<k::SectionPreparationWork>()],
+        [88, 152, 160, 16, 56, 928], "the receipt-recorded layouts (B7b/epoch-4 sizes)");
+    let fixtures: [(&str, Value, &str); 4] = [
+        ("milestone sparse", raw(), include_str!("../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
+        ("milestone dense", raw(), include_str!("../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
+        ("exact sparse", m3x(), include_str!("../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json")),
+        ("exact dense", m3x(), include_str!("../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json")),
+    ];
+    for ((label, raw, text), mode) in fixtures.into_iter().zip([MODES[0], MODES[1], MODES[0], MODES[1]]) {
+        let committed: Value = serde_json::from_str(text).unwrap();
+        let (_, _, captured) = exact_w1(&raw, mode);
+        let live = captured.unwrap_or_else(|| panic!("{label}"));
+        let adapters = |s: &Value| s["retained_precision"]["body"]["product_attempts"].as_array().unwrap().iter().map(|a| a["adapter"].clone()).collect::<Vec<_>>();
+        assert_eq!(adapters(&live), adapters(&committed["source"]), "{label}: adapter counters");
+        assert!(!adapters(&live).is_empty());
+    }
+}
+
+/// O4 §4.9 ("New bytes"): the Timoshenko dual-basis route-E control (control B with c_m = 0.5 mm and c_a = 1 mm),
+/// in both modes, as committed successor documents (D-U6-5's form), byte for byte the live successors. They are the
+/// shared reader corpus's O4 bases. `O4_W1E_OUT=<dir>` writes them.
+#[test]
+fn o4_w1e_successor_fixtures_are_the_live_successors() {
+    const FIXTURES: [&str; 2] = [
+        include_str!("../../../fixtures/results/retained_precision_o4_w1e_successor_sparse_interactive.json"),
+        include_str!("../../../fixtures/results/retained_precision_o4_w1e_successor_dense_scrutiny.json"),
+    ];
+    let out = std::env::var("O4_W1E_OUT").ok().map(std::path::PathBuf::from);
+    for (mode, fixture) in MODES.into_iter().zip(FIXTURES) {
+        let raw = o4_w1e_fixture_request();
+        let successor = o4_published("o4 fixture", &raw, mode);
+        let document = serde_json::to_string_pretty(&json!({"id": format!("o4_w1e_{}", mode.as_str()), "source": successor,
+            "invocation": {"request": raw, "solver_mode": mode.as_str()}})).unwrap();
+        if let Some(dir) = &out {
+            std::fs::write(dir.join(format!("retained_precision_o4_w1e_successor_{}.json", mode.as_str())), &document).unwrap();
+            continue;
+        }
+        assert!(document == fixture, "{mode:?}: the fixture is the live O4 successor document, byte for byte");
+    }
+}
+/// The O4 fixture's request: control B, Timoshenko, c_m = 0.5 mm and c_a = 1 mm.
+fn o4_w1e_fixture_request() -> Value { o4_control(O4_TIM, 0.001, Some(0.0005), Some(0.01)) }

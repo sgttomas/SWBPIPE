@@ -399,6 +399,16 @@ def _native_source_encoding(source, include_loads):
     for constraint in source["constraints"]:
         dof(constraint["dof"])
         if include_loads: value(constraint["value"])
+    # O4 (DEL-04-08 Design o4-source-extension.md §4.2; FK `TimoshenkoLeafSet::encode_block`): a non-empty
+    # Timoshenko sidecar makes the encoding version 2 and appends, after the stiffness part, the framed block
+    # b"TSH\x01", the count, then each leaf's member (u32) and shear-area bits (u64), sorted by member.
+    leaves = sorted((term["member"], term["shear_area"]) for term in source["section_terms"] if "shear_area" in term)
+    if leaves:
+        out[5] = 2
+        out.extend(b"TSH\x01")
+        uint(len(leaves))
+        for member, word in leaves:
+            uint(member); value(word)
     if include_loads:
         uint(len(source["nodal_terms"]))
         for term in source["nodal_terms"]:
@@ -1699,21 +1709,41 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
         for word, key in ((geometry["actual_radius"], "ro_m"), (geometry["normalized_od"], "outside_diameter_m")):
             value = stated[0].get(key)
             need(number(value) and bits(float(value)) == word)
-        for basis in ("nominal_section", "reduced_section"):
+        # O4 §4.7: without `reduced` the one term binds both bases (the overlay rule); with it, the nominal term
+        # binds nominal_section, `reduced` binds reduced_section and the two evidence sections differ in
+        # {As, Z, I, J, wall}.
+        reduced = term.get("reduced")
+        terms = [(term["area"], term["section_modulus"], geometry),
+                 (term["area"], term["section_modulus"], geometry) if reduced is None else (reduced["area"], reduced["section_modulus"], reduced["geometry"])]
+        for basis, (area, modulus, geo) in zip(("nominal_section", "reduced_section"), terms):
             annulus = stated[0].get(basis)
             need(type(annulus) is dict)
-            for word, key in ((term["area"], "As_m2"), (term["section_modulus"], "Z_m3"), (geometry["actual_second_moment"], "I_m4"),
-                              (geometry["actual_polar_moment"], "J_m4"), (geometry["effective_wall"], "wall_m")):
+            for word, key in ((area, "As_m2"), (modulus, "Z_m3"), (geo["actual_second_moment"], "I_m4"),
+                              (geo["actual_polar_moment"], "J_m4"), (geo["effective_wall"], "wall_m")):
                 value = annulus.get(key)
                 need(number(value) and bits(float(value)) == word)
+        if reduced is not None:
+            rg = reduced["geometry"]
+            need(rg["route"] == geometry["route"] and rg["normalized_od"] == geometry["normalized_od"] and rg["actual_radius"] == geometry["actual_radius"])
+            pair = [stated[0]["nominal_section"], stated[0]["reduced_section"]]
+            need(any(bits(float(pair[0][k])) != bits(float(pair[1][k])) for k in ("As_m2", "Z_m3", "I_m4", "J_m4", "wall_m")))
+        # O4 §4.2: a Timoshenko member's prepared shear leaf is the evidence's beam_theory.shear_area_m2.
+        if "shear_area" in term:
+            theory = stated[0].get("beam_theory")
+            need(type(theory) is dict and theory.get("model") == sb.TIMOSHENKO and number(theory.get("shear_area_m2"))
+                 and bits(float(theory["shear_area_m2"])) == term["shear_area"])
     # `rows` is every published row of the case: each reduced twin, outside the receipt's row universe, carries the
     # retained value of its nominal twin, the bound row immediately before it (§2.5 row order).
     rows = list(rows)
+    distinct = _distinct_members(source)
     for i, row in enumerate(rows):
         # T4-U4b §4.1: a derived row of either basis is its own not-covered row (G7's base read), never a twin.
         if type(row) is dict and row.get("kind") in DERIVED_KINDS:
             continue
         if not (_reduced_twin(row) or sb.id_basis(row.get("id")) == sb.REDUCED):
+            continue
+        # O4 §4.7: a distinct-basis member's reduced rows are receipt rows, not overlays.
+        if type(row) is dict and row.get("entity_ref") in distinct:
             continue
         nominal = rows[i - 1] if i > 0 else None
         need(_reduced_twin(row) and nominal is not None and not _reduced_twin(nominal) and nominal.get("id") == sb.twin_id(row["id"])
@@ -1733,17 +1763,27 @@ def _reduced_twin(row):
     return isinstance(basis, str) and basis.endswith(sb.SEPARATOR + sb.REDUCED)
 
 
-def _bound_rows(rows):
-    """The receipt's row universe: the rows less the reduced twins."""
-    return [row for row in rows if not _reduced_twin(row)]
+def _distinct_members(source):
+    """O4 §4.7: the member ids whose section term in CaseSource `source` carries `reduced` (none without one)."""
+    if type(source) is not dict:
+        return frozenset()
+    members = source.get("id_maps", {}).get("members", [])
+    return frozenset(m["id"] for term in source.get("section_terms", []) if type(term) is dict and "reduced" in term
+                     for m in members if m.get("kernel_member") == term.get("member"))
 
 
-def _with_twin_classes(bound_classes, all_rows):
+def _bound_rows(rows, distinct=frozenset()):
+    """The receipt's row universe: the rows less the reduced twins. O4 §4.7: a distinct-basis member's reduced rows
+    (its source section term carries `reduced`) stay in it."""
+    return [row for row in rows if not _reduced_twin(row) or row.get("entity_ref") in distinct]
+
+
+def _with_twin_classes(bound_classes, all_rows, distinct=frozenset()):
     """A reduced twin takes its nominal twin's class (its value is that row's; without one it would bind unchecked);
     the classes then follow the published row order."""
     out, it, last = [], iter(bound_classes), None
     for row in all_rows:
-        if _reduced_twin(row):
+        if _reduced_twin(row) and row.get("entity_ref") not in distinct:
             _need(last is not None, "G5c", "CLASSIFICATION_MISMATCH")
             cls = dict(last, result_id=row["id"], basis_ref=row["basis_ref"], normalized_bits=bits(_normalized(row)))
         else:
@@ -1862,6 +1902,16 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
             member = next(m for m in source["id_maps"]["members"] if m["kernel_member"] == right["member"])
             # D18 (retained_product.rs `ScalarWork::operation`, `evaluate_operational`; endpoint_maximum.rs `endpoint_maximum`): each echoed term equals the source's and is positive.
             _need(left["member_id"] == member["id"] and all(left[k] == right[k] and from_bits(left[k]) > 0 for k in ["area", "section_modulus", "length", "axial_stiffness", "torsional_stiffness"]), "G5b", "SECTION_MISMATCH")
+            # O4 §4.6-§4.7: shear_area and reduced bind source and selection under one presence rule; route L has
+            # one section and no shear model (H-1).
+            _need(("shear_area" in left) == ("shear_area" in right) and ("reduced" in left) == ("reduced" in right)
+                  and (exact_evidence is not None or ("shear_area" not in right and "reduced" not in right)), "G5b", "SECTION_MISMATCH")
+            if "shear_area" in right:
+                _need(left["shear_area"] == right["shear_area"] and from_bits(right["shear_area"]) > 0, "G5b", "SECTION_MISMATCH")
+            if "reduced" in right:
+                r = right["reduced"]
+                _need(left["reduced"] == {"area": r["area"], "section_modulus": r["section_modulus"]}
+                      and from_bits(r["area"]) > 0 and from_bits(r["section_modulus"]) > 0, "G5b", "SECTION_MISMATCH")
         absolute = []; uncovered = []; first = len(classes)
         for ri, row in enumerate(rows):
             kind, bi, member, n, inp = values[ri]; scale = None; bound = None
@@ -1879,6 +1929,9 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
                         classes.append({"result_id":row["id"],"basis_ref":row["basis_ref"],"normalized_bits":bits(n),"scale_bits":None,"class":classification,"bound_bits":None}); continue
                     section = next((x for x in source["section_terms"] if x["member"] == member["kernel_member"]), None)
                     _need(section is not None, "G5b", "SECTION_MISMATCH")
+                    # O4 §4.7: a reduced row in the universe is scaled by its own (reduced) section.
+                    if "reduced" in section and _reduced_twin(row):
+                        section = section["reduced"]
                     k = float.fromhex("0x1.6a09e667f3bcdp+1") if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" else 4. if row["kind"] == "open_formula_stress_summary" else 1.
                     if row["kind"] == "component_equal_factor_intensified_bending_stress_v1":
                         _need(False, "G5b", "SECTION_MISMATCH")
@@ -1890,7 +1943,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
                     absolute.append({"result_id":row["id"],"bound":bits(bound)})
             classes.append({"result_id":row["id"],"basis_ref":row["basis_ref"],"normalized_bits":bits(n),"scale_bits":None if scale is None else bits(scale),"class":classification,"bound_bits":None if bound is None else bits(bound)})
         deferred_class_checks.append((s["absolute_verified"] == absolute and s["not_covered"] == uncovered, "CLASSIFICATION_MISMATCH"))
-        per_case.append((first, len(classes), (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]], len(rows)))
+        per_case.append((first, len(classes), (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]], len(rows), _distinct_members(source)))
     if exact_evidence is not None:
         # DESIGN §6.2's G5b row: the shared checks over every case first, then each selected case's exact evidence,
         # as RS's `g5b_exact_evidence` and TS run it (RV120 F1).
@@ -1898,11 +1951,11 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
             if "status" in case: _g5b_exact_evidence(exact_evidence[0], case, source, (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]])
     if phase is not None: phase[0] = "G5c"
     ordered = []
-    for (*_, deferred_class_checks), (start, end, everything, bound) in zip(states, per_case):
+    for (*_, deferred_class_checks), (start, end, everything, bound, distinct) in zip(states, per_case):
         for ok, code in deferred_class_checks:
             _need(ok, "G5c", code)
         # T4-U6 (D-5): the reduced twins' classes, after the case's own G5c checks (as RS's `g5c`).
-        ordered += _with_twin_classes(classes[start:end], everything) if len(everything) != bound else classes[start:end]
+        ordered += _with_twin_classes(classes[start:end], everything, distinct) if len(everything) != bound else classes[start:end]
     return ordered + _r_comb_1(body, all_rows_by_case or rows_by_case)
 
 
@@ -1925,17 +1978,19 @@ def _preview_namespace(model):
 
 
 EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+# O4 (DEL-04-08 Design o4-source-extension.md §4.7): either shear model is admitted on the exact route.
+EXACT_SHEAR_MODELS = (sb.EULER_BERNOULLI, sb.TIMOSHENKO)
 
 
-def _zero_length(quantity):
-    """Rust `unit_value(q, Dimension::Length)` equal to 0.0: a JSON number in a length unit whose canonical
-    value is exactly zero (-0.0 included); absent, null, malformed, non-length or nonzero fail."""
+def _length(quantity):
+    """Rust `unit_value(q, Dimension::Length)`: the canonical value of a JSON number in a length unit, else None."""
     if not isinstance(quantity, dict) or type(quantity.get("value")) not in (int, float) or not isinstance(quantity.get("unit"), str):
-        return False
+        return None
     try:
-        return to_canonical(quantity["value"], quantity["unit"], "length") == 0.0
+        value = float(to_canonical(quantity["value"], quantity["unit"], "length"))
     except (ValueError, OverflowError):
-        return False
+        return None
+    return value if math.isfinite(value) else None
 
 
 def _section_allowances(model, exact):
@@ -1945,31 +2000,28 @@ def _section_allowances(model, exact):
     pipes = model.get("pipe_segments")
     sections = [pipe.get("section") if isinstance(pipe, dict) else None for pipe in (pipes if isinstance(pipes, list) else [])]
     if exact:
-        return all(_zero_length(section.get("corrosion_allowance") if isinstance(section, dict) else None) for section in sections)
+        # O4 §4.7: an explicit, finite, length-valued allowance c_a >= 0 with c_m + c_a < t (c_m absent or null is
+        # zero), the producer's own refusals.
+        def admitted(section):
+            if not isinstance(section, dict):
+                return False
+            ca, t = _length(section.get("corrosion_allowance")), _length(section.get("wall_thickness"))
+            cm = 0.0 if section.get("mill_tolerance") is None else _length(section.get("mill_tolerance"))
+            return ca is not None and cm is not None and t is not None and ca >= 0 and cm >= 0 and cm + ca < t
+        return all(admitted(section) for section in sections)
     return all(not isinstance(section, dict) or "corrosion_allowance" not in section for section in sections)
 
 
 def _exact_namespace(model):
-    """G8's current exact namespace, with the closed v3 Euler–Bernoulli contract and an explicit zero corrosion
-    allowance on every pipe section. Load/reference states remain outside the retained domain."""
+    """G8's current exact namespace: the closed three-member v3 contract with either shear model (O4 §4.7) and an
+    explicit admitted corrosion allowance on every pipe section. Load/reference states remain outside the retained
+    domain."""
     version = model.get("schema_version")
-    return (type(version) is str and version == "0.6.0" and "shear_model" not in model and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
+    contract = model.get("pressure_contract")
+    return (type(version) is str and version == "0.6.0" and "shear_model" not in model and type(contract) is dict
+            and contract.get("shear_model") in EXACT_SHEAR_MODELS
+            and _pressure_contract_is(model, dict(EXACT_PRESSURE_CONTRACT, shear_model=contract["shear_model"]))
             and _section_allowances(model, exact=True))
-
-
-# T4-U6 (§5, O4): the retained exact route has one section basis, so a nonzero mill tolerance is declined by name.
-MILL_TOLERANCE_DECLINE = "nonzero mill tolerance is not a retained-source section basis"
-
-
-def _exact_mill_tolerances(model):
-    """Rust `zero_mill_tolerances` on the exact route: every pipe section's mill tolerance is zero (absent or null is
-    zero, as the producer reads it); otherwise G8 refuses, naming the decline."""
-    pipes = model.get("pipe_segments")
-    for pipe in pipes if isinstance(pipes, list) else []:
-        section = pipe.get("section") if isinstance(pipe, dict) else None
-        quantity = section.get("mill_tolerance") if isinstance(section, dict) else None
-        if quantity is not None and not _zero_length(quantity):
-            _raise("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH", MILL_TOLERANCE_DECLINE)
 
 
 def _g8_exact_materials(body, source, invocation, case_bases):
@@ -2095,9 +2147,6 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     # being the invocation's in order, id and expression. The exact route still admits none (B3b; RR "PR-B1 cut …", 2).
     need((_exact_namespace(model) if exact else _preview_namespace(model)) and (model.get("combinations", []) == [] if exact else _model_combinations_match(body, model)), "INVOCATION_MISMATCH")
     need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
-    # T4-U6 (§5, O4): after the namespace and scope, as Rust's `g8`; the decline is named.
-    if exact:
-        _exact_mill_tolerances(model)
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
     materials = request.get("materials") or model.get("materials", [])
@@ -2242,9 +2291,35 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
             need(mat["id"] == raw["material"] and m["E"] == mat["elastic_modulus"] and m["G"] == mat["shear_modulus"])
             geo=section["geometry"]; d=unit(raw["section"]["outside_diameter"],"length"); wall=unit(raw["section"]["wall_thickness"],"length")
             tolerance=unit(raw["section"]["mill_tolerance"],"length") if raw["section"].get("mill_tolerance") is not None else 0.
-            need(geo["route"] == ("exact" if exact else "preview") and geo["normalized_od"] == bits(d) and geo["effective_wall"] == bits(wall-tolerance) and 0 < wall-tolerance < d*.5)
+            # D-5 (O4 §4.7): route E's stiffness section is the nominal wall t; route L keeps t - c_m (H-1).
+            t = wall if exact else wall - tolerance
+            need(geo["route"] == ("exact" if exact else "preview") and geo["normalized_od"] == bits(d) and geo["effective_wall"] == bits(t) and 0 < t < d*.5)
             need(geo["actual_radius"] == bits(d*.5) and section["area"] == m["A_K"] and geo["actual_second_moment"] == m["Iy_K"] == m["Iz_K"] and geo["actual_polar_moment"] == m["J_K"])
             need(all(from_bits(m[k]) >= 2.0**-1022 for k in ["E","G","A_K","Iy_K","Iz_K","J_K"]) and from_bits(section["section_modulus"]) > 0)
+            # O4 §4.7: the reduced section (present exactly when t_r = (t - c_m) - c_a differs from t, on that wall) and
+            # the Timoshenko leaf (exactly on a timoshenko_annulus_energy_v1 document: RN(kappa_hat * A_prep), kappa_hat by
+            # the fixed order from the nominal radii and the member's nu), rederived from the captured invocation.
+            if exact:
+                tr = sb.reduced_wall(wall, tolerance, unit(raw["section"]["corrosion_allowance"], "length"))
+                reduced = section.get("reduced")
+                if reduced is None:
+                    need(bits(tr) == bits(t))
+                else:
+                    rg = reduced["geometry"]
+                    need(bits(tr) != bits(t) and tr > 0 and rg["route"] == "exact" and rg["normalized_od"] == bits(d) and rg["effective_wall"] == bits(tr)
+                         and rg["actual_radius"] == bits(d*.5)
+                         and all(from_bits(v) >= 2.0**-1022 for v in (reduced["area"], reduced["section_modulus"], rg["actual_second_moment"], rg["actual_polar_moment"])))
+                timoshenko = model["pressure_contract"]["shear_model"] == sb.TIMOSHENKO
+                if "shear_area" not in section:
+                    need(not timoshenko)
+                else:
+                    need(timoshenko)
+                    material = next((x for x in materials if x["id"] == raw["material"]), None)
+                    need(material is not None)
+                    kappa = sb.timoshenko_shear_factor(d*.5 - t, d*.5, poisson(material))
+                    need(math.isfinite(kappa) and kappa > 0 and section["shear_area"] == bits(kappa * from_bits(section["area"])))
+            else:
+                need("reduced" not in section and "shear_area" not in section)
         need(len({m["built_pipe_index"] for m in maps["members"]}) == len(pipes))
         # Re-derive topology, not native numerical state.
         parent=list(range(len(nodes)))
@@ -2319,6 +2394,10 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
                 need(old[:2]==[member["E"],member["G"]] and old[2]==f[2] and old[3]==old[4]==f[3] and old[5]==f[4])
                 need(f[:2]==[section["geometry"]["normalized_od"],section["geometry"]["effective_wall"]])
                 need(new==[section["area"],section["geometry"]["actual_second_moment"],section["geometry"]["actual_polar_moment"],section["section_modulus"],section["geometry"]["actual_radius"]])
+                # O4 §4.6: the reduced preparation record is the reduced term's prepared section.
+                need(("reduced" in m) == ("reduced" in section))
+                if "reduced" in section:
+                    r=section["reduced"];need(m["reduced"]["result"].get("section")==[r["area"],r["geometry"]["actual_second_moment"],r["geometry"]["actual_polar_moment"],r["section_modulus"],r["geometry"]["actual_radius"]])
                 positions=maps["nodes"][int(member["node_i"])]["coordinates"]+maps["nodes"][int(member["node_j"])]["coordinates"]
                 op_old=a["operational"]["old"][j];need(op_old["inputs"]==positions+[old[i] for i in (0,1,2,5)])
                 if j<len(a["operational"]["new"]):
@@ -2346,7 +2425,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
             d = unit(pipe["section"]["outside_diameter"], "length"); wall = unit(pipe["section"]["wall_thickness"], "length")
             tolerance = unit(pipe["section"]["mill_tolerance"], "length") if pipe["section"].get("mill_tolerance") is not None else 0.
             need(int(op_old["member"]) == int(member["member"]) and op_old["inputs"][6:] == [old[i] for i in (0, 1, 2, 5)])
-            need(old[:2] == [bits(v) for v in pair] and facts[:2] == [bits(d), bits(wall - tolerance)]
+            need(old[:2] == [bits(v) for v in pair] and facts[:2] == [bits(d), bits(wall if exact else wall - tolerance)]
                  and old[2] == facts[2] and old[3] == old[4] == facts[3] and old[5] == facts[4])
     _g8_combinations(body, need)
 
@@ -3067,7 +3146,14 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             seen.add(row["id"]);owned[basis["ref_id"]].append(row)
         # T4-U6 (D-5): every published row (G5b's twin check, G5c's twin classes, G6) and the receipt's row universe,
         # which leaves out the reduced twins (RS `rows_all_for` / `rows_for`).
-        all_rows={**rows,**crows};rows={k:_bound_rows(v) for k,v in rows.items()};crows={k:_bound_rows(v) for k,v in crows.items()}
+        all_rows={**rows,**crows}
+        # O4 §4.7: a case's distinct-basis members (its own source's section terms carrying `reduced`) keep their
+        # reduced rows in the universe.
+        def _case_distinct(case):
+            ref=_integral(case.get("source_ref")) if type(case) is dict else None
+            return _distinct_members(body["sources"][ref]) if ref is not None and 0<=ref<len(body["sources"]) else frozenset()
+        distinct_by_case={c["basis_ref"]["ref_id"]:_case_distinct(c) for c in cases}
+        rows={k:_bound_rows(v,distinct_by_case.get(k,frozenset())) for k,v in rows.items()};crows={k:_bound_rows(v) for k,v in crows.items()}
         _need(len(body["ordinary_attempts"])==len(cases),state["gate"],"COVERAGE_MISMATCH")
         for s in body["sources"]:_need(s["owner"]["kind"]=="combination" or len(s["body_membership"])>0,state["gate"],"COVERAGE_MISMATCH")  # D29 (a CombinationSource has none)
         # The receipt's own references, bound and unbound (RR "RV113's three returns verified; ...; the three-reader

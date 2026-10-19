@@ -1499,15 +1499,8 @@ fn attach_reduced_preparations(e: &Enc, members: &mut [Value], reduced: &[rp::Re
 /// C3 §2's preparation payload; its `definition_sha256` is the route's table-bound definition H
 /// (B3b-P; B3-D REVISION_01 S-1): DEF-E's on the exact route, DEF-O's on the preview route.
 fn preparation_payload(a: &Value, route: rp::W1Route) -> Value {
-    // O4 §4.6: a distinct-basis member's reduced section joins its payload entry (absent for
-    // every other member, so their payload bytes are unchanged).
-    let members = a["preparation"]["members"].as_array().map(|ms| ms.iter().map(|m| {
-        let mut entry = json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]});
-        if let Some(reduced) = m.get("reduced") {
-            entry["reduced_section"] = reduced["result"]["section"].clone();
-        }
-        entry
-    }).collect::<Vec<_>>());
+    let members = a["preparation"]["members"].as_array().map(|ms| ms.iter().map(|m| json!({
+        "member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect::<Vec<_>>());
     json!({"definition_id":a["definition_id"],"definition_sha256":route_wire(route).definition_sha256,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],
         "material_basis_ref":a["material_basis_ref"],"members":members})
 }

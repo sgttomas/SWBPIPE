@@ -751,8 +751,8 @@ def test_pressure_source_1_admits_mill_tolerance_and_physics_retained_1_refuses_
     tolerance within the section sum (it binds by value through ACTUAL_SOURCE_GEOMETRY and its range through the D-5
     rederivation); one that is not a finite length >= 0, or that reaches the wall, leaves the section sum
     unestablished and is refused with the allowance. Rust's twin is section_bases.rs's
-    ``pressure_source_1_admits_mill_tolerance_within_the_section_sum``. physics-retained-1's G8 still names a nonzero
-    mill tolerance on the exact route (W1-E's admission is a later slice's)."""
+    ``pressure_source_1_admits_mill_tolerance_within_the_section_sum``. O4 (§4.7): physics-retained-1's G8 admits the
+    same mill tolerances within the section sum; its named decline is retired."""
     request = json.loads((ROOT / "fixtures/product_preview/pressure_source/physics_source/n05.request.json").read_text())
     invocation = {"request": request, "solver_mode": "sparse_interactive"}
     contract = ps.SourceContract.PRESSURE_V3
@@ -769,11 +769,14 @@ def test_pressure_source_1_admits_mill_tolerance_and_physics_retained_1_refuses_
         broken["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = bad
         with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE$"):
             contract.check_invocation(broken)
-    # physics-retained-1's G8 names the nonzero mill tolerance on the exact route.
-    with pytest.raises(rp.RetainedPrecisionError) as refused:
-        rp._exact_mill_tolerances(changed["request"]["model"])
-    assert (refused.value.gate, refused.value.code, refused.value.detail) == ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH", rp.MILL_TOLERANCE_DECLINE)
-    rp._exact_mill_tolerances(invocation["request"]["model"])
+    # O4 (§4.7): physics-retained-1's G8 namespace admits the nonzero mill tolerance within the section sum, and
+    # refuses one that is not a finite length >= 0 or that reaches the wall; the named decline is retired.
+    assert not hasattr(rp, "MILL_TOLERANCE_DECLINE") and not hasattr(rp, "_exact_mill_tolerances")
+    assert rp._exact_namespace(changed["request"]["model"]) and rp._exact_namespace(invocation["request"]["model"])
+    for bad in ({"value": 1, "unit": "N"}, {"value": 10, "unit": "mm"}, {"value": -0.5, "unit": "mm"}):
+        broken = deepcopy(invocation)
+        broken["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = bad
+        assert not rp._exact_namespace(broken["request"]["model"]), bad
 
 
 # ----------------------------------------------------------------------------------------------------------------------

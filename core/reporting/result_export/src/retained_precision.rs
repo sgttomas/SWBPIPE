@@ -575,13 +575,7 @@ fn preparation_payload(a: &Value, definition_hash: &str) -> VResult<Value> {
     let mut members = Vec::new();
     for m in list(&a["preparation"]["members"]) {
         need(m["result"]["kind"] == "prepared", "G1", "RECEIPT_MISMATCH")?;
-        let mut entry = json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]});
-        // O4 §4.6: a distinct-basis member's reduced preparation joins its entry.
-        if let Some(reduced) = m.get("reduced") {
-            need(reduced["result"]["kind"] == "prepared", "G1", "RECEIPT_MISMATCH")?;
-            entry["reduced_section"] = reduced["result"]["section"].clone();
-        }
-        members.push(entry);
+        members.push(json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]}));
     }
     Ok(
         json!({"definition_id":a["definition_id"],"definition_sha256":definition_hash,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members}),
@@ -981,9 +975,12 @@ fn rows_for<'a>(source: &'a Value, case: &Value) -> Vec<&'a Value> {
 /// (`source_ref`, bound by G1 and G2) carries `reduced`. Empty for an entry
 /// without a source and on every document without distinct bases.
 fn distinct_members<'a>(source: &'a Value, case: &Value) -> BTreeSet<&'a str> {
+    let Some(i) = uint(&case["source_ref"]) else { return BTreeSet::new() };
+    distinct_members_of(&source["retained_precision"]["body"]["sources"][i as usize])
+}
+/// O4 §4.7: the member ids whose section term in CaseSource `s` carries `reduced`.
+fn distinct_members_of(s: &Value) -> BTreeSet<&str> {
     let mut out = BTreeSet::new();
-    let Some(i) = uint(&case["source_ref"]) else { return out };
-    let s = &source["retained_precision"]["body"]["sources"][i as usize];
     for st in list(&s["section_terms"]).iter().filter(|st| st.get("reduced").is_some()) {
         if let Some(m) = list(&s["id_maps"]["members"]).iter().find(|m| m["kernel_member"] == st["member"]) {
             out.insert(text(&m["id"]));
@@ -4404,7 +4401,6 @@ fn g5b(cases: &mut [NumericCase<'_>], exact: bool) -> VResult {
                 }
             }
             for j in 0..4 {
-                if s["body_scales"][bi][NAMES[j]] != bits(sc[j]) { eprintln!("O4DBG body {bi} {} receipt={} reader={} raw={:?} prec={}", NAMES[j], s["body_scales"][bi][NAMES[j]], bits(sc[j]), c.raw[bi], s["precision"]); }
                 sf(s["body_scales"][bi][NAMES[j]] == bits(sc[j]))?;
             }
             c.final_scales[bi] = sc;
@@ -4669,8 +4665,11 @@ fn g5c(cases: &[NumericCase<'_>]) -> VResult<Vec<RowClassification>> {
             let bound: Vec<RowClassification> = classes.drain(first..).collect();
             let mut next = bound.into_iter();
             let mut last: Option<RowClassification> = None;
+            // O4 §4.7: a distinct-basis member's reduced rows are bound rows with
+            // their own classes.
+            let distinct = distinct_members_of(c.source);
             for row in &c.all_rows {
-                let class = if reduced_twin(row) {
+                let class = if reduced_twin(row) && !distinct.contains(text(&row["entity_ref"])) {
                     let nominal = last.clone().ok_or_else(|| error("G5c", "CLASSIFICATION_MISMATCH"))?;
                     RowClassification {
                         result_id: text(&row["id"]).into(),
@@ -5143,7 +5142,7 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         // every `exact_cases` entry; its own code is detail only (B3D-13).
         for entry in evidence {
             let ci = case_of(entry)?;
-            crate::physics_source::actual_materials(inv, &cases[ci], entry).map_err(|detail| { eprintln!("O4DBG actual_materials {detail}");
+            crate::physics_source::actual_materials(inv, &cases[ci], entry).map_err(|detail| {
                 ValidationError {
                     gate: "G8",
                     code: "RETAINED_PRECISION_PREPARATION_MISMATCH".into(),
@@ -5385,7 +5384,6 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
                             .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
                         let (_, _, nu) = exact_material(raw)?;
                         let kappa = crate::section_basis::timoshenko_shear_factor(d * 0.5 - t, d * 0.5, nu);
-                        if *a != bits(kappa * f(&section["area"])) { eprintln!("O4DBG shear {} vs {} kappa {kappa} nu {nu} t {t}", a, bits(kappa * f(&section["area"]))); }
                         fail(kappa.is_finite() && kappa > 0.0 && *a == bits(kappa * f(&section["area"])))?;
                     }
                 }
@@ -5853,7 +5851,6 @@ fn verify_native_source_hashes(s: &Value) -> VResult {
             let digest = Sha256::digest(&encoded);
             s[expected] == format!("{:x}", digest)
         };
-        if !matches { eprintln!("O4DBG native {expected} mismatch"); }
         need(matches, "G8", "PREPARATION_MISMATCH")?;
     }
     Ok(())
