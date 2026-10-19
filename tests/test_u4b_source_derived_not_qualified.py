@@ -210,3 +210,23 @@ def test_a_false_poisson_warning_cannot_exempt_deleted_tau_rows(family, mode):
         with pytest.raises(ValueError, match="^SOURCE_PHYSICS_POISSON_DOMAIN_WARNING$"):
             composite.validate_physics_source(doc, invocation)
         assert verdict.validate("pressure-source", doc, invocation["request"]["model"], invocation)["error"]["code"] == "SOURCE_PHYSICS_POISSON_DOMAIN_WARNING"
+
+
+# Integrated-head review (T4): D-5's row order (section-bases-and-timoshenko.md §2.5) on the composite. The end-i σ⁺
+# reduced row and σ⁻ nominal row exchange positions, values and ids unchanged, publication and receipt resealed: every
+# twin and value still agrees, so only Rust's ROW_BASIS_TWIN_ORDER, which the composite verifier now also checks, finds
+# the reordering, on each recovery method's case.
+@pytest.mark.parametrize("family", FAMILIES)
+@pytest.mark.parametrize("mode", MODES)
+def test_a_broken_sigma_twin_order_is_refused_by_name(family, mode):
+    source, invocation = actual(family, mode, "mixed")
+    for case in case_ids(source):
+        doc = deepcopy(source)
+        plus = sorted(end_i(doc, case, DERIVED[0], "sigma_plus"))
+        minus = sorted(end_i(doc, case, DERIVED[0], "sigma_minus"))
+        assert doc["results"][plus[1]]["metadata"]["basis"].endswith("reduced_section") and plus[1] + 1 == minus[0]
+        doc["results"][plus[1]], doc["results"][minus[0]] = doc["results"][minus[0]], doc["results"][plus[1]]
+        reseal_publication(doc)
+        with pytest.raises(ValueError, match="^SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER$"):
+            composite.validate_physics_source(doc, invocation)
+        assert verdict.validate("pressure-source", doc, invocation["request"]["model"], invocation)["error"]["code"] == "SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER"

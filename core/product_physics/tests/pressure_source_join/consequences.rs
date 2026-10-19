@@ -532,7 +532,8 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
 /// - τ one ulp up on the selected (source-recovered) case;
 /// - σ⁺, and separately τ, one ulp up on an ordinary-method case;
 /// - the station's σ⁺, σ⁻ and τ deleted on the selected case together with
-///   their receipt treatments (coverage, not the receipt, finds the hole).
+///   their receipt treatments (coverage, not the receipt, finds the hole);
+/// - on the mixed control, the σ± twin order broken on each case.
 fn add_u4b_entries(control: &Control, entries: &mut Vec<Value>) {
     const EXACT: &str = "retained_source_blocks_exact_v1";
     const EXTREME: &str = "element_local_normal_stress_extreme";
@@ -618,6 +619,23 @@ fn add_u4b_entries(control: &Control, entries: &mut Vec<Value>) {
     false_warning("selected", &selected);
     if let Some(ordinary) = case_of(false) {
         false_warning("ordinary-method", &ordinary);
+    }
+    // Integrated-head review (T4): D-5's row order on the composite. On the
+    // mixed control (a selected and an ordinary-method case), the end-i σ⁺
+    // reduced row and σ⁻ nominal row exchange positions, values and ids
+    // unchanged, publication and receipt resealed: every twin and value still
+    // agrees, and only `ROW_BASIS_TWIN_ORDER` finds the reordering.
+    if control.name == "mixed" {
+        let ordinary = case_of(false).unwrap_or_else(|| panic!("{prefix}: ordinary-method case"));
+        for (label, case) in [("selected", &selected), ("ordinary-method", &ordinary)] {
+            let mut doc = source.clone();
+            let plus = rows_at(&doc, case, EXTREME, "sigma_plus");
+            let minus = rows_at(&doc, case, EXTREME, "sigma_minus");
+            assert_eq!(plus[1] + 1, minus[0], "{prefix}: {case}: σ⁺ reduced precedes σ⁻ nominal");
+            doc["results"].as_array_mut().unwrap().swap(plus[1], minus[0]);
+            reseal_publication(&mut doc);
+            refused(&format!("U4B-twin-order-sigma-plus-reduced-after-sigma-minus-nominal-{label}"), &doc, "SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER");
+        }
     }
 }
 /// RF source-method extension §7 (readers judge a receipt against the current
@@ -1048,13 +1066,13 @@ fn pressure_source_raw_fixture_path_guard_refuses_before_read() {
 #[test]
 fn pressure_source_corpus_cache_shares_one_strict_expansion() {
     let corpus = read_corpus();
-    assert_eq!(corpus["entries"].as_array().unwrap().len(), 454);
+    assert_eq!(corpus["entries"].as_array().unwrap().len(), 462);
     for _ in 0..8 { assert!(std::ptr::eq(corpus, read_corpus())); }
     std::thread::scope(|scope| {
         let readers: Vec<_> = (0..8).map(|_| scope.spawn(read_corpus)).collect();
         for reader in readers { assert!(std::ptr::eq(corpus, reader.join().unwrap())); }
     });
-    println!("pressure_source_corpus_cache=one_shared_immutable_value,454entries");
+    println!("pressure_source_corpus_cache=one_shared_immutable_value,462entries");
 }
 fn check_corpus_entry(entry: &Value) {
     let source = &entry["source"];
