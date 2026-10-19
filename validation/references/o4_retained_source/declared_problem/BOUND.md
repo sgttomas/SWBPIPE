@@ -202,3 +202,40 @@ from it:
    endpoints taken exactly; a stress check's published value is recomputed from
    its action and its own parameters as `oracle.py` states, and its action is
    the exact functional's enclosure.
+
+## Addendum (after independent review), 2026-10-19
+
+This addendum adds to the frozen text above and replaces nothing. The counts
+in sections 2 and 3 and in `bound.json` are unchanged.
+
+**The finding.** An independent review (repair round 1) observed that section
+2.1's order-independence claim holds for association, commutation and sharing
+within one factor tree, but not for algebraic rewrites that add an operation.
+Its example is E·A/L formed as (E·A)·RN(1/L), with the reciprocal of the length
+rounded separately. That is three roundings, and a random search found an
+operand set where the result exceeds ρ₂ by a factor of 1.0079.
+
+**The scope, from the specification text.** DEL-05-03 U8 §3.3 states the
+formation as the expressions φ = 12EI/(G·A_s·L²), k_vv = 12EI/(L³(1+φ)),
+k_vθ = 6EI/(L²(1+φ)), k_θθ = (4+φ)EI/(L(1+φ)) and k_θθ' = (2−φ)EI/(L(1+φ)).
+It adds "Axial EA/L and torsion GJ/L are unchanged" and "Each intermediate is a
+named K2a checked formation", and names (2 − φ) and its product as
+intermediates. The text names no reciprocal length and no other rewrite: no
+1/L, 1/L², 1/(1+φ) or G·A_s·L² + 12EI form appears for any K_local entry.
+o4-source-extension.md §4.4's description of the retained kernel's
+`over_length`, RN(RN(E·I)/L̂), also divides by the length rather than
+multiplying by a rounded reciprocal. This derivation reads only that text; no
+product output entered it.
+
+**The stated exclusion.** The bound covers every evaluation of U8 §3.3's
+expressions as written: any association and commutation of each expression's
+factors, any sharing of intermediates, fused multiply-adds, and operations
+that happen to be exact. It does not cover algebraic rewrites that introduce
+operations the expressions do not contain. Examples are a separately rounded
+reciprocal (multiplying by RN(1/L), RN(1/L²) or RN(1/(1+φ)) in place of the
+division), a rewrite of (1+φ) through G·A_s·L² + 12·E·I, or a recombination
+of entries such as k_θθ' = k_θθ − φ·EI/(L(1+φ)). Such a chain has its own
+count, which this unit does not derive. If the product's chain is a rewrite,
+the bound can fail on a correct formula. That would be reported as a scope
+finding with this reason, not as a formula defect, and the counts would be
+re-derived from the rewritten chain's own text.

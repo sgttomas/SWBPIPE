@@ -47,8 +47,9 @@ rm -rf "$SCRATCH/runs"
 grep -c 'cli_rc=0' "$SCRATCH/run.log" | sed 's/^/runner runs with exit 0: /'
 
 echo "== oracle"
+REQUIRED="$HERE/required_selection.json"
 python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/twins/index.json" --runs "$SCRATCH/runs" \
-    --out "$SCRATCH/report.json" --controls | tee "$SCRATCH/oracle.log" | grep -E '"(PASS|FAIL)"|failed_as_required|passed_wrongly|FAIL' | head -80
+    --out "$SCRATCH/report.json" --controls --required "$REQUIRED" --required-set j2 > "$SCRATCH/oracle.log"
 echo "report: $SCRATCH/report.json"
 
 echo "== R2b: RF PIN-OFF-345 twins and the frozen judged set"
@@ -63,28 +64,23 @@ for SET in rf judged phi2; do
       "$SCRATCH/ext/$SET/index.json" "$SCRATCH/ext/$SET/runs" "$TEST_BIN" "$RUNNER" "$PROJECT/core/product_physics" ) > "$SCRATCH/ext/$SET.run.log" 2>&1
   python3 -I -B "$HERE/twins.py" census "$SCRATCH/ext/$SET/index.json" "$SCRATCH/ext/$SET/runs" "$SCRATCH/ext/$SET/census.json"
 done
+# Each batch fails on any FAIL case, any error other than a recorded non-selection, a vacuous batch or
+# control set, or any committed required (document, mode, case) that does not select and pass.
 python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/rf/index.json" --runs "$SCRATCH/ext/rf/runs" \
-    --out "$SCRATCH/ext/rf/report.json" --controls > "$SCRATCH/ext/rf/oracle.log"
-# The judged set: unselected documents have no receipt, which the oracle lists as an error and exits 1.
-# Require zero FAIL cases, and that every error is exactly a run the census records as not selected.
+    --out "$SCRATCH/ext/rf/report.json" --controls --required "$REQUIRED" --required-set rf > "$SCRATCH/ext/rf/oracle.log"
 python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/judged/index.json" --runs "$SCRATCH/ext/judged/runs" \
-    --out "$SCRATCH/ext/judged/report.json" > "$SCRATCH/ext/judged/oracle.log" || true
+    --out "$SCRATCH/ext/judged/report.json" --required "$REQUIRED" --required-set judged > "$SCRATCH/ext/judged/oracle.log"
 python3 -I -B "$HERE/oracle.py" --index "$SCRATCH/ext/phi2/index.json" --runs "$SCRATCH/ext/phi2/runs" \
-    --out "$SCRATCH/ext/phi2/report.json" > "$SCRATCH/ext/phi2/oracle.log" || true
-python3 -I -B - "$SCRATCH/ext" <<'PY'
+    --out "$SCRATCH/ext/phi2/report.json" --required "$REQUIRED" --required-set phi2 > "$SCRATCH/ext/phi2/oracle.log"
+python3 -I -B - "$SCRATCH" <<'PY'
 import json, sys
-ext = sys.argv[1]
-for name in ("rf", "judged", "phi2"):
-    report = json.load(open(f"{ext}/{name}/report.json"))
-    census = {(r["twin"], r["mode"]): r for r in json.load(open(f"{ext}/{name}/census.json"))}
-    counts = report["summary"]["counts"]["all=all"] if report["summary"]["cases"] else {"PASS": 0, "FAIL": 0}
-    bad = []
-    for f in report["summary"]["failures"]:
-        if "errors" in f and f["errors"] == ["envelope carries no source_block_recovery receipt"] and not census[(f["twin"], f["mode"])]["selected"]:
-            continue
-        bad.append(f)
-    sel = sum(r["selected"] for r in census.values())
-    print(f"{name}: {sel} of {len(census)} runs selected; cases PASS {counts['PASS']} FAIL {counts['FAIL']}; unexplained failures {len(bad)}")
-    if bad:
-        sys.exit(1)
+root = sys.argv[1]
+for name, path in (("j2", "report.json"), ("rf", "ext/rf/report.json"), ("judged", "ext/judged/report.json"), ("phi2", "ext/phi2/report.json")):
+    doc = json.load(open(f"{root}/{path}"))
+    s = doc["summary"]
+    counts = s["counts"].get("all=all", {"PASS": 0, "FAIL": 0})
+    ctl = doc.get("controls")
+    ctl_text = "" if not ctl else "; controls " + ", ".join(f"{k} {v['failed_as_required']} failed/{v['passed_wrongly']} passed" for k, v in ctl.items() if k not in ("vacuous", "checks_that_failed"))
+    print(f"{name}: {s['runs']} runs, {s['cases']} cases PASS {counts['PASS']} FAIL {counts['FAIL']}, not selected {s['not_selected_runs']}, "
+          f"required {s['required']['count']} missing {s['required']['missing']}, verdict {s['verdict']}{ctl_text}")
 PY

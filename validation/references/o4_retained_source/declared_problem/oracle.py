@@ -38,6 +38,7 @@ Usage:
 """
 
 import argparse
+import copy
 import hashlib
 import json
 import math
@@ -383,6 +384,7 @@ class Case:
         self.findings = []
         self.metrics = {}
         self.notes = []
+        self.not_judged_counts = {}
 
     def check(self, name, ok, message=None):
         slot = self.checks.setdefault(name, [0, 0])
@@ -390,6 +392,12 @@ class Case:
         if not ok and message:
             self.findings.append(f"[{name}] {message}")
         return ok
+
+    def not_judged(self, name, reason):
+        """A supplementary screen whose stated condition is unmet: recorded, never a pass or a failure."""
+        self.not_judged_counts[name] = self.not_judged_counts.get(name, 0) + 1
+        if self.not_judged_counts[name] == 1:
+            self.notes.append(f"[{name}] not judged: {reason}")
 
     def metric_max(self, name, value, where):
         if value is None:
@@ -413,7 +421,8 @@ class Case:
         return {"case_id": self.case_id, "verdict": "PASS" if self.passed else "FAIL",
                 "checks": {k: {"passed": v[0], "failed": v[1]} for k, v in sorted(self.checks.items())},
                 "metrics": {k: {"value": fmt(v[0]), "where": v[1]} for k, v in sorted(self.metrics.items())},
-                "findings": self.findings[:200], "finding_count": len(self.findings), "notes": self.notes}
+                "findings": self.findings[:200], "finding_count": len(self.findings), "notes": self.notes,
+                "not_judged": dict(sorted(self.not_judged_counts.items()))}
 
 
 def envelope_of(doc):
@@ -618,6 +627,147 @@ def solve_declared(ns, fp, case=None, src=None):
     return {"frames": frames, "exact": exact, "by_id": by_id, "u": u, "eig": eig}
 
 
+STRESS_COMPONENTS = ("axial_normal_stress", "bending_normal_stress_y", "bending_normal_stress_z", "torsional_shear_stress")
+INTERIOR = ("quarter_1", "midspan", "quarter_3")
+
+
+def inventory(case, ns, fp, rc, extrema, case_rows, frames):
+    """Complete, unique inventories (repair round 1, item 1).
+
+    The expected sets come from the declared problem (its nodes, frames and supports) and the case's published
+    row universe; every receipt row, functional, projection and evidence item must be present exactly once,
+    and every reference must resolve. Returns lookups used by the value checks."""
+    def unique(name, items, what):
+        dup = sorted({x for x in items if items.count(x) > 1}, key=str)
+        case.check("i_unique_" + name, not dup, f"duplicate {what}: {dup[:5]}")
+
+    fns = fp["functions"]
+    unique("functionals", [f["functional_id"] for f in fns], "functional ids")
+    nodes = []
+    for d in ns["dof_map"]:
+        if d["node_id"] not in nodes:
+            nodes.append(d["node_id"])
+    supports = sorted({p["support_id"] for p in ns["prescribed"]} | {s["support_id"] for s in ns["springs"]})
+    springs = sorted(s["spring_id"] for s in ns["springs"])
+    expected = {}
+    for node in nodes:
+        for comp in COMPONENTS6:
+            expected[("nodal_translation" if comp[0] == "U" else "nodal_rotation", node, "node", comp)] = True
+    for eid in frames:
+        for comp in ACTION_INDEX:
+            for loc in ("end_i", "end_j"):
+                expected[("member_end_action", eid, loc, comp)] = True
+            for loc in STATION_FRACTION:
+                expected[("member_station_action", eid, loc, comp)] = loc in INTERIOR
+    for sup in supports:
+        for comp in SUPPORT_COMPONENTS:
+            expected[("support_action_component", sup, "node", comp)] = True
+    got = {}
+    for f in fns:
+        key = (f["quantity"], f["owner"]["id"], f["location"], f["component"])
+        if f["quantity"] == "support_action_component" and f["owner"]["kind"] == "spring":
+            case.check("i_spring_functional_known", f["owner"]["id"] in springs, f"spring functional for unknown spring {f['owner']['id']}")
+            continue
+        got.setdefault(key, []).append(f)
+    missing = [k for k in expected if k not in got]
+    extra = [k for k in got if k not in expected]
+    dups = [k for k, v in got.items() if len(v) > 1]
+    case.check("i_functional_inventory", not missing and not extra and not dups,
+               f"functionals missing {missing[:4]}, unexpected {extra[:4]}, duplicated {dups[:4]}")
+    for key, published in expected.items():
+        for f in got.get(key, []):
+            case.check("i_published_functionals", bool(f["result_ids"]) == published,
+                       f"{key}: published rows {f['result_ids']} but expected {'published' if published else 'unpublished'}")
+
+    # projections: one per published functional, bound to its row
+    proj = rc.get("projections", [])
+    unique("projection_ids", [p["projection_id"] for p in proj], "projection ids")
+    unique("projection_functionals", [p["functional_id"] for p in proj], "projection functionals")
+    by_fid = {p["functional_id"]: p for p in proj}
+    published_fns = [f for f in fns if f["result_ids"]]
+    lacking = [f["functional_id"] for f in published_fns if f["functional_id"] not in by_fid]
+    stray = [p["projection_id"] for p in proj if not any(f["functional_id"] == p["functional_id"] for f in published_fns)]
+    case.check("i_projection_inventory", not lacking and not stray and len(proj) == len(published_fns),
+               f"{len(proj)} projections for {len(published_fns)} published functionals; lacking {lacking[:4]}, stray {stray[:4]}")
+
+    # the receipt's rows are exactly the case's published rows
+    rows = rc.get("rows", [])
+    unique("receipt_rows", [r["result_id"] for r in rows], "receipt row ids")
+    row_ids = {r["result_id"] for r in rows}
+    case.check("i_rows_are_published_universe", row_ids == set(case_rows) and bool(row_ids),
+               f"receipt rows {len(row_ids)} vs published rows of the case {len(case_rows)}; "
+               f"unpublished {sorted(row_ids - set(case_rows))[:3]}, unreceipted {sorted(set(case_rows) - row_ids)[:3]}")
+    stress = {sc["result_id"]: sc for sc in rc.get("section_stress_checks", [])}
+    unique("stress_checks", [sc["result_id"] for sc in rc.get("section_stress_checks", [])], "stress check result ids")
+    derived = {dc["result_id"]: dc for dc in rc.get("derived_checks", [])}
+    unique("derived_checks", [dc["result_id"] for dc in rc.get("derived_checks", [])], "derived check result ids")
+    maxima = {mx["result_id"]: mx for mx in extrema}
+    unique("maxima", [mx["result_id"] for mx in extrema], "maximum result ids")
+    proj_by_id = {p["projection_id"]: p for p in proj}
+    used = {"projection": set(), "stress": set(), "maximum": set(), "derived": set()}
+    translation_norms = {}
+    for r in rows:
+        rid, t, recipe = r["result_id"], r["treatment"], r["recipe_id"]
+        refs_ok = all(i in case_rows for i in r.get("input_result_ids", []))
+        case.check("i_row_inputs_published", refs_ok, f"{rid}: input rows {r.get('input_result_ids')} are not all published")
+        if t == "qualified_projection":
+            p = proj_by_id.get(r["projection_id"])
+            case.check("i_row_evidence", p is not None and p["result_id"] == rid, f"{rid}: projection {r['projection_id']} missing or bound elsewhere")
+            used["projection"].add(r["projection_id"])
+        elif t == "checked_derived" and recipe == "retained_source_straight_stress_v1":
+            case.check("i_row_evidence", rid in stress, f"{rid}: no section stress check")
+            used["stress"].add(rid)
+        elif t == "checked_derived" and recipe == "retained_source_endpoint_normal_max_v1":
+            case.check("i_row_evidence", rid in maxima, f"{rid}: no endpoint maximum evidence")
+            used["maximum"].add(rid)
+        elif t == "checked_derived" and recipe in ("support_force_norm_scaled_checked_v1", "support_moment_norm_scaled_checked_v1"):
+            case.check("i_row_evidence", rid in derived and derived[rid]["recipe_id"] == recipe, f"{rid}: no {recipe} check")
+            used["derived"].add(rid)
+        elif t == "checked_derived" and recipe == "translation_norm_scaled_v1":
+            node = next((f["owner"]["id"] for f in fns if f["quantity"] == "nodal_translation" and r["input_result_ids"]
+                         and r["input_result_ids"][0] in f["result_ids"]), None)
+            case.check("i_row_evidence", node is not None and len(r["input_result_ids"]) == 3, f"{rid}: translation norm inputs do not name a node's translations")
+            if node is not None:
+                translation_norms[rid] = node
+        elif t == "derived_not_qualified":
+            pass  # U4b's derived rows: inputs must exist (checked above); not judged numerically
+        else:
+            case.check("i_row_evidence", False, f"{rid}: unexpected treatment/recipe {t}/{recipe}")
+    case.check("i_evidence_referenced", used["projection"] == set(proj_by_id) and used["stress"] == set(stress)
+               and used["maximum"] == set(maxima) and used["derived"] == set(derived),
+               "evidence not referenced by exactly the receipt rows: "
+               f"projections {len(used['projection'])}/{len(proj_by_id)}, stress {len(used['stress'])}/{len(stress)}, "
+               f"maxima {len(used['maximum'])}/{len(maxima)}, derived {len(used['derived'])}/{len(derived)}")
+
+    # expected cardinalities from the declared problem
+    want_stress = {(eid, loc, comp, basis) for eid in frames for loc in STATION_FRACTION for comp in STRESS_COMPONENTS
+                   for basis in ("nominal_section", "reduced_section")}
+    have_stress = [(sc["pipe_id"], sc["location"], sc["component"],
+                    "reduced_section" if sc["result_id"].endswith(":reduced-section") else "nominal_section")
+                   for sc in rc.get("section_stress_checks", [])]
+    case.check("i_stress_inventory", set(have_stress) == want_stress and len(have_stress) == len(want_stress),
+               f"{len(have_stress)} stress checks for {len(want_stress)} expected (5 stations x 4 components x 2 bases per member)")
+    want_max = {(eid, b) for eid in frames for b in ("nominal_section", "reduced_section")}
+    have_max = [(mx["pipe_id"], mx["section_basis"]) for mx in extrema]
+    case.check("i_maximum_inventory", set(have_max) == want_max and len(have_max) == len(want_max),
+               f"{len(have_max)} endpoint maxima for {len(want_max)} expected (one per member and basis)")
+    want_der = {(sup, kind) for sup in supports for kind in ("support_force_norm_scaled_checked_v1", "support_moment_norm_scaled_checked_v1")}
+    have_der = [(dc["support_id"], dc["recipe_id"]) for dc in rc.get("derived_checks", [])]
+    case.check("i_support_norm_inventory", set(have_der) == want_der and len(have_der) == len(want_der),
+               f"{len(have_der)} support norm checks for {len(want_der)} expected (force and moment per support)")
+    case.check("i_translation_norm_inventory", sorted(translation_norms.values()) == sorted(nodes),
+               f"translation norm rows for {sorted(translation_norms.values())}, nodes {nodes}")
+    src = rc.get("source") or {}
+    es = [e["pipe_id"] for e in src.get("endpoint_sections", [])]
+    sf = [e["pipe_id"] for e in src.get("section_functionals", [])]
+    case.check("i_endpoint_sections_inventory", sorted(es) == sorted(frames) and all(len(e["endpoints"]) == 2 for e in src.get("endpoint_sections", [])),
+               f"endpoint sections {es} for members {sorted(frames)}")
+    case.check("i_section_functionals_inventory", sorted(sf) == sorted(frames) and all(
+        sorted(st["station_fraction"] for st in e["stations"]) == [0, 0.25, 0.5, 0.75, 1] for e in src.get("section_functionals", [])),
+               f"section functionals {sf} for members {sorted(frames)}")
+    return {"projections": by_fid, "translation_norms": translation_norms}
+
+
 def judge_record(case, record, rc, ev, results, request, bound, theory, allowance, publication_link):
     # (a) commitments ---------------------------------------------------------------
     ns_text, fp_text = record["normalized_source_text"], record["functional_plan_text"]
@@ -657,6 +807,17 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
                     case.metric_max(name + ":max_value_rel_error", abs(qf(value) - x) / abs(x), where)
         return ok
 
+    # inventories: every published row of the case is accounted for, every expected functional and
+    # evidence item exists exactly once, and every reference resolves (repair round 1, item 1)
+    cid = record["case_id"]
+    case_rows = {}
+    for row in results.values():
+        if (row.get("basis_ref") or {}).get("ref_id") == cid:
+            case_rows[row["id"]] = row
+    ev_extrema = [mx for mx in (ev or {}).get("pipe_stress_extrema", []) if mx.get("basis") == "retained_source_endpoint_normal_max_v1"]
+    inv = inventory(case, ns, fp, rc, ev_extrema, case_rows, frames)
+    projections = inv["projections"]
+
     for p in rc["projections"]:
         fid = p["functional_id"]
         if fid not in exact:
@@ -664,6 +825,8 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             continue
         x = exact[fid]
         where = f"{p['projection_id']} {p['result_id']}"
+        case.check("b_projection_result_is_functional_row", p["result_id"] in by_id[fid][1]["result_ids"],
+                   f"{where}: result_id is not one of the functional's published rows")
         contains("b_projection_contains_exact", p["interval"], x, where, p["value"])
         case.check("b_projection_value_bits", f2b(p["value"]) == p["value_bits"], f"{where}: value and value_bits disagree")
         if p["basis"] == "exact_zero":
@@ -676,32 +839,92 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
         case.check("b_projection_absolute_bound", err <= ab, f"{where}: |value - exact| = {float(err):.3e} > absolute_error_bound {p['absolute_error_bound']!r}")
         if ab > 0:
             case.metric_max("b_projection_absolute_bound:max_usage", err / ab, where)
-        row = results.get(p["result_id"])
-        if row is not None:
-            case.check("b_projection_published_row", row["value"] == p["value"] and f2b(float(row["value"])) == p["value_bits"],
-                       f"{where}: published row {row['value']!r} differs from the projection value {p['value']!r}")
+        row = case_rows.get(p["result_id"])
+        case.check("b_projection_published_row", row is not None and row["value"] == p["value"] and f2b(float(row["value"])) == p["value_bits"]
+                   and row.get("unit") == p["unit"],
+                   f"{where}: published row {None if row is None else (row['value'], row.get('unit'))!r} differs from the projection value {p['value']!r} {p['unit']}")
+
+    def bound_functionals(where, ids, indices, expect):
+        """ids/indices agree with the plan, and each functional is the expected (quantity, owner, location, component)."""
+        ok = len(ids) == len(indices) == len(expect)
+        for fid, idx, (quantity, owner, location, component) in zip(ids, indices, expect):
+            got = by_id.get(fid)
+            ok = ok and got is not None and got[0] == idx
+            if got is not None:
+                fn = got[1]
+                ok = ok and fn["quantity"] == quantity and fn["owner"]["id"] == owner and fn["component"] == component \
+                    and (location is None or fn["location"] == location)
+        case.check("b_evidence_bound_to_expected_functionals", ok, f"{where}: functionals {ids}/{indices} are not {expect}")
+        return ok
+
     srcblk = rc["source"]
     for es in srcblk.get("endpoint_sections", []):
         for ep in es["endpoints"]:
+            loc = {0: "end_i", 1: "end_j"}.get(ep["station_fraction"])
+            bound_functionals(f"endpoint {es['pipe_id']} {ep['station_fraction']}", ep["functional_ids"], ep["functional_indices"],
+                              [("member_station_action", es["pipe_id"], loc, c) for c in ("axial_force", "bending_moment_y", "bending_moment_z")])
+            case.check("b_evidence_list_lengths", len(ep["actions"]) == len(ep["functional_ids"]) == 3, f"endpoint {es['pipe_id']}: list lengths")
             for fid, act in zip(ep["functional_ids"], ep["actions"]):
-                contains("b_endpoint_action_contains_exact", act["interval"], exact[fid], f"endpoint {es['pipe_id']} {ep['station_fraction']} {fid}", act["value"])
+                if fid in exact:
+                    contains("b_endpoint_action_contains_exact", act["interval"], exact[fid], f"endpoint {es['pipe_id']} {ep['station_fraction']} {fid}", act["value"])
+    station_loc = {0: "end_i", 0.25: "quarter_1", 0.5: "midspan", 0.75: "quarter_3", 1: "end_j"}
     for sf in srcblk.get("section_functionals", []):
         for st in sf["stations"]:
+            loc = station_loc.get(st["station_fraction"])
+            comps = [by_id[f][1]["component"] if f in by_id else None for f in st["functional_ids"]]
+            case.check("b_evidence_list_lengths", len(st["actions"]) == len(st["functional_ids"]) == len(st["functional_indices"]) == 6
+                       and sorted(c for c in comps if c) == sorted(ACTION_INDEX), f"station {sf['pipe_id']} {st['station_fraction']}: not the six actions")
+            bound_functionals(f"station {sf['pipe_id']} {st['station_fraction']}", st["functional_ids"], st["functional_indices"],
+                              [("member_station_action", sf["pipe_id"], loc, c) for c in comps])
             for fid, act in zip(st["functional_ids"], st["actions"]):
-                contains("b_station_action_contains_exact", act["interval"], exact[fid], f"station {sf['pipe_id']} {st['station_fraction']} {fid}", act["value"])
+                if fid in exact:
+                    contains("b_station_action_contains_exact", act["interval"], exact[fid], f"station {sf['pipe_id']} {st['station_fraction']} {fid}", act["value"])
     for dc in rc.get("derived_checks", []):
+        names = ("Fx", "Fy", "Fz") if dc["recipe_id"] == "support_force_norm_scaled_checked_v1" else ("Mx", "My", "Mz")
+        unit = "N" if names[0] == "Fx" else "N*m"
+        lengths = len(dc["functional_ids"]) == len(dc["functional_indices"]) == len(dc["values"]) == len(dc["intervals"]) == 3
+        case.check("b_evidence_list_lengths", lengths, f"{dc['result_id']}: component lists are not three long")
+        if not lengths:
+            continue
+        if not bound_functionals(dc["result_id"], dc["functional_ids"], dc["functional_indices"],
+                                 [("support_action_component", dc["support_id"], None, c) for c in names]):
+            continue
         comps = []
         for fid, iv, val in zip(dc["functional_ids"], dc["intervals"], dc["values"]):
             contains("b_derived_component_contains_exact", iv, exact[fid], f"{dc['result_id']} {fid}", val)
+            proj = projections.get(fid)
+            case.check("b_derived_component_is_projection", proj is not None and proj["value"] == val,
+                       f"{dc['result_id']} {fid}: component value {val!r} is not its projection's")
             comps.append(exact[fid])
         s2 = sum((c * c for c in comps), F(0))
         lo, hi = qf(dc["interval"][0]), qf(dc["interval"][1])
         ok = (lo <= 0 or lo * lo <= s2) and hi >= 0 and hi * hi >= s2
         case.check("b_derived_norm_contains_exact", ok, f"{dc['result_id']}: [{dc['interval'][0]!r}, {dc['interval'][1]!r}] does not contain sqrt({float(s2):.17g})")
+        # the published value (item 3): inside its interval, within its absolute bound of the exact norm, and published
+        v, ab = qf(dc["value"]), qf(dc["absolute_error_bound"])
+        within = lo <= v <= hi and (v - ab <= 0 or (v - ab) ** 2 <= s2) and (v + ab) ** 2 >= s2
+        case.check("b_derived_norm_value", within and qf(dc["relative_error_bound"]) <= qf(dc["relative_limit"]),
+                   f"{dc['result_id']}: value {dc['value']!r} (bound {dc['absolute_error_bound']!r}) does not hold sqrt({float(s2):.17g})")
+        row = case_rows.get(dc["result_id"])
+        case.check("b_derived_norm_published_row", row is not None and row["value"] == dc["value"] and row.get("unit") == unit,
+                   f"{dc['result_id']}: published row {None if row is None else (row['value'], row.get('unit'))!r} is not the check's value {dc['value']!r} {unit}")
+    for rid, node in inv["translation_norms"].items():
+        comps = [exact.get(next((f for f, (_, fn) in by_id.items() if fn["quantity"] == "nodal_translation" and fn["owner"]["id"] == node and fn["component"] == c), None)) for c in ("UX", "UY", "UZ")]
+        row = case_rows[rid]
+        if None in comps:
+            case.check("b_translation_norm", False, f"{rid}: node {node} lacks translation functionals")
+            continue
+        s2 = sum((c * c for c in comps), F(0))
+        v = qf(row["value"])
+        tol = F(1, 10 ** 9)
+        ok = (v == 0) if s2 == 0 else (v >= 0 and (v * v <= s2 * (1 + tol) ** 2) and (v * v >= s2 * (1 - tol) ** 2))
+        case.check("b_translation_norm", ok and row.get("unit") == "mm", f"{rid}: published {row['value']!r} is not |u| = sqrt({float(s2):.17g}) mm within 1e-9")
 
     # (c) stress checks and maxima ------------------------------------------------------
     member_req = {eid: (request_member(request, eid) if request else None) for eid in frames}
     nominal_checks = {}
+    stress_action = {"axial_normal_stress": "axial_force", "bending_normal_stress_y": "bending_moment_y",
+                     "bending_normal_stress_z": "bending_moment_z", "torsional_shear_stress": "torsional_moment"}
     for sc in rc.get("section_stress_checks", []):
         rid = sc["result_id"]
         basis = "reduced_section" if rid.endswith(":reduced-section") else ("nominal_section" if rid.endswith(":nominal-section") else None)
@@ -726,28 +949,32 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             ok = (within_screen(qf(par["area_m2"]), an["A"], rel) and within_screen(qf(par["section_modulus_m3"]), an["Z"], rel)
                   and within_screen(qf(par["torsion_constant_m4"]), an["J"], rel) and qf(par["torsion_radius_m"]) == an["ro"])
             case.check("c_stress_parameters_screen_basis_annulus", ok, f"{rid}: parameters are not the {basis} annulus (wall {wall!r})")
+        else:
+            case.not_judged("c_stress_parameters_screen_basis_annulus", f"{sc['pipe_id']}: section lengths do not convert to SI binary64 exactly")
         fid = sc["functional_id"]
         x = exact.get(fid)
-        if x is None or by_id[fid][0] != sc["functional_index"]:
-            case.check("c_stress_functional", False, f"{rid}: functional {fid}/{sc['functional_index']} not in the plan")
+        comp = sc["component"]
+        if comp not in stress_action:
+            case.check("c_stress_component", False, f"{rid}: unknown component {comp}")
             continue
+        if x is None or not bound_functionals(rid, [fid], [sc["functional_index"]],
+                                              [("member_station_action", sc["pipe_id"], sc["location"], stress_action[comp])]):
+            case.check("c_stress_bound_to_its_action", False, f"{rid}: functional {fid}/{sc['functional_index']} is not the {stress_action[comp]} station action of {sc['pipe_id']} at {sc['location']}")
+            continue
+        case.check("c_stress_bound_to_its_action", True)
         contains("c_stress_action_contains_exact", sc["action"]["interval"], x, rid, sc["action"]["value"])
         a = qf(sc["action"]["value"])
-        comp = sc["component"]
         if comp == "axial_normal_stress":
             pa, ops = a / qf(par["area_m2"]), 2
             nat = (sc["action"]["value"] / par["area_m2"]) / par["pa_per_mpa"]
         elif comp in ("bending_normal_stress_y", "bending_normal_stress_z"):
             pa, ops = a / qf(par["section_modulus_m3"]), 2
             nat = (sc["action"]["value"] / par["section_modulus_m3"]) / par["pa_per_mpa"]
-        elif comp == "torsional_shear_stress":
+        else:
             pa, ops = a * qf(par["torsion_radius_m"]) / qf(par["torsion_constant_m4"]), 3
             nat = (sc["action"]["value"] * par["torsion_radius_m"] / par["torsion_constant_m4"]) / par["pa_per_mpa"]
-        else:
-            case.check("c_stress_component", False, f"{rid}: unknown component {comp}")
-            continue
         sigma = pa / qf(par["pa_per_mpa"])
-        row = results.get(rid)
+        row = case_rows.get(rid)
         if row is None:
             case.check("c_stress_row_published", False, f"{rid}: no published row")
         else:
@@ -776,22 +1003,33 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
                 distinct = frames[sc["pipe_id"]]["frame"].get("reduced_recovery_section") is not None
                 case.check("c_stress_bases_distinct_iff_reduced_section", (nom["parameters"] != sc["parameters"]) == distinct,
                            f"{rid}: parameters {'equal' if not distinct else 'differ'} unexpectedly")
-                if mr and None not in (mr["cm"], mr["ca"]):
+                if mr and None not in (mr["t"], mr["cm"], mr["ca"]):
                     nonzero = mr["cm"] != 0 or mr["ca"] != 0
                     walls_differ = ((mr["t"] - mr["cm"]) - mr["ca"]) != mr["t"]
                     case.check("c_reduced_section_present_iff_allowance", distinct == walls_differ,
                                f"{sc['pipe_id']}: reduced_recovery_section present={distinct} but allowance nonzero={nonzero}")
-    for mx in (ev or {}).get("pipe_stress_extrema", []):
-        if mx.get("basis") != "retained_source_endpoint_normal_max_v1":
-            continue
+                else:
+                    case.not_judged("c_reduced_section_present_iff_allowance", f"{sc['pipe_id']}: wall or allowances do not convert to SI binary64 exactly")
+    for mx in ev_extrema:
         fr = frames.get(mx["pipe_id"])
+        if fr is None:
+            case.check("c_maximum_pipe", False, f"{mx['result_id']}: pipe {mx['pipe_id']} is not a declared frame")
+            continue
         leaves = basis_leaves(fr["frame"], mx["section_basis"])
         case.check("c_maximum_parameters_are_basis_leaves", f2b(mx["area_m2"]) == leaves["area"] and f2b(mx["section_modulus_m3"]) == leaves["section_modulus"],
                    f"{mx['result_id']}: A/Z are not the payload's {mx['section_basis']} leaves")
         A_, Z_ = qf(mx["area_m2"]), qf(mx["section_modulus_m3"])
         lo, hi = qf(mx["value_lower_pa"]), qf(mx["value_upper_pa"])
         lower_ok, upper_ok = False, True
+        fractions = sorted(ep["station_fraction"] for ep in mx["endpoints"])
+        case.check("b_evidence_list_lengths", fractions == [0, 1], f"{mx['result_id']}: endpoints are not the two ends")
         for ep in mx["endpoints"]:
+            loc = {0: "end_i", 1: "end_j"}.get(ep["station_fraction"])
+            if not bound_functionals(f"{mx['result_id']} endpoint {ep['station_fraction']}", ep["functional_ids"], ep["functional_indices"],
+                                     [("member_station_action", mx["pipe_id"], loc, c) for c in ("axial_force", "bending_moment_y", "bending_moment_z")]) \
+                    or len(ep["actions"]) != 3:
+                upper_ok = False
+                continue
             N, My, Mz = (exact[fid] for fid in ep["functional_ids"])
             for fid, act in zip(ep["functional_ids"], ep["actions"]):
                 contains("c_maximum_action_contains_exact", act["interval"], exact[fid], f"{mx['result_id']} {fid}", act["value"])
@@ -809,15 +1047,16 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             case.check("c_maximum_endpoint_contains_exact", ok, f"{mx['result_id']} endpoint {ep['station_fraction']}: interval_pa does not contain the exact endpoint value")
         case.check("c_maximum_contains_exact", lower_ok and upper_ok and lo <= qf(mx["value_pa"]) <= hi,
                    f"{mx['result_id']}: [{mx['value_lower_pa']!r}, {mx['value_upper_pa']!r}] does not contain the exact maximum")
-        row = results.get(mx["result_id"])
-        if row is not None:
-            if row.get("unit") == "Pa":
-                ok = row["value"] == mx["value_pa"]
-            elif row.get("unit") == "MPa":
-                ok = abs(qf(row["value"]) * 10 ** 6 - qf(mx["value_pa"])) <= rho(1) * qf(mx["value_pa"])
-            else:
-                ok = False
-            case.check("c_maximum_row", ok, f"{mx['result_id']}: published row {row['value']!r} {row.get('unit')} is not value_pa {mx['value_pa']!r}")
+        row = case_rows.get(mx["result_id"])
+        if row is None:
+            ok = False
+        elif row.get("unit") == "Pa":
+            ok = row["value"] == mx["value_pa"]
+        elif row.get("unit") == "MPa":
+            ok = abs(qf(row["value"]) * 10 ** 6 - qf(mx["value_pa"])) <= rho(1) * qf(mx["value_pa"])
+        else:
+            ok = False
+        case.check("c_maximum_row", ok, f"{mx['result_id']}: published row {None if row is None else (row['value'], row.get('unit'))!r} is not value_pa {mx['value_pa']!r}")
 
     # (d) K_local against BOUND.md ------------------------------------------------------
     for eid, fr in frames.items():
@@ -861,6 +1100,8 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
             case.check("s_length_leaf_matches_coordinates", ok, f"{eid}: length leaf {float(Lq)!r} vs coordinates sqrt({float(d2)!r})")
         # supplementary: shear-area leaf, stiffness-section screen, eigenload area
         mr = member_req.get(eid)
+        if not (mr and None not in (mr["D"], mr["t"])):
+            case.not_judged("s_stiffness_section_is_nominal_annulus", f"{eid}: D or t does not convert to SI binary64 exactly")
         if mr and None not in (mr["D"], mr["t"]):
             an = annulus(F(mr["D"]), F(mr["t"]))
             rel = F(2) ** bound["supplementary"]["section_leaf_screen_log2_relative"]
@@ -887,51 +1128,108 @@ def judge_record(case, record, rc, ev, results, request, bound, theory, allowanc
                 continue
             m = next((m for m in ns["load_reference_state"]["members"] if m.get("pipe_id") == eid), None)
             if m is None:
+                case.check("s_eigenload_member", False, f"{eid}: eigenload without its member record")
                 continue
             P = b2q(el["axial_load_bits"])
             exact_P = b2q(m["E_bits"]) * inputs["A"] * b2q(el["eigenstrain_bits"])
             case.check("s_eigenload_on_nominal_area", abs(P - exact_P) <= rho(2) * abs(exact_P),
                        f"{eid}: eigenload {float(P)!r} is not E*A_nominal*eps = {float(exact_P)!r} within rho_2")
+            # repair round 1, item 4: the global terms are the declared member axis's components of the local
+            # pair (-P at end i, +P at end j): T^T f_local, each component one rounded product P*T[0][k]
+            f_local = [F(0)] * 12
+            f_local[0], f_local[6] = -P, P
+            want = {}
+            for j in range(12):
+                v = sum((fr["T"][i][j] * f_local[i] for i in range(12) if fr["T"][i][j] != 0), F(0))
+                want[fr["scatter"][j]] = want.get(fr["scatter"][j], F(0)) + v
             terms = eig.get(eid, {})
-            fr_sc = fr["scatter"]
-            case.check("s_eigenload_terms", terms.get(fr_sc[0]) == -P and terms.get(fr_sc[6]) == P,
-                       f"{eid}: eigenload force terms are not (-P at end i axial, +P at end j axial)")
+            bad = [d for d in set(want) | set(terms)
+                   if not (abs(terms.get(d, F(0)) - want.get(d, F(0))) <= rho(1) * abs(want.get(d, F(0))))]
+            case.check("s_eigenload_terms", not bad,
+                       f"{eid}: eigenload force terms on DOFs {sorted(bad)} are not T^T(-P, +P) of the declared member axis")
 
 
 # ----------------------------------------------------------------------------- runs
 
-def run_index(index_path, runs_dir, bound, out_path=None):
-    with open(index_path, encoding="utf-8") as fh:
-        index = json.load(fh)
+NO_RECEIPT = "envelope carries no source_block_recovery receipt"
+
+
+def load_required(path, name):
+    """The committed required-selection list: (document, mode, load case) triples that must select and pass."""
+    with open(path, encoding="utf-8") as fh:
+        doc = json.load(fh)
+    if doc.get("schema") != "o4_declared_problem_required_selection_v1" or name not in doc.get("sets", {}):
+        raise SystemExit(f"oracle: {path} has no required-selection set {name!r}")
+    return [tuple(x) for x in doc["sets"][name]]
+
+
+def judge_batch(index, load, bound, required, echo=True):
+    """Judge every (entry, mode). `load(entry, mode)` returns (dump, envelope, request) or raises OSError.
+
+    The batch fails (repair round 1, item 6) when it is vacuous (no entries or no judged case), when any
+    required (document, mode, case) triple did not select and pass, on any FAIL case, and on any error other
+    than a recorded non-selection (an envelope with no receipt). Errors accumulate (item 7)."""
     reports = []
     for entry in index:
+        for mode in ("sparse_interactive", "dense_scrutiny"):
+            rep = {"twin": entry["twin"], "family": entry["family"], "name": entry["name"], "variant": entry["variant"],
+                   "theory": entry["theory"], "mode": mode, "cases": [], "unselected": [], "errors": []}
+            try:
+                dump, env, request = load(entry, mode)
+            except (OSError, ValueError) as exc:
+                rep["errors"].append(f"missing or unreadable dump or envelope: {exc}")
+                reports.append(rep)
+                continue
+            errors = []
+            if dump.get("solver_mode") != mode:
+                errors.append(f"dump solver_mode {dump.get('solver_mode')} != {mode}")
+            result = judge(dump, env, request, bound, entry["theory"], entry["variant"])
+            rep.update(result)
+            rep["errors"] = errors + result["errors"]
+            reports.append(rep)
+            if echo:
+                print(f"{entry['twin']:58s} {mode:18s} cases={[c['verdict'] for c in rep['cases']]} "
+                      f"unselected={[u['case_id'] for u in rep['unselected']]} errors={rep['errors']}", flush=True)
+    summary = summarize(reports)
+    batch = []
+    if not index:
+        batch.append("vacuous: the index has no entries")
+    if summary["cases"] == 0:
+        batch.append("vacuous: no case was judged")
+    if not required:
+        batch.append("vacuous: the required-selection list is empty")
+    passed = {(rep["twin"], rep["mode"], c["case_id"]) for rep in reports for c in rep["cases"] if c["verdict"] == "PASS"}
+    missing = [r for r in required if tuple(r) not in passed]
+    if missing:
+        batch.append(f"{len(missing)} required (document, mode, case) did not select and pass: {missing[:5]}")
+    hard = [f for f in summary["failures"] if f.get("errors") != [NO_RECEIPT]]
+    if hard:
+        batch.append(f"{len(hard)} failing cases or errors")
+    summary["not_selected_runs"] = sum(1 for f in summary["failures"] if f.get("errors") == [NO_RECEIPT])
+    summary["required"] = {"count": len(required), "missing": len(missing)}
+    summary["batch_failures"] = batch
+    summary["verdict"] = "FAIL" if batch else "PASS"
+    return reports, summary
+
+
+def run_index(index_path, runs_dir, bound, out_path=None, required=()):
+    with open(index_path, encoding="utf-8") as fh:
+        index = json.load(fh)
+
+    def load(entry, mode):
         stem = entry["twin"].replace("|", "+")
         with open(entry["request"], encoding="utf-8") as fh:
             request = json.load(fh)
-        for mode in ("sparse_interactive", "dense_scrutiny"):
-            dpath = os.path.join(runs_dir, f"{stem}+{mode}.dump.json")
-            epath = os.path.join(runs_dir, f"{stem}+{mode}.envelope.json")
-            rep = {"twin": entry["twin"], "family": entry["family"], "name": entry["name"], "variant": entry["variant"],
-                   "theory": entry["theory"], "mode": mode}
-            if not (os.path.exists(dpath) and os.path.exists(epath)):
-                rep["errors"] = ["missing dump or envelope"]
-                reports.append(rep)
-                continue
-            with open(dpath, encoding="utf-8") as fh:
-                dump = json.load(fh)
-            with open(epath, encoding="utf-8") as fh:
-                env = json.load(fh)
-            if dump.get("solver_mode") != mode:
-                rep.setdefault("errors", []).append(f"dump solver_mode {dump.get('solver_mode')} != {mode}")
-            rep.update(judge(dump, env, request, bound, entry["theory"], entry["variant"]))
-            reports.append(rep)
-            verdicts = [c["verdict"] for c in rep["cases"]]
-            print(f"{entry['twin']:58s} {mode:18s} cases={verdicts} unselected={[u['case_id'] for u in rep['unselected']]} errors={rep['errors']}", flush=True)
-    summary = summarize(reports)
+        with open(os.path.join(runs_dir, f"{stem}+{mode}.dump.json"), encoding="utf-8") as fh:
+            dump = json.load(fh)
+        with open(os.path.join(runs_dir, f"{stem}+{mode}.envelope.json"), encoding="utf-8") as fh:
+            env = json.load(fh)
+        return dump, env, request
+    reports, summary = judge_batch(index, load, bound, list(required))
     if out_path:
         with open(out_path, "w", encoding="utf-8") as fh:
             json.dump({"summary": summary, "reports": reports}, fh, ensure_ascii=False, indent=1, default=str)
-    print(json.dumps(summary, ensure_ascii=False, indent=1, default=str))
+    print(json.dumps({k: v for k, v in summary.items() if k != "failures"}, ensure_ascii=False, indent=1, default=str))
     return summary
 
 
@@ -946,17 +1244,27 @@ def run_controls(index_path, runs_dir, bound):
        twin's envelope must fail (the reduced stress section and the hashes differ).
     """
     with open(index_path, encoding="utf-8") as fh:
-        index = {e["twin"]: e for e in json.load(fh)}
-    counts = {"cross_theory": [0, 0], "eb_reference_on_timo_k": [0, 0], "cross_allowance": [0, 0]}
-    failures = {"cross_theory": set(), "cross_allowance": set()}
+        index = json.load(fh)
 
     def load(twin, mode, kind):
         with open(os.path.join(runs_dir, f"{twin.replace('|', '+')}+{mode}.{kind}.json"), encoding="utf-8") as fh:
             return json.load(fh)
+
+    def load_request(entry):
+        with open(entry["request"], encoding="utf-8") as fh:
+            return json.load(fh)
+    out = control_batch(index, load, load_request, bound)
+    print(json.dumps({"controls": out}, indent=1))
+    return out
+
+
+def control_batch(index_list, load, load_request, bound):
+    index = {e["twin"]: e for e in index_list}
+    counts = {"cross_theory": [0, 0], "eb_reference_on_timo_k": [0, 0], "cross_allowance": [0, 0]}
+    failures = {"cross_theory": set(), "cross_allowance": set()}
     for twin, entry in index.items():
         fam, variant, theory = twin.split("|")
-        with open(entry["request"], encoding="utf-8") as fh:
-            request = json.load(fh)
+        request = load_request(entry)
         for mode in ("sparse_interactive", "dense_scrutiny"):
             dump = load(twin, mode, "dump")
             if theory == "timo":
@@ -981,8 +1289,9 @@ def run_controls(index_path, runs_dir, bound):
                 counts["cross_allowance"][0 if failed else 1] += 1
                 failures["cross_allowance"].update(k for c in rep["cases"] for k, v in c["checks"].items() if v["failed"])
     out = {k: {"failed_as_required": v[0], "passed_wrongly": v[1]} for k, v in counts.items()}
+    # repair round 1, item 6: a control set with nothing to control is a failure, not a pass
+    out["vacuous"] = [k for k, v in counts.items() if v[0] + v[1] == 0]
     out["checks_that_failed"] = {k: sorted(v) for k, v in failures.items()}
-    print(json.dumps({"controls": out}, indent=1))
     return out
 
 
@@ -1018,19 +1327,20 @@ def summarize(reports):
 
 # ----------------------------------------------------------------------------- self-test
 
-def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None):
-    """A hand-made, internally consistent dump, envelope and request (one cantilever along x)."""
+def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None, rotate=False, eig_on_x=False, mm=False):
+    """A hand-made, internally consistent dump, envelope and request in the product's shapes.
+
+    One member root -> tip (along global x, or along global y with `rotate`), an anchor at the root on
+    UX, UY, UZ, RY, RZ (UY prescribed to 1 mm), a soft RX spring support at the root, six nodal loads at the
+    tip and an axial eigenload P. The receipt is complete: every published functional has its projection,
+    every published row its receipt row and evidence. `eig_on_x` declares the eigenload terms on global X
+    whatever the member axis (consistently through the receipt), `mm` authors the request's section in mm."""
     D, t = 0.2, 0.01
     cm = 0.00125 if allowance in ("mill", "both") else 0.0
     ca = 0.0015 if allowance in ("ca", "both") else 0.0
-    nu, E = 0.25, 2.0e11
-    G = 8.0e10
-    L = 2.0
+    nu, E, G, L = 0.25, 2.0e11, 8.0e10, 2.0
     an = annulus(F(D), F(t))
-    A = rn((an["A"][0] + an["A"][1]) / 2)
-    I = rn((an["I"][0] + an["I"][1]) / 2)
-    J = rn((an["J"][0] + an["J"][1]) / 2)
-    Z = rn((an["Z"][0] + an["Z"][1]) / 2)
+    A, I, J, Z = (rn((an[k][0] + an[k][1]) / 2) for k in ("A", "I", "J", "Z"))
     tr = (t - cm) - ca
     ar = annulus(F(D), F(tr))
     Ar, Ir, Jr, Zr = (rn((ar[k][0] + ar[k][1]) / 2) for k in ("A", "I", "J", "Z"))
@@ -1039,184 +1349,266 @@ def synth(theory="timo", allowance="both", kl_hook=None, as_hook=None):
         As = as_hook(As, A)
     bound = load_bound()
     inputs = {"E": F(E), "G": F(G), "A": F(A), "Iy": F(I), "Iz": F(I), "J": F(J), "L": F(L), "As": F(As) if As else None}
-    Kx, role, _, _ = reference_matrix(bound, inputs, theory)
+    Kx, _, _, _ = reference_matrix(bound, inputs, theory)
     Kl = [[rn(x) for x in row] for row in Kx]
     if kl_hook:
         kl_hook(Kl, inputs, bound)
-    ident = [[1.0 if i == j else 0.0 for j in range(12)] for i in range(12)]
+    R = [[0.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, 1.0]] if rotate else [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    T = [[R[i % 3][j % 3] if i // 3 == j // 3 else 0.0 for j in range(12)] for i in range(12)]
+    tip = [0.0, L, 0.0] if rotate else [L, 0.0, 0.0]
     nodes = ["root", "tip"]
     dof_map = [{"node_id": nodes[i // 6], "component": COMPONENTS6[i % 6], "displacement_unit": "m", "action_unit": "N"} for i in range(12)]
     k_spring = 1.0e-4
     loads = {6: 0.001, 7: 0.002, 8: -0.003, 9: 1e-8, 10: -0.0005, 11: 0.0006}
     P = 1000.0
+    f_local = [0.0] * 12
+    f_local[0], f_local[6] = -P, P
+    if eig_on_x:
+        eig_g = {0: -P, 6: P}
+    else:
+        eig_g = {}
+        for j in range(12):
+            v = sum(T[i][j] * f_local[i] for i in range(12))
+            if v != 0:
+                eig_g[j] = v
+    anchor = {0: 0.0, 1: 0.001, 2: 0.0, 4: 0.0, 5: 0.0}
     force_terms = [{"dof": d, "owner": {"id": f"load{d}", "kind": "load"}, "value_bits": f2b(v)} for d, v in loads.items()]
-    force_terms += [{"dof": 0, "owner": {"id": "member", "kind": "member_eigenstrain"}, "value_bits": f2b(-P)},
-                    {"dof": 6, "owner": {"id": "member", "kind": "member_eigenstrain"}, "value_bits": f2b(P)}]
-    prescribed = [{"dof": d, "support_id": "anchor", "value_bits": f2b(v)} for d, v in ((0, 0.0), (1, 0.001), (2, 0.0), (4, 0.0), (5, 0.0))]
-    stiffness_terms = [{"row": i, "col": j, "owner": {"id": "member", "kind": "frame"}, "value_bits": f2b(Kl[i][j])}
-                       for i in range(12) for j in range(12)]
+    force_terms += [{"dof": d, "owner": {"id": "member", "kind": "member_eigenstrain"}, "value_bits": f2b(v)} for d, v in sorted(eig_g.items())]
+    Gq = matmul(transpose([[F(x) for x in r] for r in T]), matmul([[F(x) for x in r] for r in Kl], [[F(x) for x in r] for r in T]))
+    stiffness_terms = [{"row": i, "col": j, "owner": {"id": "member", "kind": "frame"}, "value_bits": f2b(float(Gq[i][j]))}
+                       for i in range(12) for j in range(12) if Gq[i][j] != 0]
     stiffness_terms.append({"row": 3, "col": 3, "owner": {"id": "spring", "kind": "spring"}, "value_bits": f2b(k_spring)})
-    fi = {"area_bits": f2b(A), "coordinates_bits": [[f2b(0.0)] * 3, [f2b(L), f2b(0.0), f2b(0.0)]], "iy_bits": f2b(I), "iz_bits": f2b(I),
+    fi = {"area_bits": f2b(A), "coordinates_bits": [[f2b(0.0)] * 3, [f2b(x) for x in tip]], "iy_bits": f2b(I), "iz_bits": f2b(I),
           "length_bits": f2b(L), "shear_modulus_bits": f2b(G), "torsion_constant_bits": f2b(J), "young_modulus_bits": f2b(E)}
     if As is not None:
         fi["shear_area_bits"] = f2b(As)
     frame = {"element_id": "member", "formation_inputs": fi, "local_matrix_bits": [[f2b(x) for x in r] for r in Kl],
-             "transform_bits": [[f2b(x) for x in r] for r in ident], "global_matrix_bits": [[f2b(x) for x in r] for r in Kl],
+             "transform_bits": [[f2b(x) for x in r] for r in T], "global_matrix_bits": [[f2b(float(x)) for x in r] for r in Gq],
              "node_i_id": "root", "node_j_id": "tip", "scatter": list(range(12)),
              "recovery_section": {"section_modulus_bits": f2b(Z), "torsion_radius_bits": f2b(D / 2)}}
     if tr != t:
         frame["reduced_recovery_section"] = {"area_bits": f2b(Ar), "section_modulus_bits": f2b(Zr), "torsion_constant_bits": f2b(Jr), "torsion_radius_bits": f2b(D / 2)}
+    eps = rn(F(P) / (F(E) * F(A)))
     ns = {"case_id": "case", "dof_map": dof_map, "force_terms": force_terms, "frames": [frame], "free_dofs": [3, 6, 7, 8, 9, 10, 11],
-          "prescribed": prescribed, "springs": [{"dof": 3, "ground_movement_bits": f2b(0.0), "node_id": "root", "spring_id": "spring",
-                                                 "stiffness_bits": f2b(k_spring), "support_id": "spring"}],
+          "prescribed": [{"dof": d, "support_id": "anchor", "value_bits": f2b(v)} for d, v in anchor.items()],
+          "springs": [{"dof": 3, "ground_movement_bits": f2b(0.0), "node_id": "root", "spring_id": "spring",
+                       "stiffness_bits": f2b(k_spring), "support_id": "spring"}],
           "stiffness_terms": stiffness_terms,
-          "load_reference_state": {"eigen_loads": [{"axial_load_bits": f2b(P), "eigenstrain_bits": f2b(rn(F(P) / (F(E) * F(A)))), "pipe_id": "member"}],
+          "load_reference_state": {"eigen_loads": [{"axial_load_bits": f2b(rn(F(E) * F(A) * F(eps))), "eigenstrain_bits": f2b(eps), "pipe_id": "member"}],
                                    "members": [{"pipe_id": "member", "E_bits": f2b(E), "nu_bits": f2b(nu)}]}}
-    # the plan: end actions, station actions, nodal components, support components (identity T)
+    # the eigenload record's P is E*A*eps rounded; the declared force terms carry the same P
+    P_rec = rn(F(E) * F(A) * F(eps))
+    if P_rec != P:
+        scale = P_rec / P
+        for ft in ns["force_terms"]:
+            if ft["owner"]["kind"] == "member_eigenstrain":
+                ft["value_bits"] = f2b(b2f(ft["value_bits"]) * scale)
+        eig_g = {d: v * scale for d, v in eig_g.items()}
+        P = P_rec
+    off_local = [-sum(T[i][j] * eig_g.get(j, 0.0) for j in range(12)) for i in range(12)]  # -(T feq_g), exact here
+
     functions = []
 
-    def fac(bits, path):
-        return {"bits": bits, "kind": "source", "source_path": path}
+    def kfac(r, p):
+        return {"bits": f2b(Kl[r][p]), "kind": "source", "source_path": f"/frames/0/local_matrix_bits/{r}/{p}"}
 
-    def add(fn):
+    def tfac(p, j):
+        return {"bits": f2b(T[p][j]), "kind": "source", "source_path": f"/frames/0/transform_bits/{p}/{j}"}
+
+    def const(x):
+        return {"bits": f2b(x), "kind": "method_constant"}
+
+    def row_terms(r, mult):
+        """Terms of local end-action row r (K_local T u), each product times the constant factors `mult`."""
+        out = []
+        for j in range(12):
+            cts = [{"factors": [kfac(r, p), tfac(p, j)] + [const(m) for m in mult]}
+                   for p in range(12) if Kl[r][p] != 0 and T[p][j] != 0]
+            if cts:
+                out.append({"dof": j, "coefficient_terms": cts})
+        return out, ([{"factors": [const(off_local[r])] + [const(m) for m in mult]}] if off_local[r] != 0 else [])
+
+    def add(fn, published):
         fn.setdefault("offset_terms", [])
-        fn.setdefault("final_unit_factor", {"bits": f2b(1.0), "kind": "method_constant"})
+        fn.setdefault("final_unit_factor", const(1.0))
         fn["functional_id"] = f"source-functional:case:{len(functions)}"
+        fn["result_ids"] = [published] if published else []
         functions.append(fn)
         return fn["functional_id"]
-    names = ["axial_force", "shear_force_y", "shear_force_z", "torsional_moment", "bending_moment_y", "bending_moment_z"]
-    feq_off = {0: P, 6: -P}  # -feq_local
+    names = list(ACTION_INDEX)
+    end_ids = {}
     for end, base in (("end_i", 0), ("end_j", 6)):
         for k, nm in enumerate(names):
-            r = base + k
-            terms = [{"dof": p, "coefficient_terms": [{"factors": [fac(f2b(Kl[r][p]), f"/frames/0/local_matrix_bits/{r}/{p}")]}]}
-                     for p in range(12) if Kl[r][p] != 0]
-            offs = [{"factors": [{"bits": f2b(feq_off[r]), "kind": "method_constant"}]}] if r in feq_off else []
-            add({"quantity": "member_end_action", "component": nm, "location": end, "unit": "N" if k < 3 else "N*m",
-                 "owner": {"id": "member", "kind": "frame"}, "displacement_terms": terms, "offset_terms": offs,
-                 "sign_convention": "node_on_element_local_end", "coordinate_system": "element_local", "result_ids": [f"result:force:{end}:{nm}"]})
+            terms, offs = row_terms(base + k, [])
+            end_ids[(end, nm)] = add({"quantity": "member_end_action", "component": nm, "location": end, "unit": "N" if k < 3 else "N*m",
+                                      "owner": {"id": "member", "kind": "frame"}, "displacement_terms": terms, "offset_terms": offs,
+                                      "sign_convention": "node_on_element_local_end", "coordinate_system": "element_local"},
+                                     f"result:force:member:{end}:{nm}")
     station_ids = {}
     for loc, s in STATION_FRACTION.items():
         for k, nm in enumerate(names):
-            rows = {0: [(0, [])], 1: [(1, [])], 2: [(2, [])], 3: [(3, [])], 4: [(4, []), (2, ["x"])], 5: [(5, []), (1, ["mx"])]}[k]
+            parts = {0: [(0, [-1.0])], 1: [(1, [-1.0])], 2: [(2, [-1.0])], 3: [(3, [-1.0])],
+                     4: [(4, [-1.0]), (2, [-1.0, float(s), L])], 5: [(5, [-1.0]), (1, [float(s), L])]}[k]
             terms, offs = [], []
-            for r, extra in rows:
-                for p in range(12):
-                    if Kl[r][p] == 0:
-                        continue
-                    f_ = [fac(f2b(Kl[r][p]), f"/frames/0/local_matrix_bits/{r}/{p}"), {"bits": f2b(-1.0), "kind": "method_constant"}]
-                    if extra:
-                        f_ += [{"bits": f2b(float(s)), "kind": "method_constant"}, {"bits": f2b(L), "kind": "method_constant"}]
-                        if extra == ["mx"]:
-                            f_[1] = {"bits": f2b(1.0), "kind": "method_constant"}
-                    terms.append({"dof": p, "coefficient_terms": [{"factors": f_}]})
-                if r in feq_off:
-                    sgn = -1.0 if not extra else (-1.0 if extra == ["x"] else 1.0)
-                    o = [{"bits": f2b(feq_off[r]), "kind": "method_constant"}, {"bits": f2b(sgn), "kind": "method_constant"}]
-                    if extra:
-                        o += [{"bits": f2b(float(s)), "kind": "method_constant"}, {"bits": f2b(L), "kind": "method_constant"}]
-                    offs.append({"factors": o})
+            for r, mult in parts:
+                t_, o_ = row_terms(r, mult)
+                terms += t_
+                offs += o_
             station_ids[(loc, nm)] = add({"quantity": "member_station_action", "component": nm, "location": loc, "unit": "N" if k < 3 else "N*m",
                                          "owner": {"id": "member", "kind": "frame"}, "displacement_terms": terms, "offset_terms": offs,
-                                         "sign_convention": "j_side_section_local", "coordinate_system": "element_local", "result_ids": []})
+                                         "sign_convention": "j_side_section_local", "coordinate_system": "element_local"},
+                                        f"result:force:member:{loc}:{nm}" if loc in INTERIOR else None)
+    nodal_ids = {}
     for node_index, node in enumerate(nodes):
         for k, comp in enumerate(COMPONENTS6):
             d = node_index * 6 + k
-            add({"quantity": "nodal_translation" if k < 3 else "nodal_rotation", "component": comp, "location": "node",
-                 "unit": "mm" if k < 3 else "rad", "owner": {"id": node, "kind": "node"},
-                 "displacement_terms": [{"dof": d, "coefficient_terms": [{"factors": [{"bits": f2b(1000.0 if k < 3 else 1.0), "kind": "method_constant"}]}]}],
-                 "sign_convention": "declared_global_nodal_component", "coordinate_system": "global", "result_ids": [f"result:disp:{node}:{comp}"]})
+            nodal_ids[(node, comp)] = add({"quantity": "nodal_translation" if k < 3 else "nodal_rotation", "component": comp, "location": "node",
+                                          "unit": "mm" if k < 3 else "rad", "owner": {"id": node, "kind": "node"},
+                                          "displacement_terms": [{"dof": d, "coefficient_terms": [{"factors": [const(1000.0 if k < 3 else 1.0)]}]}],
+                                          "sign_convention": "declared_global_nodal_component", "coordinate_system": "global"},
+                                         f"result:disp:{node}:{comp.lower()}")
+    f_glob = {d: v for d, v in loads.items()}
+    for d, v in eig_g.items():
+        f_glob[d] = f_glob.get(d, 0.0) + v
     sup_ids = {}
     for comp, cname in SUPPORT_COMPONENTS.items():
         d = COMPONENTS6.index(cname)
-        if d in (0, 1, 2, 4, 5):
-            terms = [{"dof": p, "coefficient_terms": [{"factors": [fac(f2b(Kl[d][p]), f"/frames/0/local_matrix_bits/{d}/{p}")]}]} for p in range(12) if Kl[d][p] != 0]
-            offs = [{"factors": [{"bits": f2b(P), "kind": "method_constant"}]}] if d == 0 else []
-        else:
-            terms, offs = [], []
-        sup_ids[comp] = add({"quantity": "support_action_component", "component": comp, "location": "node", "unit": "N" if comp[0] == "F" else "N*m",
-                             "owner": {"id": "anchor", "kind": "support"}, "displacement_terms": terms, "offset_terms": offs,
-                             "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node", "coordinate_system": "global", "result_ids": []})
+        terms, offs = [], []
+        if d in anchor:
+            for j in range(12):
+                cts = [{"factors": [tfac(kk, d), kfac(kk, ll), tfac(ll, j)]}
+                       for kk in range(12) for ll in range(12) if T[kk][d] != 0 and Kl[kk][ll] != 0 and T[ll][j] != 0]
+                if cts:
+                    terms.append({"dof": j, "coefficient_terms": cts})
+            if f_glob.get(d, 0.0) != 0:
+                offs = [{"factors": [const(-f_glob[d])]}]
+        sup_ids[("anchor", comp)] = add({"quantity": "support_action_component", "component": comp, "location": "node",
+                                         "unit": "N" if comp[0] == "F" else "N*m", "owner": {"id": "anchor", "kind": "support"},
+                                         "displacement_terms": terms, "offset_terms": offs, "coordinate_system": "global",
+                                         "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"},
+                                        f"result:support:anchor:{comp}")
+    for comp in SUPPORT_COMPONENTS:
+        terms = [{"dof": 3, "coefficient_terms": [{"factors": [const(-k_spring)]}]}] if comp == "Mx" else []
+        sup_ids[("spring", comp)] = add({"quantity": "support_action_component", "component": comp, "location": "node",
+                                         "unit": "N" if comp[0] == "F" else "N*m", "owner": {"id": "spring", "kind": "support"},
+                                         "displacement_terms": terms, "coordinate_system": "global",
+                                         "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"},
+                                        f"result:support:spring:{comp}")
     add({"quantity": "support_action_component", "component": "Mx", "location": "node", "unit": "N*m", "owner": {"id": "spring", "kind": "spring"},
-              "displacement_terms": [{"dof": 3, "coefficient_terms": [{"factors": [{"bits": f2b(-k_spring), "kind": "method_constant"}]}]}],
-              "sign_convention": "spring_on_structure", "coordinate_system": "global", "result_ids": []})
+         "displacement_terms": [{"dof": 3, "coefficient_terms": [{"factors": [const(-k_spring)]}]}],
+         "sign_convention": "spring_on_structure", "coordinate_system": "global"}, None)
+
     ns_text = json.dumps({"domain": "source_blocks_normalized_source_v1", "payload": ns}, sort_keys=True, separators=(",", ":"))
     ns_hash = hashlib.sha256(ns_text.encode()).hexdigest()
     fp = {"functions": functions, "normalized_source_sha256": ns_hash, "derived_recipes": []}
     fp_text = json.dumps({"domain": "source_blocks_functional_plan_v1", "payload": fp}, sort_keys=True, separators=(",", ":"))
     fp_hash = hashlib.sha256(fp_text.encode()).hexdigest()
-    # exact values through the oracle's own solver, for the receipt
     rec = {"case_id": "case", "normalized_source_sha256": ns_hash, "functional_plan_sha256": fp_hash,
            "normalized_source_text": ns_text, "functional_plan_text": fp_text}
     dump = {"artifact": "o4-source-declared-problem-dump", "schema_version": "1.0.0", "solver_mode": "sparse_interactive",
             "publication_sha256": "ab" * 32, "records": [rec]}
     exact = exact_values(ns, fp)
-    projections, results = [], []
-    for fn in functions:
-        x = exact[fn["functional_id"]]
-        v = rn(x)
-        iv = [rd(x), ru(x)]
-        basis = "exact_zero" if x == 0 else ("exact_identity" if F(v) == x else "outward_interval")
-        projections.append({"projection_id": "projection:" + fn["functional_id"], "functional_id": fn["functional_id"],
-                            "result_id": (fn["result_ids"] or ["result:" + fn["functional_id"]])[0], "quantity": fn["quantity"],
-                            "value": v, "value_bits": f2b(v), "unit": fn["unit"], "interval": iv,
-                            "absolute_error_bound": ru(abs(F(v) - x)), "relative_error_bound": 0.0, "relative_limit": 1e-9, "basis": basis})
-        results.append({"id": projections[-1]["result_id"], "value": v, "unit": fn["unit"]})
+    basis_ref = {"ref_type": "load_case", "ref_id": "case"}
+    projections, results, rows = [], [], []
+
+    def publish(rid, value, unit):
+        results.append({"id": rid, "value": value, "unit": unit, "basis_ref": basis_ref})
 
     def act(fid):
         x = exact[fid]
         return {"value": rn(x), "interval": [rd(x), ru(x)]}
+    for fn in functions:
+        if not fn["result_ids"]:
+            continue
+        x = exact[fn["functional_id"]]
+        v = rn(x)
+        err = abs(F(v) - x)
+        basis = "exact_zero" if x == 0 else ("exact_identity" if err == 0 else "outward_interval")
+        pid = "projection:" + fn["functional_id"]
+        projections.append({"projection_id": pid, "functional_id": fn["functional_id"], "result_id": fn["result_ids"][0],
+                            "quantity": fn["quantity"], "value": v, "value_bits": f2b(v), "unit": fn["unit"], "interval": [rd(x), ru(x)],
+                            "absolute_error_bound": ru(err), "relative_error_bound": ru(err / abs(x)) if x else 0.0,
+                            "relative_limit": 1e-9, "basis": basis})
+        publish(fn["result_ids"][0], v, fn["unit"])
+        rows.append({"result_id": fn["result_ids"][0], "treatment": "qualified_projection", "projection_id": pid,
+                     "recipe_id": None, "input_result_ids": []})
     checks = []
     comp_map = [("axial_normal_stress", "axial_force", "axial-normal"), ("bending_normal_stress_y", "bending_moment_y", "bending-normal-y"),
                 ("bending_normal_stress_z", "bending_moment_z", "bending-normal-z"), ("torsional_shear_stress", "torsional_moment", "torsional-shear")]
+    index_of = {fn["functional_id"]: i for i, fn in enumerate(functions)}
     for loc in STATION_FRACTION:
         for comp, nm, slug in comp_map:
             fid = station_ids[(loc, nm)]
-            idx = next(i for i, fn in enumerate(functions) if fn["functional_id"] == fid)
             a = act(fid)
             for basis, (aa, zz, jj) in (("nominal-section", (A, Z, J)), ("reduced-section", (Ar, Zr, Jr) if tr != t else (A, Z, J))):
                 par = {"area_m2": aa, "section_modulus_m3": zz, "torsion_constant_m4": jj, "torsion_radius_m": D / 2, "pa_per_mpa": 1e6}
                 rid = f"result:stress:member:{loc}:{slug}:{basis}"
                 checks.append({"result_id": rid, "recipe_id": "retained_source_straight_stress_v1", "pipe_id": "member", "location": loc,
-                               "component": comp, "functional_index": idx, "functional_id": fid, "action": a, "parameters": par})
+                               "component": comp, "functional_index": index_of[fid], "functional_id": fid, "action": a, "parameters": par})
                 v = a["value"]
                 val = (v / aa) / 1e6 if comp == "axial_normal_stress" else ((v / zz) / 1e6 if comp.startswith("bending") else (v * (D / 2) / jj) / 1e6)
-                results.append({"id": rid, "value": val, "unit": "MPa"})
+                publish(rid, val, "MPa")
+                rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None,
+                             "recipe_id": "retained_source_straight_stress_v1", "input_result_ids": []})
     extrema = []
     for basis, (aa, zz) in (("nominal_section", (A, Z)), ("reduced_section", (Ar, Zr) if tr != t else (A, Z))):
-        eps_ = []
-        vals = []
+        eps_, vals = [], []
         for loc in ("end_i", "end_j"):
             fids = [station_ids[(loc, "axial_force")], station_ids[(loc, "bending_moment_y")], station_ids[(loc, "bending_moment_z")]]
             N, My, Mz = (exact[f_] for f_ in fids)
-            mid = abs(N) / F(aa) + sqrt_up(My * My + Mz * Mz) / F(zz)
+            hi_ = abs(N) / F(aa) + sqrt_up(My * My + Mz * Mz) / F(zz)
             lo_ = abs(N) / F(aa) + sqrt_down(My * My + Mz * Mz) / F(zz)
-            vals.append((lo_, mid))
-            eps_.append({"station_fraction": 0 if loc == "end_i" else 1, "functional_ids": fids, "functional_indices": [0, 0, 0],
-                         "actions": [act(f_) for f_ in fids], "value_pa": rn(mid), "interval_pa": [rd(lo_), ru(mid)]})
-        lo_m = max(v[0] for v in vals)
-        hi_m = max(v[1] for v in vals)
+            vals.append((lo_, hi_))
+            eps_.append({"station_fraction": 0 if loc == "end_i" else 1, "functional_ids": fids, "functional_indices": [index_of[f_] for f_ in fids],
+                         "actions": [act(f_) for f_ in fids], "value_pa": rn(hi_), "interval_pa": [rd(lo_), ru(hi_)]})
+        lo_m, hi_m = max(v[0] for v in vals), max(v[1] for v in vals)
         rid = f"result:elastic-maximum:member:{basis}"
         extrema.append({"basis": "retained_source_endpoint_normal_max_v1", "pipe_id": "member", "section_basis": basis, "result_id": rid,
                         "area_m2": aa, "section_modulus_m3": zz, "value_pa": rn(hi_m), "value_lower_pa": rd(lo_m), "value_upper_pa": ru(hi_m),
                         "endpoints": eps_, "load_case_id": "case"})
-        results.append({"id": rid, "value": rn(hi_m), "unit": "Pa"})
+        publish(rid, rn(hi_m), "Pa")
+        rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None,
+                     "recipe_id": "retained_source_endpoint_normal_max_v1", "input_result_ids": []})
     derived = []
-    fids = [sup_ids["Fx"], sup_ids["Fy"], sup_ids["Fz"]]
-    s2 = sum((exact[f_] ** 2 for f_ in fids), F(0))
-    derived.append({"result_id": "result:support:anchor:force_magnitude", "recipe_id": "support_force_norm_scaled_checked_v1", "support_id": "anchor",
-                    "functional_ids": fids, "functional_indices": [0, 0, 0], "values": [rn(exact[f_]) for f_ in fids],
-                    "intervals": [[rd(exact[f_]), ru(exact[f_])] for f_ in fids], "value": rn(sqrt_up(s2)),
-                    "interval": [rd(sqrt_down(s2)), ru(sqrt_up(s2))], "absolute_error_bound": 0.0, "relative_error_bound": 0.0, "relative_limit": 1e-9})
-    case = {"basis_ref": {"ref_type": "load_case", "ref_id": "case"}, "selected_method": "retained_source_blocks_exact_v1",
+    for sup in ("anchor", "spring"):
+        for recipe, comps, unit in (("support_force_norm_scaled_checked_v1", ("Fx", "Fy", "Fz"), "N"),
+                                    ("support_moment_norm_scaled_checked_v1", ("Mx", "My", "Mz"), "N*m")):
+            fids = [sup_ids[(sup, c)] for c in comps]
+            s2 = sum((exact[f_] ** 2 for f_ in fids), F(0))
+            lo_, hi_ = sqrt_down(s2), sqrt_up(s2)
+            v = rn(hi_)
+            rid = f"result:support:{sup}:{'force' if unit == 'N' else 'moment'}_magnitude"
+            derived.append({"result_id": rid, "recipe_id": recipe, "support_id": sup, "functional_ids": fids,
+                            "functional_indices": [index_of[f_] for f_ in fids], "values": [rn(exact[f_]) for f_ in fids],
+                            "intervals": [[rd(exact[f_]), ru(exact[f_])] for f_ in fids], "value": v, "interval": [rd(lo_), ru(hi_)],
+                            "absolute_error_bound": ru(max(abs(F(v) - lo_), abs(F(v) - hi_))), "relative_error_bound": 1e-15 if s2 else 0.0,
+                            "relative_limit": 1e-9})
+            publish(rid, v, unit)
+            rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None, "recipe_id": recipe,
+                         "input_result_ids": [f"result:support:{sup}:{c}" for c in comps]})
+    for node in nodes:
+        comps = [exact[nodal_ids[(node, c)]] for c in ("UX", "UY", "UZ")]
+        rid = f"result:disp:{node}"
+        publish(rid, rn(sqrt_up(sum((c * c for c in comps), F(0)))), "mm")
+        rows.append({"result_id": rid, "treatment": "checked_derived", "projection_id": None, "recipe_id": "translation_norm_scaled_v1",
+                     "input_result_ids": [f"result:disp:{node}:{c}" for c in ("ux", "uy", "uz")]})
+    endpoint_sections = [{"pipe_id": "member", "endpoints": [dict((k, v) for k, v in ep.items() if k in ("station_fraction", "functional_ids", "functional_indices", "actions"))
+                                                         for ep in extrema[0]["endpoints"]]}]
+    section_functionals = [{"pipe_id": "member", "stations": [
+        {"station_fraction": float(s) if s not in (0, 1) else int(s), "functional_ids": [station_ids[(loc, nm)] for nm in names],
+         "functional_indices": [index_of[station_ids[(loc, nm)]] for nm in names], "actions": [act(station_ids[(loc, nm)]) for nm in names]}
+        for loc, s in STATION_FRACTION.items()]}]
+    case = {"basis_ref": basis_ref, "selected_method": "retained_source_blocks_exact_v1",
             "source": {"normalized_source_sha256": ns_hash, "functional_plan_sha256": fp_hash, "free_dofs": ns["free_dofs"],
-                       "prescribed_dofs": [0, 1, 2, 4, 5], "endpoint_sections": [], "section_functionals": []},
-            "projections": projections, "section_stress_checks": checks, "derived_checks": derived}
+                       "prescribed_dofs": sorted(anchor), "endpoint_sections": endpoint_sections, "section_functionals": section_functionals},
+            "projections": projections, "rows": rows, "section_stress_checks": checks, "derived_checks": derived}
     envelope = {"results": results, "source_block_recovery": {"body": {"publication_sha256": "ab" * 32, "cases": [case]}},
                 "contract_evidence": {"exact_cases": [{"load_case_id": "case", "pipe_stress_extrema": extrema}]}}
+    k_ = 1000.0 if mm else 1.0
+    unit = "mm" if mm else "m"
     request = {"model": {"pipe_segments": [{"id": "member", "material": "material", "section": {
-        "outside_diameter": {"unit": "m", "value": D}, "wall_thickness": {"unit": "m", "value": t},
-        "mill_tolerance": {"unit": "m", "value": cm}, "corrosion_allowance": {"unit": "m", "value": ca}}}],
+        "outside_diameter": {"unit": unit, "value": D * k_}, "wall_thickness": {"unit": unit, "value": t * k_},
+        "mill_tolerance": {"unit": unit, "value": cm * k_}, "corrosion_allowance": {"unit": unit, "value": ca * k_}}}],
         "materials": [{"id": "material", "poisson_ratio": {"unit": "1", "value": nu}}]}}
     return dump, envelope, request
 
@@ -1230,22 +1622,35 @@ def selftest():
     bound = load_bound()
     outcomes = []
 
+    def record(label, good, detail):
+        outcomes.append((label, good))
+        print(f"selftest {'ok  ' if good else 'BAD '} {label}: {detail}")
+
     def expect(label, dump, env, req, theory, want_pass, want_check=None):
         rep = judge(dump, env, req, bound, theory)
         cases = rep["cases"]
         ok_case = bool(cases) and all(c["verdict"] == "PASS" for c in cases) and not rep["errors"]
         failed = sorted({k for c in cases for k, v in c["checks"].items() if v["failed"]})
         good = ok_case if want_pass else (not ok_case and (want_check is None or want_check in failed))
-        outcomes.append((label, good, failed if not want_pass else [], rep))
-        print(f"selftest {'ok  ' if good else 'BAD '} {label}: {'PASS' if ok_case else 'FAIL'}" + ("" if want_pass else f" via {failed}"))
+        record(label, good, ("PASS" if ok_case else "FAIL") + ("" if want_pass else f" via {failed}") + (f" errors {rep['errors']}" if rep["errors"] else ""))
+        return rep
 
     for theory in ("timo", "eb"):
         for allowance in ("both", "zero"):
-            d, e, r = synth(theory, allowance)
-            expect(f"passing synthetic {theory}/{allowance}", d, e, r, theory, True)
+            expect(f"passing synthetic {theory}/{allowance}", *synth(theory, allowance), theory, True)
+    expect("passing synthetic, member along global y (rotated eigenload)", *synth("timo", "both", rotate=True), "timo", True)
+    rep = expect("passing synthetic, section authored in mm (screens not judged, no error)", *synth("timo", "both", mm=True), "timo", True)
+    nj = rep["cases"][0].get("not_judged", {}) if rep["cases"] else {}
+    record("mm section: supplementary screens reported not judged", bool(nj.get("c_stress_parameters_screen_basis_annulus")), f"not_judged {nj}")
 
-    def mutated(fn, theory="timo", allowance="both", rehash=True):
-        d, e, r = synth(theory, allowance)
+    def env_case(e):
+        return e["source_block_recovery"]["body"]["cases"][0]
+
+    def row_of(e, rid):
+        return next(x for x in e["results"] if x["id"] == rid)
+
+    def mutated(fn, theory="timo", allowance="both", rehash=True, **kw):
+        d, e, r = synth(theory, allowance, **kw)
         rec = d["records"][0]
         ns = json.loads(rec["normalized_source_text"])
         fp = json.loads(rec["functional_plan_text"])
@@ -1257,67 +1662,117 @@ def selftest():
             rec["functional_plan_text"] = json.dumps(fp, sort_keys=True, separators=(",", ":"))
             h2 = hashlib.sha256(rec["functional_plan_text"].encode()).hexdigest()
             rec["normalized_source_sha256"], rec["functional_plan_sha256"] = h, h2
-            src = e["source_block_recovery"]["body"]["cases"][0]["source"]
+            src = env_case(e)["source"]
             src["normalized_source_sha256"], src["functional_plan_sha256"] = h, h2
         return d, e, r
 
-    # (a) hash: a payload byte changes after commitment
+    # (a) commitments
     d, e, r = synth()
     d["records"][0]["normalized_source_text"] = d["records"][0]["normalized_source_text"].replace('"case_id":"case"', '"case_id":"case" ', 1)
     expect("(a) payload text altered after commitment", d, e, r, "timo", False, "a_record_hashes")
     d, e, r = synth()
-    e["source_block_recovery"]["body"]["cases"][0]["source"]["functional_plan_sha256"] = "00" * 32
+    env_case(e)["source"]["functional_plan_sha256"] = "00" * 32
     expect("(a) receipt plan hash differs", d, e, r, "timo", False, "a_receipt_hashes")
 
-    # (b) a projection interval that excludes the exact value
+    # (b) projections and the declared problem
     def shift_projection(ns, fp, e, r, d):
-        p = next(p for p in e["source_block_recovery"]["body"]["cases"][0]["projections"] if p["basis"] == "outward_interval")
+        p = next(p for p in env_case(e)["projections"] if p["basis"] == "outward_interval")
         p["interval"] = [math.nextafter(p["interval"][1], math.inf), math.nextafter(math.nextafter(p["interval"][1], math.inf), math.inf)]
     expect("(b) projection interval excludes the exact value", *mutated(shift_projection, rehash=False), "timo", False, "b_projection_contains_exact")
 
-    # (b) a declared load the receipt did not solve (the declared problem changes, projections stay)
     def change_load(ns, fp, e, r, d):
         ns["payload"]["force_terms"][1]["value_bits"] = f2b(0.0025)
     expect("(b) declared load changed under the same receipt", *mutated(change_load), "timo", False, "b_projection_contains_exact")
 
-    # (b) the plan's lowering no longer matches statics (a sign flipped in a station coefficient)
     def flip_plan(ns, fp, e, r, d):
         fn = next(f for f in fp["payload"]["functions"] if f["quantity"] == "member_station_action" and f["component"] == "bending_moment_z" and f["location"] == "midspan")
-        for t in fn["displacement_terms"]:
-            for ct in t["coefficient_terms"]:
-                if len(ct["factors"]) > 2:
-                    ct["factors"][1]["bits"] = f2b(-1.0)
+        for t_ in fn["displacement_terms"]:
+            for ct in t_["coefficient_terms"]:
+                if len(ct["factors"]) > 3:
+                    ct["factors"][2]["bits"] = f2b(-1.0)
     expect("(b) plan lowering differs from statics", *mutated(flip_plan), "timo", False, "b_plan_lowering_equals_statics")
 
-    # (c) a stress check with the nominal parameters on the reduced basis
+    # repair round 1, item 1 (Codex probes): missing evidence and rows
+    def missing_projections(ns, fp, e, r, d):
+        rid = env_case(e)["projections"][0]["result_id"]
+        env_case(e)["projections"] = []
+        row_of(e, rid)["value"] = 1234567.0
+    expect("(r1) projections removed and a projected row changed to 1234567", *mutated(missing_projections, rehash=False), "timo", False, "i_projection_inventory")
+
+    def missing_stress(ns, fp, e, r, d):
+        rid = env_case(e)["section_stress_checks"][0]["result_id"]
+        env_case(e)["section_stress_checks"] = []
+        row_of(e, rid)["value"] = 1234567.0
+    expect("(r1) stress checks removed and a stress row changed to 1234567", *mutated(missing_stress, rehash=False), "timo", False, "i_stress_inventory")
+
+    def missing_maximum(ns, fp, e, r, d):
+        rid = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["result_id"]
+        e["contract_evidence"]["exact_cases"] = []
+        row_of(e, rid)["value"] = 1234567.0
+    expect("(r1) maximum evidence removed and a maximum row changed to 1234567", *mutated(missing_maximum, rehash=False), "timo", False, "i_maximum_inventory")
+
+    def missing_row(ns, fp, e, r, d):
+        rid = env_case(e)["projections"][0]["result_id"]
+        e["results"] = [x for x in e["results"] if x["id"] != rid]
+    expect("(r1) a projected row removed from the publication", *mutated(missing_row, rehash=False), "timo", False, "i_rows_are_published_universe")
+
+    def empty_norm(ns, fp, e, r, d):
+        dc = next(c for c in env_case(e)["derived_checks"] if c["value"] != 0)
+        for key in ("functional_ids", "functional_indices", "intervals", "values"):
+            dc[key] = []
+        dc["interval"], dc["value"] = [0.0, 0.0], 0.0
+        row_of(e, dc["result_id"])["value"] = 0.0
+    expect("(r1) empty component lists certify a zero support norm", *mutated(empty_norm, rehash=False), "timo", False, "b_evidence_list_lengths")
+
+    # item 2: a stress check bound to another action
+    def bending_z_uses_axial(ns, fp, e, r, d):
+        cks = env_case(e)["section_stress_checks"]
+        src = cks[0]
+        for sc in cks:
+            if sc["component"] != "bending_normal_stress_z":
+                continue
+            for key in ("functional_id", "functional_index", "action"):
+                sc[key] = copy.deepcopy(src[key])
+            row_of(e, sc["result_id"])["value"] = (sc["action"]["value"] / sc["parameters"]["section_modulus_m3"]) / 1e6
+    expect("(r2) bending-z checks bound to the axial-force functional, publishing N/Z", *mutated(bending_z_uses_axial, rehash=False), "timo", False, "c_stress_bound_to_its_action")
+
+    # item 3: the published support-norm value
+    def wrong_norm_value(ns, fp, e, r, d):
+        dc = next(c for c in env_case(e)["derived_checks"] if c["value"] != 0)
+        dc["value"] = 1234567.0
+        row_of(e, dc["result_id"])["value"] = 1234567.0
+    expect("(r3) support norm value and row changed to 1234567", *mutated(wrong_norm_value, rehash=False), "timo", False, "b_derived_norm_value")
+
+    def norm_row_differs(ns, fp, e, r, d):
+        dc = next(c for c in env_case(e)["derived_checks"] if c["value"] != 0)
+        row_of(e, dc["result_id"])["value"] = dc["value"] * 2
+    expect("(r3) support norm published row differs from its check", *mutated(norm_row_differs, rehash=False), "timo", False, "b_derived_norm_published_row")
+
+    # item 4: the eigenload terms follow the member axis
+    expect("(r4) member along y with the eigenload declared on global X", *synth("timo", "both", rotate=True, eig_on_x=True), "timo", False, "s_eigenload_terms")
+
+    # (c) stress checks and maxima
     def nominal_on_reduced(ns, fp, e, r, d):
-        cks = e["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"]
+        cks = env_case(e)["section_stress_checks"]
         cks[1]["parameters"] = dict(cks[0]["parameters"])
     expect("(c) reduced check carries nominal parameters", *mutated(nominal_on_reduced, rehash=False), "timo", False, "c_stress_parameters_are_basis_leaves")
 
-    # (c) a published stress value that does not recompute
     def bad_stress(ns, fp, e, r, d):
-        rid = e["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"][3]["result_id"]
-        row = next(x for x in e["results"] if x["id"] == rid)
+        sc = next(c for c in env_case(e)["section_stress_checks"] if c["action"]["value"] != 0)
+        row = row_of(e, sc["result_id"])
         row["value"] = row["value"] * (1 + 1e-12)
     expect("(c) stress row does not recompute", *mutated(bad_stress, rehash=False), "timo", False, "c_stress_recomputes")
 
-    # (c) a maximum interval below the exact maximum
     def low_max(ns, fp, e, r, d):
         mx = e["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][1]
         mx["value_upper_pa"] = mx["value_lower_pa"] = mx["value_pa"] = mx["value_lower_pa"] * (1 - 1e-9)
     expect("(c) maximum interval excludes the exact maximum", *mutated(low_max, rehash=False), "timo", False, "c_maximum_contains_exact")
 
-    # (c) a reduced section equal to the nominal one under nonzero allowance
     def drop_reduced(ns, fp, e, r, d):
         del ns["payload"]["frames"][0]["reduced_recovery_section"]
-        for ck in e["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"]:
-            if ck["result_id"].endswith(":reduced-section"):
-                pass
     expect("(c) reduced section missing under nonzero allowance", *mutated(drop_reduced), "timo", False, "c_stress_parameters_are_basis_leaves")
 
-    # (d) the product forms K_local wrongly but consistently: stiffness terms, plan and
-    # receipt all follow the wrong matrix, so only the formation bound can see it.
+    # (d) K_local formed wrongly but consistently: only the bound can see it
     def wrong_recipe(Kl, inputs, bnd):
         E, I, L, G, As = inputs["E"], inputs["Iz"], inputs["L"], inputs["G"], inputs["As"]
         phi = 12 * E * I / (G * As * L * L)
@@ -1326,14 +1781,12 @@ def selftest():
 
     def beyond(Kl, inputs, bnd):
         K, _, _, _ = reference_matrix(bnd, inputs, "timo")
-        N = F(bnd["roles"]["timoshenko"]["k_vv"]["constant"])
-        Kl[1][1] = ru(K[1][1] * (1 + 2 * rho(N)))
+        Kl[1][1] = ru(K[1][1] * (1 + 2 * rho(F(bnd["roles"]["timoshenko"]["k_vv"]["constant"]))))
     expect("(d) k_vv beyond rho_13 (2x the bound), consistently", *synth("timo", "both", kl_hook=beyond), "timo", False, "d_k_local_within_bound")
 
     def inside(Kl, inputs, bnd):
         K, _, _, _ = reference_matrix(bnd, inputs, "timo")
-        N = F(bnd["roles"]["timoshenko"]["k_vv"]["constant"])
-        Kl[1][1] = rd(K[1][1] * (1 + rho(N) / 2))
+        Kl[1][1] = rd(K[1][1] * (1 + rho(F(bnd["roles"]["timoshenko"]["k_vv"]["constant"])) / 2))
     expect("(d) k_vv inside rho_13 (half the bound), consistently", *synth("timo", "both", kl_hook=inside), "timo", True)
 
     def stray(Kl, inputs, bnd):
@@ -1341,24 +1794,55 @@ def selftest():
     expect("(d) structural zero declared nonzero, consistently", *synth("timo", "both", kl_hook=stray), "timo", False, "d_k_local_within_bound")
 
     def eb_in_timo(Kl, inputs, bnd):
-        eb = dict(inputs)
-        eb["As"] = None
+        eb = dict(inputs, As=None)
         K, _, _, _ = reference_matrix(bnd, eb, "eb")
         for i in range(12):
             for j in range(12):
                 Kl[i][j] = rn(K[i][j])
     expect("(d) Euler-Bernoulli matrix on a Timoshenko frame, consistently", *synth("timo", "both", kl_hook=eb_in_timo), "timo", False, "d_k_local_within_bound")
 
+    def metal_area(Kl, inputs, bnd):
+        K, _, _, _ = reference_matrix(bnd, dict(inputs, As=inputs["A"]), "timo")
+        for i in range(12):
+            for j in range(12):
+                Kl[i][j] = rn(K[i][j])
+    expect("(d) phi formed with the metal area A for A_s, consistently (Codex numerical probe)", *synth("timo", "both", kl_hook=metal_area), "timo", False, "d_k_local_within_bound")
+
     def swapped_plane_sign(Kl, inputs, bnd):
         Kl[2][4] = -Kl[2][4]
         Kl[4][2] = -Kl[4][2]
     expect("(d) x-z plane coupling sign flipped, consistently", *synth("eb", "zero", kl_hook=swapped_plane_sign), "eb", False, "d_k_local_within_bound")
 
-    # (s) a wrong shear-area leaf with a matrix consistently formed from it
     expect("(s) shear area from 5/6, consistently", *synth("timo", "both", as_hook=lambda As, A: A * (5.0 / 6.0)), "timo", False, "s_shear_area_is_u8_kappa_hat_times_area")
-
-    # theory: a Timoshenko frame where the request selects Euler-Bernoulli
     expect("(d) frame theory differs from the request", *synth("timo", "zero"), "eb", False, "d_frame_theory_matches_request")
+
+    # repair round 1, items 6 and 7: batch-level vacuity, the required-selection list and mode errors
+    good = synth("timo", "both")
+    entry = {"twin": "synth|both|timo", "family": "synth", "name": "synth", "variant": "both", "theory": "timo"}
+
+    def loader(dump_mode=None, receipt=True):
+        def load(ent, mode):
+            d, e, r = copy.deepcopy(good)
+            d["solver_mode"] = dump_mode or mode
+            if not receipt:
+                del e["source_block_recovery"]
+                d["records"] = []
+            return d, e, r
+        return load
+    req = [("synth|both|timo", m, "case") for m in ("sparse_interactive", "dense_scrutiny")]
+    _, s0 = judge_batch([entry], loader(), bound, req, echo=False)
+    record("(r6) batch with its required pairs selected passes", s0["verdict"] == "PASS", f"{s0['verdict']} {s0['batch_failures']}")
+    _, s1 = judge_batch([], loader(), bound, req, echo=False)
+    record("(r6) empty index fails as vacuous", s1["verdict"] == "FAIL" and any("vacuous" in b for b in s1["batch_failures"]), f"{s1['batch_failures']}")
+    _, s2 = judge_batch([entry], loader(receipt=False), bound, req, echo=False)
+    record("(r6) a required pair that does not select fails the batch", s2["verdict"] == "FAIL" and any("required" in b for b in s2["batch_failures"]), f"{s2['batch_failures']}")
+    _, s3 = judge_batch([entry], loader(), bound, [], echo=False)
+    record("(r6) an empty required-selection list fails the batch", s3["verdict"] == "FAIL", f"{s3['batch_failures']}")
+    c0 = control_batch([], lambda *a: None, lambda e: None, bound)
+    record("(r6) empty control set is vacuous", set(c0["vacuous"]) == {"cross_theory", "eb_reference_on_timo_k", "cross_allowance"}, f"vacuous {c0['vacuous']}")
+    reps, s4 = judge_batch([entry], loader(dump_mode="dense_scrutiny"), bound, req, echo=False)
+    kept = any("solver_mode" in e_ for rp in reps for e_ in rp["errors"])
+    record("(r7) a solver-mode mismatch is kept and fails the batch", kept and s4["verdict"] == "FAIL", f"errors {[rp['errors'] for rp in reps]}")
 
     bad = [o for o in outcomes if not o[1]]
     print(f"selftest: {len(outcomes) - len(bad)}/{len(outcomes)} as expected")
@@ -1377,17 +1861,23 @@ def main():
     ap.add_argument("--runs")
     ap.add_argument("--out")
     ap.add_argument("--controls", action="store_true", help="with --index: also run the real-data controls")
+    ap.add_argument("--required", help="with --index: the committed required-selection list (required_selection.json)")
+    ap.add_argument("--required-set", help="with --index: the set name within --required")
     args = ap.parse_args()
     bound = load_bound()
     if args.selftest:
         sys.exit(0 if selftest() else 1)
     if args.index:
         runs = args.runs or os.path.dirname(args.index)
-        summary = run_index(args.index, runs, bound, args.out)
-        ok = not summary["failures"]
+        if not (args.required and args.required_set):
+            raise SystemExit("oracle: --index needs --required FILE and --required-set NAME (repair round 1, item 6)")
+        required = load_required(args.required, args.required_set)
+        summary = run_index(args.index, runs, bound, args.out, required)
+        ok = summary["verdict"] == "PASS"
         if args.controls:
             controls = run_controls(args.index, runs, bound)
-            ok = ok and all(v["passed_wrongly"] == 0 for k, v in controls.items() if k != "checks_that_failed")
+            ok = ok and not controls["vacuous"] and all(
+                v["passed_wrongly"] == 0 for k, v in controls.items() if k not in ("checks_that_failed", "vacuous"))
             if args.out:
                 with open(args.out, encoding="utf-8") as fh:
                     doc = json.load(fh)

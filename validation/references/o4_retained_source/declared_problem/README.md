@@ -16,7 +16,8 @@ These results do not establish acceptance.
 
 | File | Role |
 |---|---|
-| `BOUND.md`, `bound.json` | The per-entry K_local bound and its machine form. Frozen and committed (`674a7df342`) before any dump, envelope or other product output was produced or opened. `oracle.py` re-derives every count from BOUND.md's formulas and refuses a `bound.json` that disagrees |
+| `BOUND.md`, `bound.json` | The per-entry K_local bound and its machine form. Frozen and committed (`674a7df342`) before any dump, envelope or other product output was produced or opened. `oracle.py` re-derives every count from BOUND.md's formulas and refuses a `bound.json` that disagrees. BOUND.md has one dated addendum (repair round 1): it states the exclusion of algebraic rewrites explicitly and changes no count |
+| `required_selection.json` | The committed required-selection list (repair round 1): every (document, mode, load case) that must select and pass, per set (j2 192, rf 32, judged 18, phi2 336). It was frozen from the R2/R2b/R2c census; changing it is a reviewed change |
 | `oracle.py` | Standard library only (`fractions`, `hashlib`, `json`, `struct`, `math`). The judge, the self-test and the real-data controls |
 | `twins.py` | Re-authors J2's twelve source requests into twins; converts RF's PIN-OFF-345 census requests and the frozen unit's judged-set documents into product requests (R2b); runs the product's dump entry and the headless runner on them; writes the selection census |
 | `run.sh` | Regenerates the twins and documents, builds through the T3 cargo wrapper, runs both product entries in both modes under one T3 slot, then runs the self-test, the oracle, the controls and the census. Twins, dumps, envelopes and reports stay in scratch |
@@ -119,7 +120,11 @@ consistently (k_θθ with 4 + 2φ, k_vv at twice the bound, a stray structural
 nonzero, an Euler–Bernoulli matrix on a Timoshenko frame, a flipped x–z
 coupling sign) so that only the bound can see it, a shear area from 5/6, and a
 frame theory differing from the request. One more consistent mutant (k_vv at
-half the bound) must pass. Result: 21 of 21 as expected.
+half the bound) must pass. Repair round 1 makes the synthetic receipt complete
+in the product's shapes (rows, published-row universe, endpoint sections,
+section functionals, support norms, translation norms, a general transform).
+It adds positive cases for a member along global y and for a section authored
+in mm, plus the "Repair round 1" negatives below. Result: 40 of 40 as expected.
 
 The **real-data controls** (`--controls`) must each fail: every Timoshenko
 dump against its Euler–Bernoulli twin's envelope (96 of 96 failed), every
@@ -348,6 +353,46 @@ and both modes: 416 runs.
   At φ ≈ 2 the declared entry carries no correct relative digits, and at
   PEXACT-C not even its sign. It still lies well within the absolute bound
   that BOUND.md derives for the cancelling entry.
+
+## Repair round 1 (after independent review of `8807c2bb3a`)
+
+An independent review (Codex) confirmed the run, the self-test, the controls,
+the bound's counting rules for the stated factor trees, ℓ = 0 (all 614 frames
+declare a length leaf), and the oracle's independence. It also found that the
+oracle could pass invalid output. Each repair is pinned by a permanent
+self-test case that must fail, or must pass where stated. The review's real
+probes, rerun against the repaired oracle, all fail as required.
+
+| # | Repair | Self-test case |
+|---|---|---|
+| 1 | **Complete, unique inventories** (`inventory`). The expected functionals come from the declared problem: per node its 6 nodal components; per member 12 end actions and 30 station actions (the interior stations published); per support 6 components. The receipt's rows must equal the case's published rows exactly, and each row must have exactly one evidence item: a projection, stress check, endpoint maximum or support-norm check. Every evidence item must be referenced, and every input row must exist. Expected cardinalities: 40 stress checks and 2 maxima per member, 2 norm checks per support, 1 translation norm per node, and one endpoint section and section-functional record per member. Lists must have matching lengths | `(r1) projections removed and a projected row changed to 1234567`; `(r1) stress checks removed …`; `(r1) maximum evidence removed …`; `(r1) a projected row removed from the publication`; `(r1) empty component lists certify a zero support norm` |
+| 2 | **Stress checks bound to their physical action.** Each component's functional must be the station action of its own member at its own location: N for axial, M_y and M_z for bending, T for torsion. Maxima, endpoint sections, section functionals and support norms are bound the same way, and every functional index must equal the plan's | `(r2) bending-z checks bound to the axial-force functional, publishing N/Z` |
+| 3 | **Published support-norm values.** The value must lie in its interval and within its absolute error bound of the exact norm, with the relative bound at most the limit. The published row must equal the value, with unit N or N·m, and each component value must equal its projection | `(r3) support norm value and row changed to 1234567`; `(r3) support norm published row differs from its check` |
+| 4 | **Eigenload terms follow the declared member axis.** Expected global terms are Tᵀ(−P, +P) of the declared transform, one rounded product per component (within ρ₁) | positive: `passing synthetic, member along global y`; negative: `(r4) member along y with the eigenload declared on global X`; the review's rotated `eigen_motion` product run now passes |
+| 5 | **Inexact unit conversion.** Where a section length does not convert to SI binary64 exactly (for example millimetre inputs), the supplementary screens are reported `not_judged`, never raised | positive: `passing synthetic, section authored in mm` and `mm section: supplementary screens reported not judged`; the review's mm product run now passes with its screens not judged |
+| 6 | **No vacuous batch.** A batch fails on an empty index, on no judged case, on an empty required list, on any FAIL case, on any error other than a recorded non-selection, and on any required triple from `required_selection.json` that does not select and pass. A control set with nothing to control fails. `--index` requires `--required FILE --required-set NAME` | `(r6) empty index fails as vacuous`; `(r6) a required pair that does not select fails the batch`; `(r6) an empty required-selection list fails the batch`; `(r6) empty control set is vacuous`; positive: `(r6) batch with its required pairs selected passes` |
+| 7 | **Errors accumulate.** A solver-mode mismatch is kept beside the judge's own errors | `(r7) a solver-mode mismatch is kept and fails the batch` |
+
+The review's numerical probes are also permanent cases: φ with A for A_s
+(`(d) phi formed with the metal area A for A_s, consistently`) and an
+Euler–Bernoulli matrix on a Timoshenko frame. A sign flip of k_θθ' at φ = 2
+exactly is accepted, correctly, because the exact entry is zero. At φ − 2 =
+±1.8e-12 it fails. The reciprocal-length rewrite is the subject of BOUND.md's
+addendum. U8 §3.3 names no rewrite of any K_local entry, so the counts are
+unchanged and the exclusion is now stated.
+
+**Full rerun after the repairs** (`run.sh`, rc 0; self-test 40 of 40):
+
+| Set | Runs | Cases PASS / FAIL | Not selected | Required / missing | Controls (failed as required / passed wrongly) |
+|---|---|---|---|---|---|
+| j2 | 192 | 192 / 0 | 0 | 192 / 0 | cross-theory 96/0, EB reference 96/0, cross-allowance 144/0 |
+| rf | 32 | 32 / 0 | 0 | 32 / 0 | cross-theory 16/0, EB reference 16/0, cross-allowance 24/0 |
+| judged | 344 | 18 / 0 | 326 | 18 / 0 | — |
+| phi2 | 416 | 336 / 0 | 80 | 336 / 0 | — |
+
+Worst margins are unchanged by the repairs. Largest projection |value −
+exact|/absolute bound: 0.433. Largest K_local share of the bound: 0.572
+(k_axial). Largest k_θθ' share: 0.144 (PEXACT-C).
 
 ## Reproduce
 
