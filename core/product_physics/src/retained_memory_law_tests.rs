@@ -1510,13 +1510,13 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
             Err(PhaseRefusal { gate: PhaseGate::Late, fact: late[i], observed: caps.late[i] + 1, cap: caps.late[i] }));
     }
     assert_eq!(caps.late[..9], [32, 32, 32, 32, 128, 384, 192, 192, 8], "D1's counts: n, m, m, g, l, L (B1 SA), k = min(6n, r), s, 4 + 4");
-    assert_eq!(P_FINAL, 2_115);
-    // T4-U6 (D-5, U6-RP): route E publishes 72 rows per exact member; its G-C rows and their
+    assert_eq!(P_FINAL, 2_595);
+    // T4-U6 (D-5, U6-RP), T4-U4b (U4B-RP): route E publishes 102 rows per exact member; its G-C rows and their
     // capacity are C·P_final at its own P_final, the chain's pushcap(C·P_final) results slots
     // (U6-RB-V); the rows' text bound stays route L's.
-    assert_eq!(P_FINAL_EXACT, 2_787);
+    assert_eq!(P_FINAL_EXACT, 3_747);
     let exact = phase_caps_on(crate::retained_product::W1Route::Exact).complete;
-    assert_eq!((exact[0], exact[1], exact[2]), (3 * 2_787, 16_384, caps.complete[2]), "route E: C·P_final, PushCap, route L's text");
+    assert_eq!((exact[0], exact[1], exact[2]), (3 * 3_747, 16_384, caps.complete[2]), "route E: C·P_final, PushCap, route L's text");
     // B1 SA (option S3, C = 3): the bounds that read the regenerated profile are asserted as
     // expressions (SF-4's back edge: SQ fixes their values; RV-Q round 1 reviews these).
     let c = caps::LOAD_CASES as u64;
@@ -1525,7 +1525,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // Current canonical T4-U6/U8 TEXT closure at the epoch source addbdc030e, C_eq = 3, maximum
     // over the L/E routes (B7b's at 7e63847: 264,366,429); unchanged at the final source 588de796a4.
     assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 262_735_773, "current text closure at C_eq = 3, maximum over routes");
-    assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
+    assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_595, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
     assert!(caps.complete[16] > 0 && caps.complete[16] < caps.complete[15], "T11.4 < T11");

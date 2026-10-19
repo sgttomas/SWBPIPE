@@ -59,6 +59,122 @@ def receipt_hash_copies(source_receipt_text):
         "#[derive(Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n    payload: &'a Value,\n}\n")
 
 
+# S6-HS (T4-S6, retained-pricing-rules.md §8.8): the three publication-hash families stream the checked canonical text
+# of the borrowed {domain, payload} into SHA-256 through open_pipe_stress_canonical_json::checked_v1_domain_canonical
+# (no wrapper copy, no to_string text, no checked parse, no canonical text). The writer's production code, from
+# validate_checked_value to the test module, is bound by its sha256; each site by its exact text.
+CJ = "core/serialization/canonical_json/src/lib.rs"
+CJ_START = "fn validate_checked_value(value: &Value) -> Result<(), String> {\n"
+CJ_STOP = "\n#[cfg(test)]\nmod tests {\n"
+CJ_PIN = "381e93064a6cfaab7077fed66849774226fbed5bc5e8c890cb7ea6b6c1327df5"
+SB = "core/reporting/result_export/src/source_blocks.rs"
+_STREAM_LINE = "&mut ByteSink(|bytes: &[u8]| hasher.update(bytes))"
+STREAM_DH = ("pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {\n"
+             "    let mut hasher = Sha256::new();\n"
+             "    checked_v1_domain_canonical(domain, DomainPayload::Value(payload), " + _STREAM_LINE + ").ok()?;\n"
+             "    Some(format!(\"{:x}\", hasher.finalize()))\n}\n")
+STREAM_SH = ("fn hash(domain: &'static str, payload: &Value) -> Result<String, ReceiptError> {\n"
+             "    let mut hasher = Sha256::new();\n"
+             "    checked_v1_domain_canonical(domain, DomainPayload::Value(payload), " + _STREAM_LINE + ")\n"
+             "        .map_err(bad)?;\n"
+             "    Ok(format!(\"{:x}\", hasher.finalize()))\n}\n")
+STREAM_RS = ("pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {\n"
+             "    domain_digest(domain, DomainPayload::Value(payload))\n}\n",
+             "pub fn domain_hash_without(domain: &str, object: &serde_json::Map<String, Value>, omit: &str) -> Result<String, String> {\n"
+             "    domain_digest(domain, DomainPayload::ObjectWithout(object, omit))\n}\n",
+             "fn domain_digest(domain: &str, payload: DomainPayload<'_>) -> Result<String, String> {\n"
+             "    let mut hasher = Sha256::new();\n"
+             "    checked_v1_domain_canonical(domain, payload, " + _STREAM_LINE + ")?;\n"
+             "    Ok(format!(\"{:x}\", hasher.finalize()))\n}\n")
+FORMER_RS = ("pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {\n"
+             "    let value = json!({\"domain\":domain,\"payload\":payload});\n")
+BORROW_G1 = ("        need(\n            hash_without(\n                \"retained_precision_publication_mp_v2\",\n"
+             "                source,\n                \"retained_precision\",\n")
+HASH_WITHOUT = ("fn hash_without(domain: &str, v: &Value, omit: &str, gate: &'static str, code: &str) -> VResult<String> {\n"
+                "    let object = v.as_object().ok_or_else(|| error(gate, code))?;\n"
+                "    crate::source_blocks::domain_hash_without(domain, object, omit).map_err(|_| error(gate, code))\n}\n")
+FORMER_G1 = "        let mut public = source.clone();\n"
+
+
+def canonical_writer(snapshot):
+    """S6-HS: the canonical writer's production code is the reviewed one (a changed writer stops the run)."""
+    import hashlib
+    text = _read(snapshot, CJ)
+    if text.count(CJ_START) != 1 or text.count(CJ_STOP) != 1:
+        raise SystemExit("S6-HS: canonical_json's checked writer moved; re-review the streamed hash route")
+    span = text[text.index(CJ_START):text.index(CJ_STOP)]
+    if hashlib.sha256(span.encode()).hexdigest() != CJ_PIN:
+        raise SystemExit("S6-HS: canonical_json's checked writer changed; re-review the streamed hash route")
+
+
+def _streams(text, label, name, streamed, retired):
+    """True if fn `name` is the exact streamed form (each `retired` text gone), else None (the caller's former check)."""
+    if text.count(f"fn {name}(") != 1:
+        raise SystemExit(f"{label}: {name} is not one definition; re-review its hash route")
+    if streamed in text:
+        if any(r in text for r in retired):
+            raise SystemExit(f"{label}: {name} streams but a former wrapper remains; re-review its hash route")
+        return True
+    return None
+
+
+def domain_hash_streams(snapshot, retained_wire_text):
+    """S6-HS at T16: True when retained_wire.rs `domain_hash` streams; False for U6-DH's former forms; else stops."""
+    if _streams(retained_wire_text, "S6-HS", "domain_hash", STREAM_DH, ("fn domain_text(", "struct DomainPayload")):
+        canonical_writer(snapshot)
+        return True
+    domain_hash_copies(retained_wire_text)
+    return False
+
+
+def receipt_hash_streams(snapshot, source_receipt_text):
+    """S6-HS at T25: True when source_receipt.rs `hash` streams; False for U6-SH's former forms; else stops."""
+    if _streams(source_receipt_text, "S6-HS", "hash", STREAM_SH, ("fn hash_text(", "struct DomainPayload")):
+        canonical_writer(snapshot)
+        return True
+    receipt_hash_copies(source_receipt_text)
+    return False
+
+
+def reader_hash_streams(snapshot):
+    """S6-HS at T17: (streams, borrows the publication). result_export source_blocks.rs `domain_hash` streams (the
+    former json! copy otherwise), and retained_precision.rs G1 hashes the source less its receipt through
+    `hash_without` (the former clone otherwise). Any other form stops."""
+    sb = _read(snapshot, SB)
+    if all(sb.count(t) == 1 for t in STREAM_RS) and FORMER_RS not in sb:
+        canonical_writer(snapshot)
+        streams = True
+    elif sb.count(FORMER_RS) == 1 and "fn domain_digest(" not in sb:
+        streams = False
+    else:
+        raise SystemExit("S6-HS: result_export domain_hash changed; re-review its hash route")
+    rp = _production(_read(snapshot, RPX))
+    if rp.count(BORROW_G1) == 1 and rp.count(HASH_WITHOUT) == 1 and FORMER_G1 not in rp and streams:
+        borrows = True
+    elif rp.count(FORMER_G1) == 1 and "fn hash_without(" not in rp:
+        borrows = False
+    else:
+        raise SystemExit("S6-HS: retained_precision G1's publication hash changed; re-review its hash route")
+    return streams, borrows
+
+
+def stream_route(vf, lmax, eps):
+    """S6-HS: what a streamed hash holds beside its borrowed payload: the per-string `serde_json::to_string`
+    temporary of the longest string (to_vec starts at 128 B and doubles: <= max(128, 2(eps*lmax + 2)), one at a
+    time), the number-rendering temporaries and a retained depth*128 B frame allowance (<= depth*8*16 + 144 + 128 B,
+    as the former route charged), and the per-object sorted key vectors (with_capacity(len) of 8-byte references,
+    live along the current path; charged for every entry at s(&str)). SHA-256 state is on the stack. Nothing else
+    allocates: no wrapper, text, parse tree, seen set, escape scratch or canonical output."""
+    from g3lib import B, s
+    return B(max(128, 2 * (eps * lmax + 2))) + B(vf.depth * 8 * 16 + 144 + 128) + s("&str") * vf.ent
+
+
+def stream_last_growth(lmax, eps):
+    """S6-HS: the largest old backing of a streamed hash, the string temporary's previous backing at its last doubling."""
+    from g3lib import B
+    return B(max(128, 2 * (eps * lmax + 2)) // 2)
+
+
 def _read(snapshot, rel):
     with open(os.path.join(snapshot, rel), encoding="utf-8") as stream:
         return stream.read()

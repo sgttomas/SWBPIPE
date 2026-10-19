@@ -194,13 +194,13 @@ fn receipt_domain_hashes_are_acyclic_and_distinct() {
     );
 }
 
-/// D3 X1 budget: `hash` serializes a borrowed `{domain, payload}` wrapper instead of copying
-/// the payload (a whole selected-source publication) into a new `Value`. Its serialized text,
-/// its checked canonical text and its hash are the former `json!({"domain": d, "payload": p})`
-/// object's, byte for byte (and a payload the checked form refuses is refused alike), over
-/// every receipt domain and representative payloads: a selected pressure-source-1 publication
-/// envelope, its receipt body, a case evidence block, the invocation wrapper and adversarial
-/// values (key order, escapes, non-ASCII, signed zero, extreme numbers, a payload naming
+/// D3 X1 budget (U6-SH, T4-S6): `hash` streams the checked canonical text of the borrowed
+/// `{domain, payload}` (a whole selected-source publication, for one) into the hasher. Its hash
+/// and its refusal, message included, are the former path's — `json!({"domain": d, "payload": p})`,
+/// serialized, checked-parsed, canonicalized, hashed — over every receipt domain and representative
+/// payloads: a selected pressure-source-1 publication envelope, its receipt body, a case evidence
+/// block, the invocation wrapper and adversarial values (key order, escapes, non-ASCII, signed
+/// zero, extreme and unsafe numbers, nesting at and past the parser's depth, a payload naming
 /// `domain`). The former construction lives only here.
 #[test]
 fn receipt_hash_borrowed_wrapper_text_and_hash_are_the_former_objects() {
@@ -221,23 +221,23 @@ fn receipt_hash_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     let invocation = json!({"request": exact_raw(), "solver_mode": "dense_scrutiny"});
     let adversarial = json!({"z": [1, -0.0, 1e-300, 1.7976931348623157e308, 18446744073709551615u64, -9223372036854775808i64],
         "a": {"payload": null, "domain": "inner", "": [], "\u{1F600}\"\\\n": {}}, "m": [true, false, null, "\u{0}\u{1f}\u{7f}é"]});
-    let payloads = [publication, envelope.clone(), body.clone(), case, invocation, adversarial, json!(null), json!([]), json!({}), json!("text"), json!(0.1), json!(-0.0)];
+    let nest = |depth: usize| (0..depth).fold(json!({"\u{1}é": [0.5]}), |inner, i| if i % 2 == 0 { json!([inner]) } else { json!({"k": inner, "a": "\""}) });
+    let mut payloads = vec![publication, envelope.clone(), body.clone(), case, invocation, adversarial, json!(null), json!([]), json!({}), json!("text"), json!(0.1), json!(-0.0)];
+    payloads.extend([123, 124, 125, 126].map(nest));
     let domains: [&'static str; 10] = ["source_blocks_invocation_v1", "source_blocks_publication_v1", "source_blocks_receipt_v1",
         "pressure_source_case_evidence_v1", "physics_source_case_evidence_v1", "load_reference_state_resolved_evidence_v1",
         "source_blocks_normalized_source_v1", "source_blocks_functional_plan_v1", "", "a\"b\\c\u{1F600}"];
+    let mut refused = 0;
     for domain in domains {
         for payload in &payloads {
-            let wrapper = former(domain, payload);
-            assert_eq!(
-                serde_json::to_string(&DomainPayload { domain, payload }).unwrap(),
-                serde_json::to_string(&wrapper).unwrap(),
-                "{domain}: serialized text"
-            );
-            assert_eq!(hash_text(domain, payload), checked(&wrapper), "{domain}: checked text");
-            let expected = checked(&wrapper).map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
+            let expected = checked(&former(domain, payload)).map(|text| format!("{:x}", Sha256::digest(text.as_bytes())));
+            refused += usize::from(expected.is_err());
             assert_eq!(hash(domain, payload), expected, "{domain}: hash");
         }
     }
+    // The adversarial payload's unsafe integers and the two deepest nestings (the leaf object adds
+    // a level and its array another) refuse under every domain, with the former messages.
+    assert_eq!(refused, 3 * domains.len());
     // The committed selected-source receipt digest is reproduced from its own body.
     assert_eq!(
         hash("source_blocks_receipt_v1", &body).unwrap(),

@@ -2,7 +2,7 @@
 //! Digests bind custody; they do not replace the retained arithmetic proof.
 use super::source_recovery::{self, SelectedSourceRecovery};
 use super::*;
-use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
+use open_pipe_stress_canonical_json::{canonical_json_checked_v1_text, checked_v1_domain_canonical, ByteSink, DomainPayload};
 use open_pipe_stress_frame_kernel::structural::{
     exact_boundary as exact, StructuralError, StructuralReport,
 };
@@ -27,25 +27,16 @@ fn checked(value: &Value) -> Result<String, ReceiptError> {
     let text = serde_json::to_string(value).map_err(|e| bad(e.to_string()))?;
     canonical_json_checked_v1_text(&text).map_err(bad)
 }
+/// sha256 of the checked canonical `{"domain","payload"}` text, streamed from
+/// the borrowed payload (a whole publication envelope, for one) into the
+/// hasher, as `retained_wire::domain_hash` does (T4-S6): the digest and every
+/// refusal, with its message, are the former serialized and re-parsed text's
+/// (`checked_v1_domain_canonical`).
 fn hash(domain: &'static str, payload: &Value) -> Result<String, ReceiptError> {
-    let text = hash_text(domain, payload)?;
-    Ok(format!("{:x}", Sha256::digest(text.as_bytes())))
-}
-/// The checked canonical `{"domain","payload"}` text that `hash` digests.
-fn hash_text(domain: &str, payload: &Value) -> Result<String, ReceiptError> {
-    let text = serde_json::to_string(&DomainPayload { domain, payload }).map_err(|e| bad(e.to_string()))?;
-    canonical_json_checked_v1_text(&text).map_err(bad)
-}
-/// The hashed `{"domain","payload"}` wrapper, serialized from borrows instead
-/// of a copy of the payload (a whole publication envelope) in a new `Value`,
-/// as U6-DH does in `retained_wire.rs`. Its text is the former `json!`
-/// object's: serde_json's object map orders keys, and `domain` < `payload`,
-/// the field order here; each field serializes as the same string and the
-/// same borrowed `Value`.
-#[derive(Serialize)]
-struct DomainPayload<'a> {
-    domain: &'a str,
-    payload: &'a Value,
+    let mut hasher = Sha256::new();
+    checked_v1_domain_canonical(domain, DomainPayload::Value(payload), &mut ByteSink(|bytes: &[u8]| hasher.update(bytes)))
+        .map_err(bad)?;
+    Ok(format!("{:x}", hasher.finalize()))
 }
 fn bits(value: f64) -> String {
     format!("{:016x}", value.to_bits())

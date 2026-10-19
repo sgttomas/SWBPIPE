@@ -17,7 +17,7 @@ PINS = {
         # U6 rules); its carriers, staging and prepared-pressure calls are unchanged. Epoch addbdc030e: the case
         # evidence's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus the realized-arc marker
         # (no realized arc on D1).
-        "solve_prepared_load_case": "e0da006706889873e7c442b3c6d551c2112a529d0c3c45581d6e035cefd003ae",
+        "solve_prepared_load_case": "8886bde5ca5e5425cb79dda55192220fd78ef3d622d5869c49eb663dbb388b43",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -28,7 +28,7 @@ PINS = {
     # EB member-load route; executable refusals and carrier-child premises match.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "1f891b6c19c3ff9f7699c80fbc0c5417c97cd141d35f59db02e4d7951f62ceb7",
-        "family_clauses": "41b97bbb844b8e25bee51b9252edd1e00565766bc435df1e38c08b0bd7ea7486",
+        "family_clauses": "b7d1b0112a114e64abb26f99302c5a0b348ef70d09a895e170ab77c96734e798",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -42,7 +42,12 @@ PINS = {
 # closure_source's straight operand identity begins with its member prefix (region path only).
 # Epoch addbdc030e: assemble_pressure_case's per-region member body calls `super::realized_arc` and
 # `super::mark_realized_arc` in place of the same inline expressions (region path only).
-PRESSURE_PREFIX_PIN = "6694a428a4a0c9e9796898083c520436a19baffb7fd494773ad842f85b5fab76"
+# T4-S5 (epoch): the prefix drops the arc withheld policy and reason (ARC_WITHHELD_REASON, exact_member_maximum_policy),
+# reads 0.6.0 in two validate_profile texts and, on a realized arc only, adds bend_radius_m to the member geometry and
+# the arc_stress_definitions evidence (region path only: absent on L, explicitly empty on E). No carrier, child or
+# staging changes. solve_prepared_load_case's U4b rows, arc maxima and corrected displacement are priced at their own
+# sites (U4B-ST, U5B-PD); family_clauses changes only its 0.6.0 comment.
+PRESSURE_PREFIX_PIN = "b474e34acff4c7a10178f30c18cc56341ee7d29862ac0378465a08b0336abf11"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

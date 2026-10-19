@@ -60,6 +60,16 @@ BIND = {
     "s(Authored<Vec<ExpansionLawInput>>)": sz("crate::Authored<Vec<crate::ExpansionLawInput>>"),
     "s((String,DerivedSection))": sz("(String, crate::DerivedSection)"), "s((String,ResultItem))": sz("(String, crate::ResultItem)"),
     "s((String,ExactSectionBases))": sz("(String, crate::pressure_exact::ExactSectionBases)"),   # U6-ES
+    # T4-S5 D3 (retained-pricing-rules.md §8.8): the T4-U4b/U5b owners (u4b_u5b_owners_model.py)
+    "s(BasisSection)": sz("crate::u4b_rows::BasisSection"),   # U4B-ST
+    "s(SectionFactorResult)": sz("Result<f64, open_pipe_stress_stress_recovery::section_stress_quantities::SectionQuantityError>"),   # U4B-ST
+    "s(StationWitnesses)": sz("(Option<crate::pressure_exact::SectionBasis>, Vec<(f64, f64)>)"),   # U4B-ST
+    "s(StationExtreme)": sz("(Option<crate::pressure_exact::SectionBasis>, open_pipe_stress_stress_recovery::section_stress_quantities::NormalStressExtremes, f64, f64)"),   # U4B-ST
+    "s(NotCoveredOperands)": sz("[[Option<usize>; 5]; 5]"),   # U4B-W1
+    "s(U4bSlotEntry)": sz("((&'static str, &'static str, &'static str, &'static str, &'static str, &'static str), &'static Value)"),   # U4B-RD
+    "s((&str,Vec<f64>))": sz("(&'static str, Vec<f64>)"), "s((String,Vec<f64>))": sz("(String, Vec<f64>)"),   # U4B-RD
+    "s(U4bCoverEntry)": sz("((&'static str, &'static str, String), Vec<f64>)"),   # U4B-RD
+    "s((&str,(f64,f64)))": sz("(&'static str, (f64, f64))"),   # U4B-RD
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
     "s(FormationRow)": sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow"),

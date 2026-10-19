@@ -10,7 +10,7 @@
 use super::retained_product as rp;
 use super::retained_receipt as rr;
 use super::*;
-use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
+use open_pipe_stress_canonical_json::{checked_v1_domain_canonical, ByteSink, DomainPayload};
 use open_pipe_stress_frame_kernel::structural::retained_api as k;
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
@@ -228,24 +228,15 @@ impl Enc {
 fn sha_hex(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
-/// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))) (C1 §3).
+/// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))) (C1 §3),
+/// streamed from the borrowed payload into the hasher (T4-S6; DEL-05-03
+/// Design §9): no wrapper copy, serialized text, re-parse or canonical text is
+/// held, and the digest and every refusal are the former path's
+/// (`checked_v1_domain_canonical`).
 pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {
-    let text = domain_text(domain, payload)?;
-    canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))
-}
-/// The serialized `{"domain","payload"}` text that `domain_hash` canonicalizes.
-pub(super) fn domain_text(domain: &str, payload: &Value) -> Option<String> {
-    serde_json::to_string(&DomainPayload { domain, payload }).ok()
-}
-/// U6-DH (DEL-05-03 Design §9): the hashed `{"domain","payload"}` wrapper,
-/// serialized from borrows instead of a copy of the payload in a new `Value`.
-/// Its text is the former `json!` object's: serde_json's object map orders
-/// keys, and `domain` < `payload`, the field order here; each field serializes
-/// as the same string and the same borrowed `Value`.
-#[derive(serde::Serialize)]
-struct DomainPayload<'a> {
-    domain: &'a str,
-    payload: &'a Value,
+    let mut hasher = Sha256::new();
+    checked_v1_domain_canonical(domain, DomainPayload::Value(payload), &mut ByteSink(|bytes: &[u8]| hasher.update(bytes))).ok()?;
+    Some(format!("{:x}", hasher.finalize()))
 }
 fn fault_name(f: k::WorkFault) -> &'static str {
     match f {

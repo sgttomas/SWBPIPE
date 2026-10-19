@@ -16,16 +16,19 @@ RE = 'core/reporting/result_export/src/'
 # lib.rs's suffix and diag lines +36 more (the realized-arc marker's helpers). Final source 588de796a4: lib.rs's
 # lines +5 more (PP4's withhold_certified_summaries), physics_source.rs's require +1 (RD3's `bit_equal` import).
 # W1-L5: the lib.rs aggregation changes shift these unchanged tail sites by +2.
+# T4-S5 (epoch): every line moved with unchanged text: pressure_runtime.rs -3 (ARC_WITHHELD_REASON removed) and -25
+# more after exact_member_recovery (the arc maximum policy removed), +3 after assemble_pressure_case's bend radius;
+# lib.rs +314/+356; retained_product.rs +27; preview_physics.rs +31.
 LN = {
-    'problem': 162,       # pressure_runtime.rs fn problem (160) [148]
-    'diag': 168,          # `let mut finding = diag(` (166) [154]
-    'format': 169,        # `&format!(` (167) [155]
-    'join': 171,          # `stable_suffix(&refs.join(":"))` (169) [157]
-    'to_string': 176,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    'unit_message': 9400, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 14009,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 13958,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 14008,   # lib.rs fn stable_suffix (13613) [13618]
+    'problem': 159,       # pressure_runtime.rs fn problem (160) [148]
+    'diag': 165,          # `let mut finding = diag(` (166) [154]
+    'format': 166,        # `&format!(` (167) [155]
+    'join': 168,          # `stable_suffix(&refs.join(":"))` (169) [157]
+    'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
+    'unit_message': 9714, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 14365,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 14314,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 14364,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 96,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
@@ -71,9 +74,9 @@ AUDIT_CURRENT = {
     PP + 'formation_guard.rs:239': {'failure': {'bytes': 43, 'source': 'STATIC'}},
 }
 LEX_CURRENT = {
-    'retained_product.rs:3179': {'class': 46, 'why': WHY + '; requested mode literal'},   # [B7b 3028]
-    'retained_product.rs:3336': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185]
-    'preview_physics.rs:598': {'class': 47, 'why': WHY + '; arc basis literal'},
+    'retained_product.rs:3206': {'class': 46, 'why': WHY + '; requested mode literal'},   # [B7b 3028]
+    'retained_product.rs:3363': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185]
+    'preview_physics.rs:629': {'class': 47, 'why': WHY + '; arc basis literal'},
     'lib.rs:%d' % LN['unit_message']: {'class': 600, 'why': WHY + '; unit-conversion owned message'},
     'pressure_runtime.rs:%d' % LN['join']: {'class': 644, 'why': WHY + '; complete five-ref joined spelling'},
 }
@@ -87,9 +90,13 @@ PROBLEM_SITES = [(LN['diag'], 'diag'), (LN['format'], 'format'), (LN['join'], 'j
 PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 1332, 1480, 1720
     # T4-U6 [B7b: 176, 222, 507, 521, 594, 1067, 1308, 1456, 1696]; epoch addbdc030e: -3 after
     # assemble_pressure_case's `realized_arc` call
-    '190:exact_member_recovery', '236:validate_profile', '519:check_suffixes',
-    '533:normalize_region_units', '606:assemble_pressure_case', '1082:add_joint_terms',
-    '1332:finish_source_groups', '1480:traverse_region', '1720:collinear_run')]
+    '187:exact_member_recovery', '211:validate_profile', '494:check_suffixes',
+    '508:normalize_region_units', '581:assemble_pressure_case', '1060:add_joint_terms',
+    '1310:finish_source_groups', '1458:traverse_region', '1698:collinear_run')]
+# U5B-JV (T4-U5b): joint.rs `hardware`'s match binding `Err(Some(problem)) => problems.push(problem)` gives the
+# by-name value scan one more graph parent of `problem`, which hardware never calls; o10_rules.py zeroes that edge, and
+# the owner's message/ref bounds are unchanged (hardware passes neither).
+JOINT_VALUE_PARENT = PP + 'joint.rs:226:hardware'
 
 
 def adjacent(name):
@@ -212,7 +219,8 @@ def validate_consumers(graph, formats, lexical):
     if PROBLEM not in edges:
         raise ValueError('B7a scoped TEXT: missing qualified problem owner')
     parents=[u for u,vs in edges.items() for v in vs if v==PROBLEM]
-    if sorted(parents)!=sorted(PROBLEM_PARENTS):
+    expected=PROBLEM_PARENTS+([JOINT_VALUE_PARENT] if JOINT_VALUE_PARENT in edges else [])
+    if sorted(parents)!=sorted(expected):
         raise ValueError('B7a scoped TEXT: problem caller inventory changed')
     if edges[PROBLEM] != [PP+'lib.rs:%d:diag' % LN['diag_fn'], PP+'lib.rs:%d:stable_suffix' % LN['suffix_fn']]:
         raise ValueError('B7a scoped TEXT: problem conversion/diag edge changed')

@@ -307,7 +307,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
     # T4-U6 (D-5, §2.1, §2.2): both families of every stress signature against the two sections; one headline per basis.
-    _basis(sb.twins, rows, sections, {key: region_pressures[key[0], rid] for key, rid in owners.items()})
+    _basis(sb.twins, rows, sections, {key: region_pressures[key[0], rid] for key, rid in owners.items()}, _twin_order(source))
     _u4b_straight(source, cases, geometries, materials, rows, table)
     _basis(sb.headlines, source.get("summary"), rows, complete)
     for cid, case in cases.items():
@@ -335,6 +335,23 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
                 _require(rows[ref].get("basis_ref") == case["basis_ref"], "numerical row case scope")
             else:
                 _require(ref in diagnostics and cid in diagnostics[ref].get("affected_refs", []), "numerical diagnostic case scope")
+
+
+def _twin_order(source: Mapping[str, Any]):
+    """T4-U4b: D-5's row order (section-bases-and-timoshenko.md §2.5) on the composite, Rust's
+    ``SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER`` at its place in the twin pass (after the twin is matched, before the pair's
+    values): a U4b-family nominal row's reduced twin is the published row immediately after it. The arc maxima's
+    clause is vacuous here, since the composite declines every realized arc."""
+    from . import u4b
+    published = source["results"]
+    positions = {id(row): position for position, row in enumerate(published)}
+
+    def check(row: Mapping[str, Any], twin: Mapping[str, Any]) -> None:
+        if row["kind"] in u4b.KINDS:
+            following = positions[id(row)] + 1
+            if not (following < len(published) and published[following] is twin):
+                raise ValueError("SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER")
+    return check
 
 
 def _u4b_straight(source: Mapping[str, Any], cases: Mapping[str, Any], geometries: Mapping[str, Mapping[str, Any]],

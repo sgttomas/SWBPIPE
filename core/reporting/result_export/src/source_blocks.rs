@@ -4,7 +4,7 @@
 //! v2 composites (physics-source-1, load-reference-source-1). No imported receipt constructs a live exact response,
 //! and a digest is never treated as arithmetic proof.
 use crate::semantic_contract::signature_in;
-use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
+use open_pipe_stress_canonical_json::{checked_v1_domain_canonical, ByteSink, DomainPayload};
 use open_pipe_stress_correct_norm::norm3;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -173,11 +173,22 @@ fn hex(t: &str, n: usize) -> bool {
         && t.bytes()
             .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
+/// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))), streamed
+/// from the borrowed payload into the hasher (T4-S6): the digest and every
+/// refusal are those of the former copied, serialized and re-parsed text
+/// (`checked_v1_domain_canonical`).
 pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {
-    let value = json!({"domain":domain,"payload":payload});
-    let checked =
-        canonical_json_checked_v1_text(&serde_json::to_string(&value).map_err(|e| e.to_string())?)?;
-    Ok(format!("{:x}", Sha256::digest(checked.as_bytes())))
+    domain_digest(domain, DomainPayload::Value(payload))
+}
+/// `domain_hash` of an object less its top-level member `omit`, without a
+/// copy of the object.
+pub fn domain_hash_without(domain: &str, object: &serde_json::Map<String, Value>, omit: &str) -> Result<String, String> {
+    domain_digest(domain, DomainPayload::ObjectWithout(object, omit))
+}
+fn domain_digest(domain: &str, payload: DomainPayload<'_>) -> Result<String, String> {
+    let mut hasher = Sha256::new();
+    checked_v1_domain_canonical(domain, payload, &mut ByteSink(|bytes: &[u8]| hasher.update(bytes)))?;
+    Ok(format!("{:x}", hasher.finalize()))
 }
 /// A receipt's canonical commitment; shared by raw and transported statements.
 fn validate_receipt_hash(receipt: &Value) -> Result<(), String> {
@@ -189,14 +200,11 @@ fn validate_receipt_hash(receipt: &Value) -> Result<(), String> {
 }
 /// Bind the receipt to the raw publication. Callers validate the receipt first.
 pub fn validate_publication_hash(source: &Value) -> Result<(), String> {
-    let mut publication = source.clone();
-    publication
-        .as_object_mut()
-        .ok_or("SOURCE_BLOCKS_RAW_FIELDS")?
-        .remove("source_block_recovery");
+    // The publication is the source less its receipt, hashed without a copy.
+    let publication = source.as_object().ok_or("SOURCE_BLOCKS_RAW_FIELDS")?;
     require!(
         source["source_block_recovery"]["body"]["publication_sha256"]
-            == domain_hash("source_blocks_publication_v1", &publication)?,
+            == domain_hash_without("source_blocks_publication_v1", publication, "source_block_recovery")?,
         "PUBLICATION_HASH"
     );
     Ok(())

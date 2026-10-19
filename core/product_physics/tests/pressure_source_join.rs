@@ -437,7 +437,7 @@ fn v3_rescued_cases_publish_pressure_source() {
 /// `pipe_sections` shape and the revised limitations 0 and 7; against the
 /// previous pins every earlier row value is bit-identical and each reduced
 /// twin is bit-equal to its nominal row (the sections coincide here).
-/// Re-pinned for the RF metered charging rule (DEL-05-02
+/// Re-pinned for the RF metered charging rule (DEL-04-08
 /// rf-source-method-extension.md §5): against the previous pins exactly six
 /// leaves of each publication changed, all work-derived: the case, invocation
 /// and publication charges, the selected summary's work, and the receipt and

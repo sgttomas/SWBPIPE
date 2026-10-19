@@ -191,6 +191,11 @@ rows["T15 C3 event storage and evidence completion"] = (
 # W1-CAP/LED/REC/L4: positive actual-source owners. Existing nodal owners,
 # reservations, the original nodal ledger and the PP maximum helper remain.
 rows.update(_w1_member_model.producer_additions(n, m, l, CC, ID))
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-W1): freeze_case's prepared_not_covered reserves one operand table
+# per member, live while the case's not-covered rows complete (per attempted case, scaled below with T14).
+import u4b_u5b_owners_model as _u45_model
+if os.environ.get("RP_SNAPSHOT") and _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_covered"]:
+    rows["T14.4 prepared_not_covered operand table (U4B-W1)"] = _u45_model.producer_not_covered(m)
 
 ASM = dict(ASSUMED)
 ASM.update({"s(UniformMemberLoad)": 56, "s(MemberTermIdentity)": 64,

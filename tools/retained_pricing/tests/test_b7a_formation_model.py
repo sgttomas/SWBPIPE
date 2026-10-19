@@ -256,7 +256,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     for key in ("formation_guard.rs:239", "formation_guard.rs:241", "formation_guard.rs:251", "formation_guard.rs:322"):
         assert key in text["site_total"]
     assert text["lex_site_size"]["formation_guard.rs:330"]["class"] == 993964
-    assert text["lex_site_size"]["retained_product.rs:611"]["class"] == 994321
+    assert text["lex_site_size"]["retained_product.rs:616"]["class"] == 994321   # T4-S5: 611 moved, unchanged text
     assert text["site_total"][current("load_ledger.rs:133")]["bytes"] == "5*cases*(12*l)*2*128"
     assert text["site_total"][current("load_ledger.rs:408")]["bytes"] == "4*cases*(12*l)*2*128"
     # Two independent lists are an occurrence multiplier; the final2 is
@@ -381,10 +381,11 @@ def test_newly_reached_identifier_audits_bind_exact_production_expressions():
         "pipe.len()":{"bytes":20,"source":"NUM"},
     }
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
-    for line in (509,515,525,575,588,595):
+    # T4-S5 (epoch 4): unchanged text, moved (T4-U6/U8: 509, 515, 525, 575, 588, 595; 627, 637, 643, 649).
+    for line in (528,534,544,620,633,640):
         assert table[fc+str(line)] == {
             "terms[p.term_index].source":{"bytes":128,"source":"IN128"}}
-    for line in (627,637,643,649,MODEL["FIRST_RETURN_LINE"]):
+    for line in (672,682,688,694,MODEL["FIRST_RETURN_LINE"]):
         assert table[fc+str(line)] == {
             "term.source":{"bytes":128,"source":"IN128"}}
     # These are literal producer/source edges under the existing raw guards,

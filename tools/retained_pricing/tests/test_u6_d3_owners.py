@@ -11,28 +11,112 @@ SOURCE = PRICING.parents[1]
 MODEL = runpy.run_path(str(PRICING / "base/u6_owners_model.py"))
 RW = "core/product_physics/src/retained_wire.rs"
 SR = "core/product_physics/src/source_receipt.rs"
+SBK = "core/reporting/result_export/src/source_blocks.rs"
+CJ = "core/serialization/canonical_json/src/lib.rs"
+# The U6-DH/U6-SH borrowed-wrapper forms that preceded S6-HS (T4-S6), as the model reads them.
+FORMER_DH = ("pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {\n"
+             "    let text = domain_text(domain, payload)?;\n"
+             "    canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))\n}\n"
+             "pub(super) fn domain_text(domain: &str, payload: &Value) -> Option<String> {\n"
+             "    serde_json::to_string(&DomainPayload { domain, payload }).ok()\n}\n"
+             "#[derive(serde::Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n    payload: &'a Value,\n}\n")
+FORMER_SH = ("fn hash(domain: &'static str, payload: &Value) -> Result<String, ReceiptError> {\n"
+             "    let text = hash_text(domain, payload)?;\n"
+             "    Ok(format!(\"{:x}\", Sha256::digest(text.as_bytes())))\n}\n"
+             "fn hash_text(domain: &str, payload: &Value) -> Result<String, ReceiptError> {\n"
+             "    let text = serde_json::to_string(&DomainPayload { domain, payload }).map_err(|e| bad(e.to_string()))?;\n"
+             "    canonical_json_checked_v1_text(&text).map_err(bad)\n}\n"
+             "#[derive(Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n    payload: &'a Value,\n}\n")
+IMPORT_NOW = "use open_pipe_stress_canonical_json::{checked_v1_domain_canonical, ByteSink, DomainPayload};\n"
+IMPORT_SR_NOW = ("use open_pipe_stress_canonical_json::{canonical_json_checked_v1_text, checked_v1_domain_canonical, ByteSink, "
+                 "DomainPayload};\n")
+IMPORT_FORMER = "use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;\n"
 HASHES = [
-    ("domain_hash_copies", RW, "    let text = domain_text(domain, payload)?;\n",
+    ("domain_hash_copies", "domain_hash_streams", RW, MODEL["STREAM_DH"], FORMER_DH,
+     "    let text = domain_text(domain, payload)?;\n",
      '    let text = serde_json::to_string(&json!({"domain":domain,"payload":payload})).ok()?;\n'),
-    ("receipt_hash_copies", SR, "    let text = hash_text(domain, payload)?;\n",
+    ("receipt_hash_copies", "receipt_hash_streams", SR, MODEL["STREAM_SH"], FORMER_SH,
+     "    let text = hash_text(domain, payload)?;\n",
      '    let text = checked(&json!({"domain":domain,"payload":payload}))?;\n'),
 ]
 
 
-def test_current_hashes_serialize_borrowed_wrappers():
-    assert MODEL["domain_hash_copies"]((SOURCE / RW).read_text()) is False
-    assert MODEL["receipt_hash_copies"]((SOURCE / SR).read_text()) is False
+def test_current_hashes_stream():
+    """S6-HS: every priced publication-hash family streams its digest from the borrowed payload."""
+    assert MODEL["domain_hash_streams"](SOURCE, (SOURCE / RW).read_text()) is True
+    assert MODEL["receipt_hash_streams"](SOURCE, (SOURCE / SR).read_text()) is True
+    assert MODEL["reader_hash_streams"](SOURCE) == (True, True)
 
 
-@pytest.mark.parametrize("function,file,borrow,copy", HASHES)
-def test_the_json_copy_is_priced_and_any_other_form_stops(function, file, borrow, copy):
+@pytest.mark.parametrize("copies,streams,file,streamed,former,borrow,copy", HASHES)
+def test_former_forms_keep_their_prices_and_any_other_form_stops(copies, streams, file, streamed, former, borrow, copy):
     text = (SOURCE / file).read_text()
-    assert text.count(borrow) == 1
-    assert MODEL[function](text.replace(borrow, copy)) is True
+    assert text.count(streamed) == 1
+    old = text.replace(streamed, former).replace(IMPORT_NOW, IMPORT_FORMER).replace(IMPORT_SR_NOW, IMPORT_FORMER)
+    assert MODEL[streams](SOURCE, old) is False and MODEL[copies](old) is False
+    assert MODEL[streams](SOURCE, old.replace(borrow, copy)) is False and MODEL[copies](old.replace(borrow, copy)) is True
     with pytest.raises(SystemExit):
-        MODEL[function](text.replace(borrow, borrow.replace("payload)?", "&payload.clone())?")))
+        MODEL[streams](SOURCE, old.replace(borrow, borrow.replace("payload)?", "&payload.clone())?")))
     with pytest.raises(SystemExit):
-        MODEL[function](text + '\nfn other() { let _ = DomainPayload { domain: "", payload: &Value::Null }; }\n')
+        MODEL[copies](old + '\nfn other() { let _ = DomainPayload { domain: "", payload: &Value::Null }; }\n')
+    # A streamed form beside a former wrapper, or a changed stream, stops.
+    with pytest.raises(SystemExit):
+        MODEL[streams](SOURCE, text + "\n#[derive(Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n}\n")
+    with pytest.raises(SystemExit):
+        MODEL[streams](SOURCE, text.replace(streamed, streamed.replace("Sha256::new()", "Sha256::default()")))
+
+
+def reader_snapshot(tmp_path, edits=()):
+    for relative in (SBK, MODEL["RPX"], CJ):
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(SOURCE / relative, target)
+    for relative, old, new in edits:
+        text = (tmp_path / relative).read_text()
+        assert text.count(old) == 1, old
+        (tmp_path / relative).write_text(text.replace(old, new))
+    return tmp_path
+
+
+FORMER_RS = ("pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {\n"
+             "    let value = json!({\"domain\":domain,\"payload\":payload});\n"
+             "    let checked =\n        canonical_json_checked_v1_text(&serde_json::to_string(&value).map_err(|e| e.to_string())?)?;\n"
+             "    Ok(format!(\"{:x}\", Sha256::digest(checked.as_bytes())))\n}\n")
+STREAM_RS = "".join(MODEL["STREAM_RS"])
+FORMER_G1 = ("        let mut public = source.clone();\n        public\n            .as_object_mut()\n"
+             "            .ok_or_else(|| error(\"G1\", \"RECEIPT_MISMATCH\"))?\n            .remove(\"retained_precision\");\n"
+             "        need(\n            hash(\n                \"retained_precision_publication_mp_v2\",\n                &public,\n")
+
+
+def test_the_reader_hash_forms(tmp_path):
+    rp = MODEL["RPX"]
+    assert MODEL["reader_hash_streams"](reader_snapshot(tmp_path / "now")) == (True, True)
+    sb_text = (SOURCE / SBK).read_text()
+    streamed = sb_text[sb_text.index(MODEL["STREAM_RS"][0]):sb_text.index(MODEL["STREAM_RS"][2]) + len(MODEL["STREAM_RS"][2])]
+    borrow = MODEL["BORROW_G1"]
+    former_sb = (SBK, streamed, FORMER_RS)
+    former_g1 = (rp, borrow, FORMER_G1)
+    no_helper = (rp, MODEL["HASH_WITHOUT"], "")
+    assert MODEL["reader_hash_streams"](reader_snapshot(tmp_path / "old", [former_sb, former_g1, no_helper])) == (False, False)
+    assert MODEL["reader_hash_streams"](reader_snapshot(tmp_path / "half", [former_g1, no_helper])) == (True, False)
+    with pytest.raises(SystemExit):     # a borrowed publication beside the former copying hash
+        MODEL["reader_hash_streams"](reader_snapshot(tmp_path / "mixed", [former_sb]))
+    with pytest.raises(SystemExit):     # a changed canonical writer
+        MODEL["reader_hash_streams"](reader_snapshot(tmp_path / "cj", [(CJ, "Vec::with_capacity(map.len())", "Vec::new()")]))
+
+
+def test_stream_route_holds_only_the_string_temporary_frames_and_key_vectors():
+    sys_path = str(PRICING / "base")
+    import sys
+    sys.path.insert(0, sys_path)
+    from g3lib import ASSUMED
+
+    class VF:
+        depth, ent = 6, 1000
+    route = MODEL["stream_route"](VF, 1_000_000, 2)
+    assert route.ev(dict(ASSUMED)) == 2 * (2 * 1_000_000 + 2) + 6 * 128 + 272 + 16 * 1000
+    assert MODEL["stream_last_growth"](1_000_000, 2).ev(dict(ASSUMED)) == 2 * 1_000_000 + 2
+    assert MODEL["stream_route"](VF, 10, 2).ev(dict(ASSUMED)) == 128 + 6 * 128 + 272 + 16 * 1000
 
 
 def snapshot(tmp_path, file=None, old=None, new=None):

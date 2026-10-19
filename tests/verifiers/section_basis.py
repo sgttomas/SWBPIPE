@@ -27,7 +27,7 @@ sections (bit-equal where the bases coincide, else the same resultant within the
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 import math
 import struct
 from typing import Any
@@ -304,11 +304,13 @@ def lame_station(values: Mapping[str, float], annulus: Mapping[str, float], p: f
              and agree(values["lame_inner_hoop_stress"], values["lame_outer_hoop_stress"] + p), "stress basis section")
 
 
-def twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], pressures: Mapping[tuple[str, str], float]) -> None:
+def twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], pressures: Mapping[tuple[str, str], float],
+          order: Callable[[Mapping[str, Any], Mapping[str, Any]], None] | None = None) -> None:
     """§2.1, §2.5: both families of every stress signature. Each nominal row's twin is the row of the same id with the
     reduced segment, the same recovery token and the same declared semantics; each pair is checked against its member's
     two sections, and each straight member's Lame rows against each basis's own annulus and its region's pressure
-    (``pressures`` by (case, member))."""
+    (``pressures`` by (case, member)). ``order(row, twin)``, when given, is the caller's row-order check on each
+    nominal row and its twin, made after the twin is matched and before the pair's values are compared."""
     stress = [row for row in rows.values() if row.get("kind") in STRESS_KINDS]
     pairs = 0
     lame: dict[tuple[str, str, str, str], dict[str, float]] = {}
@@ -326,6 +328,8 @@ def twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], pres
         _require(isinstance(twin, Mapping) and row_basis(twin) == (token, REDUCED)
                  and all(twin.get(k) == row.get(k) for k in ("kind", "unit", "entity_ref", "basis_ref"))
                  and all(twin["metadata"].get(k) == metadata.get(k) for k in ("component", "coordinate_system", "location", "sign_convention")), "stress basis twin")
+        if order is not None:
+            order(row, twin)
         twin_values(row["kind"], row["value"], twin["value"], sections[cid, pid])
         pairs += 1
     _require(2 * pairs == len(stress), "stress basis twin")

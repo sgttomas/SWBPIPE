@@ -35,14 +35,31 @@ import runpy
 # cohort here; their additional owners are positive in w1_member_load_model.
 # Current site keys are carried by their unchanged text/function identity.
 # Historical BASE_PREIMAGES below remain keyed to the original basis.
-SOURCE_FILES = {'core/product_physics/src/lib.rs': 'a5c5b09f31a996c19ff63ace14bd39a07b7a474d6b03556a19825057e90aed74', 'core/product_physics/src/certified_loads.rs': '56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f', 'core/product_physics/src/retained_product.rs': '69a87004ff692dd577c2b4bd0f7a17e621cd5d4ea07b29d55ddc7618200ef025', 'core/product_physics/src/retained_wire.rs': '9d4fbf77f8c800dc0fc0800d3be417be49f1d95c678945b4b0a4557c6515bf13', 'core/product_physics/src/certified_publication.rs': '0008eb462f94640386194afb3659fdc3d74fb2e45ae690b7b2646db5feb8be57', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '4e2b2aed3a155b3893d9bab353aad112248ca555b4016b59a075cb0ec719cdf2', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'e9a0bb4220482e9596e0e11ec698ae2291da5d223865d21ce9d7e2725594f7af', 'core/loads/primitive_loads/src/lib.rs': 'f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121', 'core/solver/straight_pipe/src/lib.rs': 'a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7', 'core/product_physics/src/preview_physics.rs': '61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468', 'core/reporting/result_export/src/retained_precision.rs': '7772f539ff2a2a2d75805a1e1a1c634b23fa56fdc63b8596954c89b067d1533e', 'core/product_physics/src/model_format.rs': '5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f', 'core/product_physics/src/pressure_runtime.rs': 'e0897c0216eb1d774e15d44c1641bc33e2b3b5a01a1da7ec192ea722fc5b8de2', 'core/product_physics/src/source_receipt.rs': 'a74f58877c0fe80bc8b5e36f55af2524c366a85c97a0137e92711539cb23f8c9', 'core/product_physics/src/exact_admission.rs': '493e5876cdc5fbbe593a1435a6c8b235323a2a76f8b339f41fe14e8e541eec7b', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': 'c71d4acf1aa3f2d5c048eefe3d559b192d31c2d962083cf89bd4ef978347d9cd', 'core/solver/frame_kernel/src/lib.rs': '76d2b727e5ccaa051ffda7daad7ea0b299741a70b8388a54b310b5570f7cffa9', 'core/reporting/result_export/src/semantic_contract.rs': 'c19cdf808085d9a43ad985ad56146093b4124975a0d764969718f276e480db45', 'core/reporting/result_export/src/physics_source.rs': 'cdf30d5ade495af00456612daec1a85dce6f5d83043174fefe31897484be92e9'}
+# T4-S5 D3 (shared epoch 4: model 0.6.0, U4b, U5b, the W1 not-covered passthrough; retained-pricing-rules.md §8.8):
+# the changed owner files are re-bound after their diffs were read. lib.rs adds the U4b station rows
+# (u4b_rows::append_station_quantities, priced by U4B-ST), the published corrected displacement (U5B-PD), tie-rod
+# reference loads and rows (components only: P3 keeps them empty) and arc maxima (realized arcs only: none on D1);
+# retained_product.rs adds the passthrough capture, failed-manifest derived rows and prepared_not_covered (U4B-W1);
+# retained_wire.rs moves two definition hashes; certified_publication.rs adds a tie-rod loop (P3: empty);
+# exact_admission.rs, model_format.rs, physics_source.rs and semantic_contract.rs change identity/version tokens,
+# texts and the -2 tables (the reader statics are re-bound to their -2 paths); pressure_runtime.rs drops the arc
+# withheld policy; preview_physics.rs changes its texts and arc branches; FK lib.rs, formation_check.rs,
+# certified_recovery.rs and structural_adapter.rs add the tie rod, contribution groups and certify_displacement.
+# No admission, cap or census changes: the domain model's widened owners keep their bases.
+# T4-S6 D3 (retained-pricing-rules.md §8.8, S6-HS): retained_wire.rs's domain_hash and source_receipt.rs's hash stream
+# the checked canonical text into SHA-256 (domain_text, hash_text and both DomainPayload structs are deleted), and
+# retained_precision.rs's G1 hashes the publication as the source without its receipt instead of a clone. No owner
+# this model prices changes; the hash routes are priced by S6-HS in g4_caps.py and t25_g4.py.
+SOURCE_FILES = {'core/product_physics/src/lib.rs': 'a3354c083872cdaa64dd895afb14e2b9d0b72f0b445e0c9f8df78255d2ae8950', 'core/product_physics/src/certified_loads.rs': '56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f', 'core/product_physics/src/retained_product.rs': '6114335b6660a7f2905009741ea94dee5fbf6c42aa69fc4d15ac968b5d520713', 'core/product_physics/src/retained_wire.rs': '0ed778f1b64699e60b8b7cf624ba7f6d62693a6f75256cbb17a699122b2e1602', 'core/product_physics/src/certified_publication.rs': '8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7', 'core/loads/primitive_loads/src/lib.rs': 'f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121', 'core/solver/straight_pipe/src/lib.rs': 'a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7', 'core/product_physics/src/preview_physics.rs': 'a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7', 'core/reporting/result_export/src/retained_precision.rs': '85e7f8d886a4f18a3e07cf39b7b1e3b5ff84f8d48268a853fd987c5c4af6fd93', 'core/product_physics/src/model_format.rs': '80e5628b674d35298a9bf189518e24ba3f6e206cb8084a4214b4d00c2337d911', 'core/product_physics/src/pressure_runtime.rs': 'f41bd1f584b0b3463c98fc7ab91b0b056d04f3ffac6ad0f63fdc905c3a916e02', 'core/product_physics/src/source_receipt.rs': 'cd1f62c6598019ff48b5a580f439ae1669e52cbdbed1c53fc9d6a5e38dd4952b', 'core/product_physics/src/exact_admission.rs': 'a9fcc6ccf3490fcbfc5d0473a0d87ea5fcb08550b399f52ada4a5ddd6e582aa3', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '05f7bf0048b6c078060b55e5a080266ec52946eb0b1f9aaa9c60699621996b42', 'core/solver/frame_kernel/src/lib.rs': 'af5497d7f082ae76dc368a5001ba3cb2d4b91d61e17efa3a3ce1328d4111ed43', 'core/reporting/result_export/src/semantic_contract.rs': '7464b7d9fa0adbc2ac5f6b21efb45af268fa1801941f4a393e0cdeb3fd3ea6e5', 'core/reporting/result_export/src/physics_source.rs': '6d12aed9ec15cd4bc0d0274ad15cf6dd8fb645302862fcbeca1318a8e90b1e0f'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
 # Both only narrow admission; the caps, census and late admission bodies are unchanged.
-FAMILY_PIN = "41b97bbb844b8e25bee51b9252edd1e00565766bc435df1e38c08b0bd7ea7486"
+# T4-S5 (epoch): family_clauses and the admission prefix change only in comments (the branch documents read 0.6.0
+# for 0.5.0); the admission code, caps, census and late bodies are unchanged.
+FAMILY_PIN = "b7d1b0112a114e64abb26f99302c5a0b348ef70d09a895e170ab77c96734e798"
 ADMISSION_MARKER = "// ---- D-6: the build status --------------------------------------------------"
-ADMISSION_PREFIX_PIN = "1b88ca84e9a98b811f867849e80c0e6ae360cd83dd7f1a4c2832b71da8907656"
+ADMISSION_PREFIX_PIN = "0168ed117aeb09080bc56abbb2dfb0eeeb728ee9998cad59c5e05c2577b4694d"
 ADMISSION_LATE_PINS = {"law_order":"b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3","admit":"67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8","admission":"7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"}
 MATERIALS = 4
 OPERAND_WORDS = 26
@@ -58,7 +75,7 @@ STATIC_PREIMAGE = ('schemas/physics_source_recovery.schema.json', 'schemas/retai
 # B7b D3 review (b7-plan D2): load_reference::transport_schema()'s
 # OnceLock<Result<Value, String>> over the pinned load_reference_state schema
 # is a surviving independent process-lifetime owner, priced as its Ok Value.
-STATIC_OWNERS = (('core/reporting/result_export/src/physics_source.rs:schema', 'schemas/physics_source_recovery.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:schema', 'schemas/retained_precision_mp_v2.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:definition', 'fixtures/results/retained_precision_prepared_ordinary_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:table', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_1.json'), ('core/reporting/result_export/src/retained_precision.rs:combination_definition', 'fixtures/results/retained_precision_prepared_combination_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_definition', 'fixtures/results/retained_precision_prepared_exact_v1.json'), ('core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_table', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_source_contract', 'fixtures/results/semantic_contract_v0_3_pressure_source_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_rows_contract', 'fixtures/results/semantic_contract_v0_3_pressure_1.json'), ('core/reporting/result_export/src/load_reference.rs:transport_schema', 'schemas/load_reference_state.schema.json'))
+STATIC_OWNERS = (('core/reporting/result_export/src/physics_source.rs:schema', 'schemas/physics_source_recovery.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:schema', 'schemas/retained_precision_mp_v2.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:definition', 'fixtures/results/retained_precision_prepared_ordinary_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:table', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_2.json'), ('core/reporting/result_export/src/retained_precision.rs:combination_definition', 'fixtures/results/retained_precision_prepared_combination_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_definition', 'fixtures/results/retained_precision_prepared_exact_v1.json'), ('core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_table', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_source_contract', 'fixtures/results/semantic_contract_v0_3_pressure_source_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_rows_contract', 'fixtures/results/semantic_contract_v0_3_pressure_2.json'), ('core/reporting/result_export/src/load_reference.rs:transport_schema', 'schemas/load_reference_state.schema.json'))
 
 
 def inspect(snapshot):
@@ -266,57 +283,98 @@ def text_decisions(snapshot, resolved):
         # failed_manifest 4298..; retained_precision.rs 5555/5637/5661). Epoch addbdc030e: the lib.rs keys +36
         # (the realized-arc marker's three helpers after `straight_section_resultants`); final source 588de796a4:
         # every lib.rs key after withhold_certified_summaries +5 (PP4's doc lines and reduced-headline clear).
-        (pp + "lib.rs:10998", {"load_case_id": inp}),
-        (pp + "lib.rs:11012", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11019", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:11024", {"load.load_id": inp}),
-        (pp + "lib.rs:11025", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:11026", {"bend.component_id": inp}),
-        (pp + "lib.rs:11027", {"load_case_id": inp}),
-        (pp + "lib.rs:11086", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11093", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:11098", {"load.load_id": inp}),
-        (pp + "lib.rs:11099", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:11100", {"bend.component_id": inp}),
-        (pp + "lib.rs:11101", {"load_case_id": inp}),
-        (pp + "lib.rs:11140", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11147", {"load.load_id": inp, "load_case_id": inp}),
+        (pp + "lib.rs:11312", {"load_case_id": inp}),
+        (pp + "lib.rs:11326", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11333", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:11338", {"load.load_id": inp}),
+        (pp + "lib.rs:11339", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:11340", {"bend.component_id": inp}),
+        (pp + "lib.rs:11341", {"load_case_id": inp}),
+        (pp + "lib.rs:11400", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11407", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:11412", {"load.load_id": inp}),
+        (pp + "lib.rs:11413", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:11414", {"bend.component_id": inp}),
+        (pp + "lib.rs:11415", {"load_case_id": inp}),
+        (pp + "lib.rs:11454", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11461", {"load.load_id": inp, "load_case_id": inp}),
         (pp + "certified_loads.rs:236", {"case_id": inp}),
         (pp + "certified_loads.rs:259", {"case_id": inp}),
-        (pp + 'retained_product.rs:4509', {"stable_suffix(id)": inp}),
-        (pp + 'retained_product.rs:4510', {"id": inp}),
-        (pp + 'retained_product.rs:4518', {"id": inp, "id.len()": inp, "component": static}),
-        (pp + 'retained_product.rs:4520', {"id": inp}),
-        (pp + 'retained_product.rs:4521', {"component": static}),
-        (pp + 'retained_product.rs:4538', {"member.id": inp, "member.id.len()": inp}),
-        (pp + 'retained_product.rs:4543', {"member.id": inp}),
-        (pp + 'retained_product.rs:4569', {"ordinary.document_kind": static}),
-        (pp + 'retained_product.rs:4570', {"ordinary.model_ref": inp}),
-        (pp + "lib.rs:1058", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3102", {"context.semantic_id()": static}),
-        (pp + "lib.rs:5385", {"support.id": inp}),
-        (pp + "lib.rs:6129", {"pipe.element_id": inp}),
+        (pp + 'retained_product.rs:4575', {"stable_suffix(id)": inp}),
+        (pp + 'retained_product.rs:4576', {"id": inp}),
+        (pp + 'retained_product.rs:4584', {"id": inp, "id.len()": inp, "component": static}),
+        (pp + 'retained_product.rs:4586', {"id": inp}),
+        (pp + 'retained_product.rs:4587', {"component": static}),
+        (pp + 'retained_product.rs:4604', {"member.id": inp, "member.id.len()": inp}),
+        (pp + 'retained_product.rs:4609', {"member.id": inp}),
+        (pp + 'retained_product.rs:4645', {"ordinary.document_kind": static}),
+        (pp + 'retained_product.rs:4646', {"ordinary.model_ref": inp}),
+        (pp + "lib.rs:1073", {"semantic_contract_id": static}),
+        (pp + "lib.rs:3118", {"context.semantic_id()": static}),
+        (pp + "lib.rs:5580", {"support.id": inp}),
+        (pp + "lib.rs:6318", {"pipe.element_id": inp}),
         (pp + "model_format.rs:26", {"version": static}),
         # ccb19ba0bf: +17 lines (section_allowances), same text.
         # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.
-        (re_ + 'retained_precision.rs:5848', {"mode": static}),
-        (re_ + 'retained_precision.rs:5930', {"text(cid)": inp}),
-        (re_ + 'retained_precision.rs:5954', {"text(cid)": inp}),
+        # T4-S5 (epoch): every key above and below moved with unchanged text (lib.rs +314/+15/+16/+195/+189;
+        # retained_product.rs +66/+76; retained_precision.rs +16). T4-S6 (S6-HS: G1's hash_without): retained_precision.rs
+        # +1, unchanged text.
+        (re_ + 'retained_precision.rs:5865', {"mode": static}),
+        (re_ + 'retained_precision.rs:5947', {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:5971', {"text(cid)": inp}),
     ]
-    lex = [('retained_product.rs:4567', {"class": 64, "why": "source-bound mechanics schema literal"}),
-           ('retained_product.rs:4569', {"class": 2914, "why": "positive formulation content upper; actual struct/Vec storage is separate"}),
-           ('retained_product.rs:4573', {"class": 2914, "why": "positive summary-owned text upper; inline header and LocatedQuantity children stay separate"})]
+    lex = [('retained_product.rs:4643', {"class": 64, "why": "source-bound mechanics schema literal"}),
+           # T4-S6 (Codex correction, §8.8): the formulation content upper is read from the current literals (3,138 B
+           # at T4-S6; 2,914 B was the B7a basis record class, below the epoch's preview-physics limitations).
+           ('retained_product.rs:4645', {"class": max(2914, formulation_content(snapshot)[1]), "why": "positive formulation content upper (current literals); actual struct/Vec storage is separate"}),
+           ('retained_product.rs:4649', {"class": 2914, "why": "positive summary-owned text upper; inline header and LocatedQuantity children stay separate"})]
     member = runpy.run_path(os.path.join(os.path.dirname(__file__), "w1_member_load_model.py"))
     audits.append(member["case_clone_audit"](snapshot))
     return loops, [(resolved(key), values) for key, values in audits], [(resolved(key), value) for key, value in lex]
 
 
-def failed_envelope_copy(cases, ident):
+_LIT = re.compile(r'"((?:[^"\\]|\\.)*)"')
+
+
+def _literals(text, start, stop, label):
+    if text.count(start) != 1:
+        raise ValueError("B7a failed-envelope formulation source changed: " + label)
+    a = text.index(start)
+    e = text.find(stop, a)
+    if e < 0:
+        raise ValueError("B7a failed-envelope formulation source changed: " + label)
+    return [len(x.encode()) for x in _LIT.findall(text[a:e])]
+
+
+def formulation_content(snapshot):
+    """T4-S6 (Codex correction, §8.8): a failed Preview case's formulation text, read from the current literals as
+    (limitation strings, bytes) for the union of its two forms: preview_physics::formulation_basis (its profile id,
+    LIMITATIONS and two recovery sentences; "PF9") and lib.rs preview_formulation_basis with
+    formulation_basis_for_model_with_source's two appended sentences ("blocked8"). Raw literal bytes bound the decoded
+    text. At the B7a basis these were 9 strings / 2,035 B and 8 / 1,649 B."""
+    with open(os.path.join(snapshot, "core/product_physics/src/preview_physics.rs"), encoding="utf-8") as stream:
+        pp = stream.read()
+    with open(os.path.join(snapshot, "core/product_physics/src/lib.rs"), encoding="utf-8") as stream:
+        lib = stream.read()
+    if pp.count("pub(crate) const LIMITATIONS: [&str; 7] = [") != 1:
+        raise ValueError("B7a failed-envelope formulation source changed: LIMITATIONS")
+    limits = _literals(pp, "pub(crate) const LIMITATIONS: [&str; 7] = [", "\n];\n", "LIMITATIONS")
+    pf = limits + _literals(pp, "pub(crate) fn formulation_basis() -> FormulationBasis {", "\n}\n", "PF")
+    blocked = (_literals(lib, "pub fn preview_formulation_basis() -> FormulationBasis {", "\n}\n", "blocked")
+               + _literals(lib, "    basis.limitations.extend([\n", "    ]);\n", "appended"))
+    if len(limits) != 7 or len(pf) != 10 or len(blocked) != 9:
+        raise ValueError("B7a failed-envelope formulation source changed: literal counts")
+    return max(len(pf), len(blocked)) - 1, max(sum(pf), sum(blocked))
+
+
+def failed_envelope_copy(cases, ident, snapshot=None):
     from g3lib import s, V, B
     # A failed Preview case is the only admitted owner. Keep the PF9-limit
-    # 2035-byte union rather than the tighter blocked8-limit1649 bytes.
+    # union rather than the tighter blocked8-limit bytes (2035 and 1649 B at the
+    # B7a basis; T4-S6: read from the current literals when the snapshot is given).
     # The complete real envelope atom includes inline basis/Summary headers.
-    return (s("MechanicsEnvelope") + V("String", 9) + B(2035)
+    strings, content = formulation_content(snapshot) if snapshot else (9, 2035)
+    return (s("MechanicsEnvelope") + V("String", strings) + B(content)
             + B(2 * (2 * ident + 1024))) * cases
 
 BASE_PREIMAGES = {'loop_bounds_sha256': 'cd0273bc94e521142cc56121171055f9020c167b97caa8efe7fa6ac36c69ba4c', 'loop_rows': {'116': {'re': '^for\\ \\(mi,\\ mb\\)\\ in\\ list\\(\\&b\\["\\ "\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$', 'bound': '1', 'why': "I104 SQ B1 re-checked, kept (1): RS reader (:747 g3, :3616 g8): body.material_bases: the producer emits one material basis (D1.5's one default basis) whose case_indices name every case (retained_wire.rs material_basis). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"}, '218': {'re': '^for term in force_terms$|^for force in force_terms \\.iter\\(\\) \\.filter', 'bound': 'l', 'why': 'G4 (R-1, newly reached on the repaired graph): force terms: one per nodal load primitive <= l (D1.7)'}, '313': {'re': 'span\\.start_fraction|uniform_intensities', 'bound': '0', 'why': 'D1.7: no element (distributed) loads, so no load spans (PP lib.rs:9999-10015 at b1f80234dc). G4 (RV84 S-2): bare `intensity` removed (it matched the 3-accumulator zip)'}}, 'fn_zero': {'fn': 'lib.rs:10631:add_uniform_element_loads', 'why': 'D1.7: iterates load_application.element_uniform_loads (lib.rs:3223-3226), empty for nodal-only loads; every text site is inside that loop'}, 'edge_zero': {'caller': 'formation_guard.rs:297:load_row_finding', 'callee': 'formation_guard.rs:216:decide_row', 'why': 'D1.7 nodal-only loads: every formation slot is None, so load_row_finding returns at its has_formation_records() check (formation_guard.rs:303-305; FK load_ledger.rs:307-309; I54 correction ADDENDUM)'}, 'record_audit': {'bytes': 600, 'source': 'COMP'}, 'provenance_join': {'re': '^provenance_records$', 'bytes': '8*(128+200)+8*3', 'why': 'composite_text provenance_join'}, 'copy_lex': {'class': 'result_id', 'why': "adapter copy(): identifiers, units, entity refs, result ids and the basis text (retained_product.rs:247-3452), each <= result_id (G6 repair, RV87 SF-2: re-keyed from b1f80234dc's line 2963 to copy()'s push_str at 1e323058f3, retained_product.rs:3125)"}}
