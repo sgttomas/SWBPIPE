@@ -871,6 +871,12 @@ def compare(correct, wrong):
     rec = {"rows_compared": n, "rows_moved_1e3": len(moved), "rows_moved_below_1e3": below,
            "zero_rows_moved": zero_moved}
     if moved:
+        groups = {}
+        for _, p, _, _ in moved:
+            g = p.split(":")[0]
+            groups[g] = groups.get(g, 0) + 1
+        rec["moved_1e3_by_group"] = {g: groups[g] for g in ("nodal", "member_end_force", "section_action", "stress",
+                                                          "circular_maximum", "support_reaction") if g in groups}
         rec["largest_tolerances"] = moved[0][0]
         rec["smallest_moved_tolerances"] = min(moved, key=lambda t: float(t[0]))[0]
         rec["listed"] = [{"row": p, "correct": fmt_value(c), "wrong": fmt_value(w, False), "tolerances": s}
