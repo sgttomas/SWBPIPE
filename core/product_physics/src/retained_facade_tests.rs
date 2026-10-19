@@ -2527,9 +2527,12 @@ fn b3b_witness_inputs_and_routes() {
 /// T4-U6 re-pin (D-5, DEL-05-03 Design §2.6), read from the producer through the private
 /// driver: the reduced stress twins, basis tokens and id segments, per-basis headlines, extrema
 /// and coverage, the D-5 section evidence and limitations, and the hashes that bind them.
+/// O4 re-pin (DEL-04-08 Design `o4-source-extension.md` §4.8, §4.9; the E14 precedent): read from
+/// the producer through the private driver; only DEF-E's H moved, so against the T4-U6 bytes only
+/// the preparation hash, the source identity and the receipt hash differ.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df", "0b477e1c258781fc8faf05a16a14a4453df542684c2167fa758b691a9d61078e", "3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13"),
-    ("dense_scrutiny", "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab", "0037b6529aaf5da31dd0a01c474cb4651621ee5df69b8e0dce803a5376956a50", "2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1"),
+    ("sparse_interactive", "6ea6b5e467321f4737903693c1ebc2f69026822282f4ca50118ea237ac89e478", "c0103cbbc6f8a57ab5d44b17452f1aba6ae0fb7cfc9e5fc164ba2e24eb602cb1", "71c02b807b11bd3427dcba4247fa032686c51a73c3a45140496707346eadbe20"),
+    ("dense_scrutiny", "3ff95ee0d87c20661be1eb22f260afe096ebcd0777dce8f05f4dab2416d5af62", "a636c7caa4ee54b16aff69dcf6d3413e01da916fd65919a06440d7d917d61128", "e79cf22962616be33e29d78a74c09a0c42376464194287f6c7a1b036a5cf36eb"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2538,7 +2541,8 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// registration, on the same route and value classes as `EXACT_PINNED`.
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "f4f6b87f88cebe7ea324289b9f73bf6c2bd05d5e2ed6aef9535768741ae3f89c", "49404b8fcebf155d1af57f813b5e5ce8a612de45b09eab8ecd57f2971a62711e"),("dense_scrutiny", "5dca51d2d1be03b0aeda12034ad65255f61512cc55ed44e55f97f636e5165624", "1bf0e8ea1252fe129c2d9af95ec39eb0b997b99b5d59dfc15e1c731ff714eb46")];
+/// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "fab6f6e6ba904e7ee978cba5fe11d93f7da3cec70bc07da1b5f73be65509673f", "9e437e02d78a09034dda9489aa666d74622bbc0ec8a48bf1bf571968410edd20"),("dense_scrutiny", "4fe60cdccde18d33804b6ff912eff220684b952ad341312b6e334ed78e5259fc", "1819846919c2b08483686f539f99498421a3e186515bd69305d84a9914f5e429")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3529,11 +3533,12 @@ fn two_member_exact(reversed: bool) -> Value {
 /// included) and D3's registration, on the same route and value classes as `EXACT_PINNED`.
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
+/// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "47cc2f66b115d88f589ec8a12834b62b65331ba0114081b7a675513b323a8e4f"),
-    (false, "dense_scrutiny", "862aac52f6f6b9455f6f6bcc90fea95ef4a0885f374467978252bdb5a14839ca"),
-    (true, "sparse_interactive", "c66eaf39dc747560fd81f1e02c240e092fcd91a8dccf71d1f8bd3372774a7977"),
-    (true, "dense_scrutiny", "48ae8ea611d4cc9a94e3d35d0f181924dd09626dad2f3eedad9a335142e05f2a")];
+    (false, "sparse_interactive", "5fa9bd07100577a19f24b635b292c5ff8490a204b189255cb87482e7a594746d"),
+    (false, "dense_scrutiny", "a2c39c4ddd2eb814d5c294d0e912485acd29c8211a02e956240f574c7a5f0130"),
+    (true, "sparse_interactive", "00e7ef4b0ed1a06b5e7785549f1ed30ac03282f7ae5bc6afc2b97dff5e30574c"),
+    (true, "dense_scrutiny", "9e41c3bd40a27f057c6807d8a769c7415e8005a84237465879db33f704293653")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3577,8 +3582,9 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// of "actual transform is not a signed permutation", with its work. That diagnostic message
 /// and the two hashes binding it (`publication_sha256`, `receipt_sha256`) are the only
 /// changed leaves, in both modes.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "2f3ff8df60af15ae290f4b3bc605e8772ee64347b6f7c7900452c5873c6cf5a0"),
-    ("dense_scrutiny", "46e8efd542a9687af8012e72b394f93a4f780e0506e49e1e76291a31ef436e6d")];
+/// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "c29d996737fcb9d8569054c36f0a317002b37502f19bf5c1742a43463b37b18e"),
+    ("dense_scrutiny", "e208f4c920d2c8737432f253624b0dd0401c52e4a86e53e4549213b633ef047e")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

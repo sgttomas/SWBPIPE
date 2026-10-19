@@ -358,7 +358,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // among the retired versions), the closed member-load test's invocation
             // version and the doc comment of a trailing production function (the
             // -2 identity) changed; no include, path module or excluded production.
-            complete_suffix_sha256: "ffe31fb86e46ff3927484a0fde624e6144c449653c1baf60d0f1dbcca4a25fa5",
+            // Re-audited at O4 S3 (W1-E slice): only the closed `t4_u6_g8_tests` module's
+            // one test changed, renamed `g8_namespace_admits_either_shear_model_and_nonzero_allowances`
+            // (the retired mill-tolerance decline becomes namespace controls; the same
+            // request-fixture include); no include, path module, static or production entered
+            // the suffix, and the production after the resume is byte-identical.
+            complete_suffix_sha256: "e0182005e1c6e181a82d3754bfb4409d4dcbafc9230cdd169bbacbe49c00ea97",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
