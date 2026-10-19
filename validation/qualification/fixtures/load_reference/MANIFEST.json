@@ -13,7 +13,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.reference.candidate.json",
-        "sha256": "0f71dbbf452e837868eba9e3b215a6e014a9ff613d54bb03363daa8aaa38e340"
+        "sha256": "280d7bd8ba470b37c1e024dc35cb19e8e424a33f80dbb8e09f3694c17e5b058a"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.selectors.candidate.json",
@@ -46,7 +46,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.reference.candidate.json",
-        "sha256": "0b04b17a47625d12c45bb027663660627ba9792e872f734aa31f573679b29c67"
+        "sha256": "28e5b9df565a7d2e4ee99c218e84d3eee32e5e8e0be5f98800a0d9c344a676a1"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.selectors.candidate.json",
@@ -79,7 +79,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.reference.candidate.json",
-        "sha256": "7237fdd3d5d2504c70373e1d55867cdc622969bf5edf8d33449903e7919faaa7"
+        "sha256": "3beb44ec4785f7d7ab5258e6591ee2be01f18f92aedd0fa74b8e37c74d7b67e0"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.selectors.candidate.json",
@@ -112,7 +112,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.reference.candidate.json",
-        "sha256": "c3e1eee9419fafe35f1716d591c2a5e130a4bccc52c88f968cbafac7d90083c0"
+        "sha256": "474eed4c6abe3a97986f5c5797fe75e4766727d77bd7bcda0a0a1ddada240a9a"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.selectors.candidate.json",
@@ -145,7 +145,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.reference.candidate.json",
-        "sha256": "4c22c6b320a4acdc984be91c194638decfedaccd8e812fffee4696b891778b15"
+        "sha256": "bede763fd1901c804664c910e40758a1909d1eb8bacf66dbeb96fdc62503c984"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.selectors.candidate.json",
@@ -178,7 +178,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.reference.candidate.json",
-        "sha256": "8f5c2db719f20f9d085eea62cd68628eeca65dbb194deaa5f3870935668d3fff"
+        "sha256": "283269790770c89dccd69b27569c98e507bc1ed8de213ad68012e0924cdbc1bc"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.selectors.candidate.json",
@@ -211,7 +211,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.reference.candidate.json",
-        "sha256": "0e4b4b2a6cc904d0dde0d6f306bd13c2a645fccb98f72bc599338e1aa49647dc"
+        "sha256": "b54ba002d97a4026a7d9c8523d5b6d89f640b1deb708aa50bc3483d00c546f08"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.selectors.candidate.json",
@@ -244,7 +244,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/coefficient_definition.reference.candidate.json",
-        "sha256": "575ae977c5e44954e1ea19eaccb0af6fb2ab44c2d1627ce76a32163210b74605"
+        "sha256": "3fe3e0f0c868a79ddd9985721334252e6c8215062bb554cbf83740775cc67672"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/coefficient_definition.selectors.candidate.json",
@@ -277,7 +277,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/constant_alpha_interval.reference.candidate.json",
-        "sha256": "e335c0477ed89dda2193dcb850f8d1f4ca4697ee369fad807fd91096da8ab58d"
+        "sha256": "f95e7fc88e3f2a5bb8aa5902bf8a887e135544b5b290ac12f7dbb49b49ee0ae8"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/constant_alpha_interval.selectors.candidate.json",
@@ -310,7 +310,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/multi_segment_free_length.reference.candidate.json",
-        "sha256": "47d7ee2c9fe41b985369f3b194cfab93af15811054b607e340d8c186d4235396"
+        "sha256": "91f972fb31203d600e250dd8e4ed0927c1b4c338df2e9c66344c7944d3edbbf7"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/multi_segment_free_length.selectors.candidate.json",
@@ -343,7 +343,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.reference.candidate.json",
-        "sha256": "4346d986e474e5e1fbf9de98a4af9d70c1aa238880e5a158c0022c2cc8a57f9d"
+        "sha256": "473d07fbbb437d9cc683be2293ff6812f963199c5d7fa16d8aaac44e192908b6"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.selectors.candidate.json",
@@ -376,7 +376,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.reference.candidate.json",
-        "sha256": "e989a45b4b87fa10f6867d18cb7d60d483e65457f95746d46db3b155bdee5465"
+        "sha256": "65b88048517503d2d494589266eac1382fd0a356fb08ae76d50663dff11f4179"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.selectors.candidate.json",
@@ -409,7 +409,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.reference.candidate.json",
-        "sha256": "062333fd77811a819d5726963e3c6ee0f621d0bfa63ee05fe3c3a3d4e6506a22"
+        "sha256": "1c31196fbf8ece831ec910b53209b41cd094ebdb916730e3da3ddab710cd9f14"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.selectors.candidate.json",
@@ -442,7 +442,7 @@
       },
       "reference": {
         "path": "validation/qualification/fixtures/load_reference/persistent_source_once.reference.candidate.json",
-        "sha256": "803b3df36542281c5b5948e493a0371c921274bb420cf81fb39b9904d6b88ece"
+        "sha256": "72e080815f3dd4e38fcc49b59b728158fc6e06742e047554d26be1d2b019798b"
       },
       "selectors": {
         "path": "validation/qualification/fixtures/load_reference/persistent_source_once.selectors.candidate.json",

@@ -2,7 +2,7 @@
   "format": "openpipestress.load_reference_admission/1",
   "status": "admitted",
   "independent_review": {
-    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md",
+    "path": "validation/qualification/fixtures/load_reference/INDEPENDENT_REVIEW_T1-WP6-FREEZE.md",
     "sha256": "795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49"
   },
   "applied_changes": [
