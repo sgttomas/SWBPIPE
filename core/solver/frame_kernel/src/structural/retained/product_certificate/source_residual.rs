@@ -298,6 +298,49 @@ struct Member {
     dd: [Endpoint; 4],
     lower_length: Endpoint,
     length: Enclosure,
+    /// O4 §4.3: a Timoshenko member's lane entries per plane [z, y] as
+    /// [d₁, d₂], formed at the exact-length enclosure; `None` for an
+    /// Euler–Bernoulli member, which keeps (EI/L)·[[4,2],[2,4]].
+    t: Option<[[Enclosure; 2]; 2]>,
+    /// O4 §4.3: its D-entry gaps per plane [|Δd₁|, |Δd₂|], the outward
+    /// maxima of |d_G − d_K| over the two lanes' enclosures at the
+    /// exact-length enclosure (zero on the admitted lane, as `dd` is).
+    tgap: Option<[[Endpoint; 2]; 2]>,
+}
+/// O4 §4.2/§4.3: the admitted shear-area leaf of the owner's `i`-th member,
+/// `None` for an Euler–Bernoulli case. A sidecar whose entry does not name
+/// the member is an owner fault.
+fn shear_leaf(view: &SourceBridgeView<'_>, i: usize) -> Result<Option<f64>, Error> {
+    let Some(set) = view.owner().timoshenko() else { return Ok(None) };
+    match set.leaves().get(i) {
+        Some(leaf) if leaf.member == view.source().members()[i].id => Ok(Some(leaf.shear_area)),
+        _ => Err(Error::MemberOwner),
+    }
+}
+/// O4 §4.3: one plane's lane entries [d₁, d₂] from the plane's EI and K_s
+/// enclosures at the exact-length enclosure: c = EI/L, φ = 12EI/(K_s·L²),
+/// c_s = 3c/(1 + φ), d₁ = c + c_s, d₂ = c_s − c (signed), all outward.
+fn timoshenko_plane(
+    w: &mut ResidualWork,
+    ei: Enclosure,
+    ks: Enclosure,
+    length: Enclosure,
+) -> Result<[Enclosure; 2], Error> {
+    let c = w.div(ei, length)?;
+    let l2 = w.square(length)?;
+    let twelve = w.mul(point(12.0)?, ei)?;
+    let den = w.mul(ks, l2)?;
+    let phi = w.div(twelve, den)?;
+    let op = w.add(ONE, phi)?;
+    let t3 = w.mul(point(3.0)?, c)?;
+    let cs = w.div(t3, op)?;
+    Ok([w.add(c, cs)?, w.sub(cs, c)?])
+}
+/// The outward maximum of |x − y| over x ∈ a, y ∈ b.
+fn gap(w: &mut ResidualWork, a: Enclosure, b: Enclosure) -> Result<Endpoint, Error> {
+    let up = w.numeric.scalar(Entry::Sub, &a.hi, &b.lo, Toward::Up)?;
+    let down = w.numeric.scalar(Entry::Sub, &b.hi, &a.lo, Toward::Up)?;
+    Ok(max(Endpoint::ZERO, max(up, down)))
 }
 fn coefficients(
     view: &SourceBridgeView<'_>,
@@ -311,23 +354,25 @@ fn coefficients(
     if !std::ptr::eq(m, law.member) {
         return Err(Error::MemberOwner);
     }
-    let mut coefficients = build_member(
-        &MemberOperands {
-            diameter: law.diameter,
-            effective_wall: law.effective_wall,
-            material: law.material,
-            admitted: AdmittedOperands {
-                e: m.elastic_modulus,
-                g: m.shear_modulus,
-                a: m.area,
-                j: m.torsion_constant,
-                iy: m.second_moment_y,
-                iz: m.second_moment_z,
-                z_hat: law.represented_z,
-            },
+    let input = MemberOperands {
+        diameter: law.diameter,
+        effective_wall: law.effective_wall,
+        material: law.material,
+        admitted: AdmittedOperands {
+            e: m.elastic_modulus,
+            g: m.shear_modulus,
+            a: m.area,
+            j: m.torsion_constant,
+            iy: m.second_moment_y,
+            iz: m.second_moment_z,
+            z_hat: law.represented_z,
         },
-        &mut w.numeric,
-    )?;
+    };
+    let mut coefficients = build_member(&input, &mut w.numeric)?;
+    // O4 §4.3: each lane's shear rigidity of a Timoshenko member.
+    if let Some(a_s) = shear_leaf(view, i)? {
+        shear_rigidity(&input, &mut coefficients, a_s, &mut w.numeric)?;
+    }
     if w.readout_law == ReadoutLaw::AdmittedK {
         for i in 0..4 {
             w.visit()?;
@@ -356,6 +401,33 @@ fn member(
         member.d[k] = w.div(c.coefficients[k], length)?;
     }
     member.dd = c.coefficient_differences;
+    // O4 §4.3: a Timoshenko member's lane entries and D-entry gaps, both at
+    // the exact-length enclosure (never `lower_length`).
+    if let Some(shear) = c.shear() {
+        let lane_ks = if w.readout_law == ReadoutLaw::AdmittedK {
+            Enclosure::point(shear.admitted())
+        } else {
+            shear.annular()
+        };
+        let mut t = [[ZERO; 2]; 2];
+        let mut tgap = [[Endpoint::ZERO; 2]; 2];
+        for plane in 0..2 {
+            t[plane] = timoshenko_plane(w, c.coefficients[2 + plane], lane_ks, length)?;
+            if w.readout_law == ReadoutLaw::AnnularSource {
+                let k = timoshenko_plane(
+                    w,
+                    Enclosure::point(c.admitted_products[2 + plane]),
+                    Enclosure::point(shear.admitted()),
+                    length,
+                )?;
+                for e in 0..2 {
+                    tgap[plane][e] = gap(w, t[plane][e], k[e])?;
+                }
+            }
+        }
+        member.t = Some(t);
+        member.tgap = Some(tgap);
+    }
     Ok(member)
 }
 fn frame(
@@ -421,6 +493,8 @@ fn frame(
             dd: [Endpoint::ZERO; 4],
             lower_length,
             length,
+            t: None,
+            tgap: None,
         },
         length,
     ))
@@ -480,7 +554,13 @@ fn apply(m: &Member, x: &[Enclosure; 12], w: &mut ResidualWork) -> Result<[Enclo
         w.visit()?;
         w.d_products = w.d_products.add(WorkTotal::exact_count(1));
         w.check()?;
-        let t = w.mul(shift_interval(m.d[p], k)?, bx[c])?;
+        // O4 §4.3: a Timoshenko plane's entry is d₁ on the diagonal and d₂
+        // off it; Euler–Bernoulli keeps the exact 4c/2c scalings.
+        let entry = match (&m.t, p) {
+            (Some(t), 2 | 3) => t[p - 2][usize::from(r != c)],
+            _ => shift_interval(m.d[p], k)?,
+        };
+        let t = w.mul(entry, bx[c])?;
         q[r] = w.add(q[r], t)?;
     }
     Ok(q)
@@ -585,9 +665,14 @@ fn eta_member(
         w.visit()?;
         w.d_products = w.d_products.add(WorkTotal::exact_count(1));
         w.check()?;
-        let t = w
-            .numeric
-            .scalar(Entry::Mul, &shift(&ds[p], k)?, &bx[c], Toward::Up)?;
+        // O4 §4.3: a Timoshenko plane's |ΔD| entries are its D-entry gaps at
+        // the exact length, in place of the coefficient-gap pattern over
+        // `lower_length` (not monotone in L for a Timoshenko member).
+        let entry = match (&m.tgap, p) {
+            (Some(g), 2 | 3) => g[p - 2][usize::from(r != c)],
+            _ => shift(&ds[p], k)?,
+        };
+        let t = w.numeric.scalar(Entry::Mul, &entry, &bx[c], Toward::Up)?;
         q[r] = w.numeric.scalar(Entry::Add, &q[r], &t, Toward::Up)?;
     }
     for j in 0..12 {
@@ -1099,6 +1184,11 @@ fn congruence_delta(
         if !(spring.stiffness.is_finite() && spring.stiffness > 0.0) {
             return Err(refused);
         }
+    }
+    // O4 §4.3: the N06 congruence law is DEF-O's route-L law; route L carries
+    // no Timoshenko member, so a Timoshenko block never takes it.
+    if view.owner().timoshenko().is_some() {
+        return Err(refused);
     }
     let mut delta = Endpoint::ZERO;
     for (i, law) in laws.iter().enumerate() {

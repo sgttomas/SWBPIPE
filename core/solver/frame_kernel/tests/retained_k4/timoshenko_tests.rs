@@ -136,3 +136,283 @@ fn retained_timoshenko_entries_follow_the_fixed_schedule() {
     assert!(eb[0].timoshenko.is_none());
     assert!(eb[0].bounded().dbar.is_none());
 }
+
+// ------------------------------------------- §4.4 item 7: exact/directed controls
+
+#[allow(dead_code)]
+#[path = "support.rs"]
+mod support;
+
+fn dyad(value: &str) -> (bool, Vec<u64>, i64) {
+    let (m, e) = value[1..].split_once('@').unwrap();
+    (value.starts_with('-'), support::hex_limbs(m), e.parse().unwrap())
+}
+/// Σ terms ≤ 0, decided exactly over unbounded dyadics (test-only).
+fn exact_nonpositive(terms: &[(bool, Vec<u64>, i64)]) -> bool {
+    let anchor = terms.iter().filter(|(_, m, _)| m.iter().any(|x| *x != 0)).map(|t| t.2).min().unwrap_or(0);
+    let mut signs = [Vec::<u64>::new(), Vec::<u64>::new()];
+    for (negative, mag, exponent) in terms {
+        if mag.iter().all(|x| *x == 0) {
+            continue;
+        }
+        let shift = usize::try_from(exponent - anchor).unwrap();
+        let (word, bit) = (shift / 64, shift % 64);
+        let out = &mut signs[usize::from(*negative)];
+        out.resize(out.len().max(word + mag.len() + 2), 0);
+        let mut carry = 0u128;
+        for (i, limb) in mag.iter().enumerate() {
+            let value = (u128::from(*limb) << bit) + carry;
+            let at = word + i;
+            let total = u128::from(out[at]) + u128::from(value as u64);
+            out[at] = total as u64;
+            carry = (value >> 64) + (total >> 64);
+        }
+        let mut at = word + mag.len();
+        while carry != 0 {
+            let total = u128::from(out[at]) + carry;
+            out[at] = total as u64;
+            carry = total >> 64;
+            at += 1;
+        }
+    }
+    let size = signs[0].len().max(signs[1].len());
+    for i in (0..size).rev() {
+        let (a, b) = (signs[0].get(i).copied().unwrap_or(0), signs[1].get(i).copied().unwrap_or(0));
+        if a != b {
+            return a < b;
+        }
+    }
+    true
+}
+fn wide_dyad(value: Wide<16>, negate: bool, factor: u64) -> (bool, Vec<u64>, i64) {
+    let (negative, exponent, limbs) = value.parts();
+    let mut mag = Vec::with_capacity(17);
+    let mut carry = 0u128;
+    for limb in limbs {
+        let v = u128::from(limb) * u128::from(factor) + carry;
+        mag.push(v as u64);
+        carry = v >> 64;
+    }
+    if carry != 0 {
+        mag.push(carry as u64);
+    }
+    (negative != negate, mag, exponent - 1023)
+}
+/// |actual − x| ≤ factor·bound for both endpoints x of the reference.
+fn within(actual: Wide<16>, lo: &str, hi: &str, bound: Wide<16>, factor: u64) -> bool {
+    [lo, hi].iter().all(|endpoint| {
+        let (neg, mag, exp) = dyad(endpoint);
+        [false, true].iter().all(|&direction| {
+            exact_nonpositive(&[(neg != direction, mag.clone(), exp), wide_dyad(actual, !direction, 1),
+                wide_dyad(bound, true, factor)])
+        })
+    })
+}
+/// |actual − midpoint| / bound, approximate (reporting only).
+fn ratio(actual: Wide<16>, lo: &str, bound: Wide<16>) -> f64 {
+    if bound.is_zero() {
+        return 0.0;
+    }
+    let mut ctx = WideContext::<16>::new(1024).unwrap();
+    let mut sum = ExactWideSum::new();
+    let (neg, mag, exp) = dyad(lo);
+    sum.add_wide(&actual, false).unwrap();
+    if mag.iter().any(|x| *x != 0) {
+        sum.add_integer(!neg, &mag, exp).unwrap();
+    }
+    let diff = sum.round(&mut ctx).unwrap().abs();
+    let r = ctx.div(&diff, &bound).unwrap();
+    r.to_binary64().value().unwrap_or(f64::INFINITY)
+}
+
+struct Case {
+    name: String,
+    precisions: Vec<u32>,
+    source: PrimitiveSource,
+    shear: TimoshenkoLeafSet,
+    u: Vec<f64>,
+    ke: Vec<(usize, usize, String, String)>,
+    rows: Vec<(String, String)>,
+}
+
+const FRACTIONS: [f64; 5] = [0.0, 0.25, 1.0 / 3.0, 1.0 - f64::EPSILON / 2.0, 1.0];
+
+fn reference_cases() -> Vec<Case> {
+    let text = include_str!("timoshenko_member.txt");
+    let mut out = Vec::new();
+    let mut lines = text.lines().peekable();
+    while let Some(line) = lines.next() {
+        let f: Vec<_> = line.split_whitespace().collect();
+        assert_eq!(f[0], "case");
+        let v: Vec<f64> = f[3..].iter().map(|s| support::f64_bits(s)).collect();
+        let (xi, xj, yr) = ([v[0], v[1], v[2]], [v[3], v[4], v[5]], [v[6], v[7], v[8]]);
+        let (e, g, a, iy, iz, j, a_s) = (v[9], v[10], v[11], v[12], v[13], v[14], v[15]);
+        let u = v[16..28].to_vec();
+        let member = StraightMember {
+            id: 0, node_i: 0, node_j: 1, elastic_modulus: e, shear_modulus: g, area: a,
+            second_moment_y: iy, second_moment_z: iz, torsion_constant: j, y_reference: yr,
+        };
+        let source = PrimitiveSource::new(SourceParts {
+            nodes: vec![xi, xj],
+            members: vec![member],
+            constraints: (0..12).map(|k| Constraint { dof: Dof::from_global(k), value: u[k] }).collect(),
+            stations: FRACTIONS.iter().enumerate()
+                .map(|(i, &fraction)| Station { id: i as u32, member: 0, fraction }).collect(),
+            supports: (0..2).map(|n| SupportGroup { id: n, node: n, restrained: [true; 6],
+                springs: vec![], directional_springs: vec![] }).collect(),
+            ..Default::default()
+        })
+        .unwrap();
+        let shear = TimoshenkoLeafSet::new(&source, vec![TimoshenkoLeaf { member: 0, shear_area: a_s }]).unwrap();
+        let mut ke = Vec::new();
+        let mut rows = Vec::new();
+        for line in lines.by_ref() {
+            let f: Vec<_> = line.split_whitespace().collect();
+            match f[0] {
+                "ke" => ke.push((f[1].parse().unwrap(), f[2].parse().unwrap(), f[3].to_string(), f[4].to_string())),
+                "row" => rows.push((f[2].to_string(), f[3].to_string())),
+                "end" => break,
+                other => panic!("{other}"),
+            }
+        }
+        assert_eq!((ke.len(), rows.len()), (78, 58));
+        out.push(Case {
+            name: f[1].to_string(),
+            precisions: f[2].split(',').map(|p| p.parse().unwrap()).collect(),
+            source, shear, u, ke, rows,
+        });
+    }
+    out
+}
+
+/// The formed K_e at P against the exact element, within `factor`·2^-P·Ā,
+/// Ā = g·B̄ᵀD̄B̄ the member's bounded operator (R7 Lemma B (i)'s 67 under t₁'s
+/// 2^7, with D̄ in place of |D|, §4.4). Returns (entries tested, max ratio).
+fn formation_against_exact(factor: u64, exponent: Option<i64>) -> (usize, f64) {
+    use super::bounded_block;
+    let (mut tested, mut worst) = (0usize, 0.0f64);
+    let cases = reference_cases();
+    assert_eq!(cases.len(), 16);
+    for case in &cases {
+        for &p in &case.precisions {
+            let mut ctx = WideContext::<16>::new(p).unwrap();
+            let mut sum = ExactWideSum::new();
+            let members: Vec<MemberOperators<16>> = form_members_with(
+                &mut ctx, &mut sum, &StageGuard::unlimited(), &case.source, Some(&case.shear)).unwrap();
+            let m = &members[0];
+            assert!(m.timoshenko.is_some(), "{}", case.name);
+            if case.name.starts_with("g_boundary") {
+                assert_eq!(m.g_exp, p - 16, "{}", case.name);
+            }
+            if case.name.starts_with("g_above") {
+                assert!(m.g_exp > p - 16, "{}", case.name);
+                continue;
+            }
+            let abar = bounded_block(&mut ctx, &mut sum, &m.bounded()).unwrap();
+            for (a, b, lo, hi) in &case.ke {
+                let bound = abar[*a][*b].mul_pow2(exponent.unwrap_or(-i64::from(p))).unwrap();
+                let actual = *m.ke(*a, *b);
+                assert!(within(actual, lo, hi, bound, factor),
+                    "formed K_e[{a}][{b}] outside {factor}·2^-P·Ā: {} P={p}", case.name);
+                worst = worst.max(ratio(actual, lo, bound));
+                tested += 1;
+            }
+        }
+    }
+    (tested, worst)
+}
+
+/// §6: the retained Timoshenko formation against the exact element at
+/// P = 128/256/512/1024 (φ = 2 − 2^-40, 2, 2 + 2^-40, ≈1e-6, > 10; skew
+/// members, φ = 2 on a skew member; g at P − 16). A Euler–Bernoulli
+/// formation, a wrong factor, A for A_s, swapped I_y/I_z or a flipped d₂
+/// moves an entry by orders beyond 2^-100·Ā.
+#[test]
+fn retained_timoshenko_formation_matches_exact_element() {
+    let (tested, worst) = formation_against_exact(1, Some(-100));
+    // Eight geometries at four precisions and g at P − 16 at each precision.
+    assert_eq!(tested, 36 * 78, "entries");
+    eprintln!("matches_exact_element: {tested} entries, worst |K-K*|/(2^-100·Ā) = {worst:.3e}");
+}
+
+/// §4.4 item 7: the actual formation error against t₁'s allowance: every
+/// formed entry within 67·2^-P·Ā_T (Lemma B (i)), Ā_T = g·B̄ᵀD̄B̄.
+#[test]
+fn retained_timoshenko_formation_error_is_within_t1() {
+    let (tested, worst) = formation_against_exact(67, None);
+    assert!(tested > 0);
+    assert!(worst <= 67.0, "{worst}");
+    eprintln!("formation_error_is_within_t1: {tested} entries, worst ratio {worst:.3} (allowance 67, t1 2^7)");
+}
+
+/// §4.4 item 7: member recovery (end actions, stations), reactions and
+/// support magnitudes at P against the exact Timoshenko recovery of the
+/// same u, within 69·2^-P·E_q, E formed with D̄ (Ā_T and Q̄ = D̄·ē).
+/// Returns (rows tested, worst ratio).
+fn recovery_against_exact() -> (usize, f64) {
+    use super::super::ledger::RetainedLedger;
+    use super::super::recover::{layout, recover};
+    use super::super::verify::{formation_scale, StageRounding};
+    use super::{assemble, assemble_bounded, Structure};
+    let (mut tested, mut worst) = (0usize, 0.0f64);
+    for case in reference_cases() {
+        for &p in &case.precisions {
+            if case.name.starts_with("g_above") {
+                continue;
+            }
+            let mut ctx = WideContext::<16>::new(p).unwrap();
+            let mut sum = ExactWideSum::new();
+            let guard = StageGuard::unlimited();
+            let source = &case.source;
+            let members: Vec<MemberOperators<16>> =
+                form_members_with(&mut ctx, &mut sum, &guard, source, Some(&case.shear)).unwrap();
+            let structure = Structure::new(source).unwrap();
+            let k = assemble(&mut ctx, &mut sum, &guard, source, &structure, &members, &[]).unwrap();
+            let bounded: Vec<_> = members.iter().map(|m| m.bounded()).collect();
+            let abar = assemble_bounded(&mut ctx, &mut sum, &guard, source, &structure, &bounded, &[]).unwrap();
+            let ledger = RetainedLedger::from_source(source).unwrap();
+            let layout = layout(source);
+            let u: Vec<Wide<16>> = case.u.iter().map(|x| Wide::<16>::from_f64(*x).unwrap()).collect();
+            let recovered =
+                recover(&mut ctx, &mut sum, &guard, source, &layout, &structure, &k, &members, &[], &ledger, &u).unwrap();
+            let w: Vec<Wide<16>> = u.iter().map(|x| x.abs()).collect();
+            let e = formation_scale(&mut ctx, &mut sum, &guard, source, &layout, &structure, &abar, &members, &[],
+                Some(&ledger), &w, StageRounding::Nearest).unwrap();
+            assert_eq!(layout.len(), 14 + 58);
+            for (row, (lo, hi)) in case.rows.iter().enumerate() {
+                let index = 14 + row;
+                let bound = e[index].unwrap().mul_pow2(-i64::from(p)).unwrap();
+                let actual = recovered.values[index];
+                assert!(within(actual, lo, hi, bound, 69),
+                    "recovery row {row} outside 69·2^-P·E_q: {} P={p}", case.name);
+                worst = worst.max(ratio(actual, lo, bound));
+                tested += 1;
+            }
+            // Q̄ = D̄·ē (§4.2): on the aligned φ ≈ 2 designs e₂ = e₄ = 0, so the
+            // end moments' E rows pin D̄: E(M_z,i) = g·RN(d̄_z·(ē₂ + ē₃)).
+            if case.name.starts_with("phi2") {
+                let t = members[0].timoshenko.unwrap();
+                let block = |b: usize| (0..3).fold(0.0f64, |s, c| s + case.u[3 * b + c].abs());
+                let (tri, roti, trj, rotj) = (block(0), block(1), block(2), block(3));
+                let lift = |x: f64| Wide::<16>::from_f64(x).unwrap();
+                let e2 = lift(roti + tri + trj);
+                let e3 = lift(rotj + tri + trj);
+                sum.clear();
+                sum.add_product(&mut ctx, &t.dbar[0], &e2, false).unwrap();
+                sum.add_product(&mut ctx, &t.dbar[0], &e3, false).unwrap();
+                let qbar = sum.round(&mut ctx).unwrap();
+                assert_eq!(e[14 + 5].unwrap(), qbar.mul_pow2(i64::from(members[0].g_exp)).unwrap(), "{}", case.name);
+            }
+        }
+    }
+    (tested, worst)
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn retained_timoshenko_recovery_error_is_bounded_by_69uE() {
+    let (tested, worst) = recovery_against_exact();
+    assert_eq!(tested, 36 * 58);
+    assert!(worst <= 69.0, "{worst}");
+    eprintln!("recovery_error_is_bounded_by_69uE: {tested} rows, worst |q-R*|/(2^-P·E_q) = {worst:.3}");
+}

@@ -19,6 +19,7 @@ pub mod retained_api {
     pub use super::retained::origins::{prepare_product_annulus, PreparedAnnulus, PreparedSectionBits, AnnulusPreparationVersion, AnnulusPreparationSpent, SectionPreparationError, SectionPreparationWork};
     pub use super::retained::origins::{
         ProductMaterial, ProductMemberFacts, ProductSite, ProductStress, ProductRecipe,
+        ReducedSection, ReducedSectionSet,
         ProductUnit, ProductFinalRow, ProductPredicate, ProductRowVerdict,
         ProductFailure, ProductCertificateSpent, ProductSummaryCoverage,
     };

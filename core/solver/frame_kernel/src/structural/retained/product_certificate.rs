@@ -99,6 +99,33 @@ pub(super) struct MemberEnclosures {
     admitted_products: [Endpoint; 4],
     coefficient_differences: [Endpoint; 4],
     represented_z: Option<Enclosure>,
+    /// O4 §4.3: a Timoshenko member's two shear rigidities (`shear_rigidity`);
+    /// `None` for an Euler–Bernoulli member and for a stress section.
+    shear: Option<ShearEnclosures>,
+}
+/// O4 §4.3 (DEL-04-08 Design `o4-source-extension.md`): each lane's shear
+/// rigidity K_s of a Timoshenko member.
+#[derive(Debug, Clone, Copy)]
+pub(super) struct ShearEnclosures {
+    /// The directed 1024-bit enclosure of the exact κ_E of the exact annulus
+    /// (nominal D and wall, the material's ν).
+    kappa: Enclosure,
+    /// annular_source: g·κ_E·A_exact, g = E/(2(1+ν)) the lane's own.
+    annular: Enclosure,
+    /// admitted_k: G·Â_s, the exact product of the binary64 shear modulus and
+    /// the prepared shear-area leaf.
+    admitted: Endpoint,
+}
+impl ShearEnclosures {
+    pub(super) fn kappa(&self) -> Enclosure {
+        self.kappa
+    }
+    pub(super) fn annular(&self) -> Enclosure {
+        self.annular
+    }
+    pub(super) fn admitted(&self) -> Endpoint {
+        self.admitted
+    }
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum NumericError {
@@ -659,7 +686,107 @@ fn build_member(
         admitted_products,
         coefficient_differences,
         represented_z,
+        shear: None,
     })
+}
+
+impl MemberEnclosures {
+    pub(super) fn shear(&self) -> Option<&ShearEnclosures> {
+        self.shear.as_ref()
+    }
+}
+
+impl NumericWork {
+    /// An exact sum of signed terms rounded once toward `t` (one `Add` entry,
+    /// a fresh context and sum whose work is collected on every exit).
+    fn sum_toward(&mut self, terms: &[(Endpoint, bool)], t: Toward) -> Result<Endpoint, NumericError> {
+        self.begin(Entry::Add)?;
+        let mut ctx = WideContext::<16>::new(1024).map_err(|e| NumericError::Arithmetic(e.into()))?;
+        let mut sum = ExactWideSum::new();
+        let result = (|| -> Result<Endpoint, AttemptStop> {
+            for (v, negate) in terms {
+                sum.add_wide(v, *negate)?;
+            }
+            let v = directed::round_toward(&mut ctx, &mut sum, t)?;
+            Ok(if v.is_zero() { Endpoint::ZERO } else { v })
+        })();
+        self.wide.record(&ctx);
+        self.sums.merge(&sum.work());
+        self.checked(result.map_err(NumericError::Arithmetic))
+    }
+    /// [RD, RU] of an exact signed sum.
+    fn sum_enclosure(&mut self, terms: &[(Endpoint, bool)]) -> Result<Enclosure, NumericError> {
+        Ok(Enclosure { lo: self.sum_toward(terms, Toward::Down)?, hi: self.sum_toward(terms, Toward::Up)? })
+    }
+}
+
+/// O4 §4.3: a Timoshenko member's shear rigidities from the lane enclosures
+/// `enc` of `input` and its prepared binary64 shear-area leaf.
+///
+/// - admitted_k: K_s = G·Â_s, one exact product of binary64 values.
+/// - annular_source: K_s = g·κ_E·A, with κ_E = 6(1+ν)²(1+m²)² /
+///   ((8ν²+14ν+7)(1−m²)² + 48m²(1+ν)²), m² = r_i²/r_o², r_o = D/2 exact and
+///   r_i = r_o − t, enclosed outward at 1024 bits. 8ν² + 14ν + 7 has a
+///   negative discriminant and 48m²(1+ν)² ≥ 0, so the denominator is positive
+///   for every real ν and the enclosure never straddles zero; every quantity
+///   is formed positive (or refused), and a value outside the Wide range is
+///   `ExponentRange`, never flushed. Only the exact E/ν material carries ν;
+///   any other material is refused (`InvalidMaterial`).
+pub(super) fn shear_rigidity(
+    input: &MemberOperands,
+    enc: &mut MemberEnclosures,
+    shear_area: f64,
+    work: &mut NumericWork,
+) -> Result<(), NumericError> {
+    let MaterialOperands::ExactENu { nu, .. } = input.material else {
+        return Err(NumericError::InvalidMaterial);
+    };
+    if !(shear_area.is_normal() && shear_area > 0.0) {
+        return Err(NumericError::NonpositiveSource);
+    }
+    let admitted = work.exact_product(input.admitted.g, shear_area)?;
+    if !positive(&admitted) {
+        return Err(NumericError::NonpositiveSource);
+    }
+    let nu = lift(nu)?;
+    let one = Endpoint::ONE;
+    // m² = r_i²/r_o² from the lane's exact annulus.
+    let ri_square = work.mul(enc.ri, enc.ri)?;
+    let c_square = Enclosure::point(work.scalar(Entry::Mul, &enc.c, &enc.c, Toward::Up)?);
+    let m2 = work.div(ri_square, c_square)?;
+    // 1 + ν > 0, (1+ν)², 1 + m², 1 − m² > 0.
+    let n1 = work.sum_enclosure(&[(one, false), (nu, false)])?.positive()?;
+    let n1_square = work.mul(n1, n1)?;
+    let a = work.add(Enclosure::point(one), m2)?.positive()?;
+    let b = Enclosure {
+        lo: work.scalar(Entry::Sub, &one, &m2.hi, Toward::Down)?,
+        hi: work.scalar(Entry::Sub, &one, &m2.lo, Toward::Up)?,
+    }
+    .positive()?;
+    // 8ν² + 14ν + 7 from the exact ν: ν² (≤ 106 bits) and 14ν are exact at
+    // 1024 bits; their sum with 7 is one exact sum rounded outward.
+    let nu_square = work.scalar(Entry::Mul, &nu, &nu, Toward::Up)?;
+    let eight_nu2 = shift(&nu_square, 3)?;
+    let fourteen_nu = work.scalar(Entry::Mul, &lift(14.0)?, &nu, Toward::Up)?;
+    let c_nu = work
+        .sum_enclosure(&[(eight_nu2, false), (fourteen_nu, false), (lift(7.0)?, false)])?
+        .positive()?;
+    let a_square = work.mul(a, a)?;
+    let b_square = work.mul(b, b)?;
+    let n1a = work.mul(n1_square, a_square)?;
+    let numerator = work.mul(work_point(6.0)?, n1a)?;
+    let left = work.mul(c_nu, b_square)?;
+    let m2n1 = work.mul(m2, n1_square)?;
+    let right = work.mul(work_point(48.0)?, m2n1)?;
+    let denominator = work.add(left, right)?.positive()?;
+    let kappa = work.div(numerator, denominator)?;
+    let gk = work.mul(enc.g, kappa)?;
+    let annular = work.mul(gk, enc.a)?;
+    enc.shear = Some(ShearEnclosures { kappa, annular, admitted });
+    Ok(())
+}
+fn work_point(v: f64) -> Result<Enclosure, NumericError> {
+    Ok(Enclosure::point(pos_lift(v)?))
 }
 
 /// B3-K SA-2's discriminator. Outside `cfg(test)` the gate never applies. In

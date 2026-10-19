@@ -92,6 +92,78 @@ pub struct ProductMemberFacts {
     pub section_modulus: f64,
     pub radius: f64,
 }
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §4.5): one member's reduced
+/// stress section, present only where its reduced section differs from the
+/// nominal one in any of A, Z, I, J or the effective wall. The nominal
+/// `ProductMemberFacts` do not grow; this sidecar carries the reduced facts
+/// and the final-row indices of the member's reduced stress and maximum rows.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ReducedSection {
+    pub member: u32,
+    /// t_r = (t − c_m) − c_a in binary64: the annular lane's reduced annulus
+    /// is (D, t_r).
+    pub effective_wall: f64,
+    /// `prepare_product_annulus(D, t_r)`'s binary64 A_r, Î_r, Ĵ_r and Ẑ_r.
+    pub area: f64,
+    pub second_moment: f64,
+    pub torsion_constant: f64,
+    pub section_modulus: f64,
+    /// The final-row indices of this member's reduced stress and maximum
+    /// rows (the row-index map the kernel reads a row's basis from).
+    pub rows: Vec<u32>,
+}
+/// O4 §4.5: the reduced sections of an invocation's distinct-basis members,
+/// sorted by member. Empty for every document whose sections are bit-equal,
+/// which then takes today's path, coverage, capacities and bits.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ReducedSectionSet {
+    sections: Vec<ReducedSection>,
+}
+static EMPTY_REDUCED: ReducedSectionSet = ReducedSectionSet { sections: Vec::new() };
+impl ReducedSectionSet {
+    /// Validates the entries (kernel cause "reduced section"): members
+    /// sorted and unique; every value finite and positive; each entry has at
+    /// least one row; no final-row index appears twice in the set.
+    pub fn new(mut sections: Vec<ReducedSection>) -> Result<Self, ProductFailure> {
+        sections.sort_by_key(|s| s.member);
+        for pair in sections.windows(2) {
+            if pair[0].member == pair[1].member {
+                return Err(bad("reduced section member"));
+            }
+        }
+        let mut seen: Vec<u32> = Vec::new();
+        for s in &sections {
+            for v in [s.effective_wall, s.area, s.second_moment, s.torsion_constant, s.section_modulus] {
+                if !(v.is_finite() && v > 0.0) {
+                    return Err(bad("reduced section value"));
+                }
+            }
+            if s.rows.is_empty() {
+                return Err(bad("reduced section rows"));
+            }
+            seen.extend_from_slice(&s.rows);
+        }
+        seen.sort_unstable();
+        if seen.windows(2).any(|p| p[0] == p[1]) {
+            return Err(bad("reduced row index"));
+        }
+        Ok(Self { sections })
+    }
+    pub fn empty() -> &'static Self {
+        &EMPTY_REDUCED
+    }
+    pub fn is_empty(&self) -> bool {
+        self.sections.is_empty()
+    }
+    pub fn sections(&self) -> &[ReducedSection] {
+        &self.sections
+    }
+}
+// O4 §4.5: ProductRecipe carries no basis tag; its receipt-priced layout is
+// pinned at 16 bytes.
+const _: () = assert!(std::mem::size_of::<ProductRecipe>() == PRODUCT_RECIPE_BYTES);
+pub(crate) const PRODUCT_RECIPE_BYTES: usize = 16;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProductSite {
     End(End),
@@ -373,6 +445,10 @@ pub struct ProductCertificateSpent<'a> {
     anchor:Option<std::sync::Arc<ProofAnchor>>,
     loaded_diagnostic:Option<Box<LoadedMaximumDiagnostic>>,
     loaded_search_bytes:usize,
+    /// O4 §4.5: the reduced-row index map's and the reduced-coverage vector's
+    /// capacities (elements), zero when the `ReducedSectionSet` is empty. The
+    /// serialized `capacities` keep their seven slots.
+    reduced_capacities:[usize;2],
 }
 impl<'a> ProductCertificateSpent<'a> {
     fn new(rows: &'a [ProductFinalRow<'a>]) -> Self {
@@ -391,9 +467,12 @@ impl<'a> ProductCertificateSpent<'a> {
             prepared_capacities: [0; 6],
             projection_outcomes:Vec::new(),projection_conversions:WorkTotal::zero(),
             lane_errors:[None,None],completion_merged:false,trace_copy_work:TraceCopyWork::default(),
-            anchor:None,loaded_diagnostic:None,loaded_search_bytes:0,
+            anchor:None,loaded_diagnostic:None,loaded_search_bytes:0,reduced_capacities:[0;2],
         }
     }
+    /// O4 §4.5: [reduced-row index map, reduced-coverage vector] capacities
+    /// (elements); [0, 0] for an empty `ReducedSectionSet`.
+    pub fn reduced_capacities(&self)->[usize;2] { self.reduced_capacities }
     /// RV77-N4 (I61 U2): whether this work belongs to a proof started on `owner`'s
     /// own prepared solve. False before the anchor exists (a refused proof start).
     pub fn loaded_maximum_diagnostic(&self)->Option<&LoadedMaximumDiagnostic> { self.loaded_diagnostic.as_deref() }
@@ -466,7 +545,8 @@ impl<'a> ProductCertificateSpent<'a> {
             scalar_operations:self.scalar_operations, capacities:self.capacities, prepared_capacities:self.prepared_capacities,
             projection_outcomes:self.projection_outcomes,projection_conversions:self.projection_conversions,
             lane_errors:self.lane_errors,completion_merged:self.completion_merged,trace_copy_work:self.trace_copy_work,anchor:self.anchor,
-            loaded_diagnostic:self.loaded_diagnostic,loaded_search_bytes:self.loaded_search_bytes }
+            loaded_diagnostic:self.loaded_diagnostic,loaded_search_bytes:self.loaded_search_bytes,
+            reduced_capacities:self.reduced_capacities }
     }
     fn retain_lane(&mut self,result:Result<source_residual::LaneReadouts,bridge::BridgeError>,work:ResidualWork)
         ->Result<source_residual::LaneReadouts,ProductFailure> {
@@ -747,6 +827,9 @@ fn action(
         a
     })
 }
+/// The nominal-section recipe (tests): `recipe_reduced` without a reduced row.
+#[cfg(test)]
+#[allow(clippy::too_many_arguments)]
 fn recipe(
     owner: &adaptive::RetainedSolve,
     spent: &mut ProductCertificateSpent<'_>,
@@ -754,6 +837,21 @@ fn recipe(
     r: ProductRecipe,
     section: Option<&MemberEnclosures>,
     facts: &[ProductMemberFacts],
+    represented: bool,
+    curvatures: &[(u32,[Enclosure;2])],
+    row:usize,
+) -> Result<Enclosure, ProductFailure> {
+    recipe_reduced(owner, spent, values, r, section, facts, None, represented, curvatures, row)
+}
+#[allow(clippy::too_many_arguments)]
+fn recipe_reduced(
+    owner: &adaptive::RetainedSolve,
+    spent: &mut ProductCertificateSpent<'_>,
+    values: &[Enclosure],
+    r: ProductRecipe,
+    section: Option<&MemberEnclosures>,
+    facts: &[ProductMemberFacts],
+    reduced: Option<&ReducedSection>,
     represented: bool,
     curvatures: &[(u32,[Enclosure;2])],
     row:usize,
@@ -775,11 +873,17 @@ fn recipe(
         .member_index(member)
         .ok_or_else(|| bad("member"))?;
     let (sec, f) = (section.ok_or_else(|| bad("section recipe"))?, &facts[i]);
+    // O4 §4.5: a reduced row reads its member's reduced facts (A_r, J_r; Z
+    // from the reduced section's represented hull(Ẑ_r, Î_r/c)); r_o = D/2.
+    let (area, torsion) = match reduced {
+        Some(rs) => (rs.area, rs.torsion_constant),
+        None => (f.area, f.torsion_constant),
+    };
     let (a, z, j, c) = if represented {
         (
-            Enclosure::point(lift(f.area)?),
+            Enclosure::point(lift(area)?),
             sec.represented_z.ok_or_else(|| bad("represented Z"))?,
-            Enclosure::point(lift(f.torsion_constant)?),
+            Enclosure::point(lift(torsion)?),
             Enclosure::point(lift(f.radius)?),
         )
     } else {
@@ -1059,8 +1163,19 @@ pub(crate) fn certify<'a>(
     facts: &[ProductMemberFacts],
     rows: &'a [ProductFinalRow<'a>],
 ) -> ProductCertificateSpent<'a> {
+    certify_reduced(invocation, run, owner, facts, ReducedSectionSet::empty(), rows)
+}
+/// `certify` with O4 §4.5's reduced sections (an empty set is `certify`).
+pub(crate) fn certify_reduced<'a>(
+    invocation: &RecordedInvocation,
+    run: usize,
+    owner: &adaptive::RetainedSolve,
+    facts: &[ProductMemberFacts],
+    reduced: &ReducedSectionSet,
+    rows: &'a [ProductFinalRow<'a>],
+) -> ProductCertificateSpent<'a> {
     let mut spent = ProductCertificateSpent::new(rows);
-    let result = run_case(invocation, run, owner, facts, &mut spent);
+    let result = run_case(invocation, run, owner, facts, reduced, &mut spent);
     if let Err(e) = result {
         spent.failure = Some(e);
     }
@@ -1071,6 +1186,7 @@ fn run_case(
     run: usize,
     owner: &adaptive::RetainedSolve,
     facts: &[ProductMemberFacts],
+    reduced: &ReducedSectionSet,
     spent: &mut ProductCertificateSpent<'_>,
 ) -> Result<(), ProductFailure> {
     if invocation.product_owner(run, owner).is_none() {
@@ -1134,14 +1250,69 @@ fn run_case(
                 }
             });
         }
-        check_intervals(owner,facts,&k,&native.rows,native.view.data(),spent,&native.curvatures,&native.curvatures)?;
+        check_intervals(owner,facts,reduced,&k,&native.rows,native.view.data(),spent,&native.curvatures,&native.curvatures)?;
         Ok(())
     })();
     spent.native = Some(residual.work);
     result
 }
+/// The stress section operands of member `mi`: its nominal facts, or (O4
+/// §4.5) its reduced section's facts on the reduced annulus (D, t_r).
+fn section_operands(m:&super::super::source::StraightMember,f:&ProductMemberFacts,reduced:Option<&ReducedSection>)
+    -> MemberOperands {
+    match reduced {
+        None=>MemberOperands{diameter:f.diameter,effective_wall:f.effective_wall,material:f.material.operands(),
+            admitted:AdmittedOperands{e:m.elastic_modulus,g:m.shear_modulus,a:m.area,j:m.torsion_constant,
+                iy:m.second_moment_y,iz:m.second_moment_z,z_hat:f.section_modulus}},
+        Some(r)=>MemberOperands{diameter:f.diameter,effective_wall:r.effective_wall,material:f.material.operands(),
+            admitted:AdmittedOperands{e:m.elastic_modulus,g:m.shear_modulus,a:r.area,j:r.torsion_constant,
+                iy:r.second_moment,iz:r.second_moment,z_hat:r.section_modulus}},
+    }
+}
+/// O4 §4.5: the reduced-row index map of `n` final rows, `u32::MAX` where a
+/// row is not a reduced row, else its `ReducedSectionSet` entry. Allocated
+/// only for a non-empty set (an empty set returns an empty map, no work).
+/// Refuses an entry whose member is not the owner's, an entry whose five
+/// operands (A, Z, I, J, wall) are bit-equal to the nominal facts, and an
+/// index outside the final rows.
+fn reduced_index(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],reduced:&ReducedSectionSet,n:usize,
+    spent:&mut ProductCertificateSpent<'_>)->Result<Vec<u32>,ProductFailure> {
+    if reduced.is_empty() {return Ok(Vec::new());}
+    let mut map=reserve::<u32>(n)?;
+    spent.reduced_capacities[0]=map.capacity();
+    map.resize(n,u32::MAX);
+    for (e,r) in reduced.sections().iter().enumerate() {
+        spent.visit()?;
+        let mi=owner.source().member_index(r.member).ok_or_else(||bad("reduced section member"))?;
+        let f=&facts[mi];
+        if [f.area,f.section_modulus,f.second_moment,f.torsion_constant,f.effective_wall].map(f64::to_bits)
+            ==[r.area,r.section_modulus,r.second_moment,r.torsion_constant,r.effective_wall].map(f64::to_bits) {
+            return Err(bad("reduced section equal to nominal"));
+        }
+        for &row in &r.rows {
+            spent.visit()?;
+            let slot=map.get_mut(row as usize).ok_or_else(||bad("reduced row index"))?;
+            if *slot!=u32::MAX {return Err(bad("reduced row index"));}
+            *slot=u32::try_from(e).map_err(|_|ProductFailure{cause:Cause::CountRange("reduced sections")})?;
+        }
+    }
+    Ok(map)
+}
+/// The reduced section of final row `row`, if it is one (empty map: none).
+fn reduced_of<'r>(reduced:&'r ReducedSectionSet,map:&[u32],row:usize)->Option<&'r ReducedSection> {
+    map.get(row).filter(|e|**e!=u32::MAX).map(|e|&reduced.sections()[*e as usize])
+}
 fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&mut ProductCertificateSpent<'_>)
     -> Result<Vec<[f64;4]>,ProductFailure> {
+    row_scales_reduced(owner,facts,ReducedSectionSet::empty(),spent).map(|v|v.0)
+}
+/// `row_scales` with O4 §4.5's reduced rows: a row the map names is a
+/// reduced stress or maximum row of its entry's member (else refused by
+/// "reduced row identity"), covered in the separate reduced-coverage vector,
+/// allocated only for a non-empty set. Returns the scales and the map.
+fn row_scales_reduced(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],reduced:&ReducedSectionSet,
+    spent:&mut ProductCertificateSpent<'_>)
+    -> Result<(Vec<[f64;4]>,Vec<u32>),ProductFailure> {
     let source=owner.source();
     // B2-K (KD §5.2, R-7): a mechanics combination owner publishes no circular
     // maximum, intensified row, mode or modulus record. Its coverage is
@@ -1179,6 +1350,15 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
         support_coverage.capacity().checked_mul(std::mem::size_of::<bool>())
             .ok_or_else(|| ProductFailure { cause: Cause::CountRange("support capacity bytes") })?;
         for _ in 0..support_count { spent.visit()?; support_coverage.push(false); }
+        let reduced_map = reduced_index(owner, facts, reduced, spent.rows.len(), spent)?;
+        let mut reduced_coverage = if reduced.is_empty() { Vec::new() } else {
+            let n = reduced.sections().len().checked_mul(21)
+                .ok_or_else(|| ProductFailure { cause: Cause::CountRange("reduced rows") })?;
+            let mut v = reserve::<bool>(n)?;
+            spent.reduced_capacities[1] = v.capacity();
+            v.resize(n, false);
+            v
+        };
         let final_rows = spent.rows;
         for (i, r) in final_rows.iter().enumerate() {
             spent.visit()?;
@@ -1194,6 +1374,18 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
             }
             if r.case_id != spent.rows[0].case_id {
                 return Err(bad("case association"));
+            }
+            // O4 §4.5: a mapped row is its entry member's reduced stress or
+            // maximum row, covered in the reduced-coverage vector.
+            let reduced_entry = reduced_map.get(i).copied().filter(|e| *e != u32::MAX);
+            if let Some(e) = reduced_entry {
+                spent.visit()?;
+                let member = reduced.sections()[e as usize].member;
+                let ok = match r.recipe {
+                    ProductRecipe::Stress { member: m, .. } | ProductRecipe::CircularMaximum { member: m } => m == member,
+                    _ => false,
+                };
+                if !ok { return Err(bad("reduced row identity")); }
             }
             // §2.7/§4.2: a combination publishes no never_combined (not-covered derived) row.
             if combination && matches!(r.recipe, ProductRecipe::NonQuantity
@@ -1275,11 +1467,15 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
                         ProductStress::BendingZ => 2,
                         ProductStress::Torsion => 3,
                     };
-                    let j = mi * 21 + site_index * 4 + component;
-                    if derivative_coverage[j] || r.unit != ProductUnit::Megapascal {
+                    let (coverage, base) = match reduced_entry {
+                        Some(e) => (&mut reduced_coverage, e as usize * 21),
+                        None => (&mut derivative_coverage, mi * 21),
+                    };
+                    let j = base + site_index * 4 + component;
+                    if coverage[j] || r.unit != ProductUnit::Megapascal {
                         return Err(bad("stress coverage"));
                     }
-                    derivative_coverage[j] = true;
+                    coverage[j] = true;
                 }
                 ProductRecipe::CircularMaximum { member } => {
                     let mi = source
@@ -1290,11 +1486,14 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
                     {
                         return Err(bad("maximum body/unit"));
                     }
-                    let j = mi * 21 + 20;
-                    if derivative_coverage[j] {
+                    let (coverage, j) = match reduced_entry {
+                        Some(e) => (&mut reduced_coverage, e as usize * 21 + 20),
+                        None => (&mut derivative_coverage, mi * 21 + 20),
+                    };
+                    if coverage[j] {
                         return Err(bad("maximum coverage"));
                     }
-                    derivative_coverage[j] = true;
+                    coverage[j] = true;
                 }
                 _ => {}
             }
@@ -1327,17 +1526,21 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
         {
             return Err(bad("missing final coverage"));
         }
-    Ok(scales)
+        if reduced_coverage.iter().enumerate().any(|(j, v)| !*v && !(combination && j % 21 == 20)) {
+            return Err(bad("missing reduced coverage"));
+        }
+    Ok((scales, reduced_map))
 }
 
-fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
+#[allow(clippy::too_many_arguments)]
+fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts], reduced:&ReducedSectionSet,
     k:&[Enclosure], source_values:&[Enclosure], data:&[bool], spent:&mut ProductCertificateSpent<'_>,
     k_curvatures:&[(u32,[Enclosure;2])], s_curvatures:&[(u32,[Enclosure;2])])
     -> Result<(),ProductFailure> {
     let source=owner.source();
         spent.coverage = summary_coverage_data(owner, data, spent)?;
         let nb=source.body_count() as usize;
-        let mut scales=row_scales(owner,facts,spent)?;
+        let (mut scales, reduced_map)=row_scales_reduced(owner,facts,reduced,spent)?;
         for b in 0..nb {
             let extent = body_extent(source, b as u32, spent)?;
             scales[b] = couple(scales[b], extent, spent)?;
@@ -1399,9 +1602,14 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
                     } else {
                         1.0
                     };
+                    // O4 §4.5: a reduced row's body scale is divided by its own section.
+                    let (area, modulus) = match reduced_of(reduced, &reduced_map, i) {
+                        Some(rs) => (rs.area, rs.section_modulus),
+                        None => (f.area, f.section_modulus),
+                    };
                     let sc = scales[r.body as usize];
-                    let axial = spent.f64_op(Scalar64::Div, sc[2], f.area)?;
-                    let bending = spent.f64_op(Scalar64::Div, sc[3], f.section_modulus)?;
+                    let axial = spent.f64_op(Scalar64::Div, sc[2], area)?;
+                    let bending = spent.f64_op(Scalar64::Div, sc[3], modulus)?;
                     let bending = spent.f64_op(Scalar64::Mul, k, bending)?;
                     (spent.f64_op(Scalar64::Add, axial, bending)?, false)
                 }
@@ -1418,44 +1626,32 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
                         .member_index(member)
                         .ok_or_else(|| bad("recipe member"))?;
                     let (m, f) = (&source.members()[mi], &facts[mi]);
-                    Some(build_member(
-                        &MemberOperands {
-                            diameter: f.diameter,
-                            effective_wall: f.effective_wall,
-                            material: f.material.operands(),
-                            admitted: AdmittedOperands {
-                                e: m.elastic_modulus,
-                                g: m.shear_modulus,
-                                a: m.area,
-                                j: m.torsion_constant,
-                                iy: m.second_moment_y,
-                                iz: m.second_moment_z,
-                                z_hat: f.section_modulus,
-                            },
-                        },
-                        &mut spent.numeric,
-                    )?)
+                    let operands = section_operands(m, f, reduced_of(reduced, &reduced_map, i));
+                    Some(build_member(&operands, &mut spent.numeric)?)
                 }
                 _ => None,
             };
-            let represented = recipe(
+            let row_reduced = reduced_of(reduced, &reduced_map, i);
+            let represented = recipe_reduced(
                 owner,
                 spent,
                 k,
                 recipe_id,
                 section.as_ref(),
                 facts,
+                row_reduced,
                 true,
                 k_curvatures,
                 i,
             )?;
-            let geometric = recipe(
+            let geometric = recipe_reduced(
                 owner,
                 spent,
                 source_values,
                 recipe_id,
                 section.as_ref(),
                 facts,
+                row_reduced,
                 false,
                 s_curvatures,
                 i,
@@ -1639,7 +1835,8 @@ impl ProofAnchor {pub(super) fn matches_owner(&self,owner:&adaptive::RetainedSol
     std::sync::Arc::ptr_eq(&self.owner.prep,&owner.prep)
 }}
 struct ProofData<'s,'m> {
-    owner:&'s adaptive::RetainedSolve, facts:&'s [ProductMemberFacts], specs:&'m [ProductRowSpec<'m>],
+    owner:&'s adaptive::RetainedSolve, facts:&'s [ProductMemberFacts], reduced:&'s ReducedSectionSet,
+    specs:&'m [ProductRowSpec<'m>],
     k:source_residual::LaneReadouts, source:source_residual::LaneReadouts,
     anchor:std::sync::Arc<ProofAnchor>, values:Vec<f64>,
 }
@@ -1668,6 +1865,15 @@ impl<'s,'m> ProductProofStartSpent<'s,'m> {
 pub(crate) fn begin_prepared_product<'s,'m>(invocation:&RecordedInvocation,run:usize,
     owner:&'s adaptive::RetainedSolve,facts:&'s [ProductMemberFacts],specs:&'m [ProductRowSpec<'m>],
     radius_law:source_residual::RadiusLaw)
+    -> ProductProofStartSpent<'s,'m> {
+    begin_prepared_product_reduced(invocation,run,owner,facts,ReducedSectionSet::empty(),specs,radius_law)
+}
+/// `begin_prepared_product` with O4 §4.5's reduced sections: each reduced
+/// stress or maximum row is certified on its member's reduced section by
+/// its nominal twin's recipe. An empty set is `begin_prepared_product`.
+pub(crate) fn begin_prepared_product_reduced<'s,'m>(invocation:&RecordedInvocation,run:usize,
+    owner:&'s adaptive::RetainedSolve,facts:&'s [ProductMemberFacts],reduced:&'s ReducedSectionSet,
+    specs:&'m [ProductRowSpec<'m>],radius_law:source_residual::RadiusLaw)
     -> ProductProofStartSpent<'s,'m> {
     let mut work=ProductCertificateSpent::new(&[]);
     let result=(|| {
@@ -1700,7 +1906,7 @@ pub(crate) fn begin_prepared_product<'s,'m>(invocation:&RecordedInvocation,run:u
         let mut rows=work.prepared_reserve(1,specs.len())?;
         for (spec,value) in specs.iter().zip(&values) {work.visit()?;rows.push(spec.row(value));}
         let mut bind=std::mem::replace(&mut work,ProductCertificateSpent::new(&[])).rebind(&rows);
-        let validity=row_scales(owner,facts,&mut bind);
+        let validity=row_scales_reduced(owner,facts,reduced,&mut bind).map(|_|());
         work=bind.rebind(&[]);
         validity?;
         drop(rows);
@@ -1730,20 +1936,23 @@ pub(crate) fn begin_prepared_product<'s,'m>(invocation:&RecordedInvocation,run:u
         work.visit()?;
         work.prepared_capacities[4]=std::mem::size_of::<ProofAnchor>().checked_add(2*std::mem::size_of::<usize>())
             .ok_or(ProductFailure{cause:Cause::CountRange("proof anchor layout")})?;
-        Ok(ProofData{owner,facts,specs,k,source:source_rows,anchor,values})
+        Ok(ProofData{owner,facts,reduced,specs,k,source:source_rows,anchor,values})
     })();
     ProductProofStartSpent{result,work}
 }
+#[cfg(test)]
 fn section_for(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],r:ProductRecipe,
     work:&mut ProductCertificateSpent<'_>)->Result<Option<MemberEnclosures>,ProductFailure> {
+    section_for_reduced(owner,facts,r,None,work)
+}
+fn section_for_reduced(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],r:ProductRecipe,
+    reduced:Option<&ReducedSection>,work:&mut ProductCertificateSpent<'_>)->Result<Option<MemberEnclosures>,ProductFailure> {
     let member=match r {ProductRecipe::Stress{member,..}|ProductRecipe::CircularMaximum{member}=>member,_=>return Ok(None)};
     let mut found=None;
     for (i,m) in owner.source().members().iter().enumerate() {work.visit()?;if m.id==member {found=Some(i);break;}}
     let i=found.ok_or_else(||bad("projection member"))?;
     let (m,f)=(&owner.source().members()[i],&facts[i]);
-    Ok(Some(build_member(&MemberOperands{diameter:f.diameter,effective_wall:f.effective_wall,material:f.material.operands(),
-        admitted:AdmittedOperands{e:m.elastic_modulus,g:m.shear_modulus,a:m.area,j:m.torsion_constant,
-            iy:m.second_moment_y,iz:m.second_moment_z,z_hat:f.section_modulus}},&mut work.numeric)?))
+    Ok(Some(build_member(&section_operands(m,f,reduced),&mut work.numeric)?))
 }
 fn project_hull(interval:Enclosure,unit:ProductUnit,row:usize,work:&mut ProductCertificateSpent<'_>)->Result<f64,ProductFailure> {
     work.visit()?;
@@ -1914,6 +2123,7 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
             let mut loaded=if self.data.owner.member_loads().iter().any(|l|l.intensity.iter().any(|w|*w!=0.0)) {
                 reserve::<LoadedValue>(self.data.facts.len())? } else {Vec::new()};
             self.work.projection_outcomes=self.work.prepared_reserve(5,self.data.specs.len())?;
+            let reduced_map=reduced_index(self.data.owner,self.data.facts,self.data.reduced,self.data.specs.len(),&mut self.work)?;
             let mut not_covered=0usize;
             for (i,spec) in self.data.specs.iter().enumerate() {
                 self.work.visit()?;
@@ -1927,9 +2137,10 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
                 // B2-K (DEF-C r2, A-1): a combination's displacement magnitude is
                 // formed from its frozen components in the second pass.
                 if combination && matches!(spec.recipe,ProductRecipe::Native(QuantityId::DisplacementMagnitude(_))){continue;}
-                let section=section_for(self.data.owner,self.data.facts,spec.recipe,&mut self.work)?;
-                let k=recipe(self.data.owner,&mut self.work,&self.data.k.rows,spec.recipe,section.as_ref(),self.data.facts,true,&self.data.k.curvatures,i)?;
-                let s=recipe(self.data.owner,&mut self.work,&self.data.source.rows,spec.recipe,section.as_ref(),self.data.facts,false,&self.data.source.curvatures,i)?;
+                let row_reduced=reduced_of(self.data.reduced,&reduced_map,i);
+                let section=section_for_reduced(self.data.owner,self.data.facts,spec.recipe,row_reduced,&mut self.work)?;
+                let k=recipe_reduced(self.data.owner,&mut self.work,&self.data.k.rows,spec.recipe,section.as_ref(),self.data.facts,row_reduced,true,&self.data.k.curvatures,i)?;
+                let s=recipe_reduced(self.data.owner,&mut self.work,&self.data.source.rows,spec.recipe,section.as_ref(),self.data.facts,row_reduced,false,&self.data.source.curvatures,i)?;
                 self.work.visit()?;
                 let interval=hull(k,s);
                 let value=project_hull(interval,spec.unit,i,&mut self.work)?;
@@ -2138,7 +2349,7 @@ impl<'s,'m> ProjectedProofDraft<'s,'m> {
                 if !spec.matches(r,&mut work)? || r.value.to_bits()!=y.to_bits()
                     || spec.observed.is_some_and(|b|b!=y.to_bits()) {return Err(bad("frozen descriptor/value"));}
             }
-            check_intervals(self.data.owner,self.data.facts,&self.data.k.rows,&self.data.source.rows,&self.data.k.data,&mut work,&self.data.k.curvatures,&self.data.source.curvatures)?;
+            check_intervals(self.data.owner,self.data.facts,self.data.reduced,&self.data.k.rows,&self.data.source.rows,&self.data.k.data,&mut work,&self.data.k.curvatures,&self.data.source.curvatures)?;
             if let Some(v)=work.verdicts.iter().find(|v|!v.passed) {
                 return Err(ProductFailure{cause:Cause::Predicate{row:v.row,predicate:v.failed.unwrap_or(ProductPredicate::SharperExact)}});
             }

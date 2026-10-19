@@ -360,11 +360,6 @@ impl TimoshenkoLeafSet {
     pub fn is_empty(&self) -> bool {
         self.leaves.is_empty()
     }
-    /// The shear area of the source's `index`-th member (members and leaves
-    /// share the id order), or `None` for an Euler–Bernoulli document.
-    pub(crate) fn shear_area_at(&self, index: usize) -> Option<f64> {
-        self.leaves.get(index).map(|l| l.shear_area)
-    }
     /// The K4STF/K4SRC Timoshenko block (§4.2): the count, then each entry's
     /// member and shear-area bits. Written only for a non-empty set.
     pub(crate) fn encode_block(&self, out: &mut Vec<u8>) {
