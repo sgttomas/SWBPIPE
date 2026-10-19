@@ -2,7 +2,13 @@
 
 This is the implementation design for the sixth post-T3 shared epoch ([b7-plan.md](b7-plan.md), "After B7b", item 6). It repairs the causes of W1's first two fail-closed corners ([w1-member-load-certification.md](w1-member-load-certification.md) §4.4, "Corners that fail closed"; DEL-04-08 ScopeOfWork REQ-006 (b)). Every gate, search limit, verification law, tolerance and domain limit stays unchanged. The epoch starts with a census of how often current sections and maxima reach each corner (section 3).
 
-**Status: designed, not implemented.** The census is designed here and executed after epoch 4 merges, when Agent 0 schedules it. The basis is main `ca8d6d5c23` plus the epoch-4 design (DEL-04-07 Design `u4b-u5b-implementation.md` at `c2e450ac7f`). Section 0 names what is taken from epoch 4.
+**Status: designed, not implemented.** The census is designed here and executed when Agent 0 schedules it; epoch 4 has merged. The basis is main `084ff961f8`, epoch 4 as built (#1461, head `f6c0732d58`). Revisions 1–5 were written against main `ca8d6d5c23` and the epoch-4 design; section 0 records each epoch-4 assumption as re-checked against the merged source.
+
+**Revision 6** re-checks the design against epoch 4 as built (coordinated-knowledge-work §5) and records the owner's corner-1 decision. The changes:
+- section 0 records each assumption's as-built basis and verdict. None is invalidated; two gain qualifiers (the 66-row bound and the trigger's exclusions);
+- corner 1 is decided (owner, 2026-10-18, "I concur, adopt option 2"), and REQ-003 (e)'s clause is quoted for the implementation PR (sections 10 and 11);
+- the proposed stage-2 "Stop" text agrees with that clause (section 10);
+- line citations are refreshed, and the reader's scale law is named `numeric_owner` (2.1).
 
 **Revision 2** answers the first round of dual review (Claude Opus 5.5 and Codex). The changes:
 - corner 1's change in what the fixed stop tolerance bounds is stated plainly, and put to the owner as a reading of REQ-003 (e) (sections 1.2, 11);
@@ -21,7 +27,7 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
   - *Reach.* A design-time computation from the product's preparation law gives the hull's relative width as 98.41 × 2^-64 at D = 0.2 m, t = 0.01 m, the value w1-member-load-certification.md §4.4 states. Across a 3,142-section grid, the width is at least 1 × 2^-64 for 99.0 % of sections; the median is 871 × 2^-64. It is zero only where Î/c is exactly representable, for example when D/2 is a power of two. Every committed loaded-member trial with an ordinary section, F6/partial, T18, T19 and T19/pre-K-D5 in both modes, ends in this exhaustion today. So the corner is effectively total for loaded members on ordinary sections.
   - *Repair.* The admitted lane's search is driven at the hull endpoint where the field is largest. The search's own convergence is decided there, on a point problem, by the unchanged rule and limits. The lane's returned lower end is evaluated over the whole hull, so the input width passes soundly to the enclosure, and the unchanged product gate judges it. When the hull is a point, the search is today's search.
   - *What it changes.* The fixed stop tolerance then bounds the search's convergence on the point problem, not the width of the lane's returned enclosure, which also carries the represented-Z hull (up to about 3,338 × 2^-64 relative on the design grid). Whether that row publishes is decided by the unchanged gate's 2^-53·|n| allowance.
-  - *Owner reading.* No predicate, limit or tolerance value changes. Because REQ-003 (e) says "No search, verification, tolerance or domain limit is relaxed", this repair is put to the owner as a reading of that sentence (section 11), not self-certified.
+  - *Owner decision.* No predicate, limit or tolerance value changes. The owner decided on 2026-10-18 ("I concur, adopt option 2") that this repair stands unchanged and that REQ-003 (e) states its meaning explicitly. The clause is added in the repair's implementation PR (sections 10 and 11).
 - **Corner 2: the halfway scale.**
   - *Cause.* The receipt's `cases[].selection.body_scales` are copied from the native candidate's publication (`retained_wire.rs` `selection`, `owner.evidence().body_scales`). Every other scale-dependent field (the classes, the absolute bounds and the product gate itself) uses the scales the product certificate forms from the final published rows (`final_case.rs` `row_scales`/`couple`). The readers recompute that same final-row law at G5b. The two coincide unless a native candidate value and its final published value round to different binary64 numbers. That happens essentially only when the exact value is a binary64 halfway.
   - *Repair.* The receipt states the final scales the product gate used.
@@ -35,15 +41,17 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 0. Basis and epoch-4 dependencies
 
-Re-checked against epoch 4's merged head before the census runs.
+Re-checked against epoch 4 as built: main `084ff961f8` (#1461 at `f6c0732d58`). Paths are relative to `projects/chirality-piping/`; PP is `core/product_physics/src/`, RE `core/reporting/result_export/src/`, the kernel `core/solver/frame_kernel/src/structural/retained/`.
 
-| # | Assumption from epoch 4 | Where it matters |
-|---|---|---|
-| E4-1 | The route-L ordinary identity becomes `preview-physics-2`. `preview-physics-retained-1` inherits it by hash. DEF-O's meaning hash moves in epoch 4 (u4b §1.2). | Inputs and pins are read on epoch 4's bytes. This repair moves no reviewed input. |
-| E4-2 | U4b adds σ⁺/σ⁻ and τ_v,max on straights as `ProductRecipe::NotCovered` rows, formed from the successor's own projected rows. They take no part in body scales, verified counts or the loaded-maximum search (u4b §4.1). | Corner 2's final scales are formed from the four scale kinds only (translation, rotation, force, moment), so the derived rows do not enter them. Corner 1 does not interact with them. |
-| E4-3 | Straight maxima and their reader checks are unchanged by U4b (u4b §2.3, step 5: "Straight maxima, and their reader checks, are unchanged"). The failed-ordinary manifest grows from 51 to 66 rows per member. | The loaded-maximum recipe and its evidence are epoch 4's unchanged ones. |
-| E4-4 | The corrected ordinary displacement fl(u + w + w2) leaves W1's trigger unchanged: ordinary results that are not `checks_passed`. | The census's trigger set is measured on the merged producer. |
-| E4-5 | Epoch 4 regenerates the retained corpus, including the four `w1_member_interior_*` records and the member-load bases, and re-registers D3. | The census and the byte checks read epoch 4's regenerated inputs. The repair's D3 starts from epoch 4's profile, or from O4's if O4 lands first, as planned (section 8). |
+| # | Assumption from the epoch-4 design | As built (basis at `084ff961f8`) | Verdict; where it matters |
+|---|---|---|---|
+| E4-1 | The route-L ordinary identity becomes `preview-physics-2`; `preview-physics-retained-1` inherits it by hash; DEF-O's meaning hash moves. | PP `preview_physics.rs:14` (`…/preview-physics-2`); the preview-retained table's `inherited_semantic_contract_sha256` equals the preview-physics-2 table hash; DEF-O's hash in `retained_wire.rs:34–35` moved. DEF-E's, the combination definition's and the preview-retained table's hashes also moved. | Holds. Inputs and pins are read on epoch 4's bytes. This repair moves no reviewed input. |
+| E4-2 | U4b's σ⁺/σ⁻ and τ_v,max on straights are `ProductRecipe::NotCovered` rows formed from the successor's own projected rows; they take no part in body scales, verified counts or the loaded-maximum search. | `retained_product.rs:2565–2580` and `prepared_not_covered`; kernel `final_case.rs:123–129` ("enters no lane, functional, certificate, scale, bound or coverage set"); `row_scales`' NotCovered arm writes no scale; only Native and SupportComponent rows write the four scale kinds; the search is reached only from `CircularMaximum` (`final_case.rs:806–815`); `loaded_maximum.rs` is unchanged. The rows do enter the receipt's `selection.not_covered` list (`retained_wire.rs:1275`). | Holds. Corner 2's final scales come from the four scale kinds only. Corner 1 does not interact with the derived rows. |
+| E4-3 | Straight maxima and their reader checks are unchanged; the failed-ordinary manifest grows from 51 to 66 rows per member. | `loaded_maximum.rs`, `product_certificate.rs` and stress_recovery's `elastic_extrema` are unchanged; `final_case.rs` changed only for NotCovered. `retained_product.rs:280` `FAILED_MEMBER_ROWS = 66`, `:282` `FAILED_SHEAR_ROWS = 5`: a member whose ν is out of domain publishes 61. | Holds, with 66 as the per-member bound. The loaded-maximum recipe and its evidence are epoch 4's unchanged ones. |
+| E4-4 | The corrected ordinary displacement fl(u + w + w2) leaves W1's trigger unchanged: ordinary results that are not `checks_passed`. | `lib.rs:3486–3502` `case_triggers` (unchanged by epoch 4); `published_nodal_displacements` (`lib.rs:14035–14060`) changes only published displacements. The trigger excludes, as before epoch 4, the structural failures `dn_trigger_excluded` names (`lib.rs:3515–3519`). | Holds. The census's trigger set is measured on the merged producer, exclusions included. |
+| E4-5 | Epoch 4 regenerates the retained corpus, including the four `w1_member_interior_*` records and the member-load bases, and re-registers D3. | `fixtures/results/retained_precision_cases.json` regenerated; the four interior records present (`registered_direct`, read by `retained_precision_contract.rs`); the `w1_member_load_*` bases present; D3 registered at `b4c9f35f8e` (`retained_memory.rs:1213–1239`; tightest merged dense W3 at +2,923,863,736 B). | Holds. The census and the byte checks read these inputs. The repair's D3 starts from O4's registered profile, since O4 lands first (section 8). |
+
+The limits this design cites are unchanged: `CASE_LIMIT` = 20e9 and `INVOCATION_LIMIT` = 60e9 (`retained_wire.rs:67–68`), `COMBINATION_CASE_LIMIT` = 20e9 (`retained_product.rs:6593`), and the search's 256-live, depth-64 and 1,024-split limits (`loaded_maximum.rs:5–7`).
 
 ## 1. Corner 1: the represented-Z width floor
 
@@ -86,7 +94,7 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
 - **Exhaustion** still prohibits publication.
 - **The trade.** Today the search refuses every such member whatever the gate would say. After the repair the unchanged gate says.
 - **Soundness.** The node uppers at the point z_lo equal today's uppers over the interval, because `loaded_maximum.rs` divides the bending upper by z_lo in every term. Pruning on the z_lo lower is sound for U. The hull-valid lower is a valid lower bound over the whole hull. No published guarantee changes.
-- **Why it goes to the owner.** This is a change in what a fixed search tolerance bounds. REQ-003 (e), an owner-approved commitment, says "No search, verification, tolerance or domain limit is relaxed to obtain a bound". So the design puts its reading to the owner (section 11) and proposes the matching edit to stage 2 §4.4's text (section 10).
+- **The owner's decision.** This is a change in what a fixed search tolerance bounds. REQ-003 (e), an owner-approved commitment, says "No search, verification, tolerance or domain limit is relaxed to obtain a bound". The owner decided that this repair stands as designed and that REQ-003 (e) gains a clause stating it (section 11). The matching edit to stage 2 §4.4's "Stop" text is in section 10.
 
 ### 1.3 Work and memory
 
@@ -116,8 +124,8 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
 ### 2.1 The cause, from the code
 
 - **The product certificate's gate uses final-row scales.** `final_case.rs` `row_scales` forms each body's translation, rotation, force and moment scales from the final published rows (`spent.normalize(unit, value)`). `check_intervals` couples them with the body extent (`couple`, binary64 `max` with `extent·ro`, `tr/extent`, `mo/extent`, `extent·fo`) and applies the p = 512 floor. It then gates, classifies and bounds every row with those scales.
-- **The readers recompute that law.** The Rust reader (`retained_precision.rs` `case_numeric` and `g5b`) and the verifier recompute exactly that law from the published rows. G5b then requires `selection.body_scales` to equal it bit for bit.
-- **The receipt states native scales instead.** `retained_wire.rs` `selection` (about 1257–1300) writes `body_scales` from `owner.evidence().body_scales`. These are the native candidate's publication scales (`adaptive.rs` `publication_with`, from the native candidate's binary64 values), not the final rows'.
+- **The readers recompute that law.** The Rust reader (`retained_precision.rs` `numeric_owner` and `g5b`) and the verifier recompute exactly that law from the published rows. G5b then requires `selection.body_scales` to equal it bit for bit.
+- **The receipt states native scales instead.** `retained_wire.rs` `selection` (about 1248–1291) writes `body_scales` from `owner.evidence().body_scales`. These are the native candidate's publication scales (`adaptive.rs` `publication_with`, from the native candidate's binary64 values), not the final rows'.
 - **Where they diverge.** A native candidate value is accurate to about 2^-p relative, and the final value is RN64 of the product's projection. The two round alike unless the exact value lies within the native error of a binary64 rounding boundary. For an exact halfway they round apart about half the time, so a body maximum that is an exact halfway gives receipt scales one ulp away from the reader's.
 - **Observed instances:**
   - the 73/24 Pa asymmetric control, whose force maximum (7/2)Z and moment 7Z are halfways (`w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal`);
@@ -136,8 +144,8 @@ The corner is a provenance inconsistency in one receipt field. The gate, the cla
 - The precommit G5b body-scale equality now holds by construction, wherever the product's final law and the readers' law agree. They are the same binary64 law over the same published rows. Any disagreement is still refused by the unchanged precommit G5b and falls back, so it fails closed.
 - A former halfway withdrawal publishes when every gate passes. If a row's gate fails under the final scales, that case alone is unavailable with its named cause, as for any gate failure. The halfway no longer withdraws every case.
 - **No committed byte moves, given one gating check.** G5b's acceptance of every committed successor shows that its native scales equal the readers' recomputed law. The repair writes the product gate's final scales instead. So byte preservation also needs the final scales to equal the readers' law on every body and kind, including kinds no row's class depends on. The two computations differ in code:
-  - The product's `row_scales` (`final_case.rs` about 1136–1314) takes native rows whose native class is not input-derived, plus support components into the force and moment slots. It normalizes the final values, couples with `couple`, and applies the floor from native evidence.
-  - The readers' `case_numeric` (`retained_precision.rs` about 3765–3825) and `g5b` (about 4344–4370) take the published rows of each scale kind, less prescribed components. They couple in the same binary64 form and apply the floor from the receipt's `floor`.
+  - The product's `row_scales` (`final_case.rs` about 1143–1330) takes native rows whose native class is not input-derived, plus support components into the force and moment slots. It normalizes the final values, couples with `couple`, and applies the floor from native evidence.
+  - The readers' `numeric_owner` (`retained_precision.rs` about 3779–3841) and `g5b` (about 4358–4384) take the published rows of each scale kind, less prescribed components. They couple in the same binary64 form and apply the floor from the receipt's `floor`.
 
   These must be shown to select the same row sets and the same floor. The implementation argues that row-set mapping kind by kind. A gating test (`w1_final_scales_equal_reader_scales`) asserts final scales = readers' scales on every committed successor and every census input, before `selection` is switched. If any body or kind differs, the repair stops for diagnosis. Such a difference would be a second inconsistency between gate and reader, and it would need its own design; it would not justify writing a scale the reader rejects.
 - **Not a relaxation.** The G5b check, every predicate and every law are unchanged. The receipt stops stating a value the gate did not use.
@@ -212,7 +220,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
   - N06 and CX-F;
   - RV120 and the route-E successors;
   - C1-a.
-- **C2-b: a generated sweep.** 64 route-L invocations per mode, each with an independent soft-spring member that makes the ordinary result Sensitive, so that W1 is reached (an ordinary `checks_passed` case is `NotRequired`; PP `lib.rs` about 3471).
+- **C2-b: a generated sweep.** 64 route-L invocations per mode, each with an independent soft-spring member that makes the ordinary result Sensitive, so that W1 is reached (an ordinary `checks_passed` case is `NotRequired`; PP `lib.rs` `case_triggers`, about 3487).
   - **32 constructed halfways,** following the maintained Z-scaled control. Statically determinate cantilevers and simply supported members with long-significand section operands (the stage-2 point-hull section's Ẑ). Their nodal forces and end moments are chosen as (2k + 1)/2 multiples of Ẑ-scaled values, so that the exact force or moment body maximum is a binary64 halfway. The census generator verifies each by exact rational evaluation before the run, and keeps only those it confirms.
   - **32 decimal controls:** the same shapes with lengths in {1.5, 2.5, 3.7, 6.1} m, forces in {1.1, 2.3, 4.7, 9.9} kN and the committed 0.168 m, t = 0.007 m section.
   - **Plus** the 73/24 Pa control and the cap witness.
@@ -233,7 +241,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 ### 3.3 Decision rules (pre-registered)
 
 **Implementing corner 1's repair.** Today every member that reaches corner 1 is unavailable. After the repair each such member is either gate-decided or still exhausted, so for those members the repair cannot remove a capability, and the census does not gate implementation on their pass rate. That argument does not cover members that converge today on interval-hull sections. They take the driven path too (1.4): their work rises, and where the bending lower bound is nonzero, U, n and the maximum evidence can change. So implementation waits for the owner's reading of REQ-003 (e) (section 11) and for the regression condition below. Then:
-- **Regression condition for already-converging members.** For every C1-a member that converges today, the census reports before and after: the gate verdict, class (relative or absolute) and published absolute bound of each certified row; the case's selection and status; the counted work against W1's case and invocation limits (`CASE_LIMIT` = 20e9 and `INVOCATION_LIMIT` = 60e9, `retained_wire.rs` about 67–68; `COMBINATION_CASE_LIMIT` = 20e9 for any member in a combination successor, `retained_product.rs` about 6390); and the 4 MiB stack witnesses' outcomes. A row that passes today and fails after the repair, a case that changes from publishing to withdrawn, or a work-limit refusal that does not occur today stops the repair for diagnosis. It does not proceed under a changed gate. Numerical moves that leave every verdict and refusal unchanged, including any change of row class or absolute bound, are listed in the implementation PR with their reason (1.4).
+- **Regression condition for already-converging members.** For every C1-a member that converges today, the census reports before and after: the gate verdict, class (relative or absolute) and published absolute bound of each certified row; the case's selection and status; the counted work against W1's case and invocation limits (`CASE_LIMIT` = 20e9 and `INVOCATION_LIMIT` = 60e9, `retained_wire.rs` about 67–68; `COMBINATION_CASE_LIMIT` = 20e9 for any member in a combination successor, `retained_product.rs` about 6593); and the 4 MiB stack witnesses' outcomes. A row that passes today and fails after the repair, a case that changes from publishing to withdrawn, or a work-limit refusal that does not occur today stops the repair for diagnosis. It does not proceed under a changed gate. Numerical moves that leave every verdict and refusal unchanged, including any change of row class or absolute bound, are listed in the implementation PR with their reason (1.4).
 - A post-repair exhaustion on an ordinary section (w > 0) is classified. A near-degenerate maximum is the stage-2 theoretical case. Anything else is unexplained and stops the repair for diagnosis.
 - **Attribution of each post-repair gate failure.** Counterfactual re-runs of the same gate under test switches, with no product effect:
   - (a) the admitted lane's Z set to the single value Ẑ;
@@ -265,7 +273,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 
 ## 4. What stays unchanged
 
-- the loaded-maximum stop rule's value (2^-64·L), its 256-live, depth-64 and 1,024-split limits and its failure propagation. What the rule bounds on an interval hull changes, as section 1.2 states, subject to the owner's reading (section 11);
+- the loaded-maximum stop rule's value (2^-64·L), its 256-live, depth-64 and 1,024-split limits and its failure propagation. What the rule bounds on an interval hull changes, as section 1.2 states and REQ-003 (e)'s decided clause states (section 11);
 - the product gate's predicates, DEF-O's `acceptance.final`, G7's `EXTREMA_BOUNDS` and the evidence construction (stage 2 §4.4);
 - R7, the alpha and congruence laws, E's factor 69 and P − 16, the stop rule at 2p, the precision ladder and `projection_retry: false`;
 - G0–G8, including G5b's equality and G5's diagnostic checks;
@@ -345,18 +353,25 @@ The decision and its reasons are in [o4-source-extension.md](o4-source-extension
 
 ## 10. Proposed ScopeOfWork and b7-plan text
 
-These edit commitments, so they are proposals. The owner decides them. They are written against the ScopeOfWork as edited by epoch 4 and, if it lands first, by O4 (o4-source-extension.md §10).
+These edit commitments. They are written against the ScopeOfWork as edited by epoch 4 (#1461, main `084ff961f8`) and, since it lands first, by O4 (o4-source-extension.md §10).
 
-**DEL-04-08 ScopeOfWork** (on the repair's discharge):
-- **REQ-006 (b).** Delete the item, the two corners being repaired. Optionally record, under REQ-006 (d) or as a sentence in REQ-001's route-L domain: "A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause." That records the inherited corner as a stated limit, if the owner wants it stated.
-- **REQ-007 (b).** Delete on discharge.
-- **AC-003,** third bullet. Remove "the two W1 corner cases … keep their internal refusals and fall back". After O4 the bullet carries nothing else, so it is removed whole.
-- **VER-003.** Replace `w1_loaded_maximum_refuses_irreducible_represented_section_width` and `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal` with `w1_represented_z_hull_converges_on_ordinary_sections` and `w1_loaded_scale_halfway_publishes`.
+**Decided, applied in the repair's implementation PR** (owner, 2026-10-18, "I concur, adopt option 2"; section 11):
+- **DEL-04-08 ScopeOfWork REQ-003 (e).** One sub-bullet is added directly under "(e) No relaxation. No search, verification, tolerance or domain limit is relaxed to obtain a bound.", which stays unchanged, as do its existing sub-bullets:
+  - "A search's stop tolerance bounds the search's own convergence on the problem it solves. Where a declared input is itself an interval (the admitted lane's represented-Z hull), the search converges at the interval's binding endpoint under the unchanged tolerance and limits, the input's width is carried soundly into the result's enclosure, and the unchanged gate decides publication."
 
-**b7-plan,** item 6: the pointer sentence in o4-source-extension.md §10. When the repair lands, b7-plan's item-6 paragraph is replaced by a one-line "as built" pointer, as items 1–3 were.
+It is applied in that PR, when its meaning comes true; not before, and not in O4.
 
-**DEL-04-08 Design `w1-member-load-certification.md` §4.4** (proposed; edited when the repair lands, as an as-built revision):
-- the "Stop" bullet becomes: "When U − L ≤ 2^-64·L on the search's point problem. On the admitted lane, whose represented Z is the hull(Ẑ, Î/c), the search is driven at the hull's smaller endpoint, and the lane returns [the lower evaluated over the hull, U]; the unchanged gate decides the projected row."
+**Proposed, for the owner** (on the repair's discharge):
+- **DEL-04-08 ScopeOfWork:**
+  - **REQ-006 (b).** Delete the item, the two corners being repaired. Optionally record, under REQ-006 (d) or as a sentence in REQ-001's route-L domain: "A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause." That records the inherited corner as a stated limit, if the owner wants it stated.
+  - **REQ-007 (b).** Delete on discharge.
+  - **AC-003,** third bullet. Remove "the two W1 corner cases … keep their internal refusals and fall back". After O4 the bullet carries nothing else, so it is removed whole.
+  - **VER-003.** Replace `w1_loaded_maximum_refuses_irreducible_represented_section_width` and `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal` with `w1_represented_z_hull_converges_on_ordinary_sections` and `w1_loaded_scale_halfway_publishes`.
+
+- **b7-plan,** item 6: its design pointer is in place (added after epoch 4). When the repair lands, b7-plan's item-6 paragraph is replaced by a one-line "as built" pointer, as items 1–3 were.
+
+**DEL-04-08 Design `w1-member-load-certification.md` §4.4** (edited when the repair lands, as an as-built revision; it follows the decided REQ-003 (e) clause):
+- the "Stop" bullet becomes: "When U − L ≤ 2^-64·L. The tolerance bounds the search's own convergence on the problem it solves. On the admitted lane, whose represented Z is the interval hull(Ẑ, Î/c), the search converges at the hull's binding endpoint, the smaller Z, where the field is largest, under the unchanged tolerance and limits. The lane returns [the lower evaluated over the whole hull, U], so the hull's width is carried soundly into the enclosure, and the unchanged gate decides the projected row (REQ-003 (e))."
 - the "Corners that fail closed" paragraph's first two bullets are replaced by a pointer to this design's repairs.
 
 **`deliverable.yaml`.** No dependency change. The DEL-04-01 need already names "the loaded-member maximum search with its fixed limits"; its limits do not change.
@@ -374,16 +389,18 @@ These edit commitments, so they are proposals. The owner decides them. They are 
 - the census plan and its decision rules (3);
 - sequence, not merge (8).
 
-**Reserved, for the owner through Agent 0:**
-- **REQ-003 (e)'s reading for corner 1.** Does applying the unchanged loaded-maximum stop rule to the search's point problem, while carrying the represented-Z hull soundly into the lane's enclosure for the unchanged gate to judge (1.2), satisfy "No search, verification, tolerance or domain limit is relaxed to obtain a bound"? Both reviewers judged it a sound repair that changes no predicate, limit or tolerance value; the round-1 Opus review asked that the owner see the reading rather than have it self-certified. If the answer is no, two alternatives remain:
-  - **Keep corner 1.** Every loaded member on an ordinary section keeps falling back, about 99 % of sections by section 3.1. The census still runs and reports.
-  - **Narrow DEF-O's admitted Z to the single Ẑ.** The search then runs on a point and the stop rule keeps its present postcondition, but the admitted readout no longer certifies the Î/c reading. That changes a reviewed definition's meaning, which needs its own ruling.
-- Corner 2's repair does not depend on this answer and can proceed alone.
+**Decided by the owner:**
+- **Corner 1 and REQ-003 (e)** (owner, 2026-10-18, through Agent 0: "I concur, adopt option 2"). Four options were put to the owner: (1) the section 1.2 repair alone, read as compliant; (2) the section 1.2 repair plus an explicit clause in REQ-003 (e); (3) narrowing DEF-O's admitted Z to Ẑ; (4) keeping the corner. Option 2 is decided:
+  - the section 1.2 repair stands unchanged;
+  - REQ-003 (e) gains one sub-bullet directly under "(e) No relaxation. No search, verification, tolerance or domain limit is relaxed to obtain a bound.", which stays unchanged, as do its existing sub-bullets: "A search's stop tolerance bounds the search's own convergence on the problem it solves. Where a declared input is itself an interval (the admitted lane's represented-Z hull), the search converges at the interval's binding endpoint under the unchanged tolerance and limits, the input's width is carried soundly into the result's enclosure, and the unchanged gate decides publication."
+  - the clause is applied in the repair's implementation PR, when its meaning comes true; not before, and not in O4 (section 10);
+  - stage 2 §4.4's "Stop" text is edited to agree with it when the repair lands (section 10).
+  Narrowing was not chosen. The census's pre-registered escalation (3.3) and the DEF-O-narrowing contingency below stay as designed. Corner 2's repair never depended on this decision.
 
 **Contingent, to HELP_HUMAN:** narrowing DEF-O's admitted Z, if the census's pre-registered escalation rule fires (3.3), and a D3 shortfall.
 
 **Reserved and untouched:**
-- the ScopeOfWork edits of section 10;
+- the proposed ScopeOfWork edits of section 10;
 - Decision 22;
 - TBD-001 and TBD-002;
 - G10 and B8;
