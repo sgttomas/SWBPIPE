@@ -298,7 +298,8 @@ fn composite_captured_exact_empty_regions_replay_and_overrides() {
     .unwrap();
     capture.check_input(&f.input(), &mut selected).unwrap();
     let member = selected.members()[0].member_id.clone();
-    let maximum = composite_member_maximum(&f.input(), &mut selected, &member).unwrap();
+    let section = f.built.sections[&member];
+    let maximum = composite_member_maximum(&f.input(), &mut selected, &member, pressure_exact::SectionBasis::Nominal, &section).unwrap();
     let evidence = maximum.evidence("test:maximum");
     assert_eq!(evidence["basis"], "retained_source_endpoint_normal_max_v1");
     assert_eq!(evidence["load_case_id"], f.model.load_cases[0].id);
@@ -364,11 +365,13 @@ fn composite_recipe_reserves_before_failures_and_geometry_changes() {
     )
     .unwrap();
     let before = selected.summary().work.charged;
-    assert!(composite_member_maximum(&f.input(), &mut selected, "missing").is_err());
-    assert!(selected.summary().work.charged > before);
     let member = selected.members()[0].member_id.clone();
+    let section = f.built.sections[&member];
+    assert!(composite_member_maximum(&f.input(), &mut selected, "missing", pressure_exact::SectionBasis::Nominal, &section).is_err());
+    assert!(selected.summary().work.charged > before);
     f.built.sections.get_mut(&member).unwrap().area *= 2.0;
-    assert!(composite_member_maximum(&f.input(), &mut selected, &member).is_err());
+    let section = f.built.sections[&member];
+    assert!(composite_member_maximum(&f.input(), &mut selected, &member, pressure_exact::SectionBasis::Nominal, &section).is_err());
     let remaining = selected.summary().work.limit - selected.summary().work.charged;
     selected.charge_finalization(remaining).unwrap();
     let before = selected.summary().work.charged;

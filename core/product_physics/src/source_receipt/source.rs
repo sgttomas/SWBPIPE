@@ -43,6 +43,62 @@ fn source_operand(payload: &Value, path: String, expected: f64) -> Result<Value,
     }
     Ok(json!({"kind":"source","source_path":path,"bits":expected}))
 }
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §3.2): a member's reduced
+/// stress section where it differs from its nominal (built) one in any of A,
+/// Z, J or r_o, the only operands a source stress row or the endpoint maximum
+/// reads; `None` where the two are bit-equal or the document has one basis.
+fn distinct_reduced_section(
+    input: &source_recovery::Input<'_>,
+    member_id: &str,
+) -> Result<Option<DerivedSection>, ReceiptError> {
+    let Some(bases) = input.built.exact_sections.get(member_id).copied() else {
+        return Ok(None);
+    };
+    let section = input
+        .built
+        .sections
+        .get(member_id)
+        .ok_or_else(|| bad("section source"))?;
+    let reduced = exact_basis_section(bases, pressure_exact::SectionBasis::Reduced);
+    Ok((!same_stress_section(&reduced, section)).then_some(reduced))
+}
+/// The payload operands a derived stress or maximum row reads: the nominal
+/// (built) section's, or, for a reduced row whose member's sections differ,
+/// the private `reduced_recovery_section`'s (O4 §3.2).
+fn stress_operands(
+    input: &source_recovery::Input<'_>,
+    row: &ResultItem,
+    i: usize,
+) -> Result<(DerivedSection, [String; 4]), ReceiptError> {
+    let reduced_row = row
+        .metadata
+        .as_ref()
+        .is_some_and(|m| m.basis.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()));
+    if reduced_row {
+        if let Some(reduced) = distinct_reduced_section(input, &row.entity_ref)? {
+            let path = |key: &str| format!("/frames/{i}/reduced_recovery_section/{key}");
+            return Ok((
+                reduced,
+                [path("area_bits"), path("section_modulus_bits"), path("torsion_radius_bits"), path("torsion_constant_bits")],
+            ));
+        }
+    }
+    let section = input
+        .built
+        .sections
+        .get(&row.entity_ref)
+        .ok_or_else(|| bad("recipe section"))?
+        .clone();
+    Ok((
+        section,
+        [
+            format!("/frames/{i}/formation_inputs/area_bits"),
+            format!("/frames/{i}/recovery_section/section_modulus_bits"),
+            format!("/frames/{i}/recovery_section/torsion_radius_bits"),
+            format!("/frames/{i}/formation_inputs/torsion_constant_bits"),
+        ],
+    ))
+}
 fn lowered_products(payload: &Value, path: &str, p: &[Vec<f64>]) -> Result<Value, ReceiptError> {
     let mut out = Vec::new();
     for (i, product) in p.iter().enumerate() {
@@ -171,14 +227,14 @@ fn recipes(
             "translation_norm_scaled_v1"|"support_force_norm_scaled_checked_v1"|"support_moment_norm_scaled_checked_v1"=>{},
             "retained_source_endpoint_normal_max_v1"=>{
                 let i=input.built.pipes.iter().position(|p|p.element_id==row.entity_ref).ok_or_else(||bad("endpoint recipe member"))?;
-                let section=input.built.sections.get(&row.entity_ref).ok_or_else(||bad("endpoint recipe section"))?;
-                parameters.push(json!({"name":"area","operand":source_operand(payload,format!("/frames/{i}/formation_inputs/area_bits"),section.area)?}));
-                parameters.push(json!({"name":"section_modulus","operand":source_operand(payload,format!("/frames/{i}/recovery_section/section_modulus_bits"),section.section_modulus)?}));
+                let (section,[area,modulus,_,_])=stress_operands(input,row,i)?;
+                parameters.push(json!({"name":"area","operand":source_operand(payload,area,section.area)?}));
+                parameters.push(json!({"name":"section_modulus","operand":source_operand(payload,modulus,section.section_modulus)?}));
             },
             "retained_source_straight_stress_v1"=>{
                 let i=input.built.pipes.iter().position(|p|p.element_id==row.entity_ref).ok_or_else(||bad("recipe member"))?;
-                let section=input.built.sections.get(&row.entity_ref).ok_or_else(||bad("recipe section"))?;
-                let operands:Vec<(&str,String,f64)>=match row.kind.as_str(){"element_local_axial_normal_stress"=>vec![("area",format!("/frames/{i}/formation_inputs/area_bits"),section.area)],"element_local_bending_normal_stress_y"|"element_local_bending_normal_stress_z"=>vec![("section_modulus",format!("/frames/{i}/recovery_section/section_modulus_bits"),section.section_modulus)],"element_local_torsional_shear_stress"=>vec![("torsion_radius",format!("/frames/{i}/recovery_section/torsion_radius_bits"),section.torsion_radius),("torsion_constant",format!("/frames/{i}/formation_inputs/torsion_constant_bits"),section.torsion_constant)],_=>return Err(bad("recipe signature"))};
+                let (section,[area,modulus,radius,torsion])=stress_operands(input,row,i)?;
+                let operands:Vec<(&str,String,f64)>=match row.kind.as_str(){"element_local_axial_normal_stress"=>vec![("area",area,section.area)],"element_local_bending_normal_stress_y"|"element_local_bending_normal_stress_z"=>vec![("section_modulus",modulus,section.section_modulus)],"element_local_torsional_shear_stress"=>vec![("torsion_radius",radius,section.torsion_radius),("torsion_constant",torsion,section.torsion_constant)],_=>return Err(bad("recipe signature"))};
                 for (name,path,v) in operands{parameters.push(json!({"name":name,"operand":source_operand(payload,path,v)?}));}
                 parameters.push(json!({"name":"pa_per_mpa","operand":{"kind":"method_constant","bits":bits(1_000_000.)}}));
             },
@@ -314,7 +370,19 @@ pub(super) fn commitment(
             .sections
             .get(&pipe.element_id)
             .ok_or_else(|| bad("section source"))?;
-        frames.push(json!({"element_id":pipe.element_id,"node_i_id":input.model.nodes[frame.node_i.index].id,"node_j_id":input.model.nodes[frame.node_j.index].id,"scatter":map,"formation_inputs":{"coordinates_bits":[frame.node_i.coordinates.map(bits),frame.node_j.coordinates.map(bits)],"young_modulus_bits":bits(frame.section.elastic_modulus),"shear_modulus_bits":bits(frame.section.shear_modulus),"area_bits":bits(frame.section.area),"iy_bits":bits(frame.section.second_moment_y),"iz_bits":bits(frame.section.second_moment_z),"torsion_constant_bits":bits(frame.section.torsion_constant),"length_bits":bits(frame.length().map_err(|e|bad(e.to_string()))?)},"local_matrix_bits":matrix12(&local),"transform_bits":matrix12(&transform),"global_matrix_bits":matrix12(&global),"recovery_section":{"section_modulus_bits":bits(section.section_modulus),"torsion_radius_bits":bits(section.torsion_radius)}}));
+        let mut frame_payload = json!({"element_id":pipe.element_id,"node_i_id":input.model.nodes[frame.node_i.index].id,"node_j_id":input.model.nodes[frame.node_j.index].id,"scatter":map,"formation_inputs":{"coordinates_bits":[frame.node_i.coordinates.map(bits),frame.node_j.coordinates.map(bits)],"young_modulus_bits":bits(frame.section.elastic_modulus),"shear_modulus_bits":bits(frame.section.shear_modulus),"area_bits":bits(frame.section.area),"iy_bits":bits(frame.section.second_moment_y),"iz_bits":bits(frame.section.second_moment_z),"torsion_constant_bits":bits(frame.section.torsion_constant),"length_bits":bits(frame.length().map_err(|e|bad(e.to_string()))?)},"local_matrix_bits":matrix12(&local),"transform_bits":matrix12(&transform),"global_matrix_bits":matrix12(&global),"recovery_section":{"section_modulus_bits":bits(section.section_modulus),"torsion_radius_bits":bits(section.torsion_radius)}});
+        // O4 (§3.1, §3.2): the private payload names a Timoshenko frame's
+        // shear-area leaf, and a member's reduced stress section where it
+        // differs from the nominal one. Both are bound only through
+        // `normalized_source_sha256`; an Euler-Bernoulli frame with bit-equal
+        // sections keeps its bytes.
+        if let Some(shear_area) = frame.section.shear_area() {
+            frame_payload["formation_inputs"]["shear_area_bits"] = json!(bits(shear_area));
+        }
+        if let Some(reduced) = distinct_reduced_section(input, &pipe.element_id)? {
+            frame_payload["reduced_recovery_section"] = json!({"area_bits":bits(reduced.area),"section_modulus_bits":bits(reduced.section_modulus),"torsion_constant_bits":bits(reduced.torsion_constant),"torsion_radius_bits":bits(reduced.torsion_radius)});
+        }
+        frames.push(frame_payload);
     }
     if congruence_ids.len() != congruence.len() {
         return Err(bad("congruence member owner"));
@@ -415,6 +483,8 @@ pub(super) fn commitment(
         .collect::<Result<_, _>>()?;
     let plan = json!({"payload_version":"1.0.0","normalized_source_sha256":normalized,"functions":functions,"derived_recipes":recipes(&payload,input,selected,ledger,actual)?,"observation_result_ids":actual.iter().filter(|r|rows::observation(r)).map(|r|&r.id).collect::<Vec<_>>()});
     let plan_hash = hash("source_blocks_functional_plan_v1", &plan)?;
+    #[cfg(test)]
+    record_source_dump(&input.load_case.id, &payload, &normalized, &plan, &plan_hash)?;
     let blocks: Vec<_> = response
         .block_witnesses()
         .iter()
@@ -476,4 +546,82 @@ thread_local! {
 #[cfg(test)]
 pub(crate) fn take_observed_congruence_members() -> Vec<Option<Value>> {
     OBSERVED_CONGRUENCE_MEMBERS.with(|o| std::mem::take(&mut *o.borrow_mut()))
+}
+
+#[cfg(test)]
+thread_local! {
+    static SOURCE_DUMP: std::cell::RefCell<Option<Vec<Value>>> = const { std::cell::RefCell::new(None) };
+}
+/// Domain of the normalized private source payload's commitment.
+#[cfg(test)]
+pub(crate) const NORMALIZED_SOURCE_DOMAIN: &str = "source_blocks_normalized_source_v1";
+/// Domain of the private functional plan's commitment.
+#[cfg(test)]
+pub(crate) const FUNCTIONAL_PLAN_DOMAIN: &str = "source_blocks_functional_plan_v1";
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §5; the RF probe
+/// precedent): the test-only declared-problem dump. While armed by
+/// [`with_source_dump`], every normalized-source commitment made on this
+/// thread (one per selected source case, in finalization order) appends one
+/// record of the actual private payload and functional plan:
+///
+/// ```text
+/// {"case_id": <load case id>,
+///  "normalized_source_sha256": <hex>, "functional_plan_sha256": <hex>,
+///  "normalized_source_text": <text>, "functional_plan_text": <text>}
+/// ```
+///
+/// Each `*_text` is the checked canonical JSON text (canonical-json
+/// `checked_v1`) of `{"domain": <domain>, "payload": <payload>}`, the exact
+/// bytes the receipt's commitment hashes: `sha256(utf8(text))` is the
+/// record's hash, which is the receipt's `source.normalized_source_sha256` or
+/// `source.functional_plan_sha256` for that case. The domains are
+/// [`NORMALIZED_SOURCE_DOMAIN`] and [`FUNCTIONAL_PLAN_DOMAIN`]; the payload is
+/// `text["payload"]`. Floats in the payload are hex binary64 bit patterns
+/// (`"%016x"`), so the declared operands are exact. The normalized payload
+/// carries per frame `formation_inputs` (with `shear_area_bits` on a
+/// Timoshenko frame only), `local_matrix_bits`, `transform_bits`,
+/// `global_matrix_bits` and `recovery_section`, plus
+/// `reduced_recovery_section` where the member's reduced stress section
+/// differs from its nominal one; the plan carries the lowered functionals and
+/// the derived recipes with their payload operand paths.
+///
+/// `o4_source_tests::o4_source_payload_dump` writes these records for a
+/// given request to a file when `SWBPIPE_O4_SOURCE_DUMP_REQUEST` (a
+/// `LinearStaticPreviewRequest` JSON file) and `SWBPIPE_O4_SOURCE_DUMP_OUT`
+/// are set (`SWBPIPE_O4_SOURCE_DUMP_MODE`: `sparse_interactive`, the
+/// default, or `dense_scrutiny`), as
+/// `{"artifact": "o4-source-declared-problem-dump", "schema_version": "1.0.0",
+/// "solver_mode": <mode>, "publication_sha256": <the envelope's
+/// publication commitment, or null>, "records": [<record>...]}`.
+#[cfg(test)]
+pub(crate) fn with_source_dump<T>(run: impl FnOnce() -> T) -> (T, Vec<Value>) {
+    SOURCE_DUMP.with(|dump| *dump.borrow_mut() = Some(Vec::new()));
+    let result = run();
+    let records = SOURCE_DUMP.with(|dump| dump.borrow_mut().take().unwrap_or_default());
+    (result, records)
+}
+#[cfg(test)]
+fn record_source_dump(
+    case_id: &str,
+    payload: &Value,
+    normalized: &str,
+    plan: &Value,
+    plan_hash: &str,
+) -> Result<(), ReceiptError> {
+    if !SOURCE_DUMP.with(|dump| dump.borrow().is_some()) {
+        return Ok(());
+    }
+    let record = json!({
+        "case_id": case_id,
+        "normalized_source_sha256": normalized,
+        "functional_plan_sha256": plan_hash,
+        "normalized_source_text": checked(&json!({"domain": NORMALIZED_SOURCE_DOMAIN, "payload": payload}))?,
+        "functional_plan_text": checked(&json!({"domain": FUNCTIONAL_PLAN_DOMAIN, "payload": plan}))?,
+    });
+    SOURCE_DUMP.with(|dump| {
+        if let Some(records) = dump.borrow_mut().as_mut() {
+            records.push(record);
+        }
+    });
+    Ok(())
 }

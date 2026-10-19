@@ -68,7 +68,7 @@ fn references() -> &'static Value {
         serde_json::from_slice(REFERENCES).unwrap()
     })
 }
-pub(super) fn inputs() -> &'static Value {
+pub(crate) fn inputs() -> &'static Value {
     static VALUE: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
     VALUE.get_or_init(|| {
         let inputs = corpus_storage::expand(serde_json::from_str(INPUTS).unwrap());
@@ -346,7 +346,7 @@ fn public_value(public: &Result<Value, String>) -> Value {
 
 /// One case's request: the committed input's copy, re-authored once to the
 /// current 0.6.0 exact document (B7b); the committed inputs stay 0.3.0.
-pub(super) fn current_request(case: &Value) -> Value {
+pub(crate) fn current_request(case: &Value) -> Value {
     let input = &case["request"];
     assert_eq!(input["model"]["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));
     let current = crate::b7b_admission_tests::reauthor_current_request(input.clone());

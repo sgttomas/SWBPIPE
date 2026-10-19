@@ -6150,26 +6150,27 @@ fn solve_prepared_load_case(
         } else if pressure_runtime::is_exact(model) && selected_source.is_some() {
             // T4-U2a (T4-I13 open item): the endpoint recipe holds for an
             // unloaded circular straight span only; the arc policy gates it.
-            // The withheld reason is a static text borrowed, not formatted, inside
-            // the per-pipe loop (T3 O-10, as T4-U0's); the warning below takes it
-            // as `error.0`, like the composite error's own text.
+            // The warning below takes the composite error's own text.
             // Realized arcs never reach a selected source (D7).
-            let maximum: Result<_, (std::borrow::Cow<'static, str>,)> = source_receipt::composite_member_maximum(
-                &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
-            ).map_err(|error| (std::borrow::Cow::Owned(error.0),));
-            // D-5 (§2.2): one maximum per basis. A selected case's bases
-            // coincide (`prepare_sources` declines nonzero mill tolerance and
-            // allowance), so the reduced maximum is the nominal one, bound to its
-            // own reduced row; it is withheld by name if the two sections are not
-            // bit-equal.
-            let coincident = reduced_section.as_ref().is_some_and(|reduced| same_stress_section(reduced, section));
+            // D-5 (§2.2) and O4 (DEL-04-08 Design `o4-source-extension.md`
+            // §3.2, §3.5): one maximum per basis, each from the same retained
+            // endpoint functionals and its own basis's section. Bit-equal
+            // sections keep one call, its maximum bound to each basis's row; a
+            // member whose sections differ takes a second call on its reduced
+            // section, passed explicitly.
+            let reduced_section = reduced_section.as_ref().expect("an exact member has its reduced section");
+            let mut basis_maximum = |basis: pressure_exact::SectionBasis, basis_section: &DerivedSection| -> Result<_, std::borrow::Cow<'static, str>> {
+                source_receipt::composite_member_maximum(
+                    &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id, basis, basis_section,
+                ).map_err(|error| std::borrow::Cow::Owned(error.0))
+            };
+            let nominal_maximum = basis_maximum(pressure_exact::SectionBasis::Nominal, section);
+            let reduced_maximum = (!same_stress_section(reduced_section, section))
+                .then(|| basis_maximum(pressure_exact::SectionBasis::Reduced, reduced_section));
             for basis in pressure_exact::SectionBasis::BOTH {
-                let outcome = match (&maximum, basis) {
-                    (Ok(_), pressure_exact::SectionBasis::Reduced) if !coincident => {
-                        Err(std::borrow::Cow::Borrowed(SOURCE_MAXIMUM_BASES_DISTINCT))
-                    }
-                    (Ok(maximum), _) => Ok(maximum),
-                    (Err(error), _) => Err(error.0.clone()),
+                let outcome = match (basis, &reduced_maximum) {
+                    (pressure_exact::SectionBasis::Reduced, Some(reduced)) => reduced.as_ref(),
+                    _ => nominal_maximum.as_ref(),
                 };
                 match outcome {
                     Ok(maximum) => {
@@ -6196,7 +6197,7 @@ fn solve_prepared_load_case(
                             pressure_exact::SectionBasis::Nominal => unavailable_stress_maximum_members.push(pipe.element_id.clone()),
                             pressure_exact::SectionBasis::Reduced => unavailable_reduced_maximum_members.push(pipe.element_id.clone()),
                         }
-                        diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum:{}",load_case.id,pipe.element_id,basis.hyphen()), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error, vec![load_case.id.clone(),pipe.element_id.clone()]));
+                        diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum:{}",load_case.id,pipe.element_id,basis.hyphen()), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error.clone(), vec![load_case.id.clone(),pipe.element_id.clone()]));
                     }
                 }
             }
@@ -11102,10 +11103,6 @@ fn same_stress_section(a: &DerivedSection, b: &DerivedSection) -> bool {
         .zip([b.area, b.section_modulus, b.torsion_constant, b.torsion_radius])
         .all(|(x, y)| x.to_bits() == y.to_bits())
 }
-
-/// D-5: the reduced basis of a selected retained-source maximum binds the
-/// nominal maximum only where the two sections coincide (static text, O-10).
-const SOURCE_MAXIMUM_BASES_DISTINCT: &str = "the retained-source maximum binds coincident section bases only; the reduced section differs from the nominal section";
 
 /// D-5: a basis's stress-recovery section (A, Z, J and r_o of that annulus),
 /// the nominal one being the built section itself.

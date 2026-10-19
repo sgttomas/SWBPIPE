@@ -602,9 +602,10 @@ def test_pressure_source_1_composite_refuses_arcs_by_name_and_reads_one_straight
 
 
 def test_pressure_source_1_and_physics_retained_1_bind_the_section_beam_theory_to_the_invocation():
-    """§5: both source routes admit euler_bernoulli contracts only; each captured section states it
-    (``physics_source._actual_materials``, also G8 step 5). Rust's twin is physics_source.rs's
-    ``actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract``."""
+    """§5 and O4 (§3.4): each captured section states the beam theory its contract selects for a straight member
+    (``physics_source._actual_materials``, also G8 step 5, whose exact namespace still admits euler_bernoulli only);
+    a contract naming no admitted model fails closed. Rust's twin is physics_source.rs's
+    ``actual_materials_bind_each_section_beam_theory_to_the_contract_selection``."""
     request = json.loads((ROOT / "fixtures/product_preview/pressure_source/physics_source/n05.request.json").read_text())
     invocation = {"request": request, "solver_mode": "sparse_interactive"}
 
@@ -621,16 +622,26 @@ def test_pressure_source_1_and_physics_retained_1_bind_the_section_beam_theory_t
                                      "E_pa": e, "nu": nu, "thermal_consumed": False, "alpha_per_kelvin": None}]}
         ps._actual_materials(invocation, case, exact, canonical)
 
+    euler = {"model": sb.EULER_BERNOULLI}
     timoshenko_claim = {"model": sb.TIMOSHENKO, "shear_factor": 0.5, "shear_area_m2": 1e-3}
-    check(invocation, {"model": sb.EULER_BERNOULLI})
+    check(invocation, euler)
     for beam in (timoshenko_claim, {"model": "cowper"}, None):
         with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL$"):
             check(invocation, beam)
-    # Any other contract fails closed, even where the section agrees with it.
+    # A Timoshenko contract selects Timoshenko for its straight members.
     other = deepcopy(invocation)
     other["request"]["model"]["pressure_contract"]["shear_model"] = sb.TIMOSHENKO
-    with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL$"):
-        check(other, timoshenko_claim)
+    check(other, timoshenko_claim)
+    for beam in (euler, {"model": "cowper"}, None):
+        with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL$"):
+            check(other, beam)
+    # A contract naming no admitted model fails closed, whatever the section states.
+    for shear in ("cowper", None, 5):
+        unknown = deepcopy(invocation)
+        unknown["request"]["model"]["pressure_contract"]["shear_model"] = shear
+        for beam in (euler, timoshenko_claim):
+            with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL$"):
+                check(unknown, beam)
 
 
 def test_pressure_1_reader_refuses_a_basis_less_thin_wall_row_on_an_exact_envelope(base):
@@ -735,23 +746,28 @@ def test_u6_joint_face_area_is_the_d5_pressure_bore():
         check(region(bare, bore(reduced)))
 
 
-def test_pressure_source_1_and_physics_retained_1_refuse_nonzero_mill_tolerance():
+def test_pressure_source_1_admits_mill_tolerance_and_physics_retained_1_refuses_it():
+    """O4 (§3.4): PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE is retired. pressure-source-1's invocation check admits a mill
+    tolerance within the section sum (it binds by value through ACTUAL_SOURCE_GEOMETRY and its range through the D-5
+    rederivation); one that is not a finite length >= 0, or that reaches the wall, leaves the section sum
+    unestablished and is refused with the allowance. Rust's twin is section_bases.rs's
+    ``pressure_source_1_admits_mill_tolerance_within_the_section_sum``. physics-retained-1's G8 still names a nonzero
+    mill tolerance on the exact route (W1-E's admission is a later slice's)."""
     request = json.loads((ROOT / "fixtures/product_preview/pressure_source/physics_source/n05.request.json").read_text())
     invocation = {"request": request, "solver_mode": "sparse_interactive"}
     contract = ps.SourceContract.PRESSURE_V3
     contract.check_invocation(invocation)
     changed = deepcopy(invocation)
     changed["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = {"value": 0.5, "unit": "mm"}
-    with pytest.raises(ValueError, match="PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE"):
-        contract.check_invocation(changed)
-    for value in ({"value": 0, "unit": "mm"}, None):
-        zero = deepcopy(invocation)
-        zero["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = value
-        contract.check_invocation(zero)
-    for bad in ({"value": 1, "unit": "N"}, {"value": "0", "unit": "mm"}):
+    contract.check_invocation(changed)
+    for value in ({"value": 0, "unit": "mm"}, None, {"value": 9.999, "unit": "mm"}):
+        admitted = deepcopy(invocation)
+        admitted["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = value
+        contract.check_invocation(admitted)
+    for bad in ({"value": 1, "unit": "N"}, {"value": "0", "unit": "mm"}, {"value": 10, "unit": "mm"}, {"value": -0.5, "unit": "mm"}):
         broken = deepcopy(invocation)
         broken["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = bad
-        with pytest.raises(ValueError, match="PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE"):
+        with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE$"):
             contract.check_invocation(broken)
     # physics-retained-1's G8 names the nonzero mill tolerance on the exact route.
     with pytest.raises(rp.RetainedPrecisionError) as refused:
