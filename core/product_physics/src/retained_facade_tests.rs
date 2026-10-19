@@ -3402,8 +3402,7 @@ fn o4_w1e_reduced_derived_rows_use_their_own_basis() {
 #[test]
 fn o4_w1e_twin_predicate_is_per_member() {
     for mode in MODES {
-        let mut raw = two_member_exact(false);
-        raw["model"]["pipe_segments"][1]["section"]["corrosion_allowance"] = json!({"value": 0.001, "unit": "m"});
+        let raw = o4_w1e_mixed_request();
         let successor = o4_published("mixed", &raw, mode);
         let body = o4_body(&successor);
         let terms = body["sources"][0]["section_terms"].as_array().unwrap();
@@ -4771,6 +4770,25 @@ fn o4_w1e_successor_fixtures_are_the_live_successors() {
         }
         assert!(document == fixture, "{mode:?}: the fixture is the live O4 successor document, byte for byte");
     }
+    // The mixed document of `o4_w1e_twin_predicate_is_per_member` (M2 distinct, M1's reduced rows twins), sparse
+    // mode: the corpus base on which the readers' per-member twin predicate (G3, G5b, G5c) is exercised.
+    let mode = MODES[0];
+    let raw = o4_w1e_mixed_request();
+    let successor = o4_published("o4 mixed fixture", &raw, mode);
+    let document = serde_json::to_string_pretty(&json!({"id": format!("o4_w1e_mixed_{}", mode.as_str()), "source": successor,
+        "invocation": {"request": raw, "solver_mode": mode.as_str()}})).unwrap();
+    if let Some(dir) = &out {
+        std::fs::write(dir.join(format!("retained_precision_o4_w1e_mixed_successor_{}.json", mode.as_str())), &document).unwrap();
+        return;
+    }
+    assert!(document == include_str!("../../../fixtures/results/retained_precision_o4_w1e_mixed_successor_sparse_interactive.json"),
+        "the mixed fixture is the live O4 successor document, byte for byte");
+}
+/// RV123's two-member m3x with M2's 1 mm corrosion allowance (M1 none): one distinct-basis member.
+fn o4_w1e_mixed_request() -> Value {
+    let mut raw = two_member_exact(false);
+    raw["model"]["pipe_segments"][1]["section"]["corrosion_allowance"] = json!({"value": 0.001, "unit": "m"});
+    raw
 }
 /// The O4 fixture's request: control B, Timoshenko, c_m = 0.5 mm and c_a = 1 mm.
 fn o4_w1e_fixture_request() -> Value { o4_control(O4_TIM, 0.001, Some(0.0005), Some(0.01)) }
