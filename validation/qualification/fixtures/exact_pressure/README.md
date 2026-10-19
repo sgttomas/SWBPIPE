@@ -48,7 +48,7 @@ material-library, component-library or code-rule data.
 
 | File | Committed | Content |
 |---|---|---|
-| `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-1 table only. |
+| `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-2 table only. |
 | `MANIFEST.json` | yes | `openpipestress.exact_pressure_qualification_manifest/1`: one entry per case, binding each case file by path and sha256. |
 | `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the T4-U6 review by path and sha256. |
 | `INDEPENDENT_REVIEW_T4-U6.md` | yes | The independent T4-U6 section-basis mapping review, bound by `ADMISSION.json`. |
@@ -86,23 +86,25 @@ Every case runs in both solver modes.
   `shear_model_variant`, as `@0.5.0_timoshenko` and
   `@0.5.0_load_state_group_timoshenko`. These assert the same rows, values and
   rules: the case has no transverse load, so Timoshenko leaves its axial-only
-  response unchanged. The transport submits these current documents unchanged
+  response unchanged. Since T4-U4b/U5b the frozen documents and case labels keep 0.5.0; the
+  transport submits each as an in-memory 0.6.0 copy changed by version alone,
+  preserving its shear model, allowances and load/reference-state group
   (`GATE_USAGE.md`).
 
 Case IDs are `<reference case>@<version>`.
 
 | Family | Cases | Positive | Negative | Absences |
 |---|---|---|---|---|
-| L-FREE (I7) | 52 | 18428 | 68 | 340 |
-| L-ANCH (I7) | 50 | 18016 | 266 | 328 |
-| U-ANCH (I7) | 36 | 35232 | 96 | 772 |
-| CBPT (I7) | 16 | 1712 | 62 | 112 |
-| KINK (I7) | 4 | 1424 | 26 | 28 |
+| L-FREE (I7) | 52 | 18428 | 68 | 288 |
+| L-ANCH (I7) | 50 | 18016 | 266 | 278 |
+| U-ANCH (I7) | 36 | 35232 | 96 | 628 |
+| CBPT (I7) | 16 | 1712 | 62 | 96 |
+| KINK (I7) | 4 | 1424 | 26 | 24 |
 | milltol_lame_membrane (I8, two variants, four documents each) | 8 | 1144 | 124 | 32 |
 | tp_phys_pressure_halves (I8) | 2 | 1588 | 22 | 24 |
 | pressure_membrane_thin_wall_limit (I8) | 2 | 278 | 8 | 8 |
 | v3_straight_twin_separate_closures (I8) | 2 | 294 | 0 | 8 |
-| **Total per mode** | **172** | **78116** | **672** | **1652** |
+| **Total per mode** | **172** | **78116** | **672** | **1386** |
 
 Totals:
 
