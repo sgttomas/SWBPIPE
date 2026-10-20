@@ -581,6 +581,8 @@ The actual-source D3 binds whatever moves. #0 (`Cargo.lock`) does not move, beca
 - the source route's reduced recovery section, shear-area bits and second endpoint evidence: a few KB per member at T25;
 - TEXT: the edited limitation literals, net a few KB, plus the 5 % reserve.
 The total is of order 10 MB in every phase, under 1 % of the tightest headroom (W3, +2,923,863,736 B). The estimate is a design figure, not a registration: the actual-source D3 binds every owner at its priced multiplicity.
+
+**As built (registered).** The actual-source D3 registered at basis "SQ2 G5 at 7823a79f45" (ATOMS 319) with all 70 evaluations fitting at the unchanged policy. The design estimate above was low by about a factor of twelve: merged dense W3's E + R grew by +123,736,741 B, so its headroom is +2,795,665,581 B (epoch 4: +2,923,863,736 B). The main owners at W3 are conservative by-name TEXT growth (TAV_W, +89.2 MB), the distinct-basis reduced receipt entries charged once per copy (T16, +33.2 MB), and the grown kernel strides (+0.37 MB); the other phases' tightest are X1 +2,928,613,134 B and W4 +3,001,138,616 B. Reviewed inputs #2, #7 and #8 moved; #0, #1 and #9–#11 did not. No product source changed for the registration; the rules and owners are in `retained-pricing-rules.md` §8.9.
 - If the evaluation does not fit, byte-preserving reductions come first, as U6-DH/RB/SH and W1's L-levers did.
 - A measured shortfall that those cannot close goes to HELP_HUMAN before any budget change.
 
