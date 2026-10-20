@@ -118,6 +118,13 @@ SUCC_DELTA = (VF(ent=PA, strb=PA * 41, keyb=PA * 15)
               + VF(arr=2, obj=1, ent=6, strb=(30 + ID + 9) + 26 + 4 + 300 + 20 + ID, keyb=6 * 16).scale(AA)
               + VF(strb=2 * TOK))
 ENV_S = ENV + SUCC_DELTA
+# O4 S5 D3 (retained-pricing-rules.md §8.9; o4_owners_model binds every owner): O4-EV, a Timoshenko member's evidence
+# beam_theory carries two number entries beyond the census entry, in every case's evidence.
+import o4_owners_model as _o4_model
+_o4 = _o4_model.inspect(SNAP)
+if _o4:
+    _o4_ev = _o4_model.beam_theory_evidence(m)
+    ENV_S = ENV_S + VF(ent=_o4_ev["ent"], keyb=_o4_ev["keyb"], nums=_o4_ev["nums"]).scale(CC)
 # W1-DISC: the selected member diagnostic's fixed text exceeds the original
 # 300-byte selected-message allowance. Keep the original diagnostic owner.
 import w1_member_load_model as _w1_member_model
@@ -155,6 +162,12 @@ SOURCE = (rec(1, obj=4, ent=23, strb=TOK + ID + 3 * SHA, nums=3)
           + rec(m, slots=1, obj=2, ent=13, strb=TOK + 10 * BITS, nums=1))             # section_terms
 SOURCE += rec(l, slots=4, ent=6, strb=ID + 3 * BITS, nums=3)  # W1-WIRE: optional nonempty member terms
 SOURCE += VF(ent=1, keyb=KB)                         # the optional member_load_terms parent key
+# O4-WR: a Timoshenko member's section term gains `shear_area` and a distinct-basis member's `reduced`
+# {area, section_modulus, geometry{6}} (o4_owners_model binds case_source_at).
+if _o4:
+    _o4_wr = _o4_model.receipt_facts(m)
+    _st = _o4_wr["source_terms"]
+    SOURCE += rec(_st["cnt"], obj=_st["obj"], ent=_st["ent"], strb=_st["strb_tok"] * TOK + _st["strb_bits"] * BITS)
 SOURCE = SOURCE.scale(AA)                            # I82: one prepared CaseSource per attempted case
 REASON = VF(obj=4, ent=16, strb=8 * TOK, keyb=16 * KB, nums=4)                       # an attempt reason subtree
 PHYSICAL = (rec(RECORDS, slots=1, obj=9, ent=81, strb=6 * TOK + 3 * BITS, nums=60)
@@ -169,6 +182,12 @@ SELECTION = (rec(1, ent=24, strb=3 * SHA + 6 * BITS + 2 * TOK, nums=4)
              + rec(N, slots=1, ent=2, strb=ID + TOK)                                  # input_derived_dofs
              + rec(m, slots=1, ent=6, strb=ID + 5 * BITS)                             # section_terms
              + rec(12 * NB, slots=1, ent=5, strb=4 * BITS + TOK, nums=1))            # body scales, resolution, theta, bound, floor, kind lists
+if _o4:
+    # O4-WR: the selection's section terms gain `shear_area` and `reduced` {area, section_modulus}; the distinct
+    # members' reduced rows take their own class entries (also inside P: a conservative second charge).
+    _sl, _ce = _o4_wr["selection_terms"], _o4_wr["class_entries"]
+    SELECTION += (rec(_sl["cnt"], obj=_sl["obj"], ent=_sl["ent"], strb=_sl["strb_bits"] * BITS)
+                  + rec(_ce["cnt"], slots=_ce["slots"], ent=_ce["ent"], strb=RID + BITS))
 CASE = rec(CC, obj=4, ent=16, strb=4 * TOK + ID + SHA, nums=4) + RUN.scale(AA) + SELECTION.scale(AA)   # I82
 PROOF = (rec(1, obj=12, ent=40, strb=8 * TOK, nums=30) + rec(2, slots=20, obj=37, ent=96, strb=12 * TOK, nums=40)  # lanes
          + rec(P, slots=1, obj=2, ent=4, strb=TOK + 2 * BITS, nums=1)                # projection_outcomes
@@ -184,6 +203,12 @@ PROOF += rec(2, slots=3, ent=1, strb=TOK, nums=1)
 # (:1264-1290); operational records carry 12 entries (:659-676).
 PREPARATION = (rec(m, slots=1 + 6 + 7 + 5 + 9 + 7, obj=18, ent=47, strb=TOK + 18 * BITS + 12 * TOK, nums=12)
                + rec(9 * m, obj=2, ent=6, strb=3 * TOK + 2 * BITS))                    # conversions
+if _o4:
+    # O4-WR: preparation.members[].reduced, at most a second full member record (result, work, <= 9 conversions)
+    # under one more key per member.
+    _pm = _o4_wr["preparation_members"]
+    PREPARATION += (rec(_pm, slots=1 + 6 + 7 + 5 + 9 + 7, obj=18, ent=47, strb=TOK + 18 * BITS + 12 * TOK, nums=12)
+                    + rec(9 * _pm, obj=2, ent=6, strb=3 * TOK + 2 * BITS) + VF(ent=_pm, keyb=_pm * KB))
 OPERATIONAL = rec(2 * m, slots=1 + 10 + 3, obj=3, ent=12, strb=2 * TOK + 16 * BITS, nums=3)
 ATTEMPT = rec(1, obj=8, ent=40, strb=4 * TOK + 10 * TOK, nums=20) + PREPARATION + OPERATIONAL + PROOF
 ATTEMPT = ATTEMPT.scale(AA)                          # I82: product_attempts[], one per attempted case
@@ -226,6 +251,8 @@ PREVIEW_T = (s("Value") * (3 * m + 2 * g) + X({"Node(String,Value)": 3 + m + g +
 STAGED = (s("MechanicsEnvelope") + Xc("ResultItem", PA) + B(PA * ROW) + Xc("Diagnostic", DENV) + B(DIAGENV)
           + PREVIEW_T * CC + B(64 * 1024)
           + s("String") * (4 * PA))          # G5 part 2 (RV87 N-1(b)): ResultItem.source_result_refs Vec backings
+if _o4:
+    STAGED = STAGED + VF(ent=_o4_ev["ent"], keyb=_o4_ev["keyb"]).tree() * CC   # O4-EV in the staged copy's evidence
 rows["T18.1 staged typed envelope copy (U3 D-b; live during T16 only)"] = STAGED
 # B4/D1 retains an additional failed Preview manifest beside its blocked
 # original before this later STAGED copy. Keep STAGED in full; this union
@@ -356,6 +383,10 @@ if _u6_model.inspect(SNAP)["all_rows"]:
     # over the <= CC numeric owners CC * pushcap(P) (not PA), the one transient full vector pushcap(P) (not P).
     SETS = (SETS + s("&Value") * (CC * pushcap(P) + pushcap(P)) + s("Vec") * (pushcap(CC) + 2) + Xc("RowClassification", P)
             + s("RowClassification") + B(RID + 2 * ID + 64) + X({"Node(String,Value)": 1}))
+if _o4:
+    # O4-RD: the distinct-member sets of rows_for, g5c and g5b_exact_evidence, native_bytes' Timoshenko leaves and
+    # physics_source's model set (o4_owners_model binds their bodies).
+    SETS = SETS + _o4_model.reader_sets(m, AA)
 # G5 part 2 (RV87 N-2): the walkers allocate per object: objects() (retained_precision.rs:1694) pushes a
 # reference per object of a work owner (<= BODY); located() (:1722) pushes (path.clone(), &Map) per object
 # of an attempt (accounting_rules, :1850; ATTEMPT), the path <= 9 segments of <= 32 bytes
@@ -365,6 +396,10 @@ ASSUMED.setdefault("Node((String,String),())", 600); evv.update(ASSUMED)
 G5C = VF(arr=2 * PA, obj=PA, ent=2 * PA, strb=PA * (RID + BITS), keyb=PA * 2 * 10).tree() * 2   # absolutes/uncovered + json! copies
 G8_VALUES = SOURCE.tree() * 2 + VF(arr=Q, obj=3 * Q, ent=11 * Q, strb=3 * TOK * Q, keyb=11 * Q * KB).scale(AA).tree() * 2
 G8_BYTES = B(AA * 2 * pushcap(36_742 + 4_986, 8) + 4 * 16 * m)                             # K4SRC/K4STF identity buffers (E_src, E_stf)
+if _o4:
+    # O4-RD: native_bytes appends the Timoshenko block to each rebuilt K4SRC/K4STF encoding (each buffer one block more)
+    _blk = _o4_model.reader_block_bytes(m)
+    G8_BYTES = B(AA * 2 * pushcap(36_742 + 4_986 + 2 * _blk, 8) + 4 * 16 * m + AA * 2 * _blk)
 # G7 (U6, D-U6-7): F5 in g5_ordinary (retained_precision.rs:4136-4145 at ba1faa1c) collects, per case,
 # `exact: Vec<&Value>` from a filter over the envelope diagnostics (push growth, <= pushcap(D_env)) and
 # the case's diagnostic_refs as a Vec<&Value> (exact size, <= D_env: the refs are unique and resolve);

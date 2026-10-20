@@ -217,6 +217,17 @@ canonical writer's pinned production code, and priced by its `stream_route` in `
 former U6-DH/U6-SH forms keep their prices. The same section holds T4-S6's U4B-W1, U4B-NQ, U5B-CG and failed Preview
 formulation corrections.
 
+### O4 actual-source owners
+
+`base/o4_owners_model.py` binds, by function-body and span sha256 and by each exact allocating statement, the heap owners
+the O4 source (Timoshenko documents and distinct section bases on route E and the pressure-source route) adds outside the
+TEXT inventory, and prices them positively at the caps with every member Timoshenko and every member's bases distinct:
+O4-PS/PA (member sidecars and preparation records), O4-ID (the K4SRC/K4STF Timoshenko block in E_src and E_stf),
+O4-RS/NC/PP/KS (the reduced section set, maps, operand tables, maxima, payload and kernel staging), O4-TR (trace
+premises), O4-WR (receipt keys, class entries and reduced preparation records), O4-RD (reader sets and block bytes),
+O4-SR (the second composite maximum), O4-SP (source payload keys) and O4-EV (Timoshenko evidence entries). A snapshot
+without them adds nothing and a changed body stops. See the governing rules' §8.9.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

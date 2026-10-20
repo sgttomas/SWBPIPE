@@ -34,7 +34,10 @@ def test_new_text_rules_are_positive_and_keep_fixed_array_bounds():
     assert len(loops) == 11
     assert all(bound in {"l", "3", "16"} and len(owners) == 1
                for _, bound, _, owners in loops)
-    assert len(audits) == 4
+    # O4 S5: CasePrep::new_with_shear's nodal arm repeats new_member's PrimitiveSource clone, audited alike.
+    assert len(audits) == 5
+    clone_audits = [a for k, a in audits if "structural/retained/adaptive.rs:" in k]
+    assert clone_audits == [{"source.source()": {"bytes": 128, "source": "STATIC"}}] * 2
     key, audit = MODEL["case_clone_audit"](SOURCE)
     assert key.startswith("core/solver/frame_kernel/src/structural/retained/adaptive.rs:")
     assert audit == {"source": {"bytes": 128, "source": "STATIC"}}

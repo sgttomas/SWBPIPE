@@ -19,18 +19,18 @@ SOURCE_FILES = {
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
     "core/product_physics/src/self_weight.rs": "a1e523fd975b0b99720c3c229737cb00f35797c8f38202797b23ef205bb3f75c",
-    "core/product_physics/src/source_receipt/source.rs": "911f49b43f41ae50009e6a13220d2c888cfb8e6ccf50d8cacf5b8dc089efd5a5",
+    "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
     # T4-S5 (epoch, U5b): structural.rs and sparse.rs move the absorbed-diagonal refusal into ElementAbsorption
     # (per-element groups, one Vec<bool> of the free DOFs per contribution audit; priced by U5B-AB) and add the tie
     # rod's stiffness (components only: P3) and the arc maximum's module; source_recovery.rs adds
     # `contribution_groups: None` and comment/path text. No formed-load traversal or finding owner changes.
-    "core/solver/frame_kernel/src/structural.rs": "3c5700bc9c59e89035095ee29547c04f0788db94e9d4c5a27b36b1fc12153d17",
+    "core/solver/frame_kernel/src/structural.rs": "52c48f5edf3e59b7ed79bf6659e11b9f82738afd80ea9682549aab85f800aeba",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
-    "core/product_physics/src/source_recovery.rs": "150db5dea00d5dc8538b78f2f6b21b5bec12ef9b3920cae4068c9534aac5c2ec",
+    "core/product_physics/src/source_recovery.rs": "e6a6cfee0ab0ea03fe9251ab696c3b67a0943bf2b6c89548dce6e72c4543e3d1",
     "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
 }
 RANGE_CONTENT = 59
@@ -216,7 +216,7 @@ def lex_sizes(snapshot, resolved):
     inspect(snapshot)
     return [(resolved("formation_guard.rs:330"),
              {"class": JOINED, "why": "B7a load-row finding only: six independently cloned fired items plus five separators"}),
-            (resolved('retained_product.rs:616'),   # T4-S5: +5 lines (MemberIdentity's poisson_ratio), same text
+            (resolved('retained_product.rs:677'),   # T4-S5: +5 lines (MemberIdentity's poisson_ratio); O4 S5: +61 (the O4 structs), same text
              {"class": SENTENCE, "why": "B7a full load-row finding sentence copied into persistent FindingSeed; fired children paid separately"})]
 
 

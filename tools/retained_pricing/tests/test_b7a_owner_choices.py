@@ -63,11 +63,11 @@ def test_complete_choice_once_and_all_auxiliaries_positive(actual):
 # T4-U6/U8: the same sites at the priced source's lines, unchanged text (B7b: structural.rs 1124; retained_product.rs
 # 3057, 3071, 3073, 3185, 3194, 3217, 3005, 3227; lib.rs helpers 13244/13619; 433fc1f1e4: 13587/13966; addbdc030e:
 # 13623/14002; T4-U6/U8 final: 3208, 3222, 3224, 3336, 3345, 3375, 13630, 14009, 3156, 3385; T4-S5 epoch 4 below).
-@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3235,3249,3251,3363,3372,3425,13944,14365,3183,3435])
+@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3402,3416,3418,3530,3539,3592,13944,14365,3350,3602])   # O4 S5: retained_product.rs +167
 def test_complete_group_source_error_and_auxiliary_alias_refusal(family,line):
     args=inputs();table=args[0]
     file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (13944,14365) else "retained_product.rs")
-    kind={MODEL["SOURCE_LINE"]:"clone_text",3363:"to_string",14365:"replace"}.get(line,"format")
+    kind={MODEL["SOURCE_LINE"]:"clone_text",3530:"to_string",14365:"replace"}.get(line,"format")
     table.setdefault(family,{})[file+":"+str(line)+":"+kind]={"bytes":0}
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 
@@ -121,7 +121,7 @@ def test_saved_rule_json_retains_exact_marker_and_preimages():
     assert MODEL["state"](SOURCE,*saved)==MODEL["state"](SOURCE,*args)
 
 
-@pytest.mark.parametrize("site",[2644,3183,3435])   # B7b: 2544, 3005, 3227; T4-U6/U8: 2622, 3156, 3385
+@pytest.mark.parametrize("site",[2787,3350,3602])   # B7b: 2544, 3005, 3227; T4-U6/U8: 2622, 3156, 3385; T4-S5: 2644, 3183, 3435
 def test_first_error_keeps_full_validator_and_whole_bind_owner_counts(site):
     context,_=active()
     counts={MODEL["VALIDATOR"]:21150,MODEL["ERROR_OWNER"]:10}

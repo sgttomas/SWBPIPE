@@ -13,7 +13,7 @@ import re
 # T4-S6 D3 (§8.8, S6-HS): source_receipt.rs's `hash` streams the checked canonical text into SHA-256 (hash_text and
 # DomainPayload deleted, -9 lines before the constructors); the retired constructors stay absent and
 # finalize_composite/finalize_for stay unique.
-SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '27a20f06463c0c77a113ddb9c973079cf8aef2fd9820626667c05506f6ac5c85','core/product_physics/src/source_receipt.rs': 'cd1f62c6598019ff48b5a580f439ae1669e52cbdbed1c53fc9d6a5e38dd4952b'}
+SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '4b13fb633565bc92bd219c66032df9c5ca16a700d815a27a8980472f00c217a6','core/product_physics/src/source_receipt.rs': 'dbb32f92c7c55189dd1eed2c0730e52c3c1593a246022be637d7b5c2efe2de90'}
 ROW_FILE = "core/product_physics/src/source_receipt/rows.rs"
 RETIRED_IDS = {
     ROW_FILE + ":390": {"primary[&s.functional_indices[c]].id": {"bytes": 1024, "source": "RES"}},
