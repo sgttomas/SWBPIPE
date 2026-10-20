@@ -43,7 +43,10 @@ verification progress. Coordinate disjoint writes so reconciliation can proceed
 alongside other work. Include warranted edits in the same implementation PR.
 Preserve unmet commitments; changes to commitments or acceptance criteria remain
 owner decisions. Leave unchanged declarations alone; a brief explanation in the
-PR suffices when no edits are warranted.
+PR suffices when no edits are warranted. HELP_HUMAN may edit
+acceptance-criterion wording that must change only to describe consequences of
+decisions the owner has already made, with every protected fact unchanged, and
+reports the exact old and new text (owner, 2026-10-19).
 
 Review the implementation, affected declarations and evidence together. Agent 0
 checks their agreement before integration, reusing applicable passing evidence.
