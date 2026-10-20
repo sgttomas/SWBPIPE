@@ -562,7 +562,7 @@ A genuine annulus boundary now covers Preparation: diameter bits `300fffffffffff
 
 ## 7. U6/U8 and the later O4 epoch
 
-**This unit certifies Euler–Bernoulli straight members only.** Route L carries no shear model and no allowance (P30). `StraightMember::from_frame` refuses a Timoshenko leaf by name (`RETAINED_TIMOSHENKO_REFUSAL`, assemble.rs 226-281). W1's retained member names its Euler–Bernoulli leaf (retained_product.rs 1998-2016, 5620-5632). Timoshenko and nonzero-allowance documents stay declined by O4's interim declines in `prepare_sources` and at W1-E's admission (`ShearModel`, `SectionAllowance`), and route E refuses element loads (D1.7).
+**This unit certifies Euler–Bernoulli straight members only.** Route L carries no shear model and no allowance (P30). `StraightMember::from_frame` refuses a Timoshenko leaf by name (`RETAINED_TIMOSHENKO_REFUSAL`, assemble.rs 226-281). W1's retained member names its Euler–Bernoulli leaf (retained_product.rs 1998-2016, 5620-5632). Timoshenko and nonzero-allowance documents were declined by O4's interim declines in `prepare_sources` and at W1-E's admission (`ShearModel`, `SectionAllowance`) until O4 admitted them on route E and the source route (`o4-source-extension.md`); route E refuses element loads (D1.7), so no Timoshenko member reaches this unit's loaded-member search.
 
 **The Euler–Bernoulli leaf:**
 - f_d is section 2.2's recipe.

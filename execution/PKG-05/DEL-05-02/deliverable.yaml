@@ -37,8 +37,9 @@ needs:
     Design/section-and-shear-decisions.md). They interpret the section bases and
     shear model from captured section inputs. They also recompute the T4-U4b section
     quantities bit for bit, independently of the producer, by the normative sequences of
-    DEL-05-03's `stress_recovery::section_stress_quantities`. DEL-04-08 retains the
-    separate O4 retained-source and W1-E publication duty.
+    DEL-05-03's `stress_recovery::section_stress_quantities`. The retained readers
+    rederive both bases and the prepared Timoshenko shear-area leaf for O4's retained-source
+    and W1-E publications (DEL-04-08 Design o4-source-extension.md).
   gating: true
   evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
 - from: DEL-05-01
