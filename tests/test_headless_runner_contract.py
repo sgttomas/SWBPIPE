@@ -7,6 +7,7 @@ import io
 import sys
 from pathlib import Path
 import subprocess
+import tomllib
 import zipfile
 
 import pytest
@@ -343,6 +344,7 @@ def cargo_target_debug_directory(crate):
     return Path(json.loads(metadata.stdout)["target_directory"]) / "debug"
 
 
+@pytest.mark.runs_cargo("cargo metadata on the headless runner crate")
 def test_cargo_target_debug_directory_honors_cargo_target_dir(monkeypatch, tmp_path):
     redirected_target = tmp_path / "cargo-target"
     monkeypatch.setenv("CARGO_TARGET_DIR", str(redirected_target))
@@ -351,7 +353,17 @@ def test_cargo_target_debug_directory_honors_cargo_target_dir(monkeypatch, tmp_p
 
 
 @pytest.fixture(scope="module")
-def runner_binaries():
+def runner_binaries(no_cargo_build, prebuilt_binary):
+    if no_cargo_build:
+        debug = HEADLESS_CRATE / "target" / "debug"
+        return (
+            prebuilt_binary("OPENPIPESTRESS_RUNNER_BIN", debug / "openpipestress-runner", "the final runner"),
+            prebuilt_binary(
+                "OPENPIPESTRESS_PREVIEW_RUNNER_BIN",
+                debug / "headless_preview_runner",
+                "the compatibility runner",
+            ),
+        )
     build = subprocess.run(
         ["cargo", "build", "--quiet", "--bins"],
         cwd=HEADLESS_CRATE,
@@ -369,22 +381,28 @@ def runner_binaries():
 
 
 @pytest.fixture(scope="module")
-def linked_solver_identity():
+def linked_solver_identity(no_cargo_build):
     """Name and version the runner links as its product-physics component.
 
     The runner binds export-results to `solver_component_name()` and
     `solver_component_version()`, which are that crate's CARGO_PKG_NAME and
     CARGO_PKG_VERSION; read the same values from the crate's Cargo metadata.
+    Without Cargo, read the literal [package] name and version from its manifest.
     """
-    metadata = subprocess.run(
-        ["cargo", "metadata", "--format-version", "1", "--no-deps"],
-        cwd=PRODUCT_PHYSICS_CRATE,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert metadata.returncode == 0, metadata.stderr
-    (package,) = json.loads(metadata.stdout)["packages"]
+    if no_cargo_build:
+        manifest = (PRODUCT_PHYSICS_CRATE / "Cargo.toml").read_text(encoding="utf-8")
+        package = tomllib.loads(manifest)["package"]
+        assert isinstance(package["version"], str), "manifest version is not a literal"
+    else:
+        metadata = subprocess.run(
+            ["cargo", "metadata", "--format-version", "1", "--no-deps"],
+            cwd=PRODUCT_PHYSICS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert metadata.returncode == 0, metadata.stderr
+        (package,) = json.loads(metadata.stdout)["packages"]
     assert package["name"] == "open_pipe_stress_product_physics"
     return package["name"], package["version"]
 
