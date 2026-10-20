@@ -4,35 +4,50 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 
 **Status: design only.** Nothing here changes a product file, a reviewed input or a ScopeOfWork. The basis is main `fa019d9cef` (O4 merged as #1468). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
+**Revision 2** answers the first round of dual review (Claude Opus 5.5 and Codex). The changes:
+- section 2's bound is restated. Revision 1 claimed that no proof could change the outcome, but a sound proof whose enclosure is wider and asymmetric can move the published value. The universal bound is now taken over every published value (2.1), and the fixed-projection ceiling is stated with its premise (2.2);
+- U1 is split into its three forms, each with its own ceiling. Moving SharperExact alone to the raw value would change nothing, because SharperBinary64 still judges the SI value (5);
+- the φ ≈ 2 failures are absolute-class rows, which R1 as defined does not reach (3.3, 5);
+- the section-leaf cause now includes the shear modulus and the shear-area leaf;
+- the source-twin, row and readout-gap figures are corrected (3.2, 3.3);
+- the census probe is an opt-in feature outside every test build by default, and its counterfactuals recompute the projection, scales and classes. The switches that change a lane's problem re-solve it (6.2);
+- the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
+- the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
+
 ## Summary
 
-- **The finding.** The gap cannot be closed by any change to the proof. The product gate measures each published value against the hull of both readouts' certified enclosures. Every sound enclosure contains its readout's exact value, so a row can pass only if it would pass with exact, zero-width enclosures (section 2). That depends only on the document, the definitions and the projection, not on the proof.
-- **The ceiling, measured on O4's frozen references** (section 3; a design-time computation with no product build). With exact enclosures, no sensitive judged document can pass the unchanged gate: **0 of 54**. These are the documents designed to trigger W1-E. Over all 172 judged documents, 13 can pass, and none of the 13 is a sensitive design.
-- **Three causes, all fixed by the method's definitions** (section 3.3). Each alone blocks most sensitive documents:
+- **The finding.** On the documents this gap concerns, no remedy within the unchanged claim, definitions and predicates can publish a successor (section 2). The product gate measures each published value against the hull of both readouts' certified enclosures, and every sound enclosure contains its readout's exact value. So whether a row can pass depends on the two readouts' exact values, the classification scale and the published value. It does not depend on how the proof reached them.
+- **The bounds, on O4's frozen references** (section 3; a design-time computation, no product build). There are 54 sensitive judged documents, the ones designed to trigger W1-E.
+  - *Any value (2.1).* Whatever the proof and whatever binary64 value is published, at most **2 of 54** could pass the unchanged gate (24 of all 172 documents).
+  - *The fixed projection (2.2).* With the definition's own projection and enclosures as narrow as the existing proof's, **0 of 54** can pass (13 of 172). None of those 13 is a sensitive design.
+- **Three causes, all fixed by the method's definitions** (section 3.3):
   1. *The represented-Z hull.* The admitted readout's bending stress is defined over hull(Ẑ, Î/c) (DEF-O and DEF-E `rows.component_stress`). That hull is up to about one binary64 unit wide.
-  2. *The section leaves.* The admitted readout's A, I, J and Z are binary64 roundings of exact annulus values, which involve π. Every stress row inherits that difference directly, even where both readouts' actions agree exactly. Solved rows mostly inherit it too, but on the sensitive designs the readout gap stays below 2^-53 relative.
+  2. *The binary64 leaves.* The admitted readout uses binary64 A, I, J, Z, shear area and G, where the annular readout uses the exact annulus and the exact E/(2(1 + ν)). Stress rows inherit the difference directly, even where both readouts' actions agree exactly.
   3. *The published unit.* A millimetre or megapascal row is rounded once in its unit and again when the gate normalizes it to SI (DEF-E `projection.H`; `final_case.rs` `normalize`). On its own, that fails about 8 % of millimetre rows and 2 % of megapascal rows at the body scale.
   
-  Removing the first and third together would let 45 of the 54 sensitive documents pass. Removing all three would let all 54 pass, before alpha and preparation.
-- **What that means for the suggested remedies** (section 4).
-  - *A better proof or projection.* Neither can help. The projection already takes the hull's midpoint, which is optimal for SI rows. For unit rows, the projection is a DEF-E definition with no search.
-  - *A representation that makes the readouts agree.* Binary64 leaves cannot equal an exact annulus. Leaves with more precision would change what the admitted readout is, and that is a change to the verified claim.
-  - *Certifying against a readout hull.* The gate already does this. Certifying against the exact problem alone would drop a readout from the claim.
+  Where only one cause is present, the represented-Z hull blocks 46 of the 54 sensitive documents, the unit rounding 22 to 26, and the readout gap 9. Removing the hull and the unit rounding together lets 45 of 54 pass. Removing all three lets all 54 pass, before alpha and preparation.
+- **The suggested remedies** (section 4).
+  - *A better proof.* It cannot raise the any-value bound. Shaping an enclosure to move the projection is a disguised choice of the published value.
+  - *A better projection.* That is a DEF-E change, bounded by the any-value figure.
+  - *A representation that makes the readouts agree.* Binary64 leaves cannot equal an exact annulus.
+  - *Certifying against a readout hull or the exact problem.* The first is what the gate does today. The second drops a readout from the claim.
   - *Stating the corner as a limit.* This needs no product change.
-- **Recommended path (no ruling on definitions needed):**
+- **Recommended path (no ruling on any definition or on the claim):**
   - state the corner as a limit (proposed REQ-006 (e), section 6.1; a ScopeOfWork edit, which is the owner's);
   - keep W1-E as built;
-  - run a product-side confirmation census (section 6.2) before the owner rules on any definition lever.
+  - run the product-side confirmation census (section 6.2) before the owner rules on any definition lever.
   
   Expected coverage gain: none. Cost: one ScopeOfWork text, one maintained AC-006 test, and the census.
-- **Options that would gain coverage** (section 5). Each changes a reviewed definition, the verified claim or a predicate, so each needs the owner's ruling. No recommendation is made.
+- **Options that would gain coverage** (section 5). Each changes a reviewed definition, the verified claim or a predicate, so each needs the owner's ruling. No recommendation is made. Ceilings are for the 54 sensitive documents.
 
-  | Option | What it changes | Ceiling, sensitive documents |
-  |---|---|---|
-  | Z1 | the admitted Z becomes the single Ẑ | 24/54 |
-  | U1 | how a unit row's SI value is judged | 2/54 alone; 45/54 with Z1 |
-  | R1 | the sharper allowance claimed against one readout | 32/54 (annular readout) |
-  | C1 | rows that fail the sharper allowance become `not_covered`, and the successor publishes | about 94 % of the relative rows on the sensitive documents stay verified |
+  | Option | What it changes | Ceiling alone | With Z1 |
+  |---|---|---|---|
+  | Z1 | the admitted Z becomes the single Ẑ | 24/54 | — |
+  | U1 (i) | a search over the published unit value | 1/54 | 42/54 |
+  | U1 (ii) | both sharper predicates judged on the raw unit value | 0/54 | 12/54 |
+  | U1 (iii) | retained rows published in SI units | 2/54 | 45/54 |
+  | R1 | the sharper allowance claimed against the annular readout only | 32/54 | — |
+  | C1 | rows that fail the allowance become `not_covered`, and the successor publishes | about 94 % of relative rows stay verified, if a coverage law for the scales is also designed | — |
 
 ## 0. Basis and dependencies
 
@@ -41,49 +56,69 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 | Fact | Where |
 |---|---|
 | The final gate judges each row against `hull(represented, geometric)`, the two lanes' enclosures. | kernel `product_certificate/final_case.rs` `check_intervals` (1536), call at 1659; `hull` (660) |
-| SharperExact passes when h ≤ 2^-64·M + 2^-85·M + 2^-53·\|n\| + 2^-1074, with M = max(\|n\|, S) and h = max(n − lo, hi − n). The test is evaluated exactly. | `gate` (1002–1077), `exact_test` (959), `distance` (952) |
+| SharperExact passes when h ≤ 2^-64·M + 2^-85·M + 2^-53·\|n\| + 2^-1074, with M = max(\|n\|, S) and h = max(n − lo, hi − n). SharperBinary64 applies the same allowance computed in binary64. Both judge n. | `gate` (1002–1107), `exact_test` (959), `distance` (952) |
 | n is the published value normalized to SI in binary64: y/1000 for mm, y·10^6 for MPa. | `normalize` (598–604) |
 | The published value is the projection of the hull's midpoint. For mm it is RN64(RN1024(mid·1000)). For MPa it is RN64(RN64(mid)/10^6). | `project_hull` (1961–2000); DEF-E `projection.H` |
-| A row is relative-class when S ≥ 2^-988 and \|n\| ≥ 2^-34·S. S is the body's coupled scale, from the final published native and support rows; a stress row's S is S_force/A + k·S_moment/Z. | `gate`; `row_scales_reduced` (1313–1532); `check_intervals` (1544–1557, 1595–1615); adaptive `FLOOR_RATIO_BITS` (67) |
+| A row is relative-class when S ≥ 2^-988 and \|n\| ≥ 2^-34·S; otherwise it takes the absolute bound RU64(2^-64·S). S is the body's coupled scale, from the final published native and support rows, raised by the floor at p = 512. A stress row's S is S_force/A + k·S_moment/Z. | `gate`; `row_scales_reduced` (1313–1532); `check_intervals` (1544–1557, 1595–1615); adaptive `FLOOR_RATIO_BITS` (67) |
 | The admitted lane's bending Z is hull(Î/c, Ẑ). | kernel `product_certificate.rs` (657–671); DEF-O/DEF-E `rows.component_stress` |
+| The lanes run at the case's selected precision, 128 to 1024 bits. | `final_case.rs` (about 1931), `source_residual::source_residual_for_law` (`source_residual.rs:965`) |
 | The O4 SharperExact count comes from this gate (`Cause::Predicate`). | PP `o4_m3_judging_tests.rs` `w1_causes` (260–296) |
 | The frozen references give both readouts' exact rows to 40 significant digits. | `validation/references/o4_retained_source/` (README "The two readouts") |
 
 **Assumptions taken from concurrent work, and sequencing.**
 
-- **Stack-headroom repair (b7-plan item 5a).** It shrinks debug stack frames in `freeze_case`, `source_residual::recover` and `member` on the retained W1 path.
+- **Stack-headroom repair (b7-plan item 5a).** It shrinks debug stack frames in `freeze_case`, `source_residual::recover` and `member` on the retained W1 path, and puts the six stack witnesses into a maintained check.
   - The recommended path changes no product code, so it has no interaction with 5a.
-  - The census (6.2) adds a probe to the gate's caller, which is on that chain. Assumption: 5a's frames are measured in a build without the census probe. The probe is therefore a dev-only cargo feature, not `#[cfg(test)]`, so the witness build compiles none of it. The census runs after 5a merges. It does not use or report witness outcomes from its own build.
-  - Any option in section 5 that is later implemented changes code on that chain. It follows 5a, and it re-runs the six stack witnesses at R/64 in the registered profile.
-- **W1 coverage repair** ([w1-coverage-repair.md](w1-coverage-repair.md), epoch 6, after 5a). Three of its premises are reused here:
-  - its census already designs the counterfactual switches (a) "the admitted lane's Z set to the single value Ẑ", (b) "both lanes given the same section" and (c) "both lanes given the same whole readout" (§3.3);
+  - The census probe (6.2) sits beside the gate, on that chain. Assumption: the witnesses are built and run without the probe. A feature reached through `[dev-dependencies]` would compile into every test build of the crate, the witness build included; `exact-operation-count` is reached that way through `core/product_physics/Cargo.toml`. So the probe is an opt-in feature that no `[dev-dependencies]` entry enables. It is switched on only by the census commands' `--features`, and a guard test asserts that it is off in the ordinary test build.
+  - The census runs after 5a merges. It neither uses nor reports witness outcomes from its own build.
+  - Any section 5 option that is later implemented changes code on that chain. It follows 5a, and it re-runs the six witnesses at R/64 in the registered profile.
+- **W1 coverage repair** ([w1-coverage-repair.md](w1-coverage-repair.md), epoch 6, after 5a). This design relies on five of its facts:
+  - its census designs the counterfactual switches (a) "the admitted lane's Z set to the single value Ẑ", (b) "both lanes given the same section" and (c) "both lanes given the same whole readout" (§3.3);
   - its pre-registered escalation names Z1 as "the next lever", which "changes a reviewed definition's meaning and the verified claim, so it needs a ruling" (§3.3);
-  - it states that the two-lane section difference "is inherited by all stress rows and not created here" and leaves it out of scope (W1 Design §4.4, last corner).
+  - it leaves the two-lane section difference out of scope ("inherited by all stress rows and not created here"; W1 Design §4.4, last corner);
+  - **its own ScopeOfWork edit.** The owner decided (2026-10-18, "I concur, adopt option 2") that REQ-003 (e) gains a clause, applied in that repair's implementation PR. This design proposes REQ-006 (e) and classifies options under REQ-003 (e). If both edits go to the owner together, REQ-006 (e) is written against REQ-003 (e) as amended;
+  - **its corner-2 fix**, which writes the gate's final scales to the receipt. That changes precommit G5b outcomes but not the gate, S or any ceiling here. A census run after that fix sees cases reach the gate that G5b withdrew before.
   
-  Sequencing: the confirmation census (6.2) reuses switches (a) to (c) and adds (d), the unit switch. So it runs on the W1 repair's census branch, or after it, and shares its probe module. Z1 is one question for both routes: DEF-O on route L and DEF-E on route E. It goes to the owner once, with both censuses' tables, and not separately per route.
+  Sequencing: the confirmation census (6.2) shares switches (a) to (c) with the W1 repair's census, so it runs on that census's branch, or after it. The two probes are reconciled into one opt-in module under 5a's assumption above; the W1 repair's census specifies a `#[cfg(test)]` kernel hook, which cannot reach product_physics tests. Z1 is one question for both routes, DEF-O on route L and DEF-E on route E. It goes to the owner once, with both censuses' tables.
 - **The O4 design and references.** As built (o4-source-extension.md revision 7). This design reads the frozen references and writes nothing under `validation/references`.
 
 ## 1. The verified claim and the gate
 
 REQ-001: a `relative_verified` row's value "lies within 10^-9·|value| of the exact solution, and also within the kernel's sharper allowance (DEF-O `acceptance.final`)". "The bound holds for both of the formation's stiffness readouts: the admitted binary64 section products and the exact annulus geometry." DEF-E's `acceptance.final` is the "direct error certificate of the actual frozen raw and SI values against both physical readouts; unchanged absolute bound, two sharper predicates, raw/SI decimal checks …".
 
-The gate applies four predicates to a relative row: SharperExact, SharperBinary64, DecimalSi and DecimalRaw. The 10^-9 predicates are far from binding: the worst published relative margin on O4's judged successors is 1.1e-7 of the tolerance. The binding predicate is SharperExact. Its allowance is about 2^-53·|n|, or between one half and one binary64 unit of n, plus 2^-64·max(|n|, S). The second term matters only for rows well below their body's scale. So SharperExact asks, in effect, that the SI value of the published number be a faithful rounding of every readout value at once.
+The gate applies four predicates to a relative row: SharperExact, SharperBinary64, DecimalSi and DecimalRaw. The 10^-9 predicates are far from binding: the worst published relative margin on O4's judged successors is 1.1e-7 of the tolerance. The binding predicates are the two sharper ones, which agree on every judged row.
+- Their allowance is about 2^-53·|n| (one half to one binary64 unit of n), plus 2^-64·max(|n|, S). The second term matters only for rows well below their body's scale.
+- So the sharper predicates ask, in effect, that the SI value of the published number be a faithful rounding of every readout value at once.
 
-## 2. A necessary condition that no proof can change
+An absolute-class row must lie within RU64(2^-64·S) of both readouts.
 
-Let x_A be the admitted readout's exact value of a row and x_G the annular readout's. For a bending stress, x_A is the whole interval over hull(Ẑ, Î/c). Every sound lane enclosure contains its readout's exact value, so the gate's hull H ⊇ hull(x_A, x_G) = [ℓ, u]. Then for any n, h(n, H) ≥ max(n − ℓ, u − n).
+## 2. What a proof can and cannot change
 
-The published n is a fixed function of H's midpoint (DEF-E `projection.H`, `search_or_retry: none`). At 1024 bits the lanes' enclosure widths are of order 2^-900 relative, so H's midpoint equals (ℓ + u)/2 except where the projection is decided within that width of a rounding boundary.
-- **The condition.** A row can pass only if it passes the same gate with H = [ℓ, u] and n = projection((ℓ + u)/2).
-- **Why it holds whatever the proof.** The right-hand side depends only on the two readouts' exact values, the classification scale and the fixed projection. No tightening of the proof, no added precision and no other lane arithmetic can move it.
-- **The SI case.** For an SI row the projection is RN64 of the midpoint, which minimizes max(n − ℓ, u − n) over all binary64 n. So the condition is exactly whether *some* binary64 value can pass.
-- **The unit case.** For a millimetre or megapascal row the condition is weaker than "some value can pass". The fixed projection is not optimal for the SI distance, and choosing a different value would be a search (section 5, U1).
+Let x_A be the admitted readout's exact value of a row and x_G the annular readout's. For a bending stress, x_A is the whole interval over hull(Ẑ, Î/c). Write [ℓ, u] = hull(x_A, x_G). Every sound lane enclosure contains its readout's exact value, so the gate's hull H ⊇ [ℓ, u]. Hence, for any n, h(n, H) ≥ max(n − ℓ, u − n).
 
-## 3. The ceiling census (design-time, on the frozen references)
+### 2.1 The any-value bound
+
+For a fixed S, a row's best chance over every binary64 n is at the SI values nearest the midpoint (ℓ + u)/2.
+- The allowance depends on n only through 2^-53·|n| and 2^-64·max(|n|, S). One step of n changes it by about 2^-53 of a unit, while h changes by up to a unit.
+- So a row that fails for the seven SI values nearest the midpoint fails for every n. Section 3 evaluates exactly those seven.
+
+The bound holds whatever the proof, whatever the enclosures' widths or shape, and whatever value is published, including a value chosen by a search.
+
+One proviso: S is formed from the published native and support rows (and the p = 512 floor), so a different set of published values gives a slightly different S. The bound uses an upper estimate of S (3.1), and it judges each candidate n in its own class. On the sensitive documents, no absolute-class row fails.
+
+### 2.2 The ceiling under the fixed projection
+
+DEF-E fixes the published value as the projection H of the hull's midpoint, with `search_or_retry: none`.
+- **The premise.** When the lanes' enclosures are narrow enough that H's midpoint stays in the same projection cell as (ℓ + u)/2, the published value is projection((ℓ + u)/2). The row can then pass only if it passes with H = [ℓ, u].
+- **The existing lanes.** They work at the selected precision, 128 to 1024 bits. Their widths are expected to be many orders below a binary64 unit. The census records the widths and the cell test (6.2) rather than assuming them.
+- **For SI rows,** RN64 of the midpoint minimizes h, so the fixed projection and the any-value bound agree up to the dependence of the allowance on n.
+- **For unit rows** they differ. A sound proof that returned a wider, asymmetric enclosure could move the midpoint into another cell, and so publish a different value that passes. The Codex reviewer constructed one: `SHORT-MEMBER|zero|timo`, `N2.uz`. That is not a better proof but a choice of published value through the enclosure's shape. It belongs to U1 (i)'s family, and DEF-E does not provide it.
+
+## 3. The ceilings, computed on the frozen references
 
 ### 3.1 Method
 
-A standard-library Python replay was run in `/tmp` scratch. It is not committed, and it reads only `validation/references/o4_retained_source/{cases,oracle,source_twins_cases,source_twins_oracle}.json`. For every case and every row it forms [ℓ, u] from both readouts' 40-digit values in exact rationals. It projects the midpoint by DEF-E's H, including the unit conversions, and normalizes as `normalize` does. It then applies the gate's class rule and SharperExact, or the absolute bound RU64(2^-64·S), exactly.
+A standard-library Python replay was run in `/tmp` scratch. It is not committed, and it reads only `validation/references/o4_retained_source/{cases,oracle,source_twins_cases,source_twins_oracle}.json`. For every case and every row it forms [ℓ, u] from both readouts' 40-digit values in exact rationals. It then forms n, either by DEF-E's H with the unit conversions and `normalize` (the fixed projection), or as each of the seven SI values nearest the midpoint (any value). Finally it applies the gate's class rule, SharperExact, or the absolute bound RU64(2^-64·S), exactly.
 
 - **Rows judged:**
   - free nodal translations (mm) and rotations (rad);
@@ -94,82 +129,103 @@ A standard-library Python replay was run in `/tmp` scratch. It is not committed,
 - **The scales S are an upper estimate:**
   - the per-kind maximum over every row of the body and both readouts, a superset of the product's native and support rows;
   - coupled by the body's bounding-box diagonal, as `couple` and `body_extent` do;
-  - for stresses, S_force/Â + S_moment/Ẑ with the prepared leaves;
+  - for stresses, S_force/Â + S_moment/Ẑ with the prepared leaves.
   
-  A larger S only enlarges the allowance. The p = 512 Φ floor is not modelled; it raises S only for near-zero bodies (o4-source-extension.md §4.2).
-- **Robustness.** Re-running with every reference value perturbed independently by ±10^-37 relative, under three seeds, changed no row verdict.
-
-So each count below is an upper bound on what the unchanged gate can publish on these documents, under any proof. Alpha and preparation failures, which also stop cases, are not counted here.
+  A larger S enlarges the allowance of a relative row. The Claude reviewer's independent replay with S formed from the published |n| reproduced every cell. The p = 512 Φ floor is not modelled; it raises S only for near-zero bodies (o4-source-extension.md §4.2).
+- **Robustness.** Re-running with every reference value perturbed independently by ±10^-37 relative, under three seeds, changed no verdict. A reviewer's run at ±10^-24 changed none either.
+- **Independent reproduction.** Both reviewers reproduced every cell of revision 1's table independently, from their own code. That table's last two rows (no unit rounding) equal the any-value rows here. They also reproduced the U1 (i) and U1 (ii) figures of section 5 or the facts they rest on.
 
 ### 3.2 Results
 
-Documents whose every judged row passes, under exact enclosures. Each cell gives all judged documents (of 172) and then the sensitive ones (of 54; tag `sensitive_design`: soft springs at k/a ≈ 1e-8 and 1e-12, stiff contrast and short members). The column says which readouts the gate is applied against.
+Documents whose every judged row passes. Each cell gives all judged documents (of 172) and then the sensitive ones (of 54; tag `sensitive_design`: soft springs at k/a ≈ 1e-8 and 1e-12, stiff contrast and short members). The column says which readouts the gate is applied against.
 
-| Represented Z | Unit rounding | Both readouts (claim as defined) | Admitted only | Annular only |
+| Represented Z | Published value | Both readouts (claim as defined) | Admitted only | Annular only |
 |---|---|---|---|---|
-| hull(Ẑ, Î/c), as defined | as published, as defined | **13 / 0** | 30 / 1 | 97 / 32 |
-| the single Ẑ | as published | 47 / 24 | 79 / 28 | 97 / 32 |
-| hull, as defined | none (n = RN64 of the SI midpoint) | 24 / 2 | 69 / 8 | 172 / 54 |
-| the single Ẑ | none | 79 / 45 | 172 / 54 | 172 / 54 |
+| hull, as defined | fixed projection (2.2) | **13 / 0** | 30 / 1 | 97 / 32 |
+| the single Ẑ | fixed projection | 47 / 24 | 79 / 28 | 97 / 32 |
+| hull, as defined | any value (2.1) | **24 / 2** | 69 / 8 | 172 / 54 |
+| the single Ẑ | any value | 79 / 45 | 172 / 54 | 172 / 54 |
+
+The "any value" rows equal the rows computed with n = RN64 of the SI midpoint, that is, with no unit rounding.
 
 - **The 13 judged documents that can pass as defined** are cantilevers, `FF-SYM`, `GUIDED` and two `PROP-PHI2-EXACT-A` Euler–Bernoulli documents. None is a sensitive design. They are the documents whose ordinary results are expected to pass their checks, so W1 does not attempt them on the plain binding.
-- **Rows.** On the sensitive documents, 609 of 9,548 relative-class rows fail as defined (6.4 %). Per document, between 86.7 % and 100 % of rows pass (median 93.2 %). Stress rows dominate the failures: over all judged documents, 2,536 of the 3,196 failing relative rows are megapascal stresses.
-- **Source-control twins** (104). As defined, 82 can pass. Every failure is a bending stress row (26 rows in 22 twins: the J2 `fields` twins and the RF PIN-OFF-345 r1e-12 allowance twins). The represented-Z hull and the unit rounding do not change any twin's verdict: with either removed, still 82 pass. Gating on one readout alone clears all 104.
+- **Rows.** On the sensitive documents, 609 of 9,548 relative-class rows fail as defined (6.4 %). Per document, between 86.7 % and 98.1 % of relative rows pass (median 93.2 %). No absolute-class row fails on a sensitive document.
+  - Over all judged documents, 2,504 of the 3,196 failing relative rows are megapascal stresses.
+  - Separately, 70 absolute-class rows fail, all in the eight `PROP-PHI2-*` Timoshenko documents (3.3).
+- **Source-control twins** (104). As defined, 82 can pass. Every failure is a bending stress row (26 rows in 22 twins: the J2 `fields` twins and the RF PIN-OFF-345 r1e-12 allowance twins).
+  - With either the single Ẑ or no unit rounding, still 82 pass.
+  - Against the annular readout alone, all 104 pass. Against the admitted readout alone, 102 pass: two reduced-section bending rows of the PIN-OFF-345 r1e-12 mill twins fail on the represented-Z hull, and they pass with the single Ẑ.
 - **Consistency with the product.** O4 records 6 judged-set and 112 twin successors through W1's own trigger path, which attaches a separate trigger body. Both are within these ceilings: 6 ≤ 2 × 13 runs and 112 ≤ 2 × 82. The replay predicts that the 6 are among the 13, and the census checks it (6.2). On the plain binding, no judged document published.
 
 ### 3.3 The causes
 
-- **The represented-Z hull.** The admitted lane's bending Z is the hull of two binary64 representations of one quantity. W1 coverage repair §3.1 measures its relative width: a median of 871 × 2^-64 (about 0.43 × 2^-53) across 3,142 sections, and zero only where Î/c is representable. A row's half-width then joins the projection's own rounding of up to 2^-53·|n|, so the hull alone can fail a row. With the Ẑ point instead, 24 of 54 sensitive documents can pass, where none can as defined.
-- **The section leaves.** Â, Î, Ĵ and Ẑ are correctly rounded exact annulus values, so each differs from its exact value by up to half a unit, and π makes equality impossible.
-  - Stress rows divide by these leaves directly. So their two readouts differ by up to about 2^-53 relative even where the actions agree exactly. Every failing source-twin row is such a bending stress.
-  - On the sensitive designs the solved rows differ by less: every sensitive document's largest readout gap on point rows lies in [2^-55, 2^-53) relative. That is half a unit or less, and the soft springs do not amplify it.
-  - Removing the readout gap alone (the admitted-only column) clears 1 of 54 sensitive documents.
+- **The represented-Z hull.** The admitted lane's bending Z is the hull of two binary64 representations of one quantity. W1 coverage repair §3.1 measures its relative width: a median of 871 × 2^-64 (about 0.43 × 2^-53) across 3,142 sections, and zero only where Î/c is representable. A row's half-width then joins the projection's own rounding of up to 2^-53·|n|, so the hull alone can fail a row. Against the admitted readout alone, with no unit rounding, 8 of 54 sensitive documents pass; the hull blocks the other 46.
+- **The binary64 leaves.** The admitted readout uses:
+  - prepared A, I, J and Z, each the correctly rounded binary64 of the exact annulus value (the reference README, "The two readouts"; DEF-E `preparation`), so each differs from its exact value by up to half a unit, and π makes equality impossible;
+  - Ĝ = RN64(E/RN64(2·RN64(1 + ν))), up to about 1.07 × 2^-53 from the exact G on the judged set;
+  - for Timoshenko members, κ̂ in a fixed binary64 order and Â_s = RN(κ̂·Â), up to about 3.5 × 2^-53 and 2.9 × 2^-53 from κ_E and its shear area (reviewer measurements).
+  
+  Stress rows divide by the section leaves directly. So their two readouts differ by up to about 2^-53 relative even where the actions agree exactly, and every failing source-twin row is such a bending stress. On the sensitive designs, every document's largest readout gap on point rows is below 2^-53 relative; on the `SOFT-RUN` designs it is far below. With the single Ẑ and no unit rounding, the readout gap alone blocks 9 of 54 sensitive documents.
 - **The published unit.** n = RN64(RN64(1000·m)/1000) for a millimetre row. This differs from m by up to about one unit of n, against an allowance of half a unit to one unit.
-  - In an independent sampling of 200,000 random non-representable values, 8.4 % of millimetre rows and 2.3 % of megapascal rows fail on this alone at the body scale (|n| ≈ S).
-  - The annular-only column shows its reach: 97 of 172 documents pass with the conversion, and all 172 without it.
-- **The φ ≈ 2 documents.** In the eight `PROP-PHI2-*` Timoshenko documents the near-end bending rows carry (2 − φ)/(4 + φ), which is an exact zero, or nearly one, in one readout and not in the other. Their readout gaps are 5 × 10^10 units of 2^-53 or more. No option except R1 changes those rows.
+  - In an independent sampling of 200,000 random non-representable values, 8.4 % of millimetre rows and 2.3 % of megapascal rows fail on this alone at the body scale (|n| ≈ S). Both reviewers reproduced these rates.
+  - On its own (one readout, single Ẑ, fixed projection), it blocks 22 of 54 sensitive documents against the annular readout and 26 against the admitted one.
+- **The φ ≈ 2 documents.** In the eight `PROP-PHI2-*` Timoshenko documents, the near-end bending rows carry (2 − φ)/(4 + φ), which is zero, or nearly zero, in one readout and not in the other. Their readout gaps are at least 5 × 10^10 units of 2^-53. The failing rows there are absolute-class: for example, `PROP-PHI2-EXACT-A|zero|timo` `P1.end_i.My` exceeds its absolute bound about 258 times. They lie outside the sensitive set. No option of section 5 reaches them unless it also changes the absolute bound's readouts (R1, 5).
 
-Each cause is fixed by a definition: DEF-O and DEF-E `rows.component_stress`, the preparation law `RP-PREPARED-ANNULUS-v1` with REQ-001's "admitted binary64 section products", and DEF-E `projection.H` with the published units of the pressure-2 base contract. The causes overlap. Only the represented Z together with the unit rounding clears most sensitive documents.
+Each cause is fixed by a definition:
+- the represented-Z hull, by DEF-O and DEF-E `rows.component_stress`;
+- the leaves, by the preparation law `RP-PREPARED-ANNULUS-v1` and the admitted readout of REQ-001 ("the admitted binary64 section products");
+- the unit rounding, by DEF-E `projection.H` and the published units of the pressure-2 base contract.
+
+Only the represented Z and the unit rounding together clear most sensitive documents.
 
 ## 4. The suggested remedies, examined
 
-1. **A tighter or different proof.** It cannot raise any ceiling in section 3.2 (section 2).
-2. **A better projection without a search.**
-   - For SI rows, RN64 of the midpoint is already the minimax choice.
-   - For unit rows, any other deterministic recipe edits DEF-E `projection.H`. The map y ↦ RN64(y/1000) can skip binary64 values, so even a perfect recipe cannot always reach the SI-nearest value. Its gain is bounded by the "none" row of the table, and it is a reviewed-definition change (section 5, U1).
+1. **A tighter or different proof.** It cannot raise the any-value bound (2.1). Under the fixed projection, a proof can change the outcome only by moving the hull's midpoint into another projection cell. That chooses the published value, which section 5 treats as U1 (i).
+2. **A better projection.**
+   - For SI rows, RN64 of the midpoint is already the best value.
+   - For unit rows, any other recipe edits DEF-E `projection.H`. A deterministic recipe that targets the SI value is bounded by the any-value rows, because y ↦ RN64(y/1000) can skip binary64 values. A recipe that searches is U1 (i).
 3. **A representation that makes the readouts agree.**
-   - With binary64 leaves this is impossible: the exact annulus values are irrational multiples of π.
-   - The best binary64 leaf is the correctly rounded one, which preparation already uses.
-   - Extended-precision leaves (a double-double A, for example) would no longer be "the admitted binary64 section products". The admitted readout would stop being the problem the ordinary route represents, which is a change to the verified claim (section 5, R1's family).
-   - A narrower variant would prepare Ẑ as RN64(Î/c) instead of RN64(Z_exact). That can at most halve the represented-Z hull, and it changes the preparation law's meaning ("each the correctly rounded exact annulus value"). It belongs to Z1's family, and the census can measure it as a variant.
+   - With binary64 leaves this is impossible: the exact annulus values are irrational multiples of π, and the best binary64 leaf is the correctly rounded one, which preparation already uses.
+   - Leaves with more precision (a double-double A, for example) would no longer be "the admitted binary64 section products". The admitted readout would stop being the problem the ordinary route represents. That is a change to the verified claim.
+   - A narrower variant prepares Ẑ as RN64(Î/c) instead of the rounding of the exact Z. That changes how the represented-Z hull's width is bounded, not necessarily its width on a given section. It changes the preparation law's meaning, so it belongs to Z1's family, and the census can measure it as a variant.
 4. **Certifying against a readout hull or the exact problem.**
-   - The gate already certifies against the hull of both readouts. That hull is what the claim requires.
+   - The gate already certifies against the hull of both readouts, which is what the claim requires.
    - Certifying against the exact problem alone (the annular readout) is R1, a claim change.
 5. **Stating the corner as a limit.** No product change; a ScopeOfWork statement (section 6.1).
 
-**Conclusion.** Within the unchanged claim, definitions, predicates and projection, no remedy can publish the sensitive documents this gap concerns. Every coverage-gaining remedy needs a ruling.
+**Conclusion.** Within the unchanged claim, definitions, predicates and projection, no remedy can publish the sensitive documents this gap concerns. Even allowing a different published value, at most 2 of 54 could pass. Every coverage-gaining remedy needs a ruling.
 
 ## 5. Options that need the owner's ruling (no recommendation)
 
-The ceilings are section 3.2's, for the 54 sensitive judged documents, under exact enclosures. Alpha (24 runs) and preparation (16 runs) failures would still fail closed under every option. Implementing any option needs its own design, the independent numerical review, and an actual-source D3, because each moves reviewed inputs. Each also re-pins committed route-E successors and their DEF-E-bound hashes, and Z1 also route L's.
+The ceilings are for the 54 sensitive judged documents, from section 3's replay under the fixed projection unless stated otherwise. Alpha (24 runs) and preparation (16 runs) failures would still fail closed under every option. Implementing any option needs its own design, the independent numerical review, and an actual-source D3, because each moves reviewed inputs. Each also re-pins committed route-E successors and their DEF-E-bound hashes, and Z1 also route L's.
 
 - **Z1. The admitted bending stress on the single Ẑ.**
   - *What changes:* DEF-O and DEF-E `rows.component_stress` ("admitted-K bending Z is hull(actual Z,I_K/c)"). The admitted readout's bending stress would mean M/Ẑ only.
-  - *Ceiling:* alone, 0 → 24 of 54; with U1, 45 of 54.
-  - *Consequence:* the verified claim no longer covers a bending stress formed from the stiffness second moment, M·c/Î. Such a value would still lie within 10^-9, but not within the sharper allowance.
+  - *Ceiling:* alone, 0 → 24 of 54.
+  - *Consequence:* the verified claim no longer covers a bending stress formed from the stiffness second moment, M·c/Î. Such a value would still lie within 10^-9, but not within the sharper allowance. It narrows the interval the gate measures against, so AX-005 ("A gate is never loosened to obtain a pass") bears on it as well as the definition ruling.
   - *Notes:* the W1 coverage repair's escalation names this lever for route L too (§3.3). One ruling should cover both routes.
-- **U1. How a unit row's SI value is judged.** Three forms, each with its own consequence:
-  - (i) A projection that searches for the published unit value whose SI normalization passes. REQ-003 (e) fixes "`projection_retry: false` and `search_or_retry: none`" as reviewed inputs, so this changes an item REQ-003 (e) names.
-  - (ii) Applying SharperExact to the raw unit value instead of its SI normalization. This weakens the SI-value guarantee from about 2^-53 to about 2^-52 relative. It is a predicate change, and REQ-003 (e) and AX-005 bear on it.
-  - (iii) Publishing the retained rows in SI units. This changes the pressure-2 base contract's units for every consumer.
-  - *Ceiling:* alone, 0 → 2 of 54, because the represented-Z hull still binds. With Z1, 45 of 54.
+- **U1. How a unit row's published value and SI value are judged.** Three forms, each with its own consequence:
+  - **(i) A search** for the published unit value whose SI normalization passes, within ±4 binary64 steps.
+    - *Ceiling:* 1/54 alone, 42/54 with Z1.
+    - *Consequence:* REQ-003 (e) fixes "`projection_retry: false` and `search_or_retry: none`" as reviewed inputs. A search to obtain a pass is what REQ-003 (e) and AX-005 prohibit.
+  - **(ii) Both sharper predicates judged on the raw unit value** instead of its SI normalization.
+    - *Ceiling:* 0/54 alone, 12/54 with Z1. The megapascal raw value is itself rounded twice, so this form fails more rows than SI judging.
+    - *Consequence:* changing only SharperExact would change nothing, because SharperBinary64 would still judge the SI value. Moving both weakens the SI-value guarantee from about 2^-53 to about 2^-52 relative. That is a predicate change on which REQ-003 (e) and AX-005 bear.
+  - **(iii) Publishing the retained rows in SI units.**
+    - *Ceiling:* 2/54 alone, 45/54 with Z1. These are the any-value rows of 3.2.
+    - *Consequence:* it changes the pressure-2 base contract's units for every consumer.
 - **R1. The sharper allowance against one readout, with 10^-9 kept for both.**
   - *What changes:* REQ-001's guarantee and DEF-E `acceptance.final`.
   - *Ceiling:* 32 of 54 against the annular readout; 1 of 54 against the admitted one.
-  - *Consequence:* a verification is removed from the gate, so REQ-003 (e) and AX-005 bear on it. Consumers relying on the sharper statement for the other readout lose it.
+  - *Consequence:* a verification is removed from the gate, so REQ-003 (e) and AX-005 bear on it. Consumers relying on the sharper statement for the other readout lose it. As defined, R1 leaves the absolute bound judged against both readouts, so it does not reach the φ ≈ 2 failures (3.3). Reaching those would also need the absolute bound against one readout.
 - **C1. Per-row coverage.** A relative-class row that fails the sharper allowance would publish as `not_covered` with its ordinary value, and the rest of the successor would publish.
-  - *What changes:* REQ-001's classification law (today a row of a verifiable kind is never `not_covered` for this reason); the table's `accuracy_classification`; DEF-E `acceptance.final` ("every row passes"); and the reader's G3/G5c coverage checks.
-  - *Ceiling:* on the sensitive documents, about 94 % of the relative rows would publish verified, the rest `not_covered`. Publication would then be limited by alpha and preparation.
+  - *What changes:*
+    - REQ-001's classification law (today a row of a verifiable kind is never `not_covered` for this reason);
+    - the table's `accuracy_classification`;
+    - DEF-E `acceptance.final`'s direct certificate of every row;
+    - the reader's G3/G5c coverage checks.
+  - *A coverage law it would also need.* `row_scales_reduced` takes S only from native and support rows and refuses missing native coverage. A `not_covered` native row would change other rows' S and classes, so C1 also needs a new scale and coverage law.
+  - *Ceiling:* on the sensitive documents, about 94 % of the relative rows would publish verified, the rest `not_covered`, assuming S unchanged. Publication would then be limited by alpha and preparation.
   - *Consequence:* the reader cannot rederive why a verifiable row is not covered, and a successor no longer verifies all of its verifiable rows. No published bound is loosened, but the successor's acceptance condition is relaxed, so REQ-003 (e) and AX-005 bear on it.
 
 **If the owner rules on none of these,** W1-E stays as built. It publishes where the corner does not bind and fails closed elsewhere, keeping the ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice (REQ-003 (b)).
@@ -180,45 +236,51 @@ The ceilings are section 3.2's, for the 54 sensitive judged documents, under exa
 
 DEL-04-08 ScopeOfWork REQ-006 gains an item after (d):
 
-> **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values. Three definitions of the method make that unattainable for many rows:
+> **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values. Three definitions of the method keep some rows from meeting it:
 > - the admitted readout's bending stress ranges over hull(Ẑ, Î/c);
-> - the two readouts' binary64 and exact section leaves differ by up to half a binary64 unit, and every stress row inherits that difference;
+> - the admitted readout's binary64 section, shear and modulus leaves differ from the exact annulus readout's by up to about a binary64 unit, and every stress row inherits that difference;
 > - a millimetre or megapascal value is rounded in its unit and again when normalized to SI.
 >
-> Such a case keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's judged set, no sensitive document can meet this condition under any proof (Design `w1e-sharper-exact-coverage.md`).
+> A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection (Design `w1e-sharper-exact-coverage.md`).
 
-**AC-006 consequence.** "Each decline in REQ-006 is exercised by a maintained test that asserts its refusal." The implementation therefore adds one maintained test, which is test code and not this PR. Its input is a sensitive Timoshenko document of the judged set, for example `RFLIKE-SKEWT-PIN-OFF-345-r1e-08|zero|timo`, in both modes. The test asserts:
-- the final gate's `Cause::Predicate` with `SharperExact`;
+This text should be adopted after census 6.2 has confirmed the ceiling on the product, or with its last sentence held until then.
+
+**AC-006 consequence.** "Each decline in REQ-006 is exercised by a maintained test that asserts its refusal." The implementation therefore adds one maintained test, which is test code and not this PR. Its input is a sensitive judged-set document that the census (6.2) records ending at the final gate with `Cause::Predicate` and `SharperExact`, in both solver modes. No committed record establishes such a document today. The test asserts:
+- that refusal;
 - the ordinary bytes plus the one notice, at the facade.
 
 ### 6.2 The product-side confirmation census (specified; executed later)
 
 **Purpose.** Replace section 3's design-time replay with the product's own gate on its own enclosures, scales and projection, before any ruling on section 5.
 
-- **Probe.** A dev-only cargo feature in the kernel, like RF's `exact-operation-count`, and not `#[cfg(test)]` (section 0, 5a). At `check_intervals`, for every judged row, it records:
-  - the class, n, S, h and the allowance;
-  - all four predicate verdicts.
-  
-  It also records the same gate re-evaluated under these counterfactual switches, on the lanes' actual enclosures and with no re-solve:
-  - (a) the admitted Z set to Ẑ;
-  - (b) and (c), the W1 coverage repair's same-section and same-readout lanes;
-  - (d) the unit switch: n = RN64 of the SI midpoint;
-  - (e) each lane alone.
-  
-  The probe changes no verdict and no published byte.
+- **The probe.** An opt-in cargo feature, forwarded from `product_physics` to the kernel. No `[dev-dependencies]` entry enables it, and it is on only when the census commands pass `--features` (section 0, 5a). A guard test asserts that it is off in the ordinary test build, and the stack witnesses run without it. The probe lives on the census branch. If it is ever merged, it is priced source, and the actual-source D3 comparison applies before merge (REQ-004).
+- **What it records, at `check_intervals`, for every judged row:**
+  - the class, n, S, h and the allowance, and all four predicate verdicts;
+  - both lanes' enclosure widths relative to a binary64 unit of n, and whether H's midpoint lies in the same projection cell as the readouts' tight midpoint (2.2's premise; the tight midpoint comes from the references, test-side).
+- **Counterfactual gates.** Each counterfactual recomputes the projection from its own hull, the coupled scales from the counterfactual published rows, and the classes, and then judges every predicate.
+  - Recomputed from the lanes' actual enclosures, with no re-solve:
+    - (a) the admitted Z set to Ẑ;
+    - (d) form U1 (iii), n = RN64 of the SI midpoint;
+    - (d′) form U1 (i), the ±4-step unit search;
+    - (d″) form U1 (ii), raw-unit judging of both sharper predicates;
+    - (e) each lane alone;
+    - the combinations (a)+(d), (a)+(d′), (a)+(d″) and (a)+(e).
+  - With a re-solve of the counterfactual lanes: the W1 coverage repair's switches (b), the same section in both lanes, and (c), the same whole readout. Those change the lanes' problem, so their enclosures are certified afresh through the existing lane construction (`source_residual.rs` about 1040–1147). The pilot prices them.
 - **Inputs.**
   - The O4 judged set and the source-control twins, in both solver modes, on the plain binding and the augmented binding (`o4_m3_judging_tests.rs` `augmented`).
-  - The committed route-E successors and RV120's inputs, as regression: every verdict there must be unchanged with the probe on.
+  - The committed route-E successors and RV120's inputs, as regression. With the probe on, every verdict and published byte must equal the probe-off run, input for input.
 - **Records.** For each attempted case:
   - its first failure: preparation, native, alpha or predicate, with the row;
-  - for each failing row, its class under the switches, using W1 coverage repair §3.3's attribution classes extended by (d).
-- **Report.** Section 3.2's table, from the product, in the implementation PR or as one revision of this section. The alpha and preparation counts are reported beside it.
+  - for each failing row, its attribution class, using W1 coverage repair §3.3's classes extended by (d), (d′), (d″) and (e).
+  
+  A case that never reaches the gate is `not_reached`, with its stopping stage, and is kept out of the gate's denominators.
+- **Report.** Section 3.2's tables, from the product, in the implementation PR or as one revision of this section, with the alpha, preparation and `not_reached` counts beside them.
 - **Pre-registered reading.**
-  - The product's counts can only be at or below section 3.2's, except where the p = 512 floor raises S.
-  - Any count above the ceiling stops the census for diagnosis, because it would contradict section 2.
-  - If no sensitive document can pass the unchanged gate, section 6.1's text stands, and section 5's options go to the owner with the product's table.
+  - Under the fixed projection, a document can exceed section 3.2's ceiling only by failing the premise check. That would show an enclosure moving its projection cell, or the p = 512 floor raising S. Any such document is listed, with its widths and S.
+  - A document above the any-value bound stops the census for diagnosis, because that contradicts section 2.1.
+  - If no sensitive document can pass the unchanged gate, section 6.1's text stands, and section 5's options go to the owner with the product's tables.
 - **What it needs.**
-  - A debug build of the `frame_kernel` and `product_physics` tests, with the feature, under the host's heavy-run slot and memory rules.
+  - A debug build of the `frame_kernel` and `product_physics` tests with the feature, under the host's heavy-run slot and memory rules.
   - Private drivers only, so no registered identity is needed.
   - It runs after 5a merges, and with or after the W1 coverage repair's census (section 0).
   - A pilot of ten documents measures time and memory first.
@@ -226,16 +288,16 @@ DEL-04-08 ScopeOfWork REQ-006 gains an item after (d):
 
 ## 7. What stays unchanged
 
-Every gate, predicate, tolerance, limit, precision ladder and projection; DEF-O, DEF-E and the tables; the verified claim; every committed byte. The recommended path adds a limit statement and, later, one test and a test-only probe.
+Every gate, predicate, tolerance, limit, precision ladder and projection; DEF-O, DEF-E and the tables; the verified claim; every committed byte. The recommended path adds a limit statement and, later, one maintained test. The census probe stays opt-in and off the production and witness builds.
 
 ## 8. Verification of this design
 
 - The design rests on code facts (section 0) and on a replay of frozen, refuted references.
-- The replay's arithmetic is exact and robust to perturbation (3.1), and its scale estimate is an upper bound.
+- The replay's arithmetic is exact and robust to perturbation (3.1). Both independent reviewers reproduced revision 1's table from their own code.
 - The product census (6.2) is the product-side check.
-- This design goes through the dual review: an independent Claude reviewer and an independent Codex reviewer, on the same revision.
+- The dual review (Claude Opus 5.5 and Codex) ran on revision 1; revision 2 answers it.
 
 ## 9. Reserved for the owner
 
 - The REQ-006 (e) text (6.1). If it is not adopted, the corner stays an unstated fail-closed outcome.
-- Any of Z1, U1, R1 or C1 (section 5), each with its consequence. No recommendation is made.
+- Any of Z1, U1 (i)–(iii), R1 or C1 (section 5), each with its consequence. No recommendation is made.
