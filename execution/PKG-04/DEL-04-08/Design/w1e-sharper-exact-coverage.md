@@ -14,11 +14,21 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 - the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
 - the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
 
+**Revision 3** answers the second round. The changes:
+- the fixed-projection ceiling keeps its premise wherever it is concluded (Summary, 4, 6.1). An enclosure deliberately shaped to move the projection is now option U1 (iv), whose admissibility is a reading of DEF-E for the owner (5);
+- section 2.1's bound now ranges over both classification classes and every admissible scale up to an upper estimate;
+- that estimate now includes the displacement and support magnitudes, and section 3 is recomputed with it. The documents counted do not change; some row counts do;
+- R1 is split into R1, which changes only the sharper checks, and R1′, which also projects the selected lane (5);
+- the p = 512 floor is exempted in both census rules, and the W1 repair's probe mechanism is stated in full (0, 6.2);
+- wording repairs in U1 (ii) and in REQ-006 (e).
+
 ## Summary
 
-- **The finding.** On the documents this gap concerns, no remedy within the unchanged claim, definitions and predicates can publish a successor (section 2). The product gate measures each published value against the hull of both readouts' certified enclosures, and every sound enclosure contains its readout's exact value. So whether a row can pass depends on the two readouts' exact values, the classification scale and the published value. It does not depend on how the proof reached them.
+- **The finding.** The product gate measures each published value against the hull of both readouts' certified enclosures, and every sound enclosure contains its readout's exact value. So whether a row can pass depends on the two readouts' exact values, the classification scale and the published value, not on how the proof reached them (section 2).
+  - With the method's projection and enclosures as narrow as the existing proof's, no sensitive judged document can publish.
+  - Even with any published value whatever, at most two can.
 - **The bounds, on O4's frozen references** (section 3; a design-time computation, no product build). There are 54 sensitive judged documents, the ones designed to trigger W1-E.
-  - *Any value (2.1).* Whatever the proof and whatever binary64 value is published, at most **2 of 54** could pass the unchanged gate (24 of all 172 documents).
+  - *Any value (2.1).* Whatever the proof and whatever binary64 value is published, at most **2 of 54** could pass the unchanged gate (24 of all 172 documents). The two are `SHORT-MEMBER|zero|eb` and `SHORT-MEMBER|zero|timo`.
   - *The fixed projection (2.2).* With the definition's own projection and enclosures as narrow as the existing proof's, **0 of 54** can pass (13 of 172). None of those 13 is a sensitive design.
 - **Three causes, all fixed by the method's definitions** (section 3.3):
   1. *The represented-Z hull.* The admitted readout's bending stress is defined over hull(Ẑ, Î/c) (DEF-O and DEF-E `rows.component_stress`). That hull is up to about one binary64 unit wide.
@@ -27,7 +37,7 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
   
   Where only one cause is present, the represented-Z hull blocks 46 of the 54 sensitive documents, the unit rounding 22 to 26, and the readout gap 9. Removing the hull and the unit rounding together lets 45 of 54 pass. Removing all three lets all 54 pass, before alpha and preparation.
 - **The suggested remedies** (section 4).
-  - *A better proof.* It cannot raise the any-value bound. Shaping an enclosure to move the projection is a disguised choice of the published value.
+  - *A better proof.* It cannot raise the any-value bound. Under the fixed projection, it can change the outcome only by moving the hull's midpoint into another projection cell. An enclosure shaped for that is a choice of the published value; whether DEF-E admits it is the owner's reading (U1 (iv)).
   - *A better projection.* That is a DEF-E change, bounded by the any-value figure.
   - *A representation that makes the readouts agree.* Binary64 leaves cannot equal an exact annulus.
   - *Certifying against a readout hull or the exact problem.* The first is what the gate does today. The second drops a readout from the claim.
@@ -46,8 +56,10 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
   | U1 (i) | a search over the published unit value | 1/54 | 42/54 |
   | U1 (ii) | both sharper predicates judged on the raw unit value | 0/54 | 12/54 |
   | U1 (iii) | retained rows published in SI units | 2/54 | 45/54 |
-  | R1 | the sharper allowance claimed against the annular readout only | 32/54 | — |
-  | C1 | rows that fail the allowance become `not_covered`, and the successor publishes | about 94 % of relative rows stay verified, if a coverage law for the scales is also designed | — |
+  | U1 (iv) | lane enclosures shaped to move the projection's cell | at most 2/54 (any-value bound) | at most 45/54 |
+  | R1 | the sharper checks against the annular readout only, with the dual-hull projection kept | 25/54 | 26/54 |
+  | R1′ | R1, and the selected lane projected alone | 32/54 | — |
+  | C1 | rows that fail the allowance become `not_covered`, and the successor publishes | 609 rows (about 6 % of the relative rows) would be `not_covered`, if a coverage law for the scales is also designed | — |
 
 ## 0. Basis and dependencies
 
@@ -79,7 +91,7 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
   - **its own ScopeOfWork edit.** The owner decided (2026-10-18, "I concur, adopt option 2") that REQ-003 (e) gains a clause, applied in that repair's implementation PR. This design proposes REQ-006 (e) and classifies options under REQ-003 (e). If both edits go to the owner together, REQ-006 (e) is written against REQ-003 (e) as amended;
   - **its corner-2 fix**, which writes the gate's final scales to the receipt. That changes precommit G5b outcomes but not the gate, S or any ceiling here. A census run after that fix sees cases reach the gate that G5b withdrew before.
   
-  Sequencing: the confirmation census (6.2) shares switches (a) to (c) with the W1 repair's census, so it runs on that census's branch, or after it. The two probes are reconciled into one opt-in module under 5a's assumption above; the W1 repair's census specifies a `#[cfg(test)]` kernel hook, which cannot reach product_physics tests. Z1 is one question for both routes, DEF-O on route L and DEF-E on route E. It goes to the owner once, with both censuses' tables.
+  Sequencing: the confirmation census (6.2) shares switches (a) to (c) with the W1 repair's census, so it runs on that census's branch, or after it. The W1 repair's census specifies a kernel `#[cfg(test)]` hook and "a dev-only cargo feature where `product_physics` tests need it, as RF's `exact-operation-count` is" (§3.2). The first cannot reach product_physics tests. The second is reached through `[dev-dependencies]` and so compiles into the witness build. The two probes are therefore reconciled into one opt-in module under 5a's assumption above, and w1-coverage-repair.md §3.2 takes the same opt-in amendment when that shared module is built (a design edit for the W1 repair's owner). Z1 is one question for both routes, DEF-O on route L and DEF-E on route E. It goes to the owner once, with both censuses' tables.
 - **The O4 design and references.** As built (o4-source-extension.md revision 7). This design reads the frozen references and writes nothing under `validation/references`.
 
 ## 1. The verified claim and the gate
@@ -98,13 +110,15 @@ Let x_A be the admitted readout's exact value of a row and x_G the annular reado
 
 ### 2.1 The any-value bound
 
-For a fixed S, a row's best chance over every binary64 n is at the SI values nearest the midpoint (ℓ + u)/2.
-- The allowance depends on n only through 2^-53·|n| and 2^-64·max(|n|, S). One step of n changes it by about 2^-53 of a unit, while h changes by up to a unit.
-- So a row that fails for the seven SI values nearest the midpoint fails for every n. Section 3 evaluates exactly those seven.
+Let S_hi be an upper bound on the row's true scale (3.1). For any n, the row is judged in one of two classes:
+- **Relative class.** It requires |n| ≥ 2^-34·S. Its allowance grows with S, so the best admissible S is min(S_hi, 2^34·|n|).
+- **Absolute class.** It requires S > 2^34·|n|. Its bound RU64(2^-64·S) grows with S, so the best admissible S is S_hi.
 
-The bound holds whatever the proof, whatever the enclosures' widths or shape, and whatever value is published, including a value chosen by a search.
+A row can pass for some n and some S ≤ S_hi only if one of the following candidates passes, each judged in its own best class:
+- **The SI values nearest the midpoint (ℓ + u)/2.** Within one class, a step of n changes the allowance by about 2^-53 of a unit, while h changes by up to a unit. So it suffices to evaluate the seven values nearest the midpoint.
+- **The class boundaries.** The smallest-magnitude relative-class values, ±RU64(2^-34·S_hi), are evaluated too, because the allowance jumps there. The Codex reviewer constructed a fixed-S row that passes only at the boundary.
 
-One proviso: S is formed from the published native and support rows (and the p = 512 floor), so a different set of published values gives a slightly different S. The bound uses an upper estimate of S (3.1), and it judges each candidate n in its own class. On the sensitive documents, no absolute-class row fails.
+The bound therefore holds whatever the proof, whatever the enclosures' widths or shape, and whatever value is published, including a value chosen by a search. Its one premise is S ≤ S_hi. The p = 512 floor, which section 3 does not model, can raise the true S above S_hi for near-zero bodies.
 
 ### 2.2 The ceiling under the fixed projection
 
@@ -112,7 +126,11 @@ DEF-E fixes the published value as the projection H of the hull's midpoint, with
 - **The premise.** When the lanes' enclosures are narrow enough that H's midpoint stays in the same projection cell as (ℓ + u)/2, the published value is projection((ℓ + u)/2). The row can then pass only if it passes with H = [ℓ, u].
 - **The existing lanes.** They work at the selected precision, 128 to 1024 bits. Their widths are expected to be many orders below a binary64 unit. The census records the widths and the cell test (6.2) rather than assuming them.
 - **For SI rows,** RN64 of the midpoint minimizes h, so the fixed projection and the any-value bound agree up to the dependence of the allowance on n.
-- **For unit rows** they differ. A sound proof that returned a wider, asymmetric enclosure could move the midpoint into another cell, and so publish a different value that passes. The Codex reviewer constructed one: `SHORT-MEMBER|zero|timo`, `N2.uz`. That is not a better proof but a choice of published value through the enclosure's shape. It belongs to U1 (i)'s family, and DEF-E does not provide it.
+- **For unit rows** they differ. A sound proof that returned a wider, asymmetric enclosure could move the midpoint into another cell, and so publish a different value that passes.
+  - The Codex reviewer constructed sound, outward-rounded binary1024 enclosures for `SHORT-MEMBER|zero|timo` that clear all five of its failing rows under the unchanged projection and all four predicates: `N2.uz` and four bending rows.
+  - That is not a tighter proof but a choice of the published value through the enclosure's shape.
+  - DEF-E fixes the lanes' recipes ("fresh residual and alpha check …; fresh final residual/radius and complete recovery") and the projection ("`search_or_retry: none`"). Whether those texts exclude a lane that widens its enclosure to steer the projection is a reading of a reviewed definition. That reading is the owner's, and section 5 presents it as U1 (iv).
+  - Its reach is bounded by the any-value bound (2.1): at most 2 of 54 sensitive documents, both `SHORT-MEMBER`.
 
 ## 3. The ceilings, computed on the frozen references
 
@@ -127,11 +145,12 @@ A standard-library Python replay was run in `/tmp` scratch. It is not committed,
   - support reaction components (N, N·m).
 - **Rows not judged:** circular maxima (their own projection rule), displacement and support magnitudes, and the not-covered derived rows. Leaving rows out can only raise the pass counts.
 - **The scales S are an upper estimate:**
-  - the per-kind maximum over every row of the body and both readouts, a superset of the product's native and support rows;
+  - the per-kind maximum over every row of the body and both readouts, a superset of the product's native and support rows. It includes the displacement and support magnitudes, which are native rows (`recover.rs` 113–119, 184–196; `final_case.rs` 1500–1515), bounded above by the sum of the components' magnitudes;
+  - multiplied by 1 + 2^-40, to cover the binary64 rounding of the published values;
   - coupled by the body's bounding-box diagonal, as `couple` and `body_extent` do;
   - for stresses, S_force/Â + S_moment/Ẑ with the prepared leaves.
   
-  A larger S enlarges the allowance of a relative row. The Claude reviewer's independent replay with S formed from the published |n| reproduced every cell. The p = 512 Φ floor is not modelled; it raises S only for near-zero bodies (o4-source-extension.md §4.2).
+  Every row is judged at its best admissible S ≤ S_hi in each class (2.1). Both reviewers' independent replays, with S formed from the published |n| and with the magnitudes included, gave the same document counts. The p = 512 Φ floor is not modelled; it raises S only for near-zero bodies (o4-source-extension.md §4.2).
 - **Robustness.** Re-running with every reference value perturbed independently by ±10^-37 relative, under three seeds, changed no verdict. A reviewer's run at ±10^-24 changed none either.
 - **Independent reproduction.** Both reviewers reproduced every cell of revision 1's table independently, from their own code. That table's last two rows (no unit rounding) equal the any-value rows here. They also reproduced the U1 (i) and U1 (ii) figures of section 5 or the facts they rest on.
 
@@ -142,16 +161,16 @@ Documents whose every judged row passes. Each cell gives all judged documents (o
 | Represented Z | Published value | Both readouts (claim as defined) | Admitted only | Annular only |
 |---|---|---|---|---|
 | hull, as defined | fixed projection (2.2) | **13 / 0** | 30 / 1 | 97 / 32 |
-| the single Ẑ | fixed projection | 47 / 24 | 79 / 28 | 97 / 32 |
-| hull, as defined | any value (2.1) | **24 / 2** | 69 / 8 | 172 / 54 |
+| the single Ẑ | fixed projection | 47 / 24 | 82 / 28 | 97 / 32 |
+| hull, as defined | any value (2.1) | **24 / 2** | 71 / 8 | 172 / 54 |
 | the single Ẑ | any value | 79 / 45 | 172 / 54 | 172 / 54 |
 
-The "any value" rows equal the rows computed with n = RN64 of the SI midpoint, that is, with no unit rounding.
+For the two readouts together, the "any value" counts equal those computed with n = RN64 of the SI midpoint, that is, with no unit rounding.
 
 - **The 13 judged documents that can pass as defined** are cantilevers, `FF-SYM`, `GUIDED` and two `PROP-PHI2-EXACT-A` Euler–Bernoulli documents. None is a sensitive design. They are the documents whose ordinary results are expected to pass their checks, so W1 does not attempt them on the plain binding.
-- **Rows.** On the sensitive documents, 609 of 9,548 relative-class rows fail as defined (6.4 %). Per document, between 86.7 % and 98.1 % of relative rows pass (median 93.2 %). No absolute-class row fails on a sensitive document.
-  - Over all judged documents, 2,504 of the 3,196 failing relative rows are megapascal stresses.
-  - Separately, 70 absolute-class rows fail, all in the eight `PROP-PHI2-*` Timoshenko documents (3.3).
+- **Rows.** On the sensitive documents, 609 of 15,740 judged rows cannot pass as defined (3.9 %), all of them relative-class rows. That is about 6 % of the relative rows. Per document, between 93.4 % and 98.9 % of judged rows can pass (median 95.7 %).
+  - Over all judged documents, 3,066 rows cannot pass under the fixed projection. 2,387 of them are megapascal stresses.
+  - The 70 absolute-class rows that fail are all in the eight `PROP-PHI2-*` Timoshenko documents (3.3).
 - **Source-control twins** (104). As defined, 82 can pass. Every failure is a bending stress row (26 rows in 22 twins: the J2 `fields` twins and the RF PIN-OFF-345 r1e-12 allowance twins).
   - With either the single Ẑ or no unit rounding, still 82 pass.
   - Against the annular readout alone, all 104 pass. Against the admitted readout alone, 102 pass: two reduced-section bending rows of the PIN-OFF-345 r1e-12 mill twins fail on the represented-Z hull, and they pass with the single Ẑ.
@@ -169,7 +188,7 @@ The "any value" rows equal the rows computed with n = RN64 of the SI midpoint, t
 - **The published unit.** n = RN64(RN64(1000·m)/1000) for a millimetre row. This differs from m by up to about one unit of n, against an allowance of half a unit to one unit.
   - In an independent sampling of 200,000 random non-representable values, 8.4 % of millimetre rows and 2.3 % of megapascal rows fail on this alone at the body scale (|n| ≈ S). Both reviewers reproduced these rates.
   - On its own (one readout, single Ẑ, fixed projection), it blocks 22 of 54 sensitive documents against the annular readout and 26 against the admitted one.
-- **The φ ≈ 2 documents.** In the eight `PROP-PHI2-*` Timoshenko documents, the near-end bending rows carry (2 − φ)/(4 + φ), which is zero, or nearly zero, in one readout and not in the other. Their readout gaps are at least 5 × 10^10 units of 2^-53. The failing rows there are absolute-class: for example, `PROP-PHI2-EXACT-A|zero|timo` `P1.end_i.My` exceeds its absolute bound about 258 times. They lie outside the sensitive set. No option of section 5 reaches them unless it also changes the absolute bound's readouts (R1, 5).
+- **The φ ≈ 2 documents.** In the eight `PROP-PHI2-*` Timoshenko documents, the near-end bending rows carry (2 − φ)/(4 + φ), which is zero, or nearly zero, in one readout and not in the other. Their readout gaps are at least 5 × 10^10 units of 2^-53. The failing rows there are absolute-class: for example, `PROP-PHI2-EXACT-A|zero|timo` `P1.end_i.My` exceeds its absolute bound about 258 times. They lie outside the sensitive set. No option of section 5 reaches them. R1 would reach them only if it were extended to judge the absolute bound against one readout too (5).
 
 Each cause is fixed by a definition:
 - the represented-Z hull, by DEF-O and DEF-E `rows.component_stress`;
@@ -193,7 +212,10 @@ Only the represented Z and the unit rounding together clear most sensitive docum
    - Certifying against the exact problem alone (the annular readout) is R1, a claim change.
 5. **Stating the corner as a limit.** No product change; a ScopeOfWork statement (section 6.1).
 
-**Conclusion.** Within the unchanged claim, definitions, predicates and projection, no remedy can publish the sensitive documents this gap concerns. Even allowing a different published value, at most 2 of 54 could pass. Every coverage-gaining remedy needs a ruling.
+**Conclusion.**
+- Within the unchanged claim, definitions, predicates and projection, and with enclosures as narrow as the existing proof's, no remedy can publish the sensitive documents this gap concerns.
+- Allowing any published value, by whatever proof or route, at most 2 of 54 could pass.
+- Every coverage-gaining remedy needs a ruling.
 
 ## 5. Options that need the owner's ruling (no recommendation)
 
@@ -210,14 +232,18 @@ The ceilings are for the 54 sensitive judged documents, from section 3's replay 
     - *Consequence:* REQ-003 (e) fixes "`projection_retry: false` and `search_or_retry: none`" as reviewed inputs. A search to obtain a pass is what REQ-003 (e) and AX-005 prohibit.
   - **(ii) Both sharper predicates judged on the raw unit value** instead of its SI normalization.
     - *Ceiling:* 0/54 alone, 12/54 with Z1. The megapascal raw value is itself rounded twice, so this form fails more rows than SI judging.
-    - *Consequence:* changing only SharperExact would change nothing, because SharperBinary64 would still judge the SI value. Moving both weakens the SI-value guarantee from about 2^-53 to about 2^-52 relative. That is a predicate change on which REQ-003 (e) and AX-005 bear.
+    - *Consequence:* changing only SharperExact would gain nothing, because SharperBinary64 would still judge the SI value; it could only add failures. Moving both weakens the SI-value guarantee from about 2^-53 to about 2^-52 relative. That is a predicate change on which REQ-003 (e) and AX-005 bear.
   - **(iii) Publishing the retained rows in SI units.**
     - *Ceiling:* 2/54 alone, 45/54 with Z1. These are the any-value rows of 3.2.
     - *Consequence:* it changes the pressure-2 base contract's units for every consumer.
-- **R1. The sharper allowance against one readout, with 10^-9 kept for both.**
-  - *What changes:* REQ-001's guarantee and DEF-E `acceptance.final`.
-  - *Ceiling:* 32 of 54 against the annular readout; 1 of 54 against the admitted one.
-  - *Consequence:* a verification is removed from the gate, so REQ-003 (e) and AX-005 bear on it. Consumers relying on the sharper statement for the other readout lose it. As defined, R1 leaves the absolute bound judged against both readouts, so it does not reach the φ ≈ 2 failures (3.3). Reaching those would also need the absolute bound against one readout.
+  - **(iv) Lane enclosures shaped to move the projection's cell** (2.2).
+    - *Ceiling:* at most the any-value bound: 2/54 alone, both `SHORT-MEMBER`; at most 45/54 with Z1.
+    - *Consequence:* the published value would be chosen through the proof's enclosure rather than fixed by the readouts. Whether DEF-E's lane recipes and `search_or_retry: none` admit this is the owner's reading of a reviewed definition. If they admit it, the construction still needs its own design, with soundness, determinism and replay arguments. If they do not, it is a search by another route, and REQ-003 (e) and AX-005 bear on it.
+- **R1. The sharper checks against one readout, with 10^-9 and the absolute bound kept for both.**
+  - *What changes:* REQ-001's guarantee and DEF-E `acceptance.final`. The published value stays the projection of the dual-readout hull.
+  - *Ceiling:* 25 of 54 against the annular readout (26 with Z1); 0 of 54 against the admitted one.
+  - *R1′, which also projects the selected lane alone,* changes DEF-E `rows.component` ("H of hull(admitted_k functional,annular_source functional)") as well. Ceiling: 32 of 54 against the annular readout; 1 of 54 against the admitted one.
+  - *Consequence:* a verification is removed from the gate, so REQ-003 (e) and AX-005 bear on it. Consumers relying on the sharper statement for the other readout lose it. R1 and R1′ leave the absolute bound judged against both readouts, so neither reaches the φ ≈ 2 failures (3.3). Reaching those would also need the absolute bound against one readout.
 - **C1. Per-row coverage.** A relative-class row that fails the sharper allowance would publish as `not_covered` with its ordinary value, and the rest of the successor would publish.
   - *What changes:*
     - REQ-001's classification law (today a row of a verifiable kind is never `not_covered` for this reason);
@@ -238,10 +264,10 @@ DEL-04-08 ScopeOfWork REQ-006 gains an item after (d):
 
 > **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values. Three definitions of the method keep some rows from meeting it:
 > - the admitted readout's bending stress ranges over hull(Ẑ, Î/c);
-> - the admitted readout's binary64 section, shear and modulus leaves differ from the exact annulus readout's by up to about a binary64 unit, and every stress row inherits that difference;
+> - the admitted readout's binary64 section, shear and modulus leaves differ from the exact annulus readout's by up to a few binary64 units, and every stress row inherits the section leaves' difference;
 > - a millimetre or megapascal value is rounded in its unit and again when normalized to SI.
 >
-> A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection (Design `w1e-sharper-exact-coverage.md`).
+> A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's (Design `w1e-sharper-exact-coverage.md`).
 
 This text should be adopted after census 6.2 has confirmed the ceiling on the product, or with its last sentence held until then.
 
@@ -263,7 +289,8 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
     - (d) form U1 (iii), n = RN64 of the SI midpoint;
     - (d′) form U1 (i), the ±4-step unit search;
     - (d″) form U1 (ii), raw-unit judging of both sharper predicates;
-    - (e) each lane alone;
+    - (e) the sharper checks against each lane alone, with the dual-hull projection kept (R1);
+    - (e′) each lane alone, projected alone (R1′);
     - the combinations (a)+(d), (a)+(d′), (a)+(d″) and (a)+(e).
   - With a re-solve of the counterfactual lanes: the W1 coverage repair's switches (b), the same section in both lanes, and (c), the same whole readout. Those change the lanes' problem, so their enclosures are certified afresh through the existing lane construction (`source_residual.rs` about 1040–1147). The pilot prices them.
 - **Inputs.**
@@ -277,7 +304,7 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
 - **Report.** Section 3.2's tables, from the product, in the implementation PR or as one revision of this section, with the alpha, preparation and `not_reached` counts beside them.
 - **Pre-registered reading.**
   - Under the fixed projection, a document can exceed section 3.2's ceiling only by failing the premise check. That would show an enclosure moving its projection cell, or the p = 512 floor raising S. Any such document is listed, with its widths and S.
-  - A document above the any-value bound stops the census for diagnosis, because that contradicts section 2.1.
+  - A document above the any-value bound stops the census for diagnosis, because that contradicts section 2.1. The exception is a document whose S the p = 512 floor raises above section 3's estimate; it is listed with its S, as above.
   - If no sensitive document can pass the unchanged gate, section 6.1's text stands, and section 5's options go to the owner with the product's tables.
 - **What it needs.**
   - A debug build of the `frame_kernel` and `product_physics` tests with the feature, under the host's heavy-run slot and memory rules.
@@ -295,9 +322,9 @@ Every gate, predicate, tolerance, limit, precision ladder and projection; DEF-O,
 - The design rests on code facts (section 0) and on a replay of frozen, refuted references.
 - The replay's arithmetic is exact and robust to perturbation (3.1). Both independent reviewers reproduced revision 1's table from their own code.
 - The product census (6.2) is the product-side check.
-- The dual review (Claude Opus 5.5 and Codex) ran on revision 1; revision 2 answers it.
+- The dual review (Claude Opus 5.5 and Codex) ran on revisions 1 and 2. Revisions 2 and 3 answer them.
 
 ## 9. Reserved for the owner
 
 - The REQ-006 (e) text (6.1). If it is not adopted, the corner stays an unstated fail-closed outcome.
-- Any of Z1, U1 (i)–(iii), R1 or C1 (section 5), each with its consequence. No recommendation is made.
+- Any of Z1, U1 (i)–(iv), R1, R1′ or C1 (section 5), each with its consequence. U1 (iv) also needs the owner's reading of DEF-E. No recommendation is made.
