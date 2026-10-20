@@ -128,7 +128,8 @@ const SWEEP: &str = "invented_w1_coverage_census_sweep_no_library_data";
 /// §3.2 C1-b's sections (m): every 79th pair of §3.1's grid (D from 20 to 1,500 mm in
 /// 7 mm steps, even walls 2 to 30 mm with 2t < D, D ascending then t), from the first;
 /// the three D/2-power-of-two sections; and §3.1's committed sections. §3.1's last row
-/// is the D/2-power-of-two family, already among the three, so 49 sections are distinct.
+/// is the D/2-power-of-two family, already among the three, so 49 entries are kept. They name 48
+/// distinct sections: `grid/20x2` and `committed/0.02x0.002` coincide, and both keep their sampling weight.
 fn c1b_sections() -> Vec<(String, f64, f64, Option<f64>)> {
     let grid: Vec<(u32, u32)> = (20..=1500).step_by(7).flat_map(|d| (2..=30).step_by(2).filter(move |t| 2 * t < d).map(move |t| (d, t))).collect();
     assert_eq!(grid.len(), 3142);

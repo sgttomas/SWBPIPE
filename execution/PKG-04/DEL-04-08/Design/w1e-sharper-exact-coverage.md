@@ -2,7 +2,7 @@
 
 This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; [o4-source-extension.md](o4-source-extension.md) §5, "Coverage"). On O4's judged set, W1-E (`physics-retained-1`) publishes almost no successors. Where it attempts a case, its existing proof fails closed most often at the SharperExact predicate (44 of the attempted runs; alpha 24, preparation 16). The owner decided on 2026-10-20 ("All as recommended") that a remedy be designed now. The design goal is a remedy that keeps the verified claim and relaxes no verification.
 
-**Status: design only.** Nothing here changes a product file, a reviewed input or a ScopeOfWork. The basis is main `fa019d9cef` (O4 merged as #1468). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Status: design; the confirmation census has run (6.3).** Nothing here changes a product file, a reviewed input or a ScopeOfWork. The basis is main `fa019d9cef` (O4 merged as #1468). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 **Revision 2** answers the first round of dual review (Claude Opus 5.5 and Codex). The changes:
 - section 2's bound is restated. Revision 1 claimed that no proof could change the outcome, but a sound proof whose enclosure is wider and asymmetric can move the published value. The universal bound is now taken over every published value (2.1), and the fixed-projection ceiling is stated with its premise (2.2);
@@ -13,6 +13,10 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 - the census probe is an opt-in feature outside every test build by default, and its counterfactuals recompute the projection, scales and classes. The switches that change a lane's problem re-solve it (6.2);
 - the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
 - the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
+
+**Revision 5** answers the census review: the fixed-scale cells and the premise's row set are stated exactly, and the per-row diagnostics (h, allowance, absolute bound, all four predicate verdicts) are recorded from the census re-run (6.3).
+
+**Revision 4** reports the product-side confirmation census (6.3) and records the shared probe's mechanism as built (6.2).
 
 **Revision 3** answers the second round. The changes:
 - the fixed-projection ceiling keeps its premise wherever it is concluded (Summary, 4, 6.1). An enclosure deliberately shaped to move the projection is now option U1 (iv), whose admissibility is a reading of DEF-E for the owner (5);
@@ -283,7 +287,7 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
 - **What it records, at `check_intervals`, for every judged row:**
   - the class, n, S, h and the allowance, and all four predicate verdicts;
   - both lanes' enclosure widths relative to a binary64 unit of n, and whether H's midpoint lies in the same projection cell as the readouts' tight midpoint (2.2's premise; the tight midpoint comes from the references, test-side).
-- **Counterfactual gates.** Each counterfactual recomputes the projection from its own hull, the coupled scales from the counterfactual published rows, and the classes, and then judges every predicate.
+- **Counterfactual gates.** Each counterfactual recomputes the projection from its own hull, the coupled scales from the counterfactual published rows, and the classes, and then judges every predicate. As built, (d′) and the any-value columns judge each row's candidates at the scales of their fixed-projection counterpart, row by row (w1-coverage-repair.md §3.2, revision 10); they are fixed-scale feasibility diagnostics.
   - Recomputed from the lanes' actual enclosures, with no re-solve:
     - (a) the admitted Z set to Ẑ;
     - (d) form U1 (iii), n = RN64 of the SI midpoint;
@@ -292,7 +296,7 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
     - (e) the sharper checks against each lane alone, with the dual-hull projection kept (R1);
     - (e′) each lane alone, projected alone (R1′);
     - the combinations (a)+(d), (a)+(d′), (a)+(d″) and (a)+(e).
-  - With a re-solve of the counterfactual lanes: the W1 coverage repair's switches (b), the same section in both lanes, and (c), the same whole readout. Those change the lanes' problem, so their enclosures are certified afresh through the existing lane construction (`source_residual.rs` about 1040–1147). The pilot prices them.
+  - With a re-solve of the counterfactual lanes: the W1 coverage repair's switches (b), the same section in both lanes, and (c), the same whole readout. Those change the lanes' problem, so their enclosures are certified afresh through the existing lane construction (`source_residual.rs` about 1040–1147). As built (one mechanism for both censuses; w1-coverage-repair.md §3.2, revision 8), the census re-runs the whole invocation's retained work with the switch on, so the projection, scales, classes and predicates follow from the re-solved lanes. The pilot prices them.
 - **Inputs.**
   - The O4 judged set and the source-control twins, in both solver modes, on the plain binding and the augmented binding (`o4_m3_judging_tests.rs` `augmented`).
   - The committed route-E successors and RV120's inputs, as regression. With the probe on, every verdict and published byte must equal the probe-off run, input for input.
@@ -312,6 +316,55 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
   - It runs after 5a merges, and with or after the W1 coverage repair's census (section 0).
   - A pilot of ten documents measures time and memory first.
   - It writes nothing under `validation/references` or the fixtures.
+
+### 6.3 Census report (revision 4)
+
+**What ran.** Section 6.2's census, on the W1 coverage repair's census branch at `15b8651ff4`, in the same build and run as that repair's census (w1-coverage-repair.md §3.5): every judged document (172) and source-control twin (104), plain and augmented, in both solver modes (4 augmented `CAPS-LOOP-32` runs are beyond D1's caps and skipped, as M3-O4 skips them). The probe's self-check held on all 510 gate records. (b) and (c) re-ran the whole invocation for every input with a failing row (w1-coverage-repair.md §3.2, one mechanism for both censuses).
+
+**How far each document got** (furthest binding; identical counts in both modes except where shown):
+
+| | Judged (172) | Sensitive (54) | Twins (104) |
+|---|---:|---:|---:|
+| Reached the final gate | 145 | 31 | 88 |
+| Alpha (sparse / dense) | 23 / 7 | 23 / 7 | 0 |
+| Preparation (sparse / dense) | 0 / 16 | 0 / 16 | 16 |
+| No triggered case | 4 | 0 | 0 |
+
+The `not_reached` documents are kept out of the gate's denominators below; the counts below are of documents whose every judged row passes, among all judged documents and then the sensitive ones.
+
+**Section 3.2's table, from the product** (both modes identical; the design-time ceiling in brackets):
+
+| Represented Z | Published value | Both readouts | Admitted only | Annular only |
+|---|---|---|---|---|
+| hull, as defined | fixed projection | **3 / 0** [13 / 0] | 10 / 0 [30 / 1] | 10 / 0 [97 / 32] |
+| the single Ẑ (Z1) | fixed projection | 9 / 0 [47 / 24] | 21 / 0 [82 / 28] | 10 / 0 [97 / 32] |
+| hull, as defined | any value | **22 / 1** [24 / 2] | 65 / 6 [71 / 8] | 141 / 27 [172 / 54] |
+| the single Ẑ (Z1) | any value | 48 / 15 [79 / 45] | 145 / 31 [172 / 54] | 141 / 27 [172 / 54] |
+
+- The three documents that pass as built are `CANT-P30|zero|eb`, `GUIDED|zero|eb` and `GUIDED|zero|timo`, in the families section 3.2 names among its 13; none is sensitive. The one sensitive document that passes at any value is `SHORT-MEMBER|zero|timo`, one of section 3.2's two.
+- **Fixed-scale cells.** The any-value rows and U1 (i) judge each row's candidates at the fixed-projection scales, one row at a time; they bound what a value choice could reach, rather than count a publishable statement (6.2).
+- **Source twins** (of the 88 reaching the gate): 56 pass as built, under every option and with Z1; 64 pass at any value [82 of 104].
+- **Section 5's options** (judged / sensitive): U1 (i) 3 / 0, with Z1 9 / 0; U1 (ii) 0 / 0 and 0 / 0; U1 (iii) 3 / 0, with Z1 9 / 0; R1 against the annular readout 3 / 0, with Z1 9 / 0, against the admitted 7 / 0, with Z1 13 / 0; R1′ against either readout 10 / 0, with Z1 10 / 0 (annular) and 21 / 0 (admitted).
+
+**Why the product is below the replay under Z1.** The product's gate judges every row, including the circular maxima, which route E publishes as PP's binary64 value for every member, and the support and displacement magnitudes. Section 3's replay left those out (3.1). On the sensitive documents under Z1, unloaded maxima are the largest single group of failing rows (in sparse mode, 129 of 238 in the augmented runs and 84 of 154 in the plain runs), and 8 sensitive documents in each binding fail on maxima and magnitudes alone.
+
+**The premise of 2.2.** On every relative-class row the published value is the method's projection of the readouts' tight midpoint: 47,148 rows in the same cell, 96 within 10^-6 of a unit of a tie (undecided), none in another cell. 4,654 absolute-class rows, all with an exact value at or near zero whose lane enclosures straddle it, publish from another cell; they pass or fail on the absolute bound, which the premise does not concern. Circular maxima of unloaded members and support magnitudes are not projections of the hull and are not counted; displacement magnitudes are kernel projections and are counted. (Excluding every magnitude instead gives 46,556 relative-class rows in the same cell and 4,506 absolute-class rows in another.)
+
+**Attribution of the failing rows** (w1-coverage-repair.md §3.3's classes, per mode; every failing row's first predicate is SharperExact, apart from absolute-bound failures in the `PROP-PHI2-*` documents):
+
+| Rows | Z-hull only | Either | Lane only | Joint | Other |
+|---|---:|---:|---:|---:|---:|
+| Sensitive | 372 | 5 | 71 | 4 | 315 |
+| Other judged | 431 | 16 | 881 | 67 | 309 |
+| Twins | 0 | 0 | 240 | 2 | 32 |
+
+Of the *other* rows, the unit counterfactuals (d), (d′) or (d″) clear 102 sensitive and 77 other judged rows, R1 clears 8 and 21, and nothing measured clears the remaining 205, 211 and 32.
+
+**Pre-registered reading.**
+- Under the fixed projection, as built, no sensitive document passes (0 of 31 reaching the gate; the ceiling was 0 of 54), and the judged count, 3, is within the ceiling of 13. The ceiling is reproduced.
+- No document exceeds the any-value bound (22 / 1 against 24 / 2), so the census does not stop.
+- No sensitive document can pass the unchanged gate, so section 6.1's text stands. HELP_HUMAN applies it (section 9).
+- Z1 goes to the owner with these tables and the route-L tables of w1-coverage-repair.md §3.5.
 
 ## 7. What stays unchanged
 
