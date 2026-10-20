@@ -745,6 +745,41 @@ fn o4_m3_w1e_fast_subset_judged_against_both_readouts() {
     assert!(published >= 20, "fast subset: {published} published W1-E successors (coverage fell)");
 }
 
+/// AC-006 for the sharper-allowance decline (DEL-04-08 Design `w1e-sharper-exact-coverage.md`
+/// §6.1, chosen from the census of §6.3): `SOFT-RUN-r1e-08|zero|eb`, a sensitive judged document,
+/// reaches the product's final gate on its own trigger in both modes and is refused there with
+/// `Cause::Predicate` on SharperExact. Its actual Direct entry then publishes the ordinary bytes
+/// with the one `RETAINED_PRECISION_UNAVAILABLE` notice in the registered build, and the ordinary
+/// bytes alone in any other build.
+#[test]
+fn o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result() {
+    let doc = judged_docs().into_iter().find(|d| d.id == "SOFT-RUN-r1e-08|zero|eb").unwrap();
+    for mode in MODES {
+        let run = run(&doc.raw, mode);
+        assert!(run.domain.is_none() && !run.source_selected, "{mode:?}: inside D1, W1's route");
+        assert_eq!(run.outcome, "Candidate", "{mode:?}");
+        let causes = run.causes.expect("the per-case causes");
+        let ends = causes.as_array().unwrap();
+        assert_eq!(ends.len(), 1, "{mode:?}: one attempted case");
+        let end = ends[0]["end"].as_str().unwrap();
+        assert!(end.starts_with("Candidate(") && end.contains("Predicate {") && end.contains("SharperExact"),
+            "{mode:?}: refused at the final gate on SharperExact: {end}");
+        let plain: Value = serde_json::to_value(run_linear_static_preview_value_with_mode(doc.raw.clone(), mode).unwrap()).unwrap();
+        let output = run_linear_static_preview_value_with_retained_direct(doc.raw.clone(), mode, LIMIT).unwrap();
+        let mut published = match output.into_publication() {
+            RetainedPublication::Successor(_) => panic!("{mode:?}: no successor"),
+            RetainedPublication::Ordinary(envelope) => serde_json::to_value(envelope).unwrap(),
+        };
+        if super::retained_facade_tests::registered() {
+            let diagnostics = published["diagnostics"].as_array_mut().unwrap();
+            let notice = diagnostics.pop().unwrap();
+            assert_eq!(notice["code"], "RETAINED_PRECISION_UNAVAILABLE", "{mode:?}: the notice follows the ordinary diagnostics");
+            assert!(diagnostics.iter().all(|d| d["code"] != "RETAINED_PRECISION_UNAVAILABLE"), "{mode:?}: exactly one notice");
+        }
+        assert_eq!(published, plain, "{mode:?}: the ordinary result");
+    }
+}
+
 /// Repair round 1 (Codex's probe, kept as a permanent negative control): on a real selected
 /// successor (GUIDED zero, Euler-Bernoulli, augmented, sparse), the judge must refuse a reference
 /// with both readouts removed (every row not compared, and no comparison at all), with one readout

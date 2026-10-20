@@ -283,6 +283,8 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
 - that refusal;
 - the ordinary bytes plus the one notice, at the facade.
 
+As built (W1 coverage repair implementation): `o4_m3_judging_tests.rs` `o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result`, on `SOFT-RUN-r1e-08|zero|eb` (plain binding, which reaches the final gate on its own trigger in both modes and fails only on SharperExact, 6.3). It is listed under VER-006 when REQ-006 (e) is applied.
+
 ### 6.2 The product-side confirmation census (specified; executed later)
 
 **Purpose.** Replace section 3's design-time replay with the product's own gate on its own enclosures, scales and projection, before any ruling on section 5.
