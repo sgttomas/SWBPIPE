@@ -2,7 +2,16 @@
 
 This is the implementation design for the sixth post-T3 shared epoch ([b7-plan.md](b7-plan.md), "After B7b", item 6). It repairs the causes of W1's first two fail-closed corners ([w1-member-load-certification.md](w1-member-load-certification.md) §4.4, "Corners that fail closed"; DEL-04-08 ScopeOfWork REQ-006 (b)). Every gate, search limit, verification law, tolerance and domain limit stays unchanged. The epoch starts with a census of how often current sections and maxima reach each corner (section 3).
 
-**Status: designed, not implemented.** The census is designed here and executed when Agent 0 schedules it; epoch 4 has merged. The basis is main `084ff961f8`, epoch 4 as built (#1461, head `f6c0732d58`). Revisions 1–5 were written against main `ca8d6d5c23` and the epoch-4 design; section 0 records each epoch-4 assumption as re-checked against the merged source.
+**Status: census commit on the repair's branch; implementation in progress.** The basis is main `257b44b910`: epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476, b7-plan item 5a, D3 at `6b90748dec`) are merged. Section 0 records each assumption as re-checked against that source. Corner 1's production switch waits for the owner's Z1 ruling (b7-plan item 6; [w1e-sharper-exact-coverage.md](w1e-sharper-exact-coverage.md) §9), because adopting Z1 would make the admitted Z a point and the corner-1 path dead.
+
+**Revision 7** re-checks the design against main as built after O4 and 5a (coordinated-knowledge-work §5). None of the design's decisions is invalidated. The changes:
+- section 0 is re-based on `257b44b910`, with two new rows (O4 and 5a) and refreshed citations;
+- the soundness statement of 1.2 is corrected: on the tangent bound a driven upper can be lower than today's interval upper, never higher (1.2, 9 item 2);
+- the search runs twice per lane, at projection and at the gate; the repair applies at both (1.2, 1.3);
+- 1.4 adds the four group-3 trials' pinned case-1 exhaustion, which the repair removes;
+- 2.2 states where the final scales live as built and how they reach `selection`;
+- the census probe is one opt-in cargo feature, as w1e-sharper-exact-coverage.md §0 amends, and the counterfactual switches are specified at the leaf level (3.2);
+- section 8's rebase points and section 6's D3 starting point are re-stated as built.
 
 **Revision 6** re-checks the design against epoch 4 as built (coordinated-knowledge-work §5) and records the owner's corner-1 decision. The changes:
 - section 0 records each assumption's as-built basis and verdict. None is invalidated; two gain qualifiers (the 66-row bound and the trigger's exclusions);
@@ -39,25 +48,27 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 - **What remains after the repair.** A loaded maximum whose two-lane hull is too wide for the unchanged gate still falls back. That widening comes from the admitted-against-annular section difference, which every stress row inherits (stage 2 §4.4, last corner). It is outside REQ-006 (b), and the census measures it.
 - **Merge with O4: no.** The corners share no law or code path with O4's Timoshenko and section-basis extension (section 8). The census runs as soon as epoch 4 merges; the repair is implemented after O4.
 
-## 0. Basis and epoch-4 dependencies
+## 0. Basis and dependencies
 
-Re-checked against epoch 4 as built: main `084ff961f8` (#1461 at `f6c0732d58`). Paths are relative to `projects/chirality-piping/`; PP is `core/product_physics/src/`, RE `core/reporting/result_export/src/`, the kernel `core/solver/frame_kernel/src/structural/retained/`.
+Re-checked against main `257b44b910` (revision 7): epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476). Revision 6's basis was `084ff961f8`. Paths are relative to `projects/chirality-piping/`; PP is `core/product_physics/src/`, RE `core/reporting/result_export/src/`, the kernel `core/solver/frame_kernel/src/structural/retained/`.
 
-| # | Assumption from the epoch-4 design | As built (basis at `084ff961f8`) | Verdict; where it matters |
+| # | Assumption | As built at `257b44b910` | Verdict; where it matters |
 |---|---|---|---|
-| E4-1 | The route-L ordinary identity becomes `preview-physics-2`; `preview-physics-retained-1` inherits it by hash; DEF-O's meaning hash moves. | PP `preview_physics.rs:14` (`…/preview-physics-2`); the preview-retained table's `inherited_semantic_contract_sha256` equals the preview-physics-2 table hash; DEF-O's hash in `retained_wire.rs:34–35` moved. DEF-E's, the combination definition's and the preview-retained table's hashes also moved. | Holds. Inputs and pins are read on epoch 4's bytes. This repair moves no reviewed input. |
-| E4-2 | U4b's σ⁺/σ⁻ and τ_v,max on straights are `ProductRecipe::NotCovered` rows formed from the successor's own projected rows; they take no part in body scales, verified counts or the loaded-maximum search. | `retained_product.rs:2565–2580` and `prepared_not_covered`; kernel `final_case.rs:123–129` ("enters no lane, functional, certificate, scale, bound or coverage set"); `row_scales`' NotCovered arm writes no scale; only Native and SupportComponent rows write the four scale kinds; the search is reached only from `CircularMaximum` (`final_case.rs:806–815`); `loaded_maximum.rs` is unchanged. The rows do enter the receipt's `selection.not_covered` list (`retained_wire.rs:1275`). | Holds. Corner 2's final scales come from the four scale kinds only. Corner 1 does not interact with the derived rows. |
-| E4-3 | Straight maxima and their reader checks are unchanged; the failed-ordinary manifest grows from 51 to 66 rows per member. | `loaded_maximum.rs`, `product_certificate.rs` and stress_recovery's `elastic_extrema` are unchanged; `final_case.rs` changed only for NotCovered. `retained_product.rs:280` `FAILED_MEMBER_ROWS = 66`, `:282` `FAILED_SHEAR_ROWS = 5`: a member whose ν is out of domain publishes 61. | Holds, with 66 as the per-member bound. The loaded-maximum recipe and its evidence are epoch 4's unchanged ones. |
-| E4-4 | The corrected ordinary displacement fl(u + w + w2) leaves W1's trigger unchanged: ordinary results that are not `checks_passed`. | `lib.rs:3486–3502` `case_triggers` (unchanged by epoch 4); `published_nodal_displacements` (`lib.rs:14035–14060`) changes only published displacements. The trigger excludes, as before epoch 4, the structural failures `dn_trigger_excluded` names (`lib.rs:3515–3519`). | Holds. The census's trigger set is measured on the merged producer, exclusions included. |
-| E4-5 | Epoch 4 regenerates the retained corpus, including the four `w1_member_interior_*` records and the member-load bases, and re-registers D3. | `fixtures/results/retained_precision_cases.json` regenerated; the four interior records present (`registered_direct`, read by `retained_precision_contract.rs`); the `w1_member_load_*` bases present; D3 registered at `b4c9f35f8e` (`retained_memory.rs:1213–1239`; tightest merged dense W3 at +2,923,863,736 B). | Holds. The census and the byte checks read these inputs. The repair's D3 starts from O4's registered profile, since O4 lands first (section 8). |
+| E4-1 | The route-L ordinary identity is `preview-physics-2`; `preview-physics-retained-1` inherits it by hash; DEF-O's meaning hash moved in epoch 4. | PP `preview_physics.rs:14`; DEF-O's hash at `retained_wire.rs:34–35`. O4 moved DEF-E's and the physics-retained-1 table's hashes, not DEF-O's. | Holds. This repair moves no reviewed input. |
+| E4-2 | U4b's derived rows are `ProductRecipe::NotCovered`; they take no part in body scales, verified counts or the loaded-maximum search. | Kernel `final_case.rs`: the recipe (201), its `row_scales_reduced` arm writes no scale (1411–1415), `check_intervals` skips it (1564); the search is reached only from `CircularMaximum` on a loaded member (909–919). The rows enter `selection.not_covered` (`retained_wire.rs:1286–1295`). | Holds. Corner 2's final scales come from the four scale kinds only. |
+| E4-3 | Straight maxima and their reader checks are unchanged; the failed-ordinary manifest is 66 rows per member. | `loaded_maximum.rs`, `product_certificate.rs`'s represented-Z hull (657–671) and stress_recovery's `elastic_extrema` are unchanged by O4 and 5a. `retained_product.rs:338` `FAILED_MEMBER_ROWS = 66`, `:340` `FAILED_SHEAR_ROWS = 5`. | Holds. |
+| E4-4 | W1's trigger is the ordinary results that are not `checks_passed`, less the structural exclusions. | `lib.rs:3490` `case_triggers`, `:3518` `dn_trigger_excluded`, unchanged by O4 and 5a. | Holds. The census measures the trigger set on the merged producer. |
+| E4-5 | The retained corpus carries the four `w1_member_interior_*` records and the member-load bases. | `fixtures/results/retained_precision_cases.json` (65 cases, 668 mutations) carries `w1_member_load_*`, `w1_member_exhaustion_*`, `w1_member_values_failure_*`, `w1_member_multi_*`, `w1_member_combination_*`, `w1_member_route_e_baseline_*` and `w1_member_interior_*`, each with its invocation. | Holds. The census reads them through their invocations. |
+| O4-1 | O4 does not change the represented-Z hull, the search or the provenance of `body_scales` (o4-source-extension.md §8, coupling rule 1). | O4 adds reduced sections (`recipe_reduced`, `row_scales_reduced`, `ReducedSectionSet`) and Timoshenko lane entries. A reduced row's Z is its reduced section's own hull (`final_case.rs` 875–889). Route L carries no allowance, so no loaded member reaches a reduced section. `selection` (`retained_wire.rs:1260–1320`) gained `section_terms` beside the unchanged native `body_scales` (1265–1268, 1310). | Holds. The repair applies to the represented lane wherever its Z is an interval, reduced rows included (none on route L). |
+| 5a-1 | 5a reorganizes only `freeze_case`'s closure (stack-headroom-repair.md). | `freeze_case_certify` (`retained_product.rs:6623`) calls `certify_final` (6632), which runs `check_intervals` and so the gate's search; `freeze_case_values` (6577) runs `project` and so the projection's search. The call chain below them is unchanged. D3 re-registered at `6b90748dec` (`retained_memory.rs:1192–1239`; retained-pricing-rules §8.10); tightest evaluation merged dense W3 with 2,795,665,581 B headroom. | Holds. The repair's D3 starts from 5a's registered profile (section 6). Its frame growth is on the search's chain, not 5a's measured peak chain, and the six stack witnesses are re-run without the census feature (section 9). |
 
-The limits this design cites are unchanged: `CASE_LIMIT` = 20e9 and `INVOCATION_LIMIT` = 60e9 (`retained_wire.rs:67–68`), `COMBINATION_CASE_LIMIT` = 20e9 (`retained_product.rs:6593`), and the search's 256-live, depth-64 and 1,024-split limits (`loaded_maximum.rs:5–7`).
+The limits this design cites are unchanged: `CASE_LIMIT` = 20e9 and `INVOCATION_LIMIT` = 60e9 (`retained_wire.rs:67–68`), `COMBINATION_CASE_LIMIT` = 20e9 (`retained_product.rs:7063`), and the search's 256-live, depth-64 and 1,024-split limits (`loaded_maximum.rs:5–7`).
 
 ## 1. Corner 1: the represented-Z width floor
 
 ### 1.1 The cause, from the code
 
-- **The admitted lane's section modulus is a hull.** `product_certificate.rs` (about 630–645) sets `represented_z = (I_K/c).hull_point(Ẑ)`. I_K is the binary64 second moment, c = D/2, and Ẑ is the binary64 section modulus, each prepared as the correctly rounded value of the exact annulus (`prepare_product_annulus`). DEF-O states the rule: "admitted-K bending Z is hull(actual Z,I_K/c)".
+- **The admitted lane's section modulus is a hull.** `product_certificate.rs` (657–671) sets `represented_z = (I_K/c).hull_point(Ẑ)`. I_K is the binary64 second moment, c = D/2, and Ẑ is the binary64 section modulus, each prepared as the correctly rounded value of the exact annulus (`prepare_product_annulus`). DEF-O states the rule: "admitted-K bending Z is hull(actual Z,I_K/c)".
 - **Two roundings, one quantity.** Ẑ = RN(I/c) and I_K/c = RN(I)/c are two different roundings of the same exact I/c. Their relative difference is up to about 2^-52, and zero only when I_K/c is itself a binary64 number.
 - **The search runs over the hull.** `loaded_maximum::search` (`product_certificate/loaded_maximum.rs`) receives that hull as `z`. Its node uppers use `corners(…, z, Div).hi`, the value at the smaller endpoint. Its lower uses `.lo`, the value at the larger endpoint. Its stop rule, `gap ≤ 2^-64·lower`, therefore asks the search to close a gap that contains (bending part)·(1/z_lo − 1/z_hi), whatever the subdivision depth. When that floor exceeds 2^-64·L the search can only exhaust. It returns `loaded maximum search exhausted`, and the case is unavailable (stage 2 §4.4, "Limits").
 - **The annular lane is not affected.** Its z is a 1024-bit enclosure of the one exact I/c, so its width is far below the stop rule's resolution.
@@ -78,6 +89,8 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
 
 **When the represented-Z enclosure is a point** (z_lo = z_hi, for example D/2 a power of two): exactly today's code path, with the same operations, work and bytes. The four committed `w1_member_interior_*` records use such sections and keep their bytes.
 
+**Where the search runs.** A loaded member's maximum is searched twice per lane, with the same inputs: at projection (`ProductProofDraft::project`, which publishes n) and again at the gate (`check_intervals` through `recipe_reduced`). The repair applies at both, so the gate judges the n that the projection formed from the same enclosure.
+
 **The annular lane** keeps today's search on its tight z. Its z is an enclosure of one exact quantity, not a hull of two declared representations, so the drive and hull split does not apply. Its work and bytes are unchanged.
 
 **What decides publication.** The hull of the two lanes' enclosures is projected and gated as today: n = RN64(H(hull(k, s))) and the unchanged predicates (stage 2 §4.4). A hull too wide for the predicate fails the gate. That is the unchanged gate deciding, not a search failure.
@@ -93,12 +106,16 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
   - whether the row publishes is decided by the unchanged gate, whose allowance includes 2^-53·|n| (`final_case.rs` `gate`).
 - **Exhaustion** still prohibits publication.
 - **The trade.** Today the search refuses every such member whatever the gate would say. After the repair the unchanged gate says.
-- **Soundness.** The node uppers at the point z_lo equal today's uppers over the interval, because `loaded_maximum.rs` divides the bending upper by z_lo in every term. Pruning on the z_lo lower is sound for U. The hull-valid lower is a valid lower bound over the whole hull. No published guarantee changes.
+- **Soundness.** Every driven node upper is a valid upper bound of max_t f(t; z_lo), and so of the maximum over the whole hull. It is never larger than today's upper over the interval:
+  - the paired upper and ρ divide the bending upper by z_lo, in today's code and at the point alike;
+  - the tangent bound's Q/Z² term divides each Bernstein coefficient of Q by the Z² enclosure. Today a negative coefficient's upper is divided by z_hi², at the point by z_lo², so a driven upper can be lower than today's (revision 7; an off-diagonal product of M controls is negative when a moment component changes sign).
+  
+  Pruning on the z_lo lower is sound for U, because it keeps every node whose upper exceeds a value attained at z_lo. The hull-valid lower is a valid lower bound over the whole hull. No published guarantee changes.
 - **The owner's decision.** This is a change in what a fixed search tolerance bounds. REQ-003 (e), an owner-approved commitment, says "No search, verification, tolerance or domain limit is relaxed to obtain a bound". The owner decided that this repair stands as designed and that REQ-003 (e) gains a clause stating it (section 11). The matching edit to stage 2 §4.4's "Stop" text is in section 10.
 
 ### 1.3 Work and memory
 
-- **Work.** The extra hull-valid evaluations are counted at actual cost in `NumericWork`, before completion is sealed, with nothing counted as zero (stage 2 §5 and R-1). A point-hull search does no extra work.
+- **Work.** The extra hull-valid evaluations are counted at actual cost in `NumericWork`, at projection and at the gate, before completion is sealed, with nothing counted as zero (stage 2 §5 and R-1). A point-hull search does no extra work.
 - **Memory.** No search node grows. `lower_hull` is one more `Endpoint` in the search frame. The live-node backing, L4's 1 MiB cap and the lanes' sequential execution are unchanged. The actual-source D3 prices the frame growth and the TEXT positively (section 6).
 
 ### 1.4 Committed bytes that move, and the exhaustion control
@@ -117,6 +134,7 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
     2. **A hook-driven input.** If no genuine input is found, the existing test capacity hook (`loaded_maximum::hooks::with`), exposed through a dev-only feature as RF's operation counter is, drives a real member to exhaustion at reduced limits. The corpus entry then says so, and does not claim production limits. The feature stays out of the registered compiled identity, as `mutation-controls` does.
   - Either way the 13 mutations are rebased on the new base by the corpus writer, and the readers' expected outcomes are unchanged in kind.
 - **The two corner controls** in VER-003 change from refusals to publications (section 5). Their new successors join the corpus.
+- **The group-3 trials' pinned exhaustion** (revision 7). `w1_source_census_tests.rs` pins case 1 of F6/partial, T18, T19/pre-K-D5 and T19, in both modes, as unavailable with "loaded maximum search exhausted" (`w1_partial_case_cause`, through `b4_w1_covers_every_formerly_selected_source_block_case` and `w1_partial_other_case_statuses_and_causes_are_pinned`), and stage 2 §4.6 records the same. These members use ordinary sections with a global-y UDL, so the repair removes that cause. Their new expectation is the outcome the unchanged gate gives, taken from the census (C1-a) and asserted case by case; no committed successor binds them.
 - **Nothing else moves for corner 1.** Point-hull sections, which include the four `w1_member_interior_*` records, the annular lane, route E, the source route and every nodal-only successor keep their bytes.
 
 ## 2. Corner 2: the halfway scale
@@ -124,8 +142,8 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
 ### 2.1 The cause, from the code
 
 - **The product certificate's gate uses final-row scales.** `final_case.rs` `row_scales` forms each body's translation, rotation, force and moment scales from the final published rows (`spent.normalize(unit, value)`). `check_intervals` couples them with the body extent (`couple`, binary64 `max` with `extent·ro`, `tr/extent`, `mo/extent`, `extent·fo`) and applies the p = 512 floor. It then gates, classifies and bounds every row with those scales.
-- **The readers recompute that law.** The Rust reader (`retained_precision.rs` `numeric_owner` and `g5b`) and the verifier recompute exactly that law from the published rows. G5b then requires `selection.body_scales` to equal it bit for bit.
-- **The receipt states native scales instead.** `retained_wire.rs` `selection` (about 1248–1291) writes `body_scales` from `owner.evidence().body_scales`. These are the native candidate's publication scales (`adaptive.rs` `publication_with`, from the native candidate's binary64 values), not the final rows'.
+- **The readers recompute that law.** The Rust reader (`retained_precision.rs` `numeric_owner`, 3845–3911, and `g5b`, 4424–4450) and the verifier recompute exactly that law from the published rows. G5b then requires `selection.body_scales` to equal it bit for bit.
+- **The receipt states native scales instead.** `retained_wire.rs` `selection` (1260–1320) writes `body_scales` from `owner.evidence().body_scales` (1265–1268). These are the native candidate's publication scales (`adaptive.rs` `publication_with`, from the native candidate's binary64 values), not the final rows'.
 - **Where they diverge.** A native candidate value is accurate to about 2^-p relative, and the final value is RN64 of the product's projection. The two round alike unless the exact value lies within the native error of a binary64 rounding boundary. For an exact halfway they round apart about half the time, so a body maximum that is an exact halfway gives receipt scales one ulp away from the reader's.
 - **Observed instances:**
   - the 73/24 Pa asymmetric control, whose force maximum (7/2)Z and moment 7Z are halfways (`w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal`);
@@ -136,16 +154,17 @@ The corner is a provenance inconsistency in one receipt field. The gate, the cla
 
 ### 2.2 The repair
 
-- The product certificate keeps the final per-body scales it computed in `check_intervals`, coupled and floored, as part of its proof, and exposes them with the verdicts. Following O4's layout discipline (o4-source-extension.md §4.2), the exposure leaves every serialized proof structure and capacity unchanged, including `capacities[6]` (the scales buffer). It reuses the existing scales buffer, or else a separately owned copy that no receipt counter records. A pin test asserts it.
-- `selection` writes `body_scales` from those final scales, for selected cases and for combinations alike. Both call `selection` with the product certificate in hand.
+- The product certificate keeps the final per-body scales it computed in `check_intervals`, coupled and floored, as part of its proof, and exposes them with the verdicts. As built, those scales are the `scales` vector that `row_scales_reduced` reserves (its capacity is `capacities[6]`) and `check_intervals` couples and floors in place (`final_case.rs` 1536–1557). The repair moves that vector into the proof's work owner instead of dropping it, so no allocation is added and no capacity moves. Following O4's layout discipline (o4-source-extension.md §4.2), every serialized proof structure and capacity is unchanged, including `capacities[6]`. A pin test asserts it.
+- `selection` writes `body_scales` from those final scales, for selected cases (`retained_wire.rs` about 2240) and for combinations (about 2146) alike. Both call `selection` with the certified product proof in hand.
+- **Same bodies.** The native publication lists every body 0..nb, four kinds each (`adaptive.rs` `publication_with`, 3136–3144), and the final scales have one entry per body of the same source (`row_scales_reduced` sizes them by `body_count`). The receipt's body list does not change shape.
 - The native evidence's scales stay native evidence. They still feed the native publication certificate unchanged, and no other receipt field changes source.
 
 **Consequences:**
 - The precommit G5b body-scale equality now holds by construction, wherever the product's final law and the readers' law agree. They are the same binary64 law over the same published rows. Any disagreement is still refused by the unchanged precommit G5b and falls back, so it fails closed.
 - A former halfway withdrawal publishes when every gate passes. If a row's gate fails under the final scales, that case alone is unavailable with its named cause, as for any gate failure. The halfway no longer withdraws every case.
 - **No committed byte moves, given one gating check.** G5b's acceptance of every committed successor shows that its native scales equal the readers' recomputed law. The repair writes the product gate's final scales instead. So byte preservation also needs the final scales to equal the readers' law on every body and kind, including kinds no row's class depends on. The two computations differ in code:
-  - The product's `row_scales` (`final_case.rs` about 1143–1330) takes native rows whose native class is not input-derived, plus support components into the force and moment slots. It normalizes the final values, couples with `couple`, and applies the floor from native evidence.
-  - The readers' `numeric_owner` (`retained_precision.rs` about 3779–3841) and `g5b` (about 4358–4384) take the published rows of each scale kind, less prescribed components. They couple in the same binary64 form and apply the floor from the receipt's `floor`.
+  - The product's `row_scales_reduced` (`final_case.rs` 1313–1532, coupled and floored in `check_intervals` 1544–1557) takes native rows whose native class is not input-derived, plus support components into the force and moment slots. It normalizes the final values, couples with `couple`, and applies the floor from native evidence.
+  - The readers' `numeric_owner` (`retained_precision.rs` 3845–3911) and `g5b` (4424–4450) take the published rows of each scale kind, less prescribed components. They couple in the same binary64 form and apply the floor from the receipt's `floor`.
 
   These must be shown to select the same row sets and the same floor. The implementation argues that row-set mapping kind by kind. A gating test (`w1_final_scales_equal_reader_scales`) asserts final scales = readers' scales on every committed successor and every census input, before `selection` is switched. If any body or kind differs, the repair stops for diagnosis. Such a difference would be a second inconsistency between gate and reader, and it would need its own design; it would not justify writing a scale the reader rejects.
 - **Not a relaxation.** The G5b check, every predicate and every law are unchanged. The receipt stops stating a value the gate did not use.
@@ -177,9 +196,21 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 
 ### 3.2 What the census runs
 
-**Order.** The census measures what the repair would do before the repair is committed. So its first commit, on the repair's branch, adds the two repairs behind test-only switches, plus the probe. Production paths are unchanged until the census is reported and the owner has read section 11's question.
-- The switches are a `#[cfg(test)]` hook in the kernel (the existing `loaded_maximum::hooks` module is the precedent) and a dev-only cargo feature where `product_physics` tests need it, as RF's `exact-operation-count` is.
-- Census targets are `#[ignore]` tests in `core/product_physics`, re-runnable on demand.
+**Order.** The census measures what the repair would do before the repair is committed. So its first commit, on the repair's branch, adds the two repairs behind test-only switches, plus the probe. Production paths are unchanged until the census is reported.
+
+**The probe and switches** (revision 7, adopting w1e-sharper-exact-coverage.md §0's amendment; one module serves both censuses):
+- **One opt-in cargo feature,** `census-probe`, declared by the frame kernel and forwarded by `product_physics` (`census-probe = ["open_pipe_stress_frame_kernel/census-probe"]`). No `[dev-dependencies]` entry enables it, so it is off in every ordinary test build of either crate, the stack-witness build included. Only the census commands pass `--features census-probe`.
+- **A guard test** in the ordinary `product_physics` test build asserts that the kernel was compiled without it (the kernel's `retained_api::CENSUS_PROBE` constant is `false`). The stack witnesses run without the feature, in their ordinary commands.
+- **Off means absent.** Every switch, record and counterfactual is compiled only under the feature. Without it, each switch reads as off and the production path's operations, work and bytes are today's.
+- **The switches** are thread-local, so a census thread sets them around one invocation's retained work and leaves concurrent tests untouched:
+  - *corner 1*: the driven search of 1.2 on an interval represented Z;
+  - *corner 2*: `selection` writes the product proof's final scales (2.2);
+  - *(b) the same section*: the annular lane, in its solve and in its stress recipe, takes the admitted lane's section leaves Â, Î, Ĵ, the represented Z and, on a Timoshenko member, the shear-area leaf Â_s, each paired with the annular lane's own exact E/ν modulus;
+  - *(c) the same readout*: (b) with the admitted lane's moduli as well, so the annular lane solves the admitted readout's problem (its coefficients are the admitted products and its shear rigidity Ĝ·Â_s) and the lanes differ only by their own arithmetic.
+
+  (b) and (c) change the lanes' problem, so a census re-runs the whole invocation with the switch on: the lanes are certified afresh, and the projection, scales, classes and every predicate follow from them.
+- **Counterfactuals without a re-solve** are judged at the gate, after the actual verdicts, in a separate work owner that no receipt reads. Switch (a), the admitted Z set to the single Ẑ, re-forms the represented lane's bending-stress and maximum enclosures (the maximum by a search with Z = Ẑ). Each counterfactual recomputes every projected value from its own hull, the support magnitudes from their components, the coupled and floored scales from the counterfactual published rows, then each row's class and all four predicates, with the gate's own arithmetic. The probe checks itself on every case: its unaltered counterfactual must reproduce the published values, the final scales and every actual verdict bit for bit.
+- **Census targets** are `#[ignore]` tests in `core/product_physics`, compiled only under the feature and re-runnable on demand.
 
 **What the probe records.**
 - **C1, per loaded member:**
@@ -191,7 +222,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
   - for a member that converges today, its before-and-after verdicts, status and counted work, for the regression condition (3.3);
   - the case's resulting status and cause.
 - **C2, per case:**
-  - the native, final and readers' scales per body and kind, and their equalities;
+  - the native, final and readers' scales per body and kind, and their equalities. The readers' law is read without a reader change: the unchanged Rust reader validates the candidate as produced (native scales) and again with `selection.body_scales` replaced by the final scales, and G5b's body-scale equality decides each;
   - the precommit G5b outcome;
   - with the corner-2 switch: the case's resulting status, and every row's gate verdict under the final scales.
 - **Not reached.** A case or member that never reaches the measured stage is recorded as `not_reached`, with the stage it stopped at, and kept out of that stage's denominator. Examples: an ordinary `checks_passed` case (no W1 trigger), a preparation refusal, or, for C2, a case ending at C1's exhaustion. C2 is therefore also measured on the C1 inputs with the corner-1 switch on, so that observations C1 had cut off are reached.
@@ -267,7 +298,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 ### 3.4 What it needs to run
 
 - **Timing.** After epoch 4 merges, on a scratch worktree from that merge, or from O4's head if O4 has landed (section 8).
-- **Build and host.** It builds `frame_kernel` and `product_physics` tests in the debug profile. It uses the qualification host's heavy-run slot and memory rules, within the 64 GiB test ceiling. The census uses private drivers, so it needs no registered build identity. The cap witnesses run as separate commands with their 4 MiB stacks.
+- **Build and host.** It builds `frame_kernel` and `product_physics` tests in the debug profile with `--features census-probe`, in its own target directory. It uses the qualification host's heavy-run slot and memory rules, within the 64 GiB test ceiling. The census uses private drivers, so it needs no registered build identity. The cap witnesses run as separate commands with their 4 MiB stacks.
 - **Pilot.** A pilot of ten generated invocations per sweep measures time and memory before the full run. No duration is assumed here.
 - **What it writes.** Nothing under `validation/references` or the committed fixtures. The probe and switches land on the repair's own branch as test-only code and stay as `#[ignore]` targets that can be re-run.
 
@@ -312,7 +343,8 @@ The two corner tests named in VER-003 change from asserting the refusal to asser
   - the kernel's `loaded_maximum.rs`: its frame and TEXT;
   - `final_case.rs`: the retained final scales, one `[f64; 4]` per body, at most 32 bodies per case, times the existing multiplicities;
   - `retained_wire.rs` `selection`: TEXT.
-- The repair therefore re-registers on its actual source (D3; REQ-004).
+- The census probe and switches are compiled only under `census-probe`, which no product or ordinary test build enables; their source is still in the priced files, so the actual-source D3 audits it with the repair.
+- The repair therefore re-registers on its actual source (D3; REQ-004), starting from 5a's registered profile (`6b90748dec`, retained-pricing-rules §8.10).
 - The delta is small and positive: a few hundred bytes of frame and scale storage per attempted case, plus TEXT.
 - If the evaluation does not fit, the measured shortfall goes to HELP_HUMAN before any budget change (Decision 22). Nothing here expects that.
 
@@ -329,7 +361,7 @@ The decision and its reasons are in [o4-source-extension.md](o4-source-extension
   - Corner 2 is one field's provenance. O4's new successors inherit the repair once it lands.
 - **The census does not wait for O4.** It needs only epoch 4. It can run while O4's independent reference unit is prepared.
 - **Coupling rules** (binding on O4, restated): O4 does not change the represented-Z hull, the loaded-maximum search or the provenance of `body_scales`. O4's controls avoid halfway body maxima, or record their G5b withdrawal as the expected pre-repair fallback.
-- **Rebase.** The repair is implemented on O4's head. Its shared files are `retained_wire.rs` `selection` (`body_scales` beside O4's `section_terms`) and the registered profile. It re-registers on that head.
+- **Rebase (as built, revision 7).** O4 and 5a are on main, so the repair is implemented on main `257b44b910`. Its shared files are `retained_wire.rs` `selection` (`body_scales`, 1265–1268 and 1310, beside O4's `section_terms`, 1270–1284) and the registered profile, which 5a last registered. It re-registers on its own head.
 
 ## 9. Verification and independent review
 
@@ -339,11 +371,12 @@ The decision and its reasons are in [o4-source-extension.md](o4-source-extension
 - the suites `select_affected_checks.py` selects: frame kernel (`retained_k4`), product physics (the W1 census, facade and stage-1/stage-2 tests), result_export and the desktop wasm equivalence;
 - the corpus in native Rust, wasm and Python;
 - the actual-source D3 (`generate --check`);
+- the six stack witnesses at R/64 and R/16, in the registered build and without the census feature (stack-headroom-repair.md, "Maintained check"), with the guard test showing the feature off;
 - the hosted `harness` on the exact head.
 
 **Independent numerical review checklist:**
 1. The monotonicity argument and the hull-valid lower: sound for every Z in the hull, under directed rounding.
-2. That the driven search's uppers, pruning and limits equal today's in value, that the stated change in what the stop rule bounds is accurate (1.2), and that exhaustion still fails closed.
+2. That the driven search's limits equal today's, that its uppers are valid and never above today's (equal except where the tangent bound divides a negative coefficient), that pruning is sound, that the stated change in what the stop rule bounds is accurate (1.2), and that exhaustion still fails closed.
 3. That a point hull and the annular lane are byte-identical to today.
 4. That DEF-O's text describes the repaired enclosure unchanged.
 5. That the final scales are exactly the scales the gate used, coupled and floored, and the kind-by-kind row-set mapping to the readers' law (2.2).
@@ -397,6 +430,8 @@ It is applied in that PR, when its meaning comes true; not before, and not in O4
   - stage 2 §4.4's "Stop" text is edited to agree with it when the repair lands (section 10).
   Narrowing was not chosen. The census's pre-registered escalation (3.3) and the DEF-O-narrowing contingency below stay as designed. Corner 2's repair never depended on this decision.
 
+**Pending, the owner's (b7-plan item 6):** Z1, the single Ẑ in DEF-O and DEF-E, is ruled once for both routes with this census's tables and W1-E's (w1e-sharper-exact-coverage.md §6.2, §9). Option 2 above stands. If Z1 is adopted, the admitted Z becomes a point, corner 1's driven path is never taken and its production switch is not landed; if it is not, corner 1 lands as designed. Corner 2 does not depend on it.
+
 **Contingent, to HELP_HUMAN:** narrowing DEF-O's admitted Z, if the census's pre-registered escalation rule fires (3.3), and a D3 shortfall.
 
 **Reserved and untouched:**
@@ -410,8 +445,8 @@ It is applied in that PR, when its meaning comes true; not before, and not in O4
 ## 12. Blast radius
 
 **Code:**
-- **Frame kernel (DEL-04-01):** `structural/retained/product_certificate/loaded_maximum.rs` (the driven search and the hull-valid lower) and `final_case.rs` (retaining and exposing the final scales; the admitted-lane call site); tests in `tests/retained_k4/`.
-- **Product physics (DEL-04-07):** `retained_wire.rs` `selection` (the scale source); `retained_memory.rs` (registered profile); the W1 census and test files (`w1_domain_stage1_tests.rs`, `w1_source_census_tests.rs`, `retained_facade_tests.rs`), including the census targets.
+- **Frame kernel (DEL-04-01):** `structural/retained/product_certificate/loaded_maximum.rs` (the driven search and the hull-valid lower) and `final_case.rs` (retaining and exposing the final scales; the admitted-lane call site); the census probe module and its two lane switches (`product_certificate/census_probe.rs`, `source_residual.rs` `coefficients`, `final_case.rs` `recipe_reduced`), compiled only under `census-probe`; the feature in `Cargo.toml`; tests in `tests/retained_k4/`.
+- **Product physics (DEL-04-07):** `retained_wire.rs` `selection` (the scale source); `retained_memory.rs` (registered profile); `Cargo.toml` (the forwarded feature); the W1 census and test files (`w1_domain_stage1_tests.rs`, `w1_source_census_tests.rs`, `retained_facade_tests.rs`), including the census targets and the feature guard test.
 - **Pricing:** `tools/retained_pricing` (owners and rules) and `retained-pricing-rules.md`.
 
 **Fixtures:**
