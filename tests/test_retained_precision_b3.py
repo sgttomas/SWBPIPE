@@ -659,8 +659,8 @@ B3B_PASSES = {
 # bytes) replaced 5ef83dd9.../57114af4... and ee20a337.../3b92b6ce.... T4-U6's regeneration on the D-5 producer
 # (reduced stress twins, per-basis headlines and evidence) replaced 45e14e68.../f6bb7e7f... and 0f490c22.../0317aed6....
 # O4 (W1-E): DEF-E's revision moved only the DEF-E-bound hashes; it replaced 3cfcde8d.../a5ac8236... and 2e69b43c.../0a357a3a....
-EXACT_PINNED = {"sparse_interactive": ("71c02b807b11bd3427dcba4247fa032686c51a73c3a45140496707346eadbe20", "6ea6b5e467321f4737903693c1ebc2f69026822282f4ca50118ea237ac89e478"),
-                "dense_scrutiny": ("e79cf22962616be33e29d78a74c09a0c42376464194287f6c7a1b036a5cf36eb", "3ff95ee0d87c20661be1eb22f260afe096ebcd0777dce8f05f4dab2416d5af62")}
+EXACT_PINNED = {"sparse_interactive": ("2b54360a0612137f11b9b461c9245e2bc2912b9025f32f440eddd51c57c75dd3", "723fe1c25ffcb8149aa81146f1b3927d6333a53314ee6790aa6402004ea6860d"),
+                "dense_scrutiny": ("7cb4acd6434438a30cb975f2506306c1cf25f29868cb98867a2ce276d03cf3cd", "18b5605d744d5f0b1f5f4d0a649e7edba1ecc098311fe6edcf7e4152d60bf85b")}
 KINDS = ("synthetic", "producer")
 
 

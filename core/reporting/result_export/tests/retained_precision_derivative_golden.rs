@@ -73,24 +73,25 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
 /// O4 (W1-E): re-pinned with the exact goldens after DEF-E's revision (only DEF-E-bound hashes moved).
+/// O4 limitation re-pin (§3.3, §4.9): the base limitation [7] and the hashes binding it moved.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "71c02b807b11bd3427dcba4247fa032686c51a73c3a45140496707346eadbe20",
-        "6ea6b5e467321f4737903693c1ebc2f69026822282f4ca50118ea237ac89e478",
+        "2b54360a0612137f11b9b461c9245e2bc2912b9025f32f440eddd51c57c75dd3",
+        "723fe1c25ffcb8149aa81146f1b3927d6333a53314ee6790aa6402004ea6860d",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "e79cf22962616be33e29d78a74c09a0c42376464194287f6c7a1b036a5cf36eb",
-        "3ff95ee0d87c20661be1eb22f260afe096ebcd0777dce8f05f4dab2416d5af62",
+        "7cb4acd6434438a30cb975f2506306c1cf25f29868cb98867a2ce276d03cf3cd",
+        "18b5605d744d5f0b1f5f4d0a649e7edba1ecc098311fe6edcf7e4152d60bf85b",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "df09036930c6d996526114984549264b4ac71564d63af134089dfeccb636cd70"),
-    ("dense_scrutiny", "429869bbc01aab1584571fb5b7e888db23e9603bf0d2eda77c37cf9f07100c36"),
+    ("sparse_interactive", "8268f2e2feb44ea0d2bb70a41eb0bfc83509952305ef328d7eca09af234937a5"),
+    ("dense_scrutiny", "b439cedefc9adcaddf5d338bd38885b4de36eccc8a5b520c6be260ba0eda2660"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

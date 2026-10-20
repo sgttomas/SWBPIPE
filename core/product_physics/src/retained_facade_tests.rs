@@ -2530,9 +2530,12 @@ fn b3b_witness_inputs_and_routes() {
 /// O4 re-pin (DEL-04-08 Design `o4-source-extension.md` §4.8, §4.9; the E14 precedent): read from
 /// the producer through the private driver; only DEF-E's H moved, so against the T4-U6 bytes only
 /// the preparation hash, the source identity and the receipt hash differ.
+/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] restated; against
+/// the DEF-E re-pin only that string and the hashes that bind it differ
+/// (`o4_text_only_envelope_diff`).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "6ea6b5e467321f4737903693c1ebc2f69026822282f4ca50118ea237ac89e478", "c0103cbbc6f8a57ab5d44b17452f1aba6ae0fb7cfc9e5fc164ba2e24eb602cb1", "71c02b807b11bd3427dcba4247fa032686c51a73c3a45140496707346eadbe20"),
-    ("dense_scrutiny", "3ff95ee0d87c20661be1eb22f260afe096ebcd0777dce8f05f4dab2416d5af62", "a636c7caa4ee54b16aff69dcf6d3413e01da916fd65919a06440d7d917d61128", "e79cf22962616be33e29d78a74c09a0c42376464194287f6c7a1b036a5cf36eb"),
+    ("sparse_interactive", "723fe1c25ffcb8149aa81146f1b3927d6333a53314ee6790aa6402004ea6860d", "4081e770ac5c4a5cabc19f060dfb156ef2d34b100d805812750067b52ef338a2", "2b54360a0612137f11b9b461c9245e2bc2912b9025f32f440eddd51c57c75dd3"),
+    ("dense_scrutiny", "18b5605d744d5f0b1f5f4d0a649e7edba1ecc098311fe6edcf7e4152d60bf85b", "e2bdb33393fb84bd6ec1ce23575194a24dab8b5456328dc8fc36b8fea780f751", "7cb4acd6434438a30cb975f2506306c1cf25f29868cb98867a2ce276d03cf3cd"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
