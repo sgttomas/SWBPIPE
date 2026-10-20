@@ -156,10 +156,13 @@ fn pressure_case_context_uses_one_domain_without_changing_its_payload_shape() {
 }
 
 /// T4-U6 (DEL-05-03 Design `section-bases-and-timoshenko.md` §2.4): limitation
-/// [7] of pressure-2 (joined, unselected), verbatim from the design. It
-/// replaces B7b's text, which admitted only a zero allowance and
-/// euler_bernoulli; the held pre-join text went with its test-only helper.
-const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
+/// [7] of pressure-2 (joined, unselected), verbatim from the design, with
+/// O4's clauses removed (DEL-04-08 Design `o4-source-extension.md` §3.3:
+/// retained-source recovery no longer requires euler_bernoulli or zero mill
+/// tolerance and allowance). It replaced B7b's text, which admitted only a
+/// zero allowance and euler_bernoulli; the held pre-join text went with its
+/// test-only helper.
+const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
 /// T4-U6 (§2.4): limitation [0] of pressure-2, the B7b text with the
 /// shear-model parenthesis, the realized-bend clause and the section-bases
 /// sentences of the design (the latter after the admitted-families sentence).
@@ -210,9 +213,15 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             assert_eq!(&selected.limitations[1..7], &unselected.limitations[1..7]);
             assert_eq!(&selected.limitations[8..], &unselected.limitations[8..]);
             assert!(selected.limitations[0].contains("under pressure-source-1 semantics"));
-            assert!(selected.limitations[0].contains("Euler-Bernoulli with coincident section bases"));
+            // O4 §3.3: the selected response follows the contract's shear
+            // model on both section bases; no O4 decline is stated.
+            assert!(selected.limitations[0].contains("The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases."));
             assert!(selected.limitations[7].contains("selected retained-source response"));
-            assert!(selected.limitations[7].contains("zero mill tolerance and zero corrosion allowance, where the two bases coincide"));
+            for text in [&selected.limitations[0], &selected.limitations[7], &unselected.limitations[7]] {
+                for retired in ["Euler-Bernoulli with coincident section bases", "zero mill tolerance", "zero corrosion allowance", "Timoshenko documents"] {
+                    assert!(!text.contains(retired), "{retired}");
+                }
+            }
             assert!(unselected.limitations[7].contains("publishes ordinary structural recovery"));
         }
     }

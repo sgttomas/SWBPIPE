@@ -272,23 +272,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // B7b: the regenerated 0.5.0/v3 producer envelopes (fixtures commit 2d0e2210c1);
     // T4-U6: regenerated again on the D-5 producer (both section-basis families);
     // model 0.6.0: again for the pressure-2 identity (identity bytes only);
-    // T4-U4b: again for the section stress rows on every member.
+    // T4-U4b: again for the section stress rows on every member;
+    // O4 (DEL-04-08 `o4-source-extension.md` §3.3): again for limitation [7] only.
     for (name, digest) in [
         (
             "connected-sparse",
-            "2ee23ab36fd02ce3601d47dcfc07b2c99022d637e4805def93ec1ab4a1284685",
+            "c2aeba7cd9a2ec98b6f2a12e90e33dc5f36d5a17017665e6b038ae4b4174afc8",
         ),
         (
             "connected-dense",
-            "672e2d6f51b0c9f0240ca81454b27283ee7019ec0ec0fcca387f19b5cf6ff693",
+            "2b325b918e020e06f651bb89df3ff06f6ced27e4dcd7080398a5c4051ee88a10",
         ),
         (
             "pressure-sparse",
-            "8f89d4fe4b8b2d43ea33a5f41dafeeabf7796fab8eec4d35a7f441690d90ac9f",
+            "276493847eaa810d00702542fa094d41d9c76369d043e318a05bff6265b574af",
         ),
         (
             "pressure-dense",
-            "edbeb10b30c07b4d2d1cbf585952b8e5eeda28e3131084975e0a71abf8acc4e7",
+            "05b82e04b768408031344518a328910ddddc4cf36fda38bc11fbd70245a7e5c2",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

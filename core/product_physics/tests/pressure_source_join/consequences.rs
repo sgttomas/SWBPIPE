@@ -1104,13 +1104,13 @@ fn pressure_source_raw_fixture_path_guard_refuses_before_read() {
 #[test]
 fn pressure_source_corpus_cache_shares_one_strict_expansion() {
     let corpus = read_corpus();
-    assert_eq!(corpus["entries"].as_array().unwrap().len(), 462);
+    assert_eq!(corpus["entries"].as_array().unwrap().len(), 486);
     for _ in 0..8 { assert!(std::ptr::eq(corpus, read_corpus())); }
     std::thread::scope(|scope| {
         let readers: Vec<_> = (0..8).map(|_| scope.spawn(read_corpus)).collect();
         for reader in readers { assert!(std::ptr::eq(corpus, reader.join().unwrap())); }
     });
-    println!("pressure_source_corpus_cache=one_shared_immutable_value,462entries");
+    println!("pressure_source_corpus_cache=one_shared_immutable_value,486entries");
 }
 fn check_corpus_entry(entry: &Value) {
     let source = &entry["source"];
