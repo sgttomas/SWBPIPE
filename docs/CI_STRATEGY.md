@@ -15,7 +15,11 @@ An exact changed fixture or included source selects its actual readers and their
 Cargo consumers; a fixture read does not create a supplier-crate dependency.
 Literal compile reads are resolved from the source file. Dynamic runtime reads
 have explicit exact-file declarations bound to source anchors, source scans and
-Rust caller trees. Stale declarations, missing inputs, unresolved dependencies,
+Rust caller trees. The caller trees are bound by the `source_trees` digests in
+`tools/hosted-ci-routing.json`. A change to any `.rs` file in a crate that has
+runtime-read declarations therefore refreshes that crate's digest in the same
+change. Without the refresh, `tests/test_ci_numerical.py` fails, and hosted
+selection falls back to every crate. Stale declarations, missing inputs, unresolved dependencies,
 unknown paths and shared execution controls select all discovered crates. Existing
 numerical oracles remain unchanged. Python coverage is gated independently;
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
