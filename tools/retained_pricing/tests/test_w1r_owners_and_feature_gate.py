@@ -1,6 +1,6 @@
 """W1 coverage repair D3 (retained-pricing-rules.md §8.11).
 
-W1R-FG: code under the off `census-probe` feature is compiled out of the registered build (no features), so the scanners
+W1R-FG: code under the off `census-probe` and `loaded-maximum-hooks` features is compiled out of the registered build (no features), so the scanners
 blank it as they blank `#[cfg(test)]` items, and skip the two files the build includes only through compiled-out
 module declarations. The inclusion and manifest guards fail closed.
 
@@ -54,6 +54,26 @@ def test_off_feature_statements_and_items_are_blanked_with_lines_kept():
     assert "finish" in SCAN["blank_test_items"](SCAN["blank_rust"](raw))
 
 
+def test_the_capacity_hook_feature_is_off_as_census_probe_is():
+    """Corner 1 (§8.12): `loaded-maximum-hooks` exposes the kernel's test capacity hook only to the
+    genuine-exhaustion control; the registered build leaves it off, so its items are blanked too."""
+    raw = ('fn limits() -> (usize, u8, usize) {\n'
+           '    #[cfg(any(test, feature = "loaded-maximum-hooks"))] if let Some(l) = hooks::get() { return l; }\n'
+           '    (LIVE, DEPTH, SPLITS)\n'
+           '}\n'
+           '#[cfg(feature = "loaded-maximum-hooks")]\n'
+           'pub use loaded_maximum::hooks as loaded_maximum_hooks;\n'
+           '#[cfg(all(test, feature = "loaded-maximum-hooks"))]\n'
+           'fn hooked() -> String { format!("{z}") }\n'
+           'pub const LOADED_MAXIMUM_HOOKS: bool = cfg!(feature = "loaded-maximum-hooks");\n')
+    out = production(raw)
+    assert out.count("\n") == raw.count("\n")
+    assert "hooks::get" not in out and "loaded_maximum_hooks" not in out and "hooked" not in out
+    assert "(LIVE, DEPTH, SPLITS)" in out and "pub const LOADED_MAXIMUM_HOOKS" in out
+    final = (SOURCE / FINAL).read_text()
+    assert "loaded_maximum_hooks" in final and "loaded_maximum_hooks" not in production(final)
+
+
 def test_the_current_source_excludes_exactly_the_probe_and_its_driver():
     assert SCAN["off_build_files"](str(SOURCE)) == {PROBE, DRIVER}
     final = (SOURCE / FINAL).read_text()
@@ -85,6 +105,10 @@ def test_a_snapshot_without_the_probe_excludes_nothing(tmp_path):
     (FK_TOML, 'census-probe = []', 'census-probe = []\ndefault = ["census-probe"]'),
     (PP_TOML, '[dev-dependencies]', '[dev-dependencies]\nopen_pipe_stress_frame_kernel = { path = "../solver/frame_kernel", features = ["census-probe"] }'),
     (FINAL, "fn corner1() -> bool {", 'mod census_probe;\nfn corner1() -> bool {'),
+    (FK_TOML, 'loaded-maximum-hooks = []', 'loaded-maximum-hooks = []\ndefault = ["loaded-maximum-hooks"]'),
+    (PP_TOML, '[dev-dependencies]', '[dev-dependencies]\nopen_pipe_stress_frame_kernel = { path = "../solver/frame_kernel", features = ["loaded-maximum-hooks"] }'),
+    (PP_TOML, 'loaded-maximum-hooks = ["open_pipe_stress_frame_kernel/loaded-maximum-hooks"]',
+     'loaded-maximum-hooks = ["open_pipe_stress_frame_kernel/loaded-maximum-hooks"]\ndefault = ["loaded-maximum-hooks"]'),
     (FINAL, "fn corner1() -> bool {", 'mod probe_text { include!("census_probe.rs"); }\nfn corner1() -> bool {'),
     (FINAL, "fn corner1() -> bool {", 'mod probe_text { include! { "census_probe.rs" } }\nfn corner1() -> bool {'),
     (FINAL, "fn corner1() -> bool {", 'mod probe_text { include ! ["census_probe.rs"]; }\nfn corner1() -> bool {'),
@@ -99,6 +123,7 @@ def test_an_inclusion_or_manifest_change_stops(tmp_path, edit):
     'fn f(x: u8) -> u8 {\n    match x {\n        #[cfg(feature = "census-probe")]\n        0 => 1,\n        _ => 2,\n    }\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
     'fn f() -> Vec<u8> {\n    vec![\n        1,\n        #[cfg(feature = "census-probe")]\n        2\n    ]\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
     'struct S { a: u8, b: u8 }\nfn f() -> S {\n    S {\n        #[cfg(feature = "census-probe")]\n        a: 1,\n        b: 2,\n    }\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
+    'fn f(x: u8) -> u8 {\n    match x {\n        #[cfg(feature = "loaded-maximum-hooks")]\n        0 => 1,\n        _ => 2,\n    }\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
 ])
 def test_an_off_feature_attribute_in_an_expression_position_stops(snippet):
     with pytest.raises(ValueError, match="W1R-FG"):

@@ -30,6 +30,11 @@ import runpy
 # the scales it used and certify_final moves them into CertifiedProductProof (W1R-FS). retained_wire.rs: selection
 # borrows the proof and writes body_scales from them (W1R-L1). origins.rs, source_residual.rs and the rest of
 # final_case.rs/loaded_maximum.rs add only census-probe items, compiled out of the registered build (W1R-FG).
+# W1 coverage repair corner 1 D3 (§8.12): read 32e0c3faf0. final_case.rs: corner1() is true without census-probe,
+# so the driven search above is live in the registered build (priced since §8.11: W1R-LM, the same loop and limits).
+# loaded_maximum.rs: the capacity hook module and limits()'s hook read are compiled under any(test,
+# loaded-maximum-hooks); final_case.rs, origins.rs and structural.rs re-export it under that off feature, and add a
+# census-probe lane hook and work snapshots (W1R-FG). No owner this model prices changes.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": '7683f8ef8dc9b4f1951bb7ef1e0c274fd9a094fb66f55132de3cf07758ff4e52',
     "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
@@ -41,7 +46,7 @@ SOURCE_FILES = {
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",
     "core/solver/frame_kernel/src/structural/retained/declared.rs": "867637e55a30fd34b679ad11423ad1d6d58e14f632548b04c4a535c94aa62c77",
     "core/solver/frame_kernel/src/structural/retained/ledger.rs": "0d80f13a76771506c1c81f65e502ce255d648f8aaa6a2eecfd3544bab8af47e9",
-    "core/solver/frame_kernel/src/structural/retained/origins.rs": "545462fcfe5c07e4361c301eed00d4e8afa28f3b81127eb7bd5442f07cad6d04",
+    "core/solver/frame_kernel/src/structural/retained/origins.rs": "0d37f9de9291c21180b279ec860cd4762ed172b71e1398642e91ad96365ee562",
     "core/solver/frame_kernel/src/structural/retained/adaptive.rs": "b966f7d77b851da81a630759f04d68f29b92b760972b9d31ebb693475a7e4249",
     "core/solver/frame_kernel/src/structural/retained/assemble.rs": "8b4ab81afc98389e6c46a979ef1ac05acb06bcd3e5ef0aa63fc847f5a897f2c5",
     "core/solver/frame_kernel/src/structural/retained/combine.rs": "85d7908cce9c4989b439db508df25601bf3905c7898245201afb27b4f085d42a",
@@ -54,8 +59,8 @@ SOURCE_FILES = {
     "core/solver/frame_kernel/src/structural/retained/directed.rs": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
     "core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "dadbb4d6a37e8a44b95d567494828feb795d805434814b7039c8b925a17e1a80",
     "core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "2481f6038229ca0dfc7e43d4a5f23918d45f373b7afb4480b7d750a9c0cf5121",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "ea2ba06bc7a34f9211b0d2a6add5686f517e5a8719af17bca1a2ee781626e8b3",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs": "ec18ecd28b953013577aa3732158126274dc4b1008db658e9f0b09c865f3f212",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "271fd6a4fea736cca9d382a37815823ce474cca0868935992ee9d39af064d2c2",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs": "288ddb346d23e9737013060eb985b678475cc9b2b7b4251590bea9a972db8917",
     "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "e2ef2ea11b1312d843147b042f4f41b7a7310ce52216ef48abb018ab64f954fd"
 }
 READER_CASE_CAP = 1024 * 1024

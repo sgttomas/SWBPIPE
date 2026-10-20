@@ -242,7 +242,8 @@ The census probe (`census-probe` feature) is compiled out of the registered buil
 inventory and JN1's inventory skip the two files the build includes only through compiled-out module declarations
 (`census_probe.rs`, `w1_census_driver.rs`). The inclusion and manifest guards (`off_build_files`, `off_feature_audit`)
 stop the run (exit 4) on any other inclusion, a plain module, a new off-build file or a manifest line that could enable
-the feature. See the governing rules' §8.11.
+the feature. Corner 1 adds the off feature `loaded-maximum-hooks` (the kernel's capacity hook for the genuine-exhaustion
+control), under the same blanking and manifest guard. See the governing rules' §8.11 and §8.12.
 
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and

@@ -149,7 +149,9 @@ TEST_ATTR = re.compile(r"#\[cfg\((?:test|any\(\s*test\b[^\]]*)\)\]")
 # and is blanked the same way. A `#[cfg(not(feature = ..))]` arm is compiled in and stays priced. The
 # feature's names are read from the raw text (the lexer blanks string contents); `off_build_files` and
 # `off_feature_audit` below hold the manifest and inclusion guards.
-OFF_FEATURES = ("census-probe",)
+# W1 coverage repair corner 1 (§8.12): `loaded-maximum-hooks` exposes the kernel's test capacity hook for the
+# genuine-exhaustion control only; like `census-probe`, no product build or `[dev-dependencies]` entry enables it.
+OFF_FEATURES = ("census-probe", "loaded-maximum-hooks")
 OFF_ATTR = re.compile(r'#\[cfg\((?:all\(\s*test\s*,\s*)?feature\s*=\s*"(?:' + "|".join(re.escape(f) for f in OFF_FEATURES)
                       + r')"\s*\)?\)\]')
 
@@ -226,10 +228,11 @@ OFF_BUILD_FILES = {
     "core/product_physics/src/w1_census_driver.rs":
         ("core/product_physics/src/w1_coverage_census_tests.rs", "core/product_physics/src/w1e_census_tests.rs"),
 }
-# The two manifest lines that may name an off feature: the kernel's declaration and product_physics' forwarding.
+# The manifest lines that may name an off feature: for each, the kernel's declaration and product_physics' forwarding.
 OFF_FEATURE_MANIFEST = {
-    "core/solver/frame_kernel/Cargo.toml": ('census-probe = []',),
-    "core/product_physics/Cargo.toml": ('census-probe = ["open_pipe_stress_frame_kernel/census-probe"]',),
+    "core/solver/frame_kernel/Cargo.toml": ('census-probe = []', 'loaded-maximum-hooks = []'),
+    "core/product_physics/Cargo.toml": ('census-probe = ["open_pipe_stress_frame_kernel/census-probe"]',
+                                        'loaded-maximum-hooks = ["open_pipe_stress_frame_kernel/loaded-maximum-hooks"]'),
 }
 _PATH_MOD = re.compile(r'((?:#\[[^\]]*\]\s*)*)#\[path\s*=\s*"([^"]+)"\]\s*((?:#\[[^\]]*\]\s*)*)(?:pub(?:\([^)]*\))?\s+)?mod\s+(\w+)\s*;')
 
@@ -298,7 +301,7 @@ def off_build_files(root):
     return present
 
 def off_feature_audit(root):
-    """Every manifest line naming an off feature is one of the two reviewed lines (no default, no enabling dependency)."""
+    """Every manifest line naming an off feature is one of the reviewed lines (no default, no enabling dependency)."""
     import os
     found = {}
     for d, _, fs in os.walk(root):
