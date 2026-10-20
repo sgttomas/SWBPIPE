@@ -489,8 +489,12 @@ per_mode! {
     /// W1 stage 2: three cases, three named bases and exactly 128 member terms
     /// per case, on the 4 MiB witness stack. Geometry is the narrow two-node,
     /// one-member control; the separate law input retains all geometry caps.
-    /// Every case reaches the staged selected state and G5b then refuses this
-    /// input's scale mismatch. This does not claim a published successor.
+    /// Every case reaches the staged selected state. Its body-0 translation and
+    /// rotation scales formerly differed by one ulp between the native candidate
+    /// and the final rows, so G5b refused it; since the W1 coverage repair's
+    /// corner 2 (Design `w1-coverage-repair.md` §2.2, §3.5) the receipt states the
+    /// final scales the gate used, every row's gate verdict passes under them, and
+    /// the successor publishes.
     witness_w1_member_load_three_case_three_basis_128, |mode| {
         let raw = w1_member_load_inputs::narrow_three_basis_member_cases();
         inside_d1("W1 member-only c=3/bases=3/l=128", &raw, mode, 3, 0, false);
@@ -526,12 +530,18 @@ per_mode! {
                             "0000000000000000", "0000000000000000"])));
                 }
             }
-            println!("W1_MEMBER_CAP_STAGED {mode:?} selected=3 bases=3 terms=384 precommit_refuses=true");
+            // The expectation is the readers' verdict on the staged bytes, not a census
+            // observation: G5b recomputes each body's scales from the final rows and the
+            // gates re-check every row under the receipt's scales.
+            let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+            let verdict = open_pipe_stress_result_export::retained_precision::validate(&staged, Some(&invocation))
+                .expect("actual Rust G0-G8 consumer of all 384 member terms under the final scales");
+            assert!(verdict.invocation_bound && verdict.numerical_eligible);
+            println!("W1_MEMBER_CAP_STAGED {mode:?} selected=3 bases=3 terms=384 full_reader=true");
             ran
         });
         println!("W1_MEMBER_CAP_ACTUAL {mode:?} input_sha256={} ran={ran:?}", sha256_of(&w1_member_load_inputs::narrow_three_basis_member_cases()));
-        assert_eq!(ran, Ran::Fallback("Precommit { gate: \"G5b\", code: \"RETAINED_PRECISION_SCALE_MISMATCH\" }".into()),
-            "{mode:?}: the unchanged strict reader refuses this input's scale mismatch");
+        assert_eq!(ran, Ran::Successor, "{mode:?}: the receipt states the gate's final scales and the unchanged reader admits it");
     }
 }
 
