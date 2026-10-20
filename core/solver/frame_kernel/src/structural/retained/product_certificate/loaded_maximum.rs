@@ -96,9 +96,21 @@ fn limits()->(usize,u8,usize) {
     #[cfg(test)] if let Some(l)=hooks::get(){return l;}
     (LIVE,DEPTH,SPLITS)
 }
+/// The loaded-maximum branch and bound (W1 Design §4.4). `driven` (W1 coverage
+/// repair §1.2) is set only for a lane whose Z is the represented hull
+/// hull(Ẑ, Î/c) and not a point: the search then runs on the point problem at
+/// z_lo, where the field is largest, and its convergence is decided there by the
+/// unchanged stop rule and limits. Beside the driving lower it keeps
+/// `lower_hull`, the best evaluated point's objective over the whole hull, whose
+/// lower end is the value at z_hi. The lane returns [lower_hull, U]: U bounds the
+/// maximum at z_lo and so over the hull; lower_hull is a lower bound of the
+/// maximum at every Z of the hull. Undriven, this is today's search.
+#[allow(clippy::too_many_arguments)]
 pub(super) fn search(spent:&mut ProductCertificateSpent<'_>,row:usize,member:u32,
-    ends:[[Enclosure;3];2],q:[Enclosure;2],a:Enclosure,z:Enclosure)->Result<Enclosure,ProductFailure> {
+    ends:[[Enclosure;3];2],q:[Enclosure;2],a:Enclosure,z:Enclosure,driven:bool)->Result<Enclosure,ProductFailure> {
     let (live_limit,depth_limit,split_limit)=limits();
+    let hull_z=z;
+    let z=if driven {Enclosure::point(z.lo)} else {z};
     let mut controls=[ends[0];3];controls[2]=ends[1];
     for c in 0..3 {
         let sum=spent.numeric.add(ends[0][c],ends[1][c])?;
@@ -106,6 +118,9 @@ pub(super) fn search(spent:&mut ProductCertificateSpent<'_>,row:usize,member:u32
         controls[1][c]=half(sum)?;
     }
     let mut lower=point_max(&mut spent.numeric,controls,a,z)?;
+    let mut lower_hull=if driven {point_max(&mut spent.numeric,controls,a,hull_z)?} else {lower};
+    #[cfg(feature = "census-probe")]
+    let mut probe=census_probe::SearchProbe::start(row,member,driven,hull_z,controls,lower);
     let first=SearchNode{controls,upper:upper(&mut spent.numeric,controls,a,z)?,depth:0};
     let mut live=reserve::<SearchNode>(live_limit)?;
     spent.loaded_search_bytes=spent.loaded_search_bytes.max(live.capacity()*std::mem::size_of::<SearchNode>());
@@ -117,26 +132,53 @@ pub(super) fn search(spent:&mut ProductCertificateSpent<'_>,row:usize,member:u32
         let upper=live[highest].upper;
         let gap=spent.numeric.scalar(Entry::Sub,&upper,&lower,Toward::Up)?;
         let allowance=shift(&lower,-64)?;
-        if gap.cmp_value(&allowance)!=Ordering::Greater {return Ok(Enclosure{lo:lower,hi:upper});}
+        if gap.cmp_value(&allowance)!=Ordering::Greater {
+            #[cfg(feature = "census-probe")]
+            probe.finish("converged",splits,lower,lower_hull,upper,a);
+            return Ok(Enclosure{lo:if driven {lower_hull} else {lower},hi:upper});
+        }
         let parent=live[highest];
         if parent.depth>=depth_limit || splits>=split_limit || live.len()>=live_limit {
-            spent.loaded_diagnostic=Some(Box::new(LoadedMaximumDiagnostic{row,member,lower:lower.parts(),upper:upper.parts()}));
+            #[cfg(feature = "census-probe")]
+            probe.finish("exhausted",splits,lower,lower_hull,upper,a);
+            spent.loaded_diagnostic=Some(Box::new(LoadedMaximumDiagnostic{row,member,lower:(if driven {lower_hull} else {lower}).parts(),upper:upper.parts()}));
             return Err(bad("loaded maximum search exhausted"));
         }
         live.swap_remove(highest);
         let (left,right)=split(&mut spent.numeric,parent.controls)?;
         for controls in [left,right] {
             spent.visit()?;
-            lower=max(lower,point_max(&mut spent.numeric,controls,a,z)?);
+            let point=point_max(&mut spent.numeric,controls,a,z)?;
+            #[cfg(feature = "census-probe")]
+            probe.point(controls,point,lower,parent.depth+1);
+            lower=max(lower,point);
+            if driven {lower_hull=max(lower_hull,point_max(&mut spent.numeric,controls,a,hull_z)?);}
             let bound=upper_bound(spent,controls,a,z)?;
             live.push(SearchNode{controls,upper:bound,depth:parent.depth+1});
         }
         splits+=1;
+        #[cfg(feature = "census-probe")]
+        probe.live(live.len());
         // Pruning keeps the lower bound's point live through its containing
         // node, and leaves at least one maximum-upper node for termination.
         let best=live.iter().map(|n|n.upper).max_by(|a,b|a.cmp_value(b)).unwrap();
         live.retain(|n|n.upper.cmp_value(&lower)==Ordering::Greater || n.upper.cmp_value(&best)==Ordering::Equal);
     }
+}
+#[cfg(feature = "census-probe")]
+pub(super) fn probe_parts(p:[[Enclosure;3];3],a:Enclosure,z:Enclosure)->Option<(Endpoint,Endpoint)> {
+    // The best control point's axial and bending lower ends, in a scratch owner.
+    let mut w=NumericWork::new();
+    let (left,_)=split(&mut w,p).ok()?;
+    let mut best:Option<(Endpoint,Endpoint,Endpoint)>=None;
+    for point in [p[0],left[2],p[2]] {
+        let axial=corners(&mut w,abs_range(point[0]),a,Entry::Div).ok()?;
+        let bending=norm2(&mut w,point[1],point[2]).ok()?;
+        let bending=corners(&mut w,bending,z,Entry::Div).ok()?;
+        let v=w.add(axial,bending).ok()?.lo;
+        if best.as_ref().is_none_or(|b|v.cmp_value(&b.0)==Ordering::Greater) {best=Some((v,axial.lo,bending.lo));}
+    }
+    best.map(|b|(b.1,b.2))
 }
 fn upper_bound(spent:&mut ProductCertificateSpent<'_>,p:[[Enclosure;3];3],a:Enclosure,z:Enclosure)->Result<Endpoint,ProductFailure>{upper(&mut spent.numeric,p,a,z)}
 

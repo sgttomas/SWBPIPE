@@ -23,3 +23,9 @@ mutation-controls = []
 # it through a dev-dependency only, never a product dependency. It adds no
 # field to any type.
 exact-operation-count = []
+# W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3.2 and
+# `w1e-sharper-exact-coverage.md` §6.2): the shared census probe, its records and
+# its test switches. Opt-in only: product_physics forwards it as its own
+# `census-probe` feature, no `[dev-dependencies]` entry enables it, and only the
+# census commands pass `--features census-probe`. Off, every switch reads as off.
+census-probe = []

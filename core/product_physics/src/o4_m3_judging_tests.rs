@@ -1001,3 +1001,9 @@ fn o4_census_source_work_single_members() { census_sweep("single_members", &["rf
 #[test]
 #[ignore = "census: source work limit on small frames (run with --ignored; O4_CENSUS_OUT)"]
 fn o4_census_source_work_small_frames() { census_sweep("small_frames", &["run2", "lframe"]); }
+
+// W1-E's product-side confirmation census (DEL-04-08 Design `w1e-sharper-exact-coverage.md`
+// §6.2): opt-in, `--features census-probe` only.
+#[cfg(feature = "census-probe")]
+#[path = "w1e_census_tests.rs"]
+mod w1e_census_tests;

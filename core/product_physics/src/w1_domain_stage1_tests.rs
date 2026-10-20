@@ -401,7 +401,7 @@ fn w1_loaded_maximum_is_the_kernel_projection_with_member_spans() {
 }
 
 /// Add the loaded beam without changing the sensitive ordinary member.
-fn w1_interior_publication_request(asymmetric:bool,tip_scale:f64)->Value {
+pub(super) fn w1_interior_publication_request(asymmetric:bool,tip_scale:f64)->Value {
         let mut beam=w1_interior_member_request(asymmetric);
         if asymmetric {
             // At tip_scale=-3 the independent stress polynomial is

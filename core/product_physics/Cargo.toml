@@ -31,6 +31,12 @@ serde_json = { version = "1", features = ["float_roundtrip"] }
 # U3 (decision 5): the accepted Rust reader validates the successor precommit.
 open_pipe_stress_result_export = { path = "../reporting/result_export" }
 
+[features]
+# W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3.2): the
+# kernel's opt-in census probe. No dev-dependency enables it; the guard test
+# `census_probe_is_off_in_the_ordinary_test_build` asserts it is off there.
+census-probe = ["open_pipe_stress_frame_kernel/census-probe"]
+
 [dev-dependencies]
 # RF source-method design §5.4: the J7 RF census's maintained control reads the
 # frame kernel's dev-only operation counter; test builds only, never the product.

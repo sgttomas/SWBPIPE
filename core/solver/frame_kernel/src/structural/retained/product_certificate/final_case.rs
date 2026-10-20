@@ -9,6 +9,19 @@ use super::source_residual::ResidualWork;
 use super::*;
 #[path = "loaded_maximum.rs"]
 mod loaded_maximum;
+/// The W1 coverage census probe and switches (`w1-coverage-repair.md` §3.2),
+/// compiled only under the opt-in `census-probe` feature.
+#[cfg(feature = "census-probe")]
+#[path = "census_probe.rs"]
+pub mod census_probe;
+/// The corner-1 repair's switch (W1 coverage repair §1.2). Off without
+/// `census-probe`, so the production search is today's.
+fn corner1() -> bool {
+    #[cfg(feature = "census-probe")]
+    { census_probe::switches().corner1 }
+    #[cfg(not(feature = "census-probe"))]
+    { false }
+}
 
 #[derive(Clone, Copy)]
 enum Scalar64 {
@@ -449,8 +462,14 @@ pub struct ProductCertificateSpent<'a> {
     /// capacities (elements), zero when the `ReducedSectionSet` is empty. The
     /// serialized `capacities` keep their seven slots.
     reduced_capacities:[usize;2],
+    /// W1 coverage census (§2.2, corner-2 switch): the gate's final scales.
+    #[cfg(feature = "census-probe")]
+    census_final_scales:Vec<[f64;4]>,
 }
 impl<'a> ProductCertificateSpent<'a> {
+    /// W1 coverage census (§2.2): the final per-body scales the gate used.
+    #[cfg(feature = "census-probe")]
+    pub fn census_final_scales(&self)->&[[f64;4]] { &self.census_final_scales }
     fn new(rows: &'a [ProductFinalRow<'a>]) -> Self {
         Self {
             rows,
@@ -468,6 +487,8 @@ impl<'a> ProductCertificateSpent<'a> {
             projection_outcomes:Vec::new(),projection_conversions:WorkTotal::zero(),
             lane_errors:[None,None],completion_merged:false,trace_copy_work:TraceCopyWork::default(),
             anchor:None,loaded_diagnostic:None,loaded_search_bytes:0,reduced_capacities:[0;2],
+            #[cfg(feature = "census-probe")]
+            census_final_scales:Vec::new(),
         }
     }
     /// O4 §4.5: [reduced-row index map, reduced-coverage vector] capacities
@@ -546,7 +567,9 @@ impl<'a> ProductCertificateSpent<'a> {
             projection_outcomes:self.projection_outcomes,projection_conversions:self.projection_conversions,
             lane_errors:self.lane_errors,completion_merged:self.completion_merged,trace_copy_work:self.trace_copy_work,anchor:self.anchor,
             loaded_diagnostic:self.loaded_diagnostic,loaded_search_bytes:self.loaded_search_bytes,
-            reduced_capacities:self.reduced_capacities }
+            reduced_capacities:self.reduced_capacities,
+            #[cfg(feature = "census-probe")]
+            census_final_scales:self.census_final_scales }
     }
     fn retain_lane(&mut self,result:Result<source_residual::LaneReadouts,bridge::BridgeError>,work:ResidualWork)
         ->Result<source_residual::LaneReadouts,ProductFailure> {
@@ -879,7 +902,14 @@ fn recipe_reduced(
         Some(rs) => (rs.area, rs.torsion_constant),
         None => (f.area, f.torsion_constant),
     };
-    let (a, z, j, c) = if represented {
+    // W1 coverage repair census (§3.2, switches (b) and (c)): the annular
+    // lane's stress recipe takes the admitted lane's section. Off without
+    // `census-probe`.
+    #[cfg(feature = "census-probe")]
+    let shared = census_probe::switches().shares_section();
+    #[cfg(not(feature = "census-probe"))]
+    let shared = false;
+    let (a, z, j, c) = if represented || shared {
         (
             Enclosure::point(lift(area)?),
             sec.represented_z.ok_or_else(|| bad("represented Z"))?,
@@ -916,7 +946,10 @@ fn recipe_reduced(
                         ends[e][c] = action(owner,values,member,ProductSite::End(end),component)?;
                     }
                 }
-                return loaded_maximum::search(spent,row,member,ends,curvature,a,z);
+                // W1 coverage repair §1.2: a lane whose Z is the represented hull
+                // and not a point is driven at z_lo (the corner-1 switch).
+                let driven = corner1() && (represented || shared) && z.lo.cmp_value(&z.hi) != Ordering::Equal;
+                return loaded_maximum::search(spent,row,member,ends,curvature,a,z,driven);
             }
             let mut best = None;
             for end in [End::I, End::J] {
@@ -1538,6 +1571,10 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts], 
     k_curvatures:&[(u32,[Enclosure;2])], s_curvatures:&[(u32,[Enclosure;2])])
     -> Result<(),ProductFailure> {
     let source=owner.source();
+        #[cfg(feature = "census-probe")]
+        census_probe::context(spent.rows.first().map_or("", |r| r.case_id), "gate");
+        #[cfg(feature = "census-probe")]
+        let mut probe_rows: Vec<census_probe::GateRow> = Vec::new();
         spent.coverage = summary_coverage_data(owner, data, spent)?;
         let nb=source.body_count() as usize;
         let (mut scales, reduced_map)=row_scales_reduced(owner,facts,reduced,spent)?;
@@ -1658,6 +1695,19 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts], 
             )?;
             let v = gate(spent, i, hull(represented, geometric), scale, input)?;
             spent.verdicts.push(v);
+            #[cfg(feature = "census-probe")]
+            if census_probe::switches().record {
+                probe_rows.push(census_probe::GateRow { row: i, k: represented, s: geometric, scale, input });
+            }
+        }
+        #[cfg(feature = "census-probe")]
+        {
+            spent.census_final_scales = scales.clone();
+            if census_probe::switches().record {
+                census_probe::gate_records(&census_probe::GateInputs { owner, facts, reduced, reduced_map: &reduced_map,
+                    k, s: source_values, k_curvatures, s_curvatures, rows: spent.rows, verdicts: &spent.verdicts,
+                    scales: &scales, gate_rows: &probe_rows });
+            }
         }
     Ok(())
 }
@@ -2122,6 +2172,8 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
     pub fn lane_debug(&self)->impl std::fmt::Debug+'_ {(&self.data.k,&self.data.source)}
     pub fn project(mut self)->ProductProjectionSpent<'s,'m> {
         let combination=!self.data.owner.prep.factors.is_empty();
+        #[cfg(feature = "census-probe")]
+        census_probe::context(self.data.specs.first().map_or("", |s| s.case_id), "projection");
         let result=(|| {
             let mut maxima=self.work.prepared_reserve(2,self.data.facts.len())?;
             let mut loaded=if self.data.owner.member_loads().iter().any(|l|l.intensity.iter().any(|w|*w!=0.0)) {

@@ -1267,6 +1267,17 @@ fn selection(e: &Enc, owner: &k::RetainedSolve, capture: &rp::ProductCapture,
     for (b, kind, v) in &ev.body_scales {
         scales.entry(*b).or_default()[*kind as usize] = *v;
     }
+    // W1 coverage census (§2.2, the corner-2 switch): the gate's final scales.
+    #[cfg(feature = "census-probe")]
+    if k::census_probe::switches().corner2 {
+        let finals = census_final_scales::take();
+        if finals.len() != scales.len() {
+            return Err(assoc("cases[].selection.body_scales"));
+        }
+        for (b, s) in finals.iter().enumerate() {
+            scales.insert(b as u32, s.map(f64::to_bits));
+        }
+    }
     let mut section_terms = Vec::with_capacity(capture.facts.len());
     for (i, f) in capture.facts.iter().enumerate() {
         let op = attempt.operational_new.get(i).and_then(|o| o.result.as_ref().ok()).ok_or(assoc("cases[].selection.section_terms[]"))?;
@@ -1320,6 +1331,16 @@ fn selection(e: &Enc, owner: &k::RetainedSolve, capture: &rp::ProductCapture,
         "theta":ev.theta.iter().map(|(b,v)|json!({"body":b,"value":e.bits(*v,P)})).collect::<Vec<_>>(),
         "certified_bound":ev.certified_bound.iter().map(|(b,v)|json!({"body":b,"value":e.ubits(*v,P)})).collect::<Vec<_>>(),
         "floor":ev.floor.as_ref().map(|f|f.iter().map(|(b,fo,mo)|json!({"body":b,"force":e.ubits(*fo,P),"moment":e.ubits(*mo,P)})).collect::<Vec<_>>())}))
+}
+
+/// W1 coverage census (§2.2): hands the certified proof's final scales to
+/// `selection` under the corner-2 switch. Compiled only under `census-probe`.
+#[cfg(feature = "census-probe")]
+mod census_final_scales {
+    use std::cell::RefCell;
+    thread_local! { static FINAL: RefCell<Vec<[f64; 4]>> = const { RefCell::new(Vec::new()) }; }
+    pub(super) fn set(s: &[[f64; 4]]) { FINAL.with(|f| *f.borrow_mut() = s.to_vec()); }
+    pub(super) fn take() -> Vec<[f64; 4]> { FINAL.with(|f| std::mem::take(&mut *f.borrow_mut())) }
 }
 
 fn lane_work(e: &Enc, w: &k::LaneWorkTrace<'_>) -> Value {
@@ -2143,6 +2164,8 @@ fn serialize_combination_attempt(e: &Enc, pc: &rp::ProductCapture, combination: 
                 return Err(assoc("combinations[].selection.absolute_verified"));
             }
             let recipes: Vec<k::ProductRecipe> = bound.iter().map(|r| r.recipe).collect();
+            #[cfg(feature = "census-probe")]
+            census_final_scales::set(certificate.work().census_final_scales());
             let selection_v = selection(e, owner, pc, &view, certificate.verdicts(), &recipes, &row_ids)?;
             let source_identity_sha256 = source_identity(&source_v)?;
             (json!({"kind":"ready"}), json!({"disposition":"retained_selected","method":METHOD,"call_ref":call.id,"product_attempt_ref":attempt_id,
@@ -2237,6 +2260,8 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
             binding.as_object_mut().ok_or(assoc("sources[]"))?.remove("index");
             domain_hash("retained_precision_source_mp_v2", &binding).ok_or(fail(ReceiptCheck::Encoding, "cases[].source_identity_sha256"))?
         };
+        #[cfg(feature = "census-probe")]
+        census_final_scales::set(certificate.work().census_final_scales());
         let selection_v = selection(e, owner, pc, &view, certificate.verdicts(), &recipes, &row_ids)?;
         let part = json!({"status":"selected","method":METHOD,"run":run_v,"source_ref":run.source,"source_identity_sha256":source_identity,"selection":selection_v});
         return Ok((attempt_v, Some((run.source, source)), part));

@@ -380,6 +380,11 @@ fn coefficients(
             coefficients.coefficient_differences[i]=Endpoint::ZERO;
         }
     }
+    // W1 coverage census (§3.2, switches (b) and (c)), annular lane only.
+    #[cfg(feature = "census-probe")]
+    if w.readout_law == ReadoutLaw::AnnularSource {
+        super::final_case::census_probe::lane_override(&input, &mut coefficients, shear_leaf(view, i)?)?;
+    }
     Ok(coefficients)
 }
 fn member(

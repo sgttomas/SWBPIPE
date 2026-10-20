@@ -1174,5 +1174,8 @@ impl RecordedInvocation {
 pub use super::product_certificate::{NumericTrace, NumericError, TraceCopyWork, PreparationEndpoint, PreparationConversion};
 pub use super::product_certificate::source_residual::{ReadoutLaw,RadiusLaw,ViewFailure,BridgeFailure,LaneWorkTrace};
 pub use super::product_certificate::final_case::{ProductFailureView,HelperFailure,LaneTrace,ProductProofTrace};
+/// The W1 coverage census probe (DEL-04-08 `w1-coverage-repair.md` §3.2), opt-in only.
+#[cfg(feature = "census-probe")]
+pub use super::product_certificate::final_case::census_probe;
 
 pub(crate) use super::product_certificate::final_case::{LoadedValue,MemberValuesWork,LOADED_SEARCH_NODE,LOADED_SEARCH_HEAP_MAX};

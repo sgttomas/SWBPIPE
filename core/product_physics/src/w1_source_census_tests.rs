@@ -1237,6 +1237,21 @@ fn b4_early_exact_material_binding_uses_authoritative_subnormal_words() {
 #[path = "w1_domain_stage1_tests.rs"]
 mod w1_domain_stage1_tests;
 
+// The W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3,
+// `w1e-sharper-exact-coverage.md` §6.2): opt-in, `--features census-probe` only.
+#[cfg(feature = "census-probe")]
+#[path = "w1_coverage_census_tests.rs"]
+mod w1_coverage_census_tests;
+
+/// W1 coverage repair §3.2: the census probe is opt-in. No dev-dependency enables it,
+/// so the ordinary test build (and the stack-witness build) compiles the kernel without
+/// it. A census command, which passes `--features census-probe`, does not run this test.
+#[test]
+fn census_probe_is_off_in_the_ordinary_test_build() {
+    assert!(!open_pipe_stress_frame_kernel::structural::retained_api::CENSUS_PROBE,
+        "the frame kernel was compiled with the census probe in an ordinary test build");
+}
+
 /// T4-U4b S4 (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the failed-ordinary manifest
 /// carries each member's 15 derived rows after its circular maximum (66 rows per member, in
 /// preview-physics-2's order) as placeholders, and the freeze forms them from the projected rows.
