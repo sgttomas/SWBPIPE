@@ -350,7 +350,9 @@ fn w1_final_scales_equal_reader_scales() {
         assert!(now == "ok" || !now.starts_with("G5b"), "{label}: no G5b refusal ({now})");
         checked += 1;
     }
-    // 13 fixtures, and the corpus's 44 producer-solved and 5 hook-produced bases (the two
-    // halfway controls included).
-    assert_eq!(checked, 13 + 49, "every committed successor fixture and producer or hook corpus base");
+    // 13 fixtures, and the corpus's 44 producer-solved and 7 hook-produced bases (the
+    // halfway and D = 0.2 m controls included); the two hook-driven exhaustion bases run
+    // only under `loaded-maximum-hooks`.
+    let exhaustion = if cfg!(feature = "loaded-maximum-hooks") { 2 } else { 0 };
+    assert_eq!(checked, 13 + 49 + exhaustion, "every committed successor fixture and producer or hook corpus base");
 }
