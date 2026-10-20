@@ -306,6 +306,8 @@ code_paths:
 - validation/qualification/fixtures/exact_pressure/**
 - tools/validation/qualification_exact_pressure.py
 - tests/test_qualification_exact_pressure.py
+- fixtures/results/pressure_u4b_arc_sparse.json
+- fixtures/model_operations/pressure_v3_l_line_authoring.json
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/pressure_runtime.rs

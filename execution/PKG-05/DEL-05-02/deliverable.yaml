@@ -241,6 +241,8 @@ code_paths:
 - apps/desktop/src/test-support/currentCarrierHeader.ts
 - apps/desktop/src/test-support/retiredMechanicsResult.ts
 - apps/desktop/src/test-support/retiredPrecision.ts
+- fixtures/results/pressure_load_state_*.json
+- fixtures/results/pressure_source_load_state_*.json
 checks:
 # Rust (hosted numerical selection).
 - core/loads/load_case_algebra/src/lib.rs

@@ -158,6 +158,9 @@ code_paths:
 - apps/desktop/src/features/results/outputPolicy.ts
 - apps/desktop/src/test-support/retainedPrecision*
 - apps/desktop/src/test-support/baseReaderInputs.ts
+- tests/test_o4_source_verifier.py
+- tests/test_o4_text_only_envelope_diff.py
+- validation/references/o4_retained_source/**
 checks:
 - core/reporting/result_export/tests/retained_precision_contract.rs
 - core/reporting/result_export/tests/retained_precision_carriers.rs
