@@ -48,7 +48,7 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
   - run the product-side confirmation census (section 6.2) before the owner rules on any definition lever.
   
   Expected coverage gain: none. Cost: one ScopeOfWork text, one maintained AC-006 test, and the census.
-- **Options that would gain coverage** (section 5). Each changes a reviewed definition, the verified claim or a predicate, so each needs the owner's ruling. No recommendation is made. Ceilings are for the 54 sensitive documents.
+- **Options that would gain coverage** (section 5). Each changes a reviewed definition, the verified claim or a predicate, or (U1 (iv)) needs the owner's reading of one, so each needs the owner's ruling. No recommendation is made. Ceilings are for the 54 sensitive documents.
 
   | Option | What it changes | Ceiling alone | With Z1 |
   |---|---|---|---|
@@ -115,10 +115,10 @@ Let S_hi be an upper bound on the row's true scale (3.1). For any n, the row is 
 - **Absolute class.** It requires S > 2^34·|n|. Its bound RU64(2^-64·S) grows with S, so the best admissible S is S_hi.
 
 A row can pass for some n and some S ≤ S_hi only if one of the following candidates passes, each judged in its own best class:
-- **The SI values nearest the midpoint (ℓ + u)/2.** Within one class, a step of n changes the allowance by about 2^-53 of a unit, while h changes by up to a unit. So it suffices to evaluate the seven values nearest the midpoint.
+- **The SI values nearest the midpoint (ℓ + u)/2.** Within one class, a step of n changes the allowance by a small fraction of a unit: about 2^-53 of a unit, or up to about 2^-30 where S = 2^34·|n|. Meanwhile h changes by up to a unit. So it suffices to evaluate the seven values nearest the midpoint.
 - **The class boundaries.** The smallest-magnitude relative-class values, ±RU64(2^-34·S_hi), are evaluated too, because the allowance jumps there. The Codex reviewer constructed a fixed-S row that passes only at the boundary.
 
-The bound therefore holds whatever the proof, whatever the enclosures' widths or shape, and whatever value is published, including a value chosen by a search. Its one premise is S ≤ S_hi. The p = 512 floor, which section 3 does not model, can raise the true S above S_hi for near-zero bodies.
+The bound therefore holds whatever the proof, whatever the enclosures' widths or shape, and whatever value is published, including a value chosen by a search. Its premises are S ≤ S_hi and the ordinary-scale regime S ≥ 2^-988. Below 2^-988 the gate uses `small_row_bound` (`final_case.rs` about 1043; `directed/certificate.rs` about 167), which this argument does not model. On O4's judged set the smallest positive scale is about 8.2 × 10^-7, so that branch is not reached there. The p = 512 floor, which section 3 does not model, can raise the true S above S_hi for near-zero bodies.
 
 ### 2.2 The ceiling under the fixed projection
 
@@ -150,9 +150,9 @@ A standard-library Python replay was run in `/tmp` scratch. It is not committed,
   - coupled by the body's bounding-box diagonal, as `couple` and `body_extent` do;
   - for stresses, S_force/Â + S_moment/Ẑ with the prepared leaves.
   
-  Every row is judged at its best admissible S ≤ S_hi in each class (2.1). Both reviewers' independent replays, with S formed from the published |n| and with the magnitudes included, gave the same document counts. The p = 512 Φ floor is not modelled; it raises S only for near-zero bodies (o4-source-extension.md §4.2).
+  Every row is judged at its best admissible S ≤ S_hi in each class (2.1). The Claude reviewer's replay with S formed from the published |n|, without the magnitudes, reproduced revision 1's table. Its round-3 replay with the magnitudes and the best-class rule reproduces this revision's table, and the Codex reviewer's magnitude-inclusive replay gave the same both-readout counts. The p = 512 Φ floor is not modelled; it raises S only for near-zero bodies (o4-source-extension.md §4.2).
 - **Robustness.** Re-running with every reference value perturbed independently by ±10^-37 relative, under three seeds, changed no verdict. A reviewer's run at ±10^-24 changed none either.
-- **Independent reproduction.** Both reviewers reproduced every cell of revision 1's table independently, from their own code. That table's last two rows (no unit rounding) equal the any-value rows here. They also reproduced the U1 (i) and U1 (ii) figures of section 5 or the facts they rest on.
+- **Independent reproduction.** Both reviewers reproduced every cell of revision 1's table independently, from their own code. That table's last two rows (no unit rounding) equal the any-value rows here for the two readouts together and against the annular readout. They also reproduced the U1 (i) and U1 (ii) figures of section 5 or the facts they rest on.
 
 ### 3.2 Results
 
@@ -199,7 +199,7 @@ Only the represented Z and the unit rounding together clear most sensitive docum
 
 ## 4. The suggested remedies, examined
 
-1. **A tighter or different proof.** It cannot raise the any-value bound (2.1). Under the fixed projection, a proof can change the outcome only by moving the hull's midpoint into another projection cell. That chooses the published value, which section 5 treats as U1 (i).
+1. **A tighter or different proof.** It cannot raise the any-value bound (2.1). Under the fixed projection, a proof can change the outcome only by moving the hull's midpoint into another projection cell. That chooses the published value through the enclosure's shape, which section 5 presents as U1 (iv), with its admissibility left to the owner's reading of DEF-E.
 2. **A better projection.**
    - For SI rows, RN64 of the midpoint is already the best value.
    - For unit rows, any other recipe edits DEF-E `projection.H`. A deterministic recipe that targets the SI value is bounded by the any-value rows, because y ↦ RN64(y/1000) can skip binary64 values. A recipe that searches is U1 (i).
@@ -219,14 +219,14 @@ Only the represented Z and the unit rounding together clear most sensitive docum
 
 ## 5. Options that need the owner's ruling (no recommendation)
 
-The ceilings are for the 54 sensitive judged documents, from section 3's replay under the fixed projection unless stated otherwise. Alpha (24 runs) and preparation (16 runs) failures would still fail closed under every option. Implementing any option needs its own design, the independent numerical review, and an actual-source D3, because each moves reviewed inputs. Each also re-pins committed route-E successors and their DEF-E-bound hashes, and Z1 also route L's.
+The ceilings are for the 54 sensitive judged documents, from section 3's replay under the fixed projection unless stated otherwise. Alpha (24 runs) and preparation (16 runs) failures would still fail closed under every option. Implementing any option needs its own design, the independent numerical review, and an actual-source D3. Every option except U1 (iv) moves reviewed inputs and re-pins committed route-E successors and their DEF-E-bound hashes, and Z1 also route L's. U1 (iv) does so only if the owner's reading requires a definition change.
 
 - **Z1. The admitted bending stress on the single Ẑ.**
   - *What changes:* DEF-O and DEF-E `rows.component_stress` ("admitted-K bending Z is hull(actual Z,I_K/c)"). The admitted readout's bending stress would mean M/Ẑ only.
   - *Ceiling:* alone, 0 → 24 of 54.
   - *Consequence:* the verified claim no longer covers a bending stress formed from the stiffness second moment, M·c/Î. Such a value would still lie within 10^-9, but not within the sharper allowance. It narrows the interval the gate measures against, so AX-005 ("A gate is never loosened to obtain a pass") bears on it as well as the definition ruling.
   - *Notes:* the W1 coverage repair's escalation names this lever for route L too (§3.3). One ruling should cover both routes.
-- **U1. How a unit row's published value and SI value are judged.** Three forms, each with its own consequence:
+- **U1. How a unit row's published value and SI value are judged.** Four forms, each with its own consequence:
   - **(i) A search** for the published unit value whose SI normalization passes, within ±4 binary64 steps.
     - *Ceiling:* 1/54 alone, 42/54 with Z1.
     - *Consequence:* REQ-003 (e) fixes "`projection_retry: false` and `search_or_retry: none`" as reviewed inputs. A search to obtain a pass is what REQ-003 (e) and AX-005 prohibit.
