@@ -215,8 +215,6 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **REQ-006** — These domains are declined and stated as limits. Each publishes its ordinary results.
   - **(a)** [retired by O4, #1468]
   - **(b)** [retired by the W1 coverage repair, #<PR>]
-    - Binary64-halfway exact force and moment scale maxima fail G5b (`RETAINED_PRECISION_SCALE_MISMATCH`) before commit.
-    - It is refused inside the method, and the case keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. The G5b refusal is a precommit fault, so it withdraws the whole successor and every attempted case falls back.
   - **(c) No desktop outputs for the current exact identity.**
     - Exact-route results (`pressure-2`, `pressure-source-1`) solve and can be viewed on the desktop with the Rust reader's standing, but every desktop output surface refuses them (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`). The Python AnalysisRun record and the stress-neutral export accept them.
     - No desktop solve produces a retained-precision successor before B8. If one is opened on the desktop, every output surface refuses it (`RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE`), except the result JSON and stress-neutral exports, which admit it only at numerically eligible standing and with the live native capture of its exact bytes.
@@ -226,10 +224,12 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - **Route E** also excludes present pressure regions, named-point modulus bases and combinations.
     - Arcs publish no rows on the retained identities.
     - **Retained-source recovery:** admits only straight circular members with linear restraints or springs. It declines present pressure regions (zero pressure included), components, nonlinear supports and non-nodal ordinary applied loads, and excludes combinations and models above 256 degrees of freedom.
-  - **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values. Three definitions of the method keep some rows from meeting it:
+  - **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values, and each `absolute_verified` row's within its absolute bound. Five properties of the method keep some rows from meeting it:
     - the admitted readout's bending stress ranges over hull(Ẑ, Î/c);
     - the admitted readout's binary64 section, shear and modulus leaves differ from the exact annulus readout's by up to a few binary64 units, and every stress row inherits the section leaves' difference;
-    - a millimetre or megapascal value is rounded in its unit and again when normalized to SI.
+    - a millimetre or megapascal value is rounded in its unit and again when normalized to SI;
+    - an unloaded member's circular maximum publishes the ordinary binary64 value, and a support magnitude the norm of the rounded components, rather than the projection of the readouts' midpoint;
+    - near an exact zero, the annular readout's enclosure can be wider than the absolute bound.
 
     A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's (Design `w1e-sharper-exact-coverage.md`).
   - **(f) Loaded-member maxima too wide for the gate.** A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause. Recorded under the owner's decision of 2026-10-20 ("I approve 1A, 2A, 3A."; Design `w1-coverage-repair.md` §10).

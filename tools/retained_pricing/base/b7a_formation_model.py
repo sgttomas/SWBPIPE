@@ -26,7 +26,9 @@ SOURCE_FILES = {
     # (per-element groups, one Vec<bool> of the free DOFs per contribution audit; priced by U5B-AB) and add the tie
     # rod's stiffness (components only: P3) and the arc maximum's module; source_recovery.rs adds
     # `contribution_groups: None` and comment/path text. No formed-load traversal or finding owner changes.
-    "core/solver/frame_kernel/src/structural.rs": "52c48f5edf3e59b7ed79bf6659e11b9f82738afd80ea9682549aab85f800aeba",
+    # W1 coverage repair D3 (§8.11): retained_api adds the CENSUS_PROBE const (cfg!, no allocation) and a census_probe
+    # re-export under the off feature (W1R-FG). No formed-load traversal or finding owner changes.
+    "core/solver/frame_kernel/src/structural.rs": "10651e4ddc0c8f4434254032d7e0b28dbda07455d96da66d7315400a0214b1c3",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.

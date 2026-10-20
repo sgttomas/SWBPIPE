@@ -73,6 +73,8 @@ import loopscan
 sys.setrecursionlimit(100000)
 
 root, out_path, root_names = sys.argv[1], sys.argv[2], sys.argv[3].split(",")
+# W1R-FG (retained-pricing-rules.md §8.11): files the registered build does not compile (guarded in loopscan).
+OFF_BUILD = loopscan.off_build_files(root)
 paths = []
 for p in sys.argv[4:]:
     full = os.path.join(root, p)
@@ -81,7 +83,7 @@ for p in sys.argv[4:]:
             if "/target" in d or "/tests" in d or "/benches" in d or "/bin" in d and "src/bin" in d:
                 continue
             for f in sorted(fs):
-                if f.endswith(".rs") and "test" not in f:
+                if f.endswith(".rs") and "test" not in f and os.path.relpath(os.path.join(d, f), root) not in OFF_BUILD:
                     paths.append(os.path.relpath(os.path.join(d, f), root))
     else:
         paths.append(p)
@@ -128,7 +130,7 @@ def strip(text):
     if os.environ.get("CG_LEXER", "rust") != "regex":
         # R1g: the G3 regexes mis-lexed `\`-newline strings and `'"'`; R1k: test items are blanked
         # wherever they sit (G3 cut the file at its first test module)
-        return loopscan.blank_test_items(loopscan.blank_rust(text))
+        return loopscan.blank_test_items(loopscan.blank_rust(text), text)   # W1R-FG: with the raw text
     m = re.search(r"#\[cfg\(test\)\]\s*\n\s*(pub(\(crate\))?\s+)?mod\s+\w+\s*\{", text)
     if m:
         text = text[:m.start()]

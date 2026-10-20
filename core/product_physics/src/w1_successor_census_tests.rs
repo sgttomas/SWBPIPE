@@ -274,9 +274,10 @@ fn w1_annulus_boundary_is_a_real_preparation_fallback() {
 /// producer-solved or hook-produced corpus base (the hook-driven genuine-exhaustion
 /// control only under `--features loaded-maximum-hooks`), the receipt's body scales, now the
 /// final scales the product gate used, equal the committed ones (formerly native), body
-/// by body and kind by kind, and the unchanged reader's G5b body-scale equality holds
-/// (validation passes or refuses only after G5b). The census ran the same check over
-/// every census input (Design `w1-coverage-repair.md` §3).
+/// by body and kind by kind, and the unchanged reader gives the regenerated document
+/// exactly the verdict it gives the committed one (both pass, or both refuse at the same
+/// gate and code). The census ran the same check over every census input where it is
+/// observable (Design `w1-coverage-repair.md` §3.5).
 #[test]
 fn w1_final_scales_equal_reader_scales() {
     let scales = |s: &Value| -> Vec<Value> {
@@ -289,7 +290,6 @@ fn w1_final_scales_equal_reader_scales() {
         }
         v
     };
-    let after_g5b = ["G5c", "G6", "G7", "G8"];
     let mut checked = 0;
     let mut documents: Vec<(String, Value, Option<String>)> = Vec::new();
     for (name, bytes) in [
@@ -341,11 +341,16 @@ fn w1_final_scales_equal_reader_scales() {
         let ((_, _), _, captured) = if exhaustion { continue } else { run() };
         let current = captured.unwrap_or_else(|| panic!("{label}: no successor"));
         assert_eq!(scales(&current), scales(&d["source"]), "{label}: final scales equal the committed scales");
-        match open_pipe_stress_result_export::retained_precision::validate(&current, Some(invocation)) {
-            Ok(_) => {}
-            Err(e) => assert!(after_g5b.contains(&e.gate.as_ref()), "{label}: refused at {} {} (G5b or earlier)", e.gate, e.code),
-        }
+        let verdict = |doc: &Value| match open_pipe_stress_result_export::retained_precision::validate(doc, Some(invocation)) {
+            Ok(_) => "ok".to_owned(),
+            Err(e) => format!("{} {}", e.gate, e.code),
+        };
+        let (now, committed) = (verdict(&current), verdict(&d["source"]));
+        assert_eq!(now, committed, "{label}: the reader's verdict on the regenerated document");
+        assert!(now == "ok" || !now.starts_with("G5b"), "{label}: no G5b refusal ({now})");
         checked += 1;
     }
-    assert!(checked >= 13 + 25, "every committed successor and producer corpus base ({checked})");
+    // 13 fixtures, and the corpus's 44 producer-solved and 5 hook-produced bases (the two
+    // halfway controls included).
+    assert_eq!(checked, 13 + 49, "every committed successor fixture and producer or hook corpus base");
 }

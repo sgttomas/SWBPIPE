@@ -44,9 +44,11 @@ RF_PINS = {
 # tie-rod/displacement additions change no reduction's owner or lifetime.
 # T4-S6 D3 (§8.8, S6-HS): retained_wire.rs's domain_hash streams its digest (domain_text and DomainPayload deleted);
 # no reduction's owner or lifetime changes. T4-S7: retained_wire.rs's domain_hash doc comment only.
+# W1 coverage repair D3 (§8.11): retained_wire.rs's selection borrows the certified proof for its final scales;
+# no reduction's owner or lifetime changes.
 REDUCED_PINS = {
     "core/product_physics/src/lib.rs": "70cd91d53134c95842bdbabe1a2e463407427fb8af4e15d3269ebd1ea8a8d1b6",
-    "core/product_physics/src/retained_wire.rs": "559f4d0ae4b3b2a9405d3aa8199d5ccbc10d03775a0b38544e10eed31b1806eb",
+    "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
     "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",

@@ -14,6 +14,8 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 - the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
 - the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
 
+**Revision 8** records the owner's rulings of 2026-10-20 ("I approve 1A, 2A, 3A."): Z1 is not adopted, and the REQ-006 (e) amendment is applied by HELP_HUMAN through #1482 (6.1, 9).
+
 **Revision 7** records REQ-006 (e) as applied through #1481 with section 6.1's original text, keeps revision 6's two added causes as a proposed amendment reserved for the owner (6.1, 9), and names the maintained AC-006 test.
 
 **Revision 6** answers the Claude review of the census report (second round), from the re-run with per-row diagnostics. It proposed adding to the REQ-006 (e) text two more causes the census found: maxima and support magnitudes published as binary64 values, and the annular enclosure's width against the absolute bound near zero (6.1). The causes and the attribution separate that proof width (6.3). The product reproduces the replay's ceiling exactly on the replay's own rows. The Z1 any-value failures are reconciled document by document (6.3).
@@ -266,7 +268,7 @@ The ceilings are for the 54 sensitive judged documents, from section 3's replay 
 
 ## 6. The recommended path
 
-### 6.1 Stating the corner as a limit (applied as REQ-006 (e) through #1481)
+### 6.1 Stating the corner as a limit (applied as REQ-006 (e) through #1481, amended through #1482)
 
 HELP_HUMAN applied this text verbatim as DEL-04-08 ScopeOfWork REQ-006 (e), through #1481 (merge `d26f1f0f5a`), under the owner's decision of 2026-10-20 (section 9):
 
@@ -277,11 +279,9 @@ HELP_HUMAN applied this text verbatim as DEL-04-08 ScopeOfWork REQ-006 (e), thro
 >
 > A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's (Design `w1e-sharper-exact-coverage.md`).
 
-**Proposed amendment, for the owner** (revision 6, from the census's causes, 6.3). The census found two causes the applied text does not list, and absolute-class rows, which it does not name. Amending REQ-006 (e) changes a commitment, so it is the owner's. The proposal replaces "Three definitions of the method keep" with "Five properties of the method keep", inserts after "exact values" the words ", and each `absolute_verified` row's within its absolute bound", and appends two items:
+**Amendment, applied through #1482** (merge `816ec66225`; owner, 2026-10-20, "I approve 1A, 2A, 3A.", 3A; proposed in revision 6 from the census's causes, 6.3). The census found two causes the first text did not list, and absolute-class rows, which it did not name. The amendment replaces "Three definitions of the method keep" with "Five properties of the method keep", inserts after "exact values" the words ", and each `absolute_verified` row's within its absolute bound", and appends two items:
 > - an unloaded member's circular maximum publishes the ordinary binary64 value, and a support magnitude the norm of the rounded components, rather than the projection of the readouts' midpoint;
 > - near an exact zero, the annular readout's enclosure can be wider than the absolute bound.
-
-Without the amendment, the applied text understates the corner's causes; the declined outcome is the same.
 
 **AC-006 consequence.** "Each decline in REQ-006 is exercised by a maintained test that asserts its refusal." The implementation therefore adds one maintained test, which is test code and not this PR. Its input is a sensitive judged-set document that the census (6.2) records ending at the final gate with `Cause::Predicate` and `SharperExact`, in both solver modes. No committed record establishes such a document today. The test asserts:
 - that refusal;
@@ -400,8 +400,12 @@ Every gate, predicate, tolerance, limit, precision ladder and projection; DEF-O,
 ## 9. Reserved for the owner
 
 **Owner decisions, 2026-10-20** ("For the five decisions you put to me I approve your recommended option in each case"):
-- **REQ-006 (e).** HELP_HUMAN applies section 6.1's text to the ScopeOfWork, and reports it, once census 6.2 reproduces the ceiling on the product. The census runs in b7-plan's epoch 6. Applied through #1481 (`d26f1f0f5a`); section 6.1's proposed amendment is reserved for the owner.
+- **REQ-006 (e).** HELP_HUMAN applies section 6.1's text to the ScopeOfWork, and reports it, once census 6.2 reproduces the ceiling on the product. The census runs in b7-plan's epoch 6. Applied through #1481 (`d26f1f0f5a`) and amended through #1482 (`816ec66225`) under 3A.
 - **Coverage options.** Z1 is decided together with the W1 coverage repair's own definition question. The other options are not pursued unless the owner later chooses to change the claim for coverage.
+
+**Owner decisions, 2026-10-20** (relayed by HELP_HUMAN: "I approve 1A, 2A, 3A."):
+- **1A. Z1 is not adopted.** The admitted readout's represented Z stays hull(Ẑ, Î/c) on both routes, and the W1 coverage repair's corner 1 lands as designed. The other coverage options (U1 (i)–(iv), R1, R1′, C1) are not pursued unless the owner later chooses to change the claim for coverage.
+- **3A.** Section 6.1's amendment to REQ-006 (e) is applied on main by HELP_HUMAN through #1482 (`816ec66225`).
 
 The options as presented:
 

@@ -2,7 +2,9 @@
 
 This is the implementation design for the sixth post-T3 shared epoch ([b7-plan.md](b7-plan.md), "After B7b", item 6). It repairs the causes of W1's first two fail-closed corners ([w1-member-load-certification.md](w1-member-load-certification.md) §4.4, "Corners that fail closed"; DEL-04-08 ScopeOfWork REQ-006 (b)). Every gate, search limit, verification law, tolerance and domain limit stays unchanged. The epoch starts with a census of how often current sections and maxima reach each corner (section 3).
 
-**Status: the census probe, switches and targets are on the repair's branch; the census runs there; production paths are unchanged.** The basis is main `257b44b910`: epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476, b7-plan item 5a, D3 at `6b90748dec`) are merged. Section 0 records each assumption as re-checked against that source. Corner 1's production switch waits for the owner's Z1 ruling (b7-plan item 6; [w1e-sharper-exact-coverage.md](w1e-sharper-exact-coverage.md) §9), because adopting Z1 would make the admitted Z a point and the corner-1 path dead.
+**Status: the census has reported (3.5); corner 2 is implemented; the owner has ruled Z1 not adopted (2026-10-20, "I approve 1A, 2A, 3A."; section 11), so corner 1 lands as designed.** The basis is main `257b44b910`: epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476, b7-plan item 5a, D3 at `6b90748dec`) are merged. Section 0 records each assumption as re-checked against that source. Corner 2 lands first as its own PR. Corner 1's production switch, with the decided REQ-003 (e) clause and the owner's section 10 edits, lands in the PR that follows it.
+
+**Revision 12** records the owner's rulings of 2026-10-20 ("I approve 1A, 2A, 3A."): Z1 is not adopted, so corner 1 lands as designed (1A); section 10's proposed ScopeOfWork edits are decided, with their placement (2A); and the REQ-006 (e) amendment is applied on main (3A, w1e §6.1). Corner 2 lands as its own PR first.
 
 **Revision 11** answers the Claude review of the census report (second round): where native and final scales diverge is restated with the support-magnitude cause the census shows dominates (Summary, 2.1, 3.5), the gating check's scope is stated as built (2.2, 3.5, section 5), the regression condition's stack-witness part is reported separately (3.5), and the C1-b de-duplicated escalation, the pre-registered count, the self-check's limits and two inputs' scope are stated (3.5).
 
@@ -170,7 +172,7 @@ The corner is a provenance inconsistency in one receipt field. The gate, the cla
 
 ### 2.2 The repair
 
-- The product certificate keeps the final per-body scales it computed in `check_intervals`, coupled and floored, as part of its proof, and exposes them with the verdicts. As built, those scales are the `scales` vector that `row_scales_reduced` reserves (its capacity is `capacities[6]`) and `check_intervals` couples and floors in place (`final_case.rs` 1536–1557). The repair returns that vector from `check_intervals` to `certify_final`, which moves it into the `CertifiedProductProof` it builds, instead of dropping it. So no allocation is added and no capacity moves. The vector is not stored in the work owner `ProductCertificateSpent`: that type's size is a priced constant (`retained_resource.rs` `PRODUCT_CERTIFICATE_SPENT`) embedded in every draft, failure and proof, some of them in frames on 5a's peak chain (revision 8). What changes is one `Vec` field on the certified proof and the heap vector's lifetime, from the end of `check_intervals` to the proof's drop after serialization; D3 prices both (section 6). Following O4's layout discipline (o4-source-extension.md §4.2), every serialized proof structure and capacity is unchanged, including `capacities[6]`. A pin test asserts it.
+- The product certificate keeps the final per-body scales it computed in `check_intervals`, coupled and floored, as part of its proof, and exposes them with the verdicts. As built, those scales are the `scales` vector that `row_scales_reduced` reserves (its capacity is `capacities[6]`) and `check_intervals` couples and floors in place (`final_case.rs` 1536–1557). The repair returns that vector from `check_intervals` to `certify_final`, which moves it into the `CertifiedProductProof` it builds, instead of dropping it. So no allocation is added and no capacity moves. The vector is not stored in the work owner `ProductCertificateSpent`: that type's size is a priced constant (`retained_resource.rs` `PRODUCT_CERTIFICATE_SPENT`) embedded in every draft, failure and proof, some of them in frames on 5a's peak chain (revision 8). What changes is one `Vec` field on the certified proof and the heap vector's lifetime, from the end of `check_intervals` to the proof's drop after serialization; D3 prices both (section 6). Following O4's layout discipline (o4-source-extension.md §4.2), every serialized proof structure and capacity is unchanged, including `capacities[6]`. A pin test asserts it (`w1_final_scales_reuse_the_reserved_capacity`).
 - `selection` writes `body_scales` from those final scales, for selected cases (`retained_wire.rs` about 2240) and for combinations (about 2146) alike. Both call `selection` with the certified product proof in hand.
 - **Same bodies.** The native publication lists every body 0..nb, four kinds each (`adaptive.rs` `publication_with`, 3136–3144), and the final scales have one entry per body of the same source (`row_scales_reduced` sizes them by `body_count`). The receipt's body list does not change shape.
 - The native evidence's scales stay native evidence. They still feed the native publication certificate unchanged, and no other receipt field changes source.
@@ -331,7 +333,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 
 **The probe's own checks held everywhere.**
 - The unaltered counterfactual reproduced the published values, the final scales and every actual verdict on all 4,122 gate-case records: the 3,338 of the corner runs (C1-a 188, C1-b 1,428, C2-a 680, C2-b 532, W1-E 510) and W1-E's 784 (b)/(c) re-run records.
-- **The self-check's limits.** It is a check of the probe's recomputation, so it is trivially satisfied on rows the probe copies rather than recomputes (unloaded maxima, records and not-covered rows). Recording and the null override are trivially satisfied on the 19 of 173 C1-a and C2-a invocations that produce no candidate. No gate case ran at p = 512, so the floor branch of the final scales is not exercised by the census; it rests on section 5's `w1_receipt_scales_are_the_gate_scales`, whose case has an active floor. An independent re-tabulation also checked invariants over all 801,168 row records with no violation: on non-bending rows (a) equals the base and (a)+X equals X; a base pass implies a pass under any value, the unit search and R1; on SI rows (d) and (d'') equal the base; and on w = 0 loaded members (a) equals the base.
+- **The self-check's limits.** It is a check of the probe's recomputation, so it is trivially satisfied on rows the probe copies rather than recomputes (unloaded maxima, records and not-covered rows). Recording and the null override are trivially satisfied on the 19 of 173 C1-a and C2-a invocations that produce no candidate. No gate case ran at p = 512, so the floor branch of the final scales is not exercised by the census; it rests on section 5's `w1_receipt_scales_keep_the_p512_floor`, whose case has an active floor. An independent re-tabulation also checked invariants over all 801,168 row records with no violation: on non-bending rows (a) equals the base and (a)+X equals X; a base pass implies a pass under any value, the unit search and R1; on SI rows (d) and (d'') equal the base; and on w = 0 loaded members (a) equals the base.
 - On all 173 C1-a and C2-a invocations, recording moved nothing and the null lane override reproduced today's candidate.
 - Today's candidate equalled the committed document on 73 committed inputs. The 7 that differ are corpus bases written with a hook or derived statement, run here without it (`d38_beside_selected`, four `b2_*` bases, `o4_w1e_unavailable` as corpus base and fixture). The maintained gating check applies their hooks (below).
 - The switched-path control held: under (b) and (c) both lanes are driven and converge on the D = 0.2 m control.
@@ -404,7 +406,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 C1-a is unchanged under Z1: 46 of 46 maxima and 52 of 52 cases pass either way. Route E's figures are in w1e-sharper-exact-coverage.md §6.3.
 
 **Decision rules applied (3.3).**
-- *Corner 1:* the regression condition holds, no stop condition holds and the escalation does not fire. Its production switch waits for the owner's Z1 ruling (status, section 11).
+- *Corner 1:* the regression condition holds, no stop condition holds and the escalation does not fire. Its production switch waited for the owner's Z1 ruling; Z1 is not adopted (owner, 2026-10-20, "I approve 1A, 2A, 3A."; section 11), so corner 1 lands as designed.
 - *Corner 2:* final = readers on every census input where observable; implemented once the maintained gating check holds on the production change (committed fixtures and corpus bases).
 
 ## 4. What stays unchanged
@@ -434,7 +436,7 @@ Each is introduced into a scratch copy, run, reverted and recorded in the PR. Te
 | Under (b) or (c), the annular lane searched undriven on the admitted hull | the census's switched-path control (3.2): under (b) the D = 0.2 m control converges |
 | The extra evaluations unmetered | `w1_hull_search_work_is_counted` |
 | Receipt scales still native | `w1_loaded_scale_halfway_publishes` (the 73/24 Pa control in both modes: precommit G5b passes, and every row's gate verdict is as the final scales give); replaces `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal` (existing) |
-| Receipt scales final but not coupled or floored as the gate used them | `w1_receipt_scales_are_the_gate_scales` (a p = 512 case with an active floor, and a multi-node body with active coupling: the receipt equals the product proof's scales and the readers' recomputation) |
+| Receipt scales final but not coupled or floored as the gate used them | `w1_receipt_scales_are_the_gate_scales` (active coupling at the selected precision) and `w1_receipt_scales_keep_the_p512_floor` (as built: a b3k cantilever whose prescribed 1 m root translation selects p = 512, with the floor binding body 0's force and moment scales): every verdict's scale is the proof's final scale, derived from the rows, extent and floor. A floor-only mutant is killed by the second, which the first does not see. `w1_final_scales_reuse_the_reserved_capacity` is the pin test of 2.2 |
 | Native evidence scales replaced, or used for anything new | `w1_native_scales_stay_native_evidence` (the native publication certificate's inputs unchanged) |
 | A committed byte moves beyond section 1.4's list | the existing receipt-byte tests over the corpus, successor fixtures, R1 records and route-E successors; `w1_committed_publications_preserve_all_but_authorized_definition_hashes` (existing), whose exceptions gain exactly section 1.4's entries; `w1_hull_repair_moves_only_work_on_converging_members` |
 | Final scales written where they differ from the readers' law | `w1_final_scales_equal_reader_scales` (the gating check of 2.2, over every committed successor fixture and corpus base, hooks applied) |
@@ -503,7 +505,13 @@ These edit commitments. They are written against the ScopeOfWork as edited by ep
 
 It is applied in that PR, when its meaning comes true; not before, and not in O4.
 
-**Proposed, for the owner** (on the repair's discharge):
+**Decided by the owner, applied when the repair lands** (owner, 2026-10-20, "I approve 1A, 2A, 3A."; 2A, relayed by HELP_HUMAN). As decided:
+- REQ-006 (b) is deleted, leaving a retired marker in (a)'s style: "[retired by the W1 coverage repair, #<PR>]". The optional sentence is added as a new item after (e), titled "(f) Loaded-member maxima too wide for the gate.", with the sentence below verbatim.
+- REQ-007 (b) is deleted or marked discharged in (a)'s style; the PR says which.
+- AC-003's third bullet and the VER-003 replacement, as below.
+- **Split between the two PRs.** Corner 2's PR carries only its own parts: the halfway half of the VER-003 replacement and REQ-006 (b)'s halfway-scale bullet. Everything else lands with corner 1.
+
+The text as proposed (on the repair's discharge):
 - **DEL-04-08 ScopeOfWork:**
   - **REQ-006 (b).** Delete the item, the two corners being repaired. Optionally record, under REQ-006 (d) or as a sentence in REQ-001's route-L domain: "A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause." That records the inherited corner as a stated limit, if the owner wants it stated.
   - **REQ-007 (b).** Delete on discharge.
@@ -539,12 +547,14 @@ It is applied in that PR, when its meaning comes true; not before, and not in O4
   - stage 2 §4.4's "Stop" text is edited to agree with it when the repair lands (section 10).
   Narrowing was not chosen. The census's pre-registered escalation (3.3) and the DEF-O-narrowing contingency below stay as designed. Corner 2's repair never depended on this decision.
 
-**Pending, the owner's (b7-plan item 6):** Z1, the single Ẑ in DEF-O and DEF-E, is ruled once for both routes with this census's tables and W1-E's (w1e-sharper-exact-coverage.md §6.2, §9). Option 2 above stands. If Z1 is adopted, the admitted Z becomes a point, corner 1's driven path is never taken and its production switch is not landed; if it is not, corner 1 lands as designed. Corner 2 does not depend on it.
+- **Z1 and section 10** (owner, 2026-10-20, relayed by HELP_HUMAN: "I approve 1A, 2A, 3A."):
+  - **1A.** Z1, the single Ẑ in DEF-O and DEF-E, is not adopted; it was ruled once for both routes with this census's tables and W1-E's (w1e-sharper-exact-coverage.md §6.3, §9). Corner 1 lands as designed (1.2), with the REQ-003 (e) sub-bullet and the §4.4 "Stop" text above; every stop condition of 3.3 still applies. The other coverage options are not pursued unless the owner later chooses to change the claim for coverage.
+  - **2A.** Section 10's five proposed ScopeOfWork edits are applied as section 10 now records.
+  - **3A.** The REQ-006 (e) amendment of w1e §6.1 is applied on main by HELP_HUMAN through #1482 (`816ec66225`; w1e §6.1).
 
 **Contingent, to HELP_HUMAN:** narrowing DEF-O's admitted Z, if the census's pre-registered escalation rule fires (3.3), and a D3 shortfall.
 
 **Reserved and untouched:**
-- the proposed ScopeOfWork edits of section 10;
 - Decision 22;
 - TBD-001 and TBD-002;
 - G10 and B8;

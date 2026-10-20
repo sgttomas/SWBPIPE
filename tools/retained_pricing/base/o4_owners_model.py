@@ -52,7 +52,10 @@ BODY_PINS = {
     (RP, "freeze_case_commit"): "97088782f6b5a7469ec7cf15198bf18ba3d1dce6670cb0e2f891e50e85ba9924",
     # O4-WR (the receipt's section-term keys and reduced preparation records)
     (RW, "case_source_at"): "28f05373993894b3a4df7664dfdc2f410f80be81fd87604b325dc0a89dc83679",
-    (RW, "selection"): "860ae53a9f2dd501d724d940cd7d637dd63b0c24867c668b795ebe54bc089bea",
+    # W1 coverage repair D3 (retained-pricing-rules.md §8.11): read 3bbfdd5080; selection borrows the certified proof
+    # and writes body_scales from its final scales (W1R-FS, W1R-L1). Its section terms, the keys O4-WR prices, are
+    # unchanged.
+    (RW, "selection"): "4603dee55a5f4d98bd56d21dc1869bc0c66626d70060ee98ba7e8132e5b616cb",
     (RW, "reduced_preparation_value"): "af3226f2fa85205f1a231d450599252d553a94d68942e6d386e1e8d125e0cb41",
     (RW, "attach_reduced_preparations"): "ae61df5566e415ddce9363e18590b2b93632620e292e2eb4f3c8ab41f00976ea",
     # O4-RD (the reader's distinct-member sets, the Timoshenko leaves and block bytes)

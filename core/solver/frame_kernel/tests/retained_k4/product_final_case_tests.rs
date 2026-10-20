@@ -1946,3 +1946,156 @@ fn w1_receipt_scales_are_the_gate_scales() {
     assert_eq!(judged, [true; 4], "every scale kind is judged");
     assert!(scales.iter().zip(&raw).any(|(s, r)| s.iter().zip(r).any(|(a, b)| a > b)), "coupling is active: a final scale exceeds its rows' maximum");
 }
+
+/// The b3k cantilever (the prepared annulus, so `b3k_facts` matches the member's
+/// section bits) with its root translations prescribed to `d` and its tip loaded
+/// with `tip`. A rigid translation `d` is in every member's null space, so the end
+/// actions are the tiny tip loads, while their resolution ê scales with the member
+/// stiffness times `d`.
+fn w1_floor_source(d: f64, tip: [f64; 6]) -> super::super::super::source::PrimitiveSource {
+    use super::super::super::source::*;
+    let [a, i, j, _, _] = b3k_section();
+    PrimitiveSource::new(SourceParts {
+        nodes: vec![[0.0; 3], [1.0, 0.0, 0.0]],
+        members: vec![StraightMember { id: 7, node_i: 0, node_j: 1, elastic_modulus: B3K_E, shear_modulus: 80e9,
+            area: a, second_moment_y: i, second_moment_z: i, torsion_constant: j, y_reference: [0.0, 1.0, 0.0] }],
+        constraints: Component::ALL.iter().map(|&component| Constraint { dof: Dof { node: 0, component },
+            value: if component.index() < 3 { d } else { 0.0 } }).collect(),
+        loads: Component::ALL.iter().zip(tip).map(|(&component, value)| NodalLoad { dof: Dof { node: 1, component },
+            value, source_id: format!("tip-{component:?}") }).collect(),
+        stations: [0.25, 0.5, 0.75].iter().enumerate()
+            .map(|(k, &fraction)| Station { id: 17 + k as u32, member: 7, fraction }).collect(),
+        supports: vec![SupportGroup { id: 3, node: 0, restrained: [true; 6], springs: vec![], directional_springs: vec![] }],
+        ..SourceParts::default()
+    }).unwrap()
+}
+/// The floor control's tip loads: B3K_LOADS times 2^-432 (exact scalings).
+fn w1_floor_loads() -> [f64; 6] {
+    let scale = f64::from_bits((1023u64 - 432) << 52);
+    B3K_LOADS.map(|v| v * scale)
+}
+fn w1_floor_case() -> (super::super::super::origins::RecordedInvocation, super::super::super::origins::RecordedCase) {
+    use super::super::super::origins::*;
+    use crate::structural::retained_api::CaseLimit;
+    let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[1], &[]).unwrap()).unwrap();
+    let mut cases = invocation.solve_cases(&[w1_floor_source(1.0, w1_floor_loads())], CaseLimit::new(u64::MAX)).unwrap();
+    (invocation, cases.remove(0))
+}
+/// The case's certified proof (ordinary material, contraction radius law), its
+/// frozen values and its complete row set.
+fn w1_certified(invocation: &super::super::super::origins::RecordedInvocation, case: &super::super::super::origins::RecordedCase)
+    -> (CertifiedProductProof, Vec<f64>, Vec<B3kRow>) {
+    let (run, owner) = (case.run, b3k_owner(case));
+    let rows = b3k_rows(owner, true, true);
+    let specs = b3k_specs(&rows, "case");
+    match b3k_prove(invocation, run, owner, &b3k_facts(ProductMaterial::Base { e: B3K_E, g: 80e9 }), &specs) {
+        B3kOutcome::Certified(proof, values) => (proof, values, rows),
+        B3kOutcome::Refused(e) => panic!("{:?} failing={:?}", e.failure(),
+            e.work().verdicts().iter().filter(|v| !v.passed).map(|v| (&rows[v.row].0, v.failed)).collect::<Vec<_>>()),
+    }
+}
+/// W1 coverage repair §2.2 and §5 (corner 2, the p = 512 floor): at p = 512 the gate
+/// floors each body's coupled force and moment scales by the solve's Φ in place before
+/// judging any row; the certified proof must state those floored scales, not the coupled
+/// maxima. Input: `w1_floor_source`, the b3k cantilever (one body, extent 1) with its
+/// root translations prescribed to 1 m and B3K_LOADS times 2^-432 at the tip, through
+/// `b3k_prove` (begin -> project -> complete_maxima -> certify_final, contraction radius
+/// law). The rigid translation adds no ill-conditioning, so both lanes certify, but it
+/// makes ê large while the end actions stay the tiny tip loads: the solve selects
+/// p = 512 and Φ = fl↑(2^-438·ê) exceeds every coupled force and moment maximum, so the
+/// floor binds both. SKEW-K1E-60's pattern (soft root rotational springs, 1e-60 or
+/// 1e-125, tiny tip moments) on the b3k section also selects p = 512 but does not
+/// certify: under the contraction law the annular_source lane refuses (alpha >= 1), and
+/// under the preview route's congruence radius its force and moment enclosures are wider
+/// than the gate's absolute bound. SKEW-K1E-60 itself has no prepared-annulus section
+/// for `ProductMemberFacts`. Expected scales are derived from the rows, the body extent
+/// and the recorded floor.
+#[test]
+fn w1_receipt_scales_keep_the_p512_floor() {
+    let (invocation, case) = w1_floor_case();
+    let owner = b3k_owner(&case);
+    assert_eq!(owner.selected_precision(), 512, "the control selects p = 512");
+    let floors = owner.evidence().floor.as_ref().expect("p = 512 records its floor");
+    let (proof, values, rows) = w1_certified(&invocation, &case);
+    assert!(proof.passed());
+    let source = owner.source();
+    let scales = proof.final_scales();
+    assert_eq!(scales.len(), source.body_count() as usize);
+    // The rows' own maxima per body and kind, as the gate takes them: native rows that
+    // are not input-derived, and support components (force or moment).
+    let mut raw = vec![[0.0f64; 4]; scales.len()];
+    let mut judged = [false; 4];
+    for (v, (_, unit, body, recipe)) in proof.verdicts().iter().zip(&rows) {
+        let slot = match recipe {
+            ProductRecipe::Native(id) => {
+                let nr = &owner.publish().rows[native_index(owner, *id).unwrap()];
+                if nr.class == adaptive::RowClass::InputDerived { continue; }
+                match nr.kind { Kind::Translation => 0, Kind::Rotation => 1, Kind::Force => 2, Kind::Moment => 3 }
+            }
+            ProductRecipe::SupportComponent { component, .. } => if component.index() < 3 { 2 } else { 3 },
+            _ => continue,
+        };
+        assert_eq!(v.scale_bits, scales[*body as usize][slot].to_bits(), "row {} judged at the receipt's scale", v.row);
+        judged[slot] = true;
+        let b = *body as usize;
+        raw[b][slot] = raw[b][slot].max(unit.normalize(values[v.row]).abs());
+    }
+    assert_eq!(judged, [true; 4], "every scale kind is judged");
+    let mut bound = [false; 2];
+    for (b, (s, r)) in scales.iter().zip(&raw).enumerate() {
+        let nodes: Vec<_> = (0..source.nodes().len()).filter(|&n| source.body_of_node(n as u32) == b as u32)
+            .map(|n| source.nodes()[n]).collect();
+        let d: Vec<f64> = (0..3).map(|a| nodes.iter().map(|p| p[a]).fold(f64::NEG_INFINITY, f64::max)
+            - nodes.iter().map(|p| p[a]).fold(f64::INFINITY, f64::min)).collect();
+        let extent = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
+        let [tr, ro, fo, mo] = *r;
+        let coupled = if extent == 0.0 { *r } else {
+            [tr.max(extent * ro), ro.max(tr / extent), fo.max(mo / extent), mo.max(extent * fo)] };
+        let &(_, phi_fo, phi_mo) = floors.iter().find(|f| f.0 == b as u32).expect("a floor per body");
+        let phi = [f64::from_bits(phi_fo), f64::from_bits(phi_mo)];
+        assert!(phi.iter().all(|p| *p > 0.0), "body {b}: a positive floor");
+        let expected = [coupled[0], coupled[1], coupled[2].max(phi[0]), coupled[3].max(phi[1])];
+        assert_eq!(s.map(f64::to_bits), expected.map(f64::to_bits), "body {b}: the coupled, floored scales");
+        for k in 0..2 {
+            if phi[k] > coupled[2 + k] {
+                assert_eq!(s[2 + k].to_bits(), phi[k].to_bits());
+                bound[k] = true;
+            }
+        }
+    }
+    assert_eq!(bound, [true, true], "the floor binds the force and the moment scale");
+}
+/// W1 coverage repair §2.2 (layout pin): the certified proof's final scales are the
+/// vector `row_scales_reduced` reserved, moved, not copied, so its capacity is the
+/// serialized `capacities[6]` (the body count). The public API exposes the scales as a
+/// slice only; the vector's capacity is read here through the field, from the kernel's
+/// own test module. Every serialized capacity is the reservation its input fixes, the
+/// trace states the same, and the work owner and trace layouts keep their sizes (the
+/// repair removed the census-only field from `ProductCertificateSpent`; without the
+/// census feature the type is unchanged).
+#[test]
+fn w1_final_scales_reuse_the_reserved_capacity() {
+    for floor in [false, true] {
+        let (invocation, case) = if floor { w1_floor_case() } else { b3k_case(80e9) };
+        let owner = b3k_owner(&case);
+        let (proof, _, rows) = w1_certified(&invocation, &case);
+        let source = owner.source();
+        let work = proof.work();
+        let bodies = source.body_count() as usize;
+        assert_eq!(proof.final_scales.capacity(), work.capacities[6], "floor={floor}: no reallocation");
+        assert_eq!(proof.final_scales.len(), bodies);
+        let mut copies = TraceCopyWork::default();
+        let trace = work.typed_trace(&mut copies);
+        assert_eq!(trace.capacities, work.capacities, "the trace states the work's capacities");
+        // [member laws, native coverage, K rows (set only by the unprepared `certify`),
+        // verdicts, derivative coverage, support coverage, scales]: 1, 52, 0, 74, 21, 6, 1 here.
+        let members = source.members().len();
+        assert_eq!(work.capacities, [members, owner.publish().rows.len(), 0, rows.len(), 21 * members,
+            6 * source.supports().len(), bodies], "floor={floor}: every capacity is its reservation");
+        assert_eq!(work.capacities, [1, 52, 0, 74, 21, 6, 1]);
+    }
+    // The priced work owner (`retained_resource.rs` PRODUCT_CERTIFICATE_SPENT) and the
+    // serialized trace keep their sizes (as `W1_STRESS_LAYOUT` reports them).
+    assert_eq!(std::mem::size_of::<ProductCertificateSpent<'static>>(), 4296);
+    assert_eq!(std::mem::size_of::<ProductProofTrace<'static>>(), 1328);
+}
