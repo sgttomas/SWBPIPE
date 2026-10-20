@@ -1907,3 +1907,42 @@ fn n06_seeded_congruence_lane_encloses_the_closed_form() {
         assert_eq!(checked,4);
     }
 }
+
+/// W1 coverage repair §2.2 (corner 2): the certified proof's final scales are exactly
+/// the coupled (and, at p = 512, floored) scales its gate judged with. Every native and
+/// support row's verdict records the scale it was judged at; that scale must be the
+/// proof's final scale for its body and kind, and the coupling must be active (the
+/// final moment scale exceeds every published moment, from the extent times the force
+/// scale), so a receipt stating uncoupled maxima would differ. The floor is applied in
+/// place on the same vector before any row is judged; no product input selects p = 512
+/// (the W1 coverage census, §3.5), so this control runs at the selected precision.
+#[test]
+fn w1_receipt_scales_are_the_gate_scales() {
+    let (invocation, case) = b3k_case(80e9);
+    let (run, owner) = (case.run, b3k_owner(&case));
+    let rows = b3k_rows(owner, true, true);
+    let specs = b3k_specs(&rows, "case");
+    let B3kOutcome::Certified(proof, values) = b3k_prove(&invocation, run, owner, &b3k_facts(ProductMaterial::Base { e: B3K_E, g: 80e9 }), &specs)
+        else { panic!("the b3k control certifies") };
+    let scales = proof.final_scales();
+    assert_eq!(scales.len(), owner.source().body_count() as usize);
+    let mut judged = [false; 4];
+    let mut raw = vec![[0.0f64; 4]; scales.len()];
+    for (v, (_, unit, body, recipe)) in proof.verdicts().iter().zip(&rows) {
+        let slot = match recipe {
+            ProductRecipe::Native(id) => {
+                let nr = &owner.publish().rows[native_index(owner, *id).unwrap()];
+                if nr.class == adaptive::RowClass::InputDerived { continue; }
+                match nr.kind { Kind::Translation => 0, Kind::Rotation => 1, Kind::Force => 2, Kind::Moment => 3 }
+            }
+            ProductRecipe::SupportComponent { component, .. } => if component.index() < 3 { 2 } else { 3 },
+            _ => continue,
+        };
+        assert_eq!(v.scale_bits, scales[*body as usize][slot].to_bits(), "row {} judged at the receipt's scale", v.row);
+        judged[slot] = true;
+        let n = unit.normalize(values[v.row]).abs();
+        raw[*body as usize][slot] = raw[*body as usize][slot].max(n);
+    }
+    assert_eq!(judged, [true; 4], "every scale kind is judged");
+    assert!(scales.iter().zip(&raw).any(|(s, r)| s.iter().zip(r).any(|(a, b)| a > b)), "coupling is active: a final scale exceeds its rows' maximum");
+}
