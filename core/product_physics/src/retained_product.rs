@@ -6486,6 +6486,19 @@ impl PreparedCase {
         self.freeze_candidate().map(FrozenCandidate::commit_private)
     }
 }
+/// How `freeze_case`'s settlement phase ended (stack-headroom-repair.md): certified, or refused
+/// with the certificate to keep, if any, and the error. The parent makes the refusal's
+/// `certificate`, `rows` and `saved_values` moves in their original order; a `None` error is the
+/// proof/value owner mismatch, whose message the parent allocates after `rows` drops, as before.
+enum SettledCase {Certified(k::CertifiedProductProof),Refused(Option<k::CertifiedProductProof>,Option<PreparedCandidateError>)}
+/// `freeze_case`'s draft phase: the dual-readout proof's start, on its own frame.
+#[inline(never)]
+fn freeze_case_draft<'s,'m>(invocation:&k::RecordedInvocation,run:usize,owner:&'s k::RetainedSolve,facts:&'s [k::ProductMemberFacts],
+    reduced:&'s k::ReducedSectionSet,specs:&'m [k::ProductRowSpec<'m>],radius_law:k::RadiusLaw)->Result<k::ProductProofDraft<'s,'m>,PreparedCandidateError> {
+    let draft=if reduced.is_empty() {invocation.begin_prepared_product_with(run,owner,facts,specs,radius_law)}
+        else {invocation.begin_prepared_product_reduced(run,owner,facts,reduced,specs)};
+    draft.into_ready().map_err(PreparedCandidateError::Proof)
+}
 impl ProductCapture {
     /// B1 SP (DESIGN_v2 T-9): one case's freeze, on the case in the capture's own fields and
     /// within its `scope` of the one untouched ordinary owner, with that case's `native` Run
@@ -6498,114 +6511,24 @@ impl ProductCapture {
         ordinary:&MechanicsEnvelope,scope:&CaseScope,native:Option<(&k::RecordedInvocation,&k::RecordedCase)>)
         ->Result<(PreparedPayload,k::CertifiedProductProof),RefusedCase> {
         let mut certificate=None;let mut saved_values=None;
+        // At opt-level 0 a frame sums every slot of its function, so the closure runs its fallible
+        // phases as `#[inline(never)]` calls and the deep proof call's frame holds only the live
+        // phase's; explicit matches, not `?`, spare this parent two error-sized slots per phase
+        // (DEL-04-08 Design stack-headroom-repair.md). The parent owns every value that outlives a
+        // phase (`_maxima` included), so each drops where and in the order it did in one body.
         let result=(||->Result<PreparedPayload,PreparedCandidateError>{
-            if *proof_attempted {return Err(PreparedCandidateError::Capture(CaptureError::PreparedAttemptConsumed));}
-            let (invocation,case)=native.ok_or_else(||PreparedCandidateError::Capture("missing prepared native owner".into()))?;
-            let k::ExecutionOutcome::Selected(owner)=&case.outcome else{return Err(PreparedCandidateError::Capture(CaptureError::NativeUnavailable));};
-            let base_rows=self.bind_rows_view(ProductCaseView::of(ordinary,scope,&self.distinct_bases),owner).map_err(PreparedCandidateError::Capture)?;
-            let specs=self.prepared_specs(&base_rows).map_err(PreparedCandidateError::Capture)?;
-            self.capture_entry(AdapterEvent::MapWrite).map_err(PreparedCandidateError::Capture)?;
-            *proof_attempted=true;
-            trace.enter(trace::Stage::ProofStart);
-            // DEF-O (preview) admits the congruence radius for a block whose contraction
-            // condition fails (b7-plan "N06 absorbed-spring certificate extension"); DEF-E keeps
-            // the contraction law alone.
-            let radius_law=match scope.route {W1Route::Preview=>k::RadiusLaw::ContractionOrCongruence,W1Route::Exact=>k::RadiusLaw::Contraction};
-            // O4 §4.5: the distinct-basis members' reduced sections; with none, today's call.
-            let reduced=self.reduced_section_set(ProductCaseView::of(ordinary,scope,&self.distinct_bases),&base_rows).map_err(PreparedCandidateError::Capture)?;
-            let draft=if reduced.is_empty() {invocation.begin_prepared_product_with(case.run,owner,&self.facts,&specs,radius_law)}
-                else {invocation.begin_prepared_product_reduced(case.run,owner,&self.facts,&reduced,&specs)};
-            let draft=draft.into_ready().map_err(PreparedCandidateError::Proof)?;
-            trace.completed(trace::Stage::ProofStart);
-            #[cfg(test)] println!("I51_DUAL_LANES {:?}",draft.lane_debug());
-            trace.enter(trace::Stage::Projection);
-            let (projected,mut builder)=draft.project().into_ready().map_err(PreparedCandidateError::Proof)?;
-            trace.completed(trace::Stage::Projection);trace.enter(trace::Stage::Maxima);
-            let (patches,maxima)=match self.prepared_maxima(ordinary,scope,owner,&base_rows,&mut builder,overlay_work) {
-                Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})};
-            // B3b-P (P-8): the exact route's section evidence, beside its maxima (same stage).
-            let (sections,reduced_sections,shear)=match scope.route {
-                W1Route::Preview=>(Vec::new(),Vec::new(),Vec::new()),
-                W1Route::Exact=>match self.prepared_sections(ordinary,scope) {
-                    Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})},
-            };
-            // §4.1 (owner's Q2): the not-covered derived rows, formed from the projected rows.
-            if let Err(cause)=self.prepared_not_covered(ProductCaseView::of(ordinary,scope,&self.distinct_bases),&base_rows,owner,&mut builder) {
-                return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())});
-            }
-            trace.completed(trace::Stage::Maxima);trace.enter(trace::Stage::Values);
-            #[cfg(test)] let maxima_input=if self.trace_fault==Some(trace::TraceFault::ValuesCompletion){&maxima[..0]}else{&maxima[..]};
-            #[cfg(not(test))] let maxima_input=&maxima[..];
-            let (values,value_work)=match builder.complete_maxima(maxima_input).into_ready() {
-                Ok(v)=>v,Err(mut failure)=>{
-                    let proof=match failure.take_work(){Some(work)=>projected.abandon_values(work),None=>projected.abandon()};
-                    return Err(PreparedCandidateError::Values{failure,proof});
-                }};
-            trace.completed(trace::Stage::Values);trace.enter(trace::Stage::Aliases);
-            let displacement=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"displacement_magnitude",None) {
-                Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
-            // D-5 on route E: one stress alias per section basis.
-            let nominal=(scope.route==W1Route::Exact).then_some(pressure_exact::SectionBasis::Nominal);
-            let stress=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",nominal) {
-                Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
-            let stress_reduced=match scope.route {
-                W1Route::Preview=>None,
-                W1Route::Exact=>match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",Some(pressure_exact::SectionBasis::Reduced)) {
-                    Ok(v)=>Some(v),Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})},
-            };
-            trace.completed(trace::Stage::Aliases);
-            let payload=PreparedPayload{values,maxima:patches,displacement,stress,stress_reduced,sections,reduced_sections,shear};
-            let distinct=match self.distinct_copy() {
-                Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
-            let view=ProductCaseView{ordinary,payload:Some(&payload),scope,frozen:None,distinct:&distinct};
-            let rows=match self.bind_rows_view(view,owner) {
-                Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
-            trace.enter(trace::Stage::Certificate);
-            let certified=match projected.certify_final(&payload.values,&rows,value_work).into_ready() {
-                Ok(v)=>{trace.checked(trace::Stage::Certificate,0,true);trace.costs.record::<bool>();trace.proof_ready=true;v},Err(failure)=>{
-                    trace.checked(trace::Stage::Certificate,0,false);
-                    self.numeric_pass=false;
-                    self.numeric_failure=Some(failure.failure().clone());
-                    self.source_correction_calls=failure.work().source_correction_calls();
-                    #[cfg(test)]
-                    {self.work=format!("{:?}; lanes={:?}",failure.work().work_summary(),failure.work().prepared_lane_work());}
-                    if let Err(e)=self.prepared_verdict_copy(failure.work().verdicts(),failure.work().summary_coverage()) {self.error=Some(e);}
-                    if self.error.is_none() && self.verdicts.len()==rows.len() {
-                        trace.enter(trace::Stage::Observables);
-                        self.observable_error=self.observables_view(view).err();
-                        trace.checked(trace::Stage::Observables,1,self.observable_error.is_none());
-                        trace.enter(trace::Stage::G5a);
-                        self.g5a_error=self.g5a(owner,&rows).err();
-                        trace.checked(trace::Stage::G5a,2,self.g5a_error.is_none());
-                    }
-                    #[cfg(test)] println!("I51_FROZEN_REFUSAL {}",serde_json::json!({"mode":self.invocation_mode.unwrap().as_str(),
-                        "rows":view.rows().map(|r|serde_json::json!({"id":r.id,"kind":r.kind,"unit":r.unit,"value":r.value,"bits":format!("{:016x}",r.value.to_bits())})).collect::<Vec<_>>(),
-                        "verdicts":self.verdicts.iter().map(|v|serde_json::json!({"row":v.row,"n":format!("{:016x}",v.normalized_bits),"scale":format!("{:016x}",v.scale_bits),"class":format!("{:?}",v.class),"passed":v.passed,"predicates":v.predicates})).collect::<Vec<_>>(),
-                        "maxima":payload.maxima.iter().map(|m|serde_json::json!({"row":m.row,"member":m.member,"numbers":m.numbers})).collect::<Vec<_>>(),
-                        "numeric_pass":false,"observables":format!("{:?}",self.observable_error),"g5a":format!("{:?}",self.g5a_error),"work":self.work}));
-                    drop(rows);saved_values=Some(payload.values);return Err(PreparedCandidateError::Proof(failure));
+            let (invocation,case,owner,base_rows,specs,radius_law,reduced)=match self.freeze_case_inputs(trace,proof_attempted,ordinary,scope,native) {Ok(v)=>v,Err(e)=>return Err(e)};
+            let draft=match freeze_case_draft(invocation,case.run,owner,&self.facts,&reduced,&specs,radius_law) {Ok(v)=>v,Err(e)=>return Err(e)};
+            let (_maxima,payload,projected,value_work)=match self.freeze_case_values(trace,overlay_work,ordinary,scope,owner,&base_rows,draft) {Ok(v)=>v,Err(e)=>return Err(e)};
+            let (distinct,rows,certified)=match self.freeze_case_certify(trace,ordinary,scope,owner,&payload,projected,value_work) {Ok(v)=>v,Err(e)=>return Err(e)};
+            let certified=match self.freeze_case_settle(trace,ordinary,scope,owner,&payload,&distinct,&rows,certified) {
+                SettledCase::Certified(certified)=>certified,
+                SettledCase::Refused(proof,error)=>{
+                    if proof.is_some() {certificate=proof;}
+                    drop(rows);saved_values=Some(payload.values);
+                    return Err(match error {Some(e)=>e,None=>PreparedCandidateError::Capture("frozen proof/value owner".into())});
                 }
             };
-            if !certified.matches_values(&payload.values){
-                certificate=Some(certified);drop(rows);saved_values=Some(payload.values);
-                return Err(PreparedCandidateError::Capture("frozen proof/value owner".into()));
-            }
-            if let Err(e)=self.prepared_verdict_copy(certified.verdicts(),certified.summary_coverage()) {
-                certificate=Some(certified);drop(rows);saved_values=Some(payload.values);
-                return Err(PreparedCandidateError::Capture(e));
-            }
-            self.numeric_pass=certified.passed();self.source_correction_calls=certified.work().source_correction_calls();
-            #[cfg(test)]
-            {self.work=format!("{:?}; lanes={:?}",certified.work().work_summary(),certified.work().prepared_lane_work());}
-            trace.enter(trace::Stage::Observables);
-            self.observable_error=self.observables_view(view).err();
-            trace.checked(trace::Stage::Observables,1,self.observable_error.is_none());
-            trace.enter(trace::Stage::G5a);
-            self.g5a_error=self.g5a(owner,&rows).err();
-            trace.checked(trace::Stage::G5a,2,self.g5a_error.is_none());
-            #[cfg(test)] println!("I51_FROZEN_ROWS {}",serde_json::json!({"rows":view.rows().map(|r|serde_json::json!({"id":r.id,"kind":r.kind,"unit":r.unit,"value":r.value,"bits":format!("{:016x}",r.value.to_bits())})).collect::<Vec<_>>(),
-                "verdicts":self.verdicts.iter().map(|v|serde_json::json!({"row":v.row,"n":format!("{:016x}",v.normalized_bits),"scale":format!("{:016x}",v.scale_bits),"class":format!("{:?}",v.class),"passed":v.passed,"predicates":v.predicates})).collect::<Vec<_>>(),
-                "numeric_pass":self.numeric_pass,"observables":format!("{:?}",self.observable_error),"g5a":format!("{:?}",self.g5a_error),"work":self.work}));
             let pass=self.full_case_passed();certificate=Some(certified);
             drop(rows);drop(base_rows);drop(specs);
             if !pass {
@@ -6613,20 +6536,7 @@ impl ProductCapture {
                 return Err(if self.observable_error.is_some(){PreparedCandidateError::Observable}
                     else if self.g5a_error.is_some(){PreparedCandidateError::G5a}else{PreparedCandidateError::Numeric});
             }
-            // The finite move plan is checked/charged before any ordinary mutation.
-            // B3b-P: the exact route's section patches move four values per basis section each
-            // (D-5: both nested bases; none on the preview route); every case row's value moves,
-            // a reduced twin's included.
-            let section_moves=payload.sections.len().checked_mul(4*PREPARED_SECTION_BASES.len()).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit sections")))?;
-            let moves=ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows().len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit maxima")))?)
-                .and_then(|v|v.checked_add(section_moves))
-                // O4 §4.2: each Timoshenko member's shear leaf moves once (none otherwise).
-                .and_then(|v|v.checked_add(payload.shear.len()))
-                .and_then(|v|v.checked_add(2+usize::from(payload.stress_reduced.is_some()))).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit moves")))?;
-            self.adapter.enter(AdapterEvent::MapWrite,u64::try_from(moves).map_err(|_|PreparedCandidateError::Capture(CaptureError::CountRange("commit count")))?);
-            self.adapter.require().map_err(PreparedCandidateError::Capture)?;
-            trace.costs.record::<bool>();trace.private_commit_precharged=true;
-            Ok(payload)
+            match self.freeze_case_commit(trace,ordinary,scope,&payload) {Ok(())=>Ok(payload),Err(e)=>Err(e)}
         })();
         match result {
             Err(error)=>{trace.fail_entered();trace.freeze(self);Err(RefusedCase{error,certificate,values:saved_values})},
@@ -6640,6 +6550,155 @@ impl ProductCapture {
                 }
             }
         }
+    }
+    #[inline(never)]
+    #[allow(clippy::type_complexity)]
+    fn freeze_case_inputs<'o,'n>(&self,trace:&mut trace::PreparedTrace,proof_attempted:&mut bool,ordinary:&'o MechanicsEnvelope,scope:&'o CaseScope,
+        native:Option<(&'n k::RecordedInvocation,&'n k::RecordedCase)>)
+        ->Result<(&'n k::RecordedInvocation,&'n k::RecordedCase,&'n k::RetainedSolve,Vec<k::ProductFinalRow<'o>>,Vec<k::ProductRowSpec<'o>>,k::RadiusLaw,k::ReducedSectionSet),PreparedCandidateError> {
+        if *proof_attempted {return Err(PreparedCandidateError::Capture(CaptureError::PreparedAttemptConsumed));}
+        let (invocation,case)=native.ok_or_else(||PreparedCandidateError::Capture("missing prepared native owner".into()))?;
+        let k::ExecutionOutcome::Selected(owner)=&case.outcome else{return Err(PreparedCandidateError::Capture(CaptureError::NativeUnavailable));};
+        let base_rows=self.bind_rows_view(ProductCaseView::of(ordinary,scope,&self.distinct_bases),owner).map_err(PreparedCandidateError::Capture)?;
+        let specs=self.prepared_specs(&base_rows).map_err(PreparedCandidateError::Capture)?;
+        self.capture_entry(AdapterEvent::MapWrite).map_err(PreparedCandidateError::Capture)?;
+        *proof_attempted=true;
+        trace.enter(trace::Stage::ProofStart);
+        // DEF-O (preview) admits the congruence radius for a block whose contraction
+        // condition fails (b7-plan "N06 absorbed-spring certificate extension"); DEF-E keeps
+        // the contraction law alone.
+        let radius_law=match scope.route {W1Route::Preview=>k::RadiusLaw::ContractionOrCongruence,W1Route::Exact=>k::RadiusLaw::Contraction};
+        // O4 §4.5: the distinct-basis members' reduced sections; with none, today's call.
+        let reduced=self.reduced_section_set(ProductCaseView::of(ordinary,scope,&self.distinct_bases),&base_rows).map_err(PreparedCandidateError::Capture)?;
+        Ok((invocation,case,owner,base_rows,specs,radius_law,reduced))
+    }
+    #[inline(never)]
+    #[allow(clippy::too_many_arguments,clippy::type_complexity)]
+    fn freeze_case_values<'s,'m>(&self,trace:&mut trace::PreparedTrace,overlay_work:&mut ScalarWork,ordinary:&MechanicsEnvelope,scope:&CaseScope,
+        owner:&k::RetainedSolve,base_rows:&[k::ProductFinalRow<'_>],draft:k::ProductProofDraft<'s,'m>)
+        ->Result<(Vec<k::ProductMaximumValue>,PreparedPayload,k::ProjectedProofDraft<'s,'m>,k::ValuesCompletionWork),PreparedCandidateError> {
+        trace.completed(trace::Stage::ProofStart);
+        #[cfg(test)] println!("I51_DUAL_LANES {:?}",draft.lane_debug());
+        trace.enter(trace::Stage::Projection);
+        let (projected,mut builder)=draft.project().into_ready().map_err(PreparedCandidateError::Proof)?;
+        trace.completed(trace::Stage::Projection);trace.enter(trace::Stage::Maxima);
+        let (patches,maxima)=match self.prepared_maxima(ordinary,scope,owner,&base_rows,&mut builder,overlay_work) {
+            Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})};
+        // B3b-P (P-8): the exact route's section evidence, beside its maxima (same stage).
+        let (sections,reduced_sections,shear)=match scope.route {
+            W1Route::Preview=>(Vec::new(),Vec::new(),Vec::new()),
+            W1Route::Exact=>match self.prepared_sections(ordinary,scope) {
+                Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})},
+        };
+        // §4.1 (owner's Q2): the not-covered derived rows, formed from the projected rows.
+        if let Err(cause)=self.prepared_not_covered(ProductCaseView::of(ordinary,scope,&self.distinct_bases),&base_rows,owner,&mut builder) {
+            return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())});
+        }
+        trace.completed(trace::Stage::Maxima);trace.enter(trace::Stage::Values);
+        #[cfg(test)] let maxima_input=if self.trace_fault==Some(trace::TraceFault::ValuesCompletion){&maxima[..0]}else{&maxima[..]};
+        #[cfg(not(test))] let maxima_input=&maxima[..];
+        let (values,value_work)=match builder.complete_maxima(maxima_input).into_ready() {
+            Ok(v)=>v,Err(mut failure)=>{
+                let proof=match failure.take_work(){Some(work)=>projected.abandon_values(work),None=>projected.abandon()};
+                return Err(PreparedCandidateError::Values{failure,proof});
+            }};
+        trace.completed(trace::Stage::Values);trace.enter(trace::Stage::Aliases);
+        let displacement=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"displacement_magnitude",None) {
+            Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
+        // D-5 on route E: one stress alias per section basis.
+        let nominal=(scope.route==W1Route::Exact).then_some(pressure_exact::SectionBasis::Nominal);
+        let stress=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",nominal) {
+            Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
+        let stress_reduced=match scope.route {
+            W1Route::Preview=>None,
+            W1Route::Exact=>match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",Some(pressure_exact::SectionBasis::Reduced)) {
+                Ok(v)=>Some(v),Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})},
+        };
+        trace.completed(trace::Stage::Aliases);
+        let payload=PreparedPayload{values,maxima:patches,displacement,stress,stress_reduced,sections,reduced_sections,shear};
+        Ok((maxima,payload,projected,value_work))
+    }
+    #[inline(never)]
+    #[allow(clippy::too_many_arguments,clippy::type_complexity)]
+    fn freeze_case_certify<'a>(&self,trace:&mut trace::PreparedTrace,ordinary:&'a MechanicsEnvelope,scope:&'a CaseScope,owner:&k::RetainedSolve,
+        payload:&'a PreparedPayload,projected:k::ProjectedProofDraft<'_,'_>,value_work:k::ValuesCompletionWork)
+        ->Result<(Vec<String>,Vec<k::ProductFinalRow<'a>>,Result<k::CertifiedProductProof,k::ProductProofFailure>),PreparedCandidateError> {
+        let distinct=match self.distinct_copy() {
+            Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
+        let view=ProductCaseView{ordinary,payload:Some(payload),scope,frozen:None,distinct:&distinct};
+        let rows=match self.bind_rows_view(view,owner) {
+            Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
+        trace.enter(trace::Stage::Certificate);
+        let certified=projected.certify_final(&payload.values,&rows,value_work).into_ready();
+        Ok((distinct,rows,certified))
+    }
+    #[inline(never)]
+    #[allow(clippy::too_many_arguments)]
+    fn freeze_case_settle(&mut self,trace:&mut trace::PreparedTrace,ordinary:&MechanicsEnvelope,scope:&CaseScope,owner:&k::RetainedSolve,
+        payload:&PreparedPayload,distinct:&[String],rows:&[k::ProductFinalRow<'_>],certified:Result<k::CertifiedProductProof,k::ProductProofFailure>)->SettledCase {
+        let view=ProductCaseView{ordinary,payload:Some(payload),scope,frozen:None,distinct};
+        let certified=match certified {
+            Ok(v)=>{trace.checked(trace::Stage::Certificate,0,true);trace.costs.record::<bool>();trace.proof_ready=true;v},Err(failure)=>{
+                trace.checked(trace::Stage::Certificate,0,false);
+                self.numeric_pass=false;
+                self.numeric_failure=Some(failure.failure().clone());
+                self.source_correction_calls=failure.work().source_correction_calls();
+                #[cfg(test)]
+                {self.work=format!("{:?}; lanes={:?}",failure.work().work_summary(),failure.work().prepared_lane_work());}
+                if let Err(e)=self.prepared_verdict_copy(failure.work().verdicts(),failure.work().summary_coverage()) {self.error=Some(e);}
+                if self.error.is_none() && self.verdicts.len()==rows.len() {
+                    trace.enter(trace::Stage::Observables);
+                    self.observable_error=self.observables_view(view).err();
+                    trace.checked(trace::Stage::Observables,1,self.observable_error.is_none());
+                    trace.enter(trace::Stage::G5a);
+                    self.g5a_error=self.g5a(owner,rows).err();
+                    trace.checked(trace::Stage::G5a,2,self.g5a_error.is_none());
+                }
+                #[cfg(test)] println!("I51_FROZEN_REFUSAL {}",serde_json::json!({"mode":self.invocation_mode.unwrap().as_str(),
+                    "rows":view.rows().map(|r|serde_json::json!({"id":r.id,"kind":r.kind,"unit":r.unit,"value":r.value,"bits":format!("{:016x}",r.value.to_bits())})).collect::<Vec<_>>(),
+                    "verdicts":self.verdicts.iter().map(|v|serde_json::json!({"row":v.row,"n":format!("{:016x}",v.normalized_bits),"scale":format!("{:016x}",v.scale_bits),"class":format!("{:?}",v.class),"passed":v.passed,"predicates":v.predicates})).collect::<Vec<_>>(),
+                    "maxima":payload.maxima.iter().map(|m|serde_json::json!({"row":m.row,"member":m.member,"numbers":m.numbers})).collect::<Vec<_>>(),
+                    "numeric_pass":false,"observables":format!("{:?}",self.observable_error),"g5a":format!("{:?}",self.g5a_error),"work":self.work}));
+                return SettledCase::Refused(None,Some(PreparedCandidateError::Proof(failure)));
+            }
+        };
+        if !certified.matches_values(&payload.values){
+            return SettledCase::Refused(Some(certified),None);
+        }
+        if let Err(e)=self.prepared_verdict_copy(certified.verdicts(),certified.summary_coverage()) {
+            return SettledCase::Refused(Some(certified),Some(PreparedCandidateError::Capture(e)));
+        }
+        self.numeric_pass=certified.passed();self.source_correction_calls=certified.work().source_correction_calls();
+        #[cfg(test)]
+        {self.work=format!("{:?}; lanes={:?}",certified.work().work_summary(),certified.work().prepared_lane_work());}
+        trace.enter(trace::Stage::Observables);
+        self.observable_error=self.observables_view(view).err();
+        trace.checked(trace::Stage::Observables,1,self.observable_error.is_none());
+        trace.enter(trace::Stage::G5a);
+        self.g5a_error=self.g5a(owner,rows).err();
+        trace.checked(trace::Stage::G5a,2,self.g5a_error.is_none());
+        #[cfg(test)] println!("I51_FROZEN_ROWS {}",serde_json::json!({"rows":view.rows().map(|r|serde_json::json!({"id":r.id,"kind":r.kind,"unit":r.unit,"value":r.value,"bits":format!("{:016x}",r.value.to_bits())})).collect::<Vec<_>>(),
+            "verdicts":self.verdicts.iter().map(|v|serde_json::json!({"row":v.row,"n":format!("{:016x}",v.normalized_bits),"scale":format!("{:016x}",v.scale_bits),"class":format!("{:?}",v.class),"passed":v.passed,"predicates":v.predicates})).collect::<Vec<_>>(),
+            "numeric_pass":self.numeric_pass,"observables":format!("{:?}",self.observable_error),"g5a":format!("{:?}",self.g5a_error),"work":self.work}));
+        SettledCase::Certified(certified)
+    }
+    #[inline(never)]
+    fn freeze_case_commit(&self,trace:&mut trace::PreparedTrace,ordinary:&MechanicsEnvelope,scope:&CaseScope,payload:&PreparedPayload)
+        ->Result<(),PreparedCandidateError> {
+        // The finite move plan is checked/charged before any ordinary mutation.
+        // B3b-P: the exact route's section patches move four values per basis section each
+        // (D-5: both nested bases; none on the preview route); every case row's value moves,
+        // a reduced twin's included.
+        let section_moves=payload.sections.len().checked_mul(4*PREPARED_SECTION_BASES.len()).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit sections")))?;
+        let moves=ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows().len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit maxima")))?)
+            .and_then(|v|v.checked_add(section_moves))
+            // O4 §4.2: each Timoshenko member's shear leaf moves once (none otherwise).
+            .and_then(|v|v.checked_add(payload.shear.len()))
+            .and_then(|v|v.checked_add(2+usize::from(payload.stress_reduced.is_some()))).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit moves")))?;
+        self.adapter.enter(AdapterEvent::MapWrite,u64::try_from(moves).map_err(|_|PreparedCandidateError::Capture(CaptureError::CountRange("commit count")))?);
+        self.adapter.require().map_err(PreparedCandidateError::Capture)?;
+        trace.costs.record::<bool>();trace.private_commit_precharged=true;
+        Ok(())
     }
 }
 #[cfg(test)]
