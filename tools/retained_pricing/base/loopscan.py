@@ -163,12 +163,12 @@ def blank_test_items(bt, raw=None):
     blanked, inside a comment or string, is not one)."""
     out = list(bt)
     n = len(bt)
-    attrs = [(m.start(), m.end()) for m in TEST_ATTR.finditer(bt)]
+    attrs = [(m.start(), m.end(), False) for m in TEST_ATTR.finditer(bt)]
     if raw is not None:
         if len(raw) != n:
             raise ValueError("W1R-FG: the lexer-blanked text is not position-aligned with the raw text")
-        attrs += [(m.start(), m.end()) for m in OFF_ATTR.finditer(raw) if bt.startswith("#[cfg(", m.start())]
-    for start, end in sorted(set(attrs)):
+        attrs += [(m.start(), m.end(), True) for m in OFF_ATTR.finditer(raw) if bt.startswith("#[cfg(", m.start())]
+    for start, end, off in sorted(set(attrs)):
         i = end
         # skip further attributes and whitespace
         while True:
@@ -189,6 +189,11 @@ def blank_test_items(bt, raw=None):
         j, d = i, 0
         while j < n:
             c = bt[j]
+            # W1R-FG (review): an off-feature attribute must gate a statement or an item. One on
+            # a match arm, a field or a list element would end at a depth-0 `,`, `=>` or an
+            # unmatched `}`, and blanking on to the next `;` could hide production code.
+            if off and d == 0 and (c in ",}" or bt.startswith("=>", j)):
+                raise ValueError(f"W1R-FG: an off-feature attribute at offset {start} gates an expression position; re-review")
             if c in "([": d += 1
             elif c in ")]": d -= 1
             elif d == 0 and c == ";":

@@ -93,6 +93,15 @@ def test_an_inclusion_or_manifest_change_stops(tmp_path, edit):
         SCAN["off_build_files"](copy(tmp_path, edit))
 
 
+@pytest.mark.parametrize("snippet", [
+    'fn f(x: u8) -> u8 {\n    match x {\n        #[cfg(feature = "census-probe")]\n        0 => 1,\n        _ => 2,\n    }\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
+    'struct S { a: u8, b: u8 }\nfn f() -> S {\n    S {\n        #[cfg(feature = "census-probe")]\n        a: 1,\n        b: 2,\n    }\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
+])
+def test_an_off_feature_attribute_in_an_expression_position_stops(snippet):
+    with pytest.raises(ValueError, match="W1R-FG"):
+        production(snippet)
+
+
 def test_the_final_scales_owner_is_active_and_positive():
     assert OWNERS["inspect"](str(SOURCE)) is True
     form = OWNERS["proof_scales"](32)
