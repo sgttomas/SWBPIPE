@@ -109,6 +109,8 @@ code_paths:
 - tools/ci/**
 - tests/test_ci_*.py
 - tools/validation/validate_dependencies_schema.py
+- fixtures/product_preview/demo_fixture_generation.json
+- fixtures/product_preview/preview_physics_fixture_generation.json
 checks:
 - tests/test_ci_python.py
 - tests/test_ci_numerical.py
