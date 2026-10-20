@@ -254,6 +254,17 @@ fn w1_hull_search_work_is_counted(){
         assert!(lme(&driven_work)>lme(&point_work),"the hull-valid evaluations are metered");
         assert_eq!(driven_work.visits,point_work.visits,"the same nodes are visited");
     }
+    // A search that splits evaluates the hull at every new node, so its metered excess
+    // exceeds one hull evaluation (the root's): an unmetered loop would leave only that.
+    let (ends,q)=([[0.,1.,0.],[0.,0.,1.]],[1.,1.]);
+    let controls=[[0.,1.,0.],[0.,1.,1.],[0.,0.,1.]].map(|c|c.map(point));
+    let mut one=NumericWork::new();
+    point_max(&mut one,controls,point(1.),hull_z(2.,2.+2f64.powi(-40))).unwrap();
+    let one=one.wide.checked_lme().exact().unwrap();
+    let (_,point_work)=run_z(ends,q,point(2.),false);
+    let (_,driven_work)=run_z(ends,q,hull_z(2.,2.+2f64.powi(-40)),true);
+    let lme=|w:&ProductCertificateSpent<'_>|w.numeric.wide.checked_lme().exact().unwrap();
+    assert!(lme(&driven_work)-lme(&point_work)>one,"every node's hull evaluation is metered");
 }
 
 /// Exhaustion still refuses, and its diagnostic encloses the lane's maximum over
