@@ -374,7 +374,7 @@ Use bounded exponent/significand comparisons and sticky rounding, never an unche
   - near-degenerate rotating moments down to e = 1e-8 certify in ≤ 26 splits and ≤ 13 live nodes;
   - a tie at 1e-58 certifies in 30 splits;
   - an axial sign change and a moment passing through zero both certify.
-- **Memory.** The actual `SearchNode` has 19 Endpoints plus indices/padding: 2,744 B. Its 256-record backing is 702,464 B (about 0.67 MiB) per lane. The complete source union is 1,021,952 B, including helper/return/moving staging, within the 1 MiB charge. The lanes run one after the other with one member live, within L4's 1 MiB cap (section 9).
+- **Memory.** The actual `SearchNode` has 19 Endpoints plus indices/padding: 2,744 B. Its 256-record backing is 702,464 B (about 0.67 MiB) per lane. The complete source union is 1,021,952 B, including helper/return/moving staging, within the 1 MiB charge; the W1 coverage repair's driven search adds four endpoint slots, giving 1,022,528 B, still within it (retained-pricing-rules.md §8.11, W1R-LM). The lanes run one after the other with one member live, within L4's 1 MiB cap (section 9).
 - **Work.** Section 5.
 
 **Corners that fail closed.**
