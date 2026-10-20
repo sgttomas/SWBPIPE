@@ -271,7 +271,8 @@ fn w1_annulus_boundary_is_a_real_preparation_fallback() {
 }
 
 /// W1 coverage repair §2.2's gating check (corner 2): on every committed successor and
-/// producer-solved or hook-produced corpus base, the receipt's body scales, now the
+/// producer-solved or hook-produced corpus base (the hook-driven genuine-exhaustion
+/// control only under `--features loaded-maximum-hooks`), the receipt's body scales, now the
 /// final scales the product gate used, equal the committed ones (formerly native), body
 /// by body and kind by kind, and the unchanged reader's G5b body-scale equality holds
 /// (validation passes or refuses only after G5b). The census ran the same check over
@@ -327,7 +328,17 @@ fn w1_final_scales_equal_reader_scales() {
             Some(other) if other.starts_with("o4_w1e_unavailable_") => hooks::fail_freeze_of_case(1),
             _ => (),
         }
-        let ((_, _), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        // W1 coverage repair §1.4, option 2: the genuine-exhaustion control is hook-driven
+        // at reduced search limits. Its hook exists only under `loaded-maximum-hooks`, so the
+        // ordinary build cannot produce it and that command covers it.
+        let exhaustion = hook.as_deref().is_some_and(|h| h.starts_with("w1_member_exhaustion_"));
+        let run = || hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        #[cfg(feature = "loaded-maximum-hooks")]
+        let ((_, _), _, captured) = if exhaustion {
+            open_pipe_stress_frame_kernel::structural::retained_api::loaded_maximum_hooks::with(W1_EXHAUSTION_CONTROL_LIMITS, run)
+        } else { run() };
+        #[cfg(not(feature = "loaded-maximum-hooks"))]
+        let ((_, _), _, captured) = if exhaustion { continue } else { run() };
         let current = captured.unwrap_or_else(|| panic!("{label}: no successor"));
         assert_eq!(scales(&current), scales(&d["source"]), "{label}: final scales equal the committed scales");
         match open_pipe_stress_result_export::retained_precision::validate(&current, Some(invocation)) {

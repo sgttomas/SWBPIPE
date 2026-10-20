@@ -93,7 +93,7 @@ fn upper(w:&mut NumericWork,p:[[Enclosure;3];3],a:Enclosure,z:Enclosure)->Result
     Ok(min(paired,tangent.unwrap_or(paired)))
 }
 fn limits()->(usize,u8,usize) {
-    #[cfg(test)] if let Some(l)=hooks::get(){return l;}
+    #[cfg(any(test, feature = "loaded-maximum-hooks"))] if let Some(l)=hooks::get(){return l;}
     (LIVE,DEPTH,SPLITS)
 }
 /// The loaded-maximum branch and bound (W1 Design §4.4). `driven` (W1 coverage
@@ -109,6 +109,8 @@ fn limits()->(usize,u8,usize) {
 pub(super) fn search(spent:&mut ProductCertificateSpent<'_>,row:usize,member:u32,
     ends:[[Enclosure;3];2],q:[Enclosure;2],a:Enclosure,z:Enclosure,driven:bool)->Result<Enclosure,ProductFailure> {
     let (live_limit,depth_limit,split_limit)=limits();
+    #[cfg(feature = "census-probe")]
+    let work_start=census_probe::work_counts(spent);
     let hull_z=z;
     let z=if driven {Enclosure::point(z.lo)} else {z};
     let mut controls=[ends[0];3];controls[2]=ends[1];
@@ -120,7 +122,7 @@ pub(super) fn search(spent:&mut ProductCertificateSpent<'_>,row:usize,member:u32
     let mut lower=point_max(&mut spent.numeric,controls,a,z)?;
     let mut lower_hull=if driven {point_max(&mut spent.numeric,controls,a,hull_z)?} else {lower};
     #[cfg(feature = "census-probe")]
-    let mut probe=census_probe::SearchProbe::start(row,member,driven,hull_z,controls,lower);
+    let mut probe=census_probe::SearchProbe::start(row,member,driven,hull_z,controls,lower,work_start);
     let first=SearchNode{controls,upper:upper(&mut spent.numeric,controls,a,z)?,depth:0};
     let mut live=reserve::<SearchNode>(live_limit)?;
     spent.loaded_search_bytes=spent.loaded_search_bytes.max(live.capacity()*std::mem::size_of::<SearchNode>());
@@ -134,13 +136,13 @@ pub(super) fn search(spent:&mut ProductCertificateSpent<'_>,row:usize,member:u32
         let allowance=shift(&lower,-64)?;
         if gap.cmp_value(&allowance)!=Ordering::Greater {
             #[cfg(feature = "census-probe")]
-            probe.finish("converged",splits,lower,lower_hull,upper,a);
+            probe.finish("converged",splits,lower,lower_hull,upper,a,census_probe::work_counts(spent));
             return Ok(Enclosure{lo:if driven {lower_hull} else {lower},hi:upper});
         }
         let parent=live[highest];
         if parent.depth>=depth_limit || splits>=split_limit || live.len()>=live_limit {
             #[cfg(feature = "census-probe")]
-            probe.finish("exhausted",splits,lower,lower_hull,upper,a);
+            probe.finish("exhausted",splits,lower,lower_hull,upper,a,census_probe::work_counts(spent));
             spent.loaded_diagnostic=Some(Box::new(LoadedMaximumDiagnostic{row,member,lower:(if driven {lower_hull} else {lower}).parts(),upper:upper.parts()}));
             return Err(bad("loaded maximum search exhausted"));
         }
@@ -226,12 +228,17 @@ pub(super) fn evidence(w:&mut NumericWork,n:f64,hull:Enclosure,pp_lower:f64,pp_u
     Ok(ProductMaximumEvidence{value,lower:0.0,upper:hi,gap:hi})
 }
 
-#[cfg(test)]
-pub(super) mod hooks {
+/// The search's test capacity hook: `(live, depth, splits)` in place of the
+/// production limits, on the calling thread only. Compiled in the kernel's own
+/// tests and under the opt-in `loaded-maximum-hooks` feature (W1 coverage repair
+/// §1.4, option 2), which no product build or `[dev-dependencies]` entry enables.
+#[cfg(any(test, feature = "loaded-maximum-hooks"))]
+pub mod hooks {
     use std::cell::Cell;
     thread_local! {static LIMIT:Cell<Option<(usize,u8,usize)>>=const{Cell::new(None)};}
     pub(super) fn get()->Option<(usize,u8,usize)>{LIMIT.with(Cell::get)}
-    pub(super) fn with<T>(value:(usize,u8,usize),f:impl FnOnce()->T)->T {
+    /// Runs `f` with the search limits `(live, depth, splits)` on this thread.
+    pub fn with<T>(value:(usize,u8,usize),f:impl FnOnce()->T)->T {
         struct Restore(Option<(usize,u8,usize)>);impl Drop for Restore{fn drop(&mut self){LIMIT.with(|l|l.set(self.0));}}
         let old=LIMIT.with(|l|l.replace(Some(value)));let _restore=Restore(old);f()
     }

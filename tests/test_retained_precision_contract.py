@@ -2067,6 +2067,37 @@ def test_w1_halfway_corpus_controls_state_the_gate_scales():
             _current_read(source, None, "pass", label + ":transport", eligibility=NOT_ELIGIBLE, transport=True)
 
 
+def test_w1_hull_corpus_controls_publish_on_the_represented_hull():
+    """W1 coverage repair corner 1: the D = 0.2 m represented-hull control's two writer outputs.
+
+    The admitted lane's represented Z is the non-point hull(Z-hat, I-hat/c); its maximum
+    search converges at the hull's binding endpoint and the unchanged gate passes, so the
+    loaded case is selected and the verifier accepts it.
+    """
+    data = corpus()
+    cases = [case for case in data["cases"] if case["id"].startswith("w1_member_hull_d02_")]
+    assert len(cases) == 2
+    for case in cases:
+        assert case["provenance"]["generation_profile"] == "registered_direct"
+        assert case["provenance"]["writer"] == "core/product_physics/src/w1_domain_stage1_tests.rs::w1_represented_z_hull_converges_on_ordinary_sections"
+        pipe = next(p for p in case["invocation"]["request"]["model"]["pipe_segments"] if p["id"] == "ss:pipe")
+        assert (pipe["section"]["outside_diameter"]["value"], pipe["section"]["wall_thickness"]["value"]) == (0.2, 0.01)
+        maxima = [row for row in case["source"]["results"]
+                  if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == "ss:pipe"]
+        assert len(maxima) == 1 and maxima[0]["value"] > 0
+        body = case["source"]["retained_precision"]["body"]
+        assert body["cases"][0]["status"] == "selected"
+        attempt = body["product_attempts"][0]
+        assert attempt["proof"]["checks"]["certificate"]["kind"] == "passed"
+        assert "loaded_maximum_diagnostic" not in attempt["proof"]
+        entry = next(entry for entry in data["must_pass"] if entry["base"] == case["id"])
+        for label, source, invocation in [(case["id"], case["source"], case["invocation"]),
+                                           (entry["id"], *apply_entry(case, entry))]:
+            _current_read(source, invocation, "pass", label, classes=case["expected_classifications"], eligibility=case["expected"])
+            _current_read(source, None, "pass", label + ":unbound", classes=case["expected_classifications"], eligibility=NOT_ELIGIBLE)
+            _current_read(source, None, "pass", label + ":transport", eligibility=NOT_ELIGIBLE, transport=True)
+
+
 def test_member_data_corpus_pair_is_synthetic_and_decisive(monkeypatch):
     """Only declared member entries establish data in the zeroed-nodal pair.
 

@@ -76,6 +76,29 @@ thread_local! {
         corner1: false, same_section: false, same_readout: false, lane_null: false, record: false }) };
     static RECORDS: RefCell<Vec<Record>> = const { RefCell::new(Vec::new()) };
     static CONTEXT: RefCell<(String, &'static str)> = const { RefCell::new((String::new(), "")) };
+    static LANE: Cell<bool> = const { Cell::new(false) };
+}
+/// Names the lane of the next loaded-maximum search: `true` for the represented
+/// (admitted) lane, `false` for the annular lane.
+pub(super) fn lane(represented: bool) {
+    LANE.with(|l| l.set(represented));
+}
+/// The proof owner's counted work, component by component (wide and exact-sum LME,
+/// the seven entry counts, binary64 arithmetic and visits), for a search's own
+/// work as the difference of two snapshots. Reporting only; `u64::MAX` marks a
+/// component that is not exact.
+pub(super) fn work_counts(spent: &ProductCertificateSpent<'_>) -> [u64; 11] {
+    let n = &spent.numeric;
+    let x = |t: WorkTotal| t.exact().unwrap_or(u64::MAX);
+    let mut out = [0u64; 11];
+    out[0] = x(n.wide.checked_lme());
+    out[1] = x(n.sums.checked_lme());
+    for (i, e) in n.entries.iter().enumerate() {
+        out[2 + i] = x(*e);
+    }
+    out[9] = x(n.f64_arithmetic);
+    out[10] = x(spent.visits);
+    out
 }
 /// The current thread's switches.
 pub fn switches() -> Switches {
@@ -139,10 +162,14 @@ pub(super) struct SearchProbe {
     best_lower: Endpoint,
     max_live: usize,
     max_depth: u8,
+    represented: bool,
+    work_start: [u64; 11],
 }
 impl SearchProbe {
-    pub(super) fn start(row: usize, member: u32, driven: bool, z: Enclosure, controls: [[Enclosure; 3]; 3], lower: Endpoint) -> Self {
-        Self { row, member, driven, z, best: controls, best_lower: lower, max_live: 1, max_depth: 0 }
+    pub(super) fn start(row: usize, member: u32, driven: bool, z: Enclosure, controls: [[Enclosure; 3]; 3], lower: Endpoint,
+        work_start: [u64; 11]) -> Self {
+        let represented = LANE.with(Cell::get);
+        Self { row, member, driven, z, best: controls, best_lower: lower, max_live: 1, max_depth: 0, represented, work_start }
     }
     pub(super) fn point(&mut self, controls: [[Enclosure; 3]; 3], value: Endpoint, _lower: Endpoint, depth: u8) {
         if value.cmp_value(&self.best_lower) == Ordering::Greater {
@@ -154,7 +181,9 @@ impl SearchProbe {
     pub(super) fn live(&mut self, n: usize) {
         self.max_live = self.max_live.max(n);
     }
-    pub(super) fn finish(&self, outcome: &str, splits: usize, lower: Endpoint, lower_hull: Endpoint, upper: Endpoint, a: Enclosure) {
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn finish(&self, outcome: &str, splits: usize, lower: Endpoint, lower_hull: Endpoint, upper: Endpoint, a: Enclosure,
+        work_end: [u64; 11]) {
         let point_z = if self.driven { Enclosure::point(self.z.lo) } else { self.z };
         let (axial, bending) = loaded_maximum::probe_parts(self.best, a, point_z)
             .map(|(x, y)| (approx(&x), approx(&y))).unwrap_or((f64::NAN, f64::NAN));
@@ -168,7 +197,14 @@ impl SearchProbe {
             .put("z_width_2m64", Field::F(width(self.z) / zl * 2f64.powi(64)))
             .put("lower", Field::F(approx(&lower))).put("lower_hull", Field::F(approx(&lower_hull)))
             .put("upper", Field::F(approx(&upper)))
-            .put("best_axial", Field::F(axial)).put("best_bending", Field::F(bending));
+            .put("best_axial", Field::F(axial)).put("best_bending", Field::F(bending))
+            .put("lane", Field::S(if self.represented { "represented" } else { "annular" }.to_owned()))
+            // The search's exact result and its own counted work (W1 coverage repair §5,
+            // `w1_annular_lane_search_is_unchanged`).
+            .put("lower_exact", Field::S(format!("{:?}", (if self.driven { lower_hull } else { lower }).parts())))
+            .put("upper_exact", Field::S(format!("{:?}", upper.parts())))
+            .put("work", Field::L(work_end.iter().zip(self.work_start).enumerate()
+                .map(|(i, (e, s))| (i.to_string(), Field::U(e.wrapping_sub(s)))).collect()));
         push(r);
     }
 }

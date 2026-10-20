@@ -9,18 +9,24 @@ use super::source_residual::ResidualWork;
 use super::*;
 #[path = "loaded_maximum.rs"]
 mod loaded_maximum;
+/// The loaded-maximum search's capacity hook (W1 coverage repair §1.4, option 2),
+/// compiled only under the opt-in `loaded-maximum-hooks` feature.
+#[cfg(feature = "loaded-maximum-hooks")]
+pub use loaded_maximum::hooks as loaded_maximum_hooks;
 /// The W1 coverage census probe and switches (`w1-coverage-repair.md` §3.2),
 /// compiled only under the opt-in `census-probe` feature.
 #[cfg(feature = "census-probe")]
 #[path = "census_probe.rs"]
 pub mod census_probe;
-/// The corner-1 repair's switch (W1 coverage repair §1.2). Off without
-/// `census-probe`, so the production search is today's.
+/// The corner-1 repair's switch (W1 coverage repair §1.2). On in every build
+/// without `census-probe`: the production search drives an interval represented
+/// Z at z_lo. Under `census-probe` it stays the probe's switch, so the census can
+/// still compare today's search with corner 1's.
 fn corner1() -> bool {
     #[cfg(feature = "census-probe")]
     { census_probe::switches().corner1 }
     #[cfg(not(feature = "census-probe"))]
-    { false }
+    { true }
 }
 
 #[derive(Clone, Copy)]
@@ -939,6 +945,8 @@ fn recipe_reduced(
                 // W1 coverage repair §1.2: a lane whose Z is the represented hull
                 // and not a point is driven at z_lo (the corner-1 switch).
                 let driven = corner1() && (represented || shared) && z.lo.cmp_value(&z.hi) != Ordering::Equal;
+                #[cfg(feature = "census-probe")]
+                census_probe::lane(represented);
                 return loaded_maximum::search(spent,row,member,ends,curvature,a,z,driven);
             }
             let mut best = None;

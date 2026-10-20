@@ -260,11 +260,18 @@ def test_genuine_member_product_and_all_attested_hash_forgery():
 
 
 def test_genuine_exhaustion_and_diagnostic_encoding_association_mutants():
+    """The genuine-exhaustion control's writer outputs, read and mutated.
+
+    Since the W1 coverage repair (DEL-04-08 w1-coverage-repair.md section 1.4, option 2) the
+    control is hook-driven: its writer runs only with product_physics'
+    --features loaded-maximum-hooks and drives a real member to exhaustion at reduced search
+    limits; it claims no production limit.
+    """
     import os,json
     from copy import deepcopy
     from tests.verifiers import retained_precision as rp
     directory=os.environ.get('W1_MEMBER_READER_INPUT_DIR')
-    if directory is None:pytest.skip('requires maintained product exhaustion writer outputs')
+    if directory is None:pytest.skip('requires the maintained, hook-driven product exhaustion writer outputs (--features loaded-maximum-hooks)')
     for mode in ('sparse_interactive','dense_scrutiny'):
         record=json.loads((Path(directory)/f'w1_member_exhaustion_{mode}.json').read_text());source=record['source'];invocation=record['invocation']
         result=rp.validate_retained_precision(source,invocation)

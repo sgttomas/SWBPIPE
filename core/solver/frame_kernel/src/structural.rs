@@ -69,6 +69,12 @@ pub mod retained_api {
     pub const CENSUS_PROBE: bool = cfg!(feature = "census-probe");
     #[cfg(feature = "census-probe")]
     pub use super::retained::origins::census_probe;
+    /// Whether this kernel was compiled with the opt-in loaded-maximum capacity hook
+    /// (DEL-04-08 `w1-coverage-repair.md` §1.4, option 2). Product and ordinary test
+    /// builds never enable it; product_physics' guard test asserts `false` there.
+    pub const LOADED_MAXIMUM_HOOKS: bool = cfg!(feature = "loaded-maximum-hooks");
+    #[cfg(feature = "loaded-maximum-hooks")]
+    pub use super::retained::origins::loaded_maximum_hooks;
 }
 mod sparse;
 // U4 G5 part 2: the kernel's in-build strides for the product's retained-memory profile.

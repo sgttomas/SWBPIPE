@@ -579,6 +579,11 @@ use super::retained_tests_hooks::{self as hooks, Counts};
 /// The registered dev/test identity (R/I65/u4_g6_01/QUALIFICATION.md; the admission test's).
 /// Shared with `b7b_admission_tests`, which follows the same two-build convention.
 pub(super) const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W1 coverage repair §1.4, option 2: the genuine-exhaustion control's reduced
+/// loaded-maximum search limits (live, depth, splits), applied through the kernel's
+/// opt-in capacity hook. Its writer and the corner-2 gating check share them.
+#[cfg(feature = "loaded-maximum-hooks")]
+const W1_EXHAUSTION_CONTROL_LIMITS: (usize, u8, usize) = (256, 64, 0);
 pub(super) fn registered() -> bool {
     option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY)
 }

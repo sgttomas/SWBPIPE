@@ -1177,5 +1177,8 @@ pub use super::product_certificate::final_case::{ProductFailureView,HelperFailur
 /// The W1 coverage census probe (DEL-04-08 `w1-coverage-repair.md` §3.2), opt-in only.
 #[cfg(feature = "census-probe")]
 pub use super::product_certificate::final_case::census_probe;
+/// The loaded-maximum search's capacity hook (W1 coverage repair §1.4), opt-in only.
+#[cfg(feature = "loaded-maximum-hooks")]
+pub use super::product_certificate::final_case::loaded_maximum_hooks;
 
 pub(crate) use super::product_certificate::final_case::{LoadedValue,MemberValuesWork,LOADED_SEARCH_NODE,LOADED_SEARCH_HEAP_MAX};
