@@ -474,12 +474,29 @@ struct Judgement {
     not_covered: Vec<String>,
     input_derived: usize,
     unmapped: Vec<String>,
+    /// Covered rows (any class but `not_covered` and `non_quantity`) and readout comparisons made.
+    covered: usize,
+    comparisons: usize,
     breaches: Vec<Value>,
     undecided: Vec<Value>,
     rows: Vec<Value>,
 }
 
 const UNDECIDED: f64 = 1e-6;
+
+/// Comparison coverage of one selected successor: every covered row owned by the document is
+/// classified and compared with BOTH readouts, and at least one comparison is made. A row the
+/// references cannot place fails here rather than passing unjudged (repair round 1).
+fn coverage_failures(label: &str, j: &Judgement) -> Vec<String> {
+    let mut failures: Vec<String> = j.unmapped.iter().map(|u| format!("{label}: not compared: {u}")).collect();
+    if j.comparisons == 0 {
+        failures.push(format!("{label}: a selected successor yielded no reference comparison"));
+    }
+    if j.comparisons != 2 * j.covered {
+        failures.push(format!("{label}: {} comparisons for {} covered rows (both readouts each)", j.comparisons, j.covered));
+    }
+    failures
+}
 
 /// Judges one selected case of a successor against both readouts of its reference case. `owned`
 /// limits the judged rows to the document's own entities (the trigger's rows are not referenced).
@@ -502,6 +519,7 @@ fn judge(label: &str, successor: &Value, invocation: &Value, reference_case: &Va
             AccuracyClass::NotCovered => { j.not_covered.push(id.to_owned()); continue; }
             _ => {}
         }
+        j.covered += 1;
         let n = f64::from_bits(class.normalized_bits);
         let y = row["value"].as_f64().unwrap();
         let unit = row["unit"].as_str().unwrap();
@@ -510,6 +528,7 @@ fn judge(label: &str, successor: &Value, invocation: &Value, reference_case: &Va
             "scale": class.scale_bits.map(f64::from_bits)});
         for readout in ["annular", "admitted"] {
             let Some(exact) = reference(row, &readouts[readout]) else { j.unmapped.push(format!("{id} ({readout})")); continue };
+            j.comparisons += 1;
             let h = exact.distance(n).f();
             let (k, div) = unit_factor(unit);
             let h_raw = exact.scaled(k, div).distance(y).f();
@@ -620,7 +639,7 @@ fn augmented(doc: &Doc) -> Option<Value> {
 }
 
 #[derive(Default)]
-struct Summary { runs: usize, published: usize, breaches: Vec<Value>, undecided: Vec<Value>, tallies: BTreeMap<String, Tally> }
+struct Summary { runs: usize, published: usize, breaches: Vec<Value>, undecided: Vec<Value>, incomplete: Vec<String>, tallies: BTreeMap<String, Tally> }
 
 /// Runs one document in both modes, plain and (optionally) augmented, judging every published
 /// successor; writes one record per run under `O4_M3_OUT`.
@@ -664,8 +683,9 @@ fn bind(doc: &Doc, augmented_too: bool, summary: &mut Summary) {
                     }
                     record["judged"] = json!({"tallies": j.tallies.iter().map(|(k, t)| (k.clone(), json!({"rows": t.rows, "worst": t.worst, "worst_row": t.worst_row,
                         "worst_sharper": t.worst_sharper, "worst_raw": t.worst_raw}))).collect::<BTreeMap<_, _>>(),
-                        "not_covered": j.not_covered.len(), "input_derived": j.input_derived, "unmapped": j.unmapped, "breaches": j.breaches, "undecided": j.undecided,
-                        "rows": j.rows});
+                        "not_covered": j.not_covered.len(), "input_derived": j.input_derived, "covered": j.covered, "comparisons": j.comparisons,
+                        "unmapped": j.unmapped, "breaches": j.breaches, "undecided": j.undecided, "rows": j.rows});
+                    summary.incomplete.extend(coverage_failures(&label, &j));
                     summary.breaches.extend(j.breaches);
                     summary.undecided.extend(j.undecided);
                 }
@@ -682,7 +702,9 @@ fn finish(name: &str, summary: Summary, expect_published: Option<usize>) {
     for (k, t) in &summary.tallies {
         println!("O4_M3_TALLY {name} {k} rows={} worst={:.3e} ({}) sharper={:.3e} raw={:.3e}", t.rows, t.worst, t.worst_row, t.worst_sharper, t.worst_raw);
     }
-    println!("O4_M3_SUMMARY {name} runs={} published={} breaches={} undecided={}", summary.runs, summary.published, summary.breaches.len(), summary.undecided.len());
+    println!("O4_M3_SUMMARY {name} runs={} published={} breaches={} undecided={} incomplete={}", summary.runs, summary.published, summary.breaches.len(),
+        summary.undecided.len(), summary.incomplete.len());
+    assert!(summary.incomplete.is_empty(), "{name}: published rows not compared with both readouts: {:#?}", summary.incomplete);
     assert!(summary.breaches.is_empty(), "{name}: judged breaches on published rows (design §5: stop and return to HELP_HUMAN): {:#?}", summary.breaches);
     assert!(summary.undecided.is_empty(), "{name}: verdicts within 1e-6 of their boundary need the exact judge: {:#?}", summary.undecided);
     if let Some(n) = expect_published { assert_eq!(summary.published, n, "{name}: published W1-E successors"); }
@@ -716,10 +738,48 @@ fn o4_m3_w1e_fast_subset_judged_against_both_readouts() {
     summary.published += twins.published;
     summary.breaches.extend(twins.breaches);
     summary.undecided.extend(twins.undecided);
+    summary.incomplete.extend(twins.incomplete);
     for (k, t) in twins.tallies { summary.tallies.entry(k).or_default().rows += t.rows; }
     let published = summary.published;
     finish("fast_subset", summary, None);
     assert!(published >= 20, "fast subset: {published} published W1-E successors (coverage fell)");
+}
+
+/// Repair round 1 (Codex's probe, kept as a permanent negative control): on a real selected
+/// successor (GUIDED zero, Euler-Bernoulli, augmented, sparse), the judge must refuse a reference
+/// with both readouts removed (every row not compared, and no comparison at all), with one readout
+/// removed, and with one reference value corrupted (a breach); and pass the true reference.
+#[test]
+fn o4_m3_judge_refuses_missing_or_corrupt_references() {
+    let doc = judged_docs().into_iter().find(|d| d.id == "GUIDED|zero|eb").unwrap();
+    let raw = augmented(&doc).unwrap();
+    let mode = PreviewSolverMode::SparseInteractive;
+    let r = run(&raw, mode);
+    assert!(r.published, "the control publishes: {}", r.outcome);
+    let successor = r.successor.unwrap();
+    let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+    let judged = |reference: &Value| {
+        let j = judge("negative-control", &successor, &invocation, reference, "case", false);
+        (coverage_failures("negative-control", &j), j.breaches.len(), j.comparisons, j.covered)
+    };
+    let (failures, breaches, comparisons, covered) = judged(doc.reference);
+    assert!(failures.is_empty() && breaches == 0 && covered > 0 && comparisons == 2 * covered, "true reference: {failures:?} {breaches}");
+    let mut none = doc.reference.clone();
+    none["readouts"]["annular"] = json!({});
+    none["readouts"]["admitted"] = json!({});
+    let (failures, _, comparisons, covered) = judged(&none);
+    assert_eq!(comparisons, 0);
+    assert!(failures.iter().any(|f| f.contains("no reference comparison")), "zero comparisons refused");
+    assert_eq!(failures.iter().filter(|f| f.contains("not compared")).count(), 2 * covered, "every row, both readouts");
+    let mut one = doc.reference.clone();
+    one["readouts"]["admitted"] = json!({});
+    let (failures, _, comparisons, covered) = judged(&one);
+    assert_eq!(comparisons, covered);
+    assert!(!failures.is_empty(), "one readout missing refused");
+    let mut corrupt = doc.reference.clone();
+    corrupt["readouts"]["annular"]["nodal"]["N1"]["uy"] = json!(["1", 1.0]);
+    let (failures, breaches, _, _) = judged(&corrupt);
+    assert!(failures.is_empty() && breaches > 0, "a corrupted reference value is a breach");
 }
 
 /// The augmentation's trigger body publishes alone in the judged set's materials and both shear
