@@ -33,6 +33,7 @@ SOURCE_RULE = "structural.rs:%d" % SOURCE_LINE
 # O4 S5 (retained-pricing-rules.md §8.9): every snapshot line moved with unchanged text (structural.rs +3 from the
 # retained_api re-exports; retained_product.rs +137 to +411 from the O4 sidecars and ProductCaseView's second lifetime,
 # bind_rows_subject's signature line among them). No recipe, error, source-copy or helper site changed.
+# Stack-headroom D3 (§8.10): freeze_combination carries +59 through the line map; its text and callers are unchanged.
 VALIDATOR = PP + 'retained_product.rs:3303:validate_final_metadata'
 BOUNDS = {3373:46,3396:37,3402:140,3427:143,3454:158,3473:162,
           3507:188,3508:338,3542:169,3565:173,3570:322}
@@ -246,7 +247,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1226:audit_load_fidelity',
              'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1218:load_fidelity'],
              'core/product_physics/src/retained_product.rs:2553:bind_rows_subject': ['core/product_physics/src/retained_product.rs:2537:bind_combination_rows_scoped',
                                                                                      'core/product_physics/src/retained_product.rs:2546:bind_rows_view',
-                                                                                     'core/product_physics/src/retained_product.rs:7253:freeze_combination']},
+                                                                                     'core/product_physics/src/retained_product.rs:7312:freeze_combination']},
  'site_stacks': [['core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   'core/product_physics/src/retained_product.rs:3303:validate_final_metadata',
                   [['for observed in view.rows()']]],
@@ -280,7 +281,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1226:audit_load_fidelity',
                  ['core/product_physics/src/retained_product.rs:2546:bind_rows_view',
                   'core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   [[]]],
-                 ['core/product_physics/src/retained_product.rs:7253:freeze_combination',
+                 ['core/product_physics/src/retained_product.rs:7312:freeze_combination',
                   'core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   [[], []]]],
  'source_loop': {'re': '^iter:terms\\.iter\\(\\)\\.map$',

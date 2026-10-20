@@ -29,6 +29,7 @@ SOURCES = {
 # O4 S5 (retained-pricing-rules.md §8.9): every owner, site and caller moved with unchanged text (lib.rs +3; retained_product.rs
 # +61/+167/+303/+412). prepared_maxima calls exact_straight_summary_extrema once more for a distinct-basis member's
 # reduced maximum (the same caller node; the chain counts its multiplicity); no owner gains a caller.
+# Stack-headroom D3 (§8.10): combination_observables carries +59 through the line map; its text and callers are unchanged.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
@@ -90,7 +91,7 @@ SITES = [
     "from": 'retained_product.rs:3126:support_observables',
     "parents": [
       'core/product_physics/src/retained_product.rs:3165:case_observables',
-      'core/product_physics/src/retained_product.rs:7370:combination_observables'
+      'core/product_physics/src/retained_product.rs:7429:combination_observables'
     ]
   }
 ]

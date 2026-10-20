@@ -20,8 +20,11 @@ import runpy
 # T4-S6 D3 (§8.8, S6-HS): retained_wire.rs's domain_hash streams its digest and retained_precision.rs's G1 hashes the
 # publication without cloning the source; neither touches a member-path owner. T4-S7: retained_wire.rs's
 # domain_hash doc comment only.
+# Stack-headroom repair D3 (b7-plan 5a, retained-pricing-rules.md §8.10): read 27e4dfa972;
+# freeze_case's closure is split into six phase functions, with unchanged calls, order, errors,
+# drops and allocation. Only stack placement changes; no owner this model prices changes.
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": 'cd0671759be0395cdc48c2a23489730f3ac1e05bf5b922e648b420cbe3e49957',
+    "core/product_physics/src/retained_product.rs": '7683f8ef8dc9b4f1951bb7ef1e0c274fd9a094fb66f55132de3cf07758ff4e52',
     "core/product_physics/src/retained_wire.rs": "559f4d0ae4b3b2a9405d3aa8199d5ccbc10d03775a0b38544e10eed31b1806eb",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "2dbbdd9c9fcdfc87aa0b7358c6a7661e20eded94b64e482ec62dcdbbaedce7a4",

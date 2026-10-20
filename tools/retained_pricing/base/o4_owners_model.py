@@ -40,7 +40,16 @@ BODY_PINS = {
     (RP, "prepared_not_covered"): "91b82b246cb463082b64da0b6a4ff2d3a1e26819d37b75024de9642cb2b53e78",
     (RP, "prepared_maxima"): "10f81029578641e0c05914cab95b3a8cfefc0a45cb9b21fd94fbd27aba8adaa0",
     (RP, "prepared_sections"): "9b5b2b6a6094db92c72790e22d7c956f2a5215ae08e25aa3990f32a38eed9ed2",
-    (RP, "freeze_case"): "798d59b73286d7403fb66d7920a5a63c1b40c8cce7dbdfabcc3dc98946667d1e",
+    # Stack-headroom repair D3 (b7-plan 5a, retained-pricing-rules.md §8.10): read 27e4dfa972;
+    # freeze_case's closure is split into six phase functions, with unchanged calls, order, errors,
+    # drops and allocation. Only stack placement changes; no owner this model prices changes.
+    (RP, "freeze_case"): "4fd4525e76ae31f8babbe6384cfd56568018a44dddacece26e056070555cd0da",
+    (RP, "freeze_case_inputs"): "7cc89da34fefbaff43cc1ab013045dc0756621591cdd4f0f530d3bc8732bb165",
+    (RP, "freeze_case_draft"): "ee1cb4dce82b6d404ad0a407efca45baf6a48f91f4c8737d00026faf41ac6b1f",
+    (RP, "freeze_case_values"): "4507cd2ad855850250a1b355b7216b778ad8983c957faeb860d5c9ebac0a99ad",
+    (RP, "freeze_case_certify"): "6866fbb15b0d5b976c7fa2cb53649dbed24f6fbc2c7f8a4c6b14a5c1998f366c",
+    (RP, "freeze_case_settle"): "fbead169403126ea9207e5fc3bba733a3a912324cb3a9c420ae4fa40d00fb430",
+    (RP, "freeze_case_commit"): "97088782f6b5a7469ec7cf15198bf18ba3d1dce6670cb0e2f891e50e85ba9924",
     # O4-WR (the receipt's section-term keys and reduced preparation records)
     (RW, "case_source_at"): "28f05373993894b3a4df7664dfdc2f410f80be81fd87604b325dc0a89dc83679",
     (RW, "selection"): "860ae53a9f2dd501d724d940cd7d637dd63b0c24867c668b795ebe54bc089bea",
