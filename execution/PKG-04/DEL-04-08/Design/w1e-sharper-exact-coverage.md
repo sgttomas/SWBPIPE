@@ -326,5 +326,11 @@ Every gate, predicate, tolerance, limit, precision ladder and projection; DEF-O,
 
 ## 9. Reserved for the owner
 
+**Owner decisions, 2026-10-20** ("For the five decisions you put to me I approve your recommended option in each case"):
+- **REQ-006 (e).** HELP_HUMAN applies section 6.1's text to the ScopeOfWork, and reports it, once census 6.2 reproduces the ceiling on the product. The census runs in b7-plan's epoch 6.
+- **Coverage options.** Z1 is decided together with the W1 coverage repair's own definition question. The other options are not pursued unless the owner later chooses to change the claim for coverage.
+
+The options as presented:
+
 - The REQ-006 (e) text (6.1). If it is not adopted, the corner stays an unstated fail-closed outcome.
 - Any of Z1, U1 (i)–(iv), R1, R1′ or C1 (section 5), each with its consequence. U1 (iv) also needs the owner's reading of DEF-E. No recommendation is made.

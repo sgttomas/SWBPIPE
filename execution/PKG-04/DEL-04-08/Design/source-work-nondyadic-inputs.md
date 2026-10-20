@@ -357,6 +357,14 @@ All of this comes before adoption is decided.
 
 ## 6. Reserved for the owner
 
+**Owner decisions, 2026-10-20** ("For the five decisions you put to me I approve your recommended option in each case"):
+- **AC-002.** The amended wording below is approved. It is applied to the ScopeOfWork in R-A's implementation PR, and only if section 5's census shows every Z-hinge decimal case fitting the unchanged limit and the independent numerical review passes.
+- **The pre-0.4 blocked envelope.** Deferred until R-A's census. Today's outcome stands until then.
+- **Second-stage candidates.** These are designed further only if R-A leaves cases over the limit.
+- **Placement.** R-A is b7-plan's epoch 7, after the W1 coverage repair. Its census comes first.
+
+The options as presented:
+
 - **AC-002.** Its owner text of 2026-10-19 reads: "the RF census classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged; its envelope, results and summary digests change only as a stated product-text, identity or published-row change requires".
   - R-A changes the census's charged work on its 66 directly selected entries (62 method-only), and, on the 4 publicly selected entries, the envelope and diagnostic digests that bind that work. Its results and summary digests carry no work (`j7_rf_census.rs` about 333–340), so they do not move. Classification, counts, first causes, selections and frozen-row verdicts stay unchanged.
   - The owner can rule either that this re-pin falls within AC-002, or that AC-002 reads, for example: "… first causes, selections and frozen-row verdicts are unchanged; its charged work changes only as a reviewed work-reduction change requires, with every charge still at least the executed work; its envelope and diagnostics digests change only as a stated product-text, identity, published-row or work change requires, and its results and summary digests only as a stated product-text, identity or published-row change requires".
