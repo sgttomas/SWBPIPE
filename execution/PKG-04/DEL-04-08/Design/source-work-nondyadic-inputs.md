@@ -26,6 +26,7 @@ This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [
 - **The public outcome** is the published blocked envelope, with no result rows and the blocking diagnostic. Revision 3's run-level `Err` arises only when the invocation-level receipt fails (1, 6).
 - **B1's block condition** reads "at most one block", so exact-zero rows, 16 of the 22 negated rows here, stay covered (3.1).
 - **The J7 counts** are corrected (Summary, 4), and the hint vector is recorded as a priced owner (4).
+- **The gating test** asserts which rows take B1, so a byte-equality pass cannot hide a silent fallback (3.2).
 
 ## Summary
 
@@ -241,6 +242,7 @@ Together these make about 0.93M [E].
   - Over the J7 RF census, the 24 raw source controls, `o4_source_controls`, MJ6/MJ9 and section 5's inputs, every B1-derived Ratio equals the long evaluation's bit for bit.
   - Every B2 case gives the same values, and the same errors apart from `Budget`.
   - Its constructed inputs include the reviewer's re-grow witness, a source row with three-atom products, and a Selector-basis member of unit stiffness. Each must take the long path.
+  - **Coverage assertion.** The test also records which rows take B1 and which take B2's skip. On the Z-hinge census inputs it asserts that all 22 negated rows per member, exact-zero rows included, take B1. So a byte-equality pass cannot hide rows that silently fell back to the long path.
 - **Mutants**, each killed by the named test:
 
 | Mutant | Killed by |
