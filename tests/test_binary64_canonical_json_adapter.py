@@ -19,10 +19,14 @@ from core.serialization.canonical_json import adapter as api
 
 
 @pytest.fixture(scope='session', autouse=True)
-def explicitly_build_test_authority():
+def explicitly_build_test_authority(no_cargo_build, prebuilt_binary):
     # Test setup owns explicit builds, just as the existing project conftest
     # does for v1. Runtime adapter calls never build or search another profile.
     if os.environ.get(api.ENV_BINARY64_EXECUTABLE):
+        yield
+        return
+    if no_cargo_build:
+        prebuilt_binary(api.ENV_BINARY64_EXECUTABLE, api._KNOWN_BINARY64_EXECUTABLE, 'the binary64 JSON authority')
         yield
         return
     script = Path(__file__).parents[1] / 'tools/serialization/build_checked_json.py'

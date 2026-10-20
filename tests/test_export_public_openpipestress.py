@@ -344,9 +344,11 @@ def test_target_and_force_require_execute(tmp_path):
 needs_cargo = pytest.mark.skipif(
     not CARGO_AVAILABLE, reason="cargo unavailable; lint-gate integration skipped"
 )
+runs_lint_engine = pytest.mark.runs_cargo("cargo run of the protected-content lint engine")
 
 
 @needs_cargo
+@runs_lint_engine
 def test_execute_green_run_emits_bound_deterministic_export(tmp_path):
     source = make_source_tree(tmp_path)
     target_one = tmp_path / "out-one"
@@ -401,6 +403,7 @@ def test_execute_green_run_emits_bound_deterministic_export(tmp_path):
 
 
 @needs_cargo
+@runs_lint_engine
 def test_execute_fails_on_unexpected_blocking_lint_finding(tmp_path):
     source = make_source_tree(tmp_path)
     (source / "docs" / "planted.md").write_text(
@@ -417,6 +420,7 @@ def test_execute_fails_on_unexpected_blocking_lint_finding(tmp_path):
 
 
 @needs_cargo
+@runs_lint_engine
 def test_execute_treats_reviewed_fixture_findings_as_expected(tmp_path):
     source = make_source_tree(tmp_path)
     fixture_dir = source / "fixtures" / "report_lint" / "invented"
@@ -439,6 +443,7 @@ def test_execute_treats_reviewed_fixture_findings_as_expected(tmp_path):
 
 
 @needs_cargo
+@runs_lint_engine
 def test_execute_fails_on_unexpected_boundary_finding(tmp_path):
     source = make_source_tree(tmp_path)
     (source / "docs" / "server.pem").write_text("not a real key\n", encoding="utf-8")

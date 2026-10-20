@@ -176,6 +176,7 @@ def _normalized_text(text: str) -> str:
     shutil.which("cargo") is None,
     reason="cargo toolchain is not installed on this machine",
 )
+@pytest.mark.runs_cargo("cargo test of the nonlinear benchmark crate")
 def test_nonlinear_benchmark_crate_runs_focused_regressions():
     result = subprocess.run(
         ["cargo", "test", "--quiet"],

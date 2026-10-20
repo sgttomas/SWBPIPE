@@ -398,6 +398,7 @@ def test_ignored_existing_cargo_lock_remains_lockless_and_untouched(tmp_path):
 
 
 @pytest.mark.skipif(shutil.which("cargo") is None, reason="cargo is required")
+@pytest.mark.runs_cargo("cargo generate-lockfile and the sweep's Cargo cache preflight")
 def test_real_cargo_preflight_keeps_lockless_git_checkout_clean(tmp_path):
     sweep = load_module()
     root = tmp_path / "mini-project"
@@ -486,6 +487,7 @@ def test_build_wasm_script_forces_offline_cargo():
     assert '"build",\n  "--offline",' in script
 
 
+@pytest.mark.runs_cargo("the wasm build script resolves its target with cargo metadata")
 def test_wasm_artifact_resolver_honors_redirected_cargo_target_dir(tmp_path):
     script = ROOT / "apps" / "desktop" / "scripts" / "build-wasm-engine.mjs"
     crate_dir = ROOT / "core" / "model_operations" / "operation_applier"
