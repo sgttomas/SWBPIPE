@@ -226,10 +226,12 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - **Route E** also excludes present pressure regions, named-point modulus bases and combinations.
     - Arcs publish no rows on the retained identities.
     - **Retained-source recovery:** admits only straight circular members with linear restraints or springs. It declines present pressure regions (zero pressure included), components, nonlinear supports and non-nodal ordinary applied loads, and excludes combinations and models above 256 degrees of freedom.
-  - **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values. Three definitions of the method keep some rows from meeting it:
+  - **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values, and each `absolute_verified` row's within its absolute bound. Five properties of the method keep some rows from meeting it:
     - the admitted readout's bending stress ranges over hull(Ẑ, Î/c);
     - the admitted readout's binary64 section, shear and modulus leaves differ from the exact annulus readout's by up to a few binary64 units, and every stress row inherits the section leaves' difference;
-    - a millimetre or megapascal value is rounded in its unit and again when normalized to SI.
+    - a millimetre or megapascal value is rounded in its unit and again when normalized to SI;
+    - an unloaded member's circular maximum publishes the ordinary binary64 value, and a support magnitude the norm of the rounded components, rather than the projection of the readouts' midpoint;
+    - near an exact zero, the annular readout's enclosure can be wider than the absolute bound.
 
     A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's (Design `w1e-sharper-exact-coverage.md`).
 - **REQ-007** — These delivery duties are open unless marked discharged. Each is delivered under its own design and independent review, keeps every gate unchanged, and is re-registered under D3 wherever it changes a priced source or a reviewed input.
