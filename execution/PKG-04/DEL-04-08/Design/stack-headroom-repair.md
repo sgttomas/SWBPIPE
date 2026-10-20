@@ -47,31 +47,36 @@ Their R/16 = 4 MiB legs pass.
     - 8 slots of `CertifiedProductProof` (4,256 B).
   - Every fallible phase of the closure, lines 6502–6629, coexists in that one frame.
 
-## Repair: split the closure into sequential phases
+## Repair: split the closure into sequential phases (as built)
 
-The body of `freeze_case`'s closure becomes a short parent that calls `#[inline(never)]` phase functions in the present order. During the deep call, the frame live above the source residual then holds only the parent's and the draft phase's slots. Each phase returns the values the next phase uses.
+The body of `freeze_case`'s closure is now a short parent that calls `#[inline(never)]` phase functions in the original order (`27e4dfa972`). During the deep call, the frame live above the source residual holds only the parent's and the draft phase's slots. Each phase's body is the original lines, moved unchanged.
 
-| Phase | Lines | Receiver | Returns |
+| Phase | Original lines | Receiver | Returns |
 |---|---|---|---|
-| Inputs | 6502–6515: attempt guard, native owner, `base_rows`, `specs`, MapWrite, `reduced` | `&self` (`&mut` for `capture_entry`) | inputs |
-| Draft | 6516–6518: `begin_prepared_product_with` or `_reduced`, then `into_ready` | free function | the ready draft |
-| Projection, maxima, sections, not-covered, values, aliases | 6519–6557 | `&self` | the payload, `projected` and `value_work` |
-| Distinct copy, rows, `certify_final` | 6558–6564 | `&self` | `distinct`, `rows` and the certification `Result` |
-| Settlement | 6565–6610: failure bookkeeping, matches-values, verdict copy, observables, G5a, pass | `&mut self` | — |
-| Commit plan | 6611–6629: move counts, adapter charge | `&mut self` | `Ok(payload)` |
+| `freeze_case_inputs` | 6502–6515: attempt guard, native owner, `base_rows`, `specs`, MapWrite, `reduced` | `&self` (`capture_entry` takes `&self`) | the inputs |
+| `freeze_case_draft` | 6516–6518: `begin_prepared_product_with` or `_reduced`, then `into_ready` | free function | the ready draft |
+| `freeze_case_values` | 6519–6557: projection, maxima, sections, not-covered, values, aliases | `&self` | the payload, `projected` and `value_work` |
+| `freeze_case_certify` | 6558–6564: distinct copy, rows, `certify_final` | `&self` | `distinct`, `rows` and the certification `Result` |
+| `freeze_case_settle` | 6565–6610, except `pass`: failure bookkeeping, matches-values, verdict copy, observables, G5a | `&mut self` | `SettledCase::Certified` or `Refused(certificate, error)`, where no error means the owner mismatch |
+| `freeze_case_commit` | 6611–6629: move counts, adapter charge | `&self` | `Result<(), …>` |
 
-The parent keeps ownership of `reduced`, `maxima`, `distinct`, `rows`, `base_rows` and `specs`. Each therefore drops at the same point and in the same order as today, including `drop(rows); drop(base_rows); drop(specs);` before the pass test.
+- **Ownership in the parent.** The parent keeps ownership of `base_rows`, `specs`, `reduced`, the maxima, `payload`, `distinct` and `rows`, declared in the original order. Each therefore drops at the same point and in the same order as before, including `drop(rows); drop(base_rows); drop(specs);` before the pass test.
+- **`pass`.** `full_case_passed()` stays in the parent, on its original line.
+- **Refusals.** On every settlement refusal the parent sets `certificate`, drops `rows`, then moves `payload.values` into `saved_values`, in the original order. The owner-mismatch text is still formed after `rows` drops.
+- **Explicit matches.** The parent propagates each phase result with an explicit `match`, not `?`. That gives the same values and saves 46,640 B of parent frame.
+- **Invariants.** The same calls run in the same order, with the same arguments, error values and mapping. The `trace` stages and the `#[cfg(test)]` output are unchanged. No allocation is added or removed. There is no unsafe code and no raw pointer.
+- **Independent review.** It found the split EQUIVALENT on every success and refusal path, with no behavioural finding.
 
-Every settlement error path that today sets `saved_values=Some(payload.values)` returns to the parent with a marker, and the parent performs that move after `rows` is dropped, exactly as now. `certificate` is set by the parent from the settlement's result, at the points it is set today.
+**Result.**
 
-**Invariants.** The same calls run in the same order, with the same arguments, error values and error mapping. No allocation is added or removed and none moves to the heap. Only where values live on the stack changes. Because the draft and projection borrow `self.facts`, these phases take `&self` and only the settlement and commit phases take `&mut self`. The measurement prototypes used a raw-pointer alias instead; production must not.
+| Measure (registered build, all six witness/mode pairs) | Before (`fa019d9cef`) | After | Target |
+|---|---:|---:|---:|
+| Painted peak | 1,238,960 B | 893,168 B | — |
+| Smallest passing stack | 1,228,800 B | 884,736 B | ≤ 983,040 B |
+| Largest failing stack | — | 868,352 B | — |
 
-**Expected result.**
-- A measurement prototype of this split, with inputs and draft separated as above, gave:
-  - a painted peak of 801,488 B;
-  - a smallest passing stack of 802,816 B, against the target of ≤ 983,040 B (64 KiB below 1 MiB);
-  - a closure frame of 51,312 B and a draft frame of 14,000 B.
-- The production shape has a few more call slots in the parent, so its estimated peak is 800–835 KB.
+- The parent's frame is 142,992 B. A measurement prototype reached 802,816 B by moving drops, which the as-built shape does not do.
+- If more margin is wanted, the next step is to group `freeze_case_values`, `freeze_case_certify` and `freeze_case_settle` under one `#[inline(never)]` call, an estimated saving of about 50 KB.
 
 **Margin left in reserve.** Other splits are measured or estimated:
 
@@ -97,31 +102,38 @@ D3 re-priced the repaired source at `6b90748dec`, after the full-file and functi
 
 The generated profile and registration now name that commit (retained-pricing-rules §8.10). All 70 evaluations fit at the unchanged policy; the tightest remains merged dense W3, with 2,795,665,581 B headroom, a difference of 0 B from §8.9. The build identity, reader layouts, twelve reviewed-input digests and every numerical law-test pin are unchanged. `generate --check`, the law tests, both full suites and all six registered stack witnesses pass; the phase table is in §8.10.
 
-## Verification
+## Verification (as built)
 
 - **Witnesses**, in the registered build, one process each:
-  - the six headroom witnesses;
-  - `witness_w7_fault_fallbacks`, `witness_w_c2_ac_publishes_sparse` and the `control_*` entries;
-  - the painted peak and the bisected smallest passing stack for all six.
-- **Full product_physics suite**, in the registered build and in an emulated unregistered build ([CI strategy](../../../../docs/CI_STRATEGY.md)).
+  - the six headroom witnesses pass;
+  - `witness_w7_fault_fallbacks`, `witness_w_c2_ac_publishes_sparse` and all 17 `control_*` entries pass.
+- **Full product_physics suite:** 1,119 passed, 0 failed and 131 ignored, both in the registered build and in an emulated unregistered build (`RUSTFLAGS=--cap-lints=warn`, [CI strategy](../../../../docs/CI_STRATEGY.md)).
+- **Other crates:**
+  - result_export, at the hosted flags: 338 passed;
+  - headless: 114 passed.
+- **The six headroom witnesses also pass unregistered.**
 - **No numerical change:**
-  - the committed J documents, preview records and `generate --check` are byte-identical;
-  - the O4 M3 judging fast set and the declared-problem oracle pass unchanged.
-- **Judging warrant.** The S6 judging warrant (65fd80b176) stands, because no numerical path changes. That rests on the byte-identity above and on the review of the split's equivalence.
-- **Independent scrutiny by a separate agent** covers:
-  - the split's equivalence: evaluation and drop order, error mapping, and the timing of the `saved_values` and `certificate` moves;
-  - the D3 re-pricing and registration.
+  - the pytest suite (7,284 passed, 50 skipped, 0 failed) leaves every committed J document and preview record byte-identical;
+  - `generate --check` is equal at the re-registration;
+  - the O4 M3 judging fast set passes;
+  - the declared-problem oracle gives 578 PASS and 0 FAIL.
+- **Judging warrant.** The S6 judging warrant (65fd80b176) stands, because no numerical path changed.
+- **Independent scrutiny by a separate agent:**
+  - the split's equivalence: EQUIVALENT;
+  - the D3 re-pricing and registration: reviewed in the PR.
 
-## Maintained check
+## Maintained check (as built)
 
-The witnesses abort the process on overflow, so each runs in its own process: `cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- retained_memory::witness_tests::<witness>::<mode> --exact --ignored --test-threads=1`.
+The witnesses abort the process on overflow, so each runs in its own process: `cargo test --offline --manifest-path core/product_physics/Cargo.toml --lib -- retained_memory::witness_tests::<witness>::<mode> --exact --ignored --test-threads=1`. `check_release_readiness.stack_witness_commands` defines this list once.
 
-- **Registered evidence (VER-004).** `tools/release/check_release_readiness.py` gains a `stack-witnesses` profile, also included in `all`, that runs the six commands. On the qualification host this is the registered-profile record. The `cargo` profile stays one step per manifest, which `tools/ci/numerical_ci.py` relies on.
-- **Early warning on every selected PR.** The hosted numerical plan runs the same six commands in the default debug profile whenever product_physics is selected.
-  - Hosted builds are unregistered, so this lane is a regression signal, not registered evidence.
-  - Its frames are those of an unoptimized x86_64 Linux build.
-  - It needs the six witnesses not to depend on registration. W3's G0 assertion is not among them; this is checked in the emulated unregistered build before the lane is added.
-  - It follows the optimized-profile change to that plan (#1469).
+- **Registered evidence (VER-004).**
+  - `tools/release/check_release_readiness.py --profile stack-witnesses` runs the six commands. The profile is also included in `all`.
+  - The macOS release sweep (`run_evidence_sweep.py`, surface `cargo_crate_sweep`) runs it after the crate sweep. On the qualification host this is the registered-profile record.
+  - The `cargo` profile stays one step per manifest, which `tools/ci/numerical_ci.py` relies on.
+- **Early warning on every selected PR.**
+  - Whenever product_physics is selected, the hosted numerical plan runs the same six commands, with `--locked`, at the default debug profile, after the optimized suite.
+  - Hosted builds are unregistered, so this lane is a regression signal, not registered evidence. Its frames are those of an unoptimized x86_64 Linux build.
+  - `build_commands` compiles the harness-filtered commands once.
 
 ## Lesson
 
