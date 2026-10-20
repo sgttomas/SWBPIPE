@@ -535,6 +535,41 @@ fn w1_loaded_scale_halfway_publishes() {
     }
 }
 
+/// W1 coverage repair §2.2 and §5: only the receipt's `body_scales` change provenance. The
+/// native publication keeps its own scales, the coupled maxima of its own rows, which its
+/// certificate judged with. On the 73/24 Pa control they differ from the gate's final scales
+/// at the loaded body, so a native scale replaced by a final one is visible here.
+#[test]
+fn w1_native_scales_stay_native_evidence() {
+    let raw=w1_interior_publication_request(true,-2.0);
+    for mode in MODES {
+        let (request,capture)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
+        let mut prepared=rp::PreparedCase::prepare_observed(request,mode,&capture)
+            .unwrap_or_else(|f|panic!("{:?}",f.capture.error));
+        prepared.solve_native().unwrap();
+        let candidate=prepared.project_candidate().unwrap_or_else(|_|panic!("{mode:?}: the control certifies"));
+        let (_,case)=candidate.capture().native_pair().unwrap();
+        let k::ExecutionOutcome::Selected(owner)=&case.outcome else{panic!("{mode:?}: native selected")};
+        let native=&owner.evidence().body_scales;
+        let final_scales=candidate.certificate().final_scales();
+        assert_eq!(native.len(),4*final_scales.len());
+        let publication=owner.publish();
+        assert_eq!(&publication.body_scales,native,"the evidence states the native publication's scales");
+        // Body 1 (extent 2): the coupled maxima of the native rows themselves.
+        let mut s=[0.0f64;4];
+        for row in publication.rows.iter().filter(|r|r.body==1&&r.class!=k::RowClass::InputDerived) {
+            let slot=[k::Kind::Translation,k::Kind::Rotation,k::Kind::Force,k::Kind::Moment].iter().position(|q|*q==row.kind).unwrap();
+            if let Some(x)=row.value.value() {s[slot]=s[slot].max(x.abs());}
+        }
+        let expected=k::coupled_scales(s,2.0);
+        for (kind,want) in expected.iter().enumerate() {
+            let (body,_,bits)=native[4+kind];
+            assert_eq!((body,bits),(1,want.to_bits()),"{mode:?}: native body 1 kind {kind}");
+        }
+        assert_ne!(native[4+2].2,final_scales[1][2].to_bits(),"{mode:?}: the control's native and final force scales differ");
+    }
+}
+
 /// Preserve the real input-width refusal beside the selected interior controls.
 #[test]
 fn w1_loaded_maximum_refuses_irreducible_represented_section_width() {
