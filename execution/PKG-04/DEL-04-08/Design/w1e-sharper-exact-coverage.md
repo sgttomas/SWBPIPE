@@ -2,7 +2,7 @@
 
 This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; [o4-source-extension.md](o4-source-extension.md) §5, "Coverage"). On O4's judged set, W1-E (`physics-retained-1`) publishes almost no successors. Where it attempts a case, its existing proof fails closed most often at the SharperExact predicate (44 of the attempted runs; alpha 24, preparation 16). The owner decided on 2026-10-20 ("All as recommended") that a remedy be designed now. The design goal is a remedy that keeps the verified claim and relaxes no verification.
 
-**Status: design; the confirmation census has run (6.3).** Nothing here changes a product file, a reviewed input or a ScopeOfWork. The basis is main `fa019d9cef` (O4 merged as #1468). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Status: design; the confirmation census has run (6.3); REQ-006 (e) is applied (6.1).** Nothing here changes a product file, a reviewed input or a ScopeOfWork. The basis is main `fa019d9cef` (O4 merged as #1468). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 **Revision 2** answers the first round of dual review (Claude Opus 5.5 and Codex). The changes:
 - section 2's bound is restated. Revision 1 claimed that no proof could change the outcome, but a sound proof whose enclosure is wider and asymmetric can move the published value. The universal bound is now taken over every published value (2.1), and the fixed-projection ceiling is stated with its premise (2.2);
@@ -14,7 +14,9 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 - the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
 - the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
 
-**Revision 6** answers the Claude review of the census report (second round), from the re-run with per-row diagnostics. The proposed REQ-006 (e) text names two more causes the census found: maxima and support magnitudes published as binary64 values, and the annular enclosure's width against the absolute bound near zero (6.1). The causes and the attribution separate that proof width (6.3). The product reproduces the replay's ceiling exactly on the replay's own rows. The Z1 any-value failures are reconciled document by document (6.3).
+**Revision 7** records REQ-006 (e) as applied through #1481 with section 6.1's original text, keeps revision 6's two added causes as a proposed amendment reserved for the owner (6.1, 9), and names the maintained AC-006 test.
+
+**Revision 6** answers the Claude review of the census report (second round), from the re-run with per-row diagnostics. It proposed adding to the REQ-006 (e) text two more causes the census found: maxima and support magnitudes published as binary64 values, and the annular enclosure's width against the absolute bound near zero (6.1). The causes and the attribution separate that proof width (6.3). The product reproduces the replay's ceiling exactly on the replay's own rows. The Z1 any-value failures are reconciled document by document (6.3).
 
 **Revision 5** answers the census review: the fixed-scale cells and the premise's row set are stated exactly, and the per-row diagnostics (h, allowance, absolute bound, all four predicate verdicts) are recorded from the census re-run (6.3).
 
@@ -264,26 +266,28 @@ The ceilings are for the 54 sensitive judged documents, from section 3's replay 
 
 ## 6. The recommended path
 
-### 6.1 Stating the corner as a limit (proposed ScopeOfWork text, not applied)
+### 6.1 Stating the corner as a limit (applied as REQ-006 (e) through #1481)
 
-DEL-04-08 ScopeOfWork REQ-006 gains an item after (d):
+HELP_HUMAN applied this text verbatim as DEL-04-08 ScopeOfWork REQ-006 (e), through #1481 (merge `d26f1f0f5a`), under the owner's decision of 2026-10-20 (section 9):
 
-> **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values, and each `absolute_verified` row's within its absolute bound. Five properties of the method keep some rows from meeting it:
+> **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values. Three definitions of the method keep some rows from meeting it:
 > - the admitted readout's bending stress ranges over hull(Ẑ, Î/c);
 > - the admitted readout's binary64 section, shear and modulus leaves differ from the exact annulus readout's by up to a few binary64 units, and every stress row inherits the section leaves' difference;
-> - a millimetre or megapascal value is rounded in its unit and again when normalized to SI;
+> - a millimetre or megapascal value is rounded in its unit and again when normalized to SI.
+>
+> A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's (Design `w1e-sharper-exact-coverage.md`).
+
+**Proposed amendment, for the owner** (revision 6, from the census's causes, 6.3). The census found two causes the applied text does not list, and absolute-class rows, which it does not name. Amending REQ-006 (e) changes a commitment, so it is the owner's. The proposal replaces "Three definitions of the method keep" with "Five properties of the method keep", inserts after "exact values" the words ", and each `absolute_verified` row's within its absolute bound", and appends two items:
 > - an unloaded member's circular maximum publishes the ordinary binary64 value, and a support magnitude the norm of the rounded components, rather than the projection of the readouts' midpoint;
 > - near an exact zero, the annular readout's enclosure can be wider than the absolute bound.
->
-> A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's, and the product's own gate passes none (Design `w1e-sharper-exact-coverage.md`).
 
-This text should be adopted after census 6.2 has confirmed the ceiling on the product, or with its last sentence held until then. Revision 6 adds the fourth and fifth items and the absolute bound, which the census found (6.3). The owner approved applying this section's text on 2026-10-20, before the census. Revision 6 changes its list of causes, so HELP_HUMAN applies it with that change reported.
+Without the amendment, the applied text understates the corner's causes; the declined outcome is the same.
 
 **AC-006 consequence.** "Each decline in REQ-006 is exercised by a maintained test that asserts its refusal." The implementation therefore adds one maintained test, which is test code and not this PR. Its input is a sensitive judged-set document that the census (6.2) records ending at the final gate with `Cause::Predicate` and `SharperExact`, in both solver modes. No committed record establishes such a document today. The test asserts:
 - that refusal;
 - the ordinary bytes plus the one notice, at the facade.
 
-As built (W1 coverage repair implementation): `o4_m3_judging_tests.rs` `o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result`, on `SOFT-RUN-r1e-08|zero|eb` (plain binding, which reaches the final gate on its own trigger in both modes and fails only on SharperExact, 6.3). It is listed under VER-006 when REQ-006 (e) is applied.
+As built (W1 coverage repair implementation): `o4_m3_judging_tests.rs` `o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result`, on `SOFT-RUN-r1e-08|zero|eb` (plain binding, which reaches the final gate on its own trigger in both modes and fails only on SharperExact, 6.3). It is listed under VER-006.
 
 ### 6.2 The product-side confirmation census (specified; executed later)
 
@@ -396,7 +400,7 @@ Every gate, predicate, tolerance, limit, precision ladder and projection; DEF-O,
 ## 9. Reserved for the owner
 
 **Owner decisions, 2026-10-20** ("For the five decisions you put to me I approve your recommended option in each case"):
-- **REQ-006 (e).** HELP_HUMAN applies section 6.1's text to the ScopeOfWork, and reports it, once census 6.2 reproduces the ceiling on the product. The census runs in b7-plan's epoch 6.
+- **REQ-006 (e).** HELP_HUMAN applies section 6.1's text to the ScopeOfWork, and reports it, once census 6.2 reproduces the ceiling on the product. The census runs in b7-plan's epoch 6. Applied through #1481 (`d26f1f0f5a`); section 6.1's proposed amendment is reserved for the owner.
 - **Coverage options.** Z1 is decided together with the W1 coverage repair's own definition question. The other options are not pursued unless the owner later chooses to change the claim for coverage.
 
 The options as presented:

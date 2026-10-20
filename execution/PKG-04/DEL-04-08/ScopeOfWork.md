@@ -308,7 +308,8 @@ The registered checks are those in `software-workflow.json`.
 - **VER-006** — For REQ-006:
   - the VER-003 decline and fallback tests, and the facade-level W1 census tests `core/product_physics/src/w1_source_census_tests.rs` and `w1_successor_census_tests.rs` (`macos-release-sweep`);
   - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts` and `retainedPrecisionOutputRefusal.test.tsx`;
-  - `macos-release-sweep`: `core/runner/headless/tests/retained_precision_admission.rs` and `core/product_physics/tests/retained_precision_admission.rs`.
+  - `macos-release-sweep`: `core/runner/headless/tests/retained_precision_admission.rs` and `core/product_physics/tests/retained_precision_admission.rs`;
+  - for (e), `macos-release-sweep`: `o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result` in `core/product_physics/src/o4_m3_judging_tests.rs`.
 - **VER-007** — For REQ-007, on the head of each duty's own change:
   - VER-001 to VER-006;
   - for O4 and the W1 repair, the actual-source D3 run (`tools/retained_pricing`, `generate --check`);
