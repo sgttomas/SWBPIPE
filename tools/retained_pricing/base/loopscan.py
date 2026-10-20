@@ -192,7 +192,7 @@ def blank_test_items(bt, raw=None):
             # W1R-FG (review): an off-feature attribute must gate a statement or an item. One on
             # a match arm, a field or a list element would end at a depth-0 `,`, `=>` or an
             # unmatched `}`, and blanking on to the next `;` could hide production code.
-            if off and d == 0 and (c in ",}" or bt.startswith("=>", j)):
+            if off and d == 0 and (c in ",})]" or bt.startswith("=>", j)):
                 raise ValueError(f"W1R-FG: an off-feature attribute at offset {start} gates an expression position; re-review")
             if c in "([": d += 1
             elif c in ")]": d -= 1
@@ -274,10 +274,10 @@ def off_build_files(root):
         # `include!` compiles a file's text in place, outside any module declaration: an
         # `include!` naming an off-build file (gated or not) is never reviewed, so it stops.
         # `include_str!`/`include_bytes!` read text only and compile no code.
-        for m in re.finditer(r"\binclude!\s*\(", bt):
+        for m in re.finditer(r"\binclude\s*!\s*[(\[{]", bt):  # any macro delimiter
             depth, end = 1, m.end()
             while end < len(bt) and depth:                  # balanced over code; string text is blanked
-                depth += {"(": 1, ")": -1}.get(bt[end], 0)
+                depth += {"(": 1, "[": 1, "{": 1, ")": -1, "]": -1, "}": -1}.get(bt[end], 0)
                 end += 1
             arg = raw[m.end():end]
             if any(os.path.basename(f) in arg for f in OFF_BUILD_FILES):

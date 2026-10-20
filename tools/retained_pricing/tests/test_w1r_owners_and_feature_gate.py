@@ -86,6 +86,8 @@ def test_a_snapshot_without_the_probe_excludes_nothing(tmp_path):
     (PP_TOML, '[dev-dependencies]', '[dev-dependencies]\nopen_pipe_stress_frame_kernel = { path = "../solver/frame_kernel", features = ["census-probe"] }'),
     (FINAL, "fn corner1() -> bool {", 'mod census_probe;\nfn corner1() -> bool {'),
     (FINAL, "fn corner1() -> bool {", 'mod probe_text { include!("census_probe.rs"); }\nfn corner1() -> bool {'),
+    (FINAL, "fn corner1() -> bool {", 'mod probe_text { include! { "census_probe.rs" } }\nfn corner1() -> bool {'),
+    (FINAL, "fn corner1() -> bool {", 'mod probe_text { include ! ["census_probe.rs"]; }\nfn corner1() -> bool {'),
     (FINAL, "fn corner1() -> bool {", '#[cfg(feature = "census-probe")]\nmod probe_text { include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/structural/retained/product_certificate/census_probe.rs")); }\nfn corner1() -> bool {'),
 ])
 def test_an_inclusion_or_manifest_change_stops(tmp_path, edit):
@@ -95,6 +97,7 @@ def test_an_inclusion_or_manifest_change_stops(tmp_path, edit):
 
 @pytest.mark.parametrize("snippet", [
     'fn f(x: u8) -> u8 {\n    match x {\n        #[cfg(feature = "census-probe")]\n        0 => 1,\n        _ => 2,\n    }\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
+    'fn f() -> Vec<u8> {\n    vec![\n        1,\n        #[cfg(feature = "census-probe")]\n        2\n    ]\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
     'struct S { a: u8, b: u8 }\nfn f() -> S {\n    S {\n        #[cfg(feature = "census-probe")]\n        a: 1,\n        b: 2,\n    }\n}\nfn g() -> Vec<u8> { Vec::with_capacity(7) }\n',
 ])
 def test_an_off_feature_attribute_in_an_expression_position_stops(snippet):
