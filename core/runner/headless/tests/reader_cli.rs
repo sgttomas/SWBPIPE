@@ -113,7 +113,10 @@ fn read_three_ways(source: &Value, invocation: &Value) -> [(i32, Value); 3] {
 fn corpus_bases_read_through_the_cli_as_the_reader_and_the_corpus_state() {
     let cases = cases();
     // W1 adds 16 bases; exercise every original and added statement through all CLI reads.
-    assert_eq!(cases.len(), 61);
+    // O4 (W1-E) adds four producer bases: the two dual-basis Timoshenko successors, the mixed
+    // (one distinct-basis member) successor and the sourced-unavailable-case successor; each
+    // passes bound with its stated classes and is never eligible unbound.
+    assert_eq!(cases.len(), 65);
     for case in cases {
         let [bound, unbound, transport] = read_three_ways(&case["source"], &case["invocation"]);
         let id = &case["id"];
