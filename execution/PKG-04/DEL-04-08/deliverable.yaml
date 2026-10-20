@@ -5,7 +5,9 @@ needs:
   condition: >-
     DEL-04-08 publishes and bounds rows that the frame kernel's retained lanes compute. Through
     `frame_kernel::structural::retained_api`, DEL-04-01 supplies the retained product proof
-    (`certify_product_case`, `certify_final`), the admitted-K and annular-source lanes and their
+    (`certify_product_case`, `certify_final`) with the coupled and floored final per-body scales its
+    gate judged every row with (`CertifiedProductProof::final_scales`, which the receipt's
+    `body_scales` state; Design `w1-coverage-repair.md` §2.2), the admitted-K and annular-source lanes and their
     publication predicates, the declared member-load set (`MemberLoadSet`, `UniformMemberLoad`), the
     loaded-member maximum search with its fixed limits, the retained Timoshenko straight member
     (natural-mode D recipe, kappa_E lane enclosure and D-entry gap majorants) with its sidecar and the
