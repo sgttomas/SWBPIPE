@@ -14,6 +14,8 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 - the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
 - the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
 
+**Revision 6** answers the Claude review of the census report (second round), from the re-run with per-row diagnostics. The proposed REQ-006 (e) text names two more causes the census found: maxima and support magnitudes published as binary64 values, and the annular enclosure's width against the absolute bound near zero (6.1). The causes and the attribution separate that proof width (6.3). The product reproduces the replay's ceiling exactly on the replay's own rows. The Z1 any-value failures are reconciled document by document (6.3).
+
 **Revision 5** answers the census review: the fixed-scale cells and the premise's row set are stated exactly, and the per-row diagnostics (h, allowance, absolute bound, all four predicate verdicts) are recorded from the census re-run (6.3).
 
 **Revision 4** reports the product-side confirmation census (6.3) and records the shared probe's mechanism as built (6.2).
@@ -266,14 +268,16 @@ The ceilings are for the 54 sensitive judged documents, from section 3's replay 
 
 DEL-04-08 ScopeOfWork REQ-006 gains an item after (d):
 
-> **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values. Three definitions of the method keep some rows from meeting it:
+> **(e) The sharper allowance against both readouts.** A retained-precision successor publishes only when each `relative_verified` row's value, normalized to SI, lies within the kernel's sharper allowance of both stiffness readouts' exact values, and each `absolute_verified` row's within its absolute bound. Five properties of the method keep some rows from meeting it:
 > - the admitted readout's bending stress ranges over hull(Ẑ, Î/c);
 > - the admitted readout's binary64 section, shear and modulus leaves differ from the exact annulus readout's by up to a few binary64 units, and every stress row inherits the section leaves' difference;
-> - a millimetre or megapascal value is rounded in its unit and again when normalized to SI.
+> - a millimetre or megapascal value is rounded in its unit and again when normalized to SI;
+> - an unloaded member's circular maximum publishes the ordinary binary64 value, and a support magnitude the norm of the rounded components, rather than the projection of the readouts' midpoint;
+> - near an exact zero, the annular readout's enclosure can be wider than the absolute bound.
 >
-> A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's (Design `w1e-sharper-exact-coverage.md`).
+> A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's, and the product's own gate passes none (Design `w1e-sharper-exact-coverage.md`).
 
-This text should be adopted after census 6.2 has confirmed the ceiling on the product, or with its last sentence held until then.
+This text should be adopted after census 6.2 has confirmed the ceiling on the product, or with its last sentence held until then. Revision 6 adds the fourth and fifth items and the absolute bound, which the census found (6.3). The owner approved applying this section's text on 2026-10-20, before the census. Revision 6 changes its list of causes, so HELP_HUMAN applies it with that change reported.
 
 **AC-006 consequence.** "Each decline in REQ-006 is exercised by a maintained test that asserts its refusal." The implementation therefore adds one maintained test, which is test code and not this PR. Its input is a sensitive judged-set document that the census (6.2) records ending at the final gate with `Cause::Predicate` and `SharperExact`, in both solver modes. No committed record establishes such a document today. The test asserts:
 - that refusal;
@@ -319,7 +323,7 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
 
 ### 6.3 Census report (revision 4)
 
-**What ran.** Section 6.2's census, on the W1 coverage repair's census branch at `15b8651ff4`, in the same build and run as that repair's census (w1-coverage-repair.md §3.5): every judged document (172) and source-control twin (104), plain and augmented, in both solver modes (4 augmented `CAPS-LOOP-32` runs are beyond D1's caps and skipped, as M3-O4 skips them). The probe's self-check held on all 510 gate records. (b) and (c) re-ran the whole invocation for every input with a failing row (w1-coverage-repair.md §3.2, one mechanism for both censuses).
+**What ran.** Section 6.2's census, on the W1 coverage repair's census branch at `15b8651ff4`, in the same build and run as that repair's census (w1-coverage-repair.md §3.5): every judged document (172) and source-control twin (104), plain and augmented, in both solver modes (the 4 augmented `CAPS-LOOP-32` documents, 8 runs, are beyond D1's caps and skipped, as M3-O4 skips them; the documents are counted as "No triggered case" from their plain runs). The probe's self-check held on all 510 gate records and on the 784 records of the (b)/(c) re-runs. The re-run with per-row diagnostics (h, allowance, absolute bound and all four predicates), at `0b1efe5f87` in the same build configuration (962 s, peak resident 1.16 GB, rc 0), reproduces every table below unchanged; the causes below are read from it. (b) and (c) re-ran the whole invocation for every input with a failing row (w1-coverage-repair.md §3.2, one mechanism for both censuses).
 
 **How far each document got** (furthest binding; identical counts in both modes except where shown):
 
@@ -332,7 +336,7 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
 
 The `not_reached` documents are kept out of the gate's denominators below; the counts below are of documents whose every judged row passes, among all judged documents and then the sensitive ones.
 
-**Section 3.2's table, from the product** (both modes identical; the design-time ceiling in brackets):
+**Section 3.2's table, from the product** (the augmented binding, whose cells equal the union over both bindings; both modes identical; the design-time ceiling in brackets):
 
 | Represented Z | Published value | Both readouts | Admitted only | Annular only |
 |---|---|---|---|---|
@@ -346,24 +350,34 @@ The `not_reached` documents are kept out of the gate's denominators below; the c
 - **Source twins** (of the 88 reaching the gate): 56 pass as built, under every option and with Z1; 64 pass at any value [82 of 104].
 - **Section 5's options** (judged / sensitive): U1 (i) 3 / 0, with Z1 9 / 0; U1 (ii) 0 / 0 and 0 / 0; U1 (iii) 3 / 0, with Z1 9 / 0; R1 against the annular readout 3 / 0, with Z1 9 / 0, against the admitted 7 / 0, with Z1 13 / 0; R1′ against either readout 10 / 0, with Z1 10 / 0 (annular) and 21 / 0 (admitted).
 
-**Why the product is below the replay under Z1.** The product's gate judges every row, including the circular maxima, which route E publishes as PP's binary64 value for every member, and the support and displacement magnitudes. Section 3's replay left those out (3.1). On the sensitive documents under Z1, unloaded maxima are the largest single group of failing rows (in sparse mode, 129 of 238 in the augmented runs and 84 of 154 in the plain runs), and 8 sensitive documents in each binding fail on maxima and magnitudes alone.
+**Why the product is below the replay.** The product's gate judges every row. Section 3's replay left out the circular maxima, which route E publishes as PP's binary64 value for every member (`project` sends them to PP completion), and the support and displacement magnitudes (3.1).
+- **On the replay's own rows the ceiling is reproduced exactly.** Excluding maxima and magnitudes, the product passes 13 / 0 judged documents under the hull and the fixed projection, the replay's 13 / 0. Excluding maxima alone it passes 11 / 0. The two others are the `PROP-PHI2-EXACT-A` Euler–Bernoulli documents, which fail one row each, the support moment magnitude. Its lanes agree to the last bit, but the magnitude publishes the norm of the rounded components, the same cause as route L's skew member (w1-coverage-repair.md §3.5).
+- **Under Z1, fixed projection.** Unloaded maxima are the largest single group of failing rows on the sensitive documents (in each mode, 129 of 238 in the augmented runs and 84 of 154 in the plain runs). Excluding maxima, 29 / 8 judged documents pass (excluding magnitudes as well, 31 / 8), against the product's 9 / 0 and the replay's 47 / 24. The 8 sensitive documents are `RFLIKE-SKEWT-PIN-OFF-345-r1e-08` in all four variants and both theories; they fail on maxima alone, and no magnitude row fails on a sensitive document. The replay's 24 count all 54 sensitive documents, 23 of which never reach the gate in the product (alpha and preparation). The replay's per-document results are not committed (3.1), so that remainder is not reconciled document by document.
+- **Under Z1, any value,** 16 of the 31 sensitive documents reaching the gate fail. They split three ways:
+  - 4 on the maxima's own readout gap (`RFLIKE-SKEWT-PIN-OFF-345-r1e-08`, `both` and `mixed`, both theories);
+  - 4 `SOFT-TORSION-r1e-08` documents (`zero` and `mill`, both theories) that fail only on proof-width rows (next). With an annular proof narrow enough for the absolute bound, Z1 at any value would pass 19 of 31 rather than 15. The same 4 documents are why annular-only at any value is 141 / 27, not 145 / 31;
+  - 8 on stress or native rows (`CONTRAST-STIFF` in six variants, `SHORT-MEMBER|both|timo` and `SOFT-RUN-r1e-08|both|eb`).
 
 **The premise of 2.2.** On every relative-class row the published value is the method's projection of the readouts' tight midpoint: 47,148 rows in the same cell, 96 within 10^-6 of a unit of a tie (undecided), none in another cell. 4,654 absolute-class rows, all with an exact value at or near zero whose lane enclosures straddle it, publish from another cell; they pass or fail on the absolute bound, which the premise does not concern. Circular maxima of unloaded members and support magnitudes are not projections of the hull and are not counted; displacement magnitudes are kernel projections and are counted. (Excluding every magnitude instead gives 46,556 relative-class rows in the same cell and 4,506 absolute-class rows in another.)
 
-**Attribution of the failing rows** (w1-coverage-repair.md §3.3's classes, per mode; every failing row's first predicate is SharperExact, apart from absolute-bound failures in the `PROP-PHI2-*` documents):
+**First failing predicate.** Every failing row's first predicate is SharperExact, apart from absolute-bound failures, per mode:
+- 46 rows in the `PROP-PHI2-*` documents, on the readout gap around an exact zero;
+- 40 rows in `SOFT-TORSION-r1e-08` (all sensitive) and 204 in the `RF-SKEW-T-PIN-OFF-345-r1e-12` twins. Their annular readout's own enclosure is wider than the absolute bound, which no section or readout counterfactual addresses. For example, on `SOFT-TORSION-r1e-08|zero|eb`, `result:force:P2:axial` (exact value 0), the annular lane is ±6.31 × 10^-17 N against a bound RU64(2^-64 · 1,118.03) ≈ 6.06 × 10^-17 N, while the admitted lane is ±4.7 × 10^-70. This is *proof width*.
 
-| Rows | Z-hull only | Either | Lane only | Joint | Other |
-|---|---:|---:|---:|---:|---:|
-| Sensitive | 372 | 5 | 71 | 4 | 315 |
-| Other judged | 431 | 16 | 881 | 67 | 309 |
-| Twins | 0 | 0 | 240 | 2 | 32 |
+**Attribution of the failing rows** (w1-coverage-repair.md §3.3's classes, per mode, summed over both bindings). Proof width is separated first: a row whose annular enclosure's half-width exceeds its allowance or absolute bound. Under (b) or (c) the re-solved annular enclosure narrows, so these rows would otherwise count as *lane only*.
 
-Of the *other* rows, the unit counterfactuals (d), (d′) or (d″) clear 102 sensitive and 77 other judged rows, R1 clears 8 and 21, and nothing measured clears the remaining 205, 211 and 32.
+| Rows | Proof width | Z-hull only | Either | Lane only | Joint | Other |
+|---|---:|---:|---:|---:|---:|---:|
+| Sensitive | 40 | 372 | 5 | 31 | 4 | 315 |
+| Other judged | 0 | 431 | 16 | 881 | 67 | 309 |
+| Twins | 204 | 0 | 0 | 36 | 2 | 32 |
+
+Of the *other* rows, the unit counterfactuals (d), (d′) or (d″) clear 102 sensitive and 77 other judged rows, R1 clears 8 and 21, and nothing measured clears the remaining 205, 211 and 32. Route L has no proof-width row: on its 12 failing C1-b maxima (24 rows) the annular lane's width is below 10^-15 units, so the C1 escalation is unaffected.
 
 **Pre-registered reading.**
-- Under the fixed projection, as built, no sensitive document passes (0 of 31 reaching the gate; the ceiling was 0 of 54), and the judged count, 3, is within the ceiling of 13. The ceiling is reproduced.
+- Under the fixed projection, as built, no sensitive document passes (0 of 31 reaching the gate; the ceiling was 0 of 54), and the judged count, 3, is within the ceiling of 13. The ceiling is not exceeded, and on the replay's own rows the product gives it exactly (13 / 0).
 - No document exceeds the any-value bound (22 / 1 against 24 / 2), so the census does not stop.
-- No sensitive document can pass the unchanged gate, so section 6.1's text stands. HELP_HUMAN applies it (section 9).
+- No sensitive document passes the unchanged gate, so section 6.1's text stands, with revision 6's two added causes. HELP_HUMAN applies it (section 9).
 - Z1 goes to the owner with these tables and the route-L tables of w1-coverage-repair.md §3.5.
 
 ## 7. What stays unchanged
