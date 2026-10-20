@@ -4,6 +4,8 @@ This is the implementation design for the sixth post-T3 shared epoch ([b7-plan.m
 
 **Status: the census probe, switches and targets are on the repair's branch; the census runs there; production paths are unchanged.** The basis is main `257b44b910`: epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476, b7-plan item 5a, D3 at `6b90748dec`) are merged. Section 0 records each assumption as re-checked against that source. Corner 1's production switch waits for the owner's Z1 ruling (b7-plan item 6; [w1e-sharper-exact-coverage.md](w1e-sharper-exact-coverage.md) §9), because adopting Z1 would make the admitted Z a point and the corner-1 path dead.
 
+**Revision 9** adds the census report (3.5) and corrects 2.1's account of where native and final scales diverge (3.5, "A correction to 2.1").
+
 **Revision 8** answers the dual review of revision 7 (Claude Opus 5.5 and Codex). No decision changes. The changes:
 - under switches (b) and (c), the annular lane's Z is the admitted hull, so its maximum follows the same drive-and-hull rule, and (a) narrows both lanes in the combined runs; a switched-path control checks it (3.2);
 - (b) keeps each lane's selected material law (on route L both lanes read the same E and G, so (b) and (c) coincide there) (3.2);
@@ -154,7 +156,7 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
 - **The product certificate's gate uses final-row scales.** `final_case.rs` `row_scales` forms each body's translation, rotation, force and moment scales from the final published rows (`spent.normalize(unit, value)`). `check_intervals` couples them with the body extent (`couple`, binary64 `max` with `extent·ro`, `tr/extent`, `mo/extent`, `extent·fo`) and applies the p = 512 floor. It then gates, classifies and bounds every row with those scales.
 - **The readers recompute that law.** The Rust reader (`retained_precision.rs` `numeric_owner`, 3845–3911, and `g5b`, 4424–4450) and the verifier recompute exactly that law from the published rows. G5b then requires `selection.body_scales` to equal it bit for bit.
 - **The receipt states native scales instead.** `retained_wire.rs` `selection` (1260–1320) writes `body_scales` from `owner.evidence().body_scales` (1265–1268). These are the native candidate's publication scales (`adaptive.rs` `publication_with`, from the native candidate's binary64 values), not the final rows'.
-- **Where they diverge.** A native candidate value is accurate to about 2^-p relative, and the final value is RN64 of the product's projection. The two round alike unless the exact value lies within the native error of a binary64 rounding boundary. For an exact halfway they round apart about half the time, so a body maximum that is an exact halfway gives receipt scales one ulp away from the reader's.
+- **Where they diverge.** (Corrected by the census, 3.5: the final value is the projection of the two readouts' hull midpoint, so a readout gap or a millimetre row's double rounding also separates them; the halfway is one cause among several.) A native candidate value is accurate to about 2^-p relative, and the final value is RN64 of the product's projection. The two round alike unless the exact value lies within the native error of a binary64 rounding boundary. For an exact halfway they round apart about half the time, so a body maximum that is an exact halfway gives receipt scales one ulp away from the reader's.
 - **Observed instances:**
   - the 73/24 Pa asymmetric control, whose force maximum (7/2)Z and moment 7Z are halfways (`w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal`);
   - the three-case cap witness `witness_w1_member_load_three_case_three_basis_128`, which "truthfully retains its exact G5b scale refusal" (stage 2 §13).
@@ -318,6 +320,81 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 - **Build and host.** It builds `frame_kernel` and `product_physics` tests in the debug profile with `--features census-probe`, in its own target directory. It uses the qualification host's heavy-run slot and memory rules, within the 64 GiB test ceiling. The census uses private drivers, so it needs no registered build identity. The cap witnesses run as separate commands with their 4 MiB stacks.
 - **Pilot.** A pilot of ten generated invocations per sweep measures time and memory before the full run. No duration is assumed here.
 - **What it writes.** Nothing under `validation/references` or the committed fixtures. The probe and switches land on the repair's own branch as test-only code and stay as `#[ignore]` targets that can be re-run.
+
+### 3.5 Census report (revision 9)
+
+**What ran.** The census targets of section 3.2 at `15b8651ff4` (the census commit on the repair's branch, main `257b44b910` plus the probe), in one `--features census-probe` debug build: 28 targets, 16 threads, 4,696 s, peak resident 4.19 GB (job pid 45973, slot 2, `2026-10-20T19:59:22Z`–`21:17:38Z`, rc 0). The pilot ran first: ten invocations per sweep, 405–463 s, peak 4.76 GB. Production paths were unchanged; the guard and manifest tests pass in the ordinary build. Each input ran today, with corner 1, with corner 2 and with both; inputs with a failing verdict under corner 1 also ran (b) and (c).
+
+**The probe's own checks held everywhere.**
+- The unaltered counterfactual reproduced the published values, the final scales and every actual verdict on all 3,338 gate records (C1-a 188, C1-b 1,428, C2-a 680, C2-b 532, W1-E 510).
+- On all 173 C1-a and C2-a invocations, recording moved nothing and the null lane override reproduced today's candidate.
+- Today's candidate equalled the committed document on 73 committed inputs. The 7 that differ are corpus bases written with a hook or derived statement, run here without it (`d38_beside_selected`, four `b2_*` bases, `o4_w1e_unavailable` as corpus base and fixture). The maintained gating check applies their hooks (below).
+- The switched-path control held: under (b) and (c) both lanes are driven and converge on the D = 0.2 m control.
+
+**C1 (corner 1).** Denominator: loaded members reaching the search, each mode counted.
+
+| Set | Members | Exhausted today | After: gate passes | After: gate fails | After: exhausted | Not reaching the gate |
+|---|---:|---:|---:|---:|---:|---:|
+| C1-a | 48 | 10 | 46 | 0 | 0 | 2 (the values-failure hook entries) |
+| C1-b | 490 | 460 | 466 | 24 | 0 | 0 |
+
+- **C1-a.** The ten exhausting today are case 1 of F6/partial, T18, T19/pre-K-D5 and T19, and the genuine-exhaustion control `w1_member_exhaustion_*`, each in both modes; all are on the D = 0.2 m section (w = 98.4 × 2^-64). The 38 converging today are axial loads on that section, the four point-hull interior records and the cap inputs.
+- **C1-b.** The 30 converging today are the three D/2-power-of-two sections (w = 0). Every member with w > 0 exhausts today and converges after the repair, in at most a few splits.
+- **By w and b** (C1-b, after the repair):
+
+  | w (× 2^-64) | Pass | Fail |
+  |---|---:|---:|
+  | 0 | 30 | 0 |
+  | (0, 160) | 60 | 0 |
+  | [160, 871) | 202 | 8 |
+  | [871, 2,037) | 146 | 14 |
+  | ≥ 2,037 | 28 | 2 |
+
+  | b at the best point | Pass | Fail |
+  |---|---:|---:|
+  | [0.25, 0.75) | 164 | 8 |
+  | [0.75, 1] | 302 | 16 |
+
+- **Attribution of the 24 failures** (12 members × 2 modes; every failing predicate is SharperExact): *Z-hull only* 6, *either* 6, *lane only* 6, *joint* 6, *other* 0. The failing members are S1 and S2 on 769 × 28 mm (*lane only*) and 881 × 22 mm (*joint*); S1 and S2 on the committed 0.12 × 0.01 m section (*Z-hull only*); S3 on 111 × 4 mm (*joint*) and 881 × 22 mm (*Z-hull only*); S4 on 1,287 × 20 mm (*either*); S5 on 958 × 8 mm and the committed 0.114 × 0.006 m section (*either*) and on 1,287 × 20 mm (*lane only*). Hull widths relative to |n| are 532 to 2,316 × 2^-64.
+- **Escalation (pre-registered, 3.3).** *Z-hull only* + *either* + *joint* = 18 of 460 converged C1-b members with w > 0 = **3.9 %**, below 5 %. It does not fire.
+- **Stop conditions (3.3).** None holds: no post-repair exhaustion on an ordinary section, no *other* failure, and the regression condition holds (next).
+- **Regression condition, already-converging members** (C1-a, 30 cases, 3,240 rows): no row changes verdict, class, value, scale or absolute bound; no case changes status; the charged case and invocation work is unchanged and far below 20e9 and 60e9. Only the proof's metered work moves, by +2.9 % to +5.1 % (`wide_lme`, for example 52,441,312 to 54,373,520 on `w1_member_load_*`), from the driven path's hull-valid evaluations (1.4).
+- **The cap witnesses' inputs** (census outcomes, not stack runs): `..._128` withdraws today at G5b (corner 2, below) and publishes with corner 2; `..._128_dyadic` publishes. The cap-law input stops at preparation in both modes.
+- **Baseline.** The converged members' 20 element-local stress rows pass the unchanged gate at 9,528 of 9,800 (97.2 %) in C1-b and 920 of 920 in C1-a.
+- **Case level.** With both repairs, 296 of 490 C1-b invocations publish; 194 fall back on a gate failure, 170 of them on rows other than the loaded maximum (the inherited two-readout corner; most often a support or end force, an S3 or S5 bending stress, or a displacement).
+- **No genuine exhaustion input was found.** No census input exhausts after the repair, so section 1.4's replacement for the genuine-exhaustion control is the hook-driven input (its option 2).
+
+**C2 (corner 2).**
+
+| Set (run) | Invocations at the gate | Native ≠ final | Final ≠ readers | G5b withdrawals today | Publish with corner 2 |
+|---|---:|---:|---:|---:|---:|
+| C2-a committed (today) | 126 (165 cases) | 0 | 0 | 0 | 126 |
+| C1-a (today; with corner 1) | 28 | 2 (the `_128` cap witness, body 0 translation and rotation, both modes) | 0 | 2 | 28 |
+| C2-b halfways (today) | 64 (32 per mode) | 36 | 0 | 32 | 58 |
+| C2-b decimal (with corner 1) | 64 | 0 | 0 | 0 | 32 |
+| C2-b controls, 73/24 Pa (today) | 2 | 2 | 0 | 2 | 2 |
+| C1-b (with corner 1) | 490 | 152 | 0 of 296 observable | 30 | 296 |
+
+- **Coverage (pre-registered).** 32 confirmed halfways per mode reach the native-versus-final stage, at least the 24 required.
+- **Final = readers** on every case where the readers' scales are observable (one candidate passes G5b). Where no candidate exists the case failed the gate first, and the comparison is not observable.
+- **Not reached.** C2-a: 15 `NoTriggeredCase` (the synthetic statements) and 2 preparation. C2-b decimal: 32 reach the gate only with corner 1 (the simply supported shape exhausts today).
+- **A correction to 2.1** (revision 9). The final value of a row is the projection of the midpoint of the two readouts' hull; the native scale is the admitted readout's own rounding. They round apart not only at exact halfways but wherever the readout gap, or a millimetre row's double rounding, moves the midpoint across a rounding boundary. With corner 1 on, 152 of 490 C1-b invocations differ (S4, the skew member, in all 98 on force and moment; S1, S2 and S5 in 18 each on translation and rotation), and 30 would withdraw at G5b without corner 2. No committed successor differs, so 3.3's stop rule ("any native ≠ final instance on a committed successor") does not hold, and the repair, which writes the scales the gate used, covers every such case.
+- **The gating check holds** on every committed successor and producer or hook corpus base under the production change (`w1_final_scales_equal_reader_scales`, below), so corner 2 is implemented (3.3).
+
+**Under Z1 (switch (a), the admitted Z set to Ẑ), route L.** In the corner-1 run, Z1's world is the (a) counterfactual: the represented lane is a point and is searched undriven.
+
+| C1-b (490) | Corner 1 as designed | Z1 |
+|---|---:|---:|
+| Loaded maximum passes the gate | 466 | 478 |
+| Case publishes (every row passes) | 296 | 320 |
+| … with any SI value (`any_both`) | 388 | 428 |
+| … with SI publication (U1 (iii)) | 326 | 350 |
+
+C1-a is unchanged under Z1: 46 of 46 maxima and 52 of 52 cases pass either way. Route E's figures are in w1e-sharper-exact-coverage.md §6.3.
+
+**Decision rules applied (3.3).**
+- *Corner 1:* the regression condition holds, no stop condition holds and the escalation does not fire. Its production switch waits for the owner's Z1 ruling (status, section 11).
+- *Corner 2:* final = readers on every census input where observable and on every committed successor (the gating check): implemented.
 
 ## 4. What stays unchanged
 
