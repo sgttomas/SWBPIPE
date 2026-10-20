@@ -7,7 +7,9 @@ needs:
     `frame_kernel::structural::retained_api`, DEL-04-01 supplies the retained product proof
     (`certify_product_case`, `certify_final`), the admitted-K and annular-source lanes and their
     publication predicates, the declared member-load set (`MemberLoadSet`, `UniformMemberLoad`), the
-    loaded-member maximum search with its fixed limits, and the retained resource layouts that the
+    loaded-member maximum search with its fixed limits, the retained Timoshenko straight member
+    (natural-mode D recipe, kappa_E lane enclosure and D-entry gap majorants) with its sidecar and the
+    reduced-section certification of distinct-basis rows (O4), and the retained resource layouts that the
     memory profile prices. For retained-source recovery it supplies the metered exact-boundary blocks.
     Each lane meets the limits stated in the formation definitions (DEF-O, DEF-C and DEF-E) or refuses;
     no lane widens a limit to complete. The final case's recipe-free `ProductRecipe::NotCovered` carries the
@@ -50,8 +52,9 @@ needs:
     (`section_basis`), which the readers apply at G5b and G8 and the verifier repeats. It also supplies
     the stress definitions (N/A, M/Z, T*c/J and the elastic normal-stress maximum) behind every stress
     row this method bounds, and the `section_stress_quantities` sequences by which successors and source
-    publications form their derived section extremes and transverse-shear maxima from their own rows. Its Timoshenko formulation and its mill-tolerance and corrosion-allowance
-    fields are inputs this method declines by name until O4.
+    publications form their derived section extremes and transverse-shear maxima from their own rows. It also supplies the Timoshenko formulation (U8's fixed-order kappa-hat, the energy-matched
+    kappa_E and the shear-area leaf), which both retained routes form and the readers rederive, and the
+    mill-tolerance and corrosion-allowance fields behind the D-5 bases (O4, `o4-source-extension.md`).
   gating: true
   evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
 - from: DEL-05-02
@@ -195,6 +198,11 @@ checks:
 - tests/test_retained_precision_corpus_storage.py
 - tests/test_retained_precision_synthetic_bases.py
 - tests/test_declared_member_load_reader.py
+- core/product_physics/src/source_receipt/o4_source_tests.rs
+- core/product_physics/src/o4_m3_judging_tests.rs
+- tests/test_o4_source_verifier.py
+- tests/test_o4_text_only_envelope_diff.py
+- validation/references/o4_retained_source/declared_problem/run.sh
 - tests/test_rust_reader.py
 - tests/test_base_reader_verifier.py
 - tests/test_pressure_source_verifier.py
