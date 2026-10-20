@@ -14,6 +14,8 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 - the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
 - the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
 
+**Revision 8** records the owner's rulings of 2026-10-20 ("I approve 1A, 2A, 3A."): Z1 is not adopted, and the REQ-006 (e) amendment is applied by HELP_HUMAN (6.1, 9).
+
 **Revision 7** records REQ-006 (e) as applied through #1481 with section 6.1's original text, keeps revision 6's two added causes as a proposed amendment reserved for the owner (6.1, 9), and names the maintained AC-006 test.
 
 **Revision 6** answers the Claude review of the census report (second round), from the re-run with per-row diagnostics. It proposed adding to the REQ-006 (e) text two more causes the census found: maxima and support magnitudes published as binary64 values, and the annular enclosure's width against the absolute bound near zero (6.1). The causes and the attribution separate that proof width (6.3). The product reproduces the replay's ceiling exactly on the replay's own rows. The Z1 any-value failures are reconciled document by document (6.3).
@@ -402,6 +404,10 @@ Every gate, predicate, tolerance, limit, precision ladder and projection; DEF-O,
 **Owner decisions, 2026-10-20** ("For the five decisions you put to me I approve your recommended option in each case"):
 - **REQ-006 (e).** HELP_HUMAN applies section 6.1's text to the ScopeOfWork, and reports it, once census 6.2 reproduces the ceiling on the product. The census runs in b7-plan's epoch 6. Applied through #1481 (`d26f1f0f5a`); section 6.1's proposed amendment is reserved for the owner.
 - **Coverage options.** Z1 is decided together with the W1 coverage repair's own definition question. The other options are not pursued unless the owner later chooses to change the claim for coverage.
+
+**Owner decisions, 2026-10-20** (relayed by HELP_HUMAN: "I approve 1A, 2A, 3A."):
+- **1A. Z1 is not adopted.** The admitted readout's represented Z stays hull(Ẑ, Î/c) on both routes, and the W1 coverage repair's corner 1 lands as designed. The other coverage options (U1 (i)–(iv), R1, R1′, C1) are not pursued unless the owner later chooses to change the claim for coverage.
+- **3A.** Section 6.1's proposed amendment to REQ-006 (e) is applied on main by HELP_HUMAN.
 
 The options as presented:
 

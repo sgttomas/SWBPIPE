@@ -383,7 +383,7 @@ Use bounded exponent/significand comparisons and sticky rounding, never an unche
 - Near-degenerate loaded maxima with a varying axial force could exhaust even min(paired, tangent). This is theoretical and was not observed; a Taylor bound with an f″ enclosure would close it at higher cost.
 - The two lanes use different sections (binary64 A and the Z hull against geometric A and Z), which widens every stress row's hull, maxima included. In a rough model it alone fails a perfect projection in 296 of 4,000 trials. This is inherited by all stress rows and not created here.
 
-The first two corners decline ordinary cases. Their repair is shared epoch 6 in [b7-plan.md](b7-plan.md) ("After B7b"). The scale corner is repaired as built (corner 2). The width corner keeps its named refusal and ordinary fallback until corner 1's production switch, which waits for the owner's Z1 ruling (w1-coverage-repair.md, status).
+The first two corners decline ordinary cases. Their repair is shared epoch 6 in [b7-plan.md](b7-plan.md) ("After B7b"). The scale corner is repaired as built (corner 2). The width corner keeps its named refusal and ordinary fallback until corner 1's production switch lands, in the PR after corner 2's (Z1 not adopted: owner, 2026-10-20, "I approve 1A, 2A, 3A."; w1-coverage-repair.md §11).
 
 ### 4.5 Combinations
 

@@ -2,7 +2,9 @@
 
 This is the implementation design for the sixth post-T3 shared epoch ([b7-plan.md](b7-plan.md), "After B7b", item 6). It repairs the causes of W1's first two fail-closed corners ([w1-member-load-certification.md](w1-member-load-certification.md) §4.4, "Corners that fail closed"; DEL-04-08 ScopeOfWork REQ-006 (b)). Every gate, search limit, verification law, tolerance and domain limit stays unchanged. The epoch starts with a census of how often current sections and maxima reach each corner (section 3).
 
-**Status: the census probe, switches and targets are on the repair's branch; the census runs there; production paths are unchanged.** The basis is main `257b44b910`: epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476, b7-plan item 5a, D3 at `6b90748dec`) are merged. Section 0 records each assumption as re-checked against that source. Corner 1's production switch waits for the owner's Z1 ruling (b7-plan item 6; [w1e-sharper-exact-coverage.md](w1e-sharper-exact-coverage.md) §9), because adopting Z1 would make the admitted Z a point and the corner-1 path dead.
+**Status: the census has reported (3.5); corner 2 is implemented; the owner has ruled Z1 not adopted (2026-10-20, "I approve 1A, 2A, 3A."; section 11), so corner 1 lands as designed.** The basis is main `257b44b910`: epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476, b7-plan item 5a, D3 at `6b90748dec`) are merged. Section 0 records each assumption as re-checked against that source. Corner 2 lands first as its own PR. Corner 1's production switch, with the decided REQ-003 (e) clause and the owner's section 10 edits, lands in the PR that follows it.
+
+**Revision 12** records the owner's rulings of 2026-10-20 ("I approve 1A, 2A, 3A."): Z1 is not adopted, so corner 1 lands as designed (1A); section 10's proposed ScopeOfWork edits are decided, with their placement (2A); and the REQ-006 (e) amendment is applied on main (3A, w1e §6.1). Corner 2 lands as its own PR first.
 
 **Revision 11** answers the Claude review of the census report (second round): where native and final scales diverge is restated with the support-magnitude cause the census shows dominates (Summary, 2.1, 3.5), the gating check's scope is stated as built (2.2, 3.5, section 5), the regression condition's stack-witness part is reported separately (3.5), and the C1-b de-duplicated escalation, the pre-registered count, the self-check's limits and two inputs' scope are stated (3.5).
 
@@ -404,7 +406,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 C1-a is unchanged under Z1: 46 of 46 maxima and 52 of 52 cases pass either way. Route E's figures are in w1e-sharper-exact-coverage.md §6.3.
 
 **Decision rules applied (3.3).**
-- *Corner 1:* the regression condition holds, no stop condition holds and the escalation does not fire. Its production switch waits for the owner's Z1 ruling (status, section 11).
+- *Corner 1:* the regression condition holds, no stop condition holds and the escalation does not fire. Its production switch waited for the owner's Z1 ruling; Z1 is not adopted (owner, 2026-10-20, "I approve 1A, 2A, 3A."; section 11), so corner 1 lands as designed.
 - *Corner 2:* final = readers on every census input where observable; implemented once the maintained gating check holds on the production change (committed fixtures and corpus bases).
 
 ## 4. What stays unchanged
@@ -503,7 +505,13 @@ These edit commitments. They are written against the ScopeOfWork as edited by ep
 
 It is applied in that PR, when its meaning comes true; not before, and not in O4.
 
-**Proposed, for the owner** (on the repair's discharge):
+**Decided by the owner, applied when the repair lands** (owner, 2026-10-20, "I approve 1A, 2A, 3A."; 2A, relayed by HELP_HUMAN). As decided:
+- REQ-006 (b) is deleted, leaving a retired marker in (a)'s style: "[retired by the W1 coverage repair, #<PR>]". The optional sentence is added as a new item after (e), titled "(f) Loaded-member maxima too wide for the gate.", with the sentence below verbatim.
+- REQ-007 (b) is deleted or marked discharged in (a)'s style; the PR says which.
+- AC-003's third bullet and the VER-003 replacement, as below.
+- **Split between the two PRs.** Corner 2's PR carries only its own parts: the halfway half of the VER-003 replacement and REQ-006 (b)'s halfway-scale bullet. Everything else lands with corner 1.
+
+The text as proposed (on the repair's discharge):
 - **DEL-04-08 ScopeOfWork:**
   - **REQ-006 (b).** Delete the item, the two corners being repaired. Optionally record, under REQ-006 (d) or as a sentence in REQ-001's route-L domain: "A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause." That records the inherited corner as a stated limit, if the owner wants it stated.
   - **REQ-007 (b).** Delete on discharge.
@@ -539,12 +547,14 @@ It is applied in that PR, when its meaning comes true; not before, and not in O4
   - stage 2 §4.4's "Stop" text is edited to agree with it when the repair lands (section 10).
   Narrowing was not chosen. The census's pre-registered escalation (3.3) and the DEF-O-narrowing contingency below stay as designed. Corner 2's repair never depended on this decision.
 
-**Pending, the owner's (b7-plan item 6):** Z1, the single Ẑ in DEF-O and DEF-E, is ruled once for both routes with this census's tables and W1-E's (w1e-sharper-exact-coverage.md §6.2, §9). Option 2 above stands. If Z1 is adopted, the admitted Z becomes a point, corner 1's driven path is never taken and its production switch is not landed; if it is not, corner 1 lands as designed. Corner 2 does not depend on it.
+- **Z1 and section 10** (owner, 2026-10-20, relayed by HELP_HUMAN: "I approve 1A, 2A, 3A."):
+  - **1A.** Z1, the single Ẑ in DEF-O and DEF-E, is not adopted; it was ruled once for both routes with this census's tables and W1-E's (w1e-sharper-exact-coverage.md §6.3, §9). Corner 1 lands as designed (1.2), with the REQ-003 (e) sub-bullet and the §4.4 "Stop" text above; every stop condition of 3.3 still applies. The other coverage options are not pursued unless the owner later chooses to change the claim for coverage.
+  - **2A.** Section 10's five proposed ScopeOfWork edits are applied as section 10 now records.
+  - **3A.** The REQ-006 (e) amendment of w1e §6.1 is applied on main by HELP_HUMAN (w1e §6.1).
 
 **Contingent, to HELP_HUMAN:** narrowing DEF-O's admitted Z, if the census's pre-registered escalation rule fires (3.3), and a D3 shortfall.
 
 **Reserved and untouched:**
-- the proposed ScopeOfWork edits of section 10;
 - Decision 22;
 - TBD-001 and TBD-002;
 - G10 and B8;
