@@ -24,9 +24,13 @@ use open_pipe_stress_frame_kernel::structural::retained_api::census_probe as pro
 /// RN64 of a double-double, with whether it is decided (not within 1e-6 ulp of a tie).
 fn rn(x: Dd) -> (f64, bool) {
     let y = x.hi + x.lo;
+    if x.hi == 0.0 && x.lo == 0.0 {
+        return (0.0, true);
+    }
+    // The gap to y as a fraction of y's unit; a tie sits at one half.
     let up = f64::from_bits(y.abs().to_bits() + 1) - y.abs();
-    let mid_gap = Dd::from(y).sub(x).abs().f();
-    (y, (up / 2.0 - mid_gap).abs() > 1e-6 * up)
+    let gap = Dd::from(y).sub(x).abs().div(Dd::from(up)).f();
+    (y, (gap - 0.5).abs() > 1e-6)
 }
 /// The method's projection of an SI value into the row's published unit (DEF-E
 /// `projection.H`): mm = RN64(1000·m), MPa = RN64(RN64(m)/10^6), else RN64(m).

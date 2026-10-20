@@ -3800,6 +3800,12 @@ mod law_tests;
 #[cfg(test)]
 #[path = "retained_memory_witness_tests.rs"]
 mod witness_tests;
+/// The W1 coverage census's cap-law input (DEL-04-08 `w1-coverage-repair.md` §3.2, C1-a):
+/// the law tests' cap-maximal ring with three bases of 128 member terms. Census only.
+#[cfg(all(test, feature = "census-probe"))]
+pub(crate) fn census_cap_law_input() -> Value {
+    law_tests::cap_maximal_cases(3)
+}
 
 #[cfg(test)]
 pub(super) mod tests {

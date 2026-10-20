@@ -25,6 +25,8 @@ use open_pipe_stress_frame_kernel::structural::retained_api::census_probe as pro
 
 #[path = "../../reporting/result_export/tests/support/retained_precision_corpus.rs"]
 mod storage;
+#[path = "../tests/common/w1_member_load_inputs.rs"]
+mod w1_member_load_inputs;
 
 /// The census of one input in one mode: today's run, the corner-1 run, the
 /// corner-2 run and both together; then, where the corner-1 run has a failing
@@ -51,8 +53,8 @@ fn census(label: &str, raw: &Value, mode: PreviewSolverMode, hook: &dyn Fn(), ch
         // Today's run without records: the probe's recording must not move a byte.
         let (_, quiet_candidate, _) = run_once(raw, mode, probe::Switches::default(), hook);
         out["records_move_nothing"] = json!(quiet_candidate == today_candidate);
-        if let Some(e) = expected {
-            out["today_equals_committed"] = json!(today_candidate.as_ref() == Some(e));
+        if let (Some(e), Some(c)) = (expected, today_candidate.as_ref()) {
+            out["today_equals_committed"] = json!(c == e);
         }
     }
     out["seconds"] = json!(started.elapsed().as_secs_f64());
@@ -320,6 +322,9 @@ fn split(x: f64) -> (i128, i32) {
 }
 /// Exact dyadic sums Σ c_k·x_k with c_k = n_k/2^s_k, as N·2^E.
 fn dyadic(terms: &[(i128, u32, f64)]) -> (i128, i32) {
+    let nonzero: Vec<(i128, u32, f64)> = terms.iter().copied().filter(|t| t.0 != 0 && t.2 != 0.0).collect();
+    if nonzero.is_empty() { return (0, 0); }
+    let terms = &nonzero[..];
     let e = terms.iter().map(|(_, s, x)| split(*x).1 - *s as i32).min().unwrap();
     let n = terms.iter().map(|(c, s, x)| { let (m, ex) = split(*x); c * m << (ex - *s as i32 - e) }).sum();
     (n, e)
@@ -333,6 +338,8 @@ fn halfway((n, _): (i128, i32)) -> bool {
     a & ((1u128 << drop) - 1) == 1u128 << (drop - 1)
 }
 fn abs_max(a: (i128, i32), b: (i128, i32)) -> (i128, i32) {
+    if a.0 == 0 { return (b.0.abs(), b.1); }
+    if b.0 == 0 { return (a.0.abs(), a.1); }
     let e = a.1.min(b.1);
     let (x, y) = (a.0.abs() << (a.1 - e), b.0.abs() << (b.1 - e));
     (x.max(y), e)
@@ -427,4 +434,39 @@ c2b_targets! {
     w1_coverage_census_c2b_halfway: "halfway";
     w1_coverage_census_c2b_decimal: "decimal";
     w1_coverage_census_c2b_controls: "controls";
+}
+
+/// §3.2's switched-path control (revision 8): under (b) the annular lane takes the
+/// admitted hull, so its loaded maximum must be driven as the admitted lane's is.
+/// On the stage-2 D = 0.2 m control both lanes' searches are driven and converge.
+#[test]
+#[ignore = "W1 coverage census switched-path control (run with --features census-probe --ignored)"]
+fn w1_coverage_census_switched_path_control() {
+    let raw = c1b_shapes(0.2, 0.01, None).into_iter().find(|(s, _)| *s == "S1").unwrap().1;
+    for mode in MODES {
+        for (same_section, same_readout) in [(true, false), (false, true)] {
+            let sw = probe::Switches { corner1: true, corner2: false, same_section, same_readout, lane_null: false, record: true };
+            let (run, _, _) = run_once(&raw, mode, sw, &|| {});
+            let searches: Vec<&Value> = run["records"].as_array().unwrap().iter()
+                .filter(|r| r["kind"] == "search" && r["phase"] != "counterfactual").collect();
+            assert!(searches.len() >= 4, "{mode:?}: both lanes searched at projection and gate: {searches:?}");
+            assert!(searches.iter().all(|r| r["driven"] == true && r["outcome"] == "converged"), "{mode:?} ({same_section},{same_readout}): {searches:?}");
+        }
+    }
+}
+
+/// C1-a's cap inputs (§3.2): the cap-law input and the two 4 MiB member-cap witnesses'
+/// inputs (`witness_w1_member_load_three_case_three_basis_128` and `..._dyadic`), on
+/// one large-stack thread (the census measures outcomes, not stack; the witnesses
+/// themselves stay the stack evidence).
+#[test]
+#[ignore = "W1 coverage census C1-a cap inputs (run with --features census-probe --ignored)"]
+fn w1_coverage_census_c1a_cap_inputs() {
+    let inputs = vec![
+        input("cap/law", w1_member_load_inputs::three_basis_member_cases(crate::retained_memory::census_cap_law_input()), MODES.to_vec()),
+        input("cap/witness_128", w1_member_load_inputs::narrow_three_basis_member_cases(), MODES.to_vec()),
+        input("cap/witness_128_dyadic", w1_member_load_inputs::narrow_dyadic_three_basis_member_cases(), MODES.to_vec()),
+    ];
+    std::thread::Builder::new().stack_size(512 << 20).spawn(move || run_target("c1a_cap", inputs, true, &|_| {}))
+        .unwrap().join().unwrap();
 }
