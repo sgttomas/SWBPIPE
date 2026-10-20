@@ -35,7 +35,7 @@ INVALIDATION = ("The stage-1 lc-1 preparation-refusal credit is retired. Every a
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:4684:solve_prepared_load_case"   # T4-S5 epoch (final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:4687:solve_prepared_load_case"   # O4 S5 (T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",
@@ -201,14 +201,16 @@ def selected_publication_context(snapshot, directory, graph):
     # U6-SH's hash_text and DomainPayload, +16). Epoch addbdc030e: composite 731/982 -> 726/977 (physical_source_built
     # calls `exact_pipe_sections`, -5). T4-S5 (epoch 4): composite 977 -> 990, lib 2553 -> 2569, unchanged text.
     # T4-S6 (S6-HS: the streamed `hash`, -9): source_receipt 664/750/766 -> 655/741/757, unchanged text.
+    # O4 S5 (§8.9): composite 726/990 -> 740/1018 (the basis-section parameters and the second maximum), lib 2569 -> 2572,
+    # source_receipt 655/741/757 -> 657/743/759 (a test re-export), unchanged text.
     expected = {
-        "core/product_physics/src/source_receipt/composite.rs:726:composite_exact": SOLVE,
-        "core/product_physics/src/source_receipt/composite.rs:990:ordinary_physics": SOLVE,
-        "core/product_physics/src/source_receipt.rs:655:failed": SOLVE,
-        "core/product_physics/src/source_receipt.rs:741:finalize_composite":
-            "core/product_physics/src/lib.rs:2569:run_linear_static_preview_observed_inner",
-        "core/product_physics/src/source_receipt.rs:757:finalize_for":
-            "core/product_physics/src/source_receipt.rs:741:finalize_composite",
+        "core/product_physics/src/source_receipt/composite.rs:740:composite_exact": SOLVE,
+        "core/product_physics/src/source_receipt/composite.rs:1018:ordinary_physics": SOLVE,
+        "core/product_physics/src/source_receipt.rs:657:failed": SOLVE,
+        "core/product_physics/src/source_receipt.rs:743:finalize_composite":
+            "core/product_physics/src/lib.rs:2572:run_linear_static_preview_observed_inner",
+        "core/product_physics/src/source_receipt.rs:759:finalize_for":
+            "core/product_physics/src/source_receipt.rs:743:finalize_composite",
     }
     for target, caller in expected.items():
         parents = [key for key, values in graph["edges"].items() for value in values if value == target]

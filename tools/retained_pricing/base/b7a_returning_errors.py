@@ -26,6 +26,9 @@ SOURCES = {
 # W1-L5: unchanged error owners/sites/callers after aggregation shift +2.
 # T4-S5 (epoch): every owner, site and caller moved with unchanged text (lib.rs +177/+314; retained_product.rs
 # +5/+27/+95/+203); no owner gains a caller.
+# O4 S5 (retained-pricing-rules.md §8.9): every owner, site and caller moved with unchanged text (lib.rs +3; retained_product.rs
+# +61/+167/+303/+412). prepared_maxima calls exact_straight_summary_extrema once more for a distinct-basis member's
+# reduced maximum (the same caller node; the chain counts its multiplicity); no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
@@ -35,10 +38,10 @@ SITES = [
     "short": "lib.rs:11167",
     "from": "lib.rs:11125:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4684:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4687:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      'core/product_physics/src/retained_product.rs:5850:prepared_maxima'
+      'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
     ]
   },
   {
@@ -49,10 +52,10 @@ SITES = [
     "short": "lib.rs:11173",
     "from": "lib.rs:11125:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4684:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4687:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      'core/product_physics/src/retained_product.rs:5850:prepared_maxima'
+      'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
     ]
   },
   {
@@ -63,31 +66,31 @@ SITES = [
     "short": "lib.rs:11828",
     "from": "lib.rs:11809:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4684:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4687:solve_prepared_load_case"
     ]
   },
   {
     "file": "core/product_physics/src/retained_product.rs",
-    "line": 1816,
+    "line": 1877,
     "kind": "into_text",
-    "owner": 'core/product_physics/src/retained_product.rs:1776:check_support_maps',
-    "short": 'retained_product.rs:1816',
-    "from": 'retained_product.rs:1776:check_support_maps',
+    "owner": 'core/product_physics/src/retained_product.rs:1837:check_support_maps',
+    "short": 'retained_product.rs:1877',
+    "from": 'retained_product.rs:1837:check_support_maps',
     "parents": [
-      'core/product_physics/src/retained_product.rs:1773:check_support_source',
-      'core/product_physics/src/retained_product.rs:1859:capture_case_structure'
+      'core/product_physics/src/retained_product.rs:1834:check_support_source',
+      'core/product_physics/src/retained_product.rs:1920:capture_case_structure'
     ]
   },
   {
     "file": "core/product_physics/src/retained_product.rs",
-    "line": 2979,
+    "line": 3146,
     "kind": "into_text",
-    "owner": 'core/product_physics/src/retained_product.rs:2959:support_observables',
-    "short": 'retained_product.rs:2979',
-    "from": 'retained_product.rs:2959:support_observables',
+    "owner": 'core/product_physics/src/retained_product.rs:3126:support_observables',
+    "short": 'retained_product.rs:3146',
+    "from": 'retained_product.rs:3126:support_observables',
     "parents": [
-      'core/product_physics/src/retained_product.rs:2998:case_observables',
-      'core/product_physics/src/retained_product.rs:6958:combination_observables'
+      'core/product_physics/src/retained_product.rs:3165:case_observables',
+      'core/product_physics/src/retained_product.rs:7370:combination_observables'
     ]
   }
 ]
@@ -109,7 +112,9 @@ MODE_SOURCE = {
            "0de99a4ac9ca186b441654d8434053ca626474b769d11aa4a3b6f93180b78471",
            "f8f52f6d35ee56b09dc9f8c554211b4f61d929146863d7e71688bcb671bc98a4",
            # T4-S5: the same _X emitter, with retained_w1 carried to lib.rs:3528 (its only difference).
-           "ed2cadd1171a34588c2279ade89c3cf5aa5c5b8b0d424b73dad06291759d1ab1"},
+           "ed2cadd1171a34588c2279ade89c3cf5aa5c5b8b0d424b73dad06291759d1ab1",
+           # O4 S5: the same _X emitter, with retained_w1 carried to lib.rs:3531 (its only difference).
+           "5addba6352f50241e19ed6004c97cb4c7c6949b2cc3b219d6ffa485449e32e0b"},
 }
 
 
