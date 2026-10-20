@@ -15,6 +15,7 @@ The bundled results computed with the flawed joint and the legacy pressure (`inv
 From the Piping project root, with a product-manifest-specific `CARGO_TARGET_DIR` and `CARGO_BUILD_JOBS=2`:
 - `npm run generate:product-preview-mechanics` regenerates the bundled demo and its record;
 - `node tools/serialization/generate_product_preview_mechanics.mjs --preview-physics-1` regenerates the refused demo's envelopes and their record.
+- Set `CARGO` to run cargo through another program that takes cargo's own arguments, such as a memory wrapper. The records still name the logical `cargo` command, and its version is asked of that program.
 
 The recipe runs both solver modes, checks that the source, input and lock identities are unchanged, and replaces only its own mode's files after a successful capture. The demo mode refuses to install anything but a solved result. The recipe rejects redirected input and output paths and keeps recovery backups if a rollback cannot finish. It does not claim multi-file power-loss atomicity.
 

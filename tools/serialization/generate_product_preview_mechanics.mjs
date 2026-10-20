@@ -3,6 +3,7 @@
 // Default mode: the browser's bundled demo, the valid invented_demo_model's
 // solved preview-physics-2 pair, and their record. `--preview-physics-1`: the refused invented_preview_model's
 // preview-physics-2 pair and its own record. Neither mode writes the other's files.
+// Cargo runs through `$CARGO` when set (a program taking cargo's own arguments); records still name the logical `cargo`.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, readdirSync, lstatSync, realpathSync,
@@ -73,17 +74,26 @@ function checkedPath(relative, kind, allowMissingLeaf = false) {
   }
   return cursor;
 }
-function command(program, args) {
+function command(program, args, name = program) {
   validateRoot();
   const result = spawnSync(program, args, { cwd: root, maxBuffer: 128 * 1024 * 1024 });
   if (result.stderr?.length) process.stderr.write(result.stderr);
-  if (result.error || result.status !== 0) fail(`${program} failed: ${result.error?.message ?? result.signal ?? result.status}`);
+  if (result.error || result.status !== 0) fail(`${name} failed: ${result.error?.message ?? result.signal ?? result.status}`);
   return { stdout: result.stdout, stderr: result.stderr };
 }
+// The executing program is never recorded: commands and tools name the logical `cargo`.
+const cargo = args => command(process.env.CARGO || "cargo", args, "cargo");
 const decode = value => new TextDecoder("utf-8", { fatal: true }).decode(value);
 const parse = value => JSON.parse(decode(value));
+// Asked of the same program that ran the generation, so it names the toolchain that
+// produced the outputs; anything but a cargo version line is refused, not recorded.
+function cargoVersion() {
+  const version = decode(cargo(["--version"]).stdout).trim();
+  if (!/^cargo \d+\.\d+\.\d+[^\s]*( \([^\n]*\))?$/.test(version)) fail(`unexpected cargo --version report: ${JSON.stringify(version)}`);
+  return version;
+}
 function metadata() {
-  return parse(command("cargo", ["metadata", "--offline", "--locked", "--format-version", "1", "--manifest-path", manifest]).stdout);
+  return parse(cargo(["metadata", "--offline", "--locked", "--format-version", "1", "--manifest-path", manifest]).stdout);
 }
 function dependencyInventory(meta) {
   return meta.packages.map(pkg => ({ name: pkg.name, version: pkg.version,
@@ -260,7 +270,7 @@ try {
   const fixtureWrites = [];
   for (const [mode, suffix, value] of modes) {
     const args = ["run", "--offline", "--locked", "--quiet", "--manifest-path", manifest, "--example", "preview_result", "--", mode, config.model];
-    const captured = command("cargo", args);
+    const captured = cargo(args);
     const result = parse(captured.stdout);
     validate(result, mode, value, model, config);
     const outputPath = config.output(suffix);
@@ -284,7 +294,7 @@ try {
     source_input_files: before, source_input_files_after: after,
     inventory_json_sha256: sha(Buffer.from(beforeText)),
     dependencies: dependencyInventory(meta),
-    tools: { node: process.version, cargo: decode(command("cargo", ["--version"]).stdout).trim(), rustc: decode(command("rustc", ["--version"]).stdout).trim() },
+    tools: { node: process.version, cargo: cargoVersion(), rustc: decode(command("rustc", ["--version"]).stdout).trim() },
     outputs,
     provenance: "Actual unchanged-input Rust executions; raw stdout retained as fixture bytes. No headers, quality or numeric values synthesized. Example transport data, not independent physics or source/build authentication.",
   };
