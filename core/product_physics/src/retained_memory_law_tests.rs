@@ -1773,7 +1773,8 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// W1 coverage repair actual-source record at 7299e6319d (retained-pricing-rules.md §8.11):
+/// W1 coverage repair actual-source record at 7299e6319d (retained-pricing-rules.md §8.11),
+/// numerically unchanged at corner 1's aefefa5043 (§8.12, the driven search live):
 /// requested + moving bytes, without R or the separately upward-rounded TEXT reserve, from the
 /// canonical 100-form union. W2-W5 rise by 4,008 B in both modes from the stack-headroom repair's
 /// 6b90748dec (§8.10): the certified proof now holds the gate's final scales to serialization
