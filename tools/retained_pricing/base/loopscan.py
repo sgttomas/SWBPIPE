@@ -143,16 +143,33 @@ def blank_rust(text):
 
 TEST_ATTR = re.compile(r"#\[cfg\((?:test|any\(\s*test\b[^\]]*)\)\]")
 
-def blank_test_items(bt):
+# W1R-FG (retained-pricing-rules.md §8.11): opt-in features the registered build leaves off. The registered
+# identity is built with no features, so an item or statement under exactly `#[cfg(feature = "<f>")]` or
+# `#[cfg(all(test, feature = "<f>"))]` for such a feature is compiled out of it, as a `#[cfg(test)]` item is,
+# and is blanked the same way. A `#[cfg(not(feature = ..))]` arm is compiled in and stays priced. The
+# feature's names are read from the raw text (the lexer blanks string contents); `off_build_files` and
+# `off_feature_audit` below hold the manifest and inclusion guards.
+OFF_FEATURES = ("census-probe",)
+OFF_ATTR = re.compile(r'#\[cfg\((?:all\(\s*test\s*,\s*)?feature\s*=\s*"(?:' + "|".join(re.escape(f) for f in OFF_FEATURES)
+                      + r')"\s*\)?\)\]')
+
+def blank_test_items(bt, raw=None):
     """G4: blank every item gated by `#[cfg(test)]` or `#[cfg(any(test, ..))]` (the latter is
     compiled only with test or the mutation-controls feature, which D1 builds leave off),
     wherever it sits in the file. G3 cut each file at its first `#[cfg(test)] mod {`, which
     drops every production item after a mid-file test module (U3 adds one to PP lib.rs at
-    :3002). Input is lexer-blanked text; newlines are kept, so line numbers are unchanged."""
+    :3002). Input is lexer-blanked text; newlines are kept, so line numbers are unchanged.
+    With the raw text, W1R-FG's off-feature items are blanked too (an attribute the lexer
+    blanked, inside a comment or string, is not one)."""
     out = list(bt)
     n = len(bt)
-    for m in TEST_ATTR.finditer(bt):
-        i = m.end()
+    attrs = [(m.start(), m.end()) for m in TEST_ATTR.finditer(bt)]
+    if raw is not None:
+        if len(raw) != n:
+            raise ValueError("W1R-FG: the lexer-blanked text is not position-aligned with the raw text")
+        attrs += [(m.start(), m.end()) for m in OFF_ATTR.finditer(raw) if bt.startswith("#[cfg(", m.start())]
+    for start, end in sorted(set(attrs)):
+        i = end
         # skip further attributes and whitespace
         while True:
             while i < n and bt[i].isspace():
@@ -187,7 +204,97 @@ def blank_test_items(bt):
                 j = k + 1
                 break
             j += 1
-        for q in range(m.start(), min(j, n)):
+        for q in range(start, min(j, n)):
             if out[q] != "\n":
                 out[q] = " "
     return "".join(out)
+
+
+# W1R-FG: the files the registered build does not compile. The W1 coverage census probe and its driver are included
+# only through `#[path]` module declarations that are themselves compiled out: gated by an off feature or test
+# attribute, or written inside a test file (`*_tests.rs`, `tests.rs`, `/tests/`), which the chain already excludes.
+# Each reviewed file names the files that may declare it; any other inclusion, a plain `mod <stem>;`, or a new
+# off-build file stops the run for review.
+OFF_BUILD_FILES = {
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/census_probe.rs":
+        ("core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",),
+    "core/product_physics/src/w1_census_driver.rs":
+        ("core/product_physics/src/w1_coverage_census_tests.rs", "core/product_physics/src/w1e_census_tests.rs"),
+}
+# The two manifest lines that may name an off feature: the kernel's declaration and product_physics' forwarding.
+OFF_FEATURE_MANIFEST = {
+    "core/solver/frame_kernel/Cargo.toml": ('census-probe = []',),
+    "core/product_physics/Cargo.toml": ('census-probe = ["open_pipe_stress_frame_kernel/census-probe"]',),
+}
+_PATH_MOD = re.compile(r'((?:#\[[^\]]*\]\s*)*)#\[path\s*=\s*"([^"]+)"\]\s*((?:#\[[^\]]*\]\s*)*)(?:pub(?:\([^)]*\))?\s+)?mod\s+(\w+)\s*;')
+
+def _test_file(rel):
+    base = rel.rsplit("/", 1)[-1]
+    return base.endswith("_tests.rs") or base == "tests.rs" or "/tests/" in "/" + rel
+
+def _rs_files(root):
+    import os
+    out = {}
+    core = os.path.join(root, "core")
+    for d, _, fs in os.walk(core):
+        if "/target" in d:
+            continue
+        for f in sorted(fs):
+            if f.endswith(".rs"):
+                p = os.path.join(d, f)
+                out[os.path.relpath(p, root)] = open(p, encoding="utf-8").read()
+    return out
+
+def off_build_files(root):
+    """The reviewed off-build files present at the snapshot, after the inclusion guard (fails closed).
+
+    A snapshot without them (every revision before the W1 coverage repair) returns the empty set."""
+    import os
+    srcs = _rs_files(root)
+    present = {f for f in OFF_BUILD_FILES if f in srcs}
+    if not present:
+        return set()
+    declared = {f: [] for f in OFF_BUILD_FILES}
+    for rel, raw in srcs.items():
+        bt = blank_rust(raw)
+        for m in _PATH_MOD.finditer(raw):
+            if not bt.startswith("#[", m.start()):
+                continue                                    # inside a comment or string
+            target = os.path.normpath(os.path.join(os.path.dirname(rel), m.group(2)))
+            stem = os.path.basename(target)
+            if target in declared or stem in {os.path.basename(f) for f in OFF_BUILD_FILES}:
+                attrs = m.group(1) + m.group(3)
+                gated = bool(OFF_ATTR.search(attrs) or TEST_ATTR.search(attrs))
+                declared.setdefault(target, []).append((rel, gated or _test_file(rel)))
+        for f in present:
+            stem = os.path.basename(f)[:-3]
+            for p in re.finditer(r"\bmod\s+" + re.escape(stem) + r"\s*;", bt):
+                if not re.search(r'#\[path\s*=\s*"\s*"\][^;{}]*$', bt[:p.start()][-300:]):
+                    raise ValueError(f"W1R-FG: {f} is also a plain module in {rel}; re-review")
+    for f in present:
+        sites = declared.get(f, [])
+        if not sites or not all(ok for _, ok in sites) or sorted({r for r, _ in sites}) != sorted(OFF_BUILD_FILES[f]):
+            raise ValueError(f"W1R-FG: {f}'s inclusion is not only through compiled-out declarations in {OFF_BUILD_FILES[f]}: {sites}")
+    stray = {t: s for t, s in declared.items() if t not in OFF_BUILD_FILES and s}
+    if stray:
+        raise ValueError(f"W1R-FG: a module path names an off-build file outside the reviewed set: {stray}")
+    off_feature_audit(root)
+    return present
+
+def off_feature_audit(root):
+    """Every manifest line naming an off feature is one of the two reviewed lines (no default, no enabling dependency)."""
+    import os
+    found = {}
+    for d, _, fs in os.walk(root):
+        if "/target" in d:
+            continue
+        for f in fs:
+            if f == "Cargo.toml":
+                p = os.path.join(d, f)
+                for line in open(p, encoding="utf-8").read().splitlines():
+                    code = line.split("#", 1)[0].strip()
+                    if any(feature in code for feature in OFF_FEATURES):
+                        found.setdefault(os.path.relpath(p, root), []).append(code)
+    if {k: tuple(v) for k, v in found.items()} != OFF_FEATURE_MANIFEST:
+        raise ValueError(f"W1R-FG: the off features' manifest lines changed; re-review: {found}")
+    return found

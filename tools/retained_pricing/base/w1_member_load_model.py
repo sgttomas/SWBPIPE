@@ -23,9 +23,16 @@ import runpy
 # Stack-headroom repair D3 (b7-plan 5a, retained-pricing-rules.md §8.10): read 27e4dfa972;
 # freeze_case's closure is split into six phase functions, with unchanged calls, order, errors,
 # drops and allocation. Only stack placement changes; no owner this model prices changes.
+# W1 coverage repair D3 (retained-pricing-rules.md §8.11): read 3bbfdd5080. loaded_maximum.rs: search takes
+# `driven` and, when set, runs on Enclosure::point(z.lo) with one more point_max per evaluated point for lower_hull,
+# inside the unchanged loop and limits (frame growth: loaded_inventory's driven_slots, W1R-LM); recipe_reduced
+# passes driven = corner1() && .., false without the census-probe feature. final_case.rs: check_intervals returns
+# the scales it used and certify_final moves them into CertifiedProductProof (W1R-FS). retained_wire.rs: selection
+# borrows the proof and writes body_scales from them (W1R-L1). origins.rs, source_residual.rs and the rest of
+# final_case.rs/loaded_maximum.rs add only census-probe items, compiled out of the registered build (W1R-FG).
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": '7683f8ef8dc9b4f1951bb7ef1e0c274fd9a094fb66f55132de3cf07758ff4e52',
-    "core/product_physics/src/retained_wire.rs": "559f4d0ae4b3b2a9405d3aa8199d5ccbc10d03775a0b38544e10eed31b1806eb",
+    "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "2dbbdd9c9fcdfc87aa0b7358c6a7661e20eded94b64e482ec62dcdbbaedce7a4",
     "core/reporting/result_export/src/retained_precision.rs": "8890f3c127428d2eb2959a2f74d5a0263bb76ada69ff6ec160617c6d9adf4a24",
@@ -34,7 +41,7 @@ SOURCE_FILES = {
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",
     "core/solver/frame_kernel/src/structural/retained/declared.rs": "867637e55a30fd34b679ad11423ad1d6d58e14f632548b04c4a535c94aa62c77",
     "core/solver/frame_kernel/src/structural/retained/ledger.rs": "0d80f13a76771506c1c81f65e502ce255d648f8aaa6a2eecfd3544bab8af47e9",
-    "core/solver/frame_kernel/src/structural/retained/origins.rs": "fc139cb20561a281b5dcd252eed307d408d9632b5f2c5232147f2dd10640e161",
+    "core/solver/frame_kernel/src/structural/retained/origins.rs": "545462fcfe5c07e4361c301eed00d4e8afa28f3b81127eb7bd5442f07cad6d04",
     "core/solver/frame_kernel/src/structural/retained/adaptive.rs": "b966f7d77b851da81a630759f04d68f29b92b760972b9d31ebb693475a7e4249",
     "core/solver/frame_kernel/src/structural/retained/assemble.rs": "8b4ab81afc98389e6c46a979ef1ac05acb06bcd3e5ef0aa63fc847f5a897f2c5",
     "core/solver/frame_kernel/src/structural/retained/combine.rs": "85d7908cce9c4989b439db508df25601bf3905c7898245201afb27b4f085d42a",
@@ -47,9 +54,9 @@ SOURCE_FILES = {
     "core/solver/frame_kernel/src/structural/retained/directed.rs": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
     "core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "dadbb4d6a37e8a44b95d567494828feb795d805434814b7039c8b925a17e1a80",
     "core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "2481f6038229ca0dfc7e43d4a5f23918d45f373b7afb4480b7d750a9c0cf5121",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "ed9ff38db3f9c96ea69aa59b4127bf0f356e0ae14b0b975b0cf1cf629a4d1890",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs": "cc9ad2a9051a354273bd66370fbc57f1eb52e98aacb71b4e3cc75cd72de54900",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "6208ea03adbe8617066e6aabe7d16bbe8a4afd4b2103909e79d8c921340eae37"
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "ea2ba06bc7a34f9211b0d2a6add5686f517e5a8719af17bca1a2ee781626e8b3",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs": "ec18ecd28b953013577aa3732158126274dc4b1008db658e9f0b09c865f3f212",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "e2ef2ea11b1312d843147b042f4f41b7a7310ce52216ef48abb018ab64f954fd"
 }
 READER_CASE_CAP = 1024 * 1024
 READER_STACK = 128 * 1024
@@ -112,14 +119,22 @@ def loaded_inventory():
     headers/indices/work records cover nested numeric staging and moves.
     Returned hulls, boxed refusal diagnostic, PP spans/evidence and caller
     NumericWork records are independent positive rows below.
+
+    W1R-LM (W1 coverage repair §1.2, retained-pricing-rules.md §8.11): the
+    driven search's frame keeps the represented hull (hull_z, two endpoints)
+    beside its z_lo point, the hull-valid lower (lower_hull) and the named
+    point value: four more endpoint slots, added to the rounded union rather
+    than assumed inside it. Its second point_max call per evaluated point runs
+    after the first returns (sequential callee frames, no new allocation).
     """
     backing = 256 * 2744
     endpoint_slots = 1024
+    driven_slots = 4
     sum_buffers = 16 * 8192
     double_buffers = 32 * (2 * 16 * 8)
     auxiliary = 32 * 1024
-    upper = backing + endpoint_slots * 144 + sum_buffers + double_buffers + auxiliary
-    return {"backing": backing, "endpoint_slots": endpoint_slots,
+    upper = backing + (endpoint_slots + driven_slots) * 144 + sum_buffers + double_buffers + auxiliary
+    return {"backing": backing, "endpoint_slots": endpoint_slots, "driven_slots": driven_slots,
             "sum_buffers": sum_buffers, "double_buffers": double_buffers,
             "auxiliary": auxiliary, "upper": upper, "cap": LOADED_SEARCH_CAP}
 

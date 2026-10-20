@@ -19,9 +19,9 @@ FK = "core/solver/frame_kernel/src/"
 # RF: metering adds 41 lines before these unchanged source-copy sites.
 # W1: one retained_api export shifts the structural sites by one; member-only
 # capture shifts metadata sites by59 without changing these recipes/owners.
-SOURCE_LINE = 1288
+SOURCE_LINE = 1294
 SOURCE_SITE = FK + "structural.rs:%d" % SOURCE_LINE
-SOURCE_OWNER = FK + 'structural.rs:1287:row_sources'
+SOURCE_OWNER = FK + 'structural.rs:1293:row_sources'
 SOURCE_RULE = "structural.rs:%d" % SOURCE_LINE
 # PP (20c6126a16): retained_product.rs moves +3 from line 1995 on (StraightMember::from_frame), +6 after the
 # retained member overlay; lib.rs's helpers move +92, and +36 more at the epoch addbdc030e (the realized-arc
@@ -34,6 +34,9 @@ SOURCE_RULE = "structural.rs:%d" % SOURCE_LINE
 # retained_api re-exports; retained_product.rs +137 to +411 from the O4 sidecars and ProductCaseView's second lifetime,
 # bind_rows_subject's signature line among them). No recipe, error, source-copy or helper site changed.
 # Stack-headroom D3 (§8.10): freeze_combination carries +59 through the line map; its text and callers are unchanged.
+# W1 coverage repair D3 (§8.11): structural.rs gains six retained_api lines (the CENSUS_PROBE const and the gated
+# census_probe re-export) above every snapshot key here, so load_fidelity, audit_load_fidelity, row_sources (and its
+# clone site), unaudited_row and audit_load_row carry +6 with unchanged text and callers.
 VALIDATOR = PP + 'retained_product.rs:3303:validate_final_metadata'
 BOUNDS = {3373:46,3396:37,3402:140,3427:143,3454:158,3473:162,
           3507:188,3508:338,3542:169,3565:173,3570:322}
@@ -45,7 +48,7 @@ ERROR_WHY = "B7a metadata first error: immediate propagation out of whole bind_r
 SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallback "
               "are exclusive per DOF; partitioned force terms are cloned at most q "
               "per full audit; both caller counts/String128/capacity2 remain")
-PREIMAGES = {'source_from': {'from': ['structural.rs:1226:audit_load_fidelity',
+PREIMAGES = {'source_from': {'from': ['structural.rs:1232:audit_load_fidelity',
                           'structural/sparse.rs:1891:audit_sparse_load_fidelity'],
                  'per': '24*l',
                  'why': 'B7a: both audited callers retain their complete2*q source-copy upper before '
@@ -236,14 +239,14 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1226:audit_load_fidelity',
  'lex_preimages': {'retained_product.rs:3373': {'class': 46,
                                                 'why': 'B7a scoped TEXT: exact current producer and admitted '
                                                        'source/type closure; requested mode literal'}},
- 'parents': {'core/solver/frame_kernel/src/structural.rs:1287:row_sources': ['core/solver/frame_kernel/src/structural.rs:1295:unaudited_row',
-                                                                             'core/solver/frame_kernel/src/structural.rs:1324:audit_load_row'],
-             'core/solver/frame_kernel/src/structural.rs:1295:unaudited_row': ['core/solver/frame_kernel/src/structural.rs:1226:audit_load_fidelity',
+ 'parents': {'core/solver/frame_kernel/src/structural.rs:1293:row_sources': ['core/solver/frame_kernel/src/structural.rs:1301:unaudited_row',
+                                                                             'core/solver/frame_kernel/src/structural.rs:1330:audit_load_row'],
+             'core/solver/frame_kernel/src/structural.rs:1301:unaudited_row': ['core/solver/frame_kernel/src/structural.rs:1232:audit_load_fidelity',
                                                                                'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity'],
-             'core/solver/frame_kernel/src/structural.rs:1324:audit_load_row': ['core/solver/frame_kernel/src/structural.rs:1226:audit_load_fidelity',
+             'core/solver/frame_kernel/src/structural.rs:1330:audit_load_row': ['core/solver/frame_kernel/src/structural.rs:1232:audit_load_fidelity',
                                                                                 'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity'],
              'core/product_physics/src/retained_product.rs:3303:validate_final_metadata': ['core/product_physics/src/retained_product.rs:2553:bind_rows_subject'],
-             'core/solver/frame_kernel/src/structural.rs:1226:audit_load_fidelity': ['core/solver/frame_kernel/src/structural.rs:548:load_fidelity'],
+             'core/solver/frame_kernel/src/structural.rs:1232:audit_load_fidelity': ['core/solver/frame_kernel/src/structural.rs:554:load_fidelity'],
              'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1218:load_fidelity'],
              'core/product_physics/src/retained_product.rs:2553:bind_rows_subject': ['core/product_physics/src/retained_product.rs:2537:bind_combination_rows_scoped',
                                                                                      'core/product_physics/src/retained_product.rs:2546:bind_rows_view',
@@ -251,26 +254,26 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1226:audit_load_fidelity',
  'site_stacks': [['core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   'core/product_physics/src/retained_product.rs:3303:validate_final_metadata',
                   [['for observed in view.rows()']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1226:audit_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1324:audit_load_row',
+                 ['core/solver/frame_kernel/src/structural.rs:1232:audit_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1330:audit_load_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1226:audit_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1295:unaudited_row',
+                 ['core/solver/frame_kernel/src/structural.rs:1232:audit_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1301:unaudited_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1295:unaudited_row',
-                  'core/solver/frame_kernel/src/structural.rs:1287:row_sources',
+                 ['core/solver/frame_kernel/src/structural.rs:1301:unaudited_row',
+                  'core/solver/frame_kernel/src/structural.rs:1293:row_sources',
                   [[]]],
-                 ['core/solver/frame_kernel/src/structural.rs:1324:audit_load_row',
-                  'core/solver/frame_kernel/src/structural.rs:1287:row_sources',
+                 ['core/solver/frame_kernel/src/structural.rs:1330:audit_load_row',
+                  'core/solver/frame_kernel/src/structural.rs:1293:row_sources',
                   [[]]],
                  ['core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1324:audit_load_row',
+                  'core/solver/frame_kernel/src/structural.rs:1330:audit_load_row',
                   [['for i in 0..n']]],
                  ['core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1295:unaudited_row',
+                  'core/solver/frame_kernel/src/structural.rs:1301:unaudited_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:548:load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1226:audit_load_fidelity',
+                 ['core/solver/frame_kernel/src/structural.rs:554:load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1232:audit_load_fidelity',
                   [[]]],
                  ['core/solver/frame_kernel/src/structural/sparse.rs:1218:load_fidelity',
                   'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity',

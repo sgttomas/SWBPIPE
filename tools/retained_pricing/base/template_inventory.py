@@ -97,7 +97,7 @@ for rel in sys.argv[2:]:
     # G4 (R1g/R1k): keep the raw text for literals, but skip any macro inside a comment, a
     # string or a test-gated item, wherever it sits (G3 cut at the first test module)
     import loopscan
-    mask = loopscan.blank_test_items(loopscan.blank_rust(text))
+    mask = loopscan.blank_test_items(loopscan.blank_rust(text), text)   # W1R-FG: off-feature items too
     scan = text
     for macro in MACROS + ("diag(",):
         for m in re.finditer(re.escape(macro), scan):

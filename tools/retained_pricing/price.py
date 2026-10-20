@@ -16,6 +16,7 @@ import argparse, difflib, json, os, re, shlex, shutil, subprocess, sys, tempfile
 from lib.b7a_retired_carry import prepare as prepare_b7a_retired_carry
 from base.b7a_domain_model import prepare as prepare_b7a_domain
 from base.b7a_formation_model import prepare as prepare_b7a_formation
+from base.loopscan import off_build_files
 
 H = os.path.dirname(os.path.abspath(__file__))
 BASE, LIB, RULES, DATA = (os.path.join(H, d) for d in ("base", "lib", "rules", "data"))
@@ -87,14 +88,16 @@ def chain_crates(chain, W):
     return crates, deps
 
 
-def template_inventory(W, chain):
-    """The chain's template inventory regenerated on the snapshot (production .rs files of the chain's crates)."""
+def template_inventory(W, chain, off_build=()):
+    """The chain's template inventory regenerated on the snapshot (production .rs files of the chain's crates, less the
+    W1R-FG files the registered build does not compile)."""
     files = []
     for c in chain_crates(chain, W)[0]:
         for d, _, fs in os.walk(os.path.join(W, c)):
             if "/tests" in d or "/bin" in d:
                 continue
-            files += [os.path.relpath(os.path.join(d, f), W) for f in fs if f.endswith(".rs") and not f.endswith("_tests.rs") and f != "tests.rs"]
+            files += [os.path.relpath(os.path.join(d, f), W) for f in fs if f.endswith(".rs") and not f.endswith("_tests.rs") and f != "tests.rs"
+                      and os.path.relpath(os.path.join(d, f), W) not in off_build]
     r = py([os.path.join(chain, "template_inventory.py"), "."] + sorted(files), cwd=W, out=os.path.join(chain, "template_inventory_head.out.json"))
     if r.returncode:
         stop(4, "template inventory failed", stderr=r.stderr[-2000:])
@@ -237,7 +240,14 @@ def cmd_run(a):
     shutil.copytree(BASE, chain)
     for f in RULE_FILES:
         shutil.copy(os.path.join(m, f), os.path.join(chain, f))
-    template_inventory(W, chain)
+    # W1R-FG (retained-pricing-rules.md §8.11): the off-feature files and manifest lines, guarded; the scanners blank
+    # off-feature items and skip these files, as the registered build (no features) does not compile them.
+    try:
+        off_build = off_build_files(W)
+    except ValueError as error:
+        stop(4, str(error))
+    report["off_build"] = sorted(off_build)
+    template_inventory(W, chain, off_build)
     # 5. SQ2 + O-10 rules per route
     for route in ("L", "E"):
         r = py([os.path.join(LIB, "sq2_rules.py"), chain, os.path.join(out, "rc" + route), os.path.join(RULES, f"sq2_decisions_{route}.py")],
