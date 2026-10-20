@@ -26,9 +26,6 @@ use std::cell::{Cell, RefCell};
 pub struct Switches {
     /// The corner-1 repair (§1.2): drive an interval represented Z at z_lo.
     pub corner1: bool,
-    /// The corner-2 repair (§2.2): the receipt states the gate's final scales.
-    /// Read by product_physics' `selection`; the kernel only exposes the scales.
-    pub corner2: bool,
     /// Counterfactual (b): the annular lane takes the admitted section leaves.
     pub same_section: bool,
     /// Counterfactual (c): the annular lane takes the admitted readout whole.
@@ -76,7 +73,7 @@ impl Record {
 
 thread_local! {
     static SWITCHES: Cell<Switches> = const { Cell::new(Switches {
-        corner1: false, corner2: false, same_section: false, same_readout: false, lane_null: false, record: false }) };
+        corner1: false, same_section: false, same_readout: false, lane_null: false, record: false }) };
     static RECORDS: RefCell<Vec<Record>> = const { RefCell::new(Vec::new()) };
     static CONTEXT: RefCell<(String, &'static str)> = const { RefCell::new((String::new(), "")) };
 }

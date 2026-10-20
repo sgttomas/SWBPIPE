@@ -503,23 +503,35 @@ fn w1_member_interior_publications_bind_the_actual_direct_entry() {
     }
 }
 
-/// Native quantity scales and published-row maxima straddle an exact binary64
-/// halfway in this distinct input. Preserve the existing strict G5b refusal.
+/// W1 coverage repair §2.2 (corner 2): native quantity scales and published-row maxima
+/// straddle an exact binary64 halfway in this input (force maximum (7/2)Z, coupled
+/// moment 7Z). The receipt now states the final scales the product gate judged every
+/// row with, so precommit G5b holds and the successor publishes in both modes; the
+/// unchanged reader recomputes the same scales. Formerly
+/// `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal`: the cause that refusal
+/// recorded, the receipt's native provenance, is repaired, and no gate changed.
 #[test]
-fn w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal() {
+fn w1_loaded_scale_halfway_publishes() {
     let raw=w1_interior_publication_request(true,-2.0);
+    let z=f64::from_bits(0x3f3c82e3dc7ef90c);
     for mode in MODES {
         let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
         ordinary.diagnostics.shrink_to_fit();
         let bytes=serde_json::to_vec(&ordinary).unwrap();
         let ((envelope,retained),_,candidate)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
-        assert_eq!(retained.err(),Some(W1Fallback::Precommit{gate:"G5b",code:"RETAINED_PRECISION_SCALE_MISMATCH".into()}));
-        let expected=with_notice(&bytes,raw["model"]["load_cases"][0]["id"].as_str().unwrap(),None);
-        assert!(serde_json::to_vec(&envelope).unwrap()==expected,"the ordinary bytes keep only the existing R2 fallback notice");
-        let candidate=candidate.unwrap();
+        let successor=retained.unwrap_or_else(|f|panic!("{mode:?}: {f:?}")).value().clone();
+        assert_eq!(candidate.as_ref(),Some(&successor));
+        assert!(serde_json::to_vec(&envelope).unwrap()==bytes,"the ordinary owner is untouched");
         let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
-        let failure=reader::validate(&candidate,Some(&invocation)).unwrap_err();
-        assert_eq!((failure.gate,failure.code.as_str()),("G5b","RETAINED_PRECISION_SCALE_MISMATCH"));
+        let verdict=reader::validate(&successor,Some(&invocation)).unwrap_or_else(|e|panic!("{mode:?}: {e:?}"));
+        assert!(verdict.invocation_bound&&verdict.numerical_eligible);
+        let case=&successor["retained_precision"]["body"]["cases"][0];
+        assert_eq!(case["status"],"selected");
+        // The loaded body's force scale is the final row maximum RN64((7/2)Z), ties to
+        // even; the coupled moment scale is twice it (extent 2), RN64(7Z).
+        let scales=&case["selection"]["body_scales"][1];
+        assert_eq!(scales["force"],json!(format!("{:016x}",(3.5*z).to_bits())));
+        assert_eq!(scales["moment"],json!(format!("{:016x}",(7.0*z).to_bits())));
     }
 }
 

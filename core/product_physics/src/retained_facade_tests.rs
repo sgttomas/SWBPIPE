@@ -3107,7 +3107,8 @@ fn b3b_refused_exact_requests_take_the_ordinary_route() {
 // The controls are m3x with N1 at (2, 4, 4) and a D = 0.4 m, t = 0.02 m section (moments only, control A), or with a
 // 0.01 N global-X tip force added (control B, which publishes on the Timoshenko documents only). They were chosen,
 // as §8's coupling rule 2 asks, where the receipt's native body scales and the final rows agree: m3x itself in its
-// Timoshenko form withdraws at G5b SCALE_MISMATCH (the W1 repair's second corner), which the fallback test pins.
+// Timoshenko form withdrew at G5b SCALE_MISMATCH before the W1 repair's second corner landed; it now publishes
+// (`o4_w1e_m3x_timoshenko_publishes_with_the_gate_scales`).
 // No row here is near phi = 2, and no test asserts a row's relative class.
 
 /// One O4 control: `shear` the contract's shear model, `allowance` and `mill` each pipe section's corrosion
@@ -4718,18 +4719,21 @@ mod s4_retained_tests;
 #[path = "w1_successor_census_tests.rs"]
 mod w1_successor_census_tests;
 
-/// O4 §8 coupling rule 2: m3x's Timoshenko twin is selected and staged, and RS withdraws it at G5b SCALE_MISMATCH (the
-/// receipt's native body scale and the final rows' scale differ by one ulp: the W1 repair's second corner, which O4
-/// does not change). W1 falls back to the ordinary pressure-2 owner; nothing edits a scale to pass.
+/// O4 §8 coupling rule 2 and W1 coverage repair §2.2 (corner 2): m3x's Timoshenko twin, whose
+/// receipt formerly stated native body scales one ulp from the final rows' (and so withdrew at
+/// G5b SCALE_MISMATCH), now states the scales the product gate used, and publishes in both
+/// modes, read by the unchanged reader. Formerly `o4_w1e_m3x_timoshenko_withdraws_at_the_body_scale_corner`.
 #[test]
-fn o4_w1e_m3x_timoshenko_withdraws_at_the_body_scale_corner() {
+fn o4_w1e_m3x_timoshenko_publishes_with_the_gate_scales() {
     for mode in MODES {
         let mut raw = m3x();
         raw["model"]["pressure_contract"]["shear_model"] = json!(O4_TIM);
-        let (envelope, retained, captured) = exact_w1(&raw, mode);
-        assert_eq!(o4_body(&captured.expect("staged"))["cases"][0]["status"], json!("selected"), "{mode:?}");
-        assert!(matches!(&retained, Err(W1Fallback::Precommit { gate: "G5b", code }) if code == "RETAINED_PRECISION_SCALE_MISMATCH"), "{mode:?}: {retained:?}");
-        assert_eq!(envelope.producer.semantic_contract_id, exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID, "{mode:?}: the ordinary owner");
+        let (_, retained, captured) = exact_w1(&raw, mode);
+        let successor = retained.unwrap_or_else(|f| panic!("{mode:?}: {f:?}")).value().clone();
+        assert_eq!(captured.as_ref(), Some(&successor));
+        assert_eq!(o4_body(&successor)["cases"][0]["status"], json!("selected"), "{mode:?}");
+        let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+        assert!(open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)).unwrap_or_else(|e| panic!("{mode:?}: {e:?}")).invocation_bound);
     }
 }
 

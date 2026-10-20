@@ -462,14 +462,8 @@ pub struct ProductCertificateSpent<'a> {
     /// capacities (elements), zero when the `ReducedSectionSet` is empty. The
     /// serialized `capacities` keep their seven slots.
     reduced_capacities:[usize;2],
-    /// W1 coverage census (§2.2, corner-2 switch): the gate's final scales.
-    #[cfg(feature = "census-probe")]
-    census_final_scales:Vec<[f64;4]>,
 }
 impl<'a> ProductCertificateSpent<'a> {
-    /// W1 coverage census (§2.2): the final per-body scales the gate used.
-    #[cfg(feature = "census-probe")]
-    pub fn census_final_scales(&self)->&[[f64;4]] { &self.census_final_scales }
     fn new(rows: &'a [ProductFinalRow<'a>]) -> Self {
         Self {
             rows,
@@ -487,8 +481,6 @@ impl<'a> ProductCertificateSpent<'a> {
             projection_outcomes:Vec::new(),projection_conversions:WorkTotal::zero(),
             lane_errors:[None,None],completion_merged:false,trace_copy_work:TraceCopyWork::default(),
             anchor:None,loaded_diagnostic:None,loaded_search_bytes:0,reduced_capacities:[0;2],
-            #[cfg(feature = "census-probe")]
-            census_final_scales:Vec::new(),
         }
     }
     /// O4 §4.5: [reduced-row index map, reduced-coverage vector] capacities
@@ -567,9 +559,7 @@ impl<'a> ProductCertificateSpent<'a> {
             projection_outcomes:self.projection_outcomes,projection_conversions:self.projection_conversions,
             lane_errors:self.lane_errors,completion_merged:self.completion_merged,trace_copy_work:self.trace_copy_work,anchor:self.anchor,
             loaded_diagnostic:self.loaded_diagnostic,loaded_search_bytes:self.loaded_search_bytes,
-            reduced_capacities:self.reduced_capacities,
-            #[cfg(feature = "census-probe")]
-            census_final_scales:self.census_final_scales }
+            reduced_capacities:self.reduced_capacities }
     }
     fn retain_lane(&mut self,result:Result<source_residual::LaneReadouts,bridge::BridgeError>,work:ResidualWork)
         ->Result<source_residual::LaneReadouts,ProductFailure> {
@@ -1569,7 +1559,7 @@ fn row_scales_reduced(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts]
 fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts], reduced:&ReducedSectionSet,
     k:&[Enclosure], source_values:&[Enclosure], data:&[bool], spent:&mut ProductCertificateSpent<'_>,
     k_curvatures:&[(u32,[Enclosure;2])], s_curvatures:&[(u32,[Enclosure;2])])
-    -> Result<(),ProductFailure> {
+    -> Result<Vec<[f64;4]>,ProductFailure> {
     let source=owner.source();
         #[cfg(feature = "census-probe")]
         census_probe::context(spent.rows.first().map_or("", |r| r.case_id), "gate");
@@ -1701,15 +1691,14 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts], 
             }
         }
         #[cfg(feature = "census-probe")]
-        {
-            spent.census_final_scales = scales.clone();
-            if census_probe::switches().record {
-                census_probe::gate_records(&census_probe::GateInputs { owner, facts, reduced, reduced_map: &reduced_map,
-                    k, s: source_values, k_curvatures, s_curvatures, rows: spent.rows, verdicts: &spent.verdicts,
-                    scales: &scales, gate_rows: &probe_rows });
-            }
+        if census_probe::switches().record {
+            census_probe::gate_records(&census_probe::GateInputs { owner, facts, reduced, reduced_map: &reduced_map,
+                k, s: source_values, k_curvatures, s_curvatures, rows: spent.rows, verdicts: &spent.verdicts,
+                scales: &scales, gate_rows: &probe_rows });
         }
-    Ok(())
+    // W1 coverage repair §2.2: the coupled, floored scales the gate used, for the
+    // certified proof (the vector `row_scales_reduced` reserved; no new allocation).
+    Ok(scales)
 }
 
 #[cfg(test)]
@@ -2366,8 +2355,14 @@ fn norm3_core(v:[f64;3],ctx:&mut WideContext<16>,sums:&mut SumWork)
 }
 pub struct CertifiedProductProof {
     work:ProductCertificateSpent<'static>, anchor:std::sync::Arc<ProofAnchor>,
+    /// W1 coverage repair §2.2: the per-body coupled, floored scales the gate used
+    /// (translation, rotation, force, moment), which the receipt states. Held here,
+    /// not in the work owner, whose layout is priced.
+    final_scales:Vec<[f64;4]>,
 }
 impl CertifiedProductProof {
+    /// The per-body scales the product gate judged every row with (W1 coverage repair §2.2).
+    pub fn final_scales(&self)->&[[f64;4]] {&self.final_scales}
     pub fn passed(&self)->bool {self.work.failure.is_none() && self.work.status().is_exact() && self.work.verdicts.iter().all(|v|v.passed)}
     pub fn verdicts(&self)->&[ProductRowVerdict] {&self.work.verdicts}
     pub fn summary_coverage(&self)->&[ProductSummaryCoverage] {&self.work.coverage}
@@ -2405,15 +2400,15 @@ impl<'s,'m> ProjectedProofDraft<'s,'m> {
                 if !spec.matches(r,&mut work)? || r.value.to_bits()!=y.to_bits()
                     || spec.observed.is_some_and(|b|b!=y.to_bits()) {return Err(bad("frozen descriptor/value"));}
             }
-            check_intervals(self.data.owner,self.data.facts,self.data.reduced,&self.data.k.rows,&self.data.source.rows,&self.data.k.data,&mut work,&self.data.k.curvatures,&self.data.source.curvatures)?;
+            let scales=check_intervals(self.data.owner,self.data.facts,self.data.reduced,&self.data.k.rows,&self.data.source.rows,&self.data.k.data,&mut work,&self.data.k.curvatures,&self.data.source.curvatures)?;
             if let Some(v)=work.verdicts.iter().find(|v|!v.passed) {
                 return Err(ProductFailure{cause:Cause::Predicate{row:v.row,predicate:v.failed.unwrap_or(ProductPredicate::SharperExact)}});
             }
             if let Some(f)=work.status().fault(){return Err(ProductFailure{cause:Cause::Accounting(f)});}
-            Ok(())
+            Ok(scales)
         })();
         let mut owned=work.rebind(&[]);
-        let result=match result {Ok(())=>Ok(CertifiedProductProof{work:owned,anchor:self.data.anchor}),
+        let result=match result {Ok(final_scales)=>Ok(CertifiedProductProof{work:owned,anchor:self.data.anchor,final_scales}),
             Err(failure)=>{owned.failure=Some(failure.clone());Err(ProductProofFailure{failure,work:owned})}};
         ProductFinalSpent{result}
     }

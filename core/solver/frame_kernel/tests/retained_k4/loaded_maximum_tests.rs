@@ -201,3 +201,74 @@ fn w1_loaded_maximum_keeps_axial_and_bending_divisors_distinct(){
         assert!(difference.signum().unwrap()<=0);
     }
 }
+
+// ---- W1 coverage repair §1.2 (corner 1): the driven search on an interval Z ----
+
+fn run_z(ends:[[f64;3];2],q:[f64;2],z:Enclosure,driven:bool)->(Result<Enclosure,ProductFailure>,ProductCertificateSpent<'static>){
+    let mut spent=ProductCertificateSpent::new(&[]);
+    let result=search(&mut spent,7,11,ends.map(|p|p.map(point)),q.map(point),point(1.),z,driven);
+    (result,spent)
+}
+fn hull_z(lo:f64,hi:f64)->Enclosure{Enclosure{lo:lift(lo).unwrap(),hi:lift(hi).unwrap()}}
+
+/// The lane's enclosure is [lower over the whole hull, U]: it contains the maximum at
+/// z_hi as well as at z_lo. Bending only, M(t) = 8t(1 − t): max 2 at t = 1/2, so the
+/// maximum is 2/4 at z_hi = 4 and 2/2 at z_lo = 2. Returning the driving lower (the
+/// point problem's, at z_lo) would exclude 1/2, and so would a lower taken over the
+/// interior Bernstein control (M = 4, which is not a curve point: 4/4 = 1 at z_hi).
+#[test]
+fn w1_hull_search_lower_encloses_the_far_endpoint(){
+    let (result,_)=run_z([[0.;3];2],[8.,0.],hull_z(2.,4.),true);
+    let interval=result.unwrap();
+    contains(interval,1.,2.);contains(interval,1.,1.);
+    assert!(interval.hi.cmp_value(&lift(1.+2f64.powi(-60)).unwrap())!=Ordering::Greater,"U converges at z_lo");
+}
+
+/// An interval Z whose own width exceeds the stop rule's resolution: undriven, the
+/// gap holds the hull's width at every depth and the unchanged limits exhaust;
+/// driven, the point problem at z_lo converges under the same tolerance and limits,
+/// and the enclosure contains both endpoint maxima.
+#[test]
+fn w1_represented_z_hull_converges_at_the_binding_endpoint(){
+    let z=hull_z(1.,1.+2f64.powi(-50));
+    let (undriven,_)=run_z([[0.;3];2],[8.,0.],z,false);
+    assert_eq!(undriven.unwrap_err().category(),"association");
+    let (driven,_)=run_z([[0.;3];2],[8.,0.],z,true);
+    let interval=driven.unwrap();
+    contains(interval,2.,1.);
+    contains(interval,2.,1.+2f64.powi(-50));
+}
+
+/// The driven search's convergence, uppers and pruning are the point problem's:
+/// its U equals the undriven search's at the point z_lo, and its hull-valid
+/// evaluations are counted at actual cost on top (stage 2 §5, R-1).
+#[test]
+fn w1_hull_search_work_is_counted(){
+    for (ends,q) in [([[0.;3];2],[8.,0.]),([[0.,1.,0.],[0.,0.,1.]],[1.,1.]),([[1.,0.,0.],[2.,0.,0.]],[7.,0.])] {
+        let (point_result,point_work)=run_z(ends,q,point(2.),false);
+        let (driven_result,driven_work)=run_z(ends,q,hull_z(2.,2.+2f64.powi(-40)),true);
+        let (p,d)=(point_result.unwrap(),driven_result.unwrap());
+        assert_eq!(p.hi.cmp_value(&d.hi),Ordering::Equal,"U is the point problem's");
+        assert!(d.lo.cmp_value(&p.lo)!=Ordering::Greater,"the hull lower is at most the point lower");
+        let lme=|w:&ProductCertificateSpent<'_>|w.numeric.wide.checked_lme().exact().unwrap();
+        assert!(lme(&driven_work)>lme(&point_work),"the hull-valid evaluations are metered");
+        assert_eq!(driven_work.visits,point_work.visits,"the same nodes are visited");
+    }
+}
+
+/// Exhaustion still refuses, and its diagnostic encloses the lane's maximum over
+/// the whole hull: [lower over the hull, the maximum live upper].
+#[test]
+fn w1_hull_exhaustion_diagnostic_encloses_the_hull_maximum(){
+    let (result,w)=hooks::with((1,0,0),||run_z([[0.;3];2],[8.,0.],hull_z(2.,4.),true));
+    assert_eq!(result.unwrap_err().category(),"association");
+    let d=w.loaded_maximum_diagnostic().unwrap();
+    let interval=Enclosure{lo:Endpoint::from_parts(d.lower.0,d.lower.1,d.lower.2).unwrap(),hi:Endpoint::from_parts(d.upper.0,d.upper.1,d.upper.2).unwrap()};
+    contains(interval,1.,2.);contains(interval,1.,1.);
+}
+
+/// The search's limits are fixed in source (REQ-003 (e)); the repair moves none.
+#[test]
+fn w1_loaded_maximum_limits_are_pinned(){
+    assert_eq!((LIVE,DEPTH,SPLITS),(256,64,1024));
+}

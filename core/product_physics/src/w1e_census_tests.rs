@@ -70,7 +70,7 @@ fn premises(records: &[Value], ordinary: &Value, reference_case: &Value) -> serd
 }
 
 fn census(doc: &Doc, binding: &str, raw: &Value, mode: PreviewSolverMode) -> Value {
-    let sw = |same_section, same_readout| probe::Switches { corner1: true, corner2: false, same_section, same_readout, lane_null: false, record: true };
+    let sw = |same_section, same_readout| probe::Switches { corner1: true, same_section, same_readout, lane_null: false, record: true };
     let started = std::time::Instant::now();
     let (today, candidate, ordinary) = run_once(raw, mode, sw(false, false), &|| {});
     let records = today["records"].as_array().cloned().unwrap_or_default();

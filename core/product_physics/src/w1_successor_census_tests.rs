@@ -269,3 +269,72 @@ fn w1_annulus_boundary_is_a_real_preparation_fallback() {
         println!("W1_REAL_PREPARATION {solver:?} diameter={:016x} wall={:016x}",diameter.to_bits(),wall.to_bits());
     }
 }
+
+/// W1 coverage repair §2.2's gating check (corner 2): on every committed successor and
+/// producer-solved or hook-produced corpus base, the receipt's body scales, now the
+/// final scales the product gate used, equal the committed ones (formerly native), body
+/// by body and kind by kind, and the unchanged reader's G5b body-scale equality holds
+/// (validation passes or refuses only after G5b). The census ran the same check over
+/// every census input (Design `w1-coverage-repair.md` §3).
+#[test]
+fn w1_final_scales_equal_reader_scales() {
+    let scales = |s: &Value| -> Vec<Value> {
+        let b = &s["retained_precision"]["body"];
+        let mut v = Vec::new();
+        for list in ["cases", "combinations"] {
+            for item in b[list].as_array().into_iter().flatten() {
+                if item.get("selection").is_some() { v.push(item["selection"]["body_scales"].clone()); }
+            }
+        }
+        v
+    };
+    let after_g5b = ["G5c", "G6", "G7", "G8"];
+    let mut checked = 0;
+    let mut documents: Vec<(String, Value, Option<String>)> = Vec::new();
+    for (name, bytes) in [
+        ("milestone/sparse_interactive", include_str!("../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
+        ("milestone/dense_scrutiny", include_str!("../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
+        ("l0/sparse_interactive", include_str!("../../../fixtures/results/retained_precision_l0_successor_sparse_interactive.json")),
+        ("l0/dense_scrutiny", include_str!("../../../fixtures/results/retained_precision_l0_successor_dense_scrutiny.json")),
+        ("w_c2/sparse_interactive", include_str!("../../../fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json")),
+        ("w_c2/dense_scrutiny", include_str!("../../../fixtures/results/retained_precision_w_c2_successor_dense_scrutiny.json")),
+        ("combination/sparse_interactive", include_str!("../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json")),
+        ("combination/dense_scrutiny", include_str!("../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json")),
+        ("exact/sparse_interactive", include_str!("../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json")),
+        ("exact/dense_scrutiny", include_str!("../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json")),
+        ("o4_w1e/sparse_interactive", include_str!("../../../fixtures/results/retained_precision_o4_w1e_successor_sparse_interactive.json")),
+        ("o4_w1e/dense_scrutiny", include_str!("../../../fixtures/results/retained_precision_o4_w1e_successor_dense_scrutiny.json")),
+        ("o4_w1e_mixed/sparse_interactive", include_str!("../../../fixtures/results/retained_precision_o4_w1e_mixed_successor_sparse_interactive.json")),
+    ] {
+        let d: Value = serde_json::from_str(bytes).unwrap();
+        documents.push((format!("fixture/{name}"), json!({"source": d["source"], "invocation": d["invocation"]}), None));
+    }
+    let corpus = storage::expand(serde_json::from_str(include_str!("../../../fixtures/results/retained_precision_cases.json")).unwrap());
+    for case in corpus["cases"].as_array().unwrap() {
+        let kind = case["provenance"]["kind"].as_str();
+        if !matches!(kind, Some("producer_solved" | "hook_produced")) { continue; }
+        let id = case["id"].as_str().unwrap().to_owned();
+        let hook = (kind == Some("hook_produced")).then(|| id.clone());
+        documents.push((format!("corpus/{id}"), case.clone(), hook));
+    }
+    for (label, d, hook) in documents {
+        let invocation = &d["invocation"];
+        let (capture, observer, ordinary) = observed(mode(&invocation["solver_mode"]), &invocation["request"]);
+        match hook.as_deref() {
+            Some("b2_operand_preparation_failure") => hooks::fail_operand_preparation(1),
+            Some("b2_operand_source_unavailable") => hooks::fail_preparation_of_case(1),
+            Some(other) if other.starts_with("w1_member_values_failure_") => hooks::fault_case(1, crate::retained_receipt::TraceFault::ValuesCompletion),
+            Some(other) if other.starts_with("o4_w1e_unavailable_") => hooks::fail_freeze_of_case(1),
+            _ => (),
+        }
+        let ((_, _), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        let current = captured.unwrap_or_else(|| panic!("{label}: no successor"));
+        assert_eq!(scales(&current), scales(&d["source"]), "{label}: final scales equal the committed scales");
+        match open_pipe_stress_result_export::retained_precision::validate(&current, Some(invocation)) {
+            Ok(_) => {}
+            Err(e) => assert!(after_g5b.contains(&e.gate.as_ref()), "{label}: refused at {} {} (G5b or earlier)", e.gate, e.code),
+        }
+        checked += 1;
+    }
+    assert!(checked >= 13 + 25, "every committed successor and producer corpus base ({checked})");
+}

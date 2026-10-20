@@ -28,26 +28,24 @@ mod storage;
 #[path = "../tests/common/w1_member_load_inputs.rs"]
 mod w1_member_load_inputs;
 
-/// The census of one input in one mode: today's run, the corner-1 run, the
-/// corner-2 run and both together; then, where the corner-1 run has a failing
-/// verdict, the lane counterfactuals (b) and (c) with corner 1 on. With `checks`,
-/// also the null lane override, which must reproduce today's candidate, and the
-/// comparison of today's candidate with a committed one (`expected`).
+/// The census of one input in one mode: today's run and the corner-1 run (corner 2,
+/// the receipt's final scales, is the production path since it landed); then, where
+/// the corner-1 run has a failing verdict, the lane counterfactuals (b) and (c) with
+/// corner 1 on. With `checks`, also the null lane override, which must reproduce
+/// today's candidate, and the comparison of today's candidate with a committed one.
 fn census(label: &str, raw: &Value, mode: PreviewSolverMode, hook: &dyn Fn(), checks: bool, expected: Option<&Value>) -> Value {
-    let sw = |corner1, corner2, same_section, same_readout| probe::Switches { corner1, corner2, same_section, same_readout, lane_null: false, record: true };
+    let sw = |corner1, same_section, same_readout| probe::Switches { corner1, same_section, same_readout, lane_null: false, record: true };
     let started = std::time::Instant::now();
-    let (today, today_candidate, _) = run_once(raw, mode, sw(false, false, false, false), hook);
-    let (corner1, _, _) = run_once(raw, mode, sw(true, false, false, false), hook);
-    let (corner2, _, _) = run_once(raw, mode, sw(false, true, false, false), hook);
-    let (both, _, _) = run_once(raw, mode, sw(true, true, false, false), hook);
+    let (today, today_candidate, _) = run_once(raw, mode, sw(false, false, false), hook);
+    let (corner1, _, _) = run_once(raw, mode, sw(true, false, false), hook);
     let failing = corner1["records"].as_array().unwrap().iter().any(|r| r["kind"] == "gate_row" && r["passed"] == false);
-    let mut out = json!({"label": label, "mode": mode.as_str(), "today": today, "corner1": corner1, "corner2": corner2, "both": both});
+    let mut out = json!({"label": label, "mode": mode.as_str(), "today": today, "corner1": corner1});
     if failing {
-        out["same_section"] = run_once(raw, mode, sw(true, false, true, false), hook).0;
-        out["same_readout"] = run_once(raw, mode, sw(true, false, false, true), hook).0;
+        out["same_section"] = run_once(raw, mode, sw(true, true, false), hook).0;
+        out["same_readout"] = run_once(raw, mode, sw(true, false, true), hook).0;
     }
     if checks {
-        let null = probe::Switches { lane_null: true, ..sw(false, false, false, false) };
+        let null = probe::Switches { lane_null: true, ..sw(false, false, false) };
         let (_, null_candidate, _) = run_once(raw, mode, null, hook);
         out["null_override_reproduces_today"] = json!(null_candidate == today_candidate);
         // Today's run without records: the probe's recording must not move a byte.
@@ -445,7 +443,7 @@ fn w1_coverage_census_switched_path_control() {
     let raw = c1b_shapes(0.2, 0.01, None).into_iter().find(|(s, _)| *s == "S1").unwrap().1;
     for mode in MODES {
         for (same_section, same_readout) in [(true, false), (false, true)] {
-            let sw = probe::Switches { corner1: true, corner2: false, same_section, same_readout, lane_null: false, record: true };
+            let sw = probe::Switches { corner1: true, same_section, same_readout, lane_null: false, record: true };
             let (run, _, _) = run_once(&raw, mode, sw, &|| {});
             let searches: Vec<&Value> = run["records"].as_array().unwrap().iter()
                 .filter(|r| r["kind"] == "search" && r["phase"] != "counterfactual").collect();
