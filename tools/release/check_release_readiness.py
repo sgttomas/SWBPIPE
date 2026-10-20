@@ -81,6 +81,40 @@ def discover_cargo_manifests(root: Path = ROOT) -> list[Path]:
     return manifests
 
 
+# b7-plan item 5a: the retained W1 path's stack witnesses at the R/64 = 1 MiB
+# headroom leg (core/product_physics retained_memory_witness_tests.rs). An overflow
+# aborts the test process, so each runs alone. In the registered build identity on
+# the qualification host they are VER-004's record; elsewhere they are an early
+# warning (DEL-04-08 Design, stack-headroom-repair.md).
+STACK_WITNESS_MANIFEST = Path("core/product_physics/Cargo.toml")
+STACK_WITNESSES = (
+    "witness_headroom_w1_at_one_mebibyte",
+    "witness_w2_deep_milestone_publishes",
+    "witness_w_c2_publishes",
+)
+STACK_WITNESS_MODES = ("sparse", "dense")
+
+
+def stack_witness_commands() -> list[tuple[str, ...]]:
+    return [
+        (
+            "cargo",
+            "test",
+            "--offline",
+            "--manifest-path",
+            STACK_WITNESS_MANIFEST.as_posix(),
+            "--lib",
+            "--",
+            f"retained_memory::witness_tests::{witness}::{mode}",
+            "--exact",
+            "--ignored",
+            "--test-threads=1",
+        )
+        for witness in STACK_WITNESSES
+        for mode in STACK_WITNESS_MODES
+    ]
+
+
 def python_cmd(*args: str) -> tuple[str, ...]:
     return (sys.executable, *args)
 
@@ -159,6 +193,16 @@ def build_plan(profile: str, root: Path = ROOT) -> list[CheckStep]:
                 )
             )
 
+    if profile in {"stack-witnesses", "all"}:
+        for command in stack_witness_commands():
+            steps.append(
+                CheckStep(
+                    name=f"stack witness {command[7].rsplit('::', 2)[-2]}::{command[7].rsplit('::', 1)[-1]}",
+                    command=command,
+                    description="Run one retained W1 stack witness at the R/64 headroom leg in its own process.",
+                )
+            )
+
     return steps
 
 
@@ -210,7 +254,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--profile",
-        choices=("skeleton", "python", "security", "cargo", "all"),
+        choices=("skeleton", "python", "security", "cargo", "stack-witnesses", "all"),
         default="skeleton",
         help="Local check profile to plan or execute.",
     )
