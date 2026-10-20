@@ -280,7 +280,7 @@ The registered checks are those in `software-workflow.json`.
   - `desktop-test`: `apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts`.
 - **VER-003** — For REQ-003, in `macos-release-sweep`:
   - `core/product_physics/src/retained_facade_tests.rs`: `u3_each_stage_fault_falls_back_to_the_ordinary_bytes`, `u3_no_permit_entries_are_the_ordinary_route`, `u3g2_direct_entry_w1_fallbacks_append_one_notice`, `b3b_refused_exact_requests_take_the_ordinary_route`, `o4_w1e_timoshenko_case_is_admitted_and_selected` and `o4_w1e_dual_basis_case_is_admitted`;
-  - `core/product_physics/src/w1_domain_stage1_tests.rs`: `w1_loaded_maximum_refuses_irreducible_represented_section_width` and `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal`;
+  - `core/product_physics/src/w1_domain_stage1_tests.rs`: `w1_loaded_maximum_refuses_irreducible_represented_section_width`, `w1_loaded_scale_halfway_publishes` and `w1_native_scales_stay_native_evidence`;
   - `o4_timoshenko_source_case_selects_and_publishes` in `core/product_physics/src/source_recovery.rs`, and `o4_dual_basis_source_case_selects` in `core/product_physics/src/source_receipt/o4_source_tests.rs`;
   - `core/product_physics/src/b7b_admission_tests.rs`;
   - the reader's G0 table and definition tests (`b2_g0_table_tests` in `core/reporting/result_export/src/retained_precision.rs`).
