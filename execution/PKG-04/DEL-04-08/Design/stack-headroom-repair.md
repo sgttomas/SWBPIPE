@@ -120,7 +120,7 @@ The generated profile and registration now name that commit (retained-pricing-ru
 - **Judging warrant.** The S6 judging warrant (65fd80b176) stands, because no numerical path changed.
 - **Independent scrutiny by a separate agent:**
   - the split's equivalence: EQUIVALENT;
-  - the D3 re-pricing and registration: reviewed in the PR.
+  - the D3 re-pricing and registration: SOUND (no findings).
 
 ## Maintained check (as built)
 
