@@ -211,6 +211,12 @@ if _o4:
     rows["T12.14 O4 preparation sidecars, CasePrep set clone, replaced identity (O4-PA)"] = _o4_model.prepare_sidecars(m, E_src)
     rows["T14.5 O4 ReducedSectionSet, reduced maps, operand tables, maxima and payload (O4-RS/NC/PP/KS)"] = _o4_model.proof_owners(m, P_final, ID)
     rows["T15.2 O4 second preparation record premises (O4-TR)"] = _o4_model.trace_owners(m)
+# W1 coverage repair D3 (retained-pricing-rules.md §8.11, W1R-FS): the certified proof keeps the gate's final per-body
+# scales to serialization (the vector check_intervals used; no new allocation, but a longer lifetime) and every proof
+# holder is one Vec header larger. Per attempted case (scaled below with T14), beside T14.3's transient scales.
+import w1r_owners_model as _w1r_model
+if os.environ.get("RP_SNAPSHOT") and _w1r_model.inspect(os.environ["RP_SNAPSHOT"]):
+    rows["T14.6 W1 repair: final scales held by the certified proof, and its Vec header in each holder (W1R-FS)"] = _w1r_model.proof_scales(b)
 
 ASM = dict(ASSUMED)
 ASM.update({"s(UniformMemberLoad)": 56, "s(MemberTermIdentity)": 64,

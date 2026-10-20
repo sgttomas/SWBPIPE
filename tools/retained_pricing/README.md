@@ -228,6 +228,22 @@ premises), O4-WR (receipt keys, class entries and reduced preparation records), 
 O4-SR (the second composite maximum), O4-SP (source payload keys) and O4-EV (Timoshenko evidence entries). A snapshot
 without them adds nothing and a changed body stops. See the governing rules' §8.9.
 
+### W1 coverage repair actual-source owners and the off feature
+
+`base/w1r_owners_model.py` binds, by function-body and span sha256 and by its exact statements, the certified product
+proof's `final_scales` (the gate's coupled, floored per-body scales, now held with the proof to serialization) and prices
+the backing and the proof's Vec header in each holder per attempted case (W1R-FS). `base/w1_member_load_model.py`'s
+loaded-search inventory adds the driven search's frame endpoints (W1R-LM), and `rules/o10_rules.py` bounds selection's
+body-scale loop by the bodies (W1R-L1).
+
+The census probe (`census-probe` feature) is compiled out of the registered build, which has no features (W1R-FG).
+`base/loopscan.py` blanks items and statements under `#[cfg(feature = "census-probe")]` or
+`#[cfg(all(test, feature = "census-probe"))]` as it blanks `#[cfg(test)]` items, and the call graph, the template
+inventory and JN1's inventory skip the two files the build includes only through compiled-out module declarations
+(`census_probe.rs`, `w1_census_driver.rs`). The inclusion and manifest guards (`off_build_files`, `off_feature_audit`)
+stop the run (exit 4) on any other inclusion, a plain module, a new off-build file or a manifest line that could enable
+the feature. See the governing rules' §8.11.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

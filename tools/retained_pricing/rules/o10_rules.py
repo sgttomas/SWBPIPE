@@ -777,9 +777,12 @@ if _os.path.exists(_os.path.join(_SNAP, _CN)):
     if fnkey("direction_and_length", FK_ + "tie_rod.rs"):
         _JN1[(FK_ + "tie_rod.rs", "direction_and_length")] = {"open_pipe_stress_correct_norm::norm3(d[0], d[1], d[2])": "norm3"}
     _jn1_found = []
+    # W1R-FG (§8.11): the census probe is not compiled in the registered build; its norm3 call is not a caller.
+    _jn1_off = __import__("runpy").run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "loopscan.py"))["off_build_files"](_SNAP)
     for _d, _, _fs in _os.walk(_os.path.join(_SNAP, FK_)):
         for _f in sorted(_fs):
-            if _f.endswith(".rs") and "test" not in _f and "/tests" not in _d:
+            if _f.endswith(".rs") and "test" not in _f and "/tests" not in _d \
+                    and _os.path.relpath(_os.path.join(_d, _f), _SNAP) not in _jn1_off:
                 _p = _os.path.join(_d, _f)
                 _jn1_found += [(_os.path.relpath(_p, _SNAP), _l.strip()) for _l in open(_p, encoding="utf-8") if "open_pipe_stress_correct_norm::" in _l]
     if len(_jn1_found) != sum(len(_v) for _v in _JN1.values()):
@@ -1945,3 +1948,18 @@ if fnkey("stress_operands", PP_ + "source_receipt/source.rs"):
     O10_ID_AUDIT += [(site("stress_operands", PP_ + "source_receipt/source.rs",
                            'let path = |key: &str| format!("/frames/{i}/reduced_recovery_section/{key}");', full=True),
                       {"key": {"bytes": max(len(k) for k in _SO_KEYS), "source": O10 + "O4-A2: one of four static path keys"}})]
+
+# ---- The W1 coverage repair (DEL-04-08 Design w1-coverage-repair.md §2.2 and §6; retained-pricing-rules.md §8.11). Each
+# rule applies only where the repair's code exists, so earlier revisions price as before.
+# W1R-L1: selection writes `body_scales` from the certified proof's final scales, one [f64;4] per body. They are the
+# vector row_scales_reduced reserves and resizes to the source's body_count (<= n, a body is a set of nodes), coupled and
+# floored in check_intervals; the receipt's body list keeps the native publication's shape (checked in selection
+# against 4 * len). The loop it replaces, over the native BTreeMap of the same bodies, had the same bound (n, loop_bounds'
+# one-entry-per-body rule).
+_W1R_RW = PP_ + "retained_wire.rs"
+if fnkey("selection", _W1R_RW) and "let scales = certificate.final_scales();" in _fn_text("selection", _W1R_RW):
+    if _fn_text("selection", _W1R_RW).count("scales.iter().enumerate().map(") != 1:
+        raise SystemExit("W1R-L1: selection's body-scale loop changed; re-review")
+    O10_LOOPS_LAST += [('iter:" ":scales.iter().enumerate().map', "n",
+                        O10 + "W1R-L1: the certified proof's final scales, one entry per body (body_count <= n)",
+                        ["retained_wire.rs:selection"])]

@@ -20,7 +20,9 @@ def test_complete_reader_and_search_inventory_fit_their_independent_caps():
     assert reader["encoding_with_moving_and_stack"] < reader["recompute_with_stack"]
     loaded = MODEL["loaded_inventory"]()
     assert loaded["backing"] == 702464
-    assert loaded["upper"] == 1021952 < loaded["cap"] == 1048576
+    # W1R-LM (W1 coverage repair, retained-pricing-rules.md §8.11): the driven search's four more endpoint slots.
+    assert loaded["driven_slots"] == 4
+    assert loaded["upper"] == 1022528 < loaded["cap"] == 1048576
 
 
 def test_actual_member_cohort_has_all_authored_cases_and_no_preparation_credit():
