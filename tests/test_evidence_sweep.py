@@ -276,6 +276,13 @@ def test_cargo_surface_reuses_release_readiness_cargo_profile():
             "cargo",
             "--execute",
         ),
+        (
+            sys.executable,
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "stack-witnesses",
+            "--execute",
+        ),
     )
 
 

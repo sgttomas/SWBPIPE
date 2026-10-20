@@ -172,7 +172,7 @@ def build_sweep_plan(ci_binding: dict | None = None) -> list[Surface]:
     return [
         Surface(
             surface_id="cargo_crate_sweep",
-            description="Rust crate tests across all discovered crate manifests.",
+            description="Rust crate tests across all discovered crate manifests, then the retained W1 stack witnesses one per process.",
             execution_capability="sandboxed",
             commands=(
                 (
@@ -180,6 +180,15 @@ def build_sweep_plan(ci_binding: dict | None = None) -> list[Surface]:
                     "tools/release/check_release_readiness.py",
                     "--profile",
                     "cargo",
+                    "--execute",
+                ),
+                # b7-plan 5a: the R/64 headroom witnesses (VER-004's registered branch on
+                # the qualification host).
+                (
+                    sys.executable,
+                    "tools/release/check_release_readiness.py",
+                    "--profile",
+                    "stack-witnesses",
                     "--execute",
                 ),
             ),
