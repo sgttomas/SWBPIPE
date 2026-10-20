@@ -1,60 +1,82 @@
 # Source route: the exact-arithmetic cost of non-dyadic inputs
 
-This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [o4-source-extension.md](o4-source-extension.md) §5, "Census"). On 3D skew single members ((1,2,2), the Z-hinge layout) with ordinary decimal inputs, retained-source recovery (`pressure-source-1`) falls back with `Exact(Budget)` at the unchanged 8,000,000 per-case limit (`PHYSICS_SOURCE_WORK_LIMIT`, PP `lib.rs:939`). This happens in 10 of 60 Euler–Bernoulli runs (17 %) and 22 of 60 Timoshenko runs (37 %). Planar members and dyadic twins never fall back. The owner decided on 2026-10-20 ("All as recommended") that a remedy be designed now. Its goal is to reduce the exact-arithmetic cost so that these cases fit the unchanged limit.
+This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [o4-source-extension.md](o4-source-extension.md) §5, "Census"). On 3D skew single members ((1,2,2), the Z-hinge layout) with ordinary decimal inputs, retained-source recovery (`pressure-source-1`) does not complete within the unchanged 8,000,000 per-case limit (`PHYSICS_SOURCE_WORK_LIMIT`, PP `lib.rs:939`). This happens in 10 of 60 Euler–Bernoulli runs (17 %) and 22 of 60 Timoshenko runs (37 %). Planar members and dyadic twins always complete. The owner decided on 2026-10-20 ("All as recommended") that a remedy be designed now. Its goal is to reduce the exact-arithmetic cost so that these cases fit the unchanged limit.
 
 **Status: design only.** No product file, fixture, reviewed input or ScopeOfWork changes here. The basis is main `fa019d9cef` (O4 merged as #1468). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
+**Revision 2** answers the first round of dual review (Claude Opus 5.5 and Codex). The changes:
+- **B1.** Revision 1's argument for bit-identity was false: `mul`'s −1 shortcut re-grows an expansion where +1 copies it, and a reviewer built a witness. B1's recognition is narrowed to the shapes where the long path provably yields the termwise negation. Its candidate is fixed by index, and its comparison and copies are charged (3.1).
+- **B2.** Revision 1's exponent-sum pre-check could not preserve `Range` refusals. B2 now skips a recipe only inside a conservative window in which no refusal is possible, and runs it otherwise (3.1).
+- **Today's outcome.** The census documents take the pre-0.4 path, where the limit is crossed after selection. So the likely current outcome is the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`, not an ordinary fallback (1, 6).
+- **The census rules** separate preserved cases from newly selected ones. Newly selected cases are judged by the declared-problem oracle and by a test-only long-path comparison (5).
+- **Adoption.** The 90 % rule is withdrawn. The target is every case, and adoption is not automatic (5, 6).
+- **Input description.** The dyadic twins' inputs are described correctly, and causal claims that rested on the model are withdrawn (2.3).
+- **The lists of moved bytes and pins** are completed. They include the U4b work-law test, which hard-codes historical counters (4).
+- **Estimates.** The cost estimates now carry the second reviewer's lower B1 share (2.2, Summary). The census switch is opt-in and outside every test build (5). There are wording and formula repairs throughout.
+
 ## Summary
 
-- **Where the charge goes** (section 2; derived from the code, with an uncommitted cost model).
-  - A selected case's ledger is about 2 × E_live + 0.93M. E_live is one pass of exact work: Preparation, Solve, the evaluation of all 73 functional rows and all 97 projections. The captured replay repeats that pass in full, by design. The fixed charges (closure, preflights, descriptors, finalization, maxima) make up the rest.
-  - For decimal Euler–Bernoulli inputs, E_live averages 3.32M (range 2.87–3.84M). For the dyadic twins it is 2.60M.
-- **Why decimal inputs cost more** (section 2.3). The charge per term pair grows with the output expansion's length, so a product costs roughly |a|·|b|·(98 + 6ℓ).
-  - The dyadic twins differ only in the spring stiffness and the moment, which are powers of two there. So the gap arises downstream of the displacement numerators: they average 14.0 terms (decimal) against 9.6 (dyadic). Every row evaluated from them inherits the difference.
-  - Preparation costs the same in both styles.
-  - Timoshenko inputs cost about 2 % more on average, with statistically equal lengths. Its higher fallback rate looks like a threshold effect near the limit, not a separate cause.
-- **The redundancy** (section 2.4). Of the 30 station section rows, 22 are, by construction, the end row scaled by −1, with extra moment products whose fraction factor is 0 at the i end. That is components 0–3 at all five stations, and components 4–5 at the i-end station (`source_recovery.rs:1775–1786`). Today each is evaluated again in full: about 17 % of E_live. The evaluation also forms coefficient recipes for DOFs prescribed at exactly ±0, and then multiplies them by zero: about 3.7 %.
-- **Recommended remedy: R-A** (section 3). It removes that duplicated work and changes no value, check, limit or charging rule:
-  - *B1.* A row whose descriptor is bitwise the negation of an earlier row's takes that row's exact Ratio, negated termwise. Its projection still runs.
-  - *B2.* A coefficient recipe on a DOF prescribed at ±0.0 is skipped. An exponent pre-check refuses exactly where the skipped recipe would have refused.
+- **Today's outcome** (section 1, derived from the code). The Z-hinge census documents carry no load/reference-state fields, so they take the pre-0.4 path, which has no replay screen (PP `lib.rs` about 4990–5011).
+  - The live attempt costs about E_live + 0.14M, which selects well within 8M. The limit is crossed later, in the captured replay and receipt finalization.
+  - On that path a finalization failure pushes the **blocking** `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` (`lib.rs` about 6614–6625; RF §2.9; DEL-04-07 `pressure-contract.md`: "the pre-0.4 path retains its named refusal").
+  - The case's rows stay ordinary and fail closed, but the envelope carries a blocking diagnostic. It is not a clean ordinary fallback. O4's census raw output, which is not committed, would confirm this; section 5 records it.
+- **Where the charge goes** (section 2; derived from the code, with uncommitted cost models).
+  - A selected case's ledger is about 2 × E_live + 0.93M. E_live is one pass of exact work: Preparation, Solve, and the evaluation of all 73 functional rows and all 97 projections. The captured replay repeats that pass in full, by design.
+  - For decimal Euler–Bernoulli inputs, E_live averages about 3.3M; for the dyadic twins, about 2.6M.
+- **Why decimal inputs cost more** (section 2.3). A metered pair costs 98 + 6ℓ₁ + 6ℓ₂, where ℓ₁ and ℓ₂ are the output's length before each of its two adds. Expansions of 53-bit atoms grow about twice as fast as those of short atoms.
+  - The dyadic twins shorten D, t, L, E, ν, k and m₁. But K_local and T stay 53-bit through π, the division by L and the normalization, so only k and m₁ become short atoms in the exact problem.
+  - The model attributes the gap to the expansions downstream of the displacement numerators. That attribution is an estimate, which section 5's matched-input ablations establish.
+- **The redundancy** (section 2.4). Of the 30 station section rows per member, 22 are, by construction, the i-end row scaled by −1. Two of those carry extra terms whose products contain an exact zero (`source_recovery.rs:1775–1786`, 1811–1835). Each is still evaluated in full. Coefficient recipes are also formed for DOFs prescribed at exactly ±0 and then multiplied by zero.
+- **Recommended remedy: R-A** (section 3).
+  - *B1.* A recognized negated row takes its source row's exact Ratio, negated termwise. Recognition is restricted to shapes in which the long path yields exactly that, so published bytes do not change.
+  - *B2.* A zero-prescribed recipe is skipped only inside a window in which it could not have refused.
   
-  The same evaluator runs in the live attempt and in the replay. So the replay still recomputes everything from the current invocation, by the same rule.
-- **Expected gain.**
-  - In the cost model: about −20 % of E_live and about −18 % of the case charge. No Z-hinge decimal run stays above 8M; the model's maximum is 7.06M (Euler–Bernoulli) and 7.03M (Timoshenko).
-  - The model under-predicts the product's fallback rate (13 % and 23 % against the census's 17 % and 37 %), so the product's own gain is established by the census of section 5 before implementation is accepted.
-  - Planar members gain proportionally. Small frames refused at block order above 4 are not affected.
+  The same evaluator runs in the live attempt and the replay. No value, check, limit or charging rule changes.
+- **Expected gain.** About −12 % to −20 % of E_live; the reviewers' independent models differ in B1's share. That is about −11 % to −18 % of the case charge.
+  - On the models' estimates, every Z-hinge decimal run's case charge falls below 8M: the models' maxima after R-A are about 7.1M to 7.5M.
+  - The models under-predict the product's failure rate, so the product's gain, and whether every case then fits, is established by the census of section 5 before adoption is decided.
 - **Cost.**
-  - One evaluator change in `exact_boundary/functionals.rs` with two killing tests.
+  - One evaluator change in FK `exact_boundary/functionals.rs` with gating and killing tests.
   - The independent numerical review.
   - An actual-source D3 registration.
-  - Re-pinned work counters wherever they are committed (section 4).
-- **Reserved for the owner** (section 6).
-  - **AC-002's "charged work … unchanged".** The J7 RF census pins charged work. Any reduction moves those pins while leaving classification, counts, first causes, selections and frozen-row verdicts unchanged. So R-A needs the owner to amend AC-002's wording or rule that the re-pin falls within it. This is the only reserved choice R-A needs.
-  - **Further reductions** (section 3.3). Expansion compression could save about 30 %, but adds a new metered primitive to RF §5's "one rule". Other candidates change published terms or descriptors. Each is a second stage with its own ruling, and none is recommended now.
+  - Re-pinned work counters, and the U4b work-law test restated (section 4).
+- **Reserved for the owner** (section 6):
+  - **AC-002's "charged work … unchanged".** R-A moves the census's charged work, on the 4 selected RF PIN-OFF-345 entries, and the envelope and diagnostic digests that bind it. Classification, counts, first causes, selections and frozen-row verdicts stay unchanged. The owner can rule that this falls within AC-002, or amend its wording. This is the only ruling R-A itself needs.
+  - **The blocking outcome.** Extending the replay screen to the pre-0.4 path would turn a case that cannot finalize into an ordinary publication. That would change recorded behaviour, with no coverage gain. It is presented as an option, without a recommendation.
+  - **Further reductions** (3.3), each a second stage with its own ruling. None is recommended now.
   - Raising the 8,000,000 limit is not designed here (REQ-003 (e), AX-005).
 
 ## 0. Basis and dependencies
 
-**Basis.** Main `fa019d9cef`. Paths are relative to `projects/chirality-piping/`; PP is `core/product_physics/src/`, FK `core/solver/frame_kernel/src/structural/`. The census figures (17 %, 37 %, 21/50 and 20/38 above 7.5M) are O4's, from `o4_m3_judging_tests.rs` `o4_census_source_work_single_members` (lines 962–1003) as reported in PR #1468. Their raw output (`O4_CENSUS_OUT`) is not committed. This design's own figures come from a standard-library Python re-implementation of `Expansion`, `Work` and the metered rule. It was written for this design in `/tmp` scratch and is not committed; tags mark each figure:
-- **[D]** derived from the code;
-- **[E]** estimated with that model;
-- **[M]** measured in a committed document.
-
-The model reproduces RF's measured (1,2,2) congruence charge: 83,882 [E] against 84,268 [M] (rf-source-method-extension.md §3.5). It reproduces the census's pattern too: decimal runs above 8M and dyadic runs never. Its section properties and κ only approximate the product's, so its per-case figures are estimates.
+**Basis.** Main `fa019d9cef`. Paths are relative to `projects/chirality-piping/`; PP is `core/product_physics/src/`, FK `core/solver/frame_kernel/src/structural/`.
+- **The census figures** (17 %, 37 %, 21/50 and 20/38 above 7.5M) are O4's, from `o4_m3_judging_tests.rs` `o4_census_source_work_single_members` (lines 962–1003), as reported in PR #1468. Their raw output (`O4_CENSUS_OUT`) is not committed.
+- **This design's own figures** come from two standard-library Python cost models in `/tmp` scratch, not committed. One was written for the design, the other independently by a reviewer. Both re-implement `Expansion`, `Work` and the metered rule. The design's model reproduces RF's measured (1,2,2) congruence charge: 83,882 [E] against 84,268 [M] (rf-source-method-extension.md §3.5).
+- **Tags** mark each figure: **[D]** derived from the code; **[E]** estimated with a model; **[M]** measured in a committed document.
 
 **Assumptions from concurrent work, and sequencing.**
 - **Stack-headroom repair (b7-plan item 5a).** It shrinks debug frames in `freeze_case`, `source_residual::recover` and `member` on the retained W1 path, then re-registers D3 and puts the six stack witnesses into a maintained check.
-  - R-A touches none of those functions. Its code is the source route's exact evaluator (FK `exact_boundary/functionals.rs`), which is not on that 35-frame chain.
+  - R-A's code is the source route's exact evaluator (FK `exact_boundary/functionals.rs`), which is not on that chain.
   - Assumption: 5a's frame repair does not change `exact_boundary`, `functionals` or `source_recovery`. If it does, R-A rebases on it.
   - Sequencing: R-A's implementation follows 5a, because both register under D3 in the same generated profile block. R-A re-runs the six witnesses at R/64 in the registered profile, as AC-004 requires after 5a.
-- **W1 coverage repair** (w1-coverage-repair.md, epoch 6). It changes the W1 kernel's loaded-maximum search and the receipt's scales; R-A changes the source route's evaluator. They share no file and no law.
+  - The census switch (5) is an opt-in feature that no `[dev-dependencies]` entry enables, so the witness build compiles none of it.
+- **W1 coverage repair** (w1-coverage-repair.md, epoch 6). It changes the W1 kernel's loaded-maximum search and the receipt's scales; R-A changes the source route's evaluator. They share no numerical law or source file.
   - Assumption: the W1 repair moves no source-route work counter. Its §1.4 lists none.
-  - Sequencing: the two also share only the D3 block. Whichever lands second re-registers on the other's profile. Neither waits for the other's design.
-- **O4 as built.** R-A keeps O4's work law (o4-source-extension.md §3.5) and the D5/MJ9 accounting. Only the counted work of the evaluation stage moves.
+  - Both censuses add opt-in test features to the kernel's and product_physics' `Cargo.toml`, and both register under D3. Whichever lands second rebases those files and re-registers on the other's profile. Neither waits for the other's design.
+- **O4 as built.** R-A keeps O4's work law (o4-source-extension.md §3.5) and the D5/MJ9 accounting. The direct change is in Evaluation-stage work. Secondary changes follow from text lengths (section 4).
 
-## 1. The ledger and the limit
+## 1. The ledger, the limit, and today's outcome
 
-The per-case ledger is the metered `Work` of RF §5 (C₂ = 96 per term pair, plus 6·len + 1 before each grow-expansion add). It also carries the finalization and publication reservations of RF §2.9 and O4 §3.5. `Work::charge` refuses before any work when the next total would pass the limit (RF §5.2 (1)). The case then falls back with `Exact(Budget)` and publishes its ordinary result (REQ-003 (c)). RF §5.2 (3) states the rule's soundness: executed `Work` arithmetic is bounded by the charged total, which never exceeds the limit. R-A keeps that rule unchanged. It removes executed arithmetic, so it removes the charges for that arithmetic. It adds no uncharged work.
+- **The rule.** The per-case ledger is the metered `Work` of RF §5 (C₂ = 96 per term pair, plus 6·len + 1 before each grow-expansion add), with the finalization and publication reservations of RF §2.9 and O4 §3.5. `Work::charge` refuses before any work when the next total would pass the limit (RF §5.2 (1)).
+- **Where these cases cross it.** The live attempt fits; its estimate is about E_live + 0.14M [E]. So these cases cross the limit in the captured replay and receipt finalization, which share the case ledger (RF §2.9). They take the pre-0.4 path: `case_state::is_load_state` is false for documents without reference configurations, expansion laws or analysis states, which `census_document` authors none of.
+- **The resulting outcome** (`lib.rs` about 6614–6625):
+  - the selected source response is lost;
+  - the case keeps its ordinary rows;
+  - the envelope gains the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`, whose text carries the `Budget` error and the finalization work.
+  
+  This is fail-closed, and it is the recorded pre-0.4 behaviour (RF §2.9; DEL-04-07 `pressure-contract.md`; pinned by `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback`). It is not REQ-003 (c)'s ordinary route with a receipt failure record. On the 0.4 load/reference-state path, the replay screen would decline the case before selection instead (RF §2.9).
+- **Confirmation.** O4's census function records `selected`, the case charge and the diagnostics with `SOURCE_BLOCK_RECOVERY` codes (`o4_m3_judging_tests.rs` 945–959). Its raw output would confirm the code; section 5 records it.
+
+RF §5.2 (3) states the rule's soundness: executed `Work` arithmetic is bounded by the charged total, which never exceeds the limit. R-A keeps that rule unchanged. It removes executed arithmetic, so it removes the charges for that arithmetic. Every new step it adds is charged before it runs.
 
 ## 2. Cost anatomy of one Z-hinge attempt
 
@@ -62,13 +84,15 @@ The per-case ledger is the metered `Work` of RF §5 (C₂ = 96 per term pair, pl
 
 - **The layout** (`census_document` "zhinge122"): one (1,2,2) member; N0 rigid in UX, UY, UZ, RX and RY, with a soft RZ spring; N1 rigid in UZ, RX and RY; one moment about z at N1.
 - **DOFs.** n = 12. Four are free: N0.RZ, N1.UX, N1.UY and N1.RZ. They form one block of order 4. The other 8 DOFs are prescribed at exactly 0.0.
-- **Rows.** 73 functional rows: 12 end, 30 section, 12 nodal, 1 spring and 18 support. There are 24 DOF projections.
+- **Rows.** 73 functional rows: 12 end, 30 section, 12 nodal, 1 spring and 18 support (`source_recovery.rs` about 1897–1925). There are 24 DOF projections.
 - **The congruence.** T has 8 nonzeros per 3×3 block, and K_local has 40. So 120 of the 144 exact congruence entries are nonzero.
 - **The response** is a near-rigid rotation about global z, so 49 of the 73 rows are exact zeros. Each is still evaluated at full cost before it cancels.
 
+Both reviewers confirmed this structure, one with an exact-rational re-solve.
+
 ### 2.2 Where one live pass spends its work [E]
 
-Shares of E_live, decimal Euler–Bernoulli:
+Shares of E_live, decimal Euler–Bernoulli, from the design's model:
 
 | Stage | Share |
 |---|---|
@@ -80,12 +104,14 @@ Shares of E_live, decimal Euler–Bernoulli:
 | Preparation: adjugate (about 652) | 7.9 % |
 | Projection: functional rows | 6.9 % |
 | Evaluation: coefficient recipes | 5.2 % |
-| Preparation: congruence Tᵀ·(K·T) (163–209) | 2.5 % |
 | Solve: block `ratio_add` | 2.7 % |
+| Preparation: congruence Tᵀ·(K·T) (163–209) | 2.5 % |
 | Other (symmetry, scatter, solve precharges, numerators, DOF projections) | about 3.5 % |
 
-Outside E_live:
-- `prepare_sources` runs three times (about 52k each);
+**The 22 negated rows' share.** The design's model gives them 17 % of E_live. The reviewer's model gives them 52–56 % of the section-row work, about 12–14 % of E_live. The reviewer also notes that each of the eight unmatched component 4–5 rows carries 12 more terms with 5-atom products, so it costs more than a matched row. The census measures this share per row (5).
+
+**Outside E_live:**
+- `prepare_sources` runs three times (about 52k each [E]);
 - `source_preflight` four times (about 8k each);
 - `descriptors_charge` five times (about 32k each);
 - retention (about 45k), output (2,720 [D]), the maxima and norms (about 56k);
@@ -95,160 +121,208 @@ Together these make about 0.93M [E].
 
 **Repetition [D].**
 - The full exact pass runs twice, live and in the captured replay (`functionals.rs` `replay_against`, about 977–1057). The binding check (`check_binding_with_budget`) repeats no arithmetic.
-- Within one pass, minors are cached, and the adjugate is formed once in Preparation and reused in Solve.
+- Within one pass, minors are cached, and the adjugate is formed once and reused in Solve.
 - Section rows are not reused, and neither are the prescribed-zero coefficient recipes (2.4).
 
 ### 2.3 Why decimal inputs are dearer [D, E]
 
-- **The charge.** A metered pair costs 96 + (6ℓ + 1) + (6ℓ + 1), where ℓ is the output's current length (`metered_product`, `add_product_charged`). So `mul(a, b)` grows roughly with |a|·|b|·ℓ.
-- **53-bit atoms.** A two-product of two 53-bit significands leaves a nonzero low part. Grow-expansion with zero elimination keeps it, so each pair adds about two terms. Short (dyadic) atoms whose significand widths sum to 53 bits or less give lo = 0, and the sweep merges neighbours.
-- **What the dyadic twins change.** In the Z-hinge twins, K_local and T are 53-bit in both styles: π enters A, I and J, entries are divided by L, and T comes from l/3 and a square root. Only k and m₁ become powers of two. Mean expansion lengths [E], with canonical lengths in brackets:
+- **The charge [D].** A metered pair costs 96 + (6ℓ₁ + 1) + (6ℓ₂ + 1). ℓ₁ and ℓ₂ are the output's length before the pair's lo and hi adds (`metered_product`, `exact_boundary.rs` about 363–384; `add_product_charged`). So `mul(a, b)` costs about |a|·|b|·(98 + 12ℓ̄), where ℓ̄ is the mean output length during the product.
+- **53-bit atoms [D].** A two-product of two 53-bit significands leaves a nonzero low part. Grow-expansion with zero elimination keeps it, so each pair adds about two terms. Short atoms whose significand widths sum to 53 bits or less give lo = 0, and the sweep merges neighbours.
+- **What the dyadic twins change [D].** `census_document` (`o4_m3_judging_tests.rs` 895–907) rounds D and t to 6 significant bits, L to 8, k and m₁ to powers of two, and sets E = 1.5·2^37 and ν = 0.3125. Allowances follow t.
+  - K_local and T still carry 53-bit atoms: π enters A, I and J, entries are divided by L, and T comes from l/3 and a square-root normalization.
+  - So in the exact problem it is chiefly k and m₁ that become short atoms. Other atoms change value but not width.
+- **Lengths [E], design model.** Mean expansion lengths, with canonical lengths in brackets:
 
-| Quantity | Decimal | Dyadic |
-|---|---|---|
-| block entry | 3.5 (3.0) | 3.5 (3.0) |
-| Δ4 | 26.7 (11.3) | 26.2 (10.8) |
-| adjugate entry | 19.5 (9) | 19.1 (9) |
-| displacement numerator (adj·m₁) | **14.0 (10)** | **9.6 (9)** |
-| reaction numerator | 14.0 (12) | 12.6 (10.8) |
-| nonzero row numerator | 23.4 (11.1) | 19.8 (9.8) |
+  | Quantity | Decimal | Dyadic |
+  |---|---|---|
+  | block entry | 3.5 (3.0) | 3.5 (3.0) |
+  | Δ4 | 26.7 (11.3) | 26.2 (10.8) |
+  | adjugate entry | 19.5 (9) | 19.1 (9) |
+  | displacement numerator (adj·m₁) | **14.0 (10)** | **9.6 (9)** |
+  | reaction numerator | 14.0 (12) | 12.6 (10.8) |
+  | nonzero row numerator | 23.4 (11.1) | 19.8 (9.8) |
 
-- **Where the gap lands.** The whole decimal-to-dyadic gap, 3.32M against 2.60M per pass, comes downstream of the displacement numerators. Section rows take −267k of it, reactions −200k, support rows −123k and end rows −93k.
-- **Representation alone cannot help.** Exact power-of-two scaling, or factoring out a common exponent, saves nothing [D]: C₂ is a flat 96 per pair, and significand widths do not change. A big-integer engine would need a new cost model, which RF §5's ruling ("one rule") does not provide. It is not designed here.
+  In that model, Preparation's lengths agree across the styles and the gap is downstream of the displacement numerators. These are model observations under changed values. The census's matched-input ablations (5) establish the attribution.
+- **Timoshenko.** The design's model sees about +2 % on average. PR #1468 measured +2–5 %, and about +11 % near φ = 2. A third of the sweep is near φ = 2, which together with a threshold effect near the limit would account for the higher Timoshenko failure rate. The census attributes it (5).
+- **Representation alone cannot help [D].** Exact power-of-two scaling, or factoring out a common exponent, saves nothing: C₂ is a flat 96 per pair, and significand widths do not change. A big-integer engine would need a new cost model, which RF §5's ruling ("one rule") does not provide. It is not designed here.
 
 ### 2.4 The duplicated work [D]
 
-- **Section rows.** `member_descriptors` (`source_recovery.rs:1741–1797`) builds each station row as `scaled_row(&rows[component], -1.0)` from the member's i-end row.
-  - For components 4 and 5 it appends the shear row's products times [sign, fraction, length].
-  - At the i-end station the fraction is 0.0, so every appended product carries an exact zero factor.
-  - So components 0–3 at all five stations, and components 4–5 at the i end, are the i-end row times −1 exactly: 22 of the 30 section rows per member.
-  - `evaluate` (`functionals.rs` about 585–630) recomputes each from its products. With the −1.0 factor it reaches `mul`'s ±1 shortcut (about 514–522), but only after every coefficient recipe and block numerator of the row has been formed again.
-- **Prescribed zeros.** `evaluate` forms every term's coefficient `recipe` before it reads `c.source.prescribed`. For a DOF prescribed at ±0.0, `mul(coefficient, scalar(0.0))` returns the empty expansion, so the coefficient's recipe was computed for nothing. Eight of the twelve DOFs here are prescribed at zero.
+- **Section rows.** `member_descriptors` (`source_recovery.rs:1741–1797`) builds each station row as `scaled_row(&rows[component], -1.0)` from the member's i-end row. For components 4 and 5 it also calls `append_scaled_products`, which appends new `AffineTerm`s: the shear row's terms with [sign, fraction, length] appended to each product (1811–1835). At the i-end station the fraction is 0.0, so every appended product contains an exact zero.
+  - So components 0–3 at all five stations are the i-end row with −1.0 appended to every product: 20 rows.
+  - Components 4–5 at the i end are the same, followed by appended terms whose products all contain a zero: 2 rows.
+  - That is 22 of the 30 section rows per member.
+- **How `evaluate` treats them.** `evaluate` (`functionals.rs` about 563–630) forms each term's coefficient by `recipe`, which folds the product's atoms through `mul`. For the −1.0 atom it takes the ±1 shortcut inside the recipe, which re-grows the expansion rather than copying it (514–528). It then accumulates the coefficients, multiplies each by the displacement numerator, and combines per block.
+- **Prescribed zeros.** `evaluate` forms every term's coefficient before it reads `c.source.prescribed`. For a DOF prescribed at ±0.0, `mul(coefficient, scalar(0.0))` returns the empty expansion, so the coefficient's recipe was computed for nothing. Eight of the twelve DOFs here are prescribed at zero.
 
 ## 3. The remedy
 
 ### 3.1 R-A: reuse the negated row, and skip zero-prescribed recipes
 
 **B1: negated rows.**
-- **Recognition (structural, bitwise).** In `evaluate`, a descriptor d is a negated copy of an earlier descriptor s of the same set when all of the following hold:
-  - d's terms list s's DOFs in the same order;
-  - each of d's products is the corresponding product of s with one appended −1.0 atom, after which d may carry further products that each contain an exact ±0.0 atom;
-  - the same holds for the offset.
-  
-  The check is charged at its actual cost: the atoms it compares, per the cost model of RF §5.3.
-- **Value.** d's Ratio is s's Ratio with its numerator negated termwise; the denominator is shared. That is d's exact value: the appended zero products contribute exactly zero, and a −1 factor negates exactly.
-- **Byte preservation, and the gating test.** The long path's own arithmetic is sign-symmetric under round-to-nearest-even: two-sum, the fused two-product, power-of-two scaling, zero elimination and the ±1 shortcut. So the long path would produce the same terms negated. A gating test asserts this bit for bit (3.2). Where it would fail, the implementation stops for diagnosis rather than accept moved bytes.
-- **Projection still runs.** B1 does not derive an interval by negation. Every row keeps its own `project` call, so no property of `project` is assumed.
-- **Fallback.** A descriptor that does not match the pattern takes the long path. So does any descriptor in a set where s is not earlier in order.
+- **Candidate by index.** The candidate source of a section row (member, station, component c) is the member's i-end row c, fixed by its position in the member's descriptor block. There is no search.
+- **Recognition (static, bitwise, on the descriptors).** Every condition must hold:
+  1. d's first terms list s's terms in order, with equal DOFs, and each of d's products equals the corresponding product of s with one appended atom −1.0. The offset likewise matches.
+  2. Any further terms of d are such that every product contains an exact ±0.0 atom. Their non-zero prefixes equal products of an already-evaluated row of the same member (the shear row).
+  3. Every product of s has at most two atoms, and no atom of s is ±1.0.
+- **Recognition (dynamic, on the evaluated source).** No coefficient of s, and no displacement numerator it multiplies, is a single term ±1.0. This is checked on the evaluated expansions.
+- **Value.** d's Ratio is s's Ratio with its numerator negated termwise; the denominator is shared. That is d's exact value: the −1 factor negates exactly, and the appended zero products contribute exactly zero.
+- **Why the bytes equal the long path's.**
+  - Under the static conditions, each of d's long-path coefficient recipes re-grows either a single atom or a two-product output [lo, hi]. Re-growing either from empty reproduces its terms negated: hi = RN(a·b), and a tie resolves to hi.
+  - Every later step is sign-symmetric under round-to-nearest-even: the metered two-product of a non-unit coefficient by a numerator, grow-expansion with zero elimination, `combine` and the prescribed loop.
+  - The only asymmetric step, `mul`'s copy for +1 against its re-grow for −1, is excluded by the dynamic condition.
+  - The appended zero-product terms add nothing: their coefficients are empty, so they reach neither the numerator nor `fixed`.
+  - A reviewer's witness, an order-one numerator re-grown under a unit coefficient, is excluded by the dynamic condition and is a gating input (3.2).
+- **Projection still runs** on every row by the existing `project`, so no property of `project` is assumed.
+- **Charges.**
+  - The recognition is charged before it runs, in units like `descriptors_charge`'s: one unit per compared atom and per term.
+  - The termwise negation is charged as `copy_exp` charges, len.
+  - The shared denominator's clone is charged len.
+  - These charges are bounded per row by the row's descriptor size. They enter the independent oracle (3.2).
+- **Fallback.** A row that fails any condition takes the long path, as today.
 
 **B2: zero-prescribed recipes.**
-- **The skip.** In `evaluate`, a term whose DOF is prescribed at exactly +0.0 or −0.0 skips its coefficient `recipe`.
-- **The pre-check.** A skipped recipe could have refused only by `Range` or `Budget`. `Budget` refusals can only disappear under less work, as RF §5.2 (5) already states for the metered rule. A `Range` refusal is preserved by an exponent pre-check: for each skipped product, the sum of its atoms' binary exponents is checked against the bounds `add_product` enforces, and it refuses with the same `Range` error. So no refusal other than `Budget` can change.
+- **The skip.** In `evaluate`, a term whose DOF is prescribed at exactly +0.0 or −0.0 skips its coefficient `recipe` only when a conservative window proves that the recipe cannot raise `Range`.
+- **The window.** Atoms are already validated finite (`functionals.rs` `products_charge`, about 434). So the recipe's remaining refusals are `exact_radix` bit loss on a lo or hi part, and two-sum overflow in `Expansion::add` (FK `structural.rs` about 790–880).
+  - The window requires every atom to be a normal binary64 whose binary exponent lies in a fixed band.
+  - It bounds the number of atoms per product and the number of products per term, so that every partial product's terms stay inside the normal range with the margin `add_product` needs. A k-atom fold's lowest term exponent is at least Σe − 53k − 2, and its highest is at most Σ(e + 1). It also requires that no sum can overflow.
+  - The implementation states the band and the bounds with their derivation, and the independent oracle checks them.
+  - Outside the window the recipe runs, as today.
+- **Consequence.** Inside the window the recipe could not have refused, so no `Range` outcome can change. A `Budget` refusal can only disappear under less work (RF §5.2 (5)). If a later stage then refuses, that cause is exposed instead.
+- **Cross-attempt effect.** In a multi-case invocation, a case that newly selects charges the shared invocation ledger. A later case then has less room and could lose its selection, or reach the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` at its publication reservation. RF §5.2 (6) states this cross-attempt exception; it fails closed. The census includes multi-case invocations (5).
 - **Prescribed values that are not zero** keep today's path.
 
-**The replay.** `replay_against` calls the same `evaluate`, so the replay recomputes every row from the current invocation by the same rule. Nothing retained from the live attempt is reused. This keeps the replay's independence: RF's "(d)" option, reusing cofactors, would not, and is not proposed.
+**The replay.** `replay_against` calls the same `evaluate` on freshly prepared descriptors, so the replay recomputes every row from the current invocation by the same rule. Nothing retained from the live attempt is reused. (Reusing the live attempt's cofactors in the replay was considered and rejected: it would replace the replay's recomputation with retained state.)
 
 **What does not change:**
-- every value, interval, bound, basis and published byte of a selected case;
+- every value, interval, bound, basis and published byte of a case selected today (by the bit-identity argument above, which the gating test checks);
 - the descriptors, `normalized_source_sha256`, `functional_plan_sha256`, `finalization_size` and the unit counts;
 - the block search, Sylvester's warrant, the adjugate solve, the shared-denominator check, `BlockWitness` and replay;
 - C₂ = 96 and the metered rule;
 - the 256-DOF, 16,384-term and unit, 256-expansion-term, 8,000,000 and 64,000,000 limits;
 - every reader check. The readers check the ledger's structure and limits and do not recompute charges (RF §5.4).
 
-**What moves:** the counted work of the Evaluation stage, in the live attempt and the replay. Every committed counter that records it moves with it (section 4).
+**What moves:**
+- *directly,* the counted Evaluation-stage work, in the live attempt and the replay;
+- *secondarily,* every charge that depends on the length of a text that prints work. The SELECTED diagnostic embeds the recovery summary (`lib.rs` about 5205–5211), and publication charges 12 × diagnostic text length (`source_receipt.rs` about 790–798; b7-plan "D5/MJ9's accounting clarification"). So a work figure that crosses a decimal digit boundary moves publication work too.
 
 ### 3.2 Soundness, mutants and tests
 
 - **Soundness.**
-  - B1's value is exact by the identity −1·x = −x and 0·x = 0.
-  - B2's skipped contribution is exactly zero.
-  - Both charge before they execute, and they execute less, so RF §5.2's argument stands unchanged: executed `Work` arithmetic never exceeds the charged total.
+  - B1's value is exact by −1·x = −x and 0·x = 0.
+  - B2's skipped contribution is exactly zero, and the window excludes every refusal.
+  - Both charge before they execute, and every step they add is charged, so RF §5.2's argument stands: executed `Work` arithmetic never exceeds the charged total.
   - The maintained control ("charged ≥ counted", RF §5.4) still runs over the census and its replays.
-  - The independent metering oracle (`metered_mul_charges_match_the_independent_oracle`) gains B1's comparison charge and B2's pre-check charge, each derived independently.
-- **Gating test (`source_negated_rows_equal_the_long_evaluation`).** Over the J7 RF census, the 24 raw source controls, MJ6/MJ9 and the census sweeps of section 5, every B1-derived Ratio equals the long evaluation's bit for bit, and every B2 case gives the same values and errors.
+  - The independent metering oracle (`metered_mul_charges_match_the_independent_oracle`) gains B1's recognition, negation and copy charges and B2's window charge, each derived independently.
+- **Gating test (`source_negated_rows_equal_the_long_evaluation`).**
+  - Over the J7 RF census, the 24 raw source controls, `o4_source_controls`, MJ6/MJ9 and section 5's inputs, every B1-derived Ratio equals the long evaluation's bit for bit.
+  - Every B2 case gives the same values, and the same errors apart from `Budget`.
+  - Its constructed inputs include the reviewer's re-grow witness, a source row with three-atom products, and a Selector-basis member of unit stiffness. Each must take the long path.
 - **Mutants**, each killed by the named test:
 
 | Mutant | Killed by |
 |---|---|
-| B1 negates a row whose products differ in one atom | gating test (value mismatch); and `b1_recognition_refuses_near_matches` (a descriptor with one changed atom takes the long path) |
-| B1 skips the −1 (reuses the row unnegated) | gating test; J7 frozen-row verdicts |
-| B1 accepts an appended product with a nonzero atom | `b1_recognition_refuses_near_matches` |
+| B1 negates a row whose products differ in one atom | gating test; `b1_recognition_refuses_near_matches` |
+| B1 reuses the row unnegated | gating test; J7 frozen-row verdicts |
+| B1 accepts an extra term whose product has no zero atom | `b1_recognition_refuses_near_matches` |
+| B1 drops the static atom-count or unit condition, or the dynamic unit check | gating test on the constructed inputs (three-atom row, unit stiffness, the re-grow witness) |
 | B2 skips a recipe on a DOF prescribed at a nonzero value | gating test; `pressure_source_join` load/reference-state controls (prescribed motion) |
-| B2 omits the exponent pre-check | `b2_skipped_recipe_keeps_range_refusal` (an in-family descriptor whose skipped product would underflow) |
-| an uncharged shortcut | the charged ≥ counted control and the oracle |
+| B2 skips outside the window | `b2_window_keeps_every_refusal`: rescued intermediate underflow (for example [k, sign, 0.25, 4] with k near 2^-1021), low-tail bit loss, addition overflow, zero atoms and unit atoms; each refusal must be unchanged |
+| an uncharged shortcut or recognition | the charged ≥ counted control and the oracle |
 
 ### 3.3 Further reductions (second stage; not recommended now)
 
-Measured in the same model [E], against E_live, after R-A:
+Estimates against E_live after R-A, from the design's model:
 
 | Candidate | Saving | What it changes, and who rules |
 |---|---|---|
-| R1: station moment rows formed from end-row values, −num_c + s·f·L·num_shear | about −10 % | Ratio terms differ. Published values agreed in the model, but bit-equality is not guaranteed. Rows are recognized in `evaluate` or by a changed plan, and `functional_plan_sha256` would move. Needs its own gating census. |
-| R4: support rows taken from the Solve reactions | about −14 % | Terms differ, and recognition is intricate or the plan changes. As R1. |
-| F1: one extra `Work::add(e, 0.0)` sweep at k, the minors, the determinants and the numerators | about −10 % | An existing charged primitive. Expansion terms and witness bits change, which can move projections, `response_digest` and J7's frozen bytes. Needs the AC-002 ruling below for more than work. |
-| F2: Shewchuk compression of expansions at the same points | about −30 % | A new metered primitive, charged before it runs (12·len + 2), with the counter and oracle extended. It amends the scope of RF §5's "one rule" (HELP_HUMAN's ruling, 2026-10-16), so it needs that ruling again. Published values agreed in the model in all but 2 of 11,640 projections, so its byte effect needs its own gating. |
-| R3: skip the unit-denominator multiplications in reaction `ratio_add` | about −1.8 % | Reaction ratio terms change. |
-| Upper-triangle symmetry check | about −0.2 % | No byte effect. Could join R-A. |
+| R1: station moment rows formed from end-row values, −num_c + s·f·L·num_shear | about −10 % | Ratio terms differ, so projections, values and `response_digest` can move. Done inside `evaluate`, it changes no descriptor. Done by rewriting descriptors, it moves `functional_plan_sha256` and `normalized_source_sha256`, since the normalized payload carries `lowered_recovery_operands` (`source_receipt/source.rs` about 446–485). Needs its own gating and ruling. |
+| R4: support rows taken from the Solve reactions | about −14 % | As R1. |
+| F1: one extra `Work::add(e, 0.0)` sweep at k, the minors, the determinants and the numerators | about −10 % | An existing charged primitive, but expansion terms change, which can move projections, `response_digest` and J7's frozen bytes. Needs an AC-002 ruling for more than work. |
+| F2: Shewchuk compression of expansions at the same points | about −30 % | A new metered primitive, charged before it runs, with the counter and oracle extended. It amends the scope of RF §5's "one rule" (HELP_HUMAN's ruling, 2026-10-16), so it needs that ruling again. Its byte effect needs its own gating. |
+| R3: skip the unit-denominator multiplications in reaction `ratio_add` | about −1.8 % | `ratio_add` multiplies by [1.0] through metered `w.mul` (`exact_boundary.rs` about 517–523), which re-sweeps. Skipping it changes reaction terms, so DOF projections and `response_digest` can move. As F1. |
+| Upper-triangle symmetry check | about −0.2 % | No byte effect: today's check tests both orders (`exact_boundary.rs` about 817–829). Could join R-A. |
 
-Together these measured −66 % in the model (case maximum about 3.3M). They are listed so that a later coverage need can take them in order, with their rulings. They are not needed for the Z-hinge gap if section 5 confirms R-A's gain.
+Together these measured about −66 % in the design's model. They are listed so that a later coverage need can take them in order, with their rulings.
 
 **Not available:** raising `PHYSICS_SOURCE_WORK_LIMIT`. That is a priced-source change and a limit relaxed to obtain a bound, on which REQ-003 (e) and AX-005 bear. Reserved for the owner and not designed here.
 
 ## 4. Committed bytes that move, and the checks that bind them
 
-R-A changes counted work and nothing else. Every committed record of a source attempt's work moves, by its own writer:
-- each `pressure-source-1` receipt's `work` and `invocation_work`, and the hashes that bind them (`receipt_sha256` and the envelope digests);
-- the SELECTED diagnostic text, which prints the work summary;
-- the 24 raw source controls' work leaves (RF §5.5 counted 6 leaves each: 3 counters, 2 hashes and 1 decline text);
-- their derived documents and J2's bases;
+R-A changes counted work and the text lengths that print it. For a case selected today, nothing else moves. Each record is regenerated by its own writer:
+- each `pressure-source-1` receipt's `work` and `invocation_work`, and the hashes binding them (`receipt_sha256`, envelope digests);
+- the SELECTED diagnostic text;
+- the 24 raw source controls' work leaves (RF §5.5 counted 6 leaves each), their derived documents and J2's bases;
+- `fixtures/product_preview/pressure_source/o4/o4_source_controls.json` (its five `invocation_work` blocks), read by `source_receipt/o4_source_tests.rs` and `tests/test_o4_source_verifier.py`;
 - MJ6/MJ9's counters;
-- J7's `first_cause.work.charged` and its envelope/diagnostic digests, `fixtures/results/j7_rf_census_expected.json`, regenerated through `SWBPIPE_J7_RF_CENSUS_WRITE=1`;
-- RF §5.5's five budget-cliff fallback tests (`source_receipt/load_state_fallback_tests.rs`). They are re-derived by RF §5.5's own rule (recompute the cliff, scale it within D1's caps, or restate it with a private limit and a positive control).
+- the pressure-source reader corpus `fixtures/results/pressure_source_reader_corpus.json`, `fixtures/results/loadReferenceSourceLedger.cases.json` and `core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json`, wherever they carry work;
+- J7 (`fixtures/results/j7_rf_census_expected.json`, through `SWBPIPE_J7_RF_CENSUS_WRITE=1`). Only its 4 selected RF-SKEW PIN-OFF-345 entries move, in their work and the envelope and diagnostic digests. Every other entry's work is fixed before Evaluation. J7's `Budget` first causes are all at source closure (the upfront descriptor-unit gate; RF §3.6), before any evaluation, so its classification cannot change.
 
-A check modelled on `o4_text_only_envelope_diff`, named `work_only_envelope_diff`, requires every regenerated source document to differ from its pre-R-A bytes only in work counters, the decline or diagnostic text that embeds them, and the hashes binding those. No value token, interval, row, class, first cause, selection or response digest may move. The J7 census additionally asserts unchanged classification, counts, first causes, selections and frozen-row verdicts.
+**Tests that need more than regeneration:**
+- **`cached_source_context_preserves_current_public_serializations`** pins work digits (RF §5.5). Its pins are re-pinned.
+- **RF §5.5's five budget-cliff fallback tests** (`source_receipt/load_state_fallback_tests.rs`) are re-derived by RF §5.5's own rule: recompute the cliff, scale it within D1's caps, or restate it with a private limit and a positive control.
+- **`u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters`** (`source_receipt/pressure_source_context_tests.rs` about 635–735). It asserts `charged == old_charged + ΔF + ΔQ` against a hard-coded table of historical pre-U4b counters (`PRE_U4B_WORK`). R-A changes `charged` without a U4b delta, so the test is restated: either the law gains an independently derived R-A delta per control, or the table is rebased to the pre-R-A counters with the rebase stated.
+- **`o4_source_work_deltas_follow_the_d5_law`** is expected to hold unchanged. It compares Euler–Bernoulli and Timoshenko twins, whose R-A savings are derived by the same law; it runs in the PR's checks.
 
-**D3.** The changed evaluator is priced source (RF registered the source method under D3; `retained-pricing-rules.md` §7.4). So R-A needs an actual-source D3 registration at the unchanged policy, and the pricing tool's `generate --check`. R-A allocates no new owner and removes expansion clones, so no priced phase should grow. The registration measures this rather than assuming it.
+**The work-only diff.** A check modelled on `o4_text_only_envelope_diff`, `work_only_envelope_diff`, requires every regenerated document of a case selected or declined today to differ from its pre-R-A bytes only in work counters, the text that embeds them, and the hashes binding those. No value token, interval, row, class, first cause, selection or `response_digest` may move. The J7 census also asserts unchanged classification, counts, first causes, selections and frozen-row verdicts.
+
+**D3.** The changed evaluator is priced source (RF registered the source method under D3; `retained-pricing-rules.md` §7.4). R-A therefore needs an actual-source D3 registration at the unchanged policy and the pricing tool's `generate --check`.
+- B1 needs no lookup structure: its candidate comes from the descriptor index.
+- B2 reads the existing `c.source.prescribed` list. If the implementation adds a per-DOF zero-prescription vector, that is a new priced owner, sized n bits or bytes at most 256.
+- The registration measures every phase rather than assuming no growth.
 
 ## 5. The census (specified; executed later)
 
 **Purpose:**
-- establish R-A's gain on the product itself;
-- confirm byte preservation;
-- attribute the residual cost;
-- do all of this before R-A is adopted on production paths.
+- establish R-A's gain on the product;
+- confirm byte preservation on the cases selected today;
+- judge every newly selected case;
+- confirm today's outcome code;
+- attribute the residual cost.
 
-**Probe.**
-- Under the existing `exact-operation-count` dev feature, record per labelled site, for every exact attempt:
-  - charge and pair counts, for each table site of section 2.2;
-  - each row by index and kind, and each projection;
+All of this comes before adoption is decided.
+
+**The switch and the probe.**
+- R-A runs behind a default-off runtime switch in an opt-in cargo feature, forwarded from `product_physics` to the kernel.
+  - No `[dev-dependencies]` entry enables it. RF's `exact-operation-count` is reached through `core/product_physics/Cargo.toml` `[dev-dependencies]` and so compiles into every test build; the new feature must not.
+  - The census commands pass `--features`, and a guard test asserts that the feature is off in the ordinary test build.
+  - So production paths, the committed pins and the stack witnesses run the long path until adoption.
+  - The switch and probe live on the census branch, and the switch is removed at adoption: a merged on/off switch would be a second charging regime keyed on a flag, which RF §5's ruling excludes. Anything merged is priced, and D3 applies.
+- Under the same opt-in feature, together with the existing operation counter, the probe records:
+  - charge and pair counts per labelled site, for each table site of 2.2, each row by index and kind, and each projection;
   - the attempt stage and phase: live, captured replay, binding, finalization or maxima.
-- Record, test-side in exact rationals, the actual and canonical lengths of k, the block entries, Δ2–Δ4, the adjugate entries, the displacement and reaction numerators and each row numerator.
-- R-A runs behind a test switch, which is a dev-only cargo feature (section 0, 5a). Production paths stay unchanged until the census is reported.
+- Test-side, in exact rationals, the census records the actual and canonical lengths of k, the block entries, Δ2–Δ4, the adjugate entries, the displacement and reaction numerators, and each row numerator.
+- Every census result records the effective switch state.
 
 **Inputs:**
 - O4's sweeps `o4_census_source_work_single_members` and `o4_census_source_work_small_frames`, in both styles, shear models and allowances;
+- matched-input ablations of the Z-hinge sweep: each of D, t, L, E, ν, k and m₁ switched to its dyadic form one at a time, to attribute the decimal cost;
 - the J7 RF census;
-- the 24 raw source controls, the PIN-OFF-345 controls and MJ6/MJ9;
-- the O4 source twins and declared-problem selections (`validation/references/o4_retained_source/declared_problem/required_selection.json`).
+- the 24 raw source controls, `o4_source_controls`, the PIN-OFF-345 controls and MJ6/MJ9;
+- the O4 source twins and declared-problem selections (`validation/references/o4_retained_source/declared_problem/required_selection.json`);
+- at least one multi-case invocation that puts a Z-hinge case before a case selected today, for RF §5.2 (6).
 
 **Records**, per case, with the switch off and on:
-- selection or first cause, and the case and invocation charges;
-- every published byte, compared entry by entry: `value_bits`, interval, both bounds, basis, `response_digest`, both source hashes and `receipt_sha256`;
+- the outcome code (selection, decline with its first cause, or the blocking finalization refusal), and the case and invocation charges;
+- every published byte: `value_bits`, interval, both bounds, basis, `response_digest`, both source hashes and `receipt_sha256`;
 - the envelope, results and summary digests;
 - the charged ≥ counted control and the oracle's verdict.
 
-**Pre-registered decision rules.**
-- *Byte rule.* Any difference outside the work counters and the text and hashes that bind them stops R-A for diagnosis. The gating test's premise would then be false.
-- *Gain rule.* R-A is adopted if:
-  - at least 90 % of the Z-hinge decimal runs that fall back today select with it on, in both shear models;
-  - no case that selects today stops selecting.
+**Pre-registered rules.**
+- **Preserved cases.** For a case whose outcome is the same off and on, any difference outside the work counters and the text and hashes that bind them stops R-A for diagnosis.
+- **Newly selected cases** (off: decline or blocking refusal; on: selection) are judged two ways:
+  - by the declared-problem oracle (`validation/references/o4_retained_source/declared_problem/`): every projection interval must contain the declared problem's exact value, and every stress check must recompute;
+  - against a switch-off run under a test-only raised private limit (REQ-003 (e) permits test-only overrides): every published byte except work must be equal. That shows B1 and B2 reproduce the long path's bytes.
   
-  If fewer qualify, the report states the residual distribution against 8M. The design then returns to HELP_HUMAN with section 3.3's next candidate and its ruling. No limit is touched.
-- *Attribution.* The per-site table replaces section 2.2's model estimates. A Timoshenko-specific site cost above 5 % of E_live would revise section 2.3's threshold reading.
+  Any failure stops R-A for diagnosis.
+- **Lost selections.** A case selected off and not on, including through RF §5.2 (6), stops R-A for diagnosis.
+- **The gain.** The census reports, for both shear models, how many of today's Z-hinge failures select with R-A, and the residual charge distribution against 8M. The target is all of them.
+  - If some remain, the report names section 3.3's next candidate and its ruling.
+  - Adoption of R-A is decided by Agent 0 and the owner on that report, together with the AC-002 ruling. It is not automatic.
+- **Attribution.** The per-site table and the ablations replace section 2's estimates. A Timoshenko-specific site cost above 5 % of E_live, or a near-φ = 2 effect, is reported.
 
 **What it needs:**
-- A debug build of the `frame_kernel` and `product_physics` tests with the feature, under the host's heavy-run slot and memory rules.
+- A debug build of the `frame_kernel` and `product_physics` tests with the opt-in feature, under the host's heavy-run slot and memory rules.
 - Private drivers only.
 - A pilot of ten documents per sweep to measure time and memory first.
 - It writes nothing under `validation/references`. Committed fixtures are regenerated only in R-A's implementation PR, after the census.
@@ -256,16 +330,21 @@ A check modelled on `o4_text_only_envelope_diff`, named `work_only_envelope_diff
 ## 6. Reserved for the owner
 
 - **AC-002.** Its owner text of 2026-10-19 reads: "the RF census classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged; its envelope, results and summary digests change only as a stated product-text, identity or published-row change requires".
-  - R-A changes the census's charged work and the digests that bind the work text. Classification, counts, first causes, selections and frozen-row verdicts stay unchanged.
-  - The owner can rule either that this re-pin falls within AC-002, or that AC-002 reads, for example: "… first causes, selections and frozen-row verdicts are unchanged; its charged work changes only as a reviewed work-reduction change requires, with every charge still at least the executed work; its envelope, results and summary digests change only as a stated product-text, identity, published-row or work change requires".
-  - Without that ruling R-A cannot be integrated. The Z-hinge cases keep falling back fail-closed, as today.
-- **Second-stage candidates** (3.3): each with its own ruling. F2 also needs HELP_HUMAN's ruling on RF §5's charging scope. No recommendation is made now.
+  - R-A changes the census's charged work on its 4 selected entries, and the envelope and diagnostic digests that bind that work. Its results and summary digests carry no work (`j7_rf_census.rs` about 333–340), so they do not move. Classification, counts, first causes, selections and frozen-row verdicts stay unchanged.
+  - The owner can rule either that this re-pin falls within AC-002, or that AC-002 reads, for example: "… first causes, selections and frozen-row verdicts are unchanged; its charged work changes only as a reviewed work-reduction change requires, with every charge still at least the executed work; its envelope and diagnostics digests change only as a stated product-text, identity, published-row or work change requires, and its results and summary digests only as a stated product-text, identity or published-row change requires".
+  - Without that ruling R-A cannot be integrated, and these cases keep today's outcome (section 1).
+- **The pre-0.4 blocking outcome** (option, no recommendation).
+  - Today a pre-0.4 case that selects but cannot finalize ends in the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`.
+  - Extending the 0.4 path's replay screen (`reserve_captured_replay`) to the pre-0.4 path would decline such a case before selection, so the envelope would publish ordinarily, with no blocking diagnostic.
+  - It gains no coverage. It changes recorded behaviour: RF §2.9 ("Extending the screen to the pre-0.4 route would change that recorded behaviour") and DEL-04-07 `pressure-contract.md` ("the pre-0.4 path retains its named refusal"), with the pinned test `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback`.
+  - Whether R-A alone, R-A plus this, or neither is wanted is the owner's choice. R-A reduces how often the outcome occurs; this changes what it is.
+- **Second-stage candidates** (3.3), each with its own ruling. F2 also needs HELP_HUMAN's ruling on RF §5's charging scope. No recommendation is made now.
 - **The work limit.** Unchanged and not designed (REQ-003 (e), AX-005). Raising it remains the owner's choice, with D3 and independent review.
 - **Placement.** R-A is not in b7-plan's epoch order. Agent 0 and the owner place it; section 0 states its sequencing constraints.
 
 ## 7. Verification and review
 
-- **This design:** the dual review, an independent Claude reviewer and an independent Codex reviewer on the same revision.
+- **This design:** the dual review, an independent Claude reviewer and an independent Codex reviewer on the same revision. Round 1 reviewed revision 1; revision 2 answers it.
 - **The implementation (R-A):**
   - the gating test, the mutants of 3.2 and the census of section 5;
   - VER-002's checks and the J7 census;
