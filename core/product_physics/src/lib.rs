@@ -162,6 +162,9 @@ mod retained_product_tests;
 mod retained_wire_tests;
 #[cfg(test)]
 mod retained_facade_tests;
+// O4 M3-O4 (DEL-04-08 Design `o4-source-extension.md` §5): W1-E judged against the frozen references.
+#[cfg(test)]
+mod o4_m3_judging_tests;
 pub use pressure_runtime::{PressureContractInput, PressureRegionInput, PressureTerminalInput};
 pub use joint::authoring_findings as validate_joint_pressure_authoring;
 
