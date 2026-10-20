@@ -38,7 +38,8 @@ describe("compact retained corpus storage", () => {
     // W1 appends 16 bases, 41 mutations and 18 positive controls, preserving the originals.
     // O4 (W1-E) appends four successor bases (two dual-basis, one mixed, one with a sourced unavailable case),
     // twenty-eight mutations and five positive controls.
-    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([65, 668, 113]);
+    // The W1 coverage repair appends the 73/24 Pa halfway control in both modes, each with a positive control.
+    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([67, 668, 115]);
     const id = first.cases[0].id;
     first.cases[0].id = "changed-by-this-test";
     expect(readRetainedPrecisionCorpus().cases[0].id).toBe(id);

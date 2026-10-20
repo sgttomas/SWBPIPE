@@ -6968,6 +6968,42 @@ fn w1_interior_corpus_controls_bind_actual_span_maxima() {
     }
 }
 
+/// W1 coverage repair corner 2: the 73/24 Pa control's two writer outputs. Its loaded
+/// body's force and moment scales, (7/2)Z and 7Z, are exact halfways; the receipt states
+/// the gate's final scales and every reader accepts them at G5b.
+#[test]
+fn w1_halfway_corpus_controls_state_the_gate_scales() {
+    let data=corpus();
+    let cases:Vec<_>=data["cases"].as_array().unwrap().iter()
+        .filter(|case|case["id"].as_str().unwrap().starts_with("w1_member_halfway_")).collect();
+    assert_eq!(cases.len(),2);
+    let pass=Value::from("pass");
+    let unqualified=serde_json::json!({"invocation_bound":false,"numerical_eligible":false,"standing":"needs_recompute"});
+    let z=f64::from_bits(0x3f3c82e3dc7ef90c);
+    for case in cases {
+        assert_eq!(case["provenance"]["generation_profile"],"registered_direct");
+        assert_eq!(case["provenance"]["writer"],"core/product_physics/src/w1_domain_stage1_tests.rs::w1_loaded_scale_halfway_publishes");
+        let id=case["id"].as_str().unwrap();
+        let maxima:Vec<_>=case["source"]["results"].as_array().unwrap().iter()
+            .filter(|row|row["kind"]=="pipe_elastic_normal_stress_maximum_v2"&&row["entity_ref"]=="ss:pipe").collect();
+        assert_eq!(maxima.len(),1);
+        assert_eq!(maxima[0]["value"].as_f64().unwrap().to_bits(),0x4008555555555555);
+        let selected=&case["source"]["retained_precision"]["body"]["cases"][0];
+        assert_eq!(selected["status"],"selected");
+        let scales=&selected["selection"]["body_scales"][1];
+        assert_eq!(scales["force"],Value::from(format!("{:016x}",(3.5*z).to_bits())));
+        assert_eq!(scales["moment"],Value::from(format!("{:016x}",(7.0*z).to_bits())));
+        let entry=data["must_pass"].as_array().unwrap().iter().find(|entry|entry["base"]==case["id"]).unwrap();
+        let (changed,invocation)=apply_entry(data,entry);
+        for (label,source,invocation) in [(id,&case["source"],&case["invocation"]),
+            (entry["id"].as_str().unwrap(),&changed,&invocation)] {
+            current_read(source,Some(invocation),Some(&pass),label,Some(&case["expected_classifications"]),Some(&case["expected"]),false);
+            current_read(source,None,Some(&pass),label,Some(&case["expected_classifications"]),Some(&unqualified),false);
+            current_read(source,None,Some(&pass),label,None,Some(&unqualified),true);
+        }
+    }
+}
+
 #[test]
 fn current_corpus_requires_bound_and_must_pass_declarations() {
     let data = corpus();

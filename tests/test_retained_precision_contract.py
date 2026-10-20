@@ -2038,6 +2038,35 @@ def test_w1_interior_corpus_controls_bind_actual_span_maxima():
             _current_read(source, None, "pass", label + ":transport", eligibility=NOT_ELIGIBLE, transport=True)
 
 
+def test_w1_halfway_corpus_controls_state_the_gate_scales():
+    """W1 coverage repair corner 2: the 73/24 Pa control's two writer outputs.
+
+    The loaded body's force and moment scales, (7/2)Z and 7Z, are exact halfways;
+    the receipt states the gate's final scales and the verifier accepts them at G5b.
+    """
+    data = corpus()
+    cases = [case for case in data["cases"] if case["id"].startswith("w1_member_halfway_")]
+    assert len(cases) == 2
+    z = struct.unpack(">d", bytes.fromhex("3f3c82e3dc7ef90c"))[0]
+    for case in cases:
+        assert case["provenance"]["generation_profile"] == "registered_direct"
+        assert case["provenance"]["writer"] == "core/product_physics/src/w1_domain_stage1_tests.rs::w1_loaded_scale_halfway_publishes"
+        maxima = [row for row in case["source"]["results"]
+                  if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == "ss:pipe"]
+        assert len(maxima) == 1
+        assert rp.bits(maxima[0]["value"]) == "4008555555555555"
+        selected = case["source"]["retained_precision"]["body"]["cases"][0]
+        assert selected["status"] == "selected"
+        scales = selected["selection"]["body_scales"][1]
+        assert (scales["force"], scales["moment"]) == (rp.bits(3.5 * z), rp.bits(7.0 * z))
+        entry = next(entry for entry in data["must_pass"] if entry["base"] == case["id"])
+        for label, source, invocation in [(case["id"], case["source"], case["invocation"]),
+                                           (entry["id"], *apply_entry(case, entry))]:
+            _current_read(source, invocation, "pass", label, classes=case["expected_classifications"], eligibility=case["expected"])
+            _current_read(source, None, "pass", label + ":unbound", classes=case["expected_classifications"], eligibility=NOT_ELIGIBLE)
+            _current_read(source, None, "pass", label + ":transport", eligibility=NOT_ELIGIBLE, transport=True)
+
+
 def test_member_data_corpus_pair_is_synthetic_and_decisive(monkeypatch):
     """Only declared member entries establish data in the zeroed-nodal pair.
 
