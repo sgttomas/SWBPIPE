@@ -85,6 +85,8 @@ def test_a_snapshot_without_the_probe_excludes_nothing(tmp_path):
     (FK_TOML, 'census-probe = []', 'census-probe = []\ndefault = ["census-probe"]'),
     (PP_TOML, '[dev-dependencies]', '[dev-dependencies]\nopen_pipe_stress_frame_kernel = { path = "../solver/frame_kernel", features = ["census-probe"] }'),
     (FINAL, "fn corner1() -> bool {", 'mod census_probe;\nfn corner1() -> bool {'),
+    (FINAL, "fn corner1() -> bool {", 'mod probe_text { include!("census_probe.rs"); }\nfn corner1() -> bool {'),
+    (FINAL, "fn corner1() -> bool {", '#[cfg(feature = "census-probe")]\nmod probe_text { include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/structural/retained/product_certificate/census_probe.rs")); }\nfn corner1() -> bool {'),
 ])
 def test_an_inclusion_or_manifest_change_stops(tmp_path, edit):
     with pytest.raises(ValueError, match="W1R-FG"):

@@ -266,6 +266,17 @@ def off_build_files(root):
                 attrs = m.group(1) + m.group(3)
                 gated = bool(OFF_ATTR.search(attrs) or TEST_ATTR.search(attrs))
                 declared.setdefault(target, []).append((rel, gated or _test_file(rel)))
+        # `include!` compiles a file's text in place, outside any module declaration: an
+        # `include!` naming an off-build file (gated or not) is never reviewed, so it stops.
+        # `include_str!`/`include_bytes!` read text only and compile no code.
+        for m in re.finditer(r"\binclude!\s*\(", bt):
+            depth, end = 1, m.end()
+            while end < len(bt) and depth:                  # balanced over code; string text is blanked
+                depth += {"(": 1, ")": -1}.get(bt[end], 0)
+                end += 1
+            arg = raw[m.end():end]
+            if any(os.path.basename(f) in arg for f in OFF_BUILD_FILES):
+                raise ValueError(f"W1R-FG: {rel} includes an off-build file with include!; re-review")
         for f in present:
             stem = os.path.basename(f)[:-3]
             for p in re.finditer(r"\bmod\s+" + re.escape(stem) + r"\s*;", bt):
