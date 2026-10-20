@@ -1192,12 +1192,13 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
-    // Stack-headroom repair actual-source D3 at 6b90748dec (retained-pricing-rules.md
-    // §8.10): the canonical 100-form union binds the same 319 native/text values;
+    // W1 coverage repair actual-source D3 at 7299e6319d (retained-pricing-rules.md
+    // §8.11): the canonical 100-form union binds the same 319 native/text values;
     // all 70 evaluations fit at the unchanged policy. The twelve reviewed-input
-    // digests, identity and reader layouts are unchanged. O4's D3 at 7823a79f45
-    // (§8.9) was the previous registration. The one registered entry supplies G0;
-    // its genuine profile, input, witness and resource checks still govern.
+    // digests, identity and reader layouts are unchanged. The stack-headroom
+    // repair's D3 at 6b90748dec (§8.10) was the previous registration. The one
+    // registered entry supplies G0; its genuine profile, input, witness and
+    // resource checks still govern.
     identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
     reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=61ee4298678fc487d611cfb275dfdcf739481ce0ec00a7b753154b7d641565d0;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=bb35cd6a546e3dcbe5f8e7d82f0ba6df3e427e543f9548a785a859654beeec7f;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86;../../schemas/results_pressure_2.v0.3.schema.json=9a7d5ab6b7491f9b5c6a421ff7bb14d6a24c915ef29dd608fde004e4a5c409ee;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788",
     reader_layouts: [
@@ -1308,7 +1309,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at 6b90748dec: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at 7299e6319d: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -2669,7 +2670,7 @@ pub(super) mod profile {
         Form { name: "T11_ordinary_seed", constant: 31104, terms: &[(191, 12)] },
         Form { name: "T12", constant: 2484648, terms: &[(50, 384), (51, 960), (54, 768), (59, 12288), (66, 3), (67, 3), (90, 96), (91, 96), (114, 768), (115, 12288), (120, 384), (130, 12), (132, 96), (154, 24), (163, 96), (173, 384), (174, 96), (188, 1152), (192, 3456), (226, 6144), (233, 96), (234, 96), (236, 24), (243, 2016), (249, 96), (253, 96), (262, 96), (263, 2112), (264, 384), (265, 336), (266, 1152), (267, 336), (268, 1056), (269, 336), (271, 384), (282, 96), (286, 12288), (290, 192), (294, 1152), (302, 2304), (316, 2304), (317, 127488), (318, 125757)] },
         Form { name: "T13", constant: 1198710, terms: &[(9, 156), (10, 156), (30, 768), (31, 6144), (32, 6144), (43, 1536), (44, 768), (46, 384), (47, 192), (69, 15), (77, 6144), (78, 1536), (79, 768), (80, 768), (81, 768), (82, 768), (83, 768), (84, 768), (85, 768), (86, 768), (87, 10752), (90, 96), (92, 96), (93, 96), (94, 96), (95, 288), (96, 96), (97, 96), (130, 6), (145, 1536), (164, 192), (165, 192), (166, 96), (169, 3), (182, 768), (184, 63744), (185, 31488), (186, 31488), (195, 768), (196, 1536), (197, 768), (198, 12), (211, 3), (221, 12288), (226, 6144), (242, 3), (250, 3), (251, 6), (252, 3), (254, 3), (255, 6), (256, 3), (285, 62400), (291, 5376), (297, 9), (300, 4032), (302, 576), (303, 3), (304, 3), (305, 3), (306, 3), (307, 3), (308, 3), (309, 420096), (310, 226752), (311, 152928), (318, 1728)] },
-        Form { name: "T14", constant: 14904609, terms: &[(52, 96), (64, 12288), (68, 3), (89, 96), (117, 12288), (119, 96), (124, 384), (126, 12288), (142, 12288), (144, 12288), (152, 3), (153, 96), (157, 192), (171, 6), (175, 786432), (176, 192), (180, 3), (203, 96), (212, 96), (215, 12288), (216, 12288), (217, 12288), (218, 24576), (220, 12288), (235, 192), (247, 6144), (258, 1152), (278, 96), (280, 96), (297, 18), (309, 14592), (315, 12288)] },
+        Form { name: "T14", constant: 14904609, terms: &[(52, 96), (64, 12288), (68, 3), (89, 96), (117, 12288), (119, 96), (124, 384), (126, 12288), (142, 12288), (144, 12288), (152, 3), (153, 96), (157, 192), (171, 6), (175, 786432), (176, 192), (180, 3), (203, 96), (212, 96), (215, 12288), (216, 12288), (217, 12288), (218, 24576), (220, 12288), (235, 192), (247, 6144), (258, 1152), (278, 96), (280, 96), (297, 57), (309, 14592), (315, 12672)] },
         Form { name: "T15", constant: 12288, terms: &[(62, 3), (118, 3072), (134, 12288), (143, 6), (181, 192), (202, 192), (229, 3), (230, 3)] },
         Form { name: "T16_P1", constant: 394799571, terms: &[(8, 197381), (21, 63432), (22, 16384), (199, 1), (214, 11241), (244, 11241), (278, 16384), (296, 260288)] },
         Form { name: "T16_P2", constant: 872061479, terms: &[(8, 430823), (21, 365619), (22, 16384), (199, 1), (214, 11241), (244, 11241), (278, 16384), (296, 544453)] },
@@ -2719,7 +2720,7 @@ pub(super) mod profile {
         Form { name: "success__T11_ordinary_seed", constant: 31104, terms: &[(191, 12)] },
         Form { name: "success__T12", constant: 2484648, terms: &[(50, 384), (51, 960), (54, 768), (59, 12288), (66, 3), (67, 3), (90, 96), (91, 96), (114, 768), (115, 12288), (120, 384), (130, 12), (132, 96), (154, 24), (163, 96), (173, 384), (174, 96), (188, 1152), (192, 3456), (226, 6144), (233, 96), (234, 96), (236, 24), (243, 2016), (249, 96), (253, 96), (262, 96), (263, 2112), (264, 384), (265, 336), (266, 1152), (267, 336), (268, 1056), (269, 336), (271, 384), (282, 96), (286, 12288), (290, 192), (294, 1152), (302, 2304), (316, 2304), (317, 127488), (318, 125757)] },
         Form { name: "success__T13", constant: 1198710, terms: &[(9, 156), (10, 156), (30, 768), (31, 6144), (32, 6144), (43, 1536), (44, 768), (46, 384), (47, 192), (69, 15), (77, 6144), (78, 1536), (79, 768), (80, 768), (81, 768), (82, 768), (83, 768), (84, 768), (85, 768), (86, 768), (87, 10752), (90, 96), (92, 96), (93, 96), (94, 96), (95, 288), (96, 96), (97, 96), (130, 6), (145, 1536), (164, 192), (165, 192), (166, 96), (169, 3), (182, 768), (184, 63744), (185, 31488), (186, 31488), (195, 768), (196, 1536), (197, 768), (198, 12), (211, 3), (221, 12288), (226, 6144), (242, 3), (250, 3), (251, 6), (252, 3), (254, 3), (255, 6), (256, 3), (285, 62400), (291, 5376), (297, 9), (300, 4032), (302, 576), (303, 3), (304, 3), (305, 3), (306, 3), (307, 3), (308, 3), (309, 420096), (310, 226752), (311, 152928), (318, 1728)] },
-        Form { name: "success__T14", constant: 14904609, terms: &[(52, 96), (64, 12288), (68, 3), (89, 96), (117, 12288), (119, 96), (124, 384), (126, 12288), (142, 12288), (144, 12288), (152, 3), (153, 96), (157, 192), (171, 6), (175, 786432), (176, 192), (180, 3), (203, 96), (212, 96), (215, 12288), (216, 12288), (217, 12288), (218, 24576), (220, 12288), (235, 192), (247, 6144), (258, 1152), (278, 96), (280, 96), (297, 18), (309, 14592), (315, 12288)] },
+        Form { name: "success__T14", constant: 14904609, terms: &[(52, 96), (64, 12288), (68, 3), (89, 96), (117, 12288), (119, 96), (124, 384), (126, 12288), (142, 12288), (144, 12288), (152, 3), (153, 96), (157, 192), (171, 6), (175, 786432), (176, 192), (180, 3), (203, 96), (212, 96), (215, 12288), (216, 12288), (217, 12288), (218, 24576), (220, 12288), (235, 192), (247, 6144), (258, 1152), (278, 96), (280, 96), (297, 57), (309, 14592), (315, 12672)] },
         Form { name: "success__T15", constant: 12288, terms: &[(62, 3), (118, 3072), (134, 12288), (143, 6), (181, 192), (202, 192), (229, 3), (230, 3)] },
         Form { name: "success__T16_P1", constant: 394799571, terms: &[(8, 197381), (21, 63432), (22, 16384), (199, 1), (214, 11241), (244, 11241), (278, 16384), (296, 260288)] },
         Form { name: "success__T16_P2", constant: 872061479, terms: &[(8, 430823), (21, 365619), (22, 16384), (199, 1), (214, 11241), (244, 11241), (278, 16384), (296, 544453)] },
@@ -2973,7 +2974,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8221546236, "W3 publication (T16) with the staged copy"), (8280677580, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8221550244, "W3 publication (T16) with the staged copy"), (8280681588, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 

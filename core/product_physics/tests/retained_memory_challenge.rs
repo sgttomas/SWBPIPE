@@ -40,8 +40,10 @@ use b1_sq_inputs as inputs;
 // checked against the in-build profile.
 const W1_PHASE_BYTES: [u64; 2] = [6_204_977_168, 6_264_108_512];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
-/// the bound once a run has done W1 work (a registered build, G6).
-const MAX_PHASE_BYTES: [u64; 2] = [8_435_640_031, 8_494_771_375];
+/// the bound once a run has done W1 work (a registered build, G6). W1 coverage repair D3 at
+/// 7299e6319d (retained-pricing-rules.md §8.11): +4,008 B in both modes from 8,435,640,031 and
+/// 8,494,771,375 (the certified proof's final scales held to serialization, W1R-FS).
+const MAX_PHASE_BYTES: [u64; 2] = [8_435_644_039, 8_494_775_383];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

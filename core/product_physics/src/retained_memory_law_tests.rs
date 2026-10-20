@@ -1773,13 +1773,16 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// Stack-headroom repair actual-source record at 6b90748dec (retained-pricing-rules.md §8.10),
-/// numerically unchanged from O4's 7823a79f45 (§8.9): requested + moving bytes, without R or the
-/// separately upward-rounded TEXT reserve, from the canonical 100-form union. This record binds
-/// the unchanged build identity and native values; reviewed-input registration is separate below.
+/// W1 coverage repair actual-source record at 7299e6319d (retained-pricing-rules.md §8.11):
+/// requested + moving bytes, without R or the separately upward-rounded TEXT reserve, from the
+/// canonical 100-form union. W2-W5 rise by 4,008 B in both modes from the stack-headroom repair's
+/// 6b90748dec (§8.10): the certified proof now holds the gate's final scales to serialization
+/// (W1R-FS: 32 bodies x [f64; 4] and 13 Vec headers, per attempted case, three cases). W1, X1 and
+/// X2 are unchanged. This record binds the unchanged build identity and native values;
+/// reviewed-input registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [6_204_977_168, 6_540_426_281, 8_435_640_031, 8_230_166_996, 7_335_954_644, 8_273_549_921, 7_109_544_150],
-    [6_264_108_512, 6_599_557_625, 8_494_771_375, 8_289_298_340, 7_395_085_988, 8_332_681_265, 7_168_675_494],
+    [6_204_977_168, 6_540_430_289, 8_435_644_039, 8_230_171_004, 7_335_958_652, 8_273_549_921, 7_109_544_150],
+    [6_264_108_512, 6_599_561_633, 8_494_775_383, 8_289_302_348, 7_395_089_996, 8_332_681_265, 7_168_675_494],
 ];
 
 #[test]
