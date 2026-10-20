@@ -368,7 +368,7 @@ The `not_reached` documents are kept out of the gate's denominators below; the c
 
 **First failing predicate.** Every failing row's first predicate is SharperExact, apart from absolute-bound failures, per mode:
 - 46 rows in the `PROP-PHI2-*` documents, on the readout gap around an exact zero;
-- 40 rows in `SOFT-TORSION-r1e-08` (all sensitive) and 204 in the `RF-SKEW-T-PIN-OFF-345-r1e-12` twins. Their annular readout's own enclosure is wider than the absolute bound, which no section or readout counterfactual addresses. For example, on `SOFT-TORSION-r1e-08|zero|eb`, `result:force:P2:axial` (exact value 0), the annular lane is ±6.31 × 10^-17 N against a bound RU64(2^-64 · 1,118.03) ≈ 6.06 × 10^-17 N, while the admitted lane is ±4.7 × 10^-70. This is *proof width*.
+- 40 rows in `SOFT-TORSION-r1e-08` (all sensitive) and 204 in the `RF-SKEW-T-PIN-OFF-345-r1e-12` twins. Their annular readout's own enclosure is wider than the absolute bound. The (b) and (c) re-runs clear all of them, but only because re-solving the annular lane narrows its enclosure incidentally, not through a section or readout difference; they are attributed separately. For example, on `SOFT-TORSION-r1e-08|zero|eb`, `result:force:P2:axial` (exact value 0), the annular lane is ±6.31 × 10^-17 N against a bound RU64(2^-64 · 1,118.03) ≈ 6.06 × 10^-17 N, while the admitted lane is ±4.7 × 10^-70. This is *proof width*.
 
 **Attribution of the failing rows** (w1-coverage-repair.md §3.3's classes, per mode, summed over both bindings). Proof width is separated first: a row whose annular enclosure's half-width exceeds its allowance or absolute bound. Under (b) or (c) the re-solved annular enclosure narrows, so these rows would otherwise count as *lane only*.
 
