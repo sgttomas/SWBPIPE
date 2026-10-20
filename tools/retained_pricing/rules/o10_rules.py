@@ -844,8 +844,11 @@ if fnkey("hardware", _JR) and fnkey("problem", PP_ + "pressure_runtime.rs"):
 # o10_check.py fails the run if any is ever positive or no longer present.
 _J7C = PP_ + "source_recovery/j7_rf_census.rs"
 if _os.path.exists(_os.path.join(_SNAP, _J7C)):
-    if "#[cfg(test)]\n#[path = \"source_recovery/j7_rf_census.rs\"]\nmod j7_rf_census;" not in \
-            open(_os.path.join(_SNAP, PP_ + "source_recovery.rs"), encoding="utf-8").read():
+    # O4 S5 (retained-pricing-rules.md §8.9): O4's test modules reach the census through `pub(crate) mod`; the
+    # declaration is still the one #[cfg(test)] item, so either visibility keeps the module test-only.
+    _j7_decl = open(_os.path.join(_SNAP, PP_ + "source_recovery.rs"), encoding="utf-8").read()
+    if not any("#[cfg(test)]\n#[path = \"source_recovery/j7_rf_census.rs\"]\n" + vis + "mod j7_rf_census;" in _j7_decl
+               for vis in ("", "pub(crate) ")) or _j7_decl.count("mod j7_rf_census;") != 1:
         raise SystemExit("J3: j7_rf_census is no longer a #[cfg(test)] module; re-review")
     _J3W = (O10 + "J3 (test code, multiplicity 0): source_recovery.rs declares j7_rf_census only under #[cfg(test)]; "
             "size 0 with no site_zero, so o10_check.py fails the run if the site's multiplicity is ever positive")
@@ -1090,11 +1093,14 @@ _RP = RE_ + "retained_precision.rs"
 if fnkey("section_allowances", _RP):
     _rp_src = open(_os.path.join(_SNAP, _RP), encoding="utf-8").read()
     _sa = _rp_src.split("fn section_allowances(", 1)[1].split("\n}\n", 1)[0]
-    if _sa.count("list(&model[\"pipe_segments\"]).iter().all(") != 1 or _sa.count("unit_value(") != 1 or "for " in _sa:
+    # O4 S5 (retained-pricing-rules.md §8.9): the exact arm converts the allowance, the wall and (when present) the
+    # mill tolerance, three unit_value call sites in the same one visit per pipe; the loop is unchanged.
+    if _sa.count("list(&model[\"pipe_segments\"]).iter().all(") != 1 or _sa.count("unit_value(") not in (1, 3) or "for " in _sa:
         raise SystemExit("B7b-ZA: section_allowances changed; re-review its loop and conversions")
     O10_LOOPS_LAST += [('iter:list(&model[" "]).iter().all', "m",
         O10 + "B7b-ZA: section_allowances visits each captured pipe segment once (D1.9: pipes <= m), one unit_value "
-        "per visit on the exact route", ["retained_precision.rs:section_allowances"])]
+        "per visit on the exact route (O4: three, the allowance, wall and mill tolerance, at their own call sites)",
+        ["retained_precision.rs:section_allowances"])]
 
 # B7b-JR (b4447b7212): joint::pressure_finding may add a fourth ref (the listed replaced span: an admitted pipe ID,
 # <= 128 B) through `refs.extend(extra.map(str::to_string))`; the refs Vec then holds <= 4 Strings in capacity <= 6,
@@ -1290,7 +1296,11 @@ if _D5:
     # list(results) filtered by the entry's basis_ref), are one block of the route's P rows, as rows_for's were
     # (`for row in rows_for(source, c)` and `.. e` bound P); D-5's twins are inside P (row premise, U6-RP).
     if "list(&source[\"results\"])\n        .iter()\n        .filter(|r| r[\"basis_ref\"] == case[\"basis_ref\"])\n        .collect()" not in _fn_text("rows_all_for", _RPX) \
-            or "rows_all_for(source, case).into_iter().filter(|r| !reduced_twin(r)).collect()" not in _fn_text("rows_for", _RPX) \
+            or not any(_f in _fn_text("rows_for", _RPX) for _f in (
+                "rows_all_for(source, case).into_iter().filter(|r| !reduced_twin(r)).collect()",
+                # O4 S5 (§8.9, O4-RD): a distinct-basis member's reduced rows stay in the universe; still a filter of
+                # rows_all_for's one block, so <= the entry's published rows.
+                "rows_all_for(source, case)\n        .into_iter()\n        .filter(|r| !reduced_twin(r) || distinct.contains(text(&r[\"entity_ref\"])))\n        .collect()")) \
             or "all_rows: rows_all_for(source, c)," not in _fn_text("numeric_owner", _RPX) \
             or "let all = rows_all_for(source, c.case);" not in _fn_text("g5b_exact_evidence", _RPX):
         raise SystemExit("U6-L5: a case's row lists changed; re-review")
@@ -1470,7 +1480,10 @@ if _D5:
          {"load_case.id": IN, "pipe.element_id": IN}),
         # RS g5c: a reduced twin's class takes the twin's own row id (a published result id, RES 1024, as the
         # nominal rows' carried audit in the same function)
-        (site_after("g5c", _RPX, "let class = if reduced_twin(row) {", 'result_id: text(&row["id"]).into(),', within=4),
+        # (O4 S5, §8.9: the twin test also excludes a distinct-basis member's reduced rows; the same site follows)
+        (site_after("g5c", _RPX, "let class = if reduced_twin(row) && !distinct.contains(text(&row[\"entity_ref\"])) {"
+                    if "let class = if reduced_twin(row) && !distinct" in open(_os.path.join(_SNAP, _RPX), encoding="utf-8").read()
+                    else "let class = if reduced_twin(row) {", 'result_id: text(&row["id"]).into(),', within=4),
          {'text(&row[""])': RS_}),
         # section_basis_row: the id's segment and the recovery token's suffix
         (site("section_basis_row", _LIB, "row.id.push_str(if hyphen_id { basis.hyphen() } else { basis.token() });", full=True),
@@ -1857,3 +1870,78 @@ if fnkey("not_qualified_for", PP_ + "source_receipt/rows.rs"):
         (site("not_qualified_for", _RW, "result_id: row.id.clone(),", full=True), {"row.id": RS_}),
         (site("not_qualified_for", _RW, "input_result_ids: inputs.iter().map(|r| r.id.clone()).collect(),", full=True), {"r.id": RS_}),
     ]
+
+# ---- O4 S5 (actual-source D3; retained-pricing-rules.md §8.9). O4 admits timoshenko_annulus_energy_v1 documents and
+# nonzero mill tolerance/corrosion allowance on route E (W1-E) and on the pressure-source route. Its new loops and text
+# arguments are bounded here by name; its heap owners are priced positively by base/o4_owners_model.py.
+if fnkey("reduced_section_set", PP_ + "retained_product.rs"):
+    _RPO = PP_ + "retained_product.rs"
+    # O4-L1: reduced_facts is set once per invocation from a local vector reserved at distinct_bases.len() and pushed
+    # only inside prepare_case's member loop under a capacity check (`reduced fact capacity`); distinct_bases takes at
+    # most one push per built pipe (capture's pipe loop). So every reduced_facts / distinct_bases / reduced-preparation
+    # list holds <= m entries.
+    for _needle in ("if reduced_facts.len()==reduced_facts.capacity() {return Err(\"reduced fact capacity\".into());}",
+                    "if out.reduced_preparations.len()==out.reduced_preparations.capacity() {return Err(\"reduced preparation capacity\".into());}",
+                    "let mut reduced_facts:Vec<ReducedFacts>=if distinct>0 {self.adapter.reserve(distinct)?} else {Vec::new()};",
+                    "if distinct>0 {out.reduced_preparations=self.adapter.reserve(distinct)?;}"):
+        if _text_of(_RPO).count(_needle) != 1:
+            raise SystemExit("O4-L1: the reduced-fact capacity guards changed; re-review")
+    O10_LOOPS_LAST += [
+        ("for rf in &self.reduced_facts", "m", O10 + "O4-L1: one entry per distinct-basis member, <= m",
+         ["retained_product.rs:reduced_section_set"]),
+        ("for (r,bound) in view.case_rows().iter().zip(bound_row_indices(route,view.distinct,view.case_rows()))", "P",
+         O10 + "O4-L2: the case's own rows (its scope's block, <= P), as prepared_alias's (U6-L5)",
+         ["retained_product.rs:reduced_section_set", "retained_product.rs:prepared_not_covered"]),
+        ("for id in &self.distinct_bases", "m", O10 + "O4-L1: one id per distinct-basis member, <= m",
+         ["retained_product.rs:distinct_copy"]),
+        ("for _ in 0..self.reduced_facts.len()", "m", O10 + "O4-L1: one reduced operand table per distinct-basis member, <= m",
+         ["retained_product.rs:prepared_not_covered"]),
+        ("for (i,(r,bound)) in rows.iter().zip(bound_row_indices(route,&self.distinct_bases,rows)).enumerate()", "P",
+         O10 + "U6-L5 (O4: the twin predicate also reads distinct_bases): prepared_alias's rows are the frozen case's own rows, <= P",
+         ["retained_product.rs:prepared_alias"]),
+    ]
+    # O4-A1: TimoshenkoLeafError::reason returns RETAINED_TIMOSHENKO_REFUSAL or one of its two static literals (both
+    # read at the snapshot); the warning of a withheld selected maximum pushes the composite error by clone, the same
+    # text `error` carried before (error_display).
+    _FKS = FK_ + "structural/retained/source.rs"
+    _reason = _fn_text("reason", _FKS) if fnkey("reason", _FKS) else ""
+    _reason_lits = _re.findall(r'=> "([^"\\]+)"', _reason)
+    _refusal = _re.findall(r'pub const RETAINED_TIMOSHENKO_REFUSAL: &str =\s*"([^"\\]+)";', _text_of(FK_ + "structural/retained/assemble.rs"))
+    if len(_reason_lits) != 2 or len(_refusal) != 1 or "super::assemble::RETAINED_TIMOSHENKO_REFUSAL" not in _reason:
+        raise SystemExit("O4-A1: TimoshenkoLeafError::reason changed; re-review")
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+        {"re": r"^e\.reason\(\)$", "max": max(len(x.encode()) for x in _reason_lits + _refusal),
+         "why": O10 + "O4-A1: TimoshenkoLeafError::reason is RETAINED_TIMOSHENKO_REFUSAL or one of two static literals (read at the snapshot)"},
+        {"re": r"^error\.clone\(\)$", "max": "error_display",
+         "why": O10 + "O4-A1: solve_prepared_load_case's withheld-maximum warning clones the composite error text it moved before (error_display)"},
+    ]
+if fnkey("attach_reduced_preparations", PP_ + "retained_wire.rs"):
+    O10_LOOPS_LAST += [("for r in reduced", "m", O10 + "O4-L1: the attempt's reduced preparations, <= m (one per distinct-basis member)",
+                        ["retained_wire.rs:attach_reduced_preparations"])]
+if fnkey("distinct_members_of", RE_ + "retained_precision.rs"):
+    O10_LOOPS_LAST += [
+        ("for (member, shear_area) in leaves", "m", O10 + "O4-L3: native_bytes' Timoshenko leaves filter one CaseSource's section_terms, one per member (<= m)",
+         ["retained_precision.rs:native_bytes"]),
+        ("iter:rows_all_for(source, case) .into_iter().filter", "P", O10 + "U6-L5 (O4: the filter also keeps a distinct member's reduced rows): one entry's rows, <= P",
+         ["retained_precision.rs:rows_for"]),
+    ]
+# O4-CG1 (call graph): prepare_active_case's one `prepared` call is the path-qualified FK
+# `k::TimoshenkoLeaf::prepared(m.id,kappa,a)` (source.rs: shear::shear_area of two binary64 values, no allocation);
+# the by-name scan also offered every other `fn prepared` (e.g. membrane_publication_range's test fixture, which
+# rebuilds and validates a model). Only the named definition is the target.
+if fnkey("prepare_active_case", PP_ + "retained_product.rs") and "k::TimoshenkoLeaf::prepared(" in _fn_text("prepare_active_case", PP_ + "retained_product.rs"):
+    if _fn_text("prepare_active_case", PP_ + "retained_product.rs").count("prepared(") != 1:
+        raise SystemExit("O4-CG1: prepare_active_case's prepared calls changed; re-review")
+    CG_RULES += [{"caller": _fn_n("prepare_active_case", PP_ + "retained_product.rs", 1, 1), "name": "prepared",
+        "targets": [_fn_n("prepared", FK_ + "structural/retained/source.rs", 1, 1)],
+        "added": "O4-CG1", "evidence": "the path-qualified k::TimoshenkoLeaf::prepared is FK source.rs's one fn prepared"}]
+# O4-A2 (TEXT): the source route's stress_operands names a distinct member's reduced operand paths by one closure,
+# `format!("/frames/{i}/reduced_recovery_section/{key}")`, called with four static key literals (read at the snapshot).
+if fnkey("stress_operands", PP_ + "source_receipt/source.rs"):
+    _SO = _fn_text("stress_operands", PP_ + "source_receipt/source.rs")
+    _SO_KEYS = _re.findall(r'path\("([a-z_]+)"\)', _SO)
+    if len(_SO_KEYS) != 4:
+        raise SystemExit("O4-A2: stress_operands' reduced path keys changed; re-review")
+    O10_ID_AUDIT += [(site("stress_operands", PP_ + "source_receipt/source.rs",
+                           'let path = |key: &str| format!("/frames/{i}/reduced_recovery_section/{key}");', full=True),
+                      {"key": {"bytes": max(len(k) for k in _SO_KEYS), "source": O10 + "O4-A2: one of four static path keys"}})]

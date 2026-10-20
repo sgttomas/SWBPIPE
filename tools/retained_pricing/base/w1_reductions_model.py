@@ -45,8 +45,8 @@ RF_PINS = {
 # T4-S6 D3 (§8.8, S6-HS): retained_wire.rs's domain_hash streams its digest (domain_text and DomainPayload deleted);
 # no reduction's owner or lifetime changes. T4-S7: retained_wire.rs's domain_hash doc comment only.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "a3354c083872cdaa64dd895afb14e2b9d0b72f0b445e0c9f8df78255d2ae8950",
-    "core/product_physics/src/retained_wire.rs": "e33c716e21de5577d89d7db9af85b64491e7abea75775527f130c8986b01e2cc",
+    "core/product_physics/src/lib.rs": "70cd91d53134c95842bdbabe1a2e463407427fb8af4e15d3269ebd1ea8a8d1b6",
+    "core/product_physics/src/retained_wire.rs": "559f4d0ae4b3b2a9405d3aa8199d5ccbc10d03775a0b38544e10eed31b1806eb",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
     "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",

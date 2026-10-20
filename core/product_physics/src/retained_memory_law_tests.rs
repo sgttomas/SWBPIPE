@@ -358,7 +358,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // among the retired versions), the closed member-load test's invocation
             // version and the doc comment of a trailing production function (the
             // -2 identity) changed; no include, path module or excluded production.
-            complete_suffix_sha256: "ffe31fb86e46ff3927484a0fde624e6144c449653c1baf60d0f1dbcca4a25fa5",
+            // Re-audited at O4 S3 (W1-E slice): only the closed `t4_u6_g8_tests` module's
+            // one test changed, renamed `g8_namespace_admits_either_shear_model_and_nonzero_allowances`
+            // (the retired mill-tolerance decline becomes namespace controls; the same
+            // request-fixture include); no include, path module, static or production entered
+            // the suffix, and the production after the resume is byte-identical.
+            complete_suffix_sha256: "e0182005e1c6e181a82d3754bfb4409d4dcbafc9230cdd169bbacbe49c00ea97",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
@@ -373,7 +378,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // torsion-constant control writes both D-5 section bases, and it gains
             // the test `actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract`
             // (its include is a request fixture); the suffix still holds no production.
-            complete_suffix_sha256: "56fd8e51997255e667387c2f78ecb9d0fdac2c9657e56972a3b6d8bd8ca12757",
+            // Re-audited at O4 S1 (source slice): only that closed test changed, renamed
+            // `actual_materials_bind_each_section_beam_theory_to_the_contract_selection`
+            // (both admitted contracts and an unknown one; the same request-fixture
+            // include); no include, path module, static or production entered the suffix.
+            complete_suffix_sha256: "79dd258fcedcac126713dc385f12e2020908064f64b7435ae8b0fede5d9b82d0",
             production_resume: None,
             trailing_test: None,
         })),
@@ -773,17 +782,20 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // moves #1 (the `derived_not_qualified` treatment and its two recipes), #3 DEF-O, #4
     // (the preview-retained table's U4b rows and texts), #6 DEF-C, #7 DEF-E, #8 (DEF-E's
     // hash in the physics-retained table) and #9 (the pressure-source table's signatures
-    // and disclosure).
+    // and disclosure). O4 (DEL-04-08 Design `o4-source-extension.md` §4.6-§4.9; retained-pricing-rules.md
+    // §8.9) moves #2 (both section shapes of the retained-precision schema), #7 DEF-E and #8 (DEF-E's
+    // hash in the physics-retained table), counted from 0; O4's D3 registration at 7823a79f45 records
+    // these bytes. #0, #1 and #9-#11 keep theirs.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
         "6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a",
-        "8a4273dcd55e827aa0494c28f535bad01089af2e754448e99d1a18118482ef05",
+        "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f",
         "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
-        "5ae290aeba71f732480609a91baf7ca4a6d0559985cd76f40db7e305efcd8663",
-        "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186",
+        "61ee4298678fc487d611cfb275dfdcf739481ce0ec00a7b753154b7d641565d0",
+        "bb35cd6a546e3dcbe5f8e7d82f0ba6df3e427e543f9548a785a859654beeec7f",
         "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86",
         "9a7d5ab6b7491f9b5c6a421ff7bb14d6a24c915ef29dd608fde004e4a5c409ee",
         "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788",
@@ -1523,7 +1535,8 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
     // Current canonical TEXT closure at the T4-U4b/U5b epoch source b4c9f35f8e, C_eq = 3, maximum
-    // over the L/E routes (T4-U6/U8's at 588de796a4: 262,735,773; B7b's at 7e63847: 264,366,429).
+    // over the L/E routes, unchanged at O4's 7823a79f45 (T4-U6/U8's at 588de796a4: 262,735,773;
+    // B7b's at 7e63847: 264,366,429).
     assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 269_494_417, "current text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_595, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1760,13 +1773,13 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// T4-U4b/U5b actual-source record at b4c9f35f8e (T4-S6's streamed hashes, retained-pricing-rules.md
-/// §8.8): requested + moving bytes, without R or the separately upward-rounded TEXT reserve, from the
-/// canonical 100-form union. This record binds the unchanged build identity and actual native values;
-/// reviewed-input registration is a separate binding below.
+/// O4 actual-source record at 7823a79f45 (retained-pricing-rules.md §8.9; T4-U4b/U5b's at b4c9f35f8e,
+/// §8.8, was W3 8,311,903,290 / 8,371,034,634): requested + moving bytes, without R or the separately
+/// upward-rounded TEXT reserve, from the canonical 100-form union. This record binds the unchanged build
+/// identity and actual native values; reviewed-input registration is a separate binding below.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [6_115_532_674, 6_449_911_780, 8_311_903_290, 8_118_736_377, 7_235_859_247, 8_241_308_034, 7_067_849_748],
-    [6_174_664_018, 6_509_043_124, 8_371_034_634, 8_177_867_721, 7_294_990_591, 8_300_439_378, 7_126_981_092],
+    [6_204_977_168, 6_540_426_281, 8_435_640_031, 8_230_166_996, 7_335_954_644, 8_273_549_921, 7_109_544_150],
+    [6_264_108_512, 6_599_557_625, 8_494_771_375, 8_289_298_340, 7_395_085_988, 8_332_681_265, 7_168_675_494],
 ];
 
 #[test]
@@ -1885,11 +1898,12 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_799, "current canonical D_env at C_eq = 3 (T4-U4b/U5b epoch source b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 28_799, "current canonical D_env at C_eq = 3 (T4-U4b/U5b epoch source b4c9f35f8e; unchanged at O4's 7823a79f45)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
-    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (23, 6, 0));
+    // O4 (retained-pricing-rules.md §8.9) adds three SourceUppers: PreparedSectionPatch, CompositeMaximum, O4KernelStaging.
+    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (26, 6, 0));
     assert_eq!(profile::ESTIMATES, 0, "G6 closed every Estimate");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::SparseInteractive), Ok(profile::SPARSE.unwrap().0), "priced in-build");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::DenseScrutiny), Ok(profile::DENSE.unwrap().0), "priced in-build");

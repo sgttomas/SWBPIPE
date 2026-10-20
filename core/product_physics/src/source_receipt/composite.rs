@@ -39,6 +39,8 @@ fn maximum_inner(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
     member_id: &str,
+    basis: pressure_exact::SectionBasis,
+    section: &DerivedSection,
     identity_digest: &str,
 ) -> Result<CompositeMaximum, ReceiptError> {
     if !pressure_runtime::is_exact(input.model)
@@ -62,13 +64,18 @@ fn maximum_inner(
         .exact_sections
         .get(member_id)
         .ok_or_else(|| bad("maximum source geometry"))?;
-    let section = input
+    let built = input
         .built
         .sections
         .get(member_id)
         .ok_or_else(|| bad("maximum recovery section"))?;
-    if !same(section.area, geometry.nominal().wall_area_m2())
-        || !same(section.section_modulus, geometry.nominal().section_modulus_m3())
+    // O4 (§3.2, §3.5): the caller passes the basis's section explicitly; it is
+    // that basis's D-5 annulus, and the nominal one is the built section.
+    let annulus = geometry.basis(basis);
+    if !same(section.area, annulus.wall_area_m2())
+        || !same(section.section_modulus, annulus.section_modulus_m3())
+        || (basis == pressure_exact::SectionBasis::Nominal
+            && (!same(section.area, built.area) || !same(section.section_modulus, built.section_modulus)))
     {
         return Err(bad("maximum source section mismatch"));
     }
@@ -162,10 +169,17 @@ fn maximum_inner(
         }),
     })
 }
+/// The retained endpoint maximum of one member on one section basis, from
+/// the retained endpoint functionals [0, 4, 5] and `section`'s A and Z. O4
+/// (§3.2, §3.5): `section` is the basis's own stress section, passed
+/// explicitly (the built section for the nominal basis); each call charges
+/// `RECIPE_WORK` and its read of the identity digest.
 pub(in super::super) fn composite_member_maximum(
     input: &source_recovery::Input<'_>,
     selected: &mut SelectedSourceRecovery,
     member_id: &str,
+    basis: pressure_exact::SectionBasis,
+    section: &DerivedSection,
 ) -> Result<CompositeMaximum, ReceiptError> {
     #[cfg(test)]
     trace("derived_recipe_entry", selected);
@@ -176,7 +190,7 @@ pub(in super::super) fn composite_member_maximum(
             Some(selected.summary().work),
         )
     })?;
-    maximum_inner(input, selected, member_id, &digest).map_err(|mut e| {
+    maximum_inner(input, selected, member_id, basis, section, &digest).map_err(|mut e| {
         e.1 = Some(selected.summary().work);
         e
     })
@@ -782,16 +796,24 @@ impl FinalizedSourceBlockCase {
                 .map(|m| m.member_id.clone())
                 .collect();
             for id in member_ids {
-                let maximum = composite_member_maximum(&input, &mut selected, &id)?;
-                // D-5 (§2.2): the maximum per basis. The selected case's bases
-                // coincide, so the reduced maximum is the nominal value and
-                // evidence bound to the reduced row.
+                // D-5 (§2.2) and O4 (§3.2): the maximum per basis. Bit-equal
+                // sections keep one call, its value and evidence bound to each
+                // basis's row; a member whose sections differ takes a second
+                // call on its reduced section.
                 let section = input.built.sections.get(&id).ok_or_else(|| bad("source maximum section"))?;
                 let bases = input.built.exact_sections.get(&id).copied().ok_or_else(|| bad("source maximum section bases"))?;
-                if !same_stress_section(&exact_basis_section(bases, pressure_exact::SectionBasis::Reduced), section) {
-                    return Err(bad("source maximum section bases differ"));
-                }
+                let reduced = exact_basis_section(bases, pressure_exact::SectionBasis::Reduced);
+                let nominal = composite_member_maximum(&input, &mut selected, &id, pressure_exact::SectionBasis::Nominal, section)?;
+                let distinct = if same_stress_section(&reduced, section) {
+                    None
+                } else {
+                    Some(composite_member_maximum(&input, &mut selected, &id, pressure_exact::SectionBasis::Reduced, &reduced)?)
+                };
                 for basis in pressure_exact::SectionBasis::BOTH {
+                    let maximum = match (basis, &distinct) {
+                        (pressure_exact::SectionBasis::Reduced, Some(reduced)) => reduced,
+                        _ => &nominal,
+                    };
                     let row = section_basis_row(ResultItem{id:format!(
                         "result:elastic-maximum:{}:{}:{}:{}",
                         input.load_case.id.len(),
@@ -854,18 +876,17 @@ impl FinalizedSourceBlockCase {
                     .sections
                     .get(&member.member_id)
                     .ok_or_else(|| bad("section stress geometry"))?;
-                // D-5: every stress row is checked on its own basis; the reduced
-                // twin binds the same functional and the same (coincident)
-                // section, bit for bit.
+                // D-5 and O4 (§3.2): every stress row is checked on its own
+                // basis. The reduced check binds the same functional and action
+                // as its nominal twin; its parameters are the reduced section's
+                // (bit-equal to the nominal ones where the sections coincide).
                 let bases = input
                     .built
                     .exact_sections
                     .get(&member.member_id)
                     .copied()
                     .ok_or_else(|| bad("section stress bases"))?;
-                if !same_stress_section(&exact_basis_section(bases, pressure_exact::SectionBasis::Reduced), section) {
-                    return Err(bad("section stress bases differ"));
-                }
+                let reduced = exact_basis_section(bases, pressure_exact::SectionBasis::Reduced);
                 for row in actual.iter().filter(|r| r.entity_ref == member.member_id) {
                     let component = match row.kind.as_str() {
                         "element_local_axial_normal_stress" => 0usize,
@@ -878,6 +899,13 @@ impl FinalizedSourceBlockCase {
                         .metadata
                         .as_ref()
                         .ok_or_else(|| bad("section stress metadata"))?;
+                    let section = if metadata.basis.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()) {
+                        &reduced
+                    } else if metadata.basis.ends_with(pressure_exact::SectionBasis::Nominal.basis_suffix()) {
+                        section
+                    } else {
+                        return Err(bad("section stress basis"));
+                    };
                     let station = match metadata.location.as_str() {
                         "end_i" => 0,
                         "quarter_1" => 1,

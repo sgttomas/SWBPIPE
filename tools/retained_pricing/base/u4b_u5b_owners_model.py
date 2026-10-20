@@ -23,13 +23,16 @@ PHYS = "core/reporting/result_export/src/physics_evidence.rs"
 ROWS = "core/product_physics/src/source_receipt/rows.rs"
 NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
 
+# O4 S5 (retained-pricing-rules.md §8.9, O4-NC): prepared_not_covered keeps U4B-W1's operand table (type, reservation,
+# events) and adds a separate reduced table (one per distinct-basis member) and a bound-position bitmap of the case's
+# rows, both only when a member's bases differ; those are O4's owners (o4_owners_model.py), not this model's.
 BODY_PINS = {
     (LIB, "published_nodal_displacements"): "83648eba3d0101586f558439d1198591659ecd706db07b5447feed75421dbe02",
     (U4B, "member_bases"): "760afaf0e6145df8f837cb75c6976d87afd98b3d20f873789ab4427fd0c8e372",
     (U4B, "append_station_quantities"): "778a4751ce9402583307ce8ae1b3a153fe9b40ee483b601722d43786fe73f06a",
     (SPARSE, "sparse_contribution_sums"): "3a7bb0911b4646798f6cbc6f104f0b852ba5beaf3ef439d6535004b06c8f4a7a",
     (RP, "failed_manifest"): "8ea948cac438d10dd218a12402c5b5f1e28af0cb4f02e94386e79b17506c731a",
-    (RP, "prepared_not_covered"): "6d4b696c0b9dab50337605245899795c688da943fd1ed9c3ffa9d4cefb3f0f53",
+    (RP, "prepared_not_covered"): "91b82b246cb463082b64da0b6a4ff2d3a1e26819d37b75024de9642cb2b53e78",
     (EVID, "member_stations"): "422def17cd2b550f2654109416449ee04276fddd13a42175dcfe5606b7f93cad",
     (EVID, "poisson_exempt"): "087720dfa55869d73d7b277affd80e7dffb34a83f2488b85900387caae4f33d4",
     (EVID, "preview_model_checks"): "5580d56f7b5f41ec230d9b2d02aa84fc9dfcbb2a633f17a594985de9819ff29a",

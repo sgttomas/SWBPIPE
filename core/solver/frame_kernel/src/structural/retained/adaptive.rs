@@ -27,7 +27,7 @@
 //!   formation, assembly, ordering and the p-factor per precision. Each case's
 //!   limit counts the full shared work; the invocation meter counts it once.
 use super::assemble::{
-    assemble, assemble_bounded, form_directional, form_members, reduced_rhs, BoundedCoefficients,
+    assemble, assemble_bounded, form_directional, form_members_with, reduced_rhs, BoundedCoefficients,
     DirectionalBlock, MemberOperators, Structure,
 };
 use super::bound::{block_refusals, free_blocks, BlockRatios, BlockRefusal, FreeBlocks};
@@ -40,9 +40,9 @@ use super::origins::{BatchRecording, OriginSlot, RunPhase, RunTrace, SlotSnapsho
 use super::recover::{
     layout, publish_value, recover, state_encoding, Kind, QuantityId, QuantityMeta, Recovered,
 };
-use super::source::{put_u32, put_u64, Dof, PrimitiveSource, MemberSourceRef, MemberLoadSet, UniformMemberLoad};
+use super::source::{put_u32, put_u64, Dof, PrimitiveSource, MemberSourceRef, MemberLoadSet, UniformMemberLoad, TimoshenkoLeafSet};
 use super::verify::{
-    build_verify_shared, e_hat, phi_512, verify_state, VerificationReport, VerifyShared,
+    build_verify_shared_with, e_hat, phi_512, verify_state, VerificationReport, VerifyShared,
 };
 use super::wide::multi::{AttemptWork, Binary64Outcome, SupportedWidth, WideContext};
 use super::wide::{Wide, WideError};
@@ -908,6 +908,16 @@ impl<K: Ord + Copy> TrackerSet<K> {
 
 // ------------------------------------------------------------ per-case and shared preparation
 
+/// O4 §4.2: why a Timoshenko case call or prepared source is refused before
+/// any preparation, work or record: the sidecar does not associate with a
+/// case source, or (prepared sources) the ledger refused.
+#[derive(Debug, Clone, PartialEq)]
+pub enum TimoshenkoCaseError {
+    Association(super::source::TimoshenkoLeafError),
+    Ledger(LedgerRefusal),
+    Origin(super::origins::OriginError),
+}
+
 /// A case's precision-independent data. A combination (ROOT's ruling on
 /// I12's F-1) is a case of its own: the combined exact ledger Σ cᵢ·fᵢ and the
 /// combined prescribed values Σ cᵢ·vᵢ, on its operands' stiffness source.
@@ -918,6 +928,10 @@ pub(crate) struct CasePrep {
     pub(crate) source: PrimitiveSource,
     pub(crate) ledger: RetainedLedger,
     pub(crate) member_loads: Option<MemberLoadSet>,
+    /// O4 §4.2: the Timoshenko sidecar, present only for a Timoshenko
+    /// document (never an empty set); `None` keeps every member
+    /// Euler–Bernoulli with today's identity, formation and bits.
+    pub(crate) timoshenko: Option<TimoshenkoLeafSet>,
     pub(crate) formed_ledger: std::sync::OnceLock<RetainedLedger>,
     /// Per constrained global DOF (ascending), the exact terms c·v of its
     /// value: [(1, v)] for a case, [(cᵢ, vᵢ)] for a combination. At p the
@@ -961,6 +975,23 @@ impl PreparedCaseSource {
     pub fn new_member(source: MemberSourceRef<'_>) -> Result<Self, LedgerRefusal> {
         Ok(Self { prep: Arc::new(CasePrep::new_member(source)?) })
     }
+    /// O4 §4.2: a prepared Timoshenko case source with its sidecar,
+    /// re-associated with the source here.
+    pub fn new_with_shear(
+        source: MemberSourceRef<'_>,
+        shear: &TimoshenkoLeafSet,
+    ) -> Result<Self, TimoshenkoCaseError> {
+        shear.validate(source.source()).map_err(TimoshenkoCaseError::Association)?;
+        Ok(Self {
+            prep: Arc::new(
+                CasePrep::new_with_shear(source, Some(shear)).map_err(TimoshenkoCaseError::Ledger)?,
+            ),
+        })
+    }
+    /// The case's K4STF identity (with its Timoshenko block, O4 §4.2).
+    pub fn stiffness_identity(&self) -> Vec<u8> {
+        self.prep.stiffness_identity()
+    }
     pub fn source(&self) -> &PrimitiveSource {
         &self.prep.source
     }
@@ -982,6 +1013,31 @@ impl CasePrep {
             prep.identity = source.encoding();
         }
         Ok(prep)
+    }
+    /// O4 §4.2: a case with its Timoshenko sidecar, which the caller has
+    /// associated with this case's source (`TimoshenkoLeafSet::validate`;
+    /// `form_members` refuses any later mismatch as `Structure`). A non-empty
+    /// set is recorded and its block enters the K4SRC identity (and K4STF,
+    /// `stiffness_identity`). `None` or an empty set is today's preparation.
+    pub(crate) fn new_with_shear(
+        source: MemberSourceRef<'_>,
+        shear: Option<&TimoshenkoLeafSet>,
+    ) -> Result<Self, LedgerRefusal> {
+        let mut prep = if source.member_loads().is_empty() {
+            Self::new(source.source().clone())?
+        } else {
+            Self::new_member(source)?
+        };
+        if let Some(set) = shear.filter(|s| !s.is_empty()) {
+            prep.timoshenko = Some(set.clone());
+            prep.identity = source.encoding_with(Some(set));
+        }
+        Ok(prep)
+    }
+    /// The factor-reuse identity of this case: K4STF with the Timoshenko
+    /// block when the case has a sidecar (O4 §4.2).
+    pub(crate) fn stiffness_identity(&self) -> Vec<u8> {
+        self.source.stiffness_encoding_with(self.timoshenko.as_ref())
     }
     pub(crate) fn member_loads(&self) -> &[UniformMemberLoad] {
         self.member_loads.as_ref().map_or(&[], MemberLoadSet::loads)
@@ -1059,8 +1115,13 @@ impl CasePrep {
             identity.extend_from_slice(&prep.identity);
         }
         let factors = operands.iter().map(|o| o.0).collect();
-        Self::with(first.clone(), ledger, prescribed, factors, identity)
-            .map_err(CombinationPreparationError::from)
+        // O4 §4.2: operands share one K4STF identity (`validate_preps`), so a
+        // Timoshenko combination forms its members with the first's sidecar.
+        let timoshenko = operands[0].1.timoshenko.clone();
+        let mut prep = Self::with(first.clone(), ledger, prescribed, factors, identity)
+            .map_err(CombinationPreparationError::from)?;
+        prep.timoshenko = timoshenko;
+        Ok(prep)
     }
 
     fn with(
@@ -1085,6 +1146,7 @@ impl CasePrep {
             source,
             ledger,
             member_loads: None,
+            timoshenko: None,
             formed_ledger: std::sync::OnceLock::new(),
             prescribed,
             factors,
@@ -1468,10 +1530,26 @@ struct Spent<T> {
     total: WorkTotal,
 }
 
+#[cfg(test)]
 fn build_shared<const L: usize, const R: usize>(
     p: u32,
     q: u32,
     source: &PrimitiveSource,
+    group: &GroupPrep,
+    guard: StageGuard,
+) -> Spent<Shared<L, R>>
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+{
+    build_shared_with::<L, R>(p, q, source, None, group, guard)
+}
+
+fn build_shared_with<const L: usize, const R: usize>(
+    p: u32,
+    q: u32,
+    source: &PrimitiveSource,
+    shear: Option<&TimoshenkoLeafSet>,
     group: &GroupPrep,
     guard: StageGuard,
 ) -> Spent<Shared<L, R>>
@@ -1493,7 +1571,7 @@ where
             lme(&ctx) + lme(&ctx_q) + lme(&ctx16) + lme(&ctx64) + sum.work().checked_lme(),
         )?;
         let g = guard.with_base(WorkTotal::zero())?;
-        let members = form_members(&mut ctx, &mut sum, &g, source)?;
+        let members = form_members_with(&mut ctx, &mut sum, &g, source, shear)?;
         let directional = form_directional(&mut ctx, &mut sum, source)?;
         let t1 = stream.snapshot(
             lme(&ctx) + lme(&ctx_q) + lme(&ctx16) + lme(&ctx64) + sum.work().checked_lme(),
@@ -1530,7 +1608,7 @@ where
             )
         } else {
             let gq = guard.with_base(lme(&ctx))?;
-            let members_q = form_members(&mut ctx_q, &mut sum, &gq, source)?;
+            let members_q = form_members_with(&mut ctx_q, &mut sum, &gq, source, shear)?;
             let directional_q = form_directional(&mut ctx_q, &mut sum, source)?;
             let k_q = assemble(
                 &mut ctx_q,
@@ -3781,6 +3859,8 @@ impl RetainedSolve {
         &self.prep.source
     }
     pub fn member_loads(&self) -> &[UniformMemberLoad] { self.prep.member_loads() }
+    /// O4 §4.2: the case's Timoshenko sidecar (`None` for Euler–Bernoulli).
+    pub fn timoshenko(&self) -> Option<&TimoshenkoLeafSet> { self.prep.timoshenko.as_ref() }
     pub fn has_member_loads(&self) -> bool { self.prep.has_member_loads() }
     pub fn member_is_loaded(&self, member: u32) -> bool {
         self.member_loads().iter().any(|l| l.member == member && l.intensity.iter().any(|w| *w != 0.0))
@@ -4050,6 +4130,7 @@ fn obtain<const L: usize, const R: usize>(
     p: u32,
     q: u32,
     source: &PrimitiveSource,
+    shear: Option<&TimoshenkoLeafSet>,
     group: &GroupPrep,
     guard: StageGuard,
 ) -> (
@@ -4073,7 +4154,7 @@ where
             Err((stop, total, stages)) => (Err(stop.clone()), *total, false, stages.clone()),
         };
     }
-    let spent = build_shared::<L, R>(p, q, source, group, guard);
+    let spent = build_shared_with::<L, R>(p, q, source, shear, group, guard);
     match spent.result {
         Ok(shared) => {
             let shared = Arc::new(shared);
@@ -4146,7 +4227,7 @@ fn solve_precision(
     macro_rules! run {
         ($slot:expr, $L:literal, $R:literal, $q:expr, $variant:ident) => {{
             let (shared, shared_total, built, shared_stages) =
-                obtain::<$L, $R>($slot, p, $q, &prep.source, group, guard);
+                obtain::<$L, $R>($slot, p, $q, &prep.source, prep.timoshenko.as_ref(), group, guard);
             if let Some(trace) = trace.as_deref_mut() {
                 trace.requested(
                     OriginSlot::solve(p),
@@ -4270,6 +4351,7 @@ fn obtain_verify<const L: usize, const R: usize, const W: usize>(
     slot: &mut VerifySlot<VerifyShared<L, W>>,
     shared: &Shared<L, R>,
     source: &PrimitiveSource,
+    shear: Option<&TimoshenkoLeafSet>,
     group: &GroupPrep,
     guard: StageGuard,
 ) -> (
@@ -4296,7 +4378,7 @@ where
             ),
         };
     }
-    let spent = build_verify_shared::<L, R, W>(shared, source, group, guard);
+    let spent = build_verify_shared_with::<L, R, W>(shared, source, shear, group, guard);
     match spent.result {
         Ok(v) => {
             let v = Arc::new(v);
@@ -4346,7 +4428,7 @@ fn verify_precision(
                 _ => unreachable!("a solved state's shared stages are cached"),
             };
             let (vs, vs_total, built, vs_stages, vs_refusals) =
-                obtain_verify::<$L, $R, $W>($vslot, &shared, &prep.source, group, guard);
+                obtain_verify::<$L, $R, $W>($vslot, &shared, &prep.source, prep.timoshenko.as_ref(), group, guard);
             if let Some(trace) = trace.as_deref_mut() {
                 trace.requested(
                     OriginSlot::verify(state.precision()),
@@ -5049,19 +5131,30 @@ pub(crate) fn solve_cases_projected<T>(
     out: Vec<T>,
     project: impl FnMut(CoreRun, Option<usize>) -> T,
 ) -> Vec<T> {
-    solve_sources_projected(sources, case_limit, meter, recording, out, project, |s| MemberSourceRef::nodal(s))
+    solve_sources_projected(sources, case_limit, meter, recording, out, project, |s| MemberSourceRef::nodal(s), None)
 }
 
 pub(crate) fn solve_member_cases_projected<T>(
     sources: &[MemberSourceRef<'_>], case_limit: CaseLimit, meter: &mut InvocationMeter,
     recording: Option<BatchRecording<'_>>, out: Vec<T>, project: impl FnMut(CoreRun, Option<usize>) -> T,
 ) -> Vec<T> {
-    solve_sources_projected(sources, case_limit, meter, recording, out, project, |s| *s)
+    solve_sources_projected(sources, case_limit, meter, recording, out, project, |s| *s, None)
 }
+/// O4 §4.2: the member cases of a Timoshenko document, each with the one
+/// sidecar `shear`, which the caller has associated with every case source.
+pub(crate) fn solve_shear_cases_projected<T>(
+    sources: &[MemberSourceRef<'_>], shear: &TimoshenkoLeafSet, case_limit: CaseLimit, meter: &mut InvocationMeter,
+    recording: Option<BatchRecording<'_>>, out: Vec<T>, project: impl FnMut(CoreRun, Option<usize>) -> T,
+) -> Vec<T> {
+    solve_sources_projected(sources, case_limit, meter, recording, out, project, |s| *s,
+        Some(shear).filter(|s| !s.is_empty()))
+}
+#[allow(clippy::too_many_arguments)]
 fn solve_sources_projected<'a, S, T>(
     sources: &'a [S], case_limit: CaseLimit, meter: &mut InvocationMeter,
     mut recording: Option<BatchRecording<'_>>, mut out: Vec<T>, mut project: impl FnMut(CoreRun, Option<usize>) -> T,
     source_ref: impl Fn(&'a S) -> MemberSourceRef<'a>,
+    shear: Option<&TimoshenkoLeafSet>,
 ) -> Vec<T> {
     let mut groups: Vec<(
         Vec<u8>,
@@ -5094,7 +5187,8 @@ fn solve_sources_projected<'a, S, T>(
             out.push(project(run, id));
             continue;
         }
-        let identity = source.stiffness_encoding();
+        // O4 §4.2: a Timoshenko case's group identity carries its block.
+        let identity = source.stiffness_encoding_with(shear);
         let index = match groups.iter().position(|g| g.0 == identity) {
             Some(k) => k,
             None => {
@@ -5131,7 +5225,8 @@ fn solve_sources_projected<'a, S, T>(
                 continue;
             }
         };
-        let prepared = if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }
+        let prepared = if shear.is_some() { CasePrep::new_with_shear(composite, shear) }
+            else if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }
             else { CasePrep::new_member(composite) };
         let prep = match prepared {
             Ok(p) => Arc::new(p),

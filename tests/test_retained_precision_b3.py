@@ -480,13 +480,20 @@ def _set_body(key, value):
 
 
 # Corrosion-allowance edits of one pipe section (b7-plan "Exact-contract fields"): refused on an exact document, and
-# zero in any length unit admitted.
+# zero in any length unit admitted. O4 (W1-E, o4-source-extension §4.6): a finite c_a >= 0 with c_m + c_a < t is inside
+# DEF-E's namespace, so a nonzero allowance is no longer refused there; negative and wall-consuming ones are.
 CA_REFUSED = {
-    "nonzero 0.001 m": lambda s: s.update(corrosion_allowance={"value": 0.001, "unit": "m"}),
+    "negative -0.001 m": lambda s: s.update(corrosion_allowance={"value": -0.001, "unit": "m"}),
+    "the whole wall (1 m)": lambda s: s.update(corrosion_allowance={"value": 1.0, "unit": "m"}),
     "absent": lambda s: s.pop("corrosion_allowance"),
     "null": lambda s: s.update(corrosion_allowance=None),
     "wrong dimension (0 Pa)": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "Pa"}),
     "malformed value (string)": lambda s: s.update(corrosion_allowance={"value": "0", "unit": "m"}),
+}
+# O4: a nonzero allowance passes the namespace; the receipt prepared the member with none, so G8 refuses the
+# successor at its preparation step (PREPARATION_MISMATCH), not at the namespace.
+CA_NONZERO = {
+    "nonzero 0.001 m": lambda s: s.update(corrosion_allowance={"value": 0.001, "unit": "m"}),
 }
 CA_ADMITTED = {
     "zero in mm": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "mm"}),
@@ -571,8 +578,11 @@ B3B_REFUSALS = {
     # B7b review finding (DEF-E G8; b7-plan "Exact-contract fields"): every pipe section of the exact document declares an
     # explicit length-valued zero corrosion allowance; nonzero, absent, null, non-length or malformed is outside the
     # exact namespace (Rust `exact_namespace` with `section_allowances(model, true)`). The last section is edited.
+    # O4 (W1-E): a nonzero allowance short of the wall is inside the namespace; x50 reads it at G8's preparation step.
     **{f"x{36 + i} invocation corrosion_allowance {name}": (_model(lambda m, change=change: change(m["pipe_segments"][-1]["section"])), INVOCATION)
        for i, (name, change) in enumerate(CA_REFUSED.items())},
+    **{f"x{50 + i} invocation corrosion_allowance {name}": (_model(lambda m, change=change: change(m["pipe_segments"][-1]["section"])), PREPARATION)
+       for i, (name, change) in enumerate(CA_NONZERO.items())},
     "x22 invocation contract with an extra null key": (_model(lambda m: m["pressure_contract"].update(extra=None)), INVOCATION),
     "x23 a component added to the invocation": (_model(lambda m: m.update(components=[{"id": "component:x"}])), INVOCATION),
     "x24 authored nu unit empty": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(unit="")), PREPARATION),
@@ -648,8 +658,9 @@ B3B_PASSES = {
 # current 0.6.0 exact document; PP retained_facade_tests.rs and RS retained_precision_contract.rs `M3X` pin the same
 # bytes) replaced 5ef83dd9.../57114af4... and ee20a337.../3b92b6ce.... T4-U6's regeneration on the D-5 producer
 # (reduced stress twins, per-basis headlines and evidence) replaced 45e14e68.../f6bb7e7f... and 0f490c22.../0317aed6....
-EXACT_PINNED = {"sparse_interactive": ("3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13", "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df"),
-                "dense_scrutiny": ("2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1", "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab")}
+# O4 (W1-E): DEF-E's revision moved only the DEF-E-bound hashes; it replaced 3cfcde8d.../a5ac8236... and 2e69b43c.../0a357a3a....
+EXACT_PINNED = {"sparse_interactive": ("2b54360a0612137f11b9b461c9245e2bc2912b9025f32f440eddd51c57c75dd3", "723fe1c25ffcb8149aa81146f1b3927d6333a53314ee6790aa6402004ea6860d"),
+                "dense_scrutiny": ("7cb4acd6434438a30cb975f2506306c1cf25f29868cb98867a2ce276d03cf3cd", "18b5605d744d5f0b1f5f4d0a649e7edba1ecc098311fe6edcf7e4152d60bf85b")}
 KINDS = ("synthetic", "producer")
 
 
@@ -765,7 +776,8 @@ def _rust_outcome(source, invocation):
 def test_b3b_corrosion_allowance_is_bound_by_both_readers(kind, mode, label):
     """B7b review finding (DEF-E G8; b7-plan "Exact-contract fields"): a resealed exact successor whose invocation's
     allowance is nonzero, absent, null, non-length or malformed was read "pass, eligible" by both readers. Both now
-    refuse it at G8 INVOCATION_MISMATCH; zero in any length unit stays eligible."""
+    refuse it at G8 INVOCATION_MISMATCH; zero in any length unit stays eligible. O4 (W1-E): a nonzero allowance short
+    of the wall passes the namespace and is refused at G8 PREPARATION_MISMATCH (the receipt prepared none)."""
     expected = B3B_REFUSALS[label][1] if label in B3B_REFUSALS else ("pass", True, "eligible")
     source, invocation = exact_shape(mode, label, kind)
     assert outcome(source, invocation) == expected
@@ -806,7 +818,7 @@ def _second_pipe(change):
     return apply
 
 
-@pytest.mark.parametrize("label", sorted(CA_REFUSED) + [CA_SECOND_ZERO])
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + [CA_SECOND_ZERO] + sorted(CA_NONZERO))
 @pytest.mark.parametrize("mode", MODES)
 @pytest.mark.parametrize("kind", KINDS)
 def test_b3b_allowance_on_an_appended_second_pipe_is_bound_by_both_readers(kind, mode, label):
@@ -814,9 +826,10 @@ def test_b3b_allowance_on_an_appended_second_pipe_is_bound_by_both_readers(kind,
     absent, null, non-length or malformed allowance is outside D1.3's exact namespace in both readers (G8
     INVOCATION_MISMATCH; the namespace runs before any G8 step that reads a pipe). With 0 m on the second pipe the
     namespace admits it and both refuse it later, G8 PREPARATION_MISMATCH (the receipt prepared one member), not at the
-    namespace; a first-section-only check would give that code throughout."""
+    namespace; a first-section-only check would give that code throughout. O4: a nonzero allowance is inside the
+    namespace too and reads PREPARATION_MISMATCH like zero."""
     source, invocation = exact_base(mode, kind)
-    change = CA_REFUSED.get(label, lambda s: s.update(corrosion_allowance=dict(ZERO_ALLOWANCE)))
+    change = {**CA_REFUSED, **CA_NONZERO}.get(label, lambda s: s.update(corrosion_allowance=dict(ZERO_ALLOWANCE)))
     invocation = edited_invocation(invocation, _second_pipe(change))
     assert invocation["request"]["model"]["pipe_segments"][0]["section"]["corrosion_allowance"] == ZERO_ALLOWANCE
     source = reseal(source, invocation, rp.EXACT_DEFINITION_HASH)
@@ -829,19 +842,20 @@ def test_b3b_allowance_on_an_appended_second_pipe_is_bound_by_both_readers(kind,
 EXACT_NU = 0.2987012987012987
 
 
-@pytest.mark.parametrize("label", sorted(CA_REFUSED) + sorted(CA_ADMITTED))
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + sorted(CA_ADMITTED) + sorted(CA_NONZERO))
 @pytest.mark.parametrize("base", ["two_body_synthetic", "p512_ladder_synthetic"])
 def test_b3b_allowance_on_pipe_1_of_a_two_pipe_exact_successor(base, label):
     """Reader-local two-pipe exact successors (Rust `exact_successor` on the same shared bases): pipe 1's allowance
     nonzero, absent, null, non-length or malformed is refused at G8 INVOCATION_MISMATCH by both readers, and zero in any
-    length unit on pipe 1 keeps the successor eligible."""
+    length unit on pipe 1 keeps the successor eligible. O4: a nonzero allowance on pipe 1 passes the namespace and is
+    refused at G8 PREPARATION_MISMATCH (pipe 1 was prepared with none)."""
     source, invocation = exact_successor(SHARED[base]["source"], SHARED[base]["invocation"], EXACT_NU)
     assert len(invocation["request"]["model"]["pipe_segments"]) == 2
     assert outcome(source, invocation) == _rust_outcome(source, invocation) == ("pass", True, "eligible")
-    change = {**CA_REFUSED, **CA_ADMITTED}[label]
+    change = {**CA_REFUSED, **CA_ADMITTED, **CA_NONZERO}[label]
     invocation = edited_invocation(invocation, lambda m: change(m["pipe_segments"][1]["section"]))
     source = reseal(source, invocation, rp.EXACT_DEFINITION_HASH)
-    expected = INVOCATION if label in CA_REFUSED else ("pass", True, "eligible")
+    expected = INVOCATION if label in CA_REFUSED else PREPARATION if label in CA_NONZERO else ("pass", True, "eligible")
     assert outcome(source, invocation) == _rust_outcome(source, invocation) == expected
 
 

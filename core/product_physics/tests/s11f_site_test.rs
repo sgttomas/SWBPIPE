@@ -770,6 +770,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/retained_product.rs", "apply_prepared_overlay", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
     // T4-U4b S4 (§4.1): the not-covered derived rows' formation; no f64 accumulation.
     ("PP/retained_product.rs", "prepared_not_covered", 2, "integer: the pending not-covered rows' count and the published-to-bound row index"),
+    // O4 (DEL-04-08 Design `o4-source-extension.md` §4.5): locating a recipe's nth bound row
+    // (a distinct-basis member's maximum on its reduced section); no f64 accumulation.
+    ("PP/retained_product.rs", "prepared_row_index_nth", 1, "integer: the matching recipes passed (the nth bound row of a recipe)"),
     // ---- PP/self_weight.rs
     ("PP/self_weight.rs", "stable_mass_per_length", 2, "declared formation: same-sign mass (section 2.2)"),
     // ---- PP/source_recovery.rs

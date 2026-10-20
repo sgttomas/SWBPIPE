@@ -256,7 +256,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     for key in ("formation_guard.rs:239", "formation_guard.rs:241", "formation_guard.rs:251", "formation_guard.rs:322"):
         assert key in text["site_total"]
     assert text["lex_site_size"]["formation_guard.rs:330"]["class"] == 993964
-    assert text["lex_site_size"]["retained_product.rs:616"]["class"] == 994321   # T4-S5: 611 moved, unchanged text
+    assert text["lex_site_size"]["retained_product.rs:677"]["class"] == 994321   # T4-S5: 611 moved; O4 S5: 616 -> 677, unchanged text
     assert text["site_total"][current("load_ledger.rs:133")]["bytes"] == "5*cases*(12*l)*2*128"
     assert text["site_total"][current("load_ledger.rs:408")]["bytes"] == "4*cases*(12*l)*2*128"
     # Two independent lists are an occurrence multiplier; the final2 is

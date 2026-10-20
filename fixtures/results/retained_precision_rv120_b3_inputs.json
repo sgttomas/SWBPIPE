@@ -13,7 +13,7 @@
    ],
    "name": "X G5b control: case 0's evidence As_m2 one ulp [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "486b5d168cbf24db366951256cb01d4704780bb4f8b457e30909a2e3ccfe946a",
+   "input_sha256": "4c639075f393106116d070fea090f857cb6032af791d24cfef23db50be6370ea",
    "edits": [
     {
      "op": "remove",
@@ -408,7 +408,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -5211,7 +5211,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "870577f04a2ecf0a10e8b5a4974f4779f55b9fe3239741c86e93eda2ffd3332a"
+     "value": "f932c7bffc587a089f6b084eb5146175c9283d53c67a6bfeb11d4113aab8de02"
     },
     {
      "op": "set",
@@ -5559,7 +5559,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "222d9a45c99e45e97f8f02f8b7b84e56cb89609c1827ac9818a77f6d4ef06d89"
+     "value": "d41a05f6bce666ba4d95f4b47480749ca9b49a66b54c93055511ce85c351ab06"
     },
     {
      "op": "set",
@@ -5773,7 +5773,7 @@
    ],
    "name": "X G5b control: case 1's body_scales force one ulp [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "919d7c1da0f4f88db6d6fbf0661b3abd8cd6cafba2a794158fe3d6ba7624faed",
+   "input_sha256": "34551603b1a0f37b1d423b11ec0cf47367ab8983f67c0228e04aa23cfd989b83",
    "edits": [
     {
      "op": "remove",
@@ -6168,7 +6168,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -10971,7 +10971,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "870577f04a2ecf0a10e8b5a4974f4779f55b9fe3239741c86e93eda2ffd3332a"
+     "value": "f932c7bffc587a089f6b084eb5146175c9283d53c67a6bfeb11d4113aab8de02"
     },
     {
      "op": "set",
@@ -11333,7 +11333,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "222d9a45c99e45e97f8f02f8b7b84e56cb89609c1827ac9818a77f6d4ef06d89"
+     "value": "d41a05f6bce666ba4d95f4b47480749ca9b49a66b54c93055511ce85c351ab06"
     },
     {
      "op": "set",
@@ -11547,7 +11547,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's body_scales force [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "b8ab975bd8af2de5fb442be78395d1d4453ceb80b4cf54500932beae926c8cd2",
+   "input_sha256": "0e89b59ce5f696ffe29bc59609482e7a299d845c230141038158c24ff43b5008",
    "edits": [
     {
      "op": "remove",
@@ -11942,7 +11942,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -16745,7 +16745,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "870577f04a2ecf0a10e8b5a4974f4779f55b9fe3239741c86e93eda2ffd3332a"
+     "value": "f932c7bffc587a089f6b084eb5146175c9283d53c67a6bfeb11d4113aab8de02"
     },
     {
      "op": "set",
@@ -17107,7 +17107,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "222d9a45c99e45e97f8f02f8b7b84e56cb89609c1827ac9818a77f6d4ef06d89"
+     "value": "d41a05f6bce666ba4d95f4b47480749ca9b49a66b54c93055511ce85c351ab06"
     },
     {
      "op": "set",
@@ -17321,7 +17321,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's section term area [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "8773452685ab6c51ba907565c817e7a26f58f5fe0b6d75407b9d536c6361972b",
+   "input_sha256": "4f29a917fa2a96def51ec2cfeafcff5ef4c9772c58b577ec9dd081c20a0a3dd4",
    "edits": [
     {
      "op": "remove",
@@ -17716,7 +17716,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -22519,7 +22519,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "870577f04a2ecf0a10e8b5a4974f4779f55b9fe3239741c86e93eda2ffd3332a"
+     "value": "f932c7bffc587a089f6b084eb5146175c9283d53c67a6bfeb11d4113aab8de02"
     },
     {
      "op": "set",
@@ -22881,7 +22881,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "222d9a45c99e45e97f8f02f8b7b84e56cb89609c1827ac9818a77f6d4ef06d89"
+     "value": "d41a05f6bce666ba4d95f4b47480749ca9b49a66b54c93055511ce85c351ab06"
     },
     {
      "op": "set",
@@ -23095,7 +23095,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "e3a058718535a321a115f28d9e89fec85e18e35508fd006d6181df4e6fedd88e",
+   "input_sha256": "53d7d88f2a8314aa4d3a90d305ec2ec7c6a4e0fd99c4bf8a3ccea86acb5083a7",
    "edits": [
     {
      "op": "remove",
@@ -23320,7 +23320,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -25776,7 +25776,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "2b5aaac32a4446b87b3069f1cc48a160de3be7fc1e85ad1acee94cb06efa3296"
+     "value": "50d513cfe75650ce0f5cc7d964a3f2b275d3246e907983158c763b59a9a5a51e"
     },
     {
      "op": "set",
@@ -26102,7 +26102,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "05d3fd13d35d6edc2de1208a2a8c2fea00c0d96e57c183795fcfdf9708c50d65",
+   "input_sha256": "0f7bcb0d9c585455ae7973dfd861d3f3f017c80b45ae054f8645db762c90aef0",
    "edits": [
     {
      "op": "remove",
@@ -26327,7 +26327,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -28783,7 +28783,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "eae4a093edba0a176022ec9ae6e38f225fad181a4232917170a9520b04446090"
+     "value": "1439f09a24255bd569c8287ef2f331c9eb10bd35ceec63f8d1b76f97f5286b11"
     },
     {
      "op": "set",
@@ -29109,7 +29109,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "944815b09b76f0ce155632aaefa2fd711f7d35776e3cea8dab2931c1698d7261",
+   "input_sha256": "519364fdfe908abf949edfbc8f922dc489c2f3573998fc7903fbf9abb54267f5",
    "edits": [
     {
      "op": "set",
@@ -29134,7 +29134,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "94916103fec4f789db69eb1618601f84f49ac37073c9dd8ba104bddfe9034008"
+     "value": "e59476fcd5969c67e15cec9911079c543bbad6775fcbb2deb5f395ce83bd93b1"
     },
     {
      "op": "set",
@@ -29294,7 +29294,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "ea4d833c05e8d34d015a4ca1e473051630bbe45b9ed9c1c07f30ef4335fe8c36",
+   "input_sha256": "73a9fe164cd4c5ebe4e0d88e5b573858970d98ece6f420f27e1c3591f7591195",
    "edits": [
     {
      "op": "set",
@@ -29331,7 +29331,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "b5230edab83330ddf0f2ac206e760b6b9201a7deef5986e9fedaa001a28e06e7"
+     "value": "042ed0760994b0488d489cf6737fe826cec2d938a57d8bcbd2f0c2ba0c4f40e7"
     },
     {
      "op": "set",
@@ -29491,7 +29491,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [ordinary_prepared_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "1e9b42e2345364c2d0c06bd1701636882488b902cfbfebf315b4928426767968",
+   "input_sha256": "8cb7b7a1d2e9900e9f0425aa2987569a7c7add116069eb5aeb91468a349bbb4e",
    "edits": [
     {
      "op": "remove",
@@ -29886,7 +29886,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -32328,7 +32328,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "870577f04a2ecf0a10e8b5a4974f4779f55b9fe3239741c86e93eda2ffd3332a"
+     "value": "f932c7bffc587a089f6b084eb5146175c9283d53c67a6bfeb11d4113aab8de02"
     },
     {
      "op": "set",
@@ -32506,7 +32506,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [m3x_sparse_interactive]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "b347e9bdf19f281e4030395b0d1315c8a6c5a39b91cadd2ecc240b0bb769a34c",
+   "input_sha256": "5abe1f6d6df43d9d340ae8b4f5c97780ed52d2a757c49ef337b35e3ea352f25f",
    "edits": [
     {
      "op": "set",
@@ -32867,7 +32867,7 @@
    ],
    "name": "N2b: entry 0's profile_mode and entry 1's material_basis [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "6339724d482f713340f4159643237fe66995db43f3b624cb6a43acccf150254a",
+   "input_sha256": "96e4f53146ace7b3f71f1d1ac6738485d62647deb2c76733d4953f2215894e45",
    "edits": [
     {
      "op": "remove",
@@ -33262,7 +33262,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -38065,7 +38065,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "870577f04a2ecf0a10e8b5a4974f4779f55b9fe3239741c86e93eda2ffd3332a"
+     "value": "f932c7bffc587a089f6b084eb5146175c9283d53c67a6bfeb11d4113aab8de02"
     },
     {
      "op": "set",
@@ -38413,7 +38413,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "222d9a45c99e45e97f8f02f8b7b84e56cb89609c1827ac9818a77f6d4ef06d89"
+     "value": "d41a05f6bce666ba4d95f4b47480749ca9b49a66b54c93055511ce85c351ab06"
     },
     {
      "op": "set",
@@ -38627,7 +38627,7 @@
    ],
    "name": "N2b: entry 0's material_basis and entry 1's profile_mode [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "c6fde49aab34c5fa72c0004374d0f6169787c67e462cc0de3703e853c37298ad",
+   "input_sha256": "fed3d67ec37f7e84cafcf773db4a6a5247e29229b304f529b1969a271d21887f",
    "edits": [
     {
      "op": "remove",
@@ -39022,7 +39022,7 @@
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
      ]
@@ -43825,7 +43825,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "870577f04a2ecf0a10e8b5a4974f4779f55b9fe3239741c86e93eda2ffd3332a"
+     "value": "f932c7bffc587a089f6b084eb5146175c9283d53c67a6bfeb11d4113aab8de02"
     },
     {
      "op": "set",
@@ -44173,7 +44173,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "222d9a45c99e45e97f8f02f8b7b84e56cb89609c1827ac9818a77f6d4ef06d89"
+     "value": "d41a05f6bce666ba4d95f4b47480749ca9b49a66b54c93055511ce85c351ab06"
     },
     {
      "op": "set",

@@ -19,6 +19,7 @@ pub mod retained_api {
     pub use super::retained::origins::{prepare_product_annulus, PreparedAnnulus, PreparedSectionBits, AnnulusPreparationVersion, AnnulusPreparationSpent, SectionPreparationError, SectionPreparationWork};
     pub use super::retained::origins::{
         ProductMaterial, ProductMemberFacts, ProductSite, ProductStress, ProductRecipe,
+        ReducedSection, ReducedSectionSet,
         ProductUnit, ProductFinalRow, ProductPredicate, ProductRowVerdict,
         ProductFailure, ProductCertificateSpent, ProductSummaryCoverage,
     };
@@ -54,7 +55,9 @@ pub mod retained_api {
         Component, Constraint, DirectionalSpring, Dof, MemberProperty, NodalLoad, PrimitiveSource,
         SourceError, SourceParts, Spring, SpringKind, Station, StraightMember, SupportGroup,
         UniformMemberLoad, MemberLoadSet, MemberLoadError, MemberSourceRef,
+        TimoshenkoLeaf, TimoshenkoLeafError, TimoshenkoLeafSet, TIMOSHENKO_BLOCK_TAG, TIMOSHENKO_VERSION,
     };
+    pub use super::retained::adaptive::TimoshenkoCaseError;
     pub use super::retained::verify::{e_hat, phi_512, resolution_hats, PHI_SCALE_BITS};
     pub use super::retained::wide::multi::{AttemptWork, Binary64Outcome, WidthWork};
     pub use super::retained::wide::WideError;

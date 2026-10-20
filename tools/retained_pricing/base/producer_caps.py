@@ -55,6 +55,13 @@ import w1_member_load_model as _w1_member_model
 _w1_member_model.inspect(os.environ["RP_SNAPSHOT"])
 E_src += 4 + l * (32 + ID)
 E_led = 10 + (18 + 8 * 128) * N
+# O4-ID (retained-pricing-rules.md §8.9): a Timoshenko document's K4SRC and K4STF carry the framed sidecar block
+# (tag, count, 12 bytes per member) wherever either identity is held (o4_owners_model binds encode_block's span).
+import o4_owners_model as _o4_model
+_o4 = bool(os.environ.get("RP_SNAPSHOT")) and _o4_model.inspect(os.environ["RP_SNAPSHOT"])
+if _o4:
+    E_src += _o4_model.identity_block(m)
+    E_stf += _o4_model.identity_block(m)
 Tr = 512                                  # tracker_rows default (P3 section 4)
 O = 3 * Q                                 # offers <= Q + 2 Q_force, Q_force <= Q
 Kt = 8 * b                                # tracker keys <= 8b
@@ -196,6 +203,14 @@ rows.update(_w1_member_model.producer_additions(n, m, l, CC, ID))
 import u4b_u5b_owners_model as _u45_model
 if os.environ.get("RP_SNAPSHOT") and _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_covered"]:
     rows["T14.4 prepared_not_covered operand table (U4B-W1)"] = _u45_model.producer_not_covered(m)
+if _o4:
+    # O4 S5 D3 (§8.9): O4-PS (invocation sidecars, T11), O4-PA (preparation sidecars, T12), O4-RS/NC/PP/KS (the proof's
+    # reduced sections, maps, tables, copies, maxima and payload, T14) and O4-TR (the trace's second preparation record,
+    # T15); T12-T15 are scaled per attempted case below.
+    rows["T11.13 O4 member sidecars: exact_members, distinct_bases, TimoshenkoLeafSet, reduced_facts (O4-PS)"] = _o4_model.capture_sidecars(m, ID)
+    rows["T12.14 O4 preparation sidecars, CasePrep set clone, replaced identity (O4-PA)"] = _o4_model.prepare_sidecars(m, E_src)
+    rows["T14.5 O4 ReducedSectionSet, reduced maps, operand tables, maxima and payload (O4-RS/NC/PP/KS)"] = _o4_model.proof_owners(m, P_final, ID)
+    rows["T15.2 O4 second preparation record premises (O4-TR)"] = _o4_model.trace_owners(m)
 
 ASM = dict(ASSUMED)
 ASM.update({"s(UniformMemberLoad)": 56, "s(MemberTermIdentity)": 64,

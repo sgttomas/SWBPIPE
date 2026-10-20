@@ -36,7 +36,9 @@ describe("compact retained corpus storage", () => {
     // bb64726b93 appended five preview-route corrosion-allowance mutations after index 593
     // (the readers refuse any allowance on the preview route since ccb19ba0bf).
     // W1 appends 16 bases, 41 mutations and 18 positive controls, preserving the originals.
-    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([61, 640, 108]);
+    // O4 (W1-E) appends four successor bases (two dual-basis, one mixed, one with a sourced unavailable case),
+    // twenty-eight mutations and five positive controls.
+    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([65, 668, 113]);
     const id = first.cases[0].id;
     first.cases[0].id = "changed-by-this-test";
     expect(readRetainedPrecisionCorpus().cases[0].id).toBe(id);

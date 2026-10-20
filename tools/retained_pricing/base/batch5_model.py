@@ -16,8 +16,11 @@ PINS = {
         # T4-U6/U8: D-5's stress rows, per-basis maxima, extrema and coverage (priced at their own sites and by the
         # U6 rules); its carriers, staging and prepared-pressure calls are unchanged. Epoch addbdc030e: the case
         # evidence's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus the realized-arc marker
-        # (no realized arc on D1).
-        "solve_prepared_load_case": "8886bde5ca5e5425cb79dda55192220fd78ef3d622d5869c49eb663dbb388b43",
+        # (no realized arc on D1). O4 S5 (retained-pricing-rules.md §8.9, O4-SR): a selected case's maximum is one
+        # composite_member_maximum call per basis where the two stress sections differ (the reduced one on its own
+        # section) and SOURCE_MAXIMUM_BASES_DISTINCT is deleted; the warning pushes the error by clone. Carriers,
+        # staging and the prepared-pressure calls are unchanged.
+        "solve_prepared_load_case": "e11b74db65968ea072f1344145bd528b11837347bf98e3d9a52e88bf2d424941",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -26,9 +29,12 @@ PINS = {
     # mill tolerance or allowance on branch E (SectionAllowance); both narrow admission only.
     # W1: family_clauses only refreshes its stage-1 comment to the implemented
     # EB member-load route; executable refusals and carrier-child premises match.
+    # O4 S5 (§8.9, O4-AD): the T4-U6/U8 narrowings are removed: namespace_branch admits either shear model through
+    # contract_is and family_clauses drops the branch-E section-allowance refusal. The component, region and
+    # load-state refusals that empty the carriers' children are unchanged.
     "core/product_physics/src/retained_memory.rs": {
-        "namespace_branch": "1f891b6c19c3ff9f7699c80fbc0c5417c97cd141d35f59db02e4d7951f62ceb7",
-        "family_clauses": "b7d1b0112a114e64abb26f99302c5a0b348ef70d09a895e170ab77c96734e798",
+        "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
+        "family_clauses": "23321435fdd5cb20fa77c253a61c99381cfc7e32d4692e337843a408002493f1",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure

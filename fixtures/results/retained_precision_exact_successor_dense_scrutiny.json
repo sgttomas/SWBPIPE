@@ -461,7 +461,7 @@
         "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
         "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
         "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-        "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+        "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
         "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
         "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
       ],
@@ -4142,7 +4142,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "0fd7b5ce653114097fda81c5ca03686f6fffa4514b139663a93b76ac1bbc3d9a",
+            "source_identity_sha256": "8f5381824af7c02bd30f87ca54329f81bcdb7577caaf96eff6192e845256f839",
             "source_ref": 0,
             "status": "selected"
           }
@@ -5590,7 +5590,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "f8127c7b05496641763c85a3ad6073bc6ec7d68adf4d02c7e584616b3910575b",
+        "publication_sha256": "f5cbe52027bc5374551a7c151aeba07d379fc67cefc3a74b8d8bca3827700376",
         "receipt_version": 1,
         "sources": [
           {
@@ -6450,7 +6450,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "8a315e948fb9bd4828eaeebb9f2f0492ad0c4c060763f19dc83bff32f8283fdf"
+              "sha256": "87ba50d7aebff79a637a546a106da317dc2812ad20c199964e6c2d26e662423d"
             },
             "section_terms": [
               {
@@ -6570,7 +6570,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab"
+      "receipt_sha256": "18b5605d744d5f0b1f5f4d0a649e7edba1ecc098311fe6edcf7e4152d60bf85b"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

@@ -7,7 +7,7 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '8886bde5ca5e5425cb79dda55192220fd78ef3d622d5869c49eb663dbb388b43'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': 'e11b74db65968ea072f1344145bd528b11837347bf98e3d9a52e88bf2d424941'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -24,6 +24,10 @@ PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8
 # recovery (P3: unreached), add_row/product_value (connectors only) and certify_displacement's exact u + w + w2
 # (a stack ExactAccumulator; U5B-PD). The four record constructors' D1 labels, the route strings and every owned
 # workspace inventory are unchanged.
+# O4 S5 D3 (retained-pricing-rules.md §8.9, O4-SR): solve_prepared_load_case's selected-source maximum is evaluated once
+# per basis where the stress sections differ (a second composite_member_maximum on the reduced section), and the
+# SOURCE_MAXIMUM_BASES_DISTINCT withheld text is deleted. Its route strings, the maximum literals and the four record
+# constructors are unchanged.
 PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '41f4e67c56477e24ace4746e058be2c5863f2a53733d338e411850edaf660348', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '2625f6af25de1cb3d7d18b870faae0d7ef4ff37cfa330a02fb77c7293c4a3c0b', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
@@ -163,7 +167,7 @@ def inspect_directed_helpers(snapshot):
 # marker (addbdc030e), nor PP4's per-basis withholding (`max_stress_reduced = None`, 588de796a4).
 # T4-S5 (epoch): lib.rs's U4b, U5b and corrected-displacement diff adds or removes no `.min(`/`.max(` call, and the
 # observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'a3354c083872cdaa64dd895afb14e2b9d0b72f0b445e0c9f8df78255d2ae8950'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '70cd91d53134c95842bdbabe1a2e463407427fb8af4e15d3269ebd1ea8a8d1b6'
 
 
 def primitive_lib_minmax_callers(snapshot):

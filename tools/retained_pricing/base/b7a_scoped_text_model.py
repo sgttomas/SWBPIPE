@@ -19,17 +19,20 @@ RE = 'core/reporting/result_export/src/'
 # T4-S5 (epoch): every line moved with unchanged text: pressure_runtime.rs -3 (ARC_WITHHELD_REASON removed) and -25
 # more after exact_member_recovery (the arc maximum policy removed), +3 after assemble_pressure_case's bend radius;
 # lib.rs +314/+356; retained_product.rs +27; preview_physics.rs +31.
+# O4 S5 (retained-pricing-rules.md §8.9): every line moved with unchanged text: lib.rs +4 before the case solve's
+# maximum (0 after it: SOURCE_MAXIMUM_BASES_DISTINCT and its comment, -4, offset the case-solve +3 and module +3 lines);
+# physics_source.rs +29 (the contract and allowance readers); retained_product.rs +167 (the O4 sidecars).
 LN = {
     'problem': 159,       # pressure_runtime.rs fn problem (160) [148]
     'diag': 165,          # `let mut finding = diag(` (166) [154]
     'format': 166,        # `&format!(` (167) [155]
     'join': 168,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    'unit_message': 9714, # lib.rs `message.into()` (9162) [9159]
+    'unit_message': 9718, # lib.rs `message.into()` (9162) [9159]
     'suffix': 14365,      # lib.rs `id.replace(':', "-")` (13614) [13619]
     'diag_fn': 14314,     # lib.rs fn diag (13563) [13568]
     'suffix_fn': 14364,   # lib.rs fn stable_suffix (13613) [13618]
-    'require': 96,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
+    'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
 PROBLEM = PR + '%d:problem' % LN['problem']
@@ -74,8 +77,8 @@ AUDIT_CURRENT = {
     PP + 'formation_guard.rs:239': {'failure': {'bytes': 43, 'source': 'STATIC'}},
 }
 LEX_CURRENT = {
-    'retained_product.rs:3206': {'class': 46, 'why': WHY + '; requested mode literal'},   # [B7b 3028]
-    'retained_product.rs:3363': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185]
+    'retained_product.rs:3373': {'class': 46, 'why': WHY + '; requested mode literal'},   # [B7b 3028; T4-S5 3206]
+    'retained_product.rs:3530': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185; T4-S5 3363]
     'preview_physics.rs:629': {'class': 47, 'why': WHY + '; arc basis literal'},
     'lib.rs:%d' % LN['unit_message']: {'class': 600, 'why': WHY + '; unit-conversion owned message'},
     'pressure_runtime.rs:%d' % LN['join']: {'class': 644, 'why': WHY + '; complete five-ref joined spelling'},

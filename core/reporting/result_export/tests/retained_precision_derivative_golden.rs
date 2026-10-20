@@ -72,24 +72,26 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 ];
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
+/// O4 (W1-E): re-pinned with the exact goldens after DEF-E's revision (only DEF-E-bound hashes moved).
+/// O4 limitation re-pin (§3.3, §4.9): the base limitation [7] and the hashes binding it moved.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13",
-        "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df",
+        "2b54360a0612137f11b9b461c9245e2bc2912b9025f32f440eddd51c57c75dd3",
+        "723fe1c25ffcb8149aa81146f1b3927d6333a53314ee6790aa6402004ea6860d",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1",
-        "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab",
+        "7cb4acd6434438a30cb975f2506306c1cf25f29868cb98867a2ce276d03cf3cd",
+        "18b5605d744d5f0b1f5f4d0a649e7edba1ecc098311fe6edcf7e4152d60bf85b",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "730fb6e44e8a8dd4f6d4712fb40c7f9968c317c4faa707d4a6af62086bc3702c"),
-    ("dense_scrutiny", "5e7b0ca939e136bbf4fae45c6db9727b804535d6edc445283963fcc30afc906a"),
+    ("sparse_interactive", "8268f2e2feb44ea0d2bb70a41eb0bfc83509952305ef328d7eca09af234937a5"),
+    ("dense_scrutiny", "b439cedefc9adcaddf5d338bd38885b4de36eccc8a5b520c6be260ba0eda2660"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

@@ -21,11 +21,22 @@ impl SourceContract {
     pub const fn pressure(self) -> crate::physics_evidence::PressureContract {
         crate::physics_evidence::PressureContract::PressureV3
     }
+    /// The captured model's contract: a 0.6.0 document whose
+    /// `pressure_contract` is exactly `{version "3.0.0", mode
+    /// "exact_pressure_v3", shear_model}` with `shear_model` either
+    /// `euler_bernoulli` or `timoshenko_annulus_energy_v1` (O4 §3.4), and no
+    /// top-level `shear_model`; anything else is refused.
     pub fn from_invocation(invocation: &Value) -> Result<Self, String> {
         let model = &invocation["request"]["model"];
+        let contract = &model["pressure_contract"];
         if model["schema_version"] == "0.6.0"
             && model.get("shear_model").is_none()
-            && model["pressure_contract"] == json!({"version":"3.0.0", "mode":PRESSURE_PROFILE, "shear_model":"euler_bernoulli"})
+            && contract.as_object().is_some_and(|members| members.len() == 3)
+            && contract["version"] == "3.0.0"
+            && contract["mode"] == PRESSURE_PROFILE
+            && contract["shear_model"].as_str().is_some_and(|shear| {
+                [crate::section_basis::EULER_BERNOULLI, crate::section_basis::TIMOSHENKO].contains(&shear)
+            })
         {
             Ok(Self::PressureV3)
         } else {
@@ -34,8 +45,7 @@ impl SourceContract {
     }
     pub(crate) fn check_invocation(self, invocation: &Value) -> Result<(), String> {
         Self::from_invocation(invocation)?;
-        zero_corrosion_allowances(&invocation["request"]["model"])?;
-        zero_mill_tolerances(&invocation["request"]["model"])
+        corrosion_allowances(&invocation["request"]["model"])
     }
     pub(crate) fn check_received(self, source: &Value) -> Result<(), String> {
         let header = &source["producer"]["semantic_contract_id"];
@@ -46,35 +56,54 @@ impl SourceContract {
     }
 }
 
-/// b7-plan "Exact-contract fields": every pipe section of the captured exact
-/// document declares an explicit length-valued zero corrosion allowance;
-/// absent, null, malformed or nonzero allowances are outside the contract the
-/// producer admits, so a statement bound to such an invocation is refused.
-fn zero_corrosion_allowances(model: &Value) -> Result<(), String> {
+/// b7-plan "Exact-contract fields" and O4 (§3.4): every pipe section of the
+/// captured exact document declares an explicit length-valued, finite
+/// corrosion allowance c_a >= 0, with c_m + c_a < t and a positive reduced
+/// wall (t - c_m) - c_a (c_m = 0 where the mill tolerance is absent or null;
+/// a present one must be a finite length c_m >= 0, else the section sum
+/// cannot be established). Absent, null, malformed, non-length, negative or
+/// over-wall allowances are outside the contract the producer admits, so a
+/// statement bound to such an invocation is refused. Zero is no longer required: the mill tolerance and
+/// allowance bind by value through `ACTUAL_SOURCE_GEOMETRY`, and the section
+/// bases through the shared D-5 rederivation (`section_basis::section`).
+fn corrosion_allowances(model: &Value) -> Result<(), String> {
     for pipe in array(&model["pipe_segments"])? {
-        require(
-            normalized_quantity(&pipe["section"]["corrosion_allowance"], Dimension::Length)
-                .is_ok_and(|value| value == 0.0),
-            "ACTUAL_CORROSION_ALLOWANCE",
-        )?;
+        let section = &pipe["section"];
+        let admitted = (|| {
+            let allowance = normalized_quantity(&section["corrosion_allowance"], Dimension::Length).ok()?;
+            let wall = normalized_quantity(&section["wall_thickness"], Dimension::Length).ok()?;
+            let tolerance = if section["mill_tolerance"].is_null() {
+                0.0
+            } else {
+                normalized_quantity(&section["mill_tolerance"], Dimension::Length).ok()?
+            };
+            Some(
+                allowance >= 0.0
+                    && tolerance >= 0.0
+                    && tolerance + allowance < wall
+                    && crate::section_basis::reduced_wall(wall, tolerance, allowance) > 0.0,
+            )
+        })();
+        require(admitted == Some(true), "ACTUAL_CORROSION_ALLOWANCE")?;
     }
     Ok(())
 }
 
-/// T4-U6 (§5, O4): pressure-source-1's selected response has coincident
-/// section bases, so every pipe section's mill tolerance is zero. An absent or
-/// null mill tolerance is zero, as the producer reads it; a present malformed,
-/// non-length or nonzero one refuses the statement bound to that invocation.
-pub(crate) fn zero_mill_tolerances(model: &Value) -> Result<(), String> {
-    for pipe in array(&model["pipe_segments"])? {
-        let quantity = &pipe["section"]["mill_tolerance"];
-        require(
-            quantity.is_null()
-                || normalized_quantity(quantity, Dimension::Length).is_ok_and(|value| value == 0.0),
-            "ACTUAL_MILL_TOLERANCE",
-        )?;
-    }
-    Ok(())
+/// O4 (§3.4): one transported `pipe_sections` entry of a composite case,
+/// rederived through the shared D-5 and Timoshenko rule
+/// (`section_basis::section`, `section_basis::beam_theory` with the case's
+/// ν for the member): the walls, inner radii, coincident-basis equality, the
+/// section sum c_m + c_a < t and, on a Timoshenko straight member, κ_E and A_s
+/// bit for bit. A composite carries no realized arc. Returns the member's
+/// beam-theory model.
+fn rederived_section(section: &Value, materials: &[Value]) -> Result<&'static str, String> {
+    let sections = crate::section_basis::section(section)?;
+    let material = materials
+        .iter()
+        .find(|m| m["pipe_id"] == section["pipe_id"])
+        .ok_or("PHYSICS_SOURCE_SECTION_MATERIAL")?;
+    crate::section_basis::beam_theory(&sections, num(&material["nu"])?, false)?;
+    Ok(crate::section_basis::model(&sections))
 }
 
 /// Authored presence selects the optional load/reference-state group.
@@ -207,18 +236,17 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
             exact["recovery_method"] == record["selected_method"],
             "RECOVERY_METHOD",
         )?;
-        // T4-U6/U8 (§5, O4): a pressure-source-1 document is euler_bernoulli
-        // with zero mill tolerance and zero corrosion allowance on every pipe
-        // section (document facts), so its two section bases coincide.
-        require(
-            array(&exact["pipe_sections"])?.iter().all(|s| {
-                s["mill_tolerance_m"].as_f64() == Some(0.0)
-                    && s["corrosion_allowance_m"].as_f64() == Some(0.0)
-                    && s["beam_theory"] == json!({"model": crate::section_basis::EULER_BERNOULLI})
-                    && s["nominal_section"] == s["reduced_section"]
-            }),
-            "SECTION_BASES",
-        )?;
+        // O4 (§3.4): each section entry's nominal section, reduced section and
+        // beam theory are their D-5 and Timoshenko rederivation from its
+        // captured authored values and the case's ν (`rederived_section`),
+        // and the case's straight members share one shear model. Coincident
+        // bases remain bit-equal; distinct bases are admitted.
+        let materials = array(&exact["pipe_materials"])?;
+        let models = array(&exact["pipe_sections"])?
+            .iter()
+            .map(|s| rederived_section(s, materials))
+            .collect::<Result<HashSet<_>, _>>();
+        require(models.is_ok_and(|models| models.len() <= 1), "SECTION_BASES")?;
         let mut proof = json!({"exact_case":exact,"pressure":pressure});
         if resolved {
             let state = array(&evidence["load_reference_states"])?
@@ -480,12 +508,15 @@ fn maximum_link(exact: &Value, ex: &Value, record: &Value) -> Result<(), String>
         .iter()
         .find(|s| s["pipe_id"] == ex["pipe_id"])
         .ok_or("PHYSICS_SOURCE_MAXIMUM_ENDPOINTS")?;
-    // T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
-    let mut bound = crate::section_basis::extremum_basis(ex).is_ok();
-    for basis in crate::section_basis::BASES {
-        bound &= same(&ex["area_m2"], num(&section[basis]["As_m2"])?)?
-            && same(&ex["section_modulus_m3"], num(&section[basis]["Z_m3"])?)?;
-    }
+    // O4 (§3.2, §3.4): each basis's maximum binds that basis's own section,
+    // A and Z bit for bit (both bases' where they coincide).
+    let bound = match crate::section_basis::extremum_basis(ex) {
+        Ok(basis) => {
+            same(&ex["area_m2"], num(&section[basis]["As_m2"])?)?
+                && same(&ex["section_modulus_m3"], num(&section[basis]["Z_m3"])?)?
+        }
+        Err(_) => false,
+    };
     require(bound, "MAXIMUM_SECTION")?;
     let ends = array(&ex["endpoints"])?;
     let claimed = array(&source["endpoints"])?;
@@ -1035,12 +1066,14 @@ pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value
             && pipes.len() == array(&exact["pipe_materials"])?.len(),
         "ACTUAL_MATERIAL_COVERAGE",
     )?;
-    // T4-U8 (§3.6, §5): each section states the beam theory the captured
-    // contract selects for its member. Both callers admit only euler_bernoulli
-    // contracts (`SourceContract::from_invocation`, G8's `exact_namespace`),
-    // which select Euler-Bernoulli for a realized arc and a straight member
-    // alike (`section_basis::selected_model`); any other contract fails closed.
-    let shear_model = model["pressure_contract"]["shear_model"].as_str();
+    // T4-U8 (§3.6, §5) and O4 (§3.4): each section states the beam theory
+    // the captured contract selects for its straight member
+    // (`section_basis::selected_model`, arc = false; neither caller admits a
+    // realized arc). A contract naming no admitted model fails closed; G8's
+    // `exact_namespace` still admits only euler_bernoulli contracts.
+    let shear_model = model["pressure_contract"]["shear_model"]
+        .as_str()
+        .filter(|m| [crate::section_basis::EULER_BERNOULLI, crate::section_basis::TIMOSHENKO].contains(m));
     for ((pipe, section), material) in pipes
         .iter()
         .zip(array(&exact["pipe_sections"])?)
@@ -1076,8 +1109,9 @@ pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value
             "ACTUAL_SOURCE_GEOMETRY",
         )?;
         require(
-            shear_model == Some(crate::section_basis::EULER_BERNOULLI)
-                && section["beam_theory"]["model"].as_str() == shear_model,
+            shear_model.is_some_and(|m| {
+                section["beam_theory"]["model"].as_str() == Some(crate::section_basis::selected_model(m, false))
+            }),
             "ACTUAL_SHEAR_MODEL",
         )?;
         let authored = array(materials)?
@@ -1246,21 +1280,25 @@ fn validate_stress(
         .find(|s| s["pipe_id"] == row["entity_ref"])
         .ok_or("PHYSICS_SOURCE_STRESS_SECTION")?;
     let params = &check["parameters"];
-    // T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
-    require(
-        crate::section_basis::BASES.iter().all(|b| {
-            crate::json_value_eq(
-                params,
-                &json!({"area_m2":section[*b]["As_m2"],"section_modulus_m3":section[*b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[*b]["J_m4"],"pa_per_mpa":1e6}),
-            )
-        }),
-        "STRESS_SECTION_PARAMETERS",
-    )?;
-    // T4-U6 (§5): a reduced row binds the same functional and section as its
-    // nominal twin and is bit-equal to it.
+    // O4 (§3.2, §3.4): a check's parameters are its own row's basis section
+    // (`As_m2`, `Z_m3`, `J_m4`, `ro_m`). They first name one of the two bases'
+    // sections (both, where the bases coincide); once the row's basis is
+    // read, they must be that basis's.
+    let basis_parameters = |b: &str| {
+        crate::json_value_eq(
+            params,
+            &json!({"area_m2":section[b]["As_m2"],"section_modulus_m3":section[b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[b]["J_m4"],"pa_per_mpa":1e6}),
+        )
+    };
+    require(crate::section_basis::BASES.iter().any(|b| basis_parameters(b)), "STRESS_SECTION_PARAMETERS")?;
     let (token, basis) = crate::section_basis::split_token(row["metadata"]["basis"].as_str().unwrap_or_default())
         .filter(|(_, b)| row["id"].as_str().and_then(crate::section_basis::id_basis) == Some(*b))
         .ok_or("PHYSICS_SOURCE_STRESS_SECTION_BASIS")?;
+    require(basis_parameters(basis), "STRESS_SECTION_PARAMETERS")?;
+    // T4-U6 (§5) and O4 (§3.4): a reduced row's check shares recipe, pipe,
+    // location, component, functional and action with its nominal twin, bit
+    // for bit; its parameters are the reduced section's (above) and its value
+    // is recomputed below, so it equals its twin's only where the sections do.
     if basis == crate::section_basis::REDUCED {
         let twin_id = row["id"].as_str().and_then(crate::section_basis::twin_id).unwrap_or_default();
         let twin = array(&source["results"])?
@@ -1278,8 +1316,7 @@ fn validate_stress(
                 && ["recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id"]
                     .iter()
                     .all(|k| twins[0][*k] == check[*k])
-                && ["action", "parameters"].iter().all(|k| bit_equal(&twins[0][*k], &check[*k]))
-                && same(&row["value"], num(&twin["value"])?)?,
+                && bit_equal(&twins[0]["action"], &check["action"]),
             "STRESS_BASIS_TWIN",
         )?;
     }
@@ -1422,9 +1459,11 @@ mod review_repair_tests {
         }
     }
     #[test]
-    fn actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract() {
-        // T4-U8 (§3.6, §5): pressure-source-1 and G8 step 5 admit euler_bernoulli
-        // contracts only; each captured section states the model it selects.
+    fn actual_materials_bind_each_section_beam_theory_to_the_contract_selection() {
+        // T4-U8 (§3.6, §5) and O4 (§3.4): each captured section states the
+        // model its contract selects for a straight member
+        // (`section_basis::selected_model`, arc = false), under either
+        // admitted contract; a contract naming no admitted model fails closed.
         let request: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
         ))
@@ -1445,15 +1484,28 @@ mod review_repair_tests {
         let check = |invocation: &Value, beam: Value| {
             actual_materials(invocation, &invocation["request"]["model"]["load_cases"][0], &exact(invocation, beam))
         };
+        let euler = json!({"model": crate::section_basis::EULER_BERNOULLI});
         let timoshenko = json!({"model": crate::section_basis::TIMOSHENKO, "shear_factor": 0.5, "shear_area_m2": 1e-3});
-        assert_eq!(check(&invocation, json!({"model": crate::section_basis::EULER_BERNOULLI})), Ok(()));
+        assert_eq!(check(&invocation, euler.clone()), Ok(()));
         for beam in [timoshenko.clone(), json!({"model": "cowper"}), Value::Null] {
             assert_eq!(check(&invocation, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
         }
-        // Any other contract fails closed, even where the section agrees with it.
+        // A Timoshenko contract selects Timoshenko for its straight members
+        // (kappa and A_s are the evidence reader's, `section_basis::beam_theory`).
         let mut other = invocation.clone();
         other["request"]["model"]["pressure_contract"]["shear_model"] = json!(crate::section_basis::TIMOSHENKO);
-        assert_eq!(check(&other, timoshenko), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+        assert_eq!(check(&other, timoshenko.clone()), Ok(()));
+        for beam in [euler.clone(), json!({"model": "cowper"}), Value::Null] {
+            assert_eq!(check(&other, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+        }
+        // A contract naming no admitted model fails closed, whatever the section states.
+        for shear in [json!("cowper"), Value::Null, json!(5)] {
+            let mut unknown = invocation.clone();
+            unknown["request"]["model"]["pressure_contract"]["shear_model"] = shear;
+            for beam in [euler.clone(), timoshenko.clone(), json!({"model": "cowper"})] {
+                assert_eq!(check(&unknown, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+            }
+        }
     }
     #[test]
     fn normalized_named_point_and_strict_bracket_match_actual_materials() {

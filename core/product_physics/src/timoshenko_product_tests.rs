@@ -465,26 +465,39 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
     }
 }
 
-/// Design §5 (O4): with timoshenko_annulus_energy_v1 admitted, the
-/// prepare_sources decline is reached by a published document: a Timoshenko
-/// twin of a retained-source document publishes ordinary pressure-2 rows and
-/// names the decline; its Euler-Bernoulli original publishes
-/// pressure-source-1. (W1-E's G-A decline: `o4_w1e_declines_at_admission`.)
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §3.1, §6; formerly
+/// `o4_timoshenko_declines_are_reached_by_published_documents`): the
+/// Timoshenko twin of the N05 retained-source control now selects
+/// pressure-source-1 in both modes, as its Euler-Bernoulli original does. Its
+/// evidence states kappa_E and A_s from the nominal section and the case's nu,
+/// its private payload names the frame's shear-area leaf, and the Rust reader
+/// reads it eligible with its captured invocation. (W1-E's G-A admission is a
+/// later slice's.)
 #[test]
-fn o4_timoshenko_declines_are_reached_by_published_documents() {
-    const DECLINE: &str = "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation";
+fn o4_timoshenko_documents_publish_retained_source() {
+    use open_pipe_stress_result_export::reader_verdict as rv;
     let original: Value = serde_json::from_str(N05).unwrap();
     let timoshenko = with_shear_model(original.clone(), TIMOSHENKO);
+    let (_, built) = built(&timoshenko);
     for mode in MODES {
         let control = run(&original, mode);
         assert_eq!(control["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID), "{mode:?}");
-        let envelope = run(&timoshenko, mode);
+        let (envelope, dump) = crate::source_receipt::with_source_dump(|| run(&timoshenko, mode));
         assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
-        assert_eq!(envelope["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID), "{mode:?}");
-        assert!(envelope.get("source_block_recovery").is_none(), "{mode:?}");
-        let declined = envelope["diagnostics"].as_array().unwrap().iter().any(|d| {
-            d["code"] == json!("SOURCE_BLOCK_RECOVERY_UNAVAILABLE") && d["message"].as_str().is_some_and(|m| m.contains(DECLINE))
-        });
-        assert!(declined, "{mode:?}: the decline is named: {}", envelope["diagnostics"]);
+        assert_eq!(envelope["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID), "{mode:?}");
+        assert!(envelope.get("source_block_recovery").is_some(), "{mode:?}");
+        assert!(!envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == json!("SOURCE_BLOCK_RECOVERY_UNAVAILABLE")),
+            "{mode:?}: {}", envelope["diagnostics"]);
+        let exact = &envelope["contract_evidence"]["exact_cases"][0];
+        let nu = number(&exact["pipe_materials"][0]["nu"]);
+        let (_, shear) = assert_timoshenko_evidence(&exact["pipe_sections"][0], nu, &format!("{mode:?}"));
+        assert_eq!(built.frame_elements[0].section.shear_area().map(f64::to_bits), Some(shear.to_bits()), "{mode:?}");
+        // The private payload's one frame carries its shear-area leaf.
+        assert_eq!(dump.len(), 1, "{mode:?}");
+        let payload: Value = serde_json::from_str(dump[0]["normalized_source_text"].as_str().unwrap()).unwrap();
+        assert_eq!(payload["payload"]["frames"][0]["formation_inputs"]["shear_area_bits"], json!(format!("{:016x}", shear.to_bits())), "{mode:?}");
+        let invocation = json!({"request": timoshenko, "solver_mode": mode.as_str()});
+        let verdict = rv::validate("pressure-source", &envelope, Some(&timoshenko["model"]), Some(&invocation));
+        assert_eq!(verdict, json!({"ok": true, "eligible": true, "findings": []}), "{mode:?}");
     }
 }

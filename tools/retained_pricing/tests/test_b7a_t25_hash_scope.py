@@ -14,11 +14,11 @@ MODEL=runpy.run_path(str(PRICING/'base/b7a_phase_model.py'))
 # composite 726/952, source_receipt 694/780/796, lib 2543; T4-U6/U8 433fc1f1e4: composite 731/982; T4-U6/U8 final:
 # composite 977, lib 2553; T4-S5 epoch 4: composite 990, lib 2569).
 CALLERS={
- 'core/product_physics/src/source_receipt/composite.rs:726:composite_exact':MODEL['SOLVE'],
- 'core/product_physics/src/source_receipt/composite.rs:990:ordinary_physics':MODEL['SOLVE'],
- 'core/product_physics/src/source_receipt.rs:655:failed':MODEL['SOLVE'],
- 'core/product_physics/src/source_receipt.rs:741:finalize_composite':'core/product_physics/src/lib.rs:2569:run_linear_static_preview_observed_inner',
- 'core/product_physics/src/source_receipt.rs:757:finalize_for':'core/product_physics/src/source_receipt.rs:741:finalize_composite',
+ 'core/product_physics/src/source_receipt/composite.rs:740:composite_exact':MODEL['SOLVE'],
+ 'core/product_physics/src/source_receipt/composite.rs:1018:ordinary_physics':MODEL['SOLVE'],
+ 'core/product_physics/src/source_receipt.rs:657:failed':MODEL['SOLVE'],
+ 'core/product_physics/src/source_receipt.rs:743:finalize_composite':'core/product_physics/src/lib.rs:2572:run_linear_static_preview_observed_inner',
+ 'core/product_physics/src/source_receipt.rs:759:finalize_for':'core/product_physics/src/source_receipt.rs:743:finalize_composite',
 }
 
 def inputs(tmp_path,route='L'):

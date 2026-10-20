@@ -215,7 +215,12 @@ impl<'a> MemberSourceRef<'a> {
     pub fn source(self) -> &'a PrimitiveSource { self.source }
     pub fn member_loads(self) -> &'a [UniformMemberLoad] { self.member.map_or(&[], MemberLoadSet::loads) }
     pub fn encoding(self) -> Vec<u8> {
-        let mut out = self.source.encoding();
+        self.encoding_with(None)
+    }
+    /// K4SRC (with O4's Timoshenko block when `shear` is non-empty), then the
+    /// member-load block when present.
+    pub fn encoding_with(self, shear: Option<&TimoshenkoLeafSet>) -> Vec<u8> {
+        let mut out = self.source.encoding_with(shear);
         let loads = self.member_loads();
         if !loads.is_empty() {
             let mut extra=4usize;
@@ -232,6 +237,152 @@ impl<'a> MemberSourceRef<'a> {
         out
     }
 }
+
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §4.2): one Timoshenko
+/// member's binary64 shear-area leaf A_s, the member-only sidecar entry. On
+/// W1 it is the prepared leaf A_s,prep = RN(κ̂·A_prep) (`prepared`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TimoshenkoLeaf {
+    pub member: u32,
+    pub shear_area: f64,
+}
+
+impl TimoshenkoLeaf {
+    /// §4.2's prepared shear-area law: A_s,prep = RN(κ̂·A_prep) by FK's own
+    /// `shear::shear_area`, κ̂ FK's binary64 factor (nominal radii, ν).
+    pub fn prepared(
+        member: u32,
+        kappa: f64,
+        prepared_area: f64,
+    ) -> Result<Self, crate::shear::ShearFactorError> {
+        Ok(Self {
+            member,
+            shear_area: crate::shear::shear_area(kappa, prepared_area)?,
+        })
+    }
+}
+
+/// Why a `TimoshenkoLeafSet` cannot be associated with its source.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TimoshenkoLeafError {
+    /// More leaves than a u32 count or an encodable layout.
+    CountRange,
+    /// A leaf whose member is not in the source (a sidecar entry without
+    /// its member).
+    UnknownMember(u32),
+    /// Two leaves for one member.
+    DuplicateMember(u32),
+    /// A member of a Timoshenko document without its leaf (the set is
+    /// non-empty, so every straight member is Timoshenko).
+    MissingMember(u32),
+    /// A shear area that is not a positive normal binary64 value.
+    ShearArea(u32),
+}
+
+impl TimoshenkoLeafError {
+    /// The association errors carry `RETAINED_TIMOSHENKO_REFUSAL` (§4.2: it
+    /// stays as the text of the association path); the others name the leaf.
+    pub fn reason(self) -> &'static str {
+        match self {
+            Self::UnknownMember(_) | Self::MissingMember(_) | Self::DuplicateMember(_) => {
+                super::assemble::RETAINED_TIMOSHENKO_REFUSAL
+            }
+            Self::CountRange => "retained Timoshenko sidecar count range",
+            Self::ShearArea(_) => "retained Timoshenko shear area is not a positive normal value",
+        }
+    }
+}
+
+/// O4 §4.2: the validated member-only Timoshenko sidecar, `{member,
+/// shear_area}` for each Timoshenko member, sorted by member. Every
+/// receipt-recorded layout (`StraightMember`, `PrimitiveSource`,
+/// `SourceParts`, `MemberSourceRef`) is unchanged; an all-Euler–Bernoulli
+/// invocation has no set. The shear model is per document, so a non-empty
+/// set covers every straight member of its source exactly once.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct TimoshenkoLeafSet {
+    leaves: Vec<TimoshenkoLeaf>,
+}
+
+impl TimoshenkoLeafSet {
+    /// The set of `leaves` for `source`, sorted by member. Refuses an unknown
+    /// or repeated member, a shear area that is not a positive normal value,
+    /// and, when non-empty, any source member without its leaf.
+    pub fn new(
+        source: &PrimitiveSource,
+        mut leaves: Vec<TimoshenkoLeaf>,
+    ) -> Result<Self, TimoshenkoLeafError> {
+        u32::try_from(leaves.len()).map_err(|_| TimoshenkoLeafError::CountRange)?;
+        std::alloc::Layout::array::<TimoshenkoLeaf>(leaves.len())
+            .map_err(|_| TimoshenkoLeafError::CountRange)?;
+        leaves.sort_by_key(|l| l.member);
+        let set = Self { leaves };
+        set.validate(source)?;
+        Ok(set)
+    }
+
+    /// Re-association against a source (after preparation, or at a case).
+    pub(crate) fn validate(&self, source: &PrimitiveSource) -> Result<(), TimoshenkoLeafError> {
+        for pair in self.leaves.windows(2) {
+            if pair[0].member == pair[1].member {
+                return Err(TimoshenkoLeafError::DuplicateMember(pair[0].member));
+            }
+            if pair[0].member > pair[1].member {
+                return Err(TimoshenkoLeafError::CountRange);
+            }
+        }
+        for leaf in &self.leaves {
+            if source.member_index(leaf.member).is_none() {
+                return Err(TimoshenkoLeafError::UnknownMember(leaf.member));
+            }
+            if !(leaf.shear_area.is_normal() && leaf.shear_area > 0.0) {
+                return Err(TimoshenkoLeafError::ShearArea(leaf.member));
+            }
+        }
+        if !self.leaves.is_empty() {
+            for (k, m) in source.members().iter().enumerate() {
+                if self.leaves.get(k).map(|l| l.member) != Some(m.id) {
+                    return Err(TimoshenkoLeafError::MissingMember(m.id));
+                }
+            }
+            if self.leaves.len() != source.members().len() {
+                return Err(TimoshenkoLeafError::UnknownMember(
+                    self.leaves[source.members().len()].member,
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    pub fn leaves(&self) -> &[TimoshenkoLeaf] {
+        &self.leaves
+    }
+    pub fn is_empty(&self) -> bool {
+        self.leaves.is_empty()
+    }
+    /// The K4STF/K4SRC Timoshenko block (§4.2), explicitly framed: the tag
+    /// `TIMOSHENKO_BLOCK_TAG`, the count, then each entry's member and
+    /// shear-area bits (12 bytes each). Written only for a non-empty set, and
+    /// only inside a version-2 encoding (`TIMOSHENKO_VERSION`).
+    pub(crate) fn encode_block(&self, out: &mut Vec<u8>) {
+        if self.leaves.is_empty() {
+            return;
+        }
+        out.extend_from_slice(TIMOSHENKO_BLOCK_TAG);
+        put_u32(out, self.leaves.len() as u32);
+        for leaf in &self.leaves {
+            put_u32(out, leaf.member);
+            put_f64(out, leaf.shear_area);
+        }
+    }
+}
+
+/// The K4SRC/K4STF version byte of an encoding that carries a non-empty
+/// Timoshenko sidecar (O4 §4.2). Euler–Bernoulli and empty-sidecar encodings
+/// keep version 1 and today's bytes.
+pub const TIMOSHENKO_VERSION: u8 = 2;
+/// The tag that opens the Timoshenko block inside a version-2 encoding.
+pub const TIMOSHENKO_BLOCK_TAG: &[u8; 4] = b"TSH\x01";
 
 /// A station on a member at a binary64 fraction of its chord (0 at node i).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -881,8 +1032,36 @@ impl PrimitiveSource {
     /// The canonical byte encoding (ROOT's K4 ruling Q10; hashed by F2a and
     /// V-K). Little-endian; binary64 values as their bits.
     pub fn encoding(&self) -> Vec<u8> {
+        self.encoding_with(None)
+    }
+
+    /// K4SRC with O4's Timoshenko sidecar (§4.2). `None` or an empty set
+    /// gives `encoding()`'s bytes (version 1). A non-empty set gives version
+    /// 2: `K4SRC\x02`, the stiffness part, the framed block (`TSH\x01`, the
+    /// count n ≥ 1, n × (member u32, shear-area bits u64)), then the same
+    /// loads, stations and supports as version 1.
+    ///
+    /// **Injectivity over (source, sidecar).** Every version-1 field is a
+    /// fixed-width scalar or a u32-count-prefixed list of fixed-width records
+    /// and u32-length-prefixed strings, so the version-1 bytes parse back
+    /// uniquely, left to right, to the source; version 2 inserts, at a
+    /// position the parse reaches deterministically (the end of the
+    /// count-delimited stiffness part), a block whose tag and count delimit
+    /// it exactly, so version-2 bytes parse back uniquely to (source, set).
+    /// No Euler–Bernoulli (version-1) encoding equals a Timoshenko
+    /// (version-2) one: their sixth bytes are 0x01 and 0x02. (The untagged
+    /// revision let a sidecar be read as a version-1 load prefix; the
+    /// regression `k4src_timoshenko_encodings_are_injective` keeps that pair.)
+    pub fn encoding_with(&self, shear: Option<&TimoshenkoLeafSet>) -> Vec<u8> {
+        let shear = shear.filter(|s| !s.is_empty());
         let mut out = b"K4SRC\x01".to_vec();
+        if shear.is_some() {
+            out[5] = TIMOSHENKO_VERSION;
+        }
         self.encode_stiffness_part(&mut out, true);
+        if let Some(set) = shear {
+            set.encode_block(&mut out);
+        }
         put_u32(&mut out, self.loads.len() as u32);
         for l in &self.loads {
             put_dof(&mut out, l.dof);
@@ -916,8 +1095,26 @@ impl PrimitiveSource {
     /// The factor-reuse identity (D1 §4.1.7): nodes, members, springs,
     /// directional springs and the constrained DOF set (not their values).
     pub fn stiffness_encoding(&self) -> Vec<u8> {
+        self.stiffness_encoding_with(None)
+    }
+
+    /// K4STF with O4's Timoshenko sidecar (§4.2): every leaf that enters
+    /// formation is in the factor-reuse identity. `None` or an empty set gives
+    /// `stiffness_encoding()`'s bytes (version 1); a non-empty set gives
+    /// `K4STF\x02`, the stiffness part and the framed block. Injective by the
+    /// argument of `encoding_with` (the version byte separates the two
+    /// families; the count-delimited stiffness part and the tagged, counted
+    /// block parse back uniquely).
+    pub fn stiffness_encoding_with(&self, shear: Option<&TimoshenkoLeafSet>) -> Vec<u8> {
+        let shear = shear.filter(|s| !s.is_empty());
         let mut out = b"K4STF\x01".to_vec();
+        if shear.is_some() {
+            out[5] = TIMOSHENKO_VERSION;
+        }
         self.encode_stiffness_part(&mut out, false);
+        if let Some(set) = shear {
+            set.encode_block(&mut out);
+        }
         out
     }
 

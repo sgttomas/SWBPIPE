@@ -130,6 +130,13 @@ DIAG = TXT.get("D", 0)
 PREVIEW = value_tree(3 * m + 2 * g, 3 + m + g, 9 + 15 * m + 2 * g,
                      m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
                      (9 + 15 * m + 2 * g) * 40)
+# O4-EV (retained-pricing-rules.md §8.9): a Timoshenko member's evidence beam_theory carries two number entries beyond
+# the census entry (o4_owners_model.beam_theory_evidence), charged beside the evidence owner.
+import o4_owners_model as _o4_model
+_o4 = bool(_snapshot) and _o4_model.inspect(_snapshot)
+if _o4:
+    _o4_ev = _o4_model.beam_theory_evidence(m)
+    PREVIEW = PREVIEW + value_tree(0, 0, _o4_ev["ent"], 0, _o4_ev["keyb"])
 T = {}   # text atoms (values from TEXT.md)
 def tx(name):
     return atom("Text(" + name + ")")
@@ -447,6 +454,12 @@ if _u45["published_displacements"]:
 if _u45["station_quantities"]:
     # U4B-ST: one member's station-quantity transients (append_station_quantities and its caller), one member live.
     add("Station quantities of one member (U4B-ST)", "OrdinaryRecovery", _u45_model.ordinary_station_quantities())
+if _o4:
+    # O4-SR: a selected case whose member's stress sections differ holds the reduced basis's composite maximum (its
+    # value and evidence Value: one pipe_stress_extrema entry of the census) beside the nominal one, one member at a time.
+    _mx = _o4_model.maximum_evidence_facts()
+    add("Selected reduced maximum beside the nominal one (O4-SR)", "OrdinaryRecovery",
+        s("CompositeMaximum") + value_tree(_mx["arr"], _mx["obj"], _mx["ent"], _mx["strb"], _mx["keyb"]))
 q = m + n + g
 add("Formation-guard late maps and RecoveryFinding", "OrdinaryRecovery",
     HashReq("(String,usize)", q) + B(q * ID) + HashReq("(usize,(f64,f64))", b) + HashReq("(usize,(f64,f64))" if KD5 else "(usize,f64)", b)
@@ -550,7 +563,8 @@ else:
 PER_CASE_FAMILIES = ['Primitive loads and application', 'AssembledForce, nodal family', 'Sparse reduction (+ caller prescribed, observation force)', 'Formation-guard Bodies (build + resident)', 'Legacy profile observation', 'Straight member recovery (+ stress supplement)', 'Formation-guard late maps and RecoveryFinding', 'Ordinary scalar maximum (one helper at a time)', 'Source row qualification', 'Existing ordinary/failed source case (FinalizedSourceBlockCase::ordinary)', 'Preview rewrite', 'Preview tree final copy (envelope evidence)', 'T07 generic deep legacy-exact (RESIDUALS_G3 T07)']
 if "Prepared pressure case carriers and staging (B5O1)" in fam:
     PER_CASE_FAMILIES.append("Prepared pressure case carriers and staging (B5O1)")
-for _f in ("Published corrected nodal displacements (U5B-PD)", "Station quantities of one member (U4B-ST)"):
+for _f in ("Published corrected nodal displacements (U5B-PD)", "Station quantities of one member (U4B-ST)",
+           "Selected reduced maximum beside the nominal one (O4-SR)"):
     if _f in fam:
         PER_CASE_FAMILIES.append(_f)
 if _wide:

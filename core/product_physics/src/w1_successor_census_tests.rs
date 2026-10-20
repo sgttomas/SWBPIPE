@@ -126,6 +126,9 @@ fn w1_committed_publications_preserve_all_but_authorized_definition_hashes() {
         // New member-load bases have their separate consuming controls. This is
         // the original nodal-only preservation census, whose membership is fixed.
         if id.starts_with("w1_member_") {continue;}
+        // O4 (W1-E): the two dual-basis Timoshenko bases are new publications, held by
+        // `o4_w1e_successor_fixtures_are_the_live_successors`; the census membership stays fixed.
+        if id.starts_with("o4_w1e_") {continue;}
         let hook=if kind==Some("hook_produced") {Some(id)}else{None};
         reproduce(&format!("corpus/{id}"),&case["source"],&case["invocation"],hook,false);
         count+=1;

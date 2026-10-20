@@ -15,7 +15,8 @@ use super::retained::origins::ProductOwnerStamp;
 use super::retained::bound::{BlockBound, BlockCertificate};
 use super::retained::factor::PivotScreen;
 use super::retained::ledger::{LedgerNet,RetainedLedger};
-use super::retained::source::{UniformMemberLoad,MemberLoadSet,MemberSourceRef};
+use super::retained::source::{UniformMemberLoad,MemberLoadSet,MemberSourceRef,TimoshenkoLeaf,TimoshenkoLeafSet};
+use super::retained::assemble::TimoshenkoEntries;
 use super::retained::declared::DeclaredMemberLoad;
 use super::retained::origins::{LoadedValue,MemberValuesWork};
 use super::retained_api::{LoadedMaximumDiagnostic,ProductMaximumEvidence};
@@ -27,6 +28,7 @@ use super::retained_api::{
     GroupOrigin, Kind, NodalLoad, PreparationConversion, PreparedAnnulus, ProductCertificateSpent, ProductMaximumValue,
     ProductSummaryCoverage, RunOrigins, SectionPreparationWork, SlotSnapshot, SourceOrigin,
     ProductFinalRow, ProductMemberFacts, ProductRecipe, ProductRowSpec, ProductRowVerdict, PublishedRow,
+    ReducedSection, ReducedSectionSet,
     QuantityId, QuantityMeta, RecordedCase, RecordedInvocation, RetainedSolve, Spring, SpringKind,
     Station, StraightMember, SupportGroup,
 };
@@ -93,6 +95,12 @@ sizes! {
     OPTION_PREPARATION_CONVERSION = Option<PreparationConversion>; PRODUCT_SUMMARY_COVERAGE = ProductSummaryCoverage;
     PRODUCT_MAXIMUM_VALUE = ProductMaximumValue; PRODUCT_CERTIFICATE_SPENT = ProductCertificateSpent<'static>;
     INDEXED_OUTCOME = (usize, Binary64Outcome);
+    // O4 (DEL-04-08 Design o4-source-extension.md §4.2, §4.5, §7): the new
+    // owners' strides. The sidecars' elements, and the Timoshenko entries that
+    // MemberOperators (three) and BoundedCoefficients (one d̄ pair) now carry.
+    TIMOSHENKO_LEAF = TimoshenkoLeaf; TIMOSHENKO_LEAF_SET = TimoshenkoLeafSet;
+    TIMOSHENKO_ENTRIES_4 = TimoshenkoEntries<4>; TIMOSHENKO_ENTRIES_8 = TimoshenkoEntries<8>; TIMOSHENKO_ENTRIES_16 = TimoshenkoEntries<16>;
+    REDUCED_SECTION = ReducedSection; REDUCED_SECTION_SET = ReducedSectionSet;
 }
 pub const LOADED_MAXIMUM_SEARCH_NODE:usize=super::retained::origins::LOADED_SEARCH_NODE;
 pub const LOADED_MAXIMUM_SEARCH_HEAP_MAX:usize=super::retained::origins::LOADED_SEARCH_HEAP_MAX;

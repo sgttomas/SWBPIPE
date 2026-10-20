@@ -14,6 +14,11 @@ U6="39beb234d2eab8ecbf770ac1f8d12dc7661ce94bc34b0d44a1904dda60907f21"
 # T4-S5 (U4B-NQ): composite_exact adds one allocation-free check that admits `derived_not_qualified` for the two
 # derived kinds only (a static `bad(..)` refusal otherwise); the borrowed comparison and its frame are unchanged.
 U4B="f0544806c59835a02dc9c85d92164563d2b958d966ad4a4f050dc5fa93e1335c"
+# O4 S5 (retained-pricing-rules.md §8.9, O4-SR): composite_exact evaluates the source maximum on the reduced section
+# with a second composite_member_maximum call where the member's stress sections differ (in place of the
+# coincident-section refusals) and checks each stress row on its own basis's section. The borrowed MemberSection
+# comparison, its descriptor binding and the staging frame are unchanged; the second maximum is O4-SR's owner.
+O4="25905ffb6bcf9ad61209fc73ad3675f40851815f78714faa9978e202f5b8cdf5"
 # Source union of bindings, complete operand/argument/result/move slots;
 # each is rounded to the maximum native alignment, with no slot reuse.
 SLOTS={"&'static u8":16,"&'static [u8]":8,"usize":16,"u64":4,
@@ -27,8 +32,8 @@ def inspect(snapshot):
     if not end:raise ValueError("C8: missing comparison owner end")
     body=source[hit.start():hit.end()+end.end()]
     digest=hashlib.sha256(body.encode()).hexdigest()
-    if digest not in (OLD,NEW,B7A,U6,U4B):raise ValueError("C8: comparison owner/call-chain/lifetime source changed")
-    borrowed=digest in (NEW,B7A,U6,U4B)
+    if digest not in (OLD,NEW,B7A,U6,U4B,O4):raise ValueError("C8: comparison owner/call-chain/lifetime source changed")
+    borrowed=digest in (NEW,B7A,U6,U4B,O4)
     needle="member: descriptor_member," if borrowed else "member: member.member_id.clone(),"
     if body.count(needle)!=1:raise ValueError("C8: missing/duplicate metadata expression")
     line=source.count(chr(10),0,hit.start()+body.index(needle))+1

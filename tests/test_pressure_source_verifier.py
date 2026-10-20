@@ -60,9 +60,19 @@ def test_a_retired_v2_source_label_is_refused_by_name_and_never_cross_read(ident
 def test_captured_contract_fixes_context_independently_of_received_labels():
     assert ps.SourceContract.from_invocation(invocation()) is ps.SourceContract.PRESSURE_V3
     assert list(ps.SourceContract) == [ps.SourceContract.PRESSURE_V3]
+    # O4 (§3.4): either shear model is the exact contract.
+    timoshenko = invocation()
+    timoshenko["request"]["model"]["pressure_contract"]["shear_model"] = "timoshenko_annulus_energy_v1"
+    assert ps.SourceContract.from_invocation(timoshenko) is ps.SourceContract.PRESSURE_V3
     for change in (lambda m: m.update(pressure_contract={"version": "2.0.0", "mode": "exact_straight_pressure_v2"}),
                    lambda m: m.update(schema_version="0.4.0"),
-                   lambda m: m.update(shear_model="euler_bernoulli")):
+                   lambda m: m.update(shear_model="euler_bernoulli"),
+                   # O4 (§3.4): an unknown, absent, null or non-string shear model and an extra contract member.
+                   lambda m: m["pressure_contract"].update(shear_model="cowper"),
+                   lambda m: m["pressure_contract"].pop("shear_model"),
+                   lambda m: m["pressure_contract"].update(shear_model=None),
+                   lambda m: m["pressure_contract"].update(shear_model=5),
+                   lambda m: m["pressure_contract"].update(shear_factor=0.5)):
         captured = invocation()
         change(captured["request"]["model"])
         with pytest.raises(ValueError, match="PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED"):
@@ -118,15 +128,28 @@ def test_selected_source_admission_and_standing_stay_unchanged():
 
 
 CA_REFUSED = {
-    "nonzero 0.001 m": lambda s: s.update(corrosion_allowance={"value": 0.001, "unit": "m"}),
     "absent": lambda s: s.pop("corrosion_allowance"),
     "null": lambda s: s.update(corrosion_allowance=None),
     "wrong dimension (0 Pa)": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "Pa"}),
     "malformed value (string)": lambda s: s.update(corrosion_allowance={"value": "0", "unit": "m"}),
+    # O4 (§3.4): a negative or over-wall allowance, or one that with the mill tolerance reaches the wall (t = 0.01 m).
+    "negative": lambda s: s.update(corrosion_allowance={"value": -0.001, "unit": "m"}),
+    "the wall": lambda s: s.update(corrosion_allowance={"value": 0.01, "unit": "m"}),
+    "above the wall (mm)": lambda s: s.update(corrosion_allowance={"value": 20.0, "unit": "mm"}),
+    "with the mill tolerance, the wall": lambda s: s.update(corrosion_allowance={"value": 0.006, "unit": "m"}, mill_tolerance={"value": 4.0, "unit": "mm"}),
+    # c_m + c_a rounds to t while (t - c_m) - c_a stays positive: the section sum decides.
+    "the section sum at the rounding boundary": lambda s: s.update(corrosion_allowance={"value": 0.0029999999999999996, "unit": "m"}, mill_tolerance={"value": 0.007, "unit": "m"}),
 }
 CA_ADMITTED = {
     "unchanged": lambda s: None,
     "zero in mm": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "mm"}),
+}
+# O4 (§3.4): zero is no longer required. An admitted nonzero allowance passes the allowance check; the statement's
+# sections carry 0 m, so it is refused later by the by-value section binding (raw reading of the 0.3 statement;
+# never eligible on a load/reference state, whose reader verdict refuses it by G2's model check).
+CA_NONZERO = {
+    "nonzero 0.001 m": lambda s: s.update(corrosion_allowance={"value": 0.001, "unit": "m"}),
+    "1 mm beside a 0.5 mm mill tolerance": lambda s: s.update(corrosion_allowance={"value": 1.0, "unit": "mm"}, mill_tolerance={"value": 0.5, "unit": "mm"}),
 }
 CA_FAMILIES = {"0.3": ("physics_source", True), "load-reference-state": ("load_reference_source", False)}
 
@@ -144,18 +167,28 @@ def _ca_statement(family, name, mode, change):
     return source, captured
 
 
-@pytest.mark.parametrize("label", sorted(CA_REFUSED) + sorted(CA_ADMITTED))
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + sorted(CA_ADMITTED) + sorted(CA_NONZERO))
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
 @pytest.mark.parametrize("name", ["n05", "n06"])
 @pytest.mark.parametrize("family", sorted(CA_FAMILIES))
-def test_the_captured_exact_document_carries_an_explicit_zero_corrosion_allowance(family, name, mode, label):
-    """B7b review finding (b7-plan "Exact-contract fields"): a resealed pressure-source-1 statement whose captured
-    invocation's allowance was nonzero, absent, null or non-length read "pass, eligible" in both readers. Rust
-    `SourceContract::check_invocation` and the verifier now refuse it first, PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE;
-    zero in any length unit keeps the statement's own standing (eligible on 0.3, never on a load/reference state)."""
-    source, captured = _ca_statement(family, name, mode, {**CA_REFUSED, **CA_ADMITTED}[label])
+def test_the_captured_exact_document_carries_an_admitted_corrosion_allowance(family, name, mode, label):
+    """B7b review finding (b7-plan "Exact-contract fields") and O4 (§3.4): a resealed pressure-source-1 statement whose
+    captured invocation's allowance was absent, null, non-length, negative or over the wall is refused first by Rust
+    `SourceContract::check_invocation` and the verifier, PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE; zero in any length
+    unit keeps the statement's own standing (eligible on 0.3, never on a load/reference state). An admitted nonzero
+    allowance passes that check and is refused by the statement's by-value section binding instead."""
+    source, captured = _ca_statement(family, name, mode, {**CA_REFUSED, **CA_ADMITTED, **CA_NONZERO}[label])
     refs = [case["basis_ref"] for case in source["numerical_quality"]["cases"]]
-    if label in CA_REFUSED:
+    if label in CA_NONZERO:
+        if CA_FAMILIES[family][1]:
+            with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_SOURCE_GEOMETRY$"):
+                ps.validate_physics_source(deepcopy(source), deepcopy(captured))
+        else:
+            assert ps.validate_physics_source(deepcopy(source), deepcopy(captured)) is False
+        with pytest.raises(rust_reader.ReaderRefusal) as refused:
+            rust_reader.validate("pressure-source", source, invocation=captured)
+        assert refused.value.code == ("PHYSICS_SOURCE_ACTUAL_SOURCE_GEOMETRY" if CA_FAMILIES[family][1] else "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY")
+    elif label in CA_REFUSED:
         with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE$"):
             ps.validate_physics_source(deepcopy(source), deepcopy(captured))
         with pytest.raises(rust_reader.ReaderRefusal) as refused:
@@ -191,18 +224,19 @@ def _ca_second_pipe_statement(family, name, mode, change):
 CA_SECOND_ZERO = "zero in m"
 
 
-@pytest.mark.parametrize("label", sorted(CA_REFUSED) + [CA_SECOND_ZERO])
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + [CA_SECOND_ZERO] + sorted(CA_NONZERO))
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
 @pytest.mark.parametrize("name", ["n05", "n06"])
 @pytest.mark.parametrize("family", sorted(CA_FAMILIES))
-def test_every_captured_pipe_section_carries_an_explicit_zero_allowance(family, name, mode, label):
+def test_every_captured_pipe_section_carries_an_admitted_allowance(family, name, mode, label):
     """B7b review N-1: every committed request has one pipe, so the controls above cannot tell an every-section check
-    from a first-section one. With a second pipe appended (the first keeps 0 m) whose allowance is nonzero, absent,
-    null, non-length or malformed, both readers refuse PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE (the check is the
-    first step after the captured contract). With 0 m on the second pipe the allowance check passes and both refuse the
-    statement later, by the receipt's coverage of the captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE: its
-    sources name one member), never for the allowance; a first-section-only check would give that code throughout."""
-    change = CA_REFUSED.get(label, lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "m"}))
+    from a first-section one. With a second pipe appended (the first keeps 0 m) whose allowance is absent, null,
+    non-length, malformed, negative or over the wall, both readers refuse PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE (the
+    check is the first step after the captured contract). With 0 m or (O4 §3.4) an admitted nonzero allowance on the
+    second pipe the allowance check passes and both refuse the statement later, by the receipt's coverage of the
+    captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE: its sources name one member), never for the allowance;
+    a first-section-only check would give that code throughout."""
+    change = {**CA_REFUSED, **CA_NONZERO}.get(label, lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "m"}))
     source, captured = _ca_second_pipe_statement(family, name, mode, change)
     assert captured["request"]["model"]["pipe_segments"][0]["section"]["corrosion_allowance"] == {"value": 0.0, "unit": "m"}
     expected = "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE" if label in CA_REFUSED else "SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE"

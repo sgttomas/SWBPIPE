@@ -22,7 +22,7 @@ pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
 /// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948";
+    "8d2bc091712e744a6182a6e6ecd73e9e40916e8530f52e44fe1eeb2415b78fae";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -594,7 +594,7 @@ const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186";
+const EXACT_TABLE_HASH: &str = "bb35cd6a546e3dcbe5f8e7d82f0ba6df3e427e543f9548a785a859654beeec7f";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -960,9 +960,33 @@ fn derived_kind(row: &Value) -> bool {
     matches!(row["kind"].as_str(), Some("element_local_normal_stress_extreme" | "element_local_transverse_shear_stress_maximum"))
 }
 /// The receipt's row universe of a case or combination entry: its rows, less
-/// the reduced-section twins (`rows_all_for` keeps them).
+/// the reduced-section twins (`rows_all_for` keeps them). O4 (DEL-04-08 Design
+/// `o4-source-extension.md` §4.7): a reduced-basis row is dropped only when its
+/// member's source section term has no `reduced`; a distinct-basis member's
+/// reduced rows are receipt rows, in published order.
 fn rows_for<'a>(source: &'a Value, case: &Value) -> Vec<&'a Value> {
-    rows_all_for(source, case).into_iter().filter(|r| !reduced_twin(r)).collect()
+    let distinct = distinct_members(source, case);
+    rows_all_for(source, case)
+        .into_iter()
+        .filter(|r| !reduced_twin(r) || distinct.contains(text(&r["entity_ref"])))
+        .collect()
+}
+/// O4 §4.7: the member ids whose section term in the entry's own CaseSource
+/// (`source_ref`, bound by G1 and G2) carries `reduced`. Empty for an entry
+/// without a source and on every document without distinct bases.
+fn distinct_members<'a>(source: &'a Value, case: &Value) -> BTreeSet<&'a str> {
+    let Some(i) = uint(&case["source_ref"]) else { return BTreeSet::new() };
+    distinct_members_of(&source["retained_precision"]["body"]["sources"][i as usize])
+}
+/// O4 §4.7: the member ids whose section term in CaseSource `s` carries `reduced`.
+fn distinct_members_of(s: &Value) -> BTreeSet<&str> {
+    let mut out = BTreeSet::new();
+    for st in list(&s["section_terms"]).iter().filter(|st| st.get("reduced").is_some()) {
+        if let Some(m) = list(&s["id_maps"]["members"]).iter().find(|m| m["kernel_member"] == st["member"]) {
+            out.insert(text(&m["id"]));
+        }
+    }
+    out
 }
 /// Every published row of a case or combination entry, reduced twins included.
 fn rows_all_for<'a>(source: &'a Value, case: &Value) -> Vec<&'a Value> {
@@ -2552,7 +2576,10 @@ fn fault_owner<'a>(a: &'a Value, path: &[String]) -> Option<&'a Value> {
     let proof = &a["proof"];
     let p = |i: usize| path.get(i).map(String::as_str);
     let index = |i: usize| path.get(i).and_then(|x| x.parse::<usize>().ok());
-    let owner = if (p(0), p(1)) == (Some("preparation"), Some("members")) {
+    let owner = if (p(0), p(1), p(3)) == (Some("preparation"), Some("members"), Some("reduced")) {
+        // O4 §4.6: a fault inside a member's reduced record is owned by that record's work.
+        index(2).map(|i| &a["preparation"]["members"][i]["reduced"]["work"])
+    } else if (p(0), p(1)) == (Some("preparation"), Some("members")) {
         index(2).map(|i| &a["preparation"]["members"][i]["work"])
     } else if (p(0), p(1), p(2)) == (Some("result"), Some("error"), Some("section")) {
         list(&a["preparation"]["members"]).last().map(|m| &m["work"])
@@ -2650,8 +2677,11 @@ fn accounting_rules(a: &Value) -> [bool; 4] {
     });
     let mut r4 = true;
     for m in list(&a["preparation"]["members"]) {
-        if m["result"]["kind"] != "prepared" && m["result"]["error"]["kind"] == "accounting" {
-            r4 &= statuses(&m["work"]) != 0;
+        // O4 §4.6: the same rule for a member's reduced record and its own work.
+        for record in [m, &m["reduced"]] {
+            if record.is_object() && record["result"]["kind"] != "prepared" && record["result"]["error"]["kind"] == "accounting" {
+                r4 &= statuses(&record["work"]) != 0;
+            }
         }
     }
     let error = &a["result"]["error"];
@@ -2861,6 +2891,38 @@ fn member_checks(a: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn FnMut(boo
         }
         if let Some(n) = exact_count(&m["work"]["conversions"]) {
             wf(n == cv.len() as u64)?;
+        }
+        // O4 (DEL-04-08 Design `o4-source-extension.md` §4.6): a distinct-basis member's
+        // reduced record is a preparation record like the member's own, read by the same
+        // rules: present only beside a prepared member; conversions in property order,
+        // each of an admitted kind; a prepared result's nine normal, positive conversions
+        // equal to its section; a refused reduced annulus ends the preparation (the last
+        // member); its conversion count equation is WORK.
+        if let Some(r) = m.get("reduced") {
+            pf(prepared)?;
+            let reduced_prepared = r["result"]["kind"] == "prepared";
+            if !reduced_prepared {
+                pf(r["result"]["kind"] == "refused" && j + 1 == pm.len())?;
+            }
+            let rc = list(&r["conversions"]);
+            pf(rc.len() <= 9)?;
+            for (k, v) in rc.iter().enumerate() {
+                pf(v["property"] == props[k].0
+                    && v["endpoint"] == props[k].1
+                    && conversion_kind_ok(&v["outcome"]))?;
+                if reduced_prepared {
+                    let idx = if k < 8 { k / 2 } else { 4 };
+                    pf(v["outcome"]["kind"] == "normal"
+                        && v["outcome"]["value"] == r["result"]["section"][idx]
+                        && f(&v["outcome"]["value"]) >= f64::MIN_POSITIVE)?;
+                }
+            }
+            if reduced_prepared {
+                pf(rc.len() == 9)?;
+            }
+            if let Some(n) = exact_count(&r["work"]["conversions"]) {
+                wf(n == rc.len() as u64)?;
+            }
         }
     }
     for (j, op) in new.iter().enumerate() {
@@ -3244,7 +3306,9 @@ fn operand_preparations(b: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn Fn
                 && p["operational"]["old_coverage"] == "complete"
                 && new.iter().all(|o| o["result"]["kind"] == "ready")
                 && s["material_basis_ref"] == p["material_basis_ref"])?;
-            wf(pm.iter().all(|m| exact_work(&m["work"]))
+            // O4 §4.6: a member's reduced record's work is held to the same exactness
+            // (absent, `Null` is exact).
+            wf(pm.iter().all(|m| exact_work(&m["work"]) && exact_work(&m["reduced"]["work"]))
                 && old.iter().chain(new).all(|o| exact_work(&o["work"]))
                 && p["adapter"]["fault"].is_null())?;
         }
@@ -3364,8 +3428,10 @@ fn g5_products(source: &Value) -> VResult {
                     .as_object()
                     .is_some_and(|o| o.values().all(|v| v == "completed"))
                 && new.iter().all(|o| o["result"]["kind"] == "ready"))?;
+            // O4 §4.6: a member's reduced record's work is held to the same exactness
+            // (absent, `Null` is exact).
             wf(exact_work(proof)
-                && pm.iter().all(|m| exact_work(&m["work"]))
+                && pm.iter().all(|m| exact_work(&m["work"]) && exact_work(&m["reduced"]["work"]))
                 && old.iter().chain(new).all(|o| exact_work(&o["work"]))
                 && a["adapter"]["fault"].is_null()
                 && exact_work(&a["overlay_work"])
@@ -4355,7 +4421,7 @@ fn g5a_selected(c: &NumericCase<'_>) -> VResult {
     }
     Ok(())
 }
-fn g5b(cases: &mut [NumericCase<'_>]) -> VResult {
+fn g5b(cases: &mut [NumericCase<'_>], exact: bool) -> VResult {
     let sf = |ok| need(ok, "G5b", "SCALE_MISMATCH");
     let section = |ok| need(ok, "G5b", "SECTION_MISMATCH");
     for c in cases {
@@ -4399,6 +4465,21 @@ fn g5b(cases: &mut [NumericCase<'_>]) -> VResult {
                 "torsional_stiffness",
             ] {
                 section(left[k] == right[k] && f(&right[k]) > 0.0)?;
+            }
+            // O4 §4.6-§4.7: the Timoshenko leaf and the reduced section bind source and
+            // selection to each other under one presence rule; route L has one section and
+            // no shear model (H-1), so either key there is a mismatch.
+            for (l, r) in [(left, right)] {
+                section(l.get("shear_area").is_some() == r.get("shear_area").is_some()
+                    && l.get("reduced").is_some() == r.get("reduced").is_some())?;
+                section(exact || (r.get("shear_area").is_none() && r.get("reduced").is_none()))?;
+                if let Some(a) = r.get("shear_area") {
+                    section(l["shear_area"] == *a && f(a) > 0.0)?;
+                }
+                if let Some(rr) = r.get("reduced") {
+                    section(l["reduced"] == json!({"area":rr["area"],"section_modulus":rr["section_modulus"]})
+                        && f(&rr["area"]) > 0.0 && f(&rr["section_modulus"]) > 0.0)?;
+                }
             }
         }
         for row in &c.rows {
@@ -4449,29 +4530,55 @@ fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
             ] {
                 section(number_bits(&p[evidence_key]).is_some_and(|b| b == *receipt))?;
             }
-            for basis in crate::section_basis::BASES {
+            // O4 §4.7: without `reduced` the one term binds both bases (which then
+            // agree in As, Z, I, J and wall: the overlay rule); with it, the nominal term
+            // binds `nominal_section`, `reduced` binds `reduced_section`, and the two
+            // evidence sections must differ in that set.
+            let reduced = st.get("reduced");
+            let terms = [(&st["area"], &st["section_modulus"], g), match reduced {
+                None => (&st["area"], &st["section_modulus"], g),
+                Some(r) => (&r["area"], &r["section_modulus"], &r["geometry"]),
+            }];
+            for (basis, (area, modulus, geo)) in crate::section_basis::BASES.into_iter().zip(terms) {
                 for (evidence_key, receipt) in [
-                    ("As_m2", &st["area"]),
-                    ("Z_m3", &st["section_modulus"]),
-                    ("I_m4", &g["actual_second_moment"]),
-                    ("J_m4", &g["actual_polar_moment"]),
-                    ("wall_m", &g["effective_wall"]),
+                    ("As_m2", area),
+                    ("Z_m3", modulus),
+                    ("I_m4", &geo["actual_second_moment"]),
+                    ("J_m4", &geo["actual_polar_moment"]),
+                    ("wall_m", &geo["effective_wall"]),
                 ] {
                     section(number_bits(&p[basis][evidence_key]).is_some_and(|b| b == *receipt))?;
                 }
+            }
+            if let Some(r) = reduced {
+                let rg = &r["geometry"];
+                section(rg["route"] == g["route"] && rg["normalized_od"] == g["normalized_od"] && rg["actual_radius"] == g["actual_radius"])?;
+                let differ = ["As_m2", "Z_m3", "I_m4", "J_m4", "wall_m"].into_iter().any(|k| {
+                    number_bits(&p["nominal_section"][k]) != number_bits(&p["reduced_section"][k])
+                });
+                section(differ)?;
+            }
+            // O4 §4.2: a Timoshenko member's prepared shear leaf is the evidence's
+            // `beam_theory.shear_area_m2` (the selection itself is G7's and G8's).
+            if let Some(a) = st.get("shear_area") {
+                section(p["beam_theory"]["model"] == crate::section_basis::TIMOSHENKO
+                    && number_bits(&p["beam_theory"]["shear_area_m2"]).is_some_and(|b| b == *a))?;
             }
         }
         // The successor overlays each reduced twin, outside the receipt's row
         // universe, with the retained value of its nominal twin, the bound row
         // immediately before it (§2.5 row order).
         let all = rows_all_for(source, c.case);
+        let distinct = distinct_members(source, c.case);
         for (i, row) in all.iter().enumerate() {
             // T4-U4b §4.1: a derived row of either basis is its own not-covered
             // row, formed from its basis's rows (G7's base read), never a twin.
             let reduced = !derived_kind(row)
                 && (reduced_twin(row)
                     || crate::section_basis::id_basis(text(&row["id"])) == Some(crate::section_basis::REDUCED));
-            if !reduced {
+            // O4 §4.7: a distinct-basis member's reduced rows are receipt rows
+            // (certified on the reduced section), not overlays.
+            if !reduced || distinct.contains(text(&row["entity_ref"])) {
                 continue;
             }
             let nominal = i.checked_sub(1).map(|j| all[j]);
@@ -4502,10 +4609,16 @@ fn row_scale(row: &Value, c: &NumericCase<'_>) -> VResult<Option<f64>> {
     let Some(member) = member else {
         return Ok(None);
     };
-    let section = list(&c.source["section_terms"])
+    let term = list(&c.source["section_terms"])
         .iter()
         .find(|s| s["member"] == member["kernel_member"])
         .ok_or_else(|| error("G5b", "SECTION_MISMATCH"))?;
+    // O4 §4.7: a reduced row in the universe (its member's term carries
+    // `reduced`) is scaled by its own section.
+    let section = match term.get("reduced") {
+        Some(r) if reduced_twin(row) => r,
+        _ => term,
+    };
     let k = match text(&row["kind"]) {
         "pipe_elastic_normal_stress_maximum_v2" => f64::from_bits(0x4006a09e667f3bcd),
         "open_formula_stress_summary" => 4.0,
@@ -4594,8 +4707,11 @@ fn g5c(cases: &[NumericCase<'_>]) -> VResult<Vec<RowClassification>> {
             let bound: Vec<RowClassification> = classes.drain(first..).collect();
             let mut next = bound.into_iter();
             let mut last: Option<RowClassification> = None;
+            // O4 §4.7: a distinct-basis member's reduced rows are bound rows with
+            // their own classes.
+            let distinct = distinct_members_of(c.source);
             for row in &c.all_rows {
-                let class = if reduced_twin(row) {
+                let class = if reduced_twin(row) && !distinct.contains(text(&row["entity_ref"])) {
                     let nominal = last.clone().ok_or_else(|| error("G5c", "CLASSIFICATION_MISMATCH"))?;
                     RowClassification {
                         result_id: text(&row["id"]).into(),
@@ -4732,43 +4848,35 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
     fail(g.is_normal() && g > 0.0)?;
     Ok((e, g, nu))
 }
-/// D1.3 on the exact route: the current document's three-member v3 contract,
-/// with an explicit zero corrosion allowance on every pipe section (DEF-E G8).
+/// D1.3 on the exact route: the current document's three-member v3 contract
+/// with either shear model (O4, DEL-04-08 Design `o4-source-extension.md`
+/// §4.7), and an explicit, finite, length-valued allowance ≥ 0 with
+/// c_m + c_a < t on every pipe section (DEF-E G8; the producer's own refusals).
 fn exact_namespace(model: &Value) -> bool {
     model["schema_version"].as_str() == Some("0.6.0")
         && model.as_object().is_some_and(|object| !object.contains_key("shear_model"))
         && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
         && section_allowances(model, true)
 }
-/// T4-U6 (§5, O4): the retained exact route has one section basis, so a
-/// nonzero mill tolerance is declined by name.
-pub const MILL_TOLERANCE_DECLINE: &str = "nonzero mill tolerance is not a retained-source section basis";
-/// G8 on the exact route: every pipe section's mill tolerance is zero (absent
-/// or null is zero, as the producer reads it); otherwise G8 refuses, naming
-/// the decline.
-fn exact_mill_tolerances(model: &Value) -> VResult {
-    let nonzero = list(&model["pipe_segments"]).iter().any(|pipe| {
-        let q = &pipe["section"]["mill_tolerance"];
-        !q.is_null() && !unit_value(q, Dimension::Length).is_ok_and(|v| v == 0.0)
-    });
-    if nonzero {
-        return Err(ValidationError {
-            gate: "G8",
-            code: "RETAINED_PRECISION_INVOCATION_MISMATCH".into(),
-            detail: Some(MILL_TOLERANCE_DECLINE.into()),
-        });
-    }
-    Ok(())
-}
-/// b7-plan "Exact-contract fields": an exact document declares an explicit
-/// length-valued zero `corrosion_allowance` on every pipe section (absent,
-/// null, malformed, non-length or nonzero allowances are outside the
+/// b7-plan "Exact-contract fields" and O4 §4.7: an exact document declares an
+/// explicit length-valued, finite `corrosion_allowance` c_a ≥ 0 on every pipe
+/// section, with its mill tolerance c_m (absent or null is zero, as the
+/// producer reads it) finite and ≥ 0 and c_m + c_a < t (absent, null,
+/// malformed, non-length, negative or over-wall allowances are outside the
 /// contract the producer admits); a pressure-free document declares none.
 fn section_allowances(model: &Value, exact: bool) -> bool {
     list(&model["pipe_segments"]).iter().all(|pipe| {
         let section = &pipe["section"];
         if exact {
-            unit_value(&section["corrosion_allowance"], Dimension::Length).is_ok_and(|v| v == 0.0)
+            let allowance = unit_value(&section["corrosion_allowance"], Dimension::Length);
+            let wall = unit_value(&section["wall_thickness"], Dimension::Length);
+            let mill = if section["mill_tolerance"].is_null() {
+                Ok(0.0)
+            } else {
+                unit_value(&section["mill_tolerance"], Dimension::Length)
+            };
+            matches!((allowance, mill, wall), (Ok(ca), Ok(cm), Ok(t))
+                if ca.is_finite() && ca >= 0.0 && cm.is_finite() && cm >= 0.0 && t.is_finite() && cm + ca < t)
         } else {
             section.as_object().is_none_or(|s| !s.contains_key("corrosion_allowance"))
         }
@@ -4819,7 +4927,10 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
         o.len() == 3
             && o.get("version").and_then(Value::as_str) == Some(version)
             && o.get("mode").and_then(Value::as_str) == Some(mode)
-            && o.get("shear_model").and_then(Value::as_str) == Some("euler_bernoulli")
+            && matches!(
+                o.get("shear_model").and_then(Value::as_str),
+                Some(crate::section_basis::EULER_BERNOULLI | crate::section_basis::TIMOSHENKO)
+            )
     })
 }
 /// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
@@ -4912,9 +5023,6 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         "G8",
         "INVOCATION_MISMATCH",
     )?;
-    if route.exact {
-        exact_mill_tolerances(model)?;
-    }
     // B2-C §10.1 G8 invocation: the entries are the model's combinations, in
     // order and id, each expression equal to its model combination.
     let authored = list(&model["combinations"]);
@@ -5261,7 +5369,9 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
             } else {
                 unit_value(&p["section"]["mill_tolerance"], Dimension::Length)?
             };
-            let t = wall - tol;
+            // D-5 (O4 §4.7): route E's stiffness section is the nominal wall t; route L
+            // keeps its one t - c_m section (H-1).
+            let t = if route.exact { wall } else { wall - tol };
             let geo = &section["geometry"];
             fail(
                 d > 0.0
@@ -5278,6 +5388,49 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
             )?;
             for key in ["E", "G", "A_K", "Iy_K", "Iz_K", "J_K"] {
                 fail(f(&m[key]) >= f64::MIN_POSITIVE)?;
+            }
+            // O4 §4.7: the D-5 reduced section and the Timoshenko leaf, rederived from the
+            // captured invocation. A reduced term is present exactly when t_r = (t - c_m) - c_a
+            // differs from t (then the wall, and with it the annulus, differs), on that wall;
+            // `shear_area` exactly on a timoshenko_annulus_energy_v1 document, equal to
+            // RN(kappa_hat * A_prep) with kappa_hat by the fixed order from the nominal radii
+            // (D/2 - t, D/2) and the member's nu, and A_prep the term's prepared area.
+            if route.exact {
+                let allowance = unit_value(&p["section"]["corrosion_allowance"], Dimension::Length)?;
+                let tr = crate::section_basis::reduced_wall(wall, tol, allowance);
+                match section.get("reduced") {
+                    None => fail(tr.to_bits() == t.to_bits())?,
+                    Some(r) => {
+                        let rg = &r["geometry"];
+                        fail(
+                            tr.to_bits() != t.to_bits()
+                                && tr > 0.0
+                                && rg["route"] == route.geometry
+                                && rg["normalized_od"] == bits(d)
+                                && rg["effective_wall"] == bits(tr)
+                                && rg["actual_radius"] == bits(d * 0.5)
+                                && [&r["area"], &r["section_modulus"], &rg["actual_second_moment"], &rg["actual_polar_moment"]]
+                                    .into_iter()
+                                    .all(|v| f(v) >= f64::MIN_POSITIVE),
+                        )?;
+                    }
+                }
+                let timoshenko = model["pressure_contract"]["shear_model"] == crate::section_basis::TIMOSHENKO;
+                match section.get("shear_area") {
+                    None => fail(!timoshenko)?,
+                    Some(a) => {
+                        fail(timoshenko)?;
+                        let raw = materials
+                            .iter()
+                            .find(|x| x["id"] == p["material"])
+                            .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
+                        let (_, _, nu) = exact_material(raw)?;
+                        let kappa = crate::section_basis::timoshenko_shear_factor(d * 0.5 - t, d * 0.5, nu);
+                        fail(kappa.is_finite() && kappa > 0.0 && *a == bits(kappa * f(&section["area"])))?;
+                    }
+                }
+            } else {
+                fail(section.get("reduced").is_none() && section.get("shear_area").is_none())?;
             }
         }
         let mut terms = Vec::new();
@@ -5474,7 +5627,8 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
             } else {
                 unit_value(&p["section"]["mill_tolerance"], Dimension::Length)?
             };
-            fail(facts[0] == bits(d) && facts[1] == bits(wall - tol))?;
+            // D-5 (O4 §4.7): route E's facts carry the nominal wall t; route L t - c_m.
+            fail(facts[0] == bits(d) && facts[1] == bits(if route.exact { wall } else { wall - tol }))?;
             let ni = find_node(nodes, &p["from"])?;
             let nj = find_node(nodes, &p["to"])?;
             let mut positions = list(&node_maps[ni]["coordinates"]).to_vec();
@@ -5522,6 +5676,22 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
                         for k in ["length", "axial_stiffness", "torsional_stiffness"] {
                             fail(op["result"][k] == st[k])?;
                         }
+                    }
+                    // O4 §4.6: the reduced preparation record is the reduced term's
+                    // prepared section, as the member's own record is the nominal one's.
+                    match (pm.get("reduced"), st.get("reduced")) {
+                        (None, None) => {}
+                        (Some(pr), Some(r)) => fail(
+                            pr["result"]["section"]
+                                == json!([
+                                    r["area"],
+                                    r["geometry"]["actual_second_moment"],
+                                    r["geometry"]["actual_polar_moment"],
+                                    r["section_modulus"],
+                                    r["geometry"]["actual_radius"]
+                                ]),
+                        )?,
+                        _ => fail(false)?,
                     }
                 }
                 if op["result"]["kind"] == "ready" {
@@ -5803,6 +5973,25 @@ fn native_bytes(s: &Value, source: bool) -> VResult<Vec<u8>> {
             dof(&mut out, &c["dof"])?;
             if source {
                 val(&mut out, &c["value"])?;
+            }
+        }
+        // O4 §4.2 (FK `TimoshenkoLeafSet::encode_block`): a non-empty Timoshenko
+        // sidecar makes the encoding version 2 and appends, after the stiffness part,
+        // the framed block `TSH\x01`, the count, then each leaf's member (u32) and
+        // shear-area bits (u64), sorted by member. An Euler-Bernoulli source keeps
+        // version 1 and today's bytes.
+        let mut leaves: Vec<(u64, &Value)> = list(&s["section_terms"])
+            .iter()
+            .filter_map(|st| st.get("shear_area").map(|a| (u(&st["member"]), a)))
+            .collect();
+        if !leaves.is_empty() {
+            leaves.sort_by_key(|l| l.0);
+            out[5] = 2;
+            out.extend_from_slice(b"TSH\x01");
+            put(&mut out, leaves.len() as u64)?;
+            for (member, shear_area) in leaves {
+                put(&mut out, member)?;
+                val(&mut out, shear_area)?;
             }
         }
         if source {
@@ -6375,7 +6564,7 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     g5_products(source)?;
     let mut cases = numeric_cases(source)?;
     g5a(body, &cases)?;
-    g5b(&mut cases)?;
+    g5b(&mut cases, route.exact)?;
     if route.exact {
         g5b_exact_evidence(source, &cases)?;
     }
@@ -7673,32 +7862,40 @@ mod c7_prescribed_key_controls {
 mod t4_u6_g8_tests {
     use super::*;
 
-    /// T4-U6 (§5, O4): physics-retained-1's G8 declines a nonzero mill
-    /// tolerance by name on the exact route; zero, absent and null are zero.
+    /// O4 (DEL-04-08 Design `o4-source-extension.md` §4.7): physics-retained-1's
+    /// G8 admits either shear model and any finite, nonnegative mill tolerance and
+    /// explicit allowance with c_m + c_a < t; the mill-tolerance decline is retired.
+    /// An unknown shear model, a negative, non-length, absent or over-wall allowance,
+    /// or a negative mill tolerance stays outside the namespace.
     #[test]
-    fn g8_names_a_nonzero_mill_tolerance_on_the_exact_route() {
+    fn g8_namespace_admits_either_shear_model_and_nonzero_allowances() {
         let request: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
         ))
         .unwrap();
         let model = &request["model"];
-        assert_eq!(exact_mill_tolerances(model), Ok(()));
-        for (value, declined) in [
-            (json!({"value": 0.5, "unit": "mm"}), true),
-            (json!({"value": 1, "unit": "N"}), true),
-            (json!({"value": 0, "unit": "mm"}), false),
-            (Value::Null, false),
+        assert!(exact_namespace(model));
+        let wall = unit_value(&model["pipe_segments"][0]["section"]["wall_thickness"], Dimension::Length).unwrap();
+        for (key, value, admitted) in [
+            ("mill_tolerance", json!({"value": 0.5, "unit": "mm"}), true),
+            ("mill_tolerance", json!({"value": 0, "unit": "mm"}), true),
+            ("mill_tolerance", Value::Null, true),
+            ("mill_tolerance", json!({"value": -0.5, "unit": "mm"}), false),
+            ("mill_tolerance", json!({"value": 1, "unit": "N"}), false),
+            ("corrosion_allowance", json!({"value": 1.0, "unit": "mm"}), true),
+            ("corrosion_allowance", json!({"value": -1.0, "unit": "mm"}), false),
+            ("corrosion_allowance", json!({"value": 1, "unit": "N"}), false),
+            ("corrosion_allowance", Value::Null, false),
+            ("corrosion_allowance", json!({"value": wall, "unit": "m"}), false),
         ] {
             let mut changed = model.clone();
-            changed["pipe_segments"][0]["section"]["mill_tolerance"] = value.clone();
-            let outcome = exact_mill_tolerances(&changed);
-            if declined {
-                let error = outcome.unwrap_err();
-                assert_eq!((error.gate, error.code.as_str(), error.detail.as_deref()),
-                    ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH", Some(MILL_TOLERANCE_DECLINE)), "{value}");
-            } else {
-                assert_eq!(outcome, Ok(()), "{value}");
-            }
+            changed["pipe_segments"][0]["section"][key] = value.clone();
+            assert_eq!(exact_namespace(&changed), admitted, "{key} {value}");
+        }
+        for (shear, admitted) in [("timoshenko_annulus_energy_v1", true), ("euler_bernoulli", true), ("cowper", false)] {
+            let mut changed = model.clone();
+            changed["pressure_contract"]["shear_model"] = json!(shear);
+            assert_eq!(exact_namespace(&changed), admitted, "{shear}");
         }
     }
 }

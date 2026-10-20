@@ -21,32 +21,32 @@ import runpy
 # publication without cloning the source; neither touches a member-path owner. T4-S7: retained_wire.rs's
 # domain_hash doc comment only.
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": '6114335b6660a7f2905009741ea94dee5fbf6c42aa69fc4d15ac968b5d520713',
-    "core/product_physics/src/retained_wire.rs": "e33c716e21de5577d89d7db9af85b64491e7abea75775527f130c8986b01e2cc",
+    "core/product_physics/src/retained_product.rs": 'cd0671759be0395cdc48c2a23489730f3ac1e05bf5b922e648b420cbe3e49957',
+    "core/product_physics/src/retained_wire.rs": "559f4d0ae4b3b2a9405d3aa8199d5ccbc10d03775a0b38544e10eed31b1806eb",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "2dbbdd9c9fcdfc87aa0b7358c6a7661e20eded94b64e482ec62dcdbbaedce7a4",
-    "core/reporting/result_export/src/retained_precision.rs": "85e7f8d886a4f18a3e07cf39b7b1e3b5ff84f8d48268a853fd987c5c4af6fd93",
+    "core/reporting/result_export/src/retained_precision.rs": "8890f3c127428d2eb2959a2f74d5a0263bb76ada69ff6ec160617c6d9adf4a24",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
-    "core/solver/frame_kernel/src/structural/retained_resource.rs": "817de6a975e7a95a9bfe8bbe660cc40807f66e31d923db860615daaf61223909",
-    "core/solver/frame_kernel/src/structural/retained/source.rs": "2efa421b47fa147f3233dcdc236f414f0f80a9019b19b4d181782a90d4eb7d98",
+    "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
+    "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",
     "core/solver/frame_kernel/src/structural/retained/declared.rs": "867637e55a30fd34b679ad11423ad1d6d58e14f632548b04c4a535c94aa62c77",
     "core/solver/frame_kernel/src/structural/retained/ledger.rs": "0d80f13a76771506c1c81f65e502ce255d648f8aaa6a2eecfd3544bab8af47e9",
-    "core/solver/frame_kernel/src/structural/retained/origins.rs": "e7fed3bb7bb207aa20231dd2fd4bf7b6debe668b228bb6f2b2ab5cfaad53f6c4",
-    "core/solver/frame_kernel/src/structural/retained/adaptive.rs": "d68397d947d9298404d057ddfc772a4ba721757eeddc6e0ce81c7d36834a4179",
-    "core/solver/frame_kernel/src/structural/retained/assemble.rs": "360734773e605301bcc3d05356391a910df0e8c909ed912a0c0cdde3f9ec339b",
-    "core/solver/frame_kernel/src/structural/retained/combine.rs": "8f2c429096e8a0dd7bbc6788655ab74302f0e1d434839f49e6c7c3a62d11e048",
-    "core/solver/frame_kernel/src/structural/retained/recover.rs": "89c53763e499fbadd3ecb273875716f5072a57e545487a2c3de54afbdc8e4b27",
-    "core/solver/frame_kernel/src/structural/retained/verify.rs": "b0bc5322aa69da3c44992f08abaac95fcd9c7d650b318672aa741dde8f867b40",
+    "core/solver/frame_kernel/src/structural/retained/origins.rs": "fc139cb20561a281b5dcd252eed307d408d9632b5f2c5232147f2dd10640e161",
+    "core/solver/frame_kernel/src/structural/retained/adaptive.rs": "b966f7d77b851da81a630759f04d68f29b92b760972b9d31ebb693475a7e4249",
+    "core/solver/frame_kernel/src/structural/retained/assemble.rs": "8b4ab81afc98389e6c46a979ef1ac05acb06bcd3e5ef0aa63fc847f5a897f2c5",
+    "core/solver/frame_kernel/src/structural/retained/combine.rs": "85d7908cce9c4989b439db508df25601bf3905c7898245201afb27b4f085d42a",
+    "core/solver/frame_kernel/src/structural/retained/recover.rs": "2c4bf28ccafd98204b1c7b0dcf91339254ed13504fe2508e40ab71a65eb30c97",
+    "core/solver/frame_kernel/src/structural/retained/verify.rs": "b3de08f43e2578b5083af19a70a0490cb9f155669ad471defb67b55d65357259",
     "core/solver/frame_kernel/src/structural/retained/wide_sum.rs": "15a9d997a57929bb6e8f49ed5565c266b3d7de8207cc9a111adddd3bd6d7ff9e",
     "core/solver/frame_kernel/src/structural/retained/work.rs": "8f2311cab48a6661b132272b176e777ce881b661faf975ae56a0734e4609a51f",
     "core/solver/frame_kernel/src/structural/retained/wide.rs": "b1720097c463461f656398142f1379417f850e058e1f5458821727e8076146a1",
     "core/solver/frame_kernel/src/structural/retained/wide/multi.rs": "d5aef1987ae7f390e085f98a91203cd22b58eaade07f1610e97db8fbd38d8227",
     "core/solver/frame_kernel/src/structural/retained/directed.rs": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
     "core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "dadbb4d6a37e8a44b95d567494828feb795d805434814b7039c8b925a17e1a80",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "0f6853a3eda3e92e7dda81bfc11653653c71bd2797026f067be30eff8c2fd363",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "49638d8e283594d419c6c84d8cc291f3ff8b5b5e64a8f70166ca5ca6f052fc35",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "2481f6038229ca0dfc7e43d4a5f23918d45f373b7afb4480b7d750a9c0cf5121",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "ed9ff38db3f9c96ea69aa59b4127bf0f356e0ae14b0b975b0cf1cf629a4d1890",
     "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs": "cc9ad2a9051a354273bd66370fbc57f1eb52e98aacb71b4e3cc75cd72de54900",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "7cd4da7c473cf08dc1462c3ae2b900a1646be57ec76519995dbd33d8126fdcf6"
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "6208ea03adbe8617066e6aabe7d16bbe8a4afd4b2103909e79d8c921340eae37"
 }
 READER_CASE_CAP = 1024 * 1024
 READER_STACK = 128 * 1024
@@ -211,8 +211,11 @@ def case_clone_audit(snapshot):
     inspect(snapshot)
     file = "core/solver/frame_kernel/src/structural/retained/adaptive.rs"
     lines = (Path(snapshot) / file).read_text().splitlines()
-    text = "let prepared = if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }"
-    hits = [i + 1 for i, line in enumerate(lines) if line.strip() == text]
+    # O4 S5 (retained-pricing-rules.md §8.9): the Timoshenko arm `if shear.is_some() { CasePrep::new_with_shear(..) }`
+    # precedes the nodal arm, so the same clone statement is the `else if` line; the audit follows it unchanged.
+    text = ("let prepared = if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }",
+            "else if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }")
+    hits = [i + 1 for i, line in enumerate(lines) if line.strip() in text]
     if len(hits) != 1:
         raise ValueError("W1 stage2: extracted source clone site changed")
     return file + ":" + str(hits[0]), {"source": {"bytes": 128, "source": "STATIC"}}
@@ -235,17 +238,22 @@ def text_decisions(snapshot, resolved):
         ('iter:" ":limbs.iter().map', "16", ["retained_wire.rs:proof_trace"]),
         ("for (canonical,load) in loads.loads().iter().enumerate()", "l", ["retained_product.rs:store_member_source"]),
     ]
-    def site(file, text):
+    def site(file, text, count=1):
         lines = (Path(snapshot) / file).read_text().splitlines()
         hits = [i + 1 for i, line in enumerate(lines) if text in line]
-        if len(hits) != 1:
+        if len(hits) != count:
             raise ValueError("W1 stage2: new argument site changed: " + file)
-        return resolved(file + ":" + str(hits[0]))
+        return [resolved(file + ":" + str(h)) for h in hits] if count != 1 else resolved(file + ":" + str(hits[0]))
+    # O4 S5 (retained-pricing-rules.md §8.9): CasePrep::new_with_shear's nodal arm makes the same PrimitiveSource
+    # clone as new_member (`Self::new(source.source().clone())`), so the one audit applies at both statements.
+    _adaptive = "core/solver/frame_kernel/src/structural/retained/adaptive.rs"
+    _clones = 2 if "pub(crate) fn new_with_shear(" in (Path(snapshot) / _adaptive).read_text() else 1
+    _clone_sites = site(_adaptive, "Self::new(source.source().clone())", _clones)
     audits = [
         (site("core/product_physics/src/retained_product.rs", "else {k::PreparedCaseSource::new(source.clone())"),
          {"source": {"bytes": 128, "source": "STATIC"}}),
-        (site("core/solver/frame_kernel/src/structural/retained/adaptive.rs", "Self::new(source.source().clone())"),
-         {"source.source()": {"bytes": 128, "source": "STATIC"}}),
+        *[(_s, {"source.source()": {"bytes": 128, "source": "STATIC"}})
+          for _s in (_clone_sites if isinstance(_clone_sites, list) else [_clone_sites])],
         (site("core/reporting/result_export/src/retained_precision.rs", 'let generated=format!("load:self-weight:'),
          {'text(&case["id"])': {"bytes": 128, "source": "IN128"},
           'text(&pipes[member]["id"])': {"bytes": 128, "source": "IN128"},

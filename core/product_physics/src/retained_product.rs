@@ -54,6 +54,46 @@ pub(super) struct MemberCaseSource {
     pub terms: Vec<MemberTermIdentity>,
     pub loads: k::MemberLoadSet,
 }
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §4.2, §4.5): one route-E member's D-5 facts
+/// beside its nominal `ProductMemberFacts` (which do not grow): its Timoshenko leaf's κ̂ and
+/// the built frame's ordinary shear area (`None` for Euler–Bernoulli), and its reduced wall
+/// t_r = (t − c_m) − c_a with the authored mill tolerance and allowance.
+#[derive(Debug, Clone, PartialEq)]
+pub(super) struct ExactMemberBasis {
+    pub member: u32,
+    pub kappa: Option<f64>,
+    pub ordinary_shear_area: Option<f64>,
+    pub reduced_wall: f64,
+    pub mill_tolerance: f64,
+    pub corrosion_allowance: f64,
+}
+/// O4 §4.5: one distinct-basis member's prepared reduced section, `prepare_product_annulus(D,
+/// t_r)`'s binary64 A_r, Î_r, Ĵ_r, Ẑ_r and c (= D/2), with its reduced wall.
+#[derive(Debug, Clone, PartialEq)]
+pub(super) struct ReducedFacts {
+    pub member: u32,
+    pub effective_wall: f64,
+    pub area: f64,
+    pub second_moment: f64,
+    pub torsion_constant: f64,
+    pub section_modulus: f64,
+    pub radius: f64,
+}
+/// O4 §4.6: one distinct-basis member's reduced annulus preparation in one attempt, recorded
+/// beside the member's own (nominal) preparation record.
+pub(super) struct ReducedPreparation {
+    pub member: u32,
+    pub result: Result<k::PreparedSectionBits, k::SectionPreparationError>,
+    pub work: k::SectionPreparationWork,
+}
+/// O4 §4.2: the prepared shear-leaf association of one Timoshenko member: the built frame's
+/// ordinary leaf A_s = RN(κ̂·A_ordinary) and the prepared leaf A_s,prep = RN(κ̂·A_prep), as bits.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct ShearAssociation {
+    pub member: u32,
+    pub ordinary: u64,
+    pub prepared: u64,
+}
 #[derive(Debug)]
 pub(super) struct TermIdentity {
     pub original: usize,
@@ -187,6 +227,24 @@ pub(super) struct ProductCapture {
     /// Member-only owners, outside per_case_capture!, CaseSlot and EarlyCaseSource.
     /// A wholly nodal invocation allocates neither this vector nor any sidecar.
     pub member_sources: Option<Vec<MemberCaseSource>>,
+    /// O4 (DEL-04-08 Design `o4-source-extension.md` §4.2, §4.5): route E's member sidecar,
+    /// one entry per member in member order, captured from the built model's D-5 bases when
+    /// the document selects `timoshenko_annulus_energy_v1` or declares a nonzero mill tolerance
+    /// or corrosion allowance; empty otherwise (no allocation, no event). Invocation-owned,
+    /// outside `CaseSlot`: every case captures the same members and must capture equal entries.
+    pub exact_members: Vec<ExactMemberBasis>,
+    /// O4 §4.5: the pipe ids of the members whose reduced stress section differs from the
+    /// nominal one (t_r ≠ t, so the wall and with it the annulus differ). Their reduced stress
+    /// and maximum rows are receipt rows; every other member's reduced twins keep today's
+    /// overlay. Empty for every document whose bases coincide (no allocation, no event).
+    pub distinct_bases: Vec<String>,
+    /// O4 §4.2: the invocation's prepared Timoshenko sidecar, A_s,prep = RN(κ̂·A_prep) per
+    /// member, set by the first prepared case and equal for every later one (`None` for an
+    /// Euler–Bernoulli document).
+    pub timoshenko: Option<k::TimoshenkoLeafSet>,
+    /// O4 §4.5: the distinct-basis members' prepared reduced sections, `prepare_product_annulus(D,
+    /// t_r)`, set by the first prepared case and equal for every later one.
+    pub reduced_facts: Vec<ReducedFacts>,
     pub members: Vec<MemberIdentity>,
     pub terms: Vec<TermIdentity>,
     pub supports: Vec<(String, usize)>,
@@ -469,6 +527,9 @@ impl ProductCapture {
             if member.case_id!=*id{return Err(CombinationCustody("operand member association"));}
             let view=k::MemberSourceRef::new(source,&member.loads).map_err(|_|CombinationCustody("operand member source"))?;
             k::PreparedCaseSource::new_member(view).map_err(|_|CombinationCustody(site))
+        } else if let Some(shear)=self.timoshenko.as_ref() {
+            // O4 §4.2: a Timoshenko operand keeps its sidecar (route E has no combinations).
+            k::PreparedCaseSource::new_with_shear(k::MemberSourceRef::nodal(source),shear).map_err(|_|CombinationCustody(site))
         } else {k::PreparedCaseSource::new(source.clone()).map_err(|_|CombinationCustody(site))}
     }
     pub(super) fn member_source_at(&self,index:usize)->Option<&MemberCaseSource> {
@@ -1922,6 +1983,25 @@ impl ProductCapture {
             self.error = Some(e);
             return None;
         }
+        // O4 §4.2, §4.5: route E's member sidecar exists only for a Timoshenko document or one
+        // with a nonzero mill tolerance or allowance. The decision reads the built bases with no
+        // event, so every other document keeps today's events and bytes.
+        let sidecar = self.route == W1Route::Exact && model.pipe_segments.iter().any(|pipe| {
+            built.exact_sections.get(&pipe.id).is_some_and(|g| {
+                g.timoshenko().is_some() || g.mill_tolerance_m() != 0.0 || g.corrosion_allowance_m() != 0.0
+            })
+        });
+        let mut exact_members: Vec<ExactMemberBasis> = Vec::new();
+        let mut distinct_bases: Vec<String> = Vec::new();
+        if sidecar {
+            match self.adapter.reserve(model.pipe_segments.len()) {
+                Ok(v) => exact_members = v,
+                Err(e) => {
+                    self.error = Some(e);
+                    return None;
+                }
+            }
+        }
         for n in &built.nodes {
             if !self.adapter.enter(AdapterEvent::SourceVisit, 1)
                 || !self.adapter.enter(AdapterEvent::MapWrite, 1)
@@ -2019,16 +2099,16 @@ impl ProductCapture {
                 self.fail("resolved/built K mismatch");
                 return None;
             }
-            // T4-U8 (DEL-05-03 Design §3.6): the retained member is formed from the built frame
-            // by FK's `StraightMember::from_frame`, which copies an Euler-Bernoulli frame's
-            // leaves bit for bit and refuses a Timoshenko leaf by name, so such a leaf can never
-            // reach the Euler-Bernoulli retained assembler (G-A already declines the document).
+            // T4-U8 (DEL-05-03 Design §3.6) and O4 §4.2: the retained member is formed from
+            // the built frame by FK's `StraightMember::from_frame_with_leaf`, which copies the
+            // frame's leaves bit for bit and returns a Timoshenko frame's shear leaf as the
+            // member-only sidecar entry, never forming it without its shear term.
             let Ok(frame) = b.frame_element() else {
                 self.fail("retained member frame");
                 return None;
             };
-            let member = match k::StraightMember::from_frame(id, &frame) {
-                Ok(member) => member,
+            let (member, leaf) = match k::StraightMember::from_frame_with_leaf(id, &frame) {
+                Ok(pair) => pair,
                 Err(k::RetainedMemberRefusal::NodeIndexRange) => {
                     self.fail_count("node count range");
                     return None;
@@ -2038,6 +2118,54 @@ impl ProductCapture {
                     return None;
                 }
             };
+            // O4 §4.2, §4.5: a shear leaf reaches only route E's sidecar; its κ̂ and the
+            // reduced wall are the built D-5 bases', bound to the frame's leaf and the facts'
+            // nominal wall. Route L carries no shear model (association refusal by name).
+            if leaf.is_some() && !sidecar {
+                self.fail(k::RETAINED_TIMOSHENKO_REFUSAL);
+                return None;
+            }
+            if sidecar {
+                let Some(g) = built.exact_sections.get(&pipe.id).copied() else {
+                    self.fail("exact member basis");
+                    return None;
+                };
+                let shear = g.timoshenko();
+                if g.nominal_wall_m().to_bits() != section.wall_thickness.to_bits()
+                    || shear.map(|s| s.1.to_bits()) != leaf.map(|l| l.shear_area.to_bits())
+                    || leaf.is_some_and(|l| l.member != id)
+                {
+                    self.fail("exact member basis");
+                    return None;
+                }
+                let reduced_wall = g.reduced().effective_wall_thickness_m();
+                if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
+                    self.fail("map-write accounting");
+                    return None;
+                }
+                exact_members.push(ExactMemberBasis {
+                    member: id,
+                    kappa: shear.map(|s| s.0),
+                    ordinary_shear_area: shear.map(|s| s.1),
+                    reduced_wall,
+                    mill_tolerance: g.mill_tolerance_m(),
+                    corrosion_allowance: g.corrosion_allowance_m(),
+                });
+                // §4.5: the reduced stress section differs from the nominal one exactly when
+                // its wall does; equal walls prepare the same annulus bit for bit.
+                if reduced_wall.to_bits() != g.nominal_wall_m().to_bits() {
+                    let copied = self.adapter.copy(&pipe.id).and_then(|id| {
+                        self.adapter.push_room(&mut distinct_bases)?;
+                        self.capture_entry(AdapterEvent::MapWrite)?;
+                        distinct_bases.push(id);
+                        Ok(())
+                    });
+                    if let Err(e) = copied {
+                        self.error = Some(e);
+                        return None;
+                    }
+                }
+            }
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("map-write accounting");
                 return None;
@@ -2105,6 +2233,15 @@ impl ProductCapture {
         }
         if built.pipes.len() != self.members.len() {
             self.fail("extra built member");
+            return None;
+        }
+        // O4: the invocation's member sidecar, from the first captured case; every later case
+        // captures the same members (one model), so its entries must be equal.
+        if self.exact_members.is_empty() && self.distinct_bases.is_empty() {
+            self.exact_members = exact_members;
+            self.distinct_bases = distinct_bases;
+        } else if self.exact_members != exact_members || self.distinct_bases != distinct_bases {
+            self.fail("exact member basis identity");
             return None;
         }
         for &g in restrained {
@@ -2394,26 +2531,26 @@ impl ProductCapture {
         e: &'a MechanicsEnvelope,
         owner: &k::RetainedSolve,
     ) -> Result<Vec<k::ProductFinalRow<'a>>, CaptureError> {
-        self.bind_rows_view(ProductCaseView::of(e,CaseScope::whole_ref(self.route)),owner)
+        self.bind_rows_view(ProductCaseView::of(e,CaseScope::whole_ref(self.route),&self.distinct_bases),owner)
     }
     /// B2-P: a mechanics combination's rows bound within its block (T-11's serializer).
     pub(super) fn bind_combination_rows_scoped<'a>(&self,e:&'a MechanicsEnvelope,scope:&'a CaseScope,owner:&k::RetainedSolve,combination:&str)
         -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
-        self.bind_rows_subject(ProductCaseView::of(e,scope),owner,Some(combination))
+        self.bind_rows_subject(ProductCaseView::of(e,scope,&self.distinct_bases),owner,Some(combination))
     }
     /// `bind_rows` within one requested case's scope (B1 SP, T-11's serializer).
     pub(super) fn bind_rows_scoped<'a>(&self,e:&'a MechanicsEnvelope,scope:&'a CaseScope,owner:&k::RetainedSolve)
         -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
-        self.bind_rows_view(ProductCaseView::of(e,scope),owner)
+        self.bind_rows_view(ProductCaseView::of(e,scope,&self.distinct_bases),owner)
     }
-    fn bind_rows_view<'a>(&self,view:ProductCaseView<'a>,owner:&k::RetainedSolve)
+    fn bind_rows_view<'a>(&self,view:ProductCaseView<'a,'_>,owner:&k::RetainedSolve)
         -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
         self.bind_rows_subject(view,owner,None)
     }
     /// The rows of `view` bound to `owner`'s quantities: the case's (`combination` None) or,
     /// B2-P, a mechanics combination's own block (`Some(its id)`: basis `combination` naming it,
     /// combination metadata and ids, no mode or record row; B2-C §2.4 (iii) 4).
-    fn bind_rows_subject<'a>(&self,view:ProductCaseView<'a>,owner:&k::RetainedSolve,combination:Option<&str>)
+    fn bind_rows_subject<'a>(&self,view:ProductCaseView<'a,'_>,owner:&k::RetainedSolve,combination:Option<&str>)
         -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
         self.adapter.require()?;
         if self.error.is_some() {
@@ -2444,7 +2581,7 @@ impl ProductCapture {
             }
             // A reduced twin binds no kernel quantity: it pairs with its nominal
             // twin, the previous row, and carries that row's (retained) value.
-            if reduced_twin(route, r) {
+            if reduced_twin(route, view.distinct, r) {
                 let nominal = pending_nominal.take().ok_or("reduced twin pairing")?;
                 self.check_reduced_twin(nominal.original, r)?;
                 if final_value.to_bits() != nominal.value.to_bits() {
@@ -2452,7 +2589,13 @@ impl ProductCapture {
                 }
                 continue;
             }
-            if pending_nominal.is_some() {
+            // O4 §4.5: a distinct-basis member's reduced row pairs with its nominal twin the
+            // same way, but it is a bound row of its own, certified on the reduced section.
+            let distinct_reduced = reduced_basis_row(route, r);
+            if distinct_reduced {
+                let nominal = pending_nominal.take().ok_or("reduced twin pairing")?;
+                self.check_reduced_twin(nominal.original, r)?;
+            } else if pending_nominal.is_some() {
                 return Err("reduced twin pairing".into());
             }
             let basis = r.basis_ref.as_ref().ok_or("final basis")?;
@@ -2662,10 +2805,14 @@ impl ProductCapture {
                     }
                 }
             };
-            // D-5 on route E: every stress row is the nominal row of a twin pair.
+            // D-5 on route E: every bound stress row is the nominal row of a twin pair, or
+            // (O4 §4.5) a distinct-basis member's reduced row.
             let section_basis = (route == W1Route::Exact
                 && matches!(recipe, k::ProductRecipe::Stress { .. } | k::ProductRecipe::CircularMaximum { .. }))
-                .then_some(pressure_exact::SectionBasis::Nominal);
+                .then_some(if distinct_reduced { pressure_exact::SectionBasis::Reduced } else { pressure_exact::SectionBasis::Nominal });
+            if distinct_reduced && section_basis.is_none() {
+                return Err("reduced row recipe".into());
+            }
             // §4.1: a route-E derived row names its own basis (no twin pairing).
             let derived_basis = match (route, recipe) {
                 (W1Route::Exact, k::ProductRecipe::NotCovered { .. }) => Some(derived_section_basis(r)?),
@@ -2675,7 +2822,7 @@ impl ProductCapture {
                 let subject=match combination {None=>RowSubject::Case{case:&self.case_id,qualified:view.scope.qualified},Some(id)=>RowSubject::Combination(id)};
                 validate_final_metadata(r, recipe, subject, &self.adapter, section_basis.or(derived_basis))?;
             }
-            if section_basis.is_some() {
+            if section_basis == Some(pressure_exact::SectionBasis::Nominal) {
                 pending_nominal = Some(observed);
             }
             self.adapter.enter(AdapterEvent::MapWrite, 1);
@@ -2720,11 +2867,11 @@ impl ProductCapture {
         Ok(())
     }
     pub(super) fn observables(&self, e: &MechanicsEnvelope) -> Result<(), CaptureError> {
-        self.observables_view(ProductCaseView::of(e,&CaseScope::whole(self.route)))
+        self.observables_view(ProductCaseView::of(e,&CaseScope::whole(self.route),&self.distinct_bases))
     }
     /// The case's observables: its route's evidence entry (B3-D P-6 on the exact route), then
     /// the shared checks of its `pipe_stress_extrema`, support magnitudes and headlines.
-    fn observables_view(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
+    fn observables_view(&self,view:ProductCaseView<'_,'_>)->Result<(),CaptureError> {
         let extrema = match view.scope.route {
             W1Route::Preview => self.preview_case_evidence(view)?,
             W1Route::Exact => self.exact_case_evidence(view)?,
@@ -2738,7 +2885,7 @@ impl ProductCapture {
     /// and `pipe_sections` and `pipe_materials` covering every member, each bound to the
     /// captured normalized OD and effective wall, and to the captured E, ν and Ĝ. Returns the
     /// entry's `pipe_stress_extrema`.
-    fn exact_case_evidence<'a>(&self,view:ProductCaseView<'a>)->Result<&'a [serde_json::Value],CaptureError> {
+    fn exact_case_evidence<'a>(&self,view:ProductCaseView<'a,'_>)->Result<&'a [serde_json::Value],CaptureError> {
         let e=view.ordinary();
         self.adapter.require()?;
         self.adapter.enter(AdapterEvent::LibraryBoundary, 1); // Closed evidence inspection; serde/number internals remain unqualified.
@@ -2808,13 +2955,33 @@ impl ProductCapture {
                 }
             }
             let s = section.ok_or("exact section identity")?;
-            // D-5: W1-E's one section is bound to the authored wall and to both
-            // bases (its admitted documents have zero mill tolerance and allowance).
+            // D-5: the nominal section is bound to the authored wall t. Without a member
+            // sidecar the bases coincide (zero mill tolerance and allowance); with one (O4
+            // §4.5) the reduced wall, mill tolerance and allowance are the captured D-5 values,
+            // and the beam theory states the captured κ̂ and ordinary shear leaf.
             let bits = |value: &serde_json::Value| value.as_f64().map(f64::to_bits);
             let wall = Some(f.effective_wall.to_bits());
+            let (reduced_wall, mill, allowance) = match self.exact_members.get(mi) {
+                None if self.exact_members.is_empty() => (wall, Some(0f64.to_bits()), Some(0f64.to_bits())),
+                Some(eb) if eb.member == f.member => {
+                    let beam = &s["beam_theory"];
+                    let theory = match (eb.kappa, eb.ordinary_shear_area) {
+                        (None, None) => beam["model"] == pressure_runtime::EULER_BERNOULLI,
+                        (Some(kappa), Some(shear)) => beam["model"] == pressure_runtime::TIMOSHENKO_ANNULUS_ENERGY
+                            && bits(&beam["shear_factor"]) == Some(kappa.to_bits()) && bits(&beam["shear_area_m2"]) == Some(shear.to_bits()),
+                        _ => false,
+                    };
+                    if !theory {
+                        return Err("exact section beam theory".into());
+                    }
+                    (Some(eb.reduced_wall.to_bits()), Some(eb.mill_tolerance.to_bits()), Some(eb.corrosion_allowance.to_bits()))
+                }
+                _ => return Err("exact member basis".into()),
+            };
+            let zero = |v: Option<u64>| v.map(|b| if b == (-0f64).to_bits() { 0 } else { b });
             if bits(&s["outside_diameter_m"]) != Some(f.diameter.to_bits()) || bits(&s["wall_thickness_m"]) != wall
-                || bits(&s["nominal_section"]["wall_m"]) != wall || bits(&s["reduced_section"]["wall_m"]) != wall
-                || s["mill_tolerance_m"].as_f64() != Some(0.0) || s["corrosion_allowance_m"].as_f64() != Some(0.0) {
+                || bits(&s["nominal_section"]["wall_m"]) != wall || bits(&s["reduced_section"]["wall_m"]) != reduced_wall
+                || zero(bits(&s["mill_tolerance_m"])) != zero(mill) || zero(bits(&s["corrosion_allowance_m"])) != zero(allowance) {
                 return Err("exact section geometry".into());
             }
             let (_, e_pa, g_pa) = self.materials.get(member.material).ok_or("exact material")?;
@@ -2839,7 +3006,7 @@ impl ProductCapture {
     }
     /// The preview route's closed preview-physics-2 evidence and the case's entry. Returns the
     /// entry's `pipe_stress_extrema`.
-    fn preview_case_evidence<'a>(&self,view:ProductCaseView<'a>)->Result<&'a [serde_json::Value],CaptureError> {
+    fn preview_case_evidence<'a>(&self,view:ProductCaseView<'a,'_>)->Result<&'a [serde_json::Value],CaptureError> {
         let e=view.ordinary();
         self.adapter.require()?;
         self.adapter.enter(AdapterEvent::LibraryBoundary, 1); // Closed evidence inspection; serde/number internals remain unqualified.
@@ -2956,7 +3123,7 @@ impl ProductCapture {
     /// force- and one moment-magnitude row, each magnitude within 64ε relative of the correctly
     /// rounded norm of its three components (base G7's guard; PR-N's `norm3`). Shared by the case
     /// observables and the combination observables stage (REVISION_01 §1.2 item 3).
-    fn support_observables(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
+    fn support_observables(&self,view:ProductCaseView<'_,'_>)->Result<(),CaptureError> {
         for (id, _) in &self.supports {
             self.adapter.enter(AdapterEvent::RowVisit, 1);
             self.adapter.require()?;
@@ -2995,7 +3162,7 @@ impl ProductCapture {
         }
         Ok(())
     }
-    fn case_observables(&self,view:ProductCaseView<'_>,extrema:&[serde_json::Value])->Result<(),CaptureError> {
+    fn case_observables(&self,view:ProductCaseView<'_,'_>,extrema:&[serde_json::Value])->Result<(),CaptureError> {
         // D-5 on route E: one record per member and section basis, nominal then
         // reduced, each naming its basis.
         let exact = view.scope.route == W1Route::Exact;
@@ -4888,6 +5055,11 @@ pub(super) struct AttemptParts {
     pub associations: Vec<PreparedAssociation>,
     pub old_operational: Vec<OperationalSpent>,
     pub preparation_error: Option<k::SectionPreparationError>,
+    /// O4 §4.6: the distinct-basis members' reduced annulus preparations, in member order
+    /// (empty, with no allocation, when no member's bases differ).
+    pub reduced_preparations: Vec<ReducedPreparation>,
+    /// O4 §4.2: the Timoshenko members' shear-leaf associations (empty for Euler–Bernoulli).
+    pub shear_associations: Vec<ShearAssociation>,
 }
 /// B1 SP (DESIGN_v2 T-7; C3): one case's product attempt. Its per-case capture (the prepared
 /// source, the facts, the operational records, its Run, its error) stays in the capture's
@@ -5105,7 +5277,7 @@ impl PreparedCases {
         let mut staged = self.ordinary.clone();
         for attempt in &self.attempts {
             if let AttemptEnd::Frozen(frozen) = &attempt.end {
-                apply_prepared_overlay(&mut staged, &frozen.payload, &self.capture.case_scope(attempt.request))?;
+                apply_prepared_overlay(&mut staged, &frozen.payload, &self.capture.case_scope(attempt.request), &self.capture.distinct_bases)?;
             }
         }
         // B2-P (B2-C §2.7 staging 2): each retained_selected combination's values on its own
@@ -5374,7 +5546,22 @@ impl ProductCapture {
         let cap=k::OriginCapacity::for_invocation(&[count],operands,prepared).map_err(CaptureError::Origin)?;
         let mut invocation=k::RecordedInvocation::new(60_000_000_000,cap).map_err(CaptureError::Origin)?;
         let member_aware=submitted().any(|request|self.case_has_member_loads(request) || self.member_source_at(request).is_some());
-        let cases=if member_aware {
+        let cases=if let Some(shear)=self.timoshenko.as_ref() {
+            // O4 §4.2: a Timoshenko document's cases, each formed with the invocation's one
+            // prepared sidecar (route E has no member loads, D1.7; a member case is refused).
+            if member_aware {return Err("timoshenko member case".into());}
+            let mut views=self.adapter.reserve::<k::MemberSourceRef<'_>>(count)?;
+            for request in submitted() {
+                let source=self.case_prepared_source(request).ok_or("prepared source")?;
+                self.capture_entry(AdapterEvent::MapWrite)?;views.push(k::MemberSourceRef::nodal(source));
+            }
+            self.capture_entry(AdapterEvent::LibraryBoundary)?;
+            invocation.solve_timoshenko_cases(&views,shear,limit).map_err(|e|match e {
+                k::TimoshenkoCaseError::Origin(e)=>CaptureError::Origin(e),
+                k::TimoshenkoCaseError::Association(e)=>CaptureError::Association(e.reason().into()),
+                k::TimoshenkoCaseError::Ledger(_)=>CaptureError::Association("timoshenko case ledger".into()),
+            })?
+        } else if member_aware {
             let mut views=self.adapter.reserve::<k::MemberSourceRef<'_>>(count)?;
             for request in submitted() {
                 let source=self.case_prepared_source(request).ok_or("prepared source")?;
@@ -5459,7 +5646,7 @@ impl ProductCapture {
             }
             Ok(PreparedCases{ordinary,capture,mut attempts,..})=>{
                 let CaseAttempt{prepared,parts,trace,..}=attempts.pop().expect("one attempt");
-                let AttemptParts{preparations,preparation_work,associations,old_operational,preparation_error}=parts;
+                let AttemptParts{preparations,preparation_work,associations,old_operational,preparation_error,..}=parts;
                 if prepared {
                     Ok(PreparedCase{ordinary:Some(ordinary),proof_attempted:false,overlay_work:ScalarWork::default(),associations,capture,
                         preparations,preparation_work,old_operational,trace})
@@ -5517,6 +5704,16 @@ impl ProductCapture {
             self.capture_entry(AdapterEvent::MapWrite)?;
             parts.loads.push(k::NodalLoad{dof:x.dof,value:x.value,source_id:id});
         }
+        // O4 §4.2, §4.5: the sidecars' preparation, only for a document with a member sidecar
+        // (no allocation or event otherwise).
+        let sidecar=!self.exact_members.is_empty();
+        if sidecar && self.exact_members.len()!=old.members().len() {return Err("exact member basis coverage".into());}
+        let timoshenko=self.exact_members.iter().filter(|eb|eb.kappa.is_some()).count();
+        let distinct=self.distinct_bases.len();
+        let mut leaves:Vec<k::TimoshenkoLeaf>=if timoshenko>0 {self.adapter.reserve(timoshenko)?} else {Vec::new()};
+        if timoshenko>0 {out.shear_associations=self.adapter.reserve(timoshenko)?;}
+        let mut reduced_facts:Vec<ReducedFacts>=if distinct>0 {self.adapter.reserve(distinct)?} else {Vec::new()};
+        if distinct>0 {out.reduced_preparations=self.adapter.reserve(distinct)?;}
         for (i,m) in old.members().iter().enumerate() {
             self.capture_entry(AdapterEvent::SourceVisit)?;
             let f=self.facts.get(i).ok_or("prepared fact coverage")?;
@@ -5563,12 +5760,54 @@ impl ProductCapture {
             self.operational.push(evaluate_member_operational(m.id,[parts.nodes[m.node_i as usize],parts.nodes[m.node_j as usize]],
                 [m.elastic_modulus,m.shear_modulus,a,j]));
             #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::AfterEvaluation){return Err("trace control after evaluator".into());}
+            // O4 §4.2: a Timoshenko member's prepared shear leaf A_s,prep = RN(κ̂·A_prep), from
+            // FK's binary64 κ̂ of the nominal radii and ν and the prepared nominal area.
+            // §4.5: a distinct-basis member's reduced annulus, prepare_product_annulus(D, t_r).
+            let (diameter,nominal_wall)=(self.facts[i].diameter,self.facts[i].effective_wall);
+            if sidecar {
+                let eb=self.exact_members.get(i).filter(|eb|eb.member==m.id).ok_or("exact member basis coverage")?.clone();
+                if let Some(kappa)=eb.kappa {
+                    let leaf=k::TimoshenkoLeaf::prepared(m.id,kappa,a).map_err(|_|CaptureError::Association("prepared shear area".into()))?;
+                    let ordinary=eb.ordinary_shear_area.ok_or("prepared shear association")?;
+                    self.adapter.enter(AdapterEvent::MapWrite,2);self.adapter.require()?;
+                    leaves.push(leaf);
+                    out.shear_associations.push(ShearAssociation{member:m.id,ordinary:ordinary.to_bits(),prepared:leaf.shear_area.to_bits()});
+                }
+                if eb.reduced_wall.to_bits()!=nominal_wall.to_bits() {
+                    self.capture_entry(AdapterEvent::MapWrite)?;
+                    let spent=k::prepare_product_annulus(diameter,eb.reduced_wall);
+                    let (result,w)=spent.into_parts();
+                    let bits=result.as_ref().map(|p|p.section_bits()).map_err(Clone::clone);
+                    if out.reduced_preparations.len()==out.reduced_preparations.capacity() {return Err("reduced preparation capacity".into());}
+                    out.reduced_preparations.push(ReducedPreparation{member:m.id,result:bits,work:w});
+                    let prep=match result {Ok(p)=>p,Err(_)=>return Err("reduced annulus preparation refused".into())};
+                    if prep.input_bits()!=[diameter.to_bits(),eb.reduced_wall.to_bits()] {return Err("prepared reduced input bits".into());}
+                    let [ra,ri,rj,rz,rc]=prep.section_bits().values();
+                    if reduced_facts.len()==reduced_facts.capacity() {return Err("reduced fact capacity".into());}
+                    self.adapter.enter(AdapterEvent::MapWrite,7);self.adapter.require()?;
+                    reduced_facts.push(ReducedFacts{member:m.id,effective_wall:eb.reduced_wall,area:ra,second_moment:ri,torsion_constant:rj,section_modulus:rz,radius:rc});
+                }
+            }
             self.capture_entry(AdapterEvent::MapWrite)?;out.preparations.push(prep);
         }
         self.adapter.require()?;
         #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::SourceConstruction){parts.members[0].area=0.0;}
         let new=k::PrimitiveSource::new(parts).map_err(CaptureError::Source)?;
         self.check_support_source(&new)?;
+        // O4 §4.2, §4.5: the validated sidecars; the first prepared case sets the invocation's,
+        // and every later case (the same members and sections) must prepare equal ones.
+        if sidecar {
+            let set=if leaves.is_empty() {None} else {
+                self.capture_entry(AdapterEvent::LibraryBoundary)?;
+                Some(k::TimoshenkoLeafSet::new(&new,leaves).map_err(|e|CaptureError::Association(e.reason().into()))?)
+            };
+            if reduced_facts.len()!=distinct || out.shear_associations.len()!=timoshenko {return Err("prepared sidecar coverage".into());}
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            match (&self.timoshenko,self.reduced_facts.is_empty()) {
+                (None,true)=>{self.timoshenko=set;self.reduced_facts=reduced_facts;}
+                _=>if self.timoshenko!=set || self.reduced_facts!=reduced_facts {return Err("prepared sidecar identity".into());}
+            }
+        }
         if self.member_loads {
             let count=self.active_member_source().ok_or("prepared member case association")?.loads.loads().len();
             let mut loads=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,15,count)?;
@@ -5643,22 +5882,34 @@ struct PreparedSectionPatch { evidence_index:usize, #[allow(dead_code)] member:u
 /// `sections` is empty on the preview route (no allocation, no event).
 /// D-5 on route E: `stress` is the nominal basis's alias and `stress_reduced`
 /// the reduced basis's (`None` on the preview route).
+/// O4 §4.2, §4.5: `reduced_sections` holds the distinct-basis members' prepared reduced
+/// sections (written to `reduced_section` in place of the nominal one) and `shear` each
+/// Timoshenko member's prepared shear leaf for `beam_theory.shear_area_m2`; both are empty,
+/// with no allocation, for a document without those members.
 struct PreparedPayload { values:k::FrozenProductValues, maxima:Vec<PreparedMaximumPatch>,
-    displacement:LocatedQuantity, stress:LocatedQuantity, stress_reduced:Option<LocatedQuantity>, sections:Vec<PreparedSectionPatch> }
-/// D-5 (DEL-05-03 Design §2.2, §5) on route E: a reduced-basis stress row,
-/// published immediately after its nominal twin. W1-E's retained element has
-/// one section and its admitted documents have coincident bases (G-A declines
-/// nonzero mill tolerance and allowance), so the kernel binds the nominal row
-/// only and the successor overlays the reduced row with its nominal row's
-/// retained value.
-fn reduced_twin(route:W1Route,row:&ResultItem)->bool {
+    displacement:LocatedQuantity, stress:LocatedQuantity, stress_reduced:Option<LocatedQuantity>, sections:Vec<PreparedSectionPatch>,
+    reduced_sections:Vec<PreparedSectionPatch>, shear:Vec<(usize,serde_json::Number)> }
+/// D-5 (DEL-05-03 Design §2.2, §5) on route E: a reduced-basis stress or maximum row,
+/// published immediately after its nominal twin. O4 (DEL-04-08 Design `o4-source-extension.md`
+/// §4.5): such a row is a *twin*, overlaid with its nominal row's retained value and binding no
+/// kernel quantity, exactly when its member has no distinct reduced section (`distinct`, the
+/// capture's `distinct_bases`); a distinct-basis member's reduced rows are receipt rows,
+/// certified on its reduced section. Every consumer reads this one predicate: the capture
+/// binding (`bind_rows_subject`), `bound_row_indices`, `prepared_not_covered`'s bound positions,
+/// `apply_prepared_overlay` and the receipt's `row_ids` (`reduced_twin_wire`).
+fn reduced_twin(route:W1Route,distinct:&[String],row:&ResultItem)->bool {
+    reduced_basis_row(route,row) && !distinct.iter().any(|id|*id==row.entity_ref)
+}
+/// A route-E reduced-basis stress or maximum row (not a derived row), by its metadata alone.
+fn reduced_basis_row(route:W1Route,row:&ResultItem)->bool {
     route==W1Route::Exact && !derived_kind(&row.kind)
         && row.metadata.as_ref().is_some_and(|m|m.basis.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
 }
 /// [`reduced_twin`] over a serialized row (the receipt's view of the staged rows).
-pub(super) fn reduced_twin_wire(route:W1Route,row:&serde_json::Value)->bool {
+pub(super) fn reduced_twin_wire(route:W1Route,distinct:&[String],row:&serde_json::Value)->bool {
     route==W1Route::Exact && !row["kind"].as_str().is_some_and(derived_kind)
         && row["metadata"]["basis"].as_str().is_some_and(|b|b.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
+        && !row["entity_ref"].as_str().is_some_and(|e|distinct.iter().any(|id|id==e))
 }
 /// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the two straight-member derived
 /// kinds W1 carries as recipe-free `not_covered` rows (`k::ProductRecipe::NotCovered`). Each row,
@@ -5676,9 +5927,9 @@ fn derived_section_basis(row:&ResultItem)->Result<pressure_exact::SectionBasis,C
 /// The bound (kernel) row index of each case row: a reduced twin takes its
 /// nominal twin's, which immediately precedes it (`bind_rows_subject` checks
 /// the pairing). The identity on the preview route.
-fn bound_row_indices<'r>(route:W1Route,rows:&'r [ResultItem])->impl Iterator<Item=usize>+'r {
+fn bound_row_indices<'r,'d>(route:W1Route,distinct:&'d [String],rows:&'r [ResultItem])->impl Iterator<Item=usize>+use<'r,'d> {
     let mut twins=0usize;
-    rows.iter().enumerate().map(move |(i,r)|{if reduced_twin(route,r){twins+=1;} i-twins})
+    rows.iter().enumerate().map(move |(i,r)|{if reduced_twin(route,distinct,r){twins+=1;} i-twins})
 }
 #[derive(Clone,Copy)]
 struct ProductRowView<'a> { original:&'a ResultItem, value:&'a f64 }
@@ -5709,18 +5960,21 @@ impl CaseScope {
     pub(super) fn row_range(&self,len:usize)->std::ops::Range<usize> {self.rows.clone().unwrap_or(0..len)}
 }
 #[derive(Clone,Copy)]
-struct ProductCaseView<'a> {ordinary:&'a MechanicsEnvelope,payload:Option<&'a PreparedPayload>,scope:&'a CaseScope,
+struct ProductCaseView<'a,'d> {ordinary:&'a MechanicsEnvelope,payload:Option<&'a PreparedPayload>,scope:&'a CaseScope,
     /// B2-P: a frozen combination's values (no maxima or aliases), overlaid like a payload's.
-    frozen:Option<&'a k::FrozenProductValues>}
-impl<'a> ProductCaseView<'a> {
+    frozen:Option<&'a k::FrozenProductValues>,
+    /// O4 §4.5: the distinct-basis members (the capture's `distinct_bases`), whose reduced rows
+    /// are bound rows rather than twins.
+    distinct:&'d [String]}
+impl<'a,'d> ProductCaseView<'a,'d> {
     /// The ordinary envelope's view of a case (no overlay).
-    fn of(ordinary:&'a MechanicsEnvelope,scope:&'a CaseScope)->Self {Self{ordinary,payload:None,scope,frozen:None}}
+    fn of(ordinary:&'a MechanicsEnvelope,scope:&'a CaseScope,distinct:&'d [String])->Self {Self{ordinary,payload:None,scope,frozen:None,distinct}}
     fn ordinary(self)->&'a MechanicsEnvelope {self.ordinary}
     /// The case's rows of the envelope (none when the scope does not fit it).
     fn case_rows(self)->&'a [ResultItem] {self.scope.rows_of(&self.ordinary.results).unwrap_or(&[])}
-    fn rows(self)->impl Iterator<Item=ProductRowView<'a>> {
+    fn rows(self)->impl Iterator<Item=ProductRowView<'a>>+use<'a,'d> {
         // D-5 on route E: a reduced twin shows its nominal twin's overlaid value.
-        self.case_rows().iter().zip(bound_row_indices(self.scope.route,self.case_rows())).map(move |(r,i)|ProductRowView{original:r,value:match self.payload.map(|payload|&payload.values).or(self.frozen) {
+        self.case_rows().iter().zip(bound_row_indices(self.scope.route,self.distinct,self.case_rows())).map(move |(r,i)|ProductRowView{original:r,value:match self.payload.map(|payload|&payload.values).or(self.frozen) {
             None=>&r.value,Some(values)=>values.value(i).expect("validated overlay length")}})
     }
     fn number(self,index:usize,key:&str,adapter:&AdapterWork)->Result<Option<f64>,CaptureError> {
@@ -5783,7 +6037,7 @@ impl PreparedCandidateRefusal {
     pub(super) fn capture(&self)->&ProductCapture{&self.prepared.capture}
 }
 impl ProductCapture {
-    fn bind_observations_view(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
+    fn bind_observations_view(&self,view:ProductCaseView<'_,'_>)->Result<(),CaptureError> {
         // B4/D1: a genuinely failed ordinary case has no observation to bind; its requested-mode
         // basis binds the captured mode instead (never an ordinary mode row).
         if self.terminal==OrdinaryTerminal::FailedAttempt {
@@ -5823,6 +6077,55 @@ impl ProductCapture {
         for (i,r) in rows.iter().enumerate() {self.capture_entry(AdapterEvent::RowVisit)?;if r.recipe==recipe{return Ok(i);}}
         Err("prepared row identity".into())
     }
+    /// O4 §4.5: the `nth` (from 0) bound row with `recipe`: a distinct-basis member's reduced row
+    /// carries its nominal twin's recipe and follows it, so it is the second.
+    /// O4 §4.5: an adapter-counted copy of the distinct-basis member ids, for a view held across
+    /// the capture's own later updates (empty, with no allocation or event, without such members).
+    fn distinct_copy(&self)->Result<Vec<String>,CaptureError> {
+        if self.distinct_bases.is_empty() {return Ok(Vec::new());}
+        let mut out=self.adapter.reserve(self.distinct_bases.len())?;
+        for id in &self.distinct_bases {let id=self.adapter.copy(id)?;self.capture_entry(AdapterEvent::MapWrite)?;out.push(id);}
+        Ok(out)
+    }
+    fn prepared_row_index_nth(&self,rows:&[k::ProductFinalRow<'_>],recipe:k::ProductRecipe,nth:usize)->Result<usize,CaptureError> {
+        let mut seen=0usize;
+        for (i,r) in rows.iter().enumerate() {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            if r.recipe==recipe {if seen==nth {return Ok(i);} seen+=1;}
+        }
+        Err("prepared row identity".into())
+    }
+    /// O4 §4.5: the kernel's `ReducedSectionSet` of one case: each distinct-basis member's
+    /// prepared reduced section with the bound-row indices of its reduced stress and maximum
+    /// rows (the case rows that name the reduced basis and are not twins). Empty, with no
+    /// allocation or event, when no member's bases differ.
+    fn reduced_section_set(&self,view:ProductCaseView<'_,'_>,rows:&[k::ProductFinalRow<'_>])->Result<k::ReducedSectionSet,CaptureError> {
+        if self.reduced_facts.is_empty() {
+            if !self.distinct_bases.is_empty() {return Err("reduced section facts".into());}
+            return Ok(k::ReducedSectionSet::default());
+        }
+        let route=view.scope.route;
+        let mut sections=self.adapter.reserve::<k::ReducedSection>(self.reduced_facts.len())?;
+        for rf in &self.reduced_facts {
+            let mut indices=self.adapter.reserve::<u32>(21)?;
+            for (r,bound) in view.case_rows().iter().zip(bound_row_indices(route,view.distinct,view.case_rows())) {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if !reduced_basis_row(route,r) || reduced_twin(route,view.distinct,r) {continue;}
+                let member=match rows.get(bound).ok_or("reduced row binding")?.recipe {
+                    k::ProductRecipe::Stress{member,..}|k::ProductRecipe::CircularMaximum{member}=>member,
+                    _=>return Err("reduced row recipe".into()),
+                };
+                if member!=rf.member {continue;}
+                self.adapter.push_room(&mut indices)?;self.capture_entry(AdapterEvent::MapWrite)?;
+                indices.push(u32::try_from(bound).map_err(|_|CaptureError::CountRange("reduced row index"))?);
+            }
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            sections.push(k::ReducedSection{member:rf.member,effective_wall:rf.effective_wall,area:rf.area,
+                second_moment:rf.second_moment,torsion_constant:rf.torsion_constant,section_modulus:rf.section_modulus,rows:indices});
+        }
+        self.capture_entry(AdapterEvent::LibraryBoundary)?;
+        k::ReducedSectionSet::new(sections).map_err(CaptureError::PreparedProof)
+    }
     fn prepared_member_local_loads(&self,pipe:&StraightPipeElement,member:u32,owner:&k::RetainedSolve)
         ->Result<Vec<SpannedUniformLocalLoad>,CaptureError> {
         let sidecar=self.active_member_source().ok_or("maximum member source association")?;
@@ -5859,7 +6162,8 @@ impl ProductCapture {
         let per_member=if exact{2}else{1};
         if extrema.len()!=self.members.len().checked_mul(per_member).ok_or(CaptureError::CountRange("prepared maximum records"))?{return Err("prepared maximum complete domain".into());}
         let mut patches=self.adapter.reserve(extrema.len())?;
-        let mut outputs=self.adapter.reserve(self.members.len())?;
+        // O4 §4.5: a distinct-basis member's reduced maximum is its own certified row.
+        let mut outputs=self.adapter.reserve(self.members.len().checked_add(self.reduced_facts.len()).ok_or(CaptureError::CountRange("prepared maximum outputs"))?)?;
         for (mi,m) in owner.source().members().iter().enumerate() {
             self.capture_entry(AdapterEvent::SourceVisit)?;
             let f=&self.facts[mi];let id=&self.members[mi].id;
@@ -5888,8 +6192,8 @@ impl ProductCapture {
                 section:StraightPipeSectionProperties{elastic_modulus:m.elastic_modulus,shear_modulus:m.shear_modulus,
                     area:m.area,second_moment_y:m.second_moment_y,second_moment_z:m.second_moment_z,
                     torsion_constant:m.torsion_constant,mass_per_length:None,
-                    // T4-U8: W1's retained member is Euler-Bernoulli (G-A declines a Timoshenko
-                    // document by `ShearModel` before any retained source is formed).
+                    // O4 §4.2: the maximum is formed from the end actions by statics, which do
+                    // not depend on the beam theory; the member's shear leaf is not read here.
                     beam_theory:open_pipe_stress_frame_kernel::BeamTheory::EulerBernoulli},y_reference:m.y_reference};
             let section=DerivedSection{area:f.area,internal_area:0.0,second_moment:f.second_moment,
                 torsion_constant:f.torsion_constant,section_modulus:f.section_modulus,torsion_radius:f.radius,
@@ -5928,10 +6232,33 @@ impl ProductCapture {
                 }
                 let reduced=reduced.ok_or("prepared maximum identity")?;
                 for key in PREPARED_MAX_KEYS {self.capture_entry(AdapterEvent::ValidationEntry)?;if extrema[reduced][key].as_number().is_none(){return Err("prepared maximum numeric slot".into());}}
-                Some((reduced,numbers.clone()))
+                // O4 §4.5: a distinct-basis member's reduced maximum is the two-end maximum on its
+                // reduced section (A_r, Z_r), bound to its own reduced row; a member whose bases
+                // coincide keeps today's nominal numbers.
+                match self.reduced_facts.iter().find(|r|r.member==m.id) {
+                    None=>Some((reduced,row,numbers.clone())),
+                    Some(rf)=>{
+                        if loaded {return Err("reduced loaded maximum".into());}
+                        let rrow=self.prepared_row_index_nth(rows,k::ProductRecipe::CircularMaximum{member:m.id},1)?;
+                        let section=DerivedSection{area:rf.area,internal_area:0.0,second_moment:rf.second_moment,
+                            torsion_constant:rf.torsion_constant,section_modulus:rf.section_modulus,torsion_radius:rf.radius,
+                            wall_thickness:rf.effective_wall};
+                        self.capture_entry(AdapterEvent::LibraryBoundary)?;
+                        let maximum=exact_straight_summary_extrema(&pipe,&ends,&loads,&section,None).map_err(CaptureError::Association)?;
+                        let gap=work.op(ScalarOperation::Sub,maximum.value_upper,maximum.value_lower).map_err(CaptureError::PreparedArithmetic)?;
+                        let half=work.op(ScalarOperation::Mul,0.5,gap).map_err(CaptureError::PreparedArithmetic)?;
+                        let value=work.op(ScalarOperation::Add,maximum.value_lower,half).map_err(CaptureError::PreparedArithmetic)?;
+                        let numbers=[n(maximum.station)?,nu(u64::try_from(maximum.span_index).map_err(|_|CaptureError::CountRange("maximum span index"))?)?,n(maximum.local_fraction)?,
+                            n(maximum.value_lower)?,n(maximum.value_upper)?,n(maximum.upper_bound)?,n(maximum.certified_gap)?,
+                            nu(u64::try_from(maximum.subdivisions).map_err(|_|CaptureError::CountRange("maximum subdivisions"))?)?];
+                        let output=k::ProductMaximumValue::new(m.id,rrow,value).map_err(CaptureError::PreparedProof)?;
+                        self.capture_entry(AdapterEvent::MapWrite)?;outputs.push(output);
+                        Some((reduced,rrow,numbers))
+                    }
+                }
             } else {None};
             self.capture_entry(AdapterEvent::MapWrite)?;patches.push(PreparedMaximumPatch{evidence_index:index,row,member:m.id,numbers});
-            if let Some((evidence_index,numbers))=reduced {
+            if let Some((evidence_index,row,numbers))=reduced {
                 self.capture_entry(AdapterEvent::MapWrite)?;patches.push(PreparedMaximumPatch{evidence_index,row,member:m.id,numbers});
             }
         }
@@ -5943,10 +6270,18 @@ impl ProductCapture {
     /// σ⁺/σ⁻ from the same station's axial and bending stress rows, τ_v,max from its shear
     /// rows (section rows inside, end-force rows at the ends) with c_b from the captured section
     /// and material by the route's ν rule (W1-L: ν = E/(2G) − 1 of the source member's moduli;
-    /// W1-E: the member's captured ν). A route-E row of either basis reads the bound nominal
-    /// rows (its reduced stress twin carries the nominal value; the bases coincide). Nothing is
-    /// recovered and nothing is bound to a certificate.
-    fn prepared_not_covered(&self,view:ProductCaseView<'_>,rows:&[k::ProductFinalRow<'_>],owner:&k::RetainedSolve,
+    /// W1-E: the member's captured ν). Nothing is recovered and nothing is bound to a certificate.
+    ///
+    /// O4 (DEL-04-08 Design `o4-source-extension.md` §4.5): the basis dimension. Today's operand
+    /// table (one `[[Option<usize>;5];5]` per member) keeps its type, reservation and events;
+    /// a separate reduced table, one per distinct-basis member and reserved only when there is
+    /// one, holds the bound reduced stress rows (a row the `ReducedSectionSet` maps, i.e. a
+    /// reduced-basis row that is not a twin). A derived row reads the reduced table exactly when
+    /// it names the reduced basis and its member has a reduced section, and then takes τ's c_b
+    /// from the reduced annulus (r_i = D/2 − t_r, Î_r) with the member's captured ν; every other
+    /// row reads today's table (a bit-equal member's reduced rows read its nominal operands, as
+    /// today). The shear operands stay basis-free.
+    fn prepared_not_covered(&self,view:ProductCaseView<'_,'_>,rows:&[k::ProductFinalRow<'_>],owner:&k::RetainedSolve,
         values:&mut k::ProductValuesBuilder)->Result<(),CaptureError> {
         const AXIAL:usize=0;const BENDING_Y:usize=1;const BENDING_Z:usize=2;const SHEAR_Y:usize=3;const SHEAR_Z:usize=4;
         let route=view.scope.route;
@@ -5957,6 +6292,23 @@ impl ProductCapture {
         // One pass: each member's operand rows (five sites, five operands) by bound position.
         let mut operands=self.adapter.reserve::<[[Option<usize>;5];5]>(self.members.len())?;
         for _ in 0..self.members.len() {self.capture_entry(AdapterEvent::MapWrite)?;operands.push([[None;5];5]);}
+        // O4 §4.5: the reduced table and the bound positions of the distinct-basis members'
+        // reduced rows, only when there is such a member (no allocation or event otherwise).
+        let mut reduced_operands:Vec<[[Option<usize>;5];5]>=Vec::new();
+        let mut reduced_bound:Vec<bool>=Vec::new();
+        if !self.reduced_facts.is_empty() {
+            reduced_operands=self.adapter.reserve(self.reduced_facts.len())?;
+            for _ in 0..self.reduced_facts.len() {self.capture_entry(AdapterEvent::MapWrite)?;reduced_operands.push([[None;5];5]);}
+            reduced_bound=self.adapter.reserve(rows.len())?;reduced_bound.resize(rows.len(),false);
+            for (r,bound) in view.case_rows().iter().zip(bound_row_indices(route,view.distinct,view.case_rows())) {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if reduced_basis_row(route,r) && !reduced_twin(route,view.distinct,r) {
+                    self.capture_entry(AdapterEvent::MapWrite)?;
+                    *reduced_bound.get_mut(bound).ok_or("derived reduced binding")?=true;
+                }
+            }
+        }
+        let reduced_entry=|member:u32|self.reduced_facts.iter().position(|r|r.member==member);
         let mut pending=0usize;
         for (i,r) in rows.iter().enumerate() {
             self.capture_entry(AdapterEvent::RowVisit)?;
@@ -5975,7 +6327,10 @@ impl ProductCapture {
             };
             let mi=source.member_index(member).ok_or("derived operand member")?;
             let s=site_slot(member,site).ok_or("derived operand site")?;
-            let cell=&mut operands[mi][s][slot];
+            let cell=if reduced_bound.get(i).copied().unwrap_or(false) {
+                let e=reduced_entry(member).ok_or("derived reduced operand member")?;
+                &mut reduced_operands[e][s][slot]
+            } else {&mut operands[mi][s][slot]};
             if cell.is_some() {return Err("derived operand identity".into());}
             self.capture_entry(AdapterEvent::MapWrite)?;
             *cell=Some(i);
@@ -5984,7 +6339,7 @@ impl ProductCapture {
         let mut bound=0usize;
         for r in view.case_rows() {
             self.capture_entry(AdapterEvent::RowVisit)?;
-            if reduced_twin(route,r) {continue;}
+            if reduced_twin(route,view.distinct,r) {continue;}
             let i=bound;bound+=1;
             if !matches!(rows.get(i).ok_or("derived row binding")?.recipe,k::ProductRecipe::NotCovered{..}) {continue;}
             self.capture_entry(AdapterEvent::ValidationEntry)?;
@@ -5997,10 +6352,20 @@ impl ProductCapture {
                 "quarter_3"=>k::ProductSite::Station(model*3+2),_=>return Err("derived row site".into()),
             };
             let s=site_slot(model,site).ok_or("derived row site")?;
+            // O4 §4.5: a reduced-basis derived row of a distinct-basis member reads the reduced
+            // table and the reduced annulus; any other row today's table and nominal facts.
+            let reduced=match route {
+                W1Route::Exact if !self.reduced_facts.is_empty() && derived_section_basis(r)?==pressure_exact::SectionBasis::Reduced=>reduced_entry(model),
+                _=>None,
+            };
+            let table=match reduced {Some(e)=>&reduced_operands[e],None=>&operands[mi]};
             self.capture_entry(AdapterEvent::LibraryBoundary)?; // The shared stress_recovery formulas.
             let value={
             let mut operand=|slot:usize|->Result<f64,CaptureError> {
-                let at=operands[mi][s][slot].ok_or("derived operand row")?;
+                // The shear operands are basis-free: they are the member's own end or section
+                // force rows, filed in today's table.
+                let at=if slot==SHEAR_Y || slot==SHEAR_Z {operands[mi][s][slot]} else {table[s][slot]};
+                let at=at.ok_or("derived operand row")?;
                 values.value(at).map_err(CaptureError::PreparedProof)?.ok_or_else(||"unprojected derived operand".into())
             };
             if r.kind==u4b_rows::EXTREME_KIND {
@@ -6017,13 +6382,16 @@ impl ProductCapture {
                 };
                 // The captured section's annulus, as the successor's own evidence states it.
                 // Route E: r_o = D/2, r_i = D/2 − t and the regenerated I (the prepared facts',
-                // which the successor's `pipe_sections` carry). Route L: the preview section the
-                // model defines (`derive_pipe_section`): d = D − 2t, r_i = d/2 and
-                // I = π(D⁴ − d⁴)/64, not the prepared facts' (no preview evidence carries them).
-                let (inner,inertia)=match route {
-                    W1Route::Preview=>{let id=f.diameter-2.0*f.effective_wall;
+                // which the successor's `pipe_sections` carry); a distinct-basis member's
+                // reduced row (O4 §4.5) r_i = D/2 − t_r and the prepared reduced Î_r. Route L:
+                // the preview section the model defines (`derive_pipe_section`): d = D − 2t,
+                // r_i = d/2 and I = π(D⁴ − d⁴)/64, not the prepared facts' (no preview evidence
+                // carries them).
+                let (inner,inertia)=match (route,reduced) {
+                    (W1Route::Preview,_)=>{let id=f.diameter-2.0*f.effective_wall;
                         (id/2.0,std::f64::consts::PI*(f.diameter.powi(4)-id.powi(4))/64.0)}
-                    W1Route::Exact=>(f.diameter*0.5-f.effective_wall,f.second_moment),
+                    (W1Route::Exact,None)=>(f.diameter*0.5-f.effective_wall,f.second_moment),
+                    (W1Route::Exact,Some(e))=>{let rf=&self.reduced_facts[e];(f.diameter*0.5-rf.effective_wall,rf.second_moment)}
                 };
                 let factor=open_pipe_stress_stress_recovery::section_stress_quantities::saint_venant_shear_factor(nu,f.radius,inner,inertia)
                     .map_err(|_|CaptureError::Association("derived transverse-shear factor".into()))?;
@@ -6039,17 +6407,23 @@ impl ProductCapture {
     #[cfg(test)]
     pub(super) fn complete_not_covered_for_test(&self,ordinary:&MechanicsEnvelope,rows:&[k::ProductFinalRow<'_>],owner:&k::RetainedSolve,
         values:&mut k::ProductValuesBuilder)->Result<(),CaptureError> {
-        self.prepared_not_covered(ProductCaseView::of(ordinary,CaseScope::whole_ref(self.route)),rows,owner,values)
+        self.prepared_not_covered(ProductCaseView::of(ordinary,CaseScope::whole_ref(self.route),&self.distinct_bases),rows,owner,values)
     }
     /// B3b-P (B3-D P-8, §1.4): the exact route's section evidence regenerated for the owner case:
     /// for each member, its `pipe_sections` entry in the case's `exact_cases` entry (matched by
     /// `pipe_id`) takes the prepared A, I, J and Z (the facts after preparation). OD, wall, the
     /// radii, Ai, the basis and the order are unchanged.
-    fn prepared_sections(&self,e:&MechanicsEnvelope,scope:&CaseScope)->Result<Vec<PreparedSectionPatch>,CaptureError> {
+    /// O4 §4.2, §4.5: also each distinct-basis member's prepared reduced A, I, J and Z (for its
+    /// `reduced_section`) and each Timoshenko member's prepared shear leaf (for
+    /// `beam_theory.shear_area_m2`), both empty, with no allocation or event, without such members.
+    #[allow(clippy::type_complexity)]
+    fn prepared_sections(&self,e:&MechanicsEnvelope,scope:&CaseScope)
+        ->Result<(Vec<PreparedSectionPatch>,Vec<PreparedSectionPatch>,Vec<(usize,serde_json::Number)>),CaptureError> {
         let evidence=e.contract_evidence.as_ref().ok_or("prepared section evidence")?;
         let sections=evidence[scope.route.evidence_cases()][scope.evidence]["pipe_sections"].as_array().ok_or("prepared section records")?;
         if sections.len()!=self.members.len(){return Err("prepared section complete domain".into());}
         let mut patches=self.adapter.reserve(self.members.len())?;
+        let (mut reduced,mut shear)=(Vec::new(),Vec::new());
         for (mi,member) in self.members.iter().enumerate() {
             self.capture_entry(AdapterEvent::SourceVisit)?;
             let f=self.facts.get(mi).ok_or("prepared section facts")?;
@@ -6068,15 +6442,32 @@ impl ProductCapture {
             let n=|v:f64|{self.capture_entry(AdapterEvent::MapWrite)?;serde_json::Number::from_f64(v).ok_or_else(||CaptureError::Association("section number range".into()))};
             let numbers=[n(f.area)?,n(f.second_moment)?,n(f.torsion_constant)?,n(f.section_modulus)?];
             self.capture_entry(AdapterEvent::MapWrite)?;patches.push(PreparedSectionPatch{evidence_index:index,member:f.member,numbers});
+            if let Some(rf)=self.reduced_facts.iter().find(|r|r.member==f.member) {
+                if reduced.capacity()==0 {reduced=self.adapter.reserve(self.reduced_facts.len())?;}
+                let numbers=[n(rf.area)?,n(rf.second_moment)?,n(rf.torsion_constant)?,n(rf.section_modulus)?];
+                if reduced.len()==reduced.capacity() {return Err("prepared reduced section capacity".into());}
+                self.capture_entry(AdapterEvent::MapWrite)?;reduced.push(PreparedSectionPatch{evidence_index:index,member:f.member,numbers});
+            }
+            if let Some(leaf)=self.timoshenko.as_ref().and_then(|set|set.leaves().iter().find(|l|l.member==f.member)) {
+                if shear.capacity()==0 {shear=self.adapter.reserve(self.timoshenko.as_ref().map_or(0,|set|set.leaves().len()))?;}
+                self.capture_entry(AdapterEvent::ValidationEntry)?;
+                if sections[index]["beam_theory"]["shear_area_m2"].as_number().is_none() {return Err("prepared shear numeric slot".into());}
+                let number=n(leaf.shear_area)?;
+                if shear.len()==shear.capacity() {return Err("prepared shear capacity".into());}
+                self.capture_entry(AdapterEvent::MapWrite)?;shear.push((index,number));
+            }
         }
-        Ok(patches)
+        if reduced.len()!=self.reduced_facts.len() || shear.len()!=self.timoshenko.as_ref().map_or(0,|set|set.leaves().len()) {
+            return Err("prepared sidecar section coverage".into());
+        }
+        Ok((patches,reduced,shear))
     }
     /// The case's alias of `kind`: the greatest of its rows, on route E of one
     /// section basis (D-5; a reduced twin carries its nominal twin's value).
     fn prepared_alias(&self,route:W1Route,rows:&[ResultItem],values:&k::FrozenProductValues,kind:&str,
         basis:Option<pressure_exact::SectionBasis>)->Result<LocatedQuantity,CaptureError> {
         let mut best=None;
-        for (i,(r,bound)) in rows.iter().zip(bound_row_indices(route,rows)).enumerate() {
+        for (i,(r,bound)) in rows.iter().zip(bound_row_indices(route,&self.distinct_bases,rows)).enumerate() {
             self.capture_entry(AdapterEvent::RowVisit)?;
             if r.kind!=kind {continue;}
             if basis.is_some_and(|basis|!r.metadata.as_ref().is_some_and(|m|m.basis.ends_with(basis.basis_suffix()))) {continue;}
@@ -6111,7 +6502,7 @@ impl ProductCapture {
             if *proof_attempted {return Err(PreparedCandidateError::Capture(CaptureError::PreparedAttemptConsumed));}
             let (invocation,case)=native.ok_or_else(||PreparedCandidateError::Capture("missing prepared native owner".into()))?;
             let k::ExecutionOutcome::Selected(owner)=&case.outcome else{return Err(PreparedCandidateError::Capture(CaptureError::NativeUnavailable));};
-            let base_rows=self.bind_rows_view(ProductCaseView::of(ordinary,scope),owner).map_err(PreparedCandidateError::Capture)?;
+            let base_rows=self.bind_rows_view(ProductCaseView::of(ordinary,scope,&self.distinct_bases),owner).map_err(PreparedCandidateError::Capture)?;
             let specs=self.prepared_specs(&base_rows).map_err(PreparedCandidateError::Capture)?;
             self.capture_entry(AdapterEvent::MapWrite).map_err(PreparedCandidateError::Capture)?;
             *proof_attempted=true;
@@ -6120,7 +6511,11 @@ impl ProductCapture {
             // condition fails (b7-plan "N06 absorbed-spring certificate extension"); DEF-E keeps
             // the contraction law alone.
             let radius_law=match scope.route {W1Route::Preview=>k::RadiusLaw::ContractionOrCongruence,W1Route::Exact=>k::RadiusLaw::Contraction};
-            let draft=invocation.begin_prepared_product_with(case.run,owner,&self.facts,&specs,radius_law).into_ready().map_err(PreparedCandidateError::Proof)?;
+            // O4 §4.5: the distinct-basis members' reduced sections; with none, today's call.
+            let reduced=self.reduced_section_set(ProductCaseView::of(ordinary,scope,&self.distinct_bases),&base_rows).map_err(PreparedCandidateError::Capture)?;
+            let draft=if reduced.is_empty() {invocation.begin_prepared_product_with(case.run,owner,&self.facts,&specs,radius_law)}
+                else {invocation.begin_prepared_product_reduced(case.run,owner,&self.facts,&reduced,&specs)};
+            let draft=draft.into_ready().map_err(PreparedCandidateError::Proof)?;
             trace.completed(trace::Stage::ProofStart);
             #[cfg(test)] println!("I51_DUAL_LANES {:?}",draft.lane_debug());
             trace.enter(trace::Stage::Projection);
@@ -6129,13 +6524,13 @@ impl ProductCapture {
             let (patches,maxima)=match self.prepared_maxima(ordinary,scope,owner,&base_rows,&mut builder,overlay_work) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})};
             // B3b-P (P-8): the exact route's section evidence, beside its maxima (same stage).
-            let sections=match scope.route {
-                W1Route::Preview=>Vec::new(),
+            let (sections,reduced_sections,shear)=match scope.route {
+                W1Route::Preview=>(Vec::new(),Vec::new(),Vec::new()),
                 W1Route::Exact=>match self.prepared_sections(ordinary,scope) {
                     Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})},
             };
             // §4.1 (owner's Q2): the not-covered derived rows, formed from the projected rows.
-            if let Err(cause)=self.prepared_not_covered(ProductCaseView::of(ordinary,scope),&base_rows,owner,&mut builder) {
+            if let Err(cause)=self.prepared_not_covered(ProductCaseView::of(ordinary,scope,&self.distinct_bases),&base_rows,owner,&mut builder) {
                 return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())});
             }
             trace.completed(trace::Stage::Maxima);trace.enter(trace::Stage::Values);
@@ -6147,20 +6542,22 @@ impl ProductCapture {
                     return Err(PreparedCandidateError::Values{failure,proof});
                 }};
             trace.completed(trace::Stage::Values);trace.enter(trace::Stage::Aliases);
-            let displacement=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope).case_rows(),&values,"displacement_magnitude",None) {
+            let displacement=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"displacement_magnitude",None) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
             // D-5 on route E: one stress alias per section basis.
             let nominal=(scope.route==W1Route::Exact).then_some(pressure_exact::SectionBasis::Nominal);
-            let stress=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",nominal) {
+            let stress=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",nominal) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
             let stress_reduced=match scope.route {
                 W1Route::Preview=>None,
-                W1Route::Exact=>match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",Some(pressure_exact::SectionBasis::Reduced)) {
+                W1Route::Exact=>match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",Some(pressure_exact::SectionBasis::Reduced)) {
                     Ok(v)=>Some(v),Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})},
             };
             trace.completed(trace::Stage::Aliases);
-            let payload=PreparedPayload{values,maxima:patches,displacement,stress,stress_reduced,sections};
-            let view=ProductCaseView{ordinary,payload:Some(&payload),scope,frozen:None};
+            let payload=PreparedPayload{values,maxima:patches,displacement,stress,stress_reduced,sections,reduced_sections,shear};
+            let distinct=match self.distinct_copy() {
+                Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
+            let view=ProductCaseView{ordinary,payload:Some(&payload),scope,frozen:None,distinct:&distinct};
             let rows=match self.bind_rows_view(view,owner) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
             trace.enter(trace::Stage::Certificate);
@@ -6221,8 +6618,10 @@ impl ProductCapture {
             // (D-5: both nested bases; none on the preview route); every case row's value moves,
             // a reduced twin's included.
             let section_moves=payload.sections.len().checked_mul(4*PREPARED_SECTION_BASES.len()).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit sections")))?;
-            let moves=ProductCaseView::of(ordinary,scope).case_rows().len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit maxima")))?)
+            let moves=ProductCaseView::of(ordinary,scope,&self.distinct_bases).case_rows().len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit maxima")))?)
                 .and_then(|v|v.checked_add(section_moves))
+                // O4 §4.2: each Timoshenko member's shear leaf moves once (none otherwise).
+                .and_then(|v|v.checked_add(payload.shear.len()))
                 .and_then(|v|v.checked_add(2+usize::from(payload.stress_reduced.is_some()))).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit moves")))?;
             self.adapter.enter(AdapterEvent::MapWrite,u64::try_from(moves).map_err(|_|PreparedCandidateError::Capture(CaptureError::CountRange("commit count")))?);
             self.adapter.require().map_err(PreparedCandidateError::Capture)?;
@@ -6267,13 +6666,14 @@ impl PreparedCase {
 /// `scope`. Shared by the private commit and the facade's staging copy, so both produce the
 /// same rows. Typed (RV85 N6): a broken invariant names its site and the facade falls back
 /// with the untouched ordinary owner; nothing here panics.
-fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPayload,scope:&CaseScope)->Result<(),StagingFault> {
+fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPayload,scope:&CaseScope,distinct:&[String])->Result<(),StagingFault> {
     let rows=match &scope.rows {None=>&mut envelope.results[..],Some(rows)=>envelope.results.get_mut(rows.clone()).ok_or(StagingFault("results"))?};
     // D-5 on route E: each reduced twin takes its nominal row's retained value
-    // (`bound_row_indices`, without a resident index list).
+    // (`bound_row_indices`, without a resident index list); O4 §4.5: a distinct-basis member's
+    // reduced row takes its own.
     let mut twins=0usize;
     for (i,row) in rows.iter_mut().enumerate(){
-        if reduced_twin(scope.route,row){twins+=1;}
+        if reduced_twin(scope.route,distinct,row){twins+=1;}
         row.value=*payload.values.value(i-twins).ok_or(StagingFault("values"))?;
     }
     let key=scope.route.evidence_cases();
@@ -6311,13 +6711,24 @@ fn apply_exact_section_overlay(case:&mut serde_json::Map<String,serde_json::Valu
     let sections=case.get_mut("pipe_sections").and_then(|x|x.as_array_mut()).ok_or(StagingFault("pipe_sections"))?;
     for patch in &payload.sections {
         let object=sections.get_mut(patch.evidence_index).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_sections[]"))?;
-        // D-5 (§2.5): the prepared section is written to both nested bases.
-        for basis in PREPARED_SECTION_BASES {
+        // D-5 (§2.5): each basis's prepared section is written to its own nested basis: the
+        // nominal one to both where the bases coincide, and (O4 §4.5) a distinct-basis member's
+        // prepared reduced section to its `reduced_section`.
+        let reduced=payload.reduced_sections.iter().find(|r|r.evidence_index==patch.evidence_index);
+        for (basis,numbers) in PREPARED_SECTION_BASES.into_iter().zip([&patch.numbers,reduced.map_or(&patch.numbers,|r|&r.numbers)]) {
             let section=object.get_mut(basis).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_sections[].basis"))?;
-            for (key,number) in PREPARED_SECTION_KEYS.into_iter().zip(patch.numbers.iter()){
+            for (key,number) in PREPARED_SECTION_KEYS.into_iter().zip(numbers.iter()){
                 *section.get_mut(key).ok_or(StagingFault("pipe_sections[].key"))?=serde_json::Value::Number(number.clone());
             }
         }
+    }
+    if payload.reduced_sections.iter().any(|r|!payload.sections.iter().any(|p|p.evidence_index==r.evidence_index)) {
+        return Err(StagingFault("pipe_sections[].reduced_section"));
+    }
+    // O4 §4.2: the prepared shear leaf A_s,prep = RN(κ̂·A_prep), with the prepared nominal area.
+    for (index,number) in &payload.shear {
+        let theory=sections.get_mut(*index).and_then(|x|x.get_mut("beam_theory")).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_sections[].beam_theory"))?;
+        *theory.get_mut("shear_area_m2").ok_or(StagingFault("pipe_sections[].beam_theory.shear_area_m2"))?=serde_json::Value::Number(number.clone());
     }
     Ok(())
 }
@@ -6383,7 +6794,7 @@ impl FrozenCandidate {
         let mut envelope=self.ordinary;
         // The private driver only (tests): its bytes are unchanged and a broken
         // invariant still stops it here, as before the facade existed.
-        apply_prepared_overlay(&mut envelope,&self.payload,&CaseScope::whole(self.prepared.capture.route)).expect("frozen overlay invariant");
+        apply_prepared_overlay(&mut envelope,&self.payload,&CaseScope::whole(self.prepared.capture.route),&self.prepared.capture.distinct_bases).expect("frozen overlay invariant");
         self.prepared.trace.costs.record::<bool>();self.prepared.trace.private_committed=true;self.prepared.trace.freeze(&self.prepared.capture);
         PrivatePreparedCandidate{envelope,prepared:self.prepared,certificate:self.certificate}
     }
@@ -6414,7 +6825,7 @@ impl PrivatePreparedCandidate {
 #[cfg(test)]
 pub(super) fn i51_overlay_layout() {
     macro_rules! layout {($t:ty)=>{println!("I51_OVERLAY_LAYOUT {} {} {}",stringify!($t),std::mem::size_of::<$t>(),std::mem::align_of::<$t>());};}
-    layout!(PreparedCase);layout!(PreparedAssociation);layout!(PreparedMaximumPatch);layout!(PreparedPayload);layout!(ProductCaseView<'static>);
+    layout!(PreparedCase);layout!(PreparedAssociation);layout!(PreparedMaximumPatch);layout!(PreparedPayload);layout!(ProductCaseView<'static,'static>);
     layout!(ProductRowView<'static>);layout!(PrivatePreparedCandidate);layout!(PreparedCandidateRefusal);
     layout!(serde_json::Number);layout!(LocatedQuantity);layout!(ScalarWork);
 }
@@ -6849,7 +7260,7 @@ impl ProductCapture {
             if *proof_attempted { return Err(PreparedCandidateError::Capture(CaptureError::PreparedAttemptConsumed)); }
             let case = case.ok_or_else(|| PreparedCandidateError::Capture("missing combination native owner".into()))?;
             let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(PreparedCandidateError::Capture(CaptureError::NativeUnavailable)); };
-            let base_rows = self.bind_rows_subject(ProductCaseView::of(ordinary, scope), owner, Some(combination)).map_err(PreparedCandidateError::Capture)?;
+            let base_rows = self.bind_rows_subject(ProductCaseView::of(ordinary,scope,&self.distinct_bases), owner, Some(combination)).map_err(PreparedCandidateError::Capture)?;
             let specs = self.prepared_specs(&base_rows).map_err(PreparedCandidateError::Capture)?;
             self.capture_entry(AdapterEvent::MapWrite).map_err(PreparedCandidateError::Capture)?;
             *proof_attempted = true;
@@ -6871,7 +7282,8 @@ impl ProductCapture {
             trace.completed(trace::Stage::Values);
             trace.enter(trace::Stage::Aliases);
             trace.completed(trace::Stage::Aliases);
-            let view = ProductCaseView { ordinary, payload: None, frozen: Some(&values), scope };
+            let distinct = self.distinct_copy().map_err(PreparedCandidateError::Capture)?;
+            let view = ProductCaseView { ordinary, payload: None, frozen: Some(&values), scope, distinct: &distinct };
             let rows = match self.bind_rows_subject(view, owner, Some(combination)) {
                 Ok(v) => v,
                 Err(cause) => return Err(PreparedCandidateError::Abandoned { cause, proof: projected.abandon_values(value_work) }),
@@ -6945,7 +7357,7 @@ impl ProductCapture {
     #[cfg(test)]
     pub(super) fn test_combination_observables(&self, ordinary: &MechanicsEnvelope, rows: std::ops::Range<usize>, index: usize, id: &str) -> Result<(), CaptureError> {
         let scope = CaseScope { rows: Some(rows), evidence: index, cases: 1, qualified: false, route: self.route };
-        self.combination_observables(ProductCaseView::of(ordinary, &scope), id)
+        self.combination_observables(ProductCaseView::of(ordinary,&scope,&self.distinct_bases), id)
     }
     /// B2-P (REVISION_01 §1.2; DEF-C r2 `stages.observables`): the combination observables stage
     /// on its own block: the adapter (`require`, one `LibraryBoundary`); its gate entry not
@@ -6955,7 +7367,7 @@ impl ProductCapture {
     /// rounded norm of them (PR-N's `norm3`, as the support guard and base G7); and no maximum or
     /// intensified row. No preview case evidence,
     /// maximum or headline check.
-    fn combination_observables(&self, view: ProductCaseView<'_>, combination: &str) -> Result<(), CaptureError> {
+    fn combination_observables(&self, view: ProductCaseView<'_,'_>, combination: &str) -> Result<(), CaptureError> {
         self.adapter.require()?;
         self.adapter.enter(AdapterEvent::LibraryBoundary, 1);
         #[cfg(test)]

@@ -37,7 +37,8 @@
 //! in absolute value, with both triangles formed separately.
 use super::adaptive::{AttemptStop, StageGuard};
 use super::ledger::RetainedLedger;
-use super::source::{PrimitiveSource, SpringKind, StraightMember};
+use super::directed::{add_toward, Toward};
+use super::source::{PrimitiveSource, SpringKind, StraightMember, TimoshenkoLeaf, TimoshenkoLeafSet};
 use super::wide::multi::{SupportedWidth, WideContext};
 use super::wide::Wide;
 use super::wide_sum::ExactWideSum;
@@ -83,6 +84,40 @@ where
     ke: [Wide<L>; 78],
     /// g_m = 2^g_exp (D1 revision 5a.3, R7 §4.1.6.2 item 2).
     pub(crate) g_exp: u32,
+    /// O4 §4.2: a Timoshenko member's per-plane D entries; `None` for an
+    /// Euler–Bernoulli member, which keeps (EI/L)[[4,2],[2,4]].
+    pub(crate) timoshenko: Option<TimoshenkoEntries<L>>,
+}
+
+/// O4 §4.2 (DEL-04-08 Design `o4-source-extension.md`): a Timoshenko member's
+/// bending entries at one precision, per plane [z (I_z, rows 2–3), y (I_y,
+/// rows 4–5)]: the signed natural-mode entries d₁ = RN(c + c_s) and
+/// d₂ = RN(c_s − c), and the absolute operand d̄ = RU(2(c + c_s)) (λ = 2).
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct TimoshenkoEntries<const L: usize>
+where
+    Wide<L>: SupportedWidth,
+{
+    pub(crate) d1: [Wide<L>; 2],
+    pub(crate) d2: [Wide<L>; 2],
+    pub(crate) dbar: [Wide<L>; 2],
+}
+
+impl<const L: usize> TimoshenkoEntries<L>
+where
+    Wide<L>: SupportedWidth,
+{
+    #[cfg(test)]
+    fn widen<const M: usize>(&self) -> TimoshenkoEntries<M>
+    where
+        Wide<M>: SupportedWidth,
+    {
+        TimoshenkoEntries {
+            d1: self.d1.map(|v| v.widen::<M>()),
+            d2: self.d2.map(|v| v.widen::<M>()),
+            dbar: self.dbar.map(|v| v.widen::<M>()),
+        }
+    }
 }
 
 /// The coefficients a member's bounded operator needs (R7 §4.1.6.2 items 1–2).
@@ -97,6 +132,9 @@ where
     pub(crate) bend_z: Wide<L>,
     pub(crate) bend_y: Wide<L>,
     pub(crate) g_exp: u32,
+    /// O4 §4.2: a Timoshenko member's per-plane d̄ [z, y]; `None` for an
+    /// Euler–Bernoulli member.
+    pub(crate) dbar: Option<[Wide<L>; 2]>,
 }
 
 impl<const L: usize> BoundedCoefficients<L>
@@ -115,6 +153,20 @@ where
             bend_z: self.bend_z.widen::<M>(),
             bend_y: self.bend_y.widen::<M>(),
             g_exp: self.g_exp,
+            dbar: self.dbar.map(|d| d.map(|v| v.widen::<M>())),
+        }
+    }
+
+    /// The absolute bending entries (diagonal, off-diagonal) of plane 0 (z)
+    /// or 1 (y): Euler–Bernoulli's exact scalings (4|c|, 2|c|), or a
+    /// Timoshenko member's (d̄, d̄) (O4 §4.2).
+    pub(crate) fn absolute_bending(&self, plane: usize) -> Result<(Wide<L>, Wide<L>), AttemptStop> {
+        match self.dbar {
+            Some(d) => Ok((d[plane], d[plane])),
+            None => {
+                let c = if plane == 0 { self.bend_z } else { self.bend_y }.abs();
+                Ok((c.mul_pow2(2)?, c.mul_pow2(1)?))
+            }
         }
     }
 }
@@ -137,7 +189,30 @@ where
             bend_z: self.bend_z,
             bend_y: self.bend_y,
             g_exp: self.g_exp,
+            dbar: self.timoshenko.map(|t| t.dbar),
         }
+    }
+
+    /// The signed bending entries (diagonal, off-diagonal) of plane 0 (z) or
+    /// 1 (y): Euler–Bernoulli's exact scalings (4c, 2c), or a Timoshenko
+    /// member's (d₁, d₂) (O4 §4.2).
+    pub(crate) fn bending(&self, plane: usize) -> Result<(Wide<L>, Wide<L>), AttemptStop> {
+        match &self.timoshenko {
+            Some(t) => Ok((t.d1[plane], t.d2[plane])),
+            None => {
+                let c = if plane == 0 { self.bend_z } else { self.bend_y };
+                Ok((c.mul_pow2(2)?, c.mul_pow2(1)?))
+            }
+        }
+    }
+
+    /// The same operators at a width M ≥ L (exact), for the controls.
+    #[cfg(test)]
+    pub(crate) fn timoshenko_widened<const M: usize>(&self) -> Option<TimoshenkoEntries<M>>
+    where
+        Wide<M>: SupportedWidth,
+    {
+        self.timoshenko.map(|t| t.widen::<M>())
     }
 
     /// The element's global DOFs (node i's six, then node j's).
@@ -224,12 +299,14 @@ where
     ))
 }
 
-/// T4-U8 (`DEL-05-03` Design §3.6): the retained W1 element formed here is
-/// the Euler–Bernoulli frame (D's bending block (EI/L)[[4,2],[2,4]]); it has
-/// no shear term and stays Euler–Bernoulli. `StraightMember` carries no
-/// beam-theory leaf, so a Timoshenko frame reaches this assembler only
-/// through a conversion from an FK frame, and `StraightMember::from_frame`
-/// refuses it by this name.
+/// T4-U8 (`DEL-05-03` Design §3.6) and O4 (DEL-04-08 Design
+/// `o4-source-extension.md` §4.2): `StraightMember` carries no beam-theory
+/// leaf, so `StraightMember::from_frame` refuses a Timoshenko frame by this
+/// name, never forming it without its shear term. A Timoshenko member is
+/// formed only with its `TimoshenkoLeafSet` sidecar entry
+/// (`from_frame_with_leaf`); this text is the association refusal of a
+/// member without its leaf, or a leaf without its member. It no longer
+/// declines a document.
 pub const RETAINED_TIMOSHENKO_REFUSAL: &str =
     "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation";
 
@@ -281,13 +358,88 @@ impl StraightMember {
     }
 }
 
+impl StraightMember {
+    /// O4 §4.2: the retained member of an FK frame together with its
+    /// sidecar entry. An Euler–Bernoulli frame gives `from_frame`'s member
+    /// and no leaf; a Timoshenko frame gives the member, its leaves copied
+    /// bit for bit, and `TimoshenkoLeaf { member: id, shear_area }`.
+    pub fn from_frame_with_leaf(
+        id: u32,
+        frame: &crate::FrameElement,
+    ) -> Result<(Self, Option<TimoshenkoLeaf>), RetainedMemberRefusal> {
+        let s = frame.section;
+        let (Ok(node_i), Ok(node_j)) = (
+            u32::try_from(frame.node_i.index),
+            u32::try_from(frame.node_j.index),
+        ) else {
+            return Err(RetainedMemberRefusal::NodeIndexRange);
+        };
+        let leaf = s.beam_theory.shear_area().map(|shear_area| TimoshenkoLeaf {
+            member: id,
+            shear_area,
+        });
+        Ok((
+            Self {
+                id,
+                node_i,
+                node_j,
+                elastic_modulus: s.elastic_modulus,
+                shear_modulus: s.shear_modulus,
+                area: s.area,
+                second_moment_y: s.second_moment_y,
+                second_moment_z: s.second_moment_z,
+                torsion_constant: s.torsion_constant,
+                y_reference: frame.y_reference,
+            },
+            leaf,
+        ))
+    }
+}
+
+/// O4 §4.2's formation at the working precision, per bending plane, with
+/// c = RN(RN(E·I)/L̂) the plane's existing coefficient: s = RN(G·A_s),
+/// sl = RN(s·L̂), t₃ = RN(3c), φ = RN(4t₃/sl) (4t₃ an exact scaling),
+/// op = RN(1 + φ), c_s = RN(t₃/op), d₁ = RN(c + c_s), d₂ = RN(c_s − c), and
+/// d̄ = RU(2(c + c_s)) (λ = 2, the 2 an exact scaling). This is the identity
+/// (EI/(L(1+φ)))[[4+φ, 2−φ],[2−φ, 4+φ]] = (EI/L)·P_a + (3EI/(L(1+φ)))·P_s.
+fn timoshenko_entries<const L: usize>(
+    ctx: &mut WideContext<L>,
+    sum: &mut ExactWideSum,
+    g: &Wide<L>,
+    shear_area: f64,
+    length: &Wide<L>,
+    planes: [&Wide<L>; 2],
+) -> Result<TimoshenkoEntries<L>, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let shear = lift::<L>(shear_area)?;
+    let s = ctx.mul(g, &shear)?;
+    let sl = ctx.mul(&s, length)?;
+    let three = lift::<L>(3.0)?;
+    let zero = Wide::<L>::ZERO;
+    let mut out = TimoshenkoEntries { d1: [zero; 2], d2: [zero; 2], dbar: [zero; 2] };
+    for (plane, c) in planes.into_iter().enumerate() {
+        let t3 = ctx.mul(&three, c)?;
+        let phi = ctx.div(&t3.mul_pow2(2)?, &sl)?;
+        let op = ctx.add(&Wide::<L>::ONE, &phi)?;
+        let cs = ctx.div(&t3, &op)?;
+        out.d1[plane] = ctx.add(c, &cs)?;
+        out.d2[plane] = ctx.sub(&cs, c)?;
+        out.dbar[plane] = add_toward(ctx, sum, c, &cs, Toward::Up)?.mul_pow2(1)?;
+    }
+    Ok(out)
+}
+
 /// The member's operators at the context's precision (module documentation,
-/// items 1–3).
+/// items 1–3). `shear_area` is the member's Timoshenko leaf (O4 §4.2), `None`
+/// for an Euler–Bernoulli member, which keeps today's path and bits.
 pub(crate) fn form_member<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
     nodes: &[[f64; 3]],
     m: &StraightMember,
+    shear_area: Option<f64>,
 ) -> Result<MemberOperators<L>, AttemptStop>
 where
     Wide<L>: SupportedWidth,
@@ -373,18 +525,28 @@ where
             b[row][rotation + k] = ey[k];
         }
     }
-    // D: the 4c and 2c entries are exact scalings.
-    let four_z = bend_z.mul_pow2(2)?;
-    let two_z = bend_z.mul_pow2(1)?;
-    let four_y = bend_y.mul_pow2(2)?;
-    let two_y = bend_y.mul_pow2(1)?;
+    // D: an Euler–Bernoulli member's 4c and 2c entries are exact scalings; a
+    // Timoshenko member's are its natural-mode d₁ and d₂ (O4 §4.2).
+    let timoshenko = match shear_area {
+        None => None,
+        Some(a_s) => Some(timoshenko_entries(ctx, sum, &g, a_s, &length, [&bend_z, &bend_y])?),
+    };
+    let (diag_z, off_z, diag_y, off_y) = match &timoshenko {
+        None => (
+            bend_z.mul_pow2(2)?,
+            bend_z.mul_pow2(1)?,
+            bend_y.mul_pow2(2)?,
+            bend_y.mul_pow2(1)?,
+        ),
+        Some(t) => (t.d1[0], t.d2[0], t.d1[1], t.d2[1]),
+    };
     let d_rows: [[(usize, Wide<L>); 2]; 6] = [
         [(0, axial), (0, zero)],
         [(1, torsion), (1, zero)],
-        [(2, four_z), (3, two_z)],
-        [(2, two_z), (3, four_z)],
-        [(4, four_y), (5, two_y)],
-        [(4, two_y), (5, four_y)],
+        [(2, diag_z), (3, off_z)],
+        [(2, off_z), (3, diag_z)],
+        [(4, diag_y), (5, off_y)],
+        [(4, off_y), (5, diag_y)],
     ];
     let mut db = [[zero; 12]; 6];
     for r in 0..6 {
@@ -419,6 +581,7 @@ where
         b,
         ke,
         g_exp,
+        timoshenko,
     })
 }
 
@@ -486,14 +649,17 @@ where
             bb[row][rotation + k] = one;
         }
     }
-    let (z, y) = (m.bend_z.abs(), m.bend_y.abs());
+    // |D|: Euler–Bernoulli's (4|c|, 2|c|), or a Timoshenko member's D̄ =
+    // d̄·[[1,1],[1,1]] per plane (O4 §4.2).
+    let (dz, oz) = m.absolute_bending(0)?;
+    let (dy, oy) = m.absolute_bending(1)?;
     let d_rows: [[(usize, Wide<L>); 2]; 6] = [
         [(0, m.axial.abs()), (0, zero)],
         [(1, m.torsion.abs()), (1, zero)],
-        [(2, z.mul_pow2(2)?), (3, z.mul_pow2(1)?)],
-        [(2, z.mul_pow2(1)?), (3, z.mul_pow2(2)?)],
-        [(4, y.mul_pow2(2)?), (5, y.mul_pow2(1)?)],
-        [(4, y.mul_pow2(1)?), (5, y.mul_pow2(2)?)],
+        [(2, dz), (3, oz)],
+        [(2, oz), (3, dz)],
+        [(4, dy), (5, oy)],
+        [(4, oy), (5, dy)],
     ];
     let mut db = [[zero; 12]; 6];
     for r in 0..6 {
@@ -519,7 +685,8 @@ where
     Ok(out)
 }
 
-/// Every member's operators at the context's precision.
+/// Every member's operators at the context's precision, all Euler–Bernoulli.
+#[cfg(test)]
 pub(crate) fn form_members<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
@@ -529,9 +696,35 @@ pub(crate) fn form_members<const L: usize>(
 where
     Wide<L>: SupportedWidth,
 {
+    form_members_with(ctx, sum, guard, source, None)
+}
+
+/// `shear` is the case's Timoshenko sidecar (O4 §4.2): a non-empty set gives
+/// every member its leaf; `None` or an empty set forms every member
+/// Euler–Bernoulli, today's path and bits.
+pub(crate) fn form_members_with<const L: usize>(
+    ctx: &mut WideContext<L>,
+    sum: &mut ExactWideSum,
+    guard: &StageGuard,
+    source: &PrimitiveSource,
+    shear: Option<&TimoshenkoLeafSet>,
+) -> Result<Vec<MemberOperators<L>>, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let shear = shear.filter(|s| !s.is_empty());
     let mut out = Vec::with_capacity(source.members().len());
-    for m in source.members() {
-        out.push(form_member(ctx, sum, source.nodes(), m)?);
+    for (index, m) in source.members().iter().enumerate() {
+        let leaf = match shear {
+            None => None,
+            Some(set) => match set.leaves().get(index) {
+                // The association is validated at preparation; a mismatch here
+                // is a structure fault, never an Euler–Bernoulli fallback.
+                Some(l) if l.member == m.id => Some(l.shear_area),
+                _ => return Err(AttemptStop::Structure),
+            },
+        };
+        out.push(form_member(ctx, sum, source.nodes(), m, leaf)?);
         guard.check(ctx, sum)?;
     }
     Ok(out)
@@ -905,3 +1098,7 @@ where
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/assemble_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/timoshenko_tests.rs"]
+mod timoshenko_tests;

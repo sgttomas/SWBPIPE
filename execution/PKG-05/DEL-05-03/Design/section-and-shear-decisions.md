@@ -32,7 +32,9 @@ Carried in the owner's 2026-10-14 resumption steer:
 
 ## Retained-source and W1-E publication (O4)
 
-The owner chose "Scope extension after B7b" (O4). Until then, named declines are the interim, in place since T4-U6/U8: `prepare_sources` declines a Timoshenko document and one with nonzero mill tolerance or corrosion allowance by name, and W1-E declines the same documents at its admission, so they publish on the ordinary route without retained-source or W1-E publication. Since T4-U8 made Timoshenko the authoring default, default-authored documents take that decline. A source-method/W1 extension that restores retained-source and W1-E publication for default-authored documents is T3 work after B7b (DEL-04-07 Design, "T3 coexistence and B7").
+The owner chose "Scope extension after B7b" (O4). From T4-U6/U8 until O4, named declines were the interim: `prepare_sources` declined a Timoshenko document and one with nonzero mill tolerance or corrosion allowance by name, and W1-E declined the same documents at its admission.
+
+**As built (O4, epoch 5).** The declines are retired. Both retained routes admit either shear model on straight members and any admitted mill tolerance and corrosion allowance under the D-5 bases: stiffness, the Timoshenko shear area and κ_E on the nominal wall, and each stress row on its own basis section. The source route declares the frame's own Timoshenko local matrix. W1-E forms a retained Timoshenko member, a κ_E lane enclosure and D-entry gap majorants, and certifies a member's reduced stress rows on the reduced section where the bases differ. The readers rederive both bases and the prepared shear-area leaf (A_s,prep = RN(κ̂·A_prep)) through `section_basis`. Design: DEL-04-08 Design [o4-source-extension.md](../../../PKG-04/DEL-04-08/Design/o4-source-extension.md).
 
 ## SP-1 scope after D-5 and D-6
 

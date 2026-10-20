@@ -94,7 +94,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - **What each class guarantees.** Let S be the row's body scale.
     - A row of these kinds is `relative_verified` when S ≥ 2^-988 and |value| ≥ 2^-34·S. Its value then lies within 10^-9·|value| of the exact solution, and also within the kernel's sharper allowance (DEF-O `acceptance.final`).
     - Any other row of these kinds that has a body scale is `absolute_verified`, and its value lies within its published bound. The bound is RU64(2^-64·S); for 0 < S < 2^-988 it is one upward rounding of b0 + r plus the minimum subnormal; for S = 0 it is +0.
-    - The bound holds for both of the formation's stiffness readouts: the admitted binary64 section products and the exact annulus geometry.
+    - The bound holds for both of the formation's stiffness readouts: the admitted binary64 section products and the exact annulus geometry. For a Timoshenko member, the admitted readout uses the binary64 shear-area leaf and the exact-annulus readout the exact energy-matched factor κ_E.
   - **Rows without a verified class.**
     - Prescribed degrees of freedom are `input_derived` with value +0, as are the Lamé and section-pressure stresses and the user-input reviews. They are formed from the inputs and carry no solve bound.
     - These rows are `not_covered`: every other row kind; rows with no body scale; and, under R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that names a load case whose trigger is not `not_required`. They keep their ordinary values, except the section normal-stress extremes and transverse-shear maxima, which are formed in binary64 from the successor's own published stress, section-action and end-force rows and its captured section and material.
@@ -109,8 +109,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - explicitly empty pressure regions;
     - straight members;
     - base common E and ν;
-    - an explicit Euler–Bernoulli shear model;
-    - zero mill tolerance and zero corrosion allowance.
+    - either explicit shear model (`euler_bernoulli` or `timoshenko_annulus_energy_v1`) on straight members, and any admitted mill tolerance and corrosion allowance, under the D-5 bases: stiffness and the Timoshenko shear area on the nominal wall, and each stress row on its own basis section.
 - **REQ-002** — *Retained-source recovery.* For each case it qualifies, a `pressure-source-1` receipt publishes:
   - for nodal translations and rotations, member end and station actions, support action components and constraint reactions (`projection.quantity`): an outward interval that contains the exact value of the case's source problem, with `absolute_error_bound`, `relative_error_bound` and the fixed `relative_limit` of 10^-9;
   - checked support force and moment norms (`derived_check`), and section stress checks at five stations (`retained_source_straight_stress_v1`);
@@ -160,7 +159,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **AC-003** — Every refused, declined or faulted path behaves as REQ-003 states:
   - it publishes the exact ordinary bytes, or those bytes plus the one notice where retained work ran;
   - every stage fault, no-permit entry and refused exact request takes the ordinary route;
-  - the two W1 corner cases and the O4 declines keep their internal refusals and fall back;
+  - the two W1 corner cases keep their internal refusals and fall back;
   - the reader refuses a changed definition or table digest at G0.
 
 ### Memory-pricing law
@@ -214,10 +213,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 ### Stated limits and open duties
 
 - **REQ-006** — These domains are declined and stated as limits. Each publishes its ordinary results.
-  - **(a) Timoshenko and nonzero allowances, until O4.** Route E, retained-source recovery and W1-E admission decline Timoshenko documents and documents with a nonzero mill tolerance or corrosion allowance.
-    - **Internal refusals:** `RETAINED_TIMOSHENKO_REFUSAL`; the three `prepare_sources` messages; the admission facts `ShearModel` and `SectionAllowance`; and the reader's G8 requirement of an explicit zero allowance.
-    - **What is published:** a retained-source decline appears in the receipt as `unsupported_family`; an admission decline adds nothing to the ordinary result.
-    - T4-U8 made Timoshenko the authoring default, so default-authored exact-contract documents take this decline.
+  - **(a)** [retired by O4, #1468]
   - **(b) W1's two fail-closed corners.** These are the first two corners of the W1 Design, §4.4.
     - The represented-Z input-width floor exhausts the loaded-maximum search ("loaded maximum search exhausted").
     - Binary64-halfway exact force and moment scale maxima fail G5b (`RETAINED_PRECISION_SCALE_MISMATCH`) before commit.
@@ -232,7 +228,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - Arcs publish no rows on the retained identities.
     - **Retained-source recovery:** admits only straight circular members with linear restraints or springs. It declines present pressure regions (zero pressure included), components, nonlinear supports and non-nodal ordinary applied loads, and excludes combinations and models above 256 degrees of freedom.
 - **REQ-007** — These delivery duties are open. Each is delivered under its own design and independent review, keeps every gate unchanged, and is re-registered under D3 wherever it changes a priced source or a reviewed input.
-  - **(a) O4: the Timoshenko and corrosion-allowance source extension.** This is the fifth shared epoch in the owner's order of 2026-10-14. It extends retained-source and W1-E publication to the documents REQ-006 (a) declines, including those with a nonzero mill tolerance. It keeps RF's closure, witness and charging rules.
+  - **(a) O4: the Timoshenko and corrosion-allowance source extension.** This is the fifth shared epoch in the owner's order of 2026-10-14. It extends retained-source and W1-E publication to the documents REQ-006 (a) declined, including those with a nonzero mill tolerance. It keeps RF's closure, witness and charging rules. O4 is on main through #1468, but AC-007's AC-004 condition is not yet met: the stack-headroom witnesses fail on main and O4 alike (b7-plan item 5a). The owner decided on 2026-10-20 ("All as recommended") that HELP_HUMAN marks this duty discharged once the stack-headroom repair makes those witnesses pass, and reports it.
   - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch in this deliverable's `Design/b7-plan.md` ("After B7b"). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge.
   - **(c) Desktop outputs for the current exact identity.** This is a follow-on unit. The owner chose "Merge with the gap" on 2026-10-15 and has not yet placed the unit in the epoch order. T4-U4b/U5b replaced `pressure-1` with `pressure-2`.
 - **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal. The fallback tests and the W1 census tests assert the resulting ordinary result at the facade. The desktop output policy refuses each named identity with its stated code. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
@@ -283,9 +279,9 @@ The registered checks are those in `software-workflow.json`.
   - `piping-pytest`: `tests/test_pressure_source_verifier.py`, `test_pressure_source_corpus.py` and `test_j7_rf_census_inputs.py`.
   - `desktop-test`: `apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts`.
 - **VER-003** — For REQ-003, in `macos-release-sweep`:
-  - `core/product_physics/src/retained_facade_tests.rs`: `u3_each_stage_fault_falls_back_to_the_ordinary_bytes`, `u3_no_permit_entries_are_the_ordinary_route`, `u3g2_direct_entry_w1_fallbacks_append_one_notice`, `b3b_refused_exact_requests_take_the_ordinary_route` and `o4_w1e_declines_at_admission`;
+  - `core/product_physics/src/retained_facade_tests.rs`: `u3_each_stage_fault_falls_back_to_the_ordinary_bytes`, `u3_no_permit_entries_are_the_ordinary_route`, `u3g2_direct_entry_w1_fallbacks_append_one_notice`, `b3b_refused_exact_requests_take_the_ordinary_route`, `o4_w1e_timoshenko_case_is_admitted_and_selected` and `o4_w1e_dual_basis_case_is_admitted`;
   - `core/product_physics/src/w1_domain_stage1_tests.rs`: `w1_loaded_maximum_refuses_irreducible_represented_section_width` and `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal`;
-  - `o4_prepare_sources_declines_by_name` in `core/product_physics/src/source_recovery.rs`;
+  - `o4_timoshenko_source_case_selects_and_publishes` in `core/product_physics/src/source_recovery.rs`, and `o4_dual_basis_source_case_selects` in `core/product_physics/src/source_receipt/o4_source_tests.rs`;
   - `core/product_physics/src/b7b_admission_tests.rs`;
   - the reader's G0 table and definition tests (`b2_g0_table_tests` in `core/reporting/result_export/src/retained_precision.rs`).
 - **VER-004** — For REQ-004:
@@ -310,6 +306,7 @@ The registered checks are those in `software-workflow.json`.
 - **VER-007** — For REQ-007, on the head of each duty's own change:
   - VER-001 to VER-006;
   - for O4 and the W1 repair, the actual-source D3 run (`tools/retained_pricing`, `generate --check`);
+  - for O4, M3-O4 on `validation/references/o4_retained_source/` (`core/product_physics/src/o4_m3_judging_tests.rs`) and its declared-problem oracle (`declared_problem/run.sh`);
   - the independent review that the Root `AGENTS.md` requires for numerical changes.
 - **VER-008** — For REQ-008:
   - `macos-release-sweep`: the pinned notice and successor-byte tests in `retained_facade_tests.rs` and `w1_domain_stage1_tests.rs`;
