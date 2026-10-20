@@ -533,8 +533,11 @@ fn w1_loaded_scale_halfway_publishes() {
         let maximum=successor["results"].as_array().unwrap().iter()
             .find(|r|r["kind"]=="pipe_elastic_normal_stress_maximum_v2"&&r["entity_ref"]=="ss:pipe").unwrap();
         assert_eq!(maximum["value"].as_f64().unwrap().to_bits(),0x4008555555555555,"RN64(73/24) at t = 7/12");
-        // The loaded body's force scale is the final row maximum RN64((7/2)Z), ties to
-        // even; the coupled moment scale is twice it (extent 2), RN64(7Z).
+        // The loaded body's force scale is the final row maximum. (7/2)Z is an exact
+        // binary64 tie; the published row is RN64 of the projected hull midpoint, observed
+        // here to equal the tie's even neighbour RN64((7/2)Z), so this pin is an observed
+        // outcome, not a property of the law. The coupled moment scale is twice it
+        // (extent 2), RN64(7Z).
         let scales=&case["selection"]["body_scales"][1];
         assert_eq!(scales["force"],json!(format!("{:016x}",(3.5*z).to_bits())));
         assert_eq!(scales["moment"],json!(format!("{:016x}",(7.0*z).to_bits())));
@@ -587,7 +590,10 @@ fn w1_native_scales_stay_native_evidence() {
             let slot=[k::Kind::Translation,k::Kind::Rotation,k::Kind::Force,k::Kind::Moment].iter().position(|q|*q==row.kind).unwrap();
             if let Some(x)=row.value.value() {s[slot]=s[slot].max(x.abs());}
         }
-        let expected=k::coupled_scales(s,2.0);
+        // Coupling with extent 2, written out here rather than through the kernel's
+        // `coupled_scales`: [max(T, 2R), max(R, T/2), max(F, M/2), max(M, 2F)].
+        let [t,r,f,m]=s;
+        let expected=[t.max(2.0*r),r.max(t/2.0),f.max(m/2.0),m.max(2.0*f)];
         for (kind,want) in expected.iter().enumerate() {
             let (body,_,bits)=native[4+kind];
             assert_eq!((body,bits),(1,want.to_bits()),"{mode:?}: native body 1 kind {kind}");

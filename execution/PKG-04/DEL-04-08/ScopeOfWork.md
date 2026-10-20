@@ -159,7 +159,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **AC-003** — Every refused, declined or faulted path behaves as REQ-003 states:
   - it publishes the exact ordinary bytes, or those bytes plus the one notice where retained work ran;
   - every stage fault, no-permit entry and refused exact request takes the ordinary route;
-  - the two W1 corner cases keep their internal refusals and fall back;
+  - the W1 width corner case keeps its internal refusal and falls back;
   - the reader refuses a changed definition or table digest at G0.
 
 ### Memory-pricing law

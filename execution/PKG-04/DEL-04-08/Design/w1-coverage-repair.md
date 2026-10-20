@@ -550,7 +550,7 @@ The text as proposed (on the repair's discharge):
 - **Z1 and section 10** (owner, 2026-10-20, relayed by HELP_HUMAN: "I approve 1A, 2A, 3A."):
   - **1A.** Z1, the single Ẑ in DEF-O and DEF-E, is not adopted; it was ruled once for both routes with this census's tables and W1-E's (w1e-sharper-exact-coverage.md §6.3, §9). Corner 1 lands as designed (1.2), with the REQ-003 (e) sub-bullet and the §4.4 "Stop" text above; every stop condition of 3.3 still applies. The other coverage options are not pursued unless the owner later chooses to change the claim for coverage.
   - **2A.** Section 10's five proposed ScopeOfWork edits are applied as section 10 now records.
-  - **3A.** The REQ-006 (e) amendment of w1e §6.1 is applied on main by HELP_HUMAN (w1e §6.1).
+  - **3A.** The REQ-006 (e) amendment of w1e §6.1 is applied on main by HELP_HUMAN through #1482 (`816ec66225`; w1e §6.1).
 
 **Contingent, to HELP_HUMAN:** narrowing DEF-O's admitted Z, if the census's pre-registered escalation rule fires (3.3), and a D3 shortfall.
 
