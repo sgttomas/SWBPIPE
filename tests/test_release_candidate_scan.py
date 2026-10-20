@@ -372,6 +372,7 @@ def test_record_makes_no_release_readiness_claim(tmp_path):
 @pytest.mark.skipif(
     shutil.which("cargo") is None, reason="cargo unavailable; engine CLI not built"
 )
+@pytest.mark.runs_cargo("cargo run of the protected-content lint engine")
 def test_engine_lint_integration_flags_invented_lookalike(tmp_path):
     """End-to-end check (b): the DEL-08-05 engine CLI flags an INVENTED
     standards-table lookalike (designator name plus synthetic values only)
@@ -410,6 +411,7 @@ def test_engine_lint_integration_flags_invented_lookalike(tmp_path):
 @pytest.mark.skipif(
     shutil.which("cargo") is None, reason="cargo unavailable; engine CLI not built"
 )
+@pytest.mark.runs_cargo("cargo run of the protected-content lint engine")
 def test_engine_cli_reports_clean_content_without_findings(tmp_path):
     """Negative path for check (b): legitimate invented content with no
     standards-table signature produces no engine findings."""

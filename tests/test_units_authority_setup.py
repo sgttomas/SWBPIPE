@@ -13,7 +13,7 @@ def module(path, name):
     spec=importlib.util.spec_from_file_location(name,path); loaded=importlib.util.module_from_spec(spec); spec.loader.exec_module(loaded);return loaded
 
 def test_controller_prepares_units_even_with_existing_json_authority(monkeypatch, tmp_path):
-    conftest=module(ROOT/'tests/conftest.py','units_setup_test')
+    conftest=module(ROOT/'tests/conftest.py','units_setup_test'); monkeypatch.delenv('OPENPIPESTRESS_NO_CARGO_BUILD',raising=False)
     monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/checked-json')
     monkeypatch.setenv('OPENPIPESTRESS_RUNNER_BIN','/configured/runner')
     monkeypatch.delenv('OPENPIPESTRESS_UNITS_BIN',raising=False)
@@ -23,7 +23,7 @@ def test_controller_prepares_units_even_with_existing_json_authority(monkeypatch
     assert calls==['units'];assert os.environ['OPENPIPESTRESS_UNITS_BIN']==str(target)
 
 def test_controller_prepares_the_runner_even_with_existing_authorities(monkeypatch, tmp_path):
-    conftest=module(ROOT/'tests/conftest.py','runner_setup_test')
+    conftest=module(ROOT/'tests/conftest.py','runner_setup_test'); monkeypatch.delenv('OPENPIPESTRESS_NO_CARGO_BUILD',raising=False)
     monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/checked-json')
     monkeypatch.setenv('OPENPIPESTRESS_UNITS_BIN','/configured/units')
     monkeypatch.delenv('OPENPIPESTRESS_RUNNER_BIN',raising=False)
@@ -33,7 +33,7 @@ def test_controller_prepares_the_runner_even_with_existing_authorities(monkeypat
     assert calls==['runner'];assert os.environ['OPENPIPESTRESS_RUNNER_BIN']==str(target)
 
 def test_workers_and_configured_controller_do_not_build(monkeypatch):
-    conftest=module(ROOT/'tests/conftest.py','units_setup_worker_test')
+    conftest=module(ROOT/'tests/conftest.py','units_setup_worker_test'); monkeypatch.delenv('OPENPIPESTRESS_NO_CARGO_BUILD',raising=False)
     def forbidden():raise AssertionError('unexpected build')
     monkeypatch.setitem(sys.modules,'build_units_authority',SimpleNamespace(build=forbidden))
     monkeypatch.setitem(sys.modules,'build_checked_json',SimpleNamespace(build=forbidden))
@@ -43,6 +43,36 @@ def test_workers_and_configured_controller_do_not_build(monkeypatch):
     monkeypatch.setenv('OPENPIPESTRESS_UNITS_BIN','/configured/units');monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/json')
     monkeypatch.setenv('OPENPIPESTRESS_RUNNER_BIN','/configured/runner')
     conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace()))
+
+SESSION_BINS={'OPENPIPESTRESS_CHECKED_JSON_BIN':('build_checked_json','openpipestress_jcs_ijson'),
+    'OPENPIPESTRESS_UNITS_BIN':('build_units_authority','openpipestress_units'),'OPENPIPESTRESS_RUNNER_BIN':('build_runner','openpipestress-runner')}
+
+def no_build_session(monkeypatch, tmp_path, name):
+    conftest=module(ROOT/'tests/conftest.py',name)
+    def forbidden():raise AssertionError('unexpected build')
+    for module_name,_ in SESSION_BINS.values():
+        monkeypatch.setitem(sys.modules,module_name,SimpleNamespace(build=forbidden,DEFAULT_TARGET=tmp_path/module_name))
+    monkeypatch.setenv('OPENPIPESTRESS_NO_CARGO_BUILD','1'); monkeypatch.setenv('PATH',os.environ.get('PATH',''))
+    return conftest
+
+def test_no_cargo_build_uses_presets_and_existing_builds_and_refuses_cargo(monkeypatch, tmp_path):
+    conftest=no_build_session(monkeypatch,tmp_path,'no_cargo_presets_test'); preset=tmp_path/'preset-json'; preset.write_text('')
+    monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN',str(preset)); monkeypatch.delenv('OPENPIPESTRESS_RUNNER_BIN',raising=False)
+    built=tmp_path/'build_units_authority/release/openpipestress_units'; built.parent.mkdir(parents=True); built.write_text('')
+    monkeypatch.setenv('OPENPIPESTRESS_UNITS_BIN','')
+    conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace()))
+    assert os.environ['OPENPIPESTRESS_CHECKED_JSON_BIN']==str(preset.resolve()); assert os.environ['OPENPIPESTRESS_UNITS_BIN']==str(built.resolve())
+    assert 'OPENPIPESTRESS_RUNNER_BIN' not in os.environ; assert conftest._ABSENT=={'OPENPIPESTRESS_RUNNER_BIN'}
+    if os.name=='posix':
+        import shutil,subprocess
+        cargo=shutil.which('cargo'); assert cargo and Path(cargo).parent.name.startswith('openpipestress-no-cargo-')
+        refused=subprocess.run([cargo,'build'],capture_output=True,text=True); assert refused.returncode==1 and 'OPENPIPESTRESS_NO_CARGO_BUILD=1' in refused.stderr
+
+def test_no_cargo_build_workers_record_absent_authorities_without_building(monkeypatch, tmp_path):
+    conftest=no_build_session(monkeypatch,tmp_path,'no_cargo_worker_test'); path=os.environ['PATH']
+    for name in SESSION_BINS:monkeypatch.delenv(name,raising=False)
+    conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace(workerinput={})))
+    assert conftest._ABSENT==set(SESSION_BINS) and os.environ['PATH']==path
 
 def test_explicit_build_uses_locked_release_cli_and_target(monkeypatch,tmp_path):
     helper=module(ROOT/'tools/units/build_units_authority.py','units_build_test'); calls=[]
