@@ -2545,7 +2545,9 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "fab6f6e6ba904e7ee978cba5fe11d93f7da3cec70bc07da1b5f73be65509673f", "9e437e02d78a09034dda9489aa666d74622bbc0ec8a48bf1bf571968410edd20"),("dense_scrutiny", "4fe60cdccde18d33804b6ff912eff220684b952ad341312b6e334ed78e5259fc", "1819846919c2b08483686f539f99498421a3e186515bd69305d84a9914f5e429")];
+/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
+/// it moved (with the old text these pins reproduce); read from this test's writer line.
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "dd0a578eecda04de99c87c8d18c900d8ec1dc10f71f63336a9fb6da7c3ceaf25", "c3cbf147c4c7996e6fb300b5257053e705b5c0fef83f7600d6f66b5a36fa9064"),("dense_scrutiny", "460c61a0c8f0e149cb1c3594d89a06d63fc573feb36275ffbb03540a8226852b", "09364988bfeee43d8cb7886a319007b3793a3b6e6002c28759ed8e0dfda317fa")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3536,11 +3538,13 @@ fn two_member_exact(reversed: bool) -> Value {
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
+/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
+/// it moved (with the old text these pins reproduce); read from this test's writer line.
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "5fa9bd07100577a19f24b635b292c5ff8490a204b189255cb87482e7a594746d"),
-    (false, "dense_scrutiny", "a2c39c4ddd2eb814d5c294d0e912485acd29c8211a02e956240f574c7a5f0130"),
-    (true, "sparse_interactive", "00e7ef4b0ed1a06b5e7785549f1ed30ac03282f7ae5bc6afc2b97dff5e30574c"),
-    (true, "dense_scrutiny", "9e41c3bd40a27f057c6807d8a769c7415e8005a84237465879db33f704293653")];
+    (false, "sparse_interactive", "eb405e29c2ededfcd2a3da156bf47beb218517bdde56372b17db4c8b78f69c23"),
+    (false, "dense_scrutiny", "6d7b64563f2ba47cf3aacb0f8c0d8ca0e50408be5c1ad0bae1b0249d56ca2f89"),
+    (true, "sparse_interactive", "01586f9ef7325261c743d0dfbabe7f233e4777a2c6b088673af86b30faba7d0e"),
+    (true, "dense_scrutiny", "4bccd40a63de3d954ac8d487d3f06d2b0f12d4732a25589940b2f5eca5a998cd")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3585,8 +3589,10 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// and the two hashes binding it (`publication_sha256`, `receipt_sha256`) are the only
 /// changed leaves, in both modes.
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "c29d996737fcb9d8569054c36f0a317002b37502f19bf5c1742a43463b37b18e"),
-    ("dense_scrutiny", "e208f4c920d2c8737432f253624b0dd0401c52e4a86e53e4549213b633ef047e")];
+/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
+/// it moved (with the old text these pins reproduce); read from this test's writer line.
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "1834ad8d3b1b3f9bb03d4baed971f019348c5999bafc2e3c0218e78d6c50151a"),
+    ("dense_scrutiny", "ebfbe489c8c4e2e7d82926c214a911274ac7005d11ac9c4b77d927036bad1d8f")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

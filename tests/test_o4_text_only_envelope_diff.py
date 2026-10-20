@@ -184,10 +184,111 @@ def check(name: str, allowed_hashes=None, base=None, current=None):
 
 # Every regenerated O4 carrier that existed at the base: envelopes, their
 # corpora and derived documents (Euler-Bernoulli, zero allowance throughout).
+# The route-E successors and their derivatives also carry S3's DEF-E-bound
+# hashes (the E14 precedent), which are hashes and pass as such.
 ENVELOPES = (
+    "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
+    "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+    "fixtures/model_operations/pressure_v3_l_line_authoring.json",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/fields-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/fields-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/mixed-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/n05-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/n06-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/n06-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/fields-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/fields-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/mixed-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/mixed_units-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/mixed_units-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n05_unicode-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n05_unicode-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n05_units-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n05_units-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n06-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/physics_source/n06-sparse_interactive.raw.json",
+    "fixtures/results/pressure_connected_mechanics_dense.json",
+    "fixtures/results/pressure_connected_mechanics_sparse.json",
+    "fixtures/results/pressure_connected_ui_mechanics_dense.json",
+    "fixtures/results/pressure_connected_ui_mechanics_sparse.json",
+    "fixtures/results/pressure_thermal_ui_mechanics_dense.json",
+    "fixtures/results/pressure_thermal_ui_mechanics_sparse.json",
+    "fixtures/results/pressure_load_state_connected_dense.document.json",
+    "fixtures/results/pressure_load_state_connected_dense.stress_neutral.json",
+    "fixtures/results/pressure_load_state_connected_sparse.document.json",
+    "fixtures/results/pressure_load_state_connected_sparse.stress_neutral.json",
+    "fixtures/results/pressure_load_state_pressure_dense.document.json",
+    "fixtures/results/pressure_load_state_pressure_dense.stress_neutral.json",
+    "fixtures/results/pressure_load_state_pressure_sparse.document.json",
+    "fixtures/results/pressure_load_state_pressure_sparse.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_eigen_motion_dense.document.json",
+    "fixtures/results/pressure_source_load_state_eigen_motion_dense.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_eigen_motion_sparse.document.json",
+    "fixtures/results/pressure_source_load_state_eigen_motion_sparse.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_fields_dense.document.json",
+    "fixtures/results/pressure_source_load_state_fields_dense.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_fields_sparse.document.json",
+    "fixtures/results/pressure_source_load_state_fields_sparse.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_mixed_dense.document.json",
+    "fixtures/results/pressure_source_load_state_mixed_dense.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_mixed_sparse.document.json",
+    "fixtures/results/pressure_source_load_state_mixed_sparse.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_n05_dense.document.json",
+    "fixtures/results/pressure_source_load_state_n05_dense.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_n05_sparse.document.json",
+    "fixtures/results/pressure_source_load_state_n05_sparse.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_n06_dense.document.json",
+    "fixtures/results/pressure_source_load_state_n06_dense.stress_neutral.json",
+    "fixtures/results/pressure_source_load_state_n06_sparse.document.json",
+    "fixtures/results/pressure_source_load_state_n06_sparse.stress_neutral.json",
+    "fixtures/results/pressure_u4b_arc_sparse.json",
+    "fixtures/results/pressure_v3_arc_reader_corpus.json",
+    "fixtures/results/pressure_v3_connector_reader_corpus.json",
+    "fixtures/results/pressure_v3_joint_reader_control.json",
+    "fixtures/results/pressure_v3_straight_reader_corpus.json",
+    "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json",
+    "fixtures/results/retained_precision_exact_successor_sparse_interactive.json",
+    "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json",
+    "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json",
+    "fixtures/results/retained_precision_rv120_b3_inputs.json",
 )
-# Files whose only moved bytes are hashes that bind the envelopes.
+# Analysis runs bind their documents by hash only; no limitation string is
+# carried, so only hash leaves may move.
+BINDING_ONLY = (
+    "fixtures/results/pressure_load_state_connected_dense.analysis_run.json",
+    "fixtures/results/pressure_load_state_connected_sparse.analysis_run.json",
+    "fixtures/results/pressure_load_state_pressure_dense.analysis_run.json",
+    "fixtures/results/pressure_load_state_pressure_sparse.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_eigen_motion_dense.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_eigen_motion_sparse.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_fields_dense.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_fields_sparse.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_mixed_dense.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_mixed_sparse.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_n05_dense.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_n05_sparse.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_n06_dense.analysis_run.json",
+    "fixtures/results/pressure_source_load_state_n06_sparse.analysis_run.json",
+)
 J7_CENSUS = "fixtures/results/j7_rf_census_expected.json"
+J2_CORPUS = "fixtures/results/pressure_source_reader_corpus.json"
+RETAINED_CORPUS = "fixtures/results/retained_precision_cases.json"
+R1_OUTCOMES = "fixtures/results/retained_precision_reader_outcomes.json"
+# O4-S1's F1 generator change (not a text change): the nonzero-allowance tamper
+# of every pressure-source control now reads at the geometry check, so its
+# expected verdicts (and only those) moved; its envelope is text-only.
+J2_S1_RETAGGED = "F1-captured-corrosion-allowance-nonzero"
 
 
 def _base_present() -> bool:
@@ -200,6 +301,68 @@ pytestmark = pytest.mark.skipif(not _base_present(), reason=f"the O4 base {BASE[
 @pytest.mark.parametrize("name", ENVELOPES)
 def test_o4_text_only_envelope_diff(name):
     check(name)
+
+
+@pytest.mark.parametrize("name", BINDING_ONLY)
+def test_o4_text_only_envelope_diff_binding_only(name):
+    summary = check(name, allowed_hashes={"value", "publication_sha256", "receipt_sha256"})
+    assert set(summary) == {"hash"}, f"{name}: only the hashes binding the regenerated document move"
+
+
+def _entries(text, member, key):
+    document = load(text)
+    entries = dict(document)[member]
+    return [(key(entry), entry) for entry in entries]
+
+
+def _keyed_diff(name, member, key, current=None):
+    base = dict(_entries(base_text(name), member, key))
+    now = _entries((PROJECT / name).read_text() if current is None else current, member, key)
+    return {k: classify(base[k], entry) for k, entry in now if k in base}, len(base), len(now)
+
+
+def _pair_id(entry):
+    return dict(entry)["id"]
+
+
+def test_o4_text_only_envelope_diff_j2_corpus_entries():
+    """J2: every entry present at the base differs only in limitation text and binding hashes; O4-S1's 24 F1
+    nonzero-allowance tampers differ besides in their expected verdicts only; the 24 entries added by S1's
+    F1 negative-allowance generator are new."""
+    found, base, now = _keyed_diff(J2_CORPUS, "entries", _pair_id)
+    assert (base, now) == (462, 486)
+    retagged = 0
+    for ident, leaves in found.items():
+        other = [path for kind, path in leaves if kind == "other"]
+        if J2_S1_RETAGGED in ident:
+            retagged += 1
+            assert other and all(path.startswith("/expected/") for path in other), (ident, other)
+        else:
+            assert not other, (ident, other[:8])
+    assert retagged == 24
+    assert sum(any(kind == "text" for kind, _ in leaves) for leaves in found.values()) == 462
+
+
+def test_o4_text_only_envelope_diff_retained_corpus_route_e_entries():
+    """The retained corpus moves only in its route-E bases (text, binding and DEF-E-bound hashes, and the
+    provenance digests of their regenerated fixtures); every other entry at the base is unchanged."""
+    for member in ("cases", "mutations", "must_pass"):
+        found, _, _ = _keyed_diff(RETAINED_CORPUS, member, _pair_id)
+        moved = {ident for ident, leaves in found.items() if leaves}
+        expected = {f"w1_member_route_e_baseline_{mode}" for mode in ("sparse_interactive", "dense_scrutiny")} if member == "cases" else set()
+        assert moved == expected, (member, sorted(moved))
+        for ident in moved:
+            assert not [path for kind, path in found[ident] if kind == "other"], ident
+            assert any(kind == "text" for kind, _ in found[ident]), ident
+
+
+def test_o4_text_only_envelope_diff_r1_outcomes_move_only_input_digests():
+    """R1: the native reader's outcome on every corpus input present at the base is unchanged except the
+    digests of the inputs (and receipt digests the readings echo)."""
+    found, _, _ = _keyed_diff(R1_OUTCOMES, "entries", lambda entry: entry[0])
+    assert found
+    for key, leaves in found.items():
+        assert all(kind == "hash" for kind, _ in leaves), (key, leaves[:8])
 
 
 def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():
