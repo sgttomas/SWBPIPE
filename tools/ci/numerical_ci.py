@@ -423,9 +423,12 @@ def cargo_plan(project, paths=None, selection=None):
                 '--config', 'profile.test.overflow-checks=true'])
             tests.append(argv + ['--test', '*', '--bins', '--examples'])
             tests.append(argv + ['--doc'])
-        elif manifest.as_posix() == 'core/reporting/result_export/Cargo.toml':
-            # Full reader/transport and reserialization oracles are computationally
-            # heavy. Keep every target and assertion, with both safety checks on.
+        elif manifest.as_posix() in ('core/reporting/result_export/Cargo.toml', 'core/product_physics/Cargo.toml'):
+            # Full reader/transport and reserialization oracles, and product_physics's
+            # retained-source and judging oracles, are computationally heavy. Keep
+            # every target and assertion, with both safety checks on. Hosted builds
+            # are unregistered either way; the registered debug profile's evidence
+            # is taken on the qualification host.
             tests.append(argv + ['--config', 'profile.test.opt-level=2',
                 '--config', 'profile.test.debug-assertions=true',
                 '--config', 'profile.test.overflow-checks=true'])

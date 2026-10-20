@@ -3,7 +3,7 @@
   "path_base": "projects/chirality-piping",
   "recipe": {
     "path": "tools/serialization/generate_product_preview_mechanics.mjs",
-    "sha256": "a2b3ea69ac250cf35ce1c3b988e4f3723c6aaf62bb47d92a9af2a5064d90d2fb"
+    "sha256": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
   "generator": {
     "path": "core/product_physics/examples/preview_result.rs",
@@ -548,7 +548,7 @@
     "schemas/target_mapping.schema.json": "126fc0f111912ab6fd4f8cc475bb2ce96fd723799765aed1b1e74370bded4e17",
     "schemas/units.schema.yaml": "53233e2b586db0e63eb48c1d7c1a2f47e04a7c7de1fdb89f121a8eb8a96f32c4",
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
-    "tools/serialization/generate_product_preview_mechanics.mjs": "a2b3ea69ac250cf35ce1c3b988e4f3723c6aaf62bb47d92a9af2a5064d90d2fb"
+    "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
   "source_input_files_after": {
     "core/loads/load_case_algebra/.gitignore": "9cc2c8cc102e0b2a0a177c8f594abc9b9776300a04473c24b45d52c1007a4119",
@@ -1083,9 +1083,9 @@
     "schemas/target_mapping.schema.json": "126fc0f111912ab6fd4f8cc475bb2ce96fd723799765aed1b1e74370bded4e17",
     "schemas/units.schema.yaml": "53233e2b586db0e63eb48c1d7c1a2f47e04a7c7de1fdb89f121a8eb8a96f32c4",
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
-    "tools/serialization/generate_product_preview_mechanics.mjs": "a2b3ea69ac250cf35ce1c3b988e4f3723c6aaf62bb47d92a9af2a5064d90d2fb"
+    "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "c506b2f1d7bc755a0e4f8cbdd15dec45115ed2e345cef005936e74172efd700a",
+  "inventory_json_sha256": "fe7603f4100ad28b3f30dc12d88516da61783ef164927a556395dc1b391bca6a",
   "dependencies": [
     {
       "name": "block-buffer",

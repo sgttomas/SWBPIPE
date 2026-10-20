@@ -128,6 +128,21 @@ class NumericalTests(unittest.TestCase):
             self.assertIn('profile.test.overflow-checks=true', tests[0])
             self.assertFalse(any(flag in tests[0] for flag in ('--lib', '--test', '--skip')))
 
+    def test_product_physics_keeps_every_target_with_optimized_safety_checks(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            source = self.fixture(project)
+            destination = project / 'core/product_physics'
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            source.rename(destination)
+            manifests, commands = ci.cargo_plan(project)
+            tests = commands[len(manifests):]
+            self.assertEqual(len(tests), 1)
+            self.assertIn('profile.test.opt-level=2', tests[0])
+            self.assertIn('profile.test.debug-assertions=true', tests[0])
+            self.assertIn('profile.test.overflow-checks=true', tests[0])
+            self.assertFalse(any(flag in tests[0] for flag in ('--lib', '--test', '--skip', '--ignored', '--include-ignored')))
+
     def test_build_only_retains_profiles_without_executing_tests_or_doctests(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
