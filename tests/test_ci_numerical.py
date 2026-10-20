@@ -137,11 +137,26 @@ class NumericalTests(unittest.TestCase):
             source.rename(destination)
             manifests, commands = ci.cargo_plan(project)
             tests = commands[len(manifests):]
-            self.assertEqual(len(tests), 1)
+            self.assertEqual(len(tests), 7)
             self.assertIn('profile.test.opt-level=2', tests[0])
             self.assertIn('profile.test.debug-assertions=true', tests[0])
             self.assertIn('profile.test.overflow-checks=true', tests[0])
             self.assertFalse(any(flag in tests[0] for flag in ('--lib', '--test', '--skip', '--ignored', '--include-ignored')))
+            # b7-plan 5a: each stack witness alone, in the default debug profile.
+            witnesses = tests[1:]
+            self.assertEqual([w[w.index('--') + 1] for w in witnesses],
+                             ['retained_memory::witness_tests::%s::%s' % (w, m)
+                              for w in ('witness_headroom_w1_at_one_mebibyte', 'witness_w2_deep_milestone_publishes', 'witness_w_c2_publishes')
+                              for m in ('sparse', 'dense')])
+            for witness in witnesses:
+                harness = witness.index('--')
+                self.assertEqual(witness[:2], ['cargo', 'test'])
+                self.assertNotIn('--config', witness)
+                self.assertIn('--locked', witness[:harness])
+                self.assertIn('--lib', witness[:harness])
+                self.assertEqual(witness[harness + 2:], ['--exact', '--ignored', '--test-threads=1'])
+            build = [b for b in ci.build_commands(commands) if b[:2] == ['cargo', 'test']]
+            self.assertEqual(build, [tests[0] + ['--no-run'], witnesses[0][:witnesses[0].index('--')] + ['--no-run']])
 
     def test_build_only_retains_profiles_without_executing_tests_or_doctests(self):
         with tempfile.TemporaryDirectory() as tmp:

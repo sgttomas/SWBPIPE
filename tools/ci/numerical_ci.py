@@ -432,6 +432,13 @@ def cargo_plan(project, paths=None, selection=None):
             tests.append(argv + ['--config', 'profile.test.opt-level=2',
                 '--config', 'profile.test.debug-assertions=true',
                 '--config', 'profile.test.overflow-checks=true'])
+            if manifest == readiness.STACK_WITNESS_MANIFEST:
+                # b7-plan 5a: the stack witnesses need the debug profile's frames,
+                # one process each. Hosted builds are unregistered, so this is an
+                # early warning, not VER-004's registered record.
+                for witness in readiness.stack_witness_commands():
+                    split = witness.index('--')
+                    tests.append(list(witness[:split]) + ['--locked'] + list(witness[split:]))
         else:
             tests.append(argv)
     fetches = [['cargo', 'fetch', '--locked', '--manifest-path', p.as_posix()] for p in chosen]
@@ -444,8 +451,18 @@ def build_commands(commands):
     rustdoc has no stable --no-run mode. The ordinary test-profile library
     compilation supplies its dependencies; omit the separate doctest execution.
     """
-    return [command + ['--no-run'] if command[:2] == ['cargo', 'test'] else list(command)
-            for command in commands if '--doc' not in command]
+    built = []
+    for command in commands:
+        if '--doc' in command:
+            continue
+        if command[:2] == ['cargo', 'test']:
+            # Harness arguments after `--` select tests; compiling ignores them.
+            command = command[:command.index('--')] if '--' in command else command
+            command = command + ['--no-run']
+            if command in built:
+                continue
+        built.append(list(command))
+    return built
 
 
 def cargo_timings(output):
