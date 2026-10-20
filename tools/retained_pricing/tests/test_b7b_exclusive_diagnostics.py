@@ -200,13 +200,13 @@ def za_block(snapshot):
 @pytest.mark.parametrize("mutation", [None, "loop", "second_conversion"])
 def test_b7b_za_bounds_section_allowances_by_m_and_refuses_drift(tmp_path, mutation):
     text = (SOURCE / RP).read_text()
-    anchor = '            unit_value(&section["corrosion_allowance"], Dimension::Length).is_ok_and(|v| v == 0.0)\n'
+    # O4 S5: the exact arm converts the allowance, the wall and the mill tolerance (three unit_value sites).
+    anchor = '            let allowance = unit_value(&section["corrosion_allowance"], Dimension::Length);\n'
     assert text.count(anchor) == 1
     if mutation == "loop":
         text = text.replace(anchor, "            for _ in 0..1 {}\n" + anchor, 1)
     elif mutation == "second_conversion":
-        text = text.replace(anchor, anchor.replace("is_ok_and(|v| v == 0.0)",
-                            'is_ok_and(|v| v == 0.0) && unit_value(&section["outside_diameter"], Dimension::Length).is_ok()'), 1)
+        text = text.replace(anchor, anchor + '            let _od = unit_value(&section["outside_diameter"], Dimension::Length);\n', 1)
     target = tmp_path / "snap" / RP
     target.parent.mkdir(parents=True)
     target.write_text(text)

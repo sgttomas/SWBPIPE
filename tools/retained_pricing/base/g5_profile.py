@@ -70,6 +70,16 @@ BIND = {
     "s((&str,Vec<f64>))": sz("(&'static str, Vec<f64>)"), "s((String,Vec<f64>))": sz("(String, Vec<f64>)"),   # U4B-RD
     "s(U4bCoverEntry)": sz("((&'static str, &'static str, String), Vec<f64>)"),   # U4B-RD
     "s((&str,(f64,f64)))": sz("(&'static str, (f64, f64))"),   # U4B-RD
+    # O4 S5 D3 (retained-pricing-rules.md §8.9): the O4 owners (o4_owners_model.py)
+    "s(ExactMemberBasis)": sz("crate::retained_product::ExactMemberBasis"),   # O4-PS
+    "s(ReducedFacts)": sz("crate::retained_product::ReducedFacts"),   # O4-PS, O4-PA
+    "s(ReducedPreparation)": sz("crate::retained_product::ReducedPreparation"),   # O4-PA
+    "s(ShearAssociation)": sz("crate::retained_product::ShearAssociation"),   # O4-PA
+    "s(TimoshenkoLeaf)": fk("TIMOSHENKO_LEAF"),   # O4-PS, O4-PA
+    "s(ReducedSection)": fk("REDUCED_SECTION"),   # O4-RS
+    "s((usize,Number))": sz("(usize, serde_json::Number)"),   # O4-PP: PreparedPayload.shear
+    "s(StressComponents)": sz("open_pipe_stress_stress_recovery::StressComponents"),   # O4-SP
+    "s((u64,&Value))": sz("(u64, &'static Value)"),   # O4-RD: native_bytes' leaves
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
     "s(FormationRow)": sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow"),
@@ -316,6 +326,13 @@ BIND["s(Option<FormationRecord>)"] = ("SourceUpper",
 BIND["s(RowBinding)"] = ("InBuild", "fkr::PRODUCT_FINAL_ROW",
     "bind_rows' element (retained_product.rs:1742): the kernel's ProductFinalRow, exported by structural::retained_resource")
 
+# O4 S5 D3 (retained-pricing-rules.md §8.9): private O4 records by field sum, and the kernel's per-member stack staging.
+BIND["s(PreparedSectionPatch)"] = ("SourceUpper", field_upper(["usize", "u32", "[serde_json::Number; 4]"]),
+    "O4-PP: retained_product.rs PreparedSectionPatch {evidence_index: usize, member: u32, numbers: [Number; 4]} (private): field-sum upper")
+BIND["s(CompositeMaximum)"] = ("SourceUpper", field_upper(["f64", "Value", "std::borrow::Cow<'static, str>", "usize"]),
+    "O4-SR: source_receipt/composite.rs CompositeMaximum {value: f64, evidence: Value} (module-private) in its Result<_, Cow<str>> carrier: field-sum upper with the error and tag slots")
+BIND["s(O4KernelStaging)"] = ("SourceUpper", "64 * fkr::WIDE_16",
+    "O4-KS: the retained kernel's new per-member stack values (ShearEnclosures, source_residual Member t/tgap, bridge Majorants t, timoshenko_entries' Wide<L> and temporaries): 64 Wide<16> slots, no compiler reuse; not a frame measurement")
 BIND.update({   # I104 SQ (RV112 N-5): SP's adapter-reserved owners
     "s(CaseSlot)": sz("crate::retained_product::CaseSlot"), "s([usize;2])": sz("[usize; 2]"),
     "s(PrimitiveSource)": sz("open_pipe_stress_frame_kernel::structural::retained_api::PrimitiveSource")})

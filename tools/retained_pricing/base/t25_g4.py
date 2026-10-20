@@ -34,10 +34,14 @@ Usage: python3 t25_caps.py <caps|milestone> [eps]
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from g3lib import X, B, s, V, A, Xc, Mat, HashReq, pushcap, appendcap, total, ASSUMED, j3cap
+from g3lib import X, B, s, V, A, Xc, Mat, HashReq, HashMov, pushcap, appendcap, total, ASSUMED, j3cap
 from rf_source_model import active as rf_active
 
 RF = rf_active(os.environ.get("RP_SNAPSHOT"))
+# O4 S5 D3 (retained-pricing-rules.md §8.9): o4_owners_model binds commitment, stress_operands, derived_for, the case
+# solve and composite_exact's second maximum; the O4 owners below are added only on its source.
+import o4_owners_model as _o4_model
+_o4 = _o4_model.inspect(os.environ["RP_SNAPSHOT"])
 
 which = sys.argv[1] if len(sys.argv) > 1 else "caps"
 EPS = int(sys.argv[2]) if len(sys.argv) > 2 else 6
@@ -184,6 +188,10 @@ import u4b_u5b_owners_model as _u45_model
 if _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_qualified"]:
     rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] = (
         rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] + _u45_model.receipt_not_qualified(m))
+if _o4:
+    # O4-SP: derived_for's per-station Vec of the two bases' StressComponents, one station at a time.
+    rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] = (
+        rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] + _o4_model.derived_components())
 # (4) source::commitment (source.rs:252-410)
 payload_vf = VF(arr=C * 0 + m * (12 + 6 + 3 * 144) + C + m + sp + k + l + Fn + units + N,
                 obj=C + m * 3 + sp + k + l + Fn + units + 1,
@@ -195,6 +203,10 @@ payload_vf = VF(arr=C * 0 + m * (12 + 6 + 3 * 144) + C + m + sp + k + l + Fn + u
 # S-4: source_identity (source.rs:376), stiffness_aggregate_bits (N x N in N + 1 arrays) and
 # force_aggregate_bits (N)
 payload_vf = payload_vf + VF(arr=N + N * N + N, ent=3, strb=L_ID_JSON + 16 * N * N + 16 * N, keyb=3 * 32)
+# O4-SP: a Timoshenko frame's `shear_area_bits` and a distinct member's `reduced_recovery_section` {4 bits}.
+if _o4:
+    _sp = _o4_model.source_payload_facts(m)
+    payload_vf = payload_vf + VF(obj=_sp["obj"], ent=_sp["ent"], strb=_sp["strb"], keyb=_sp["ent"] * 32)
 if RF:
     # RF-RC: the optional congruence_members array in the normalized payload
     # owns <=m ID strings and one key. Its hashes retain the same full model.
@@ -206,6 +218,8 @@ functions_vf = VF(arr=Fn * 4, obj=Fn * 3, ent=Fn * 12, strb=Fn * (3 * RID + 256)
 functions_vf = functions_vf + VF(arr=16_384, obj=16_384, ent=3 * 16_384, strb=16_384 * (6 + 129 + 16), keyb=3 * 16_384 * 32,
                                  nums=16_384)
 plan_vf = functions_vf + VF(arr=R + P, obj=R * 2, ent=R * 8, strb=R * 3 * RID + P * RID, keyb=R * 8 * 24, nums=R)
+if _o4:
+    plan_vf = plan_vf + VF(strb=_o4_model.source_plan_facts(m)["strb"])   # O4-SP: the reduced rows' longer operand paths
 rows["T25.4 source commitment: payload + hash, functions, plan + hash, blocks"] = (
     payload_vf.tree() + hash_route(payload_vf, L_ID_JSON) + functions_vf.tree() + plan_vf.tree() + hash_route(plan_vf, L_ROW)
     + s("Vec<usize>") * F + B(16 * F) + X({"Node(usize,())": 2 * (F // 5 + 1)}) + B(8 * pushcap(F))
@@ -228,6 +242,9 @@ env_vf = (VF(arr=PA + 4 * PA, obj=3 * PA, ent=15 * PA, strb=PA * ROW, keyb=15 * 
                strb=m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
                keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m, depth=6).scale(CC)
           + VF(arr=64, obj=24, ent=160, strb=24 * 1024, keyb=160 * 40, nums=60, depth=5).scale(CC))
+if _o4:
+    _o4_ev = _o4_model.beam_theory_evidence(m)
+    env_vf = env_vf + VF(ent=_o4_ev["ent"], keyb=_o4_ev["keyb"], nums=_o4_ev["nums"]).scale(CC)   # O4-EV
 publication = env_vf.tree()
 import b7a_phase_model as _phase_model
 _selected_context = _phase_model.selected_publication_context(
@@ -263,6 +280,11 @@ def pick_max(cands):
 carried_case = (V("Projection", Fn) + B(Fn * 3 * RID) + Xc("RowTreatment", R) + B(R * (3 * RID + 4 * (24 + RID)))
                 + supports_vf.tree() + rowjson + VF(obj=2, ent=12, strb=256, keyb=12 * 32, nums=8).tree()
                 + VF(obj=1, ent=12, strb=3 * 64 + 128, keyb=12 * 32, nums=6).tree())
+if _o4:
+    # O4-SR: composite_exact holds a distinct member's reduced composite maximum beside the nominal one (one member at a
+    # time), charged in every T25 stage; physics_source's per-case model set (<= m inserts).
+    _mx = _o4_model.maximum_evidence_facts()
+    carried_case = carried_case + s("CompositeMaximum") + VF(**_mx).tree() + HashMov("&str", m)
 stage = {
     "S1 check_input (requested, rebuild, replay)": total(rows[k_] for k_ in rows if k_.split(" ")[0] in ("T25.1a", "T25.1b", "T25.1c", "T25.1d", "T25.1e", "T25.1f")),
     "S2 check_binding_against": rows["T25.2 check_binding_against: Sources #3"],
