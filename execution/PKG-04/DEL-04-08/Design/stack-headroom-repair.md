@@ -93,16 +93,9 @@ They are not taken: the closure split alone restores the margin and keeps the pr
 
 ## Re-pricing and re-registration (D3)
 
-`retained_product.rs` is priced source, so D3 is re-run on the repaired tree in the same steps O4-S5 used (retained-pricing-rules §8.9).
+D3 re-priced the repaired source at `6b90748dec`, after the full-file and function-body pins were reviewed and the two shifted caller keys carried through the line map. All four points complete with no unmapped header or unclassified argument and both o10 checks at zero. No positive owner or pricing formula changed: all point trees and the merged tree are coefficient-identical to O4's registration.
 
-- **Pins and rules.** Pins on the changed file move only after its diff is read, with a pin comment saying what changed. Carried rules are re-keyed by the line map. The phase functions enter the call graph as new by-name nodes, with no recursion.
-- **Expected price effect.** No new positive owner is expected, because no allocation changes. Any TEXT literal that moves keeps its text. The merged tree's E + R is expected to equal §8.9's, and any difference is explained in §8.
-- **Registration.**
-  - All 70 evaluations are re-run at the unchanged policy.
-  - `generate` writes the block at the new tree, with the basis line "SQ2 G5 at <new commit>".
-  - `REGISTERED_PROFILES` keeps the build identity, the reviewed inputs (none moves) and `threshold_bytes`.
-  - The law tests and `generate --check` are re-run.
-- **Record.** The record goes in §8 as a new subsection, and §9's "Registered profile" pointer moves to it.
+The generated profile and registration now name that commit (retained-pricing-rules §8.10). All 70 evaluations fit at the unchanged policy; the tightest remains merged dense W3, with 2,795,665,581 B headroom, a difference of 0 B from §8.9. The build identity, reader layouts, twelve reviewed-input digests and every numerical law-test pin are unchanged. `generate --check`, the law tests, both full suites and all six registered stack witnesses pass; the phase table is in §8.10.
 
 ## Verification
 
