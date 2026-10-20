@@ -4,6 +4,8 @@ This is the implementation design for the sixth post-T3 shared epoch ([b7-plan.m
 
 **Status: the census probe, switches and targets are on the repair's branch; the census runs there; production paths are unchanged.** The basis is main `257b44b910`: epoch 4 (#1461), O4 (#1468, merged at `fa019d9cef`) and the stack-headroom repair (#1476, b7-plan item 5a, D3 at `6b90748dec`) are merged. Section 0 records each assumption as re-checked against that source. Corner 1's production switch waits for the owner's Z1 ruling (b7-plan item 6; [w1e-sharper-exact-coverage.md](w1e-sharper-exact-coverage.md) §9), because adopting Z1 would make the admitted Z a point and the corner-1 path dead.
 
+**Revision 10** answers the second round of dual review (the census method and results): the corner-2 claim in 3.5 is stated against the head that carries it, the fixed-scale exception of the search and any-value variants is documented (3.2), C1-b's section count is corrected, and the W1-E records gain the per-row diagnostics w1e §6.2 specifies.
+
 **Revision 9** adds the census report (3.5) and corrects 2.1's account of where native and final scales diverge (3.5, "A correction to 2.1").
 
 **Revision 8** answers the dual review of revision 7 (Claude Opus 5.5 and Codex). No decision changes. The changes:
@@ -222,7 +224,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
   - *The annular lane's Z under (b) and (c)* is the admitted lane's represented hull, so its loaded maximum follows the same drive-and-hull rule as the admitted lane (1.2): the search is driven when the lane's Z is the represented hull (the represented lane, or the annular lane under (b) or (c)) and that hull is not a point. Without that, (b) and (c) would recreate corner 1 in the annular lane and exhaust before their gate (both reviewers). The selection key is that flag and a non-point hull, never a non-point Z alone: the annular lane's own Z is a non-point 1024-bit enclosure (`product_certificate.rs` 638). In the combined runs (a)+(b) and (a)+(c), (a) sets Z to Ẑ in both lanes. A switched-path control checks this: under (b), the stage-2 D = 0.2 m control converges.
 
   (b) and (c) change the lanes' problem, so a census re-runs the whole invocation with the switch on: the lanes are certified afresh, and the projection, scales, classes and every predicate follow from them. W1-E's census uses the same mechanism (w1e-sharper-exact-coverage.md §6.2). The switches' coefficient arithmetic runs in a scratch work owner, so the counted work of a re-run is the lane solve's own.
-- **Counterfactuals without a re-solve** are judged at the gate, after the actual verdicts, in a separate work owner that no receipt reads. Switch (a), the admitted Z set to the single Ẑ, re-forms the represented lane's bending-stress and maximum enclosures (the maximum by a search with Z = Ẑ). Each counterfactual recomputes every projected value from its own hull, the support magnitudes from their components, the coupled and floored scales from the counterfactual published rows, then each row's class and all four predicates, with the gate's own arithmetic. The probe checks itself on every case: its unaltered counterfactual must reproduce the published values, the final scales and every actual verdict bit for bit.
+- **Counterfactuals without a re-solve** are judged at the gate, after the actual verdicts, in a separate work owner that no receipt reads. Switch (a), the admitted Z set to the single Ẑ, re-forms the represented lane's bending-stress and maximum enclosures (the maximum by a search with Z = Ẑ). Each counterfactual recomputes every projected value from its own hull, the support magnitudes from their components, the coupled and floored scales from the counterfactual published rows, then each row's class and all four predicates, with the gate's own arithmetic. Two variants are exceptions (revision 10): the ±4-step unit search (U1 (i)) and the any-value columns judge each row's candidates at the scales of their fixed-projection counterpart, one row at a time, without re-forming the scales, magnitudes and classes from a jointly chosen statement. Their cells are therefore fixed-scale feasibility diagnostics, not counts of a publishable statement. The probe checks itself on every case: its unaltered counterfactual must reproduce the published values, the final scales and every actual verdict bit for bit.
 - **Identity checks** (revision 8):
   - a *manifest guard*: `census-probe` appears only as the kernel's `[features]` key and the `product_physics` forward, in no `[dependencies]` or `[dev-dependencies]` entry (the `mutation-controls` precedent, `numerical_robustness/tests/feature_guard.rs`), because the registered build identity names no features and `Cargo.lock` records none;
   - *recording moves nothing*: on every C1-a and C2-a input, today's run with the probe recording and the same run without it give the same candidate, value for value;
@@ -339,7 +341,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 | C1-b | 490 | 460 | 466 | 24 | 0 | 0 |
 
 - **C1-a.** The ten exhausting today are case 1 of F6/partial, T18, T19/pre-K-D5 and T19, and the genuine-exhaustion control `w1_member_exhaustion_*`, each in both modes; all are on the D = 0.2 m section (w = 98.4 × 2^-64). The 38 converging today are axial loads on that section, the four point-hull interior records and the cap inputs.
-- **C1-b.** The 30 converging today are the three D/2-power-of-two sections (w = 0). Every member with w > 0 exhausts today and converges after the repair, in at most a few splits.
+- **C1-b.** Its 49 section entries name 48 distinct sections: `grid/20x2` and the committed 0.02 × 0.002 m section coincide, and both keep their sampling weight. The 30 converging today are the three D/2-power-of-two sections (w = 0). Every member with w > 0 exhausts today and converges after the repair, in at most a few splits.
 - **By w and b** (C1-b, after the repair):
 
   | w (× 2^-64) | Pass | Fail |
@@ -379,7 +381,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 - **Final = readers** on every case where the readers' scales are observable (one candidate passes G5b). Where no candidate exists the case failed the gate first, and the comparison is not observable.
 - **Not reached.** C2-a: 15 `NoTriggeredCase` (the synthetic statements) and 2 preparation. C2-b decimal: 32 reach the gate only with corner 1 (the simply supported shape exhausts today).
 - **A correction to 2.1** (revision 9). The final value of a row is the projection of the midpoint of the two readouts' hull; the native scale is the admitted readout's own rounding. They round apart not only at exact halfways but wherever the readout gap, or a millimetre row's double rounding, moves the midpoint across a rounding boundary. With corner 1 on, 152 of 490 C1-b invocations differ (S4, the skew member, in all 98 on force and moment; S1, S2 and S5 in 18 each on translation and rotation), and 30 would withdraw at G5b without corner 2. No committed successor differs, so 3.3's stop rule ("any native ≠ final instance on a committed successor") does not hold, and the repair, which writes the scales the gate used, covers every such case.
-- **The gating check holds** on every committed successor and producer or hook corpus base under the production change (`w1_final_scales_equal_reader_scales`, below), so corner 2 is implemented (3.3).
+- **The gating check.** The census establishes final = readers wherever observable. The maintained gating check, `w1_final_scales_equal_reader_scales`, runs on the production change itself (the implementation commits that follow this report, not the census commit): over every committed successor fixture and every producer-solved or hook-produced corpus base, with each base's own hook applied, the receipt's scales equal the committed ones and the reader's G5b holds. Corner 2 is implemented on that basis (3.3).
 
 **Under Z1 (switch (a), the admitted Z set to Ẑ), route L.** In the corner-1 run, Z1's world is the (a) counterfactual: the represented lane is a point and is searched undriven.
 
@@ -394,7 +396,7 @@ C1-a is unchanged under Z1: 46 of 46 maxima and 52 of 52 cases pass either way. 
 
 **Decision rules applied (3.3).**
 - *Corner 1:* the regression condition holds, no stop condition holds and the escalation does not fire. Its production switch waits for the owner's Z1 ruling (status, section 11).
-- *Corner 2:* final = readers on every census input where observable and on every committed successor (the gating check): implemented.
+- *Corner 2:* final = readers on every census input where observable; implemented once the maintained gating check holds on the production change.
 
 ## 4. What stays unchanged
 

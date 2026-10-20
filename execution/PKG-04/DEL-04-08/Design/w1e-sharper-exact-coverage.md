@@ -14,6 +14,8 @@ This design examines coverage finding (a) of O4 (PR #1468, "Coverage findings"; 
 - the REQ-006 (e) text is qualified, and the AC-006 test input is taken from the census (6.1);
 - the W1 coverage repair's ScopeOfWork edit and its corner-2 scale fix are sequenced (0).
 
+**Revision 5** answers the census review: the fixed-scale cells and the premise's row set are stated exactly, and the per-row diagnostics (h, allowance, absolute bound, all four predicate verdicts) are recorded from the census re-run (6.3).
+
 **Revision 4** reports the product-side confirmation census (6.3) and records the shared probe's mechanism as built (6.2).
 
 **Revision 3** answers the second round. The changes:
@@ -285,7 +287,7 @@ This text should be adopted after census 6.2 has confirmed the ceiling on the pr
 - **What it records, at `check_intervals`, for every judged row:**
   - the class, n, S, h and the allowance, and all four predicate verdicts;
   - both lanes' enclosure widths relative to a binary64 unit of n, and whether H's midpoint lies in the same projection cell as the readouts' tight midpoint (2.2's premise; the tight midpoint comes from the references, test-side).
-- **Counterfactual gates.** Each counterfactual recomputes the projection from its own hull, the coupled scales from the counterfactual published rows, and the classes, and then judges every predicate.
+- **Counterfactual gates.** Each counterfactual recomputes the projection from its own hull, the coupled scales from the counterfactual published rows, and the classes, and then judges every predicate. As built, (d′) and the any-value columns judge each row's candidates at the scales of their fixed-projection counterpart, row by row (w1-coverage-repair.md §3.2, revision 10); they are fixed-scale feasibility diagnostics.
   - Recomputed from the lanes' actual enclosures, with no re-solve:
     - (a) the admitted Z set to Ẑ;
     - (d) form U1 (iii), n = RN64 of the SI midpoint;
@@ -340,12 +342,13 @@ The `not_reached` documents are kept out of the gate's denominators below; the c
 | the single Ẑ (Z1) | any value | 48 / 15 [79 / 45] | 145 / 31 [172 / 54] | 141 / 27 [172 / 54] |
 
 - The three documents that pass as built are `CANT-P30|zero|eb`, `GUIDED|zero|eb` and `GUIDED|zero|timo`, in the families section 3.2 names among its 13; none is sensitive. The one sensitive document that passes at any value is `SHORT-MEMBER|zero|timo`, one of section 3.2's two.
+- **Fixed-scale cells.** The any-value rows and U1 (i) judge each row's candidates at the fixed-projection scales, one row at a time; they bound what a value choice could reach, rather than count a publishable statement (6.2).
 - **Source twins** (of the 88 reaching the gate): 56 pass as built, under every option and with Z1; 64 pass at any value [82 of 104].
 - **Section 5's options** (judged / sensitive): U1 (i) 3 / 0, with Z1 9 / 0; U1 (ii) 0 / 0 and 0 / 0; U1 (iii) 3 / 0, with Z1 9 / 0; R1 against the annular readout 3 / 0, with Z1 9 / 0, against the admitted 7 / 0, with Z1 13 / 0; R1′ against either readout 10 / 0, with Z1 10 / 0 (annular) and 21 / 0 (admitted).
 
 **Why the product is below the replay under Z1.** The product's gate judges every row, including the circular maxima, which route E publishes as PP's binary64 value for every member, and the support and displacement magnitudes. Section 3's replay left those out (3.1). On the sensitive documents under Z1, unloaded maxima are the largest single group of failing rows (in sparse mode, 129 of 238 in the augmented runs and 84 of 154 in the plain runs), and 8 sensitive documents in each binding fail on maxima and magnitudes alone.
 
-**The premise of 2.2.** On every relative-class row the published value is the method's projection of the readouts' tight midpoint: 47,148 rows in the same cell, 96 within 10^-6 of a unit of a tie (undecided), none in another cell. 4,654 absolute-class rows, all with an exact value at or near zero whose lane enclosures straddle it, publish from another cell; they pass or fail on the absolute bound, which the premise does not concern. Maxima and magnitudes are not projections and are not counted.
+**The premise of 2.2.** On every relative-class row the published value is the method's projection of the readouts' tight midpoint: 47,148 rows in the same cell, 96 within 10^-6 of a unit of a tie (undecided), none in another cell. 4,654 absolute-class rows, all with an exact value at or near zero whose lane enclosures straddle it, publish from another cell; they pass or fail on the absolute bound, which the premise does not concern. Circular maxima of unloaded members and support magnitudes are not projections of the hull and are not counted; displacement magnitudes are kernel projections and are counted. (Excluding every magnitude instead gives 46,556 relative-class rows in the same cell and 4,506 absolute-class rows in another.)
 
 **Attribution of the failing rows** (w1-coverage-repair.md §3.3's classes, per mode; every failing row's first predicate is SharperExact, apart from absolute-bound failures in the `PROP-PHI2-*` documents):
 

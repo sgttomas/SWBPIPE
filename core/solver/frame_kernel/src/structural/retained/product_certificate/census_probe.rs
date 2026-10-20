@@ -583,7 +583,9 @@ pub(super) fn gate_records(g: &GateInputs<'_, '_>) {
                 (vals, sc)
             }
             // The search and any-value rules judge candidates at the scales of
-            // their fixed-projection counterpart (documented in §3.2).
+            // their fixed-projection counterpart; each row's candidates are judged
+            // on their own, so these are fixed-scale feasibility diagnostics
+            // (w1-coverage-repair.md §3.2, revision 10).
             ValueRule::UnitSearch => {
                 let vals = values_of(var.zpoint, ValueRule::Fixed(Sel::Both), &mut w);
                 let sc = scales_of(&vals, false, &mut w);
@@ -712,6 +714,19 @@ pub(super) fn gate_records(g: &GateInputs<'_, '_>) {
             .put("k_width_ulp", Field::F(width(gr.k) / u)).put("s_width_ulp", Field::F(width(gr.s) / u))
             .put("hull_width_2m64", Field::F(if nval == 0.0 { f64::NAN } else { width(h) / nval.abs() * 2f64.powi(64) }))
             .put("zpoint_error", Field::S(match &zpoint[i] { Some(Err(e)) => e.clone(), _ => String::new() }))
+            // w1e §6.2's per-row diagnostics: h (rounded up, and in units of n's ulp),
+            // the binary64 sharper allowance as `gate` forms it, the absolute bound
+            // where the class is absolute, and all four predicate verdicts.
+            .put("h", Field::F(distance(&mut NumericWork::new(), nval, h).map(|x| approx(&x)).unwrap_or(f64::NAN)))
+            .put("h_ulp", Field::F(distance(&mut NumericWork::new(), nval, h).map(|x| approx(&x) / u).unwrap_or(f64::NAN)))
+            .put("allowance", Field::F({
+                let s = f64::from_bits(actual.scale_bits);
+                let a1 = f64::from_bits((1023u64 - 64) << 52) * nval.abs().max(s) * f64::from_bits(0x3ff0_0000_8000_0000);
+                a1 + (f64::from_bits((1023u64 - 53) << 52) * nval.abs() + f64::from_bits(1))
+            }))
+            .put("absolute_bound_bits", match actual.class { Some(adaptive::RowClass::AbsoluteVerified { bound_bits }) => Field::U(bound_bits), _ => Field::I(-1) })
+            .put("predicates", Field::L(["sharper_exact", "sharper_binary64", "decimal_si", "decimal_raw"].iter().zip(actual.predicates)
+                .map(|(k, p)| ((*k).to_owned(), p.map_or(Field::S("not_judged".into()), Field::B))).collect()))
             .put("variants", Field::L(std::mem::take(&mut results[i])));
         push(rec);
     }
