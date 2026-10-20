@@ -79,8 +79,13 @@ into place, so a concurrent reader never sees a half-written artifact set
 python3 tools/release/check_release_readiness.py --profile skeleton
 python3 tools/release/check_release_readiness.py --profile skeleton --execute
 python3 tools/release/check_release_readiness.py --profile cargo
+python3 tools/release/check_release_readiness.py --profile stack-witnesses
 python3 tools/release/check_release_readiness.py --profile all
 ```
+
+The `stack-witnesses` profile runs the six retained W1 stack witnesses at the
+R/64 headroom leg, one process each; the release sweep runs it after the crate
+sweep (DEL-04-08 Design `stack-headroom-repair.md`).
 
 Without `--execute`, the script performs path checks and prints the local
 commands it would run. With `--execute`, it runs only local commands from the

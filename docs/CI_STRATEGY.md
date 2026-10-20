@@ -34,7 +34,10 @@ for the qualification host's exact build identity, so a hosted build reports
 `Stale` and takes the ordinary route. A test that depends on registration
 asserts both branches: the registered facts in the registered build, and `Stale`
 with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
-`registered()` does. The hosted numerical job stops at the first failing crate,
+`registered()` does. When product_physics is selected, the numerical job also runs the six
+retained W1 stack witnesses at the default debug profile, one process each: an
+early warning, since only the qualification host's registered sweep is VER-004's
+record (DEL-04-08 Design `stack-headroom-repair.md`). The hosted numerical job stops at the first failing crate,
 so one failure hides the crates after it. Before pushing a change to retained
 sources or registration-dependent tests, run the selected numerical suite
 locally in the registered build and in an emulated unregistered build (a
