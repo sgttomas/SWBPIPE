@@ -111,6 +111,8 @@ code_paths:
 - tools/validation/validate_dependencies_schema.py
 - fixtures/product_preview/demo_fixture_generation.json
 - fixtures/product_preview/preview_physics_fixture_generation.json
+- docs/BUILD_AND_RELEASE.md
+- docs/CI_STRATEGY.md
 checks:
 - tests/test_ci_python.py
 - tests/test_ci_numerical.py
