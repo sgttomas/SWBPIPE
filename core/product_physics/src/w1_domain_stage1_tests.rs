@@ -510,6 +510,9 @@ fn w1_member_interior_publications_bind_the_actual_direct_entry() {
 /// unchanged reader recomputes the same scales. Formerly
 /// `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal`: the cause that refusal
 /// recorded, the receipt's native provenance, is repaired, and no gate changed.
+/// Maintained writer of the corpus bases `w1_member_halfway_asymmetric_{mode}`: with
+/// `W1_MEMBER_HALFWAY_OUT` naming a folder, each mode's `{id, source, invocation,
+/// generation_profile}` is written there after the public Direct entry's relation holds.
 #[test]
 fn w1_loaded_scale_halfway_publishes() {
     let raw=w1_interior_publication_request(true,-2.0);
@@ -527,11 +530,34 @@ fn w1_loaded_scale_halfway_publishes() {
         assert!(verdict.invocation_bound&&verdict.numerical_eligible);
         let case=&successor["retained_precision"]["body"]["cases"][0];
         assert_eq!(case["status"],"selected");
+        let maximum=successor["results"].as_array().unwrap().iter()
+            .find(|r|r["kind"]=="pipe_elastic_normal_stress_maximum_v2"&&r["entity_ref"]=="ss:pipe").unwrap();
+        assert_eq!(maximum["value"].as_f64().unwrap().to_bits(),0x4008555555555555,"RN64(73/24) at t = 7/12");
         // The loaded body's force scale is the final row maximum RN64((7/2)Z), ties to
         // even; the coupled moment scale is twice it (extent 2), RN64(7Z).
         let scales=&case["selection"]["body_scales"][1];
         assert_eq!(scales["force"],json!(format!("{:016x}",(3.5*z).to_bits())));
         assert_eq!(scales["moment"],json!(format!("{:016x}",(7.0*z).to_bits())));
+        // The public Direct entry publishes exactly this successor in the registered
+        // build and the unchanged ordinary bytes otherwise (as the interior controls).
+        let direct_raw=raw.clone();
+        let (direct,_,precommit)=hooks::counted_with_successor(||
+            run_linear_static_preview_value_with_retained_direct(direct_raw,mode,RETAINED_LIMIT).unwrap());
+        if registered() {
+            assert_eq!(direct.admission().unwrap().profile,ProfileStatus::Registered);
+            assert_eq!(precommit,Some(successor.clone()));
+            assert_eq!(published(direct),serde_json::to_vec(&successor).unwrap());
+        } else {
+            assert_eq!(direct.admission().unwrap().profile,ProfileStatus::Stale);
+            assert!(precommit.is_none()&&direct.successor().is_none());
+            assert_eq!(published(direct),bytes);
+        }
+        if let Some(dir)=std::env::var_os("W1_MEMBER_HALFWAY_OUT") {
+            let id=format!("w1_member_halfway_asymmetric_{}",mode.as_str());
+            std::fs::write(std::path::Path::new(&dir).join(format!("{id}.json")),
+                serde_json::to_string_pretty(&json!({"id":id,"source":successor,"invocation":invocation,
+                    "generation_profile":if registered(){"registered_direct"}else{"stale_private_driver"}})).unwrap()+"\n").unwrap();
+        }
     }
 }
 

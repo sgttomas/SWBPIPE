@@ -116,7 +116,8 @@ fn corpus_bases_read_through_the_cli_as_the_reader_and_the_corpus_state() {
     // O4 (W1-E) adds four producer bases: the two dual-basis Timoshenko successors, the mixed
     // (one distinct-basis member) successor and the sourced-unavailable-case successor; each
     // passes bound with its stated classes and is never eligible unbound.
-    assert_eq!(cases.len(), 65);
+    // The W1 coverage repair adds the 73/24 Pa halfway control's two producer bases.
+    assert_eq!(cases.len(), 67);
     for case in cases {
         let [bound, unbound, transport] = read_three_ways(&case["source"], &case["invocation"]);
         let id = &case["id"];
