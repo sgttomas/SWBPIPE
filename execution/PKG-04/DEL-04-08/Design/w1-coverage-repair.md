@@ -506,7 +506,7 @@ These edit commitments. They are written against the ScopeOfWork as edited by ep
 It is applied in that PR, when its meaning comes true; not before, and not in O4.
 
 **Decided by the owner, applied when the repair lands** (owner, 2026-10-20, "I approve 1A, 2A, 3A."; 2A, relayed by HELP_HUMAN). As decided:
-- REQ-006 (b) is deleted, leaving a retired marker in (a)'s style: "[retired by the W1 coverage repair, #<PR>]" (applied with #1484). The optional sentence is added as a new item after (e), titled "(f) Loaded-member maxima too wide for the gate.", with the sentence below verbatim.
+- REQ-006 (b) is deleted, leaving a retired marker in (a)'s style: "[retired by the W1 coverage repair, #1484]". The optional sentence is added as a new item after (e), titled "(f) Loaded-member maxima too wide for the gate.", with the sentence below verbatim.
 - REQ-007 (b) is deleted or marked discharged in (a)'s style; the PR says which.
 - AC-003's third bullet and the VER-003 replacement, as below.
 - **Split between the two PRs.** Corner 2's PR carries only its own parts: the halfway half of the VER-003 replacement and REQ-006 (b)'s halfway-scale bullet. Everything else lands with corner 1.
