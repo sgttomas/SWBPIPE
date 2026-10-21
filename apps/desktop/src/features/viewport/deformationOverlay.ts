@@ -160,9 +160,12 @@ export type RotationGlyph = {
 export type RotationOverlay = {
   state: "not_started" | "available" | "blocked" | "unavailable";
   summary: string;
-  /** The largest absolute rx/ry/rz row value among the drawn bases. */
+  /** The largest absolute value |rx|, |ry| or |rz| among the drawn bases'
+   * emitted rows (the magnitude of an emitted value; its sign is not kept). */
   maximum?: { value: number; unit: string };
   nodeCount?: number;
+  /** Nodes with a nonzero rotation, which get a glyph. */
+  drawnCount?: number;
   boundary: string;
   glyphs: Map<string, RotationGlyph>;
 };
@@ -176,6 +179,8 @@ const ROTATION_COMPONENT_AXES: Record<string, "x" | "y" | "z" | undefined> = {
   global_nodal_rotation_z: "z"
 };
 
+const RANGE_ENVELOPE_BASIS = "explicit_user_range_envelope";
+
 const ROTATION_BOUNDARY_NOT_GENERATED = "scale=not_generated; professional_claim=false";
 
 /**
@@ -183,9 +188,12 @@ const ROTATION_BOUNDARY_NOT_GENERATED = "scale=not_generated; professional_claim
  *
  * Per node, the drawn basis is the one whose displacement magnitude row governs
  * that node in the deformed shape, so translation and rotation show the same
- * load case or combination. A node without a governing displacement row uses
- * its basis with the longest rotation vector (ties: first basis key). A basis
- * is drawable only with all three finite components in one unit. Glyph lengths
+ * load case or combination; if that basis has no drawable triple, the node has
+ * no glyph. Only a node without a governing displacement row uses its basis
+ * with the longest rotation vector (ties: first basis key). A basis is
+ * drawable only with all three finite components in one unit. Range-envelope
+ * rows are never drawn: an envelope picks each component separately, so the
+ * three need not be one emitted rotation state. Glyph lengths
  * are normalized to the longest drawn rotation vector, so every drawn node must
  * share one unit; mixed units leave the overlay unavailable rather than
  * comparing them.
@@ -210,6 +218,7 @@ export function buildRotationOverlay(model: PreviewModel, result: MechanicsResul
     const axis = ROTATION_COMPONENT_AXES[row.kind];
     if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
     if (row.dimension !== undefined && row.dimension !== "angle") continue;
+    if (row.metadata?.basis === RANGE_ENVELOPE_BASIS) continue;
     const perBasis = triples.get(row.entity_ref) ?? new Map<string, Triple>();
     const triple = perBasis.get(rowBasisKey(row)) ?? {};
     triple[axis] = row;
@@ -230,9 +239,10 @@ export function buildRotationOverlay(model: PreviewModel, result: MechanicsResul
       .sort((left, right) => (left.basisKey < right.basisKey ? -1 : left.basisKey > right.basisKey ? 1 : 0));
     if (!complete.length) continue;
     const governing = governingBasis.get(nodeId);
-    const pick = complete.find((candidate) => candidate.basisKey === governing) ??
-      complete.reduce((best, candidate) => (candidate.length > best.length ? candidate : best));
-    chosen.set(nodeId, pick);
+    const pick = governing !== undefined
+      ? complete.find((candidate) => candidate.basisKey === governing)
+      : complete.reduce((best, candidate) => (candidate.length > best.length ? candidate : best));
+    if (pick) chosen.set(nodeId, pick);
   }
 
   if (chosen.size === 0) {
@@ -271,10 +281,11 @@ export function buildRotationOverlay(model: PreviewModel, result: MechanicsResul
   }
   return {
     state: "available",
-    summary: `available; nodes=${chosen.size}; drawn=${glyphs.size}; max_component=${formatNumber(maxComponent)} ${unit}`,
+    summary: `available; nodes=${chosen.size}; drawn=${glyphs.size}; max_abs_component=${formatNumber(maxComponent)} ${unit}`,
     maximum: { value: maxComponent, unit },
     nodeCount: chosen.size,
-    boundary: `scale=normalized_display_length_not_physical; glyph=double_arrow_right_hand_rotation_vector; vector_direction=global_cartesian_rotation_components; unit_basis=${unit}; professional_claim=false`,
+    drawnCount: glyphs.size,
+    boundary: `scale=normalized_display_length_not_physical; glyph=double_arrow_right_hand_rotation_vector; vector_direction=global_cartesian_rotation_components; basis=governing_displacement_else_longest; range_envelope_rows=not_drawn; unit_basis=${unit}; professional_claim=false`,
     glyphs
   };
 }
@@ -292,3 +303,26 @@ function governingDisplacementBases(nodeIds: ReadonlySet<string>, result: Mechan
   }
   return new Map([...governing].map(([nodeId, { basisKey }]) => [nodeId, basisKey]));
 }
+
+/** One glyph's placement before the render-local transform: its node, the
+ * anchor in authored coordinates, and the glyph's axis and length. */
+export type RotationGlyphAnchor = { nodeId: string; anchor: Vec3; axis: Vec3; displayLength: number };
+
+/** Anchors each glyph at its node's displayed position: on the deformed shape
+ * when it is drawn, otherwise at the undeformed node. Nodes in `excluded`
+ * (invalid geometry) get no glyph. */
+export function rotationGlyphAnchors(
+  model: PreviewModel,
+  rotation: RotationOverlay,
+  deformation: DeformationOverlay,
+  excluded: (nodeId: string) => boolean = () => false
+): RotationGlyphAnchor[] {
+  if (rotation.state !== "available") return [];
+  return model.nodes.flatMap((node) => {
+    const glyph = rotation.glyphs.get(node.id);
+    if (!glyph || excluded(node.id)) return [];
+    const anchor = (deformation.state === "available" ? deformation.nodePositions.get(node.id) : undefined) ?? node.position;
+    return [{ nodeId: node.id, anchor, axis: glyph.axis, displayLength: glyph.displayLength }];
+  });
+}
+

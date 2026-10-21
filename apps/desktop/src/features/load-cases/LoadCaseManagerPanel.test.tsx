@@ -139,7 +139,7 @@ describe("LoadCaseManagerPanel load-case creation", () => {
     expect(byId("load-manager-create-load-preview")).toHaveTextContent("id=load:dead already exists; no load case queued");
   });
 
-  it("keeps a drafted id that a model update has since taken, and refuses it", () => {
+  it("currently keeps a drafted id that a model update has since taken, and refuses it", () => {
     const { model, rerender } = mount();
     expect(byId("load-manager-create-load-id")).toHaveValue("load:L-300");
     const next = structuredClone(model);
@@ -336,7 +336,7 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
     });
   });
 
-  it("queues a non-numeric or blank magnitude as entered text for core validation to refuse", () => {
+  it("currently queues a non-numeric or blank magnitude as entered text", () => {
     const { queue } = mount();
     type("load-manager-magnitude-value", "abc");
     expect(byId("queue-load-magnitude-intent")).toBeEnabled();

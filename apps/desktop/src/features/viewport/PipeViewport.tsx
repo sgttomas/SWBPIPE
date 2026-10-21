@@ -106,7 +106,7 @@ import {
   type ViewportRendererInfo
 } from "./viewportResource";
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
-import { buildDeformationOverlay, buildRotationOverlay } from "./deformationOverlay";
+import { buildDeformationOverlay, buildRotationOverlay, rotationGlyphAnchors } from "./deformationOverlay";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
 import type { ViewportPaletteRole } from "./viewportPalette";
 import {
@@ -1277,7 +1277,7 @@ export function PipeViewport({
       resultObjects.push(...deformedNodes);
     }
     if (rotation.state === "available") {
-      resultObjects.push(...instancedRotationGlyphMeshes(rotationGlyphGroups(model, rotation.glyphs, deformation, renderTransform.origin, activeModelIndex)));
+      resultObjects.push(...instancedRotationGlyphMeshes(rotationGlyphGroups(model, rotation, deformation, renderTransform.origin, activeModelIndex)));
     }
     resource.replaceLayer(resource.resultLayer, resultObjects);
     applySelectionPresentation(resource, orderedSelectionKeys);
@@ -2209,8 +2209,8 @@ export function PipeViewport({
         >
           <summary>{deformation.state === "available" ? "Deformation · normalized" : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
           <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
-          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>
-          <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; max component=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>
+          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
+          <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
           <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small></div>
         </details>
         <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
@@ -3863,21 +3863,18 @@ function instancedComponentMeshes(
   return output;
 }
 
-// Rotation glyphs sit at the node's displayed position: on the deformed shape
-// when it is drawn, otherwise at the undeformed node.
+// Rotation glyph placements in render-local coordinates, grouped by spatial chunk.
 function rotationGlyphGroups(
   model: PreviewModel,
-  glyphs: ReturnType<typeof buildRotationOverlay>["glyphs"],
+  rotation: ReturnType<typeof buildRotationOverlay>,
   deformation: ReturnType<typeof buildDeformationOverlay>,
   origin: Readonly<Vec3>,
   index: ModelIndex
 ): RotationGlyphPlacement[][] {
-  const placements = new Map(model.nodes.flatMap((node) => {
-    const key = entityKey({ type: "node", id: node.id });
-    const glyph = glyphs.get(node.id);
-    if (!glyph || index.invalidGeometry.has(key)) return [];
-    const anchor = (deformation.state === "available" ? deformation.nodePositions.get(node.id) : undefined) ?? node.position;
-    return [[key, { ownerKey: key, anchor: authoredToLocal(anchor, origin), axis: glyph.axis, displayLength: glyph.displayLength }] as const];
+  const excluded = (nodeId: string) => index.invalidGeometry.has(entityKey({ type: "node", id: nodeId }));
+  const placements = new Map(rotationGlyphAnchors(model, rotation, deformation, excluded).map((glyph) => {
+    const key = entityKey({ type: "node", id: glyph.nodeId });
+    return [key, { ownerKey: key, anchor: authoredToLocal(glyph.anchor, origin), axis: glyph.axis, displayLength: glyph.displayLength }] as const;
   }));
   return spatialGroups(index, placements);
 }

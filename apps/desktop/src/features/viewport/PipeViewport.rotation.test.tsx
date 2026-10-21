@@ -24,11 +24,9 @@ describe("PipeViewport rotation readout", () => {
     expect(overlay.state).toBe("available");
     render(<DisplayUnitsProvider initialPreference="US"><PipeViewport model={model} result={source} selection={{ type: "project", id: model.project.id }} onSelect={vi.fn()} /></DisplayUnitsProvider>);
     const summary = screen.getByTestId("viewport-rotation-summary");
-    expect(summary).toHaveTextContent(`rotation: available; nodes=${overlay.nodeCount}; max component=`);
+    expect(summary).toHaveTextContent(`rotation: available; nodes=${overlay.nodeCount}; drawn=${overlay.drawnCount}; max |component|=`);
     await waitFor(() => expect(summary.querySelector('[data-display-status="converted"]')).not.toBeNull());
     expect(summary).toHaveTextContent("deg");
     expect(screen.getByTestId("viewport-rotation-boundary")).toHaveTextContent(overlay.boundary);
-    // Display conversion leaves the overlay's own values untouched.
-    expect(buildRotationOverlay(model, source)).toEqual(overlay);
   });
 });

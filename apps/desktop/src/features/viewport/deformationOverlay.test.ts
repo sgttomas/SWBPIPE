@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { loadBundledMechanicsReference, loadPreviewModel } from "../../services/previewService";
 import type { MechanicsResult } from "../../types";
-import { buildDeformationOverlay, buildRotationOverlay, ROTATION_GLYPH_MAX_DISPLAY_LENGTH } from "./deformationOverlay";
+import { buildDeformationOverlay, buildRotationOverlay, ROTATION_GLYPH_MAX_DISPLAY_LENGTH, rotationGlyphAnchors } from "./deformationOverlay";
 
 // All rows are invented display inputs; no engineering result is asserted.
 
@@ -144,7 +144,8 @@ describe("rotation glyph overlay", () => {
       ...rotationRows("node:N-130", { x: 0, y: 0.002, z: 0 })
     ]));
     expect([...mixed.glyphs.keys()]).toEqual(["node:N-130"]);
-    expect(mixed.summary).toBe("available; nodes=2; drawn=1; max_component=0.002 rad");
+    expect(mixed.summary).toBe("available; nodes=2; drawn=1; max_abs_component=0.002 rad");
+    expect(mixed.drawnCount).toBe(1);
   });
 
   it("does not change the translational deformed shape", async () => {
@@ -162,6 +163,7 @@ describe("rotation glyph overlay", () => {
     expect(emitted.length).toBeGreaterThan(0);
     const overlay = buildRotationOverlay(model, source);
     expect(overlay.state).toBe("available");
+    expect(overlay.glyphs.size).toBeGreaterThan(0);
     for (const [nodeId, glyph] of overlay.glyphs) {
       // Each drawn component is an emitted row for that node and basis.
       for (const axis of ["x", "y", "z"] as const) {
@@ -172,5 +174,62 @@ describe("rotation glyph overlay", () => {
       expect(glyph.displayLength).toBeLessThanOrEqual(ROTATION_GLYPH_MAX_DISPLAY_LENGTH + 1e-12);
       expect(Math.hypot(glyph.axis.x, glyph.axis.y, glyph.axis.z)).toBeCloseTo(1, 12);
     }
+  });
+
+  it("draws nothing for a node whose governing basis has no complete rotation triple", async () => {
+    const model = await loadPreviewModel();
+    const overlay = buildRotationOverlay(model, solved([
+      magnitudeRow("node:N-140", 9, "load:L-200"),
+      magnitudeRow("node:N-140", 3, "load:L-100"),
+      ...rotationRows("node:N-140", { x: 0.005, y: 0, z: 0 }, "load:L-100"),
+      ...rotationRows("node:N-140", { x: 0, y: 0.001, z: 0 }, "load:L-200").slice(0, 2),
+      ...rotationRows("node:N-130", { x: 0, y: 0, z: 0.001 })
+    ]));
+    // L-200 governs N-140's deformed shape but lacks rz: no L-100 glyph is substituted.
+    expect(overlay.glyphs.has("node:N-140")).toBe(false);
+    expect([...overlay.glyphs.keys()]).toEqual(["node:N-130"]);
+    expect(overlay.nodeCount).toBe(1);
+  });
+
+  it("never draws range-envelope rows, whose components need not be one state", async () => {
+    const model = await loadPreviewModel();
+    const envelope = rotationRows("node:N-140", { x: 0.003, y: 0.003, z: 0 }, "combination:ENV")
+      .map((row) => ({ ...row, metadata: { component: "c", coordinate_system: "global", location: "node", basis: "explicit_user_range_envelope", sign_convention: "s" } }));
+    const overlay = buildRotationOverlay(model, solved([
+      ...rotationRows("node:N-140", { x: 0.003, y: 0, z: 0 }, "load:A"),
+      ...rotationRows("node:N-140", { x: 0, y: 0.003, z: 0 }, "load:B"),
+      ...envelope
+    ]));
+    expect(overlay.glyphs.get("node:N-140")?.basisKey).not.toBe("load_case:combination:ENV");
+    expect(overlay.boundary).toContain("range_envelope_rows=not_drawn");
+    const onlyEnvelope = buildRotationOverlay(model, solved(envelope));
+    expect(onlyEnvelope.state).toBe("unavailable");
+  });
+});
+
+describe("rotation glyph anchors", () => {
+  it("anchors glyphs on the deformed shape when drawn, else at the node, and skips excluded nodes", async () => {
+    const model = await loadPreviewModel();
+    const rows = [
+      magnitudeRow("node:N-140", 5),
+      ...rotationRows("node:N-140", { x: 0, y: 0, z: 0.002 }),
+      ...rotationRows("node:N-130", { x: 0.001, y: 0, z: 0 })
+    ];
+    const rotation = buildRotationOverlay(model, solved(rows));
+    const deformation = buildDeformationOverlay(model, solved(rows));
+    expect(deformation.state).toBe("available");
+    const anchors = rotationGlyphAnchors(model, rotation, deformation);
+    const byNode = new Map(anchors.map((anchor) => [anchor.nodeId, anchor]));
+    expect(byNode.get("node:N-140")?.anchor).toEqual(deformation.nodePositions.get("node:N-140"));
+    expect(byNode.get("node:N-140")?.anchor).not.toEqual(model.nodes.find((node) => node.id === "node:N-140")?.position);
+    expect(byNode.get("node:N-140")?.axis).toEqual({ x: 0, y: 0, z: 1 });
+
+    const undeformed = rotationGlyphAnchors(model, rotation, buildDeformationOverlay(model, solved(rows.slice(1))));
+    expect(undeformed.find((anchor) => anchor.nodeId === "node:N-130")?.anchor)
+      .toEqual(model.nodes.find((node) => node.id === "node:N-130")?.position);
+
+    expect(rotationGlyphAnchors(model, rotation, deformation, (nodeId) => nodeId === "node:N-140").map((anchor) => anchor.nodeId))
+      .toEqual(["node:N-130"]);
+    expect(rotationGlyphAnchors(model, buildRotationOverlay(model, null), deformation)).toEqual([]);
   });
 });
