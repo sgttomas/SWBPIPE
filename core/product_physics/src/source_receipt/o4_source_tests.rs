@@ -878,3 +878,21 @@ fn o4_source_payload_dump() {
         std::fs::write(out, format!("{}\n", serde_json::to_string(&write(&request, mode)).unwrap())).unwrap();
     }
 }
+
+/// R-A's gating test on the committed O4 source controls (DEL-04-08 Design
+/// `source-work-nondyadic-inputs.md` §3.2): in both modes, every row equals the long
+/// evaluation's bit for bit.
+#[test]
+fn o4_source_controls_negated_rows_equal_the_long_evaluation() {
+    use crate::source_recovery::j7_rf_census::ra_gating::gate;
+    let mut gated = 0;
+    for (id, request) in controls() {
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let Some(gate) = gate(&request, mode) else { continue };
+            let gate = gate.unwrap_or_else(|e| panic!("{id} {}: {e}", mode.as_str()));
+            assert!(gate.mismatches.is_empty(), "{id} {}: rows {:?} differ", mode.as_str(), gate.mismatches);
+            gated += 1;
+        }
+    }
+    assert!(gated >= 4, "{gated} O4 controls gated");
+}

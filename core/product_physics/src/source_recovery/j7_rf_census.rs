@@ -758,3 +758,7 @@ fn u4b_every_selected_census_case_still_selects_with_its_new_charge() {
     assert_eq!(selected, 66, "the census's 62 method-only and 4 published selections");
     println!("U4B_J7_SELECTED largest per-case charge {largest} of 8000000");
 }
+
+// R-A's gating test (DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.2).
+#[path = "ra_gating_tests.rs"]
+pub(crate) mod ra_gating;
