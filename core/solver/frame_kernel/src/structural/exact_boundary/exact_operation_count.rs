@@ -17,6 +17,12 @@
 //! `reset()`, run the exact attempts and replays, then require
 //! `totals().shortfalls() == 0` (and, to rule out a vacuous run,
 //! `totals().mul.calls > 0`).
+//!
+//! It also carries R-A's row trace (source-work design §3.2): each functional
+//! evaluation records the path each row took, B1's negation or the long
+//! evaluation with the count of terms B2 skipped, for [`take_row_paths`]. The
+//! gating tests compare those rows with `evaluate_functionals_long`, the
+//! reference entry that evaluates without B1's hints or B2's skip.
 use std::cell::Cell;
 
 /// One call kind's record since the last [`reset`] on this thread.
