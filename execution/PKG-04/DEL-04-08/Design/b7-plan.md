@@ -21,7 +21,7 @@ The shared epochs (owner's resumption steer, 2026-10-14), in this order from mer
 
 On main: `64c22d5510` is #1387's merge of the join, B7a and B7b. Epochs 1–3 are on main: T4-U6/U8 through #1392 (DEL-05-03 Design `section-bases-and-timoshenko.md`), the RF source-method extension through #1397 and W1 member-load certification through #1398 ([w1-member-load-certification.md](w1-member-load-certification.md)). Epoch 4 is #1394's independent U4b/U5b references (`validation/references/t4_u4b`, `t4_u5b`) and #1461's implementation on model 0.6.0 (DEL-04-07 Design `u4b-u5b-implementation.md`). Epoch 5 is O4: its independent references (`validation/references/o4_retained_source`) and implementation through #1468 ([o4-source-extension.md](o4-source-extension.md)). Item 5a is on main through #1476 ([stack-headroom-repair.md](stack-headroom-repair.md)). Epoch 6 is the W1 coverage repair through #1483 and #1484. Epoch 7 remains.
 
-Desktop outputs for the current exact identity are a further follow-on; the owner has not yet placed it in this order (DEL-04-07 Design `pressure-contract.md`, "Merge with the gap").
+Desktop outputs for the current exact identity are epoch 8 (owner, 2026-10-20: "I approve all your recommended options, provisionally where appropriate", placing the unit after epoch 7). Its own design starts now, documents only, alongside epoch 7; its implementation follows epoch 7 (DEL-04-07 Design `pressure-contract.md`, "Merge with the gap").
 
 ## Held by the owner
 
