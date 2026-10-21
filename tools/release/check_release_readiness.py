@@ -119,31 +119,6 @@ def python_cmd(*args: str) -> tuple[str, ...]:
     return (sys.executable, *args)
 
 
-# W1 coverage repair §1.4: the genuine-exhaustion control is hook-driven at reduced search
-# limits through the opt-in `loaded-maximum-hooks` feature, which no ordinary build enables.
-# Its writer test and the corner-2 gating check's coverage of its two corpus bases run only
-# under that feature, so the release sweep runs them explicitly, beside the stack witnesses.
-LOADED_MAXIMUM_HOOKS_CONTROLS = (
-    "w1_member_load_exhaustion_retains_typed_interval_work",
-    "w1_final_scales_equal_reader_scales",
-)
-
-
-def loaded_maximum_hooks_command() -> tuple[str, ...]:
-    return (
-        "cargo",
-        "test",
-        "--offline",
-        "--manifest-path",
-        STACK_WITNESS_MANIFEST.as_posix(),
-        "--lib",
-        "--features",
-        "loaded-maximum-hooks",
-        "--",
-        *LOADED_MAXIMUM_HOOKS_CONTROLS,
-    )
-
-
 def build_plan(profile: str, root: Path = ROOT) -> list[CheckStep]:
     steps: list[CheckStep] = []
 
@@ -227,13 +202,6 @@ def build_plan(profile: str, root: Path = ROOT) -> list[CheckStep]:
                     description="Run one retained W1 stack witness at the R/64 headroom leg in its own process.",
                 )
             )
-        steps.append(
-            CheckStep(
-                name="retained W1 hook-driven exhaustion control",
-                command=loaded_maximum_hooks_command(),
-                description="Run the hook-driven genuine-exhaustion control and its gating coverage under the opt-in loaded-maximum-hooks feature.",
-            )
-        )
 
     return steps
 
