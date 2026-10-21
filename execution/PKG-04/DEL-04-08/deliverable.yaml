@@ -162,6 +162,7 @@ code_paths:
 - apps/desktop/src/test-support/baseReaderInputs.ts
 - tests/test_o4_source_verifier.py
 - tests/test_o4_text_only_envelope_diff.py
+- tests/test_ra_work_only_envelope_diff.py
 - validation/references/o4_retained_source/**
 checks:
 - core/reporting/result_export/tests/retained_precision_contract.rs
@@ -209,6 +210,7 @@ checks:
 - core/product_physics/src/o4_m3_judging_tests.rs
 - tests/test_o4_source_verifier.py
 - tests/test_o4_text_only_envelope_diff.py
+- tests/test_ra_work_only_envelope_diff.py
 - validation/references/o4_retained_source/declared_problem/run.sh
 - tests/test_rust_reader.py
 - tests/test_base_reader_verifier.py
