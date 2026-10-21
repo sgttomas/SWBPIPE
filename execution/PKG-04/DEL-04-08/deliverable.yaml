@@ -192,6 +192,8 @@ checks:
 - core/product_physics/tests/pressure_source_join.rs
 - core/solver/frame_kernel/tests/retained_k4
 - core/solver/frame_kernel/src/structural/exact_boundary/metered_tests.rs
+- core/solver/frame_kernel/src/structural/exact_boundary/functionals/shortcut_tests.rs
+- core/product_physics/src/source_recovery/ra_gating_tests.rs
 - tests/test_verifier_independence.py
 - tests/test_retained_precision_contract.py
 - tests/test_retained_precision_b2.py
