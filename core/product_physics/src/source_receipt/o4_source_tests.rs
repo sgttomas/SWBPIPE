@@ -894,5 +894,7 @@ fn o4_source_controls_negated_rows_equal_the_long_evaluation() {
             gated += 1;
         }
     }
-    assert!(gated >= 4, "{gated} O4 controls gated");
+    // Exactly the 8 control evaluations that reach a plan, so none can drop out of the
+    // gate unnoticed (Opus review, round 2).
+    assert_eq!(gated, 8, "O4 controls gated");
 }

@@ -28,9 +28,8 @@ impl Gate {
 }
 
 /// Gates one request's first load case, or `None` when the method declines before its
-/// plan (no evaluation to compare). An evaluation that refuses on one side only is an
-/// error, as is a `Range` refusal that differs; the long side may refuse on `Budget` alone
-/// only if the shortcut side does too.
+/// plan (no evaluation to compare). Both evaluations must complete, on one ledger raised
+/// to the invocation limit; a refusal on either side is an error.
 pub(crate) fn gate(raw: &Value, mode: PreviewSolverMode) -> Option<Result<Gate, String>> {
     let owned = Owned::actual(raw, mode).ok()?;
     let input = owned.input();
