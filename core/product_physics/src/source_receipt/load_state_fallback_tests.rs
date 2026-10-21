@@ -14,6 +14,14 @@
 //! private value, and N-3, which no longer reaches its cliff at the public
 //! limit, is stated with a private limit beside a public-limit positive
 //! control. The SF-1/SF-1R paths themselves are unchanged.
+//!
+//! R-A (DEL-04-08 Design `source-work-nondyadic-inputs.md` §4) lowers the source
+//! route's evaluation work again (the committed witness's live join 310,217 ->
+//! 307,339), so each cliff is re-derived by the same rule from measured charges.
+//! Each scenario now sits on its cliff: its size or private limit is the first
+//! at which its path is reached, and one unit below it (one load, moment or copy
+//! fewer, or a limit one unit lower) a different path is taken, measured in both
+//! modes. The limits themselves (8,000,000 and 64,000,000) are unchanged.
 use super::*;
 
 const CASE: &str = "case:join";
@@ -28,10 +36,10 @@ fn witness() -> Value {
 /// The reviewer's probe P9: `extra` declared tip loads added to the committed
 /// witness, cycling its three kinds (a 1e-6 N UZ force, a 1e-6 N UY force, a
 /// copy of the witness's torque about RY). P9 used one to three; under the
-/// metered rule a load adds about 3,300 to the live join (310,217 without
-/// any), so the scenario takes over 1,200 to pass half of the 8M per-case
-/// limit (measured: 1,300 loads 4,658,279; 1,500 5,316,953; 1,700 5,973,073,
-/// both modes).
+/// metered rule with R-A a load adds about 3,300 to the live join (307,339
+/// without any), so the scenario takes 1,111 to pass half of the 8M per-case
+/// limit (measured, both modes: 1,110 loads 3,999,447, which passes the
+/// screen; 1,111 4,002,051; 1,500 and 1,700 well past it).
 fn with_extra_loads(mut request: Value, extra: usize) -> Value {
     let case = &mut request["model"]["load_cases"][0];
     for (i, dir) in ["UZ", "UY", "RY"].iter().cycle().take(extra).enumerate() {
@@ -188,8 +196,11 @@ fn assert_ordinary_publication(
 fn reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking() {
     // Re-derived for the metered rule: scaled from P9's 1..=3 extra loads to
     // 1,300/1,500/1,700, which put the live join past half of the public 8M
-    // limit as P9's did under the legacy charges.
-    for extra in [1_300, 1_500, 1_700] {
+    // limit as P9's did under the legacy charges. Re-derived for R-A: the
+    // cliff is 1,111 loads (live join 4,002,051 > 4,000,000); at 1,110 the
+    // join (3,999,447) passes the screen and the case falls back later, at its
+    // composite recipe reservation, without this decline (both modes).
+    for extra in [1_111, 1_500, 1_700] {
         for mode in [
             PreviewSolverMode::SparseInteractive,
             PreviewSolverMode::DenseScrutiny,
@@ -248,12 +259,16 @@ fn reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordi
 
 #[test]
 fn a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back() {
-    // With a private 1.0M case limit the committed witness's live join
-    // (310,217 under the metered rule) passes the replay reservation, but its
-    // complete finalization (1,264,873) does not fit. Private limit only: it
-    // is not public policy and never changes a numerical criterion. (Under
-    // the legacy charges the limit was 7.0M: join about 3.36M, finalization
-    // about 7.34M.)
+    // With a private case limit the committed witness's live join passes the
+    // replay reservation (c <= L - c), but its complete finalization does not
+    // fit. Private limit only: it is not public policy and never changes a
+    // numerical criterion. (Under the legacy charges the limit was 7.0M: join
+    // about 3.36M, finalization about 7.34M; under the metered rule 1.0M: join
+    // 310,217, finalization 1,264,873 before U4b.) Re-derived for R-A: the join
+    // charges 307,339 and the complete case 1,295,997, so the path is
+    // reached for 614,678 <= L <= 1,295,996. The limit is the lower edge,
+    // 2 x 307,339: at 614,677 the replay reservation refuses the case and no
+    // finalization is attempted (both modes, measured).
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
@@ -261,7 +276,7 @@ fn a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
         let request = witness();
         let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
         let mut budget = SourceRecoveryBudget {
-            per_case_limit: 1_000_000,
+            per_case_limit: 614_678,
             ..Default::default()
         };
         let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
@@ -385,12 +400,16 @@ fn a_join_that_passes_the_replay_screen_but_cannot_finalize_falls_back_at_the_pu
     // finalizes; 280 moments give a live charge of 1,306,279, and the
     // finalization stages before replay, which grow with the request, leave
     // replay short (measured: 260 to 300 moments reach this path).
+    // Re-derived for R-A: 250 to 300 moments reach it (both modes), and the
+    // scenario takes the lower edge. At 249 (live charge 1,196,386) the join
+    // is withheld earlier, at the composite current source binding; at 250
+    // (1,199,406) it reaches the captured source replay short.
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
     ] {
         let mut request = witness();
-        for i in 0..280 {
+        for i in 0..250 {
             add_load(&mut request, 0, &format!("extra:ry:{i}"), "RY", 1.0e-6);
         }
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
@@ -426,6 +445,11 @@ fn a_republication_reports_a_case_s_own_replay_screen_refusal() {
     // 660,000 case:join's own finalization does not fit, so the recorded cause
     // is case:join's. Private limit only. The public-limit positive control is
     // `the_republication_scenario_selects_both_cases_at_the_public_limit`.
+    // Re-derived for R-A: the live charges are 307,339 (case:join) and
+    // 342,667 (case:heavy), so the path is reached for 614,678 <= L <= 685,333.
+    // The limit is the lower edge, 2 x 307,339: at 614,677 case:join is
+    // refused at its own screen too and no fallback runs (both modes,
+    // measured); from 685,334 case:heavy passes its screen.
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
@@ -433,7 +457,7 @@ fn a_republication_reports_a_case_s_own_replay_screen_refusal() {
         let request = heavy_request();
         let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
         let mut budget = SourceRecoveryBudget {
-            per_case_limit: 660_000,
+            per_case_limit: 614_678,
             ..Default::default()
         };
         let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
@@ -503,8 +527,16 @@ fn a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limi
     // metered rule: N-2's ten copies (about 7.36M each under the legacy
     // charges) now fit; each copy charges about 1.64M plus its share of the
     // publication, so forty copies exhaust the limit (measured: the first run
-    // fails at case:copy22's finalization with a budget refusal).
-    const COPIES: usize = 40;
+    // fails at case:copy22's finalization with a budget refusal). Re-derived
+    // for R-A: twenty copies now select and finalize within the limit; from
+    // 21 copies the first run exhausts it, but up to 26 it fails at the
+    // invocation receipt's composite publication reservation, not at a case.
+    // From 27 copies the first run fails at a case's finalization with a
+    // budget refusal (case:copy26's captured source replay), which is this
+    // scenario, so it takes 27; at 26 the recorded cause names no case budget
+    // refusal (measured, dense). Above 27 the failing stage varies with the
+    // copy count (29 and 31 fail at the invocation publication reservation).
+    const COPIES: usize = 27;
     let mut request = witness();
     for index in 1..COPIES {
         copy_case(&mut request, &format!("case:copy{index}"));
