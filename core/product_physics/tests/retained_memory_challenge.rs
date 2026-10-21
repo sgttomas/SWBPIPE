@@ -36,14 +36,15 @@ use b1_sq_inputs as inputs;
 
 /// The profile's in-build W1 phase (requested + moving, without R), sparse and dense, in the
 /// pinned record's build (the lib test `challenge_bounds_are_the_profile` checks it there).
-// O4 D3 bounds at source 7823a79f45 (T4-U4b/U5b's at b4c9f35f8e were 6,115,532,674 and 6,174,664,018);
+// R-A D3 bounds at 7d946b7e94 (retained-pricing-rules.md §8.13): +59,424 B in both modes from O4's
+// 6,204,977,168 and 6,264,108,512 (B1's hint vectors and evaluate's Shortcuts, RA-HS/RA-SC);
 // checked against the in-build profile.
-const W1_PHASE_BYTES: [u64; 2] = [6_204_977_168, 6_264_108_512];
+const W1_PHASE_BYTES: [u64; 2] = [6_205_036_592, 6_264_167_936];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
-/// the bound once a run has done W1 work (a registered build, G6). W1 coverage repair D3 at
-/// 7299e6319d (retained-pricing-rules.md §8.11): +4,008 B in both modes from 8,435,640,031 and
-/// 8,494,771,375 (the certified proof's final scales held to serialization, W1R-FS).
-const MAX_PHASE_BYTES: [u64; 2] = [8_435_644_039, 8_494_775_383];
+/// the bound once a run has done W1 work (a registered build, G6). R-A D3 at 7d946b7e94
+/// (retained-pricing-rules.md §8.13): +59,424 B in both modes from the W1 coverage repair's
+/// 8,435,644,039 and 8,494,775,383 (§8.11; B1's hint vectors and evaluate's Shortcuts, RA-HS/RA-SC).
+const MAX_PHASE_BYTES: [u64; 2] = [8_435_703_463, 8_494_834_807];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

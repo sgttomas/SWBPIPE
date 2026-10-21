@@ -245,6 +245,22 @@ stop the run (exit 4) on any other inclusion, a plain module, a new off-build fi
 the feature. Corner 1 adds the off feature `loaded-maximum-hooks` (the kernel's capacity hook for the genuine-exhaustion
 control), under the same blanking and manifest guard. See the governing rules' §8.11 and §8.12.
 
+### R-A actual-source owners
+
+`base/ra_owners_model.py` binds the heap owners that the source route's work reduction (R-A) adds outside the TEXT
+inventory. It binds them by function-body and span sha256, by its exact statements and by `mod shortcuts`' count of
+allocating constructs. `t07_repair.py` and `t25_g4.py` price them positively:
+- RA-HS: the kernel's B1 hint vectors, one `Option<u32>` per descriptor (the new in-build atom `s(Option<u32>)`). The
+  plan's is in T07 E3 and the replay's in T25.1f.
+- RA-SC: `evaluate`'s Shortcuts buffers, `zero`, `window`, `products`, `touched` and `source_ok`. The live
+  evaluation's are in T07 F3 and the replay's in T25.1f.
+
+A snapshot without them adds nothing, and a changed or partly present owner stops the run. `rules/o10_rules.py`
+zeroes one false by-name value edge, from `certify_rows`' `row` binding to R-A's row-trace recorder (RA-EDGE). The
+row trace and the long reference entry sit under `exact-operation-count`. The scanners blank that feature as test
+code, but PP's dev-dependency compiles it into every PP test build. See the governing rules' §8.13 for the arguments
+and that limit.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
