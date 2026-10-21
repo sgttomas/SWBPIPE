@@ -26,6 +26,7 @@ This design examines whether the source route's finalization (`pressure-source-1
 - **Q1** separates G2 from its G4 cost, and attributes DEF-O and DEF-E's "independent Rust replay" correctly, to the retained-precision route's validation-lane audit.
 - **Section 7** leads with the A0 case.
 - **Smaller repairs** to summary figures and labels.
+- **Section 7's misleading-cause statement** follows this design's census, in which the cause does not recur on main (Opus review, round 3).
 
 ## Summary
 
@@ -538,12 +539,12 @@ b7-plan orders "Pre-0.4 route failure unification" after this ruling, "since bot
 - **The unit designs their outcome.** That includes ordinary republication with the failure recorded, as on the 0.4 route (SF-1R). That repair gives these cases ordinary results without removing the replay.
 - **Its census inputs.** These measured inputs, plus the constructed cliffs (RF §5.5 and RF-14, unchanged under A0).
 - **Its two forms.** It defines both fail-closed forms. Many-case invocations move between the blocked envelope and the run-level `Err` as work shifts (R-A design §5.1).
-- **The misleading cause.** "Source functional row binding is not unique" on a support-norm budget refusal (R-A design §5.1) is in the shared case solver, independent of the replay. It remains reachable on a measured input, the 10-case invocation of R-A §5.1, and its repair stays in the unit.
+- **The misleading cause.** "Source functional row binding is not unique" on a support-norm budget refusal (R-A design §5.1) is in the shared case solver, independent of the replay. R-A's census observed it on the 10-case invocation `zhinge122 (0.168, 0.007) long r=1e-12 eb decimal zero`, at its census revision. On main, in this design's census, that invocation instead ends at the invocation publication reservation (charged 63,998,247) as a run-level `Err`; "not unique" occurs nowhere in the many-case output. R-A's census charged B1 differently (R-A design §3.1, "What the census measured"). So the cause is reachable today only by construction, and its repair stays in the unit (Opus review, round 3).
 - **The 0.4 screen** stays as SF-1 built it. Whether pre-0.4 gains a screen is part of the unit's single failure behaviour; RF-14 pins that it has none today.
 
 **If A1 is adopted instead.**
 - **Which failures remain.** No measured input fails pre-0.4 finalization for want of replay work (section 3.3). What remains are constructed cliffs (RF §5.5, RF-14 as restated), binding refusals from faults or defects, and large invocations that exhaust a publication or support-norm reservation. The unit's census then has to construct its failures.
-- **The misleading cause.** Bind-only removes the one measured input that reached it. The path stays reachable by a constructed support-norm exhaustion, so the repair stays in the unit.
+- **The misleading cause.** As under A0, it is reachable only by a constructed support-norm exhaustion, so the repair stays in the unit.
 - **The 0.4 screen.** Its sizing (section 4, options b and c) joins the unit's single failure behaviour.
 - **Sequence.** Both units edit `composite_exact`, PP `source_recovery.rs` and the finalization arm of `lib.rs` (6590–6635). So A1's implementation lands first, the unit is designed on its as-built code, and the two are not implemented concurrently.
 
