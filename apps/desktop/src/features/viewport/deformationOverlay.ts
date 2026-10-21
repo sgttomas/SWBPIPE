@@ -248,7 +248,7 @@ export function buildRotationOverlay(model: PreviewModel, result: MechanicsResul
   if (chosen.size === 0) {
     return {
       state: "unavailable",
-      summary: "unavailable; complete rotation component rows=0",
+      summary: "unavailable; no complete rotation triple on a drawable basis",
       boundary: ROTATION_BOUNDARY_NOT_GENERATED,
       glyphs: new Map()
     };

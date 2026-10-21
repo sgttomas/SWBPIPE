@@ -119,7 +119,7 @@ describe("rotation glyph overlay", () => {
     const unknownNode = rotationRows("node:NOT-IN-MODEL", { x: 1, y: 0, z: 0 });
     const overlay = buildRotationOverlay(model, solved([...partial, ...nonFinite, ...notAngle, ...split, ...unknownNode]));
     expect(overlay.state).toBe("unavailable");
-    expect(overlay.summary).toBe("unavailable; complete rotation component rows=0");
+    expect(overlay.summary).toBe("unavailable; no complete rotation triple on a drawable basis");
     expect(overlay.glyphs.size).toBe(0);
   });
 
