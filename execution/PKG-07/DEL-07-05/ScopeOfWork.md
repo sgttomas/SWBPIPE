@@ -155,7 +155,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > | VER-07-05-002 | Boundary review | No protected code data, proprietary thresholds, or certification claims appear in setup artifacts. |
 > | VER-07-05-003 | Dependency-register validation | `Dependencies.csv` validates against v3.1 schema. |
 > | VER-07-05-004 | Semantic setup review | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist with complete matrix/lens coverage. |
-> | VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, and the translational overlay. Confirm that emitted `rx`/`ry`/`rz` rows remain unvisualized and that rotational deformation stays recorded in `_STATUS.md` until separately implemented and verified. |
+> | VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, the translational overlay and the rotation glyphs (`deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`). Confirm that emitted `rx`/`ry`/`rz` rows are shown only as glyphs with their readout, and that focused browser evidence for them (CLM-024) stays recorded as open until it is added. |
 >
 
 ### CLM-014 — Documentation
@@ -185,7 +185,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 
 Current reading and output boundary (B7b, T4-U6). The viewer reads every result through DEL-05-02's Rust product reader and re-derives no verdict; a result the reader does not admit is shown as unsupported, historical values only. The standing line states each route's published limitations, the retained routes included. An exact-contract result also shows one stress headline per D-5 section basis (nominal and reduced), and no governing basis is chosen. A reopened saved run is shown as historical evidence: a 0.3.0 record is checked against its saved source by DEL-14-02's record validator, and a refusal is a display-only finding. Viewing grants no output. Under the owner's 2026-10-15 ruling "Merge with the gap" (DEL-04-07 Design `pressure-contract.md`, "Reading pressure-2"), every desktop output surface refuses pressure-2 and pressure-source-1 by name (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, `apps/desktop/src/features/results/outputPolicy.ts`); desktop outputs for the current exact identities await a follow-on unit whose placement the owner reserves. Only the result JSON and stress-neutral exports admit the retained successors, at numerically eligible standing with the live native capture, which no product caller delivers before B8.
 
-- **AC-001** — The contract preserves the implemented result surface and translational overlay, retains rotational visualization as an explicit residual, separates mechanics, user-rule checks, and human review, and invents no thresholds, formulas, allowables, code categories, compliance status, or professional approval.
+- **AC-001** — The contract preserves the implemented result surface, the translational overlay and the rotation glyphs for emitted `rx`/`ry`/`rz` rows, separates mechanics, user-rule checks, and human review, and invents no thresholds, formulas, allowables, code categories, compliance status, or professional approval.
 
 ## Production and Verification Method — Praxeology
 
