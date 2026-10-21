@@ -2,7 +2,7 @@
 
 This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [o4-source-extension.md](o4-source-extension.md) §5, "Census"). On 3D skew single members ((1,2,2), the Z-hinge layout) with ordinary decimal inputs, retained-source recovery (`pressure-source-1`) does not complete within the unchanged 8,000,000 per-case limit (`PHYSICS_SOURCE_WORK_LIMIT`, PP `lib.rs:939`). This happens in 10 of 60 Euler–Bernoulli runs (17 %) and 22 of 60 Timoshenko runs (37 %). Planar members and dyadic twins always complete. The owner decided on 2026-10-20 ("All as recommended") that a remedy be designed now. Its goal is to reduce the exact-arithmetic cost so that these cases fit the unchanged limit.
 
-**Status: design only.** No product file, fixture, reviewed input or ScopeOfWork changes here. Revisions 1–4 were written on main `fa019d9cef` (O4 merged as #1468). Revision 5 re-checks them on main `dd8fb0e124` (#1483 merged) and on #1484's head `56676a25a0` (section 0). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Status: design only.** No product file, fixture, reviewed input or ScopeOfWork changes here. Revisions 1–4 were written on main `fa019d9cef` (O4 merged as #1468). Revision 5 re-checks them on main `dd8fb0e124` (#1483 merged) and on #1484's head `56676a25a0`, which merged unchanged as main `9e03991d39` (section 0). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 **Revision 2** answers the first round of dual review (Claude Opus 5.5 and Codex). The changes:
 - **B1.** Revision 1's argument for bit-identity was false: `mul`'s −1 shortcut re-grows an expansion where +1 copies it, and a reviewer built a witness. B1's recognition is narrowed to the shapes where the long path provably yields the termwise negation. Its candidate is fixed by index, and its comparison and copies are charged (3.1).
@@ -93,7 +93,7 @@ This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [
   - **Holds.** The W1 repair moves no source-route work counter, and no source-route fixture or source file changed (above).
   - **Landed first.** The W1 repair's census added the opt-in `census-probe` feature to both manifests, and corner 1 adds `loaded-maximum-hooks`. Both are guarded as off features by the pricing tool's W1R-FG rule (`retained-pricing-rules.md` §8.11 and §8.12). R-A, landing second, takes this feature discipline as given (section 5) and registers on corner 1's profile (section 4).
 - **O4 as built.** R-A keeps O4's work law (o4-source-extension.md §3.5) and the D5/MJ9 accounting. The direct change is in Evaluation-stage work. Secondary changes follow from text lengths (section 4).
-- **If #1484 changes before it merges,** section 4's D3 starting point and section 5's guard names are re-read on the merged head. Nothing else here depends on #1484.
+- **#1484 merged unchanged.** Its head `56676a25a0` is main `9e03991d39`'s second parent, so the facts read on it hold on main.
 
 ## 1. The ledger, the limit, and today's outcome
 
@@ -318,7 +318,7 @@ R-A changes counted work and the text lengths that print it. For a case selected
 - B1's per-row hint vector, at most one index per descriptor, is a new priced owner. It changes the signatures that carry it: the functional evaluation entry (`evaluate_functionals`) and `replay_against`.
 - B2 reads the existing `c.source.prescribed` list. If the implementation adds a per-DOF zero-prescription vector, that is a new priced owner, sized n bits or bytes at most 256.
 - The registration measures every phase rather than assuming no growth.
-- **Starting point (revision 5).** The registration starts from the profile current when R-A's implementation branches. After #1484 that is the W1 coverage repair's corner-1 registration (`retained-pricing-rules.md` §8.12). Its tree is priced at `aefefa5043`, with 1,562 coefficients, 319 atoms, 100 forms, 26 SourceUpper and no Estimate, and all 70 evaluations fit at the unchanged policy. R-A's registration is the next section of that file. It `compare`s against §8.12's tree and reports the coefficients and evaluations that move. If another registration lands first, R-A starts from that one instead.
+- **Starting point (revision 5).** The registration starts from the profile registered on main `9e03991d39`: the W1 coverage repair's corner-1 registration (`retained-pricing-rules.md` §8.12). Its tree is priced at `aefefa5043`, with 1,562 coefficients, 319 atoms, 100 forms, 26 SourceUpper and no Estimate, and all 70 evaluations fit at the unchanged policy. R-A's registration is the next section of that file. It `compare`s against §8.12's tree and reports the coefficients and evaluations that move. If another registration lands first, R-A starts from that one instead.
 - **Pins that move.** The pricing tool's full-file source pins include, among others:
   - `source_recovery.rs`, `source_receipt/source.rs` and FK `structural.rs` (`base/b7a_formation_model.py`);
   - PP `lib.rs`, read or pinned by several models, among them `base/b7a_domain_model.py`, `base/kd5_text_model.py` and `base/w1_reductions_model.py` `REDUCED_PINS`;
