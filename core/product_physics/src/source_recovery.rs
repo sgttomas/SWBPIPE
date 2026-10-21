@@ -347,6 +347,7 @@ impl SelectedSourceRecovery {
                     exact::ForceBasis::IdentifiedContributions(&source.force_terms),
                     &source.congruence,
                     &source.descriptors,
+                    &source.hints,
                     &[],
                     RELATIVE_LIMIT,
                     &mut self.budget,
@@ -367,6 +368,10 @@ struct Sources {
     congruence: Vec<exact::CongruenceMember>,
     force_terms: Vec<exact::ForceContribution>,
     descriptors: Vec<FunctionalDescriptor>,
+    /// R-A's B1 hints (DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.1): for each
+    /// member's section row, the index of its i-end row of the same component; `None`
+    /// elsewhere. Built with the descriptors, so the replay rebuilds them too.
+    hints: Vec<Option<u32>>,
     identity: String,
     member_ids: Vec<String>,
     spring_ids: Vec<(String, usize)>,
@@ -1417,6 +1422,7 @@ fn prepare_sources(
     #[cfg(test)]
     tests::descriptor_construction_started();
     let mut descriptors = Vec::new();
+    let mut member_bases = Vec::new();
     let mut member_ids = Vec::new();
     let mut congruence_members = congruence.iter().peekable();
     for (index, (pipe, frame)) in input
@@ -1444,6 +1450,7 @@ fn prepare_sources(
                 .ok_or_else(|| mismatch("exact local/transform/scatter assembly closure"))?,
             ),
         };
+        member_bases.push(descriptors.len());
         descriptors.extend(member_descriptors(
             &input.load_case.id,
             &pipe.element_id,
@@ -1571,11 +1578,22 @@ fn prepare_sources(
         }
     }
     let identity = identity.finish(budget)?;
+    // R-A's B1 hints: a member's rows are its 12 end rows and then its station rows,
+    // component c of each station mirroring the i-end row c. The kernel charges their
+    // construction and copy where it consumes them (the plan and the replay), so the
+    // work of an attempt declined before its plan does not move.
+    let mut hints = vec![None; descriptors.len()];
+    for &base in &member_bases {
+        for k in 12..12 + 6 * STATIONS.len() {
+            hints[base + k] = u32::try_from(base + (k - 12) % 6).ok();
+        }
+    }
     Ok(Sources {
         assembly,
         congruence,
         force_terms,
         descriptors,
+        hints,
         identity,
         member_ids,
         spring_ids,
@@ -1855,7 +1873,7 @@ pub(super) fn solve(
         stage = "exact source solve";
         let response = context.solve_with_budget(&mut budget).result?;
         stage = "complete affine plan";
-        let plan = FunctionalPlan::new(&context, &source.descriptors, &mut budget).result?;
+        let plan = FunctionalPlan::new_with_hints(&context, &source.descriptors, &source.hints, &mut budget).result?;
         stage = "unprojected affine recovery";
         let functionals = response.evaluate_functionals(&plan, &mut budget).result?;
         // No projected displacement participates in any member/device recovery.

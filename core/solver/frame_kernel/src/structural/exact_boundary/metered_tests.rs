@@ -904,7 +904,7 @@ fn functional_chain(
     check.stage("RetainedFunctionalSet::check_binding_with_budget", t, &mut last, budget.report(), false);
     a.result?;
     let (a, t) = traced(|| {
-        retained.replay_against(&system, ID, s.basis(), &s.congruence, ds, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
+        retained.replay_against(&system, ID, s.basis(), &s.congruence, ds, &[], &[(gap_dof, 1, gap)], 1e-9, &mut budget)
     });
     check.stage("RetainedFunctionalSet::replay_against", t, &mut last, budget.report(), a.result.is_ok());
     assert_eq!(a.result?.functionals(), ds.len());

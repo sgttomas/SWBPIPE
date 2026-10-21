@@ -317,6 +317,11 @@ pub struct FunctionalDescriptor {
 pub struct FunctionalPlan<'a> {
     context: &'a Context,
     descriptors: Vec<FunctionalDescriptor>,
+    /// R-A's B1 hints (DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.1): one
+    /// optional source-row index per descriptor, or empty. Not hashed and not part of
+    /// any descriptor; every hint is verified before use, and a missing or mismatched
+    /// one takes the long path.
+    hints: Vec<Option<u32>>,
 }
 impl<'a> FunctionalPlan<'a> {
     pub fn new(
@@ -324,12 +329,30 @@ impl<'a> FunctionalPlan<'a> {
         descriptors: &[FunctionalDescriptor],
         budget: &mut AttemptBudget,
     ) -> Attempt<Self> {
+        Self::new_with_hints(context, descriptors, &[], budget)
+    }
+    /// [`FunctionalPlan::new`] with R-A's B1 hints. A hint vector whose length is not
+    /// the descriptors' is not used. Two units per hint are charged: its construction
+    /// by the caller and its copy here.
+    pub fn new_with_hints(
+        context: &'a Context,
+        descriptors: &[FunctionalDescriptor],
+        hints: &[Option<u32>],
+        budget: &mut AttemptBudget,
+    ) -> Attempt<Self> {
         budget.run(AttemptStage::Plan, |w, token| {
             binding(context, token, w)?;
             descriptors_charge(descriptors, context.f.len(), w)?;
+            let hints = if !hints.is_empty() && hints.len() == descriptors.len() {
+                w.charge(hints.len().saturating_mul(2))?;
+                hints.to_vec()
+            } else {
+                Vec::new()
+            };
             Ok(Self {
                 context,
                 descriptors: descriptors.to_vec(),
+                hints,
             })
         })
     }
@@ -560,9 +583,14 @@ fn combine(a: Ratio, b: Ratio, w: &mut Work) -> Result<Ratio, Error> {
         denominator: mul(&a.denominator, &b.denominator, w)?,
     })
 }
+/// The functional evaluator. With `shortcuts`, R-A's B1 and B2 apply (DEL-04-08 Design
+/// `source-work-nondyadic-inputs.md` §3.1): both product callers pass `true`; only the
+/// test-only reference entry passes `false`, which is the long evaluation.
 fn evaluate(
     response: &Response<'_>,
     ds: &[FunctionalDescriptor],
+    hints: &[Option<u32>],
+    shortcuts: bool,
     w: &mut Work,
 ) -> Result<Vec<Ratio>, Error> {
     let c = response.context;
@@ -583,10 +611,23 @@ fn evaluate(
             return Err(Error::Invalid("functional block denominators"));
         }
     }
+    let mut ra = shortcuts::Shortcuts::start(c, ds, hints, shortcuts, w)?;
+    #[cfg(any(test, feature = "exact-operation-count"))]
+    exact_operation_count::begin_evaluation();
     let mut values = Vec::with_capacity(ds.len());
-    for d in ds {
+    for (index, d) in ds.iter().enumerate() {
+        if let Some(q) = ra.negated_row(index, d, ds, &values, w)? {
+            #[cfg(any(test, feature = "exact-operation-count"))]
+            exact_operation_count::row(exact_operation_count::RowPath::Negated);
+            values.push(q);
+            continue;
+        }
+        ra.begin_row(d, w)?;
         let mut coefficients = vec![Expansion::default(); n];
         for t in &d.terms {
+            if ra.skips(t.dof) {
+                continue;
+            }
             let coefficient = recipe(&t.products, w)?;
             coefficients[t.dof] = add(&coefficients[t.dof], &coefficient, w)?;
         }
@@ -599,7 +640,10 @@ fn evaluate(
             let p = mul(&coefficients[i], &prescribed, w)?;
             fixed = add(&fixed, &p, w)?;
         }
+        ra.charge_source_checks(n, w)?;
+        let fixed_empty = fixed.is_zero();
         let mut q = constant(w, fixed)?;
+        let mut contributing = 0usize;
         for block in &c.blocks {
             let mut numerator = Expansion::default();
             for &i in block {
@@ -612,6 +656,7 @@ fn evaluate(
             if numerator.is_zero() {
                 continue;
             }
+            contributing += 1;
             // Context's block solve constructs the SAME positive denominator for
             // every coordinate of a block (checked above for orders 3 and 4).
             // Combine their numerators before any ratio sum.
@@ -625,6 +670,9 @@ fn evaluate(
                 w,
             )?;
         }
+        ra.note(&coefficients, fixed_empty, contributing);
+        #[cfg(any(test, feature = "exact-operation-count"))]
+        exact_operation_count::row(exact_operation_count::RowPath::Long { b2_skipped: ra.skipped() });
         values.push(q);
     }
     Ok(values)
@@ -663,7 +711,29 @@ impl<'a> Response<'a> {
             if !std::ptr::eq(self.context, plan.context) {
                 return Err(Error::Invalid("functional plan response"));
             }
-            let values = evaluate(self, &plan.descriptors, w)?;
+            let values = evaluate(self, &plan.descriptors, &plan.hints, true, w)?;
+            Ok(FunctionalSet {
+                response: self,
+                plan,
+                values,
+            })
+        })
+    }
+    /// The long evaluation, R-A's reference (DEL-04-08 Design
+    /// `source-work-nondyadic-inputs.md` §3.2): [`Response::evaluate_functionals`] with
+    /// neither B1 nor B2. Test builds only; no product build compiles it.
+    #[cfg(any(test, feature = "exact-operation-count"))]
+    pub fn evaluate_functionals_long<'r, 'p>(
+        &'r self,
+        plan: &'p FunctionalPlan<'a>,
+        budget: &mut AttemptBudget,
+    ) -> Attempt<FunctionalSet<'r, 'p, 'a>> {
+        budget.run(AttemptStage::Evaluation, |w, token| {
+            response_binding(self, token, w)?;
+            if !std::ptr::eq(self.context, plan.context) {
+                return Err(Error::Invalid("functional plan response"));
+            }
+            let values = evaluate(self, &plan.descriptors, &[], false, w)?;
             Ok(FunctionalSet {
                 response: self,
                 plan,
@@ -981,6 +1051,7 @@ impl RetainedFunctionalSet {
         force_basis: ForceBasis<'_>,
         expected_congruence: &[CongruenceMember],
         expected_descriptors: &[FunctionalDescriptor],
+        expected_hints: &[Option<u32>],
         expected_contacts: &[(usize, i8, f64)],
         relative_limit: f64,
         budget: &mut AttemptBudget,
@@ -1044,7 +1115,12 @@ impl RetainedFunctionalSet {
                 relative_limit,
                 w,
             )?;
-            let values = evaluate(&response, expected_descriptors, w)?;
+            // The rebuilt hints' construction by the caller, one unit per hint.
+            let expected_hints = if expected_hints.len() == expected_descriptors.len() { expected_hints } else { &[] };
+            if !expected_hints.is_empty() {
+                w.charge(expected_hints.len())?;
+            }
+            let values = evaluate(&response, expected_descriptors, expected_hints, true, w)?;
             if values != self.values {
                 return Err(Error::Invalid("functional retained ratio mismatch"));
             }
@@ -1169,6 +1245,288 @@ fn replay_leaves(
         }
     }
     Ok(())
+}
+
+impl FunctionalSet<'_, '_, '_> {
+    /// Every evaluated Ratio, in descriptor order, for R-A's gating comparison with the
+    /// long evaluation. Test builds only.
+    #[cfg(any(test, feature = "exact-operation-count"))]
+    pub fn ratios(&self) -> &[Ratio] {
+        &self.values
+    }
+}
+
+/// R-A, the source route's work reduction (DEL-04-08 Design
+/// `source-work-nondyadic-inputs.md` §3.1). Both parts change no value: every row they
+/// take equals the long evaluation's bit for bit (§3.1's argument; the gating test
+/// checks it), and every inspection they add is charged before it runs.
+///
+/// - **B1, negated rows.** A section row whose hint names its member's i-end row of the
+///   same component, and which is that row's products with -1.0 appended (any further
+///   terms being an i-end row of the member with ±1 atoms and then an exact zero
+///   appended), takes the source row's Ratio with its numerator negated termwise, when
+///   the source row had no fixed part, at most one contributing block and no unit
+///   coefficient.
+/// - **B2, zero-prescribed recipes.** A term on a DOF prescribed at exactly ±0 skips its
+///   coefficient recipe when the row's terms on that DOF lie in the refusal-free window:
+///   normal atoms with |binary exponent| ≤ 150, at most 5 atoms per product and at
+///   most 64 products.
+mod shortcuts {
+    use super::*;
+
+    fn atoms(p: &Products) -> usize {
+        p.iter().map(Vec::len).sum::<usize>() + p.len()
+    }
+    fn same_atoms(a: &[f64], b: &[f64]) -> bool {
+        a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.to_bits() == y.to_bits())
+    }
+    /// `d` is `s` with one appended atom -1.0, bitwise.
+    fn negated_product(d: &[f64], s: &[f64]) -> bool {
+        d.len() == s.len() + 1 && same_atoms(&d[..s.len()], s) && d[s.len()].to_bits() == (-1.0f64).to_bits()
+    }
+    /// `d` is `r` followed by ±1 atoms, then an exact ±0 atom, then any atoms.
+    fn zeroed_product(d: &[f64], r: &[f64]) -> bool {
+        if d.len() <= r.len() || !same_atoms(&d[..r.len()], r) {
+            return false;
+        }
+        for &x in &d[r.len()..] {
+            if x == 0.0 {
+                return true;
+            }
+            if x.abs() != 1.0 {
+                return false;
+            }
+        }
+        false
+    }
+    /// B2's window for one atom.
+    fn in_band(x: f64) -> bool {
+        x.is_normal() && (((x.to_bits() >> 52) & 0x7ff) as i32 - 1023).abs() <= 150
+    }
+    fn i_end_of<'k>(key: &'k FunctionalKey) -> Option<(&'k str, u8)> {
+        match &key.quantity {
+            FunctionalQuantity::MemberEnd { member, end: MemberEnd::I, row } => Some((member, *row)),
+            _ => None,
+        }
+    }
+
+    pub(super) struct Shortcuts<'h> {
+        b1: bool,
+        b2: bool,
+        hints: &'h [Option<u32>],
+        /// DOFs prescribed at exactly ±0, and the current row's window per DOF:
+        /// 0 untouched, 1 skip, 2 outside the window.
+        zero: Vec<bool>,
+        window: Vec<u8>,
+        products: Vec<usize>,
+        touched: Vec<usize>,
+        /// Per evaluated row: whether B1's dynamic conditions held, measured when the
+        /// row was evaluated (only for i-end rows, the only possible sources).
+        source_ok: Vec<bool>,
+        row_source: bool,
+        skipped: u32,
+    }
+    impl<'h> Shortcuts<'h> {
+        pub(super) fn start(c: &Context, ds: &[FunctionalDescriptor], hints: &'h [Option<u32>], on: bool, w: &mut Work) -> Result<Self, Error> {
+            let n = c.f.len();
+            let b1 = on && hints.len() == ds.len();
+            let mut b2 = on;
+            let (mut zero, mut window, mut products) = (Vec::new(), Vec::new(), Vec::new());
+            if b2 {
+                // The zero-prescription vector and the window's per-DOF counters, n entries
+                // each, read from the prescribed list; then the block scan, one unit per
+                // block DOF. A zero-prescribed DOF is never free, so the scan is a guard.
+                w.charge(n.saturating_mul(2).saturating_add(c.source.prescribed.len()))?;
+                w.charge(c.blocks.iter().map(Vec::len).sum::<usize>())?;
+                zero = vec![false; n];
+                for &(i, v) in &c.source.prescribed {
+                    if v == 0.0 {
+                        zero[i] = true;
+                    }
+                }
+                if c.blocks.iter().flatten().any(|&i| zero[i]) {
+                    b2 = false;
+                } else {
+                    window = vec![0; n];
+                    products = vec![0; n];
+                }
+            }
+            Ok(Self {
+                b1,
+                b2,
+                hints,
+                zero,
+                window,
+                products,
+                touched: Vec::new(),
+                source_ok: Vec::with_capacity(if b1 { ds.len() } else { 0 }),
+                row_source: false,
+                skipped: 0,
+            })
+        }
+        pub(super) fn skipped(&self) -> u32 {
+            self.skipped
+        }
+        /// B2's window for a row about to take the long path, charged before it inspects.
+        pub(super) fn begin_row(&mut self, d: &FunctionalDescriptor, w: &mut Work) -> Result<(), Error> {
+            self.row_source = self.b1 && i_end_of(&d.key).is_some();
+            self.skipped = 0;
+            if !self.b2 {
+                return Ok(());
+            }
+            for i in self.touched.drain(..) {
+                self.window[i] = 0;
+            }
+            // One unit per term scanned, then one per product and atom of each
+            // zero-prescribed term, charged before its atoms are read.
+            w.charge(d.terms.len())?;
+            for t in d.terms.iter().filter(|t| self.zero[t.dof]) {
+                w.charge(atoms(&t.products))?;
+                if self.window[t.dof] == 0 {
+                    self.window[t.dof] = 1;
+                    self.products[t.dof] = 0;
+                    self.touched.push(t.dof);
+                }
+                self.products[t.dof] += t.products.len();
+                if t.products.iter().any(|p| p.len() > 5 || !p.iter().all(|&x| in_band(x))) {
+                    self.window[t.dof] = 2;
+                }
+            }
+            for &i in &self.touched {
+                if self.products[i] > 64 {
+                    self.window[i] = 2;
+                }
+            }
+            Ok(())
+        }
+        pub(super) fn skips(&mut self, dof: usize) -> bool {
+            if self.b2 && self.window[dof] == 1 {
+                self.skipped += 1;
+                return true;
+            }
+            false
+        }
+        /// B1's negated row, or `None` for the long path.
+        pub(super) fn negated_row(
+            &mut self,
+            index: usize,
+            d: &FunctionalDescriptor,
+            ds: &[FunctionalDescriptor],
+            values: &[Ratio],
+            w: &mut Work,
+        ) -> Result<Option<Ratio>, Error> {
+            if !self.b1 {
+                return Ok(None);
+            }
+            // A declined row takes the long path, whose `note` records it.
+            let decline = |_: &mut Self| Ok(None);
+            let FunctionalQuantity::MemberSection { member, component, .. } = &d.key.quantity else {
+                return Ok(None);
+            };
+            let Some(j) = self.hints[index].map(|j| j as usize).filter(|&j| j < index) else {
+                return Ok(None);
+            };
+            let s = &ds[j];
+            // The hint's key check, charged its key bytes.
+            w.charge(key_bytes(&s.key))?;
+            if s.key.case_id != d.key.case_id || i_end_of(&s.key) != Some((member.as_str(), *component)) {
+                return decline(self);
+            }
+            // Static recognition, charged before it runs: one unit per compared atom and
+            // term of both rows.
+            w.charge(
+                atoms(&s.offset)
+                    .saturating_add(atoms(&d.offset))
+                    .saturating_add(s.terms.len())
+                    .saturating_add(s.terms.iter().map(|t| atoms(&t.products)).sum::<usize>())
+                    .saturating_add(d.terms.len())
+                    .saturating_add(d.terms.iter().map(|t| atoms(&t.products)).sum::<usize>()),
+            )?;
+            // (1) d's first terms, and its offset, are s's with -1.0 appended to every product.
+            if d.offset.len() != s.offset.len()
+                || !d.offset.iter().zip(&s.offset).all(|(a, b)| negated_product(a, b))
+                || d.terms.len() < s.terms.len()
+                || !d.terms.iter().zip(&s.terms).all(|(a, b)| {
+                    a.dof == b.dof
+                        && a.products.len() == b.products.len()
+                        && a.products.iter().zip(&b.products).all(|(x, y)| negated_product(x, y))
+                })
+            {
+                return decline(self);
+            }
+            // (3) every product of s has at most two atoms, and no atom of s is ±1.
+            let short = |p: &Products| p.iter().all(|p| p.len() <= 2 && p.iter().all(|x| x.abs() != 1.0));
+            if !short(&s.offset) || !s.terms.iter().all(|t| short(&t.products)) {
+                return decline(self);
+            }
+            // (2) any further terms are an earlier i-end row of the same member with ±1
+            // atoms and then an exact zero appended to every product: that row was
+            // evaluated, so the long path could not refuse before the zero.
+            let extra = &d.terms[s.terms.len()..];
+            if !extra.is_empty() {
+                let first = j.saturating_sub(*component as usize);
+                let mut found = false;
+                for r in &ds[first..=j] {
+                    w.charge(
+                        key_bytes(&r.key)
+                            .saturating_add(r.terms.len())
+                            .saturating_add(r.terms.iter().map(|t| atoms(&t.products)).sum::<usize>()),
+                    )?;
+                    if r.key.case_id != d.key.case_id || !i_end_of(&r.key).is_some_and(|(m, _)| m == member) {
+                        continue;
+                    }
+                    if r.terms.len() == extra.len()
+                        && r.terms.iter().zip(extra).all(|(a, b)| {
+                            a.dof == b.dof
+                                && a.products.len() == b.products.len()
+                                && b.products.iter().zip(&a.products).all(|(x, y)| zeroed_product(x, y))
+                        })
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if !found {
+                    return decline(self);
+                }
+            }
+            // The dynamic conditions, recorded when s was evaluated, read for one unit.
+            w.charge(1)?;
+            if !self.source_ok.get(j).copied().unwrap_or(false) {
+                return decline(self);
+            }
+            let source = &values[j];
+            // The termwise negation and the shared denominator's clone, charged their lengths.
+            w.charge(source.numerator.terms.len().saturating_add(source.denominator.terms.len()))?;
+            let q = Ratio {
+                numerator: Expansion {
+                    terms: source.numerator.terms.iter().map(|x| -x).collect(),
+                    operations: source.numerator.operations,
+                },
+                denominator: source.denominator.clone(),
+            };
+            self.source_ok.push(false);
+            Ok(Some(q))
+        }
+        /// B1's dynamic checks on a candidate source row, charged before they inspect:
+        /// one unit per coefficient, one for the fixed part and one for the block count,
+        /// which reuses the long path's own zero test of each block numerator.
+        pub(super) fn charge_source_checks(&self, n: usize, w: &mut Work) -> Result<(), Error> {
+            if self.row_source {
+                w.charge(n.saturating_add(2))?;
+            }
+            Ok(())
+        }
+        pub(super) fn note(&mut self, coefficients: &[Expansion], fixed_empty: bool, contributing: usize) {
+            if self.b1 {
+                let ok = self.row_source
+                    && fixed_empty
+                    && contributing <= 1
+                    && !coefficients.iter().any(|e| e.terms.len() == 1 && e.terms[0].abs() == 1.0);
+                self.source_ok.push(ok);
+            }
+        }
+    }
 }
 
 #[cfg(test)]

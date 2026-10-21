@@ -362,7 +362,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
         &system, "source", ForceBasis::DeclaredVector, &[], &ds, &mut fresh
     ).result.is_err());
     assert!(retained.clone().replay_against(
-        &system, "source", ForceBasis::DeclaredVector, &[], &ds, &[], 1e-9, &mut fresh
+        &system, "source", ForceBasis::DeclaredVector, &[], &ds, &[], &[], 1e-9, &mut fresh
     ).result.is_err());
     assert!(retained.clone().check_binding_with_budget(
         &system, "source", ForceBasis::DeclaredVector, &[], &ds, &mut b
@@ -374,7 +374,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
                 "source",
                 ForceBasis::DeclaredVector,
                 &[],
-                &ds,
+                &ds, &[],
                 &[],
                 1e-9,
                 &mut b
@@ -405,7 +405,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
                 "source",
                 ForceBasis::DeclaredVector,
                 &[],
-                &altered,
+                &altered, &[],
                 &[],
                 1e-9,
                 &mut b
@@ -428,7 +428,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             "source",
             ForceBasis::DeclaredVector,
             &[],
-            &ds,
+            &ds, &[],
             &[],
             1e-9,
             &mut b
@@ -444,7 +444,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             "source",
             ForceBasis::DeclaredVector,
             &[],
-            &ds,
+            &ds, &[],
             &[],
             1e-9,
             &mut b
@@ -459,7 +459,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             "source",
             ForceBasis::DeclaredVector,
             &[],
-            &ds,
+            &ds, &[],
             &[],
             1e-9,
             &mut b
@@ -474,7 +474,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             "source",
             ForceBasis::DeclaredVector,
             &[],
-            &ds,
+            &ds, &[],
             &[],
             1e-9,
             &mut b
@@ -487,7 +487,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             "source",
             ForceBasis::DeclaredVector,
             &[],
-            &ds,
+            &ds, &[],
             &[],
             1e-8,
             &mut b

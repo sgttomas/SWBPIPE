@@ -234,6 +234,25 @@ Together these make about 0.93M [E].
 - **Cross-attempt effect.** In a multi-case invocation, a case that newly selects charges the shared invocation ledger. A later case then has less room and could lose its selection, or reach the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` at its publication reservation. RF §5.2 (6) states this cross-attempt exception; it fails closed. The census includes multi-case invocations (5).
 - **Prescribed values that are not zero** keep today's path.
 
+**As built: where B1 and B2 sit, and their exact charge schedule.**
+- **Where they sit.** FK `exact_boundary/functionals.rs`: `mod shortcuts`, called from `evaluate`. B1's hint is `FunctionalPlan::new_with_hints` in the live attempt and the expected-hints argument of `RetainedFunctionalSet::replay_against`; product_physics builds the hints in `prepare_sources` beside the descriptors.
+- **When they are active.** B2 is active in every product evaluation. B1 is active when the hint vector has the descriptors' length. The test-only `Response::evaluate_functionals_long` turns both off.
+- **The schedule.** Every explicit charge, in order (n is the DOF count; atoms(P) is the number of atoms of the products P plus the number of products):
+  - *The plan,* with hints: after `descriptors_charge`, 2 × the hint count, for the hints' construction by product_physics and their copy.
+  - *The replay,* with hints: the hint count, before its evaluation.
+  - *At the start of an evaluation,* B2: 2n + the prescribed count (the zero-prescription vector and the window's counters), then the sum of the block orders (a guard: a zero-prescribed DOF is never free). If a zero-prescribed DOF lies in a block, B2 is off for the evaluation; the charges stand.
+  - *For each row, first B1,* when the row is a section row whose hint names an earlier row j:
+    - the source key's bytes (`key_bytes`). If the source is not the same case's i-end row of the same member and component, the row takes the long path.
+    - Then atoms(s.offset) + atoms(d.offset) + |s.terms| + Σ atoms(s's term products) + |d.terms| + Σ atoms(d's term products). If static condition (1) or (3) fails, the row takes the long path.
+    - If d has further terms: for each row r of ds[j − component ..= j], in order, key_bytes(r) + |r.terms| + Σ atoms(r's term products), stopping at the first that matches condition (2). If none matches, the row takes the long path.
+    - Then 1, to read the source row's recorded dynamic conditions. If they fail, the row takes the long path.
+    - Then |numerator| + |denominator| of the source row's Ratio, and the negated Ratio is the row's value.
+  - *For each row that takes the long path:*
+    - B2: |d.terms|, then for each term on a zero-prescribed DOF, in order, atoms(that term's products). A DOF whose terms all lie in the window (normal atoms, |binary exponent| ≤ 150, at most 5 atoms per product, at most 64 products) skips those terms' recipes and accumulation.
+    - Then the long path's own charges, without the skipped recipes.
+    - For an i-end row with B1 active: n + 2, after the prescribed loop and before the fixed part is read, for the dynamic checks.
+- **What the census measured.** The census implementation differs in three ways: it derived B1's candidate by an uncharged key search instead of the hint, it charged B2's per-row window also on rows that then took B1, and it had no hint charges. So the implementation's charges differ slightly from §5.1's; the re-pinned work is the implementation's.
+
 **The replay.** `replay_against` calls the same `evaluate` on freshly prepared descriptors, so the replay recomputes every row from the current invocation by the same rule. Nothing retained from the live attempt is reused. (Reusing the live attempt's cofactors in the replay was considered and rejected: it would replace the replay's recomputation with retained state.)
 
 **What does not change:**
