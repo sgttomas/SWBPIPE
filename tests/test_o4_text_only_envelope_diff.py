@@ -28,9 +28,11 @@ O4's and R-A's changes in turn.
 The W1 coverage repair's corner 1 (`80cf05a857`, #1484) regenerated the retained
 corpus `retained_precision_cases.json` without restating it here, so its route-E
 check failed on main from `9e03991d39`. This check reads that file at corner 1's
-parent `ac07a34ccd`, the bytes O4's regeneration left; W1's own checks
-(`w1_committed_publications_preserve_all_but_authorized_definition_hashes` and
-the corpus diff tests) bind its later moves.
+parent `ac07a34ccd`, the bytes O4's regeneration left. Corner 1's moves are not
+value-bound by W1's own checks (its preservation census skips `w1_member_*`), so
+`..._retained_corpus_moves_since_w1_corner1_are_enumerated` binds the committed
+corpus to `ac07a34ccd`: every entry present there is unchanged except corner 1's
+enumerated moves, and the only additions are its enumerated entries.
 """
 from __future__ import annotations
 
@@ -51,6 +53,23 @@ RA_BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
 # The W1 coverage repair corner 1's parent, for the retained corpus it regenerated.
 W1_CORNER1_BASE = "ac07a34ccd45a83425a077f64564e92155db943f"
 W1_REGENERATED = frozenset({"fixtures/results/retained_precision_cases.json"})
+# What corner 1 (`80cf05a857`) moved and added in the retained corpus, by member.
+W1_CORNER1_MOVED = {
+    "cases": frozenset(
+        f"w1_member_{kind}_{mode}"
+        for kind in ("combination", "exhaustion", "load", "multi", "values_failure")
+        for mode in ("sparse_interactive", "dense_scrutiny")
+    ),
+    "mutations": frozenset(
+        f"member_exhaustion_diagnostic_{name}" for name in ("on_nodal_case", "on_ready", "reversed")
+    ),
+    "must_pass": frozenset(),
+}
+W1_CORNER1_ADDED = {
+    "cases": frozenset(f"w1_member_hull_d02_{mode}" for mode in ("sparse_interactive", "dense_scrutiny")),
+    "mutations": frozenset(),
+    "must_pass": frozenset(f"w1_member_hull_d02_{mode}_must_pass" for mode in ("sparse_interactive", "dense_scrutiny")),
+}
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -391,24 +410,61 @@ def test_o4_text_only_envelope_diff_retained_corpus_route_e_entries():
             assert any(kind == "text" for kind, _ in found[ident]), ident
 
 
+def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=None):
+    """The committed retained corpus against corner 1's parent: the same entries in the same
+    order, unchanged except corner 1's enumerated moves, plus exactly its enumerated
+    additions; every other member unchanged. So a later move of any other entry, a
+    route-E base included, fails here (Opus review, round 3)."""
+    name = RETAINED_CORPUS
+    base = subprocess.run(
+        ["git", "show", f"{W1_CORNER1_BASE}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+    now = (PROJECT / name).read_text() if current is None else current
+    for member in ("cases", "mutations", "must_pass"):
+        before = _entries(base, member, _pair_id)
+        after = _entries(now, member, _pair_id)
+        known = dict(before)
+        assert [k for k, _ in after if k in known] == [k for k, _ in before], (member, "order or removal")
+        assert {k for k, _ in after if k not in known} == W1_CORNER1_ADDED[member], member
+        moved = {k for k, entry in after if k in known and classify(known[k], entry)}
+        assert moved == W1_CORNER1_MOVED[member], (member, sorted(moved))
+    before, after = dict(load(base)), dict(load(now))
+    assert list(before) == list(after)
+    for member in before:
+        if member not in ("cases", "mutations", "must_pass"):
+            assert not classify(before[member], after[member]), member
+
+
+def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
+    """A value planted in the committed corpus's route-E base fails the enumeration."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    document = storage.expand(json.loads((PROJECT / RETAINED_CORPUS).read_text()))
+    entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
+    assert _plant(entry)
+    with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+
+
+def _plant(value):
+    """Doubles the first nonzero number leaf; True once one is changed."""
+    items = list(value.items()) if isinstance(value, dict) else list(enumerate(value)) if isinstance(value, list) else []
+    for key, leaf in items:
+        if isinstance(leaf, float) and leaf != 0.0:
+            value[key] = leaf * 2.0
+            return True
+        if _plant(leaf):
+            return True
+    return False
+
+
 def test_o4_text_only_envelope_diff_route_e_check_refuses_a_planted_value():
     """The restated route-E check still fails on a changed value in a route-E entry."""
     from tests.retained_precision_corpus import _STORAGE as storage
     document = storage.expand(json.loads(current_text(RETAINED_CORPUS)))
     entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
 
-    def plant(value):
-        """Doubles the first nonzero number leaf; True once one is changed."""
-        items = list(value.items()) if isinstance(value, dict) else list(enumerate(value)) if isinstance(value, list) else []
-        for key, leaf in items:
-            if isinstance(leaf, float) and leaf != 0.0:
-                value[key] = leaf * 2.0
-                return True
-            if plant(leaf):
-                return True
-        return False
-
-    assert plant(entry)
+    assert _plant(entry)
     found, _, _ = _keyed_diff(RETAINED_CORPUS, "cases", _pair_id, current=json.dumps(document))
     assert any(kind == "other" for kind, _ in found["w1_member_route_e_baseline_sparse_interactive"])
 
