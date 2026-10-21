@@ -2,7 +2,7 @@
 
 This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [o4-source-extension.md](o4-source-extension.md) §5, "Census"). On 3D skew single members ((1,2,2), the Z-hinge layout) with ordinary decimal inputs, retained-source recovery (`pressure-source-1`) does not complete within the unchanged 8,000,000 per-case limit (`PHYSICS_SOURCE_WORK_LIMIT`, PP `lib.rs:939`). This happens in 10 of 60 Euler–Bernoulli runs (17 %) and 22 of 60 Timoshenko runs (37 %). Planar members and dyadic twins always complete. The owner decided on 2026-10-20 ("All as recommended") that a remedy be designed now. Its goal is to reduce the exact-arithmetic cost so that these cases fit the unchanged limit.
 
-**Status: design and census.** No product file, fixture, reviewed input or ScopeOfWork changes here. The census of section 5 has run; its results are section 5.1. It ran on the census branch `claude/piping-ra-census-20261021` at `43f056dd3d`, which is not for merging. Revisions 1–4 were written on main `fa019d9cef` (O4 merged as #1468). Revision 5 re-checks them on main `dd8fb0e124` (#1483 merged) and on #1484's head `56676a25a0`, which merged unchanged as main `9e03991d39` (section 0). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Status: design and census.** No product file, fixture, reviewed input or ScopeOfWork changes here. The census of section 5 has run; its results are section 5.1. It ran on the census branch `claude/piping-ra-census-20261021` at `4d956a6b8a` (as repaired after its review), which is not for merging. Revisions 1–4 were written on main `fa019d9cef` (O4 merged as #1468). Revision 5 re-checks them on main `dd8fb0e124` (#1483 merged) and on #1484's head `56676a25a0`, which merged unchanged as main `9e03991d39` (section 0). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 **Revision 2** answers the first round of dual review (Claude Opus 5.5 and Codex). The changes:
 - **B1.** Revision 1's argument for bit-identity was false: `mul`'s −1 shortcut re-grows an expansion where +1 copies it, and a reviewer built a witness. B1's recognition is narrowed to the shapes where the long path provably yields the termwise negation. Its candidate is fixed by index, and its comparison and copies are charged (3.1).
@@ -59,9 +59,10 @@ This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [
   - *B2.* A zero-prescribed recipe is skipped only inside a window in which it could not have refused.
   
   The same evaluator runs in the live attempt and the replay. No value, check, limit or charging rule changes.
-- **Measured gain** (section 5.1, the census). R-A removes 17.8 % of E_live on decimal Euler–Bernoulli Z-hinge inputs (B1 14.8 %, B2 3.4 %) and 17.3 % on Timoshenko.
-  - Every Z-hinge decimal case that is blocked today, 10 of 60 Euler–Bernoulli and 22 of 60 Timoshenko, selects within the unchanged 8M limit. The largest case charge is 7.237M.
-  - No case selected today is lost. Every pre-registered rule holds: method-level equality, the shadow comparison of every evaluation, both readers, and the declared-problem oracle.
+- **Measured gain** (section 5.1, the census). R-A removes 18.4 % of the live pass on decimal Euler–Bernoulli Z-hinge inputs and 17.9 % on Timoshenko. Of that, B1 accounts for about 14.8 % and B2 for 3.4 %.
+  - Every Z-hinge decimal case that is blocked today, 10 of 60 Euler–Bernoulli and 22 of 60 Timoshenko, selects within the unchanged 8M limit. The largest case charge is 7.241M.
+  - No case selected today is lost. On those inputs every pre-registered rule holds: method-level equality, the shadow comparison of every evaluation, both readers, and the declared-problem oracle and its 578 required selections.
+  - R-A leaves some cases over the limit: three PEXACT Timoshenko families of the oracle's φ = 2 set, and many-case invocations that pass the 64M invocation ledger. In the latter, the fail-closed form at the product entry can change (section 5.1).
   - The models' estimate was −12 % to −20 %, with maxima of 7.1M to 7.5M.
 - **Cost.**
   - One evaluator change in FK `exact_boundary/functionals.rs` with gating and killing tests.
@@ -414,95 +415,141 @@ All of this comes before adoption is decided.
 
 ### 5.1 Census results
 
+This section reports the census as repaired after its dual review (section 7).
+
 **Basis.**
-- Census branch `claude/piping-ra-census-20261021` at `43f056dd3d`, built on this design at `2c66119862` and main `9e03991d39`.
-- The census code is compiled only under `census-probe`:
+- Census branch `claude/piping-ra-census-20261021` at `4d956a6b8a`, on this design and main `9e03991d39`. Not for merging.
+- **Code compiled only under `census-probe`:**
   - FK: R-A's switches and records in `census_probe.rs` (`pub mod ra`), site labels in `exact_boundary.rs`, and B1 and B2 in `functionals.rs` (`mod ra_census` and gated statements in `evaluate`);
   - PP: `ra_census_tests.rs`, `source_recovery/ra_method_census_tests.rs` and `source_recovery/ra_j7_census_tests.rs`.
+- **Environment defaults, census builds only.** `CENSUS_PROBE_W1_PRODUCTION=1` starts every thread with W1's production switches. `RA_CENSUS_DEFAULT=on` starts every thread with R-A on, and a shadow mismatch then panics. These let subprocess runs take part.
 - No limit, gate, check, oracle, committed fixture or reviewed input changed.
-- **The build.** One PP lib test binary at opt-level 2 with debug assertions and overflow checks (hosted CI's profile for product_physics), `--features census-probe`. Work counts do not depend on the optimization level.
-- **The runs.** Every target ran on that binary through `t3_slot.sh`. Cargo job log lines run from START `2026-10-21T03:39:40Z` to END `2026-10-21T03:48:01Z`, all `rc=0`.
-- **Pilot.** Ten documents per sweep took 1.3 s at 31 MB maximum resident set (`t3_exclusive.sh`, `/usr/bin/time -l`). The whole census takes under ten minutes.
-- **Raw output.** Scratch only, not committed.
+- **Builds.**
+  - One PP lib test binary, at opt-level 2 with debug assertions and overflow checks (hosted CI's product_physics profile), `--features census-probe`.
+  - The headless runner, built with `--features open_pipe_stress_product_physics/census-probe`.
+  - Work counts do not depend on the optimization level.
+- **Runs.** All went through `t3_slot.sh`, from the build at START `2026-10-21T04:00:18Z` to the last END at `2026-10-21T04:24:02Z`, every `rc=0`.
+- **Pilot.** Ten documents took 1.3 s at 31 MB maximum resident set (`t3_exclusive.sh`). Raw output is in scratch, not committed.
+- **The allowance as implemented.** Only these may differ between off and on:
+  - `charged` under a `work` or `invocation_work` object, and `invocation_work.publication_charged`;
+  - `publication_sha256` and `receipt_sha256`;
+  - the message of a source-block diagnostic (SELECTED, UNAVAILABLE, FINALIZATION_FAILED) whose text differs only in its printed `charged`, `rejected` or `publication_charged` figures.
+
+  Every allowed path is recorded. Revision 4's allowance, which admitted every hash and every digit in those messages, was too broad (census review). The rerun's allowed paths are exactly those four kinds.
 
 **Every Z-hinge decimal case fits the unchanged 8,000,000 limit.** On O4's single-member sweep (sparse mode):
 
-| Layout, shear model, inputs | R-A off: not selected | R-A on: not selected | Case charge on: max (mean) | E_live off → on |
+| Layout, shear model, inputs | R-A off: not selected | R-A on: not selected | Case charge on: max (mean) | Live pass, Preparation to Projection, off → on |
 |---|---|---|---|---|
-| Z-hinge, Euler–Bernoulli, decimal | 10 / 60 | 0 / 60 | 6.916M (6.322M) | 3.429M → 2.819M (−17.8 %) |
-| Z-hinge, Timoshenko, decimal | 22 / 60 | 0 / 60 | 7.237M (6.553M) | 3.548M → 2.934M (−17.3 %) |
-| Z-hinge, Euler–Bernoulli, dyadic | 0 / 60 | 0 / 60 | 5.688M | 2.777M → 2.321M (−16.4 %) |
-| Z-hinge, Timoshenko, dyadic | 0 / 60 | 0 / 60 | 6.096M | 2.844M → 2.378M (−16.4 %) |
-| (3,4,0), both models and styles | 0 / 240 | 0 / 240 | 6.876M | −9.2 % to −9.9 % |
+| Z-hinge, Euler–Bernoulli, decimal | 10 / 60 | 0 / 60 | 6.920M (6.327M) | 3.303M → 2.696M (−18.4 %) |
+| Z-hinge, Timoshenko, decimal | 22 / 60 | 0 / 60 | 7.241M (6.557M) | 3.423M → 2.811M (−17.9 %) |
+| Z-hinge, Euler–Bernoulli, dyadic | 0 / 60 | 0 / 60 | 5.692M | 2.652M → 2.198M (−17.1 %) |
+| Z-hinge, Timoshenko, dyadic | 0 / 60 | 0 / 60 | 6.101M | 2.719M → 2.255M (−17.1 %) |
+| (3,4,0), both models and styles | 0 / 240 | 0 / 240 | 6.879M | whole method charge −8.2 % to −11.0 % |
 
-- R-A off reproduces O4's figures exactly (10 and 22 of 60).
-- Every case that did not select today selects with R-A, with a largest case charge of 7.237M, 0.763M (9.5 %) under the limit.
-- The small-frame sweep (480 documents) does not reach Evaluation: the L frames make no attempt, and the two-member runs decline before it. So nothing moves there.
-- No case selected today is lost.
+- The whole direct-method charge, which also includes SourceClosure, Plan and Retention (about 0.125M), falls by 17.7 % and 17.2 % on the decimal Z-hinge rows.
+- R-A off reproduces O4's figures exactly.
+- Every Z-hinge decimal case that does not select today selects with R-A. The largest case charge is 7.241M, 0.759M (9.5 %) under the limit.
+- The small-frame sweep (480 documents) does not reach Evaluation, so nothing moves there.
 
-**Today's outcome code, confirmed (section 1).**
-- Each of the 32 cases that do not select today takes the pre-0.4 path.
-- Inside the run, it pushes the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`, with "captured source replay: … Exact(Budget) … charged: 7999972".
-- At the product entry, it publishes the blocked envelope: identity `pressure-2`, no result rows, no `Err`.
+**Today's outcome for the 32 blocked cases (section 1).**
+- They take the pre-0.4 path and push the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` with `Exact(Budget)`, at charges from 7,993,763 to 8,000,000.
+  - 26 fail in "captured source replay".
+  - 6 fail in "composite current source".
+- At the compatibility product entry, `run_linear_static_preview_value_with_mode`, each publishes the blocked envelope (identity `pressure-2`) and no `Err`.
+- That the blocked envelope has no result rows comes from the code (section 1). The census records the class and identity.
 
-**The pre-registered rules (section 5), all met:**
-- **Preserved cases.** No difference outside the allowance across 448 sweep, 890 ablation and 84 multi-case documents, each compared internally and at the product entry, and across the controls below.
-- **Newly selected cases:** 32 sweep, 190 ablation and 36 multi-case documents. That is 246 distinct requests; some ablations, such as L dyadic at the short length 0.75, coincide.
-  - *Method.* The direct method's response digest, and a digest of every retained Ratio and projection, are equal off and on for every document. Only work differs.
-  - *Every evaluation.* 5,280 shadow evaluations, live, replay and method, were each compared bit for bit with the long path: 0 mismatches.
-  - *Publication.* 108,000 published projections were checked against the switch-on method, each load case against its own direct method; all are equal.
-    - The Rust reader (`physics_source::validate_in` and the transport check) returns the selected outcome on every newly selected envelope.
-    - The Python verifier (`tests/verifiers/physics_source.py`) passes all 246 distinct newly selected envelopes.
-  - *The declared-problem oracle* (`validation/references/o4_retained_source/declared_problem/oracle.py`, self-test passing) judges the product's test-only dump and the published envelope of 226 requests: the 32 sweep, 36 multi-case and 158 single-input ablation cases. The 32 all-decimal ablations restate the sweep's problems. Its 262 case verdicts are all PASS, including the receipt hashes, the plan's binding to the payload, and every projection containing the exact value.
-- **Lost selections:** none, including RF §5.2 (6). In each of the 120 two-case invocations both cases select with R-A. The largest invocation charge is 14.99M of 64M.
-- **The maintained control** (charged ≥ counted): no `Work` call was charged less than it executed, on either side of any run, J7's metered control included.
+**The pre-registered rules on the single-member sweep, ablations and two-case invocations: all met.**
+- **Preserved cases.** No difference outside the allowance across 448 sweep, 909 ablation and 84 two-case documents, internal and public.
+- **Newly selected cases:** 32 sweep, 171 ablation and 36 two-case documents (243 distinct requests).
+  - *Method.* The direct method's response digest, and a digest of every retained Ratio and projection, are equal off and on for every document.
+  - *Every evaluation.* 8,880 shadow evaluations were compared bit for bit with the long path, across the live and replay runs, the public-entry run and the method: 0 mismatches.
+  - *Publication.* 108,000 published projections were checked against the switch-on method, each load case against its own direct method, on value bits, interval and both error bounds. All are equal.
+    - The Rust reader returns the selected outcome on every newly selected envelope.
+    - The Python verifier passes all 243.
+  - *Not compared directly.* The source hashes (`normalized_source_sha256`, `functional_plan_sha256`) are not compared with a long-path run, because no long-path receipt exists for these cases. B1 and B2 run after the descriptors are built, so they cannot affect them. The oracle's record-hash and plan-binding checks tie the published hashes to the dumped payload.
+  - *The declared-problem oracle.* It judges 207 of these requests (the sweep, two-case and single-input ablation cases), with its self-test passing. All case verdicts are PASS.
+- **Lost selections:** none.
+- **The maintained control** (charged ≥ counted): no `Work` call was charged less than it executed, on either side of any run.
+  - The control observes `Work::mul` and `Work::add` only.
+  - B1's recognition, negation and copy, and B2's window, are charged by the census implementation before they inspect, but the control does not check those charges. The implementation's oracle extension does (section 3.2).
 
-**What moves (section 4), as predicted:**
+**The declared-problem oracle's required selections, run unchanged** (census review). The `j2`, `rf`, `judged` and `phi2` batches ran with R-A off and on. The twins, product entries, oracle and `required_selection.json` are those of `declared_problem/run.sh`; only the census build and the environment switches differ.
+- All 578 required triples select and pass, off and on.
+- Every preserved run differs only within the allowance.
+- In the `phi2` set:
+  - 24 runs are newly selected, and the oracle passes them (360 case verdicts on, against the 336 required);
+  - **24 runs stay blocked with R-A on.** These are the Timoshenko variants of the `phi2_zhinge` documents PEXACT-A r1e-08, PEXACT-B r1e-08 and PEXACT-B r1e-12.
+
+**The PEXACT documents.** They are the oracle's invented, exactly φ = 2 sensitive members:
+- the Z-hinge supports and load (PEXACT-A and -B) or the RF (3,4,0) supports (-C and -D);
+- dyadic inputs, for example D = 0.3125, ν = 0.125, k = 2, m₁ = 0.125;
+- thick-walled sections;
+- long skew directions, (39,9,6) and (353,23,8) for A and B.
+
+Results with R-A on:
+- **Euler–Bernoulli:** every variant selects, off and on.
+- **Timoshenko, PEXACT-A r1e-12 and PEXACT-D (both ratios):** newly selected.
+- **Timoshenko, PEXACT-A r1e-08 and both PEXACT-B:** still over the limit. Their live passes are 3.74M and 4.08–4.10M with R-A, and the captured replay still runs out at 8M.
+
+They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (section 6).
+
+**Invocations near the 64M invocation ledger** (RF §5.2 (6); census review). These are the census's 36 invocations of 8, 9 and 10 load cases on one decimal Z-hinge structure. Each later case's moment is scaled by 1 + i/10, as an authored decimal.
+- **No selection is lost.** 4 eight-case invocations select off and on. 16 newly select: all twelve 8-case invocations that are blocked today, and four of the 9-case ones.
+- **16 invocations stay blocked off and on, and differ beyond the allowance.** With R-A off, the first case's own captured replay exhausts its 8M and blocks the invocation. With R-A on, the cases select one after another until the invocation's composite publication reservation passes 64M ("composite publication reservation", charged 63.85M to 64.00M).
+  - So the blocking cause moves from the first case to the invocation, and the blocked envelope's per-case numerical-quality entries change with it.
+  - At the product entry the outcome moves between section 1's two fail-closed forms. Ten move from the blocked envelope (`pressure-2`) to the run-level `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, two move the other way, and four keep their form.
+  - Neither form publishes result rows.
+- This is the cross-attempt effect that section 3.1 and RF §5.2 (6) foresee: fail-closed, with less work per case. Under section 5's rule it is a difference outside the allowance, so it is reported here for the owner (section 6). It is not repaired.
+- The two-case invocations (largest invocation charge 15.0M) do not approach the invocation limit.
+
+**What moves (section 4), as predicted.**
 - **J7.**
   - With R-A off, all 322 entries equal the committed `j7_rf_census_expected.json` byte for byte.
-  - With R-A on, classification, counts, first causes, selections and frozen-row verdicts are unchanged.
-  - The 62 method-only entries move only `first_cause/work/charged`. The 4 published PIN-OFF-345 entries also move their envelope and diagnostics digests.
-  - No other entry moves, and the results and summary digests do not move.
-  - Work falls by 3.9 % to 12.7 % (median 10.3 %).
-- **The committed source controls.** These are the 24 raw controls (MJ6's `CURRENT_SOURCE_BASIS` included), the five `o4_source_controls` entries and the six RF genuine bases.
-  - With R-A off, each equals its committed bytes.
-  - With R-A on, each differs in exactly five places: the SELECTED diagnostic's work figure, the case `work.charged`, `invocation_work.charged`, `publication_sha256` and `receipt_sha256`.
-  - `publication_charged` does not move on any control. MJ9's accounting holds on both sides. The n06 controls become one byte shorter, as `invocation_work.charged` drops to six digits.
-  - The publication check could not run on the ten load/reference-state controls, because J7's direct method builds no load state. Their bytes differ only in the five places above, and their shadow checks pass.
+  - With R-A on, the 62 method-only entries move only `first_cause/work/charged`, and the 4 published entries also move their envelope and diagnostics digests.
+  - Nothing else moves. Classification, counts, first causes, selections, frozen-row verdicts and the results and summary digests are unchanged.
+- **The 35 committed source controls.**
+  - With R-A off, each equals its committed bytes, MJ6's `CURRENT_SOURCE_BASIS` included.
+  - With R-A on, each differs only within the allowance: the SELECTED diagnostic's work figure, the case `work.charged`, `invocation_work.charged`, `publication_sha256` and `receipt_sha256`.
+  - `publication_charged` does not move, and MJ9's accounting holds on both sides.
+  - The ten load/reference-state controls cannot run the method-level publication check, because J7's direct method builds no load state. They are covered by the byte comparison and the shadow check.
 
 **Attribution** (replacing section 2's estimates).
-- **Per site.** Shares of E_live for Z-hinge decimal Euler–Bernoulli inputs, measured with R-A off, against section 2.2's model:
+- **Shares of the live pass**, Preparation through Projection, for Z-hinge decimal Euler–Bernoulli inputs with R-A off:
 
-  | Site | Measured | Model |
-  |---|---|---|
-  | section rows | 22.0 % | 22.7 % |
-  | Solve reactions | 18.4 % | 19.2 % |
-  | support rows | 11.3 % | 11.7 % |
-  | leading minors | 8.7 % | 9.1 % |
-  | projections | 8.3 % | 6.9 % |
-  | end rows | 8.2 % | 8.5 % |
-  | adjugate | 7.5 % | 7.9 % |
-  | coefficient recipes | 4.5 % | 5.2 % |
-  | `ratio_add` | 2.9 % | 2.7 % |
-  | congruence | 2.4 % | 2.5 % |
+  | Site | Share |
+  |---|---|
+  | section rows | 22.9 % |
+  | Solve reactions | 19.1 % |
+  | support rows | 11.8 % |
+  | leading minors | 9.0 % |
+  | projections | 8.6 % |
+  | end rows | 8.5 % |
+  | adjugate | 7.8 % |
+  | all coefficient recipes | 5.0 % |
+  | `ratio_add` | 3.0 % |
+  | congruence | 2.5 % |
 
-- **B1 and B2 separately.**
-  - B1 alone saves 14.8 % of E_live on decimal Euler–Bernoulli inputs, and selects every case by itself (largest case charge 7.122M Euler–Bernoulli, 7.446M Timoshenko).
-  - B2 alone saves 3.4 %, and leaves 2 and 12 cases unselected.
-  - On every Z-hinge run, all 22 negated rows per member take B1 in every evaluation, and the 8 rows with nonzero-fraction shear terms fall back, as section 3.2's coverage assertion requires.
-- **The matched-input ablations** (120 decimal Z-hinge documents, each input made dyadic alone):
-  - The decimal–dyadic gap is the applied moment m₁: made dyadic alone, it saves 18.2 % of E_live, 103.5 % of the gap.
-  - D, t, E and ν alone each move E_live by under 2 %, slightly up; L alone saves 0.9 % and k alone −0.2 %.
-  - This settles section 2.3's attribution: the gap is downstream of the displacement numerators (adj·m₁), not in Preparation.
-- **Timoshenko.**
-  - No Timoshenko-specific site exceeds 5 % of E_live; the site shares match Euler–Bernoulli's within 0.4 points.
-  - There is a near-φ = 2 effect. At the near-φ = 2 length, Timoshenko's E_live is 6.9 % above Euler–Bernoulli's (3.756M against 3.514M), against under 2 % at the short and long lengths. That is where 14 of the 22 Timoshenko blocks arise today.
+  Section 2.2's model is within 1.7 points on every site. Timoshenko's shares match within 0.4 points.
+- **B1 and B2 separately** (whole direct-method charge, decimal Z-hinge):
+  - B1 alone saves 14.8 % (Euler–Bernoulli) and 14.4 % (Timoshenko), and by itself selects every case, at 7.126M and 7.450M.
+  - B2 alone saves 3.4 % and 3.3 %, and leaves 2 and 12 cases blocked. In 4 of those 14 cases the blocking cause moves from "captured source replay" to "composite current source": a later stage refuses once less work is spent, as section 3.1 states.
+  - On every Z-hinge run, all 22 negated rows per member take B1 in every evaluation, and the 8 rows with nonzero-fraction shear terms fall back.
+- **The matched-input ablations**, isolated (census review): each input made dyadic alone, with every other authored input, k, m₁ and the allowances included, held at the decimal document's value. Over 120 decimal Z-hinge documents:
+  - m₁ alone saves 18.3 % of the pooled whole-method charge, 94 % of the decimal–dyadic gap. That is 101 % of the gap for Euler–Bernoulli and 88 % for Timoshenko.
+  - Each of D, t, L, E, ν and k alone moves the charge by under 2 %.
+  - The gap is downstream of the displacement numerators (adj·m₁). Preparation is about equal across the two styles.
+- **Timoshenko near φ = 2.**
+  - No Timoshenko-specific site exceeds 5 % of the live pass.
+  - At the near-φ = 2 length, Timoshenko's whole-method charge is 6.9 % above Euler–Bernoulli's, against under 2 % at the other lengths.
+  - 14 of today's 22 Timoshenko blocks arise there.
 
 **What the census does not establish.**
-- It covers O4's sweeps, the ablations, one multi-case shape, J7 and the committed controls, in sparse mode for the sweeps. It is not a proof that every input fits.
-- The census build's B1 candidate is derived from the row key, not passed by product_physics, so the adopted implementation's charges can differ slightly. Its gating test and D3 re-establish them.
-- Implementation, its gating and mutant tests, the actual-source D3 and the independent numerical review remain (section 7).
-- Section 3.3's second-stage reductions are not needed for these inputs, so under b7-plan item 7 they are not designed further.
+- It covers O4's sweeps, the isolated ablations, two-case and 8–10-case invocations, the required-selection batches (both modes), J7 and the committed controls. It is not a proof that every input fits.
+- **Charges.** The census build derives B1's candidate from the row key, uncharged, instead of receiving product_physics' hint. So the adopted implementation's charges can differ slightly; its gating test, oracle extension and D3 re-establish them.
+- **Entries.** The census exercised the compatibility entry and the headless runner. It did not exercise the registered build's permitted Direct route (`permitted_run` on its reserved-stack thread): a census build is not the registered identity, so that route takes the ordinary route there.
+- **What remains.** Implementation, its gating and mutant tests, the actual-source D3 and the independent numerical review remain (section 7).
+- **Section 3.3.** The second-stage reductions are not needed for the Z-hinge decimal cases. Whether the PEXACT Timoshenko cases and the over-limit many-case invocations call for them under b7-plan item 7 is reserved (section 6).
 
 ## 6. Reserved for the owner
 
@@ -518,7 +565,11 @@ All of this comes before adoption is decided.
   - the envelope and diagnostics digests of the 4 published entries.
 
   The other condition, the independent numerical review of the implementation, remains.
-- **The pre-0.4 blocked envelope.** On every census input that reaches it today, 32 sweep, 36 multi-case and 158 ablation cases, R-A removes the occurrence: each case selects and publishes. So extending ordinary republication to the pre-0.4 path would change nothing on these inputs. It would apply only to inputs still over the limit after R-A, where today's blocked envelope stays fail-closed.
+- **The pre-0.4 blocked envelope.** As repaired (section 5.1), the census does **not** show R-A removing every observed occurrence.
+  - R-A removes it on the single-member sweep, the ablations, the two-case invocations, twelve of the PEXACT φ = 2 Timoshenko documents (24 runs) and the 8-case invocations.
+  - It remains for the PEXACT-A r1e-08 and PEXACT-B Timoshenko documents (24 runs) and for 16 invocations of 9 or 10 cases.
+  - In those invocations the product entry's fail-closed form changes: ten move from the blocked envelope to the run-level `SOURCE_BLOCKS_FINALIZATION_FAILED`, two move the reverse way, and four keep their form.
+  - So R-A reduces how often the blocked outcome occurs, but it also changes its diagnostics, and on invocations over the 64M ledger its form.
 
 The options as presented:
 
