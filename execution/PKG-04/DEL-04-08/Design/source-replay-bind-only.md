@@ -4,6 +4,21 @@ This design examines whether the source route's finalization (`pressure-source-1
 
 **Status: design and measurements.** No product file, fixture, reviewed input, ScopeOfWork or limit changes here. Adoption is the owner's ruling under REQ-003 (e) and AC-002, on this evidence (section 6). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
+**Revision 2** answers round 1 of the dual review (Claude Opus 5.5 and Codex, on `669b803bd8`). Both found section 2's argument sound, with corrections, and neither found a fault-free counterexample. The changes:
+- **The recommendation** becomes "not now" (A0). The reviews showed three things:
+  - REQ-003 (e) and AX-005 bear against removal on their plain readings;
+  - the test-side replay would reach least where coverage is gained;
+  - in the product configuration the gain is 24 runs and 16 invocations, not the R-A-off sets (Q0, Q1).
+- **Q1** separates REQ-003 (e) from AX-005 and states reading (a) as a definitional ruling plus risk acceptance, which now explicitly includes F4. Q1 also addresses DEF-O and DEF-E's "independent Rust replay" sentence. Q2 quotes AC-002's "for R-A" scope.
+- **A5** is shown to lose detection on cases selected today (both reviews).
+- **Section 2.6** states the test-side replay's real reach and what adoption would add.
+- **Measurements.**
+  - The case and replay maxima include PEXACT.
+  - The Z-hinge replay ranges are attributed correctly; a budget-truncated figure is marked as a lower bound.
+  - The coverage table's phi2 row counts PEXACT-D.
+  - F1's remaining product checks are named, and live-projection faults are added.
+- **Other repairs.** Smaller repairs to L3, L4 and section 4's inventory.
+
 ## Summary
 
 - **What the full replay guarantees** (section 1).
@@ -19,12 +34,12 @@ This design examines whether the source route's finalization (`pressure-source-1
   Given these, every arithmetic comparison of the full replay is implied by bind-only's checks. The two then differ only in `Budget` refusals (the coverage gained) and in faults outside the model (the detection given up). Check by check, bind-only keeps G1, G3 and the live binding (G5), and removes G2 and the budget exposure.
 - **Detection given up** (section 2.4): per-invocation detection of transient faults in the live arithmetic or retained memory (F1), and of later-introduced hidden-state, construction or input-closure defects (F2 to F4). After adoption these are caught only test-side, on exercised inputs.
 - **Measured** (section 3; scratch prototype, never merged).
-  - Bind-only's replay stage costs 65,832–131,988, against 122,404–2,506,432 on the controls and up to 3.66M on Z-hinge inputs.
-  - With R-A on or off, every case blocked today selects: the Z-hinge sweep, the 24 PEXACT φ = 2 Timoshenko runs, and all 36 8–10-case invocations. The largest case charge is 4.09M with R-A on and 5.56M with R-A off. No selection is lost.
+  - Bind-only's replay stage costs 65,832–131,988, against 122,404–2,506,432 on the controls and 2.55M–3.23M on decimal Timoshenko Z-hinge inputs and up to 4.06M on PEXACT inputs (R-A on).
+  - **The gain in the product configuration (R-A on)** is 24 phi2 PEXACT Timoshenko runs (12 documents: PEXACT-A r1e-08 and both PEXACT-B) and 16 of the 36 8–10-case invocations. These are every source-route case measured as blocked today; the Z-hinge sweep already selects with R-A. With R-A off, bind-only also selects the 32 Z-hinge sweep blocks, 36 two-case blocks and 48 phi2 blocks (including PEXACT-D), so R-A is not needed for coverage. No selection is lost. The largest case charge is 4.92M with R-A on and 5.56M with R-A off, both on PEXACT-B r1e-08 Timoshenko.
   - Every newly selected case matches the direct method bit for bit, passes the shadow full replay, both readers and the oracle.
   - Only work counters, `receipt_sha256` and, in J7, 4 envelope digests move.
   - The mutants confirm the cost: faults in the live arithmetic or the retained proof (M-RATIO, M-DISP, M-HIDDEN, M-WIT, M-RET) are refused by the full replay and **published** by bind-only. Both readers accept them, and the oracle catches only M-DISP on Z-hinge inputs.
-- **Recommendation.** Adopt bind-only (A1), with the owner reading REQ-003 (e) as not engaged and accepting the stated residual risk (Q1), reading AC-002 as covering the moved digests (Q2), and not keeping producer self-replay (Q3). The opportunistic replay (A5) is the alternative if per-invocation detection should be kept where affordable. The alternatives are compared in section 5.
+- **Recommendation: not now (A0).** In the product configuration the gain is narrow: 24 runs on 12 invented φ = 2 documents, and 16 near-ledger invocations, all of them fail-closed today. The loss is per-invocation integrity detection on every invocation; the full replay is the only product check that refuses a corrupted bound. And the plain readings of REQ-003 (e) and AX-005 bear against removal (Q0, Q1). A1 is ready, with section 2.6's additions, for a later coverage need that R-A-class reductions cannot meet. If the owner prefers the coverage now, Q1 (a), Q2 and Q3 (a) set out what adoption requires. The alternatives are compared in section 5.
 - **What would move** at adoption (section 4):
   - one FF bind method, with the full replay made test-only;
   - the stage strings;
@@ -40,7 +55,7 @@ This design examines whether the source route's finalization (`pressure-source-1
 
 - **Basis.** Main `fa0028a7d7` (#1497, R-A merged). Paths are relative to `projects/chirality-piping/`. PP is `core/product_physics/src/`, FK is `core/solver/frame_kernel/src/structural/`, FB is FK `exact_boundary.rs` and FF is FK `exact_boundary/functionals.rs`. Line numbers are on that main.
 - **Prior work.** An Agent 0 study and its Codex scrutiny, neither in the repository, were taken as hypotheses. Section 2 answers Codex's blocking correction: a mutant inventory cannot establish that no relied-upon guarantee is lost, so the argument is structural, check by check, with the detection given up stated explicitly. The mutants (section 3.4) are supporting evidence only.
-- **Measurements** come from a scratch prototype on branch `claude/piping-replay-proto-20261021`, which is never merged (section 3). Figures are tagged **[M]** measured there, **[D]** derived from the code, or **[C]** from a committed design.
+- **Measurements** come from a scratch prototype on branch `claude/piping-replay-proto-20261021`, which is never merged (section 3). Figures are tagged **[M]** measured there, **[D]** derived from the code, **[C]** from a committed design, or **[E]** estimated from measured figures by stated arithmetic.
 - **Terms.**
   - *Live attempt*: `source_recovery::solve` (PP `source_recovery.rs:1852`), from source closure to retention, on one `AttemptBudget`.
   - *Retained proof*: the `RetainedFunctionalSet` it builds (FF:984), owned by `SelectedSourceRecovery` with the live ledger (PP `source_recovery.rs:186–198`).
@@ -144,15 +159,15 @@ Let g be the method's deterministic arithmetic, from a source snapshot S, descri
 - Neither crate contains `unsafe` outside test text. So, in safe Rust, P at finalization is the object `retain` built.
 
 **(L3) Input closure: g reads nothing outside (S, Δ, L, c, ρ) and the ±hints of R-A.**
-- `Context::new_charged` (FB:724–985) reads `system.stiffness`, `force`, `free_dofs`, `prescribed`, `contributions`, the `congruence` list, `force_terms`, `limits` and `order_cap`. It copies each into the `Snapshot` it keeps (FB:960–978), and `Snapshot::matches` compares each bitwise, in order, including force-term source names (FB:1745–1808). It does not read `contribution_groups`, which PP passes as `None` (PP `source_recovery.rs:386`). The symmetry evidence is copied and compared, and PP passes `None`.
+- `Context::new_charged` (FB:724–985) reads `system.stiffness`, `force`, `free_dofs`, `prescribed`, `contributions`, the `congruence` list, `force_terms`, `limits` and `order_cap`. It copies each source field into the `Snapshot` it keeps (FB:960–978); `limits` is kept in `RetainedResponse.limits` and compared (FF:1077), and the order cap is a constant (below), and `Snapshot::matches` compares each bitwise, in order, including force-term source names (FB:1745–1808). It does not read `contribution_groups`, which PP passes as `None` (PP `source_recovery.rs:386`). The symmetry evidence is copied and compared, and PP passes `None`.
 - The order cap is the constant `FUNCTIONAL_ORDER_CAP` on both sides (FF:185; `binding` checks it, FF:83).
 - `solve` (FF:213–235; FB:1011) reads only the Context.
-- `evaluate` (FF:603–692) reads the response, its Context's prescribed list and blocks, the descriptors, the hints and the shortcut flag. The hints and flag do not change any value: R-A's bit-identity argument (R-A design §3.1) is checked by its gating tests (`source_negated_rows_equal_the_long_evaluation`, `o4_source_controls_negated_rows_equal_the_long_evaluation`, `ra_gating_zhinge_negated_rows_take_b1`).
+- `evaluate` (FF:603–692) reads the response, its Context's prescribed list and blocks, the descriptors, the hints and the shortcut flag. The hints and flag do not change any value. Structurally, `Sources::hint` depends only on the descriptor index and `nodal_start` (PP `source_recovery.rs:396–403`), which the descriptor layout fixes, so it is the same rule on both sides; and R-A's bit-identity argument (R-A design §3.1) is checked by its gating tests (`source_negated_rows_equal_the_long_evaluation`, `o4_source_controls_negated_rows_equal_the_long_evaluation`, `ra_gating_zhinge_negated_rows_take_b1`).
 - `project` (FB:1325–1404) reads only the Ratio and ρ.
 - Work charging decides only whether a step runs (`Budget`); it never changes a value. The expansion-length cap can only raise `Budget` (R-A design §3.1, B2).
 
 **(L4) Determinism in the product build.**
-- The exact path has no `thread_local`, `static mut`, interior mutability, hashing or I/O in FB or FF.
+- The exact path has no `thread_local`, `static mut`, interior mutability, hashing or I/O in FB, FF, or the expansion arithmetic they call (FK `structural.rs` `Expansion::add` and `add_product_charged`, and `crate::exact_sum`; Opus review, round 1).
 - The only conditional code there is `#[cfg(any(test, feature = "exact-operation-count"))]` counting, which records and never alters a value (FB:17, 290–378; FF:629–739, 1267, 1382). No product binary compiles it.
 - The `census-probe` and `loaded-maximum-hooks` features are off in every product and registered build, and their guards hold (R-A design §5).
 - Binary64 arithmetic in Rust is IEEE 754 round-to-nearest with no implicit contraction.
@@ -194,11 +209,12 @@ The binding check against the live input (G5) and every publication-stage check 
 
 The full replay is a second execution of g on bitwise-equal inputs in the same process. It can therefore fail only when P ≠ g(S_P, Δ_P, L_P, c, ρ_P), or when the second execution itself errs. These are the fault classes in which that happens, each with what would still detect it after adoption.
 
-- **F1. Transient faults in the live computation or in retained memory.** Examples: a bit flip in an expansion during live Preparation, Solve or Evaluation, or in the retained copy before finalization.
+- **F1. Transient faults in the live computation or in retained memory.** Examples: a bit flip in an expansion during live Preparation, Solve, Evaluation or Projection, or in the retained copy before finalization. A fault in a live projection before both its copies are made (the published value and the retained projection) is not modelled by any mutant of section 3.4; it would agree with itself at the row binding, and so would publish.
   - Today the replay detects such a fault on every selected case, unless the same flip recurs.
-  - After adoption, nothing in the product detects it. A corrupted Ratio is projected outward from the corrupted value, so the published interval can be wrong while it passes every structural check, the row binding and the readers. The readers check the statement, not the solve (REQ-005).
+  - After adoption, the arithmetic is no longer re-executed. A fault that survives the kept checks goes undetected: the source, dimension, coverage and policy checks, and the row binding of published values to retained projections (`rows.rs:243–270`), which refused M-PROJ (section 3.4). A corrupted Ratio is projected outward from the corrupted value, so the published interval can be wrong while it passes every structural check, the row binding and the readers. The readers check the statement, not the solve (REQ-005).
   - A transient fault during the replay itself today blocks the case (fail-closed). Bind-only has no such exposure.
   - No product check other than the full replay re-executes the source route's arithmetic. Section 3.4 measures the consequence.
+  - **Rate.** This design does not characterize how often such faults occur on the target machines, and makes no claim about it. The owner is asked to accept the class, not a measured rate (Q1).
 - **F2. Hidden-state dependence introduced by a later change.** Examples: a value that depends on a thread-local, a cached object reused across attempts, a feature switch reaching a product build, or iteration order. That breaks L4.
   - The full replay detects it per invocation, but only where the hidden state differs between the live attempt and the replay. A dependence that is the same at both times passes both.
   - After adoption it is caught by the test-side full replay on every exercised input (section 2.6), by review, and by the existing feature guards. It is not caught on product inputs the tests do not exercise.
@@ -217,15 +233,27 @@ The full replay is a second execution of g on bitwise-equal inputs in the same p
 
 Under L1–L4, bind-only refuses exactly where the full replay refuses, except in its `Budget` cases and in fault-induced mismatches. The refusal **stage and text** can differ in two ways:
 - **A capture that does not match.** The full replay prepares the captured source before comparing it (FF:1101–1109), as Codex's scrutiny noted. A mismatching capture can therefore refuse first in Preparation, with `Invalid("stiffness source mismatch")`, a validation refusal or `Budget`. Bind-only compares first and reports the binding refusal. Both are blocking finalization failures; the message differs.
-  Measured: on M-SRC the full replay refused in Preparation ("force source mismatch"), and bind-only at the binding ("functional expected source binding") (section 3.4). Every committed capture-perturbation test refused with identical text in both modes, because the full replay already refuses those cases at its non-arithmetic plan or source binding (section 3.3).
+  Measured: on M-SRC the full replay refused in Preparation ("force source mismatch"), and bind-only at the binding ("functional expected source binding") (section 3.4). Every committed capture-perturbation test refused with identical text in both modes, because the full replay refuses those cases at the same plan or source binding (section 3.3). Its plan-binding refusals precede all arithmetic; its source-binding refusals follow its re-preparation of the Context (FF:1101–1109), but precede Solve and Evaluation.
 - **Removed messages.** Bind-only never emits "functional retained block/minor mismatch", "… response mismatch", "… ratio mismatch", "… projection mismatch", "… DOF projection mismatch" or "… contact mismatch". The test-side full replay keeps them.
 
 ### 2.6 Keeping the invariants maintained after adoption
 
-The full replay becomes a test-side check. It stays in FK and is reached only from tests, under `#[cfg(any(test, feature = "exact-operation-count"))]`, the pattern of `evaluate_functionals_long`.
-- **Where it runs.** It runs on every selected case of the maintained corpora: the J7 metered control already replays every selected attempt (`j7_rf_census.rs:684`); the 24 raw source controls, `o4_source_controls`, PIN-OFF-345 and MJ6/MJ9 would gain it through a finalization-observer test. The existing replay tests (`retention_replays_expected_plan_and_rejects_corruption_order_and_source_changes`, `order_four_replay_refuses_a_mutated_minor`, `congruence_replay_refuses_a_changed_operand_map_or_range`, and the others listed in section 4) remain as tests of that check.
-- **A shadow comparison** in the PP test build. It runs the full replay on a private ledger after each product finalization in tests. This keeps L1–L4 checked on every finalization the test suite performs, not only in the corpora.
-- **Bind-only's own tests.** Each kept check has a refusal test. These include the non-mutation relative-limit refusal that today exercises the replay (`functionals/tests.rs:484–495`), which carries over to bind-only.
+The full replay becomes a test-side check. It stays in FK and is reached only from tests, under `#[cfg(any(test, feature = "exact-operation-count"))]`, the pattern of `evaluate_functionals_long`. Its real reach after adoption is narrower than per-invocation detection, and is stated here as it would be built:
+
+- **FK unit tests.** The existing replay tests stay as tests of the test-side check: `retention_replays_expected_plan_and_rejects_corruption_order_and_source_changes`, `order_four_replay_refuses_a_mutated_minor`, `congruence_replay_refuses_a_changed_operand_map_or_range`, the metered sweeps and the oracle (section 4).
+- **J7.** The J7 metered control already replays every selected direct-method attempt (`j7_rf_census.rs:684`). That is RF's census, at RF's sizes.
+- **PP lib unit tests.** A `cfg(test)` shadow hook would run the full replay on a private ledger after each product finalization in PP's lib unit tests. That covers the raw source controls, `o4_source_controls`, PIN-OFF-345 and the fallback and perturbation tests, wherever those run inside the lib test binary.
+- **Not reached.**
+  - PP's integration tests, among them MJ6/MJ9 (`tests/pressure_source_join.rs`, `tests/pressure_source_join/consequences.rs`), do not see `cfg(test)`. PP cannot gate code on FK's `exact-operation-count` without a feature of its own, and no finalization-observer hook exists today; the existing observer is `solver_observations`, `retained_product.rs:1367`.
+  - The headless and pytest suites and every release binary.
+  - The heavy inputs that bind-only newly covers: the Z-hinge, PEXACT and 9–10-case invocations are census-only `#[ignore]` targets today.
+- **What adoption therefore adds**, as part of its implementation, so that the newly covered domain is not the least checked:
+  - the PP `cfg(test)` hook above;
+  - one maintained, non-ignored test that runs the shadow on a small set of today's blocked inputs: one PEXACT-B Timoshenko run, one decimal Z-hinge document and one 10-case invocation, sized to the hosted budget;
+  - bind-only's own refusal tests for every kept check. These include the non-mutation relative-limit refusal that today exercises the replay (`functionals/tests.rs:484–495`).
+  
+  Integration tests, headless, pytest and release binaries stay outside the shadow's reach. That gap is part of what Q1 asks the owner to accept.
+- **So after adoption,** F2 to F4 are caught on the exercised test inputs and in review, not per invocation, and most thinly on the newly covered heavy inputs.
 
 ## 3. Measurements
 
@@ -259,7 +287,7 @@ Controls (the 24 raw source controls, `o4_source_controls`, PIN-OFF-345 and MJ6/
 | Case total, min / mean / max | 818,749 / 1,590,062 / 5,667,706 | 762,177 / 1,220,084 / 3,227,228 |
 
 - With R-A off, the full replay's stage is 127,913 / 486,764 / 2,806,861.
-- On decimal Timoshenko Z-hinge inputs, the replay stage is 1.82M–3.23M under the full replay with R-A on (2.02M–3.66M with R-A off), and 65,626–80,188 under bind-only. The largest case charge falls from 7,242,115 to 4,094,740.
+- On decimal Timoshenko Z-hinge inputs, the replay stage is 2,545,027–3,227,563 under the full replay with R-A on, and 80,128–80,188 under bind-only. With R-A off, completed replays cost 3,052,640–3,588,246; the largest figure there, 3,645,145, is a replay cut off at `Budget`, so it is a lower bound. The complete replay on the shadow's private ledger reaches 3,879,846. The largest case charge on these inputs falls from 7,242,115 to 4,094,740 with R-A on (Opus review, round 1, corrected the attribution).
 - **Controls.**
   - With R-A off and the full replay, all 35 documents and all 322 J7 entries equal main `9e03991d39`'s committed bytes, which precede R-A.
   - With R-A on and the full replay, they equal main `fa0028a7d7`'s.
@@ -282,12 +310,12 @@ Selected, per configuration:
 | 8-case invocations (12) | 4 | 12 | 12 | 12 |
 | 9-case invocations (12) | 0 | 12 | 8 | 12 |
 | 10-case invocations (12) | 0 | 12 | 0 | 12 |
-| phi2 PEXACT-A r1e-08 and PEXACT-B Timoshenko (24 runs) | 0 | 24 | 0 | 24 |
+| phi2 runs blocked under the full replay with R-A off (48: PEXACT-A, -B and -D Timoshenko) | 0 | 48 | 24 | 48 |
 | Required selections, `j2`/`rf`/`judged`/`phi2` (578 triples) | 578 | 578 | 578 | 578 |
 
 - **R-A off, full replay.** This reproduces the R-A census. 26 sweep cases fail at "captured source replay" and 6 at "composite current source", all `Exact(Budget)` and all as the blocked `pressure-2` envelope.
-- **R-A on, full replay (today).** The 16 blocked many-case invocations are all bound by the invocation ledger. 8 end as `Err` at the composite publication reservation, 4 as `Err` at the invocation publication reservation, and 4 as blocked envelopes at a replay limited by what remains.
-- **Bind-only.** Every invocation selects. The largest invocation charge is 45,364,361 with R-A on and 52,019,893 with R-A off. The largest case charge in any set with R-A on is 4,094,740 (sweep); with R-A off it is 5,555,025 (PEXACT; 4,747,098 on the sweep).
+- **R-A on, full replay (today).** The 24 phi2 runs still blocked are PEXACT-A r1e-08 (8) and both PEXACT-B (16) Timoshenko. The 16 blocked many-case invocations are all bound by the invocation ledger. 8 end as `Err` at the composite publication reservation, 4 as `Err` at the invocation publication reservation, and 4 as blocked envelopes at a replay limited by what remains.
+- **Bind-only.** Every invocation selects. The largest invocation charge is 45,364,361 with R-A on and 52,019,893 with R-A off. The largest case charge with R-A on is 4,924,492, on PEXACT-B r1e-08 Timoshenko (4,094,740 on the sweep). With R-A off it is 5,555,025 on the same document (4,747,098 on the sweep). On that document the shadow full replay costs 4,056,554 with R-A on and 4,687,087 with R-A off.
 - **Judging each newly selected case** (sweep, two-case, many-case, PEXACT):
   - the shadow full replay agrees;
   - every published projection equals the direct method's bit for bit (1,920, 4,320, 26,880 and 2,160 projections);
@@ -306,7 +334,7 @@ Selected, per configuration:
 | `a_join_that_passes_the_replay_screen_but_cannot_finalize_falls_back_at_the_public_limit` | Still falls back ordinarily; its cause moves to "composite current source: … current source binding … Exact(Budget)" at 7,999,930. The text assertion (line 421) fails. |
 | `a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limit` | Still falls back; its cause moves to "invocation receipt: composite publication reservation". The text assertion (line 557) fails. |
 | The other 7 `load_state_fallback_tests` | Pass. `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback` passes in both modes: its `Err` is the invocation-level "composite requires source selection and complete case qualification", not the replay. |
-| Capture perturbations: `post_capture_perturbations_accepted_live_are_refused_by_captured_replay` (all five, including `evidence_only` and `strain_split_same_total`); `a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay` (all four); `actual_capture_replay_rejects_changed_material_or_load_source`; `composite_captured_exact_empty_regions_replay_and_overrides` | Every perturbation still refuses, **with the same text** in both modes. The full replay already refused them at its non-arithmetic plan or source binding, before any arithmetic. |
+| Capture perturbations: `post_capture_perturbations_accepted_live_are_refused_by_captured_replay` (all five, including `evidence_only` and `strain_split_same_total`); `a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay` (all four); `actual_capture_replay_rejects_changed_material_or_load_source`; `composite_captured_exact_empty_regions_replay_and_overrides` | Every perturbation still refuses, **with the same text** in both modes. The full replay refuses them at the same plan binding (before any arithmetic) or source binding (after its re-preparation of the Context, before Solve and Evaluation). |
 | `o4_source_work_deltas_follow_the_d5_law` | Passes in both modes. Measured (live, replay, binding) identity deltas: EB pairs (36, 36, 18) or (0, 0, 0) in both; Timoshenko (144, 144, 0) full, (144, 0, 0) bind-only; Timoshenko dual basis (−1120, −1122, 18) full, (−1120, 36, 18) bind-only. |
 | Headless `sf1_budget_cliff_publishes_the_ordinary_route_through_the_runner_not_a_blocked_result` | Passes in both modes. |
 
@@ -334,11 +362,11 @@ On the load/reference-state document the full replay's refusal republishes the i
 - The shadow full replay catches all five. That is the test-side check section 2.6 maintains.
 - On the load/reference-state document the readers give a numerically ineligible standing even unmutated, so they say nothing there.
 
-These results bear out section 2.4: F1 to F3 are detected per invocation today and would not be after adoption. The policy, capture and plan classes keep their detection. A wrong published token (M-RATIO, M-DISP, M-HIDDEN) reaches no product check under bind-only.
+These results bear out section 2.4: F1 to F3, the classes these mutants model, are detected per invocation today and would not be after adoption. The policy, capture and plan classes keep their detection. A wrong published token (M-RATIO, M-DISP, M-HIDDEN) reaches no product check under bind-only.
 
 ### 3.5 Jobs and evidence
 
-- **Job log.** All runs went through `tools/t3_slot.sh`, from the first build (END 2026-10-21T20:17:50Z) to the last (END 20:45:15Z), in `/Users/ryan/dev/chirality-t3/guard/cargo_jobs.log`:
+- **Job log.** All runs went through `tools/t3_slot.sh`, from the first build (END 2026-10-21T20:17:50Z) to the last (END 20:45:49Z), in `/Users/ryan/dev/chirality-t3/guard/cargo_jobs.log`:
   - controls 20:24:40Z–20:24:43Z;
   - J7 20:24:43Z–20:24:46Z;
   - single-member sweep (480 documents, 65.2 s) 20:24:46Z–20:25:51Z;
@@ -347,7 +375,8 @@ These results bear out section 2.4: F1 to F3 are detected per invocation today a
   - required batches 20:30:21Z–20:38:15Z;
   - PEXACT 20:40:14Z–20:40:23Z;
   - mutants 20:40:49Z–20:40:51Z, oracle 20:41:27Z;
-  - existing tests 20:42:05Z–20:45:15Z.
+  - existing tests 20:42:05Z–20:45:16Z;
+  - the ordinary-build feature-guard check 20:45:23Z–20:45:49Z.
 - **Return codes.** Every job returned rc=0, except the two bind-on runs of the existing tests (END 20:42:21Z and 20:44:23Z, rc=101), whose failures are the three of section 3.3.
 - **Raw output** is in host scratch, not committed: `scratch/replay-proto/run1/`.
 - **Not run:** the matched-input ablations and the small-frame sweep (neither reaches a moved stage), the FK unit suite under the feature, mutants with R-A off, and the registered build's Direct route.
@@ -362,6 +391,7 @@ Adoption would be one implementation PR. It needs its gating tests, the actual-s
   - `replay_against` becomes the bind call. Its stage strings ("replay source closure", "expected invocation replay") are renamed, and its doc (336–337) and the struct's (196–197) are restated.
   - The test-side full replay keeps a `cfg(test)` wrapper for J7 (`j7_rf_census.rs:684`) and RF-10 (`source_recovery.rs:2785–2799`).
   - `reserve_captured_replay` and its doc (258–281): see the screen, below.
+- **Doc comments to restate:** PP `check_binding_against` (`source_recovery.rs:315–316`, "after the independent captured-source replay"), and the SF-1 comment at `lib.rs:4994–5006` ("captured replay repeats the live attempt's source closure and exact solve"), which becomes false under bind-only even while the screen stays.
 - **PP `source_receipt.rs`.** The error prefix "captured source replay: …" (272, 388) is restated. The captured rebuild (173–289, 290–388) stays.
 
 **The 0.4 replay screen.** SF-1's premise is that the replay "repeats the live attempt's source closure and exact solve". Under bind-only that premise is false: the finalization that follows selection costs about the rebuild plus binding plus reservation, not a second live pass. There are three options:
@@ -379,6 +409,8 @@ The screen governs 0.4 publication, which the next unit unifies with pre-0.4 (se
 - MJ6 `CURRENT_SOURCE_BASIS` (`tests/pressure_source_join.rs:472–497`): its sha256 values, and a length wherever a work figure loses a digit;
 - the generation records `fixtures/product_preview/demo_fixture_generation.json` and `preview_physics_fixture_generation.json`, which hash every PP and FK source and test file;
 - `tools/hosted-ci-routing.json`: the FK and PP `source_trees` digests, the headless digest if its tests are edited, and the per-reader `reads[].sha256` of each edited test file (`pressure_source_context_tests.rs`, `o4_source_tests.rs`, `pressure_source_join.rs`, and others as edited).
+
+**Work-only diff checks.** `tests/test_ra_work_only_envelope_diff.py` (base `9e03991d39`; its docstring says "a later change to a listed file restates its own base here") is re-anchored, and a sibling check binds A1's moved bytes from the pre-adoption main. `tests/test_o4_text_only_envelope_diff.py` reads R-A's files at its own base and is unaffected.
 
 **Budget cliffs and the screen's tests** (`source_receipt/load_state_fallback_tests.rs`, and the headless `load_reference_route_tests.rs:844` and `tests/load_reference_cli.rs:548`).
 - These are RF §5.5's cliffs, the SF-1 scenarios and N-2/N-3. They are tuned to the replay's cost or assert "captured source replay" as the cause.
@@ -423,55 +455,66 @@ The screen governs 0.4 publication, which the next unit unifies with pre-0.4 (se
 
 ## 5. Alternatives on the same evidence
 
-Each alternative is compared on the measurements of section 3. "Detection" means the per-invocation detection of F1 to F3.
+Each alternative is compared on the measurements of section 3. "Detection" means the per-invocation detection of F1 to F4.
 
 | Option | Coverage of today's blocked cases | Detection | What it needs and touches |
 |---|---|---|---|
 | **A0. Status quo** (full replay) | None gained. Still blocked: the 24 phi2 PEXACT runs and the 16 9–10-case invocations [M]. | Kept. | Nothing. |
-| **A1. Bind-only** (this design) | All of them [M]. | F1 to F3 given up; the policy, capture and plan classes kept. | Owner rulings Q1–Q3; the implementation, D3, re-pins and review (section 4). |
+| **A1. Bind-only** (this design) | All of them [M]. | F1 to F4 given up; the policy, capture and plan classes kept. | Owner rulings Q1–Q3; the implementation, D3, re-pins and review (section 4). |
 | **A2. Bind-only plus an a posteriori certificate** | As A1, if the certificate fits. | Partial, depending on the certificate. For example, an exact per-block residual check K·x = f would catch M-DISP but not M-RATIO, M-HIDDEN or M-RET, because row evaluation would not be re-checked. | **Unpriced and undesigned.** It needs a new metered check, its own soundness and charge oracle, and possibly a new primitive, and so RF §5's "one rule" ruling. Its cost is not measured. A residual over the free blocks is about the Solve's reaction stage, 19 % of the live pass [C, R-A §5.1]. |
-| **A3. Separate replay ledger** (the replay gets its own per-case 8M) | The per-case blocks (PEXACT, the sweep with R-A off) clear, since replay stages are at most 3.66M [M]. The 16 many-case blocks do not, if the replay still debits the 64M invocation ledger: they are bound by that ledger today [M]. They clear only if the invocation ledger is separated or raised as well. | Kept. | Not the same as raising limits. Each ledger keeps 8M, but a case's total work becomes up to 2 × 8M, so what `PHYSICS_SOURCE_WORK_LIMIT` bounds changes. That is a fixed-limit change under REQ-003 (e), the readers' ledger structure changes, and it needs D3. |
-| **A4. Raised limits** | Per case: PEXACT-B Timoshenko needs about 2 × 4.1M + 0.9M ≈ 9.1M [E, from R-A §5.1's live figures and §2.2's overhead]. Per invocation: a 10-case decimal Z-hinge invocation needs about 10 × 6.5M–7.2M plus publication, so 66M–73M [E, from the measured full-replay case charges of 9-case invocations]. | Kept. | Prohibited as a means to a bound by REQ-003 (e) ("No … limit is relaxed to obtain a bound") and AX-005, and excluded by R-A design §3.3. A priced-source change with D3. Coverage is bounded by the new numbers, not by structure. |
-| **A5. Opportunistic replay** (bind-only, then the full replay when a reservation equal to the live charge remains) | As A1 [D: the replay runs only when it fits]. | Kept on every case that selects today (each fits its replay [M]); given up on the newly covered cases, which are the heaviest. | Two finalization regimes keyed on remaining budget, and published work depends on which ran. That is the kind of seam RF §5's ruling rejected for charging. Both paths need tests, D3 and their own cliffs. |
+| **A3. Separate replay ledger** (the replay gets its own per-case 8M) | The per-case blocks (PEXACT, the sweep with R-A off) clear, since a complete replay costs at most 4.69M [M: the shadow's private replay, PEXACT-B r1e-08 Timoshenko, R-A off; 3.88M on the Z-hinge sweep]. The 16 many-case blocks do not, if the replay still debits the 64M invocation ledger: they are bound by that ledger today [M]. They clear only if the invocation ledger is separated or raised as well. | Kept. | Not the same as raising limits. Each ledger keeps 8M, but a case's total work becomes up to 2 × 8M, so what `PHYSICS_SOURCE_WORK_LIMIT` bounds changes. That is a fixed-limit change under REQ-003 (e), the readers' ledger structure changes, and it needs D3. |
+| **A4. Raised limits** | Per case: PEXACT-B r1e-08 Timoshenko needs its bind-only charge plus a complete replay, 4,924,492 + 4,056,554 ≈ 8.98M with R-A on [E, from the measured figures of section 3.3]. Per invocation: a 10-case decimal Z-hinge invocation needs about 10 × 6.5M–7.2M plus publication, so 66M–73M [E, from the measured full-replay case charges of 9-case invocations]. | Kept. | Prohibited as a means to a bound by REQ-003 (e) ("No … limit is relaxed to obtain a bound") and AX-005, and excluded by R-A design §3.3. A priced-source change with D3. Coverage is bounded by the new numbers, not by structure. |
+| **A5. Opportunistic replay** (bind-only, then the full replay when a reservation for it remains) | As A1, if the full replay is skipped whenever it does not fit [D]. | Kept only where the replay fits after bind. That is **not** every case that selects today. PEXACT-A r1e-12 Timoshenko selects today at about 7.94M (live about 3.67M, replay about 3.57M). After bind about 3.66M remains, less than a live-charge reservation, and running the replay anyway would total about 8.02M [M/E, Opus review, round 1]. On the 9-case invocation `zhinge122 (0.219, 0.0082) near_phi2_mm r=1e-12 timo decimal zero`, today's full-replay invocation charge is 63,810,222. Bind's additional checks (733,576) take bind-then-replay to 64,543,798, over the 64,000,000 invocation limit [M, Codex review round 1], so at least one replay there must be skipped. Detection is also given up on the newly covered cases, which are the heaviest. | Needs a reservation design of its own: today's live-charge reservation is a screen, not a guarantee (`source_recovery.rs:258–267`). It also brings two finalization regimes keyed on remaining budget, published work that depends on which ran, and the kind of seam RF §5's ruling rejected for charging. Both paths need tests, D3 and their own cliffs. Undesigned. |
 
-A cheap integrity digest of the retained proof, taken at retention and rechecked at finalization, would detect changes to retained memory between those points (M-WIT, M-RET). It would not detect faults in the live arithmetic before retention (M-RATIO, M-DISP, M-HIDDEN). It is a partial option with little value in safe Rust, and is not designed.
+A cheap integrity digest of the retained proof, taken at retention and rechecked at finalization, would detect changes to retained memory between those points (M-WIT, M-RET). It would not detect faults in the live arithmetic before retention (M-RATIO, M-DISP, M-HIDDEN). Safe Rust excludes software writes to the retained proof, so the digest's value is against hardware memory faults, which are what M-WIT and M-RET model. It is a partial, inexpensive option and is not designed here; it could accompany A1 if A1 is adopted.
 
 ## 6. Owner questions
 
-These are reserved for the owner and routed through Agent 0. Each is presented with its consequence and a recommendation.
+These are reserved for the owner and routed through Agent 0. Each is presented with its consequence and a recommendation. Revision 2 changed the overall recommendation from adoption to "not now". Both round-1 reviews found the argument sound. The change follows from their findings on what adoption gives up and gains: the plain readings of REQ-003 (e) and AX-005, the test-side reach, and the narrow gain in the product configuration (Opus review, round 1).
 
-**Q1. REQ-003 (e) and AX-005: is removing the full replay a relaxation of verification?**
+**Q0. Adopt bind-only now?** The three questions below decide whether A1 can be adopted. Weighed against its cost, the recommendation is **not now (A0)**. The design and prototype are kept as the evidence for a later ruling.
+- **The gain in the product configuration is narrow.** With R-A on, bind-only newly selects 24 runs on 12 of the oracle's invented, exactly φ = 2 sensitive documents, and 16 invocations of 9–10 load cases near the 64M ledger (section 3.3). Each of these fails closed today, with no result rows and no wrong output.
+- **The loss applies to every invocation.** The full replay is the only product check that refuses a corrupted bound. M-DISP published intervals that no longer contain the exact value, and both readers accepted them (section 3.4). After adoption the test-side replay reaches least where coverage is gained (section 2.6).
+- **The plain readings of REQ-003 (e) and AX-005 bear against removal** (Q1).
+- **When to revisit.** A coverage need that the R-A-class reductions cannot meet, for example a domain extension whose live pass exceeds half the 8M limit. Bind-only would then roughly double the problem size that fits, and A1, with section 2.6's additions, is ready to adopt.
+- **Consequence of A0.** Nothing changes. The 24 runs and 16 invocations keep their fail-closed outcomes, and the next unit designs their publication behaviour as live occurrences (section 7).
+
+**Q1. REQ-003 (e) and AX-005: is removing the full replay a relaxation of verification, or a loosened gate?**
 - **What is at stake.**
-  - The full replay re-executes the method. It does not establish the bound: the bound rests on the live exact arithmetic and the outward projection (section 1.2).
-  - Under L1–L4, its outcome in a fault-free run differs from bind-only's only where it runs out of work (section 2.2).
-  - It is, however, a per-invocation execution-integrity check. Removing it gives up the detection of F1 to F3 (section 2.4). Section 3.4 shows that, after removal, a transient fault in live evaluation or solve can publish a wrong token that every product check and both readers accept.
-- **Readings.**
-  - (a) It is not a relaxation. REQ-003 (e) protects the method's searches, verifications of the bound, tolerances and domain limits, none of which moves. The removal is a reduction of redundant execution, with its residual risk stated and accepted.
-  - (b) It is a relaxation. A per-invocation check is removed so that more cases publish a bound.
-- **Consequences.**
-  - Under (a), A1 can be adopted. Every measured blocked case selects, and no limit moves.
-  - Under (b), A1 is closed, and so are A3 and A4, which also bear on (e). Coverage stays as today: the 24 PEXACT runs and 16 many-case invocations keep their fail-closed outcomes, and the next unit handles them as live occurrences.
-- **Recommendation:** (a), with the owner explicitly accepting the residual risk of F1 to F3 as stated in section 2.4. Two conditions apply: the test-side full replay and shadow of section 2.6 are maintained, and the implementation passes the independent numerical review. This is a risk acceptance as well as a reading, and both are the owner's.
+  - The full replay re-executes the method. It does not establish the bound in a fault-free run: the bound rests on the live exact arithmetic and the outward projection (section 1.2). Under L1–L4, its fault-free outcome differs from bind-only's only where it runs out of work (section 2.2).
+  - Under fault, however, it is the only product check of the published bound (section 3.4). Removing it gives up the per-invocation detection of F1 to F4 (section 2.4).
+- **REQ-003 (e)** ("No search, verification, tolerance or domain limit is relaxed to obtain a bound").
+  - The plain reading counts the replay as a verification: it is a per-invocation check that refuses publication, and it would be removed so that more cases publish a bound. That is reading (b), and it closes A1.
+  - Reading (a) is a definitional ruling. "Verification" in (e) would mean verification of the bound's method (its searches, gates, tolerances and domain limits), not re-execution integrity. That ruling would be made together with an explicit acceptance of F1 to F4's residual risk. The design does not characterize the rate of F1 on the target machines.
+- **AX-005** ("A gate is never loosened to obtain a pass").
+  - G2 is a refusal condition. In a fault-free run its only refusals are `Budget`, and removing it is what obtains the new passes. So under AX-005's plain reading, too, removal loosens a gate.
+  - R-A was different: it removed redundant arithmetic and kept every check. Bind-only removes a check.
+  - Reading (a) would rule that a check whose only fault-free refusals are budget refusals is not a gate in AX-005's sense.
+- **Consequences.** Under (b), A1 is closed, and so are A3 and A4, which also bear on (e). Under (a), A1 can be adopted with the conditions of section 2.6 and the independent numerical review.
+- **Recommendation:** (b), the plain readings, consistent with Q0. If the owner prefers the coverage, (a) is the only reading that permits A1. It is then both a definitional ruling and a risk acceptance, and both are the owner's.
+- **A related reviewed input.** DEF-O's and DEF-E's `trust.validation` (`fixtures/results/retained_precision_prepared_{ordinary,exact}_v1.json`, digest-bound and checked at G0) reads: "independent Rust replay and producer review validate algorithm/custody on exact implementation; Python/TS do not replay private proofs". REQ-005 cites DEF-O `trust`.
+  - These definitions govern retained-precision successors (REQ-001), not `pressure-source-1` receipts. The sentence entered with the F2a D1 retained-precision successor (`5a0461661f`), and the Rust replay in that route is the reader's G5 schedule replay of the native ladder (`core/reporting/result_export/src/retained_precision.rs:2241`, 2464). So this design reads it as not bearing on the source route's producer replay, and it moves nothing.
+  - If the owner reads it as also covering the source replay, A1 would change a reviewed input: a new digest, both readers' G0 tables, `REVIEWED_INPUTS` and D3 (Opus review, round 1).
 
-**Q2. AC-002's reading.**
+**Q2. AC-002's reading (only if A1 is adopted).**
 - **The measured effect.**
-  - J7's classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged.
-  - Its `first_cause.work.charged` is direct-method work and does not move.
+  - J7's classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged. Its `first_cause.work.charged` is direct-method work and does not move.
   - Only the 4 published entries' `envelope_sha256` moves, because their receipts' work moves. `diagnostics_sha256`, `results_sha256` and `summary_sha256` do not move (section 3.2).
+- **The text.** AC-002 reads: "its envelope and diagnostics digests change only as a stated product-text, identity, published-row or work change requires … (owner, 2026-10-20, approving this wording for R-A, Design `source-work-nondyadic-inputs.md` §6)".
 - **Readings.**
-  - (a) This falls within AC-002 as worded since 2026-10-20: "its envelope and diagnostics digests change only as a stated product-text, identity, published-row or work change requires".
-  - (b) A change that removes a check, rather than reducing the work of one, is not a "work change" in that sense, so the wording is amended.
-- **Recommendation:** (a). No amendment is needed: the only moved digests bind changed work, and no charge falls below executed work, since bind-only charges every inspection it makes.
+  - (a) The wording governs, and bind-only's moved digests bind a stated work change.
+  - (b) The approval was given for R-A, a reduction of arithmetic. A change that removes a check needs the owner's confirmation, or an amended wording, before it re-pins J7.
+- **Recommendation:** if A1 is adopted, the owner confirms (a) explicitly for this change. No textual amendment is needed, since no charge falls below executed work: bind-only charges every inspection it makes.
 
 **Q3. Keep producer self-replay regardless?**
 - **Options.**
   - (a) No. A1: the full replay becomes test-side only.
-  - (b) Yes, always. That is A0: no coverage is gained, and the unit closes.
-  - (c) Opportunistically. That is A5: the full replay runs whenever a live-charge reservation remains, so detection is kept on every case that selects today and given up only on the newly covered ones. The cost is a second finalization regime keyed on budget, input-dependent published work, and double the cliffs and tests.
-- **Recommendation:** (a), if Q1 is (a). If the owner wants per-invocation detection kept wherever it is affordable, (c) is the coherent alternative. It keeps today's assurance on today's cases, at the cost of the seam described under A5.
+  - (b) Yes, always. That is A0: no coverage is gained, and the unit closes with this design as its record.
+  - (c) Opportunistically. That is A5: the full replay runs only when a reservation for it remains after bind. Detection is **not** kept on every case selected today (section 5: a 9-case invocation and PEXACT-A r1e-12 Timoshenko lose it), and it is lost on every newly covered case. It needs a reservation design of its own, and brings a second finalization regime keyed on budget.
+- **Recommendation:** (b), consistent with Q0. A5 is not recommended in any case: it keeps detection unevenly, adds a budget-keyed seam, and is undesigned.
 
 **Not reserved** (design choices made here, revisable on review):
-- the 0.4 screen stays as it is at adoption, and its future is decided in the next unit (section 4);
+- if A1 is adopted, the 0.4 screen stays as it is at adoption, and its future is decided in the next unit (section 4);
 - RF-14 is restated, not deleted;
 - the full replay is kept test-side under `exact-operation-count`;
 - `retained_charge`'s dimension checks are kept in bind.
