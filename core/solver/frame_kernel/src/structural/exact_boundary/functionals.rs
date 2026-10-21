@@ -1347,10 +1347,11 @@ mod shortcuts {
             let mut b2 = on;
             let (mut zero, mut window, mut products) = (Vec::new(), Vec::new(), Vec::new());
             if b2 {
-                // The zero-prescription vector and the window's per-DOF counters, n entries
-                // each, read from the prescribed list; then the block scan, one unit per
-                // block DOF. A zero-prescribed DOF is never free, so the scan is a guard.
-                w.charge(n.saturating_mul(2).saturating_add(c.source.prescribed.len()))?;
+                // The zero-prescription vector and the window's two per-DOF counters, n
+                // entries each, and the read of the prescribed list; then the block scan,
+                // one unit per block DOF. A zero-prescribed DOF is never free, so the scan
+                // is a guard.
+                w.charge(n.saturating_mul(3).saturating_add(c.source.prescribed.len()))?;
                 w.charge(c.blocks.iter().map(Vec::len).sum::<usize>())?;
                 zero = vec![false; n];
                 for &(i, v) in &c.source.prescribed {
@@ -1378,6 +1379,7 @@ mod shortcuts {
                 skipped: 0,
             })
         }
+        #[cfg(any(test, feature = "exact-operation-count"))]
         pub(super) fn skipped(&self) -> u32 {
             self.skipped
         }

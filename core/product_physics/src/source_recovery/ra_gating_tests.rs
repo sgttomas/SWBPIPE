@@ -103,5 +103,7 @@ fn source_negated_rows_equal_the_long_evaluation() {
         skipped += gate.b2_skipped();
     }
     eprintln!("R-A gating: {gated} evaluations, {negated} rows by B1, {skipped} terms skipped by B2");
-    assert!(gated >= 80 && negated > 0 && skipped > 0, "the gate must exercise both parts: {gated} {negated} {skipped}");
+    // Exactly the 86 evaluations that reach a plan, so none can drop out of the gate
+    // unnoticed (Opus review, round 1).
+    assert!(gated == 86 && negated > 0 && skipped > 0, "the gate must cover all 86 evaluations and exercise both parts: {gated} {negated} {skipped}");
 }

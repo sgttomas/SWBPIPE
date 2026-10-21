@@ -202,7 +202,7 @@ Together these make about 0.93M [E].
 - **Recognition (dynamic, on s's evaluation).** Every condition must hold:
   1. s's `fixed` is empty: no offset and no contribution from a nonzero prescribed value;
   2. at most one block contributes a nonzero numerator to s. With none, as for an exact-zero row, s and d both end as `constant(empty)`, Ratio{[], [1.0]}, without a `combine` call, and that equals B1's negation of s;
-  3. no coefficient of s is a single term ±1.0.
+  3. no coefficient of s is a single term ±1.0. As built, this reads the coefficients after B2's skip: a coefficient B2 skipped on a zero-prescribed DOF is not formed, and on the long path it meets only `mul` with the empty prescribed value, which returns before `mul`'s unit shortcut, so it cannot reach the asymmetry below (Opus review, round 1).
   
   With (1) and (2), `combine` either is not called or returns the block's Ratio unchanged (`functionals.rs` about 542–549: a zero numerator returns the other operand), so no `mul` in `combine` touches a negated operand. These conditions hold for the Z-hinge rows, which have no offset, zero prescribed values and one block. That includes the exact-zero rows, 16 of the 22 negated rows, which have no contributing block.
 - **Value.** d's Ratio is s's Ratio with its numerator negated termwise; the denominator is shared. That is d's exact value: the −1 factor negates exactly, and the appended zero products contribute exactly zero.
@@ -231,7 +231,7 @@ Together these make about 0.93M [E].
   - **Outside the window** the recipe runs, as today.
   - **Tests.** `b2_window_keeps_every_refusal` places inputs immediately inside and outside each bound (|e| = 150 and 151, 5 and 6 atoms, 64 and 65 products). It also covers the reviewer's rescued-underflow product [k, sign, 0.25, 4] with k = 0x1.1abe4b73fefb7p-1021, which is outside the window and must refuse as today.
 - **Consequence.** Inside the window the recipe could not have refused, so no `Range` outcome can change. A skipped recipe's `Budget` refusal disappears with its work (RF §5.2 (5)). If a later stage then refuses, that cause is exposed instead.
-- **The overhead.** B2's window charges, and B1's recognition charges, are paid whether or not a shortcut then applies (the schedule below). So an evaluation in which neither applies charges more than today's: per evaluation 2n + the prescribed count + the sum of the block orders, and per long row |d.terms|, atoms(P) of each zero-prescribed term and, with B1 active, n + 2 on an i-end row, plus whatever B1 recognition a hinted row spends before it declines; and per attempt the plan's and the replay's hint charges, 2 × the descriptor count each. A case within that margin of the 8,000,000 or 64,000,000 limit can therefore refuse with `Budget` where today it completes. It falls back as REQ-003 (c) states; no limit, check or charging rule moves, and the refusal is `Budget`, never `Range`. The implementation review found this (Codex, the implementation's test slice); it corrects this section's earlier statement that a `Budget` refusal could only disappear. `b2_declined_scans_charge_exactly_their_overhead` pins the overhead on a recipe immediately outside the window.
+- **The overhead.** B2's window charges, and B1's recognition charges, are paid whether or not a shortcut then applies (the schedule below). So an evaluation in which neither applies charges more than today's: per evaluation 3n + the prescribed count + the sum of the block orders, and per long row |d.terms|, atoms(P) of each zero-prescribed term and, with B1 active, n + 2 on an i-end row, plus whatever B1 recognition a hinted row spends before it declines; and per attempt the plan's and the replay's hint charges, 2 × the descriptor count each. A case within that margin of the 8,000,000 or 64,000,000 limit can therefore refuse with `Budget` where today it completes. It falls back as REQ-003 (c) states; no limit, check or charging rule moves, and the refusal is `Budget`, never `Range`. The implementation review found this (Codex, the implementation's test slice); it corrects this section's earlier statement that a `Budget` refusal could only disappear. `b2_declined_scans_charge_exactly_their_overhead` pins the overhead on a recipe immediately outside the window.
 - **Cross-attempt effect.** In a multi-case invocation, a case that newly selects charges the shared invocation ledger. A later case then has less room and could lose its selection, or reach the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` at its publication reservation. RF §5.2 (6) states this cross-attempt exception; it fails closed. The census includes multi-case invocations (5).
 - **Prescribed values that are not zero** keep today's path.
 
@@ -241,7 +241,7 @@ Together these make about 0.93M [E].
 - **The schedule.** Every explicit charge, in order (n is the DOF count; atoms(P) is the number of atoms of the products P plus the number of products):
   - *The plan,* with a hint rule: after `descriptors_charge`, 2 × the descriptor count, for the rule's evaluation and the hints' store, before they are built.
   - *The replay,* with a hint rule: the same 2 × the descriptor count, before its hints are built and before its evaluation.
-  - *At the start of an evaluation,* B2: 2n + the prescribed count (the zero-prescription vector and the window's counters), then the sum of the block orders (a guard: a zero-prescribed DOF is never free). If a zero-prescribed DOF lies in a block, B2 is off for the evaluation; the charges stand.
+  - *At the start of an evaluation,* B2: 3n + the prescribed count (the zero-prescription vector, the window's two per-DOF counters and the read of the prescribed list), then the sum of the block orders (a guard: a zero-prescribed DOF is never free). If a zero-prescribed DOF lies in a block, B2 is off for the evaluation; the charges stand.
   - *For each row, first B1,* when the row is a section row whose hint names an earlier row j:
     - the source key's bytes (`key_bytes`). If the source is not the same case's i-end row of the same member and component, the row takes the long path.
     - Then atoms(s.offset) + atoms(d.offset) + |s.terms| + Σ atoms(s's term products) + |d.terms| + Σ atoms(d's term products). If static condition (1) or (3) fails, the row takes the long path.
@@ -276,23 +276,25 @@ Together these make about 0.93M [E].
   - Both charge before they execute, and every step they add is charged, so RF §5.2's argument stands: executed `Work` arithmetic never exceeds the charged total.
   - The maintained control ("charged ≥ counted", RF §5.4) still runs over the census and its replays.
   - The independent metering oracle (`metered_mul_charges_match_the_independent_oracle`) gains B1's recognition, negation and copy charges and B2's window charge, each derived independently.
-- **Gating test (`source_negated_rows_equal_the_long_evaluation`).**
-  - Over the J7 RF census, the 24 raw source controls, `o4_source_controls`, MJ6/MJ9 and section 5's inputs, every B1-derived Ratio equals the long evaluation's bit for bit.
-  - Every B2 case gives the same values, and the same errors apart from `Budget`.
-  - It runs in the ordinary test build, before and after adoption. Its long evaluation is reached by omitting B1's hints and through B2's test-only entry (section 5, "The long evaluation after adoption").
-  - Its constructed inputs include the reviewer's re-grow witness, a source row with three-atom products, and a Selector-basis member of unit stiffness. Each must take the long path.
-  - **Coverage assertion.** The test also records which rows take B1 and which take B2's skip. On the Z-hinge census inputs it asserts that all 22 negated rows per member, exact-zero rows included, take B1. So a byte-equality pass cannot hide rows that silently fell back to the long path.
-- **Mutants**, each killed by the named test:
+- **Gating tests, as built.** Each compares every row's Ratio from the product evaluation with the long evaluation's (`Response::evaluate_functionals_long`, B1 and B2 off), bit for bit, and records each row's path.
+  - `source_negated_rows_equal_the_long_evaluation` (PP `source_recovery/ra_gating_tests.rs`): the J7 RF census inputs and the J2 corpus's genuine source invocations (the 24 raw source controls and the RF bases), in both modes. Exactly 86 of these evaluations reach a plan, and the test asserts that count, that some rows take B1 and that some terms take B2's skip (3,024 rows and 6,650 terms).
+  - `o4_source_controls_negated_rows_equal_the_long_evaluation` (PP `source_receipt/o4_source_tests.rs`): `o4_source_controls`.
+  - **Coverage assertion,** `ra_gating_zhinge_negated_rows_take_b1` (PP `o4_m3_judging_tests.rs`): on the 24 Z-hinge census inputs, all 22 negated rows per member, exact-zero rows included, take B1. So a byte-equality pass cannot hide rows that silently fell back to the long path.
+  - The constructed inputs are FK unit tests (`functionals/shortcut_tests.rs`): the re-grow witness, a source row with three-atom products, unit stiffness, unit coefficients, near-match rows, nonzero and signed-zero prescriptions and each window bound. Each must take the long path where §3.1 says so, with the long path's bytes or refusal.
+  - **Not row-gated.** The load/reference-state controls (MJ6/MJ9, the only product inputs with nonzero prescribed values) and section 5's multi-case invocations do not reach a plan through the gate's direct method, which builds no load state. They are covered end to end instead: their documents are regenerated by their own writers, and `work_only_envelope_diff` requires each to differ from its pre-R-A bytes only in work counters, the text that embeds them and the hashes binding those (§4). The FK nonzero-prescription test kills B2's nonzero mutant directly. (Opus review, round 1, found the earlier wording wider than the tests.)
+- **Mutants,** as run (Codex's mutant run at `73829f3c24`, the reviews' own, and the repairs' re-runs). Each is killed by the named tests:
 
 | Mutant | Killed by |
 |---|---|
-| B1 negates a row whose products differ in one atom | gating test; `b1_recognition_refuses_near_matches` |
-| B1 reuses the row unnegated | gating test; J7 frozen-row verdicts |
-| B1 accepts an extra term whose product has no zero atom | `b1_recognition_refuses_near_matches` |
-| B1 drops the static atom-count or unit condition, or the dynamic unit check | gating test on the constructed inputs (three-atom row, unit stiffness, the re-grow witness) |
-| B2 skips a recipe on a DOF prescribed at a nonzero value | gating test; `pressure_source_join` load/reference-state controls (prescribed motion) |
-| B2 skips outside the window | `b2_window_keeps_every_refusal`: rescued intermediate underflow (for example [k, sign, 0.25, 4] with k near 2^-1021), low-tail bit loss, addition overflow, zero atoms and unit atoms; each refusal must be unchanged |
-| an uncharged shortcut or recognition | the charged ≥ counted control and the oracle |
+| B1 negates a row whose products differ in one atom: the first, or the last before the appended −1.0 | `b1_recognition_refuses_near_matches`; `b1_refuses_a_difference_in_the_last_atom` |
+| B1 accepts an appended atom other than exactly −1.0 (+1.0, −2.0, ±0.0) | `b1_recognition_refuses_near_matches` |
+| B1 reuses the row unnegated | `b1_negates_valid_rows_and_preserves_zero_sources`; the oracle and the charged ≥ counted control; all three PP gating tests |
+| B1 accepts an extra term whose product has no zero atom, or a non-unit atom before its zero | `b1_recognition_refuses_near_matches` (cases matching every source term); the PP gating tests |
+| B1 drops the static atom-count or unit condition, or a dynamic check (unit coefficient, empty fixed part, at most one contributing block) | `b1_recognition_refuses_near_matches`; the oracle and the control |
+| B1 uses a hint at or after its own row | `b1_recognition_refuses_near_matches`; the oracle and the control |
+| B2 skips a recipe on a DOF prescribed at a nonzero value | `b2_window_keeps_every_refusal`, `b1_recognition_refuses_near_matches`, `all_fixed_and_mixed_partition_include_affine_offsets`; the oracle and the control |
+| B2 skips outside the window (exponent 151, 6 atoms, 65 products, subnormal atoms) | `b2_window_keeps_every_refusal`: rescued intermediate underflow ([k, sign, 0.25, 4] with k = 0x1.1abe4b73fefb7p-1021), low-tail bit loss, addition overflow, zero atoms and unit atoms, each refusal unchanged; the exponent mutant also `b2_declined_scans_charge_exactly_their_overhead` |
+| an uncharged shortcut, recognition, window scan or hint construction | `metered_mul_charges_match_the_independent_oracle` and `metered_operation_count_control_has_no_shortfall`; the window scans also `b2_declined_scans_charge_exactly_their_overhead` |
 
 ### 3.3 Further reductions (second stage; not recommended now)
 

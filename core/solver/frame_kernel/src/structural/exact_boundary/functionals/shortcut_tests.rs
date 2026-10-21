@@ -165,6 +165,22 @@ fn b1_recognition_refuses_near_matches() {
     let mut d = section(&good, 0.0);
     d.terms.push(term(1, vec![vec![2.5, 0.75, -1.0]]));
     cases.push(("extra term without zero", good.clone(), d, Some(0)));
+    // The appended atom must be exactly -1.0 (Opus review, round 1: a recognition
+    // accepting +1.0 survived and gave the source unnegated row negated).
+    for (name, appended) in [
+        ("appended +1.0", 1.0),
+        ("appended -2.0", -2.0),
+        ("appended -0.0", -0.0),
+        ("appended +0.0", 0.0),
+    ] {
+        let mut d = section(&good, 0.0);
+        for t in &mut d.terms {
+            for p in &mut t.products {
+                *p.last_mut().unwrap() = appended;
+            }
+        }
+        cases.push((name, good.clone(), d, Some(0)));
+    }
     for (name, products) in [
         ("three atoms", vec![vec![2.5, 0.75, 0.25]]),
         ("positive unit atom", vec![vec![1.0, 2.5]]),
@@ -574,8 +590,8 @@ fn b2_declined_scans_charge_exactly_their_overhead() {
     // §3.1 ("Consequence"): the window's charges are paid whether or not a
     // recipe is skipped. This recipe is immediately outside the exponent
     // window, so the long path's work still runs, plus exactly the window's
-    // overhead from the as-built schedule: at the start, 2n + |prescribed| +
-    // the sum of block orders = 2 + 1 + 0; for the row, |terms| = 1, then
+    // overhead from the as-built schedule: at the start, 3n + |prescribed| +
+    // the sum of block orders = 3 + 1 + 0; for the row, |terms| = 1, then
     // atoms(P) of the zero-prescribed term = 2 atoms + 1 product.
     let ps = vec![vec![vec![1.25 * 2.0f64.powi(151), 0.75]]];
     let long = b2_run(&ps, 0.0, true, Limits::default().operations, 256);
@@ -583,7 +599,7 @@ fn b2_declined_scans_charge_exactly_their_overhead() {
     assert!(long.result.is_ok(), "{long:?}");
     assert_eq!(fast.result, long.result);
     assert_eq!(fast.paths, vec![vec![RowPath::Long { b2_skipped: 0 }]]);
-    assert_eq!(fast.charged, long.charged + (2 + 1 + 0) + 1 + (2 + 1));
+    assert_eq!(fast.charged, long.charged + (3 + 1 + 0) + 1 + (2 + 1));
     // So a limit between the two totals refuses the shortcut evaluation with
     // `Budget` where the long one completes: the overhead is charged, never
     // assumed away, and the refusal is `Budget`, never `Range`.

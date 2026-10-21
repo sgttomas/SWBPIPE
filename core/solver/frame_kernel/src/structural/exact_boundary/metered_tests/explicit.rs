@@ -404,7 +404,7 @@ fn evaluation(
         }
     }
     e.charges.extend([
-        2 * n + c.source.prescribed.len(),
+        3 * n + c.source.prescribed.len(),
         c.blocks.iter().map(Vec::len).sum(),
     ]);
     let zero = |i| c.source.prescribed.iter().any(|&(j, v)| j == i && v == 0.0);
