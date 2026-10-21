@@ -36,6 +36,9 @@ import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from g3lib import X, B, s, V, A, Xc, Mat, HashReq, HashMov, pushcap, appendcap, total, ASSUMED, j3cap
 from rf_source_model import active as rf_active
+# R-A D3 (§8.13): on R-A's source, register the illustrative s(Option<u32>) its T07 rows use (in-build at G5).
+import ra_owners_model as _ra_model
+_ra_model.active(os.environ.get("RP_SNAPSHOT"))
 
 RF = rf_active(os.environ.get("RP_SNAPSHOT"))
 # O4 S5 D3 (retained-pricing-rules.md §8.9): o4_owners_model binds commitment, stress_operands, derived_for, the case
@@ -164,8 +167,14 @@ rows["T25.1d dense stiffness, loads, application, force, prescribed, free"] = (
     + B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N
     + B(8 * (4 * N + 2 * l) + 8 * pushcap(min(l, N)) + l * ID) + Xc("(usize,f64)", k) + B(8 * pushcap(F)))
 rows["T25.1e replay_against: Sources #2 and prepare_sources locals"] = t07("A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3", "B4", "B5", "B6", "B7")
+# R-A D3 (retained-pricing-rules.md §8.13): the replay evaluation's Shortcuts (T07 F3, absent before R-A) and the
+# replay's own B1 hint vector, which replay_against builds from PP's index rule and holds through that evaluation
+# (RA-HS). The plan's hints (T07 E3) are not repeated: the replay builds no plan.
 rows["T25.1f replay: Context #2, Response #2, values #2, temporaries"] = (
-    t07("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "D1", "D2", "F1", "F2", "G2") + B(2 * 8 * Fn))
+    t07("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "D1", "D2", "F1", "F2", "F3", "G2") + B(2 * 8 * Fn))
+if _ra_model.active(os.environ.get("RP_SNAPSHOT")):
+    rows["T25.1f replay: Context #2, Response #2, values #2, temporaries"] = (
+        rows["T25.1f replay: Context #2, Response #2, values #2, temporaries"] + _ra_model.hints(Fn))
 # (2) check_binding_against: Sources #3 and its locals
 rows["T25.2 check_binding_against: Sources #3"] = t07("A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3", "B4", "B5", "B6", "B7") + B(8 * Fn)
 # (3) rows::bind (rows.rs:562-700)

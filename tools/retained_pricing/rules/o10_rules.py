@@ -840,6 +840,25 @@ if fnkey("hardware", _JR) and fnkey("problem", PP_ + "pressure_runtime.rs"):
         O10 + "U5B-JV: `problem` in `problems.push(problem)` is hardware's match binding `Err(Some(problem))`, a String; "
         "pressure_runtime::problem is a private fn of another module that joint.rs never calls")]
 
+# RA-EDGE (R-A D3, retained-pricing-rules.md §8.13): `publication_predicate(&h, row, scale, meter)` in adaptive.rs
+# `certify_rows` passes the loop's pattern binding `((row, meta), v)`, a published row, not a function; the by-name
+# function-as-value scan picks R-A's row-trace recorder `fn row` in exact_boundary/exact_operation_count.rs, a module
+# exact_boundary.rs declares only under `#[cfg(any(test, feature = "exact-operation-count"))]` (blanked as TEST_ATTR;
+# adaptive.rs never names it). Only that one edge is zeroed; certify_rows' other edges stay.
+_EOC = FK_ + "structural/exact_boundary/exact_operation_count.rs"
+if fnkey("certify_rows", FK_ + "structural/retained/adaptive.rs") and fnkey("row", _EOC):
+    site("certify_rows", FK_ + "structural/retained/adaptive.rs", "publication_predicate(&h, row, scale, meter)")
+    _eb = open(_os.path.join(_SNAP, FK_ + "structural/exact_boundary.rs"), encoding="utf-8").read()
+    if _eb.count("mod exact_operation_count;") != 1 or \
+            "#[cfg(any(test, feature = \"exact-operation-count\"))]\npub mod exact_operation_count;" not in _eb:
+        raise SystemExit("RA-EDGE: exact_operation_count is no longer a test/exact-operation-count module; re-review")
+    if "exact_operation_count" in open(_os.path.join(_SNAP, FK_ + "structural/retained/adaptive.rs"), encoding="utf-8").read():
+        raise SystemExit("RA-EDGE: adaptive.rs names exact_operation_count; re-review")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("certify_rows", FK_ + "structural/retained/adaptive.rs"), fnkey("row", _EOC),
+        O10 + "RA-EDGE: `row` in `publication_predicate(&h, row, scale, meter)` is certify_rows' for-pattern binding "
+        "`((row, meta), v)`; exact_operation_count::row is R-A's row-trace recorder in a test/exact-operation-count "
+        "module that adaptive.rs never names")]
+
 # J3 (test code): source_recovery/j7_rf_census.rs is the J7 RF census, a child module that source_recovery.rs declares only
 # under #[cfg(test)]; the template inventory's name filter does not see it as test code. Its format sites whose arguments
 # have no class (Debug of diagnostic-code vectors, findings and failures; census labels and the expected-file writer) are
