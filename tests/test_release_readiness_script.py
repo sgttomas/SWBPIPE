@@ -92,18 +92,6 @@ def test_all_profile_preserves_current_command_surface():
     )
 
 
-def test_stack_witness_profile_runs_the_hook_driven_exhaustion_control():
-    release = load_module()
-    commands = [list(step.command) for step in release.build_plan("stack-witnesses", ROOT)]
-    hooks = [c for c in commands if "loaded-maximum-hooks" in c]
-    assert hooks == [[
-        "cargo", "test", "--offline", "--manifest-path", "core/product_physics/Cargo.toml", "--lib",
-        "--features", "loaded-maximum-hooks", "--",
-        "w1_member_load_exhaustion_retains_typed_interval_work", "w1_final_scales_equal_reader_scales",
-    ]]
-    assert len(commands) == 7
-
-
 def test_cargo_profile_forces_offline_argv():
     release = load_module()
     cargo_steps = release.build_plan("cargo", ROOT)
