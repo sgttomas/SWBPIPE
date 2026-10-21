@@ -155,7 +155,10 @@ describe("pressure-source thin desktop bridge", () => {
     expect(hasNativeMechanicsInvocation(copy, model)).toBe(false);
     expect(retainedSourceRecoveryInvocation(copy, model)).toBeNull();
     expect(numericalResultStanding(copy, model).findings).toEqual([SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]);
-    for (const surface of OUTPUT_SURFACES) expect(surfaceOutputRefusal(received, model, surface)).toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
+    // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.1): the three opened surfaces
+    // add no policy refusal (their own standing checks decide); every other surface refuses.
+    const opened: readonly string[] = ["result-export", "stress-neutral", "rule-check"];
+    for (const surface of OUTPUT_SURFACES) expect(surfaceOutputRefusal(received, model, surface), surface).toBe(opened.includes(surface) ? null : PRESSURE_SOURCE_OUTPUT_REFUSAL);
   });
 
   it("presents the Rust load/reference-state false-eligibility verdict despite valid native custody", async () => {

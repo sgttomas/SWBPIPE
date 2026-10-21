@@ -10,18 +10,21 @@ import { PRESSURE_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { sourceContract, sourceSemanticBinding } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { readerRowSemantics } from "../results/resultReader";
-import { PRESSURE_2_OUTPUT_REFUSAL } from "../results/outputPolicy";
+import { surfaceOutputRefusal } from "../results/outputPolicy";
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 const canonicalResultMetadata = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).canonical_metadata;
 import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
-import { deriveResultDocument, buildCurrentResultExport, resultDigest, ref, derivativeProvenance } from "./resultExportAdapter";
+import { deriveResultDocument, buildCurrentResultExport, resultDigest, ref, derivativeProvenance, validateResultDocument } from "./resultExportAdapter";
 
 /** B7b: the v3 twin of the retired physics-1 consumer suite. The exact route's ordinary
  * identity is pressure-2 (3.0.0/exact_pressure_v3); the desktop reads it through the Rust
  * reader's own route and records it as Python's builder does (DEL-14-02: the record binds
- * pressure-2's table and embeds no evidence), but offers no output of it: every surface
- * is refused (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE). Actual committed producer bytes;
- * loading them here creates no native invocation or Current proof. */
+ * pressure-2's table and embeds no evidence). Epoch 8 (DEL-04-07 Design
+ * `desktop-exact-outputs.md` §4.2): the result JSON export admits it at the Rust reader's
+ * standing; the Current builder still requires its record, manifest and live native
+ * capture, and the pure projection copies `contract_evidence` whole, as Rust's
+ * `derive_document` does. Actual committed producer bytes; loading them here creates no
+ * native invocation or Current proof. */
 const project = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(project, path), "utf8"));
 const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/results/pressure_connected_mechanics_${mode}.json`);
@@ -117,7 +120,7 @@ describe("actual pressure-2 source consumers (B7b: the v3 twin of physics-1)", (
       expect(() => readerValidate(retired as never, raw()), retired).toThrow(`READER_UNKNOWN: ${retired}`);
     }
   });
-  it.each(["sparse", "dense"])("%s: builds its analysis-run record and still offers no result export or projection", async mode => {
+  it.each(["sparse", "dense"])("%s: builds its analysis-run record; the Current builder still needs its manifest, and the projection copies the evidence (epoch 8, §4.2)", async mode => {
     const source = raw(mode), before = JSON.stringify(source);
     const record = { model_basis: { model_ref: source.model_ref, model_payload: model() }, solver_basis: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:reference-only", solver_mode: "sparse_interactive", settings: {} } };
     const inputManifest = { manifest: record, manifest_ref: { object_type: "InputManifest", ref: "test:reference-only-pressure-analysis" }, manifest_sha256: await resultDigest(record) };
@@ -128,11 +131,24 @@ describe("actual pressure-2 source consumers (B7b: the v3 twin of physics-1)", (
     await validateAnalysisRunV03(JSON.parse(JSON.stringify(analysisRun)), JSON.parse(JSON.stringify(source)), modelLoadBasisRefs(model()));
     const changed = raw(mode); evidence(changed).pressure[0].provenance += ":changed";
     await expect(validateAnalysisRunV03(analysisRun, changed, modelLoadBasisRefs(model()))).rejects.toThrow("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
-    await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun, inputManifest: null })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    // Epoch 8 (§4.2): the surface admits pressure-2 at Rust's standing (no policy refusal),
+    // and the Current builder keeps its refusal of a result without its manifest.
+    expect(surfaceOutputRefusal(source, model(), "result-export")).toBeNull();
+    await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun, inputManifest: null })).rejects.toThrow("CURRENT_INPUT_MANIFEST_UNAVAILABLE");
     const origin = { origin_id: "test:received-source", origin_class: "received_current_dimension_absent", qualification_ref: ref("test_fixture", "unattested-source-consumer-projection"), authentic_producer_available: false,
       received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: ref("received_current_carrier", source.run_id), value: await resultDigest(source) }, original_producer_checksum: null,
       origin_limit: "Consumer projection only; no native producer or Current qualification", actual_model_ref: ref("model_payload", source.model_ref), mechanics_run_ref: ref("mechanics_run", source.run_id), request_model_ref: null, request_run_ref: null, request_alias_disclosure: null };
-    await expect(deriveResultDocument({ schema_version: "0.2.0", result_envelope: { schema_version: "0.2.0", envelope_id: "test:pressure-projection", run_ref: ref("analysis_run", source.run_id), provenance: derivativeProvenance, unit_system_ref: ref("unit_system", "test:units"), result_sets: [{ values: [] }], reproducibility: {} } }, model(), source, origin)).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    // The pure projection derives the 0.3 document through the full pressure-2 reader, with
+    // contract_evidence copied whole, no receipt, and pressure-2's contract reference.
+    const doc = await deriveResultDocument({ schema_version: "0.2.0", result_envelope: { schema_version: "0.2.0", envelope_id: "test:pressure-projection", run_ref: ref("analysis_run", source.run_id), provenance: derivativeProvenance, unit_system_ref: ref("unit_system", "test:units"), result_sets: [{ values: [] }], reproducibility: {} } }, model(), source, origin);
+    expect(doc.schema_version).toBe("0.3.0");
+    expect(doc.result_envelope.contract_evidence).toStrictEqual(source.contract_evidence);
+    expect(Object.hasOwn(doc.result_envelope, "source_block_recovery")).toBe(false);
+    expect(doc.result_envelope.semantic_contract_ref).toStrictEqual(ref("semantic_contract", PRESSURE_CONTRACT_ID));
+    expect(doc.result_envelope.row_accounting).toHaveLength(source.results.length);
+    await expect(validateResultDocument(JSON.parse(JSON.stringify(doc)), source)).resolves.toBeUndefined();
+    // The validator binds the copy to its source: a changed source no longer validates it.
+    await expect(validateResultDocument(doc, changed)).rejects.toThrow("SOURCE_PHYSICAL_METADATA_MISMATCH");
     expect(JSON.stringify(source)).toBe(before);
   });
 });

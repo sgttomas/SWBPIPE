@@ -28,15 +28,21 @@ describe("frozen T0R texts (S1 §10), verbatim", () => {
 });
 
 describe("static fresh-identity set and standing reasons", () => {
-  it("admits only preview-physics-2 and U6's preview-physics-retained-1 (D-U6-6); B7b retired the v2 identities", () => {
+  it("equals Rust's FRESH_IDENTITIES: preview-physics-2, pressure-2, pressure-source-1 and U6's preview-physics-retained-1 (epoch 8); B7b retired the v2 identities", () => {
+    // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.1): the desktop's set equals
+    // Rust's `FRESH_IDENTITIES` (`semantic_contract.rs`), one static set in every language.
     expect([...FRESH_SEMANTIC_CONTRACT_IDS].sort()).toEqual([
+      "openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1",
       "openpipestress.result_semantics/0.3.0/preview-physics-2", "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"]);
+    expect(new Set(FRESH_SEMANTIC_CONTRACT_IDS).size).toBe(FRESH_SEMANTIC_CONTRACT_IDS.length);
     expect(isFreshSemanticResult(clone(connectedSparse))).toBe(true);
-    // pressure-2 and pressure-source-1 are read (their own routes) but never desktop-fresh: every output of theirs is refused.
+    // pressure-2 and pressure-source-1 are fresh: membership is not standing, which stays
+    // Rust's; each output surface applies its own policy entry and standing.
     expect(sourceContract(clone(pressureSparse))).toBe("pressure");
-    expect(isFreshSemanticResult(clone(pressureSparse))).toBe(false);
+    expect(isFreshSemanticResult(clone(pressureSparse))).toBe(true);
     expect(sourceContract(clone(pressureSourceMixed))).toBe("pressure_source");
-    expect(isFreshSemanticResult(clone(pressureSourceMixed))).toBe(false);
+    expect(isFreshSemanticResult(clone(pressureSourceMixed))).toBe(true);
+    expect(numericalResultStanding(clone(pressureSourceMixed), { load_cases: [] }).eligible).toBe(false);
     // B7b: a stored statement naming a retired v2 identity is refused by name: unsupported, never fresh.
     for (const [identity, sample] of [["physics-1", pressureSparse], ["physics-source-1", pressureSourceMixed], ["load-reference-1", pressureSparse], ["load-reference-source-1", pressureSourceMixed]] as const) {
       const retired = clone(sample);

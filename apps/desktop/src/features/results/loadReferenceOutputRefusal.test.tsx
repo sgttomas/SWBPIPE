@@ -1,10 +1,16 @@
-/** Every desktop output of a load/reference-state result is refused with its route's
- * one shared reason, the report package included. B7b: such a result is published
+/** Desktop outputs of load/reference-state results. B7b: such a result is published
  * under pressure-2 (ordinary) or pressure-source-1 (joined), the v3 twins of the
- * retired load-reference-1 and load-reference-source-1, so the reasons are
- * PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE's two texts. Display stays. A preview-physics-2
- * result is the control: its outputs are unchanged. Unit rendering over committed
- * producer bytes and records; all inputs are invented. */
+ * retired load-reference-1 and load-reference-source-1. Epoch 8 (DEL-04-07 Design
+ * `desktop-exact-outputs.md` §5.1-5.4, §6.1; owner ruling 11B, 2026-10-21: "A accept your
+ * recommendations for the entire set.") ends T1's deferral for them: they follow the Rust
+ * reader. The result JSON export, the stress-neutral export and the rule check add no
+ * policy refusal and take Rust's standing, so the committed pressure-2 results pass and
+ * every pressure-source-1 one (LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1) and
+ * the pressure-2 fallback (NUMERICAL_INTEGRITY_NOT_QUALIFIED) are declined there by
+ * standing. Every other gated surface refuses with PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE's
+ * reworded texts, and the report package with its fresh-result refusal. Display stays. A
+ * preview-physics-2 result is the control: its outputs are unchanged. Unit rendering over
+ * committed producer bytes and records; all inputs are invented. */
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
@@ -15,9 +21,13 @@ import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from 
 import { computeModelHash } from "../../services/hashService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
-import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
+import { surfaceOutputRefusal, surfaceRouteRefusal } from "./outputPolicy";
+import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED, numericalResultStanding, registerSourceRecovery } from "./resultStanding";
+import { N_LOAD_REFERENCE_RULE_CHECK, loadReferenceDisclosure } from "./loadReferenceDisclosure";
+import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
+import { buildReportPackageRequest, reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
-import { buildCurrentResultExport, deriveResultDocument, resultDigest, validateResultDocument } from "../result-export/resultExportAdapter";
+import { buildCurrentResultExport } from "../result-export/resultExportAdapter";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
 import { PcfExportPanel } from "../pcf-export/PcfExportPanel";
 import { CaepipeMbfExportPanel } from "../caepipe-mbf/CaepipeMbfExportPanel";
@@ -71,11 +81,26 @@ async function scenario(rawPath: string, modelPath: string, recordPath?: string)
   };
   return { result, model, analysisRun, props };
 }
-const ordinary = () => scenario("fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json", "fixtures/product_preview/pressure/load_reference/pressure.request.json", "fixtures/results/pressure_load_state_pressure_sparse.analysis_run.json");
-const joined = () => scenario("fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json", "fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
+const PRESSURE_LR = "fixtures/product_preview/pressure/load_reference";
+const SOURCE_LR = "fixtures/product_preview/pressure_source/load_reference_source";
+const FALLBACK = "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz";
+const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
+const short = (mode: string) => mode === "sparse_interactive" ? "sparse" : "dense";
+/** A committed pressure-2 load/reference-state result with Python's product-path record. */
+const pressureState = (name: string, mode: string) => scenario(`${PRESSURE_LR}/${name}-${mode}.raw.json`, `${PRESSURE_LR}/${name}.request.json`, `fixtures/results/pressure_load_state_${name}_${short(mode)}.analysis_run.json`);
+/** A committed pressure-source-1 load/reference-state result; the desktop builds its record. */
+const sourceState = (name: string, mode: string) => scenario(`${SOURCE_LR}/${name}-${mode}.raw.json`, `${SOURCE_LR}/${name}.request.json`);
+const ordinary = () => pressureState("pressure", "sparse_interactive");
+const joined = () => sourceState("mixed", "sparse_interactive");
 const preview = () => scenario("fixtures/results/preview_physics_connected_sparse.json", "fixtures/model_operations/precision_connected_ui_model.json");
-/** The two load/reference-state identities and each one's reason. */
+/** The two load/reference-state identities and each one's reason on an unopened surface. */
 const STATES = [["pressure-2", ordinary, PRESSURE_2_OUTPUT_REFUSAL], ["pressure-source-1", joined, PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const;
+/** Every committed load/reference-state raw, by identity. */
+const PRESSURE_RAWS = ["connected", "pressure"].flatMap(name => MODES.map(mode => [`${name}-${mode}`, name, mode] as const));
+const SOURCE_RAWS = ["n05", "n06", "fields", "mixed", "eigen_motion"].flatMap(name => MODES.map(mode => [`${name}-${mode}`, name, mode] as const));
+/** The three surfaces the owner opened (ruling 10A). */
+const OPENED = ["result-export", "stress-neutral", "rule-check"] as const;
+const REPORT_PACKAGE_REFUSAL = `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
 
 /** Surfaces whose downloads or handoffs carry result data (group a). */
 const GATED: [string, ComponentType<Json>, string][] = [
@@ -100,30 +125,63 @@ const GATED: [string, ComponentType<Json>, string][] = [
 ];
 
 describe("the shared refusal", () => {
-  it("names the desktop route only, states the current refusal and never calls the result invalid or unsupported", async () => {
+  it("names the desktop route only, states the reworded refusal and never calls the result invalid or unsupported", async () => {
     for (const [, make, reason] of STATES) {
-      expect(reason).toContain("is not yet available on the desktop");
+      // §5.3: the code is kept; the text names the opened surfaces instead of refusing every output.
+      expect(reason.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: This output of ")).toBe(true);
+      expect(reason).toContain("is not available on the desktop; only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result.");
+      expect(reason).toContain("The result remains readable here; this is not a finding about the result.");
       expect(reason).not.toMatch(/\bT[0-9]/);
       expect(reason.toLowerCase()).not.toMatch(/invalid|unsupported/);
       const { result } = await make();
       expect(Array.isArray((result.contract_evidence as Json).load_reference_states)).toBe(true);
+      // The route's shared reason, for its remaining direct caller (the rendered report).
       expect(loadReferenceOutputRefusal(result)).toBe(reason);
     }
     expect(loadReferenceOutputRefusal((await preview()).result)).toBeNull();
   });
 });
 
-describe.each(GATED)("%s", (_label, Panel, prefix) => {
-  it.each(STATES)("refuses %s output with the shared reason and keeps its display", async (_id, make, reason) => {
+/** Epoch 8 (§5.2): the gate reads its surface's own decision. The rule-check
+ * completeness panel admits the exact routes; the other seventeen gated surfaces (the
+ * fifteen interop and handoff surfaces, the report and the rendered report) still refuse. */
+describe.each(GATED.filter(([, , prefix]) => prefix !== "rule-check"))("%s", (_label, Panel, prefix) => {
+  it.each(STATES)("refuses %s output with the reworded reason and keeps its display", async (_id, make, reason) => {
     const { props } = await make();
     render(<Panel {...props} />);
-    expect(screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent).toBe(reason);
+    const shown = screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent;
+    expect(shown).toBe(reason);
+    expect(shown!.toLowerCase()).not.toMatch(/invalid|unsupported/);
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
+    expect(document.querySelector("[data-testid$='-load-reference-disclosure']")).toBeNull();
   });
   it("leaves a preview-physics-2 result's outputs unchanged", async () => {
     const { props } = await preview();
     render(<Panel {...props} />);
     expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();
+  });
+});
+
+describe("Rule-check completeness (an opened surface, §4.4)", () => {
+  it.each(STATES)("admits %s at the gate and keeps its display", async (_id, make) => {
+    const { props } = await make();
+    render(<RuleCheckPanel {...props} />);
+    expect(screen.queryByTestId("rule-check-load-reference-output-unavailable")).toBeNull();
+    expect(screen.getByTestId("rule-check-export-link")).toBeTruthy();
+    expect(screen.getByTestId("rule-check-summary")).toBeTruthy();
+  });
+  it("shows the §5.4 disclosure line for a pressure-2 load/reference-state result (the panel receives only the Current result)", async () => {
+    const { props, result } = await ordinary();
+    render(<RuleCheckPanel {...props} />);
+    const line = screen.getByTestId("rule-check-load-reference-disclosure").textContent;
+    expect(line).toBe(loadReferenceDisclosure(result, "rule-check"));
+    expect(line).toBe(N_LOAD_REFERENCE_RULE_CHECK.replace("{configurations}", "reference:installed").replace("{cases}", "case:cold-pressure, case:hot-pressure").replace("{histories}", "independent_equilibrium"));
+  });
+  it("leaves a preview-physics-2 result's outputs unchanged, with no disclosure line", async () => {
+    const { props } = await preview();
+    render(<RuleCheckPanel {...props} />);
+    expect(screen.queryByTestId("rule-check-load-reference-output-unavailable")).toBeNull();
+    expect(screen.queryByTestId("rule-check-load-reference-disclosure")).toBeNull();
   });
 });
 
@@ -198,27 +256,81 @@ describe("identifier-only downloads are not gated and carry no result values", (
   });
 });
 
-describe("stress-neutral and result export keep their own refusal points", () => {
-  it.each(STATES)("%s: packet build, packet validation and panel all refuse", async (_id, make, reason) => {
-    const { model, result, analysisRun } = await make();
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(reason);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(reason);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0", producer: result.producer, numerical_quality: result.numerical_quality, formulation_basis: result.formulation_basis, contract_evidence: result.contract_evidence, ...(result.source_block_recovery ? { source_block_recovery: result.source_block_recovery } : {}), export_profile: {} })).rejects.toThrow(reason);
-    render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />);
-    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(reason);
-    cleanup();
-    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow(reason);
-    await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(reason);
-    // T1_WAVE2_REVIEW F3: a hash-consistent origin passes every earlier gate, so
-    // deriveResultDocument reaches its own route refusal.
-    expect(model.project.id).toBe(result.model_ref);
-    const origin = { origin_id: "source-origin:invented", received_carrier_checksum: { value: await resultDigest(result) }, authentic_producer_available: true, original_producer_checksum: null };
-    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(reason);
-    render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={null} />);
-    expect(await screen.findByText(reason, { exact: false })).toBeTruthy();
+/** §5.1, §6.1: on the opened surfaces the policy adds no refusal; each surface's own
+ * standing check takes the Rust reader's verdict. */
+describe("the opened surfaces follow the reader's standing", () => {
+  it.each(PRESSURE_RAWS)("pressure-2 %s: passes every opened surface's policy and standing check; the stress-neutral package builds and validates", async (_id, name, mode) => {
+    const { model, result, analysisRun } = await pressureState(name, mode);
+    for (const surface of OPENED) {
+      expect(surfaceRouteRefusal(result, surface)).toBeNull();
+      expect(surfaceOutputRefusal(result, model, surface)).toBeNull();
+    }
+    // The standing every opened surface reads (the builders' and the rule-check run's).
+    expect(numericalResultStanding(result, model)).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
+    expect(isFreshSemanticResult(result)).toBe(true);
+    // Result export: the Current builder passes its policy, standing and fresh-membership
+    // checks and stops only at the Current binding this unit test does not supply.
+    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow("CURRENT_INPUT_MANIFEST_UNAVAILABLE");
+    // Stress-neutral: the pure projection builds over Python's record and validates against its source.
+    const packet = await buildStressNeutralExportPacket({ model, result, analysisRun });
+    expect(packet.contract_evidence).toStrictEqual(result.contract_evidence);
+    expect(Object.hasOwn(packet, "source_block_recovery")).toBe(false);
+    await validateStressNeutralExportPacket(JSON.parse(JSON.stringify(packet)), result, analysisRun, modelLoadBasisRefs(model));
   });
-  it.each(STATES)("the report package refuses %s with its route's reason (B7b)", async (_id, make, reason) => {
-    expect(reportPackageUnavailableReason((await make()).result)).toBe(reason);
+  it.each(SOURCE_RAWS)("pressure-source-1 %s: the policy adds no refusal; standing declines it with Rust's finding, and both builders refuse by their standing code", async (_id, name, mode) => {
+    const { model, result, analysisRun } = await sourceState(name, mode);
+    for (const surface of OPENED) {
+      expect(surfaceRouteRefusal(result, surface)).toBeNull();
+      expect(surfaceOutputRefusal(result, model, surface)).toBeNull();
+    }
+    const builders = async () => {
+      await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
+      await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+    };
+    // Unregistered (a received copy, no captured invocation).
+    const unregistered = numericalResultStanding(result, model);
+    expect(unregistered).toMatchObject({ contract: "pressure_source", status: "needs_recompute", eligible: false });
+    expect(unregistered.findings).toContain(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED);
+    await builders();
+    // Registered with its captured invocation: still never eligible, by Rust's own finding.
+    await registerSourceRecovery(result, { request: json(`${SOURCE_LR}/${name}.request.json`), solver_mode: mode });
+    const registered = numericalResultStanding(result, json(`${SOURCE_LR}/${name}.request.json`).model);
+    expect(registered).toMatchObject({ contract: "pressure_source", status: "needs_recompute", eligible: false });
+    expect(registered.findings).toContain(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE);
+    await builders();
+  });
+  it.each(MODES)("the pressure-2 fallback (%s): the policy adds no refusal; standing declines it, and both builders refuse by their standing code", async (mode) => {
+    const { model, result, analysisRun } = await scenario(`${FALLBACK}-${mode}.raw.json`, `${FALLBACK}.request.json`);
+    expect(Array.isArray((result.contract_evidence as Json).load_reference_states)).toBe(true);
+    for (const surface of OPENED) expect(surfaceOutputRefusal(result, model, surface)).toBeNull();
+    const standing = numericalResultStanding(result, model);
+    expect(standing).toMatchObject({ contract: "pressure", status: "needs_recompute", eligible: false });
+    expect(standing.findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
+    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+  });
+  it.each(STATES)("%s: the export panels add no policy refusal, and offer nothing without the live capture", async (_id, make, reason) => {
+    // A received copy is never Current (no live native capture); the panels show their
+    // empty state, never the policy's refusal, and no disclosure line.
+    const { model, result, analysisRun } = await make();
+    render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />);
+    expect(screen.queryByTestId("stress-neutral-load-reference-output-unavailable")).toBeNull();
+    expect(screen.getByTestId("stress-neutral-empty")).toBeTruthy();
+    expect(screen.queryByTestId("stress-neutral-load-reference-disclosure")).toBeNull();
+    expect(document.querySelectorAll("a[download]")).toHaveLength(0);
+    cleanup();
+    render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={null} />);
+    expect(await screen.findByTestId("result-export-empty")).toBeTruthy();
+    expect(document.body.textContent).not.toContain(reason);
+    expect(screen.queryByTestId("result-export-load-reference-disclosure")).toBeNull();
+    expect(document.querySelectorAll("a[download]")).toHaveLength(0);
+  });
+  it.each(STATES)("the report package refuses %s with its fresh-result refusal (§4.5)", async (_id, make, reason) => {
+    const { model, result, analysisRun } = await make();
+    expect(reportPackageUnavailableReason(result)).toBe(REPORT_PACKAGE_REFUSAL);
+    expect(reportPackageUnavailableReason(result)).not.toBe(reason);
+    expect(surfaceRouteRefusal(result, "report-package")).toBe(reason); // the policy entry records the decision
+    await expect(buildReportPackageRequest({ model, result, analysisRun } as never)).rejects.toThrow(REPORT_PACKAGE_REFUSAL);
   });
 });
 

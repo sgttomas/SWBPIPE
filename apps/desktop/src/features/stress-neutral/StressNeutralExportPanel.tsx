@@ -876,7 +876,13 @@ function semanticTablePath(source: MechanicsResult): string {
 async function validateNeutralTransportEvidence(header: MechanicsResult, source?: MechanicsResult): Promise<void> {
   const route = sourceContract(header);
   if (route === "preview_physics") readerTransport("preview-physics", header);
-  else if (route === "pressure_source") readerTransport("pressure-source", header);
+  else if (route === "pressure_source") {
+    readerTransport("pressure-source", header);
+    // Design §3: a supplied pressure-source-1 source is read through the full raw reader
+    // (no invocation), as Rust's derivative and Python's record builder read it; the
+    // shallow source-recovery check omits raw-row validation.
+    if (source !== undefined) readerValidate("pressure-source", source);
+  }
   // Epoch 8 (design §3, §4.3): pressure-2 has no transport reader, so its package is read
   // through its supplied source, as Python reads it; the source bindings above tie every
   // copied member to it. Without a source, Rust refuses by name

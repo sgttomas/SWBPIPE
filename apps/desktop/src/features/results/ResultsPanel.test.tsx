@@ -64,8 +64,9 @@ it('details a preview-physics-2 combination row with its recovery basis and ever
 
 // T4-U6 (D-5, design section 2.2): an exact-contract result carries one stress headline per
 // section basis and a null max_open_formula_stress. The session results view shows both,
-// labelled by basis, and never picks a governing one; it is a view, so every output
-// surface still refuses the identity. The committed pressure-2 envelope is the producer's
+// labelled by basis, and never picks a governing one. It is a view: since epoch 8 the
+// identity's outputs are the three opened surfaces' (DEL-04-07 Design
+// `desktop-exact-outputs.md` §5.1), and every other surface refuses it. The committed pressure-2 envelope is the producer's
 // D-5 output (coincident bases); the reduced headline's value is changed here (an invented
 // value) so the two shown headlines differ.
 it('shows both per-basis stress headlines of an exact result, labelled by basis, and chooses no governing basis',()=>{
@@ -90,7 +91,7 @@ it('shows both per-basis stress headlines of an exact result, labelled by basis,
  expect(block.textContent).toContain('no governing basis is chosen');
  expect(block.textContent).not.toMatch(/\bgoverning (basis|headline):/i);
  expect(JSON.stringify(result)).toBe(before);
- for(const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(result,surface)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
+ for(const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(result,surface)).toBe(['result-export','stress-neutral','rule-check'].includes(surface)?null:PRESSURE_2_OUTPUT_REFUSAL);
  cleanup();
  // A basis whose coverage is incomplete is shown withheld; the other keeps its headline.
  result.summary.max_open_formula_stress_reduced_section=null;

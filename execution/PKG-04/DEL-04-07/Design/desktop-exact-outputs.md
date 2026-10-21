@@ -570,3 +570,22 @@ Changes are confined to:
 - the §6.2 twins and the writer extensions that produce them;
 - the comments listed in §5.3;
 - the reconciliation text of §7 and the owner-confirmed text of §8.
+
+## 11. As built
+
+On main through #{PR}. The owner confirmed the §8 text on 2026-10-21 ("14 confirm, 15A, 16 start now."), and the implementation applies it verbatim. Departures from the text above, all within it:
+
+- **The disclosure module.** `features/results/loadReferenceDisclosure.tsx` holds both the line builder and its component. The rule-check run panel's line uses the test id prefix `rule-check-run`, so it is distinct from the completeness panel's. The completeness panel shows its line only when the gate admits the result and Rust's standing is eligible; it does not rely on receiving only the Current result.
+- **The stress-neutral validator.** For `pressure_source`, the validator runs the transport reader on the header and, when a source is supplied, the full raw reader on that source, as §3 requires; §4.3 named only the transport arm. A coherently resealed source that the full reader refuses is therefore refused at the validator too.
+- **The run route.** `RuleCheckRunRoute`'s `loadReferenceDisclosure` member is optional in the type, so that existing mocks of the route still type-check. The service always sets it.
+- **The plain twins (§6.2).**
+  - Python packages and records: `fixtures/results/pressure_plain_connected_{sparse,dense}.{stress_neutral,analysis_run}.json` and `pressure_source_plain_n05_{sparse,dense}.{stress_neutral,analysis_run}.json`, written by `tests/test_stress_neutral_physics_source.py`.
+  - Rust documents: `pressure_plain_connected_{sparse,dense}.document.json` from `core/runner/headless/tests/pressure_export.rs`, and `pressure_source_plain_n05_{sparse,dense}.document.json` from `core/runner/headless/tests/physics_source_connected.rs`.
+  - Each headless writer solves the request itself. Its raw is value-equal to the committed raw, with the same canonical digest; only the JSON encoding differs. Each writer asserts that equality and validates its document against the committed raw, so the desktop comparison reads the committed raw.
+
+**Observations, not changed here.**
+
+- **`load_basis_refs`.** The desktop document's `load_basis_refs` take the record's `object_type` (`LoadCase`) as `ref_type` (`resultExportAdapter.ts`, `currentResultDocumentBase`), where Rust's derivative writes `load_case`. This is older than epoch 8, and is shared with preview-physics-2, whose bytes stay unchanged (§10). Both forms pass the schema. It belongs to DEL-08-04.
+- **CSV number text.** The desktop stress-neutral CSV writes some small numbers in JavaScript's number text where Python writes `repr` (for example `1e-8` against `1e-08`). The binary64 values are equal. The writer is older than epoch 8. It belongs to DEL-17-06.
+- **The `eigen_motion` receipt.** The committed pressure-source-1 `eigen_motion` receipt binds an invocation whose request carries no `materials` member, so a desktop solve of it never registers. It is never eligible either way.
+- **An unreachable arm.** The rule-check run's policy refusal cannot be reached for the exact routes, because their `rule-check` cell is `admitted`. It stays as a fail-closed guard.

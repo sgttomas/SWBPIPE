@@ -1,5 +1,7 @@
 import { describe, expect, it, afterEach, vi } from "vitest";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
@@ -12,10 +14,11 @@ import inventedPreviewModel from "../../../../../fixtures/product_preview/invent
 import { analysisRecordProjection, buildAnalysisRunV03, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {readerRowSemantics, sourceContract} from "../results/resultReader";
-import { PRESSURE_2_OUTPUT_REFUSAL } from "../results/outputPolicy";
+import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/outputPolicy";
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
-import { assembleReportPackageRequestBelowAvailabilityGate, buildReportPackageRequest, projectReceivedReportResults } from "./reportPackageRequest";
-import { N_REPORT } from "../results/knownSemanticLimitations";
+import { assembleReportPackageRequestBelowAvailabilityGate, buildReportPackageRequest, projectReceivedReportResults, reportPackageUnavailableReason } from "./reportPackageRequest";
+import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
+import { numericalResultStanding } from "../results/resultStanding";
 import { buildRenderableReportInput } from "./renderableReportInput";
 import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
@@ -500,18 +503,53 @@ it("refuses an imported or cloned source even when its manifest and analysis has
   expect(JSON.stringify(clone)).toBe(before);
 });
 
-it("keeps a genuine exact-route source (pressure-2) inspectable while withholding this report transport by its output reason", async () => {
+it("keeps a genuine exact-route source (pressure-2) inspectable while withholding this report transport as a fresh result (epoch 8)", async () => {
   // B7b: the exact route's ordinary identity is pressure-2, the v3 twin of the retired
-  // physics-1. The gate refuses it by its output reason before reading any record.
+  // physics-1. Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.5): it is fresh, so
+  // the gate refuses it as every fresh identity, before reading any record.
   const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "pressure" }).invoke);
   const result = await runPreviewMechanics(model);
   expect(sourceContract(result)).toBe("pressure");
+  expect(numericalResultStanding(result, model).eligible).toBe(true);
   const before = JSON.stringify(result);
   await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    .rejects.toThrow(new Error(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`));
+  expect(reportPackageUnavailableReason(result)).not.toBe(PRESSURE_2_OUTPUT_REFUSAL);
   expect(JSON.stringify(result)).toBe(before);
+});
+
+it("withholds this report transport from an eligible registered pressure-source-1 source as a fresh result (epoch 8)", async () => {
+  const root = resolve(__dirname, "../../../../../");
+  const folder = "fixtures/product_preview/pressure_source/physics_source";
+  const model = JSON.parse(readFileSync(resolve(root, `${folder}/n05.request.json`), "utf8")).model as PreviewModel;
+  const bytes = readFileSync(resolve(root, `${folder}/n05-sparse_interactive.raw.json`), "utf8");
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(createSolveJobTransport((sent) => {
+    expect(sent.model).toEqual(model);
+    return bytes;
+  }).invoke);
+  const result = await runPreviewMechanics(model);
+  expect(sourceContract(result)).toBe("pressure_source");
+  expect(numericalResultStanding(result, model).eligible).toBe(true);
+  const before = JSON.stringify(result);
+  await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    .rejects.toThrow(new Error(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`));
+  expect(reportPackageUnavailableReason(result)).not.toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
+  expect(JSON.stringify(result)).toBe(before);
+});
+
+it.each([
+  "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
+  "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json",
+  "fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json",
+  "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
+  "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+])("refuses the load/reference-state result %s with the fresh-result reason, whatever its standing (epoch 8)", path => {
+  const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../", path), "utf8")) as MechanicsResult;
+  expect(["pressure", "pressure_source"]).toContain(sourceContract(result));
+  expect(reportPackageUnavailableReason(result)).toBe(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`);
 });
 
 it("refuses a registered preview session with the frozen T0R reason (report outage until T6)", async () => {

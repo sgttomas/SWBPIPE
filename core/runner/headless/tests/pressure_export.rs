@@ -131,3 +131,44 @@ fn pressure_1_documents_export_in_both_modes() {
     // T4-U4b: the arc corpus's directional-SIF case adds one document per mode.
     assert_eq!(exported, 18);
 }
+
+/// Epoch 8 (DEL-04-07 Design desktop-exact-outputs, section 6.2): the plain
+/// pressure-2 result-export twins, the desktop's equal-input oracle for an
+/// eligible plain result. The connected exact request solves through this
+/// export chain to the committed raw `pressure_connected_mechanics_<mode>.json`
+/// (equal JSON values and canonical digests; the files' key order and
+/// whitespace differ), and the document is derived from that source. The
+/// committed `pressure_plain_connected_<mode>.document.json` is checked byte
+/// for byte, and rewritten only with `HEADLESS_PLAIN_TWIN_WRITE_FIXTURES=1`.
+#[test]
+fn exact_pressure_connected_plain_document_twins_in_both_modes() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let read = |relative: &str| -> Value {
+        serde_json::from_slice(&std::fs::read(root.join(relative)).unwrap()).unwrap()
+    };
+    let payload = read("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
+    for (short, mode) in [("sparse", PreviewSolverMode::SparseInteractive), ("dense", PreviewSolverMode::DenseScrutiny)] {
+        let output = run_preview_model_value_with_mode(request(&payload["model"]), payload.clone(), mode).unwrap();
+        let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+        let committed = read(&format!("fixtures/results/pressure_connected_mechanics_{short}.json"));
+        assert_eq!(raw, committed, "{short}: the actual producer output is the committed raw");
+        assert_eq!(derivative::digest(&raw).unwrap(), derivative::digest(&committed).unwrap(), "{short}");
+        assert_eq!(raw["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{short}");
+        assert!(raw["contract_evidence"].get("load_reference_states").is_none(), "{short}: a plain result");
+        let document = output
+            .result_envelope_document
+            .as_ref()
+            .unwrap_or_else(|| panic!("{short}: {:?}", output.canonical_export_unavailability));
+        derivative::validate_document(document, &committed).unwrap_or_else(|e| panic!("{short}: {e}"));
+        assert_eq!(document["result_envelope"]["contract_evidence"], committed["contract_evidence"], "{short}");
+        // Compact bytes plus a newline, as the load/reference-state document twins are written.
+        let text = serde_json::to_string(document).unwrap() + "\n";
+        let path = root.join(format!("fixtures/results/pressure_plain_connected_{short}.document.json"));
+        if std::env::var("HEADLESS_PLAIN_TWIN_WRITE_FIXTURES").as_deref() == Ok("1") {
+            std::fs::write(&path, &text).unwrap();
+        }
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), text, "{short}: document twin bytes");
+        let reread: Value = serde_json::from_str(&text).unwrap();
+        derivative::validate_document(&reread, &committed).unwrap();
+    }
+}

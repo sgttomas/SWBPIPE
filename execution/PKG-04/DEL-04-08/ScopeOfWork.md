@@ -66,7 +66,7 @@ These deliverables keep their scope. The code paths in `deliverable.yaml` indica
 - **Retained-source recovery.**
   - It runs in solves that go through the captured dispatch: the value entry `run_linear_static_preview_value_with_mode`, used by the desktop's native solve and `openpipestress-runner`, and the ordinary route of the retained Direct and Headless entries.
   - The typed entry (`run_linear_static_preview_with_mode`, used by `headless_preview_runner`) has no captured invocation and never attempts it.
-  - The Python AnalysisRun record and the stress-neutral export accept its results. The desktop shows them but offers no output for them (REQ-006 (c)).
+  - The Python AnalysisRun record and the stress-neutral export accept its results. On the desktop an eligible result can be Current, and its result JSON and stress-neutral exports and rule check admit it; a `pressure-source-1` result carrying load/reference states is never eligible (REQ-006 (c)).
 - **Retained-precision successors.**
   - They are produced only through the Direct entry, in a registered build.
   - No product caller uses that entry. The desktop solve uses the non-retained entry, because activation (B8) is owner-held. The headless retained entry refuses at D1.0, and the CLI solves on the ordinary route.
@@ -215,8 +215,8 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **REQ-006** — These domains are declined and stated as limits. Each publishes its ordinary results.
   - **(a)** [retired by O4, #1468]
   - **(b)** [retired by the W1 coverage repair, #1484]
-  - **(c) No desktop outputs for the current exact identity.**
-    - Exact-route results (`pressure-2`, `pressure-source-1`) solve and can be viewed on the desktop with the Rust reader's standing, but every desktop output surface refuses them (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`). The Python AnalysisRun record and the stress-neutral export accept them.
+  - **(c) Desktop outputs for the current exact identity.**
+    - An exact-route result (`pressure-2`, `pressure-source-1`) is Current on the desktop only at the Rust reader's numerically eligible standing, with the live native invocation and its matching record. Its result JSON export, stress-neutral export and rule check admit it, and each takes the reader's verdict and standing. Every other desktop output surface refuses it (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`), and the report package refuses it as it refuses every fresh identity (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). A `pressure-2` result carrying load/reference states takes the same standing: when eligible it is admitted, the two exports carry its resolved load/reference states, and the admitting panels disclose them. A `pressure-source-1` result carrying them is never numerically eligible (`LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1`), so no desktop output admits it. The Python AnalysisRun record and the Python stress-neutral export accept them all.
     - No desktop solve produces a retained-precision successor before B8. If one is opened on the desktop, every output surface refuses it (`RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE`), except the result JSON and stress-neutral exports, which admit it only at numerically eligible standing and with the live native capture of its exact bytes.
   - **(d) Outside the method's domain.**
     - **Retained-precision successors (both routes):** exclude curved members, nonlinear supports, directional springs and nonzero imposed motion (DEF-O, DEF-E); D1 also refuses components, equivalent-static cases, analysis states, modulus-basis temperatures and models beyond the D1 caps, and admits only rigid restraints and global scalar springs.
@@ -307,7 +307,7 @@ The registered checks are those in `software-workflow.json`.
   - `desktop-test`: `apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts`, `baseReaderWasmEquivalence.test.ts` and `apps/desktop/src/test-support/retainedPrecisionCorpus.test.ts`.
 - **VER-006** — For REQ-006:
   - the VER-003 decline and fallback tests, and the facade-level W1 census tests `core/product_physics/src/w1_source_census_tests.rs` and `w1_successor_census_tests.rs` (`macos-release-sweep`);
-  - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts` and `retainedPrecisionOutputRefusal.test.tsx`;
+  - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts`, `retainedPrecisionOutputRefusal.test.tsx`, `loadReferenceOutputRefusal.test.tsx`, `apps/desktop/src/features/report/reportPackageRequest.test.ts` and `apps/desktop/src/services/ruleCheckService.test.ts`;
   - `macos-release-sweep`: `core/runner/headless/tests/retained_precision_admission.rs` and `core/product_physics/tests/retained_precision_admission.rs`;
   - for (e), `macos-release-sweep`: `o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result` in `core/product_physics/src/o4_m3_judging_tests.rs`.
   - for (f), `macos-release-sweep`: `w1_loaded_maximum_too_wide_for_the_gate_keeps_the_ordinary_result` in `core/product_physics/src/w1_domain_stage1_tests.rs`.
@@ -315,6 +315,7 @@ The registered checks are those in `software-workflow.json`.
   - VER-001 to VER-006;
   - for O4 and the W1 repair, the actual-source D3 run (`tools/retained_pricing`, `generate --check`);
   - for O4, M3-O4 on `validation/references/o4_retained_source/` (`core/product_physics/src/o4_m3_judging_tests.rs`) and its declared-problem oracle (`declared_problem/run.sh`);
+  - for the desktop outputs, the desktop rule-check backend's exact-route tests in `apps/desktop/src-tauri/src/lib.rs`'s test module, run with `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` and named with their head in the pull request;
   - the independent review that the Root `AGENTS.md` requires for numerical changes.
 - **VER-008** — For REQ-008:
   - `macos-release-sweep`: the pinned notice and successor-byte tests in `retained_facade_tests.rs` and `w1_domain_stage1_tests.rs`;

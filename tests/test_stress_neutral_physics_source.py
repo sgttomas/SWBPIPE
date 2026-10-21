@@ -23,8 +23,8 @@ import pytest
 from checked_json_fixture_cache import checked_json_fixture_cache
 
 from core.analysis_runs.compatibility import (
-    _source_contract, build_analysis_run_v0_3, PRESSURE_CONTRACT_ID,
-    PRESSURE_SOURCE_CONTRACT_ID,
+    _source_contract, build_analysis_run_v0_3, numerical_use_standing, PRESSURE_CONTRACT_ID,
+    PRESSURE_SOURCE_CONTRACT_ID, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
 from core.handoff.stress_neutral import package as sn
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
@@ -510,3 +510,58 @@ def test_current_native_builder_matches_committed_package_file_bytes_on_identica
         path.write_bytes(file_bytes)
     assert file_bytes == path.read_bytes()
     assert list(sn.materialized_members(packet)) == sn.MEMBERS
+
+
+# Epoch 8 (DEL-04-07 Design desktop-exact-outputs, section 6.2): the plain exact twins, the desktop builders'
+# equal-input oracle for eligible plain results, which no load/reference-state twin covers. Python's AnalysisRun
+# record and package over committed plain raws: pressure-2's connected mechanics with its request, and
+# pressure-source-1's n05 raw control with its request (whose registered invocation makes it eligible).
+PLAIN_MODES = {"sparse": "sparse_interactive", "dense": "dense_scrutiny"}
+PLAIN_TWINS = {
+    **{f"pressure_plain_connected_{short}": (f"fixtures/results/pressure_connected_mechanics_{short}.json",
+        "core/product_physics/tests/fixtures/exact_pressure_connected_request.json", mode)
+       for short, mode in PLAIN_MODES.items()},
+    **{f"pressure_source_plain_n05_{short}": (f"fixtures/product_preview/pressure_source/physics_source/n05-{mode}.raw.json",
+        "fixtures/product_preview/pressure_source/physics_source/n05.request.json", mode)
+       for short, mode in PLAIN_MODES.items()},
+}
+
+
+def _plain_twin_bytes(value) -> bytes:
+    """Compact bytes plus a newline, as the load/reference-state carriers and package witnesses are written."""
+    return (json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n").encode("utf-8")
+
+
+@pytest.mark.parametrize("name", list(PLAIN_TWINS))
+def test_plain_exact_twins_are_reproduced_byte_for_byte(name):
+    raw_path, request_path, mode = PLAIN_TWINS[name]
+    raw = json.loads((PROJECT / raw_path).read_text())
+    request = json.loads((PROJECT / request_path).read_text())
+    before = deepcopy(raw)
+    identity = _source_contract(raw)[0]
+    assert identity == (PRESSURE_SOURCE_CONTRACT_ID if name.startswith("pressure_source_") else PRESSURE_CONTRACT_ID)
+    assert "load_reference_states" not in raw["contract_evidence"]
+    assert request["model"]["project"]["id"] == raw["model_ref"]
+    bases = [case["basis_ref"] for case in raw["numerical_quality"]["cases"]]
+    assert [base["ref_id"] for base in bases] == [case["id"] for case in request["model"]["load_cases"]]
+    # The inputs are eligible plain results: pressure-2 on its own, pressure-source-1 with its registered invocation.
+    invocation = {"request": request, "solver_mode": mode} if identity == PRESSURE_SOURCE_CONTRACT_ID else None
+    assert numerical_use_standing(raw, bases, invocation) == "numerically_eligible"
+    record = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": f"manifest:{name}"}, input_manifest_hash="1" * 64)
+    validate_analysis_run_v0_3(record, raw)
+    assert verify_analysis_run_record(record) == "match"
+    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=record, **arguments(raw, record))
+    assert raw == before
+    validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=name)
+    sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=record)
+    sn.validate_stress_neutral_export_package(packet, **bound(raw))
+    assert packet["contract_evidence"] == raw["contract_evidence"]
+    assert packet.get("source_block_recovery") == raw.get("source_block_recovery")
+    assert list(sn.materialized_members(packet)) == sn.MEMBERS
+    # Written only when a bound input moves (a raw, a table pin); never to silence a builder change.
+    for suffix, value in (("analysis_run", record), ("stress_neutral", packet)):
+        data = _plain_twin_bytes(value)
+        path = PROJECT / f"fixtures/results/{name}.{suffix}.json"
+        if os.environ.get("STRESS_NEUTRAL_WRITE_FIXTURES") == "1":
+            path.write_bytes(data)
+        assert path.read_bytes() == data, suffix

@@ -14,7 +14,6 @@ import { runPreviewMechanics, buildAnalysisRunPreview } from "../../services/pre
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import { numericalResultStanding } from "../results/resultStanding";
-import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/outputPolicy";
 import { modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { buildStressNeutralExportPacket, liveStressBinding, validateStressNeutralExportPacket } from "./StressNeutralExportPanel";
 import type { MechanicsResult, PreviewModel, AnalysisRunEnvelope } from "../../types";
@@ -76,9 +75,9 @@ function migrationEvidence(caseName: string, bytes: Record<string, Uint8Array>) 
   }
 }
 
-// B7b: the exact route's v2 package (physics-1) is retired with its identity; its v3
-// twin, pressure-2, has no desktop package (refused below), so preview-physics-2 is the
-// one admitted ordinary construction.
+// B7b: the exact route's v2 package (physics-1) is retired with its identity. Epoch 8
+// packages its v3 twin, pressure-2, at Rust's standing (below, and
+// `../result-export/exactOutputTwins.test.tsx`); preview-physics-2 keeps this byte construction.
 it.each(["preview"] as const)("%s: already admitted current public construction keeps complete bytes in both modes", async profile => {
   for (const mode of modes) {
     const args = await admitted(profile, mode);
@@ -94,21 +93,35 @@ it.each(["preview"] as const)("%s: already admitted current public construction 
   }
 }, 60_000);
 
-/** B7b: the load/reference-state results are the v3 twins, published under pressure-2
+/** The load/reference-state results are the v3 twins, published under pressure-2
  * (ordinary) and pressure-source-1 (joined), each with the Python product path's
- * committed analysis-run record. */
+ * committed analysis-run record. Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md`
+ * §5.4, ruling 11B): they follow the reader. The pressure-2 ones read numerically
+ * eligible and package; the pressure-source-1 ones are never eligible and the builder
+ * refuses them by its standing code. These bytes are read from the fixtures, not
+ * natively captured, so the pressure-source-1 standing is the unregistered one; the
+ * registered standing with Rust's T1 finding is checked in `../result-export/exactOutputTwins.test.tsx`. */
 const loadReferenceCases = [
-  ...["connected", "pressure"].map(name => ({ family: "pressure/load_reference", record: "pressure_load_state", name, reason: PRESSURE_2_OUTPUT_REFUSAL })),
-  ...["eigen_motion", "fields", "mixed", "n05", "n06"].map(name => ({ family: "pressure_source/load_reference_source", record: "pressure_source_load_state", name, reason: PRESSURE_SOURCE_OUTPUT_REFUSAL })),
+  ...["connected", "pressure"].map(name => ({ family: "pressure/load_reference", record: "pressure_load_state", name, route: "pressure" as const })),
+  ...["eigen_motion", "fields", "mixed", "n05", "n06"].map(name => ({ family: "pressure_source/load_reference_source", record: "pressure_source_load_state", name, route: "pressure_source" as const })),
 ].flatMap(entry => modes.map(mode => ({ ...entry, mode })));
 
-it.each(loadReferenceCases)("$family/$name/$mode: real public output remains refused", async ({ family, record, name, mode, reason }) => {
+it.each(loadReferenceCases)("$family/$name/$mode: real public output follows Rust's standing", async ({ family, record, name, mode, route }) => {
   const model = json(`fixtures/product_preview/${family}/${name}.request.json`).model as PreviewModel;
   const result = json(`fixtures/product_preview/${family}/${name}-${mode}.raw.json`) as MechanicsResult;
   const suffix = mode === "sparse_interactive" ? "sparse" : "dense";
   const analysisRun = json(`fixtures/results/${record}_${name}_${suffix}.analysis_run.json`) as AnalysisRunEnvelope;
   expect(analysisRun.analysis_run.run_id).toBe(result.run_id);
   const before = checkedJsonText({ model, result, analysisRun });
-  await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(reason);
+  if (route === "pressure") {
+    expect(numericalResultStanding(result, model)).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
+    const packet = await buildStressNeutralExportPacket({ model, result, analysisRun });
+    expect(packet.contract_evidence).toEqual(result.contract_evidence);
+    expect(Object.hasOwn(packet, "source_block_recovery")).toBe(false);
+    await validateStressNeutralExportPacket(packet, result, analysisRun, modelLoadBasisRefs(model));
+  } else {
+    expect(numericalResultStanding(result, model)).toMatchObject({ contract: "pressure_source", eligible: false, findings: ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"] });
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+  }
   expect(checkedJsonText({ model, result, analysisRun })).toBe(before);
-});
+}, 60_000);

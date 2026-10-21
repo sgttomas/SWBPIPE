@@ -155,3 +155,4 @@ checks:
 - tests/test_stress_neutral_transport.py
 - apps/desktop/src/features/stress-neutral/nativeStressNeutralBuilder.test.tsx
 - apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+- apps/desktop/src/features/result-export/exactOutputTwins.test.tsx

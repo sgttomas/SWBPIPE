@@ -7,8 +7,19 @@ import {
   loadDemoRuleCheckPack,
   runRuleChecks,
   ruleBindingPrecheck,
-  RULE_CHECK_BACKEND_DIAGNOSTIC
+  RULE_CHECK_BACKEND_DIAGNOSTIC,
+  N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE
 } from "./ruleCheckService";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { createSolveJobTransport } from "../test/nativeMechanicsReplay";
+import { hasNativeMechanicsInvocation } from "./previewService";
+import {
+  LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE,
+  SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED,
+  numericalResultStanding
+} from "../features/results/resultStanding";
+import { N_LOAD_REFERENCE_RULE_CHECK } from "../features/results/loadReferenceDisclosure";
 import pressureSourceMixed from "../../../../fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json";
 import previewInvented from "../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { retiredPrecisionStatement } from "../test-support/retiredPrecision";
@@ -26,6 +37,19 @@ import type { RulePackDocument } from "./rulePackService";
 
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+// Epoch 8 seam, unit simulation only: a source placed in `grantedCustody` passes the
+// service's native-invocation gate without any source registration, so the rule service's
+// own standing step is reached for an unregistered pressure-source-1 source. Every other
+// source keeps the production check unchanged.
+const custodySeam = vi.hoisted(() => ({ grantedCustody: new WeakSet<object>() }));
+vi.mock("./previewService", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./previewService")>();
+  return {
+    ...actual,
+    hasNativeMechanicsInvocation: (...args: Parameters<typeof actual.hasNativeMechanicsInvocation>) =>
+      (args[0] && custodySeam.grantedCustody.has(args[0])) || actual.hasNativeMechanicsInvocation(...args)
+  };
+});
 
 beforeEach(() => {
   invokeMock.mockReset();
@@ -183,6 +207,8 @@ describe("runRuleChecks", () => {
     });
 
     expect(route.route).toBe("tauri_backend");
+    // An ungated (preview-physics-2) run carries no load/reference-state line (epoch 8, §4.4).
+    expect(route).toMatchObject({ loadReferenceDisclosure: null });
     // The transient solve goes through the job path and is released after the rule run used it.
     expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
       "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result",
@@ -199,6 +225,7 @@ describe("runRuleChecks", () => {
     // The envelope travels as the JSON text Tauri itself sent for it.
     expect(args).toHaveProperty("solvedEnvelope", JSON.parse(JSON.stringify(pair.source)));
     // Empty binding arrays are omitted (backend treats absent as unsupplied).
+    expect(args).not.toHaveProperty("sourceBlockInvocation");
     expect(args).not.toHaveProperty("solverResultBindings");
     expect(args).not.toHaveProperty("suppliedValueBindings");
   });
@@ -333,21 +360,219 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
   });
-  it("refuses a pressure-2 source before invoking the rule backend: the desktop's fresh set excludes it (b7-plan R2)", async () => {
-    // T4-U2: the L line's pressure-2 result (invented data).
+  it("refuses a received pressure-2 copy before invoking the rule backend: it carries no native invocation (b7-plan R2)", async () => {
+    // T4-U2: the L line's pressure-2 result (invented data), as received bytes.
     const source = structuredClone(lLine.sparse_result) as unknown as MechanicsResult;
     const model = structuredClone(lLine.authored_model) as unknown as PreviewModel;
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model, solvedEnvelope: source })).rejects.toThrow(/^RULE_/);
+    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
   });
-  it("refuses a transient pressure-2 native solve as not fresh and releases it without invoking the rule backend", async () => {
+  it("admits a transient pressure-2 native solve at eligible standing and releases it after the rule backend used it (epoch 8)", async () => {
     const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" }), replay = createNativeMechanicsReplay({ profile: "pressure" });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation(replay.invoke);
-    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model })).rejects.toThrow("RULE_SOURCE_IDENTITY_NOT_FRESH");
-    expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("run_rule_checks");
-    expect(invokeMock.mock.calls.at(-1)?.[0]).toBe("dispose_preview_mechanics_result");
+    invokeMock.mockImplementation(async (command, args, options) => command === "run_rule_checks" ? RULE_RESPONSE : replay.invoke(command, args, options));
+    const route = await runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model });
+    expect(route).toMatchObject({ route: "tauri_backend", result: RULE_RESPONSE, loadReferenceDisclosure: null });
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
+      "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result",
+      "run_rule_checks", "dispose_preview_mechanics_result"
+    ]);
     expect(replay.custody()).toEqual([]);
+  });
+});
+
+/* -------------------------------------------------------------------------- *
+ * Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.4, §5.4, §6.1 "Rule check"):
+ * the exact routes reach `run_rule_checks` only at the Rust reader's eligible standing,
+ * on the Current path (a supplied envelope) and the transient path (the service solves,
+ * then disposes). Unit transport replay of committed producer bytes through mocked IPC;
+ * the rule backend's answer is a unit simulation, NOT rule-evaluation evidence.
+ * -------------------------------------------------------------------------- */
+const RULE_RESPONSE = {
+  document_kind: "openpipestress.rule_check.run",
+  rule_pack_id: "invented-test-only",
+  grammar_version: "1.0.0",
+  aggregate_status: "RULE_INPUTS_INCOMPLETE",
+  checks: [],
+  professional_boundary_notice: "notice"
+};
+const fixtureRoot = resolve(__dirname, "../../../../");
+const fixtureText = (path: string) => readFileSync(resolve(fixtureRoot, path), "utf8");
+type Mode = "sparse_interactive" | "dense_scrutiny";
+type ExactInput = { model: PreviewModel; bytes: string };
+const ORDINARY = "fixtures/product_preview/pressure/load_reference";
+const JOINED = "fixtures/product_preview/pressure_source/load_reference_source";
+const FALLBACK = "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz";
+/** A committed request model and its producer bytes. For pressure-2 the session's case
+ * metadata is added where the request lacks it (invented labels; the product reads no
+ * physics from them). A pressure-source-1 request is sent unchanged: its receipt binds
+ * the model it was solved for. */
+function committed(requestPath: string, rawPath: string, options: { unchanged?: boolean } = {}): ExactInput {
+  const model = structuredClone(JSON.parse(fixtureText(requestPath)).model) as PreviewModel;
+  if (!options.unchanged) for (const loadCase of model.load_cases) if (loadCase.label === undefined) Object.assign(loadCase, { label: loadCase.id, kind: "invented_test_case", status: "invented_test_status" });
+  return { model, bytes: fixtureText(rawPath) };
+}
+const ADMITTED: Record<string, { route: "pressure" | "pressure_source"; loadReference: boolean; input: (mode: Mode) => ExactInput }> = {
+  "pressure-2": { route: "pressure", loadReference: false, input: mode => {
+    const pair = nativeMechanicsReplayPair(mode, { profile: "pressure" });
+    return { model: pair.model, bytes: pair.bytes };
+  } },
+  "pressure-2 load/reference connected": { route: "pressure", loadReference: true, input: mode => committed(`${ORDINARY}/connected.request.json`, `${ORDINARY}/connected-${mode}.raw.json`) },
+  "pressure-2 load/reference pressure": { route: "pressure", loadReference: true, input: mode => committed(`${ORDINARY}/pressure.request.json`, `${ORDINARY}/pressure-${mode}.raw.json`) },
+  "pressure-source-1 n05": { route: "pressure_source", loadReference: false, input: mode => committed("fixtures/product_preview/pressure_source/physics_source/n05.request.json", `fixtures/product_preview/pressure_source/physics_source/n05-${mode}.raw.json`, { unchanged: true }) },
+  "pressure-source-1 mixed": { route: "pressure_source", loadReference: false, input: mode => committed("fixtures/product_preview/pressure_source/physics_source/mixed.request.json", `fixtures/product_preview/pressure_source/physics_source/mixed-${mode}.raw.json`, { unchanged: true }) },
+};
+/** Registered natively, and not numerically eligible on Rust's standing, with the first
+ * finding the service reports. `eigen_motion` is not among them: its committed receipt
+ * binds an invocation other than the desktop's `{model, materials: []}` request, so the
+ * desktop never registers it (`SOURCE_BLOCKS_INVOCATION_HASH`); it is covered below. */
+const REFUSED: Record<string, { finding: string; input: (mode: Mode) => ExactInput }> = Object.fromEntries([
+  ...["n05", "n06", "fields", "mixed"].map(name => [`pressure-source-1 load/reference ${name}`, {
+    finding: LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE,
+    input: (mode: Mode) => committed(`${JOINED}/${name}.request.json`, `${JOINED}/${name}-${mode}.raw.json`, { unchanged: true })
+  }]),
+  ["pressure-2 load/reference fallback", { finding: "NUMERICAL_INTEGRITY_NOT_QUALIFIED", input: (mode: Mode) => committed(`${FALLBACK}.request.json`, `${FALLBACK}-${mode}.raw.json`) }],
+]);
+/** The disclosure line from the published records, in published order, without duplicates. */
+function expectedDisclosure(bytes: string): string {
+  const records = JSON.parse(bytes).contract_evidence.load_reference_states as { reference_configuration_id: string; load_case_id: string; history: { kind: string } }[];
+  const distinct = (values: string[]) => [...new Set(values)].join(", ");
+  return N_LOAD_REFERENCE_RULE_CHECK
+    .replace("{configurations}", distinct(records.map(r => r.reference_configuration_id)))
+    .replace("{cases}", distinct(records.map(r => r.load_case_id)))
+    .replace("{histories}", distinct(records.map(r => r.history.kind)));
+}
+/** The native job transport answering exactly this model and mode, and the mocked rule backend. */
+function installNative({ model, bytes }: ExactInput, mode: Mode) {
+  const transport = createSolveJobTransport((sent) => {
+    expect(sent.mode).toBe(mode);
+    expect(sent.model).toEqual(model);
+    return bytes;
+  });
+  invokeMock.mockImplementation(async (command, args, options) => command === "run_rule_checks" ? RULE_RESPONSE : transport.invoke(command, args, options));
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  return transport;
+}
+const commands = () => invokeMock.mock.calls.map(([command]) => command as string);
+const TRANSIENT_COMMANDS = ["start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result"];
+const exactRulePack = { metadata: { rule_pack_id: "invented-test-only" } };
+
+describe("epoch 8: the exact routes reach the rule backend only at Rust's eligible standing", () => {
+  const admittedCurrent = Object.keys(ADMITTED).flatMap(name => (["sparse_interactive", "dense_scrutiny"] as Mode[]).map(mode => [name, mode] as const));
+  it.each(admittedCurrent)("%s (%s), Current path: the supplied envelope reaches run_rule_checks with its invocation arguments", async (name, mode) => {
+    const { route, loadReference, input } = ADMITTED[name];
+    const exact = input(mode);
+    installNative(exact, mode);
+    const source = await runPreviewMechanics(exact.model, mode);
+    expect(hasNativeMechanicsInvocation(source, exact.model, mode)).toBe(true);
+    expect(numericalResultStanding(source, exact.model)).toMatchObject({ contract: route, eligible: true, findings: [] });
+    invokeMock.mockClear();
+    const answer = await runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model, solvedEnvelope: source });
+    expect(answer).toStrictEqual({ route: "tauri_backend", result: RULE_RESPONSE, loadReferenceDisclosure: loadReference ? expectedDisclosure(exact.bytes) : null });
+    expect(commands()).toEqual(["run_rule_checks"]);
+    const args = invokeMock.mock.calls[0][1] as Record<string, unknown>;
+    expect((args.solvedEnvelope as MechanicsResult).run_id).toBe(source.run_id);
+    expect((args.solvedEnvelope as MechanicsResult).producer).toEqual(source.producer);
+    expect(args.model).toEqual(exact.model);
+    // pressure-source-1 carries its registered invocation; pressure-2 needs none.
+    if (route === "pressure_source") expect(args.sourceBlockInvocation).toEqual({ request: { model: exact.model, materials: [] }, solver_mode: mode });
+    else expect(args).not.toHaveProperty("sourceBlockInvocation");
+  });
+
+  it.each(Object.keys(ADMITTED))("%s, transient path: the service solves, reaches run_rule_checks, then disposes the result", async name => {
+    const { route, loadReference, input } = ADMITTED[name];
+    const mode: Mode = "sparse_interactive";
+    const exact = input(mode);
+    const transport = installNative(exact, mode);
+    const answer = await runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model });
+    expect(answer).toStrictEqual({ route: "tauri_backend", result: RULE_RESPONSE, loadReferenceDisclosure: loadReference ? expectedDisclosure(exact.bytes) : null });
+    expect(commands()).toEqual([...TRANSIENT_COMMANDS, "run_rule_checks", "dispose_preview_mechanics_result"]);
+    expect(transport.custody()).toEqual([]);
+    expect(transport.disposed()).toHaveLength(1);
+    const args = invokeMock.mock.calls[3][1] as Record<string, unknown>;
+    expect((args.solvedEnvelope as MechanicsResult).run_id).toBe(JSON.parse(exact.bytes).run_id);
+    expect(args.model).toEqual(exact.model);
+    if (route === "pressure_source") expect(args.sourceBlockInvocation).toEqual({ request: { model: exact.model, materials: [] }, solver_mode: mode });
+    else expect(args).not.toHaveProperty("sourceBlockInvocation");
+  });
+
+  const refusedCurrent = Object.keys(REFUSED).flatMap(name => (["sparse_interactive", "dense_scrutiny"] as Mode[]).map(mode => [name, mode] as const));
+  it.each(refusedCurrent)("%s (%s), Current path: a refused standing stops the run before invoke, with Rust's first finding", async (name, mode) => {
+    const { finding, input } = REFUSED[name];
+    const exact = input(mode);
+    installNative(exact, mode);
+    const source = await runPreviewMechanics(exact.model, mode);
+    expect(hasNativeMechanicsInvocation(source, exact.model, mode)).toBe(true);
+    const standing = numericalResultStanding(source, exact.model);
+    expect(standing.eligible).toBe(false);
+    expect(standing.findings[0]).toBe(finding);
+    invokeMock.mockClear();
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model, solvedEnvelope: source }))
+      .rejects.toThrow(new Error(`${finding}: ${N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE}`));
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it.each(Object.keys(REFUSED))("%s, transient path: a refused standing stops the run before invoke and the solve is disposed", async name => {
+    const { finding, input } = REFUSED[name];
+    const mode: Mode = "sparse_interactive";
+    const exact = input(mode);
+    const transport = installNative(exact, mode);
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model }))
+      .rejects.toThrow(new Error(`${finding}: ${N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE}`));
+    expect(commands()).toEqual([...TRANSIENT_COMMANDS, "dispose_preview_mechanics_result"]);
+    expect(transport.custody()).toEqual([]);
+  });
+
+  it("pressure-source-1 load/reference eigen_motion is never registered by the desktop solve, so neither path reaches the rule backend", async () => {
+    const mode: Mode = "sparse_interactive";
+    const exact = committed(`${JOINED}/eigen_motion.request.json`, `${JOINED}/eigen_motion-${mode}.raw.json`, { unchanged: true });
+    const transport = installNative(exact, mode);
+    const source = await runPreviewMechanics(exact.model, mode);
+    expect(hasNativeMechanicsInvocation(source, exact.model, mode)).toBe(false);
+    expect(numericalResultStanding(source, exact.model).eligible).toBe(false);
+    invokeMock.mockClear();
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    expect(invokeMock).not.toHaveBeenCalled();
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    expect(commands()).toEqual([...TRANSIENT_COMMANDS, "dispose_preview_mechanics_result"]);
+    // The transient result is released; only the test's own held source remains in custody.
+    expect(transport.disposed()).toHaveLength(1);
+    expect(transport.custody()).toHaveLength(1);
+  });
+
+  it.each(["n05", "n06", "fields", "mixed", "eigen_motion"])("an unregistered pressure-source-1 load/reference %s source stops before invoke with SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED", async name => {
+    // Received bytes without a source registration. The seam grants them native custody
+    // (unit simulation), so the service's own standing step decides, without an invocation.
+    const exact = committed(`${JOINED}/${name}.request.json`, `${JOINED}/${name}-sparse_interactive.raw.json`, { unchanged: true });
+    const source = JSON.parse(exact.bytes) as MechanicsResult;
+    custodySeam.grantedCustody.add(source);
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    expect(numericalResultStanding(source, exact.model).findings[0]).toBe(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED);
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model, solvedEnvelope: source }))
+      .rejects.toThrow(new Error(`${SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED}: ${N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE}`));
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("an unregistered plain pressure-source-1 source stops before invoke with SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED", async () => {
+    const exact = committed("fixtures/product_preview/pressure_source/physics_source/n05.request.json", "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json", { unchanged: true });
+    const source = JSON.parse(exact.bytes) as MechanicsResult;
+    custodySeam.grantedCustody.add(source);
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model, solvedEnvelope: source }))
+      .rejects.toThrow(new Error(`${SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED}: ${N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE}`));
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it.each(Object.keys(ADMITTED))("%s: a copy of an eligible Current source, or the source under an edited model, never reaches the rule backend", async name => {
+    const mode: Mode = "sparse_interactive";
+    const exact = ADMITTED[name].input(mode);
+    installNative(exact, mode);
+    const source = await runPreviewMechanics(exact.model, mode);
+    invokeMock.mockClear();
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: exact.model, solvedEnvelope: structuredClone(source) })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    const edited = structuredClone(exact.model); edited.nodes[0].position.x += 1;
+    await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: edited, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 });

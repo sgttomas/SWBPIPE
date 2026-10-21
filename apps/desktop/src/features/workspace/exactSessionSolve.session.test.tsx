@@ -2,10 +2,16 @@
  * publishes pressure-2 (3.0.0/exact_pressure_v3), with or without the
  * load/reference-state group. The session solve completes: the desktop records it as
  * Python's `build_analysis_run_v0_3` does, holds the result and its record, and shows it
- * (results panel, standing, notices, the resolved-state block) through Rust's verdict. It
- * is never Current, and every output surface still refuses it by name.
+ * (results panel, standing, notices, the resolved-state block) through Rust's verdict.
+ * Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.1, §4.4, §4.5; owner rulings
+ * 10A and 11B, 2026-10-21): with Rust's eligible standing, its matching 0.3.0 record and
+ * manifest and the live native invocation it is Current; the result JSON and
+ * stress-neutral exports and the rule check admit it, and every other output surface
+ * refuses it by name (the report package as a fresh result). A rule status recorded on
+ * it saves, and reopens as historical evidence, never Current.
  * Unit transport replay of committed producer bytes through mocked IPC; NOT a native UI
- * qualification witness. All data are invented. */
+ * qualification witness. The rule backend's answer is a unit simulation, NOT rule-evaluation
+ * evidence. All data are invented. */
 import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
 import { readFileSync } from "node:fs";
@@ -22,11 +28,13 @@ import { runRuleChecks } from "../../services/ruleCheckService";
 import { readerDispatch, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal, surfaceRouteRefusal } from "../results/outputPolicy";
+import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
+import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { ResultsPanel } from "../results/ResultsPanel";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { SolvePanel } from "../solve/SolvePanel";
-import { buildCurrentResultExport } from "../result-export/resultExportAdapter";
+import { buildCurrentResultExport, resultSchemaVersion } from "../result-export/resultExportAdapter";
 import { buildStressNeutralExportPacket } from "../stress-neutral/StressNeutralExportPanel";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { NativePackagePanel } from "../native-package/NativePackagePanel";
@@ -38,6 +46,18 @@ type Mode = "sparse_interactive" | "dense_scrutiny";
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
 const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788" };
+/** The three surfaces the owner opened (ruling 10A). */
+const OPENED: readonly string[] = ["result-export", "stress-neutral", "rule-check"];
+/** The mocked rule backend's answer (unit simulation; invented). */
+const RULE_ANSWER = {
+  document_kind: "openpipestress.rule_check.run",
+  rule_pack_id: "invented-test-only",
+  grammar_version: "1.0.0",
+  aggregate_status: "USER_RULE_CHECKED",
+  checks: [],
+  professional_boundary_notice: "notice"
+};
+const RULE_PACK = { metadata: { rule_pack_id: "invented-test-only" } };
 
 afterEach(() => {
   cleanup();
@@ -61,6 +81,7 @@ async function session(model: PreviewModel, bytes: string, mode: Mode) {
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(model);
+    if (command === "run_rule_checks") return structuredClone(RULE_ANSWER);
     return transport.invoke(command, args, options);
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -88,7 +109,8 @@ function loadStatePair(mode: Mode) {
   Object.assign(model.project as Json, { name: "Invented load/reference-state session", description: "Invented test document; no engineering data." });
   return { model, bytes: readFileSync(resolve(root, `fixtures/product_preview/pressure/load_reference/connected-${mode}.raw.json`), "utf8") };
 }
-/** What the session holds after the solve: the pressure-2 result, its record and manifest, never Current. */
+/** What the session holds after the solve: the pressure-2 result, its record and manifest,
+ * Current (epoch 8: eligible standing, matching record and manifest, live invocation). */
 function held(state: WorkspaceSession) {
   const { result, analysisRun, inputManifest, currentSolvedResult, solveProof } = state.results;
   const model = state.model.model!;
@@ -99,7 +121,8 @@ function held(state: WorkspaceSession) {
   expect(analysisRun).not.toBeNull();
   expect(inputManifest).not.toBeNull();
   expect(solveProof).toMatchObject({ state: "completed", result_run_id: result!.run_id });
-  expect(currentSolvedResult).toBeNull();
+  expect(numericalResultStanding(result!, model)).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
+  expect(currentSolvedResult).toBe(result);
   return { result: result!, analysisRun: analysisRun!, inputManifest: inputManifest!, model };
 }
 async function expectPythonShapedRecord(record: AnalysisRunEnvelope, result: MechanicsResult, model: PreviewModel) {
@@ -127,7 +150,7 @@ function expectViewable(result: MechanicsResult, analysisRun: AnalysisRunEnvelop
 }
 
 describe("an exact (pressure-2) session solve", () => {
-  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: completes, and the session holds and shows the result and its Python-shaped record, never Current", async mode => {
+  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: completes, and the session holds and shows the result and its Python-shaped record, Current (epoch 8)", async mode => {
     const { model, bytes } = exactPair(mode);
     const { result: hook } = await session(model, bytes, mode);
     const state = held(hook.current);
@@ -137,7 +160,7 @@ describe("an exact (pressure-2) session solve", () => {
     expectViewable(state.result, state.analysisRun, state.model);
   });
 
-  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s with the load/reference-state group: completes, its record matches Python's carrier, and the resolved-state block shows it", async mode => {
+  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s with the load/reference-state group: completes, its record matches Python's carrier, the resolved-state block shows it, and it is Current (epoch 8)", async mode => {
     const { model, bytes } = loadStatePair(mode);
     const { result: hook } = await session(model, bytes, mode);
     const state = held(hook.current);
@@ -153,6 +176,20 @@ describe("an exact (pressure-2) session solve", () => {
     expect(screen.queryByTestId("load-reference-states-refused")).toBeNull();
   });
 });
+
+/** The disclosure line from the published records, in published order, without duplicates. */
+function expectedRuleCheckDisclosure(result: MechanicsResult): string {
+  const records = (result.contract_evidence as Json).load_reference_states as { reference_configuration_id: string; load_case_id: string; history: { kind: string } }[];
+  const distinct = (values: string[]) => [...new Set(values)].join(", ");
+  return N_LOAD_REFERENCE_RULE_CHECK
+    .replace("{configurations}", distinct(records.map(r => r.reference_configuration_id)))
+    .replace("{cases}", distinct(records.map(r => r.load_case_id)))
+    .replace("{histories}", distinct(records.map(r => r.history.kind)));
+}
+const SAVED_RUNS = [
+  ["pressure-2", () => exactPair("sparse_interactive"), false],
+  ["pressure-2 with the load/reference-state group", () => loadStatePair("sparse_interactive"), true],
+] as const;
 
 describe("a saved exact session", () => {
   it("keeps the pressure-2 result and its record byte for byte and reopens them as history, never Current", async () => {
@@ -171,36 +208,108 @@ describe("a saved exact session", () => {
     expect(JSON.stringify(hook.current.results.historicalRun!.rawMechanicsResult)).toBe(original);
     expect(hook.current.results.currentSolvedResult).toBeNull();
   });
+
+  it.each(SAVED_RUNS)("%s: a run with a rule status saves, reopens as historical evidence, validates against its saved source, and is never Current after reopening (epoch 8, §4.4)", async (_name, pair, loadReference) => {
+    const { model, bytes } = pair();
+    const { result: hook } = await session(model, bytes, "sparse_interactive");
+    const { result, analysisRun: solved } = held(hook.current);
+    // The rule check on the Current result reaches the (mocked) backend.
+    invokeMock.mockClear();
+    const route = await runRuleChecks({ rulePackDocument: RULE_PACK, model: hook.current.model.model!, solvedEnvelope: hook.current.results.currentSolvedResult });
+    expect(route).toStrictEqual({ route: "tauri_backend", result: RULE_ANSWER, loadReferenceDisclosure: loadReference ? expectedRuleCheckDisclosure(result) : null });
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["run_rule_checks"]);
+    // The session records the aggregate in the run's record, as the run panel lifts it.
+    const { projectSessionGeneration, uiModelRevision } = hook.current.model;
+    await act(async () => {
+      await hook.current.results.handleRuleCheckAggregate(route.route === "tauri_backend" ? route.result.aggregate_status : null, {
+        projectSessionGeneration, modelRevision: uiModelRevision,
+        result: hook.current.results.currentSolvedResult, inputManifest: hook.current.results.inputManifest
+      });
+    });
+    await waitFor(() => expect(hook.current.results.analysisRun).not.toBe(solved));
+    const ruled = hook.current.results.analysisRun!;
+    expect(hook.current.results.ruleCheckAggregate).toBe("USER_RULE_CHECKED");
+    expect(ruled.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+    expect(ruled.analysis_run.analysis_status).not.toContain("RULE_INPUTS_INCOMPLETE");
+    expect(hook.current.results.currentSolvedResult).toBe(result);
+    await expectPythonShapedRecord(ruled, result, model);
+    const original = JSON.stringify(result), originalAnalysis = JSON.stringify(ruled);
+
+    // Save (the browser persistence adapter, no native runtime).
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    await act(async () => { await hook.current.project.handleCreateProject(); });
+    const saved = await openLocalProject();
+    expect(JSON.stringify(saved!.mechanics_result)).toBe(original);
+    expect(JSON.stringify(saved!.analysis_run)).toBe(originalAnalysis);
+    // The saved record validates against its saved source.
+    const savedRecord = saved!.analysis_run as AnalysisRunEnvelope, savedSource = saved!.mechanics_result as MechanicsResult;
+    expect(savedRecord.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+    expect(await verifyAnalysisRunRecord(savedRecord)).toBe("match");
+    await expect(validateAnalysisRunV03(savedRecord, savedSource, modelLoadBasisRefs(saved!.model as PreviewModel))).resolves.toBeUndefined();
+
+    // Reopen: historical evidence, never Current.
+    await act(async () => { await hook.current.project.handleOpenProject(); });
+    const historical = hook.current.results.historicalRun!;
+    expect(historical.designation).toBe("historical_saved_run");
+    expect(JSON.stringify(historical.rawMechanicsResult)).toBe(original);
+    expect(JSON.stringify(historical.rawAnalysisRun)).toBe(originalAnalysis);
+    expect(historical.analysisRun!.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+    // Its only finding is the historical one: the saved evidence validates.
+    expect(historical.findings).toEqual(["HISTORICAL_INPUT_MANIFEST_MISSING"]);
+    expect(hook.current.results.currentSolvedResult).toBeNull();
+    // A reopened result has no live invocation, so a rule check over it stops before the backend.
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockClear();
+    const reopened = (hook.current.results.result ?? historical.mechanicsResult)!;
+    await expect(runRuleChecks({ rulePackDocument: RULE_PACK, model: hook.current.model.model!, solvedEnvelope: reopened })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("run_rule_checks");
+  });
 });
 
-describe("every output surface still refuses the held pressure-2 result by name", () => {
-  it("names PRESSURE_2_OUTPUT_REFUSAL on each surface, in each builder, and in the gated panels", async () => {
+describe("the held pressure-2 result: admitted on the opened surfaces, refused by name on every other (epoch 8)", () => {
+  it("adds no policy refusal on the result JSON and stress-neutral exports and the rule check, and names PRESSURE_2_OUTPUT_REFUSAL elsewhere", async () => {
     const { model, bytes } = exactPair("sparse_interactive");
     const { result: hook } = await session(model, bytes, "sparse_interactive");
     const { result, analysisRun, inputManifest } = held(hook.current);
     for (const surface of OUTPUT_SURFACES) {
-      expect(surfaceRouteRefusal(result, surface), surface).toBe(PRESSURE_2_OUTPUT_REFUSAL);
-      expect(surfaceOutputRefusal(result, model, surface), surface).toBe(PRESSURE_2_OUTPUT_REFUSAL);
+      const expected = OPENED.includes(surface) ? null : PRESSURE_2_OUTPUT_REFUSAL;
+      expect(surfaceRouteRefusal(result, surface), surface).toBe(expected);
+      expect(surfaceOutputRefusal(result, model, surface), surface).toBe(expected);
     }
+    // The route's shared reason is unchanged for its remaining direct callers (§5.2).
     expect(loadReferenceOutputRefusal(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
-    // Result export, stress-neutral and report package, given the session's own record and manifest.
-    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
-    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
-    // The session itself offers no report package for a result that is not Current.
+    // Result export and stress-neutral build from the session's own record and manifest.
+    const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+    expect(() => resultSchemaVersion(document)).not.toThrow();
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).resolves.toBeTruthy();
+    // The report package refuses it as a fresh result (§4.5), through the session too.
+    const freshRefusal = `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
+    expect(reportPackageUnavailableReason(result)).toBe(freshRefusal);
     await act(async () => { await hook.current.results.handleSaveReportPackage(); });
-    expect(hook.current.results.reportPackageRoute).toBeNull();
+    expect(hook.current.results.reportPackageRoute).toEqual({ route: "redaction_blocked", diagnostic: freshRefusal });
     // Native package: the export link is replaced by the refusal.
     render(<NativePackagePanel model={model} modelHash={hook.current.model.modelHash} result={result} analysisRun={analysisRun} editorIntents={[]}
       projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
     expect(screen.getByTestId("native-package-load-reference-output-unavailable")).toHaveTextContent(PRESSURE_2_OUTPUT_REFUSAL);
     expect(screen.queryByTestId("native-package-link")).toBeNull();
     cleanup();
-    // Rule check: refused before the rule backend (pressure-2 is outside the fresh set).
+    // Rule check: the Current result reaches the (mocked) rule backend.
     invokeMock.mockClear();
-    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "invented-test-only" } }, model, solvedEnvelope: result })).rejects.toThrow("RULE_SOURCE_IDENTITY_NOT_FRESH");
-    expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("run_rule_checks");
+    await expect(runRuleChecks({ rulePackDocument: RULE_PACK, model, solvedEnvelope: result })).resolves.toStrictEqual({ route: "tauri_backend", result: RULE_ANSWER, loadReferenceDisclosure: null });
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["run_rule_checks"]);
     expect(JSON.stringify(result)).toBe(JSON.stringify(hook.current.results.result));
     expect((analysisRun as Json).analysis_run.reproducibility.semantic_contract).toStrictEqual(PRESSURE_1);
+  });
+
+  it("a received copy of the held result is readable, never Current, and never reaches the rule backend", async () => {
+    const { model, bytes } = exactPair("sparse_interactive");
+    const { result: hook } = await session(model, bytes, "sparse_interactive");
+    const { result, analysisRun, inputManifest } = held(hook.current);
+    const copy = structuredClone(result);
+    expect(hasNativeMechanicsInvocation(copy, model)).toBe(false);
+    await expect(buildCurrentResultExport({ model, result: copy, analysisRun, inputManifest })).rejects.toThrow("CURRENT_NATIVE_INVOCATION_REQUIRED");
+    invokeMock.mockClear();
+    await expect(runRuleChecks({ rulePackDocument: RULE_PACK, model, solvedEnvelope: copy })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("run_rule_checks");
   });
 });
