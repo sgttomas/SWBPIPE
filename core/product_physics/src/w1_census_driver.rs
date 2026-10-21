@@ -134,10 +134,14 @@ pub(super) fn run_once(raw: &Value, mode: PreviewSolverMode, switches: probe::Sw
     (out, candidate, ordinary_value)
 }
 
+/// One JSON line to `W1_CENSUS_OUT/<target>.jsonl`. Each target's file is created
+/// (truncated) at its first line in the process and kept open for the target's later lines.
 pub(super) fn write_line(target: &str, value: &Value) {
+    static FILES: std::sync::Mutex<std::collections::BTreeMap<String, std::fs::File>> = std::sync::Mutex::new(std::collections::BTreeMap::new());
     let Some(dir) = std::env::var_os("W1_CENSUS_OUT") else { return };
-    let path = std::path::Path::new(&dir).join(format!("{target}.jsonl"));
-    let mut f = std::fs::OpenOptions::new().create(true).append(true).open(path).unwrap();
+    let mut files = FILES.lock().unwrap();
+    let f = files.entry(target.to_owned())
+        .or_insert_with(|| std::fs::File::create(std::path::Path::new(&dir).join(format!("{target}.jsonl"))).unwrap());
     writeln!(f, "{}", serde_json::to_string(value).unwrap()).unwrap();
 }
 /// `W1_CENSUS_LIMIT=<n>` (the pilot) runs only the first n inputs of a target.
