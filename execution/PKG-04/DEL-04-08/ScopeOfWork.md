@@ -134,7 +134,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - the Python verifier reaches the same verdicts.
 - **AC-002** — REQ-002 holds for every committed `pressure-source-1` publication and corpus entry:
   - the Rust reader and the Python verifier each return the corpus's stated outcome for every entry;
-  - the RF census classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged; its envelope, results and summary digests change only as a stated product-text, identity or published-row change requires;
+  - the RF census classification, counts, first causes, selections and frozen-row verdicts are unchanged; its charged work changes only as a reviewed work-reduction change requires, with every charge still at least the executed work; its envelope and diagnostics digests change only as a stated product-text, identity, published-row or work change requires, and its results and summary digests only as a stated product-text, identity or published-row change requires (owner, 2026-10-20, approving this wording for R-A, Design `source-work-nondyadic-inputs.md` §6);
   - the metered charges match their independent oracle.
 
 ### Fallback and fixed limits
