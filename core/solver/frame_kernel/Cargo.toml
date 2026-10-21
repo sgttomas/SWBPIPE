@@ -21,7 +21,9 @@ mutation-controls = []
 # `Work::add` execute, against what they charge. Test builds only: the frame
 # kernel's own tests compile it unconditionally, and a consumer's tests enable
 # it through a dev-dependency only, never a product dependency. It adds no
-# field to any type.
+# field to any type. It also carries R-A's reference entry (the long
+# evaluation, `evaluate_functionals_long`) and row trace (`take_row_paths`),
+# which the gating tests use (source-work design §3.2).
 exact-operation-count = []
 # W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3.2 and
 # `w1e-sharper-exact-coverage.md` §6.2): the shared census probe, its records and

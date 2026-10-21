@@ -18,6 +18,21 @@ J7's census pins are held to AC-002 in the owner's text of 2026-10-19: only
 The base bytes are read from Git history (the hosted workflows check out with
 full history). The check is bound to O4's regeneration: a later change to a
 listed file restates its own base here.
+
+R-A (Design `source-work-nondyadic-inputs.md` §4) regenerates some listed files
+in their counted work only, and `test_ra_work_only_envelope_diff` binds that
+change from main `9e03991d39`. For those files this check reads their bytes at
+`9e03991d39`, the bytes O4's regeneration left, so the two checks together bind
+O4's and R-A's changes in turn.
+
+The W1 coverage repair's corner 1 (`80cf05a857`, #1484) regenerated the retained
+corpus `retained_precision_cases.json` without restating it here, so its route-E
+check failed on main from `9e03991d39`. This check reads that file at corner 1's
+parent `ac07a34ccd`, the bytes O4's regeneration left. Corner 1's moves are not
+value-bound by W1's own checks (its preservation census skips `w1_member_*`), so
+`..._retained_corpus_moves_since_w1_corner1_are_enumerated` binds the committed
+corpus to `ac07a34ccd`: every entry present there is unchanged except corner 1's
+enumerated moves, and the only additions are its enumerated entries.
 """
 from __future__ import annotations
 
@@ -33,6 +48,30 @@ from tests.retained_precision_corpus import _STORAGE
 PROJECT = Path(__file__).resolve().parents[1]
 REPOSITORY = PROJECT.parents[1]
 BASE = "3826a6288173928ed32a554552fec72eb8ff3dd2"
+# R-A's base, and the files R-A regenerates (its own check's list).
+RA_BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
+# The W1 coverage repair corner 1's parent, for the retained corpus it regenerated.
+W1_CORNER1_BASE = "ac07a34ccd45a83425a077f64564e92155db943f"
+# Corner 1 itself, whose corpus bytes pin the entries it moved or added.
+W1_CORNER1 = "80cf05a8575dd53dca4f058d90d835d310cc2228"
+W1_REGENERATED = frozenset({"fixtures/results/retained_precision_cases.json"})
+# What corner 1 (`80cf05a857`) moved and added in the retained corpus, by member.
+W1_CORNER1_MOVED = {
+    "cases": frozenset(
+        f"w1_member_{kind}_{mode}"
+        for kind in ("combination", "exhaustion", "load", "multi", "values_failure")
+        for mode in ("sparse_interactive", "dense_scrutiny")
+    ),
+    "mutations": frozenset(
+        f"member_exhaustion_diagnostic_{name}" for name in ("on_nodal_case", "on_ready", "reversed")
+    ),
+    "must_pass": frozenset(),
+}
+W1_CORNER1_ADDED = {
+    "cases": frozenset(f"w1_member_hull_d02_{mode}" for mode in ("sparse_interactive", "dense_scrutiny")),
+    "mutations": frozenset(),
+    "must_pass": frozenset(f"w1_member_hull_d02_{mode}_must_pass" for mode in ("sparse_interactive", "dense_scrutiny")),
+}
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -62,8 +101,13 @@ class Token(str):
     """A JSON number's exact source token."""
 
 
+class Obj(list):
+    """A JSON object, as its ordered (key, value) pairs; distinct from an array, so
+    `{}` and `[]` never compare equal (Codex review of this PR, round 4)."""
+
+
 def _parse(text: str):
-    return json.loads(text, parse_float=Token, parse_int=Token, object_pairs_hook=list)
+    return json.loads(text, parse_float=Token, parse_int=Token, object_pairs_hook=Obj)
 
 
 def _restate(text: str) -> str:
@@ -88,9 +132,11 @@ def _path(path: tuple) -> str:
 def classify(base, current, path=(), out=None):
     """Every differing leaf as (class, path); class 'text', 'hash' or 'other'."""
     out = [] if out is None else out
+    if isinstance(base, list) and isinstance(current, list) and isinstance(base, Obj) != isinstance(current, Obj):
+        out.append(("other", _path(path) + " (object/array)"))
+        return out
     if isinstance(base, list) and isinstance(current, list):
-        pairs = all(isinstance(x, tuple) for x in base + current)
-        if pairs:  # an object, as ordered (key, value) pairs
+        if isinstance(base, Obj):  # an object, as ordered (key, value) pairs
             if [k for k, _ in base] != [k for k, _ in current]:
                 out.append(("other", _path(path) + " (members)"))
                 return out
@@ -127,23 +173,29 @@ def classify(base, current, path=(), out=None):
     return out
 
 
-def _as_pairs(value):
-    """Expanded DAG values as the ordered-pair form of `_parse`."""
-    if isinstance(value, dict):
-        return [(k, _as_pairs(v)) for k, v in value.items()]
-    if isinstance(value, list):
-        return [_as_pairs(v) for v in value]
-    if isinstance(value, bool) or value is None:
-        return value
-    if isinstance(value, (int, float)):
-        return Token(json.dumps(value))
-    return value
+def _expand_tokens(document):
+    """A storage DAG expanded with every number's source token kept (Codex review of this
+    PR, round 4: expanding parsed binary64 values let a changed token that rounds alike
+    pass). `document` is the DAG parsed by `_parse`; its structure was validated by the
+    storage definition's own expansion."""
+    nodes = dict(document)["nodes"]
+
+    def value(index):
+        node = nodes[index]
+        if not isinstance(node, list):
+            return node
+        if int(node[0]) == 0:
+            return [value(int(ref)) for ref in node[1:]]
+        return Obj((nodes[int(node[i])], value(int(node[i + 1]))) for i in range(1, len(node), 2))
+
+    return value(int(dict(document)["root"]))
 
 
 def load(text: str):
     document = json.loads(text)
     if isinstance(document, dict) and str(document.get("format", "")).startswith("retained-precision-corpus-dag/"):
-        return _as_pairs(_STORAGE.expand(document))
+        _STORAGE.expand(document)
+        return _expand_tokens(_parse(text))
     return _parse(text)
 
 
@@ -154,9 +206,26 @@ def base_text(name: str) -> str:
     ).stdout
 
 
+def _ra_regenerated() -> frozenset:
+    from tests import test_ra_work_only_envelope_diff as ra
+    return frozenset(ra.RAW) | {name for name, _ in ra.DERIVED} | {ra.O4_CONTROLS, ra.J2_CORPUS, ra.J7_CENSUS}
+
+
+def current_text(name: str) -> str:
+    """The file's bytes after O4's regeneration: before the later change that regenerated
+    it (W1 corner 1 or R-A), else as committed."""
+    at = W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated() else None
+    if at is not None:
+        return subprocess.run(
+            ["git", "show", f"{at}:projects/chirality-piping/{name}"],
+            cwd=REPOSITORY, check=True, capture_output=True, text=True,
+        ).stdout
+    return (PROJECT / name).read_text()
+
+
 def diff(name: str, base: str | None = None, current: str | None = None):
     base = base_text(name) if base is None else base
-    current = (PROJECT / name).read_text() if current is None else current
+    current = current_text(name) if current is None else current
     return classify(load(base), load(current))
 
 
@@ -317,7 +386,7 @@ def _entries(text, member, key):
 
 def _keyed_diff(name, member, key, current=None):
     base = dict(_entries(base_text(name), member, key))
-    now = _entries((PROJECT / name).read_text() if current is None else current, member, key)
+    now = _entries(current_text(name) if current is None else current, member, key)
     return {k: classify(base[k], entry) for k, entry in now if k in base}, len(base), len(now)
 
 
@@ -356,6 +425,147 @@ def test_o4_text_only_envelope_diff_retained_corpus_route_e_entries():
             assert any(kind == "text" for kind, _ in found[ident]), ident
 
 
+def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=None):
+    """The committed retained corpus against corner 1's parent: the same entries in the same
+    order, unchanged except corner 1's enumerated moves, plus exactly its enumerated
+    additions; every other member unchanged. So a later move of any other entry, a
+    route-E base included, fails here (Opus review, round 3)."""
+    name = RETAINED_CORPUS
+    base = subprocess.run(
+        ["git", "show", f"{W1_CORNER1_BASE}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+    landed = subprocess.run(
+        ["git", "show", f"{W1_CORNER1}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+    now = (PROJECT / name).read_text() if current is None else current
+    for member in ("cases", "mutations", "must_pass"):
+        before = _entries(base, member, _pair_id)
+        after = _entries(now, member, _pair_id)
+        known = dict(before)
+        assert [k for k, _ in after if k in known] == [k for k, _ in before], (member, "order or removal")
+        added = [k for k, _ in after if k not in known]
+        assert sorted(added) == sorted(W1_CORNER1_ADDED[member]) and len(added) == len(set(added)), (member, added)
+        moved = {k for k, entry in after if k in known and classify(known[k], entry)}
+        assert moved == W1_CORNER1_MOVED[member], (member, sorted(moved))
+        # The entries corner 1 moved or added equal its own bytes, so they are bound too
+        # (Opus review, round 4).
+        pinned = dict(_entries(landed, member, _pair_id))
+        for key, entry in after:
+            if key in W1_CORNER1_MOVED[member] or key in W1_CORNER1_ADDED[member]:
+                assert not classify(pinned[key], entry), (member, key, "differs from corner 1")
+    before, after = dict(load(base)), dict(load(now))
+    assert list(before) == list(after)
+    for member in before:
+        if member not in ("cases", "mutations", "must_pass"):
+            assert not classify(before[member], after[member]), member
+
+
+def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
+    """A value planted in the committed corpus's route-E base fails the enumeration."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    document = storage.expand(json.loads((PROJECT / RETAINED_CORPUS).read_text()))
+    entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
+    assert _plant(entry)
+    with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+
+
+def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_entries():
+    """A value planted in an entry corner 1 moved or added, or a duplicated addition, fails
+    (Opus review, round 4)."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    for member, ident in (
+        ("cases", "w1_member_load_sparse_interactive"),
+        ("cases", "w1_member_hull_d02_sparse_interactive"),
+        ("mutations", "member_exhaustion_diagnostic_reversed"),
+    ):
+        document = storage.expand(committed)
+        entry = next(e for e in document[member] if e.get("id") == ident)
+        if member == "mutations":  # its values are bit strings: change an edit's path
+            entry["edits"][0]["path"] += "/planted"
+        else:
+            assert _plant(entry), ident
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+    document = storage.expand(committed)
+    document["cases"].append(next(e for e in document["cases"] if e.get("id") == "w1_member_hull_d02_sparse_interactive"))
+    with pytest.raises(AssertionError, match="w1_member_hull_d02_sparse_interactive"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+
+
+def _dump(value) -> str:
+    """Plain JSON from `load`'s form, every number token and container type as read."""
+    if isinstance(value, Obj):
+        return "{" + ",".join(json.dumps(k) + ":" + _dump(v) for k, v in value) + "}"
+    if isinstance(value, list):
+        return "[" + ",".join(_dump(v) for v in value) + "]"
+    if isinstance(value, Token):
+        return str(value)
+    return json.dumps(value)
+
+
+def _replace_first(value, test, make) -> bool:
+    """Replaces the first value (a leaf or a container) that `test` accepts; True once done."""
+    if isinstance(value, Obj):
+        for index, (key, item) in enumerate(value):
+            if test(item):
+                value[index] = (key, make())
+                return True
+            if _replace_first(item, test, make):
+                return True
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            if test(item):
+                value[index] = make()
+                return True
+            if _replace_first(item, test, make):
+                return True
+    return False
+
+
+def test_o4_text_only_envelope_diff_corner1_enumeration_keeps_tokens_and_containers():
+    """In the committed route-E base, an empty array turned into an empty object, or a
+    number token changed to one that rounds alike, fails (Codex review of this PR, round 4)."""
+    text = (PROJECT / RETAINED_CORPUS).read_text()
+    # The token-preserving re-serialisation alone passes, so each failure below is the change's.
+    test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(load(text)))
+    for test, make in (
+        (lambda v: isinstance(v, list) and not isinstance(v, Obj) and not v, Obj),
+        (lambda v: isinstance(v, Token) and v == "1.0", lambda: Token("1.0000000000000001")),
+    ):
+        document = load(text)
+        entry = next(e for e in dict(document)["cases"] if dict(e).get("id") == "w1_member_route_e_baseline_sparse_interactive")
+        assert _replace_first(entry, test, make)
+        with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(document))
+
+
+def _plant(value):
+    """Doubles the first nonzero number leaf; True once one is changed."""
+    items = list(value.items()) if isinstance(value, dict) else list(enumerate(value)) if isinstance(value, list) else []
+    for key, leaf in items:
+        if isinstance(leaf, float) and leaf != 0.0:
+            value[key] = leaf * 2.0
+            return True
+        if _plant(leaf):
+            return True
+    return False
+
+
+def test_o4_text_only_envelope_diff_route_e_check_refuses_a_planted_value():
+    """The restated route-E check still fails on a changed value in a route-E entry."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    document = storage.expand(json.loads(current_text(RETAINED_CORPUS)))
+    entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
+
+    assert _plant(entry)
+    found, _, _ = _keyed_diff(RETAINED_CORPUS, "cases", _pair_id, current=json.dumps(document))
+    assert any(kind == "other" for kind, _ in found["w1_member_route_e_baseline_sparse_interactive"])
+
+
 def test_o4_text_only_envelope_diff_r1_outcomes_move_only_input_digests():
     """R1: the native reader's outcome on every corpus input present at the base is unchanged except the
     digests of the inputs (and receipt digests the readings echo)."""
@@ -374,7 +584,7 @@ def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():
 def test_o4_text_only_envelope_diff_refuses_a_changed_number():
     """The mutant row of §6: one number changed in a regenerated envelope fails."""
     name = ENVELOPES[0]
-    current = (PROJECT / name).read_text()
+    current = current_text(name)
     match = re.search(r'"value": ?(-?[0-9][0-9.eE+-]*)', current)
     assert match
     token = match.group(1)

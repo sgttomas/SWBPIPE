@@ -347,6 +347,7 @@ impl SelectedSourceRecovery {
                     exact::ForceBasis::IdentifiedContributions(&source.force_terms),
                     &source.congruence,
                     &source.descriptors,
+                    Some(&|index| source.hint(index)),
                     &[],
                     RELATIVE_LIMIT,
                     &mut self.budget,
@@ -385,6 +386,20 @@ impl Sources {
             contribution_groups: None,
             symmetry: None,
         }
+    }
+    /// R-A's B1 hint rule (DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.1). The
+    /// member rows come first, each member's 12 end rows then its 6 × STATIONS section
+    /// rows, so a section row's candidate is its member's i-end row of the same
+    /// component. Every other row has none. The kernel charges the rule before it
+    /// builds the hints, in the plan and in the replay, and verifies every hint before
+    /// use, so a wrong one takes the long path.
+    fn hint(&self, index: usize) -> Option<u32> {
+        const MEMBER_ROWS: usize = 12 + 6 * STATIONS.len();
+        let row = index % MEMBER_ROWS;
+        if index >= self.nodal_start || row < 12 {
+            return None;
+        }
+        u32::try_from(index - row + (row - 12) % 6).ok()
     }
 }
 fn failure(stage: &'static str, error: RecoveryError, budget: &AttemptBudget) -> RecoveryFailure {
@@ -1855,7 +1870,7 @@ pub(super) fn solve(
         stage = "exact source solve";
         let response = context.solve_with_budget(&mut budget).result?;
         stage = "complete affine plan";
-        let plan = FunctionalPlan::new(&context, &source.descriptors, &mut budget).result?;
+        let plan = FunctionalPlan::new_with_hints(&context, &source.descriptors, &|index| source.hint(index), &mut budget).result?;
         stage = "unprojected affine recovery";
         let functionals = response.evaluate_functionals(&plan, &mut budget).result?;
         // No projected displacement participates in any member/device recovery.

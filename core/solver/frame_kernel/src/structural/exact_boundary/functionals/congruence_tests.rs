@@ -477,7 +477,7 @@ fn congruence_replay_refuses_a_changed_operand_map_or_range() {
         let (retained, ds) = retain(&m, &mut b);
         assert_eq!(retained.response().congruence_members(), &m.congruence[..]);
         let replay = |set: &RetainedFunctionalSet, list: &[CongruenceMember], b: &mut AttemptBudget| {
-            set.replay_against(&m.system(), ID, ForceBasis::DeclaredVector, list, &ds, &[], 1e-9, b).result
+            set.replay_against(&m.system(), ID, ForceBasis::DeclaredVector, list, &ds, None, &[], 1e-9, b).result
         };
         let bind = |set: &RetainedFunctionalSet, list: &[CongruenceMember], b: &mut AttemptBudget| {
             set.check_binding_with_budget(&m.system(), ID, ForceBasis::DeclaredVector, list, &ds, b).result
@@ -643,7 +643,7 @@ fn congruence_operands_are_charged_and_size_checked_before_any_copy() {
     let mut corrupt = retained.clone();
     corrupt.response.source.congruence = padded.clone();
     let before = b.report();
-    let replay = corrupt.replay_against(&m.system(), ID, ForceBasis::DeclaredVector, &m.congruence, &ds, &[], 1e-9, &mut b);
+    let replay = corrupt.replay_against(&m.system(), ID, ForceBasis::DeclaredVector, &m.congruence, &ds, None, &[], 1e-9, &mut b);
     assert_eq!(replay.result.unwrap_err(), Error::Budget);
     assert_eq!(replay.work.charged - before.charged, 24 + 2 * descriptors + 8 + 16);
     assert_eq!(replay.work.rejected, before.rejected);
@@ -652,7 +652,7 @@ fn congruence_operands_are_charged_and_size_checked_before_any_copy() {
     assert_eq!(bind.result.unwrap_err(), Error::Budget);
     assert_eq!(bind.work.charged - before.charged, 16);
     let before = b.report();
-    let replay = retained.replay_against(&m.system(), ID, ForceBasis::DeclaredVector, &padded, &ds, &[], 1e-9, &mut b);
+    let replay = retained.replay_against(&m.system(), ID, ForceBasis::DeclaredVector, &padded, &ds, None, &[], 1e-9, &mut b);
     assert_eq!(replay.result.unwrap_err(), Error::Budget);
     assert_eq!(replay.work.rejected, before.rejected);
 }

@@ -669,18 +669,93 @@ fn row_bytes(row: &ResultItem) -> u64 {
     n as u64
 }
 
+/// R-A's terms for a control's selected case (DEL-04-08 Design
+/// `source-work-nondyadic-inputs.md` §3.1, §4), measured on the receipt replay's own input,
+/// rebuilt here from the captured invocation exactly as `check_input_with_physical` and
+/// `check_load_state_input` build it.
+fn ra_work_for(family: &str, raw: &Value, mode: PreviewSolverMode, case_id: &str) -> crate::source_recovery::j7_rf_census::ra_gating::RaWork {
+    use crate::source_recovery::j7_rf_census::ra_gating::ra_work;
+    let label = format!("{family} {case_id} {}", mode.as_str());
+    let (_, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    let mut diagnostics = Vec::new();
+    let measured = if family == "load_reference_source" {
+        let replay = capture.captured_load_state_case(case_id).unwrap_or_else(|e| panic!("{label}: {e:?}"));
+        let LoadStateReplay { model, resolved, built, .. } = &replay;
+        let boundary = prepare_boundary(built.nodes.len(), &built.supports);
+        let stiffness = assemble_case_stiffness(built, &boundary.springs).unwrap();
+        let case = &resolved.effective_case;
+        let loads = build_load_case_primitive_loads(model, case, &mut diagnostics);
+        let application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
+        let eigen = load_state_eigen_loads(resolved, built).unwrap_or_else(|p| panic!("{label}: {p}"));
+        let force = nodal_and_eigen_case_force(&application, &eigen, built).unwrap();
+        let prescribed: Vec<_> = boundary.restrained_dofs.iter().map(|&d| (d, resolved.prescribed.get(&d).copied().unwrap_or(0.0))).collect();
+        let free: Vec<_> = (0..force.len()).filter(|d| !boundary.restrained_dofs.contains(d)).collect();
+        assert!(!has_blocking(&diagnostics) && boundary.findings.is_empty(), "{label}");
+        ra_work(&source_recovery::Input {
+            model, built, stiffness: &stiffness, force: &force, free: &free, prescribed: &prescribed,
+            spring_entries: &boundary.springs, load_case: case, load_application: &application,
+            thermal_loads: &eigen, load_state: Some(resolved),
+        })
+    } else {
+        let request = capture.requested().unwrap();
+        let mut model = request.model;
+        let mut materials = if request.materials.is_empty() { model.materials.clone() } else { request.materials };
+        resolve_shared_sections(&mut model, &mut diagnostics);
+        normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+        let case = model.load_cases.iter().find(|c| c.id == case_id).unwrap().clone();
+        if modulus_basis_key(&case, &mut diagnostics).is_some() {
+            materials = materials_for_modulus_basis(&model, &materials, &case, &mut diagnostics).unwrap().0;
+        }
+        let built = build_model(&model, &materials, &mut diagnostics).unwrap();
+        let boundary = prepare_boundary(built.nodes.len(), &built.supports);
+        let mut stiffness = assemble_global_stiffness_with_connectors(built.nodes.len(), &built.frame_elements, &built.connectors).unwrap();
+        add_curved_bend_stiffness_contributions(&mut stiffness, &built.curved_bend_elements);
+        for spring in &boundary.springs {
+            let dof = spring.node_dof.global_index();
+            stiffness[dof][dof] += spring.stiffness.value;
+        }
+        let loads = build_load_case_primitive_loads(&model, &case, &mut diagnostics);
+        let application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
+        let force = nodal_and_eigen_case_force(&application, &[], &built).unwrap();
+        let prescribed: Vec<_> = boundary.restrained_dofs.iter().map(|&d| {
+            (d, boundary.imposed_displacements.iter().find(|p| p.node_dof.global_index() == d).map(|p| p.displacement.value).unwrap_or(0.0))
+        }).collect();
+        let free: Vec<_> = (0..force.len()).filter(|d| !boundary.restrained_dofs.contains(d)).collect();
+        assert!(!has_blocking(&diagnostics), "{label}");
+        ra_work(&source_recovery::Input {
+            model: &model, built: &built, stiffness: &stiffness, force: &force, free: &free, prescribed: &prescribed,
+            spring_entries: &boundary.springs, load_case: &case, load_application: &application,
+            thermal_loads: &[], load_state: None,
+        })
+    };
+    measured.unwrap_or_else(|e| panic!("{label}: {e}"))
+}
+
 /// T4-U4b §4.3's complete work law, checked independently on every current control (twelve
-/// requests x two modes) against the pre-U4b counters: for each selected case,
-/// `work.charged` changes by exactly 24ΔE + ΔF_k + ΔQ_k, and `publication_charged` by 24ΔE + ΔP.
+/// requests x two modes) against the pre-U4b counters, with R-A's change since then: for each
+/// selected case, `work.charged` changes by exactly 24ΔE + ΔF_k + ΔQ_k + ΔR_k, and
+/// `publication_charged` by 24ΔE + ΔP + ΔD_k.
 /// - ΔE: the encoded request delta (the committed requests are unchanged: 0).
 /// - ΔF_k: twice the new rows' identity and metadata bytes (`finalization_size`'s 2(12E + B_k)).
 /// - ΔQ_k: the composite wrapper's own 64 per new row; the new treatment reserves no recipe
 ///   work (no `derived_recipe_entry`, no 4096 per row), so its per-recipe charge is zero.
 /// - ΔP: the publication's 32 per new row and 256 per new row per load case.
-/// Each term is derived from the actual rows; finalization, the wrapper-only terms, the other
+/// - ΔR_k (R-A, DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.1 "As built", §4):
+///   measured by `ra_work` on the replay's own input against the pre-R-A path (the plain
+///   plan and the long evaluation). The live attempt changes by the plan term (two units
+///   per descriptor for the hint rule, checked) plus the evaluation term; the replay, on the
+///   same ledger, by the same two units per descriptor (it rebuilds the hints from the rule)
+///   plus the same evaluation term, since it re-evaluates the same descriptors on the
+///   bit-identical response.
+/// - ΔD_k: twelve per character that the selected diagnostic's printed method work (the live
+///   attempt's) gains or loses with R-A's live change: 12 × (digits(W) − digits(W − ΔR_live)).
+/// The table keeps the pre-U4b counters; R-A adds a measured term rather than rebasing it, so
+/// the U4b terms are still checked against the same history. Each term is derived from the
+/// actual rows or the measured evaluations; finalization, the wrapper-only terms, the other
 /// local charges (unchanged) and publication are checked separately, then reconciled with the
-/// counters exactly. Every control still selects under the unchanged 8,000,000 case limit; each
-/// new charge is printed.
+/// counters exactly. Every control still selects under the unchanged 8,000,000 case limit;
+/// each new charge is printed.
 #[test]
 fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
     let mut maximum = 0u64;
@@ -713,6 +788,19 @@ fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
         let all_new = snapshot.envelope.results.iter().filter(|r| DERIVED_KINDS.contains(&r.kind.as_str())).count() as u64;
         let load_cases = snapshot.raw["model"]["load_cases"].as_array().unwrap().len() as u64;
         let delta_p = (32 + 256 * load_cases) * all_new;
+        // R-A: the measured live and replay terms, and the selected diagnostic's digit term.
+        let ra = ra_work_for(family, &snapshot.raw, mode, case_id);
+        assert_eq!(ra.plan, 2 * ra.hints, "{label}: the hinted plan charges two units per descriptor");
+        let delta_r_live = ra.plan + ra.evaluation;
+        let delta_r = delta_r_live + 2 * ra.hints + ra.evaluation;
+        let selected: Vec<&str> = snapshot.envelope.diagnostics.iter()
+            .filter(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED" && d.affected_refs.iter().any(|r| r == case_id))
+            .map(|d| d.message.as_str()).collect();
+        assert_eq!(selected.len(), 1, "{label}: one selected diagnostic");
+        let printed: i64 = selected[0].split("work: WorkReport { charged: ").nth(1).and_then(|s| s.split(',').next())
+            .and_then(|s| s.parse().ok()).unwrap_or_else(|| panic!("{label}: the printed method work"));
+        let digits = |n: i64| n.to_string().len() as i64;
+        let delta_d = 12 * (digits(printed) - digits(printed - delta_r_live));
         // Reconcile with the actual counters.
         let (_, capture) = CapturedInvocation::parse(snapshot.raw.clone(), snapshot.mode).unwrap();
         let envelope = snapshot.envelope;
@@ -724,15 +812,15 @@ fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
         assert_eq!(case["outcome"], "qualified", "{label}: still selects");
         assert_eq!(case["selected_method"], "retained_source_blocks_exact_v1", "{label}");
         let charged = case["work"]["charged"].as_u64().unwrap();
-        assert_eq!(charged, old_charged + delta_f + delta_q, "{label}: work.charged = old + 24ΔE + ΔF_k + ΔQ_k");
+        assert_eq!(charged as i64, (old_charged + delta_f + delta_q) as i64 + delta_r, "{label}: work.charged = old + 24ΔE + ΔF_k + ΔQ_k + ΔR_k");
         let publication = body["invocation_work"]["publication_charged"].as_u64().unwrap();
-        assert_eq!(publication, old_publication + delta_p, "{label}: publication_charged = old + 24ΔE + ΔP");
+        assert_eq!(publication as i64, (old_publication + delta_p) as i64 + delta_d, "{label}: publication_charged = old + 24ΔE + ΔP + ΔD_k");
         let cases: u64 = body["cases"].as_array().unwrap().iter()
             .map(|c| c["work"]["charged"].as_u64().unwrap() + c["work"]["reserved_unobserved_failure"].as_u64().unwrap()).sum();
         assert_eq!(body["invocation_work"]["charged"].as_u64().unwrap(), cases + publication, "{label}: invocation work");
         assert!(charged <= case["work"]["limit"].as_u64().unwrap() && case["work"]["limit"].as_u64().unwrap() <= 8_000_000, "{label}");
         maximum = maximum.max(charged);
-        println!("U4B_SOURCE_WORK {label} case={case_id} charged={charged} (pre-U4b {old_charged}; +{delta_f} finalization +{delta_q} wrapper) publication={publication} (+{delta_p})");
+        println!("U4B_SOURCE_WORK {label} case={case_id} charged={charged} (pre-U4b {old_charged}; +{delta_f} finalization +{delta_q} wrapper; R-A {delta_r}: hints {} plan {} evaluation {} x2) publication={publication} (+{delta_p}; R-A digits {delta_d})", ra.hints, ra.plan, ra.evaluation);
     }
     println!("U4B_SOURCE_WORK maximum per-case charge {maximum} of 8000000");
 }

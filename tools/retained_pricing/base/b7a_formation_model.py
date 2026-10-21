@@ -34,7 +34,10 @@ SOURCE_FILES = {
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
-    "core/product_physics/src/source_recovery.rs": "e6a6cfee0ab0ea03fe9251ab696c3b67a0943bf2b6c89548dce6e72c4543e3d1",
+    # R-A D3 (§8.13): read b903a2d901; `Sources::hint` is B1's index rule (arithmetic, no allocation), which solve's
+    # plan (`new_with_hints`) and the replay pass to the kernel as a borrowed closure (the kernel's hint vectors are
+    # RA-HS); j7_rf_census declares the #[cfg(test)] gating module. No formed-load or finding owner changes.
+    "core/product_physics/src/source_recovery.rs": "04b56239eb4fe479e1b4df388192d995aa932f9af38061cd46341c8d2e24bbc2",
     "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
 }
 RANGE_CONTENT = 59

@@ -19,7 +19,7 @@ mod explicit;
 use super::exact_operation_count as count;
 use super::functionals::{
     AffineTerm, AttemptBudget, FunctionalConvention, FunctionalDescriptor, FunctionalKey,
-    FunctionalPlan, FunctionalQuantity, FunctionalUnit,
+    FunctionalPlan, FunctionalQuantity, FunctionalUnit, HintRule, MemberEnd,
 };
 use super::*;
 use std::collections::BTreeSet;
@@ -848,12 +848,157 @@ fn descriptors() -> Vec<FunctionalDescriptor> {
     ]
 }
 
+/// Member-shaped R-A fixtures. The free graph is unchanged from `higher`;
+/// one extra prescribed -0 DOF exercises B2 alongside B1. Sources cover both
+/// contributing blocks and the nonzero prescribed DOF independently.
+fn hinted_fixture() -> (Source, Vec<FunctionalDescriptor>, Vec<Option<u32>>) {
+    let mut source = Source::higher();
+    for row in &mut source.stiffness {
+        row.push(0.0);
+    }
+    source.stiffness.push(vec![0.0; 9]);
+    source.force.push(0.0);
+    source.fixed.push((8, -0.0));
+    let term = |dof, products| AffineTerm { dof, products };
+    let base = vec![
+        term(1, vec![vec![2.5, 0.75]]),
+        term(8, vec![vec![4.5, 0.5]]),
+    ];
+    let end = |member: &str, row: u8, terms, offset| FunctionalDescriptor {
+        key: FunctionalKey {
+            case_id: "metered".into(),
+            quantity: FunctionalQuantity::MemberEnd {
+                member: member.into(),
+                end: MemberEnd::I,
+                row,
+            },
+            unit: if row < 3 {
+                FunctionalUnit::Newton
+            } else {
+                FunctionalUnit::NewtonMetre
+            },
+            convention: FunctionalConvention::NodeOnElement,
+        },
+        terms,
+        offset,
+    };
+    let mut ds = vec![
+        end("beam", 0, base.clone(), vec![]),
+        end("beam", 1, vec![term(8, vec![vec![2.5, 3.5]])], vec![]),
+        end("beam", 2, vec![term(1, vec![vec![2.5, 0.5, 0.25]])], vec![]),
+        end("beam", 3, vec![term(1, vec![vec![1.0, 2.5]])], vec![]),
+        end("beam", 4, vec![term(1, vec![vec![2.0, 0.5]])], vec![]),
+        end(
+            "beam",
+            5,
+            vec![term(0, vec![vec![2.0]]), term(1, vec![vec![2.5]])],
+            vec![],
+        ),
+        end(
+            "two blocks",
+            0,
+            vec![term(1, vec![vec![2.5]]), term(4, vec![vec![3.5]])],
+            vec![],
+        ),
+        end("offset", 0, base.clone(), vec![vec![0.25]]),
+    ];
+    let mut wrong_case = end("beam", 0, base.clone(), vec![]);
+    wrong_case.key.case_id = "other case".into();
+    ds.push(wrong_case);
+    let mut j_end = end("beam", 0, base, vec![]);
+    if let FunctionalQuantity::MemberEnd { end, .. } = &mut j_end.key.quantity {
+        *end = MemberEnd::J;
+    }
+    ds.push(j_end);
+    let mut hints = vec![None; ds.len()];
+    let section = |s: usize, station: f64| {
+        let mut d = ds[s].clone();
+        let FunctionalQuantity::MemberEnd { member, row, .. } = &d.key.quantity else {
+            unreachable!()
+        };
+        d.key.quantity = FunctionalQuantity::MemberSection {
+            member: member.clone(),
+            station_bits: station.to_bits(),
+            component: *row,
+        };
+        d.key.convention = FunctionalConvention::SectionLocal;
+        for product in d
+            .offset
+            .iter_mut()
+            .chain(d.terms.iter_mut().flat_map(|t| &mut t.products))
+        {
+            product.push(-1.0);
+        }
+        d
+    };
+    // Every static/dynamic source condition has an otherwise matching section.
+    let mut sections: Vec<_> = (0..8).map(|i| (section(i, 0.0), Some(i as u32))).collect();
+    // Extra zeroed products: scan stops at the first row in one case, and
+    // after declining row 0 in the other. Atoms after the zero are unrestricted.
+    for (station, r) in [(0.1, 0), (0.2, 1)] {
+        let mut d = section(1, station);
+        d.terms.extend(ds[r].terms.iter().cloned().map(|mut t| {
+            for p in &mut t.products {
+                p.extend([-1.0, -0.0, 7.5]);
+            }
+            t
+        }));
+        sections.push((d, Some(1)));
+    }
+    let mut atom = section(0, 0.3);
+    atom.terms[0].products[0][0] = 2.75;
+    sections.push((atom, Some(0)));
+    let mut dof = section(0, 0.4);
+    dof.terms[0].dof = 2;
+    sections.push((dof, Some(0)));
+    let mut missing = section(0, 0.5);
+    missing.terms.pop();
+    sections.push((missing, Some(0)));
+    let mut offset = section(0, 0.6);
+    offset.offset.push(vec![0.25]);
+    sections.push((offset, Some(0)));
+    let mut extra = section(1, 0.7);
+    extra.terms.extend(ds[0].terms.clone()); // no zero: every search candidate declines
+    sections.push((extra, Some(1)));
+    let mut prefix = section(1, 0.8);
+    prefix
+        .terms
+        .extend(ds[0].terms.iter().cloned().map(|mut t| {
+            for p in &mut t.products {
+                p.extend([2.0, 0.0]);
+            }
+            t
+        }));
+    sections.push((prefix, Some(1)));
+    // Missing, component, member, case, J-end, later and out-of-range hints.
+    for (i, hint) in [
+        None,
+        Some(1),
+        Some(6),
+        Some(8),
+        Some(9),
+        Some(32),
+        Some(u32::MAX),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        sections.push((section(0, 1.0 + i as f64), hint));
+    }
+    for (d, hint) in sections {
+        ds.push(d);
+        hints.push(hint);
+    }
+    (source, ds, hints)
+}
+
 /// The functional entry, preparation through its same-ledger replay, on one
 /// ledger of `limit`; every stage settled. Stops at the first failing stage.
 /// Returns the prepared Context's block orders.
 fn functional_chain(
     s: &Source,
     ds: &[FunctionalDescriptor],
+    hints: &[Option<u32>],
     limit: usize,
     check: &mut Checker,
 ) -> Result<Vec<usize>, Error> {
@@ -871,8 +1016,14 @@ fn functional_chain(
     let (a, t) = traced(|| c.solve_with_budget(&mut budget));
     check.stage("Context::solve_with_budget", t, &mut last, budget.report(), a.result.is_ok());
     let r = a.result?;
-    let (a, t) = traced(|| FunctionalPlan::new(&c, ds, &mut budget));
-    check.stage("FunctionalPlan::new", t, &mut last, budget.report(), false);
+    let entry = if hints.is_empty() { "FunctionalPlan::new" } else { "FunctionalPlan::new_with_hints" };
+    let rule = |i: usize| hints[i];
+    let rule: Option<HintRule<'_>> = (!hints.is_empty()).then_some(&rule);
+    let (a, t) = traced(|| match rule {
+        Some(rule) => FunctionalPlan::new_with_hints(&c, ds, rule, &mut budget),
+        None => FunctionalPlan::new(&c, ds, &mut budget),
+    });
+    check.stage(entry, t, &mut last, budget.report(), false);
     let plan = a.result?;
     let (a, t) = traced(|| r.evaluate_functionals(&plan, &mut budget));
     check.stage("Response::evaluate_functionals", t, &mut last, budget.report(), a.result.is_ok());
@@ -894,7 +1045,8 @@ fn functional_chain(
     let mut projections = Vec::new();
     for i in 0..set.len() {
         let (a, t) = traced(|| set.project(i, 1e-9, &mut budget));
-        check.stage("FunctionalSet::project", t, &mut last, budget.report(), a.result.is_ok());
+        let multiplies = a.result.as_ref().is_ok_and(|p| p.basis() != ProjectionBasis::ExactZero);
+        check.stage("FunctionalSet::project", t, &mut last, budget.report(), multiplies);
         projections.push(a.result?);
     }
     let (a, t) = traced(|| set.retain(&[proof], &leaves, &projections, &mut budget));
@@ -904,11 +1056,11 @@ fn functional_chain(
     check.stage("RetainedFunctionalSet::check_binding_with_budget", t, &mut last, budget.report(), false);
     a.result?;
     let (a, t) = traced(|| {
-        retained.replay_against(&system, ID, s.basis(), &s.congruence, ds, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
+        retained.replay_against(&system, ID, s.basis(), &s.congruence, ds, rule, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
     });
     check.stage("RetainedFunctionalSet::replay_against", t, &mut last, budget.report(), a.result.is_ok());
     assert_eq!(a.result?.functionals(), ds.len());
-    check.expect_stages(start, explicit::functional(s, &r, &retained));
+    check.expect_stages(start, explicit::functional(s, &r, &retained, hints));
     Ok(c.blocks.iter().map(Vec::len).collect())
 }
 
@@ -965,21 +1117,26 @@ fn sweep(
 /// method and the legacy `RetainedResponse` replay; with refusal sweeps when
 /// `sweeps` is set.
 fn every_entry(check: &mut Checker, sweeps: bool) {
-    functional_chain(&Source::new(), &descriptors(), Limits::default().operations, check).unwrap();
+    functional_chain(&Source::new(), &descriptors(), &[], Limits::default().operations, check).unwrap();
     // RF design §2: the order-3 and order-4 arithmetic (preparation, solve,
     // reactions, evaluation and replay) through the same oracle.
     let higher = Source::higher();
     let mut blocks = Checker::default();
-    let orders = functional_chain(&higher, &higher_descriptors(), Limits::default().operations, &mut blocks);
+    let orders = functional_chain(&higher, &higher_descriptors(), &[], Limits::default().operations, &mut blocks);
     assert_eq!(orders.unwrap(), [3, 4]);
     check.absorb(blocks);
     // RF design §3.3: a congruence member's exact formation, in the
     // functional entry's preparation and again in its replay, through the
     // same oracle.
     let mut members = Checker::default();
-    let orders = functional_chain(&Source::congruence(), &congruence_descriptors(), CONGRUENCE_LEDGER, &mut members);
+    let orders = functional_chain(&Source::congruence(), &congruence_descriptors(), &[], CONGRUENCE_LEDGER, &mut members);
     assert_eq!(orders.unwrap(), [4, 2]);
     check.absorb(members);
+    let (source, ds, hints) = hinted_fixture();
+    let mut hinted = Checker::default();
+    functional_chain(&source, &ds, &hints, Limits::default().operations, &mut hinted).unwrap();
+    if sweeps { sweep_hinted_explicit(check, &source, &ds, &hints, &hinted); }
+    check.absorb(hinted);
     let start = check.stages.len();
     let s = Source::new();
     let system = s.system();
@@ -1053,7 +1210,7 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
         (Source::congruence(), congruence_descriptors(), CONGRUENCE_STRIDES, CONGRUENCE_LEDGER),
     ] {
         let mut full = Checker::default();
-        functional_chain(&source, &ds, ledger, &mut full).unwrap();
+        functional_chain(&source, &ds, &[], ledger, &mut full).unwrap();
         for (entry, stride) in [
             ("Context::prepare_with_budget", strides[0]),
             ("RetainedFunctionalSet::replay_against", strides[1]),
@@ -1088,7 +1245,7 @@ fn sweep_functional(
     assert!(!limits.is_empty(), "{entry}: no multiplication to sweep");
     for limit in limits {
         let mut fresh = Checker { expected: Some(full.schedules.clone()), ..Checker::default() };
-        let refused = functional_chain(source, ds, limit, &mut fresh);
+        let refused = functional_chain(source, ds, &[], limit, &mut fresh);
         let (last, events) = fresh.stages.last().unwrap();
         assert_eq!(*last, entry, "limit {limit} stopped in {last}");
         if refused.is_ok() {
@@ -1101,6 +1258,60 @@ fn sweep_functional(
         check.tally.adds += fresh.tally.adds;
     }
 }
+/// Refuse immediately before and at every explicit charge in the hinted
+/// plan, live evaluation and replay. Amounts here select ledger boundaries;
+/// only `explicit`'s independently derived schedules supply expectations.
+fn sweep_hinted_explicit(
+    check: &mut Checker,
+    source: &Source,
+    ds: &[FunctionalDescriptor],
+    hints: &[Option<u32>],
+    full: &Checker,
+) {
+    let mut used = 0;
+    let mut limits = BTreeSet::new();
+    for (entry, events) in &full.stages {
+        let selected = matches!(
+            *entry,
+            "FunctionalPlan::new_with_hints"
+                | "Response::evaluate_functionals"
+                | "RetainedFunctionalSet::replay_against"
+        );
+        for event in events {
+            match event {
+                Event::Charge {
+                    amount,
+                    accepted: true,
+                } => {
+                    used += amount;
+                    if selected && *amount > 0 {
+                        limits.extend([used - 1, used]);
+                    }
+                }
+                Event::Add { charged, .. } | Event::Mul { charged, .. } => used += charged,
+                _ => panic!("full fixture refused"),
+            }
+        }
+    }
+    for limit in limits {
+        let mut fresh = Checker {
+            expected: Some(full.schedules.clone()),
+            ..Checker::default()
+        };
+        let result = functional_chain(source, ds, hints, limit, &mut fresh);
+        if limit < used {
+            assert_eq!(result, Err(Error::Budget), "hinted chain at {limit}");
+        } else {
+            assert!(
+                result.is_ok(),
+                "hinted chain at full charge {limit}: {result:?}"
+            );
+        }
+        check.tally.muls += fresh.tally.muls;
+        check.tally.adds += fresh.tally.adds;
+    }
+}
+
 impl<T> Attempt<T> {
     fn map_unit(self) -> Attempt<()> {
         Attempt {

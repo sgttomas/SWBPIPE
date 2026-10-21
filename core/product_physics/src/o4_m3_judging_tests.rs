@@ -1042,3 +1042,39 @@ fn o4_census_source_work_small_frames() { census_sweep("small_frames", &["run2",
 #[cfg(feature = "census-probe")]
 #[path = "w1e_census_tests.rs"]
 mod w1e_census_tests;
+
+/// R-A's gating test on the Z-hinge inputs (DEL-04-08 Design `source-work-nondyadic-inputs.md`
+/// §3.2): over a subset of O4's single-member census sweep (both sections' extremes, every
+/// length, both shear models, both styles), every row equals the long evaluation's bit for bit,
+/// and the coverage assertion holds: all 22 negated rows of the member take B1 (components 0–3
+/// at every station, 4 and 5 at the i end), exact-zero rows included, and no other row does.
+#[test]
+fn ra_gating_zhinge_negated_rows_take_b1() {
+    use crate::source_recovery::j7_rf_census::ra_gating::gate;
+    use open_pipe_stress_frame_kernel::structural::exact_boundary::exact_operation_count::RowPath;
+    let mut gated = 0;
+    for section in [(0.168, 0.007), (0.114, 0.006)] {
+        let lstar = (annular_phi(section.0, section.1, 0.3, 1.0) / 2.0).sqrt();
+        for length in [decimal_mm(lstar), 0.75, 2.5] {
+            for theory in ["eb", "timo"] {
+                for style in ["decimal", "dyadic"] {
+                    let (doc, _) = census_document("zhinge122", section, length, 1e-8, theory, style, "both");
+                    let raw = judged_request(&doc, "invented:ra-gating:zhinge122");
+                    let at = format!("{section:?} L={length} {theory} {style}");
+                    let gate = gate(&raw, PreviewSolverMode::SparseInteractive).unwrap_or_else(|| panic!("{at}: no plan")).unwrap_or_else(|e| panic!("{at}: {e}"));
+                    assert!(gate.mismatches.is_empty(), "{at}: rows {:?} differ from the long evaluation", gate.mismatches);
+                    let b1: Vec<&str> = gate.paths.iter().zip(&gate.kinds).filter(|(p, _)| **p == RowPath::Negated).map(|(_, k)| k.as_str()).collect();
+                    let expected: Vec<String> = [0.0, 0.25, 0.5, 0.75, 1.0].iter().flat_map(|s| (0..6).filter(move |&c| c < 4 || *s == 0.0).map(move |c| format!("section:{c}:{s}"))).collect();
+                    let mut got = b1.clone();
+                    got.sort_unstable();
+                    let mut want: Vec<&str> = expected.iter().map(String::as_str).collect();
+                    want.sort_unstable();
+                    assert_eq!(got, want, "{at}: the 22 negated rows take B1, and only they do");
+                    assert!(gate.b2_skipped() > 0, "{at}: B2 skips the zero-prescribed recipes");
+                    gated += 1;
+                }
+            }
+        }
+    }
+    assert_eq!(gated, 24);
+}
