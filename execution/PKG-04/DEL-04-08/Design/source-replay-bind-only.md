@@ -39,7 +39,7 @@ This design examines whether the source route's finalization (`pressure-source-1
   - no mutation after construction;
   - the arithmetic reads only what the snapshot records;
   - no hidden state in the product build.
-  
+
   Given these, every arithmetic comparison of the full replay is implied by bind-only's checks. The two then differ only in `Budget` refusals (the coverage gained) and in faults outside the model (the detection given up). Check by check, bind-only keeps G1, G3 and the live binding (G5), and removes G2 and the budget exposure.
 - **Detection given up** (section 2.4): per-invocation detection of transient faults in the live arithmetic or retained memory (F1), and of later-introduced hidden-state, construction or input-closure defects (F2 to F4). After adoption these are caught only test-side, on exercised inputs.
 - **Measured** (section 3; scratch prototype, never merged).
@@ -57,7 +57,7 @@ This design examines whether the source route's finalization (`pressure-source-1
   - the U4b and O4 work-law terms;
   - T25's pricing and the D3 registration;
   - RF, O4, R-A and pricing design text.
-  
+
   The 0.4 screen stays until the next unit decides it (section 7).
 
 ## 0. Basis and terms
@@ -260,7 +260,7 @@ The full replay becomes a test-side check. It stays in FK and is reached only fr
   - the PP `cfg(test)` hook above;
   - one maintained, non-ignored test that runs the shadow on a small set of today's blocked inputs: one PEXACT-B Timoshenko run, one decimal Z-hinge document and one 10-case invocation, sized to the hosted budget;
   - bind-only's own refusal tests for every kept check. These include the non-mutation relative-limit refusal that today exercises the replay (`functionals/tests.rs:484–495`).
-  
+
   Integration tests, headless, pytest and release binaries stay outside the shadow's reach. That gap is part of what Q1 asks the owner to accept.
 - **So after adoption,** F2 to F4 are caught on the exercised test inputs and in review, not per invocation, and most thinly on the newly covered heavy inputs.
 
@@ -283,7 +283,7 @@ The full replay becomes a test-side check. It stays in FK and is reached only fr
   - `source_preflight(expected)`, before `Snapshot::matches`;
   - 4 per functional projection;
   - n × 8, plus 16 per expected contact and 4 per DOF projection.
-  
+
   The full replay's comparison reservations are not charged: two units per Ratio term, two per witness scalar, 24 per DOF projection and 16 per functional projection. They amount to 4,070–5,764 per Z-hinge or (3,4,0) case [M]. An adopted implementation fixes its own schedule, with the oracle.
 
 ### 3.2 Charges [M]
@@ -439,7 +439,7 @@ The screen governs 0.4 publication, which the next unit unifies with pre-0.4 (se
   - `load_state_join_tests.rs:549` (K5, K7, K10);
   - `load_state_tests.rs:225`;
   - `source_receipt/tests.rs:138` and 282.
-  
+
   They must still refuse through the bind. Their asserted prefix moves with the stage string (section 3.3).
 - The FK tests of section 2.6, `metered_tests.rs`' replay entries (1117–1278, the oracle's entry list at 1409) and `metered_tests/explicit.rs:597–621` stay as tests of the test-side replay. `metered_mul_charges_match_the_independent_oracle` gains bind's charges.
 - `s11f_site_test.rs:2289–2295` pins `reserve_captured_replay(` in `solve_prepared_load_case`; it is unchanged under option (a).
