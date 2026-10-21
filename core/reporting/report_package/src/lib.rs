@@ -337,6 +337,11 @@ pub fn assemble_report_package_container(
         }
     }
 
+    // The stored-ZIP archive form has 16-bit name lengths and member counts
+    // and 32-bit sizes and offsets (no ZIP64). A package outside those limits
+    // cannot be encoded, so it is blocked; the reader refuses its bytes.
+    blocking_reasons.extend(archive_form_limit_reasons(&members));
+
     let export_blocked = !blocking_reasons.is_empty();
 
     // Package manifest member (DEL-17-02 REQ-007/011/040-043): member
@@ -384,6 +389,38 @@ pub fn assemble_report_package_container(
 // ---------------------------------------------------------------------------
 // Member materialization.
 // ---------------------------------------------------------------------------
+
+/// Headroom reserved for the manifest member, the central directory and the
+/// end-of-central-directory record when bounding the archive's 32-bit offsets.
+const ARCHIVE_SIZE_HEADROOM: u64 = 64 * 1024 * 1024;
+
+fn archive_form_limit_reasons(members: &[ContainerMember]) -> Vec<String> {
+    let mut reasons = Vec::new();
+    for member in members {
+        if member.file_name.len() > usize::from(u16::MAX) {
+            reasons.push(format!(
+                "package: member file name of {} bytes exceeds the archive form's 65535-byte limit",
+                member.file_name.len()
+            ));
+        }
+    }
+    // One manifest member is added later; 0xFFFF is the ZIP64 sentinel.
+    if members.len() + 1 >= usize::from(u16::MAX) {
+        reasons.push(format!(
+            "package: {} members exceed the archive form's member-count limit",
+            members.len() + 1
+        ));
+    }
+    let local_bytes: u64 = members
+        .iter()
+        .map(|member| 30 + member.file_name.len() as u64 + member.bytes.len() as u64)
+        .sum();
+    if local_bytes > u64::from(u32::MAX) - ARCHIVE_SIZE_HEADROOM {
+        reasons
+            .push("package: member bytes exceed the archive form's 32-bit size limit".to_string());
+    }
+    reasons
+}
 
 /// Deepest array/object nesting a canonical-JSON member may have: the depth
 /// the package reader can parse back (serde_json's recursion limit).
@@ -736,7 +773,8 @@ pub(crate) fn build_deterministic_zip(members: &[ContainerMember]) -> Vec<u8> {
         push_u32(&mut central, offset);
         central.extend_from_slice(name);
 
-        entry_count += 1;
+        // Wrapping: a package over the member-count limit is blocked, not a panic.
+        entry_count = entry_count.wrapping_add(1);
     }
 
     let central_offset = out.len() as u32;

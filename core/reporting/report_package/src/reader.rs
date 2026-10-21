@@ -10,16 +10,17 @@
 //!
 //! Reading proceeds in four steps, each refusing on the first defect:
 //!
-//! 1. Locate the archive structure (end-of-central-directory record, central
-//!    directory, local entries) with bounds-checked parsing.
-//! 2. Read the first member, which must be the stored package manifest, check
+//! 1. Locate the end-of-central-directory record, the first central entry and
+//!    its local header only, with bounds-checked parsing.
+//! 2. Read that first member, which must be the stored package manifest, check
 //!    its CRC-32 and the `DEC-057` document kind, then gate on `schema_version`.
 //!    The gate therefore follows only the archive layout needed to locate the
 //!    manifest (end-of-central-directory record at the end, first member
 //!    stored and unflagged); everything else is interpreted after it.
-//! 3. Check the archive form: stored members only, matching local and central
-//!    headers, contiguous entries, no extra fields or comments, unique names,
-//!    CRC-32 per member.
+//! 3. Parse the remaining central entries and local headers, then check the
+//!    archive form: stored members only, matching local and central headers,
+//!    contiguous entries, no extra fields or comments, unique names, CRC-32
+//!    per member.
 //! 4. Check the manifest and members: the manifest is canonical JSON and equals
 //!    the current-version manifest rebuilt from its variable fields; the member
 //!    inventory matches the archive in order, names, roles, lengths and

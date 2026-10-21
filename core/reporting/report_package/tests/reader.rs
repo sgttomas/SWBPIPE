@@ -751,28 +751,38 @@ fn eocd(entries: u16, central_size: u32, central_offset: u32) -> Vec<u8> {
 
 #[test]
 fn central_entries_sharing_one_local_header_are_refused_without_amplification() {
-    // One local header with a 65535-byte name, then many central entries that
-    // all point at it. The reader must refuse it without copying the local
-    // name once per entry.
-    let mut bytes = 0x0403_4b50u32.to_le_bytes().to_vec();
+    // A valid stored 1.0.0 manifest (so parsing passes the version gate), then
+    // one local header with a 65535-byte name, then ~65000 central entries
+    // that all point at it. Copying the local name per entry would allocate
+    // about 4 GiB; the reader keeps it as a range and refuses the archive form.
+    let manifest = entries(&package()).remove(0);
+    let mut bytes = zip(std::slice::from_ref(&manifest));
+    let first_central = bytes.len() - 22 - (46 + manifest.name.len());
+    let manifest_central = bytes[first_central..bytes.len() - 22].to_vec();
+    bytes.truncate(first_central);
+
+    let shared_offset = bytes.len() as u32;
+    bytes.extend_from_slice(&0x0403_4b50u32.to_le_bytes());
     bytes.extend_from_slice(&[20, 0, 0, 0, 0, 0, 0, 0, 0x21, 0]);
     bytes.extend_from_slice(&0u32.to_le_bytes()); // crc
     bytes.extend_from_slice(&[0u8; 8]); // sizes
     bytes.extend_from_slice(&u16::MAX.to_le_bytes());
     bytes.extend_from_slice(&0u16.to_le_bytes());
     bytes.extend(std::iter::repeat_n(b'a', u16::MAX as usize));
+
     let central_offset = bytes.len() as u32;
-    let count: u16 = 4000;
-    for _ in 0..count {
+    bytes.extend_from_slice(&manifest_central);
+    let shared: u16 = 65_000;
+    for _ in 0..shared {
         bytes.extend_from_slice(&0x0201_4b50u32.to_le_bytes());
         bytes.extend_from_slice(&[20, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0x21, 0]);
         bytes.extend_from_slice(&[0u8; 12]); // crc, sizes
         bytes.extend_from_slice(&[0u8; 14]); // name/extra/comment lengths, disk, attributes
-        bytes.extend_from_slice(&0u32.to_le_bytes()); // local offset 0
+        bytes.extend_from_slice(&shared_offset.to_le_bytes());
     }
     let central_size = bytes.len() as u32 - central_offset;
-    bytes.extend(eocd(count, central_size, central_offset));
-    assert!(read_report_package_container(&bytes).is_err());
+    bytes.extend(eocd(shared + 1, central_size, central_offset));
+    assert_eq!(refusal(&bytes).code(), "OPSPROJ_MEMBER_INTEGRITY");
 }
 
 #[test]
@@ -1038,5 +1048,40 @@ fn deeper_section_record_blocks_the_package() {
         .iter()
         .any(|reason| reason.contains("outside the package form")));
     // The reader refuses it rather than returning a partial package.
+    assert!(read_report_package_container(&outcome.container_bytes).is_err());
+}
+
+// ---------------------------------------------------------------------------
+// Review round 2 (Codex) cases.
+// ---------------------------------------------------------------------------
+
+/// `state_comparison_handoff_sections_` + stem + `.json`.
+fn section_with_name_length(name_length: usize) -> Value {
+    let mut record = invented_sections_record();
+    record["section_set_id"] = json!("a".repeat(name_length - 39));
+    record
+}
+
+#[test]
+fn longest_encodable_member_name_round_trips() {
+    let mut fixture = Fixture::new();
+    fixture.sections_records = vec![section_with_name_length(usize::from(u16::MAX))];
+    let outcome = assemble_report_package_container(&fixture.input());
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert_eq!(outcome.members[5].file_name.len(), usize::from(u16::MAX));
+    let read = read_report_package_container(&outcome.container_bytes).expect("reads");
+    assert_eq!(read.members, outcome.members);
+}
+
+#[test]
+fn over_long_member_name_blocks_the_package() {
+    let mut fixture = Fixture::new();
+    fixture.sections_records = vec![section_with_name_length(usize::from(u16::MAX) + 1)];
+    let outcome = assemble_report_package_container(&fixture.input());
+    assert!(outcome.export_blocked);
+    assert!(outcome
+        .blocking_reasons
+        .iter()
+        .any(|reason| reason.contains("exceeds the archive form's 65535-byte limit")));
     assert!(read_report_package_container(&outcome.container_bytes).is_err());
 }
