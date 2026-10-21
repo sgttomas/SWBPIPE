@@ -28,7 +28,9 @@ SOURCE_FILES = {
     # `contribution_groups: None` and comment/path text. No formed-load traversal or finding owner changes.
     # W1 coverage repair D3 (§8.11): retained_api adds the CENSUS_PROBE const (cfg!, no allocation) and a census_probe
     # re-export under the off feature (W1R-FG). No formed-load traversal or finding owner changes.
-    "core/solver/frame_kernel/src/structural.rs": "10651e4ddc0c8f4434254032d7e0b28dbda07455d96da66d7315400a0214b1c3",
+    # W1 coverage repair corner 1 (§8.12): read 32e0c3faf0; the same for LOADED_MAXIMUM_HOOKS and the
+    # loaded_maximum_hooks re-export under the off `loaded-maximum-hooks` feature.
+    "core/solver/frame_kernel/src/structural.rs": "c4d96b2c41ce74044953dc8893b269570809651867ac55fee430ea2d1b475e82",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.

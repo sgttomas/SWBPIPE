@@ -259,8 +259,14 @@ pub fn actual_exhaustion_control(text:&str) {
         assert_eq!(error.gate,if matches!(fault,"fractional"|"limbcase"){"G2"}else{"G5"},"{fault}: {}",error.code);
     }
 }
+/// The genuine-exhaustion control's two writer outputs (`w1_member_exhaustion_{mode}.json`),
+/// read in full and mutated. Since the W1 coverage repair (DEL-04-08 `w1-coverage-repair.md`
+/// §1.4, option 2) the control is hook-driven: its writer,
+/// `w1_member_load_exhaustion_retains_typed_interval_work`, runs only with product_physics'
+/// `--features loaded-maximum-hooks` and drives a real member to exhaustion at reduced search
+/// limits; it claims no production limit.
 #[test]
-#[ignore="run with W1_MEMBER_READER_INPUT_DIR after the maintained exhaustion writer"]
+#[ignore="run with W1_MEMBER_READER_INPUT_DIR after the maintained, hook-driven exhaustion writer (--features loaded-maximum-hooks)"]
 fn genuine_member_exhaustion_full_reader_and_mutants() {
     let dir=std::env::var("W1_MEMBER_READER_INPUT_DIR").unwrap();
     for mode in ["sparse_interactive","dense_scrutiny"] {

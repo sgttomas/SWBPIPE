@@ -43,6 +43,29 @@ fn w1_loaded_maximum_exhaustion_widens_and_refuses(){
     let value=0.;let rows=[ProductFinalRow{id:"m",case_id:"c",value:&value,unit:ProductUnit::Pascal,body:0,recipe:ProductRecipe::CircularMaximum{member:11}}];
     let mut spent=ProductCertificateSpent::new(&rows);
     assert!(gate(&mut spent,0,interval,1e30,false).unwrap().passed);
+    // W1 coverage repair §5: the same on a non-point represented-Z hull, driven at z_lo.
+    // Bending only, M(t) = 8t(1 − t) over Z in [2, 4]: the maximum is 1 at z_lo and 1/2
+    // at z_hi. Exhaustion at the reduced limits still refuses with the named cause,
+    // its diagnostic is a widened enclosure of the maximum over the whole hull, and
+    // the gate would have accepted it.
+    let hull=Enclosure{lo:lift(2.).unwrap(),hi:lift(4.).unwrap()};
+    let (result,w)=hooks::with((1,0,0),||{
+        let mut spent=ProductCertificateSpent::new(&[]);
+        let result=search(&mut spent,7,11,[[0.;3];2].map(|p|p.map(point)),[8.,0.].map(point),point(1.),hull,true);
+        (result,spent)
+    });
+    assert_eq!(result.unwrap_err().category(),"association");
+    let diagnostic=w.loaded_maximum_diagnostic().unwrap();assert_eq!((diagnostic.row,diagnostic.member),(7,11));
+    let interval=Enclosure{lo:Endpoint::from_parts(diagnostic.lower.0,diagnostic.lower.1,diagnostic.lower.2).unwrap(),
+        hi:Endpoint::from_parts(diagnostic.upper.0,diagnostic.upper.1,diagnostic.upper.2).unwrap()};
+    contains(interval,1.,1.);contains(interval,1.,2.);
+    let mut spent=ProductCertificateSpent::new(&rows);
+    assert!(gate(&mut spent,0,interval,1e30,false).unwrap().passed);
+    // Without the hook the same driven search converges under the production limits,
+    // which stay pinned.
+    assert_eq!(limits(),(256,64,1024));
+    assert_eq!((LIVE,DEPTH,SPLITS),(256,64,1024));
+    assert!(run_z([[0.;3];2],[8.,0.],hull,true).0.is_ok());
 }
 fn g7(e:ProductMaximumEvidence){
     assert!(e.lower>=0.&&e.lower<=e.value&&e.value<=e.upper);

@@ -479,8 +479,12 @@ fn controls() -> Vec<Control> {
 
 /// The B4/D1 census's recorded baseline (run on the B7a head 2f741183b0, before the
 /// retirement): every (control, mode) trial whose legacy source-block route selected cases,
-/// those cases' basis ids, and the trial's recorded numerical-use standing. 54 trials and 62
-/// cases; the census's other 14 trials selected nothing or were refused.
+/// those cases' basis ids, and the trial's recorded numerical-use standing. 54 trials; the
+/// census's other 14 trials selected nothing or were refused. The four group-3 trials'
+/// rows (F6/partial, T18, T19/pre-K-D5, T19) record W1's outcome after the coverage
+/// repair (`w1-coverage-repair.md` §1.4): their `case-b`, formerly unavailable with an
+/// exhausted loaded-maximum search, is selected and the trial is numerically eligible.
+/// So 70 cases: the legacy route's 62 and those eight.
 const FORMERLY_SELECTED: [(&str, &str, &[&str], &str); 54] = [
     ("committed/n05-sparse_interactive.request.json", "sparse_interactive", &["case"], "numerically_eligible"),
     ("committed/n05-dense_scrutiny.request.json", "dense_scrutiny", &["case"], "numerically_eligible"),
@@ -516,8 +520,8 @@ const FORMERLY_SELECTED: [(&str, &str, &[&str], &str); 54] = [
     ("F4/cancelling", "dense_scrutiny", &["case"], "numerically_eligible"),
     ("F4/net", "sparse_interactive", &["case"], "numerically_eligible"),
     ("F4/net", "dense_scrutiny", &["case"], "numerically_eligible"),
-    ("F6/partial", "sparse_interactive", &["case"], "needs_recompute"),
-    ("F6/partial", "dense_scrutiny", &["case"], "needs_recompute"),
+    ("F6/partial", "sparse_interactive", &["case", "case-b"], "numerically_eligible"),
+    ("F6/partial", "dense_scrutiny", &["case", "case-b"], "numerically_eligible"),
     ("source_budget/multicase", "sparse_interactive", &["case", "case:signed-companion"], "numerically_eligible"),
     ("source_budget/multicase", "dense_scrutiny", &["case", "case:signed-companion"], "numerically_eligible"),
     ("N05/two_case", "sparse_interactive", &["case", "case-2"], "numerically_eligible"),
@@ -526,12 +530,12 @@ const FORMERLY_SELECTED: [(&str, &str, &[&str], &str); 54] = [
     ("F1b/mixed", "dense_scrutiny", &["case:A"], "needs_recompute"),
     ("CX-F", "sparse_interactive", &["case"], "numerically_eligible"),
     ("CX-F", "dense_scrutiny", &["case"], "numerically_eligible"),
-    ("T18", "sparse_interactive", &["case"], "needs_recompute"),
-    ("T18", "dense_scrutiny", &["case"], "needs_recompute"),
-    ("T19/pre-K-D5", "sparse_interactive", &["case"], "needs_recompute"),
-    ("T19/pre-K-D5", "dense_scrutiny", &["case"], "needs_recompute"),
-    ("T19", "sparse_interactive", &["case"], "needs_recompute"),
-    ("T19", "dense_scrutiny", &["case"], "needs_recompute"),
+    ("T18", "sparse_interactive", &["case", "case-b"], "numerically_eligible"),
+    ("T18", "dense_scrutiny", &["case", "case-b"], "numerically_eligible"),
+    ("T19/pre-K-D5", "sparse_interactive", &["case", "case-b"], "numerically_eligible"),
+    ("T19/pre-K-D5", "dense_scrutiny", &["case", "case-b"], "numerically_eligible"),
+    ("T19", "sparse_interactive", &["case", "case-b"], "numerically_eligible"),
+    ("T19", "dense_scrutiny", &["case", "case-b"], "numerically_eligible"),
     ("T20/refused", "sparse_interactive", &["case"], "needs_recompute"),
     ("T20/refused", "dense_scrutiny", &["case"], "needs_recompute"),
     ("T20/control", "sparse_interactive", &["case"], "needs_recompute"),
@@ -587,27 +591,42 @@ fn b4_w1_covers_every_formerly_selected_source_block_case() {
         }
         eprintln!("B4_W1_COVERAGE {}", json!({"control":name,"mode":mode_name,"cases":bases,"recorded":recorded,"w1_standing":standing}));
     }
-    assert_eq!((trials, cases), (54, 62));
+    assert_eq!((trials, cases), (54, 70));
 }
 
+/// Case 1 (`case-b`, a global-y UDL on the D = 0.2 m section) of F6/partial, T18,
+/// T19/pre-K-D5 and T19. Before the W1 coverage repair it was unavailable with "loaded
+/// maximum search exhausted" in both modes: the search's stop rule was applied to the
+/// width of the represented-Z hull, which subdivision cannot close. The repair drives the
+/// admitted lane at the hull's binding endpoint (`w1-coverage-repair.md` §1.2, §1.4), so the
+/// search converges and the unchanged gate decides the case. The expectation is that
+/// decision, read from the attempt's own certificate check: the case is selected exactly
+/// when the gate passed every row. The census (§3.5, C1-a) found the gate passing on all
+/// eight trials, and that is asserted too.
 fn w1_partial_case_cause(name:&str,mode:PreviewSolverMode,source:&Value) {
     let body=&source["retained_precision"]["body"];
     assert_eq!(body["cases"][0]["status"],"selected","{name} {mode:?}");
     let other=&body["cases"][1];
-    assert_eq!(other["status"],"unavailable","{name} {mode:?}");
-    assert_eq!(other["reason"],json!({"code":"facade_certificate","phase":"facade",
-        "cause":{"kind":"prepared_product_failure","product_attempt_ref":1}}),"{name} {mode:?}");
+    assert_eq!(other["basis_ref"]["ref_id"],"case-b","{name} {mode:?}");
     let attempt=body["product_attempts"].as_array().unwrap().iter()
         .find(|a|a["owner_ref"]["index"]==1).unwrap();
-    assert_eq!(attempt["result"]["kind"],"unavailable");
-    assert_eq!(attempt["result"]["error"],json!({"kind":"proof",
-        "cause":{"kind":"association","detail":"loaded maximum search exhausted"}}),"{name} {mode:?}");
+    // The search converged: projection completed, and no exhaustion diagnostic exists.
+    assert_eq!(attempt["stages"]["projection"],"completed","{name} {mode:?}");
+    assert!(attempt["proof"].get("loaded_maximum_diagnostic").is_none_or(Value::is_null),"{name} {mode:?}");
+    // The gate decided: the case's status is its certificate check's.
+    let gate=&attempt["proof"]["checks"]["certificate"]["kind"];
+    let passed=gate=="passed";
+    assert_eq!(other["status"],if passed {"selected"} else {"unavailable"},"{name} {mode:?}: the status is the gate's ({gate})");
+    assert_eq!(attempt["result"]["kind"],if passed {"ready"} else {"unavailable"},"{name} {mode:?}");
+    // Census cross-check (§3.5): the unchanged gate passes this member in every trial and mode.
+    assert!(passed,"{name} {mode:?}: the census found the gate passing: {gate}");
+    assert!(other.get("reason").is_none_or(Value::is_null),"{name} {mode:?}");
     eprintln!("W1_MEMBER_CENSUS {}",json!({"control":name,"mode":mode.as_str(),
-        "status":other["status"],"reason":other["reason"],"error":attempt["result"]["error"]}));
+        "status":other["status"],"gate":gate,"result":attempt["result"]}));
 }
 
 /// The complete census above covers 54 trials; this subset isolates the other
-/// case's typed cause so a future change cannot hide it behind case 0's success.
+/// case's outcome so a future change cannot hide it behind case 0's success.
 #[test]
 fn w1_partial_other_case_statuses_and_causes_are_pinned() {
     let controls=controls();
@@ -1243,16 +1262,12 @@ mod w1_domain_stage1_tests;
 #[path = "w1_coverage_census_tests.rs"]
 mod w1_coverage_census_tests;
 
-/// W1 coverage repair §3.2: the census probe is opt-in. No dev-dependency enables it,
-/// so the ordinary test build (and the stack-witness build) compiles the kernel without
-/// it. A census command, which passes `--features census-probe`, does not run this test.
-/// W1 coverage repair §3.2 (revision 8): `census-probe` is named only as the frame
-/// kernel's `[features]` key and as `product_physics`' forward of it, never in a
+/// An opt-in kernel feature is named only as the frame kernel's `[features]` key
+/// (`<feature> = []`) and as `product_physics`' forward of it, once each, never in a
 /// dependency table or a `default` list (the `mutation-controls` guard's rule). The
 /// registered build identity names no features and `Cargo.lock` records none, so the
 /// manifests are where an accidental enablement would show.
-#[test]
-fn census_probe_is_named_only_by_its_definition_and_forward() {
+fn opt_in_feature_is_named_only_by_its_definition_and_forward(feature: &str) {
     fn manifests(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
         for entry in std::fs::read_dir(dir).unwrap() {
             let path = entry.unwrap().path();
@@ -1275,27 +1290,53 @@ fn census_probe_is_named_only_by_its_definition_and_forward() {
         for raw in text.lines() {
             let line = raw.split('#').next().unwrap().trim();
             if line.starts_with('[') { table = line.to_owned(); continue; }
-            if !line.contains("census-probe") { continue; }
+            if !line.contains(feature) { continue; }
             let key = line.split('=').next().unwrap().trim();
             let kernel = path.ends_with("core/solver/frame_kernel/Cargo.toml");
             let pp = path.ends_with("core/product_physics/Cargo.toml");
-            if table == "[features]" && kernel && line == "census-probe = []" {
+            if table == "[features]" && kernel && line == format!("{feature} = []") {
                 definitions += 1;
-            } else if table == "[features]" && pp && key == "census-probe" && line == r#"census-probe = ["open_pipe_stress_frame_kernel/census-probe"]"# {
+            } else if table == "[features]" && pp && key == feature && line == format!(r#"{feature} = ["open_pipe_stress_frame_kernel/{feature}"]"#) {
                 forwards += 1;
             } else {
                 violations.push(format!("{}: {table} {line}", path.display()));
             }
         }
     }
-    assert!(violations.is_empty(), "census-probe named outside its definition and forward: {violations:#?}");
-    assert_eq!((definitions, forwards), (1, 1), "the kernel defines it and product_physics forwards it, once each");
+    assert!(violations.is_empty(), "{feature} named outside its definition and forward: {violations:#?}");
+    assert_eq!((definitions, forwards), (1, 1), "the kernel defines {feature} and product_physics forwards it, once each");
+}
+/// W1 coverage repair §3.2 (revision 8): the census probe's feature.
+#[test]
+fn census_probe_is_named_only_by_its_definition_and_forward() {
+    opt_in_feature_is_named_only_by_its_definition_and_forward("census-probe");
+}
+/// W1 coverage repair §1.4, option 2: the loaded-maximum capacity hook follows the same
+/// rule. Only the genuine-exhaustion control's maintained command passes it.
+#[test]
+fn loaded_maximum_hooks_are_named_only_by_their_definition_and_forward() {
+    opt_in_feature_is_named_only_by_its_definition_and_forward("loaded-maximum-hooks");
 }
 
+/// W1 coverage repair §3.2: the census probe is opt-in. No dev-dependency enables it,
+/// so the ordinary test build (and the stack-witness build) compiles the kernel without
+/// it. A census command, which passes `--features census-probe`, does not run this test.
 #[test]
 fn census_probe_is_off_in_the_ordinary_test_build() {
     assert!(!open_pipe_stress_frame_kernel::structural::retained_api::CENSUS_PROBE,
         "the frame kernel was compiled with the census probe in an ordinary test build");
+}
+
+/// W1 coverage repair §1.4, option 2: the loaded-maximum capacity hook is opt-in. No
+/// dev-dependency enables it, so the ordinary test build (and the stack-witness build)
+/// compiles the kernel without it and every search runs at its production limits. The
+/// genuine-exhaustion control's command, which passes `--features loaded-maximum-hooks`,
+/// does not compile this test.
+#[cfg(not(feature = "loaded-maximum-hooks"))]
+#[test]
+fn loaded_maximum_hooks_are_off_in_the_ordinary_test_build() {
+    assert!(!open_pipe_stress_frame_kernel::structural::retained_api::LOADED_MAXIMUM_HOOKS,
+        "the frame kernel was compiled with the loaded-maximum capacity hook in an ordinary test build");
 }
 
 /// T4-U4b S4 (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the failed-ordinary manifest

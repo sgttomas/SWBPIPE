@@ -153,13 +153,13 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - **(c) Retained-source attempt declined or failed.** The case stays on its ordinary route, and the receipt records the failure stage and code (for example `unsupported_family`). If an invocation carries a load/reference-state group whose join cannot finalize, every case is republished on its ordinary route (`pressure-2`) without a receipt.
   - **(d) Ordinary attempt failed.** On route L only, for a single-case invocation without combinations, such a case publishes from the retained route only if its retained proof passes G0–G8. Its quality entry keeps the failed attempt's outcome and never reads `checks_passed`. Otherwise the blocked ordinary result stands, with no successor.
   - **(e) No relaxation.** No search, verification, tolerance or domain limit is relaxed to obtain a bound.
+    - A search's stop tolerance bounds the search's own convergence on the problem it solves. Where a declared input is itself an interval (the admitted lane's represented-Z hull), the search converges at the interval's binding endpoint under the unchanged tolerance and limits, the input's width is carried soundly into the result's enclosure, and the unchanged gate decides publication.
     - The formation definitions fix the precision ladder (128 to 1024 bits), `projection_retry: false` and `search_or_retry: none`. The schema fixes `relative_limit` at 10^-9. These are reviewed inputs bound by digest, and the reader checks the digests at G0.
     - The D1 caps, the loaded-maximum search limits and the work limits are fixed in source. Their only overrides are test-only, and a change to them is a priced-source change that needs D3 and independent review.
     - A caller limit above the qualified M is refused as `Unqualified`; it is never clamped.
 - **AC-003** — Every refused, declined or faulted path behaves as REQ-003 states:
   - it publishes the exact ordinary bytes, or those bytes plus the one notice where retained work ran;
   - every stage fault, no-permit entry and refused exact request takes the ordinary route;
-  - the W1 width corner case keeps its internal refusal and falls back;
   - the reader refuses a changed definition or table digest at G0.
 
 ### Memory-pricing law
@@ -214,9 +214,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 
 - **REQ-006** — These domains are declined and stated as limits. Each publishes its ordinary results.
   - **(a)** [retired by O4, #1468]
-  - **(b) W1's fail-closed width corner.** This is the first corner of the W1 Design, §4.4. The second, the halfway-scale G5b refusal, is repaired by the W1 coverage repair's corner 2 (owner, 2026-10-20, "I approve 1A, 2A, 3A.").
-    - The represented-Z input-width floor exhausts the loaded-maximum search ("loaded maximum search exhausted").
-    - It is refused inside the method, and the case keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. A search exhaustion is a per-case failure: where other cases are selected, the published successor's receipt records the case with its typed cause.
+  - **(b)** [retired by the W1 coverage repair, #1484]
   - **(c) No desktop outputs for the current exact identity.**
     - Exact-route results (`pressure-2`, `pressure-source-1`) solve and can be viewed on the desktop with the Rust reader's standing, but every desktop output surface refuses them (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`). The Python AnalysisRun record and the stress-neutral export accept them.
     - No desktop solve produces a retained-precision successor before B8. If one is opened on the desktop, every output surface refuses it (`RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE`), except the result JSON and stress-neutral exports, which admit it only at numerically eligible standing and with the live native capture of its exact bytes.
@@ -234,9 +232,10 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - near an exact zero, the annular readout's enclosure can be wider than the absolute bound.
 
     A case with such a row keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. On O4's frozen judged set, the design-time ceiling admits no sensitive document under the method's projection with enclosures as narrow as the existing proof's (Design `w1e-sharper-exact-coverage.md`).
+  - **(f) Loaded-member maxima too wide for the gate.** A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause. Recorded under the owner's decision of 2026-10-20 ("I approve 1A, 2A, 3A."; Design `w1-coverage-repair.md` §10).
 - **REQ-007** — These delivery duties are open unless marked discharged. Each is delivered under its own design and independent review, keeps every gate unchanged, and is re-registered under D3 wherever it changes a priced source or a reviewed input.
   - **(a) O4: the Timoshenko and corrosion-allowance source extension.** This is the fifth shared epoch in the owner's order of 2026-10-14. It extends retained-source and W1-E publication to the documents REQ-006 (a) declined, including those with a nonzero mill tolerance. It keeps RF's closure, witness and charging rules. **Discharged on 2026-10-20.** O4 is on main through #1468. The stack-headroom repair (#1476, b7-plan item 5a) makes the AC-004 stack-headroom witnesses pass, completing AC-007's conditions. HELP_HUMAN records this discharge under the owner's decision of 2026-10-20 ("All as recommended").
-  - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch in this deliverable's `Design/b7-plan.md` ("After B7b"). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge.
+  - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch in this deliverable's `Design/b7-plan.md` ("After B7b"). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge. **Discharged on 2026-10-20.** The repair is on main through #1483 and #1484: corner 2 (the receipt states the product gate's final scales) and corner 1 (the admitted lane's search converges at the represented-Z hull's binding endpoint), with every gate, tolerance and limit unchanged (Design `w1-coverage-repair.md`). The decline tests they retire are replaced by admission and refusal tests (VER-003, VER-006). HELP_HUMAN records this discharge under the owner's decision of 2026-10-20 ("I approve 1A, 2A, 3A.").
   - **(c) Desktop outputs for the current exact identity.** This is a follow-on unit. The owner chose "Merge with the gap" on 2026-10-15 and has not yet placed the unit in the epoch order. T4-U4b/U5b replaced `pressure-1` with `pressure-2`.
 - **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal. The fallback tests and the W1 census tests assert the resulting ordinary result at the facade. The desktop output policy refuses each named identity with its stated code. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
 - **AC-007** — A duty in REQ-007 is discharged only when the conditions for it hold. Until then it remains listed here as open.
@@ -287,7 +286,7 @@ The registered checks are those in `software-workflow.json`.
   - `desktop-test`: `apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts`.
 - **VER-003** — For REQ-003, in `macos-release-sweep`:
   - `core/product_physics/src/retained_facade_tests.rs`: `u3_each_stage_fault_falls_back_to_the_ordinary_bytes`, `u3_no_permit_entries_are_the_ordinary_route`, `u3g2_direct_entry_w1_fallbacks_append_one_notice`, `b3b_refused_exact_requests_take_the_ordinary_route`, `o4_w1e_timoshenko_case_is_admitted_and_selected` and `o4_w1e_dual_basis_case_is_admitted`;
-  - `core/product_physics/src/w1_domain_stage1_tests.rs`: `w1_loaded_maximum_refuses_irreducible_represented_section_width`, `w1_loaded_scale_halfway_publishes` and `w1_native_scales_stay_native_evidence`;
+  - `core/product_physics/src/w1_domain_stage1_tests.rs`: `w1_represented_z_hull_converges_on_ordinary_sections`, `w1_loaded_scale_halfway_publishes` and `w1_native_scales_stay_native_evidence`;
   - `o4_timoshenko_source_case_selects_and_publishes` in `core/product_physics/src/source_recovery.rs`, and `o4_dual_basis_source_case_selects` in `core/product_physics/src/source_receipt/o4_source_tests.rs`;
   - `core/product_physics/src/b7b_admission_tests.rs`;
   - the reader's G0 table and definition tests (`b2_g0_table_tests` in `core/reporting/result_export/src/retained_precision.rs`).
@@ -311,6 +310,7 @@ The registered checks are those in `software-workflow.json`.
   - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts` and `retainedPrecisionOutputRefusal.test.tsx`;
   - `macos-release-sweep`: `core/runner/headless/tests/retained_precision_admission.rs` and `core/product_physics/tests/retained_precision_admission.rs`;
   - for (e), `macos-release-sweep`: `o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result` in `core/product_physics/src/o4_m3_judging_tests.rs`.
+  - for (f), `macos-release-sweep`: `w1_loaded_maximum_too_wide_for_the_gate_keeps_the_ordinary_result` in `core/product_physics/src/w1_domain_stage1_tests.rs`.
 - **VER-007** — For REQ-007, on the head of each duty's own change:
   - VER-001 to VER-006;
   - for O4 and the W1 repair, the actual-source D3 run (`tools/retained_pricing`, `generate --check`);

@@ -602,28 +602,154 @@ fn w1_native_scales_stay_native_evidence() {
     }
 }
 
-/// Preserve the real input-width refusal beside the selected interior controls.
-#[test]
-fn w1_loaded_maximum_refuses_irreducible_represented_section_width() {
+/// The stage-2 boundary member: D = 0.2 m, t = 0.01 m, a 3.5 N/m global-y UDL on a
+/// simply supported 2 m member, whose represented Z is the non-point hull(Ẑ, Î/c)
+/// (relative width 98.41 × 2^-64).
+fn w1_represented_hull_member_request()->Value {
     let mut raw=w1_interior_member_request(false);
     raw["model"]["pipe_segments"][0]["section"]["outside_diameter"]["value"]=json!(0.2);
     raw["model"]["pipe_segments"][0]["section"]["wall_thickness"]["value"]=json!(0.01);
     raw["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"]=json!(3.5);
-    // I-hat/c and Z-hat differ exactly. Their relative hull width is
-    // 5.3348979419179844e-18, above2^-64; subdivision cannot close that floor.
+    raw
+}
+/// The same member appended beside n05's independent sensitive member, which supplies
+/// a genuine W1 trigger (as the interior publication controls).
+pub(super) fn w1_represented_hull_publication_request()->Value {
+    w1_loaded_publication_request(0.2,0.01)
+}
+/// The appended simply supported 2 m member on the section (D, t), 3.5 N/m global-y.
+fn w1_loaded_publication_request(d:f64,t:f64)->Value {
+    let mut raw=w1_interior_publication_request(false,-3.0);
+    let pipe=raw["model"]["pipe_segments"].as_array_mut().unwrap().iter_mut().find(|p|p["id"]=="ss:pipe").unwrap();
+    pipe["section"]["outside_diameter"]["value"]=json!(d);
+    pipe["section"]["wall_thickness"]["value"]=json!(t);
+    let load=raw["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().iter_mut()
+        .find(|l|l["id"]=="ss:member:transverse").unwrap();
+    load["magnitude"]["value"]=json!(3.5);
+    raw
+}
+
+/// W1 coverage repair §1.2 and §5 (corner 1). The stage-2 boundary member's represented
+/// Z is a non-point hull, so the admitted lane's search is driven at z_lo: it converges
+/// under the unchanged stop rule and limits, and the unchanged gate decides the case.
+/// The expected outcome is the gate's own, derived here from its verdicts in each mode
+/// (the census, §3.5, found it passing). Formerly
+/// `w1_loaded_maximum_refuses_irreducible_represented_section_width`, which pinned the
+/// search's exhaustion on this member: the cause it recorded, a convergence rule applied
+/// to the input hull's own width, is repaired, and no gate, tolerance or limit changed.
+/// Maintained writer of the corpus bases `w1_member_hull_d02_{mode}`: with
+/// `W1_MEMBER_HULL_OUT` naming a folder, each mode's `{id, source, invocation,
+/// generation_profile}` is written there after the public Direct entry's relation holds.
+#[test]
+fn w1_represented_z_hull_converges_on_ordinary_sections() {
+    let raw=w1_represented_hull_member_request();
     for mode in MODES {
         let (request,capture)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
         let mut prepared=rp::PreparedCase::prepare_observed(request,mode,&capture)
             .unwrap_or_else(|f|panic!("{:?}",f.capture.error));
         prepared.solve_native().unwrap();
-        let failure=match prepared.project_candidate(){Ok(_)=>panic!("unresolved section width published"),Err(f)=>f};
-        let rp::PreparedCandidateError::Proof(proof)=failure.error else{panic!("wrong refusal stage")};
-        let mut copies=k::TraceCopyWork::default();
-        assert!(matches!(proof.failure().typed_cause(&mut copies),k::ProductFailureView::Association("loaded maximum search exhausted")));
-        let diagnostic=proof.work().loaded_maximum_diagnostic().unwrap();
-        assert_eq!(diagnostic.member,0);
-        assert_ne!(diagnostic.lower,diagnostic.upper);
-        assert!(proof.work().status().is_exact());
+        // The represented Z is not a point: Ẑ·c − Î ≠ 0 exactly (one rounding), so the
+        // exact Î/c differs from Ẑ.
+        let f=&prepared.capture().facts[0];
+        assert_ne!(f.section_modulus.mul_add(0.5*f.diameter,-f.second_moment),0.0,"{mode:?}: the represented-Z hull is not a point");
+        let (certificate,passed)=match prepared.project_candidate() {
+            Ok(candidate)=>{
+                let c=candidate.certificate();
+                (c.verdicts().to_vec(),c.passed())
+            }
+            Err(failure)=>{
+                if let rp::PreparedCandidateError::Proof(proof)=&failure.error {
+                    let mut copies=k::TraceCopyWork::default();
+                    assert!(!matches!(proof.failure().typed_cause(&mut copies),k::ProductFailureView::Association("loaded maximum search exhausted")),
+                        "{mode:?}: the represented-Z hull still exhausts the search");
+                    assert!(proof.work().loaded_maximum_diagnostic().is_none(),"{mode:?}");
+                }
+                let c=failure.certificate().unwrap_or_else(|| panic!("{mode:?}: refused before the gate: {}",
+                    format!("{:?}",failure.error).split(", work:").next().unwrap()));
+                (c.verdicts().to_vec(),c.passed())
+            }
+        };
+        // The gate decides: the case's outcome is exactly its verdicts' conjunction.
+        assert!(!certificate.is_empty(),"{mode:?}: the gate judged the rows");
+        assert_eq!(passed,certificate.iter().all(|v|v.passed),"{mode:?}: the outcome is the verdicts'");
+        assert!(passed,"{mode:?}: the unchanged gate passes every row (census §3.5): {:?}",
+            certificate.iter().filter(|v|!v.passed).map(|v|(v.row,v.failed)).collect::<Vec<_>>());
+    }
+    // The same member published beside an independent trigger: selected exactly when the
+    // gate passes, read by the full reader, and the public Direct entry's relation holds.
+    let raw=w1_represented_hull_publication_request();
+    for mode in MODES {
+        let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+        ordinary.diagnostics.shrink_to_fit();
+        let bytes=serde_json::to_vec(&ordinary).unwrap();
+        let ((envelope,retained),_,candidate)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+        let successor=retained.unwrap_or_else(|f|panic!("{mode:?}: {f:?}")).value().clone();
+        assert_eq!(candidate.as_ref(),Some(&successor));
+        assert!(serde_json::to_vec(&envelope).unwrap()==bytes,"the ordinary owner is untouched");
+        let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
+        let verdict=reader::validate(&successor,Some(&invocation)).unwrap_or_else(|e|panic!("{mode:?}: {e:?}"));
+        assert!(verdict.invocation_bound&&verdict.numerical_eligible);
+        let case=&successor["retained_precision"]["body"]["cases"][0];
+        assert_eq!(case["status"],"selected");
+        let attempt=&successor["retained_precision"]["body"]["product_attempts"][0];
+        assert_eq!(attempt["proof"]["checks"]["certificate"]["kind"],"passed");
+        assert!(attempt["proof"].get("loaded_maximum_diagnostic").is_none_or(Value::is_null));
+        let maximum=successor["results"].as_array().unwrap().iter()
+            .find(|r|r["kind"]=="pipe_elastic_normal_stress_maximum_v2"&&r["entity_ref"]=="ss:pipe").unwrap();
+        assert!(maximum["value"].as_f64().unwrap()>0.0);
+        let direct_raw=raw.clone();
+        let (direct,_,precommit)=hooks::counted_with_successor(||
+            run_linear_static_preview_value_with_retained_direct(direct_raw,mode,RETAINED_LIMIT).unwrap());
+        if registered() {
+            assert_eq!(direct.admission().unwrap().profile,ProfileStatus::Registered);
+            assert_eq!(precommit,Some(successor.clone()));
+            assert_eq!(published(direct),serde_json::to_vec(&successor).unwrap());
+        } else {
+            assert_eq!(direct.admission().unwrap().profile,ProfileStatus::Stale);
+            assert!(precommit.is_none()&&direct.successor().is_none());
+            assert_eq!(published(direct),bytes);
+        }
+        if let Some(dir)=std::env::var_os("W1_MEMBER_HULL_OUT") {
+            let id=format!("w1_member_hull_d02_{}",mode.as_str());
+            std::fs::write(std::path::Path::new(&dir).join(format!("{id}.json")),
+                serde_json::to_string_pretty(&json!({"id":id,"source":successor,"invocation":invocation,
+                    "generation_profile":if registered(){"registered_direct"}else{"stale_private_driver"}})).unwrap()+"\n").unwrap();
+        }
+    }
+}
+
+#[path = "../../reporting/result_export/tests/support/retained_precision_corpus.rs"]
+mod storage;
+fn corpus_member_cases(prefixes:&[&str])->Vec<Value> {
+    let corpus=storage::expand(serde_json::from_str(include_str!("../../../fixtures/results/retained_precision_cases.json")).unwrap());
+    corpus["cases"].as_array().unwrap().iter()
+        .filter(|c|prefixes.iter().any(|p|c["id"].as_str().unwrap().starts_with(p))).cloned().collect()
+}
+/// The committed producer's successor for a corpus invocation, through the private
+/// retained_w1 body its writers use (`hook` arms a writer's fault hook first).
+fn corpus_successor(case:&Value,hook:&dyn Fn())->Value {
+    let raw=&case["invocation"]["request"];
+    let mode=MODES.into_iter().find(|m|m.as_str()==case["invocation"]["solver_mode"]).unwrap();
+    let (capture,observer,mut ordinary)=early_observed(raw,mode,true);
+    ordinary.diagnostics.shrink_to_fit();
+    hook();
+    let ((_,retained),_,precommit)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+    retained.map(|s|s.value().clone()).ok().or(precommit).unwrap_or_else(|| panic!("{}: no successor",case["id"]))
+}
+
+/// W1 coverage repair §1.2 and §5: a represented-Z hull that is a point (D/2 a power of
+/// two) takes exactly today's search, with the same operations, work and bytes. The four
+/// committed `w1_member_interior_*` records, and the two `w1_member_halfway_*` records on
+/// the same point-hull section, are reproduced byte for byte, work counters included.
+#[test]
+fn w1_point_hull_search_is_unchanged() {
+    let cases=corpus_member_cases(&["w1_member_interior_","w1_member_halfway_"]);
+    assert_eq!(cases.len(),6);
+    for case in cases {
+        let id=case["id"].as_str().unwrap();
+        let current=corpus_successor(&case,&||{});
+        assert!(serde_json::to_vec(&current).unwrap()==serde_json::to_vec(&case["source"]).unwrap(),
+            "{id}: the point-hull record moved");
     }
 }
 
@@ -693,20 +819,41 @@ fn w1_member_load_product_consuming_successor() {
     }
 }
 
-/// A real transverse case exercises the search's refusal at its unchanged
-/// limits. Its exact diagnostic and all spent arithmetic survive beside a
-/// successfully retained nodal case, without retained publication for the failure.
+/// The genuine-exhaustion control, hook-driven (W1 coverage repair §1.4, option 2). After
+/// the corner-1 repair no committed or census input exhausts the loaded-maximum search at
+/// its production limits (census §3.5), so a real member, T18's transverse `case-b` on
+/// the D = 0.2 m section, is driven to exhaustion by the kernel's capacity hook at a
+/// reduced split limit (0, with the production 256 live nodes and depth 64; the member's
+/// driven search needs one split). Its exact diagnostic and all spent arithmetic survive
+/// beside a successfully retained nodal case, without retained publication for the
+/// failure. The output claims no production limit.
+///
+/// Compiled only under the opt-in `loaded-maximum-hooks` feature, which no
+/// `[dev-dependencies]` entry enables; its maintained command passes it explicitly:
+///
+/// ```text
+/// cargo test --offline --features loaded-maximum-hooks --lib \
+///     w1_member_load_exhaustion_retains_typed_interval_work
+/// ```
+///
+/// With `I61_U1_OUT` naming a folder, it writes `w1_member_exhaustion_{mode}.json`.
+#[cfg(feature = "loaded-maximum-hooks")]
 #[test]
 fn w1_member_load_exhaustion_retains_typed_interval_work() {
     use crate::retained_tests_hooks as hooks;
-    let mut raw=two_torque_cases([None,None]);
-    raw["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().push(json!({
-        "id":"case-b:udl","category":"distributed_force","target":{"type":"element","pipe":"pipe"},
-        "direction":"global_y","magnitude":{"value":10.0,"unit":"N/m"},"dimension":"force_per_length","provenance":INVENTED}));
+    use open_pipe_stress_frame_kernel::structural::retained_api::loaded_maximum_hooks as capacity;
+    const REDUCED:(usize,u8,usize)=W1_EXHAUSTION_CONTROL_LIMITS;
+    let raw=n05_request(vec![n05_torques(),n05_tip_noise("case-b")]);
     for mode in MODES {
+        // Without the hook the same member converges and its case is selected.
         let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
         ordinary.diagnostics.shrink_to_fit();
-        let ((_,retained),_,precommit)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+        let (_,unhooked)=retained_w1(observer,ordinary,&capture);
+        let unhooked=unhooked.unwrap_or_else(|f|panic!("{mode:?}: {f:?}"));
+        assert_eq!(unhooked.value()["retained_precision"]["body"]["cases"][1]["status"],"selected","{mode:?}: production limits converge");
+        let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+        ordinary.diagnostics.shrink_to_fit();
+        let ((_,retained),_,precommit)=capacity::with(REDUCED,||hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture)));
         if let (Some(dir),Some(candidate))=(std::env::var_os("I61_U1_OUT"),precommit.as_ref()) {
             let name=format!("w1_member_exhaustion_{}",mode.as_str());
             let document=json!({"id":name,"source":candidate,"invocation":{"request":raw,"solver_mode":mode.as_str()}});
@@ -725,6 +872,8 @@ fn w1_member_load_exhaustion_retains_typed_interval_work() {
         for stage in ["maxima","values","aliases","certificate","observables","g5a"] {
             assert_eq!(attempt["stages"][stage],"not_entered");
         }
+        assert_eq!(attempt["result"]["error"],json!({"kind":"proof",
+            "cause":{"kind":"association","detail":"loaded maximum search exhausted"}}),"{mode:?}");
         assert!(attempt["proof"]["loaded_maximum_diagnostic"].is_object());
         assert_eq!(attempt["proof"]["numeric"]["wide_lme"]["kind"],"exact");
         assert!(attempt["proof"]["numeric"]["wide_lme"]["value"].as_u64().unwrap()>0);
@@ -776,5 +925,103 @@ fn w1_member_load_values_failure_keeps_merged_work() {
         assert_eq!(attempt["result"]["error"]["kind"],"values");
         assert_eq!(attempt["proof"]["completion"]["kind"],"merged");
         assert_eq!(attempt["stages"]["aliases"],"not_entered");
+    }
+}
+
+/// A successor with the proof's metered work and the receipt hash binding it erased: each
+/// product attempt's `proof.numeric` entry counts, `wide_lme` and `exact_sum_lme` values,
+/// and `receipt_sha256`. Its JCS SHA-256.
+fn work_masked_sha256(source:&Value)->String {
+    let mut v=source.clone();
+    v["retained_precision"]["receipt_sha256"]=json!("");
+    for attempt in v["retained_precision"]["body"]["product_attempts"].as_array_mut().unwrap() {
+        let Some(numeric)=attempt.get_mut("proof").and_then(|p|p.get_mut("numeric")).filter(|n|n.is_object()) else {continue};
+        for key in ["wide_lme","exact_sum_lme"] {numeric[key]["value"]=json!(0);}
+        for entry in numeric["entries"].as_array_mut().unwrap() {entry["value"]=json!(0);}
+    }
+    sha(open_pipe_stress_canonical_json::canonical_json(&v).as_bytes())
+}
+/// The pre-repair committed documents (main 257b44b910's corpus, unchanged through the
+/// corner-2 head) with their work erased, as `work_masked_sha256` forms them.
+const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
+    ("w1_member_load_sparse_interactive","700353cf3af9fb5f0d59bb4ad8b6a1cf75b267b335f888d179437c3e5ec1ac98"),
+    ("w1_member_load_dense_scrutiny","61634aab1b957f7568aa9f4d8dc63cc53e7ee75127890b5c564c1378d700ae58"),
+    ("w1_member_values_failure_sparse_interactive","34d1a5a137fb37469676545cac1e5dea0f480ca1dbbf5dab29e723ba4c4426d1"),
+    ("w1_member_values_failure_dense_scrutiny","1286e7f0d529e6b5ad84d567c8044931adefc8e019f490495a754c426ff796c6"),
+    ("w1_member_multi_sparse_interactive","2fa5726674e8dfc44ec826a91bcb24546c9b3611528247b539a017a08407a26a"),
+    ("w1_member_multi_dense_scrutiny","a10f80e8a7ec57d58555df9ffbe6ced9014e5d426768cd273f20aabffca048ed"),
+    ("w1_member_combination_sparse_interactive","f97b758207c03ed93227a3ab7b0f161f03f994b367778c5c063b2624e400ff5f"),
+    ("w1_member_combination_dense_scrutiny","1d0eaa71921c5103bf3a530eec6c4f2521ad48d9c5633941306a470c4d1f0506"),
+];
+/// W1 coverage repair §1.4 and §5: the committed loaded members on the D = 0.2 m
+/// interval-hull section that converged before the repair (axial loads, so the bending
+/// lower bound is zero at every evaluated point) take the driven path, whose hull-valid
+/// evaluations are metered. On the regenerated `w1_member_load_*`, `w1_member_multi_*`,
+/// `w1_member_combination_*` and (same pipe) `w1_member_values_failure_*` entries only the
+/// proof's work counters and the receipt hash binding them move: every other byte (every
+/// number, class, selection, maximum value and status) equals the pre-repair document's.
+/// The live producer reproduces each committed entry byte for byte.
+#[test]
+fn w1_hull_repair_moves_only_work_on_converging_members() {
+    let cases=corpus_member_cases(&["w1_member_load_","w1_member_values_failure_","w1_member_multi_","w1_member_combination_"]);
+    assert_eq!(cases.len(),PRE_REPAIR_WORK_MASKED.len());
+    for (id,pin) in PRE_REPAIR_WORK_MASKED {
+        let case=cases.iter().find(|c|c["id"]==id).unwrap_or_else(|| panic!("{id}"));
+        let values_fault=id.starts_with("w1_member_values_failure_");
+        let current=corpus_successor(case,&|| if values_fault {
+            hooks::fault_case(1,crate::retained_receipt::TraceFault::ValuesCompletion);
+        });
+        println!("W1_HULL_WORK_MASKED {id} committed={} live={}",work_masked_sha256(&case["source"]),work_masked_sha256(&current));
+        assert_eq!(work_masked_sha256(&current),pin,"{id}: a byte other than work moved");
+        assert!(serde_json::to_vec(&current).unwrap()==serde_json::to_vec(&case["source"]).unwrap(),"{id}: the committed entry is the live producer's");
+    }
+}
+
+/// REQ-006 (f) (the owner's ruling of 2026-10-20 on the W1 coverage repair): a loaded
+/// member's maximum whose certified hull is too wide for the unchanged gate keeps its
+/// ordinary result, and the case is unavailable with its named cause. The appended simply
+/// supported member on the 0.12 m × 0.01 m section (census §3.5, C1-b: a *Z-hull only*
+/// failure) converges at the represented hull's binding endpoint, but its maximum row's
+/// enclosure fails the unchanged SharperExact predicate in both modes (beside the inherited
+/// two-readout corner on its midspan bending stress). No search or gate refusal is
+/// relaxed: the case is refused by the gate, and the public entry publishes the ordinary
+/// bytes with the one notice.
+#[test]
+fn w1_loaded_maximum_too_wide_for_the_gate_keeps_the_ordinary_result() {
+    let raw=w1_loaded_publication_request(0.12,0.01);
+    for mode in MODES {
+        let (request,capture)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
+        let mut prepared=rp::PreparedCase::prepare_observed(request,mode,&capture)
+            .unwrap_or_else(|f|panic!("{:?}",f.capture.error));
+        prepared.solve_native().unwrap();
+        let Err(failure)=prepared.project_candidate() else {panic!("{mode:?}: the gate passed")};
+        let rp::PreparedCandidateError::Proof(proof)=&failure.error else {panic!("{mode:?}: not a gate refusal")};
+        let mut copies=k::TraceCopyWork::default();
+        assert!(matches!(proof.failure().typed_cause(&mut copies),
+            k::ProductFailureView::Predicate{predicate:k::ProductPredicate::SharperExact,..}),"{mode:?}: the gate's named cause");
+        // The search converged (no exhaustion diagnostic); the gate judged the maximum row.
+        assert!(proof.work().loaded_maximum_diagnostic().is_none(),"{mode:?}");
+        let row=failure.ordinary.results.iter().position(|r|r.kind=="pipe_elastic_normal_stress_maximum_v2"&&r.entity_ref=="ss:pipe").unwrap();
+        let verdict=proof.work().verdicts().iter().find(|v|v.row==row).unwrap_or_else(|| panic!("{mode:?}: the maximum was judged"));
+        assert!(!verdict.passed&&verdict.failed==Some(k::ProductPredicate::SharperExact),"{mode:?}: {verdict:?}");
+    }
+    for mode in MODES {
+        let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+        ordinary.diagnostics.shrink_to_fit();
+        let ((_,retained),_,candidate)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+        assert!(matches!(retained,Err(W1Fallback::Candidate)),"{mode:?}: {retained:?}");
+        assert!(candidate.is_none(),"{mode:?}: nothing reaches precommit");
+        let plain=plain(mode,&raw);
+        let (output,_)=direct(&raw,mode);
+        if registered() {
+            assert!(matches!(output.retained().and_then(|r|r.as_ref().err()),Some(W1Fallback::Candidate)),"{mode:?}");
+            assert!(output.successor().is_none());
+            let bytes=published(output);
+            assert_eq!(notices(&bytes),1,"{mode:?}: exactly one notice");
+            assert_eq!(bytes,with_notice(&plain,"case",None),"{mode:?}: the ordinary bytes, then the notice");
+        } else {
+            assert!(output.retained().is_none());
+            assert_eq!(published(output),plain,"{mode:?}");
+        }
     }
 }

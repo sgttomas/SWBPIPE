@@ -469,3 +469,68 @@ fn w1_coverage_census_c1a_cap_inputs() {
     std::thread::Builder::new().stack_size(512 << 20).spawn(move || run_target("c1a_cap", inputs, true, &|_| {}))
         .unwrap().join().unwrap();
 }
+
+// ---------------------------------------------------------------- §5: the annular lane is unchanged
+
+/// The annular lane's loaded-maximum searches of one input in one mode, from a run with
+/// `switches`: (phase, row, member, driven, outcome, splits, max_live, max_depth, the
+/// exact enclosure, the search's own counted work). Counterfactual searches are excluded.
+fn annular_searches(raw: &Value, mode: PreviewSolverMode, corner1: bool, hook: &dyn Fn()) -> Vec<Value> {
+    let sw = probe::Switches { corner1, record: true, ..Default::default() };
+    let (run, _, _) = run_once(raw, mode, sw, hook);
+    run["records"].as_array().unwrap().iter()
+        .filter(|r| r["kind"] == "search" && r["phase"] != "counterfactual" && r["lane"] == "annular")
+        .map(|r| json!([r["phase"], r["row"], r["member"], r["driven"], r["outcome"], r["splits"], r["max_live"], r["max_depth"],
+            r["lower_exact"], r["upper_exact"], r["work"]]))
+        .collect()
+}
+/// One group of committed loaded inputs: for each input and mode, every annular-lane search
+/// in the corner-1 run is undriven, and wherever today's run reached the annular lane its
+/// searches equal corner 1's, record for record: enclosure, nodes, depth and counted work.
+/// Returns (searches checked undriven, searches compared with today's).
+fn annular_lane_unchanged(inputs: Vec<Input>, hook: &dyn Fn(&str)) -> (usize, usize) {
+    let (mut undriven, mut compared) = (0, 0);
+    for i in inputs {
+        for mode in &i.modes {
+            let after = annular_searches(&i.raw, *mode, true, &|| hook(&i.label));
+            assert!(after.iter().all(|s| s[3] == false), "{} {mode:?}: an annular search was driven: {after:?}", i.label);
+            undriven += after.len();
+            let today = annular_searches(&i.raw, *mode, false, &|| hook(&i.label));
+            if !today.is_empty() {
+                assert_eq!(today, after, "{} {mode:?}: the annular lane's searches moved", i.label);
+                compared += today.len();
+            }
+            println!("W1_ANNULAR {} {} today={} corner1={}", i.label, mode.as_str(), today.len(), after.len());
+        }
+    }
+    (undriven, compared)
+}
+
+/// W1 coverage repair §1.2 and §5: the annular lane keeps today's search on its tight z;
+/// the drive-and-hull split never applies to it. Its work and enclosures are byte-identical
+/// to today's on every committed loaded input: the group-3 trials, every corpus member-load
+/// base (`w1_member_*`) and the two 128-term member-cap witnesses' inputs, in both modes.
+///
+/// Why the census build: the receipts state each proof's work summed over both lanes, so
+/// the annular lane's own work is not observable in committed bytes or in the ordinary
+/// build, whose corner-1 switch is always on. Under `census-probe` the switch can be off,
+/// and the probe records each search's lane, exact enclosure and own counted work. Where
+/// today's admitted lane exhausted first (the D = 0.2 m transverse members), today never
+/// reached the annular lane; there the check is that the corner-1 run searched it
+/// undriven, which is today's code path with the same inputs, since the lanes' solves
+/// precede the search and the switch changes nothing else.
+///
+/// ```text
+/// cargo test --offline --features census-probe --lib w1_annular_lane_search_is_unchanged -- --ignored
+/// ```
+#[test]
+#[ignore = "W1 coverage repair §5, annular lane (run with --features census-probe --ignored)"]
+fn w1_annular_lane_search_is_unchanged() {
+    let mut inputs = c1a_inputs();
+    inputs.push(input("cap/witness_128", w1_member_load_inputs::narrow_three_basis_member_cases(), MODES.to_vec()));
+    inputs.push(input("cap/witness_128_dyadic", w1_member_load_inputs::narrow_dyadic_three_basis_member_cases(), MODES.to_vec()));
+    let (undriven, compared) = std::thread::Builder::new().stack_size(512 << 20)
+        .spawn(move || annular_lane_unchanged(inputs, &corpus_hook)).unwrap().join().unwrap();
+    println!("W1_ANNULAR_DONE undriven={undriven} compared={compared}");
+    assert!(undriven > 0 && compared > 0);
+}

@@ -7004,6 +7004,44 @@ fn w1_halfway_corpus_controls_state_the_gate_scales() {
     }
 }
 
+/// W1 coverage repair corner 1: the D = 0.2 m represented-hull control's two writer
+/// outputs. The admitted lane's represented Z is the non-point hull(Ẑ, Î/c); its maximum
+/// search converges at the hull's binding endpoint and the unchanged gate passes, so the
+/// loaded case is selected and every reader accepts it.
+#[test]
+fn w1_hull_corpus_controls_publish_on_the_represented_hull() {
+    let data=corpus();
+    let cases:Vec<_>=data["cases"].as_array().unwrap().iter()
+        .filter(|case|case["id"].as_str().unwrap().starts_with("w1_member_hull_d02_")).collect();
+    assert_eq!(cases.len(),2);
+    let pass=Value::from("pass");
+    let unqualified=serde_json::json!({"invocation_bound":false,"numerical_eligible":false,"standing":"needs_recompute"});
+    for case in cases {
+        assert_eq!(case["provenance"]["generation_profile"],"registered_direct");
+        assert_eq!(case["provenance"]["writer"],"core/product_physics/src/w1_domain_stage1_tests.rs::w1_represented_z_hull_converges_on_ordinary_sections");
+        let id=case["id"].as_str().unwrap();
+        let pipe=case["invocation"]["request"]["model"]["pipe_segments"].as_array().unwrap().iter().find(|p|p["id"]=="ss:pipe").unwrap();
+        assert_eq!((pipe["section"]["outside_diameter"]["value"].as_f64(),pipe["section"]["wall_thickness"]["value"].as_f64()),(Some(0.2),Some(0.01)));
+        let maxima:Vec<_>=case["source"]["results"].as_array().unwrap().iter()
+            .filter(|row|row["kind"]=="pipe_elastic_normal_stress_maximum_v2"&&row["entity_ref"]=="ss:pipe").collect();
+        assert_eq!(maxima.len(),1);
+        assert!(maxima[0]["value"].as_f64().unwrap()>0.0);
+        let selected=&case["source"]["retained_precision"]["body"]["cases"][0];
+        assert_eq!(selected["status"],"selected");
+        let attempt=&case["source"]["retained_precision"]["body"]["product_attempts"][0];
+        assert_eq!(attempt["proof"]["checks"]["certificate"]["kind"],"passed");
+        assert!(attempt["proof"].get("loaded_maximum_diagnostic").is_none());
+        let entry=data["must_pass"].as_array().unwrap().iter().find(|entry|entry["base"]==case["id"]).unwrap();
+        let (changed,invocation)=apply_entry(data,entry);
+        for (label,source,invocation) in [(id,&case["source"],&case["invocation"]),
+            (entry["id"].as_str().unwrap(),&changed,&invocation)] {
+            current_read(source,Some(invocation),Some(&pass),label,Some(&case["expected_classifications"]),Some(&case["expected"]),false);
+            current_read(source,None,Some(&pass),label,Some(&case["expected_classifications"]),Some(&unqualified),false);
+            current_read(source,None,Some(&pass),label,None,Some(&unqualified),true);
+        }
+    }
+}
+
 #[test]
 fn current_corpus_requires_bound_and_must_pass_declarations() {
     let data = corpus();
