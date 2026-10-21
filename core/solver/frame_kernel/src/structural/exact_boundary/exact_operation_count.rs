@@ -212,7 +212,10 @@ impl Probe {
 
 /// R-A's row paths (DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.2, the gating
 /// test's coverage assertion): for each functional evaluation on this thread since the
-/// last [`take_row_paths`], the path each row took.
+/// last [`take_row_paths`], the path each row took. A thread records only after its
+/// first [`take_row_paths`], which only the gating tests call. So the code that enables
+/// this feature without taking (product_physics' other tests, whose build carries the
+/// registered identity) records nothing and allocates nothing here (D3 registration, §8.13).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RowPath {
     /// B1: the source row's Ratio, negated termwise.
@@ -221,19 +224,26 @@ pub enum RowPath {
     Long { b2_skipped: u32 },
 }
 thread_local! {
+    static RECORDING: Cell<bool> = const { Cell::new(false) };
     static ROW_PATHS: std::cell::RefCell<Vec<Vec<RowPath>>> = const { std::cell::RefCell::new(Vec::new()) };
 }
 pub(super) fn begin_evaluation() {
-    ROW_PATHS.with(|r| r.borrow_mut().push(Vec::new()));
+    if RECORDING.with(Cell::get) {
+        ROW_PATHS.with(|r| r.borrow_mut().push(Vec::new()));
+    }
 }
 pub(super) fn row(path: RowPath) {
-    ROW_PATHS.with(|r| {
-        if let Some(last) = r.borrow_mut().last_mut() {
-            last.push(path);
-        }
-    });
+    if RECORDING.with(Cell::get) {
+        ROW_PATHS.with(|r| {
+            if let Some(last) = r.borrow_mut().last_mut() {
+                last.push(path);
+            }
+        });
+    }
 }
-/// Takes this thread's row paths, one list per evaluation.
+/// Takes this thread's row paths, one list per evaluation, and starts (or continues)
+/// this thread's recording.
 pub fn take_row_paths() -> Vec<Vec<RowPath>> {
+    RECORDING.with(|r| r.set(true));
     ROW_PATHS.with(|r| std::mem::take(&mut *r.borrow_mut()))
 }
