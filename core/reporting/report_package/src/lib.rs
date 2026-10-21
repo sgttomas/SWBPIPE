@@ -31,6 +31,10 @@
 //! reasons recorded in the manifest) so it can be diagnosed; callers must
 //! honor `export_blocked` before saving or exporting the artifact.
 //!
+//! The [`reader`] module reads a container back and accepts only the current
+//! package version, refusing every other version by name with no migration
+//! (`DEC-028`; owner, 2026-10-10: "Close: one version").
+//!
 //! The container is an artifact format, not an issuance act. This crate does
 //! not write files, fetch network resources, or emit lifecycle,
 //! release-readiness, professional approval, certification, sealing,
@@ -46,7 +50,12 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+pub mod reader;
 pub mod wire;
+
+pub use reader::{
+    read_report_package_container, PackageReadRefusal, ReadReportPackage, SUPPORTED_PACKAGE_VERSION,
+};
 
 // ---------------------------------------------------------------------------
 // Ruled naming and fixed member vocabulary.
@@ -70,8 +79,8 @@ pub const ROLE_AUDIT_MANIFEST: &str = "audit_manifest";
 pub const ROLE_RESULT_EXPORT: &str = "result_export";
 pub const ROLE_STATE_COMPARISON_HANDOFF: &str = "state_comparison_handoff_sections";
 
-const HASH_BASIS_JCS: &str = "jcs_canonical_json_bytes";
-const HASH_BASIS_EXACT: &str = "exact_bytes";
+pub(crate) const HASH_BASIS_JCS: &str = "jcs_canonical_json_bytes";
+pub(crate) const HASH_BASIS_EXACT: &str = "exact_bytes";
 
 // ---------------------------------------------------------------------------
 // Input and outcome types.
@@ -327,8 +336,17 @@ pub fn assemble_report_package_container(
     // Package manifest member (DEL-17-02 REQ-007/011/040-043): member
     // inventory with per-member JCS-basis hashes, source references,
     // diagnostics, field status, and sidecar identification.
-    let manifest_value =
-        package_manifest_document(input, &members, export_blocked, &blocking_reasons);
+    let manifest_value = package_manifest_document(
+        &ManifestFields {
+            package_id: &input.package_id,
+            export_profile_id: &input.export_profile_id,
+            source_model_ref: &input.source_model_ref,
+            source_basis_refs: &input.source_basis_refs,
+            export_blocked,
+            blocking_reasons: &blocking_reasons,
+        },
+        &members,
+    );
     let manifest_member = member_canonical_json(
         ROLE_PACKAGE_MANIFEST,
         PACKAGE_MANIFEST_FILE_NAME,
@@ -529,11 +547,21 @@ fn asset_entry_json(asset: &audit::AssetManifestEntry) -> Value {
 // Package manifest document (DEL-17-02 REQ-007/011/040-043).
 // ---------------------------------------------------------------------------
 
-fn package_manifest_document(
-    input: &ReportPackageContainerInput,
+/// The variable fields of the package manifest; every other manifest field
+/// is fixed by the package version. The reader rebuilds the manifest from
+/// these fields and requires the stored manifest to equal the rebuild.
+pub(crate) struct ManifestFields<'a> {
+    pub(crate) package_id: &'a str,
+    pub(crate) export_profile_id: &'a str,
+    pub(crate) source_model_ref: &'a PackageRef,
+    pub(crate) source_basis_refs: &'a [PackageRef],
+    pub(crate) export_blocked: bool,
+    pub(crate) blocking_reasons: &'a [String],
+}
+
+pub(crate) fn package_manifest_document(
+    fields: &ManifestFields,
     members: &[ContainerMember],
-    export_blocked: bool,
-    blocking_reasons: &[String],
 ) -> Value {
     let member_rows: Vec<Value> = members
         .iter()
@@ -556,10 +584,10 @@ fn package_manifest_document(
         "document_kind": CONTAINER_DOCUMENT_KIND,
         "container_extension": CONTAINER_EXTENSION,
         "decision_basis": ["DEC-028", "DEC-057", "DEC-061"],
-        "package_id": input.package_id,
-        "export_profile_id": input.export_profile_id,
-        "source_model_ref": package_ref_json(&input.source_model_ref),
-        "source_basis_refs": input
+        "package_id": fields.package_id,
+        "export_profile_id": fields.export_profile_id,
+        "source_model_ref": package_ref_json(fields.source_model_ref),
+        "source_basis_refs": fields
             .source_basis_refs
             .iter()
             .map(package_ref_json)
@@ -594,8 +622,8 @@ fn package_manifest_document(
             "external_adapter_formats": "unsupported"
         },
         "diagnostics": {
-            "export_blocked": export_blocked,
-            "blocking_reasons": blocking_reasons
+            "export_blocked": fields.export_blocked,
+            "blocking_reasons": fields.blocking_reasons
         },
         "boundary_notes": [
             "This container is an artifact format, not an issuance act; package contents are \
@@ -635,7 +663,7 @@ const ZIP_VERSION: u16 = 20;
 /// Build the deterministic archive: stored (uncompressed) members in the
 /// given fixed order, fixed DOS timestamps, no extra fields, no comments,
 /// ASCII member names. Identical members yield identical archive bytes.
-fn build_deterministic_zip(members: &[ContainerMember]) -> Vec<u8> {
+pub(crate) fn build_deterministic_zip(members: &[ContainerMember]) -> Vec<u8> {
     let mut out: Vec<u8> = Vec::new();
     let mut central: Vec<u8> = Vec::new();
     let mut entry_count: u16 = 0;
@@ -710,7 +738,7 @@ fn push_u32(out: &mut Vec<u8>, value: u32) {
 
 /// CRC-32 (IEEE 802.3, reflected polynomial 0xEDB88320), computed bitwise:
 /// deterministic and dependency-free.
-fn crc32(bytes: &[u8]) -> u32 {
+pub(crate) fn crc32(bytes: &[u8]) -> u32 {
     let mut crc: u32 = 0xFFFF_FFFF;
     for byte in bytes {
         crc ^= u32::from(*byte);
@@ -722,7 +750,7 @@ fn crc32(bytes: &[u8]) -> u32 {
     !crc
 }
 
-fn sha256_hex(bytes: &[u8]) -> String {
+pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(bytes);
     let digest = hasher.finalize();
