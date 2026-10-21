@@ -59,9 +59,10 @@ This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [
   - *B2.* A zero-prescribed recipe is skipped only inside a window in which it could not have refused.
   
   The same evaluator runs in the live attempt and the replay. No value, check, limit or charging rule changes.
-- **Expected gain.** About −12 % to −20 % of E_live; the reviewers' independent models differ in B1's share. That is about −11 % to −18 % of the case charge.
-  - On the models' estimates, every Z-hinge decimal run's case charge falls below 8M: the models' maxima after R-A are about 7.1M to 7.5M.
-  - The models under-predict the product's failure rate, so the product's gain, and whether every case then fits, is established by the census of section 5 before adoption is decided.
+- **Measured gain** (section 5.1, the census). R-A removes 17.8 % of E_live on decimal Euler–Bernoulli Z-hinge inputs (B1 14.8 %, B2 3.4 %) and 17.3 % on Timoshenko.
+  - Every Z-hinge decimal case that is blocked today, 10 of 60 Euler–Bernoulli and 22 of 60 Timoshenko, selects within the unchanged 8M limit. The largest case charge is 7.237M.
+  - No case selected today is lost. Every pre-registered rule holds: method-level equality, the shadow comparison of every evaluation, both readers, and the declared-problem oracle.
+  - The models' estimate was −12 % to −20 %, with maxima of 7.1M to 7.5M.
 - **Cost.**
   - One evaluator change in FK `exact_boundary/functionals.rs` with gating and killing tests.
   - The independent numerical review.
@@ -510,6 +511,14 @@ All of this comes before adoption is decided.
 - **The pre-0.4 blocked envelope.** Deferred until R-A's census. Today's outcome stands until then.
 - **Second-stage candidates.** These are designed further only if R-A leaves cases over the limit.
 - **Placement.** R-A is b7-plan's epoch 7, after the W1 coverage repair. Its census comes first.
+
+**After the census (section 5.1).** Evidence for the two items still open:
+- **AC-002.** The census condition of the approval above is met: every Z-hinge decimal case fits the unchanged limit. The census measured exactly the moves the approved wording covers, and nothing else:
+  - J7's charged work on its 66 directly selected entries;
+  - the envelope and diagnostics digests of the 4 published entries.
+
+  The other condition, the independent numerical review of the implementation, remains.
+- **The pre-0.4 blocked envelope.** On every census input that reaches it today, 32 sweep, 36 multi-case and 158 ablation cases, R-A removes the occurrence: each case selects and publishes. So extending ordinary republication to the pre-0.4 path would change nothing on these inputs. It would apply only to inputs still over the limit after R-A, where today's blocked envelope stays fail-closed.
 
 The options as presented:
 
