@@ -155,7 +155,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - **(e) No relaxation.** No search, verification, tolerance or domain limit is relaxed to obtain a bound.
     - A search's stop tolerance bounds the search's own convergence on the problem it solves. Where a declared input is itself an interval (the admitted lane's represented-Z hull), the search converges at the interval's binding endpoint under the unchanged tolerance and limits, the input's width is carried soundly into the result's enclosure, and the unchanged gate decides publication.
     - The formation definitions fix the precision ladder (128 to 1024 bits), `projection_retry: false` and `search_or_retry: none`. The schema fixes `relative_limit` at 10^-9. These are reviewed inputs bound by digest, and the reader checks the digests at G0.
-    - The D1 caps, the loaded-maximum search limits and the work limits are fixed in source. Their only overrides are test-only, and a change to them is a priced-source change that needs D3 and independent review.
+    - The D1 caps, the loaded-maximum search limits and the work limits are fixed in source. Their only overrides are test-only (`#[cfg(test)]` code, or the opt-in `loaded-maximum-hooks` feature that only the genuine-exhaustion control's command enables and no product or registered build can), and a change to them is a priced-source change that needs D3 and independent review.
     - A caller limit above the qualified M is refused as `Unqualified`; it is never clamped.
 - **AC-003** — Every refused, declined or faulted path behaves as REQ-003 states:
   - it publishes the exact ordinary bytes, or those bytes plus the one notice where retained work ran;
