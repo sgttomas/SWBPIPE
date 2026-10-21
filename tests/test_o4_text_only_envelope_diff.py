@@ -24,6 +24,13 @@ in their counted work only, and `test_ra_work_only_envelope_diff` binds that
 change from main `9e03991d39`. For those files this check reads their bytes at
 `9e03991d39`, the bytes O4's regeneration left, so the two checks together bind
 O4's and R-A's changes in turn.
+
+The W1 coverage repair's corner 1 (`80cf05a857`, #1484) regenerated the retained
+corpus `retained_precision_cases.json` without restating it here, so its route-E
+check failed on main from `9e03991d39`. This check reads that file at corner 1's
+parent `ac07a34ccd`, the bytes O4's regeneration left; W1's own checks
+(`w1_committed_publications_preserve_all_but_authorized_definition_hashes` and
+the corpus diff tests) bind its later moves.
 """
 from __future__ import annotations
 
@@ -41,6 +48,9 @@ REPOSITORY = PROJECT.parents[1]
 BASE = "3826a6288173928ed32a554552fec72eb8ff3dd2"
 # R-A's base, and the files R-A regenerates (its own check's list).
 RA_BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
+# The W1 coverage repair corner 1's parent, for the retained corpus it regenerated.
+W1_CORNER1_BASE = "ac07a34ccd45a83425a077f64564e92155db943f"
+W1_REGENERATED = frozenset({"fixtures/results/retained_precision_cases.json"})
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -168,10 +178,12 @@ def _ra_regenerated() -> frozenset:
 
 
 def current_text(name: str) -> str:
-    """The file's bytes after O4's regeneration: at R-A's base for a file R-A regenerates."""
-    if name in _ra_regenerated():
+    """The file's bytes after O4's regeneration: before the later change that regenerated
+    it (W1 corner 1 or R-A), else as committed."""
+    at = W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated() else None
+    if at is not None:
         return subprocess.run(
-            ["git", "show", f"{RA_BASE}:projects/chirality-piping/{name}"],
+            ["git", "show", f"{at}:projects/chirality-piping/{name}"],
             cwd=REPOSITORY, check=True, capture_output=True, text=True,
         ).stdout
     return (PROJECT / name).read_text()
@@ -377,6 +389,28 @@ def test_o4_text_only_envelope_diff_retained_corpus_route_e_entries():
         for ident in moved:
             assert not [path for kind, path in found[ident] if kind == "other"], ident
             assert any(kind == "text" for kind, _ in found[ident]), ident
+
+
+def test_o4_text_only_envelope_diff_route_e_check_refuses_a_planted_value():
+    """The restated route-E check still fails on a changed value in a route-E entry."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    document = storage.expand(json.loads(current_text(RETAINED_CORPUS)))
+    entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
+
+    def plant(value):
+        """Doubles the first nonzero number leaf; True once one is changed."""
+        items = list(value.items()) if isinstance(value, dict) else list(enumerate(value)) if isinstance(value, list) else []
+        for key, leaf in items:
+            if isinstance(leaf, float) and leaf != 0.0:
+                value[key] = leaf * 2.0
+                return True
+            if plant(leaf):
+                return True
+        return False
+
+    assert plant(entry)
+    found, _, _ = _keyed_diff(RETAINED_CORPUS, "cases", _pair_id, current=json.dumps(document))
+    assert any(kind == "other" for kind, _ in found["w1_member_route_e_baseline_sparse_interactive"])
 
 
 def test_o4_text_only_envelope_diff_r1_outcomes_move_only_input_digests():
