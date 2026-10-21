@@ -50,7 +50,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > |---|---|---|
 > | Intended GUI surface | Results viewer for tabular and graphical review | `_CONTEXT.md`; `docs/SPEC.md` section 7 |
 > | Result categories in scope | Displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and ratios | SOW-023 in `docs/_Registers/ScopeLedger.csv`; `docs/SPEC.md` section 8 |
-> | Rotational-deformation current slice | Result envelopes emit `rx`/`ry`/`rz` rows and the viewer exposes result rows, while the graphical deformation overlay consumes translational `ux`/`uy`/`uz` only; rotational visualization remains explicit residual work | DEC-074 O1; PDU-061; `MEMORY.md` 2026-06-12; `_run_records/TASK_RUN_2026-06-12_1110.md` |
+> | Rotational-deformation current slice | Result envelopes emit `rx`/`ry`/`rz` rows and the viewer exposes result rows. The graphical deformed shape consumes translational `ux`/`uy`/`uz`; rotation glyphs draw each node's emitted `rx`/`ry`/`rz` rows as a double-headed rotation-vector arrow (right-hand rule) at normalized display length (`apps/desktop/src/features/viewport/deformationOverlay.ts`, `viewportRotationGlyph.ts`). Browser evidence for the glyphs remains open | DEC-074 O1; PDU-061; `MEMORY.md` 2026-06-12; `_run_records/TASK_RUN_2026-06-12_1110.md` |
 > | Architectural route | GUI reads schema-first command/query/job result envelopes through application services | `_CONTEXT.md` Architecture Basis Injection |
 > | Unit behavior | Result values must remain unit-aware and dimensionally checked | OPS-K-UNIT-1 in `docs/CONTRACT.md`; `docs/DIRECTIVE.md` section 3 |
 > | Diagnostics behavior | Missing data, assumptions, provenance, nonlinear/convergence issues, and IP boundary warnings must remain visible | `docs/SPEC.md` section 7; OPS-K-DATA-2 and OPS-K-AUTH-1 in `docs/CONTRACT.md` |
@@ -76,7 +76,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 
 > ##### Construction
 >
-> The results viewer is a review surface over already-produced mechanical, diagnostic, stress, reaction, equipment-load, and user-rule-check result envelopes. Its current graphical deformation overlay uses translational components only. Rotational components are emitted and reviewable as result rows but are not visualized as rotational deformation; that surviving work is owned here and recorded in `_STATUS.md`. The viewer does not compute solver mechanics, recover stresses, evaluate rule packs, define protected code criteria, or export final reports directly unless a later sealed implementation brief expands scope.
+> The results viewer is a review surface over already-produced mechanical, diagnostic, stress, reaction, equipment-load, and user-rule-check result envelopes. Its graphical deformed shape uses translational components; rotation glyphs display the emitted rotational components. Both are normalized display transforms of emitted rows, not physical-scale drawings. The viewer does not compute solver mechanics, recover stresses, evaluate rule packs, define protected code criteria, or export final reports directly unless a later sealed implementation brief expands scope.
 >
 > The viewer setup must preserve these visible boundaries:
 >
@@ -114,7 +114,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 
 > ##### Scope
 >
-> This deliverable owns the GUI results-viewer slice that presents reviewable analysis outputs for displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and user-rule ratios. The current implemented slice includes tabular result review and a translational deformed-shape overlay. Emitted `rx`/`ry`/`rz` rows are available in the result surface, but rotational deformation is not graphically visualized and remains explicit DEL-07-05 residual work under DEC-074 O1 / PDU-061. It is a UX/UI slice under PKG-07 and supports OBJ-006 and OBJ-007.
+> This deliverable owns the GUI results-viewer slice that presents reviewable analysis outputs for displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and user-rule ratios. The current implemented slice includes tabular result review, a translational deformed-shape overlay and rotation glyphs for emitted `rx`/`ry`/`rz` rows (DEC-074 O1 / PDU-061). It is a UX/UI slice under PKG-07 and supports OBJ-006 and OBJ-007.
 >
 > The results viewer does not run solver logic, recover stresses, evaluate rule packs, define protected engineering criteria, or grant professional approval. This R5 repair records the current slice and residual only; it does not implement rotational visualization or change GUI source, tests, schemas, or result data.
 >
@@ -181,7 +181,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 
 > ##### D-41 R5 T5 PDU-008 current GUI boundary
 >
-> The viewer presents an explicit governing-ratio state: supplied ratio rows are available and filterable; no ratio rows yields an unavailable state without inferred criteria. Rotational deformation visualization remains unimplemented.
+> The viewer presents an explicit governing-ratio state: supplied ratio rows are available and filterable; no ratio rows yields an unavailable state without inferred criteria. Rotation glyphs draw emitted `rx`/`ry`/`rz` rows; with mixed rotation units across nodes, or no complete component triple, the rotation readout is unavailable rather than comparing or inferring values.
 
 Current reading and output boundary (B7b, T4-U6). The viewer reads every result through DEL-05-02's Rust product reader and re-derives no verdict; a result the reader does not admit is shown as unsupported, historical values only. The standing line states each route's published limitations, the retained routes included. An exact-contract result also shows one stress headline per D-5 section basis (nominal and reduced), and no governing basis is chosen. A reopened saved run is shown as historical evidence: a 0.3.0 record is checked against its saved source by DEL-14-02's record validator, and a refusal is a display-only finding. Viewing grants no output. Under the owner's 2026-10-15 ruling "Merge with the gap" (DEL-04-07 Design `pressure-contract.md`, "Reading pressure-2"), every desktop output surface refuses pressure-2 and pressure-source-1 by name (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, `apps/desktop/src/features/results/outputPolicy.ts`); desktop outputs for the current exact identities await a follow-on unit whose placement the owner reserves. Only the result JSON and stress-neutral exports admit the retained successors, at numerically eligible standing with the live native capture, which no product caller delivers before B8.
 
@@ -300,7 +300,7 @@ Current reading and output boundary (B7b, T4-U6). The viewer reads every result 
 > - envelope/range selection;
 > - node, element, support, and equipment-load targeting;
 > - tabular values versus graphical overlays;
-> - rotational-deformation visualization for emitted `rx`/`ry`/`rz` rows, which is owned by DEL-07-05 but not implemented in the current overlay;
+> - rotational-deformation visualization for emitted `rx`/`ry`/`rz` rows, now drawn as rotation glyphs whose browser evidence remains open;
 > - unit display and conversion controls;
 > - diagnostic badges, warning panels, and blocked states;
 > - report/export readiness indicators.
@@ -346,7 +346,7 @@ Current reading and output boundary (B7b, T4-U6). The viewer reads every result 
 > | Issue | Status |
 > |---|---|
 > | Exact result-envelope schema fields consumed by the viewer | Resolve the accepted result-envelope fields through `schemas/results.schema.yaml` and `apps/desktop/src/features/results/ResultsPanel.tsx`; preserve category, unit, status, provenance and missing-data contracts. |
-> | Exact UI layout, component library, state library, and broader overlay behavior | Layout/component/state choices are local implementation details under DEC-012 and current desktop sources. Rotational-deformation visualization remains the named DEC-074 O1/PDU-061 delivery residual. |
+> | Exact UI layout, component library, state library, and broader overlay behavior | Layout/component/state choices are local implementation details under DEC-012 and current desktop sources. Rotational-deformation visualization (DEC-074 O1/PDU-061) is implemented as rotation glyphs; its browser evidence remains open. |
 > | Exact rule-ratio terminology when private rule packs differ by user design basis | TBD |
 > | Exact equipment-load aggregation/display semantics | TBD |
 
@@ -360,5 +360,5 @@ Current reading and output boundary (B7b, T4-U6). The viewer reads every result 
 
 These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
 
-- **DEL-07-05:1** — Implement rotational-deformation visualization for emitted `rx`/`ry`/`rz` result rows; the current graphical deformation overlay visualizes translational `ux`/`uy`/`uz` only (source: DEC-074 O1 / PDU-061)
+- **DEL-07-05:1** — Implement rotational-deformation visualization for emitted `rx`/`ry`/`rz` result rows (source: DEC-074 O1 / PDU-061). The viewport now draws, per node, a double-headed arrow along the rotation vector of its emitted `global_nodal_rotation_x/y/z` rows: right-hand rule, at the deformed position when the deformed shape is drawn, on the basis that governs the node's deformed shape (else its longest rotation), with length normalized to the longest drawn vector. The deformation readout reports the largest emitted component with its unit. Mixed units across nodes, or no complete triple, leave the rotation overlay unavailable. The translational overlay is unchanged. Unit and render evidence: `deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`. The focused browser evidence CLM-024 asks for is not yet added.
 - **DEL-07-05:2** — Preserve ratio producer/rule-pack sufficiency as upstream responsibilities and never synthesize missing criteria. The current result-semantic contract provides no eligible governing-ratio family, so the viewer reports governing ratio unavailable rather than treating a supplied unrecognized row as an eligible ratio. Evidence: the current semantic tables `fixtures/results/semantic_contract_v0_3_*.json` (no row is `governing_ratio_eligible`; B7a removed the 0.2 table), `apps/desktop/src/features/results/ResultsPanel.test.tsx` and `apps/desktop/src/App.test.tsx` (PR #787 result-integrity basis). A future eligible producer/semantic basis remains separately governed.

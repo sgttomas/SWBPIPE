@@ -176,6 +176,8 @@ code_paths:
 - apps/desktop/e2e/ui-foundation.spec.ts
 - apps/desktop/package.json
 - apps/desktop/src/features/model-tree/**
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
+- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.ts
 - apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx
 - core/gui/model_tree/**
 - apps/desktop/src/services/operationService.ts
@@ -186,3 +188,6 @@ checks:
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
 - apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx
 - tests/test_model_tree_property_inspector.py
+- apps/desktop/src/features/model-tree/PropertyInspector.test.tsx
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
+- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
