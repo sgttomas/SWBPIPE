@@ -67,6 +67,53 @@ pub(crate) fn gate(raw: &Value, mode: PreviewSolverMode) -> Option<Result<Gate, 
     })
 }
 
+/// R-A's change to one attempt's counted work (Design §3.1 "As built", §4), measured
+/// against the pre-R-A path on `input`: the direct method's steps run to its plan on one
+/// ledger; the plan is then formed with B1's hints and without them, and the response is
+/// evaluated by the product path (hinted plan, B2 active) and by the test-only long entry
+/// (plain plan, B1 and B2 off), which is the pre-R-A evaluation. The two evaluations must
+/// agree bit for bit.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct RaWork {
+    /// The descriptor count: the hint rule is charged and applied once per descriptor.
+    pub hints: i64,
+    /// The hinted plan's charge minus the plain plan's.
+    pub plan: i64,
+    /// The product evaluation's charge minus the long evaluation's.
+    pub evaluation: i64,
+}
+
+pub(crate) fn ra_work(input: &Input<'_>) -> Result<RaWork, String> {
+    let mut budget = AttemptBudget::new(exact::Limits { operations: 64_000_000, ..Default::default() });
+    let source = prepare_sources(input, &mut budget).map_err(|e| format!("source closure: {e:?}"))?;
+    let context = exact::Context::prepare_with_budget(
+        &source.system(input),
+        &source.identity,
+        exact::ForceBasis::IdentifiedContributions(&source.force_terms),
+        &source.congruence,
+        &mut budget,
+    )
+    .result
+    .map_err(|e| format!("context: {e:?}"))?;
+    let response = context.solve_with_budget(&mut budget).result.map_err(|e| format!("solve: {e:?}"))?;
+    let charged = |b: &AttemptBudget| b.report().charged as i64;
+    let c0 = charged(&budget);
+    let hinted = FunctionalPlan::new_with_hints(&context, &source.descriptors, &|index| source.hint(index), &mut budget)
+        .result
+        .map_err(|e| format!("hinted plan: {e:?}"))?;
+    let c1 = charged(&budget);
+    let plain = FunctionalPlan::new(&context, &source.descriptors, &mut budget).result.map_err(|e| format!("plain plan: {e:?}"))?;
+    let c2 = charged(&budget);
+    let short = response.evaluate_functionals(&hinted, &mut budget).result.map_err(|e| format!("evaluation: {e:?}"))?;
+    let c3 = charged(&budget);
+    let long = response.evaluate_functionals_long(&plain, &mut budget).result.map_err(|e| format!("long evaluation: {e:?}"))?;
+    let c4 = charged(&budget);
+    if short.ratios() != long.ratios() {
+        return Err("the product evaluation differs from the long evaluation".into());
+    }
+    Ok(RaWork { hints: source.descriptors.len() as i64, plan: (c1 - c0) - (c2 - c1), evaluation: (c3 - c2) - (c4 - c3) })
+}
+
 /// §3.2's gating test over the J7 RF census and the J2 corpus's genuine source
 /// invocations (the 24 raw source controls and the RF bases), in both modes. 86 of these
 /// evaluations reach a plan at this revision; the load/reference-state controls do not, since

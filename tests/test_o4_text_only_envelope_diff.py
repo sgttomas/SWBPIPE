@@ -18,6 +18,12 @@ J7's census pins are held to AC-002 in the owner's text of 2026-10-19: only
 The base bytes are read from Git history (the hosted workflows check out with
 full history). The check is bound to O4's regeneration: a later change to a
 listed file restates its own base here.
+
+R-A (Design `source-work-nondyadic-inputs.md` §4) regenerates some listed files
+in their counted work only, and `test_ra_work_only_envelope_diff` binds that
+change from main `9e03991d39`. For those files this check reads their bytes at
+`9e03991d39`, the bytes O4's regeneration left, so the two checks together bind
+O4's and R-A's changes in turn.
 """
 from __future__ import annotations
 
@@ -33,6 +39,8 @@ from tests.retained_precision_corpus import _STORAGE
 PROJECT = Path(__file__).resolve().parents[1]
 REPOSITORY = PROJECT.parents[1]
 BASE = "3826a6288173928ed32a554552fec72eb8ff3dd2"
+# R-A's base, and the files R-A regenerates (its own check's list).
+RA_BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -154,9 +162,24 @@ def base_text(name: str) -> str:
     ).stdout
 
 
+def _ra_regenerated() -> frozenset:
+    from tests import test_ra_work_only_envelope_diff as ra
+    return frozenset(ra.RAW) | {name for name, _ in ra.DERIVED} | {ra.O4_CONTROLS, ra.J2_CORPUS, ra.J7_CENSUS}
+
+
+def current_text(name: str) -> str:
+    """The file's bytes after O4's regeneration: at R-A's base for a file R-A regenerates."""
+    if name in _ra_regenerated():
+        return subprocess.run(
+            ["git", "show", f"{RA_BASE}:projects/chirality-piping/{name}"],
+            cwd=REPOSITORY, check=True, capture_output=True, text=True,
+        ).stdout
+    return (PROJECT / name).read_text()
+
+
 def diff(name: str, base: str | None = None, current: str | None = None):
     base = base_text(name) if base is None else base
-    current = (PROJECT / name).read_text() if current is None else current
+    current = current_text(name) if current is None else current
     return classify(load(base), load(current))
 
 
@@ -317,7 +340,7 @@ def _entries(text, member, key):
 
 def _keyed_diff(name, member, key, current=None):
     base = dict(_entries(base_text(name), member, key))
-    now = _entries((PROJECT / name).read_text() if current is None else current, member, key)
+    now = _entries(current_text(name) if current is None else current, member, key)
     return {k: classify(base[k], entry) for k, entry in now if k in base}, len(base), len(now)
 
 
@@ -374,7 +397,7 @@ def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():
 def test_o4_text_only_envelope_diff_refuses_a_changed_number():
     """The mutant row of §6: one number changed in a regenerated envelope fails."""
     name = ENVELOPES[0]
-    current = (PROJECT / name).read_text()
+    current = current_text(name)
     match = re.search(r'"value": ?(-?[0-9][0-9.eE+-]*)', current)
     assert match
     token = match.group(1)
