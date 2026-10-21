@@ -11,6 +11,7 @@ import { DisplayUnitsProvider } from "../../src/features/display-units";
 import { PipeViewport } from "../../src/features/viewport/PipeViewport";
 import { buildDeformationOverlay, buildRotationOverlay, rotationGlyphAnchors } from "../../src/features/viewport/deformationOverlay";
 import { modelIndexFor } from "../../src/features/workspace/modelIndex";
+import { emptySelection } from "../../src/features/workspace/selectionState";
 import { loadBundledMechanicsReference } from "../../src/services/previewService";
 import { loadWasmEngine } from "../../src/services/wasmEngine/loadWasmEngine";
 import "../../src/styles.css";
@@ -51,7 +52,7 @@ async function main() {
           assignment={assignment}
           result={result}
           selection={{ type: "project", id: model.project.id }}
-          onSelect={() => undefined}
+          onSelect={() => emptySelection()}
         />
       </div>
     </DisplayUnitsProvider>

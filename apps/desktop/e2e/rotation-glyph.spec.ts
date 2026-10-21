@@ -15,6 +15,10 @@ type Harness = { variant: string; rotationState: string; glyphs: HarnessGlyph[] 
 // One glyph: a cylinder shaft (8 radial segments: 16 side + 16 cap triangles)
 // and two cones (10 radial segments: 10 side + 10 base triangles each).
 const TRIANGLES_PER_GLYPH = 32 + 2 * 20;
+// The bundled invented reference draws four glyphs in one spatial group:
+// pinned here so the expectation does not come only from the functions the
+// viewport itself uses.
+const BUNDLED_REFERENCE_GLYPHS = 4;
 
 async function open(page: Page, variant: "full" | "translational") {
   await page.goto(`/e2e/rotation-glyph/index.html?variant=${variant}`);
@@ -30,6 +34,11 @@ async function open(page: Page, variant: "full" | "translational") {
   const status = page.getByTestId("viewport-deformation-status");
   await status.locator(":scope > summary").click();
   await expect(status).toHaveAttribute("open", "");
+  // Entity labels are HTML over the canvas; hide them so pixel clips see only the canvas.
+  const labels = page.getByTestId("toggle-viewport-labels");
+  if (await labels.getAttribute("aria-pressed") === "true") await labels.click();
+  await expect(labels).toHaveAttribute("aria-pressed", "false");
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const harness = await page.evaluate(() => (globalThis as unknown as { __rotationGlyphHarness: Harness }).__rotationGlyphHarness);
   const renderer = await page.evaluate(() => {
     const current = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
@@ -58,10 +67,11 @@ async function canvasPoint(page: Page, authoredPoint: Vec3) {
 const clip = (center: { x: number; y: number }, half = 4) =>
   ({ x: Math.round(center.x) - half, y: Math.round(center.y) - half, width: half * 2 + 1, height: half * 2 + 1 });
 
-test("rotation glyphs draw emitted rx/ry/rz rows in a real browser", async ({ page }, info) => {
+// The harness fixes the canvas size, so the compact project would repeat this run.
+test("rotation glyphs draw emitted rx/ry/rz rows in a real browser @explicit-viewport", async ({ page }, info) => {
   const full = await open(page, "full");
   expect(full.harness.rotationState).toBe("available");
-  expect(full.harness.glyphs.length).toBeGreaterThan(0);
+  expect(full.harness.glyphs.length).toBe(BUNDLED_REFERENCE_GLYPHS);
 
   // Readout: emitted maximum with its unit, drawn count, display-only boundary.
   const summary = page.getByTestId("viewport-rotation-summary");
@@ -75,17 +85,20 @@ test("rotation glyphs draw emitted rx/ry/rz rows in a real browser", async ({ pa
   // The translational readout is the deformed shape's, unchanged.
   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("available; nodes=");
 
-  // A point on the longest glyph's shaft, and a control point in the canvas corner.
-  const longest = full.harness.glyphs.reduce((best, glyph) => (glyph.displayLength > best.displayLength ? glyph : best));
-  const along = (fraction: number): Vec3 => ({
-    x: longest.anchor.x + longest.axis.x * longest.displayLength * fraction,
-    y: longest.anchor.y + longest.axis.y * longest.displayLength * fraction,
-    z: longest.anchor.z + longest.axis.z * longest.displayLength * fraction
+  // Every glyph's shaft midpoint, anchored on the deformed shape (several of
+  // these nodes move between the undeformed and deformed shapes, so a glyph
+  // drawn at the undeformed node misses its clip), and a corner control.
+  const midpoint = (glyph: HarnessGlyph): Vec3 => ({
+    x: glyph.anchor.x + glyph.axis.x * glyph.displayLength * 0.5,
+    y: glyph.anchor.y + glyph.axis.y * glyph.displayLength * 0.5,
+    z: glyph.anchor.z + glyph.axis.z * glyph.displayLength * 0.5
   });
-  const glyphPoint = await canvasPoint(page, along(0.5));
+  const glyphPoints = [];
+  for (const glyph of full.harness.glyphs) glyphPoints.push(await canvasPoint(page, midpoint(glyph)));
   const canvasBox = (await page.getByTestId("viewport-canvas").boundingBox())!;
   const corner = { x: canvasBox.x + 12, y: canvasBox.y + canvasBox.height - 12 };
-  const fullGlyphPixels = await page.screenshot({ clip: clip(glyphPoint) });
+  const fullGlyphPixels = [];
+  for (const point of glyphPoints) fullGlyphPixels.push(await page.screenshot({ clip: clip(point) }));
   const fullCornerPixels = await page.screenshot({ clip: clip(corner) });
   await info.attach("rotation-glyphs-full", { body: await page.getByTestId("viewport-canvas").screenshot(), contentType: "image/png" });
 
@@ -98,13 +111,18 @@ test("rotation glyphs draw emitted rx/ry/rz rows in a real browser", async ({ pa
   await info.attach("rotation-glyphs-translational", { body: await page.getByTestId("viewport-canvas").screenshot(), contentType: "image/png" });
 
   // The renderer drew exactly the glyph meshes more: two draw calls (shaft and
-  // heads) per spatial group, and each glyph's triangles.
-  expect(full.renderer.calls).toBeGreaterThan(translational.renderer.calls);
-  expect((full.renderer.calls - translational.renderer.calls) % 2).toBe(0);
-  expect(full.renderer.triangles - translational.renderer.triangles).toBe(TRIANGLES_PER_GLYPH * full.harness.glyphs.length);
+  // heads) for the one spatial group, and each glyph's triangles.
+  expect(full.renderer.calls - translational.renderer.calls).toBe(2);
+  expect(full.renderer.triangles - translational.renderer.triangles).toBe(TRIANGLES_PER_GLYPH * BUNDLED_REFERENCE_GLYPHS);
 
-  // Same camera and scene otherwise: the glyph point's pixels differ, the corner's do not.
-  expect(await canvasPoint(page, along(0.5))).toEqual(glyphPoint);
+  // Same camera: each glyph point projects to the same pixel, the corner
+  // control is identical, and every glyph point's pixels differ.
+  for (const [index, glyph] of full.harness.glyphs.entries()) {
+    expect(await canvasPoint(page, midpoint(glyph))).toEqual(glyphPoints[index]);
+  }
   expect(await page.screenshot({ clip: clip(corner) })).toEqual(fullCornerPixels);
-  expect(await page.screenshot({ clip: clip(glyphPoint) })).not.toEqual(fullGlyphPixels);
+  for (const [index, point] of glyphPoints.entries()) {
+    expect(await page.screenshot({ clip: clip(point) }), `glyph ${full.harness.glyphs[index].nodeId}`)
+      .not.toEqual(fullGlyphPixels[index]);
+  }
 });
