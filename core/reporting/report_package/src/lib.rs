@@ -342,27 +342,38 @@ pub fn assemble_report_package_container(
     // cannot be encoded, so it is blocked; the reader refuses its bytes.
     blocking_reasons.extend(archive_form_limit_reasons(&members));
 
-    let export_blocked = !blocking_reasons.is_empty();
+    let mut export_blocked = !blocking_reasons.is_empty();
 
     // Package manifest member (DEL-17-02 REQ-007/011/040-043): member
     // inventory with per-member JCS-basis hashes, source references,
     // diagnostics, field status, and sidecar identification.
-    let manifest_value = package_manifest_document(
-        &ManifestFields {
-            package_id: &input.package_id,
-            export_profile_id: &input.export_profile_id,
-            source_model_ref: &input.source_model_ref,
-            source_basis_refs: &input.source_basis_refs,
-            export_blocked,
-            blocking_reasons: &blocking_reasons,
-        },
-        &members,
-    );
-    let manifest_member = member_canonical_json(
-        ROLE_PACKAGE_MANIFEST,
-        PACKAGE_MANIFEST_FILE_NAME,
-        &manifest_value,
-    );
+    let manifest_for = |export_blocked: bool, blocking_reasons: &[String]| {
+        member_canonical_json(
+            ROLE_PACKAGE_MANIFEST,
+            PACKAGE_MANIFEST_FILE_NAME,
+            &package_manifest_document(
+                &ManifestFields {
+                    package_id: &input.package_id,
+                    export_profile_id: &input.export_profile_id,
+                    source_model_ref: &input.source_model_ref,
+                    source_basis_refs: &input.source_basis_refs,
+                    export_blocked,
+                    blocking_reasons,
+                },
+                &members,
+            ),
+        )
+    };
+    let mut manifest_member = manifest_for(export_blocked, &blocking_reasons);
+    // The exact archive length, manifest included, must fit the archive
+    // form's 32-bit offsets. A blocked rebuild only grows the manifest, and a
+    // blocked oversize package is refused by the reader in any case.
+    if archive_length(&manifest_member, &members) > u64::from(u32::MAX) {
+        blocking_reasons
+            .push("package: the archive exceeds the archive form's 32-bit size limit".to_string());
+        export_blocked = true;
+        manifest_member = manifest_for(export_blocked, &blocking_reasons);
+    }
     let package_identity_sha256_hex = manifest_member.sha256_hex.clone();
     members.insert(0, manifest_member);
 
@@ -390,10 +401,6 @@ pub fn assemble_report_package_container(
 // Member materialization.
 // ---------------------------------------------------------------------------
 
-/// Headroom reserved for the manifest member, the central directory and the
-/// end-of-central-directory record when bounding the archive's 32-bit offsets.
-const ARCHIVE_SIZE_HEADROOM: u64 = 64 * 1024 * 1024;
-
 fn archive_form_limit_reasons(members: &[ContainerMember]) -> Vec<String> {
     let mut reasons = Vec::new();
     for member in members {
@@ -411,15 +418,20 @@ fn archive_form_limit_reasons(members: &[ContainerMember]) -> Vec<String> {
             members.len() + 1
         ));
     }
-    let local_bytes: u64 = members
-        .iter()
-        .map(|member| 30 + member.file_name.len() as u64 + member.bytes.len() as u64)
-        .sum();
-    if local_bytes > u64::from(u32::MAX) - ARCHIVE_SIZE_HEADROOM {
-        reasons
-            .push("package: member bytes exceed the archive form's 32-bit size limit".to_string());
-    }
     reasons
+}
+
+/// Exact length of the stored-ZIP archive for the manifest plus `members`:
+/// local entries, central entries and the end-of-central-directory record.
+fn archive_length(manifest: &ContainerMember, members: &[ContainerMember]) -> u64 {
+    std::iter::once(manifest)
+        .chain(members)
+        .map(|member| {
+            let name = member.file_name.len() as u64;
+            (30 + name + member.bytes.len() as u64) + (46 + name)
+        })
+        .sum::<u64>()
+        + 22
 }
 
 /// Deepest array/object nesting a canonical-JSON member may have: the depth
@@ -824,4 +836,30 @@ pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
         hex.push_str(&format!("{byte:02x}"));
     }
     hex
+}
+
+#[cfg(test)]
+mod archive_length_tests {
+    use super::*;
+
+    #[test]
+    fn archive_length_is_the_encoded_length() {
+        let members: Vec<ContainerMember> =
+            [("a.json", 0usize), ("bb.json", 7), ("ccc.html", 4096)]
+                .iter()
+                .map(|(name, size)| member_exact("r", name, "text/plain", vec![b'x'; *size]))
+                .collect();
+        let manifest = member_exact(
+            "m",
+            PACKAGE_MANIFEST_FILE_NAME,
+            "application/json",
+            vec![b'{'; 99],
+        );
+        let mut all = vec![manifest.clone()];
+        all.extend(members.iter().cloned());
+        assert_eq!(
+            archive_length(&manifest, &members),
+            build_deterministic_zip(&all).len() as u64
+        );
+    }
 }
