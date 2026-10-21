@@ -47,7 +47,7 @@ pub(crate) fn gate(raw: &Value, mode: PreviewSolverMode) -> Option<Result<Gate, 
     .result
     .ok()?;
     let response = context.solve_with_budget(&mut budget).result.ok()?;
-    let plan = FunctionalPlan::new_with_hints(&context, &source.descriptors, &source.hints, &mut budget).result.ok()?;
+    let plan = FunctionalPlan::new_with_hints(&context, &source.descriptors, &|index| source.hint(index), &mut budget).result.ok()?;
     let _ = count::take_row_paths();
     let short = response.evaluate_functionals(&plan, &mut budget).result;
     let mut paths = count::take_row_paths();

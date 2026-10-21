@@ -252,7 +252,7 @@ fn replay(
     ds: &[FunctionalDescriptor],
     budget: &mut AttemptBudget,
 ) -> Result<FunctionalReplayCheck, Error> {
-    set.replay_against(&case.system(), ID, ForceBasis::DeclaredVector, &[], ds, &[], &[], 1e-9, budget)
+    set.replay_against(&case.system(), ID, ForceBasis::DeclaredVector, &[], ds, None, &[], 1e-9, budget)
         .result
 }
 

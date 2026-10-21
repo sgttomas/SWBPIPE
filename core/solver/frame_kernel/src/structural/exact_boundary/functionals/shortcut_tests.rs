@@ -130,7 +130,12 @@ fn b1_compare(
     .unwrap();
     let r = c.solve_with_budget(&mut budget).result.unwrap();
     assert!(r.displacement[1].numerator.terms.len() > 1);
-    let p = FunctionalPlan::new_with_hints(&c, ds, hints, &mut budget)
+    // Without a hint per descriptor the plan takes no rule, so B1 is off.
+    let p = if hints.len() == ds.len() {
+        FunctionalPlan::new_with_hints(&c, ds, &|i| hints[i], &mut budget)
+    } else {
+        FunctionalPlan::new(&c, ds, &mut budget)
+    }
         .result
         .unwrap();
     take_row_paths();
@@ -207,6 +212,28 @@ fn b1_recognition_refuses_near_matches() {
     let mut d = section(&good, 0.0);
     d.terms.push(term(1, vec![vec![2.5, 0.75, 2.0, 0.0]]));
     cases.push(("nonunit before extra zero", good.clone(), d, Some(0)));
+    // The two cases above add one term to a two-term source, so a term-count
+    // check refuses them first. These match every term of the source row and
+    // so reach the zero test itself (Codex review, round 1).
+    let extended = |tail: &[f64]| -> Vec<AffineTerm> {
+        good.terms
+            .iter()
+            .map(|t| {
+                let products = t
+                    .products
+                    .iter()
+                    .map(|p| p.iter().chain(tail).copied().collect())
+                    .collect();
+                term(t.dof, products)
+            })
+            .collect()
+    };
+    let mut d = section(&good, 0.0);
+    d.terms.extend(extended(&[-1.0]));
+    cases.push(("every extra term unit-only, no zero", good.clone(), d, Some(0)));
+    let mut d = section(&good, 0.0);
+    d.terms.extend(extended(&[2.0, 0.0]));
+    cases.push(("every extra term nonunit before its zero", good.clone(), d, Some(0)));
     for (name, alter) in [
         ("other component", 0),
         ("other member", 1),
@@ -256,7 +283,7 @@ fn b1_recognition_refuses_near_matches() {
         );
     }
     let ds = [good.clone(), section(&good, 0.0)];
-    let (paths, _) = b1_compare("wrong hint-vector length", &ds, &[None]);
+    let (paths, _) = b1_compare("no hint rule", &ds, &[None]);
     assert!(paths.iter().all(|p| matches!(p, RowPath::Long { .. })));
 }
 

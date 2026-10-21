@@ -530,7 +530,7 @@ pub(super) fn functional(
     let replay_hints = if hint_count == 0 {
         vec![]
     } else {
-        vec![hint_count]
+        vec![2 * hint_count]
     };
     let eval = evaluation(r, ds, hints, values);
     let contact = contact(r, &rr.contacts[0]);

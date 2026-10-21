@@ -323,31 +323,45 @@ pub struct FunctionalPlan<'a> {
     /// one takes the long path.
     hints: Vec<Option<u32>>,
 }
+/// R-A's B1 hint rule: the caller's map from a descriptor's index to its candidate
+/// source row. The kernel charges it before it builds the hints from it.
+pub type HintRule<'h> = &'h dyn Fn(usize) -> Option<u32>;
+/// The hints a rule gives for `count` descriptors, charged before they are built:
+/// one unit per descriptor for the rule's evaluation and one for its store.
+fn build_hints(rule: HintRule<'_>, count: usize, w: &mut Work) -> Result<Vec<Option<u32>>, Error> {
+    w.charge(count.saturating_mul(2))?;
+    Ok((0..count).map(rule).collect())
+}
 impl<'a> FunctionalPlan<'a> {
     pub fn new(
         context: &'a Context,
         descriptors: &[FunctionalDescriptor],
         budget: &mut AttemptBudget,
     ) -> Attempt<Self> {
-        Self::new_with_hints(context, descriptors, &[], budget)
+        Self::plan(context, descriptors, None, budget)
     }
-    /// [`FunctionalPlan::new`] with R-A's B1 hints. A hint vector whose length is not
-    /// the descriptors' is not used. Two units per hint are charged: its construction
-    /// by the caller and its copy here.
+    /// [`FunctionalPlan::new`] with R-A's B1 hints, built here from `rule` after
+    /// their charge.
     pub fn new_with_hints(
         context: &'a Context,
         descriptors: &[FunctionalDescriptor],
-        hints: &[Option<u32>],
+        rule: HintRule<'_>,
+        budget: &mut AttemptBudget,
+    ) -> Attempt<Self> {
+        Self::plan(context, descriptors, Some(rule), budget)
+    }
+    fn plan(
+        context: &'a Context,
+        descriptors: &[FunctionalDescriptor],
+        rule: Option<HintRule<'_>>,
         budget: &mut AttemptBudget,
     ) -> Attempt<Self> {
         budget.run(AttemptStage::Plan, |w, token| {
             binding(context, token, w)?;
             descriptors_charge(descriptors, context.f.len(), w)?;
-            let hints = if !hints.is_empty() && hints.len() == descriptors.len() {
-                w.charge(hints.len().saturating_mul(2))?;
-                hints.to_vec()
-            } else {
-                Vec::new()
+            let hints = match rule {
+                Some(rule) => build_hints(rule, descriptors.len(), w)?,
+                None => Vec::new(),
             };
             Ok(Self {
                 context,
@@ -1051,7 +1065,7 @@ impl RetainedFunctionalSet {
         force_basis: ForceBasis<'_>,
         expected_congruence: &[CongruenceMember],
         expected_descriptors: &[FunctionalDescriptor],
-        expected_hints: &[Option<u32>],
+        expected_hints: Option<HintRule<'_>>,
         expected_contacts: &[(usize, i8, f64)],
         relative_limit: f64,
         budget: &mut AttemptBudget,
@@ -1115,12 +1129,12 @@ impl RetainedFunctionalSet {
                 relative_limit,
                 w,
             )?;
-            // The rebuilt hints' construction by the caller, one unit per hint.
-            let expected_hints = if expected_hints.len() == expected_descriptors.len() { expected_hints } else { &[] };
-            if !expected_hints.is_empty() {
-                w.charge(expected_hints.len())?;
-            }
-            let values = evaluate(&response, expected_descriptors, expected_hints, true, w)?;
+            // The current invocation's hints, rebuilt from its rule as the plan builds them.
+            let expected_hints = match expected_hints {
+                Some(rule) => build_hints(rule, expected_descriptors.len(), w)?,
+                None => Vec::new(),
+            };
+            let values = evaluate(&response, expected_descriptors, &expected_hints, true, w)?;
             if values != self.values {
                 return Err(Error::Invalid("functional retained ratio mismatch"));
             }

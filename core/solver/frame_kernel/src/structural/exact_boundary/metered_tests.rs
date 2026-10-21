@@ -19,7 +19,7 @@ mod explicit;
 use super::exact_operation_count as count;
 use super::functionals::{
     AffineTerm, AttemptBudget, FunctionalConvention, FunctionalDescriptor, FunctionalKey,
-    FunctionalPlan, FunctionalQuantity, FunctionalUnit, MemberEnd,
+    FunctionalPlan, FunctionalQuantity, FunctionalUnit, HintRule, MemberEnd,
 };
 use super::*;
 use std::collections::BTreeSet;
@@ -1017,7 +1017,12 @@ fn functional_chain(
     check.stage("Context::solve_with_budget", t, &mut last, budget.report(), a.result.is_ok());
     let r = a.result?;
     let entry = if hints.is_empty() { "FunctionalPlan::new" } else { "FunctionalPlan::new_with_hints" };
-    let (a, t) = traced(|| FunctionalPlan::new_with_hints(&c, ds, hints, &mut budget));
+    let rule = |i: usize| hints[i];
+    let rule: Option<HintRule<'_>> = (!hints.is_empty()).then_some(&rule);
+    let (a, t) = traced(|| match rule {
+        Some(rule) => FunctionalPlan::new_with_hints(&c, ds, rule, &mut budget),
+        None => FunctionalPlan::new(&c, ds, &mut budget),
+    });
     check.stage(entry, t, &mut last, budget.report(), false);
     let plan = a.result?;
     let (a, t) = traced(|| r.evaluate_functionals(&plan, &mut budget));
@@ -1051,7 +1056,7 @@ fn functional_chain(
     check.stage("RetainedFunctionalSet::check_binding_with_budget", t, &mut last, budget.report(), false);
     a.result?;
     let (a, t) = traced(|| {
-        retained.replay_against(&system, ID, s.basis(), &s.congruence, ds, hints, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
+        retained.replay_against(&system, ID, s.basis(), &s.congruence, ds, rule, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
     });
     check.stage("RetainedFunctionalSet::replay_against", t, &mut last, budget.report(), a.result.is_ok());
     assert_eq!(a.result?.functionals(), ds.len());
