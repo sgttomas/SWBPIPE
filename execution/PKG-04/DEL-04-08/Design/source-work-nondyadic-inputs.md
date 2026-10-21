@@ -59,7 +59,7 @@ This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [
   - *B2.* A zero-prescribed recipe is skipped only inside a window in which it could not have refused.
   
   The same evaluator runs in the live attempt and the replay. No value, check, limit or charging rule changes.
-- **Measured gain** (section 5.1, the census). R-A removes 18.4 % of the live pass, Preparation to Projection, on decimal Euler–Bernoulli Z-hinge inputs and 17.9 % on Timoshenko. Of the whole direct-method charge it removes 17.7 %: B1 alone 14.8 %, B2 alone 3.4 %.
+- **Measured gain** (section 5.1, the census). R-A removes 18.4 % of the live pass, Preparation to Projection, on decimal Euler–Bernoulli Z-hinge inputs and 17.9 % on Timoshenko. Of the whole direct-method charge it removes 17.7 % (Euler–Bernoulli; B1 alone 14.8 %, B2 alone 3.4 %) and 17.2 % (Timoshenko; B1 alone 14.4 %, B2 alone 3.3 %).
   - Every Z-hinge decimal case that is blocked today, 10 of 60 Euler–Bernoulli and 22 of 60 Timoshenko, selects within the unchanged 8M limit. The largest case charge is 7.241M.
   - No case selected today is lost. On those inputs every pre-registered rule holds: method-level equality, the shadow comparison of every evaluation, both readers, and the declared-problem oracle and its 578 required selections.
   - R-A leaves some cases over the limit: three PEXACT Timoshenko families of the oracle's φ = 2 set, and many-case invocations that pass the 64M invocation ledger. In the latter, the fail-closed form at the product entry can change (section 5.1).
@@ -502,7 +502,7 @@ They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (se
 - **The 16 invocations that stay blocked off and on differ beyond the allowance.**
   - *With R-A off,* 9 block when a case's own captured replay exhausts its 8M: case 1 in 6 of them, case 2 in 2, case 4 in 1. One blocks at a case's composite recipe reservation. Six block once the invocation ledger is nearly spent, three at a replay limited to what remains of it and three at the invocation publication reservation.
   - *With R-A on,* every block is bound by the invocation ledger. Eight fail at the composite publication reservation, charged 60.57M–63.85M, and three at the invocation publication reservation. Four fail at a replay limited to what remains, and one as described below.
-  - So the blocking cause moves to a later case or to the invocation, and the blocked envelope's per-case numerical-quality entries change with it.
+  - So the blocking cause changes: mostly to a later case or to the invocation. In two 10-case invocations it moves the other way, from the invocation publication reservation to case 10's ledger-limited replay. The blocked envelope's per-case numerical-quality entries change with it.
   - At the product entry, the outcome moves between section 1's two fail-closed forms. Ten move from the blocked envelope (`pressure-2`) to the run-level `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, two move the reverse way, and four keep their form. So, with R-A on, 5 end as blocked envelopes and 11 as `Err`. Neither form publishes result rows.
   - When the entry returns `Err`, the census does not keep that run's public-entry shadow results; the internal runs' shadow checks cover those evaluations.
 - **One of them carries a misleading diagnostic,** an existing path that R-A only makes the ledger reach. In the 10-case invocation `zhinge122 (0.168, 0.007) long r=1e-12 eb decimal zero`, with R-A on:
@@ -510,7 +510,10 @@ They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (se
   - two `SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE` entries then report the composite recipe reservation refused at `Exact(Budget)`;
   - the blocking `FINALIZATION_FAILED` reads "source functional row binding is not unique: spring:N0/support_reaction_component_v2/node".
 
-  From the code: when `composite_support_norms` fails, the product pushes the DERIVED_UNAVAILABLE diagnostic without appending that support's signed result rows (`lib.rs` about 5543–5557). `source_row_bindings` then finds no matching row and reports it as "not unique", because its test is `matched.len() != 1` (about 6693). The outcome is fail-closed, but the stated cause hides the budget refusal. Any selected pre-0.4 case whose support-norm reservation runs out reaches it, with R-A off as well. It is outside R-A's scope and left unchanged (section 6).
+  From the code: when `composite_support_norms` fails, the product pushes the DERIVED_UNAVAILABLE diagnostic without appending that support's signed result rows (`lib.rs` about 5543–5557). `source_row_bindings` then finds no matching row and reports it as "not unique", because its test is `matched.len() != 1` (about 6693). The outcome is fail-closed, but the stated cause hides the budget refusal. The path is in the case solver that the pre-0.4 and 0.4.0 contracts share (`solve_prepared_load_case`), and any selected case whose support-norm reservation runs out reaches it, with R-A off as well.
+  - On pre-0.4 it blocks with the misleading cause, as observed here.
+  - On 0.4.0, the same message would become the withheld join's stated cause when the invocation republishes ordinarily (`record_load_state_join_failure`). The census did not exercise that.
+  - It is outside R-A's scope and left unchanged (section 6).
 - This is the cross-attempt effect that section 3.1 and RF §5.2 (6) foresee: fail-closed, with less work per case. Under section 5's rule it is a difference outside the allowance, so it is reported here for the owner (section 6). It is not repaired.
 - The two-case invocations (largest invocation charge 15.0M) do not approach the invocation limit.
 
@@ -582,7 +585,7 @@ They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (se
   - In those invocations the product entry's fail-closed form changes: ten move from the blocked envelope to the run-level `SOURCE_BLOCKS_FINALIZATION_FAILED`, two move the reverse way, and four keep their form. With R-A on, 5 end as blocked envelopes and 11 as `Err`.
   - Extending the replay screen (`reserve_captured_replay`, which passes only when the live charge is at most the limit less itself) to the pre-0.4 path would refuse the two remaining PEXACT-B Timoshenko families (about 4.08M and 4.10M, 16 runs). It would pass PEXACT-A r1e-08 (about 3.74M) and every Z-hinge decimal case. The census evidence therefore narrows, but does not reverse, the statement under "The options as presented" that the screen would not catch these cases.
   - So R-A reduces how often the blocked outcome occurs, but it also changes its diagnostics, and on invocations over the 64M ledger its form.
-  - One such invocation reaches an existing misleading diagnostic. "Source functional row binding is not unique" is reported where a support-norm budget refusal left the support's rows unappended (section 5.1). That path exists with R-A off too, so it bears on the pre-0.4 path as it is, not on R-A.
+  - One such invocation reaches an existing misleading diagnostic. "Source functional row binding is not unique" is reported where a support-norm budget refusal left the support's rows unappended (section 5.1). That path is in the shared case solver and exists with R-A off too. On 0.4.0 it would become the ordinary republication's stated cause, which the census did not exercise. So it bears on today's paths, not on R-A.
 
 The options as presented:
 
