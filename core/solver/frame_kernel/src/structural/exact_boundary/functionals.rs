@@ -1532,6 +1532,8 @@ mod shortcuts {
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod shortcut_tests;
+#[cfg(test)]
 mod block_order_tests;
 #[cfg(test)]
 pub(super) mod congruence_tests;

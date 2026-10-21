@@ -11,7 +11,7 @@
 //! A complete entry must match its whole sequence; a budget refusal must match
 //! a prefix, including any rejected explicit charge. Thus an extra legacy
 //! precharge outside Work::mul cannot be absorbed into the ledger comparison.
-use super::super::functionals::RetainedFunctionalSet;
+use super::super::functionals::{MemberEnd, RetainedFunctionalSet};
 use super::*;
 
 pub(super) type Schedule = (&'static str, Vec<usize>);
@@ -119,6 +119,8 @@ fn descriptors(ds: &[FunctionalDescriptor]) -> Vec<usize> {
         let label = match &d.key.quantity {
             FunctionalQuantity::DeclaredAffine { label } => label.as_str(),
             FunctionalQuantity::NodeDisplacement { node, .. } => node.as_str(),
+            FunctionalQuantity::MemberEnd { member, .. }
+            | FunctionalQuantity::MemberSection { member, .. } => member.as_str(),
             FunctionalQuantity::SourceReaction { .. } => "",
             _ => panic!("unexercised descriptor"),
         };
@@ -264,10 +266,132 @@ impl Evaluation {
         (self.add(&an, &bn), self.mul(&a.1, &b.1))
     }
 }
-fn evaluation(r: &Response<'_>, ds: &[FunctionalDescriptor], values: &[Ratio]) -> Vec<usize> {
+// R-A §3.1's as-built schedule, stated on descriptors and independently
+// reconstructed expansions. No shortcuts helper, row trace or producer size
+// function is used to decide either a charge or a path.
+fn atoms(ps: &[Vec<f64>]) -> usize {
+    ps.iter().map(|p| 1 + p.len()).sum()
+}
+fn key_size(key: &FunctionalKey) -> usize {
+    let name = match &key.quantity {
+        FunctionalQuantity::MemberEnd { member, .. }
+        | FunctionalQuantity::MemberSection { member, .. } => member,
+        _ => panic!("B1 candidate is not member-like"),
+    };
+    key.case_id.len() + name.len() + 8
+}
+fn end(key: &FunctionalKey) -> Option<(&str, u8)> {
+    match &key.quantity {
+        FunctionalQuantity::MemberEnd {
+            member,
+            end: MemberEnd::I,
+            row,
+        } => Some((member, *row)),
+        _ => None,
+    }
+}
+fn row_size(d: &FunctionalDescriptor) -> usize {
+    d.terms.len() + d.terms.iter().map(|t| atoms(&t.products)).sum::<usize>()
+}
+fn appended_negation(a: &[Vec<f64>], b: &[Vec<f64>]) -> bool {
+    a.len() == b.len()
+        && a.iter().zip(b).all(|(d, s)| {
+            d.len() == s.len() + 1
+                && same_bits(&d[..s.len()], s)
+                && d[s.len()].to_bits() == (-1.0f64).to_bits()
+        })
+}
+fn zero_extension(extra: &[AffineTerm], earlier: &FunctionalDescriptor) -> bool {
+    extra.len() == earlier.terms.len()
+        && extra.iter().zip(&earlier.terms).all(|(d, s)| {
+            d.dof == s.dof
+                && d.products.len() == s.products.len()
+                && d.products.iter().zip(&s.products).all(|(a, b)| {
+                    a.len() > b.len() && same_bits(&a[..b.len()], b) && {
+                        let tail = &a[b.len()..];
+                        tail.iter()
+                            .position(|x| *x == 0.0)
+                            .is_some_and(|z| tail[..z].iter().all(|x| x.abs() == 1.0))
+                    }
+                })
+        })
+}
+fn b1_source(
+    e: &mut Evaluation,
+    index: usize,
+    ds: &[FunctionalDescriptor],
+    hints: &[Option<u32>],
+    source_ok: &[bool],
+) -> Option<usize> {
+    if hints.len() != ds.len() {
+        return None;
+    }
+    let d = &ds[index];
+    let FunctionalQuantity::MemberSection {
+        member, component, ..
+    } = &d.key.quantity
+    else {
+        return None;
+    };
+    let j = hints[index]? as usize;
+    if j >= index {
+        return None;
+    }
+    let s = &ds[j];
+    e.charges.push(key_size(&s.key));
+    if s.key.case_id != d.key.case_id || end(&s.key) != Some((member, *component)) {
+        return None;
+    }
+    e.charges
+        .push(atoms(&s.offset) + atoms(&d.offset) + row_size(s) + row_size(d));
+    if !appended_negation(&d.offset, &s.offset)
+        || d.terms.len() < s.terms.len()
+        || !d
+            .terms
+            .iter()
+            .zip(&s.terms)
+            .all(|(d, s)| d.dof == s.dof && appended_negation(&d.products, &s.products))
+    {
+        return None;
+    }
+    if s.offset
+        .iter()
+        .chain(s.terms.iter().flat_map(|t| &t.products))
+        .any(|p| p.len() > 2 || p.iter().any(|x| x.abs() == 1.0))
+    {
+        return None;
+    }
+    let extra = &d.terms[s.terms.len()..];
+    if !extra.is_empty() {
+        let first = j.saturating_sub(*component as usize);
+        let mut found = false;
+        for earlier in &ds[first..=j] {
+            e.charges.push(key_size(&earlier.key) + row_size(earlier));
+            if earlier.key.case_id == d.key.case_id
+                && end(&earlier.key).is_some_and(|(m, _)| m == member)
+                && zero_extension(extra, earlier)
+            {
+                found = true;
+                break;
+            }
+        }
+        if !found {
+            return None;
+        }
+    }
+    e.charges.push(1);
+    source_ok[j].then_some(j)
+}
+fn evaluation(
+    r: &Response<'_>,
+    ds: &[FunctionalDescriptor],
+    hints: &[Option<u32>],
+    values: &[Ratio],
+) -> Vec<usize> {
     let c = r.context;
+    let n = c.f.len();
     let mut e = Evaluation {
-        charges: vec![ds.len() * (4 * c.f.len() + 8)],
+        charges: vec![ds.len() * (4 * n + 8)],
     };
     for block in &c.blocks {
         if block.len() > 2 {
@@ -279,34 +403,93 @@ fn evaluation(r: &Response<'_>, ds: &[FunctionalDescriptor], values: &[Ratio]) -
             );
         }
     }
-    for (d, expected) in ds.iter().zip(values) {
-        let mut coefficients = vec![vec![]; c.f.len()];
-        for t in &d.terms {
-            let coefficient = e.recipe(&t.products);
-            coefficients[t.dof] = e.add(&coefficients[t.dof], &coefficient);
-        }
-        let mut fixed = e.recipe(&d.offset);
-        for &(i, value) in &c.source.prescribed {
-            if !coefficients[i].is_empty() {
-                let p = e.mul(&coefficients[i], &oracle::grow(&[], value).unwrap());
-                fixed = e.add(&fixed, &p);
-            }
-        }
-        let mut q = (fixed, vec![1.0]);
-        for block in &c.blocks {
-            let mut numerator = vec![];
-            for &i in block {
-                if !coefficients[i].is_empty() {
-                    let p = e.mul(&coefficients[i], &r.displacement[i].numerator.terms);
-                    numerator = e.add(&numerator, &p);
+    e.charges.extend([
+        2 * n + c.source.prescribed.len(),
+        c.blocks.iter().map(Vec::len).sum(),
+    ]);
+    let zero = |i| c.source.prescribed.iter().any(|&(j, v)| j == i && v == 0.0);
+    let b2 = !c.blocks.iter().flatten().any(|&i| zero(i));
+    let mut reconstructed: Vec<(Vec<f64>, Vec<f64>)> = Vec::new();
+    let mut source_ok = Vec::new();
+    for (index, (d, expected)) in ds.iter().zip(values).enumerate() {
+        let q = if let Some(j) = b1_source(&mut e, index, ds, hints, &source_ok) {
+            let (num, den) = &reconstructed[j];
+            e.charges.push(num.len() + den.len());
+            source_ok.push(false);
+            (num.iter().map(|x| -x).collect(), den.clone())
+        } else {
+            let mut skip = vec![false; n];
+            if b2 {
+                e.charges.push(d.terms.len());
+                for t in &d.terms {
+                    if zero(t.dof) {
+                        e.charges.push(atoms(&t.products));
+                    }
+                }
+                // Group by DOF, as the window bounds the whole ordered sum on
+                // that DOF, including products in separate AffineTerms.
+                for (i, skip) in skip.iter_mut().enumerate() {
+                    let ps: Vec<_> = d
+                        .terms
+                        .iter()
+                        .filter(|t| t.dof == i)
+                        .flat_map(|t| &t.products)
+                        .collect();
+                    *skip = zero(i)
+                        && ps.len() <= 64
+                        && ps.iter().all(|p| {
+                            p.len() <= 5
+                                && p.iter()
+                                    .all(|x| x.is_normal() && oracle::exponent(*x).abs() <= 150)
+                        });
                 }
             }
-            if !numerator.is_empty() {
-                let den = r.displacement[block[0]].denominator.terms.clone();
-                e.charges.push(den.len());
-                q = e.combine(q, (numerator, den));
+            let mut coefficients = vec![vec![]; n];
+            for t in &d.terms {
+                if skip[t.dof] {
+                    continue;
+                }
+                let coefficient = e.recipe(&t.products);
+                coefficients[t.dof] = e.add(&coefficients[t.dof], &coefficient);
             }
-        }
+            let mut fixed = e.recipe(&d.offset);
+            for &(i, value) in &c.source.prescribed {
+                if !coefficients[i].is_empty() {
+                    let p = e.mul(&coefficients[i], &oracle::grow(&[], value).unwrap());
+                    fixed = e.add(&fixed, &p);
+                }
+            }
+            if hints.len() == ds.len() && end(&d.key).is_some() {
+                e.charges.push(n + 2);
+            }
+            let fixed_empty = fixed.is_empty();
+            let mut q = (fixed, vec![1.0]);
+            let mut blocks = 0;
+            for block in &c.blocks {
+                let mut numerator = vec![];
+                for &i in block {
+                    if !coefficients[i].is_empty() {
+                        let p = e.mul(&coefficients[i], &r.displacement[i].numerator.terms);
+                        numerator = e.add(&numerator, &p);
+                    }
+                }
+                if !numerator.is_empty() {
+                    blocks += 1;
+                    let den = r.displacement[block[0]].denominator.terms.clone();
+                    e.charges.push(den.len());
+                    q = e.combine(q, (numerator, den));
+                }
+            }
+            source_ok.push(
+                end(&d.key).is_some()
+                    && fixed_empty
+                    && blocks <= 1
+                    && !coefficients
+                        .iter()
+                        .any(|p| p.len() == 1 && p[0].abs() == 1.0),
+            );
+            q
+        };
         assert!(
             same_bits(&q.0, &expected.numerator.terms),
             "functional {:?}: expected {:?}, got {:?}",
@@ -315,6 +498,7 @@ fn evaluation(r: &Response<'_>, ds: &[FunctionalDescriptor], values: &[Ratio]) -
             q.0
         );
         assert!(same_bits(&q.1, &expected.denominator.terms));
+        reconstructed.push(q);
     }
     e.charges
 }
@@ -323,6 +507,7 @@ pub(super) fn functional(
     s: &Source,
     r: &Response<'_>,
     retained: &RetainedFunctionalSet,
+    hints: &[Option<u32>],
 ) -> Vec<Schedule> {
     let c = r.context;
     let rr = retained.response();
@@ -332,7 +517,22 @@ pub(super) fn functional(
     let prepare = cat(&[&preflight, &preparation(s, c)]);
     let solve = solve(c);
     let desc = descriptors(ds);
-    let eval = evaluation(r, ds, values);
+    let hint_count = if hints.len() == ds.len() {
+        hints.len()
+    } else {
+        0
+    };
+    let plan_hints = if hint_count == 0 {
+        vec![]
+    } else {
+        vec![2 * hint_count]
+    };
+    let replay_hints = if hint_count == 0 {
+        vec![]
+    } else {
+        vec![hint_count]
+    };
+    let eval = evaluation(r, ds, hints, values);
     let contact = contact(r, &rr.contacts[0]);
     let leaves: Vec<_> = rr
         .projections
@@ -353,7 +553,14 @@ pub(super) fn functional(
     let mut schedules = vec![
         ("Context::prepare_with_budget", prepare.clone()),
         ("Context::solve_with_budget", cat(&[&[4], &solve])),
-        ("FunctionalPlan::new", cat(&[&[4], &desc])),
+        (
+            if hints.is_empty() {
+                "FunctionalPlan::new"
+            } else {
+                "FunctionalPlan::new_with_hints"
+            },
+            cat(&[&[4], &desc, &plan_hints]),
+        ),
         ("Response::evaluate_functionals", cat(&[&[4], &eval])),
         ("Response::gap_proof_with_budget", cat(&[&[4], &contact])),
     ];
@@ -408,6 +615,7 @@ pub(super) fn functional(
     replay.push(8 * s.dofs());
     replay.extend(contact);
     replay.extend(leaves.into_iter().flatten());
+    replay.extend(replay_hints);
     replay.extend(eval);
     replay.extend(projections.into_iter().flatten());
     schedules.push(("RetainedFunctionalSet::replay_against", replay));
