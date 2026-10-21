@@ -6,7 +6,8 @@ product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
-project running the R2 smoke and save/reopen journey. The full desktop Vitest
+project running the R2 smoke and save/reopen journey and the rotation-glyph
+browser evidence (DEL-07-05:1). The full desktop Vitest
 suite and browser matrix run only by explicit workflow dispatch.
 
 Rust changes select their owning crate and transitive consumers through resolved
