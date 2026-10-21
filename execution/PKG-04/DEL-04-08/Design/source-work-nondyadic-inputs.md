@@ -461,12 +461,12 @@ This section reports the census as repaired after its dual review (section 7).
 
 **The pre-registered rules on the single-member sweep, ablations and two-case invocations: all met.**
 - **Preserved cases.** No difference outside the allowance across 448 sweep, 909 ablation and 84 two-case documents, internal and public.
-- **Newly selected cases:** 32 sweep, 171 ablation and 36 two-case documents (243 distinct requests).
+- **Newly selected cases:** 32 sweep, 171 ablation and 36 two-case documents. With the 16 newly selected many-case invocations below, that is 243 distinct requests.
   - *Method.* The direct method's response digest, and a digest of every retained Ratio and projection, are equal off and on for every document.
   - *Every evaluation.* 8,880 shadow evaluations were compared bit for bit with the long path, across the live and replay runs, the public-entry run and the method: 0 mismatches.
   - *Publication.* 108,000 published projections were checked against the switch-on method, each load case against its own direct method, on value bits, interval and both error bounds. All are equal.
     - The Rust reader returns the selected outcome on every newly selected envelope.
-    - The Python verifier passes all 243.
+    - The Python verifier passes all 243 distinct newly selected envelopes.
   - *Not compared directly.* The source hashes (`normalized_source_sha256`, `functional_plan_sha256`) are not compared with a long-path run, because no long-path receipt exists for these cases. B1 and B2 run after the descriptors are built, so they cannot affect them. The oracle's record-hash and plan-binding checks tie the published hashes to the dumped payload.
   - *The declared-problem oracle.* It judges 207 of these requests (the sweep, two-case and single-input ablation cases), with its self-test passing. All case verdicts are PASS.
 - **Lost selections:** none.
