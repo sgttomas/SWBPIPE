@@ -495,7 +495,7 @@ Results with R-A on:
 They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (section 6).
 
 **Invocations near the 64M invocation ledger** (RF §5.2 (6); census review). These are the census's 36 invocations: twelve each of 8, 9 and 10 load cases, each on one decimal Z-hinge structure. Each later case's moment is scaled by 1 + i/10, as an authored decimal.
-- **No selection is lost.**
+- **No selection is lost.** The unchanged declared-problem oracle passes all 16 newly selected many-case requests, 136 case verdicts (run by the Codex census reviewer, round 2).
   - 8 cases: 4 invocations select off and on, and 8 are blocked today and newly select.
   - 9 cases: 8 newly select and 4 stay blocked.
   - 10 cases: all 12 stay blocked.
@@ -503,7 +503,7 @@ They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (se
   - *With R-A off,* 9 block when a case's own captured replay exhausts its 8M: case 1 in 6 of them, case 2 in 2, case 4 in 1. One blocks at a case's composite recipe reservation. Six block once the invocation ledger is nearly spent, three at a replay limited to what remains of it and three at the invocation publication reservation.
   - *With R-A on,* every block is bound by the invocation ledger. Eight fail at the composite publication reservation, charged 60.57M–63.85M, and three at the invocation publication reservation. Four fail at a replay limited to what remains, and one as described below.
   - So the blocking cause moves to a later case or to the invocation, and the blocked envelope's per-case numerical-quality entries change with it.
-  - At the product entry, the outcome moves between section 1's two fail-closed forms. Ten move from the blocked envelope (`pressure-2`) to the run-level `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, two move the reverse way, and four keep their form. Neither form publishes result rows.
+  - At the product entry, the outcome moves between section 1's two fail-closed forms. Ten move from the blocked envelope (`pressure-2`) to the run-level `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, two move the reverse way, and four keep their form. So, with R-A on, 5 end as blocked envelopes and 11 as `Err`. Neither form publishes result rows.
   - When the entry returns `Err`, the census does not keep that run's public-entry shadow results; the internal runs' shadow checks cover those evaluations.
 - **One of them carries a misleading diagnostic,** an existing path that R-A only makes the ledger reach. In the 10-case invocation `zhinge122 (0.168, 0.007) long r=1e-12 eb decimal zero`, with R-A on:
   - all ten cases select;
@@ -579,7 +579,8 @@ They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (se
 - **The pre-0.4 blocked envelope.** As repaired (section 5.1), the census does **not** show R-A removing every observed occurrence.
   - R-A removes it on the single-member sweep, the ablations, the two-case invocations, twelve of the PEXACT φ = 2 Timoshenko documents (24 runs), 8 of the 8-case invocations and 8 of the 9-case ones.
   - It remains for the PEXACT-A r1e-08 and PEXACT-B Timoshenko documents (24 runs), and for 16 invocations: 4 of 9 cases and 12 of 10.
-  - In those invocations the product entry's fail-closed form changes: ten move from the blocked envelope to the run-level `SOURCE_BLOCKS_FINALIZATION_FAILED`, two move the reverse way, and four keep their form.
+  - In those invocations the product entry's fail-closed form changes: ten move from the blocked envelope to the run-level `SOURCE_BLOCKS_FINALIZATION_FAILED`, two move the reverse way, and four keep their form. With R-A on, 5 end as blocked envelopes and 11 as `Err`.
+  - Extending the replay screen (`reserve_captured_replay`, which passes only when the live charge is at most the limit less itself) to the pre-0.4 path would refuse the two remaining PEXACT-B Timoshenko families (about 4.08M and 4.10M, 16 runs). It would pass PEXACT-A r1e-08 (about 3.74M) and every Z-hinge decimal case. The census evidence therefore narrows, but does not reverse, the statement under "The options as presented" that the screen would not catch these cases.
   - So R-A reduces how often the blocked outcome occurs, but it also changes its diagnostics, and on invocations over the 64M ledger its form.
   - One such invocation reaches an existing misleading diagnostic. "Source functional row binding is not unique" is reported where a support-norm budget refusal left the support's rows unappended (section 5.1). That path exists with R-A off too, so it bears on the pre-0.4 path as it is, not on R-A.
 
