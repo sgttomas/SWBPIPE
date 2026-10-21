@@ -52,6 +52,8 @@ BASE = "3826a6288173928ed32a554552fec72eb8ff3dd2"
 RA_BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
 # The W1 coverage repair corner 1's parent, for the retained corpus it regenerated.
 W1_CORNER1_BASE = "ac07a34ccd45a83425a077f64564e92155db943f"
+# Corner 1 itself, whose corpus bytes pin the entries it moved or added.
+W1_CORNER1 = "80cf05a8575dd53dca4f058d90d835d310cc2228"
 W1_REGENERATED = frozenset({"fixtures/results/retained_precision_cases.json"})
 # What corner 1 (`80cf05a857`) moved and added in the retained corpus, by member.
 W1_CORNER1_MOVED = {
@@ -420,15 +422,26 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
         ["git", "show", f"{W1_CORNER1_BASE}:projects/chirality-piping/{name}"],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
+    landed = subprocess.run(
+        ["git", "show", f"{W1_CORNER1}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
     now = (PROJECT / name).read_text() if current is None else current
     for member in ("cases", "mutations", "must_pass"):
         before = _entries(base, member, _pair_id)
         after = _entries(now, member, _pair_id)
         known = dict(before)
         assert [k for k, _ in after if k in known] == [k for k, _ in before], (member, "order or removal")
-        assert {k for k, _ in after if k not in known} == W1_CORNER1_ADDED[member], member
+        added = [k for k, _ in after if k not in known]
+        assert sorted(added) == sorted(W1_CORNER1_ADDED[member]) and len(added) == len(set(added)), (member, added)
         moved = {k for k, entry in after if k in known and classify(known[k], entry)}
         assert moved == W1_CORNER1_MOVED[member], (member, sorted(moved))
+        # The entries corner 1 moved or added equal its own bytes, so they are bound too
+        # (Opus review, round 4).
+        pinned = dict(_entries(landed, member, _pair_id))
+        for key, entry in after:
+            if key in W1_CORNER1_MOVED[member] or key in W1_CORNER1_ADDED[member]:
+                assert not classify(pinned[key], entry), (member, key, "differs from corner 1")
     before, after = dict(load(base)), dict(load(now))
     assert list(before) == list(after)
     for member in before:
@@ -443,6 +456,30 @@ def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_
     entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
     assert _plant(entry)
     with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+
+
+def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_entries():
+    """A value planted in an entry corner 1 moved or added, or a duplicated addition, fails
+    (Opus review, round 4)."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    for member, ident in (
+        ("cases", "w1_member_load_sparse_interactive"),
+        ("cases", "w1_member_hull_d02_sparse_interactive"),
+        ("mutations", "member_exhaustion_diagnostic_reversed"),
+    ):
+        document = storage.expand(committed)
+        entry = next(e for e in document[member] if e.get("id") == ident)
+        if member == "mutations":  # its values are bit strings: change an edit's path
+            entry["edits"][0]["path"] += "/planted"
+        else:
+            assert _plant(entry), ident
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+    document = storage.expand(committed)
+    document["cases"].append(next(e for e in document["cases"] if e.get("id") == "w1_member_hull_d02_sparse_interactive"))
+    with pytest.raises(AssertionError, match="w1_member_hull_d02_sparse_interactive"):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
 
 
