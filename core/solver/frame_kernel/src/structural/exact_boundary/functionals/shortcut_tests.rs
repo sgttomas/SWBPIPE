@@ -288,6 +288,19 @@ fn b1_recognition_refuses_near_matches() {
 }
 
 #[test]
+fn b1_refuses_a_difference_in_the_last_atom() {
+    // The near-match cases above alter a product's first atom; this one alters
+    // the last atom before the appended -1.0 (mutant run, Codex: a recognition
+    // that skipped it survived).
+    let s = base();
+    let mut d = section(&s, 0.0);
+    let atom = &mut d.terms[0].products[0][1];
+    *atom = f64::from_bits(atom.to_bits() + 1);
+    let (paths, _) = b1_compare("last atom differs", &[s, d], &[None, Some(0)]);
+    assert!(matches!(paths[1], RowPath::Long { .. }), "{paths:?}");
+}
+
+#[test]
 fn b1_negates_valid_rows_and_preserves_zero_sources() {
     let good = base();
     let zero = source(vec![term(3, vec![vec![2.5, 0.75]])], vec![], 1);
