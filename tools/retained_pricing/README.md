@@ -257,9 +257,9 @@ allocating constructs. `t07_repair.py` and `t25_g4.py` price them positively:
 
 A snapshot without them adds nothing, and a changed or partly present owner stops the run. `rules/o10_rules.py`
 zeroes one false by-name value edge, from `certify_rows`' `row` binding to R-A's row-trace recorder (RA-EDGE). The
-row trace and the long reference entry sit under `exact-operation-count`. The scanners blank that feature as test
-code, but PP's dev-dependency compiles it into every PP test build. See the governing rules' §8.13 for the arguments
-and that limit.
+row trace and the long reference entry sit under `exact-operation-count`, which the scanners blank as test code. PP's
+dev-dependency compiles that feature into every PP test build, but the trace allocates only after `take_row_paths`,
+which only the gating tests call. See the governing rules' §8.13 for the arguments.
 
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
