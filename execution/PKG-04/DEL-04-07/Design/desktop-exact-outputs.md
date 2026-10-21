@@ -573,7 +573,7 @@ Changes are confined to:
 
 ## 11. As built
 
-On main through #{PR}. The owner confirmed the §8 text on 2026-10-21 ("14 confirm, 15A, 16 start now."), and the implementation applies it verbatim. Departures from the text above, all within it:
+On main through #1505. The owner confirmed the §8 text on 2026-10-21 ("14 confirm, 15A, 16 start now."), and the implementation applies it verbatim. Departures from the text above, all within it:
 
 - **The disclosure module.** `features/results/loadReferenceDisclosure.tsx` holds both the line builder and its component. The rule-check run panel's line uses the test id prefix `rule-check-run`, so it is distinct from the completeness panel's. The completeness panel shows its line only when the gate admits the result and Rust's standing is eligible; it does not rely on receiving only the Current result.
 - **The stress-neutral validator.** For `pressure_source`, the validator runs the transport reader on the header and, when a source is supplied, the full raw reader on that source, as §3 requires; §4.3 named only the transport arm. A coherently resealed source that the full reader refuses is therefore refused at the validator too.
