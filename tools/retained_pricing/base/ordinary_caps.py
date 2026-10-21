@@ -15,6 +15,9 @@ Usage: python3 ordinary_caps.py <caps|milestone>
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from g3lib import X, B, s, atom, V, A, Xc, Mat, HashReq, buckets, pushcap, appendcap, total, ASSUMED, textcap
+# R-A D3 (§8.13): on R-A's source, register the illustrative s(Option<u32>) its T07 rows use (in-build at G5).
+import ra_owners_model as _ra_model
+_ra_model.active(os.environ.get("RP_SNAPSHOT"))
 
 which = sys.argv[1] if len(sys.argv) > 1 else "caps"
 HERE = os.path.dirname(os.path.abspath(__file__))

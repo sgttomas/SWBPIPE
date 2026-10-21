@@ -23,8 +23,12 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from g3lib import X, B, s, V, A, Xc, Mat, HashReq, HashMov, buckets, pushcap, j3cap, total, ASSUMED
 from rf_source_model import active as rf_active, coefficient_max
+import ra_owners_model as _ra_model
 
 RF = rf_active(os.environ.get("RP_SNAPSHOT"))
+# R-A D3 (retained-pricing-rules.md §8.13): B1's hint vectors and evaluate's Shortcuts (ra_owners_model binds every
+# owner); added only on R-A's source.
+RA = _ra_model.active(os.environ.get("RP_SNAPSHOT"))
 
 which = sys.argv[1] if len(sys.argv) > 1 else "caps"
 if which == "caps":
@@ -201,10 +205,18 @@ if RF:
 desc_clone = s("FunctionalDescriptor") * Fn + B(Fn * 2 * ID) + (s("AffineTerm") + s("Vec") + B(8)) * UNITS
 rows["E1 FunctionalPlan descriptors #2 (16,384-unit law)"] = desc_clone
 rows["E2 descriptors_charge ordering vectors (plan, retain)"] = B(2 * 8 * Fn)
+if RA:
+    # RA-HS: the plan's B1 hints, built by the kernel from PP's index rule (exact capacity at the descriptor count).
+    rows["E3 FunctionalPlan hints (R-A B1)"] = _ra_model.hints(Fn)
 
 # ---------------- F. evaluate_functionals (functionals.rs:550-606) ------------------------
 rows["F1 FunctionalSet values"] = s("Ratio") * Fn + B(Fn * 2 * EXP)
 rows["F2 evaluate transients"] = s("Expansion") * N + B(N * EXP + 12 * EXP)
+if RA:
+    # RA-SC: evaluate's Shortcuts (zero, window, products, touched, source_ok), at n = F DOFs. B1's negated Ratio is
+    # a value, priced by F1.
+    rows["F3 evaluate R-A shortcuts (zero, window, products, touched, source_ok)"] = _ra_model.shortcuts(F, Fn)
+    mov_candidates["shortcuts touched old backing"] = _ra_model.touched_old(F)
 
 # ---------------- G. projections (source_recovery.rs:1456-1475) -------------------------
 rows["G1 projection vectors"] = V("QualifiedFunctionalProjection", Fn) + V("QualifiedProjection", 2 * N)

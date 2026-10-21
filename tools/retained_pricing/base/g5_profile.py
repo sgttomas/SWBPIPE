@@ -80,6 +80,8 @@ BIND = {
     "s((usize,Number))": sz("(usize, serde_json::Number)"),   # O4-PP: PreparedPayload.shear
     "s(StressComponents)": sz("open_pipe_stress_stress_recovery::StressComponents"),   # O4-SP
     "s((u64,&Value))": sz("(u64, &'static Value)"),   # O4-RD: native_bytes' leaves
+    # R-A D3 (retained-pricing-rules.md §8.13): B1's hint vectors (ra_owners_model.py)
+    "s(Option<u32>)": sz("Option<u32>"),   # RA-HS
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
     "s(FormationRow)": sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow"),
