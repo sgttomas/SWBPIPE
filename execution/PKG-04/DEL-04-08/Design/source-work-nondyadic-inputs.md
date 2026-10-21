@@ -59,7 +59,7 @@ This design examines O4's coverage finding (b) (PR #1468, "Coverage findings"; [
   - *B2.* A zero-prescribed recipe is skipped only inside a window in which it could not have refused.
   
   The same evaluator runs in the live attempt and the replay. No value, check, limit or charging rule changes.
-- **Measured gain** (section 5.1, the census). R-A removes 18.4 % of the live pass on decimal Euler–Bernoulli Z-hinge inputs and 17.9 % on Timoshenko. Of that, B1 accounts for about 14.8 % and B2 for 3.4 %.
+- **Measured gain** (section 5.1, the census). R-A removes 18.4 % of the live pass, Preparation to Projection, on decimal Euler–Bernoulli Z-hinge inputs and 17.9 % on Timoshenko. Of the whole direct-method charge it removes 17.7 %: B1 alone 14.8 %, B2 alone 3.4 %.
   - Every Z-hinge decimal case that is blocked today, 10 of 60 Euler–Bernoulli and 22 of 60 Timoshenko, selects within the unchanged 8M limit. The largest case charge is 7.241M.
   - No case selected today is lost. On those inputs every pre-registered rule holds: method-level equality, the shadow comparison of every evaluation, both readers, and the declared-problem oracle and its 578 required selections.
   - R-A leaves some cases over the limit: three PEXACT Timoshenko families of the oracle's φ = 2 set, and many-case invocations that pass the 64M invocation ledger. In the latter, the fail-closed form at the product entry can change (section 5.1).
@@ -490,16 +490,27 @@ This section reports the census as repaired after its dual review (section 7).
 Results with R-A on:
 - **Euler–Bernoulli:** every variant selects, off and on.
 - **Timoshenko, PEXACT-A r1e-12 and PEXACT-D (both ratios):** newly selected.
-- **Timoshenko, PEXACT-A r1e-08 and both PEXACT-B:** still over the limit. Their live passes are 3.74M and 4.08–4.10M with R-A, and the captured replay still runs out at 8M.
+- **Timoshenko, PEXACT-A r1e-08 and both PEXACT-B:** still over the limit. Their live passes, Preparation to Projection, are 3.61M and 3.95–3.97M with R-A (whole method charges 3.74M and 4.08–4.10M), and the captured replay still runs out at 8M.
 
 They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (section 6).
 
-**Invocations near the 64M invocation ledger** (RF §5.2 (6); census review). These are the census's 36 invocations of 8, 9 and 10 load cases on one decimal Z-hinge structure. Each later case's moment is scaled by 1 + i/10, as an authored decimal.
-- **No selection is lost.** 4 eight-case invocations select off and on. 16 newly select: all twelve 8-case invocations that are blocked today, and four of the 9-case ones.
-- **16 invocations stay blocked off and on, and differ beyond the allowance.** With R-A off, the first case's own captured replay exhausts its 8M and blocks the invocation. With R-A on, the cases select one after another until the invocation's composite publication reservation passes 64M ("composite publication reservation", charged 63.85M to 64.00M).
-  - So the blocking cause moves from the first case to the invocation, and the blocked envelope's per-case numerical-quality entries change with it.
-  - At the product entry the outcome moves between section 1's two fail-closed forms. Ten move from the blocked envelope (`pressure-2`) to the run-level `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, two move the other way, and four keep their form.
-  - Neither form publishes result rows.
+**Invocations near the 64M invocation ledger** (RF §5.2 (6); census review). These are the census's 36 invocations: twelve each of 8, 9 and 10 load cases, each on one decimal Z-hinge structure. Each later case's moment is scaled by 1 + i/10, as an authored decimal.
+- **No selection is lost.**
+  - 8 cases: 4 invocations select off and on, and 8 are blocked today and newly select.
+  - 9 cases: 8 newly select and 4 stay blocked.
+  - 10 cases: all 12 stay blocked.
+- **The 16 invocations that stay blocked off and on differ beyond the allowance.**
+  - *With R-A off,* 9 block when a case's own captured replay exhausts its 8M: case 1 in 6 of them, case 2 in 2, case 4 in 1. One blocks at a case's composite recipe reservation. Six block once the invocation ledger is nearly spent, three at a replay limited to what remains of it and three at the invocation publication reservation.
+  - *With R-A on,* every block is bound by the invocation ledger. Eight fail at the composite publication reservation, charged 60.57M–63.85M, and three at the invocation publication reservation. Four fail at a replay limited to what remains, and one as described below.
+  - So the blocking cause moves to a later case or to the invocation, and the blocked envelope's per-case numerical-quality entries change with it.
+  - At the product entry, the outcome moves between section 1's two fail-closed forms. Ten move from the blocked envelope (`pressure-2`) to the run-level `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, two move the reverse way, and four keep their form. Neither form publishes result rows.
+  - When the entry returns `Err`, the census does not keep that run's public-entry shadow results; the internal runs' shadow checks cover those evaluations.
+- **One of them carries a misleading diagnostic,** an existing path that R-A only makes the ledger reach. In the 10-case invocation `zhinge122 (0.168, 0.007) long r=1e-12 eb decimal zero`, with R-A on:
+  - all ten cases select;
+  - two `SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE` entries then report the composite recipe reservation refused at `Exact(Budget)`;
+  - the blocking `FINALIZATION_FAILED` reads "source functional row binding is not unique: spring:N0/support_reaction_component_v2/node".
+
+  From the code: when `composite_support_norms` fails, the product pushes the DERIVED_UNAVAILABLE diagnostic without appending that support's signed result rows (`lib.rs` about 5543–5557). `source_row_bindings` then finds no matching row and reports it as "not unique", because its test is `matched.len() != 1` (about 6693). The outcome is fail-closed, but the stated cause hides the budget refusal. Any selected pre-0.4 case whose support-norm reservation runs out reaches it, with R-A off as well. It is outside R-A's scope and left unchanged (section 6).
 - This is the cross-attempt effect that section 3.1 and RF §5.2 (6) foresee: fail-closed, with less work per case. Under section 5's rule it is a difference outside the allowance, so it is reported here for the owner (section 6). It is not repaired.
 - The two-case invocations (largest invocation charge 15.0M) do not approach the invocation limit.
 
@@ -566,10 +577,11 @@ They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (se
 
   The other condition, the independent numerical review of the implementation, remains.
 - **The pre-0.4 blocked envelope.** As repaired (section 5.1), the census does **not** show R-A removing every observed occurrence.
-  - R-A removes it on the single-member sweep, the ablations, the two-case invocations, twelve of the PEXACT φ = 2 Timoshenko documents (24 runs) and the 8-case invocations.
-  - It remains for the PEXACT-A r1e-08 and PEXACT-B Timoshenko documents (24 runs) and for 16 invocations of 9 or 10 cases.
+  - R-A removes it on the single-member sweep, the ablations, the two-case invocations, twelve of the PEXACT φ = 2 Timoshenko documents (24 runs), 8 of the 8-case invocations and 8 of the 9-case ones.
+  - It remains for the PEXACT-A r1e-08 and PEXACT-B Timoshenko documents (24 runs), and for 16 invocations: 4 of 9 cases and 12 of 10.
   - In those invocations the product entry's fail-closed form changes: ten move from the blocked envelope to the run-level `SOURCE_BLOCKS_FINALIZATION_FAILED`, two move the reverse way, and four keep their form.
   - So R-A reduces how often the blocked outcome occurs, but it also changes its diagnostics, and on invocations over the 64M ledger its form.
+  - One such invocation reaches an existing misleading diagnostic. "Source functional row binding is not unique" is reported where a support-norm budget refusal left the support's rows unappended (section 5.1). That path exists with R-A off too, so it bears on the pre-0.4 path as it is, not on R-A.
 
 The options as presented:
 
