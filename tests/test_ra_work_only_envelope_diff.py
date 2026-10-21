@@ -74,27 +74,38 @@ class Token(str):
     """A JSON number's exact source token."""
 
 
+class Obj(list):
+    """A JSON object, as its ordered (key, value) pairs; distinct from an array, so
+    `{}` and `[]` never compare equal (Codex review, round 2)."""
+
+
 def _parse(text: str):
-    return json.loads(text, parse_float=Token, parse_int=Token, object_pairs_hook=list)
+    return json.loads(text, parse_float=Token, parse_int=Token, object_pairs_hook=Obj)
 
 
-def _as_pairs(value):
-    """Expanded DAG values as the ordered-pair form of `_parse`."""
-    if isinstance(value, dict):
-        return [(k, _as_pairs(v)) for k, v in value.items()]
-    if isinstance(value, list):
-        return [_as_pairs(v) for v in value]
-    if isinstance(value, bool) or value is None:
-        return value
-    if isinstance(value, (int, float)):
-        return Token(json.dumps(value))
-    return value
+def _expand_tokens(document):
+    """A storage DAG expanded with every number's source token kept (Codex review,
+    round 2: expanding parsed binary64 values let a changed token that rounds alike
+    pass). `document` is the DAG parsed by `_parse`; its structure was validated by
+    the storage definition's own expansion."""
+    nodes = dict(document)["nodes"]
+
+    def value(index):
+        node = nodes[index]
+        if not isinstance(node, list):
+            return node
+        if int(node[0]) == 0:
+            return [value(int(ref)) for ref in node[1:]]
+        return Obj((nodes[int(node[i])], value(int(node[i + 1]))) for i in range(1, len(node), 2))
+
+    return value(int(dict(document)["root"]))
 
 
 def load(text: str):
     document = json.loads(text)
     if isinstance(document, dict) and str(document.get("format", "")).startswith("retained-precision-corpus-dag/"):
-        return _as_pairs(_STORAGE.expand(document))
+        _STORAGE.expand(document)
+        return _expand_tokens(_parse(text))
     return _parse(text)
 
 
@@ -113,8 +124,11 @@ def _mask(text: str) -> str:
 def classify(base, current, path=(), out=None):
     """Every differing leaf as (class, path, name); class 'counter', 'text', 'hash' or 'other'."""
     out = [] if out is None else out
+    if isinstance(base, list) and isinstance(current, list) and isinstance(base, Obj) != isinstance(current, Obj):
+        out.append(("other", _path(path) + " (object/array)", None))
+        return out
     if isinstance(base, list) and isinstance(current, list):
-        if all(isinstance(x, tuple) for x in base + current):  # an object, as ordered pairs
+        if isinstance(base, Obj):  # an object, as ordered pairs
             if [k for k, _ in base] != [k for k, _ in current]:
                 out.append(("other", _path(path) + " (members)", None))
                 return out
@@ -308,3 +322,20 @@ def test_ra_work_only_envelope_diff_refuses_a_moved_value():
     digest = re.search(r'"response_digest": ?"([0-9a-f]{64})"', j7).group(1)
     with pytest.raises(AssertionError, match="hashes outside"):
         check(J7_CENSUS, J7_HASHES, current=j7.replace(digest, "0" * 64, 1))
+
+
+
+def test_ra_work_only_envelope_diff_refuses_container_and_token_changes():
+    """An empty array turned into an empty object fails, and so does a number token that
+    rounds to the same binary64 in the DAG-stored J2 corpus (Codex review, round 2)."""
+    name = next(n for n in RAW if '"connector":[]' in (PROJECT / n).read_text())
+    current = (PROJECT / name).read_text()
+    with pytest.raises(AssertionError, match="differs beyond counted work"):
+        check(name, RECEIPT_HASHES, current=current.replace('"connector":[]', '"connector":{}', 1))
+    corpus = (PROJECT / J2_CORPUS).read_text()
+    token = re.search(r"(?<=[\[,])0\.25(?=[,\]])", corpus)
+    assert token
+    mutated = corpus[: token.start()] + "0.25000000000000000000000001" + corpus[token.end():]
+    assert json.loads(mutated) == json.loads(corpus)  # the two tokens round alike
+    with pytest.raises(AssertionError, match="differs beyond counted work"):
+        check(J2_CORPUS, RECEIPT_HASHES, current=mutated)
