@@ -101,8 +101,13 @@ class Token(str):
     """A JSON number's exact source token."""
 
 
+class Obj(list):
+    """A JSON object, as its ordered (key, value) pairs; distinct from an array, so
+    `{}` and `[]` never compare equal (Codex review of this PR, round 4)."""
+
+
 def _parse(text: str):
-    return json.loads(text, parse_float=Token, parse_int=Token, object_pairs_hook=list)
+    return json.loads(text, parse_float=Token, parse_int=Token, object_pairs_hook=Obj)
 
 
 def _restate(text: str) -> str:
@@ -127,9 +132,11 @@ def _path(path: tuple) -> str:
 def classify(base, current, path=(), out=None):
     """Every differing leaf as (class, path); class 'text', 'hash' or 'other'."""
     out = [] if out is None else out
+    if isinstance(base, list) and isinstance(current, list) and isinstance(base, Obj) != isinstance(current, Obj):
+        out.append(("other", _path(path) + " (object/array)"))
+        return out
     if isinstance(base, list) and isinstance(current, list):
-        pairs = all(isinstance(x, tuple) for x in base + current)
-        if pairs:  # an object, as ordered (key, value) pairs
+        if isinstance(base, Obj):  # an object, as ordered (key, value) pairs
             if [k for k, _ in base] != [k for k, _ in current]:
                 out.append(("other", _path(path) + " (members)"))
                 return out
@@ -166,23 +173,29 @@ def classify(base, current, path=(), out=None):
     return out
 
 
-def _as_pairs(value):
-    """Expanded DAG values as the ordered-pair form of `_parse`."""
-    if isinstance(value, dict):
-        return [(k, _as_pairs(v)) for k, v in value.items()]
-    if isinstance(value, list):
-        return [_as_pairs(v) for v in value]
-    if isinstance(value, bool) or value is None:
-        return value
-    if isinstance(value, (int, float)):
-        return Token(json.dumps(value))
-    return value
+def _expand_tokens(document):
+    """A storage DAG expanded with every number's source token kept (Codex review of this
+    PR, round 4: expanding parsed binary64 values let a changed token that rounds alike
+    pass). `document` is the DAG parsed by `_parse`; its structure was validated by the
+    storage definition's own expansion."""
+    nodes = dict(document)["nodes"]
+
+    def value(index):
+        node = nodes[index]
+        if not isinstance(node, list):
+            return node
+        if int(node[0]) == 0:
+            return [value(int(ref)) for ref in node[1:]]
+        return Obj((nodes[int(node[i])], value(int(node[i + 1]))) for i in range(1, len(node), 2))
+
+    return value(int(dict(document)["root"]))
 
 
 def load(text: str):
     document = json.loads(text)
     if isinstance(document, dict) and str(document.get("format", "")).startswith("retained-precision-corpus-dag/"):
-        return _as_pairs(_STORAGE.expand(document))
+        _STORAGE.expand(document)
+        return _expand_tokens(_parse(text))
     return _parse(text)
 
 
@@ -481,6 +494,53 @@ def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_ent
     document["cases"].append(next(e for e in document["cases"] if e.get("id") == "w1_member_hull_d02_sparse_interactive"))
     with pytest.raises(AssertionError, match="w1_member_hull_d02_sparse_interactive"):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+
+
+def _dump(value) -> str:
+    """Plain JSON from `load`'s form, every number token and container type as read."""
+    if isinstance(value, Obj):
+        return "{" + ",".join(json.dumps(k) + ":" + _dump(v) for k, v in value) + "}"
+    if isinstance(value, list):
+        return "[" + ",".join(_dump(v) for v in value) + "]"
+    if isinstance(value, Token):
+        return str(value)
+    return json.dumps(value)
+
+
+def _replace_first(value, test, make) -> bool:
+    """Replaces the first value (a leaf or a container) that `test` accepts; True once done."""
+    if isinstance(value, Obj):
+        for index, (key, item) in enumerate(value):
+            if test(item):
+                value[index] = (key, make())
+                return True
+            if _replace_first(item, test, make):
+                return True
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            if test(item):
+                value[index] = make()
+                return True
+            if _replace_first(item, test, make):
+                return True
+    return False
+
+
+def test_o4_text_only_envelope_diff_corner1_enumeration_keeps_tokens_and_containers():
+    """In the committed route-E base, an empty array turned into an empty object, or a
+    number token changed to one that rounds alike, fails (Codex review of this PR, round 4)."""
+    text = (PROJECT / RETAINED_CORPUS).read_text()
+    # The token-preserving re-serialisation alone passes, so each failure below is the change's.
+    test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(load(text)))
+    for test, make in (
+        (lambda v: isinstance(v, list) and not isinstance(v, Obj) and not v, Obj),
+        (lambda v: isinstance(v, Token) and v == "1.0", lambda: Token("1.0000000000000001")),
+    ):
+        document = load(text)
+        entry = next(e for e in dict(document)["cases"] if dict(e).get("id") == "w1_member_route_e_baseline_sparse_interactive")
+        assert _replace_first(entry, test, make)
+        with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(document))
 
 
 def _plant(value):
