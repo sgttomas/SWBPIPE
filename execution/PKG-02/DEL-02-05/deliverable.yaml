@@ -144,8 +144,10 @@ code_paths:
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/src/services/blankLoadStateModel.test.ts
 - apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
+- core/reporting/report_package/src/reader.rs
 checks:
 - tests/test_persistence_schema.py
 - tests/test_project_persistence_service.py
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/src/services/blankLoadStateModel.test.ts
+- core/reporting/report_package/tests/reader.rs

@@ -299,6 +299,7 @@ needs:
   evidence: execution/PKG-08/DEL-08-04/Specification.md
 code_paths:
 - core/reporting/report_generator/
+- core/reporting/report_package/
 - core/reporting/report_generator/src/lib.rs
 - core/reporting/report_sections/
 - schemas/report_generator.schema.yaml
@@ -307,3 +308,6 @@ code_paths:
 - apps/desktop/src/features/report/RenderedReportPanel.tsx
 - apps/desktop/src/features/report/renderableReportInput.ts
 - apps/desktop/src/features/report/renderedReport.test.tsx
+checks:
+- core/reporting/report_package/tests/container.rs
+- core/reporting/report_package/tests/reader.rs

@@ -31,6 +31,10 @@
 //! reasons recorded in the manifest) so it can be diagnosed; callers must
 //! honor `export_blocked` before saving or exporting the artifact.
 //!
+//! The [`reader`] module reads a container back and accepts only the current
+//! package version, refusing every other version by name with no migration
+//! (`DEC-028`; owner, 2026-10-10: "Close: one version").
+//!
 //! The container is an artifact format, not an issuance act. This crate does
 //! not write files, fetch network resources, or emit lifecycle,
 //! release-readiness, professional approval, certification, sealing,
@@ -46,7 +50,12 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+pub mod reader;
 pub mod wire;
+
+pub use reader::{
+    read_report_package_container, PackageReadRefusal, ReadReportPackage, SUPPORTED_PACKAGE_VERSION,
+};
 
 // ---------------------------------------------------------------------------
 // Ruled naming and fixed member vocabulary.
@@ -70,8 +79,8 @@ pub const ROLE_AUDIT_MANIFEST: &str = "audit_manifest";
 pub const ROLE_RESULT_EXPORT: &str = "result_export";
 pub const ROLE_STATE_COMPARISON_HANDOFF: &str = "state_comparison_handoff_sections";
 
-const HASH_BASIS_JCS: &str = "jcs_canonical_json_bytes";
-const HASH_BASIS_EXACT: &str = "exact_bytes";
+pub(crate) const HASH_BASIS_JCS: &str = "jcs_canonical_json_bytes";
+pub(crate) const HASH_BASIS_EXACT: &str = "exact_bytes";
 
 // ---------------------------------------------------------------------------
 // Input and outcome types.
@@ -267,6 +276,12 @@ pub fn assemble_report_package_container(
                 }
             }
         }
+        if json_nesting_depth(record) > MAX_MEMBER_JSON_NESTING {
+            blocking_reasons.push(format!(
+                "state/comparison/handoff record {set_id}: nesting deeper than \
+                 {MAX_MEMBER_JSON_NESTING} levels is outside the package form"
+            ));
+        }
         let file_name = format!(
             "state_comparison_handoff_sections_{}.json",
             sanitize_component(set_id)
@@ -322,18 +337,43 @@ pub fn assemble_report_package_container(
         }
     }
 
-    let export_blocked = !blocking_reasons.is_empty();
+    // The stored-ZIP archive form has 16-bit name lengths and member counts
+    // and 32-bit sizes and offsets (no ZIP64). A package outside those limits
+    // cannot be encoded, so it is blocked; the reader refuses its bytes.
+    blocking_reasons.extend(archive_form_limit_reasons(&members));
+
+    let mut export_blocked = !blocking_reasons.is_empty();
 
     // Package manifest member (DEL-17-02 REQ-007/011/040-043): member
     // inventory with per-member JCS-basis hashes, source references,
     // diagnostics, field status, and sidecar identification.
-    let manifest_value =
-        package_manifest_document(input, &members, export_blocked, &blocking_reasons);
-    let manifest_member = member_canonical_json(
-        ROLE_PACKAGE_MANIFEST,
-        PACKAGE_MANIFEST_FILE_NAME,
-        &manifest_value,
-    );
+    let manifest_for = |export_blocked: bool, blocking_reasons: &[String]| {
+        member_canonical_json(
+            ROLE_PACKAGE_MANIFEST,
+            PACKAGE_MANIFEST_FILE_NAME,
+            &package_manifest_document(
+                &ManifestFields {
+                    package_id: &input.package_id,
+                    export_profile_id: &input.export_profile_id,
+                    source_model_ref: &input.source_model_ref,
+                    source_basis_refs: &input.source_basis_refs,
+                    export_blocked,
+                    blocking_reasons,
+                },
+                &members,
+            ),
+        )
+    };
+    let mut manifest_member = manifest_for(export_blocked, &blocking_reasons);
+    // The exact archive length, manifest included, must fit the archive
+    // form's 32-bit offsets. A blocked rebuild only grows the manifest, and a
+    // blocked oversize package is refused by the reader in any case.
+    if archive_length(&manifest_member, &members) > u64::from(u32::MAX) {
+        blocking_reasons
+            .push("package: the archive exceeds the archive form's 32-bit size limit".to_string());
+        export_blocked = true;
+        manifest_member = manifest_for(export_blocked, &blocking_reasons);
+    }
     let package_identity_sha256_hex = manifest_member.sha256_hex.clone();
     members.insert(0, manifest_member);
 
@@ -360,6 +400,60 @@ pub fn assemble_report_package_container(
 // ---------------------------------------------------------------------------
 // Member materialization.
 // ---------------------------------------------------------------------------
+
+fn archive_form_limit_reasons(members: &[ContainerMember]) -> Vec<String> {
+    let mut reasons = Vec::new();
+    for member in members {
+        if member.file_name.len() > usize::from(u16::MAX) {
+            reasons.push(format!(
+                "package: member file name of {} bytes exceeds the archive form's 65535-byte limit",
+                member.file_name.len()
+            ));
+        }
+    }
+    // One manifest member is added later; 0xFFFF is the ZIP64 sentinel.
+    if members.len() + 1 >= usize::from(u16::MAX) {
+        reasons.push(format!(
+            "package: {} members exceed the archive form's member-count limit",
+            members.len() + 1
+        ));
+    }
+    reasons
+}
+
+/// Exact length of the stored-ZIP archive for the manifest plus `members`:
+/// local entries, central entries and the end-of-central-directory record.
+fn archive_length(manifest: &ContainerMember, members: &[ContainerMember]) -> u64 {
+    std::iter::once(manifest)
+        .chain(members)
+        .map(|member| {
+            let name = member.file_name.len() as u64;
+            (30 + name + member.bytes.len() as u64) + (46 + name)
+        })
+        .sum::<u64>()
+        + 22
+}
+
+/// Deepest array/object nesting a canonical-JSON member may have: the depth
+/// the package reader can parse back (serde_json's recursion limit).
+pub const MAX_MEMBER_JSON_NESTING: usize = 127;
+
+/// Array/object nesting depth of a JSON value (a scalar is 0). Iterative, so
+/// a deep caller-supplied record cannot exhaust the stack here.
+fn json_nesting_depth(value: &Value) -> usize {
+    let mut deepest = 0;
+    let mut pending = vec![(value, 0usize)];
+    while let Some((value, depth)) = pending.pop() {
+        let children: Vec<&Value> = match value {
+            Value::Array(items) => items.iter().collect(),
+            Value::Object(map) => map.values().collect(),
+            _ => continue,
+        };
+        deepest = deepest.max(depth + 1);
+        pending.extend(children.into_iter().map(|child| (child, depth + 1)));
+    }
+    deepest
+}
 
 fn member_exact(role: &str, file_name: &str, media_type: &str, bytes: Vec<u8>) -> ContainerMember {
     ContainerMember {
@@ -394,7 +488,7 @@ fn member_canonical_json(role: &str, file_name: &str, document: &Value) -> Conta
 /// Deterministic file-name component: ASCII alphanumerics, `-`, and `_` kept
 /// (lowercased); every other character becomes `-`; empty input becomes
 /// `member`.
-fn sanitize_component(text: &str) -> String {
+pub(crate) fn sanitize_component(text: &str) -> String {
     let sanitized: String = text
         .trim()
         .chars()
@@ -529,11 +623,21 @@ fn asset_entry_json(asset: &audit::AssetManifestEntry) -> Value {
 // Package manifest document (DEL-17-02 REQ-007/011/040-043).
 // ---------------------------------------------------------------------------
 
-fn package_manifest_document(
-    input: &ReportPackageContainerInput,
+/// The variable fields of the package manifest; every other manifest field
+/// is fixed by the package version. The reader rebuilds the manifest from
+/// these fields and requires the stored manifest to equal the rebuild.
+pub(crate) struct ManifestFields<'a> {
+    pub(crate) package_id: &'a str,
+    pub(crate) export_profile_id: &'a str,
+    pub(crate) source_model_ref: &'a PackageRef,
+    pub(crate) source_basis_refs: &'a [PackageRef],
+    pub(crate) export_blocked: bool,
+    pub(crate) blocking_reasons: &'a [String],
+}
+
+pub(crate) fn package_manifest_document(
+    fields: &ManifestFields,
     members: &[ContainerMember],
-    export_blocked: bool,
-    blocking_reasons: &[String],
 ) -> Value {
     let member_rows: Vec<Value> = members
         .iter()
@@ -556,10 +660,10 @@ fn package_manifest_document(
         "document_kind": CONTAINER_DOCUMENT_KIND,
         "container_extension": CONTAINER_EXTENSION,
         "decision_basis": ["DEC-028", "DEC-057", "DEC-061"],
-        "package_id": input.package_id,
-        "export_profile_id": input.export_profile_id,
-        "source_model_ref": package_ref_json(&input.source_model_ref),
-        "source_basis_refs": input
+        "package_id": fields.package_id,
+        "export_profile_id": fields.export_profile_id,
+        "source_model_ref": package_ref_json(fields.source_model_ref),
+        "source_basis_refs": fields
             .source_basis_refs
             .iter()
             .map(package_ref_json)
@@ -594,8 +698,8 @@ fn package_manifest_document(
             "external_adapter_formats": "unsupported"
         },
         "diagnostics": {
-            "export_blocked": export_blocked,
-            "blocking_reasons": blocking_reasons
+            "export_blocked": fields.export_blocked,
+            "blocking_reasons": fields.blocking_reasons
         },
         "boundary_notes": [
             "This container is an artifact format, not an issuance act; package contents are \
@@ -635,7 +739,7 @@ const ZIP_VERSION: u16 = 20;
 /// Build the deterministic archive: stored (uncompressed) members in the
 /// given fixed order, fixed DOS timestamps, no extra fields, no comments,
 /// ASCII member names. Identical members yield identical archive bytes.
-fn build_deterministic_zip(members: &[ContainerMember]) -> Vec<u8> {
+pub(crate) fn build_deterministic_zip(members: &[ContainerMember]) -> Vec<u8> {
     let mut out: Vec<u8> = Vec::new();
     let mut central: Vec<u8> = Vec::new();
     let mut entry_count: u16 = 0;
@@ -681,7 +785,8 @@ fn build_deterministic_zip(members: &[ContainerMember]) -> Vec<u8> {
         push_u32(&mut central, offset);
         central.extend_from_slice(name);
 
-        entry_count += 1;
+        // Wrapping: a package over the member-count limit is blocked, not a panic.
+        entry_count = entry_count.wrapping_add(1);
     }
 
     let central_offset = out.len() as u32;
@@ -710,7 +815,7 @@ fn push_u32(out: &mut Vec<u8>, value: u32) {
 
 /// CRC-32 (IEEE 802.3, reflected polynomial 0xEDB88320), computed bitwise:
 /// deterministic and dependency-free.
-fn crc32(bytes: &[u8]) -> u32 {
+pub(crate) fn crc32(bytes: &[u8]) -> u32 {
     let mut crc: u32 = 0xFFFF_FFFF;
     for byte in bytes {
         crc ^= u32::from(*byte);
@@ -722,7 +827,7 @@ fn crc32(bytes: &[u8]) -> u32 {
     !crc
 }
 
-fn sha256_hex(bytes: &[u8]) -> String {
+pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(bytes);
     let digest = hasher.finalize();
@@ -731,4 +836,30 @@ fn sha256_hex(bytes: &[u8]) -> String {
         hex.push_str(&format!("{byte:02x}"));
     }
     hex
+}
+
+#[cfg(test)]
+mod archive_length_tests {
+    use super::*;
+
+    #[test]
+    fn archive_length_is_the_encoded_length() {
+        let members: Vec<ContainerMember> =
+            [("a.json", 0usize), ("bb.json", 7), ("ccc.html", 4096)]
+                .iter()
+                .map(|(name, size)| member_exact("r", name, "text/plain", vec![b'x'; *size]))
+                .collect();
+        let manifest = member_exact(
+            "m",
+            PACKAGE_MANIFEST_FILE_NAME,
+            "application/json",
+            vec![b'{'; 99],
+        );
+        let mut all = vec![manifest.clone()];
+        all.extend(members.iter().cloned());
+        assert_eq!(
+            archive_length(&manifest, &members),
+            build_deterministic_zip(&all).len() as u64
+        );
+    }
 }
