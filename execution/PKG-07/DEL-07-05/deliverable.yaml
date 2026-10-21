@@ -228,6 +228,7 @@ code_paths:
 - apps/desktop/src/features/viewport/deformationOverlay.ts
 - apps/desktop/src/features/viewport/viewportRotationGlyph.ts
 - apps/desktop/src/features/viewport/PipeViewport.tsx
+- apps/desktop/e2e/rotation-glyph/
 - schemas/results.schema.yaml
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
@@ -239,3 +240,4 @@ checks:
 - apps/desktop/src/features/viewport/deformationOverlay.test.ts
 - apps/desktop/src/features/viewport/viewportRotationGlyph.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.rotation.test.tsx
+- apps/desktop/e2e/rotation-glyph.spec.ts
