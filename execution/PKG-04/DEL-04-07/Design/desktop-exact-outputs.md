@@ -1,8 +1,8 @@
 # Desktop outputs for the current exact identity: implementation design
 
-This is the implementation design for shared epoch 8 (DEL-04-08 Design [b7-plan.md](../../DEL-04-08/Design/b7-plan.md), "After B7b": "Desktop outputs for the current exact identity are epoch 8", owner, 2026-10-20). It discharges DEL-04-08 REQ-007 (c) when AC-007 (c) holds: "the output surfaces it opens take the Rust reader's verdict and standing, as every reader surface does (CLM-003), and AC-005 and the desktop output-policy tests pass on its head." The design is written alongside epoch 7 (R-A); its implementation follows epoch 7. Under the owner's "Merge with the gap" (2026-10-15), every desktop output surface refuses `pressure-2` and `pressure-source-1` today ([pressure-contract.md](pressure-contract.md), "Reading pressure-2").
+This is the implementation design for shared epoch 8. The owner placed the unit as epoch 8, after epoch 7, on 2026-10-20 ("I approve all your recommended options, provisionally where appropriate"). The placement text for DEL-04-08 Design [b7-plan.md](../../DEL-04-08/Design/b7-plan.md) ("After B7b") is in #1489, pending merge; until it merges, b7-plan still says the owner has not placed the unit. It discharges DEL-04-08 REQ-007 (c) when AC-007 (c) holds: "the output surfaces it opens take the Rust reader's verdict and standing, as every reader surface does (CLM-003), and AC-005 and the desktop output-policy tests pass on its head." The design is written alongside epoch 7 (R-A); its implementation follows epoch 7. Under the owner's "Merge with the gap" (2026-10-15), every desktop output surface refuses `pressure-2` and `pressure-source-1` today ([pressure-contract.md](pressure-contract.md), "Reading pressure-2").
 
-Line numbers cite main at `44fcec3c17`. Paths are relative to `projects/chirality-piping/`.
+Line numbers cite main at `44fcec3c17`. Paths are relative to `projects/chirality-piping/`, except `.github/`, root `AGENTS.md`, `docs/PRODUCT_BOUNDARIES.md` and repository-root `tools/validation/`.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -33,8 +33,9 @@ The owner's choices are in §8. They concern which surfaces open (recommended: r
     - both rule-check panels (`:917-929`);
     - result export, stress-neutral and the interop and handoff panels (`:977-987`);
     - native package, handoff and export review (`:991, :1002, :1012`).
-  - Only the results, solve and missing-data panels receive the raw result.
-  - An exact result therefore reaches no output panel today, whatever the policy says.
+    - the design workspace panel (`:635`).
+  - The results, solve and missing-data panels receive the raw result (`:625`, `:906`, `:1519`). Of these, the solve job and missing-data are policy output surfaces, and for them the policy gate is the only guard. The audit, viewport and diagnostics views also take the raw result, and carry no download.
+  - So an exact result reaches no Current-receiving output panel today, whatever the policy says. Only the two raw-result output surfaces show its refusal.
 - **Four functions consult `isFreshSemanticResult`:**
   - the Current qualification (`resultsSessionState.ts:58`);
   - the Current result-export builder (`resultExportAdapter.ts:196`, `CURRENT_SOURCE_IDENTITY_NOT_FRESH`);
@@ -64,8 +65,9 @@ The operation applier's wasm module exports the base readers (`core/model_operat
 
 - **`pressure` validation:** `validate_pressure_evidence`, then G2's model checks, then `exact_model_checks` (`:241-256`).
 - **`pressure-source` validation** with the captured invocation, and its standing findings (`:257-267`).
-- **A `pressure-source` transport reader** (`:156-170`), and the refusal of `transport("pressure")` by name (`SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`, `:52`, `:162`).
-- **The standing of both routes** (`:252-345`). pressure-source-1 is never eligible without the registered invocation (`SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED`). It is never eligible with the load/reference-state group either (`LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1`, `:316-318`).
+- **A `pressure-source` transport reader** (`:295-306`), and the refusal of `transport("pressure")` by name (`SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`, `:52`, `:301`).
+- **The shallow source-recovery check** (`:283-293`): the header, the transport metadata and the publication commitment, without raw-row validation.
+- **The standing of both routes** (`:391-462`). pressure-source-1 is never eligible without the registered invocation (`SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED`). It is never eligible with the load/reference-state group either (`LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1`, `:428`).
 
 The desktop records both identities, and holding a record grants no output:
 
@@ -93,7 +95,7 @@ The evidence, surface by surface:
 - **No new reader is needed.** Each opened surface reads only what §2.3 lists. It reaches those through `resultReader.ts`, and through the Tauri rule-check backend that §2.4 describes.
   - pressure-2 needs `readerValidate("pressure", source, model)`.
   - pressure-source-1 needs `readerValidate("pressure-source", source, undefined, invocation)` through the existing registration (`resultStanding.ts:62-72`).
-  - The pure projections use the source-recovery check that the record builder already uses (`analysisRunCompatibility.ts:255-260`).
+  - The pure projections and validators read a supplied pressure-source-1 source through the full raw reader, `readerValidate("pressure-source", source)` with no invocation (`reader_verdict.rs:258-267`, `:275-283`). Rust's derivative reaches the same full reader through `for_source` (`semantic_contract.rs:639-641`), and Python calls it too (`core/analysis_runs/compatibility.py:335`). The shallow source-recovery check is not enough here: it omits raw-row validation (`reader_verdict.rs:283-293`), so a coherently rehashed invalid source would pass it.
   - pressure-source-1 transport uses `readerTransport("pressure-source", header)`.
   - Standing and row semantics come from dispatch and row semantics.
   - The wasm module's exports do not change.
@@ -103,7 +105,7 @@ The evidence, surface by surface:
   - There is no desktop import or reopen path for stress-neutral packages: these are the only two callers of `validateStressNeutralExportPacket`.
 
   The desktop therefore reads a pressure-2 package through its source, exactly as Python does (§2.4). A pressure-2 header presented without its source keeps Rust's refusal by name, `readerTransport("pressure", …)` → `SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`. The result-export validator always takes its source (`resultExportAdapter.ts:117-118`), so it has no transport question.
-- **The tables and schemas are untouched.** The tables are embedded in the reader with pinned sha256 (`semantic_contract.rs:279, :324`; `reader_verdict.rs:60-66`), and the desktop's record builder already imports them. The schemas already carry both identities.
+- **The tables and schemas are untouched.** The tables are embedded in the reader with pinned sha256 (`semantic_contract.rs:279, :324`; `reader_verdict.rs:56-62`), and the desktop's record builder already imports them. The schemas already carry both identities.
 - **The Tauri crate and the wasm crate are outside PP's closure.** `apps/desktop/src-tauri` and `operation_applier` depend on PP, and PP depends on neither (`core/product_physics/Cargo.toml`, `[dependencies]`). Neither changes here anyway.
 
 **What would force a change in the priced closure:** a requirement to validate a pressure-2 stress-neutral package without its source on the desktop, for example a future package import. That would need a pressure-2 transport reader in `reader_verdict.rs`, which changes `core/reporting/result_export/src/**`. The consequences:
@@ -119,7 +121,7 @@ This design does not need that capability and does not add it. If the owner want
 ### 4.1 Current (the qualification every surface depends on)
 
 - **Change.** Add `PRESSURE_CONTRACT_ID` and `PRESSURE_SOURCE_CONTRACT_ID` to `FRESH_SEMANTIC_CONTRACT_IDS` (`knownSemanticLimitations.ts:17-20`). The desktop's set then equals Rust's `FRESH_IDENTITIES` (`semantic_contract.rs:660-668`), which says it is one static set in every language. Membership is not standing. `resultsSessionState.ts` is unchanged: an exact result becomes Current only with Rust's eligible standing, the matching 0.3.0 record and manifest, and the live native invocation. For pressure-source-1, the eligible standing is the registered one with the captured invocation.
-- **Reader verdict and standing.** The Rust dispatch and standing (`reader_verdict.rs:252-345, :409-417`).
+- **Reader verdict and standing.** The Rust dispatch and standing (`reader_verdict.rs:391-462, :548-556`).
 - **Claim text.** None added. Current is a qualification, not a notice.
 - **Surfaces that start receiving an exact result.** Once an exact result can be Current, these receive it too. The implementation inspects and tests each:
   - **The fifteen refused output panels** (§4.5) show the route's refusal instead of an empty state.
@@ -127,6 +129,7 @@ This design does not need that capability and does not add it. If the owner want
   - **`KnowledgePanel`** lists computed records from the result's diagnostics (`features/knowledge/KnowledgePanel.tsx:43-54`).
   - **`ReviewGeometryPanel`** writes a glTF review download. That download names the result only by `run_id` and embeds no result value (`features/review-geometry/ReviewGeometryPanel.tsx:61-78, :169`).
   - **The status bar and stage rail** count a qualified Current result (`features/workspace/shell/ShellStatusBar.tsx:32-39`).
+  - **The native menu state** reads the Current result (`features/workspace/workspaceSession.ts:2618`).
 
   None of these carries result values to a file or a handoff, so none is an output surface in the policy's sense (`outputPolicy.ts:60-61`).
 
@@ -138,7 +141,9 @@ This design does not need that capability and does not add it. If the owner want
   - `source_block_recovery`, copied whole, for pressure-source-1 only;
   - the downgrade refusals: a receipt is refused on pressure-2, and a retained receipt on either identity.
 
-  The pure projection reads `readerValidate("pressure", source, model)` for pressure-2 and the source-recovery check for pressure-source-1. This mirrors the preview-physics arm at `:57`.
+  The new arms use Rust's codes for the same conditions (`derivative.rs:390-426`): `SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH`, `SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN` and `RETAINED_PRECISION_DOWNGRADE_FORBIDDEN`. The desktop's existing arms keep theirs: `SOURCE_PHYSICAL_METADATA_MISMATCH` and `SOURCE_RECOVERY_METADATA_CONTRADICTION` (`resultExportAdapter.ts:59-62, :120-128`).
+
+  The pure projection and the validator read `readerValidate("pressure", source, model)` for pressure-2 and `readerValidate("pressure-source", source)` for pressure-source-1. This mirrors the preview-physics arm at `:57` and the full reader that Rust's `derive_document` reaches (§3).
 - **Reader verdict and standing.** The Current builder keeps its chain: the per-surface refusal (`:194`), eligible standing (`:195`), fresh membership (`:196`) and the `CURRENT_*` bindings (`:197-229`). Row semantics come from `readerRowSemantics`, which is Rust's table.
 - **Claim text.** None added. The export's existing data fields are unchanged, including its `professional_boundary` booleans, which are a data contract under the registry's §4. BS-VALID is not placed here; the result JSON export is not a handoff surface in the registry's list.
 
@@ -159,21 +164,23 @@ This design does not need that capability and does not add it. If the owner want
 - **Reader verdict and standing.**
   - The panel's live binding requires eligible standing and the native invocation (`:59-67`).
   - The builder refuses non-empty standing findings (`:424`, `SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE`). It also requires the bound 0.3 record (`:425-435`).
-- **Claim text.** None new. The panel keeps its existing BS-VALID placement, if any, unchanged. The package's boundary notes are the existing desktop notes. The retained boundary note stays off the exact identities, because `retained` is false for them (`:418, :445`).
+- **Claim text.** None new. The panel keeps its existing BS-VALID placement unchanged (`StressNeutralExportPanel.tsx:196-197, :281`). The package's boundary notes are the existing desktop notes. The retained boundary note stays off the exact identities, because `retained` is false for them (`:418, :445`).
 
 ### 4.4 Rule check (`rule-check`)
 
-Two panels make up this surface, and both receive the Current result.
+Two panels make up this surface. Both receive the Current result. The run also has a non-Current path: with no supplied envelope, `runRuleChecks` solves the model itself, and that transient result is never Current (`RuleCheckRunPanel.tsx:669`; `ruleCheckService.ts:123-127`). preview-physics-2 already takes this path, and the exact identities take it too, under the same checks as the Current path.
 
 - **The completeness JSON (`RuleCheckPanel.tsx:54-64`).**
   - Today its download sits behind `LoadReferenceOutputGate`, which reads the route's shared reason.
-  - Change: the gate takes its surface id, and calls `surfaceSourceRefusal(result, surface)` (§5.2).
+  - Change: the gate takes its surface id, and calls `surfaceRouteRefusal(result, surface)` (§5.2).
 - **The rule-check run (`RuleCheckRunPanel.tsx`, `services/ruleCheckService.ts:132-159`).**
   - Today the run has no policy gate; only fresh membership guards it (`:140`).
   - Change: `checkSolvedSource` calls `refuseSurfaceOutput(source, model, "rule-check")` before invoking, so the policy governs the run as it governs the download (§5.2).
+  - For both exact routes it also requires the desktop's standing, `numericalResultStanding(source, model).eligible`, before invoking, as it already does for the retained routes (`:143-146`). That standing is `reader_verdict::standing` with the model's checks. The backend's own check is `numerical_use_standing_with_context`, which for pressure-2 does not run the model checks (`lib.rs:2884`). So the desktop step makes the Rust reader's full standing govern both the Current path and the transient path.
   - For `pressure_source` it attaches `sourceBlockInvocation: retainedSourceRecoveryInvocation(source, model)` (`resultStanding.ts:87-94`). Without it, the backend's standing for pressure-source-1 cannot be eligible.
   - The run's aggregate rebuilds the AnalysisRun with its rule status as it does today (`features/workspace/workspaceSession.ts:1011-1060`). The record builder already admits both identities.
-- **Reader verdict and standing.** The backend's unchanged qualification decides: Rust's fresh set and Rust's standing with the invocation (`lib.rs:2856-2900`). Rows bind through the unchanged `rule_binding_refusal` (`lib.rs:3273`).
+- **Reader verdict and standing.** First the desktop's `reader_verdict::standing` (above). Then the backend's unchanged qualification: Rust's fresh set and `numerical_use_standing_with_context` with the invocation (`lib.rs:2856-2900`). Rows bind through the unchanged `rule_binding_refusal` (`lib.rs:3273`).
+- **Persistence.** A rule-check aggregate on a Current exact result is written into its AnalysisRun (`workspaceSession.ts:1034-1052`). A project save stores the result and that record (`workspaceSession.ts:2182-2183`). Saved exact runs can therefore carry `USER_RULE_CHECKED` or `USER_RULE_FAILED`. The record format and its builder are unchanged, and a reopened saved run is historical, never Current (DEL-07-05 ScopeOfWork, "Current reading and output boundary").
 - **What it emits.** The completeness JSON and the run result, unchanged in shape. The rule status in the record is one of the registered tokens, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED` or `USER_RULE_FAILED`. Each is shown in its registered display form with its authority domain (`docs/claims_registry.md` §2.1).
 - **Claim text.** None new.
 - **Numerical meaning to review (§6.4).**
@@ -208,12 +215,13 @@ On an admitted surface the exact identities then behave as preview-physics-2 beh
 
 ### 5.2 The gate reads the surface
 
-- **Two levels.** The policy keeps its two read levels.
-  - **The route level**, `surfaceRouteRefusal`, is for pure projections and validators (`deriveResultDocument`, `validateResultDocument`, `validateStressNeutralExportPacket`). It reads only the route and surface.
-  - **The source level** is a new function, `surfaceSourceRefusal(source, surface)`. It is the route level plus the source-only condition of §8, choice 2 (B): a source carrying `contract_evidence.load_reference_states` on an exact route is refused with its identity's code. `surfaceOutputRefusal` (the Current level) applies the source level before its eligibility step. The gates and the rule-check service read the source level.
-
-  Under choice 2 (A), the source level equals the route level.
-- **The change.** `LoadReferenceOutputGate` takes the surface id its panel already passes as `testIdPrefix`; the surfaces are named by these prefixes (`outputPolicy.ts:60-61`). It calls `surfaceSourceRefusal(result, surface)` in place of `routeOutputRefusal`.
+- **One source-aware decision.** The per-surface decision becomes a function of the source as well as the route: `surfaceDecision(source, surface)`. Under §8 choice 2 (B), an exact source carrying `contract_evidence.load_reference_states` is refused on every surface, with its own text (§5.3). Otherwise the route's entry decides. Under choice 2 (A), the condition is absent.
+- **Every level reads it.** These all read that one decision, so a load/reference-state exact result stays refused at every level, as it is today (`outputPolicy.test.ts:138-149`):
+  - `surfaceRouteRefusal`, the route level, for pure projections and validators;
+  - `surfaceOutputRefusal`, the Current level, for panels and builders;
+  - the gate;
+  - the rule-check service.
+- **The change.** `LoadReferenceOutputGate` takes the surface id its panel already passes as `testIdPrefix`; the surfaces are named by these prefixes (`outputPolicy.ts:60-61`). It calls `surfaceRouteRefusal(result, surface)` in place of `routeOutputRefusal`.
 - **What stays the same.** For every route and every gated surface the decision is unchanged, except the exact routes on an admitted gated surface; today that is `rule-check` only. The reason: the retained entries refuse on all eighteen gated surfaces, and the ungated routes add no refusal.
 - **The check.** A maintained test enumerates every route and every gated surface, and asserts this equality except for the opened cells.
 
@@ -223,7 +231,11 @@ On an admitted surface the exact identities then behave as preview-physics-2 beh
 - **The two texts are reworded.** They no longer say every output is unavailable. This follows Decision 12's rewording of the retained text (`outputPolicy.ts:46-47`). Proposed, under the recommended surfaces:
   - `N_PRESSURE_2_OUTPUT`: "This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result. The result remains readable here; this is not a finding about the result."
   - `N_PRESSURE_SOURCE_OUTPUT`: the same sentence with "pressure-source-1".
-- **The texts are checked twice.** They are reviewed against `docs/claims_registry.md` and pass GEN-13 (`tools/validation/validate_claims_language.py`, which scans the desktop TS sources). They carry no BS-ACCEPT text and no prohibition litany. They are UI reasons, never written into a document (`knownSemanticLimitations.ts:1-3`).
+- **A third text, under §8 choice 2 (B).** An eligible pressure-2 load/reference-state result can be Current (§8), so an opened panel can face it. The reworded texts above would then name the very panel that refuses it. Such a result gets its own reason, under the same code:
+  - `N_PRESSURE_LOAD_REFERENCE_OUTPUT`: "Output of load/reference-state results ({identity}, 3.0.0/exact_pressure_v3) is not yet available on the desktop. The result remains readable here, with the Rust reader's standing; this is not a finding about the result."
+  - Its shape is today's text, unchanged in substance.
+- **The opened panels show the published limitations.** `knownSemanticNotices` emits nothing for the exact routes (`knownSemanticLimitations.ts:117-134`). On the three opened panels, an exact result shows the line the results panel already shows: its published `formulation_basis.limitations`, verbatim (`ResultsPanel.tsx:110`). These are producer bytes, bound by the reviewed-input digests, so this adds no new claim text. preview-physics-2's own notices are unchanged.
+- **The texts are checked twice.** They are reviewed against `docs/claims_registry.md` and pass GEN-13 (repository-root `tools/validation/validate_claims_language.py`, which scans the desktop TS sources). They carry no BS-ACCEPT text and no prohibition litany. They are UI reasons, never written into a document (`knownSemanticLimitations.ts:1-3`).
 - **Comments.** The stale comments that state the old refusal are updated with the code: `outputPolicy.ts:17-26, :39-44, :83-91`, `loadReferenceOutputAvailability.ts`, `analysisRunCompatibility.ts:122-125`, `resultExportAdapter.ts:56-57`, `StressNeutralExportPanel.tsx:421-423, :849-851` and `knownSemanticLimitations.ts:10-16`.
 
 ## 6. Verification
@@ -232,6 +244,7 @@ On an admitted surface the exact identities then behave as preview-physics-2 beh
 
 - **`outputPolicy.test.ts`.** The exact entries are asserted cell by cell: admitted on the opened surfaces and refused, with the code, on every other surface, the report package included. Every other assertion still holds: fail-closed routes and surfaces, the retained entries unchanged, and one entry per route.
 - **The §5.2 equality test.**
+- **The load/reference-state refusal.** Under choice 2 (B) it holds at every level, so `outputPolicy.test.ts:138-149` keeps passing unchanged. Its text changes to the §5.3 reason on every surface.
 - **Refusal tests that become admission tests, with the refusal kept on every unopened surface.** The test files are those found asserting the exact refusals:
 
 | Test file | Lines |
@@ -258,27 +271,36 @@ On an admitted surface the exact identities then behave as preview-physics-2 beh
 - **Admission.** For each opened surface and each identity, in both modes, an eligible Current result yields the output.
   - The panel shows its link only while the live binding holds, and a model edit voids it.
   - Each refusal is kept and asserted: a non-eligible standing; a missing or mismatched record; a pressure-source-1 result without its registered invocation; a saved or copied result, which is not Current.
-- **Contract mutations.** Each is refused by name:
+- **Contract mutations.** Each is refused by name, with the codes of §4.2 and §4.3:
   - an exact document or package whose `contract_evidence` differs from its source's;
   - a receipt on pressure-2;
   - a missing or changed receipt on pressure-source-1;
   - a retained receipt on either identity;
-  - a pressure-2 package validated without its source (`SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`).
-- **Rule check.** A pressure-2 and a pressure-source-1 run reach `run_rule_checks` with their invocation arguments. A refused policy cell stops the run before invoke.
+  - a pressure-2 package validated without its source (`SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`);
+  - a pressure-source-1 source with a row mutated and its hashes recomputed coherently. The full reader refuses it (§3), where the shallow check would not.
+- **Rule check.**
+  - A pressure-2 and a pressure-source-1 run, on both the Current and the transient path, reach `run_rule_checks` with their invocation arguments only at the desktop's eligible standing.
+  - A refused policy cell, or a non-eligible standing, stops the run before invoke.
+  - The jsdom tests mock the backend. So a Tauri test, in `apps/desktop/src-tauri` beside the existing exact-route tests (`lib.rs:5254-5300`), runs `qualify_rule_mechanics_with_context` and the row binding for pressure-2 without an invocation, and for pressure-source-1 with its registered invocation, on committed fixtures. That crate is outside `core/product_physics`'s closure, and only its tests change.
+- **Persistence.** An exact run with a rule status saves, reopens as historical evidence, and validates against its saved source. It is never Current after reopening.
 
 ### 6.2 Cross-language agreement
 
-The committed Rust and Python twins are the external basis for the two projections. For each identity, in both modes:
+The external bases for the two projections are Rust's derivative and Python's package. Two kinds of check use them, for each identity in both modes.
 
-- **Result JSON.** The desktop's `validateResultDocument` accepts Rust's committed `*.document.json` twin with its source.
-- **Stress-neutral.** The desktop's `validateStressNeutralExportPacket` accepts Python's committed `*.stress_neutral.json` twin with its source and record.
-- **Shared members.** Where the source is eligible, the members the desktop builds from the source equal Python's: rows, CSV, witnesses, stable-ID map, annotations, `contract_evidence`, `source_block_recovery` and the semantic contract.
-
-These twins exist only for load/reference-state cases (`fixtures/results/pressure_load_state_*`, `pressure_source_load_state_*`). Under choice 2 (B), §8, the load/reference refusal sits at the source level only (§5.2), so the pure validators still read the twins. Plain-result twins, if wanted, come from the existing Python writer (`tests/test_stress_neutral_physics_source.py`, `STRESS_NEUTRAL_WRITE_FIXTURES=1`), not from a new writer under `core/reporting/result_export/**`.
+- **Validator acceptance (the committed twins).**
+  - The desktop's `validateResultDocument` accepts Rust's committed `*.document.json` twin with its source.
+  - The desktop's `validateStressNeutralExportPacket` accepts Python's committed `*.stress_neutral.json` twin with its source and record.
+  - These twins exist only for load/reference-state cases (`fixtures/results/pressure_load_state_*`, `pressure_source_load_state_*`). Under choice 2 (A) they are acceptance fixtures. Under choice 2 (B) they stay refusal fixtures at every level (§5.2), and the plain twins below carry acceptance.
+- **An admitted-case oracle (equal inputs).** Validator acceptance alone does not check what the desktop builders newly emit, because under choice 2 (B) every committed twin is refused at the builders. So the implementation adds an equal-input oracle for eligible plain results:
+  - **The inputs.** pressure-2: `fixtures/results/pressure_connected_mechanics_{sparse,dense}.json` with `core/product_physics/tests/fixtures/exact_pressure_connected_request.json`. pressure-source-1: at least one plain raw control from `fixtures/product_preview/pressure_source/physics_source/`, both modes, with its request.
+  - **Stress-neutral.** The existing Python writer (`tests/test_stress_neutral_physics_source.py`, `STRESS_NEUTRAL_WRITE_FIXTURES=1`) is extended to write Python's package and record for these inputs as new committed twins. The desktop test builds its package from the same inputs and requires the source-derived members to equal Python's: rows, CSV, witnesses, stable-ID map, annotations, `contract_evidence`, `source_block_recovery` and the semantic contract. The desktop validator also accepts Python's package, and the Python validator test reads the desktop-shaped members through its own checks.
+  - **Result JSON.** The source-derived members of the desktop document are compared with a Rust `derive_document` output for the same source. That twin comes from a writer outside `core/reporting/result_export/**`. The headless runner's existing export test already writes plain pressure-2 raw and document pairs under `HEADLESS_PRESSURE_OUTPUT_DIR` (`core/runner/headless/tests/pressure_export.rs:13-15`), and its crate is outside `core/product_physics`'s closure. If no such writer path is practical, the gap is stated in the implementation PR, and validator acceptance and the desktop round trip carry the check.
+  - **Fixture rules.** These are new files written by existing writers, or temporary outputs of those writers read in the same check. No existing committed fixture changes (§10). The pressure-source-1 twins are written after epoch 7's regeneration (§9).
 
 ### 6.3 AC-005 and the readers
 
-No Rust source changes, so the native outcomes and the wasm build's inputs are unchanged. These pass unchanged on the head:
+No reader source changes, so the native outcomes and the wasm build's inputs are unchanged. These pass unchanged on the head:
 
 - `baseReaderWasmEquivalence.test.ts` (R2, `fixtures/results/base_reader_outcomes.json`);
 - `retainedPrecisionWasmEquivalence.test.ts` (R1);
@@ -287,6 +309,12 @@ No Rust source changes, so the native outcomes and the wasm build's inputs are u
 - the verifier-independence test, the CLI binding and Python `rust_reader`.
 
 A change in any committed outcome record is a defect signal here, not something to regenerate.
+
+VER-007 requires VER-001 to VER-006 on the head of each duty's own change (DEL-04-08 ScopeOfWork VER-007). A change under `apps/desktop/**` selects only `desktop-test` and `desktop-build` (`software-workflow.json:64-73`). So the implementation runs the rest on its head, and the PR names the head:
+- the AC-005 Rust and Python checks, which are `base_reader_outcomes.rs`, the R1 outcome test, `reader_cli.rs`, `piping-pytest`'s `rust_reader` and the verifier-independence test;
+- the VER-006 release-sweep tests, through `tools/release/run_evidence_sweep.py --execute`, or the named tests directly.
+
+These are not reused by an invariance argument.
 
 ### 6.4 Where checks run, and independent review
 
@@ -303,6 +331,7 @@ A change in any committed outcome record is a defect signal here, not something 
   4. **Rule binding.** The binding exposure of the exact rows, the per-basis maxima included.
   5. **Claim texts.** The texts against the registry.
   6. **Reconciliation.** The reconciliation edits (§7).
+  7. **Persistence.** Saved exact runs with a rule status (§4.4), and the transient rule-check path.
 
 ## 7. Owners, implementation and reconciliation
 
@@ -341,14 +370,17 @@ A change in any committed outcome record is a defect signal here, not something 
 **2. Load/reference-state results under the exact identities.** Since B7b, load/reference-state results publish under pressure-2 and pressure-source-1. Today they are refused with their identity's reason.
 
 - **(B) Recommended: they stay refused in this unit.**
-  - The refusal is the policy's source-level condition (§5.2): a source carrying `contract_evidence.load_reference_states` is refused on every surface, with the identity's code. It is applied by the gates, the Current level and the rule-check service, not by the pure projections and validators.
-  - Reason: the desktop's basis references are the model's load cases and combinations only (`analysisRunCompatibility.ts:92-94`). Whether a reference-state row's basis passes the record's load-basis check (`:98-107`) has not been established.
-  - **Consequence:** REQ-006 (c) keeps a residual limit for these results.
+  - The refusal is the policy's source-aware decision (§5.2): an exact source carrying `contract_evidence.load_reference_states` is refused on every surface and at every level, with the identity's code and its own text (§5.3). This is today's refusal, kept.
+  - Reason: T1 deferred every desktop output of load/reference-state results to a later unit (`loadReferenceOutputAvailability.ts:3-5`). That ruling's basis is archived, and this unit does not revisit it. Their record and basis handling is not the obstacle: desktop and Python records for both families already validate against the model's load-basis refs (`apps/desktop/src/services/loadReferenceAnalysisRun.test.ts:56-85`). Not yet established: whether the committed pressure-2 load/reference results are numerically eligible, and what their outputs should disclose about the reference states.
+  - **Consequence:**
+    - REQ-006 (c) keeps a residual limit for these results.
+    - An eligible pressure-2 load/reference-state result becomes Current, because Current has no source-level step (`resultsSessionState.ts:58-73`). It is then shown by the comparison and knowledge panels and counted in the status bar. Every output surface refuses it with the §5.3 reason.
+    - pressure-source-1 load/reference results are never eligible, so they never become Current.
 - **(A) They follow the reader.**
-  - pressure-source-1 load/reference results stay never-eligible by Rust's own finding (`reader_verdict.rs:316-318`). Eligible pressure-2 load/reference results open with the chosen surfaces.
-  - **Consequence:** the implementation must first establish and test their basis handling, which enlarges the unit.
+  - pressure-source-1 load/reference results stay never-eligible by Rust's own finding (`reader_verdict.rs:428`). Eligible pressure-2 load/reference results open with the chosen surfaces.
+  - **Consequence:** T1's deferral ends for the exact identities, and the outputs need their disclosure of reference states designed. The committed load/reference twins then serve as the admitted-case oracle (§6.2). The unit grows moderately.
 
-**3. The commitment text (DEL-04-08), under (1A) and (2B).** This is proposed for the owner's approval at the implementation PR. HELP_HUMAN may apply AC wording that changes only to describe consequences of these decisions (owner, 2026-10-19). The current text:
+**3. The commitment text (DEL-04-08), under (1A) and (2B).** This is proposed for the owner's decision at the implementation PR. REQ-006 (c), CLM-003 and the REQ-007 (c) discharge are commitment text, so they need the owner's decision, as (a) and (b) recorded theirs. The 2026-10-19 rule lets HELP_HUMAN edit acceptance-criterion wording only. The current text:
 
 > **(c) No desktop outputs for the current exact identity.**
 > - Exact-route results (`pressure-2`, `pressure-source-1`) solve and can be viewed on the desktop with the Rust reader's standing, but every desktop output surface refuses them (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`). The Python AnalysisRun record and the stress-neutral export accept them.
@@ -364,7 +396,7 @@ The proposed text:
 - **REQ-007 (c)**: unchanged until AC-007 (c) holds on the implementation head. Then a dated "**Discharged on …**" sentence, in the form of (a) and (b).
 - **AC-006 and AC-007 (c)**: unchanged. Both read correctly after the change.
 
-**4. Native smoke (G10's procedure).** Recommended: no exact case is added to `apps/desktop/native-smoke/expected.json`. That file is the procedure for the owner-held G10 check (DEL-07-05 Design `owner-mac-check.md`). The consequence is that no native-host run of an exact export is in the automated smoke. The jsdom session tests carry the path instead.
+Not reserved: `apps/desktop/native-smoke/expected.json` is the procedure for the owner-held G10 check (DEL-07-05 Design `owner-mac-check.md`), so this unit leaves it untouched by default. The automated smoke therefore runs no exact case on the native host, and the jsdom session tests carry that path.
 
 ## 9. Interactions
 
@@ -377,27 +409,39 @@ The proposed text:
   - **What epoch 7's manager should know.**
     - The §6.2 parity tests will read the `pressure_source_load_state_*.{document,stress_neutral,analysis_run}.json` twins. Their writers (`load_reference_source_contract.rs`, `tests/test_stress_neutral_physics_source.py`, `tests/test_load_reference_source_readers.py`) must run with R-A's regeneration.
     - `fixtures/**` selects no registered check (`software-workflow.json:63-82`), so a fixture-only change does not select `desktop-test`.
+    - R-A's own list of regenerated files does not yet name these twins (`source-work-nondyadic-inputs.md`, §4). This note exists only here, so the coordinator passes it to epoch 7's manager.
   - **R-A's D3 registration** is unaffected, because this unit changes no priced source.
 - **The frozen UI benchmark** (pending the owner).
   - No file under `apps/desktop/e2e/ui-foundation/**` changes.
-  - Its 0.2.0 models are refused at open as `retired_schema`, so they never reach a solve or an output surface.
+  - Its 0.2.0 models are refused at save and edit as `retired_schema` (`b7-plan.md`, "Pending owner decision: the frozen UI benchmark"). A 0.2.0 model cannot produce an exact identity, so the benchmark never meets an exact result.
   - No e2e spec exercises an exact result.
 - **B8 and G10** (held by the owner). Neither bears on this unit.
   - **B8** activates retained successors on the desktop. The retained policy entries, texts and standing are unchanged, and the exact identities are not successors.
-  - **G10's** milestone model is pressure-free (model 0.6.0 without `pressure_contract`), and the native smoke's other model has nonlinear supports, which the exact route excludes. So no G10 observation moves. This holds if `expected.json` is left alone, as choice 4 recommends.
-- **Observation, not changed here.** physics-retained-1 is in neither fresh set, so its `admitted_when_eligible` cells cannot be reached from the product. This is consistent with Rust and belongs to B8.
+  - **G10's** milestone model is pressure-free (model 0.6.0 without `pressure_contract`), and the native smoke's other model has nonlinear supports, which the exact route excludes. So no G10 observation moves. This holds while `expected.json` is left alone (§8).
+- **Observations, not changed here.**
+  - physics-retained-1 is in neither fresh set, so its `admitted_when_eligible` cells cannot be reached from the product. This is consistent with Rust and belongs to B8.
+  - Two inherited labels, both older than this unit:
+    - stress-neutral packages built from user models carry `privacy_classification: "public_metadata_and_invented_results"` (`StressNeutralExportPanel.tsx:283`);
+    - the Tauri file-name check fixes downloads to `openpipestress-preview-*` (`apps/desktop/src-tauri/src/native_result_download.rs:103-108`).
+
+    The exact identities inherit both. Changing either belongs to its owner (DEL-17-06, DEL-12-01).
 
 ## 10. Blast radius: what stays byte-identical
 
 - `core/reporting/result_export/**`, including its tests and test fixtures.
 - Every crate in `core/product_physics`'s dependency closure, and `core/product_physics/**`, including the GENERATED PROFILE block in `retained_memory.rs`. No D3 registration input moves.
-- `core/model_operations/operation_applier/**` (the wasm exports) and `apps/desktop/src-tauri/**`.
+- `core/model_operations/operation_applier/**` (the wasm exports), and the product code of `apps/desktop/src-tauri/**`. Only its tests gain the §6.1 rule-check cases.
 - The semantic tables `fixtures/results/semantic_contract_v0_3_*.json`, and the schemas `results.v0.3`, `results_pressure_2.v0.3`, `analysis_run.v0.3` and `stress_neutral_export.v0.3`.
 - Python product code (`core/analysis_runs/**`, `core/handoff/stress_neutral/**`, `core/reporting/**`) and `tests/verifiers/**`.
-- Every committed corpus, outcome record, raw control and twin under `fixtures/results/**` and `fixtures/product_preview/**`, and `validation/references/**`.
-- The published bytes of every identity, and the desktop's AnalysisRun records for every identity.
+- Every existing committed corpus, outcome record, raw control and twin under `fixtures/results/**` and `fixtures/product_preview/**`, and `validation/references/**`. The only fixture additions are §6.2's new plain twins.
+- The published bytes of every identity, and the AnalysisRun record format and builder. Reachable records change in one way: a Current exact run can now record a rule status from its rule check (§4.4).
 - The retained policy entries, the retained texts and codes, and preview-physics-2's behaviour on every surface.
 - `apps/desktop/e2e/ui-foundation/**` and `apps/desktop/native-smoke/**`.
 - The report package's behaviour for every identity other than the exact ones, which move to the common fresh-result refusal.
 
-Changes are confined to `apps/desktop/src/**` TypeScript and its tests, the comments listed in §5.3, and the reconciliation text of §7.
+Changes are confined to:
+- `apps/desktop/src/**` TypeScript and its tests;
+- the §6.1 Tauri tests;
+- the §6.2 twins and the writer extensions that produce them;
+- the comments listed in §5.3;
+- the reconciliation text of §7.
