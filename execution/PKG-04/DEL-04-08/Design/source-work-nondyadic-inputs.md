@@ -619,6 +619,12 @@ They are not Z-hinge decimal cases. They are cases R-A leaves over the limit (se
   - So R-A reduces how often the blocked outcome occurs, but it also changes its diagnostics, and on invocations over the 64M ledger its form.
   - One such invocation reaches an existing misleading diagnostic. "Source functional row binding is not unique" is reported where a support-norm budget refusal left the support's rows unappended (section 5.1). That path is in the shared case solver and exists with R-A off too. On 0.4.0 it would become the ordinary republication's stated cause, which the census did not exercise. So it bears on today's paths, not on R-A.
 
+**Owner decisions, 2026-10-21** ("A accept your recommendations for the entire set."), after section 5.1:
+- **AC-002.** The census condition was met; the amended wording was applied in #1497 after the implementation's independent numerical review.
+- **R-A's charged overhead** (section 3.1, "The overhead") is accepted as disclosed: a case within the margin of the 8,000,000 or 64,000,000 limit could refuse with `Budget` and keep its ordinary result. No committed record's counted work rose.
+- **The pre-0.4 blocked envelope.** R-A leaves the path, its pinned test and RF §2.9 unchanged. One failure behaviour for both routes is designed as its own unit after the replay ruling (`b7-plan.md`, "After B7b").
+- **Second-stage candidates** (3.3) are not designed further: b7-plan item 7's "cases" reads as the Z-hinge decimal finding. The PEXACT φ = 2 documents and the over-limit many-case invocations keep their fail-closed outcome.
+
 The options as presented:
 
 - **AC-002.** Its owner text of 2026-10-19 reads: "the RF census classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged; its envelope, results and summary digests change only as a stated product-text, identity or published-row change requires".
