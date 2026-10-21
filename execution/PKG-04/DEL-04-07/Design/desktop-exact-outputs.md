@@ -456,7 +456,7 @@ These are not reused by an invariance argument.
 | DEL-08-06 State, comparison, and handoff report sections | `reportPackageRequest.ts` | §4.5: the exact arm at `:31` goes | ScopeOfWork "Desktop report-package request" (proposed text below) |
 | DEL-08-01 Calculation report generator | `ReportPanel.tsx`, `RenderedReportPanel.tsx` | none (they keep refusing) | none |
 | DEL-07-11 Desktop workspace shell | `App.tsx`, `features/workspace/**` (Current) | none expected; Current changes through the fresh set | none expected |
-| DEL-04-08 Retained-precision result verification | co-lists `outputPolicy.ts`; holds REQ-006 (c), REQ-007 (c), CLM-003, AC-006, AC-007, VER-006 | none of its code | REQ-006 (c), CLM-003, VER-006, VER-007 and the REQ-007 (c) discharge, in the owner-confirmed text (§8). Design `b7-plan.md`: D6 (`:198`) and the epoch 8 status paragraph (`:24` after #1498) |
+| DEL-04-08 Retained-precision result verification | co-lists `outputPolicy.ts`; holds REQ-006 (c), REQ-007 (c), CLM-003, AC-006, AC-007, VER-006, VER-007 | none of its code | REQ-006 (c), CLM-003, VER-006, VER-007 and the REQ-007 (c) discharge, in the owner-confirmed text (§8). Design `b7-plan.md`: D6 (`:198`) and the epoch 8 status paragraph (`:24` after #1498) |
 | DEL-04-07 (this deliverable) | this design; [pressure-contract.md](pressure-contract.md) | none | `pressure-contract.md`: "Reading pressure-2" and the D7 paragraph (`:24`), whose clauses state the refusal as current, become pointers to this design as built; this file's as-built note |
 | DEL-05-03 Section bases and stress definitions | none | none | Design `section-bases-and-timoshenko.md:210`: "Desktop output surfaces for the exact identities stay refused" becomes the as-built pointer below |
 
@@ -510,11 +510,11 @@ The revised text:
 
 - **VER-006**: its `desktop-test` bullet gains the tests that assert the two declines REQ-006 (c) now names beyond the policy's code. It becomes:
 
-  > - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts`, `retainedPrecisionOutputRefusal.test.tsx` and `loadReferenceOutputRefusal.test.tsx`, `apps/desktop/src/features/report/reportPackageRequest.test.ts` and `apps/desktop/src/services/ruleCheckService.test.ts`;
+  > - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts`, `retainedPrecisionOutputRefusal.test.tsx`, `loadReferenceOutputRefusal.test.tsx`, `apps/desktop/src/features/report/reportPackageRequest.test.ts` and `apps/desktop/src/services/ruleCheckService.test.ts`;
 
 - **VER-007**: a bullet is added after the O4 bullet, because no registered check runs the Tauri crate's tests (§6.1):
 
-  > - for (c), the desktop rule-check backend's exact-route tests in `apps/desktop/src-tauri/src/lib.rs`'s test module, run with `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` and named with their head in the pull request;
+  > - for the desktop outputs, the desktop rule-check backend's exact-route tests in `apps/desktop/src-tauri/src/lib.rs`'s test module, run with `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` and named with their head in the pull request;
 
 - **REQ-007 (c)**: unchanged until AC-007 (c) holds on the implementation head. Then this sentence is appended, in the form of (a) and (b), with the date and pull request filled in:
 
