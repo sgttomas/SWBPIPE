@@ -1,5 +1,16 @@
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
+import {
+  defaultPrimitiveLoadDirection,
+  optionalString,
+  primitiveLoadCategoryFromValue,
+  primitiveLoadDefaultUnit,
+  primitiveLoadDirectionOptions,
+  primitiveLoadDraftDimension,
+  primitiveLoadUsesPipeTarget,
+  primitiveLoadUsesSupportTarget,
+  type PrimitiveLoadCategory
+} from "./primitiveLoadVocabulary";
 import { ListPlus, Scale, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
@@ -38,13 +49,6 @@ type LoadCaseDraft = {
   status: string;
   provenance: string;
 };
-
-type PrimitiveLoadCategory =
-  | "concentrated_force"
-  | "distributed_force"
-  | "concentrated_moment"
-  | "thermal"
-  | "imposed_displacement";
 
 type PrimitiveLoadDraft = {
   loadCaseId: string;
@@ -2499,81 +2503,9 @@ function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallba
   return options;
 }
 
-function projectForceUnit(model: PreviewModel): string {
-  return optionalString(model.project.units.force) ?? "TBD";
-}
-
-function projectLengthUnit(model: PreviewModel): string {
-  return optionalString(model.project.units.length) ?? "TBD";
-}
-
-function projectDistributedForceUnit(model: PreviewModel): string {
-  const force = projectForceUnit(model);
-  const length = projectLengthUnit(model);
-  return force === "TBD" || length === "TBD" ? "TBD" : `${force}/${length}`;
-}
-
-function projectMomentUnit(model: PreviewModel): string {
-  const force = projectForceUnit(model);
-  const length = projectLengthUnit(model);
-  return force === "TBD" || length === "TBD" ? "TBD" : `${force}*${length}`;
-}
-
-function projectTemperatureUnit(model: PreviewModel): string {
-  const unit = optionalString(model.project.units.temperature) ?? "TBD";
-  return unit === "C" ? "degC" : unit;
-}
-
-function projectRotationUnit(model: PreviewModel): string {
-  return optionalString(model.project.units.angle) ?? "TBD";
-}
-
-function primitiveLoadDefaultUnit(model: PreviewModel, category: PrimitiveLoadCategory, direction: string): string {
-  if (category === "distributed_force") return projectDistributedForceUnit(model);
-  if (category === "concentrated_moment") return projectMomentUnit(model);
-  if (category === "thermal") return projectTemperatureUnit(model);
-  if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? projectRotationUnit(model) : projectLengthUnit(model);
-  return projectForceUnit(model);
-}
-
-function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, direction: string): string {
-  if (category === "distributed_force") return "force_per_length";
-  if (category === "concentrated_moment") return "moment";
-  if (category === "thermal") return "temperature_interval";
-  if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? "rotation" : "displacement";
-  return "force";
-}
-
 function primitiveLoadDraftTargetDisplay(draft: PrimitiveLoadDraft): string {
   if (primitiveLoadUsesSupportTarget(draft.category)) return draft.targetSupport || "support:TBD";
   return primitiveLoadUsesPipeTarget(draft.category) ? draft.targetPipe || "pipe:TBD" : draft.targetNode || "node:TBD";
-}
-
-function primitiveLoadCategoryFromValue(value: string): PrimitiveLoadCategory {
-  if (value === "concentrated_moment") return "concentrated_moment";
-  if (value === "thermal") return "thermal";
-  if (value === "imposed_displacement") return "imposed_displacement";
-  return value === "distributed_force" ? "distributed_force" : "concentrated_force";
-}
-
-function primitiveLoadUsesPipeTarget(category: PrimitiveLoadCategory): boolean {
-  return category === "distributed_force" || category === "thermal";
-}
-
-function primitiveLoadUsesSupportTarget(category: PrimitiveLoadCategory): boolean {
-  return category === "imposed_displacement";
-}
-
-function primitiveLoadDirectionOptions(category: PrimitiveLoadCategory): string[] {
-  if (category === "imposed_displacement") return ["UX", "UY", "UZ", "RX", "RY", "RZ"];
-  return category === "concentrated_moment" ? ["rotation_x", "rotation_y", "rotation_z"] : ["global_x", "global_y", "global_z"];
-}
-
-function defaultPrimitiveLoadDirection(category: PrimitiveLoadCategory): string {
-  if (category === "concentrated_moment") return "rotation_z";
-  if (category === "thermal") return "global_z";
-  if (category === "imposed_displacement") return "UZ";
-  return "global_y";
 }
 
 function primitiveLoadFieldLabel(category: PrimitiveLoadCategory): string {
@@ -2600,10 +2532,6 @@ function primitiveLoadSourceNote(category: PrimitiveLoadCategory): string {
   return "explicit user-entered concentrated node force; no distributed loads, moments, or imposed displacements inferred";
 }
 
-function primitiveLoadDofIsRotational(direction: string): boolean {
-  return direction === "RX" || direction === "RY" || direction === "RZ";
-}
-
 function parseFiniteNumber(raw: string): number | null {
   const trimmed = raw.trim();
   if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(trimmed)) return null;
@@ -2613,10 +2541,6 @@ function parseFiniteNumber(raw: string): number | null {
 
 function stringField(record: Record<string, unknown>, key: string): string {
   return optionalString(record[key]) ?? "TBD";
-}
-
-function optionalString(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value : null;
 }
 
 function safeToken(value: string): string {

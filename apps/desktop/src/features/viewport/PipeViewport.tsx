@@ -106,6 +106,8 @@ import {
   type ViewportRendererInfo
 } from "./viewportResource";
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
+import { buildDeformationOverlay, buildRotationOverlay, rotationGlyphAnchors } from "./deformationOverlay";
+import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
 import type { ViewportPaletteRole } from "./viewportPalette";
 import {
   clearUiDiagnosticsPublisher,
@@ -114,7 +116,8 @@ import {
   type UiDiagnosticsPublication
 } from "../workspace/uiDiagnostics";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
-import { statusDisplayWithToken } from "../workspace/statusLabels";
+
+export { buildDeformationOverlay, buildRotationOverlay } from "./deformationOverlay";
 
 function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: string; unit: string; value: number }) {
   const display = useDisplayQuantity({ value, unit, dimension_id: "length" });
@@ -328,14 +331,6 @@ function ViewportComponentUnitSelect({
   );
 }
 
-type DeformationOverlay = {
-  state: "not_started" | "available" | "blocked" | "unavailable";
-  summary: string;
-  maximum?: { value: number; unit: string };
-  nodeCount?: number;
-  boundary: string;
-  nodePositions: Map<string, Vec3>;
-};
 
 export function PipeViewport({
   authoringPanelContainer = null,
@@ -600,6 +595,7 @@ export function PipeViewport({
     selectionPublication
   };
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
+  const rotation = useMemo(() => buildRotationOverlay(model, result), [model, result]);
   const localNodeMap = useMemo(
     () => new Map(
       model.nodes
@@ -1280,9 +1276,12 @@ export function PipeViewport({
       const deformedNodes = instancedDeformationMarkerMesh(model, deformation.nodePositions, renderTransform.origin, activeModelIndex);
       resultObjects.push(...deformedNodes);
     }
+    if (rotation.state === "available") {
+      resultObjects.push(...instancedRotationGlyphMeshes(rotationGlyphGroups(model, rotation, deformation, renderTransform.origin, activeModelIndex)));
+    }
     resource.replaceLayer(resource.resultLayer, resultObjects);
     applySelectionPresentation(resource, orderedSelectionKeys);
-  }, [activeModelIndex, deformation, model, renderTransform]);
+  }, [activeModelIndex, deformation, model, renderTransform, rotation]);
 
   useEffect(() => {
     const resource = viewportResourceRef.current;
@@ -2210,7 +2209,9 @@ export function PipeViewport({
         >
           <summary>{deformation.state === "available" ? "Deformation · normalized" : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
           <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
-          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small></div>
+          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
+          <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
+          <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small></div>
         </details>
         <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
           <button
@@ -3862,6 +3863,22 @@ function instancedComponentMeshes(
   return output;
 }
 
+// Rotation glyph placements in render-local coordinates, grouped by spatial chunk.
+function rotationGlyphGroups(
+  model: PreviewModel,
+  rotation: ReturnType<typeof buildRotationOverlay>,
+  deformation: ReturnType<typeof buildDeformationOverlay>,
+  origin: Readonly<Vec3>,
+  index: ModelIndex
+): RotationGlyphPlacement[][] {
+  const excluded = (nodeId: string) => index.invalidGeometry.has(entityKey({ type: "node", id: nodeId }));
+  const placements = new Map(rotationGlyphAnchors(model, rotation, deformation, excluded).map((glyph) => {
+    const key = entityKey({ type: "node", id: glyph.nodeId });
+    return [key, { ownerKey: key, anchor: authoredToLocal(glyph.anchor, origin), axis: glyph.axis, displayLength: glyph.displayLength }] as const;
+  }));
+  return spatialGroups(index, placements);
+}
+
 function instancedDeformedPipeMesh(
   model: PreviewModel,
   positions: ReadonlyMap<string, Vec3>,
@@ -4146,128 +4163,6 @@ function globalDirectionVector(primitive: Record<string, unknown>): THREE.Vector
         ? new THREE.Vector3(0, 0, 1)
         : null;
   return axis ? axis.multiplyScalar(sign).normalize() : null;
-}
-
-export function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | null): DeformationOverlay {
-  if (!result) {
-    return {
-      state: "not_started",
-      summary: "not started; result rows=0",
-      boundary: "scale=not_generated; professional_claim=false",
-      nodePositions: new Map()
-    };
-  }
-  if (result.status.mechanics !== "MECHANICS_SOLVED") {
-    return {
-      state: "blocked",
-      summary: `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${result.results.length}`,
-      boundary: "scale=not_generated; professional_claim=false",
-      nodePositions: new Map()
-    };
-  }
-
-  const nodeIds = new Set(model.nodes.map((node) => node.id));
-  const nodeValues = new Map<string, { value: number; unit: string; basisKey: string }>();
-  for (const row of result.results) {
-    if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
-    const current = nodeValues.get(row.entity_ref);
-    if (!current || Math.abs(row.value) > Math.abs(current.value)) {
-      nodeValues.set(row.entity_ref, {
-        value: row.value,
-        unit: row.unit,
-        basisKey: rowBasisKey(row)
-      });
-    }
-  }
-  if (nodeValues.size === 0) {
-    return {
-      state: "unavailable",
-      summary: "unavailable; displacement rows=0",
-      boundary: "scale=not_generated; professional_claim=false",
-      nodePositions: new Map()
-    };
-  }
-
-  // Signed global-cartesian translation components (ux/uy/uz rows) grouped by
-  // node and result basis, so each node's direction comes from the same load
-  // case or combination as its governing magnitude row.
-  const nodeComponentVectors = new Map<string, Map<string, Partial<Record<"x" | "y" | "z", number>>>>();
-  for (const row of result.results) {
-    const axis = DISPLACEMENT_COMPONENT_AXES[row.kind];
-    if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
-    const perBasis: Map<string, Partial<Record<"x" | "y" | "z", number>>> = nodeComponentVectors.get(row.entity_ref) ??
-    new Map();
-    const vector = perBasis.get(rowBasisKey(row)) ?? {};
-    vector[axis] = row.value;
-    perBasis.set(rowBasisKey(row), vector);
-    nodeComponentVectors.set(row.entity_ref, perBasis);
-  }
-  const nodeDirections = new Map<string, Vec3>();
-  let directional = true;
-  for (const [nodeId, info] of nodeValues) {
-    const vector = nodeComponentVectors.get(nodeId)?.get(info.basisKey);
-    if (!vector || vector.x === undefined || vector.y === undefined || vector.z === undefined) {
-      directional = false;
-      break;
-    }
-    nodeDirections.set(nodeId, unitVector({ x: vector.x, y: vector.y, z: vector.z }));
-  }
-
-  const values = Array.from(nodeValues.values());
-  const maxValue = Math.max(...values.map((item) => Math.abs(item.value)));
-  const units = Array.from(new Set(values.map((item) => item.unit))).sort();
-  const unit = units.length === 1 ? units[0] : "mixed";
-  const displayOffset = 0.65;
-  const fallbackDirection: Vec3 = { x: 0, y: 1, z: 0 };
-  const nodePositions = new Map(
-    model.nodes.map((node) => {
-      const value = nodeValues.get(node.id)?.value ?? 0;
-      const normalizedOffset = maxValue > 0 ? (Math.abs(value) / maxValue) * displayOffset : 0;
-      const direction = directional ? (nodeDirections.get(node.id) ?? fallbackDirection) : fallbackDirection;
-      return [
-        node.id,
-        {
-          x: node.position.x + direction.x * normalizedOffset,
-          y: node.position.y + direction.y * normalizedOffset,
-          z: node.position.z + direction.z * normalizedOffset
-        }
-      ] as const;
-    })
-  );
-
-  const vectorDirection = directional
-    ? "global_cartesian_displacement_components"
-    : "vertical_display_axis_fallback_component_rows_unavailable";
-  return {
-    state: "available",
-    summary: `available; nodes=${nodeValues.size}; max=${formatNumber(maxValue)} ${unit}`,
-    maximum: { value: maxValue, unit },
-    nodeCount: nodeValues.size,
-    boundary: `scale=normalized_display_offset_not_physical_length; vector_direction=${vectorDirection}; unit_basis=${unit}; professional_claim=false`,
-    nodePositions
-  };
-}
-
-const DISPLACEMENT_COMPONENT_AXES: Record<string, "x" | "y" | "z" | undefined> = {
-  global_nodal_displacement_x: "x",
-  global_nodal_displacement_y: "y",
-  global_nodal_displacement_z: "z"
-};
-
-function rowBasisKey(row: MechanicsResult["results"][number]): string {
-  return row.basis_ref ? `${row.basis_ref.ref_type}:${row.basis_ref.ref_id}` : "unspecified";
-}
-
-function unitVector(vector: Vec3): Vec3 {
-  const length = Math.hypot(vector.x, vector.y, vector.z);
-  if (!Number.isFinite(length) || length === 0) {
-    return { x: 0, y: 0, z: 0 };
-  }
-  return { x: vector.x / length, y: vector.y / length, z: vector.z / length };
-}
-
-function formatNumber(value: number): string {
-  return value.toFixed(6).replace(/0+$/u, "").replace(/\.$/u, "");
 }
 
 function finitePointerEventNumber(value: number, fallback: number): number {
