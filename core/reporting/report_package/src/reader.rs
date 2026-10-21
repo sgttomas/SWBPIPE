@@ -12,8 +12,11 @@
 //!
 //! 1. Locate the archive structure (end-of-central-directory record, central
 //!    directory, local entries) with bounds-checked parsing.
-//! 2. Read the first member, which must be the package manifest, check the
-//!    `DEC-057` document kind, then gate on `schema_version`.
+//! 2. Read the first member, which must be the stored package manifest, check
+//!    its CRC-32 and the `DEC-057` document kind, then gate on `schema_version`.
+//!    The gate therefore follows only the archive layout needed to locate the
+//!    manifest (end-of-central-directory record at the end, first member
+//!    stored and unflagged); everything else is interpreted after it.
 //! 3. Check the archive form: stored members only, matching local and central
 //!    headers, contiguous entries, no extra fields or comments, unique names,
 //!    CRC-32 per member.
@@ -25,7 +28,10 @@
 //!
 //! Evidence binds to the canonical members and the manifest's per-member
 //! hashes (`DEC-028`); the manifest hash is the package identity. Reading a
-//! package establishes its integrity against its own manifest only. It is not
+//! package establishes its form and its integrity against its own manifest
+//! only. The hashes are not signatures: a package re-hashed after editing is
+//! not detected as edited, and member contents beyond their checked envelope
+//! (for example a result envelope's own validity) are not re-validated. It is not
 //! an acceptance or issuance act. Standard claim fence applies (F-PIP-2; claims
 //! taxonomy per DEC-081).
 
@@ -36,11 +42,11 @@ use open_pipe_stress_canonical_json::canonical_json;
 use serde_json::{Map, Value};
 
 use super::{
-    build_deterministic_zip, crc32, package_manifest_document, sha256_hex, ContainerMember,
-    ManifestFields, PackageRef, CONTAINER_DOCUMENT_KIND, HASH_BASIS_EXACT, HASH_BASIS_JCS,
-    PACKAGE_MANIFEST_FILE_NAME, PACKAGE_MANIFEST_SCHEMA_VERSION, ROLE_AUDIT_MANIFEST,
-    ROLE_PACKAGE_MANIFEST, ROLE_REPORT_HTML, ROLE_REPORT_PDF, ROLE_RESULT_EXPORT,
-    ROLE_STATE_COMPARISON_HANDOFF,
+    build_deterministic_zip, crc32, package_manifest_document, sanitize_component, sha256_hex,
+    ContainerMember, ManifestFields, PackageRef, CONTAINER_DOCUMENT_KIND, HASH_BASIS_EXACT,
+    HASH_BASIS_JCS, PACKAGE_MANIFEST_FILE_NAME, PACKAGE_MANIFEST_SCHEMA_VERSION,
+    ROLE_AUDIT_MANIFEST, ROLE_PACKAGE_MANIFEST, ROLE_REPORT_HTML, ROLE_REPORT_PDF,
+    ROLE_RESULT_EXPORT, ROLE_STATE_COMPARISON_HANDOFF,
 };
 
 /// The only package version this reader accepts (`DEC-028`, one version).
@@ -64,7 +70,9 @@ pub struct ReadReportPackage {
     /// All members in archive order; the manifest member is first.
     pub members: Vec<ContainerMember>,
     /// The writer's export-blocked state, as recorded in the manifest. A
-    /// blocked package reads so it can be diagnosed; callers honor it.
+    /// blocked package that is otherwise well formed reads so it can be
+    /// diagnosed; callers honor it. A blocked package whose defect breaks the
+    /// package form itself (for example duplicate member names) is refused.
     pub export_blocked: bool,
     pub blocking_reasons: Vec<String>,
 }
@@ -112,20 +120,20 @@ impl fmt::Display for PackageReadRefusal {
         match self {
             Self::OlderVersion { found } => write!(
                 f,
-                "{}: package version {found} is older than the supported version {supported}; \
+                "{}: package version {found:?} is older than the supported version {supported}; \
                  this reader does not migrate packages. Re-author the package from its source \
                  project with the current version.",
                 self.code()
             ),
             Self::NewerVersion { found } => write!(
                 f,
-                "{}: package version {found} is newer than the supported version {supported}; \
+                "{}: package version {found:?} is newer than the supported version {supported}; \
                  open it with the version that wrote it.",
                 self.code()
             ),
             Self::UnrecognizedVersion { found } => write!(
                 f,
-                "{}: package version {found} is not a recognized version; only {supported} is \
+                "{}: package version {found:?} is not a recognized version; only {supported} is \
                  supported.",
                 self.code()
             ),
@@ -146,11 +154,16 @@ impl std::error::Error for PackageReadRefusal {}
 pub fn read_report_package_container(
     bytes: &[u8],
 ) -> Result<ReadReportPackage, PackageReadRefusal> {
-    // 1. Archive structure.
-    let archive = parse_archive(bytes)?;
+    // 1. Locate the central directory and the first member only.
+    let layout = parse_eocd(bytes)?;
+    let (manifest_entry, next) = parse_entry(
+        bytes,
+        layout.central_offset,
+        layout.eocd,
+        layout.central_offset,
+    )?;
 
     // 2. Manifest member, document kind, version gate.
-    let manifest_entry = &archive.entries[0];
     if manifest_entry.name != PACKAGE_MANIFEST_FILE_NAME.as_bytes() {
         return Err(not_a_package(format!(
             "the first archive member must be {PACKAGE_MANIFEST_FILE_NAME}"
@@ -165,6 +178,18 @@ pub fn read_report_package_container(
         ));
     }
     let manifest_bytes = manifest_entry.data(bytes);
+    // Integrity of the manifest member itself (not interpretation): a corrupted
+    // current-version manifest must not read as some other version.
+    if manifest_entry.local != manifest_entry.central
+        || bytes[manifest_entry.local_name.clone()] != manifest_entry.name[..]
+        || crc32(manifest_bytes) != manifest_entry.central.crc32
+    {
+        return Err(PackageReadRefusal::MemberIntegrity {
+            file_name: PACKAGE_MANIFEST_FILE_NAME.to_string(),
+            reason: "package manifest member is corrupt (CRC-32 or local/central header mismatch)"
+                .to_string(),
+        });
+    }
     let manifest: Value = serde_json::from_slice(manifest_bytes)
         .map_err(|error| malformed_manifest(format!("manifest is not JSON: {error}")))?;
     let manifest_object = manifest
@@ -178,7 +203,8 @@ pub fn read_report_package_container(
     }
     check_version(manifest_object.get("schema_version"))?;
 
-    // 3. Archive form.
+    // 3. The remaining archive structure and the archive form.
+    let archive = parse_remaining(bytes, layout, manifest_entry, next)?;
     check_archive_form(bytes, &archive)?;
 
     // 4. Manifest and members.
@@ -187,7 +213,7 @@ pub fn read_report_package_container(
     }
     let fields = manifest_fields(manifest_object)?;
     let rows = manifest_member_rows(manifest_object)?;
-    let members = verify_members(bytes, &archive, &rows)?;
+    let members = verify_members(bytes, &archive, &rows, fields.export_blocked)?;
 
     let rebuilt = package_manifest_document(
         &ManifestFields {
@@ -304,7 +330,9 @@ struct CentralEntry {
     central: HeaderFields,
     local: HeaderFields,
     name: Vec<u8>,
-    local_name: Vec<u8>,
+    /// Local-header name, as a range of the container (never copied, so
+    /// entries sharing one local header cannot amplify memory).
+    local_name: std::ops::Range<usize>,
     central_extra_len: usize,
     comment_len: usize,
     disk_number: u16,
@@ -340,11 +368,27 @@ fn read_u32(bytes: &[u8], offset: usize) -> Option<u32> {
     Some(u32::from_le_bytes([slice[0], slice[1], slice[2], slice[3]]))
 }
 
+/// Checked sum of offsets and lengths (no overflow on any `usize` width).
+fn sum(parts: &[usize]) -> Option<usize> {
+    parts
+        .iter()
+        .try_fold(0usize, |total, part| total.checked_add(*part))
+}
+
 fn truncated(what: &str) -> PackageReadRefusal {
     malformed_container(format!("truncated or out-of-bounds {what}"))
 }
 
-fn parse_archive(bytes: &[u8]) -> Result<Archive, PackageReadRefusal> {
+#[derive(Debug, Clone, Copy)]
+struct Eocd {
+    eocd: usize,
+    entry_count: usize,
+    central_size: usize,
+    central_offset: usize,
+}
+
+/// Locate the end-of-central-directory record and the central directory.
+fn parse_eocd(bytes: &[u8]) -> Result<Eocd, PackageReadRefusal> {
     if bytes.len() < EOCD_LEN {
         return Err(malformed_container(
             "container is too short to be a package archive",
@@ -387,96 +431,130 @@ fn parse_archive(bytes: &[u8]) -> Result<Archive, PackageReadRefusal> {
         ));
     }
 
-    let mut entries = Vec::with_capacity(entry_count);
-    let mut cursor = central_offset;
-    for _ in 0..entry_count {
-        let c16 = |offset: usize| {
-            read_u16(bytes, cursor + offset).ok_or_else(|| truncated("central directory entry"))
-        };
-        let c32 = |offset: usize| {
-            read_u32(bytes, cursor + offset).ok_or_else(|| truncated("central directory entry"))
-        };
-        if cursor + CENTRAL_HEADER_LEN > eocd || c32(0)? != CENTRAL_SIGNATURE {
-            return Err(malformed_container(
-                "central directory entry signature missing",
-            ));
-        }
-        let central = HeaderFields {
-            flags: c16(8)?,
-            method: c16(10)?,
-            dos_time: c16(12)?,
-            dos_date: c16(14)?,
-            crc32: c32(16)?,
-            compressed_size: c32(20)?,
-            uncompressed_size: c32(24)?,
-        };
-        let name_len = c16(28)? as usize;
-        let central_extra_len = c16(30)? as usize;
-        let comment_len = c16(32)? as usize;
-        let disk_number = c16(34)?;
-        let local_offset = c32(42)? as usize;
-        let name_start = cursor + CENTRAL_HEADER_LEN;
-        let next = name_start + name_len + central_extra_len + comment_len;
-        if next > eocd {
-            return Err(truncated("central directory entry"));
-        }
-        let name = bytes[name_start..name_start + name_len].to_vec();
+    Ok(Eocd {
+        eocd,
+        entry_count,
+        central_size,
+        central_offset,
+    })
+}
 
-        let l16 = |offset: usize| {
-            read_u16(bytes, local_offset + offset).ok_or_else(|| truncated("local header"))
-        };
-        let l32 = |offset: usize| {
-            read_u32(bytes, local_offset + offset).ok_or_else(|| truncated("local header"))
-        };
-        if local_offset + LOCAL_HEADER_LEN > central_offset || l32(0)? != LOCAL_SIGNATURE {
-            return Err(malformed_container(
-                "local header signature missing at the recorded member offset",
-            ));
-        }
-        let local = HeaderFields {
-            flags: l16(6)?,
-            method: l16(8)?,
-            dos_time: l16(10)?,
-            dos_date: l16(12)?,
-            crc32: l32(14)?,
-            compressed_size: l32(18)?,
-            uncompressed_size: l32(22)?,
-        };
-        let local_name_len = l16(26)? as usize;
-        let local_extra_len = l16(28)? as usize;
-        let local_name_start = local_offset + LOCAL_HEADER_LEN;
-        let data_start = local_name_start + local_name_len + local_extra_len;
-        let data_end = data_start
-            .checked_add(central.compressed_size as usize)
-            .ok_or_else(|| truncated("member data"))?;
-        if data_end > central_offset {
-            return Err(truncated("member data"));
-        }
-        let local_name = bytes[local_name_start..local_name_start + local_name_len].to_vec();
+/// Parse the central entry at `cursor` and its local header, returning the
+/// entry and the offset of the next central entry.
+fn parse_entry(
+    bytes: &[u8],
+    cursor: usize,
+    eocd: usize,
+    central_offset: usize,
+) -> Result<(CentralEntry, usize), PackageReadRefusal> {
+    let c16 = |offset: usize| {
+        read_u16(bytes, cursor + offset).ok_or_else(|| truncated("central directory entry"))
+    };
+    let c32 = |offset: usize| {
+        read_u32(bytes, cursor + offset).ok_or_else(|| truncated("central directory entry"))
+    };
+    if sum(&[cursor, CENTRAL_HEADER_LEN]).is_none_or(|end| end > eocd)
+        || c32(0)? != CENTRAL_SIGNATURE
+    {
+        return Err(malformed_container(
+            "central directory entry signature missing",
+        ));
+    }
+    let central = HeaderFields {
+        flags: c16(8)?,
+        method: c16(10)?,
+        dos_time: c16(12)?,
+        dos_date: c16(14)?,
+        crc32: c32(16)?,
+        compressed_size: c32(20)?,
+        uncompressed_size: c32(24)?,
+    };
+    let name_len = c16(28)? as usize;
+    let central_extra_len = c16(30)? as usize;
+    let comment_len = c16(32)? as usize;
+    let disk_number = c16(34)?;
+    let local_offset = c32(42)? as usize;
+    let name_start = cursor + CENTRAL_HEADER_LEN;
+    let next = sum(&[name_start, name_len, central_extra_len, comment_len])
+        .filter(|next| *next <= eocd)
+        .ok_or_else(|| truncated("central directory entry"))?;
+    let name = bytes[name_start..name_start + name_len].to_vec();
 
-        entries.push(CentralEntry {
-            central,
-            local,
-            name,
-            local_name,
-            central_extra_len,
-            comment_len,
-            disk_number,
-            local_extra_len,
-            local_offset,
-            data_start,
-            data_end,
-        });
+    let l16 = |offset: usize| {
+        read_u16(bytes, local_offset + offset).ok_or_else(|| truncated("local header"))
+    };
+    let l32 = |offset: usize| {
+        read_u32(bytes, local_offset + offset).ok_or_else(|| truncated("local header"))
+    };
+    if sum(&[local_offset, LOCAL_HEADER_LEN]).is_none_or(|end| end > central_offset)
+        || l32(0)? != LOCAL_SIGNATURE
+    {
+        return Err(malformed_container(
+            "local header signature missing at the recorded member offset",
+        ));
+    }
+    let local = HeaderFields {
+        flags: l16(6)?,
+        method: l16(8)?,
+        dos_time: l16(10)?,
+        dos_date: l16(12)?,
+        crc32: l32(14)?,
+        compressed_size: l32(18)?,
+        uncompressed_size: l32(22)?,
+    };
+    let local_name_len = l16(26)? as usize;
+    let local_extra_len = l16(28)? as usize;
+    let local_name_start = local_offset + LOCAL_HEADER_LEN;
+    let data_start = sum(&[local_name_start, local_name_len, local_extra_len])
+        .ok_or_else(|| truncated("member data"))?;
+    let data_end = sum(&[data_start, central.compressed_size as usize])
+        .filter(|end| *end <= central_offset)
+        .ok_or_else(|| truncated("member data"))?;
+    let local_name = local_name_start..local_name_start + local_name_len;
+
+    let entry = CentralEntry {
+        central,
+        local,
+        name,
+        local_name,
+        central_extra_len,
+        comment_len,
+        disk_number,
+        local_extra_len,
+        local_offset,
+        data_start,
+        data_end,
+    };
+    Ok((entry, next))
+}
+
+/// Parse the central entries after the first, which the caller has already
+/// parsed (and gated on) from `cursor`.
+fn parse_remaining(
+    bytes: &[u8],
+    layout: Eocd,
+    first: CentralEntry,
+    mut cursor: usize,
+) -> Result<Archive, PackageReadRefusal> {
+    let mut entries = Vec::with_capacity(
+        layout
+            .entry_count
+            .min(layout.central_size / CENTRAL_HEADER_LEN),
+    );
+    entries.push(first);
+    for _ in 1..layout.entry_count {
+        let (entry, next) = parse_entry(bytes, cursor, layout.eocd, layout.central_offset)?;
+        entries.push(entry);
         cursor = next;
     }
-    if cursor != eocd {
+    if cursor != layout.eocd {
         return Err(malformed_container(
             "central directory size disagrees with its entries",
         ));
     }
     Ok(Archive {
         entries,
-        central_offset,
+        central_offset: layout.central_offset,
     })
 }
 
@@ -489,7 +567,7 @@ fn check_archive_form(bytes: &[u8], archive: &Archive) -> Result<(), PackageRead
             file_name: name.clone(),
             reason: reason.to_string(),
         };
-        if entry.local != entry.central || entry.local_name != entry.name {
+        if entry.local != entry.central || bytes[entry.local_name.clone()] != entry.name[..] {
             return Err(defect("local header disagrees with the central directory"));
         }
         if entry.central.method != 0 {
@@ -723,6 +801,7 @@ fn verify_members(
     bytes: &[u8],
     archive: &Archive,
     rows: &[MemberRow],
+    export_blocked: bool,
 ) -> Result<Vec<ContainerMember>, PackageReadRefusal> {
     let content_entries = &archive.entries[1..];
     if rows.len() != content_entries.len() {
@@ -747,6 +826,7 @@ fn verify_members(
     }];
 
     let mut previous_rank: Option<u8> = None;
+    let mut ranks_seen = BTreeSet::new();
     for (row, entry) in rows.iter().zip(content_entries) {
         let defect = |reason: String| PackageReadRefusal::MemberIntegrity {
             file_name: row.file_name.clone(),
@@ -787,6 +867,7 @@ fn verify_members(
             )));
         }
         previous_rank = Some(form.rank);
+        ranks_seen.insert(form.rank);
 
         let data = entry.data(bytes);
         if row.byte_length != data.len() as u64 {
@@ -815,6 +896,8 @@ fn verify_members(
                 if canonical_json(&document).as_bytes() != data {
                     return Err(defect("member bytes are not canonical JSON".to_string()));
                 }
+                check_member_document(&row.role, &row.file_name, &document, export_blocked)
+                    .map_err(|reason| defect(reason.to_string()))?;
             }
         }
 
@@ -834,7 +917,81 @@ fn verify_members(
             "manifest must list the rendered report HTML, PDF and audit manifest members",
         ));
     }
+    // The writer blocks a package without a result export or a
+    // state/comparison/handoff member, so an unblocked one carries both.
+    if !export_blocked && !(ranks_seen.contains(&3) && ranks_seen.contains(&4)) {
+        return Err(malformed_manifest(
+            "an unblocked package must carry at least one result export and one \
+             state/comparison/handoff report-section member",
+        ));
+    }
     Ok(members)
+}
+
+/// Role-specific shape of a canonical-JSON member, as the writer always emits
+/// it. A state/comparison/handoff record is caller-assembled, so its envelope
+/// is checked only on an unblocked package (the writer blocks a wrong one).
+fn check_member_document(
+    role: &str,
+    file_name: &str,
+    document: &Value,
+    export_blocked: bool,
+) -> Result<(), &'static str> {
+    let text =
+        |value: &Value, key: &str| value.get(key).and_then(Value::as_str).map(str::to_string);
+    match role {
+        ROLE_AUDIT_MANIFEST => {
+            if text(document, "artifact").as_deref() != Some("openpipestress.audit_manifest")
+                || text(document, "deliverable_id").as_deref() != Some("DEL-08-02")
+            {
+                return Err("member is not a DEL-08-02 audit manifest document");
+            }
+        }
+        ROLE_RESULT_EXPORT => {
+            let envelope_id = document
+                .get("result_envelope")
+                .and_then(|envelope| text(envelope, "envelope_id"));
+            if text(document, "deliverable_id").as_deref() != Some("DEL-08-04") {
+                return Err("member is not a DEL-08-04 result export document");
+            }
+            match envelope_id {
+                Some(id)
+                    if file_name == format!("result_export_{}.json", sanitize_component(&id)) => {}
+                _ => return Err("member file name does not name its result envelope"),
+            }
+        }
+        ROLE_STATE_COMPARISON_HANDOFF => {
+            let set_id = text(document, "section_set_id").unwrap_or_default();
+            if file_name
+                != format!(
+                    "state_comparison_handoff_sections_{}.json",
+                    sanitize_component(&set_id)
+                )
+            {
+                return Err("member file name does not name its section set");
+            }
+            let blocking_diagnostic = document
+                .get("diagnostics")
+                .and_then(Value::as_array)
+                .is_some_and(|diagnostics| {
+                    diagnostics.iter().any(|diagnostic| {
+                        diagnostic.get("severity").and_then(Value::as_str) == Some("blocking")
+                    })
+                });
+            if !export_blocked
+                && (text(document, "deliverable_id").as_deref() != Some("DEL-08-06")
+                    || set_id.trim().is_empty()
+                    || blocking_diagnostic)
+            {
+                return Err(
+                    "an unblocked package's section record must be a DEL-08-06 envelope with a \
+                     section_set_id and no blocking diagnostic",
+                );
+            }
+        }
+        _ => {}
+    }
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------

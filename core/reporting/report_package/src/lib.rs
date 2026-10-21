@@ -276,6 +276,12 @@ pub fn assemble_report_package_container(
                 }
             }
         }
+        if json_nesting_depth(record) > MAX_MEMBER_JSON_NESTING {
+            blocking_reasons.push(format!(
+                "state/comparison/handoff record {set_id}: nesting deeper than \
+                 {MAX_MEMBER_JSON_NESTING} levels is outside the package form"
+            ));
+        }
         let file_name = format!(
             "state_comparison_handoff_sections_{}.json",
             sanitize_component(set_id)
@@ -379,6 +385,27 @@ pub fn assemble_report_package_container(
 // Member materialization.
 // ---------------------------------------------------------------------------
 
+/// Deepest array/object nesting a canonical-JSON member may have: the depth
+/// the package reader can parse back (serde_json's recursion limit).
+pub const MAX_MEMBER_JSON_NESTING: usize = 127;
+
+/// Array/object nesting depth of a JSON value (a scalar is 0). Iterative, so
+/// a deep caller-supplied record cannot exhaust the stack here.
+fn json_nesting_depth(value: &Value) -> usize {
+    let mut deepest = 0;
+    let mut pending = vec![(value, 0usize)];
+    while let Some((value, depth)) = pending.pop() {
+        let children: Vec<&Value> = match value {
+            Value::Array(items) => items.iter().collect(),
+            Value::Object(map) => map.values().collect(),
+            _ => continue,
+        };
+        deepest = deepest.max(depth + 1);
+        pending.extend(children.into_iter().map(|child| (child, depth + 1)));
+    }
+    deepest
+}
+
 fn member_exact(role: &str, file_name: &str, media_type: &str, bytes: Vec<u8>) -> ContainerMember {
     ContainerMember {
         role: role.to_string(),
@@ -412,7 +439,7 @@ fn member_canonical_json(role: &str, file_name: &str, document: &Value) -> Conta
 /// Deterministic file-name component: ASCII alphanumerics, `-`, and `_` kept
 /// (lowercased); every other character becomes `-`; empty input becomes
 /// `member`.
-fn sanitize_component(text: &str) -> String {
+pub(crate) fn sanitize_component(text: &str) -> String {
     let sanitized: String = text
         .trim()
         .chars()

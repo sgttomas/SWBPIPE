@@ -9,7 +9,8 @@ use common::{invented_result_envelope, invented_sections_record, Fixture};
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_report_package::{
     assemble_report_package_container, read_report_package_container, PackageReadRefusal,
-    ReportPackageContainerOutcome, PACKAGE_MANIFEST_SCHEMA_VERSION, SUPPORTED_PACKAGE_VERSION,
+    ReportPackageContainerOutcome, MAX_MEMBER_JSON_NESTING, PACKAGE_MANIFEST_SCHEMA_VERSION,
+    SUPPORTED_PACKAGE_VERSION,
 };
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -318,9 +319,10 @@ fn unrecognized_versions_are_refused_by_name() {
 }
 
 #[test]
-fn version_refusal_precedes_every_other_package_defect() {
-    // An older package whose manifest and members follow another form is
-    // still refused by its version name, not by its form.
+fn version_refusal_precedes_member_and_manifest_form_defects() {
+    // Once the stored first-member manifest is located, an older package whose
+    // manifest and members follow another form is still refused by its
+    // version name, not by its form.
     let mut entries = entries(&package());
     let mut document = manifest(&entries);
     document["schema_version"] = json!("0.9.0");
@@ -730,4 +732,311 @@ fn reader_source_defines_no_migration_or_upgrade_path() {
             );
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Review round 1 cases.
+// ---------------------------------------------------------------------------
+
+fn eocd(entries: u16, central_size: u32, central_offset: u32) -> Vec<u8> {
+    let mut out = 0x0605_4b50u32.to_le_bytes().to_vec();
+    out.extend_from_slice(&[0u8; 4]);
+    out.extend_from_slice(&entries.to_le_bytes());
+    out.extend_from_slice(&entries.to_le_bytes());
+    out.extend_from_slice(&central_size.to_le_bytes());
+    out.extend_from_slice(&central_offset.to_le_bytes());
+    out.extend_from_slice(&0u16.to_le_bytes());
+    out
+}
+
+#[test]
+fn central_entries_sharing_one_local_header_are_refused_without_amplification() {
+    // One local header with a 65535-byte name, then many central entries that
+    // all point at it. The reader must refuse it without copying the local
+    // name once per entry.
+    let mut bytes = 0x0403_4b50u32.to_le_bytes().to_vec();
+    bytes.extend_from_slice(&[20, 0, 0, 0, 0, 0, 0, 0, 0x21, 0]);
+    bytes.extend_from_slice(&0u32.to_le_bytes()); // crc
+    bytes.extend_from_slice(&[0u8; 8]); // sizes
+    bytes.extend_from_slice(&u16::MAX.to_le_bytes());
+    bytes.extend_from_slice(&0u16.to_le_bytes());
+    bytes.extend(std::iter::repeat_n(b'a', u16::MAX as usize));
+    let central_offset = bytes.len() as u32;
+    let count: u16 = 4000;
+    for _ in 0..count {
+        bytes.extend_from_slice(&0x0201_4b50u32.to_le_bytes());
+        bytes.extend_from_slice(&[20, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0x21, 0]);
+        bytes.extend_from_slice(&[0u8; 12]); // crc, sizes
+        bytes.extend_from_slice(&[0u8; 14]); // name/extra/comment lengths, disk, attributes
+        bytes.extend_from_slice(&0u32.to_le_bytes()); // local offset 0
+    }
+    let central_size = bytes.len() as u32 - central_offset;
+    bytes.extend(eocd(count, central_size, central_offset));
+    assert!(read_report_package_container(&bytes).is_err());
+}
+
+#[test]
+fn shared_local_header_in_a_real_package_is_refused() {
+    let outcome = package();
+    let mut bytes = outcome.container_bytes.clone();
+    // Point the second central entry at the first member's local header.
+    let end = bytes.len() - 22;
+    let central_offset = u32::from_le_bytes(bytes[end + 16..end + 20].try_into().unwrap()) as usize;
+    let first_name = outcome.members[0].file_name.len();
+    let second = central_offset + 46 + first_name;
+    bytes[second + 42..second + 46].copy_from_slice(&0u32.to_le_bytes());
+    assert!(read_report_package_container(&bytes).is_err());
+}
+
+#[test]
+fn zip64_multi_disk_and_central_size_defects_are_refused() {
+    let bytes = package().container_bytes;
+    let end = bytes.len() - 22;
+    let mut cases: Vec<(&str, Vec<u8>)> = Vec::new();
+
+    let mut zip64 = bytes.clone();
+    zip64[end + 8..end + 12].copy_from_slice(&[0xff, 0xff, 0xff, 0xff]);
+    cases.push(("ZIP64", zip64));
+
+    let mut disk = bytes.clone();
+    disk[end + 4..end + 6].copy_from_slice(&1u16.to_le_bytes());
+    cases.push(("multi-disk", disk));
+
+    let mut size = bytes.clone();
+    let central_size = u32::from_le_bytes(size[end + 12..end + 16].try_into().unwrap()) - 1;
+    size[end + 12..end + 16].copy_from_slice(&central_size.to_le_bytes());
+    cases.push(("central directory", size));
+
+    for (needle, bytes) in cases {
+        let refused = refusal(&bytes);
+        assert_eq!(refused.code(), "OPSPROJ_CONTAINER_MALFORMED", "{needle}");
+        assert!(refused.to_string().contains(needle), "{needle}: {refused}");
+    }
+}
+
+#[test]
+fn central_and_local_name_disagreement_is_refused() {
+    let outcome = package();
+    let mut bytes = outcome.container_bytes.clone();
+    // Change one letter of the PDF member's local-header name only.
+    let pdf_offset = 30
+        + outcome.members[0].file_name.len()
+        + outcome.members[0].bytes.len()
+        + 30
+        + outcome.members[1].file_name.len()
+        + outcome.members[1].bytes.len();
+    bytes[pdf_offset + 30] = b'x';
+    let refused = refusal(&bytes);
+    assert!(
+        refused.to_string().contains("local header disagrees"),
+        "{refused}"
+    );
+}
+
+#[test]
+fn corrupted_current_manifest_is_corruption_not_another_version() {
+    let outcome = package();
+    let mut bytes = outcome.container_bytes.clone();
+    let manifest = &outcome.members[0].bytes;
+    let at = manifest
+        .windows(7)
+        .position(|window| window == b"\"1.0.0\"")
+        .expect("manifest names its version");
+    // "1.0.0" -> "1.0.1" inside the stored manifest, CRC left unchanged.
+    bytes[30 + outcome.members[0].file_name.len() + at + 5] ^= 0x01;
+    let refused = refusal(&bytes);
+    assert_eq!(refused.code(), "OPSPROJ_MEMBER_INTEGRITY", "{refused}");
+    assert!(refused.to_string().contains("package_manifest.json"));
+}
+
+#[test]
+fn forged_unblocked_package_without_required_members_is_refused() {
+    let mut fixture = Fixture::new();
+    fixture.result_envelopes.clear();
+    fixture.sections_records.clear();
+    let blocked = assemble_report_package_container(&fixture.input());
+    assert!(blocked.export_blocked);
+    let mut entries = entries(&blocked);
+    let mut document = manifest(&entries);
+    document["diagnostics"]["export_blocked"] = json!(false);
+    document["diagnostics"]["blocking_reasons"] = json!([]);
+    set_manifest(&mut entries, &document);
+    let refused = refusal(&zip(&entries));
+    assert!(
+        refused
+            .to_string()
+            .contains("an unblocked package must carry"),
+        "{refused}"
+    );
+
+    // With only the section member removed, the same holds.
+    let outcome = package();
+    let mut entries = self::entries(&outcome);
+    entries.pop();
+    let mut document = manifest(&entries);
+    document["members"].as_array_mut().unwrap().pop();
+    set_manifest(&mut entries, &document);
+    assert!(refusal(&zip(&entries))
+        .to_string()
+        .contains("an unblocked package must carry"));
+}
+
+#[test]
+fn duplicate_json_keys_in_the_manifest_are_refused() {
+    let mut entries = entries(&package());
+    let text = String::from_utf8(entries[0].data.clone()).unwrap();
+    // Repeat a key at the start of the object: JSON parsers keep one value, so
+    // the bytes can no longer be the canonical rendering.
+    entries[0].data = text
+        .replacen('{', "{\"artifact\":\"openpipestress.other\",", 1)
+        .into_bytes();
+    assert!(read_report_package_container(&zip(&entries)).is_err());
+}
+
+#[test]
+fn refusal_messages_quote_the_found_version() {
+    let refused = refusal(&with_version(json!("0.9.0\nverified")));
+    let message = refused.to_string();
+    assert!(message.contains("\"0.9.0\\nverified\""), "{message}");
+    assert!(!message.contains('\n'), "{message}");
+}
+
+// ---------------------------------------------------------------------------
+// Review round 1 (Codex) cases.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn later_member_corruption_does_not_mask_an_older_version() {
+    let mut entries = entries(&package());
+    let mut document = manifest(&entries);
+    document["schema_version"] = json!("0.9.0");
+    set_manifest(&mut entries, &document);
+    let bytes = zip(&entries);
+    let older = PackageReadRefusal::OlderVersion {
+        found: "0.9.0".to_string(),
+    };
+
+    // The second member's local signature.
+    let mut local = bytes.clone();
+    let second_local = 30 + entries[0].name.len() + entries[0].data.len();
+    local[second_local] ^= 0xff;
+    assert_eq!(refusal(&local), older);
+
+    // The second central entry's signature.
+    let mut central = bytes.clone();
+    let end = central.len() - 22;
+    let central_offset =
+        u32::from_le_bytes(central[end + 16..end + 20].try_into().unwrap()) as usize;
+    central[central_offset + 46 + entries[0].name.len()] ^= 0xff;
+    assert_eq!(refusal(&central), older);
+}
+
+#[test]
+fn audit_member_must_be_an_audit_manifest_document() {
+    for replacement in [
+        b"null".to_vec(),
+        b"{}".to_vec(),
+        br#"{"artifact":"openpipestress.audit_manifest"}"#.to_vec(),
+    ] {
+        let mut entries = entries(&package());
+        replace_member_consistently(&mut entries, 3, replacement);
+        let refused = refusal(&zip(&entries));
+        assert!(
+            refused.to_string().contains("DEL-08-02 audit manifest"),
+            "{refused}"
+        );
+    }
+}
+
+#[test]
+fn result_export_member_must_name_its_envelope() {
+    let mut entries = entries(&package());
+    let mut document: Value = serde_json::from_slice(&entries[4].data).unwrap();
+    document["result_envelope"]["envelope_id"] = json!("another-envelope");
+    replace_member_consistently(&mut entries, 4, canonical_json(&document).into_bytes());
+    assert!(refusal(&zip(&entries))
+        .to_string()
+        .contains("does not name its result envelope"));
+
+    let mut entries = self::entries(&package());
+    replace_member_consistently(&mut entries, 4, b"null".to_vec());
+    assert!(refusal(&zip(&entries))
+        .to_string()
+        .contains("DEL-08-04 result export"));
+}
+
+#[test]
+fn unblocked_section_member_must_be_a_del_08_06_envelope() {
+    for edit in [
+        json!({"deliverable_id": "DEL-99-99"}),
+        json!({"diagnostics": [{"severity": "blocking", "code": "INVENTED"}]}),
+    ] {
+        let mut entries = entries(&package());
+        let mut document: Value = serde_json::from_slice(&entries[5].data).unwrap();
+        for (key, value) in edit.as_object().unwrap() {
+            document[key] = value.clone();
+        }
+        replace_member_consistently(&mut entries, 5, canonical_json(&document).into_bytes());
+        let refused = refusal(&zip(&entries));
+        assert!(
+            refused.to_string().contains("must be a DEL-08-06 envelope"),
+            "{refused}"
+        );
+    }
+}
+
+#[test]
+fn blocked_package_with_a_wrong_section_envelope_still_reads() {
+    let mut fixture = Fixture::new();
+    fixture.sections_records = vec![json!({
+        "deliverable_id": "DEL-99-99",
+        "section_set_id": "invented-wrong-envelope"
+    })];
+    let outcome = assemble_report_package_container(&fixture.input());
+    assert!(outcome.export_blocked);
+    let read = read_report_package_container(&outcome.container_bytes).expect("reads");
+    assert!(read.export_blocked);
+    assert_eq!(read.members, outcome.members);
+}
+
+fn nested_record(depth: usize) -> Value {
+    // The record object is one level; the extension array chain supplies the rest.
+    let mut value = json!([]);
+    for _ in 2..depth {
+        value = json!([value]);
+    }
+    let mut record = invented_sections_record();
+    record["extension"] = value;
+    record
+}
+
+#[test]
+fn member_nesting_limit_is_what_the_reader_can_parse() {
+    let text = |depth: usize| "[".repeat(depth) + &"]".repeat(depth);
+    assert!(serde_json::from_str::<Value>(&text(MAX_MEMBER_JSON_NESTING)).is_ok());
+    assert!(serde_json::from_str::<Value>(&text(MAX_MEMBER_JSON_NESTING + 1)).is_err());
+}
+
+#[test]
+fn deepest_supported_section_record_round_trips() {
+    let mut fixture = Fixture::new();
+    fixture.sections_records = vec![nested_record(MAX_MEMBER_JSON_NESTING)];
+    let outcome = assemble_report_package_container(&fixture.input());
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let read = read_report_package_container(&outcome.container_bytes).expect("reads");
+    assert_eq!(read.members, outcome.members);
+}
+
+#[test]
+fn deeper_section_record_blocks_the_package() {
+    let mut fixture = Fixture::new();
+    fixture.sections_records = vec![nested_record(MAX_MEMBER_JSON_NESTING + 1)];
+    let outcome = assemble_report_package_container(&fixture.input());
+    assert!(outcome.export_blocked);
+    assert!(outcome
+        .blocking_reasons
+        .iter()
+        .any(|reason| reason.contains("outside the package form")));
+    // The reader refuses it rather than returning a partial package.
+    assert!(read_report_package_container(&outcome.container_bytes).is_err());
 }
