@@ -122,7 +122,8 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
 /** Every current-record route (Python's `CURRENT_RECORD_CONTRACT_IDS`). B7b: pressure-2 has a
  * record, as Python builds it: the ordinary exact route, with or without the
  * load/reference-state group, carrying neither contract_evidence nor source_block_recovery.
- * Holding a record grants no output: every output surface still refuses pressure-2 by name. */
+ * Holding a record grants no output by itself: each output surface applies its own policy
+ * entry and Rust's standing (epoch 8, DEL-04-07 Design `desktop-exact-outputs.md`). */
 type V03Route = "pressure" | "pressure_source" | "preview_physics" | "retained_preview_physics" | "retained_physics";
 async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   // Preview-evidence check: a preview-physics-2 source is recorded only after its closed reader checks pass.

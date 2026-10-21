@@ -1,5 +1,4 @@
 import { sourceContract } from "../results/resultReader";
-import { surfaceRouteRefusal } from "../results/outputPolicy";
 import { isFreshSemanticResult, N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
@@ -20,15 +19,14 @@ import { semanticLabels } from "../results/resultSemantics";
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 
-/** T0R: the report package refuses every fresh identity until T6 (N-REPORT). The
- * method-specific reasons stay first: B7b retired the v2 ones (physics-1,
- * physics-source-1) with their identities, and the exact routes (pressure-2 and the
- * composite pressure-source-1, which also carry load/reference-state results) refuse
- * with their output-policy reason, as every other surface does. */
+/** T0R: the report package refuses every fresh identity until T6 (N-REPORT). B7b
+ * retired the v2 method-specific reasons (physics-1, physics-source-1) with their
+ * identities. Since epoch 8 the exact routes, pressure-2 and pressure-source-1 (with or
+ * without load/reference states), are fresh and take this same refusal (DEL-04-07 Design
+ * `desktop-exact-outputs.md` §4.5); their output-policy entry records the decision. */
 export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
   if (!result) return null;
   const route = sourceContract(result);
-  if (route === "pressure" || route === "pressure_source") return surfaceRouteRefusal(result, "report-package");
   if (route === "preview_physics" || isFreshSemanticResult(result)) return `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
   return null;
 }

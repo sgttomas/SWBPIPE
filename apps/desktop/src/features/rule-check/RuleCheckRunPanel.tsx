@@ -1,3 +1,4 @@
+import { LoadReferenceDisclosure } from "../results/loadReferenceDisclosure";
 import { QuantityReadout, useDisplayQuantity } from "../display-units";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ListChecks, Play, ShieldAlert } from "lucide-react";
@@ -74,6 +75,8 @@ export type RuleCheckRunBasis = Readonly<{
 type RunPresentation = Readonly<{
   basisKey: string;
   result: RuleCheckRunResult;
+  // Epoch 8 (design §4.4): the service's disclosure line, cleared with the result.
+  loadReferenceDisclosure: string | null;
 }>;
 
 type ScopedRequest = Readonly<{
@@ -389,6 +392,7 @@ export function RuleCheckRunPanel({
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const [inFlight, setInFlight] = useState(false);
   const runResult = runPresentation?.basisKey === basisKey ? runPresentation.result : null;
+  const runLoadReferenceDisclosure = runPresentation?.basisKey === basisKey ? runPresentation.loadReferenceDisclosure : null;
 
   const projectId = model?.project.id ?? null;
   const parsed = useMemo(() => parsePack(packText), [packText]);
@@ -678,7 +682,7 @@ export function RuleCheckRunPanel({
         setActionStatus(route.diagnostic);
         return;
       }
-      setRunPresentation({ basisKey: requestBasisKey, result: route.result });
+      setRunPresentation({ basisKey: requestBasisKey, result: route.result, loadReferenceDisclosure: route.loadReferenceDisclosure ?? null });
       // Lift the worst-of aggregate so the app can record it in the app-held
       // analysis-run envelope (TP-C4-APPAGG-001).
       onAggregateChange?.(route.result.aggregate_status);
@@ -1003,6 +1007,7 @@ export function RuleCheckRunPanel({
         <small data-testid="rule-check-run-status">{actionStatus}</small>
       </div>
 
+      {runResult ? <LoadReferenceDisclosure text={runLoadReferenceDisclosure} surface="rule-check" testIdPrefix="rule-check-run" /> : null}
       {runResult ? (
         <div className="report-list" data-testid="rule-check-run-result">
           <div

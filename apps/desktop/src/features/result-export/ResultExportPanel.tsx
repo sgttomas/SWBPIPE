@@ -5,6 +5,7 @@ import { hasCurrentSourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { surfaceOutputRefusal } from "../results/outputPolicy";
 import { retainedPrecisionSummaryLine } from "../results/retainedPrecisionDisclosure";
+import { LoadReferenceDisclosure, loadReferenceDisclosure } from "../results/loadReferenceDisclosure";
 import { useEffect, useState } from "react";
 import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -14,8 +15,9 @@ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, Previ
 function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
   try {
     // T6S-3 (RR decision 2): an explicit gate on this surface's entry in the output
-    // policy. Load/reference-state results refuse; a retained-precision successor is
-    // admitted only at numerically eligible standing with the live native capture.
+    // policy. A retained-precision successor is admitted only at numerically eligible
+    // standing with the live native capture; epoch 8's exact routes, load/reference-state
+    // results included, add no policy refusal and take Rust's standing below.
     if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || surfaceOutputRefusal(result, model, "result-export") !== null
       || !hasNativeMechanicsInvocation(result, model, inputManifest.manifest.solver_basis.solver_mode)
       || !numericalResultStanding(result, model).eligible) return null;
@@ -42,6 +44,8 @@ export function ResultExportPanel({
   const [publicationFingerprint, setPublicationFingerprint] = useState<string|null>(null);
   const retainedSummary = retainedPrecisionSummaryLine(result, model);
   const currentFingerprint = liveResultBinding(model, result, analysisRun, inputManifest);
+  // Epoch 8 (design §5.4): shown only while the live binding admits the result.
+  const loadReferenceLine = currentFingerprint !== null ? loadReferenceDisclosure(result, "result-export") : null;
   const currentPacket = binding?.[0]===model && binding?.[1]===result && binding?.[2]===analysisRun && binding?.[3]===inputManifest
     && currentFingerprint !== null && currentFingerprint === publicationFingerprint ? packet : null;
   useEffect(()=>{let active=true;setPacket(null);setFinding(null);setBinding(null);setPublicationFingerprint(null);
@@ -57,6 +61,7 @@ export function ResultExportPanel({
       </div>
       <KnownSemanticNotices result={result} testIdPrefix="result-export" />
       {retainedSummary ? <p className="muted" data-testid="result-export-retained-precision-summary">{retainedSummary}</p> : null}
+      <LoadReferenceDisclosure text={loadReferenceLine} surface="result-export" />
       {currentPacket ? (
         <>
           <div className="report-actions" onClickCapture={(event) => {

@@ -52,13 +52,19 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   // T6S-4 (D-U6-2; Rust `retained_row_classes`): the successor's validated classes, from the
   // accepted reader run on these bytes without an invocation; null for every other identity.
   const classes=await retainedRowClassesFromReader(source);
-  // B7b: the exact routes (pressure-2, pressure-source-1) are refused above by the
-  // surface policy; the retired v2 arms (physics-1, physics-source-1) went with v2.
+  // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.2): the exact routes read
+  // the full Rust reader, as Rust's `derive_document` does: pressure-2 with the model,
+  // pressure-source-1 through its raw reader without an invocation (never the shallow
+  // source-recovery check). The retired v2 arms went with v2.
   if(route==='preview_physics')readerValidate('preview-physics',source,model);
+  else if(route==='pressure')readerValidate('pressure',source,model);
+  else if(route==='pressure_source')readerValidate('pressure-source',source);
   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;
   e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',sourceSemanticBinding(source).id);
   if(Object.hasOwn(e,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
-  if(route==='preview_physics'||isRetainedRoute(route))e.contract_evidence=structuredClone(source.contract_evidence);
+  // b7-plan MJ8: pressure-source-1's received receipt travels whole, as in Rust's derivative.
+  if(route==='pressure_source')e.source_block_recovery=structuredClone(source.source_block_recovery);
+  if(route==='preview_physics'||route==='pressure'||route==='pressure_source'||isRetainedRoute(route))e.contract_evidence=structuredClone(source.contract_evidence);
   else if(Object.hasOwn(e,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   // D2 4.9.7: the successor's receipt travels with the document, whole. A receipt on any
   // other identity's document is refused by the validation that ends this function.
@@ -123,8 +129,17 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   else if(Object.hasOwn(doc.result_envelope,'retained_precision'))throw new Error(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
   if(resultSchemaVersion(doc)!==RESULT_EXPORT_VERSION)throw new Error("DERIVATIVE_VERSION_MISMATCH");
   for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');
-  if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
-  if(route==='preview_physics'||isRetainedRoute(route)){if(route==='preview_physics')readerValidate('preview-physics',source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
+  // Epoch 8 (Rust `validate_document`): pressure-source-1's receipt equals the source's,
+  // whole; a pressure-2 document carries none (Rust's downgrade code); any other
+  // identity's keeps the desktop's existing code.
+  if(route==='pressure_source'){if(!Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH');requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH');}
+  else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error(route==='pressure'?'SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN':'SOURCE_RECOVERY_METADATA_CONTRADICTION');
+  if(route==='preview_physics'||route==='pressure'||route==='pressure_source'||isRetainedRoute(route)){
+    if(route==='preview_physics')readerValidate('preview-physics',source);
+    else if(route==='pressure')readerValidate('pressure',source);
+    else if(route==='pressure_source')readerValidate('pressure-source',source);
+    requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');
+  }
   else if(Object.hasOwn(doc.result_envelope,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   const e=doc.result_envelope,accounts=e.row_accounting,annotations=e.source_annotations,witnesses=e.unit_preservation_witnesses;
   if(!Array.isArray(accounts)||!Array.isArray(annotations)||accounts.length!==source.results.length||annotations.length!==source.results.length)throw new Error("ROW_ACCOUNTING_CARDINALITY");
@@ -188,9 +203,10 @@ export function currentResultDocumentBase(model:PreviewModel,result:MechanicsRes
 }
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);
-  // T1: not yet available on the desktop for load/reference-state results (T6).
   // T6S-3: this surface's policy entry; a retained-precision successor is admitted only at
-  // numerically eligible standing with the live native capture.
+  // numerically eligible standing with the live native capture. Epoch 8: the exact routes
+  // (load/reference-state results included) add no policy refusal here; the standing
+  // check below takes Rust's verdict for them.
   refuseSurfaceOutput(result,model,'result-export');
   if(!numericalResultStanding(result,model).eligible)throw new Error('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
   if(!isFreshSemanticResult(result))throw new Error('CURRENT_SOURCE_IDENTITY_NOT_FRESH');

@@ -1,3 +1,5 @@
+import { LoadReferenceDisclosure, loadReferenceDisclosure } from "../results/loadReferenceDisclosure";
+import { surfaceRouteRefusal } from "../results/outputPolicy";
 import { Download, ShieldAlert } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
@@ -43,6 +45,9 @@ type RuleCompletenessUnitPolicyEvidence = {
 
 export function RuleCheckPanel({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
   const review = buildRuleCompletenessReview({ model, result });
+  // Epoch 8 (design §5.4): this panel receives only the Current result, which is
+  // eligible; the line shows only where the gate admits it.
+  const loadReferenceLine = surfaceRouteRefusal(result, "rule-check") === null ? loadReferenceDisclosure(result, "rule-check") : null;
 
   return (
     <section className="panel rule-check-panel" aria-label="Rule-check completeness" data-testid="rule-check-panel">
@@ -50,6 +55,7 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
         <ShieldAlert size={16} aria-hidden="true" />
         Rule-Check Completeness
       </div>
+      <LoadReferenceDisclosure text={loadReferenceLine} surface="rule-check" />
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="rule-check">
         <ControlledExportLink
