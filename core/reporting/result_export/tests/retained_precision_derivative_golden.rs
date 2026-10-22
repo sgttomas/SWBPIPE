@@ -60,8 +60,8 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "f3720632f600a38283dfe470d52a09d167a161d8eaa44d48b78e14299e974d14"),
-    ("dense_scrutiny", "96c35fe4e87ba92f31c8aee852da41a94ea0057812286363b560b393a43e4309"),
+    ("sparse_interactive", "2d2fe1dfa317d598d98c21261b810e8e7a14b02da0c628518f26bf291eae4f9c"),
+    ("dense_scrutiny", "ff10e67066dd4053d250e2da45635caea532065e1e36f7dd762dd69d676b072a"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15
@@ -90,8 +90,8 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "8268f2e2feb44ea0d2bb70a41eb0bfc83509952305ef328d7eca09af234937a5"),
-    ("dense_scrutiny", "b439cedefc9adcaddf5d338bd38885b4de36eccc8a5b520c6be260ba0eda2660"),
+    ("sparse_interactive", "92129c0ca7f6a141897b1d50ef11f8255926fd0033555fd6b22c1421a7ba38ee"),
+    ("dense_scrutiny", "e3c7e252402bf1cb91ef19b90d06f56fac7bf1a220773eeaad8a60c50de722d4"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21
@@ -149,17 +149,34 @@ const ORIGIN_LIMIT: &str = "Test-built desktop-shaped origin (T6S golden): pinne
 fn derivative_provenance() -> Value {
     json!({"source_name":"local qualified result derivative","source_location":"apps/desktop/src/features/result-export/resultExportAdapter.ts","source_license":"project-local","contributor":"SWBPIPE","contributor_certification":"local desktop session; human review required","redistribution_status":"private_only","review_status":"pending"})
 }
-/// The builder's diagnostic mapping (`result.diagnostics.map(...)`).
-fn desktop_diagnostic(x: &Value, model_ref: &Value) -> Value {
-    let or = |v: &Value, fallback: Value| if v.is_null() { fallback } else { v.clone() };
+/// The builder's diagnostic mapping (`documentDiagnostic`): Rust's own
+/// (`core/runner/headless/src/result_envelope_binding.rs`, `export_mechanics_diagnostic`)
+/// with the desktop derivative's provenance.
+fn desktop_diagnostic(x: &Value) -> Value {
+    let code = x["code"].as_str().unwrap();
+    let severity = x["severity"].as_str().unwrap();
+    let class = if code.contains("RULE") {
+        if severity == "blocking" { "RULE_CHECK_BLOCKING" } else { "ASSUMPTION_WARNING" }
+    } else if code.contains("UNIT") {
+        "UNIT_WARNING"
+    } else if code.contains("PROVENANCE") {
+        "PROVENANCE_WARNING"
+    } else if severity != "info" && severity != "warning" {
+        "SOLVE_BLOCKING"
+    } else if code.starts_with("NONLINEAR") {
+        "NONLINEAR_WARNING"
+    } else {
+        "ASSUMPTION_WARNING"
+    };
+    let source = if x["source"].is_null() { json!("core/product_physics") } else { x["source"].clone() };
     json!({
         "code": x["code"],
-        "class": "ASSUMPTION_WARNING",
-        "severity": if x["severity"] == "error" { json!("blocking") } else { x["severity"].clone() },
-        "source": {"ref_type":"source","ref_id":or(&x["source"], json!("local_preview"))},
-        "affected_object": {"ref_type":"preview_entity","ref_id":or(&x["affected_refs"][0], model_ref.clone())},
+        "class": class,
+        "severity": if severity == "info" || severity == "warning" { json!(severity) } else { json!("blocking") },
+        "source": {"ref_type":"solver_component","ref_id":source},
+        "affected_object": {"ref_type":"preview_diagnostic","ref_id":x["id"].as_str().expect("a source diagnostic carries its id")},
         "message": x["message"],
-        "remediation": "Review source model and preview limitations.",
+        "remediation": "Review the carried solve diagnostic before relying on this exported result envelope.",
         "provenance": derivative_provenance(),
     })
 }
@@ -194,7 +211,7 @@ fn desktop_base(source: &Value, model: &Value) -> Value {
         .as_array()
         .unwrap()
         .iter()
-        .map(|x| desktop_diagnostic(x, &source["model_ref"]))
+        .map(desktop_diagnostic)
         .collect();
     json!({
         "schema_version": s::RESULT_EXPORT_VERSION,
