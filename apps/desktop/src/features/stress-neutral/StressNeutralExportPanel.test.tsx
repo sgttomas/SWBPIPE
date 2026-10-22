@@ -118,7 +118,7 @@ it('does not publish a delayed packet after its source result is replaced',async
  const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
  const expected=await buildStressNeutralExportPacket(second);
  const original=crypto.subtle.digest.bind(crypto.subtle);let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});let calls=0;
- let firstHeld!:()=>void;const held=new Promise<void>(resolve=>{firstHeld=resolve;});
+ let firstHeld!:()=>void;const held=new Promise<void>((resolve,reject)=>{firstHeld=resolve;onTestFinished(()=>reject(new Error('the first build never reached its first digest')));});
  vi.spyOn(crypto.subtle,'digest').mockImplementation(async (algorithm:any,data:any)=>{calls+=1;if(calls===1){firstHeld();await gate;}return original(algorithm,data);});
  // The first build reaches its first digest (and is held there) after its own work, so this
  // wait, too, ends on the event rather than a 1 s deadline.
