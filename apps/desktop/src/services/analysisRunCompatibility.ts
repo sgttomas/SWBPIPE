@@ -252,11 +252,15 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (await verifyAnalysisRunRecord(record) !== "match") throw new Error("ANALYSIS_RECORD_CHECKSUM_MISMATCH");
 }
 
-/** Portable statement checks only; private native/method standing stays separate. */
+/** A pressure-source-1 source is recorded, and a saved record revalidated, only after
+ * Rust's full raw reader passes (no invocation), as Python's `_source_contract` reads it
+ * (DEL-14-02: a refused source is never recorded). The shallow `source-recovery` check
+ * omits raw rows, so a coherently resealed invalid source would pass it. Standing and
+ * eligibility stay separate. */
 export async function validateRetainedRecoverySource(source: MechanicsResult): Promise<void> {
   const route = sourceContract(source);
   if (route !== "pressure_source") throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
-  try { readerValidate("source-recovery", source); }
+  try { readerValidate("pressure-source", source); }
   catch (error) {
     // The record/export surfaces keep their refusal vocabulary over Rust's verdict.
     if (error instanceof ResultReaderError) {

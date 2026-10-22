@@ -265,8 +265,9 @@ describe("current pressure-source record wrapper", () => {
     expect(record.analysis_run.source_block_recovery).not.toBe(source.source_block_recovery);
     expect(record.analysis_run.contract_evidence).toEqual(source.contract_evidence);
     expect(record.analysis_run.contract_evidence).not.toBe(source.contract_evidence);
-    expect(seam.reads.some(read => read.kind === "validate" && read.reader === "source-recovery")).toBe(true);
-    expect(seam.reads.filter(read => read.kind === "validate").every(read => read.reader === "source-recovery" && read.invocationText === undefined)).toBe(true);
+    // DEL-14-02: the record reads the full raw reader without an invocation, as Python's does.
+    expect(seam.reads.some(read => read.kind === "validate" && read.reader === "pressure-source")).toBe(true);
+    expect(seam.reads.filter(read => read.kind === "validate").every(read => read.reader === "pressure-source" && read.invocationText === undefined)).toBe(true);
     expect(retainedSourceRecoveryInvocation(source, model)).toBeNull();
     expect(numericalResultStanding(source, model).eligible).toBe(false);
     expect(await verifyAnalysisRunRecord(record)).toBe("match");

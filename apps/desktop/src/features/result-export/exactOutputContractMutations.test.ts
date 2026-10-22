@@ -13,7 +13,7 @@ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../t
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
-import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResultQuality";
 import { readerValidate, sourceContract } from "../results/resultReader";
 import { validateStressNeutralExportPacket } from "../stress-neutral/StressNeutralExportPanel";
@@ -152,10 +152,11 @@ describe.each(MODES)("%s: contract mutations of the exact identities' outputs ar
     await expect(deriveResultDocument(base, model, mutated, origin)).rejects.toThrow("SOURCE_COMPONENT_CONTRADICTION: support_reaction_component_v2");
     const doc = structuredClone(document); doc.result_envelope.source_block_recovery = structuredClone(mutated.source_block_recovery);
     await expect(validateResultDocument(await resealDocument(doc), mutated)).rejects.toThrow("SOURCE_COMPONENT_CONTRADICTION: support_reaction_component_v2");
-    // The package validator, with the committed record: the record binds the committed
-    // receipt. (A package made coherent with this source: the test below.)
+    // The package validator, with the committed record: the record validator reads the
+    // source through the full reader (DEL-14-02) before it compares the committed receipt.
+    // (A package made coherent with this source: the test below.)
     const pkg = structuredClone(packet); pkg.source_block_recovery = structuredClone(mutated.source_block_recovery);
-    await expect(validateStressNeutralExportPacket(await resealPacket(pkg), mutated, record)).rejects.toThrow("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
+    await expect(validateStressNeutralExportPacket(await resealPacket(pkg), mutated, record)).rejects.toThrow("SOURCE_COMPONENT_CONTRADICTION: support_reaction_component_v2");
   }, 60_000);
   it("pressure-source-1: a coherent package of a coherently resealed source that the full reader refuses is refused by the package validator (design §3)", async () => {
     const { raw, model, packet, record } = twins(IDENTITIES[1], mode);
@@ -187,11 +188,14 @@ describe.each(MODES)("%s: contract mutations of the exact identities' outputs ar
     pkg.source_carrier_checksum.value = carrier;
     pkg.source_block_recovery = structuredClone(mutated.source_block_recovery);
     await resealPacket(pkg);
-    // A record built from the mutated source (its builder reads the shallow check only).
+    // The 0.3 record builder reads the full reader too (DEL-14-02), so it refuses this source.
     const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-coherent-reseal" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: mutated.model_ref, model_payload: model }, solver_basis: { solver_name: mutated.producer.component_name, solver_version: mutated.producer.component_version, solver_build_ref: "test:coherent-reseal", solver_mode: mode[0] } } };
-    const mutatedRecord = await buildAnalysisRunV03(mutated, manifest as Json, undefined, modelLoadBasisRefs(model));
+    await expect(buildAnalysisRunV03(mutated, manifest as Json, undefined, modelLoadBasisRefs(model))).rejects.toThrow("SOURCE_BLOCKS_PROJECTION_VALUE_BINDING");
+    // Its validator, reopening the committed record against this source, refuses it the same way.
+    await expect(validateAnalysisRunV03(record, mutated, modelLoadBasisRefs(model))).rejects.toThrow("SOURCE_BLOCKS_PROJECTION_VALUE_BINDING");
     await expect(validateStressNeutralExportPacket(structuredClone(pkg), mutated)).rejects.toThrow("SOURCE_BLOCKS_PROJECTION_VALUE_BINDING");
-    await expect(validateStressNeutralExportPacket(structuredClone(pkg), mutated, mutatedRecord, modelLoadBasisRefs(model))).rejects.toThrow("SOURCE_BLOCKS_PROJECTION_VALUE_BINDING");
+    // With the committed record, which the record validator now reads through the full reader.
+    await expect(validateStressNeutralExportPacket(structuredClone(pkg), mutated, record, modelLoadBasisRefs(model))).rejects.toThrow("SOURCE_BLOCKS_PROJECTION_VALUE_BINDING");
     // The unmutated package still validates, with its source alone and with its record.
     await expect(validateStressNeutralExportPacket(structuredClone(packet), raw)).resolves.toBeUndefined();
     await expect(validateStressNeutralExportPacket(structuredClone(packet), raw, record, modelLoadBasisRefs(model))).resolves.toBeUndefined();
