@@ -84,7 +84,7 @@ A selected case is finalized in `FinalizedSourceBlockCase::composite_exact` (PP 
 3. **Binding check against the live input.** `check_binding_against` (`source_recovery.rs:317–335`, called at `composite.rs:773`) runs `prepare_sources` on the live input and `check_binding_with_budget`. A failure reads "composite current source: …".
 4. **Row binding and publication.** `rows::expected_primary_for`, the derived checks, endpoint maxima and receipt hashing. Each published row is bound to its retained projection by value bits, relative limit and interval (`source_receipt/rows.rs:243–270`).
 
-Any error in 2–4 makes the case push the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` (`lib.rs:6618–6631`). On 0.4 a failed join republishes the invocation ordinarily (SF-1R, `record_load_state_join_failure`). On pre-0.4 the envelope is the blocked envelope with no result rows (R-A design §1).
+Any error in 2–4 makes the case push the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` (`lib.rs:6618–6631`). On 0.4 a failed join republishes the invocation ordinarily (SF-1R, `record_load_state_join_failure`). On pre-0.4 the envelope was the blocked envelope with no result rows (R-A design §1); since [pre04-failure-unification.md](pre04-failure-unification.md) both routes screen selection and republish ordinarily.
 
 On the 0.4 path only, selection is screened by `reserve_captured_replay` (`source_recovery.rs:268–281`, `lib.rs:4991–5011`). The screen requires the live charge to be at most the limit less itself, because "captured replay repeats the live attempt's source closure and exact solve in the same ledger". The pre-0.4 path has no screen (RF §2.9; RF-14 `pre04_selection_takes_no_replay_screen`).
 
@@ -531,6 +531,8 @@ These are reserved for the owner and routed through Agent 0. Each is presented w
 Decision 22, G10, B8 and release are untouched.
 
 ## 7. The next unit: pre-0.4 route failure unification
+
+*Taken up in [pre04-failure-unification.md](pre04-failure-unification.md) (owner, 2026-10-21, "16 start now."; text approved 2026-10-22, decision 17).*
 
 b7-plan orders "Pre-0.4 route failure unification" after this ruling, "since both change finalization". The ruling decides the unit's inputs.
 

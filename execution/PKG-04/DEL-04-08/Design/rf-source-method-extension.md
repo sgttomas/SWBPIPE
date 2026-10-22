@@ -225,11 +225,9 @@ The order cap rises from 2 to 4 on the functional entry only. That is the commis
 
 ### 2.9 Publication and the receipt replay
 
-**No new rule.** The publication paths stay as they are:
-- On the 0.4 route, the existing replay screen (`SelectedSourceRecovery::reserve_captured_replay`: charged ≤ limit − charged) runs before selection, and a join that still cannot finalize republishes ordinarily (ROOT CP3 SF-1R).
-- On the pre-0.4 route, a selected case is replayed on its own ledger before publication. If finalization fails, the envelope gets the pre-0.4 path's named refusal, the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`. DEL-04-07 `pressure-contract.md` records "the pre-0.4 path retains its named refusal", and `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback` pins it.
+**The rule (as revised by [pre04-failure-unification.md](pre04-failure-unification.md), 2026-10-22).** RF added no publication rule; the pre-0.4 unification unit later made the two routes one. Both routes now screen selection with the captured replay's reservation (`SelectedSourceRecovery::reserve_captured_replay`: charged ≤ limit − charged). A selected source that still cannot finalize republishes the invocation with every case on its ordinary route (ROOT CP3 SF-1R, extended to pre-0.4 and the Direct entry). Every selected case is still replayed on its own ledger before publication. As built here, the pre-0.4 route had neither the screen nor the republication: a failed finalization published the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` (a blocked envelope, or a run-level `Err` for an invocation receipt), pinned then by `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback`.
 
-Extending the screen to the pre-0.4 route would change that recorded behaviour. Every new selection fits within 8,000,000 including replay. The actual public path establishes both separate reservations (b7-plan D5/MJ9), with E the encoded request's bytes:
+Every new selection fits within 8,000,000 including replay. The actual public path establishes both separate reservations (b7-plan D5/MJ9), with E the encoded request's bytes:
 
 | PIN-OFF-345 ratio / mode | Case reservation 24E + F_k / available at finalization entry | Final case charge | Publication reservation 24E + P | Final invocation charge |
 |---|---|---|---|---|
@@ -238,7 +236,7 @@ Extending the screen to the pre-0.4 route would change that recorded behaviour. 
 | 1e-12 sparse | 379,988 / 5,219,032 | 5,986,295 | 258,884 | 6,245,179 |
 | 1e-12 dense | 379,988 / 5,219,032 | 5,986,295 | 259,196 | 6,245,491 |
 
-Finalization entry charges are 2,903,846 and 2,780,968 respectively. Both case ledgers fit 8,000,000, and each composite reservation fits the invocation's 64,000,000 through `reserve_publication`. These measurements include the implemented source binding, retained copies and publication stages, unlike the prototype's direct-method shortcut. The named pre-0.4 refusal and its tests remain.
+Finalization entry charges are 2,903,846 and 2,780,968 respectively. Both case ledgers fit 8,000,000, and each composite reservation fits the invocation's 64,000,000 through `reserve_publication`. These measurements include the implemented source binding, retained copies and publication stages, unlike the prototype's direct-method shortcut. The unification unit measured every such selection inside the screen (its §3).
 
 ## 3. Non-axis-aligned member transforms
 
@@ -407,7 +405,7 @@ The argument rests on structure. The census is its control.
 
    That outcome **fails closed**, with no reference, criterion or limit touched, in one of two ways:
    - a typed `Budget` decline and an ordinary publication;
-   - or, when the shared invocation ledger runs short at the composite's publication reservation (`reserve_publication`), the existing pre-0.4 blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` refusal. The 0.4 route republishes ordinarily in that case. No committed suite exhibits it. The census runs single-case invocations, and the strict-gap endings are identical under both rules (5.5). Section 6's statement that no previously selected case loses selection is measured on those single-case invocations.
+   - or, when the shared invocation ledger runs short at the composite's publication reservation (`reserve_publication`), an ordinary republication of the invocation on either route ([pre04-failure-unification.md](pre04-failure-unification.md); before that unit the pre-0.4 route published the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` refusal here). No committed suite exhibits it. The census runs single-case invocations, and the strict-gap endings are identical under both rules (5.5). Section 6's statement that no previously selected case loses selection is measured on those single-case invocations.
 
 ### 5.3 The per-pair constant
 
@@ -584,7 +582,7 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 | RF-12 | Formation-determinism check skipped | `congruence_closure_refuses_a_changed_rounded_contribution` |
 | RF-13 | Unit precheck skipped | `congruence_unit_precheck_declines_before_descriptor_construction` |
 | RF-13b | Unit precheck undercounts (D3's memory bound depends on it) | `congruence_unit_precheck_equals_descriptors_charge` (the precheck's count equals `descriptors_charge`'s count of the built descriptors, for every congruence census case and constructed models of 1 to 5 members) |
-| RF-14 | Pre-0.4 publication behaviour changed (for example a replay screen added) | `pre04_selection_takes_no_replay_screen`: a pre-0.4 selection run through `run_linear_static_preview_captured` with a private `SourceRecoveryBudget { per_case_limit }` set between its selection charge c and 2c (the hook the 0.4 fallback tests use). It is not declined at "captured replay reservation": it selects, then finalizes or takes the named refusal. The existing `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback` stays as well |
+| RF-14 | The routes' selection or failure behaviour diverge (a screen or a republication missing on either route); restated by [pre04-failure-unification.md](pre04-failure-unification.md) §7, which removed the asymmetry this row first pinned | `pre04_selection_takes_the_replay_screen`: a pre-0.4 selection run through `run_linear_static_preview_captured` with a private `SourceRecoveryBudget { per_case_limit }`. Between c and 2c it is declined at "captured replay reservation" and the invocation publishes ordinarily; at a limit that passes the screen but cannot fit finalization, it selects and the invocation republishes with the case's cause. `a_pre04_composite_finalization_failure_republishes_ordinarily` replaces the earlier pin of the pre-0.4 refusal |
 | RF-15 | Producer keeps `b.len() > 2` | `order_four_selection_publishes_a_pressure_source_receipt` (J2's order-4 base publishes, and Rust and Python read it) |
 | RF-16 | Reader or verifier keeps `block_order > 2` | J2's `block_order` 3 and 4 mutations (Rust and Python) |
 | RF-17 | Congruence case published with level `…represented_contributions` | `congruence_receipt_declares_declared_member_congruence` |
@@ -700,7 +698,7 @@ The design probes' measurements (section 1.1) were taken on `dff1ff2a08` and hol
 **Decided in this design**, for the independent review (section 12) to check:
 - the exact source of a non-axis-aligned member is its exact congruence (3.1);
 - the order cap is scoped per entry (2.1);
-- no new publication rule; the pre-0.4 path keeps its named refusal (2.9);
+- no new publication rule; the pre-0.4 path kept its named refusal (2.9), until [pre04-failure-unification.md](pre04-failure-unification.md) unified the two routes;
 - the receipt states the source basis through `level`, and no table changes (7);
 - a stored receipt recording an order-3 or 4 block refusal is no longer readable and is re-run, under the owner's one-current-version direction (7).
 

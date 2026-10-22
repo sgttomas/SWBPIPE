@@ -26,7 +26,9 @@ needs:
     capture. An admission refusal returns the unchanged ordinary route. A later stage fault returns
     the ordinary bytes, with one `RETAINED_PRECISION_UNAVAILABLE` notice where retained work ran. Its
     ordinary exact route attempts retained-source recovery for eligible captured cases whose ordinary
-    report is Sensitive or whose ordinary attempt errs. Its memory-budget
+    report is Sensitive or whose ordinary attempt errs, screens each selection by the captured replay's
+    reservation, and republishes every case of a captured invocation on its ordinary route when a selected
+    source cannot finalize (Design `pre04-failure-unification.md`). Its memory-budget
     policy fixes the qualified per-invocation M = 12 GiB within the shared 75 % pool. Its desktop host
     keeps the non-retained entry, so retained-precision results reach no desktop solve until B8
     (owner-held).
