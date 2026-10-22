@@ -333,7 +333,7 @@ The registered checks are those in `software-workflow.json`.
   - The owner set the product's per-invocation M at up to 12 GiB on the 16 GiB base machine. Current qualification uses M = 12 GiB, with the 0.9 M margin, the 5 % TEXT reserve and the 64 MiB stack reservation, all unchanged. The owner also adopted a shared pool of 75 % of physical RAM (DEL-04-07 `Design/memory-budget-decision.md`).
   - Host testing may use up to 64 GiB. That figure is a test ceiling, not the product M.
   - Decision 22 keeps these for the owner: changes outside the 12 GiB base allowance and the shared 75 % pool policy, larger numerical domains, and risk acceptance.
-- **AX-004** — *Held by the owner:* B8 (retained-route activation on the desktop), the G10 interpretation, the frozen UI benchmark, the placement of the desktop-outputs unit, and release. This deliverable activates nothing.
+- **AX-004** — *Held by the owner:* B8 (retained-route activation on the desktop), the G10 interpretation, further changes to the frozen UI benchmark (re-pinned by the owner, 2026-10-22), and release. This deliverable activates nothing.
 - **AX-005** — *No relaxation.* A gate is never loosened to obtain a pass ("do not change the law to obtain a pass", W1 Design §11). A declined domain is stated as a limit, not approximated. A case that cannot be verified keeps its ordinary values and standing.
 - **AX-006** — *Independent scrutiny.* Numerical changes to this method need targeted regression checks and independent review by a separate agent (Root `AGENTS.md`). Frozen numerical references are never altered to make an implementation pass.
 - **AX-007** — *Terminology.*
