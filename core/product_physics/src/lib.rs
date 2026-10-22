@@ -984,8 +984,10 @@ impl SourceRecoveryBudget {
     /// The republication continues this same ledger (CP4 review N-2, ROOT's
     /// preference): every successful, failed, reserved and publication charge
     /// of the first run stays charged, so the whole captured invocation,
-    /// including its fallback, stays within the one invocation limit.
-    fn withholding_join(&self, cause: String) -> Self {
+    /// including its fallback, stays within the one invocation limit. Both
+    /// exact routes use it (pre-0.4 failure unification); the method keeps
+    /// its 0.4-era name, which the pricing tool's basis keys still name.
+    fn withholding_load_state_join(&self, cause: String) -> Self {
         Self {
             per_case_limit: self.per_case_limit,
             invocation_limit: self.invocation_limit,
@@ -998,7 +1000,9 @@ impl SourceRecoveryBudget {
             join_failure: self.join_failure.clone(),
         }
     }
-    fn record_join_failure(&mut self, cause: String) {
+    /// Records the first cause on both exact routes; the 0.4-era name is kept
+    /// because the S3 format line it heads is a pricing basis key.
+    fn record_load_state_join_failure(&mut self, cause: String) {
         self.join_failure.get_or_insert(cause);
     }
     fn case_limit(&self) -> usize { self.per_case_limit.min(self.invocation_limit.saturating_sub(self.charged)) }
@@ -2579,7 +2583,7 @@ fn republication(
     source_budget: &mut SourceRecoveryBudget,
     cause: String,
 ) -> MechanicsEnvelope {
-    let mut fallback = source_budget.withholding_join(cause);
+    let mut fallback = source_budget.withholding_load_state_join(cause);
     let envelope =
         run_linear_static_preview_captured_once(request, solver_mode, Some(capture), &mut fallback);
     *source_budget = fallback;
@@ -3123,7 +3127,7 @@ fn run_linear_static_preview_observed_inner(
             Ok(context) => Some(context),
             Err(error) => {
                 // S1 (pre-0.4 failure unification §2.1): recorded on both routes.
-                source_budget.record_join_failure(format!("captured source context: {}", error.0));
+                source_budget.record_load_state_join_failure(format!("captured source context: {}", error.0));
                 diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", error.0, vec![]));
                 return blocked_envelope(model, diagnostics);
             }
@@ -3183,7 +3187,7 @@ fn run_linear_static_preview_observed_inner(
                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
                 Err(error) => {
                     // S4: recorded on both routes.
-                    source_budget.record_join_failure(format!(
+                    source_budget.record_load_state_join_failure(format!(
                         "invocation receipt: {}",
                         error.0
                     ));
@@ -6718,7 +6722,7 @@ fn solve_prepared_load_case(
             Err(error) => {
                 if source_selected {
                     // S2 and S3: recorded on both routes.
-                    source_budget.record_join_failure(format!(
+                    source_budget.record_load_state_join_failure(format!(
                         "case {}: {}",
                         load_case.id, error.0
                     ));
