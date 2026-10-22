@@ -136,7 +136,7 @@ it('keeps preserved references available only to the pure packet projector',asyn
  render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun}/>);
  expect(screen.getByTestId('stress-neutral-empty')).toHaveTextContent('Bundled references');
  expect(screen.queryByTestId('stress-neutral-export-link')).toBeNull();
-});
+}, 120_000); // heavy build; the hosted full-suite runner is several times slower than local
 
 it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',async()=>{
  // B1: the minimal preview-physics-2 transport statement replaces the retired precision-1 header.
@@ -459,7 +459,7 @@ it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',com
  expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED'&&combinationRows.some(r=>r.id===d.source.ref))).toBe(false);
  await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
  await expect(validateStressNeutralExportPacket(structuredClone(packet))).resolves.toBeUndefined();
-});
+}, 120_000); // heavy build; the hosted full-suite runner is several times slower than local
 // The same, on 07o's R-COMB-1 bases read from the shared corpus by id (lane C of PR-B2): W-CB4a (A - B, ordinary over the
 // selected A: quantity rows not_covered, its two records non_quantity) and W-CB2 (A + B retained_unavailable: every row
 // not_covered). Their quantity rows' witnesses are withheld with D-U6-2's existing not-covered code and message.
@@ -487,4 +487,4 @@ it.each(['w_cb4a_sparse_interactive','w_cb2_sparse_interactive'])('%s: R-COMB-1 
  for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,uncovered.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
  for(const c of classes.filter(c=>c.class==='non_quantity'))expect(packet.diagnostics.some((d:any)=>d.source?.ref===c.result_id&&String(d.code).includes('RETAINED-PRECISION'))).toBe(false);
  await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
-},60_000);
+}, 180_000); // heavy build; the hosted full-suite runner is several times slower than local

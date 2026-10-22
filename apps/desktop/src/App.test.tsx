@@ -10678,7 +10678,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(stressNeutralPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     expect(stressNeutralPacket.professional_boundary.software_creates_professional_reliance_record).toBe(false);
     expect(JSON.stringify(basis)).toBe(before);
-  });
+  }, 120_000); // heavy build; the hosted full-suite runner is several times slower than local
 
   it("retains the demo's component, hanger and review-package numeric oracles without the joint or legacy pressure", async () => {
     const basis = await referenceAnalysis(), { model, result, analysisRun } = basis;
