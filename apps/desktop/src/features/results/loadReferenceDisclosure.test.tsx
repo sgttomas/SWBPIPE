@@ -79,6 +79,31 @@ describe("loadReferenceDisclosure(source, surface)", () => {
     expect(ids).toStrictEqual({ configurations: "reference:companion", cases: "case, case:ordinary-pressure", histories: "independent_equilibrium" });
     expect(loadReferenceDisclosure(source, "stress-neutral")).toBe(fill(N_LOAD_REFERENCE_PACKAGE, ids.configurations, ids.cases, ids.histories));
   });
+  it("shows identifiers verbatim whatever they contain ($&, $', $$, a literal {cases}); the expected line is built by concatenation", () => {
+    const source = structuredClone(receivedFixture<MechanicsResult>(`${PRESSURE_LR}/connected-sparse_interactive.raw.json`));
+    const records = (source.contract_evidence as Json).load_reference_states as Json[];
+    expect(records).toHaveLength(2);
+    // Invented identifiers carrying String.replace's special patterns and a template placeholder.
+    const configuration = "reference:$&-{cases}-$'";
+    records[0].reference_configuration_id = configuration;
+    records[1].reference_configuration_id = configuration;
+    records[0].load_case_id = "case:$$cold";
+    records[1].load_case_id = "case:{histories}$`";
+    expect(sourceContract(source)).toBe("pressure");
+    const included = "This result includes resolved load/reference states (reference configuration " + configuration
+      + "; load cases " + "case:$$cold" + ", " + "case:{histories}$`" + "; history " + "independent_equilibrium" + ").";
+    const expected: Record<LoadReferenceDisclosureSurface, string> = {
+      "result-export": included + " " + "The export carries them in contract_evidence.load_reference_states, with the producer's limitations.",
+      "stress-neutral": included + " " + "The package carries them in contract_evidence.load_reference_states, with the producer's limitations.",
+      "rule-check": included + " " + "Rules bind the published rows of these load cases, which are solved with these states' resolved contributions.",
+    };
+    for (const [surface] of SURFACES) {
+      const line = loadReferenceDisclosure(source, surface)!;
+      expect(line, surface).toBe(expected[surface]);
+      for (const identifier of [configuration, "case:$$cold", "case:{histories}$`"]) expect(line.split(identifier).length - 1, `${surface} ${identifier}`).toBe(1);
+      expect(line).not.toContain("{configurations}");
+    }
+  });
   it("reads only the published records and changes no byte", () => {
     const source = receivedFixture<MechanicsResult>(`${PRESSURE_LR}/connected-sparse_interactive.raw.json`);
     const before = JSON.stringify(source);

@@ -25,7 +25,7 @@
  * qualification witness. No digest is pinned. */
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
@@ -142,10 +142,19 @@ const DOCUMENT_ROW_ARRAYS = ["row_accounting", "review_evidence", "row_disclosur
  * only its origin-specific scope and payload reference. A row's `basis_ref` that falls
  * back to the document's own `run_ref` is compared as that fallback. */
 const DOCUMENT_ROW_EXCLUDED = ["provenance", "original_producer_row_checksum", "target_row_checksum", "source_origin_ref", "unit_system_ref"] as const;
-/** Run-specific document members not compared with the twin: identifiers, the origin and
- * hashes over the desktop's own record and manifest (`reproducibility`), the solver
- * build reference (`solver_version`), and the base's own members. `load_basis_refs` is
- * checked against its own basis instead (§6.2). */
+/** Document members not compared with the twin:
+ * - run-specific: identifiers, the origin and hashes over the desktop's own record and
+ *   manifest (`reproducibility`), the solver build reference (`solver_version`), and the
+ *   base's own members (`provenance`, `analysis_status`, `professional_boundary`,
+ *   `rule_pack_refs`, `downstream_use`);
+ * - `diagnostics`, which is NOT run-specific: the desktop base maps each source diagnostic
+ *   to `affected_object: {preview_entity, affected_refs[0]}` with its own `source` and
+ *   remediation (`currentResultDocumentBase`), where Rust's derivative writes
+ *   `{preview_diagnostic, <diagnostic id>}` with `solver_component` (and the
+ *   load/reference writer's template carries its own). Pre-epoch-8 and shared with
+ *   preview-physics-2 (§10); recorded in design §11 as an observation for DEL-08-04. What
+ *   holds is asserted in `expectDiagnosticsFollowSource`;
+ * - `load_basis_refs`, checked against its own basis instead (§6.2). */
 const DOCUMENT_RUN_SPECIFIC = ["envelope_id", "run_ref", "model_ref", "unit_system_ref", "solver_version", "reproducibility", "provenance", "diagnostics", "analysis_status", "professional_boundary", "rule_pack_refs", "downstream_use", "load_basis_refs"] as const;
 /** Package members copied or derived from the source, compared after the exclusion below
  * (and `source_block_recovery` for pressure-source-1). */
@@ -187,6 +196,23 @@ function packageMember(packet: Json, member: string): unknown {
     : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).filter(([key]) => !(PACKAGE_ROW_EXCLUDED as readonly string[]).includes(key)).map(([key, item]) => [key, strip(item)])) : value;
   return member === "result_rows" || member === "stable_id_map" ? strip(packet[member]) : packet[member];
 }
+/** The desktop document's diagnostics: one entry per source diagnostic, in order. The
+ * desktop entry carries no diagnostic id; it is linked to its source diagnostic by
+ * position and by `code` and `message` (copied verbatim), and its `affected_object.ref_id`
+ * is the source's `affected_refs[0]` (the model ref when absent). Where the Rust twin maps
+ * the source diagnostics (the plain writers), its entries agree by position, `code` and
+ * `message`, and name the source diagnostic by `id`. */
+function expectDiagnosticsFollowSource(doc: JsonObject, rust: JsonObject, source: MechanicsResult, rustMapsSource: boolean) {
+  const ours = doc.result_envelope.diagnostics as Json[], theirs = rust.result_envelope.diagnostics as Json[];
+  expect(ours).toHaveLength(source.diagnostics.length);
+  source.diagnostics.forEach((d, i) => {
+    expect([ours[i].code, ours[i].message], `diagnostic ${i}`).toStrictEqual([d.code, d.message]);
+    expect(ours[i].affected_object).toStrictEqual({ ref_type: "preview_entity", ref_id: d.affected_refs?.[0] ?? source.model_ref });
+  });
+  if (rustMapsSource) {
+    expect(theirs.map(t => [t.code, t.message, t.affected_object])).toStrictEqual(source.diagnostics.map(d => [d.code, d.message, { ref_type: "preview_diagnostic", ref_id: (d as Json).id }]));
+  }
+}
 /** `{object_type: "LoadCase", ref}` (the record) to `{ref_type: "load_case", ref_id}` (the document, §6.2). */
 const recordToDocumentRef = (item: ObjectRef) => { expect(item.object_type).toBe("LoadCase"); return { ref_type: "load_case", ref_id: item.ref }; };
 
@@ -206,17 +232,22 @@ async function oracle(input: Input) {
   expect(documentRows(doc, "values"), "result_sets[].values").toStrictEqual(documentRows(rust, "values"));
   for (const member of DOCUMENT_ROW_ARRAYS) expect(documentRows(doc, member), member).toStrictEqual(documentRows(rust, member));
   expect(doc.result_envelope.unit_witness_policy).toBe(rust.result_envelope.unit_witness_policy);
+  expectDiagnosticsFollowSource(doc, rust, result, PLAIN.includes(input));
   // Every member of either envelope is named: compared above, or run-specific.
   const named = new Set<string>([...DOCUMENT_SOURCE_MEMBERS, ...receipt, ...DOCUMENT_ROW_ARRAYS, ...DOCUMENT_RUN_SPECIFIC, "result_sets", "schema_version", "unit_witness_policy"]);
   expect(Object.keys(doc.result_envelope).filter(key => !named.has(key))).toStrictEqual([]);
   expect(Object.keys(rust.result_envelope).filter(key => !named.has(key))).toStrictEqual([]);
 
-  // load_basis_refs against its own basis (§6.2), not the Rust document's: the desktop
-  // record's equal Python's committed record's, and the desktop document's name the same
-  // load cases. (The document's `ref_type` is reported in the test below.)
+  // load_basis_refs against its own basis (§6.2), not the Rust document's IDs: the desktop
+  // record's equal Python's committed record's, and the desktop document's are the record's
+  // mapped LoadCase/ref to load_case/ref_id (and Python's record's, mapped the same way).
   expect(analysisRun.analysis_run.load_basis_refs).toStrictEqual(pythonRecord.analysis_run.load_basis_refs);
   expect(analysisRun.analysis_run.load_basis_refs.map(r => r.ref)).toStrictEqual(model.load_cases.map(c => c.id));
-  expect(doc.result_envelope.load_basis_refs.map((r: Json) => r.ref_id)).toStrictEqual(analysisRun.analysis_run.load_basis_refs.map(r => recordToDocumentRef(r).ref_id));
+  expect(doc.result_envelope.load_basis_refs).toStrictEqual(analysisRun.analysis_run.load_basis_refs.map(recordToDocumentRef));
+  expect(doc.result_envelope.load_basis_refs).toStrictEqual(pythonRecord.analysis_run.load_basis_refs.map(recordToDocumentRef));
+  // The Rust twins use the same ref_type (their IDs are not compared: the load/reference
+  // writer's are its template's `LC-TP-PHYS-014`).
+  expect((rust.result_envelope.load_basis_refs as { ref_type: string }[]).map(r => r.ref_type)).toStrictEqual((rust.result_envelope.load_basis_refs as unknown[]).map(() => "load_case"));
 
   const packet = await buildStressNeutralExportPacket({ model, result, analysisRun });
   await expect(validateStressNeutralExportPacket(packet, result, analysisRun, modelLoadBasisRefs(model))).resolves.toBeUndefined();
@@ -227,8 +258,19 @@ async function oracle(input: Input) {
   // The desktop record is the Python record's equal on the members the package binds.
   expect(analysisRun.analysis_run.reproducibility.semantic_contract).toStrictEqual(pythonRecord.analysis_run.reproducibility.semantic_contract);
   expect(analysisRun.analysis_run.result_refs.map(r => r.semantic_contract)).toStrictEqual(pythonRecord.analysis_run.result_refs.map(r => r.semantic_contract));
-  return { doc, packet };
+  return { doc, packet, analysisRun, model, result };
 }
+
+/** §6.2 ("the Python validator test reads the desktop-shaped members through its own
+ * checks"): the desktop-built package and the 0.3 record it binds, committed for the plain
+ * inputs as `fixtures/results/desktop_shaped_<twin>.{stress_neutral,analysis_run}.json`
+ * and read by `tests/test_stress_neutral_physics_source.py`. The bytes are the desktop's
+ * JSON values in the repository's carrier encoding (compact `JSON.stringify` plus a
+ * newline; the download link indents the same values, `jsonDataHref`). Written only with
+ * DESKTOP_STRESS_NEUTRAL_WRITE_FIXTURES=1; otherwise byte-checked. */
+const DESKTOP_SHAPED_WRITE = process.env.DESKTOP_STRESS_NEUTRAL_WRITE_FIXTURES === "1";
+const desktopShaped = (input: Input, member: "stress_neutral" | "analysis_run") => resolve(root, input.twin.replace("fixtures/results/", "fixtures/results/desktop_shaped_") + `.${member}.json`);
+const desktopText = (value: unknown) => `${JSON.stringify(value)}\n`;
 
 /* -------------------------------------------------------------------------- *
  * §6.2 validator acceptance: every committed twin, both modes
@@ -313,10 +355,22 @@ describe("pressure-2 load/reference-state results: the Current builders equal th
 });
 
 describe("plain exact results: the Current builders equal the committed plain twins (§6.2)", () => {
-  it.each(PLAIN)("$label: the document and the package equal the twins' source-derived members", async (input) => {
-    const { doc } = await oracle(input);
+  it.each(PLAIN)("$label: the document and the package equal the twins' source-derived members; the desktop-shaped package is deterministic and committed", async (input) => {
+    const { doc, packet, analysisRun } = await oracle(input);
     expect(Object.hasOwn(doc.result_envelope.contract_evidence, "load_reference_states")).toBe(false);
-  }, 120_000);
+    // Determinism for fixed inputs: a second, independent solve, record and build.
+    const again = await solve(input.rawPath, input.requestPath, input.mode);
+    const rebuilt = await buildStressNeutralExportPacket({ model: again.model, result: again.result, analysisRun: again.analysisRun });
+    expect(desktopText(again.analysisRun)).toBe(desktopText(analysisRun));
+    expect(desktopText(rebuilt)).toBe(desktopText(packet));
+    for (const [member, value] of [["stress_neutral", packet], ["analysis_run", analysisRun]] as const) {
+      const path = desktopShaped(input, member);
+      if (DESKTOP_SHAPED_WRITE) writeFileSync(path, desktopText(value));
+      expect(readFileSync(path, "utf8"), `${member} bytes`).toBe(desktopText(value));
+    }
+    // The committed bytes read back as a package the desktop validator accepts.
+    await expect(validateStressNeutralExportPacket(JSON.parse(readFileSync(desktopShaped(input, "stress_neutral"), "utf8")), again.result, JSON.parse(readFileSync(desktopShaped(input, "analysis_run"), "utf8")), modelLoadBasisRefs(again.model))).resolves.toBeUndefined();
+  }, 180_000);
 
   it.each(PLAIN)("$label: each panel shows its link and no disclosure line, and a model edit voids the link", async (input) => {
     const props = await solve(input.rawPath, input.requestPath, input.mode);
@@ -334,20 +388,18 @@ describe("plain exact results: the Current builders equal the committed plain tw
   }, 240_000);
 });
 
-/** The document's `load_basis_refs` (§6.2). The desktop's document base
- * (`currentResultDocumentBase` in `resultExportAdapter.ts`, pre-epoch-8 and shared with
- * preview-physics-2, whose bytes design §10 keeps unchanged) copies the record's refs with
- * the record's `object_type` as `ref_type` (`LoadCase`); Rust's derivative writes
- * `load_case`. An observation for DEL-08-04; the positive convention is asserted here. */
-describe("the document's load_basis_refs follow the desktop record", () => {
-  it.each([...ORDINARY, ...PLAIN].filter(input => input.mode === "sparse_interactive"))("$label: ref IDs equal the record's refs in order, and each ref_type is the record's object_type", (input) => {
-    const { raw, model, record } = twins(input);
+/** Design §10: a preview-physics-2 document keeps its bytes, so its `load_basis_refs`
+ * keep the record's `object_type` as `ref_type` (`currentResultDocumentBase`); only the
+ * exact routes name them `load_case`, as Rust's derivative does (checked in the oracles). */
+describe("a preview-physics-2 document's load_basis_refs keep the record's object_type", () => {
+  it("preview_physics_connected_sparse: ref_type is the record's object_type, ref_id its ref", async () => {
+    const raw = json("fixtures/results/preview_physics_connected_sparse.json") as MechanicsResult;
+    const model = json("fixtures/model_operations/precision_connected_ui_model.json") as PreviewModel;
+    const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-preview-shape" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: raw.model_ref, model_payload: model }, solver_basis: { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:shape", solver_mode: "sparse_interactive" } } };
+    const record = await buildAnalysisRunV03(raw, manifest as Json, undefined, modelLoadBasisRefs(model));
+    expect(record.analysis_run.load_basis_refs.length).toBeGreaterThan(0);
     const base = currentResultDocumentBase(model, raw, record.analysis_run, "test:shape", { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:shape" });
-    const refs = base.result_envelope.load_basis_refs as { ref_type: string; ref_id: string }[];
-    expect(refs.map(r => r.ref_id)).toStrictEqual(record.analysis_run.load_basis_refs.map(r => r.ref));
-    expect(refs.map(r => r.ref_type)).toStrictEqual(record.analysis_run.load_basis_refs.map(r => r.object_type));
-    // The Rust writers' convention, for the record.
-    expect((twins(input).document.result_envelope.load_basis_refs as { ref_type: string }[]).every(r => r.ref_type === "load_case")).toBe(true);
+    expect(base.result_envelope.load_basis_refs).toStrictEqual(record.analysis_run.load_basis_refs.map(r => ({ ref_type: r.object_type, ref_id: r.ref })));
   });
 });
 

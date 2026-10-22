@@ -21,9 +21,13 @@ import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from 
 import { computeModelHash } from "../../services/hashService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
-import { surfaceOutputRefusal, surfaceRouteRefusal } from "./outputPolicy";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED, numericalResultStanding, registerSourceRecovery } from "./resultStanding";
 import { N_LOAD_REFERENCE_RULE_CHECK, loadReferenceDisclosure } from "./loadReferenceDisclosure";
+import { LoadReferenceOutputGate } from "./LoadReferenceOutputGate";
+import {
+  OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES, RETAINED_PHYSICS_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_REFUSAL,
+  routeSurfaceDecision, surfaceOutputRefusal, surfaceRouteRefusal,
+} from "./outputPolicy";
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
 import { buildReportPackageRequest, reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
@@ -182,6 +186,46 @@ describe("Rule-check completeness (an opened surface, §4.4)", () => {
     render(<RuleCheckPanel {...props} />);
     expect(screen.queryByTestId("rule-check-load-reference-output-unavailable")).toBeNull();
     expect(screen.queryByTestId("rule-check-load-reference-disclosure")).toBeNull();
+  });
+});
+
+/** The gate itself (§5.2, review follow-up): it reads no standing, so it opens only where
+ * the policy adds no refusal at all (`routeSurfaceDecision` null). Any other decision
+ * refuses with its reason, `admitted_when_eligible` included. */
+describe("LoadReferenceOutputGate", () => {
+  const gate = (result: MechanicsResult | null, prefix: string) => {
+    const view = render(<LoadReferenceOutputGate result={result} testIdPrefix={prefix}><a data-testid="gated-child" href="data:application/json,{}" download="gated.json">child</a></LoadReferenceOutputGate>);
+    const refusal = view.container.querySelector(`[data-testid="${prefix}-load-reference-output-unavailable"]`)?.textContent ?? null;
+    const open = view.container.querySelector("[data-testid='gated-child']") !== null;
+    view.unmount();
+    return { refusal, open };
+  };
+  it.each([
+    ["preview-physics-retained-1", "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json", "retained_preview_physics", RETAINED_PRECISION_OUTPUT_REFUSAL],
+    ["physics-retained-1", "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", "retained_physics", RETAINED_PHYSICS_OUTPUT_REFUSAL],
+  ] as const)("refuses a retained successor (%s) on every surface, including its admitted_when_eligible panels", (_id, path, route, reason) => {
+    const successor = json(path).source as MechanicsResult;
+    expect(routeSurfaceDecision(route, "result-export")).toStrictEqual({ decision: "admitted_when_eligible", reason });
+    expect(gate(successor, "result-export")).toStrictEqual({ refusal: reason, open: false });
+    expect(gate(successor, "stress-neutral")).toStrictEqual({ refusal: reason, open: false });
+    for (const [, , prefix] of GATED) expect(gate(successor, prefix), prefix).toStrictEqual({ refusal: reason, open: false });
+  });
+  it.each(STATES)("opens for %s on rule-check only among the eighteen gated prefixes, and refuses the other seventeen", async (_id, make, reason) => {
+    const { result } = await make();
+    for (const [, , prefix] of GATED) {
+      expect(gate(result, prefix), prefix).toStrictEqual(prefix === "rule-check" ? { refusal: null, open: true } : { refusal: reason, open: false });
+    }
+    // The other opened surfaces add no refusal either; report-package and an unnamed prefix refuse.
+    for (const surface of OUTPUT_SURFACES.filter(surface => !GATED.some(([, , prefix]) => prefix === surface))) {
+      expect(gate(result, surface), surface).toStrictEqual(OPENED.includes(surface as never) ? { refusal: null, open: true } : { refusal: reason, open: false });
+    }
+    expect(gate(result, "invented-surface")).toStrictEqual({ refusal: reason, open: false });
+  });
+  it("opens for an ungated route and for no result; a route without an entry fails closed", async () => {
+    const { result } = await preview();
+    for (const [, , prefix] of GATED) expect(gate(result, prefix), prefix).toStrictEqual({ refusal: null, open: true });
+    expect(gate(null, "rule-check")).toStrictEqual({ refusal: null, open: true });
+    expect(routeSurfaceDecision("physics_retained", "rule-check")).toStrictEqual({ decision: "refused", reason: OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL });
   });
 });
 

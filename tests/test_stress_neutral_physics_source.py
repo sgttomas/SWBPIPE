@@ -565,3 +565,30 @@ def test_plain_exact_twins_are_reproduced_byte_for_byte(name):
         if os.environ.get("STRESS_NEUTRAL_WRITE_FIXTURES") == "1":
             path.write_bytes(data)
         assert path.read_bytes() == data, suffix
+
+
+# Epoch 8 (DEL-04-07 Design desktop-exact-outputs, section 6.2: "the Python validator test reads the desktop-shaped
+# members through its own checks"). The desktop-built package and the desktop 0.3 record it binds, for the plain
+# inputs, are written by the desktop oracle (apps/desktop/src/features/result-export/exactOutputTwins.test.tsx,
+# DESKTOP_STRESS_NEUTRAL_WRITE_FIXTURES=1) and read here by Python's own validators with the committed source raw.
+@pytest.mark.parametrize("name", list(PLAIN_TWINS))
+def test_desktop_shaped_plain_packages_pass_the_python_validators(name):
+    raw_path, request_path, _mode = PLAIN_TWINS[name]
+    raw = json.loads((PROJECT / raw_path).read_text())
+    request = json.loads((PROJECT / request_path).read_text())
+    record = json.loads((PROJECT / f"fixtures/results/desktop_shaped_{name}.analysis_run.json").read_text())
+    packet = json.loads((PROJECT / f"fixtures/results/desktop_shaped_{name}.stress_neutral.json").read_text())
+    before = deepcopy((raw, record, packet))
+    # The desktop record, against its source.
+    validate_analysis_run_v0_3(record, raw)
+    assert verify_analysis_run_record(record) == "match"
+    expected_basis_refs = [{"object_type": "LoadCase", "ref": case["id"]} for case in request["model"]["load_cases"]]
+    assert record["analysis_run"]["load_basis_refs"] == expected_basis_refs
+    # The desktop package, through the schema and Python's package validator: with its source and record, and on its
+    # own (pressure-2 is read through its source; pressure-source-1 standalone).
+    validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=f"desktop_shaped_{name}")
+    sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=record, expected_basis_refs=expected_basis_refs)
+    sn.validate_stress_neutral_export_package(packet, **bound(raw))
+    assert packet["contract_evidence"] == raw["contract_evidence"]
+    assert packet.get("source_block_recovery") == raw.get("source_block_recovery")
+    assert (raw, record, packet) == before

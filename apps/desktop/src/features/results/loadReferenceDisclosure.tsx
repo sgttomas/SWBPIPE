@@ -51,10 +51,9 @@ export function loadReferenceDisclosure(source: MechanicsResult | null | undefin
   const cases = distinct(typed.map(r => r?.load_case_id));
   const histories = distinct(typed.map(r => r?.history?.kind));
   if (!configurations.length || !cases.length || !histories.length) return null;
-  return TEMPLATES[surface]
-    .replace("{configurations}", configurations.join(", "))
-    .replace("{cases}", cases.join(", "))
-    .replace("{histories}", histories.join(", "));
+  // One pass with a function replacer: identifiers are shown verbatim, whatever they contain.
+  const values: Record<string, string> = { configurations: configurations.join(", "), cases: cases.join(", "), histories: histories.join(", ") };
+  return TEMPLATES[surface].replace(/\{(configurations|cases|histories)\}/g, (_match, key: string) => values[key]);
 }
 
 /** The panel line, with the test id `{testIdPrefix}-load-reference-disclosure` (the

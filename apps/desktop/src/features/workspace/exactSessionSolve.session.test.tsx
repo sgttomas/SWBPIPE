@@ -26,7 +26,9 @@ import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } f
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { runRuleChecks } from "../../services/ruleCheckService";
 import { readerDispatch, sourceContract } from "../results/resultReader";
-import { numericalResultStanding } from "../results/resultStanding";
+import { numericalResultStanding, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED } from "../results/resultStanding";
+import { PRESSURE_SOURCE_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PRESSURE_SOURCE_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal, surfaceRouteRefusal } from "../results/outputPolicy";
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
@@ -258,6 +260,79 @@ describe("a saved exact session", () => {
     expect(historical.findings).toEqual(["HISTORICAL_INPUT_MANIFEST_MISSING"]);
     expect(hook.current.results.currentSolvedResult).toBeNull();
     // A reopened result has no live invocation, so a rule check over it stops before the backend.
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockClear();
+    const reopened = (hook.current.results.result ?? historical.mechanicsResult)!;
+    await expect(runRuleChecks({ rulePackDocument: RULE_PACK, model: hook.current.model.model!, solvedEnvelope: reopened })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("run_rule_checks");
+  });
+});
+
+describe("a saved exact session: pressure-source-1 (epoch 8, §4.4)", () => {
+  it("n05: a registered, eligible run with a rule status saves byte for byte, validates against its saved source, reopens as historical evidence, and is never Current after reopening", async () => {
+    // The committed request is a complete desktop document and is sent unchanged: the
+    // joined receipt binds the model it was solved for.
+    const folder = "fixtures/product_preview/pressure_source/physics_source";
+    const model = structuredClone(json(`${folder}/n05.request.json`).model) as PreviewModel;
+    const bytes = readFileSync(resolve(root, `${folder}/n05-sparse_interactive.raw.json`), "utf8");
+    const { result: hook } = await session(model, bytes, "sparse_interactive");
+    const { result, analysisRun: solved, inputManifest, currentSolvedResult } = hook.current.results;
+    const held = hook.current.model.model!;
+    expect(sourceContract(result!)).toBe("pressure_source");
+    expect(result!.producer!.semantic_contract_id).toBe(PRESSURE_SOURCE_CONTRACT_ID);
+    expect(hasNativeMechanicsInvocation(result!, held, "sparse_interactive")).toBe(true);
+    expect(numericalResultStanding(result!, held)).toMatchObject({ contract: "pressure_source", eligible: true, findings: [] });
+    expect(inputManifest).not.toBeNull();
+    expect(currentSolvedResult).toBe(result);
+
+    // The rule check on the Current result reaches the (mocked) backend with its registered invocation.
+    invokeMock.mockClear();
+    const route = await runRuleChecks({ rulePackDocument: RULE_PACK, model: held, solvedEnvelope: currentSolvedResult });
+    expect(route).toStrictEqual({ route: "tauri_backend", result: RULE_ANSWER, loadReferenceDisclosure: null });
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["run_rule_checks"]);
+    expect((invokeMock.mock.calls[0][1] as Json).sourceBlockInvocation).toEqual({ request: { model: held, materials: [] }, solver_mode: "sparse_interactive" });
+    const { projectSessionGeneration, uiModelRevision } = hook.current.model;
+    await act(async () => {
+      await hook.current.results.handleRuleCheckAggregate(route.route === "tauri_backend" ? route.result.aggregate_status : null, {
+        projectSessionGeneration, modelRevision: uiModelRevision,
+        result: hook.current.results.currentSolvedResult, inputManifest: hook.current.results.inputManifest
+      });
+    });
+    await waitFor(() => expect(hook.current.results.analysisRun).not.toBe(solved));
+    const ruled = hook.current.results.analysisRun!;
+    expect(ruled.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+    expect(hook.current.results.currentSolvedResult).toBe(result);
+    // The record binds pressure-source-1's table and copies both source namespaces.
+    expect(ruled.analysis_run.reproducibility.semantic_contract).toStrictEqual({ id: PRESSURE_SOURCE_CONTRACT_ID, sha256: PRESSURE_SOURCE_CONTRACT_SHA256 });
+    expect(ruled.analysis_run.contract_evidence).toEqual(result!.contract_evidence);
+    expect(ruled.analysis_run.source_block_recovery).toEqual(result!.source_block_recovery);
+    expect(await verifyAnalysisRunRecord(ruled)).toBe("match");
+    await expect(validateAnalysisRunV03(ruled, result!, modelLoadBasisRefs(held))).resolves.toBeUndefined();
+    const original = JSON.stringify(result), originalAnalysis = JSON.stringify(ruled);
+
+    // Save (the browser persistence adapter, no native runtime): byte for byte.
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    await act(async () => { await hook.current.project.handleCreateProject(); });
+    const saved = await openLocalProject();
+    expect(JSON.stringify(saved!.mechanics_result)).toBe(original);
+    expect(JSON.stringify(saved!.analysis_run)).toBe(originalAnalysis);
+    // The saved record verifies and validates against its saved source.
+    const savedRecord = saved!.analysis_run as AnalysisRunEnvelope, savedSource = saved!.mechanics_result as MechanicsResult;
+    expect(savedRecord.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+    expect(await verifyAnalysisRunRecord(savedRecord)).toBe("match");
+    await expect(validateAnalysisRunV03(savedRecord, savedSource, modelLoadBasisRefs(saved!.model as PreviewModel))).resolves.toBeUndefined();
+
+    // Reopen: historical evidence, never Current. The saved source has no registration, so
+    // its standing carries Rust's finding beside the historical one.
+    await act(async () => { await hook.current.project.handleOpenProject(); });
+    const historical = hook.current.results.historicalRun!;
+    expect(historical.designation).toBe("historical_saved_run");
+    expect(JSON.stringify(historical.rawMechanicsResult)).toBe(original);
+    expect(JSON.stringify(historical.rawAnalysisRun)).toBe(originalAnalysis);
+    expect(historical.analysisRun!.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+    expect(historical.findings).toEqual(["HISTORICAL_INPUT_MANIFEST_MISSING", SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]);
+    expect(hook.current.results.currentSolvedResult).toBeNull();
+    // A rule run over the reopened result stops before the backend.
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockClear();
     const reopened = (hook.current.results.result ?? historical.mechanicsResult)!;

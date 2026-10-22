@@ -226,4 +226,8 @@ checks:
 - apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/report/reportPackageRequest.test.ts
+- apps/desktop/src/services/ruleCheckService.test.ts
+- apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src/test-support/retainedPrecisionCorpus.test.ts

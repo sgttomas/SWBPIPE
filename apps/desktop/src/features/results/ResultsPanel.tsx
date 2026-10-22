@@ -202,7 +202,7 @@ const SECTION_BASIS_HEADLINES = [
 /** T4-U6 (D-5): an exact-contract result's stress headline on each section basis,
  * labelled by its basis. Shown only when the result carries the per-basis keys
  * (pressure-free results do not). A view in this panel, not an output surface: it
- * never picks a governing basis, and every output surface's refusal stands. */
+ * never picks a governing basis; each output surface keeps its own policy decision. */
 function SectionBasisHeadlines({ result }: { result: MechanicsResult }) {
   const present = SECTION_BASIS_HEADLINES.filter((headline) => Object.hasOwn(result.summary, headline.key));
   if (present.length === 0) return null;

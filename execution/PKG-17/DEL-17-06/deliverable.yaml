@@ -156,3 +156,4 @@ checks:
 - apps/desktop/src/features/stress-neutral/nativeStressNeutralBuilder.test.tsx
 - apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
 - apps/desktop/src/features/result-export/exactOutputTwins.test.tsx
+- apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts
