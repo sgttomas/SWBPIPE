@@ -435,6 +435,16 @@ export function LoadCaseManagerPanel({
     });
   }, [model, nextLoadCaseId]);
 
+  useEffect(() => {
+    // As the load-case draft does: a model update that takes the drafted id re-proposes it.
+    setPrimitiveLoadDraft((draft) => {
+      const id = draft.id.trim() && !primitiveLoadExists(model, draft.id.trim())
+        ? draft.id
+        : nextPrimitiveLoadIdentifier(model, draft.loadCaseId, draft.category);
+      return id === draft.id ? draft : { ...draft, id };
+    });
+  }, [model]);
+
   function updateLoadCaseDraft(field: keyof LoadCaseDraft, value: string) {
     setLoadCaseDraft((draft) => ({ ...draft, [field]: value }));
   }

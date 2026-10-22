@@ -267,6 +267,23 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:hot-F301");
   });
 
+  it("re-proposes the draft id when a model update takes it, as the load-case draft does", async () => {
+    const { model, rerender } = mount();
+    expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-F300");
+    const next = structuredClone(model);
+    next.load_cases[0].primitive_loads!.push({
+      id: "load:dead-F300", category: "concentrated_force", target: { type: "node", node: "node:B" },
+      direction: "global_x", magnitude: { value: 1, unit: "kN" }, dimension: "force", provenance: "invented"
+    });
+    rerender(next);
+    expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-F301");
+    await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
+    // A free id the user entered is kept across a model update.
+    type("load-manager-create-primitive-id", "load:dead-custom");
+    rerender(structuredClone(next));
+    expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-custom");
+  });
+
   it("refuses zero, non-numeric, duplicate and incomplete primitive drafts", async () => {
     mount();
     const button = byId("queue-create-primitive-intent");
