@@ -29,7 +29,7 @@ import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResu
 import { numericalResultStanding } from "../results/resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, registerRetainedPrecision } from "../results/retainedPrecisionStanding";
 import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
-import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure } from "../results/retainedPrecisionDisclosure";
 import {
   CURRENT_ORIGIN_LIMIT, buildCurrentResultExport, currentReceivedOrigin, currentResultDocumentBase, deriveResultDocument, validateResultDocument, type JsonObject,
@@ -274,19 +274,44 @@ describe.each(MODES)("%s: the negative controls refuse with their expected codes
   });
 });
 
-describe("a load/reference-state result keeps T1's refusal", () => {
-  // B7b: published under pressure-2 (ordinary) or pressure-source-1 (joined), each refused by its own reason.
+describe("a load/reference-state result follows the reader (epoch 8, DEL-04-07 Design §5.4)", () => {
+  // Ruling 11B: published under pressure-2 (ordinary) or pressure-source-1 (joined), each is
+  // decided by its route's admitted entry and then by the surface's standing check. The pure
+  // projection and the validator read no standing (they check contract parity).
   it.each([
-    ["fixtures/product_preview/pressure/load_reference/pressure", PRESSURE_2_OUTPUT_REFUSAL],
-    ["fixtures/product_preview/pressure_source/load_reference_source/mixed", PRESSURE_SOURCE_OUTPUT_REFUSAL],
-  ] as const)("%s: in the Current builder, the derivative and the validator", async (stem, reason) => {
+    ["fixtures/product_preview/pressure/load_reference/pressure", "pressure"],
+    ["fixtures/product_preview/pressure_source/load_reference_source/mixed", "pressure_source"],
+  ] as const)("%s: the policy admits it; the Current builder takes its standing; the derivative and the validator carry its evidence", async (stem, route) => {
     const result = json(`${stem}-sparse_interactive.raw.json`) as MechanicsResult;
     const model = structuredClone(json(`${stem}.request.json`).model) as PreviewModel;
-    expect(surfaceOutputRefusal(result, model, "result-export")).toBe(reason);
-    await expect(buildCurrentResultExport({ model, result, analysisRun: {} as Json, inputManifest: null })).rejects.toThrow(reason);
-    const origin = await currentReceivedOrigin(model, result, MANIFEST_REF, ORIGIN_LIMIT);
-    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(reason);
-    await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(reason);
+    expect(surfaceOutputRefusal(result, model, "result-export")).toBeNull();
+    const standing = numericalResultStanding(result, model);
+    if (route === "pressure") {
+      // Rust's eligible standing: the Current builder's next refusal is the missing manifest.
+      expect(standing).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
+      await expect(buildCurrentResultExport({ model, result, analysisRun: {} as Json, inputManifest: null })).rejects.toThrow("CURRENT_INPUT_MANIFEST_UNAVAILABLE");
+    } else {
+      // Unregistered bytes (no captured invocation): never eligible, refused by standing.
+      expect(standing).toMatchObject({ contract: "pressure_source", eligible: false, findings: ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"] });
+      await expect(buildCurrentResultExport({ model, result, analysisRun: {} as Json, inputManifest: null })).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
+    }
+    const { base, origin } = await goldenInputs(result, model);
+    const doc = await deriveResultDocument(base, model, result, origin);
+    const e = doc.result_envelope;
+    expect(checkedJsonText(e.contract_evidence)).toBe(checkedJsonText(result.contract_evidence));
+    expect((e.contract_evidence as Json).load_reference_states.length).toBeGreaterThan(0);
+    if (route === "pressure_source") expect(checkedJsonText(e.source_block_recovery)).toBe(checkedJsonText(result.source_block_recovery));
+    else expect(Object.hasOwn(e, "source_block_recovery")).toBe(false);
+    await expect(validateResultDocument(JSON.parse(JSON.stringify(doc)), result)).resolves.toBeUndefined();
+  });
+  it.each(MODES)("%s: the pressure-2 fallback (load_reference_fallback_uz) is refused by the Current builder's standing", async (mode) => {
+    const stem = "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz";
+    const result = json(`${stem}-${mode}.raw.json`) as MechanicsResult;
+    const model = structuredClone(json(`${stem}.request.json`).model) as PreviewModel;
+    expect(surfaceOutputRefusal(result, model, "result-export")).toBeNull();
+    expect(numericalResultStanding(result, model)).toMatchObject({ contract: "pressure", eligible: false });
+    expect(numericalResultStanding(result, model).findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
+    await expect(buildCurrentResultExport({ model, result, analysisRun: {} as Json, inputManifest: null })).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
   });
 });
 

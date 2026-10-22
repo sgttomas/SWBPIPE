@@ -29,7 +29,7 @@ import {
 } from "../results/retainedPrecisionStanding";
 import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
 import type { RowClassification } from "../results/retainedPrecisionTypes";
-import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, surfaceOutputRefusal } from "../results/outputPolicy";
 import {
   RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedNotCoveredMessage, retainedPrecisionSummaryLine, retainedRowClassesFromReader, rustLowerExp,
 } from "../results/retainedPrecisionDisclosure";
@@ -99,7 +99,8 @@ async function previewControl(mode: PreviewSolverMode = "sparse_interactive") {
 }
 /** B7b: a load/reference-state result is the v3 twin, published under pressure-2, whose
  * desktop analysis-run record mirrors the Python product path's committed record
- * (`loadReferenceAnalysisRun.test.ts` proves the equality); holding it grants no package. */
+ * (`loadReferenceAnalysisRun.test.ts` proves the equality). Epoch 8: it packages at Rust's
+ * eligible standing. */
 async function loadReferenceScenario() {
   const result = json("fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json") as MechanicsResult;
   const model = structuredClone(json("fixtures/product_preview/pressure/load_reference/pressure.request.json").model) as PreviewModel;
@@ -126,11 +127,18 @@ async function rehash(packet: Json) {
   return packet;
 }
 
-describe("the panels (T6S-3): load/reference-state refusal and the summary line", () => {
-  it("the stress-neutral builder and validator keep T1's load/reference-state refusal", async () => {
+describe("the panels (T6S-3): load/reference-state results and the summary line", () => {
+  it("the stress-neutral builder and validator admit an eligible pressure-2 load/reference-state result (epoch 8, §5.4)", async () => {
     const { result, model, analysisRun } = await loadReferenceScenario();
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    expect(surfaceOutputRefusal(result, model, "stress-neutral")).toBeNull();
+    const packet = await buildStressNeutralExportPacket({ model, result, analysisRun });
+    expect(packet.contract_evidence).toEqual(result.contract_evidence);
+    expect((packet.contract_evidence as Json).load_reference_states.length).toBeGreaterThan(0);
+    await expect(validateStressNeutralExportPacket(packet, result, analysisRun, modelLoadBasisRefs(model))).resolves.toBeUndefined();
+    // The retained boundary note stays off the exact identities.
+    expect(packet.export_profile.boundary_notes.some((note: string) => note.startsWith("The retained-precision receipt travels whole with this package."))).toBe(false);
+    // Without its source a pressure-2 package keeps Rust's transport refusal by name.
+    await expect(validateStressNeutralExportPacket(packet)).rejects.toThrow("SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED");
   });
   it.each(MODES)("%s: each panel shows one text-only per-case summary line from classificationSummary", async (mode) => {
     const { received, model, analysisRun, manifest } = await eligible(mode);

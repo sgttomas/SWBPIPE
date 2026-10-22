@@ -1,6 +1,8 @@
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { sourceContract } from "../features/results/resultReader";
-import { numericalResultStanding } from "../features/results/resultStanding";
+import { numericalResultStanding, retainedSourceRecoveryInvocation } from "../features/results/resultStanding";
+import { refuseSurfaceOutput } from "../features/results/outputPolicy";
+import { loadReferenceDisclosure } from "../features/results/loadReferenceDisclosure";
 import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invokeWithIngress } from "./nativeIngress";
@@ -92,8 +94,16 @@ export type RuleCheckUnavailable = {
 };
 
 export type RuleCheckRunRoute =
-  | { route: "tauri_backend"; result: RuleCheckRunResult }
+  // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.4, §5.4): the disclosure line
+  // for a qualified exact result carrying load/reference states, computed from that
+  // source before a transient solve is disposed. UI text only; never part of the run
+  // result, the record or a file.
+  | { route: "tauri_backend"; result: RuleCheckRunResult; loadReferenceDisclosure?: string | null }
   | RuleCheckUnavailable;
+
+/** Epoch 8 (design §4.4): an exact result that is not numerically eligible is refused
+ * before the backend, after Rust's first standing finding. */
+export const N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE = "The result is not numerically eligible for rule checks. It remains readable here.";
 
 function isTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -134,10 +144,19 @@ async function checkSolvedSource(
   model: PreviewModel
 ): Promise<RuleCheckRunRoute> {
   if (!hasNativeMechanicsInvocation(source, model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
-  // T0R: only the static fresh-identity set is rule-eligible.
-  // B7b: the retired physics-source-1 branch went with v2; pressure-source-1 is not in
-  // the desktop's fresh set (every desktop output of it is refused).
+  // T0R: only the static fresh-identity set is rule-eligible (epoch 8 adds pressure-2 and
+  // pressure-source-1, as Rust's set holds them).
   if (!isFreshSemanticResult(source)) throw new Error("RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
+  // Epoch 8 (design §4.4): for the exact routes only, the policy's rule-check entry and the
+  // Rust reader's full standing (with the model's checks and, for pressure-source-1, the
+  // registered invocation) govern the run on the Current and the transient path alike.
+  // The retained and ungated routes keep the checks below, unchanged.
+  const exactRoute = sourceContract(source) === "pressure" || sourceContract(source) === "pressure_source";
+  if (exactRoute) {
+    refuseSurfaceOutput(source, model, "rule-check");
+    const standing = numericalResultStanding(source, model);
+    if (!standing.eligible) throw new Error(`${standing.findings[0] ?? "RULE_NUMERICAL_NEEDS_RECOMPUTE"}: ${N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE}`);
+  }
   // U6d: a preview successor requires eligible standing, as the receipt routes do;
   // standing comes only from its registered reader validation (never numerical_quality).
   if (isRetainedRoute(sourceContract(source))) {
@@ -146,6 +165,9 @@ async function checkSolvedSource(
   }
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
   if (isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, model);
+  // Without the registered invocation the backend's pressure-source-1 standing is never eligible.
+  if (sourceContract(source) === "pressure_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, model);
+  const disclosure = exactRoute ? loadReferenceDisclosure(source, "rule-check") : null;
   if (model) invokeArgs.model = model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
     invokeArgs.solverResultBindings = args.solverResultBindings;
@@ -155,7 +177,7 @@ async function checkSolvedSource(
   }
   if (args.projectId) invokeArgs.projectId = args.projectId;
   const result = await invokeWithIngress<RuleCheckRunResult>("run_rule_checks", invokeArgs);
-  return { route: "tauri_backend", result };
+  return { route: "tauri_backend", result, loadReferenceDisclosure: disclosure };
 }
 
 // Load the bundled invented demonstration rule pack — invented non-engineering

@@ -126,12 +126,14 @@ it.each(["unknown method", "Sensitive", "broken physical case"])("keeps actual-s
  expect(JSON.stringify(source)).toBe(before);
 });
 
-// B7b: the gate's physics-source mode clause went with physics-source-1. Its v3 twin,
-// pressure-source-1 (the composite; B4/D1 (b): source blocks remain only there), is never
-// Current on the desktop, whatever the manifest's mode: no desktop output of it exists.
-// Its registration still records the one mode it was captured in.
+// B7b: the gate's physics-source mode clause went with physics-source-1. Its v3 twin is
+// pressure-source-1 (the composite; B4/D1 (b): source blocks remain only there). Epoch 8
+// (DEL-04-07 Design `desktop-exact-outputs.md` §4.1): it is Current only with Rust's
+// eligible standing (the registered invocation), the matching 0.3.0 record and manifest
+// and the live native invocation in the manifest's mode. Its registration records the one
+// mode it was captured in, so a manifest naming the other mode is not Current.
 const retainedSourceFixtures = import.meta.glob("../../../../../fixtures/product_preview/pressure_source/physics_source/n05*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-it.each([["pressure_source", "pressure_source/physics_source", "n05.request.json"]] as const)("keeps a registered %s result out of Current with either manifest mode", async (_family, folder, requestName) => {
+it.each([["pressure_source", "pressure_source/physics_source", "n05.request.json"]] as const)("admits a registered %s result as Current in its captured mode only (epoch 8)", async (_family, folder, requestName) => {
  const prefix = `../../../../../fixtures/product_preview/${folder}/`;
  const mode = "sparse_interactive";
  const request = JSON.parse(retainedSourceFixtures[`${prefix}${requestName}`]);
@@ -152,9 +154,16 @@ it.each([["pressure_source", "pressure_source/physics_source", "n05.request.json
  expect(numericalResultStanding(source,model).eligible).toBe(true);
  expect(sourceRecoveryModeMatches(source,model,mode)).toBe(true);
  expect(sourceRecoveryModeMatches(source,model,"dense_scrutiny")).toBe(false);
- expect(result.current.currentSolvedResult).toBeNull();
+ expect(result.current.currentSolvedResult).toBe(source);
  const otherMode = structuredClone(manifest);
  otherMode.manifest.solver_basis.solver_mode = "dense_scrutiny";
  act(()=>result.current.setInputManifest(otherMode));
+ expect(result.current.currentSolvedResult).toBeNull();
+ act(()=>result.current.setInputManifest(manifest));
+ expect(result.current.currentSolvedResult).toBe(source);
+ // A received copy has no registration: readable, never Current.
+ const copy = structuredClone(source);
+ act(()=>result.current.setResult(copy));
+ expect(numericalResultStanding(copy,model).eligible).toBe(false);
  expect(result.current.currentSolvedResult).toBeNull();
 });

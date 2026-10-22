@@ -221,6 +221,8 @@ code_paths:
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/LoadReferenceOutputGate.tsx
 - apps/desktop/src/features/results/loadReferenceOutputAvailability.ts
+- apps/desktop/src/features/results/loadReferenceDisclosure.tsx
+- apps/desktop/src/features/results/loadReferenceDisclosure.test.tsx
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/features/display-units/rendererIntegration.test.tsx
@@ -232,6 +234,7 @@ code_paths:
 - schemas/results.schema.yaml
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
+- apps/desktop/src/features/results/loadReferenceDisclosure.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/HistoricalRunContext.test.tsx

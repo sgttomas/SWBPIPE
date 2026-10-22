@@ -1,7 +1,7 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
@@ -11,11 +11,14 @@ import type { MechanicsResult } from "../../types";
  * U6d (D-U6-6; D2 4.7 S-1) adds the F2a preview successor: membership is not
  * standing, which comes only from the accepted reader's registered validation.
  * B7b removed the retired v2 identities (physics-1, physics-source-1 and T1's
- * load-reference-1 and load-reference-source-1). The desktop's set still names
- * neither pressure-2 nor pressure-source-1, which Rust's `FRESH_IDENTITIES` holds:
- * every desktop output of theirs is refused (`outputPolicy.ts`). */
+ * load-reference-1 and load-reference-source-1). Epoch 8 (DEL-04-07 Design
+ * `desktop-exact-outputs.md` §4.1) adds pressure-2 and pressure-source-1, so the set
+ * equals Rust's `FRESH_IDENTITIES`; their outputs are governed per surface by
+ * `outputPolicy.ts`. */
 export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
+  PRESSURE_SOURCE_CONTRACT_ID,
+  PRESSURE_CONTRACT_ID,
   PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
 ]);
 

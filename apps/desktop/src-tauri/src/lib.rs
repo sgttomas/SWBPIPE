@@ -5300,6 +5300,107 @@ mod tests {
         }
     }
 
+    // Epoch 8 (DEL-04-07 Design desktop-exact-outputs §6.1, VER-007): the backend's
+    // unchanged rule-check qualification and row binding, read on committed exact
+    // fixtures. The desktop jsdom tests mock this backend, so these are its check.
+    fn exact_rule_fixture(relative: &str) -> Value {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(relative);
+        let text = fs::read_to_string(&path).unwrap_or_else(|error| panic!("{}: {error}", path.display()));
+        serde_json::from_str(&text).unwrap()
+    }
+
+    const EXACT_RULE_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
+
+    /// No row of an admitted exact source is refused by the shared binding helper,
+    /// and a selector binds a published row by id with its exact bits and unit.
+    fn assert_exact_rows_bind(source: &Value, label: &str) {
+        let rows = source["results"].as_array().unwrap();
+        assert!(!rows.is_empty(), "{label}");
+        for row in rows {
+            assert_eq!(open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(source, row), None, "{label}: {}", row["id"]);
+        }
+        let row = rows.iter().find(|row| row["value"].as_f64().is_some() && row["unit"].is_string()).unwrap();
+        let selectors = json!([{"input_id":"exact_actual", "result_id":row["id"]}]);
+        let mut refused = Vec::new();
+        let bindings = resolve_solver_result_bindings(Some(&selectors), source, &mut refused).unwrap();
+        assert!(refused.is_empty(), "{label}");
+        assert_eq!(bindings.len(), 1, "{label}");
+        assert_eq!(bindings[0].result_id, row["id"].as_str().unwrap(), "{label}");
+        assert_eq!(bindings[0].value.to_bits(), row["value"].as_f64().unwrap().to_bits(), "{label}");
+        assert_eq!(bindings[0].unit, row["unit"].as_str().unwrap(), "{label}");
+    }
+
+    #[test]
+    fn exact_rule_check_pressure_plain_admitted_without_invocation_and_rows_bind() {
+        let request = exact_rule_fixture("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
+        let model = &request["model"];
+        for mode in ["sparse", "dense"] {
+            let label = format!("pressure_connected_mechanics_{mode}");
+            let source = exact_rule_fixture(&format!("fixtures/results/{label}.json"));
+            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
+            assert!(source["contract_evidence"].get("load_reference_states").is_none(), "{label}");
+            qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
+            assert_exact_rows_bind(&source, &label);
+        }
+    }
+
+    #[test]
+    fn exact_rule_check_pressure_load_reference_admitted_without_invocation_and_rows_bind() {
+        for name in ["connected", "pressure"] {
+            let request = exact_rule_fixture(&format!("fixtures/product_preview/pressure/load_reference/{name}.request.json"));
+            let model = &request["model"];
+            for mode in EXACT_RULE_MODES {
+                let label = format!("pressure/load_reference/{name}-{mode}");
+                let source = exact_rule_fixture(&format!("fixtures/product_preview/pressure/load_reference/{name}-{mode}.raw.json"));
+                assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
+                assert!(source["contract_evidence"]["load_reference_states"].as_array().is_some_and(|states| !states.is_empty()), "{label}");
+                qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
+                assert_exact_rows_bind(&source, &label);
+            }
+        }
+    }
+
+    #[test]
+    fn exact_rule_check_pressure_source_plain_admitted_with_registered_invocation_and_rows_bind() {
+        for name in ["fields", "mixed", "mixed_units", "n05", "n05_unicode", "n05_units", "n06"] {
+            let request = exact_rule_fixture(&format!("fixtures/product_preview/pressure_source/physics_source/{name}.request.json"));
+            let model = &request["model"];
+            for mode in EXACT_RULE_MODES {
+                let label = format!("pressure_source/physics_source/{name}-{mode}");
+                let source = exact_rule_fixture(&format!("fixtures/product_preview/pressure_source/physics_source/{name}-{mode}.raw.json"));
+                assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-source-1", "{label}");
+                // The registered invocation, as resultStanding.ts builds it.
+                let invocation = json!({"request":request,"solver_mode":mode});
+                qualify_rule_mechanics_with_context(model, &source, Some(&invocation)).unwrap_or_else(|error| panic!("{label}: {error}"));
+                assert_exact_rows_bind(&source, &label);
+                // Without its invocation the backend's standing cannot be eligible.
+                assert!(qualify_rule_mechanics_with_context(model, &source, None).is_err(), "{label}");
+            }
+        }
+    }
+
+    #[test]
+    fn exact_rule_check_pressure_source_load_reference_refused_needs_recompute_with_invocation() {
+        for name in ["eigen_motion", "fields", "mixed", "n05", "n06"] {
+            let request = exact_rule_fixture(&format!("fixtures/product_preview/pressure_source/load_reference_source/{name}.request.json"));
+            let model = &request["model"];
+            for mode in EXACT_RULE_MODES {
+                let label = format!("pressure_source/load_reference_source/{name}-{mode}");
+                let source = exact_rule_fixture(&format!("fixtures/product_preview/pressure_source/load_reference_source/{name}-{mode}.raw.json"));
+                assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-source-1", "{label}");
+                let invocation = json!({"request":request,"solver_mode":mode});
+                let error = qualify_rule_mechanics_with_context(model, &source, Some(&invocation)).unwrap_err();
+                assert!(error.starts_with("RULE_NUMERICAL_NEEDS_RECOMPUTE"), "{label}: {error}");
+                // R2 (fixtures/results/base_reader_outcomes.json) reads this source as needs_recompute.
+                assert_eq!(open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(
+                    &source,
+                    &model["load_cases"].as_array().unwrap().iter().map(|case| json!({"ref_type":"load_case","ref_id":case["id"]})).collect::<Vec<_>>(),
+                    Some(&invocation),
+                ), "needs_recompute", "{label}");
+            }
+        }
+    }
+
     #[test]
     fn precision_native_actual_tiny_signed_cantilever_survives_store_and_download() {
         for force in [-1.0e-6_f64, 1.0e-6] {

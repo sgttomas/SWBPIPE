@@ -175,6 +175,25 @@ fn actual_composite_invocations_preserve_canonical_evidence_and_maximum_methods(
                 assert_eq!(quantity["metadata"], row["metadata"]);
             }
             assert_eq!(input, original);
+            // Epoch 8 (DEL-04-07 Design desktop-exact-outputs, section 6.2): n05's
+            // document is the plain pressure-source-1 result-export twin, the
+            // desktop's equal-input oracle. The raw above is the committed raw
+            // control (equal JSON values and canonical digests; the committed
+            // file is compact and producer-ordered). The committed twin is checked
+            // byte for byte, and rewritten only with HEADLESS_PLAIN_TWIN_WRITE_FIXTURES=1.
+            if name == "n05" {
+                assert_eq!(derivative::digest(&raw).unwrap(), derivative::digest(&captured).unwrap());
+                derivative::validate_document(document, &captured).unwrap();
+                let short = if mode == PreviewSolverMode::SparseInteractive { "sparse" } else { "dense" };
+                let text = serde_json::to_string(document).unwrap() + "\n";
+                let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
+                    "../../../fixtures/results/pressure_source_plain_n05_{short}.document.json"
+                ));
+                if std::env::var("HEADLESS_PLAIN_TWIN_WRITE_FIXTURES").as_deref() == Ok("1") {
+                    std::fs::write(&path, &text).unwrap();
+                }
+                assert_eq!(std::fs::read_to_string(&path).unwrap(), text, "{name}/{mode:?}: document twin bytes");
+            }
             if let Ok(folder) = std::env::var("HEADLESS_COMPOSITE_OUTPUT_DIR") {
                 let folder = Path::new(&folder);
                 std::fs::create_dir_all(folder).unwrap();

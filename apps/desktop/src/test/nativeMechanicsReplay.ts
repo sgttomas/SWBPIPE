@@ -19,8 +19,8 @@ export const solveBytes = jsonTextKeepingNegativeZero;
 
 export const NATIVE_MECHANICS_REPLAY_NOTICE = "Unit transport replay of captured producer bytes; NOT actual native UI qualification";
 /** `preview` is the fresh non-exact route (preview-physics-2); `pressure` the exact route
- * (pressure-2, 3.0.0/exact_pressure_v3 since B7b retired the v2 physics-1 pair), whose
- * every desktop output is refused. */
+ * (pressure-2, 3.0.0/exact_pressure_v3 since B7b retired the v2 physics-1 pair); since
+ * epoch 8 its result JSON and stress-neutral exports and rule check admit an eligible result. */
 export type NativeMechanicsReplayProfile = "pressure" | "preview";
 const captureRef = "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/UI_PRODUCER_CAPTURE.json";
 function replayMode(mode: unknown): asserts mode is PreviewSolverMode {

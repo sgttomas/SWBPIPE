@@ -6,8 +6,9 @@
  * pinned by `operation_applier/tests/l_line_authoring.rs`). Its solve through
  * the native job path returns pressure-2. The desktop reads results only through
  * the Rust reader's verdict (b7-plan R2): pressure-2 has its own route there,
- * read by the product reader with the ordinary standing, and every output
- * surface refuses it by name. All data are invented. */
+ * read by the product reader with the ordinary standing. Since epoch 8 the result
+ * JSON and stress-neutral exports and the rule check admit it at that standing, and
+ * every other output surface refuses it by name. All data are invented. */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -126,14 +127,18 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     expect(await takePreviewMechanicsJobResult(receipt.job_id)).toEqual(pressure1);
   });
 
-  it("reads a pressure-2 result through the Rust reader's pressure route, with its standing and no output (b7-plan R2)", () => {
+  it("reads a pressure-2 result through the Rust reader's pressure route, with its standing, admitted only on the opened output surfaces (b7-plan R2; epoch 8)", () => {
     expect(sourceContract(pressure1)).toBe("pressure");
     const dispatch = readerDispatch(pressure1, expected);
     expect(dispatch.binding?.id).toBe("openpipestress.result_semantics/0.3.0/pressure-2");
     const standing = numericalResultStanding(pressure1, expected);
     expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
     expect(standing.eligible).toBe(true);
-    for (const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(pressure1, surface)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
+    // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.1): the result JSON and
+    // stress-neutral exports and the rule check add no policy refusal; each takes the
+    // Rust reader's standing at its own check. Every other surface refuses by name.
+    const opened: readonly string[] = ["result-export", "stress-neutral", "rule-check"];
+    for (const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(pressure1, surface), surface).toBe(opened.includes(surface) ? null : PRESSURE_2_OUTPUT_REFUSAL);
     render(<ResultsPanel result={pressure1} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={vi.fn()} />);
     expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");
     cleanup();

@@ -11,12 +11,13 @@ import { getLocalStorageCapability } from "../../services/projectService";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { retainedSourceRecoveryInvocation, sourceRecoveryModeMatches } from "./resultStanding";
 import { buildCurrentResultExport } from "../result-export/resultExportAdapter";
-import { buildStressNeutralExportPacket } from "../stress-neutral/StressNeutralExportPanel";
+import { buildStressNeutralExportPacket, validateStressNeutralExportPacket } from "../stress-neutral/StressNeutralExportPanel";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildReportPackageRequest } from "../report/reportPackageRequest";
 import { numericalResultStanding } from "./resultStanding";
-import { PRESSURE_SOURCE_OUTPUT_REFUSAL } from "./outputPolicy";
-import { analysisRowSemantics, analysisRecordProjection, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
+import { OUTPUT_SURFACES, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal } from "./outputPolicy";
+import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
+import { analysisRowSemantics, analysisRecordProjection, modelLoadBasisRefs, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
 import { readerRowSemantics, sourceContract } from './resultReader';
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 /** T4-U6 (D-5 §2.4): pressure-source-1's maximum signature for a recovery token on one section basis. */
@@ -36,8 +37,11 @@ function maximumSignature(basis: string): string {
  * (fixtures/product_preview/pressure_source/physics_source/) through the actual capture
  * and the workspace session. It registers with its captured invocation and reads
  * numerically eligible standing there, its analysis-run record binds its own table
- * (pressure-source-1), and every desktop output of it is refused by name (b7-plan D6),
- * so it is never Current. Unit transport replay, NOT a native UI witness. */
+ * (pressure-source-1). Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.1-4.5,
+ * §5.1; owner, 2026-10-21): it is fresh, so with its registered invocation it is Current;
+ * the result JSON export and the stress-neutral export emit it, the report package
+ * refuses it with its fresh-result refusal, and every other surface refuses it by name
+ * (b7-plan D6). Unit transport replay, NOT a native UI witness. */
 
 // Test isolation (T0R S5): a case that times out keeps running in the background.
 // Teardown advances the case generation, unmounts every session hook it created,
@@ -130,7 +134,7 @@ async function sessionReceived(name: string, mode: string, generation = caseGene
 }
 
 describe("joined composite (pressure-source-1) native transport unit simulation", () => {
-  it.each(pairs)("%s %s binds actual input and portable evidence, reads eligible with its capture, and is offered on no output", async (name, mode) => {
+  it.each(pairs)("%s %s binds actual input and portable evidence, reads eligible with its capture, and is offered on the opened outputs only", async (name, mode) => {
     const generation = caseGeneration;
     const direct = await received(name,mode,generation);
     const {source,model,analysisRun,inputManifest,request} = direct;
@@ -150,24 +154,43 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     }
     expect(analysisRun.analysis_run.source_block_recovery).toEqual(source.source_block_recovery);
     await validateAnalysisRunV03(analysisRun, source);
-    // b7-plan D6: every desktop output of pressure-source-1 is refused by name.
-    await expect(buildCurrentResultExport({model,result:source,analysisRun,inputManifest})).rejects.toThrow(PRESSURE_SOURCE_OUTPUT_REFUSAL);
-    await expect(buildStressNeutralExportPacket({model,result:source,analysisRun})).rejects.toThrow(PRESSURE_SOURCE_OUTPUT_REFUSAL);
-    await expect(buildReportPackageRequest({model,result:source,analysisRun,inputManifest} as never)).rejects.toThrow(PRESSURE_SOURCE_OUTPUT_REFUSAL);
+    // Epoch 8 (design §5.1): the result JSON export, the stress-neutral export and the rule
+    // check add no policy refusal; every other surface refuses pressure-source-1 by name
+    // (b7-plan D6), under pressure-2's code.
+    expect(isFreshSemanticResult(source)).toBe(true);
+    for (const surface of OUTPUT_SURFACES) {
+      expect(surfaceOutputRefusal(source,model,surface),surface).toBe(["result-export","stress-neutral","rule-check"].includes(surface)?null:PRESSURE_SOURCE_OUTPUT_REFUSAL);
+    }
+    // Design §4.2: the eligible result exports, carrying its contract evidence and received
+    // receipt whole, as Rust's derivative does.
+    const document = await buildCurrentResultExport({model,result:source,analysisRun,inputManifest}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(document.result_envelope.contract_evidence).toEqual(source.contract_evidence);
+    expect(document.result_envelope.source_block_recovery).toEqual(source.source_block_recovery);
+    // Design §4.3: the stress-neutral package likewise, and it validates against its source.
+    const packet = await buildStressNeutralExportPacket({model,result:source,analysisRun});
+    expect(packet.contract_evidence).toEqual(source.contract_evidence);
+    expect(packet.source_block_recovery).toEqual(source.source_block_recovery);
+    await validateStressNeutralExportPacket(JSON.parse(JSON.stringify(packet)),source,analysisRun,modelLoadBasisRefs(model));
+    // Without its registered invocation (a copy) standing declines it at both builders.
+    const copy = structuredClone(source);
+    await expect(buildCurrentResultExport({model,result:copy,analysisRun,inputManifest})).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
+    await expect(buildStressNeutralExportPacket({model,result:copy,analysisRun})).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+    // Design §4.5: the report package refuses it as every fresh identity.
+    await expect(buildReportPackageRequest({model,result:source,analysisRun,inputManifest} as never)).rejects.toThrow(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`);
     // Mode binding: these bytes were captured under `mode` only.
     const otherMode=mode==="sparse_interactive"?"dense_scrutiny":"sparse_interactive";
     expect(hasNativeMechanicsInvocation(source,model,otherMode)).toBe(false);
     expect(sourceRecoveryModeMatches(source,model,mode)).toBe(true);
     expect(sourceRecoveryModeMatches(source,model,otherMode)).toBe(false);
-    // Through the workspace session: the solve completes and records the result, which
-    // is never Current (no desktop output of pressure-source-1 exists).
+    // Through the workspace session: the solve completes and records the result, which is
+    // Current with its registered invocation (design §4.1).
     const session = await sessionReceived(name,mode,generation);
     expect(session.source).toEqual(session.original);
     expect(session.inputManifest.manifest.solver_basis.solver_mode).toBe(mode);
     expect(hasNativeMechanicsInvocation(session.source,session.model,mode)).toBe(true);
     expect(numericalResultStanding(session.source,session.model).eligible).toBe(true);
     expect(session.analysisRun.analysis_run.run_id).toBe(session.source.run_id);
-    expect(session.hook.result.current.results.currentSolvedResult).toBeNull();
+    expect(session.hook.result.current.results.currentSolvedResult).toBe(session.source);
     // Mode binding through the session: a solve that receives these bytes, recorded under
     // `mode`, for the other mode is refused at the session boundary and holds nothing.
     assertLiveCase(generation);

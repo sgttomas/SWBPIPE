@@ -19,7 +19,6 @@ import modelJson from '../../../../../fixtures/product_preview/invented_demo_mod
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
 import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,validateStressNeutralCsv,precisionStressRow,strictWitnessDisposition} from './StressNeutralExportPanel';
-import {PRESSURE_2_OUTPUT_REFUSAL} from '../results/outputPolicy';
 import {StressNeutralExportPanel} from './StressNeutralExportPanel';
 import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
 import type {PreviewModel,MechanicsResult} from '../../types';
@@ -330,18 +329,32 @@ it('refuses retired stress-neutral versions before reading their metadata',async
  expect(JSON.stringify(base)).toBe(original);await expect(validateStressNeutralExportPacket(base)).resolves.toBeUndefined();
 });
 
-// B7b: the exact route's received statement is pressure-2 (the v3 twin of the retired
-// physics-1, whose package this test built): it has its analysis-run record (as Python's
-// builder makes it) and still no package.
-it('refuses received exact-route results (pressure-2) with their own output reason, before any package',async()=>{
+// Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §3, §4.3): a received pressure-2
+// statement (the v3 twin of the retired physics-1) packages at the Rust reader's standing,
+// as Python's builder packages it. pressure-2 has no transport reader, so the package is
+// read through its source; without it Rust's refusal is kept by name. Bytes that were not
+// natively captured are not Current, so the panel offers no package.
+it('packages a received exact-route result (pressure-2) at Rust\'s standing, reads it through its source, and offers it only while Current',async()=>{
  const {model,source:result}=nativeMechanicsReplayPair('sparse_interactive',{profile:'pressure'});
  expect(result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-pressure-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const before=JSON.stringify(result);
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
  expect(analysisRun.analysis_run.reproducibility.semantic_contract?.id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
- await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
- await expect(validateStressNeutralExportPacket({schema_version:'0.3.0'},result)).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+ const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
+ expect(packet.schema_version).toBe('0.3.0');
+ expect(packet.semantic_contract.id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
+ expect(packet.export_profile.source_basis_refs[1]).toEqual({object_type:'ExternalReference',ref:'fixtures/results/semantic_contract_v0_3_pressure_2.json'});
+ expect(packet.contract_evidence).toEqual(result.contract_evidence);
+ expect(Object.hasOwn(packet,'source_block_recovery')).toBe(false);
+ await expect(validateStressNeutralExportPacket(packet,result,analysisRun,modelLoadBasisRefs(model))).resolves.toBeUndefined();
+ // Without its source, the header has no transport reader: Rust's refusal by name.
+ await expect(validateStressNeutralExportPacket(structuredClone(packet))).rejects.toThrow('SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED');
+ // The fixture bytes were not natively captured (a copy, not Current): the panel offers nothing.
+ render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun}/>);
+ expect(screen.getByTestId('stress-neutral-empty')).toBeTruthy();
+ expect(screen.queryByTestId('stress-neutral-export-link')).toBeNull();
+ expect(screen.queryByTestId('stress-neutral-load-reference-disclosure')).toBeNull();
  expect(JSON.stringify(result)).toBe(before);
 });
 

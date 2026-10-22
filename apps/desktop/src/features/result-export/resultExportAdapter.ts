@@ -52,13 +52,19 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   // T6S-4 (D-U6-2; Rust `retained_row_classes`): the successor's validated classes, from the
   // accepted reader run on these bytes without an invocation; null for every other identity.
   const classes=await retainedRowClassesFromReader(source);
-  // B7b: the exact routes (pressure-2, pressure-source-1) are refused above by the
-  // surface policy; the retired v2 arms (physics-1, physics-source-1) went with v2.
+  // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.2): the exact routes read
+  // the full Rust reader, as Rust's `derive_document` does: pressure-2 with the model,
+  // pressure-source-1 through its raw reader without an invocation (never the shallow
+  // source-recovery check). The retired v2 arms went with v2.
   if(route==='preview_physics')readerValidate('preview-physics',source,model);
+  else if(route==='pressure')readerValidate('pressure',source,model);
+  else if(route==='pressure_source')readerValidate('pressure-source',source);
   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;
   e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',sourceSemanticBinding(source).id);
   if(Object.hasOwn(e,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
-  if(route==='preview_physics'||isRetainedRoute(route))e.contract_evidence=structuredClone(source.contract_evidence);
+  // b7-plan MJ8: pressure-source-1's received receipt travels whole, as in Rust's derivative.
+  if(route==='pressure_source')e.source_block_recovery=structuredClone(source.source_block_recovery);
+  if(route==='preview_physics'||route==='pressure'||route==='pressure_source'||isRetainedRoute(route))e.contract_evidence=structuredClone(source.contract_evidence);
   else if(Object.hasOwn(e,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   // D2 4.9.7: the successor's receipt travels with the document, whole. A receipt on any
   // other identity's document is refused by the validation that ends this function.
@@ -123,8 +129,17 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   else if(Object.hasOwn(doc.result_envelope,'retained_precision'))throw new Error(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
   if(resultSchemaVersion(doc)!==RESULT_EXPORT_VERSION)throw new Error("DERIVATIVE_VERSION_MISMATCH");
   for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');
-  if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
-  if(route==='preview_physics'||isRetainedRoute(route)){if(route==='preview_physics')readerValidate('preview-physics',source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
+  // Epoch 8 (Rust `validate_document`): pressure-source-1's receipt equals the source's,
+  // whole; a pressure-2 document carries none (Rust's downgrade code); any other
+  // identity's keeps the desktop's existing code.
+  if(route==='pressure_source'){if(!Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH');requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH');}
+  else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error(route==='pressure'?'SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN':'SOURCE_RECOVERY_METADATA_CONTRADICTION');
+  if(route==='preview_physics'||route==='pressure'||route==='pressure_source'||isRetainedRoute(route)){
+    if(route==='preview_physics')readerValidate('preview-physics',source);
+    else if(route==='pressure')readerValidate('pressure',source);
+    else if(route==='pressure_source')readerValidate('pressure-source',source);
+    requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');
+  }
   else if(Object.hasOwn(doc.result_envelope,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   const e=doc.result_envelope,accounts=e.row_accounting,annotations=e.source_annotations,witnesses=e.unit_preservation_witnesses;
   if(!Array.isArray(accounts)||!Array.isArray(annotations)||accounts.length!==source.results.length||annotations.length!==source.results.length)throw new Error("ROW_ACCOUNTING_CARDINALITY");
@@ -180,17 +195,25 @@ export async function currentReceivedOrigin(model:PreviewModel,result:MechanicsR
   const scope='received_current_dimension_absent_carrier';
   return {origin_id:'source-origin:current-received',origin_class:'received_current_dimension_absent',qualification_ref:ref('current_manifest',manifestRef),authentic_producer_available:false,received_carrier_checksum:await scopedChecksum(result,scope,ref('received_current_carrier',result.run_id)),original_producer_checksum:null,origin_limit:originLimit,actual_model_ref:ref('model_payload',model.project.id),mechanics_run_ref:ref('mechanics_run',result.run_id),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
 }
+/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.2, §6.2): an exact-route
+ * document names its load bases `load_case`, as Rust's derivative does. Other identities
+ * keep the record's `object_type`, so their documents are unchanged (§10). */
+function exactLoadCase(result:MechanicsResult,objectType:string):boolean{
+  if(objectType!=='LoadCase')return false;
+  try{const route=sourceContract(result);return route==='pressure'||route==='pressure_source';}catch{return false;}
+}
 type CurrentDocumentRun=Pick<AnalysisRunEnvelope['analysis_run'],'run_id'|'load_basis_refs'|'hashes'|'analysis_status'|'professional_boundary'>;
 /** The document base that `buildCurrentResultExport` derives from (see `currentReceivedOrigin`). */
 export function currentResultDocumentBase(model:PreviewModel,result:MechanicsResult,run:CurrentDocumentRun,manifestRef:string,solverBasis:{solver_name:string;solver_version:string;solver_build_ref:string}):JsonObject{
   const provenance=derivativeProvenance;
-  return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(x=>({code:x.code,class:'ASSUMPTION_WARNING',severity:x.severity==='error'?'blocking':x.severity,source:ref('source',x.source??'local_preview'),affected_object:ref('preview_entity',x.affected_refs?.[0]??result.model_ref),message:x.message,remediation:'Review source model and preview limitations.',provenance})),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
+  return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>exactLoadCase(result,x.object_type)?ref('load_case',x.ref):ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(x=>({code:x.code,class:'ASSUMPTION_WARNING',severity:x.severity==='error'?'blocking':x.severity,source:ref('source',x.source??'local_preview'),affected_object:ref('preview_entity',x.affected_refs?.[0]??result.model_ref),message:x.message,remediation:'Review source model and preview limitations.',provenance})),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
 }
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);
-  // T1: not yet available on the desktop for load/reference-state results (T6).
   // T6S-3: this surface's policy entry; a retained-precision successor is admitted only at
-  // numerically eligible standing with the live native capture.
+  // numerically eligible standing with the live native capture. Epoch 8: the exact routes
+  // (load/reference-state results included) add no policy refusal here; the standing
+  // check below takes Rust's verdict for them.
   refuseSurfaceOutput(result,model,'result-export');
   if(!numericalResultStanding(result,model).eligible)throw new Error('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
   if(!isFreshSemanticResult(result))throw new Error('CURRENT_SOURCE_IDENTITY_NOT_FRESH');

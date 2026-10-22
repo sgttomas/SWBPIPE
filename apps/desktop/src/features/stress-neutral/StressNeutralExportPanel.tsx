@@ -1,7 +1,8 @@
+import { LoadReferenceDisclosure, loadReferenceDisclosure } from "../results/loadReferenceDisclosure";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
-import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, sourceContract } from "../results/resultReader";
+import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, readerValidate, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, retainedClassDisclosure, retainedPrecisionSummaryLine, retainedRowClassesFromReader } from "../results/retainedPrecisionDisclosure";
@@ -81,6 +82,9 @@ export function StressNeutralExportPanel({
   const currentFingerprint = liveStressBinding(model, result, analysisRun);
   const outputRefusal = surfaceOutputRefusal(result, model, "stress-neutral");
   const retainedSummary = retainedPrecisionSummaryLine(result, model);
+  // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.4): shown only while the live
+  // binding admits the result.
+  const loadReferenceLine = currentFingerprint !== null ? loadReferenceDisclosure(result, "stress-neutral") : null;
   const currentPacket = binding?.[0] === model && binding?.[1] === result && binding?.[2] === analysisRun
     && currentFingerprint !== null && currentFingerprint === publicationFingerprint
     ? packet
@@ -112,6 +116,7 @@ export function StressNeutralExportPanel({
       </div>
       <KnownSemanticNotices result={result} testIdPrefix="stress-neutral" />
       {retainedSummary ? <p className="muted" data-testid="stress-neutral-retained-precision-summary">{retainedSummary}</p> : null}
+      <LoadReferenceDisclosure text={loadReferenceLine} surface="stress-neutral" />
       {currentPacket ? (
         <>
           <div className="report-actions" onClickCapture={(event) => {
@@ -410,17 +415,17 @@ function retainedLossCount(absolute: number, uncovered: number): string {
 export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const route = sourceContract(args.result);
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
-  // T1: not yet available on the desktop for load/reference-state results (T6).
   // T6S-3: this surface's policy entry; a retained-precision successor is admitted
-  // only at numerically eligible standing with the live native capture.
+  // only at numerically eligible standing with the live native capture. Epoch 8: the
+  // exact routes, load/reference-state results included, add no policy refusal here and
+  // take Rust's standing below.
   refuseSurfaceOutput(args.result, args.model, "stress-neutral");
   const retained = isRetainedRoute(route);
   const semantics = currentSemanticContract(args.result);
   const version = STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = STRESS_NEUTRAL_EXPORT_PROFILE;
   // Pure packet projection; Current export stays gated by the panel's live binding,
-  // which requires full eligibility. (B7b: the exact routes, pressure-2 and
-  // pressure-source-1, are refused above; the retired physics-source-1 arm went with v2.)
+  // which requires full eligibility. (The retired physics-source-1 arm went with v2.)
   if (numericalResultStanding(args.result, args.model).findings.length > 0) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
   if (args.analysisRun.schema_version !== "0.3.0" || args.analysisRun.analysis_run.run_id !== args.result.run_id || args.model.project.id !== args.result.model_ref
     || args.analysisRun.analysis_run.solver_version?.solver_name !== args.result.producer!.component_name
@@ -507,7 +512,10 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
       software_creates_professional_reliance_record: false
     },
   };
-  if (route === "preview_physics" || retained) packet.contract_evidence = structuredClone(args.result.contract_evidence);
+  // Python's `_method_namespaces`: contract_evidence for preview-physics-2 and both exact
+  // identities, and pressure-source-1's receipt (b7-plan MJ8), each copied whole.
+  if (route === "preview_physics" || route === "pressure" || route === "pressure_source" || retained) packet.contract_evidence = structuredClone(args.result.contract_evidence);
+  if (route === "pressure_source") packet.source_block_recovery = structuredClone(args.result.source_block_recovery);
   // D2 4.9.7 and RR decision 5: the successor's receipt travels with the package, whole.
   if (retained) packet.retained_precision = structuredClone(args.result.retained_precision);
   packet.source_annotations = await retainedSourceAnnotations(args.result);
@@ -553,9 +561,13 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     if (analysisRun !== undefined) await validateAnalysisRunV03(analysisRun, source, expectedBasisRefs);
     const same = async (a: unknown, b: unknown) => a !== undefined && b !== undefined && await canonicalSha256HexCheckedV1(a) === await canonicalSha256HexCheckedV1(b);
     for (const key of ["producer", "numerical_quality", "formulation_basis"] as const) if (!await same(packet[key], source[key])) throw new Error("SN-PRECISION-SOURCE-METADATA-MISMATCH");
-    if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
+    // Epoch 8 (design §4.3): the receipt is present and equal on pressure-source-1 only.
+    if (sourceContract(source) === "pressure_source") {
+      if (!Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
+      if (!await same(packet.source_block_recovery, source.source_block_recovery)) throw new Error("SN-SOURCE-BLOCK-RECEIPT-MISMATCH");
+    } else if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
     const sourceRetained = isRetainedRoute(sourceContract(source));
-    if (["preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(source))) {
+    if (["preview_physics", "pressure", "pressure_source", "retained_preview_physics", "retained_physics"].includes(sourceContract(source))) {
       if (!await same(packet.contract_evidence, source.contract_evidence)) throw new Error("SN-PHYSICAL-EVIDENCE-MISMATCH");
     } else if (Object.hasOwn(packet, "contract_evidence")) throw new Error("SN-PHYSICAL-EVIDENCE-CONTRADICTION");
     // T6S-5 (D2 4.9.7): the copied receipt equals the source's, whole; no other identity's package carries one.
@@ -612,7 +624,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
   if (sourceContract(header) === 'unsupported') throw new Error('SN-PRECISION-CONTRACT-MISMATCH');
   const semanticPath = semanticTablePath(header);
   if (packet.export_profile?.csv_encoding !== 'utf-8' || packet.export_profile?.csv_row_order !== 'unicode_scalar_value_result_id') throw new Error('SN-CSV-ENCODING-PROFILE-MISMATCH');
-  await validateNeutralTransportEvidence(header);
+  await validateNeutralTransportEvidence(header, source);
   await validateRetainedSourceAnnotations(packet, header);
   const semantics = hasCurrentSourceContract(header) ? currentSemanticContract(header) : null;
   if (!semantics || packet.semantic_contract?.id !== semantics.id || packet.semantic_contract?.sha256 !== semantics.sha256
@@ -847,12 +859,11 @@ function safeFileToken(value: string): string {
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
 
 /** Every route has a deliberate entry (tsc-checked); null names no table here, and
- * such a route refuses (the exact routes, pressure-2 and pressure-source-1, with or
- * without load/reference states, refuse earlier by the policy). */
+ * such a route refuses. Epoch 8 names the exact routes' tables. */
 const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported">, string | null>> = Object.freeze({
   preview_physics: "semantic_contract_v0_3_preview_physics_2.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
-  pressure_source: null, pressure: null,
+  pressure_source: "semantic_contract_v0_3_pressure_source_1.json", pressure: "semantic_contract_v0_3_pressure_2.json",
 });
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
@@ -862,9 +873,25 @@ function semanticTablePath(source: MechanicsResult): string {
   if (!file) throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   return `fixtures/results/${file}`;
 }
-async function validateNeutralTransportEvidence(header: MechanicsResult): Promise<void> {
+async function validateNeutralTransportEvidence(header: MechanicsResult, source?: MechanicsResult): Promise<void> {
   const route = sourceContract(header);
   if (route === "preview_physics") readerTransport("preview-physics", header);
+  else if (route === "pressure_source") {
+    readerTransport("pressure-source", header);
+    // Design §3: a supplied pressure-source-1 source is read through the full raw reader
+    // (no invocation), as Rust's derivative and Python's record builder read it; the
+    // shallow source-recovery check omits raw-row validation.
+    if (source !== undefined) readerValidate("pressure-source", source);
+  }
+  // Epoch 8 (design §3, §4.3): pressure-2 has no transport reader, so its package is read
+  // through its supplied source, as Python reads it; the source bindings above tie every
+  // copied member to it. Without a source, Rust refuses by name
+  // (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
+  else if (route === "pressure") {
+    if (source === undefined) readerTransport("pressure", header);
+    else if (sourceContract(source) !== "pressure") throw new Error("SN-SOURCE-METHOD-BINDING-MISMATCH");
+    else readerValidate("pressure", source);
+  }
   // T6S-5: the accepted reader's transport checks (G0-G2 and the base transport
   // metadata on its projection); a refusal carries the reader's code.
   else if (isRetainedRoute(route)) await validateRetainedPrecisionTransport(header);

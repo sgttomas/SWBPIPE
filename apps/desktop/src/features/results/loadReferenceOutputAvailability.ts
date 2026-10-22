@@ -1,26 +1,24 @@
 /** Desktop output availability for gated result routes (T1 WP2).
  *
  * ROOT deferred every desktop output of load/reference-state results to T6
- * (T1_WAVE1_RULINGS.md section 12): no file, package, handoff or external
- * request may carry their result data yet. B7b retired load-reference-1 and
- * load-reference-source-1 with the v2 contract: a load/reference-state result is
- * now published under pressure-2 or pressure-source-1, both of which refuse on
- * every surface, each with its own reason. Every such surface calls this one
- * function and shows the route's one reason; the report package keeps T0R's own
- * fresh-result refusal (REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE). The statement
- * is about the desktop route only: the result stays readable, and nothing here
- * is a finding about the result or its evidence. Text only; it never changes
+ * (T1_WAVE1_RULINGS.md section 12). The owner's ruling of 2026-10-21 (epoch 8, ruling
+ * 11B: "A accept your recommendations for the entire set.") ends that deferral for the
+ * current exact identities: a load/reference-state result is published under
+ * pressure-2 or pressure-source-1 since B7b, and follows the Rust reader there (DEL-04-07
+ * Design `desktop-exact-outputs.md` §5.4).
+ *
+ * This function returns the route's shared refusal, whatever the surface: the reason a
+ * gated route carries, or null. Its remaining product caller is the rendered report,
+ * which every gated route refuses. The surfaces behind `LoadReferenceOutputGate` read
+ * their own per-surface decision (`surfaceRouteRefusal`), and the Result Export and
+ * Stress-Neutral Export panels read theirs (`surfaceOutputRefusal`). The report package
+ * keeps T0R's own fresh-result refusal (REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE). The
+ * statement is about the desktop route only: the result stays readable, and nothing
+ * here is a finding about the result or its evidence. Text only; it never changes
  * standing, rows or bytes.
  *
  * U6d (D-U6-8; D2 4.9.6): the F2a preview successor's desktop outputs are
  * likewise T6's. The same shared function returns its own reason for it.
- *
- * T6S-3 (RR decisions 2 and 12): the reasons come from the per-route output
- * policy (`outputPolicy.ts`), and this function's meaning is unchanged: it returns
- * the route's shared refusal on every surface that calls it. The eighteen surfaces
- * behind `LoadReferenceOutputGate` keep calling it. The Result Export and
- * Stress-Neutral Export panels no longer call it: they read the policy's
- * per-surface decision, which admits an eligible successor there only.
  */
 import { routeOutputRefusal } from "./outputPolicy";
 import type { MechanicsResult } from "../../types";

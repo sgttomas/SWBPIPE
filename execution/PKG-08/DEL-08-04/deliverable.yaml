@@ -202,3 +202,5 @@ checks:
 - core/reporting/result_export/tests/derivative_contract.rs
 - apps/desktop/src/features/result-export/resultExportAdapter.test.ts
 - apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
+- apps/desktop/src/features/result-export/exactOutputTwins.test.tsx
+- apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts

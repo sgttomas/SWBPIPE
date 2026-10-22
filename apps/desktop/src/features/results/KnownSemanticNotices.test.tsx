@@ -3,14 +3,17 @@ import { describe, expect, it } from "vitest";
 import inventedSparse from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import inventedModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
 import pressureSourceN05 from "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json";
-import { PRESSURE_SOURCE_OUTPUT_REFUSAL } from "./outputPolicy";
+import pressureConnected from "../../../../../fixtures/results/pressure_connected_mechanics_sparse.json";
+import pressureLoadReference from "../../../../../fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json";
+import pressureSourceLoadReference from "../../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json";
+import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceRouteRefusal } from "./outputPolicy";
 import { ResultsPanel } from "./ResultsPanel";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { ComparisonPanel } from "../comparison/ComparisonPanel";
 import { LocalFeaHandoffPanel } from "../local-fea-handoff/LocalFeaHandoffPanel";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
 import { StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
-import { COMBINATION_GATE_REASONS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_REPORT } from "./knownSemanticLimitations";
+import { COMBINATION_GATE_REASONS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_REPORT, isFreshSemanticResult, knownSemanticNotices } from "./knownSemanticLimitations";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { formatComponentStressModifierSummary } from "../report/ReportPanel";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -62,8 +65,25 @@ describe("text-only T0R UI (DESIGN §7)", () => {
   });
   it("report package is unavailable for every fresh identity (N-REPORT)", () => {
     expect(reportPackageUnavailableReason(clone(inventedSparse))).toBe(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
-    // B7b: the composite (pressure-source-1) refuses with its own output-policy reason.
-    expect(reportPackageUnavailableReason(clone(pressureSourceN05))).toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
+    // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.5): pressure-2 and the composite
+    // (pressure-source-1), with or without load/reference states, are fresh and take the same
+    // fresh-result refusal; the route-specific arm is gone, and their policy entry
+    // (`report-package: refused`) records the decision.
+    for (const [exact, reason] of [[pressureConnected, PRESSURE_2_OUTPUT_REFUSAL], [pressureLoadReference, PRESSURE_2_OUTPUT_REFUSAL], [pressureSourceN05, PRESSURE_SOURCE_OUTPUT_REFUSAL], [pressureSourceLoadReference, PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const) {
+      expect(isFreshSemanticResult(clone(exact))).toBe(true);
+      expect(reportPackageUnavailableReason(clone(exact))).toBe(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
+      expect(surfaceRouteRefusal(clone(exact), "report-package")).toBe(reason);
+    }
+  });
+  it("adds no notice for the exact routes on the opened output panels (§5.3)", () => {
+    for (const exact of [pressureConnected, pressureLoadReference, pressureSourceN05, pressureSourceLoadReference]) {
+      expect(knownSemanticNotices(clone(exact))).toEqual([]);
+      for (const prefix of ["result-export", "stress-neutral", "rule-check"]) {
+        const { container, unmount } = render(<KnownSemanticNotices result={clone(exact)} testIdPrefix={prefix} />);
+        expect(container.innerHTML).toBe("");
+        unmount();
+      }
+    }
   });
   it("report packet SIF section never presents SIF×k rows as stress", () => {
     // The component refs of SIF×k review rows (component_user_stress_multiplier_review),
