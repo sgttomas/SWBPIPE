@@ -22,6 +22,8 @@ const BASELINE_CANVAS_CSS = [919, 628];
 //   node generate-fixtures.mjs --check [--protocol-history-dir <absolute dir>]
 //     regenerates every frozen file in memory, compares it by SHA-256 and byte count with the
 //     frozen bytes on disk, and WRITES NOTHING. This is the only mode the frozen first profile needs.
+//     Since the owner's 2026-10-22 re-pin (model document 0.6.0) it reproduces the current manifest;
+//     the first profile still binds the earlier one (REPAIR_2026-09_FIRST_PROFILE.md).
 //   node generate-fixtures.mjs [--protocol-history-dir <absolute dir>]
 //     the original writing mode. It needs the nine preserved protocol-history files, and it now
 //     verifies them BEFORE the first write, so a missing history can no longer leave a partial write.

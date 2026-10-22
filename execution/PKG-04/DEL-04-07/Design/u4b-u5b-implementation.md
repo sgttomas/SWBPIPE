@@ -229,8 +229,8 @@ on (§2.3).
   reference tree, its `SHA256SUMS` and its generator's own check are unchanged.
 - **The four owner-confirmed 0.5.0 re-authorings** (b7-plan, "Decisions applied") become 0.6.0
   edits of the same files. `tests/test_model_schema.py::check_domain_fixtures` expects 0.6.0.
-- **The frozen UI benchmark is unchanged.** Its four 0.2.0 models remain under the pending owner
-  decision (b7-plan).
+- **The frozen UI benchmark is unchanged.** Its four 0.2.0 models remained under the then-pending
+  owner decision, since ruled (b7-plan, "Owner decision: the frozen UI benchmark", 2026-10-22).
 
 ## 2. U4b: quantities and rows
 
