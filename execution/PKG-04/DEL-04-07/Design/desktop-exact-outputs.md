@@ -534,9 +534,9 @@ Not reserved: `apps/desktop/native-smoke/expected.json` is the procedure for the
     3. It changes no fixture that a writer owns. Its only fixture additions are §6.2's new plain twins, written by existing writers.
   - `fixtures/**` selects no registered check (`software-workflow.json:63-82`), so a fixture-only change does not select `desktop-test`.
   - **R-A's D3 registration** is unaffected, because this unit changes no priced source.
-- **The frozen UI benchmark** (pending the owner).
+- **The frozen UI benchmark** (pending the owner when this unit was planned; ruled 2026-10-22, `b7-plan.md`, "Owner decision: the frozen UI benchmark").
   - No file under `apps/desktop/e2e/ui-foundation/**` changes.
-  - Its 0.2.0 models are refused at save and edit as `retired_schema` (`b7-plan.md`, "Pending owner decision: the frozen UI benchmark"). A 0.2.0 model cannot produce an exact identity, so the benchmark never meets an exact result.
+  - Its models were then 0.2.0, refused at save and edit as `retired_schema`, and could not produce an exact identity, so the benchmark never met an exact result. The owner's ruling regenerated them as pressure-free 0.6.0 models.
   - No e2e spec exercises an exact result.
 - **B8 and G10** (held by the owner). Neither bears on this unit.
   - **B8** activates retained successors on the desktop. The retained policy entries, texts and standing are unchanged, and the exact identities are not successors.
