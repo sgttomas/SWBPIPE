@@ -630,7 +630,8 @@ def _leaf_paths(before, after, path=""):
 def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=None):
     """Each committed derivative golden against the repair's parent: only each diagnostic's
     mapped members and the derivative hash move, and every diagnostic now names itself."""
-    exact = lambda text: json.loads(text, parse_float=str, parse_int=str)
+    # Number tokens stay `Token`s, distinct from JSON strings (Codex review of #1517).
+    exact = lambda text: json.loads(text, parse_float=Token, parse_int=Token)
     for name in DIAG_GOLDENS:
         before = exact(subprocess.run(["git", "show", f"{DIAG_BASE}:projects/chirality-piping/{name}"],
                                       cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
@@ -642,18 +643,25 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostic
 
 
 def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
-    """A changed row value, or a dropped diagnostic, in a regenerated golden fails."""
+    """A changed row value, a number turned into a string, or a dropped diagnostic, in a
+    regenerated golden fails at that path; each mutant keeps every other token."""
     texts = {name: (PROJECT / name).read_text() for name in DIAG_GOLDENS}
     name = DIAG_GOLDENS[0]
+    # The token-preserving re-serialisation alone passes, so each failure is the mutation's.
+    test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(
+        current=dict(texts, **{name: _dump(load(texts[name]))}))
     value = re.search(r'"value":(-?[0-9][0-9.eE+-]*)', texts[name])
     assert value
-    changed = dict(texts, **{name: texts[name][: value.start(1)] + "1" + texts[name][value.start(1):]})
-    with pytest.raises(AssertionError, match=name):
-        test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=changed)
-    document = json.loads(texts[name])
-    document["result_envelope"]["diagnostics"].pop()
-    with pytest.raises(AssertionError, match=name):
-        test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: json.dumps(document)}))
+    for mutant in (texts[name][: value.start(1)] + "1" + texts[name][value.start(1):],
+                   texts[name][: value.start(1)] + '"' + value.group(1) + '"' + texts[name][value.end(1):]):
+        with pytest.raises(AssertionError, match=re.escape(name)):
+            test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: mutant}))
+    document = load(texts[name])
+    diagnostics = dict(dict(document)["result_envelope"])["diagnostics"]
+    assert diagnostics
+    diagnostics.pop()
+    with pytest.raises(AssertionError, match=re.escape(name) + r".*'/result_envelope/diagnostics'"):
+        test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: _dump(document)}))
 
 
 def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():
