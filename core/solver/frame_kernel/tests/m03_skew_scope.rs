@@ -71,11 +71,19 @@ fn p2(k: i32) -> f64 {
 const LENGTH_EXPONENT: i32 = -39;
 
 /// The section as PP `derive_pipe_section` forms it: (A, I, J).
+///
+/// PP writes `x.powi(2)` and `x.powi(4)`. In the debug profile these are
+/// x·x and (x·x)·(x·x), the products the Fraction cross-check takes as its
+/// inputs. They are written out here because an optimizing build may
+/// constant-fold `powi` on these constant operands differently: at
+/// opt-level 2, I and therefore every E moved by a few ulps, and the exact
+/// errors moved off the reference. `Case::e_bits` pins the result.
 fn section() -> (f64, f64, f64) {
     let (od, wall) = (1.0e-11_f64, 1.0e-12_f64);
     let id = od - 2.0 * wall;
-    let area = PI * (od.powi(2) - id.powi(2)) / 4.0;
-    let inertia = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    let (od2, id2) = (od * od, id * id);
+    let area = PI * (od2 - id2) / 4.0;
+    let inertia = PI * (od2 * od2 - id2 * id2) / 64.0;
     (area, inertia, 2.0 * inertia)
 }
 
@@ -85,6 +93,10 @@ const G: f64 = 1.0e-100;
 struct Case {
     label: &'static str,
     e: f64,
+    /// E's bits as the Fraction cross-check forms and checks them
+    /// (`exact_reference.py`'s `RUST_E_BITS`; the record left the tree and is
+    /// in Git at 39dfd69c74).
+    e_bits: u64,
     /// RV7's table: accepted on the skew members (never on the axis member).
     skew_accepted: bool,
     /// RV7's 2EI/L and 4EI/L relative errors, as stated (K2A_REVIEW.md B1;
@@ -103,6 +115,7 @@ fn cases() -> Vec<Case> {
         Case {
             label: "(12E)I=2^-1030",
             e: e(-1030),
+            e_bits: 0x08c9_c9a8_b855_73a6,
             skew_accepted: true,
             rv7_errors: Some((1.1e-13, 5.7e-14)),
             exact_errors: Some((1.1378e-13, 5.6750e-14)),
@@ -110,6 +123,7 @@ fn cases() -> Vec<Case> {
         Case {
             label: "(12E)I=2^-1040",
             e: e(-1040),
+            e_bits: 0x0829_c9a8_b855_73a6,
             skew_accepted: true,
             rv7_errors: Some((1.16e-10, 5.8e-11)),
             exact_errors: Some((1.1642e-10, 5.8208e-11)),
@@ -117,6 +131,7 @@ fn cases() -> Vec<Case> {
         Case {
             label: "(12E)I=2^-1045",
             e: e(-1045),
+            e_bits: 0x07d9_c9a8_b855_73a6,
             skew_accepted: true,
             rv7_errors: Some((3.73e-9, 1.86e-9)),
             exact_errors: Some((3.7253e-9, 1.8626e-9)),
@@ -124,6 +139,7 @@ fn cases() -> Vec<Case> {
         Case {
             label: "(12E)I=2^-1050",
             e: e(-1050),
+            e_bits: 0x0789_c9a8_b855_73a6,
             skew_accepted: true,
             rv7_errors: Some((1.19e-7, 5.96e-8)),
             exact_errors: Some((1.1921e-7, 5.9605e-8)),
@@ -131,6 +147,7 @@ fn cases() -> Vec<Case> {
         Case {
             label: "(12E)I=2^-1055",
             e: e(-1055),
+            e_bits: 0x0739_c9a8_b855_73a6,
             skew_accepted: false,
             rv7_errors: None,
             exact_errors: None,
@@ -138,6 +155,7 @@ fn cases() -> Vec<Case> {
         Case {
             label: "S6a (12E)I=2.5*2^-1075",
             e: (2.5 / (12.0 * i)) * p2(-1000) * p2(-75),
+            e_bits: 0x0610_1e09_7335_6848,
             skew_accepted: false,
             rv7_errors: None,
             exact_errors: None,
@@ -462,6 +480,7 @@ fn m03_skew_pin_rv7_cases_outcomes_and_figures() {
     for case in cases() {
         let ctx = case.label;
         let e = case.e;
+        assert_eq!(e.to_bits(), case.e_bits, "{ctx}: E differs from the reference's input");
         let c = pre_k2a_coefficients(&member(&case, &orientations()[0]).properties);
         // Intermediates, as main forms them.
         let products = [12.0 * e * i, 6.0 * e * i, 4.0 * e * i, 2.0 * e * i];
