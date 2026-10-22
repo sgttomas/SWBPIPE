@@ -1534,10 +1534,12 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // Current canonical TEXT closure at the T4-U4b/U5b epoch source b4c9f35f8e, C_eq = 3, maximum
-    // over the L/E routes, unchanged at O4's 7823a79f45 (T4-U6/U8's at 588de796a4: 262,735,773;
-    // B7b's at 7e63847: 264,366,429).
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 269_494_417, "current text closure at C_eq = 3, maximum over routes");
+    // Current canonical TEXT closure at the pre-0.4 failure unification's source 64144ab20b, C_eq = 3,
+    // maximum over the L/E routes (retained-pricing-rules.md §8.14): +429 B from the T4-U4b/U5b epoch's
+    // 269,494,417 (b4c9f35f8e; unchanged through O4's 7823a79f45 and R-A's 7d946b7e94), the three S3
+    // finalization diagnostics whose error text may now be the S2 cause (PU-S2). T4-U6/U8's at
+    // 588de796a4: 262,735,773; B7b's at 7e63847: 264,366,429.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 269_494_846, "current text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_595, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -1754,7 +1756,9 @@ fn profile_in_build_record() {
         println!("I65_G5_ATOM {:?}\t{}\t{}\t{}", ATOM_BINDINGS[i], ATOM_NAMES[i], ATOM_VALUES[i], ATOM_ASSUMED[i]);
     }
     assert!(SPARSE.is_some() && DENSE.is_some());
-    assert_eq!(PHASE_NAMES.map(|n| n.split(' ').next().unwrap()), ["W1", "W2", "W3", "W4", "W5", "X1", "X2"]);
+    // Pre-0.4 failure unification D3 (retained-pricing-rules.md §8.14, PU-X3): X3, the republication's second ordinary
+    // span after a selected source could not finalize, is its own phase.
+    assert_eq!(PHASE_NAMES.map(|n| n.split(' ').next().unwrap()), ["W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3"]);
     // The pinned record G6 qualifies (R/I65/u4_g6_01/QUALIFICATION.md §3; B1: R/I104/b1_sq_01/QUAL_B1.md): each phase's requested
     // + moving bytes, without R, in the build whose identity is PINNED_RECORD_IDENTITY. It is
     // asserted only in that build (ROOT's ruling on part 2's decision 1); another identity has
@@ -1773,17 +1777,18 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// R-A actual-source record at 7d946b7e94 (retained-pricing-rules.md §8.13): requested + moving
-/// bytes, without R or the separately upward-rounded TEXT reserve, from the canonical 100-form
-/// union. Every phase rises by 59,424 B in both modes from the W1 coverage repair's record
-/// (7299e6319d, §8.11; unchanged at corner 1's aefefa5043, §8.12): per attempted case (three
-/// cases, in O_base) the plan's B1 hint vector (1,760 Option<u32>) and the live evaluation's
-/// Shortcuts buffers (5,728 B), and once in T25 the replay's hint vector and Shortcuts (RA-HS,
-/// RA-SC). This record binds the unchanged build identity and native values (one new atom,
-/// s(Option<u32>) = 8); reviewed-input registration is separate below.
-pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [6_205_036_592, 6_540_489_713, 8_435_703_463, 8_230_230_428, 7_336_018_076, 8_273_609_345, 7_109_603_574],
-    [6_264_167_936, 6_599_621_057, 8_494_834_807, 8_289_361_772, 7_395_149_420, 8_332_740_689, 7_168_734_918],
+/// Pre-0.4 failure unification actual-source record at 64144ab20b (retained-pricing-rules.md
+/// §8.14): requested + moving bytes, without R or the separately upward-rounded TEXT reserve, from
+/// the canonical 100-form union, now over eight phases. From R-A's record (7d946b7e94, §8.13) TAV_W
+/// and TAV_X rise by 6,277,658 B (the cause texts reachable on route E: PU-ID, PU-S2, PU-C, PU-CL)
+/// and FAILED_MANIFEST_COPY, STAGED, SUCC, T16, T17 and T25 by 429 B each (Text(diag_env)'s three S3
+/// finalization diagnostics, PU-S2), so W1, W2 and X2 rise by 6,278,087 B, W5 and X1 by
+/// 6,278,516 B and W3 and W4 by 6,278,945 B in both modes. X3 is new (PU-X3): the republication's
+/// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
+/// registration is separate below.
+pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
+    [6_211_314_679, 6_546_767_800, 8_441_982_408, 8_236_509_373, 7_342_296_592, 8_279_887_861, 7_115_881_661, 6_794_165_825],
+    [6_270_446_023, 6_605_899_144, 8_501_113_752, 8_295_640_717, 7_401_427_936, 8_339_019_205, 7_175_013_005, 6_853_297_169],
 ];
 
 #[test]
