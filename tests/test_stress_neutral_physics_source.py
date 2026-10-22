@@ -576,8 +576,8 @@ def test_desktop_shaped_plain_packages_pass_the_python_validators(name):
     raw_path, request_path, _mode = PLAIN_TWINS[name]
     raw = json.loads((PROJECT / raw_path).read_text())
     request = json.loads((PROJECT / request_path).read_text())
-    record = json.loads((PROJECT / f"fixtures/results/desktop_shaped_{name}.analysis_run.json").read_text())
-    packet = json.loads((PROJECT / f"fixtures/results/desktop_shaped_{name}.stress_neutral.json").read_text())
+    record = json.loads((PROJECT / f"apps/desktop/src/test-support/desktop-shaped/desktop_shaped_{name}.analysis_run.json").read_text())
+    packet = json.loads((PROJECT / f"apps/desktop/src/test-support/desktop-shaped/desktop_shaped_{name}.stress_neutral.json").read_text())
     before = deepcopy((raw, record, packet))
     # The desktop record, against its source.
     validate_analysis_run_v0_3(record, raw)

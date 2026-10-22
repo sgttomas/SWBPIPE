@@ -263,13 +263,17 @@ async function oracle(input: Input) {
 
 /** §6.2 ("the Python validator test reads the desktop-shaped members through its own
  * checks"): the desktop-built package and the 0.3 record it binds, committed for the plain
- * inputs as `fixtures/results/desktop_shaped_<twin>.{stress_neutral,analysis_run}.json`
- * and read by `tests/test_stress_neutral_physics_source.py`. The bytes are the desktop's
+ * inputs as `apps/desktop/src/test-support/desktop-shaped/desktop_shaped_<twin>.{stress_neutral,analysis_run}.json`
+ * and read by `tests/test_stress_neutral_physics_source.py`. They live outside `fixtures/`
+ * because JavaScript writes a float zero as `0`, so a transported receipt is value- and
+ * hash-equal to its original but not equal as a serde_json value, which the publication
+ * corpus (`core/reporting/result_export/tests/hash_corpus.rs`) requires of every file under
+ * `fixtures/`. The bytes are the desktop's
  * JSON values in the repository's carrier encoding (compact `JSON.stringify` plus a
  * newline; the download link indents the same values, `jsonDataHref`). Written only with
  * DESKTOP_STRESS_NEUTRAL_WRITE_FIXTURES=1; otherwise byte-checked. */
 const DESKTOP_SHAPED_WRITE = process.env.DESKTOP_STRESS_NEUTRAL_WRITE_FIXTURES === "1";
-const desktopShaped = (input: Input, member: "stress_neutral" | "analysis_run") => resolve(root, input.twin.replace("fixtures/results/", "fixtures/results/desktop_shaped_") + `.${member}.json`);
+const desktopShaped = (input: Input, member: "stress_neutral" | "analysis_run") => resolve(root, input.twin.replace("fixtures/results/", "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_") + `.${member}.json`);
 const desktopText = (value: unknown) => `${JSON.stringify(value)}\n`;
 
 /* -------------------------------------------------------------------------- *
