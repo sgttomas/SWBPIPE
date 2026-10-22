@@ -7,8 +7,27 @@ missing diff information conservatively selects coverage.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
 project running the R2 smoke and save/reopen journey and the rotation-glyph
-browser evidence (DEL-07-05:1). The full desktop Vitest
-suite and browser matrix run only by explicit workflow dispatch.
+browser evidence (DEL-07-05:1). The browser matrix runs only by explicit
+workflow dispatch.
+
+The `piping-desktop` selection adds the full desktop Vitest suite
+(`npm run test:desktop`) to that product job, before the build. It is selected
+when the PR diff changes an input the suite reads or compiles into its wasm
+engines:
+- any shared CI input that selects the piping product;
+- any project path that desktop source names, exactly or as a directory, by
+  a project-relative string or a relative import;
+- any other piping-selected input except Python and Rust code;
+- Rust in the normal and build path dependencies of the two wasm engine crates
+  that `apps/desktop/scripts/build-wasm-engine.mjs` builds, and files that
+  their `src/` or `build.rs` read by `include*!` or `#[path]`.
+
+Python- or Rust-only diffs outside those inputs do not select it. Docs that
+desktop tests read select it, and with it the product job. An unreadable
+source tree, crate or compile read selects the suite. The selection's reasons
+are in the plan artifact. The browser reuse key includes whether the suite ran,
+so a pass without it is never reused for a run that needs it. Dispatch runs the
+suite.
 
 Rust changes select their owning crate and transitive consumers through resolved
 Cargo path dependencies, including dev, build, target and workspace dependencies.
