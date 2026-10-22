@@ -423,8 +423,12 @@ it.each(['json','csv'] as const)('rechecks source and analysis contents at %s ac
   vi.mocked(isNativeResultSaveRuntime).mockReturnValue(route==='json');vi.mocked(saveNativeResultJson).mockClear();
   const view=render(<StressNeutralExportPanel {...props}/>);
   const id=route==='json'?'stress-neutral-export-link':'stress-neutral-csv-link';
-  if(route==='json'){await view.findByTestId(`${id}-local-private-intent`);fireEvent.click(view.getByTestId(`${id}-local-private-intent`));}
-  const link=await waitFor(()=>{const element=view.getByTestId(id);expect(element.tagName).toBe(route==='json'?'BUTTON':'SPAN');if(route==='json')expect(element).toBeEnabled();else expect(element).toHaveAttribute('aria-disabled','true');return element;});
+  // The packet build, then the link's validation, can outlast a 1 s wait under load, so
+  // these waits end on the rendered state (`untilRendered`, as the delayed-packet test).
+  if(route==='json'){await untilRendered(()=>view.queryByTestId(`${id}-local-private-intent`));fireEvent.click(view.getByTestId(`${id}-local-private-intent`));}
+  const link=await untilRendered(()=>{const element=view.queryByTestId(id);
+   return element&&element.tagName===(route==='json'?'BUTTON':'SPAN')&&(route==='json'?!(element as HTMLButtonElement).disabled:element.getAttribute('aria-disabled')==='true')?element:null;});
+  expect(link.tagName).toBe(route==='json'?'BUTTON':'SPAN');if(route==='json')expect(link).toBeEnabled();else expect(link).toHaveAttribute('aria-disabled','true');
   // Downstream privacy policy already withholds CSV; preserve that refusal.
   // The activation guard also retires the withheld control on content change.
   if(change==='source')props.result.results[0].value+=1;else props.analysisRun.analysis_run.run_name+=' changed without rehash';
