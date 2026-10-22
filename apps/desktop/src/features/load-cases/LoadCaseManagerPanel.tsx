@@ -198,12 +198,15 @@ export function LoadCaseManagerPanel({
   const changed = selectedPrimitive
     ? proposedMagnitude.trim() !== currentMagnitude || proposedMagnitudeUnit.trim() !== currentMagnitudeUnit
     : false;
+  // The create form's rule: a finite, nonzero decimal magnitude.
+  const parsedProposedMagnitude = parseFiniteNumber(proposedMagnitude);
+  const proposedMagnitudeValid = parsedProposedMagnitude !== null && parsedProposedMagnitude !== 0;
   const intent =
-    selectedPrimitive && changed
+    selectedPrimitive && changed && proposedMagnitudeValid
       ? buildLoadMagnitudeIntent({
           model,
           primitive: selectedPrimitive,
-          proposedMagnitude,
+          proposedMagnitude: parsedProposedMagnitude,
           proposedUnit: proposedMagnitudeUnit,
           unitCatalogRoute,
           rationale
@@ -243,8 +246,10 @@ export function LoadCaseManagerPanel({
   const combinationFactorChanged = selectedCombinationTerm
     ? proposedCombinationFactor.trim() !== "" && proposedCombinationFactor.trim() !== currentCombinationFactor
     : false;
+  // The create forms' rule: a finite decimal factor; zero is a valid explicit term.
+  const proposedCombinationFactorValid = parseFiniteNumber(proposedCombinationFactor) !== null;
   const combinationIntent =
-    selectedCombinationTerm && combinationFactorChanged
+    selectedCombinationTerm && combinationFactorChanged && proposedCombinationFactorValid
       ? buildCombinationFactorIntent({
           model,
           termView: selectedCombinationTerm,
@@ -419,6 +424,16 @@ export function LoadCaseManagerPanel({
       return { ...draft, id, loadCaseId, minuendId, subtrahendId, operandIds };
     });
   }, [model, nextCombinationId]);
+
+  useEffect(() => {
+    // As the combination draft does: a model update that takes the drafted id re-proposes it.
+    setLoadCaseDraft((draft) => {
+      const id = draft.id.trim() && !model.load_cases.some((loadCase) => loadCase.id === draft.id.trim())
+        ? draft.id
+        : nextLoadCaseId;
+      return id === draft.id ? draft : { ...draft, id };
+    });
+  }, [model, nextLoadCaseId]);
 
   function updateLoadCaseDraft(field: keyof LoadCaseDraft, value: string) {
     setLoadCaseDraft((draft) => ({ ...draft, [field]: value }));
@@ -996,6 +1011,8 @@ export function LoadCaseManagerPanel({
           <p className="muted load-edit-preview" data-testid="load-manager-edit-preview">
             {intent
               ? `${intent.operation_id}; before=${intent.change.before}; after=${intent.change.after}; unit=${intent.change.unit}; ${intent.change.dimension}; unit_validation=${intent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
+              : changed && !proposedMagnitudeValid
+              ? `current=${currentMagnitude} ${primitiveUnit(selectedPrimitive.load)}; enter a finite nonzero magnitude; no changed magnitude queued`
               : `current=${currentMagnitude} ${primitiveUnit(selectedPrimitive.load)}; no changed magnitude queued`}
           </p>
           <div className="primitive-load-delete-controls">
@@ -1247,6 +1264,8 @@ export function LoadCaseManagerPanel({
           <p className="muted load-edit-preview" data-testid="load-manager-combination-factor-preview">
             {combinationIntent
               ? `${combinationIntent.operation_id}; before=${combinationIntent.change.before}; after=${combinationIntent.change.after}; unit=${combinationIntent.change.unit}; ${combinationIntent.change.dimension}; unit_validation=${combinationIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
+              : combinationFactorChanged && !proposedCombinationFactorValid
+              ? `current=${currentCombinationFactor}; enter a finite factor; no changed combination factor queued`
               : `current=${currentCombinationFactor}; no changed combination factor queued`}
           </p>
           <div className="combination-delete-controls">
@@ -2219,7 +2238,7 @@ function buildLoadMagnitudeIntent({
 }: {
   model: PreviewModel;
   primitive: PrimitiveLoadView;
-  proposedMagnitude: string;
+  proposedMagnitude: number;
   proposedUnit: string;
   unitCatalogRoute: UnitCatalogRoute | null;
   rationale: string;
@@ -2228,11 +2247,7 @@ function buildLoadMagnitudeIntent({
   const operationToken = `${safeToken(primitive.loadCase.id)}-${safeToken(primitiveId(primitive.load))}-magnitude`;
   const unit = proposedUnit.trim() || primitiveUnit(primitive.load);
   const dimension = primitiveDimension(primitive.load);
-  const parsedMagnitude = parseFiniteNumber(proposedMagnitude);
-  const after = JSON.stringify({
-    value: parsedMagnitude ?? (proposedMagnitude.trim() || "TBD"),
-    unit
-  });
+  const after = JSON.stringify({ value: proposedMagnitude, unit });
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "modify",
