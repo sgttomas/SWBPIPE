@@ -320,7 +320,7 @@ describe("the opened surfaces follow the reader's standing", () => {
     expect(packet.contract_evidence).toStrictEqual(result.contract_evidence);
     expect(Object.hasOwn(packet, "source_block_recovery")).toBe(false);
     await validateStressNeutralExportPacket(JSON.parse(JSON.stringify(packet)), result, analysisRun, modelLoadBasisRefs(model));
-  });
+  }, 120_000); // heavy native-replay builds; the hosted runner is several times slower
   it.each(SOURCE_RAWS)("pressure-source-1 %s: the policy adds no refusal; standing declines it with Rust's finding, and both builders refuse by their standing code", async (_id, name, mode) => {
     const { model, result, analysisRun } = await sourceState(name, mode);
     for (const surface of OPENED) {
@@ -342,7 +342,7 @@ describe("the opened surfaces follow the reader's standing", () => {
     expect(registered).toMatchObject({ contract: "pressure_source", status: "needs_recompute", eligible: false });
     expect(registered.findings).toContain(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE);
     await builders();
-  });
+  }, 120_000); // heavy native-replay builds; the hosted runner is several times slower
   it.each(MODES)("the pressure-2 fallback (%s): the policy adds no refusal; standing declines it, and both builders refuse by their standing code", async (mode) => {
     const { model, result, analysisRun } = await scenario(`${FALLBACK}-${mode}.raw.json`, `${FALLBACK}.request.json`);
     expect(Array.isArray((result.contract_evidence as Json).load_reference_states)).toBe(true);
@@ -352,7 +352,7 @@ describe("the opened surfaces follow the reader's standing", () => {
     expect(standing.findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
     await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
     await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
-  });
+  }, 120_000); // heavy native-replay builds; the hosted runner is several times slower
   it.each(STATES)("%s: the export panels add no policy refusal, and offer nothing without the live capture", async (_id, make, reason) => {
     // A received copy is never Current (no live native capture); the panels show their
     // empty state, never the policy's refusal, and no disclosure line.
