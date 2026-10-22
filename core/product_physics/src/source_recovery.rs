@@ -255,15 +255,15 @@ impl SelectedSourceRecovery {
         Ok(result)
     }
 
-    /// ROOT CP3 SF-1 screen (resolved load/reference-state cases only).
-    /// Captured replay continues this attempt's own ledger and repeats its
+    /// ROOT CP3 SF-1 screen, on both exact routes (pre-0.4 failure
+    /// unification §3). Captured replay continues this attempt's own ledger and repeats its
     /// source closure and exact solve, so its work is close to the live
     /// charge. Selection first reserves an amount equal to that charge;
     /// otherwise the attempt is declined as a budget refusal whose rejected
     /// work is the unreserved replay. This is a screen, not a guarantee:
     /// derived recipes and the finalization reservation are charged before
     /// replay, and replay can cost slightly more than the live charge. A
-    /// selected join that still cannot finalize is published on the ordinary
+    /// selected source that still cannot finalize is published on the ordinary
     /// route (CP4 review SF-1R).
     pub fn reserve_captured_replay(self, limit: usize) -> Result<Self, RecoveryFailure> {
         let charged = self.summary.work.charged;
@@ -278,9 +278,10 @@ impl SelectedSourceRecovery {
         })
     }
 
-    /// ROOT CP3 SF-1: the invocation's selected join could not finalize, so
-    /// its republication declines every successful attempt. The executed work
-    /// stays charged; nothing is selected or published from this response.
+    /// ROOT CP3 SF-1, on both exact routes: the invocation's selected join (its
+    /// source composite) could not finalize, so its republication declines
+    /// every successful attempt. The executed work stays charged; nothing is
+    /// selected or published from this response.
     pub fn decline_withheld(self) -> RecoveryFailure {
         RecoveryFailure {
             stage: "invocation join withheld",
@@ -3059,13 +3060,22 @@ mod tests {
         }
     }
 
-    /// RF-14 (design §2.9): the pre-0.4 route keeps its publication rule. A
-    /// congruence selection under a private case limit between its selection
-    /// charge c and 2c is not declined at the 0.4 route's captured replay
-    /// screen: it selects, and its finalization, which cannot fit, takes the
-    /// pre-0.4 named refusal.
+    /// RF-14 (design §2.9), restated by the pre-0.4 failure unification
+    /// (DEL-04-08 Design `pre04-failure-unification.md` §7). RF-14 pinned the
+    /// routes' asymmetry ("Pre-0.4 publication behaviour changed (for example a
+    /// replay screen added)"), which that unit removes: both routes now screen
+    /// selection by the captured replay's reservation and republish ordinarily
+    /// when a selected source still cannot finalize. Its mutant row is restated:
+    /// "The routes' selection or failure behaviour diverge (a screen or a
+    /// republication missing on either route)". A congruence selection under a
+    /// private case limit of c + c/2 is declined at the screen: nothing is
+    /// selected, one attempt is charged and the invocation publishes ordinarily.
+    /// At 2c it passes the screen, its finalization cannot fit, and the
+    /// invocation republishes with the case's own replay refusal as its cause
+    /// (measured, both modes: c = 1,933,252).
     #[test]
-    fn pre04_selection_takes_no_replay_screen() {
+    fn pre04_selection_takes_the_replay_screen() {
+        use crate::source_receipt::load_state_fallback_tests::{assert_pre04_republication, unavailable, WITHHELD};
         let request = skew_pin();
         for mode in MODES {
             let fixture = request_fixture(&request);
@@ -3074,18 +3084,36 @@ mod tests {
                 .summary()
                 .work
                 .charged;
+            assert_eq!(c, 1_933_252, "{mode:?}");
+            let run = |limit: usize| {
+                let (typed, capture) = crate::source_receipt::CapturedInvocation::parse(request.clone(), mode).unwrap();
+                let mut budget = crate::SourceRecoveryBudget { per_case_limit: limit, ..Default::default() };
+                let envelope = crate::run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
+                (envelope, budget)
+            };
+            // The screen declines at c + c/2.
             let limit = c + c / 2;
-            assert!(c > limit - c, "the 0.4 screen would decline at this limit");
-            let (typed, capture) = crate::source_receipt::CapturedInvocation::parse(request.clone(), mode).unwrap();
-            let mut budget = crate::SourceRecoveryBudget { per_case_limit: limit, ..Default::default() };
-            let envelope = crate::run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
-            let codes: Vec<(&str, &str)> = envelope.diagnostics.iter().map(|d| (d.code.as_str(), d.severity.as_str())).collect();
-            assert!(!envelope.diagnostics.iter().any(|d| d.message.contains("captured replay reservation")), "{codes:?}");
-            assert!(!codes.iter().any(|(c, _)| *c == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"), "{codes:?}");
-            assert!(codes.contains(&("SOURCE_BLOCK_RECOVERY_SELECTED", "info")), "{codes:?}");
-            assert!(envelope.source_block_recovery.is_none());
-            assert!(codes.contains(&("SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking")), "{codes:?}");
+            let (envelope, budget) = run(limit);
+            assert_pre04_republication(&envelope, &request, mode);
+            let message = unavailable(&envelope, "case");
+            assert!(
+                message.contains(&format!("stage: \"captured replay reservation\", helper_stage: Replay, error: Exact(Budget), work: WorkReport {{ charged: {c}, rejected: {c}, limit: {limit} }}")),
+                "{mode:?}: {message}"
+            );
+            assert!(!message.contains("could not finalize"), "{mode:?}: {message}");
             assert_eq!(budget.attempts, 1);
+            assert!(budget.join_withheld.is_none());
+            // At 2c the screen passes; finalization's captured replay cannot fit.
+            let (envelope, budget) = run(2 * c);
+            assert_pre04_republication(&envelope, &request, mode);
+            let cause = budget.join_withheld.clone().expect("republished");
+            assert!(cause.starts_with("case case: captured source replay: "), "{mode:?}: {cause}");
+            assert!(cause.contains("Exact(Budget)"), "{mode:?}: {cause}");
+            let message = unavailable(&envelope, "case");
+            assert!(message.contains("stage: \"invocation join withheld\""), "{mode:?}: {message}");
+            assert!(message.ends_with(&format!("{WITHHELD}{cause}")), "{mode:?}: {message}");
+            assert_eq!(budget.attempts, 2);
+            assert!(budget.charged <= budget.invocation_limit);
         }
     }
 

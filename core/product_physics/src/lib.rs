@@ -938,6 +938,26 @@ pub const MECHANICS_SCHEMA_VERSION: &str = "0.2.0";
 // route's composites attempt it); generic/strict-gap defaults are separate.
 const PHYSICS_SOURCE_WORK_LIMIT: usize = 8_000_000;
 const SOURCE_BLOCKS_INVOCATION_WORK_LIMIT: usize = 64_000_000;
+/// Test builds only (pre-0.4 failure unification §4): a switch that skips the
+/// selection-time replay screen for the current thread, so that the support-norm
+/// cause test can reach S2 at a private case limit below twice the live charge.
+/// Like the private `SourceRecoveryBudget` limits it is test-only (REQ-003 (e));
+/// no product build can set it, and it changes no limit, reservation or gate.
+#[cfg(test)]
+pub(crate) mod replay_screen_hook {
+    use std::cell::Cell;
+    thread_local! { static SKIPPED: Cell<bool> = const { Cell::new(false) }; }
+    pub(crate) fn skipped() -> bool { SKIPPED.with(Cell::get) }
+    /// Runs `work` with the screen skipped on this thread, then restores it.
+    pub(crate) fn skipping<T>(work: impl FnOnce() -> T) -> T {
+        struct Restore(bool);
+        impl Drop for Restore {
+            fn drop(&mut self) { SKIPPED.with(|s| s.set(self.0)); }
+        }
+        let _restore = Restore(SKIPPED.with(|s| s.replace(true)));
+        work()
+    }
+}
 #[derive(Debug)]
 struct SourceRecoveryBudget {
     per_case_limit: usize,
@@ -947,23 +967,25 @@ struct SourceRecoveryBudget {
     publication_charged: usize,
     rejected: usize,
     attempts: usize,
-    /// 0.4.0 only (ROOT CP3 SF-1): when set, this invocation publishes every
-    /// case on its ordinary route; a successful retained-source attempt is
-    /// declined with this cause instead of being selected.
-    load_state_join_withheld: Option<String>,
-    /// 0.4.0 only: the first cause for which a selected join could not
-    /// finalize. The captured route then republishes ordinarily.
-    load_state_join_failure: Option<String>,
+    /// Both exact routes (ROOT CP3 SF-1; pre-0.4 failure unification): when
+    /// set, this invocation publishes every case on its ordinary route; a
+    /// successful retained-source attempt is declined with this cause instead
+    /// of being selected. "Join" names the source composite on both routes.
+    join_withheld: Option<String>,
+    /// Both exact routes: the first cause, with its site, for which a selected
+    /// source could not finalize. The captured route then republishes
+    /// ordinarily.
+    join_failure: Option<String>,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: PHYSICS_SOURCE_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
+    fn default() -> Self { Self { per_case_limit: PHYSICS_SOURCE_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, join_withheld: None, join_failure: None } }
 }
 impl SourceRecoveryBudget {
     /// The republication continues this same ledger (CP4 review N-2, ROOT's
     /// preference): every successful, failed, reserved and publication charge
     /// of the first run stays charged, so the whole captured invocation,
     /// including its fallback, stays within the one invocation limit.
-    fn withholding_load_state_join(&self, cause: String) -> Self {
+    fn withholding_join(&self, cause: String) -> Self {
         Self {
             per_case_limit: self.per_case_limit,
             invocation_limit: self.invocation_limit,
@@ -972,12 +994,12 @@ impl SourceRecoveryBudget {
             publication_charged: self.publication_charged,
             rejected: self.rejected,
             attempts: self.attempts,
-            load_state_join_withheld: Some(cause),
-            load_state_join_failure: self.load_state_join_failure.clone(),
+            join_withheld: Some(cause),
+            join_failure: self.join_failure.clone(),
         }
     }
-    fn record_load_state_join_failure(&mut self, cause: String) {
-        self.load_state_join_failure.get_or_insert(cause);
+    fn record_join_failure(&mut self, cause: String) {
+        self.join_failure.get_or_insert(cause);
     }
     fn case_limit(&self) -> usize { self.per_case_limit.min(self.invocation_limit.saturating_sub(self.charged)) }
     fn reserve_publication(&mut self, amount: usize) -> Result<(), open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport> {
@@ -2516,36 +2538,72 @@ fn run_linear_static_preview_captured(
     capture: Option<&source_receipt::CapturedInvocation>,
     source_budget: &mut SourceRecoveryBudget,
 ) -> MechanicsEnvelope {
-    // ROOT CP3 SF-1 (load/reference-state group only): an invocation whose
-    // selected join cannot finalize never loses its ordinary results. It is
-    // republished with every case on its ordinary route (`pressure-2`, no
-    // receipt); each successful retained-source attempt is declined with the
-    // recorded cause. The republication continues the same ledger, so the
-    // invocation limit bounds all executed work. Invocations without the group
-    // keep their existing behaviour and bytes.
-    let fallback_request = (capture.is_some()
-        && case_state::is_load_state(&request.model)
-        && source_budget.load_state_join_withheld.is_none())
-    .then(|| request.clone());
+    // ROOT CP3 SF-1R, on both exact routes (pre-0.4 failure unification,
+    // DEL-04-08 Design `pre04-failure-unification.md` §2): a captured
+    // invocation whose selected source cannot finalize, at any finalization
+    // site, never loses its ordinary results. It is republished with every
+    // case on its ordinary route (`pressure-2`, no receipt); each successful
+    // retained-source attempt is declined with the recorded cause. The
+    // republication continues the same ledger, so the invocation limit bounds
+    // all executed work. Its request comes from the capture, after the first
+    // run's envelope is reduced to its fail-closed form (§2.2), so a run that
+    // finalizes holds no copy of its request.
     let envelope =
         run_linear_static_preview_captured_once(request, solver_mode, capture, source_budget);
-    match (
-        fallback_request,
-        source_budget.load_state_join_failure.clone(),
-    ) {
-        (Some(request), Some(cause)) => {
-            let mut fallback = source_budget.withholding_load_state_join(cause);
-            let envelope = run_linear_static_preview_captured_once(
-                request,
-                solver_mode,
-                capture,
-                &mut fallback,
-            );
-            *source_budget = fallback;
-            envelope
+    let (Some(capture), Some(cause), None) = (
+        capture,
+        source_budget.join_failure.clone(),
+        source_budget.join_withheld.as_ref(),
+    ) else {
+        return envelope;
+    };
+    let fail_closed = fail_closed_form(envelope);
+    match capture.requested() {
+        Ok(request) => {
+            drop(fail_closed);
+            republication(request, solver_mode, capture, source_budget, cause)
         }
-        _ => envelope,
+        // Unreachable: `parse` succeeded on the same custody bytes.
+        Err(_) => fail_closed,
     }
+}
+
+/// The republication of a captured invocation whose selected source could not
+/// finalize: one ordinary run of the capture's request on the same ledger,
+/// with the join withheld. No case is selected in it, so it is not a
+/// composite and publishes no source projection, receipt or source label.
+fn republication(
+    request: LinearStaticPreviewRequest,
+    solver_mode: PreviewSolverMode,
+    capture: &source_receipt::CapturedInvocation,
+    source_budget: &mut SourceRecoveryBudget,
+    cause: String,
+) -> MechanicsEnvelope {
+    let mut fallback = source_budget.withholding_join(cause);
+    let envelope =
+        run_linear_static_preview_captured_once(request, solver_mode, Some(capture), &mut fallback);
+    *source_budget = fallback;
+    envelope
+}
+
+/// A first run's envelope whose selected source could not finalize, reduced to
+/// today's fail-closed form before the republication's request is re-derived.
+/// An S1-S3 failure left the blocked envelope (no result rows, empty evidence),
+/// which is that form as it stands. An S4 failure left a source-labelled
+/// envelope without a receipt, which every dispatch refuses as
+/// `SOURCE_BLOCKS_FINALIZATION_FAILED`; only its identity is needed for that,
+/// so its rows, evidence, diagnostics and maxima drop here.
+fn fail_closed_form(mut envelope: MechanicsEnvelope) -> MechanicsEnvelope {
+    if source_finalization_failed(&envelope) {
+        envelope.results = Vec::new();
+        envelope.diagnostics = Vec::new();
+        envelope.contract_evidence = None;
+        envelope.summary.max_displacement = None;
+        envelope.summary.max_open_formula_stress = None;
+        envelope.summary.max_open_formula_stress_nominal_section = None;
+        envelope.summary.max_open_formula_stress_reduced_section = None;
+    }
+    envelope
 }
 
 fn run_linear_static_preview_captured_once(
@@ -3056,7 +3114,6 @@ fn run_linear_static_preview_observed_inner(
     }
     // Publish finite computed binary64 quantities without an absolute decimal quantum.
     let composite = source_selected && pressure_runtime::is_exact(&model);
-    let joined_load_state = composite && case_state::is_load_state(&model);
     // The captured request selects the source namespace. A received label is
     // never a context input, and an unsupported capture has no source default.
     let composite_context = if composite {
@@ -3065,7 +3122,8 @@ fn run_linear_static_preview_observed_inner(
         match context {
             Ok(context) => Some(context),
             Err(error) => {
-                if joined_load_state { source_budget.record_load_state_join_failure(format!("captured source context: {}", error.0)); }
+                // S1 (pre-0.4 failure unification §2.1): recorded on both routes.
+                source_budget.record_join_failure(format!("captured source context: {}", error.0));
                 diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", error.0, vec![]));
                 return blocked_envelope(model, diagnostics);
             }
@@ -3124,12 +3182,11 @@ fn run_linear_static_preview_observed_inner(
             match finalized {
                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
                 Err(error) => {
-                    if joined_load_state {
-                        source_budget.record_load_state_join_failure(format!(
-                            "invocation receipt: {}",
-                            error.0
-                        ));
-                    }
+                    // S4: recorded on both routes.
+                    source_budget.record_join_failure(format!(
+                        "invocation receipt: {}",
+                        error.0
+                    ));
                     envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![]))
                 }
             }
@@ -3226,6 +3283,30 @@ fn permitted_run(
     // The permit moves into the observer, which checks G-B with it.
     let mut observer = retained_product::ProductCapture::permitted_probe_on(permit, route);
     let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
+    // Pre-0.4 failure unification (Design `pre04-failure-unification.md` §2.2): a
+    // selected source that could not finalize, at any of S1-S4, republishes the
+    // invocation on the same budget with every case on its ordinary route, as the
+    // shared route does. The first run's envelope (reduced to its fail-closed form)
+    // and the observer, with its permit, observations, sources and parked cases,
+    // drop first; the request comes from the capture. W1 does not start: G-B and
+    // G-C observed the first run, and the ordinary bytes publish with no notice
+    // (REQ-003 (a), coexistence).
+    if let Some(cause) = budget.join_failure.clone() {
+        let fail_closed = fail_closed_form(ordinary);
+        drop(observer);
+        let envelope = match capture.requested() {
+            Ok(request) => {
+                drop(fail_closed);
+                republication(request, solver_mode, capture, &mut budget, cause)
+            }
+            // Unreachable: `parse` succeeded on the same custody bytes.
+            Err(_) => fail_closed,
+        };
+        if source_finalization_failed(&envelope) {
+            return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
+        }
+        return Ok(RetainedPreviewOutput { envelope, admission: Some(report), retained: Some(Err(W1Fallback::Coexistence)) });
+    }
     if source_finalization_failed(&ordinary) {
         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
     }
@@ -4931,6 +5012,9 @@ fn solve_prepared_load_case(
         needs_source_recovery(report_sensitive, attempt_err, load_row_finding.as_ref());
     let mut selected_source = None;
     let mut source_failure = None;
+    // S2 (pre-0.4 failure unification §4): a selected case's first support-norm
+    // refusal, which finalization then states as itself.
+    let mut support_norm_failure: Option<String> = None;
     // A resolved case enters retained-source recovery only through its own
     // closed join: the recovery input carries the resolved case, and source
     // closure refuses any eigen load, pair or motion it does not own.
@@ -4988,36 +5072,40 @@ fn solve_prepared_load_case(
             // S11-G revision 2.2 G-3: a guard-fired case is never selected; the
             // selection is declined before the 0.4.0 replay reservation.
             .and_then(|recovery| decline_for_formation(recovery, load_row_finding.as_ref()))
-            .and_then(|recovery| match load_state {
-                // Pre-0.4 selection is unchanged.
-                None => Ok(recovery),
-                // ROOT CP3 SF-1 screen: captured replay repeats the live
-                // attempt's source closure and exact solve in the same ledger, so
-                // selection first reserves an amount equal to the live charge.
-                // This screen does not guarantee finalization (other stages are
-                // charged before replay, and replay may cost slightly more); a
-                // selected join that still cannot finalize is republished on the
-                // ordinary route. The case's own refusal is checked first so
-                // that a republication still reports it.
-                Some(_) => recovery
-                    .reserve_captured_replay(case_limit)
-                    .and_then(|recovery| {
-                        if source_budget.load_state_join_withheld.is_some() {
-                            // ROOT CP3 SF-1: the invocation publishes ordinarily.
-                            Err(recovery.decline_withheld())
-                        } else {
-                            Ok(recovery)
-                        }
-                    }),
+            // ROOT CP3 SF-1 screen, on both exact routes (pre-0.4 failure
+            // unification §3): captured replay repeats the live attempt's
+            // source closure and exact solve in the same ledger, so selection
+            // first reserves an amount equal to the live charge. This screen
+            // does not guarantee finalization (other stages are charged before
+            // replay, and replay may cost slightly more); a selected source
+            // that still cannot finalize is republished on the ordinary route.
+            // The case's own refusal is checked first so that a republication
+            // still reports it.
+            .and_then(|recovery| {
+                // Test builds only: the support-norm cause test skips the
+                // screen on its own thread (design §4); no product build can.
+                #[cfg(test)]
+                if replay_screen_hook::skipped() {
+                    return Ok(recovery);
+                }
+                recovery.reserve_captured_replay(case_limit)
+            })
+            .and_then(|recovery| {
+                if source_budget.join_withheld.is_some() {
+                    // ROOT CP3 SF-1: the invocation publishes ordinarily.
+                    Err(recovery.decline_withheld())
+                } else {
+                    Ok(recovery)
+                }
             })
         };
         match attempt {
             Ok(recovery) => selected_source = Some(recovery),
             Err(failure) => {
                 source_budget.debit(failure.work.charged, true);
-                let withheld = match (&load_state, &source_budget.load_state_join_withheld) {
-                    (Some(_), Some(cause)) => format!("; the invocation publishes every case on its ordinary route because its selected join could not finalize: {cause}"),
-                    _ => String::new(),
+                let withheld = match &source_budget.join_withheld {
+                    Some(cause) => format!("; the invocation publishes every case on its ordinary route because its selected join could not finalize: {cause}"),
+                    None => String::new(),
                 };
                 diagnostics.push(diag(
                     &format!("diagnostic:source-recovery:{}", load_case.id),
@@ -5550,11 +5638,16 @@ fn solve_prepared_load_case(
                             results[end - 2].value = norms[0];
                             results[end - 1].value = norms[1];
                         }
-                        Err(error) => diagnostics.push(diag(
-                            &format!("diagnostic:source-recovery:{}:{}:support-norm", load_case.id, support.id),
-                            "SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE", "blocking", error.0,
-                            vec![load_case.id.clone(), support.id.clone()],
-                        )),
+                        Err(error) => {
+                            if support_norm_failure.is_none() {
+                                support_norm_failure = Some(format!("support {} norm: {}", support.id, error.0));
+                            }
+                            diagnostics.push(diag(
+                                &format!("diagnostic:source-recovery:{}:{}:support-norm", load_case.id, support.id),
+                                "SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE", "blocking", error.0,
+                                vec![load_case.id.clone(), support.id.clone()],
+                            ))
+                        }
                     }
                 } else {
                     append_signed_support_results(&mut results, load_case, support, vector);
@@ -6594,14 +6687,19 @@ fn solve_prepared_load_case(
     let source_case = if let (Some(capture), true) = (capture, pressure_runtime::is_exact(model)) {
         let qualified = qualify_source_case_rows(model, &load_case.id, &results);
         let finalized = if let Some(selected) = selected_source.take() {
-            match source_row_bindings(&selected, &qualified) {
+            // S2: a support-norm refusal left that support's rows unappended;
+            // it is the case's finalization cause, and the row binding is not
+            // consulted.
+            if let Some(cause) = support_norm_failure.take() {
+                Err(source_receipt::ReceiptError(cause, Some(selected.summary().work)))
+            } else { match source_row_bindings(&selected, &qualified) {
                 Ok(bindings) => {
                     let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
                     physical["recovery_method"] = serde_json::json!("retained_source_blocks_exact_v1");
                     source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical, load_state_evidence.as_ref())
                 },
                 Err(message) => Err(source_receipt::ReceiptError(message, Some(selected.summary().work))),
-            }
+            } }
         } else if let Some(failure) = &source_failure {
             source_receipt::FinalizedSourceBlockCase::failed(capture, &load_case.id, ordinary_attempt, failure, &format!("diagnostic:source-recovery:{}", load_case.id), &qualified)
         } else {
@@ -6619,12 +6717,11 @@ fn solve_prepared_load_case(
             }
             Err(error) => {
                 if source_selected {
-                    if load_state.is_some() {
-                        source_budget.record_load_state_join_failure(format!(
-                            "case {}: {}",
-                            load_case.id, error.0
-                        ));
-                    }
+                    // S2 and S3: recorded on both routes.
+                    source_budget.record_join_failure(format!(
+                        "case {}: {}",
+                        load_case.id, error.0
+                    ));
                     if let Some(work) = error.1 { source_budget.debit(work.charged, true); }
                     diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:finalization", load_case.id), "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![load_case.id.clone()]));
                 }
@@ -6690,6 +6787,8 @@ fn source_row_bindings(
             _ => continue,
         };
         let matched: Vec<_> = rows.iter().filter(|row| row.entity_ref == entity && row.kind == kind && row.metadata.as_ref().is_some_and(|metadata| metadata.location == location && component.map_or(true, |name| metadata.component == name))).collect();
+        // An absent row never reads as a duplicate (pre-0.4 failure unification §4).
+        if matched.is_empty() { return Err(format!("source functional row binding is missing: {entity}/{kind}/{location}")); }
         if matched.len() != 1 { return Err(format!("source functional row binding is not unique: {entity}/{kind}/{location}")); }
         bindings.push(source_receipt::FunctionalRowBinding { functional_index: index, result_id: matched[0].id.clone() });
     }
@@ -14454,12 +14553,15 @@ mod nonlinear_context_passthrough_tests {
 /// certified member's withheld open-formula summary row was silently omitted
 /// whenever another case of the invocation was source-selected (preview-physics
 /// does not render then), and that case's stress maximum became the maximum
-/// over the other members. On the public entries this combination is refused
-/// today before publication: the summary's coefficient width is far below the
-/// member bound B, so a withheld summary implies a unified-predicate demotion
-/// after routing, which a pre-0.4 captured invocation refuses
-/// (`s11g_tests::t20_*`, SOURCE_BLOCKS_FINALIZATION_FAILED). The disposition is
-/// pinned here directly.
+/// over the other members. On the public entries this combination is not
+/// published: the summary's coefficient width is far below the member bound B,
+/// so a withheld summary implies a unified-predicate demotion after routing,
+/// and a composite beside such a case fails its invocation receipt
+/// (`s11g_tests::t20_*`). The pre-0.4 route refused that invocation as
+/// SOURCE_BLOCKS_FINALIZATION_FAILED; since the pre-0.4 failure unification
+/// (DEL-04-08 Design `pre04-failure-unification.md` §2) both captured routes
+/// republish it with every case on its ordinary route, where no case is
+/// source-selected. The disposition is pinned here directly.
 #[cfg(test)]
 mod kd5_withheld_summary_tests {
     use super::*;

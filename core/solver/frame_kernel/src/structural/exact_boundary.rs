@@ -345,9 +345,10 @@ impl Work {
     /// only disappear. Across attempts sharing one ledger, an earlier attempt
     /// that now runs further can leave a later one less. This fails closed as
     /// a typed `Budget` decline and ordinary publication, or at the composite's
-    /// `reserve_publication`: the pre-0.4 blocking
-    /// `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` refusal (the 0.4 route
-    /// republishes ordinarily). Strict-gap budget exhaustion is `Unsupported`.
+    /// `reserve_publication`, where the invocation republishes ordinarily (on
+    /// both exact routes since the pre-0.4 failure unification; the pre-0.4
+    /// route took a blocking refusal before it). Strict-gap budget exhaustion
+    /// is `Unsupported`.
     fn mul(&mut self, a: &Expansion, b: &Expansion) -> Result<Expansion, Error> {
         #[cfg(any(test, feature = "exact-operation-count"))]
         let probe = exact_operation_count::Probe::start(self.used);

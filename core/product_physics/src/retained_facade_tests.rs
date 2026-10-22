@@ -416,6 +416,21 @@ fn u3_n9_single_parse_custody() {
         "from_reader(", "deserialize(", "Deserialize", "LinearStaticPreviewRequest {"] {
         assert!(!permitted.contains(forbidden), "{forbidden}");
     }
+    // Pre-0.4 failure unification (DEL-04-08 Design `pre04-failure-unification.md` §2.2), the
+    // one stated exception: exactly one `capture.requested()`, in the republication arm that
+    // ends in `W1Fallback::Coexistence`, after the first envelope and the observer drop. The
+    // Direct entry must republish a selected source that could not finalize, and the first run
+    // consumed its typed request. Of the ways to obtain a second typed request this one adds no
+    // copy to a finalizing run and parses nothing but the custody bytes (`requested` is the
+    // deserialization `parse` performs, of the same bytes); W1, the only consumer of the custody
+    // pairing, does not start on a republication. Every forbidden text above stays forbidden.
+    assert_eq!(permitted.matches("capture.requested()").count(), 1, "the republication's one request");
+    let rest = &permitted[permitted.find("if let Some(cause) = budget.join_failure.clone() {").expect("the republication arm")..];
+    let end = rest.find("W1Fallback::").expect("the arm's fallback");
+    assert!(rest[end..].starts_with("W1Fallback::Coexistence"), "the arm ends in Coexistence");
+    let arm = &rest[..end];
+    let (envelope, observer, requested) = (arm.find("fail_closed_form(ordinary)"), arm.find("drop(observer);"), arm.find("capture.requested()"));
+    assert!(envelope.is_some() && envelope < observer && observer < requested, "the first envelope and the observer drop first: {arm}");
     // The raw custody is read in exactly two places: the attempted case's id and the
     // precommit invocation.
     assert_eq!(permitted.matches("borrowed_raw()").count(), 2, "borrowed_raw() reads");
@@ -466,7 +481,11 @@ fn u3_permitted_outputs_keep_the_report_and_gate_order() {
     let lib = include_str!("lib.rs");
     let permitted = &lib[lib.find("fn permitted_dispatch(").unwrap()..lib.find("pub(crate) const RETAINED_UNAVAILABLE_NOTICE").unwrap()];
     assert!(!permitted.contains("admission: None"), "S3: no permitted output drops the report");
-    assert_eq!(permitted.matches("Some(report)").count(), 3, "S3: StackReservation, Domain and the W1 output");
+    // Pre-0.4 failure unification (Design `pre04-failure-unification.md` §2.2): a fourth
+    // report-bearing output, the republication of a selected source that could not finalize
+    // (`Coexistence`). The Direct entry must republish rather than refuse, and that output
+    // carries the report like every other permitted output.
+    assert_eq!(permitted.matches("Some(report)").count(), 4, "S3: StackReservation, Domain, the republication and the W1 output");
     assert!(include_str!("retained_memory.rs").contains(") -> Result<(CapturePermit, RetainedAdmissionReport), RetainedAdmissionReport> {"));
     assert!(include_str!("retained_memory.rs").contains("admission(report).map(|permit| (permit, report))"));
     let run = &permitted[permitted.find("fn permitted_run(").unwrap()..];
@@ -2906,6 +2925,36 @@ fn b3b_coexistence_publishes_the_exact_ordinary_bytes_under_p2() {
             assert_eq!(counts, ONE_RUN, "{label}: G-C not consulted");
             assert_eq!(published(output), plain, "{label}: exactly the ordinary route's bytes");
         }
+    }
+}
+
+/// Pre-0.4 failure unification (DEL-04-08 Design `pre04-failure-unification.md` §2.2): on the
+/// Direct entry a selected source that cannot finalize republishes the invocation as the shared
+/// route does, on the same budget, and W1 does not start (`Coexistence`, REQ-003 (a)). The
+/// committed `physics_source/mixed` request with case 1's modulus basis removed fails its
+/// invocation receipt at the public limit (S4). The published bytes equal the shared route's
+/// republication of the same request, from two ordinary runs with G-C not consulted, in the
+/// registered build (permitted) and in any other (Stale: the shared route itself).
+#[test]
+fn u3g2_direct_entry_republishes_a_source_that_cannot_finalize() {
+    use super::source_receipt::load_state_fallback_tests::{assert_pre04_republication, pre04_composite_failure_request, unavailable, WITHHELD};
+    const TWO_RUNS: Counts = Counts { runs: 2, complete_gates: 0 };
+    let cause = "invocation receipt: composite requires source selection and complete case qualification";
+    for mode in MODES {
+        let raw = pre04_composite_failure_request();
+        let shared = plain(mode, &raw);
+        let (output, counts) = direct(&raw, mode);
+        assert_pre04_republication(output.envelope(), &raw, mode);
+        assert!(unavailable(output.envelope(), "case").ends_with(&format!("{WITHHELD}{cause}")), "{mode:?}");
+        assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), shared, "{mode:?}: the shared route's republication");
+        assert_eq!(counts, TWO_RUNS, "{mode:?}: the first run and the republication; G-C not consulted");
+        if registered() {
+            assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
+            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{mode:?}");
+        } else {
+            assert!(output.retained().is_none() && output.successor().is_none(), "{mode:?}: no permit, no W1");
+        }
+        assert_eq!(published(output), shared, "{mode:?}: exactly the shared route's bytes, no notice");
     }
 }
 

@@ -282,7 +282,7 @@ fn a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
         let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
         assert_ordinary_publication(&envelope, &request, mode, &[CASE]);
         let cause = budget
-            .load_state_join_withheld
+            .join_withheld
             .clone()
             .expect("fallback ran");
         assert!(cause.starts_with("case case:join: "), "{cause}");
@@ -324,26 +324,244 @@ fn the_committed_witness_still_selects_and_finalizes_within_the_public_limit() {
     }
 }
 
-#[test]
-fn the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback() {
-    // Characterization only, not an endorsement: the inherited composite
-    // outcome (physics-source-1 before B7b; its current pressure-source-1
-    // twin since) is a separate open finding assigned to T3. This slice must
-    // not change behaviour without the group (reviewer probe P12).
-    let mut request: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json"
-    ))
-    .unwrap();
+/// The committed `physics_source/` request `name` (pre-0.4, exact route).
+fn physics_source(name: &str) -> Value {
+    let text = match name {
+        "mixed" => include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json"),
+        "n05" => include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"),
+        "n06" => include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json"),
+        other => panic!("{other}"),
+    };
+    serde_json::from_str(text).unwrap()
+}
+
+/// The committed `physics_source/mixed` request with case 1's
+/// `modulus_basis_ref` removed: case 1 then needs recovery, which declines it
+/// ("exact source recovery requires explicitly empty pressure regions") while
+/// case 0 selects, so the invocation receipt fails (a composite requires every
+/// case to qualify; design §1.2).
+pub(crate) fn pre04_composite_failure_request() -> Value {
+    let mut request = physics_source("mixed");
     request["model"]["load_cases"][1]
         .as_object_mut()
         .unwrap()
         .remove("modulus_basis_ref");
-    let outcome =
-        run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny);
-    assert_eq!(
-        outcome.err().as_deref(),
-        Some("SOURCE_BLOCKS_FINALIZATION_FAILED")
-    );
+    request
+}
+
+/// The withheld cause's text, appended to a declined case's
+/// `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` diagnostic in a republication (0.4's text,
+/// byte for byte, on both routes).
+pub(crate) const WITHHELD: &str = "; the invocation publishes every case on its ordinary route because its selected join could not finalize: ";
+
+/// Pre-0.4 failure unification (DEL-04-08 Design `pre04-failure-unification.md`
+/// §2.1): what a pre-0.4 republication promises for an invocation whose cases
+/// all have a successful ordinary solve. The ordinary `pressure-2` publication,
+/// no receipt, `MECHANICS_SOLVED`, no blocking diagnostic and nothing selected,
+/// with rows (id, kind, value bits, unit) equal to the uncaptured typed route's,
+/// which never attempts retained source.
+pub(crate) fn assert_pre04_republication(envelope: &MechanicsEnvelope, request: &Value, mode: PreviewSolverMode) {
+    assert_eq!(envelope.producer.semantic_contract_id, exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID, "{mode:?}");
+    assert_eq!(envelope.formulation_basis.profile_id, exact_admission::PRESSURE_PROFILE_ID, "{mode:?}");
+    assert!(envelope.source_block_recovery.is_none(), "{mode:?}: no receipt on the ordinary route");
+    assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
+    let blocking: Vec<_> = envelope.diagnostics.iter().filter(|d| d.severity == "blocking").collect();
+    assert!(blocking.is_empty(), "{mode:?}: {blocking:?}");
+    assert!(!envelope.diagnostics.iter().any(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED"), "{mode:?}");
+    for exact in envelope.contract_evidence.as_ref().unwrap()["exact_cases"].as_array().unwrap() {
+        assert_ne!(exact["recovery_method"], "retained_source_blocks_exact_v1", "{mode:?}");
+    }
+    let typed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+    let ordinary = run_linear_static_preview_with_mode(typed, mode);
+    assert_eq!(ordinary.producer.semantic_contract_id, exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID);
+    assert!(!ordinary.results.is_empty());
+    assert_eq!(rows(envelope), rows(&ordinary), "{mode:?}: republished rows are the ordinary route's rows");
+}
+
+/// A case's one `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` message in a republication.
+pub(crate) fn unavailable(envelope: &MechanicsEnvelope, case: &str) -> String {
+    let found = diagnostics_for(envelope, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", case);
+    assert_eq!(found.len(), 1, "{case}: {found:?}");
+    found[0].message.clone()
+}
+
+/// A private-limit run of `request` on the shared captured route, with the
+/// ledger it ended on.
+fn captured(request: &Value, mode: PreviewSolverMode, per_case_limit: usize) -> (MechanicsEnvelope, SourceRecoveryBudget) {
+    let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
+    let mut budget = SourceRecoveryBudget { per_case_limit, ..Default::default() };
+    let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
+    (envelope, budget)
+}
+
+/// The republication's ledger: two runs' attempts, nothing refunded, nothing
+/// selected, within the one invocation limit (CP4 review N-2).
+fn assert_republication_ledger(budget: &SourceRecoveryBudget, attempts: usize) {
+    assert_eq!(budget.attempts, attempts);
+    assert_eq!(budget.charged, budget.failed_charged);
+    assert!(budget.charged <= budget.invocation_limit);
+}
+
+#[test]
+fn a_pre04_composite_finalization_failure_republishes_ordinarily() {
+    // Restated by the pre-0.4 failure unification (design §7). This test was
+    // `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback`,
+    // which asserted `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` for this S4
+    // failure as a characterization, "not an endorsement", of an outcome left
+    // open. That outcome does not meet REQ-003 (c) or AX-005, and the owner
+    // commissioned one failure behaviour for both routes (b7-plan, "After
+    // B7b"; "16 start now."). The new expectation is the outcome REQ-003 (c)
+    // already states for 0.4: the public entry republishes every case on its
+    // ordinary route. No limit, criterion or reference moves to obtain it.
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let request = pre04_composite_failure_request();
+        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
+            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_pre04_republication(&envelope, &request, mode);
+        // Case 0 selected in the first run; in the republication it is withheld
+        // with the invocation receipt's cause. Case 1's own decline carries it too.
+        let cause = "invocation receipt: composite requires source selection and complete case qualification";
+        let selected = unavailable(&envelope, "case");
+        assert!(selected.contains("stage: \"invocation join withheld\""), "{selected}");
+        assert!(selected.ends_with(&format!("{WITHHELD}{cause}")), "{selected}");
+        let declined = unavailable(&envelope, "case:ordinary-pressure");
+        assert!(declined.contains("exact source recovery requires explicitly empty pressure regions"), "{declined}");
+        assert!(declined.ends_with(&format!("{WITHHELD}{cause}")), "{declined}");
+    }
+}
+
+#[test]
+fn a_pre04_case_finalization_failure_republishes_ordinarily() {
+    // Design §2.1 (S3, per case): the committed `physics_source/n05` request at a
+    // private case limit of 2c = 357,072 (live charge c = 178,536 in both
+    // modes) passes the replay screen, and its finalization does not fit: the
+    // composite recipe reservation refuses (measured, both modes; at 357,071 the
+    // screen declines). Private limit only: it is not public policy.
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let request = physics_source("n05");
+        let (envelope, budget) = captured(&request, mode, 357_072);
+        assert_pre04_republication(&envelope, &request, mode);
+        let cause = budget.join_withheld.clone().expect("republished");
+        assert!(cause.starts_with("case case: composite recipe reservation: "), "{cause}");
+        assert!(cause.contains("Exact(Budget)"), "{cause}");
+        let message = unavailable(&envelope, "case");
+        assert!(message.contains("stage: \"invocation join withheld\""), "{message}");
+        assert!(message.ends_with(&format!("{WITHHELD}{cause}")), "{message}");
+        assert_republication_ledger(&budget, 2);
+        // One unit lower, the screen declines and nothing republishes.
+        let (envelope, budget) = captured(&request, mode, 357_071);
+        assert_pre04_republication(&envelope, &request, mode);
+        assert!(budget.join_withheld.is_none());
+        let message = unavailable(&envelope, "case");
+        assert!(message.contains("captured replay reservation") && !message.contains("could not finalize"), "{message}");
+        assert_eq!(budget.attempts, 1);
+    }
+}
+
+#[test]
+fn a_republished_case_that_needed_no_recovery_states_no_cause() {
+    // Design §2.1: in a republication, a case that needs no recovery and has no
+    // load-row finding carries no `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` diagnostic.
+    // The committed `physics_source/mixed` request: case 0 (live charge 178,556)
+    // selects and, at a private limit of 500,000, fails its own finalization
+    // (S3); case 1 (`case:ordinary-pressure`) passes its ordinary checks.
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let request = physics_source("mixed");
+        let (envelope, budget) = captured(&request, mode, 500_000);
+        assert_pre04_republication(&envelope, &request, mode);
+        let cause = budget.join_withheld.clone().expect("republished");
+        assert!(cause.starts_with("case case: "), "{cause}");
+        assert!(unavailable(&envelope, "case").ends_with(&format!("{WITHHELD}{cause}")));
+        let ordinary: Vec<_> = envelope
+            .diagnostics
+            .iter()
+            .filter(|d| d.affected_refs.iter().any(|r| r == "case:ordinary-pressure"))
+            .filter(|d| d.code.starts_with("SOURCE_") || d.message.contains("could not finalize"))
+            .collect();
+        assert!(ordinary.is_empty(), "{mode:?}: {ordinary:?}");
+        assert_republication_ledger(&budget, 2);
+    }
+}
+
+#[test]
+fn a_support_norm_refusal_is_the_stated_cause() {
+    // Design §4: a support-norm recipe refusal (S2) is the case's finalization
+    // cause, and the row binding is not consulted, so the missing support rows
+    // never read as "not unique". The committed `physics_source/n05` request has
+    // a live charge of c = 178,536 in both modes. With the replay screen skipped
+    // for this thread (test builds only), private case limits from 178,536 to
+    // 182,631 refuse both supports' norm reservations, and the first (`anchor`)
+    // is the cause; from 182,632 to 186,727 only `independent-spring` refuses.
+    // Below 178,536 the live attempt is declined; from 186,728 finalization
+    // fails at a later stage (measured, both modes).
+    let request = physics_source("n05");
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        for (limit, support) in [
+            (178_536, Some("anchor")),
+            (182_631, Some("anchor")),
+            (182_632, Some("independent-spring")),
+            (186_727, Some("independent-spring")),
+            (186_728, None),
+        ] {
+            let label = format!("{mode:?} {limit}");
+            let (envelope, budget) =
+                crate::replay_screen_hook::skipping(|| captured(&request, mode, limit));
+            assert_pre04_republication(&envelope, &request, mode);
+            let cause = budget.join_withheld.clone().unwrap_or_else(|| panic!("{label}: republished"));
+            match support {
+                Some(support) => {
+                    let stated = format!("case case: support {support} norm: composite recipe reservation: RecoveryFailure {{ stage: \"receipt finalization\"");
+                    assert!(cause.starts_with(&stated), "{label}: {cause}");
+                    assert!(cause.contains("Exact(Budget)"), "{label}: {cause}");
+                }
+                None => assert!(!cause.contains(" norm: "), "{label}: {cause}"),
+            }
+            assert!(unavailable(&envelope, "case").ends_with(&format!("{WITHHELD}{cause}")), "{label}");
+            for d in &envelope.diagnostics {
+                assert!(!d.message.contains("row binding is not unique") && !d.message.contains("row binding is missing"), "{label}: {d:?}");
+            }
+            assert_republication_ledger(&budget, 2);
+        }
+        // Below the window the live attempt itself is declined; with the screen in
+        // place, every limit of the window is below 2c and the screen declines.
+        let (_, budget) = crate::replay_screen_hook::skipping(|| captured(&request, mode, 178_535));
+        assert!(budget.join_withheld.is_none() && budget.attempts == 1, "{mode:?}");
+        let (envelope, budget) = captured(&request, mode, 182_632);
+        assert!(budget.join_withheld.is_none() && budget.attempts == 1, "{mode:?}");
+        assert!(unavailable(&envelope, "case").contains("captured replay reservation"), "{mode:?}");
+    }
+}
+
+#[test]
+fn a_republished_case_whose_ordinary_attempt_failed_keeps_its_blocked_result() {
+    // Design §2.1 (REQ-003 (d)): the committed `physics_source/n06` request's
+    // ordinary attempt is rejected ("NumericallyUnresolved … stabilization
+    // unresolved"), and at the public limit a selection replaces it. Here a
+    // private case limit of 357,071 (live charge c = 175,079 in both modes, so
+    // the screen passes) forces its finalization to fail (S3). The
+    // republication has no selection to replace the rejected attempt, so the
+    // case's blocked ordinary result stands, exactly as the typed route
+    // publishes it, and the case's diagnostic states the cause.
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let request = physics_source("n06");
+        let (envelope, budget) = captured(&request, mode, 357_071);
+        let typed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+        let ordinary = run_linear_static_preview_with_mode(typed, mode);
+        assert_eq!(envelope.producer.semantic_contract_id, exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID, "{mode:?}");
+        assert!(envelope.source_block_recovery.is_none(), "{mode:?}");
+        assert_eq!(envelope.status.mechanics, "MODEL_INCOMPLETE", "{mode:?}");
+        assert_eq!(envelope.status.mechanics, ordinary.status.mechanics, "{mode:?}");
+        assert!(envelope.results.is_empty() && ordinary.results.is_empty(), "{mode:?}");
+        let blocking = |e: &MechanicsEnvelope| -> Vec<(String, String)> {
+            e.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| (d.code.clone(), d.message.clone())).collect()
+        };
+        assert_eq!(blocking(&envelope), blocking(&ordinary), "{mode:?}: the blocked ordinary result stands");
+        assert_eq!(blocking(&envelope)[0].0, "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", "{mode:?}");
+        let cause = budget.join_withheld.clone().expect("republished");
+        assert!(cause.starts_with("case case: "), "{cause}");
+        assert!(unavailable(&envelope, "case").ends_with(&format!("{WITHHELD}{cause}")), "{mode:?}");
+        assert_republication_ledger(&budget, 2);
+    }
 }
 
 /// A declared load added to case `case` of the request, with its ledger entry.
@@ -463,7 +681,7 @@ fn a_republication_reports_a_case_s_own_replay_screen_refusal() {
         let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
         assert_ordinary_publication(&envelope, &request, mode, &[CASE, "case:heavy"]);
         let cause = budget
-            .load_state_join_withheld
+            .join_withheld
             .clone()
             .expect("fallback ran");
         assert!(cause.starts_with("case case:join: "), "{cause}");
@@ -553,7 +771,7 @@ fn a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limi
     };
     let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
     assert_ordinary_publication(&envelope, &request, mode, &case_refs);
-    let cause = budget.load_state_join_withheld.clone().expect("fallback ran");
+    let cause = budget.join_withheld.clone().expect("fallback ran");
     assert!(cause.contains("Exact(Budget)"), "{cause}");
     // The first run attempts the cases up to the one whose finalization the
     // exhausted ledger refuses; the republication attempts every case (each
@@ -564,3 +782,4 @@ fn a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limi
     assert!(budget.charged > budget.invocation_limit - budget.per_case_limit, "{}", budget.charged);
     assert_eq!(budget.invocation_limit, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
 }
+

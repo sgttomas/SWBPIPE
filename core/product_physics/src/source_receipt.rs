@@ -149,7 +149,11 @@ impl CapturedInvocation {
     pub(super) fn mode(&self) -> PreviewSolverMode {
         self.mode
     }
-    fn requested(&self) -> Result<LinearStaticPreviewRequest, ReceiptError> {
+    /// The typed request, deserialized again from this capture's own custody
+    /// bytes, as `parse` and finalization's captured rebuild do. The captured
+    /// route's republication takes its request here (pre-0.4 failure
+    /// unification §2.2), so a run that finalizes holds no copy of its request.
+    pub(super) fn requested(&self) -> Result<LinearStaticPreviewRequest, ReceiptError> {
         serde_json::from_value(self.raw.clone()).map_err(|e| bad(e.to_string()))
     }
     /// Context derived by the existing custody parse; no later model, envelope
@@ -978,7 +982,7 @@ impl FinalizedSourceBlockReceipt {
 }
 
 #[cfg(test)]
-mod load_state_fallback_tests;
+pub(crate) mod load_state_fallback_tests;
 #[cfg(test)]
 mod load_state_join_tests;
 #[cfg(test)]
