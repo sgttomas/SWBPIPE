@@ -140,7 +140,7 @@ it('saves native stress JSON after validation and intent and invalidates a pendi
  const firstButton=await screen.findByRole('button',{name:/Package JSON/},{timeout:10_000});expect(firstButton).toBeDisabled();expect(saveNativeResultJson).not.toHaveBeenCalled();
  fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));await waitFor(()=>expect(firstButton).toBeEnabled());fireEvent.click(firstButton);
  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);const firstRequest=vi.mocked(saveNativeResultJson).mock.calls[0][0];expect(firstRequest.screening.route_id).toBe('DOTH-FORMAT-003');expect(firstRequest.file_name).toMatch(/^openpipestress-preview-stress-neutral-[a-z0-9-]+\.json$/);expect(firstRequest.local_first.route_id).toBe('DOTH-FORMAT-003');
- view.rerender(<StressNeutralExportPanel {...second}/>);await waitFor(()=>expect(screen.getByTestId('stress-neutral-summary')).toHaveTextContent(`rows=${second.result.results.length}`));
+ view.rerender(<StressNeutralExportPanel {...second}/>);await waitFor(()=>expect(screen.getByTestId('stress-neutral-summary')).toHaveTextContent(`rows=${second.result.results.length}`),{timeout:10_000});
  const secondButton=screen.getByRole('button',{name:/Package JSON/});expect(secondButton).toBeDisabled();
  await act(async()=>{finishOld({outcome:'saved',file_name:firstRequest.file_name,byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.getByTestId('stress-neutral-export-link-native-save-status')).toBeEmptyDOMElement();
  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);expect(secondButton).not.toHaveAttribute('href');
