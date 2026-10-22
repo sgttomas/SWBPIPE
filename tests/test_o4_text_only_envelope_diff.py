@@ -447,11 +447,16 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
         assert [k for k, _ in after if k in known] == [k for k, _ in before], (member, "order or removal")
         added = [k for k, _ in after if k not in known]
         assert sorted(added) == sorted(W1_CORNER1_ADDED[member]) and len(added) == len(set(added)), (member, added)
+        # Each addition sits where corner 1 put it: the whole id sequence is corner 1's.
+        landed_entries = _entries(landed, member, _pair_id)
+        landed_ids, after_ids = [k for k, _ in landed_entries], [k for k, _ in after]
+        first = next((pair for pair in zip(landed_ids, after_ids) if pair[0] != pair[1]), None)
+        assert after_ids == landed_ids, (member, "position: corner 1's id, then the committed id", first)
+        pinned = dict(landed_entries)
         moved = {k for k, entry in after if k in known and classify(known[k], entry)}
         assert moved == W1_CORNER1_MOVED[member], (member, sorted(moved))
         # The entries corner 1 moved or added equal its own bytes, so they are bound too
         # (Opus review, round 4).
-        pinned = dict(_entries(landed, member, _pair_id))
         for key, entry in after:
             if key in W1_CORNER1_MOVED[member] or key in W1_CORNER1_ADDED[member]:
                 assert not classify(pinned[key], entry), (member, key, "differs from corner 1")
@@ -494,6 +499,25 @@ def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_ent
     document["cases"].append(next(e for e in document["cases"] if e.get("id") == "w1_member_hull_d02_sparse_interactive"))
     with pytest.raises(AssertionError, match="w1_member_hull_d02_sparse_interactive"):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+
+
+def test_o4_text_only_envelope_diff_corner1_enumeration_pins_the_added_positions():
+    """An entry corner 1 added, moved to another position with its bytes unchanged, fails:
+    swapped with its sibling, moved to the front, or moved into the middle."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    for member, ident, place in (
+        ("cases", "w1_member_hull_d02_sparse_interactive", "after_sibling"),
+        ("cases", "w1_member_hull_d02_dense_scrutiny", 0),
+        ("must_pass", "w1_member_hull_d02_sparse_interactive_must_pass", 50),
+    ):
+        document = storage.expand(committed)
+        entries = document[member]
+        index = next(i for i, e in enumerate(entries) if e.get("id") == ident)
+        entry = entries.pop(index)
+        entries.insert(index + 1 if place == "after_sibling" else place, entry)
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
 
 
 def _dump(value) -> str:
