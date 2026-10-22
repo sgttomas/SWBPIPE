@@ -147,13 +147,10 @@ const DOCUMENT_ROW_EXCLUDED = ["provenance", "original_producer_row_checksum", "
  *   manifest (`reproducibility`), the solver build reference (`solver_version`), and the
  *   base's own members (`provenance`, `analysis_status`, `professional_boundary`,
  *   `rule_pack_refs`, `downstream_use`);
- * - `diagnostics`, which is NOT run-specific: the desktop base maps each source diagnostic
- *   to `affected_object: {preview_entity, affected_refs[0]}` with its own `source` and
- *   remediation (`currentResultDocumentBase`), where Rust's derivative writes
- *   `{preview_diagnostic, <diagnostic id>}` with `solver_component` (and the
- *   load/reference writer's template carries its own). Pre-epoch-8 and shared with
- *   preview-physics-2 (§10); recorded in design §11 as an observation for DEL-08-04. What
- *   holds is asserted in `expectDiagnosticsFollowSource`;
+ * - `diagnostics`, compared in `expectDiagnosticsFollowSource` instead: the desktop maps
+ *   each source diagnostic as Rust's derivative does (`documentDiagnostic`), so every
+ *   member but its `provenance` (each derivative's own) equals the Rust twin's where Rust
+ *   maps the source (the plain twins; the load/reference writer's template carries its own);
  * - `load_basis_refs`, checked against its own basis instead (§6.2). */
 const DOCUMENT_RUN_SPECIFIC = ["envelope_id", "run_ref", "model_ref", "unit_system_ref", "solver_version", "reproducibility", "provenance", "diagnostics", "analysis_status", "professional_boundary", "rule_pack_refs", "downstream_use", "load_basis_refs"] as const;
 /** Package members copied or derived from the source, compared after the exclusion below
@@ -196,21 +193,20 @@ function packageMember(packet: Json, member: string): unknown {
     : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).filter(([key]) => !(PACKAGE_ROW_EXCLUDED as readonly string[]).includes(key)).map(([key, item]) => [key, strip(item)])) : value;
   return member === "result_rows" || member === "stable_id_map" ? strip(packet[member]) : packet[member];
 }
-/** The desktop document's diagnostics: one entry per source diagnostic, in order. The
- * desktop entry carries no diagnostic id; it is linked to its source diagnostic by
- * position and by `code` and `message` (copied verbatim), and its `affected_object.ref_id`
- * is the source's `affected_refs[0]` (the model ref when absent). Where the Rust twin maps
- * the source diagnostics (the plain writers), its entries agree by position, `code` and
- * `message`, and name the source diagnostic by `id`. */
+/** The desktop document's diagnostics: one entry per source diagnostic, in order, with
+ * `code` and `message` copied verbatim and `affected_object` naming the source diagnostic
+ * by `id` (`documentDiagnostic`, Rust's mapping). Where the Rust twin maps the source
+ * diagnostics (the plain writers), every member but `provenance` equals the twin's. */
 function expectDiagnosticsFollowSource(doc: JsonObject, rust: JsonObject, source: MechanicsResult, rustMapsSource: boolean) {
   const ours = doc.result_envelope.diagnostics as Json[], theirs = rust.result_envelope.diagnostics as Json[];
   expect(ours).toHaveLength(source.diagnostics.length);
   source.diagnostics.forEach((d, i) => {
     expect([ours[i].code, ours[i].message], `diagnostic ${i}`).toStrictEqual([d.code, d.message]);
-    expect(ours[i].affected_object).toStrictEqual({ ref_type: "preview_entity", ref_id: d.affected_refs?.[0] ?? source.model_ref });
+    expect(ours[i].affected_object).toStrictEqual({ ref_type: "preview_diagnostic", ref_id: d.id });
   });
   if (rustMapsSource) {
-    expect(theirs.map(t => [t.code, t.message, t.affected_object])).toStrictEqual(source.diagnostics.map(d => [d.code, d.message, { ref_type: "preview_diagnostic", ref_id: (d as Json).id }]));
+    const withoutProvenance = (all: Json[]) => all.map(({ provenance: _provenance, ...rest }) => rest);
+    expect(withoutProvenance(ours)).toStrictEqual(withoutProvenance(theirs));
   }
 }
 /** `{object_type: "LoadCase", ref}` (the record) to `{ref_type: "load_case", ref_id}` (the document, §6.2). */
@@ -404,6 +400,19 @@ describe("a preview-physics-2 document's load_basis_refs keep the record's objec
     expect(record.analysis_run.load_basis_refs.length).toBeGreaterThan(0);
     const base = currentResultDocumentBase(model, raw, record.analysis_run, "test:shape", { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:shape" });
     expect(base.result_envelope.load_basis_refs).toStrictEqual(record.analysis_run.load_basis_refs.map(r => ({ ref_type: r.object_type, ref_id: r.ref })));
+  });
+});
+
+describe("a source diagnostic without an id is refused by name", () => {
+  it("currentResultDocumentBase refuses it; the document never drops the diagnostic's identity", async () => {
+    const raw = json("fixtures/results/preview_physics_connected_sparse.json") as MechanicsResult;
+    const model = json("fixtures/model_operations/precision_connected_ui_model.json") as PreviewModel;
+    expect(raw.diagnostics.length).toBeGreaterThan(0);
+    const run = { run_id: raw.run_id, load_basis_refs: [], hashes: [], analysis_status: [], professional_boundary: {} } as unknown as Parameters<typeof currentResultDocumentBase>[2];
+    const solver = { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:id" };
+    expect(currentResultDocumentBase(model, raw, run, "test:id", solver).result_envelope.diagnostics[0].affected_object).toStrictEqual({ ref_type: "preview_diagnostic", ref_id: raw.diagnostics[0].id });
+    const missing = structuredClone(raw); delete missing.diagnostics[0].id;
+    expect(() => currentResultDocumentBase(model, missing, run, "test:id", solver)).toThrow(`RESULT_EXPORT_DIAGNOSTIC_ID_MISSING: ${raw.diagnostics[0].code}`);
   });
 });
 

@@ -33,6 +33,28 @@ export function guardResultJson(value:unknown,seen=new Set<object>()):void {
 export async function resultDigest(value:unknown):Promise<string>{guardResultJson(value);return canonicalSha256Hex(value);}
 async function scopedChecksum(value:unknown,payload_scope:string,payload_ref:JsonObject){return {algorithm:'sha256',canonicalization,payload_scope,payload_ref,value:await resultDigest(value)};}
 export const derivativeProvenance = {source_name:'local qualified result derivative',source_location:'apps/desktop/src/features/result-export/resultExportAdapter.ts',source_license:'project-local',contributor:'SWBPIPE',contributor_certification:'local desktop session; human review required',redistribution_status:'private_only',review_status:'pending'};
+/** One source diagnostic in the document, mapped as Rust's derivative maps it
+ * (`core/runner/headless/src/result_envelope_binding.rs`, `export_mechanics_diagnostic`):
+ * the affected object is the diagnostic itself, by id, which traces to the bound raw
+ * source and every affected ref it keeps, and the class follows Rust's rules (DEL-08-04:
+ * diagnostics are not dropped by exporters or adapters; DEL-04-07 REQ-004). Provenance
+ * stays the desktop derivative's own. */
+function documentDiagnostic(x:MechanicsResult['diagnostics'][number]):JsonObject{
+  if(typeof x.id!=='string'||!x.id)throw new Error(`RESULT_EXPORT_DIAGNOSTIC_ID_MISSING: ${x.code}`);
+  const severity=x.severity==='info'||x.severity==='warning'?x.severity:'blocking';
+  return {code:x.code,class:diagnosticClass(x.code,x.severity),severity,source:ref('solver_component',x.source??'core/product_physics'),
+    affected_object:ref('preview_diagnostic',x.id),message:x.message,
+    remediation:'Review the carried solve diagnostic before relying on this exported result envelope.',provenance:derivativeProvenance};
+}
+/** Rust's `export_diagnostic_class`, rule for rule. */
+function diagnosticClass(code:string,severity:string):string{
+  if(code.includes('RULE'))return severity==='blocking'?'RULE_CHECK_BLOCKING':'ASSUMPTION_WARNING';
+  if(code.includes('UNIT'))return 'UNIT_WARNING';
+  if(code.includes('PROVENANCE'))return 'PROVENANCE_WARNING';
+  if(severity!=='info'&&severity!=='warning')return 'SOLVE_BLOCKING';
+  if(code.startsWith('NONLINEAR'))return 'NONLINEAR_WARNING';
+  return 'ASSUMPTION_WARNING';
+}
 /** The one result-export version (b7-plan E2). */
 export const RESULT_EXPORT_VERSION = '0.3.0';
 
@@ -206,7 +228,7 @@ type CurrentDocumentRun=Pick<AnalysisRunEnvelope['analysis_run'],'run_id'|'load_
 /** The document base that `buildCurrentResultExport` derives from (see `currentReceivedOrigin`). */
 export function currentResultDocumentBase(model:PreviewModel,result:MechanicsResult,run:CurrentDocumentRun,manifestRef:string,solverBasis:{solver_name:string;solver_version:string;solver_build_ref:string}):JsonObject{
   const provenance=derivativeProvenance;
-  return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>exactLoadCase(result,x.object_type)?ref('load_case',x.ref):ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(x=>({code:x.code,class:'ASSUMPTION_WARNING',severity:x.severity==='error'?'blocking':x.severity,source:ref('source',x.source??'local_preview'),affected_object:ref('preview_entity',x.affected_refs?.[0]??result.model_ref),message:x.message,remediation:'Review source model and preview limitations.',provenance})),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
+  return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>exactLoadCase(result,x.object_type)?ref('load_case',x.ref):ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(documentDiagnostic),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
 }
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);

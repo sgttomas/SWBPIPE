@@ -33,6 +33,12 @@ value-bound by W1's own checks (its preservation census skips `w1_member_*`), so
 `..._retained_corpus_moves_since_w1_corner1_are_enumerated` binds the committed
 corpus to `ac07a34ccd`: every entry present there is unchanged except corner 1's
 enumerated moves, and the only additions are its enumerated entries.
+
+The document-diagnostics repair (DEL-04-07 Design `desktop-exact-outputs.md` §11)
+regenerated the retained-successor derivative goldens, two of them listed here, in
+their diagnostics only. This check reads those two at the repair's parent
+`be7d474958`, and `..._diagnostics_repair_moves_only_the_diagnostics` binds all four
+committed goldens to it.
 """
 from __future__ import annotations
 
@@ -55,6 +61,14 @@ W1_CORNER1_BASE = "ac07a34ccd45a83425a077f64564e92155db943f"
 # Corner 1 itself, whose corpus bytes pin the entries it moved or added.
 W1_CORNER1 = "80cf05a8575dd53dca4f058d90d835d310cc2228"
 W1_REGENERATED = frozenset({"fixtures/results/retained_precision_cases.json"})
+# The document-diagnostics repair's parent, for the derivative goldens it regenerated.
+DIAG_BASE = "be7d4749583b48aa7e2b430b771ac1baf19bc37f"
+DIAG_GOLDENS = tuple(f"fixtures/results/retained_precision_{kind}derivative_{mode}.json"
+                     for kind in ("successor_", "exact_successor_") for mode in ("sparse_interactive", "dense_scrutiny"))
+DIAG_REGENERATED = frozenset(name for name in DIAG_GOLDENS if "exact_successor_" in name)
+# What the repair moved: each diagnostic's source type, affected object and remediation
+# (and class, where Rust's rules give another), and the derivative hash that binds them.
+DIAG_MOVED = re.compile(r"^/result_envelope/(diagnostics/\d+/(class|source/ref_type|affected_object/ref_type|affected_object/ref_id|remediation)|reproducibility/derivative_hash/value)$")
 # What corner 1 (`80cf05a857`) moved and added in the retained corpus, by member.
 W1_CORNER1_MOVED = {
     "cases": frozenset(
@@ -213,8 +227,9 @@ def _ra_regenerated() -> frozenset:
 
 def current_text(name: str) -> str:
     """The file's bytes after O4's regeneration: before the later change that regenerated
-    it (W1 corner 1 or R-A), else as committed."""
-    at = W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated() else None
+    it (W1 corner 1, R-A or the diagnostics repair), else as committed."""
+    at = (W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated()
+          else DIAG_BASE if name in DIAG_REGENERATED else None)
     if at is not None:
         return subprocess.run(
             ["git", "show", f"{at}:projects/chirality-piping/{name}"],
@@ -597,6 +612,57 @@ def test_o4_text_only_envelope_diff_r1_outcomes_move_only_input_digests():
     assert found
     for key, leaves in found.items():
         assert all(kind == "hash" for kind, _ in leaves), (key, leaves[:8])
+
+
+def _leaf_paths(before, after, path=""):
+    """The JSON paths whose exact token, key set or length differs."""
+    if isinstance(before, dict) and isinstance(after, dict):
+        if list(before) != list(after):
+            return [path]
+        return [p for key in before for p in _leaf_paths(before[key], after[key], f"{path}/{key}")]
+    if isinstance(before, list) and isinstance(after, list):
+        if len(before) != len(after):
+            return [path]
+        return [p for i, (b, a) in enumerate(zip(before, after)) for p in _leaf_paths(b, a, f"{path}/{i}")]
+    return [] if type(before) is type(after) and before == after else [path]
+
+
+def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=None):
+    """Each committed derivative golden against the repair's parent: only each diagnostic's
+    mapped members and the derivative hash move, and every diagnostic now names itself."""
+    # Number tokens stay `Token`s, distinct from JSON strings (Codex review of #1517).
+    exact = lambda text: json.loads(text, parse_float=Token, parse_int=Token)
+    for name in DIAG_GOLDENS:
+        before = exact(subprocess.run(["git", "show", f"{DIAG_BASE}:projects/chirality-piping/{name}"],
+                                      cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
+        after = exact((PROJECT / name).read_text() if current is None else current[name])
+        moved = _leaf_paths(before, after)
+        assert moved and all(DIAG_MOVED.match(p) for p in moved), (name, [p for p in moved if not DIAG_MOVED.match(p)][:8])
+        for diagnostic in after["result_envelope"]["diagnostics"]:
+            assert diagnostic["affected_object"]["ref_type"] == "preview_diagnostic", (name, diagnostic)
+
+
+def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
+    """A changed number outside the diagnostics (the golden's first `"value"`, in the carried
+    receipt), the same number turned into a string, or a dropped diagnostic, in a regenerated
+    golden fails at that path; each mutant keeps every other token."""
+    texts = {name: (PROJECT / name).read_text() for name in DIAG_GOLDENS}
+    name = DIAG_GOLDENS[0]
+    # The token-preserving re-serialisation alone passes, so each failure is the mutation's.
+    test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(
+        current=dict(texts, **{name: _dump(load(texts[name]))}))
+    value = re.search(r'"value":(-?[0-9][0-9.eE+-]*)', texts[name])
+    assert value
+    for mutant in (texts[name][: value.start(1)] + "1" + texts[name][value.start(1):],
+                   texts[name][: value.start(1)] + '"' + value.group(1) + '"' + texts[name][value.end(1):]):
+        with pytest.raises(AssertionError, match=re.escape(name)):
+            test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: mutant}))
+    document = load(texts[name])
+    diagnostics = dict(dict(document)["result_envelope"])["diagnostics"]
+    assert diagnostics
+    diagnostics.pop()
+    with pytest.raises(AssertionError, match=re.escape(name) + r".*'/result_envelope/diagnostics'"):
+        test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: _dump(document)}))
 
 
 def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():
