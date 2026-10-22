@@ -207,3 +207,5 @@ checks:
 - apps/desktop/src/services/analysisRunCompatibility.test.ts
 - apps/desktop/src/services/loadReferenceAnalysisRun.test.ts
 - apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+- apps/desktop/src/services/pressureSourceBridge.test.ts
+- apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts
