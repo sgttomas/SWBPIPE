@@ -643,8 +643,9 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostic
 
 
 def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
-    """A changed row value, a number turned into a string, or a dropped diagnostic, in a
-    regenerated golden fails at that path; each mutant keeps every other token."""
+    """A changed number outside the diagnostics (the golden's first `"value"`, in the carried
+    receipt), the same number turned into a string, or a dropped diagnostic, in a regenerated
+    golden fails at that path; each mutant keeps every other token."""
     texts = {name: (PROJECT / name).read_text() for name in DIAG_GOLDENS}
     name = DIAG_GOLDENS[0]
     # The token-preserving re-serialisation alone passes, so each failure is the mutation's.

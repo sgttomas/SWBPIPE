@@ -193,12 +193,10 @@ function packageMember(packet: Json, member: string): unknown {
     : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).filter(([key]) => !(PACKAGE_ROW_EXCLUDED as readonly string[]).includes(key)).map(([key, item]) => [key, strip(item)])) : value;
   return member === "result_rows" || member === "stable_id_map" ? strip(packet[member]) : packet[member];
 }
-/** The desktop document's diagnostics: one entry per source diagnostic, in order. The
- * desktop entry carries no diagnostic id; it is linked to its source diagnostic by
- * position and by `code` and `message` (copied verbatim), and its `affected_object.ref_id`
- * is the source's `affected_refs[0]` (the model ref when absent). Where the Rust twin maps
- * the source diagnostics (the plain writers), its entries agree by position, `code` and
- * `message`, and name the source diagnostic by `id`. */
+/** The desktop document's diagnostics: one entry per source diagnostic, in order, with
+ * `code` and `message` copied verbatim and `affected_object` naming the source diagnostic
+ * by `id` (`documentDiagnostic`, Rust's mapping). Where the Rust twin maps the source
+ * diagnostics (the plain writers), every member but `provenance` equals the twin's. */
 function expectDiagnosticsFollowSource(doc: JsonObject, rust: JsonObject, source: MechanicsResult, rustMapsSource: boolean) {
   const ours = doc.result_envelope.diagnostics as Json[], theirs = rust.result_envelope.diagnostics as Json[];
   expect(ours).toHaveLength(source.diagnostics.length);
@@ -402,6 +400,19 @@ describe("a preview-physics-2 document's load_basis_refs keep the record's objec
     expect(record.analysis_run.load_basis_refs.length).toBeGreaterThan(0);
     const base = currentResultDocumentBase(model, raw, record.analysis_run, "test:shape", { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:shape" });
     expect(base.result_envelope.load_basis_refs).toStrictEqual(record.analysis_run.load_basis_refs.map(r => ({ ref_type: r.object_type, ref_id: r.ref })));
+  });
+});
+
+describe("a source diagnostic without an id is refused by name", () => {
+  it("currentResultDocumentBase refuses it; the document never drops the diagnostic's identity", async () => {
+    const raw = json("fixtures/results/preview_physics_connected_sparse.json") as MechanicsResult;
+    const model = json("fixtures/model_operations/precision_connected_ui_model.json") as PreviewModel;
+    expect(raw.diagnostics.length).toBeGreaterThan(0);
+    const run = { run_id: raw.run_id, load_basis_refs: [], hashes: [], analysis_status: [], professional_boundary: {} } as unknown as Parameters<typeof currentResultDocumentBase>[2];
+    const solver = { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:id" };
+    expect(currentResultDocumentBase(model, raw, run, "test:id", solver).result_envelope.diagnostics[0].affected_object).toStrictEqual({ ref_type: "preview_diagnostic", ref_id: raw.diagnostics[0].id });
+    const missing = structuredClone(raw); delete missing.diagnostics[0].id;
+    expect(() => currentResultDocumentBase(model, missing, run, "test:id", solver)).toThrow(`RESULT_EXPORT_DIAGNOSTIC_ID_MISSING: ${raw.diagnostics[0].code}`);
   });
 });
 
