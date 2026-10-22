@@ -35,7 +35,7 @@ INVALIDATION = ("The stage-1 lc-1 preparation-refusal credit is retired. Every a
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:4687:solve_prepared_load_case"   # O4 S5 (T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:4772:solve_prepared_load_case"   # pre-0.4 unification (§8.14; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",
@@ -68,6 +68,27 @@ PHASE_NAMES = (
     "X1 ordinary span with T25 (selected finalization)",
     "X2 X completion: retained receipt + reserve + Direct completion",
 )
+# PU-X3 (pre-0.4 failure unification D3, retained-pricing-rules.md §8.14): on a source whose captured route and Direct
+# entry republish a selected source that could not finalize, the republication is its own phase: the second ordinary
+# span on the same ledger, after the first run's envelope (reduced to its fail-closed form) and, on the Direct entry,
+# the observer dropped. W1 does not start (Coexistence), so no W phase follows it. Earlier sources keep seven phases.
+X3_NAME = "X3 republication: the second ordinary span after a selected source could not finalize"
+
+
+def republishes(snapshot):
+    """True when the snapshot's lib.rs defines the republication and its fail-closed form (o10_rules' PU-R1 guards
+    their order); False on an earlier source; anything partial stops."""
+    if not snapshot:
+        return False
+    text = (Path(snapshot) / "core/product_physics/src/lib.rs").read_text(encoding="utf-8")
+    marks = ("\nfn republication(\n" in text, "\nfn fail_closed_form(" in text)
+    if any(marks) and not all(marks):
+        raise ValueError("PU-X3: the republication is partly present; re-review the phase model")
+    return all(marks)
+
+
+def phase_names(snapshot):
+    return PHASE_NAMES + ((X3_NAME,) if republishes(snapshot) else ())
 
 
 def adjacent(name):
@@ -202,15 +223,16 @@ def selected_publication_context(snapshot, directory, graph):
     # calls `exact_pipe_sections`, -5). T4-S5 (epoch 4): composite 977 -> 990, lib 2553 -> 2569, unchanged text.
     # T4-S6 (S6-HS: the streamed `hash`, -9): source_receipt 664/750/766 -> 655/741/757, unchanged text.
     # O4 S5 (§8.9): composite 726/990 -> 740/1018 (the basis-section parameters and the second maximum), lib 2569 -> 2572,
-    # source_receipt 655/741/757 -> 657/743/759 (a test re-export), unchanged text.
+    # source_receipt 655/741/757 -> 657/743/759 (a test re-export), unchanged text. Pre-0.4 failure unification (§8.14):
+    # lib 2572 -> 2634 and source_receipt 657/743/759 -> 661/747/763 (`requested`'s doc comment), unchanged text.
     expected = {
         "core/product_physics/src/source_receipt/composite.rs:740:composite_exact": SOLVE,
         "core/product_physics/src/source_receipt/composite.rs:1018:ordinary_physics": SOLVE,
-        "core/product_physics/src/source_receipt.rs:657:failed": SOLVE,
-        "core/product_physics/src/source_receipt.rs:743:finalize_composite":
-            "core/product_physics/src/lib.rs:2572:run_linear_static_preview_observed_inner",
-        "core/product_physics/src/source_receipt.rs:759:finalize_for":
-            "core/product_physics/src/source_receipt.rs:743:finalize_composite",
+        "core/product_physics/src/source_receipt.rs:661:failed": SOLVE,
+        "core/product_physics/src/source_receipt.rs:747:finalize_composite":
+            "core/product_physics/src/lib.rs:2634:run_linear_static_preview_observed_inner",
+        "core/product_physics/src/source_receipt.rs:763:finalize_for":
+            "core/product_physics/src/source_receipt.rs:747:finalize_composite",
     }
     for target, caller in expected.items():
         parents = [key for key, values in graph["edges"].items() for value in values if value == target]
@@ -471,8 +493,9 @@ def merge_success_tree(work, successor_work, snapshot):
         raise ValueError("B7a phase: native mode inventory changed")
     for mode in ("sparse", "dense"):
         original_phases, successor_phases = original["phases"][mode], successor["phases"][mode]
-        if set(original_phases) != set(PHASE_NAMES) or set(successor_phases) != set(PHASE_NAMES):
-            raise ValueError("B7a phase: fourteen phase identities changed")
+        names = set(phase_names(snapshot))
+        if set(original_phases) != names or set(successor_phases) != names:
+            raise ValueError("B7a phase: the phase identities changed (fourteen; sixteen with PU-X3)")
         if any(set(v) != {"requested", "moving"} for v in list(original_phases.values()) + list(successor_phases.values())):
             raise ValueError("B7a phase: requested/moving shape changed")
     names = set(successor["forms"]) | set(successor["exprs"])

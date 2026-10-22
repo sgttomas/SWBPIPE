@@ -46,8 +46,10 @@ RF_PINS = {
 # no reduction's owner or lifetime changes. T4-S7: retained_wire.rs's domain_hash doc comment only.
 # W1 coverage repair D3 (§8.11): retained_wire.rs's selection borrows the certified proof for its final scales;
 # no reduction's owner or lifetime changes.
+# Pre-0.4 failure unification D3 (§8.14): lib.rs's republication, screen and cause texts change no reduction's owner
+# or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "70cd91d53134c95842bdbabe1a2e463407427fb8af4e15d3269ebd1ea8a8d1b6",
+    "core/product_physics/src/lib.rs": "e8185273cf8a31ab66ba512deccb8a4ba92cc636dbd5524313d4bab610ca3237",
     "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",

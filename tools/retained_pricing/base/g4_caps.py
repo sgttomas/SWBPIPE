@@ -537,10 +537,17 @@ exprs = {
 # process-lifetime statics are live after the first permitted invocation, so both count in every phase.
 # The additional held source clone is conservatively resident in every phase.
 EVERY = ["T11", "T19", "STATICS", "FAILED_MANIFEST_COPY", "FORMATION_VALUE_BUILD", "W1_MEMBER_READER"]
+_X3 = _phase_model.republishes(SNAP)
 def phases_of(mode):
     ob = f"O_base_{mode}"
     w2 = [ob, "TAV_W", "T12_T15", "NOTICE"] + EVERY
-    return {
+    # PU-X3 (retained-pricing-rules.md §8.14): the republication's second ordinary span. The first run returned and its
+    # envelope (reduced to the fail-closed form) dropped before it, and on the Direct entry the observer did too; only
+    # the capture, the ledger and the recorded cause persist, each already priced (R_raw and T_resident in O_base, the
+    # cause texts in TAV). Its attempts are live T07 attempts that are then declined, so its moving candidates are W1's;
+    # nothing is selected, so no T25, and W1 does not start. Its text is the full TAV_X, as in X1/X2.
+    x3 = {_phase_model.X3_NAME: ([ob, "TAV_X"] + EVERY, ["TXT_moving", "HELPER_moving", "T07_moving"])} if _X3 else {}
+    return {**x3, **{
         "X1 ordinary span with T25 (selected finalization)":
             ([ob, "T25", "TAV_X"] + EVERY, ["T25_moving", "TXT_moving", "HELPER_moving"]),
         "X2 X completion: retained receipt + reserve + Direct completion":
@@ -555,7 +562,7 @@ def phases_of(mode):
             (w2 + ["SUCC", "INVOC", "T17"], ["TXT_moving", "HELPER_moving", "T17_moving_publication", "T17_moving_invocation"]),
         "W5 transfer and Direct completion (T18, T19)":
             (w2 + ["SUCC"], ["TXT_moving", "HELPER_moving"]),
-    }
+    }}
 vals = dict(ASSUMED); vals.update(J(f"producer_caps.{which}.out.json")["assumed"]); vals.update(T25["assumed"]); vals.update(evv); vals.update(TXT)
 def evn(node):
     if isinstance(node, str):

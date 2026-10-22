@@ -20,7 +20,9 @@ PINS = {
         # composite_member_maximum call per basis where the two stress sections differ (the reduced one on its own
         # section) and SOURCE_MAXIMUM_BASES_DISTINCT is deleted; the warning pushes the error by clone. Carriers,
         # staging and the prepared-pressure calls are unchanged.
-        "solve_prepared_load_case": "e11b74db65968ea072f1344145bd528b11837347bf98e3d9a52e88bf2d424941",
+        # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
+        # cause String and the route-neutral cause records (PU-TX); carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "96aab83751549846c8898defa59da887fdde529a74d231862b2ef454f109c4e8",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the

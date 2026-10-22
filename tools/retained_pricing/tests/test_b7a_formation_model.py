@@ -350,9 +350,15 @@ def test_retained_and_independent_value_copies_are_consumed_in_actual_models():
     assignment = next(n for n in tree.body if isinstance(n, ast.Assign)
                       and any(isinstance(t, ast.Name) and t.id == "EVERY" for t in n.targets))
     exec(compile(ast.Module(body=[assignment] + selected, type_ignores=[]), "g4 phase source", "exec"), namespace)
-    for mode in ("sparse", "dense"):
-        for requested, _ in namespace["phases_of"](mode).values():
-            assert "FORMATION_VALUE_BUILD" in requested
+    # PU-X3 (§8.14): with and without the republication phase, every phase holds the formation Value build.
+    namespace["_phase_model"] = SimpleNamespace(X3_NAME="X3 republication")
+    for x3, count in ((False, 7), (True, 8)):
+        namespace["_X3"] = x3
+        for mode in ("sparse", "dense"):
+            phases = namespace["phases_of"](mode)
+            assert len(phases) == count
+            for requested, _ in phases.values():
+                assert "FORMATION_VALUE_BUILD" in requested
     native = (PRICING / "base/g5_profile.py").read_text()
     assert 'sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow")' in native
     assert 'sz("(usize, [f64; 4])")' in native

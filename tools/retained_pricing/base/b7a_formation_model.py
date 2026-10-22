@@ -37,7 +37,9 @@ SOURCE_FILES = {
     # R-A D3 (§8.13): read b903a2d901; `Sources::hint` is B1's index rule (arithmetic, no allocation), which solve's
     # plan (`new_with_hints`) and the replay pass to the kernel as a borrowed closure (the kernel's hint vectors are
     # RA-HS); j7_rf_census declares the #[cfg(test)] gating module. No formed-load or finding owner changes.
-    "core/product_physics/src/source_recovery.rs": "04b56239eb4fe479e1b4df388192d995aa932f9af38061cd46341c8d2e24bbc2",
+    # Pre-0.4 failure unification D3 (§8.14): read b6cc3a792a; the screen's and decline_withheld's doc comments are
+    # route-neutral and RF-14's test is restated. No formed-load or finding owner changes.
+    "core/product_physics/src/source_recovery.rs": "cf68c6e277ed9393de4fb53dc454482f9d4023072ef3f957b9ac5f6f1fdfe773",
     "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
 }
 RANGE_CONTENT = 59

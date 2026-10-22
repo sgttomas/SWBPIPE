@@ -13,7 +13,10 @@ import re
 # T4-S6 D3 (§8.8, S6-HS): source_receipt.rs's `hash` streams the checked canonical text into SHA-256 (hash_text and
 # DomainPayload deleted, -9 lines before the constructors); the retired constructors stay absent and
 # finalize_composite/finalize_for stay unique.
-SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '4b13fb633565bc92bd219c66032df9c5ca16a700d815a27a8980472f00c217a6','core/product_physics/src/source_receipt.rs': 'dbb32f92c7c55189dd1eed2c0730e52c3c1593a246022be637d7b5c2efe2de90'}
+# Pre-0.4 failure unification D3 (§8.14): source_receipt.rs makes CapturedInvocation::requested pub(super) with a doc
+# comment and the fallback test module pub(crate); the retired constructors stay deleted and finalize_composite and
+# finalize_for stay unique.
+SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '4b13fb633565bc92bd219c66032df9c5ca16a700d815a27a8980472f00c217a6','core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5'}
 ROW_FILE = "core/product_physics/src/source_receipt/rows.rs"
 RETIRED_IDS = {
     ROW_FILE + ":390": {"primary[&s.functional_indices[c]].id": {"bytes": 1024, "source": "RES"}},

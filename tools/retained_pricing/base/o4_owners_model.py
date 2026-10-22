@@ -64,7 +64,9 @@ BODY_PINS = {
     (RPX, "native_bytes"): "b29f2a8e08c9b1129d6c0667216d233f5b15bb5917d2443de415577d2299ca57",
     (PHS, "validate_transport_metadata_in"): "19b220d5cefe27184577254a24bab6b25663356549982db6a057e64576ff8ded",
     # O4-SR (the source route's second maximum) and O4-SP (its payload keys and per-station components)
-    (LIB, "solve_prepared_load_case"): "7aab4608a8b53ff7f78b1c45cab070afc22dcdca4318d670f373c43e933ebf3a",
+    # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
+    # cause String and the route-neutral cause records (PU-TX). The second maximum and the payload keys are unchanged.
+    (LIB, "solve_prepared_load_case"): "9d7a4c2a7a2a699ee75d0f2fa79d36c0e8b54239c64cbb2ffb99b2b9a2b9d8dd",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

@@ -1982,3 +1982,78 @@ if fnkey("selection", _W1R_RW) and "let scales = certificate.final_scales();" in
     O10_LOOPS_LAST += [('iter:" ":scales.iter().enumerate().map', "n",
                         O10 + "W1R-L1: the certified proof's final scales, one entry per body (body_count <= n)",
                         ["retained_wire.rs:selection"])]
+
+# ---- The pre-0.4 failure unification (DEL-04-08 Design pre04-failure-unification.md §§2-4; retained-pricing-rules.md
+# §8.14). Each rule applies only where the unification's code exists, so earlier revisions price as before.
+_PU_LIB = PP_ + "lib.rs"
+if fnkey("republication", _PU_LIB) and fnkey("fail_closed_form", _PU_LIB):
+    _PU_CASE = _fn_text("solve_prepared_load_case", _PU_LIB)
+    _PU_OBS = _fn_text("run_linear_static_preview_observed_inner", _PU_LIB)
+    _PU_CAP = _fn_text("run_linear_static_preview_captured", _PU_LIB)
+    _PU_REP = _fn_text("republication", _PU_LIB)
+    _PU_RUN = _fn_text("permitted_run", _PU_LIB)
+    # The cause texts, read at the snapshot. The S2 cause is `support {id} norm: {error.0}` (one admitted support id,
+    # IN128, and one error Display, error_display); it becomes the ReceiptError the case's S3 sites read as error.0. The
+    # recorded cause is one of S1 `captured source context: {}`, S3 `case {}: {}` (a load case id and that error.0) and
+    # S4 `invocation receipt: {}`; the withheld text appends the cause after a fixed literal.
+    _PU_TEMPLATES = {
+        "s2": ('format!("support {} norm: {}", support.id, error.0)', _PU_CASE, len("support  norm: ")),
+        "s1": ('format!("captured source context: {}", error.0)', _PU_OBS, len("captured source context: ")),
+        "s3": ('"case {}: {}",', _PU_CASE, len("case : ")),
+        "s4": ('"invocation receipt: {}",', _PU_OBS, len("invocation receipt: ")),
+        "withheld": ('format!("; the invocation publishes every case on its ordinary route because its selected join could not finalize: {cause}")',
+                     _PU_CASE, len("; the invocation publishes every case on its ordinary route because its selected join could not finalize: ")),
+    }
+    for _k, (_t, _body, _lit) in _PU_TEMPLATES.items():
+        if _body.count(_t) != 1:
+            raise SystemExit(f"PU-TX: the {_k} cause template changed; re-review")
+    _PU_ERR = 8192   # error_display (TEXT.md section 3)
+    _PU_S2 = _PU_TEMPLATES["s2"][2] + 128 + _PU_ERR                                  # 8,335
+    _PU_CAUSE = max(_PU_TEMPLATES["s1"][2] + _PU_ERR, _PU_TEMPLATES["s3"][2] + 128 + _PU_S2,
+                    _PU_TEMPLATES["s4"][2] + _PU_ERR)                                 # 8,470 (S3 carrying the S2 cause)
+    _PU_WITHHELD = _PU_TEMPLATES["withheld"][2] + _PU_CAUSE                          # 8,576
+    # PU-ID: the two new format sites' identifier arguments, as their siblings: the S2 cause's support id (IN128) and
+    # the missing-row text's entity (IN128), kind and location (static), as on the "not unique" line beside it.
+    O10_ID_AUDIT += [
+        (site("solve_prepared_load_case", _PU_LIB, 'format!("support {} norm: {}", support.id, error.0)', full=True),
+         {"support.id": IN}),
+        (site("source_row_bindings", _PU_LIB, 'format!("source functional row binding is missing: {entity}/{kind}/{location}")', full=True),
+         {"entity": IN, "kind": ST, "location": ST}),
+    ]
+    # PU-S2: the case's S3 sites read error.0, which may now be the S2 cause, so error.0 there is bounded by the S2
+    # site's own size instead of one error Display: the cause record and the finalization diagnostic.
+    _PU_S2_CLASS = {"bytes": _PU_S2, "source": O10 + "PU-S2: the S2 cause (support id + error Display + literal) or an error Display"}
+    O10_ID_AUDIT += [
+        (site("solve_prepared_load_case", _PU_LIB, "source_budget.record_load_state_join_failure(format!(", full=True), {"error.0": _PU_S2_CLASS}),
+        (site("solve_prepared_load_case", _PU_LIB, 'format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![load_case.id.clone()]', full=True),
+         {"error.0": _PU_S2_CLASS}),
+    ]
+    # PU-C: the recorded cause (one of S1, S3 and S4) and the withheld text that appends it, now reachable on route E.
+    # The withheld literal is fixed (0.4's text, byte for byte); the cause is at most the largest record site.
+    _PU_CAUSE_CLASS = {"bytes": _PU_CAUSE, "source": O10 + "PU-C: the recorded cause, the largest of the S1, S3 and S4 record sites"}
+    O10_ID_AUDIT += [
+        (site("solve_prepared_load_case", _PU_LIB, _PU_TEMPLATES["withheld"][0], full=True), {"cause": _PU_CAUSE_CLASS}),
+        (site("solve_prepared_load_case", _PU_LIB, '{failure:?}{withheld}")', full=True),
+         {"withheld": {"bytes": _PU_WITHHELD, "source": O10 + "PU-C: the withheld literal and the recorded cause"}}),
+    ]
+    # PU-CL: the three clones of the recorded cause (the captured route's and the Direct entry's check, and the
+    # republication's ledger copy) are each one cause.
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+        {"re": r"^(source_budget|budget|self)\.join_failure$", "max": _PU_CAUSE,
+         "why": O10 + "PU-CL: a clone of the recorded cause (Option<String>), at most the largest record site"}]
+    # PU-R1 (guard; G4's one-ordinary-run cap): at most one ordinary run is live at a time. The republication's run
+    # starts only after the first run returned and its envelope was reduced to the fail-closed form and dropped, and on
+    # the Direct entry after the observer (with its permit) dropped; its request comes from the capture. The cause texts
+    # that persist are priced at their own sites; the republication is the X3 phase (b7a_phase_model, g4_caps).
+    _pu_guards = (
+        (_PU_CAP.count("run_linear_static_preview_captured_once(") == 1 and _PU_CAP.count("republication(") == 1
+         and _PU_CAP.index("fail_closed_form(envelope)") < _PU_CAP.index("capture.requested()")
+         < _PU_CAP.index("drop(fail_closed);") < _PU_CAP.index("republication(")),
+        _PU_REP.count("run_linear_static_preview_captured_once(") == 1 and "withholding_load_state_join(cause)" in _PU_REP,
+        (_PU_RUN.count("run_linear_static_preview_observed(") == 1 and _PU_RUN.count("republication(") == 1
+         and _PU_RUN.index("run_linear_static_preview_observed(") < _PU_RUN.index("fail_closed_form(ordinary)")
+         < _PU_RUN.index("drop(observer);") < _PU_RUN.index("capture.requested()") < _PU_RUN.index("drop(fail_closed);")
+         < _PU_RUN.index("republication(") < _PU_RUN.index("Err(W1Fallback::Coexistence)")),
+    )
+    if not all(_pu_guards):
+        raise SystemExit(f"PU-R1: the republication's run order changed; re-review G4's one-run cap: {_pu_guards}")

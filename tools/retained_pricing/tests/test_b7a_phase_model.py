@@ -165,7 +165,7 @@ def test_actual_stage2_admission_and_frozen_source_drift_refuses(tmp_path, file,
 def test_driver_selects_only_success_phases_and_preserves_report_and_reserve(tmp_path):
     work, successor = tmp_path / "full", tmp_path / "success"
     work.mkdir(); successor.mkdir()
-    keys = list(MODEL["PHASE_NAMES"])
+    keys = list(MODEL["phase_names"](SOURCE))   # PU-X3 (§8.14): X3 where the source republishes
     phase = {k: {"requested": ["ordinary"], "moving": ["moving"]} for k in keys}
     tree = dict(which="caps", EPS=10, M=100000, R=100, text_atoms={"Text(row)": 100},
                 assumed={"s(String)": 24}, forms={"ordinary": {"1": 1000}, "moving": {"1": 50},
