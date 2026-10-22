@@ -139,16 +139,14 @@ describe("LoadCaseManagerPanel load-case creation", () => {
     expect(byId("load-manager-create-load-preview")).toHaveTextContent("id=load:dead already exists; no load case queued");
   });
 
-  it("currently keeps a drafted id that a model update has since taken, and refuses it", () => {
+  it("re-proposes the draft id when a model update takes it, as the combination draft does", () => {
     const { model, rerender } = mount();
     expect(byId("load-manager-create-load-id")).toHaveValue("load:L-300");
     const next = structuredClone(model);
     next.load_cases.push({ id: "load:L-300", label: "Applied", kind: "sustained", status: "draft", provenance: "invented" });
     rerender(next);
-    // Unlike the combination draft, the load-case draft id is not re-proposed.
-    expect(byId("load-manager-create-load-id")).toHaveValue("load:L-300");
-    expect(byId("queue-create-load-case-intent")).toBeDisabled();
-    expect(byId("load-manager-create-load-preview")).toHaveTextContent("id=load:L-300 already exists; no load case queued");
+    expect(byId("load-manager-create-load-id")).toHaveValue("load:L-301");
+    expect(byId("queue-create-load-case-intent")).toBeEnabled();
   });
 });
 
@@ -336,15 +334,16 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
     });
   });
 
-  it("currently queues a non-numeric or blank magnitude as entered text", () => {
+  it("refuses a non-numeric, blank or zero magnitude, as the create form does", () => {
     const { queue } = mount();
-    type("load-manager-magnitude-value", "abc");
-    expect(byId("queue-load-magnitude-intent")).toBeEnabled();
+    for (const magnitude of ["abc", "1e", "", "   ", "Infinity", "0x10", "0", "-0"]) {
+      type("load-manager-magnitude-value", magnitude);
+      expect(byId("queue-load-magnitude-intent")).toBeDisabled();
+      expect(byId("load-manager-edit-preview")).toHaveTextContent("current=12 kN; enter a finite nonzero magnitude; no changed magnitude queued");
+    }
+    type("load-manager-magnitude-value", "-2.5");
     fireEvent.click(byId("queue-load-magnitude-intent"));
-    expect(lastIntent(queue).change.after).toBe(JSON.stringify({ value: "abc", unit: "kN" }));
-    type("load-manager-magnitude-value", "   ");
-    fireEvent.click(byId("queue-load-magnitude-intent"));
-    expect(lastIntent(queue).change.after).toBe(JSON.stringify({ value: "TBD", unit: "kN" }));
+    expect(lastIntent(queue).change.after).toBe(JSON.stringify({ value: -2.5, unit: "kN" }));
   });
 
   it("queues an indexed primitive delete with the full before-display", () => {
@@ -510,12 +509,17 @@ describe("LoadCaseManagerPanel combination editing", () => {
     });
   });
 
-  it("passes a non-numeric existing-term factor through as entered text", () => {
+  it("refuses a non-numeric existing-term factor, as the create forms do", () => {
     const { queue } = mount();
-    type("load-manager-combination-factor-value", "abc");
-    expect(byId("queue-combination-factor-intent")).toBeEnabled();
+    for (const factor of ["abc", "1e", "Infinity", "0x10"]) {
+      type("load-manager-combination-factor-value", factor);
+      expect(byId("queue-combination-factor-intent")).toBeDisabled();
+      expect(byId("load-manager-combination-factor-preview")).toHaveTextContent("current=1; enter a finite factor; no changed combination factor queued");
+    }
+    // A zero factor is a valid explicit term.
+    type("load-manager-combination-factor-value", "0");
     fireEvent.click(byId("queue-combination-factor-intent"));
-    expect(lastIntent(queue).change.after).toBe("abc");
+    expect(lastIntent(queue).change.after).toBe("0");
   });
 
   it("drafts a new term against a case the combination does not yet use", () => {

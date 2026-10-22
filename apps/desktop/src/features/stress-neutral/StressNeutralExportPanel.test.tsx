@@ -10,8 +10,8 @@ import { modelLoadBasisRefs, analysisRecordProjection, verifyAnalysisRunRecord }
 import transport from "../../../../../fixtures/canonical_hash/binary64_transport_vectors.json";
 import { minimalPreviewStatement } from "../../test-support/retiredPrecision";
 import connectedPreview from "../../../../../fixtures/results/preview_physics_connected_sparse.json";
-import {afterEach,it,expect,vi} from 'vitest';
-import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {afterEach,it,expect,onTestFinished,vi} from 'vitest';
+import {act,fireEvent,getConfig,render,screen,waitFor} from '@testing-library/react';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {readRetainedPrecisionCorpus} from '../../test-support/retainedPrecisionCorpus';
@@ -101,14 +101,32 @@ async function currentPrecision(mode: "sparse_interactive" | "dense_scrutiny" = 
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
  return {model,result,analysisRun};
 }
+/** Waits until `read` returns a value, rechecking on each DOM mutation, with no wall-clock
+ * deadline: it ends when the panel renders the state, however long the work before it takes
+ * under load. The test timeout bounds a failure; when the test ends first, the observer is
+ * disconnected and the wait settles, so nothing outlives the test. It runs in Testing Library's
+ * async wrapper, as `waitFor` does. */
+function untilRendered<T>(read:()=>T|null|undefined):Promise<T>{
+ return getConfig().asyncWrapper(()=>new Promise<T>((resolve,reject)=>{
+  const observer=new MutationObserver(check);
+  onTestFinished(()=>{observer.disconnect();reject(new Error('untilRendered: the test ended before the state rendered'));});
+  function check(){const found=read();if(found!==null&&found!==undefined){observer.disconnect();resolve(found);}}
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,characterData:true});check();
+ }));
+}
 it('does not publish a delayed packet after its source result is replaced',async()=>{
  const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
  const expected=await buildStressNeutralExportPacket(second);
  const original=crypto.subtle.digest.bind(crypto.subtle);let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});let calls=0;
- vi.spyOn(crypto.subtle,'digest').mockImplementation(async (algorithm:any,data:any)=>{calls+=1;if(calls===1)await gate;return original(algorithm,data);});
- const view=render(<StressNeutralExportPanel {...first}/>);await waitFor(()=>expect(calls).toBe(1));view.rerender(<StressNeutralExportPanel {...second}/>);
- await screen.findByTestId('stress-neutral-state-binding');fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));
- await waitFor(()=>expect(screen.getByTestId('stress-neutral-export-link')).toHaveAttribute('href',expect.stringMatching(/^data:application\/json/)));
+ let firstHeld!:()=>void;const held=new Promise<void>((resolve,reject)=>{firstHeld=resolve;onTestFinished(()=>reject(new Error('the first build never reached its first digest')));});
+ vi.spyOn(crypto.subtle,'digest').mockImplementation(async (algorithm:any,data:any)=>{calls+=1;if(calls===1){firstHeld();await gate;}return original(algorithm,data);});
+ // The first build reaches its first digest (and is held there) after its own work, so this
+ // wait, too, ends on the event rather than a 1 s deadline.
+ const view=render(<StressNeutralExportPanel {...first}/>);await getConfig().asyncWrapper(()=>held);expect(calls).toBe(1);view.rerender(<StressNeutralExportPanel {...second}/>);
+ // The second build, then the link's validation, can each outlast the default 1 s wait under
+ // load (hosted run 39779582833), so these waits end on the rendered state instead.
+ await untilRendered(()=>screen.queryByTestId('stress-neutral-state-binding'));fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));
+ await untilRendered(()=>/^data:application\/json/.test(screen.queryByTestId('stress-neutral-export-link')?.getAttribute('href')??'')||null);
  const href=screen.getByTestId('stress-neutral-export-link').getAttribute('href')!;
  expect(JSON.parse(decodeURIComponent(href.slice(href.indexOf(',')+1))).package_checksum.value).toBe(expected.package_checksum.value);
  release();await waitFor(()=>expect(calls).toBeGreaterThan(1));await Promise.resolve();
