@@ -122,7 +122,9 @@ MODE_SOURCE = {
            # Pre-0.4 failure unification D3 (§8.14): the same _X emitter, with retained_w1 carried to lib.rs:3616.
            "49accb86c11cdfb6a045246c0610226a1f9cb4715e2d48bdf4f58e80e88ef83b",
            # W-8 topology warnings D3 (§8.16): the same _X emitter, with retained_w1 carried to lib.rs:3618.
-           "779a5d3019558c983accbb7e19e5c0507be150138d226c5baa0ea829ea9d07ec"},
+           "779a5d3019558c983accbb7e19e5c0507be150138d226c5baa0ea829ea9d07ec",
+           # Silent-zero guard D3 (§8.15), merged on W-8: the same _X emitter, with retained_w1 carried to lib.rs:3619.
+           "d8f2b65c5788b7e4104a6faa2acc4b666f54709fec7de0909422a8dbc0cf1c72"},
 }
 
 
