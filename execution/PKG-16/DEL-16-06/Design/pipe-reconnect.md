@@ -165,8 +165,9 @@ rigid component (`rigid_pipe_ref`); an annotation expansion joint
 `lib.rs:2727-2728`). SIF and flexibility modifiers are quantities that name no
 pipe (`schemas/model.schema.yaml:435-484`); they matter only through
 `component.node`. `terminal` markers have no solver contribution (schema
-`ComponentKind` description, `:404`), so they are exempt from the at-node rule;
-otherwise the bundled demo's free end could not be reconnected.
+`ComponentKind` description, `:404`), so they are exempt from the at-node rule:
+a pipe whose end carries only a terminal marker can be reconnected (the marker
+stays on its node), and a pipe can join a node that carries one.
 
 **Why R10–R11.** Region chain topology is checked only at solve
 (`traverse_region`, `pressure_runtime.rs:1458-1597`); authoring checks members,
@@ -307,9 +308,10 @@ silent result.
   `connect_pipe_run`. **Guarantee:** the warnings cover exact node-pair
   duplicates and full-span geometric coincidence within the tolerance; partial
   collinear overlap is not detected.
-- **Orphan.** An unconnected, unrestrained node is expected to make the solve
-  report a mechanism; the nearest existing witness is the disconnected-body
-  test (`product_physics/src/lib.rs:15409-15434`), and §4 pins this case. The
+- **Orphan.** An unconnected, unrestrained node makes the solve refuse with
+  `NUMERICAL_INTEGRITY_UNRESOLVED` (a zero original diagonal at the node) and
+  publish no result; it is not reported as a witnessed mechanism. §4 pins this
+  case. The
   desktop offers to delete O in the same batch (§3). A cycle is allowed with no
   diagnostic.
 - **Bend tangency.** Insert-at-corner places the bend component at the arc's
@@ -437,7 +439,8 @@ highlights P, F, O and T through the existing selection presentation.
 kept, within each solver mode, but only as an identity check. The physical
 expectations are stated independently and every solve asserts its status:
 In the cantilever, wind and fit tests O would otherwise be left orphaned and
-unrestrained (a mechanism), so each applies the batch [`reconnect`,
+unrestrained (the solve then refuses it as `NUMERICAL_INTEGRITY_UNRESOLVED`
+with no result), so each applies the batch [`reconnect`,
 `delete_node` O]; the built-topology test anchors O instead.
 - **Cantilever.** P anchored at F, uniform `distributed_force` w on the
   pressure-free (Euler–Bernoulli) route, reconnected from O to a farther T.
@@ -452,8 +455,9 @@ unrestrained (a mechanism), so each applies the batch [`reconnect`,
   E·A·Δ/L_new in magnitude, against an independently authored model.
 - **Local frame.** After a reconnect that rotates P's axis, the solve succeeds
   and reports local results; the near-parallel case does not reach the solve.
-- **Orphan.** Orphaning an unsupported node gives a mechanism status, not a
-  result.
+- **Orphan.** Orphaning an unsupported node gives a blocking
+  `NUMERICAL_INTEGRITY_UNRESOLVED` refusal and no result
+  (`tests/pipe_reconnect.rs`, `orphaning_an_unsupported_node_refuses_the_solve_without_a_result`).
 - **Exact pressure.** A document whose region fails
   `PRESSURE_REGION_INTERNAL_BRANCH` (`pressure_runtime.rs:1541-1549`) because a
   non-member pipe ends at an internal node; reconnecting that pipe away gives a
