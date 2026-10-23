@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
 import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
+import { loadedWasmEngine } from "./wasmEngine/loadWasmEngine";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -144,7 +145,25 @@ function requireEditableModelDocument(model: PreviewModel): ModelDocumentVersion
       `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}`
     );
   }
+  refuseMalformedModelSlots(model);
   return status;
+}
+
+/** W-13 §5.3 (S2): the browser-preview store mirrors the native store, which
+ * refuses to create, save or open a document whose model-data slots carry a
+ * blocking validator finding (`refuse_malformed_model_slots`, src-tauri). The
+ * validator is the wasm engine's; before it has loaded the native store remains
+ * the check of record. */
+export function refuseMalformedModelSlots(model: PreviewModel): void {
+  const engine = loadedWasmEngine();
+  if (!engine) return;
+  const report = JSON.parse(engine.validateModelDocumentJson(JSON.stringify(model))) as {
+    diagnostics?: Array<{ code: string; severity: string; path: string; message: string }>;
+  };
+  const blocking = (report.diagnostics ?? []).filter((item) => item.severity === "blocking");
+  if (blocking.length > 0) {
+    throw new Error(`Model document refused: malformed model-data slots: ${blocking.map((item) => `${item.code} at ${item.path}: ${item.message}`).join(" | ")}`);
+  }
 }
 
 function localOnlyCapability(): LocalStorageCapability {

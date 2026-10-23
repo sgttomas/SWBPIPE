@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FileText, ShieldAlert } from "lucide-react";
-import type { PreviewModel } from "../../types";
+import type { EditorOperationIntent, PreviewModel } from "../../types";
+import { RulePackModelReferences } from "../model-data/RulePackModelReferences";
 import {
   buildDraftRulePackDocument,
   computeRulePackChecksum,
@@ -57,10 +58,17 @@ type RulePackR3JourneyEvent =
 
 export function RulePackManagerPanel({
   model,
-  onR3JourneyEvent
+  onR3JourneyEvent,
+  queuedIntents,
+  onQueueIntent,
+  operationBusy = false
 }: {
   model: PreviewModel | null;
   onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
+  /** W-13 §3.4: "Use with this model" / "Remove from model" queue structured operations. */
+  queuedIntents?: EditorOperationIntent[];
+  onQueueIntent?: (intent: EditorOperationIntent) => void;
+  operationBusy?: boolean;
 }) {
   const [draft, setDraft] = useState<DraftState | null>(null);
   const [actionStatus, setActionStatus] = useState<string>(
@@ -68,6 +76,7 @@ export function RulePackManagerPanel({
   );
   const [listStatus, setListStatus] = useState<string>("Local rule-pack list not refreshed yet.");
   const [entries, setEntries] = useState<LocalRulePackIndexEntry[]>([]);
+  const [listRefreshed, setListRefreshed] = useState(false);
   const [validation, setValidation] = useState<RulePackDocumentValidation | null>(null);
   const [checksum, setChecksum] = useState<RulePackComputedChecksum | null>(null);
   // In-request busy guard: while a backend command is awaiting, the draft
@@ -88,6 +97,7 @@ export function RulePackManagerPanel({
   // project until saved).
   useEffect(() => {
     setEntries([]);
+    setListRefreshed(false);
     setListStatus("Local rule-pack list not refreshed for this project yet.");
   }, [projectId]);
 
@@ -146,6 +156,7 @@ export function RulePackManagerPanel({
         return;
       }
       setEntries(route.entries);
+      setListRefreshed(true);
       setListStatus(
         `Local store listed ${route.entries.length} rule pack(s)` +
           (projectId ? ` for ${projectId}.` : " across all local projects.")
@@ -375,6 +386,17 @@ export function RulePackManagerPanel({
           </article>
         ))}
       </div>
+      {model && onQueueIntent ? (
+        <RulePackModelReferences
+          model={model}
+          entries={entries}
+          listRefreshed={listRefreshed}
+          openPack={(entry) => openLocalRulePack(entry.project_id, entry.rule_pack_id)}
+          queuedIntents={queuedIntents}
+          onQueueIntent={onQueueIntent}
+          operationBusy={operationBusy || inFlight}
+        />
+      ) : null}
 
       {draft ? (
         parsedDraft && parsedDraft.ok ? (

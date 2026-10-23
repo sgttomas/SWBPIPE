@@ -38,6 +38,15 @@ function projection(support: unknown): DraftRecord {
   const s = record(support);
   return Object.fromEntries(CONFIG.filter(k => s[k] !== undefined).map(k => [k, clone(s[k])]));
 }
+/** The editable draft of a stored support. The format reads `nonlinear: null` as
+ * a linear support, as the applier and solver do, so the draft treats it as
+ * absent (W-13 S2, known gap from the S1a review); the stored projection stays
+ * the staleness `before`. */
+function draftProjection(support: unknown): DraftRecord {
+  const draft = projection(support);
+  if (draft.nonlinear === null) delete draft.nonlinear;
+  return draft;
+}
 export function SupportConfigurationForm(props: RichFormProps) {
   if (!["support", "node", "project"].includes(props.selection.type))
     return null;
@@ -79,13 +88,13 @@ function SupportEditor(props: RichFormProps & {
 }) {
   const { support } = props;
   const [create, setCreate] = useState(!support);
-  const initial = () => support && !create ? projection(support) : { restraints: [] };
+  const initial = () => support && !create ? draftProjection(support) : { restraints: [] };
   const [draft, setDraft] = useState<DraftRecord>(initial);
   const [id, setId] = useState("");
   const [label, setLabel] = useState("");
   const [node, setNode] = useState(props.selection.type === "node" ? props.selection.id : "");
   useEffect(() => {
-    setDraft(support && !create ? projection(support) : { restraints: [] });
+    setDraft(support && !create ? draftProjection(support) : { restraints: [] });
   }, [support, create]);
   const state = useRichQueue(props);
   const set = (key: string, value: unknown) => setDraft(d => setMember(d, key, value));
