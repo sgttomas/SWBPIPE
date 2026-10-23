@@ -140,14 +140,14 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > | Requirement ID | Requirement | Source |
 > |---|---|---|
-> | DEL-06-05-REQ-01 | The contract shall state that public rule-pack examples use invented non-code values and clear non-engineering notices. | `docs/CONTRACT.md` `OPS-K-RULE-1`; `docs/_Registers/ScopeLedger.csv` row `SOW-016` |
+> | DEL-06-05-REQ-01 | The contract shall state that public rule-pack examples use invented non-code values and clear non-engineering notices. | `docs/CONTRACT.md` `OPS-K-RULE-1`; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-016` |
 > | DEL-06-05-REQ-02 | The contract shall prohibit protected standards text, tables, figures, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-IP-3`; `docs/DIRECTIVE.md` sections 3 and 4.2 |
 > | DEL-06-05-REQ-03 | The contract shall distinguish a user-rule check from professional approval and shall not claim certification, sealing, authentication, or code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
 > | DEL-06-05-REQ-04 | The contract shall keep code-specific values user-supplied or private and shall mark unknowns as `TBD` rather than supplying defaults. | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-2`; `loop/LOOP_INIT.md` Agent rule |
 > | DEL-06-05-REQ-05 | An example rule pack shall carry source/provenance and redistribution status fields; checksum values must bind the actual payload under the canonical hash contract; no digest is invented or treated as valid after payload changes. | `docs/CONTRACT.md` `OPS-K-DATA-3`, `OPS-K-RULE-3`; `docs/SPEC.md` section 6 |
 > | DEL-06-05-REQ-06 | An example rule pack shall remain declarative and non-executable; evaluator grammar and sandbox details remain owned by separate PKG-06 deliverables. | `docs/CONTRACT.md` `OPS-K-RULE-2`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEL-06-02` and `OI-006` |
 > | DEL-06-05-REQ-07 | Work shall remain within the currently authorized brief; document/example maintenance shall not move any artifact to `ISSUED`. | `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
-> | DEL-06-05-REQ-08 | Outputs shall preserve architecture-basis constraints that are applicable to rule-pack examples: schema-first records, provenance, diagnostics, protected-content gates, and no-bypass boundaries. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
+> | DEL-06-05-REQ-08 | Outputs shall preserve architecture-basis constraints that are applicable to rule-pack examples: schema-first records, provenance, diagnostics, protected-content gates, and no-bypass boundaries. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
 >
 
 ### CLM-012 — Standards

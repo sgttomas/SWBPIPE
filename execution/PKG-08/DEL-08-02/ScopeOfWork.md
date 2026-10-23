@@ -121,8 +121,8 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` row DEL-08-02; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
-> | DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+> | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-02; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
+> | DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | DEL-08-02-R3 | Non-JSON and binary assets shall be represented through manifest asset hashes rather than folded into the JSON payload hash. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | DEL-08-02-R4 | The manifest shall record software version and solver version sufficient to interpret deterministic result reproduction. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
 > | DEL-08-02-R5 | The manifest shall record rule-pack name or ID, version, checksum, source notice, and redistribution status where a rule pack participates in a report/run. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `docs/IP_AND_DATA_BOUNDARY.md` section 7 |

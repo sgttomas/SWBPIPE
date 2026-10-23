@@ -364,7 +364,7 @@ These have the largest effect, because `tools.deliverables touches` and
   exist on this tree. In reference lists these are [fix]; in requirement
   source cells they are [owner].
 
-**Owner-reserved text (exact old → new).** Owner, 2026-10-23: "OD‑6, option B (I want to discuss 2 and 23 more)." The 21 rows recommended Apply are applied as written; rows 2 and 23 are under owner discussion; row 22 stays as recommended (Leave) and row 25 stays routed. Separately, owner, 2026-10-23: "and DEL‑07‑01 REQ‑02, option A as recommended." DEL-07-01-REQ-02's "stress-ratio color maps" now reads "stress and result overlays (magnitude colour scale)"; nothing else in that requirement changed. Line numbers are at the W-1 PR heads (#1540–#1546). "Rec." is the reconciliation manager's recommendation: **Apply** (descriptive consequence of shipped code or an existing ruling), **Leave** (no change needed), or **Owner** (a substantive scope choice).
+**Owner-reserved text (exact old → new).** Owner, 2026-10-23: "OD‑6, option B (I want to discuss 2 and 23 more)." The 22 rows recommended Apply are applied as written; rows 2 and 23 are under owner discussion; row 22 stays as recommended (Leave) and row 25 stays routed. Separately, owner, 2026-10-23: "and DEL‑07‑01 REQ‑02, option A as recommended." DEL-07-01-REQ-02's "stress-ratio color maps" now reads "stress and result overlays (magnitude colour scale)"; nothing else in that requirement changed. Line numbers are at the W-1 PR heads (#1540–#1546). "Rec." is the reconciliation manager's recommendation: **Apply** (descriptive consequence of shipped code or an existing ruling), **Leave** (no change needed), or **Owner** (a substantive scope choice).
 
 | # | Location | Old | New | Reason | Rec. |
 |---|---|---|---|---|---|
@@ -393,7 +393,7 @@ These have the largest effect, because `tools.deliverables touches` and
 | 23 | DEL-02-05 SOW:201 (REQ-015 source) | "section 22.1" | "§24 R0 (v0.1 §22.1)" or "§22.1 (V&V)" | v0.1 §22.1 was release R0; current §22.1 is Verification Philosophy | Owner (which was meant) — **Under owner discussion** |
 | 24 | `execution/_Coordination/_COORDINATION.md:28` | "PRD R5 exit criterion" | "historical v0.1 R5 (= v0.3 §24 R6) exit criterion" | numbering | Apply — **Applied** (owner, 2026-10-23) |
 | 25 | `apps/desktop/native-smoke/expected.json` | rows 98/99, 625/627; N1 "…198" | 113/113, 745/745; "…199" | stale expected values | Routed to release-rehearsal lane (PR #1532) |
-| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | the path kept, annotated with its retiring commit: `_STATUS.md`/`_CONTEXT.md` "(retired in `497a8d81e4`; see Git history)", `docs/_Registers/*` "(retired in `48584391de`; …)", `execution/_Reconciliation/…` "(retired in `11718e61a2`; …)", as #1550 does for reference lists | files removed | Apply as one mechanical pass (#1550 covers the reference lists) — Not applied; confirmation pending on whether option B covers this row |
+| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | the path kept, annotated with its retiring commit: `_STATUS.md`/`_CONTEXT.md` "(retired in `497a8d81e4`; see Git history)", `docs/_Registers/*` "(retired in `48584391de`; …)", `execution/_Reconciliation/…` "(retired in `11718e61a2`; …)", as #1550 does for reference lists | files removed | Apply as one mechanical pass (#1550 covers the reference lists) — **Applied** (owner, 2026-10-23): 110 requirement source cells in 43 SOWs; DEL-04-03 R01 (row 2) left untouched |
 
 ## 4. Proposed work plan
 
@@ -433,7 +433,7 @@ owner discussion.
 | OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? Settled with OD-1 if the W7 reading applies. | **In:** W-14 (L). **Out:** a ruling. **Decided:** design knowledge is deferred to v0.2. |
 | OD-4 | Which model format is canonical: the desktop 0.6.0 document or `schemas/model.schema.yaml`? (FR-MOD-001/004/006) | Fixes the target for W-13, a new document version under the one-version rule. **Decided:** the desktop model document is canonical, and `schemas/model.schema.yaml` is updated to describe it (W-13). |
 | OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. **Decided:** viewport overlays and reaction arrows are built now; FR-AGENT-005 stays R7. |
-| OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. **Decided (owner, 2026-10-23, "OD‑6, option B (I want to discuss 2 and 23 more)."):** the 21 Apply rows are applied; rows 2 and 23 are under owner discussion. |
+| OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. **Decided (owner, 2026-10-23, "OD‑6, option B (I want to discuss 2 and 23 more)."):** the 22 Apply rows are applied; rows 2 and 23 are under owner discussion. |
 
 Opening exact-route reports and handoff needs no new decision to start. Ruling
 10A already directs DEL-08-01 to design their limitation sections. Opening the

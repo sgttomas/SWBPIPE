@@ -134,10 +134,10 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-14-01-R1 | The product shall save named immutable model states. | SOW-071 in `_CONTEXT.md`, `docs/_Registers/ScopeLedger.csv`, and decomposition section 9 |
-> | DEL-14-01-R2 | A model state record shall carry tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes. | SOW-071 in `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-14-01 |
+> | DEL-14-01-R1 | The product shall save named immutable model states. | SOW-071 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and decomposition section 9 |
+> | DEL-14-01-R2 | A model state record shall carry tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes. | SOW-071 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-14-01 |
 > | DEL-14-01-R3 | Saved model states shall use read-only snapshot semantics. Exact enforcement mechanism is TBD. | Decomposition section 7 DEL-14-01 sizing notes |
-> | DEL-14-01-R4 | JSON payload hashes shall follow the accepted JCS-compatible canonical JSON basis where the payload is JSON. | `_CONTEXT.md` Architecture Basis Injection; `docs/SPEC.md` section 4.4 |
+> | DEL-14-01-R4 | JSON payload hashes shall follow the accepted JCS-compatible canonical JSON basis where the payload is JSON. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R5 | Hash records shall identify payload scope; exact state hash partitioning is TBD. | `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R6 | Round-trip persistence must not insert silent engineering defaults for units, provenance, rule-pack values, material data, component data, SIF/flexibility inputs, allowables, or load-basis values. | `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R7 | Model state records must preserve unresolved assumptions and warnings as visible review evidence, not hidden defaults. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/TYPES.md` entries `Assumption` and `Diagnostic` |
