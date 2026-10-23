@@ -118,3 +118,23 @@ exact all-empty model, the load-state case with its primitive unlisted and
 the reference-states-only model are each refused. `stress_maximum_coverage.rs`'s exact-zero tie tests now load the
 anchored node, whose load goes wholly to the reaction, instead of solving an
 unloaded model.
+
+## Imposed displacement on the pressure-free route
+
+Owner, 2026-10-23, verbatim: "Row 2 I approve option A". Imposed
+displacement (support and anchor movement, including nozzle movements) is
+built on the pressure-free route in two stages; no "the exact route is the
+only route" statement is made.
+- **Stage 1:** a support target for the primitive load, mapped into the
+  partitioned reduction of prescribed values the exact route already uses
+  (`boundary_motion`). It is refused on a non-rigid DOF or a spring, and
+  refused by name when the model also has nonlinear supports. PF benchmarks:
+  the W-9 L-frame settlement against its closed form and a nozzle movement.
+  The desktop `imposed_displacement` primitive solves where supported and is
+  refused with a named, readable reason elsewhere. Priced change: D3
+  re-registration with independent review.
+- **Stage 2:** the nonlinear active-set loop measures gap closure and
+  lift-off relative to the imposed motion. Design first, with dual numerical
+  review and its own benchmarks.
+Until stage 1 lands, the pressure-free route refuses a support-targeted
+primitive by name (`IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`).
