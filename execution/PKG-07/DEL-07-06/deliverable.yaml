@@ -92,3 +92,19 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
+code_paths:
+- apps/desktop/src/design/**
+- apps/desktop/src/tokens.css
+- apps/desktop/src/styles.css
+- apps/desktop/src/features/workspace/uiPreferences.ts
+- apps/desktop/src/features/workspace/shell/**
+- apps/desktop/src/features/accessibility-baseline/**
+- core/gui/accessibility/**
+checks:
+- apps/desktop/e2e/b3-accessibility.spec.ts
+- apps/desktop/e2e/ui-foundation.spec.ts
+- apps/desktop/e2e/workspace-layout.spec.ts
+- apps/desktop/src/design/tokens.test.ts
+- apps/desktop/src/design/themeAttribute.test.tsx
+- apps/desktop/src/features/workspace/uiPreferences.test.ts
+- tests/test_accessibility_usability_baseline.py

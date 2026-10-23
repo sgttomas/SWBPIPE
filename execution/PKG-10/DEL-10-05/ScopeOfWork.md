@@ -79,11 +79,11 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for sealed deliverable identity, SOW/OBJ coverage, acceptance/risk notes, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, SOW/OBJ coverage, acceptance/risk notes, and architecture-basis injection.
 > - `docs/CONTRACT.md` for invariants OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-RULE-1/2/3, OPS-K-PRIV-1/2, OPS-K-AUTH-1, and OPS-K-AGENT-1..4.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` sections 8, 9, 11, and 12 for architecture basis, scope ledger, open issues, and accepted decisions.
-> - `docs/_Registers/Deliverables.csv` row DEL-10-05.
-> - `docs/_Registers/ScopeLedger.csv` rows SOW-054 and SOW-032.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-10-05.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-054 and SOW-032.
 > - `docs/SPEC.md` sections 1, 7, 8, 9, and 10 for layer boundaries, diagnostics/reporting, V&V, and deliverable mechanics.
 > - `docs/TYPES.md` sections 3, 4, 6, 8, and 9 for deliverable type, analysis-status vocabulary, data boundaries, object registry, and lifecycle semantics.
 

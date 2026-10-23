@@ -191,3 +191,6 @@ needs:
   evidence: execution/PKG-10/DEL-10-01/Specification.md
 code_paths:
 - tools/validation/validate_dependencies_schema.py
+- api/api_boundary_contract.yaml
+checks:
+- tests/test_api_boundary_contract.py

@@ -80,7 +80,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > |---|---|
 > | Comparison mapping schema | Defines stable-ID mapping records and manual mapping evidence needed when state/run entities do not align automatically. `schemas/comparison_mapping.schema.json` defines `MappingRecord` and `MappingEvidence`; the state/run reference engines consume that contract. Runtime/API conformance remains separate. |
 > | Unmatched classification schema | Defines explicit classifications for compared entities or results that have no accepted counterpart. Specific enum values are TBD unless later source material supplies them. |
-> | Tolerance profile schema | Defines unit-aware tolerance profile records for comparison deltas. Default numeric values are TBD and must not be silently supplied. |
+> | Tolerance profile schema | Defines unit-aware tolerance profile records for comparison deltas. Default numeric values are TBD and must not be silently supplied. Current implementation (at `62c1efd75b`): `schemas/comparison_tolerance.schema.json`, checked by `tests/test_comparison_contracts.py`. |
 > | JSON export contract | Schema-first result/comparison envelope compatible with governed downstream tooling and report consumption. Current fields are defined by `schemas/comparison_mapping.schema.json`; new public interface changes remain separately governed. |
 > | CSV export contract | Tabular export semantics for comparison review. The schema `CsvExportContract` carries column, ordering and serialization policy; concrete emitted-byte conformance remains an implementation obligation. |
 > | Report-section contract | Report-facing comparison section references that preserve units, diagnostics, provenance, hashes, assumptions, limitations, and professional-boundary notice. Exact layout is TBD. |
@@ -90,7 +90,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
 > - `_DEPENDENCIES.md`
 > - `Dependencies.csv`
@@ -346,6 +346,8 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 >
 >
 > Current contract evidence: `schemas/comparison_mapping.schema.json` defines mapping/unmatched and JSON/CSV export fields; `tests/test_comparison_contracts.py` checks the reference contract. This resolves blanket schema/field absence, but OI-014 tolerance defaults/workflows and actual runtime/export conformance remain open.
+>
+> Current implementation (at `62c1efd75b`): tolerance profiles are in `schemas/comparison_tolerance.schema.json`. The desktop comparison document (`buildPreviewComparison` in `apps/desktop/src/services/previewService.ts`, `document_kind` `openpipestress.technical_preview.comparison`) is a separate shape; it does not read or validate against either comparison schema.
 
 ### CLM-027 — Trade-offs
 

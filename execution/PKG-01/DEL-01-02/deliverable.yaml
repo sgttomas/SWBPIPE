@@ -133,3 +133,6 @@ needs:
   direction: downstream
   gating: false
   evidence: execution/PKG-01/DEL-01-02/Specification.md
+code_paths:
+- docs/IP_AND_DATA_BOUNDARY.md
+- governance/CONTRIBUTION_REVIEW_CHECKLIST.md

@@ -124,5 +124,10 @@ needs:
 code_paths:
 - schemas/component.schema.yaml
 - schemas/model.schema.yaml
+- core/product_physics/src/lib.rs
+- core/product_physics/src/validation.rs
+- apps/desktop/src/features/component-creation/componentIntent.ts
+- apps/desktop/src/features/bend-authoring/BendAuthoringForms.tsx
 checks:
 - tests/test_component_section_schema.py
+- apps/desktop/src/features/bend-authoring/BendAuthoringForms.test.tsx

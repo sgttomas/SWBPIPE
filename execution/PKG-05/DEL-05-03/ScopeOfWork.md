@@ -92,10 +92,10 @@ This Scope of Work defines `DEL-05-03` in service of project scope [SOW-015] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, artifacts, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` row `DEL-05-03`.
-> - `docs/_Registers/ScopeLedger.csv` row `SOW-015`.
-> - `docs/_Registers/ContextBudgetQA.csv` row `DEL-05-03`.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, artifacts, and architecture-basis injection.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-05-03`.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-015`.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row `DEL-05-03`.
 > - `docs/CONTRACT.md` invariants listed in the sealed brief.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-06`, and `AB-00-08`.
 > - `core/loads/stress_recovery/README.md` for implemented crate scope and boundary.

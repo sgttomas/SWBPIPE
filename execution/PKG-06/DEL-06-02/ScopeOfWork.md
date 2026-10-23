@@ -110,9 +110,9 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private rule-pack and protected-data boundary. |
 > | `docs/VALIDATION_STRATEGY.md` | Rule-pack evaluator verification families. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06, DEL-06-02, AB-00 basis rows, OI-006. |
-> | `docs/_Registers/Deliverables.csv` | Deliverable identity and risk note. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-045 source row. |
-> | `docs/_Registers/ContextBudgetQA.csv` | WATCH risk and split-if-expanded note. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable identity and risk note. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-045 source row. |
+> | `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) | WATCH risk and split-if-expanded note. |
 
 ## Completion and Reliance Basis — Epistemology
 

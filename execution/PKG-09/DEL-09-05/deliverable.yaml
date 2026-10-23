@@ -137,7 +137,6 @@ code_paths:
 - schemas/headless_runner.schema.yaml
 - schemas/report_protected_content_linter.schema.yaml
 - schemas/results.schema.yaml
-- tools/coordination
 - tools/release/check_release_readiness.py
 - tools/release/run_release_candidate_scan.py
 - tools/validation/validate_dependencies_schema.py
@@ -149,6 +148,12 @@ code_paths:
 - validation/witness/tools/
 - validation/witness/tools/__init__.py
 - validation/witness/tools/witness_validator.py
+- docs/RELEASE_QUALITY_GATES.md
+- tools/release/run_evidence_sweep.py
+- tools/release/run_release_gate_records.py
+- tools/release/release_gate_record_schema.json
+- tools/release/run_coverage_telemetry.py
+- tools/release/coverage_telemetry_schema.json
 checks:
 - tests/security
 - tests/security/test_secret_private_library_handling.py
@@ -160,3 +165,7 @@ checks:
 - tests/test_release_readiness_script.py
 - tests/test_report_protected_content_linter.py
 - tests/test_results_schema.py
+- tests/test_evidence_sweep.py
+- tests/test_release_gate_records_script.py
+- tests/test_release_candidate_scan.py
+- tests/test_coverage_telemetry_script.py

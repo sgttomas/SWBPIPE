@@ -140,6 +140,8 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 >
 > This deliverable shall not claim PCF completeness, CAEPIPE compatibility, solver validation, or release readiness. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). The original Phase-A no-code restriction describes that historical population run. Current bounded reference construction exists in `core/handoff/pcf_export/package.py`, `schemas/pcf_export.schema.json` and `tests/test_pcf_export_package.py`; authorized future implementation must preserve the full contract, admitted-source limits and actual profile/runtime/compatibility gaps.
 >
+> Current implementation (at `62c1efd75b`): the desktop route differs. The Exports section renders `apps/desktop/src/features/pcf-export/PcfExportPanel.tsx`, which builds its own preview package JSON and `.pcf` text in TypeScript (`buildPcfExportPacket`, `document_kind: openpipestress.technical_preview.conservative_pcf_export_package`). It does not call `core/handoff/pcf_export/package.py`, and its own diagnostics state that the package is not runtime JSON Schema validated against `schemas/pcf_export.schema.json`.
+>
 
 ### CLM-012 — Requirements
 

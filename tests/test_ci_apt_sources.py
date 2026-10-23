@@ -7,6 +7,10 @@ import tempfile
 import textwrap
 import unittest
 
+from tests.public_export import monorepo_only
+
+# The export ships no CI action (DEC-059).
+pytestmark = monorepo_only("the repository's .github/actions")
 
 ACTION = Path(__file__).resolve().parents[3] / '.github/actions/setup-piping-e2e/action.yml'
 

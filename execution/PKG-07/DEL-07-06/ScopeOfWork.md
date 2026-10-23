@@ -93,13 +93,15 @@ Current observed usability limit: The accepted bounded UI foundation observed th
 >
 > Future implementation should translate the checklist into GUI and report tests only after the relevant GUI framework choices and human accessibility target are accepted. Any implementation work remains outside the original setup session.
 >
+> Current implementation (at `62c1efd75b`): theme styling comes from the design tokens `apps/desktop/src/design/tokens.json` and `apps/desktop/src/tokens.css`; theme and density preferences are held in `apps/desktop/src/features/workspace/uiPreferences.ts` and set from the shell toolbar in `apps/desktop/src/features/workspace/shell/`. Density sizing is not tokenized: `apps/desktop/src/styles.css` sets control heights per `data-density` and `apps/desktop/src/features/model-tree/ModelTree.tsx` selects its row heights directly. Keyboard, focus and layout behaviour is exercised by `apps/desktop/e2e/b3-accessibility.spec.ts`, `ui-foundation.spec.ts` and `workspace-layout.spec.ts`. The accessibility review export is `apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx`. `core/gui/accessibility/engine.py` is a reference module exercised by `tests/test_accessibility_usability_baseline.py` and is not called by the desktop.
+>
 ### CLM-007 — References
 
 > ##### References
 >
 > | Source | Relevant source slice |
 > |---|---|
-> | `_CONTEXT.md` | DEL-07-06 identity, SOW-036, OBJ-006, architecture basis injection |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | DEL-07-06 identity, SOW-036, OBJ-006, architecture basis injection |
 > | `docs/PRD.md` | Sections 6.5, 7, 8, 14, 15, 20, and 21 |
 > | `docs/SPEC.md` | Sections 1, 7, and 8 |
 > | `docs/CONTRACT.md` | OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV-1/2, OPS-K-AGENT-1..4 |
@@ -107,8 +109,8 @@ Current observed usability limit: The accepted bounded UI foundation observed th
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and report boundary |
 > | `docs/VALIDATION_STRATEGY.md` | GUI workflow validation and report reproducibility validation |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07, DEL-07-06, AB-00-03, AB-00-05, AB-00-06, AB-00-08, OI-002 |
-> | `docs/_Registers/Deliverables.csv` | DEL-07-06 register row |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-036 row |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | DEL-07-06 register row |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-036 row |
 >
 
 ### CLM-008 — D-41 R5 T5 PDU-045 current state

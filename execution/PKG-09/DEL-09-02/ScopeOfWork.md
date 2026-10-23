@@ -86,10 +86,10 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, artifacts, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` row `DEL-09-02`.
-> - `docs/_Registers/ScopeLedger.csv` row `SOW-026`.
-> - `docs/_Registers/ContextBudgetQA.csv` row `DEL-09-02`.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, artifacts, and architecture-basis injection.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-09-02`.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-026`.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row `DEL-09-02`.
 > - `docs/CONTRACT.md` invariants listed in the sealed brief.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-06`, and `AB-00-08`.
 >

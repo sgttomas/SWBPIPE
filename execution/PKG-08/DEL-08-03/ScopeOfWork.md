@@ -95,6 +95,8 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > ###### Provenance Payload Field Inventory
 >
 > Diagnostic trace, source record, rule-pack reference and review-disposition fields must follow `schemas/report_sections.schema.yaml` and `core/reporting/report_sections/src/lib.rs` (`Diagnostic`, `Provenance`, `ReportSections`). Carry source identity/license or redistribution status, class/severity/affected object/remediation, rule-pack version/checksum/privacy and review status through assembly. Missing required data remains explicit; this inventory reference does not waive producer/consumer parity or professional-boundary obligations.
+>
+> Current implementation (at `62c1efd75b`): `core/reporting/report_renderer/src/lib.rs` renders these records as the `warnings_assumptions_provenance` section. On the desktop, `apps/desktop/src/features/report/renderableReportInput.ts` supplies the result diagnostics and a session provenance record classified `private_project_data` / `private_only`; CLM-006 of DEL-08-01 records the current desktop render route and its refusals.
 
 ### CLM-008 — References
 
@@ -102,10 +104,10 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > | Reference | Used For |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, package scope, architecture basis injection |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, package scope, architecture basis injection |
 > | `_REFERENCES.md` | Local reference list for this deliverable |
-> | `docs/_Registers/Deliverables.csv` | Deliverable row, anticipated artifacts, context notes |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-024 scope statement and protected-content note |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row, anticipated artifacts, context notes |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-024 scope statement and protected-content note |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-08 and DEL-08-03 decomposition context; AB-00 architecture basis |
 > | `docs/CONTRACT.md` | Applicable invariants for reports, data, IP, rule packs, privacy, units, and agent outputs |
 > | `docs/SPEC.md` | Reporting/audit requirements and warning class vocabulary |

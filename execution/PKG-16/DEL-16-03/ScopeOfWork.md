@@ -97,14 +97,14 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
 > - `_DEPENDENCIES.md`
 > - `Dependencies.csv`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 > - `docs/DIRECTIVE.md`
 > - `docs/CONTRACT.md`
 > - `docs/SPEC.md`
@@ -136,6 +136,8 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > The scope is bounded to SOW-069 and SOW-070 and supports OBJ-015. It does not implement hidden model mutation or autonomous engineering acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Exact audit-log schema, persistence details, and autonomy policy beyond the default user-acceptance posture remain TBD until a sealed implementation brief resolves them.
 >
 > Current implementation evidence establishes a narrow deterministic audit-record constructor at `core/model_operations/audit_trail/engine.py`. It returns an audit payload for structured operation inputs and does not persist the payload, apply operations, or mutate accepted model state. The current upstream operation schema, validation/preview engine, fixtures, and focused tests are the evidence basis for this specification update.
+>
+> Current implementation (at `62c1efd75b`): the desktop route does not call `core/model_operations/audit_trail/engine.py`. The user's explicit Apply in `apps/desktop/src/features/toolkit/BatchReviewPanel.tsx` runs `apply_operation_batch` in `core/model_operations/operation_applier/src/atomic_batch.rs`, whose applied outcome carries an `acceptance` record (`acceptance_basis: user_initiated_apply_in_local_session`, `acceptance_is_professional_approval: false`, `persistence_status: session_state_only_not_yet_saved`). The workspace session keeps the resulting application receipts. `apps/desktop/src/features/operations/OperationLedgerPanel.tsx` shows and downloads a review ledger of queued and proposed operations. Neither the receipt nor the ledger is the Python audit payload.
 >
 
 ### CLM-010 — Requirements

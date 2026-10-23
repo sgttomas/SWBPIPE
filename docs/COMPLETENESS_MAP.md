@@ -24,6 +24,10 @@ A Must requirement met only on one solve route, only headless, or only as a
 schema is P. Where PRD §23 (MVP) or a Must requirement includes something and no
 ruling removes it, the row says **scope unclear**.
 
+The "scope unclear" notes and the "no ruling" statements in §1 and §2 are
+the assessment before the owner's rulings of 2026-10-23. §4.2 records those
+rulings (OD-1 to OD-5), and they take precedence over the earlier notes.
+
 **Two solve routes** recur throughout:
 - **PF:** the pressure-free route, a model with no `pressure_contract`.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
@@ -47,9 +51,13 @@ The native smoke and the probe in §5 exercised this path in the real app.
 - **Rule packs:** author a private rule pack and run it against results. Missing
   inputs block pass/fail.
 - **Libraries:** import private material, section and component libraries.
-- **Exports:** export result JSON and stress-neutral files on both routes. PF
-  results also export PCF, MBF, glTF, a native package review manifest and a
-  preview handoff JSON.
+- **Exports:** export result JSON and stress-neutral JSON on both routes. PF
+  results also export the PCF and MBF package documents (redacted), a native
+  package review manifest and a preview handoff JSON. The byte-exact
+  downstream outputs (stress-neutral CSV, glTF review geometry, PCF text and
+  MBF text) are withheld by the desktop: their routes require lossless
+  materialization and session values are private
+  (`ControlledExportLink.tsx:36-48`).
 
 The biggest gaps:
 
@@ -354,18 +362,36 @@ These have the largest effect, because `tools.deliverables touches` and
   exist on this tree. In reference lists these are [fix]; in requirement
   source cells they are [owner].
 
-**Owner-reserved text (exact old → new, not applied):**
+**Owner-reserved text (exact old → new, not applied).** Line numbers are at the W-1 PR heads (#1540–#1546). "Rec." is the reconciliation manager's recommendation: **Apply** (descriptive consequence of shipped code or an existing ruling), **Leave** (no change needed), or **Owner** (a substantive scope choice).
 
-| Location | Old | New |
-|---|---|---|
-| DEL-04-07 SOW:29 (CLM-001) | "The PRD's intended pressure capability remains future scope; this does not claim it is implemented." | "Pressure is implemented on the exact route as stated in Design/pressure-contract.md; capabilities that route refuses remain future scope." |
-| DEL-04-03 SOW:47,125 (R01) | "…imposed displacement boundary data…" | "…imposed displacement boundary data (exact route load/reference states only; the pressure-free route refuses support-targeted loads)…" |
-| DEL-06-01 SOW:129-140 (REQ-06-01-001..012) | "The future schema shall" | "The schema shall" |
-| DEL-08-05 SOW:148 | "The future linter shall" | "The linter shall" |
-| DEL-07-04 SOW:44,123 | "It does not implement GUI components, application state, schemas, tests, package manifests, or product source code." | "The setup pass did not implement product code; the GUI implementation is `apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx`, rendering all six R-DEL-07-04-001 classes." |
-| DEL-07-09 `Vocabulary_Coverage.csv` row 11, ImplementationLandsIn | "DEL-16-01;DEL-16-02;DEL-16-03" | "DEL-16-01;DEL-16-02;DEL-16-03;DEL-16-06" |
-| `execution/_Coordination/_COORDINATION.md:28` | "PRD R5 exit criterion" | "historical v0.1 R5 (= v0.3 §24 R6) exit criterion" |
-| `apps/desktop/native-smoke/expected.json` | rows 98/99, 625/627; N1 "…198" | 113/113, 745/745; "…199" (already routed by the release-rehearsal lane, PR #1532) |
+| # | Location | Old | New | Reason | Rec. |
+|---|---|---|---|---|---|
+| 1 | DEL-04-07 SOW:29 (CLM-001) | "The PRD's intended pressure capability remains future scope; this does not claim it is implemented." | "Pressure is implemented on the exact route as stated in Design/pressure-contract.md; capabilities that route refuses remain future scope." | EX route ships pressure | Apply |
+| 2 | DEL-04-03 SOW:47,125 (R01) | "…imposed displacement boundary data…" | "…imposed displacement boundary data (exact route load/reference states only; the pressure-free route refuses support-targeted loads)…" | PF refuses imposed displacement | Owner (ties to W-16: either build PF or rule EX is the only route) |
+| 3 | DEL-06-01 SOW:131-142 (REQ-06-01-001..012) | "The future schema shall" | "The schema shall" | `rule_pack_document` ships | Apply |
+| 4 | DEL-08-05 SOW:149-159 (REQ-001..009) | "The future linter shall" | "The linter shall" | linter ships | Apply |
+| 5 | DEL-08-05 SOW:160 (REQ-012) | "The future implementation shall preserve" | "The implementation shall preserve" | linter ships | Apply |
+| 6 | DEL-08-02 SOW:112 | "The future implementation shall capture reproducibility metadata" | "The implementation shall capture reproducibility metadata" | `audit_manifest` ships | Apply |
+| 7 | DEL-08-01 SOW:157 (CLM-013) | "The future implementation should be accepted only after these checks exist and pass:" | "The implementation should be accepted only after these checks exist and pass:" | renderer ships; acceptance stays the owner's | Apply |
+| 8 | DEL-08-01 SOW:134 (R-08-01-001 verification) | "Inspect generated report contract/template behavior in future implementation tests." | "Inspect generated report contract/template behavior in implementation tests (`core/reporting/report_renderer/tests/render.rs`)." | tests exist | Apply |
+| 9 | DEL-07-04 SOW:123 | "It does not implement GUI components, application state, schemas, tests, package manifests, or product source code." | "The setup pass did not implement product code; the GUI implementation is `apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx`, rendering all six R-DEL-07-04-001 classes." | panel ships (map row; :44 carries different text and needs no change) | Apply |
+| 10 | DEL-07-05 SOW:160 (VER-07-05-005) | "…and that focused browser evidence for them (CLM-024) stays recorded as open until it is added." | "…and that the focused browser evidence `apps/desktop/e2e/rotation-glyph.spec.ts` (CLM-024) is bound to the tested candidate." | the spec exists and runs in the PR Chromium lane | Apply |
+| 11 | DEL-07-03 SOW:256-260 (CLM-017) | "The DEL-07-03 implementation still accepts only material, component, and rule-pack-reference editor kinds. Load-case and support editor requests remain blocking unsupported kinds in this owner." | "The reference module `core/gui/editors/engine.py` still accepts only material, component, and rule-pack-reference editor kinds and blocks load-case and support requests. The desktop ships load-case editing in `apps/desktop/src/features/load-cases/`; this does not by itself close `DEL-07-03-R-005` or `R-006`." | text describes the reference engine as the implementation | Apply |
+| 12 | DEL-07-09 `Vocabulary_Coverage.csv` row 11, ImplementationLandsIn | "DEL-16-01;DEL-16-02;DEL-16-03" | "DEL-16-01;DEL-16-02;DEL-16-03;DEL-16-06" | DEL-16-06 applies the operations | Apply |
+| 13 | DEL-17-03 SOW:44 | "It does not implement public API, GUI action, persistence runtime, …" | "The Python foundation does not implement public API, persistence runtime, …; the desktop GUI action is `NativePackagePanel.tsx`, a separate TypeScript preview builder." | a GUI action ships | Apply |
+| 14 | DEL-17-04 SOW:44 | "It does not implement a parser, external execution harness, public API, GUI action, …" | "It does not implement a parser, external execution harness, public API, … (the desktop GUI action is `CaepipeMbfExportPanel.tsx`, a separate TypeScript preview builder) …" | a GUI action ships | Apply |
+| 15 | DEL-09-05 SOW:360; DEL-10-04 SOW:66,113,215,371,412 | "DEC-025 governs the local evidence sweep;" | "DEC-025's blanket local sweep is no longer a merge requirement; the hosted `harness` result on the exact PR head is the merge check, and `tools/release/run_evidence_sweep.py` is optional macOS release-candidate preparation;" | LOOP_INIT "Build and verification" already rules this | Apply (Agent 0 may, under the 2026-10-19 rule) |
+| 16 | DEL-14-05 SOW:180 (R004) | "Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`" | "Evidence to assess: `schemas/comparison_tolerance.schema.json`, `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`" | tolerance profiles live in the tolerance schema | Apply |
+| 17 | DEL-14-01 SOW:168 (R1-R3 verification) | "Exact test names TBD." | "Current tests (at `62c1efd75b`): `tests/test_model_state_schema.py`, `tests/test_persistence_schema.py` and `tests/test_project_persistence_service.py` (Python reference store)." | tests exist; desktop has no state store (OD-1) | Apply |
+| 18 | DEL-11-02 SOW:137-149 (REQ-11-02-001..013) | "The future developer guide shall" / "The future guide shall" | "The developer guide shall" / "The guide shall" | `docs/developer_guide/index.md` exists | Apply |
+| 19 | DEL-09-03 SOW:131 (REQ-09-03-001) | "The future suite shall" | "The suite shall" | nonlinear benchmark crate exists | Apply |
+| 20 | DEL-10-04 SOW:158 (REQ-10-04-01) | "Future implementation must provide" | "The implementation must provide" | CI and packaging exist | Apply |
+| 21 | DEL-02-05 SOW:34 (CLM-003) | "Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, or newer)" | "Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, `0.5.0`, or newer)" | code retires 0.5.0 | Apply |
+| 22 | DEL-02-05 requirement source cells (:64-65, :84, :187-211) | v0.1 PRD numbers ("section 10 FR-001/FR-002", "section 12.4", "15.3", "18") | current numbers (§11.1 FR-MOD-001, §17.4, §19.2, §20.3–§20.5) | v0.1 numbering | Leave (the crosswalk note added at :141 resolves them) |
+| 23 | DEL-02-05 SOW:201 (REQ-015 source) | "section 22.1" | "§24 R0 (v0.1 §22.1)" or "§22.1 (V&V)" | v0.1 §22.1 was release R0; current §22.1 is Verification Philosophy | Owner (which was meant) |
+| 24 | `execution/_Coordination/_COORDINATION.md:28` | "PRD R5 exit criterion" | "historical v0.1 R5 (= v0.3 §24 R6) exit criterion" | numbering | Apply |
+| 25 | `apps/desktop/native-smoke/expected.json` | rows 98/99, 625/627; N1 "…198" | 113/113, 745/745; "…199" | stale expected values | Routed to release-rehearsal lane (PR #1532) |
+| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | the path kept, annotated with its retiring commit: `_STATUS.md`/`_CONTEXT.md` "(retired in `497a8d81e4`; see Git history)", `docs/_Registers/*` "(retired in `48584391de`; …)", `execution/_Reconciliation/…` "(retired in `11718e61a2`; …)", as #1550 does for reference lists | files removed | Apply as one mechanical pass (#1550 covers the reference lists) |
 
 ## 4. Proposed work plan
 
@@ -381,8 +407,9 @@ exercise today:
 - **Results:** results table, standing, diagnostics and deformed shape.
 - **Proposals and data:** offline proposals; libraries.
 - **Rule packs:** authoring and rule-check runs.
-- **Exports:** result JSON and stress-neutral (both routes); PCF, MBF and glTF
-  (PF; glTF on EX too).
+- **Exports:** result JSON and stress-neutral JSON (both routes); PCF and MBF
+  package documents (PF). Stress-neutral CSV, glTF, PCF text and MBF text are
+  withheld by the desktop (`ControlledExportLink.tsx:36-48`).
 - **Boundaries:** local-only storage and telemetry.
 
 These are **not ready**: reports, model states and comparison, canonical model
@@ -390,15 +417,19 @@ export, design knowledge, and rigid components.
 
 ### 4.2 Owner decisions that shape the plan
 
-These are reserved because they concern v0.1 scope, commitments or a hold:
+These are reserved because they concern v0.1 scope, commitments or a hold.
+
+**OD-1 to OD-5 decided.** Owner, 2026-10-23: "I approve OD-1 through OD-5 as
+you recommended." Each outcome is in the row's **Decided** entry. OD-6 remains
+open.
 
 | # | Decision | Consequence |
 |---|---|---|
-| OD-1 | Does D-11's "W7 — Forward horizon v0.2" placement (PKG-13/14/15/16/17) mean outside software 0.1.0, despite PRD §23 listing states, runs tied to states, state and run comparison, and canonical model export in the MVP? | **In:** unit W-12 (L) and W-6 come before validation. **Out:** a ruling, and PRD §23 and the release-notes text follow it. Either answer also settles OD-3 for PKG-13. |
-| OD-2 | Rigid elements (FR-SOL-004, Must, MVP) | **Options:** build DEC-045's stiffness scaling (M); build a dedicated rigid element and offsets, which reopens DEC-045 (L); or defer by ruling. |
-| OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? Settled with OD-1 if the W7 reading applies. | **In:** W-14 (L). **Out:** a ruling. |
-| OD-4 | Which model format is canonical: the desktop 0.6.0 document or `schemas/model.schema.yaml`? (FR-MOD-001/004/006) | Fixes the target for W-13, a new document version under the one-version rule. |
-| OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. |
+| OD-1 | Does D-11's "W7 — Forward horizon v0.2" placement (PKG-13/14/15/16/17) mean outside software 0.1.0, despite PRD §23 listing states, runs tied to states, state and run comparison, and canonical model export in the MVP? | **In:** unit W-12 (L) and W-6 come before validation. **Out:** a ruling, and PRD §23 and the release-notes text follow it. Either answer also settles OD-3 for PKG-13. **Decided:** states, run history, state and run comparison and canonical model export are in v0.1 (W-12, W-6). PKG-15 handoff stays in for model export. PKG-13, further PKG-16 agent features and further PKG-17 export formats are deferred to v0.2; the DEL-16-01/02 offline intake and the DEL-16-06 operation-application seam ship as built. PRD §23 stays as written. |
+| OD-2 | Rigid elements (FR-SOL-004, Must, MVP) | **Options:** build DEC-045's stiffness scaling (M); build a dedicated rigid element and offsets, which reopens DEC-045 (L); or defer by ruling. **Decided:** implement DEC-045 stiffness scaling (W-15). |
+| OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? Settled with OD-1 if the W7 reading applies. | **In:** W-14 (L). **Out:** a ruling. **Decided:** design knowledge is deferred to v0.2. |
+| OD-4 | Which model format is canonical: the desktop 0.6.0 document or `schemas/model.schema.yaml`? (FR-MOD-001/004/006) | Fixes the target for W-13, a new document version under the one-version rule. **Decided:** the desktop model document is canonical, and `schemas/model.schema.yaml` is updated to describe it (W-13). |
+| OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. **Decided:** viewport overlays and reaction arrows are built now; FR-AGENT-005 stays R7. |
 | OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. |
 
 Opening exact-route reports and handoff needs no new decision to start. Ruling

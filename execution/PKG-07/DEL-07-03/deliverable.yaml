@@ -245,7 +245,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/core/gui/editors/engine.py; tests/test_gui_editors_contract.py
+  evidence: core/gui/editors/engine.py; tests/test_gui_editors_contract.py
 - from: DEL-07-02
   condition: 'DEL-07-02 hands off specialized editor implementation boundaries to DEL-07-03 while retaining
     navigation and selected-entity inspection
@@ -269,3 +269,27 @@ code_paths:
 - apps/desktop/src/features/bend-authoring/**
 - apps/desktop/src/features/component-creation/**
 - apps/desktop/e2e/load-state-inputs.spec.ts
+- apps/desktop/src/features/rule-packs/**
+- apps/desktop/src/services/rulePackService.ts
+- apps/desktop/src/features/library/**
+- apps/desktop/src/services/libraryImportService.ts
+- apps/desktop/src/features/rich-authoring/**
+- apps/desktop/src/features/self-weight-authoring/**
+- apps/desktop/src/services/selfWeightPlanService.ts
+- apps/desktop/src-tauri/src/lib.rs
+- core/gui/editors/**
+checks:
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
+- apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.test.tsx
+- apps/desktop/src/features/rule-packs/DeclarationsEditor.test.tsx
+- apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx
+- apps/desktop/src/features/library/LibraryManagerPanel.test.tsx
+- apps/desktop/src/services/libraryImportService.test.ts
+- apps/desktop/src/features/rich-authoring/richForms.test.tsx
+- apps/desktop/src/features/rich-authoring/formSupport.test.tsx
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
+- apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx
+- apps/desktop/src/services/selfWeightPlanService.test.ts
+- apps/desktop/e2e/load-state-inputs.spec.ts
+- apps/desktop/e2e/r2-smoke.spec.ts
+- tests/test_gui_editors_contract.py

@@ -11,6 +11,9 @@ package_objective_refs: [OBJ-014]
 
 Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
+
+**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1 and OD-3: PKG-13 (design knowledge, constraint validation and the physical-to-analytical transform contract) is deferred to v0.2. This records the ruling; the clauses below are unchanged.
+
 ## Purpose and Objective Traceability
 
 This candidate defines `DEL-13-01` in service of project scope [SOW-067] and package objectives [OBJ-014].
@@ -84,7 +87,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Provenance model fields | Implemented through required `Provenance` fields: `source_name`, `source_location`, `source_license`, `contributor`, `contributor_certification`, `redistribution_status`, `review_status`, and `privacy_classification`, plus source-note and assumption records. |
 > | Unit-bearing quantity representation | Implemented through required `Quantity` fields `value`, `unit`, `dimension`, and `provenance`; the dimension enum matches the accepted PKG-02 vocabulary, including `slope` and excluding retired aliases. Runtime unit conversion/check integration remains downstream. |
 > | Validation and tests | Implemented by `tests/test_design_knowledge_schema.py`, a focused stdlib structural test for schema draft, required definitions, category enums, provenance/privacy fields, quantity dimensions, no defaults, and professional-boundary flags. |
-> | Product code evidence | Schema/test/documentation evidence exists. No runtime GUI authoring, constraint validation, physical-to-analytical transform consumption, persistence/API integration, or public fixture/example implementation is provided by DEL-13-01. |
+> | Product code evidence | Schema/test/documentation evidence exists. No runtime GUI authoring, constraint validation, physical-to-analytical transform consumption, persistence/API integration, or public fixture/example implementation is provided by DEL-13-01. Current implementation (at `62c1efd75b`): the desktop shows design knowledge in `apps/desktop/src/features/knowledge/KnowledgePanel.tsx`, loaded through the Tauri command `load_design_knowledge` (`apps/desktop/src-tauri/src/lib.rs`) or `loadDesignKnowledge` (`apps/desktop/src/services/previewService.ts`) from the compiled-in invented fixture `fixtures/product_preview/invented_design_knowledge.json`, plus records derived from the current result. That fixture is a separate document shape (`document_kind` `openpipestress.product_preview.design_knowledge`) and does not validate against `schemas/design_knowledge.schema.json`. |
 >
 
 ### CLM-006 — References
@@ -93,13 +96,13 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > | Reference | Use in this datasheet |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, scope, artifacts, context envelope, architecture-basis injection. |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, artifacts, context envelope, architecture-basis injection. |
 > | `_REFERENCES.md` | Reference index and source boundary for this deliverable. |
 > | `_DEPENDENCIES.md` and `Dependencies.csv` | approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface and active upstream dependency context. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-067, OBJ-014, PKG-13 boundary, DEL-13-01 row, OI-013. |
-> | `docs/_Registers/Deliverables.csv` | Deliverable row and artifacts. |
-> | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-067. |
-> | `docs/_Registers/ContextBudgetQA.csv` | Context envelope and no-protected-data note. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row and artifacts. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope ledger row for SOW-067. |
+> | `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) | Context envelope and no-protected-data note. |
 > | `docs/CONTRACT.md` | Invariants for IP, data, authority, units, and agent behavior. |
 > | `docs/TYPES.md` | Identifier rules, epistemic labels, analysis-status vocabulary, and domain object registry. |
 > | `docs/SPEC.md` | Architecture, physical-model source-of-truth framing, schema/unit/provenance constraints, acceptance semantics. |

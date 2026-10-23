@@ -179,5 +179,8 @@ needs:
   evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 code_paths:
 - schemas/model_state.schema.json
+- core/project_persistence/service.py
 checks:
 - tests/test_model_state_schema.py
+- tests/test_project_persistence_service.py
+- tests/test_persistence_schema.py

@@ -92,7 +92,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > | Reference | Used for |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, package, scope, objectives, accepted decomposition revision, and architecture basis injection |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, package, scope, objectives, accepted decomposition revision, and architecture basis injection |
 > | `_REFERENCES.md` | Local reference inventory |
 > | `loop/LOOP_INIT.md` | Bootstrap boundaries for protected data and professional reliance |
 > | `AGENTS.md` | Type 2 dispatch and write-scope rule |
@@ -101,8 +101,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > | `docs/TYPES.md` | Analysis status, epistemic labels, provenance labels, and rule-pack vocabulary |
 > | `docs/SPEC.md` | Rule-pack evaluator minimum sections, reporting notices, and validation expectations |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-05 decomposition context plus objectives |
-> | `docs/_Registers/Deliverables.csv` | Deliverable register row |
-> | `docs/_Registers/ScopeLedger.csv` | Scope mapping for SOW-016 |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable register row |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope mapping for SOW-016 |
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -117,6 +117,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > ##### Scope
 >
 > This deliverable defines the invented non-code demonstration rule-pack contract, realized by `examples/rule_packs/invented_demo.yaml` and its notice. Each maintenance brief supplies its write boundary; no lifecycle or publication follows from example existence.
+>
+> Current implementation (at `62c1efd75b`): the desktop Run Rule Checks panel loads the example from `fixtures/product_preview/invented_demo_rule_pack.json` (`loadDemoRuleCheckPack` in `apps/desktop/src/services/ruleCheckService.ts`), a JSON copy whose parsed content equals `examples/rule_packs/invented_demo.yaml` at this revision. The example is read by `tests/test_invented_example_models.py`, `tests/test_rule_pack_schema.py`, `core/rules/rule_pack_document/tests/invented_demo_document.rs` and `core/rules/rule_check_runner/tests/invented_demo_run.rs`.
 >
 > The deliverable covers:
 >

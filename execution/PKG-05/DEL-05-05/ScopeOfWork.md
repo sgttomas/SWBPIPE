@@ -45,7 +45,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > | Attribute | Evidence-grounded value |
 > |---|---|
 > | Primary subject | Implemented code-neutral user-load application for concentrated forces, concentrated moments, and uniform distributed user loads. |
-> | Implementation surface | `core/loads/user_loads` provides the bounded Rust crate for DEL-05-05. |
+> | Implementation surface | `core/loads/user_loads` provides the bounded Rust crate for DEL-05-05. Current implementation (at `62c1efd75b`): the product does not link this crate. `core/product_physics`, used by the desktop and the headless runner, applies concentrated forces, concentrated moments and distributed loads through `open_pipe_stress_primitive_loads` (`core/loads/primitive_loads`: `prepare_loads`, `LoadApplication`) and `open_pipe_stress_straight_pipe` (`core/solver/straight_pipe`). Only `validation/benchmarks/mechanics` links `user_loads`. The desktop authors these loads in `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx` (`primitiveLoadVocabulary.ts`). |
 > | Load boundary | General user loads are explicit mechanics inputs in addition to primitive piping load categories; code-specific combinations remain outside this crate. |
 > | Unit posture | `UserLoadQuantity` carries a `LoadDimension`; boundary records require explicit unit metadata, provenance references, canonical schema binding, JCS payload references, and payload-hash references. |
 > | Solver posture | Generic application emits nodal and element distributed contribution records; straight-pipe recovery emits equivalent global nodal loads for oriented straight-pipe elements. For a Timoshenko straight member (D-6, the exact-route authoring default), the straight-pipe element keeps the full-span uniform vector unchanged, uses the exact Timoshenko vector for a partial span and refuses a point member force by name; `user_loads` reports that refusal as a finding (DEL-05-03 Design `section-bases-and-timoshenko.md` §3.4). |
@@ -104,11 +104,11 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for sealed deliverable identity, scope, artifacts, context budget, and architecture basis.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, scope, artifacts, context budget, and architecture basis.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for SOW-013, SOW-052, OBJ-003, OBJ-012, PKG-05, DEL-05-05, and AB-00-01/02/03/06/08.
-> - `docs/_Registers/Deliverables.csv` row DEL-05-05.
-> - `docs/_Registers/ScopeLedger.csv` rows SOW-052 and SOW-013.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-05.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-05-05.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-052 and SOW-013.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-05-05.
 > - `docs/CONTRACT.md` rows OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-SOLVER-1, OPS-K-AGENT-1..4.
 > - `core/loads/user_loads/README.md` for current implementation scope and
 >   boundary evidence.

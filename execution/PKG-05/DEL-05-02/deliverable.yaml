@@ -102,6 +102,8 @@ needs:
   gating: false
   evidence: execution/PKG-00/DEL-00-08/ArchitectureBasis.md
 code_paths:
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
+- core/product_physics/tests/preview_physics_runtime.rs
 # Load-case algebra crate.
 - core/loads/load_case_algebra/**
 # Rust product result readers (native, and wasm through the desktop engine) and their tests.
@@ -244,6 +246,8 @@ code_paths:
 - fixtures/results/pressure_load_state_*.json
 - fixtures/results/pressure_source_load_state_*.json
 checks:
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
+- core/product_physics/tests/preview_physics_runtime.rs
 # Rust (hosted numerical selection).
 - core/loads/load_case_algebra/src/lib.rs
 - core/loads/load_case_algebra/src/s11k_tests.rs

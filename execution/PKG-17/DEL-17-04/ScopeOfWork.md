@@ -43,6 +43,8 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 >
 > The implementation foundation emits a deliberately narrow invented smoke subset, a JSON package contract, a deterministic MBF text member, sidecar stable-ID mapping, diagnostics, and loss reports. It does not implement a parser, external execution harness, public API, GUI action, release claim, CAEPIPE compatibility claim, code-compliance claim, or professional-acceptance claim.
 >
+> Current implementation (at `62c1efd75b`): a desktop export action exists outside this module. The Exports section renders `apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx`, which builds its own preview package JSON and `.mbf` text in TypeScript (`buildCaePipeMbfExportPacket`, `document_kind: openpipestress.technical_preview.caepipe_mbf_export_package`). It does not call `core/handoff/caepipe_mbf/` and is not validated against `schemas/caepipe_mbf_export.schema.json`.
+>
 
 ### CLM-004 — Source and Evidence Slots
 

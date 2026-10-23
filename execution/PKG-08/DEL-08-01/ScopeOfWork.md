@@ -78,6 +78,8 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > The calculation report generator deliverable is specified here as a bounded backend feature slice, not implemented in this setup session. Its future implementation should assemble report content from schema-first project/model/result envelopes, diagnostics, provenance metadata, and rule-pack references. The report generator must preserve the diagnostic/result-envelope boundary injected by AB-00-03 and AB-00-06: report content reflects mechanics outputs, user-rule-check outputs, warnings, assumptions, and limitations without promoting software output into professional approval.
 >
+> Current implementation (at `62c1efd75b`): the renderer is `core/reporting/report_renderer/src/lib.rs` (`render_calculation_report`), which runs `core/reporting/protected_content_linter` before and after rendering; the report package path is `core/reporting/report_package` with `core/reporting/pdf_emitter`. On the desktop, `apps/desktop/src/features/report/RenderedReportPanel.tsx` builds the renderer input in `renderableReportInput.ts`, projects it through `reportRedactionProjector.ts` under the `public_report` export context, and calls the Tauri command `render_calculation_report` (`apps/desktop/src-tauri/src/lib.rs`) through `apps/desktop/src/services/reportRenderService.ts`. Current desktop behaviour: the session inputs are classified private (`private_project_data`, `private_only`), so for a pressure-free session the redaction projection reports `blocked` and the renderer is not called; exact-route results are refused for the rendered report (`loadReferenceOutputRefusal`; owner ruling 10A, 2026-10-21); and Save Report Package (`reportPackageUnavailableReason` in `reportPackageRequest.ts`, then `save_report_package` through `apps/desktop/src-tauri/src/report_package_bridge.rs`) refuses every current result with `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`.
+>
 > The setup artifact family prepared for this session is:
 >
 > - `ScopeOfWork.md`
@@ -94,9 +96,9 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > | Source | SourceRef | Use |
 > |---|---|---|
-> | `_CONTEXT.md` | Scope Coverage; Architecture Basis Injection | Deliverable identity, scope, objective, accepted architecture basis, and write boundary. |
-> | `docs/_Registers/Deliverables.csv` | Row DEL-08-01 | Registered description, anticipated artifacts, scope, objective, context envelope, and risk note. |
-> | `docs/_Registers/ScopeLedger.csv` | Row SOW-024 | Report content scope and protected-content warning. |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Scope Coverage; Architecture Basis Injection | Deliverable identity, scope, objective, accepted architecture basis, and write boundary. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Row DEL-08-01 | Registered description, anticipated artifacts, scope, objective, context envelope, and risk note. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Row SOW-024 | Report content scope and protected-content warning. |
 > | `docs/CONTRACT.md` | OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-RULE-1..3, OPS-K-AUTH-1, OPS-K-REPORT-1..2, OPS-K-PRIV-1..2, OPS-K-UNIT-1, OPS-K-AGENT-1..4 | Invariant constraints for report generation. |
 > | `docs/SPEC.md` | Sections 1, 3, 6, 7, 8, 9, 11 | Architecture, report domain object, rule-pack metadata, warning classes, reporting/audit content, report tests, and acceptance semantics. |
 > | `docs/TYPES.md` | Sections 4, 6, 8, 9 | Analysis-status vocabulary, professional boundary terms, report settings/report object definitions, and lifecycle meaning. |
@@ -120,6 +122,8 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > This deliverable defines the calculation report generator behavior for SWBPIPE reporting. It covers report assembly requirements for model input summaries, load cases, results, warnings, assumptions, source/provenance notes, rule-pack references, checksums, and limitations.
 >
 > The original setup session does not implement renderer source, report templates outside this deliverable, tests, schemas, or repo-level artifacts. Those remain future implementation work under sealed deliverable scope and review.
+>
+> Current implementation (at `62c1efd75b`): renderer source and tests exist in `core/reporting/report_renderer/` and are called by the desktop Render action; CLM-006 records the current desktop route and its refusals.
 >
 ### CLM-011 — Requirements
 
@@ -203,6 +207,8 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 >
 > This procedure records the setup and future implementation workflow for the calculation report generator deliverable. It does not implement renderer code.
+>
+> Current implementation (at `62c1efd75b`): the renderer code is `core/reporting/report_renderer/src/lib.rs`; CLM-006 records the current desktop route.
 >
 ### CLM-019 — Prerequisites
 

@@ -102,7 +102,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > | Reference | Used for |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, package, scope, objectives, accepted decomposition revision, and architecture basis injection |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, package, scope, objectives, accepted decomposition revision, and architecture basis injection |
 > | `_REFERENCES.md` | Local source inventory |
 > | `AGENTS.md` | Bootstrap boundaries for protected data, missing values, and professional reliance |
 > | `AGENTS.md` | Type 2 dispatch and write-scope rule |
@@ -113,8 +113,8 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | `docs/PRD.md` | GUI requirements in section 14 |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data, provenance, and protected-content policy |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07 and DEL-07-01 decomposition context plus SCA-001 architecture basis |
-> | `docs/_Registers/Deliverables.csv` | Deliverable register row |
-> | `docs/_Registers/ScopeLedger.csv` | Scope mapping for SOW-020 |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable register row |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope mapping for SOW-020 |
 
 ## Completion and Reliance Basis — Epistemology
 

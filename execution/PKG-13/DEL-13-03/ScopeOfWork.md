@@ -11,6 +11,9 @@ package_objective_refs: [OBJ-014]
 
 Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
+
+**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1 and OD-3: PKG-13 (design knowledge, constraint validation and the physical-to-analytical transform contract) is deferred to v0.2. This records the ruling; the clauses below are unchanged.
+
 ## Purpose and Objective Traceability
 
 This candidate defines `DEL-13-03` in service of project scope [SOW-068] and package objectives [OBJ-014].
@@ -94,13 +97,13 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, artifacts, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, artifacts, architecture-basis injection.
 > - `_REFERENCES.md` - governing reference list for this DEL folder.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - deliverable-local dependency evidence surface under the approved graph resolved through `execution/_DAG/_LATEST.md` coordination basis.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, and deliverable entries.
-> - `docs/_Registers/Deliverables.csv` - row DEL-13-03.
-> - `docs/_Registers/ScopeLedger.csv` - row SOW-068.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-03.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-13-03.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-068.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-13-03.
 > - `docs/CONTRACT.md` - invariant catalog.
 > - `docs/SPEC.md` - technical and agentic implementation specification.
 > - `docs/TYPES.md` - vocabulary and epistemic labels.

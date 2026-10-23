@@ -94,6 +94,8 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 >
 >
 > Current source evidence: `schemas/review_geometry_export.schema.json` and `core/handoff/review_geometry/package.py` supplies a bounded reference implementation. The original Phase A no-code/no-fixture statement describes that run only. Retain the full accepted contract and explicit runtime, provenance, target/executable and validation holds; reference construction does not retire unmet requirements.
+>
+> Current implementation (at `62c1efd75b`): the desktop route differs. The Exports section renders `apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx`, which builds its own `.gltf.json` review package in TypeScript (`buildReviewGeometryPacket`, `document_kind: openpipestress.technical_preview.review_geometry_export`) with an ID-map and loss-report member. It does not call `core/handoff/review_geometry/package.py` and is not validated against `schemas/review_geometry_export.schema.json`.
 
 ### CLM-007 — Future Data Slots
 

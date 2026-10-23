@@ -83,17 +83,17 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > | Snapshot immutability rule | Required concept; exact enforcement mechanism TBD |
 > | Canonical payload scope | Consult the hash definitions and payload references in `schemas/model_state.schema.json`; retain explicit hash scope. A broader non-JSON partitioning decision is not implied. |
 > | Schema property names and required/optional cardinality | Defined by `schemas/model_state.schema.json`; check its current required fields and immutable-hash binding. Schema presence alone does not demonstrate product persistence. |
-> | Persistence module path and service API | TBD; exact package/module layout remains implementation-level detail |
+> | Persistence module path and service API | Current implementation (at `62c1efd75b`): the Python reference module `core/project_persistence/service.py`. `build_project_persistence_envelope` carries `model_state_refs` and `model_state_records`, and `create_project_store`/`save_project_store`/`open_project_store` keep them in a local SQLite store. Its hashes are SHA-256 over sorted-key compact JSON (`SORTED_COMPACT_JSON`), which the module states is not RFC 8785/JCS. On the desktop, analysis-run records (`apps/desktop/src/services/analysisRunCompatibility.ts`) and the report's `model_state_record` section (`apps/desktop/src/features/report/stateComparisonHandoffSections.ts`) carry a derived `model_state_ref` (`state:<model_ref>:preview`); the desktop stores no model-state record. |
 >
 
 ### CLM-007 — References
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, package, artifacts, scope, objective, architecture basis, and envelope notes.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, package, artifacts, scope, objective, architecture basis, and envelope notes.
 > - `_REFERENCES.md` for the approved source list and authority boundary.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for SOW-071, OBJ-016, PKG-14, and DEL-14-01 placement.
-> - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` for register-backed identity and scope data.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), and `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) for register-backed identity and scope data.
 > - `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for invariants, technical boundaries, vocabulary, and data-boundary constraints.
 > - `Dependencies.csv` as the local approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
 
@@ -339,4 +339,4 @@ These clauses retain open delivery duties, owner decisions, and bounded evidence
 
 - **DEL-14-01:1** — R5 continuation delivery task: Demonstrate immutable model-state persistence/round trips and hash-scope enforcement against `schemas/model_state.schema.json` in the product store. Schema fixtures do not establish durable storage; preserve DEC-017/028 strategy and unresolved partitioning (CLM-006).
 - **DEL-14-01:2** — Bind external-reference ingestion/consumption for model-state records to governed privacy and protected-content runtime screening; the adapter declaration gate is not that consumer binding.
-- **DEL-14-01:3** — Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections (stage-gated: v0.2 R3) (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)
+- **DEL-14-01:3** — Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections (stage-gated: v0.2 R3) (Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1: model states, run history and state/run comparison are in software 0.1.0 scope) (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)
