@@ -47,15 +47,34 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 1. **A static type check in the evaluator crate.** `check_expression_types(expression,
    &TypeEnv) -> TypeCheck { value_type, findings }`, where `TypeEnv` maps
    variable ids to `(Dimension, unit_ref)`.
-   - It applies the evaluator's own rules: the same helpers for dimension
-     products and quotients, composed units and unit equality, and the same
-     propagation, where a failed node yields no type and its parents add no
-     finding.
-   - It produces the evaluator's `FindingCode`s and subject ids.
-   - It reads no values and changes no grammar, so no version bump or corpus
-     extension is needed.
-2. **What is known statically.** S is every finding the evaluator derives from
-   the expression and the variables' types alone:
+   - **Shared rules.** It applies the evaluator's own rules: the same helpers
+     for dimension products and quotients, composed units and unit equality. It
+     produces the evaluator's `FindingCode`s and subject ids.
+   - **Type states.** Each variable in the environment is in one of three
+     states:
+     - `Typed(dimension, unit_ref)`, with the metadata flags the runner gives
+       every bound quantity (`unit_required` and `dimension_check_required` both
+       true; `Quantity::new`, `expression_evaluator/src/lib.rs:106-124`, called
+       at `rule_check_runner/src/lib.rs:862`);
+     - `Unknown`: declared, but with `TBD` or empty metadata;
+     - `Undeclared`.
+
+     An `Unknown` operand gives an unknown result with no finding, and no
+     ancestor reports a finding against it. A node whose operands are all
+     typed is checked by the evaluator's rule.
+   - **"Static"** means independent of runtime bindings: values, binding
+     presence, statuses. Literals may be inspected: `table_malformed` reads the
+     pack's literal table rows (`expression_evaluator/src/lib.rs:866-880`), and
+     those rows are pack content.
+   - **Traversal differs from the evaluator's.** The evaluator stops a node at
+     the first failing child (`?` at `:545-546`) and tests a zero divisor before
+     dimension compatibility (`:1353-1360`). The static check has no values, so
+     it visits every child and never reports `division_by_zero`. A type error
+     that the evaluator hides behind a value failure is still reported
+     statically.
+   - It changes no grammar, so no version bump or corpus extension is needed.
+2. **What is known statically.** S is every finding the evaluator can derive
+   from the expression, its literals and the variables' types:
    - `type_mismatch`, `dimension_mismatch`, `unit_mismatch`;
    - `unsupported_expression_form`: an empty min or max, an unrepresentable
      product, an ambiguous or unrepresentable quotient, a refusal marker;
@@ -65,17 +84,43 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
    - `unit_metadata_missing`;
    - `table_malformed`, since tables are wholly pack literals.
 
-   In pack validation, the type environment comes from the declarations. An
-   authored refusal marker already blocks through `REFUSAL_MARKER_AUTHORED`,
+   **The environment, per check.** In pack validation, each check gets its own
+   environment.
+   - A variable is `Typed` or `Unknown` when it is listed in both the formula's
+     `input_refs` and the check's `required_input_refs`, and declared in
+     `required_inputs`. Its declaration's `quantity_intent` sets the type.
+     The runner binds exactly the check's required inputs
+     (`rule_check_runner/src/lib.rs:435-470`), so this matches what a run can
+     bind.
+   - Any other variable is `Undeclared`.
+
+   An authored refusal marker already blocks through `REFUSAL_MARKER_AUTHORED`,
    so the check reads `not_checkable` and the finding is not repeated.
-   Validation adds these check-level findings:
-     - `RULE_PACK_UNDECLARED_VARIABLE`: an AST variable missing from the
-       formula's `input_refs`, or a reference to no declared required input;
-     - `RULE_PACK_LIMIT_UNIT_MISMATCH`: the formula's type differs from the
-       value slot's declared `(dimension, unit_ref)`, so the verdict comparison
-       fails on every run;
-     - `RULE_PACK_UNIT_DECLARATION_INCOMPLETE`: an input or slot declares `TBD`
-       or an empty dimension or unit, so the check cannot be typed.
+
+   **Check-level findings** that validation adds:
+   - `RULE_PACK_UNDECLARED_VARIABLE`: an `Undeclared` variable.
+   - `RULE_PACK_UNIT_DECLARATION_INCOMPLETE`: an `Unknown` input, or a declared
+     slot with `TBD` or empty metadata. The check is then partly untypable.
+   - **Limits, which are checked only for quantity formulas.** A Boolean
+     formula is a predicate and never reads a limit
+     (`rule_check_runner/src/lib.rs:955-961`). `resolve_limit` takes the first
+     referenced slot that has a supplied binding, using the slot's declaration
+     when there is one and the binding's own unit otherwise (`:1154-1195`).
+     Which slot is used therefore depends on the run. So, for each slot in
+     `value_slot_refs`:
+     - **A declared slot whose `(dimension, unit_ref)` differs from the
+       formula's type** gives `RULE_PACK_LIMIT_CANDIDATE_MISMATCH`, naming the
+       slot. The check fails if that slot is the one used.
+     - **A slot that is not declared** gives `RULE_PACK_LIMIT_SLOT_UNDECLARED`
+       (a warning). Its type comes from the binding at run time, so nothing is
+       claimed about it.
+     - **If every referenced slot is declared and incompatible,** the finding
+       is `RULE_PACK_LIMIT_UNIT_MISMATCH`: the verdict comparison fails on
+       every run.
+     - **No referenced slot at all:** nothing is reported here; the runner
+       reports the missing limit.
+
+     Runtime selection is not changed.
 3. **What is known only at run time:**
    - the unit of each solver result, supplied value or library value, and
      whether it converts to the declared unit (`:1197-1263`);
@@ -83,7 +128,9 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
    - value-dependent findings: out of range, key not found, division by zero,
      non-finite values and overflow;
    - interval indeterminacy;
-   - which solver field the caller binds.
+   - which solver field binds when the pack authors no `solver_result_ref`, and
+     the unit of the bound solver value (`src-tauri/src/lib.rs:2932-2945`);
+   - which value slot supplies the limit (above).
 4. **Declared units outside the catalog** get a warning,
    `RULE_PACK_UNIT_NOT_IN_CATALOG`. The check is `unit_by_symbol` for the
    declared dimension, in `rule_pack_document` (which gains the
@@ -110,6 +157,38 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
    - They never enter rule-check outcomes, reports (R-08-01-008: check id,
      status and missing inputs only), issue bundles, logs or telemetry
      (DEL-12-02 CLM-029).
+   - **The blocked-run response is projected.** A run whose pack fails
+     validation returns `rule_pack_validation_value(...)` whole, inside the run
+     response (`src-tauri/src/lib.rs:2913-2929`). That embedded validation
+     omits `unit_check`. A projection helper removes the member there, and only
+     there; `validate_rule_pack`, save and open keep it.
+   - **Ids and unit tokens may themselves be private.** They are shown only in
+     the local panel, and the projection keeps them out of run responses.
+7. **A related runtime defect, fixed in a separate slice.**
+   - **The defect.** `extract_library_slot_value` passes a material value's
+     `unit_ref.ref_id`, a catalog id such as `unit:pascal`, on as a unit
+     symbol (`src-tauri/src/lib.rs:3155-3166`). The runner then calls
+     `unit_by_symbol` on it (`rule_check_runner/src/lib.rs:1197-1240`), so a
+     `unit:pascal` value bound to a `Pa` declaration fails with
+     `UnitMismatch`.
+   - **Why tests miss it.** The tests use matching `demo_unit` strings on both
+     sides (`src-tauri/src/lib.rs:7990-7998`).
+   - **The fix.** A shared catalog-id-to-symbol resolver in `src-tauri`, built
+     from `open_pipe_stress_units::catalog()` as `get_unit_catalog` is
+     (`src-tauri/src/lib.rs:419-449`). It does not edit `core/units`.
+     - An id in the `unit:` namespace that the catalog holds becomes its
+       symbol.
+     - A `unit:` id the catalog lacks is refused. The binding is omitted, and
+       the input blocks as unsupplied.
+     - A string outside the `unit:` namespace passes through unchanged as
+       today, so identical-string bindings such as `demo_unit` keep working.
+       That is consistent with the warning-only policy of §2.4.
+   - **This is an intended change in runtime behaviour.** It gets its own
+     regression check: a `unit:pascal` value bound to `Pa` and to `MPa`
+     declarations; an unknown `unit:` id refused; `demo_unit` unchanged.
+   - **It lands as its own slice,** separate from the static check. It changes
+     run outcomes, which the static check does not. W-17 item 2's library apply
+     uses the same resolver.
 
 ## 3. Desktop UX
 
@@ -125,18 +204,38 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 ## 4. Tests
 
 - **Corpus parity** (`expression_evaluator/tests/conformance_corpus.rs`, new
-  test). For every corpus case, the static check over the case's binding types
-  yields exactly the expected findings that fall in S, with the same codes and
-  subject ids.
-  - Cases 33-43, 49-57, 59-61, 64, 65 and 67-69 are flagged.
-  - These produce no static finding: cases 01-32 (cases 30-32 test the grammar
-    version, which validation checks elsewhere); the value-dependent cases 44-48
-    and 58; and the binding and status cases 62, 63 and 66.
-  - This keeps the static and dynamic rules equal; a rule change that breaks
-    parity fails here.
+  test). The environment is built from `required_variable_ids`:
+  - a binding with a quantity gives `Typed`;
+  - a binding whose `quantity` is null gives `Unknown`, not missing (case 62);
+  - an id with no binding gives `Undeclared`, reported as `missing_variable`;
+  - a binding whose quantity lacks the required metadata gives
+    `unit_metadata_missing` and is then treated as unbound, as
+    `build_binding_map` does (`expression_evaluator/src/lib.rs:430-469`,
+    case 65).
+
+  Two properties are checked:
+  - **Soundness, for every case:** each expected finding in S appears among the
+    static findings, with the same code and subject.
+  - **Equality, only on comparable cases** (cases whose expected findings all
+    lie in S, or which have none): the static findings equal the expected ones.
+
+  Cases with a value- or binding-dependent finding are not compared for
+  equality: 44-48, 58, 62, 63 and 66, and the grammar-version cases 30-32. The
+  test does not filter dynamic findings by code to force a match.
+- **Mixed cases** (new test inputs in the test file; the corpus files are
+  unchanged):
+  - a zero divisor over mismatched dimensions: the evaluator reports
+    `division_by_zero`, and the static check reports `dimension_mismatch`;
+  - a left operand out of table range with a unit mismatch on the right: the
+    evaluator reports only the range finding, and the static check reports the
+    mismatch.
 - **Validation tests** (`rule_pack_document`):
   - an undeclared variable;
-  - a limit mismatch;
+  - limits:
+    - a Boolean predicate with an incompatible slot: no finding;
+    - a single incompatible declared slot: `RULE_PACK_LIMIT_UNIT_MISMATCH`;
+    - one compatible and one incompatible slot: a candidate finding only;
+    - an undeclared slot: a warning only;
   - an incomplete declaration;
   - a non-catalog unit as a warning, with the demo pack showing only that
     warning;
@@ -144,8 +243,14 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 - **Unchanged outputs.** `corpus_parity.rs` and `invented_demo_document.rs` are
   extended only by the additive member. `has_blocking_findings` is unchanged for
   every existing fixture.
-- **Privacy test.** A pack with a sentinel magnitude, table row and payload
-  summary: the serialized `unit_check` contains none of them.
+- **Privacy tests:**
+  - a pack with a sentinel magnitude, table row and payload summary: the
+    serialized `unit_check` contains none of them;
+  - adversarial private strings used as ids and unit tokens: they appear in
+    `validate_rule_pack`'s `unit_check`;
+  - the blocked-run branch of `run_rule_checks_core`
+    (`src-tauri/src/lib.rs:2913-2929`): its response carries no `unit_check`
+    and none of those strings.
 - **Run unchanged.** A pack with one inconsistent check validates with
   `unit_check.status = findings`. `run_rule_checks_core` still runs the other
   checks, and the inconsistent check blocks with the same code statically and at
@@ -158,11 +263,32 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 |---|---|---|---|
 | `core/rules/expression_evaluator/src/lib.rs`, `tests/conformance_corpus.rs` | type check, parity test | none | no |
 | `core/rules/rule_pack_document/src/lib.rs`, `Cargo.toml`, tests | `unit_check`; units dependency | none. W-13 §3.4 cites the checksum record (`:742-790`), read only | no |
-| `Cargo.lock` | one dependency edge | S1b may touch it | low |
+| `core/rules/rule_pack_document/Cargo.lock`, `core/rules/rule_check_runner/Cargo.lock`, `apps/desktop/src-tauri/Cargo.lock` | the dependency of `rule_pack_document` on `open_pipe_stress_units`. These are the only lockfiles that contain `rule_pack_document`. | none expected | no |
+| `core/product_physics/Cargo.lock` (bound by the registered profile, `retained_memory.rs:1204`) | untouched: it does not contain the rules crates | S1b's D3 chain | no |
 | `apps/desktop/src/services/rulePackService.ts` | type | none | no |
 | `apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx` | findings group | S2 adds "Use with this model" and "Remove from model" | same file, different region; no |
-| `apps/desktop/src-tauri/src/lib.rs` | none (the validation passes through) | S1b | no |
+| `apps/desktop/src-tauri/src/lib.rs` | this slice: the blocked-run projection (`:2913-2929`). Separate slice (§2.7): the shared resolver and `extract_library_slot_value` (`:3155-3166`) | S1b: self-test model (`:4482`), open-path validator | same file, different code; no |
 | D3-pinned files | none; `core/units/src` is only depended on, not edited | S1b's D3 chain | no |
 
 **Sequencing** (coordinator, 2026-10-23): this item lands now. It touches no S1b or S2 file
-except the panel, and no model-document member, so it does not wait for S1b.
+except the panel, and no model-document member, so it does not wait for S1b. The
+§2.7 runtime fix is a separate slice. It can also land now, independently.
+
+## 6. Review findings resolved
+
+The Codex review of `1f1b0d7fa9` found these, and the design above resolves
+them:
+1. **A limit mismatch is not always unconditional (P1).** Predicates skip
+   limits; findings are candidate-specific or unconditional; undeclared slots
+   get a warning; runtime selection is unchanged (§2.2).
+2. **The static contract and parity oracle were underspecified (P2).**
+   Resolved by defining "static", the three type states, traversal
+   differences, the per-check environment, soundness plus equality on
+   comparable cases, and the mixed tests (§2.1, §2.2, §4).
+3. **Diagnostics would enter blocked-run responses (P2).** Resolved by the
+   projection and its tests (§2.6, §4).
+4. **The library unit-ref defect (P2, existing).** Recorded, with its fix in a
+   separate slice (§2.7).
+5. **Lockfiles.** Named exactly; the pinned `core/product_physics/Cargo.lock`
+   is unaffected (§5).
+
