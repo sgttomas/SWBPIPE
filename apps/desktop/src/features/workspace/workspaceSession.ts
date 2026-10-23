@@ -11,7 +11,7 @@ import {
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { applyOperationBatch, validateOperationBatch } from "../../services/operationBatchService";
-import type { OperationBatch } from "../../services/operationBatchService";
+import type { OperationBatch, OperationBatchOutcome } from "../../services/operationBatchService";
 import {
   applyModelOperation,
   validateModelOperation,
@@ -1120,6 +1120,7 @@ export function useWorkspaceSession() {
   function handleClearReviewQueue() {
     requestEpochRef.current += 1;
     setRequestEpoch(requestEpochRef.current);
+    withdrawBatchRegistrations();
     setQueuedBatches([]);
     setBatchOutcomes({});
     setBatchMessage("Pending batches cleared. Running requests will not change this session.");
@@ -1134,18 +1135,30 @@ export function useWorkspaceSession() {
     setOperationMessage("Pending changes cleared. Requests already running will not change this session.");
   }
 
-  // W-10: the canonical fingerprint of each registered batch when it was validated.
-  const validatedBatchFingerprints = useRef(new Map<string, string>());
+  // W-10: the live registry of queued submissions. A run resolves its batch
+  // here (never from render-time state or the caller's entry), bound to the
+  // queue epoch it was registered in. Every withdrawal (clear, new, open or
+  // replaced project) revokes all registrations synchronously, with the
+  // canonical fingerprint and outcome of their validation, and moves the
+  // epoch. (The request epoch is not used: it also moves on every selection
+  // change, which would strand queued batches whenever a ref is selected.)
+  const batchRegistrations = useRef(new Map<string, BatchRegistration>());
+  const batchQueueEpoch = useRef(0);
+  function withdrawBatchRegistrations() {
+    batchRegistrations.current.clear();
+    batchQueueEpoch.current += 1;
+  }
 
   async function handleQueueOperationBatch(batch: OperationBatch) {
     if (!model) return;
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
+    const queueEpoch = batchQueueEpoch.current;
     const basisModel = clonePreviewModel(model);
     const submitted = structuredClone(batch);
     try {
       const basisHash = await computeModelHash(basisModel);
-      if (revision !== modelRevision.current || epoch !== requestEpochRef.current) return;
+      if (revision !== modelRevision.current || epoch !== requestEpochRef.current || queueEpoch !== batchQueueEpoch.current) return;
       if (!basisHash) throw new Error("The current model hash is unavailable.");
       const key = `operation-batch-${++batchSequence.current}`;
       // W-10: derived centrally from the batch contents, whatever its producer
@@ -1154,6 +1167,7 @@ export function useWorkspaceSession() {
       // The registered submission is immutable: runs resolve it by key and never
       // read a caller's entry contents.
       const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview });
+      batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
       setQueuedBatches((current) => [...current, registered]);
       setBatchMessage("Batch queued for validation and explicit application.");
       setActiveSection("operations");
@@ -1169,19 +1183,20 @@ export function useWorkspaceSession() {
   async function handleRunOperationBatch(requested: QueuedBatch, apply: boolean) {
     // W-10: only the registered, immutable submission runs, resolved by key;
     // the caller's entry contents (batch, flags, basis) are ignored.
-    const entry = queuedBatches.find((candidate) => candidate.key === requested?.key);
-    if (!entry) {
+    const registration = batchRegistrations.current.get(String(requested?.key));
+    const registered = () => batchRegistrations.current.get(registration!.entry.key) === registration && registration!.epoch === batchQueueEpoch.current;
+    if (!registration || !registered()) {
       setBatchMessage(`Batch ${String(requested?.batch?.batch_id ?? requested?.key ?? "unknown")} is not registered in the review queue; it was not run.`);
       return;
     }
+    const entry = registration.entry;
     if (operationRequest.current.busy || entry.basisRevision !== modelRevision.current) return;
     // The gate follows the registered batch's operations, with the same
     // predicate as the Apply button, and the preview must be of this exact
     // batch content (its canonical fingerprint at validation).
     const gated = apply && batchRequiresPreview(entry.batch);
-    const validatedFingerprint = validatedBatchFingerprints.current.get(entry.key);
     const refusePreview = () => setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON}`);
-    if (gated && (!previewSatisfied(entry, batchOutcomes[entry.key], modelRevision.current) || validatedFingerprint === undefined)) {
+    if (gated && (!registration.validated || !previewSatisfied(entry, registration.validated.outcome, modelRevision.current))) {
       refusePreview();
       return;
     }
@@ -1195,7 +1210,8 @@ export function useWorkspaceSession() {
       if (!currentModel.current) return;
       const fingerprint = await canonicalSha256Hex(entry.batch);
       if (!stillCurrent()) return;
-      if (gated && fingerprint !== validatedFingerprint) {
+      if (!registered()) throw new Error("The batch was withdrawn from the review queue; it was not run.");
+      if (gated && fingerprint !== registration.validated?.fingerprint) {
         refusePreview();
         return;
       }
@@ -1216,7 +1232,8 @@ export function useWorkspaceSession() {
       if (!apply && (outcome.acceptance || outcome.applied_model || outcome.validation.application_status === "applied_to_session_model")) {
         throw new Error("Validation returned an application result; it was discarded.");
       }
-      if (!apply) validatedBatchFingerprints.current.set(entry.key, fingerprint);
+      if (!registered()) throw new Error("The batch was withdrawn from the review queue; its result was discarded.");
+      if (!apply) registration.validated = { fingerprint, outcome };
       setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
       if (!apply || outcome.validation.application_status !== "applied_to_session_model") return;
       if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
@@ -1249,6 +1266,7 @@ export function useWorkspaceSession() {
       }]);
       commitModel(outcome.applied_model);
       preserveAndPruneSelection(outcome.applied_model);
+      batchRegistrations.current.delete(entry.key);
       setQueuedBatches((current) => current.filter((candidate) => candidate.key !== entry.key));
       clearComputedModelState(sessionHistoryChangedSolveJob("batch", entry.batch.batch_id));
       setProposal(null);
@@ -1992,6 +2010,7 @@ export function useWorkspaceSession() {
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      withdrawBatchRegistrations();
       setQueuedBatches([]);
       setBatchOutcomes({});
       setBatchReceipts([]);
@@ -2062,6 +2081,7 @@ export function useWorkspaceSession() {
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      withdrawBatchRegistrations();
       setQueuedBatches([]);
       setBatchOutcomes({});
       setBatchReceipts([]);
@@ -2162,6 +2182,7 @@ export function useWorkspaceSession() {
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      withdrawBatchRegistrations();
       setQueuedBatches([]);
       setBatchOutcomes({});
       setBatchReceipts([]);
@@ -3112,3 +3133,10 @@ function deepFreeze<T>(value: T): T {
   }
   return value;
 }
+
+/** W-10: one queued submission as the live registry holds it. */
+type BatchRegistration = {
+  entry: QueuedBatch;
+  epoch: number;
+  validated?: { fingerprint: string; outcome: OperationBatchOutcome };
+};

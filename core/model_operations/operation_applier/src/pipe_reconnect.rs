@@ -80,12 +80,13 @@ fn payload_invalid(message: impl Into<String>, refs: Vec<String>) -> Blocks {
 
 // ------------------------------------------------------------------ paths
 
-/// `*` matches any index; every other token matches one key exactly.
+/// `*` matches an array index only, never an object key (not even a key
+/// spelled `*`); every other token matches one object key exactly.
 fn matches(segs: &[Seg], pattern: &[&str]) -> bool {
     segs.len() == pattern.len()
         && segs.iter().zip(pattern).all(|(seg, token)| match seg {
             Seg::Index(_) => *token == "*",
-            Seg::Key(key) => key == token,
+            Seg::Key(key) => *token != "*" && key == token,
         })
 }
 fn at<'a>(model: &'a Value, segs: &[Seg]) -> Option<&'a Value> {

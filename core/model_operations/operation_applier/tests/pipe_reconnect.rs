@@ -531,6 +531,18 @@ fn a_key_spelled_as_path_syntax_is_one_key_and_refuses() {
 }
 
 #[test]
+fn an_object_key_spelled_star_is_not_an_index_wildcard() {
+    // primitive_loads as an object with a key "*": not the allowed load slot.
+    let mut model = base();
+    let load = primitive("load:star", "distributed_force", json!({"type":"element","pipe":"pipe:P"}));
+    model["load_cases"][0]["primitive_loads"] = json!({"*": load});
+    let intent = reconnect(&model, "pipe:P", "to", "node:C", None);
+    let refusal = refused(&model, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
+    assert_eq!(refusal.len(), 1);
+    assert!(refusal[0].message.contains("is named at load_cases[0].primitive_loads[\"*\"].target.pipe"), "{}", refusal[0].message);
+}
+
+#[test]
 fn allowed_node_slots_are_kept() {
     let mut model = base();
     model["supports"].as_array_mut().unwrap().push(anchor("support:C", "node:C"));

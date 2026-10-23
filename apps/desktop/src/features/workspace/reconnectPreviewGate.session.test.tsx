@@ -110,6 +110,33 @@ describe("reconnect preview gate (central, producer-independent)", () => {
     expect(result.current.operations.undoStack).toHaveLength(1);
   });
 
+  it("(c) a retained run handler cannot apply a previewed batch after the queue is cleared", async () => {
+    const result = await session();
+    const original = structuredClone(result.current.model.model!);
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(await buildReconnectBatch(original, draft(), "batch:withdrawn")); });
+    const registered = result.current.operations.queuedBatches[0];
+    await act(async () => { await result.current.operations.handleRunOperationBatch(registered, false); });
+    expect(result.current.operations.batchOutcomes[registered.key].validation.batch_validation_status).toBe("passed");
+    // Keep the handler of this render (its closure still sees the queue and outcome).
+    const retainedRun = result.current.operations.handleRunOperationBatch;
+    act(() => result.current.operations.handleClearReviewQueue());
+    expect(result.current.operations.queuedBatches).toHaveLength(0);
+    await act(async () => { await retainedRun(registered, true); });
+    expect(result.current.model.model).toEqual(original);
+    expect(result.current.operations.undoStack).toHaveLength(0);
+    expect(result.current.operations.batchMessage).toContain("is not registered in the review queue");
+  });
+
+  it("a selection change does not strand a queued, previewed batch", async () => {
+    const result = await session();
+    const original = structuredClone(result.current.model.model!);
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(await buildReconnectBatch(original, draft(), "batch:select")); });
+    await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], false); });
+    act(() => { result.current.selection.handleSelectEntity({ type: "node", id: "node:C" }); });
+    await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], true); });
+    expect(result.current.model.model!.pipe_segments.find((p) => p.id === "pipe:P")!.to).toBe("node:C");
+  });
+
   it("keeps Apply refused after a blocking preview", async () => {
     const result = await session();
     const model = structuredClone(result.current.model.model!);
