@@ -81,6 +81,20 @@ unchanged: no new slot renames or re-keys an entity.
 string alone is changed is a valid 0.7.0 document with the same meaning. None
 of the new members is read by the solve.
 
+**The solve decodes the whole document.** There is no projection to solve
+fields.
+- **HELP_HUMAN's ruling on order (2026-10-23).** The numerical-gaps unit's
+  `deny_unknown_fields` on `PreviewModelWire`, `PreviewLoadCase`,
+  `PreviewPrimitiveLoad` and `PreviewCombination` merges first. That change must
+  also declare the members documents already carry: `data_boundary` and
+  `diagnostics` on the root, and `kind`, `label` and `status` on load cases.
+- **What S1b then declares,** as accepted and unread, in the same change:
+  - top-level `lines`, `unresolved_assumptions`, `constraints`,
+    `equipment_interfaces` and `rule_pack_refs`;
+  - `tags` and `notes` on load cases and combinations.
+- **Test.** S1b's tests include a 0.7.0 document carrying every new member that
+  solves end to end.
+
 **The standard for every regenerated artifact** (precedent `f468da4651`): the
 version token plus every binding digest that follows from it, written by the
 maintained writers. No physical value, status or reader outcome moves. Each
@@ -429,7 +443,19 @@ syntax, JSON Schema 2020-12).
   writer emits it. A stray member is a finding. It is removed only from non-frozen
   fixtures that writers regenerate. Refusal controls keep their form.
 - **Every record is closed** (`additionalProperties: false`). It carries types,
-  `{value, unit}` quantities, the id pattern and the known enums.
+  `{value, unit}` quantities and the known enums, including the alias spellings
+  the readers accept.
+- **Ids are non-blank strings** (as implemented in S1a). The readers refuse only
+  blank ids, and deliberate Unicode-id fixtures exist. The applier's ASCII
+  pattern is its rule for ids it generates.
+- **Two exceptions to closed records.** `data_boundary` is an open string map,
+  as the desktop types it (`Record<string, string>`), and its known keys are
+  listed. Section `provenance` may be a string or an object.
+- **The pressure contract's members are required** in the schema: a present
+  contract is complete. Rust decodes them as optional and refuses an incomplete
+  contract at admission. Incomplete-contract fixtures are refusal controls.
+- **`$defs/Model`** (the root) and **`$defs/Element`** (the pipe segment) name
+  REQ-02-01-02's families explicitly.
 - **The load/reference group** `$ref`s `load_reference_state.schema.json`,
   unchanged.
 - **Result and report records by reference** (REQ-02-01-02: "define or
@@ -449,8 +475,8 @@ syntax, JSON Schema 2020-12).
 - The transform tests and `test_invented_example_models.py` (with
   `examples/models/invented/*`) validate against the moved file directly. Their
   old-shape assertions move into `test_physical_transform_model_schema.py`.
-- The shared validation registry (`tests/schema_validation.py:75-124`) registers
-  both files, and the hand-made registries in two tests are updated.
+- The shared validation registry (`tests/schema_validation.py:75-124`) already
+  loads every schema file. The hand-made registries in two tests are updated.
 
 **Persistence tests are separated.**
 - `project_persistence.schema.yaml` `ModelPayload` keeps
@@ -689,8 +715,14 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      assertions are rewritten against the new defs in S1a, and S2 extends it
      with the golden.
    - The generation records' schema SHA pins
-     (`demo_fixture_generation.json:531,1072` and its twin), refreshed by their
-     writer (`generate_product_preview_mechanics.mjs:123`).
+     (`demo_fixture_generation.json:531,1072` and its twin) were **not
+     refreshed** in S1a.
+     - Their writer (`generate_product_preview_mechanics.mjs:123`) would also
+       re-pin about 13 core source files that changed on main since its last
+       run.
+     - No test reads the schema pins; `test_preview_physics_consumer_contract.py`
+       checks only the output and input-model SHAs.
+     - The pins refresh at the writer's next run by its owner.
    - Checks: `piping-pytest` and `desktop-test` compared with main; dual review.
 2. **S1b: version 0.7.0 and the §3 members in the format.**
    - Scope:
