@@ -49,13 +49,20 @@ export async function renderCalculationReport(input: unknown): Promise<RenderRep
     return {
       route: "redaction_blocked",
       diagnostic:
-        "REPORT-REDACTION-CONTROL-REQUIRED: renderer input must be a non-blocked DREP-IPC-003 controlled result."
+        "REPORT-REDACTION-CONTROL-REQUIRED: renderer input must be a non-blocked DREP-IPC-003 controlled result with route evidence."
     };
   }
   if (input.blocked || input.payload === null) {
     return {
       route: "redaction_blocked",
       diagnostic: `REPORT-REDACTION-BLOCKED: ${input.findings.length} finding(s) prevent renderer exposure.`
+    };
+  }
+  if (!controlledContextConsistent(input)) {
+    return {
+      route: "redaction_blocked",
+      diagnostic:
+        "REPORT-REDACTION-CONTEXT-MISMATCH: the controlled route context, explicit intent and the report's recorded export context differ."
     };
   }
   if (!isTauriRuntime()) {
@@ -75,7 +82,7 @@ function isControlledReportInput(value: unknown): value is {
   payload: unknown;
   findings: unknown[];
   blocked: boolean;
-  summary: { route_id: string };
+  summary: { route_id: string; local_first: Record<string, unknown> };
 } {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Record<string, unknown>;
@@ -84,6 +91,30 @@ function isControlledReportInput(value: unknown): value is {
     "payload" in candidate &&
     Array.isArray(candidate.findings) &&
     typeof candidate.blocked === "boolean" &&
-    summary?.route_id === "DREP-IPC-003"
+    summary?.route_id === "DREP-IPC-003" &&
+    typeof summary.local_first === "object" &&
+    summary.local_first !== null
   );
+}
+
+/** The controlled envelope's route evidence and the context recorded in the
+ * renderer input must agree: a local-private render needs the local-private
+ * context with explicit wrapper intent, and a public render must not carry a
+ * local-private record (or the reverse). */
+function controlledContextConsistent(input: {
+  payload: unknown;
+  summary: { local_first: Record<string, unknown> };
+}): boolean {
+  const evidence = input.summary.local_first;
+  if (evidence.route_id !== "DREP-IPC-003" || evidence.blocked !== false) return false;
+  const payload = input.payload as Record<string, unknown> | null;
+  const reportContext = payload?.report_context as Record<string, unknown> | null | undefined;
+  const recorded = reportContext?.export_context;
+  if (evidence.export_context === "local_private") {
+    return evidence.explicit_local_private_intent === true && recorded === "local_private";
+  }
+  if (evidence.export_context === "public_report") {
+    return recorded === "public_report";
+  }
+  return false;
 }

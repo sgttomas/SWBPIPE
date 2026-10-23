@@ -56,6 +56,7 @@ th{background:#f0f0f0;}\
 .boundary{border:2px solid #444;background:#fafafa;padding:.8rem;margin:1rem 0;}\
 .signoff td{height:2.2rem;}\
 .meta{font-size:.8rem;color:#444;}\
+.local-private-banner{border:3px solid #4b2a7b;color:#4b2a7b;padding:.6rem;margin:.8rem 0;font-weight:700;}\
 @media print{body{margin:.5in;}}";
 
 /// One displayed result row. Display strings are caller-formatted; they are
@@ -70,13 +71,95 @@ pub struct ResultRow {
     pub source_ref: String,
 }
 
-/// Complete renderer input document.
+/// Export context the generating application rendered this document under.
+/// The application's route control owns the context and the explicit
+/// local-private intent; this value only records the outcome so the document
+/// can disclose it. It grants no export authority.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReportExportContext {
+    PublicReport,
+    LocalPrivate,
+}
+
+/// One recorded solver setting, display-formatted by the caller. The key and
+/// value are part of the hashed bytes.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ReportSetting {
+    pub key: String,
+    pub value: String,
+}
+
+/// Run and software context of the report (PRD §19.2): software, solver and
+/// build identity, date/time, solver settings and coordinate system. Every
+/// value is supplied by the caller from recorded session data; `None` (or an
+/// empty string) renders as an explicit "not recorded" entry. The renderer
+/// never reads a clock or the environment, so identical input renders
+/// identical bytes.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ReportContext {
+    pub export_context: ReportExportContext,
+    /// Caller-supplied date/time at which the application requested this render.
+    pub generated_at: Option<String>,
+    pub software_name: String,
+    pub software_version: Option<String>,
+    pub build_release_identifier: Option<String>,
+    pub solver_name: Option<String>,
+    pub solver_version: Option<String>,
+    pub solver_build_ref: Option<String>,
+    pub analysis_run_name: Option<String>,
+    pub analysis_run_recorded_at: Option<String>,
+    pub solver_mode: Option<String>,
+    pub solver_settings_ref: Option<String>,
+    pub solver_settings: Vec<ReportSetting>,
+    pub model_coordinate_system: Option<String>,
+    pub result_coordinate_systems: Vec<String>,
+}
+
+/// Automatic user-rule check status vocabulary (the three statuses the rule
+/// check runner may emit).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum UserRuleCheckStatus {
+    RuleInputsIncomplete,
+    UserRuleChecked,
+    UserRuleFailed,
+}
+
+/// One user-rule check outcome: identity, status and the names of required
+/// inputs that were not supplied. Formula text, limits and computed or
+/// allowable values are deliberately not part of the report contract
+/// (rule packs are user/private design-basis artifacts; only safe metadata
+/// and required-input status are reported).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UserRuleCheckOutcome {
+    pub check_id: String,
+    pub status: UserRuleCheckStatus,
+    pub missing_inputs: Vec<String>,
+}
+
+/// The user-rule check run recorded in the session for this report's result.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UserRuleCheckRun {
+    pub rule_pack_id: String,
+    pub grammar_version: String,
+    pub aggregate_status: UserRuleCheckStatus,
+    pub checks: Vec<UserRuleCheckOutcome>,
+}
+
+/// Complete renderer input document. `report_context` and `user_rule_checks`
+/// are absent only when the producer recorded no such context (rendered as
+/// "not recorded") or no rule-check run exists.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RenderableReportInput {
     pub report_title: String,
     pub calculation_report: report::CalculationReport,
     pub report_sections: sections::ReportSections,
     pub result_rows: Vec<ResultRow>,
+    #[serde(default)]
+    pub report_context: Option<ReportContext>,
+    #[serde(default)]
+    pub user_rule_checks: Option<UserRuleCheckRun>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -193,6 +276,119 @@ fn result_units_text(units: &[String]) -> String {
     } else {
         units.join(", ")
     }
+}
+
+const NOT_RECORDED: &str = "not recorded";
+
+fn recorded(value: Option<&String>) -> String {
+    match value.map(|text| text.trim()) {
+        Some(text) if !text.is_empty() => text.to_string(),
+        _ => NOT_RECORDED.to_string(),
+    }
+}
+
+fn recorded_list(values: &[String]) -> String {
+    let present: Vec<&str> = values
+        .iter()
+        .map(|value| value.trim())
+        .filter(|value| !value.is_empty())
+        .collect();
+    if present.is_empty() {
+        NOT_RECORDED.to_string()
+    } else {
+        present.join(", ")
+    }
+}
+
+fn user_rule_check_status_label(status: &UserRuleCheckStatus) -> &'static str {
+    match status {
+        UserRuleCheckStatus::RuleInputsIncomplete => "RULE_INPUTS_INCOMPLETE",
+        UserRuleCheckStatus::UserRuleChecked => "USER_RULE_CHECKED",
+        UserRuleCheckStatus::UserRuleFailed => "USER_RULE_FAILED",
+    }
+}
+
+fn export_context_label(context: &ReportExportContext) -> &'static str {
+    match context {
+        ReportExportContext::PublicReport => "public_report",
+        ReportExportContext::LocalPrivate => "local_private",
+    }
+}
+
+fn run_context_rows(input: &RenderableReportInput) -> Vec<Vec<String>> {
+    let context = input.report_context.as_ref();
+    let field = |pick: fn(&ReportContext) -> Option<&String>| recorded(context.and_then(pick));
+    let mut rows = vec![
+        vec![
+            "Report export context".to_string(),
+            context
+                .map(|context| export_context_label(&context.export_context).to_string())
+                .unwrap_or_else(|| NOT_RECORDED.to_string()),
+        ],
+        vec![
+            "Report generated at (application clock)".to_string(),
+            field(|context| context.generated_at.as_ref()),
+        ],
+        vec![
+            "Software".to_string(),
+            field(|context| Some(&context.software_name)),
+        ],
+        vec![
+            "Software version".to_string(),
+            field(|context| context.software_version.as_ref()),
+        ],
+        vec![
+            "Build/release identifier".to_string(),
+            field(|context| context.build_release_identifier.as_ref()),
+        ],
+        vec![
+            "Solver".to_string(),
+            field(|context| context.solver_name.as_ref()),
+        ],
+        vec![
+            "Solver version".to_string(),
+            field(|context| context.solver_version.as_ref()),
+        ],
+        vec![
+            "Solver build reference".to_string(),
+            field(|context| context.solver_build_ref.as_ref()),
+        ],
+        vec![
+            "Analysis run".to_string(),
+            section_reference_text(&input.report_sections.run_ref),
+        ],
+        vec![
+            "Analysis run name".to_string(),
+            field(|context| context.analysis_run_name.as_ref()),
+        ],
+        vec![
+            "Analysis run recorded at".to_string(),
+            field(|context| context.analysis_run_recorded_at.as_ref()),
+        ],
+        vec![
+            "Solver mode".to_string(),
+            field(|context| context.solver_mode.as_ref()),
+        ],
+        vec![
+            "Solver settings reference".to_string(),
+            field(|context| context.solver_settings_ref.as_ref()),
+        ],
+    ];
+    match context.map(|context| context.solver_settings.as_slice()) {
+        Some(settings) if !settings.is_empty() => {
+            for setting in settings {
+                rows.push(vec![
+                    format!("Solver setting: {}", setting.key),
+                    setting.value.clone(),
+                ]);
+            }
+        }
+        _ => rows.push(vec![
+            "Solver settings".to_string(),
+            NOT_RECORDED.to_string(),
+        ]),
+    }
+    rows
 }
 
 fn analysis_status_label(status: &sections::AnalysisStatus) -> &'static str {
@@ -445,6 +641,17 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                         .to_string(),
                     ]);
                 }
+                let context = input.report_context.as_ref();
+                rows.push(vec![
+                    "Model coordinate system".to_string(),
+                    recorded(context.and_then(|context| context.model_coordinate_system.as_ref())),
+                ]);
+                rows.push(vec![
+                    "Result coordinate systems".to_string(),
+                    context
+                        .map(|context| recorded_list(&context.result_coordinate_systems))
+                        .unwrap_or_else(|| NOT_RECORDED.to_string()),
+                ]);
                 rows.push(vec![
                     "Model hash".to_string(),
                     checksum_text(&summary.model_hash),
@@ -624,6 +831,8 @@ The rendered-document hash is reported by the generating application next to thi
 cannot appear inside the bytes it binds.",
                         ),
                         table(&["Referenced envelope", "Checksum"], envelope_rows),
+                        subheading("Software, Solver And Run"),
+                        table(&["Item", "Value"], run_context_rows(input)),
                     ],
                 )
             }
@@ -641,9 +850,11 @@ cannot appear inside the bytes it binds.",
                         ]
                     })
                     .collect();
-                (
-                    "Rule Pack References",
-                    vec![table(
+                let mut blocks = Vec::new();
+                if calc.rule_pack_refs.is_empty() {
+                    blocks.push(paragraph("No rule pack is referenced by this report."));
+                } else {
+                    blocks.push(table(
                         &[
                             "Rule pack",
                             "Version",
@@ -652,8 +863,39 @@ cannot appear inside the bytes it binds.",
                             "Completeness",
                         ],
                         rows,
-                    )],
-                )
+                    ));
+                }
+                blocks.push(subheading("User-Rule Check Outcomes"));
+                match &input.user_rule_checks {
+                    None => blocks.push(paragraph(
+                        "No user-rule check run is recorded for this report's result.",
+                    )),
+                    Some(run) => {
+                        blocks.push(meta_paragraph(&format!(
+                            "Rule pack: {} · Grammar version: {} · Aggregate status: {}",
+                            run.rule_pack_id,
+                            run.grammar_version,
+                            user_rule_check_status_label(&run.aggregate_status)
+                        )));
+                        let check_rows = run
+                            .checks
+                            .iter()
+                            .map(|check| {
+                                vec![
+                                    check.check_id.clone(),
+                                    user_rule_check_status_label(&check.status).to_string(),
+                                    if check.missing_inputs.is_empty() {
+                                        "none".to_string()
+                                    } else {
+                                        check.missing_inputs.join(", ")
+                                    },
+                                ]
+                            })
+                            .collect();
+                        blocks.push(table(&["Check", "Status", "Missing inputs"], check_rows));
+                    }
+                }
+                ("Rule Pack References", blocks)
             }
             "limitations" => {
                 let limitation_rows = disclosure
@@ -838,6 +1080,48 @@ pub fn export_blocked_banner_text(blocking_reasons: &[String]) -> String {
     format!("EXPORT BLOCKED — {}", blocking_reasons.join("; "))
 }
 
+/// Emission-neutral local-private notice shared by the HTML and PDF
+/// emissions. Present only when the application recorded that this document
+/// was rendered under its explicit local-private export selection; it records
+/// that status in the document itself (warning/audit note) and is absent from
+/// public-context renders.
+pub fn local_private_notice_text(input: &RenderableReportInput) -> Option<&'static str> {
+    match input.report_context.as_ref().map(|context| context.export_context) {
+        Some(ReportExportContext::LocalPrivate) => Some(
+            "LOCAL PRIVATE REPORT — rendered after explicit local-private export selection. \
+This document contains private project values for the user's own local review. It is not for \
+sharing or publication.",
+        ),
+        _ => None,
+    }
+}
+
+/// Renderer-level consistency checks of the report context and rule-check
+/// blocks. Each returned code blocks export.
+fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static str> {
+    let mut codes = Vec::new();
+    if let Some(context) = &input.report_context {
+        if context.software_name.trim().is_empty() {
+            codes.push("REPORT-CONTEXT-SOFTWARE-NAME-MISSING");
+        }
+    }
+    if let Some(run) = &input.user_rule_checks {
+        if run.rule_pack_id.trim().is_empty()
+            || !input
+                .calculation_report
+                .rule_pack_refs
+                .iter()
+                .any(|rule_pack| rule_pack.rule_pack_id == run.rule_pack_id)
+        {
+            codes.push("USER-RULE-CHECK-RULE-PACK-UNREFERENCED");
+        }
+        if run.checks.iter().any(|check| check.check_id.trim().is_empty()) {
+            codes.push("USER-RULE-CHECK-ID-MISSING");
+        }
+    }
+    codes
+}
+
 /// Render the calculation report to a deterministic single-file HTML
 /// document and evaluate every gate. The returned outcome carries the
 /// canonical SHA-256 of the HTML bytes.
@@ -884,6 +1168,9 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
             blocking_reasons.push(format!("section validation: {}", diagnostic.code));
         }
     }
+    for code in report_context_blocking_codes(input) {
+        blocking_reasons.push(format!("report context: {code}"));
+    }
     for finding in &pre_render_run.findings {
         if finding.is_blocking() {
             blocking_reasons.push(format!("pre-render lint: {:?}", finding.code));
@@ -901,6 +1188,12 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
         "<div class=\"status-banner\">{}</div>\n",
         escape_html(&status_banner_text(&input.report_sections)),
     ));
+    if let Some(notice) = local_private_notice_text(input) {
+        body.push_str(&format!(
+            "<div class=\"local-private-banner\" data-export-context=\"local_private\">{}</div>\n",
+            escape_html(notice),
+        ));
+    }
     if !blocking_reasons.is_empty() {
         body.push_str(&format!(
             "<div class=\"blocked-banner\">{}</div>\n",

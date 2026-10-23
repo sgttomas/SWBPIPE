@@ -6,7 +6,14 @@ import type {
   PreviewComponent,
   PreviewModel
 } from "../../types";
-import { canonicalSha256Hex } from "../../services/hashService";
+import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
+import {
+  verifyCurrentSessionInputManifest,
+  type CurrentSessionInputManifestEvidence
+} from "../../services/inputManifestService";
+import type { RulePackDocument } from "../../services/rulePackService";
+import type { RuleCheckRunResult, RuleCheckStatus } from "../../services/ruleCheckService";
+import desktopAppConfig from "../../../src-tauri/tauri.conf.json";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -50,6 +57,43 @@ export const DEC018_UNIT_SYSTEM_REF = {
 };
 
 type Ref = { ref_type: string; ref_id: string };
+
+/** Export context the wrapper renders under. Set only by the wrapper's own
+ * route control and intent; it records the outcome in the document and
+ * grants no export authority (the redaction route projector decides). */
+export type ReportExportContext = "public_report" | "local_private";
+
+/** The rule-check run held by the session for the current result: the loaded
+ * rule-pack document and the backend run outcome. Only safe metadata is read
+ * from the document (identity, version, checksum, source notice,
+ * redistribution status) and only identity, status and missing-input names
+ * from the outcomes (DEL-08-01 R-08-01-008). */
+export type SessionRuleCheckRun = {
+  rulePackDocument: RulePackDocument;
+  result: RuleCheckRunResult;
+};
+
+export type ReportRenderContext = {
+  exportContext: ReportExportContext;
+  /** Application clock reading when the render was requested; null when the
+   * caller records none. The renderer never reads a clock. */
+  generatedAt: string | null;
+};
+
+const NOT_RECORDED = null;
+const REPORT_REDISTRIBUTION_STATUSES = new Set([
+  "public_permissive",
+  "private_only",
+  "unknown",
+  "protected_suspected",
+  "invented_non_engineering_example",
+  "TBD"
+]);
+const RULE_CHECK_STATUSES = new Set<RuleCheckStatus>([
+  "RULE_INPUTS_INCOMPLETE",
+  "USER_RULE_CHECKED",
+  "USER_RULE_FAILED"
+]);
 
 export type UnitDisplaySummary = {
   storage_convention: string;
@@ -274,16 +318,157 @@ function springHangerDiagnostics(model: PreviewModel, provenance: ReturnType<typ
     }));
 }
 
+function record(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function text(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+/** The input manifest is used only when it is the one the analysis run binds
+ * (ref and SHA-256) and its canonical bytes verify; otherwise its settings are
+ * reported as not recorded. */
+async function boundInputManifest(
+  analysisRun: AnalysisRunEnvelope,
+  inputManifest: CurrentSessionInputManifestEvidence | null | undefined
+): Promise<CurrentSessionInputManifestEvidence | null> {
+  if (!inputManifest) return null;
+  const reproducibility = analysisRun.analysis_run.reproducibility;
+  const refs = reproducibility.input_manifest_refs ?? [];
+  const hashes = reproducibility.input_manifest_hashes ?? [];
+  if (
+    refs.length !== 1 ||
+    hashes.length !== 1 ||
+    refs[0].ref !== inputManifest.manifest_ref.ref ||
+    hashes[0].value !== inputManifest.manifest_sha256
+  ) {
+    return null;
+  }
+  try {
+    await verifyCurrentSessionInputManifest(inputManifest);
+  } catch {
+    return null;
+  }
+  return inputManifest;
+}
+
+async function buildReportContext(
+  result: MechanicsResult,
+  analysisRun: AnalysisRunEnvelope,
+  renderContext: ReportRenderContext,
+  inputManifest: CurrentSessionInputManifestEvidence | null | undefined
+) {
+  const run = analysisRun.analysis_run;
+  const manifest = await boundInputManifest(analysisRun, inputManifest);
+  const solverBasis = manifest?.manifest.solver_basis ?? null;
+  const settings = solverBasis
+    ? await Promise.all(
+        Object.keys(solverBasis.settings)
+          .sort()
+          .map(async (key) => ({ key, value: await canonicalJsonString(solverBasis.settings[key]) }))
+      )
+    : [];
+  return {
+    export_context: renderContext.exportContext,
+    generated_at: renderContext.generatedAt,
+    software_name: text(desktopAppConfig.productName) ?? "SWBPIPE desktop",
+    software_version: text(desktopAppConfig.version),
+    // The desktop build records no build/release identifier.
+    build_release_identifier: NOT_RECORDED,
+    solver_name: text(run.solver_version?.solver_name),
+    solver_version: text(run.solver_version?.solver_version),
+    solver_build_ref: text(run.solver_version?.build_ref?.ref),
+    analysis_run_name: text(run.run_name),
+    analysis_run_recorded_at: text(run.created_at),
+    solver_mode: text(solverBasis?.solver_mode),
+    solver_settings_ref: text(run.settings_ref?.ref),
+    solver_settings: settings,
+    // The preview model records no model-level coordinate system.
+    model_coordinate_system: NOT_RECORDED,
+    result_coordinate_systems: Array.from(
+      new Set(
+        result.results
+          .map((item) => item.metadata?.coordinate_system)
+          .filter((value): value is string => typeof value === "string" && value.trim() !== "" && value !== "TBD")
+      )
+    ).sort()
+  };
+}
+
+async function rulePackReference(run: SessionRuleCheckRun) {
+  const document = record(run.rulePackDocument);
+  const metadata = record(document.metadata);
+  const classification = record(document.classification);
+  const declared = record(record(document.checksums).rule_pack_checksum);
+  const declaredValue = text(declared.value);
+  const ruleId = run.result.rule_pack_id;
+  if (!text(ruleId) || text(metadata.rule_pack_id) !== ruleId) {
+    throw new Error("REPORT-RULE-CHECK-PACK-MISMATCH: the rule-check run and the loaded rule pack differ.");
+  }
+  const redistribution = text(classification.redistribution_status);
+  return {
+    rule_pack_id: ruleId,
+    version: text(metadata.rule_pack_version) ?? "not recorded",
+    checksum: declaredValue
+      ? {
+          algorithm: text(declared.algorithm) ?? "sha256",
+          canonicalization: text(declared.canonicalization) ?? "not recorded",
+          payload_ref: { ref_type: "rule_pack", ref_id: ruleId },
+          value: declaredValue
+        }
+      : {
+          // No declared checksum: the canonical SHA-256 of the loaded document.
+          algorithm: "sha256",
+          canonicalization: "rfc8785_jcs",
+          payload_ref: { ref_type: "rule_pack_document", ref_id: ruleId },
+          value: await canonicalSha256Hex(run.rulePackDocument)
+        },
+    source_notice: text(metadata.source_notice) ?? "not recorded",
+    redistribution_status:
+      redistribution && REPORT_REDISTRIBUTION_STATUSES.has(redistribution) ? redistribution : "unknown",
+    completeness_status: run.result.aggregate_status === "RULE_INPUTS_INCOMPLETE" ? "incomplete" : "complete",
+    private_payload_redacted: true
+  };
+}
+
+function userRuleChecks(run: SessionRuleCheckRun) {
+  const status = (value: RuleCheckStatus) => {
+    if (!RULE_CHECK_STATUSES.has(value)) throw new Error(`REPORT-RULE-CHECK-STATUS-UNKNOWN: ${String(value)}`);
+    return value;
+  };
+  return {
+    rule_pack_id: run.result.rule_pack_id,
+    grammar_version: run.result.grammar_version,
+    aggregate_status: status(run.result.aggregate_status),
+    checks: run.result.checks.map((check) => ({
+      check_id: check.check_id,
+      status: status(check.status),
+      missing_inputs: Array.from(
+        new Set(check.bound_inputs.filter((input) => !input.supplied).map((input) => input.input_id))
+      ).sort()
+    }))
+  };
+}
+
 export async function buildRenderableReportInput({
   model,
   result,
   analysisRun,
-  projectSummary
+  projectSummary,
+  renderContext,
+  inputManifest = null,
+  ruleCheckRun = null
 }: {
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
   projectSummary: LocalProjectSummary | null;
+  renderContext: ReportRenderContext;
+  inputManifest?: CurrentSessionInputManifestEvidence | null;
+  ruleCheckRun?: SessionRuleCheckRun | null;
 }) {
   const run = analysisRun.analysis_run;
   const provenance = sessionProvenance(model);
@@ -430,7 +615,7 @@ export async function buildRenderableReportInput({
         sectionsChecksumValue
       )
     ],
-    rule_pack_refs: [],
+    rule_pack_refs: ruleCheckRun ? [await rulePackReference(ruleCheckRun)] : [],
     diagnostics: [],
     template_slots: SECTION_KINDS.map((kind, index) => ({
       slot_id: `slot-${kind}`,
@@ -470,6 +655,8 @@ export async function buildRenderableReportInput({
       case_ref: item.basis_ref ? `${item.basis_ref.ref_type}:${item.basis_ref.ref_id}` : "TBD",
       quantity_display: `${item.value} ${item.unit}`,
       source_ref: `result:${item.id}`
-    }))
+    })),
+    report_context: await buildReportContext(result, analysisRun, renderContext, inputManifest),
+    user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null
   };
 }

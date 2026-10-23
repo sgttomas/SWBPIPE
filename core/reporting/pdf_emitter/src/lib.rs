@@ -233,6 +233,11 @@ fn emit_pdf_document(
     emitter.note(&status_text);
     emitter.banner(&status_text, true);
 
+    if let Some(notice) = renderer::local_private_notice_text(input) {
+        emitter.note(notice);
+        emitter.banner(notice, true);
+    }
+
     if !blocking_reasons.is_empty() {
         let blocked_text = renderer::export_blocked_banner_text(blocking_reasons);
         emitter.note(&blocked_text);

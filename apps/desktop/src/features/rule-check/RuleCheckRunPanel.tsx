@@ -3,6 +3,7 @@ import { QuantityReadout, useDisplayQuantity } from "../display-units";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ListChecks, Play, ShieldAlert } from "lucide-react";
 import type { MechanicsResult, PreviewModel } from "../../types";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import {
   listLocalRulePacks,
   openLocalRulePack,
@@ -362,7 +363,10 @@ export function RuleCheckRunPanel({
   // the app-held analysis-run envelope (TP-C4-APPAGG-001). Called with the
   // aggregate on a successful run, and with null whenever there is no current
   // run outcome (new pack loaded/pasted, or a run that did not produce one).
-  onAggregateChange?: (aggregate: RuleCheckStatus | null) => void;
+  // On a successful run the loaded pack and its outcomes accompany the
+  // aggregate so the rendered report can disclose safe rule-pack metadata and
+  // per-check status (DEL-08-01 R-08-01-008).
+  onAggregateChange?: (aggregate: RuleCheckStatus | null, run?: SessionRuleCheckRun | null) => void;
   onR3JourneyEvent?: (event: "rule_check_pack_loaded" | "rule_check_run_requested") => void;
 }) {
   const effectiveBasis = basis ?? {
@@ -685,7 +689,7 @@ export function RuleCheckRunPanel({
       setRunPresentation({ basisKey: requestBasisKey, result: route.result, loadReferenceDisclosure: route.loadReferenceDisclosure ?? null });
       // Lift the worst-of aggregate so the app can record it in the app-held
       // analysis-run envelope (TP-C4-APPAGG-001).
-      onAggregateChange?.(route.result.aggregate_status);
+      onAggregateChange?.(route.result.aggregate_status, { rulePackDocument: parsed.document, result: route.result });
       setActionStatus(
         `Ran ${route.result.checks.length} check(s); aggregate=${route.result.aggregate_status} ` +
           `(grammar ${route.result.grammar_version}).`

@@ -3,7 +3,8 @@
 
 use open_pipe_stress_pdf_emitter::{assemble_full_report_package, emit_calculation_report_pdf};
 use open_pipe_stress_report_renderer::{
-    assemble_report_sections, render_calculation_report, RenderableReportInput, ResultRow,
+    assemble_report_sections, render_calculation_report, RenderableReportInput, ReportContext,
+    ReportExportContext, ResultRow,
 };
 use open_pipe_stress_report_sections as sections;
 
@@ -84,6 +85,8 @@ fn fixture_input() -> RenderableReportInput {
             quantity_display: "12.5 MPa".to_string(),
             source_ref: "result_envelope:invented-result".to_string(),
         }],
+        report_context: None,
+        user_rule_checks: None,
     }
 }
 
@@ -265,4 +268,33 @@ fn non_winansi_characters_degrade_deterministically() {
 
     assert_eq!(first.pdf_bytes, second.pdf_bytes);
     assert!(pdf_contains(&first.pdf_bytes, "Stress ? max"));
+}
+
+#[test]
+fn local_private_notice_reaches_the_pdf_only_for_a_local_private_context() {
+    let mut input = fixture_input();
+    let public = emit_calculation_report_pdf(&input);
+    assert!(!pdf_contains(&public.pdf_bytes, "LOCAL PRIVATE REPORT"));
+
+    input.report_context = Some(ReportContext {
+        export_context: ReportExportContext::LocalPrivate,
+        generated_at: Some("2026-10-22T12:00:00.000Z".to_string()),
+        software_name: "SWBPIPE".to_string(),
+        software_version: Some("0.1.0".to_string()),
+        build_release_identifier: None,
+        solver_name: None,
+        solver_version: None,
+        solver_build_ref: None,
+        analysis_run_name: None,
+        analysis_run_recorded_at: None,
+        solver_mode: None,
+        solver_settings_ref: None,
+        solver_settings: vec![],
+        model_coordinate_system: None,
+        result_coordinate_systems: vec![],
+    });
+    let private = emit_calculation_report_pdf(&input);
+    assert!(!private.export_blocked, "{:?}", private.blocking_reasons);
+    assert!(pdf_contains(&private.pdf_bytes, "LOCAL PRIVATE REPORT"));
+    assert_eq!(private.pdf_bytes, emit_calculation_report_pdf(&input).pdf_bytes);
 }

@@ -14894,30 +14894,26 @@ describe("historical lifecycle history transitions", () => {
       );
 
       // This case exercises completion ownership beyond the renderer policy seam.
-      // The production public-report policy correctly blocks this private input.
-      // Preserve that verdict, then use the real controller with an explicit
-      // local-private fixture route so the delayed native command can start.
+      // The public-report policy correctly blocks this private input; the
+      // panel's own explicit local-private selection opens the real
+      // local-private route so the delayed native command can start.
       const reportPolicy = await import("./features/report/reportRedactionProjector");
-      const { controlRouteExport } = await import("./features/redaction-controls/redactionExportControls");
-      const publicReportPolicy = reportPolicy.controlReportRendererInput;
+      const rendererPolicy = reportPolicy.controlReportRendererInput;
       const policyObservations: Array<{
         input: unknown;
-        publicControl: ReturnType<typeof publicReportPolicy>;
-        fixtureControl: ReturnType<typeof publicReportPolicy>;
+        explicitIntent: boolean | undefined;
+        publicControl: ReturnType<typeof rendererPolicy>;
+        fixtureControl: ReturnType<typeof rendererPolicy>;
       }> = [];
-      rendererPolicySpy = vi.spyOn(reportPolicy, "controlReportRendererInput").mockImplementation((input) => {
-        const publicControl = publicReportPolicy(input);
-        const fixtureControl = controlRouteExport(input, {
-          routeId: "DREP-IPC-003",
-          exportContext: "local_private",
-          explicitLocalPrivateIntent: true,
-          requireLosslessMaterialization: true,
-        });
-        policyObservations.push({ input, publicControl, fixtureControl });
+      rendererPolicySpy = vi.spyOn(reportPolicy, "controlReportRendererInput").mockImplementation((input, explicitIntent) => {
+        const publicControl = rendererPolicy(input);
+        const fixtureControl = rendererPolicy(input, explicitIntent);
+        policyObservations.push({ input, explicitIntent, publicControl, fixtureControl });
         return fixtureControl;
       });
 
       const reportSection = openWorkspaceSection("report");
+      fireEvent.click(within(reportSection).getByTestId("rendered-report-local-private-intent"));
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
@@ -14931,6 +14927,8 @@ describe("historical lifecycle history transitions", () => {
         ),
       );
       await waitFor(() => expect(policyObservations).toHaveLength(1));
+      expect(policyObservations[0].explicitIntent).toBe(true);
+      expect(policyObservations[0].fixtureControl.summary.local_first?.export_context).toBe("local_private");
       expect(policyObservations[0].publicControl).toMatchObject({
         blocked: true,
         payload: null,
