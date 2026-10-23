@@ -179,7 +179,9 @@ and §6 authoring.
            `sif_user_value`, `flexibility_factor_user_value`
            (`validation.rs:1484-1507`);
          - branch: the run size, header size and connection angle
-           (`:1523-1550`);
+           (`:1523-1550`), and `modifiers.flexibility_factor_user_value`
+           (`:1582`; without it branch modifier generation returns `None`,
+           `lib.rs:12858`), with a refusal test for removing it;
          - rigid: `rigid_body_length`, the end sizes and `weight`, and the
            linear and rotational stiffness modifiers (`:1606-1640,1660-1680`).
      - **The source-reference string.** When an apply writes any member of a
@@ -488,7 +490,8 @@ Codex round 2 (on `63615afe87`):
 7. **R2-2, `privacy_class` was dropped (P1).** It now enters the combination
    and raises the result to at least `private_only` (§2.5).
 8. **R2-3, stale component source references (P2).** Source references are now
-   updated per group, mixed groups are refused, and the directional SIF pair is
+   updated per group, a group that keeps members from an earlier source carries a
+   combined attribution (§2.3b), and the directional SIF pair is
    gated on a realized bend (§2.3b).
 9. **R2-4, `rejected` was outside W-13's vocabulary (P2).** Rejected and
    protected sources are excluded, `TBD` is normalized, and the result stays
