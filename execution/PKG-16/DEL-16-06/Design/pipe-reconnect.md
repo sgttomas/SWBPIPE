@@ -639,7 +639,9 @@ Claude review, both "sound with changes".
 | Codex 7 (P3): enum value is not an executable reference | Adopted with Claude 9: a generated complete batch in the capability reference, tested through offline intake. §1, §4. |
 | Claude 1: equality is an identity check only | Adopted (cantilever wL⁴/8EI, built topology, wind span, fit, region branch). §4. |
 | Claude 2: two scanners, unclear fail-closed scope | Adopted. One scanner (`references()`) for reconnect and delete; allowed slots as paths. §2.2, §7. |
-| Claude 3, 4, 7 | Not received in the coordinator's message; finding 4 is reflected in the R8 decision. |
+| Claude 3: commitment and release text need the owner's words | Adopted: the DEL-16-06 and release-note lines are proposed as exact old → new text, applied only after approval. §6. |
+| Claude 4: parallel pipes can be intended | Adopted: R8 became a warning (coordinator decision). §2.4. |
+| Claude 7: terminal markers block free-end reconnects | Adopted: `terminal` markers are exempt from the at-node rule. §2.1. |
 | Claude 5: stored diagnostics | Adopted: skipped by both scans; the same latent issue in the generic entity delete recorded as a gap. §6. |
 | Claude 6: R9 field names | Adopted: `objective_connector.topology.span_ref`; SIF modifiers name no pipe. §2.1, §7. |
 | Claude 8: `GeometryEdit` has no warnings | Adopted: `ReconnectEdit` with typed warnings, shown in validate mode. §1. |
@@ -648,7 +650,7 @@ Claude review, both "sound with changes".
 | Claude 11: `delete_node` claim too broad | Adopted: narrowed to the `node_references` slots. §3. |
 | Claude 12: "undo" in applier tests | Adopted: inverse reconnect, or desktop checkpoint restore. §1, §4. |
 | Claude 13: bend warning precision | Adopted: component at the arc's `from` node (R9); warning at an arc's `to` node, at F and T. §2.4. |
-| Claude §7 (a) | Not received in the coordinator's message. |
+| Claude §7 (a): stored diagnostics block deletion | Adopted: both scans skip the root `diagnostics`. §2.2, §7. |
 | Claude §7 (b): path → owner id | Adopted. §7 owner mapping. |
 | Claude §7 (c): de-duplication | Adopted: hits already reported by the existing checks are dropped. §7. |
 | Coordinator: `terminal` markers | Adopted: exempt from the at-node rule. §2.1. |
