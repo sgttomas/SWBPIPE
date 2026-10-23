@@ -1,7 +1,7 @@
 # Model document 0.7.0: one canonical document and its schema (W-13)
 
-**Basis:** `origin/main` at `9d76659e02` (2026-10-23). This is revision 2, after
-two review rounds (an independent Claude reviewer and Codex). Design before
+**Basis:** `origin/main` at `9d76659e02` (2026-10-23). This is revision 3, after
+two review rounds, each by an independent Claude reviewer and Codex. Design before
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 0. Rulings this design applies
@@ -103,9 +103,18 @@ review evidence.
     `pressure_authoring.rs:149`.
 - **Guard test.** A new test fails on any literal model version outside the
   constant definitions and the retired lists, in desktop and applier production
-  code.
-- **Diagnostic texts** that name "current model 0.6.0" take the constant:
-  `case_state/resolve.rs:79`, `joint.rs:838`, `pressure_authoring.rs:285`.
+  code. The test covers string literals in messages and names as well as
+  comparisons.
+- **Texts and emitted data that name the version** take the constant:
+  - diagnostics: `case_state/resolve.rs:79`, `joint.rs:838`,
+    `pressure_authoring.rs:285`, `model_document_version.rs:76`,
+    `projectService.ts:76`, `geometry_operations.rs:665`,
+    `joint_pressure_authoring.rs:39`, applier `lib.rs:2693,2782,5161`;
+  - the blank project name "Blank Local Load/reference Model 0.6.0"
+    (`projectService.ts:447`).
+- **Packaged self-test.** The production self-test embeds a 0.6.0 model
+  (`apps/desktop/src-tauri/src/lib.rs:4482`, run from `main.rs:8`) and moves to
+  0.7.0.
 
 **Frozen references.**
 - SHA-bound frozen requests under `validation/**` keep their bytes. Their
@@ -214,9 +223,13 @@ unchanged.
 - `pipe_refs` holds unique ids of existing pipes, and a pipe belongs to at most
   one line.
 - Grouping only: the solve does not read lines.
-- **Pipe edits.** Deleting a pipe removes it from its line in the same
-  operation. A pipe created by split or bend insertion joins the source pipe's
-  line (§6).
+- A line may be left with empty `pipe_refs`; the user deletes it explicitly.
+- **Pipe edits.**
+  - Deleting a pipe removes it from its line in the same operation.
+  - A pipe created by split joins the source pipe's line.
+  - A bend arc joins the line of the incoming pipe `p_in` (`bend_authoring.rs:631`).
+  - A copied pipe (`geometry_operations.rs:534-541`) joins no line, since the
+    copy is a new run.
 
 ### 3.3 Unresolved assumptions and open issues (FR-MOD-006)
 
@@ -236,7 +249,10 @@ third vocabulary:
 
 - **Levels.** An empty `affected_refs` is project level. Otherwise the record
   names lines, components, supports or any entity id. This covers FR-MOD-006's
-  project, line, component and support levels; the state and run levels are W-12.
+  project, line, component and support levels.
+- **State and run levels.** These are W-12's: assumptions recorded on a saved
+  state or a recorded run, held in their label rows (W-12 §2, §3). Copying the
+  model's assumptions into a state record does not by itself discharge them.
 - **Resolution.** `resolution_note` is required when `status` is `resolved` or
   `rejected`.
 - **Deleted entities.** An assumption keeps naming an entity that is later
@@ -246,8 +262,13 @@ third vocabulary:
   `*_refs` key as a reference (`lib.rs:3807-3837`). It therefore skips
   `unresolved_assumptions`, so naming an entity in an assumption never blocks
   that entity's deletion (§6).
-- **Adapters.** State and handoff records map `affected_refs` id strings to
-  `Reference` objects by id prefix and add their own `provenance`.
+- **Adapters.** Neither the state schema nor the handoff schema has entity types
+  in its closed `Reference.object_type`. Their `AssumptionRecord`s are closed,
+  and the handoff status vocabulary differs. Each consumer therefore defines its
+  own mapping and lists what it drops: W-12 §2 and W-6 §3 do.
+  - The shared rule: an entity id becomes the model-qualified reference
+    `{object_type: "Model", ref: "<project id>#<entity id>"}`. A project-level
+    record names the project.
 
 ### 3.4 Rule-pack references
 
@@ -290,13 +311,20 @@ third vocabulary:
   "redistribution_status": "public_permissive" | "private_only" | "unknown" | "protected_suspected",
   "review_status": "pending" | "accepted" | "rejected" | "quarantined",
   "reviewed_by": "…", "reviewed_on": "YYYY-MM-DD", "verification_note": "…",
-  "library_ref": { "library_id": "…", "library_version": "…", "record_id": "…" } }
+  "library_ref": { "library_kind": "material" | "section" | "component" | "hanger",
+                   "library_id": "…", "library_version": "…", "record_id": "…" } }
 ```
 
 `library_ref` records the local library and record an entity was inserted from.
-The desktop sets it when it inserts a library record (S2). It is the source of
-the handoff manifest's `library_refs` (W-6b). The library payload never enters
-the document.
+- It matches the store's key `(project_id, library_kind, library_id)`
+  (`src-tauri/src/lib.rs:875-885`).
+- The desktop sets it when it inserts a library record (S2).
+- It is the source of the handoff manifest's `library_refs` (W-6b).
+- The store keeps one document per library id (`:3768`). If the stored
+  library's version later differs from `library_version`, the reference reports
+  `MODEL-LIBRARY-REF-VERSION-CHANGED` (warning) and keeps the recorded version.
+  It is never silently updated.
+- The library payload never enters the document.
 
 - **Field names and enums** are the library import's
   (`REQUIRED_PROVENANCE_FIELDS`, `library_import_document/src/lib.rs:25`).
@@ -323,15 +351,29 @@ These are typed records with no evaluation. The solve does not read them.
 Constraint checking, design-knowledge entry and candidate generation are PKG-13
 and v0.2 (OD-1).
 
+**Scope.** These records go beyond the five slots OD-4 enumerates. They are
+added so that FR-MOD-002, a Must, is not narrowed. They sit next to the deferred
+FR-KNOW-001 (OD-3) and implement none of it. This is reported to HELP_HUMAN as
+a scope addition (§7.4).
+
+**Constraint vocabulary.** It is a subset of `schemas/constraint.schema.json`
+`ConstraintRecord`, so v0.2 extends the vocabulary instead of replacing it:
+- the same names: `constraint_id`, `constraint_kind`, `name`, `state`,
+  `target_refs`;
+- `constraint_kind` excludes `TBD`, `equipment_interface` (that is
+  `equipment_interfaces`) and `missing_required_data` (that is an open issue,
+  §3.3);
+- `state` uses `ConstraintRecord`'s enum.
+
 ```json
-"constraints": [{ "id": "constraint:K-001", "label": "…",
-  "kind": <ConstraintKind from schemas/constraint.schema.json, excluding "TBD">,
-  "affected_refs": ["pipe:P-100"], "statement": "…", "tags": [], "notes": "…", "provenance": "…" }],
+"constraints": [{ "constraint_id": "constraint:K-001", "name": "…",
+  "constraint_kind": "clearance", "state": "proposed",
+  "target_refs": ["pipe:P-100"], "statement": "…", "tags": [], "notes": "…", "provenance": "…" }],
 "equipment_interfaces": [{ "id": "equipment-interface:E-001", "label": "Pump P-1 discharge nozzle",
   "node_ref": "node:N-100", "equipment_label": "…", "tags": [], "notes": "…", "provenance": "…" }]
 ```
 
-`affected_refs` and `node_ref` follow §3.3's rule for deleted entities: they
+`target_refs` and `node_ref` follow §3.3's rule for deleted entities: they
 never block deletion, and a missing entity is reported as a warning.
 
 ### 3.7 Not added
@@ -405,16 +447,18 @@ syntax, JSON Schema 2020-12).
   adapter between the two shapes.
 
 **Pointer strings.**
-- The `LoadCase` and `LoadRecord` strings in `primitive_loads/src/lib.rs`, which
-  is D3-pinned, keep their text when the new schema's defs of those names
-  describe the same referent. That referent is the desktop's load case and
-  primitive-load record.
-  - If either binding's actual referent is an old-shape record, it is repointed
-    to the moved file in S1b. S1b already re-prices that file.
+- The `primitive_loads` bindings' referents are the desktop load case and its
+  `primitive_loads[]` record. The old schema's `LoadCase` (`load_type` +
+  `loads[]`) and `LoadRecord` (`load_record_type`) are different records.
+- The new schema therefore defines `$defs/LoadCase` (the desktop load case) and
+  `$defs/LoadRecord` (the desktop primitive load). The strings at
+  `primitive_loads/src/lib.rs:366-367`, which is a D3-pinned file, then keep
+  valid text unchanged.
 - `ModelResultValue` (`#/$defs/Result/values`, broken today) is repointed to
   its actual referent, the result-value definition in the results schema the
-  consumers use (`user_loads:342`, `load_case_algebra:226`). This also happens
-  in S1b. All three binding consumers' tests follow.
+  consumers use (`user_loads:342`, `load_case_algebra:226`,
+  `stress_recovery/src/lib.rs:757`). This also happens in S1b. All of these
+  consumers' tests follow.
 
 **Path consts.**
 - `handoff_package.schema.json`'s `model_schema` const keeps naming
@@ -503,14 +547,19 @@ no whole-array replacement:
   `update_load` / `update_support` for loads and supports (`lib.rs:1404-1411,
   2390`).
 
+`model_operation.schema.json` (closed `object_type` and `change_kind` enums,
+imported at `App.tsx:6,498`) is not extended. The applier's existing kinds are
+already outside it.
+
 `update_*` never changes an `id`, which keeps FR-MOD-003. `FieldKind` gains a
 string-list kind for tags. Clearing a field removes the member; the `TBD`
 sentinel (`lib.rs:250-253`) is not used for these slots.
 
 **Geometry and reference scans.**
 - **Record shape.** `record_shape` (`geometry_operations.rs:27-40,128-157`)
-  accepts `tags`, `notes` and `provenance_record` on nodes and pipes, so split,
-  transform and copy work on annotated records.
+  accepts `tags` and `notes` on nodes and pipes, so split, transform and copy
+  work on annotated records. Nodes and pipes carry no `provenance_record`
+  (§3.5).
 - **Attachment scans.** The scans (`geometry_operations.rs:233-303`,
   `bend_authoring.rs:583-606`) and the generic delete scan
   (`lib.rs:3807-3837`) skip `tags`, `notes` and `provenance_record`, and do not
@@ -521,9 +570,11 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
     assumption or constraint, is never blocked and leaves a missing-subject
     warning.
 - **Split and bend insertion** (`geometry_operations.rs:388-393`,
-  `bend_authoring.rs:632-636`) clone the source pipe. The new pipe inherits the
-  source's `tags`, `notes` and `provenance_record`, joins the source's line, and
-  is not added to assumptions that name the source; the source id survives.
+  `bend_authoring.rs:631-636`) clone the source pipe.
+  - The new pipe inherits the source's `tags` and `notes`.
+  - It joins lines as §3.2 says.
+  - It is not added to assumptions or constraints that name the source; the
+    source id survives.
 - **Applier tests** cover each case.
 
 **Desktop.**
@@ -559,8 +610,9 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      report-settings or result slot in the model. FR-MOD-001's "warnings" are
      the document's `diagnostics` plus the validator's. FR-MOD-002 is met in
      full by §3.2 and §3.6.
-   - **This narrows no FR-MOD requirement.** If HELP_HUMAN reads it otherwise,
-     it goes to the owner.
+   - **This narrows no FR-MOD requirement.** It is still commitment text, so it
+     goes to the owner through HELP_HUMAN as exact old → new. Its approval is a
+     precondition for merging S1b.
 3. **Reconciliation pointers.** These are reconciliation, not commitment
    changes:
    - DEL-02-01 line 88 (current implementation);
@@ -570,6 +622,11 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      text; if either is a commitment, it is listed under item 1;
    - `b7-plan.md` "Current model format", `RELEASE_NOTES_v0.1.0_DRAFT.md:53`,
      `persistence_contract.md` and `GATE_USAGE.md`.
+4. **Scope addition (to HELP_HUMAN).** §3.2 lines and §3.6 constraints and
+   equipment interfaces go beyond OD-4's five enumerated slots. They are added
+   so that FR-MOD-002 (Must) is met in v0.1 and not narrowed, with no
+   evaluation. The alternative is to leave FR-MOD-002 partial for those families
+   in v0.1. That would extend OD-1's deferral, and it is the owner's choice.
 
 ## 8. Slices
 
@@ -581,6 +638,15 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      - the moved old schema, with the transform and persistence test
        separation;
      - the conformance pytest (§5.1) and the strict-JSON check (§5.6).
+   - The replaced persistence fixture
+     (`fixtures/persistence/invented_persisted_preview_project.json`), which
+     carries an old-shape payload.
+   - The repaired `schemaSlotEmission.test.tsx` (TP-PMM-GUIEMIT-001): its
+     assertions are rewritten against the new defs in S1a, and S2 extends it
+     with the golden.
+   - The generation records' schema SHA pins
+     (`demo_fixture_generation.json:531,1072` and its twin), refreshed by their
+     writer (`generate_product_preview_mechanics.mjs:123`).
    - Checks: `piping-pytest` and `desktop-test` compared with main; dual review.
 2. **S1b: version 0.7.0 and the §3 members in the format.**
    - Scope:

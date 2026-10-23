@@ -1,8 +1,8 @@
 # Model states, run history and comparison in the desktop (W-12)
 
 **Basis:** `origin/main` at `9d76659e02` (2026-10-23), after model document 0.7.0
-(DEL-02-01 Design `model-document-0.7.0.md`). This is revision 2, after two
-review rounds (an independent Claude reviewer and Codex). Design before
+(DEL-02-01 Design `model-document-0.7.0.md`). This is revision 3, after two
+review rounds, each by an independent Claude reviewer and Codex. Design before
 implementation. Persistence changes get targeted regression tests and dual
 review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -13,16 +13,16 @@ review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
   settles D-11/DEC-062's "W7 — Forward horizon v0.2" placement for these items.
 - **Scope (PRD §23 MVP):** "named immutable model states; analysis runs tied to
   states; basic model-state comparison; basic analysis-run comparison". That
-  means FR-CMP-001, -002, -003, -004 and -006 (Must).
+  means FR-CMP-001, -002, -003, -004 and -006 (Must). FR-MOD-006's state and
+  run levels are added (§2, §3).
 - **Out of this unit.**
   - The Should items FR-CMP-005/007 (mapping editor, manual mappings), -008
     (tolerance profiles), -009 (graphical diffs) and -010 (comparison export).
-    PRD §24 places them in R3. They stay open, and no Must is narrowed: FR-CMP-006
-    is met by automatic stable-id mapping, and FR-CMP-004 by stable ids across
-    states.
+    PRD §24 places them in R3. They stay open, and no Must is narrowed:
+    FR-CMP-006 is met by automatic stable-id mapping, and FR-CMP-004 by stable
+    ids across states.
   - DEL-14-05's output-contract acceptance (SCA-011) stays held. Comparison
-    output is not tolerance-checked, and nothing is classified as within or
-    outside a tolerance.
+    output is not tolerance-checked.
 - **Reference behaviour (PKG-14 headless):**
   - `core/comparison/model_state/engine.py`;
   - `core/comparison/analysis_run/engine.py`;
@@ -33,34 +33,34 @@ review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 ## 1. Where things stand
 
 - **Store.** The desktop store (`openpipestress-projects.sqlite3`, migrations to
-  v11, `apps/desktop/src-tauri/src/lib.rs:743,896`; the migrations are not
-  transactional, `:942-950`) keeps one row per project, with one model, one
-  result and one analysis-run column. The upsert
-  (`ON CONFLICT DO UPDATE`, `:1112-1129`) and the replacement guard (`:1376-1408`)
-  run inside `BEGIN IMMEDIATE` (`:1065`).
+  v11, `apps/desktop/src-tauri/src/lib.rs:743,896`) keeps one row per project,
+  with one model, one result and one analysis-run column.
+  - The migrations are not transactional (`:942-950`).
+  - `PRAGMA foreign_keys = ON` is set at open (`:937`).
+  - The upsert (`:1112-1129`) and the replacement guard (`:1376-1408`) run
+    inside `BEGIN IMMEDIATE` (`:1065`).
 - **Run identity.** Every solve carries the producer's fixed `run_id`,
   `run:preview-linear-static-001` (`core/product_physics/src/lib.rs:3151`).
-- **Run record.** The analysis-run record is built at solve time
-  (`workspaceSession.ts:947`). Its `model_state_ref` is the synthetic
-  `state:<model_ref>:preview` (`analysisRunCompatibility.ts:164`). The synthetic
-  ref is validated in TypeScript (`:237`) and Python (`compatibility.py:155,524`),
-  used by `resultExportAdapter.ts:253`, and pinned in fixtures
-  (`fixtures/results/*.analysis_run.json`, the persistence fixture).
-- **Model hash.** `MechanicsResult` has no model hash. The project row stores the
-  session's model hash (`model_hash_json`).
-- **Comparison.** It exists only within one run, between hard-coded ids
-  (`previewService.ts:654`).
-- **Standing.** Numerical standing is Rust's verdict
-  (`features/results/resultStanding.ts:1-12`). Reopened runs that depend on a
-  registration read `needs_recompute` (`HistoricalRunContext.tsx:102`).
+- **Run record.** It is built at solve time (`workspaceSession.ts:947`), with
+  `created_at: null` and the synthetic `model_state_ref`
+  `state:<model_ref>:preview` (`analysisRunCompatibility.ts:164`). That ref is
+  validated in TypeScript (`:237`) and Python (`compatibility.py:155,524`), used
+  by `resultExportAdapter.ts:253`, and pinned in fixtures.
+- **Model binding.** The solved model is bound only through the input manifest,
+  which embeds `model_payload` (`inputManifestService.ts:79-83`) and is not
+  stored. `MechanicsResult` has no model hash.
+- **Reopened runs.** `HistoricalRunContext` establishes no standing. It always
+  adds `HISTORICAL_INPUT_MANIFEST_MISSING` (`:95`) and flags any non-synthetic
+  state ref (`:108`).
+- **Comparison** exists only within one run (`previewService.ts:654`).
 
-## 2. Model states (FR-CMP-001)
+## 2. Model states (FR-CMP-001; FR-MOD-006 state level)
 
 **A state** is a named, immutable snapshot: the canonical JCS text of the model
 document (the W-6a bytes) plus its sha256, which is the session's model hash.
 
 **Store (migration v12).** Every statement uses `IF NOT EXISTS`, including the
-triggers, because the migrations are not transactional.
+triggers and the index.
 
 ```sql
 CREATE TABLE IF NOT EXISTS model_states(
@@ -72,7 +72,8 @@ CREATE TABLE IF NOT EXISTS model_states(
   FOREIGN KEY(project_id, parent_state_id) REFERENCES model_states(project_id, state_id));
 CREATE TABLE IF NOT EXISTS model_state_labels(
   project_id TEXT NOT NULL, state_id TEXT NOT NULL, state_name TEXT NOT NULL,
-  tags_json TEXT NOT NULL, notes TEXT, updated_at TEXT NOT NULL,
+  tags_json TEXT NOT NULL, notes_json TEXT NOT NULL, assumptions_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
   PRIMARY KEY(project_id, state_id),
   FOREIGN KEY(project_id, state_id) REFERENCES model_states(project_id, state_id) ON DELETE CASCADE);
 CREATE TRIGGER IF NOT EXISTS model_states_immutable BEFORE UPDATE ON model_states
@@ -80,93 +81,106 @@ CREATE TRIGGER IF NOT EXISTS model_states_immutable BEFORE UPDATE ON model_state
 ```
 
 **Writes.**
-- **Hash check.** Rust re-canonicalizes the submitted snapshot with the same
-  unchecked `canonical_json` and recomputes its sha256. It refuses
-  (`MODEL-STATE-HASH-MISMATCH`) unless both equal what the webview claims.
-- **Duplicates.** `UNIQUE(project_id, model_hash)` enforces no-duplicate
-  across windows. Saving an already-saved model names the existing state and
-  offers to rename it.
+- **Hash check.** Rust re-canonicalizes the submitted snapshot with the unchecked
+  `canonical_json` and recomputes its sha256. It refuses
+  (`MODEL-STATE-HASH-MISMATCH`) unless both equal the claim.
+- **One transaction.** The state row and its labels row are written in one
+  `BEGIN IMMEDIATE` transaction, with the project row's existing guard.
+- **Duplicates.** `UNIQUE(project_id, model_hash)` enforces no-duplicate across
+  windows. Saving an already-saved model names the existing state.
 - **Admission.** Every new command passes `command_ingress::admit` with its own
   byte budget.
-- **Transactions.** Writes run in `BEGIN IMMEDIATE`, with the project row's
-  existing guard. A state requires the project row: if there is none, Save Local
-  Project's flow (with its confirmation rules) runs first.
+- **Project row required.** A state requires the project row. If there is none,
+  Save Local Project's flow runs first.
 
-**Record.** `record_json` is a `model_state.schema.json` `ModelStateRecord`:
-- `state_kind` is one of `design_snapshot`, `pre_solve_snapshot`,
-  `post_solve_snapshot`, `comparison_basis` or `handoff_basis`.
-- `model_ref` is a structured `Reference` to the project.
-- `parent_state_refs` holds the state the working model was opened from, if any.
-- `external_references` is `[]`.
-- `unresolved_assumptions` holds the document's unresolved records, mapped:
-  `affected_refs` id strings become `Reference` objects, and a product
-  provenance record is added.
-- `warnings` holds the document validator's warnings.
-- `analysis_status` comes from the document.
-- `hashes`:
-  - `model_payload`, `canonicalization: JCS`;
-  - `model_state_record`, computed as the schema's contract states
-    (`state_contract_status.canonicalization: sorted_compact_json_payload_hashes`)
-    over the record with `hashes` and the label fields removed.
-- `immutability_policy`, `professional_boundary` and `provenance`.
+**Record.** `record_json` is a `model_state.schema.json` `ModelStateRecord`.
+It is built by these mappings and validated by a populated witness:
+
+| Field | Mapping |
+|---|---|
+| `state_id` | `state:<random token>` |
+| `state_kind` | `design_snapshot`, `pre_solve_snapshot`, `post_solve_snapshot`, `comparison_basis` or `handoff_basis` |
+| `created_at` | local ISO time |
+| `model_ref` | `{Project, <project id>}` |
+| `parent_state_refs` | `[{ModelState, <parent>}]` or `[]` |
+| `external_references` | `[]` |
+| `unresolved_assumptions` | the model's `unresolved` records plus the state-level ones (labels row). Each becomes `AssumptionRecord` with `assumption_id`, `statement` (an open issue is prefixed "Open issue: "), `status` (`unresolved`/`resolved`/`rejected` as is), `affected_refs` and a product `provenance`. Entity ids become `{Model, "<project id>#<entity id>"}`, because `Reference.object_type` has no entity types. `tags`/`notes` are dropped |
+| `warnings` | the document validator's warnings, as `Diagnostic` records with model-qualified refs |
+| `analysis_status` | an array: always `HUMAN_REVIEW_REQUIRED`, plus `MODEL_INCOMPLETE` when the validator has a blocking finding. The document's free-text `analysis_status` object is not copied |
+| `tags` | `StateTag {tag, tag_kind: user_label, provenance}` per label tag |
+| `notes` | `StateNote {note_id, note_type: design_note, statement, visibility, provenance}` per label note |
+| `hashes` | `model_payload` (`canonicalization: JCS`), and `model_state_record` computed as the contract states (`sorted_compact_json_payload_hashes`) over the record with `hashes` and the label-derived fields removed (`state_name`, `tags`, `notes`, state-level assumptions) |
+| `immutability_policy`, `professional_boundary`, `provenance` | the schema's values and a product provenance |
+
+**Serializer pin.** The sorted-compact serializer is pinned to the Python
+persistence service's exact behaviour (`core/project_persistence/service.py`,
+including its `ensure_ascii` setting). A non-ASCII test vector checks Rust and
+Python agree.
 
 **Labels.**
-- `state_name`, `tags` and `notes` are required record fields. They live in
-  `model_state_labels` and are joined into the emitted record when it is read.
-- The record hash excludes them. FR-MOD-004 says users label states with
-  flexible naming, and FR-CMP-001 says "tag … without mutation" of the snapshot.
-- Label edits are the only update. They are guarded and keep `record_hash`
+- `state_name`, tags, notes and state-level assumptions live in the labels row.
+  They are joined into the emitted record when it is read, and they are the
+  only editable part.
+- The record hash excludes them, so a label edit leaves `record_hash`
   unchanged.
+- **Reserved.** This reading — labels are not the immutable snapshot —
+  interprets the schema's `snapshot_is_read_only` and
+  `changes_create_new_model_state` and DEL-14-01:1's "hash-scope enforcement".
+  It goes to HELP_HUMAN (§7.2).
 
 **Commands.**
-- **Save Model State…** takes a name (required), tags, notes and a kind
-  (default `design_snapshot`).
-- **Open State** loads the snapshot as the working model, behind the existing
-  unsaved-changes guard. Editing it produces a new working model, and the state
-  is unchanged.
-- **Delete State** is allowed only when no recorded run references it. The FK
-  uses `NO ACTION` from runs, so a reference blocks the delete. Project-level
-  cascade deletes runs first.
-- **There is no project-delete command today.** The cascade only keeps the
-  schema consistent.
-- **Replacing the project row** with a different model (an existing confirmed
-  replacement, `:1376-1408`) keeps the project's states and runs. They are the
-  history of that project id, and the History panel shows them.
+- **Save Model State…** takes a name (required), tags, notes, state-level
+  assumptions and a kind (default `design_snapshot`).
+- **Open State** loads the snapshot as the working model, behind the
+  unsaved-changes guard. Edits produce a new working model.
+- **Delete State** is blocked while any recorded run or any child state
+  references it (both FKs are `NO ACTION`). The UI names the blockers.
+  Project-level cascade deletes runs, then child states, in one statement.
+  There is no project-delete command today.
+- **Replacing the project row** with a different model (the existing confirmed
+  replacement, including `PROJECT-ID-EXISTS`, `:1376-1408`) keeps the
+  project's states and runs. The confirmation prompt states how many saved
+  states and recorded runs will remain attached to that project id.
 
-## 3. Runs tied to states (FR-CMP-002)
+## 3. Runs tied to states (FR-CMP-002; FR-MOD-006 run level)
 
 **Two kinds of run record:**
 1. **Transient.** Solve-time records are unchanged: the current-run slot, the
-   synthetic `model_state_ref`, the existing validators and the fixtures. The
-   synthetic ref stays as the ref of a record that is not yet bound to a state.
+   synthetic `model_state_ref`, the existing validators and the fixtures.
 2. **Recorded.** **Record Run** creates a new immutable record revision of the
    transient record, as `analysis_run.v0.3` permits
    (`mutation_policy: changes_create_new_immutable_record_revision`,
-   `new_mechanics_run_required_for_record_revision: false`).
-   - The revision carries the real `model_state_ref`.
-   - It carries the document's `rule_pack_refs` and the libraries resolved from
-     `provenance_record.library_ref`, as bare v0.3 `{object_type, ref}`
-     references.
-   - Its hashes are recomputed per v0.3: `openpipestress_jcs_ijson_v1`, bare
-     64-hex values.
-   - The received-result bytes are never rewritten.
+   `record_revision_identity: analysis_run_record_sha256`). The revision:
+   - sets `created_at` to the recording time (UTC ISO), so each recording event
+     has its own revision hash;
+   - sets the real `model_state_ref` `{ModelState, <state id>}`;
+   - takes `rule_pack_refs` from the input manifest's `active_rule_packs` (what
+     the solve used, not the document's identity-only references) and
+     `library_refs` from the resolved `provenance_record.library_ref`s;
+   - states its `determinism_notes` (`compatibility.py:147`);
+   - is hashed per v0.3 (`openpipestress_jcs_ijson_v1`, bare 64-hex);
+   - never rewrites the received-result bytes.
 
-**Binding check.**
-- The state for a recorded run is the project state whose `model_hash` equals
-  the model hash the session held when it solved. The session records that hash
-  with the transient run, as the project row already does.
-- If no such state exists, the user names a new `post_solve_snapshot`, and the
-  state and the run are written in one transaction.
-- Rust verifies that the state's stored canonical snapshot hashes to that
-  model hash. The binding is checked, not asserted.
+**Binding (checked, not asserted).**
+- At solve, the session already builds the input manifest, which embeds the
+  model payload. The transient run keeps the manifest's canonical bytes in
+  memory.
+- Record Run submits them. Rust checks that sha256(manifest) equals the
+  record's `reproducibility.input_manifest_hashes` entry, and that the
+  manifest's model-payload hash equals the state's `model_hash`.
+- The recorded run stores the manifest bytes, so the binding stays checkable.
+- The state is the project state with that model hash. If there is none, the
+  user names a new `post_solve_snapshot`, and the state, its labels, the run
+  and its labels are written in one transaction.
 
-**TypeScript and Python validators** accept either form:
+**Validators (TypeScript and Python, changed together with mirrored tests)**
+accept either form:
 - a transient record with the synthetic ref, as today;
-- a recorded revision whose `model_state_ref` names a stored state, checked
-  against that state's model hash, which is passed in.
+- a recorded revision whose ref names a stored state, checked against that
+  state's model hash, which is passed in.
 
-`analysisRunCompatibility.ts` and `core/analysis_runs/compatibility.py` change
-together, with mirrored tests.
+`HistoricalRunContext` accepts real state refs from recorded runs, verified
+against the stored state, and keeps flagging any other mismatch.
 
 **Store (v12 continued):**
 
@@ -175,24 +189,31 @@ CREATE TABLE IF NOT EXISTS analysis_runs(
   project_id TEXT NOT NULL, recording_id TEXT NOT NULL, state_id TEXT NOT NULL,
   producer_run_id TEXT NOT NULL, created_at TEXT NOT NULL,
   run_record_json TEXT NOT NULL, run_record_hash TEXT NOT NULL,
-  result_json TEXT NOT NULL, result_hash TEXT NOT NULL,
+  input_manifest_json TEXT NOT NULL, result_json TEXT NOT NULL, result_hash TEXT NOT NULL,
   PRIMARY KEY(project_id, recording_id), UNIQUE(project_id, run_record_hash),
-  FOREIGN KEY(project_id, state_id) REFERENCES model_states(project_id, state_id) ON DELETE NO ACTION,
+  FOREIGN KEY(project_id, state_id) REFERENCES model_states(project_id, state_id),
   FOREIGN KEY(project_id) REFERENCES local_projects(project_id) ON DELETE CASCADE);
+CREATE INDEX IF NOT EXISTS analysis_runs_by_state ON analysis_runs(project_id, state_id);
+CREATE TABLE IF NOT EXISTS analysis_run_labels(
+  project_id TEXT NOT NULL, recording_id TEXT NOT NULL, run_name TEXT NOT NULL,
+  tags_json TEXT NOT NULL, notes_json TEXT NOT NULL, assumptions_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL, PRIMARY KEY(project_id, recording_id),
+  FOREIGN KEY(project_id, recording_id) REFERENCES analysis_runs(project_id, recording_id) ON DELETE CASCADE);
 CREATE TRIGGER IF NOT EXISTS analysis_runs_immutable BEFORE UPDATE ON analysis_runs
   BEGIN SELECT RAISE(ABORT, 'ANALYSIS-RUN-IMMUTABLE'); END;
 ```
 
 - **Identity.** `recording_id` is `runrec:` plus the first 32 hex characters of
-  `run_record_hash`. The producer's `run_id` is kept as data. Repeated solves,
-  rule-check revisions and other projects never collide.
+  `run_record_hash`. The producer's `run_id` is kept as data. Two recordings of
+  identical solves differ in `created_at`, so they never collide.
+- **Labels and FR-MOD-006.** Run-level assumptions, name, tags and notes live
+  in `analysis_run_labels`, which holds editable metadata outside the record
+  hash. `analysis_run.v0.3` has no assumption slot, so they are shown with the
+  run and in its report sections but are not in the v0.3 record.
 - **Current-run slot.** Record Run does not touch it, so the project envelope
-  hash is unchanged. The slot keeps the transient record.
-- **Deletion.** A recorded run can be deleted (Delete Recorded Run). Delete
-  operations are the only mutation.
-- **Size.**
-  - Recording uses the persistence memory guard Save Local Project uses (W-5).
-  - The History panel lists runs from columns, without loading `result_json`.
+  hash is unchanged.
+- **Size.** Recording uses Save Local Project's memory guard (W-5). The History
+  panel lists runs from columns, without loading `result_json`.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 
@@ -205,90 +226,97 @@ deterministic and use stable ids automatically, with no manual mapping.
 - Every top-level member of the document is assigned to an entity family or to
   the single `model` entity.
 - **Families:** nodes, pipe segments, sections, materials, supports,
-  components, load cases, combinations, reference configurations, lines,
-  unresolved assumptions, constraints, equipment interfaces and rule-pack
-  references.
-- **The `model` entity** holds `project`, `pressure_contract`, `data_boundary`,
-  `analysis_status`, `diagnostics`, `schema_version` and `document_kind`.
+  components, load cases (excluding `primitive_loads`), combinations,
+  reference configurations, lines, unresolved assumptions, constraints,
+  equipment interfaces and rule-pack references.
 - **Primitive loads** are entities keyed `<load case id>/<load id>`.
-- An unassigned member refuses the comparison with
-  `COMPARISON-MEMBER-UNASSIGNED`, so a future member cannot be silently skipped.
-- **Invariant:** equal model hashes ⇔ zero non-`unchanged` rows. This is tested.
+- **The `model` entity** holds `project`, `pressure_contract`, `data_boundary`,
+  `analysis_status`, `diagnostics`, `schema_version` and `document_kind`. It
+  also holds **the ordered id list of every collection**, so a reordering is a
+  `changed` model entity.
+- **Fail closed.** An unassigned member refuses the comparison with
+  `COMPARISON-MEMBER-UNASSIGNED`.
+- **Invariant:** equal model hashes ⇔ zero non-`unchanged` rows. This is tested,
+  including a reorder-only pair.
 
 **Classification follows the reference engine:**
 - same stable id in both: `unchanged` or `changed`;
 - left only: `removed`; right only: `added`;
-- a duplicate id within one side refuses the comparison, as the reference
-  raises (`engine.py:226-227`).
+- a duplicate id within one side refuses the comparison
+  (`engine.py:226-227`).
 
-**Field paths.**
-- `changed` rows list their field paths. Each top-level key of the entity is
-  diffed as the reference does (`engine.py:400-416`).
-- **Desktop extension: nested paths.** The desktop adds nested paths for
-  display.
-- **Desktop extension: units.** A `{value, unit}` quantity whose unit differs
-  is reported as `unit_changed`, never as a numeric delta. In parity it maps to
+**Field diff.**
+- The desktop diff skips only the entity's own id field. The reference skips
+  `ref`, `reference`, `entity_id` and `stable_id` (`engine.py:401`), so the
+  parity adapter projects the same way.
+- **Desktop extensions** (nested field paths, and `unit_changed` for a quantity
+  whose unit differs) are tested separately. In parity, `unit_changed` maps to
   the reference's `unresolved` with `INCOMPATIBLE_UNIT`.
 
 **Parity.** A committed golden of invented state pairs is checked by a pytest.
-It runs `compare_model_states` on the same flattened lists, through an adapter
-(`family → category`, the entity's `id → stable_id`, unit-bearing fields
-declared in `settings`). It requires equal summaries and per-row
-classifications on that shared projection. The desktop extensions are tested
-separately.
+It runs `compare_model_states` on the same flattened lists, through an adapter:
+- `family` becomes `category`;
+- the entity id becomes `stable_id`;
+- unit-bearing fields are declared in `settings`.
+
+It requires equal summaries and per-row classifications on that shared
+projection.
 
 ### 4.2 Run comparison
 
 **Row identity** is the reference's
 `(result_id, family, object_ref, basis_ref, dimension)`
 (`analysis_run/engine.py:512-519`), plus the desktop's `metadata.component`,
-`location`, `basis`, `coordinate_system` and `sign_convention`. The desktop
-fields keep complete result semantics. Rows map automatically when all of these
-are equal.
+`location`, `basis`, `coordinate_system` and `sign_convention`. Rows map
+automatically when all of these are equal.
 
-**Standing gate.** A mapped pair gets a `right − left` delta only when:
-- the units are equal;
-- both sides' cases stand ordinary by **Rust's verdict** (`numericalResultStanding`,
-  the same verdict the Results panel shows). For a combination, every
-  constituent case must stand ordinary.
-- both runs carry the same result semantic identity (producer contract, route).
+**Standing gate (conservative, whole run).** A mapped pair gets a `right − left`
+delta only when all three hold:
+- **Units:** they are equal.
+- **Envelope verdict:** each run's envelope verdict is ordinary.
+  - It is computed by `numericalResultStanding(result, snapshot)`
+    (`resultStanding.ts:109-119`) for that run's result and its state's
+    snapshot.
+  - A current run uses its live verdict. A recorded run is evaluated from its
+    stored result and stored state snapshot, plus the stored-hash checks.
+  - That function needs no registration outside the pressure-source and
+    retained routes. Runs on those routes read `needs_recompute`, compare as
+    `not_compared`, and the UI says so. Live invocation custody is never
+    reconstructed from saved hashes.
+  - The verdict is per envelope, not per case: `numericalResultStanding`
+    aggregates cases (`reader_verdict.rs:391-401,504-515`). A per-case gate
+    would need a new Rust interface and is not in this unit.
+- **Semantic identity:** both runs carry the same result semantic identity
+  (producer contract, route).
 
-Otherwise the pair is `not_compared`, with the reason and the standing.
-
-**Stored runs.**
-- A stored run's standing is what `HistoricalRunContext` re-derives from the
-  stored record. It never reconstructs live invocation custody from saved
-  hashes.
-- Registration-dependent runs read `needs_recompute` and compare as
-  `not_compared`, and the UI says so plainly.
-- The UI uses no wording that implies certification (F-PIP-2).
+Otherwise the pair is `not_compared`, with the reason. The UI uses no wording
+that implies certification (F-PIP-2).
 
 **Context deltas.**
 - Solver version, settings and the load-case and combination sets are compared
   like the reference `_settings_deltas`.
-- Solve diagnostics are compared by `(code, affected ref)` as added or removed
+- Solve diagnostics are compared as added or removed by `(code, affected ref)`
   (PRD §15.3).
 - Unmatched rows are listed per side.
 
 **Parity.** A pytest runs `compare_analysis_runs` on a committed golden, through
 an adapter from desktop rows to `quantity_results`. It covers
-`SUPPORTED_RESULT_FAMILIES` and ungated pairs only. The gate, the extra identity
-fields and the diagnostics comparison are tested separately.
+`SUPPORTED_RESULT_FAMILIES` and ungated pairs only. The gate and the extra
+identity fields are tested separately.
 
-**Memory.** Comparing two stored runs loads both results. The combined size is
-checked against the ingress budget and refused with a named diagnostic if it is
-over.
+**Memory.** The combined size of two stored results is checked against the
+ingress budget. If it is over, the comparison is refused with a named
+diagnostic.
 
 ### 4.3 UI
 
-- **History panel:** states (name, tags, kind, created, short hash, run count)
-  and the recorded runs under each. It provides Save Model State…, Open State,
-  Record Run, Compare… (two states or two runs), rename and tag, and delete.
-- **Comparison panel:** summary counts, a filterable table, field paths with
-  left and right values, deltas with units, `not_compared` reasons and unmatched
-  lists.
-- **"Within this run"** is today's comparison, kept. Its hard-coded ids are
-  replaced by the user's selection of a case and a combination.
+- **History panel:** states and recorded runs, with labels. It provides Save
+  Model State…, Open State, Record Run, Compare… (two states or two runs),
+  edit labels and assumptions, and delete.
+- **Comparison panel:** summary, a filterable table, field paths, deltas with
+  units, `not_compared` reasons and unmatched lists.
+- **"Within this run"** keeps today's comparison. The user selects the case and
+  the combination instead of the hard-coded ids.
 
 ## 5. Consumers
 
@@ -300,60 +328,65 @@ over.
 ## 6. Verification
 
 **Rust store tests (persistence; targeted regression):**
-- v12 on a v11 store with existing rows, run twice (idempotent);
-- state create, the unique-hash refusal and the hash-mismatch refusal;
-- `UPDATE` raising at the SQL level on both tables;
+- v12 on a v11 store with rows, run twice (idempotent);
+- state create, unique-hash refusal and hash-mismatch refusal;
+- `UPDATE` raising on both immutable tables;
 - a label edit leaving `record_hash` unchanged;
-- delete blocked by a run;
-- run and new state written in one transaction, with rollback on injected
-  failure;
-- two recordings of the same producer `run_id` stay distinct;
+- delete blocked by a run and by a child state;
+- state, labels, run and run labels written in one transaction, with rollback on
+  injected failure;
+- two recordings of the same producer `run_id` (and of identical solves)
+  staying distinct;
+- the manifest binding check (good, tampered manifest, wrong state);
 - cross-project FK refusal;
-- project-row replacement keeping history;
-- a stale-window write refused by the existing guard;
+- replacement keeping history, with the prompt counts;
+- a stale-window write refused;
 - the canonical snapshot round trip giving an equal hash;
-- the ingress budgets.
+- the ingress budgets;
+- the sorted-compact non-ASCII vector against Python.
 
 **vitest:**
 - the session flows and the guards;
-- the validator accepting transient and recorded forms;
-- the flattening fail-closed check;
-- the standing gate;
-- the hash ⇔ zero-change invariant.
+- the validators accepting transient and recorded forms;
+- `HistoricalRunContext` accepting recorded runs;
+- flattening fail-closed;
+- the reorder invariant;
+- the standing gate.
 
 **pytest:**
-- the parity goldens (§4.1, §4.2);
+- the parity goldens;
 - the mirrored `compatibility.py` change;
 - emitted state and recorded-run records validating against
-  `model_state.schema.json` and `analysis_run.v0.3`.
+  `model_state.schema.json` and `analysis_run.v0.3`, with a populated witness.
 
-**Native smoke:** gains Save Model State, Record Run and Compare only if
+**Native smoke:** Save Model State, Record Run and Compare join it only if
 HELP_HUMAN wants them in G10. Any `expected.json` change goes to HELP_HUMAN with
 its cause.
 
 **Review:** an independent Claude reviewer and Codex, on the implementation
 head.
 
-## 7. Reconciliation and owner-reserved text (to HELP_HUMAN as exact old → new)
+## 7. Reconciliation and owner-reserved text (through HELP_HUMAN; exact old → new with the slice)
 
 1. **DEL-14-01 :3** "Phase G … gate v0.2 R3". Only states, runs, comparison and
    the workspace GUI move to v0.1, which records OD-1. Mapping, tolerance and
    export stay v0.2.
-2. **DEL-14-01 :1** asks to "preserve DEC-017/028 strategy", under which SQLite is
-   a rebuildable projection of canonical members. In v0.1, states and recorded
-   runs live only in the SQLite store. A canonical package export of history
-   needs the DEC-028 container (OI-015-OPEN).
-   - This is a tension with the commitment text. It goes to HELP_HUMAN as a
-     reserved choice:
-     - (a) accept SQLite-held history in v0.1 and record the export as open;
-     - or (b) add a history export, which needs the container ruling.
-   - Recommendation: (a).
-3. **DEL-14-03 :1 and DEL-14-04 :1.** Record them as partial: "mapping" and
+2. **Owner choices.**
+   - **DEL-14-01 :1, "preserve DEC-017/028 strategy".** Under that strategy,
+     SQLite is a rebuildable projection of canonical members. In v0.1, states
+     and recorded runs live only in the SQLite store.
+     - (a) Accept SQLite-held history in v0.1 and record a history export as
+       open. **Recommended.**
+     - (b) Add a history export first. This needs the DEC-028 container ruling
+       (OI-015-OPEN).
+   - **Labels outside the record hash.** §2's reading of `snapshot_is_read_only`
+     and DEL-14-01:1's hash-scope enforcement.
+3. **DEL-14-03 :1, DEL-14-04 :1.** Record them as partial: "mapping" and
    "unit-aware delta behavior" are only partly discharged without manual
-   mapping and unit conversion. This is reconciliation text, not a change to
-   the commitment.
-4. **DEL-14-02:** R002's state reference and delivery commitment :1 pointers.
-5. **DEL-14-05:** unchanged.
-6. **DEL-07-08:** panel pointers.
-7. **`deliverable.yaml`:** pointers follow the code.
-8. **Completeness map:** the FR-CMP rows are for the reconciliation owner.
+   mapping and unit conversion. This is reconciliation text.
+4. **Reconciliation:**
+   - DEL-14-02 R002 and delivery commitment :1 pointers;
+   - DEL-14-05 unchanged;
+   - DEL-07-08 panel pointers;
+   - `deliverable.yaml` pointers follow the code;
+   - the completeness-map FR-CMP rows are for the reconciliation owner.

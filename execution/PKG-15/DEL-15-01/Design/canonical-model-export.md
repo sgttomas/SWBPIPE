@@ -1,8 +1,8 @@
 # Canonical model export and handoff manifest (W-6)
 
 **Basis:** `origin/main` at `9d76659e02` (2026-10-23), after model document 0.7.0
-(DEL-02-01 Design `model-document-0.7.0.md`). This is revision 2, after two
-review rounds (an independent Claude reviewer and Codex). Design before
+(DEL-02-01 Design `model-document-0.7.0.md`). This is revision 3, after two
+review rounds, each by an independent Claude reviewer and Codex. Design before
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 0. Rulings and requirements
@@ -25,13 +25,21 @@ implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-0
     `handoff_package.schema.json:749`).
 - **PRD §20 data boundary.**
 
-This design meets FR-HAND-001/002 **without inventing a container and without
-changing the handoff schema**:
-- the model document is saved as its own canonical file (W-6a);
-- the handoff manifest is a separate schema instance that binds that file by
-  sha256 and embeds no private payload (W-6b);
-- archiving the pair into a DEC-028 package stays the open container question
-  (OI-015-OPEN, DEC-028 package roles), which is the owner's.
+**Design reading.**
+- **W-6a** saves the model document as its own canonical file. It needs no
+  ruling.
+- **W-6b** writes a **directory package**, one of DEC-028's two forms ("zip/
+  directory"). It contains the canonical model member and a schema-conformant
+  handoff manifest, which carries the member inventory and per-member sha256
+  hashes. It is published atomically by a single directory rename.
+  - The handoff schema is unchanged: `physical_package_container` stays `"TBD"`,
+    and `private_payload_embedded` stays `false`.
+  - The zip/`.opsproj` form and the PKG-17 package-manifest roles stay with
+    OI-015-OPEN.
+- **Reserved.** Whether this directory package satisfies DEL-15-01 R12 ("per
+  DEC-028") and V-03 ("container … not invented") is the owner's to accept. It
+  goes to HELP_HUMAN as a reserved reading with exact text (§6). W-6a does not
+  depend on it.
 
 ## 1. Where things stand
 
@@ -90,11 +98,23 @@ on either route. It needs no solve and no result.
   places:
   - the TypeScript `GOVERNED_LOCAL_FIRST_ROUTE_IDS`
     (`redactionExportControls.ts:135-147`);
-  - Python `core/security/redaction/route_control.py:17-39`;
+  - Python `core/security/local_first_storage/route_control.py:17-39`, whose
+    unregistered routes fail closed at `:86-95`;
   - the new Rust command's own evidence admission, which re-checks the
     screening and local-first evidence like `lib.rs:64-86`.
 - **Tests.** Route tests are added to
   `tests/security/test_redaction_export_controls.py` and the vitest twin.
+- **Disposition screening.** The TypeScript screener blocks
+  `protected_suspected`, `quarantined` and `rejected` dispositions in every
+  context, `local_private` included (`redactionExportControls.ts:435-440,556-571`).
+  W-6a states this and tests it:
+  - a model carrying such a `provenance_record`, rule-pack reference or library
+    disposition is refused with the screener's code, naming the records;
+  - every other disposition, including `private_only` and `unknown`, saves.
+
+  The screening explicitly covers `provenance_record`, `rule_pack_refs[]` and the
+  resolved `library_ref` dispositions. It does not rely on the generic payload
+  projection, which passes those through unchanged.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
   documents folder, never the repository.
 
@@ -113,17 +133,31 @@ writer keeps its `.opsproj` checks unchanged. Model saves admit `.json`.
 has `minItems: 1` and PRD §15.1 names a `handoff_basis` state kind. It does not
 wait for comparison.
 
-**Output.** In a folder the user chooses, the command writes two files, by the
-W-6a writer and admission:
+**Output.** A directory package `<name>.swbhandoff/`, at a location the user
+chooses:
 
-| File | Content |
+| Member | Content |
 |---|---|
-| `<name>.model.json` | The W-6a canonical model document bytes |
-| `<name>.handoff.json` | A `schemas/handoff_package.schema.json` instance (below), compact JCS |
+| `model/model.json` | The W-6a canonical model document bytes, with W-6a's admission and screening |
+| `handoff_package.json` | A `schemas/handoff_package.schema.json` instance (below), compact JCS |
 
-The manifest binds the model file by sha256 and does not embed it.
-`private_payload_embedded` is `false`, which is true of the manifest. Archiving
-the two files into one package is left to OI-015-OPEN.
+**Publication.** The package is published atomically:
+1. Both members are written into a staging directory
+   `<name>.swbhandoff.staging-<random>` beside the target and fsynced.
+2. One `rename` publishes the staging directory. This is the single commit
+   point.
+3. If the target already exists, it is first renamed aside to
+   `<name>.swbhandoff.previous-<random>`. That backup is removed only after the
+   new package's rename succeeds; on failure it is restored.
+4. A failure between member writes leaves the previous package intact, and a
+   test injects that failure.
+
+**Privacy.** The manifest binds `model/model.json` by sha256 in `checksums` and
+does not embed it.
+- `private_payload_embedded: false` is true of the manifest. "Private payload"
+  here means model content, library content and rule content.
+- The manifest's ids, names and assumption statements are private project
+  metadata, classified `private_project_data`.
 
 **Basis state.**
 - If the current model hash equals a saved state of the project, that state is
@@ -158,18 +192,18 @@ is hard-coded to look complete.
 | `model_basis` | `model_ref` `{Model, <project id>}`, `model_schema: schemas/model.schema.yaml`, `model_kind: canonical_domain_model`, `basis_state_ref` `{ModelState, <state id>}`, `source_refs: []`, `hash_refs` [the model hash], `provenance` (product-generated record, below) |
 | `model_hash` | `algorithm: sha256`, `canonicalization: JCS` (the schema's label for RFC 8785; the desktop's `rfc8785_jcs` maps to it), `payload_scope: model_payload`, `payload_ref` `{Model, <project id>}`, value = sha256 of `<name>.model.json` |
 | `units_manifest` | Derived from `project.units` by a fixed table (below); `units_schema`, `dimension_basis` and `unit_system_ref` take the schema's values for the units catalogue; `hash_refs` [JCS hash of the derived block]; refused with `HANDOFF-UNIT-UNDERIVABLE` if a unit cannot be derived |
-| `entity_ids` | Sorted ids. Nodes, `component_ids`, `element_ids` (pipe segments), `load_case_ids` (cases and combinations), `model_state_ids` [basis]. `station_ids`, `result_ids`, `analysis_run_ids` and `mapping_id_refs` are `[]` |
+| `entity_ids` | Sorted ids. Nodes, `component_ids`, `element_ids` (pipe segments), `load_case_ids` (cases and combinations), `model_state_ids` [basis]; `station_ids`, `result_ids`, `analysis_run_ids` are `[]`. The families `EntityIdManifest` has no slot for go in `mapping_id_refs` as model-qualified references `{object_type: "Model", ref: "<project id>#<entity id>"}`: supports, materials, sections, lines, constraints, equipment interfaces. FR-HAND-002's entity ids are thus complete |
 | `model_state_refs` | [basis state] |
 | `analysis_run_refs`, `result_export_refs` | `[]` in v0.1. `AnalysisRunRef`'s binding const names `analysis_run.schema.json` (`schema:67,362`) while recorded runs are v0.3 records, so including them needs a contract edit. This is recorded as open (§6) |
-| `library_refs` | One per distinct `provenance_record.library_ref` (W-13 §3.5), resolved against the project's local library store for version and checksum. `private_payload_redacted: true`. Classifications come from the library's disposition |
-| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`; `checksum` (the pack's stamped `JCS` record); `source_notice`; `redistribution_status`; `review_classification` (from the pack's lifecycle status, by fixed table); `privacy_classification: private_rule_pack_data` unless public; `private_payload_redacted: true`; `provenance` |
+| `library_refs` | One per distinct `provenance_record.library_ref` (W-13 §3.5): `library_ref` `{Library, <library_id>}`, `library_kind`, `version` (the recorded `library_version`). `checksum`: sha256 JCS over the reference metadata `{library_kind, library_id, library_version, document_sha256}`, where `document_sha256` is the JCS sha256 of the stored `local_libraries.document_json`; `payload_scope: library_reference_metadata`. `private_payload_redacted: true`; classifications come from the library's disposition |
+| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance` |
 | `unresolved_assumptions` | The document's records with `status: unresolved`: `assumption_id`, `statement`, `status: unresolved`, `affected_refs` (below), `provenance` |
 | `warnings`, `diagnostics` | The document validator's and the solve-independent model diagnostics, mapped to the handoff `Diagnostic` (`code`, `class` by fixed table from code family, `severity`, `source`, `affected_object`, `message`, `remediation`, `provenance`) |
 | `unsupported_behavior_flags`, `target_mapping_metadata` | `reserved_metadata_only`, per DEL-15-02. Nothing target-specific is claimed |
-| `checksums` | (1) the model file: sha256 of its bytes, `canonicalization: JCS` (the bytes are JCS), `payload_scope: model_payload`. (2) the manifest's export hash: sha256 of the JCS of the manifest with `checksums` removed, `payload_scope: handoff_package_manifest`. A tamper witness changes one byte of each file and must fail its check |
+| `checksums` | The member inventory: (1) `model/model.json`, sha256 of its bytes, `canonicalization: JCS` (the bytes are JCS), `payload_scope: model_payload`; (2) the export hash, sha256 of the JCS of the instance's `handoff_package_manifest` object with its `checksums` member removed, `payload_scope: handoff_package_manifest`. The verifier is `verify_handoff_package` (Rust, in the desktop crate; a Python twin under `tests/verifiers/`). It recomputes both and is run by the tamper witnesses: one byte changed in each member must fail |
 | `privacy` | `local_only: true`, `telemetry_allowed: false`, `private_payload_embedded: false`, and the other required flags as they actually hold |
 | `redistribution_classification`, `review_classification` | `private_only` / `unreviewed` unless every included record is public, in which case it is the least permissive of them |
-| `provenance` | A product-generated provenance record: source name "SWBPIPE desktop", location = the model file name, contributor = the local user label, review `unreviewed` |
+| `provenance` | A product-generated handoff `Provenance` with all eight required fields: `source_name` "SWBPIPE desktop", `source_location` (the package name), `source_license` "user_private_project_data", `contributor` (the local user label), `contributor_attestation` (W-13's `contributor_certification` maps here wherever it is copied), `redistribution_status: private_only`, `review_classification: unreviewed`, `privacy_classification: private_project_data` |
 | `professional_boundary` | The schema's fixed statement. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081) |
 
 **Units derivation table.** Units come from `project.units`, with each unit's
@@ -184,12 +218,19 @@ identifier taken from the units catalogue.
 | `temperature_unit` | `temperature` |
 | `moment_unit` | `moment` when present; otherwise the catalogue's force×length unit for the pair, or a refusal if the catalogue has none |
 
-**Reference mapping.** The handoff `Reference.object_type` vocabulary has no
-entity types. Assumption `affected_refs` therefore map like this:
-- the project id maps to `Project`;
-- assumption ids map to `Assumption`;
-- every other entity id maps to `{object_type: "EntityIdManifest", id}`, meaning
-  an id listed in this manifest's `entity_ids`.
+**Reference mapping.** The handoff `Reference` is `{object_type, ref}`, and
+`object_type` has no entity types. Assumption `affected_refs` therefore map
+like this:
+- the project id maps to `{Project, <id>}`;
+- assumption ids map to `{Assumption, <id>}`;
+- every other entity id, including a deleted subject, maps to the
+  model-qualified `{Model, "<project id>#<entity id>"}`.
+
+**What the handoff assumption record drops.** It is closed:
+- W-13's `kind` (assumption or open issue) is folded into the statement prefix
+  "Open issue: …";
+- `tags`, `notes` and `resolution_note` are dropped;
+- only `unresolved` records are included, with handoff status `unresolved`.
 
 The vocabulary is not extended here.
 
@@ -238,6 +279,16 @@ The vocabulary is not extended here.
 
 ## 6. Owner-reserved and open items (to HELP_HUMAN)
 
+0. **Reserved reading (owner, through HELP_HUMAN).** The W-6b directory package
+   is DEC-028's directory form, with the handoff manifest as member inventory
+   and per-member hashes. It satisfies DEL-15-01 R12, and V-03 "not invented",
+   for v0.1. `physical_package_container` stays `"TBD"` and the zip/`.opsproj`
+   form stays with OI-015-OPEN.
+   - The exact governing text and the proposed old → new are sent with the W-6b
+     slice.
+   - **If the owner declines,** W-6b waits for the container ruling and W-6a
+     ships alone. FR-HAND-001 is then met only as "export canonical model data"
+     (W-6a), and FR-HAND-002's manifest waits.
 1. **DEL-15-01 delivery commitment :2** reads "Phase H program (gate v0.2 R6)".
    The exact old → new text records OD-1: model export moves into v0.1, and
    target mapping (DEL-15-02) and further formats stay v0.2.
@@ -248,4 +299,5 @@ The vocabulary is not extended here.
    - referencing v0.3 analysis runs from the manifest. This needs an edit to
      `AnalysisRunRef`'s binding const.
 
-   Neither is needed for FR-HAND-001/002 as designed.
+   The design reads neither as needed for FR-HAND-001/002 once item 0 is
+   accepted. That is a reading for HELP_HUMAN and the owner, not a conclusion.
