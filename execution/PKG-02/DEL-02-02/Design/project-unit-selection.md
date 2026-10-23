@@ -85,8 +85,10 @@ SI/US entered and display catalog, entered units preserved).
    - Custom: any accepted catalog symbol per key, chosen from the unit catalog
      the desktop already loads (`unitCatalogService.ts`).
 4. **Composed defaults are checked against the catalog.**
-   - **Moment** defaults use `project.units.moment`. The `<force>*<length>`
-     composition is removed.
+   - **Moment** defaults use `project.units.moment` whenever that key is
+     present; a present key is never replaced by a composition. Only when the
+     key is absent does the default fall back to `<force>*<length>`, checked
+     against the catalog like the compositions below.
    - **Distributed force, linear stiffness and thermal expansion** defaults keep
      their compositions, and each composed symbol is checked against the catalog
      for its dimension. A composition the catalog lacks gives no default. The
@@ -214,3 +216,6 @@ them:
    (§2.2, §2.7).
 3. **Missing `length` with existing nodes.** This is now a hard lock with a
    re-author diagnostic, and no repair is offered (§3).
+4. **Moment fallback without a moment key** (found in implementation, not by
+   that review). The composition is kept as the fallback because the bundled
+   sample model has no `moment` key (§2.4).
