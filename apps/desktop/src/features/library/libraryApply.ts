@@ -14,12 +14,17 @@
 // Material modes (§2.3a as reconciled with the HELP_HUMAN E/nu rule,
 // 2026-10-23): the user chooses E/nu or E/G; nothing is inferred.
 // - E/nu writes E, nu (unit 1), G and the exact basis. G is the record's
-//   stored G when it holds one (copied, never overwritten) or is derived as
-//   G = E / (2(1+nu)) in E's entered unit; `provenance_record` says which,
-//   naming the basis "derived from E and ν (isotropic)".
+//   stored G when it holds one (copied, never overwritten) or is derived
+//   exactly as the exact route derives it (E normalized to Pa, then
+//   E / (2(1+nu))) and stored in Pa; `provenance_record` says which, naming
+//   the basis "derived from E and ν (isotropic)".
 // - E/G writes E and G with no basis. It is refused when the record holds nu,
-//   because nu is never discarded.
-// A mode whose member the record lacks is refused, naming the member.
+//   or the target material holds nu, because nu is never discarded.
+// Presence is judged apart from copy eligibility: a record that stores G or
+// nu in a slot that cannot be copied (temperature-referenced, excluded
+// disposition, ineligible status) refuses, naming the slot; G is never
+// derived in its place. A mode whose member the record lacks is refused,
+// naming the member.
 import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
@@ -96,6 +101,13 @@ function blockedTokens(level: Level): string[] {
   return levelTokens(level).filter((token) => BLOCKED_TOKENS.has(token));
 }
 
+/** Every supported private privacy token: the `private_*` classes, the
+ * section/component/hanger `project_private` (the hanger importer reads it as
+ * private project data) and the material `quarantine_metadata_only`. */
+export function isPrivateClass(privacyClass: string | undefined): boolean {
+  return Boolean(privacyClass) && (privacyClass!.startsWith("private") || privacyClass === "project_private" || privacyClass === "quarantine_metadata_only");
+}
+
 function redistributionOf(level: Level): Redistribution {
   const provenance = obj(level?.provenance);
   const tokens = [level?.redistribution_status, provenance?.redistribution_status].map(str).filter(Boolean) as string[];
@@ -106,7 +118,7 @@ function redistributionOf(level: Level): Redistribution {
   }
   // A private class keeps the data private whatever the status fields say
   // (the importer's public policy, library_import_document/src/lib.rs:381-392).
-  if (str(level?.privacy_class)?.startsWith("private")) rank = REDISTRIBUTION_RANK.private_only;
+  if (isPrivateClass(str(level?.privacy_class))) rank = REDISTRIBUTION_RANK.private_only;
   return (Object.keys(REDISTRIBUTION_RANK) as Redistribution[]).find((key) => REDISTRIBUTION_RANK[key] === rank)!;
 }
 
@@ -198,6 +210,11 @@ function provenanceRecord(ctx: Context, copies: Copy[], previous: Previous | nul
   const allNotes = [...notes];
   if (differing.length) allNotes.push(`Source fields differ from the record's for slots ${[...new Set(differing)].join(", ")}.`);
   if (retained.length) allNotes.push(`The entity also keeps values from its previous source: ${retained.join(", ")}.`);
+  const previousRef = previous?.record?.library_ref;
+  if (previousRef) {
+    allNotes.push(`Applied over the previous library reference library:${previousRef.library_kind}:${previousRef.library_id}#${previousRef.record_id ?? ""}` +
+      `${previousRef.library_version ? ` (${previousRef.library_version})` : ""}.`);
+  }
   if (allNotes.length) result.verification_note = allNotes.join(" ");
   result.library_ref = { library_kind: ctx.kind, library_id: ctx.libraryId, library_version: ctx.version, record_id: ctx.recordId };
   return result;
@@ -241,23 +258,33 @@ const MATERIAL_NOT_COPIED: Record<string, string> = {
   TBD: "no model slot"
 };
 
-type MaterialValues = { copies: Map<string, Copy>; notCopied: NotCopiedRow[] };
+/** `stored`: G or ν slots the record holds that cannot be copied (presence
+ * is judged apart from copy eligibility). */
+type MaterialValues = { copies: Map<string, Copy>; notCopied: NotCopiedRow[]; stored: Map<string, NotCopiedRow[]> };
 
 function materialValues(ctx: Context, catalog: UnitCatalog | null): MaterialValues {
   const copies = new Map<string, Copy>();
   const notCopied: NotCopiedRow[] = [];
+  const stored = new Map<string, NotCopiedRow[]>();
   const properties = Array.isArray(ctx.record.properties) ? (ctx.record.properties as unknown[]).map(obj) : [];
   for (const property of properties) {
     if (!property) continue;
     const kind = str(property.property_kind) ?? "TBD";
     const source = str(property.property_id) ?? kind;
     if (MATERIAL_NOT_COPIED[kind]) { notCopied.push({ source, reason: MATERIAL_NOT_COPIED[kind] }); continue; }
-    if (property.temperature_ref) { notCopied.push({ source, reason: "temperature-referenced; library temperature points carry no temperature value" }); continue; }
     const value = obj(property.value);
+    const skip = (reason: string) => {
+      notCopied.push({ source, reason });
+      // The record stores this value even though it cannot be copied.
+      if ((kind === "shear_modulus" || kind === "poisson_ratio") && (value || property.value_status === "protected_suspected")) {
+        stored.set(kind, [...(stored.get(kind) ?? []), { source, reason }]);
+      }
+    };
+    if (property.temperature_ref) { skip("temperature-referenced; library temperature points carry no temperature value"); continue; }
     const blocked = [...blockedTokens(property), ...blockedTokens(value)];
-    if (blocked.length) { notCopied.push({ source, reason: `excluded: ${[...new Set(blocked)].join(", ")}` }); continue; }
+    if (blocked.length) { skip(`excluded: ${[...new Set(blocked)].join(", ")}`); continue; }
     if (!MATERIAL_ELIGIBLE.has(str(property.value_status) ?? "") || !value) {
-      notCopied.push({ source, reason: `value status ${str(property.value_status) ?? "missing"} is not copied` });
+      skip(`value status ${str(property.value_status) ?? "missing"} is not copied`);
       continue;
     }
     if (copies.has(kind)) refuse("LIBRARY-APPLY-AMBIGUOUS-SOURCE", `The record holds more than one ${kind}.`);
@@ -269,8 +296,10 @@ function materialValues(ctx: Context, catalog: UnitCatalog | null): MaterialValu
   for (const allowable of Array.isArray(ctx.record.allowables) ? (ctx.record.allowables as unknown[]).map(obj) : []) {
     if (allowable) notCopied.push({ source: str(allowable.allowable_id) ?? "allowable", reason: "rule checks read allowables from the library at run time" });
   }
-  return { copies, notCopied };
+  return { copies, notCopied, stored };
 }
+
+const describeStored = (rows: NotCopiedRow[]) => rows.map((row) => `${row.source} (${row.reason})`).join(", ");
 
 type Material = NonNullable<PreviewModel["materials"]>[number];
 
@@ -279,7 +308,7 @@ type MaterialResult = { members: Record<string, unknown>; copies: Copy[]; notCop
 type DeriveG = (elasticModulus: number, unit: string, poissonRatio: number) => string;
 
 function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: MaterialMode, derivedG: DeriveG): MaterialResult {
-  const { copies, notCopied } = materialValues(ctx, catalog);
+  const { copies, notCopied, stored } = materialValues(ctx, catalog);
   const e = copies.get("elastic_modulus");
   const g = copies.get("shear_modulus");
   const nu = copies.get("poisson_ratio");
@@ -288,7 +317,10 @@ function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: Materi
   const members: Record<string, unknown> = { label: str(ctx.record.name), elastic_modulus: e!.value };
   const used: Copy[] = [e!];
   const notes: string[] = [];
+  const storedNu = stored.get("poisson_ratio");
+  const storedG = stored.get("shear_modulus");
   if (mode === "e_nu") {
+    if (!nu && storedNu) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `The record stores poisson_ratio (ν) only in slots that cannot be copied: ${describeStored(storedNu)}.`);
     if (!nu) refuse("LIBRARY-APPLY-MEMBER-MISSING", "E/ν mode needs poisson_ratio (ν); the record holds no copyable ν.");
     if (nu!.unit !== "1") refuse("LIBRARY-APPLY-UNIT-UNRESOLVED", `${nu!.source}: Poisson's ratio carries unit 1, not ${nu!.unit}.`);
     members.constitutive_basis = "homogeneous_isotropic_E_nu_v1";
@@ -300,6 +332,8 @@ function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: Materi
       used.push(g);
       notes.push(`shear_modulus: stored in the record (${g.source}), copied as stored; not derived.`);
     } else {
+      // The record stores a G it cannot copy: G is never derived in its place.
+      if (storedG) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `The record stores shear_modulus (G) only in slots that cannot be copied: ${describeStored(storedG)}; G is never derived when the record stores one.`);
       const eValue = e!.value as { value: number; unit: string };
       const nuValue = (nu!.value as { value: number }).value;
       // The applier's derivation, bit for bit the exact route's: E in Pa
@@ -314,6 +348,8 @@ function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: Materi
     }
   } else {
     if (nu) refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `The record holds poisson_ratio (${nu.source}); ν is never discarded. Choose E/ν mode.`);
+    if (storedNu) refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `The record stores poisson_ratio (ν) in ${describeStored(storedNu)}; ν is never discarded, and it cannot be copied.`);
+    if (!g && storedG) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `E/G mode needs shear_modulus (G); the record stores it only in slots that cannot be copied: ${describeStored(storedG)}.`);
     if (!g) refuse("LIBRARY-APPLY-MEMBER-MISSING", "E/G mode needs shear_modulus (G); the record holds no copyable G.");
     members.shear_modulus = g!.value;
     used.push(g!);
@@ -373,11 +409,16 @@ export async function buildMaterialApply(input: ApplyMaterialInput): Promise<Lib
   const ctx = await context("material", input.document, input.recordId);
   const target = input.model.materials?.find((material) => material.id === input.targetId);
   if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Material ${input.targetId} is not in the model.`);
-  const result = materialMembers(ctx, input.catalog, input.mode, (await loadWasmEngine()).derivedShearModulusJson);
   const current = target as unknown as Json;
+  // ν is never discarded: E/G does not apply onto a material that holds ν (a
+  // basis change stays possible through ordinary material editing).
+  if (input.mode === "e_g" && current.poisson_ratio !== undefined) {
+    refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `Material ${input.targetId} holds poisson_ratio (ν); E/G would discard it. Choose E/ν mode.`);
+  }
+  const result = materialMembers(ctx, input.catalog, input.mode, (await loadWasmEngine()).derivedShearModulusJson);
   const after: Record<string, unknown> = { ...result.members };
-  // An explicit change to the E/G basis removes the exact members.
-  if (input.mode === "e_g") for (const member of ["constitutive_basis", "poisson_ratio"]) if (current[member] !== undefined) after[member] = null;
+  // E/G on a material carrying the exact basis without ν removes the basis.
+  if (input.mode === "e_g" && current.constitutive_basis !== undefined) after.constitutive_basis = null;
   const unwritten = MATERIAL_GOVERNED.filter((member) => current[member] !== undefined && !(member in after));
   const removed = Object.keys(after).filter((member) => after[member] === null);
   if (input.replace === "all") for (const member of unwritten) { after[member] = null; removed.push(member); }
@@ -482,6 +523,7 @@ export async function buildSectionApply(input: ApplySectionInput): Promise<Libra
   if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Section ${input.targetId} is not in the model.`);
   const { copies, notCopied } = sectionValues(ctx);
   const used = [...copies.values()];
+  if (!used.length) refuse("LIBRARY-APPLY-NOTHING-COPIED", "The record supplies no copyable outside_diameter or wall_thickness.");
   const after: Record<string, unknown> = { name: str(ctx.record.name) ?? target!.name };
   for (const copy of used) after[copy.member] = copy.value;
   const retained = ["outside_diameter", "wall_thickness"].filter((kind) => !copies.has(kind) && target!.properties[kind] !== undefined).map((kind) => `properties.${kind}`);
@@ -679,6 +721,10 @@ export async function hangerLibraryProvenance(library: Json, record: Json, copie
   for (const [label, level] of [["library", library], ["record", record]] as const) {
     const blocked = blockedTokens(level);
     if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `The ${label} carries ${blocked.join(", ")}; its data is never applied.`);
+  }
+  for (const quantity of copiedQuantities) {
+    const blocked = blockedTokens(quantity);
+    if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `A copied hanger quantity carries ${[...new Set(blocked)].join(", ")}; its data is never applied.`);
   }
   const copies: Copy[] = copiedQuantities.map((quantity, index) => ({ member: `hanger.${index}`, value: quantity, unit: str(quantity.unit) ?? "", source: ctx.recordId, levels: [quantity], display: "" }));
   return { provenance: libraryProvenanceString("hanger", ctx.libraryId, ctx.recordId), provenanceRecord: provenanceRecord(ctx, copies, null, []) };

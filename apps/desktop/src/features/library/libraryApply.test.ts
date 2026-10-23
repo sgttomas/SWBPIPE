@@ -15,7 +15,7 @@ import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import {
   buildComponentApply, buildMaterialApply, buildMaterialInsert, buildSectionApply, buildSectionInsert,
-  combineDispositions, defaultMaterialMode, libraryRecordVersion, type LibraryApplyPlan
+  combineDispositions, defaultMaterialMode, hangerLibraryProvenance, libraryRecordVersion, type LibraryApplyPlan
 } from "./libraryApply";
 
 type Json = Record<string, any>;
@@ -90,8 +90,7 @@ const bits = (value: number) => new BigUint64Array(new Float64Array([value]).buf
 describe("material insert: the E/ν rule", () => {
   it("derives G = E/(2(1+ν)) when the record stores none, keeps ν, and names the basis", async () => {
     const model = await demo();
-    const document = materialLibrary([E(), NU(), property("density", 7800, "unit:kilogram_per_cubic_meter"),
-      property("shear_modulus", 1.0e10, "unit:pascal", { temperature: true, suffix: ".hot" })]);
+    const document = materialLibrary([E(), NU(), property("density", 7800, "unit:kilogram_per_cubic_meter")]);
     const plan = await buildMaterialInsert({ model, document, recordId: "mat.invented.steel", newId: "material:library-steel", mode: "e_nu", catalog });
     const next = await apply(model, plan);
     const material = next.materials!.find((item) => item.id === "material:library-steel")!;
@@ -105,7 +104,7 @@ describe("material insert: the E/ν rule", () => {
     expect(material.provenance_record!.verification_note).toContain("p.elastic_modulus (200000000000 Pa)");
     expect(material.provenance_record!.verification_note).toContain("p.poisson_ratio (0.3 1)");
     expect(plan.copied.find((row) => row.member === "shear_modulus")!.source).toBe("derived from E and ν (isotropic)");
-    expect(plan.notCopied.map((row) => row.source)).toEqual(expect.arrayContaining(["p.density", "p.shear_modulus.hot", "mat.invented.allowable.secret"]));
+    expect(plan.notCopied.map((row) => row.source)).toEqual(expect.arrayContaining(["p.density", "mat.invented.allowable.secret"]));
     // library_version is the record's RFC 8785 SHA-256, computed independently.
     const record = document.material_records[0];
     expect(material.provenance_record!.library_ref).toEqual({ library_kind: "material", library_id: "matlib.invented.private",
@@ -113,7 +112,7 @@ describe("material insert: the E/ν rule", () => {
     expect(await libraryRecordVersion(record)).toBe(independentVersion(record));
     // The private-data boundary: no allowable id, non-copied slot or library name.
     const saved = JSON.stringify(next);
-    for (const absent of ["mat.invented.allowable.secret", "p.density", "p.shear_modulus.hot", "Invented private material library name"]) {
+    for (const absent of ["mat.invented.allowable.secret", "p.density", "Invented private material library name"]) {
       expect(saved.includes(absent), absent).toBe(false);
     }
   });
@@ -132,6 +131,26 @@ describe("material insert: the E/ν rule", () => {
       // The same order in plain binary64: E·1e9 (the catalog's GPa factor), then E / (2(1+ν)).
       expect(bits(material.shear_modulus.value)).toBe(bits((magnitude * 1e9) / (2 * (1 + nu))));
     }
+  });
+
+  it("refuses rather than derives when the record stores G or ν it cannot copy, naming the slot (HELP_HUMAN rule, literally)", async () => {
+    const model = await demo();
+    const insert = (properties: Json[], mode: "e_nu" | "e_g") =>
+      buildMaterialInsert({ model, document: materialLibrary(properties), recordId: "mat.invented.steel", newId: "material:x", mode, catalog });
+    const temperatureG = property("shear_modulus", 1.0e10, "unit:pascal", { temperature: true, suffix: ".hot" });
+    const rejectedG = property("shear_modulus", 8e10, "unit:pascal", { valueProvenance: { ...PRIVATE, redistribution_status: "rejected" }, suffix: ".r" });
+    const ineligibleG = { ...property("shear_modulus", 8e10, "unit:pascal", { suffix: ".tbd" }), value_status: "TBD" };
+    for (const [slot, id] of [[temperatureG, "p.shear_modulus.hot"], [rejectedG, "p.shear_modulus.r"], [ineligibleG, "p.shear_modulus.tbd"]] as const) {
+      await expect(insert([E(), NU(), slot], "e_nu")).rejects.toThrow(new RegExp(`LIBRARY-APPLY-MEMBER-BLOCKED.*${id.replaceAll(".", "\\.")}.*never derived`));
+      await expect(insert([E(), slot], "e_g")).rejects.toThrow(new RegExp(`LIBRARY-APPLY-MEMBER-BLOCKED.*${id.replaceAll(".", "\\.")}`));
+    }
+    // A copyable G alongside a temperature-referenced one: the stored G is copied, not derived.
+    const plan = await insert([E(), NU(), G(), temperatureG], "e_nu");
+    expect(JSON.parse(plan.batch.operations[0].change.after).shear_modulus.value).toBe(STORED_G);
+    // A stored ν that cannot be copied refuses both modes; it is never discarded.
+    const quarantinedNu = property("poisson_ratio", 0.3, "unit:one", { review: "quarantined", suffix: ".q" });
+    await expect(insert([E(), quarantinedNu], "e_nu")).rejects.toThrow(/LIBRARY-APPLY-MEMBER-BLOCKED.*p\.poisson_ratio\.q/);
+    await expect(insert([E(), G(), quarantinedNu], "e_g")).rejects.toThrow(/LIBRARY-APPLY-NU-NOT-DISCARDED.*p\.poisson_ratio\.q/);
   });
 
   it("never overwrites a stored G (bitwise) and never discards ν", async () => {
@@ -199,6 +218,10 @@ describe("material apply: basis, retained values and dispositions", () => {
     const next = await apply(model, plan);
     expect(next.materials![0].constitutive_basis).toBe("homogeneous_isotropic_E_nu_v1");
     expect(defaultMaterialMode(next.materials![0])).toBe("e_nu");
+    // E/G onto a material that holds ν would discard it: refused.
+    next.materials![0].provenance_record = { source_name: "Invented", review_status: "pending" };
+    await expect(buildMaterialApply({ model: next, document: materialLibrary([E(), G()]), recordId: "mat.invented.steel", targetId: target.id, mode: "e_g", replace: "all", catalog }))
+      .rejects.toThrow(/LIBRARY-APPLY-NU-NOT-DISCARDED.*holds poisson_ratio/);
     // The diff names each removal and the derived G replacing the stored one.
     const rows = JSON.parse(plan.batch.operations[0].change.after);
     expect(rows.thermal_expansion_coefficient).toBeNull();
@@ -211,23 +234,37 @@ describe("material apply: basis, retained values and dispositions", () => {
     expect(combineDispositions([priv, pub])).toEqual({ redistribution_status: "private_only", review_status: "pending" });
     expect(combineDispositions([{ privacy_class: "private_user_supplied", ...pub }])).toEqual({ redistribution_status: "private_only", review_status: "accepted" });
     expect(combineDispositions([{ redistribution_status: "TBD", review_status: "TBD" }])).toEqual({ redistribution_status: "unknown", review_status: "pending" });
+    for (const privacy_class of ["project_private", "private_user_data", "private_user_supplied", "quarantine_metadata_only"]) {
+      expect(combineDispositions([{ privacy_class, ...pub }]).redistribution_status, privacy_class).toBe("private_only");
+    }
     expect(combineDispositions([pub, {}])).toEqual({ redistribution_status: "unknown", review_status: "pending" });
   });
 
   it("excludes a quarantined or value-level rejected slot (partial apply) and refuses a rejected record", async () => {
     const model = await demo();
     const quarantined = property("thermal_expansion_coefficient", 1.3e-5, "unit:per_degree_celsius", { review: "quarantined" });
-    const rejectedValue = property("shear_modulus", 8e10, "unit:pascal", { valueProvenance: { ...PRIVATE, redistribution_status: "rejected" }, suffix: ".r" });
-    const plan = await buildMaterialInsert({ model, document: materialLibrary([E(), NU(), quarantined, rejectedValue]), recordId: "mat.invented.steel", newId: "material:partial", mode: "e_nu", catalog });
-    expect(plan.notCopied).toEqual(expect.arrayContaining([
-      { source: "p.thermal_expansion_coefficient", reason: "excluded: quarantined" },
-      { source: "p.shear_modulus.r", reason: "excluded: rejected" }
-    ]));
+    const rejectedAlpha = property("thermal_expansion_coefficient", 1.2e-5, "unit:per_degree_celsius", { valueProvenance: { ...PRIVATE, redistribution_status: "rejected" }, suffix: ".r" });
+    const plan = await buildMaterialInsert({ model, document: materialLibrary([E(), NU(), quarantined]), recordId: "mat.invented.steel", newId: "material:partial", mode: "e_nu", catalog });
+    expect(plan.notCopied).toEqual(expect.arrayContaining([{ source: "p.thermal_expansion_coefficient", reason: "excluded: quarantined" }]));
+    const rejectedPlan = await buildMaterialInsert({ model, document: materialLibrary([E(), NU(), rejectedAlpha]), recordId: "mat.invented.steel", newId: "material:partial", mode: "e_nu", catalog });
+    expect(rejectedPlan.notCopied).toEqual(expect.arrayContaining([{ source: "p.thermal_expansion_coefficient.r", reason: "excluded: rejected" }]));
     const material = JSON.parse(plan.batch.operations[0].change.after);
     expect(material.thermal_expansion_coefficient).toBeUndefined();
     expect(material.provenance_record.verification_note).toContain("derived from E and ν");
     await expect(buildMaterialInsert({ model, document: materialLibrary([E(), NU()], { review_status: "rejected" }), recordId: "mat.invented.steel", newId: "material:x", mode: "e_nu", catalog }))
       .rejects.toThrow(/LIBRARY-APPLY-SOURCE-REJECTED/);
+  });
+});
+
+describe("hanger provenance", () => {
+  it("keeps a project_private hanger source private and refuses a blocked copied quantity", async () => {
+    const library = { library_id: "invented.hangers.project", name: "Invented project hangers", privacy_class: "project_private", provenance: PUBLIC };
+    const record = { hanger_id: "invented.hanger", name: "Invented", privacy_class: "project_private", provenance: PUBLIC };
+    const quantity = { magnitude: 17, unit: "N", dimension: "force", provenance: PUBLIC };
+    const { provenanceRecord } = await hangerLibraryProvenance(library, record, [quantity]);
+    expect(provenanceRecord.redistribution_status).toBe("private_only");
+    await expect(hangerLibraryProvenance(library, { ...record, privacy_class: "public_permissive_reviewed" }, [{ ...quantity, provenance: { ...PUBLIC, review_status: "quarantined" } }]))
+      .rejects.toThrow(/LIBRARY-APPLY-SOURCE-REJECTED.*quarantined/);
   });
 });
 
@@ -276,6 +313,12 @@ describe("section insert and apply", () => {
       expect(pipe.section.outside_diameter).toEqual({ value: 0.2, unit: "m" });
       expect(pipe.section.wall_thickness).toEqual({ value: 0.009, unit: "m" });
     }
+  });
+
+  it("refuses a section apply that copies nothing", async () => {
+    const model = await boundModel();
+    await expect(buildSectionApply({ model, document: sectionLibrary([dimension("outside_diameter", 0.2, { status: "missing" })]), recordId: "sec.invented.pipe", targetId: "section:shared", replace: "none" }))
+      .rejects.toThrow(/LIBRARY-APPLY-NOTHING-COPIED/);
   });
 
   it("refuses the whole change when a bound pipe's supplement fails, leaving the model unchanged", async () => {
@@ -389,5 +432,10 @@ describe("batch, undo/redo and re-apply", () => {
     const reapply = await buildMaterialApply({ model: applied, document: revised, recordId: "mat.invented.steel", targetId: applied.materials![0].id, mode: "e_nu", replace: "none", catalog });
     expect(reapply.provenanceRecord.library_ref!.library_version).toBe(independentVersion(revised.material_records[0]));
     expect(reapply.provenanceRecord.library_ref!.library_version).not.toBe(applied.materials![0].provenance_record!.library_ref!.library_version);
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(reapply.batch); });
+    await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches.at(-1)!, true); });
+    const reapplied = result.current.model.model!.materials![0].provenance_record!;
+    expect(reapplied.library_ref!.library_version).toBe(independentVersion(revised.material_records[0]));
+    expect(reapplied.verification_note).toContain(`previous library reference library:material:matlib.invented.private#mat.invented.steel (${independentVersion(document.material_records[0])})`);
   });
 });

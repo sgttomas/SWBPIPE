@@ -778,6 +778,56 @@ describe("LibraryManagerPanel: apply to model (W-17)", () => {
   });
 });
 
+describe("LibraryManagerPanel: apply plans are bound to their inputs (W-17)", () => {
+  it("re-opens the stored library at prepare time and drops a plan when the selected target changes", async () => {
+    const { loadPreviewModel } = await import("../../services/previewService");
+    const model = structuredClone(await loadPreviewModel());
+    const first = model.materials![0];
+    model.materials!.push({ ...structuredClone(first), id: "material:second" });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const provenance = { source_name: "Invented", source_location: "invented-local:ui", source_license: "private", contributor: "Test",
+      contributor_certification: "Invented values", redistribution_status: "private_only", review_status: "pending" };
+    const prop = (kind: string, magnitude: number, unitId: string) => ({ property_id: `ui.${kind}`, property_kind: kind, value_status: "private_user_supplied",
+      required_for: "mechanics_solve", provenance, review_status: "pending",
+      value: { magnitude, unit_ref: { ref_type: "UnitDefinition", ref_id: unitId }, dimension_id: "stress", quantity_kind: "unit_bearing",
+        unit_required: true, missing_unit_behavior: "diagnostic_blocking", provenance } });
+    const documentWith = (e: number) => ({
+      schema_version: "0.1.0",
+      material_library: { library_id: "matlib.invented.bind", name: "Invented", library_scope: "private_user_library", privacy_class: "private_user_data", provenance, review_status: "pending" },
+      material_records: [{ material_id: "mat.bind", name: "Invented", material_family: "invented_example", privacy_class: "private_user_data",
+        redistribution_status: "private_only", properties: [prop("elastic_modulus", e, "unit:pascal"), prop("shear_modulus", 8e10, "unit:pascal")],
+        allowables: [], completeness: [], provenance, review_status: "pending" }]
+    });
+    const entry = { project_id: model.project.id, library_kind: "material", library_id: "matlib.invented.bind", library_name: "Invented",
+      privacy_class: "private_user_data", storage_mode: "local_sqlite", created_at_unix: 1, updated_at_unix: 1 };
+    const accepted = { ...blockedValidation, outcome: "PRIVATE_LOCAL_ONLY", library_kind: "material", intended_visibility: "private", accepted: true, has_blocking_findings: false, findings: [] };
+    let opens = 0;
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogFixture);
+      if (command === "list_local_libraries") return Promise.resolve([entry]);
+      // The first open shows E = 2e11; the store then changes to 2.1e11.
+      if (command === "open_local_library") return Promise.resolve({ ...entry, document: documentWith(++opens === 1 ? 2e11 : 2.1e11), validation: accepted, message: "Opened." });
+      return Promise.reject(new Error(`unexpected command ${command}`));
+    });
+    const onQueueBatch = vi.fn();
+    const view = render(<LibraryManagerPanel model={model} selection={{ type: "material", id: first.id }} onQueueBatch={onQueueBatch} />);
+    fireEvent.click(screen.getByTestId("library-refresh-list"));
+    await waitFor(() => expect(screen.getByTestId("library-open-matlib.invented.bind")).toBeTruthy());
+    fireEvent.click(screen.getByTestId("library-open-matlib.invented.bind"));
+    await waitFor(() => expect(screen.getByTestId("library-apply-section")).toBeTruthy());
+    fireEvent.click(screen.getByTestId("library-apply-existing"));
+    fireEvent.click(screen.getByTestId("library-apply-preview"));
+    await waitFor(() => expect(screen.getByTestId("library-apply-preview-result")).toBeTruthy());
+    expect(opens).toBe(2);
+    expect(screen.getByTestId("library-apply-copied-elastic_modulus").textContent).toContain("210000000000");
+    // Selecting another material: the plan prepared for the first is gone.
+    view.rerender(<LibraryManagerPanel model={model} selection={{ type: "material", id: "material:second" }} onQueueBatch={onQueueBatch} />);
+    expect(screen.queryByTestId("library-apply-preview-result")).toBeNull();
+    expect(screen.queryByTestId("library-apply-queue")).toBeNull();
+    expect(onQueueBatch).not.toHaveBeenCalled();
+  });
+});
+
 describe("buildInventedLibraryImportTemplate", () => {
   it("builds a private-by-default, provenance-complete document per kind", () => {
     for (const kind of ["material", "section", "component"] as const) {

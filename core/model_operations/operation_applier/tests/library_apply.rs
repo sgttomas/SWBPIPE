@@ -432,3 +432,67 @@ fn derived_g_is_bit_identical_to_the_exact_route_derivation_across_a_sweep() {
     }
     assert!(compared > 300, "{compared}");
 }
+
+/// Every `G_pa` the solve result publishes for `pipe_id` (the exact route's
+/// per-member material evidence: the G that built stiffness).
+fn published_g(value: &Value, pipe_id: &str, found: &mut Vec<f64>) {
+    match value {
+        Value::Object(map) => {
+            if map.get("pipe_id").and_then(Value::as_str) == Some(pipe_id) {
+                if let Some(g) = map.get("G_pa").and_then(Value::as_f64) {
+                    found.push(g);
+                }
+            }
+            map.values().for_each(|child| published_g(child, pipe_id, found));
+        }
+        Value::Array(items) => items.iter().for_each(|child| published_g(child, pipe_id, found)),
+        _ => {}
+    }
+}
+
+#[test]
+fn desktop_derived_g_equals_the_g_the_exact_route_builds_stiffness_with_bit_for_bit() {
+    use open_pipe_stress_operation_applier::derived_shear_modulus_pa;
+    // Public product_physics API: the exact route publishes, per member, the
+    // G that built its stiffness (`pipe_materials[].G_pa`).
+    for (e, unit, nu) in [(207.0, "GPa", 0.29), (2.0e11, "Pa", 0.3), (193000.0000001, "MPa", 0.1 + 0.2), (29000.0, "ksi", 1.0 / 3.0), (69.0, "GPa", -0.9999999999999999)] {
+        let g = derived_shear_modulus_pa(e, unit, nu).unwrap();
+        let material = json!({"id":"material:library-steel","label":"Invented library steel","constitutive_basis":"homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus":{"value":e,"unit":unit},"poisson_ratio":{"value":nu,"unit":"1"},"shear_modulus":{"value":g,"unit":"Pa"},
+            "provenance":"library:material:invented-lib#invented-record","provenance_record":record("material")});
+        let model = insert_and_use(&exact_fixture(), &material);
+        let request: LinearStaticPreviewRequest = serde_json::from_value(json!({"model":model,"materials":[]})).unwrap();
+        let result = serde_json::to_value(run_linear_static_preview_with_mode(request, PreviewSolverMode::DenseScrutiny)).unwrap();
+        let mut found = Vec::new();
+        published_g(&result, "pipe:fixture-span", &mut found);
+        assert!(!found.is_empty(), "the exact route publishes the member's G");
+        for published in found {
+            assert_eq!(published.to_bits(), g.to_bits(), "E={e} {unit}, nu={nu}");
+        }
+    }
+}
+
+#[test]
+fn emission_golden_library_version_is_the_records_rfc8785_sha256() {
+    // The record the desktop emission golden inserts (desktopEmission.golden.test.ts),
+    // restated here: the digest the webview computed must equal the native one.
+    let provenance = json!({"source_name":"Invented emission handbook","source_location":"invented://emission/handbook","source_license":"invented-permissive",
+        "contributor":"Invented contributor","contributor_certification":"invented-attestation","redistribution_status":"public_permissive","review_status":"pending"});
+    let property = |kind: &str, magnitude: f64, unit_id: &str| json!({"property_id":format!("mat.invented.emission.{kind}"),"property_kind":kind,
+        "value_status":"provided","required_for":"mechanics_solve","provenance":provenance,"review_status":"pending",
+        "value":{"magnitude":magnitude,"unit_ref":{"ref_type":"UnitDefinition","ref_id":unit_id},"dimension_id":"stress","quantity_kind":"unit_bearing",
+            "unit_required":true,"missing_unit_behavior":"diagnostic_blocking","provenance":provenance}});
+    let record = json!({"material_id":"mat.invented.emission","name":"Invented emission steel","material_family":"invented_example","privacy_class":"public_permissive",
+        "redistribution_status":"public_permissive","properties":[property("elastic_modulus",2.0e11,"unit:pascal"),property("poisson_ratio",0.3,"unit:one")],
+        "allowables":[],"completeness":[],"provenance":provenance,"review_status":"pending"});
+    let golden: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_emitted.json")).unwrap();
+    let entry = golden["entries"].as_array().unwrap().iter().find(|e| e["path"] == "library_material_insert").unwrap();
+    let material = entry["document"]["materials"].as_array().unwrap().iter().find(|m| m["id"] == "material:library-emission").unwrap();
+    assert_eq!(
+        material["provenance_record"]["library_ref"]["library_version"],
+        json!(format!("sha256:{}", sha256_hex(&canonical_json(&record))))
+    );
+    // The golden's derived G is the native derivation's, bit for bit.
+    assert_eq!(material["shear_modulus"]["value"].as_f64().unwrap().to_bits(),
+        open_pipe_stress_operation_applier::derived_shear_modulus_pa(2.0e11, "Pa", 0.3).unwrap().to_bits());
+}

@@ -359,7 +359,9 @@ third vocabulary:
     are bit-identical; `verification_note` says which and, when derived,
     names the E and ν slots and values it came from.
   - **E/G mode** writes E and G with no basis, and is refused when the record
-    holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`).
+    or the target material holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`).
+  - A record that stores G or ν in a slot that cannot be copied refuses,
+    naming the slot; G is never derived in place of a stored G.
   - **Solve routes.** On the exact route the solver derives G from the
     selected E/ν pair and ignores the retained G with
     `EXACT_PRESSURE_REDUNDANT_G_IGNORED` (`pressure_material.rs`); on the

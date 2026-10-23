@@ -29,7 +29,7 @@ import {
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EntityRef } from "../../types";
 import { LibraryApplySection, type LibraryApplyTarget } from "./LibraryApplySection";
-import { publishLibraryRefFindings } from "./libraryRefFindings";
+import { currentLibraryRefFindings, publishLibraryRefFindings, usePublishedLibraryRefFindings } from "./libraryRefFindings";
 
 // Private Library Manager (PRD §13 / §14.6 / §14.1 "Library manager"). Phase C3
 // GUI slice (TP-C3-LIBGUI-001), replicating the C2 Rule-Pack Manager pattern:
@@ -212,7 +212,11 @@ export function LibraryManagerPanel({
   // model's library references are checked against the store on refresh.
   const [opened, setOpened] = useState<{ entry: LocalLibraryIndexEntry; document: Record<string, unknown> } | null>(null);
   const [applyPreset, setApplyPreset] = useState<LibraryApplyTarget | null>(null);
-  const [refFindings, setRefFindings] = useState<LibraryRefFinding[]>([]);
+  const [, setRefFindings] = useState<LibraryRefFinding[]>([]);
+  // Shown as the diagnostics list and inspector show them: only while the
+  // entity still carries the reference a finding was raised on.
+  const publishedRefFindings = usePublishedLibraryRefFindings();
+  const refFindings = model ? currentLibraryRefFindings(model, publishedRefFindings) : [];
   const [draft, setDraft] = useState<DraftState | null>(null);
   const [libraryKind, setLibraryKind] = useState<LibraryKind>("material");
   const [intendedVisibility, setIntendedVisibility] = useState<IntendedVisibility>("private");
@@ -971,6 +975,15 @@ export function LibraryManagerPanel({
           catalog={unitCatalogRoute?.route === "tauri_unit_catalog" ? unitCatalogRoute.catalog : null}
           busy={inFlight || operationBusy}
           preset={applyPreset}
+          reopen={async () => {
+            const route = await openLocalLibrary(opened.entry.project_id, opened.entry.library_kind, opened.entry.library_id);
+            if (route.route === "unavailable_browser_preview") throw new Error(route.diagnostic);
+            if (!route.envelope) throw new Error("The stored library no longer exists. Refresh the list.");
+            if (!route.envelope.validation.accepted || route.envelope.validation.has_blocking_findings) {
+              throw new Error("The stored library has blocking import findings.");
+            }
+            return route.envelope.document as Record<string, unknown>;
+          }}
           onQueueBatch={(batch) => { setApplyPreset(null); onQueueBatch(batch); }}
         />
       ) : null}

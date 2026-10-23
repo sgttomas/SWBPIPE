@@ -4,7 +4,7 @@
 // queue the batch for the existing review (validate, diff, apply, one undo).
 // Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081):
 // "Source review" describes source-data review only.
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { LibraryKind } from "../../services/libraryImportService";
 import type { UnitCatalog } from "../../services/unitCatalogService";
@@ -32,6 +32,9 @@ export function LibraryApplySection(props: {
   catalog: UnitCatalog | null;
   busy: boolean;
   preset?: LibraryApplyTarget | null;
+  /** Re-open and re-validate the stored library at prepare time, so the plan
+   * (and its `library_version`) is built from the current stored record. */
+  reopen?: () => Promise<Json>;
   onQueueBatch: (batch: OperationBatch) => void;
 }) {
   const { model, libraryKind, document, selection, catalog } = props;
@@ -53,9 +56,16 @@ export function LibraryApplySection(props: {
   const effectiveMode: MaterialMode = mode ?? (action === "apply" && kind === "material"
     ? defaultMaterialMode(targetEntity as Parameters<typeof defaultMaterialMode>[0]) : "e_nu");
   const [replace, setReplace] = useState<ReplaceOption>("none");
-  const [plan, setPlan] = useState<{ plan: LibraryApplyPlan; model: PreviewModel } | null>(null);
+  // A plan belongs to the inputs it was prepared from: the model, the opened
+  // library document, the selection and target, and every choice below. Any
+  // change makes it stale, and a preparation still in flight is discarded.
+  const basis = [model, document, selection?.type, selection?.id, targetEntity?.id, recordId, action, newId, effectiveMode, replace] as const;
+  const [plan, setPlan] = useState<{ plan: LibraryApplyPlan; basis: typeof basis } | null>(null);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const latestBasis = useRef(basis);
+  latestBasis.current = basis;
+  const sameBasis = (left: typeof basis, right: typeof basis) => left.every((value, index) => value === right[index]);
 
   if (!kind) {
     return (
@@ -67,13 +77,15 @@ export function LibraryApplySection(props: {
   }
   const reset = () => { setPlan(null); setError(""); };
   const canInsert = kind !== "component";
-  const current = plan && plan.model === model ? plan.plan : null;
+  const current = plan && sameBasis(plan.basis, basis) ? plan.plan : null;
 
   async function preview() {
     reset();
     setPending(true);
+    const preparedFrom = basis;
     try {
-      const base = { model, document, recordId };
+      const stored = props.reopen ? await props.reopen() : document;
+      const base = { model, document: stored, recordId };
       let next: LibraryApplyPlan;
       if (action === "insert") {
         next = kind === "material"
@@ -87,7 +99,7 @@ export function LibraryApplySection(props: {
             ? await buildSectionApply({ ...base, targetId: targetEntity.id, replace })
             : await buildComponentApply({ ...base, targetId: targetEntity.id, replace });
       }
-      setPlan({ plan: next, model });
+      if (sameBasis(preparedFrom, latestBasis.current)) setPlan({ plan: next, basis: preparedFrom });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {

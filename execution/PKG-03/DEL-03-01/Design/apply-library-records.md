@@ -131,10 +131,24 @@ and §6 authoring.
    - **E/G mode** writes E and G with no basis and no ν. It needs a stored G
      and is refused when the record holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`),
      because ν is never discarded.
+   - **Presence is judged apart from copy eligibility** (following the
+     HELP_HUMAN ruling literally). A record "stores" G or ν when a slot of
+     that kind carries a value (or is marked `protected_suspected`), whether
+     or not the slot can be copied. A stored slot that cannot be copied
+     (temperature-referenced, an excluded disposition, an ineligible value
+     status) refuses, naming the slot:
+     - a stored G with no copyable G refuses both modes
+       (`LIBRARY-APPLY-MEMBER-BLOCKED`); G is never derived in its place;
+     - a stored ν with no copyable ν refuses E/ν
+       (`LIBRARY-APPLY-MEMBER-BLOCKED`) and E/G
+       (`LIBRARY-APPLY-NU-NOT-DISCARDED`).
+     A copyable G alongside an uncopyable one is copied, never derived.
    - **Apply to an existing material** preselects that material's basis (E/ν
-     when it carries the basis or ν). Choosing the other mode is the explicit
-     basis change: the diff shows `constitutive_basis`, `poisson_ratio` and
-     `shear_modulus` being added, replaced or removed.
+     when it carries the basis or ν). E/G onto a material that holds ν is
+     refused (`LIBRARY-APPLY-NU-NOT-DISCARDED`; manager ruling, following
+     "never discard ν"); a basis change stays possible through ordinary
+     material editing. E/ν onto an E/G material adds the basis and ν, and the
+     diff shows each member added or replaced.
    - **A missing member fails the mode,** naming it
      (`LIBRARY-APPLY-MEMBER-MISSING`): E always; ν for E/ν; G for E/G. No
      other value is derived.
@@ -565,12 +579,24 @@ Where the code reads the decisions above differently, this is the reading:
   listed as not copied rather than refusing.
 - **Dispositions.** A library or record carrying `rejected`,
   `protected_suspected` or `quarantined` refuses
-  (`LIBRARY-APPLY-SOURCE-REJECTED`). A retained previous record that is
-  `rejected` is refused like a quarantined one
-  (`LIBRARY-APPLY-RETAINED-QUARANTINED`).
+  (`LIBRARY-APPLY-SOURCE-REJECTED`); so does a copied hanger quantity. A
+  retained previous record that is `rejected` is refused like a quarantined
+  one (`LIBRARY-APPLY-RETAINED-QUARANTINED`). Every supported private
+  privacy token raises the combination to `private_only`: the `private_*`
+  classes, `project_private` (section, component and hanger schemas; the
+  hanger importer reads it as private project data) and the material
+  `quarantine_metadata_only`. A combination is never promoted to public.
+  `verification_note` names the previous library reference an apply replaces.
 - **Sections.** Insert needs both OD and wall. Apply copies what the record
   supplies; an unsupplied OD or wall is retained (its previous attribution
-  counts), and "replace all values" with one unsupplied is refused.
+  counts), "replace all values" with one unsupplied is refused, and an apply
+  that copies neither is refused (`LIBRARY-APPLY-NOTHING-COPIED`).
+- **Preparation.** The Library Manager re-opens and re-validates the stored
+  library when the user prepares an apply, so the plan and its
+  `library_version` come from the current stored record, not the copy shown
+  at open. A prepared plan belongs to its inputs (model, opened document,
+  selection and target, record and every choice); any change drops it, and a
+  preparation still in flight when they change is discarded.
 - **Hangers.** `provenance` and `source_note` are the short reference; the
   combined `provenance_record` travels in the `create_support` payload, or as
   a second `update_support` annotation in the same batch for an existing
@@ -580,6 +606,14 @@ Where the code reads the decisions above differently, this is the reading:
   open and Library Manager list refresh. The warnings are appended to the
   project message, listed in the Library Manager with "Re-apply from
   library", entered in the diagnostics list as warnings keyed to the entity,
-  and shown in that entity's Provenance record section. A finding is shown
-  only while the entity still carries the reference it was raised on
+  and shown in that entity's Provenance record section; the Library
+  Manager's list uses the same filter. A finding is shown only while the
+  entity still carries the reference it was raised on
   (`features/library/libraryRefFindings.ts`).
+- **Tests of the derived G against the solver.** Besides the sweep against
+  a port of the solver's arithmetic, an applier test solves the exact route
+  with an inserted E/ν/derived-G material and reads the G that built
+  stiffness from the result's public per-member material evidence
+  (`pipe_materials[].G_pa`); it equals the desktop-derived G bit for bit.
+  Another pins the emission golden's `library_version` to the native RFC
+  8785 SHA-256 of the same record.
