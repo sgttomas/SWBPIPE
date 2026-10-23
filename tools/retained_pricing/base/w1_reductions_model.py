@@ -50,8 +50,8 @@ RF_PINS = {
 # or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
 # W-8 topology warnings D3 (§8.16): lib.rs's `mod topology;` and its one call change no reduction's owner or lifetime.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "17d2d1d53866456bbf35c220b786758b6ca343a5f0fb3543759fe74b4bb1d357",
-    "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
+    "core/product_physics/src/lib.rs": "9c6bba480ce74b8ada45df31d95233a94ad0a90be4eebc6f06e1f9b8f5d67858",
+    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
     "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",

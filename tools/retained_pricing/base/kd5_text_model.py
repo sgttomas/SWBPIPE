@@ -176,7 +176,7 @@ def inspect_directed_helpers(snapshot):
 # `.min(`/`.max(` call, and the observation lane stays deleted.
 # W-8 topology warnings D3 (§8.16): lib.rs's two added lines add no `.min(`/`.max(` call (topology.rs's own receivers
 # are listed by name in o10_rules' KD5C4 set, W8-CG).
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '17d2d1d53866456bbf35c220b786758b6ca343a5f0fb3543759fe74b4bb1d357'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '9c6bba480ce74b8ada45df31d95233a94ad0a90be4eebc6f06e1f9b8f5d67858'
 
 
 def primitive_lib_minmax_callers(snapshot):
