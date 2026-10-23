@@ -371,7 +371,15 @@ export const RAIL_FOOT_ITEMS: readonly RailFootItem[] = Object.freeze([
 // The status chip policy (§5.4). The status bar speaks for the current model
 // and its Current run, and for nothing else.
 
-export type StatusChip = { token: string; label: string; domain: StatusAuthorityDomain; source?: "Solve job state" | "Derived numerical qualification" };
+export type StatusChip = {
+  token: string;
+  label: string;
+  domain: StatusAuthorityDomain;
+  source?: "Solve job state" | "Derived numerical qualification";
+  /** DEL-07-05 numerical health: under the verdict-only hold the chip's title and popover
+   * show this headline and output sentence; the token stays internal. */
+  numericalHealth?: Readonly<{ headline: string; outputSentence: string | null }>;
+};
 
 export type StatusChipInputs = RunPresence & {
   /** `model.analysis_status.mechanics`: the status the model document records; null with no model. */
@@ -408,7 +416,12 @@ export function statusChips(inputs: StatusChipInputs, stage: ShellStage, pageOpe
   // the current model's standing, which a Historical record never supplies.
   if (inputs.historicalRunShown) return [];
   if (inputs.hasResult) {
-    if (inputs.needsRecompute) return [{ token: "needs_recompute", label: inputs.numericalHealthHold?.headline ?? "Needs recompute", domain: "Solver", source: "Derived numerical qualification" }];
+    if (inputs.needsRecompute) {
+      const hold = inputs.numericalHealthHold;
+      return [hold
+        ? { token: "needs_recompute", label: hold.headline, domain: "Solver", source: "Derived numerical qualification", numericalHealth: { headline: hold.headline, outputSentence: hold.outputSentence } }
+        : { token: "needs_recompute", label: "Needs recompute", domain: "Solver", source: "Derived numerical qualification" }];
+    }
     const solver = chipFor(inputs.resultMechanicsStatus, "Solver") ?? (inputs.resultMechanicsStatus === null ? null : { token: inputs.resultMechanicsStatus, ...SOLVER_NOT_SOLVED });
     // Rule 7, first row: a run that did not solve shows whatever Solver status its record carries.
     if (!inputs.hasCurrentSolvedResult) return solver ? [solver] : [];

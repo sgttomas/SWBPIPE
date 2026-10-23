@@ -103,7 +103,7 @@ export function useResultsSessionState() {
     [numericalHealth, numericallyEligible, verdictHold]
   );
   const numericalHealthHoldView: NumericalHealthHold | null = verdictHold && numericalHealthPresentation
-    ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline }
+    ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline, outputSentence: numericalHealthPresentation.outputSentence }
     : null;
   // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).

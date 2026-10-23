@@ -14,7 +14,10 @@ import { renderCalculationReport } from "../../services/reportRenderService";
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { RenderedReportPanel } from "./RenderedReportPanel";
 import { ReportPanel } from "./ReportPanel";
-import { numericalHealthView, parseNumericalHealth } from "../results/numericalHealth";
+import { numericalHealthView, readNumericalHealth } from "../results/numericalHealth";
+import { numericalResultStanding } from "../results/resultStanding";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import * as reportRedactionProjector from "./reportRedactionProjector";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -560,53 +563,77 @@ describe("renderer received-result hash binding", () => {
 });
 
 // DEL-07-05 numerical health §5: one line per load case before the diagnostics section
-// in the rendered report's emitted renderer input; the report package's input (built
-// without the indicator) is unchanged; no conditioning figure is exported.
+// in the rendered report's emitted renderer input, on the generic route only; the
+// report package's input (built without the indicator) is unchanged; no conditioning
+// figure is exported. The indicators are the wasm export's readings of committed
+// producer outputs. The Rust renderer itself runs only in the native shell (a Tauri
+// command), so its HTML is not reachable from Vitest.
 describe("numerical health report line", () => {
-  const healthView = () => numericalHealthView(parseNumericalHealth({
-    route: "generic", verdict_only: false,
-    cases: [{ case_id: "load_case:invented-weight", state: "checks_passed", code: "NUMERICAL_INTEGRITY_CHECKS_PASSED", integrity_diagnostic_id: "diagnostic:numerical-integrity:load_case:invented-weight", rcond: 0.01, digits: 2, conditioning_sensitive: false, causes: [] }],
-    combinations: []
-  }), { eligible: true, verdictHold: false });
+  const fixture = (path: string) => JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures", path), "utf8")) as MechanicsResult;
+  const generic = () => fixture("results/preview_physics_unicode_ids_sparse.json");
+  const pressureSource = () => fixture("product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json");
+  const healthOf = (result: MechanicsResult, eligible: boolean) =>
+    numericalHealthView(readNumericalHealth(result, numericalResultStanding(result).findings), { eligible, verdictHold: false });
+  const LINES = [
+    { row_id: "numerical-health:load:é", label: "Numerical health of the ordinary solve: checks passed.", case_ref: "load_case:load:é", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:é" },
+    { row_id: "numerical-health:load:𝔫", label: "Numerical health of the ordinary solve: checks passed.", case_ref: "load_case:load:𝔫", quantity_display: "", source_ref: "diagnostic:numerical-integrity:load:𝔫" }
+  ];
 
-  it("appends the line after the result rows, so before the diagnostics section, and only when supplied", async () => {
-    const base = { model: inventedModel(), result: inventedResult(), analysisRun: inventedRun(), projectSummary: null };
+  it("appends one line per load case after the result rows, so before the diagnostics section, and only when supplied", async () => {
+    const result = generic();
+    const base = { model: inventedModel(), result, analysisRun: inventedRun(), projectSummary: null };
     const without = await buildRenderableReportInput(base);
-    const withHealth = await buildRenderableReportInput({ ...base, numericalHealth: healthView() });
+    const withHealth = await buildRenderableReportInput({ ...base, numericalHealth: healthOf(result, true) });
     expect(withHealth.result_rows.slice(0, without.result_rows.length)).toEqual(without.result_rows);
-    expect(withHealth.result_rows.slice(without.result_rows.length)).toEqual([{
-      row_id: "numerical-health:load_case:invented-weight",
-      label: "Numerical health of the ordinary solve: checks passed.",
-      case_ref: "load_case:load_case:invented-weight",
-      quantity_display: "",
-      source_ref: "diagnostic:numerical-integrity:load_case:invented-weight"
-    }]);
+    expect(withHealth.result_rows.slice(without.result_rows.length)).toEqual(LINES);
     expect({ ...withHealth, result_rows: without.result_rows }).toEqual(without);
     expect(JSON.stringify(withHealth)).not.toMatch(/roughly|decimal digits|rcond/);
+  });
+
+  it("adds no line for a pressure-source result", async () => {
+    const result = pressureSource();
+    const health = healthOf(result, true);
+    expect(health?.route).toBe("pressure_source");
+    const base = { model: inventedModel(), result, analysisRun: inventedRun(), projectSummary: null };
+    expect(await buildRenderableReportInput({ ...base, numericalHealth: health })).toEqual(await buildRenderableReportInput(base));
   });
 
   it("emits the line in the renderer input the panel sends", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockResolvedValue(unblockedOutcome());
     const projectorSpy = vi.spyOn(reportRedactionProjector, "controlReportRendererInput");
-    render(<RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null} numericalHealth={healthView()} />);
+    const result = generic();
+    render(<RenderedReportPanel model={inventedModel()} result={result} analysisRun={inventedRun()} projectSummary={null} numericalHealth={healthOf(result, true)} />);
     fireEvent.click(screen.getByTestId("rendered-report-render"));
     await waitFor(() => expect(projectorSpy).toHaveBeenCalled());
     const emitted = projectorSpy.mock.calls[0][0] as { result_rows: { label: string }[] };
-    expect(emitted.result_rows.map((row) => row.label)).toContain("Numerical health of the ordinary solve: checks passed.");
+    expect(emitted.result_rows.filter((row) => row.label.startsWith("Numerical health"))).toEqual(LINES);
   });
 
-  it("shows the line in the report packet body before its diagnostics lines", () => {
+  function unredacted() {
     // The invented session is private project data; show the DOM body unredacted here.
     vi.spyOn(reportRedactionProjector, "controlReportDomAndJson").mockImplementation((payload) => ({
       payload, decisions: [], findings: [], blocked: false,
       summary: { decision_count: 0, finding_count: 0, redacted_count: 0, omitted_count: 0, warning_count: 0, blocking_count: 0, cloud_transmission_attempted: false, professional_claims_made: false, route_id: "test", materialization_withheld: false }
     }) as unknown as ReturnType<typeof reportRedactionProjector.controlReportDomAndJson>);
-    render(<ReportPanel model={inventedModel()} knowledge={null} result={inventedResult()} analysisRun={inventedRun()} comparison={null}
-      editorIntents={[]} projectOperation="idle" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} numericalHealth={healthView()} />);
-    const line = screen.queryByTestId("report-numerical-health-load_case:invented-weight");
-    expect(line).toHaveTextContent("Numerical health of the ordinary solve: checks passed.");
+  }
+  const reportPanel = (result: MechanicsResult, eligible: boolean) => (
+    <ReportPanel model={inventedModel()} knowledge={null} result={result} analysisRun={inventedRun()} comparison={null}
+      editorIntents={[]} projectOperation="idle" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} numericalHealth={healthOf(result, eligible)} />
+  );
+
+  it("shows the line in the report packet body before its diagnostics lines", () => {
+    unredacted();
+    render(reportPanel(generic(), true));
+    expect(screen.getByTestId("report-numerical-health-load:é")).toHaveTextContent("Numerical health of the ordinary solve: checks passed.");
     const body = screen.getByTestId("report-packet-body").textContent ?? "";
     expect(body.indexOf("Numerical health of the ordinary solve")).toBeLessThan(body.indexOf("Diagnostic scope"));
+  });
+
+  it("shows no line in the report packet body for a pressure-source result", () => {
+    unredacted();
+    render(reportPanel(pressureSource(), true));
+    expect(screen.getByTestId("report-packet-body").textContent).not.toContain("Numerical health");
+    expect(screen.queryAllByTestId(/^report-numerical-health-/)).toHaveLength(0);
   });
 });

@@ -162,7 +162,7 @@ export function ReportPanel({
               value={formatSelectedReviewTarget(selectedReviewTarget)}
               testId="report-selected-review-target"
             />
-            {(numericalHealth?.cases ?? []).map((item) => (
+            {(numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => (
               <ReportLine
                 key={item.caseId}
                 label={item.caseId}

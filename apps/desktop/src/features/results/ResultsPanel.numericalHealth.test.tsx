@@ -153,15 +153,32 @@ describe("the standing line beside the health header", () => {
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={makeHealth()} />);
     const standing = screen.getByTestId("numerical-result-standing");
     expect(standing.textContent).toBe(original(result));
-    const header = screen.getByTestId("numerical-health");
-    expect(header).not.toContainElement(standing);
+    const header = screen.getByTestId("numerical-health-header-line");
     expect(standing).not.toContainElement(screen.getByTestId("numerical-health-header"));
+    // Header line, then the unchanged standing line, then the per-case detail.
     expect(header.nextElementSibling).toBe(standing);
+    expect(standing.nextElementSibling).toBe(screen.getByTestId("numerical-health-detail"));
     cleanup();
     // And the same text with no indicator at all.
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
     expect(screen.getByTestId("numerical-result-standing").textContent).toBe(original(result));
-    expect(screen.queryByTestId("numerical-health")).toBeNull();
+    expect(screen.queryByTestId("numerical-health-header-line")).toBeNull();
+    expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
+  });
+});
+
+describe("the per-case detail disclosure", () => {
+  it("is summarised as Numerical health by load case, open with a non-passing case and collapsed when all pass", () => {
+    render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
+      numericalHealth={view(genericHealth(false), { eligible: false, verdictHold: false })} />);
+    const open = screen.getByTestId("numerical-health-detail");
+    expect(open.tagName).toBe("DETAILS");
+    expect(open.querySelector("summary")?.textContent).toBe("Numerical health by load case");
+    expect(open).toHaveAttribute("open");
+    cleanup();
+    render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
+      numericalHealth={view({ route: "generic", verdict_only: false, cases: [PASSED, { ...PASSED, case_id: "load:é", integrity_diagnostic_id: "diagnostic:numerical-integrity:load:é" }], combinations: [] }, { eligible: true, verdictHold: false })} />);
+    expect(screen.getByTestId("numerical-health-detail")).not.toHaveAttribute("open");
   });
 });
 

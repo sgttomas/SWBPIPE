@@ -191,7 +191,8 @@ it("keeps admission as the full conjunction and reads the indicator beside it", 
   expect(result.current.numericalHealthHold).toBeNull();
 
   // Even an indicator claiming a verdict-only red case changes neither Current nor the hold.
-  engineForHealth.numericalHealthJson = () => JSON.stringify({ route: "generic", verdict_only: true, cases: [{ case_id: "x", state: "sensitive" }], combinations: [] });
+  engineForHealth.numericalHealthJson = () => JSON.stringify({ route: "generic", verdict_only: true, combinations: [],
+    cases: [{ case_id: "x", state: "sensitive", code: "NUMERICAL_INTEGRITY_SENSITIVE", integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: [] }] });
   const copy = structuredClone(source);
   act(() => result.current.setResult(copy));
   expect(result.current.currentSolvedResult).toBeNull();
@@ -202,5 +203,32 @@ it("keeps admission as the full conjunction and reads the indicator beside it", 
   expect(result.current.numericalHealthHold).toBeNull();
   act(() => result.current.setResult(source));
   expect(result.current.currentSolvedResult).toBe(source);
+  expect(result.current.numericalHealthHold).toBeNull();
+});
+
+it("holds a real verdict-only generic result: every other Current requirement met, the verdict alone refused", async () => {
+  // The committed producer output for an invented skewed-tee model whose ordinary solve is
+  // sensitive (dense scrutiny), handed over through the mocked native job transport.
+  const product = resolve(__dirname, "../../../../../fixtures/product_preview");
+  const model = JSON.parse(readFileSync(resolve(product, "rf_skew_t_cant_off_122_r1e-04.desktop_model.json"), "utf8")) as PreviewModel;
+  const bytes = readFileSync(resolve(product, "rf_skew_t_cant_off_122_r1e-04.desktop_result_dense_scrutiny.json"), "utf8");
+  const transport = createSolveJobTransport(() => bytes);
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(transport.invoke);
+  const source = await runPreviewMechanics(model, "dense_scrutiny");
+  const manifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:numerical-health-hold", solver_mode: "dense_scrutiny", settings: {} }, active_rule_packs: [], external_assets: [] });
+  const analysis = await buildAnalysisRunPreview(source, { inputManifest: manifest });
+  const { result } = renderHook(() => useResultsSessionState());
+  act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
+  expect(currentRequirementsExceptNumericalEligibility({ result: source, analysisRun: analysis, inputManifest: manifest })).toBe(true);
+  expect(result.current.currentSolvedResult).toBeNull();
+  expect(result.current.numericalHealthHold).toEqual({
+    headline: "Numerical health: 1 sensitive",
+    shortHeadline: "Numerical health: sensitive",
+    outputSentence: "No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
+  });
+  expect(result.current.numericalHealth?.outputSentence).toBe("No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed.");
+  // A later edit of the record removes the hold: another requirement now fails.
+  act(() => result.current.setAnalysisRun({ ...analysis, schema_version: "0.2.0" } as typeof analysis));
   expect(result.current.numericalHealthHold).toBeNull();
 });

@@ -37,7 +37,7 @@ describe("parseNumericalHealth (fail closed)", () => {
       causes: [{ kind: "formation", diagnostic_id: "diagnostic:numerical-integrity:LC1", locations: [{ kind: "node_dof", node: "N1", dof: "UX" }] }]
     })], [{ combination_id: "C1", state: "sensitive", cases: ["LC1"], withheld: false }]);
     expect(parsed.cases[0]).toMatchObject({ case_id: "LC1", state: "sensitive", digits: 11, conditioning_sensitive: true });
-    expect(parsed.combinations[0].cases).toEqual([{ case_id: "LC1", state: null }]);
+    expect(parsed.combinations[0].cases).toEqual(["LC1"]);
   });
 
   it("refuses any other shape", () => {
@@ -62,6 +62,59 @@ describe("parseNumericalHealth (fail closed)", () => {
       raw("retained", true, [healthCase("LC1", "sensitive")])
     ]) {
       expect(parseNumericalHealth(bad)).toBeNull();
+    }
+  });
+});
+
+describe("parseNumericalHealth requires the complete response", () => {
+  const cause = { kind: "formation", diagnostic_id: "diagnostic:numerical-integrity:LC1", locations: [{ kind: "node_dof", node: "N1", dof: "UX" }] };
+  const complete = () => raw("generic", true, [healthCase("LC1", "sensitive", { causes: [structuredClone(cause)] })],
+    [{ combination_id: "C1", state: null, cases: [], withheld: true }]) as { cases: Raw[]; combinations: Raw[] } & Raw;
+  it("reads the complete response", () => {
+    expect(parseNumericalHealth(complete())).not.toBeNull();
+  });
+  it("gives no indicator for the bare case of a partial response", () => {
+    expect(parseNumericalHealth({ route: "generic", verdict_only: true, cases: [{ case_id: "LC1", state: "sensitive" }] })).toBeNull();
+    expect(parseNumericalHealth({ route: "generic", verdict_only: true, cases: [{ case_id: "LC1", state: "sensitive" }], combinations: [] })).toBeNull();
+  });
+  it.each(["route", "verdict_only", "cases", "combinations"])("gives no indicator without the response's %s", (key) => {
+    const value = complete();
+    delete value[key];
+    expect(parseNumericalHealth(value)).toBeNull();
+  });
+  it.each(["case_id", "state", "code", "integrity_diagnostic_id", "rcond", "digits", "conditioning_sensitive", "causes"])("gives no indicator without a case's %s", (key) => {
+    const value = complete();
+    delete value.cases[0][key];
+    expect(parseNumericalHealth(value)).toBeNull();
+  });
+  it.each(["kind", "diagnostic_id", "locations"])("gives no indicator without a cause's %s", (key) => {
+    const value = complete();
+    delete ((value.cases[0].causes as Raw[])[0])[key];
+    expect(parseNumericalHealth(value)).toBeNull();
+  });
+  it.each(["kind", "node", "dof"])("gives no indicator without a location's %s", (key) => {
+    const value = complete();
+    delete (((value.cases[0].causes as Raw[])[0].locations as Raw[])[0])[key];
+    expect(parseNumericalHealth(value)).toBeNull();
+  });
+  it.each(["combination_id", "state", "cases", "withheld"])("gives no indicator without a combination's %s", (key) => {
+    const value = complete();
+    delete value.combinations[0][key];
+    expect(parseNumericalHealth(value)).toBeNull();
+  });
+  it("gives no indicator for ill-typed members", () => {
+    for (const mutate of [
+      (v: ReturnType<typeof complete>) => { v.cases[0].conditioning_sensitive = "false"; },
+      (v: ReturnType<typeof complete>) => { v.cases[0].rcond = "1e-11"; },
+      (v: ReturnType<typeof complete>) => { v.cases[0].code = 7; },
+      (v: ReturnType<typeof complete>) => { v.cases[0].causes = null; },
+      (v: ReturnType<typeof complete>) => { v.combinations[0].withheld = 0; },
+      (v: ReturnType<typeof complete>) => { v.combinations[0].cases = [{ case_id: "LC1" }]; },
+      (v: ReturnType<typeof complete>) => { (v as Raw).combinations = null; }
+    ]) {
+      const value = complete();
+      mutate(value);
+      expect(parseNumericalHealth(value)).toBeNull();
     }
   });
 });
@@ -106,9 +159,9 @@ describe("numericalHealthView", () => {
   it("gives combinations their inherited state and text, with no badge when withheld", () => {
     const view = numericalHealthView(health("generic", false, [healthCase("LC1", "sensitive"), healthCase("LC2", "checks_passed")], [
       { combination_id: "C1", state: "sensitive", cases: ["LC1", "LC2"], withheld: false },
-      { combination_id: "C2", state: "not_assessed", cases: [{ case_id: "LC2" }, { case_id: "LC9" }], withheld: false },
+      { combination_id: "C2", state: "not_assessed", cases: ["LC2", "LC9"], withheld: false },
       { combination_id: "C3", state: null, cases: [], withheld: true },
-      { combination_id: "C4", state: "sensitive", cases: [{ case_id: "LC1", state: "sensitive" }], withheld: true }
+      { combination_id: "C4", state: "sensitive", cases: ["LC1"], withheld: true }
     ]), { eligible: false, verdictHold: false })!;
     expect(view.combinations).toEqual([
       { combinationId: "C1", state: "sensitive", badge: "red", text: "Inherited from its load cases: LC1: sensitive; LC2: checks passed." },

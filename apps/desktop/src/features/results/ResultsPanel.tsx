@@ -125,12 +125,10 @@ export function ResultsPanel({
       {result ? (
         <>
           {health ? (
-            <div className="numerical-health" data-testid="numerical-health">
-              <p data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <> <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
-              <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} />
-            </div>
+            <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <> <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
           ) : null}
           <p data-testid="numerical-result-standing">{sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(sourceContract(result)) ? retainedPrecisionStandingText(result) : sourceContract(result) === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
+          {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
           <KnownSemanticNotices result={result} testIdPrefix="results" />
           <SectionBasisHeadlines result={result} />
           <PhysicsSourceEvidencePanel result={result} />
@@ -684,7 +682,9 @@ function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCauseLoca
   onShowDiagnostic?: (diagnosticId: string) => void;
 }) {
   return (
-    <section className="result-detail-panel numerical-health-detail" aria-label={DETAIL_SECTION_LABEL} data-testid="numerical-health-detail">
+    // Collapsed when every load case passed its checks; open otherwise.
+    <details className="result-detail-panel numerical-health-detail" aria-label={DETAIL_SECTION_LABEL} data-testid="numerical-health-detail" open={health.cases.some((c) => c.state !== "checks_passed") || health.cases.length === 0}>
+      <summary>{DETAIL_SECTION_LABEL}</summary>
       {health.cases.map((c) => (
         <article key={c.caseId} data-testid={`numerical-health-case-${c.caseId}`}>
           <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>
@@ -718,6 +718,6 @@ function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCauseLoca
           <p>{m.text}</p>
         </article>
       ))}
-    </section>
+    </details>
   );
 }

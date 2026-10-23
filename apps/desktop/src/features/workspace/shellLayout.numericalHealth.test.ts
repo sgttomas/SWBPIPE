@@ -6,7 +6,11 @@ import { describe, expect, it } from "vitest";
 import { railStageState, runPresenceFromCells, statusChipInputsFromCells, statusChips, statusChipText } from "./shellLayout";
 
 const solved = { status: { mechanics: "MECHANICS_SOLVED", professional_acceptance: "NOT_PROVIDED" } };
-const hold = { headline: "Numerical health: 1 sensitive, 1 checks passed", shortHeadline: "Numerical health: sensitive" };
+const hold = {
+  headline: "Numerical health: 1 sensitive, 1 checks passed",
+  shortHeadline: "Numerical health: sensitive",
+  outputSentence: "No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
+};
 const cells = (extra: Record<string, unknown>) => ({
   model: { analysis_status: { mechanics: "MECHANICS_SOLVED" } },
   result: solved,
@@ -24,7 +28,8 @@ describe("shell chip and rail under a numerical-health hold", () => {
     expect(railStageState("review", run)).toMatchObject({ enabled: false, reason: "Numerical health: sensitive" });
     const chips = statusChips(statusChipInputsFromCells(cells({ hasQualifiedCurrentResult: false, numericalHealthHold: hold })), "results");
     expect(chips).toHaveLength(1);
-    expect(chips[0]).toMatchObject({ token: "needs_recompute", label: "Numerical health: 1 sensitive, 1 checks passed", source: "Derived numerical qualification" });
+    expect(chips[0]).toMatchObject({ token: "needs_recompute", label: "Numerical health: 1 sensitive, 1 checks passed", source: "Derived numerical qualification",
+      numericalHealth: { headline: hold.headline, outputSentence: hold.outputSentence } });
     expect(statusChipText(chips[0])).toBe("Solver · Numerical health: 1 sensitive, 1 checks passed");
   });
 
@@ -33,7 +38,9 @@ describe("shell chip and rail under a numerical-health hold", () => {
       const run = runPresenceFromCells({ result: solved, historicalRun: null, solveJob: { state: "completed" }, hasQualifiedCurrentResult: false, numericalHealthHold: absent });
       expect(railStageState("results", run).caption).toBe("Needs recompute");
       expect(railStageState("review", run).reason).toBe("Needs recompute");
-      expect(statusChips(statusChipInputsFromCells(cells({ hasQualifiedCurrentResult: false, numericalHealthHold: absent })), "results")[0].label).toBe("Needs recompute");
+      const [chip] = statusChips(statusChipInputsFromCells(cells({ hasQualifiedCurrentResult: false, numericalHealthHold: absent })), "results");
+      expect(chip.label).toBe("Needs recompute");
+      expect(chip.numericalHealth).toBeUndefined();
     }
   });
 

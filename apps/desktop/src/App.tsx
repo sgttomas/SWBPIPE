@@ -100,6 +100,7 @@ import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
+import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
@@ -151,9 +152,6 @@ export function App() {
 function AppSession() {
   const session = useWorkspaceSession();
   const [routingPanelContainer, setRoutingPanelContainer] = useState<HTMLDivElement | null>(null);
-  // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
-  // Diagnostics panel opens filtered to that diagnostic.
-  const [diagnosticFilterRequest, setDiagnosticFilterRequest] = useState<{ text: string; sequence: number } | null>(null);
   const {
     model,
     knowledge,
@@ -294,6 +292,9 @@ function AppSession() {
     exposeViewportForNarrowInteraction,
     toggleWorkspaceRail
   } = session.chrome;
+  // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
+  // Diagnostics panel opens filtered to exactly that diagnostic, once.
+  const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -638,7 +639,7 @@ function AppSession() {
                 onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
                 onShowDiagnostic={(diagnosticId) => {
                   handleSelectDiagnostic(diagnosticId);
-                  setDiagnosticFilterRequest((current) => ({ text: diagnosticId, sequence: (current?.sequence ?? 0) + 1 }));
+                  requestDiagnosticFilter(diagnosticId);
                   setIssuesDrawerOpen(true);
                 }}
               />}
@@ -1502,7 +1503,7 @@ function IssuesHome({
   result: MechanicsResult | null;
   operationOutcomes: Record<string, OperationOutcome>;
   selectedDiagnosticId: string | null;
-  diagnosticFilterRequest?: { text: string; sequence: number } | null;
+  diagnosticFilterRequest?: DiagnosticFilterRequest | null;
   onClose: () => void;
   onSelectDiagnostic: (diagnosticId: string) => void;
 }) {

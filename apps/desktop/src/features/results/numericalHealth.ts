@@ -59,12 +59,12 @@ export type NumericalHealthCase = Readonly<{
   conditioning_sensitive: boolean;
   causes: readonly NumericalHealthCause[];
 }>;
-/** A combination's load cases: each named case, with its state where Rust gives one. */
+/** A combination and the load cases it names. */
 export type NumericalHealthCombination = Readonly<{
   combination_id: string;
   /** Null for a withheld combination: it has no health of its own. */
   state: NumericalHealthState | null;
-  cases: readonly Readonly<{ case_id: string; state: NumericalHealthState | null }>[];
+  cases: readonly string[];
   withheld: boolean;
 }>;
 /** The Rust parse output, shape-checked. */
@@ -84,25 +84,28 @@ const CAUSE_KINDS: readonly string[] = [
 
 class Shape extends Error {}
 function fail(): never { throw new Shape(); }
+/** Every member of the response is required: nothing is defaulted, so a missing or
+ * ill-typed member means no indicator at all (fail closed). */
+function field(o: Record<string, unknown>, key: string): unknown {
+  return Object.hasOwn(o, key) ? o[key] : fail();
+}
 function obj(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : fail();
 }
-function arr(value: unknown, absentAsEmpty = false): unknown[] {
-  if (absentAsEmpty && value === undefined) return [];
+function arr(value: unknown): unknown[] {
   return Array.isArray(value) ? value : fail();
 }
 function str(value: unknown): string {
   return typeof value === "string" && value.length > 0 ? value : fail();
 }
-function optStr(value: unknown): string | null {
-  return value === undefined || value === null ? null : str(value);
+function strOrNull(value: unknown): string | null {
+  return value === null ? null : str(value);
 }
-function optNum(value: unknown): number | null {
-  if (value === undefined || value === null) return null;
+function numOrNull(value: unknown): number | null {
+  if (value === null) return null;
   return typeof value === "number" && Number.isFinite(value) ? value : fail();
 }
-function bool(value: unknown, absentAs?: boolean): boolean {
-  if (value === undefined && absentAs !== undefined) return absentAs;
+function bool(value: unknown): boolean {
   return typeof value === "boolean" ? value : fail();
 }
 function state(value: unknown): NumericalHealthState {
@@ -110,55 +113,57 @@ function state(value: unknown): NumericalHealthState {
 }
 function location(value: unknown): NumericalHealthLocation {
   const o = obj(value);
-  switch (o.kind) {
-    case "node_dof": return { kind: "node_dof", node: str(o.node), dof: str(o.dof) };
-    case "ref": return { kind: "ref", ref: str(o.ref) };
-    case "text": return { kind: "text", text: str(o.text) };
+  switch (field(o, "kind")) {
+    case "node_dof": return { kind: "node_dof", node: str(field(o, "node")), dof: str(field(o, "dof")) };
+    case "ref": return { kind: "ref", ref: str(field(o, "ref")) };
+    case "text": return { kind: "text", text: str(field(o, "text")) };
     default: return fail();
   }
 }
 function cause(value: unknown): NumericalHealthCause {
   const o = obj(value);
-  const kind = typeof o.kind === "string" && CAUSE_KINDS.includes(o.kind) ? o.kind as NumericalHealthCauseKind : fail();
-  return { kind, diagnostic_id: optStr(o.diagnostic_id), locations: arr(o.locations, true).map(location) };
+  const kind = field(o, "kind");
+  if (typeof kind !== "string" || !CAUSE_KINDS.includes(kind)) fail();
+  return { kind: kind as NumericalHealthCauseKind, diagnostic_id: strOrNull(field(o, "diagnostic_id")), locations: arr(field(o, "locations")).map(location) };
 }
 function healthCase(value: unknown): NumericalHealthCase {
   const o = obj(value);
-  const digits = optNum(o.digits);
+  const digits = numOrNull(field(o, "digits"));
   if (digits !== null && digits < 0) fail();
-  const rcond = optNum(o.rcond);
   return {
-    case_id: str(o.case_id),
-    state: state(o.state),
-    code: optStr(o.code),
-    integrity_diagnostic_id: optStr(o.integrity_diagnostic_id),
-    rcond,
+    case_id: str(field(o, "case_id")),
+    state: state(field(o, "state")),
+    code: strOrNull(field(o, "code")),
+    integrity_diagnostic_id: strOrNull(field(o, "integrity_diagnostic_id")),
+    rcond: numOrNull(field(o, "rcond")),
     digits,
-    conditioning_sensitive: bool(o.conditioning_sensitive, false),
-    causes: arr(o.causes, true).map(cause)
+    conditioning_sensitive: bool(field(o, "conditioning_sensitive")),
+    causes: arr(field(o, "causes")).map(cause)
   };
-}
-function combinationCase(value: unknown): { case_id: string; state: NumericalHealthState | null } {
-  if (typeof value === "string") return { case_id: str(value), state: null };
-  const o = obj(value);
-  return { case_id: str(o.case_id), state: o.state === undefined || o.state === null ? null : state(o.state) };
 }
 function combination(value: unknown): NumericalHealthCombination {
   const o = obj(value);
-  return { combination_id: str(o.combination_id), state: o.state === null ? null : state(o.state), cases: arr(o.cases).map(combinationCase), withheld: bool(o.withheld, false) };
+  const combinationState = field(o, "state");
+  return {
+    combination_id: str(field(o, "combination_id")),
+    state: combinationState === null ? null : state(combinationState),
+    cases: arr(field(o, "cases")).map(str),
+    withheld: bool(field(o, "withheld"))
+  };
 }
 
 /** The shape check of `numerical_health_json`'s output; null for anything else. */
 export function parseNumericalHealth(value: unknown): NumericalHealth | null {
   try {
     const o = obj(value);
-    const route = typeof o.route === "string" && ROUTES.includes(o.route) ? o.route as NumericalHealthRoute : fail();
-    const verdictOnly = bool(o.verdict_only);
+    const routeValue = field(o, "route");
+    const route = typeof routeValue === "string" && ROUTES.includes(routeValue) ? routeValue as NumericalHealthRoute : fail();
+    const verdictOnly = bool(field(o, "verdict_only"));
     // Rust gives verdict_only only on a generic route; anything else is not its output.
     if (verdictOnly && route !== "generic") fail();
-    const cases = arr(o.cases).map(healthCase);
+    const cases = arr(field(o, "cases")).map(healthCase);
     if (new Set(cases.map((c) => c.case_id)).size !== cases.length) fail();
-    const combinations = arr(o.combinations, true).map(combination);
+    const combinations = arr(field(o, "combinations")).map(combination);
     if (new Set(combinations.map((c) => c.combination_id)).size !== combinations.length) fail();
     return Object.freeze({ route, verdict_only: verdictOnly, cases: Object.freeze(cases), combinations: Object.freeze(combinations) });
   } catch (error) {
@@ -335,7 +340,7 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
     state: m.state,
     badge: badgeOf(m.state),
     // A case missing from numerical_quality reads "not assessed".
-    text: combinationText(m.cases.map((c) => [c.case_id, c.state ?? caseStates.get(c.case_id) ?? "not_assessed"] as const))
+    text: combinationText(m.cases.map((caseId) => [caseId, caseStates.get(caseId) ?? "not_assessed"] as const))
   }]);
   const notPassed = health.cases.filter((c) => c.state !== "checks_passed").length;
   const byCombination = new Map(combinations.map((m) => [m.combinationId, m]));
@@ -354,7 +359,7 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
 }
 
 /** What the shell chip and the rail show instead of "Needs recompute". */
-export type NumericalHealthHold = Readonly<{ headline: string; shortHeadline: string }>;
+export type NumericalHealthHold = Readonly<{ headline: string; shortHeadline: string; outputSentence: string | null }>;
 
 /** The chip and rail replacement predicate (§3 "Replacing 'Needs recompute'"): every
  * Current requirement other than numerical eligibility holds, the Rust `verdict_only` is
