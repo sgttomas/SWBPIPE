@@ -147,8 +147,8 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | `docs/SPEC.md` | Layered architecture, adapter no-bypass rule, report/audit content, warning classes, and validation expectations. |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data policy, quarantine rule, and report boundary. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-02, SOW-040, OBJ-010, and AB-00 architecture basis. |
-> | `docs/_Registers/Deliverables.csv` | Deliverable identity, anticipated artifacts, context/risk notes. |
-> | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-040. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable identity, anticipated artifacts, context/risk notes. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope ledger row for SOW-040. |
 
 ## Completion and Reliance Basis — Epistemology
 

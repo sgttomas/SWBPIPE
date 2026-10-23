@@ -104,8 +104,8 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data rules and quarantine behavior. |
 > | `docs/VALIDATION_STRATEGY.md` | Verification and validation families and release gate expectations. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Scope, objectives, package context, architecture basis, and open issues. |
-> | `docs/_Registers/Deliverables.csv` | DEL-11-02 identity and anticipated artifact. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-033 scope mapping and no-protected-examples note. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | DEL-11-02 identity and anticipated artifact. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-033 scope mapping and no-protected-examples note. |
 
 ## Completion and Reliance Basis — Epistemology
 

@@ -120,10 +120,10 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, anticipated artifacts, and architecture basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, anticipated artifacts, and architecture basis injection.
 > - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-PRIV, OPS-K-RULE, and OPS-K-AGENT invariants.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for SOW-029, SOW-040, OBJ-010, PKG-12, and AB-00-01/02/03/04/06/07/08.
-> - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` for machine-readable scope.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) for machine-readable scope.
 > - `docs/PRD.md` sections 12, 13, 15, 17, and 18 for rule-pack, private-library, report, IP, local-first, telemetry, and private-data handling requirements.
 > - `docs/IP_AND_DATA_BOUNDARY.md` sections 2 through 7 for public/private data boundary, provenance, quarantine, and report limits.
 > - `docs/architecture/plugin_boundary.md`, `docs/architecture/extension_domain_contracts.md`, and `docs/architecture/persistence_contract.md` for architecture-basis constraints on permissions, private-data markers, checksums, and no-bypass behavior.

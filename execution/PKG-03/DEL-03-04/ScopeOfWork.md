@@ -128,11 +128,11 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, accepted decomposition revision, architecture basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, accepted decomposition revision, architecture basis injection.
 > - `_REFERENCES.md` - local governing reference list.
-> - `docs/_Registers/Deliverables.csv` row DEL-03-04.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-008.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-008.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-04.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
 > - `docs/CONTRACT.md` invariants listed in this kit.
 > - `schemas/component.schema.yaml` current component library schema evidence.

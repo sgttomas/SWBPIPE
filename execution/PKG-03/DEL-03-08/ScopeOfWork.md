@@ -84,11 +84,11 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, objectives, artifact list, and architecture basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, artifact list, and architecture basis injection.
 > - `_REFERENCES.md` for governing local references.
-> - `docs/_Registers/Deliverables.csv` row DEL-03-08.
-> - `docs/_Registers/ScopeLedger.csv` rows SOW-051 and SOW-018.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-08.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-08.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-051 and SOW-018.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-08.
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-SOLVER-1, and OPS-K-AGENT-1..4.
 > - `core/section_properties/calculator.py` and `core/section_properties/README.md` for implemented calculator behavior.
 > - `tests/test_section_properties.py` for current unit and negative-test evidence.

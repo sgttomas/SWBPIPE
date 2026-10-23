@@ -170,7 +170,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data policy, provenance fields, quarantine rule, and report boundary. |
 > | `docs/PRD.md` | Security/privacy requirements, private-data handling, report prohibitions, and risk table. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, SOW-040, OBJ-010, and AB-00 architecture-basis constraints. |
-> | `docs/_Registers/*.csv` | Machine-readable deliverable, scope, and context-budget rows. |
+> | `docs/_Registers/*.csv` (retired in `48584391de`; see Git history) | Machine-readable deliverable, scope, and context-budget rows. |
 >
 
 ### CLM-013 — D-41 R5 T7 PDU-054 current declaration

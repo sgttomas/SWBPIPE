@@ -91,9 +91,9 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, architecture basis IDs, and write-scope constraints.
-> - `docs/_Registers/Deliverables.csv` row DEL-08-04 for artifact and objective mapping.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-046 for export baseline acceptance notes.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture basis IDs, and write-scope constraints.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-04 for artifact and objective mapping.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-046 for export baseline acceptance notes.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` rows AB-00-03, AB-00-04, AB-00-06, AB-00-07, and OI-004 for envelope/API/no-bypass and format-TBD constraints.
 > - `docs/SPEC.md` sections 4.5, 7, 8, 9, and 11 for deterministic results, diagnostics, reporting, validation, and acceptance semantics.
 > - `docs/TYPES.md` sections 4 and 8 for analysis-status vocabulary and `Result` object boundary.

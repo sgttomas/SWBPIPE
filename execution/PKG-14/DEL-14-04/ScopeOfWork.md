@@ -97,7 +97,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and context budget.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and context budget.
 > - `_REFERENCES.md` - governing reference list and accessible public context.
 > - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for upstream dependency rows.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, deliverable, scope, objective, and open-issue basis.
