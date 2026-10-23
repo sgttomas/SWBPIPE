@@ -631,6 +631,11 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
   there is no evaluation.
 - The Rule Pack Manager gets "Use with this model" and "Remove from model".
 - New diagnostics appear in the diagnostics list.
+- **Known gap closed in S2 (found in the S1a review).** The schema accepts
+  `support.nonlinear: null` as linear, as the applier and solver read it. The
+  desktop's `SupportConfigurationForm.tsx` (~39, ~119, ~250) treats a null as
+  present: it shows "Include nonlinear behavior" checked and then requires a
+  behaviour. S2 makes the form read null as absent.
 
 ## 7. Owner-reserved text (exact old → new to HELP_HUMAN at the slice that needs it)
 

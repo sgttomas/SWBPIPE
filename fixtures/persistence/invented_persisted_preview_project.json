@@ -15,8 +15,8 @@
     "notes": "SQLite stores canonical JSON bytes and indexed projections; SQL is not a public contract."
   },
   "project": {
-    "project_id": "project:invented_loop_01",
-    "project_name": "Invented persisted preview project",
+    "project_id": "project:invented-demo-loop-01",
+    "project_name": "Invented Utility Loop Demo",
     "unit_system_ref": {
       "ref_kind": "schema",
       "ref": "unit-system:SI-preview"
@@ -929,7 +929,7 @@
         "ref": "project-payload"
       },
       "payload_scope": "project_payload",
-      "value": "01bb0e1c8fcd368cd4bcc6c71b6efeea0fe2059712de24e426796dd3464f6e4f"
+      "value": "fef2bbbd99d1b14f30a4e53369eb79b666708ba88272f6b87844fc77ec2ed126"
     },
     "hash_manifest": [
       {
@@ -940,7 +940,7 @@
           "ref": "project-payload"
         },
         "payload_scope": "project_payload",
-        "value": "01bb0e1c8fcd368cd4bcc6c71b6efeea0fe2059712de24e426796dd3464f6e4f"
+        "value": "fef2bbbd99d1b14f30a4e53369eb79b666708ba88272f6b87844fc77ec2ed126"
       },
       {
         "algorithm": "sha256",
@@ -960,7 +960,7 @@
           "ref": "project-envelope-without-hash"
         },
         "payload_scope": "project_envelope",
-        "value": "89f15ded9cdefe4d863c65614e1d2b69b1703b9b71b23457be0693339f522b76"
+        "value": "4d683bbd0431247affc3a88b1d4fb5a81f431f327b6592c7a1d7988cb47286a1"
       }
     ],
     "payload_partition_status": "json_payloads_defined",

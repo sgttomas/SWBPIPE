@@ -29,6 +29,8 @@ mod rich_authoring;
 mod retained_semantics_binding;
 pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
+mod numerical_health;
+pub use numerical_health::numerical_health_json;
 mod pressure_authoring;
 mod joint_pressure_authoring;
 mod section_bindings;
@@ -1234,6 +1236,15 @@ mod wasm_api {
     #[wasm_bindgen]
     pub fn reader_row_semantics_json(row_json: &str, source_json: Option<String>) -> Result<String, JsError> {
         super::reader_row_semantics_json(row_json, source_json.as_deref())
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// DEL-07-05 numerical health: the per-case presentation projection of the
+    /// ordinary solve's diagnostics, with `verdict_only` over the reader's
+    /// findings when given. Presentation only; never admission or standing.
+    #[wasm_bindgen]
+    pub fn numerical_health_json(source_json: &str, reader_findings_json: Option<String>) -> Result<String, JsError> {
+        super::numerical_health_json(source_json, reader_findings_json.as_deref())
             .map_err(|error| JsError::new(&error))
     }
 }

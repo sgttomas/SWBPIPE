@@ -386,6 +386,9 @@ def test_invented_persistence_fixture_validates_with_run_history_refs():
     }
     model = envelope["project"]["model_payload"]
     assert model["document_kind"] == "openpipestress.product_preview.model"
+    # The envelope names the project the embedded document names, as the desktop's save does.
+    assert envelope["project"]["project_id"] == model["project"]["id"]
+    assert envelope["project"]["project_name"] == model["project"]["name"]
     assert "load:L-200" in {item["id"] for item in model["load_cases"]}
     assert "combination:C-OPER-ALT" in {item["id"] for item in model["combinations"]}
     validate_persistence_instance(envelope, "invented persisted preview project")
