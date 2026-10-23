@@ -200,6 +200,36 @@ fn record_operations_create_update_and_delete_with_undo_and_redo() {
     }
 }
 
+/// A delete's inverse puts the record back at its index
+/// (`<collection>[<index>]`), so deleting a record that is not last is undone
+/// exactly; a plain create would append it out of order.
+#[test]
+fn deleting_a_record_that_is_not_last_is_undone_at_its_index() {
+    let model = every_slot();
+    let first = find(&model, "lines", "id", "line:L-100").clone();
+    let deleted = round_trip(&model, &record_op("delete_line", "Line", "lines", "line:L-100", Some(&first), None), |_| {
+        let mut inverse = record_op("create_line", "Line", "lines", "line:L-100", None, Some(&first));
+        inverse["change"]["field_path"] = json!("lines[0]");
+        inverse
+    });
+    assert_eq!(deleted["lines"].as_array().unwrap().len(), 1);
+    let (appended, _) = applied(&deleted, &record_op("create_line", "Line", "lines", "line:L-100", None, Some(&first)));
+    assert_ne!(appended, model, "a plain create appends");
+    let mut out_of_range = record_op("create_line", "Line", "lines", "line:L-100", None, Some(&first));
+    out_of_range["change"]["field_path"] = json!("lines[2]");
+    assert_eq!(blocking(&refused(&deleted, &out_of_range)), vec!["OP-DATA-INDEX-INVALID"]);
+    let mut on_delete = record_op("delete_line", "Line", "lines", "line:L-100", Some(&first), None);
+    on_delete["change"]["field_path"] = json!("lines[0]");
+    assert_eq!(blocking(&refused(&model, &on_delete)), vec!["OP-DATA-SHAPE-INVALID"]);
+    // The assumption family as well: delete A-001 of two and restore it first.
+    let assumption = find(&model, "unresolved_assumptions", "assumption_id", "assumption:A-001").clone();
+    round_trip(&model, &record_op("delete_assumption", "Assumption", "unresolved_assumptions", "assumption:A-001", Some(&assumption), None), |_| {
+        let mut inverse = record_op("create_assumption", "Assumption", "unresolved_assumptions", "assumption:A-001", None, Some(&assumption));
+        inverse["change"]["field_path"] = json!("unresolved_assumptions[0]");
+        inverse
+    });
+}
+
 #[test]
 fn a_collection_emptied_by_a_delete_is_removed_and_restored_by_create() {
     let mut model = every_slot();
@@ -279,11 +309,9 @@ fn record_operations_refuse_malformed_records_by_the_validator_name() {
 /// kind, with undo and redo. Clearing removes the member.
 #[test]
 fn annotations_on_every_entity_type_with_undo_and_redo() {
-    let mut model = every_slot();
-    // An authored empty tag list cannot be re-authored (an empty list clears),
-    // so the witness's empty list is removed for the inverse-operation undo.
-    model["equipment_interfaces"][0].as_object_mut().unwrap().remove("tags");
-    let model = model;
+    // The witness's equipment interface and first line carry an authored
+    // `"tags": []`, which the inverse edit restores exactly.
+    let model = every_slot();
     let targets: [(&str, &str, &str, &str); 13] = [
         ("Project", "project:slots", "project", ""),
         ("Node", "node:N-3", "nodes", "id"),
@@ -316,9 +344,14 @@ fn annotations_on_every_entity_type_with_undo_and_redo() {
             assert!(entity(&cleared, collection, key, id).get(field).is_none(), "{object_type} {field} cleared");
         }
     }
-    // An empty tag list clears as well.
-    let (cleared, _) = applied(&model, &annotate("Element", "pipe:P-1", "tags", Some(&json!(["discharge"])), &json!([])));
-    assert!(find(&cleared, "pipe_segments", "id", "pipe:P-1").get("tags").is_none());
+    // An empty tag list is stored as authored (only null clears), so an
+    // authored `[]` is restorable.
+    let (emptied, _) = applied(&model, &annotate("Element", "pipe:P-1", "tags", Some(&json!(["discharge"])), &json!([])));
+    assert_eq!(find(&emptied, "pipe_segments", "id", "pipe:P-1")["tags"], json!([]));
+    let restored = round_trip(&model, &annotate("EquipmentInterface", "equipment-interface:E-001", "tags", Some(&json!([])), &json!(["x"])), |next| {
+        annotate("EquipmentInterface", "equipment-interface:E-001", "tags", find(next, "equipment_interfaces", "id", "equipment-interface:E-001").get("tags"), &json!([]))
+    });
+    assert_eq!(find(&restored, "equipment_interfaces", "id", "equipment-interface:E-001")["tags"], json!(["x"]));
 
     let record = json!({"source_name": "Invented catalogue", "redistribution_status": "private_only", "review_status": "pending"});
     for (object_type, id, collection) in [
