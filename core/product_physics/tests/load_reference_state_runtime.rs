@@ -364,7 +364,7 @@ impl Model {
 
     fn request(&self) -> Value {
         json!({"model": {
-            "schema_version": "0.6.0",
+            "schema_version": "0.7.0",
             "document_kind": "openpipestress.product_preview.model",
             "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
             "project": {"id": self.id, "units": {"length": "m", "force": "N", "angle": "rad",
@@ -2711,7 +2711,7 @@ fn negative_legacy_version_documents_carrying_load_state_block() {
     strip_configurations(&mut only_laws);
     blocked_with(&only_laws, "0.3.0_with_expansion_laws", VERSION_MISMATCH);
     let mut pressure_free = only_state.clone();
-    pressure_free["model"]["schema_version"] = json!("0.6.0");
+    pressure_free["model"]["schema_version"] = json!("0.7.0");
     pressure_free["model"]
         .as_object_mut()
         .unwrap()
@@ -2728,7 +2728,7 @@ fn negative_legacy_version_documents_carrying_load_state_block() {
             .unwrap()
             .remove("corrosion_allowance");
     }
-    blocked_with(&pressure_free, "0.6.0_with_analysis_state", VERSION_MISMATCH);
+    blocked_with(&pressure_free, "0.7.0_with_analysis_state", VERSION_MISMATCH);
 }
 
 #[test]

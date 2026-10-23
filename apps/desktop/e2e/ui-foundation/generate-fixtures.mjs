@@ -194,7 +194,7 @@ function buildModel(pipeCount) {
     };
   });
   return {
-    schema_version: "0.6.0",
+    schema_version: "0.7.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {
       public_examples_policy: "invented_generated_benchmark_data_only",

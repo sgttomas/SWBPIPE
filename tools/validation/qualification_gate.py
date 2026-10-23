@@ -7,7 +7,7 @@ Closed dispatch covers the current sparse preview-physics-2 raw0.2 carrier and t
 selected two-case ordinary pressure-2 raw0.2 profile (b7-plan E2 retired the raw0.1
 carrier and its v0_2 table; B7b retired physics-1, so the two first-static cases run
 on a declared re-authored copy of their frozen 0.3.0 inputs as pressure-2 on model
-0.6.0). No source/composite or future-profile fallback occurs.
+0.7.0). No source/composite or future-profile fallback occurs.
 """
 from __future__ import annotations
 import argparse

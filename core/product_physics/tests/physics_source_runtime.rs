@@ -1,7 +1,7 @@
 //! Public composite controls use separately authored explicit E/nu companions.
 //! Original NUM requests/references remain unchanged. No expected result is read
 //! from a produced raw fixture; analytical fields and whole-body balance apply.
-//! B7b: the controls are the current (0.6.0, v3) twins of the deleted v2
+//! B7b: the controls are the current (0.7.0, v3) twins of the deleted v2
 //! requests, publishing pressure-source-1 under PRESSURE-SOURCE-1.
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, PreviewSolverMode,

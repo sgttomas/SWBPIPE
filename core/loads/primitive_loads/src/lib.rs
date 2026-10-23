@@ -365,7 +365,7 @@ impl CanonicalSchemaBinding {
         match self {
             Self::ModelLoadCase => "schemas/model.schema.yaml#/$defs/LoadCase",
             Self::ModelLoadRecord => "schemas/model.schema.yaml#/$defs/LoadRecord",
-            Self::ModelResultValue => "schemas/model.schema.yaml#/$defs/Result/values",
+            Self::ModelResultValue => "schemas/results.v0.3.schema.yaml#/$defs/QuantityResult",
             Self::ResultsQuantityResult => "schemas/results.schema.yaml#/$defs/QuantityResult",
         }
     }

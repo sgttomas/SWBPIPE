@@ -1,5 +1,5 @@
 {
- "binding": "validation/references/t4_u5b README \"Binding to model 0.6.0\": one model 0.6.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base, kept beside the headless t4_u5b test outside the frozen reference tree; only request bytes and hashes are added, and no oracle value, case description or reference file moves",
+ "binding": "validation/references/t4_u5b README \"Binding to model 0.7.0\": one model 0.7.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base, kept beside the headless t4_u5b test outside the frozen reference tree; only request bytes and hashes are added, and no oracle value, case description or reference file moves",
  "cases": {
   "AS-A": {
    "case_description": "cases/AS-A.case.json",

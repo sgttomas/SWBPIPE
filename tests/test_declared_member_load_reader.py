@@ -191,7 +191,7 @@ def test_early_member_guard_scope_preserves_namespace_and_source_forgery_bounds(
     from copy import deepcopy
     from tests.verifiers import retained_precision as rp
     body={"sources":[],"invocation":{"value":"0"*64}}
-    invocation={"request":{"model":{"schema_version":"0.6.0","load_cases":[{"id":"c","primitive_loads":
+    invocation={"request":{"model":{"schema_version":"0.7.0","load_cases":[{"id":"c","primitive_loads":
         [{"target":{"type":"node"}}]*128+[{"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}]}]}},"solver_mode":"sparse_interactive"}
     def no_hash(*args,**kwargs):raise AssertionError("hash reached")
     monkeypatch.setattr(rp,"_hash",no_hash)
@@ -219,7 +219,7 @@ def test_early_member_guard_scope_preserves_namespace_and_source_forgery_bounds(
 def test_early_member_guard_borrowed_views_match_rust_json_types():
     from copy import deepcopy
     from tests.verifiers import retained_precision as rp
-    invocation={"request":{"model":{"schema_version":"0.6.0","load_cases":[{"id":"c","primitive_loads":[]}] }},"solver_mode":"sparse_interactive"}
+    invocation={"request":{"model":{"schema_version":"0.7.0","load_cases":[{"id":"c","primitive_loads":[]}] }},"solver_mode":"sparse_interactive"}
     variants=[[],{"request":None},{"request":{"model":None}}]
     for key,value in (("load_cases",None),("load_cases",[None]),("pipe_segments",[None]),("pipe_segments",[{"id":[]}]),("materials",{})):
         inv=deepcopy(invocation);inv['request']['model'][key]=value;variants.append(inv)

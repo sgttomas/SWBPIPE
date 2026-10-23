@@ -174,7 +174,7 @@ def inspect_directed_helpers(snapshot):
 # observation lane stays deleted.
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's republication, screen, cause and row-binding diff adds or removes no
 # `.min(`/`.max(` call, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'e8185273cf8a31ab66ba512deccb8a4ba92cc636dbd5524313d4bab610ca3237'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'caa0a97883867a4d0fd5ba977a03ec5a765b603c07c38f680dab2e5f98caaf93'
 
 
 def primitive_lib_minmax_callers(snapshot):

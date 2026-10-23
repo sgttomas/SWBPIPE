@@ -78,7 +78,7 @@ fn request(r: &Reach) -> Value {
     };
     json!({
         "model": {
-            "schema_version": "0.6.0",
+            "schema_version": "0.7.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {
                 "mechanics": "ready_for_preview_diagnostics",

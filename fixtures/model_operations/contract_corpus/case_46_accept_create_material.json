@@ -30,7 +30,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": []
   },
   "case_id": "accept-create-material",
@@ -86,7 +86,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "supports": []
     },
     "applied_model_canonical_sha256": "sha256:8b4057aa4bc7faca95dd64a86263e8728668abaffe4ff10c6002c47ecf5476c5",

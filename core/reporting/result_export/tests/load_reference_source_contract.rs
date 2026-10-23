@@ -1,7 +1,7 @@
 //! The current pressure-source-1 reader on the ten committed joined producer
 //! envelopes that carry the load/reference-state group (B7b's v3 twins of the
 //! retired load-reference-source-1 statements, same physical inputs,
-//! 0.6.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
+//! 0.7.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
 //! Python verifier and the base-reader corpus. Both readers must reproduce every
 //! expectation in the case file. This proves consumer admission and carrier
 //! preservation, not producer authentication or numerical eligibility (a valid

@@ -1,7 +1,7 @@
 //! T4-U0 (exact-route hardening) through the headless runner: an exact
 //! document refused for a metadata-only component (A1.1) or a combination
 //! (A1.6) is blocked with no export, in both solver modes. The input is PP's
-//! committed invented X0 fixture (the current 0.6.0 `3.0.0/exact_pressure_v3`
+//! committed invented X0 fixture (the current 0.7.0 `3.0.0/exact_pressure_v3`
 //! document).
 //!
 //! B7b: the retired `2.0.0/exact_straight_pressure_v2` route's composition and

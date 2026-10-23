@@ -50,7 +50,7 @@
         ]
       }
     ],
-    "schema_version": "0.6.0"
+    "schema_version": "0.7.0"
   },
   "case_id": "accept-set-field-material-temperature-point-shear-modulus",
   "claimed_model_hash": null,
@@ -107,7 +107,7 @@
           ]
         }
       ],
-      "schema_version": "0.6.0"
+      "schema_version": "0.7.0"
     },
     "applied_model_canonical_sha256": "sha256:e5a72a3726f9d26a3efcda116ca5b0c89f9fd90904de701315537c07d26b77d9",
     "outcome": {

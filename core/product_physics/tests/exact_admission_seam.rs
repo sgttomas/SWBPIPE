@@ -6,7 +6,7 @@
 //! load/reference-state group), Y0 =
 //! `fixtures/product_preview/pressure/load_reference/pressure.request.json`
 //! (with the group). B7b deleted the v2 contract: both are current model
-//! 0.6.0 documents, re-authored once from their v2 originals to
+//! 0.7.0 documents, re-authored once from their v2 originals to
 //! `3.0.0/exact_pressure_v3` with `shear_model` Euler-Bernoulli and an
 //! explicit zero corrosion allowance. "Both entries" are the captured value
 //! entry and the typed entry; "both modes" are sparse-interactive and
@@ -47,7 +47,7 @@ enum Base {
 }
 
 impl Base {
-    /// The committed current document (0.6.0, v3, CA 0, Euler-Bernoulli).
+    /// The committed current document (0.7.0, v3, CA 0, Euler-Bernoulli).
     fn current(self) -> Value {
         let document: Value = serde_json::from_str(match self {
             Base::X0 => X0,
@@ -648,8 +648,8 @@ fn shared_pressure_v3_reader_corpus_is_current() {
     let corpus = json!({
         "corpus":"T4-U2a pressure-1 straight reader corpus",
         "generator":"core/product_physics/tests/exact_admission_seam.rs::shared_pressure_v3_reader_corpus_is_current",
-        "inputs":["core/product_physics/tests/fixtures/exact_pressure_connected_request.json (X0, model 0.6.0, pressure_contract 3.0.0/exact_pressure_v3, case:closed-pressure p = -2000 kPa)",
-            "fixtures/product_preview/pressure/load_reference/pressure.request.json (Y0, model 0.6.0 with the load/reference-state group, pressure_contract 3.0.0/exact_pressure_v3)"],
+        "inputs":["core/product_physics/tests/fixtures/exact_pressure_connected_request.json (X0, model 0.7.0, pressure_contract 3.0.0/exact_pressure_v3, case:closed-pressure p = -2000 kPa)",
+            "fixtures/product_preview/pressure/load_reference/pressure.request.json (Y0, model 0.7.0 with the load/reference-state group, pressure_contract 3.0.0/exact_pressure_v3)"],
         "cases":cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

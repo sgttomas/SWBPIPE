@@ -62,7 +62,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": []
   },
   "case_id": "accept-delete-node",
@@ -122,7 +122,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "supports": []
     },
     "applied_model_canonical_sha256": "sha256:3b63678ec9debae02be8ecc7e0b2335fe7e0db0c74cdb685528986d21d2b004c",

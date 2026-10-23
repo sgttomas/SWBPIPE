@@ -1,7 +1,7 @@
 //! The current pressure-2 reader on documents carrying the optional
 //! load/reference-state group: the four current producer envelopes (B7b's v3
 //! twins of the retired load-reference-1 statements, same physical inputs,
-//! 0.6.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
+//! 0.7.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
 //! Python verifier and the base-reader corpus. Both readers must reproduce every
 //! expectation in the case file. This proves consumer admission and carrier
 //! preservation, not producer authentication.

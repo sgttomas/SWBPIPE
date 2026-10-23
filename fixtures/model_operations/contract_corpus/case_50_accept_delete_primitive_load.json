@@ -128,7 +128,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": []
   },
   "case_id": "accept-delete-primitive-load",
@@ -249,7 +249,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "supports": []
     },
     "applied_model_canonical_sha256": "sha256:e93bacfee6a36b1ac1cb9de23e7f7a4620e55ee7358454ded33f492dd8f4ff2f",

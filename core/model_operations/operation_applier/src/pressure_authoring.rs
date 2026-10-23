@@ -146,7 +146,7 @@ fn validate_regions(model: &Value, value: &Value, signed: bool) -> Result<()> {
     let mut owned_pipes = HashSet::new();
     for region in regions {
         let mut region_keys = vec!["id","member_pipe_ids","pressure_basis","pressure","terminals","provenance"];
-        if model["schema_version"] == "0.6.0" { region_keys.push("member_connector_ids"); }
+        if model["schema_version"] == open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION { region_keys.push("member_connector_ids"); }
         object(
             region,
             &region_keys,
@@ -282,7 +282,7 @@ pub(crate) fn resolve(
                 || after["schema_version"] != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION {
                 return Err(RichError {
                     code: "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED",
-                    message: "pressure_profile is authored only on current model 0.6.0; re-author retired documents explicitly".into(),
+                    message: format!("pressure_profile is authored only on current model {}; re-author retired documents explicitly", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
                 });
             }
             for pipe in model["pipe_segments"].as_array().ok_or_else(|| err("Missing pipe segments"))? {

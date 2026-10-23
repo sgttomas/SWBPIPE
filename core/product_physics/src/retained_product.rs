@@ -137,7 +137,7 @@ pub(super) struct SolverObservations {
 /// B3b-P (B3-D P-1): the invocation's W1 route, decided once (`lib.rs` `w1_route`, in
 /// `permitted_run` and the private driver) from the admitted model's namespace branch: the
 /// preview successor over preview-physics-2, or the exact successor (`physics-retained-1`,
-/// DEF-E) over pressure-2 (schema 0.6.0, `exact_pressure_v3`, explicitly empty
+/// DEF-E) over pressure-2 (schema 0.7.0, `exact_pressure_v3`, explicitly empty
 /// pressure regions). The route-specific steps (capture, observables, maxima, overlay and
 /// the wire's identity) each call their own named function (I95's ruling 1).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

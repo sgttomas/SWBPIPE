@@ -49,8 +49,8 @@ RF_PINS = {
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's republication, screen and cause texts change no reduction's owner
 # or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "e8185273cf8a31ab66ba512deccb8a4ba92cc636dbd5524313d4bab610ca3237",
-    "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
+    "core/product_physics/src/lib.rs": "caa0a97883867a4d0fd5ba977a03ec5a765b603c07c38f680dab2e5f98caaf93",
+    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
     "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",

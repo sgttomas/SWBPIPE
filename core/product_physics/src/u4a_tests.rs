@@ -18,7 +18,7 @@ fn reference_inputs() -> (Value, Value) {
     assert_eq!(format!("{:x}", Sha256::digest(REQUESTS.as_bytes())), oracle["requests_sha256"].as_str().unwrap());
     (requests, oracle)
 }
-/// Re-author only the copied invocation to the current 0.6.0 document (B7a's
+/// Re-author only the copied invocation to the current 0.7.0 document (B7a's
 /// pressure-free version; B7b's exact contract with zero allowance and
 /// Euler-Bernoulli). The SHA-bound frozen request and every physical input stay fixed.
 fn current_request(requests: &Value, id: &str) -> Value {

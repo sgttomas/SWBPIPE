@@ -1,10 +1,11 @@
 //! B7b's one re-authoring of a copied integration-test model or request (the
 //! lib twin is `src/b7b_admission_tests.rs`'s `reauthor_current_model`).
 //!
-//! Model document 0.6.0 is the only current version. A 0.5.0 copy is
-//! re-authored by its `schema_version` alone (0.6.0 adds members and changes none,
-//! DEL-04-07 Design `u4b-u5b-implementation.md` §1.1). An older copy is
-//! re-authored by: `schema_version` -> 0.6.0; a declared v2 or v3 exact contract
+//! Model document 0.7.0 is the only current version. A 0.5.0 or 0.6.0 copy is
+//! re-authored by its `schema_version` alone (0.6.0 and 0.7.0 add members and
+//! change none, DEL-04-07 Design `u4b-u5b-implementation.md` §1.1, DEL-02-01
+//! Design `model-document-0.7.0.md` §2). An older copy is
+//! re-authored by: `schema_version` -> 0.7.0; a declared v2 or v3 exact contract
 //! -> the current
 //! `{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"}`;
 //! and, on a contract-present document, an explicit zero `corrosion_allowance`
@@ -16,10 +17,10 @@
 #![allow(dead_code)]
 use serde_json::{json, Value};
 
-pub const CURRENT_MODEL_VERSION: &str = "0.6.0";
-pub const RETIRED_MODEL_VERSIONS: [&str; 5] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0"];
-/// The previous current version, re-authored by its version string alone.
-pub const PREVIOUS_MODEL_VERSION: &str = "0.5.0";
+pub const CURRENT_MODEL_VERSION: &str = "0.7.0";
+pub const RETIRED_MODEL_VERSIONS: [&str; 6] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"];
+/// The previous current versions, re-authored by their version string alone.
+pub const PREVIOUS_MODEL_VERSIONS: [&str; 2] = ["0.5.0", "0.6.0"];
 
 /// The current exact contract object.
 pub fn current_contract() -> Value {
@@ -28,7 +29,10 @@ pub fn current_contract() -> Value {
 
 /// Re-author a copied model document in place (see the module comment).
 pub fn reauthor_model(model: &mut Value) {
-    if model["schema_version"] == PREVIOUS_MODEL_VERSION {
+    if model["schema_version"]
+        .as_str()
+        .is_some_and(|version| PREVIOUS_MODEL_VERSIONS.contains(&version))
+    {
         model["schema_version"] = json!(CURRENT_MODEL_VERSION);
         return;
     }

@@ -41,7 +41,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": [
       {
         "id": "support:S-1",
@@ -101,7 +101,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "supports": []
     },
     "applied_model_canonical_sha256": "sha256:ebddae16044d326d1067fedd6efecde6b80df8be8914ebd8eb71e5bca04d1a71",

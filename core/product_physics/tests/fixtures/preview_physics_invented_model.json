@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.6.0",
+  "schema_version": "0.7.0",
   "document_kind": "openpipestress.product_preview.model",
   "data_boundary": {
     "public_examples_policy": "invented_or_cleared_data_only",

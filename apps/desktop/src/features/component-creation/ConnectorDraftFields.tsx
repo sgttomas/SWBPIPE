@@ -4,6 +4,7 @@ import {
   connectorCreationAvailable, emptyTieRodDraft, TIE_ROD_LAW, tieRodDrafts, type ConnectorDraft, type TieRodDraft
 } from "./componentIntent";
 import type { PreviewModel } from "../../types";
+import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 
 type TextInput = (props: { label: string; testId: string; value: string; onChange: (value: string) => void }) => ReactElement;
 
@@ -57,7 +58,7 @@ export function ConnectorDraftFields({ model, draft, prefix, TextInput, update }
       {draft.hardwareKind === "explicit_axial_rods_v1" &&
         <TieRodTable draft={draft} prefix={prefix} TextInput={TextInput} update={update} />}
       {choice("Pressure model", "pressureModel", "pressure-model", connectorPressureModels(model))}
-      {model.schema_version === "0.6.0" && draft.pressureModel === "constant_effective_area_reference_v1" && <>
+      {model.schema_version === MODEL_SCHEMA_VERSION && draft.pressureModel === "constant_effective_area_reference_v1" && <>
         {text("Joint effective area", "effectiveArea", "effective-area")}
         {text("Joint effective area unit", "effectiveAreaUnit", "effective-area-unit")}
         {choice("Joint pressure basis", "pressureBasis", "pressure-basis", ["internal_differential_zero_external_v1"])}

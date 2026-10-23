@@ -43,7 +43,7 @@ govern.
 
 Boundary records bind to `schemas/model.schema.yaml#/$defs/LoadCase`,
 `schemas/model.schema.yaml#/$defs/LoadRecord`,
-`schemas/model.schema.yaml#/$defs/Result/values`, or
+`schemas/results.v0.3.schema.yaml#/$defs/QuantityResult` (model result values), or
 `schemas/results.schema.yaml#/$defs/QuantityResult` by explicit enum. Unit
 metadata uses the accepted PKG-02 dimension vocabulary and rejects retired
 aliases such as `temperature_difference`, `area_moment`, and generic

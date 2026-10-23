@@ -34,7 +34,7 @@
         ]
       }
     ],
-    "schema_version": "0.6.0"
+    "schema_version": "0.7.0"
   },
   "case_id": "block-set-field-material-temperature-point-shear-modulus-invalid",
   "claimed_model_hash": null,

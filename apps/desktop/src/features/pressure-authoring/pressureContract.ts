@@ -1,4 +1,5 @@
 import type { PreviewModel } from "../../types";
+import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 
 /** The two admitted straight-member shear models of the exact contract (T4-U8, D-6/O3). */
 export type ShearModel = "euler_bernoulli" | "timoshenko_annulus_energy_v1";
@@ -29,7 +30,7 @@ export function isPressureV3(model: ContractModel): boolean {
 /** A current document on the exact pressure route.
  * Materials there derive G from the selected E/nu pair. */
 export function isExactPressureContract(model: ContractModel): boolean {
-  if (model.schema_version !== "0.6.0" || !isPressureV3(model)) return false;
+  if (model.schema_version !== MODEL_SCHEMA_VERSION || !isPressureV3(model)) return false;
   const contract = model.pressure_contract;
   return !!contract && Object.keys(contract).length === 3 && isShearModel(contract.shear_model);
 }
@@ -45,5 +46,5 @@ export function documentShearModel(model: ContractModel): ShearModel | null {
  * selection (never rewritten), else the default. */
 export function pressureProfileTarget(model: ContractModel, selected?: ShearModel) {
   const shear_model = selected ?? documentShearModel(model) ?? DEFAULT_SHEAR_MODEL;
-  return { schema_version: "0.6.0", pressure_contract: { version: PRESSURE_V3.version, mode: PRESSURE_V3.mode, shear_model } };
+  return { schema_version: MODEL_SCHEMA_VERSION, pressure_contract: { version: PRESSURE_V3.version, mode: PRESSURE_V3.mode, shear_model } };
 }

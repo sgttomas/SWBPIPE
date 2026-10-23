@@ -76,7 +76,7 @@ fn retired_v2_labels_are_refused() {
             relabelled["producer"]["semantic_contract_id"] = json!(id);
             for refusal in [s::for_source(&relabelled).unwrap_err(), s::for_source_metadata(&relabelled).unwrap_err()] {
                 assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_EXACT_PRESSURE_V2_RETIRED)), "{label} {id}: {refusal}");
-                assert!(refusal.contains("re-author the model as 0.6.0"), "{label} {id}: {refusal}");
+                assert!(refusal.contains("re-author the model as 0.7.0"), "{label} {id}: {refusal}");
             }
         }
     }
