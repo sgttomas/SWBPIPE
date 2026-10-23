@@ -264,6 +264,22 @@ export async function projectCommand(page: Page, command: ProjectCommand, keyboa
 }
 
 /**
+ * W-17: "New blank", "Blank load/reference model" and the File-menu command open
+ * the units dialog first. Create accepts its selection (SI unless changed).
+ * `keyboard` focuses Create and presses Enter, for tests that hold a pointer.
+ */
+export async function confirmProjectUnits(page: Page, keyboard = false): Promise<void> {
+  const create = page.getByTestId("project-units-create");
+  await expect(create).toBeEnabled();
+  if (keyboard) {
+    await create.focus(); await page.keyboard.press("Enter");
+  } else {
+    await create.click();
+  }
+  await expect(page.getByTestId("project-units-dialog")).toHaveCount(0);
+}
+
+/**
  * A status chip of the status bar (specification §5.4): its face is "Domain · Label", the
  * recorded token is its tooltip and, on a click, the monospace line of its popover.
  *

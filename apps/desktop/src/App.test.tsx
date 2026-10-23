@@ -11,7 +11,7 @@ import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { analysisRowSemantics, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
-import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
+import { changeFormControl, expectFormControlValue, compactOptionRecords, confirmProjectUnits } from "./test-support/workspaceTestControls";
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import {
   act,
@@ -9190,6 +9190,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(
       within(controls).getByRole("button", { name: /New blank/i }),
     );
+    confirmProjectUnits();
 
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
@@ -13634,6 +13635,7 @@ describe("native straight-route Add and Apply", () => {
     await screen.findByTestId("desktop-preview-shell");
     const controls = screen.getByLabelText("Local project controls");
     fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
+    confirmProjectUnits();
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Created blank local model"));
     expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
     fireEvent.click(screen.getByTestId("command-node"));

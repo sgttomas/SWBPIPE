@@ -175,9 +175,12 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(created.summary.persisted_mechanics_result_count).toBe(0);
     expect(created.summary.persisted_model_hash_count).toBe(0);
     expect(created.summary.unit_round_trip_status).toBe("unit_metadata_preserved_in_local_project_envelope");
-    expect(created.summary.unit_round_trip_checked_ref_count).toBe(6);
+    // W-17 slice (a): seven keys, the SI preset (today's six plus angle).
+    expect(blank.project.units).toEqual({ length: "m", force: "N", moment: "N*m", pressure: "Pa", stress: "Pa", temperature: "degC", angle: "rad" });
+    expect(created.summary.unit_round_trip_checked_ref_count).toBe(7);
     expect(created.summary.unit_round_trip_signature).toContain("project.units.length=m");
     expect(created.summary.unit_round_trip_signature).toContain("project.units.force=N");
+    expect(created.summary.unit_round_trip_signature).toContain("project.units.angle=rad");
     expect(created.model_document_version?.status).toBe("current");
 
     const opened = await openLocalProject("project:blank-local-20260612t000000z");

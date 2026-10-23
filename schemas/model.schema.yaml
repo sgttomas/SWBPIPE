@@ -2214,7 +2214,7 @@
       }
     },
     "ProjectUnits": {
-      "description": "Project display and authoring units, typed by the desktop as Record<string, string>: an object whose values are unit strings, keyed by dimension. Known keys: length (read by the solver for node coordinates), force, moment, pressure, stress, temperature (written by the desktop's blank documents) and angle (read by the applier). The desktop round-trips and exports every entry.",
+      "description": "Project display and authoring units, typed by the desktop as Record<string, string>: an open map whose values are unit strings, keyed by dimension; unknown keys are kept. Known keys: length (read by the solver for node coordinates), force, moment, pressure, stress, temperature and angle (read by the applier). New projects write all seven known keys, each a canonical unit-catalog symbol for its dimension (DEL-02-02 Design project-unit-selection.md §2.2); existing documents may lack some (for example angle or moment) and keep a legacy temperature symbol C. A new moment field defaults to the moment key when it is present; only when the key is absent does the default fall back to the composed <force>*<length>, and only if the unit catalog accepts that symbol (§2.4). The desktop round-trips and exports every entry.",
       "type": "object",
       "properties": {
         "length": {

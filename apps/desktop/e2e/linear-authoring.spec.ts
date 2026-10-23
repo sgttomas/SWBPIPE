@@ -8,6 +8,7 @@ import {
   expectTreeEntityMissing,
   ensureInspectorExpanded,
   expectVirtualTarget,
+  confirmProjectUnits,
   openWorkspaceSection,
   projectCommand,
   selectTreeEntity,
@@ -65,6 +66,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await closeWorkspacePanels(page);
   await projectCommand(page, "new-blank");
+  await confirmProjectUnits(page);
   await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
 
   await page.getByTestId("command-node").click();

@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   chooseVirtualTarget,
   closeWorkspacePanels,
+  confirmProjectUnits,
   expectTreeEntity,
   openWorkspaceSection,
 } from "./workspace-driver";
@@ -68,6 +69,7 @@ test("blank load/reference model: author support motion, a thermal state and a m
 
   await openWorkspaceSection(page, "project");
   await page.getByRole("button", { name: "Blank load/reference model", exact: true }).click();
+  await confirmProjectUnits(page);
   await expect(page.getByTestId("local-project-message")).toContainText("Created blank local load/reference-state model 0.7.0 document");
 
   // Existing authoring reaches a straight model: two nodes, a material, one pipe, a support, one case with one primitive.
