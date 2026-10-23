@@ -104,7 +104,11 @@ intake shape. Therefore:
   uses. Selection: candidate batches (pipe, end, target) in deterministic order,
   each run through the shared engine's batch validation (the same wasm
   `validate_operation_batch` the panel uses), and the first with no blocking
-  diagnostic is published. This covers every refusal, R13 included, so an
+  diagnostic is published. The search is bounded: at most 32 candidates, run on
+  demand when the intake panel opens or the user asks for the reference (never
+  on render), and cached against the model hash. When the cap is reached with no
+  pass, the example is omitted with the reason "no valid reconnect found in the
+  first 32 candidates". This covers every refusal, R13 included, so an
   imported load with an unsupported extent field (permissive decoder,
   `product_physics/src/lib.rs:780-797`) cannot yield a published example that
   then refuses. If no candidate passes, the example is omitted with a stated
@@ -177,9 +181,13 @@ branch and is allowed.
 
 One scanner, `references()` (`geometry_operations.rs:231-250`), for both
 reconnect and the §7 delete. It reports every string exactly equal to a given id
-anywhere in the document, except under `label`, `name` and `provenance`. This is
-a superset of the key-name matching in `entity_reference_paths`
-(`lib.rs:3818-3853`): it also finds `target.pipe`, `member_pipe_ids` and `node`.
+anywhere in the document, except in the whole subtrees under `label`, `name`
+and `provenance`. For pipe and node ids it finds every slot the key-name matching
+in `entity_reference_paths` (`lib.rs:3818-3853`) finds, and also `target.pipe`,
+`member_pipe_ids` and `node`. It is not a strict superset: a `*_ref` nested inside
+an object-valued `provenance` is found only by `entity_reference_paths`. Pipe and
+node ids do not occur there (provenance records cite sources, not model
+entities), so the difference is harmless for these scans.
 The root `diagnostics` array (`schemas/model.schema.yaml`, root member) is
 skipped: stored diagnostics are derived records, not dependents. P's own record
 and the `nodes[]` records of F, O and T are skipped as self-references.
@@ -252,11 +260,19 @@ in the applier's `Cargo.toml`. That is not a D3-pinned file (the pinned list,
 edits none of them). The crate is already in the wasm engine's closure through
 product_physics, so the engine's crate set is unchanged. The applier
 `Cargo.toml` digest in `tools/hosted-ci-routing.json:283` is refreshed in the
-W-10 PR.
+W-10 PR. The new dependency also changes the four lockfiles that record the
+applier's dependencies, which numerical CI builds with `--locked`
+(`tools/ci/numerical_ci.py:414-444`): `core/model_operations/operation_applier/Cargo.lock`,
+`apps/desktop/src-tauri/Cargo.lock`, `core/loads/self_weight_wasm/Cargo.lock`
+and `validation/benchmarks/physics_audit_regression/Cargo.lock`. They are in
+W-10's scope; none is D3-pinned.
 
-Mapping: kernel `DegenerateAxis` on "local x axis" or a nonfinite chord → R6;
-"y reference parallel to local x axis", "local z axis", or `InvalidOrientation`
-→ R7. Missing `y_reference` → chord check only, plus the §1 warning. Residual: a
+Mapping, by `FrameKernelError` variant (`frame_kernel/src/lib.rs:322-336`), not
+message text: `NonFiniteInput { name: "local_x_axis" }` and `DegenerateAxis`
+from the chord normalization → R6; `NonFiniteInput { name: "y_reference" }`,
+`DegenerateAxis` from the y or z normalization, and `InvalidOrientation` → R7.
+The module calls the chord normalization separately first, so the two
+`DegenerateAxis` sources are told apart by call site, not by `detail`. Missing `y_reference` → chord check only, plus the §1 warning. Residual: a
 case on the 1e-12 boundary could differ between the applier's metre conversion
 and the product's unit normalization; the solve then refuses it by name
 (`PIPE_ELEMENT_INPUT_INVALID`, `product_physics/src/lib.rs:8148-8160`), never a
@@ -268,9 +284,9 @@ silent result.
 |---|---|
 | `OP-RECONNECT-PARALLEL-PIPE` (was R8) | another pipe already joins the same unordered node pair {F, T} |
 | `OP-RECONNECT-COINCIDENT-SPAN` | another pipe's two endpoint positions coincide with F's and T's positions (either order) within 1e-9 × the new span length, through different node ids |
-| `OP-RECONNECT-NODE-ORPHANED` | O has no pipe left; the node and its attachments are kept and listed |
+| `OP-RECONNECT-NODE-ORPHANED` | O has no pipe left; the node and its attachments, including any `terminal` marker, are kept and listed |
 | `OP-RECONNECT-MODEL-SPLIT` | the pipe graph has more connected parts than before |
-| `OP-RECONNECT-JUNCTION-WITHOUT-BRANCH-COMPONENT` | T now joins three or more pipes (R9 guarantees no component there) |
+| `OP-RECONNECT-JUNCTION-WITHOUT-BRANCH-COMPONENT` | T now joins three or more pipes (R9 guarantees no non-terminal component there; a `terminal` marker at T is named in the warning) |
 | `OP-RECONNECT-BEND-JUNCTION-NOT-TANGENT` | F or T is an end of a realized bend arc not refused under R9, and P meets the arc there at θ > α_tan |
 | `OP-RECONNECT-ORIENTATION-MISSING` | P has no `y_reference` after the change |
 | slot warnings | as listed in §2.2 |
@@ -345,6 +361,14 @@ producer:
   predicate and refuses with a message before calling the engine, so no other
   caller can bypass the button.
 
+**Single-intent apply.** `handleApplyIntent` (`workspaceSession.ts:1438-1449`,
+reached from `App.tsx:425,551,818` and `workspaceSession.ts:1529-1536`) applies
+one intent with no preview. It refuses any intent whose `change.change_kind` is
+`reconnect_pipe_run`, returns `false` with the message "Reconnect is applied
+through batch review; it has been queued there.", and passes the intent to
+`handleQueueOperationBatch` as a one-operation batch, where the gate applies.
+`handleApplyDraftReview` is already gated and is unchanged.
+
 The batch is immutable under its key; a changed batch is a new key with no
 outcome. Batches without a reconnect are unaffected; general gating would change
 every existing apply flow and its tests, so it is left out.
@@ -407,6 +431,9 @@ highlights P, F, O and T through the existing selection presentation.
 **Numerical scrutiny.** Canonical equality with a directly authored model is
 kept, within each solver mode, but only as an identity check. The physical
 expectations are stated independently and every solve asserts its status:
+In the cantilever, wind and fit tests O would otherwise be left orphaned and
+unrestrained (a mechanism), so each applies the batch [`reconnect`,
+`delete_node` O]; the built-topology test anchors O instead.
 - **Cantilever.** P anchored at F, uniform `distributed_force` w on the
   pressure-free (Euler–Bernoulli) route, reconnected from O to a farther T.
   Assert tip deflection w·L⁴/(8·E·I) and anchor reaction w·L with L = |T − F|,
@@ -445,6 +472,9 @@ listed under `contract_corpus.rs` in `tools/hosted-ci-routing.json:431-`.
   the geometry builder, from offline intake and from retained-intent requeue,
   and not for a batch without a reconnect; the apply path refuses an
   unpreviewed reconnect batch even when called directly; other kinds apply as
+  today.
+- `handleApplyIntent` with a `reconnect_pipe_run` intent returns `false`, leaves
+  the model unchanged and queues a gated batch; another intent kind applies as
   today.
 - Checkpoint Undo restores a pipe that had no `y_reference` after a reconnect
   that added one (canonical hash equal to the original).
@@ -492,6 +522,7 @@ re-pricing.**
 | `geometry_operations.rs`: `pub(crate)` on `unique`, `record_shape` (118, 128) | 661-667, 693 | `record_shape` body, scans | S2 adjacent at 128 |
 | `bend_authoring.rs`: θ helper near 154 | — | scans 583-606, line join 631-636 | no |
 | applier `Cargo.toml` (frame-kernel dependency) | — | — | no |
+| `Cargo.lock` in `core/model_operations/operation_applier`, `apps/desktop/src-tauri`, `core/loads/self_weight_wasm`, `validation/benchmarks/physics_audit_regression` | possible, if S1b changes dependencies (none seen on the branch) | — | lockfile regeneration by whoever lands second |
 | `tests/pipe_reconnect.rs` (new) | version ripple | — | no (constant, not literal) |
 | corpus cases (new, after S1b) | regenerates every case | — | mechanical re-bless, see sequencing |
 | `tools/hosted-ci-routing.json` (`Cargo.toml` digest now; corpus list after S1b) | planned digest refresh | — | possible textual, trivial |
@@ -551,8 +582,10 @@ below. Membership-preserving reconnect inside a region would need the chain
 check at authoring (a D3 on `pressure_runtime.rs` or product_physics `lib.rs`,
 or a duplicate in the applier); it is not provided.
 
-**Proposed records (applied in the implementation PR only after the
-coordinator/owner approves the exact wording).**
+**Proposed records (applied in the implementation PR only after the owner
+approves the exact wording).** The DEL-16-06 limitation line changes a
+commitment, which is owner-reserved; the PR quotes the owner's words approving
+it.
 
 Release notes, `docs/RELEASE_NOTES_v0.1.0_DRAFT.md` line 57. Old:
 
@@ -694,5 +727,11 @@ Claude review, both "sound with changes".
 | Codex r2-1 (P1): gating depended on the producer | Adopted. `requiresPreview` derived centrally in `handleQueueOperationBatch` from the batch contents; the same predicate enforced in the apply path; tests for builder, imported and requeued batches. Verified `OfflineProposalIntakePanel.tsx:37`, `App.tsx:458`, `workspaceSession.ts:1137-1158`. §3, §4. |
 | Codex r2-2 (P2): inverse cannot restore an absent `y_reference` | Adopted. Inverse property limited to representable inverses; absence→present restored by checkpoint Undo, tested; no wire extension. Verified `geometry_operations.rs:144`. §1, §4. |
 | Codex r2-3 (P3): example selection omitted R13 | Adopted. The example is the first candidate batch that passes shared-engine validation; unsupported-shape selection witness. §1, §4. |
+| Claude r2-0 (Claude 3): record approval | Adopted: records applied only after the owner approves; the PR quotes the owner's words for the DEL-16-06 line. §6. |
+| Claude r2-1: `handleApplyIntent` applies without preview | Adopted: it refuses a reconnect intent and routes it to the gated batch path; test added. Verified `workspaceSession.ts:1438-1449` and its call sites. §3, §4. |
+| Claude r2-2: lockfiles | Adopted: the four lockfiles are in scope; none is D3-pinned. §2.3, §5. |
+| Claude r2-3: orphaned O in numerical tests | Adopted: [`reconnect`, `delete_node` O] in the cantilever, wind and fit tests; O anchored in the topology test. §4. |
+| Claude r2-4: unbounded example search | Adopted: cap of 32, on demand, cached by model hash, stated reason at the cap. §1. |
+| Claude r2-5: nits | Adopted: terminal markers named in the orphan and junction warnings; "no non-terminal component"; the scanner claim reworded; kernel errors mapped by variant and call site. §2.2–§2.4. |
 | Coordinator: `terminal` markers | Adopted: exempt from the at-node rule. §2.1. |
 | Coordinator: records | Adopted: proposed as exact old → new text, applied only after approval. §6. |
