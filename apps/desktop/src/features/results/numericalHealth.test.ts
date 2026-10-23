@@ -11,8 +11,10 @@ import {
   headerBadge,
   numericalHealthHold,
   numericalHealthView,
+  overlayMayShowRow,
   parseNumericalHealth,
   readNumericalHealth,
+  rowHealthState,
   type NumericalHealth
 } from "./numericalHealth";
 import type { MechanicsResult } from "../../types";
@@ -328,5 +330,36 @@ describe("readNumericalHealth", () => {
     expect(readNumericalHealth(result, [])).toBeNull();
     engine.numericalHealthJson = () => "not json";
     expect(readNumericalHealth(result, [])).toBeNull();
+  });
+});
+
+describe("the row rule the results table and the viewport overlays share", () => {
+  const view = (route: string, eligible: boolean) => numericalHealthView(health(route, false,
+    [healthCase("load:L-1", "checks_passed"), healthCase("load:L-2", "sensitive")],
+    [{ combination_id: "combination:C-1", state: "sensitive", cases: ["load:L-1", "load:L-2"], withheld: false }]
+  ), { eligible, verdictHold: !eligible })!;
+  const at = (ref_type: string, ref_id: string) => ({ basis_ref: { ref_type, ref_id } });
+
+  it("badges a row with its case's state, or its combination's inherited state, on the generic route only", () => {
+    const generic = view("generic", false);
+    expect(rowHealthState(generic, at("load_case", "load:L-1"))).toBe("checks_passed");
+    expect(rowHealthState(generic, at("load_case", "load:L-2"))).toBe("sensitive");
+    expect(rowHealthState(generic, at("combination", "combination:C-1"))).toBe("sensitive");
+    expect(rowHealthState(generic, {})).toBeNull();
+    expect(rowHealthState(view("pressure_source", true), at("load_case", "load:L-2"))).toBeNull();
+    expect(rowHealthState(null, at("load_case", "load:L-1"))).toBeNull();
+  });
+
+  it("lets an overlay show a row only under an eligible standing and a checks-passed badge, failing closed", () => {
+    expect(overlayMayShowRow({ eligible: true, health: view("generic", true) }, at("load_case", "load:L-1"))).toBe(true);
+    expect(overlayMayShowRow({ eligible: true, health: view("generic", true) }, at("load_case", "load:L-2"))).toBe(false);
+    expect(overlayMayShowRow({ eligible: true, health: view("generic", true) }, at("combination", "combination:C-1"))).toBe(false);
+    expect(overlayMayShowRow({ eligible: true, health: view("generic", true) }, at("load_case", "load:L-9"))).toBe(false);
+    expect(overlayMayShowRow({ eligible: false, health: view("generic", false) }, at("load_case", "load:L-1"))).toBe(false);
+    expect(overlayMayShowRow({ eligible: true, health: null }, at("load_case", "load:L-1"))).toBe(false);
+    expect(overlayMayShowRow(null, at("load_case", "load:L-1"))).toBe(false);
+    // Pressure source: no row badge; the recovery standing decides.
+    expect(overlayMayShowRow({ eligible: true, health: view("pressure_source", true) }, at("load_case", "load:L-2"))).toBe(true);
+    expect(overlayMayShowRow({ eligible: false, health: view("pressure_source", false) }, at("load_case", "load:L-2"))).toBe(false);
   });
 });

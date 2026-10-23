@@ -153,6 +153,9 @@ export function useResultsSessionState() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
+     * result overlays; it admits nothing by itself. */
+    numericallyEligible,
     numericalHealth: numericalHealthPresentation,
     numericalHealthHold: numericalHealthHoldView,
     analysisRun, setAnalysisRun,

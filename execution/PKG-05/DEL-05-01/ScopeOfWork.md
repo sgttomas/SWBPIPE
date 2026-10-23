@@ -174,7 +174,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | REQ-05-01-005 | Missing or invalid solve-required load data shall become explicit findings/errors rather than silent defaults. | OPS-K-DATA-2; `FindingCode`; `BoundaryMetadataError` |
 > | REQ-05-01-006 | Load validation and load-case assembly findings shall be convertible to diagnostic records carrying code, class, blocking severity, source, affected object, message, remediation, and provenance reference. | AB-00-06; `LoadDiagnosticRecord` |
 > | REQ-05-01-007 | Primitive load-case records shall bind one primitive category to canonical model `LoadCase` metadata, provenance, payload reference, payload-hash reference, and sorted load IDs; mixed-category algebra remains DEL-05-02 scope. | SOW-013; SOW-014; DEL-05-02; `PrimitiveLoadCaseRecord`; `_DEPENDENCIES.md` |
-> | REQ-05-01-008 | Wind, seismic, and occasional equivalent-static handling shall accept explicit equivalent mechanics loads and the DEC-068 static-equivalent generators from user-supplied inputs with basis/provenance refs; dynamic procedure generation and protected/default coefficients remain outside this authority. | SOW-013 note; `_CONTEXT.md`; `README.md`; `EquivalentStaticMechanicsBasis` |
+> | REQ-05-01-008 | Wind, seismic, and occasional equivalent-static handling shall accept explicit equivalent mechanics loads and the DEC-068 static-equivalent generators from user-supplied inputs with basis/provenance refs; dynamic procedure generation and protected/default coefficients remain outside this authority. | SOW-013 note; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `README.md`; `EquivalentStaticMechanicsBasis` |
 > | REQ-05-01-009 | Deterministic primitive-load tests shall cover category representation, supported/unsupported target and dimension boundaries, boundary metadata, equivalent-static handling, load-case records, diagnostic bridge records, lumping, axial effects, and solver-vector assembly behavior before release use. | OPS-K-SOLVER-1; `src/lib.rs` tests |
 > | REQ-05-01-010 | Primitive load inputs, load-case records, boundary quantity records, and diagnostic records shall retain provenance references sufficient to distinguish explicit user/lawful source inputs from unresolved `TBD` state. | OPS-K-DATA-1; OPS-K-DATA-2; AB-00-06 |
 > | REQ-05-01-011 | Lumped equivalent nodal conversion shall remain limited to explicit translational/global `ForcePerLength` element loads with caller-supplied element span and node connectivity. | `prepare_lumped_nodal_loads`; `ElementLoadSpan` |
@@ -286,7 +286,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | Axial-effect check | Documents limit axial effects to thermal and pressure mechanics helpers from caller-supplied properties without code stress/compliance claims. |
 > | Test check | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` passes or any failure is recorded with boundaries. |
 > | Diff hygiene check | `git diff --check` passes for touched files or any failure is recorded. |
-> | Status check | `_STATUS.md` remains unchanged unless a later brief explicitly authorizes a lifecycle update. |
+> | Status check | `_STATUS.md` (retired in `497a8d81e4`; see Git history) remains unchanged unless a later brief explicitly authorizes a lifecycle update. |
 >
 
 ### CLM-024 — Records
