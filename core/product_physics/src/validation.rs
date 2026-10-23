@@ -177,10 +177,7 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
     if crate::case_state::is_load_state(model) {
         return;
     }
-    // Constant-effort supports and objective connectors (their installed
-    // preload) load every case.
-    let model_loads_every_case = model.supports.iter().any(crate::is_constant_effort_support)
-        || model.components.iter().any(|component| component.objective_connector.is_some());
+    let model_loads_every_case = model_loads_every_case(model);
     let all_cases_empty = if model_loads_every_case {
         model.load_cases.iter().all(|case| {
             case.primitive_loads.is_empty()
@@ -213,6 +210,43 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
             ));
         }
     }
+}
+
+/// Whether a model-level action loads every case (DEL-04-07 Design
+/// pressure-contract.md, "Load cases that apply nothing"): a constant-effort
+/// support, or an objective connector with a preload — a nonzero `q_ref`
+/// component, or a tie rod with a nonzero reference extension. A connector
+/// whose `q_ref` is zero loads nothing, whatever its declared reference state.
+pub(crate) fn model_loads_every_case(model: &PreviewModel) -> bool {
+    let nonzero = |quantity: Option<&serde_json::Value>, keys: &[&str]| {
+        quantity.is_some_and(|quantity| {
+            keys.iter().any(|key| {
+                quantity
+                    .get(*key)
+                    .and_then(serde_json::Value::as_f64)
+                    .is_some_and(|value| value != 0.0)
+            })
+        })
+    };
+    let preloaded_connector = |connector: &serde_json::Value| {
+        let q_ref = connector.get("q_ref");
+        nonzero(q_ref.and_then(|q| q.get("translation")), &["x", "y", "z"])
+            || nonzero(q_ref.and_then(|q| q.get("rotation")), &["x", "y", "z"])
+            || connector
+                .get("hardware")
+                .and_then(|hardware| hardware.get("rods"))
+                .and_then(serde_json::Value::as_array)
+                .is_some_and(|rods| {
+                    rods.iter()
+                        .any(|rod| nonzero(rod.get("reference_extension"), &["value"]))
+                })
+    };
+    model.supports.iter().any(crate::is_constant_effort_support)
+        || model
+            .components
+            .iter()
+            .filter_map(|component| component.objective_connector.as_ref())
+            .any(preloaded_connector)
 }
 
 fn validate_ids(

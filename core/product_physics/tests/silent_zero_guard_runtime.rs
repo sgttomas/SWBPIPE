@@ -199,10 +199,35 @@ fn an_empty_case_beside_a_loaded_case_is_reported_on_the_preview_route() {
 }
 
 /// A load-state case with no stored primitive and no action is a reference
-/// state (the cold state of a sequence): its zero result is correct and it
-/// is neither refused nor reported.
+/// state (the cold state of a cold/hot sequence): its zero result is correct
+/// and it is neither refused nor reported, beside a case that applies a load.
 #[test]
-fn a_load_state_reference_case_with_nothing_stored_solves_to_zero() {
+fn a_load_state_reference_case_beside_a_loaded_case_solves_to_zero() {
+    let mut cold = state_case(vec![], &[], vec![active("support:root")]);
+    cold["id"] = json!("case:cold");
+    let mut hot = state_case(vec![force("load:pull", 1000.0)], &["load:pull"], vec![active("support:root")]);
+    hot["id"] = json!("case:hot");
+    let wire = base(vec![anchor("support:root", "node:a")], vec![cold, hot], true, true);
+    for mode in MODES {
+        let v = envelope(&wire, mode);
+        assert!(blocking(&v).is_empty(), "{:?}", diagnostics(&v));
+        assert!(with_code(&v, "LOAD_STATE_CASE_APPLIES_NO_ACTION").is_empty());
+        assert!(with_code(&v, "LOAD_STATE_SOURCE_EXCLUDED").is_empty());
+        // Exact-route rows are not case-qualified: one Fx reaction per case.
+        let mut fx = v["results"].as_array().unwrap().iter()
+            .filter(|r| r["kind"] == "support_reaction_component_v2" && r["entity_ref"] == "support:root"
+                && r["metadata"]["component"] == "Fx")
+            .map(|r| r["value"].as_f64().unwrap())
+            .collect::<Vec<_>>();
+        fx.sort_by(f64::total_cmp);
+        assert_eq!(fx, [-1000.0, 0.0]);
+    }
+}
+
+/// A load-state model whose every case is a reference state publishes only
+/// zeros; it is refused as an all-empty model is on the other routes.
+#[test]
+fn a_load_state_model_of_reference_states_only_is_refused() {
     let wire = base(
         vec![anchor("support:root", "node:a")],
         vec![state_case(vec![], &[], vec![active("support:root")])],
@@ -211,10 +236,37 @@ fn a_load_state_reference_case_with_nothing_stored_solves_to_zero() {
     );
     for mode in MODES {
         let v = envelope(&wire, mode);
+        assert_eq!(blocking(&v), ["LOAD_INPUT_MISSING"], "{:?}", diagnostics(&v));
+        assert_eq!(results(&v), 0);
+    }
+}
+
+/// An objective connector loads every case only through a preload: an
+/// untied connector with zero `q_ref` does not exempt an all-empty exact
+/// model; the same connector with a nonzero `q_ref` (prestressed) does.
+#[test]
+fn only_a_preloaded_connector_loads_every_case() {
+    let stress_free: Value = serde_json::from_str(include_str!(
+        "fixtures/silent_zero/stress_free_connector_empty.request.json"
+    ))
+    .unwrap();
+    let index = stress_free["model"]["components"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .position(|c| c.get("objective_connector").is_some())
+        .unwrap();
+    assert_eq!(stress_free["model"]["components"][index]["objective_connector"]["reference_state"], "stress_free");
+    let mut prestressed = stress_free.clone();
+    let oc = &mut prestressed["model"]["components"][index]["objective_connector"];
+    oc["reference_state"] = json!("prestressed");
+    oc["q_ref"]["translation"]["x"] = json!(0.001);
+    for mode in MODES {
+        let v = envelope(&stress_free, mode);
+        assert_eq!(blocking(&v), ["LOAD_INPUT_MISSING"], "{:?}", diagnostics(&v));
+        let v = envelope(&prestressed, mode);
         assert!(blocking(&v).is_empty(), "{:?}", diagnostics(&v));
-        assert!(with_code(&v, "LOAD_STATE_CASE_APPLIES_NO_ACTION").is_empty());
-        assert!(with_code(&v, "LOAD_STATE_SOURCE_EXCLUDED").is_empty());
-        assert_eq!(reaction_fx(&v, "support:root"), 0.0);
+        assert!(with_code(&v, "LOAD_CASE_APPLIES_NO_ACTION").is_empty());
     }
 }
 
@@ -248,5 +300,25 @@ fn an_exact_case_with_only_an_empty_pressure_region_list_applies_nothing() {
         let v = envelope(&wire, mode);
         assert_eq!(blocking(&v), ["LOAD_INPUT_MISSING"], "{:?}", diagnostics(&v));
         assert_eq!(results(&v), 0);
+    }
+}
+
+/// A load-state case whose stored primitive is unlisted but whose connector is
+/// prestressed applies an action (the preload): it solves, with the excluded
+/// primitive reported (independent review's model, from the T4-I12 demo).
+#[test]
+fn a_load_state_case_with_a_prestressed_connector_applies_its_preload() {
+    let wire: Value = serde_json::from_str(include_str!(
+        "fixtures/silent_zero/load_state_prestressed_connector_unlisted.request.json"
+    ))
+    .unwrap();
+    for mode in MODES {
+        let v = envelope(&wire, mode);
+        assert!(blocking(&v).is_empty(), "{:?}", diagnostics(&v));
+        assert_eq!(with_code(&v, "LOAD_STATE_SOURCE_EXCLUDED").len(), 1, "{:?}", diagnostics(&v));
+        let moved = v["results"].as_array().unwrap().iter().any(|r| {
+            r["kind"] == "global_nodal_displacement_x" && r["value"].as_f64().is_some_and(|x| x != 0.0)
+        });
+        assert!(moved, "the preload moves the structure");
     }
 }

@@ -69,32 +69,45 @@ never solved and published as an all-zero result as if its loads had been
 solved (Agent 0, 2026-10-23: a silent wrong result is the worst failure class
 for this product). At main `9ad5d79fa5` the first and third cases below
 published all-zero rows marked `NUMERICAL_INTEGRITY_CHECKS_PASSED`.
+
+**An action** is an applied primitive load, an equivalent-static load, a
+non-empty pressure-region list, a boundary motion, a member state of nonzero
+eigenstrain, or a model-level preload. **A model-level preload** loads every
+case: a constant-effort support, or an objective connector with a nonzero
+`q_ref` component or a tie rod with a nonzero reference extension. A
+connector whose `q_ref` is zero loads nothing, whatever its declared
+reference state (`stress_free` requires K q_ref = 0).
+
 - **Load-state case whose stored primitives are all unlisted (EX):** a stored
   primitive is applied only when the case's `analysis_state.load_sources`
-  lists it. A case that stores primitives, lists none of them, and has no
-  boundary motion, pressure region or member state of nonzero eigenstrain is
-  refused with `LOAD_STATE_CASE_APPLIES_NO_ACTION`, which names the unlisted
-  primitives. Leaving a primitive unlisted beside an applied action remains
-  legal (the contract's "omit the source to exclude it"), and is reported with
-  the warning `LOAD_STATE_SOURCE_EXCLUDED` naming up to six primitives. A
-  load-state case that stores nothing and applies nothing is a reference state
-  (for example the cold state of a cold/hot/return sequence); its zero result
-  is correct, and it is neither refused nor reported.
+  lists it. A case that stores primitives, lists none of them and applies no
+  other action is refused with `LOAD_STATE_CASE_APPLIES_NO_ACTION`, which
+  names the unlisted primitives. A case already refused by another finding is
+  not judged. Leaving a primitive unlisted beside an applied action remains
+  legal (the contract's "omit the source to exclude it") and is reported with
+  the warning `LOAD_STATE_SOURCE_EXCLUDED`, naming up to six primitives.
+- **Reference states (EX load-state):** a case that stores nothing and applies
+  nothing is a reference state, for example the cold state of a
+  cold/hot/return sequence. Its zero result is correct beside cases that
+  apply actions, and it is neither refused nor reported. A model whose every
+  case is a reference state publishes only zeros and is refused with
+  `LOAD_INPUT_MISSING`.
 - **Empty case among loaded cases (PF and EX):** a case with no primitive
   load, no equivalent-static load and no non-empty pressure-region list
   publishes an all-zero result. It may be deliberate (a cold operand of a
-  range), and it is visible where it is authored, so it is reported with the
+  range) and is visible where it is authored, so it is reported with the
   warning `LOAD_CASE_APPLIES_NO_ACTION`, not refused.
 - **Every case empty:** an explicit `pressure_regions: []` means unpressurized
   and applies nothing, so an exact model whose cases are all empty is refused
-  with the existing `LOAD_INPUT_MISSING`, as a pressure-free one already was.
-- **Models that load every case:** a constant-effort support or an objective
-  connector's installed preload loads every case, so neither check above
-  applies to such a model; `LOAD_INPUT_MISSING` keeps its earlier rule there.
+  with `LOAD_INPUT_MISSING`, as a pressure-free one already was.
+- Neither the warning nor the refusal applies to a model with a model-level
+  preload.
 
 Evidence: `core/product_physics/tests/silent_zero_guard_runtime.rs`, in both
-solver modes. Its refusal and warning tests fail at `9ad5d79fa5`; its controls
-(the loaded case alone, a boundary-motion-only load-state case, a reference
-state with nothing stored) pass. `stress_maximum_coverage.rs`'s exact-zero
-tie tests now load the anchored node, whose load goes wholly to the reaction,
-instead of solving an unloaded model.
+solver modes. Its refusal and warning tests fail at `9ad5d79fa5`. Its controls
+pass: the loaded case alone, a boundary-motion-only load-state case, a
+reference state beside a loaded case, a load-state case whose preload acts
+with its primitive unlisted, and a preloaded connector exempting an otherwise
+empty model. `stress_maximum_coverage.rs`'s exact-zero tie tests now load the
+anchored node, whose load goes wholly to the reaction, instead of solving an
+unloaded model.

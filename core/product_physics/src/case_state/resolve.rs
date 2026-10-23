@@ -399,6 +399,9 @@ pub(crate) struct ResolvedCase {
     pub effective_case: PreviewLoadCase,
     /// Resolved consumed inputs, published as the case evidence record.
     pub evidence: Value,
+    /// Whether the case applies an action (silent-zero guard); a case that
+    /// applies none is a reference state.
+    pub applies_action: bool,
 }
 
 fn selection(
@@ -1116,10 +1119,12 @@ pub(crate) fn resolve_case(
     // that apply nothing"): a case whose stored primitives are all unlisted
     // and that applies no other action would publish an all-zero result as
     // if its loads had been solved, so it is refused by name. An action is an
-    // included stored primitive, a boundary motion, a pressure region or a
-    // member state with nonzero eigenstrain.
+    // included stored primitive, a boundary motion, a pressure region, a
+    // member state with nonzero eigenstrain, or a model-level preload. A
+    // case already refused for another reason is not judged here.
     let applies_action = !effective_case.primitive_loads.is_empty()
         || !prescribed.is_empty()
+        || crate::validation::model_loads_every_case(model)
         || case.pressure_regions.iter().flatten().next().is_some()
         || contributions.iter().any(|contribution| {
             contribution["owner_kind"] == "resolved_member_state"
@@ -1139,7 +1144,12 @@ pub(crate) fn resolve_case(
     // A case with no stored primitive and no action is a reference state
     // (for example the cold state of a cold/hot/return sequence), whose
     // all-zero result is correct; it is not refused.
-    if !applies_action && !excluded_ids.is_empty() {
+    let refused_already = diagnostics[before..]
+        .iter()
+        .any(|finding| finding.severity == "blocking");
+    if refused_already {
+        // The case is refused by its own finding; no action verdict is added.
+    } else if !applies_action && !excluded_ids.is_empty() {
         let message = format!(
             "the load case applies no action: none of its {} stored primitive load{} ({}) is listed in analysis_state.load_sources, and it has no boundary motion, pressure region or member eigenstrain, so a solve would publish an all-zero result; list each primitive to apply in analysis_state.load_sources",
             excluded_ids.len(),
@@ -1193,6 +1203,7 @@ pub(crate) fn resolve_case(
         prescribed,
         effective_case,
         evidence,
+        applies_action,
     })
 }
 
@@ -1202,6 +1213,24 @@ pub(crate) fn resolve_case(
 /// are both exactly zero is admitted with no effect. The resolver still
 /// resolves every pipe. It reads resolved cases, so it runs only for a
 /// load-state document.
+/// Silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases
+/// that apply nothing"): a load-state model whose every case is a reference
+/// state applying no action would publish only all-zero results; it is
+/// refused, as a model whose cases are all empty is on the other routes.
+pub(crate) fn refuse_all_reference_states(cases: &[ResolvedCase], diagnostics: &mut Vec<Diagnostic>) {
+    if !cases.is_empty() && cases.iter().all(|case| !case.applies_action) {
+        let mut finding = diag(
+            "diagnostic:physics:loads-missing",
+            "LOAD_INPUT_MISSING",
+            "blocking",
+            "no load case applies an action: every case is a reference state with no listed stored primitive load, boundary motion, pressure region or member eigenstrain, so a solve would publish only all-zero results; no hidden loads are applied",
+            vec!["load_cases".to_string()],
+        );
+        finding.source = Some(SOURCE.to_string());
+        diagnostics.push(finding);
+    }
+}
+
 pub(crate) fn refuse_resolved_span_strain(
     model: &PreviewModel,
     cases: &[ResolvedCase],
