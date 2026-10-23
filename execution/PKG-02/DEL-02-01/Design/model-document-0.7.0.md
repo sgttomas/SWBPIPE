@@ -432,6 +432,12 @@ syntax, JSON Schema 2020-12).
   `{value, unit}` quantities, the id pattern and the known enums.
 - **The load/reference group** `$ref`s `load_reference_state.schema.json`,
   unchanged.
+- **Result and report records by reference** (REQ-02-01-02: "define or
+  reference"). `$defs/Result` `$ref`s the result-envelope definition of
+  `results.v0.3.schema.yaml`. `$defs/Report` `$ref`s the report-section records
+  of `report_sections.schema.yaml`. The root does not use them, because the
+  model document carries no results or reports. They make the schema's family
+  coverage explicit, and the conformance test resolves both references.
 - **Structural only.** Physical validity and admission remain the solver's.
   Cross-references are the document validator's (§5.3).
 
@@ -635,6 +641,18 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      - **New 82:** `- engineering data records: unit-bearing quantities, provenance strings and structured provenance records with redistribution status and review status (source quality is recorded as review status and verification note), tags and notes;`
      - **Old 83:** `- result/report records: result envelopes, warnings/diagnostics, input manifests, hashes/checksums, and professional-boundary notices;`
      - **New 83:** `- warnings/diagnostics carried by the model document and its professional-boundary statement; result envelopes, input manifests and report records belong to the result, analysis-run and report formats, and model hashes are computed over the canonical document (RFC 8785 JCS) rather than stored in it;`
+   - **The same reading in the CLM-012 crosswalk** (lines 169, 170, 176 and 177,
+     "Expected schema treatment" column only; the other columns are unchanged).
+     REQ-02-01-02 (line 148, "define or reference") needs no edit, because the
+     schema references Result and Report (§4).
+     - **Old 169 (Project):** `Define a root/project record with stable identity, units, storage/privacy posture, rule-pack references, report settings, and persistence hooks where applicable.`
+     - **New 169:** `Define a root/project record with stable identity, units and rule-pack references; storage/privacy posture and persistence hooks belong to the local project store (DEL-02-05), and report settings to the report package.`
+     - **Old 170 (Model):** `Define the model container and collections for nodes, elements, components, supports, loads, libraries, results, and report-facing references.`
+     - **New 170:** `Define the model collections for nodes, pipe segments (elements), sections, materials, components, supports, loads, lines, constraints, equipment interfaces and assumptions; library records are referenced per entity (provenance_record.library_ref); results and report-facing records are referenced by schema definition (Result, Report), not carried in the document.`
+     - **Old 176 (Result):** `Define result-facing records compatible with mechanical outputs, warning classes, diagnostics, affected-object references, provenance, and authority/status boundaries.`
+     - **New 176:** `Reference, from $defs/Result, the result-facing records defined by the results schema, compatible with mechanical outputs, warning classes, diagnostics, affected-object references, provenance, and authority/status boundaries.`
+     - **Old 177 (Report):** `Define report-facing records for input manifest, model hash/checksum references, warnings, assumptions, provenance summary, limitations, and professional-boundary notices.`
+     - **New 177:** `Reference, from $defs/Report, the report-facing records defined by the report schemas, covering input manifest, model hash/checksum references, warnings, assumptions, provenance summary, limitations, and professional-boundary notices.`
 3. **Reconciliation pointers.** These are reconciliation, not commitment
    changes:
    - DEL-02-01 line 88 (current implementation);

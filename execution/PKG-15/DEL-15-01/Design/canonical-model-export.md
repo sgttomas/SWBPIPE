@@ -148,11 +148,16 @@ chooses:
    `<name>.swbhandoff.staging-<random>` beside the target and fsynced.
 2. One `rename` publishes the staging directory. This is the single commit
    point.
-3. If the target already exists, it is first renamed aside to
-   `<name>.swbhandoff.previous-<random>`. That backup is removed only after the
-   new package's rename succeeds; on failure it is restored.
-4. A failure between member writes leaves the previous package intact, and a
-   test injects that failure.
+3. **An existing target is replaced by an atomic swap.** macOS
+   `renamex_np(staging, target, RENAME_SWAP)` exchanges the two directories in
+   one step, so there is no interval without a target. The swapped-out old
+   package is then deleted.
+   - If the volume does not support the swap, the command refuses with
+     `HANDOFF-REPLACE-UNSUPPORTED` and asks for a new name.
+   - A leftover `*.staging-*` from a crash is ignored, and is reported for the
+     user to delete.
+4. **Failure tests.** A failure injected between the member writes, or before
+   the swap, leaves the previous package intact.
 
 **Privacy.** The manifest binds `model/model.json` by sha256 in `checksums` and
 does not embed it.

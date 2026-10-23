@@ -150,8 +150,12 @@ Python agree.
    transient record, as `analysis_run.v0.3` permits
    (`mutation_policy: changes_create_new_immutable_record_revision`,
    `record_revision_identity: analysis_run_record_sha256`). The revision:
-   - sets `created_at` to the recording time (UTC ISO), so each recording event
-     has its own revision hash;
+   - sets `created_at` to the recording time. Rust allocates it inside the
+     `BEGIN IMMEDIATE` transaction as the later of the current UTC time
+     (millisecond ISO) and one millisecond after the project's latest recorded
+     `created_at`. Every recording event therefore has its own revision hash,
+     even when clock readings are equal. Rust then computes the v0.3 hashes. A
+     parity test checks them against the TypeScript builder;
    - sets the real `model_state_ref` `{ModelState, <state id>}`;
    - takes `rule_pack_refs` from the input manifest's `active_rule_packs` (what
      the solve used, not the document's identity-only references) and
@@ -203,8 +207,10 @@ CREATE TRIGGER IF NOT EXISTS analysis_runs_immutable BEFORE UPDATE ON analysis_r
 ```
 
 - **Identity.** `recording_id` is `runrec:` plus the first 32 hex characters of
-  `run_record_hash`. The producer's `run_id` is kept as data. Two recordings of
-  identical solves differ in `created_at`, so they never collide.
+  `run_record_hash`. The producer's `run_id` is kept as data.
+  - Two recordings of identical solves differ in their transaction-allocated
+    `created_at`, so they never collide.
+  - A test records identical solves from two connections with the clock frozen.
 - **Labels and FR-MOD-006.** Run-level assumptions, name, tags and notes live
   in `analysis_run_labels`, which holds editable metadata outside the record
   hash. `analysis_run.v0.3` has no assumption slot, so they are shown with the
