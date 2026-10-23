@@ -1,7 +1,8 @@
 # Pipe reconnect (W-10, FR-GUI-004)
 
 **Basis:** `origin/main` at `356a9be374` (2026-10-23); W-13 branches
-`origin/claude/piping-model-07-s1b-20261023` (`b203794630`) and
+`origin/claude/piping-model-07-s1b-20261023` (`0d20039cac`, with the S1b-V
+document validator) and
 `origin/claude/piping-model-states-20261023` (`f0cbc15bb6`). Revision 2, after
 a Codex review and an independent Claude review (§8). This is a design; nothing
 is implemented yet. Paths are relative to `projects/chirality-piping/`, except
@@ -271,8 +272,12 @@ Mapping, by `FrameKernelError` variant (`frame_kernel/src/lib.rs:322-336`), not
 message text: `NonFiniteInput { name: "local_x_axis" }` and `DegenerateAxis`
 from the chord normalization → R6; `NonFiniteInput { name: "y_reference" }`,
 `DegenerateAxis` from the y or z normalization, and `InvalidOrientation` → R7.
-The module calls the chord normalization separately first, so the two
-`DegenerateAxis` sources are told apart by call site, not by `detail`. Missing `y_reference` → chord check only, plus the §1 warning. Residual: a
+The kernel's `normalize` is private, so the module first runs its own chord
+check on the same metre vector at the same threshold (norm ≤ 1e-12 or
+nonfinite → R6) and calls `from_x_axis_and_y_reference` only on a chord that
+passes it. Any `DegenerateAxis` from that call therefore comes from the y or z
+normalization and maps to R7; the sources are told apart by call order, not by
+`detail`. Missing `y_reference` → chord check only, plus the §1 warning. Residual: a
 case on the 1e-12 boundary could differ between the applier's metre conversion
 and the product's unit normalization; the solve then refuses it by name
 (`PIPE_ELEMENT_INPUT_INVALID`, `product_physics/src/lib.rs:8148-8160`), never a
@@ -497,14 +502,21 @@ listed under `contract_corpus.rs` in `tools/hosted-ci-routing.json:431-`.
 ## 5. Overlap with W-13 S1b and S2
 
 **Branch facts.**
-- **S1b** (`origin/claude/piping-model-07-s1b-20261023`, 423 files). In the
+- **S1b** (`origin/claude/piping-model-07-s1b-20261023` at `0d20039cac`,
+  including the S1b-V document validator, `61641e541f`/`248d243d1d`). In the
   applier it changes version literals in `geometry_operations.rs:661-667,693`
-  and `lib.rs:2677-2810,5169,8951,13437-13457`, plus
+  and `lib.rs` (expansion-joint and primitive-load messages, tests), plus
   `joint_pressure_authoring.rs`, `pressure_authoring.rs`,
   `boundary_association.rs` and `b7b_transport_tests.rs` (none of them W-10
-  files). It regenerates all 84 corpus cases and the D3 chain. It does not touch
-  `bend_authoring.rs` or `tools/hosted-ci-routing.json` on the branch; its design
-  plans a routing digest refresh (0.7.0 design §8).
+  files). It adds `document_validator.rs` with its `mod` lines and a hook in
+  `run_with_context` after the apply chain (`lib.rs` hunk at about 2230 on the
+  branch). It adds a `[dev-dependencies]` section to the applier `Cargo.toml`,
+  rewrites the applier package's dependency list in
+  `operation_applier/Cargo.lock`, and changes the applier `Cargo.toml` digest at
+  `tools/hosted-ci-routing.json:283` and the applier source list (about line
+  2372, adding `document_validator.rs`). It regenerates all 84 corpus cases and
+  the D3 chain. It does not touch `bend_authoring.rs` or the other three
+  lockfiles.
 - **States branch** (`origin/claude/piping-model-states-20261023`): design
   document only.
 - **S2:** not written; scope is the 0.7.0 design §6.
@@ -521,19 +533,28 @@ re-pricing.**
 | applier `lib.rs`: `mod`, `check_kinds`, dispatch ~1383, apply chain ~2025, `resolve_delete_pipe_run` 3955-4058 | version strings elsewhere | new kinds in the same lists; delete removes the pipe from its line | textual with S2, trivial |
 | `geometry_operations.rs`: `pub(crate)` on `unique`, `record_shape` (118, 128) | 661-667, 693 | `record_shape` body, scans | S2 adjacent at 128 |
 | `bend_authoring.rs`: θ helper near 154 | — | scans 583-606, line join 631-636 | no |
-| applier `Cargo.toml` (frame-kernel dependency) | — | — | no |
-| `Cargo.lock` in `core/model_operations/operation_applier`, `apps/desktop/src-tauri`, `core/loads/self_weight_wasm`, `validation/benchmarks/physics_audit_regression` | possible, if S1b changes dependencies (none seen on the branch) | — | lockfile regeneration by whoever lands second |
+| applier `Cargo.toml` (frame-kernel entry in `[dependencies]`) | adds `[dev-dependencies]` directly after `[dependencies]` | — | yes, adjacent hunks; whoever lands second resolves |
+| `core/model_operations/operation_applier/Cargo.lock` | rewrites the applier package's dependency list | — | yes; whoever lands second regenerates it |
+| `Cargo.lock` in `apps/desktop/src-tauri`, `core/loads/self_weight_wasm`, `validation/benchmarks/physics_audit_regression` | — | — | no |
 | `tests/pipe_reconnect.rs` (new) | version ripple | — | no (constant, not literal) |
 | corpus cases (new, after S1b) | regenerates every case | — | mechanical re-bless, see sequencing |
-| `tools/hosted-ci-routing.json` (`Cargo.toml` digest now; corpus list after S1b) | planned digest refresh | — | possible textual, trivial |
+| `tools/hosted-ci-routing.json`: applier `Cargo.toml` digest (`:283`), applier source list (add `pipe_reconnect.rs` near `:2372`), corpus list after S1b | changes the same digest and adds `document_validator.rs` to the same source list | — | yes; whoever lands second recomputes the digest and merges the list |
 | `schemas/model_operation.schema.json` (enum value) | — | not extended | no |
 | `apps/desktop/src/types.ts` change-kind union | line 113 only | new kinds in the same union | S2 trivial |
 | `features/geometry-tools/*`, `features/toolkit/BatchReviewPanel.tsx` | — | — | no |
 | `features/toolkit/capabilityCatalog.ts`, `App.tsx` (capability example, selected node) | — | may add entries or panels | possible, trivial |
 | `apps/desktop/e2e/pipe-reconnect.spec.ts` (new) | e2e fixtures move to 0.7.0 | — | no, with a regenerated fixture |
 
-S1b's document validator (0.7.0 design §5.3) is not on the branch. If it runs in
-the shared apply path, reconnect's candidate passes through it unchanged.
+**S1b's document validator** (0.7.0 design §5.3) runs in `run_with_context`
+after the apply chain whenever an applied model exists, and refuses or warns on
+model-data slots only. Reconnect's batch simulation runs each step in Apply mode
+(`apply_operation_in_batch`, `lib.rs:1304-1317`), so the batch review shows its
+findings. It checks only non-physics slots, which a reconnect does not change,
+so it adds no reconnect-specific refusal. Each reconnect step will also carry any
+pre-existing document warnings (for example `MODEL-ASSUMPTION-SUBJECT-MISSING`);
+the review shows them with the reconnect's own warnings. A single-operation
+validate would not show them, because it returns no applied model; reconnect is
+applied only through batch review (§3), so this does not affect it.
 
 **Answer.** W-10 can be implemented before S1b without a D3 collision.
 
@@ -544,6 +565,9 @@ the shared apply path, reconnect's candidate passes through it unchanged.
   lands second re-blesses.
 - Shared-list edits in applier `lib.rs` and `types.ts`: whoever merges second
   merges main and resolves.
+- Applier `Cargo.toml`, `operation_applier/Cargo.lock` and the routing file's
+  applier digest and source list: whoever lands second regenerates the lockfile
+  and recomputes the digest. S1b leaves the other three lockfiles untouched.
 - W-10 tests use the version constant, so S1b's ripple does not touch them.
 
 ## 6. Size, risks, decisions
@@ -733,5 +757,6 @@ Claude review, both "sound with changes".
 | Claude r2-3: orphaned O in numerical tests | Adopted: [`reconnect`, `delete_node` O] in the cantilever, wind and fit tests; O anchored in the topology test. §4. |
 | Claude r2-4: unbounded example search | Adopted: cap of 32, on demand, cached by model hash, stated reason at the cap. §1. |
 | Claude r2-5: nits | Adopted: terminal markers named in the orphan and junction warnings; "no non-terminal component"; the scanner claim reworded; kernel errors mapped by variant and call site. §2.2–§2.4. |
+| Coordinator §5 update (S1b at `0d20039cac`) | Adopted: overlap re-checked; `Cargo.toml`, applier `Cargo.lock` and routing digest and source list shared, resolved by whoever lands second; validator behaviour stated; chord-check wording. §2.3, §5. |
 | Coordinator: `terminal` markers | Adopted: exempt from the at-node rule. §2.1. |
 | Coordinator: records | Adopted: proposed as exact old → new text, applied only after approval. §6. |
