@@ -6,17 +6,20 @@ repository root around it. A test that reads a surface the export leaves out
 runs in the monorepo and, in the export, skips with the surface named
 (DEL-10-04:1, a self-verifying export).
 
-The tree counts as the export only outside a monorepo checkout, where this
-project sits at `projects/<name>` under a root carrying `AGENTS.md`, and only
-with both directories absent. A sparse monorepo clone that drops them, or
-hosted CI's checkout (which drops `execution/` only), is not the export.
+The tree counts as the export only outside a monorepo checkout, and only with
+both directories absent. In a monorepo checkout this project sits at
+`projects/<name>` under the repository root, which holds `.git` (a sparse clone
+or worktree keeps it) or `AGENTS.md`. A sparse monorepo clone that drops the
+directories, or hosted CI's checkout (which drops `execution/` only), is not the
+export.
 """
 from pathlib import Path
 
 import pytest
 
 PROJECT = Path(__file__).resolve().parents[1]
-IN_MONOREPO = PROJECT.parent.name == "projects" and (PROJECT.parents[1] / "AGENTS.md").is_file()
+IN_MONOREPO = PROJECT.parent.name == "projects" and (
+    (PROJECT.parents[1] / ".git").exists() or (PROJECT.parents[1] / "AGENTS.md").is_file())
 PUBLIC_EXPORT = not IN_MONOREPO and not (PROJECT / "loop").is_dir() and not (PROJECT / "execution").is_dir()
 
 

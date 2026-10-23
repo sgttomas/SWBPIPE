@@ -183,18 +183,32 @@ def test_public_export_plans_without_the_monorepo_dag(tmp_path, capsys):
     assert release.check_required_paths(tmp_path) == ["execution/_DAG/_LATEST.md"]
 
 
-def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp_path):
-    release = load_module()
-    project = tmp_path / "projects" / "chirality-piping"
-    project.mkdir(parents=True)
-    (tmp_path / "AGENTS.md").write_text("fixture")
-    # No loop/ or execution/, as a sparse clone could leave it.
-    assert not release.is_public_export(project)
-    assert release.check_required_paths(project) != []
-    probe_source = (ROOT / "tests" / "public_export.py").read_text()
-    (project / "tests").mkdir()
-    (project / "tests" / "public_export.py").write_text(probe_source)
-    spec = importlib.util.spec_from_file_location("public_export_sparse_probe", project / "tests" / "public_export.py")
+def _probe_public_export(project: Path, name: str) -> bool:
+    (project / "tests").mkdir(exist_ok=True)
+    (project / "tests" / "public_export.py").write_text((ROOT / "tests" / "public_export.py").read_text())
+    spec = importlib.util.spec_from_file_location(name, project / "tests" / "public_export.py")
     probe = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(probe)
-    assert probe.PUBLIC_EXPORT is False
+    return probe.PUBLIC_EXPORT
+
+
+def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp_path):
+    release = load_module()
+    # A sparse clone may drop loop/, execution/ and even the root AGENTS.md;
+    # it keeps the repository's .git (a directory, or a file in a worktree).
+    for index, marker in enumerate(("AGENTS.md", ".git", ".git-file")):
+        repository = tmp_path / str(index)
+        project = repository / "projects" / "chirality-piping"
+        project.mkdir(parents=True)
+        if marker == ".git":
+            (repository / ".git").mkdir()
+        else:
+            (repository / (".git" if marker == ".git-file" else marker)).write_text("fixture")
+        assert not release.is_public_export(project), marker
+        assert release.check_required_paths(project) != []
+        assert _probe_public_export(project, f"public_export_sparse_probe_{index}") is False
+    # A standalone tree (the export, a repository of its own) is the export.
+    standalone = tmp_path / "standalone"
+    (standalone / ".git").mkdir(parents=True)
+    assert release.is_public_export(standalone)
+    assert _probe_public_export(standalone, "public_export_standalone_probe") is True
