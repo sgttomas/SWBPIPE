@@ -27661,15 +27661,17 @@
           ],
           "route": "pressure_source",
           "status": "needs_recompute",
-          "token": "needs_recompute"
+          "token": "unsupported"
         }
       },
       "id": "ledger/COMMITMENT_DOMAIN_SEPARATION",
       "validate": {
         "pressure-source": {
-          "eligible": false,
-          "findings": [],
-          "ok": true
+          "error": {
+            "code": "SOURCE_BLOCKS_COMMITMENT_DOMAIN_SEPARATION",
+            "detail": null
+          },
+          "ok": false
         }
       }
     },
