@@ -295,6 +295,7 @@ export function useWorkspaceSession() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    numericallyEligible,
     numericalHealth,
     numericalHealthHold,
     analysisRun, setAnalysisRun,
@@ -2941,6 +2942,7 @@ export function useWorkspaceSession() {
     results: {
       result,
       currentSolvedResult,
+      numericallyEligible,
       numericalHealth,
       numericalHealthHold,
       historicalRun,

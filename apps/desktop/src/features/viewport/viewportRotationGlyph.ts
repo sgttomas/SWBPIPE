@@ -8,6 +8,7 @@ import * as THREE from "three";
 import type { Vec3 } from "../../types";
 import type { EntityKey } from "../workspace/selectionState";
 import { createFigureMaterial } from "./viewportFigureMaterial";
+import type { ViewportPaletteRole } from "./viewportPalette";
 import { registerInstancedRolePresentation } from "./viewportResource";
 
 export type RotationGlyphPlacement = {
@@ -40,16 +41,24 @@ export function rotationGlyphMatrices(glyph: RotationGlyphPlacement): { shaft: T
 }
 
 /** Builds instanced glyph meshes, one shaft mesh and one head mesh (two heads per
- * glyph) per spatial group. Each instance belongs to its node for selection
- * presentation, under the deformed-shape palette role. */
-export function instancedRotationGlyphMeshes(groups: readonly (readonly RotationGlyphPlacement[])[]): THREE.InstancedMesh[] {
+ * glyph) per spatial group. Each instance belongs to its owner for selection
+ * presentation, under the deformed-shape palette role unless another role is
+ * given. The support reaction moments use the same glyph under their own role
+ * and name (`viewportReactionArrows.ts`). */
+export function instancedRotationGlyphMeshes(
+  groups: readonly (readonly RotationGlyphPlacement[])[],
+  options: Readonly<{ role?: ViewportPaletteRole; name?: string; radiusScale?: number }> = {}
+): THREE.InstancedMesh[] {
+  const role = options.role ?? "deformedShape";
+  const name = options.name ?? "viewport-rotation-glyph";
+  const radiusScale = options.radiusScale ?? 1;
   const drawable = groups
     .map((group) => group.filter((glyph) => Number.isFinite(glyph.displayLength) && glyph.displayLength > 0 &&
       Number.isFinite(Math.hypot(glyph.axis.x, glyph.axis.y, glyph.axis.z)) && Math.hypot(glyph.axis.x, glyph.axis.y, glyph.axis.z) > 0))
     .filter((group) => group.length > 0);
   if (!drawable.length) return [];
-  const shaftGeometry = new THREE.CylinderGeometry(SHAFT_RADIUS, SHAFT_RADIUS, 1, 8);
-  const headGeometry = new THREE.ConeGeometry(HEAD_RADIUS, 1, 10);
+  const shaftGeometry = new THREE.CylinderGeometry(SHAFT_RADIUS * radiusScale, SHAFT_RADIUS * radiusScale, 1, 8);
+  const headGeometry = new THREE.ConeGeometry(HEAD_RADIUS * radiusScale, 1, 10);
   const material = createFigureMaterial({ opacity: 0.9, transparent: true });
   const output: THREE.InstancedMesh[] = [];
   for (const group of drawable) {
@@ -63,10 +72,10 @@ export function instancedRotationGlyphMeshes(groups: readonly (readonly Rotation
     });
     shaft.instanceMatrix.needsUpdate = true;
     heads.instanceMatrix.needsUpdate = true;
-    shaft.name = "viewport-rotation-glyph-shaft";
-    heads.name = "viewport-rotation-glyph-head";
-    registerInstancedRolePresentation(shaft, group.map((glyph) => glyph.ownerKey), "deformedShape");
-    registerInstancedRolePresentation(heads, group.flatMap((glyph) => [glyph.ownerKey, glyph.ownerKey]), "deformedShape");
+    shaft.name = `${name}-shaft`;
+    heads.name = `${name}-head`;
+    registerInstancedRolePresentation(shaft, group.map((glyph) => glyph.ownerKey), role);
+    registerInstancedRolePresentation(heads, group.flatMap((glyph) => [glyph.ownerKey, glyph.ownerKey]), role);
     output.push(shaft, heads);
   }
   return output;
