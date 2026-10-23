@@ -197,7 +197,7 @@ Missing or malformed evidence findings keep "Needs recompute". Admission is unch
 
 ## 4. Placement
 
-- **Results panel.** The `numerical-result-standing` line becomes the health header on the generic and pressure-source routes. Each load case and combination row carries its badge, except recovered rows on the pressure-source route (§3). The retained and unsupported texts are unchanged.
+- **Results panel.** The health header is a separate element placed directly above the `numerical-result-standing` line, on the generic and pressure-source routes. That line keeps its text byte for byte, because the native smoke's `expected.json` pins its prefix from the G10 checklist and G10's interpretation is owner-held. Each load case and combination row carries its badge, except recovered rows on the pressure-source route (§3). The retained and unsupported texts are unchanged.
 - **Shell chip and rail caption.** They show the replacement described in §3. The rail uses the short form "Numerical health: {worst state}".
 - **Solve panel.** The diagnostics tile gains the header badge.
 - **Diagnostics panel.** It is unchanged, apart from the filtered open.
