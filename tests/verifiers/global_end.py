@@ -12,7 +12,6 @@ vector's (the wall action as axial where named) to 64 epsilon relative. Internal
 from __future__ import annotations
 
 import math
-import sys
 from typing import Any, Mapping
 
 FORCE = "element_global_end_force_v1"
@@ -27,6 +26,8 @@ LOCAL_KINDS = ("element_local_axial_force", "element_local_shear_force_y", "elem
                "element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z")
 WALL_KIND = "pipe_wall_endpoint_action_v2"
 ENDS = ("end_i", "end_j")
+EPSILON = 2.0 ** -52  # binary64 epsilon
+MIN_POSITIVE = 2.0 ** -1022  # smallest positive normal binary64
 METADATA_KEYS = {"component", "coordinate_system", "location", "basis", "sign_convention"}
 
 
@@ -104,4 +105,4 @@ def coverage(rows: list[Mapping[str, Any]]) -> None:
             g = glob[key][end]
             for block in (0, 3):
                 a, b = math.hypot(*f[block:block + 3]), math.hypot(*g[block:block + 3])
-                _require(abs(a - b) <= 64 * sys.float_info.epsilon * max(a, sys.float_info.min), "ROTATION_NORM")
+                _require(abs(a - b) <= 64 * EPSILON * max(a, MIN_POSITIVE), "ROTATION_NORM")
