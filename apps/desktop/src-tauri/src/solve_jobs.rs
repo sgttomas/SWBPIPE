@@ -457,7 +457,7 @@ impl SolveJobRegistry {
         }
         // The reservation precedes this process's copy of the raw bytes.
         let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
-        let lease = self.pool.acquire(ingress_bytes, LeasePurpose::Ingress).map_err(|refusal| self.unavailable(refusal))?;
+        let lease = self.pool.acquire_resampling(ingress_bytes, LeasePurpose::Ingress).map_err(|refusal| self.unavailable(refusal))?;
         let input = AdmittedInput { raw: body.to_vec(), lease, mode, start_grant, max_grant: budget };
         let resource = JobResource {
             invocation_budget_bytes: budget,

@@ -741,7 +741,7 @@ pub(crate) fn supervise(
                 // is held as an uncredited (ingress) reservation while the bytes
                 // are read, and becomes a Result lease, which interactive
                 // admissions count as written, only once they are written.
-                let mut lease = match terms.pool.acquire(resident_envelope(length), LeasePurpose::Ingress) {
+                let mut lease = match terms.pool.acquire_resampling(resident_envelope(length), LeasePurpose::Ingress) {
                     Ok(lease) => lease,
                     Err(refused) => {
                         verdict = end(WorkerOutcome::Refused(refused));

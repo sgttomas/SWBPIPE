@@ -49,6 +49,18 @@
 //! pages are not credited because they occupy no free page) and credited at
 //! most its lease bytes; a lease without a probe, a reaped worker or a failed
 //! reading is credited 0. Every other reservation is double counted.
+//!
+//! Re-sampling: the free queue on a loaded Mac swings between about zero and
+//! gigabytes within a second while the kernel reports normal pressure (the
+//! pageout daemon refills it toward `vm.vm_page_free_target`). An interactive
+//! admission, a solve's intake lease and a finished solve's result lease
+//! refused only with `headroom_insufficient` therefore keep taking fresh
+//! samples, every [`HEADROOM_RESAMPLE_TICK`] (or sooner on a release) for at
+//! most [`HEADROOM_RESAMPLE_WINDOW`], and are admitted at the first sample
+//! whose verdict passes. Every verdict is the unchanged atomic rule on a
+//! fresh sample; only the moment of sampling moves. Any other refusal, and
+//! `headroom_insufficient` at the end of the window, stands. Worker growth and
+//! the custody grow at take do not re-sample.
 
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -64,6 +76,11 @@ pub(crate) const DEFAULT_INVOCATION_BUDGET_BYTES: u64 = 12_884_901_888;
 pub(crate) const HEADROOM_SAMPLE_MAX_AGE: Duration = Duration::from_secs(1);
 /// How often a queued job re-samples the host while waiting for its grant.
 pub(crate) const ADMISSION_WAIT_TICK: Duration = Duration::from_millis(200);
+/// How long an admission refused only for insufficient headroom keeps taking
+/// fresh host samples before the refusal stands (see the module docs).
+pub(crate) const HEADROOM_RESAMPLE_WINDOW: Duration = Duration::from_secs(2);
+/// The interval between those fresh samples.
+pub(crate) const HEADROOM_RESAMPLE_TICK: Duration = Duration::from_millis(50);
 /// The default bound on concurrently running solve worker processes, when
 /// the host's parallelism cannot be read.
 pub(crate) const FALLBACK_MAX_RUNNING_WORKERS: usize = 4;
@@ -325,6 +342,8 @@ pub(crate) struct MemoryPool {
     state: Mutex<PoolState>,
     changed: Condvar,
     wait_tick: Duration,
+    resample_window: Duration,
+    resample_tick: Duration,
 }
 
 impl std::fmt::Debug for MemoryPool {
@@ -339,13 +358,19 @@ impl MemoryPool {
     /// leaves the pool at 0 (every priced admission refuses `capacity_unknown`)
     /// until a later sample establishes it.
     pub(crate) fn new(host: Arc<dyn HostMemory>) -> Arc<Self> {
-        Self::with_wait_tick(host, ADMISSION_WAIT_TICK)
+        Self::with_timing(host, ADMISSION_WAIT_TICK, HEADROOM_RESAMPLE_WINDOW, HEADROOM_RESAMPLE_TICK)
     }
 
+    /// A pool with a queued-job wait tick of `wait_tick` (tests use a short
+    /// one); its headroom re-sampling window is ten such ticks.
     pub(crate) fn with_wait_tick(host: Arc<dyn HostMemory>, wait_tick: Duration) -> Arc<Self> {
+        Self::with_timing(host, wait_tick, wait_tick.saturating_mul(10), wait_tick)
+    }
+
+    fn with_timing(host: Arc<dyn HostMemory>, wait_tick: Duration, resample_window: Duration, resample_tick: Duration) -> Arc<Self> {
         let mut state = PoolState { max_running_workers: max_running_workers(), ..PoolState::default() };
         state.observe(&host.sample());
-        Arc::new(Self { host, state: Mutex::new(state), changed: Condvar::new(), wait_tick })
+        Arc::new(Self { host, state: Mutex::new(state), changed: Condvar::new(), wait_tick, resample_window, resample_tick })
     }
 
     fn lock(&self) -> MutexGuard<'_, PoolState> {
@@ -417,17 +442,57 @@ impl MemoryPool {
         self.acquire_locked(&mut state, bytes, purpose)
     }
 
+    /// [`Self::acquire`], re-sampling the host while the only refusal is
+    /// `headroom_insufficient` (see the module docs). Not for worker leases.
+    pub(crate) fn acquire_resampling(self: &Arc<Self>, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
+        debug_assert_ne!(purpose, LeasePurpose::Worker, "worker grants wait in the queue instead");
+        self.resampling(|pool, state| pool.verdict_locked(state, bytes, purpose).map(|()| pool.record_locked(state, bytes, purpose)))
+    }
+
+    /// Runs `attempt` under the pool lock until it admits, it refuses with
+    /// anything but `headroom_insufficient`, or the re-sampling window ends;
+    /// records the refusal that stands.
+    fn resampling(
+        self: &Arc<Self>,
+        mut attempt: impl FnMut(&Arc<Self>, &mut PoolState) -> Result<Lease, ResourceRefusal>,
+    ) -> Result<Lease, ResourceRefusal> {
+        let started = Instant::now();
+        let mut state = self.lock();
+        loop {
+            let refusal = match attempt(self, &mut state) {
+                Ok(lease) => return Ok(lease),
+                Err(refusal) => refusal,
+            };
+            let remaining = self.resample_window.saturating_sub(started.elapsed());
+            if !matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }) || remaining.is_zero() {
+                state.last_refusal = Some(refusal.clone());
+                return Err(refusal);
+            }
+            // The lock is released while waiting; a release elsewhere wakes it early.
+            state = self.changed.wait_timeout(state, self.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner).0;
+        }
+    }
+
     fn acquire_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
-        let limit = state.max_running_workers;
-        let verdict = if purpose == LeasePurpose::Worker && state.workers.len() >= limit {
-            Err(ResourceRefusal::WorkerLimitReached { running: state.workers.len(), limit })
-        } else {
-            self.admit_bytes_locked(state, bytes, AdmissionClass::Adaptive)
-        };
-        if let Err(refusal) = verdict {
+        if let Err(refusal) = self.verdict_locked(state, bytes, purpose) {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
+        Ok(self.record_locked(state, bytes, purpose))
+    }
+
+    /// The adaptive verdict for `bytes` more of `purpose` (worker leases are
+    /// also bounded by the process count).
+    fn verdict_locked(&self, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Result<(), ResourceRefusal> {
+        let limit = state.max_running_workers;
+        if purpose == LeasePurpose::Worker && state.workers.len() >= limit {
+            return Err(ResourceRefusal::WorkerLimitReached { running: state.workers.len(), limit });
+        }
+        self.admit_bytes_locked(state, bytes, AdmissionClass::Adaptive)
+    }
+
+    /// Records an admitted adaptive lease.
+    fn record_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Lease {
         state.reserved[purpose as usize] += bytes;
         let worker_id = (purpose == LeasePurpose::Worker).then(|| {
             let id = state.next_worker_id;
@@ -435,7 +500,7 @@ impl MemoryPool {
             state.workers.insert(id, WorkerEntry { bytes, probe: None });
             id
         });
-        Ok(Lease { pool: Arc::clone(self), bytes, purpose, class: AdmissionClass::Adaptive, worker_id })
+        Lease { pool: Arc::clone(self), bytes, purpose, class: AdmissionClass::Adaptive, worker_id }
     }
 
     /// Admits an interactive command's ingress lease of `bytes` in one
@@ -443,11 +508,11 @@ impl MemoryPool {
     /// `bytes` within the per-invocation budget (`ingress_exceeds_budget`),
     /// the pool, and a fresh known headroom covering `bytes` plus the
     /// outstanding unrealized reservations. The pressure state is not
-    /// consulted.
+    /// consulted. A `headroom_insufficient` verdict is re-sampled (see the
+    /// module docs).
     pub(crate) fn acquire_interactive(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
-        let mut state = self.lock();
-        let verdict = (|| {
-            let sample = self.host.sample();
+        self.resampling(|pool, state| {
+            let sample = pool.host.sample();
             state.observe(&sample);
             if sample.capacity_bytes.is_none() {
                 return Err(ResourceRefusal::CapacityUnknown);
@@ -458,19 +523,15 @@ impl MemoryPool {
                     budget_bytes: state.invocation_budget_bytes,
                 });
             }
-            self.admit_bytes_locked(&mut state, bytes, AdmissionClass::Interactive)
-        })();
-        if let Err(refusal) = verdict {
-            state.last_refusal = Some(refusal.clone());
-            return Err(refusal);
-        }
-        state.reserved[LeasePurpose::Ingress as usize] += bytes;
-        Ok(Lease {
-            pool: Arc::clone(self),
-            bytes,
-            purpose: LeasePurpose::Ingress,
-            class: AdmissionClass::Interactive,
-            worker_id: None,
+            pool.admit_bytes_locked(state, bytes, AdmissionClass::Interactive)?;
+            state.reserved[LeasePurpose::Ingress as usize] += bytes;
+            Ok(Lease {
+                pool: Arc::clone(pool),
+                bytes,
+                purpose: LeasePurpose::Ingress,
+                class: AdmissionClass::Interactive,
+                worker_id: None,
+            })
         })
     }
 
@@ -1230,6 +1291,159 @@ mod tests {
         assert_eq!(pool.acquire_interactive(1).unwrap_err(), ResourceRefusal::CapacityUnknown);
         assert!(matches!(pool.status(JobCounts::default()).last_refusal, Some(ResourceRefusal::CapacityUnknown)));
         assert_eq!(pool.reserved_total(), 0, "every refusal reserved nothing");
+    }
+
+    /// The demo result-JSON save of the completeness map's native run
+    /// (COMPLETENESS_MAP §5), as measured by an instrumented native build: a
+    /// 4,918,811-byte args body whose lease is envelope 8,388,608 +
+    /// materialization 8,397,520 + 4,096, while the delivered demo result's
+    /// 2R custody lease of 1,146,880 bytes is held (half credited). That run
+    /// saw 6.44 MiB of free-queue headroom and was refused "needs 16.56 MiB".
+    const DEMO_SAVE_LEASE: u64 = 16_790_224;
+    const DEMO_CUSTODY_LEASE: u64 = 1_146_880;
+    const DEMO_SAVE_REQUIRED: u64 = 17_363_664;
+    const MIB: u64 = 1 << 20;
+
+    fn timed_pool(host: &Arc<ScriptedHost>, window: Duration, tick: Duration) -> Arc<MemoryPool> {
+        MemoryPool::with_timing(host.clone(), Duration::from_millis(5), window, tick)
+    }
+
+    #[test]
+    fn demo_save_is_refused_at_the_observed_headroom_once_the_window_ends() {
+        let observed = 6_752_829; // 6.44 MiB
+        let host = ScriptedHost::with(Some(128 * GIB), Some(observed), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_millis(10));
+        let _custody = {
+            host.set(|s| s.headroom_bytes = Some(GIB));
+            let lease = pool.acquire(DEMO_CUSTODY_LEASE, LeasePurpose::Custody).unwrap();
+            host.set(|s| s.headroom_bytes = Some(observed));
+            lease
+        };
+        assert_eq!(DEMO_SAVE_REQUIRED, DEMO_SAVE_LEASE + DEMO_CUSTODY_LEASE / 2);
+        assert_eq!(format!("{:.2}", DEMO_SAVE_REQUIRED as f64 / MIB as f64), "16.56");
+        let started = Instant::now();
+        let refusal = pool.acquire_interactive(DEMO_SAVE_LEASE).unwrap_err();
+        let waited = started.elapsed();
+        // The gate is unchanged: the same requirement against a fresh sample.
+        assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: DEMO_SAVE_REQUIRED, available_bytes: observed });
+        assert!(waited >= Duration::from_millis(100), "kept sampling for the whole window ({waited:?})");
+        assert!(waited < Duration::from_secs(2), "and then stopped ({waited:?})");
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(refusal));
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), 0, "a refusal reserves nothing");
+        // One byte of headroom short is still refused; exactly enough is admitted.
+        host.set(|s| s.headroom_bytes = Some(DEMO_SAVE_REQUIRED - 1));
+        assert!(matches!(pool.acquire_interactive(DEMO_SAVE_LEASE), Err(ResourceRefusal::HeadroomInsufficient { .. })));
+        host.set(|s| s.headroom_bytes = Some(DEMO_SAVE_REQUIRED));
+        let lease = pool.acquire_interactive(DEMO_SAVE_LEASE).unwrap();
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), DEMO_SAVE_LEASE);
+        drop(lease);
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), 0);
+    }
+
+    /// The free queue refills within the production window: the save waits
+    /// for a fresh sample that passes the unchanged rule, then is admitted.
+    #[test]
+    fn a_headroom_dip_within_the_window_admits_the_save_and_records_no_refusal() {
+        let host = ScriptedHost::with(Some(128 * GIB), Some(GIB), PressureLevel::Normal);
+        let pool = MemoryPool::new(host.clone());
+        let _custody = pool.acquire(DEMO_CUSTODY_LEASE, LeasePurpose::Custody).unwrap();
+        host.set(|s| s.headroom_bytes = Some(0));
+        let refill = {
+            let host = host.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(Duration::from_millis(300));
+                host.set(|s| s.headroom_bytes = Some(DEMO_SAVE_REQUIRED));
+            })
+        };
+        let started = Instant::now();
+        let lease = pool.acquire_interactive(DEMO_SAVE_LEASE).expect("admitted once a fresh sample covers it");
+        let waited = started.elapsed();
+        refill.join().unwrap();
+        assert!(waited >= Duration::from_millis(300) && waited < HEADROOM_RESAMPLE_WINDOW, "{waited:?}");
+        assert_eq!(lease.bytes(), DEMO_SAVE_LEASE);
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), DEMO_SAVE_LEASE);
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "a passing re-sample leaves no refusal");
+    }
+
+    /// Only `headroom_insufficient` is re-sampled; every other refusal stands
+    /// at once, and adaptive re-sampling keeps the pressure rule.
+    #[test]
+    fn only_insufficient_headroom_is_resampled() {
+        let window = Duration::from_secs(5);
+        let quick = Duration::from_secs(1);
+        let host = ScriptedHost::with(Some(16 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = timed_pool(&host, window, Duration::from_millis(10));
+        let budget = pool.settings().1;
+        let timed = |f: &dyn Fn() -> ResourceRefusal| {
+            let started = Instant::now();
+            let refusal = f();
+            assert!(started.elapsed() < quick, "{refusal:?} waited {:?}", started.elapsed());
+            refusal
+        };
+        assert!(matches!(timed(&|| pool.acquire_interactive(budget + 1).unwrap_err()), ResourceRefusal::IngressExceedsBudget { .. }));
+        let held = pool.acquire(12 * GIB - MIB, LeasePurpose::Result).unwrap();
+        assert!(matches!(timed(&|| pool.acquire_interactive(2 * MIB).unwrap_err()), ResourceRefusal::PoolExhausted { .. }));
+        assert!(matches!(timed(&|| pool.acquire_resampling(2 * MIB, LeasePurpose::Ingress).unwrap_err()), ResourceRefusal::PoolExhausted { .. }));
+        drop(held);
+        host.set(|s| s.headroom_bytes = None);
+        assert_eq!(timed(&|| pool.acquire_interactive(MIB).unwrap_err()), ResourceRefusal::HeadroomUnknown);
+        host.set(|s| { s.headroom_bytes = Some(GIB); s.age = Duration::from_secs(3) });
+        assert!(matches!(timed(&|| pool.acquire_interactive(MIB).unwrap_err()), ResourceRefusal::HeadroomStale { .. }));
+        host.set(|s| { s.age = Duration::ZERO; s.pressure = PressureLevel::Warning });
+        assert_eq!(
+            timed(&|| pool.acquire_resampling(MIB, LeasePurpose::Ingress).unwrap_err()),
+            ResourceRefusal::PressureElevated { level: PressureLevel::Warning }
+        );
+        // Interactive admission still ignores pressure.
+        drop(pool.acquire_interactive(MIB).unwrap());
+        host.set(|s| s.capacity_bytes = None);
+        assert_eq!(timed(&|| pool.acquire_interactive(MIB).unwrap_err()), ResourceRefusal::CapacityUnknown);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// A release elsewhere wakes a re-sampling admission before its tick, and
+    /// the adaptive variant admits once the outstanding reservation is gone.
+    #[test]
+    fn adaptive_resampling_admits_after_a_release_frees_headroom() {
+        let host = ScriptedHost::with(Some(16 * GIB), Some(4 * GIB), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_secs(10), Duration::from_secs(5));
+        let held = pool.acquire(3 * GIB, LeasePurpose::Ingress).unwrap();
+        let releaser = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(100));
+            drop(held);
+        });
+        let started = Instant::now();
+        let lease = pool.acquire_resampling(2 * GIB, LeasePurpose::Ingress).expect("admitted after the release");
+        releaser.join().unwrap();
+        assert!(started.elapsed() < Duration::from_secs(4), "woken by the release, not the 5 s tick: {:?}", started.elapsed());
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), lease.bytes());
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None);
+    }
+
+    /// Racing re-sampling admissions never over-reserve the pool.
+    #[test]
+    fn racing_resampling_admissions_never_over_reserve() {
+        let host = ScriptedHost::with(Some(16 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_millis(50), Duration::from_millis(5));
+        let pool_bytes = pool.settings().0;
+        let chunk = pool_bytes / 3 + 1; // only two fit
+        let barrier = Arc::new(Barrier::new(6));
+        let handles: Vec<_> = (0..6)
+            .map(|i| {
+                let (pool, barrier) = (pool.clone(), barrier.clone());
+                std::thread::spawn(move || {
+                    barrier.wait();
+                    let lease = if i % 2 == 0 { pool.acquire_interactive(chunk.min(pool.settings().1)) } else { pool.acquire_resampling(chunk, LeasePurpose::Ingress) };
+                    let total = pool.reserved_total();
+                    assert!(total <= pool_bytes, "{total} > {pool_bytes}");
+                    std::thread::sleep(Duration::from_millis(20));
+                    lease.is_ok()
+                })
+            })
+            .collect();
+        let admitted = handles.into_iter().map(|h| h.join().unwrap()).filter(|ok| *ok).count();
+        assert!(admitted >= 1);
+        assert_eq!(pool.reserved_total(), 0);
     }
 
     #[test]
