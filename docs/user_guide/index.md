@@ -77,9 +77,14 @@ A model solves on one of two routes:
   naming the missing inputs, and is not evaluated.
 - **Libraries.** Import private material, section and component libraries.
 - **Exports.** Both routes export result JSON and stress-neutral JSON, each
-  only with explicit local-private intent, plus stress-neutral CSV and glTF
-  review geometry. Pressure-free results also export PCF, MBF, a native
+  only with explicit local-private intent. Pressure-free results also export
+  the PCF and MBF package documents (redacted for downstream tools), a native
   package review manifest and a preview handoff JSON, among others.
+  Outputs that must be byte-exact for a downstream tool (stress-neutral CSV,
+  glTF review geometry, PCF text and MBF text) are withheld whenever
+  redaction would alter them. Session geometry and result values are
+  classified private, so these downloads are withheld in practice: the panel
+  builds them but offers no download link.
 
 **What the app refuses or does not offer today:**
 

@@ -74,8 +74,9 @@ openpipestress-runner read <reader> [--input <reader-input.json>|-]
 - **Output wrapper.** Once the input is read, stdout is the local-private
   export control object: `payload`, `decisions`, `findings`, `blocked`,
   `summary`. The runner's own output document is `payload`. Argument errors
-  and unreadable input files print a message and the usage text to stderr
-  only.
+  print a message and the usage text to stderr and exit 2; an unreadable
+  input file prints only the read error to stderr and exits 2. Neither
+  writes stdout.
 - **Local-private intent.** Without `--explicit-local-private-intent`, an
   output that carries values classified private is blocked: `blocked` is
   `true`, `payload` is `null`, the findings carry
