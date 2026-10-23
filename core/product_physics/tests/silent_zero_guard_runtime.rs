@@ -1,8 +1,9 @@
 //! Silent-zero guard (DEL-04-07 `Design/pressure-contract.md`, "Load cases that
 //! apply nothing"): a load case that applies no action is refused by name and
-//! never published as an all-zero result. On main `9ad5d79fa5` the first and
-//! fourth tests' models solved and published all-zero results with no
-//! diagnostic. Every model goes through the desktop's value entry, in both
+//! never published as an all-zero result as if its loads had been solved. On
+//! main `9ad5d79fa5` the models of the refusal and warning tests solved and
+//! published with no diagnostic (all-zero rows marked
+//! NUMERICAL_INTEGRITY_CHECKS_PASSED for the refused ones). Every model goes through the desktop's value entry, in both
 //! solver modes.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
@@ -173,9 +174,10 @@ fn a_load_state_case_with_only_boundary_motion_solves() {
 }
 
 /// The same pattern on the pressure-free route: one empty case among loaded
-/// ones. Only the empty case is named.
+/// ones publishes an all-zero result. It may be deliberate (a cold operand of
+/// a range), so it is reported by name, not refused.
 #[test]
-fn an_empty_case_beside_a_loaded_case_is_refused_on_the_preview_route() {
+fn an_empty_case_beside_a_loaded_case_is_reported_on_the_preview_route() {
     let wire = base(
         vec![anchor("support:root", "node:a")],
         vec![
@@ -187,12 +189,32 @@ fn an_empty_case_beside_a_loaded_case_is_refused_on_the_preview_route() {
     );
     for mode in MODES {
         let v = envelope(&wire, mode);
-        assert_eq!(blocking(&v), ["LOAD_CASE_APPLIES_NO_ACTION"], "{:?}", diagnostics(&v));
+        assert!(blocking(&v).is_empty(), "{:?}", diagnostics(&v));
         let found = with_code(&v, "LOAD_CASE_APPLIES_NO_ACTION");
-        assert_eq!(found[0]["severity"], "blocking");
+        assert_eq!(found.len(), 1, "{:?}", diagnostics(&v));
+        assert_eq!(found[0]["severity"], "warning");
         assert_eq!(found[0]["affected_refs"], json!(["case:empty"]));
         assert!(with_code(&v, "LOAD_INPUT_MISSING").is_empty());
-        assert_eq!(results(&v), 0);
+    }
+}
+
+/// A load-state case with no stored primitive and no action is a reference
+/// state (the cold state of a sequence): its zero result is correct and it
+/// is neither refused nor reported.
+#[test]
+fn a_load_state_reference_case_with_nothing_stored_solves_to_zero() {
+    let wire = base(
+        vec![anchor("support:root", "node:a")],
+        vec![state_case(vec![], &[], vec![active("support:root")])],
+        true,
+        true,
+    );
+    for mode in MODES {
+        let v = envelope(&wire, mode);
+        assert!(blocking(&v).is_empty(), "{:?}", diagnostics(&v));
+        assert!(with_code(&v, "LOAD_STATE_CASE_APPLIES_NO_ACTION").is_empty());
+        assert!(with_code(&v, "LOAD_STATE_SOURCE_EXCLUDED").is_empty());
+        assert_eq!(reaction_fx(&v, "support:root"), 0.0);
     }
 }
 

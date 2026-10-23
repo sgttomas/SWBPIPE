@@ -1112,10 +1112,11 @@ pub(crate) fn resolve_case(
         .map(|load| json!({"source_id": load.id, "owner_kind": "stored_primitive", "classification": "excluded",
             "category": load.category, "reason": "not listed in analysis_state.load_sources"}))
         .collect::<Vec<_>>();
-    // Silent-zero guard (DEL-04-07 Design/pressure-contract.md, "Load-state
-    // cases that apply nothing"): a case that applies no action would publish
-    // an all-zero result as if solved, so it is refused by name. An action is
-    // an included stored primitive, a boundary motion, a pressure region or a
+    // Silent-zero guard (DEL-04-07 Design/pressure-contract.md, "Load cases
+    // that apply nothing"): a case whose stored primitives are all unlisted
+    // and that applies no other action would publish an all-zero result as
+    // if its loads had been solved, so it is refused by name. An action is an
+    // included stored primitive, a boundary motion, a pressure region or a
     // member state with nonzero eigenstrain.
     let applies_action = !effective_case.primitive_loads.is_empty()
         || !prescribed.is_empty()
@@ -1135,17 +1136,16 @@ pub(crate) fn resolve_case(
         }
         text
     };
-    if !applies_action {
-        let message = if excluded_ids.is_empty() {
-            "the load case applies no action: it has no stored primitive load, boundary motion, pressure region or member eigenstrain, so a solve would publish an all-zero result; add the loads or states the case should apply".to_string()
-        } else {
-            format!(
-                "the load case applies no action: none of its {} stored primitive load{} ({}) is listed in analysis_state.load_sources, and it has no boundary motion, pressure region or member eigenstrain, so a solve would publish an all-zero result; list each primitive to apply in analysis_state.load_sources",
-                excluded_ids.len(),
-                if excluded_ids.len() == 1 { "" } else { "s" },
-                named(&excluded_ids)
-            )
-        };
+    // A case with no stored primitive and no action is a reference state
+    // (for example the cold state of a cold/hot/return sequence), whose
+    // all-zero result is correct; it is not refused.
+    if !applies_action && !excluded_ids.is_empty() {
+        let message = format!(
+            "the load case applies no action: none of its {} stored primitive load{} ({}) is listed in analysis_state.load_sources, and it has no boundary motion, pressure region or member eigenstrain, so a solve would publish an all-zero result; list each primitive to apply in analysis_state.load_sources",
+            excluded_ids.len(),
+            if excluded_ids.len() == 1 { "" } else { "s" },
+            named(&excluded_ids)
+        );
         block(diagnostics, "LOAD_STATE_CASE_APPLIES_NO_ACTION", &[id], message);
     } else if !excluded_ids.is_empty() {
         let mut finding = diag(

@@ -61,3 +61,40 @@ This records what the code does at T4-U2 source `98dba87714262722a78a534ad5921a1
 - **Export chain.** The exact identity (pressure-2 since T4-U4b/U5b) has results, stress-neutral and analysis-run schema branches (placed before the retained successors; its results branch and definitions are held in `schemas/results_pressure_2.v0.3.schema.json`, which `results.v0.3` references, so the Rust reader's embedded `results.v0.3` stays at the other semantics' size), a fresh identity and standing in the Rust reader, whose `pressure` verdict and standing the Python product paths and the desktop take (Reading pressure-2, above); `contract_evidence` is copied whole; connector rows carry one stable basis and export as quantities. HR exports v3 documents, and names an ordinary source the reader refuses.
 - **First usable path.** The L line authored from its corner through the panels equals the applier's document (`fixtures/model_operations/pressure_v3_l_line_authoring.json`); it solves under pressure-1 in both modes in PP and HR and agrees with T4-I7's hand-placed document.
 - **VP-STATIC `exact_pressure_1`.** The transport `exact_pressure_1_cli_1.0_raw0.2` (`tools/validation/qualification_exact_pressure.py`) scores the package `validation/qualification/fixtures/exact_pressure/` (168 cases from the frozen T4-I7 and T4-I8 references, both modes). Its owned-reader check takes the Rust reader's verdict, `openpipestress-runner read pressure` (binding `openpipestress.exact_pressure_consistency_binding/2`, which selects `physics_evidence.rs` with the table and unit authority), through the current pressure route, as the physics and load-reference qualification adapters do (b7-plan R2); no module outside `tests/` imports a verifier. The independent review T4-RV28 admitted it (`ADMISSION.json`; admission changes statuses only). The CLI gate run is not required: DEC-025 no longer binds.
+
+## Load cases that apply nothing
+
+A load case whose authored loads are not applied is refused by name; it is
+never solved and published as an all-zero result as if its loads had been
+solved (Agent 0, 2026-10-23: a silent wrong result is the worst failure class
+for this product). At main `9ad5d79fa5` the first and third cases below
+published all-zero rows marked `NUMERICAL_INTEGRITY_CHECKS_PASSED`.
+- **Load-state case whose stored primitives are all unlisted (EX):** a stored
+  primitive is applied only when the case's `analysis_state.load_sources`
+  lists it. A case that stores primitives, lists none of them, and has no
+  boundary motion, pressure region or member state of nonzero eigenstrain is
+  refused with `LOAD_STATE_CASE_APPLIES_NO_ACTION`, which names the unlisted
+  primitives. Leaving a primitive unlisted beside an applied action remains
+  legal (the contract's "omit the source to exclude it"), and is reported with
+  the warning `LOAD_STATE_SOURCE_EXCLUDED` naming up to six primitives. A
+  load-state case that stores nothing and applies nothing is a reference state
+  (for example the cold state of a cold/hot/return sequence); its zero result
+  is correct, and it is neither refused nor reported.
+- **Empty case among loaded cases (PF and EX):** a case with no primitive
+  load, no equivalent-static load and no non-empty pressure-region list
+  publishes an all-zero result. It may be deliberate (a cold operand of a
+  range), and it is visible where it is authored, so it is reported with the
+  warning `LOAD_CASE_APPLIES_NO_ACTION`, not refused.
+- **Every case empty:** an explicit `pressure_regions: []` means unpressurized
+  and applies nothing, so an exact model whose cases are all empty is refused
+  with the existing `LOAD_INPUT_MISSING`, as a pressure-free one already was.
+- **Models that load every case:** a constant-effort support or an objective
+  connector's installed preload loads every case, so neither check above
+  applies to such a model; `LOAD_INPUT_MISSING` keeps its earlier rule there.
+
+Evidence: `core/product_physics/tests/silent_zero_guard_runtime.rs`, in both
+solver modes. Its refusal and warning tests fail at `9ad5d79fa5`; its controls
+(the loaded case alone, a boundary-motion-only load-state case, a reference
+state with nothing stored) pass. `stress_maximum_coverage.rs`'s exact-zero
+tie tests now load the anchored node, whose load goes wholly to the reaction,
+instead of solving an unloaded model.
