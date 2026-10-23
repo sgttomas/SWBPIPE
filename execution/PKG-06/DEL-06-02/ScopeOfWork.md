@@ -273,8 +273,8 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > | Semantic artifact exists and audit states PASS | `_SEMANTIC.md#Audit-Result` |
 > | Lensing coverage exists for matrices A, B, C, F, D, X, and E | `_SEMANTIC_LENSING.md` |
 > | Dependency register is schema-valid | `python3 tools/validation/validate_dependencies_schema.py <deliverable path>/Dependencies.csv` |
-> | Status value is valid | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
-> | No ISSUED transition occurred | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
+> | Status value is valid | Preserve the lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); contract verification does not promote it. |
+> | No ISSUED transition occurred | Preserve the lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); contract verification does not promote it. |
 >
 
 ### CLM-025 — Records

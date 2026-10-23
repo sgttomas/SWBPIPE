@@ -24,11 +24,7 @@ implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-0
   Typed lines, constraints (the ConstraintRecord subset) and equipment
   interfaces go in as data slots with no evaluation. That keeps FR-MOD-002
   (Must) met rather than narrowed, and it does not touch OD-3's deferral of
-  design-knowledge evaluation. The CLM-006 reading (§7.2) goes to the owner, and
-  S1b waits on it.
-- **HELP_HUMAN (2026-10-23):** S1 lands before W-4, and W-4 authors 0.7.0. Each
-  D3 exclusive run is scheduled through HELP_HUMAN. Two registrations of the same
-  registry never race: the later one merges main and reruns `generate --check`.
+  design-knowledge evaluation.
 
 Requirements: FR-MOD-001, -002, -004, -005, -006 (PRD §11.1). FR-MOD-003 holds
 unchanged: no new slot renames or re-keys an entity.
@@ -83,17 +79,17 @@ of the new members is read by the solve.
 
 **The solve decodes the whole document.** There is no projection to solve
 fields.
-- **HELP_HUMAN's ruling on order (2026-10-23).** The numerical-gaps unit's
-  `deny_unknown_fields` on `PreviewModelWire`, `PreviewLoadCase`,
-  `PreviewPrimitiveLoad` and `PreviewCombination` merges first. That change must
-  also declare the members documents already carry: `data_boundary` and
-  `diagnostics` on the root, and `kind`, `label` and `status` on load cases.
-- **What S1b then declares,** as accepted and unread, in the same change:
+- **Strict solve inputs.** `PreviewModelWire`, `PreviewLoadCase`,
+  `PreviewPrimitiveLoad` and `PreviewCombination` refuse unknown keys
+  (`deny_unknown_fields`). Every member a document may carry is declared on them,
+  including the desktop-only `data_boundary` and `diagnostics` on the root and
+  `kind`, `label` and `status` on load cases.
+- **0.7.0 declares,** as accepted and unread:
   - top-level `lines`, `unresolved_assumptions`, `constraints`,
     `equipment_interfaces` and `rule_pack_refs`;
   - `tags` and `notes` on load cases and combinations.
-- **Test.** S1b's tests include a 0.7.0 document carrying every new member that
-  solves end to end.
+- **Test.** A 0.7.0 document carrying every new member solves end to end, with
+  results equal to the same document without them.
 
 **The standard for every regenerated artifact** (precedent `f468da4651`): the
 version token plus every binding digest that follows from it, written by the
@@ -194,8 +190,7 @@ wording change. They are:
   (`semantic_contract_v0_3_pressure_2.json:2187`).
 
 The physics-retained-1 `accuracy_classification.scope` sentence is TBD-002 and
-stays untouched. The re-pricing gets independent review. The exclusive runs go
-through HELP_HUMAN.
+stays untouched. The re-pricing gets independent review.
 
 **`native-smoke/expected.json` does not change.** Both reviews confirmed this:
 it pins no version or hash, `run.mjs:157` hashes the file it opened, and the
@@ -340,10 +335,21 @@ third vocabulary:
   (`src-tauri/src/lib.rs:875-885`).
 - The desktop sets it when it inserts a library record (S2).
 - It is the source of the handoff manifest's `library_refs` (W-6b).
-- The store keeps one document per library id (`:3768`). If the stored
-  library's version later differs from `library_version`, the reference reports
-  `MODEL-LIBRARY-REF-VERSION-CHANGED` (warning) and keeps the recorded version.
-  It is never silently updated.
+- `library_version` = "sha256:" + the SHA-256 of the inserted record's RFC 8785
+  (JCS) form.
+- **Warnings.** The store keeps one document per library id (`:3768`). Both
+  warnings need the store, so they run at desktop open and load, not in the
+  applier validator:
+  - `MODEL-LIBRARY-REF-UNRESOLVED` when the store has no such library or record;
+  - `MODEL-LIBRARY-REF-VERSION-CHANGED` when the stored record's hash differs
+    from `library_version`.
+
+  The recorded version is never silently updated.
+- **E/ν route** (W-17 design, DEL-03-01; HELP_HUMAN ruling, 2026-10-23). An
+  isotropic material record with E and ν but no G derives G = E / (2(1+ν)). The
+  `provenance_record` records that G was derived and from what. A stored G is
+  used and never overwritten. This is numerical meaning, so it gets targeted
+  regression tests and independent scrutiny.
 - The library payload never enters the document.
 
 - **Field names and enums** are the library import's
@@ -411,8 +417,7 @@ never block deletion, and a missing entity is reported as a warning.
   It goes to HELP_HUMAN as old → new, with the reasoning that no FR-MOD
   requirement is narrowed (§7).
 - **Rigid elements (DEC-045).** Components already carry `geometry.rigid_*` and
-  `modifiers.stiffness_scaling_user_value`. A field the rigid-element unit needs
-  comes through HELP_HUMAN before S1b's schema lands.
+  `modifiers.stiffness_scaling_user_value`; W-13 adds no rigid fields.
 
 ## 4. The schema
 
@@ -747,8 +752,8 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      D3.
    - Checks: applier tests, `desktop-test`, `piping-pytest`, the native smoke
      where open/save changes, and dual review.
-4. **Order.** S1a, then S1b, then S2. W-4 authors 0.7.0 after S1b. The rigid-
-   element unit's fields, if any, join S1b.
+4. **Order.** S1a (#1554), then S1b, then S2. The rigid-element unit's fields,
+   if any, join S1b.
 
 ## 9. Reconciliation (per slice)
 

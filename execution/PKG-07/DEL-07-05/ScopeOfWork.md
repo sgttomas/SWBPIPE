@@ -133,7 +133,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > | ID | Requirement | Source |
 > |---|---|---|
 > | REQ-07-05-001 | The viewer shall present result categories listed in SOW-023 when those categories are present in validated result envelopes. | SOW-023; `docs/SPEC.md` sections 7-8 |
-> | REQ-07-05-002 | The viewer shall preserve the architecture boundary: GUI-facing code consumes application-service result envelopes and shall not bypass domain-core unit checks, provenance checks, diagnostics, or public/private data boundaries. | `_CONTEXT.md` Architecture Basis Injection; `docs/SPEC.md` section 1 |
+> | REQ-07-05-002 | The viewer shall preserve the architecture boundary: GUI-facing code consumes application-service result envelopes and shall not bypass domain-core unit checks, provenance checks, diagnostics, or public/private data boundaries. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `docs/SPEC.md` section 1 |
 > | REQ-07-05-003 | Displayed numerical result values shall be unit-aware and dimensionally labeled; missing or incompatible units shall be shown as diagnostics rather than silently converted or defaulted. | OPS-K-UNIT-1 and OPS-K-DATA-2 in `docs/CONTRACT.md`; `docs/DIRECTIVE.md` section 3 |
 > | REQ-07-05-004 | The viewer shall distinguish mechanics result status, rule-input incompleteness, user-rule-check status, failed user-rule status, and human-review-required status; it shall not expose automatic `CODE_COMPLIANT` status. | `docs/TYPES.md` section 4; OPS-K-AUTH-1 |
 > | REQ-07-05-005 | Rule-pack ratios shall be displayed only when the required user-supplied rule-pack inputs and checksum/provenance status support the calculation; otherwise the ratio surface shall show an unavailable or blocked state with a diagnostic. | SOW-023 note; OPS-K-DATA-1/2; OPS-K-RULE-1/2/3 |
@@ -162,7 +162,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > | VER-07-05-002 | Boundary review | No protected code data, proprietary thresholds, or certification claims appear in setup artifacts. |
 > | VER-07-05-003 | Dependency-register validation | `Dependencies.csv` validates against v3.1 schema. |
 > | VER-07-05-004 | Semantic setup review | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist with complete matrix/lens coverage. |
-> | VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, the translational overlay and the rotation glyphs (`deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`). Confirm that emitted `rx`/`ry`/`rz` rows are shown only as glyphs with their readout, and that focused browser evidence for them (CLM-024) stays recorded as open until it is added. |
+> | VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, the translational overlay and the rotation glyphs (`deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`). Confirm that emitted `rx`/`ry`/`rz` rows are shown only as glyphs with their readout, and that the focused browser evidence `apps/desktop/e2e/rotation-glyph.spec.ts` (CLM-024) is bound to the tested candidate. |
 >
 
 ### CLM-014 — Documentation

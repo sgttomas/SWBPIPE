@@ -65,11 +65,11 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 >
 > | Condition | Value | Source |
 > |---|---|---|
-> | Upstream architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | `_CONTEXT.md` Architecture Basis Injection; `Dependencies.csv` rows DAG-002-E0723 through DAG-002-E0729 |
+> | Upstream architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `Dependencies.csv` rows DAG-002-E0723 through DAG-002-E0729 |
 > | Upstream professional-boundary dependency | DEL-01-04 | `Dependencies.csv` row DAG-002-E0818 |
 > | Upstream handoff/state dependencies | DEL-15-01, DEL-15-02, DEL-15-03, DEL-14-01 | `Dependencies.csv` rows DAG-002-E0819 through DAG-002-E0822 |
 > | Approved DAG mirror status | Resolve current graph and row statuses through `execution/_DAG/_LATEST.md`; former synchronization count is historical evidence | `_DEPENDENCIES.md`; `Dependencies.csv` |
-> | Boundary validation tests | `tests/test_external_prover_boundary_metadata.py` validates generated records against schema and boundary behavior | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
+> | Boundary validation tests | `tests/test_external_prover_boundary_metadata.py` validates generated records against schema and boundary behavior | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-15-04 |
 >
 
 ### CLM-006 — Construction
@@ -120,16 +120,16 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 >
 > | ID | Requirement | Source | Verification |
 > |---|---|---|---|
-> | DEL-15-04-R1 | The data model shall support external-prover workflow metadata. | SOW-075 in `docs/_Registers/ScopeLedger.csv`; `_CONTEXT.md` | `tests/test_external_prover_boundary_metadata.py` confirms the metadata surface exists and validates records against `schemas/external_prover_metadata.schema.json`. |
+> | DEL-15-04-R1 | The data model shall support external-prover workflow metadata. | SOW-075 in `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history); `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | `tests/test_external_prover_boundary_metadata.py` confirms the metadata surface exists and validates records against `schemas/external_prover_metadata.schema.json`. |
 > | DEL-15-04-R2 | The metadata surface shall support flexible names, tags, notes, external references, and attachments. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; SOW-075 note | Schema/review tests check that these categories are representable without requiring a fixed prover lifecycle. |
-> | DEL-15-04-R3 | The metadata model shall not force a formal prover-status lifecycle. | SOW-075 in `docs/_Registers/ScopeLedger.csv`; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 | Negative tests reject or flag hard-coded lifecycle authority when represented as automatic software status. |
+> | DEL-15-04-R3 | The metadata model shall not force a formal prover-status lifecycle. | SOW-075 in `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history); `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 | Negative tests reject or flag hard-coded lifecycle authority when represented as automatic software status. |
 > | DEL-15-04-R4 | The metadata model shall not create automatic professional acceptance records. | SOW-075; `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 | Tests verify software-generated metadata cannot assert human acceptance. |
 > | DEL-15-04-R5 | The metadata model shall not emit approval, certification, code-compliance, sealing, authentication, endorsement, or professional-reliance equivalents as automatic statuses (PRD §21.2). | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants Agent rule; `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/SPEC.md` analysis-status boundary | Boundary validation tests cover prohibited status labels and equivalents. |
 > | DEL-15-04-R6 | External prover metadata shall remain diagnostic/handoff support rather than proof of external verification sufficiency. | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` DAG2-RD-010; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 | Review/test evidence checks wording and status semantics. |
 > | DEL-15-04-R7 | Any external human acceptance reference, if later represented, shall be external, human-actor-owned, and bound to reviewed payload hashes. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 and analysis-status boundary | Tests require external/hash-bound representation and prevent content-change survival without re-review. |
 > | DEL-15-04-R8 | Public fixtures, examples, report snippets, and metadata examples shall not copy protected standards text, protected tables, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, real secrets, or unauthorized commercial software examples. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections | Protected-content/private-data review or lint evidence is required for public examples. |
 > | DEL-15-04-R9 | Metadata records that become public data contributions shall carry source, provenance, license/redistribution status, contributor certification, and review disposition where applicable. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `docs/CONTRACT.md` OPS-K-IP-2 | Schema/review checks confirm required provenance slots or explicit `TBD`. |
-> | DEL-15-04-R10 | The deliverable shall align with the accepted architecture basis: schema-first contracts, JSON Schema 2020-12 where applicable, canonical hash basis where JSON payloads are hashed, and result/diagnostic envelope boundaries where relevant. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 | Draft 2020-12 schema validation and focused tests confirm no incompatible schema/API/hash assumptions are introduced. |
+> | DEL-15-04-R10 | The deliverable shall align with the accepted architecture basis: schema-first contracts, JSON Schema 2020-12 where applicable, canonical hash basis where JSON payloads are hashed, and result/diagnostic envelope boundaries where relevant. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 | Draft 2020-12 schema validation and focused tests confirm no incompatible schema/API/hash assumptions are introduced. |
 >
 
 ### CLM-011 — Standards
