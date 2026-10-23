@@ -823,5 +823,11 @@
       "notes": "Invented annotation for the model-document 0.7.0 fixture; not engineering data.",
       "provenance": "invented_example_user_entered"
     }
-  ]
+  ],
+  "model_settings": {
+    "node_proximity_tolerance": {
+      "value": 2.0,
+      "unit": "mm"
+    }
+  }
 }

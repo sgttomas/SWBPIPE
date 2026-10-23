@@ -346,5 +346,11 @@
       "source_notice": "Invented demonstration data only."
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "model_settings": {
+    "node_proximity_tolerance": {
+      "value": 2.0,
+      "unit": "mm"
+    }
+  }
 }

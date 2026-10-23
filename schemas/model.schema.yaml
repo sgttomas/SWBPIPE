@@ -133,6 +133,9 @@
       "items": {
         "$ref": "#/$defs/EquipmentInterface"
       }
+    },
+    "model_settings": {
+      "$ref": "#/$defs/ModelSettings"
     }
   },
   "$defs": {
@@ -2814,6 +2817,28 @@
         },
         "end_fraction": {
           "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "ModelSettings": {
+      "description": "Model-level analysis and modeling settings (W-13 Design §3.8), a closed record; every member is optional and an absent member takes its default. The product never writes a default into a document the user did not author.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node_proximity_tolerance": {
+          "description": "The length within which the near-duplicate node check treats two nodes as near duplicates (owner, 2026-10-23: a fixed 5 mm default \"and give the user the means to change it\"). Absent model_settings or absent member: 5 mm. A finite value greater than zero in a length unit of the units catalog; a non-finite or non-positive value or a non-length or unknown unit is refused by name (MODEL-SETTING-TOLERANCE-NOT-FINITE, -NOT-POSITIVE, -UNIT-NOT-LENGTH).",
+          "allOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          ]
         }
       }
     }

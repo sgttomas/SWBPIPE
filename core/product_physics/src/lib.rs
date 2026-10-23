@@ -18,6 +18,8 @@ pub use case_state::input::{
 };
 pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID};
 mod model_format;
+pub mod model_settings;
+pub use model_settings::{ModelSettingError, ModelSettings, DEFAULT_NODE_PROXIMITY_TOLERANCE_M};
 pub use model_format::{
     carries_load_reference_state, is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
     MODEL_SCHEMA_VERSION_RETIRED, RETIRED_MODEL_SCHEMA_VERSIONS,
@@ -223,6 +225,8 @@ pub struct PreviewModel {
     pub combinations: Vec<PreviewCombination>,
     /// Optional connected load/reference-state group on the current exact document.
     pub reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    /// Optional model-level settings (`model_settings`, W-13 Design §3.8); absent means the defaults.
+    pub model_settings: Option<ModelSettings>,
     /// Material-owned `expansion_laws`, parallel to `materials` by index. The
     /// authored key lives on each material record; `MaterialInput` is unchanged.
     pub material_expansion_laws: Vec<Authored<Vec<ExpansionLawInput>>>,
@@ -272,6 +276,8 @@ struct PreviewModelWire {
     combinations: Vec<PreviewCombination>,
     #[serde(default)]
     reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    #[serde(default, deserialize_with = "deserialize_present_object")]
+    model_settings: Option<ModelSettings>,
 }
 
 impl<'de> Deserialize<'de> for PreviewModel {
@@ -304,6 +310,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             load_cases: wire.load_cases,
             combinations: wire.combinations,
             reference_configurations: wire.reference_configurations,
+            model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
         })

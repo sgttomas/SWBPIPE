@@ -330,6 +330,7 @@ impl Validator {
         self.constraints(root, &known);
         self.equipment_interfaces(root, &known);
         self.rule_pack_refs(root);
+        self.model_settings(root);
     }
 
     // ---- shared member checks ------------------------------------------------
@@ -700,6 +701,59 @@ impl Validator {
         let value_path = format!("{at}.value");
         if !checksum.get("value").and_then(Value::as_str).is_some_and(is_sha256_hex) {
             self.block(code, &value_path, format!("{value_path} must be 64 lowercase hexadecimal digits (SHA-256)."), refs.to_vec());
+        }
+    }
+
+    // ---- §3.8 model settings ------------------------------------------------
+
+    /// `model_settings`: a closed record whose one member, `node_proximity_tolerance`, is a
+    /// length quantity `{value, unit}`: finite, greater than zero, in a catalog length unit.
+    /// The value checks run before the unit check, as in product_physics' accessor, and give
+    /// its codes and messages.
+    fn model_settings(&mut self, root: &Map<String, Value>) {
+        use open_pipe_stress_product_physics::model_settings as ms;
+        let Some(value) = root.get("model_settings") else { return };
+        let Some(settings) = value.as_object() else {
+            self.block(SLOT_SHAPE, "model_settings", format!("model_settings is {}; object required.", kind_name(value)), Vec::new());
+            return;
+        };
+        self.members(settings, "model_settings", &[], &["node_proximity_tolerance"], &[]);
+        let Some(tolerance) = settings.get("node_proximity_tolerance") else { return };
+        let at = ms::NODE_PROXIMITY_TOLERANCE_PATH;
+        let Some(quantity) = tolerance.as_object() else {
+            self.block(SLOT_SHAPE, at, format!("{at} is {}; a length quantity {{value, unit}} is required.", kind_name(tolerance)), Vec::new());
+            return;
+        };
+        self.members(quantity, at, &["value", "unit"], &["value", "unit"], &[]);
+        let number = match quantity.get("value") {
+            Some(Value::Number(number)) => number.as_f64(),
+            Some(other) => {
+                let path = format!("{at}.value");
+                self.block(SLOT_SHAPE, &path, format!("{path} is {}; number required.", kind_name(other)), Vec::new());
+                None
+            }
+            None => None,
+        };
+        let unit = match quantity.get("unit") {
+            Some(Value::String(unit)) => Some(unit.as_str()),
+            Some(other) => {
+                let path = format!("{at}.unit");
+                self.block(SLOT_SHAPE, &path, format!("{path} is {}; string required.", kind_name(other)), Vec::new());
+                None
+            }
+            None => None,
+        };
+        if let Some(number) = number {
+            if !number.is_finite() {
+                self.block(ms::MODEL_SETTING_TOLERANCE_NOT_FINITE, &format!("{at}.value"), ms::tolerance_not_finite_message(number), Vec::new());
+            } else if number <= 0.0 {
+                self.block(ms::MODEL_SETTING_TOLERANCE_NOT_POSITIVE, &format!("{at}.value"), ms::tolerance_not_positive_message(number), Vec::new());
+            }
+        }
+        if let Some(unit) = unit {
+            if !ms::is_catalog_length_unit(unit) {
+                self.block(ms::MODEL_SETTING_TOLERANCE_UNIT_NOT_LENGTH, &format!("{at}.unit"), ms::tolerance_unit_not_length_message(unit), Vec::new());
+            }
         }
     }
 
