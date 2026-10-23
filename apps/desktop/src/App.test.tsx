@@ -74,6 +74,7 @@ import { buildCurrentSessionInputManifest } from "./services/inputManifestServic
 import { getLocalStorageCapability } from "./services/projectService";
 import { applyModelOperation } from "./services/operationService";
 import { applyOperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
+import { HEADROOM_RESEND_WINDOW_MS } from "./services/nativeIngress";
 import type {
   EditorOperationIntent,
   LocalProjectEnvelope,
@@ -13030,9 +13031,11 @@ describe("existing toolkit v2", () => {
       : Promise.reject(new Error(`Unexpected command ${command}`)));
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+    // A headroom refusal is re-sent for up to HEADROOM_RESEND_WINDOW_MS before it stands.
     await waitFor(() => expect(screen.getByTestId("operation-apply-message")).toHaveTextContent(
       "Operation apply failed to run: Refused by the native memory pool: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available."
-    ));
+    ), { timeout: HEADROOM_RESEND_WINDOW_MS + 3000 });
+    expect(invokeMock.mock.calls.filter(([command]) => command === "apply_model_operation").length).toBeGreaterThan(1);
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
     expect(reviewControl("undo-session-model-edit")).toBeDisabled();
     // The intent stays queued for a later attempt.

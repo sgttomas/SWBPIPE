@@ -9,6 +9,9 @@ package_objective_refs: [OBJ-004]
 
 # Scope of Work — DEL-03-05
 
+
+**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-2: rigid and semi-rigid components are to be implemented with DEC-045 stiffness scaling. This records the ruling; the clauses below are unchanged.
+
 ## Purpose and Objective Traceability
 
 This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and package objectives [OBJ-004].

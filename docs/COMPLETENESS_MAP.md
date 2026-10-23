@@ -24,6 +24,10 @@ A Must requirement met only on one solve route, only headless, or only as a
 schema is P. Where PRD §23 (MVP) or a Must requirement includes something and no
 ruling removes it, the row says **scope unclear**.
 
+The "scope unclear" notes and the "no ruling" statements in §1 and §2 are
+the assessment before the owner's rulings of 2026-10-23. §4.2 records those
+rulings (OD-1 to OD-5), and they take precedence over the earlier notes.
+
 **Two solve routes** recur throughout:
 - **PF:** the pressure-free route, a model with no `pressure_contract`.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
@@ -413,15 +417,19 @@ export, design knowledge, and rigid components.
 
 ### 4.2 Owner decisions that shape the plan
 
-These are reserved because they concern v0.1 scope, commitments or a hold:
+These are reserved because they concern v0.1 scope, commitments or a hold.
+
+**OD-1 to OD-5 decided.** Owner, 2026-10-23: "I approve OD-1 through OD-5 as
+you recommended." Each outcome is in the row's **Decided** entry. OD-6 remains
+open.
 
 | # | Decision | Consequence |
 |---|---|---|
-| OD-1 | Does D-11's "W7 — Forward horizon v0.2" placement (PKG-13/14/15/16/17) mean outside software 0.1.0, despite PRD §23 listing states, runs tied to states, state and run comparison, and canonical model export in the MVP? | **In:** unit W-12 (L) and W-6 come before validation. **Out:** a ruling, and PRD §23 and the release-notes text follow it. Either answer also settles OD-3 for PKG-13. |
-| OD-2 | Rigid elements (FR-SOL-004, Must, MVP) | **Options:** build DEC-045's stiffness scaling (M); build a dedicated rigid element and offsets, which reopens DEC-045 (L); or defer by ruling. |
-| OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? Settled with OD-1 if the W7 reading applies. | **In:** W-14 (L). **Out:** a ruling. |
-| OD-4 | Which model format is canonical: the desktop 0.6.0 document or `schemas/model.schema.yaml`? (FR-MOD-001/004/006) | Fixes the target for W-13, a new document version under the one-version rule. |
-| OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. |
+| OD-1 | Does D-11's "W7 — Forward horizon v0.2" placement (PKG-13/14/15/16/17) mean outside software 0.1.0, despite PRD §23 listing states, runs tied to states, state and run comparison, and canonical model export in the MVP? | **In:** unit W-12 (L) and W-6 come before validation. **Out:** a ruling, and PRD §23 and the release-notes text follow it. Either answer also settles OD-3 for PKG-13. **Decided:** states, run history, state and run comparison and canonical model export are in v0.1 (W-12, W-6). PKG-15 handoff stays in for model export. PKG-13, further PKG-16 agent features and further PKG-17 export formats are deferred to v0.2; the DEL-16-01/02 offline intake and the DEL-16-06 operation-application seam ship as built. PRD §23 stays as written. |
+| OD-2 | Rigid elements (FR-SOL-004, Must, MVP) | **Options:** build DEC-045's stiffness scaling (M); build a dedicated rigid element and offsets, which reopens DEC-045 (L); or defer by ruling. **Decided:** implement DEC-045 stiffness scaling (W-15). |
+| OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? Settled with OD-1 if the W7 reading applies. | **In:** W-14 (L). **Out:** a ruling. **Decided:** design knowledge is deferred to v0.2. |
+| OD-4 | Which model format is canonical: the desktop 0.6.0 document or `schemas/model.schema.yaml`? (FR-MOD-001/004/006) | Fixes the target for W-13, a new document version under the one-version rule. **Decided:** the desktop model document is canonical, and `schemas/model.schema.yaml` is updated to describe it (W-13). |
+| OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. **Decided:** viewport overlays and reaction arrows are built now; FR-AGENT-005 stays R7. |
 | OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. |
 
 Opening exact-route reports and handoff needs no new decision to start. Ruling
