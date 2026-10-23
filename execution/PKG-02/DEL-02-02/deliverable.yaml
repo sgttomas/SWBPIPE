@@ -207,6 +207,12 @@ code_paths:
 - schemas/units.schema.yaml
 - apps/desktop/src/services/displayQuantityService.ts
 - apps/desktop/src/services/displayQuantityPrecision.test.ts
+- apps/desktop/src/services/unitConversion.ts
+- apps/desktop/src/services/unitCatalogService.ts
+- apps/desktop/src/features/display-units/**
 checks:
 - core/units/src/lib.rs
 - apps/desktop/src/services/displayQuantityPrecision.test.ts
+- apps/desktop/src/services/unitConversion.test.ts
+- apps/desktop/src/services/unitCatalogService.test.ts
+- apps/desktop/src/features/display-units/displayUnits.test.tsx

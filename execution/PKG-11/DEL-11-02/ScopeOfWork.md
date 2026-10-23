@@ -35,7 +35,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Package ID | PKG-11 |
 > | Package | Documentation, Examples, and Education |
 > | Type | DOC_UPDATE |
-> | Primary anticipated artifact | `docs/developer_guide/index.md` |
+> | Primary anticipated artifact | `docs/developer_guide/index.md` (present at `62c1efd75b`) |
 > | Setup artifact location | `execution/PKG-11/DEL-11-02/` |
 > | Scope item | SOW-033 |
 > | Objectives | OBJ-001, OBJ-002 |

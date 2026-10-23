@@ -82,3 +82,7 @@ needs:
 code_paths:
 - validation/benchmarks/nonlinear/**
 - validation/hand_calcs/nonlinear/**
+- validation/references/kd5_nonlinear/**
+checks:
+- validation/benchmarks/nonlinear/src/lib.rs
+- core/product_physics/src/kd5_nonlinear_tests.rs

@@ -121,7 +121,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/schemas/adapter_framework.schema.yaml
+  evidence: schemas/adapter_framework.schema.yaml
 - from: DEL-02-02
   condition: 'DEL-10-02 depends on DEL-02-02 because adapter framework validation must preserve unit validation
     before external data enters domain workflows.
@@ -149,7 +149,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/schemas/adapter_framework.schema.yaml
+  evidence: schemas/adapter_framework.schema.yaml
 - from: DEL-02-05
   condition: 'DEL-10-02 depends on DEL-02-05 because adapter declarations and operation results preserve
     checksum/audit references and persistence/hash controls for reproducible imported and exported artifacts.
@@ -163,7 +163,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/schemas/adapter_framework.schema.yaml
+  evidence: schemas/adapter_framework.schema.yaml
 - from: DEL-08-04
   condition: 'DEL-08-04 enables import/export adapters to consume governed result envelopes without bypassing
     unit, provenance, diagnostic, or data-boundary checks.
@@ -179,3 +179,11 @@ needs:
   evidence: execution/PKG-08/DEL-08-04/Specification.md
 code_paths:
 - tools/validation/validate_dependencies_schema.py
+- schemas/adapter_framework.schema.yaml
+- core/adapters/framework/__init__.py
+- core/adapters/framework/adapter_framework.py
+- apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx
+checks:
+- tests/test_adapter_framework_contract.py
+- apps/desktop/src/App.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts

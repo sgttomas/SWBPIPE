@@ -163,6 +163,7 @@ code_paths:
 - tests/qualification_fixture_support.py
 - tests/test_qualification_*.py
 - tests/test_first_static_selection.py
+- validation/references/t3_r1/**
 checks:
 - tests/test_qualification_gate.py
 - tests/test_qualification_physics.py
@@ -170,3 +171,8 @@ checks:
 - tests/test_qualification_physics_integration.py
 - tests/test_qualification_load_reference.py
 - tests/test_first_static_selection.py
+- validation/benchmarks/mechanics/src/lib.rs
+- validation/benchmarks/numerical_integrity/test_reference.py
+- validation/benchmarks/numerical_robustness/tests/*.rs
+- validation/benchmarks/physics_audit_regression/tests/*.rs
+- validation/benchmarks/physics_audit_regression/src/lib.rs
