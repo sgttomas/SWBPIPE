@@ -435,6 +435,7 @@ function AppSession() {
               onFilterPublication={handleTreePublication}
             />
             <LinesSection
+              key={`lines:${projectSessionGeneration}`}
               model={model}
               selection={selection}
               selectionState={orderedSelection}
@@ -474,8 +475,8 @@ function AppSession() {
               </section>
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "records"}>
-              <AssumptionsPanel model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
-              <ConstraintsPanel model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
+              <AssumptionsPanel key={`assumptions:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
+              <ConstraintsPanel key={`constraints:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "supports"}>
               <HangerSelectionPanel

@@ -5,7 +5,7 @@
 import { useState } from "react";
 import type { EntityRef, ModelLine } from "../../types";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
-import { RECORD_FAMILIES, lineOfPipe, nextModelDataId, recordIntent, selectedPipeIds } from "./modelDataIntents";
+import { RECORD_FAMILIES, lineOfPipe, nextModelDataId, recordIntent, selectedPipeIds, useReseed } from "./modelDataIntents";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
 
 export function LinesSection(props: ModelDataQueueProps & { selectionState?: OrderedSelectionState; selection?: EntityRef }) {
@@ -63,6 +63,7 @@ export function LinesSection(props: ModelDataQueueProps & { selectionState?: Ord
 function LineRow(props: ModelDataQueueProps & { line: ModelLine }) {
   const { line } = props;
   const [name, setName] = useState(line.label ?? "");
+  useReseed(line, () => setName(line.label ?? ""));
   const { busy, error, queue } = useModelDataQueue(props);
   const family = RECORD_FAMILIES.line;
   const renamed = (): ModelLine => {

@@ -12,7 +12,8 @@ import {
   SOURCE_REVIEW_STATUSES,
   annotatedRecord,
   annotationIntent,
-  parseTags
+  parseTags,
+  stableJson
 } from "./modelDataIntents";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
 
@@ -121,7 +122,7 @@ function ProvenanceRecordEditor(props: Props & { target: EntityRef }) {
   const stored = current.provenance_record as Record<string, unknown> | undefined;
   const [draft, setDraft] = useState<ProvenanceDraft>(() => draftFrom(stored));
   const { busy, error, notice, queue } = useModelDataQueue(props);
-  const storedKey = JSON.stringify(stored ?? null);
+  const storedKey = stableJson(stored ?? null);
   useEffect(() => {
     setDraft(draftFrom(stored));
   }, [target.type, target.id, storedKey]);
@@ -160,7 +161,7 @@ function ProvenanceRecordEditor(props: Props & { target: EntityRef }) {
         <p className="model-data-note" data-testid="provenance-record-library-ref">Library record: {JSON.stringify(stored.library_ref)}</p>
       ) : null}
       <div className="model-data-actions">
-        <button type="button" data-testid="provenance-record-queue" disabled={busy || !draft.source_name?.trim() || JSON.stringify(next()) === storedKey}
+        <button type="button" data-testid="provenance-record-queue" disabled={busy || !draft.source_name?.trim() || stableJson(next()) === storedKey}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "provenance_record", next(), "Provenance record"))}>
           Queue provenance record
         </button>

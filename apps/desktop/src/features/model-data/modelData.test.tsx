@@ -10,7 +10,7 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { applyModelOperation, validateModelOperation } from "../../services/operationService";
 import { computeModelHash } from "../../services/hashService";
-import { refuseMalformedModelSlots } from "../../services/projectService";
+import { openLocalProject, refuseMalformedModelSlots, saveLocalProject } from "../../services/projectService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { entityKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
@@ -215,6 +215,58 @@ describe("constraints and equipment interfaces", () => {
   });
 });
 
+describe("row editors follow their stored record", () => {
+  it("re-seeds after apply and after undo, and Save is disabled for an unchanged draft", async () => {
+    const original = everySlot();
+    const list: EditorOperationIntent[] = [];
+    const props = { onQueueIntent: (intent: EditorOperationIntent) => list.push(intent) };
+    const view = render(<ConstraintsPanel model={original} selection={null} {...props} />);
+    const name = () => screen.getByTestId("constraint-name-constraint:K-001");
+    const save = () => screen.getByTestId("constraint-edit-constraint:K-001");
+    expect(save()).toBeDisabled();
+    fireEvent.change(name(), { target: { value: "Invented clearance (edited)" } });
+    expect(save()).toBeEnabled();
+    fireEvent.click(save());
+    const edited = await apply(original, await queued(list, 1));
+    view.rerender(<ConstraintsPanel model={edited} selection={null} {...props} />);
+    expect(name()).toHaveValue("Invented clearance (edited)");
+    expect(save()).toBeDisabled();
+    // Undo restores the session snapshot: the row shows the stored name again.
+    view.rerender(<ConstraintsPanel model={original} selection={null} {...props} />);
+    expect(name()).toHaveValue("Invented clearance");
+    expect(save()).toBeDisabled();
+
+    cleanup();
+    const lines = render(<LinesSection model={original} selectionState={selection([])} {...props} />);
+    fireEvent.change(screen.getByTestId("line-rename-input-line:L-100"), { target: { value: "Renamed" } });
+    fireEvent.click(screen.getByTestId("line-rename-line:L-100"));
+    const renamed = await apply(original, await queued(list, 2));
+    lines.rerender(<LinesSection model={renamed} selectionState={selection([])} {...props} />);
+    lines.rerender(<LinesSection model={original} selectionState={selection([])} {...props} />);
+    expect(screen.getByTestId("line-rename-input-line:L-100")).toHaveValue("Pump discharge");
+    expect(screen.getByTestId("line-rename-line:L-100")).toBeDisabled();
+
+    cleanup();
+    const issues = render(<AssumptionsPanel model={original} selection={null} {...props} />);
+    fireEvent.change(screen.getByTestId("assumption-statement-assumption:A-001"), { target: { value: "Edited statement." } });
+    fireEvent.click(screen.getByTestId("assumption-edit-assumption:A-001"));
+    const restated = await apply(original, await queued(list, 3));
+    issues.rerender(<AssumptionsPanel model={restated} selection={null} {...props} />);
+    issues.rerender(<AssumptionsPanel model={original} selection={null} {...props} />);
+    expect(screen.getByTestId("assumption-statement-assumption:A-001")).toHaveValue("Nozzle treated as anchor pending invented vendor loads.");
+    expect(screen.getByTestId("assumption-edit-assumption:A-001")).toBeDisabled();
+  });
+
+  it("compares the provenance draft key-order independently", () => {
+    const model = everySlot();
+    const stored = model.materials![0].provenance_record!;
+    // The stored record with library_ref first: the same record in another key order.
+    model.materials![0].provenance_record = { library_ref: stored.library_ref, ...stored };
+    render(<ModelDataAnnotations model={model} selection={{ type: "material", id: "material:steel" }} onQueueIntent={() => undefined} />);
+    expect(screen.getByTestId("provenance-record-queue")).toBeDisabled();
+  });
+});
+
 describe("rule pack manager: use with this model", () => {
   it("references a stored pack by its stamped checksum and removes the reference", async () => {
     let model = everySlot();
@@ -227,12 +279,16 @@ describe("rule pack manager: use with this model", () => {
       storage_mode: "sqlite", created_at_unix: 0, updated_at_unix: 0, document: demoPack(), validation: {} as never, message: "Opened." } });
     const props = { entries: [entry], openPack, onQueueIntent: (intent: EditorOperationIntent) => list.push(intent) };
     const view = render(<RulePackModelReferences model={model} listRefreshed {...props} />);
-    await act(async () => fireEvent.click(screen.getByTestId("rule-pack-use-with-model-invented_demo_rule_pack")));
+    await act(async () => fireEvent.click(screen.getByTestId("rule-pack-use-with-model-project:slots-invented_demo_rule_pack")));
     const add = await queued(list, 1);
     expect(add.change.change_kind).toBe("add_rule_pack_ref");
     model = await apply(model, add);
     expect(model.rule_pack_refs?.[0].checksum.value).toBe("c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd");
 
+    // The same pack id stored under two projects renders two distinct entries.
+    view.rerender(<RulePackModelReferences model={model} listRefreshed {...props} entries={[entry, { ...entry, project_id: "project:other" }]} />);
+    expect(screen.getByTestId("rule-pack-use-with-model-project:slots-invented_demo_rule_pack")).toBeDisabled();
+    expect(screen.getByTestId("rule-pack-use-with-model-project:other-invented_demo_rule_pack")).toBeInTheDocument();
     view.rerender(<RulePackModelReferences model={model} listRefreshed {...props} entries={[]} />);
     expect(screen.getByTestId("rule-pack-ref-unresolved-invented_demo_rule_pack")).toHaveTextContent("MODEL-RULE-PACK-REF-UNRESOLVED");
     fireEvent.click(screen.getByTestId("rule-pack-remove-from-model-invented_demo_rule_pack"));
@@ -254,6 +310,22 @@ describe("validator findings on the desktop", () => {
     expect(() => refuseMalformedModelSlots(model)).not.toThrow();
     model.lines![0].pipe_refs = ["pipe:P-absent"];
     expect(() => refuseMalformedModelSlots(model)).toThrow(/MODEL-LINE-PIPE-MISSING at lines\[0\]\.pipe_refs\[0\]/);
+  });
+
+  it("browser-preview save refuses a malformed document by name and save then open keeps a valid one", async () => {
+    const valid = everySlot();
+    valid.project.id = "project:browser-slots";
+    valid.unresolved_assumptions![0].affected_refs = ["support:S-absent"]; // a warning never refuses
+    const saved = await saveLocalProject(valid);
+    expect(saved.model).toEqual(valid);
+    const opened = await openLocalProject("project:browser-slots");
+    expect(opened?.model).toEqual(valid);
+
+    const malformed = everySlot();
+    malformed.project.id = "project:browser-malformed";
+    malformed.constraints![0].constraint_kind = "equipment_interface";
+    await expect(saveLocalProject(malformed)).rejects.toThrow(/MODEL-CONSTRAINT-KIND-INVALID at constraints\[0\]\.constraint_kind/);
+    expect(await openLocalProject("project:browser-malformed")).toBeNull();
   });
 });
 

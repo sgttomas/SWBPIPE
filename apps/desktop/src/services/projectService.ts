@@ -1,7 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
 import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
-import { loadedWasmEngine } from "./wasmEngine/loadWasmEngine";
+import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
+import { modelDocumentSlotValidation } from "../features/model-file/modelDocumentShape";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -149,20 +150,27 @@ function requireEditableModelDocument(model: PreviewModel): ModelDocumentVersion
   return status;
 }
 
-/** W-13 §5.3 (S2): the browser-preview store mirrors the native store, which
- * refuses to create, save or open a document whose model-data slots carry a
- * blocking validator finding (`refuse_malformed_model_slots`, src-tauri). The
- * validator is the wasm engine's; before it has loaded the native store remains
- * the check of record. */
+/** W-13 §5.3 (S2): the browser-preview project store refuses to create, save or
+ * open a document whose model-data slots carry a blocking validator finding,
+ * named with its JSON path, as the native store does in src-tauri
+ * (`refuse_malformed_model_slots`). The check is `modelDocumentSlotValidation`,
+ * which also refuses, by name, when the wasm engine that holds the validator is
+ * not loaded or reports an input error: the store never adopts an unchecked
+ * document. */
 export function refuseMalformedModelSlots(model: PreviewModel): void {
-  const engine = loadedWasmEngine();
-  if (!engine) return;
-  const report = JSON.parse(engine.validateModelDocumentJson(JSON.stringify(model))) as {
-    diagnostics?: Array<{ code: string; severity: string; path: string; message: string }>;
-  };
-  const blocking = (report.diagnostics ?? []).filter((item) => item.severity === "blocking");
+  const { blocking } = modelDocumentSlotValidation(model);
   if (blocking.length > 0) {
-    throw new Error(`Model document refused: malformed model-data slots: ${blocking.map((item) => `${item.code} at ${item.path}: ${item.message}`).join(" | ")}`);
+    throw new Error(`Model document refused: malformed model-data slots: ${blocking.map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}: ${item.message}`).join(" | ")}`);
+  }
+}
+
+/** Load the wasm engine (the validator's home) before a browser-preview store
+ * check; a failed load leaves the engine absent, which the check then names. */
+async function loadValidatorEngine(): Promise<void> {
+  try {
+    await loadWasmEngine();
+  } catch {
+    // Absence is reported by refuseMalformedModelSlots as WASM-ENGINE-ASSET-ABSENT.
   }
 }
 
@@ -478,6 +486,7 @@ export async function createLocalProject(
   confirmedRevision: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    await loadValidatorEngine();
     refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, null);
     return storeBrowserProject(envelope(
       model,
@@ -551,6 +560,7 @@ export async function openLocalProject(projectId: string | null = null): Promise
   if (!hasTauriRuntime()) {
     const stored = projectId ? browserPreviewStore.get(projectId) : browserProjectsByRecency()[0];
     if (!stored) return null;
+    await loadValidatorEngine();
     requireEditableModelDocument(stored.envelope.model);
     const opened = cloneEnvelope(stored.envelope);
     opened.summary.message = projectId
@@ -587,6 +597,7 @@ export async function saveLocalProject(
   expectedBase: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    await loadValidatorEngine();
     refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
     return storeBrowserProject(envelope(
       model,
