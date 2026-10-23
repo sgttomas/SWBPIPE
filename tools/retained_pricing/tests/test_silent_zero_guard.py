@@ -59,3 +59,18 @@ def test_a_changed_guard_diagnostic_stops(monkeypatch, tmp_path):
     snap = snapshot_with(tmp_path, VALIDATION, "vec![case.id.clone()],", "vec![case.id.clone(), case.id.clone()],")
     with pytest.raises(SystemExit, match="SZ-TX"):
         decisions(monkeypatch, snap)
+
+
+def test_connector_preloads_edge_is_zeroed_by_p2(monkeypatch):
+    """SZ-CP: model_loads_every_case's one call of connector_preloads is over model.components, empty by P2."""
+    d = decisions(monkeypatch)
+    edges = [(str(a), str(b)) for a, b, why in d["O10_EDGE_ZERO"] if "SZ-CP" in why]
+    assert len(edges) == 1
+    assert edges[0][0].endswith(":model_loads_every_case") and edges[0][1].endswith(":connector_preloads")
+
+
+def test_a_changed_connector_preloads_call_stops(monkeypatch, tmp_path):
+    snap = snapshot_with(tmp_path, VALIDATION, "model.components.iter().any(connector_preloads)",
+                         "model.components.iter().chain(model.components.iter()).any(connector_preloads)")
+    with pytest.raises(SystemExit, match="SZ-CP"):
+        decisions(monkeypatch, snap)

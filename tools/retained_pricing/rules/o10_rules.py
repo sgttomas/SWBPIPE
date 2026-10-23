@@ -2089,6 +2089,17 @@ if fnkey("validate_required_collections", _SZ_V) and '"LOAD_CASE_APPLIES_NO_ACTI
          {"stable_suffix(&case.id)": IN}),
         (site("validate_required_collections", _SZ_V, "vec![case.id.clone()],", full=True), {"case.id": IN}),
     ]
+# SZ-CP (EDGE_ZERO): model_loads_every_case decides a connector's preload by `connector_preloads`, passed as a function
+# value to `model.components.iter().any(..)`, its one call; it decodes the connector (joint::connector_spec) and its
+# stiffness. P2 (D1.4) leaves no components, so the edge is never taken on either route and its callees keep only
+# their own callers' multiplicity. Guarded by the source: the one call, over model.components, and no other caller.
+if fnkey("connector_preloads", _SZ_V) and fnkey("model_loads_every_case", _SZ_V):
+    _SZ_MLEC = _fn_text("model_loads_every_case", _SZ_V)
+    if (_SZ_MLEC.count("connector_preloads") != 1 or "model.components.iter().any(connector_preloads)" not in _SZ_MLEC
+            or _text_of(_SZ_V).count("connector_preloads") != 2):
+        raise SystemExit("SZ-CP: connector_preloads' call changed; re-review its zero edge")
+    O10_EDGE_ZERO += [(fnkey("model_loads_every_case", _SZ_V), fnkey("connector_preloads", _SZ_V),
+                       O10 + "SZ-CP: connector_preloads runs once per model component, none under " + D14)]
 # SZ-LS: resolve_case's two new findings (LOAD_STATE_CASE_APPLIES_NO_ACTION through `block`, LOAD_STATE_SOURCE_EXCLUDED)
 # are load-state resolution, reached only under case_state::is_load_state (lib.rs's load_state branch and the
 # captured load-state replay). D1.3 refuses every authored load/reference-state field on every branch (retained_memory.rs
