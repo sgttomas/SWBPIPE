@@ -114,7 +114,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > - `docs/SPEC.md` - architecture, domain object, rule-pack, GUI, report, and validation requirements.
 > - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` - Type 2 execution and deliverable document kit.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv`, `ContextBudgetQA.csv` - machine-readable deliverable, scope, and context records.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - machine-readable deliverable, scope, and context records.
 >
 
 ### CLM-007 — D-41 R5 T3 evidence state

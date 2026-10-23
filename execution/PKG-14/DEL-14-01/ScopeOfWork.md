@@ -93,7 +93,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, package, artifacts, scope, objective, architecture basis, and envelope notes.
 > - `_REFERENCES.md` for the approved source list and authority boundary.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for SOW-071, OBJ-016, PKG-14, and DEL-14-01 placement.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv`, and `ContextBudgetQA.csv` for register-backed identity and scope data.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), and `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) for register-backed identity and scope data.
 > - `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for invariants, technical boundaries, vocabulary, and data-boundary constraints.
 > - `Dependencies.csv` as the local approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
 

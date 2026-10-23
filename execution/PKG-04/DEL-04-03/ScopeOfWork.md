@@ -85,7 +85,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 >
 > - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity and applicable architecture basis IDs.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) for SOW-011, OBJ-003, PKG-04, DEL-04-03, and AB-00-01/02/03/06/08.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv`, and `ContextBudgetQA.csv` for register rows.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), and `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) for register rows.
 > - `docs/CONTRACT.md` for applicable invariants.
 > - `docs/SPEC.md`, `docs/TYPES.md`, and `docs/INTENT.md` for public architecture and vocabulary slices.
 >
