@@ -99,9 +99,9 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - `docs/VALIDATION_STRATEGY.md` - benchmark families and release gate expectations.
 > - `docs/PRD.md` - platform criteria and release milestones, including PRD 19.2, 19.3, and 22.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current scope, architecture basis, decisions, and open issues.
-> - `docs/_Registers/Deliverables.csv` - row DEL-10-04.
-> - `docs/_Registers/ScopeLedger.csv` - row SOW-032.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-10-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-10-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-032.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-10-04.
 > - `projects/chirality-piping/package.json` - existing root npm workspace/build evidence attributed by D-41 `DEC-074` O3; read-only in this tranche.
 > - `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx` - existing SURF-011 local preview evidence attributed by D-42 `DEC-076`; read-only in the attribution tranche.
 >

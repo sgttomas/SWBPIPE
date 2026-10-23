@@ -146,13 +146,13 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and accepted decomposition reference.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and accepted decomposition reference.
 > - `_REFERENCES.md` - governing reference list and source boundary.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, and deliverable entries.
-> - `docs/_Registers/Deliverables.csv` - row DEL-13-04.
-> - `docs/_Registers/ScopeLedger.csv` - row SOW-066.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-13-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-066.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-13-04.
 > - `docs/CONTRACT.md` - invariant catalog, especially OPS-K-IP-1, OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-MECH-1, OPS-K-UNIT-1, OPS-K-SOLVER-1.
 > - `docs/SPEC.md` - physical model source-of-truth, unit contract, and missing-data warning classes.
 > - `docs/TYPES.md` - model, model role, traceability, diagnostic, and mechanics-boundary registry meanings.

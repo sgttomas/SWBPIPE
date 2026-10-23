@@ -92,9 +92,9 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 ### CLM-008 — References
 
 > ##### References
-> - `_CONTEXT.md` - DEL-09-05 identity, scope, objective, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` - DEL-09-05 row.
-> - `docs/_Registers/ScopeLedger.csv` - SOW-026 and SOW-027 rows.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - DEL-09-05 identity, scope, objective, and architecture-basis injection.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - DEL-09-05 row.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - SOW-026 and SOW-027 rows.
 > - `docs/CONTRACT.md` - invariant catalog, especially OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-UNIT, OPS-K-RULE, and OPS-K-AGENT invariants.
 > - `docs/DIRECTIVE.md` - release, stop-rule, validation, IP, and professional-boundary principles.
 > - `docs/SPEC.md` - numerical quality, rule-pack evaluator, GUI warning classes, reports, V&V mechanics, and acceptance semantics.

@@ -93,8 +93,8 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data rules, quarantine expectations, and private rule-pack handling. |
 > | `docs/VALIDATION_STRATEGY.md` | Rule-pack missing-input test expectation. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-03 decomposition context. |
-> | `docs/_Registers/Deliverables.csv` | Machine-readable deliverable row. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-004 scope mapping. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Machine-readable deliverable row. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-004 scope mapping. |
 
 ## Completion and Reliance Basis — Epistemology
 

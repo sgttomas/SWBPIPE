@@ -87,8 +87,8 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > | `docs/TYPES.md` | TEST_SUITE type, analysis-status vocabulary, and data/provenance terms. |
 > | `docs/SPEC.md` | Nonlinear support diagnostics, numerical quality, V&V mechanics, and repository layout target. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-09 package scope, DEL-09-03 deliverable entry, SOW-026, and OBJ-008. |
-> | `docs/_Registers/Deliverables.csv` | Deliverable identity, artifacts, scope, objective, and risk note. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-026 scope statement and public/original/permissive benchmark-source note. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable identity, artifacts, scope, objective, and risk note. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-026 scope statement and public/original/permissive benchmark-source note. |
 
 ## Completion and Reliance Basis — Epistemology
 

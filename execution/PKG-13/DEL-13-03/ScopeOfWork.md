@@ -97,13 +97,13 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, artifacts, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, artifacts, architecture-basis injection.
 > - `_REFERENCES.md` - governing reference list for this DEL folder.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - deliverable-local dependency evidence surface under the approved graph resolved through `execution/_DAG/_LATEST.md` coordination basis.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, and deliverable entries.
-> - `docs/_Registers/Deliverables.csv` - row DEL-13-03.
-> - `docs/_Registers/ScopeLedger.csv` - row SOW-068.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-03.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-13-03.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-068.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-13-03.
 > - `docs/CONTRACT.md` - invariant catalog.
 > - `docs/SPEC.md` - technical and agentic implementation specification.
 > - `docs/TYPES.md` - vocabulary and epistemic labels.

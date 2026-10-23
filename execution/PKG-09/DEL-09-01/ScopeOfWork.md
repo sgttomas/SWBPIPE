@@ -88,12 +88,12 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
 > - `_REFERENCES.md` for governing local references.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis, rows for PKG-09, DEL-09-01, SOW-026, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
-> - `docs/_Registers/Deliverables.csv` row DEL-09-01.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-026.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-09-01.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-09-01.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-026.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-09-01.
 > - `docs/SPEC.md` sections 4.1, 4.2, 4.5, and 9.
 > - `docs/VALIDATION_STRATEGY.md` sections 1, 2, 4, and 5.
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-AUTH-1, OPS-K-SOLVER-1, and OPS-K-AGENT-1..4.

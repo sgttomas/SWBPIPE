@@ -104,10 +104,10 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > | Reference | Used For |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, package scope, architecture basis injection |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, package scope, architecture basis injection |
 > | `_REFERENCES.md` | Local reference list for this deliverable |
-> | `docs/_Registers/Deliverables.csv` | Deliverable row, anticipated artifacts, context notes |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-024 scope statement and protected-content note |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row, anticipated artifacts, context notes |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-024 scope statement and protected-content note |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-08 and DEL-08-03 decomposition context; AB-00 architecture basis |
 > | `docs/CONTRACT.md` | Applicable invariants for reports, data, IP, rule packs, privacy, units, and agent outputs |
 > | `docs/SPEC.md` | Reporting/audit requirements and warning class vocabulary |

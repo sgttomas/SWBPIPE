@@ -89,7 +89,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 >
 > | Reference | Used For |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, scope, objectives, artifacts, package boundary, architecture basis injection. |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, objectives, artifacts, package boundary, architecture basis injection. |
 > | `_REFERENCES.md` | Reference inventory and source boundary for this setup pass. |
 > | `_DEPENDENCIES.md`; `Dependencies.csv` | Approved DAG-006 local mirror/evidence surface and upstream context; historical DAG-002 row IDs remain preserved evidence, not current graph authority. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-070, OBJ-015, OBJ-018, PKG-16, DEL-16-04 decomposition context. |
