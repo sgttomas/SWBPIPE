@@ -174,7 +174,7 @@ def inspect_directed_helpers(snapshot):
 # observation lane stays deleted.
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's republication, screen, cause and row-binding diff adds or removes no
 # `.min(`/`.max(` call, and the observation lane stays deleted.
-# W-8 topology warnings D3 (§8.15): lib.rs's two added lines add no `.min(`/`.max(` call (topology.rs's own receivers
+# W-8 topology warnings D3 (§8.16): lib.rs's two added lines add no `.min(`/`.max(` call (topology.rs's own receivers
 # are listed by name in o10_rules' KD5C4 set, W8-CG).
 B7A_PRIMITIVE_LIB_SOURCE_PIN = '17d2d1d53866456bbf35c220b786758b6ca343a5f0fb3543759fe74b4bb1d357'
 

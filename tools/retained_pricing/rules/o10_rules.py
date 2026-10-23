@@ -611,7 +611,7 @@ if fnkey("fallback_circular_maximum", _CP):
         "case_state/thermal.rs": ["integral", "dilation_difference", "check_path"],
         "certified_publication.rs": ["fallback_denominator_relative_error"],
     }
-    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.15): near_duplicate_nodes' min/max receivers are the
+    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16): near_duplicate_nodes' min/max receivers are the
     # bounding box's f64 coordinates (`low[axis].min(..)`, `high[axis].max(..)`) and an edge's usize node indices
     # (`a.min(b)`, `a.max(b)`). Only where the topology checks exist.
     if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
@@ -2063,7 +2063,7 @@ if fnkey("republication", _PU_LIB) and fnkey("fail_closed_form", _PU_LIB):
     if not all(_pu_guards):
         raise SystemExit(f"PU-R1: the republication's run order changed; re-review G4's one-run cap: {_pu_guards}")
 
-# ---- The W-8 topology warnings (DEL-04-06 Design model-topology-checks.md; retained-pricing-rules.md §8.15). Each rule
+# ---- The W-8 topology warnings (DEL-04-06 Design model-topology-checks.md; retained-pricing-rules.md §8.16). Each rule
 # applies only where W-8's code exists, so earlier revisions price as before. `append_topology_diagnostics` runs once
 # per ordinary run (run_linear_static_preview_observed_inner, after the build), on both routes; its heap owners outside
 # the TEXT inventory are priced positively by base/w8_topology_model.py (W8-TW, W8-ND).

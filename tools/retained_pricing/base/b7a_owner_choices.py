@@ -312,7 +312,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1238:audit_load_fidelity',
                  'literal_bytes': 22,
                  'placeholders': [{'spec': '', 'arg': 'row.id'}]}],
  # Pre-0.4 failure unification D3 (§8.14): lib.rs 13943/13944/14364/14365 -> 14046/14047/14467/14468, unchanged text.
-# W-8 topology warnings D3 (§8.15): -> 14048/14049/14469/14470 (`mod topology;` and its call), unchanged text.
+# W-8 topology warnings D3 (§8.16): -> 14048/14049/14469/14470 (`mod topology;` and its call), unchanged text.
  # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
                   'line': 14049,

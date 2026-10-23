@@ -267,7 +267,7 @@ add("Sparse reduction (+ caller prescribed, observation force)", "CasePrefix",
 b = n
 add("Formation-guard Bodies (build + resident)", "CasePrefix",
     B(40 * n + 56 * b) + A("(usize,usize)", m) + HashReq("(usize,usize)", b) + B(8 * n + 8 * b))
-# W-8 topology warnings D3 (retained-pricing-rules.md §8.15): the topology checks' transient working set, once per
+# W-8 topology warnings D3 (retained-pricing-rules.md §8.16): the topology checks' transient working set, once per
 # ordinary run after the build (W8-TW), and validation's node-degree map (W8-ND), each priced positively where its
 # reviewed source exists (w8_topology_model binds topology.rs and the validation bodies). Not per case.
 import w8_topology_model as _w8_model

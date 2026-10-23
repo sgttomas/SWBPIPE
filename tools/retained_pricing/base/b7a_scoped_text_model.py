@@ -24,7 +24,7 @@ RE = 'core/reporting/result_export/src/'
 # physics_source.rs +29 (the contract and allowance readers); retained_product.rs +167 (the O4 sidecars).
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's four bound lines move +103 with unchanged text (the republication,
 # the fail-closed form, the screen hook and the support-norm cause precede them).
-# W-8 topology warnings D3 (§8.15): the four lib.rs lines move +2 with unchanged text (`mod topology;` and its call).
+# W-8 topology warnings D3 (§8.16): the four lib.rs lines move +2 with unchanged text (`mod topology;` and its call).
 LN = {
     'problem': 159,       # pressure_runtime.rs fn problem (160) [148]
     'diag': 165,          # `let mut finding = diag(` (166) [154]

@@ -1,4 +1,4 @@
-"""W-8 topology warnings D3 (DEL-04-06 Design model-topology-checks.md; retained-pricing-rules.md §8.15): the positive
+"""W-8 topology warnings D3 (DEL-04-06 Design model-topology-checks.md; retained-pricing-rules.md §8.16): the positive
 owners W-8 adds outside the chain's TEXT inventory.
 
 W8-TW: `topology::append_topology_diagnostics` runs once per ordinary run, in run_linear_static_preview_observed_inner

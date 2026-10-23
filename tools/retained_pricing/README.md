@@ -270,7 +270,7 @@ coordinates, element edges, a second Bodies, the part map and sets, the cell gri
 n(n-1)/2 pairs each) and validation's node-degree map (W8-ND, <= 2m ids). `rules/o10_rules.py` prices the warnings'
 texts (W8-L1/L2, W8-NI, W8-ID, W8-JN, W8-RF, W8-CG) and guards the branch-topology warning at multiplicity 0 (W8-BT);
 `lib/sq2_rules.py` places the `O10_REFS_FIRST` affected-refs rules before the inherited ones. A snapshot without
-topology.rs adds nothing; a changed or partly present owner stops the run. See the governing rules' §8.15.
+topology.rs adds nothing; a changed or partly present owner stops the run. See the governing rules' §8.16.
 
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and

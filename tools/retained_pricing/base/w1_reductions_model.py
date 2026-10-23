@@ -48,7 +48,7 @@ RF_PINS = {
 # no reduction's owner or lifetime changes.
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's republication, screen and cause texts change no reduction's owner
 # or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
-# W-8 topology warnings D3 (§8.15): lib.rs's `mod topology;` and its one call change no reduction's owner or lifetime.
+# W-8 topology warnings D3 (§8.16): lib.rs's `mod topology;` and its one call change no reduction's owner or lifetime.
 REDUCED_PINS = {
     "core/product_physics/src/lib.rs": "17d2d1d53866456bbf35c220b786758b6ca343a5f0fb3543759fe74b4bb1d357",
     "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",

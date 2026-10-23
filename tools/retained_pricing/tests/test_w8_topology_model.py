@@ -1,4 +1,4 @@
-"""W-8 topology warnings D3 (retained-pricing-rules.md §8.15).
+"""W-8 topology warnings D3 (retained-pricing-rules.md §8.16).
 
 W8-TW, W8-ND: the topology checks' transient working set and validation's node-degree map are priced positively in the
 ordinary rows where W-8's source exists; a snapshot without it adds nothing, and a changed or partly present owner
