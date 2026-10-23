@@ -97,7 +97,7 @@ Standing differs by route:
 4. **The conditioning figure** is d = −log₁₀ rcond, printed to one decimal and only in the detail text (§3). It is never in a headline, chip or export. The wording names it as an estimate for the scaled linear solve and gives the solver's own reference point: the sensitivity line √ε ≈ 1.5·10⁻⁸, which is d ≈ 7.8.
    - It is shown for linear cases only. In v0.1 nonlinear cases show no figure.
    - **The cause is decided on the parsed value.** The conditioning cause applies only when the parsed rcond satisfies the kernel's own comparison, `rcond < f64::EPSILON.sqrt()` (`structural.rs:1959`), evaluated in Rust. Rounding is for display only.
-   - **Display.** d is printed to one decimal, and to two decimals when 7.7 ≤ d ≤ 7.9, so that values either side of the line do not print alike. When rcond = 1, d is printed as "below 0.1".
+   - **Display.** d is printed to one decimal, and to two decimals when 7.7 ≤ d ≤ 7.9, so that values near the line are not shown as equal to it; the state, not the printed figure, is what tells the two sides apart. When rcond = 1, d is printed as "below 0.1".
 5. **Combinations** are formed by result algebra, not a solve, so they inherit health from their load cases and say so (§3). A withheld combination keeps its existing finding and gets no badge of its own. Header counts are of load cases, each counted once.
 6. **Stiffness contrast is not added in v0.1.** The engine does not compute it for straight members, and a desktop computation would re-derive section stiffness outside the engine. The causes shown are those the existing diagnostics name, including `CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS` where it is present.
 
@@ -113,12 +113,14 @@ Standing differs by route:
 
 It also returns one result-level flag, `verdict_only`. The flag is true only when all of these hold:
 
+- the result is on a generic route (`preview-physics-2` or `pressure-2`); on every other route the flag is false;
 - every `numerical_quality.cases[]` entry has non-empty `evidence_refs`, each naming an emitted diagnostic;
-- the case ids are unique and every requested load case is covered;
+- the case ids are unique, every requested load case is covered, and every emitted diagnostic id is unique;
 - `numerical_quality.status` equals the cases' aggregate;
-- the only fields that differ from a passing case's are the verdict-linked ones (`solve_quality` and the `structural_status`, `model_matrix_fidelity` and `accuracy_evidence` values that `assessed_numerical_quality` derives from it).
+- each case's verdict-linked fields (`structural_status`, `model_matrix_fidelity`, `accuracy_evidence`) equal exactly the values `assessed_numerical_quality` derives from its `solve_quality` and integrity code;
+- the reader's findings for the result, passed in, are exactly the pair `NUMERICAL_INTEGRITY_NOT_QUALIFIED` and `NUMERICAL_CASE_EVIDENCE_INCOMPLETE`.
 
-`verdict_only` is a presentation projection computed in Rust. It never takes part in admission or standing. A maintained test ties it to the reader: for every corpus input with `verdict_only = true`, the reader's findings are exactly `NUMERICAL_INTEGRITY_NOT_QUALIFIED` and `NUMERICAL_CASE_EVIDENCE_INCOMPLETE`. A non-passing case, or a passing companion case, whose `evidence_refs` is emptied or renamed gives `verdict_only = false`.
+`verdict_only` is a presentation projection computed in Rust. It never takes part in admission or standing. A maintained test ties it to the reader: for every corpus input with `verdict_only = true`, the reader's findings are exactly `NUMERICAL_INTEGRITY_NOT_QUALIFIED` and `NUMERICAL_CASE_EVIDENCE_INCOMPLETE`. A non-passing case, or a passing companion case, whose `evidence_refs` is emptied or renamed gives `verdict_only = false`, as does a duplicated diagnostic id, as do a pressure-source input and a retained input with consistent `numerical_quality`.
 
 The figure is returned only when **all** of these hold:
 
@@ -195,7 +197,7 @@ Missing or malformed evidence findings keep "Needs recompute". Admission is unch
 
 ## 4. Placement
 
-- **Results panel.** The `numerical-result-standing` line becomes the health header on the generic and pressure-source routes. Each load case and combination row carries its badge. The retained and unsupported texts are unchanged.
+- **Results panel.** The `numerical-result-standing` line becomes the health header on the generic and pressure-source routes. Each load case and combination row carries its badge, except recovered rows on the pressure-source route (§3). The retained and unsupported texts are unchanged.
 - **Shell chip and rail caption.** They show the replacement described in §3. The rail uses the short form "Numerical health: {worst state}".
 - **Solve panel.** The diagnostics tile gains the header badge.
 - **Diagnostics panel.** It is unchanged, apart from the filtered open.
