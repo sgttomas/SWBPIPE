@@ -1207,12 +1207,6 @@ pub(crate) fn resolve_case(
     })
 }
 
-/// T4-U3 S20 (b) (RV6 C-1): on 0.4.0, a resolved total eigenstrain on a
-/// span replaced by an objective connector that is not exactly zero refuses
-/// its case; only a source eigenstrain whose p midpoint and enclosure radius
-/// are both exactly zero is admitted with no effect. The resolver still
-/// resolves every pipe. It reads resolved cases, so it runs only for a
-/// load-state document.
 /// Silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases
 /// that apply nothing"): a load-state model whose every case is a reference
 /// state applying no action would publish only all-zero results; it is
@@ -1231,6 +1225,12 @@ pub(crate) fn refuse_all_reference_states(cases: &[ResolvedCase], diagnostics: &
     }
 }
 
+/// T4-U3 S20 (b) (RV6 C-1): on 0.4.0, a resolved total eigenstrain on a
+/// span replaced by an objective connector that is not exactly zero refuses
+/// its case; only a source eigenstrain whose p midpoint and enclosure radius
+/// are both exactly zero is admitted with no effect. The resolver still
+/// resolves every pipe. It reads resolved cases, so it runs only for a
+/// load-state document.
 pub(crate) fn refuse_resolved_span_strain(
     model: &PreviewModel,
     cases: &[ResolvedCase],
