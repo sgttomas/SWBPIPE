@@ -165,7 +165,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 >
 > | Requirement(s) | Verification approach |
 > |---|---|
-> | R1-R3 | Schema validation and persistence tests should prove that saved records retain identity, metadata, and read-only snapshot semantics. Current tests (at `62c1efd75b`): `tests/test_model_state_schema.py`, `tests/test_persistence_schema.py` and `tests/test_project_persistence_service.py` (Python reference store). |
+> | R1-R3 | Schema validation and persistence tests should prove that saved records retain identity, metadata, and read-only snapshot semantics. Exact test names TBD. |
 > | R4-R5 | Hash determinism tests should compare canonicalized JSON payload bytes and verify payload-scope metadata. Exact canonicalization implementation TBD. |
 > | R6-R7 | Round-trip tests should confirm that assumptions, warnings, provenance-bearing references, and other review evidence survive save/load without silent defaults. |
 > | R8 | Schema and service tests should reject or omit automatic professional approval/code-compliance status fields (PRD §21.2). |
