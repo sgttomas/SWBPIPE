@@ -266,8 +266,8 @@ which only the gating tests call. See the governing rules' §8.13 for the argume
 `base/w8_topology_model.py` binds topology.rs (full-file sha256), validation's `validate_components` and
 `branch_topology_invalid` bodies, the exact allocating statements and topology.rs's inventory of owning constructs. It
 prices positively, in `ordinary_caps.py`, the topology checks' transient working set once per ordinary run (W8-TW: the
-coordinates, element edges, a second Bodies, the part map and sets, the cell grid and the two pair lists at
-n(n-1)/2 pairs each) and validation's node-degree map (W8-ND, <= 2m ids). `rules/o10_rules.py` prices the warnings'
+coordinates, element edges, a second Bodies, the part map and sets, the cell grid, a per-node candidate buffer of
+at most n-1 entries and at most six named pairs per warning) and validation's node-degree map (W8-ND, <= 2m ids). `rules/o10_rules.py` prices the warnings'
 texts (W8-L1/L2, W8-NI, W8-ID, W8-JN, W8-RF, W8-CG) and guards the branch-topology warning at multiplicity 0 (W8-BT);
 `lib/sq2_rules.py` places the `O10_REFS_FIRST` affected-refs rules before the inherited ones. A snapshot without
 topology.rs adds nothing; a changed or partly present owner stops the run. See the governing rules' §8.16.
