@@ -28,8 +28,9 @@ desktop tests read select it, and with it the product job. An unreadable
 source tree, crate or compile read selects the suite. The selection's reasons
 are in the plan artifact. The browser reuse key includes whether the suite ran,
 so a pass without it is never reused for a run that needs it. The product job
-and both shards share that key, and its record is saved only after all of them
-succeed. Dispatch runs the
+and both shards each compute and publish that key. The record is saved only
+after all of them succeed, and only when every one published the same key; if a
+runner image differed between them, nothing is saved. Dispatch runs the
 suite.
 
 Rust changes select their owning crate and transitive consumers through resolved
