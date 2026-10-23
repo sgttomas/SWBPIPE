@@ -523,25 +523,30 @@ fn w9_l_frame_end_rows_equal_the_frozen_reactions() {
 /// A source-selected EX publication (pressure-source-1) carries no global end
 /// row on any of its cases (`global_end_rows_published`) and publishes exactly
 /// its committed bytes, qualified, as before W-7.
+/// The committed source-selected requests and their committed raw publications.
+fn source_fixture(name: &str, mode: PreviewSolverMode) -> (&'static str, &'static str) {
+    match (name, mode) {
+        ("mixed", PreviewSolverMode::SparseInteractive) => (include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json"), include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json")),
+        ("mixed", PreviewSolverMode::DenseScrutiny) => (include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json"), include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed-dense_scrutiny.raw.json")),
+        ("n05", PreviewSolverMode::SparseInteractive) => (include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"), include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json")),
+        ("n05", PreviewSolverMode::DenseScrutiny) => (include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"), include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json")),
+        _ => unreachable!(),
+    }
+}
+
 #[test]
 fn source_recovery_publications_omit_the_rows_and_keep_their_bytes() {
     for name in ["mixed", "n05"] {
-        let request: Value = serde_json::from_str(&std::fs::read_to_string(format!(
-            "{}/../../fixtures/product_preview/pressure_source/physics_source/{name}.request.json",
-            env!("CARGO_MANIFEST_DIR")
-        )).unwrap()).unwrap();
         for mode in MODES {
             let label = format!("{name} {mode:?}");
+            let (request_text, raw_text) = source_fixture(name, mode);
+            let request: Value = serde_json::from_str(request_text).unwrap();
             let out = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
             assert_eq!(out.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-source-1", "{label}");
             assert_eq!(global_rows(&out), 0, "{label}");
             let raw = serde_json::to_value(&out).unwrap();
             assert_eq!(raw["source_block_recovery"]["body"]["status"], "qualified", "{label}: {}", raw["diagnostics"]);
-            let committed: Value = serde_json::from_str(&std::fs::read_to_string(format!(
-                "{}/../../fixtures/product_preview/pressure_source/physics_source/{name}-{}.raw.json",
-                env!("CARGO_MANIFEST_DIR"),
-                mode.as_str()
-            )).unwrap()).unwrap();
+            let committed: Value = serde_json::from_str(raw_text).unwrap();
             assert!(raw == committed, "{label}: the publication is its committed bytes");
             let verdict = reader_verdict::validate("pressure-source", &raw, None, Some(&json!({"request": request, "solver_mode": mode.as_str()})));
             assert_eq!(verdict["ok"], true, "{label}: {verdict}");
