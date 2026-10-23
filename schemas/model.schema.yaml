@@ -792,6 +792,11 @@
                   },
                   "provenance": {
                     "type": "string"
+                  },
+                  "section": {
+                    "additionalProperties": {
+                      "$ref": "#/$defs/Quantity"
+                    }
                   }
                 }
               }

@@ -310,6 +310,20 @@ def test_desktop_profile_still_requires_string_labels_and_provenance():
         rejected(with_change(NULL_ACCEPTED[slot]), DESKTOP_PROFILE)
 
 
+SECTION_NULL_SLOTS = ("mill_tolerance", "material_density", "contents_density", "insulation_thickness",
+                      "insulation_density")
+
+
+@pytest.mark.parametrize("slot", SECTION_NULL_SLOTS)
+def test_desktop_profile_refuses_a_null_section_quantity_the_format_accepts(slot):
+    """The desktop shape check reads every section member as a {value, unit} quantity."""
+    document = with_change(NULL_ACCEPTED[f"section.{slot}"])
+    accepted(document)
+    rejected(document, DESKTOP_PROFILE)
+    present = with_change(lambda d: section_of(d).__setitem__(slot, {"value": 1.0, "unit": "m"}))
+    accepted(present, DESKTOP_PROFILE)
+
+
 def test_conflicting_modulus_bases_are_refused_but_a_null_partner_is_not_a_conflict():
     def both(document, temperature):
         case = document["load_cases"][0]
