@@ -15,7 +15,7 @@ const AT = new Date("2026-06-12T00:00:00Z");
 // tree 1b95d0b66 before this change and re-pinned by B7a, which made the blank
 // a current 0.5.0 document, and by models 0.6.0 and 0.7.0 (its schema_version is the only
 // change each time).
-const BASE_BLANK_SHA256 = "88ea28c84ddde13c25ef0439cdcda95030d6e5072a212d8469fbbf638ddd4945";
+const BASE_BLANK_SHA256 = "e07eb8138e6032297c4b2fd638bfb6a22688faf7a61fefd7663b413f92c924ad";
 // T4-U8 (D-6/O3): the blank's contract carries the authoring default shear model.
 const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
 
