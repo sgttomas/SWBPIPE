@@ -117,6 +117,18 @@ fn todays_refusals_and_messages_hold_when_no_new_dependent_exists() {
 }
 
 #[test]
+fn a_key_spelled_as_path_syntax_is_a_named_dependent() {
+    // The literal key is one key: it is not mistaken for the real
+    // primitive_loads[0] (which targets Q), so deleting P refuses.
+    let mut m = model();
+    m["load_cases"][0]["primitive_loads"] = json!([{"id": "load:q", "category": "distributed_force", "target": {"type": "element", "pipe": "pipe:Q"}, "direction": "global_z", "magnitude": {"value": 1.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": PROV}]);
+    m["load_cases"][0]["primitive_loads[0].target"] = json!({"pipe": "pipe:P"});
+    let d = refused(&m, &delete_pipe(&m, "pipe:P"));
+    assert_eq!(d.affected_refs, vec!["pipe:P", "case:w"]);
+    assert_eq!(d.message, "Pipe segment pipe:P is still named by: case:w ([\"primitive_loads[0].target\"].pipe).");
+}
+
+#[test]
 fn stored_diagnostics_and_text_metadata_do_not_block() {
     let mut m = model();
     m["diagnostics"] = json!([{"id": "diagnostic:stored", "code": "X", "affected_refs": ["pipe:P"]}]);

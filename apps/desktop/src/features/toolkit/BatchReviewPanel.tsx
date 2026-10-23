@@ -20,7 +20,8 @@ export function batchRequiresPreview(batch: OperationBatch): boolean {
 const blocking = (items: readonly OperationOutcomeDiagnostic[] | undefined) => (items ?? []).some((item) => item.severity === "blocking");
 /** The one preview gate, checked by the Apply button and the apply path alike. */
 export function previewSatisfied(entry: QueuedBatch, outcome: OperationBatchOutcome | undefined, revision: number): boolean {
-  if (!entry.requiresPreview) return true;
+  // Derived from the batch's operations; the flag can only add the requirement.
+  if (!entry.requiresPreview && !batchRequiresPreview(entry.batch)) return true;
   return Boolean(outcome)
     && outcome!.mode === "validate_only"
     && outcome!.batch_id === entry.batch.batch_id

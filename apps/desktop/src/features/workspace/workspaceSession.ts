@@ -1134,6 +1134,9 @@ export function useWorkspaceSession() {
     setOperationMessage("Pending changes cleared. Requests already running will not change this session.");
   }
 
+  // W-10: the canonical fingerprint of each registered batch when it was validated.
+  const validatedBatchFingerprints = useRef(new Map<string, string>());
+
   async function handleQueueOperationBatch(batch: OperationBatch) {
     if (!model) return;
     const revision = modelRevision.current;
@@ -1148,7 +1151,10 @@ export function useWorkspaceSession() {
       // W-10: derived centrally from the batch contents, whatever its producer
       // (geometry builder, offline intake, requeue or a routed single intent).
       const requiresPreview = batchRequiresPreview(submitted);
-      setQueuedBatches((current) => [...current, { key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview }]);
+      // The registered submission is immutable: runs resolve it by key and never
+      // read a caller's entry contents.
+      const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview });
+      setQueuedBatches((current) => [...current, registered]);
       setBatchMessage("Batch queued for validation and explicit application.");
       setActiveSection("operations");
       setOperationTab("review");
@@ -1160,11 +1166,23 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleRunOperationBatch(entry: QueuedBatch, apply: boolean) {
+  async function handleRunOperationBatch(requested: QueuedBatch, apply: boolean) {
+    // W-10: only the registered, immutable submission runs, resolved by key;
+    // the caller's entry contents (batch, flags, basis) are ignored.
+    const entry = queuedBatches.find((candidate) => candidate.key === requested?.key);
+    if (!entry) {
+      setBatchMessage(`Batch ${String(requested?.batch?.batch_id ?? requested?.key ?? "unknown")} is not registered in the review queue; it was not run.`);
+      return;
+    }
     if (operationRequest.current.busy || entry.basisRevision !== modelRevision.current) return;
-    // The same predicate as the Apply button: no caller bypasses the preview gate.
-    if (apply && !previewSatisfied(entry, batchOutcomes[entry.key], modelRevision.current)) {
-      setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON}`);
+    // The gate follows the registered batch's operations, with the same
+    // predicate as the Apply button, and the preview must be of this exact
+    // batch content (its canonical fingerprint at validation).
+    const gated = apply && batchRequiresPreview(entry.batch);
+    const validatedFingerprint = validatedBatchFingerprints.current.get(entry.key);
+    const refusePreview = () => setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON}`);
+    if (gated && (!previewSatisfied(entry, batchOutcomes[entry.key], modelRevision.current) || validatedFingerprint === undefined)) {
+      refusePreview();
       return;
     }
     const revision = modelRevision.current;
@@ -1175,6 +1193,12 @@ export function useWorkspaceSession() {
     setBatchMessage(null);
     try {
       if (!currentModel.current) return;
+      const fingerprint = await canonicalSha256Hex(entry.batch);
+      if (!stillCurrent()) return;
+      if (gated && fingerprint !== validatedFingerprint) {
+        refusePreview();
+        return;
+      }
       const initialHash = await computeModelHash(currentModel.current);
       if (!stillCurrent()) return;
       if (!initialHash || initialHash.value !== entry.basisHash.value) throw new Error("The model changed. Prepare a new batch.");
@@ -1192,6 +1216,7 @@ export function useWorkspaceSession() {
       if (!apply && (outcome.acceptance || outcome.applied_model || outcome.validation.application_status === "applied_to_session_model")) {
         throw new Error("Validation returned an application result; it was discarded.");
       }
+      if (!apply) validatedBatchFingerprints.current.set(entry.key, fingerprint);
       setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
       if (!apply || outcome.validation.application_status !== "applied_to_session_model") return;
       if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
@@ -3078,3 +3103,12 @@ export function useWorkspaceSession() {
 
 /** What the view receives: the six slices `useWorkspaceSession` returns. */
 export type WorkspaceSession = ReturnType<typeof useWorkspaceSession>;
+
+/** Freeze a queued submission recursively (W-10): no caller can alter it after registration. */
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const child of Object.values(value as Record<string, unknown>)) deepFreeze(child);
+  }
+  return value;
+}

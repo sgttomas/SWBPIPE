@@ -228,25 +228,62 @@ pub(crate) fn metadata(v: &Value, ids: &mut BTreeSet<String>, copy: bool) -> Res
     text(v, "provenance")?;
     Ok(())
 }
-// Detect any exact selected reference outside understood records. Text metadata
-// is not a link; all other selected-ID occurrences fail closed, including aliases.
-pub(crate) fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mut Vec<String>) {
+/// One step of a reference path: an object key or an array index. Paths are
+/// carried as segments, so a key containing `.`, `[` or `]` stays one key.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum Seg {
+    Key(String),
+    Index(usize),
+}
+/// The one reference scanner: every exact occurrence of `ids` under `v`, as
+/// segment paths below `path`. Text metadata is not a link: the subtrees under
+/// `label`, `name` and `provenance` are skipped. All other occurrences are
+/// reported, including aliases.
+pub(crate) fn reference_segments(v: &Value, ids: &BTreeSet<String>, path: &mut Vec<Seg>, out: &mut Vec<Vec<Seg>>) {
     match v {
-        Value::String(s) if ids.contains(s) => out.push(path.into()),
+        Value::String(s) if ids.contains(s) => out.push(path.clone()),
         Value::Array(a) => {
             for (i, x) in a.iter().enumerate() {
-                references(x, ids, &format!("{path}[{i}]"), out);
+                path.push(Seg::Index(i));
+                reference_segments(x, ids, path, out);
+                path.pop();
             }
         }
         Value::Object(m) => {
             for (k, x) in m {
                 if !matches!(k.as_str(), "label" | "name" | "provenance") {
-                    references(x, ids, &format!("{path}.{k}"), out);
+                    path.push(Seg::Key(k.clone()));
+                    reference_segments(x, ids, path, out);
+                    path.pop();
                 }
             }
         }
         _ => {}
     }
+}
+/// A segment path as display text: `.key`, `[i]`, and `["key"]` (JSON-quoted)
+/// for a key that is not a plain identifier, so the text is unambiguous.
+pub(crate) fn render_suffix(segs: &[Seg]) -> String {
+    let mut out = String::new();
+    for seg in segs {
+        match seg {
+            Seg::Key(key) if !key.is_empty() && key.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-' || c == ':') => {
+                out.push('.');
+                out.push_str(key);
+            }
+            Seg::Key(key) => out.push_str(&format!("[{}]", Value::String(key.clone()))),
+            Seg::Index(index) => out.push_str(&format!("[{index}]")),
+        }
+    }
+    out
+}
+// Detect any exact selected reference outside understood records. Text metadata
+// is not a link; all other selected-ID occurrences fail closed, including aliases.
+// Every caller of this string form refuses on any hit; paths are display only.
+pub(crate) fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mut Vec<String>) {
+    let mut hits = Vec::new();
+    reference_segments(v, ids, &mut Vec::new(), &mut hits);
+    out.extend(hits.iter().map(|segs| format!("{path}{}", render_suffix(segs))));
 }
 fn attachments(
     model: &Value,

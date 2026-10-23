@@ -514,6 +514,23 @@ fn r12_unknown_slots_refuse_and_stored_diagnostics_are_skipped() {
 }
 
 #[test]
+fn a_key_spelled_as_path_syntax_is_one_key_and_refuses() {
+    // A literal key "primitive_loads[0].target" naming P, beside a real
+    // primitive_loads[0] that targets Q: the scan carries segments, so the hit
+    // is an unknown slot (R12), never the allowed load slot of another record.
+    let mut model = base();
+    model["load_cases"][0]["primitive_loads"] = json!([primitive("load:q", "distributed_force", json!({"type":"element","pipe":"pipe:Q"}))]);
+    model["load_cases"][0]["primitive_loads[0].target"] = json!({"pipe": "pipe:P"});
+    let intent = reconnect(&model, "pipe:P", "to", "node:C", None);
+    let refusal = refused(&model, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
+    assert_eq!(refusal.len(), 1);
+    assert_eq!(refusal[0].message, "Cannot reconnect pipe:P: pipe:P is named at load_cases[0][\"primitive_loads[0].target\"].pipe, which reconnect does not carry across a geometry change.");
+    assert_eq!(refusal[0].affected_refs, vec!["pipe:P", "case:w"]);
+    let outcome = validate_operation(&model, &intent, Some(&hash(&model)));
+    assert!(!outcome.diagnostics.iter().any(|d| d.code == "OP-RECONNECT-MEMBER-LOAD-LENGTH-CHANGED"), "no warning about Q's load");
+}
+
+#[test]
 fn allowed_node_slots_are_kept() {
     let mut model = base();
     model["supports"].as_array_mut().unwrap().push(anchor("support:C", "node:C"));
@@ -877,7 +894,8 @@ fn apply_batch(model: &Value, operations: Vec<Value>) -> Value {
     outcome["applied_model"].clone()
 }
 /// [reconnect P.to O -> T, delete_node O]: the reconnect leaves O orphaned
-/// and unrestrained (a mechanism), so the batch removes it.
+/// and unrestrained (the solve would refuse it as NUMERICAL_INTEGRITY_UNRESOLVED),
+/// so the batch removes it.
 fn reconnect_and_drop(model: &Value, pipe_id: &str, old: &str, target: &str) -> Value {
     let mut moved = model.clone();
     moved["pipe_segments"].as_array_mut().unwrap().iter_mut().find(|p| p["id"] == pipe_id).unwrap()["to"] = json!(target);
@@ -1053,8 +1071,12 @@ fn orphaning_an_unsupported_node_refuses_the_solve_without_a_result() {
         vec![anchor("support:F", "node:F"), anchor("support:T", "node:T")],
     );
     model["load_cases"][0]["primitive_loads"] = json!([primitive("load:w", "distributed_force", json!({"type":"element","pipe":"pipe:P"}))]);
-    let (applied, warnings, _) = accepted(&model, &reconnect(&model, "pipe:P", "to", "node:T", None));
+    let (applied, warnings, outcome) = accepted(&model, &reconnect(&model, "pipe:P", "to", "node:T", None));
     assert!(warnings.contains(&"OP-RECONNECT-NODE-ORPHANED".to_string()));
+    // The warning states the as-built solve behaviour.
+    let orphan = outcome.diagnostics.iter().find(|d| d.code == "OP-RECONNECT-NODE-ORPHANED").unwrap();
+    assert_eq!(orphan.message, "Node node:O has no pipe after this reconnect; it and its attachments (listed: none) are kept. If it has no restraint either, the solve refuses the case as NUMERICAL_INTEGRITY_UNRESOLVED and publishes no result.");
+    assert!(!orphan.message.contains("mechanism"));
     for mode in MODES {
         solved(&model, mode);
         let out = solve(&applied, mode);

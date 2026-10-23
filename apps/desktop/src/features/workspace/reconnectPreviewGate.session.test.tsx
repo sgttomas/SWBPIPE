@@ -75,6 +75,41 @@ describe("reconnect preview gate (central, producer-independent)", () => {
     expect(result.current.operations.queuedBatches.at(-1)!.requiresPreview).toBe(true);
   });
 
+  it("(a) refuses a direct call whose entry omits requiresPreview, registered or not", async () => {
+    const result = await session();
+    const original = structuredClone(result.current.model.model!);
+    const batch = await buildReconnectBatch(original, draft(), "batch:bypass-a");
+    // Not registered at all: the handler refuses without running it.
+    const forged = { key: "operation-batch-forged", batch, basisModel: original, basisHash: (await computeModelHash(original))!, basisRevision: result.current.operations.queuedBatches.length };
+    await act(async () => { await result.current.operations.handleRunOperationBatch(forged, true); });
+    expect(result.current.operations.batchMessage).toContain("is not registered in the review queue");
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(batch); });
+    const registered = result.current.operations.queuedBatches[0];
+    expect(Object.isFrozen(registered) && Object.isFrozen(registered.batch.operations[0].change)).toBe(true);
+    // Registered, but the caller's copy drops the flag: the gate follows the registered operations.
+    const { requiresPreview: _dropped, ...withoutFlag } = registered;
+    await act(async () => { await result.current.operations.handleRunOperationBatch(withoutFlag as typeof registered, true); });
+    expect(result.current.model.model).toEqual(original);
+    expect(result.current.operations.undoStack).toHaveLength(0);
+    expect(result.current.operations.batchMessage).toContain("This batch contains a reconnect.");
+  });
+
+  it("(b) applies only the registered batch that was previewed, never an altered batch under the same key", async () => {
+    const result = await session();
+    const original = structuredClone(result.current.model.model!);
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(await buildReconnectBatch(original, draft(), "batch:bypass-b")); });
+    const registered = result.current.operations.queuedBatches[0];
+    await act(async () => { await result.current.operations.handleRunOperationBatch(registered, false); });
+    expect(result.current.operations.batchOutcomes[registered.key].validation.batch_validation_status).toBe("passed");
+    // Same key and batch_id, P -> D instead of the previewed P -> C.
+    const altered = structuredClone(await buildReconnectBatch(original, draft({ targetNode: "node:D" }), "batch:bypass-b"));
+    const forged = { ...structuredClone(registered), batch: altered, requiresPreview: false };
+    await act(async () => { await result.current.operations.handleRunOperationBatch(forged as typeof registered, true); });
+    const pipe = result.current.model.model!.pipe_segments.find((p) => p.id === "pipe:P")!;
+    expect(pipe.to).toBe("node:C");
+    expect(result.current.operations.undoStack).toHaveLength(1);
+  });
+
   it("keeps Apply refused after a blocking preview", async () => {
     const result = await session();
     const model = structuredClone(result.current.model.model!);

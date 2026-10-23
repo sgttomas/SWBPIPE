@@ -11,7 +11,7 @@
 //! refused by the kernel's orthogonality tolerance later. No orientation is
 //! ever derived: an absent `y_reference` stays absent, with a warning.
 use crate::geometry_operations::{
-    convert, diff, fields, record_shape, references, text, unique, vector, GeometryError,
+    convert, diff, fields, record_shape, reference_segments, render_suffix, text, unique, vector, GeometryError, Seg,
 };
 use crate::{canonical_json, DiffPreviewRow, Dimension};
 use open_pipe_stress_frame_kernel::{FrameKernelError, FrameOrientation};
@@ -80,32 +80,6 @@ fn payload_invalid(message: impl Into<String>, refs: Vec<String>) -> Blocks {
 
 // ------------------------------------------------------------------ paths
 
-/// One step of a path as `references()` builds it.
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) enum Seg {
-    Key(String),
-    Index(usize),
-}
-/// Parse `key[0].child[1][2].leaf` into segments.
-pub(crate) fn segments(path: &str) -> Vec<Seg> {
-    let mut out = Vec::new();
-    for part in path.split('.').filter(|p| !p.is_empty()) {
-        let (key, mut rest) = match part.find('[') {
-            Some(at) => (&part[..at], &part[at..]),
-            None => (part, ""),
-        };
-        if !key.is_empty() {
-            out.push(Seg::Key(key.to_string()));
-        }
-        while let Some(close) = rest.find(']') {
-            if let Ok(index) = rest[1..close].parse() {
-                out.push(Seg::Index(index));
-            }
-            rest = &rest[close + 1..];
-        }
-    }
-    out
-}
 /// `*` matches any index; every other token matches one key exactly.
 fn matches(segs: &[Seg], pattern: &[&str]) -> bool {
     segs.len() == pattern.len()
@@ -120,26 +94,15 @@ fn at<'a>(model: &'a Value, segs: &[Seg]) -> Option<&'a Value> {
         Seg::Index(index) => value.get(*index),
     })
 }
-fn render(segs: &[Seg]) -> String {
-    let mut out = String::new();
-    for seg in segs {
-        match seg {
-            Seg::Key(key) => {
-                if !out.is_empty() {
-                    out.push('.');
-                }
-                out.push_str(key);
-            }
-            Seg::Index(index) => out.push_str(&format!("[{index}]")),
-        }
-    }
-    out
+/// A path as display text (`render_suffix` without its leading dot).
+pub(crate) fn render(segs: &[Seg]) -> String {
+    let text = render_suffix(segs);
+    text.strip_prefix('.').map(str::to_string).unwrap_or(text)
 }
 /// §7 owner mapping: the first `collection[i]` segment gives the owning
 /// record (its `id`); the rest of the path is the slot. A root object member
 /// owns itself.
-pub(crate) fn owner_of(model: &Value, path: &str) -> (String, String) {
-    let segs = segments(path);
+pub(crate) fn owner_of(model: &Value, segs: &[Seg]) -> (String, String) {
     match (segs.first(), segs.get(1)) {
         (Some(Seg::Key(key)), Some(Seg::Index(index))) => {
             let owner = model
@@ -148,19 +111,20 @@ pub(crate) fn owner_of(model: &Value, path: &str) -> (String, String) {
                 .and_then(|row| row.get("id"))
                 .and_then(Value::as_str)
                 .map(str::to_string)
-                .unwrap_or_else(|| format!("{key}[{index}]"));
+                .unwrap_or_else(|| render(&segs[..2]));
             (owner, render(&segs[2..]))
         }
         (Some(Seg::Key(key)), _) => (key.clone(), render(&segs[1..])),
-        _ => (path.to_string(), String::new()),
+        _ => (render(segs), String::new()),
     }
 }
 
-/// The one scanner (§2.2): every exact occurrence of `ids` in the document,
-/// as `references()` reports it, except the root `diagnostics` (derived
-/// records), the root `label`/`name`/`provenance` subtrees, the pipe record
-/// `skip_pipe` and the node records in `skip_nodes` (self-references).
-pub(crate) fn scan(model: &Value, ids: &BTreeSet<String>, skip_pipe: Option<&str>, skip_nodes: &BTreeSet<String>) -> Vec<String> {
+/// The one scanner (§2.2), `reference_segments`: every exact occurrence of
+/// `ids` in the document, as structured segment paths, except the root
+/// `diagnostics` (derived records), the root `label`/`name`/`provenance`
+/// subtrees, the pipe record `skip_pipe` and the node records in `skip_nodes`
+/// (self-references).
+pub(crate) fn scan(model: &Value, ids: &BTreeSet<String>, skip_pipe: Option<&str>, skip_nodes: &BTreeSet<String>) -> Vec<Vec<Seg>> {
     let mut out = Vec::new();
     let Some(root) = model.as_object() else {
         return out;
@@ -181,11 +145,11 @@ pub(crate) fn scan(model: &Value, ids: &BTreeSet<String>, skip_pipe: Option<&str
             Some(rows) if matches!(key.as_str(), "pipe_segments" | "nodes") => {
                 for (index, row) in rows.iter().enumerate() {
                     if !skip(row) {
-                        references(row, ids, &format!("{key}[{index}]"), &mut out);
+                        reference_segments(row, ids, &mut vec![Seg::Key(key.clone()), Seg::Index(index)], &mut out);
                     }
                 }
             }
-            _ => references(value, ids, key, &mut out),
+            _ => reference_segments(value, ids, &mut vec![Seg::Key(key.clone())], &mut out),
         }
     }
     out
@@ -203,11 +167,8 @@ pub(crate) fn delete_dependents(model: &Value, pipe: &str) -> Vec<(String, Strin
     ];
     let mut out: Vec<(String, String)> = scan(model, &ids, Some(pipe), &BTreeSet::new())
         .into_iter()
-        .filter(|path| {
-            let segs = segments(path);
-            !reported.iter().any(|pattern| matches(&segs, pattern))
-        })
-        .map(|path| owner_of(model, &path))
+        .filter(|segs| !reported.iter().any(|pattern| matches(segs, pattern)))
+        .map(|segs| owner_of(model, &segs))
         .collect();
     out.sort();
     out.dedup();
@@ -471,9 +432,9 @@ fn components(model: &Value, ends: &Ends, blocks: &mut Blocks) {
             .unwrap_or_else(|| format!("components[{index}]"));
         let kind = component_kind(component);
         let mut named = Vec::new();
-        references(component, &pipe_ids, "", &mut named);
-        for slot in named {
-            let slot = slot.trim_start_matches('.');
+        reference_segments(component, &pipe_ids, &mut Vec::new(), &mut named);
+        for segs in named {
+            let slot = render(&segs);
             blocks.push(block(
                 "OP-RECONNECT-COMPONENT-ATTACHED",
                 format!("Cannot reconnect {pipe}: component {id} ({kind}) names it in {slot}."),
@@ -482,11 +443,11 @@ fn components(model: &Value, ends: &Ends, blocks: &mut Blocks) {
             ));
         }
         let mut at_nodes = Vec::new();
-        references(component, &node_ids, "", &mut at_nodes);
-        for slot in at_nodes {
-            let slot = slot.trim_start_matches('.');
-            let node = at(component, &segments(slot)).and_then(Value::as_str).unwrap_or("").to_string();
-            if slot == "node" {
+        reference_segments(component, &node_ids, &mut Vec::new(), &mut at_nodes);
+        for segs in at_nodes {
+            let slot = render(&segs);
+            let node = at(component, &segs).and_then(Value::as_str).unwrap_or("").to_string();
+            if segs == [Seg::Key("node".into())] {
                 if kind == "terminal" {
                     continue;
                 }
@@ -580,9 +541,10 @@ fn regions(model: &Value, ends: &Ends, blocks: &mut Blocks) {
     }
 }
 
-fn unsupported(model: &Value, ends: &Ends, id: &str, path: &str, shape: bool) -> ReconnectBlock {
+fn unsupported(model: &Value, ends: &Ends, id: &str, segs: &[Seg], shape: bool) -> ReconnectBlock {
     let pipe = ends.pipe;
-    let (owner, _) = owner_of(model, path);
+    let (owner, _) = owner_of(model, segs);
+    let path = render(segs);
     let detail = if shape { " (the record there is not of the exact supported shape)" } else { "" };
     block(
         "OP-RECONNECT-ATTACHMENT-UNSUPPORTED",
@@ -602,8 +564,8 @@ fn keys_within(value: Option<&Value>, allowed: &[&str], required: &[&str]) -> bo
 fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Vec<ReconnectWarning>) {
     let pipe = ends.pipe;
     let ids = BTreeSet::from([pipe.to_string()]);
-    for path in scan(model, &ids, Some(pipe), &BTreeSet::new()) {
-        let segs = segments(&path);
+    for segs in scan(model, &ids, Some(pipe), &BTreeSet::new()) {
+        let path = render(&segs);
         if matches!(segs.first(), Some(Seg::Key(k)) if k == "components") {
             continue;
         }
@@ -627,7 +589,7 @@ fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
                 && load.and_then(|l| l.pointer("/target/type")) == Some(&Value::String("element".into()))
                 && matches!(category, Some("distributed_force" | "thermal"));
             if !exact {
-                blocks.push(unsupported(model, ends, pipe, &path, true));
+                blocks.push(unsupported(model, ends, pipe, &segs, true));
             } else if category == Some("distributed_force") {
                 let load_id = load.and_then(|l| l.get("id")).and_then(Value::as_str).unwrap_or("primitive_load:unknown");
                 warnings.push(warning(
@@ -649,13 +611,13 @@ fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
                 vec![pipe.to_string(), case],
             ));
         } else if matches(&segs, &["load_cases", "*", "equivalent_static", "wind", "exposed_spans", "*", "pipe_ref"]) {
-            blocks.push(unsupported(model, ends, pipe, &path, true));
+            blocks.push(unsupported(model, ends, pipe, &segs, true));
         } else if matches(&segs, &["load_cases", "*", "analysis_state", "element_states", "*", "pipe_ref"]) {
             // Kept with no diagnostic (§2.2).
         } else if matches(&segs, &["reference_configurations", "*", "member_references", "*", "pipe_ref"]) {
             let member = at(model, &segs[..4]);
             if !keys_within(member, &["pipe_ref", "basis", "fit", "provenance"], &["pipe_ref"]) {
-                blocks.push(unsupported(model, ends, pipe, &path, true));
+                blocks.push(unsupported(model, ends, pipe, &segs, true));
                 continue;
             }
             let fit = member.and_then(|m| m.pointer("/fit/kind")).and_then(Value::as_str);
@@ -669,7 +631,7 @@ fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
                 ));
             }
         } else {
-            blocks.push(unsupported(model, ends, pipe, &path, false));
+            blocks.push(unsupported(model, ends, pipe, &segs, false));
         }
     }
 }
@@ -679,8 +641,7 @@ fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
 fn node_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Vec<ReconnectWarning>) {
     let pipe = ends.pipe;
     let node_ids = ends.nodes();
-    for path in scan(model, &node_ids, Some(pipe), &node_ids) {
-        let segs = segments(&path);
+    for segs in scan(model, &node_ids, Some(pipe), &node_ids) {
         if matches!(segs.first(), Some(Seg::Key(k)) if k == "components") {
             continue;
         }
@@ -706,7 +667,7 @@ fn node_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
             }
             continue;
         }
-        blocks.push(unsupported(model, ends, &node, &path, false));
+        blocks.push(unsupported(model, ends, &node, &segs, false));
     }
 }
 
@@ -797,7 +758,7 @@ fn topology_warnings(model: &Value, candidate: &Value, ends: &Ends, warnings: &m
         refs.extend(attached);
         warnings.push(warning(
             "OP-RECONNECT-NODE-ORPHANED",
-            format!("Node {old} has no pipe after this reconnect; it and its attachments (listed: {listed}) are kept. An unconnected, unrestrained node makes the solve report a mechanism."),
+            format!("Node {old} has no pipe after this reconnect; it and its attachments (listed: {listed}) are kept. If it has no restraint either, the solve refuses the case as NUMERICAL_INTEGRITY_UNRESOLVED and publishes no result."),
             format!("Delete {old} in the same batch, or connect it again, before solving."),
             refs,
         ));
