@@ -1112,6 +1112,61 @@ pub(crate) fn resolve_case(
         .map(|load| json!({"source_id": load.id, "owner_kind": "stored_primitive", "classification": "excluded",
             "category": load.category, "reason": "not listed in analysis_state.load_sources"}))
         .collect::<Vec<_>>();
+    // Silent-zero guard (DEL-04-07 Design/pressure-contract.md, "Load-state
+    // cases that apply nothing"): a case that applies no action would publish
+    // an all-zero result as if solved, so it is refused by name. An action is
+    // an included stored primitive, a boundary motion, a pressure region or a
+    // member state with nonzero eigenstrain.
+    let applies_action = !effective_case.primitive_loads.is_empty()
+        || !prescribed.is_empty()
+        || case.pressure_regions.iter().flatten().next().is_some()
+        || contributions.iter().any(|contribution| {
+            contribution["owner_kind"] == "resolved_member_state"
+                && contribution["value"].as_f64().is_some_and(|strain| strain != 0.0)
+        });
+    let excluded_ids = excluded
+        .iter()
+        .filter_map(|source| source["source_id"].as_str())
+        .collect::<Vec<_>>();
+    let named = |ids: &[&str]| {
+        let mut text = ids.iter().take(crate::formation_guard::NAMED).copied().collect::<Vec<_>>().join(", ");
+        if ids.len() > crate::formation_guard::NAMED {
+            text.push_str(&format!(", and {} more", ids.len() - crate::formation_guard::NAMED));
+        }
+        text
+    };
+    if !applies_action {
+        let message = if excluded_ids.is_empty() {
+            "the load case applies no action: it has no stored primitive load, boundary motion, pressure region or member eigenstrain, so a solve would publish an all-zero result; add the loads or states the case should apply".to_string()
+        } else {
+            format!(
+                "the load case applies no action: none of its {} stored primitive load{} ({}) is listed in analysis_state.load_sources, and it has no boundary motion, pressure region or member eigenstrain, so a solve would publish an all-zero result; list each primitive to apply in analysis_state.load_sources",
+                excluded_ids.len(),
+                if excluded_ids.len() == 1 { "" } else { "s" },
+                named(&excluded_ids)
+            )
+        };
+        block(diagnostics, "LOAD_STATE_CASE_APPLIES_NO_ACTION", &[id], message);
+    } else if !excluded_ids.is_empty() {
+        let mut finding = diag(
+            &format!("diagnostic:load-state:{}:LOAD_STATE_SOURCE_EXCLUDED", stable_suffix(id)),
+            "LOAD_STATE_SOURCE_EXCLUDED",
+            "warning",
+            format!(
+                "{} stored primitive load{} in this load case {} not listed in analysis_state.load_sources and {} not applied: {}",
+                excluded_ids.len(),
+                if excluded_ids.len() == 1 { "" } else { "s" },
+                if excluded_ids.len() == 1 { "is" } else { "are" },
+                if excluded_ids.len() == 1 { "is" } else { "are" },
+                named(&excluded_ids)
+            ),
+            std::iter::once(id.to_string())
+                .chain(excluded_ids.iter().take(crate::formation_guard::NAMED).map(|source| source.to_string()))
+                .collect(),
+        );
+        finding.source = Some(SOURCE.to_string());
+        diagnostics.push(finding);
+    }
     if diagnostics[before..]
         .iter()
         .any(|finding| finding.severity == "blocking")

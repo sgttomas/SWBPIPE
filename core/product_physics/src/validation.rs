@@ -164,11 +164,20 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
             vec!["pipe_segments".to_string()],
         ));
     }
-    if model.load_cases.iter().all(|case| {
+    // An explicit empty pressure-region list (`[]`, the exact route's
+    // "unpressurized") applies nothing.
+    let case_applies_nothing = |case: &crate::PreviewLoadCase| {
         case.primitive_loads.is_empty()
             && case.equivalent_static.is_none()
-            && case.pressure_regions.is_none()
-    }) {
+            && case.pressure_regions.as_ref().is_none_or(|regions| regions.is_empty())
+    };
+    // Load-state cases are judged on their resolved actions
+    // (`case_state::resolve`): a boundary motion or member eigenstrain
+    // applies an action with no primitive load.
+    if crate::case_state::is_load_state(model) {
+        return;
+    }
+    if model.load_cases.iter().all(case_applies_nothing) {
         diagnostics.push(diag(
             "diagnostic:physics:loads-missing",
             "LOAD_INPUT_MISSING",
@@ -176,6 +185,23 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
             "linear-static preview requires at least one explicit primitive load; no hidden loads are applied",
             vec!["load_cases".to_string()],
         ));
+    } else if
+        // Constant-effort supports and objective connectors load every case.
+        !model.supports.iter().any(crate::is_constant_effort_support)
+        && !model.components.iter().any(|component| component.objective_connector.is_some())
+    {
+        // Silent-zero guard (DEL-04-07 Design/pressure-contract.md, "Load
+        // cases that apply nothing"): one empty case among loaded ones would
+        // publish an all-zero result as if solved.
+        for case in model.load_cases.iter().filter(|case| case_applies_nothing(case)) {
+            diagnostics.push(diag(
+                &format!("diagnostic:load-case:{}:applies-no-action", stable_suffix(&case.id)),
+                "LOAD_CASE_APPLIES_NO_ACTION",
+                "blocking",
+                "the load case applies no action: it has no primitive load, equivalent-static load or pressure region, so a solve would publish an all-zero result; add the loads the case should apply or remove the case",
+                vec![case.id.clone()],
+            ));
+        }
     }
 }
 
