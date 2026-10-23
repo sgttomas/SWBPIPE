@@ -2,6 +2,7 @@ import { canonicalJsonString } from "../../services/hashService";
 import type { PreviewModel } from "../../types";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { draftIntent } from "../offline-proposal-intake/workflowSupport";
+import { hangerLibraryProvenance } from "../library/libraryApply";
 
 type Provenance = Record<string, unknown>;
 type ImportedQuantity = { magnitude: number; unit: string; dimension: string; provenance: Provenance };
@@ -32,12 +33,13 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
   if (!target.newSupport && !old) throw new Error("The target support no longer exists.");
   if (target.newSupport && (!target.newSupport.label.trim() || !model.nodes.some(node => node.id === target.newSupport?.node)))
     throw new Error("A new support needs a label and an existing node.");
-  const source = await canonicalJsonString({
-    kind: "user_imported_hanger_selection", library_kind: "hanger",
-    library_id: document.hanger_library.library_id, hanger_id: selected.hanger_id,
-    library_metadata: document.hanger_library, record_snapshot: selected
-  });
+  // W-17 §2.6: only the short library reference and the combined provenance
+  // record enter the model; library metadata and the record snapshot never do.
   const imported = selected.hanger;
+  const quantities = [imported.installed_load, imported.cold_load, imported.hot_load, imported.constant_load,
+    imported.travel_range, imported.movement_limit, imported.stiffness?.value].filter((q): q is ImportedQuantity => q !== undefined);
+  const { provenance: source, provenanceRecord } = await hangerLibraryProvenance(
+    document.hanger_library as Record<string, unknown>, selected as unknown as Record<string, unknown>, quantities as unknown as Record<string, unknown>[]);
   const hanger: Record<string, unknown> = { hanger_type: imported.hanger_type, source_reference: imported.source_reference };
   for (const key of ["manufacturer_reference", "load_side_review_reference", "mechanics_consumption"] as const)
     if (imported[key] !== undefined) hanger[key] = imported[key];
@@ -50,11 +52,11 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
     value: { value: imported.stiffness.value.magnitude, unit: imported.stiffness.value.unit }
   };
   const configuration = { family: imported.hanger_type, restraints: [...target.restraints], hanger, provenance: source };
-  const after = target.newSupport ? { id: target.supportId, ...target.newSupport, ...configuration } : configuration;
+  const after = target.newSupport ? { id: target.supportId, ...target.newSupport, ...configuration, provenance_record: provenanceRecord } : configuration;
   const before = old ? Object.fromEntries(["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"]
     .filter(key => (old as unknown as Record<string, unknown>)[key] !== undefined)
     .map(key => [key, (old as unknown as Record<string, unknown>)[key]])) : undefined;
-  return { batch_id: `batch:hanger:${crypto.randomUUID()}`, operations: [draftIntent({
+  const operations = [draftIntent({
     operation_kind: target.newSupport ? "create" : "modify",
     target: { object_type: "Support", ref: target.supportId },
     change: {
@@ -64,5 +66,19 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
       after: await canonicalJsonString(after), unit: "none", dimension: "dimensionless", source_note: source
     },
     rationale: "Manual user selection of an imported hanger record; replaces the support configuration and clears previous top-level stiffness and nonlinear settings."
-  })] };
+  })];
+  const recordChanged = !old || old.provenance_record === undefined ||
+    await canonicalJsonString(old.provenance_record) !== await canonicalJsonString(provenanceRecord);
+  if (old && recordChanged) operations.push(draftIntent({
+    operation_kind: "modify",
+    target: { object_type: "Support", ref: target.supportId },
+    change: {
+      change_id: `change:${crypto.randomUUID()}`, change_kind: "update_support",
+      field_label: "Imported hanger provenance record", field_path: "provenance_record",
+      before: old.provenance_record === undefined ? "not_present" : await canonicalJsonString(old.provenance_record),
+      after: await canonicalJsonString(provenanceRecord), unit: "none", dimension: "dimensionless", source_note: source
+    },
+    rationale: "The structured provenance of the selected hanger record (W-13 §3.5)."
+  }));
+  return { batch_id: `batch:hanger:${crypto.randomUUID()}`, operations };
 }
