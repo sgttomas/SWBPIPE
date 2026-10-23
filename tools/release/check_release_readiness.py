@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Provider-neutral local release-readiness checks for OpenPipeStress."""
+"""Provider-neutral local release-readiness checks for SWBPIPE."""
 
 from __future__ import annotations
 
@@ -24,6 +24,10 @@ REQUIRED_PATHS = (
     "docs/PROFESSIONAL_BOUNDARY.md",
     "execution/_DAG/_LATEST.md",
 )
+# The monorepo's approved dependency graph. The public export
+# (tools/release/export_public_openpipestress.py) leaves out `loop/` and
+# `execution/`, so there neither the path nor its schema check applies.
+DAG_POINTER = "execution/_DAG/_LATEST.md"
 
 CARGO_SEARCH_ROOTS = (
     "core",
@@ -38,8 +42,23 @@ class CheckStep:
     description: str
 
 
+def is_public_export(root: Path = ROOT) -> bool:
+    """True in the staged public export: outside a monorepo checkout (where the
+    project sits at `projects/<name>` under a repository root holding `.git` or
+    `AGENTS.md`, the project having no `.git` of its own), and with neither
+    `loop/` nor `execution/`. A sparse monorepo clone is not it; the export,
+    a repository of its own, is it even inside another repository."""
+    root = root.resolve()
+    repository = root.parent.parent
+    in_monorepo = not (root / ".git").exists() and root.parent.name == "projects" and (
+        (repository / ".git").exists() or (repository / "AGENTS.md").is_file())
+    return not in_monorepo and not (root / "loop").is_dir() and not (root / "execution").is_dir()
+
+
 def check_required_paths(root: Path = ROOT) -> list[str]:
-    return [path for path in REQUIRED_PATHS if not (root / path).exists()]
+    export = is_public_export(root)
+    return [path for path in REQUIRED_PATHS
+            if not (export and path == DAG_POINTER) and not (root / path).exists()]
 
 
 def latest_dag_dependency_edges(root: Path = ROOT) -> Path:
@@ -123,17 +142,18 @@ def build_plan(profile: str, root: Path = ROOT) -> list[CheckStep]:
     steps: list[CheckStep] = []
 
     if profile in {"skeleton", "python", "all"}:
-        dag_dependency_edges = latest_dag_dependency_edges(root)
-        steps.append(
-            CheckStep(
-                name="dag dependency schema",
-                command=python_cmd(
-                    "tools/validation/validate_dependencies_schema.py",
-                    dag_dependency_edges.as_posix(),
-                ),
-                description="Validate the approved latest DAG dependency register schema.",
+        if not is_public_export(root):
+            dag_dependency_edges = latest_dag_dependency_edges(root)
+            steps.append(
+                CheckStep(
+                    name="dag dependency schema",
+                    command=python_cmd(
+                        "tools/validation/validate_dependencies_schema.py",
+                        dag_dependency_edges.as_posix(),
+                    ),
+                    description="Validate the approved latest DAG dependency register schema.",
+                )
             )
-        )
         steps.append(
             CheckStep(
                 name="release readiness script tests",
@@ -219,8 +239,10 @@ def missing_tools(steps: Iterable[CheckStep]) -> list[str]:
 
 def print_plan(steps: list[CheckStep], root: Path, execute: bool) -> None:
     mode = "execute" if execute else "dry-run"
-    print(f"OpenPipeStress release readiness profile ({mode})")
+    print(f"SWBPIPE release readiness profile ({mode})")
     print(f"repo: {root}")
+    if is_public_export(root):
+        print("public export: the DAG dependency schema check reads the monorepo's execution/_DAG and is not planned")
     print("")
 
     manifests = discover_cargo_manifests(root)
@@ -250,7 +272,7 @@ def run_steps(steps: list[CheckStep], root: Path) -> int:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run or dry-run provider-neutral OpenPipeStress release checks."
+        description="Run or dry-run provider-neutral SWBPIPE release checks."
     )
     parser.add_argument(
         "--profile",
