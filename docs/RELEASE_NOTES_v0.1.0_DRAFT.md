@@ -192,7 +192,7 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 |---|---|
 | Git revision | `[CANDIDATE: commit hash]` |
 | Working tree state | `[CANDIDATE: clean, per the release artifact record]` |
-| Build command | `cd apps/desktop && APPLE_SIGNING_IDENTITY="Developer ID Application" npm run tauri -- build --bundles app`, then `python3 tools/release/notarize_app.py --execute --keychain-profile swbpipe-notary`, then `python3 tools/release/package_release_artifact.py --execute --sweep-artifact <sweep>` |
+| Build command | `python3 tools/release/build_signed_app.py --execute`, then `python3 tools/release/notarize_app.py --execute --keychain-profile swbpipe-notary`, then `python3 tools/release/package_release_artifact.py --execute --sweep-artifact <sweep>` |
 | Runtime versions | `[CANDIDATE: from the release artifact record]` |
 | Artifact checksum | `[CANDIDATE: SHA-256]` |
 

@@ -117,9 +117,11 @@ code_paths:
 - docs/RELEASE_NOTES_v0.1.0_DRAFT.md
 - tools/release/package_release_artifact.py
 - tools/release/notarize_app.py
+- tools/release/build_signed_app.py
 checks:
 - tests/test_ci_python.py
 - tests/test_ci_numerical.py
 - tests/test_ci_apt_sources.py
 - tests/test_release_packaging_script.py
 - tests/test_release_notarize_script.py
+- tests/test_release_signed_build_script.py

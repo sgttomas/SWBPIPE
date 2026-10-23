@@ -123,8 +123,8 @@ the app (owner decision of 2026-10-23, `D-06b`). Double-click `SWBPIPE.app`.
 On the first launch of a downloaded copy, macOS asks you to confirm opening an
 app downloaded from the internet and names it as checked by Apple for
 malicious software; choose **Open**. If macOS instead reports that it cannot
-verify the developer or that the app is damaged, do not open it: the copy is
-not the published one. Delete it and download it again.
+verify the developer or that the app is damaged, do not open it. Delete it and
+download it again.
 
 The signature identifies the developer to macOS. The checksum you verified in
 step 1 shows that your zip is byte-for-byte the published one, and the release

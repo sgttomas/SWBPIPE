@@ -71,6 +71,24 @@ NOTARIZATION_NONE = "none"
 NOTARIZATION_STAPLED = "notarized_stapled"
 NOTARIZATION_NOT_STAPLED = "notarized_not_stapled"
 GATEKEEPER_NOTARIZED_SOURCE = "Notarized Developer ID"
+# spctl `source=` values mapped to fixed labels; local rule labels and any
+# other text are recorded only as "other", never verbatim (the record is public).
+GATEKEEPER_SOURCES = {
+    "Notarized Developer ID": "notarized_developer_id",
+    "Unnotarized Developer ID": "unnotarized_developer_id",
+    "Developer ID": "developer_id",
+    "Apple System": "apple_system",
+    "Mac App Store": "mac_app_store",
+    "No Matching Rule": "no_matching_rule",
+}
+# An Apple-anchored Developer ID Application leaf certificate, issued through
+# Apple's Developer ID intermediate (Apple's published designated requirement
+# for Developer ID code). A self-signed certificate with a look-alike name
+# does not satisfy it.
+DEVELOPER_ID_REQUIREMENT = (
+    "anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] "
+    "exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists"
+)
 
 RELEASE_TARGET_TRIPLE = "aarch64-apple-darwin"
 INSTALLER_FORMAT = "tauri_app_bundle_zip"
@@ -418,6 +436,10 @@ def inspect_signing(app_path: Path, run=_run_tool) -> dict:
     """
     target = str(app_path)
     verify = run(["codesign", "--verify", "--deep", "--strict", target])
+    developer_id_check = run([
+        "codesign", "--verify", "--deep", "--strict",
+        f"-R={DEVELOPER_ID_REQUIREMENT}", target,
+    ])
     details = run(["codesign", "-d", "--verbose=4", target])
     stapler = run(["xcrun", "stapler", "validate", target])
     spctl = run(["spctl", "--assess", "--type", "execute", "-vv", target])
@@ -431,15 +453,21 @@ def inspect_signing(app_path: Path, run=_run_tool) -> dict:
         match = re.search(r"flags=0x[0-9a-fA-F]+\(([^)]*)\)", line)
         if match:
             flags.update(part.strip() for part in match.group(1).split(","))
-    gatekeeper_source = None
+    raw_source = None
     spctl_lines = (spctl.stderr + spctl.stdout).splitlines() if spctl else []
     for line in spctl_lines:
         if line.startswith("source="):
-            gatekeeper_source = line.split("=", 1)[1].strip()
+            raw_source = line.split("=", 1)[1].strip()
+    gatekeeper_source = (
+        None if raw_source is None else GATEKEEPER_SOURCES.get(raw_source, "other")
+    )
 
     signature_valid = verify is not None and verify.returncode == 0
-    developer_id = bool(authorities) and authorities[0].startswith(
-        "Developer ID Application:"
+    details_read = details is not None and details.returncode == 0
+    developer_id = (
+        details_read
+        and developer_id_check is not None
+        and developer_id_check.returncode == 0
     )
     if not authorities:
         state = SIGNING_UNSIGNED
@@ -449,7 +477,7 @@ def inspect_signing(app_path: Path, run=_run_tool) -> dict:
         state = SIGNING_OTHER
     stapled = stapler is not None and stapler.returncode == 0
     gatekeeper_accepted = spctl is not None and spctl.returncode == 0
-    if gatekeeper_accepted and gatekeeper_source == GATEKEEPER_NOTARIZED_SOURCE:
+    if gatekeeper_accepted and raw_source == GATEKEEPER_NOTARIZED_SOURCE:
         notarization = NOTARIZATION_STAPLED if stapled else NOTARIZATION_NOT_STAPLED
     else:
         notarization = NOTARIZATION_NONE
@@ -469,6 +497,10 @@ def inspect_signing(app_path: Path, run=_run_tool) -> dict:
         "gatekeeper_source": gatekeeper_source,
         "checks": [
             {"command": "codesign --verify --deep --strict", "exit_code": _exit(verify)},
+            {
+                "command": "codesign --verify --deep --strict -R=<Developer ID Application requirement>",
+                "exit_code": _exit(developer_id_check),
+            },
             {"command": "xcrun stapler validate", "exit_code": _exit(stapler)},
             {"command": "spctl --assess --type execute -vv", "exit_code": _exit(spctl)},
         ],
@@ -515,8 +547,12 @@ def build_record(
         "state": SIGNING_UNSIGNED,
         "notarization": NOTARIZATION_NONE,
     }
-    notarized = signing.get("notarization") == NOTARIZATION_STAPLED and (
-        zip_roundtrip is None or zip_roundtrip.get("notarization") == NOTARIZATION_STAPLED
+    notarized = (
+        "hardened_runtime" in signing
+        and is_signed_and_notarized(signing)
+        and zip_roundtrip is not None
+        and zip_roundtrip.get("extracted") is True
+        and is_signed_and_notarized(zip_roundtrip)
     )
     record = {
         "artifact": ARTIFACT_KIND,
@@ -565,8 +601,8 @@ def build_record(
                 "Developer ID signed and notarized (stapled), per the D-06b "
                 "owner decision of 2026-10-23."
                 if notarized
-                else "Not signed and notarized: this record is a rehearsal "
-                "or test artifact, not the D-06b v0.1 posture."
+                else "Not signed and notarized: an --allow-unsigned "
+                "rehearsal or test record, not the D-06b v0.1 posture."
             ),
             "No publication target exists yet; local record + direct "
             "distribution only (DEC-057/DEC-059).",
@@ -746,6 +782,21 @@ def main(argv: list[str] | None = None) -> int:
     digest = sha256_file(zip_path)
     checksum_path.write_text(checksum_line(digest, zip_path.name), encoding="utf-8")
     zip_roundtrip = inspect_zip_roundtrip(zip_path, app_path.name)
+    if not args.allow_unsigned and not (
+        zip_roundtrip.get("extracted") and is_signed_and_notarized(zip_roundtrip)
+    ):
+        # Never leave a zip that does not verify beside a valid-looking checksum.
+        zip_path.unlink(missing_ok=True)
+        checksum_path.unlink(missing_ok=True)
+        print(
+            "[package-release-artifact] the bundle extracted from the zip does "
+            "not verify as signed and notarized (zip roundtrip: "
+            f"{zip_roundtrip.get('state')}; notarization "
+            f"{zip_roundtrip.get('notarization')}); the zip and checksum were "
+            "removed and no record was written",
+            file=sys.stderr,
+        )
+        return 1
 
     sweep_path = Path(args.sweep_artifact) if args.sweep_artifact else None
     if sweep_path is not None and not sweep_path.is_absolute():
@@ -792,16 +843,6 @@ def main(argv: list[str] | None = None) -> int:
         f"{zip_roundtrip.get('state')}; notarization "
         f"{zip_roundtrip.get('notarization')}"
     )
-    if not args.allow_unsigned and not (
-        zip_roundtrip.get("extracted") and is_signed_and_notarized(zip_roundtrip)
-    ):
-        print(
-            "[package-release-artifact] the bundle extracted from the zip "
-            "does not verify as signed and notarized; the record states what "
-            "was found",
-            file=sys.stderr,
-        )
-        return 1
     if chain["status"] != CHAIN_VERIFIED:
         print(
             "[package-release-artifact] authenticity chain is not verified — "

@@ -570,24 +570,28 @@ def notarized_inspection(packaging) -> dict:
         "secure_timestamp": True,
         "ticket_stapled": True,
         "gatekeeper_accepted": True,
-        "gatekeeper_source": packaging.GATEKEEPER_NOTARIZED_SOURCE,
+        "gatekeeper_source": "notarized_developer_id",
     }
 
 
 IDENTITY_NAME = "Developer ID Application: Example Person (ABCDE12345)"
 
 
-def fake_signing_tools(*, signed=True, stapled=True, notarized=True, runtime=True):
+def fake_signing_tools(*, signed=True, stapled=True, notarized=True, runtime=True,
+                       apple_developer_id=True, adhoc=False, source="Notarized Developer ID"):
     """A stand-in for codesign/stapler/spctl output, carrying identity strings."""
 
     def run(argv):
         tool = argv[:2]
+        if argv[0] == "codesign" and "--verify" in argv and any(a.startswith("-R=") for a in argv):
+            ok = signed and apple_developer_id and not adhoc
+            return SimpleNamespace(returncode=0 if ok else 3, stdout="", stderr="" if ok else "test-requirement: code failed to satisfy specified code requirement(s)")
         if argv[0] == "codesign" and "--verify" in argv:
             return SimpleNamespace(returncode=0 if signed else 1, stdout="", stderr="" if signed else "code object is not signed at all")
         if argv[0] == "codesign":
             if not signed:
                 return SimpleNamespace(returncode=1, stdout="", stderr="code object is not signed at all")
-            flags = "0x10000(runtime)" if runtime else "0x0(none)"
+            flags = "0x10002(adhoc,runtime)" if adhoc else "0x10000(runtime)" if runtime else "0x0(none)"
             return SimpleNamespace(returncode=0, stdout="", stderr="\n".join([
                 "Executable=/tmp/SWBPIPE.app/Contents/MacOS/swbpipe",
                 f"CodeDirectory v=20500 size=1 flags={flags} hashes=1+7 location=embedded",
@@ -604,7 +608,7 @@ def fake_signing_tools(*, signed=True, stapled=True, notarized=True, runtime=Tru
                 return SimpleNamespace(returncode=3, stdout="", stderr="/tmp/SWBPIPE.app: rejected\nsource=Unnotarized Developer ID")
             return SimpleNamespace(returncode=0, stdout="", stderr="\n".join([
                 "/tmp/SWBPIPE.app: accepted",
-                "source=Notarized Developer ID",
+                f"source={source}",
                 f"origin={IDENTITY_NAME}",
             ]))
         raise AssertionError(argv)
@@ -619,7 +623,7 @@ def test_inspect_signing_classifies_and_drops_identity_strings(tmp_path):
     assert inspection["state"] == packaging.SIGNING_DEVELOPER_ID
     assert inspection["notarization"] == packaging.NOTARIZATION_STAPLED
     assert inspection["hardened_runtime"] and inspection["secure_timestamp"]
-    assert inspection["gatekeeper_source"] == "Notarized Developer ID"
+    assert inspection["gatekeeper_source"] == "notarized_developer_id"
     assert packaging.is_signed_and_notarized(inspection)
     # The record is public: no authority name, team identifier or origin line.
     text = json.dumps(inspection)
@@ -635,6 +639,18 @@ def test_inspect_signing_classifies_and_drops_identity_strings(tmp_path):
     assert unnotarized["notarization"] == packaging.NOTARIZATION_NONE
     unsigned = packaging.inspect_signing(app, run=fake_signing_tools(signed=False, stapled=False, notarized=False))
     assert unsigned["state"] == packaging.SIGNING_UNSIGNED
+    assert unnotarized["gatekeeper_source"] == "unnotarized_developer_id"
+    # A look-alike name on a certificate Apple did not issue as Developer ID.
+    deceptive = packaging.inspect_signing(app, run=fake_signing_tools(apple_developer_id=False))
+    assert deceptive["state"] == packaging.SIGNING_OTHER
+    assert not packaging.is_signed_and_notarized(deceptive)
+    adhoc = packaging.inspect_signing(app, run=fake_signing_tools(adhoc=True))
+    assert adhoc["state"] == packaging.SIGNING_OTHER and adhoc["adhoc"]
+    # A local Gatekeeper rule label is never recorded verbatim, and never counts as notarized.
+    labelled = packaging.inspect_signing(app, run=fake_signing_tools(source="Example Person's local rule"))
+    assert labelled["gatekeeper_source"] == "other"
+    assert labelled["notarization"] == packaging.NOTARIZATION_NONE
+    assert "Example Person" not in json.dumps(labelled)
     # Tools absent (a non-macOS host): unsigned, never an exception.
     absent = packaging.inspect_signing(app, run=lambda argv: None)
     assert absent["state"] == packaging.SIGNING_UNSIGNED
@@ -670,9 +686,16 @@ def test_execute_records_signed_notarized_bundle(tmp_path, monkeypatch):
     assert record["install_note"] == packaging.SIGNED_INSTALL_NOTE
     assert "unsigned_install_caveat" not in record
 
-    # A zip whose extracted bundle no longer verifies fails loud, and its record says so.
+    # A zip whose extracted bundle no longer verifies fails loud: the zip and
+    # checksum are removed and no record is written.
+    for path in (tmp_path / "out").iterdir():
+        path.unlink()
+    for path in (tmp_path / "records").iterdir():
+        path.unlink()
     roundtrip["value"] = {**unsigned_inspection(packaging), "extracted": True}
     assert packaging.main(argv) == 1
+    assert not list((tmp_path / "out").iterdir())
+    assert not list((tmp_path / "records").iterdir())
 
 
 def test_execute_fails_loud_on_missing_bundle_or_wrong_arch(tmp_path, monkeypatch):

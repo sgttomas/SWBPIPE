@@ -23,8 +23,12 @@ def load_module():
 
 def test_submission_outcome_reads_notarytool_json():
     notarize = load_module()
-    assert notarize.submission_outcome('{"id": "abc-123", "status": "Accepted", "message": "ok"}') == ("abc-123", "Accepted")
+    good = "2efe2717-52ef-43a5-96dc-0797e4ca1041"
+    assert notarize.submission_outcome(f'{{"id": "{good}", "status": "Accepted", "message": "ok"}}') == (good, "Accepted")
     assert notarize.submission_outcome("not json") == (None, None)
+    assert notarize.submission_outcome("[1, 2]") == (None, None)
+    # Anything but a UUID id or a known status is discarded, not echoed.
+    assert notarize.submission_outcome('{"id": "Example Person ABCDE12345", "status": "Example Person"}') == (None, "unrecognized")
 
 
 def test_execute_requires_a_bundle_and_a_profile_name(tmp_path, monkeypatch):
@@ -38,7 +42,7 @@ def test_execute_requires_a_bundle_and_a_profile_name(tmp_path, monkeypatch):
     assert notarize.main(["--app-path", str(app)]) == 0
 
 
-def test_staples_only_an_accepted_submission(tmp_path, monkeypatch):
+def test_staples_only_an_accepted_submission(tmp_path, monkeypatch, capsys):
     notarize = load_module()
     app = tmp_path / "SWBPIPE.app"
     app.mkdir()
@@ -48,13 +52,17 @@ def test_staples_only_an_accepted_submission(tmp_path, monkeypatch):
         def run(argv):
             calls.append(argv)
             if argv[:3] == ["xcrun", "notarytool", "submit"]:
-                return SimpleNamespace(returncode=0 if status == "Accepted" else 1, stdout=f'{{"id": "s-1", "status": "{status}"}}', stderr="")
+                return SimpleNamespace(returncode=0 if status == "Accepted" else 1, stdout=f'{{"id": "2efe2717-52ef-43a5-96dc-0797e4ca1041", "status": "{status}"}}', stderr="Error: account Example Person (ABCDE12345) secret-ish detail")
             return SimpleNamespace(returncode=0, stdout="", stderr="")
         return run
 
     monkeypatch.setattr(notarize, "run", fake("Invalid"))
     assert notarize.main(["--execute", "--app-path", str(app), "--keychain-profile", "swbpipe-notary"]) == 1
     assert not any(argv[:3] == ["xcrun", "stapler", "staple"] for argv in calls)
+    # Tool stderr can name the account or team: it is never echoed.
+    printed = capsys.readouterr()
+    assert "Example Person" not in printed.out + printed.err
+    assert "ABCDE12345" not in printed.out + printed.err
 
     calls.clear()
     monkeypatch.setattr(notarize, "run", fake("Accepted"))
@@ -64,3 +72,11 @@ def test_staples_only_an_accepted_submission(tmp_path, monkeypatch):
     assert submit[submit.index("--keychain-profile") + 1] == "swbpipe-notary"
     assert not {"--password", "--apple-id", "--key", "--team-id"} & set(submit)
     assert ["xcrun", "stapler", "staple", str(app.resolve())] in calls
+
+
+def test_missing_tools_are_an_exit_code_not_a_traceback(tmp_path, monkeypatch):
+    notarize = load_module()
+    app = tmp_path / "SWBPIPE.app"
+    app.mkdir()
+    monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+    assert notarize.main(["--execute", "--app-path", str(app), "--keychain-profile", "p"]) == 1

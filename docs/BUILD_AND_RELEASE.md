@@ -166,16 +166,21 @@ The packaging checklist for a release candidate:
   with:
 
   ```bash
-  cd apps/desktop && APPLE_SIGNING_IDENTITY="Developer ID Application" \
-      npm run tauri -- build --bundles app
+  python3 tools/release/build_signed_app.py --execute
   ```
 
-  `tauri.conf.json` sets `bundle.macOS.hardenedRuntime: true`. The app needs
-  no entitlements: WebKit runs its web content, including the WebAssembly
-  engine, in its own processes. `APPLE_SIGNING_IDENTITY` names the keychain's
-  Developer ID Application certificate by its kind, so no identity string,
-  team identifier or certificate enters the repository or the build logs.
-  Leave Tauri's notarization variables unset; notarize the built bundle
+  It runs `npm run tauri -- build --bundles app` in `apps/desktop` with
+  `APPLE_SIGNING_IDENTITY="Developer ID Application"`, which names the
+  keychain's certificate by its kind. It first refuses unless the keychain
+  holds exactly one valid Developer ID Application identity, so codesign never
+  meets an ambiguous match, whose diagnostic would list identity names. It
+  removes Tauri's notarization variables from the build environment, and
+  masks identity names, team identifiers and certificate hashes in the output
+  it forwards. No identity, team identifier or certificate enters the
+  repository. `tauri.conf.json` sets `bundle.macOS.hardenedRuntime: true`. The
+  app needs no entitlements: WebKit runs its web content, including the
+  WebAssembly engine, in its own processes, and the native smoke passes
+  unchanged against a hardened-runtime binary. Notarize the built bundle
   separately with a notarytool keychain profile:
 
   ```bash
@@ -184,6 +189,8 @@ The packaging checklist for a release candidate:
 
   It submits a `ditto` zip of the bundle with `xcrun notarytool submit
   --keychain-profile <name> --wait`, then staples and validates the ticket.
+  It prints fixed outcome categories, exit codes and the submission id only;
+  tool output, which can name the account or team, is never echoed.
   The owner creates the profile once, privately, with `xcrun notarytool
   store-credentials swbpipe-notary --apple-id <Apple ID> --team-id <team>`,
   which prompts for an app-specific password and keeps it in the login
@@ -287,10 +294,12 @@ authority's acceptance; the emitter never fills that field). The signing
 state is what `codesign --verify --deep --strict`, `codesign -d`, `xcrun
 stapler validate` and `spctl --assess --type execute` report. They run on the
 bundle and on a `ditto` extraction of the zip, as a user receives it. The
-record keeps their exit codes, whether the signature is Developer ID, the
-hardened runtime, the secure timestamp, the stapled ticket and the
-Gatekeeper source. It keeps no authority name, team identifier or origin
-line.
+record keeps their exit codes, whether the signature satisfies the
+Apple-anchored Developer ID Application requirement, the hardened runtime,
+the secure timestamp, the stapled ticket and the Gatekeeper source as a fixed
+label. It keeps no authority name, team identifier, origin line or local rule
+label. If the extracted bundle does not verify, the zip and checksum are
+removed and no record is written.
 
 ### 8.2 Authenticity Chain And Install Note (`DEC-057`, `D-06b`)
 
