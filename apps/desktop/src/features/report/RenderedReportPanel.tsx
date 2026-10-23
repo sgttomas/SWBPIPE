@@ -22,6 +22,7 @@ import {
   controlLocalPrivateRenderedHtml,
   controlReportRendererInput
 } from "./reportRedactionProjector";
+import type { NumericalHealthView } from "../results/numericalHealth";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -56,11 +57,14 @@ export function RenderedReportPanel({
   packageBusy = false,
   packageRedaction = null,
   packageRoute = null,
+  numericalHealth = null,
   onPackagePrivateIntentChange,
   onSaveReportPackage
 }: {
   model: PreviewModel;
   result: MechanicsResult | null;
+  /** DEL-07-05 numerical health of `result` (the report's per-load-case line). */
+  numericalHealth?: NumericalHealthView | null;
   analysisRun: AnalysisRunEnvelope | null;
   projectSummary: LocalProjectSummary | null;
   inputManifest?: CurrentSessionInputManifestEvidence | null;
@@ -182,7 +186,8 @@ export function RenderedReportPanel({
         projectSummary,
         inputManifest,
         ruleCheckRun: sessionRuleCheckRun,
-        renderContext: { exportContext: context, generatedAt: new Date().toISOString() }
+        renderContext: { exportContext: context, generatedAt: new Date().toISOString() },
+        numericalHealth
       });
       if (!isCurrent()) return;
       const controlled = controlReportRendererInput(input, intent);

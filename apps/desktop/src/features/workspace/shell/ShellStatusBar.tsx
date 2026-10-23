@@ -29,14 +29,14 @@ const DISPLAY_UNIT_FACES = { entered: "Entered", SI: "SI", US: "US" } as const;
  */
 export function ShellStatusBar({ issueCount }: { issueCount: number }) {
   const { model } = useSessionModel();
-  const { result, currentSolvedResult, historicalRun, solveJob, ruleCheckAggregate } = useSessionResults();
+  const { result, currentSolvedResult, numericalHealthHold, historicalRun, solveJob, ruleCheckAggregate } = useSessionResults();
   const { selection, orderedSelection } = useSessionSelection();
   const { activeSection, stageSurface, auditDrawerOpen, setAuditDrawerOpen, issuesDrawerOpen, setIssuesDrawerOpen } = useSessionChrome();
   const { preference } = useDisplayUnits();
   const [openChip, setOpenChip] = useState<string | null>(null);
   const location = shellLocation(activeSection, stageSurface);
   const chips = statusChips(
-    statusChipInputsFromCells({ model, result, historicalRun, solveJob, ruleCheckAggregate, hasQualifiedCurrentResult: currentSolvedResult !== null }),
+    statusChipInputsFromCells({ model, result, historicalRun, solveJob, ruleCheckAggregate, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold }),
     location.stage,
     location.page !== null
   );
@@ -93,7 +93,7 @@ function StatusChipButton({ chip, open, onToggle, onClose }: { chip: StatusChip;
         data-status-token={chip.token}
         aria-expanded={open}
         aria-controls={open ? popoverId : undefined}
-        title={chip.source ? `${chip.source}: ${chip.token}` : chip.token}
+        title={chip.numericalHealth ? chip.numericalHealth.headline : chip.source ? `${chip.source}: ${chip.token}` : chip.token}
         onClick={onToggle}
         onKeyDown={(event) => { if (event.key === "Escape" && open) { event.stopPropagation(); onClose(); } }}
       >
@@ -102,11 +102,18 @@ function StatusChipButton({ chip, open, onToggle, onClose }: { chip: StatusChip;
       {open ? (
         <>
           <span className="shell-chip-backdrop" aria-hidden="true" onClick={onClose} />
-          <span className="shell-chip-popover" id={popoverId} role="dialog" aria-label={`${statusChipText(chip)}: ${chip.source ?? "recorded token"}`} data-testid={`${CHIP_TEST_IDS[chip.domain]}-popover`}>
-            {chip.source ? <span>{chip.source}</span> : null}
-            <code>{chip.token}</code>
-            <span>{chip.domain}</span>
-          </span>
+          {chip.numericalHealth ? (
+            <span className="shell-chip-popover" id={popoverId} role="dialog" aria-label={chip.numericalHealth.headline} data-testid={`${CHIP_TEST_IDS[chip.domain]}-popover`}>
+              <span data-testid="status-chip-numerical-health-headline">{chip.numericalHealth.headline}</span>
+              {chip.numericalHealth.outputSentence ? <span data-testid="status-chip-numerical-health-output-sentence">{chip.numericalHealth.outputSentence}</span> : null}
+            </span>
+          ) : (
+            <span className="shell-chip-popover" id={popoverId} role="dialog" aria-label={`${statusChipText(chip)}: ${chip.source ?? "recorded token"}`} data-testid={`${CHIP_TEST_IDS[chip.domain]}-popover`}>
+              {chip.source ? <span>{chip.source}</span> : null}
+              <code>{chip.token}</code>
+              <span>{chip.domain}</span>
+            </span>
+          )}
         </>
       ) : null}
     </span>

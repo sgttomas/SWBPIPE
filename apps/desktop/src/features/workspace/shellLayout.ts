@@ -16,6 +16,7 @@
 // Solver fallback (`statusLabels.ts`).
 
 import type { SolveJobEvent } from "../../types";
+import type { NumericalHealthHold } from "../results/numericalHealth";
 import { SOLVER_NOT_SOLVED, hasRecordedUnsolvedModelStatus, professionalStatusToken, registeredStatusLabel } from "./statusLabels";
 import type { StatusAuthorityDomain } from "./statusLabels";
 import type { WorkspaceSectionId } from "./workspaceSections";
@@ -268,20 +269,28 @@ export type RunPresence = {
   hasCurrentSolvedResult: boolean;
   /** Derived eligibility only; never written into the received result. */
   needsRecompute?: boolean;
+  /**
+   * DEL-07-05 numerical health §3: present only with `needsRecompute` when the
+   * result is held back by its numerical verdict alone (`numericalHealthHold`). The
+   * chip shows its headline and the rail its short form instead of "Needs recompute";
+   * nothing else about the run's standing changes.
+   */
+  numericalHealthHold?: NumericalHealthHold;
   /** A reopened saved run is shown (`historicalRun !== null`). */
   historicalRunShown: boolean;
   /** `solveJob.state`. */
   solveJobState: SolveJobEvent["state"];
 };
 
-export type RailCaption = "Failed" | "Refused" | "Historical" | "Needs recompute";
+/** The fixed captions, or a numerical-health short form ("Numerical health: {worst state}"). */
+export type RailCaption = "Failed" | "Refused" | "Historical" | "Needs recompute" | `Numerical health: ${string}`;
 
 export type RailStageState = {
   stage: ShellStage;
   label: string;
   enabled: boolean;
   /** Why the stage is disabled; shown as the tooltip and reachable by keyboard focus. Null when enabled. */
-  reason: "No run yet" | "No solved run" | "Needs a current run" | "Needs recompute" | null;
+  reason: "No run yet" | "No solved run" | "Needs a current run" | "Needs recompute" | `Numerical health: ${string}` | null;
   /** A state name under the label, not a status. */
   caption: RailCaption | null;
   tooltip: string;
@@ -289,6 +298,12 @@ export type RailStageState = {
 
 function runEnded(state: SolveJobEvent["state"]): boolean {
   return state === "failed" || state === "cancelled" || state === "refused";
+}
+
+/** The rail's short form of a verdict-only hold, or null. */
+function numericalHealthCaption(run: RunPresence): `Numerical health: ${string}` | null {
+  const short = run.numericalHealthHold?.shortHeadline;
+  return short && short.startsWith("Numerical health: ") ? short as `Numerical health: ${string}` : null;
 }
 
 export function railStageState(stage: ShellStage, run: RunPresence): RailStageState {
@@ -302,7 +317,7 @@ export function railStageState(stage: ShellStage, run: RunPresence): RailStageSt
     if (!enabled) reason = "No run yet";
     // What is shown names the caption: a reopened saved run stays on screen while a later run fails.
     else if (run.historicalRunShown) caption = "Historical";
-    else if (run.needsRecompute) caption = "Needs recompute";
+    else if (run.needsRecompute) caption = numericalHealthCaption(run) ?? "Needs recompute";
     else if (!run.hasResult && run.solveJobState === "failed") caption = "Failed";
     // A native memory refusal is its own outcome, not a solver failure.
     else if (!run.hasResult && run.solveJobState === "refused") caption = "Refused";
@@ -311,7 +326,7 @@ export function railStageState(stage: ShellStage, run: RunPresence): RailStageSt
     enabled = run.hasCurrentSolvedResult && !run.historicalRunShown;
     if (!enabled) {
       if (run.historicalRunShown) reason = "Needs a current run";
-      else if (run.needsRecompute) reason = "Needs recompute";
+      else if (run.needsRecompute) reason = numericalHealthCaption(run) ?? "Needs recompute";
       else if (run.hasResult || runEnded(run.solveJobState)) reason = "No solved run";
       else reason = "No run yet";
     }
@@ -356,7 +371,15 @@ export const RAIL_FOOT_ITEMS: readonly RailFootItem[] = Object.freeze([
 // The status chip policy (§5.4). The status bar speaks for the current model
 // and its Current run, and for nothing else.
 
-export type StatusChip = { token: string; label: string; domain: StatusAuthorityDomain; source?: "Solve job state" | "Derived numerical qualification" };
+export type StatusChip = {
+  token: string;
+  label: string;
+  domain: StatusAuthorityDomain;
+  source?: "Solve job state" | "Derived numerical qualification";
+  /** DEL-07-05 numerical health: under the verdict-only hold the chip's title and popover
+   * show this headline and output sentence; the token stays internal. */
+  numericalHealth?: Readonly<{ headline: string; outputSentence: string | null }>;
+};
 
 export type StatusChipInputs = RunPresence & {
   /** `model.analysis_status.mechanics`: the status the model document records; null with no model. */
@@ -393,7 +416,12 @@ export function statusChips(inputs: StatusChipInputs, stage: ShellStage, pageOpe
   // the current model's standing, which a Historical record never supplies.
   if (inputs.historicalRunShown) return [];
   if (inputs.hasResult) {
-    if (inputs.needsRecompute) return [{ token: "needs_recompute", label: "Needs recompute", domain: "Solver", source: "Derived numerical qualification" }];
+    if (inputs.needsRecompute) {
+      const hold = inputs.numericalHealthHold;
+      return [hold
+        ? { token: "needs_recompute", label: hold.headline, domain: "Solver", source: "Derived numerical qualification", numericalHealth: { headline: hold.headline, outputSentence: hold.outputSentence } }
+        : { token: "needs_recompute", label: "Needs recompute", domain: "Solver", source: "Derived numerical qualification" }];
+    }
     const solver = chipFor(inputs.resultMechanicsStatus, "Solver") ?? (inputs.resultMechanicsStatus === null ? null : { token: inputs.resultMechanicsStatus, ...SOLVER_NOT_SOLVED });
     // Rule 7, first row: a run that did not solve shows whatever Solver status its record carries.
     if (!inputs.hasCurrentSolvedResult) return solver ? [solver] : [];
@@ -432,13 +460,17 @@ export function runPresenceFromCells(cells: {
   result: { status: { mechanics: string } } | null;
   /** Supplied by the qualified session view, never inferred from mechanics status. */
   hasQualifiedCurrentResult?: boolean;
+  /** The session's numerical-health hold (`numericalHealthHold`), or null. */
+  numericalHealthHold?: NumericalHealthHold | null;
   historicalRun: object | null;
   solveJob: { state: SolveJobEvent["state"] };
 }): RunPresence {
+  const needsRecompute = cells.result?.status.mechanics === "MECHANICS_SOLVED" && cells.hasQualifiedCurrentResult !== true;
   return {
     hasResult: cells.result !== null,
     hasCurrentSolvedResult: cells.hasQualifiedCurrentResult === true && cells.result?.status.mechanics === "MECHANICS_SOLVED",
-    ...(cells.result?.status.mechanics === "MECHANICS_SOLVED" && cells.hasQualifiedCurrentResult !== true ? { needsRecompute: true } : {}),
+    ...(needsRecompute ? { needsRecompute: true } : {}),
+    ...(needsRecompute && cells.numericalHealthHold ? { numericalHealthHold: cells.numericalHealthHold } : {}),
     historicalRunShown: cells.historicalRun !== null,
     solveJobState: cells.solveJob.state
   };
@@ -448,6 +480,7 @@ export function statusChipInputsFromCells(cells: {
   model: { analysis_status: { mechanics: string } } | null;
   result: { status: { mechanics: string; professional_acceptance?: string } } | null;
   hasQualifiedCurrentResult?: boolean;
+  numericalHealthHold?: NumericalHealthHold | null;
   historicalRun: object | null;
   solveJob: { state: SolveJobEvent["state"] };
   ruleCheckAggregate: string | null;
