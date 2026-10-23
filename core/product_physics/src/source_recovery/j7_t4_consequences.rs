@@ -26,7 +26,7 @@ fn j7_t4_i12_genuine_nodal_case_declines_the_connector_family_by_name(){
     assert_eq!(raw["model"]["load_cases"].as_array().unwrap().len(),3);
     for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny]{
         let (request,captured)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
-        let expected=match mode{PreviewSolverMode::SparseInteractive=>"8a259b77b82d02bfb2aeeb72c5315370d5130b3e602b90dc01d1416a2ca61ebd",PreviewSolverMode::DenseScrutiny=>"491ea8010ae9e5f9e4ecd92312e88aa1cb18007f7bf2c469ece7c088aec0946b"};
+        let expected=match mode{PreviewSolverMode::SparseInteractive=>"cf81e8e23c1be118c2c7952d7c405ab064df13b5086ed7741f97fd922bb48474",PreviewSolverMode::DenseScrutiny=>"bfc60747f5e5031e94fc921c631c4250455025eb9ad59638a7c58dee301d61f0"};
         assert_eq!(captured.borrowed_digest(),expected);
         let mut model=request.model;let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         pressure_runtime::validate_profile(&model,&mut diagnostics);

@@ -231,17 +231,17 @@
       "primitive_loads": [
         {
           "id": "load:L-1-Z",
-          "category": "weight",
+          "category": "occasional",
           "target": {
-            "type": "element",
-            "pipe": "pipe:P-1"
+            "type": "node",
+            "node": "node:N-2"
           },
           "direction": "global_z",
           "magnitude": {
             "value": -190.0,
-            "unit": "N/m"
+            "unit": "N"
           },
-          "dimension": "force_per_length",
+          "dimension": "force",
           "provenance": "invented_example"
         }
       ]

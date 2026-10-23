@@ -25,15 +25,15 @@ pub const MILESTONE: &str = include_str!("../../../../fixtures/product_preview/r
 const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 
 /// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`).
-pub const W2B_SHA256: &str = "1b2fe2e0cf5b080d4d54e8b3e80ac721fb51564dd68711b662977fab8f1ce326";
-pub const B2_K1E3_SHA256: &str = "4a0b788840fbd93f5f73459400b7e0ea3ade54bfbae6cf65ceaa7f2f3dc08e26";
-pub const C1_SHA256: &str = "8f184995b0601c869eca84966f41dc2c0ef1f215b9e7cb158f5b0fdf7200f331";
+pub const W2B_SHA256: &str = "2b2f398d15da0832cff6294c776bda79bd83ef52495e2f31e72cd85d9312e9d1";
+pub const B2_K1E3_SHA256: &str = "10d54e956d093784cfb761635a37bfb27a3300224ba440d0e5941addda5dc393";
+pub const C1_SHA256: &str = "4eb2bac2cef38f221f1509ae516589320080046af64f1f9d12e353226aa3d3bd";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "dc1b86985dccdfde03548bba7756c41facd1ec6045196be5e0ac4eb33e6a658f"),
-    ("case:b", "7069b6f9b630dde37c8edebd75a307be69b5c8e1b4c2b93a2a1e643ae1b0116a"),
-    ("case:c", "2d8ae6dcd1777fcd10d387ea0b44d04c536ad8474b4a539c08d48dd68503bb25"),
+    ("case:a", "496f4756eabe81ac836d3998e947b3b8ee77a55daf47fd89c110b399529f49c1"),
+    ("case:b", "a38130bb61d0816dd91d5d2916c7b3f05fa0433fafb51e516719c8099f993df2"),
+    ("case:c", "7b6b401d81eb80fb8fdaa887eabc504b54c8a5d93e575841c0e4ea025f7f1585"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "9fb58cb60d43fd839289e540de9d962f792dfb1f51ddb72a9ffc2beb4895d21f";
+pub const I3_THREE_CASE_SHA256: &str = "30661719867d629682d1d1da146d2c4b4875f5511a2e0973749d2b262c1f2e42";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
