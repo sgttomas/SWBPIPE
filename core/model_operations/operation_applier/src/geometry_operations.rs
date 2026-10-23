@@ -24,7 +24,7 @@ fn err(message: impl Into<String>) -> GeometryError {
         affected_refs: vec![],
     }
 }
-fn fields(value: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
+pub(crate) fn fields(value: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
     let map = value
         .as_object()
         .ok_or_else(|| err("Expected an explicit object"))?;
@@ -39,7 +39,7 @@ fn fields(value: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
     }
     Ok(())
 }
-fn text<'a>(v: &'a Value, k: &str) -> Result<&'a str> {
+pub(crate) fn text<'a>(v: &'a Value, k: &str) -> Result<&'a str> {
     v.get(k)
         .and_then(Value::as_str)
         .filter(|s| !s.trim().is_empty())
@@ -50,7 +50,7 @@ fn number(v: &Value) -> Result<f64> {
         .filter(|n| n.is_finite())
         .ok_or_else(|| err("Expected finite number"))
 }
-fn vector(v: &Value) -> Result<Vec3> {
+pub(crate) fn vector(v: &Value) -> Result<Vec3> {
     fields(v, &["x", "y", "z"], &[])?;
     Ok([number(&v["x"])?, number(&v["y"])?, number(&v["z"])?])
 }
@@ -88,7 +88,7 @@ fn normalized(v: Vec3) -> Result<Vec3> {
     }
     Ok(scale(v, 1.0 / norm))
 }
-fn convert(n: f64, from: &str, to: &str, dim: Dimension) -> Result<f64> {
+pub(crate) fn convert(n: f64, from: &str, to: &str, dim: Dimension) -> Result<f64> {
     quantity_value_in_unit(
         &EnteredQuantity {
             value: n,
@@ -115,7 +115,7 @@ fn rows<'a>(model: &'a Value, key: &str) -> Result<&'a Vec<Value>> {
         .and_then(Value::as_array)
         .ok_or_else(|| err(format!("{key} must be an array")))
 }
-fn unique<'a>(model: &'a Value, key: &str, id: &str) -> Result<&'a Value> {
+pub(crate) fn unique<'a>(model: &'a Value, key: &str, id: &str) -> Result<&'a Value> {
     let matching: Vec<_> = rows(model, key)?
         .iter()
         .filter(|r| r.get("id").and_then(Value::as_str) == Some(id))
@@ -125,7 +125,7 @@ fn unique<'a>(model: &'a Value, key: &str, id: &str) -> Result<&'a Value> {
     }
     Ok(matching[0])
 }
-fn record_shape(record: &Value, node: bool) -> Result<()> {
+pub(crate) fn record_shape(record: &Value, node: bool) -> Result<()> {
     for key in ["label", "provenance"] {
         if record
             .get(key)
