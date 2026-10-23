@@ -9,6 +9,9 @@ package_objective_refs: [OBJ-004]
 
 # Scope of Work — DEL-03-05
 
+
+**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-2: rigid and semi-rigid components are to be implemented with DEC-045 stiffness scaling. This records the ruling; the clauses below are unchanged.
+
 ## Purpose and Objective Traceability
 
 This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and package objectives [OBJ-004].
@@ -84,11 +87,11 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, architecture-basis injection, and scope envelope.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture-basis injection, and scope envelope.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for PKG-03, DEL-03-05, SOW-009, OBJ-004, and AB-00-01/02/04/06/07/08.
-> - `docs/_Registers/Deliverables.csv` row DEL-03-05.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-009.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-05.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-05.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-009.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-05.
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.
 >
 

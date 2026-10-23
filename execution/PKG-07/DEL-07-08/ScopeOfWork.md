@@ -89,7 +89,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 >
 > | Reference | Use in this datasheet |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, scope, objectives, package, architecture basis, context budget. |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, objectives, package, architecture basis, context budget. |
 > | `_REFERENCES.md` | Local reference index. |
 > | `_DEPENDENCIES.md` and `Dependencies.csv` | Approved local DAG-002 mirror and dependency evidence surface. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-076, OBJ-015, OBJ-016, PKG-07 deliverable row, architecture-basis constraints. |

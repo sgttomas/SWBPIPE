@@ -8,13 +8,13 @@ package_id: PKG-11
 scope_item: SOW-033
 ---
 
-# SWBPIPE User Guide Skeleton
+# SWBPIPE User Guide
 
-This guide is the initial user-facing structure for SWBPIPE. It is
-grounded in the current repository surfaces: schema contracts, bounded core
-modules, invented examples, policy documents, and draft workflow contracts.
-Current guide authority is the accepted decomposition surface at
-`execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved dependency
+This guide describes the SWBPIPE 0.1.0 macOS desktop app and the repository
+surfaces behind it: schema contracts, core modules, invented examples and
+policy documents. [Current Desktop App](#current-desktop-app-010) lists what
+the app does today and what it refuses. Current guide authority is the
+accepted decomposition surface at `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved dependency
 graph selected by `execution/_DAG/_LATEST.md`.
 
 SWBPIPE is decision-support software for open, auditable piping
@@ -44,6 +44,74 @@ Any human acceptance record, if used in a future workflow, is external to
 automatic solver and rule-pack output and must bind to specific reviewed
 hashes.
 
+## Current Desktop App (0.1.0)
+
+SWBPIPE 0.1.0 is a desktop app for Macs with Apple silicon; §3.1 installs it.
+It works on local data only. The window has four stages (Model, Loads,
+Results, Review) and File, Edit and View menus. This section describes the
+app at source commit `62c1efd75b` (2026-10-23).
+
+A model solves on one of two routes:
+
+- the **pressure-free route**, for a model without a pressure contract;
+- the **exact pressure route**, for a model with the exact pressure contract
+  `3.0.0/exact_pressure_v3`.
+
+**What you can do today**, with invented data or your own private data:
+
+- **Projects.** Use File › Open Model Document…, New Blank Project or New
+  Local Project to start. Save Local Project writes the project to the local
+  store (§3.2), and Open Local Project… reopens it.
+- **Authoring.** Place nodes and pipes in the 3D viewport. Assign materials and
+  sections, and add bends, expansion joints, supports, load cases and
+  combinations. Each edit is a validated operation that you can review and
+  undo (Edit › Undo Model Edit, Redo Model Edit).
+- **Solving.** The pressure-free route covers linear and nonlinear supports,
+  wind, seismic loads and load combinations. The exact route covers pressure,
+  load/reference states and objective-connector joints.
+- **Results.** Read displacements, element-local forces, reactions and
+  stresses, each with its numerical-integrity standing, and view the deformed
+  shape.
+- **Rule packs.** Author a private rule pack and run it against results. A
+  check whose inputs are missing is reported as `RULE_INPUTS_INCOMPLETE`,
+  naming the missing inputs, and is not evaluated.
+- **Libraries.** Import private material, section and component libraries.
+- **Exports.** Both routes export result JSON and stress-neutral JSON, each
+  only with explicit local-private intent. Pressure-free results also export
+  the PCF and MBF package documents (redacted for downstream tools), a native
+  package review manifest and a preview handoff JSON, among others.
+  Outputs that must be byte-exact for a downstream tool (stress-neutral CSV,
+  glTF review geometry, PCF text and MBF text) are withheld whenever
+  redaction would alter them. Session geometry and result values are
+  classified private, so these downloads are withheld in practice: the panel
+  builds them but offers no download link.
+
+**What the app refuses or does not offer today:**
+
+- **No report you can obtain.**
+  - On a pressure-free result, **Render report** is blocked. Report inputs
+    are classified private, and the render runs under the public-report
+    redaction context, which has no local-private intent control. The result
+    is `blocked=true`, with no preview and no hash.
+  - Every report surface refuses exact-route results with
+    `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` (owner ruling 10A, 2026-10-21;
+    `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`).
+  - **Save Report Package…** refuses every current result with
+    `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE` ("The report package is
+    unavailable for fresh results.").
+
+  This is PRD FR-REP-001 (Must) and the MVP item "basic report generation".
+- **No model states, run history or comparison** between states or runs. A
+  project holds one model and one run. Comparison works only within one run.
+- **No rigid elements.** Valves, flanges, reducers and rigid or specialty
+  components are analysed as plain pipe on the pressure-free route and
+  refused on the exact route.
+- **No model export to a file.** There is no save-model-to-file command. The
+  handoff download is a preview document, not a schema handoff package.
+  Pressure models export no handoff.
+- **No design-knowledge entry or constraint validation in the app.** The
+  Design Knowledge panel shows a compiled-in document.
+
 ## Accessibility Intent
 
 Guide instructions must describe available keyboard navigation, labels, focus
@@ -66,8 +134,8 @@ The guide should refer to these current surfaces when explaining behavior:
 | Loads and stress recovery | `core/loads/primitive_loads`, `core/loads/user_loads`, `core/loads/load_case_algebra`, `core/loads/stress_recovery` | Loads and stress recovery use explicit unit-aware inputs. Code-specific combinations and acceptability checks are user/rule-pack data. |
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
-| GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite desktop shell, package manifest, and bounded runtime navigation now exist alongside the contract/support surfaces. Current packaged-journey evidence is bounded; complete journey integration, supported-release acceptance, and broader platform coverage remain `TBD`. |
-| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, desktop preview, and native report-package save path exist. Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
+| GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite macOS desktop app in `apps/desktop` is the user surface ([Current Desktop App](#current-desktop-app-010)); the `core/gui/*` modules are contract/reference modules (Python engines and a standalone Rust crate) that the app does not call or link. Its native smoke (`apps/desktop/native-smoke/`) and browser specs (`apps/desktop/e2e/`) exercise the app; no single run yet takes a model authored in the app through solve, review, save and reopen. Supported-release acceptance and other platforms remain `TBD`. |
+| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, but the app yields no report today: rendering is blocked for pressure-free results, exact-route results are refused, and the report package refuses every current result ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome. |
 | Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Public API transport, endpoint syntax, plugin runtime/loading/signing, concrete target field coverage, and local FEA package format remain `TBD`. Adapters cannot bypass units, provenance, privacy, protected-content screening, diagnostics, rule sandboxing, report controls, or human-review boundaries. |
@@ -221,19 +289,24 @@ When a required value is missing:
 
 ## 6. Modeling Workflow
 
-The current user workflow is a skeleton for a future GUI and headless flow:
+In the desktop app the workflow is:
 
-1. Select or create a local project store through application-service
-   operations. SCA-003 selects a local SQLite-backed store/index; operating
-   system roots and portable export/copy behavior remain `TBD`.
-2. Define units and privacy posture before entering quantities.
-3. Create the centerline: nodes, pipe runs, bends, branches, and component
-   symbols.
-4. Attach material, section, component, and support/restraint references.
-5. Add load cases, user loads, imposed displacements, and combinations with
-   explicit basis notes.
-6. Validate model completeness, units, provenance, and privacy classification.
-7. Record unresolved assumptions instead of converting them to hidden defaults.
+1. Start a project: File › Open Model Document…, New Blank Project or New
+   Local Project. The project lives in the local SQLite store (§3.2). Storage
+   roots for other operating systems and a portable project export/copy
+   remain `TBD`.
+2. Check the units. A blank project starts in SI; the display units can be
+   switched.
+3. In the Model stage, create the centerline: place nodes and pipes in the
+   viewport, then add bends, expansion joints and other components.
+4. Assign materials and sections, and add supports and restraints.
+5. In the Loads stage, add load cases and combinations. Imposed
+   displacements are accepted on the exact route only; the pressure-free
+   route refuses support-targeted loads.
+6. Solve. Missing data blocks the solve with named findings in the Missing
+   Data Blocking panel; fix them in the model.
+7. Note unresolved assumptions in your own project records. The app has no
+   slot for tags, notes or unresolved assumptions yet.
 
 The current viewport/editor contract represents camera, hover, selection,
 drag, snap, view primitives, diagnostics, and command intents. Durable edits
@@ -303,6 +376,13 @@ criteria, and project acceptability thresholds are user/rule-pack content, not
 public defaults.
 
 ## 10. Reports And Audit Records
+
+The desktop app yields no report today: rendering is blocked for
+pressure-free results, exact-route results are refused, and the report
+package refuses every current result (see
+[Current Desktop App](#current-desktop-app-010)). The table below is the
+intended report content. The renderer's input does not yet carry rule-pack
+references, software and solver versions, a date or analysis settings.
 
 Reports are structured review artifacts. A report should include or reference:
 
@@ -383,9 +463,14 @@ interpretation, rule-check readiness, privacy, or review.
 
 The following remain explicit limitations or open decisions:
 
-- end-user installation steps and execution of the accepted v0.1 macOS Apple
-  Silicon `.app`-zip and prospective GitHub Releases publication policy;
-- exact dependency versions and final GUI journey integration/packaging;
+- the app refusals and gaps listed under
+  [Current Desktop App](#current-desktop-app-010): no obtainable report, no
+  model states, run history or comparison, no rigid elements, no model export
+  to a file, and no design-knowledge entry or constraint validation;
+- publication of the v0.1 macOS Apple Silicon `.app` zip, which is the
+  owner's act; the published location is still to be named (§3.1);
+- exact dependency versions and an end-to-end run of a model authored in the
+  app through solve, review, save and reopen;
 - unmeasured per-kind and nonlinear-class tolerance entries, release-quality
   performance thresholds, and sparse-default hardening beyond bounded
   interactive preview/render evidence;

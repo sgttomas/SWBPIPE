@@ -99,9 +99,9 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - `docs/VALIDATION_STRATEGY.md` - benchmark families and release gate expectations.
 > - `docs/PRD.md` - platform criteria and release milestones, including PRD 19.2, 19.3, and 22.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current scope, architecture basis, decisions, and open issues.
-> - `docs/_Registers/Deliverables.csv` - row DEL-10-04.
-> - `docs/_Registers/ScopeLedger.csv` - row SOW-032.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-10-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-10-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-032.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-10-04.
 > - `projects/chirality-piping/package.json` - existing root npm workspace/build evidence attributed by D-41 `DEC-074` O3; read-only in this tranche.
 > - `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx` - existing SURF-011 local preview evidence attributed by D-42 `DEC-076`; read-only in the attribution tranche.
 >
@@ -435,5 +435,5 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
 
-- **DEL-10-04:1** — Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
+- **DEL-10-04:1** — Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, and owner review of the v1 include/exclude allowlist; the staged export is self-verifying (its pytest suite and readiness skeleton run in the staged tree, and tests that read surfaces it leaves out skip there by name) (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
 - **DEL-10-04:2** — Sign and notarize v0.1 per the owner's D-06b decision of 2026-10-23 ("Oh I'm already an Apple Developer. There's already an App ID for this application. Proceed with signing and notarizing."), which re-decides DEC-057's unsigned v0.1 posture and brings DEC-089's Developer ID/notarization target into v0.1: a Developer ID Application signature with the hardened runtime, Apple notarization with a stapled ticket under the DEC-106 App ID, and the checksum, commit-bound sweep and release record binding the artifact to its source revision (`docs/BUILD_AND_RELEASE.md` §6.1, §8.2). Credentials stay in the local keychain. A signed, notarized artifact is not a release. Historical v0.1 PRD §22.6 remains an R6-entry release-machinery residual under D-21/DEC-056; no release action is authorized here.

@@ -55,6 +55,25 @@ def test_private_coordination_surfaces_are_excluded_top_level():
         assert name not in PIPE.ROOT_FILES
 
 
+def test_export_detection_matches_what_the_export_leaves_out():
+    # tests/public_export.py and the readiness tool tell the export by these two
+    # excluded directories; an export that kept either would run monorepo-only tests.
+    assert {"loop", "execution"} <= set(PIPE.EXCLUDED_TOP_LEVEL)
+    spec = importlib.util.spec_from_file_location("public_export_probe", ROOT / "tests" / "public_export.py")
+    probe = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(probe)
+    assert probe.PROJECT == ROOT
+    # The monorepo and hosted CI's checkout keep `loop/`; only the export lacks it.
+    assert probe.PUBLIC_EXPORT == (not (ROOT / "loop").is_dir())
+
+
+def test_report_states_how_the_staged_tree_verifies_itself():
+    text = "\n".join(PIPE.SELF_VERIFICATION_LINES)
+    assert "python3 -m pytest -q tests" in text
+    assert "check_release_readiness.py --profile skeleton" in text
+    assert "tests/public_export.py" in text
+
+
 def test_local_evidence_and_coordination_subtrees_are_excluded():
     assert "validation/evidence" in PIPE.EXCLUDED_SUBTREE_PREFIXES
     assert "tools/coordination" in PIPE.EXCLUDED_SUBTREE_PREFIXES
@@ -156,7 +175,7 @@ def test_sanitize_replaces_private_absolute_paths(tmp_path):
     changed = PIPE.sanitize_text_files(staging)
     assert changed == 1
     text = (staging / "note.md").read_text(encoding="utf-8")
-    assert "<openpipestress-project-root>/docs/PLAN.md" in text
+    assert "<swbpipe-project-root>/docs/PLAN.md" in text
     assert PIPE.PRIVATE_PATH_RESIDUE_MARKER not in text
 
 

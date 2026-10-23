@@ -102,7 +102,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, objective, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, objective, architecture-basis injection.
 > - `_REFERENCES.md` - source list for this setup pass.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis, SOW-069, OBJ-015, PKG-16, DEL-16-01, architecture basis.
 > - `docs/CONTRACT.md` - project invariants, including data boundary, professional boundary, and agent non-invention constraints.

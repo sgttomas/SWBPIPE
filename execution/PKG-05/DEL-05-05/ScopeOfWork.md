@@ -104,11 +104,11 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for sealed deliverable identity, scope, artifacts, context budget, and architecture basis.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, scope, artifacts, context budget, and architecture basis.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for SOW-013, SOW-052, OBJ-003, OBJ-012, PKG-05, DEL-05-05, and AB-00-01/02/03/06/08.
-> - `docs/_Registers/Deliverables.csv` row DEL-05-05.
-> - `docs/_Registers/ScopeLedger.csv` rows SOW-052 and SOW-013.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-05.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-05-05.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-052 and SOW-013.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-05-05.
 > - `docs/CONTRACT.md` rows OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-SOLVER-1, OPS-K-AGENT-1..4.
 > - `core/loads/user_loads/README.md` for current implementation scope and
 >   boundary evidence.
