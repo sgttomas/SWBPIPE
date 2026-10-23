@@ -1,0 +1,160 @@
+import { describe, expect, it } from "vitest";
+import {
+  PROJECT_UNIT_KEYS,
+  SI_PROJECT_UNITS,
+  US_CUSTOMARY_PROJECT_UNITS,
+  buildBlankLoadStateModelDocument,
+  buildBlankLocalModelDocument,
+  type ProjectUnitMap
+} from "../../services/projectService";
+import { convertDisplayQuantities } from "../../services/displayQuantityService";
+import { canonicalSha256Hex } from "../../services/hashService";
+import type { UnitCatalogRoute } from "../../services/unitCatalogService";
+import { CATALOG_FIXTURE_ROWS, unitCatalogFixture } from "../../test-support/unitCatalogFixture";
+import { primitiveLoadDefaultUnit, primitiveLoadDefaultUnitChoice } from "../load-cases/primitiveLoadVocabulary";
+import type { PreviewModel } from "../../types";
+import {
+  PROJECT_UNIT_DIMENSIONS,
+  PROJECT_UNIT_PRESETS,
+  canonicalCatalogEntry,
+  checkComposedDefault,
+  composedDefaultSymbol,
+  composedDefaultsFor,
+  projectUnitPresetFor,
+  projectUnitSelectionProblems
+} from "./projectUnitSelection";
+
+// W-17 slice (a), DEL-02-02 Design `project-unit-selection.md` §2.1-2.4 and §4.
+const AT = new Date("2026-06-12T00:00:00Z");
+const CATALOG: UnitCatalogRoute = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+const PREVIEW: UnitCatalogRoute = { route: "unavailable_browser_preview", diagnostic: "UNIT-CATALOG-DESKTOP-ONLY: fixture" };
+// sha256 (RFC 8785) of the SI blank before W-17 (`origin/main` f0b6ae40a0), when it had six keys and no angle.
+const SIX_KEY_BLANK_SHA256 = "88ea28c84ddde13c25ef0439cdcda95030d6e5072a212d8469fbbf638ddd4945";
+
+function withUnits(units: Record<string, string>): PreviewModel {
+  const model = buildBlankLocalModelDocument(AT);
+  model.project.units = units;
+  return model;
+}
+
+describe("blank builders take a project unit map", () => {
+  it("default to SI: today's six-key set plus angle rad, and nothing else changes", async () => {
+    const blank = buildBlankLocalModelDocument(AT);
+    expect(blank.project.units).toEqual({ length: "m", force: "N", moment: "N*m", pressure: "Pa", stress: "Pa", temperature: "degC", angle: "rad" });
+    expect(buildBlankLocalModelDocument(AT, SI_PROJECT_UNITS)).toEqual(blank);
+    const withoutAngle = structuredClone(blank);
+    delete withoutAngle.project.units.angle;
+    expect(await canonicalSha256Hex(withoutAngle)).toBe(SIX_KEY_BLANK_SHA256);
+  });
+
+  it("give exactly the seven keys, each a canonical catalog symbol for its dimension, for each preset", () => {
+    for (const preset of PROJECT_UNIT_PRESETS) {
+      for (const build of [buildBlankLocalModelDocument, buildBlankLoadStateModelDocument]) {
+        const units = build(AT, preset.units).project.units;
+        expect(Object.keys(units).sort()).toEqual([...PROJECT_UNIT_KEYS].sort());
+        for (const key of PROJECT_UNIT_KEYS) {
+          expect(canonicalCatalogEntry(CATALOG.catalog, units[key], PROJECT_UNIT_DIMENSIONS[key]), `${preset.id} ${key}=${units[key]}`).not.toBeNull();
+        }
+        expect(projectUnitSelectionProblems(CATALOG, units)).toEqual([]);
+        expect(projectUnitSelectionProblems(PREVIEW, units)).toEqual([]);
+      }
+    }
+    expect(US_CUSTOMARY_PROJECT_UNITS).toEqual({ length: "in", force: "lbf", moment: "lbf*in", pressure: "psi", stress: "psi", temperature: "degF", angle: "deg" });
+  });
+
+  it("write a custom map as given and refuse an incomplete one", () => {
+    const custom: ProjectUnitMap = { ...SI_PROJECT_UNITS, length: "mm", pressure: "MPa", stress: "MPa" };
+    expect(buildBlankLoadStateModelDocument(AT, custom).project.units).toEqual(custom);
+    const incomplete = { ...SI_PROJECT_UNITS, angle: "" };
+    expect(() => buildBlankLocalModelDocument(AT, incomplete)).toThrow("PROJECT-UNITS-INCOMPLETE: a new project needs project.units.angle");
+  });
+
+  it("name the preset a map matches, else Custom", () => {
+    expect(projectUnitPresetFor(SI_PROJECT_UNITS)).toBe("si");
+    expect(projectUnitPresetFor(US_CUSTOMARY_PROJECT_UNITS)).toBe("us_customary");
+    expect(projectUnitPresetFor({ ...SI_PROJECT_UNITS, length: "mm" })).toBe("custom");
+  });
+});
+
+describe("canonical symbols only (§2.2)", () => {
+  it("refuses the legacy C, aliases, other spellings, unknown symbols and dimension mismatches", () => {
+    const cases: Array<[keyof ProjectUnitMap, string]> = [
+      ["temperature", "C"], ["temperature", "degc"], ["temperature", "°C"], ["temperature", " degC"],
+      ["moment", "N.m"], ["moment", "Nm"], ["moment", "N*mm"], ["length", "metre"], ["length", "N"],
+      ["angle", "degree"], ["pressure", "kip"], ["stress", "lbf"], ["force", ""]
+    ];
+    for (const [key, symbol] of cases) {
+      const problems = projectUnitSelectionProblems(CATALOG, { ...SI_PROJECT_UNITS, [key]: symbol });
+      expect(problems.map((problem) => problem.key), `${key}=${JSON.stringify(symbol)}`).toEqual([key]);
+    }
+    expect(projectUnitSelectionProblems(CATALOG, { ...SI_PROJECT_UNITS, temperature: "C" })[0].message)
+      .toBe("C is a legacy spelling; a new project uses the catalog symbol degC.");
+    // Stress reads the pressure entries; any accepted symbol of the key's dimension is a valid custom choice.
+    expect(projectUnitSelectionProblems(CATALOG, { ...SI_PROJECT_UNITS, length: "mm", stress: "MPa", temperature: "K", angle: "deg" })).toEqual([]);
+  });
+
+  it("without the catalog, accepts only preset symbols", () => {
+    expect(projectUnitSelectionProblems(PREVIEW, { ...SI_PROJECT_UNITS, force: "lbf" })).toEqual([]);
+    expect(projectUnitSelectionProblems(null, { ...SI_PROJECT_UNITS, length: "mm" }).map((problem) => problem.key)).toEqual(["length"]);
+    expect(projectUnitSelectionProblems(PREVIEW, { ...SI_PROJECT_UNITS, temperature: "C" }).map((problem) => problem.key)).toEqual(["temperature"]);
+  });
+});
+
+describe("composed defaults (§2.4)", () => {
+  it("mm with N: the distributed default is N/mm, and the moment default is the moment key, never N*mm", () => {
+    const model = withUnits({ ...SI_PROJECT_UNITS, length: "mm" });
+    expect(primitiveLoadDefaultUnit(model, "distributed_force", "global_y", CATALOG)).toBe("N/mm");
+    expect(primitiveLoadDefaultUnit(model, "concentrated_moment", "rotation_z", CATALOG)).toBe("N*m");
+    expect(primitiveLoadDefaultUnit(model, "concentrated_moment", "rotation_z")).toBe("N*m");
+    // Without a moment key there is no default; it is not composed.
+    expect(primitiveLoadDefaultUnit(withUnits({ length: "mm", force: "N" }), "concentrated_moment", "rotation_z", CATALOG)).toBe("TBD");
+  });
+
+  it("in with N: distributed force and linear stiffness start unselected with the notice, and nothing is substituted", () => {
+    const units = { ...SI_PROJECT_UNITS, length: "in" };
+    expect(primitiveLoadDefaultUnitChoice(withUnits(units), "distributed_force", "global_y", CATALOG))
+      .toEqual({ symbol: "", notice: "N/in is not a catalog unit; choose one" });
+    expect(checkComposedDefault(CATALOG, composedDefaultSymbol("linear_stiffness", units)!, "linear_stiffness"))
+      .toEqual({ symbol: "", notice: "N/in is not a catalog unit; choose one" });
+    expect(composedDefaultsFor(CATALOG, units)).toEqual([
+      { kind: "distributed_force", label: "Distributed force", symbol: "N/in", inCatalog: false },
+      { kind: "linear_stiffness", label: "Linear stiffness", symbol: "N/in", inCatalog: false },
+      { kind: "thermal_expansion", label: "Thermal expansion", symbol: "1/degC", inCatalog: true }
+    ]);
+    // A legacy C temperature composes 1/C, which the catalog lacks.
+    expect(checkComposedDefault(CATALOG, "1/C", "thermal_expansion_coefficient")).toEqual({ symbol: "", notice: "1/C is not a catalog unit; choose one" });
+  });
+
+  it("both presets: every composed default is a catalog unit", () => {
+    for (const preset of PROJECT_UNIT_PRESETS) {
+      const composed = composedDefaultsFor(CATALOG, preset.units);
+      expect(composed).toHaveLength(3);
+      expect(composed.filter((item) => !item.inCatalog), preset.id).toEqual([]);
+      expect(primitiveLoadDefaultUnit(withUnits(preset.units), "distributed_force", "global_y", CATALOG)).toBe(composed[0].symbol);
+    }
+  });
+
+  it("keeps the composition unchecked where no catalog is loaded, as before", () => {
+    const units = { ...SI_PROJECT_UNITS, length: "in" };
+    expect(primitiveLoadDefaultUnitChoice(withUnits(units), "distributed_force", "global_y", PREVIEW)).toEqual({ symbol: "N/in", notice: null });
+    expect(primitiveLoadDefaultUnit(withUnits(units), "distributed_force", "global_y")).toBe("N/in");
+    expect(composedDefaultsFor(null, units).every((item) => item.inCatalog === null)).toBe(true);
+  });
+});
+
+describe("the catalog fixture against the core unit engine", () => {
+  it("lists only units the core accepts, and the compositions it treats as misses are refused by the core", async () => {
+    const accepted = await convertDisplayQuantities(CATALOG_FIXTURE_ROWS.map(([symbol, dimension], index) => ({
+      id: `row-${index}`, value: 1, from_unit: symbol, to_unit: symbol, dimension_id: dimension
+    })));
+    expect(accepted.filter((item) => item.status !== "converted")).toEqual([]);
+    const misses: Array<[string, string]> = [
+      ["N*mm", "moment"], ["kN*mm", "moment"], ["N/in", "force_per_length"], ["kN/in", "force_per_length"], ["1/C", "thermal_expansion_coefficient"]
+    ];
+    const refused = await convertDisplayQuantities(misses.map(([symbol, dimension], index) => ({
+      id: `miss-${index}`, value: 1, from_unit: symbol, to_unit: symbol, dimension_id: dimension
+    })));
+    expect(refused.map((item) => item.status)).toEqual(misses.map(() => "unavailable"));
+    for (const [symbol, dimension] of misses) expect(canonicalCatalogEntry(CATALOG.catalog, symbol, dimension)).toBeNull();
+  });
+});

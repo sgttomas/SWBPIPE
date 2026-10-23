@@ -26,6 +26,7 @@ import {
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
+import { checkComposedDefault, composedDefaultSymbol } from "../project-units/projectUnitSelection";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
@@ -115,12 +116,15 @@ export function PropertyInspector({
   );
   const lengthUnitOptions = unitOptions(unitCatalogRoute, "length", lengthUnit(model));
   const stressUnitOptions = unitOptions(unitCatalogRoute, "stress", stressUnit(model));
-  const supportStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", linearStiffnessUnit(model));
+  const supportStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", linearStiffnessUnit(model, unitCatalogRoute));
   const thermalExpansionUnitOptions = unitOptions(
     unitCatalogRoute,
     "thermal_expansion_coefficient",
-    thermalExpansionUnit(model)
+    thermalExpansionUnit(model, unitCatalogRoute)
   );
+  // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
+  const supportStiffnessUnitNotice = supportDraft.linearStiffnessUnit === "" ? linearStiffnessUnitNotice(model, unitCatalogRoute) : null;
+  const thermalExpansionUnitNotice = materialDraft.thermalExpansionUnit === "" ? thermalExpansionUnitNoticeFor(model, unitCatalogRoute) : null;
   const componentAngleUnitOptions = unitOptions(
     unitCatalogRoute,
     "angle",
@@ -197,9 +201,9 @@ export function PropertyInspector({
     setProposedValue(firstField?.before ?? "");
     setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
-    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents));
+    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
-    setMaterialDraft(defaultMaterialDraft(model, queuedIntents));
+    setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setInspectorView("properties");
     setTaskActive(false);
@@ -263,6 +267,22 @@ export function PropertyInspector({
     };
   }, []);
 
+  // Drafts start before the catalog has loaded. Once it has, a composed default
+  // the catalog lacks is cleared rather than kept or substituted.
+  useEffect(() => {
+    if (unitCatalogRoute?.route !== "tauri_unit_catalog") return;
+    const thermal = thermalExpansionUnit(model);
+    const checkedThermal = thermalExpansionUnit(model, unitCatalogRoute);
+    if (checkedThermal !== thermal) {
+      setMaterialDraft((draft) => draft.thermalExpansionUnit === thermal ? { ...draft, thermalExpansionUnit: checkedThermal } : draft);
+    }
+    const stiffness = linearStiffnessUnit(model);
+    const checkedStiffness = linearStiffnessUnit(model, unitCatalogRoute);
+    if (checkedStiffness !== stiffness) {
+      setSupportDraft((draft) => draft.linearStiffnessUnit === stiffness ? { ...draft, linearStiffnessUnit: checkedStiffness } : draft);
+    }
+  }, [model, unitCatalogRoute]);
+
   function handleFieldChange(fieldPath: string) {
     taskGenerationRef.current += 1;
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
@@ -313,7 +333,7 @@ export function PropertyInspector({
   function handleQueueSupportIntent() {
     if (multiSelection || !supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
-    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent]));
+    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute));
   }
 
   function handleQueueComponentIntent() {
@@ -342,7 +362,7 @@ export function PropertyInspector({
   function handleQueueMaterialIntent() {
     if (multiSelection || !materialCreateIntent) return;
     onQueueIntent(materialCreateIntent);
-    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent]));
+    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute));
   }
 
   function handleQueueSectionIntent() {
@@ -711,6 +731,7 @@ export function PropertyInspector({
               value={materialDraft.thermalExpansionUnit}
               options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
+            {thermalExpansionUnitNotice ? <span className="muted" data-testid="create-material-thermal-unit-notice">{thermalExpansionUnitNotice}</span> : null}
           </label>
           <label>
             <span>Thermal expansion ({thermalExpansionBasis.label})</span>
@@ -790,6 +811,7 @@ export function PropertyInspector({
               value={supportDraft.linearStiffnessUnit}
               options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
+            {supportStiffnessUnitNotice ? <span className="muted" data-testid="create-support-stiffness-unit-notice">{supportStiffnessUnitNotice}</span> : null}
           </label>
           <label>
             <span>Linear stiffness ({supportStiffnessBasis.label})</span>
@@ -1485,10 +1507,13 @@ function UnitCatalogPanel({ bases, route }: { bases: UnitBasisDisplay[]; route: 
 
 function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
   const fallbackBasis = describeUnitBasis(route, fallbackSymbol, dimensionId);
-  const fallback = {
-    symbol: fallbackBasis.symbol,
-    label: fallbackBasis.label
-  };
+  // "" is an unselected default (W-17 §2.4): offer a placeholder and the catalog, nothing in its place.
+  const fallback = fallbackSymbol === ""
+    ? { symbol: "", label: "Choose a unit" }
+    : {
+        symbol: fallbackBasis.symbol,
+        label: fallbackBasis.label
+      };
   if (route?.route !== "tauri_unit_catalog") return [fallback];
 
   const options = acceptedUnits(route.catalog)
@@ -2935,11 +2960,11 @@ function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: Edi
   };
 }
 
-function defaultMaterialDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[]): MaterialDraft {
-  return defaultMaterialDraftWithReserved(model, queuedIntents);
+function defaultMaterialDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[], route: UnitCatalogRoute | null = null): MaterialDraft {
+  return defaultMaterialDraftWithReserved(model, queuedIntents, route);
 }
 
-function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[]): MaterialDraft {
+function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[], route: UnitCatalogRoute | null = null): MaterialDraft {
   const id = nextMaterialId(model, queuedIntents);
   return {
     id,
@@ -2947,7 +2972,7 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
     stressUnit: stressUnit(model),
     elasticModulus: "",
     shearModulus: "",
-    thermalExpansionUnit: thermalExpansionUnit(model),
+    thermalExpansionUnit: thermalExpansionUnit(model, route),
     thermalExpansion: "",
     provenance: "user_entered_local_preview"
   };
@@ -2956,15 +2981,17 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
 function defaultSupportDraft(
   model: PreviewModel,
   selection: EntityRef,
-  queuedIntents: EditorOperationIntent[]
+  queuedIntents: EditorOperationIntent[],
+  route: UnitCatalogRoute | null = null
 ): SupportDraft {
-  return defaultSupportDraftWithReserved(model, selection, queuedIntents);
+  return defaultSupportDraftWithReserved(model, selection, queuedIntents, route);
 }
 
 function defaultSupportDraftWithReserved(
   model: PreviewModel,
   selection: EntityRef,
-  queuedIntents: EditorOperationIntent[]
+  queuedIntents: EditorOperationIntent[],
+  route: UnitCatalogRoute | null = null
 ): SupportDraft {
   const id = nextSupportId(model, queuedIntents);
   const selectedNode =
@@ -2975,7 +3002,7 @@ function defaultSupportDraftWithReserved(
     label: `Support ${shortEntityToken(id)}`,
     node,
     restraints: ["UX", "UY", "UZ"],
-    linearStiffnessUnit: linearStiffnessUnit(model),
+    linearStiffnessUnit: linearStiffnessUnit(model, route),
     linearStiffness: "",
     provenance: "user_entered_local_preview"
   };
@@ -3044,7 +3071,7 @@ function isMaterialDraftValid(model: PreviewModel, draft: MaterialDraft): boolea
     draft.stressUnit !== "TBD" &&
     isPositiveInput(draft.elasticModulus) &&
     isPositiveInput(draft.shearModulus) &&
-    (!thermalProvided || (draft.thermalExpansionUnit !== "TBD" && isFiniteInput(draft.thermalExpansion))) &&
+    (!thermalProvided || (draft.thermalExpansionUnit !== "TBD" && draft.thermalExpansionUnit !== "" && isFiniteInput(draft.thermalExpansion))) &&
     !(model.materials ?? []).some((material) => material.id === draft.id.trim())
   );
 }
@@ -3056,7 +3083,7 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
     model.nodes.some((node) => node.id === draft.node.trim()) &&
     draft.restraints.length > 0 &&
     draft.restraints.every((restraint) => RESTRAINT_OPTIONS.includes(restraint)) &&
-    (!stiffnessProvided || (draft.linearStiffnessUnit !== "TBD" && isPositiveInput(draft.linearStiffness))) &&
+    (!stiffnessProvided || (draft.linearStiffnessUnit !== "TBD" && draft.linearStiffnessUnit !== "" && isPositiveInput(draft.linearStiffness))) &&
     !model.supports.some((support) => support.id === draft.id.trim())
   );
 }
@@ -3069,17 +3096,30 @@ function stressUnit(model: PreviewModel): string {
   return model.project.units.pressure ?? "TBD";
 }
 
-function thermalExpansionUnit(model: PreviewModel): string {
-  const temperature = model.project.units.temperature;
-  return temperature ? `1/${temperature}` : "TBD";
+// Composed defaults (W-17 §2.4): `1/<temperature>` and `<force>/<length>`, each
+// checked against the loaded catalog. A composition the catalog lacks gives ""
+// (unselected), never a substitute. A declared `linear_stiffness` key is used as is.
+function thermalExpansionUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
+  const composed = composedDefaultSymbol("thermal_expansion", model.project.units);
+  return composed ? checkComposedDefault(route, composed, "thermal_expansion_coefficient").symbol : "TBD";
 }
 
-function linearStiffnessUnit(model: PreviewModel): string {
+function thermalExpansionUnitNoticeFor(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
+  const composed = composedDefaultSymbol("thermal_expansion", model.project.units);
+  return composed ? checkComposedDefault(route, composed, "thermal_expansion_coefficient").notice : null;
+}
+
+function linearStiffnessUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
   const direct = model.project.units.linear_stiffness;
   if (direct) return direct;
-  const force = model.project.units.force;
-  const length = model.project.units.length;
-  return force && length ? `${force}/${length}` : "TBD";
+  const composed = composedDefaultSymbol("linear_stiffness", model.project.units);
+  return composed ? checkComposedDefault(route, composed, "linear_stiffness").symbol : "TBD";
+}
+
+function linearStiffnessUnitNotice(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
+  if (model.project.units.linear_stiffness) return null;
+  const composed = composedDefaultSymbol("linear_stiffness", model.project.units);
+  return composed ? checkComposedDefault(route, composed, "linear_stiffness").notice : null;
 }
 
 function isFiniteInput(value: string): boolean {

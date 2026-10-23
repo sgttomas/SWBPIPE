@@ -1,10 +1,11 @@
 import type { PreviewModel } from "../../types";
+import type { UnitCatalogRoute } from "../../services/unitCatalogService";
+import { checkComposedDefault, composedDefaultSymbol, type CheckedComposedDefault } from "../project-units/projectUnitSelection";
 
 // Primitive-load category vocabulary of the Load Case Manager: which target a
 // category uses, its direction choices and default, the dimension sent to core
 // unit validation, and the project-unit default offered for a new primitive.
-// Moved verbatim from LoadCaseManagerPanel.tsx so the mapping is testable on
-// its own; no value or branch changed.
+// Moved from LoadCaseManagerPanel.tsx so the mapping is testable on its own.
 
 export type PrimitiveLoadCategory =
   | "concentrated_force"
@@ -52,8 +53,31 @@ export function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, dir
   return "force";
 }
 
-export function primitiveLoadDefaultUnit(model: PreviewModel, category: PrimitiveLoadCategory, direction: string): string {
-  if (category === "distributed_force") return projectDistributedForceUnit(model);
+/**
+ * The default unit of a new primitive. The moment reads `project.units.moment`
+ * (W-17 §2.4); the distributed force is composed as `<force>/<length>` and,
+ * once the catalog is loaded, checked against it: a composition the catalog
+ * lacks gives "" (unselected) with a notice, never a substitute.
+ */
+export function primitiveLoadDefaultUnitChoice(
+  model: PreviewModel,
+  category: PrimitiveLoadCategory,
+  direction: string,
+  route: UnitCatalogRoute | null = null
+): CheckedComposedDefault {
+  if (category === "distributed_force") {
+    return checkComposedDefault(route, projectDistributedForceUnit(model), primitiveLoadDraftDimension(category, direction));
+  }
+  return { symbol: primitiveLoadDefaultUnit(model, category, direction, route), notice: null };
+}
+
+export function primitiveLoadDefaultUnit(
+  model: PreviewModel,
+  category: PrimitiveLoadCategory,
+  direction: string,
+  route: UnitCatalogRoute | null = null
+): string {
+  if (category === "distributed_force") return primitiveLoadDefaultUnitChoice(model, category, direction, route).symbol;
   if (category === "concentrated_moment") return projectMomentUnit(model);
   if (category === "thermal") return projectTemperatureUnit(model);
   if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? projectRotationUnit(model) : projectLengthUnit(model);
@@ -69,15 +93,11 @@ function projectLengthUnit(model: PreviewModel): string {
 }
 
 function projectDistributedForceUnit(model: PreviewModel): string {
-  const force = projectForceUnit(model);
-  const length = projectLengthUnit(model);
-  return force === "TBD" || length === "TBD" ? "TBD" : `${force}/${length}`;
+  return composedDefaultSymbol("distributed_force", model.project.units) ?? "TBD";
 }
 
 function projectMomentUnit(model: PreviewModel): string {
-  const force = projectForceUnit(model);
-  const length = projectLengthUnit(model);
-  return force === "TBD" || length === "TBD" ? "TBD" : `${force}*${length}`;
+  return optionalString(model.project.units.moment) ?? "TBD";
 }
 
 function projectTemperatureUnit(model: PreviewModel): string {

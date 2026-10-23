@@ -5,6 +5,7 @@ import {
   optionalString,
   primitiveLoadCategoryFromValue,
   primitiveLoadDefaultUnit,
+  primitiveLoadDefaultUnitChoice,
   primitiveLoadDirectionOptions,
   primitiveLoadDraftDimension,
   primitiveLoadUsesPipeTarget,
@@ -313,11 +314,10 @@ export function LoadCaseManagerPanel({
   const primitiveDraftDimension = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
   const primitiveDraftUnit = primitiveLoadDraft.unit;
   const primitiveDraftUnitBasis = describeUnitBasis(unitCatalogRoute, primitiveDraftUnit, primitiveDraftDimension);
-  const primitiveDraftUnitOptions = unitOptions(
-    unitCatalogRoute,
-    primitiveDraftDimension,
-    primitiveLoadDefaultUnit(model, primitiveLoadDraft.category, primitiveLoadDraft.direction)
-  );
+  const primitiveDefaultUnitChoice = primitiveLoadDefaultUnitChoice(model, primitiveLoadDraft.category, primitiveLoadDraft.direction, unitCatalogRoute);
+  const primitiveDraftUnitOptions = unitOptions(unitCatalogRoute, primitiveDraftDimension, primitiveDefaultUnitChoice.symbol);
+  // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
+  const primitiveUnitNotice = primitiveLoadDraft.unit === "" ? primitiveDefaultUnitChoice.notice : null;
   const selectedPrimitiveUnitOptions = selectedPrimitive
     ? unitOptions(unitCatalogRoute, primitiveDimension(selectedPrimitive.load), currentMagnitudeUnit)
     : [];
@@ -353,6 +353,17 @@ export function LoadCaseManagerPanel({
       active = false;
     };
   }, []);
+
+  // The draft starts before the catalog has loaded. Once it has, a composed
+  // default the catalog lacks is cleared rather than kept or substituted.
+  useEffect(() => {
+    if (unitCatalogRoute?.route !== "tauri_unit_catalog") return;
+    setPrimitiveLoadDraft((draft) => {
+      const unchecked = primitiveLoadDefaultUnit(model, draft.category, draft.direction);
+      const checked = primitiveLoadDefaultUnit(model, draft.category, draft.direction, unitCatalogRoute);
+      return draft.unit === unchecked && checked !== unchecked ? { ...draft, unit: checked } : draft;
+    });
+  }, [model, unitCatalogRoute]);
 
   useEffect(() => {
     setProposedMagnitude(currentMagnitude);
@@ -458,7 +469,7 @@ export function LoadCaseManagerPanel({
         nextDraft.id = nextPrimitiveLoadIdentifier(model, nextDraft.loadCaseId, nextDraft.category);
       }
       if (field === "category" || field === "direction") {
-        nextDraft.unit = primitiveLoadDefaultUnit(model, nextDraft.category, nextDraft.direction);
+        nextDraft.unit = primitiveLoadDefaultUnit(model, nextDraft.category, nextDraft.direction, unitCatalogRoute);
       }
       return nextDraft;
     });
@@ -669,6 +680,7 @@ export function LoadCaseManagerPanel({
                 </option>
               ))}
             </select>
+            {primitiveUnitNotice ? <span className="muted" data-testid="load-manager-create-primitive-unit-notice">{primitiveUnitNotice}</span> : null}
           </label>
           <label>
             <span>Magnitude ({primitiveDraftUnitBasis.label})</span>
@@ -704,8 +716,8 @@ export function LoadCaseManagerPanel({
             ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveDraftTarget}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; unit_validation=${createPrimitiveLoadIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
             : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
               ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
-              : !primitiveUnitReady ? primitiveUnitDiagnostic
-              : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load"}
+              : primitiveUnitNotice ?? (!primitiveUnitReady ? primitiveUnitDiagnostic
+              : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load")}
           </p>
       </section>
 
@@ -2515,9 +2527,11 @@ function primitiveUnit(load: PrimitiveLoad): string {
 }
 
 function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
-  const fallback = { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
-  if (!fallbackSymbol || fallbackSymbol === "TBD") return [fallback];
-  if (route?.route !== "tauri_unit_catalog") return [fallback];
+  // "" is an unselected default (W-17 §2.4): offer a placeholder and the catalog, nothing in its place.
+  const fallback = fallbackSymbol === ""
+    ? { symbol: "", label: "Choose a unit" }
+    : { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
+  if (fallbackSymbol === "TBD" || route?.route !== "tauri_unit_catalog") return [fallback];
   const options = acceptedUnits(route.catalog)
     .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
     .map((entry) => ({
