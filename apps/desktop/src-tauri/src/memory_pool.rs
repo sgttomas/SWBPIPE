@@ -378,11 +378,12 @@ impl MemoryPool {
 
     /// A pool with a queued-job wait tick of `wait_tick` (tests use a short
     /// one); its headroom re-sampling window is ten such ticks.
+    #[cfg(test)]
     pub(crate) fn with_wait_tick(host: Arc<dyn HostMemory>, wait_tick: Duration) -> Arc<Self> {
         Self::with_timing(host, wait_tick, wait_tick.saturating_mul(10), wait_tick)
     }
 
-    fn with_timing(host: Arc<dyn HostMemory>, wait_tick: Duration, resample_window: Duration, resample_tick: Duration) -> Arc<Self> {
+    pub(crate) fn with_timing(host: Arc<dyn HostMemory>, wait_tick: Duration, resample_window: Duration, resample_tick: Duration) -> Arc<Self> {
         let mut state = PoolState { max_running_workers: max_running_workers(), ..PoolState::default() };
         state.observe(&host.sample());
         Arc::new(Self { host, state: Mutex::new(state), changed: Condvar::new(), wait_tick, resample_window, resample_tick })
@@ -451,7 +452,9 @@ impl MemoryPool {
         Ok(())
     }
 
-    /// Admits and records `bytes` for `purpose` in one critical section.
+    /// Admits and records `bytes` for `purpose` in one critical section,
+    /// without re-sampling (product callers use [`Self::acquire_resampling`]).
+    #[cfg(test)]
     pub(crate) fn acquire(self: &Arc<Self>, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
         let mut state = self.lock();
         self.acquire_locked(&mut state, bytes, purpose)
@@ -1353,6 +1356,9 @@ mod tests {
         let pool = timed_pool(&host, Duration::from_secs(10), Duration::from_millis(10));
         let _custody = pool.acquire(DEMO_CUSTODY_LEASE, LeasePurpose::Custody).unwrap();
         host.set(|s| s.headroom_bytes = Some(observed));
+        // The lease is the ingress pricing of the measured body (raw length 4,918,811, materialization 8,397,520).
+        let bound = crate::ingress::IngressBound { raw_len: 4_918_811, materialization_bytes: 8_397_520 };
+        assert_eq!(crate::command_ingress::lease_bytes(bound, crate::command_ingress::ArgsDecoding::Moved), Some(DEMO_SAVE_LEASE));
         assert_eq!(DEMO_SAVE_REQUIRED, DEMO_SAVE_LEASE + DEMO_CUSTODY_LEASE / 2);
         assert_eq!(format!("{:.2}", DEMO_SAVE_REQUIRED as f64 / MIB as f64), "16.56");
         let started = Instant::now();
@@ -1488,6 +1494,27 @@ mod tests {
         assert_eq!(timed("pressure unknown"), ResourceRefusal::PressureUnknown);
         host.set(|s| { s.pressure = PressureLevel::Normal; s.capacity_bytes = None });
         assert_eq!(timed("capacity"), ResourceRefusal::CapacityUnknown);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// A pressure warning that appears while an adaptive lease re-samples ends
+    /// the wait with that refusal: the pressure rule still applies.
+    #[test]
+    fn a_pressure_warning_during_the_window_stands_at_once() {
+        let host = ScriptedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_secs(30), Duration::from_millis(10));
+        let warn = {
+            let host = host.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(Duration::from_millis(100));
+                host.set(|s| { s.pressure = PressureLevel::Warning; s.headroom_bytes = Some(64 * GIB) });
+            })
+        };
+        let started = Instant::now();
+        let refusal = refused(pool.acquire_resampling(MIB, LeasePurpose::Ingress, NEVER).unwrap_err());
+        warn.join().unwrap();
+        assert_eq!(refusal, ResourceRefusal::PressureElevated { level: PressureLevel::Warning });
+        assert!(started.elapsed() < Duration::from_secs(10), "{:?}", started.elapsed());
         assert_eq!(pool.reserved_total(), 0);
     }
 
