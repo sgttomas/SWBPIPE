@@ -8,10 +8,17 @@ Implements the ruled v0.1 artifact shape from the D-06 O-A ruling (`DEC-057`,
 - release matrix: macOS Apple Silicon (``aarch64-apple-darwin``) only;
 - installer format: the Tauri ``.app`` bundle distributed as a zip archive
   with a published SHA-256 checksum;
-- signing/notarization: none for v0.1 (re-decided at ``D-06b``); artifact
-  authenticity is carried by the checksum + the commit-bound ``DEC-025``
-  evidence-sweep artifact + the ``docs/BUILD_AND_RELEASE.md`` §8 release
-  artifact record emitted here, plus the unsigned-install caveat.
+- signing/notarization: re-decided at ``D-06b`` by the owner on 2026-10-23
+  ("Proceed with signing and notarizing."): v0.1 is Developer ID signed and
+  notarized, with the ticket stapled. The bundle is signed and notarized
+  before this script runs (``docs/BUILD_AND_RELEASE.md`` §6.1); this script
+  inspects the result, on the bundle and on a ``ditto`` extraction of the
+  zip, and records it without identity strings. It refuses a bundle that is
+  not signed and notarized unless ``--allow-unsigned`` is given (rehearsal
+  and tests), in which case the record carries the unsigned-install caveat.
+  The checksum + the commit-bound ``DEC-025`` evidence-sweep artifact + the
+  ``docs/BUILD_AND_RELEASE.md`` §8 release artifact record emitted here
+  bind the artifact to its source revision either way.
 
 The zip is deterministic where feasible: entries are sorted, timestamps are
 fixed to the bound commit's committer time (UTC), unix permissions and
@@ -20,8 +27,8 @@ reproducibility across hosts is limited only by the host zlib's compressed
 stream; the decoded member bytes are exact.
 
 This script is packaging mechanics only. It performs no release act: no
-publication, no upload, no version tag, no signing, no notarization, and it
-creates no release-readiness claim. Release publication additionally
+publication, no upload, no version tag, no signing and no notarization (it
+only inspects them), and it creates no release-readiness claim. Release publication additionally
 requires the D-20 scan record, gate records, and the human release
 authority's acceptance (`docs/BUILD_AND_RELEASE.md` §6/§8).
 """
@@ -35,8 +42,10 @@ import json
 import plistlib
 import stat
 import struct
+import re
 import subprocess
 import sys
+import tempfile
 import time
 import zipfile
 from datetime import datetime, timezone
@@ -49,6 +58,19 @@ SCHEMA_VERSION = 1
 ARTIFACT_KIND = "openpipestress.release_artifact_record"
 DECISION_BASIS = "DEC-057"
 SIGNING_RE_DECISION = "D-06b"
+SIGNING_DECISION = (
+    "D-06b owner decision of 2026-10-23 (\"Proceed with signing and "
+    "notarizing.\"): v0.1 is Developer ID signed and notarized, replacing "
+    "DEC-057's unsigned v0.1 posture"
+)
+
+SIGNING_UNSIGNED = "unsigned"
+SIGNING_DEVELOPER_ID = "developer_id_signed"
+SIGNING_OTHER = "signed_not_developer_id"
+NOTARIZATION_NONE = "none"
+NOTARIZATION_STAPLED = "notarized_stapled"
+NOTARIZATION_NOT_STAPLED = "notarized_not_stapled"
+GATEKEEPER_NOTARIZED_SOURCE = "Notarized Developer ID"
 
 RELEASE_TARGET_TRIPLE = "aarch64-apple-darwin"
 INSTALLER_FORMAT = "tauri_app_bundle_zip"
@@ -73,6 +95,16 @@ UNSIGNED_INSTALL_CAVEAT = (
     "(Control-click > Open, or remove the quarantine attribute). "
     "Authenticity is carried by the checksum + the commit-bound sweep "
     "artifact + the release artifact record, not by an OS code signature."
+)
+
+SIGNED_INSTALL_NOTE = (
+    "This build is signed with a Developer ID Application certificate and "
+    "notarized by Apple, with the notarization ticket stapled (D-06b owner "
+    "decision of 2026-10-23). Before opening it, verify the artifact's "
+    "SHA-256 checksum against the published .sha256 file; the release "
+    "artifact record binds that digest to the source commit and its "
+    "commit-bound DEC-025 evidence-sweep artifact. macOS Gatekeeper then "
+    "opens it as an identified, notarized app."
 )
 
 BOUNDARY_NOTE = (
@@ -369,6 +401,101 @@ def evaluate_chain(
     return chain
 
 
+def _run_tool(argv: list[str]) -> subprocess.CompletedProcess | None:
+    """Run a macOS signing tool; None when the tool is unavailable."""
+    try:
+        return subprocess.run(argv, capture_output=True, text=True, check=False)
+    except OSError:
+        return None
+
+
+def inspect_signing(app_path: Path, run=_run_tool) -> dict:
+    """What ``codesign``, ``stapler`` and ``spctl`` report for a bundle.
+
+    Only booleans, exit codes and the Gatekeeper source are kept. Signing
+    authority names, team identifiers and ``origin=`` lines are read to
+    classify the signature and then discarded: the record is public.
+    """
+    target = str(app_path)
+    verify = run(["codesign", "--verify", "--deep", "--strict", target])
+    details = run(["codesign", "-d", "--verbose=4", target])
+    stapler = run(["xcrun", "stapler", "validate", target])
+    spctl = run(["spctl", "--assess", "--type", "execute", "-vv", target])
+
+    detail_lines = (details.stderr + details.stdout).splitlines() if details else []
+    authorities = [
+        line.split("=", 1)[1] for line in detail_lines if line.startswith("Authority=")
+    ]
+    flags: set[str] = set()
+    for line in detail_lines:
+        match = re.search(r"flags=0x[0-9a-fA-F]+\(([^)]*)\)", line)
+        if match:
+            flags.update(part.strip() for part in match.group(1).split(","))
+    gatekeeper_source = None
+    spctl_lines = (spctl.stderr + spctl.stdout).splitlines() if spctl else []
+    for line in spctl_lines:
+        if line.startswith("source="):
+            gatekeeper_source = line.split("=", 1)[1].strip()
+
+    signature_valid = verify is not None and verify.returncode == 0
+    developer_id = bool(authorities) and authorities[0].startswith(
+        "Developer ID Application:"
+    )
+    if not authorities:
+        state = SIGNING_UNSIGNED
+    elif developer_id and signature_valid:
+        state = SIGNING_DEVELOPER_ID
+    else:
+        state = SIGNING_OTHER
+    stapled = stapler is not None and stapler.returncode == 0
+    gatekeeper_accepted = spctl is not None and spctl.returncode == 0
+    if gatekeeper_accepted and gatekeeper_source == GATEKEEPER_NOTARIZED_SOURCE:
+        notarization = NOTARIZATION_STAPLED if stapled else NOTARIZATION_NOT_STAPLED
+    else:
+        notarization = NOTARIZATION_NONE
+
+    def _exit(completed: subprocess.CompletedProcess | None) -> int | None:
+        return None if completed is None else completed.returncode
+
+    return {
+        "state": state,
+        "notarization": notarization,
+        "signature_valid": signature_valid,
+        "hardened_runtime": "runtime" in flags,
+        "adhoc": "adhoc" in flags,
+        "secure_timestamp": any(line.startswith("Timestamp=") for line in detail_lines),
+        "ticket_stapled": stapled,
+        "gatekeeper_accepted": gatekeeper_accepted,
+        "gatekeeper_source": gatekeeper_source,
+        "checks": [
+            {"command": "codesign --verify --deep --strict", "exit_code": _exit(verify)},
+            {"command": "xcrun stapler validate", "exit_code": _exit(stapler)},
+            {"command": "spctl --assess --type execute -vv", "exit_code": _exit(spctl)},
+        ],
+    }
+
+
+def is_signed_and_notarized(inspection: dict) -> bool:
+    """The D-06b v0.1 posture: Developer ID, hardened runtime, stapled ticket."""
+    return (
+        inspection["state"] == SIGNING_DEVELOPER_ID
+        and inspection["hardened_runtime"]
+        and inspection["secure_timestamp"]
+        and inspection["notarization"] == NOTARIZATION_STAPLED
+    )
+
+
+def inspect_zip_roundtrip(zip_path: Path, app_name: str, run=_run_tool) -> dict:
+    """Inspect the bundle as a user gets it: ``ditto``-extracted from the zip."""
+    with tempfile.TemporaryDirectory(prefix="swbpipe-zip-roundtrip-") as scratch:
+        extracted = run(["ditto", "-x", "-k", str(zip_path), scratch])
+        if extracted is None or extracted.returncode != 0:
+            return {"extracted": False, "note": "ditto extraction unavailable or failed"}
+        inspection = inspect_signing(Path(scratch) / app_name, run=run)
+    inspection["extracted"] = True
+    return inspection
+
+
 def build_record(
     *,
     identity: dict,
@@ -380,9 +507,18 @@ def build_record(
     zip_size: int,
     chain: dict,
     started_utc: str,
+    signing: dict | None = None,
+    zip_roundtrip: dict | None = None,
 ) -> dict:
     """The docs/BUILD_AND_RELEASE.md §8 release-artifact record body."""
-    return {
+    signing = signing if signing is not None else {
+        "state": SIGNING_UNSIGNED,
+        "notarization": NOTARIZATION_NONE,
+    }
+    notarized = signing.get("notarization") == NOTARIZATION_STAPLED and (
+        zip_roundtrip is None or zip_roundtrip.get("notarization") == NOTARIZATION_STAPLED
+    )
+    record = {
         "artifact": ARTIFACT_KIND,
         "schema_version": SCHEMA_VERSION,
         "decision_basis": DECISION_BASIS,
@@ -416,17 +552,22 @@ def build_record(
             }
         ],
         "signing": {
-            "state": "unsigned",
-            "notarization": "none",
-            "basis": DECISION_BASIS,
+            **signing,
+            "basis": SIGNING_DECISION,
             "re_decision": SIGNING_RE_DECISION,
+            "zip_roundtrip": zip_roundtrip,
         },
         "publication": {"state": PUBLICATION_POSTURE},
         "authenticity_chain": chain,
-        "unsigned_install_caveat": UNSIGNED_INSTALL_CAVEAT,
         "validation_status": chain["sweep_overall_status"],
         "known_limitations": [
-            "Unsigned and unnotarized (DEC-057; re-decided at D-06b).",
+            (
+                "Developer ID signed and notarized (stapled), per the D-06b "
+                "owner decision of 2026-10-23."
+                if notarized
+                else "Not signed and notarized: this record is a rehearsal "
+                "or test artifact, not the D-06b v0.1 posture."
+            ),
             "No publication target exists yet; local record + direct "
             "distribution only (DEC-057/DEC-059).",
             "A green sweep is development evidence, not a release claim; "
@@ -442,6 +583,11 @@ def build_record(
             ),
         },
     }
+    if notarized:
+        record["install_note"] = SIGNED_INSTALL_NOTE
+    else:
+        record["unsigned_install_caveat"] = UNSIGNED_INSTALL_CAVEAT
+    return record
 
 
 def record_filename(record: dict) -> str:
@@ -501,6 +647,16 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--repo-root",
         default=str(ROOT),
         help="Repository root. Defaults to the root containing this script.",
+    )
+    parser.add_argument(
+        "--allow-unsigned",
+        action="store_true",
+        help=(
+            "Record a bundle that is not Developer ID signed and notarized "
+            "(rehearsal and tests only; the D-06b v0.1 posture is signed "
+            "and notarized). The record then carries the unsigned-install "
+            "caveat."
+        ),
     )
     parser.add_argument(
         "--skip-arch-check",
@@ -564,6 +720,22 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
+    signing = inspect_signing(app_path)
+    print(
+        f"signing:         {signing['state']}; notarization "
+        f"{signing['notarization']}; hardened runtime "
+        f"{signing['hardened_runtime']}"
+    )
+    if not is_signed_and_notarized(signing) and not args.allow_unsigned:
+        print(
+            "the bundle is not Developer ID signed, hardened, timestamped and "
+            "notarized with a stapled ticket (D-06b, 2026-10-23); sign and "
+            "notarize it first (docs/BUILD_AND_RELEASE.md §6.1), or pass "
+            "--allow-unsigned for a rehearsal record",
+            file=sys.stderr,
+        )
+        return 2
+
     sweep_module = _sweep_module()
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
     git_state = sweep_module.collect_git_state(root)
@@ -573,6 +745,7 @@ def main(argv: list[str] | None = None) -> int:
     build_deterministic_zip(app_path, zip_path, date_time)
     digest = sha256_file(zip_path)
     checksum_path.write_text(checksum_line(digest, zip_path.name), encoding="utf-8")
+    zip_roundtrip = inspect_zip_roundtrip(zip_path, app_path.name)
 
     sweep_path = Path(args.sweep_artifact) if args.sweep_artifact else None
     if sweep_path is not None and not sweep_path.is_absolute():
@@ -598,6 +771,8 @@ def main(argv: list[str] | None = None) -> int:
         zip_size=zip_path.stat().st_size,
         chain=chain,
         started_utc=started,
+        signing=signing,
+        zip_roundtrip=zip_roundtrip,
     )
     records_dir = root / args.records_dir
     records_dir.mkdir(parents=True, exist_ok=True)
@@ -612,6 +787,21 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[package-release-artifact] checksum: {_rel(checksum_path)}")
     print(f"[package-release-artifact] record:   {_rel(record_path)}")
     print(f"[package-release-artifact] chain:    {chain['status']}")
+    print(
+        "[package-release-artifact] zip roundtrip: "
+        f"{zip_roundtrip.get('state')}; notarization "
+        f"{zip_roundtrip.get('notarization')}"
+    )
+    if not args.allow_unsigned and not (
+        zip_roundtrip.get("extracted") and is_signed_and_notarized(zip_roundtrip)
+    ):
+        print(
+            "[package-release-artifact] the bundle extracted from the zip "
+            "does not verify as signed and notarized; the record states what "
+            "was found",
+            file=sys.stderr,
+        )
+        return 1
     if chain["status"] != CHAIN_VERIFIED:
         print(
             "[package-release-artifact] authenticity chain is not verified — "

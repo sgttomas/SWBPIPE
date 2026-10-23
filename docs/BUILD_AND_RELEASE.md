@@ -36,10 +36,12 @@ on demand or for release-candidate assurance.
   `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; packet
   `execution/_Coordination/_DECISIONS/D-06_release_matrix_installers_publication.md`):
   macOS Apple Silicon (`aarch64-apple-darwin`) only; the Tauri `.app` bundle
-  distributed as a zip archive with a published SHA-256 checksum; no signing
-  or notarization for v0.1 (re-decided at `D-06b`), with authenticity carried
-  by the checksum + the commit-bound `DEC-025` sweep artifact + the §8
-  release artifact record and the unsigned-install caveat;
+  distributed as a zip archive with a published SHA-256 checksum. The owner
+  re-decided signing at `D-06b` on 2026-10-23 (§9): v0.1 is signed with the
+  owner's Developer ID Application identity, with the hardened runtime, and
+  notarized by Apple with the ticket stapled. The checksum + the commit-bound
+  `DEC-025` sweep artifact + the §8 release artifact record still bind the
+  artifact to its source revision;
 - no publication act occurs from this guide: packaging (§6) produces a local
   zip + checksum + §8 record only; the ruled publication target (GitHub
   Releases on the prospective public sanitized-export repository,
@@ -144,8 +146,7 @@ The packaging checklist for a release candidate:
 3. Confirm release quality gates in `docs/RELEASE_QUALITY_GATES.md`.
 4. Confirm protected-content, private-data, and real-secret scan disposition.
 5. Prepare release notes from `docs/RELEASE_NOTES_TEMPLATE.md`; release notes
-   must carry the §8 unsigned-install caveat while `DEC-057`'s unsigned
-   posture stands. The 0.1.0 draft is `docs/RELEASE_NOTES_v0.1.0_DRAFT.md`;
+   carry the §8.2 install note. The 0.1.0 draft is `docs/RELEASE_NOTES_v0.1.0_DRAFT.md`;
    end-user installation steps are in the user guide §3.
 6. Record known limitations, unresolved `TBD` decisions, and human gate state.
 7. If binaries or installers are produced, record package path, target, build
@@ -161,11 +162,32 @@ The packaging checklist for a release candidate:
   (`bundle.active: true`, explicit `targets: ["app"]`) with the invented
   SWBPIPE mark as a real multi-resolution `.icns`
   (`apps/desktop/src-tauri/icons/icon.icns`; regenerate deterministically
-  with `python3 tools/release/generate_app_icon.py`). Build the `.app` with:
+  with `python3 tools/release/generate_app_icon.py`). Build the signed `.app`
+  with:
 
   ```bash
-  cd apps/desktop && npm run tauri -- build --bundles app
+  cd apps/desktop && APPLE_SIGNING_IDENTITY="Developer ID Application" \
+      npm run tauri -- build --bundles app
   ```
+
+  `tauri.conf.json` sets `bundle.macOS.hardenedRuntime: true`. The app needs
+  no entitlements: WebKit runs its web content, including the WebAssembly
+  engine, in its own processes. `APPLE_SIGNING_IDENTITY` names the keychain's
+  Developer ID Application certificate by its kind, so no identity string,
+  team identifier or certificate enters the repository or the build logs.
+  Leave Tauri's notarization variables unset; notarize the built bundle
+  separately with a notarytool keychain profile:
+
+  ```bash
+  python3 tools/release/notarize_app.py --execute --keychain-profile swbpipe-notary
+  ```
+
+  It submits a `ditto` zip of the bundle with `xcrun notarytool submit
+  --keychain-profile <name> --wait`, then staples and validates the ticket.
+  The owner creates the profile once, privately, with `xcrun notarytool
+  store-credentials swbpipe-notary --apple-id <Apple ID> --team-id <team>`,
+  which prompts for an app-specific password and keeps it in the login
+  keychain. Only the profile name appears in commands.
 
 - **Artifact shape:** the `.app` zipped with a published SHA-256 checksum,
   produced by the deterministic packaging entrypoint:
@@ -176,12 +198,17 @@ The packaging checklist for a release candidate:
       --sweep-artifact validation/evidence/sweeps/SWEEP_<utc>_<commit12>.json
   ```
 
+  It refuses a bundle that is not Developer ID signed, hardened, timestamped
+  and notarized with a stapled ticket, unless `--allow-unsigned` is given for
+  a rehearsal record.
+
   The zip is deterministic where feasible (sorted entries, commit-derived
   UTC timestamps, unix permissions and symlinks preserved, no extra fields);
   the zip and `.zip.sha256` land under `dist/release/` (untracked), and the
   §8 record lands under `validation/evidence/release_artifacts/`.
-- **Signing:** none for v0.1 (`DEC-057`); re-decided at `D-06b` before any
-  R5 "Signed releases" deliverable claim. Signing secrets stay local (§7).
+- **Signing:** Developer ID signed with the hardened runtime and notarized,
+  with the ticket stapled (`D-06b`, owner, 2026-10-23; §9). Certificates,
+  passwords and API keys stay in the local keychain (§7).
 - **Publication:** no publication act from this path. The ruled target is
   GitHub Releases on the prospective public sanitized-export repository
   (`DEC-057`/`DEC-059`); until it exists, artifacts are recorded locally per
@@ -254,15 +281,22 @@ machine-readable record
 alongside the zip + checksum it produces. The record binds the fields above
 to the current commit hash and runtime versions and adds the `DEC-057`
 ruled-shape fields: release matrix (`aarch64-apple-darwin`), installer
-format (Tauri `.app` zip), build command, signing state (`unsigned`,
-re-decision `D-06b`), publication state, and the human-review placeholder
-(publication requires the human release authority's acceptance; the emitter
-never fills that field).
+format (Tauri `.app` zip), build command, signing state, publication state,
+and the human-review placeholder (publication requires the human release
+authority's acceptance; the emitter never fills that field). The signing
+state is what `codesign --verify --deep --strict`, `codesign -d`, `xcrun
+stapler validate` and `spctl --assess --type execute` report. They run on the
+bundle and on a `ditto` extraction of the zip, as a user receives it. The
+record keeps their exit codes, whether the signature is Developer ID, the
+hardened runtime, the secure timestamp, the stapled ticket and the
+Gatekeeper source. It keeps no authority name, team identifier or origin
+line.
 
-### 8.2 Authenticity Chain And Unsigned-Install Caveat (`DEC-057`)
+### 8.2 Authenticity Chain And Install Note (`DEC-057`, `D-06b`)
 
-v0.1 artifacts are unsigned, so authenticity is carried by three bound
-surfaces, recorded together in the emitted record's `authenticity_chain`:
+The Developer ID signature and stapled notarization identify the developer
+to macOS. Three bound surfaces, recorded together in the emitted record's
+`authenticity_chain`, bind the artifact to its source revision and evidence:
 
 1. the artifact's SHA-256 checksum, published beside it as `<zip>.sha256`;
 2. the commit-bound `DEC-025` sweep artifact passed via `--sweep-artifact`
@@ -272,18 +306,19 @@ surfaces, recorded together in the emitted record's `authenticity_chain`:
    `validation/evidence/`, recorded path-by-path in the record);
 3. this §8 release artifact record binding both to the source revision.
 
-Release notes and any distribution surface must carry the unsigned-install
-caveat (the emitter records it verbatim in every record):
+Release notes and any distribution surface carry the install note, which
+the emitter records verbatim in the record of a signed, notarized bundle:
 
-> This build is not code-signed or notarized (DEC-057: v0.1 ships unsigned;
-> signing/notarization is re-decided at D-06b). macOS Gatekeeper will
-> quarantine the downloaded app. Before opening it, verify the artifact's
-> SHA-256 checksum against the published .sha256 file and the commit-bound
-> DEC-025 evidence-sweep artifact referenced in the release artifact record;
-> then open the app explicitly (Control-click > Open, or remove the
-> quarantine attribute). Authenticity is carried by the checksum + the
-> commit-bound sweep artifact + the release artifact record, not by an OS
-> code signature.
+> This build is signed with a Developer ID Application certificate and
+> notarized by Apple, with the notarization ticket stapled (D-06b owner
+> decision of 2026-10-23). Before opening it, verify the artifact's SHA-256
+> checksum against the published .sha256 file; the release artifact record
+> binds that digest to the source commit and its commit-bound DEC-025
+> evidence-sweep artifact. macOS Gatekeeper then opens it as an identified,
+> notarized app.
+
+A rehearsal record made with `--allow-unsigned` carries the former
+unsigned-install caveat instead and is not a v0.1 distribution record.
 
 Release labels describe software maturity and validation evidence.
 
@@ -294,16 +329,20 @@ Release labels describe software maturity and validation evidence.
 - Decided 2026-07-04 (`DEC-057`, D-06 Option O-A): v0.1 release matrix is
   macOS Apple Silicon (`aarch64-apple-darwin`) only; installer format is the
   Tauri `.app` bundle zipped with a published SHA-256 checksum (§6.1);
-  signing/notarization is none for v0.1 with checksum + commit-bound sweep +
-  §8 record authenticity and the unsigned-install caveat (§8.2), re-decided
-  at `D-06b` before any R5 "Signed releases" claim; publication target is
+  signing/notarization was none for v0.1, re-decided at `D-06b` (next
+  item); publication target is
   GitHub Releases on the prospective public sanitized-export repository,
   with local §8 recording and direct owner distribution until it exists.
   Windows/Linux matrix growth is evidence-gated (new register rows).
+- Decided 2026-10-23 (`D-06b`, re-deciding `DEC-057`'s unsigned v0.1 posture
+  and moving `DEC-089`'s policy-only Developer ID target into v0.1). The
+  owner: "Oh I'm already an Apple Developer. There's already an App ID for
+  this application. Proceed with signing and notarizing." v0.1 is Developer
+  ID signed with the hardened runtime and notarized with a stapled ticket
+  (§6.1, §8.2), under the App ID `DEC-106` records (`com.chirality.swbpipe`).
 - TBD: coverage, performance, tolerance, and permitted-variance thresholds.
-- Decided by DEC-027: sole human maintainer and release authority, quorum one;
-  future signing/notarization beyond the unsigned v0.1 posture is re-decided
-  at D-06b. Artifact retention remains a separate delivery matter.
+- Decided by DEC-027: sole human maintainer and release authority, quorum one.
+  Artifact retention remains a separate delivery matter.
 - Decided: desktop project container is the multi-member archive per the
   PKG-17 contracts (`DEC-028`, 2026-06-11), named `.opsproj` /
   "OpenPipeStress Project Package" by the `DEC-057` naming rider.

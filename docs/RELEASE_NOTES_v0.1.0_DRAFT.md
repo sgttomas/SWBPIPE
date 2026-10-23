@@ -113,7 +113,7 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 ### Platform and packaging
 
 - macOS on Apple silicon (`aarch64-apple-darwin`) only: Tauri `.app` bundle `SWBPIPE`, version 0.1.0, identifier `com.chirality.swbpipe`.
-- Distributed as a zip with a SHA-256 checksum file. The build is not code-signed or notarized (DEC-057), so the first launch needs an explicit open after checksum verification (see the unsigned-install caveat).
+- Distributed as a zip with a SHA-256 checksum file. The app is signed with the developer's Developer ID certificate (hardened runtime) and notarized by Apple with the ticket stapled (D-06b, owner, 2026-10-23); see the install note.
 
 ### Not in v0.1
 
@@ -128,7 +128,7 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 - Stress or result colour overlays and reaction arrows in the viewport.
 - Report packages for current results; final report layout and PDF policy (`TBD`).
 - A live agent provider; public API transport, plugin loading and the local FEA package format (`TBD`).
-- Windows, Linux and Intel Mac builds; code signing and notarization.
+- Windows, Linux and Intel Mac builds.
 
 ## Platform, Packaging And Installation
 
@@ -137,21 +137,19 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 - **Package:** the Tauri `.app` bundle in a deterministic zip, with a SHA-256
   checksum file in `shasum` format beside it.
 - **Install:** see the user guide, `docs/user_guide/index.md` §3.1: verify the
-  checksum, unzip, then open the unsigned app.
+  checksum, unzip, then open the app.
 - **Project data:** kept in a local SQLite project store under
   `~/Library/Application Support/com.chirality.swbpipe/` (user guide §3.2).
 
-### Unsigned-install caveat
+### Install note
 
-> This build is not code-signed or notarized (DEC-057: v0.1 ships unsigned;
-> signing/notarization is re-decided at D-06b). macOS Gatekeeper will
-> quarantine the downloaded app. Before opening it, verify the artifact's
-> SHA-256 checksum against the published .sha256 file and the commit-bound
-> DEC-025 evidence-sweep artifact referenced in the release artifact record;
-> then open the app explicitly (Control-click > Open, or remove the
-> quarantine attribute). Authenticity is carried by the checksum + the
-> commit-bound sweep artifact + the release artifact record, not by an OS
-> code signature.
+> This build is signed with a Developer ID Application certificate and
+> notarized by Apple, with the notarization ticket stapled (D-06b owner
+> decision of 2026-10-23). Before opening it, verify the artifact's SHA-256
+> checksum against the published .sha256 file; the release artifact record
+> binds that digest to the source commit and its commit-bound DEC-025
+> evidence-sweep artifact. macOS Gatekeeper then opens it as an identified,
+> notarized app.
 
 (Verbatim from `docs/BUILD_AND_RELEASE.md` §8.2, as the packaging record
 carries it.)
@@ -194,7 +192,7 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 |---|---|
 | Git revision | `[CANDIDATE: commit hash]` |
 | Working tree state | `[CANDIDATE: clean, per the release artifact record]` |
-| Build command | `cd apps/desktop && npm run tauri -- build --bundles app`, then `python3 tools/release/package_release_artifact.py --execute --sweep-artifact <sweep>` |
+| Build command | `cd apps/desktop && APPLE_SIGNING_IDENTITY="Developer ID Application" npm run tauri -- build --bundles app`, then `python3 tools/release/notarize_app.py --execute --keychain-profile swbpipe-notary`, then `python3 tools/release/package_release_artifact.py --execute --sweep-artifact <sweep>` |
 | Runtime versions | `[CANDIDATE: from the release artifact record]` |
 | Artifact checksum | `[CANDIDATE: SHA-256]` |
 

@@ -135,6 +135,10 @@ def test_ruled_shape_constants():
     assert "D-06b" in packaging.UNSIGNED_INSTALL_CAVEAT
     assert "SHA-256" in packaging.UNSIGNED_INSTALL_CAVEAT
     assert "Not a release act" in packaging.BOUNDARY_NOTE
+    assert "Developer ID" in packaging.SIGNED_INSTALL_NOTE
+    assert "notarized" in packaging.SIGNED_INSTALL_NOTE
+    assert "SHA-256" in packaging.SIGNED_INSTALL_NOTE
+    assert "Proceed with signing and notarizing." in packaging.SIGNING_DECISION
 
 
 def test_bundle_config_matches_ruled_shape():
@@ -149,6 +153,11 @@ def test_bundle_config_matches_ruled_shape():
     assert "icons/icon.icns" in conf["bundle"]["icon"]
     for icon in conf["bundle"]["icon"]:
         assert (ROOT / "apps" / "desktop" / "src-tauri" / icon).is_file()
+    # D-06b (2026-10-23): signed with the hardened runtime. The identity comes
+    # from the build environment (APPLE_SIGNING_IDENTITY), never this file.
+    macos = conf["bundle"]["macOS"]
+    assert macos["hardenedRuntime"] is True
+    assert not {"signingIdentity", "providerShortName"} & set(macos)
 
 
 def test_icns_asset_is_multi_resolution_png_member_icns():
@@ -489,22 +498,30 @@ def test_execute_end_to_end_with_fake_app(tmp_path, monkeypatch, capsys):
     )
     monkeypatch.setattr(packaging, "_sweep_module", lambda: stub)
     monkeypatch.setattr(packaging, "commit_timestamp", lambda root: 1783987200)
+    monkeypatch.setattr(packaging, "inspect_signing", lambda app: unsigned_inspection(packaging))
+    monkeypatch.setattr(
+        packaging,
+        "inspect_zip_roundtrip",
+        lambda zip_path, name: {**unsigned_inspection(packaging), "extracted": True},
+    )
 
     out_dir = tmp_path / "out"
     records_dir = tmp_path / "records"
-    exit_code = packaging.main(
-        [
-            "--execute",
-            "--app-path",
-            str(app),
-            "--sweep-artifact",
-            str(sweep),
-            "--output-dir",
-            str(out_dir),
-            "--records-dir",
-            str(records_dir),
-        ]
-    )
+    argv = [
+        "--execute",
+        "--app-path",
+        str(app),
+        "--sweep-artifact",
+        str(sweep),
+        "--output-dir",
+        str(out_dir),
+        "--records-dir",
+        str(records_dir),
+    ]
+    # D-06b (2026-10-23): an unsigned bundle is refused before anything is written.
+    assert packaging.main(argv) == 2
+    assert not out_dir.exists() and not records_dir.exists()
+    exit_code = packaging.main(argv + ["--allow-unsigned"])
     assert exit_code == 0
 
     zips = list(out_dir.glob("*.zip"))
@@ -523,7 +540,139 @@ def test_execute_end_to_end_with_fake_app(tmp_path, monkeypatch, capsys):
     assert record["authenticity_chain"]["checksum_sha256"] == digest
     assert record["artifacts"][0]["sha256"] == digest
     assert record["unsigned_install_caveat"] == packaging.UNSIGNED_INSTALL_CAVEAT
+    assert "install_note" not in record
+    assert record["signing"]["state"] == packaging.SIGNING_UNSIGNED
     assert f"_{commit[:12]}.json" in records[0].name
+
+
+def unsigned_inspection(packaging) -> dict:
+    return {
+        "state": packaging.SIGNING_UNSIGNED,
+        "notarization": packaging.NOTARIZATION_NONE,
+        "signature_valid": False,
+        "hardened_runtime": False,
+        "adhoc": False,
+        "secure_timestamp": False,
+        "ticket_stapled": False,
+        "gatekeeper_accepted": False,
+        "gatekeeper_source": None,
+        "checks": [],
+    }
+
+
+def notarized_inspection(packaging) -> dict:
+    return {
+        **unsigned_inspection(packaging),
+        "state": packaging.SIGNING_DEVELOPER_ID,
+        "notarization": packaging.NOTARIZATION_STAPLED,
+        "signature_valid": True,
+        "hardened_runtime": True,
+        "secure_timestamp": True,
+        "ticket_stapled": True,
+        "gatekeeper_accepted": True,
+        "gatekeeper_source": packaging.GATEKEEPER_NOTARIZED_SOURCE,
+    }
+
+
+IDENTITY_NAME = "Developer ID Application: Example Person (ABCDE12345)"
+
+
+def fake_signing_tools(*, signed=True, stapled=True, notarized=True, runtime=True):
+    """A stand-in for codesign/stapler/spctl output, carrying identity strings."""
+
+    def run(argv):
+        tool = argv[:2]
+        if argv[0] == "codesign" and "--verify" in argv:
+            return SimpleNamespace(returncode=0 if signed else 1, stdout="", stderr="" if signed else "code object is not signed at all")
+        if argv[0] == "codesign":
+            if not signed:
+                return SimpleNamespace(returncode=1, stdout="", stderr="code object is not signed at all")
+            flags = "0x10000(runtime)" if runtime else "0x0(none)"
+            return SimpleNamespace(returncode=0, stdout="", stderr="\n".join([
+                "Executable=/tmp/SWBPIPE.app/Contents/MacOS/swbpipe",
+                f"CodeDirectory v=20500 size=1 flags={flags} hashes=1+7 location=embedded",
+                f"Authority={IDENTITY_NAME}",
+                "Authority=Developer ID Certification Authority",
+                "Authority=Apple Root CA",
+                "Timestamp=23 Oct 2026 at 10:00:00",
+                "TeamIdentifier=ABCDE12345",
+            ]))
+        if tool == ["xcrun", "stapler"]:
+            return SimpleNamespace(returncode=0 if stapled else 65, stdout="The validate action worked!" if stapled else "", stderr="")
+        if argv[0] == "spctl":
+            if not notarized:
+                return SimpleNamespace(returncode=3, stdout="", stderr="/tmp/SWBPIPE.app: rejected\nsource=Unnotarized Developer ID")
+            return SimpleNamespace(returncode=0, stdout="", stderr="\n".join([
+                "/tmp/SWBPIPE.app: accepted",
+                "source=Notarized Developer ID",
+                f"origin={IDENTITY_NAME}",
+            ]))
+        raise AssertionError(argv)
+
+    return run
+
+
+def test_inspect_signing_classifies_and_drops_identity_strings(tmp_path):
+    packaging = load_module()
+    app = tmp_path / "SWBPIPE.app"
+    inspection = packaging.inspect_signing(app, run=fake_signing_tools())
+    assert inspection["state"] == packaging.SIGNING_DEVELOPER_ID
+    assert inspection["notarization"] == packaging.NOTARIZATION_STAPLED
+    assert inspection["hardened_runtime"] and inspection["secure_timestamp"]
+    assert inspection["gatekeeper_source"] == "Notarized Developer ID"
+    assert packaging.is_signed_and_notarized(inspection)
+    # The record is public: no authority name, team identifier or origin line.
+    text = json.dumps(inspection)
+    assert "Example Person" not in text and "ABCDE12345" not in text
+    assert "origin" not in text and "Authority" not in text
+
+    not_stapled = packaging.inspect_signing(app, run=fake_signing_tools(stapled=False))
+    assert not_stapled["notarization"] == packaging.NOTARIZATION_NOT_STAPLED
+    assert not packaging.is_signed_and_notarized(not_stapled)
+    no_runtime = packaging.inspect_signing(app, run=fake_signing_tools(runtime=False))
+    assert not packaging.is_signed_and_notarized(no_runtime)
+    unnotarized = packaging.inspect_signing(app, run=fake_signing_tools(notarized=False))
+    assert unnotarized["notarization"] == packaging.NOTARIZATION_NONE
+    unsigned = packaging.inspect_signing(app, run=fake_signing_tools(signed=False, stapled=False, notarized=False))
+    assert unsigned["state"] == packaging.SIGNING_UNSIGNED
+    # Tools absent (a non-macOS host): unsigned, never an exception.
+    absent = packaging.inspect_signing(app, run=lambda argv: None)
+    assert absent["state"] == packaging.SIGNING_UNSIGNED
+    assert absent["notarization"] == packaging.NOTARIZATION_NONE
+
+
+def test_execute_records_signed_notarized_bundle(tmp_path, monkeypatch):
+    packaging = load_module()
+    commit = "a" * 40
+    app = make_fake_app(tmp_path)
+    sweep = sweep_stub(tmp_path, commit)
+    stub = SimpleNamespace(
+        collect_git_state=lambda root: clean_git_state(commit),
+        collect_runtime_versions=lambda root: {"platform": "test"},
+        git_state_unverified=lambda git: not git.get("commit_hash"),
+        is_complete_sweep_summary=lambda summary: True,
+    )
+    monkeypatch.setattr(packaging, "_sweep_module", lambda: stub)
+    monkeypatch.setattr(packaging, "commit_timestamp", lambda root: 1783987200)
+    monkeypatch.setattr(packaging, "inspect_signing", lambda app: notarized_inspection(packaging))
+    roundtrip = {"value": {**notarized_inspection(packaging), "extracted": True}}
+    monkeypatch.setattr(packaging, "inspect_zip_roundtrip", lambda zip_path, name: roundtrip["value"])
+    argv = [
+        "--execute", "--app-path", str(app), "--sweep-artifact", str(sweep),
+        "--output-dir", str(tmp_path / "out"), "--records-dir", str(tmp_path / "records"),
+    ]
+    assert packaging.main(argv) == 0
+    record = json.loads(next((tmp_path / "records").glob("*.json")).read_text(encoding="utf-8"))
+    assert record["signing"]["state"] == packaging.SIGNING_DEVELOPER_ID
+    assert record["signing"]["notarization"] == packaging.NOTARIZATION_STAPLED
+    assert record["signing"]["zip_roundtrip"]["notarization"] == packaging.NOTARIZATION_STAPLED
+    assert record["signing"]["basis"] == packaging.SIGNING_DECISION
+    assert record["install_note"] == packaging.SIGNED_INSTALL_NOTE
+    assert "unsigned_install_caveat" not in record
+
+    # A zip whose extracted bundle no longer verifies fails loud, and its record says so.
+    roundtrip["value"] = {**unsigned_inspection(packaging), "extracted": True}
+    assert packaging.main(argv) == 1
 
 
 def test_execute_fails_loud_on_missing_bundle_or_wrong_arch(tmp_path, monkeypatch):
