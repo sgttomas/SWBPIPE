@@ -716,8 +716,7 @@
         "constraint_id",
         "name",
         "constraint_kind",
-        "state",
-        "target_refs"
+        "state"
       ],
       "properties": {
         "constraint_id": {
@@ -2444,15 +2443,14 @@
       }
     },
     "UnresolvedAssumption": {
-      "description": "An assumption or open issue (FR-MOD-006), in model_state.schema.json AssumptionRecord's vocabulary. An empty affected_refs is project level; otherwise the entity ids it names (lines, components, supports or any entity). A named entity may later be deleted: the reference is kept and reported, never blocking the deletion. resolution_note is required when the status is resolved or rejected.",
+      "description": "An assumption or open issue (FR-MOD-006), in model_state.schema.json AssumptionRecord's vocabulary. An absent or empty affected_refs is project level; otherwise the entity ids it names (lines, components, supports or any entity). A named entity may later be deleted: the reference is kept and reported, never blocking the deletion. resolution_note is required when the status is resolved or rejected.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "assumption_id",
         "kind",
         "statement",
-        "status",
-        "affected_refs"
+        "status"
       ],
       "properties": {
         "assumption_id": {
