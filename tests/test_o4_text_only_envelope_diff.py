@@ -66,6 +66,9 @@ DIAG_BASE = "be7d4749583b48aa7e2b430b771ac1baf19bc37f"
 DIAG_GOLDENS = tuple(f"fixtures/results/retained_precision_{kind}derivative_{mode}.json"
                      for kind in ("successor_", "exact_successor_") for mode in ("sparse_interactive", "dense_scrutiny"))
 DIAG_REGENERATED = frozenset(name for name in DIAG_GOLDENS if "exact_successor_" in name)
+# Model document 0.7.0 (W-13 S1b) regenerated the listed files again (version token and the
+# digests binding it); files no earlier change regenerated are read at the S1b base.
+S1B_BASE = "2538e044a92d3d9ba5132bc7ae75fb0e41f98741"
 # What the repair moved: each diagnostic's source type, affected object and remediation
 # (and class, where Rust's rules give another), and the derivative hash that binds them.
 DIAG_MOVED = re.compile(r"^/result_envelope/(diagnostics/\d+/(class|source/ref_type|affected_object/ref_type|affected_object/ref_id|remediation)|reproducibility/derivative_hash/value)$")
@@ -220,6 +223,14 @@ def base_text(name: str) -> str:
     ).stdout
 
 
+def s1b_base_text(name: str) -> str:
+    """A file's bytes at the S1b base, before model document 0.7.0 regenerated it."""
+    return subprocess.run(
+        ["git", "show", f"{S1B_BASE}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
 def _ra_regenerated() -> frozenset:
     from tests import test_ra_work_only_envelope_diff as ra
     return frozenset(ra.RAW) | {name for name, _ in ra.DERIVED} | {ra.O4_CONTROLS, ra.J2_CORPUS, ra.J7_CENSUS}
@@ -227,15 +238,13 @@ def _ra_regenerated() -> frozenset:
 
 def current_text(name: str) -> str:
     """The file's bytes after O4's regeneration: before the later change that regenerated
-    it (W1 corner 1, R-A or the diagnostics repair), else as committed."""
+    it (W1 corner 1, R-A, the diagnostics repair or W-13 S1b)."""
     at = (W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated()
-          else DIAG_BASE if name in DIAG_REGENERATED else None)
-    if at is not None:
-        return subprocess.run(
-            ["git", "show", f"{at}:projects/chirality-piping/{name}"],
-            cwd=REPOSITORY, check=True, capture_output=True, text=True,
-        ).stdout
-    return (PROJECT / name).read_text()
+          else DIAG_BASE if name in DIAG_REGENERATED else S1B_BASE)
+    return subprocess.run(
+        ["git", "show", f"{at}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
 
 
 def diff(name: str, base: str | None = None, current: str | None = None):
@@ -454,7 +463,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
         ["git", "show", f"{W1_CORNER1}:projects/chirality-piping/{name}"],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
-    now = (PROJECT / name).read_text() if current is None else current
+    now = s1b_base_text(name) if current is None else current
     for member in ("cases", "mutations", "must_pass"):
         before = _entries(base, member, _pair_id)
         after = _entries(now, member, _pair_id)
@@ -485,7 +494,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
 def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
     """A value planted in the committed corpus's route-E base fails the enumeration."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    document = storage.expand(json.loads((PROJECT / RETAINED_CORPUS).read_text()))
+    document = storage.expand(json.loads(s1b_base_text(RETAINED_CORPUS)))
     entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
     assert _plant(entry)
     with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
@@ -496,7 +505,7 @@ def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_ent
     """A value planted in an entry corner 1 moved or added, or a duplicated addition, fails
     (Opus review, round 4)."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(s1b_base_text(RETAINED_CORPUS))
     for member, ident in (
         ("cases", "w1_member_load_sparse_interactive"),
         ("cases", "w1_member_hull_d02_sparse_interactive"),
@@ -520,7 +529,7 @@ def test_o4_text_only_envelope_diff_corner1_enumeration_pins_the_added_positions
     """An entry corner 1 added, moved to another position with its bytes unchanged, fails:
     swapped with its sibling, moved to the front, or moved into the middle."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(s1b_base_text(RETAINED_CORPUS))
     for member, ident, place in (
         ("cases", "w1_member_hull_d02_sparse_interactive", "after_sibling"),
         ("cases", "w1_member_hull_d02_dense_scrutiny", 0),
@@ -568,7 +577,7 @@ def _replace_first(value, test, make) -> bool:
 def test_o4_text_only_envelope_diff_corner1_enumeration_keeps_tokens_and_containers():
     """In the committed route-E base, an empty array turned into an empty object, or a
     number token changed to one that rounds alike, fails (Codex review of this PR, round 4)."""
-    text = (PROJECT / RETAINED_CORPUS).read_text()
+    text = s1b_base_text(RETAINED_CORPUS)
     # The token-preserving re-serialisation alone passes, so each failure below is the change's.
     test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(load(text)))
     for test, make in (
@@ -635,7 +644,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostic
     for name in DIAG_GOLDENS:
         before = exact(subprocess.run(["git", "show", f"{DIAG_BASE}:projects/chirality-piping/{name}"],
                                       cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = exact((PROJECT / name).read_text() if current is None else current[name])
+        after = exact(s1b_base_text(name) if current is None else current[name])
         moved = _leaf_paths(before, after)
         assert moved and all(DIAG_MOVED.match(p) for p in moved), (name, [p for p in moved if not DIAG_MOVED.match(p)][:8])
         for diagnostic in after["result_envelope"]["diagnostics"]:
@@ -646,7 +655,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
     """A changed number outside the diagnostics (the golden's first `"value"`, in the carried
     receipt), the same number turned into a string, or a dropped diagnostic, in a regenerated
     golden fails at that path; each mutant keeps every other token."""
-    texts = {name: (PROJECT / name).read_text() for name in DIAG_GOLDENS}
+    texts = {name: s1b_base_text(name) for name in DIAG_GOLDENS}
     name = DIAG_GOLDENS[0]
     # The token-preserving re-serialisation alone passes, so each failure is the mutation's.
     test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(
