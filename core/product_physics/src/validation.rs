@@ -226,27 +226,15 @@ pub(crate) fn model_loads_every_case(model: &PreviewModel) -> bool {
 fn connector_preloads(component: &crate::PreviewComponent) -> bool {
     use open_pipe_stress_frame_kernel::connector::symmetric_from_upper;
     use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
-    let rod_pretension = component
-        .objective_connector
-        .as_ref()
-        .and_then(|connector| connector.get("hardware"))
-        .and_then(|hardware| hardware.get("rods"))
-        .and_then(serde_json::Value::as_array)
-        .is_some_and(|rods| {
-            rods.iter().any(|rod| {
-                rod.get("reference_extension")
-                    .and_then(|extension| extension.get("value"))
-                    .and_then(serde_json::Value::as_f64)
-                    .is_some_and(|value| value != 0.0)
-            })
-        });
-    if rod_pretension {
-        return true;
-    }
     // A connector that does not decode is refused by the connector findings.
     let Some(spec) = crate::joint::connector_spec(component) else {
         return false;
     };
+    // A tie rod pretensions when its decoded (SI) reference extension is
+    // nonzero, the value the kernel's rod load reads.
+    if spec.tie_rods.iter().any(|rod| rod.input.reference_extension != 0.0) {
+        return true;
+    }
     // The kernel's decode: K = D⁻¹HD⁻¹, a translation index divides by Ls.
     let h = symmetric_from_upper(&spec.stiffness.upper_triangle);
     let ls = spec.stiffness.translation_scale;
