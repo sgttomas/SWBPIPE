@@ -387,11 +387,6 @@ its cause.
 **Review:** an independent Claude reviewer and Codex, on the implementation
 head.
 
-## 6a. Coordination (HELP_HUMAN, 2026-10-23; kept current here)
-
-- **Landing order:** W-13 S1b → S2 → W-6a → W-12 → W-6b.
-- **W-6b needs this unit's state store** for its basis state.
-
 ## 7. Reconciliation and owner-reserved text (through HELP_HUMAN; exact old → new with the slice)
 
 1. **DEL-14-01 :3** "Phase G … gate v0.2 R3". Only states, runs, comparison and
