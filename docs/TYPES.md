@@ -127,11 +127,11 @@ not establish engineering suitability.
 
 ## 8. Canonical domain object registry
 
-The canonical machine-readable domain model is `schemas/model.schema.yaml`. That schema uses JSON Schema 2020-12, is written as strict JSON syntax in a `.yaml` path, and is intentionally code-neutral: it defines public object structure, identifiers, references, unit-bearing values, provenance, diagnostics, results, and report settings, but it does not bundle protected standards data, proprietary catalog values, code-specific allowables, SIF/flexibility tables, or compliance rules.
+The canonical machine-readable domain model is `schemas/model.schema.yaml`. It describes the model document the desktop opens, edits and saves and the solver reads (`openpipestress.product_preview.model`, version 0.6.0; owner OD-4, 2026-10-23), with `$defs/DesktopDocument` as the desktop's open and save profile. That schema uses JSON Schema 2020-12, is written as strict JSON syntax in a `.yaml` path, and is intentionally code-neutral: it defines public object structure, identifiers, references and unit-bearing values, and refers to the result and report records, but it does not bundle protected standards data, proprietary catalog values, code-specific allowables, SIF/flexibility tables, or compliance rules. Its `Quantity` is `{value, unit}`. The headless physical-to-analytical transform's reference format, with its dimensioned quantities, is `schemas/physical_transform_model.schema.yaml`.
 
-PKG-02 owns the canonical semantic dimension vocabulary used by both
-`schemas/units.schema.yaml` `DimensionId` and `schemas/model.schema.yaml`
-`Quantity.dimension`: `dimensionless`, `length`, `mass`, `time`,
+PKG-02 owns the canonical semantic dimension vocabulary in
+`schemas/units.schema.yaml` `DimensionId` (also used by the transform's
+reference format `Quantity.dimension`): `dimensionless`, `length`, `mass`, `time`,
 `temperature`, `temperature_interval`, `angle`, `rotation`, `force`,
 `force_per_length`, `moment`, `pressure`, `stress`, `area`, `volume`,
 `density`, `linear_stiffness`, `rotational_stiffness`, `displacement`,

@@ -19,12 +19,19 @@ TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
-from schema_validation import load_schema, validate_schema_document, walk_keys, walk_strings  # noqa: E402
+from copy import deepcopy  # noqa: E402
+
+import pytest  # noqa: E402
+
+from schema_validation import load_schema, validate_instance, validate_schema_document, walk_keys, walk_strings  # noqa: E402
 
 SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
 WIRE_SOURCE = ROOT / "core" / "product_physics" / "src" / "lib.rs"
 DESKTOP_SHAPE = ROOT / "apps" / "desktop" / "src" / "features" / "model-file" / "modelDocumentShape.ts"
 LRS = "load_reference_state.schema.json#/$defs/"
+DEMO = ROOT / "fixtures" / "product_preview" / "invented_demo_model.json"
+DESKTOP_PROFILE = {"$schema": "https://json-schema.org/draft/2020-12/schema",
+                   "$ref": "https://openpipestress.org/schemas/model.schema.yaml#/$defs/DesktopDocument"}
 
 FORBIDDEN_SCHEMA_TEXT = {
     "CODE_COMPLIANT",
@@ -54,7 +61,7 @@ def object_schemas(value, path="$"):
     for keyword in ("properties", "$defs"):
         for name, item in value.get(keyword, {}).items():
             yield from object_schemas(item, f"{path}.{keyword}.{name}")
-    for keyword in ("items", "additionalProperties", "not"):
+    for keyword in ("items", "additionalProperties"):  # `not` holds negated conditions, not records
         yield from object_schemas(value.get(keyword), f"{path}.{keyword}")
     for keyword in ("allOf", "oneOf", "anyOf"):
         for index, item in enumerate(value.get(keyword, [])):
@@ -120,13 +127,21 @@ def test_every_record_is_closed():
     # is a string or an object whose members no reader reads and no writer emits
     # (the section reader takes any JSON value).
     # data_boundary is the desktop's Record<string, string>.
+    # The open maps are typed by the desktop as Record<string, ...>; the two
+    # provenance unions take an object whose members nothing reads.
     assert open_records == [
         "$.$defs.DataBoundary",
+        "$.$defs.Diagnostic.properties.provenance",
+        "$.$defs.ProjectUnits",
         "$.$defs.Section.properties.properties",
         "$.$defs.Section.properties.provenance",
+        "$.$defs.Support.properties.properties",
     ], open_records
-    assert defs()["Section"]["properties"]["properties"]["additionalProperties"] == {"$ref": "#/$defs/Quantity"}
-    assert defs()["DataBoundary"]["additionalProperties"] == {"type": "string"}
+    d = defs()
+    assert d["Section"]["properties"]["properties"]["additionalProperties"] == {"$ref": "#/$defs/Quantity"}
+    assert d["Support"]["properties"]["properties"]["additionalProperties"] == {"$ref": "#/$defs/Quantity"}
+    assert d["DataBoundary"]["additionalProperties"] == {"type": "string"}
+    assert d["ProjectUnits"]["additionalProperties"] == {"type": "string"}
 
 
 def test_required_record_families_are_named():
@@ -163,7 +178,7 @@ def test_load_case_and_load_record_are_the_desktop_records_bound_by_the_load_cra
     assert load_case["properties"]["primitive_loads"]["items"] == {"$ref": "#/$defs/LoadRecord"}
     assert {"label", "kind", "status", "pressure_regions", "equivalent_static", "modulus_basis_ref",
             "modulus_basis_temperature", "analysis_state"} <= set(load_case["properties"])
-    assert load_case["not"] == {"required": ["modulus_basis_ref", "modulus_basis_temperature"]}
+    assert load_case["not"]["required"] == ["modulus_basis_ref", "modulus_basis_temperature"]
     assert set(d["LoadRecord"]["required"]) == {"id", "category", "target", "direction", "magnitude", "dimension"}
     for source in ("core/loads/primitive_loads/src/lib.rs", "core/loads/user_loads/src/lib.rs"):
         text = (ROOT / source).read_text(encoding="utf-8")
@@ -221,3 +236,102 @@ def test_schema_text_makes_no_claim():
     text = "\n".join(walk_strings(schema()))
     for forbidden in FORBIDDEN_SCHEMA_TEXT:
         assert forbidden not in text
+
+
+def demo():
+    return json.loads(DEMO.read_text(encoding="utf-8"))
+
+
+def accepted(document, schema=None):
+    validate_instance(schema or SCHEMA_PATH_SCHEMA(), document, schema_label=str(SCHEMA_PATH))
+
+
+def rejected(document, schema=None):
+    with pytest.raises(AssertionError):
+        validate_instance(schema or SCHEMA_PATH_SCHEMA(), document, schema_label=str(SCHEMA_PATH))
+
+
+def SCHEMA_PATH_SCHEMA():  # noqa: N802 - the format schema itself
+    return schema()
+
+
+def with_change(change):
+    document = demo()
+    change(document)
+    return document
+
+
+def section_of(document, index=0):
+    return document["pipe_segments"][index]["section"]
+
+
+# null where a writer emits it or a reader gives it a meaning (see each slot's description).
+NULL_ACCEPTED = {
+    "support.family": lambda d: d["supports"][0].__setitem__("family", None),
+    "support.nonlinear": lambda d: d["supports"][0].__setitem__("nonlinear", None),
+    "node.label": lambda d: d["nodes"][0].__setitem__("label", None),
+    "node.provenance": lambda d: d["nodes"][0].__setitem__("provenance", None),
+    "pipe.label": lambda d: d["pipe_segments"][0].__setitem__("label", None),
+    "pipe.provenance": lambda d: d["pipe_segments"][0].__setitem__("provenance", None),
+    "section.mill_tolerance": lambda d: section_of(d).__setitem__("mill_tolerance", None),
+    "section.material_density": lambda d: section_of(d).__setitem__("material_density", None),
+    "section.contents_density": lambda d: section_of(d).__setitem__("contents_density", None),
+    "section.insulation_thickness": lambda d: section_of(d).__setitem__("insulation_thickness", None),
+    "section.insulation_density": lambda d: section_of(d).__setitem__("insulation_density", None),
+    "load_case.modulus_basis_ref": lambda d: d["load_cases"][0].__setitem__("modulus_basis_ref", None),
+    "load_case.modulus_basis_temperature": lambda d: d["load_cases"][0].__setitem__("modulus_basis_temperature", None),
+}
+# null that the readers refuse or that nothing writes stays invalid.
+NULL_REJECTED = {
+    "section.corrosion_allowance": lambda d: section_of(d).__setitem__("corrosion_allowance", None),
+    "pipe.section_ref": lambda d: d["pipe_segments"][0].__setitem__("section_ref", None),
+    "pressure_contract": lambda d: d.__setitem__("pressure_contract", None),
+    "support.stiffness": lambda d: d["supports"][0].__setitem__("stiffness", None),
+    "support.boundary_association": lambda d: d["supports"][0].__setitem__("boundary_association", None),
+    "load_case.pressure_regions": lambda d: d["load_cases"][0].__setitem__("pressure_regions", None),
+    "reference_configurations": lambda d: d.__setitem__("reference_configurations", None),
+    "material.label": lambda d: d["materials"][0].__setitem__("label", None),
+    "component.label": lambda d: d["components"][0].__setitem__("label", None),
+}
+
+
+@pytest.mark.parametrize("slot", sorted(NULL_ACCEPTED))
+def test_null_is_accepted_where_writers_or_readers_use_it(slot):
+    accepted(with_change(NULL_ACCEPTED[slot]))
+
+
+@pytest.mark.parametrize("slot", sorted(NULL_REJECTED))
+def test_null_is_refused_elsewhere(slot):
+    rejected(with_change(NULL_REJECTED[slot]))
+
+
+def test_desktop_profile_still_requires_string_labels_and_provenance():
+    for slot in ("node.label", "node.provenance", "pipe.label", "pipe.provenance"):
+        rejected(with_change(NULL_ACCEPTED[slot]), DESKTOP_PROFILE)
+
+
+def test_conflicting_modulus_bases_are_refused_but_a_null_partner_is_not_a_conflict():
+    def both(document, temperature):
+        case = document["load_cases"][0]
+        case["modulus_basis_ref"] = "temperature-point:invented"
+        case["modulus_basis_temperature"] = temperature
+    rejected(with_change(lambda d: both(d, {"value": 400.0, "unit": "K"})))
+    accepted(with_change(lambda d: both(d, None)))
+
+
+def test_diagnostic_provenance_is_a_string_or_an_object():
+    accepted(with_change(lambda d: d["diagnostics"][0].__setitem__("provenance", "invented_example")))
+    accepted(with_change(lambda d: d["diagnostics"][0].__setitem__(
+        "provenance", {"source_name": "invented producer", "note": "shown as JSON"})))
+    rejected(with_change(lambda d: d["diagnostics"][0].__setitem__("provenance", 7)))
+
+
+def test_desktop_typed_open_maps_take_any_key_with_the_typed_value():
+    accepted(with_change(lambda d: d["project"]["units"].__setitem__("mass", "kg")))
+    rejected(with_change(lambda d: d["project"]["units"].__setitem__("mass", 1)))
+    accepted(with_change(lambda d: d["data_boundary"].__setitem__("source", "invented_example")))
+    rejected(with_change(lambda d: d["data_boundary"].__setitem__("source", None)))
+    properties = {"linear_stiffness": {"value": 1.0e6, "unit": "N/m"}, "invented_rate": {"value": 2.0, "unit": "N/m"}}
+    accepted(with_change(lambda d: d["supports"][0].__setitem__("properties", deepcopy(properties))))
+    rejected(with_change(lambda d: d["supports"][0].__setitem__("properties", {"linear_stiffness": 1.0e6})))
+
