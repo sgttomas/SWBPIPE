@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Stdlib smoke checks for invented educational model examples."""
+"""Stdlib smoke checks for invented educational model examples.
+
+The examples are in the headless physical-to-analytical transform's reference
+format (schemas/physical_transform_model.schema.yaml, FR-MOD-007, DEL-13-04), not
+the model document (schemas/model.schema.yaml) that project persistence carries.
+"""
 
 import json
 import sys
@@ -31,6 +36,8 @@ EXAMPLE_FILES = {
     "fake_rule_pack_toy_model.json",
 }
 MODEL_SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
+LOAD_REFERENCE_STATE_SCHEMA_PATH = ROOT / "schemas" / "load_reference_state.schema.json"
+TRANSFORM_SCHEMA_PATH = ROOT / "schemas" / "physical_transform_model.schema.yaml"
 PERSISTENCE_SCHEMA_PATH = ROOT / "schemas" / "project_persistence.schema.yaml"
 MODEL_STATE_SCHEMA_PATH = ROOT / "schemas" / "model_state.schema.json"
 ANALYSIS_RUN_SCHEMA_PATH = ROOT / "schemas" / "analysis_run.schema.json"
@@ -132,6 +139,7 @@ def validate_persistence_instance(schema, instance, instance_label):
     from referencing.jsonschema import DRAFT202012
 
     model_schema = load_schema(MODEL_SCHEMA_PATH)
+    load_reference_state_schema = load_schema(LOAD_REFERENCE_STATE_SCHEMA_PATH)
     model_state_schema = load_schema(MODEL_STATE_SCHEMA_PATH)
     analysis_run_schema = load_schema(ANALYSIS_RUN_SCHEMA_PATH)
     registry = Registry().with_resources(
@@ -144,6 +152,8 @@ def validate_persistence_instance(schema, instance, instance_label):
                 (model_schema["$id"], model_schema),
                 ("https://openpipestress.org/schemas/model.schema.yaml", model_schema),
                 ("model.schema.yaml", model_schema),
+                (load_reference_state_schema["$id"], load_reference_state_schema),
+                ("load_reference_state.schema.json", load_reference_state_schema),
                 (model_state_schema["$id"], model_state_schema),
                 ("https://openpipestress.org/schemas/model_state.schema.json", model_state_schema),
                 ("model_state.schema.json", model_state_schema),
@@ -213,14 +223,14 @@ def test_invented_examples_follow_model_contract_shape():
                 ), (path, model["id"])
 
 
-def test_invented_examples_validate_against_full_model_schema():
-    schema = load_schema(MODEL_SCHEMA_PATH)
+def test_invented_examples_validate_against_transform_reference_schema():
+    schema = load_schema(TRANSFORM_SCHEMA_PATH)
 
     for path, example in load_examples():
         validate_instance(
             schema,
             example,
-            schema_label=str(MODEL_SCHEMA_PATH.relative_to(ROOT)),
+            schema_label=str(TRANSFORM_SCHEMA_PATH.relative_to(ROOT)),
             instance_label=str(path.relative_to(ROOT)),
         )
 
@@ -251,7 +261,10 @@ def test_invented_examples_carry_concrete_hashes_for_published_payloads():
             assert checksum["value"] == f"sha256:{rule_pack_digest}", path
 
 
-def test_invented_examples_persist_and_round_trip_with_schema_validation():
+def test_invented_examples_round_trip_and_are_not_persistable_model_documents():
+    """The persistence service round-trips any payload byte-stably, but the
+    persistence schema's ModelPayload is the model document: an example in the
+    transform's reference format is refused there, and no adapter converts it."""
     persistence_schema = load_schema(PERSISTENCE_SCHEMA_PATH)
 
     for path, example in load_examples():
@@ -281,11 +294,16 @@ def test_invented_examples_persist_and_round_trip_with_schema_validation():
             ],
         )
 
-        validate_persistence_instance(
-            persistence_schema,
-            envelope,
-            f"persistence envelope for {path.relative_to(ROOT)}",
-        )
+        try:
+            validate_persistence_instance(
+                persistence_schema,
+                envelope,
+                f"persistence envelope for {path.relative_to(ROOT)}",
+            )
+        except AssertionError as exc:
+            assert "'document_kind' is a required property" in str(exc), path
+        else:
+            raise AssertionError(f"{path.name}: a transform-format payload passed as a model document")
         assert validate_project_persistence_envelope(envelope) == []
         assert project_hash_manifest(envelope) == envelope["hash"]["hash_manifest"]
 

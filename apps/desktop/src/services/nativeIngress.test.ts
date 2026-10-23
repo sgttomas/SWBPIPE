@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
-import { HEADROOM_RESEND_INTERVAL_MS, HEADROOM_RESEND_WINDOW_MS, invokeWithIngress, NATIVE_INGRESS_COMMANDS, nativeFailureText } from "./nativeIngress";
+import { HEADROOM_RESEND_INTERVAL_MS, HEADROOM_RESEND_WINDOW_MS, IngressRequestRetiredError, invokeWithIngress, NATIVE_INGRESS_COMMANDS, nativeFailureText } from "./nativeIngress";
 import { ResourceUnavailableError } from "./memoryPool";
 import { INGRESS_COMMANDS, ingressArgs } from "../test/nativeIngress";
 
@@ -106,6 +106,25 @@ describe("invokeWithIngress", () => {
     const failure = await pending;
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 17_363_664, available_bytes: 1 });
+    expect(invokeMock).toHaveBeenCalledOnce();
+  });
+
+  it("sends nothing for a request already retired", async () => {
+    invokeMock.mockResolvedValue({ ok: true });
+    await expect(invokeWithIngress("render_calculation_report", { input: {} }, { stillCurrent: () => false })).rejects.toBeInstanceOf(IngressRequestRetiredError);
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("does not re-send a request retired during the pause after a headroom refusal", async () => {
+    vi.useFakeTimers();
+    let current = true;
+    invokeMock.mockRejectedValueOnce(headroomRefusal(17_363_664, 0)).mockResolvedValue({ ok: true });
+    const pending = invokeWithIngress("render_calculation_report", { input: {} }, { stillCurrent: () => current }).catch((error: unknown) => error);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(invokeMock).toHaveBeenCalledOnce();
+    current = false;
+    await vi.runAllTimersAsync();
+    expect(await pending).toBeInstanceOf(IngressRequestRetiredError);
     expect(invokeMock).toHaveBeenCalledOnce();
   });
 

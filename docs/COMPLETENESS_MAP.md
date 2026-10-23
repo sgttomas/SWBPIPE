@@ -92,10 +92,12 @@ The biggest gaps:
    The handoff download is a preview document that does not conform to
    `schemas/handoff_package.schema.json`. Nothing is exported for pressure
    models. Affected: FR-HAND-001 (Must) and the MVP item.
-5. **Two model formats.** The desktop's model document (0.6.0) is not an
-   instance of the canonical `schemas/model.schema.yaml`: the bundled demo fails
-   it with 11 errors. Tags, notes, unresolved assumptions and rule-pack
-   references have no slot. Affected: FR-MOD-001/004/006 (Must).
+5. **One model format, missing slots.** Since #1554, `schemas/model.schema.yaml`
+   describes the desktop's model document (0.6.0), and the bundled demo validates
+   against it. The former shape moved to
+   `schemas/physical_transform_model.schema.yaml`. Tags, notes, unresolved
+   assumptions and rule-pack references have no slot. Affected:
+   FR-MOD-001/004/006 (Must).
 6. **No design-knowledge entry or constraint validation in the desktop.** The
    Design Knowledge panel shows a compiled-in document, and constraint
    validation is Python-only. Affected: FR-KNOW-001 (Must) and R6.
@@ -123,7 +125,7 @@ class, the evidence, and the deliverables.
 | FR-MOD-003 (478) | Must | D | Identity changes refused: `core/model_operations/operation_applier/src/rich_authoring.rs:1092`; test `:864`; `atomic_batch.rs:690` | DEL-02-01, DEL-16-06 | No all-operations ID-survival test. |
 | FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | No tags or notes. |
 | FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402` | DEL-03-01, DEL-03-07 | Model entities have one free provenance string. |
-| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/model.schema.yaml:1075` only | DEL-02-01, DEL-13-01 | No slot in the desktop document, and no entry path. |
+| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists only in `schemas/physical_transform_model.schema.yaml` (the headless transform's format) | DEL-02-01, DEL-13-01 | No slot in the desktop document, and no entry path. |
 | FR-MOD-007 (482) | Must | P | **Python transform:** `core/model_transform/physical_to_analytical/contract.py:113`, used by tests only. **Desktop:** solves the document directly in Rust (`preview_physics.rs`) | DEL-13-04 | No transformation-warning record on the solve path; holds DEL-13-04:2/3 apply. |
 | FR-KNOW-001 (488) | Must | P | `lib.rs:1773` returns a compiled-in fixture; `KnowledgePanel.tsx` is read-only | DEL-13-01 | **Scope unclear:** Must requirement and R6 deliverable, while §23 omits it and D-11 places PKG-13 in W7 ("Forward horizon v0.2"). |
 | FR-KNOW-002 (489) | Must | P | Unknown references give `MODEL_INCOMPLETE` (`lib.rs:19079`). An unrestrained body is caught at solve (`lib.rs:15409`). Exact pressure regions reject branching, cycles and disconnected traversal (`pressure_runtime.rs:1535,1594`) | DEL-13-03 | No general topology check: a disconnected but separately anchored route is not flagged. |

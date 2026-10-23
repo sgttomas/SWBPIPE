@@ -4248,3 +4248,29 @@ body { min-width: 760px; min-height: 540px; }
   padding: 16px 20px;
   background: var(--surface-raised);
 }
+
+/* DEL-07-05 numerical health badges: the state text is always shown; colour only repeats it. */
+.numerical-health-badge {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px solid;
+  border-radius: 3px;
+  font-weight: 600;
+  white-space: normal;
+}
+.numerical-health-green {
+  color: var(--text-primary);
+  border-color: var(--cat-3);
+  box-shadow: inset 3px 0 0 var(--cat-3);
+  background: var(--surface-panel);
+}
+.numerical-health-red {
+  color: var(--status-failedInk);
+  border-color: var(--issue-blocking);
+  background: var(--status-failedFill);
+}
+.numerical-health-grey {
+  color: var(--status-solvedInk);
+  border-color: var(--border-strong);
+  background: var(--status-solvedFill);
+}

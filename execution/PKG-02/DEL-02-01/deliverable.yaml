@@ -117,6 +117,7 @@ code_paths:
 - schemas/model.schema.yaml
 - schemas/load_reference_state.schema.json
 - tests/test_model_schema.py
+- tests/test_model_document_schema.py
 - tests/test_load_reference_schema.py
 - core/product_physics/src/model_format.rs
 - core/product_physics/src/lib.rs
@@ -125,6 +126,7 @@ code_paths:
 - fixtures/product_preview/invented_demo_model.json
 checks:
 - tests/test_model_schema.py
+- tests/test_model_document_schema.py
 - tests/test_load_reference_schema.py
 - core/product_physics/src/model_format.rs
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx

@@ -52,6 +52,49 @@ describe("ControlledExportLink", () => {
     );
   });
 
+  it("lets a wrapper own the local-private intent of the rendered-report save (W-3)", () => {
+    const html = "<!DOCTYPE html><p>Invented local-private report</p>";
+    const href = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
+    expect(routeBindingForTestId("rendered-report-save-local-private")).toEqual({
+      routeId: "DREP-HTML-SAVE-005",
+      context: "local_private",
+      lossless: true
+    });
+    const { rerender } = render(
+      <ControlledExportLink data-testid="rendered-report-save-local-private" explicitLocalPrivateIntent={false} download="r.html" href={href}>
+        Save
+      </ControlledExportLink>
+    );
+    // Wrapper-owned and not selected: no second checkbox, and the sink stays blocked.
+    expect(screen.queryByTestId("rendered-report-save-local-private-local-private-intent")).not.toBeInTheDocument();
+    expect(screen.getByTestId("rendered-report-save-local-private").getAttribute("href")).toBeNull();
+    expect(screen.getByTestId("rendered-report-save-local-private-redaction-summary")).toHaveTextContent("blocked=true");
+    expect(screen.getByTestId("rendered-report-save-local-private").closest("[data-route-id]")).toHaveAttribute(
+      "data-local-first-reason",
+      "LOCAL_PRIVATE_INTENT_REQUIRED"
+    );
+
+    rerender(
+      <ControlledExportLink data-testid="rendered-report-save-local-private" explicitLocalPrivateIntent download="r.html" href={href}>
+        Save
+      </ControlledExportLink>
+    );
+    expect(screen.queryByTestId("rendered-report-save-local-private-local-private-intent")).not.toBeInTheDocument();
+    expect(screen.getByTestId("rendered-report-save-local-private")).toHaveAttribute("href", href);
+
+    // Without the prop the link keeps its own intent checkbox (existing behaviour).
+    rerender(
+      <ControlledExportLink data-testid="rendered-report-save-local-private" download="r.html" href={href}>
+        Save
+      </ControlledExportLink>
+    );
+    const own = screen.getByTestId("rendered-report-save-local-private-local-private-intent");
+    expect(own).not.toBeChecked();
+    expect(screen.getByTestId("rendered-report-save-local-private").getAttribute("href")).toBeNull();
+    fireEvent.click(own);
+    expect(screen.getByTestId("rendered-report-save-local-private")).toHaveAttribute("href", href);
+  });
+
   it("binds the native package to downstream-tool control without local-private fallback", () => {
     render(
       <ControlledExportLink
