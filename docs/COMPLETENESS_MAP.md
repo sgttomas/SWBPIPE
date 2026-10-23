@@ -24,6 +24,10 @@ A Must requirement met only on one solve route, only headless, or only as a
 schema is P. Where PRD §23 (MVP) or a Must requirement includes something and no
 ruling removes it, the row says **scope unclear**.
 
+The "scope unclear" notes and the "no ruling" statements in §1 and §2 are
+the assessment before the owner's rulings of 2026-10-23. §4.2 records those
+rulings (OD-1 to OD-5), and they take precedence over the earlier notes.
+
 **Two solve routes** recur throughout:
 - **PF:** the pressure-free route, a model with no `pressure_contract`.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
