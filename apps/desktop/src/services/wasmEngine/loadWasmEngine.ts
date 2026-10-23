@@ -39,6 +39,12 @@ export type WasmOperationEngine = {
   readerValidateJson: (reader: string, sourceJson: string, modelJson?: string, invocationJson?: string) => string;
   readerTransportJson: (reader: string, sourceJson: string) => string;
   readerRowSemanticsJson: (rowJson: string, sourceJson?: string) => string;
+  // DEL-07-05 numerical health indicator (Design `numerical-health-indicator.md`
+  // §2.6): the Rust parse of a result's ordinary-solve diagnostics, with the base
+  // reader's findings for it (a JSON array of codes). Presentation only; never read
+  // by admission or standing. Optional until every engine build carries the export:
+  // without it the desktop shows no indicator and keeps today's text (fail closed).
+  numericalHealthJson?: (sourceJson: string, readerFindingsJson?: string) => string;
 };
 
 type GeneratedGlueModule = {
@@ -59,6 +65,7 @@ type GeneratedGlueModule = {
   reader_validate_json: (reader: string, sourceJson: string, modelJson?: string | null, invocationJson?: string | null) => string;
   reader_transport_json: (reader: string, sourceJson: string) => string;
   reader_row_semantics_json: (rowJson: string, sourceJson?: string | null) => string;
+  numerical_health_json?: (sourceJson: string, readerFindingsJson?: string | null) => string;
 };
 
 // The browser specifier is intentionally held in a constant (not an inline
@@ -182,7 +189,10 @@ async function instantiate(): Promise<WasmOperationEngine> {
     readerDispatchJson: (sourceJson, modelJson, invocationJson) => glue.reader_dispatch_json(sourceJson, modelJson ?? null, invocationJson ?? null),
     readerValidateJson: (reader, sourceJson, modelJson, invocationJson) => glue.reader_validate_json(reader, sourceJson, modelJson ?? null, invocationJson ?? null),
     readerTransportJson: glue.reader_transport_json,
-    readerRowSemanticsJson: (rowJson, sourceJson) => glue.reader_row_semantics_json(rowJson, sourceJson ?? null)
+    readerRowSemanticsJson: (rowJson, sourceJson) => glue.reader_row_semantics_json(rowJson, sourceJson ?? null),
+    ...(typeof glue.numerical_health_json === "function"
+      ? { numericalHealthJson: (sourceJson: string, readerFindingsJson?: string) => glue.numerical_health_json!(sourceJson, readerFindingsJson ?? null) }
+      : {})
   };
 }
 

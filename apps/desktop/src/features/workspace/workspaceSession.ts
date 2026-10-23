@@ -294,6 +294,8 @@ export function useWorkspaceSession() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    numericalHealth,
+    numericalHealthHold,
     analysisRun, setAnalysisRun,
     resultBasisRef,
     analysisBasisRef,
@@ -2615,7 +2617,7 @@ export function useWorkspaceSession() {
     }
   }
 
-  const nativeRunPresence = runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null });
+  const nativeRunPresence = runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold });
   const nativeResultsEnabled = railStageState("results", nativeRunPresence).enabled;
   const nativeReviewEnabled = railStageState("review", nativeRunPresence).enabled;
   const nativeProjectName = projectSummary?.project_name ?? model?.project.name ?? null;
@@ -2833,7 +2835,7 @@ export function useWorkspaceSession() {
 
   /** The rail and the View menu: enter a stage, unless the rail disables it. */
   function enterStage(stage: ShellStage) {
-    if (!railStageState(stage, runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null })).enabled) return;
+    if (!railStageState(stage, runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })).enabled) return;
     setActiveSection(sectionForStage(stage, shellNowRef.current.stageSurface));
   }
 
@@ -2932,6 +2934,8 @@ export function useWorkspaceSession() {
     results: {
       result,
       currentSolvedResult,
+      numericalHealth,
+      numericalHealthHold,
       historicalRun,
       analysisRun,
       inputManifest,

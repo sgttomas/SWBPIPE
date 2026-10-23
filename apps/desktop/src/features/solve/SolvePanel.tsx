@@ -6,6 +6,7 @@ import type { PreviewSolverMode } from "../../services/previewService";
 import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes } from "../../services/memoryPool";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
+import type { NumericalHealthView } from "../results/numericalHealth";
 
 export function SolvePanel({
   analysisRun,
@@ -14,6 +15,7 @@ export function SolvePanel({
   running,
   solveJob,
   solverMode,
+  numericalHealth = null,
   onCancel,
   onRun,
   onSolverModeChange
@@ -21,6 +23,8 @@ export function SolvePanel({
   analysisRun: AnalysisRunEnvelope | null;
   model: PreviewModel;
   result: MechanicsResult | null;
+  /** DEL-07-05 numerical health: the diagnostics tile's header badge, for the held result. */
+  numericalHealth?: NumericalHealthView | null;
   running: boolean;
   solveJob: SolveJobAuditState;
   solverMode: PreviewSolverMode;
@@ -39,7 +43,7 @@ export function SolvePanel({
           status bar; the local status grid was removed to avoid duplication. */}
       <section className="readiness-summary" aria-label="Solve readiness summary" data-testid="solve-readiness-summary">
         {readinessItems.map((item) => (
-          <ReadinessRow key={item.id} item={item} />
+          <ReadinessRow key={item.id} item={item} healthBadge={item.id === "diagnostics" && result ? numericalHealth : null} />
         ))}
       </section>
       <div className="report-actions">
@@ -190,13 +194,16 @@ function readinessSummary({
   ];
 }
 
-function ReadinessRow({ item }: { item: ReadinessItem }) {
+function ReadinessRow({ item, healthBadge = null }: { item: ReadinessItem; healthBadge?: NumericalHealthView | null }) {
   const Icon = item.tone === "ok" ? ShieldCheck : AlertTriangle;
   return (
     <div className={`readiness-row ${item.tone}`} data-testid={`readiness-${item.id}`}>
       <Icon size={14} aria-hidden="true" />
       <span>{item.label}</span>
-      <strong>{item.value}</strong>
+      <strong>
+        {item.value}
+        {healthBadge ? <> <span className={`numerical-health-badge numerical-health-${healthBadge.badge}`} data-badge={healthBadge.badge} data-testid="solve-numerical-health-badge">{healthBadge.headline}</span></> : null}
+      </strong>
     </div>
   );
 }

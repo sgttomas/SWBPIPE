@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 
@@ -10,15 +10,23 @@ export function DiagnosticsPanel({
   knowledge,
   result,
   selectedDiagnosticId,
+  filterRequest = null,
   onSelectDiagnostic
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
   result: MechanicsResult | null;
   selectedDiagnosticId: string | null;
+  /** A request to show the list filtered to this text (each new sequence applies once). */
+  filterRequest?: { text: string; sequence: number } | null;
   onSelectDiagnostic: (diagnosticId: string) => void;
 }) {
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState(filterRequest?.text ?? "");
+  const requestSequence = filterRequest?.sequence;
+  const requestText = filterRequest?.text;
+  useEffect(() => {
+    if (requestSequence !== undefined && requestText !== undefined) setFilterText(requestText);
+  }, [requestSequence, requestText]);
   const diagnostics: Diagnostic[] = [
     ...model.diagnostics,
     ...(knowledge?.diagnostics ?? []),

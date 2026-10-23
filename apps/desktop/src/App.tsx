@@ -99,6 +99,7 @@ import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
+import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
@@ -150,6 +151,9 @@ export function App() {
 function AppSession() {
   const session = useWorkspaceSession();
   const [routingPanelContainer, setRoutingPanelContainer] = useState<HTMLDivElement | null>(null);
+  // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
+  // Diagnostics panel opens filtered to that diagnostic.
+  const [diagnosticFilterRequest, setDiagnosticFilterRequest] = useState<{ text: string; sequence: number } | null>(null);
   const {
     model,
     knowledge,
@@ -177,6 +181,8 @@ function AppSession() {
   const {
     result,
     currentSolvedResult,
+    numericalHealth,
+    numericalHealthHold,
     historicalRun,
     analysisRun,
     inputManifest,
@@ -342,7 +348,7 @@ function AppSession() {
           stageViewMemory={stageViewMemory}
           pageOpen={shell.page !== null}
           tableDrawer={tableDrawer}
-          run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null })}
+          run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })}
           theme={uiPreferences.theme}
           density={uiPreferences.density}
           onCommand={runMenuCommand}
@@ -358,7 +364,7 @@ function AppSession() {
               stage: shell.stage,
               pageOpen: shell.page !== null,
               stageViewMemory,
-              run: runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null }),
+              run: runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold }),
               theme: uiPreferences.theme,
               density: uiPreferences.density,
               onCommand: runMenuCommand
@@ -627,6 +633,14 @@ function AppSession() {
                 analysisRun={analysisRun}
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
+                numericalHealth={numericalHealth}
+                resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
+                onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
+                onShowDiagnostic={(diagnosticId) => {
+                  handleSelectDiagnostic(diagnosticId);
+                  setDiagnosticFilterRequest((current) => ({ text: diagnosticId, sequence: (current?.sequence ?? 0) + 1 }));
+                  setIssuesDrawerOpen(true);
+                }}
               />}
               <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
               <DesignWorkspacePanel
@@ -679,6 +693,7 @@ function AppSession() {
               <RenderedReportPanel
                 model={model}
                 result={currentSolvedResult}
+                numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 projectSummary={projectSummary}
                 packagePrivateIntent={reportPackagePrivateIntent}
@@ -693,6 +708,7 @@ function AppSession() {
                 model={model}
                 knowledge={knowledge}
                 result={currentSolvedResult}
+                numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 comparison={comparison}
                 editorIntents={editorIntents}
@@ -904,6 +920,7 @@ function AppSession() {
                 analysisRun={analysisRun}
                 model={model}
                 result={result}
+                numericalHealth={numericalHealth}
                 running={running}
                 solveJob={solveJob}
                 solverMode={solverMode}
@@ -1048,6 +1065,7 @@ function AppSession() {
           result={result}
           operationOutcomes={operationOutcomes}
           selectedDiagnosticId={selectedReviewTarget?.target_type === "diagnostic" ? selectedReviewTarget.id : null}
+          diagnosticFilterRequest={diagnosticFilterRequest}
           onClose={() => setIssuesDrawerOpen(false)}
           onSelectDiagnostic={handleSelectDiagnostic}
         />
@@ -1475,6 +1493,7 @@ function IssuesHome({
   result,
   operationOutcomes,
   selectedDiagnosticId,
+  diagnosticFilterRequest = null,
   onClose,
   onSelectDiagnostic
 }: {
@@ -1483,6 +1502,7 @@ function IssuesHome({
   result: MechanicsResult | null;
   operationOutcomes: Record<string, OperationOutcome>;
   selectedDiagnosticId: string | null;
+  diagnosticFilterRequest?: { text: string; sequence: number } | null;
   onClose: () => void;
   onSelectDiagnostic: (diagnosticId: string) => void;
 }) {
@@ -1514,6 +1534,7 @@ function IssuesHome({
         knowledge={knowledge}
         result={result}
         selectedDiagnosticId={selectedDiagnosticId}
+        filterRequest={diagnosticFilterRequest}
         onSelectDiagnostic={onSelectDiagnostic}
       />
       <MissingDataBlockingPanel model={model} result={result} />
