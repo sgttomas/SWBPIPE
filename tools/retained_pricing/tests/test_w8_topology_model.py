@@ -34,9 +34,10 @@ def copy(tmp_path, rel=None, old=None, new=None, drop=None):
 def test_the_w8_owners_are_active_and_positive_at_the_caps():
     assert OWNERS["inspect"](str(SOURCE)) is True
     workspace = dict(OWNERS["topology_workspace"](32, 32, 32))
-    # 496 = 32 * 31 / 2 pairs at the caps: each pair list's backing (512) and its previous one (256).
-    assert workspace["s((usize,usize))"] >= 512 + 256
-    assert workspace["s(usize)"] >= 2 * (512 + 256)
+    # The pair samples hold <= NAMED (capacity 8, previous 4); the per-node found buffer <= n - 1 = 31
+    # (capacity 32, previous 16). No quadratic pair term remains.
+    assert workspace["s(Option<f64>)"] == 32 + 16
+    assert workspace["s((usize,usize))"] < 1000
     assert all(v > 0 for v in workspace.values())
     assert dict(OWNERS["node_degrees"](32))["s((&str,usize))"] > 64
 

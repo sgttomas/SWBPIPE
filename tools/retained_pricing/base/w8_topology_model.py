@@ -21,10 +21,11 @@ VAL = "core/product_physics/src/validation.rs"
 LIB = "core/product_physics/src/lib.rs"
 FG = "core/product_physics/src/formation_guard.rs"
 
-# Read at 86836546e5 (W-8's implementation head).
-TOP_PIN = "75673e8555fcf391fde640d404393211f3dd7d0ac3ef73bec2227ca7f07bffe9"
+# Read at 97e6fda00f (W-8 after its independent review: 2-tolerance cells, scaled norms, the pair lists bounded to
+# NAMED samples with counts, a per-node `found` buffer; validation skips a component without a node).
+TOP_PIN = "a82720ccaa6f88f19c2b42088a5d524e14edb319885e5ef7ca6f49c17f70a6e0"
 BODY_PINS = {
-    (VAL, "validate_components"): "735a91d0b3cd409727e91755a5656e0912d64c9b5f82a8f784a47a48a7c99b07",
+    (VAL, "validate_components"): "b7c82ba46c4a0bead48d6522ed00c131c28c83b249991a893070188634957627",
     (VAL, "branch_topology_invalid"): "22c8a42d2750e8145c94e009bd9c6fe7f3a5965926aae487a5948b6db34206ae",
 }
 NAMED = 6
@@ -44,8 +45,12 @@ STATEMENTS = (
     (TOP, "let mut near = Vec::new();"),
     (TOP, "let mut grid: HashMap<[i64; 3], Vec<usize>> = HashMap::new();"),
     (TOP, "grid.entry(cell(point)).or_default().push(node);"),
-    (TOP, "coincident.push((node, other));"),
-    (TOP, "near.push((node, other, distance));"),
+    (TOP, "let mut found = Vec::new();"),
+    (TOP, "found.clear();"),
+    (TOP, "found.push((other, None));"),
+    (TOP, "found.push((other, Some(distance)));"),
+    (TOP, "if coincident.len() < NAMED {\n                            coincident.push((node, other));"),
+    (TOP, "if near.len() < NAMED {\n                            near.push((node, other, distance));"),
     (TOP, "let mut refs = Vec::new();"),
     (VAL, "let mut node_degree = HashMap::<&str, usize>::new();"),
     (VAL, "*node_degree.entry(pipe.from.as_str()).or_default() += 1;"),
@@ -53,10 +58,11 @@ STATEMENTS = (
     (LIB, "    topology::append_topology_diagnostics(&model, &built, &mut diagnostics);\n"),
     (FG, "pub(crate) const NAMED: usize = 6;"),
 )
-# Inventory of topology.rs's owning constructs (outside comments): a new one needs a price. The seven pushes are the
-# grid cell, the two pair lists, the refs list and the three diagnostics (the envelope's Vec, priced by D).
-TOP_INVENTORY = {"collect": 9, "Vec::new()": 3, "HashMap::new()": 2, "HashSet::new()": 1, "BTreeMap::new()": 1,
-                 "Bodies::new(": 1, ".push(": 7, "vec!": 0, "Vec::with_capacity": 0, ".to_vec()": 0, "Box::new": 0}
+# Inventory of topology.rs's owning constructs (outside comments): a new one needs a price. The nine pushes are the
+# grid cell, the found buffer's two, the two sample lists, the refs list and the three diagnostics (the envelope's Vec,
+# priced by D).
+TOP_INVENTORY = {"collect": 9, "Vec::new()": 4, "HashMap::new()": 2, "HashSet::new()": 1, "BTreeMap::new()": 1,
+                 "Bodies::new(": 1, ".push(": 9, "vec!": 0, "Vec::with_capacity": 0, ".to_vec()": 0, "Box::new": 0}
 
 
 def _read(snapshot, rel):
@@ -156,11 +162,13 @@ def topology_workspace(n, m, g):
       (usize, usize)): hash tables grown by insertion, each with its previous table;
     - the cell grid (<= n cells) and its cells' Vec<usize> (sum of capacities <= 4n: pushcap(k) <= 4k), with one
       previous cell backing (<= pushcap(n) / 2);
-    - the pair lists: coincident (usize, usize) and near (usize, usize, f64), each <= n(n-1)/2 distinct pairs
-      (`other > node`), push-grown with the previous backing;
+    - the per-node `found` buffer of (usize, Option<f64>): cleared per node (capacity kept), it holds that node's later
+      neighbours within the 27 cells, each other node at most once (`other > node`, each node in one cell): <= n - 1,
+      push-grown with the previous backing;
+    - the pair samples: coincident (usize, usize) and near (usize, usize, f64), each pushed only while shorter than
+      NAMED (<= 6, capacity 8), with the previous backing; the counts are integers;
     - three Vec<String> of <= NAMED headers (the description and the two pair lists). Their texts are TEXT sites, and
       the affected-refs Vecs move into the diagnostics (W8-RF in the TEXT model)."""
-    pairs = n * (n - 1) // 2
     usize, f64 = s("usize"), s("f64")
     coordinates = Xc("f64", 3 * n)
     edges = _grown(s("(usize,usize)"), m) + HashMov("&str", m)
@@ -169,7 +177,8 @@ def topology_workspace(n, m, g):
     parts = node * m + HashMov("(usize,usize)", m) + HashMov("usize", m) + HashMov("usize", g)
     joined = HashMov("(usize,usize)", m)
     grid = _grid(n) + Xc("usize", 4 * n) + usize * (pushcap(n) // 2)
-    pair_lists = _grown(s("(usize,usize)"), pairs) + _grown(usize * 2 + f64, pairs)
+    found = _grown(usize + s("Option<f64>"), max(n - 1, 0))
+    pair_lists = found + _grown(s("(usize,usize)"), NAMED) + _grown(usize * 2 + f64, NAMED)
     named = Xc("String", 3 * NAMED)
     return coordinates + edges + bodies + parts + joined + grid + pair_lists + named
 
