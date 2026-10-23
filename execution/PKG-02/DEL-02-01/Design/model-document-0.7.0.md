@@ -1,205 +1,287 @@
 # Model document 0.7.0: one canonical document and its schema (W-13)
 
-**Basis:** `origin/main` at `9d76659e02` (2026-10-23). Design for review before
+**Basis:** `origin/main` at `9d76659e02` (2026-10-23). This is revision 2, after
+two review rounds (an independent Claude reviewer and Codex). Design before
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 0. Rulings this design applies
 
 - **OD-4 (owner, 2026-10-23, "I approve OD-1 through OD-5 as you recommended"):**
   the desktop's model document is canonical. `schemas/model.schema.yaml` is
-  rewritten to describe it, and the missing slots are added: tags, notes,
-  unresolved assumptions, rule-pack references and structured provenance. The
-  slots arrive in a new document version under the one-version rule.
+  rewritten to describe it. The missing slots are added: tags, notes, unresolved
+  assumptions, rule-pack references and structured provenance. They arrive in a
+  new document version under the one-version rule.
 - **One current version per format (owner, 2026-10-10):** "nothing needs to be
   preserved for backwards compatibility … one current version per format". 0.7.0
   becomes the only version the product reads and writes. 0.6.0 is refused by name
   with the re-author diagnostic, like 0.1.0–0.5.0, and nothing is migrated.
-- **OD-1:** constraints and equipment interfaces belong to design knowledge
-  (PKG-13, PRD §13.1), which is deferred to v0.2. They get no slot here (§3.6).
+- **OD-1:** the design-knowledge layer (PKG-13: constraint evaluation, candidate
+  generation, knowledge entry) is deferred to v0.2. FR-MOD-002 still requires
+  constraints and equipment interfaces to be typed entities of the model. This
+  design adds them as records with no evaluation (§3.6), so FR-MOD-002 is not
+  narrowed.
+- **HELP_HUMAN (2026-10-23):** S1 lands before W-4, and W-4 authors 0.7.0. Each
+  D3 exclusive run is scheduled through HELP_HUMAN. Two registrations of the same
+  registry never race: the later one merges main and reruns `generate --check`.
 
-Requirements: FR-MOD-001, -002, -004, -005, -006 (PRD §11.1). FR-MOD-003 is
-unchanged and must keep holding: the new slots never rename or re-key an entity.
+Requirements: FR-MOD-001, -002, -004, -005, -006 (PRD §11.1). FR-MOD-003 holds
+unchanged: no new slot renames or re-keys an entity.
 
 ## 1. Where things stand
 
-- **The product document.** The product document is `document_kind`
-  `openpipestress.product_preview.model`, version 0.6.0. It is decoded by
-  `PreviewModel` (`core/product_physics/src/lib.rs:209`). Serde is not
-  `deny_unknown_fields`, so unknown keys pass through the solve unread. The
-  document is edited as a JSON value by the operation applier
-  (`core/model_operations/operation_applier`). Its version rule lives in
-  `model_format.rs`, `model_document_version.rs` (desktop) and
-  `projectService.ts:55`. The desktop open-time shape check is
-  `modelDocumentShape.ts`; it requires `data_boundary`, `project.description`
-  and string `label`/`provenance` members that the Rust decoder does not.
-- **The current schema.** `schemas/model.schema.yaml` describes an older,
-  unrelated shape (`project.models[]`, `elements`, `traceability_links`). The
-  bundled demo fails it with 11 errors. Its live consumers are:
-  - Python tests that validate old-shape fixtures: `test_model_schema.py`,
-    `test_physical_to_analytical_transform.py`, `test_invented_example_models.py`
-    and `test_project_persistence_service.py`.
-  - The headless physical-to-analytical transform
-    (`core/model_transform/physical_to_analytical`), called only by tests.
-  - `project_persistence.schema.yaml:333` (`ModelPayload` `$ref`).
-  - `test_component_section_schema.py:189`, which compares enums.
-  - `schemaSlotEmission.test.tsx:339-401`, which reads `$defs` to check the
-    names the desktop emits.
-  - Path strings only: `primitive_loads/src/lib.rs:366-368`, `user_loads`, the
-    handoff, native-JSON and persistence constants.
-- **Optional members in today's documents.** All 576 committed documents carry
-  `schema_version`, `document_kind` and `project`. The optional members are
-  `data_boundary` (166), `diagnostics` (164), `pressure_contract` (347),
-  `reference_configurations` (146) and top-level `sections` (8). The
-  load/reference-state group is already described by
-  `schemas/load_reference_state.schema.json`.
+- **The product document.** It is the `openpipestress.product_preview.model`
+  document, version 0.6.0.
+- **Rust decoding.** `PreviewModel` (`core/product_physics/src/lib.rs:209`,
+  wire form `:249`) decodes it.
+  - The top level and the node, pipe, support, material and component records
+    ignore unknown keys.
+  - The load/reference-state group (`case_state/input.rs:1-77`) and the pressure
+    contract (`pressure_runtime.rs:57,65,79`) are `deny_unknown_fields`.
+  - Section `provenance` is a `serde_json::Value` (`lib.rs:402`), so it may be a
+    string or an object. Material, support and component provenance are
+    optional strings.
+- **Applier.** The operation applier (`core/model_operations/operation_applier`)
+  edits the document as a JSON value.
+- **Desktop.** The desktop shape check (`modelDocumentShape.ts`) requires members
+  the decoder ignores: `data_boundary`, `project.name`/`description`, string
+  labels and `diagnostics`. The desktop also writes members the decoder ignores,
+  e.g. `components[].completeness`.
+- **The current schema.** `schemas/model.schema.yaml` describes an older shape
+  (`project.models[]`, `elements`, `traceability_links`). The bundled demo fails
+  it with 11 errors. Its consumers:
+  - **Validate old-shape fixtures:** `test_model_schema.py`,
+    `test_physical_to_analytical_transform.py`,
+    `test_invented_example_models.py` and `test_project_persistence_service.py`.
+  - **Old-shape code:** the headless transform
+    (`core/model_transform/physical_to_analytical`), which only tests call.
+  - **`$ref`:** `project_persistence.schema.yaml:333`.
+  - **Reads enums and `$defs`:** `test_component_section_schema.py:189` and
+    `schemaSlotEmission.test.tsx:339-401`.
+  - **Bind the path as a const:** `handoff_package.schema.json:354,593`,
+    `native_json_export.schema.json:465` and `native_json/package.py:374`.
+  - **Pointer strings:** `primitive_loads/src/lib.rs:366-368`, which is a
+    D3-pinned file, and `user_loads/src/lib.rs:1324`. The
+    `ModelResultValue` binding has live consumers (`user_loads:342`,
+    `load_case_algebra:226`).
+- **Committed documents.** 576 documents carry the `document_kind`:
+  - 290 are 0.6.0 and 286 are retired versions (frozen references and refusal
+    controls);
+  - 4 accept-case applier documents (contract corpus cases 76–78) are partial
+    and have no `project` or `nodes`.
 
 ## 2. Version 0.7.0
 
 0.7.0 is 0.6.0 plus the optional members in §3. A 0.6.0 document whose version
-string alone is changed is a valid 0.7.0 document with the same meaning. Behaviour
-still keys on what the document carries, never on the version string:
-pressure-freedom is the absence of `pressure_contract`, and the load/reference
-group is selected by presence. None of the new members is read by the solve, so
-no numerical path changes.
+string alone is changed is a valid 0.7.0 document with the same meaning. None
+of the new members is read by the solve.
 
-Version handling follows the S1 precedent (`b2e695a555`):
+**The standard for every regenerated artifact** (precedent `f468da4651`): the
+version token plus every binding digest that follows from it, written by the
+maintained writers. No physical value, status or reader outcome moves. Each
+regeneration is checked by comparing the numerical leaves of old and new
+artifacts separately from the expected hash and byte changes. This is S1b's
+review evidence.
+
+**Code.**
 - `MODEL_SCHEMA_VERSION = "0.7.0"`. `RETIRED_MODEL_SCHEMA_VERSIONS` gains
-  `0.6.0`, and the re-author diagnostic names 0.7.0. The same change goes to the
-  desktop Rust evaluator, the TypeScript evaluator and constants
-  (`projectService.ts:55,437`, `loadStateAuthoring.tsx:17`), the applier's
-  current-version checks (`bend_authoring.rs:465` and the others found by
-  search), the Python verifiers and qualification tools, and the version enum
-  in the schema.
-- **Frozen references are not rewritten.** The shared re-author helpers
-  (`tests/common/current_model.rs`, its lib twin, and
-  `qualification_physics.reauthor_model`) re-author a 0.6.0 or 0.5.0 copy by its
-  version string alone. SHA-bound frozen requests under `validation/**` keep
-  their bytes and are re-authored in memory after their SHA check.
-- **Committed non-frozen documents are regenerated.** Their `schema_version`
-  becomes 0.7.0 and nothing else changes. This covers fixtures, the bundled
-  demo, e2e fixtures and test literals. Where a generator exists
-  (`generate_product_preview_mechanics.mjs`, the ui-foundation
-  `generate-fixtures.mjs`, the qualification package generators), the generator
-  is updated and re-run; the bytes are not hand-edited.
-- **Generated reader corpora** record `document_schema_version` (10 files under
-  `fixtures/results/`). They are regenerated by their producing tests.
-- **Reviewed inputs that name the version** are edited by token only,
-  0.6.0 → 0.7.0, with no other wording change. They are:
-  - DEF-E `scope.model_format`;
-  - `supported_profile_limitations[0]` of the pressure-source-1 table;
-  - the pressure-2 table's admitted-families sentence
-    (`semantic_contract_v0_3_pressure_2.json:2187`);
-  - any others found by search.
+  `0.6.0`, and the re-author diagnostic names 0.7.0.
+- The same change goes to:
+  - the desktop Rust evaluator;
+  - the TypeScript evaluator and constants (`projectService.ts:55,437`,
+    `loadStateAuthoring.tsx:17`);
+  - the applier's version checks (`bend_authoring.rs:465`);
+  - the Python verifiers and qualification tools;
+  - the readers that accept only the current version (`retained_precision.rs`,
+    `physics_source.rs` and their Python twins);
+  - the schema enum.
+- **Literal version gates.** These production gates compare the literal
+  `"0.6.0"` and are routed through the shared constant:
+  - desktop: `componentIntent.ts:86,136`, `ConnectorDraftFields.tsx:60`,
+    `JointPressureModelEditor.tsx:8`, `PressureAuthoringPanel.tsx:164`,
+    `pressureContract.ts:32,48`;
+  - applier: `joint_pressure_authoring.rs:34,132,198`, `lib.rs:2691`,
+    `pressure_authoring.rs:149`.
+- **Guard test.** A new test fails on any literal model version outside the
+  constant definitions and the retired lists, in desktop and applier production
+  code.
+- **Diagnostic texts** that name "current model 0.6.0" take the constant:
+  `case_state/resolve.rs:79`, `joint.rs:838`, `pressure_authoring.rs:285`.
 
-  Their meaning hashes and every pin follow the actual bytes. **This needs a D3
-  re-registration** (`tools/retained_pricing` `run`, `compare`, `generate --check`)
-  on the exclusive lane, under the owner's M = 12 GiB. The physics-retained-1
-  `accuracy_classification.scope` sentence is TBD-002 and stays untouched,
-  as at S1.
-- **Owner text.** DEL-02-05 ScopeOfWork CLM-003 names 0.6.0 as the current
-  version in four places. The edit is the version token only and records OD-4.
-  Exact old → new text goes to HELP_HUMAN (§7).
-- **`native-smoke/expected.json` does not change.** It pins no version or
-  hash: `run.mjs` computes the model hash from each file it opens, and the
-  version string changes no observation (rows, probe, standing). This is to be
-  confirmed by a native smoke run on the slice head.
+**Frozen references.**
+- SHA-bound frozen requests under `validation/**` keep their bytes. Their
+  consuming tests check the recorded SHA, then re-author the copy. The shared
+  helpers (`tests/common/current_model.rs`, its lib twin,
+  `qualification_physics.reauthor_model`) re-author 0.6.0 and 0.5.0 by version
+  alone.
+- **The exception** is the precedent's token-edited witness input,
+  `tp_runner_015`, with its generator and the validation-manual line
+  (`353ca256a3`). It is edited the same way, by token.
+- `validation/references/o4_retained_source/declared_problem/twins.py:220,240`
+  and the t4_u5b builder (`core/product_physics/tests/common/t4_u5b.rs`) follow
+  the current version.
+
+**Regenerated by maintained writers.** Hand edits are not allowed. This covers:
+- the bundled demo, product-preview fixtures and their generation records
+  (`demo_fixture_generation.json` and `preview_physics_fixture_generation.json`;
+  these also pin the schema's SHA, at lines 531 and 1072);
+- the ui-foundation fixtures and their `fixture-manifest.json`;
+- `core/runner/headless/tests/t4_u5b_requests`;
+- the applier contract corpus (`applied_model_canonical_sha256` and its claimed
+  hashes);
+- the qualification packages and their MANIFEST;
+- the reader corpora;
+- result envelopes, whose `model_hash` comes from the request checksum
+  (`result_envelope_binding.rs:379`);
+- persistence binding hashes and test literals.
+
+**Retained and source successors (the D3 chain).** These embed a captured 0.6.0
+model, and the readers accept only the current version:
+- the 16 `fixtures/results/retained_precision_*successor*` files;
+- `retained_precision_cases.json`;
+- the two `failed_ordinary` fixtures.
+
+Invocation hashes cover the raw request (`source_receipt.rs:127`). DEF-E's
+hash enters preparation payloads (`retained_wire.rs:1508`), and successor
+documents and receipt hashes are pinned (`test_retained_precision_b3.py:656`).
+The 0.5.0→0.6.0 epoch needed four steps, and S1b repeats them:
+1. **Price.** `tools/retained_pricing` pins the full-file SHA of
+   `model_format.rs`, `lib.rs`, `exact_admission.rs`, `primitive_loads/src/lib.rs`,
+   `physics_source.rs`, `retained_precision.rs`, `semantic_contract.rs` and others
+   (`base/b7a_domain_model.py:74`). Moving any of them stops the tool with exit
+   4.
+2. **Register.** `retained_memory.rs:1204` pins the reviewed inputs
+   `prepared_exact_v1`, `pressure_source_1` and `pressure_2`. Admission reads
+   Stale until the profile is re-registered and the registration is rebound.
+3. **Regenerate the successors publicly** on the registered build, with the
+   maintained writers.
+4. **Update the synthetic-bases writer.** It hard-codes the version step
+   (`tools/fixtures/retained_precision_synthetic_bases.py:11,362`).
+
+The reviewed inputs are edited by token only, 0.6.0 → 0.7.0, with no other
+wording change. They are:
+- DEF-E `scope.model_format`;
+- `supported_profile_limitations[0]` of the pressure-source-1 table;
+- the pressure-2 admitted-families sentence
+  (`semantic_contract_v0_3_pressure_2.json:2187`).
+
+The physics-retained-1 `accuracy_classification.scope` sentence is TBD-002 and
+stays untouched. The re-pricing gets independent review. The exclusive runs go
+through HELP_HUMAN.
+
+**`native-smoke/expected.json` does not change.** Both reviews confirmed this:
+it pins no version or hash, `run.mjs:157` hashes the file it opened, and the
+newer-version case uses 9.0.0. A native smoke run on the S1b head confirms it,
+and the counts are reported.
 
 ## 3. New members
 
-All new members are optional. Absence means none, and the product never
-writes an empty default the user did not author. They are model data: editing one
-changes the model hash and invalidates the current solve, as any edit does
-(FR-CMP-002 ties results to the exact model state).
+All new members are optional, and absence means none. The product never writes
+an empty default the user did not author. Clearing a member removes it. The
+members are model data: editing one changes the model hash and invalidates the
+current solve, as any edit does.
+
+The new members **may not appear** on the load/reference-state group
+(reference configurations, analysis states, expansion laws) or the pressure
+contract. Those are `deny_unknown_fields` solve inputs (§1), and W-13 leaves them
+unchanged.
 
 ### 3.1 Tags and notes (FR-MOD-001, FR-MOD-004)
 
-`tags` and `notes` are allowed on `project` and on every entity record:
+`tags` and `notes` are allowed on:
+- `project`;
 - nodes, pipe segments, sections, materials, supports, components;
-- load cases, combinations, reference configurations;
-- lines and assumptions (§3.2, §3.3).
+- load cases and combinations;
+- the new entities in §3.2, §3.3 and §3.6.
 
 ```json
 "tags": ["tie-in", "rev-B"],
 "notes": "Free text the user owns."
 ```
 
-- `tags` is an array of unique, non-empty, trimmed strings of at most 64
-  characters each. Order is preserved as authored. No vocabulary is enforced
-  (FR-MOD-004: "flexible naming conventions without enforced prover status").
-- `notes` is one non-empty string.
+- `tags`: unique, non-empty, trimmed strings, at most 64 characters each,
+  ordered as authored. No vocabulary is enforced (FR-MOD-004).
+- `notes`: one non-empty string.
 - State-level and run-level tags and notes belong to the state and run records
-  (W-12), not the model document.
+  (W-12).
 
 ### 3.2 Lines (FR-MOD-002)
 
-`lines` is a top-level array of typed line entities:
-
 ```json
-{ "id": "line:L-100", "label": "Pump discharge", "pipe_refs": ["pipe:P-100", "pipe:P-110"],
-  "tags": [], "notes": "…", "provenance": "user_entered" }
+"lines": [{ "id": "line:L-100", "label": "Pump discharge", "pipe_refs": ["pipe:P-100"],
+            "tags": [], "notes": "…", "provenance": "user_entered" }]
 ```
 
-- `pipe_refs` holds unique ids of existing pipe segments. A pipe belongs to at
-  most one line.
-- A line is grouping only: it has no mechanical meaning and the solve does not
-  read it.
-- When a pipe is deleted, its id is removed from every line in the same
-  operation. An emptied line is kept, and the user deletes it explicitly.
+- `pipe_refs` holds unique ids of existing pipes, and a pipe belongs to at most
+  one line.
+- Grouping only: the solve does not read lines.
+- **Pipe edits.** Deleting a pipe removes it from its line in the same
+  operation. A pipe created by split or bend insertion joins the source pipe's
+  line (§6).
 
-### 3.3 Assumptions and open issues (FR-MOD-006)
+### 3.3 Unresolved assumptions and open issues (FR-MOD-006)
 
-`assumptions` is a top-level array. PRD §11.1 and §15.1 use "unresolved
-assumptions"; the record carries a status, so one collection holds the history:
+The slot is `unresolved_assumptions`, the name used by OD-4, PRD §15.1 and the
+state, operation and handoff schemas. Its vocabulary is
+`model_state.schema.json` `AssumptionRecord`'s, so W-12 and W-6 map it without a
+third vocabulary:
 
 ```json
-{ "id": "assumption:A-001", "kind": "assumption" | "open_issue",
+"unresolved_assumptions": [{
+  "assumption_id": "assumption:A-001", "kind": "assumption" | "open_issue",
   "statement": "Nozzle N-100 treated as anchor pending vendor loads.",
-  "status": "open" | "resolved" | "withdrawn",
-  "subject_refs": ["support:S-100"], "resolution_note": "…",
-  "tags": [], "notes": "…" }
+  "status": "unresolved" | "resolved" | "rejected",
+  "affected_refs": ["support:S-100"], "resolution_note": "…",
+  "tags": [], "notes": "…" }]
 ```
 
-- **Levels.** An empty `subject_refs` is project level. Otherwise the record
-  names lines, components, supports or any other entity id. This covers
-  FR-MOD-006's project, line, component and support levels; state and run levels
-  are W-12.
+- **Levels.** An empty `affected_refs` is project level. Otherwise the record
+  names lines, components, supports or any entity id. This covers FR-MOD-006's
+  project, line, component and support levels; the state and run levels are W-12.
 - **Resolution.** `resolution_note` is required when `status` is `resolved` or
-  `withdrawn`.
-- **Deleted subjects.** A subject that no longer exists is kept, not removed. It
-  is reported as a warning diagnostic `MODEL-ASSUMPTION-SUBJECT-MISSING`, so an
-  assumption's history survives entity deletion.
-- **Downstream.** The handoff manifest's `unresolved_assumptions` (W-6) is the
-  open subset.
+  `rejected`.
+- **Deleted entities.** An assumption keeps naming an entity that is later
+  deleted. The document validator reports `MODEL-ASSUMPTION-SUBJECT-MISSING`
+  (warning).
+- **Deletion is never blocked.** The applier's generic delete scan treats any
+  `*_refs` key as a reference (`lib.rs:3807-3837`). It therefore skips
+  `unresolved_assumptions`, so naming an entity in an assumption never blocks
+  that entity's deletion (§6).
+- **Adapters.** State and handoff records map `affected_refs` id strings to
+  `Reference` objects by id prefix and add their own `provenance`.
 
 ### 3.4 Rule-pack references
 
-`rule_pack_refs` is a top-level array. It names the private rule packs this
-model is checked against, by identity only. Rule content never enters the model
-document (PRD §20.3; DEL-02-05's rule-pack slot):
-
 ```json
-{ "rule_pack_id": "rulepack:…", "name": "…", "rule_pack_version": "…",
-  "checksum": { "algorithm": "sha256", "canonicalization": "rfc8785_jcs", "value": "sha256:<64 hex>" },
+"rule_pack_refs": [{ "rule_pack_id": "…", "name": "…", "rule_pack_version": "…",
+  "checksum": <the pack's own ComputedRulePackChecksum record>,
   "redistribution_status": "private_only" | "public_permissive" | "unknown" | "protected_suspected",
-  "source_notice": "…" }
+  "source_notice": "…" }]
 ```
 
-- The checksum is computed over the stored rule pack with the hash service the
-  desktop already uses.
-- The reference is added or removed from the Rule Pack Manager ("Use with this
-  model"). Removing a rule pack from the local store leaves the reference in
-  place, reported by `MODEL-RULE-PACK-REF-UNRESOLVED`.
-- A rule-check run reads the references (W-12 and W-6 consume them). Their
-  presence never makes a check pass.
+- **The checksum record is the pack's own stamped record**
+  (`core/rules/rule_pack_document/src/lib.rs:742-790`): canonicalization `"JCS"`,
+  basis `rfc8785_jcs_sha256_excluding_checksums`, bound to the grammar version.
+  A reference is checked by comparing it with the stored pack's stamped
+  checksum.
+- **Identity only.** Rule content never enters the document (PRD §20.3).
+  Rule-pack names and notices can be private. The model document is the user's
+  private data, and every export route treats `private_only` references under
+  the export policy (W-6). Issue bundles and public contexts redact them.
+- **UI.** References are added and removed from the Rule Pack Manager ("Use with
+  this model"). A reference whose pack is no longer in the local store reports
+  `MODEL-RULE-PACK-REF-UNRESOLVED` (warning). A reference never makes a check
+  pass.
 
 ### 3.5 Structured provenance (FR-MOD-005, PRD §20.2)
 
-`provenance` stays the required short string on every record; it is unchanged.
-An optional `provenance_record` object is added to materials, sections,
-components and supports. A component's record covers its SIF and flexibility
-modifiers, which already carry `modifiers.source_reference`. Allowables and
-rules are covered by rule packs and their references (§3.4). Library records
-already carry the full record.
+- **Existing `provenance` keeps its current forms:** a string on nodes, pipes,
+  materials, supports, components, load cases and combinations, and a string or
+  object on sections (the decoder's `Value`). The schema describes these forms
+  exactly.
+- **New `provenance_record`.** An optional `provenance_record` object is added
+  to materials, sections, components and supports. A component's record covers
+  its SIF and flexibility modifiers. Rules are covered by rule packs (§3.4), and
+  library records already carry the full record.
 
 ```json
 "provenance_record": {
@@ -207,193 +289,328 @@ already carry the full record.
   "contributor": "…", "contributor_certification": "…",
   "redistribution_status": "public_permissive" | "private_only" | "unknown" | "protected_suspected",
   "review_status": "pending" | "accepted" | "rejected" | "quarantined",
-  "reviewed_by": "…", "reviewed_on": "YYYY-MM-DD", "verification_note": "…" }
+  "reviewed_by": "…", "reviewed_on": "YYYY-MM-DD", "verification_note": "…",
+  "library_ref": { "library_id": "…", "library_version": "…", "record_id": "…" } }
 ```
 
-- The field names and enums are the library import's
+`library_ref` records the local library and record an entity was inserted from.
+The desktop sets it when it inserts a library record (S2). It is the source of
+the handoff manifest's `library_refs` (W-6b). The library payload never enters
+the document.
+
+- **Field names and enums** are the library import's
   (`REQUIRED_PROVENANCE_FIELDS`, `library_import_document/src/lib.rs:25`).
-- Only `source_name` is required: a private model "can record" these
-  (FR-MOD-005), while public data records need all seven §20.2 fields. Public
-  completeness is enforced where public data is produced (library import,
-  fixture checks), not on private models.
-- A record with `redistribution_status: protected_suspected` or
-  `review_status: quarantined` raises the existing quarantine diagnostic
-  semantics on that entity (warning on the model). The export routes (W-6)
-  refuse a public context while such a record is present.
-- `review_status` describes source-data review only. It is not, and the UI
-  never presents it as, professional acceptance (F-PIP-2).
+- **Required fields.** Only `source_name` is required on a private model
+  (FR-MOD-005 "can record"). Public data records need all seven §20.2 fields.
+- **Committed public fixtures.** A pytest fails if any committed model document
+  carrying `provenance_record` lacks one of the seven or carries a non-public
+  disposition. Committed fixtures stay invented (F-PIP-1).
+- **Disposition policy.** The library import's full policy
+  (`library_import_document/src/lib.rs:345-410`) is applied on every
+  public or downstream export context (W-6):
+  - `protected_suspected` or `quarantined`: quarantine;
+  - `rejected`: blocked;
+  - `private_only`, `unknown` or missing: blocked for public use.
 
-### 3.6 Not added
+  In the model itself, a quarantine disposition raises a warning on the entity.
+- **UI wording.** `review_status` describes source-data review only. Its UI
+  label reads "Source review", checked against `docs/claims_registry.md`. It
+  never presents professional acceptance (F-PIP-2).
 
-- Constraints and equipment interfaces (FR-MOD-002): design knowledge, PKG-13,
-  deferred by OD-1. FR-MOD-002 stays partial for those two families.
-- Coordinate-system declaration, storage-policy hooks and report settings
-  (DEL-02-01 ScopeOfWork, "project/model containers"):
-  - The document's frame is the implicit global frame, documented in the
-    schema's description.
-  - Storage policy belongs to the local store.
-  - Report settings belong to the report package.
+### 3.6 Constraints and equipment interfaces (FR-MOD-002)
 
-  Recording this reading in the DEL-02-01 ScopeOfWork changes commitment text,
-  so it goes to HELP_HUMAN as old → new (§7) rather than being edited here.
-- Rigid elements (DEC-045): components already carry `geometry.rigid_*` and
-  `modifiers.stiffness_scaling_user_value`, so W-13 adds no rigid fields. If the
-  rigid-element unit needs one, its design comes here through HELP_HUMAN before
-  the schema lands.
+These are typed records with no evaluation. The solve does not read them.
+Constraint checking, design-knowledge entry and candidate generation are PKG-13
+and v0.2 (OD-1).
+
+```json
+"constraints": [{ "id": "constraint:K-001", "label": "…",
+  "kind": <ConstraintKind from schemas/constraint.schema.json, excluding "TBD">,
+  "affected_refs": ["pipe:P-100"], "statement": "…", "tags": [], "notes": "…", "provenance": "…" }],
+"equipment_interfaces": [{ "id": "equipment-interface:E-001", "label": "Pump P-1 discharge nozzle",
+  "node_ref": "node:N-100", "equipment_label": "…", "tags": [], "notes": "…", "provenance": "…" }]
+```
+
+`affected_refs` and `node_ref` follow §3.3's rule for deleted entities: they
+never block deletion, and a missing entity is reported as a warning.
+
+### 3.7 Not added
+
+- **Coordinate system.** The document's frame is the implicit global frame,
+  stated in the schema description.
+- **Storage policy** belongs to the local store, **report settings** to the
+  report package, and **result/report records** to the result and report
+  formats.
+- Recording this reading in DEL-02-01 ScopeOfWork CLM-006 is commitment text.
+  It goes to HELP_HUMAN as old → new, with the reasoning that no FR-MOD
+  requirement is narrowed (§7).
+- **Rigid elements (DEC-045).** Components already carry `geometry.rigid_*` and
+  `modifiers.stiffness_scaling_user_value`. A field the rigid-element unit needs
+  comes through HELP_HUMAN before S1b's schema lands.
 
 ## 4. The schema
 
 `schemas/model.schema.yaml` is rewritten (same path and `$id`, strict JSON
-syntax, JSON Schema 2020-12) to describe the 0.7.0 document:
+syntax, JSON Schema 2020-12).
 
-- **Root is the format.** It requires what the product's decoder requires:
-  `schema_version` (enum `["0.7.0"]`), `document_kind` (const), `project`,
-  `analysis_status`, `nodes`, `pipe_segments` and `supports`. Every other member
-  is optional.
-- **`$defs/DesktopDocument`** is the desktop's open and save profile: root plus
-  `data_boundary`, `project.name`, `project.description`, `project.units`, and
-  the string members `modelDocumentShape.ts` requires. Documents the desktop
-  writes satisfy it. Headless solve requests need only the root.
-- **Every record is closed** (`additionalProperties: false`), with types, units
-  as `{value, unit}` quantities, the id pattern and the known enums: support
-  families, component kinds, load categories, combination modes, nonlinear
-  behaviours and pressure-contract members.
-- **The load/reference group** `$ref`s `load_reference_state.schema.json`
-  rather than restating it.
-- **The schema stays structural.** Physical validity and solve admission remain
-  the solver's named diagnostics. Cross-references (pipe ids exist, line
-  membership is unique) belong to the applier and the document validator, not
-  to JSON Schema.
-- **Source of truth for the content:** the Rust wire types (`PreviewModelWire`
-  and the nested `Deserialize` types), the applier's writers, and the
-  TypeScript `PreviewModel` type, cross-checked against every committed
-  document. Where the decoder accepts a member that no committed document and
-  no writer uses, it is still described: "exactly" means the format the product
-  reads. Where a committed document carries a member the decoder ignores, that
-  is a finding. The stray member is removed from the fixture, unless the
-  fixture is a deliberate refusal control.
+- **The root is the format.** It requires what `PreviewModelWire` requires:
+  `schema_version`, `document_kind`, `project`, `analysis_status`, `nodes`,
+  `pipe_segments` and `supports`.
+- **`$defs/DesktopDocument`** is the desktop's open and save profile. It is the
+  root plus every member `modelDocumentShape.ts` requires (`data_boundary`,
+  `project.name`, `project.description`, `project.units`, the required string
+  members and the required arrays, including `diagnostics`).
+  - Documents the desktop writes must satisfy it. Headless solve requests need
+    only the root.
+  - A document is desktop-profile when the desktop wrote it: blank and saved
+    projects, the bundled demo, e2e fixtures, the emission goldens (§5.2), and
+    any fixture that `modelDocumentShape.ts` admits in an existing test.
+- **What "exactly" means.** The persisted contract is the union of:
+  - every member any reader decodes (the Rust wire types, including the closed
+    case-state and pressure types);
+  - every member any writer emits (desktop TypeScript, applier, generators).
 
-**The old shape moves.** It goes by `git mv` to
-`schemas/physical_transform_model.schema.yaml`, with a new `$id` and title.
-Its description says it is the headless physical-to-analytical transform's
-reference format (FR-MOD-007, DEL-13-04), not the model document.
-- **Repointed to the moved file:** `test_physical_to_analytical_transform.py`,
-  `test_model_schema.py`'s old-shape assertions (moved into a
-  `test_physical_transform_model_schema.py`), `test_invented_example_models.py`
-  with `examples/models/invented/*`, and the transform-fed parts of
-  `test_project_persistence_service.py`.
-- **Kept on the canonical schema:** `project_persistence.schema.yaml`
-  `ModelPayload` keeps `$ref: model.schema.yaml`, now the canonical document. The
-  persistence fixture `fixtures/persistence/invented_persisted_preview_project.json`
-  and the persistence tests embed a 0.7.0 document instead of the old shape.
-  W-12 uses this envelope as reference behaviour.
-- **Enum checks:** `test_component_section_schema.py:189` checks the canonical
-  component `kind` enum against `component.schema.yaml` `ComponentType` where
-  both name the same families.
-- **Cited pointers:** the `#/$defs/LoadCase` and `#/$defs/LoadRecord` strings in
-  `primitive_loads` and `user_loads` are repointed to the new defs (`LoadCase`,
-  `PrimitiveLoad`). `Result/values` is already broken today and is removed.
-- **The desktop name-mirror test** (`schemaSlotEmission.test.tsx:339-401`) is
-  replaced by direct validation of the emitted document (§5).
+  Desktop-only members the decoder ignores are part of the contract and are
+  preserved: `data_boundary`, `diagnostics`, `project.name`/`description`,
+  `components[].completeness`.
+- **Stray members.** A member is stray only when every reader ignores it and no
+  writer emits it. A stray member is a finding. It is removed only from non-frozen
+  fixtures that writers regenerate. Refusal controls keep their form.
+- **Every record is closed** (`additionalProperties: false`). It carries types,
+  `{value, unit}` quantities, the id pattern and the known enums.
+- **The load/reference group** `$ref`s `load_reference_state.schema.json`,
+  unchanged.
+- **Structural only.** Physical validity and admission remain the solver's.
+  Cross-references are the document validator's (§5.3).
 
-## 5. Keeping the schema exact
+**Old shape.**
+- The old schema moves by `git mv` to
+  `schemas/physical_transform_model.schema.yaml`, with a new `$id` and a
+  description that names it the headless transform's reference format
+  (FR-MOD-007, DEL-13-04).
+- The transform tests and `test_invented_example_models.py` (with
+  `examples/models/invented/*`) validate against the moved file directly. Their
+  old-shape assertions move into `test_physical_transform_model_schema.py`.
+- The shared validation registry (`tests/schema_validation.py:75-124`) registers
+  both files, and the hand-made registries in two tests are updated.
 
-The product does not validate against the schema at runtime: no JSON Schema
-library is in the Rust or desktop dependency set, and adding one is not
-warranted. Exactness is kept by tests instead:
+**Persistence tests are separated.**
+- `project_persistence.schema.yaml` `ModelPayload` keeps
+  `$ref: model.schema.yaml`, now the canonical document.
+- The canonical persistence fixtures and tests embed 0.7.0 documents.
+- The transform-fed persistence test (`test_project_persistence_service.py`,
+  around :289-345 and :647) stops wrapping transform output in a canonical
+  envelope. It validates the transform output against the moved schema and
+  keeps its own persistence assertions on a canonical payload. There is no
+  adapter between the two shapes.
 
-1. **Committed positive documents.** A pytest validates every committed
-   positive model document against the root, and every desktop-profile
-   document against `DesktopDocument`. Positive documents are found by
-   `document_kind`, including those embedded in requests and envelopes. The
-   bundled demo is named explicitly. Deliberate refusal controls are excluded by
-   an explicit list that gives each one's reason.
-2. **Desktop emission.** A desktop vitest drives each authoring path and writes
-   the resulting documents to a generated, committed golden file
-   (`fixtures/model_document/desktop_emitted_0.7.0.json`). The paths are: blank
-   project, blank load/reference project, node/pipe/support/load/combination
-   creation, tags, notes, lines, assumptions, provenance records and rule-pack
-   references. The vitest fails if a fresh emission differs from the golden; the
-   pytest validates the golden against `DesktopDocument`.
-3. **Applier emission.** A Rust applier test does the same for one operation of
-   each `set_field` slot kind and each create/delete kind, writing a golden
-   that the pytest validates.
-4. **A strict-JSON check** of the schema itself (no duplicate keys, no NaN),
-   like `test_load_reference_schema.py:67`.
+**Pointer strings.**
+- The `LoadCase` and `LoadRecord` strings in `primitive_loads/src/lib.rs`, which
+  is D3-pinned, keep their text when the new schema's defs of those names
+  describe the same referent. That referent is the desktop's load case and
+  primitive-load record.
+  - If either binding's actual referent is an old-shape record, it is repointed
+    to the moved file in S1b. S1b already re-prices that file.
+- `ModelResultValue` (`#/$defs/Result/values`, broken today) is repointed to
+  its actual referent, the result-value definition in the results schema the
+  consumers use (`user_loads:342`, `load_case_algebra:226`). This also happens
+  in S1b. All three binding consumers' tests follow.
 
-## 6. Authoring
+**Path consts.**
+- `handoff_package.schema.json`'s `model_schema` const keeps naming
+  `schemas/model.schema.yaml`, which is correct after W-6b. Its tests
+  (`test_handoff_package_schema.py:173,234`, `test_handoff_export_workflow.py:186,210`)
+  are unchanged until then.
+- `native_json_export.schema.json:465` and `native_json/package.py:374` bind an
+  entity-view payload, PKG-17 (v0.2). They stay unchanged and are recorded as a
+  known PKG-17 gap.
 
-**Applier.** The new slots go through the existing `set_field` route. The
-`(object_type, field_path)` allowlist (`operation_applier/src/lib.rs:1403`)
-gains these pairs:
-- (every entity type, `tags`) and (every entity type, `notes`);
-- (`Material` | `Section` | `Component` | `Support`, `provenance_record`);
-- (`Project`, `tags` | `notes`);
-- (`Model`, `lines` | `assumptions` | `rule_pack_refs`).
+**Tests that read the old defs.**
+- `test_component_section_schema.py:189` checks the canonical component `kind`
+  enum against `component.schema.yaml`'s families.
+- `schemaSlotEmission.test.tsx:339-401` (TP-PMM-GUIEMIT-001) is replaced by the
+  emission validation in §5.2, which keeps the TP-PMM-GUIEMIT-001 test id.
 
-Each value is validated before it is applied, with named blocking diagnostics:
-- tag rules;
-- line pipe references exist and are unique across lines;
-- assumption status/resolution consistency and id pattern;
-- rule-pack checksum form;
-- provenance enums.
+## 5. Keeping the schema exact and the document valid
 
-Pipe deletion (`delete_pipe_run`) also removes the pipe from lines. All of these
-edits are validated, diffed and undoable like every other operation, and none
-can change an entity id (FR-MOD-003).
+There is no runtime JSON Schema: no library is in the Rust or desktop
+dependency set, and none is added.
+
+1. **Conformance pytest, by rule:**
+   - committed documents at the current version validate against the root;
+   - desktop-profile documents (§4) also validate against `DesktopDocument`;
+   - SHA-bound frozen requests validate after their SHA check and in-memory
+     re-authoring;
+   - retired-version documents are excluded by rule, as refusal controls or
+     frozen inputs;
+   - partial applier operation fixtures (no `project`) are excluded by rule;
+   - documents embedded in requests and envelopes are found by `document_kind`;
+   - the bundled demo is named explicitly;
+   - any other exclusion needs an explicit entry with its reason.
+2. **Desktop emission golden.**
+   - A vitest drives each authoring path: blank project and blank
+     load/reference project; node, pipe, support, load and combination
+     creation; and every §3 slot.
+   - It runs under a fixed clock and writes
+     `fixtures/model_document/desktop_emitted.json`, which has no version in
+     its name. An explicit update mode regenerates it, and the vitest fails when
+     a fresh emission differs.
+   - The pytest validates every entry against `DesktopDocument`. It keeps the
+     TP-PMM-GUIEMIT-001 id.
+   - A Rust applier test writes a golden for one operation of each new kind,
+     and the pytest validates it.
+3. **One document validator.** A manual Rust validator in the applier crate,
+   exposed to wasm, checks:
+   - tag form, unique ids within each new collection, line membership (each
+     pipe exists and belongs to one line);
+   - assumption status and resolution consistency;
+   - constraint kinds, rule-pack checksum form, provenance enums;
+   - missing-subject warnings.
+
+   It runs at file open (`read_model_document_file` and the webview open path),
+   at project load, and on every operation the applier applies. A malformed
+   externally authored slot is refused at open with a named diagnostic and its
+   JSON path, like today's `MODEL-FILE-SHAPE`. It is never repaired.
+4. **Lossless round trip (FR-MOD-001).** A document carrying every new member
+   goes through four paths, and each must return the same model hash and equal
+   content:
+   - open → save → reopen through the SQLite store;
+   - file open → W-6a save → reopen;
+   - the Python persistence envelope;
+   - undo/redo of each new operation.
+5. **Negative tests** for every validator rule, at open and at apply.
+6. **Strict-JSON check of the schema** (no duplicate keys, no NaN), like
+   `test_load_reference_schema.py:67`.
+
+## 6. Authoring (applier and desktop)
+
+**Object types and change kinds.** `collection_for` (`lib.rs:867-878`) gains:
+- `Line`, `Assumption`, `Constraint` and `EquipmentInterface`, over their
+  collections;
+- `Project`, as a singleton target for project tags and notes.
+
+The new operations are identity-preserving, with explicit create and delete and
+no whole-array replacement:
+- `create_line`, `update_line`, `delete_line`;
+- `create_assumption`, `update_assumption`, `delete_assumption`;
+- `create_constraint`, `update_constraint`, `delete_constraint`;
+- `create_equipment_interface`, `update_equipment_interface`,
+  `delete_equipment_interface`;
+- `add_rule_pack_ref`, `remove_rule_pack_ref`;
+- annotations: (any entity, `tags`), (any entity, `notes`) and
+  (Material | Section | Component | Support, `provenance_record`), carried on
+  each family's existing change kind. That is `set_field` for most families and
+  `update_load` / `update_support` for loads and supports (`lib.rs:1404-1411,
+  2390`).
+
+`update_*` never changes an `id`, which keeps FR-MOD-003. `FieldKind` gains a
+string-list kind for tags. Clearing a field removes the member; the `TBD`
+sentinel (`lib.rs:250-253`) is not used for these slots.
+
+**Geometry and reference scans.**
+- **Record shape.** `record_shape` (`geometry_operations.rs:27-40,128-157`)
+  accepts `tags`, `notes` and `provenance_record` on nodes and pipes, so split,
+  transform and copy work on annotated records.
+- **Attachment scans.** The scans (`geometry_operations.rs:233-303`,
+  `bend_authoring.rs:583-606`) and the generic delete scan
+  (`lib.rs:3807-3837`) skip `tags`, `notes` and `provenance_record`, and do not
+  scan `unresolved_assumptions`, `constraints`, `equipment_interfaces` or
+  `lines`. These are handled explicitly:
+  - deleting a pipe removes it from its line;
+  - deleting a node named by an equipment interface, or any entity named by an
+    assumption or constraint, is never blocked and leaves a missing-subject
+    warning.
+- **Split and bend insertion** (`geometry_operations.rs:388-393`,
+  `bend_authoring.rs:632-636`) clone the source pipe. The new pipe inherits the
+  source's `tags`, `notes` and `provenance_record`, joins the source's line, and
+  is not added to assumptions that name the source; the source id survives.
+- **Applier tests** cover each case.
 
 **Desktop.**
-- The property inspector gains Tags and Notes for the selected entity and for
+- The property inspector gets Tags and Notes for the selected entity and for
   the project.
-- Materials, sections, components and supports get a collapsible Provenance
-  record section.
-- A Lines section in the model tree supports creating a line from selected pipes,
-  renaming it and removing it.
-- An Assumptions and open issues panel supports adding, editing, resolving and
-  withdrawing, and filtering by status and subject. A subject is chosen from
-  the current selection.
+- Materials, sections, components and supports get a Provenance record section.
+- The model tree gets a Lines section: create a line from the selected pipes,
+  rename it, remove it.
+- An Assumptions and open issues panel lets the user add, edit, resolve and
+  reject, and filter by status and subject.
+- A Constraints and interfaces list lets the user add and edit records only;
+  there is no evaluation.
 - The Rule Pack Manager gets "Use with this model" and "Remove from model".
-- New diagnostics appear in the existing diagnostics list.
-- No new menu item; save-to-file is W-6.
+- New diagnostics appear in the diagnostics list.
 
-## 7. Owner-reserved text (exact old → new, for HELP_HUMAN)
+## 7. Owner-reserved text (exact old → new to HELP_HUMAN at the slice that needs it)
 
-To be sent with the exact lines once the implementation slice is ready:
+1. **Version token 0.6.0 → 0.7.0** (records OD-4, so HELP_HUMAN can approve):
+   - DEL-02-05 ScopeOfWork CLM-003, lines 33, 35, 37 and 100, and CLM-013
+     line 178.
+     - Line 33's "defined by the T4-U4b/U5b epoch" becomes a pointer to this
+       design.
+     - Line 34's retired list gains `0.5.0` and `0.6.0`.
+   - DEL-04-08 ScopeOfWork REQ-001 (line 108), REQ-002 (line 122) and the
+     TBD-002 status text (line 262), with TBD-002's held physics-retained
+     sentence unchanged.
+   - DEL-03-01 REQ-03-01-007 (line 145).
+2. **DEL-02-01 ScopeOfWork CLM-006, "project/model containers".** Record that
+   the document's frame is the implicit global frame, that storage policy is
+   the store's, and that report settings and result/report records belong to
+   their own formats.
+   - **Reasoning:** no FR-MOD requirement names a coordinate-system, storage,
+     report-settings or result slot in the model. FR-MOD-001's "warnings" are
+     the document's `diagnostics` plus the validator's. FR-MOD-002 is met in
+     full by §3.2 and §3.6.
+   - **This narrows no FR-MOD requirement.** If HELP_HUMAN reads it otherwise,
+     it goes to the owner.
+3. **Reconciliation pointers.** These are reconciliation, not commitment
+   changes:
+   - DEL-02-01 line 88 (current implementation);
+   - `deliverable.yaml` conditions naming 0.6.0 or `b7-plan` "Current model
+     format": DEL-02-05:128, DEL-10-05:48, DEL-12-01:98, DEL-04-07:7;
+   - DEL-05-02 ScopeOfWork :78 and DEL-05-03 :124, if they are current-state
+     text; if either is a commitment, it is listed under item 1;
+   - `b7-plan.md` "Current model format", `RELEASE_NOTES_v0.1.0_DRAFT.md:53`,
+     `persistence_contract.md` and `GATE_USAGE.md`.
 
-1. **DEL-02-05 ScopeOfWork CLM-003, lines 33, 35 and 37.** Version token
-   `0.6.0` → `0.7.0`. The `RETIRED_MODEL_SCHEMA_VERSIONS` sentence gains
-   `0.6.0`. Records OD-4.
-2. **DEL-02-01 ScopeOfWork.** The current-implementation paragraph (line 88) is
-   reconciliation and is edited here. The "project/model containers"
-   obligation (line 80) needs the §3.6 reading recorded, which is a change to
-   commitment text, so it goes to HELP_HUMAN.
+## 8. Slices
 
-## 8. Slices and checks
-
-- **S1: format and schema.** Version 0.7.0 everywhere (§2); regenerated
-  fixtures; the reviewed-input token edits with D3 re-registration; the
-  rewritten schema and the moved old schema; the tests in §5.1 and §5.4.
-  Checks:
-  - `desktop-test`, `piping-pytest`, the affected Rust crates (`product_physics`,
-    `operation_applier`, `result_export`, `runner/headless`, desktop
-    `src-tauri`) and the native smoke, each compared with main;
-  - the `tools/hosted-ci-routing.json` digest refresh for the `.rs` changes;
-  - D3 `generate --check`;
-  - review: an independent Claude reviewer and Codex.
-- **S2: authoring.** Applier slots, desktop UI, and the emission goldens in §5.2
-  and §5.3. Checks: `desktop-test`, `piping-pytest`, applier tests, and the
-  native smoke where the open/save path changes; same review.
-- **Ordering.** S1 changes every model document in the repository, so W-4 (the
-  native journey test) should author 0.7.0 documents. HELP_HUMAN agrees the
-  order: S1 lands first, or W-4 lands first and S1 regenerates its fixture.
+1. **S1a: the canonical schema for the current document.** No D3, and no file
+   in the D3 pinned set (§2).
+   - Scope:
+     - the rewritten `model.schema.yaml` at version 0.6.0, without the §3
+       members;
+     - the moved old schema, with the transform and persistence test
+       separation;
+     - the conformance pytest (§5.1) and the strict-JSON check (§5.6).
+   - Checks: `piping-pytest` and `desktop-test` compared with main; dual review.
+2. **S1b: version 0.7.0 and the §3 members in the format.**
+   - Scope:
+     - schema members and enum;
+     - the version ripple and the D3 chain (§2), with exclusive runs through
+       HELP_HUMAN;
+     - the document validator (§5.3) at open and load;
+     - any pointer-string repoint;
+     - the reserved token edits once HELP_HUMAN approves.
+   - Checks: affected Rust crates, `piping-pytest`, `desktop-test` and the
+     native smoke compared with main; D3 `generate --check`; the
+     `tools/hosted-ci-routing.json` digest refresh; numerical-leaf comparison of
+     the regenerated artifacts; independent review of the re-pricing; dual
+     review.
+3. **S2: authoring** (§6, §5.2, §5.4, §5.5).
+   - **Constraint:** S2 touches no D3-pinned file. If it must, it carries its own
+     D3.
+   - Checks: applier tests, `desktop-test`, `piping-pytest`, the native smoke
+     where open/save changes, and dual review.
+4. **Order.** S1a, then S1b, then S2. W-4 authors 0.7.0 after S1b. The rigid-
+   element unit's fields, if any, join S1b.
 
 ## 9. Reconciliation (per slice)
 
-- **DEL-02-01** (schema, Design pointer, `deliverable.yaml` code paths and the
-  new tests).
-- **DEL-02-05** (CLM-003 via §7).
-- **DEL-04-08 / DEL-04-07** Design version mentions.
-- **DEL-07-02** (inspector slots).
-- **DEL-13-01** (FR-MOD-006 pointer).
+- **DEL-02-01:** schema, Design pointer, `deliverable.yaml` code paths and checks.
+- **DEL-02-05:** CLM-003 and CLM-013 via §7.
+- **DEL-04-08 / DEL-04-07:** version mentions and Design.
+- **DEL-03-01:** REQ-03-01-007 via §7.
+- **DEL-07-02:** inspector slots.
+- **DEL-13-01:** FR-MOD-006 pointer.
+- **DEL-13-04:** the moved transform schema.
 - The completeness-map rows FR-MOD-001/002/004/005/006 are for the
   reconciliation owner.
