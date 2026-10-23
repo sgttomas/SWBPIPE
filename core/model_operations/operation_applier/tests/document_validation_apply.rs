@@ -54,40 +54,49 @@ fn codes(outcome: &OperationOutcome) -> Vec<(&str, &str)> {
     outcome.diagnostics.iter().map(|item| (item.code.as_str(), item.severity.as_str())).collect()
 }
 
-/// Deleting a pipe that a line still groups would leave the line naming a
-/// pipe the document lacks: the result is malformed, so the operation is
-/// refused with the validator's named diagnostic and no document returns.
-/// (S2 makes pipe deletion remove the pipe from its line, §3.2 and §6.)
+fn create_line(id: &str, pipes: &[&str]) -> Value {
+    let record = json!({"id": id, "label": "Invented line", "pipe_refs": pipes});
+    intent("create-line", "create", "Line", id, "create_line", "lines", "not_present", &canonical_json(&record))
+}
+
+/// A line naming a pipe another line already groups would leave the document
+/// malformed: the operation is refused with the validator's named diagnostic
+/// and no document returns. (S2: deleting a lined pipe now removes it from its
+/// line in the same operation, §3.2 and §6.)
 #[test]
 fn an_operation_whose_result_is_malformed_is_refused() {
     let model = every_slot();
     let before = model.clone();
-    let outcome = apply_operation(&model, &delete_pipe("pipe:P-1", "Run; node:N-1->node:N-2; material=material:steel"), None);
+    let outcome = apply_operation(&model, &create_line("line:L-300", &["pipe:P-1"]), None);
     assert_eq!(model, before, "the input is never mutated");
     assert!(outcome.applied_model.is_none());
     assert!(outcome.applied_model_backend_hash.is_none());
     assert_eq!(outcome.validation.application_status, "blocked");
     assert_eq!(outcome.validation.schema_validation, "blocked");
     assert_eq!(outcome.validation.diff_preview_status, "blocked_by_validation");
-    let line = outcome.diagnostics.iter().find(|item| item.code == "MODEL-LINE-PIPE-MISSING").expect("named refusal");
+    let line = outcome.diagnostics.iter().find(|item| item.code == "MODEL-LINE-PIPE-SHARED").expect("named refusal");
     assert_eq!(line.severity, "blocking");
-    assert!(line.message.contains("(at lines[0].pipe_refs[0])"), "{}", line.message);
-    assert_eq!(line.affected_refs, vec!["line:L-100".to_string(), "pipe:P-1".to_string()]);
+    assert!(line.message.contains("(at lines[2].pipe_refs[0])"), "{}", line.message);
+    assert_eq!(line.affected_refs, vec!["line:L-100".to_string(), "line:L-300".to_string(), "pipe:P-1".to_string()]);
     assert_eq!(outcome.acceptance.persistence_status, "not_applicable_no_application");
 
-    // The same deletion inside an atomic batch rolls the whole batch back.
+    // The same operation inside an atomic batch rolls the whole batch back.
     let batch = json!({"batch_id": "batch:validator", "operations": [
         rename_node("Elbow", "Elbow (renamed)"),
-        delete_pipe("pipe:P-1", "Run; node:N-1->node:N-2; material=material:steel"),
+        create_line("line:L-300", &["pipe:P-1"]),
     ]});
     let outcome = apply_operation_batch(&model, &batch, Some(&claim(&model)));
     assert!(outcome["applied_model"].is_null());
     assert_eq!(outcome["validation"]["application_status"], json!("blocked"));
     assert_eq!(outcome["simulation_disposition"], json!("rolled_back_no_model_published"));
-    assert!(outcome["diagnostics"].as_array().unwrap().iter().any(|item| item["code"] == json!("MODEL-LINE-PIPE-MISSING")));
+    assert!(outcome["diagnostics"].as_array().unwrap().iter().any(|item| item["code"] == json!("MODEL-LINE-PIPE-SHARED")));
 
-    // A pipe no line groups deletes normally; the constraint that names the
-    // other pipe is untouched.
+    // A lined pipe deletes and leaves its line; the constraint that names it
+    // keeps the id and warns. A pipe no line groups deletes normally.
+    let outcome = apply_operation(&model, &delete_pipe("pipe:P-1", "Run; node:N-1->node:N-2; material=material:steel"), None);
+    assert_eq!(outcome.validation.application_status, "applied_to_session_model", "{:?}", codes(&outcome));
+    assert_eq!(codes(&outcome), vec![("MODEL-ASSUMPTION-SUBJECT-MISSING", "warning")]);
+    assert_eq!(outcome.applied_model.unwrap()["lines"][0]["pipe_refs"], json!([]));
     let outcome = apply_operation(&model, &delete_pipe("pipe:P-2", "Riser; node:N-2->node:N-3; material=material:steel"), None);
     assert_eq!(outcome.validation.application_status, "applied_to_session_model", "{:?}", codes(&outcome));
     assert!(codes(&outcome).is_empty(), "{:?}", codes(&outcome));

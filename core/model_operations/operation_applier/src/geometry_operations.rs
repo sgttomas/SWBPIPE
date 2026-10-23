@@ -134,14 +134,16 @@ fn record_shape(record: &Value, node: bool) -> Result<()> {
             return Err(err(format!("Selected {key} metadata must be text or null")));
         }
     }
+    // W-13 §6: nodes and pipes may carry tags and notes (never a
+    // provenance_record); split, transform and copy carry them with the record.
     if node {
-        fields(record, &["id", "position"], &["label", "provenance"])?;
+        fields(record, &["id", "position"], &["label", "provenance", "tags", "notes"])?;
         vector(&record["position"])?;
     } else {
         fields(
             record,
             &["id", "from", "to", "section", "material"],
-            &["label", "provenance", "y_reference", "section_ref"],
+            &["label", "provenance", "y_reference", "section_ref", "tags", "notes"],
         )?;
         fields(
             &record["section"],
@@ -230,6 +232,7 @@ pub(crate) fn metadata(v: &Value, ids: &mut BTreeSet<String>, copy: bool) -> Res
 }
 // Detect any exact selected reference outside understood records. Text metadata
 // is not a link; all other selected-ID occurrences fail closed, including aliases.
+// Tags, notes and provenance records are annotations (W-13 §6), not links.
 pub(crate) fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mut Vec<String>) {
     match v {
         Value::String(s) if ids.contains(s) => out.push(path.into()),
@@ -240,7 +243,9 @@ pub(crate) fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mu
         }
         Value::Object(m) => {
             for (k, x) in m {
-                if !matches!(k.as_str(), "label" | "name" | "provenance") {
+                if !matches!(k.as_str(), "label" | "name" | "provenance")
+                    && !super::model_data_authoring::ANNOTATION_MEMBERS.contains(&k.as_str())
+                {
                     references(x, ids, &format!("{path}.{k}"), out);
                 }
             }
@@ -267,6 +272,12 @@ fn attachments(
     all.extend(node_ids.iter().cloned());
     let mut found = vec![];
     for (key, collection) in model.as_object().unwrap() {
+        // W-13 §6: lines, assumptions, constraints, equipment interfaces and
+        // rule-pack references are not attachments. A split pipe's line is
+        // extended explicitly; a missing subject is the validator's warning.
+        if super::model_data_authoring::MODEL_DATA_COLLECTIONS.contains(&key.as_str()) {
+            continue;
+        }
         if key == "nodes" {
             for node in rows(model, "nodes")? {
                 if !node_ids.contains(text(node, "id")?) {
@@ -404,9 +415,12 @@ fn split(model: &Value, intent: &Value, payload: &Value, unit: &str) -> Result<G
     list.push(second.clone());
     frame(&candidate, &first, unit, false)?;
     frame(&candidate, &second, unit, false)?;
+    // W-13 §3.2: the new pipe (which inherits the source's tags and notes)
+    // joins the source pipe's line.
+    let line_row = super::model_data_authoring::join_source_line(&mut candidate, id, text(&second, "id")?);
     Ok(GeometryEdit {
         model: candidate,
-        diff_preview: vec![
+        diff_preview: [
             diff(
                 id,
                 "Element",
@@ -431,7 +445,10 @@ fn split(model: &Value, intent: &Value, payload: &Value, unit: &str) -> Result<G
                 &second,
                 "connect_pipe_run",
             ),
-        ],
+        ]
+        .into_iter()
+        .chain(line_row)
+        .collect(),
     })
 }
 
