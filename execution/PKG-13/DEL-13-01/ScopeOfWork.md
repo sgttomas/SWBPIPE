@@ -93,13 +93,13 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > | Reference | Use in this datasheet |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, scope, artifacts, context envelope, architecture-basis injection. |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, artifacts, context envelope, architecture-basis injection. |
 > | `_REFERENCES.md` | Reference index and source boundary for this deliverable. |
 > | `_DEPENDENCIES.md` and `Dependencies.csv` | approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface and active upstream dependency context. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-067, OBJ-014, PKG-13 boundary, DEL-13-01 row, OI-013. |
-> | `docs/_Registers/Deliverables.csv` | Deliverable row and artifacts. |
-> | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-067. |
-> | `docs/_Registers/ContextBudgetQA.csv` | Context envelope and no-protected-data note. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row and artifacts. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope ledger row for SOW-067. |
+> | `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) | Context envelope and no-protected-data note. |
 > | `docs/CONTRACT.md` | Invariants for IP, data, authority, units, and agent behavior. |
 > | `docs/TYPES.md` | Identifier rules, epistemic labels, analysis-status vocabulary, and domain object registry. |
 > | `docs/SPEC.md` | Architecture, physical-model source-of-truth framing, schema/unit/provenance constraints, acceptance semantics. |

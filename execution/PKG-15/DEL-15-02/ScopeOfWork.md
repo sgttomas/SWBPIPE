@@ -89,13 +89,13 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, package envelope, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, package envelope, architecture-basis injection.
 > - `_REFERENCES.md` - local reference index.
 > - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for predecessor context.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis, PKG-15 and DEL-15-02 rows.
-> - `docs/_Registers/Deliverables.csv` - DEL-15-02 row.
-> - `docs/_Registers/ScopeLedger.csv` - SOW-074 row.
-> - `docs/_Registers/ContextBudgetQA.csv` - DEL-15-02 row.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - DEL-15-02 row.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - SOW-074 row.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - DEL-15-02 row.
 > - `docs/CONTRACT.md` - invariant catalog.
 > - `docs/DIRECTIVE.md` - product principles.
 > - `docs/SPEC.md` - adapter/export and boundary specification slices.
@@ -386,7 +386,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
 > - `Dependencies.csv`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`

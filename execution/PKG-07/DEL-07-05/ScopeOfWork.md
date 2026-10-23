@@ -99,8 +99,8 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > - `docs/TYPES.md` - analysis-status vocabulary and Result/Report object boundary.
 > - `docs/DIRECTIVE.md` - product principles, stop rules, and professional boundary.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - package, objective, and architecture-basis context.
-> - `docs/_Registers/Deliverables.csv` - DEL-07-05 row.
-> - `docs/_Registers/ScopeLedger.csv` - SOW-023 row.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - DEL-07-05 row.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - SOW-023 row.
 
 ## Completion and Reliance Basis — Epistemology
 

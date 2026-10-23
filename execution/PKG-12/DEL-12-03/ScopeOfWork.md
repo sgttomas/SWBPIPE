@@ -113,9 +113,9 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for PKG-12, DEL-12-03, SOW-037, OBJ-010, OI-008, and AB-00-01/02/03/04/06/07/08.
 > - `execution/PKG-12/DEL-12-03/_run_records/TASK_RUN_2026-06-07_0141.md`.
 > - `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/_run_records/WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md`.
-> - `docs/_Registers/Deliverables.csv` row DEL-12-03.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-037.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-12-03.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-12-03.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-037.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-12-03.
 
 ## Completion and Reliance Basis — Epistemology
 

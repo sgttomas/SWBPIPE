@@ -104,9 +104,9 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > - `docs/VALIDATION_STRATEGY.md`
 > - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 
 ## Completion and Reliance Basis — Epistemology
 

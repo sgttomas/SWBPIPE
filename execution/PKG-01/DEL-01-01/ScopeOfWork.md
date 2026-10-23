@@ -107,13 +107,13 @@ This Scope of Work defines `DEL-01-01` in service of project scope [SOW-001, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`
 > - `execution/_DAG/DAG-006/`
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 > - `docs/CONTRACT.md`
 > - `docs/DIRECTIVE.md`
 > - `docs/TYPES.md`

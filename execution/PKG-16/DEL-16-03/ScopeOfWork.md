@@ -97,14 +97,14 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
 > - `_DEPENDENCIES.md`
 > - `Dependencies.csv`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 > - `docs/DIRECTIVE.md`
 > - `docs/CONTRACT.md`
 > - `docs/SPEC.md`

@@ -100,8 +100,8 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | `docs/SPEC.md` | GUI warnings, result/report expectations, and layer boundaries |
 > | `docs/TYPES.md` | Analysis-status and professional-boundary vocabulary |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | DEL-07-07 package, scope, objectives, and architecture-basis rows |
-> | `docs/_Registers/Deliverables.csv` | Deliverable row for DEL-07-07 |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-055 row |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row for DEL-07-07 |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-055 row |
 > | `execution/PKG-00/DEL-00-03/ArchitectureBasis.md` | Command, job, cancellation, progress, and result-envelope boundary |
 > | `execution/PKG-00/DEL-00-05/ArchitectureBasis.md` | Durable/transient GUI state and job-progress state separation |
 > | `execution/PKG-00/DEL-00-06/ArchitectureBasis.md` | Diagnostics fields, warning classes, and no-compliance-claim boundary |
