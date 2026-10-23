@@ -207,7 +207,7 @@ export function parseTags(text: string): string[] {
 
 export type Canonicalize = (value: unknown) => Promise<string>;
 
-/** An annotation intent: `next` null clears the member (an empty tag list clears too). */
+/** An annotation intent: `next` null clears the member; an authored empty tag list is kept as `[]`. */
 export async function annotationIntent(
   canonicalize: Canonicalize,
   objectType: EditorOperationObjectType,
