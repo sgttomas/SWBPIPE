@@ -72,7 +72,7 @@ describe("load form composed defaults", () => {
     expect(queue.mock.calls.at(-1)![0].change).toMatchObject({ unit: "lbf/in", dimension: "force_per_length" });
   });
 
-  it("mm with N: the distributed default is N/mm and the moment default is the moment key", async () => {
+  it("mm with N: the distributed default is N/mm and the moment default is the moment key, not N*mm", async () => {
     route.current = CATALOG;
     mountLoads(blankWith({ ...SI_PROJECT_UNITS, length: "mm" }));
     await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
@@ -97,14 +97,26 @@ describe("load form composed defaults", () => {
     expect(outcome.diagnostics.filter((diagnostic) => diagnostic.severity === "blocking")).toEqual([]);
   });
 
-  it("without a moment key there is no default, and the catalog still offers a choice", async () => {
+  it("without a moment key, a catalog composition is the default", async () => {
     route.current = CATALOG;
     const model = blankWith(SI_PROJECT_UNITS);
+    delete model.project.units.moment;
+    mountLoads(model);
+    await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
+    choose("load-manager-create-primitive-category", "concentrated_moment");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("N*m");
+    expect(screen.queryByTestId("load-manager-create-primitive-unit-notice")).not.toBeInTheDocument();
+  });
+
+  it("without a moment key, a non-catalog composition gives no default and the notice", async () => {
+    route.current = CATALOG;
+    const model = blankWith({ ...SI_PROJECT_UNITS, length: "mm" });
     delete model.project.units.moment;
     const queue = mountLoads(model);
     await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
     choose("load-manager-create-primitive-category", "concentrated_moment");
-    expect(byId("load-manager-create-primitive-unit")).toHaveValue("TBD");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-notice")).toHaveTextContent("N*mm is not a catalog unit; choose one");
     expect(byId("queue-create-primitive-intent")).toBeDisabled();
     choose("load-manager-create-primitive-unit", "lbf*ft");
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());

@@ -5772,7 +5772,7 @@ describe("SWBPIPE desktop preview", () => {
     );
   });
 
-  it("offers no concentrated-moment default where the document declares no moment unit (W-17 §2.4)", async () => {
+  it("queues and applies a concentrated-moment primitive load through the manager panel", async () => {
     render(<App />);
 
     const manager = await loadCaseManager();
@@ -5785,26 +5785,78 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-M300");
+    expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-node", "node:N-100");
     expect(
       within(manager).getByTestId("load-manager-create-primitive-direction"),
     ).toHaveValue("rotation_z");
-    // The bundled sample declares force and length but no moment key. The moment default
-    // reads project.units.moment and is no longer composed as force*length, so nothing is
-    // offered and nothing can be queued (moment authoring on a document with the key is
-    // covered in features/project-units/composedDefaultForms.test.tsx).
+    await waitFor(() =>
+      expect(
+        within(manager).getByTestId("load-manager-create-primitive-preview")
+          .textContent,
+      ).toContain("op:load-manager-load:L-100-load:L-100-M300-primitive"),
+    );
     expect(
-      within(manager).getByTestId("load-manager-create-primitive-unit"),
-    ).toHaveValue("TBD");
+      within(manager).getByTestId("load-manager-create-primitive-preview")
+        .textContent,
+    ).toContain("target=node:N-100; direction=rotation_z; unit=N*m; moment");
+
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
       {
         target: { value: "80" },
       },
     );
-    expect(
+    fireEvent.click(
       within(manager).getByTestId("queue-create-primitive-intent"),
-    ).toBeDisabled();
+    );
+
+    const applyPanel = operationApplyPanel();
+    expect(
+      within(applyPanel).getByTestId("operation-apply-row-editor-intent-1")
+        .textContent,
+    ).toContain("primitive_loads");
+    fireEvent.click(
+      within(applyPanel).getByTestId("apply-intent-editor-intent-1"),
+    );
+    await waitFor(() =>
+      expect(
+        within(applyPanel).getByTestId("operation-apply-message").textContent,
+      ).toContain(
+        "Applied op:load-manager-load:L-100-load:L-100-M300-primitive",
+      ),
+    );
+
+    expect(
+      within(manager).getByTestId("load-case-manager-summary").textContent,
+    ).toContain("2 load cases; 6 primitive loads; 1 combinations");
+    expect(
+      within(manager).getByTestId("load-manager-case-load:L-100").textContent,
+    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    expect(
+      within(manager).getByTestId("load-manager-primitive-load:L-100-M300")
+        .textContent,
+    ).toContain("concentrated_moment; 80 N*m");
+    expect(
+      within(manager).getByTestId("load-manager-primitive-load:L-100-M300")
+        .textContent,
+    ).toContain(
+      "load:L-100-M300; node:node:N-100; rotation_z; dimension=moment",
+    );
+    expect(
+      within(applyPanel).getByTestId(
+        "applied-operation-route-applied-1-editor-intent-1",
+      ).textContent,
+    ).toContain("persistence session_state_only_not_yet_saved");
+    expect(
+      screen.getByTestId("local-project-review-context").textContent,
+    ).toContain("0 pending operations");
+    expect(
+      screen.getByTestId("local-project-review-context").textContent,
+    ).toContain("applied_operations=1");
+    expect(solveJobSummary().textContent).toContain(
+      "state=not_started",
+    );
   });
 
   it("does not offer retired legacy pressure primitives in the manager panel (U3)", async () => {

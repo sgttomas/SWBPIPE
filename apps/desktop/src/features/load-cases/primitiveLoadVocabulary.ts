@@ -54,10 +54,11 @@ export function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, dir
 }
 
 /**
- * The default unit of a new primitive. The moment reads `project.units.moment`
- * (W-17 §2.4); the distributed force is composed as `<force>/<length>` and,
- * once the catalog is loaded, checked against it: a composition the catalog
- * lacks gives "" (unselected) with a notice, never a substitute.
+ * The default unit of a new primitive (W-17 §2.4). The moment reads
+ * `project.units.moment` when it is declared, and only without it falls back to
+ * `<force>*<length>`. The distributed force is composed as `<force>/<length>`.
+ * Once the catalog is loaded each composition is checked against it: one the
+ * catalog lacks gives "" (unselected) with a notice, never a substitute.
  */
 export function primitiveLoadDefaultUnitChoice(
   model: PreviewModel,
@@ -67,6 +68,13 @@ export function primitiveLoadDefaultUnitChoice(
 ): CheckedComposedDefault {
   if (category === "distributed_force") {
     return checkComposedDefault(route, projectDistributedForceUnit(model), primitiveLoadDraftDimension(category, direction));
+  }
+  if (category === "concentrated_moment") {
+    // A declared moment key is the default and is never replaced by a composition.
+    const declared = optionalString(model.project.units.moment);
+    return declared
+      ? { symbol: declared, notice: null }
+      : checkComposedDefault(route, projectComposedMomentUnit(model), primitiveLoadDraftDimension(category, direction));
   }
   return { symbol: primitiveLoadDefaultUnit(model, category, direction, route), notice: null };
 }
@@ -78,7 +86,7 @@ export function primitiveLoadDefaultUnit(
   route: UnitCatalogRoute | null = null
 ): string {
   if (category === "distributed_force") return primitiveLoadDefaultUnitChoice(model, category, direction, route).symbol;
-  if (category === "concentrated_moment") return projectMomentUnit(model);
+  if (category === "concentrated_moment") return primitiveLoadDefaultUnitChoice(model, category, direction, route).symbol;
   if (category === "thermal") return projectTemperatureUnit(model);
   if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? projectRotationUnit(model) : projectLengthUnit(model);
   return projectForceUnit(model);
@@ -96,8 +104,11 @@ function projectDistributedForceUnit(model: PreviewModel): string {
   return composedDefaultSymbol("distributed_force", model.project.units) ?? "TBD";
 }
 
-function projectMomentUnit(model: PreviewModel): string {
-  return optionalString(model.project.units.moment) ?? "TBD";
+/** The fallback for a document without a moment key: `<force>*<length>`. */
+function projectComposedMomentUnit(model: PreviewModel): string {
+  const force = projectForceUnit(model);
+  const length = projectLengthUnit(model);
+  return force === "TBD" || length === "TBD" ? "TBD" : `${force}*${length}`;
 }
 
 function projectTemperatureUnit(model: PreviewModel): string {

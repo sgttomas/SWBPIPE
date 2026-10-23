@@ -106,8 +106,24 @@ describe("composed defaults (§2.4)", () => {
     expect(primitiveLoadDefaultUnit(model, "distributed_force", "global_y", CATALOG)).toBe("N/mm");
     expect(primitiveLoadDefaultUnit(model, "concentrated_moment", "rotation_z", CATALOG)).toBe("N*m");
     expect(primitiveLoadDefaultUnit(model, "concentrated_moment", "rotation_z")).toBe("N*m");
-    // Without a moment key there is no default; it is not composed.
-    expect(primitiveLoadDefaultUnit(withUnits({ length: "mm", force: "N" }), "concentrated_moment", "rotation_z", CATALOG)).toBe("TBD");
+  });
+
+  it("moment: a declared key wins over the composition; without it, <force>*<length> is the checked fallback", () => {
+    // Key present and different from the composition (kN*mm): the key wins, with or without a catalog.
+    const keyed = withUnits({ length: "mm", force: "kN", moment: "lbf*ft" });
+    for (const catalog of [CATALOG, PREVIEW, null]) {
+      expect(primitiveLoadDefaultUnitChoice(keyed, "concentrated_moment", "rotation_z", catalog)).toEqual({ symbol: "lbf*ft", notice: null });
+    }
+    // Key absent, the composition is a catalog unit: it is the default (the bundled sample's case, m with N).
+    expect(primitiveLoadDefaultUnitChoice(withUnits({ length: "m", force: "N" }), "concentrated_moment", "rotation_z", CATALOG)).toEqual({ symbol: "N*m", notice: null });
+    expect(primitiveLoadDefaultUnit(withUnits({ length: "in", force: "lbf" }), "concentrated_moment", "rotation_z", CATALOG)).toBe("lbf*in");
+    // Key absent, the composition is not a catalog unit: no default, the notice, no substitute.
+    expect(primitiveLoadDefaultUnitChoice(withUnits({ length: "mm", force: "N" }), "concentrated_moment", "rotation_z", CATALOG))
+      .toEqual({ symbol: "", notice: "N*mm is not a catalog unit; choose one" });
+    // Without a catalog the fallback is unchecked, like the other compositions.
+    expect(primitiveLoadDefaultUnitChoice(withUnits({ length: "mm", force: "N" }), "concentrated_moment", "rotation_z", PREVIEW)).toEqual({ symbol: "N*mm", notice: null });
+    // Without force or length there is nothing to compose.
+    expect(primitiveLoadDefaultUnit(withUnits({ length: "mm" }), "concentrated_moment", "rotation_z", CATALOG)).toBe("TBD");
   });
 
   it("in with N: distributed force and linear stiffness start unselected with the notice, and nothing is substituted", () => {
