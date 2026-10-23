@@ -980,7 +980,7 @@ export function LibraryManagerPanel({
             if (route.route === "unavailable_browser_preview") throw new Error(route.diagnostic);
             if (!route.envelope) throw new Error("The stored library no longer exists. Refresh the list.");
             if (!route.envelope.validation.accepted || route.envelope.validation.has_blocking_findings) {
-              throw new Error("The stored library has blocking import findings.");
+              throw new Error("The stored library now has blocking import findings, so it is not applied. Review the findings in the Library Manager (Open, then Validate import) and re-import the library.");
             }
             return route.envelope.document as Record<string, unknown>;
           }}

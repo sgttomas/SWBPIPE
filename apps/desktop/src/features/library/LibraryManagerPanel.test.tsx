@@ -802,11 +802,13 @@ describe("LibraryManagerPanel: apply plans are bound to their inputs (W-17)", ()
       privacy_class: "private_user_data", storage_mode: "local_sqlite", created_at_unix: 1, updated_at_unix: 1 };
     const accepted = { ...blockedValidation, outcome: "PRIVATE_LOCAL_ONLY", library_kind: "material", intended_visibility: "private", accepted: true, has_blocking_findings: false, findings: [] };
     let opens = 0;
+    let blockedOnReopen = false;
     invokeMock.mockImplementation((command: string) => {
       if (command === "get_unit_catalog") return Promise.resolve(unitCatalogFixture);
       if (command === "list_local_libraries") return Promise.resolve([entry]);
       // The first open shows E = 2e11; the store then changes to 2.1e11.
-      if (command === "open_local_library") return Promise.resolve({ ...entry, document: documentWith(++opens === 1 ? 2e11 : 2.1e11), validation: accepted, message: "Opened." });
+      if (command === "open_local_library") return Promise.resolve({ ...entry, document: documentWith(++opens === 1 ? 2e11 : 2.1e11),
+        validation: blockedOnReopen ? { ...accepted, accepted: false, has_blocking_findings: true } : accepted, message: "Opened." });
       return Promise.reject(new Error(`unexpected command ${command}`));
     });
     const onQueueBatch = vi.fn();
@@ -825,6 +827,11 @@ describe("LibraryManagerPanel: apply plans are bound to their inputs (W-17)", ()
     expect(screen.queryByTestId("library-apply-preview-result")).toBeNull();
     expect(screen.queryByTestId("library-apply-queue")).toBeNull();
     expect(onQueueBatch).not.toHaveBeenCalled();
+    // The store now holds a blocked library: preparing names the cause and the way forward.
+    blockedOnReopen = true;
+    fireEvent.click(screen.getByTestId("library-apply-preview"));
+    await waitFor(() => expect(screen.getByTestId("library-apply-error").textContent).toBe(
+      "The stored library now has blocking import findings, so it is not applied. Review the findings in the Library Manager (Open, then Validate import) and re-import the library."));
   });
 });
 

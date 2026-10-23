@@ -526,6 +526,15 @@ fn refusal_messages() -> Vec<(String, String)> {
     let demo = demo_components();
     out.push(message(&demo, &apply_intent(&demo, "Component", "components", "component:C-130", &json!({"geometry.bend_radius":{"value":0.5,"unit":"m"}}))));
     out.push(message(&demo, &apply_intent(&demo, "Component", "components", "component:C-110", &json!({"modifiers.sif_in_plane_user_value":{"value":1.2,"unit":"1"}}))));
+    let mut absent = apply_intent(&material_model, "Material", "materials", id, &json!({"label":"new"}));
+    absent["target"]["ref"] = json!("material:absent");
+    out.push(message(&material_model, &absent));
+    let mut shape = apply_intent(&material_model, "Material", "materials", id, &json!({"label":"new"}));
+    shape["change"]["field_path"] = json!("label");
+    out.push(message(&material_model, &shape));
+    let mut payload = apply_intent(&material_model, "Material", "materials", id, &json!({"label":"new"}));
+    payload["change"]["after"] = json!("[]");
+    out.push(message(&material_model, &payload));
     out
 }
 
@@ -542,6 +551,9 @@ fn every_applier_library_refusal_names_its_cause_and_the_way_forward() {
         ("OP-SECTION-GEOMETRY-INVALID", "Section `section:shared` requires type pipe and accepted length quantities with 0 < wall < outside diameter / 2. Choose a record whose wall thickness is less than half its outside diameter."),
         ("OP-LIBRARY-APPLY-KIND-MISMATCH", "`geometry.bend_radius` belongs to the bend/elbow families; component `component:C-130` is a `valve`. Choose a record for this component's kind, or select a component of the record's kind."),
         ("OP-LIBRARY-APPLY-SIF-PAIR", "The in-plane and out-of-plane SIF values are written together or not at all. Supply both directional SIF values, and apply them only to a bend realized as the curved-bend macro element."),
+        ("OP-TARGET-NOT-FOUND", "Material `material:absent` was not found in the current model. Select an entity that is in the model and prepare the apply again."),
+        ("OP-LIBRARY-APPLY-SHAPE-INVALID", "`apply_library_record` carries field_path `library_record`, unit none and dimension dimensionless. Prepare the apply again from the Library Manager, which builds this change."),
+        ("OP-LIBRARY-APPLY-PAYLOAD-INVALID", "The change's after must be a non-empty JSON object of member paths. Prepare the apply again from the Library Manager, which builds this change."),
     ];
     let actual = refusal_messages();
     assert_eq!(actual.len(), expected.len());

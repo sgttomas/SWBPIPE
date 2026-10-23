@@ -506,3 +506,11 @@ pub fn derived_shear_modulus_pa(elastic_modulus: f64, unit: &str, poisson_ratio:
     }
     Ok(g)
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn an_unlisted_code_still_tells_the_user_how_to_proceed() {
+        assert_eq!(super::next_step("OP-SOMETHING-ELSE"), "Prepare the apply again from the Library Manager.");
+    }
+}

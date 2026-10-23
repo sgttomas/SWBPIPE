@@ -146,9 +146,10 @@ and §6 authoring.
    - **Apply to an existing material** preselects that material's basis (E/ν
      when it carries the basis or ν). E/G onto a material that holds ν is
      refused (`LIBRARY-APPLY-NU-NOT-DISCARDED`; manager ruling, following
-     "never discard ν"); a basis change stays possible through ordinary
-     material editing. E/ν onto an E/G material adds the basis and ν, and the
-     diff shows each member added or replaced.
+     "never discard ν"). The product has no edit that removes ν from a
+     material, so the way forward is a record that provides ν (E/ν mode), or
+     inserting the E/G record as a new material. E/ν onto an E/G material adds
+     the basis and ν, and the diff shows each member added or replaced.
    - **A missing member fails the mode,** naming it
      (`LIBRARY-APPLY-MEMBER-MISSING`): E always; ν for E/ν; G for E/G. No
      other value is derived.

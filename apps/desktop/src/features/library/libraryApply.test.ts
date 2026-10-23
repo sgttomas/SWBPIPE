@@ -453,6 +453,8 @@ describe("refusal messages name the cause and how to proceed", () => {
       () => buildMaterialInsert({ model, document: materialLibrary(properties, record, library), recordId: "mat.invented.steel", newId: "material:x", mode, catalog });
     const temperatureG = property("shear_modulus", 1.0e10, "unit:pascal", { temperature: true, suffix: ".hot" });
     const quarantinedNu = property("poisson_ratio", 0.3, "unit:one", { review: "quarantined", suffix: ".q" });
+    const quarantinedSection = structuredClone(bound);
+    quarantinedSection.sections![0].provenance_record = { source_name: "Invented", review_status: "quarantined" };
     const quarantinedTarget = structuredClone(model);
     quarantinedTarget.materials![0].provenance_record = { source_name: "Invented", review_status: "quarantined" };
     const unsourced = await demo();
@@ -488,6 +490,11 @@ describe("refusal messages name the cause and how to proceed", () => {
       ["component required", () => buildComponentApply({ model, document: componentLibrary("bend", [slot("sif_user_value", 1.3, "1")]), recordId: "comp.invented", targetId: "component:C-110", replace: "group" })],
       ["component unsourced", () => buildComponentApply({ model: unsourced, document: componentLibrary("valve", [slot("weight", 500, "N")]), recordId: "comp.invented", targetId: "component:C-130", replace: "none" })],
       ["component target missing", () => buildComponentApply({ model, document: componentLibrary("bend", [slot("bend_radius", 0.5, "m")]), recordId: "comp.invented", targetId: "component:absent", replace: "none" })],
+      ["hanger library rejected", () => hangerLibraryProvenance({ library_id: "h", name: "H", privacy_class: "private_user_supplied", provenance: { ...PRIVATE, review_status: "rejected" } },
+        { hanger_id: "h1", name: "H1", provenance: PRIVATE }, [])],
+      ["unit unresolved (ν)", insert([E(), property("poisson_ratio", 0.3, "unit.one")], "e_nu")],
+      ["unit unresolved (α)", insert([E(), NU(), property("thermal_expansion_coefficient", 1.2e-5, "unit.per_C")], "e_nu")],
+      ["retained quarantined (section)", () => buildSectionApply({ model: quarantinedSection, document: sectionLibrary([dimension("outside_diameter", 0.2)]), recordId: "sec.invented.pipe", targetId: "section:shared", replace: "none" })],
       ["hanger quantity", () => hangerLibraryProvenance({ library_id: "h", name: "H", privacy_class: "private_user_supplied", provenance: PRIVATE },
         { hanger_id: "h1", name: "H1", provenance: PRIVATE }, [{ magnitude: 1, unit: "N", dimension: "force", provenance: { ...PRIVATE, review_status: "quarantined" } }])]
     ];
@@ -507,7 +514,7 @@ describe("refusal messages name the cause and how to proceed", () => {
     expect(actual).toEqual(pinned);
     for (const [label, message] of Object.entries(actual)) {
       // A cause, then at least one sentence telling the user what to do.
-      expect(message, label).toMatch(/^LIBRARY-APPLY-[A-Z-]+: .+\. (Choose|Fix|Correct|Use|Select|Enter|Refresh|Check|Apply|Keep|Have)/);
+      expect(message, label).toMatch(/^LIBRARY-APPLY-[A-Z-]+: .+\. (Choose|Fix|Correct|Use|Select|Enter|Refresh|Check|Apply|Keep|Have|Review)/);
     }
   });
 });
