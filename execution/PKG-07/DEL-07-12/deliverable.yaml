@@ -333,3 +333,18 @@ code_paths:
 - apps/desktop/src/features/handoff/**
 - apps/desktop/src/features/headless-runner/**
 - apps/desktop/src/features/local-fea-handoff/**
+- apps/desktop/src/features/caepipe-mbf/**
+- apps/desktop/src/features/caepipe-external/**
+- apps/desktop/src/features/pcf-export/**
+- apps/desktop/src/features/review-geometry/**
+- apps/desktop/src/features/external-prover/**
+- apps/desktop/src/features/adapter-framework/**
+- apps/desktop/src/features/export-adapter-sdk/**
+checks:
+- apps/desktop/src/features/native-package/NativePackagePanel.test.ts
+- apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+- apps/desktop/src/features/stress-neutral/nativeStressNeutralBuilder.test.tsx
+- apps/desktop/src/features/handoff/HandoffPanel.test.tsx
+- apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+- apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx
+- apps/desktop/e2e/result-compatibility.spec.ts

@@ -109,7 +109,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for sealed deliverable identity, acceptance/risk notes, write scope, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, acceptance/risk notes, write scope, and architecture-basis injection.
 > - `docs/CONTRACT.md` for applicable invariants: OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-PRIV, OPS-K-AUTH-1, OPS-K-AGENT-1..4, and professional-responsibility boundaries.
 > - `docs/DIRECTIVE.md` sections 1, 3, 4, and 5 for centerline-first intent, local FEA handoff as specialized path, protected-data limits, and stop rules.
 > - `docs/TYPES.md` sections 3, 4, 5, 6, 7, and 8 for deliverable type, analysis status, epistemic labels, local FEA handoff vocabulary, provenance labels, and domain object registry.

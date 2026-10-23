@@ -93,11 +93,11 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, artifacts, context envelope, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, artifacts, context envelope, architecture-basis injection.
 > - `_REFERENCES.md` - deliverable-local reference index.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for active predecessor context.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package and deliverable basis.
-> - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, `docs/_Registers/ContextBudgetQA.csv` - machine-readable deliverable, scope, and context rows.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - machine-readable deliverable, scope, and context rows.
 > - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md` - governing boundaries for schema, provenance, unit safety, privacy/IP, and professional responsibility.
 > - `schemas/constraint.schema.json` - implemented JSON Schema 2020-12 constraint entity and provenance contract.
 > - `tests/test_constraint_schema.py` - stdlib structural evidence for schema identity, required definitions, enum coverage, unit dimensions, data-boundary constants, and professional-boundary constants.

@@ -133,3 +133,11 @@ needs:
 code_paths:
 - core/reporting/protected_content_linter/
 - schemas/report_protected_content_linter.schema.yaml
+- apps/desktop/src/features/report-lint/ReportLintPanel.tsx
+checks:
+- tests/test_report_protected_content_linter.py
+- core/reporting/protected_content_linter/src/lib.rs
+- core/reporting/protected_content_linter/tests/cli_scope.rs
+- fixtures/report_lint/invented/**
+- core/reporting/report_renderer/tests/render.rs
+- apps/desktop/e2e/r2-smoke.spec.ts

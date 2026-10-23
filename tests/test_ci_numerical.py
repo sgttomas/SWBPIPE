@@ -13,6 +13,15 @@ import sys
 import unittest
 from unittest.mock import patch, Mock
 
+import pytest
+
+from tests.public_export import PUBLIC_EXPORT
+
+if PUBLIC_EXPORT:
+    # The hosted router lives at the repository root, outside the export.
+    pytest.skip("public export: reads the repository's tools/software_workflow, which the export leaves out",
+                allow_module_level=True)
+
 MODULE = Path(__file__).resolve().parents[1] / 'tools/ci/numerical_ci.py'
 spec = importlib.util.spec_from_file_location('numerical_ci', MODULE)
 ci = importlib.util.module_from_spec(spec)

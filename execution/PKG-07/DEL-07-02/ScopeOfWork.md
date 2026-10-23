@@ -102,9 +102,9 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, artifacts, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` row `DEL-07-02`.
-> - `docs/_Registers/ScopeLedger.csv` rows `SOW-020` and `SOW-021`.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, artifacts, and architecture-basis injection.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-07-02`.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows `SOW-020` and `SOW-021`.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis, `PKG-07`, `OBJ-006`, and architecture basis IDs `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
 > - `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-UNIT-1`, `OPS-K-RULE-1`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`, `OPS-K-PRIV-2`, `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, and `OPS-K-AGENT-1..4`.
 > - `docs/SPEC.md` sections 1, 3, 6, 7, 10, and 11.

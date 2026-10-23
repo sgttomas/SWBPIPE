@@ -107,5 +107,10 @@ code_paths:
 - core/handoff/native_json/package.py
 - schemas/model.schema.yaml
 - schemas/native_json_export.schema.json
+- apps/desktop/src/features/native-package/NativePackagePanel.tsx
 checks:
 - tests/test_native_json_export_package.py
+- apps/desktop/src/features/native-package/NativePackagePanel.test.ts
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts

@@ -99,8 +99,8 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > - `docs/TYPES.md` - analysis-status vocabulary and Result/Report object boundary.
 > - `docs/DIRECTIVE.md` - product principles, stop rules, and professional boundary.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - package, objective, and architecture-basis context.
-> - `docs/_Registers/Deliverables.csv` - DEL-07-05 row.
-> - `docs/_Registers/ScopeLedger.csv` - SOW-023 row.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - DEL-07-05 row.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - SOW-023 row.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -117,6 +117,8 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > This deliverable owns the GUI results-viewer slice that presents reviewable analysis outputs for displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and user-rule ratios. The current implemented slice includes tabular result review, a translational deformed-shape overlay and rotation glyphs for emitted `rx`/`ry`/`rz` rows (DEC-074 O1 / PDU-061). It is a UX/UI slice under PKG-07 and supports OBJ-006 and OBJ-007.
 >
 > The results viewer does not run solver logic, recover stresses, evaluate rule packs, define protected engineering criteria, or grant professional approval. This R5 repair records the current slice and residual only; it does not implement rotational visualization or change GUI source, tests, schemas, or result data.
+>
+> Current implementation (at `62c1efd75b`): rotational visualization was added after that repair. In `apps/desktop/src/features/viewport/`, `deformationOverlay.ts` derives the translational overlay, the rotation overlay and the glyph anchors, `viewportRotationGlyph.ts` builds the glyph meshes and `PipeViewport.tsx` draws them. The result tables are `apps/desktop/src/features/results/ResultsPanel.tsx`. Focused browser evidence is `apps/desktop/e2e/rotation-glyph.spec.ts` (harness `apps/desktop/e2e/rotation-glyph/`). Per `docs/CI_STRATEGY.md`, it runs in the single Chromium project on relevant pull requests. The reference module `core/gui/results_viewer/engine.py` (`tests/test_results_viewer_contract.py`) is not called by the desktop.
 >
 
 ### CLM-011 — Requirements
@@ -258,6 +260,8 @@ Current reading and output boundary (B7b, T4-U6). The viewer reads every result 
 > A future implementation brief must not begin from these setup documents alone. It must receive source-code write scope, schema/result-envelope contracts, test requirements, and any human decisions needed for result category layout, unit handling, ratio terminology, equipment-load semantics, and report/export integration.
 >
 > For rotational deformation specifically, the brief must consume DEC-074 O1 / PDU-061 and the emitted `rx`/`ry`/`rz` evidence, preserve the current translational-overlay behavior unless deliberately changed, define the intended rotational visual semantics, and add focused UI/browser evidence. Until that work lands and is backchecked, the owner-steered work graph selected through `loop/LOOP_INIT.md` selects work; `_STATUS.md` retains the residual; documenting the residual does not claim implementation.
+>
+> Current implementation (at `62c1efd75b`): the rotational visual semantics and focused browser evidence named above now exist in code. The rotation overlay and glyph anchors are derived in `apps/desktop/src/features/viewport/deformationOverlay.ts`, the glyph meshes are built in `viewportRotationGlyph.ts` and drawn by `PipeViewport.tsx`, with unit tests `deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts` and `PipeViewport.rotation.test.tsx` and browser spec `apps/desktop/e2e/rotation-glyph.spec.ts`; DEL-07-05:1 records their behaviour. This note describes code only; it records no backcheck or residual closure.
 
 - **VER-001** — Validate the contract and review source parity, result categories and unit labels, diagnostics and provenance, status separation, ratio blocked/unavailable behavior, translational versus rotational visualization boundary, report/export traceability, and every retained governed residual.
 

@@ -171,3 +171,10 @@ code_paths:
 - core/reporting/report_sections/src/lib.rs
 - schemas/report_sections.schema.yaml
 - tools/validation/validate_dependencies_schema.py
+- core/reporting/report_renderer/src/lib.rs
+- apps/desktop/src/features/report/renderableReportInput.ts
+checks:
+- core/reporting/report_sections/src/lib.rs
+- tests/test_report_sections_contract.py
+- core/reporting/report_renderer/tests/render.rs
+- apps/desktop/src/features/report/renderedReport.test.tsx

@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > | Primary purpose Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Define the setup boundary for future invented-data educational examples used for mechanics-only demonstrations and fake-rule-pack demonstrations. |
 > | Public-data posture | Future public examples must be original or invented and must not reproduce protected standards text, tables, formulas, examples, allowables, SIF or flexibility data, protected dimensional tables, commercial-software examples, or vendor proprietary data. |
 > | Example families | Mechanics-only demonstration examples; fake-rule-pack demonstration examples. |
-> | Materialization status Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | The original setup run does not create actual example model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, or issued artifacts. |
+> | Materialization status Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | The original setup run does not create actual example model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, or issued artifacts. Current implementation (at `62c1efd75b`): `examples/models/invented/` holds `mechanics_only_toy_span.json` and `fake_rule_pack_toy_model.json`, checked by `tests/test_invented_example_models.py`. |
 > | Rule-pack boundary | Fake rule-pack examples are fictional non-code teaching devices and must not resemble or approximate real code allowables, formulas, load combinations, or acceptance rules. |
 > | Mechanics boundary | Mechanics-only examples may illustrate open centerline mechanics concepts and reproducibility expectations, but they must not be presented as design bases or compliance checks. |
 > | Unit/provenance expectation | Future example data must be unit-aware and must carry provenance such as `PUBLIC_DOMAIN_OR_ORIGINAL` or a stronger documented redistribution basis. |
@@ -104,8 +104,8 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > | `docs/SPEC.md` | Repository target for invented examples, rule-pack boundaries, reporting notices, and V&V expectations. |
 > | `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` | Type 2 execution rules and review expectations. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-11 and DEL-11-04 decomposition context. |
-> | `docs/_Registers/Deliverables.csv` | Machine-readable DEL-11-04 row. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-033 scope mapping. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Machine-readable DEL-11-04 row. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-033 scope mapping. |
 
 ## Completion and Reliance Basis — Epistemology
 

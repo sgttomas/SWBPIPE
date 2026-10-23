@@ -64,7 +64,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`.
+> - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`. Current implementation (at `62c1efd75b`): `docs/theory/centerline_analysis.md` exists.
 > - The final theory note must be educational and auditable. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 > - Classical lineage may be described at a conceptual level until public/permissive mechanics sources are selected and cited.
 > - Modern implementation may describe the project direction as a 3D line-element/frame model, but detailed code equations, protected formulas, code tables, and standard-derived examples remain out of scope.
@@ -118,14 +118,14 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for sealed deliverable identity, write boundary, scope, objectives, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, write boundary, scope, objectives, and architecture-basis injection.
 > - `_REFERENCES.md` for currently available governing references.
 > - `AGENTS.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
 > - `docs/CONTRACT.md` for invariants `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-AUTH-1`, `OPS-K-MECH-1`, `OPS-K-MECH-2`, and `OPS-K-AGENT-1..4`.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for public/permissive source provenance fields, protected-content quarantine expectations, and contribution-review controls.
 > - `docs/PROFESSIONAL_BOUNDARY.md` for product-claim and professional-reliance boundaries.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
-> - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` rows for `DEL-11-03` and `SOW-033`.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) rows for `DEL-11-03` and `SOW-033`.
 
 ## Completion and Reliance Basis — Epistemology
 

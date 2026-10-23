@@ -49,7 +49,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | Attribute | Value |
 > |---|---|
 > | Primary purpose | Define a user guide structure for project setup, modeling, solving, rule checks, reports, and limitations. |
-> | Target artifact Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `docs/user_guide/index.md` is the anticipated downstream artifact, but this setup run does not edit it. |
+> | Target artifact Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `docs/user_guide/index.md` is the anticipated downstream artifact, but this setup run does not edit it. Current implementation (at `62c1efd75b`): `docs/user_guide/index.md` exists; `tests/test_user_guide_status_wording.py` checks its status wording. |
 > | Guide posture | Help users understand an open, auditable piping stress workflow without hiding missing data, private-data requirements, or professional responsibility limits. |
 > | Required sections | Product scope, setup, project creation, model building, solving, rule checks, results review, reports, limitations, troubleshooting, glossary. |
 > | Data boundary | Public guide content must not include protected standards text, protected examples, proprietary tables, private rule packs, private libraries, or owner data. |
@@ -109,9 +109,9 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > - `docs/IP_AND_DATA_BOUNDARY.md`
 > - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 
 ## Completion and Reliance Basis — Epistemology
 

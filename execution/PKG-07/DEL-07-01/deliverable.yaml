@@ -265,3 +265,21 @@ code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/features/viewport/PipeViewport.tsx
 - tools/validation/validate_dependencies_schema.py
+- apps/desktop/src/features/viewport/routeDraft.ts
+- apps/desktop/src/features/viewport/viewportRouting.ts
+- apps/desktop/src/features/viewport/viewportSelection.ts
+- apps/desktop/src/features/viewport/viewportVisibility.ts
+- apps/desktop/src/features/toolkit/**
+- apps/desktop/src/features/geometry-tools/**
+- apps/desktop/src/features/workspace/workspaceSession.ts
+checks:
+- apps/desktop/src/features/viewport/routeDraft.test.ts
+- apps/desktop/src/features/viewport/viewportRouting.test.ts
+- apps/desktop/src/features/viewport/viewportSelection.test.ts
+- apps/desktop/src/features/viewport/viewportVisibility.test.ts
+- apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx
+- apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx
+- apps/desktop/e2e/c3-viewport-visibility.spec.ts
+- apps/desktop/e2e/ui-foundation.spec.ts
+- apps/desktop/e2e/linear-authoring.spec.ts
+- apps/desktop/e2e/b4-table-editing.spec.ts

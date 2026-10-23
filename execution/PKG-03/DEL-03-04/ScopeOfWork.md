@@ -128,11 +128,11 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, accepted decomposition revision, architecture basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, accepted decomposition revision, architecture basis injection.
 > - `_REFERENCES.md` - local governing reference list.
-> - `docs/_Registers/Deliverables.csv` row DEL-03-04.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-008.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-008.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-04.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
 > - `docs/CONTRACT.md` invariants listed in this kit.
 > - `schemas/component.schema.yaml` current component library schema evidence.
@@ -160,7 +160,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 
 > ##### Scope
 >
-> Current realization evidence also includes branch inputs and diagnostics in `core/product_physics/src/lib.rs`, with creation/edits routed through `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the multiplier-first mechanics boundary; product integration remains subject to its own verification, source and engineering holds.
+> Current realization evidence also includes branch inputs and diagnostics in `core/product_physics/src/lib.rs`, with creation/edits routed through `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the multiplier-first mechanics boundary; product integration remains subject to its own verification, source and engineering holds. Current implementation (at `62c1efd75b`): the `BRANCH_*` input diagnostics are emitted by `core/product_physics/src/validation.rs`. On the pressure-free route, `core/product_physics/src/preview_physics.rs` (`associations`, about lines 320-345) applies the user header and branch SIFs as `component_equal_factor_intensified_bending_stress_v1` measures at the adjacent pipe ends. The user flexibility factor is required for the branch stress-modifier record (`core/product_physics/src/lib.rs`), which reports `flexibility_in_assembled_stiffness: false`; the factor is not applied to stiffness. The exact route refuses branch connections by name (`core/product_physics/src/exact_admission.rs`). Desktop tee creation is in `apps/desktop/src/features/component-creation/componentIntent.ts`.
 >
 > This deliverable specifies the branch connection component model fields now
 > evidenced by `schemas/component.schema.yaml`,

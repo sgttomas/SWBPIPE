@@ -172,8 +172,11 @@ code_paths:
 - core/runner/headless/tests/objective_connector.rs
 - schemas/component.schema.yaml
 - validation/references/t4_i12/**
+- apps/desktop/src/features/component-creation/componentIntent.ts
+- apps/desktop/src/features/component-creation/ConnectorDraftFields.tsx
 checks:
 - tests/test_component_section_schema.py
 - core/solver/frame_kernel/tests/connector_references.rs
 - core/product_physics/tests/connector_pp_paths.rs
 - core/product_physics/tests/connector_system_references.rs
+- apps/desktop/src/features/component-creation/componentIntent.test.ts

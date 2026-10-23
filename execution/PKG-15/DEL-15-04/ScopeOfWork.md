@@ -89,13 +89,13 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, objectives, architecture basis, and anticipated artifacts.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, objectives, architecture basis, and anticipated artifacts.
 > - `_REFERENCES.md` - governing source list for this folder.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, decision, and issue context.
-> - `docs/_Registers/Deliverables.csv` - row DEL-15-04.
-> - `docs/_Registers/ScopeLedger.csv` - row SOW-075.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-15-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-15-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-075.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-15-04.
 > - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md` - governance, authority, status, schema, and data-boundary constraints.
 
 ## Completion and Reliance Basis — Epistemology
@@ -283,6 +283,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > ##### Considerations
 >
 > - The current schema-backed metadata contract is `schemas/external_prover_metadata.schema.json`, with generated-output behavior in `core/handoff/external_prover/metadata.py`.
+> - Current implementation (at `62c1efd75b`): the desktop Exports section renders `apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx`, which builds its own preview metadata record in TypeScript and invokes no external tool. It does not call `core/handoff/external_prover/` and is not validated against `schemas/external_prover_metadata.schema.json`.
 > - Boundary validation tests are implemented in `tests/test_external_prover_boundary_metadata.py`, including positive flexible-metadata cases and negative prohibited-status/attachment cases.
 > - The approved local dependency mirror says this deliverable binds to handoff package, target mapping, export workflow, immutable state, and professional-boundary context. Those rows are evidence of dependency direction only; they do not provide the content of those predecessor deliverables.
 > - Comprehensive commercial-tool result ingestion is explicitly deferred for MVP; a metadata link to an external artifact is not the same as parsing, validating, or accepting that artifact.

@@ -91,7 +91,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, objectives, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, and architecture-basis injection.
 > - `docs/CONTRACT.md` for invariants OPS-K-DATA-1/2/3, OPS-K-RULE-1/2/3, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV, and OPS-K-AGENT-1..4.
 > - `docs/SPEC.md` section 8 for GUI warnings and warning classes.
 > - `docs/TYPES.md` section 4 for analysis-status vocabulary.
@@ -291,6 +291,8 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The missing-data warning/blocking panel is implemented, including current nonlinear-visibility behavior. It presents existing diagnostics and does not synthesize engineering inputs, resolve warnings, or confer professional approval.
+>
+> Current implementation (at `62c1efd75b`): the panel is `apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx`, mounted from `apps/desktop/src/App.tsx`. Its six warning classes are typed at the top of that file. It is exercised by `apps/desktop/src/App.test.tsx` and `apps/desktop/e2e/gui-workflow-validation.spec.ts`. `core/gui/warnings/engine.py` is a reference module exercised by `tests/test_missing_data_warning_ux.py` and is not called by the desktop.
 
 - **VER-001** — Validate the contract and review source parity, diagnostic classes and severity, blocking-state separation, navigation and remediation surfaces, missing/incompatible/unprovenanced data handling, current implementation declarations and residuals, and no-silent-default behavior.
 

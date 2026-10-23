@@ -109,14 +109,14 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 
 > ##### References
 >
-> - `_CONTEXT.md`, current accepted-basis references for DEL-02-04.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), current accepted-basis references for DEL-02-04.
 > - `_REFERENCES.md`, local reference index for DEL-02-04.
 > - `_DEPENDENCIES.md`, human-owned dependency declarations for DEL-02-04.
-> - `docs/_Registers/Deliverables.csv`, row DEL-02-04.
-> - `docs/_Registers/ScopeLedger.csv`, row SOW-038.
-> - `docs/_Registers/ContextBudgetQA.csv`, row DEL-02-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), row DEL-02-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), row SOW-038.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history), row DEL-02-04.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`, accepted authority through the decision register, especially PKG-02, DEL-02-04, OBJ-009, SOW-038, and SCA-001 architecture basis rows.
-> - Traceability: `_CONTEXT.md` and `_REFERENCES.md` point to the accepted decomposition through its decision register; the former revision-wording discrepancy is historical and does not create a new authority choice.
+> - Traceability: `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) and `_REFERENCES.md` point to the accepted decomposition through its decision register; the former revision-wording discrepancy is historical and does not create a new authority choice.
 > - `docs/CONTRACT.md`, invariant catalog.
 > - `docs/TYPES.md`, deliverable types, status vocabulary, epistemic labels, and data provenance labels.
 > - `docs/SPEC.md`, sections 1, 6, 7, 8, 10, and 11.

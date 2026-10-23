@@ -91,9 +91,9 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, architecture basis IDs, and write-scope constraints.
-> - `docs/_Registers/Deliverables.csv` row DEL-08-04 for artifact and objective mapping.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-046 for export baseline acceptance notes.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture basis IDs, and write-scope constraints.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-04 for artifact and objective mapping.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-046 for export baseline acceptance notes.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` rows AB-00-03, AB-00-04, AB-00-06, AB-00-07, and OI-004 for envelope/API/no-bypass and format-TBD constraints.
 > - `docs/SPEC.md` sections 4.5, 7, 8, 9, and 11 for deterministic results, diagnostics, reporting, validation, and acceptance semantics.
 > - `docs/TYPES.md` sections 4 and 8 for analysis-status vocabulary and `Result` object boundary.
@@ -118,6 +118,8 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > This deliverable defines the setup specification for a machine-readable result export contract. The baseline is a schema-first JSON result envelope suitable for review, regression comparison, and downstream tooling.
 >
 > The original setup run does not implement exporter code, edit `schemas/results.schema.yaml`, create tests, choose additional export formats as final, or modify documentation outside this deliverable folder. Those remain future implementation work under bounded Type 2 briefs.
+>
+> Current implementation (at `62c1efd75b`): exporter source and contract tests are in `core/reporting/result_export/`, and the result schemas include `schemas/results.schema.yaml`, `schemas/results.v0.3.schema.yaml` and `schemas/results_pressure_2.v0.3.schema.json`. On the desktop, `apps/desktop/src/features/result-export/ResultExportPanel.tsx` and `resultExportAdapter.ts` build the result JSON export, and the panel's `ControlledExportLink` (`apps/desktop/src/features/redaction-controls/`) saves it with `nativeResultSave.ts` through the Tauri command `save_local_result_json` (`apps/desktop/src-tauri/src/native_result_download.rs`).
 >
 ### CLM-011 — Requirements
 
