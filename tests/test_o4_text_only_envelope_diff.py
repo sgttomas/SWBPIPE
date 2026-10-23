@@ -34,6 +34,14 @@ value-bound by W1's own checks (its preservation census skips `w1_member_*`), so
 corpus to `ac07a34ccd`: every entry present there is unchanged except corner 1's
 enumerated moves, and the only additions are its enumerated entries.
 
+W-8's topology warnings (DEL-04-06 Design `model-topology-checks.md`) regenerated the
+retained corpus again: 25 producer bases gain one `MODEL_TOPOLOGY_DISCONNECTED` warning
+and the hashes binding it, and the two mutations that name a diagnostic of `w_cb1` by
+index are rebased past it. The corner-1 enumeration therefore reads the corpus as corner 1
+landed it, and `..._retained_corpus_moves_since_w1_corner1_are_w8_warnings` binds the
+committed corpus to those bytes: every entry unchanged except W-8's enumerated ones, which
+differ only by the inserted warnings, their binding hashes and the two rebased indices.
+
 The document-diagnostics repair (DEL-04-07 Design `desktop-exact-outputs.md` §11)
 regenerated the retained-successor derivative goldens, two of them listed here, in
 their diagnostics only. This check reads those two at the repair's parent
@@ -85,6 +93,18 @@ W1_CORNER1_ADDED = {
     "cases": frozenset(f"w1_member_hull_d02_{mode}" for mode in ("sparse_interactive", "dense_scrutiny")),
     "mutations": frozenset(),
     "must_pass": frozenset(f"w1_member_hull_d02_{mode}_must_pass" for mode in ("sparse_interactive", "dense_scrutiny")),
+}
+# W-8 topology warning added; no number moved: the corpus entries it regenerated, by member.
+W8_CODES = frozenset({"MODEL_TOPOLOGY_DISCONNECTED", "NODE_COINCIDENT", "NODE_NEAR_DUPLICATE", "BRANCH_TOPOLOGY_INVALID"})
+W8_MOVED = {
+    "cases": frozenset(
+        [f"{name}_{mode}" for name in ("w_c2", "sf2_c_b_a", "sf2_a_a2", "w_cb1", "w_cb2", "w1_member_values_failure",
+                                      "w1_member_multi", "w1_member_combination", "w1_member_interior_symmetric",
+                                      "w1_member_interior_asymmetric", "w1_member_halfway_asymmetric", "w1_member_hull_d02")
+         for mode in ("sparse_interactive", "dense_scrutiny")] + ["w_cb1z_sparse_interactive"]
+    ),
+    "mutations": frozenset({"b2o_m31_combination_selected_diagnostic_removed", "b2o_m34_combination_diagnostic_two_refs"}),
+    "must_pass": frozenset(),
 }
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
@@ -454,7 +474,8 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
         ["git", "show", f"{W1_CORNER1}:projects/chirality-piping/{name}"],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
-    now = (PROJECT / name).read_text() if current is None else current
+    # W-8 regenerated the corpus after corner 1; its moves are bound by the W-8 check below.
+    now = landed if current is None else current
     for member in ("cases", "mutations", "must_pass"):
         before = _entries(base, member, _pair_id)
         after = _entries(now, member, _pair_id)
@@ -482,10 +503,90 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
             assert not classify(before[member], after[member]), member
 
 
+def _corner1_corpus() -> str:
+    return subprocess.run(
+        ["git", "show", f"{W1_CORNER1}:projects/chirality-piping/{RETAINED_CORPUS}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
+def _without_w8_warnings(entry):
+    """A case entry with the W-8 warnings removed from its successor's diagnostics (and its
+    hook-produced public ordinary's); the count removed."""
+    removed = 0
+    provenance = dict(entry).get("provenance")
+    for holder in (dict(entry).get("source"), dict(provenance).get("public_ordinary") if isinstance(provenance, Obj) else None):
+        if not isinstance(holder, Obj):
+            continue
+        for index, (key, value) in enumerate(holder):
+            if key == "diagnostics":
+                kept = [d for d in value if dict(d).get("code") not in W8_CODES]
+                removed += len(value) - len(kept)
+                holder[index] = (key, kept)
+    return removed
+
+
+def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=None):
+    """W-8 (DEL-04-06 Design `model-topology-checks.md`): the committed retained corpus against
+    corner 1's bytes. The same entries in the same order; W-8's enumerated cases differ only by
+    inserted warnings of W-8's codes and the hashes binding them (no number, status, class or work
+    counter), its two enumerated mutations only by the diagnostic index each names, rebased past the
+    inserted warning; every other entry and member unchanged."""
+    landed = _corner1_corpus()
+    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    base_cases = dict(_entries(landed, "cases", _pair_id))
+    for member in ("cases", "mutations", "must_pass"):
+        before = _entries(landed, member, _pair_id)
+        after = _entries(now, member, _pair_id)
+        assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
+        known = dict(before)
+        moved = {k for k, entry in after if classify(known[k], entry)}
+        assert moved == W8_MOVED[member], (member, sorted(moved ^ W8_MOVED[member]))
+        for key, entry in after:
+            if key not in moved:
+                continue
+            if member == "cases":
+                assert _without_w8_warnings(entry) == 1, (key, "one W-8 warning")
+                found = classify(known[key], entry)
+                assert found and all(kind == "hash" for kind, _ in found), (key, [p for k, p in found if k != "hash"][:8])
+            else:
+                found = classify(known[key], entry)
+                assert [path for _, path in found] == ["/edits/*/path/*"], (key, found)
+                old, new = dict(known[key])["edits"][0], dict(entry)["edits"][0]
+                old_path, new_path = dict(old)["path"], dict(new)["path"]
+                index = int(old_path[1])
+                diagnostics = dict(dict(base_cases[dict(entry)["base"]])["source"])["diagnostics"]
+                assert old_path[0] == new_path[0] == "diagnostics" and int(new_path[1]) == index + 1 \
+                    and dict(diagnostics[index]).get("code") not in W8_CODES, (key, old_path, new_path)
+    before, after = dict(load(landed)), dict(load(now))
+    assert list(before) == list(after)
+    for member in before:
+        if member not in ("cases", "mutations", "must_pass"):
+            assert not classify(before[member], after[member]), member
+
+
+def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
+    """A value planted in a W-8 case or in an entry W-8 did not move, or a second inserted
+    warning, fails the W-8 enumeration."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    for ident in ("w_c2_sparse_interactive", "w1_member_route_e_baseline_sparse_interactive"):
+        document = storage.expand(committed)
+        entry = next(e for e in document["cases"] if e.get("id") == ident)
+        assert _plant(entry), ident
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+    document = storage.expand(committed)
+    entry = next(e for e in document["cases"] if e.get("id") == "w_cb2_sparse_interactive")
+    entry["source"]["diagnostics"].insert(0, dict(entry["source"]["diagnostics"][0]))
+    with pytest.raises(AssertionError, match="w_cb2_sparse_interactive"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+
+
 def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
     """A value planted in the committed corpus's route-E base fails the enumeration."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    document = storage.expand(json.loads((PROJECT / RETAINED_CORPUS).read_text()))
+    document = storage.expand(json.loads(_corner1_corpus()))
     entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
     assert _plant(entry)
     with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
@@ -496,7 +597,7 @@ def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_ent
     """A value planted in an entry corner 1 moved or added, or a duplicated addition, fails
     (Opus review, round 4)."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(_corner1_corpus())
     for member, ident in (
         ("cases", "w1_member_load_sparse_interactive"),
         ("cases", "w1_member_hull_d02_sparse_interactive"),
@@ -520,7 +621,7 @@ def test_o4_text_only_envelope_diff_corner1_enumeration_pins_the_added_positions
     """An entry corner 1 added, moved to another position with its bytes unchanged, fails:
     swapped with its sibling, moved to the front, or moved into the middle."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(_corner1_corpus())
     for member, ident, place in (
         ("cases", "w1_member_hull_d02_sparse_interactive", "after_sibling"),
         ("cases", "w1_member_hull_d02_dense_scrutiny", 0),
@@ -568,7 +669,7 @@ def _replace_first(value, test, make) -> bool:
 def test_o4_text_only_envelope_diff_corner1_enumeration_keeps_tokens_and_containers():
     """In the committed route-E base, an empty array turned into an empty object, or a
     number token changed to one that rounds alike, fails (Codex review of this PR, round 4)."""
-    text = (PROJECT / RETAINED_CORPUS).read_text()
+    text = _corner1_corpus()
     # The token-preserving re-serialisation alone passes, so each failure below is the change's.
     test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(load(text)))
     for test, make in (
