@@ -38,9 +38,10 @@ describe("ResultsPanel numerical health", () => {
   it("shows the generic header with counts, the output sentence under the hold, and the per-case detail", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(true), { eligible: false, verdictHold: true })} />);
-    const standing = screen.getByTestId("numerical-result-standing").textContent ?? "";
-    expect(standing.startsWith("Numerical health: 1 sensitive, 1 checks passed. No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed. ")).toBe(true);
-    expect(standing).not.toContain("Numerical integrity:");
+    expect(screen.getByTestId("numerical-health-header-line").textContent).toBe(
+      "Numerical health: 1 sensitive, 1 checks passed No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
+    );
+    expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: 1 sensitive, 1 checks passed$/);
     expect(screen.getByTestId("numerical-health-header")).toHaveAttribute("data-badge", "red");
     expect(screen.getByTestId("numerical-health-case-text-load:é").textContent).toContain("Its values are kept for inspection.");
     expect(screen.getByTestId("numerical-health-case-conditioning-load:é").textContent).toContain("roughly 11.0 of the about 16 decimal digits");
@@ -51,7 +52,7 @@ describe("ResultsPanel numerical health", () => {
   it("adds no output sentence without the verdict-only hold", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(false), { eligible: false, verdictHold: false })} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: 1 sensitive, 1 checks passed\. [^N]/);
+    expect(screen.getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: 1 sensitive, 1 checks passed");
     expect(screen.queryByTestId("numerical-health-output-sentence")).toBeNull();
   });
 
@@ -112,9 +113,8 @@ describe("ResultsPanel numerical health", () => {
     const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: "diagnostic:numerical-integrity:case", causes: [] }], combinations: [] },
       { eligible: true, verdictHold: false });
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
-    const standing = screen.getByTestId("numerical-result-standing").textContent ?? "";
-    expect(standing.startsWith("Ordinary solve — Numerical health: 1 sensitive. Producer recovery receipt: qualified. ")).toBe(true);
-    expect(standing).toContain("Current use is checked separately against the actual invocation and complete result evidence.");
+    expect(screen.getByTestId("numerical-health-header").textContent).toBe("Ordinary solve — Numerical health: 1 sensitive");
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Ordinary solve: sensitive\. Producer recovery receipt: qualified\. /);
     expect(screen.queryByTestId("numerical-health-output-sentence")).toBeNull();
     expect(screen.getByTestId("numerical-health-case-text-case").textContent).toContain(
       "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
@@ -132,6 +132,36 @@ describe("ResultsPanel numerical health", () => {
     const pressureSource = view({ route: "pressure_source", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={pressureSource} />);
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: checks_passed\. /);
+  });
+});
+
+describe("the standing line beside the health header", () => {
+  // Native-smoke expected.json pins this line's prefix (owner-held G10 observation): its
+  // text is exactly today's on every route, and the header is a separate element above it.
+  const original = (result: MechanicsResult) => sourceContractText(result);
+  function sourceContractText(result: MechanicsResult): string {
+    return result.source_block_recovery
+      ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`;
+  }
+  it.each([
+    ["generic", () => genericResult(), () => view(genericHealth(true), { eligible: false, verdictHold: true })],
+    ["pressure-source", () => JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult,
+      () => view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", causes: [] }], combinations: [] }, { eligible: true, verdictHold: false })]
+  ] as const)("keeps the %s standing text unchanged with the header above it", (_, makeResult, makeHealth) => {
+    const result = makeResult();
+    render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={makeHealth()} />);
+    const standing = screen.getByTestId("numerical-result-standing");
+    expect(standing.textContent).toBe(original(result));
+    const header = screen.getByTestId("numerical-health");
+    expect(header).not.toContainElement(standing);
+    expect(standing).not.toContainElement(screen.getByTestId("numerical-health-header"));
+    expect(header.nextElementSibling).toBe(standing);
+    cleanup();
+    // And the same text with no indicator at all.
+    render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toBe(original(result));
+    expect(screen.queryByTestId("numerical-health")).toBeNull();
   });
 });
 
