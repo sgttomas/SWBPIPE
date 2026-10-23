@@ -153,5 +153,9 @@ code_paths:
 - core/library_import/README.md
 - core/library_import/library_import_document/
 - core/library_import/provenance_checker.py
+- apps/desktop/src/services/libraryImportService.ts
+- apps/desktop/src-tauri/src/lib.rs
 checks:
 - tests/test_library_import_provenance.py
+- apps/desktop/src/services/libraryImportService.test.ts
+- core/library_import/library_import_document/tests/provenance_parity.rs

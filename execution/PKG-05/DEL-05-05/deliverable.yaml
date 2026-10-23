@@ -105,5 +105,14 @@ code_paths:
 - core/product_physics/src/certified_loads.rs
 - schemas/model.schema.yaml
 - schemas/results.schema.yaml
+- core/loads/primitive_loads/src/lib.rs
+- core/solver/straight_pipe/src/lib.rs
+- core/solver/straight_pipe/tests/timoshenko_loads.rs
+- validation/benchmarks/mechanics/src/lib.rs
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
+- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.ts
 checks:
 - core/loads/user_loads/src/lib.rs
+- core/solver/straight_pipe/tests/timoshenko_loads.rs
+- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
