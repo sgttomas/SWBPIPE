@@ -24,9 +24,10 @@ benchmarks and rule checks are development verification and screening
 evidence (boundary vocabulary: `docs/claims_registry.md`, DEC-081).
 
 Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.11` and approved `execution/_DAG/DAG-009/` graph coordination
-authority. `DAG-009` supplies active dependency context only; it does not
-settle lifecycle state, release labels, or legal clearance.
+revision `0.15` and the latest approved dependency graph named in
+`execution/_DAG/_LATEST.md` (`DAG-011`). The graph supplies active dependency
+context only; it does not settle lifecycle state, release labels, or legal
+clearance.
 
 Use this manual to answer four separate questions:
 
@@ -194,10 +195,10 @@ governed `DEC-046` policy records committed beside the crate
 | Mechanics benchmarks | [Section 3.1 case pages](#31-mechanics-benchmark-cases-del-09-01); `validation/benchmarks/mechanics/`, `validation/hand_calcs/mechanics/` | `DRAFT_EVIDENCE`; final public benchmark acceptance and release tolerances are `TBD`. |
 | Stress recovery benchmarks | [Section 3.2 case pages](#32-stress-recovery-cases-del-09-02); `validation/benchmarks/stress/`, `validation/hand_calcs/stress/` | `DRAFT_EVIDENCE`; fatigue, allowable, and release-threshold decisions are `TBD`. |
 | Nonlinear support regression | [Section 3.3 case pages](#33-nonlinear-support-cases-del-09-03); `validation/benchmarks/nonlinear/` with governed `DEC-046` policy records | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
-| Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples and the committed DEL-10-05 `run-benchmark`/`run-regression` payload families are reproducible from invented fixtures. `export-results` remains the only structured runner stub, and public benchmark thresholds remain `TBD`. |
+| Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples and the committed DEL-10-05 `run-benchmark`/`run-regression` payload families are reproducible from invented fixtures. `export-results` is bound to the report-package payload (f82bb28e25; witnesses `validation/witness/generated/del1005_export_results_*.json`). Public benchmark thresholds remain `TBD`. |
 | GUI workflow validation | `apps/desktop/e2e/gui-workflow-validation.spec.ts`; repository-local invented model/result fixtures; two-viewport projects in `apps/desktop/playwright.config.ts` | `DRAFT_EVIDENCE`; on 2026-08-20 the focused host run `npm exec playwright test -- e2e/gui-workflow-validation.spec.ts` passed 2/2 (`chromium-desktop`, `chromium-compact`). Coverage binds visible missing-data and warning classes, assumptions/boundaries, solve and result transitions, local-only persistence, and zero external requests. No threshold or maintainer-review promotion is selected. |
 | Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance. |
-| Release quality evidence | Future `DEL-09-05` release quality gate checklist | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
+| Release quality evidence | `docs/RELEASE_QUALITY_GATES.md` (`DEL-09-05` release quality gate checklist) | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
 | Validation evidence bundles | Future evidence package location/format | `TBD`; long-term storage, retention, and release attachment policy are unsettled. |
 | Professional boundary | `docs/PROFESSIONAL_BOUNDARY.md` | Draft policy surface for reliance wording and release-claim limits. |
 
@@ -278,7 +279,6 @@ reviewers check that:
 - TBD: release-label policy beyond the minimum validation strategy gate.
 - TBD: long-term storage format for reviewed validation evidence bundles.
 - TBD: additional `openpipestress-runner` benchmark/regression payload coverage
-  beyond the exact committed DEL-10-05 witness families, `export-results`
-  payload binding (the only remaining structured runner stub), a clean
+  beyond the exact committed DEL-10-05 witness families, a clean
   environment demonstration record, and the human-gated release-quality and
   professional-boundary reviews required at the R5 exit.

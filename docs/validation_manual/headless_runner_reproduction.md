@@ -161,9 +161,10 @@ command is refused with exit 1, per the dated 2026-10-19 note.
 PR #287 (`CB-2026-07-19-DEL-10-05-RUNNER-PAYLOADS-001`) bound the
 `run-benchmark` and `run-regression` downstream payloads to the committed
 suite crates (`DEL-09-01` mechanics, `DEL-09-02` stress recovery, `DEL-09-03`
-nonlinear support). `export-results` is the only runner verb that remains a
-structured stub (bounded `DEL-10-05` work). The deterministic input source is
-the committed generator
+nonlinear support). `export-results` was later bound to the report-package
+payload (f82bb28e25; witnesses
+`validation/witness/generated/del1005_export_results_*.json`). The
+deterministic input source is the committed generator
 `validation/witness/inputs/generate_del1005_payload_binding_inputs.py`; it
 writes only `del1005_payload_binding_*` input files and does not touch the
 frozen `tp_runner_015` surfaces.
@@ -300,11 +301,10 @@ Per-case purpose/reference/tolerance/pass-fail records now live under
 `docs/validation_manual/cases/` (see the [manual index](index.md)). This slice
 still does not close `DEL-09-04` or Phase E row E2. Still open:
 public-benchmark threshold disposition (owner-gated), `MAINTAINER_REVIEWED`
-case-page promotion, GUI-workflow validation evidence, the `export-results`
-payload binding (the only remaining structured runner stub; bounded
-`DEL-10-05` work), and any human-gated release-quality or
-professional-boundary review required at the R5 exit. Landed: the
-`run-benchmark` / `run-regression` payload bindings (PR #287, `DEL-10-05`)
-and the actor-neutral clean-checkout demonstration
+case-page promotion, GUI-workflow validation evidence, and any human-gated
+release-quality or professional-boundary review required at the R5 exit.
+Landed: the `run-benchmark` / `run-regression` payload bindings (PR #287,
+`DEL-10-05`), the `export-results` binding (f82bb28e25) and the actor-neutral
+clean-checkout demonstration
 (`validation/evidence/reproduction/REPRO_DEL0904_20260719T202023Z_23eeaabc9040/`,
 `INTERNALLY_VERIFIED`; reproduction acceptance remains an owner gate).
