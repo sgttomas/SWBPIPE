@@ -37,11 +37,11 @@ SITES = [
     "file": "core/product_physics/src/lib.rs",
     "line": 11272,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11230:exact_straight_summary_extrema",
-    "short": "lib.rs:11272",
-    "from": "lib.rs:11230:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11237:exact_straight_summary_extrema",
+    "short": "lib.rs:11279",
+    "from": "lib.rs:11237:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4774:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4781:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -51,11 +51,11 @@ SITES = [
     "file": "core/product_physics/src/lib.rs",
     "line": 11278,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11230:exact_straight_summary_extrema",
-    "short": "lib.rs:11278",
-    "from": "lib.rs:11230:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11237:exact_straight_summary_extrema",
+    "short": "lib.rs:11285",
+    "from": "lib.rs:11237:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4774:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4781:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -65,11 +65,11 @@ SITES = [
     "file": "core/product_physics/src/lib.rs",
     "line": 11933,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11914:recover_curved_bend_local_forces",
-    "short": "lib.rs:11933",
-    "from": "lib.rs:11914:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11921:recover_curved_bend_local_forces",
+    "short": "lib.rs:11940",
+    "from": "lib.rs:11921:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4774:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4781:solve_prepared_load_case"
     ]
   },
   {
@@ -108,19 +108,19 @@ MODE_SOURCE = {
              "b175a455bb7e5e4c0cc5b8d1d3cb9a70baf116b98d71e7903d0c5e97235ac923"},
     "run": {"5cb207a921dd8a22509e5ee6381cfb43d7fedece747041acdd8394f4ce823c5d"},
     # Exact base emitter and its ordinary SQ2 _X cap transport. ENV behavior is identical.
-    # B7b: the transport's only change is the carried retained_w1 key (lib.rs:3489 -> 3474).
-    # T4-U6/U8 (PP 20c6126a16): again only that key (lib.rs:3474 -> 3510; B7b's 221aa563c6d5e533...).
+    # B7b: the transport's only change is the carried retained_w1 key (lib.rs:3496 -> 3474).
+    # T4-U6/U8 (PP 20c6126a16): again only that key (lib.rs:3481 -> 3510; B7b's 221aa563c6d5e533...).
     # W1-L5: same _X emitter, with retained_w1 carried from3510 to3512.
     "tb": {"c6aad8333e010583195c24b3d8effe125d5386f04209c2cffe651486c2a4eb83",
            "0de99a4ac9ca186b441654d8434053ca626474b769d11aa4a3b6f93180b78471",
            "f8f52f6d35ee56b09dc9f8c554211b4f61d929146863d7e71688bcb671bc98a4",
-           # T4-S5: the same _X emitter, with retained_w1 carried to lib.rs:3528 (its only difference).
+           # T4-S5: the same _X emitter, with retained_w1 carried to lib.rs:3535 (its only difference).
            "ed2cadd1171a34588c2279ade89c3cf5aa5c5b8b0d424b73dad06291759d1ab1",
-           # O4 S5: the same _X emitter, with retained_w1 carried to lib.rs:3531 (its only difference).
+           # O4 S5: the same _X emitter, with retained_w1 carried to lib.rs:3538 (its only difference).
            "5addba6352f50241e19ed6004c97cb4c7c6949b2cc3b219d6ffa485449e32e0b",
-           # Pre-0.4 failure unification D3 (§8.14): the same _X emitter, with retained_w1 carried to lib.rs:3616.
+           # Pre-0.4 failure unification D3 (§8.14): the same _X emitter, with retained_w1 carried to lib.rs:3623.
            "49accb86c11cdfb6a045246c0610226a1f9cb4715e2d48bdf4f58e80e88ef83b",
-           # W-8 topology warnings D3 (§8.16): the same _X emitter, with retained_w1 carried to lib.rs:3618.
+           # W-8 topology warnings D3 (§8.16): the same _X emitter, with retained_w1 carried to lib.rs:3625.
            "779a5d3019558c983accbb7e19e5c0507be150138d226c5baa0ea829ea9d07ec"},
 }
 
