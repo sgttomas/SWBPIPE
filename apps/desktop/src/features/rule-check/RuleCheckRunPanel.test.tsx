@@ -424,7 +424,7 @@ describe("RuleCheckRunPanel", () => {
       );
       expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
       expect(onAggregateChange).toHaveBeenCalledWith(null);
-      expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_CHECKED");
+      expect(onAggregateChange.mock.calls.map(([aggregate]) => aggregate)).not.toContain("USER_RULE_CHECKED");
       expect(screen.getByTestId("rule-check-run")).not.toBeDisabled();
       view.unmount();
     }
@@ -504,7 +504,10 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     fireEvent.click(screen.getByTestId("rule-check-run"));
 
     await screen.findByTestId("rule-check-run-result");
-    expect(onAggregateChange).toHaveBeenCalledWith("USER_RULE_FAILED");
+    expect(onAggregateChange).toHaveBeenCalledWith("USER_RULE_FAILED", expect.objectContaining({
+      rulePackDocument: expect.any(Object),
+      result: expect.objectContaining({ aggregate_status: "USER_RULE_FAILED" })
+    }));
   });
 
   it("clears the lifted aggregate on a new pack and on the desktop-only browser seam", async () => {
@@ -608,12 +611,15 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     await act(async () => runA.resolve({ ...passingRun, aggregate_status: "USER_RULE_CHECKED" }));
     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
     expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
-    expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_CHECKED");
+    expect(onAggregateChange.mock.calls.map(([aggregate]) => aggregate)).not.toContain("USER_RULE_CHECKED");
 
     await act(async () => runB.resolve(passingRun));
     await screen.findByTestId("rule-check-run-result");
     expect(screen.getByTestId("rule-check-run")).not.toBeDisabled();
-    expect(onAggregateChange).toHaveBeenCalledWith("USER_RULE_FAILED");
+    expect(onAggregateChange).toHaveBeenCalledWith("USER_RULE_FAILED", expect.objectContaining({
+      rulePackDocument: expect.any(Object),
+      result: expect.objectContaining({ aggregate_status: "USER_RULE_FAILED" })
+    }));
   });
 
   it("prevents an old-pack request from reviving findings after a reset to a new pack", async () => {
@@ -655,7 +661,7 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(newPack);
     expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
     expect(screen.getByTestId("rule-check-run-status")).not.toHaveTextContent("aggregate=USER_RULE_FAILED");
-    expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_FAILED");
+    expect(onAggregateChange.mock.calls.map(([aggregate]) => aggregate)).not.toContain("USER_RULE_FAILED");
   });
 });
 

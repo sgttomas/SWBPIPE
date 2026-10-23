@@ -55,6 +55,7 @@ import {
 import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
 import { saveReportPackage } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type {
   AnalysisRunEnvelope,
   AppliedOperationReceipt,
@@ -294,11 +295,14 @@ export function useWorkspaceSession() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    numericalHealth,
+    numericalHealthHold,
     analysisRun, setAnalysisRun,
     resultBasisRef,
     analysisBasisRef,
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
+    ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,
@@ -1015,7 +1019,8 @@ export function useWorkspaceSession() {
       modelRevision: number;
       result: MechanicsResult | null;
       inputManifest: CurrentSessionInputManifestEvidence | null;
-    }>
+    }>,
+    run: SessionRuleCheckRun | null = null
   ) {
     const renderedBasisIsCurrent = () =>
       projectSessionGenerationRef.current === renderedBasis.projectSessionGeneration &&
@@ -1023,6 +1028,9 @@ export function useWorkspaceSession() {
       currentSolvedResultRef.current === renderedBasis.result &&
       currentInputManifestRef.current === renderedBasis.inputManifest;
     if (!renderedBasisIsCurrent()) return;
+    // The report reads the run only while its aggregate is the current one.
+    const previousRun = heldRuleCheckRun;
+    setRuleCheckReportRun(aggregate !== null && run?.result.aggregate_status === aggregate ? run : null);
     if (aggregate === ruleCheckAggregate) return;
     const previousAggregate = ruleCheckAggregate;
     const revision = ruleRevisionGate.current.start();
@@ -1056,6 +1064,7 @@ export function useWorkspaceSession() {
       // Recording the aggregate failed (e.g. hashing unavailable); keep the
       // solve-time analysis-run envelope rather than surfacing a false outcome.
       setRuleCheckAggregate(previousAggregate);
+      setRuleCheckReportRun(previousRun);
     }
   }
 
@@ -2615,7 +2624,7 @@ export function useWorkspaceSession() {
     }
   }
 
-  const nativeRunPresence = runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null });
+  const nativeRunPresence = runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold });
   const nativeResultsEnabled = railStageState("results", nativeRunPresence).enabled;
   const nativeReviewEnabled = railStageState("review", nativeRunPresence).enabled;
   const nativeProjectName = projectSummary?.project_name ?? model?.project.name ?? null;
@@ -2833,7 +2842,7 @@ export function useWorkspaceSession() {
 
   /** The rail and the View menu: enter a stage, unless the rail disables it. */
   function enterStage(stage: ShellStage) {
-    if (!railStageState(stage, runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null })).enabled) return;
+    if (!railStageState(stage, runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })).enabled) return;
     setActiveSection(sectionForStage(stage, shellNowRef.current.stageSurface));
   }
 
@@ -2932,10 +2941,13 @@ export function useWorkspaceSession() {
     results: {
       result,
       currentSolvedResult,
+      numericalHealth,
+      numericalHealthHold,
       historicalRun,
       analysisRun,
       inputManifest,
       ruleCheckAggregate,
+      ruleCheckReportRun,
       ruleCheckRunBasis,
       dormantOutputBasis,
       comparison,

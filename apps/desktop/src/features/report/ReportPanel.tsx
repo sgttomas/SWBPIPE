@@ -17,6 +17,8 @@ import type {
 } from "../../types";
 import { buildUnitDisplaySummary, DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
 import { controlReportDomAndJson } from "./reportRedactionProjector";
+import type { NumericalHealthView } from "../results/numericalHealth";
+import { reportLineText } from "../results/numericalHealthText";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
 
 export function ReportPanel({
@@ -30,11 +32,14 @@ export function ReportPanel({
   projectSummary,
   proposal,
   selectedReviewTarget,
-  storageCapability
+  storageCapability,
+  numericalHealth = null
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
   result: MechanicsResult | null;
+  /** DEL-07-05 numerical health of `result`: one line per load case before the diagnostics. */
+  numericalHealth?: NumericalHealthView | null;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
   editorIntents: EditorOperationIntent[];
@@ -157,6 +162,14 @@ export function ReportPanel({
               value={formatSelectedReviewTarget(selectedReviewTarget)}
               testId="report-selected-review-target"
             />
+            {(numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => (
+              <ReportLine
+                key={item.caseId}
+                label={item.caseId}
+                value={reportLineText(item.state)}
+                testId={`report-numerical-health-${item.caseId}`}
+              />
+            ))}
             <ReportLine
               label="Diagnostic scope"
               value="model, design knowledge, and computed mechanics findings"

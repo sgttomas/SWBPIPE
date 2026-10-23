@@ -36,16 +36,54 @@ export const NATIVE_INGRESS_COMMANDS = [
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 
+/** How long a command refused at admission only because this Mac's free
+ * memory queue was short (`headroom_insufficient`) keeps being re-sent, and
+ * the pause between sends. On a loaded Mac that queue swings between about
+ * zero and gigabytes within a second at normal pressure. The native host
+ * refuses before it parses the arguments, so nothing has run; each re-send
+ * is judged afresh by the unchanged native rule (DEL-04-07 memory-budget
+ * decision). */
+export const HEADROOM_RESEND_WINDOW_MS = 2000;
+export const HEADROOM_RESEND_INTERVAL_MS = 100;
+
+/** A request its caller retired before a send (see `invokeWithIngress`):
+ * nothing was sent for that attempt. */
+export class IngressRequestRetiredError extends Error {
+  constructor(readonly command: NativeIngressCommand) {
+    super(`INGRESS-REQUEST-RETIRED: ${command} is no longer current; it was not sent.`);
+    this.name = "IngressRequestRetiredError";
+  }
+}
+
 /** Invokes a raw-body command with the UTF-8 JSON of `args`. A typed native
  * rejection becomes a `ResourceUnavailableError` (or an `INVALID_REQUEST`
  * error); a plain string rejection is the command's own failure and passes
- * through unchanged, as does any other rejection. */
-export async function invokeWithIngress<T>(command: NativeIngressCommand, args: Record<string, unknown>): Promise<T> {
+ * through unchanged, as does any other rejection. A `headroom_insufficient`
+ * refusal is re-sent within `HEADROOM_RESEND_WINDOW_MS`; the last refusal
+ * stands after it. When `stillCurrent` is given it is checked immediately
+ * before every send, the first and each re-send; a retired request is never
+ * sent again and rejects with `IngressRequestRetiredError`. */
+export async function invokeWithIngress<T>(
+  command: NativeIngressCommand,
+  args: Record<string, unknown>,
+  options: { stillCurrent?: () => boolean } = {}
+): Promise<T> {
   const body = new TextEncoder().encode(JSON.stringify(args));
-  try {
-    return await invoke<T>(command, body, { headers: { [NATIVE_INGRESS_HEADER]: NATIVE_INGRESS_FORMAT } });
-  } catch (error) {
-    throw nativeInvokeError(error);
+  const deadline = performance.now() + HEADROOM_RESEND_WINDOW_MS;
+  for (;;) {
+    let refusal: ResourceUnavailableError;
+    if (options.stillCurrent && !options.stillCurrent()) throw new IngressRequestRetiredError(command);
+    try {
+      return await invoke<T>(command, body, { headers: { [NATIVE_INGRESS_HEADER]: NATIVE_INGRESS_FORMAT } });
+    } catch (error) {
+      const read = nativeInvokeError(error);
+      if (!(read instanceof ResourceUnavailableError) || read.refusal.kind !== "headroom_insufficient") throw read;
+      refusal = read;
+    }
+    if (performance.now() + HEADROOM_RESEND_INTERVAL_MS > deadline) throw refusal;
+    await new Promise((resolve) => setTimeout(resolve, HEADROOM_RESEND_INTERVAL_MS));
+    // A late timer must not start a send after the window: the last refusal stands.
+    if (performance.now() > deadline) throw refusal;
   }
 }
 

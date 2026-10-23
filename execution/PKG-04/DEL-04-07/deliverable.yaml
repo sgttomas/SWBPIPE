@@ -308,6 +308,8 @@ code_paths:
 - tests/test_qualification_exact_pressure.py
 - fixtures/results/pressure_u4b_arc_sparse.json
 - fixtures/model_operations/pressure_v3_l_line_authoring.json
+- apps/desktop/src-tauri/src/memory_pool.rs
+- apps/desktop/src-tauri/src/host_memory.rs
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/pressure_runtime.rs

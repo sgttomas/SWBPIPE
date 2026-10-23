@@ -3,7 +3,8 @@
 use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_renderer::{
     derived_print_view, escape_html, public_report_template, render_calculation_report,
-    RenderableReportInput, ResultRow,
+    RenderableReportInput, ReportContext, ReportExportContext, ReportSetting, ResultRow,
+    UserRuleCheckOutcome, UserRuleCheckRun, UserRuleCheckStatus,
 };
 use open_pipe_stress_report_sections as sections;
 
@@ -115,6 +116,51 @@ fn fixture_input() -> RenderableReportInput {
             quantity_display: "12.5 MPa".to_string(),
             source_ref: "result_envelope:invented-result".to_string(),
         }],
+        report_context: None,
+        user_rule_checks: None,
+    }
+}
+
+fn invented_report_context(export_context: ReportExportContext) -> ReportContext {
+    ReportContext {
+        export_context,
+        generated_at: Some("2026-10-22T12:00:00.000Z".to_string()),
+        software_name: "SWBPIPE".to_string(),
+        software_version: Some("0.1.0".to_string()),
+        build_release_identifier: None,
+        solver_name: Some("invented_solver".to_string()),
+        solver_version: Some("0.2.0".to_string()),
+        solver_build_ref: Some("invented_solver@0.2.0".to_string()),
+        analysis_run_name: Some("invented run record".to_string()),
+        analysis_run_recorded_at: None,
+        solver_mode: Some("sparse_interactive".to_string()),
+        solver_settings_ref: Some("solver-settings:invented".to_string()),
+        solver_settings: vec![ReportSetting {
+            key: "invented_policy".to_string(),
+            value: "\"invented-policy-v1\"".to_string(),
+        }],
+        model_coordinate_system: None,
+        result_coordinate_systems: vec!["element_local".to_string(), "global".to_string()],
+    }
+}
+
+fn invented_rule_check_run() -> UserRuleCheckRun {
+    UserRuleCheckRun {
+        rule_pack_id: "invented-rule-pack".to_string(),
+        grammar_version: "1.0.0".to_string(),
+        aggregate_status: UserRuleCheckStatus::RuleInputsIncomplete,
+        checks: vec![
+            UserRuleCheckOutcome {
+                check_id: "invented-check-a".to_string(),
+                status: UserRuleCheckStatus::UserRuleChecked,
+                missing_inputs: vec![],
+            },
+            UserRuleCheckOutcome {
+                check_id: "invented-check-b".to_string(),
+                status: UserRuleCheckStatus::RuleInputsIncomplete,
+                missing_inputs: vec!["invented_input_x".to_string(), "invented_input_y".to_string()],
+            },
+        ],
     }
 }
 
@@ -269,4 +315,229 @@ fn renderable_input_round_trips_through_json() {
         render_calculation_report(&back).sha256_hex,
         render_calculation_report(&input).sha256_hex
     );
+}
+
+#[test]
+fn report_context_renders_prd_19_2_identity_settings_and_coordinate_rows() {
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::PublicReport));
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = &outcome.html;
+    for expected in [
+        "Software, Solver And Run",
+        "<td>Software</td><td>SWBPIPE</td>",
+        "<td>Software version</td><td>0.1.0</td>",
+        "<td>Build/release identifier</td><td>not recorded</td>",
+        "<td>Solver version</td><td>0.2.0</td>",
+        "<td>Solver build reference</td><td>invented_solver@0.2.0</td>",
+        "<td>Report generated at (application clock)</td><td>2026-10-22T12:00:00.000Z</td>",
+        "<td>Analysis run recorded at</td><td>not recorded</td>",
+        "<td>Solver mode</td><td>sparse_interactive</td>",
+        "<td>Solver setting: invented_policy</td><td>&quot;invented-policy-v1&quot;</td>",
+        "<td>Model coordinate system</td><td>not recorded</td>",
+        "<td>Result coordinate systems</td><td>element_local, global</td>",
+        "<td>Report export context</td><td>public_report</td>",
+        "No user-rule check run is recorded for this report&#39;s result.",
+    ] {
+        assert!(html.contains(expected), "missing {expected}");
+    }
+    assert!(!html.contains("LOCAL PRIVATE REPORT"));
+    assert!(!html.contains("local-private-banner\""));
+}
+
+#[test]
+fn absent_report_context_is_disclosed_as_not_recorded() {
+    let outcome = render_calculation_report(&fixture_input());
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(outcome
+        .html
+        .contains("<td>Report export context</td><td>not recorded</td>"));
+    assert!(outcome
+        .html
+        .contains("<td>Software version</td><td>not recorded</td>"));
+    assert!(outcome
+        .html
+        .contains("<td>Solver settings</td><td>not recorded</td>"));
+    assert!(!outcome.html.contains("LOCAL PRIVATE REPORT"));
+}
+
+#[test]
+fn local_private_context_records_its_status_in_the_document() {
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    let private = render_calculation_report(&input);
+    assert!(!private.export_blocked, "{:?}", private.blocking_reasons);
+    assert!(private.html.contains(
+        "<div class=\"local-private-banner\" data-export-context=\"local_private\">LOCAL PRIVATE REPORT"
+    ));
+    assert!(private.html.contains("not for sharing or publication"));
+    assert!(private
+        .html
+        .contains("<td>Report export context</td><td>local_private</td>"));
+    // The PRD section 19.3 notice is unchanged by the context.
+    assert!(private.html.contains(
+        "SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows."
+    ));
+
+    input.report_context = Some(invented_report_context(ReportExportContext::PublicReport));
+    let public = render_calculation_report(&input);
+    assert_ne!(public.sha256_hex, private.sha256_hex);
+    assert!(!public.html.contains("LOCAL PRIVATE REPORT"));
+}
+
+#[test]
+fn user_rule_check_outcomes_render_identity_status_and_missing_inputs_only() {
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    input.user_rule_checks = Some(invented_rule_check_run());
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = &outcome.html;
+    assert!(html.contains("User-Rule Check Outcomes"));
+    assert!(html.contains(
+        "Rule pack: invented-rule-pack · Grammar version: 1.0.0 · Aggregate status: User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"
+    ));
+    assert!(html.contains(
+        "<td>invented-check-a</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
+    ));
+    assert!(html.contains(
+        "<td>invented-check-b</td><td>User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)</td><td>invented_input_x, invented_input_y</td>"
+    ));
+    // The fixture reference records no display name; it is disclosed as such.
+    assert!(html.contains("<td>invented-rule-pack</td><td>not recorded</td><td>0.1.0</td>"));
+    for raw in [
+        "<td>USER_RULE_CHECKED</td>",
+        "<td>RULE_INPUTS_INCOMPLETE</td>",
+        "Aggregate status: RULE_INPUTS_INCOMPLETE",
+    ] {
+        assert!(!html.contains(raw), "raw status token shown without its display form: {raw}");
+    }
+    let again = render_calculation_report(&input);
+    assert_eq!(again.sha256_hex, outcome.sha256_hex);
+}
+
+#[test]
+fn rule_check_run_for_an_unreferenced_rule_pack_blocks_export() {
+    let mut input = fixture_input();
+    let mut run = invented_rule_check_run();
+    run.rule_pack_id = "invented-other-pack".to_string();
+    input.user_rule_checks = Some(run);
+    let outcome = render_calculation_report(&input);
+    assert!(outcome.export_blocked);
+    assert!(outcome
+        .blocking_reasons
+        .iter()
+        .any(|reason| reason == "report context: USER-RULE-CHECK-RULE-PACK-UNREFERENCED"));
+}
+
+#[test]
+fn empty_rule_pack_refs_are_stated_explicitly() {
+    let mut input = fixture_input();
+    input.calculation_report.rule_pack_refs.clear();
+    let outcome = render_calculation_report(&input);
+    assert!(outcome
+        .html
+        .contains("No rule pack is referenced by this report."));
+}
+
+#[test]
+fn report_context_round_trips_through_json() {
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    input.user_rule_checks = Some(invented_rule_check_run());
+    let json = serde_json::to_value(&input).expect("input serializes");
+    assert_eq!(json["report_context"]["export_context"], "local_private");
+    assert_eq!(json["user_rule_checks"]["checks"][1]["status"], "RULE_INPUTS_INCOMPLETE");
+    let back: RenderableReportInput = serde_json::from_value(json).expect("input deserializes");
+    assert_eq!(back, input);
+}
+
+#[test]
+fn demo_rule_pack_safe_metadata_and_local_private_context_pass_the_lint_gates() {
+    let mut input = fixture_input();
+    let rule_pack = &mut input.calculation_report.rule_pack_refs[0];
+    rule_pack.rule_pack_id = "invented_demo_rule_pack".to_string();
+    rule_pack.version = "0.2.0".to_string();
+    rule_pack.source_notice = "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.".to_string();
+    rule_pack.completeness_status = "incomplete".to_string();
+    let mut context = invented_report_context(ReportExportContext::LocalPrivate);
+    context.solver_settings = vec![
+        ReportSetting {
+            key: "nonlinear_iteration_policy".to_string(),
+            value: "\"DEC-046-CV-B-product-preview-active-set-count-v1\"".to_string(),
+        },
+        ReportSetting {
+            key: "sparse_evidence_lane".to_string(),
+            value: "true".to_string(),
+        },
+    ];
+    context.solver_build_ref = Some("open_pipe_stress_product_physics@0.2.0".to_string());
+    input.report_context = Some(context);
+    let mut run = invented_rule_check_run();
+    run.rule_pack_id = "invented_demo_rule_pack".to_string();
+    input.user_rule_checks = Some(run);
+
+    let outcome = render_calculation_report(&input);
+    assert!(
+        !outcome.export_blocked,
+        "blocking reasons: {:?}",
+        outcome.blocking_reasons
+    );
+}
+
+const DEMO_RULE_PACK: &str =
+    include_str!("../../../../fixtures/product_preview/invented_demo_rule_pack.json");
+
+/// The rule-pack reference the desktop builder derives from the unchanged demo
+/// pack: safe metadata only, including its display name.
+fn demo_rule_pack_ref() -> open_pipe_stress_report_generator::RulePackRef {
+    let pack: serde_json::Value = serde_json::from_str(DEMO_RULE_PACK).expect("demo pack parses");
+    let metadata = &pack["metadata"];
+    let checksum = &pack["checksums"]["rule_pack_checksum"];
+    serde_json::from_value(serde_json::json!({
+        "rule_pack_id": metadata["rule_pack_id"],
+        "name": metadata["name"],
+        "version": metadata["rule_pack_version"],
+        "checksum": {
+            "algorithm": checksum["algorithm"],
+            "canonicalization": checksum["canonicalization"],
+            "payload_ref": {"ref_type": "rule_pack", "ref_id": metadata["rule_pack_id"]},
+            "value": checksum["value"]
+        },
+        "source_notice": metadata["source_notice"],
+        "redistribution_status": pack["classification"]["redistribution_status"],
+        "completeness_status": "incomplete",
+        "private_payload_redacted": true
+    }))
+    .expect("demo rule-pack reference deserializes")
+}
+
+#[test]
+fn demo_rule_pack_name_version_and_checksum_render() {
+    let mut input = fixture_input();
+    input.calculation_report.rule_pack_refs = vec![demo_rule_pack_ref()];
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(outcome.html.contains(
+        "<td>invented_demo_rule_pack</td><td>Invented Demonstration Rule Pack</td><td>0.2.0</td>"
+    ));
+    assert!(outcome
+        .html
+        .contains("c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"));
+    let json = serde_json::to_value(&input.calculation_report.rule_pack_refs[0]).expect("serializes");
+    assert_eq!(json["name"], "Invented Demonstration Rule Pack");
+}
+
+#[test]
+fn blank_rule_pack_name_is_an_unsafe_reference() {
+    let mut input = fixture_input();
+    let mut reference = demo_rule_pack_ref();
+    reference.name = Some("  ".to_string());
+    input.calculation_report.rule_pack_refs = vec![reference];
+    let outcome = render_calculation_report(&input);
+    assert!(outcome
+        .blocking_reasons
+        .iter()
+        .any(|reason| reason == "report validation: REPORT-RULE-PACK-REF-UNSAFE"));
 }

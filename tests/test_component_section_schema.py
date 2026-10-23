@@ -186,10 +186,14 @@ def main():
         "other",
         "TBD",
     } <= enum_at(component_schema, "ComponentType")
-    model_component_types = set(
-        model_schema["$defs"]["Component"]["properties"]["component_type"]["enum"]
-    )
-    assert enum_at(component_schema, "ComponentType") == model_component_types
+    # The model document's component `kind` names every library component family
+    # that is a concrete family. It adds the readers' alias spellings (`tee`,
+    # `branch_connection`) and the demo's `terminal` marker; the library's `other`
+    # and `TBD` placeholders are not document kinds.
+    model_component_kinds = enum_at(model_schema, "ComponentKind")
+    library_families = enum_at(component_schema, "ComponentType") - {"other", "TBD"}
+    assert library_families <= model_component_kinds
+    assert model_component_kinds - library_families == {"tee", "branch_connection", "terminal"}
     assert {
         "bend_centerline_radius",
         "bend_included_angle",
