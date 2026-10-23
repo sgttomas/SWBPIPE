@@ -103,20 +103,31 @@ and §6 authoring.
      - **G stored:** the record's G is copied as stored (same magnitude bits
        and unit) and never overwritten; `verification_note` says it was
        stored and copied.
-     - **G derived:** with no stored G, G = E / (2(1+ν)) in E's entered unit
-       (binary64, one rounding for 1+ν and one for the quotient);
-       `verification_note` names the basis "derived from E and ν (isotropic)"
-       and the E and ν slot ids, values and units.
+     - **G derived:** with no stored G, G is derived exactly as the exact
+       route derives it, so the two are bit-identical for the same E and ν:
+       E is normalized to Pa by `convert_for_dimension(E, Stress, unit,
+       canonical_unit(Stress))` (the solver's `normalize_quantity`; identity
+       for Pa), then G = E_Pa / (2 × (1 + ν)) in binary64 in that order: 1 + ν
+       rounded once, the doubling exact, the quotient rounded once. That is
+       the order of `IsotropicENu::new` (`pressure_exact.rs`, called from
+       `pressure_material.rs`), whose dyadic `Scaled` add and divide round as
+       binary64 does for normal values. The applier's
+       `derived_shear_modulus_pa` computes it (exported to the desktop through
+       the wasm engine) and refuses a non-normal result. The derived G is
+       stored in Pa, not E's entered unit: converting it back and normalizing
+       it again on the pressure-free route could change its last bit.
+       `verification_note` names the basis "derived from E and ν
+       (isotropic)" and the E and ν slot ids, values and units.
      - **Solve routes.** On the exact route the solver derives G from the
        selected E/ν pair itself and ignores the retained G with the warning
        `EXACT_PRESSURE_REDUNDANT_G_IGNORED`
        (`core/product_physics/src/pressure_material.rs:61-92`). On the
        pressure-free route the stored G is the stiffness G (ν and the basis
-       are carried; the route's ν is read back from E and G). A derived G
-       therefore gives the same torsional stiffness on both routes (to the
-       last bit or one ulp, since the exact route's quotient is correctly
-       rounded); a stored G that differs from E/(2(1+ν)) governs only the
-       pressure-free route.
+       are carried; the route's ν is read back from E and G). A derived G is
+       bit-identical to the exact route's, so both routes use the same G; a
+       stored G that differs from E/(2(1+ν)) governs only the pressure-free
+       route. A sweep test compares the derivation bit for bit with a port of
+       the solver's arithmetic (applier `tests/library_apply.rs`).
    - **E/G mode** writes E and G with no basis and no ν. It needs a stored G
      and is refused when the record holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`),
      because ν is never discarded.
@@ -451,15 +462,10 @@ which keeps S2 bounded.
 is `sha256:` and the SHA-256 of the applied record's RFC 8785 form. Library
 documents carry no version member."
 
-**Proposed W-13 §3.5 changes.** As of this design, W-13 §3.5's sentences are
-unchanged. The proposed changes:
-- **Digest comparison.** The library-version comparison becomes a record-digest
-  comparison. `MODEL-LIBRARY-REF-VERSION-CHANGED` compares the digest of the
-  stored record with `library_version`.
-- **Narrow the payload sentence.** "The library payload never enters the
-  document" becomes "Only the enumerated applied values (DEL-03-01 Design
-  `apply-library-records.md` §2.3), their units and the combined
-  `provenance_record` enter the document; no other library content does."
+**W-13 §3.5 changes made.** The library-version comparison is a record-digest
+comparison, and §3.5's payload sentence reads "No library metadata or record
+snapshot enters the document; only the mapped values the user applies (with
+their units), the combined `provenance_record` and `library_ref` do."
 
 ## 7. Decision: the E/ν route
 
@@ -570,9 +576,10 @@ Where the code reads the decisions above differently, this is the reading:
   a second `update_support` annotation in the same batch for an existing
   support.
 - **Store warnings.** `check_model_library_refs` (desktop backend) compares
-  each reference with the project's store; the warnings are appended to the
-  project message at project open and model-document open, and listed in the
-  Library Manager after a list refresh with "Re-apply from library". They are
-  not yet entries of the diagnostics list or the inspector's Provenance
-  record section.
-
+  each reference with the project's store at project open, model-document
+  open and Library Manager list refresh. The warnings are appended to the
+  project message, listed in the Library Manager with "Re-apply from
+  library", entered in the diagnostics list as warnings keyed to the entity,
+  and shown in that entity's Provenance record section. A finding is shown
+  only while the entity still carries the reference it was raised on
+  (`features/library/libraryRefFindings.ts`).

@@ -29,6 +29,7 @@ import {
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EntityRef } from "../../types";
 import { LibraryApplySection, type LibraryApplyTarget } from "./LibraryApplySection";
+import { publishLibraryRefFindings } from "./libraryRefFindings";
 
 // Private Library Manager (PRD §13 / §14.6 / §14.1 "Library manager"). Phase C3
 // GUI slice (TP-C3-LIBGUI-001), replicating the C2 Rule-Pack Manager pattern:
@@ -472,7 +473,9 @@ export function LibraryManagerPanel({
       setEntries(route.entries);
       if (model) {
         const checked = await checkModelLibraryRefs(model.project.id, modelLibraryRefs(model));
-        setRefFindings(checked.route === "tauri_backend" ? checked.findings : []);
+        const findings = checked.route === "tauri_backend" ? checked.findings : [];
+        setRefFindings(findings);
+        publishLibraryRefFindings(model.project.id, findings);
       }
       setListStatus(
         `Local store listed ${route.entries.length} library(ies)` +

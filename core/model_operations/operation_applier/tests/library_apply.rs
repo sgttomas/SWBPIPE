@@ -99,7 +99,7 @@ fn record(library_kind: &str) -> Value {
 }
 
 fn derived_g(e: f64, nu: f64) -> f64 {
-    e / (2.0 * (1.0 + nu))
+    open_pipe_stress_operation_applier::derived_shear_modulus_pa(e, "Pa", nu).unwrap()
 }
 
 /// The inserted material: E, nu and G with the exact basis (the HELP_HUMAN
@@ -337,4 +337,98 @@ fn inserted_e_nu_g_material_solves_with_the_route_specific_g() {
     close(derived_free, torsion_rotation(g_derived));
     // With a derived G the two routes agree.
     assert!((derived_free - derived_exact).abs() <= derived_exact.abs() * 1e-12);
+}
+
+/// A verbatim port of the dyadic `Scaled` arithmetic of
+/// `core/product_physics/src/pressure_exact.rs` (private to that crate), used
+/// to state the exact route's G derivation independently of the applier.
+mod solver_scaled {
+    #[derive(Clone, Copy)]
+    pub struct Scaled { mantissa: f64, exponent: i32 }
+    impl Scaled {
+        pub fn from_f64(value: f64) -> Self {
+            if value == 0.0 { return Self { mantissa: value, exponent: 0 }; }
+            let bits = value.to_bits();
+            let sign = bits & (1u64 << 63);
+            let biased = ((bits >> 52) & 0x7ff) as i32;
+            let fraction = bits & ((1u64 << 52) - 1);
+            if biased != 0 {
+                Self { mantissa: f64::from_bits(sign | (1022u64 << 52) | fraction), exponent: biased - 1022 }
+            } else {
+                let highest_bit = 63 - fraction.leading_zeros() as i32;
+                let magnitude = (fraction as f64) / power_of_two(highest_bit + 1);
+                Self { mantissa: magnitude.copysign(value), exponent: highest_bit + 1 - 1074 }
+            }
+        }
+        fn from_parts(mantissa: f64, exponent: i32) -> Self {
+            let normalized = Self::from_f64(mantissa);
+            if normalized.mantissa == 0.0 { normalized } else { Self { mantissa: normalized.mantissa, exponent: normalized.exponent + exponent } }
+        }
+        pub fn add(self, other: Self) -> Self {
+            if self.mantissa == 0.0 { return other; }
+            if other.mantissa == 0.0 { return self; }
+            let exponent = self.exponent.max(other.exponent);
+            let left = align_mantissa(self.mantissa, self.exponent - exponent);
+            let right = align_mantissa(other.mantissa, other.exponent - exponent);
+            Self::from_parts(left + right, exponent)
+        }
+        pub fn mul(self, other: Self) -> Self {
+            if self.mantissa == 0.0 || other.mantissa == 0.0 { return Self::from_f64(self.mantissa * other.mantissa); }
+            Self::from_parts(self.mantissa * other.mantissa, self.exponent + other.exponent)
+        }
+        pub fn div(self, other: Self) -> Option<Self> {
+            if other.mantissa == 0.0 { return None; }
+            if self.mantissa == 0.0 { return Some(Self::from_f64(self.mantissa / other.mantissa)); }
+            Some(Self::from_parts(self.mantissa / other.mantissa, self.exponent - other.exponent))
+        }
+        pub fn to_f64(self) -> f64 {
+            if self.mantissa == 0.0 { return self.mantissa; }
+            if self.exponent > 1024 { return f64::INFINITY.copysign(self.mantissa); }
+            if self.exponent == 1024 { return (self.mantissa * power_of_two(1023)) * 2.0; }
+            if self.exponent < -1074 { return 0.0f64.copysign(self.mantissa); }
+            self.mantissa * power_of_two(self.exponent)
+        }
+    }
+    fn align_mantissa(mantissa: f64, exponent_shift: i32) -> f64 {
+        if exponent_shift < -1074 { 0.0f64.copysign(mantissa) } else { mantissa * power_of_two(exponent_shift) }
+    }
+    fn power_of_two(exponent: i32) -> f64 {
+        if exponent >= -1022 { f64::from_bits(((exponent + 1023) as u64) << 52) } else { f64::from_bits(1u64 << (exponent + 1074)) }
+    }
+    /// `IsotropicENu::new(e_pa, nu)`'s G: (2 × (1 + ν)), then E / that.
+    pub fn exact_route_g(e_pa: f64, nu: f64) -> Option<f64> {
+        if !e_pa.is_finite() || !nu.is_finite() || e_pa <= 0.0 || nu <= -1.0 || nu >= 0.5 { return None; }
+        let denominator = Scaled::from_f64(2.0).mul(Scaled::from_f64(1.0).add(Scaled::from_f64(nu)));
+        let g = Scaled::from_f64(e_pa).div(denominator)?.to_f64();
+        (g.is_finite() && g > 0.0).then_some(g)
+    }
+}
+
+#[test]
+fn derived_g_is_bit_identical_to_the_exact_route_derivation_across_a_sweep() {
+    use open_pipe_stress_operation_applier::derived_shear_modulus_pa;
+    use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
+    let moduli = [2.0e11, 2.07e11, 1.9999999999999998e11, 193e9, 7.5e10, 1.0, 3.0e-300, 1.0e300, 1.7976931348623157e308, 123456789.123456789, 0.1 + 0.2];
+    let ratios = [0.3, 0.1 + 0.2, 0.29, 1.0 / 3.0, 0.49999999999999994, 0.0, -0.0, 1e-17, -1e-17, 5e-324, -0.5, -0.9999999999999999, 0.2928, 0.27];
+    let units = ["Pa", "kPa", "MPa", "GPa", "psi", "ksi"];
+    let mut compared = 0;
+    for unit in units {
+        for &e in &moduli {
+            for &nu in &ratios {
+                // The solver's normalize_quantity path for E.
+                let from = unit_by_symbol(unit, Dimension::Stress).unwrap();
+                let Ok(e_pa) = convert_for_dimension(e, Dimension::Stress, from, canonical_unit(Dimension::Stress).unwrap()) else { continue };
+                let reference = solver_scaled::exact_route_g(e_pa, nu);
+                match derived_shear_modulus_pa(e, unit, nu) {
+                    Ok(g) => {
+                        assert_eq!(Some(g.to_bits()), reference.map(f64::to_bits), "E={e} {unit}, nu={nu}");
+                        compared += 1;
+                    }
+                    // Refused only where the exact route has no normal positive G either.
+                    Err(_) => assert!(reference.is_none_or(|g| !g.is_normal()), "E={e} {unit}, nu={nu}: {reference:?}"),
+                }
+            }
+        }
+    }
+    assert!(compared > 300, "{compared}");
 }

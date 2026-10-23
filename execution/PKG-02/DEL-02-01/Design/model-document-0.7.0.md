@@ -354,19 +354,21 @@ third vocabulary:
   - **E/ν mode** writes E, ν (unit `1`), G and
     `constitutive_basis: homogeneous_isotropic_E_nu_v1`, the only form the
     material validators accept for a material carrying ν. G is the record's
-    stored G, copied bit for bit, or E/(2(1+ν)) in E's entered unit;
-    `verification_note` says which and, when derived, names the E and ν slots
-    and values it came from.
+    stored G, copied bit for bit, or derived in Pa exactly as the exact route
+    derives it (E normalized to Pa, then E/(2(1+ν)); W-17 §2.3a), so the two
+    are bit-identical; `verification_note` says which and, when derived,
+    names the E and ν slots and values it came from.
   - **E/G mode** writes E and G with no basis, and is refused when the record
     holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`).
   - **Solve routes.** On the exact route the solver derives G from the
     selected E/ν pair and ignores the retained G with
     `EXACT_PRESSURE_REDUNDANT_G_IGNORED` (`pressure_material.rs`); on the
-    pressure-free route the stored G is the stiffness G. A derived G gives
-    the same torsional stiffness on both routes; a stored G that differs from
-    E/(2(1+ν)) does not. This is numerical meaning, so it has targeted
+    pressure-free route the stored G is the stiffness G. A derived G is the
+    same G on both routes; a stored G that differs from E/(2(1+ν)) is not. This is numerical meaning, so it has targeted
     regression tests (applier `tests/library_apply.rs`).
-- The library payload never enters the document.
+- No library metadata or record snapshot enters the document; only the
+  mapped values the user applies (with their units), the combined
+  `provenance_record` and `library_ref` do.
 
 - **Field names and enums** are the library import's
   (`REQUIRED_PROVENANCE_FIELDS`, `library_import_document/src/lib.rs:25`).

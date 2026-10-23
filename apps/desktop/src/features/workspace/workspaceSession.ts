@@ -47,6 +47,7 @@ import {
 } from "../../services/projectService";
 import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
+import { publishLibraryRefFindings } from "../library/libraryRefFindings";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -175,9 +176,11 @@ import type { WorkspaceSectionId } from "./workspaceSections";
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
 async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
+  publishLibraryRefFindings(model.project.id, []);
   try {
     const checked = await checkModelLibraryRefs(model.project.id, modelLibraryRefs(model));
     if (checked.route !== "tauri_backend" || checked.findings.length === 0) return "";
+    publishLibraryRefFindings(model.project.id, checked.findings);
     return modelFileWarningSuffix(checked.findings.map((finding) => ({ code: finding.code, path: finding.entity_ref, message: finding.message })));
   } catch (error) {
     return ` Library references were not checked: ${String(error)}.`;

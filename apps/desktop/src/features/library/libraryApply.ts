@@ -22,6 +22,7 @@
 // A mode whose member the record lacks is refused, naming the member.
 import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
 import type { OperationBatch } from "../../services/operationBatchService";
+import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import type { UnitCatalog } from "../../services/unitCatalogService";
 import type { EditorOperationIntent, PreviewModel, ProvenanceRecord } from "../../types";
 import { draftIntent } from "../offline-proposal-intake/workflowSupport";
@@ -275,7 +276,9 @@ type Material = NonNullable<PreviewModel["materials"]>[number];
 
 type MaterialResult = { members: Record<string, unknown>; copies: Copy[]; notCopied: NotCopiedRow[]; notes: string[] };
 
-function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: MaterialMode): MaterialResult {
+type DeriveG = (elasticModulus: number, unit: string, poissonRatio: number) => string;
+
+function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: MaterialMode, derivedG: DeriveG): MaterialResult {
   const { copies, notCopied } = materialValues(ctx, catalog);
   const e = copies.get("elastic_modulus");
   const g = copies.get("shear_modulus");
@@ -299,10 +302,13 @@ function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: Materi
     } else {
       const eValue = e!.value as { value: number; unit: string };
       const nuValue = (nu!.value as { value: number }).value;
-      const derived = eValue.value / (2 * (1 + nuValue));
-      members.shear_modulus = { value: derived, unit: eValue.unit };
+      // The applier's derivation, bit for bit the exact route's: E in Pa
+      // through the unit catalog, then E / (2 × (1 + ν)); stored in Pa.
+      const derived = JSON.parse(derivedG(eValue.value, eValue.unit, nuValue)) as { value?: number; unit?: string; error?: string };
+      if (derived.error || derived.value === undefined) refuse("LIBRARY-APPLY-MEMBER-MISSING", `G cannot be derived from E and ν: ${derived.error ?? "no value"}.`);
+      members.shear_modulus = { value: derived.value, unit: "Pa" };
       notes.push(
-        `shear_modulus: derived from E and ν (isotropic), G = E/(2(1+ν)), from elastic_modulus ${e!.source} ` +
+        `shear_modulus: derived from E and ν (isotropic), G = E/(2(1+ν)) with E in Pa, from elastic_modulus ${e!.source} ` +
           `(${eValue.value} ${eValue.unit}) and poisson_ratio ${nu!.source} (${nuValue} 1).`
       );
     }
@@ -343,7 +349,7 @@ export type InsertMaterialInput = { model: PreviewModel; document: Json; recordI
 export async function buildMaterialInsert(input: InsertMaterialInput): Promise<LibraryApplyPlan> {
   const ctx = await context("material", input.document, input.recordId);
   checkNewId(input.model, input.newId);
-  const result = materialMembers(ctx, input.catalog, input.mode);
+  const result = materialMembers(ctx, input.catalog, input.mode, (await loadWasmEngine()).derivedShearModulusJson);
   const provenance = libraryProvenanceString("material", ctx.libraryId, ctx.recordId);
   const record = provenanceRecord(ctx, result.copies, null, result.notes);
   const payload = { id: input.newId, ...result.members, label: result.members.label ?? input.newId, provenance, provenance_record: record };
@@ -367,7 +373,7 @@ export async function buildMaterialApply(input: ApplyMaterialInput): Promise<Lib
   const ctx = await context("material", input.document, input.recordId);
   const target = input.model.materials?.find((material) => material.id === input.targetId);
   if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Material ${input.targetId} is not in the model.`);
-  const result = materialMembers(ctx, input.catalog, input.mode);
+  const result = materialMembers(ctx, input.catalog, input.mode, (await loadWasmEngine()).derivedShearModulusJson);
   const current = target as unknown as Json;
   const after: Record<string, unknown> = { ...result.members };
   // An explicit change to the E/G basis removes the exact members.

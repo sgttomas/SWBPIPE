@@ -3145,7 +3145,7 @@
               "source_license": "invented-permissive",
               "source_location": "invented://emission/handbook",
               "source_name": "Invented emission handbook",
-              "verification_note": "shear_modulus: derived from E and ν (isotropic), G = E/(2(1+ν)), from elastic_modulus mat.invented.emission.elastic_modulus (200000000000 Pa) and poisson_ratio mat.invented.emission.poisson_ratio (0.3 1)."
+              "verification_note": "shear_modulus: derived from E and ν (isotropic), G = E/(2(1+ν)) with E in Pa, from elastic_modulus mat.invented.emission.elastic_modulus (200000000000 Pa) and poisson_ratio mat.invented.emission.poisson_ratio (0.3 1)."
             },
             "shear_modulus": {
               "unit": "Pa",

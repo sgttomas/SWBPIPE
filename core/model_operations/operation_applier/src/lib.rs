@@ -40,6 +40,7 @@ mod section_bindings;
 mod b7b_transport_tests;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
+pub use library_apply::derived_shear_modulus_pa;
 pub use document_validator::{validate_model_document, DocumentDiagnostic};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
@@ -1147,6 +1148,16 @@ mod wasm_api {
                 "WASM-ENGINE-INPUT-JSON-INVALID: value is not valid JSON: {error}"
             ))
         })
+    }
+
+    /// W-17 §2.3a: the shear modulus a library insert derives from E and ν,
+    /// as `{"value": <G in Pa>, "unit": "Pa"}`, or `{"error": …}`.
+    #[wasm_bindgen]
+    pub fn derived_shear_modulus_json(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> String {
+        match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
+            Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
+            Err(error) => json!({"error": error}).to_string(),
+        }
     }
 
     /// Canonicalize a JSON document with the engine's canonical form —

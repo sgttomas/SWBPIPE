@@ -445,3 +445,35 @@ pub(crate) fn writes_flexibility(intent: &Value) -> bool {
         .and_then(|after| serde_json::from_str::<Value>(after).ok())
         .is_some_and(|after| after.get("modifiers.flexibility_factor_user_value").is_some())
 }
+
+/// The isotropic shear modulus a library insert derives from E and ν (W-17
+/// §2.3a), in Pa, bit for bit the value the exact route derives for the same
+/// inputs:
+///
+/// - E is normalized to Pa by `open_pipe_stress_units::convert_for_dimension`
+///   with the stress dimension and canonical unit, as the solver's
+///   `normalize_quantity` does (identity for Pa, so no rounding then);
+/// - G = E_Pa / (2 × (1 + ν)), evaluated in that order in binary64:
+///   one rounding for 1 + ν, an exact doubling, one rounding for the quotient.
+///   `IsotropicENu::new` (`product_physics/src/pressure_exact.rs`, called from
+///   `pressure_material.rs`) evaluates the same order through its dyadic
+///   `Scaled` type, whose add and divide round exactly as binary64 does for
+///   normal values.
+///
+/// The value is stored in Pa (not E's entered unit): converting it back to
+/// the entered unit and again to Pa on the pressure-free route could change
+/// its last bit.
+pub fn derived_shear_modulus_pa(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> Result<f64, String> {
+    use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol};
+    let from = unit_by_symbol(unit, Dimension::Stress).map_err(|error| error.to_string())?;
+    let to = canonical_unit(Dimension::Stress).ok_or("no canonical stress unit")?;
+    let e_pa = convert_for_dimension(elastic_modulus, Dimension::Stress, from, to).map_err(|error| error.to_string())?;
+    if !e_pa.is_finite() || e_pa <= 0.0 || !poisson_ratio.is_finite() || poisson_ratio <= -1.0 || poisson_ratio >= 0.5 {
+        return Err("E/ν requires finite E > 0 and -1 < ν < 0.5".into());
+    }
+    let g = e_pa / (2.0 * (1.0 + poisson_ratio));
+    if !g.is_finite() || g <= 0.0 || !g.is_normal() {
+        return Err("E/ν gives no representable positive G".into());
+    }
+    Ok(g)
+}

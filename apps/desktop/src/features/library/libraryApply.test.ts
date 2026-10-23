@@ -12,6 +12,7 @@ import type { UnitCatalog, UnitCatalogEntry } from "../../services/unitCatalogSe
 import type { PreviewModel } from "../../types";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
+import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import {
   buildComponentApply, buildMaterialApply, buildMaterialInsert, buildSectionApply, buildSectionInsert,
   combineDispositions, defaultMaterialMode, libraryRecordVersion, type LibraryApplyPlan
@@ -114,6 +115,22 @@ describe("material insert: the E/ν rule", () => {
     const saved = JSON.stringify(next);
     for (const absent of ["mat.invented.allowable.secret", "p.density", "p.shear_modulus.hot", "Invented private material library name"]) {
       expect(saved.includes(absent), absent).toBe(false);
+    }
+  });
+
+  it("stores a derived G in Pa, bit for bit the applier's exact-route derivation, whatever E's unit", async () => {
+    const model = await demo();
+    const engine = await loadWasmEngine();
+    for (const [magnitude, nu] of [[210, 0.3], [193.0000000001, 0.29], [0.1 + 0.2, 1 / 3], [207, 0.49999999999999994], [69, -0.9999999999999999]] as const) {
+      const document = materialLibrary([property("elastic_modulus", magnitude, "unit:gigapascal"), property("poisson_ratio", nu, "unit:one")]);
+      const plan = await buildMaterialInsert({ model, document, recordId: "mat.invented.steel", newId: "material:gpa", mode: "e_nu", catalog });
+      const material = JSON.parse(plan.batch.operations[0].change.after);
+      expect(material.elastic_modulus).toEqual({ value: magnitude, unit: "GPa" });
+      expect(material.shear_modulus.unit).toBe("Pa");
+      const expected = JSON.parse(engine.derivedShearModulusJson(magnitude, "GPa", nu)).value as number;
+      expect(bits(material.shear_modulus.value)).toBe(bits(expected));
+      // The same order in plain binary64: E·1e9 (the catalog's GPa factor), then E / (2(1+ν)).
+      expect(bits(material.shear_modulus.value)).toBe(bits((magnitude * 1e9) / (2 * (1 + nu))));
     }
   });
 
