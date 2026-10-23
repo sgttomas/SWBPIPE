@@ -13,7 +13,8 @@ FR-GUI-004 row). A pipe's `from`/`to` is read-only in the table
 a field rule of `Element` (`core/model_operations/operation_applier/src/lib.rs:408-470`).
 This deliverable owns the operation applier (`deliverable.yaml` code path
 `core/model_operations/operation_applier/**`). DEL-07-01 owns the geometry-tools
-UI that drives it.
+UI that drives it. W-10 also fixes a `delete_pipe_run` defect that leaves
+components and wind exposure naming a deleted pipe (§7).
 
 ## 1. The operation
 
@@ -294,6 +295,7 @@ edits neither. **No D3 re-pricing.**
 | `apps/desktop/src/features/toolkit/capabilityCatalog.ts` | — | may add capabilities | possible, trivial |
 | `apps/desktop/src/App.tsx` (~515, pass selected node) | — | adds panels | possible, trivial |
 | `apps/desktop/e2e/pipe-reconnect.spec.ts` (new) | e2e fixtures move to 0.7.0 | — | no, if the spec uses a regenerated fixture |
+| `operation_applier/src/lib.rs` `resolve_delete_pipe_run` 3955-4058 (§7) | — | deleting a pipe removes it from its line; generic delete scan skips annotations (§6 of the 0.7.0 design) | textual with S2, trivial; none with S1b |
 
 **S1b's document validator** (§5.3) is not on the branch yet. It is to run "on
 every operation the applier applies". If S1b places it in the shared apply path,
@@ -312,17 +314,24 @@ hunk could be adjacent.
 only coupling with S1b is mechanical: version-neutral test fixtures, and one
 corpus re-bless by whichever lands second.
 
-**Recommended sequencing.** Start W-10 now. Merge it after S1b if S1b merges
-within W-10's window. Otherwise merge W-10 first and hold its corpus cases and
-routing edit to a follow-up after S1b, so S1b's regenerated corpus set does not
-move under its review. Whichever of W-10 and S2 lands second absorbs the
-trivial `check_kinds`/`types.ts` conflicts.
+**Sequencing (coordinator decision, 2026-10-23).**
+- W-10 lands before S1b.
+- W-10's new corpus cases (§4, §7.4) and their `hosted-ci-routing.json` list
+  entries come in a follow-up after S1b. If they land first instead, S1b
+  re-blesses them mechanically with the rest of the corpus; whichever lands
+  second does the re-bless.
+- Shared-list edits in applier `lib.rs` (`check_kinds`, dispatch, apply chain,
+  `resolve_delete_pipe_run`) and in `apps/desktop/src/types.ts`: whoever merges
+  second merges main and resolves.
+- W-10 tests use `MODEL_SCHEMA_VERSION`, never a version literal, so S1b's
+  version ripple does not touch them.
 
-## 6. Size, risks, open questions
+## 6. Size, risks, decisions
 
 **Size: S–M.** About 350 lines for the Rust module, 500 for applier tests, 40
 for `lib.rs` wiring, 200 for desktop code plus 200 for its tests, 150 for the
-e2e spec, and 3 corpus cases.
+e2e spec, and 3 corpus cases; §7 adds about 60 lines of applier code and 250 of
+tests.
 
 **Verification class.** Topology and numerical meaning: the targeted regression
 checks in §4 plus independent review by a separate agent (AGENTS.md,
@@ -332,24 +341,143 @@ Verification).
 that is safe, and the paths are named. A user can leave a model split or a node
 orphaned; these are warnings so that edits can proceed in steps.
 
-**Findings outside W-10, not fixed here.**
-- `connect_pipe_run` has no pair check (`lib.rs:3667-3760`). Accepted corpus
-  case 08 (`case_08_accept_connect_pipe_run.json`, reviewed under DEC-030)
-  creates `pipe:P-2` N-1→N-2 beside `pipe:P-1` N-1→N-2, a parallel duplicate.
-- `delete_pipe_run` checks primitive loads, regions and load-state references
-  only (`lib.rs:4037-4054`); a component or wind exposure naming the pipe is
-  left dangling.
+**Finding: reconnect refuses what connect permits.** `connect_pipe_run` has no
+pair check (`lib.rs:3667-3760`), and human-accepted corpus case 08
+(`case_08_accept_connect_pipe_run.json`, DEC-030) creates `pipe:P-2` N-1→N-2
+beside `pipe:P-1` N-1→N-2. Coordinator decision (2026-10-23): `connect_pipe_run`
+stays as it is, with no refusal and no warning, because either would change that
+accepted output. Reconnect still refuses a parallel pair (R8): a new operation
+carries no accepted output, and §2.1 gives the reasons (silently doubled
+stiffness and weight, region refusals at solve, coincident drawing). The two
+operations therefore disagree on parallel pairs by design.
 
-**Questions for the owner.** None of these changes a commitment or acceptance
-criterion.
-1. **Acceptance scope.** Is a reconnect that refuses component-attached pipes
-   and pressure-region members (R9–R11) and directs the user to re-author them
-   acceptable as FR-GUI-004's "reconnect"? If not, membership-preserving
-   reconnect inside a region needs the chain check at authoring. That means
-   editing the D3-pinned `pressure_runtime.rs` or product_physics `lib.rs` to
-   expose it (a D3), or duplicating it in the applier (a drift risk).
-2. **Parallel pipes in `connect_pipe_run`.** Should `connect_pipe_run` refuse
-   parallel duplicates as R8 does? Doing so changes the expected result of
-   human-accepted corpus case 08, which needs a new review entry. If not, the two
-   operations disagree: reconnect refuses what connect creates. W-10 does not
-   depend on the answer.
+**Decided scope (coordinator, 2026-10-23).** Refusing component-bearing and
+pressure-region pipes (R9–R11) is acceptable for v0.1, provided each refusal
+names its blocker in the UI (§6.1) and the limitation is recorded in DEL-16-06
+and the release notes (§6.2). Membership-preserving reconnect inside a region
+would need the chain check at authoring, which means a D3 on
+`pressure_runtime.rs` or product_physics `lib.rs`, or a duplicate in the applier.
+It is not provided.
+
+### 6.1 Refusal messages
+
+Each blocker gets its own diagnostic, so several blockers give several lines.
+`affected_refs` lists the pipe first, then the blocker ids. The batch review
+shows each message verbatim with its refs selectable, as for existing
+diagnostics. Desktop tests assert that the message carries the blocker's id.
+
+| Code | Message (placeholders in braces) | Remediation |
+|---|---|---|
+| `OP-RECONNECT-COMPONENT-ATTACHED` (names the pipe) | `Cannot reconnect {pipe}: component {component} ({kind}) names it in {slot}.` | `Delete or re-author {component}, reconnect, then author the component again.` |
+| `OP-RECONNECT-COMPONENT-ATTACHED` (at a node) | `Cannot reconnect {pipe}: component {component} ({kind}) sits at node {node}, which this reconnect {leaves \| joins}.` | same |
+| `OP-RECONNECT-PRESSURE-REGION-MEMBER` | `Cannot reconnect {pipe}: it is a member of pressure region {region} in load case {case}.` | `Remove {pipe} from {region}, reconnect, then re-enter the region's members and terminals.` |
+| `OP-RECONNECT-PRESSURE-REGION-BRANCH` | `Cannot move the {end} end of {pipe} to {node}: {node} is an internal node of pressure region {region} in load case {case}, and a pipe outside the region cannot join it there.` | `Choose another node, or end {region} at {node} before reconnecting.` |
+
+### 6.2 Recording text (written during implementation)
+
+**Release notes, `docs/RELEASE_NOTES_v0.1.0_DRAFT.md`.** Replace line 57,
+
+```
+- Geometry tools: split a pipe at a new node; copy, rotate and mirror selected pipes.
+```
+
+with
+
+```
+- Geometry tools: split a pipe at a new node; reconnect one end of a pipe to another existing node; copy, rotate and mirror selected pipes.
+  - Reconnect refuses a pipe that a component names or that has a component at the node it leaves or joins, a pipe in a pressure region, and a move onto a pressure region's internal node. The refusal names the blocking component or region; re-author it around the reconnect. Reconnect also refuses a second pipe between the same two nodes, which Connect pipe still allows.
+```
+
+**DEL-16-06, `ScopeOfWork.md`.** Append after the last
+"Delivery commitments and evidence limits" item (DEL-16-06:3), with no new key,
+because the keys index the source-retirement account:
+
+```
+- **Declared limitation (W-10, Design `Design/pipe-reconnect.md`):** `reconnect_pipe_run` refuses a pipe named by a component or with a component at the node it leaves or joins, a pressure-region member, and a move onto a region's internal node; each refusal names the blocker. Membership-preserving reconnect inside a pressure region is not provided in v0.1. `delete_pipe_run` refuses while any record names the pipe and never cascades.
+```
+
+Run `python3 -m tools.deliverables --project projects/chirality-piping check`
+after the edit.
+
+## 7. `delete_pipe_run` dangling references (defect, fixed in W-10)
+
+### 7.1 The defect
+
+`resolve_delete_pipe_run` (`lib.rs:3955-4058`) refuses only for primitive loads
+and pressure regions (`pipe_primitive_load_references`, `:8766-8803`) and for
+load/reference states (`load_state_authoring::pipe_references`, `:342-379`).
+`apply_deleted_pipe` (`:7827-7839`) then removes the record. Components and wind
+exposure that name the pipe are left naming a pipe that no longer exists.
+
+### 7.2 Behaviour: refuse with named dependents
+
+Every delete path in the applier refuses while a dependent remains; none
+cascades:
+- node: `OP-NODE-DELETE-REFERENCED` (`lib.rs:3486-3500`);
+- support: `OP-SUPPORT-DELETE-REFERENCED` (`:6520`);
+- load case: `OP-LOAD-CASE-DELETE-REFERENCED` (`:5012`);
+- material, section, component: `OP-ENTITY-DELETE-REFERENCED`, whose remediation
+  reads "deletion never cascades" (`:3936-3947`);
+- pipe, for the slots it checks today: `OP-PIPE-DELETE-REFERENCED` (`:4042`).
+
+Pipe delete keeps that rule. A cascade would also remove user-entered
+engineering data the delete intent never shows: a bend's k and SIF pair, tee
+SIFs and angles, connector stiffness, wind exposure. That data would come back
+only by undo. Undo works either way (whole-model checkpoints,
+`workspaceSession.ts:1192-1198`), so it does not decide the choice. A user who
+wants the pipe gone removes each dependent with its own operation
+(`delete_component`, the wind-exposure `update_load` at `lib.rs:829`, the region
+edit). These can be composed into one reviewed batch, with the delete last.
+
+### 7.3 Reference inventory
+
+The delete refuses on all of the following. The list reuses the §2 inventory.
+
+| Slot | Today | After |
+|---|---|---|
+| `load_cases[].primitive_loads[].target.pipe` | refused | refused |
+| `load_cases[].pressure_regions[].member_pipe_ids` | refused | refused |
+| `analysis_state.element_states[].pipe_ref`, `reference_configurations[].member_references[].pipe_ref` | refused | refused |
+| `components[].geometry.bend_pipe_ref` | **dangles** | refused |
+| `components[].geometry.branch_header_pipe_ref`, `branch_branch_pipe_ref` | **dangles** | refused |
+| `components[].geometry.rigid_pipe_ref` | **dangles** | refused |
+| `components[].geometry.expansion_joint_pipe_ref` | **dangles** | refused |
+| `components[].objective_connector.topology.span_ref` (`lib.rs:2727-2728`) | **dangles** | refused |
+| `load_cases[].equivalent_static.wind.exposed_pipe_refs[]` | **dangles** | refused |
+| `load_cases[].equivalent_static.wind.exposed_spans[].pipe_ref` | **dangles** | refused |
+| any other `*_ref` / `*_refs` / `ref` slot naming the pipe | **dangles** | refused (fail closed) |
+| `lines[].pipe_refs` (0.7.0, S2) | — | excluded from the scan; S2 removes the pipe from its line in the same operation (0.7.0 design §3.2) |
+| assumptions and constraints naming the pipe (0.7.0, S2) | — | excluded; never blocks, and S2 leaves a missing-subject warning |
+
+**Mechanism.** After the existing two checks, run the generic delete scan
+`entity_reference_paths` (`lib.rs:3818-3853`) over the model with the pipe
+removed and the excluded collections skipped. This is how `resolve_delete_entity`
+already scans (`:3932-3934`). The scan treats keys ending `_ref`/`_refs` and
+`ref` as reference slots, so it covers every row marked "dangles". It does not
+read free text (`label`, `provenance`).
+
+**Diagnostic.** The code stays `OP-PIPE-DELETE-REFERENCED`. `affected_refs`
+keeps today's refs first, in today's order, then appends each new dependent's
+owning record id, sorted and deduplicated. Corpus cases 54 and 55 have no
+component or wind reference to `pipe:P-1`, so their accepted outcomes (code and
+refs; messages are not compared, `tests/contract_corpus.rs:19`) are unchanged
+without a re-bless. The message becomes `Pipe segment {pipe} is still named by:
+{owner} ({slot}), …`. The remediation becomes `Remove or retarget each
+dependent first; deletion never cascades.`
+
+### 7.4 Regression tests
+
+- One applier test per new row in §7.3: bend, tee header, tee branch, rigid,
+  expansion joint, connector span, wind exposed pipe, wind exposed span, and an
+  unknown `*_ref` slot. Each asserts the code, the dependent id in
+  `affected_refs` and the slot in the message, an unchanged model, and no model
+  from validate mode.
+- The existing refusals still hold: `lib.rs:12926` and the load-state delete
+  control (`tests/load_state_delete_control.rs`).
+- Corpus cases 54 and 55 pass unchanged, with no re-bless.
+- A batch of [`delete_component`, `delete_pipe_run`] applies atomically, and one
+  undo restores both.
+- After S1b: a new corpus block case (`delete_pipe_run` named by a bend), with
+  its own review entry.
+- Desktop: deleting a pipe that a bend names shows the refusal naming the bend,
+  and the model is unchanged.
