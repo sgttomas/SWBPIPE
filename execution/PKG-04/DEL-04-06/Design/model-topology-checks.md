@@ -51,6 +51,22 @@ relative) and well below any deliberate spacing in a piping model (for a 100 m
 model, 0.1 mm). Two nodes an element joins are left out: the element's own
 length checks (`AXIS_TOLERANCE`, DEL-04-01) govern them.
 
+**User control of the node-proximity tolerance (owner ruling, 2026-10-23).**
+The owner ruled that the near-duplicate node warning uses a fixed 5 mm
+tolerance "and give the user the means to change it". The ruling replaces the
+relative tolerance above.
+- **Storage.** The tolerance is an optional model-document member in 0.7.0: a
+  length with a unit, default 5 mm (DEL-02-01 Design `model-document-0.7.0.md`).
+- **Control.** The desktop shows it in project or analysis settings, where the
+  user can see and edit it:
+  - any length unit from the catalog may be entered;
+  - non-positive values are refused;
+  - when the member is unset, the control shows "5 mm (default)".
+- **Editing.** The edit is an applier operation on the `Project` target, like
+  `set_project_unit` (DEL-02-02 Design `project-unit-selection.md` §2.7).
+- **Status.** The control is not implemented. It needs the 0.7.0 member and the
+  `Project` target.
+
 **Search.** Nodes are placed in cells twice the tolerance wide, and each
 node is compared with the nodes of its own and the 26 neighbouring cells.
 Rounding in a cell index moves a point by far less than half a cell, so every
