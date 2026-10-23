@@ -642,6 +642,33 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
   present: it shows "Include nonlinear behavior" checked and then requires a
   behaviour. S2 makes the form read null as absent.
 
+**The wire as built (S2a, `model_data_authoring.rs`).** Where this differs from
+the text above, the code's reading within this section's intent is:
+- **Record operations** target the record's id (`target.ref`) with the
+  collection as `field_path`, unit `none`, dimension `dimensionless`. Create
+  carries before `not_present` and the record's JSON; update and delete carry
+  the current record's canonical JSON as before; delete has after
+  `not_present`. A collection a delete leaves empty is removed, so create then
+  delete restores the document. An authored id matches the applier's id
+  pattern and repeats no id of the document; a rule-pack id is the pack's own
+  and need only be non-blank. Record shape is judged by the validator.
+- **Rule-pack references** use object type `RulePackRef` (beside the four
+  record families and `Project`); there is no update.
+- **Annotations** resolve on the rich-authoring write path, which can remove a
+  member, rather than as a new `FieldKind`. Before is the member's canonical
+  JSON or `not_present`; after is JSON text, and `null` (or an empty tag list)
+  clears.
+- **Validate-only** previews build the candidate result, so the validator
+  judges a preview as it judges the apply; batches accept the new object
+  types.
+- **Copy** keeps the copied pipe's tags and notes (it clones the record) and
+  joins no line.
+- **Desktop.** Edits queue structured operations for review and apply. The
+  model-data records live in the operations area's Model records tab.
+  `MODEL-RULE-PACK-REF-UNRESOLVED` is shown in the Rule Pack Manager after a
+  list refresh, not in the diagnostics list. Save Local Project and the
+  browser-preview store refuse a document with a blocking finding.
+
 ## 7. Owner-reserved text (exact old → new to HELP_HUMAN at the slice that needs it)
 
 1. **Version token 0.6.0 → 0.7.0.** These record OD-4, so HELP_HUMAN approves

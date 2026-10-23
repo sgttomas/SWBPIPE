@@ -184,6 +184,7 @@ code_paths:
 - schemas/model.schema.yaml
 - schemas/results.schema.yaml
 - apps/desktop/src/features/workspace/table/**
+- apps/desktop/src/features/model-data/**
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
@@ -197,3 +198,4 @@ checks:
 - apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx
 - apps/desktop/e2e/b4-table-editing.spec.ts
 - apps/desktop/e2e/b4-sections.spec.ts
+- apps/desktop/src/features/model-data/modelData.test.tsx
