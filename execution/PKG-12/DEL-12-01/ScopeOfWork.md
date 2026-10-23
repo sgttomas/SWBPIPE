@@ -119,8 +119,8 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | `core/security/local_first_storage/` | Metadata-only storage guard helper evidence; not a runtime storage implementation. |
 > | `tests/security/test_local_first_storage_policy.py` | Focused invented-fixture tests for metadata classification and public/private leakage blocking. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-01, SOW-029, OBJ-010, AB-00 architecture basis. |
-> | `docs/_Registers/Deliverables.csv` | Deliverable identity, anticipated artifacts, context/risk notes. |
-> | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-029. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable identity, anticipated artifacts, context/risk notes. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope ledger row for SOW-029. |
 > | `TASK_RUN_2026-06-07_0140.md` and package fan-in run `WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md` | June 7 implementation and fan-in evidence; no lifecycle, approval, storage-schema, runtime-storage, cloud, encryption, or certification claim. |
 >
 > PDU-036 does not change the storage evidence inventory: the trace-gap fixture is cross-deliverable verification evidence, not a storage runtime, migration, round-trip, or report/export fixture.

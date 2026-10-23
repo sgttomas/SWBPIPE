@@ -95,14 +95,14 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
-> - `_STATUS.md`
+> - `_STATUS.md` (retired in `497a8d81e4`; see Git history)
 > - local `Dependencies.csv`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 > - `docs/CONTRACT.md`
 > - `docs/TYPES.md`
 > - `docs/SPEC.md`

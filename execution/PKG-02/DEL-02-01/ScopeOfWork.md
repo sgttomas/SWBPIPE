@@ -92,12 +92,12 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` current authority references for deliverable identity, accepted decomposition reference, SCA-001 basis IDs, and write-scope constraints.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) current authority references for deliverable identity, accepted decomposition reference, SCA-001 basis IDs, and write-scope constraints.
 > - `_REFERENCES.md` for the locally declared reference set.
 > - `_DEPENDENCIES.md` for human-owned dependency posture; no concrete upstream/downstream dependency list was declared.
-> - `docs/_Registers/Deliverables.csv` row DEL-02-01 for deliverable identity and artifact targets.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-041 for machine-readable schema scope and JSON Schema 2020-12 baseline.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-02-01 for context-envelope and SCA-001 notes.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-02-01 for deliverable identity and artifact targets.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-041 for machine-readable schema scope and JSON Schema 2020-12 baseline.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-02-01 for context-envelope and SCA-001 notes.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), especially PKG-02, DEL-02-01, SOW-041, and AB-00-01/02/03/04/06/07/08.
 > - `docs/CONTRACT.md` for IP, data, authority, unit, report, and agent invariants.
 > - `docs/TYPES.md` for stable IDs, deliverable types, analysis-status vocabulary, epistemic labels, and provenance labels.

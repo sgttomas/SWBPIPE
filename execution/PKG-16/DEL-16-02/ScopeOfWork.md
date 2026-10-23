@@ -89,13 +89,13 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, objective, package reference, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, objective, package reference, architecture-basis injection.
 > - `_REFERENCES.md` - source inventory for this deliverable.
 > - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface for active upstream dependencies.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current scope, package, deliverable, objective, and architecture-basis context.
-> - `docs/_Registers/Deliverables.csv` - deliverable identity and anticipated artifacts.
-> - `docs/_Registers/ScopeLedger.csv` - SOW-069 wording and product-boundary notes.
-> - `docs/_Registers/ContextBudgetQA.csv` - context-envelope row.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - deliverable identity and anticipated artifacts.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - SOW-069 wording and product-boundary notes.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - context-envelope row.
 > - `docs/CONTRACT.md` - invariants for data, authority, units, diagnostics, and agent behavior.
 > - `docs/SPEC.md` - schema-first, persistence, diagnostics, result-envelope, and professional-boundary context.
 

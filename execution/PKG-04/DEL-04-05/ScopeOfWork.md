@@ -82,12 +82,12 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
 > - `_REFERENCES.md` for governing local references.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), rows for PKG-04, DEL-04-05, SOW-035, OBJ-003, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
-> - `docs/_Registers/Deliverables.csv` row DEL-04-05.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-035.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-04-05.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-04-05.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-035.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-04-05.
 > - `docs/CONTRACT.md` invariants OPS-K-SOLVER-1, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-REPORT-1, OPS-K-AGENT-1..4, and OPS-K-IP-1.
 >
 

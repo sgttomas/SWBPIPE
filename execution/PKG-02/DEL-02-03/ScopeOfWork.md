@@ -104,10 +104,10 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 
 > ##### References
 >
-> - `_CONTEXT.md` current authority references for sealed deliverable identity, scope, artifacts, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` row `DEL-02-03`.
-> - `docs/_Registers/ScopeLedger.csv` row `SOW-002`.
-> - `docs/_Registers/ContextBudgetQA.csv` row `DEL-02-03`.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) current authority references for sealed deliverable identity, scope, artifacts, and architecture-basis injection.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-02-03`.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-002`.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row `DEL-02-03`.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) sections 5, 7, 8, and 9.
 > - `docs/CONTRACT.md` section 1 invariants `OPS-K-IP-*`, `OPS-K-DATA-*`, `OPS-K-AUTH-*`, `OPS-K-MECH-2`, `OPS-K-AGENT-*`.
 > - `docs/TYPES.md` sections 4, 5, 6, and 8.

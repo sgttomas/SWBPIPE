@@ -90,7 +90,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and anticipated artifacts.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and anticipated artifacts.
 > - `_REFERENCES.md` - source list for this deliverable.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for upstream workflow context.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, decision, and open-issue context.

@@ -126,11 +126,11 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` current authority references for deliverable identity, SOW/objective mapping, accepted architecture basis IDs, and write context.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) current authority references for deliverable identity, SOW/objective mapping, accepted architecture basis IDs, and write context.
 > - `_DEPENDENCIES.md` for declared dependency status; no human-owned upstream/downstream dependency list was provided.
-> - `docs/_Registers/Deliverables.csv` row DEL-02-05.
-> - `docs/_Registers/ScopeLedger.csv` rows SOW-050 and SOW-041.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-02-05.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-02-05.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-050 and SOW-041.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-02-05.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), especially SOW-041, SOW-050, PKG-02, DEL-02-05, section 8.1, section 8.2, and OI-011.
 > - `docs/CONTRACT.md` invariant catalog.
 > - `docs/TYPES.md` sections 3-8.

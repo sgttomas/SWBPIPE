@@ -109,9 +109,9 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > - `docs/IP_AND_DATA_BOUNDARY.md`
 > - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 
 ## Completion and Reliance Basis — Epistemology
 
