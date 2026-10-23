@@ -232,6 +232,8 @@ code_paths:
 - apps/desktop/src/features/viewport/PipeViewport.tsx
 - apps/desktop/e2e/rotation-glyph/
 - schemas/results.schema.yaml
+- apps/desktop/src/features/results/**
+- apps/desktop/src/features/viewport/viewportPalette.ts
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/features/results/loadReferenceDisclosure.test.tsx
@@ -244,3 +246,7 @@ checks:
 - apps/desktop/src/features/viewport/viewportRotationGlyph.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.rotation.test.tsx
 - apps/desktop/e2e/rotation-glyph.spec.ts
+- apps/desktop/src/features/results/resultReader.test.ts
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/src/features/viewport/viewportPalette.test.ts
+- apps/desktop/e2e/c3-viewport-visibility.spec.ts

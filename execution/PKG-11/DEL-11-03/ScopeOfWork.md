@@ -64,7 +64,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`.
+> - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`. Current implementation (at `62c1efd75b`): `docs/theory/centerline_analysis.md` exists.
 > - The final theory note must be educational and auditable. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 > - Classical lineage may be described at a conceptual level until public/permissive mechanics sources are selected and cited.
 > - Modern implementation may describe the project direction as a 3D line-element/frame model, but detailed code equations, protected formulas, code tables, and standard-derived examples remain out of scope.

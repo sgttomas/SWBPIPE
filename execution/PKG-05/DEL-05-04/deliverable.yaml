@@ -90,6 +90,7 @@ code_paths:
 - schemas/analysis_status.schema.yaml
 - schemas/headless_runner.schema.yaml
 - schemas/results.schema.yaml
+- apps/desktop/src/features/workspace/statusLabels.ts
 checks:
 - tests/test_analysis_boundary_schema.py
 - tests/test_analysis_status_schema.py
@@ -97,3 +98,5 @@ checks:
 - tests/test_report_generator_contract.py
 - tests/test_report_sections_contract.py
 - tests/test_results_schema.py
+- apps/desktop/src/features/workspace/statusLabels.test.ts
+- apps/desktop/src/features/workspace/statusLabels.tokens.test.ts

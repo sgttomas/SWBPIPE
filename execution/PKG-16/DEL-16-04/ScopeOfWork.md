@@ -133,6 +133,8 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 >
 > Current implementation evidence for this deliverable-local slice is `core/model_operations/agent_rationale/engine.py` with focused tests in `tests/test_agent_rationale_boundary.py`. That implementation consumes DEL-16-01 operation envelopes and optional DEL-16-03 audit / DEL-16-02 validation context as read-only rationale context; it does not implement those sibling deliverables.
 >
+> Current implementation (at `62c1efd75b`): the desktop route differs. Offline proposals enter through `apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx`, which parses only the batch envelope, and are validated and applied by the Rust `core/model_operations/operation_applier/src/atomic_batch.rs` (`preflight_operation`) through the Tauri commands `validate_model_operation_batch` and `apply_model_operation_batch` in `apps/desktop/src-tauri/src/lib.rs`. That preflight requires a non-empty `rationale` and a complete `source` object for `author_type: agent`, and fixed values for the `audit_boundary` and `professional_boundary` flags. It does not scan rationale or copied context for prohibited claim language. The prohibited-claim scanner in `core/model_operations/agent_rationale/engine.py` has no product caller and runs only in `tests/test_agent_rationale_boundary.py`. A batch apply records `persistence_status: session_state_only_not_yet_saved`; the desktop review ledger is `apps/desktop/src/features/operations/OperationLedgerPanel.tsx`.
+>
 
 ### CLM-009 — Requirements
 

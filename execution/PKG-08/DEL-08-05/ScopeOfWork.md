@@ -138,6 +138,8 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > - making legal sufficiency, compliance, certification, or professional-reliance claims;
 > - moving the deliverable to `ISSUED`.
 >
+> Current implementation (at `62c1efd75b`): the linter is `core/reporting/protected_content_linter/src/lib.rs` (`lint_targets`; CLI `src/bin/protected_content_lint_cli.rs`), with tests in the same crate and the schema/fixture checks in `tests/test_report_protected_content_linter.py`. `core/reporting/report_renderer` and `core/reporting/pdf_emitter` call `lint_targets` during rendering, so the desktop Render action runs it when a render is not blocked earlier. The desktop Report Content Lint panel (`apps/desktop/src/features/report-lint/ReportLintPanel.tsx`) is a separate in-app heuristic over session targets and does not call the Rust linter.
+>
 ### CLM-011 — Requirements
 
 > ##### Requirements

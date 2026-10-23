@@ -151,5 +151,13 @@ code_paths:
 - schemas/component.schema.yaml
 - schemas/section.schema.yaml
 - schemas/units.schema.yaml
+- apps/desktop/src/features/library/LibraryManagerPanel.tsx
+- apps/desktop/src/services/libraryImportService.ts
+- core/library_import/**
+- apps/desktop/src-tauri/src/lib.rs
 checks:
 - tests/test_component_section_schema.py
+- tests/test_library_import_provenance.py
+- apps/desktop/src/features/library/LibraryManagerPanel.test.tsx
+- apps/desktop/src/services/libraryImportService.test.ts
+- core/library_import/library_import_document/tests/provenance_parity.rs

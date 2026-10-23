@@ -119,6 +119,8 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 > The original setup run does not implement exporter code, edit `schemas/results.schema.yaml`, create tests, choose additional export formats as final, or modify documentation outside this deliverable folder. Those remain future implementation work under bounded Type 2 briefs.
 >
+> Current implementation (at `62c1efd75b`): exporter source and contract tests are in `core/reporting/result_export/`, and the result schemas include `schemas/results.schema.yaml`, `schemas/results.v0.3.schema.yaml` and `schemas/results_pressure_2.v0.3.schema.json`. On the desktop, `apps/desktop/src/features/result-export/ResultExportPanel.tsx` and `resultExportAdapter.ts` build the result JSON export, and the panel's `ControlledExportLink` (`apps/desktop/src/features/redaction-controls/`) saves it with `nativeResultSave.ts` through the Tauri command `save_local_result_json` (`apps/desktop/src-tauri/src/native_result_download.rs`).
+>
 ### CLM-011 — Requirements
 
 > ##### Requirements

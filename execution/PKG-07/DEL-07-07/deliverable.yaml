@@ -210,7 +210,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-07/core/gui/solve_execution/engine.py; tests/test_solve_execution_ux.py
+  evidence: core/gui/solve_execution/engine.py; tests/test_solve_execution_ux.py
 - from: DEL-02-05
   condition: 'DEL-07-07 directly depends on DEL-02-05 because completed solve-event display records must
     carry model/result hash and provenance references when result evidence is available.
@@ -223,7 +223,22 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-07/core/gui/solve_execution/engine.py; tests/test_solve_execution_ux.py
+  evidence: core/gui/solve_execution/engine.py; tests/test_solve_execution_ux.py
 code_paths:
 - core/gui/solve_execution/engine.py
 - apps/desktop/src/features/solve/**
+- apps/desktop/src-tauri/src/solve_jobs.rs
+- apps/desktop/src-tauri/src/solve_worker.rs
+- apps/desktop/src/services/previewService.ts
+- apps/desktop/src/features/workspace/solveJobAudit.ts
+- apps/desktop/src/features/workspace/solveGates.ts
+- apps/desktop/src/features/diagnostics/**
+checks:
+- apps/desktop/src/features/solve/SolvePanel.test.tsx
+- apps/desktop/src/features/workspace/solveJobResource.session.test.tsx
+- apps/desktop/src/features/workspace/exactSessionSolve.session.test.tsx
+- apps/desktop/src/features/workspace/solveJobAudit.test.ts
+- apps/desktop/src/services/previewService.test.ts
+- apps/desktop/src-tauri/src/solve_jobs.rs
+- apps/desktop/src-tauri/src/solve_worker.rs
+- tests/test_solve_execution_ux.py

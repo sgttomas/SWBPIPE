@@ -167,6 +167,8 @@ needs:
   evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 code_paths:
 - schemas/comparison_mapping.schema.json
+- schemas/comparison_tolerance.schema.json
+- apps/desktop/src/services/previewService.ts
 checks:
 - tests/test_analysis_run_comparison.py
 - tests/test_comparison_contracts.py

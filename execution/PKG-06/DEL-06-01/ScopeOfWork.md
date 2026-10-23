@@ -119,6 +119,8 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 >
 > Current schema realization is `schemas/rule_pack.schema.yaml`; evaluator implementation and example ownership remain separate. The schema must not publish protected rule content or claim engineering code compliance.
 >
+> Current implementation (at `62c1efd75b`): the production document codec, JCS checksum computation and document validation for this schema are `core/rules/rule_pack_document/src/lib.rs` (tests in `core/rules/rule_pack_document/tests/`). The desktop Rule-Pack Manager (`apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx`, via `apps/desktop/src/services/rulePackService.ts`) reaches it through the Tauri commands `validate_rule_pack` and `compute_rule_pack_document_checksum` in `apps/desktop/src-tauri/src/lib.rs`; browser preview mode keeps drafts in memory and does not run these commands.
+>
 
 ### CLM-011 — Requirements
 

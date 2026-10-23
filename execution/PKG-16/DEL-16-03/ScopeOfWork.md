@@ -137,6 +137,8 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 >
 > Current implementation evidence establishes a narrow deterministic audit-record constructor at `core/model_operations/audit_trail/engine.py`. It returns an audit payload for structured operation inputs and does not persist the payload, apply operations, or mutate accepted model state. The current upstream operation schema, validation/preview engine, fixtures, and focused tests are the evidence basis for this specification update.
 >
+> Current implementation (at `62c1efd75b`): the desktop route does not call `core/model_operations/audit_trail/engine.py`. The user's explicit Apply in `apps/desktop/src/features/toolkit/BatchReviewPanel.tsx` runs `apply_operation_batch` in `core/model_operations/operation_applier/src/atomic_batch.rs`, whose applied outcome carries an `acceptance` record (`acceptance_basis: user_initiated_apply_in_local_session`, `acceptance_is_professional_approval: false`, `persistence_status: session_state_only_not_yet_saved`). The workspace session keeps the resulting application receipts. `apps/desktop/src/features/operations/OperationLedgerPanel.tsx` shows and downloads a review ledger of queued and proposed operations. Neither the receipt nor the ledger is the Python audit payload.
+>
 
 ### CLM-010 — Requirements
 

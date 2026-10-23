@@ -132,5 +132,10 @@ needs:
 code_paths:
 - core/handoff/export_adapter_sdk/package.py
 - schemas/export_adapter_sdk.schema.json
+- apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx
 checks:
 - tests/test_export_adapter_sdk.py
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/src/App.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts

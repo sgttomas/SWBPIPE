@@ -94,3 +94,5 @@ code_paths:
 - core/loads/stress_recovery/src/lib.rs
 - validation/benchmarks/stress/**
 - validation/hand_calcs/stress/**
+checks:
+- validation/benchmarks/stress/src/lib.rs

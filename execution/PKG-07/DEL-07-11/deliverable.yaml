@@ -139,9 +139,14 @@ code_paths:
 - apps/desktop/src-tauri/src/native_smoke.rs
 - apps/desktop/native-smoke/**
 - apps/desktop/e2e/r2-smoke.spec.ts
+- apps/desktop/src/services/projectService.ts
+- apps/desktop/src/services/nativeMenu.ts
 checks:
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/src/features/project-storage/replaceProjectPrompt.test.tsx
 - apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx
 - apps/desktop/src/App.shell.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts
+- apps/desktop/src/services/projectService.test.ts
+- apps/desktop/e2e/b3a-session-status.spec.ts
+- apps/desktop/e2e/b3b-project-persistence.spec.ts

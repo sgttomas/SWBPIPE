@@ -149,7 +149,7 @@ needs:
     TargetLocation: docs/PROFESSIONAL_BOUNDARY.md'
   direction: downstream
   gating: false
-  evidence: execution/PKG-01/DEL-01-04/docs/PROFESSIONAL_BOUNDARY.md
+  evidence: docs/PROFESSIONAL_BOUNDARY.md
 - from: doc:docs/report_notice_template.md
   condition: 'DEL-01-04 provides and constrains the draft report notice template; final acceptance remains
     human-gated.
@@ -168,4 +168,10 @@ needs:
     TargetLocation: docs/report_notice_template.md'
   direction: downstream
   gating: false
-  evidence: execution/PKG-01/DEL-01-04/docs/report_notice_template.md
+  evidence: docs/report_notice_template.md
+code_paths:
+- docs/PROFESSIONAL_BOUNDARY.md
+- docs/report_notice_template.md
+- docs/claims_registry.md
+checks:
+- tests/test_claims_language_surface.py
