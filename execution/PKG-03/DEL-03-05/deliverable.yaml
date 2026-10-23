@@ -148,4 +148,3 @@ checks:
 - tests/test_component_section_schema.py
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/exact_route_refusals.rs
-- apps/desktop/src/features/component-creation/componentIntent.test.ts

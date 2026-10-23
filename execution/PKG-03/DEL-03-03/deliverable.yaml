@@ -130,5 +130,4 @@ code_paths:
 - apps/desktop/src/features/bend-authoring/BendAuthoringForms.tsx
 checks:
 - tests/test_component_section_schema.py
-- apps/desktop/src/features/component-creation/componentIntent.test.ts
 - apps/desktop/src/features/bend-authoring/BendAuthoringForms.test.tsx
