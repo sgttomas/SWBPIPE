@@ -13,6 +13,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.public_export import monorepo_only
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "tools" / "release" / "run_evidence_sweep.py"
@@ -606,6 +608,7 @@ def test_summary_validator_rejects_ci_head_sha_mismatch(monkeypatch):
     assert any("does not equal sweep commit_hash" in error for error in errors)
 
 
+@monorepo_only("validation/evidence/sweeps")
 def test_committed_historical_v2_corpus_remains_valid():
     sweep = load_module()
     paths = sorted((ROOT / "validation/evidence/sweeps").glob("SWEEP_*.json"))

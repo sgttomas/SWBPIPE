@@ -4,6 +4,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+from tests.public_export import monorepo_only
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "tools" / "release" / "check_release_readiness.py"
@@ -19,11 +21,13 @@ def load_module():
     return module
 
 
+@monorepo_only("execution/_DAG")
 def test_required_release_paths_exist():
     release = load_module()
     assert release.check_required_paths(ROOT) == []
 
 
+@monorepo_only("execution/_DAG")
 def test_latest_dag_dependency_edges_uses_approved_graph_pointer():
     release = load_module()
     assert (
@@ -41,6 +45,7 @@ def test_cargo_manifest_discovery_is_crate_local():
     assert all("target" not in manifest.parts for manifest in manifests)
 
 
+@monorepo_only("execution/_DAG")
 def test_skeleton_plan_uses_local_commands_only():
     release = load_module()
     steps = release.build_plan("skeleton", ROOT)
@@ -55,6 +60,7 @@ def test_skeleton_plan_uses_local_commands_only():
     assert all(isinstance(step.command, tuple) for step in steps)
 
 
+@monorepo_only("execution/_DAG")
 def test_python_profiles_use_coordination_maintenance_test():
     release = load_module()
     expected = (
@@ -72,6 +78,7 @@ def test_python_profiles_use_coordination_maintenance_test():
         assert all(old_target not in part for command in commands for part in command)
 
 
+@monorepo_only("execution/_DAG")
 def test_all_profile_preserves_current_command_surface():
     release = load_module()
     commands = [" ".join(step.command) for step in release.build_plan("all", ROOT)]
@@ -118,6 +125,7 @@ def test_run_steps_forces_cargo_offline_environment(monkeypatch):
     assert seen[0][1]["CARGO_NET_OFFLINE"] == "true"
 
 
+@monorepo_only("execution/_DAG")
 def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
     release = load_module()
 
@@ -130,12 +138,13 @@ def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
     captured = capsys.readouterr()
 
     assert result == 0
-    assert "OpenPipeStress release readiness profile (dry-run)" in captured.out
+    assert "SWBPIPE release readiness profile (dry-run)" in captured.out
     assert "execution/_DAG/DAG-011/DependencyEdges.csv" in captured.out
     assert "planned checks: 2" in captured.out
     assert "running:" not in captured.out
 
 
+@monorepo_only("execution/_DAG")
 def test_main_execute_runs_planned_steps(monkeypatch, capsys):
     release = load_module()
     executed: list[str] = []
@@ -153,5 +162,22 @@ def test_main_execute_runs_planned_steps(monkeypatch, capsys):
     captured = capsys.readouterr()
 
     assert result == 0
-    assert "OpenPipeStress release readiness profile (execute)" in captured.out
+    assert "SWBPIPE release readiness profile (execute)" in captured.out
     assert executed == ["dag dependency schema", "release readiness script tests"]
+
+
+def test_public_export_plans_without_the_monorepo_dag(tmp_path, capsys):
+    release = load_module()
+    for path in release.REQUIRED_PATHS:
+        if path != release.DAG_POINTER:
+            (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+            (tmp_path / path).write_text("fixture")
+    assert release.is_public_export(tmp_path)
+    assert release.check_required_paths(tmp_path) == []
+    assert [step.name for step in release.build_plan("skeleton", tmp_path)] == ["release readiness script tests"]
+    assert release.main(["--profile", "skeleton", "--repo-root", str(tmp_path)]) == 0
+    assert "public export: the DAG dependency schema check" in capsys.readouterr().out
+    # Either private directory present means the monorepo: the DAG stays required.
+    (tmp_path / "execution").mkdir()
+    assert not release.is_public_export(tmp_path)
+    assert release.check_required_paths(tmp_path) == ["execution/_DAG/_LATEST.md"]
