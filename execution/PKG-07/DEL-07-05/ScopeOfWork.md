@@ -162,7 +162,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > | VER-07-05-002 | Boundary review | No protected code data, proprietary thresholds, or certification claims appear in setup artifacts. |
 > | VER-07-05-003 | Dependency-register validation | `Dependencies.csv` validates against v3.1 schema. |
 > | VER-07-05-004 | Semantic setup review | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist with complete matrix/lens coverage. |
-> | VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, the translational overlay and the rotation glyphs (`deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`). Confirm that emitted `rx`/`ry`/`rz` rows are shown only as glyphs with their readout, and that focused browser evidence for them (CLM-024) stays recorded as open until it is added. |
+> | VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, the translational overlay and the rotation glyphs (`deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`). Confirm that emitted `rx`/`ry`/`rz` rows are shown only as glyphs with their readout, and that the focused browser evidence `apps/desktop/e2e/rotation-glyph.spec.ts` (CLM-024) is bound to the tested candidate. |
 >
 
 ### CLM-014 — Documentation

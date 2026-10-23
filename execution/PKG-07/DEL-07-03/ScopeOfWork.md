@@ -253,9 +253,11 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 
 > ##### D-41 R5 T5 PDU-041 documented absence
 >
-> The DEL-07-03 implementation still accepts only material, component, and
-> rule-pack-reference editor kinds. Load-case and support editor requests remain
-> blocking unsupported kinds in this owner. Adjacent desktop authoring under
+> The reference module `core/gui/editors/engine.py` still accepts only material,
+> component, and rule-pack-reference editor kinds and blocks load-case and
+> support requests. The desktop ships load-case editing in
+> `apps/desktop/src/features/load-cases/`; this does not by itself close
+> `DEL-07-03-R-005` or `R-006`. Adjacent desktop authoring under
 > other GUI ownership is not reattributed here and does not close
 > `DEL-07-03-R-005` or `DEL-07-03-R-006`.
 

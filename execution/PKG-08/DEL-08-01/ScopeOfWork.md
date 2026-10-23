@@ -131,7 +131,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > | ID | Requirement | SourceRef | Verification |
 > |---|---|---|---|
-> | R-08-01-001 | The report generator shall assemble auditable reports that include inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations. | ScopeLedger.csv row SOW-024; CONTRACT.md OPS-K-REPORT-1; SPEC.md section 8 | Inspect generated report contract/template behavior in future implementation tests. |
+> | R-08-01-001 | The report generator shall assemble auditable reports that include inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations. | ScopeLedger.csv row SOW-024; CONTRACT.md OPS-K-REPORT-1; SPEC.md section 8 | Inspect generated report contract/template behavior in implementation tests (`core/reporting/report_renderer/tests/render.rs`). |
 > | R-08-01-002 | Reports shall include software version, solver version, model hash, input manifest, unit system, provenance summary, load cases/combinations, mechanical results, warnings, assumptions, missing data, rule-pack name/version/checksum, user-supplied data notice, and professional-review notice where those inputs exist. | SPEC.md section 8 | Report fixture/golden-output tests verify presence and omission rules. |
 > | R-08-01-003 | Public report templates and examples shall not reproduce protected code text, protected standards tables, protected figures, proprietary formulas, protected examples, protected dimensional tables, or proprietary commercial data. | CONTRACT.md OPS-K-IP-1, OPS-K-REPORT-2; SPEC.md section 8 | Protected-content report gate and human review before public release. |
 > | R-08-01-004 | Reports shall not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | CONTRACT.md OPS-K-AUTH-1; TYPES.md sections 4 and 8; DIRECTIVE.md sections 2 and 6 | Text review/lint gate checks prohibited claim language. |
@@ -154,7 +154,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Verification
 >
-> The future implementation should be accepted only after these checks exist and pass:
+> The implementation should be accepted only after these checks exist and pass:
 >
 > - Scope of Work contract exist for this deliverable.
 > - `Dependencies.csv` is valid v3.1 and every ACTIVE row has evidence.
