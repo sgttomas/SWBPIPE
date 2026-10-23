@@ -10,7 +10,7 @@ supplies the governing data and accepts engineering reliance.
 - [PRD](PRD.md): product commitments and scope.
 - [Contract](CONTRACT.md), [specification](SPEC.md), [types](TYPES.md): product invariants and interfaces.
 - [User guide](user_guide/index.md), [developer guide](developer_guide/index.md), [contributor guide](contributor_guide/index.md).
-- [Build and release](BUILD_AND_RELEASE.md), [CI](CI_STRATEGY.md), [release quality](RELEASE_QUALITY_GATES.md).
+- [Build and release](BUILD_AND_RELEASE.md), [CI](CI_STRATEGY.md), [release quality](RELEASE_QUALITY_GATES.md), [0.1.0 release notes draft](RELEASE_NOTES_v0.1.0_DRAFT.md).
 - [Validation strategy](VALIDATION_STRATEGY.md), [validation manual](validation_manual/index.md), [theory](theory/centerline_analysis.md).
 - [IP and data boundary](IP_AND_DATA_BOUNDARY.md), [professional boundary](PROFESSIONAL_BOUNDARY.md), [claims](claims_registry.md), [security](security/threat_model.md).
 

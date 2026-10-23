@@ -350,4 +350,5 @@ needs:
   gating: true
   evidence: execution/PKG-11/DEL-11-01/Specification.md
 code_paths:
+- docs/user_guide/index.md
 - tools/validation/validate_dependencies_schema.py

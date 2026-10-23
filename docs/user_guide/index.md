@@ -74,14 +74,88 @@ The guide should refer to these current surfaces when explaining behavior:
 
 ## 3. Setup And Project Storage
 
-End-user installation steps, operating-system storage roots, and release
-publication remain `TBD`. The accepted v0.1 packaging policy is a macOS Apple
-Silicon Tauri `.app` bundle distributed as a zip archive with a published
-SHA-256 checksum; the accepted publication target is GitHub Releases on the
-prospective public sanitized-export repository. This is a packaging policy,
-not evidence that a release exists. Do not invent setup commands from this
-guide. Until a release is authorized, use this guide as a map of the documented
-workflow and current repository contracts.
+### 3.1 Installing the v0.1 macOS build
+
+The v0.1 packaging policy (`DEC-057`) is one artifact for Apple Silicon Macs
+(`aarch64-apple-darwin`): the SWBPIPE `.app` bundle in a zip archive, with a
+SHA-256 checksum file beside it. Release publication is the owner's act. The
+published location is `[OWNER: public repository name and location (DEC-057)]`.
+The steps below apply once the owner has published a release there or given you
+the two files directly. This guide is not evidence that a release exists.
+
+The two files for version `0.1.0` are named:
+
+- `SWBPIPE_0.1.0_aarch64-apple-darwin.app.zip`, the application;
+- `SWBPIPE_0.1.0_aarch64-apple-darwin.app.zip.sha256`, its checksum, in
+  `shasum` format (the 64-character hexadecimal digest, two spaces, the zip's
+  file name).
+
+**Requirements.** A Mac with Apple silicon. There is no Intel, Windows or Linux
+build for v0.1.
+
+**1. Verify the checksum before opening anything.** Put both files in one
+folder, then in Terminal:
+
+```bash
+cd ~/Downloads        # the folder holding both files
+shasum -a 256 -c SWBPIPE_0.1.0_aarch64-apple-darwin.app.zip.sha256
+```
+
+The command prints `SWBPIPE_0.1.0_aarch64-apple-darwin.app.zip: OK` when the
+zip matches. Any other output means the file differs from the published one.
+Delete it and do not open it. Where the release notes also state the digest,
+check that it matches the `.sha256` file too. The release artifact record (see
+[`BUILD_AND_RELEASE.md`](../BUILD_AND_RELEASE.md) §8.2) binds this digest to the
+source commit and that commit's evidence sweep.
+
+**2. Unzip.** Double-click the zip in Finder, or run:
+
+```bash
+ditto -x -k SWBPIPE_0.1.0_aarch64-apple-darwin.app.zip .
+```
+
+The archive holds `SWBPIPE.app`. Move it to `/Applications` or another folder
+you choose.
+
+**3. Open the unsigned app.** The v0.1 build is not code-signed or notarized
+(`DEC-057`; signing is decided separately). macOS Gatekeeper therefore blocks
+the first launch of a downloaded copy and reports that it cannot verify the
+developer. The checksum you verified in step 1 takes the place of an operating
+system signature. After that check, open the app in one of these ways:
+
+- in Finder, Control-click (or right-click) `SWBPIPE.app`, choose **Open**, then
+  choose **Open** again in the dialog. On recent macOS versions where that
+  dialog offers no **Open**, try to open the app once, then go to **System
+  Settings → Privacy & Security** and choose **Open Anyway** for SWBPIPE;
+- or remove the quarantine attribute from the copy you verified, then open it
+  normally:
+
+  ```bash
+  xattr -dr com.apple.quarantine /Applications/SWBPIPE.app
+  ```
+
+macOS remembers the choice for that copy. Repeat the checksum check and this
+step for each new download.
+
+**Updating.** Verify and unzip the new version as above, then replace the old
+`SWBPIPE.app`. Your project store is kept, because it lives outside the app
+bundle (below).
+
+**Removing.** Delete `SWBPIPE.app`. Your project store stays in place until you
+delete it yourself.
+
+### 3.2 Where SWBPIPE keeps project data
+
+The desktop app keeps its SCA-003 local project store in the macOS application
+data folder for its bundle identifier, `com.chirality.swbpipe`:
+`~/Library/Application Support/com.chirality.swbpipe/`. The store is
+`openpipestress-projects.sqlite3` in that folder, with SQLite's `-wal` and
+`-shm` sidecar files beside it. If a store from an earlier preview build exists
+under the former identifier `org.openpipestress.technical-preview`, the app
+copies it forward once on first launch and never overwrites an existing store.
+Saved project packages, reports and exports go wherever you choose to save them.
+Back up the store folder like any other private data. Nothing in it is sent
+anywhere: the product is local-only.
 
 For project storage:
 
@@ -324,8 +398,8 @@ The following remain explicit limitations or open decisions:
 - canonical DEC-022 typed-AST rule grammar is fixed; a writable text syntax is
   deferred by DEC-037, while final evaluator/library integration and the
   private rule-pack storage workflow remain `TBD`;
-- operating-system storage roots, product/DB migration tooling, and portable
-  project export/copy workflow;
+- storage roots for platforms other than macOS (§3.2), product/DB migration
+  tooling, and portable project export/copy workflow;
 - public API transport, endpoint syntax, plugin loader, and concrete
   target-field coverage for the accepted adapter/export families;
 - target field coverage, source confirmations, stable-ID carriage, and loss

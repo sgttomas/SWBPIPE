@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Provider-neutral local release-readiness checks for OpenPipeStress."""
+"""Provider-neutral local release-readiness checks for SWBPIPE."""
 
 from __future__ import annotations
 
@@ -219,7 +219,7 @@ def missing_tools(steps: Iterable[CheckStep]) -> list[str]:
 
 def print_plan(steps: list[CheckStep], root: Path, execute: bool) -> None:
     mode = "execute" if execute else "dry-run"
-    print(f"OpenPipeStress release readiness profile ({mode})")
+    print(f"SWBPIPE release readiness profile ({mode})")
     print(f"repo: {root}")
     print("")
 
@@ -250,7 +250,7 @@ def run_steps(steps: list[CheckStep], root: Path) -> int:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run or dry-run provider-neutral OpenPipeStress release checks."
+        description="Run or dry-run provider-neutral SWBPIPE release checks."
     )
     parser.add_argument(
         "--profile",

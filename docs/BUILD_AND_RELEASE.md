@@ -145,7 +145,8 @@ The packaging checklist for a release candidate:
 4. Confirm protected-content, private-data, and real-secret scan disposition.
 5. Prepare release notes from `docs/RELEASE_NOTES_TEMPLATE.md`; release notes
    must carry the §8 unsigned-install caveat while `DEC-057`'s unsigned
-   posture stands.
+   posture stands. The 0.1.0 draft is `docs/RELEASE_NOTES_v0.1.0_DRAFT.md`;
+   end-user installation steps are in the user guide §3.
 6. Record known limitations, unresolved `TBD` decisions, and human gate state.
 7. If binaries or installers are produced, record package path, target, build
    command, checksum, signing/notarization state, and publication state via
