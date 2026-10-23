@@ -173,5 +173,13 @@ needs:
   gating: true
 code_paths:
 - schemas/design_knowledge.schema.json
+- fixtures/product_preview/invented_design_knowledge.json
+- apps/desktop/src/features/knowledge/KnowledgePanel.tsx
+- apps/desktop/src/services/previewService.ts
+- apps/desktop/src-tauri/src/lib.rs
+- core/product_preview/service.py
 checks:
 - tests/test_design_knowledge_schema.py
+- tests/product_preview/test_product_preview_service.py
+- apps/desktop/src/App.test.tsx
+- apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx

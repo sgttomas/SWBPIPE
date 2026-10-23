@@ -85,17 +85,19 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 >
 > The construction above defines the durable schema obligations. The current schema carrier is `schemas/model.schema.yaml`; its existence is implementation evidence, while coverage and acceptance require the applicable verification and review records.
 >
+> Current implementation (at `62c1efd75b`): the desktop and the product solve route (`core/product_physics`, also linked by the headless runner) do not read or validate `schemas/model.schema.yaml`. They use a separate model document, `document_kind` `openpipestress.product_preview.model` at version `0.6.0`. In code, that document is defined by the typed records in `core/product_physics/src/lib.rs` (`PreviewModel` and its node, pipe, section, component, support and combination records) and the version rule in `core/product_physics/src/model_format.rs`. On the desktop it is defined by `PreviewModel` in `apps/desktop/src/types.ts` and the open-time shape check in `apps/desktop/src/features/model-file/modelDocumentShape.ts`. The bundled demo `fixtures/product_preview/invented_demo_model.json` does not validate against `schemas/model.schema.yaml`: it has 11 schema errors, including undeclared root collections and a `project` record without `unit_system`, `privacy_class` or `storage_policy`. The headless Python persistence service (`core/project_persistence/service.py`) records the canonical schema's path as a reference in its envelope metadata and checks the envelope by hand; validation against the canonical schema happens in the schema tests.
+>
 
 ### CLM-007 — References
 
 > ##### References
 >
-> - `_CONTEXT.md` current authority references for deliverable identity, accepted decomposition reference, SCA-001 basis IDs, and write-scope constraints.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) current authority references for deliverable identity, accepted decomposition reference, SCA-001 basis IDs, and write-scope constraints.
 > - `_REFERENCES.md` for the locally declared reference set.
 > - `_DEPENDENCIES.md` for human-owned dependency posture; no concrete upstream/downstream dependency list was declared.
-> - `docs/_Registers/Deliverables.csv` row DEL-02-01 for deliverable identity and artifact targets.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-041 for machine-readable schema scope and JSON Schema 2020-12 baseline.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-02-01 for context-envelope and SCA-001 notes.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-02-01 for deliverable identity and artifact targets.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-041 for machine-readable schema scope and JSON Schema 2020-12 baseline.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-02-01 for context-envelope and SCA-001 notes.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), especially PKG-02, DEL-02-01, SOW-041, and AB-00-01/02/03/04/06/07/08.
 > - `docs/CONTRACT.md` for IP, data, authority, unit, report, and agent invariants.
 > - `docs/TYPES.md` for stable IDs, deliverable types, analysis-status vocabulary, epistemic labels, and provenance labels.

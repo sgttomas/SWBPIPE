@@ -105,7 +105,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 
 > ##### References
 >
-> - `_CONTEXT.md` current authority references for sealed deliverable identity, package exclusions, artifacts, and SCA-001 basis IDs.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) current authority references for sealed deliverable identity, package exclusions, artifacts, and SCA-001 basis IDs.
 > - `_REFERENCES.md` for accessible source set and note that no package-specific source material beyond governance/register content was introduced by PREPARATION.
 > - `docs/CONTRACT.md` Section 1 for invariants OPS-K-IP-1 through OPS-K-IP-3, OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-UNIT-1, OPS-K-AGENT-1 through OPS-K-AGENT-4.
 > - `docs/SPEC.md` Sections 1-3, 6-9, 11 for layer ownership, `core/units`, domain objects with units, rule evaluator constraints, diagnostics, reports, tests, and acceptance semantics.
@@ -113,7 +113,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > - `docs/IP_AND_DATA_BOUNDARY.md` Sections 2-7 for public/private data and provenance limits.
 > - `docs/VALIDATION_STRATEGY.md` Sections 2-5 for unit/schema test and benchmark-source expectations.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) Sections 4-8 for SOW-025, OBJ-001, OBJ-012, PKG-02, DEL-02-02, and SCA-001 architecture basis.
-> - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` rows for DEL-02-02 and SOW-025.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), and `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) rows for DEL-02-02 and SOW-025.
 
 ### CLM-008 — D-41 R5 T2A persistence hash evidence (2026-07-12)
 

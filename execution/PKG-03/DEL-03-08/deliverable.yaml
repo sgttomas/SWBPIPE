@@ -127,6 +127,11 @@ code_paths:
 - core/section_properties
 - core/section_properties/README.md
 - core/section_properties/calculator.py
+- core/product_physics/src/annulus_geometry.rs
+- core/product_physics/src/pressure_exact/source_geometry.rs
+- core/product_physics/tests/pressure_section_geometry.rs
 checks:
 - tests/test_calculation_witness.py
 - tests/test_section_properties.py
+- core/product_physics/src/annulus_geometry.rs
+- core/product_physics/tests/pressure_section_geometry.rs

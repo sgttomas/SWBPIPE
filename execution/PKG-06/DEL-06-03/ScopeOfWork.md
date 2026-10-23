@@ -93,8 +93,8 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data rules, quarantine expectations, and private rule-pack handling. |
 > | `docs/VALIDATION_STRATEGY.md` | Rule-pack missing-input test expectation. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-03 decomposition context. |
-> | `docs/_Registers/Deliverables.csv` | Machine-readable deliverable row. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-004 scope mapping. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Machine-readable deliverable row. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-004 scope mapping. |
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -111,6 +111,8 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > This deliverable specifies the contract boundary for a required-input completeness checker for user-defined rule packs. The checker must connect a rule pack's declared required inputs to project/model/user-supplied data and prevent a user-rule-check status from being reported when required rule-check data is missing.
 >
 > Current source/tests are `core/rules/completeness_checker/`; code-specific formulas, allowables and standards-derived defaults remain excluded.
+>
+> Current implementation (at `62c1efd75b`): the product calls the checker through `core/rules/rule_check_runner/src/lib.rs`, which reports a check with missing inputs as `RULE_INPUTS_INCOMPLETE` without evaluating it. The desktop Run Rule Checks panel (`apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx`, via `apps/desktop/src/services/ruleCheckService.ts`) reaches it through the Tauri command `run_rule_checks` in `apps/desktop/src-tauri/src/lib.rs`.
 >
 
 ### CLM-011 — Requirements

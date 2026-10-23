@@ -104,7 +104,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for sealed deliverable identity, scope, objective, write scope, and SCA-001 architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, scope, objective, write scope, and SCA-001 architecture-basis injection.
 > - `docs/CONTRACT.md` for applicable invariants: OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-RULE-1/2/3, OPS-K-PRIV-1/2, OPS-K-AUTH-1, and OPS-K-AGENT-1..4.
 > - `docs/SPEC.md` sections 1, 6, 7, 8, 10, and 11 for layer responsibilities, adapter no-bypass language, rule-pack sandboxing, diagnostics/reporting, and deliverable acceptance semantics.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for SOW-030, OBJ-009, AB-00-02/03/04/06/07/08, and OI-004.

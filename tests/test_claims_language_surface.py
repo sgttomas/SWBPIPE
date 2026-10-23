@@ -13,6 +13,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+from tests.public_export import monorepo_only
+
 
 def _repo_root() -> Path:
     for parent in Path(__file__).resolve().parents:
@@ -39,6 +41,7 @@ def _load_validator(root: Path):
     return module
 
 
+@monorepo_only("the repository's tools/validation claims lint")
 def test_live_tree_has_no_claims_language_findings():
     root = _repo_root()
     validator = _load_validator(root)

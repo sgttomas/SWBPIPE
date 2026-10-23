@@ -171,5 +171,10 @@ code_paths:
 - core/handoff/review_geometry/package.py
 - schemas/model.schema.yaml
 - schemas/review_geometry_export.schema.json
+- apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx
 checks:
 - tests/test_review_geometry_export_package.py
+- apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/App.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts

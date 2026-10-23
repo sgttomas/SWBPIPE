@@ -87,9 +87,9 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, architecture basis IDs, and setup constraints.
-> - `docs/_Registers/Deliverables.csv` row DEL-08-02 for artifact and objective mapping.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-039 for hash-basis acceptance notes.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture basis IDs, and setup constraints.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-02 for artifact and objective mapping.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-039 for hash-basis acceptance notes.
 > - `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)for rule-pack, report, V&V, and acceptance constraints.
 > - `docs/IP_AND_DATA_BOUNDARY.md` sections 6 and 7 for private data and report-boundary rules.
 > - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-UNIT, OPS-K-RULE-3, OPS-K-PRIV, OPS-K-AUTH, and OPS-K-AGENT invariants.
@@ -112,6 +112,8 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The future implementation shall capture reproducibility metadata needed to replay or professionally review an SWBPIPE calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.
 >
 > The original setup run does not implement hashing code, tests, schemas, source files, or a physical project container. Those remain future implementation work under bounded Type 2 briefs.
+>
+> Current implementation (at `62c1efd75b`): the audit manifest is `core/reporting/audit_manifest/src/lib.rs` (`AuditManifest`, `validate_manifest`, unit tests in the same file); `core/reporting/report_package` validates it during package assembly. On the desktop, `apps/desktop/src/features/report/reportPackageRequest.ts` assembles the audit manifest, model hash and input-manifest hash for the Save Report Package request (`save_report_package` through `apps/desktop/src-tauri/src/report_package_bridge.rs`); that request is refused for every current result (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). Canonical JSON hashing is `core/serialization/canonical_json`.
 >
 ### CLM-011 — Requirements
 

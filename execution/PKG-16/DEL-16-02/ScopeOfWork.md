@@ -53,7 +53,7 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > | Diff input boundary | Model-state comparison engine DEL-14-03 and comparison mapping/tolerance/export contracts DEL-14-05 are approved upstream dependencies. Source: `Dependencies.csv` rows `DAG-002-E0829` and `DAG-002-E0830`. |
 > | Diagnostics input boundary | Solver diagnostics and singularity detection DEL-04-06 is an approved upstream dependency. Source: `Dependencies.csv` row `DAG-002-E0831`. |
 > | Architecture basis | Rust core/application services, schema-first envelopes, JSON Schema 2020-12, JCS-compatible hash basis where JSON payloads are hashed, and layered test gates are dispatchable context constraints. Source: `_CONTEXT.md#Architecture Basis Injection`; `execution/_Decomposition/SOFTWARE_DECOMP.md#8`. |
-> | Implementation location | `core/model_operations/validation_preview/engine.py` implements the reference validation and deterministic preview slice; focused evidence is in `tests/test_operation_validation_preview.py`, `tests/test_model_operation_schema.py`, `schemas/model_operation.schema.json`, and `fixtures/model_operations/`. |
+> | Implementation location | `core/model_operations/validation_preview/engine.py` implements the reference validation and deterministic preview slice; focused evidence is in `tests/test_operation_validation_preview.py`, `tests/test_model_operation_schema.py`, `schemas/model_operation.schema.json`, and `fixtures/model_operations/`. Current implementation (at `62c1efd75b`): the desktop route does not call the Python engine. It validates and previews through the Rust `core/model_operations/operation_applier`: `validate_operation` in `src/lib.rs` for single operations (`apps/desktop/src/services/operationService.ts`) and `validate_operation_batch` with its preflight and inline tests in `src/atomic_batch.rs` for batches (`apps/desktop/src/services/operationBatchService.ts`). Both are reached through Tauri commands in `apps/desktop/src-tauri/src/lib.rs` or the wasm JSON exports. |
 >
 
 ### CLM-005 — Conditions
@@ -89,13 +89,13 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, objective, package reference, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, objective, package reference, architecture-basis injection.
 > - `_REFERENCES.md` - source inventory for this deliverable.
 > - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface for active upstream dependencies.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current scope, package, deliverable, objective, and architecture-basis context.
-> - `docs/_Registers/Deliverables.csv` - deliverable identity and anticipated artifacts.
-> - `docs/_Registers/ScopeLedger.csv` - SOW-069 wording and product-boundary notes.
-> - `docs/_Registers/ContextBudgetQA.csv` - context-envelope row.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - deliverable identity and anticipated artifacts.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - SOW-069 wording and product-boundary notes.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - context-envelope row.
 > - `docs/CONTRACT.md` - invariants for data, authority, units, diagnostics, and agent behavior.
 > - `docs/SPEC.md` - schema-first, persistence, diagnostics, result-envelope, and professional-boundary context.
 
