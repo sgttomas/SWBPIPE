@@ -150,15 +150,51 @@ and §6 authoring.
        directional SIF pair (`core/product_physics/src/validation.rs:1485-1507,1996-2017`).
        It also requires the branch and rigid references (`:1551,1586,1636,1670`).
        An unchanged string would credit the new values to the previous source.
-     - **The policy.** When an apply writes any member of a group (that
-       family's geometry group, or `modifiers`), it sets the group's
-       source-reference string to `library:component:<library_id>#<record_id>`.
-       The diff shows the old string being replaced.
-     - **Mixed groups are refused.** If the group would keep members the apply
-       does not write, the apply is refused (`LIBRARY-APPLY-MIXED-SOURCE`),
-       unless the user chooses "replace group". That option removes the
-       unwritten members of the group, and the diff shows each removal. One
-       source string then never covers values from two sources.
+     - **Groups and their replaceable members.** A group is a family's
+       geometry block or `modifiers`. Its *replaceable members* are exactly
+       the §2.3b destinations that lie in that group, and nothing else:
+       - **bend geometry:** `bend_radius`, `bend_angle`;
+       - **branch geometry:** `branch_run_size`, `branch_header_size`,
+         `branch_connection_angle`, `branch_reinforcement_area`;
+       - **rigid geometry:** `rigid_body_length`, `end_a_size`, `end_b_size`,
+         `weight`;
+       - **expansion-joint geometry:** `effective_area`, `movement_limit`;
+       - **modifiers:** `sif_user_value`, `flexibility_factor_user_value`, the
+         directional SIF pair, `linear_stiffness_user_value`,
+         `rotational_stiffness_user_value`.
+     - **Never removed.** Placement and topology references are never removed
+       by any apply option: `node`, `bend_pipe_ref`, `branch_header_pipe_ref`,
+       `branch_branch_pipe_ref`, `rigid_pipe_ref`, `expansion_joint_pipe_ref`,
+       and every other string or reference slot. Removing `bend_pipe_ref`, for
+       example, blocks a realized bend (`core/product_physics/src/lib.rs:8406-8414`).
+       Non-replaceable values such as `center_of_gravity` and
+       `stiffness_scaling_user_value` are never removed either.
+     - **"Replace group."** This option removes only the group's replaceable
+       members that the library does not supply, and the diff shows each
+       removal.
+       - **Required members are protected.** A removal of a member the solver
+         requires for the component's family is refused, naming the member
+         (`LIBRARY-APPLY-REQUIRED-MEMBER`). The required members are:
+         - bend: `bend_radius`, `bend_angle` (unless realized),
+           `sif_user_value`, `flexibility_factor_user_value`
+           (`validation.rs:1484-1507`);
+         - branch: the run size, header size and connection angle
+           (`:1523-1550`);
+         - rigid: `rigid_body_length`, the end sizes and `weight`, and the
+           linear and rotational stiffness modifiers (`:1606-1640,1660-1680`).
+     - **The source-reference string.** When an apply writes any member of a
+       group, it rewrites that group's string (the diff shows the change):
+       - **every value in the group was written by this apply:** the string
+         becomes `library:component:<library_id>#<record_id>`;
+       - **the group still holds retained values** (such as a rigid
+         element's `center_of_gravity`, or a required member the library does
+         not supply): the string becomes `<previous reference>;
+         library:component:<library_id>#<record_id>: <written members>`.
+         Retained members keep their previous attribution and are not
+         credited to the library, and written members are credited to it;
+       - **retained values with no previous reference** refuse the apply
+         (`LIBRARY-APPLY-RETAINED-UNSOURCED`, naming them). "Replace group" can
+         remove such a value only if it is replaceable and not required.
    - **The directional SIF pair needs a realized bend.** It applies only when
      the target bend is realized as the curved-bend macro element
      (`is_curved_bend_macro_component`, `core/product_physics/src/lib.rs:8349-8353`).
@@ -204,14 +240,26 @@ and §6 authoring.
          slots. An entity with no previous record counts as `unknown` and
          `pending`. Downstream handling is decided only from recorded
          dispositions (`library_import_document/src/lib.rs:345-410`).
+       - **Retained values under quarantine or protection are not allowed.**
+         The apply is refused while any retained value of the entity carries
+         `protected_suspected` or `quarantined`
+         (`LIBRARY-APPLY-RETAINED-QUARANTINED`, naming the retained values).
+         The combination has no state that could carry them, and the
+         downstream policy depends on those dispositions
+         (`library_import_document/src/lib.rs:345-410`). The user's alternative
+         is "replace all values".
        - **Dropping the retained restrictions.** The previous restrictions drop
          out only when the user chooses "replace all values". That choice
          removes every governed member the apply does not write, and the diff
-         shows each removal.
+         shows each removal. For components it obeys the same limits as
+         "replace group": it never removes references, non-replaceable values
+         or required members, and it is refused if it would. If such a retained
+         member is quarantined or suspected protected, the apply cannot
+         proceed.
        - When retained values remain, `verification_note` records that the
          entity also keeps values from its previous source.
 
-       Each level carries its own provenance. Each level carries its own provenance
+       Each level carries its own provenance
        (`schemas/material.schema.yaml:490-504`; the import walks nested
        values, `library_import_document/src/lib.rs:425-432`).
        - **Rejected and protected sources are never used.** A library or
@@ -304,13 +352,26 @@ and §6 authoring.
     removed and the result is public;
   - a `private_user_supplied` record with `public_permissive` provenance: the
     result is `private_only`;
+  - an entity whose previous record is `quarantined`, applied with values
+    retained: refused, naming the retained values. With "replace all values"
+    it proceeds, and the diff shows each removal;
   - a value-level `rejected` slot is excluded, and a record-level `rejected`
     refuses the apply;
   - `TBD` normalizes to `unknown` and `pending`.
 - **Vitest, components:**
   - an absent or stale `modifiers.source_reference` is replaced by the library
     reference;
-  - a mixed group is refused without "replace group";
+  - **a realized bend:**
+    - apply a record supplying only `sif_user_value` with "replace group":
+      `bend_pipe_ref` is kept and the removal of
+      `flexibility_factor_user_value` is refused, naming it;
+    - without "replace group": the modifiers string becomes the combined
+      form, and `flexibility_factor_user_value` keeps its previous
+      attribution;
+  - **a rigid element:** apply `weight` and the end sizes. `center_of_gravity`
+    is kept, and the geometry string attributes it to the previous reference
+    and the written members to the library. A rigid element with no previous
+    reference is refused (`LIBRARY-APPLY-RETAINED-UNSOURCED`);
   - the directional SIF pair is not copied onto a geometry-only bend, and is
     copied onto a realized curved bend.
 - **Vitest, batch.** Validate, apply, then undo restores the previous model.
@@ -410,8 +471,8 @@ them:
    preview of every dependent row, and atomic undo (§2.2).
 3. **Component mapping by field name (P2).** Resolved by the exhaustive
    source-to-destination table, explicit exclusions, eligible statuses,
-   refusal of duplicates, the SIF pair, and no source references written
-   (§2.3b).
+   refusal of duplicates, and the SIF pair (§2.3b). Source references were
+   later made explicit per group (round 2, item 8; round 3, item 12).
 4. **Record-level provenance could drop stricter value-level restrictions
    (P1).** Resolved by conservative combination across library, record, slot
    and value; no promotion; exclusion of quarantined slots; and tests (§2.5,
@@ -434,3 +495,14 @@ Codex round 2 (on `63615afe87`):
    inside W-13 §3.5's states (§2.5).
 10. **The shared unit resolver was not strict enough for library apply.**
     Library apply requires a recognised catalog id (§2.4).
+
+Codex round 3 (on `cb49504802`):
+
+11. **Retained quarantine dispositions had no defined result (P1).** The apply
+    is now refused while a retained value is `protected_suspected` or
+    `quarantined`, unless the user chooses "replace all values" (§2.5).
+12. **"Replace group" could remove required geometry (P2).** Replaceable
+    members are now listed per group; references and placement are never
+    removed; removing a required member is refused; retained members keep
+    their previous attribution (§2.3b).
+13. **Item 3's wording** no longer says source references are not written.
