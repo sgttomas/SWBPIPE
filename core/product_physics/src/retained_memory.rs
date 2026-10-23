@@ -1192,7 +1192,7 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
-    // Model document 0.7.0 D3 at 64e7579da9 (W-13 S1b on main's W-8; retained-pricing-rules.md
+    // Model document 0.7.0 D3 at a9c5d15293 (W-13 S1b on main's W-8; retained-pricing-rules.md
     // §8.15): the tree is coefficient-identical to W-8's (§8.16, 1,576 coefficients; only the
     // basis line moves). The reviewed inputs DEF-E (#8), physics-retained-1 (#9),
     // pressure-source-1 (#10) and pressure-2 (#12) take their 0.7.0 version-token bytes; the
@@ -1309,7 +1309,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at 64e7579da9: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at a9c5d15293: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
