@@ -941,9 +941,12 @@ fn work_masked_sha256(source:&Value)->String {
     }
     sha(open_pipe_stress_canonical_json::canonical_json(&v).as_bytes())
 }
-/// The pre-repair committed documents (main 257b44b910's corpus, unchanged through the
-/// corner-2 head) with their work erased, as `work_masked_sha256` forms them.
-/// W-8 topology warning added; no number moved (values_failure, multi and combination re-pinned).
+/// The committed documents with their work erased, as `work_masked_sha256` forms them. The two
+/// `w1_member_load_*` pins are the pre-repair documents' (main 257b44b910's corpus, unchanged
+/// through the corner-2 head). The six `w1_member_values_failure_*`, `w1_member_multi_*` and
+/// `w1_member_combination_*` pins are those pre-repair documents plus W-8's one inserted
+/// `MODEL_TOPOLOGY_DISCONNECTED` warning and the hashes binding it (W-8 topology warning added;
+/// no number moved), so the work-only rule below still holds against them.
 const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
     ("w1_member_load_sparse_interactive","700353cf3af9fb5f0d59bb4ad8b6a1cf75b267b335f888d179437c3e5ec1ac98"),
     ("w1_member_load_dense_scrutiny","61634aab1b957f7568aa9f4d8dc63cc53e7ee75127890b5c564c1378d700ae58"),
@@ -960,7 +963,8 @@ const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
 /// evaluations are metered. On the regenerated `w1_member_load_*`, `w1_member_multi_*`,
 /// `w1_member_combination_*` and (same pipe) `w1_member_values_failure_*` entries only the
 /// proof's work counters and the receipt hash binding them move: every other byte (every
-/// number, class, selection, maximum value and status) equals the pre-repair document's.
+/// number, class, selection, maximum value and status) equals the pre-repair document's
+/// (with W-8's warning, where it applies).
 /// The live producer reproduces each committed entry byte for byte.
 #[test]
 fn w1_hull_repair_moves_only_work_on_converging_members() {

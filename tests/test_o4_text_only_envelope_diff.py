@@ -106,6 +106,8 @@ W8_MOVED = {
     "mutations": frozenset({"b2o_m31_combination_selected_diagnostic_removed", "b2o_m34_combination_diagnostic_two_refs"}),
     "must_pass": frozenset(),
 }
+# Where W-8's one warning sits in each moved case's diagnostics: first (pre-solve).
+W8_POSITION = 0
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -510,20 +512,19 @@ def _corner1_corpus() -> str:
     ).stdout
 
 
-def _without_w8_warnings(entry):
-    """A case entry with the W-8 warnings removed from its successor's diagnostics (and its
-    hook-produced public ordinary's); the count removed."""
-    removed = 0
-    provenance = dict(entry).get("provenance")
-    for holder in (dict(entry).get("source"), dict(provenance).get("public_ordinary") if isinstance(provenance, Obj) else None):
-        if not isinstance(holder, Obj):
-            continue
-        for index, (key, value) in enumerate(holder):
-            if key == "diagnostics":
-                kept = [d for d in value if dict(d).get("code") not in W8_CODES]
-                removed += len(value) - len(kept)
-                holder[index] = (key, kept)
-    return removed
+def _without_w8_warning(key, entry):
+    """Removes W-8's one inserted warning from a case's successor diagnostics, asserting it is
+    exactly one diagnostic of a W-8 code, severity `warning`, at `W8_POSITION` (topology runs
+    before the solve, ahead of every diagnostic the base already had)."""
+    source = dict(entry)["source"]
+    for index, (name, value) in enumerate(source):
+        if name == "diagnostics":
+            inserted = [i for i, d in enumerate(value) if dict(d).get("code") in W8_CODES]
+            assert inserted == [W8_POSITION], (key, "one W-8 diagnostic, at its position", inserted)
+            assert dict(value[W8_POSITION]).get("severity") == "warning", (key, "a W-8 warning", dict(value[W8_POSITION]).get("severity"))
+            source[index] = (name, value[:W8_POSITION] + value[W8_POSITION + 1:])
+            return
+    raise AssertionError((key, "no diagnostics"))
 
 
 def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=None):
@@ -535,6 +536,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w
     landed = _corner1_corpus()
     now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
     base_cases = dict(_entries(landed, "cases", _pair_id))
+    now_cases = dict(_entries(now, "cases", _pair_id))
     for member in ("cases", "mutations", "must_pass"):
         before = _entries(landed, member, _pair_id)
         after = _entries(now, member, _pair_id)
@@ -546,7 +548,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w
             if key not in moved:
                 continue
             if member == "cases":
-                assert _without_w8_warnings(entry) == 1, (key, "one W-8 warning")
+                _without_w8_warning(key, entry)
                 found = classify(known[key], entry)
                 assert found and all(kind == "hash" for kind, _ in found), (key, [p for k, p in found if k != "hash"][:8])
             else:
@@ -555,9 +557,14 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w
                 old, new = dict(known[key])["edits"][0], dict(entry)["edits"][0]
                 old_path, new_path = dict(old)["path"], dict(new)["path"]
                 index = int(old_path[1])
-                diagnostics = dict(dict(base_cases[dict(entry)["base"]])["source"])["diagnostics"]
-                assert old_path[0] == new_path[0] == "diagnostics" and int(new_path[1]) == index + 1 \
-                    and dict(diagnostics[index]).get("code") not in W8_CODES, (key, old_path, new_path)
+                assert old_path[0] == new_path[0] == "diagnostics" and int(new_path[1]) == index + (index >= W8_POSITION), \
+                    (key, old_path, new_path)
+                # The rebased index names, in the committed base, the diagnostic the old index named in
+                # corner 1's: the same identity, code and severity, and the same bytes.
+                named = dict(dict(base_cases[dict(entry)["base"]])["source"])["diagnostics"][index]
+                rebased = dict(dict(now_cases[dict(entry)["base"]])["source"])["diagnostics"][int(new_path[1])]
+                assert [dict(rebased).get(k) for k in ("id", "code", "severity")] == [dict(named).get(k) for k in ("id", "code", "severity")] \
+                    and not classify(named, rebased), (key, "the rebased index names another diagnostic", dict(rebased).get("id"))
     before, after = dict(load(landed)), dict(load(now))
     assert list(before) == list(after)
     for member in before:
@@ -580,6 +587,21 @@ def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
     entry = next(e for e in document["cases"] if e.get("id") == "w_cb2_sparse_interactive")
     entry["source"]["diagnostics"].insert(0, dict(entry["source"]["diagnostics"][0]))
     with pytest.raises(AssertionError, match="w_cb2_sparse_interactive"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+    # The warning moved to the end (so b2o_m31 would remove it), or made blocking, fails.
+    for ident, change in (
+        ("w_cb1_sparse_interactive", lambda d: d.append(d.pop(W8_POSITION))),
+        ("w_cb1_sparse_interactive", lambda d: d[W8_POSITION].update(severity="blocking")),
+    ):
+        document = storage.expand(committed)
+        change(next(e for e in document["cases"] if e.get("id") == ident)["source"]["diagnostics"])
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+    # A mutation whose index is not rebased, so it names the warning's successor, fails.
+    document = storage.expand(committed)
+    mutation = next(m for m in document["mutations"] if m.get("id") == "b2o_m31_combination_selected_diagnostic_removed")
+    mutation["edits"][0]["path"][1] -= 1
+    with pytest.raises(AssertionError, match="b2o_m31_combination_selected_diagnostic_removed"):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
 
 
