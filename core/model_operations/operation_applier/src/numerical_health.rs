@@ -101,8 +101,9 @@ pub(crate) const MEMBER_RELATIVE_UNAVAILABLE: &str = " the member-relative forma
 pub(crate) const RANGE_SCALING: &str = " range_scaling: ";
 /// The guard's named-row limit (`formation_guard::NAMED`).
 const NAMED: usize = 6;
-/// At most this many S11-G recovery leads are tried; more is ambiguous.
-const RECOVERY_LEAD_LIMIT: usize = 8;
+/// The nonlinear confirmed-state evidence line (product_physics
+/// `NONLINEAR_CONFIRMED_EVIDENCE_LINE`), which a recovery demotion may follow.
+pub(crate) const NONLINEAR_CONFIRMED_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; the published nodal displacements, and the support displacement rows that follow them, are the formation check's corrected displacements; the iteration's residual rows are its own.";
 
 #[derive(Debug, Serialize)]
 struct Health {
@@ -506,26 +507,35 @@ impl<'m> Report<'m> {
             out.formation_recovery = Some(Vec::new());
             return out;
         }
-        // The recovery sentence ends the message; its position follows records
-        // whose identifiers are not parsed, so each lead is tried and must
-        // parse exactly to the end.
-        let lead = [RECOVERY_A, case_id, SENSITIVE_BECAUSE].concat();
-        let starts: Vec<usize> = records
-            .match_indices(lead.as_str())
-            .map(|(i, _)| i)
-            .take(RECOVERY_LEAD_LIMIT + 1)
-            .collect();
-        if starts.is_empty() || starts.len() > RECOVERY_LEAD_LIMIT {
+        // The S11-G recovery sentence is the final record: after the base
+        // message, K-D5-free and load-row-free records, the nonlinear
+        // confirmation line or a range-scaling line. The cause is recognized
+        // by that position and the message's list ending (no earlier record
+        // ends in `]`); its groups are parsed separately and only when the
+        // lead occurs once.
+        if !ends_as_list(records) {
             return out;
         }
-        let parsed: Vec<Vec<Location>> = starts
-            .iter()
-            .filter_map(|&i| parse_recovery_groups(&records[i + lead.len()..]))
-            .collect();
-        if let Some(groups) = parsed.first() {
-            // A lead inside a group's text makes the groups ambiguous.
-            out.formation_recovery = Some(if starts.len() == 1 {
-                groups.clone()
+        let lead = [RECOVERY_A, case_id, SENSITIVE_BECAUSE].concat();
+        let confirmed = [" ", NONLINEAR_CONFIRMED_LINE].concat();
+        let mut occurrences = 0;
+        let mut recognized = None;
+        for (start, _) in records.match_indices(lead.as_str()) {
+            occurrences += 1;
+            let positioned =
+                start == 0 || records[..start] == *confirmed || records.starts_with(RANGE_SCALING);
+            if recognized.is_none()
+                && positioned
+                && counted_list(&records[start + lead.len()..], RECOVERY_TAIL).is_some()
+            {
+                recognized = Some(start + lead.len());
+            }
+        }
+        if let Some(after) = recognized {
+            // A lead inside a group's text makes the groups ambiguous; an
+            // unparseable list keeps the cause without locations.
+            out.formation_recovery = Some(if occurrences == 1 {
+                parse_recovery_groups(&records[after..]).unwrap_or_default()
             } else {
                 Vec::new()
             });
@@ -537,34 +547,52 @@ impl<'m> Report<'m> {
 /// The DOF map's labels, for exact lookups.
 struct Labels {
     set: HashSet<String>,
-    longest: usize,
+    /// The labels' distinct byte lengths, ascending.
+    lengths: Vec<usize>,
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Bytes examined by `Labels::prefix` (a wall-clock-independent bound).
+    static LABEL_WORK: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
 impl Labels {
     fn new(labels: Vec<String>) -> Self {
-        let longest = labels.iter().map(String::len).max().unwrap_or(0);
+        let mut lengths: Vec<usize> = labels.iter().map(String::len).collect();
+        lengths.sort_unstable();
+        lengths.dedup();
         Labels {
             set: labels.into_iter().collect(),
-            longest,
+            lengths,
         }
     }
 
     /// The unique label at the start of `text` followed by `separator`, and the
-    /// text after the separator. Only the label-length window is examined.
+    /// text after the separator. Only spans of a known label length that end
+    /// at the separator are hashed, so the work is bounded by the labels'
+    /// distinct lengths (at most the DOF map's size), not by the text.
     fn prefix<'t>(&self, text: &'t str, separator: &str) -> Option<(&'t str, &'t str)> {
-        let mut end = text.len().min(self.longest + separator.len());
-        while !text.is_char_boundary(end) {
-            end -= 1;
+        let mut found = None;
+        for &length in &self.lengths {
+            if length > text.len() {
+                break;
+            }
+            #[cfg(test)]
+            LABEL_WORK.with(|work| work.set(work.get() + 1));
+            if !text.is_char_boundary(length) || !text[length..].starts_with(separator) {
+                continue;
+            }
+            #[cfg(test)]
+            LABEL_WORK.with(|work| work.set(work.get() + length));
+            if self.set.contains(&text[..length]) {
+                if found.is_some() {
+                    return None;
+                }
+                found = Some(length);
+            }
         }
-        let mut found = text[..end]
-            .match_indices(separator)
-            .map(|(i, _)| i)
-            .filter(|&i| self.set.contains(&text[..i]));
-        let first = found.next()?;
-        found
-            .next()
-            .is_none()
-            .then(|| (&text[..first], &text[first + separator.len()..]))
+        found.map(|length| (&text[..length], &text[length + separator.len()..]))
     }
 }
 
@@ -676,6 +704,21 @@ fn paren_close(text: &str) -> Option<&str> {
     text.match_indices(')')
         .map(|(i, _)| &text[i + 1..])
         .find(|rest| rest.starts_with("; ") || rest.starts_with(']'))
+}
+
+/// Whether the records end as a guard's list: `]`, or `]; and {n} more`.
+fn ends_as_list(records: &str) -> bool {
+    let end = match records.strip_suffix(AND_MORE[1]) {
+        Some(rest) => {
+            let digits = rest.bytes().rev().take_while(u8::is_ascii_digit).count();
+            match rest[..rest.len() - digits].strip_suffix(AND_MORE[0]) {
+                Some(rest) if digits > 0 => rest,
+                _ => return false,
+            }
+        }
+        None => records,
+    };
+    end.ends_with(']')
 }
 
 /// The guards' optional `; and {n} more`.
@@ -1543,18 +1586,42 @@ mod tests {
             message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &ranged),
         );
         assert_eq!(c["causes"][0]["locations"].as_array().unwrap().len(), 2);
-        for broken in [
+        // Recognition is by position; a list that does not parse keeps the
+        // cause without locations. A group name holding `]` (a valid pipe id
+        // `pipe]`) is such a list.
+        let recovery = json!([{"kind": "formation_recovery", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": []}]);
+        for unparsed in [
             tail.replace("because 2 member", "because 9 member"),
-            format!("{tail} x"),
             tail.replace("q=1e0", "q=1 e0"),
+            tail.replace("pipe:P.end_i", "pipe].end_i"),
+            tail.replace("pipe:P.end_i", "pipe; x.end_i"),
         ] {
             let c = one_case(
                 "case",
                 SENSITIVE,
                 "sensitive",
-                message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &broken),
+                message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &unparsed),
             );
-            assert_eq!(c["causes"], json!([]), "{broken}");
+            assert_eq!(c["causes"], recovery, "{unparsed}");
+        }
+        // After the nonlinear confirmation line, the position still holds.
+        let confirmed = format!(" {NONLINEAR_CONFIRMED_LINE}{tail}");
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &confirmed),
+        );
+        assert_eq!(c["causes"][0]["locations"].as_array().unwrap().len(), 2);
+        // Not the final record, or not at a record position: no cause.
+        for misplaced in [format!("{tail} x"), format!(" x{tail}")] {
+            let c = one_case(
+                "case",
+                SENSITIVE,
+                "sensitive",
+                message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &misplaced),
+            );
+            assert_eq!(c["causes"], json!([]), "{misplaced}");
         }
         let unnamed = " the member-relative formation check is not available on this route; member rows are binary64 recoveries";
         let c = one_case(
@@ -1816,7 +1883,7 @@ mod tests {
     #[test]
     fn hostile_lengths_parse_in_linear_time() {
         // A long DOF map, long labels and a long list complete promptly.
-        let labels: Vec<String> = (0..20_000)
+        let labels: Vec<String> = (0..5_000)
             .flat_map(|n| {
                 DOF_NAMES
                     .iter()
@@ -1839,7 +1906,41 @@ mod tests {
             "sensitive",
             message("case", "Passed", "0.125", RESIDUAL_FIELD, &map, &groups),
         );
-        assert_eq!(c["causes"], json!([]));
+        assert_eq!(c["causes"][0]["locations"], json!([]));
+    }
+
+    /// The label lookup's work is bounded by the DOF map, not by separators in
+    /// the text: a label of length L before a text of L separators would hash
+    /// every growing prefix (about L^2 / 4 bytes) in a quadratic lookup.
+    #[test]
+    fn label_lookup_work_is_linear() {
+        for n in [10_000, 40_000] {
+            let long = ": ".repeat(n);
+            let labels: Vec<String> = DOF_NAMES
+                .iter()
+                .map(|d| format!("{long}:{d}"))
+                .chain(["N1:RX".to_string()])
+                .collect();
+            let map = format!("{labels:?}");
+            let kd5 = format!(
+                " formation_check: reason=estimate; row={}; doubled_correction=1.0",
+                ": ".repeat(2 * n)
+            );
+            let rows = format!(" S11-G formation-noise guard: load case case is Sensitive because 6 load row(s) carry formed-term formation noise above the 1e-9 criterion; every value is kept for inspection. Rows: [{}]", vec![": ".repeat(2 * n); 6].join("; "));
+            for tail in [kd5, rows] {
+                LABEL_WORK.with(|work| work.set(0));
+                let c = one_case(
+                    "case",
+                    SENSITIVE,
+                    "sensitive",
+                    message("case", "Sensitive", "0.125", RESIDUAL_FIELD, &map, &tail),
+                );
+                assert_eq!(c["causes"][0]["locations"], json!([]));
+                let work = LABEL_WORK.with(|work| work.get());
+                // Linear: a few passes over the map; quadratic would be ~n^2.
+                assert!(work <= 8 * (map.len() + tail.len()), "n={n}: work {work}");
+            }
+        }
     }
 
     /// The producer text the parser copies occurs verbatim in
@@ -1851,6 +1952,7 @@ mod tests {
         let lib_pins = [
             "\"{} represented original-equation structural evidence for load case {}: {:?}; global_dof_map={:?}. {} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.\"".to_string(),
             format!("\"{LINEAR_TEXT}\""),
+            format!("const NONLINEAR_CONFIRMED_EVIDENCE_LINE: &str = \"{NONLINEAR_CONFIRMED_LINE}\";"),
             format!("{NONLINEAR_TEXT_END}\",e.policy,e)"),
             "\"formation_check: reason=estimate; row={}; doubled_correction={:?}; scale={:?}; trigger_ratio={:?}\"".to_string(),
             "\"formation_check: reason=formation_check_unavailable; detail={detail}\"".to_string(),
