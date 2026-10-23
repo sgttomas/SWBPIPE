@@ -197,8 +197,11 @@
     await showSection("exports");
     const available = await waitFor("result export panel", () => byTestId("result-export-link") ? "available" : byTestId("result-export-empty") ? "empty" : null, 30000);
     if (available === "empty") {
-      await sleep(2000); // the packet is assembled asynchronously after a solve
-      if (!byTestId("result-export-link")) return { label, available: false, reason: text("result-export-empty") };
+      // The packet is assembled asynchronously after a solve: the demo's took
+      // 8.5 s on a loaded Mac, so a fixed 2 s sample missed it. A result the
+      // product does not offer (the milestone) still reads as not offered.
+      const offered = await waitFor("result export packet", () => byTestId("result-export-link"), 30000).catch(() => null);
+      if (!offered) return { label, available: false, reason: text("result-export-empty") };
     }
     const intentId = "result-export-link-local-private-intent";
     if (byTestId(intentId) && !byTestId(intentId).checked) {

@@ -265,7 +265,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 
 The registered checks are those in `software-workflow.json`.
 - **Rust tests.** Among the registered checks, the Rust tests of the crates named below run in `macos-release-sweep`'s cargo crate sweep, which runs `cargo test` for each crate. `piping-pytest` only builds the runner binary that its tests need. On pull requests, the hosted `harness` numerical job runs the selected crates.
-- **Desktop tests.** `desktop-test` needs the wasm engine built first (`npm run build:wasm:desktop`), as the sweep does. Hosted pull-request CI runs desktop Vitest only on dispatch.
+- **Desktop tests.** `desktop-test` needs the wasm engine built first (`npm run build:wasm:desktop`), as the sweep does. Hosted pull-request CI runs desktop Vitest when the diff selects `piping-desktop` (`docs/CI_STRATEGY.md`), and on dispatch.
 - **Registration-dependent tests.** The registered branch runs only in the registered build identity, which is the qualification host. Hosted builds are unregistered, so there these tests assert only the `Stale` branch.
 - **Host rules.** Heavy runs follow the host's memory and slot rules.
 
