@@ -45,11 +45,12 @@ class CheckStep:
 def is_public_export(root: Path = ROOT) -> bool:
     """True in the staged public export: outside a monorepo checkout (where the
     project sits at `projects/<name>` under a repository root holding `.git` or
-    `AGENTS.md`), and with neither `loop/` nor `execution/`. A sparse monorepo
-    clone is not it."""
+    `AGENTS.md`, the project having no `.git` of its own), and with neither
+    `loop/` nor `execution/`. A sparse monorepo clone is not it; the export,
+    a repository of its own, is it even inside another repository."""
     root = root.resolve()
     repository = root.parent.parent
-    in_monorepo = root.parent.name == "projects" and (
+    in_monorepo = not (root / ".git").exists() and root.parent.name == "projects" and (
         (repository / ".git").exists() or (repository / "AGENTS.md").is_file())
     return not in_monorepo and not (root / "loop").is_dir() and not (root / "execution").is_dir()
 

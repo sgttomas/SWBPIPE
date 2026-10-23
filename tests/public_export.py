@@ -9,16 +9,18 @@ runs in the monorepo and, in the export, skips with the surface named
 The tree counts as the export only outside a monorepo checkout, and only with
 both directories absent. In a monorepo checkout this project sits at
 `projects/<name>` under the repository root, which holds `.git` (a sparse clone
-or worktree keeps it) or `AGENTS.md`. A sparse monorepo clone that drops the
-directories, or hosted CI's checkout (which drops `execution/` only), is not the
-export.
+or worktree keeps it) or `AGENTS.md`, and this directory has no `.git` of its
+own. The export is a repository of its own, so a `.git` here marks the export
+even where it is checked out inside another repository. A sparse monorepo clone
+that drops the directories, or hosted CI's checkout (which drops `execution/`
+only), is not the export.
 """
 from pathlib import Path
 
 import pytest
 
 PROJECT = Path(__file__).resolve().parents[1]
-IN_MONOREPO = PROJECT.parent.name == "projects" and (
+IN_MONOREPO = not (PROJECT / ".git").exists() and PROJECT.parent.name == "projects" and (
     (PROJECT.parents[1] / ".git").exists() or (PROJECT.parents[1] / "AGENTS.md").is_file())
 PUBLIC_EXPORT = not IN_MONOREPO and not (PROJECT / "loop").is_dir() and not (PROJECT / "execution").is_dir()
 

@@ -212,3 +212,12 @@ def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp
     (standalone / ".git").mkdir(parents=True)
     assert release.is_public_export(standalone)
     assert _probe_public_export(standalone, "public_export_standalone_probe") is True
+    # So is the export checked out inside another repository's projects/ folder.
+    superproject = tmp_path / "superproject"
+    nested = superproject / "projects" / "swbpipe"
+    nested.mkdir(parents=True)
+    (superproject / ".git").mkdir()
+    (superproject / "AGENTS.md").write_text("fixture")
+    (nested / ".git").write_text("gitdir: ../../.git/modules/swbpipe\n")
+    assert release.is_public_export(nested)
+    assert _probe_public_export(nested, "public_export_nested_probe") is True
