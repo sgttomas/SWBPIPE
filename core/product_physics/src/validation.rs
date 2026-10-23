@@ -214,39 +214,57 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
 
 /// Whether a model-level action loads every case (DEL-04-07 Design
 /// pressure-contract.md, "Load cases that apply nothing"): a constant-effort
-/// support, or an objective connector with a preload — a nonzero `q_ref`
-/// component, or a tie rod with a nonzero reference extension. A connector
-/// whose `q_ref` is zero loads nothing, whatever its declared reference state.
+/// support, or an objective connector with a preload — K q_ref ≠ 0, decided
+/// exactly as the kernel's `ObjectiveConnector::stress_free` decides it, or a
+/// tie rod with a nonzero reference extension. A `q_ref` in K's null space
+/// loads nothing (K may be positive semidefinite).
 pub(crate) fn model_loads_every_case(model: &PreviewModel) -> bool {
-    let nonzero = |quantity: Option<&serde_json::Value>, keys: &[&str]| {
-        quantity.is_some_and(|quantity| {
-            keys.iter().any(|key| {
-                quantity
-                    .get(*key)
+    model.supports.iter().any(crate::is_constant_effort_support)
+        || model.components.iter().any(connector_preloads)
+}
+
+fn connector_preloads(component: &crate::PreviewComponent) -> bool {
+    use open_pipe_stress_frame_kernel::connector::symmetric_from_upper;
+    use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+    let rod_pretension = component
+        .objective_connector
+        .as_ref()
+        .and_then(|connector| connector.get("hardware"))
+        .and_then(|hardware| hardware.get("rods"))
+        .and_then(serde_json::Value::as_array)
+        .is_some_and(|rods| {
+            rods.iter().any(|rod| {
+                rod.get("reference_extension")
+                    .and_then(|extension| extension.get("value"))
                     .and_then(serde_json::Value::as_f64)
                     .is_some_and(|value| value != 0.0)
             })
-        })
+        });
+    if rod_pretension {
+        return true;
+    }
+    // A connector that does not decode is refused by the connector findings.
+    let Some(spec) = crate::joint::connector_spec(component) else {
+        return false;
     };
-    let preloaded_connector = |connector: &serde_json::Value| {
-        let q_ref = connector.get("q_ref");
-        nonzero(q_ref.and_then(|q| q.get("translation")), &["x", "y", "z"])
-            || nonzero(q_ref.and_then(|q| q.get("rotation")), &["x", "y", "z"])
-            || connector
-                .get("hardware")
-                .and_then(|hardware| hardware.get("rods"))
-                .and_then(serde_json::Value::as_array)
-                .is_some_and(|rods| {
-                    rods.iter()
-                        .any(|rod| nonzero(rod.get("reference_extension"), &["value"]))
-                })
+    // The kernel's decode: K = D⁻¹HD⁻¹, a translation index divides by Ls.
+    let h = symmetric_from_upper(&spec.stiffness.upper_triangle);
+    let ls = spec.stiffness.translation_scale;
+    let k = |i: usize, j: usize| {
+        let mut value = h[i][j];
+        if i < 3 {
+            value /= ls;
+        }
+        if j < 3 {
+            value /= ls;
+        }
+        value
     };
-    model.supports.iter().any(crate::is_constant_effort_support)
-        || model
-            .components
-            .iter()
-            .filter_map(|component| component.objective_connector.as_ref())
-            .any(preloaded_connector)
+    (0..6).any(|row| {
+        let mut sum = ExactAccumulator::new();
+        (0..6).all(|column| sum.add_product(k(row, column), spec.q_ref[column]).is_ok())
+            && !sum.is_zero()
+    })
 }
 
 fn validate_ids(

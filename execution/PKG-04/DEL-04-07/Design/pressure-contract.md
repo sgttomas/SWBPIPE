@@ -73,10 +73,11 @@ published all-zero rows marked `NUMERICAL_INTEGRITY_CHECKS_PASSED`.
 **An action** is an applied primitive load, an equivalent-static load, a
 non-empty pressure-region list, a boundary motion, a member state of nonzero
 eigenstrain, or a model-level preload. **A model-level preload** loads every
-case: a constant-effort support, or an objective connector with a nonzero
-`q_ref` component or a tie rod with a nonzero reference extension. A
-connector whose `q_ref` is zero loads nothing, whatever its declared
-reference state (`stress_free` requires K q_ref = 0).
+case: a constant-effort support, a tie rod with a nonzero reference extension,
+or an objective connector with K q_ref ≠ 0, decided exactly as the kernel
+decides a stress-free connector. A connector whose `q_ref` lies in the null
+space of its stiffness (K may be positive semidefinite), zero `q_ref`
+included, loads nothing, whatever its declared reference state.
 
 - **Load-state case whose stored primitives are all unlisted (EX):** a stored
   primitive is applied only when the case's `analysis_state.load_sources`
@@ -108,6 +109,8 @@ solver modes. Its refusal and warning tests fail at `9ad5d79fa5`. Its controls
 pass: the loaded case alone, a boundary-motion-only load-state case, a
 reference state beside a loaded case, a load-state case whose preload acts
 with its primitive unlisted, and a preloaded connector exempting an otherwise
-empty model. `stress_maximum_coverage.rs`'s exact-zero tie tests now load the
+empty model. A connector with a null-space `q_ref` exempts nothing: the
+exact all-empty model, the load-state case with its primitive unlisted and
+the reference-states-only model are each refused. `stress_maximum_coverage.rs`'s exact-zero tie tests now load the
 anchored node, whose load goes wholly to the reaction, instead of solving an
 unloaded model.

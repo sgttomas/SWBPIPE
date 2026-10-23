@@ -322,3 +322,56 @@ fn a_load_state_case_with_a_prestressed_connector_applies_its_preload() {
         assert!(moved, "the preload moves the structure");
     }
 }
+
+/// A connector whose K is positive semidefinite (rx stiffness zero) and whose
+/// q_ref lies in K's null space (a 0.01 rad rx reference) applies no load: it
+/// is not a preload (independent review's case). `node:b` gains an RX restraint
+/// so the system stays nonsingular.
+fn null_space_q_ref(mut wire: Value) -> Value {
+    let index = wire["model"]["components"].as_array().unwrap().iter()
+        .position(|c| c.get("objective_connector").is_some()).unwrap();
+    let oc = &mut wire["model"]["components"][index]["objective_connector"];
+    oc["stiffness"]["upper_triangle"][15] = json!(0);
+    oc["reference_state"] = json!("stress_free");
+    oc["q_ref"]["translation"]["x"] = json!(0);
+    oc["q_ref"]["rotation"]["x"] = json!(0.01);
+    wire["model"]["supports"].as_array_mut().unwrap()
+        .push(json!({"id": "support:b-rx", "node": "node:b", "family": "anchor", "restraints": ["RX"], "provenance": "invented"}));
+    if let Some(cases) = wire["model"]["load_cases"].as_array_mut() {
+        for case in cases {
+            if let Some(states) = case
+                .get_mut("analysis_state")
+                .and_then(|state| state.get_mut("support_states"))
+                .and_then(Value::as_array_mut)
+            {
+                states.push(json!({"support_ref": "support:b-rx", "participation": {"kind": "active_model_device"}}));
+            }
+        }
+    }
+    wire
+}
+
+#[test]
+fn a_null_space_reference_is_not_a_preload() {
+    let exact: Value = serde_json::from_str(include_str!("fixtures/silent_zero/stress_free_connector_empty.request.json")).unwrap();
+    let exact = null_space_q_ref(exact);
+    let unlisted = null_space_q_ref(serde_json::from_str(include_str!(
+        "fixtures/silent_zero/load_state_prestressed_connector_unlisted.request.json")).unwrap());
+    let mut reference_only = unlisted.clone();
+    reference_only["model"]["load_cases"][0]["primitive_loads"] = json!([]);
+    // Control: the same exact model with a load solves.
+    let mut loaded = exact.clone();
+    loaded["model"]["load_cases"][0]["primitive_loads"] = json!([{"id": "load:pull", "category": "concentrated_force",
+        "target": {"type": "node", "node": "node:b"}, "direction": "global_x", "magnitude": {"value": 1000.0, "unit": "N"},
+        "dimension": "force", "provenance": "invented"}]);
+    for mode in MODES {
+        let v = envelope(&exact, mode);
+        assert_eq!(blocking(&v), ["LOAD_INPUT_MISSING"], "{:?}", diagnostics(&v));
+        let v = envelope(&unlisted, mode);
+        assert_eq!(blocking(&v), ["LOAD_STATE_CASE_APPLIES_NO_ACTION"], "{:?}", diagnostics(&v));
+        let v = envelope(&reference_only, mode);
+        assert_eq!(blocking(&v), ["LOAD_INPUT_MISSING"], "{:?}", diagnostics(&v));
+        let v = envelope(&loaded, mode);
+        assert!(blocking(&v).is_empty(), "{:?}", diagnostics(&v));
+    }
+}
