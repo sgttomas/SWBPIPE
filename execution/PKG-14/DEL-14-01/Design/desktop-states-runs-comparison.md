@@ -100,7 +100,7 @@ It is built by these mappings and validated by a populated witness:
 |---|---|
 | `state_id` | `state:<random token>` |
 | `state_kind` | `design_snapshot`, `pre_solve_snapshot`, `post_solve_snapshot`, `comparison_basis` or `handoff_basis` |
-| `created_at` | local ISO time |
+| `created_at` | UTC ISO time, millisecond precision, as recorded runs use |
 | `model_ref` | `{Project, <project id>}` |
 | `parent_state_refs` | `[{ModelState, <parent>}]` or `[]` |
 | `external_references` | `[]` |
@@ -124,7 +124,9 @@ Python agree.
 - The record hash excludes them, so a label edit leaves `record_hash`
   unchanged.
 - **HELP_HUMAN, 2026-10-23: labels outside the record hash "is right": a label
-  edit isn't a new state.** The History panel says so where labels are edited:
+  edit isn't a new state.** The emitted record's
+  `changes_create_new_model_state` therefore applies to the snapshot and the
+  immutable fields, not to the labels. The History panel says so where labels are edited:
   "Renaming, tagging or adding notes does not change the saved state."
 
 **Commands.**
@@ -160,7 +162,9 @@ Python agree.
    - takes `rule_pack_refs` from the input manifest's `active_rule_packs` (what
      the solve used, not the document's identity-only references) and
      `library_refs` from the resolved `provenance_record.library_ref`s;
-   - states its `determinism_notes` (`compatibility.py:147`);
+   - drops the `created_at_unavailable` determinism note, in both TypeScript
+     (`analysisRunCompatibility.ts:169` hard-codes it today) and Python
+     (`compatibility.py:147` already drops it when `created_at` is set);
    - is hashed per v0.3 (`openpipestress_jcs_ijson_v1`, bare 64-hex);
    - never rewrites the received-result bytes.
 
@@ -168,9 +172,18 @@ Python agree.
 - At solve, the session already builds the input manifest, which embeds the
   model payload. The transient run keeps the manifest's canonical bytes in
   memory.
-- Record Run submits them. Rust checks that sha256(manifest) equals the
-  record's `reproducibility.input_manifest_hashes` entry, and that the
-  manifest's model-payload hash equals the state's `model_hash`.
+- Record Run submits them. Rust then:
+  - re-canonicalizes the submitted manifest bytes and requires them to be
+    unchanged;
+  - checks that their sha256 equals the record's
+    `reproducibility.input_manifest_hashes[0].value`
+    (`analysisRunCompatibility.ts:169`);
+  - computes the JCS sha256 of the manifest's `model_basis.model_payload` (the
+    manifest stores no model hash, `inputManifestService.ts:78-112`) and
+    requires it to equal the state's `model_hash`.
+- **Restored slot.** A current-run slot restored from the project row has no
+  manifest. For it, Record Run is unavailable with the reason
+  `RUN-RECORD-MANIFEST-UNAVAILABLE`: "re-solve to record this run".
 - The recorded run stores the manifest bytes, so the binding stays checkable.
 - The state is the project state with that model hash. If there is none, the
   user names a new `post_solve_snapshot`, and the state, its labels, the run
@@ -209,7 +222,9 @@ CREATE TRIGGER IF NOT EXISTS analysis_runs_immutable BEFORE UPDATE ON analysis_r
 - **Identity.** `recording_id` is `runrec:` plus the first 32 hex characters of
   `run_record_hash`. The producer's `run_id` is kept as data.
   - Two recordings of identical solves differ in their transaction-allocated
-    `created_at`, so they never collide.
+    `created_at`, which is unique per project at millisecond resolution. Should
+    two hashes still coincide, the UNIQUE constraint refuses rather than
+    overwriting.
   - A test records identical solves from two connections with the clock frozen.
 - **Labels and FR-MOD-006.** Run-level assumptions, name, tags and notes live
   in `analysis_run_labels`, which holds editable metadata outside the record
@@ -278,7 +293,8 @@ automatically when all of these are equal.
 **Standing gate (conservative, whole run).** A mapped pair gets a `right − left`
 delta only when all three hold:
 - **Units:** they are equal.
-- **Envelope verdict:** each run's envelope verdict is ordinary.
+- **Envelope verdict:** each run's `numericalResultStanding` result has
+  `eligible === true` (status `integrity_checked`).
   - It is computed by `numericalResultStanding(result, snapshot)`
     (`resultStanding.ts:109-119`) for that run's result and its state's
     snapshot.

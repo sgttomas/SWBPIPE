@@ -170,8 +170,10 @@ does not embed it.
 - If the current model hash equals a saved state of the project, that state is
   the basis.
 - Otherwise the user confirms a new state, kind `handoff_basis`, default name
-  "Handoff <date>". It is written through W-12's state store in the same
-  transaction as the save's bookkeeping.
+  "Handoff <date>". It is written through W-12's state store.
+- **Order.** The state is committed first, and then the package is published.
+  A filesystem rename cannot join a database transaction. If publication
+  fails, the state remains; it is harmless and reusable.
 
 **Data boundary.** Both files are written under `local_private` with explicit
 intent and a lossless binding. The manifest carries private ids, assumption
@@ -197,12 +199,20 @@ is hard-coded to look complete.
 | top-level `schema_version`, `deliverable_id`, `package_id`, `scope_item`, `objectives`, `handoff_contract_status` | The schema's constants; `physical_package_container` stays `"TBD"` |
 | `package_identity` | `handoff_package_id: handoff:<project token>:<model hash prefix>`, `manifest_id: manifest:<same>`, `package_schema_version` (current), `created_at` (local ISO time), `created_by: "SWBPIPE desktop <version>"`, `package_label` (user-entered, default the project name), `package_kind: canonical_handoff_manifest` |
 | `model_basis` | `model_ref` `{Model, <project id>}`, `model_schema: schemas/model.schema.yaml`, `model_kind: canonical_domain_model`, `basis_state_ref` `{ModelState, <state id>}`, `source_refs: []`, `hash_refs` [the model hash], `provenance` (product-generated record, below) |
-| `model_hash` | `algorithm: sha256`, `canonicalization: JCS` (the schema's label for RFC 8785; the desktop's `rfc8785_jcs` maps to it), `payload_scope: model_payload`, `payload_ref` `{Model, <project id>}`, value = sha256 of `<name>.model.json` |
+| `model_hash` | `algorithm: sha256`, `canonicalization: JCS` (the schema's label for RFC 8785; the desktop's `rfc8785_jcs` maps to it), `payload_scope: model_payload`, `payload_ref` `{Model, <project id>}`, value = sha256 of the `model/model.json` member |
 | `units_manifest` | Derived from `project.units` by a fixed table (below); `units_schema`, `dimension_basis` and `unit_system_ref` take the schema's values for the units catalogue; `hash_refs` [JCS hash of the derived block]; refused with `HANDOFF-UNIT-UNDERIVABLE` if a unit cannot be derived |
 | `entity_ids` | Sorted ids. Nodes, `component_ids`, `element_ids` (pipe segments), `load_case_ids` (cases and combinations), `model_state_ids` [basis]; `station_ids`, `result_ids`, `analysis_run_ids` are `[]`. The families `EntityIdManifest` has no slot for go in `mapping_id_refs` as model-qualified references `{object_type: "Model", ref: "<project id>#<entity id>"}`: supports, materials, sections, lines, constraints, equipment interfaces. FR-HAND-002's entity ids are thus complete |
 | `model_state_refs` | [basis state] |
 | `analysis_run_refs`, `result_export_refs` | `[]` in v0.1. `AnalysisRunRef`'s binding const names `analysis_run.schema.json` (`schema:67,362`) while recorded runs are v0.3 records, so including them needs a contract edit. This is recorded as open (§6) |
-| `library_refs` | One per distinct `provenance_record.library_ref` (W-13 §3.5): `library_ref` `{Library, <library_id>}`, `library_kind`, `version` (the recorded `library_version`). `checksum`: sha256 JCS over the reference metadata `{library_kind, library_id, library_version, document_sha256}`, where `document_sha256` is the JCS sha256 of the stored `local_libraries.document_json`; `payload_scope: library_reference_metadata`. `private_payload_redacted: true`; classifications come from the library's disposition |
+| `library_refs` | One per distinct `provenance_record.library_ref` (W-13 §3.5): `library_ref` `{Library, <library_id>}`, `library_kind`, `version` (the recorded `library_version`). `checksum`: sha256 JCS over the reference metadata `{library_kind, library_id, library_version, document_sha256}`, where `document_sha256` is the JCS sha256 of the stored `local_libraries.document_json`; `payload_scope: library_reference_metadata`. `private_payload_redacted: true`; classifications come from the library's disposition.
+- `library_kind` mapping: `material`, `section` and `component` copy across.
+  The store's `hanger` kind has no handoff enum value, so it maps to `TBD`, and
+  `source_notice` says "hanger library". That is recorded as an open contract
+  gap of the handoff schema.
+- `source_notice` comes from the library document's metadata source notice, or
+  its provenance `source_name` when there is none.
+- `provenance` is the library's provenance mapped to the eight handoff fields
+  (as the `provenance` row maps them). |
 | `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance` |
 | `unresolved_assumptions` | The document's records with `status: unresolved`: `assumption_id`, `statement`, `status: unresolved`, `affected_refs` (below), `provenance` |
 | `warnings`, `diagnostics` | The document validator's and the solve-independent model diagnostics, mapped to the handoff `Diagnostic` (`code`, `class` by fixed table from code family, `severity`, `source`, `affected_object`, `message`, `remediation`, `provenance`) |

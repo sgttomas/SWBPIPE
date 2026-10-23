@@ -366,7 +366,7 @@ that FR-MOD-002 (Must) is met rather than narrowed.
   by OD-1/OD-3.
 - The UI says the records are not checked.
 
-**Constraint vocabulary.** It is a subset of `schemas/constraint.schema.json`
+**Constraint vocabulary.** It shares field names and enums with `schemas/constraint.schema.json`
 `ConstraintRecord`, so v0.2 extends the vocabulary instead of replacing it:
 - the same names: `constraint_id`, `constraint_kind`, `name`, `state`,
   `target_refs`;
@@ -608,7 +608,8 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
 
 ## 7. Owner-reserved text (exact old → new to HELP_HUMAN at the slice that needs it)
 
-1. **Version token 0.6.0 → 0.7.0** (records OD-4, so HELP_HUMAN can approve):
+1. **Version token 0.6.0 → 0.7.0.** These record OD-4, so HELP_HUMAN approves
+   them (HELP_HUMAN, 2026-10-23). Item 2 goes to the owner.
    - DEL-02-05 ScopeOfWork CLM-003, lines 33, 35, 37 and 100, and CLM-013
      line 178.
      - Line 33's "defined by the T4-U4b/U5b epoch" becomes a pointer to this
@@ -626,13 +627,19 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      report-settings or result slot in the model. FR-MOD-001's "warnings" are
      the document's `diagnostics` plus the validator's. FR-MOD-002 is met in
      full by §3.2 and §3.6.
+     - New line 79 also drops "application identity" and "provenance summary".
+       The application is identified by `document_kind`
+       (`openpipestress.product_preview.model`), not a separate field.
+       Provenance is carried per record (§3.5), and no FR-MOD or PRD §20.2
+       clause requires a root-level summary. The report's provenance summary
+       stays with the Report row (CLM-012, line 177).
    - **This narrows no FR-MOD requirement.** It is still commitment text, so it
      goes to the owner through HELP_HUMAN as exact old → new. Its approval is a
      precondition for merging S1b.
    - **Exact text.** These are DEL-02-01 ScopeOfWork CLM-006 lines 79–83; lines
      77, 84 and 86 are unchanged.
      - **Old 79:** `- document/root metadata: schema version, application/schema identity, provenance summary, and migration/compatibility status where persisted;`
-     - **New 79:** `- document/root metadata: schema version, document identity (`document_kind`) and the data-boundary statement; no migration or compatibility status is persisted, because one model-document version is current (DEL-02-05 CLM-003);`
+     - **New 79:** ``- document/root metadata: schema version, document identity (`document_kind`, which also identifies the application) and the data-boundary statement; provenance is carried per record; no migration or compatibility status is persisted, because one model-document version is current (DEL-02-05 CLM-003);``
      - **Old 80:** `- project/model containers: units, coordinate system, storage policy hooks, rule-pack references, report settings, and model object collections;`
      - **New 80:** `- project/model containers: units, rule-pack references and model object collections; the coordinate system is the implicit global frame stated by the schema, storage policy belongs to the local project store (DEL-02-05), and report settings belong to the report package;`
      - **Old 81:** `- model objects: node coordinates and degrees of freedom, element endpoints/material/section references, components, supports, loads, load cases, and combinations;`
