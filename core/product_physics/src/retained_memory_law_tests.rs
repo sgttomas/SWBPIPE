@@ -363,7 +363,13 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // (the retired mill-tolerance decline becomes namespace controls; the same
             // request-fixture include); no include, path module, static or production entered
             // the suffix, and the production after the resume is byte-identical.
-            complete_suffix_sha256: "e0182005e1c6e181a82d3754bfb4409d4dcbafc9230cdd169bbacbe49c00ea97",
+            // Re-audited for model 0.7.0 (W-13 S1b): only the closed
+            // `b7a_preview_namespace_tests` module (the current version 0.7.0, 0.6.0 among the
+            // retired versions, and one doc comment) and, after the resume, the closed
+            // `w1_member_reader_gate_tests` module's invocation version changed; no include, path
+            // module, static or production entered the suffix, and the two production functions
+            // after the resume are byte-identical.
+            complete_suffix_sha256: "8d44d9b5cc6353f0f65b8096f21b65872c80de673edeec5d5bea76ba8475ac90",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
@@ -400,7 +406,7 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited for model 0.6.0 (S1): the closed `b7b_current_table_tests`
             // module's test-only include names the renamed pressure-2 table; the
             // inspected production between the regions gains current_header's
-            // pressure-1/preview-physics-1 refusals and the 0.7.0 re-author text;
+            // pressure-1/preview-physics-1 refusals and the 0.6.0 re-author text;
             // E14 is byte-identical. The S1 repair restores two comments in the
             // inspected production to their historical pressure-1 wording; no code changed.
             // Re-audited for T4-U5b (S3), on the merged bytes: only the closed
@@ -415,8 +421,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // changed (pressure-source-1's 88 -> 94 rows and 51 -> 53 kinds, with its
             // comment); the inspected production after the resume and E14 are
             // byte-identical to S2's.
+            // Re-audited for model 0.7.0 (W-13 S1b): only the inspected production's
+            // current_header v2 re-author text changed its model version token (0.6.0 -> 0.7.0,
+            // same length); the closed `b7b_current_table_tests` module and E14 are byte-identical.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "a60c37af77da9656049426591aaa824419bb832dd07944f3cd9bcba2b1e7e1ab",
+            complete_suffix_sha256: "74987097d004fdafcc3e1c7307258427afb82e8a1a9e19fa6e13cb264d2eea9d",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),

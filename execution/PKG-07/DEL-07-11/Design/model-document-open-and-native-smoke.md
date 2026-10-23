@@ -24,14 +24,14 @@ export use their existing routes unchanged.
   - `MODEL-FILE-DOCUMENT-KIND` (`openpipestress.product_preview.model` only, so a
     solve request `{model, materials}` is refused);
   - `MODEL-FILE-SCHEMA-REFUSED`, for the statuses that project open and save
-    also refuse: `retired_schema` (any version below 0.6.0, including 0.1.0
-    through 0.5.0, with the `MODEL_SCHEMA_VERSION_RETIRED` re-author
+    also refuse: `retired_schema` (any version below 0.7.0, including 0.1.0
+    through 0.6.0, with the `MODEL_SCHEMA_VERSION_RETIRED` re-author
     diagnostic), `newer_than_supported` and `unsupported_schema` from the one
     version check, `evaluate_model_document`
     (`src-tauri/src/model_document_version.rs`; DEL-02-05 CLM-003). Model
-    document 0.6.0 is the one current version; B7b retired 0.3.0 and 0.4.0, and
-    T4-U4b/U5b retired 0.5.0. The version check reads the version only: a 0.6.0
-    document that declares a
+    document 0.7.0 is the one current version; B7b retired 0.3.0 and 0.4.0,
+    T4-U4b/U5b retired 0.5.0 and W-13 S1b retired 0.6.0. The version check reads
+    the version only: a 0.7.0 document that declares a
     retired pressure contract passes it unchanged, and its solve publishes no
     rows, with the blocking diagnostic `PRESSURE_MODEL_REAUTHOR_REQUIRED`. This
     path adds no migration or compatibility code.

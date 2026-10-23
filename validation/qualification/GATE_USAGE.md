@@ -22,7 +22,7 @@ selected original static cases, using the actual CLI `solve --input -
 binary64 publication and passing numerical standing. B7b retired physics-1
 (`2.0.0/exact_straight_pressure_v2`) and the 0.1.0-0.4.0 model documents: the two
 frozen, hash-bound runner inputs are never edited; the gate checks their bytes and
-submits a declared re-authored copy (model 0.6.0, the current
+submits a declared re-authored copy (model 0.7.0, the current
 `3.0.0/exact_pressure_v3` contract with `shear_model: euler_bernoulli`, and an
 explicit zero `corrosion_allowance` on the section; nothing else changes), records
 both hashes in the case ledger, and reads the raw against the copy.
@@ -198,9 +198,10 @@ explicit `shear_model` (`euler_bernoulli` or `timoshenko_annulus_energy_v1`) and
 an explicit `corrosion_allowance` on every section. Since model 0.6.0 such a
 document is kept as bound and submitted as its copy re-authored by its version
 alone: its `runner_input_reauthoring` record names the same rule, the frozen and
-submitted sha256, versions 0.5.0 and 0.6.0, the same contract on both sides, and
-`explicit_zero_corrosion_allowance: false`. A package document authored on 0.6.0
-would be submitted unchanged under the identity record. Every other package
+submitted sha256, versions 0.5.0 and 0.7.0 (the current version), the same
+contract on both sides, and `explicit_zero_corrosion_allowance: false`. A package
+document authored on 0.6.0 is re-authored the same way since 0.7.0; one authored
+on 0.7.0 would be submitted unchanged under the identity record. Every other package
 document must still be a frozen 0.3.0/0.4.0 document under the former
 `3.0.0/exact_pressure_v3` contract object, submitted as its re-authored copy.
 

@@ -125,7 +125,7 @@ needs:
   gating: true
   evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: doc:execution/PKG-04/DEL-04-08/Design/b7-plan.md
-  condition: 'DEL-02-05''s one current model-document version is 0.6.0 as DEL-04-08 Design `b7-plan.md`
+  condition: 'DEL-02-05''s one current model-document version is 0.7.0 as DEL-04-08 Design `b7-plan.md`
     ("Current model format") defines it: `pressure_contract` optional, its absence making the document pressure-free,
     and every other version refused by name with a re-author diagnostic and no migration. DEL-02-05''s version
     check and persistence round trips follow that definition.'
