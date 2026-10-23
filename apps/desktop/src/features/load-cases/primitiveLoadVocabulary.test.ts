@@ -89,11 +89,14 @@ describe("primitive load category vocabulary", () => {
     ] as const) {
       expect(primitiveLoadDefaultUnit(empty, category, direction)).toBe("TBD");
     }
-    // A compound unit needs both parts; a blank declaration counts as absent.
+    // A compound unit needs both parts. W-17 §2.4: a present but blank part is not
+    // absent; the compositions give no default ("", unselected) rather than TBD.
     const forceOnly = withUnits({ force: "N", length: "  " });
     expect(primitiveLoadDefaultUnit(forceOnly, "concentrated_force", "global_y")).toBe("N");
-    expect(primitiveLoadDefaultUnit(forceOnly, "distributed_force", "global_y")).toBe("TBD");
-    expect(primitiveLoadDefaultUnit(forceOnly, "concentrated_moment", "rotation_z")).toBe("TBD");
+    expect(primitiveLoadDefaultUnit(forceOnly, "distributed_force", "global_y")).toBe("");
+    expect(primitiveLoadDefaultUnit(forceOnly, "concentrated_moment", "rotation_z")).toBe("");
+    expect(primitiveLoadDefaultUnit(withUnits({ force: "N" }), "distributed_force", "global_y")).toBe("TBD");
+    expect(primitiveLoadDefaultUnit(withUnits({ force: "N" }), "concentrated_moment", "rotation_z")).toBe("TBD");
     // W-17: the blank document declares angle (rad), so a rotational imposed displacement has a unit.
     const blank = buildBlankLocalModelDocument(new Date("2026-01-01T00:00:00Z"));
     expect(primitiveLoadDefaultUnit(blank, "imposed_displacement", "RY")).toBe("rad");

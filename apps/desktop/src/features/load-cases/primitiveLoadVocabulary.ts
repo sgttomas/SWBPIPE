@@ -1,6 +1,6 @@
 import type { PreviewModel } from "../../types";
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
-import { checkComposedDefault, composedDefaultSymbol, type CheckedComposedDefault } from "../project-units/projectUnitSelection";
+import { composedDefault, declaredOrComposedDefault, type CheckedComposedDefault } from "../project-units/projectUnitSelection";
 
 // Primitive-load category vocabulary of the Load Case Manager: which target a
 // category uses, its direction choices and default, the dimension sent to core
@@ -55,10 +55,11 @@ export function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, dir
 
 /**
  * The default unit of a new primitive (W-17 §2.4). The moment reads
- * `project.units.moment` when it is declared, and only without it falls back to
- * `<force>*<length>`. The distributed force is composed as `<force>/<length>`.
- * Once the catalog is loaded each composition is checked against it: one the
- * catalog lacks gives "" (unselected) with a notice, never a substitute.
+ * `project.units.moment` when the key is present, and only when it is absent
+ * falls back to `<force>*<length>`. The distributed force is composed as
+ * `<force>/<length>`. A present but invalid key, or (once the catalog is loaded)
+ * a composition or declared moment the catalog lacks, gives "" (unselected)
+ * with a notice, never a substitute.
  */
 export function primitiveLoadDefaultUnitChoice(
   model: PreviewModel,
@@ -66,16 +67,10 @@ export function primitiveLoadDefaultUnitChoice(
   direction: string,
   route: UnitCatalogRoute | null = null
 ): CheckedComposedDefault {
-  if (category === "distributed_force") {
-    return checkComposedDefault(route, projectDistributedForceUnit(model), primitiveLoadDraftDimension(category, direction));
-  }
-  if (category === "concentrated_moment") {
-    // A declared moment key is the default and is never replaced by a composition.
-    const declared = optionalString(model.project.units.moment);
-    return declared
-      ? { symbol: declared, notice: null }
-      : checkComposedDefault(route, projectComposedMomentUnit(model), primitiveLoadDraftDimension(category, direction));
-  }
+  if (category === "distributed_force") return composedDefault(route, "distributed_force", model.project.units);
+  // A present moment key is the default and is never replaced by a composition;
+  // a present but invalid one gives no default. Only an absent key composes.
+  if (category === "concentrated_moment") return declaredOrComposedDefault(route, "moment", "moment", model.project.units, true);
   return { symbol: primitiveLoadDefaultUnit(model, category, direction, route), notice: null };
 }
 
@@ -100,16 +95,6 @@ function projectLengthUnit(model: PreviewModel): string {
   return optionalString(model.project.units.length) ?? "TBD";
 }
 
-function projectDistributedForceUnit(model: PreviewModel): string {
-  return composedDefaultSymbol("distributed_force", model.project.units) ?? "TBD";
-}
-
-/** The fallback for a document without a moment key: `<force>*<length>`. */
-function projectComposedMomentUnit(model: PreviewModel): string {
-  const force = projectForceUnit(model);
-  const length = projectLengthUnit(model);
-  return force === "TBD" || length === "TBD" ? "TBD" : `${force}*${length}`;
-}
 
 function projectTemperatureUnit(model: PreviewModel): string {
   const unit = optionalString(model.project.units.temperature) ?? "TBD";

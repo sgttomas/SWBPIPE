@@ -26,7 +26,7 @@ import {
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
-import { checkComposedDefault, composedDefaultSymbol } from "../project-units/projectUnitSelection";
+import { composedDefault, declaredOrComposedDefault } from "../project-units/projectUnitSelection";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
@@ -3100,26 +3100,21 @@ function stressUnit(model: PreviewModel): string {
 // checked against the loaded catalog. A composition the catalog lacks gives ""
 // (unselected), never a substitute. A declared `linear_stiffness` key is used as is.
 function thermalExpansionUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
-  const composed = composedDefaultSymbol("thermal_expansion", model.project.units);
-  return composed ? checkComposedDefault(route, composed, "thermal_expansion_coefficient").symbol : "TBD";
+  return composedDefault(route, "thermal_expansion", model.project.units).symbol;
 }
 
 function thermalExpansionUnitNoticeFor(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
-  const composed = composedDefaultSymbol("thermal_expansion", model.project.units);
-  return composed ? checkComposedDefault(route, composed, "thermal_expansion_coefficient").notice : null;
+  return composedDefault(route, "thermal_expansion", model.project.units).notice;
 }
 
+// A present `linear_stiffness` key is used as declared (unchecked, as before); a
+// present but invalid one gives no default. Only an absent key composes.
 function linearStiffnessUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
-  const direct = model.project.units.linear_stiffness;
-  if (direct) return direct;
-  const composed = composedDefaultSymbol("linear_stiffness", model.project.units);
-  return composed ? checkComposedDefault(route, composed, "linear_stiffness").symbol : "TBD";
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).symbol;
 }
 
 function linearStiffnessUnitNotice(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
-  if (model.project.units.linear_stiffness) return null;
-  const composed = composedDefaultSymbol("linear_stiffness", model.project.units);
-  return composed ? checkComposedDefault(route, composed, "linear_stiffness").notice : null;
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).notice;
 }
 
 function isFiniteInput(value: string): boolean {

@@ -18,6 +18,7 @@ import {
   PROJECT_UNIT_PRESETS,
   canonicalCatalogEntry,
   checkComposedDefault,
+  readProjectUnitKey,
   composedDefaultSymbol,
   composedDefaultsFor,
   projectUnitPresetFor,
@@ -124,6 +125,44 @@ describe("composed defaults (§2.4)", () => {
     expect(primitiveLoadDefaultUnitChoice(withUnits({ length: "mm", force: "N" }), "concentrated_moment", "rotation_z", PREVIEW)).toEqual({ symbol: "N*mm", notice: null });
     // Without force or length there is nothing to compose.
     expect(primitiveLoadDefaultUnit(withUnits({ length: "mm" }), "concentrated_moment", "rotation_z", CATALOG)).toBe("TBD");
+  });
+
+  it("a present but invalid moment key gives no default and its notice; it is never composed", () => {
+    const cases: Array<[unknown, string]> = [
+      ["", "project.units.moment is empty; choose one"],
+      ["   ", "project.units.moment is empty; choose one"],
+      [12, "project.units.moment is not a unit symbol; choose one"],
+      [null, "project.units.moment is not a unit symbol; choose one"],
+      [{ symbol: "N*m" }, "project.units.moment is not a unit symbol; choose one"]
+    ];
+    for (const [moment, notice] of cases) {
+      const model = withUnits({ length: "m", force: "N" });
+      (model.project.units as Record<string, unknown>).moment = moment;
+      for (const catalog of [CATALOG, PREVIEW, null]) {
+        expect(primitiveLoadDefaultUnitChoice(model, "concentrated_moment", "rotation_z", catalog), JSON.stringify(moment)).toEqual({ symbol: "", notice });
+      }
+    }
+    // With the catalog loaded, a declared moment the catalog does not list for moment is invalid too.
+    expect(primitiveLoadDefaultUnitChoice(withUnits({ length: "m", force: "N", moment: "N*mm" }), "concentrated_moment", "rotation_z", CATALOG))
+      .toEqual({ symbol: "", notice: "project.units.moment (N*mm) is not a catalog unit for moment; choose one" });
+    // An explicitly undefined key reads as absent and composes.
+    const undefinedMoment = withUnits({ length: "m", force: "N" });
+    (undefinedMoment.project.units as Record<string, unknown>).moment = undefined;
+    expect(primitiveLoadDefaultUnitChoice(undefinedMoment, "concentrated_moment", "rotation_z", CATALOG)).toEqual({ symbol: "N*m", notice: null });
+  });
+
+  it("a present but invalid input key gives no default and its notice; it never composes", () => {
+    expect(readProjectUnitKey({}, "length")).toEqual({ state: "absent" });
+    expect(readProjectUnitKey({ length: undefined }, "length")).toEqual({ state: "absent" });
+    expect(readProjectUnitKey({ length: " " }, "length")).toEqual({ state: "invalid", notice: "project.units.length is empty; choose one" });
+    const blankLength = withUnits({ length: "  ", force: "N" });
+    for (const category of ["distributed_force", "concentrated_moment"] as const) {
+      expect(primitiveLoadDefaultUnitChoice(blankLength, category, "global_y", CATALOG)).toEqual({ symbol: "", notice: "project.units.length is empty; choose one" });
+    }
+    const numericForce = withUnits({ length: "m" });
+    (numericForce.project.units as Record<string, unknown>).force = 1;
+    expect(primitiveLoadDefaultUnitChoice(numericForce, "distributed_force", "global_y", PREVIEW)).toEqual({ symbol: "", notice: "project.units.force is not a unit symbol; choose one" });
+    expect(composedDefaultSymbol("thermal_expansion", { temperature: "" })).toBeNull();
   });
 
   it("in with N: distributed force and linear stiffness start unselected with the notice, and nothing is substituted", () => {

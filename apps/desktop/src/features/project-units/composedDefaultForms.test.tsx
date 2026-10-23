@@ -138,6 +138,61 @@ describe("load form composed defaults", () => {
   });
 });
 
+describe("present but invalid keys never compose (Codex P2 on 93acfa719d)", () => {
+  for (const [label, moment] of [["empty", ""], ["whitespace", "  "], ["non-string", 7]] as const) {
+    it(`a ${label} moment key: the moment starts unselected with the notice and nothing can be queued`, async () => {
+      route.current = PREVIEW;
+      const model = blankWith(SI_PROJECT_UNITS);
+      (model.project.units as Record<string, unknown>).moment = moment;
+      const queue = mountLoads(model);
+      choose("load-manager-create-primitive-category", "concentrated_moment");
+      fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "80" } });
+      expect(byId("load-manager-create-primitive-unit")).toHaveValue("");
+      expect([...byId("load-manager-create-primitive-unit").querySelectorAll("option")].map((option) => option.value)).toEqual([""]);
+      expect(byId("load-manager-create-primitive-unit-notice")).toHaveTextContent(
+        typeof moment === "string" ? "project.units.moment is empty; choose one" : "project.units.moment is not a unit symbol; choose one"
+      );
+      // Give any pending unit validation time to settle; the queue stays closed.
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(byId("queue-create-primitive-intent")).toBeDisabled();
+      fireEvent.click(byId("queue-create-primitive-intent"));
+      expect(queue).not.toHaveBeenCalled();
+    });
+  }
+
+  it("a blank length key: distributed force and support stiffness get no default; nothing is queued with N/m", async () => {
+    route.current = CATALOG;
+    const model = blankWith(SI_PROJECT_UNITS);
+    model.project.units.length = " ";
+    const queue = mountLoads(model);
+    await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
+    choose("load-manager-create-primitive-category", "distributed_force");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-notice")).toHaveTextContent("project.units.length is empty; choose one");
+    expect(byId("queue-create-primitive-intent")).toBeDisabled();
+    expect(queue).not.toHaveBeenCalled();
+    cleanup();
+    const inspectorQueue = mountInspector(model);
+    await waitFor(() => expect(byId("create-support-stiffness-unit-notice")).toHaveTextContent("project.units.length is empty; choose one"));
+    expectFormControlValue(byId("create-support-stiffness-unit"), "");
+    fireEvent.change(byId("create-support-stiffness"), { target: { value: "1500" } });
+    expect(byId("queue-create-support-intent")).toBeDisabled();
+    expect(inspectorQueue).not.toHaveBeenCalled();
+  });
+
+  it("a blank linear_stiffness or temperature key: the inspector gives no default and the notice", async () => {
+    route.current = PREVIEW;
+    const model = blankWith(SI_PROJECT_UNITS);
+    model.project.units.linear_stiffness = "";
+    model.project.units.temperature = " ";
+    mountInspector(model);
+    expect(byId("create-support-stiffness-unit-notice")).toHaveTextContent("project.units.linear_stiffness is empty; choose one");
+    expectFormControlValue(byId("create-support-stiffness-unit"), "");
+    expect(byId("create-material-thermal-unit-notice")).toHaveTextContent("project.units.temperature is empty; choose one");
+    expectFormControlValue(byId("create-material-thermal-unit"), "");
+  });
+});
+
 describe("inspector composed defaults", () => {
   it("in with N and a legacy C temperature: stiffness and expansion start unselected with the notice, nothing substituted", async () => {
     route.current = CATALOG;

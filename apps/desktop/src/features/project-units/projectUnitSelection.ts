@@ -125,19 +125,44 @@ export const COMPOSED_DEFAULTS: ReadonlyArray<{ kind: ComposedDefaultKind; label
   { kind: "thermal_expansion", label: "Thermal expansion", dimension: "thermal_expansion_coefficient" }
 ];
 
-function presentString(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value : null;
+/**
+ * How a project unit key reads (§2.4). A key is absent only when the property is
+ * missing or `undefined`. A present key that is not a usable symbol (non-string,
+ * empty or whitespace-only) is invalid: it is never read as absent, so it never
+ * lets a composition stand in for it.
+ */
+export type ProjectUnitKeyRead =
+  | { state: "absent" }
+  | { state: "valid"; symbol: string }
+  | { state: "invalid"; notice: string };
+
+export function readProjectUnitKey(units: Readonly<Record<string, unknown>>, key: string): ProjectUnitKeyRead {
+  if (!Object.hasOwn(units, key) || units[key] === undefined) return { state: "absent" };
+  const value = units[key];
+  if (typeof value !== "string") return { state: "invalid", notice: `project.units.${key} is not a unit symbol; choose one` };
+  if (!value.trim()) return { state: "invalid", notice: `project.units.${key} is empty; choose one` };
+  return { state: "valid", symbol: value };
 }
 
-/** The composed symbol from the project keys, or null when a part is not declared. */
-export function composedDefaultSymbol(kind: ComposedDefaultKind, units: Readonly<Record<string, unknown>>): string | null {
-  if (kind === "thermal_expansion") {
-    const temperature = presentString(units.temperature);
-    return temperature ? `1/${temperature}` : null;
+type CompositionKind = ComposedDefaultKind | "moment";
+
+const COMPOSITIONS: Readonly<Record<CompositionKind, { parts: readonly string[]; compose: (parts: string[]) => string; dimension: string }>> = {
+  distributed_force: { parts: ["force", "length"], compose: ([force, length]) => `${force}/${length}`, dimension: "force_per_length" },
+  linear_stiffness: { parts: ["force", "length"], compose: ([force, length]) => `${force}/${length}`, dimension: "linear_stiffness" },
+  thermal_expansion: { parts: ["temperature"], compose: ([temperature]) => `1/${temperature}`, dimension: "thermal_expansion_coefficient" },
+  moment: { parts: ["force", "length"], compose: ([force, length]) => `${force}*${length}`, dimension: "moment" }
+};
+
+/** The composed symbol from the project keys, or null when a part is absent or invalid. */
+export function composedDefaultSymbol(kind: CompositionKind, units: Readonly<Record<string, unknown>>): string | null {
+  const { parts, compose } = COMPOSITIONS[kind];
+  const symbols: string[] = [];
+  for (const part of parts) {
+    const read = readProjectUnitKey(units, part);
+    if (read.state !== "valid") return null;
+    symbols.push(read.symbol);
   }
-  const force = presentString(units.force);
-  const length = presentString(units.length);
-  return force && length ? `${force}/${length}` : null;
+  return compose(symbols);
 }
 
 export function composedDefaultNotice(symbol: string): string {
@@ -163,6 +188,47 @@ export function checkComposedDefault(route: UnitCatalogRoute | null, symbol: str
   return canonicalCatalogEntry(catalog, symbol, dimensionId)
     ? { symbol, notice: null }
     : { symbol: "", notice: composedDefaultNotice(symbol) };
+}
+
+/**
+ * The composed default of a field (§2.4). An absent part gives TBD (no unit is
+ * invented). A present but invalid part gives no default, with its notice;
+ * nothing is composed from it. Otherwise the composition, checked against the
+ * catalog.
+ */
+export function composedDefault(route: UnitCatalogRoute | null, kind: CompositionKind, units: Readonly<Record<string, unknown>>): CheckedComposedDefault {
+  const { parts, dimension } = COMPOSITIONS[kind];
+  const reads = parts.map((part) => readProjectUnitKey(units, part));
+  const invalid = reads.find((read) => read.state === "invalid");
+  if (invalid?.state === "invalid") return { symbol: "", notice: invalid.notice };
+  if (reads.some((read) => read.state === "absent")) return { symbol: "TBD", notice: null };
+  return checkComposedDefault(route, composedDefaultSymbol(kind, units)!, dimension);
+}
+
+/**
+ * A field whose default is a declared key and only without the key a
+ * composition: the moment (`project.units.moment`, else `<force>*<length>`) and
+ * the inspector's linear stiffness (`linear_stiffness`, else `<force>/<length>`).
+ * A present key is never replaced by a composition. A present but invalid key
+ * gives no default, with a notice naming it. With `checkDeclared`, a declared
+ * symbol the loaded catalog does not list for the dimension is invalid too.
+ */
+export function declaredOrComposedDefault(
+  route: UnitCatalogRoute | null,
+  key: string,
+  kind: CompositionKind,
+  units: Readonly<Record<string, unknown>>,
+  checkDeclared: boolean
+): CheckedComposedDefault {
+  const read = readProjectUnitKey(units, key);
+  if (read.state === "absent") return composedDefault(route, kind, units);
+  if (read.state === "invalid") return { symbol: "", notice: read.notice };
+  const catalog = checkDeclared ? loadedUnitCatalog(route) : null;
+  const dimension = COMPOSITIONS[kind].dimension;
+  if (catalog && !canonicalCatalogEntry(catalog, read.symbol, dimension)) {
+    return { symbol: "", notice: `project.units.${key} (${read.symbol}) is not a catalog unit for ${dimension}; choose one` };
+  }
+  return { symbol: read.symbol, notice: null };
 }
 
 export type ComposedDefaultSummary = {
