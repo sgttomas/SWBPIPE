@@ -130,7 +130,7 @@ def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
     captured = capsys.readouterr()
 
     assert result == 0
-    assert "SWBPIPE release readiness profile (dry-run)" in captured.out
+    assert "OpenPipeStress release readiness profile (dry-run)" in captured.out
     assert "execution/_DAG/DAG-011/DependencyEdges.csv" in captured.out
     assert "planned checks: 2" in captured.out
     assert "running:" not in captured.out
@@ -153,5 +153,5 @@ def test_main_execute_runs_planned_steps(monkeypatch, capsys):
     captured = capsys.readouterr()
 
     assert result == 0
-    assert "SWBPIPE release readiness profile (execute)" in captured.out
+    assert "OpenPipeStress release readiness profile (execute)" in captured.out
     assert executed == ["dag dependency schema", "release readiness script tests"]
