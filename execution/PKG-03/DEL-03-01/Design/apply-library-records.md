@@ -4,6 +4,8 @@
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
+**Status** (coordinator, 2026-10-23): the model-and-states manager implements this, as part of W-13 S2 or right after it; W-13 §3.5 assigns the work there. Two items are proposals relayed to that manager: the `library_version` definition (`sha256:` and the SHA-256 of the record's RFC 8785 form, §2.5) and the warning `MODEL-LIBRARY-REF-UNRESOLVED` (§2.7).
+
 Requirements: FR-RULE-005 (Must) and FR-RULE-006 (Should). The map rows read
 "Library records cannot be applied to model materials". Related: the W-13 design
 (DEL-02-01 `Design/model-document-0.7.0.md`), §3.5 `provenance_record.library_ref`
@@ -185,6 +187,6 @@ item, and this item lands as its own slice right after S2. That keeps S2 bounded
 - **Before S2 merges,** `libraryApply.ts` and its tests can be written against
   the S1b schema, but they land after S2.
 
-**Request to S1b** (W-13 §3.5 and the schema description): "`library_version`
+**Proposal relayed to the model-and-states manager** (W-13 §3.5 and the S1b schema description): "`library_version`
 is `sha256:` and the SHA-256 of the applied record's RFC 8785 form. Library
 documents carry no version member."

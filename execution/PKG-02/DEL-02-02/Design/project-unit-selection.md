@@ -138,11 +138,14 @@ SI/US entered and display catalog, entered units preserved).
 | `schemas/model.schema.yaml` | none | S1b rewrites it | no |
 | D3-pinned files (`core/product_physics/**`, `core/units/**`, …) | none | S1b's D3 chain | no |
 
-**Sequencing.**
-- **Part A,** units at creation (§2.1-2.3 and §2.5, the dialog, the builder
-  tests), touches no applier or pinned file. It can land before S1b. If S1b is
-  in flight, rebase onto it.
-- **Part B,** `set_project_unit` and the Project units section, lands after S2
-  introduces the `Project` object type, and reuses it. If it must come first,
-  its `Project` arm is agreed with the model-states manager so that S2 extends
-  it rather than adding a second one.
+**Sequencing** (coordinator, 2026-10-23). The work is two slices:
+- **Slice (a): selecting units at creation. It lands now.**
+  - Scope: the blank-project dialog and the seven keys including `angle`
+    (§2.1-2.3, §2.5), plus the builder, dialog and angle tests.
+  - It touches no applier or pinned file. If S1b merges first, this slice
+    rebases onto it.
+- **Slice (b): editing units after creation. It waits for W-13 S2.**
+  - Scope: `set_project_unit` (§2.4, §2.6), the Project units section, and the
+    applier tests.
+  - It reuses the `Project` target that S2 adds in applier `lib.rs`, rather than
+    adding a second one.

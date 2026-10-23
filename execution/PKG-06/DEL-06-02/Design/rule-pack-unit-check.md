@@ -164,5 +164,5 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 | `apps/desktop/src-tauri/src/lib.rs` | none (the validation passes through) | S1b | no |
 | D3-pinned files | none; `core/units/src` is only depended on, not edited | S1b's D3 chain | no |
 
-**Sequencing:** this item touches no S1b or S2 file except the panel, and no
-model-document member. It can be implemented before S1b, or in parallel.
+**Sequencing** (coordinator, 2026-10-23): this item lands now. It touches no S1b or S2 file
+except the panel, and no model-document member, so it does not wait for S1b.
