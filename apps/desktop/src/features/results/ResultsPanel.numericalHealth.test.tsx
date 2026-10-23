@@ -39,7 +39,7 @@ describe("ResultsPanel numerical health", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(true), { eligible: false, verdictHold: true })} />);
     expect(screen.getByTestId("numerical-health-header-line").textContent).toBe(
-      "Numerical health: 1 sensitive, 1 checks passed No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
+      "Numerical health: 1 sensitive, 1 checks passed. No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
     );
     expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: 1 sensitive, 1 checks passed$/);
     expect(screen.getByTestId("numerical-health-header")).toHaveAttribute("data-badge", "red");
