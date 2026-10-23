@@ -101,7 +101,7 @@ export function combinationText(cases: ReadonlyArray<readonly [string, Numerical
 export function conditioningDetailText(digits: string): string {
   return `Estimated sensitivity of the scaled linear solve: rounding can be magnified by roughly ${digits} of the about 16 decimal digits the computer carries (the solver marks a case sensitive at about 7.8). This is an estimate; it does not estimate the error in individual results.`;
 }
-/** The figure printed for d = 0 (rcond = 1). */
+/** The figure printed for d below 0.05 (including rcond = 1). */
 export const DIGITS_BELOW_FIRST_DECIMAL = "below 0.1";
 
 /** A K-D5 or S11-G row label, "node {id}, {direction}". */

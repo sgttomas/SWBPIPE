@@ -49,4 +49,15 @@ describe("numerical health over the wasm export", () => {
     expect([view.badge, view.headline]).toEqual(["green", "Numerical health: checks passed"]);
     for (const c of view.cases) if (c.conditioning) expect(c.conditioning).toMatch(/roughly (below 0\.1|\d+\.\d{1,2}) of the about 16/);
   });
+
+  it("reads a withheld combination with a null state and gives it no badge or detail", () => {
+    const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/results/preview_physics_invented_sparse.json"), "utf8")) as MechanicsResult;
+    const health = readNumericalHealth(result, numericalResultStanding(result).findings);
+    expect(health).not.toBeNull();
+    const withheld = health!.combinations.filter((m) => m.withheld);
+    expect(withheld.length).toBeGreaterThan(0);
+    for (const m of withheld) expect(m.state).toBeNull();
+    const view = numericalHealthView(health, { eligible: false, verdictHold: false })!;
+    for (const m of withheld) expect(view.combinationState(m.combination_id)).toBeNull();
+  });
 });

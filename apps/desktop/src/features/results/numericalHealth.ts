@@ -220,9 +220,10 @@ export function stateCounts(cases: readonly Pick<NumericalHealthCase, "state">[]
   return NUMERICAL_HEALTH_ORDER.map((s) => [s, cases.filter((c) => c.state === s).length]);
 }
 
-/** The conditioning figure: one decimal, two when 7.7 ≤ d ≤ 7.9; d = 0 is "below 0.1". */
+/** The conditioning figure: one decimal, two when 7.7 ≤ d ≤ 7.9; any d below 0.05
+ * (including d = 0, rcond = 1) is "below 0.1", so "0.0" never appears. */
 export function formatDigits(d: number): string {
-  if (d === 0) return DIGITS_BELOW_FIRST_DECIMAL;
+  if (d < 0.05) return DIGITS_BELOW_FIRST_DECIMAL;
   return d >= 7.7 && d <= 7.9 ? d.toFixed(2) : d.toFixed(1);
 }
 

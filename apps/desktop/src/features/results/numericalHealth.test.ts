@@ -233,8 +233,12 @@ describe("numericalHealthHold (chip and rail predicate)", () => {
 });
 
 describe("formatDigits", () => {
-  it("prints one decimal, two near the sensitivity line, and below 0.1 at zero", () => {
+  it("prints one decimal, two near the sensitivity line, and below 0.1 under 0.05", () => {
     expect(formatDigits(0)).toBe("below 0.1");
+    expect(formatDigits(0.0049)).toBe("below 0.1");
+    expect(formatDigits(0.049999)).toBe("below 0.1");
+    expect(formatDigits(0.05)).toBe("0.1");
+    expect(formatDigits(0.06)).toBe("0.1");
     expect(formatDigits(3.04)).toBe("3.0");
     expect(formatDigits(7.69)).toBe("7.7");
     expect(formatDigits(7.7)).toBe("7.70");
