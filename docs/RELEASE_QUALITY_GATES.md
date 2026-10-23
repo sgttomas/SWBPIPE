@@ -185,11 +185,12 @@ certification, code-compliance, or professional-reliance claims (PRD §21.2).
   attestation posture (`DEC-057`, basis
   `execution/_Coordination/_DECISIONS/D-06_release_matrix_installers_publication.md`
   Option O-A) — v0.1 ships macOS Apple Silicon (`aarch64-apple-darwin`)
-  only, as the Tauri `.app` zipped with a published SHA-256 checksum;
-  unsigned for v0.1, with attestation carried by the checksum + the
-  commit-bound `DEC-025` sweep artifact + the `docs/BUILD_AND_RELEASE.md`
-  §8 release artifact record and the unsigned-install caveat, until the
-  `D-06b` signing/notarization re-decision at the R5-exit lead-up.
+  only, as the Tauri `.app` zipped with a published SHA-256 checksum, with
+  the checksum + the commit-bound `DEC-025` sweep artifact + the
+  `docs/BUILD_AND_RELEASE.md` §8 release artifact record binding it to its
+  source revision. Signing re-decided at `D-06b` by the owner on 2026-10-23
+  ("Proceed with signing and notarizing."): v0.1 is Developer ID signed and
+  notarized with a stapled ticket (`docs/BUILD_AND_RELEASE.md` §6.1, §8.2).
 - TBD: exact automation owners, gate owners, waiver approver roles, and command
   names.
 - TBD: release-note format for known limitations and accepted risks.

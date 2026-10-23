@@ -117,27 +117,19 @@ ditto -x -k SWBPIPE_0.1.0_aarch64-apple-darwin.app.zip .
 The archive holds `SWBPIPE.app`. Move it to `/Applications` or another folder
 you choose.
 
-**3. Open the unsigned app.** The v0.1 build is not code-signed or notarized
-(`DEC-057`; signing is decided separately). macOS Gatekeeper therefore blocks
-the first launch of a downloaded copy and reports that it cannot verify the
-developer. The checksum you verified in step 1 does not identify a developer as
-a signature would. It shows that your zip is byte-for-byte the published one,
-and the release artifact record ties that digest to the source commit and its
-evidence sweep (`DEC-057`). After that check, open the app in one of these ways:
+**3. Open the app.** The v0.1 build is signed with the developer's Developer
+ID certificate and notarized by Apple, with the notarization ticket stapled to
+the app (owner decision of 2026-10-23, `D-06b`). Double-click `SWBPIPE.app`.
+On the first launch of a downloaded copy, macOS asks you to confirm opening an
+app downloaded from the internet and names it as checked by Apple for
+malicious software; choose **Open**. If macOS instead reports that it cannot
+verify the developer or that the app is damaged, do not open it. Delete it and
+download it again.
 
-- in Finder, Control-click (or right-click) `SWBPIPE.app`, choose **Open**, then
-  choose **Open** again in the dialog. On recent macOS versions where that
-  dialog offers no **Open**, try to open the app once, then go to **System
-  Settings → Privacy & Security** and choose **Open Anyway** for SWBPIPE;
-- or remove the quarantine attribute from the copy you verified, then open it
-  normally:
-
-  ```bash
-  xattr -dr com.apple.quarantine /Applications/SWBPIPE.app
-  ```
-
-macOS remembers the choice for that copy. Repeat the checksum check and this
-step for each new download.
+The signature identifies the developer to macOS. The checksum you verified in
+step 1 shows that your zip is byte-for-byte the published one, and the release
+artifact record ties that digest to the source commit and its evidence sweep.
+Repeat the checksum check for each new download.
 
 **Updating.** Verify and unzip the new version as above, then replace the old
 `SWBPIPE.app`. Your project store is kept, because it lives outside the app
@@ -411,8 +403,7 @@ The following remain explicit limitations or open decisions:
   the bounded export surface;
 - local FEA handoff package format and external-tool execution behavior;
 - activation of the accepted public sanitized-export GitHub Actions path,
-  numeric coverage floors, future signing/notarization after the accepted
-  unsigned v0.1 posture, and remaining maintainer policy details;
+  numeric coverage floors, and remaining maintainer policy details;
 - a contributor legal instrument if external intake is later activated,
   legal-review authority, security contact, release-label vocabulary,
   human-acceptance workflow, and jurisdiction-specific professional-practice
