@@ -47,6 +47,12 @@ regenerated the retained-successor derivative goldens, two of them listed here, 
 their diagnostics only. This check reads those two at the repair's parent
 `be7d474958`, and `..._diagnostics_repair_moves_only_the_diagnostics` binds all four
 committed goldens to it.
+
+The silent-zero guard (DEL-04-07 Design `pressure-contract.md`, "Load cases that apply
+nothing") regenerated the connected load/reference-state raws and their AnalysisRun
+carriers with two added `LOAD_STATE_SOURCE_EXCLUDED` warnings: silent-zero diagnostic
+added; no number moved. This check reads those four at the regeneration's parent
+`7746774e81`, and `..._silent_zero_moves_only_added_diagnostics` binds them to it.
 """
 from __future__ import annotations
 
@@ -74,6 +80,18 @@ DIAG_BASE = "be7d4749583b48aa7e2b430b771ac1baf19bc37f"
 DIAG_GOLDENS = tuple(f"fixtures/results/retained_precision_{kind}derivative_{mode}.json"
                      for kind in ("successor_", "exact_successor_") for mode in ("sparse_interactive", "dense_scrutiny"))
 DIAG_REGENERATED = frozenset(name for name in DIAG_GOLDENS if "exact_successor_" in name)
+# The silent-zero regeneration's parent, for the connected raws and carriers it regenerated
+# (silent-zero diagnostic added; no number moved), the codes it may add, and the AnalysisRun
+# hashes that bind the received bytes.
+SZ_BASE = "7746774e81114e8fdd998ccf0bed12c46091ce45"
+SZ_REGENERATED = {
+    **{f"fixtures/product_preview/pressure/load_reference/connected-{mode}.raw.json": "/diagnostics"
+       for mode in ("sparse_interactive", "dense_scrutiny")},
+    **{f"fixtures/results/pressure_load_state_connected_{short}.analysis_run.json": "/analysis_run/diagnostics"
+       for short in ("sparse", "dense")},
+}
+SZ_CODES = frozenset({"LOAD_STATE_SOURCE_EXCLUDED", "LOAD_CASE_APPLIES_NO_ACTION"})
+SZ_MOVED = re.compile(r"^/analysis_run/hashes/\d+/value$")
 # What the repair moved: each diagnostic's source type, affected object and remediation
 # (and class, where Rust's rules give another), and the derivative hash that binds them.
 DIAG_MOVED = re.compile(r"^/result_envelope/(diagnostics/\d+/(class|source/ref_type|affected_object/ref_type|affected_object/ref_id|remediation)|reproducibility/derivative_hash/value)$")
@@ -249,9 +267,9 @@ def _ra_regenerated() -> frozenset:
 
 def current_text(name: str) -> str:
     """The file's bytes after O4's regeneration: before the later change that regenerated
-    it (W1 corner 1, R-A or the diagnostics repair), else as committed."""
+    it (W1 corner 1, R-A, the diagnostics repair or the silent-zero guard), else as committed."""
     at = (W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated()
-          else DIAG_BASE if name in DIAG_REGENERATED else None)
+          else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED else None)
     if at is not None:
         return subprocess.run(
             ["git", "show", f"{at}:projects/chirality-piping/{name}"],
@@ -786,6 +804,61 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
     diagnostics.pop()
     with pytest.raises(AssertionError, match=re.escape(name) + r".*'/result_envelope/diagnostics'"):
         test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: _dump(document)}))
+
+
+def _sz_code(diagnostic):
+    """A raw diagnostic's code, or an AnalysisRun diagnostic's (wrapped in its source annotation)."""
+    diagnostic = dict(diagnostic)
+    return dict(diagnostic.get("source_annotation", diagnostic)).get("code")
+
+
+def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(current=None):
+    """Each silent-zero regenerated file against the regeneration's parent: the diagnostics list
+    keeps every earlier diagnostic in order and gains only silent-zero warnings, and nothing
+    else moves but the AnalysisRun hashes that bind the received bytes (no number moved)."""
+    for name, pointer in SZ_REGENERATED.items():
+        before = load(subprocess.run(["git", "show", f"{SZ_BASE}:projects/chirality-piping/{name}"],
+                                     cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
+        after = load((PROJECT / name).read_text() if current is None else current[name])
+        lists = []
+        for document in (before, after):
+            holder = document
+            for key in pointer.strip("/").split("/")[:-1]:
+                holder = dict(holder)[key]
+            lists.append(dict(holder)[pointer.rsplit("/", 1)[-1]])
+        old, new = lists
+        kept, added = [], []
+        for diagnostic in new:
+            (kept if len(kept) < len(old) and diagnostic == old[len(kept)] else added).append(diagnostic)
+        assert kept == old, (name, "an earlier diagnostic moved")
+        assert added and all(_sz_code(d) in SZ_CODES for d in added), (name, [_sz_code(d) for d in added])
+        new[:] = kept
+        found = classify(before, after)
+        assert all(kind == "hash" and SZ_MOVED.match(path.replace("*", "0")) for kind, path in found), (name, found[:8])
+
+
+def test_o4_text_only_envelope_diff_silent_zero_refuses_other_moves():
+    """A changed number, an added diagnostic of another code, or a dropped earlier diagnostic in
+    a silent-zero regenerated file fails at that file."""
+    texts = {name: (PROJECT / name).read_text() for name in SZ_REGENERATED}
+    name = next(iter(SZ_REGENERATED))
+    test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(
+        current=dict(texts, **{name: _dump(load(texts[name]))}))
+    value = re.search(r'"value": (-?[0-9][0-9.eE+-]*)', texts[name])
+    assert value
+    mutants = [texts[name][: value.start(1)] + "1" + texts[name][value.start(1):]]
+    for change in ("code", "drop"):
+        document = load(texts[name])
+        diagnostics = dict(document)["diagnostics"]
+        if change == "code":
+            entry = next(d for d in diagnostics if _sz_code(d) == "LOAD_STATE_SOURCE_EXCLUDED")
+            entry[[k for k, _ in entry].index("code")] = ("code", "LOAD_SOURCE_SOMETHING_ELSE")
+        else:
+            diagnostics.pop()
+        mutants.append(_dump(document))
+    for mutant in mutants:
+        with pytest.raises(AssertionError, match=re.escape(name)):
+            test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(current=dict(texts, **{name: mutant}))
 
 
 def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():

@@ -176,7 +176,9 @@ def inspect_directed_helpers(snapshot):
 # `.min(`/`.max(` call, and the observation lane stays deleted.
 # W-8 topology warnings D3 (§8.16): lib.rs's two added lines add no `.min(`/`.max(` call (topology.rs's own receivers
 # are listed by name in o10_rules' KD5C4 set, W8-CG).
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '17d2d1d53866456bbf35c220b786758b6ca343a5f0fb3543759fe74b4bb1d357'
+# Silent-zero guard D3 (§8.15): lib.rs adds one call, `case_state::resolve::refuse_all_reference_states`, in the
+# load-state branch; it adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b72fa1427239c8e14e9903a2aaeef1e2b27424d762e05538f2d04bf01774084d'
 
 
 def primitive_lib_minmax_callers(snapshot):
