@@ -143,10 +143,17 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 5. **Where the results go.** `RulePackDocumentValidation` gains `unit_check`:
    `{status: consistent | findings | not_checkable, checks: [{check_id,
    formula_id, status, findings}], declaration_findings}`.
-   - The findings are blocking for their check and do not enter
-     `has_blocking_findings`. The run therefore still evaluates the other checks,
-     and an inconsistent check still blocks at run time with the same code, so
-     run outcomes, the corpus and the runner tests are unchanged.
+   - **Severity follows §2.2.** Expression findings in S and
+     `RULE_PACK_LIMIT_UNIT_MISMATCH` (unconditional) are blocking for their
+     check: that check fails on every run.
+     - `RULE_PACK_LIMIT_CANDIDATE_MISMATCH` is blocking only if its slot is the
+       one used at run time. It is reported as conditional, not blocking.
+     - `RULE_PACK_LIMIT_SLOT_UNDECLARED`, `RULE_PACK_UNIT_NOT_IN_CATALOG` and
+       `RULE_PACK_OUTPUT_DIMENSION_DIFFERS` are warnings.
+   - **None of these enter `has_blocking_findings`.** The run therefore still
+     evaluates the other checks, and an inconsistent check still blocks at run
+     time with the same code, so run outcomes, the corpus and the runner tests
+     are unchanged.
    - Making them pack-level blocking would refuse whole packs over one check.
      That change in run behaviour is not made here.
 6. **Diagnostics never echo private content.** Each finding carries a code, a
@@ -183,6 +190,10 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
      - A string outside the `unit:` namespace passes through unchanged as
        today, so identical-string bindings such as `demo_unit` keep working.
        That is consistent with the warning-only policy of §2.4.
+     - That pass-through applies to rule binding only. Library apply (DEL-03-01
+       Design `apply-library-records.md` §2.4) uses the same resolver with a
+       stricter caller check, which refuses anything that is not a recognised
+       catalog id.
    - **This is an intended change in runtime behaviour.** It gets its own
      regression check: a `unit:pascal` value bound to `Pa` and to `MPa`
      declarations; an unknown `unit:` id refused; `demo_unit` unchanged.
@@ -204,14 +215,22 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 ## 4. Tests
 
 - **Corpus parity** (`expression_evaluator/tests/conformance_corpus.rs`, new
-  test). The environment is built from `required_variable_ids`:
-  - a binding with a quantity gives `Typed`;
-  - a binding whose `quantity` is null gives `Unknown`, not missing (case 62);
-  - an id with no binding gives `Undeclared`, reported as `missing_variable`;
-  - a binding whose quantity lacks the required metadata gives
-    `unit_metadata_missing` and is then treated as unbound, as
-    `build_binding_map` does (`expression_evaluator/src/lib.rs:430-469`,
-    case 65).
+  test). The adapter mirrors the evaluator's order: `build_binding_map`
+  processes every binding first (`expression_evaluator/src/lib.rs:430-469`).
+  - **The environment is built from all of a case's `bindings`, not from
+    `required_variable_ids`:**
+    - a binding with a quantity gives `Typed`;
+    - a binding whose `quantity` is null gives `Unknown`, not missing (case
+      62);
+    - a binding whose quantity lacks the required metadata gives
+      `unit_metadata_missing` and is then treated as unbound. Case 65 needs
+      this: its `required_variable_ids` is empty and its finding comes from the
+      binding alone
+      (`fixtures/rule_expressions/conformance_corpus/case_65_block_unit_metadata_missing.json`);
+    - an AST variable with no usable binding gives `Undeclared`, reported as
+      `missing_variable`.
+  - **`required_variable_ids` is used separately,** only for checks that need
+    it. It does not build the type environment.
 
   Two properties are checked:
   - **Soundness, for every case:** each expected finding in S appears among the
@@ -224,8 +243,12 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
   test does not filter dynamic findings by code to force a match.
 - **Mixed cases** (new test inputs in the test file; the corpus files are
   unchanged):
-  - a zero divisor over mismatched dimensions: the evaluator reports
-    `division_by_zero`, and the static check reports `dimension_mismatch`;
+  - case 57's operands with a zero divisor (`stress` 12.0 divided by `time`
+    0.0). The evaluator reports `division_by_zero` (the zero test comes first,
+    `:1353-1360`). The static check reports `unsupported_expression_form`,
+    subject `divide`, the same structural finding case 57 expects for an
+    unrepresentable quotient (`:1397`). Division never yields
+    `dimension_mismatch`;
   - a left operand out of table range with a unit mismatch on the right: the
     evaluator reports only the range finding, and the static check reports the
     mismatch.
@@ -292,3 +315,15 @@ them:
 5. **Lockfiles.** Named exactly; the pinned `core/product_physics/Cargo.lock`
    is unaffected (§5).
 
+Codex round 2 (on `63615afe87`):
+
+6. **R2-5, wrong quotient expectation (P2).** The zero-divisor example now
+   expects `unsupported_expression_form`, as an unrepresentable quotient
+   gives.
+7. **R2-5, corpus adapter built from the wrong list.** It is now built from
+   all bindings, in the evaluator's order, with null quantities `Unknown` and
+   `required_variable_ids` used separately.
+8. **R2-5, blanket severity wording.** §2.5 now keeps §2.2's distinction
+   between candidate-specific and unconditional findings.
+9. **The shared unit resolver.** It now has a stricter caller check for library
+   apply (§2.7).
