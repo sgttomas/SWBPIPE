@@ -36,10 +36,12 @@ implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-0
     and `private_payload_embedded` stays `false`.
   - The zip/`.opsproj` form and the PKG-17 package-manifest roles stay with
     OI-015-OPEN.
-- **Reserved.** Whether this directory package satisfies DEL-15-01 R12 ("per
-  DEC-028") and V-03 ("container … not invented") is the owner's to accept. It
-  goes to HELP_HUMAN as a reserved reading with exact text (§6). W-6a does not
-  depend on it.
+- **HELP_HUMAN, 2026-10-23: "accepted as the design."** The directory package
+  applies an existing ruling (DEC-028), and the schema's container stays TBD.
+  - Whether it meets DEL-15-01 R12 and V-03 is established by its verification
+    evidence (§4). Acceptance stays with the owner at validation, as for
+    everything else.
+  - Nothing here claims acceptance.
 
 ## 1. Where things stand
 
@@ -279,16 +281,11 @@ The vocabulary is not extended here.
 
 ## 6. Owner-reserved and open items (to HELP_HUMAN)
 
-0. **Reserved reading (owner, through HELP_HUMAN).** The W-6b directory package
-   is DEC-028's directory form, with the handoff manifest as member inventory
-   and per-member hashes. It satisfies DEL-15-01 R12, and V-03 "not invented",
-   for v0.1. `physical_package_container` stays `"TBD"` and the zip/`.opsproj`
-   form stays with OI-015-OPEN.
-   - The exact governing text and the proposed old → new are sent with the W-6b
-     slice.
-   - **If the owner declines,** W-6b waits for the container ruling and W-6a
-     ships alone. FR-HAND-001 is then met only as "export canonical model data"
-     (W-6a), and FR-HAND-002's manifest waits.
+0. **Directory package: decided as the design** (HELP_HUMAN, 2026-10-23; §0).
+   - `physical_package_container` stays `"TBD"`.
+   - The zip/`.opsproj` form stays with OI-015-OPEN.
+   - Conformance to R12 and V-03 is shown by the W-6b verification evidence.
+     Acceptance is the owner's at validation.
 1. **DEL-15-01 delivery commitment :2** reads "Phase H program (gate v0.2 R6)".
    The exact old → new text records OD-1: model export moves into v0.1, and
    target mapping (DEL-15-02) and further formats stay v0.2.
@@ -299,5 +296,5 @@ The vocabulary is not extended here.
    - referencing v0.3 analysis runs from the manifest. This needs an edit to
      `AnalysisRunRef`'s binding const.
 
-   The design reads neither as needed for FR-HAND-001/002 once item 0 is
-   accepted. That is a reading for HELP_HUMAN and the owner, not a conclusion.
+   The design reads neither as needed for FR-HAND-001/002. Whether the
+   requirements are met is shown by evidence and accepted by the owner.

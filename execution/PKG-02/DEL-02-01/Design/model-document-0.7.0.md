@@ -20,6 +20,12 @@ implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-0
   constraints and equipment interfaces to be typed entities of the model. This
   design adds them as records with no evaluation (§3.6), so FR-MOD-002 is not
   narrowed.
+- **HELP_HUMAN (2026-10-23), second answer:** "Scope addition: keep them in."
+  Typed lines, constraints (the ConstraintRecord subset) and equipment
+  interfaces go in as data slots with no evaluation. That keeps FR-MOD-002
+  (Must) met rather than narrowed, and it does not touch OD-3's deferral of
+  design-knowledge evaluation. The CLM-006 reading (§7.2) goes to the owner, and
+  S1b waits on it.
 - **HELP_HUMAN (2026-10-23):** S1 lands before W-4, and W-4 authors 0.7.0. Each
   D3 exclusive run is scheduled through HELP_HUMAN. Two registrations of the same
   registry never race: the later one merges main and reruns `generate --check`.
@@ -351,10 +357,14 @@ These are typed records with no evaluation. The solve does not read them.
 Constraint checking, design-knowledge entry and candidate generation are PKG-13
 and v0.2 (OD-1).
 
-**Scope.** These records go beyond the five slots OD-4 enumerates. They are
-added so that FR-MOD-002, a Must, is not narrowed. They sit next to the deferred
-FR-KNOW-001 (OD-3) and implement none of it. This is reported to HELP_HUMAN as
-a scope addition (§7.4).
+**Scope and boundary (HELP_HUMAN, 2026-10-23: "keep them in").** These records
+go beyond the five slots OD-4 enumerates. They are data slots only, there so
+that FR-MOD-002 (Must) is met rather than narrowed.
+- Nothing evaluates them: no constraint checking, clearance, routing or
+  equipment-interface consistency.
+- Design-knowledge entry and evaluation (FR-KNOW-001, PKG-13) remain deferred
+  by OD-1/OD-3.
+- The UI says the records are not checked.
 
 **Constraint vocabulary.** It is a subset of `schemas/constraint.schema.json`
 `ConstraintRecord`, so v0.2 extends the vocabulary instead of replacing it:
@@ -613,6 +623,18 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
    - **This narrows no FR-MOD requirement.** It is still commitment text, so it
      goes to the owner through HELP_HUMAN as exact old → new. Its approval is a
      precondition for merging S1b.
+   - **Exact text.** These are DEL-02-01 ScopeOfWork CLM-006 lines 79–83; lines
+     77, 84 and 86 are unchanged.
+     - **Old 79:** `- document/root metadata: schema version, application/schema identity, provenance summary, and migration/compatibility status where persisted;`
+     - **New 79:** `- document/root metadata: schema version, document identity (`document_kind`) and the data-boundary statement; no migration or compatibility status is persisted, because one model-document version is current (DEL-02-05 CLM-003);`
+     - **Old 80:** `- project/model containers: units, coordinate system, storage policy hooks, rule-pack references, report settings, and model object collections;`
+     - **New 80:** `- project/model containers: units, rule-pack references and model object collections; the coordinate system is the implicit global frame stated by the schema, storage policy belongs to the local project store (DEL-02-05), and report settings belong to the report package;`
+     - **Old 81:** `- model objects: node coordinates and degrees of freedom, element endpoints/material/section references, components, supports, loads, load cases, and combinations;`
+     - **New 81:** `- model objects: node coordinates; pipe-segment endpoints and material/section references; sections, materials, components and supports (degrees of freedom are expressed by support restraints); loads, load cases and combinations; lines, constraints and equipment interfaces as typed records without evaluation; and unresolved assumptions and open issues;`
+     - **Old 82:** `- engineering data records: unit-bearing quantities, provenance records, redistribution status, source quality, and review status;`
+     - **New 82:** `- engineering data records: unit-bearing quantities, provenance strings and structured provenance records with redistribution status and review status (source quality is recorded as review status and verification note), tags and notes;`
+     - **Old 83:** `- result/report records: result envelopes, warnings/diagnostics, input manifests, hashes/checksums, and professional-boundary notices;`
+     - **New 83:** `- warnings/diagnostics carried by the model document and its professional-boundary statement; result envelopes, input manifests and report records belong to the result, analysis-run and report formats, and model hashes are computed over the canonical document (RFC 8785 JCS) rather than stored in it;`
 3. **Reconciliation pointers.** These are reconciliation, not commitment
    changes:
    - DEL-02-01 line 88 (current implementation);
@@ -622,11 +644,8 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      text; if either is a commitment, it is listed under item 1;
    - `b7-plan.md` "Current model format", `RELEASE_NOTES_v0.1.0_DRAFT.md:53`,
      `persistence_contract.md` and `GATE_USAGE.md`.
-4. **Scope addition (to HELP_HUMAN).** §3.2 lines and §3.6 constraints and
-   equipment interfaces go beyond OD-4's five enumerated slots. They are added
-   so that FR-MOD-002 (Must) is met in v0.1 and not narrowed, with no
-   evaluation. The alternative is to leave FR-MOD-002 partial for those families
-   in v0.1. That would extend OD-1's deferral, and it is the owner's choice.
+4. **Scope addition: decided.** HELP_HUMAN kept the §3.2 and §3.6 records in on
+   2026-10-23, as data slots with no evaluation (§0, §3.6).
 
 ## 8. Slices
 

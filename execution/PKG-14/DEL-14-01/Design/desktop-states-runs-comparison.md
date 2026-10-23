@@ -123,10 +123,9 @@ Python agree.
   only editable part.
 - The record hash excludes them, so a label edit leaves `record_hash`
   unchanged.
-- **Reserved.** This reading — labels are not the immutable snapshot —
-  interprets the schema's `snapshot_is_read_only` and
-  `changes_create_new_model_state` and DEL-14-01:1's "hash-scope enforcement".
-  It goes to HELP_HUMAN (§7.2).
+- **HELP_HUMAN, 2026-10-23: labels outside the record hash "is right": a label
+  edit isn't a new state.** The History panel says so where labels are edited:
+  "Renaming, tagging or adding notes does not change the saved state."
 
 **Commands.**
 - **Save Model State…** takes a name (required), tags, notes, state-level
@@ -371,16 +370,13 @@ head.
 1. **DEL-14-01 :3** "Phase G … gate v0.2 R3". Only states, runs, comparison and
    the workspace GUI move to v0.1, which records OD-1. Mapping, tolerance and
    export stay v0.2.
-2. **Owner choices.**
-   - **DEL-14-01 :1, "preserve DEC-017/028 strategy".** Under that strategy,
-     SQLite is a rebuildable projection of canonical members. In v0.1, states
-     and recorded runs live only in the SQLite store.
-     - (a) Accept SQLite-held history in v0.1 and record a history export as
-       open. **Recommended.**
-     - (b) Add a history export first. This needs the DEC-028 container ruling
-       (OI-015-OPEN).
-   - **Labels outside the record hash.** §2's reading of `snapshot_is_read_only`
-     and DEL-14-01:1's hash-scope enforcement.
+2. **Decided (HELP_HUMAN, 2026-10-23).**
+   - **SQLite-only history:** option (a). In v0.1, states and recorded runs live
+     only in the SQLite store. A history export is recorded as open under
+     OI-015, the DEC-028 container. The reconciliation of DEL-14-01 :1
+     ("preserve DEC-017/028 strategy") states this as an open item, not as
+     discharged.
+   - **Labels outside the record hash:** confirmed (§2).
 3. **DEL-14-03 :1, DEL-14-04 :1.** Record them as partial: "mapping" and
    "unit-aware delta behavior" are only partly discharged without manual
    mapping and unit conversion. This is reconciliation text.
