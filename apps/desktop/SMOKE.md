@@ -9,6 +9,16 @@ The native walking-skeleton smoke (open a model document, solve, save,
 reopen, export in the real macOS app) is `native-smoke/run.mjs`; see
 `execution/PKG-07/DEL-07-11/Design/model-document-open-and-native-smoke.md`.
 
+> **Historical (note dated 2026-10-23).** The Start and Required Checks
+> sections below were written for the 2026-05 technical-preview browser UI.
+> Several strings they check no longer exist, the header
+> `OpenPipeStress Technical Preview` among them, so the checks cannot be run
+> as written. They and the dated run records after them are kept as history.
+> The current smoke is the native smoke, `node apps/desktop/native-smoke/run.mjs`
+> (expected values in `native-smoke/expected.json`), and the Playwright specs
+> in `e2e/`, for example `e2e/r2-smoke.spec.ts` and
+> `e2e/gui-workflow-validation.spec.ts` (`npm run test:e2e` in `apps/desktop`).
+
 ## Start
 
 ```bash
