@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { openWorkspaceSection, projectCommand } from "./workspace-driver";
+import { confirmProjectUnits, openWorkspaceSection, projectCommand } from "./workspace-driver";
 import { attachBrowserIdentity } from "./ui-foundation-workflows";
 
 test.beforeAll(async ({ browser }, info) => {
@@ -17,6 +17,7 @@ test("B3B blank/create/save/open snapshot evidence", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
     await projectCommand(page, "new-blank");
+    await confirmProjectUnits(page);
     await openWorkspaceSection(page, "project");
     await expect(page.getByTestId("project-validation-model-hash")).toContainText("source=create");
     const created = await packet(page, "validation");

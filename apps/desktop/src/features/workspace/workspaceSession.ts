@@ -43,8 +43,11 @@ import {
   getLocalStorageCapability,
   listLocalProjects,
   openLocalProject,
-  saveLocalProject
+  saveLocalProject,
+  SI_PROJECT_UNITS,
+  type ProjectUnitMap
 } from "../../services/projectService";
+import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { modelFileRefusalMessage, openModelDocumentFile } from "../../services/modelDocumentFile";
 import {
   keptStoredProjectMessage,
@@ -263,6 +266,10 @@ export function useWorkspaceSession() {
   const [replaceProjectPrompt, setReplaceProjectPrompt] = useState<ReplaceProjectPromptState | null>(null);
   // While the prompt is open, menu commands and shell accelerators are ignored.
   const replacePromptOpenRef = useRef(false);
+  // The open "Units at creation" dialog (W-17 §3), if a blank project is waiting
+  // for its units. It is modal in the same way as the replace prompt.
+  const [blankProjectUnitsRequest, setBlankProjectUnitsRequest] = useState<BlankProjectUnitsRequest | null>(null);
+  const projectUnitsDialogOpenRef = useRef(false);
   // The stored project this session is, at the revision it last opened or wrote:
   // its id and stored envelope hash. Set wherever an open or a write lands for
   // this project session, whether or not a later edit superseded the request,
@@ -1918,14 +1925,36 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleCreateBlankProject() {
-    return createBlankProjectFrom(buildBlankLocalModelDocument, "Created blank local model document without fixture entities or external file copies.");
+  /** W-17 §3: "New blank", "Blank load/reference model" and `file.new-blank` ask for
+   * the project units first. Create builds the blank with the chosen map; Cancel
+   * creates nothing. */
+  function requestBlankProject(kind: BlankProjectKind) {
+    // A project operation in flight refuses a blank, as the create itself would.
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
+    projectUnitsDialogOpenRef.current = true;
+    setBlankProjectUnitsRequest({
+      kind,
+      opener,
+      cancel: close,
+      create: (units) => {
+        close();
+        void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+      }
+    });
+  }
+
+  /** Creates the blank at once with `units` (SI when omitted); the UI reaches it through requestBlankProject. */
+  async function handleCreateBlankProject(units: ProjectUnitMap = SI_PROJECT_UNITS) {
+    return createBlankProjectFrom(() => buildBlankLocalModelDocument(new Date(), units), "Created blank local model document without fixture entities or external file copies.");
   }
 
   /** T1 WP3: a blank load/reference-state document (B7b: model 0.6.0 with the exact
    * pressure contract, no engineering content) through the same create path as New Blank. */
-  async function handleCreateBlankLoadStateProject() {
-    return createBlankProjectFrom(buildBlankLoadStateModelDocument, "Created blank local load/reference-state model 0.6.0 document without fixture entities, engineering values or external file copies.");
+  async function handleCreateBlankLoadStateProject(units: ProjectUnitMap = SI_PROJECT_UNITS) {
+    return createBlankProjectFrom(() => buildBlankLoadStateModelDocument(new Date(), units), "Created blank local load/reference-state model 0.6.0 document without fixture entities, engineering values or external file copies.");
   }
 
   async function createBlankProjectFrom(buildBlankModel: () => PreviewModel, createdMessage: string) {
@@ -2587,14 +2616,14 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
         void handleCreateProject();
         break;
       case "file.new-blank":
-        void handleCreateBlankProject();
+        requestBlankProject("local");
         break;
       case "file.open-model":
         void handleOpenModelDocument();
@@ -2938,7 +2967,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       if (key === "z") {
@@ -3077,6 +3106,8 @@ export function useWorkspaceSession() {
       handleCreateProject,
       handleCreateBlankProject,
       handleCreateBlankLoadStateProject,
+      requestBlankProject,
+      blankProjectUnitsRequest,
       handleOpenProject,
       handleOpenModelDocument,
       handleSaveProject,

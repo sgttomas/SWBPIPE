@@ -3,7 +3,7 @@ import {
   activateWithKeyboard, clearTreeFilter, currentModelHashThroughVisibleExport, gotoModel,
   readFixture, selectTreeRow, setAppearance, showModelTree, typedTreeRow
 } from "./ui-foundation-workflows";
-import { openWorkspaceSection, projectCommand, showCanvas, startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { confirmProjectUnits, openWorkspaceSection, projectCommand, showCanvas, startPropertyTaskFromTreeEntity } from "./workspace-driver";
 
 // Synthetic presentation fixture derived in memory from the maintained model envelope.
 // No performance lane, new diagnostics, or stored duplicate fixture.
@@ -272,6 +272,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await page.getByTestId("viewport-fit-model").click();
   await expect(label(page, "node:C3-new")).toHaveAttribute("data-dimmed", "true");
   await projectCommand(page, "new-blank");
+  await confirmProjectUnits(page);
   await expect(control(page, "Show All")).toBeDisabled();
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
 });

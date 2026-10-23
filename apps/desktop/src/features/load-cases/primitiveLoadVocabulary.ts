@@ -1,10 +1,11 @@
 import type { PreviewModel } from "../../types";
+import type { UnitCatalogRoute } from "../../services/unitCatalogService";
+import { composedDefault, declaredOrComposedDefault, type CheckedComposedDefault } from "../project-units/projectUnitSelection";
 
 // Primitive-load category vocabulary of the Load Case Manager: which target a
 // category uses, its direction choices and default, the dimension sent to core
 // unit validation, and the project-unit default offered for a new primitive.
-// Moved verbatim from LoadCaseManagerPanel.tsx so the mapping is testable on
-// its own; no value or branch changed.
+// Moved from LoadCaseManagerPanel.tsx so the mapping is testable on its own.
 
 export type PrimitiveLoadCategory =
   | "concentrated_force"
@@ -52,9 +53,35 @@ export function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, dir
   return "force";
 }
 
-export function primitiveLoadDefaultUnit(model: PreviewModel, category: PrimitiveLoadCategory, direction: string): string {
-  if (category === "distributed_force") return projectDistributedForceUnit(model);
-  if (category === "concentrated_moment") return projectMomentUnit(model);
+/**
+ * The default unit of a new primitive (W-17 §2.4). The moment reads
+ * `project.units.moment` when the key is present, and only when it is absent
+ * falls back to `<force>*<length>`. The distributed force is composed as
+ * `<force>/<length>`. A present but invalid key, or (once the catalog is loaded)
+ * a composition or declared moment the catalog lacks, gives "" (unselected)
+ * with a notice, never a substitute.
+ */
+export function primitiveLoadDefaultUnitChoice(
+  model: PreviewModel,
+  category: PrimitiveLoadCategory,
+  direction: string,
+  route: UnitCatalogRoute | null = null
+): CheckedComposedDefault {
+  if (category === "distributed_force") return composedDefault(route, "distributed_force", model.project.units);
+  // A present moment key is the default and is never replaced by a composition;
+  // a present but invalid one gives no default. Only an absent key composes.
+  if (category === "concentrated_moment") return declaredOrComposedDefault(route, "moment", "moment", model.project.units, true);
+  return { symbol: primitiveLoadDefaultUnit(model, category, direction, route), notice: null };
+}
+
+export function primitiveLoadDefaultUnit(
+  model: PreviewModel,
+  category: PrimitiveLoadCategory,
+  direction: string,
+  route: UnitCatalogRoute | null = null
+): string {
+  if (category === "distributed_force") return primitiveLoadDefaultUnitChoice(model, category, direction, route).symbol;
+  if (category === "concentrated_moment") return primitiveLoadDefaultUnitChoice(model, category, direction, route).symbol;
   if (category === "thermal") return projectTemperatureUnit(model);
   if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? projectRotationUnit(model) : projectLengthUnit(model);
   return projectForceUnit(model);
@@ -68,17 +95,6 @@ function projectLengthUnit(model: PreviewModel): string {
   return optionalString(model.project.units.length) ?? "TBD";
 }
 
-function projectDistributedForceUnit(model: PreviewModel): string {
-  const force = projectForceUnit(model);
-  const length = projectLengthUnit(model);
-  return force === "TBD" || length === "TBD" ? "TBD" : `${force}/${length}`;
-}
-
-function projectMomentUnit(model: PreviewModel): string {
-  const force = projectForceUnit(model);
-  const length = projectLengthUnit(model);
-  return force === "TBD" || length === "TBD" ? "TBD" : `${force}*${length}`;
-}
 
 function projectTemperatureUnit(model: PreviewModel): string {
   const unit = optionalString(model.project.units.temperature) ?? "TBD";
