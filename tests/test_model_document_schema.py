@@ -53,14 +53,7 @@ PARTIAL_OPERATION_PREFIX = "fixtures/model_operations/"
 SKIPPED_DIRECTORIES = {".git", "node_modules", "target", "dist", "__pycache__", ".venv", "scratch"}
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
-EXPLICIT_EXCLUSIONS = {
-    ("fixtures/model_operations/exact_pressure_authoring_model.json", ""):
-        "stray member data_boundary.source (no reader decodes it, no writer emits it); S1a reports it and deletes nothing",
-    ("fixtures/model_operations/physics_thermal_ui_model.json", ""):
-        "stray member data_boundary.source (no reader decodes it, no writer emits it); S1a reports it and deletes nothing",
-    ("fixtures/model_operations/precision_connected_ui_model.json", ""):
-        "stray member data_boundary.source (no reader decodes it, no writer emits it); S1a reports it and deletes nothing",
-}
+EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {}
 
 
 def _reject_constant(token):

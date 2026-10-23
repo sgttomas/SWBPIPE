@@ -119,11 +119,23 @@ def test_every_record_is_closed():
     # Section.properties is a map of quantities, not a record. Section provenance
     # is a string or an object whose members no reader reads and no writer emits
     # (the section reader takes any JSON value).
+    # data_boundary is the desktop's Record<string, string>.
     assert open_records == [
+        "$.$defs.DataBoundary",
         "$.$defs.Section.properties.properties",
         "$.$defs.Section.properties.provenance",
     ], open_records
     assert defs()["Section"]["properties"]["properties"]["additionalProperties"] == {"$ref": "#/$defs/Quantity"}
+    assert defs()["DataBoundary"]["additionalProperties"] == {"type": "string"}
+
+
+def test_required_record_families_are_named():
+    """REQ-02-01-02: Project, Model, Node, Element, Material, Component, Load/LoadCase, Result, Report."""
+    d = defs()
+    assert {"Project", "Model", "Node", "Element", "Material", "Component", "LoadCase", "LoadRecord",
+            "Result", "Report"} <= set(d)
+    assert d["Model"]["$ref"] == "#"
+    assert d["Element"]["$ref"] == "#/$defs/PipeSegment"
 
 
 def test_quantities_and_identities():

@@ -659,9 +659,8 @@
       }
     },
     "DataBoundary": {
-      "description": "Desktop data-boundary statement: named policy strings the desktop writes and requires on open. The solver ignores it.",
+      "description": "Desktop data-boundary statement, typed by the desktop as Record<string, string>: an object whose values are strings. Known keys: public_examples_policy, protected_source_policy, private_data_policy and professional_boundary (written by the desktop's blank documents) and solver_capacity_claim (written by the UI-foundation fixture generator). The solver ignores it.",
       "type": "object",
-      "additionalProperties": false,
       "properties": {
         "public_examples_policy": {
           "type": "string"
@@ -678,6 +677,9 @@
         "solver_capacity_claim": {
           "type": "string"
         }
+      },
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "DesktopDocument": {
@@ -872,6 +874,10 @@
         "Rz",
         "rz"
       ]
+    },
+    "Element": {
+      "description": "Analytical member (REQ-02-01-02 Element): a pipe segment.",
+      "$ref": "#/$defs/PipeSegment"
     },
     "EquivalentStatic": {
       "description": "User-entered static-equivalent occasional-load generation inputs; missing inputs block, nothing is defaulted.",
@@ -1202,6 +1208,10 @@
           "type": "number"
         }
       }
+    },
+    "Model": {
+      "description": "The model document root: the canonical Model record (REQ-02-01-02).",
+      "$ref": "#"
     },
     "Node": {
       "type": "object",
