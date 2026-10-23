@@ -98,7 +98,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, architecture basis, and package scope.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture basis, and package scope.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) for SOW-010, OBJ-004, PKG-03, and AB-00-01/02/04/06/07/08.
 > - `docs/CONTRACT.md` for OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.
 > - `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, and `tests/test_component_section_schema.py` for current implementation evidence.

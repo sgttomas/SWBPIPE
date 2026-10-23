@@ -3,7 +3,7 @@ doc_id: OPS-VALIDATION-MANUAL-SKELETON
 doc_kind: governance.validation_manual
 status: draft
 created: 2026-05-04
-updated: 2026-08-20
+updated: 2026-10-23
 refs:
   - rel: governed_by
     to: OPS-CONTRACT
@@ -61,20 +61,30 @@ long-term validation evidence-bundle storage remain open.
 
 ## 3. Case Index
 
-Each case page assembles the PRD section 16.5 record fields (purpose, input
-model, independent reference, expected result, software result, tolerance,
-pass/fail, solver version) for one existing validated case, from the
-authoritative artifacts already in the tree. Pages are deterministic
+Each case page assembles the validation-manual record fields of v0.1 PRD
+§16.5 (purpose, input model, independent reference, expected result, software
+result, tolerance, pass/fail, solver version) for one existing validated case,
+from the authoritative artifacts already in the tree. Pages are deterministic
 renderings produced by
 `docs/validation_manual/cases/generate_validation_case_pages.py`; the
 hand-calc notes, fixture constructors, suite tests, and governed `DEC-046`
 policy records remain the sources of record. All cases are `DRAFT_EVIDENCE`.
 
+The current PRD (`docs/PRD.md`, v0.4) has no §16.5. v0.1 §16.5 "Validation
+Manual" has no §22 successor; under the SCA-007 token mapping (A020) it maps
+to the §24 R6 validation-manual deliverable. The v0.1 text is at
+`docs/_history/PRD_v0.1.md` in Git history. The case-page generator still
+cites v0.1 numbering: "PRD section 16.5" in its docstring, and "PRD section
+16.2" in the branch-assembly page it renders. v0.1 §16.2 is §22.2 today.
+
 ### 3.1 Mechanics benchmark cases (`DEL-09-01`)
 
 Suite crate: `validation/benchmarks/mechanics/`. Recorded run 2026-07-10:
 `ok. 30 passed; 0 failed` (run record
-`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`).
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`,
+removed from the tree by the deliverable migration `497a8d81e4`, which moved
+DEL-09-04 to `execution/PKG-09/DEL-09-04/`; recoverable from Git history at
+`497a8d81e4^`).
 
 Inventory updated 2026-08-09: 64 case pages total (21 mechanics, 15 stress,
 28 nonlinear); 2026-10-08: 63 (14 stress), after `STRESS-PRESSURE-MEMBRANE-ORIGINAL`
@@ -170,8 +180,14 @@ governed `DEC-046` policy records committed beside the crate
 
 | Slice | Evidence state | Purpose |
 |---|---|---|
-| [Headless runner reproduction](headless_runner_reproduction.md) | `DRAFT_EVIDENCE` | Records the current external-reproducibility path for the invented `openpipestress-runner` examples produced by `TP-RUNNER-015` under `DEC-065`. |
+| [Headless runner reproduction](headless_runner_reproduction.md) | `DRAFT_EVIDENCE` | Records the external-reproducibility path for the invented `openpipestress-runner` examples under `DEC-065`: a current runnable procedure (2026-10-23), the historical frozen `TP-RUNNER-015` procedure (Part 1) and the bound `DEL-10-05` payload cases (Part 2). |
 | [Desktop GUI workflow validation](../../apps/desktop/e2e/gui-workflow-validation.spec.ts) | `DRAFT_EVIDENCE` | Binds the invented repository fixtures to visible pre-solve, solved, edited, reopened, and solve-blocked states; distinct missing-input, provenance, and assumption warnings; explicit data/professional boundaries; and no external requests across both registered viewport projects. |
+
+Recorded reproduction runs are bundles under `validation/evidence/reproduction/`.
+The last is `REPRO_DEL0904_20260720T074714Z_a5235340aae3/` (2026-07-20,
+pinned to `a5235340aae3`), which ran Part 1 and Part 2 under their
+expectations of that date. No bundle has been recorded under the current
+runnable procedure; what one needs is listed at the end of that procedure.
 
 ## 4. Manual Section Map
 
@@ -195,7 +211,7 @@ governed `DEC-046` policy records committed beside the crate
 | Mechanics benchmarks | [Section 3.1 case pages](#31-mechanics-benchmark-cases-del-09-01); `validation/benchmarks/mechanics/`, `validation/hand_calcs/mechanics/` | `DRAFT_EVIDENCE`; final public benchmark acceptance and release tolerances are `TBD`. |
 | Stress recovery benchmarks | [Section 3.2 case pages](#32-stress-recovery-cases-del-09-02); `validation/benchmarks/stress/`, `validation/hand_calcs/stress/` | `DRAFT_EVIDENCE`; fatigue, allowable, and release-threshold decisions are `TBD`. |
 | Nonlinear support regression | [Section 3.3 case pages](#33-nonlinear-support-cases-del-09-03); `validation/benchmarks/nonlinear/` with governed `DEC-046` policy records | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
-| Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples and the committed DEL-10-05 `run-benchmark`/`run-regression` payload families are reproducible from invented fixtures. `export-results` is bound to the report-package payload (f82bb28e25; witnesses `validation/witness/generated/del1005_export_results_*.json`). Public benchmark thresholds remain `TBD`. |
+| Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples and the committed DEL-10-05 `run-benchmark`/`run-regression` payload families are reproducible from invented fixtures. `export-results` is bound to the report-package payload (f82bb28e25; witnesses `validation/witness/generated/del1005_export_results_*.json`). Part 1 is a historical frozen procedure; the current runnable procedure (2026-10-23) is written from source and tests and has no recorded bundle yet. Public benchmark thresholds remain `TBD`. |
 | GUI workflow validation | `apps/desktop/e2e/gui-workflow-validation.spec.ts`; repository-local invented model/result fixtures; two-viewport projects in `apps/desktop/playwright.config.ts` | `DRAFT_EVIDENCE`; on 2026-08-20 the focused host run `npm exec playwright test -- e2e/gui-workflow-validation.spec.ts` passed 2/2 (`chromium-desktop`, `chromium-compact`). Coverage binds visible missing-data and warning classes, assumptions/boundaries, solve and result transitions, local-only persistence, and zero external requests. No threshold or maintainer-review promotion is selected. |
 | Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance. |
 | Release quality evidence | `docs/RELEASE_QUALITY_GATES.md` (`DEL-09-05` release quality gate checklist) | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
@@ -281,4 +297,6 @@ reviewers check that:
 - TBD: additional `openpipestress-runner` benchmark/regression payload coverage
   beyond the exact committed DEL-10-05 witness families, a clean
   environment demonstration record, and the human-gated release-quality and
-  professional-boundary reviews required at the R5 exit.
+  professional-boundary reviews required at the PRD §24 R6 exit (historical
+  v0.1 R5 token, resolved through the D-21 Annex A crosswalk; `DEC-080`
+  amended the R6 reproduction criterion).

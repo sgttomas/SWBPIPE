@@ -11,6 +11,9 @@ package_objective_refs: [OBJ-014, OBJ-018]
 
 Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
+
+**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1 and OD-3: PKG-13 (design knowledge, constraint validation and the physical-to-analytical transform contract) is deferred to v0.2. This records the ruling; the clauses below are unchanged.
+
 ## Purpose and Objective Traceability
 
 This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067] and package objectives [OBJ-014, OBJ-018].
@@ -93,11 +96,11 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, artifacts, context envelope, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, artifacts, context envelope, architecture-basis injection.
 > - `_REFERENCES.md` - deliverable-local reference index.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for active predecessor context.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package and deliverable basis.
-> - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, `docs/_Registers/ContextBudgetQA.csv` - machine-readable deliverable, scope, and context rows.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - machine-readable deliverable, scope, and context rows.
 > - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md` - governing boundaries for schema, provenance, unit safety, privacy/IP, and professional responsibility.
 > - `schemas/constraint.schema.json` - implemented JSON Schema 2020-12 constraint entity and provenance contract.
 > - `tests/test_constraint_schema.py` - stdlib structural evidence for schema identity, required definitions, enum coverage, unit dimensions, data-boundary constants, and professional-boundary constants.

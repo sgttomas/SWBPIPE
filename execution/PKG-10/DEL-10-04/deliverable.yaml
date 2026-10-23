@@ -118,6 +118,11 @@ code_paths:
 - tools/release/package_release_artifact.py
 - tools/release/notarize_app.py
 - tools/release/build_signed_app.py
+- software-workflow.json
+- apps/desktop/playwright.config.ts
+- apps/desktop/playwright.dist.config.ts
+- apps/desktop/playwright.webkit.config.ts
+- apps/desktop/vite.config.ts
 checks:
 - tests/test_ci_python.py
 - tests/test_ci_numerical.py

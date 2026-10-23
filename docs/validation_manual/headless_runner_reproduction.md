@@ -27,6 +27,11 @@ procedure (with dated historical notes on cases 1 and 3), and the bound per-case
 `run-benchmark` / `run-regression` reproduction path landed by PR #287
 (`DEL-10-05`, implementation commit `60841413a`, merged at `45ec0524d`).
 
+As of 2026-10-23 the [current runnable procedure](#current-runnable-procedure-2026-10-23)
+below is the one to follow on today's sources. Part 1 is kept verbatim as a
+historical frozen procedure; Part 2's bound commands are reused by the current
+procedure unchanged.
+
 ## Authority And Boundaries
 
 | Item | Current record |
@@ -39,7 +44,187 @@ procedure (with dated historical notes on cases 1 and 3), and the bound per-case
 | Evidence state | `DRAFT_EVIDENCE` |
 | Public benchmark/release tolerance state | `TBD`; not settled by this slice |
 
+## Current Runnable Procedure (2026-10-23)
+
+Written from the runner source and its tests at `origin/main` `62c1efd75b`:
+`core/runner/headless/src/bin/openpipestress-runner.rs`,
+`core/runner/headless/src/redaction_binding.rs` and
+`tests/test_headless_runner_contract.py`. The expected exits and diagnostics
+below are what that source and those tests state. No run of this procedure
+is recorded here; a recorded run is the reproduction bundle described at the
+end of this section.
+
+### Runner interface
+
+```text
+openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression>
+    [--input <request.json>|-] [--output <result.json>]
+    [--explicit-local-private-intent]
+    [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]
+openpipestress-runner read <reader> [--input <reader-input.json>|-]
+```
+
+- **Input.** One JSON object, from `--input` or stdin. It carries a `request`
+  object whose `operation` matches the verb, plus the verb's payload: `solve`
+  needs `solve.preview_model` (`{"model": …, "materials": […]}`),
+  `run-benchmark` needs `benchmark.suite` and `run-regression` needs
+  `regression.suite` (each with an optional `cases` list; omitted means the
+  whole suite), and `export-results` needs `export_results`.
+  `validate-input` needs only `request`.
+- **Output wrapper.** Once the input is read, stdout is the local-private
+  export control object: `payload`, `decisions`, `findings`, `blocked`,
+  `summary`. The runner's own output document is `payload`. Argument errors
+  print a message and the usage text to stderr and exit 2; an unreadable
+  input file prints only the read error to stderr and exits 2. Neither
+  writes stdout.
+- **Local-private intent.** Without `--explicit-local-private-intent`, an
+  output that carries values classified private is blocked: `blocked` is
+  `true`, `payload` is `null`, the findings carry
+  `LOCAL_PRIVATE_INTENT_REQUIRED`, and the exit is 1. Every command in this
+  procedure passes the flag except the step that shows this control.
+- **`--output`.** The file holds the same JSON as stdout. It is written
+  only when the export is not blocked, and for `export-results` only on
+  exit 0.
+- **Exit codes.** 0 when no blocking diagnostic is present and the export
+  is not blocked; 1 with a blocking diagnostic or a blocked export; 2 for a
+  usage error, an unreadable input file, input that is not a JSON object of
+  the expected shape (`HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`), an
+  unsupported verb (`HEADLESS_RUNNER_CLI_UNSUPPORTED_COMMAND`) or an
+  unwritable `--output` path.
+- **`read`.** Returns one product reader's verdict as JSON on stdout. It
+  exits 0 when the reader passes the statement, 1 when it refuses it, and 2
+  when the invocation or input is unusable. It takes no `--output` or intent
+  flag. The reader names are in the usage text (`--help`, exit 2) and
+  `core/runner/headless/src/reader_binding.rs`.
+
+### Setup
+
+From `projects/chirality-piping`, with a scratch directory outside the
+checkout:
+
+```bash
+SCRATCH=$(mktemp -d)
+RUNNER=$(python3 tools/runner/build_runner.py --target-dir "$SCRATCH/target" | tail -n 1)
+I=validation/witness/inputs
+```
+
+`tools/runner/build_runner.py` runs `cargo build --locked --release --bin
+openpipestress-runner` and prints the binary path. A binary already built at
+the same commit may be used instead (`RUNNER=<path>`).
+
+Two inputs are composed in the scratch directory; nothing is written to the
+checkout. The success-path solve wraps the model the current product solves,
+`fixtures/model_operations/exact_pressure_authoring_model.json`, in the
+frozen Part 1 `solve` request (the 2026-10-19 dated note's "current success
+path"):
+
+```bash
+python3 - "$SCRATCH/current_solve_input.json" <<'EOF'
+import json, sys
+frozen = json.load(open("validation/witness/inputs/tp_runner_015_final_cli_solve_input.json"))
+model = json.load(open("fixtures/model_operations/exact_pressure_authoring_model.json"))
+body = {"request": frozen["request"], "solve": {"preview_model": {"model": model, "materials": []}}}
+json.dump(body, open(sys.argv[1], "w"))
+EOF
+```
+
+The committed `del1005_export_results_*` inputs record the solver identity
+`open_pipe_stress_product_physics@0.1.0`. The runner refuses any identity
+other than the product-physics component it links, which is `0.2.0` at
+`62c1efd75b` (`core/product_physics/Cargo.toml`). The contract tests bind
+the identity to the linked component before testing anything else, and this
+procedure does the same. Use the version in `core/product_physics/Cargo.toml`
+at the commit being reproduced:
+
+```bash
+python3 - "$SCRATCH/export_success_input.json" <<'EOF'
+import json, sys
+body = json.load(open("validation/witness/inputs/del1005_export_results_success_input.json"))
+identity = {"solver_name": "open_pipe_stress_product_physics", "solver_version": "0.2.0",
+            "solver_build_ref": "open_pipe_stress_product_physics@0.2.0"}
+body["export_results"]["audit_manifest"]["solver_version"].update(identity)
+for envelope in body["export_results"]["result_envelopes"]:
+    envelope.update(identity)
+json.dump(body, open(sys.argv[1], "w"))
+EOF
+```
+
+### Steps
+
+| Step | Command (after setup) | Exit | Expected evidence | Basis |
+|---|---|---:|---|---|
+| C1 | `"$RUNNER" validate-input --explicit-local-private-intent --input $I/tp_runner_015_final_cli_validation_blocking_input.json --output "$SCRATCH/c01.json"` | 1 | Request validation reports `HEADLESS_RUNNER_LOAD_BASIS_MISSING`; no solver result. The output file is written, because the export is not blocked. | Part 1 case 2 |
+| C2 | `"$RUNNER" solve --explicit-local-private-intent --input "$SCRATCH/current_solve_input.json" --output "$SCRATCH/c02.json"` | 0 | `blocked` is `false`; `runner_result.job.state` is `COMPLETED`; `mechanics_envelope.status.mechanics` is `MECHANICS_SOLVED`; `runner_result.result_refs` is non-empty; no blocking request or result validation diagnostic. | `test_final_runner_subprocess_covers_every_active_verb_and_stdout`; 2026-10-19 note |
+| C3 | `"$RUNNER" solve --input "$SCRATCH/current_solve_input.json" --output "$SCRATCH/c03.json"` (no intent flag) | 1 | `blocked` is `true`, `payload` is `null`, findings carry `LOCAL_PRIVATE_INTENT_REQUIRED`; no `c03.json` is written. | `test_final_runner_subprocess_blocking_exit_one_writes_no_file` |
+| C4 | `"$RUNNER" solve --explicit-local-private-intent --input $I/tp_runner_015_final_cli_solve_input.json --output "$SCRATCH/c04.json"` | 1 | The legacy-content refusal control (Part 1 case 1): job state `COMPLETED`, mechanics `MODEL_INCOMPLETE`, blocking `PRESSURE_MODEL_REAUTHOR_REQUIRED` for each legacy nonzero pressure load and `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`, result validation `HEADLESS_RUNNER_RESULT_REFS_MISSING`, empty `result_refs`. | `test_final_runner_refuses_legacy_pressure_demo_as_explicit_control`; 2026-10-19 note |
+| C5 | `"$RUNNER" run-benchmark --explicit-local-private-intent --input $I/tp_runner_015_final_cli_benchmark_stub_input.json --output "$SCRATCH/c05.json"` | 1 | `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING` (Part 1 case 3). | Part 1 case 3; source |
+| C6–C10 | The five Part 2 commands, with `"$RUNNER"` in place of `cargo run … --` and outputs under `"$SCRATCH"` | 0, 0, 0, 1, 1 | As the Part 2 fixture table states. | Part 2 |
+| C11 | `"$RUNNER" export-results --explicit-local-private-intent --input "$SCRATCH/export_success_input.json" --output "$SCRATCH/c11.json"` | 0 | `payload.report_package` is present, with `container_bytes` whose SHA-256 equals `container_sha256_hex`; a repeat run gives the same bytes. | `test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact` |
+| C12 | `"$RUNNER" export-results --explicit-local-private-intent --input $I/del1005_export_results_success_input.json --output "$SCRATCH/c12.json"` | 1 | The unbound committed input is refused: `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID` with `REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH` in its message; no `report_package`; no `c12.json`. | `test_final_runner_export_results_refuses_unlinked_solver_identity` |
+| C13 | `printf '{' \| "$RUNNER" validate-input --explicit-local-private-intent` | 2 | `HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`. | `test_final_runner_subprocess_malformed_input_exits_two` |
+
+The other committed `export-results` inputs behave as follows. Missing
+payload gives `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING`, and binding
+mismatch gives `HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH`, whether or
+not the identity is rebound: both checks run before the identity check.
+Producer blocked gives `HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED`
+only after rebinding; unbound, the identity refusal comes first. All three
+exit 1 and write no file.
+
+A whole-suite `run-benchmark` or `run-regression` (input without `cases`)
+exits 1 whenever any case is blocked, under the fail-closed semantics below.
+This procedure records no whole-suite figure for today's sources; the
+figures in Part 2 are pinned to their commits.
+
+### Review checks
+
+```bash
+cargo test --manifest-path core/runner/headless/Cargo.toml
+OPENPIPESTRESS_NO_CARGO_BUILD=1 OPENPIPESTRESS_RUNNER_BIN="$RUNNER" \
+  OPENPIPESTRESS_PREVIEW_RUNNER_BIN=<headless_preview_runner built at the same commit> \
+  python3 -m pytest -q tests/test_headless_runner_contract.py
+```
+
+The session authorities have their own presets (`OPENPIPESTRESS_UNITS_BIN`,
+`OPENPIPESTRESS_CHECKED_JSON_BIN`; see `tests/conftest.py`). Under
+`OPENPIPESTRESS_NO_CARGO_BUILD=1` a test whose binary is absent is skipped
+with the reason, so a reproduction run reports skips as well as passes.
+Without that variable the pytest run builds missing binaries itself.
+
+### Fresh reproduction bundle (to do, heavy lane)
+
+The last bundle is
+`validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/`,
+pinned to `a5235340aae3`. It ran the Part 1 and Part 2 commands under their
+then-current expectations. No reproduction has run since 2026-07-20. A fresh
+run against the PRD §24 R6 reproduction exit criterion (as amended by
+`DEC-080`; historically cited as v0.1 R5) needs:
+
+- a clean local clone detached at one pinned commit, with the runner, the
+  `headless_preview_runner` and the session authorities built at that
+  commit (offline cargo, target directory outside the checkout);
+- the setup and steps C1–C13 above, then the review checks, each with
+  recorded argv, working directory, environment, tool versions, stdout,
+  stderr, exit code and output SHA-256, and clean `git status` before and
+  after;
+- a new immutable bundle `validation/evidence/reproduction/REPRO_DEL0904_<UTC>_<commit12>/`
+  in the layout of the last one (`README.md`, `manifest.json`,
+  `commands.jsonl`, `environment.txt`, `exit_codes/`, `stdout/`, `stderr/`,
+  `outputs/`, `SHA256SUMS.txt`, `source_commit.txt`, `procedure.sha256`);
+- the brief that governs the run, from the manager. Reproduction acceptance
+  remains the owner's.
+
+Earlier bundles are not edited. They remain truthful for their pinned
+commits.
+
 ## Part 1 — Frozen E1 Procedure (`tp_runner_015`)
+
+> **Historical frozen procedure.** Part 1 is kept verbatim for the E1
+> record and its committed witnesses; do not run it as written on current
+> sources. Its commands omit `--explicit-local-private-intent`, and its case 1
+> solve is refused (dated notes below). The
+> [current runnable procedure](#current-runnable-procedure-2026-10-23) covers
+> the same three inputs as steps C1, C4 and C5.
 
 ### Fixture Set
 
@@ -302,9 +487,14 @@ Per-case purpose/reference/tolerance/pass-fail records now live under
 still does not close `DEL-09-04` or Phase E row E2. Still open:
 public-benchmark threshold disposition (owner-gated), `MAINTAINER_REVIEWED`
 case-page promotion, GUI-workflow validation evidence, and any human-gated
-release-quality or professional-boundary review required at the R5 exit.
+release-quality or professional-boundary review required at the PRD §24 R6
+exit (historical v0.1 R5 token, resolved through the D-21 Annex A
+crosswalk), and a reproduction bundle under the
+current runnable procedure (to do, above).
 Landed: the `run-benchmark` / `run-regression` payload bindings (PR #287,
 `DEL-10-05`), the `export-results` binding (f82bb28e25) and the actor-neutral
 clean-checkout demonstration
 (`validation/evidence/reproduction/REPRO_DEL0904_20260719T202023Z_23eeaabc9040/`,
-`INTERNALLY_VERIFIED`; reproduction acceptance remains an owner gate).
+rerun at the R14 head as
+`validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/`;
+both `INTERNALLY_VERIFIED`; reproduction acceptance remains an owner gate).

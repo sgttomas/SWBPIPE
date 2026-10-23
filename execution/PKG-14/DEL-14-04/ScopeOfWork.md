@@ -97,7 +97,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and context budget.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and context budget.
 > - `_REFERENCES.md` - governing reference list and accessible public context.
 > - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for upstream dependency rows.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, deliverable, scope, objective, and open-issue basis.
@@ -459,6 +459,19 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > round-trip evidence covers both that automatic record and caller-supplied
 > manual mappings. No automatic entity inference, heuristic candidate,
 > normalization policy, or acceptance judgment follows from this mapping step.
+
+Current implementation (at `62c1efd75b`): the desktop does not call
+`core/comparison/analysis_run/engine.py`. Its comparison view is
+`buildPreviewComparison` in `apps/desktop/src/services/previewService.ts`,
+built in `apps/desktop/src/features/workspace/resultsSessionState.ts` and shown
+by `apps/desktop/src/features/comparison/ComparisonPanel.tsx`. It compares
+result rows within one analysis run (a reference load case against a
+user-defined combination; `comparison_kind` `single_run_load_basis_review`),
+pairs rows through `source_result_refs` only when their explicit units are
+equal, performs no unit conversion, and marks every delta
+`not_tolerance_checked` with `tolerance_profile_ref` `TBD`. It does not read
+`schemas/comparison_mapping.schema.json` or
+`schemas/comparison_tolerance.schema.json`.
 
 ## Output and Evaluation Matrix
 

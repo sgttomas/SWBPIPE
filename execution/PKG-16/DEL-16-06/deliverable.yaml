@@ -135,6 +135,8 @@ code_paths:
 - apps/desktop/src/services/operationService.ts
 - core/model_operations/operation_applier/**
 - fixtures/model_operations/contract_corpus/**
+- apps/desktop/src/services/operationBatchService.ts
+- apps/desktop/src-tauri/src/lib.rs
 checks:
 - apps/desktop/src/services/operationService.test.ts
 - apps/desktop/src/services/operationContractCorpus.test.ts
@@ -143,3 +145,4 @@ checks:
 - core/model_operations/operation_applier/tests/load_state_authoring.rs
 - core/model_operations/operation_applier/tests/load_state_delete_control.rs
 - core/model_operations/operation_applier/tests/support_authoring_conflicts.rs
+- apps/desktop/src/services/operationBatchService.test.ts

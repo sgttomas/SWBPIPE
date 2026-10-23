@@ -116,6 +116,8 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 >
 > Current lifecycle/checksum source and tests are evidence, not a selection of encryption, access-control defaults or private rule-pack content. Storage follows DEC-017; remaining security controls retain PKG-12 ownership.
 >
+> Current implementation (at `62c1efd75b`): the product reaches `core/rules/rule_pack_lifecycle/` through `core/rules/rule_pack_document/src/lib.rs`, which computes the JCS document checksum and surfaces lifecycle findings. On the desktop, `apps/desktop/src/services/rulePackService.ts` and `apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx` call the Tauri commands `compute_rule_pack_document_checksum`, `save_local_rule_pack`, `open_local_rule_pack`, `list_local_rule_packs` and `delete_local_rule_pack` in `apps/desktop/src-tauri/src/lib.rs`, which keep rule-pack documents in the local SQLite project store. New drafts are created with `private_only` redistribution status (`buildDraftRulePackDocument`). The desktop offers no rule-pack file export.
+>
 
 ### CLM-010 — Requirements
 

@@ -100,8 +100,8 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | `docs/SPEC.md` | GUI warnings, result/report expectations, and layer boundaries |
 > | `docs/TYPES.md` | Analysis-status and professional-boundary vocabulary |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | DEL-07-07 package, scope, objectives, and architecture-basis rows |
-> | `docs/_Registers/Deliverables.csv` | Deliverable row for DEL-07-07 |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-055 row |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row for DEL-07-07 |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-055 row |
 > | `execution/PKG-00/DEL-00-03/ArchitectureBasis.md` | Command, job, cancellation, progress, and result-envelope boundary |
 > | `execution/PKG-00/DEL-00-05/ArchitectureBasis.md` | Durable/transient GUI state and job-progress state separation |
 > | `execution/PKG-00/DEL-00-06/ArchitectureBasis.md` | Diagnostics fields, warning classes, and no-compliance-claim boundary |
@@ -124,6 +124,8 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > This deliverable specifies the setup basis for a GUI solve-execution workflow that keeps background solve execution, progress display, cancellation, diagnostic logs, solver warnings, and result-envelope status reviewable.
 >
 > This setup does not implement GUI source code, UI tests, schemas, application-service code, background job code, solver code, report/export code, package manifests, or protected engineering data. Future implementation must consume the command/job/progress/cancellation and diagnostics/result-envelope contracts supplied by PKG-00 rather than inventing product semantics in the GUI slice.
+>
+> Current implementation (at `62c1efd75b`): since that setup run, the solve-execution code has shipped. `apps/desktop/src/features/solve/SolvePanel.tsx` (with `MemoryPoolPanel.tsx`) provides run, cancel and solver-mode controls. Through `apps/desktop/src/services/previewService.ts` it calls the Tauri commands `start_preview_mechanics_job`, `poll_preview_mechanics_job`, `take_preview_mechanics_job_result` and `cancel_preview_mechanics_job` in `apps/desktop/src-tauri/src/lib.rs`. The job registry and its `queued`/`running`/`cancelled` states are in `apps/desktop/src-tauri/src/solve_jobs.rs`; each solve runs in the capped local worker process `apps/desktop/src-tauri/src/solve_worker.rs`. Diagnostics are presented by `apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx`. The session's solve-run generation gates and solve-job state (start, progress, refusal) are in `apps/desktop/src/features/workspace/solveGates.ts` and `solveJobAudit.ts`. `core/gui/solve_execution/engine.py` is a reference module exercised by `tests/test_solve_execution_ux.py` and is not called by the desktop.
 >
 ### CLM-011 — Requirements
 

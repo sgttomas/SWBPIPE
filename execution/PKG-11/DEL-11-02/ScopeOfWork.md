@@ -35,7 +35,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Package ID | PKG-11 |
 > | Package | Documentation, Examples, and Education |
 > | Type | DOC_UPDATE |
-> | Primary anticipated artifact | `docs/developer_guide/index.md` |
+> | Primary anticipated artifact | `docs/developer_guide/index.md` (present at `62c1efd75b`) |
 > | Setup artifact location | `execution/PKG-11/DEL-11-02/` |
 > | Scope item | SOW-033 |
 > | Objectives | OBJ-001, OBJ-002 |
@@ -104,8 +104,8 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data rules and quarantine behavior. |
 > | `docs/VALIDATION_STRATEGY.md` | Verification and validation families and release gate expectations. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Scope, objectives, package context, architecture basis, and open issues. |
-> | `docs/_Registers/Deliverables.csv` | DEL-11-02 identity and anticipated artifact. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-033 scope mapping and no-protected-examples note. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | DEL-11-02 identity and anticipated artifact. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-033 scope mapping and no-protected-examples note. |
 
 ## Completion and Reliance Basis — Epistemology
 

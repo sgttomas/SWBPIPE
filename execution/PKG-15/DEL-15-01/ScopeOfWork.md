@@ -95,14 +95,14 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
-> - `_STATUS.md`
+> - `_STATUS.md` (retired in `497a8d81e4`; see Git history)
 > - local `Dependencies.csv`
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `docs/_Registers/Deliverables.csv`
-> - `docs/_Registers/ScopeLedger.csv`
-> - `docs/_Registers/ContextBudgetQA.csv`
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
 > - `docs/CONTRACT.md`
 > - `docs/TYPES.md`
 > - `docs/SPEC.md`
@@ -336,6 +336,7 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 > - Target mapping metadata and unsupported-target flags are required by SOW-074, but detailed semantics belong to DEL-15-02. DEL-15-01 should reserve clear schema surfaces for those records.
 > - The deliverable now has an invented, non-engineering fixture at `fixtures/invented_handoff_package.json`. Public examples or fixtures for this contract must remain invented or otherwise reviewed and must not include protected standards text, private rule-pack payloads, proprietary commercial files, or real project data.
 > - Handoff package validation is covered by `tests/test_handoff_package_schema.py`, including Draft 2020-12 schema validation and fixture validation. It should not attempt to prove external solver correctness or code compliance.
+> - Current implementation (at `62c1efd75b`): the desktop Exports section produces its handoff document in `apps/desktop/src/features/handoff/HandoffPanel.tsx` (`buildHandoffPackage`, `document_kind: openpipestress.technical_preview.handoff_package`) and its native package review in `apps/desktop/src/features/native-package/NativePackagePanel.tsx`. Both are preview documents outside `schemas/handoff_package.schema.json`: they lack its required `deliverable_id`, `scope_item`, `handoff_contract_status` and `handoff_package_manifest` and are not validated against it. In the handoff document, `library_refs.rule_pack_refs` is an empty list and `target_field_coverage` is `TBD`. The schema-shaped producer `core/handoff/exporter/workflow.py` (DEL-15-03) has no product caller; only `tests/test_handoff_export_workflow.py` calls it.
 > - This prerequisite changes vocabulary only. Do not rewrite producer output,
 >   fixtures, or downstream schemas here, and do not infer RFC 8785 conformance
 >   from stable sorted-key compact serialization.
@@ -383,5 +384,5 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
 
 - **DEL-15-01:1** — R5 continuation delivery task: Reconcile and verify the handoff public contract against its schema without deleting required semantics: Checksum provenance placement, UnitsManifestRef entries/diagnostics coverage, and EntityIdManifest identity/traceability representation remain concrete conformance tasks (CLM-006 rows 2/4/5; CLM-011 R03/R04).
-- **DEL-15-01:2** — Phase H program: design-knowledge schema/entry and constraint engine, physical-to-analytical transform contract, canonical handoff package + manifest, target-mapping/unsupported-behavior contract, downstream export workflow, external-prover boundary metadata, and remaining PKG-17 wire-format completion (stage-gated: v0.2 R6; DEL-17-01 vendor questions gate CAEPIPE MBF-specific claims) (see also DEL-13-01..04, DEL-15-02, DEL-15-03, DEL-15-04, DEL-17-01..09) (source: PRD plan §3 Forward Horizon row H / DEC-056)
+- **DEL-15-01:2** — Phase H program: design-knowledge schema/entry and constraint engine, physical-to-analytical transform contract, canonical handoff package + manifest, target-mapping/unsupported-behavior contract, downstream export workflow, external-prover boundary metadata, and remaining PKG-17 wire-format completion (stage-gated: v0.2 R6; Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1/OD-3: the canonical handoff package and manifest for model export are in software 0.1.0 scope; the design-knowledge schema/entry, constraint engine and transform contract (PKG-13) and further PKG-17 export formats are deferred to v0.2; DEL-17-01 vendor questions gate CAEPIPE MBF-specific claims) (see also DEL-13-01..04, DEL-15-02, DEL-15-03, DEL-15-04, DEL-17-01..09) (source: PRD plan §3 Forward Horizon row H / DEC-056)
 - **DEL-15-01:3** — Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`, and technically corrected schema/currentness/target wording does not formally close either finding (PDU-060).

@@ -114,7 +114,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows DEL-01-03, SOW-028, SOW-048, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
 > - `execution/_DAG/_LATEST.md` approved graph authority pointer.
 > - `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` draft repo-level contributor workflow artifacts.
-> - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, `ContextBudgetQA.csv` rows named in `_CONTEXT.md`.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) rows named in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history).
 >
 
 ### CLM-009 — D-41 R5 T7 PDU-054 current declaration

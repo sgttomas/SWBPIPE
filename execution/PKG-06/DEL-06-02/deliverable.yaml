@@ -122,8 +122,11 @@ code_paths:
 - core/analysis_runs/rule_interval.py
 - tests/test_rule_interval.py
 - tools/validation/validate_dependencies_schema.py
+- apps/desktop/src-tauri/src/lib.rs
 checks:
 - core/rules/expression_evaluator/tests/conformance_corpus.rs
 - core/rules/rule_check_runner/src/lib.rs
 - core/rules/rule_check_runner/tests/*.rs
 - tests/test_rule_interval.py
+- fixtures/rule_expressions/conformance_corpus/**
+- core/rules/rule_pack_document/tests/corpus_parity.rs

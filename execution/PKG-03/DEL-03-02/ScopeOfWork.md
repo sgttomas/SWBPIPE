@@ -100,17 +100,19 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 > | Protected-content gate hooks | Implemented schema/test guardrails; workflow policy TBDs remain | Schemas and fixtures represent protected-suspected/rejected states, protected-value policies, diagnostics, and no-public-value policies. Human review workflow and accepted source policy remain unresolved. |
 > | Engineering values | Out of scope | No pipe dimensional table values, component catalog values, allowables, SIFs, flexibility factors, or code-derived values are introduced here. |
 >
+> Current implementation (at `62c1efd75b`): the desktop Library Manager (`apps/desktop/src/features/library/LibraryManagerPanel.tsx`, through `apps/desktop/src/services/libraryImportService.ts`) imports an already-parsed section or component library document. The Tauri command `validate_library_import` in `apps/desktop/src-tauri/src/lib.rs` checks the document with `open_pipe_stress_library_import_document`, the Rust port of the DEL-03-07 provenance checker. It checks provenance, redistribution, review and quarantine; it does not validate the document against `schemas/section.schema.yaml` or `schemas/component.schema.yaml`. `save_local_library` stores an accepted private import in the project's `local_libraries` table.
+>
 
 ### CLM-007 — References
 
 > ##### References
 >
-> - `_CONTEXT.md`, accepted basis for DEL-03-02.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), accepted basis for DEL-03-02.
 > - `_REFERENCES.md`, local reference index for DEL-03-02.
 > - `_DEPENDENCIES.md`, human-owned dependency declarations for DEL-03-02.
-> - `docs/_Registers/Deliverables.csv`, row DEL-03-02.
-> - `docs/_Registers/ScopeLedger.csv`, row SOW-018.
-> - `docs/_Registers/ContextBudgetQA.csv`, row DEL-03-02.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), row DEL-03-02.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), row SOW-018.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history), row DEL-03-02.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md`, accepted authority through the decision register, especially PKG-03, DEL-03-02, OBJ-004, SOW-018, and AB-00-01/02/04/06/07/08.
 > - `docs/CONTRACT.md`, invariant catalog.
 > - `docs/TYPES.md`, epistemic labels and data provenance labels.

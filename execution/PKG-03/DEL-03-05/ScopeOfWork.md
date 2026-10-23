@@ -9,6 +9,9 @@ package_objective_refs: [OBJ-004]
 
 # Scope of Work — DEL-03-05
 
+
+**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-2: rigid and semi-rigid components are to be implemented with DEC-045 stiffness scaling. This records the ruling; the clauses below are unchanged.
+
 ## Purpose and Objective Traceability
 
 This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and package objectives [OBJ-004].
@@ -42,6 +45,8 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > ##### Attributes
 >
 > This deliverable describes implemented evidence for rigid and semi-rigid component library schema slots, fixture shape, and validation coverage for valves, flanges, reducers, rigid placeholders, and specialty items. Realization also includes the DEC-045 product route in `core/product_physics/` and `core/model_operations/operation_applier/`, with candidate-bound evidence. Schema-layer evidence is `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and the deliverable-local memory/review records.
+>
+> Current implementation (at `62c1efd75b`): neither product route applies the user stiffness scaling or the semi-rigid stiffness quantities. On the pressure-free route, `core/product_physics/src/lib.rs` normalizes the component's units, and `core/product_physics/src/validation.rs` (about lines 1247-1311) emits the `RIGID_COMPONENT_*` warnings. When every input is present, it emits the info diagnostic `RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED`. No assembly or solve code reads `stiffness_scaling_user_value`, so the mapped member is solved as ordinary pipe. The component weight and center of gravity are validated but not applied as loads. The exact route refuses valve, flange, reducer, rigid and specialty components by name (`core/product_physics/src/exact_admission.rs`, about lines 196-210). Desktop creation of valves, flanges and reducers is in `apps/desktop/src/features/component-creation/componentIntent.ts`.
 >
 > Implemented descriptive slots and retained gaps are:
 >
@@ -82,11 +87,11 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, architecture-basis injection, and scope envelope.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture-basis injection, and scope envelope.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for PKG-03, DEL-03-05, SOW-009, OBJ-004, and AB-00-01/02/04/06/07/08.
-> - `docs/_Registers/Deliverables.csv` row DEL-03-05.
-> - `docs/_Registers/ScopeLedger.csv` row SOW-009.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-05.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-05.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-009.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-05.
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.
 >
 
@@ -110,7 +115,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### Scope
 >
-> Current realization evidence also includes rigid-component inputs and diagnostics in `core/product_physics/src/lib.rs` and component creation/edits in `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the mechanics-only consumption boundary. Invented preview values are examples, never defaults or qualified engineering data; public-source and validation holds remain.
+> Current realization evidence also includes rigid-component inputs and diagnostics in `core/product_physics/src/lib.rs` and component creation/edits in `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the mechanics-only consumption boundary. Invented preview values are examples, never defaults or qualified engineering data; public-source and validation holds remain. The diagnostics are in `core/product_physics/src/validation.rs`, and neither route applies the user stiffness scaling (CLM-003, current implementation).
 >
 > This deliverable covers the reconciled evidence specification for the implemented rigid and semi-rigid component schema contract for valves, flanges, reducers, rigid placeholders, and specialty items. It is limited to behavior grounded in the sealed brief, decomposition/register rows, contract invariants, `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and deliverable-local memory/review evidence.
 >

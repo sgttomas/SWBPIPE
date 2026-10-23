@@ -87,8 +87,8 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > | `docs/TYPES.md` | TEST_SUITE type, analysis-status vocabulary, and data/provenance terms. |
 > | `docs/SPEC.md` | Nonlinear support diagnostics, numerical quality, V&V mechanics, and repository layout target. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-09 package scope, DEL-09-03 deliverable entry, SOW-026, and OBJ-008. |
-> | `docs/_Registers/Deliverables.csv` | Deliverable identity, artifacts, scope, objective, and risk note. |
-> | `docs/_Registers/ScopeLedger.csv` | SOW-026 scope statement and public/original/permissive benchmark-source note. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable identity, artifacts, scope, objective, and risk note. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-026 scope statement and public/original/permissive benchmark-source note. |
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -256,6 +256,8 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > - protected-content scan and human review gate.
 >
 > Concrete validation command names are `TBD` until the regression runner, CI entry points, and nonlinear solver diagnostics exist. Do not substitute placeholder commands as if they were accepted release gates.
+>
+> Current implementation (at `62c1efd75b`): the suite is the Cargo crate `validation/benchmarks/nonlinear` (`open_pipe_stress_nonlinear_benchmarks`), with its tests in `src/lib.rs`. It exercises `core/solver/nonlinear_integration` and `core/solver/nonlinear_supports`, which `core/product_physics` also links. The product route's converged active-set checks against `validation/references/kd5_nonlinear/` are in `core/product_physics/src/kd5_nonlinear_tests.rs`.
 >
 ### CLM-022 — Records
 

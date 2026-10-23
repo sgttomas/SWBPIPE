@@ -102,7 +102,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, objective, architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, objective, architecture-basis injection.
 > - `_REFERENCES.md` - source list for this setup pass.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis, SOW-069, OBJ-015, PKG-16, DEL-16-01, architecture basis.
 > - `docs/CONTRACT.md` - project invariants, including data boundary, professional boundary, and agent non-invention constraints.
@@ -126,6 +126,8 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 > ##### Scope
 >
 > This deliverable covers the data-model contract for structured model operations used by GUI and agent proposal workflows. The current implementation evidence is `schemas/model_operation.schema.json` plus invented fixtures under `fixtures/model_operations/`.
+>
+> Current implementation (at `62c1efd75b`): the desktop route uses a different operation shape. GUI tools and `apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx` queue `EditorOperationIntent` batches (`apps/desktop/src/services/operationBatchService.ts`), and the Rust `core/model_operations/operation_applier/src/atomic_batch.rs` (`preflight_operation`) enforces that intent shape (kinds `create`, `connect`, `delete`, `insert`, `modify`). The desktop offers `schemas/model_operation.schema.json` only as a downloadable authoring reference in the offline intake panel; no product route validates operations against it. Only the Python `core/model_operations/validation_preview/engine.py`, exercised by tests, validates against it.
 >
 > In scope:
 >

@@ -97,9 +97,9 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 
 > ##### References
 >
-> - `docs/_Registers/Deliverables.csv` row DEL-06-01
-> - `docs/_Registers/ScopeLedger.csv` rows SOW-016 and SOW-042
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-06-01
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-06-01
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-016 and SOW-042
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-06-01
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-RULE-1, OPS-K-RULE-3, OPS-K-UNIT-1, OPS-K-AUTH-1, OPS-K-MECH-2, OPS-K-PRIV-1, OPS-K-AGENT-1..4
 
@@ -118,6 +118,8 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > This deliverable defines the rule-pack schema contract covering metadata, required inputs, formula declarations, user-supplied allowables, pass/fail/incomplete criteria, checksum fields, provenance/source notes, redistribution status, and professional-boundary markings.
 >
 > Current schema realization is `schemas/rule_pack.schema.yaml`; evaluator implementation and example ownership remain separate. The schema must not publish protected rule content or claim engineering code compliance.
+>
+> Current implementation (at `62c1efd75b`): the production document codec, JCS checksum computation and document validation for this schema are `core/rules/rule_pack_document/src/lib.rs` (tests in `core/rules/rule_pack_document/tests/`). The desktop Rule-Pack Manager (`apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx`, via `apps/desktop/src/services/rulePackService.ts`) reaches it through the Tauri commands `validate_rule_pack` and `compute_rule_pack_document_checksum` in `apps/desktop/src-tauri/src/lib.rs`; browser preview mode keeps drafts in memory and does not run these commands.
 >
 
 ### CLM-011 — Requirements

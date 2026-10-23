@@ -100,12 +100,12 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 >
 > | Reference | Use in this datasheet |
 > |---|---|
-> | `_CONTEXT.md` | Deliverable identity, scope, artifact expectations, architecture-basis injection |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, artifact expectations, architecture-basis injection |
 > | `_REFERENCES.md` | Reference inventory and authority boundary |
 > | `_DEPENDENCIES.md`; `Dependencies.csv` | approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-072, OBJ-016, PKG-14, DEL-14-02 decomposition basis |
-> | `docs/_Registers/Deliverables.csv` | Deliverable row and anticipated artifacts |
-> | `docs/_Registers/ScopeLedger.csv` | Scope item SOW-072 wording |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row and anticipated artifacts |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope item SOW-072 wording |
 > | `docs/CONTRACT.md` | Agent, data, unit, report, privacy, and professional-boundary invariants |
 > | `docs/SPEC.md` | Unit, persistence/hash, analysis-boundary, result-export, runner/result-envelope guidance |
 > | `docs/TYPES.md` | Canonical model/schema vocabulary and boundary notes |

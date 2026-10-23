@@ -84,11 +84,11 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, objectives, artifact list, and architecture basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, artifact list, and architecture basis injection.
 > - `_REFERENCES.md` for governing local references.
-> - `docs/_Registers/Deliverables.csv` row DEL-03-08.
-> - `docs/_Registers/ScopeLedger.csv` rows SOW-051 and SOW-018.
-> - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-08.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-08.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-051 and SOW-018.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-08.
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-SOLVER-1, and OPS-K-AGENT-1..4.
 > - `core/section_properties/calculator.py` and `core/section_properties/README.md` for implemented calculator behavior.
 > - `tests/test_section_properties.py` for current unit and negative-test evidence.
@@ -136,7 +136,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > This deliverable specifies the bounded backend feature slice that calculates pipe section and mass properties from user-entered dimensions and material data with unit checks. It also records the private-library and provenance constraints that apply when those inputs are sourced from pipe section, component, or material libraries.
 >
-> Current implementation evidence is `core/section_properties/calculator.py`, `core/section_properties/README.md`, and `tests/test_section_properties.py`. This evidence reconciliation does not edit code, repo-level schemas, fixtures, tests, lifecycle records, dependency registers, review dispositions, or DAG/coordination files, and it does not introduce protected dimensional, material, contents, insulation, corrosion, code, or vendor data.
+> Current implementation evidence is `core/section_properties/calculator.py`, `core/section_properties/README.md`, and `tests/test_section_properties.py`. Current implementation (at `62c1efd75b`): the product does not call the Python calculator; only the Python tests call it. `core/product_physics` computes section and mass properties in Rust. In `src/lib.rs`, `derive_pipe_section` computes the section properties, and `compute_pipe_mass_per_length` mirrors `calculator.py` for mass per length. On the exact route, the section properties are replaced by the source outside-diameter/wall annulus of `src/pressure_exact` (`ExactSectionBases`). `src/annulus_geometry.rs` holds the circular bore and wall area algebra used by `src/pressure_exact/source_geometry.rs` and `src/self_weight.rs`. `tests/pressure_section_geometry.rs` exercises the source-faithful section properties. The product adapter is owned by DEL-04-07 (CLM-033). This evidence reconciliation does not edit code, repo-level schemas, fixtures, tests, lifecycle records, dependency registers, review dispositions, or DAG/coordination files, and it does not introduce protected dimensional, material, contents, insulation, corrosion, code, or vendor data.
 >
 
 ### CLM-011 — Requirements

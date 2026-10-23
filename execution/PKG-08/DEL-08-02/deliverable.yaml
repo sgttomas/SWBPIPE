@@ -156,6 +156,8 @@ code_paths:
 - core/serialization/canonical_json/**
 - fixtures/canonical_hash/**
 - tests/test_*canonical_json_adapter.py
+- core/reporting/audit_manifest/**
+- apps/desktop/src/features/report/reportPackageRequest.ts
 checks:
 - core/serialization/canonical_json/src/lib.rs
 - core/serialization/canonical_json/tests/checked_profile.rs
@@ -163,3 +165,6 @@ checks:
 - core/serialization/canonical_json/tests/binary64_transport.rs
 - tests/test_checked_canonical_json_adapter.py
 - tests/test_binary64_canonical_json_adapter.py
+- core/reporting/audit_manifest/src/lib.rs
+- core/reporting/report_package/tests/container.rs
+- apps/desktop/src/features/report/reportPackageRequest.test.ts
