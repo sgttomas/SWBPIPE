@@ -747,8 +747,37 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      D3.
    - Checks: applier tests, `desktop-test`, `piping-pytest`, the native smoke
      where open/save changes, and dual review.
-4. **Order.** S1a, then S1b, then S2. W-4 authors 0.7.0 after S1b. The rigid-
-   element unit's fields, if any, join S1b.
+4. **Order.** S1a (merged, #1554), then S1b, then S2. W-4 authors 0.7.0 after
+   S1b. The rigid-element unit's fields, if any, join S1b.
+5. **Coordination agreements** (HELP_HUMAN, 2026-10-23; kept current here):
+   - **Strict inputs before S1b.** The numerical-gaps unit's strict-inputs PR
+     (`deny_unknown_fields` on `PreviewModelWire`, `PreviewLoadCase`,
+     `PreviewPrimitiveLoad` and `PreviewCombination`) merges before S1b. S1b then
+     declares, as accepted and ignored, the 0.7.0 keys that reach
+     `PreviewModelWire`, `PreviewLoadCase` and `PreviewCombination` (§2). A
+     0.7.0 document carrying every new member must solve end to end.
+   - **W-10 before S1b.** W-10 (pipe reconnect) lands before S1b. S1b re-blesses
+     W-10's 3 applier corpus cases mechanically (version token and binding
+     digests). Whoever merges second merges main in and resolves.
+   - **`set_project_unit` after S2.** W-17's `set_project_unit` lands after S2,
+     which adds the applier's `Project` target (§6).
+   - **Library apply is this unit's,** in S2 or a slice right after. When the
+     desktop inserts a library record, it sets `provenance_record.library_ref`,
+     with `library_version` = "sha256:" + the SHA-256 of the record's RFC 8785
+     (JCS) form.
+     - `MODEL-LIBRARY-REF-UNRESOLVED` (warning) is raised when the store has no
+       such library or record.
+     - `MODEL-LIBRARY-REF-VERSION-CHANGED` (warning) is raised when the stored
+       record's hash differs. The recorded version is never silently updated.
+     - Both warnings need the store, so they run at desktop open and load.
+     - **E/ν route** (W-17 design, DEL-03-01; HELP_HUMAN ruling): an isotropic
+       material record with E and ν but no G derives G = E / (2(1+ν)). The
+       `provenance_record` records that G was derived and from what, and a
+       stored G is never overwritten. This is numerical meaning, so it gets
+       targeted regression tests and independent scrutiny.
+   - **D3 exclusive runs** go through HELP_HUMAN, sequenced against the
+     numerical-gaps unit's re-registrations. Registrations of the same registry
+     never race: the later one merges main and reruns `generate --check`.
 
 ## 9. Reconciliation (per slice)
 
