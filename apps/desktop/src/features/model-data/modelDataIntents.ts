@@ -11,6 +11,7 @@
 // - record operations target the record's id with the collection as
 //   field_path; create has before `not_present`, update and delete carry the
 //   current record's canonical JSON, delete has after `not_present`.
+import { useEffect } from "react";
 import type {
   EditorOperationIntent,
   EditorOperationObjectType,
@@ -25,6 +26,23 @@ import type {
 
 export type AnnotationField = "tags" | "notes" | "provenance_record";
 type ChangeKind = EditorOperationIntent["change"]["change_kind"];
+
+/** Key-order-independent JSON text, for comparing a draft with a stored record. */
+export function stableJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson((value as Record<string, unknown>)[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+/** Re-seed a row's draft whenever its stored record changes (an apply, an undo
+ * or redo, or another session's document), so the draft never outlives the
+ * record it was taken from. */
+export function useReseed(record: unknown, reseed: () => void): void {
+  const key = stableJson(record);
+  useEffect(reseed, [key]);
+}
 
 /** The selection types that take tags and notes, with their operation object type. */
 export const ANNOTATED_OBJECT_TYPES: Partial<Record<EntityRef["type"], EditorOperationObjectType>> = {

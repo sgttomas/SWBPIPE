@@ -148,3 +148,4 @@ checks:
 - core/model_operations/operation_applier/tests/model_data_authoring.rs
 - apps/desktop/src/features/model-data/desktopEmission.golden.test.ts
 - apps/desktop/src/features/model-data/modelData.test.tsx
+- apps/desktop/src/features/model-data/modelDataEngineAbsent.test.tsx

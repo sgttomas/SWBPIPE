@@ -4,7 +4,7 @@
 // every edit is a structured operation queued for review.
 import { useState } from "react";
 import type { EntityRef, EquipmentInterfaceRecord, ModelConstraint } from "../../types";
-import { CONSTRAINT_KINDS, CONSTRAINT_STATES, RECORD_FAMILIES, nextModelDataId, recordIntent } from "./modelDataIntents";
+import { CONSTRAINT_KINDS, CONSTRAINT_STATES, RECORD_FAMILIES, nextModelDataId, recordIntent, stableJson, useReseed } from "./modelDataIntents";
 import { subjectOf } from "./AssumptionsPanel";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
 
@@ -84,6 +84,11 @@ function ConstraintRow(props: ModelDataQueueProps & { record: ModelConstraint })
   const [name, setName] = useState(record.name);
   const [state, setState] = useState(record.state);
   const [statement, setStatement] = useState(record.statement ?? "");
+  useReseed(record, () => {
+    setName(record.name);
+    setState(record.state);
+    setStatement(record.statement ?? "");
+  });
   const { busy, error, queue } = useModelDataQueue(props);
   const id = record.constraint_id;
   const next = (): ModelConstraint => {
@@ -92,7 +97,7 @@ function ConstraintRow(props: ModelDataQueueProps & { record: ModelConstraint })
     else delete edited.statement;
     return edited;
   };
-  const changed = JSON.stringify(next()) !== JSON.stringify(record);
+  const changed = stableJson(next()) !== stableJson(record);
   return (
     <li data-testid={`constraint-row-${id}`}>
       <code>{id}</code> {record.constraint_kind.replaceAll("_", " ")}{" "}
@@ -167,6 +172,10 @@ function EquipmentInterfaceRow(props: ModelDataQueueProps & { record: EquipmentI
   const { record } = props;
   const [label, setLabel] = useState(record.label ?? "");
   const [equipment, setEquipment] = useState(record.equipment_label ?? "");
+  useReseed(record, () => {
+    setLabel(record.label ?? "");
+    setEquipment(record.equipment_label ?? "");
+  });
   const { busy, error, queue } = useModelDataQueue(props);
   const next = (): EquipmentInterfaceRecord => {
     const edited: EquipmentInterfaceRecord = { ...record };
@@ -176,7 +185,7 @@ function EquipmentInterfaceRow(props: ModelDataQueueProps & { record: EquipmentI
     else delete edited.equipment_label;
     return edited;
   };
-  const changed = JSON.stringify(next()) !== JSON.stringify(record);
+  const changed = stableJson(next()) !== stableJson(record);
   return (
     <li data-testid={`equipment-interface-row-${record.id}`}>
       <code>{record.id}</code> at <code>{record.node_ref}</code>

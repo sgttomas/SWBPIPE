@@ -5,7 +5,7 @@
 // resolution note. Every edit is a structured operation queued for review.
 import { useMemo, useState } from "react";
 import type { EntityRef, ModelAssumption } from "../../types";
-import { RECORD_FAMILIES, nextModelDataId, recordIntent } from "./modelDataIntents";
+import { RECORD_FAMILIES, nextModelDataId, recordIntent, useReseed } from "./modelDataIntents";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
 
 const STATUSES = ["unresolved", "resolved", "rejected"] as const;
@@ -98,6 +98,10 @@ function AssumptionRow(props: ModelDataQueueProps & { record: ModelAssumption })
   const { record } = props;
   const [statement, setStatement] = useState(record.statement);
   const [note, setNote] = useState(record.resolution_note ?? "");
+  useReseed(record, () => {
+    setStatement(record.statement);
+    setNote(record.resolution_note ?? "");
+  });
   const { busy, error, queue } = useModelDataQueue(props);
   const family = RECORD_FAMILIES.assumption;
   const update = (next: ModelAssumption) => void queue((canonicalize) => recordIntent(canonicalize, family, "update", next, record));

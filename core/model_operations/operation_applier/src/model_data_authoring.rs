@@ -214,8 +214,9 @@ fn rich_err(code: &'static str, message: impl Into<String>) -> RichError {
 ///
 /// - `before` is the canonical JSON of the current member, or `not_present`.
 /// - `after` is JSON text: an array of strings for `tags`, a string for
-///   `notes`, an object for `provenance_record`; `null` clears the member and
-///   so does an empty tag list. Clearing removes the member.
+///   `notes`, an object for `provenance_record`; only `null` clears (removes)
+///   the member. An empty tag list is stored as authored, so every inverse
+///   edit restores the document exactly.
 ///
 /// Tag form (trimmed, unique, at most 64 characters), non-blank notes and the
 /// provenance record's members and enums are the document validator's
@@ -247,7 +248,6 @@ pub(crate) fn resolve_annotation(
     })?;
     let next = match (field_path, parsed) {
         (_, Value::Null) => None,
-        ("tags", Value::Array(items)) if items.is_empty() => None,
         ("tags", Value::Array(items)) => {
             if !items.iter().all(Value::is_string) {
                 return Err(rich_err("OP-ANNOTATION-PAYLOAD-INVALID", "Tags are an array of strings."));
@@ -324,11 +324,13 @@ fn text_at<'a>(intent: &'a Value, pointer: &str) -> &'a str {
 /// Wire: `target.object_type` is the family's type and `target.ref` the
 /// record's id; `field_path` is the collection; unit `none`, dimension
 /// `dimensionless`. Create: `before` `not_present`, `after` the record's
-/// JSON. Update: `before` the current record's canonical JSON, `after` the
-/// new record's JSON with the same id. Delete: `before` the current record's
-/// canonical JSON, `after` `not_present`. A collection left empty by a
-/// delete is removed (absence means none), so create then delete restores
-/// the original document.
+/// JSON; `field_path` `<collection>` appends, and `<collection>[<index>]`
+/// inserts at that index (0 ..= length), which is how a delete's inverse
+/// puts the record back where it was. Update: `before` the current record's
+/// canonical JSON, `after` the new record's JSON with the same id; the record
+/// keeps its index. Delete: `before` the current record's canonical JSON,
+/// `after` `not_present`. A collection left empty by a delete is removed
+/// (absence means none), so every operation has an exact inverse.
 pub(crate) fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEdit, GeometryError> {
     let change_kind = text_at(intent, "/change/change_kind");
     let Some((family, action)) = family_for_change(change_kind) else {
@@ -340,16 +342,24 @@ pub(crate) fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEd
     let before = text_at(intent, "/change/before");
     let after = text_at(intent, "/change/after");
     let refs = vec![target_ref.to_string()];
+    // `<collection>[<index>]` places a created record (a delete's inverse).
+    let insert_at = field_path
+        .strip_prefix(family.collection)
+        .and_then(|rest| rest.strip_prefix('['))
+        .and_then(|rest| rest.strip_suffix(']'))
+        .filter(|digits| !digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit()))
+        .and_then(|digits| digits.parse::<usize>().ok());
+    let path_ok = field_path == family.collection || (action == Action::Create && insert_at.is_some());
     if object_type != family.object_type
-        || field_path != family.collection
+        || !path_ok
         || text_at(intent, "/change/unit") != "none"
         || text_at(intent, "/change/dimension") != "dimensionless"
     {
         return Err(data_err(
             "OP-DATA-SHAPE-INVALID",
             format!(
-                "{change_kind} requires object type {}, field_path {}, unit none and dimension dimensionless.",
-                family.object_type, family.collection
+                "{change_kind} requires object type {}, field_path {} (or {}[<index>] to place a created record), unit none and dimension dimensionless.",
+                family.object_type, family.collection, family.collection
             ),
             refs,
         ));
@@ -412,11 +422,22 @@ pub(crate) fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEd
                     return Err(data_err("OP-DATA-ID-COLLISION", format!("`{target_ref}` is already an id in this document; ids are unique."), refs));
                 }
             }
-            root.entry(family.collection)
+            let list = root
+                .entry(family.collection)
                 .or_insert_with(|| Value::Array(Vec::new()))
                 .as_array_mut()
-                .expect("checked array")
-                .push(Value::Object(record));
+                .expect("checked array");
+            match insert_at {
+                Some(index) if index > list.len() => {
+                    return Err(data_err(
+                        "OP-DATA-INDEX-INVALID",
+                        format!("{} has {} records; a created record is placed at 0 to {}.", family.collection, list.len(), list.len()),
+                        refs,
+                    ));
+                }
+                Some(index) => list.insert(index, Value::Object(record)),
+                None => list.push(Value::Object(record)),
+            }
         }
         Action::Update | Action::Delete => {
             let [index] = matching[..] else {
@@ -465,7 +486,7 @@ pub(crate) fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEd
         diff_preview: vec![DiffPreviewRow {
             entity_ref: target_ref.to_string(),
             object_type: family.object_type.to_string(),
-            field_path: family.collection.to_string(),
+            field_path: field_path.to_string(),
             before: before.to_string(),
             after: after.to_string(),
             unit: "none".into(),
