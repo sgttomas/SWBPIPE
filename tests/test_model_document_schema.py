@@ -53,7 +53,14 @@ PARTIAL_OPERATION_PREFIX = "fixtures/model_operations/"
 SKIPPED_DIRECTORIES = {".git", "node_modules", "target", "dist", "__pycache__", ".venv", "scratch"}
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
-EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {}
+EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {
+    ("fixtures/model_document/invented_every_slot_model.json", ""): (
+        "W-13 S1b-V document-validator witness: carries the §3 model-data slots (tags, notes, lines, "
+        "unresolved_assumptions, constraints, equipment_interfaces, rule_pack_refs, provenance_record), "
+        "which this version's schema does not describe yet. S1b's 0.7.0 schema adds them; this entry is "
+        "then removed and the witness re-authored to 0.7.0."
+    ),
+}
 
 
 def _reject_constant(token):

@@ -23,6 +23,7 @@ mod atomic_batch;
 mod bend_authoring;
 mod boundary_association;
 mod display_units;
+pub mod document_validator;
 mod geometry_operations;
 mod rich_authoring;
 mod retained_semantics_binding;
@@ -35,6 +36,7 @@ mod section_bindings;
 mod b7b_transport_tests;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
+pub use document_validator::{validate_model_document, DocumentDiagnostic};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
 pub const OUTCOME_DOCUMENT_KIND: &str = "openpipestress.desktop.operation_outcome";
@@ -1033,6 +1035,17 @@ mod wasm_api {
         claimed_model_hash_json: &str,
     ) -> String {
         batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
+    }
+
+    /// W-13 §5.3: the one model-document validator, for the webview open
+    /// path. Returns the validation report (`document_validator::validation_report`)
+    /// as JSON text, or the input-error envelope when the text is not JSON.
+    #[wasm_bindgen]
+    pub fn validate_model_document_json(model_json: &str) -> String {
+        match parse_input("model", model_json) {
+            Ok(model) => super::document_validator::validation_report(&model).to_string(),
+            Err(error) => error,
+        }
     }
 
     /// Display-only numeric conversion through the one accepted unit catalog.
@@ -2203,6 +2216,31 @@ fn run_with_context(
                 ));
                 applied_model = Some(next_model);
             }
+        }
+    }
+
+    // W-13 §5.3: the one document validator checks every applied result. A
+    // result whose model-data slots are malformed is refused (the operation
+    // is blocked and no document is returned); warnings ride along.
+    if let Some(candidate) = &applied_model {
+        let findings = document_validator::validate_model_document(candidate);
+        if document_validator::has_blocking(&findings) {
+            checker.schema_blocked = true;
+            applied_model = None;
+            applied_model_backend_hash = None;
+        }
+        for finding in findings {
+            checker.push(
+                finding.code,
+                finding.severity,
+                format!("{} (at {})", finding.message, finding.path),
+                if finding.is_blocking() {
+                    "The operation's result would leave a malformed model-data slot; correct the slot or the operation and retry."
+                } else {
+                    "Review the named record; this warning does not block editing."
+                },
+                finding.affected_refs,
+            );
         }
     }
 

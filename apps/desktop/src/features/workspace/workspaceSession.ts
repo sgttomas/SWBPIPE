@@ -45,7 +45,7 @@ import {
   openLocalProject,
   saveLocalProject
 } from "../../services/projectService";
-import { modelFileRefusalMessage, openModelDocumentFile } from "../../services/modelDocumentFile";
+import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import {
   keptStoredProjectMessage,
   type ReplaceProjectChoice,
@@ -2132,7 +2132,7 @@ export function useWorkspaceSession() {
       setProjectSummary(null);
       setProjectEnvelopeHash(null);
       setModelDocumentVersion(null);
-      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${opened.schema_status}). Not saved as a local project yet.`);
+      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${opened.schema_status}). Not saved as a local project yet.${modelFileWarningSuffix(opened.warnings)}`);
       setProjectOperation("open_model");
       setActiveSection(null);
       const hash = await computeModelHash(document);

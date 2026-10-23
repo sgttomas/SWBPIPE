@@ -1,9 +1,11 @@
 // File > Open Model Document…: the native chooser, file-level checks
-// (`src-tauri/src/model_document_file.rs`) and the desktop shape check
+// (`src-tauri/src/model_document_file.rs`), the desktop shape check and the
+// one document validator through the wasm engine
 // (`features/model-file/modelDocumentShape.ts`). The session adopts only an
-// `opened` outcome; its document is the file's document, unchanged.
+// `opened` outcome; its document is the file's document, unchanged, and the
+// validator's warnings travel with it.
 import { invoke } from "@tauri-apps/api/core";
-import { modelDocumentShapeDiagnostics, type ModelFileDiagnostic } from "../features/model-file/modelDocumentShape";
+import { modelDocumentShapeDiagnostics, modelDocumentSlotValidation, type ModelFileDiagnostic } from "../features/model-file/modelDocumentShape";
 import type { PreviewModel } from "../types";
 import { isTauriRuntime } from "./nativeMenu";
 
@@ -11,12 +13,12 @@ export type { ModelFileDiagnostic };
 
 export type ModelDocumentOpenOutcome =
   | { outcome: "cancelled" }
-  | { outcome: "opened"; file_name: string; byte_count: number; schema_status: string; document: PreviewModel }
+  | { outcome: "opened"; file_name: string; byte_count: number; schema_status: string; document: PreviewModel; warnings: ModelFileDiagnostic[] }
   | { outcome: "refused"; file_name: string; diagnostics: ModelFileDiagnostic[] };
 
 type NativeOutcome =
   | { outcome: "cancelled" }
-  | { outcome: "opened"; file_name: string; byte_count: number; schema_status: string; document: unknown }
+  | { outcome: "opened"; file_name: string; byte_count: number; schema_status: string; document: unknown; warnings?: ModelFileDiagnostic[] }
   | { outcome: "refused"; file_name: string; diagnostics: ModelFileDiagnostic[] };
 
 export const MODEL_FILE_NATIVE_ONLY = "MODEL-FILE-NATIVE-ONLY";
@@ -32,12 +34,22 @@ export async function openModelDocumentFile(): Promise<ModelDocumentOpenOutcome>
   return checkNativeOutcome(await invoke<NativeOutcome>("open_model_document_file"));
 }
 
-/** Apply the desktop shape check to the native outcome. */
+/** Apply the desktop shape check and the document validator to the native outcome. */
 export function checkNativeOutcome(native: NativeOutcome): ModelDocumentOpenOutcome {
   if (native.outcome !== "opened") return native;
   const diagnostics = modelDocumentShapeDiagnostics(native.document);
   if (diagnostics.length > 0) return { outcome: "refused", file_name: native.file_name, diagnostics };
-  return { ...native, document: native.document as PreviewModel };
+  const slots = modelDocumentSlotValidation(native.document);
+  if (slots.blocking.length > 0) return { outcome: "refused", file_name: native.file_name, diagnostics: slots.blocking };
+  return { ...native, document: native.document as PreviewModel, warnings: slots.warnings };
+}
+
+/** The open status line's warning suffix ("" when there is none). */
+export function modelFileWarningSuffix(warnings: ModelFileDiagnostic[]): string {
+  if (warnings.length === 0) return "";
+  const shown = warnings.slice(0, 4).map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}`);
+  const more = warnings.length > shown.length ? ` (+${warnings.length - shown.length} more)` : "";
+  return ` Warnings: ${shown.join(" | ")}${more}.`;
 }
 
 /** One status line naming every refusal diagnostic. */

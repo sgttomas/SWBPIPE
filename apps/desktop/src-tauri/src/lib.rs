@@ -2189,6 +2189,20 @@ fn refuse_model_document(status: &ModelDocumentVersionStatus) -> String {
     )
 }
 
+/// W-13 §5.3: the one document validator's blocking findings, named with
+/// their JSON paths, refuse the document. Warnings never refuse.
+fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
+    let blocking: Vec<String> = open_pipe_stress_operation_applier::validate_model_document(model)
+        .into_iter()
+        .filter(open_pipe_stress_operation_applier::DocumentDiagnostic::is_blocking)
+        .map(|finding| format!("{} at {}: {}", finding.code, finding.path, finding.message))
+        .collect();
+    if blocking.is_empty() {
+        return Ok(());
+    }
+    Err(format!("Model document refused: malformed model-data slots: {}", blocking.join(" | ")))
+}
+
 /// The version check for create/save (DEL-02-05 CLM-003): a document that is
 /// not current is refused by name. A current document is persisted exactly as
 /// received, with the received hash evidence; nothing is migrated, normalized
@@ -2378,9 +2392,16 @@ fn open_local_project(
     app: AppHandle,
     project_id: Option<String>,
 ) -> Result<Option<LocalProjectEnvelope>, String> {
-    let path = app_store_path(&app)?;
+    open_project_in_store(app_store_path(&app)?, project_id.as_deref())
+}
+
+/// `open_local_project` on a given store.
+fn open_project_in_store(
+    path: PathBuf,
+    project_id: Option<&str>,
+) -> Result<Option<LocalProjectEnvelope>, String> {
     let (connection, migration) = open_project_store(&path)?;
-    load_project(&connection, project_id.as_deref())?
+    load_project(&connection, project_id)?
         .map(|record| {
             // DEL-02-05 CLM-003: the restored document is opened exactly as
             // stored when its version is current; any other version is refused
@@ -2389,6 +2410,9 @@ fn open_local_project(
             if status.is_refused() {
                 return Err(refuse_model_document(&status));
             }
+            // W-13 §5.3: a stored document with a malformed model-data slot is
+            // refused by name, never repaired.
+            refuse_malformed_model_slots(&record.model)?;
             let model = record.model;
             Ok(LocalProjectEnvelope {
                 summary: project_summary(
@@ -7703,6 +7727,45 @@ mod tests {
         let (connection, _) = open_project_store(&db).unwrap();
         let after = load_project(&connection, Some("project:retired")).unwrap().unwrap();
         assert_eq!(after.model, stored_model, "the stored bytes are never rewritten");
+        drop(connection);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// W-13 §5.3 at project load: a stored document carrying every model-data
+    /// slot opens exactly as stored with its model hash; a stored document with
+    /// a malformed slot is refused by name and its stored bytes are untouched.
+    #[test]
+    fn project_load_validates_model_data_slots() {
+        let root = std::env::temp_dir().join(format!(
+            "ops-slot-model-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let every_slot: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_document/invented_every_slot_model.json"
+        )).unwrap();
+        let mut malformed = every_slot.clone();
+        malformed["project"]["id"] = json!("project:slots-malformed");
+        malformed["constraints"][0]["constraint_kind"] = json!("equipment_interface");
+        {
+            let (mut connection, _) = open_project_store(&db).unwrap();
+            for (id, model) in [("project:slots", &every_slot), ("project:slots-malformed", &malformed)] {
+                upsert_project(&mut connection, id, "Invented slots", model, &json!([]),
+                    &Value::Null, &Value::Null, &Value::Null, &Value::Null,
+                    &computed_model_hash(model, id), &Value::Null).unwrap();
+            }
+        }
+        let opened = open_project_in_store(db.clone(), Some("project:slots")).unwrap().unwrap();
+        assert_eq!(opened.model, every_slot);
+        assert_eq!(hash_value_string(&opened.model_hash), model_payload_hash(&every_slot));
+        let error = open_project_in_store(db.clone(), Some("project:slots-malformed"))
+            .expect_err("a malformed slot is refused at project load");
+        assert!(error.contains("MODEL-CONSTRAINT-KIND-INVALID at constraints[0].constraint_kind"), "{error}");
+        let (connection, _) = open_project_store(&db).unwrap();
+        let after = load_project(&connection, Some("project:slots-malformed")).unwrap().unwrap();
+        assert_eq!(after.model, malformed, "the stored bytes are never rewritten");
         drop(connection);
         std::fs::remove_dir_all(root).unwrap();
     }
