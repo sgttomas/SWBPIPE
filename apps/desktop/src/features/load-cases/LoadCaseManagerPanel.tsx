@@ -2531,7 +2531,10 @@ function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallba
   const fallback = fallbackSymbol === ""
     ? { symbol: "", label: "Choose a unit" }
     : { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
-  if (fallbackSymbol === "TBD" || route?.route !== "tauri_unit_catalog") return [fallback];
+  // An undeclared project unit (TBD) has no default; with the catalog loaded the
+  // field still offers its catalog units to choose from (W-17 §2.4: the moment
+  // default is project.units.moment, never composed).
+  if (route?.route !== "tauri_unit_catalog" || !Array.isArray(route.catalog?.entries)) return [fallback];
   const options = acceptedUnits(route.catalog)
     .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
     .map((entry) => ({

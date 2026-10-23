@@ -83,6 +83,35 @@ describe("load form composed defaults", () => {
     expect(screen.queryByTestId("load-manager-create-primitive-unit-notice")).not.toBeInTheDocument();
   });
 
+  it("a moment drafted in the moment key is accepted by the core applier", async () => {
+    route.current = PREVIEW;
+    const model = blankWith({ ...SI_PROJECT_UNITS, length: "mm" });
+    const queue = mountLoads(model);
+    choose("load-manager-create-primitive-category", "concentrated_moment");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("N*m");
+    await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
+    fireEvent.click(byId("queue-create-primitive-intent"));
+    const intent = queue.mock.calls.at(-1)![0];
+    expect(intent.change).toMatchObject({ unit: "N*m", dimension: "moment" });
+    const outcome = await validateModelOperation(model, intent, await computeModelHash(model));
+    expect(outcome.diagnostics.filter((diagnostic) => diagnostic.severity === "blocking")).toEqual([]);
+  });
+
+  it("without a moment key there is no default, and the catalog still offers a choice", async () => {
+    route.current = CATALOG;
+    const model = blankWith(SI_PROJECT_UNITS);
+    delete model.project.units.moment;
+    const queue = mountLoads(model);
+    await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
+    choose("load-manager-create-primitive-category", "concentrated_moment");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("TBD");
+    expect(byId("queue-create-primitive-intent")).toBeDisabled();
+    choose("load-manager-create-primitive-unit", "lbf*ft");
+    await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
+    fireEvent.click(byId("queue-create-primitive-intent"));
+    expect(queue.mock.calls.at(-1)![0].change).toMatchObject({ unit: "lbf*ft", dimension: "moment" });
+  });
+
   it("both presets: no composed default is cleared", async () => {
     route.current = CATALOG;
     for (const [units, distributed] of [[SI_PROJECT_UNITS, "N/m"], [US_CUSTOMARY_PROJECT_UNITS, "lbf/in"]] as const) {
