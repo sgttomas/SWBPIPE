@@ -538,8 +538,35 @@ fn an_object_key_spelled_star_is_not_an_index_wildcard() {
     model["load_cases"][0]["primitive_loads"] = json!({"*": load});
     let intent = reconnect(&model, "pipe:P", "to", "node:C", None);
     let refusal = refused(&model, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
-    assert_eq!(refusal.len(), 1);
-    assert!(refusal[0].message.contains("is named at load_cases[0].primitive_loads[\"*\"].target.pipe"), "{}", refusal[0].message);
+    // Refused on both counts: the slot is unknown (R12), and the collection is not an array.
+    assert_eq!(refusal.len(), 2, "{refusal:#?}");
+    assert!(refusal.iter().any(|d| d.message.contains("is named at load_cases[0].primitive_loads[\"*\"].target.pipe")), "{refusal:#?}");
+    assert!(refusal.iter().any(|d| d.message.contains("load_cases[0].primitive_loads is not an array")), "{refusal:#?}");
+}
+
+#[test]
+fn a_collection_that_is_not_an_array_is_unscannable_and_refuses() {
+    // components as an object map naming P: not R9's array records, so the
+    // scan reports it and the shape guard refuses (never read as empty).
+    let mut model = base();
+    model["components"] = json!({"*": {"geometry": {"bend_pipe_ref": "pipe:P"}}});
+    let intent = reconnect(&model, "pipe:P", "to", "node:C", None);
+    let refusal = refused(&model, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
+    assert!(refusal.iter().any(|d| d.message == "Cannot reconnect pipe:P: components is not an array, so reconnect cannot check the records it holds."), "{refusal:#?}");
+    // pressure_regions as an object hiding an internal node (R11 would apply):
+    // region X (E -> G), Y (G -> H), terminals E and H; P joins G.
+    let mut model = base();
+    for (id, x) in [("node:E", 10.0), ("node:G", 12.0), ("node:H", 14.0)] {
+        model["nodes"].as_array_mut().unwrap().push(node(id, x, 0.0, 0.0));
+    }
+    model["pipe_segments"].as_array_mut().unwrap().extend([pipe("pipe:X", "node:E", "node:G", Z), pipe("pipe:Y", "node:G", "node:H", Z)]);
+    model["load_cases"][0]["pressure_regions"] = json!({"region:XY": region("region:XY", &["pipe:X", "pipe:Y"], ["node:E", "node:H"])});
+    let intent = reconnect(&model, "pipe:P", "to", "node:G", None);
+    let refusal = refused(&model, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
+    assert!(refusal.iter().any(|d| d.message == "Cannot reconnect pipe:P: load_cases[0].pressure_regions is not an array, so reconnect cannot check the records it holds." && d.affected_refs == vec!["pipe:P", "case:w"]), "{refusal:#?}");
+    // The same region as an array is R11.
+    model["load_cases"][0]["pressure_regions"] = json!([region("region:XY", &["pipe:X", "pipe:Y"], ["node:E", "node:H"])]);
+    refused(&model, &reconnect(&model, "pipe:P", "to", "node:G", None), "OP-RECONNECT-PRESSURE-REGION-BRANCH");
 }
 
 #[test]

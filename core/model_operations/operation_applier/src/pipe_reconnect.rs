@@ -171,8 +171,70 @@ pub(crate) fn delete_dependents(model: &Value, pipe: &str) -> Vec<(String, Strin
         .filter(|segs| !reported.iter().any(|pattern| matches(segs, pattern)))
         .map(|segs| owner_of(model, &segs))
         .collect();
+    // A collection the checks read as an array but that holds something else
+    // cannot be checked: it is a named dependent, never read as empty.
+    out.extend(malformed_collections(model).iter().map(|segs| {
+        let (owner, slot) = owner_of(model, segs);
+        (owner, if slot.is_empty() { "not an array".to_string() } else { format!("{slot}, not an array") })
+    }));
     out.sort();
     out.dedup();
+    out
+}
+
+/// Every collection a reconnect or delete check reads as an array that is
+/// present with any other value (object, string, number, boolean or null):
+/// root `nodes`, `pipe_segments`, `supports`, `components`, `load_cases` and
+/// `reference_configurations`; per load case `primitive_loads`,
+/// `pressure_regions`, `analysis_state.element_states` and
+/// `equivalent_static.wind.exposed_pipe_refs` / `exposed_spans`; per region
+/// `member_pipe_ids`, `member_connector_ids` and `terminals`; per reference
+/// configuration `member_references`. Such a value is unscannable, never empty.
+pub(crate) fn malformed_collections(model: &Value) -> Vec<Vec<Seg>> {
+    fn key(path: &[Seg], name: &str) -> Vec<Seg> {
+        let mut next = path.to_vec();
+        next.push(Seg::Key(name.to_string()));
+        next
+    }
+    fn check(parent: &Value, path: &[Seg], names: &[&str], out: &mut Vec<Vec<Seg>>) {
+        for name in names {
+            if parent.get(*name).is_some_and(|value| !value.is_array()) {
+                out.push(key(path, name));
+            }
+        }
+    }
+    fn rows<'a>(parent: &'a Value, path: &[Seg], name: &str) -> Vec<(Vec<Seg>, &'a Value)> {
+        parent
+            .get(name)
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .enumerate()
+            .map(|(index, row)| {
+                let mut at = key(path, name);
+                at.push(Seg::Index(index));
+                (at, row)
+            })
+            .collect()
+    }
+    let mut out = Vec::new();
+    check(model, &[], &["nodes", "pipe_segments", "supports", "components", "load_cases", "reference_configurations"], &mut out);
+    for (case_path, case) in rows(model, &[], "load_cases") {
+        check(case, &case_path, &["primitive_loads", "pressure_regions"], &mut out);
+        if let Some(state) = case.get("analysis_state") {
+            check(state, &key(&case_path, "analysis_state"), &["element_states"], &mut out);
+        }
+        if let Some(wind) = case.pointer("/equivalent_static/wind") {
+            let wind_path = key(&key(&case_path, "equivalent_static"), "wind");
+            check(wind, &wind_path, &["exposed_pipe_refs", "exposed_spans"], &mut out);
+        }
+        for (region_path, region) in rows(case, &case_path, "pressure_regions") {
+            check(region, &region_path, &["member_pipe_ids", "member_connector_ids", "terminals"], &mut out);
+        }
+    }
+    for (configuration_path, configuration) in rows(model, &[], "reference_configurations") {
+        check(configuration, &configuration_path, &["member_references"], &mut out);
+    }
     out
 }
 
@@ -381,6 +443,15 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<ReconnectEdit, Bl
     if let Err(error) = orientation(chord, unit, effective_y, pipe_id, &[pipe_id.to_string(), ends.fixed.clone(), target.to_string()]) {
         blocks.push(error);
     }
+    for segs in malformed_collections(model) {
+        let (owner, _) = owner_of(model, &segs);
+        blocks.push(block(
+            "OP-RECONNECT-ATTACHMENT-UNSUPPORTED",
+            format!("Cannot reconnect {pipe_id}: {} is not an array, so reconnect cannot check the records it holds.", render(&segs)),
+            "Repair the collection as an array of records, then reconnect.",
+            vec![pipe_id.to_string(), owner],
+        ));
+    }
     components(model, &ends, &mut blocks);
     regions(model, &ends, &mut blocks);
     pipe_slots(model, &ends, &mut blocks, &mut warnings);
@@ -567,7 +638,8 @@ fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
     let ids = BTreeSet::from([pipe.to_string()]);
     for segs in scan(model, &ids, Some(pipe), &BTreeSet::new()) {
         let path = render(&segs);
-        if matches!(segs.first(), Some(Seg::Key(k)) if k == "components") {
+        // Only R9's array records are exempt; any other `components` value is scanned.
+        if matches!(segs.as_slice(), [Seg::Key(k), Seg::Index(_), ..] if k == "components") {
             continue;
         }
         let case_id = || {
@@ -643,7 +715,8 @@ fn node_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
     let pipe = ends.pipe;
     let node_ids = ends.nodes();
     for segs in scan(model, &node_ids, Some(pipe), &node_ids) {
-        if matches!(segs.first(), Some(Seg::Key(k)) if k == "components") {
+        // Only R9's array records are exempt; any other `components` value is scanned.
+        if matches!(segs.as_slice(), [Seg::Key(k), Seg::Index(_), ..] if k == "components") {
             continue;
         }
         let node = at(model, &segs).and_then(Value::as_str).unwrap_or("").to_string();

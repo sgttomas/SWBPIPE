@@ -134,7 +134,24 @@ fn an_object_key_spelled_star_is_a_named_dependent() {
     m["load_cases"][0]["primitive_loads"] = json!({"*": {"id": "load:star", "category": "distributed_force", "target": {"type": "element", "pipe": "pipe:P"}, "direction": "global_z", "magnitude": {"value": 1.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": PROV}});
     let d = refused(&m, &delete_pipe(&m, "pipe:P"));
     assert_eq!(d.affected_refs, vec!["pipe:P", "case:w"]);
-    assert_eq!(d.message, "Pipe segment pipe:P is still named by: case:w (primitive_loads[\"*\"].target.pipe).");
+    assert_eq!(d.message, "Pipe segment pipe:P is still named by: case:w (primitive_loads, not an array), case:w (primitive_loads[\"*\"].target.pipe).");
+}
+
+#[test]
+fn a_collection_that_is_not_an_array_is_a_named_dependent() {
+    // components as an object map naming the pipe.
+    let mut m = model();
+    m["components"] = json!({"*": {"geometry": {"bend_pipe_ref": "pipe:P"}}});
+    let d = refused(&m, &delete_pipe(&m, "pipe:P"));
+    assert_eq!(d.affected_refs, vec!["pipe:P", "components"]);
+    assert!(d.message.contains("components (not an array)"), "{}", d.message);
+    // pressure_regions as an object: unscannable, so the delete refuses even
+    // where no readable record names the pipe.
+    let mut m = model();
+    m["load_cases"][0]["pressure_regions"] = json!({"region:q": {"member_pipe_ids": ["pipe:Q"]}});
+    let d = refused(&m, &delete_pipe(&m, "pipe:P"));
+    assert_eq!(d.affected_refs, vec!["pipe:P", "case:w"]);
+    assert_eq!(d.message, "Pipe segment pipe:P is still named by: case:w (pressure_regions, not an array).");
 }
 
 #[test]
