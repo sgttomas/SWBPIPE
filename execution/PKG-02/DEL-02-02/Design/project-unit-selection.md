@@ -1,7 +1,8 @@
 # Project unit selection (W-17)
 
-**Basis:** `origin/main` at `356a9be374` (2026-10-23). Design before
-implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
+**Basis:** `origin/main` at `356a9be374` (2026-10-23). Slice (a) (§5) is
+implemented in W-17 (`apps/desktop/src/features/project-units/`); slice (b),
+`set_project_unit` and the Project units section, is not implemented. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
 Requirement: PRD §10.1 step 1, "User creates a project and selects units". Unit

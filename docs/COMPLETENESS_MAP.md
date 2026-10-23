@@ -328,8 +328,9 @@ These have the largest effect, because `tools.deliverables touches` and
   scaling.
 - **DEL-05-05:48:** names a crate the product does not link.
 - **DEL-07-05:119,158,260:** rotation-glyph evidence now exists.
-- **DEL-07-07:126** and **DEL-08-01:79,122,184,205:** "not implemented in this
-  setup", although the code ships.
+- **DEL-07-07:126:** "not implemented in this setup", although the code ships.
+  DEL-08-01's matching sentence (CLM-006) now points to its current-implementation
+  paragraph.
 - **DEL-07-03:95,157:** describes a reference editor rather than the manager
   that ships.
 - **DEL-14-01:86,168** and **DEL-14-03:83:** module paths still `TBD`.
