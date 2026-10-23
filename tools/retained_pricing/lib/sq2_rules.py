@@ -163,6 +163,11 @@ for key, value in D.get("ID_AUDIT", []):
     TA["id_audit"].setdefault(key, {}).update(value); LOG["other"].append(["id_audit", key, value])
 for rule in reversed(D.get("ARGS_FIRST", [])):
     rule = dict(rule); rule["why"] = "SQ2 G5: " + rule["why"]; TA["args"].insert(0, rule); LOG["other"].append(["args", rule])
+# W8-RF (retained-pricing-rules.md §8.16): a diagnostic's affected-refs expression and its bound, placed before the
+# inherited refs rules (o10_rules.py's O10_REFS_FIRST).
+for rule in reversed(D.get("O10_REFS_FIRST", [])):
+    rule = dict(rule); rule["why"] = "O-10: " + rule["why"]; TA.setdefault("refs_rules", []).insert(0, rule)
+    LOG["other"].append(["refs_first", rule])
 for key, value in D.get("LEX_SITE_SIZE", []):
     TA["lex_site_size"][key] = value; LOG["other"].append(["lex_site_size", key, value])
 # B7b-DX: exclusive diagnostic groups (o10_rules.py, by name at the snapshot): text_budget.py counts each group's
