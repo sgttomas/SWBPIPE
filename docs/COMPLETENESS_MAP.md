@@ -142,7 +142,7 @@ class, the evidence, and the deliverables.
 | FR-GUI-001 (498) | Must | D | `PipeViewport.tsx:1249-1331` (pipes, nodes, supports, components, labels); load arrows `:1289`; deformed shape and rotation glyphs `:1268-1283`; `e2e/c3-viewport-visibility.spec.ts`, `rotation-glyph.spec.ts`. **Result overlays (OD-5, PR #1556):** per-member result colour (`resultColourOverlay.ts`, `ResultOverlayLegend.tsx`) and support reaction arrows (`reactionOverlay.ts`, `viewportReactionArrows.ts`); `e2e/result-overlays.spec.ts` in the PR core browser journey | DEL-07-01, DEL-07-05 | Overlays are off by default. Colour is one value per member, with no per-node interpolation, and draws only rows the results table shows under the numerical-health standing. Reaction arrows come from global-frame rows only; withheld attributions are counted, not drawn. The `canvas.edgeAlt` edge line and §2.7 neutral load arrows are not built. The D-72 orbit qualification with result colour has not run. DEL-07-01 REQ-02's "stress-ratio color maps" wording is with the owner. |
 | FR-GUI-002 (499) | Must | P | `ModelTree.tsx:40-57` | DEL-07-02 | No lines, states or runs. |
 | FR-GUI-003 (500) | Must | P | `PropertyInspector.tsx:1248,1263,1283`; `typedInspector.test.tsx` | DEL-07-02 | No dependencies, linked assumptions or dependent rule-pack inputs. These are not in DEL-07-02 RQ-002. |
-| FR-GUI-004 (501) | Must | P | Create, modify and move (`operation_applier/src/lib.rs:385-404,2395-2470`), delete (`:1732,1774`); split, copy, rotate and mirror (`geometry_operations.rs`); `e2e/b4-table-editing.spec.ts` | DEL-07-01, DEL-16-06 | No reconnect: a pipe's `from`/`to` cannot be retargeted. |
+| FR-GUI-004 (501) | Must | D | Create, modify and move (`operation_applier/src/lib.rs:385-404,2395-2470`), delete (`:1732,1774`; refuses while any record names the pipe); split, copy, rotate and mirror (`geometry_operations.rs`); reconnect (`pipe_reconnect.rs`, `tests/pipe_reconnect.rs`, `e2e/pipe-reconnect.spec.ts`); `e2e/b4-table-editing.spec.ts` | DEL-07-01, DEL-16-06 | Reconnect refuses, for v0.1, pipes named by a component, pipes with a non-terminal component at an affected node, pressure-region members and moves onto a region's internal node (DEL-16-06 declared limitation). Every pipe in the bundled demo is refused. |
 | FR-GUI-005 (502) | Should | D | `workspaceSession.ts:1182-1188` (depth 25); `e2e/b3a-session-status.spec.ts` | DEL-00-05, DEL-07-11 | Session-only. |
 | FR-GUI-006 (503) | Must | D | `MissingDataBlockingPanel.tsx:5-11,165-187`; `App.test.tsx:2966-3004`; `e2e/gui-workflow-validation.spec.ts:110` | DEL-07-04 | Shown in drift §3 (DEL-07-04). |
 | FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts:654,739` (`single_run_load_basis_review`) | DEL-07-08, DEL-14-05 | Within one run only. |
@@ -348,6 +348,9 @@ These have the largest effect, because `tools.deliverables touches` and
     basis (`index.md:27-28`) and the DEL-09-05 pointer (`index.md:200`).
   - **Still open:** `index.md:63` (PRD §16.5, which does not exist), `:76`
     (missing path), `:284` (R5 → R6 numbering). The `:168` table is empty.
+  - **Fixed:** the case-page generator
+    (`cases/generate_validation_case_pages.py`) cites PRD §24 R6 and §22.2
+    instead of v0.1 §16.5 and §16.2; the pages are regenerated.
 - **User guide** `docs/user_guide/index.md:70,232,236,394`: describes a
   skeleton and missing install steps, and says the report package works.
 - **`apps/desktop/SMOKE.md:22-140`:** historical browser checks against strings
@@ -356,7 +359,8 @@ These have the largest effect, because `tools.deliverables touches` and
   is refused when…" understates that every session is blocked. This file is in
   the release-rehearsal lane; it is left to that manager.
 - **Code comments:**
-  - `LibraryManagerPanel.tsx:41-42` says library wiring is absent; it exists.
+  - **Fixed:** `LibraryManagerPanel.tsx:41-42` now describes the existing
+    rule-pack library wiring (`resolve_library_value_bindings`).
   - `product_physics/src/validation.rs:1268` implies scaling is applied when a
     mapping is valid; it never is. This one needs a DEC-081 claims check.
 - **Corpus-wide:** ScopeOfWork files cite `_STATUS.md`, `_CONTEXT.md`,

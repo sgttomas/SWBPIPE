@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Generate per-case validation-manual pages from existing repository evidence.
 
-Each generated page assembles the PRD section 16.5 record fields (purpose,
+Each generated page assembles the validation-manual record fields (purpose,
 input model, independent reference, expected result, software result,
 tolerance, pass/fail, solver version) for one existing validated case, using
-only artifacts already committed in the live tree:
+only artifacts already committed in the live tree. The validation manual is
+the PRD section 24 R6 deliverable; the current PRD has no successor to the
+v0.1 section 16.5 that first listed these fields. Sources:
 
 - hand-calculation witness notes under `validation/hand_calcs/`;
 - fixture constructors and suite tests in `validation/benchmarks/*/src/lib.rs`;
@@ -289,7 +291,7 @@ MECHANICS_CASES = [
         ["branch_assembly_fixture_matches_open_stiffness_network"],
         "mech_numeric",
         purpose_fallback=(
-            "Verify the PRD section 16.2 branch-assembly solver benchmark: a "
+            "Verify the PRD section 22.2 branch-assembly solver benchmark: a "
             "three-member invented frame network (run, riser, and branch) is "
             "assembled, solved, and compared against elementary open "
             "frame-member stiffness relationships recorded in the reference "

@@ -164,6 +164,7 @@ name = "open_pipe_stress_operation_applier"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
+ "open_pipe_stress_frame_kernel",
  "open_pipe_stress_library_import_document",
  "open_pipe_stress_product_physics",
  "open_pipe_stress_rule_pack_document",

@@ -1938,9 +1938,10 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// W-8 topology warning added; no number moved.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "6cb92ba34e603c460726493afb59d41e965332643a2cfcf3a5e7674d69361523", "63820715bece7364bc2cc36f24e1e9ca83b604da38cd1a677b75e959cc6b9c95", "b5a91994c1d1a4d04ba7d53b1ca716eab469e4186cf5d4d5511701e272ab57c0"),
-    ("dense_scrutiny", "b1080b56148f8585687a8a8c99b9ef271d91468ff3f01bce57ce026f7b9d132c", "7f0e3a6a515f9b3e3686e7e79520dcdb0f05479706e1e202a3a5924bb9937119", "3b93563f4c1ade256405e73aa5a56e46c9dd2e721723d84caa8ee9b21cbe60ea"),
+    ("sparse_interactive", "95d222de6697fc9202b327396a4b744ade6281b91391da607aac7130ea13e987", "1b46129820e2afffe7d33130d1d2fb0c4aff83b32a54240148e997b9b733cb1c", "79faa6f29bb072d2d307df7677b1581a1786e43bfc4974a85b60b028eedd7d8b"),
+    ("dense_scrutiny", "1de006c7938be98b2977fd5ceb574fbacacf30bd51bdbfa41dfaea03795fc854", "4ed149506ffdb5a518c8381136d889ff83d785476cc49b7298c1afbb2d9d71c5", "b676856a0402fd41e3ed7a98189aaba43bcb551c8c62ec28dc3f85cc37b57050"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2286,19 +2287,21 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// W-8 topology warning added; no number moved.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "ab7d66fd0e8ce93d0956370b9c82e964a31f214a3922fed82ac8e8b8ee6b8f26", "7b03dfcf34ba201c4bd2b5ffc9342ddde7243b24b9bab63fa51a4d6b6f9cc476"),
+    ("sparse_interactive", "2d8980e5f9854a4d3f33733d918b12bd27507ee3a46d83f9349a41dddec00148", "4bdb9288a6519b577a1e686f6aa50c594992ac7bda73eeae3be84b39c11c2e08"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "5e9ac9715b762f59d9698442ea05f1abd0b56e9da0207d83f8283cefcde3c838", "bd3cf6b38f776ef2cc8fc1b01a7b1fa3a6633fa2be345b7a88753178439f73b5"),
+    ("dense_scrutiny", "fe991a88cd707c25b7a1b15d37eb0806f2dd28eb0eccc3985cf441a12e98ea12", "e751729746cb325839346ac07c7ae8ac0f0f621c4ac530f161bbeeb94fc1335c"),
 ];
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// W-8 topology warning added; no number moved.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "cad34f1aabe2d2baa4ac01c2dd975e7d8e074b32683eec0c7193b863bf9d0968", "18279af10a671eb165cdf48e5eb518abaa4fb3697a7ecaba1ec1cd502937af33"),
-    ("dense_scrutiny", "2bfa8333df261678df7096b895fbcbfe7e4123c3087e86580a79653b53ecc942", "3593e0ec0d38ee69e76aaeeef6169851eef8ea420cd6ddfa2171d4d2f480aad5"),
+    ("sparse_interactive", "b39b38671051c8db6ec1a4a67207257e69efa58a1b46cc52c80be9871755117f", "051d2c908d6900eecd6798940ecc67ba866a2abc4346615a726532d0f5178507"),
+    ("dense_scrutiny", "9d7ce6227b5c878157228b8444eedce039d83e5f7b3cebb915d6a4c45fcbe5ad", "eadd8973820ee1646dc60b487bc731bf4e2457d731c1af63fd9eda176f383bd1"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -4301,47 +4304,48 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// W-8 topology warning added; no number moved.
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "6661a0828d26faf49426ccc03b1f24906d3a07150759f603fb9163160099d51f",
-        "8f9272f6702f491644b5179a512be60719a5fe930c334d52a188e11a7e902c17"),
-    ("w_cb1", "dense_scrutiny", "6e55db382c1ce7a0d47ebd733b5deb7d2a3c8b05f3470530aaf54e7f09844ebd",
-        "fe48bde6f7cc44e6b88525495903356546937319b32e09a0bc561bb54732a45f"),
-    ("w_cb1z", "sparse_interactive", "e59fdfc7fcb3e2d649ccd8b41675f57b397ea1e3856fea3f552b04db1458896f",
-        "e686984e04814e8687cde12c5d7436ae3e31a1b9c81b4332c182276278890103"),
-    ("w_cb1z", "dense_scrutiny", "d000e0369fc16232fd9c3fcbab20d4b9a5d955b8af73b9b6f0656a9a97b7f416",
-        "4ccd2fe2674933a448bb15498ba4be44e66ddcee745873348b387237120d16ed"),
-    ("w_cb2", "sparse_interactive", "427fb091b0728fa63927bdab2f1949473841927cf0ff9bcbf084d34b72ff010a",
-        "899732129b3a751d6eb140682b28ffa3af68e04c6a8da7f600591f68f8855ea3"),
-    ("w_cb2", "dense_scrutiny", "3dfac37255397912edb7dff1ab09f5f680626f0654c21fede6de6da1439f6932",
-        "4291b99d984fd0f93152507b15a19b3a8155ac842314c2bda705e65491ddd46e"),
-    ("w_cb3", "sparse_interactive", "6c7dfc36f58cfc8d48c6057d645c83969fea84879a753864d59515a28db73101",
-        "36df04b08eae68c9910c88510511f77932ea141885d0ba9981bdd91027a76b73"),
-    ("w_cb3", "dense_scrutiny", "de18ad6e48b537d63fb502f2f5ac9189e7b5cba334d7ce6b9af94d26113c1cec",
-        "59349e0a904d5e443b65fcadeec200c664a8976315c7828183bf6fd1fbd74f67"),
-    ("w_cb4a", "sparse_interactive", "a5049a9e2fc095d26bcdc8d09fb4d3055278ed9fe6ac8d34456f6bc9503f5344",
-        "b4cd55c4e1f925b7eac052254b8aaf842114a3f83bf3569c14f1388c93d69916"),
-    ("w_cb4a", "dense_scrutiny", "728a619e7b624fff58fec9ed1271e70a21ef97637b60b4140323770128000481",
-        "12ed4934d16504d6ea0d88361bc83a51ab09bac12d81a7645895e3a3bf470008"),
-    ("w_cb4b", "sparse_interactive", "3b5ef4a966660de3ea071d374a896c14352ee1163d7dbb612c3ae5325d176083",
-        "c89e8e6059de3a188fda6c6b7e893384e20bab532529e4198bce75b43ab2acde"),
-    ("w_cb4b", "dense_scrutiny", "63b9d8fcacfa9a5c3a703d6eddd09a6bcf8403997bd6375b30af173c93d57325",
-        "6be12dbe59e353dedd09dc8febb00fec18c5a02f0c5e348b9f903022a1124ef2"),
-    ("w_cb5", "sparse_interactive", "76f854ab3b7d9a083c16dc1834311ec696e1ecba09c89d7fb85553aeda6eb855",
-        "e1ff884df91148ed080f2cf03e9fef428943a239f949d9afc2b19df840385ed9"),
-    ("w_cb5", "dense_scrutiny", "627d457370b55edc7663155c9711053988a721058bb16c02833b6664e12bbff0",
-        "bb833e8e72ad952268528b33c27efad4ed08db1a7fc852bfd34bcb723471e8d4"),
-    ("c1_range_mechanics", "sparse_interactive", "a3eb8329a2107d4b457db80ae350d5b4c9c121b77fafd14688fbfc72211be6a9",
-        "f0014a56b224712af2bdedf41c840ece365b67b572852c2abddbc11a32dbd3e7"),
-    ("c1_range_mechanics", "dense_scrutiny", "11ca773ecafb6268316d245ff0db4a5ad09707cb0a39bfcdd700ea99f266e0b4",
-        "86d5743697c27f13f6ee4c0e7121e1ce9478635d9dc6dd8ab319520941286fb1"),
-    ("rv123_w_cb3_ba", "sparse_interactive", "71ff6f968eb2d3feadd0a44094bffc819cdd3ef43a7db0b612d238f7a143884d",
-        "822e3b294838df7f8bd3a5dc492e75a20cf225d1cff361a78dd7e452c7ac7957"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "cc09ca41dceba652f2c806c08df98bc323109a36d9ace7f72162a8c67cf43ad3",
-        "0f45c1c8e697a8c18fb8d7083ce457dc2b43c2c87b2e69d4bd3be40b9dde82d6"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "406760101db3ad09e6978bcc1479c6f0ea6d0eedc9388082512b193c6d5bc922",
-        "3cb0e4cc7cf17e8befc61cc35213da7db34ffab09ee6ab324a595b1aa7e3c6da"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "8d849215bf1be6c4f405b10e3d6a34d274ecfbf8d5cb49ae8efd221b60c723cc",
-        "cf2b340242463deb4e76c821a797c416122b725acfb4b5d81c839fdf2f53698d"),
+    ("w_cb1", "sparse_interactive", "70f70802b2287172820f988198fe9fdb8c6a43883b89801c54c9e7db03247d6f",
+        "bcedb539d65259f2c1a616ba8e552f8de2fe787b44dc9187dc3d594291f9313a"),
+    ("w_cb1", "dense_scrutiny", "6079ceb96122238677a2258261fc64b898bd56cd5b872c585fd11795aa78ca9f",
+        "841950a958eed525321b51977193a33667e5b807e024c3409f268b01194334b3"),
+    ("w_cb1z", "sparse_interactive", "d46d839526a491e862631994c2f2581f43bfa34c1cd35bb198eb305499badb30",
+        "1a1067cf6a9bbae4124c52a5b19de61083f402400b2e7c4e7822cd4aa010e843"),
+    ("w_cb1z", "dense_scrutiny", "2c62ce347022bb89c43a9c3751a813c2037fd13f5d3d892a16a073056a2a5f96",
+        "71c3dfb3cc9d50912b056d7918beb02992000bf92dc094ba50a7d179a92df7a6"),
+    ("w_cb2", "sparse_interactive", "cc8f1445c26809b66906ba68562eb12b5306f9b0370a1d266c52ab802a88f2ac",
+        "dceee1b7fbb13d55d5c15feb58373cbbe96d1c6355613616aed4bb426f085b39"),
+    ("w_cb2", "dense_scrutiny", "2ce5161793badc445382d8052a53569b0707280f3332683120364bb5260c27cb",
+        "fcfccf2550155200e0e01241e9da99787cc3e94a09aaee454e1c78981751546c"),
+    ("w_cb3", "sparse_interactive", "f0ecf48d9e3c144474599a7c35510fb1265dc9dcc8b1fe9346ed4974c5cd4bc2",
+        "05c2150cc20f7938b60b2d9680f0edb0598c4ea9a555910b478e72adbafadc84"),
+    ("w_cb3", "dense_scrutiny", "13355a9cd2485ba5662096623b90f00b96a0812dd2bc4d001fc059e70cdf2c59",
+        "dcf0c6a6d1d727ec427b937c8c42e46a9e22039d907b4ae7f3f70eb6759ce0cd"),
+    ("w_cb4a", "sparse_interactive", "b3fd9846bddc99080c5bb8a61176839ca9abaacc146c66f4d716bba86f294645",
+        "4e5e72fe59acea834d6b6d4ba6d94a915a04c6b7a20659ed17363fe7bb260b3e"),
+    ("w_cb4a", "dense_scrutiny", "2213c6c83358d713b2056c06f358377546a3f9296c5af1afa3b50157378a97a2",
+        "bcc449f54ab9f4a6e4ade1762c976fc49b5855b96aeeb7d43ea9bc385c0635b5"),
+    ("w_cb4b", "sparse_interactive", "5d318bd970c61db79c908226e9cd0af2426c3b84580a98f85e270d8a6fb9a88c",
+        "5ee54f92d372b1e883d96c9cc53991494201e69c44fd841bb4d6d60dbbc82131"),
+    ("w_cb4b", "dense_scrutiny", "1e260a229c9febb8cd1c3af20797eda57fa9dae3a8e324e406206d44cabe6671",
+        "2bec8af97050058c230e733691d2bb786c1bcaed9e1457985941736fdb0206ac"),
+    ("w_cb5", "sparse_interactive", "1e95785b4a6cb829258a597ec5e6f89c022cdb378716c0edee396032da2b07ae",
+        "e64324c082a69d30c5238e923a24a5a9943fd00679c8383f56351b65fbed76d2"),
+    ("w_cb5", "dense_scrutiny", "9d05db0944bc5e53aa7b0033f4842ca3184ba94987479a41a98b0eda71184c05",
+        "d3ef343fef72f98529d3b44b9caa10f3f55bd1943b6336c081efd6cf1f1846e0"),
+    ("c1_range_mechanics", "sparse_interactive", "410a7c99f96f0d9c9d54933f0add10328deadc1aa018a111d351f7f1edb7c77c",
+        "38a7100396112739e1d67d7223d35638c6e72aa79c25b0059e34e2217d479072"),
+    ("c1_range_mechanics", "dense_scrutiny", "174b5419cefcaa5b958289daea224447464854d67f404a49e2888d840078768e",
+        "a61dd01d7c471f140e8357d6bcb5324210d85b2eec8d71c7677d69e04fb0eb02"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "fcb16cc03754c5289a68b4d28a79b856a1ceba48bfca9ce73ea0c90b5cb45a10",
+        "b5a40f258d193b1e66b6e81e18c33d09b17ab7f77e633c6e2fabb15e4c1afaa8"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "f2ea84104e4f0e226720bc6b648904de81257907be775b782762491afd24e5e2",
+        "a4720343a18c8cc91c83e3cebfcbcd21b55681ba08bd7d60d769ec8ac61092ac"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "878e58d98a33215c3c5dafc3b268b379f37746449c4dead77a198241076c1497",
+        "b112f9a2d674ae0f4e3e0de93067ddc7dd60792a8abd898669d569e2830c4868"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "eca3860624250dd3f1c838afad39c306a6697c1f2e26cdf4503738f50649f8a9",
+        "81913a736e8a2de1250c0eb6e7e81b0878db91ee77c261efa062a712d4a151bf"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {

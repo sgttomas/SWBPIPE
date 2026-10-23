@@ -1036,6 +1036,7 @@ export type EditorOperationIntent = {
       | "detach_section"
       | "split_pipe_run"
       | "transform_pipe_run"
+      | "reconnect_pipe_run"
       | "insert_bend_at_corner"
       | "delete_combination_term"
       | "insert_component_symbol";
