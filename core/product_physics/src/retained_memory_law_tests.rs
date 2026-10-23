@@ -1534,7 +1534,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // Current canonical TEXT closure at the W-8 topology warnings' source b8b236e2ef, C_eq = 3, maximum
+    // Current canonical TEXT closure at the W-8 topology warnings' source 34e96d6b17, C_eq = 3, maximum
     // over the L/E routes (retained-pricing-rules.md §8.16): +16,378 B from the pre-0.4 failure
     // unification's 269,494,846 (64144ab20b, §8.14), the three topology warnings in the envelope. That
     // was +429 B from the T4-U4b/U5b epoch's 269,494,417 (b4c9f35f8e; unchanged through O4's 7823a79f45
@@ -1778,11 +1778,11 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// W-8 topology warnings actual-source record at b8b236e2ef (retained-pricing-rules.md §8.16): from
+/// W-8 topology warnings actual-source record at 34e96d6b17 (retained-pricing-rules.md §8.16): from
 /// the pre-0.4 unification's record below, TAV_W and TAV_X rise by 59,540 B (the warnings' texts),
-/// O_base by W8-TW and W8-ND's owners and the envelope's text owners by the three warnings
-/// (Text(diag_env) +16,378 B, D_env +3), so W1, W2 and X3 rise by 145,246 B, W3 by 248,224 B, W4 by
-/// 232,950 B, W5 by 188,802 B, X1 by 166,808 B and X2 by 166,504 B in both modes.
+/// O_base by W8-TW and W8-ND's owners (37,216 B) and the envelope's text owners by the three warnings
+/// (Text(diag_env) +16,378 B, D_env +3), so W1, W2 and X3 rise by 116,158 B, W3 by 219,136 B, W4 by
+/// 203,862 B, W5 by 159,714 B, X1 by 137,720 B and X2 by 137,416 B in both modes.
 /// Pre-0.4 failure unification actual-source record at 64144ab20b (retained-pricing-rules.md
 /// §8.14): requested + moving bytes, without R or the separately upward-rounded TEXT reserve, from
 /// the canonical 100-form union, now over eight phases. From R-A's record (7d946b7e94, §8.13) TAV_W
@@ -1793,8 +1793,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_211_459_925, 6_546_913_046, 8_442_230_632, 8_236_742_323, 7_342_485_394, 8_280_054_669, 7_116_048_165, 6_794_311_071],
-    [6_270_591_269, 6_606_044_390, 8_501_361_976, 8_295_873_667, 7_401_616_738, 8_339_186_013, 7_175_179_509, 6_853_442_415],
+    [6_211_430_837, 6_546_883_958, 8_442_201_544, 8_236_713_235, 7_342_456_306, 8_280_025_581, 7_116_019_077, 6_794_281_983],
+    [6_270_562_181, 6_606_015_302, 8_501_332_888, 8_295_844_579, 7_401_587_650, 8_339_156_925, 7_175_150_421, 6_853_413_327],
 ];
 
 #[test]
@@ -1913,7 +1913,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_802, "current canonical D_env at C_eq = 3 (W-8's b8b236e2ef: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 28_802, "current canonical D_env at C_eq = 3 (W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();

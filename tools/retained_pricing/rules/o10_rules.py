@@ -613,9 +613,10 @@ if fnkey("fallback_circular_maximum", _CP):
     }
     # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16): near_duplicate_nodes' min/max receivers are the
     # bounding box's f64 coordinates (`low[axis].min(..)`, `high[axis].max(..)`) and an edge's usize node indices
-    # (`a.min(b)`, `a.max(b)`). Only where the topology checks exist.
+    # (`a.min(b)`, `a.max(b)`); scaled_norm's fold takes `m.max(x.abs())` over f64. Only where the topology checks exist.
     if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
-        _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"]
+        _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"] + (
+            ["scaled_norm"] if fnkey("scaled_norm", PP_ + "topology.rs") else [])
     for _file, _names in _primitive_minmax_callers.items():
         for _name in _names:
             _file = PP_ + _file if not _file.startswith(PP_) else _file
@@ -2153,9 +2154,9 @@ if fnkey("append_topology_diagnostics", _W8):
         (site("disconnected_parts", _W8, '"the model\'s elements form {} disconnected parts;', full=True, row="format!("),
          {"described": _W8_C(_W8_DESCRIBED, "<= NAMED part descriptions joined by '; '"), "more": _W8_MORE_C}),
         (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes share a position', full=True, row="format!("),
-         {"named": _W8_C(_W8_COINCIDENT, "<= NAMED coincident pairs joined by '; '"), "more(coincident.len())": _W8_MORE_C}),
+         {"named": _W8_C(_W8_COINCIDENT, "<= NAMED coincident pairs joined by '; '"), "more(coincident_count)": _W8_MORE_C}),
         (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes lie within', full=True, row="format!("),
-         {"named": _W8_C(_W8_NEARNAMED, "<= NAMED near pairs joined by '; '"), "more(near.len())": _W8_MORE_C}),
+         {"named": _W8_C(_W8_NEARNAMED, "<= NAMED near pairs joined by '; '"), "more(near_count)": _W8_MORE_C}),
     ]
     # W8-RF (REFS_FIRST): the three diagnostics' affected refs. The disconnected parts' refs collect `.take(NAMED)` of
     # the part map's keys (an exact-size iterator: capacity <= NAMED); `refs` pushes at most two ids per named pair,
