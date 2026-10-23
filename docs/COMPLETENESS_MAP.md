@@ -364,12 +364,12 @@ These have the largest effect, because `tools.deliverables touches` and
   exist on this tree. In reference lists these are [fix]; in requirement
   source cells they are [owner].
 
-**Owner-reserved text (exact old → new).** Owner, 2026-10-23: "OD‑6, option B (I want to discuss 2 and 23 more)." The 22 rows recommended Apply are applied as written; rows 2 and 23 are under owner discussion; row 22 stays as recommended (Leave) and row 25 stays routed. Separately, owner, 2026-10-23: "and DEL‑07‑01 REQ‑02, option A as recommended." DEL-07-01-REQ-02's "stress-ratio color maps" now reads "stress and result overlays (magnitude colour scale)"; nothing else in that requirement changed. Line numbers are at the W-1 PR heads (#1540–#1546). "Rec." is the reconciliation manager's recommendation: **Apply** (descriptive consequence of shipped code or an existing ruling), **Leave** (no change needed), or **Owner** (a substantive scope choice).
+**Owner-reserved text (exact old → new).** Owner, 2026-10-23: "OD‑6, option B (I want to discuss 2 and 23 more)." The 22 rows recommended Apply are applied as written. Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." Row 2 is not applied: the DEL-04-03 requirement stays as written, and imposed displacement is to be built on the pressure-free route (staged: linear first, then with nonlinear supports). Row 23 is applied, citing both numberings; row 22 stays as recommended (Leave) and row 25 stays routed. Separately, owner, 2026-10-23: "and DEL‑07‑01 REQ‑02, option A as recommended." DEL-07-01-REQ-02's "stress-ratio color maps" now reads "stress and result overlays (magnitude colour scale)"; nothing else in that requirement changed. Line numbers are at the W-1 PR heads (#1540–#1546). "Rec." is the reconciliation manager's recommendation: **Apply** (descriptive consequence of shipped code or an existing ruling), **Leave** (no change needed), or **Owner** (a substantive scope choice).
 
 | # | Location | Old | New | Reason | Rec. |
 |---|---|---|---|---|---|
 | 1 | DEL-04-07 SOW:29 (CLM-001) | "The PRD's intended pressure capability remains future scope; this does not claim it is implemented." | "Pressure is implemented on the exact route as stated in Design/pressure-contract.md; capabilities that route refuses remain future scope." | EX route ships pressure | Apply — **Applied** (owner, 2026-10-23) |
-| 2 | DEL-04-03 SOW:47,125 (R01) | "…imposed displacement boundary data…" | "…imposed displacement boundary data (exact route load/reference states only; the pressure-free route refuses support-targeted loads)…" | PF refuses imposed displacement | Owner (ties to W-16: either build PF or rule EX is the only route) — **Under owner discussion** |
+| 2 | DEL-04-03 SOW:47,125 (R01) | "…imposed displacement boundary data…" | "…imposed displacement boundary data (exact route load/reference states only; the pressure-free route refuses support-targeted loads)…" | PF refuses imposed displacement | Owner (ties to W-16: either build PF or rule EX is the only route) — **Not applied** (Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." The requirement stays as written; imposed displacement is to be built on the pressure-free route, staged linear first, then with nonlinear supports.) |
 | 3 | DEL-06-01 SOW:131-142 (REQ-06-01-001..012) | "The future schema shall" | "The schema shall" | `rule_pack_document` ships | Apply — **Applied** (owner, 2026-10-23) |
 | 4 | DEL-08-05 SOW:149-159 (REQ-001..009) | "The future linter shall" | "The linter shall" | linter ships | Apply — **Applied** (owner, 2026-10-23) |
 | 5 | DEL-08-05 SOW:160 (REQ-012) | "The future implementation shall preserve" | "The implementation shall preserve" | linter ships | Apply — **Applied** (owner, 2026-10-23) |
@@ -390,10 +390,10 @@ These have the largest effect, because `tools.deliverables touches` and
 | 20 | DEL-10-04 SOW:158 (REQ-10-04-01) | "Future implementation must provide" | "The implementation must provide" | CI and packaging exist | Apply — **Applied** (owner, 2026-10-23) |
 | 21 | DEL-02-05 SOW:34 (CLM-003) | "Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, or newer)" | "Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, `0.5.0`, or newer)" | code retires 0.5.0 | Apply — **Applied** (owner, 2026-10-23) |
 | 22 | DEL-02-05 requirement source cells (:64-65, :84, :187-211) | v0.1 PRD numbers ("section 10 FR-001/FR-002", "section 12.4", "15.3", "18") | current numbers (§11.1 FR-MOD-001, §17.4, §19.2, §20.3–§20.5) | v0.1 numbering | Leave (the crosswalk note added at :141 resolves them) |
-| 23 | DEL-02-05 SOW:201 (REQ-015 source) | "section 22.1" | "§24 R0 (v0.1 §22.1)" or "§22.1 (V&V)" | v0.1 §22.1 was release R0; current §22.1 is Verification Philosophy | Owner (which was meant) — **Under owner discussion** |
+| 23 | DEL-02-05 SOW:201 (REQ-015 source) | "section 22.1" | "§24 R0 (v0.1 §22.1)" or "§22.1 (V&V)" | v0.1 §22.1 was release R0; current §22.1 is Verification Philosophy | Owner (which was meant) — **Applied** (Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." Applied as "§22.1 (V&V); originally v0.1 §22.1, now §24 R0", citing both.) |
 | 24 | `execution/_Coordination/_COORDINATION.md:28` | "PRD R5 exit criterion" | "historical v0.1 R5 (= v0.3 §24 R6) exit criterion" | numbering | Apply — **Applied** (owner, 2026-10-23) |
 | 25 | `apps/desktop/native-smoke/expected.json` | rows 98/99, 625/627; N1 "…198" | 113/113, 745/745; "…199" | stale expected values | Routed to release-rehearsal lane (PR #1532) |
-| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | the path kept, annotated with its retiring commit: `_STATUS.md`/`_CONTEXT.md` "(retired in `497a8d81e4`; see Git history)", `docs/_Registers/*` "(retired in `48584391de`; …)", `execution/_Reconciliation/…` "(retired in `11718e61a2`; …)", as #1550 does for reference lists | files removed | Apply as one mechanical pass (#1550 covers the reference lists) — **Applied** (owner, 2026-10-23): 110 requirement source cells in 43 SOWs; DEL-04-03 R01 (row 2) left untouched |
+| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | the path kept, annotated with its retiring commit: `_STATUS.md`/`_CONTEXT.md` "(retired in `497a8d81e4`; see Git history)", `docs/_Registers/*` "(retired in `48584391de`; …)", `execution/_Reconciliation/…` "(retired in `11718e61a2`; …)", as #1550 does for reference lists | files removed | Apply as one mechanical pass (#1550 covers the reference lists) — **Applied** (owner, 2026-10-23): retired paths in requirement source (or evidence) cells annotated, including anchored, bare and shorthand register citations; the reference-list pass (#1550) is completed for the same forms |
 
 ## 4. Proposed work plan
 
@@ -423,8 +423,8 @@ These are reserved because they concern v0.1 scope, commitments or a hold.
 
 **OD-1 to OD-5 decided.** Owner, 2026-10-23: "I approve OD-1 through OD-5 as
 you recommended." Each outcome is in the row's **Decided** entry. OD-6 was
-decided the same day (option B); rows 2 and 23 of the §3 table remain under
-owner discussion.
+decided the same day (option B), and rows 2 and 23 of the §3 table were then
+ruled separately (see the OD-6 row).
 
 | # | Decision | Consequence |
 |---|---|---|
@@ -433,7 +433,7 @@ owner discussion.
 | OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? Settled with OD-1 if the W7 reading applies. | **In:** W-14 (L). **Out:** a ruling. **Decided:** design knowledge is deferred to v0.2. |
 | OD-4 | Which model format is canonical: the desktop 0.6.0 document or `schemas/model.schema.yaml`? (FR-MOD-001/004/006) | Fixes the target for W-13, a new document version under the one-version rule. **Decided:** the desktop model document is canonical, and `schemas/model.schema.yaml` is updated to describe it (W-13). |
 | OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. **Decided:** viewport overlays and reaction arrows are built now; FR-AGENT-005 stays R7. |
-| OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. **Decided (owner, 2026-10-23, "OD‑6, option B (I want to discuss 2 and 23 more)."):** the 22 Apply rows are applied; rows 2 and 23 are under owner discussion. |
+| OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. **Decided (owner, 2026-10-23, "OD‑6, option B (I want to discuss 2 and 23 more)."):** the 22 Apply rows are applied. Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." Row 2 is not applied (the requirement stays; imposed displacement is to be built on the pressure-free route, linear first, then with nonlinear supports); row 23 is applied. |
 
 Opening exact-route reports and handoff needs no new decision to start. Ruling
 10A already directs DEL-08-01 to design their limitation sections. Opening the

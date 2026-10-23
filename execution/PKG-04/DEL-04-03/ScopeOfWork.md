@@ -122,7 +122,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-04-03-R01 | The support model shall cover the SOW-011 families: anchors, guides, line stops, vertical supports, springs, and imposed displacement boundary data. | `docs/_Registers/ScopeLedger.csv` row SOW-011 |
+> | DEL-04-03-R01 | The support model shall cover the SOW-011 families: anchors, guides, line stops, vertical supports, springs, and imposed displacement boundary data. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-011 |
 > | DEL-04-03-R02 | Linear support data shall be expressible against the 3D centerline/frame model and the six node degrees of freedom through the frame-kernel `FrameDof` boundary. | `docs/CONTRACT.md` OPS-K-MECH-1; `docs/SPEC.md` section 4.1; `core/solver/linear_supports/src/lib.rs` |
 > | DEL-04-03-R03 | The support model shall keep mechanics solving separate from user-rule evaluation and human professional compliance judgment. | `docs/CONTRACT.md` OPS-K-MECH-2 |
 > | DEL-04-03-R04 | Support stiffnesses, imposed displacements, rotations, and related numerical data shall retain unit intent through `SupportQuantity`; caller-supplied unit metadata shall match the support quantity dimension. | `docs/CONTRACT.md` OPS-K-UNIT-1; `core/solver/linear_supports/src/lib.rs` |

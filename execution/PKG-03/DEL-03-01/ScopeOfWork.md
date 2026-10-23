@@ -101,9 +101,9 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 
 > ##### References
 >
-> - docs/_Registers/Deliverables.csv row DEL-03-01
-> - docs/_Registers/ScopeLedger.csv row SOW-017
-> - docs/_Registers/ContextBudgetQA.csv row DEL-03-01
+> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history) row DEL-03-01
+> - docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history) row SOW-017
+> - docs/_Registers/ContextBudgetQA.csv (retired in `48584391de`; see Git history) row DEL-03-01
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - docs/CONTRACT.md invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1..4
 

@@ -155,7 +155,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 >
 > | ID | Requirement | Source basis | Verification |
 > |---|---|---|---|
-> | REQ-10-04-01 | The implementation must provide reproducible build, packaging, and CI/CD workflows for supported platforms. | SOW-032; Deliverables.csv DEL-10-04 | Human review of future implementation artifacts. |
+> | REQ-10-04-01 | The implementation must provide reproducible build, packaging, and CI/CD workflows for supported platforms. | SOW-032; Deliverables.csv (retired in `48584391de`; see Git history) DEL-10-04 | Human review of future implementation artifacts. |
 > | REQ-10-04-02 | Build/test gates must align with the accepted Cargo, Vitest, Playwright, validation, protected-content, and provenance gate baseline. | SOFTWARE_DECOMP AB-00-08; DEC-011 | Future CI/job review and test evidence. |
 > | REQ-10-04-03 | DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. The owner re-decided signing at D-06b on 2026-10-23 ("Proceed with signing and notarizing."): v0.1 is Developer ID signed with the hardened runtime and notarized with a stapled ticket under the DEC-106 App ID (`docs/BUILD_AND_RELEASE.md` §6.1, §8.2); publication and release remain owner acts. | SOW-032 notes; architecture baseline | Confirm platform matrix remains `TBD` unless human-ruling evidence is cited. |
 > | REQ-10-04-04 | CI provider, coverage thresholds, performance thresholds, exact dependency versions, signing, publishing, and release matrix details must remain `TBD` unless a human authority record resolves them. | DEC-012; OI-002; user brief | Check all unresolved choices are visible as `TBD`. |
