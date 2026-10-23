@@ -1843,7 +1843,24 @@ fn validate_mechanics_combination(
             vec![combination.id.clone()],
         ));
     }
+    let mut seen = HashSet::new();
     for term in &combination.terms {
+        // The load-case algebra refuses a repeated operand, which would leave
+        // every combined row unevaluated; block it by name here instead.
+        if !seen.insert(term.load_case.as_str()) {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:combination:{}:{}:duplicate",
+                    stable_suffix(&combination.id),
+                    stable_suffix(&term.load_case)
+                ),
+                "LOAD_COMBINATION_DUPLICATE_TERM",
+                "blocking",
+                "mechanics combination terms must name each load case once; a duplicate term is blocked",
+                vec![combination.id.clone(), term.load_case.clone()],
+            ));
+            continue;
+        }
         if !term.factor.is_finite() {
             diagnostics.push(diag(
                 &format!(

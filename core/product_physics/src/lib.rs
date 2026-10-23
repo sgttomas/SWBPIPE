@@ -18,6 +18,7 @@ pub use case_state::input::{
 };
 pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID};
 mod model_format;
+mod model_fields;
 pub use model_format::{
     carries_load_reference_state, is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
     MODEL_SCHEMA_VERSION_RETIRED, RETIRED_MODEL_SCHEMA_VERSIONS,
@@ -245,7 +246,12 @@ struct MaterialRecordWire<L> {
 /// Wire form of `PreviewModel`; identical fields and defaults, except that each
 /// material record is split into its unchanged `MaterialInput` and its optional
 /// `expansion_laws`, so the new key is never silently discarded.
+///
+/// Closed record (`model_fields`): an undeclared key refuses by name instead of
+/// being dropped. `data_boundary` and `diagnostics` are declared document
+/// members the solve never reads (accepted and ignored).
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct PreviewModelWire {
     #[serde(default, deserialize_with = "deserialize_present_object")]
     pressure_contract: Option<PressureContractInput>,
@@ -271,6 +277,12 @@ struct PreviewModelWire {
     combinations: Vec<PreviewCombination>,
     #[serde(default)]
     reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    #[serde(default)]
+    #[allow(dead_code)]
+    data_boundary: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    diagnostics: serde::de::IgnoredAny,
 }
 
 impl<'de> Deserialize<'de> for PreviewModel {
@@ -652,7 +664,10 @@ pub struct FrictionNormalReactionSourceInput {
     pub dof: String,
 }
 
+/// Closed record (`model_fields`). `kind`, `label` and `status` are declared
+/// document members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewLoadCase {
     #[serde(default)]
     pub pressure_regions: Option<Vec<PressureRegionInput>>,
@@ -677,7 +692,7 @@ pub struct PreviewLoadCase {
     /// interpolated between the two adjacent user-entered temperature points.
     /// Requests at or outside the stored range edges are blocking;
     /// extrapolation and base-property fallback are never performed.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub modulus_basis_temperature: Option<Quantity>,
     #[serde(default)]
     pub provenance: Option<String>,
@@ -685,9 +700,16 @@ pub struct PreviewLoadCase {
     /// 0.4.0). It is the complete resolved-state and ordinary-source request.
     #[serde(default)]
     pub analysis_state: Authored<AnalysisStateInput>,
+    #[serde(default)]
+    pub kind: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub label: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub status: serde::de::IgnoredAny,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EquivalentStaticGenerationInput {
     #[serde(default)]
     pub seismic: Option<SeismicGenerationInput>,
@@ -698,6 +720,7 @@ pub struct EquivalentStaticGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SeismicGenerationInput {
     /// User-entered gravity acceleration; an explicit input, not an
     /// embedded physical-constant default.
@@ -712,6 +735,7 @@ pub struct SeismicGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WindGenerationInput {
     #[serde(default)]
     pub pressure: Option<Quantity>,
@@ -735,6 +759,7 @@ pub struct WindGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WindExposedSpanInput {
     /// User-marked pipe id the partial extent applies to.
     #[serde(default)]
@@ -747,7 +772,9 @@ pub struct WindExposedSpanInput {
     pub end_fraction: Option<Quantity>,
 }
 
+/// Closed record (`model_fields`).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewCombination {
     pub id: String,
     #[serde(default)]
@@ -771,18 +798,23 @@ pub struct PreviewCombination {
     pub provenance: Option<String>,
 }
 
+/// Closed record (`model_fields`).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewCombinationTerm {
     pub load_case: String,
     pub factor: f64,
 }
 
+/// Closed record (`model_fields`), including its target and magnitude.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewPrimitiveLoad {
     pub id: String,
     pub category: String,
     pub target: LoadTargetInput,
     pub direction: String,
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
     pub magnitude: Quantity,
     pub dimension: String,
     #[serde(default)]
@@ -790,7 +822,7 @@ pub struct PreviewPrimitiveLoad {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum LoadTargetInput {
     Node { node: String },
     Element { pipe: String },
@@ -2494,6 +2526,10 @@ fn run_linear_static_preview_value_dispatch(
     solver_mode: PreviewSolverMode,
     retained_entry: Option<(retained_memory::Entry<'_>, RetainedByteLimit)>,
 ) -> Result<RetainedPreviewOutput, String> {
+    // Closed model records: an undeclared key refuses by name before any route.
+    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {
+        return Err(refusal);
+    }
     if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
         return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None, retained: None });
     }
