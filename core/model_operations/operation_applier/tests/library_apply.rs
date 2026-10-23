@@ -1,0 +1,340 @@
+//! W-17 library apply (DEL-03-01 Design `apply-library-records.md` §2.2, §4):
+//! `apply_library_record` on materials, sections and components, the
+//! `provenance_record` carriage of the create kinds, and real solves of a
+//! model holding an inserted E/nu/G material on the exact and pressure-free
+//! routes. Every value here is invented.
+use open_pipe_stress_operation_applier::{
+    apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_model_document,
+    validate_operation, document_validator::has_blocking,
+};
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
+};
+use serde_json::{json, Value};
+
+const E_PA: f64 = 2.0e11;
+const NU: f64 = 0.3;
+/// A stored G deliberately unequal to E/(2(1+nu)), so the route that uses it
+/// is visible in the solve.
+const STORED_G_PA: f64 = 7.0e10;
+const TORQUE_N_M: f64 = 400.0;
+
+fn exact_fixture() -> Value {
+    serde_json::from_str(include_str!(
+        "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
+    ))
+    .unwrap()
+}
+
+/// The same document on the pressure-free (non-exact) route.
+fn pressure_free_fixture() -> Value {
+    let mut model = exact_fixture();
+    model.as_object_mut().unwrap().remove("pressure_contract");
+    for case in model["load_cases"].as_array_mut().unwrap() {
+        case.as_object_mut().unwrap().remove("pressure_regions");
+    }
+    // A corrosion allowance needs a pressure contract; the original material
+    // needs its own G off the exact route.
+    for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+    }
+    model["materials"][0]["shear_modulus"] = json!({"value":7.7e10,"unit":"Pa"});
+    model
+}
+
+fn claim(model: &Value) -> Value {
+    json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}",sha256_hex(&canonical_json(model)))})
+}
+
+#[allow(clippy::too_many_arguments)]
+fn intent(operation_kind: &str, change_kind: &str, object: &str, id: &str, path: &str, before: &str, after: &str, unit: &str, dimension: &str) -> Value {
+    json!({"operation_id":format!("op:library:{change_kind}:{id}"),"operation_kind":operation_kind,"operation_status":"proposed","author_type":"user",
+      "target":{"object_type":object,"ref":id},
+      "change":{"change_id":format!("change:library:{change_kind}:{id}"),"change_kind":change_kind,"field_label":"Library record","field_path":path,"before":before,"after":after,"unit":unit,"dimension":dimension,"source_note":"library:material:invented-lib#invented-record"},
+      "validation":{"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run","diff_preview_status":"not_generated","application_status":"not_applied"},
+      "rationale":"Invented library apply fixture",
+      "audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},
+      "professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false}})
+}
+
+/// `apply_library_record`: before is the current value of every named member
+/// that exists.
+fn apply_intent(model: &Value, object: &str, collection: &str, id: &str, after: &Value) -> Value {
+    let entity = model[collection].as_array().unwrap().iter().find(|e| e["id"] == id).unwrap();
+    let before: serde_json::Map<String, Value> = after
+        .as_object()
+        .unwrap()
+        .keys()
+        .filter_map(|path| {
+            path.split('.').try_fold(entity, |v, s| v.get(s)).map(|v| (path.clone(), v.clone()))
+        })
+        .collect();
+    intent("modify", "apply_library_record", object, id, "library_record", &canonical_json(&Value::Object(before)), &canonical_json(after), "none", "dimensionless")
+}
+
+fn applied(model: &Value, op: &Value) -> (Value, Vec<String>) {
+    let hash = claim(model);
+    let preview = validate_operation(model, op, Some(&hash));
+    assert!(preview.applied_model.is_none());
+    let outcome = apply_operation(model, op, Some(&hash));
+    assert_eq!(
+        serde_json::to_value(&preview.diff_preview).unwrap(),
+        serde_json::to_value(&outcome.diff_preview).unwrap()
+    );
+    let next = outcome.applied_model.unwrap_or_else(|| panic!("{:?}", outcome.diagnostics));
+    assert!(!has_blocking(&validate_model_document(&next)), "{:?}", validate_model_document(&next));
+    (next, outcome.diff_preview.iter().map(|row| format!("{}:{}", row.entity_ref, row.field_path)).collect())
+}
+
+fn refused(model: &Value, op: &Value) -> Vec<String> {
+    let outcome = apply_operation(model, op, Some(&claim(model)));
+    assert!(outcome.applied_model.is_none(), "applied unexpectedly");
+    outcome.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.clone()).collect()
+}
+
+fn record(library_kind: &str) -> Value {
+    json!({"source_name":"Invented private library","source_location":"local store","redistribution_status":"private_only","review_status":"pending",
+        "verification_note":"shear_modulus: derived from E and ν (isotropic), G = E/(2(1+ν))",
+        "library_ref":{"library_kind":library_kind,"library_id":"invented-lib","library_version":format!("sha256:{}", "a".repeat(64)),"record_id":"invented-record"}})
+}
+
+fn derived_g(e: f64, nu: f64) -> f64 {
+    e / (2.0 * (1.0 + nu))
+}
+
+/// The inserted material: E, nu and G with the exact basis (the HELP_HUMAN
+/// E/nu rule: ν is never discarded; G is stored or derived).
+fn inserted_material(id: &str, g: f64) -> Value {
+    json!({"id":id,"label":"Invented library steel","constitutive_basis":"homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus":{"value":E_PA,"unit":"Pa"},"poisson_ratio":{"value":NU,"unit":"1"},"shear_modulus":{"value":g,"unit":"Pa"},
+        "provenance":"library:material:invented-lib#invented-record","provenance_record":record("material")})
+}
+
+/// Insert the material and point the span at it, as one batch.
+fn insert_and_use(model: &Value, material: &Value) -> Value {
+    let id = material["id"].as_str().unwrap();
+    let create = intent("create", "create_material", "Material", id, "materials", "not_present", &canonical_json(material), "Pa", "stress");
+    let mut use_it = intent("modify", "set_field", "Element", "pipe:fixture-span", "material", "material:fixture-isotropic", id, "none", "dimensionless");
+    use_it["operation_id"] = json!("op:library:use");
+    use_it["change"]["change_id"] = json!("change:library:use");
+    let batch = json!({"batch_id":"batch:library-insert","operations":[create, use_it]});
+    let outcome = apply_operation_batch(model, &batch, Some(&claim(model)));
+    let next = outcome["applied_model"].clone();
+    assert!(next.is_object(), "{}", outcome["diagnostics"]);
+    assert!(!has_blocking(&validate_model_document(&next)));
+    next
+}
+
+fn tip_rotation_x(model: &Value) -> (f64, Vec<String>) {
+    let request: LinearStaticPreviewRequest = serde_json::from_value(json!({"model":model,"materials":[]})).unwrap();
+    let result = run_linear_static_preview_with_mode(request, PreviewSolverMode::DenseScrutiny);
+    assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+    let row = result
+        .results
+        .iter()
+        .find(|r| {
+            r.basis_ref.as_ref().is_some_and(|b| b.ref_id == "case:six-component-load")
+                && r.entity_ref == "node:fixture-tip"
+                && r.kind == "global_nodal_rotation_x"
+        })
+        .expect("tip rotation row");
+    let radians = match row.unit.as_str() {
+        "rad" => row.value,
+        "deg" => row.value.to_radians(),
+        other => panic!("unexpected rotation unit {other}"),
+    };
+    (radians, result.diagnostics.iter().map(|d| d.code.clone()).collect())
+}
+
+/// theta = T L / (G J) for the fixture's 1 m cantilever (OD 0.12 m, wall 0.01 m).
+fn torsion_rotation(g: f64) -> f64 {
+    let j = std::f64::consts::PI / 2.0 * (0.06_f64.powi(4) - 0.05_f64.powi(4));
+    TORQUE_N_M * 1.0 / (g * j)
+}
+
+fn close(actual: f64, expected: f64) {
+    assert!((actual - expected).abs() <= expected.abs() * 1e-9, "{actual} vs {expected}");
+}
+
+#[test]
+fn create_material_and_section_carry_provenance_record() {
+    let model = pressure_free_fixture();
+    let material = inserted_material("material:library-steel", derived_g(E_PA, NU));
+    let op = intent("create", "create_material", "Material", "material:library-steel", "materials", "not_present", &canonical_json(&material), "Pa", "stress");
+    let (next, _) = applied(&model, &op);
+    let created = next["materials"].as_array().unwrap().iter().find(|m| m["id"] == "material:library-steel").unwrap();
+    assert_eq!(created, &material, "the inserted material carries E, nu, G, the basis and the record unchanged");
+    // A malformed record is the validator's refusal.
+    let mut bad = material.clone();
+    bad["provenance_record"]["library_ref"]["payload"] = json!({"record":"snapshot"});
+    let op = intent("create", "create_material", "Material", "material:library-steel", "materials", "not_present", &canonical_json(&bad), "Pa", "stress");
+    assert!(refused(&model, &op).contains(&"MODEL-PROVENANCE-RECORD-INVALID".to_string()));
+
+    let section = json!({"id":"section:library","name":"Invented library pipe","section_type":"pipe",
+        "properties":{"outside_diameter":{"value":0.12,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},
+        "provenance":"library:section:invented-lib#invented-record","provenance_record":record("section")});
+    let op = intent("create", "create_section", "Section", "section:library", "sections", "not_present", &canonical_json(&section), "m", "length");
+    let (next, _) = applied(&model, &op);
+    assert_eq!(next["sections"][0], section);
+}
+
+#[test]
+fn apply_to_material_authors_absent_members_and_refuses_stale_mismatched_or_required_removals() {
+    let mut model = pressure_free_fixture();
+    // A legacy E/G material receiving an E/nu record: the basis and nu are
+    // absent members the apply creates; G is carried as before.
+    model["materials"][0] = json!({"id":"material:fixture-isotropic","label":"old","elastic_modulus":{"value":1.9e11,"unit":"Pa"},
+        "shear_modulus":{"value":7.3e10,"unit":"Pa"},"thermal_expansion_coefficient":{"value":1.1e-5,"unit":"1/degC"},"provenance":"invented old source"});
+    let after = json!({"label":"Invented library steel","constitutive_basis":"homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus":{"value":E_PA,"unit":"Pa"},"poisson_ratio":{"value":NU,"unit":"1"},"shear_modulus":{"value":STORED_G_PA,"unit":"Pa"},
+        "provenance":"library:material:invented-lib#invented-record","provenance_record":record("material")});
+    let op = apply_intent(&model, "Material", "materials", "material:fixture-isotropic", &after);
+    let before: Value = serde_json::from_str(op["change"]["before"].as_str().unwrap()).unwrap();
+    assert!(before.get("poisson_ratio").is_none() && before["shear_modulus"]["value"] == 7.3e10);
+    let (next, rows) = applied(&model, &op);
+    let material = &next["materials"][0];
+    assert_eq!(material["shear_modulus"]["value"].as_f64().unwrap().to_bits(), STORED_G_PA.to_bits());
+    assert_eq!(material["poisson_ratio"], json!({"value":NU,"unit":"1"}));
+    assert_eq!(material["thermal_expansion_coefficient"]["value"], 1.1e-5, "an unwritten member is kept");
+    assert_eq!(rows.len(), 7, "{rows:?}");
+
+    // Stale before.
+    let mut stale = op.clone();
+    stale["change"]["before"] = json!(canonical_json(&json!({"elastic_modulus":{"value":1.0e11,"unit":"Pa"},"label":"old","provenance":"invented old source","shear_modulus":{"value":7.3e10,"unit":"Pa"}})));
+    assert_eq!(refused(&model, &stale), vec!["OP-STALE-BEFORE-VALUE"]);
+    // Dimension mismatch: a length unit on a modulus.
+    let op = apply_intent(&model, "Material", "materials", "material:fixture-isotropic", &json!({"elastic_modulus":{"value":2.0,"unit":"m"}}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-VALUE-INVALID"]);
+    // E is never removed.
+    let op = apply_intent(&model, "Material", "materials", "material:fixture-isotropic", &json!({"elastic_modulus":null}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-REQUIRED-MEMBER"]);
+    // nu without the exact basis is not a valid material.
+    let op = apply_intent(&model, "Material", "materials", "material:fixture-isotropic", &json!({"poisson_ratio":{"value":NU,"unit":"1"}}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-MATERIAL-INVALID"]);
+    // No hash, no apply.
+    let op = apply_intent(&model, "Material", "materials", "material:fixture-isotropic", &after);
+    assert!(apply_operation(&model, &op, None).applied_model.is_none());
+    // Only listed members are writable.
+    let op = apply_intent(&model, "Material", "materials", "material:fixture-isotropic", &json!({"density":{"value":7800,"unit":"kg/m^3"}}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-MEMBER-INVALID"]);
+}
+
+/// Two pipes bound to one shared section, the second with a mill tolerance.
+fn bound_section_model() -> Value {
+    let mut model = pressure_free_fixture();
+    model["nodes"].as_array_mut().unwrap().push(json!({"id":"node:fixture-far","position":{"x":2,"y":0,"z":0},"provenance":"invented","label":"far"}));
+    let mut second = model["pipe_segments"][0].clone();
+    second["id"] = json!("pipe:fixture-second");
+    second["from"] = json!("node:fixture-tip");
+    second["to"] = json!("node:fixture-far");
+    second["section"]["mill_tolerance"] = json!({"value":0.005,"unit":"m"});
+    model["pipe_segments"].as_array_mut().unwrap().push(second);
+    for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section_ref"] = json!("section:shared");
+    }
+    model["sections"] = json!([{"id":"section:shared","name":"Invented shared","section_type":"pipe",
+        "properties":{"outside_diameter":{"value":0.12,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"provenance":"invented old source"}]);
+    // The load at the far node.
+    for load in model["load_cases"][1]["primitive_loads"].as_array_mut().unwrap() {
+        load["target"]["node"] = json!("node:fixture-far");
+    }
+    model
+}
+
+#[test]
+fn section_apply_propagates_to_every_bound_pipe_or_refuses_the_whole_change() {
+    let model = bound_section_model();
+    let after = json!({"name":"Invented library pipe","properties.outside_diameter":{"value":0.14,"unit":"m"},
+        "properties.wall_thickness":{"value":0.012,"unit":"m"},"provenance":"library:section:invented-lib#invented-record","provenance_record":record("section")});
+    let op = apply_intent(&model, "Section", "sections", "section:shared", &after);
+    let (next, rows) = applied(&model, &op);
+    for pipe in next["pipe_segments"].as_array().unwrap() {
+        assert_eq!(pipe["section"]["outside_diameter"], json!({"value":0.14,"unit":"m"}));
+        assert_eq!(pipe["section"]["wall_thickness"], json!({"value":0.012,"unit":"m"}));
+    }
+    assert!(rows.contains(&"pipe:fixture-span:section".to_string()) && rows.contains(&"pipe:fixture-second:section".to_string()), "{rows:?}");
+    // The solver finds no stale cache.
+    let request: LinearStaticPreviewRequest = serde_json::from_value(json!({"model":next,"materials":[]})).unwrap();
+    let result = run_linear_static_preview_with_mode(request, PreviewSolverMode::DenseScrutiny);
+    assert!(result.diagnostics.iter().all(|d| d.code != "SECTION_REFERENCE_CACHE_STALE"));
+    assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+
+    // A thinner wall that the second pipe's mill tolerance no longer fits: the
+    // whole change is refused, and nothing is applied.
+    let thin = json!({"properties.outside_diameter":{"value":0.14,"unit":"m"},"properties.wall_thickness":{"value":0.004,"unit":"m"}});
+    let op = apply_intent(&model, "Section", "sections", "section:shared", &thin);
+    assert_eq!(refused(&model, &op), vec!["OP-SECTION-BINDING-INVALID"]);
+    // A wall over half the diameter is not a pipe section.
+    let op = apply_intent(&model, "Section", "sections", "section:shared", &json!({"properties.wall_thickness":{"value":0.07,"unit":"m"}}));
+    assert_eq!(refused(&model, &op), vec!["OP-SECTION-GEOMETRY-INVALID"]);
+}
+
+fn demo_components() -> Value {
+    serde_json::from_str(include_str!("../../../../fixtures/product_preview/invented_demo_model.json")).unwrap()
+}
+
+#[test]
+fn component_apply_checks_family_pair_and_required_members() {
+    let model = demo_components();
+    // Absent member authored on a rigid component; geometry string rewritten.
+    let after = json!({"geometry.weight":{"value":1500,"unit":"N"},"geometry.rigid_component_source_reference":"prev; library:component:invented-lib#invented-record: weight",
+        "provenance":"library:component:invented-lib#invented-record","provenance_record":record("component")});
+    let op = apply_intent(&model, "Component", "components", "component:C-130", &after);
+    let (next, _) = applied(&model, &op);
+    let valve = next["components"].as_array().unwrap().iter().find(|c| c["id"] == "component:C-130").unwrap();
+    assert_eq!(valve["geometry"]["weight"], json!({"value":1500,"unit":"N"}));
+    assert!(valve["geometry"]["center_of_gravity"].is_object(), "unwritten members are kept");
+
+    // Kind mismatch: bend geometry on a valve.
+    let op = apply_intent(&model, "Component", "components", "component:C-130", &json!({"geometry.bend_radius":{"value":0.5,"unit":"m"}}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-KIND-MISMATCH"]);
+    // Required members are never removed.
+    let op = apply_intent(&model, "Component", "components", "component:C-110", &json!({"modifiers.flexibility_factor_user_value":null}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-REQUIRED-MEMBER"]);
+    let op = apply_intent(&model, "Component", "components", "component:C-120", &json!({"modifiers.flexibility_factor_user_value":null}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-REQUIRED-MEMBER"]);
+    // Placement references are not writable.
+    let op = apply_intent(&model, "Component", "components", "component:C-130", &json!({"geometry.rigid_pipe_ref":null}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-MEMBER-INVALID"]);
+    // The directional SIF pair needs a realized bend, and travels together.
+    let pair = json!({"modifiers.sif_in_plane_user_value":{"value":1.2,"unit":"1"},"modifiers.sif_out_of_plane_user_value":{"value":1.1,"unit":"1"}});
+    let op = apply_intent(&model, "Component", "components", "component:C-110", &pair);
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-SIF-PAIR"]);
+    let op = apply_intent(&model, "Component", "components", "component:C-110", &json!({"modifiers.sif_in_plane_user_value":{"value":1.2,"unit":"1"}}));
+    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-SIF-PAIR"]);
+    // An agent never writes the bend flexibility factor.
+    let mut op = apply_intent(&model, "Component", "components", "component:C-110", &json!({"modifiers.flexibility_factor_user_value":{"value":1.2,"unit":"none"}}));
+    op["author_type"] = json!("agent");
+    assert!(refused(&model, &op).contains(&"OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED".to_string()));
+    // Applying the same values again changes nothing and is refused as such.
+    let op = apply_intent(&next, "Component", "components", "component:C-130", &after);
+    assert_eq!(refused(&next, &op), vec!["OP-LIBRARY-APPLY-UNCHANGED"]);
+}
+
+#[test]
+fn inserted_e_nu_g_material_solves_with_the_route_specific_g() {
+    let g_derived = derived_g(E_PA, NU);
+    // Independent check of the derivation's arithmetic: 2e11 / 2.6.
+    assert!((g_derived - 76_923_076_923.076_92).abs() < 1e-3);
+
+    // Exact route: the solver derives G from the selected E/nu pair and
+    // ignores a retained G, with a warning (pressure_material.rs).
+    let exact = exact_fixture();
+    let (stored_exact, codes) = tip_rotation_x(&insert_and_use(&exact, &inserted_material("material:library-steel", STORED_G_PA)));
+    close(stored_exact, torsion_rotation(g_derived));
+    assert!(codes.contains(&"EXACT_PRESSURE_REDUNDANT_G_IGNORED".to_string()), "{codes:?}");
+    let (derived_exact, codes) = tip_rotation_x(&insert_and_use(&exact, &inserted_material("material:library-steel", g_derived)));
+    close(derived_exact, torsion_rotation(g_derived));
+    assert!(codes.contains(&"EXACT_PRESSURE_REDUNDANT_G_IGNORED".to_string()), "a derived G is retained too, and also ignored");
+
+    // Pressure-free route: the stored G is the stiffness G; nu and the basis
+    // are carried and unused for torsion.
+    let free = pressure_free_fixture();
+    let (stored_free, codes) = tip_rotation_x(&insert_and_use(&free, &inserted_material("material:library-steel", STORED_G_PA)));
+    close(stored_free, torsion_rotation(STORED_G_PA));
+    assert!(!codes.contains(&"EXACT_PRESSURE_REDUNDANT_G_IGNORED".to_string()));
+    let (derived_free, _) = tip_rotation_x(&insert_and_use(&free, &inserted_material("material:library-steel", g_derived)));
+    close(derived_free, torsion_rotation(g_derived));
+    // With a derived G the two routes agree.
+    assert!((derived_free - derived_exact).abs() <= derived_exact.abs() * 1e-12);
+}
