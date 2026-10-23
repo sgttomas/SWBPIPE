@@ -13,10 +13,10 @@ const STAGE_ICONS: Record<ShellStage, typeof Box> = { model: Box, loads: Layers,
  * `shellLayout.ts`. A disabled item stays focusable so its reason can be read.
  */
 export function StageRail({ issueCount }: { issueCount: number }) {
-  const { result, currentSolvedResult, historicalRun, solveJob } = useSessionResults();
+  const { result, currentSolvedResult, numericalHealthHold, historicalRun, solveJob } = useSessionResults();
   const { activeSection, stageSurface, enterStage, setActiveSection, closeShellPage, issuesDrawerOpen, setIssuesDrawerOpen } = useSessionChrome();
   const location = shellLocation(activeSection, stageSurface);
-  const stages = railStageStates(runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null }));
+  const stages = railStageStates(runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold }));
   return (
     <nav className="shell-rail" aria-label="Stages" data-testid="stage-rail">
       <ul>

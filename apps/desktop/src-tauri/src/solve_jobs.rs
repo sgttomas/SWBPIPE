@@ -42,7 +42,7 @@
 
 use crate::ingress;
 use crate::memory_pool::{
-    JobCounts, Lease, LeasePurpose, MemoryPool, PoolStatus, ResourceRefusal, WaitOutcome, MAX_QUEUED_JOBS,
+    JobCounts, Lease, LeasePurpose, MemoryPool, PoolStatus, ResampleStop, ResourceRefusal, WaitOutcome, MAX_QUEUED_JOBS,
     MAX_RETAINED_RESULTS, MAX_TERMINAL_RECORDS, MAX_WEBVIEW_CUSTODY_RESULTS,
 };
 use crate::solve_worker::{
@@ -457,7 +457,12 @@ impl SolveJobRegistry {
         }
         // The reservation precedes this process's copy of the raw bytes.
         let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
-        let lease = self.pool.acquire(ingress_bytes, LeasePurpose::Ingress).map_err(|refusal| self.unavailable(refusal))?;
+        // No job exists yet, so nothing can cancel this wait.
+        let lease = match self.pool.acquire_resampling(ingress_bytes, LeasePurpose::Ingress, &|| false) {
+            Ok(lease) => lease,
+            Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("the intake wait is never cancelled"),
+        };
         let input = AdmittedInput { raw: body.to_vec(), lease, mode, start_grant, max_grant: budget };
         let resource = JobResource {
             invocation_budget_bytes: budget,
@@ -931,6 +936,37 @@ mod tests {
     /// The worker's starting grant for `MODEL`.
     fn start_grant() -> u64 {
         crate::solve_worker::initial_grant(PROCESS_RESERVE_BYTES, ingress::prescan(MODEL).unwrap().lease_bytes().unwrap()).unwrap()
+    }
+
+    /// End to end through the registry: a solve's intake lease and its result
+    /// lease each wait out a free-queue dip shorter than the re-sampling window
+    /// and the job completes.
+    #[test]
+    fn intake_and_result_leases_wait_out_a_headroom_dip() {
+        let host = ScriptedHost::normal();
+        let gate = Gate::new("dip");
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_secs(20), Duration::from_millis(5));
+        pool.set_max_running_workers(16);
+        let registry = SolveJobRegistry::with_hooks(pool, gate.launcher(), Arc::new(thread_spawn));
+        let refill_after = |delay_ms: u64| {
+            let host = host.clone();
+            host.set(|s| s.headroom_bytes = Some(0));
+            std::thread::spawn(move || {
+                std::thread::sleep(Duration::from_millis(delay_ms));
+                host.set(|s| s.headroom_bytes = Some(64 * GIB));
+            })
+        };
+        let refill = refill_after(100);
+        let receipt = registry.start(MODEL, None).expect("intake admitted once the dip passes");
+        refill.join().unwrap();
+        gate.wait_started(1);
+        let refill = refill_after(100);
+        gate.release("{\"r\":1}");
+        let status = wait_terminal(&registry, &receipt.job_id);
+        refill.join().unwrap();
+        assert_eq!(status.state, "completed", "{status:?}");
+        assert!(status.result_available);
+        assert_eq!(status.resource_refusal, None);
     }
 
     /// A pool (and budget) admitting one starting grant at a time.

@@ -285,6 +285,13 @@ impl LoadCaseSummary {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RulePackRef {
     pub rule_pack_id: String,
+    /// Safe display name of the rule pack (PRD §19.2 rule-pack
+    /// name/version/checksum), when the producer records one.
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, skip_serializing_if = "Option::is_none")
+    )]
+    pub name: Option<String>,
     pub version: String,
     pub checksum: ChecksumRef,
     pub source_notice: String,
@@ -296,6 +303,10 @@ pub struct RulePackRef {
 impl RulePackRef {
     fn is_safe_reference(&self) -> bool {
         !self.rule_pack_id.trim().is_empty()
+            && self
+                .name
+                .as_ref()
+                .map_or(true, |name| !name.trim().is_empty())
             && !self.version.trim().is_empty()
             && self.checksum.is_complete()
             && !self.source_notice.trim().is_empty()
@@ -947,6 +958,7 @@ mod tests {
             )],
             rule_pack_refs: vec![RulePackRef {
                 rule_pack_id: "invented-rule-pack".to_string(),
+                name: None,
                 version: "0.1.0".to_string(),
                 checksum: checksum("rule_pack", "invented-rule-pack"),
                 source_notice: "Invented non-code example only.".to_string(),

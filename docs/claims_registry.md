@@ -140,6 +140,31 @@ surfaces could reuse it.
 
 **Belongs on:** nothing. There is no replacement statement.
 
+### NQ-HEALTH — numerical health of the ordinary solve (desktop)
+
+**Canonical:** "These checks look for numerical trouble; they do not measure
+the error, and they say nothing about whether the model, its inputs or its
+design are right."
+
+**Display forms:**
+
+- "Numerical health: checks passed", "Numerical health: sensitive",
+  "Numerical health: quality unresolved", "Numerical health: solve failed"
+  and "Numerical health: not assessed";
+- the prefix "Ordinary solve —", on routes whose standing comes from other
+  evidence;
+- the result header's count form, "Numerical health: {n} {state}, …".
+
+They report the solver's existing integrity verdicts (`M03-INTEGRITY-v1`) for
+each load case. They are numerical-quality indicators, not analysis statuses
+or evidence-status labels (§2.1), and they never use "verified", "certified",
+"bound", "guaranteed", "valid", "approved", "compliant", "correct" or
+"reliable".
+
+**Belongs on:** the desktop's numerical-health indicator, and the
+numerical-health line of generated reports. The canonical sentence accompanies
+the checks-passed state.
+
 ### GF-TOKEN — governance fence token (agent-facing artifacts only)
 
 **Canonical:** "Standard claim fence applies (F-PIP-2; claims taxonomy
@@ -182,7 +207,9 @@ Rules:
 1. A label is never shown without its token reachable in place.
 2. A label is always shown with its authority domain.
 3. No label exists outside the table: there is no seventh status, and
-   `ENGINEER_ACCEPTED` stays reserved and has no display form.
+   `ENGINEER_ACCEPTED` stays reserved and has no display form. The
+   numerical-health forms of `NQ-HEALTH` (§1) are registered there. They are
+   not analysis statuses or evidence-status labels.
 
 The registered forms replace the product's earlier curated labels "Review
 required" and "Inputs needed". The `docs/TYPES.md` §4 tokens and the
