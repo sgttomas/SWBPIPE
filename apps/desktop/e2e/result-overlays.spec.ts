@@ -180,8 +180,6 @@ for (const { mode, theme } of [
       y: arrow.anchor.y - arrow.direction.y * (FORCE_TIP_GAP + arrow.displayLength / 2),
       z: arrow.anchor.z - arrow.direction.z * (FORCE_TIP_GAP + arrow.displayLength / 2)
     })));
-    const forceClipsBefore = [];
-    for (const point of forcePoints) forceClipsBefore.push(await page.screenshot({ clip: clip(point) }));
     await info.attach(`overlays-off-${mode}-${theme}`, { body: await page.getByTestId("viewport-canvas").screenshot(), contentType: "image/png" });
 
     // Result colour on: the legend states quantity, unit, case, ticks, range, no-value count and the standing.
@@ -204,6 +202,9 @@ for (const { mode, theme } of [
     }
     expect(colouredPixel).not.toEqual(neutralPixel);
     await info.attach(`result-colour-${mode}-${theme}`, { body: await page.getByTestId("viewport-canvas").screenshot(), contentType: "image/png" });
+    // The arrow baselines are taken with colour already drawn, so only the arrows can change them.
+    const forceClipsBefore = [];
+    for (const point of forcePoints) forceClipsBefore.push(await page.screenshot({ clip: clip(point) }));
 
     // Reaction arrows on: exactly their meshes are added, and every force arrow's pixels change.
     await setPressed(page, "toggle-viewport-reactions", true);
