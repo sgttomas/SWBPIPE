@@ -59,7 +59,7 @@
 //! reaped is the grant released. A kill (cancellation, session reset, refusal
 //! or protocol violation) targets the child only while it is unreaped.
 
-use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResidencyProbe, ResourceRefusal};
+use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResampleStop, ResidencyProbe, ResourceRefusal};
 use crate::worker_alloc::{
     decode_frame, encode_frame, resident_envelope, FRAME_BYTES, TAG_CAP_EXCEEDED, TAG_DENIED, TAG_ERROR, TAG_GRANTED,
     TAG_GROW, TAG_REFUSED, TAG_RESULT,
@@ -741,10 +741,15 @@ pub(crate) fn supervise(
                 // is held as an uncredited (ingress) reservation while the bytes
                 // are read, and becomes a Result lease, which interactive
                 // admissions count as written, only once they are written.
-                let mut lease = match terms.pool.acquire_resampling(resident_envelope(length), LeasePurpose::Ingress) {
+                let mut lease = match terms.pool.acquire_resampling(resident_envelope(length), LeasePurpose::Ingress, &|| hooks.cancelled()) {
                     Ok(lease) => lease,
-                    Err(refused) => {
+                    Err(ResampleStop::Refused(refused)) => {
                         verdict = end(WorkerOutcome::Refused(refused));
+                        break;
+                    }
+                    // As for a cancellation seen just before the admission.
+                    Err(ResampleStop::Cancelled) => {
+                        control.kill();
                         break;
                     }
                 };

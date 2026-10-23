@@ -42,7 +42,7 @@
 
 use crate::ingress;
 use crate::memory_pool::{
-    JobCounts, Lease, LeasePurpose, MemoryPool, PoolStatus, ResourceRefusal, WaitOutcome, MAX_QUEUED_JOBS,
+    JobCounts, Lease, LeasePurpose, MemoryPool, PoolStatus, ResampleStop, ResourceRefusal, WaitOutcome, MAX_QUEUED_JOBS,
     MAX_RETAINED_RESULTS, MAX_TERMINAL_RECORDS, MAX_WEBVIEW_CUSTODY_RESULTS,
 };
 use crate::solve_worker::{
@@ -457,7 +457,12 @@ impl SolveJobRegistry {
         }
         // The reservation precedes this process's copy of the raw bytes.
         let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
-        let lease = self.pool.acquire_resampling(ingress_bytes, LeasePurpose::Ingress).map_err(|refusal| self.unavailable(refusal))?;
+        // No job exists yet, so nothing can cancel this wait.
+        let lease = match self.pool.acquire_resampling(ingress_bytes, LeasePurpose::Ingress, &|| false) {
+            Ok(lease) => lease,
+            Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("the intake wait is never cancelled"),
+        };
         let input = AdmittedInput { raw: body.to_vec(), lease, mode, start_grant, max_grant: budget };
         let resource = JobResource {
             invocation_budget_bytes: budget,

@@ -36,16 +36,34 @@ export const NATIVE_INGRESS_COMMANDS = [
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 
+/** How long a command refused at admission only because this Mac's free
+ * memory queue was short (`headroom_insufficient`) keeps being re-sent, and
+ * the pause between sends. On a loaded Mac that queue swings between about
+ * zero and gigabytes within a second at normal pressure. The native host
+ * refuses before it parses the arguments, so nothing has run; each re-send
+ * is judged afresh by the unchanged native rule (DEL-04-07 memory-budget
+ * decision). */
+export const HEADROOM_RESEND_WINDOW_MS = 2000;
+export const HEADROOM_RESEND_INTERVAL_MS = 100;
+
 /** Invokes a raw-body command with the UTF-8 JSON of `args`. A typed native
  * rejection becomes a `ResourceUnavailableError` (or an `INVALID_REQUEST`
  * error); a plain string rejection is the command's own failure and passes
- * through unchanged, as does any other rejection. */
+ * through unchanged, as does any other rejection. A `headroom_insufficient`
+ * refusal is re-sent within `HEADROOM_RESEND_WINDOW_MS`; the last refusal
+ * stands after it. */
 export async function invokeWithIngress<T>(command: NativeIngressCommand, args: Record<string, unknown>): Promise<T> {
   const body = new TextEncoder().encode(JSON.stringify(args));
-  try {
-    return await invoke<T>(command, body, { headers: { [NATIVE_INGRESS_HEADER]: NATIVE_INGRESS_FORMAT } });
-  } catch (error) {
-    throw nativeInvokeError(error);
+  const started = Date.now();
+  for (;;) {
+    try {
+      return await invoke<T>(command, body, { headers: { [NATIVE_INGRESS_HEADER]: NATIVE_INGRESS_FORMAT } });
+    } catch (error) {
+      const read = nativeInvokeError(error);
+      const transient = read instanceof ResourceUnavailableError && read.refusal.kind === "headroom_insufficient";
+      if (!transient || Date.now() + HEADROOM_RESEND_INTERVAL_MS - started > HEADROOM_RESEND_WINDOW_MS) throw read;
+    }
+    await new Promise((resolve) => setTimeout(resolve, HEADROOM_RESEND_INTERVAL_MS));
   }
 }
 
