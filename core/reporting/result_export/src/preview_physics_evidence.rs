@@ -237,6 +237,10 @@ fn row_semantics(row: &Value, kind: &str, arc: bool) -> Check {
             require(direct, "ROW_SEMANTICS")?;
             crate::u4b_evidence::row_semantics(row, crate::u4b_evidence::Route::Preview, arc)?;
         }
+        // W-7 (DEL-04-01 Design `global-end-actions.md`): no wall basis off pressure-2.
+        _ if crate::global_end_evidence::is_kind(kind) => {
+            crate::global_end_evidence::row_semantics(row, false)?;
+        }
         _ => {}
     }
     Ok(())
@@ -308,6 +312,8 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             "ROW_BASIS",
         )?;
     }
+    // W-7: one global end row per member, end and component in every case.
+    crate::global_end_evidence::coverage(rows_list)?;
     // 3. Completeness of result-namespace references (F-1).
     for diagnostic in diagnostics {
         // A1 a: the key may be absent; A2 item 5: when present, an array of

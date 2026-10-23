@@ -744,6 +744,13 @@ pub(crate) fn validate_physics_evidence_in(
             )?;
             crate::u4b_evidence::row_semantics(row, crate::u4b_evidence::Route::Exact, marked_arcs.contains(text(&row["entity_ref"])?))?;
         }
+        // W-7 (DEL-04-01 Design `global-end-actions.md`): the global end
+        // actions on pressure-2 (the wall basis admitted); a pressure-source-1
+        // composite never carries them (`global_end_rows_published`).
+        if crate::global_end_evidence::is_kind(kind) {
+            require(signature.is_some() && !composite, "ROW_SIGNATURE")?;
+            crate::global_end_evidence::row_semantics(row, true)?;
+        }
         if pipe_kind(kind) {
             require(
                 case_members[case].contains(text(&row["entity_ref"])?),
@@ -836,6 +843,10 @@ pub(crate) fn validate_physics_evidence_in(
         pairs += 1;
     }
     require(2 * pairs == stress_rows, "ROW_BASIS_TWIN")?;
+    // W-7: one global end row per member, end and component; none on a composite.
+    if !composite {
+        crate::global_end_evidence::coverage(published)?;
+    }
     crate::connector_evidence::validate(
         &evidence["connector"],
         &evidence["pressure"],
