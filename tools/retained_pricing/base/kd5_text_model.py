@@ -174,7 +174,9 @@ def inspect_directed_helpers(snapshot):
 # observation lane stays deleted.
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's republication, screen, cause and row-binding diff adds or removes no
 # `.min(`/`.max(` call, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'e8185273cf8a31ab66ba512deccb8a4ba92cc636dbd5524313d4bab610ca3237'
+# Silent-zero guard D3 (§8.15): lib.rs adds one call, `case_state::resolve::refuse_all_reference_states`, in the
+# load-state branch; it adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '775fe4339ac51e35d38ebc6cb2ef764f34ded2d386f41f37c6fdd8ffa5fd232a'
 
 
 def primitive_lib_minmax_callers(snapshot):

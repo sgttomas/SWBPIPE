@@ -32,16 +32,17 @@ SOURCES = {
 # Stack-headroom D3 (§8.10): combination_observables carries +59 through the line map; its text and callers are unchanged.
 # Pre-0.4 failure unification D3 (§8.14): the lib.rs owners, sites and callers moved +85/+103 with unchanged text; no
 # owner gains a caller.
+# Silent-zero guard D3 (§8.15): they move +1 with unchanged text (one load-state call precedes them).
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11270,
+    "line": 11271,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11228:exact_straight_summary_extrema",
-    "short": "lib.rs:11270",
-    "from": "lib.rs:11228:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11229:exact_straight_summary_extrema",
+    "short": "lib.rs:11271",
+    "from": "lib.rs:11229:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4772:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4773:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -49,13 +50,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11276,
+    "line": 11277,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11228:exact_straight_summary_extrema",
-    "short": "lib.rs:11276",
-    "from": "lib.rs:11228:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11229:exact_straight_summary_extrema",
+    "short": "lib.rs:11277",
+    "from": "lib.rs:11229:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4772:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4773:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -63,13 +64,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11931,
+    "line": 11932,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11912:recover_curved_bend_local_forces",
-    "short": "lib.rs:11931",
-    "from": "lib.rs:11912:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11913:recover_curved_bend_local_forces",
+    "short": "lib.rs:11932",
+    "from": "lib.rs:11913:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4772:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4773:solve_prepared_load_case"
     ]
   },
   {
@@ -119,7 +120,9 @@ MODE_SOURCE = {
            # O4 S5: the same _X emitter, with retained_w1 carried to lib.rs:3531 (its only difference).
            "5addba6352f50241e19ed6004c97cb4c7c6949b2cc3b219d6ffa485449e32e0b",
            # Pre-0.4 failure unification D3 (§8.14): the same _X emitter, with retained_w1 carried to lib.rs:3616.
-           "49accb86c11cdfb6a045246c0610226a1f9cb4715e2d48bdf4f58e80e88ef83b"},
+           "49accb86c11cdfb6a045246c0610226a1f9cb4715e2d48bdf4f58e80e88ef83b",
+           # Silent-zero guard D3 (§8.15): the same _X emitter, with retained_w1 carried to lib.rs:3617.
+           "ac4588f5362e424b2336cbf22407f47963d6dd7f1110f4a93d721cb9397457a2"},
 }
 
 

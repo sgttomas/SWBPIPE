@@ -897,6 +897,19 @@ D_converged holds on every point. At native atoms, in both modes, W1 and W2 rise
 
 The `profile_` law tests and `challenge_bounds_are_the_profile` pass in the registered build.
 
+**Final source.** The guard's final source is `ad1188308a`, priced as merged with main `cd6339926d` at `074cd8b67c`. Main changed no priced crate after `9ad5d79fa5`; its changes are in operation_applier and the report crates. Main's registered tree is therefore unchanged. Against `7a81b247ed` the priced source moves in three ways:
+- PP `validation.rs`: a new `model_loads_every_case`, which is true for a constant-effort support or a connector with a nonzero `q_ref` component or rod `reference_extension`, and which the guard now reads.
+- PP `case_state/resolve.rs`: the action test also counts that model-level preload, a case already refused gets no verdict, `ResolvedCase` gains `applies_action`, and a new `refuse_all_reference_states` blocks a load-state model whose every case applies nothing (`LOAD_INPUT_MISSING`, a static message).
+- PP `lib.rs`: one call, `case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);`, after `refuse_resolved_span_strain` in `run_linear_static_preview_observed_inner`'s load-state branch.
+
+Every changed span was read. lib.rs's full-file pin moves, `e8185273…` → `775fe433…`, in `b7a_domain_model.py`, `w1_reductions_model.py`'s reduced cohort and `kd5_text_model.py`'s KD5C4 binding, which still finds no added or removed `.min(`/`.max(` call. Every lib.rs line from 2719 on moves +1 with unchanged text. The re-keyed snapshot keys are: `b7a_domain_model.py`'s eighteen audit keys after 2718; `b7a_owner_choices.py`'s helper keys (14046/14047/14467/14468 → +1); `b7a_phase_model.py`'s `solve_prepared_load_case` (4772 → 4773); `b7a_returning_errors.py`'s owners, sites and callers; and `b7a_scoped_text_model.py`'s four lines. The carried `retained_w1` key in `sens.py`'s `_X` emitter moves 3616 → 3617, and its hash `ac4588f5…` joins `b7a_returning_errors.py`'s `MODE_SOURCE`. No body pin moves. The line map carries every rule, its 32 pruned rules and two resolutions are main's, and the tool's tests follow the moved keys.
+
+- **`model_loads_every_case`.** It allocates no text. Its `.any` closures over supports, the connector components (empty by P2), `q_ref`'s keys and rods reach text only through by-name edges to unrelated `get` functions, none of which holds a TEXT site. It needs no rule, and its loops bound nothing priced.
+- **SZ-TX, SZ-ID.** Unchanged; the validation site's text and keys are as above.
+- **SZ-LS.** `refuse_all_reference_states` reads resolved cases, which exist only for a load-state document, so its `LOAD_INPUT_MISSING` site joins SZ-LS's guarded multiplicity-0 sites, now four. Its 233-byte message is past the inventory's 200-character cut, so it would be unclassified if it were ever reached.
+
+The run at `074cd8b67c` completes on all four points with both o10 checks at zero. Its tree is coefficient-identical to `7a81b247ed`'s, merged and on each point (1,568 coefficients; `compare` is `identical_but_basis`). Against main's registered tree it is as stated above. The block registered at `7a81b247ed`'s basis is unchanged, and `generate --check` reproduces it from this tree. The law-test record, text pins, challenge literals and the phase fits below are unchanged, and the `retained_memory` law tests pass in the registered build.
+
 The merged tree at native atoms, against ⌊0.9M⌋:
 
 | Phase | Dense E + R | Sparse E + R | TEXT reserve | Dense headroom | Sparse headroom |

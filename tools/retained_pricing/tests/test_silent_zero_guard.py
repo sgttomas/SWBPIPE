@@ -49,8 +49,10 @@ def test_the_current_source_audits_the_guard_ids_and_guards_load_state_at_zero(m
     named = line_of(RESOLVE, "let mut text = ids.iter().take(crate::formation_guard::NAMED)")
     lines = (SOURCE / RESOLVE).read_text(encoding="utf-8").split("\n")
     assert "diag(" in lines[excluded - 3] and "format!(" in lines[refusal - 2]
+    reference = line_of(RESOLVE, '"no load case applies an action: every case is a reference state')
+    assert "diag(" in lines[reference - 5]
     assert mult0 == [f"case_state/resolve.rs:{excluded - 2}", f"case_state/resolve.rs:{refusal - 1}",
-                     f"case_state/resolve.rs:{named}"]
+                     f"case_state/resolve.rs:{named}", f"case_state/resolve.rs:{reference - 4}"]
 
 
 def test_a_changed_guard_diagnostic_stops(monkeypatch, tmp_path):

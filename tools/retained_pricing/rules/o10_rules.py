@@ -2102,3 +2102,7 @@ if fnkey("resolve_case", _SZ_R) and '"LOAD_STATE_SOURCE_EXCLUDED",' in _fn_text(
         (site("resolve_case", _SZ_R, '"the load case applies no action: none of its {} stored', row="format!("), _SZ_LS),
         (site("resolve_case", _SZ_R, "let mut text = ids.iter().take(crate::formation_guard::NAMED)"), _SZ_LS),
     ]
+    # refuse_all_reference_states (called once in lib.rs's load-state branch, after refuse_resolved_span_strain) reads
+    # the resolved cases, which exist only for a load-state document; its LOAD_INPUT_MISSING site is guarded the same way.
+    if fnkey("refuse_all_reference_states", _SZ_R):
+        O10_MULT0_SITES += [(site("refuse_all_reference_states", _SZ_R, '"LOAD_INPUT_MISSING",', row="diag("), _SZ_LS)]
