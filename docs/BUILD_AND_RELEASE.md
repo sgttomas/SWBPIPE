@@ -179,8 +179,8 @@ The packaging checklist for a release candidate:
   it forwards. No identity, team identifier or certificate enters the
   repository. `tauri.conf.json` sets `bundle.macOS.hardenedRuntime: true`. The
   app needs no entitlements: WebKit runs its web content, including the
-  WebAssembly engine, in its own processes, and the native smoke passes
-  unchanged against a hardened-runtime binary. Notarize the built bundle
+  WebAssembly engine, in its own processes. The native smoke's results were
+  unchanged against a Developer ID signed, hardened-runtime binary (#1536). Notarize the built bundle
   separately with a notarytool keychain profile:
 
   ```bash

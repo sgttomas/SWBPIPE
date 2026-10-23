@@ -92,7 +92,8 @@ DEVELOPER_ID_REQUIREMENT = (
 
 RELEASE_TARGET_TRIPLE = "aarch64-apple-darwin"
 INSTALLER_FORMAT = "tauri_app_bundle_zip"
-RULED_BUILD_COMMAND = "npm run tauri -- build --bundles app"
+# D-06b (2026-10-23): the signed build; it runs `npm run tauri -- build --bundles app`.
+RULED_BUILD_COMMAND = "python3 tools/release/build_signed_app.py --execute"
 
 TAURI_CONF_RELPATH = Path("apps/desktop/src-tauri/tauri.conf.json")
 DEFAULT_BUNDLE_DIR = Path("apps/desktop/src-tauri/target/release/bundle/macos")
@@ -743,7 +744,7 @@ def main(argv: list[str] | None = None) -> int:
     if not app_path.is_dir():
         print(
             f"missing .app bundle: {app_path}\n"
-            f"build it first: cd apps/desktop && {RULED_BUILD_COMMAND}",
+            f"build it first: {RULED_BUILD_COMMAND}",
             file=sys.stderr,
         )
         return 2

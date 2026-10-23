@@ -103,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         process = subprocess.Popen(
             BUILD_COMMAND, cwd=DESKTOP, env=build_environment(dict(os.environ)),
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace", bufsize=1,
         )
     except OSError as error:
         print(f"build could not start: {type(error).__name__}", file=sys.stderr)
