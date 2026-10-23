@@ -8,8 +8,11 @@
 //!   `StructuralReport` text under the exact parse contract of §2.6, for linear
 //!   cases only (§2 decision 4); any clause that fails leaves the figure absent
 //!   and the state unchanged.
-//! - Causes are emitted only where their evidence is present (§3); every
-//!   location is parsed strictly and omitted rather than guessed.
+//! - Causes are emitted only where their evidence is present (§3). Evidence
+//!   records appended to the integrity message are recognized only at their
+//!   fixed positions after the base message, never by searching text that
+//!   carries identifiers; every location is parsed strictly and omitted rather
+//!   than guessed. Work is linear in the message length.
 //! - `verdict_only` is §2.6's result-level projection; it never takes part in
 //!   admission or standing.
 //!
@@ -17,9 +20,8 @@
 use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
 use serde::Serialize;
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
-const POLICY: &str = "M03-INTEGRITY-v1";
 const INTEGRITY_ID_PREFIX: &str = "diagnostic:numerical-integrity:";
 const CHECKS_PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
 const SENSITIVE: &str = "NUMERICAL_INTEGRITY_SENSITIVE";
@@ -32,34 +34,75 @@ const NONLINEAR_LOOP_PREFIX: &str = "NONLINEAR_SUPPORT_LOOP_";
 const NOT_QUALIFIED: &str = "NUMERICAL_INTEGRITY_NOT_QUALIFIED";
 const EVIDENCE_INCOMPLETE: &str = "NUMERICAL_CASE_EVIDENCE_INCOMPLETE";
 
+// The producer text this parser copies. `tests::producer_text_is_pinned`
+// asserts each piece occurs verbatim in `core/product_physics`.
+
+/// `append_integrity_report`'s lead: `{LEAD_A}{case}{LEAD_B}`, then the report.
+pub(crate) const LEAD_A: &str =
+    "M03-INTEGRITY-v1 represented original-equation structural evidence for load case ";
+pub(crate) const LEAD_B: &str = ": StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: ";
 /// `StructuralReport`'s Debug fields around rcond (§2.6).
 const RCOND_FIELD: &str = ", reciprocal_condition_estimate: ";
 const RESIDUAL_FIELD: &str = ", residual_rows: ";
-/// The end of the report span (`append_integrity_report`).
-const DOF_MAP_FIELD: &str = "; global_dof_map=";
-/// The linear report's fixed sentence after the DOF map
-/// (`append_integrity_report` with no equilibrium evidence).
-const LINEAR_TEXT: &str = "The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable.";
+/// The end of the report span, then the Debug DOF map and `. `.
+pub(crate) const DOF_MAP_FIELD: &str = "; global_dof_map=";
+/// The linear report's fixed sentence after the DOF map.
+pub(crate) const LINEAR_TEXT: &str = "The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable.";
+/// The end of the nonlinear report's equilibrium sentence.
+pub(crate) const NONLINEAR_TEXT_END: &str = "separate zero count/cap/contact/sliding checks passed";
+/// The base message's closing sentence; appended records follow it.
+pub(crate) const CLAIM_TEXT: &str = " No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.";
 const DOF_NAMES: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 
-/// K-D5's evidence line (`formation_check_evidence_line`).
-const KD5_MARK: &str = " formation_check: reason=";
-const KD5_ESTIMATE: &str = " formation_check: reason=estimate; row=";
-const KD5_ROW_END: &str = "; doubled_correction=";
-/// S11-G sentences (`formation_guard::load_row_finding`, `recovery_finding`).
-const LOAD_ROW_TAIL: &str = " load row(s) carry formed-term formation noise above the 1e-9 criterion; every value is kept for inspection. Rows: [";
-const LOAD_ROW_REASONS: [&str; 3] = ["range failure (", "no conservative formation bound (", "net formation defect "];
-const RECOVERY_TAIL: &str = " member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [";
-const RECOVERY_REASONS: [&str; 3] = [": q=", ": member comparison unavailable (", ": the member bound is unavailable ("];
+/// K-D5's evidence line (`formation_check_evidence_line`), the first record.
+pub(crate) const KD5_LINE: &str = " formation_check: reason=";
+pub(crate) const KD5_ESTIMATE: &str = "estimate; row=";
+pub(crate) const KD5_ROW_END: &str = "; doubled_correction=";
+/// S11-G's load-row sentence (`formation_guard::load_row_finding`), the first
+/// record: `{LOAD_ROW_A}{case}{SENSITIVE_BECAUSE}{N}{LOAD_ROW_TAIL}` items `]`.
+pub(crate) const LOAD_ROW_A: &str = " S11-G formation-noise guard: load case ";
+pub(crate) const SENSITIVE_BECAUSE: &str = " is Sensitive because ";
+pub(crate) const LOAD_ROW_TAIL: &str = " load row(s) carry formed-term formation noise above the 1e-9 criterion; every value is kept for inspection. Rows: [";
+pub(crate) const ROW_RANGE: &str = "range failure (";
+pub(crate) const ROW_CANNOT_BOUND: &str =
+    "no conservative formation bound (CannotBound: curved-span consistent load vector from ";
+pub(crate) const ROW_DEFECT: [&str; 8] = [
+    "net formation defect ",
+    ", self-equilibrated defect ",
+    ", bound ",
+    ", intended net at least ",
+    ", body scale ",
+    ", threshold ",
+    " (self-equilibrated threshold ",
+    "); formed sources ",
+];
+/// S11-G's recovery sentence (`formation_guard::recovery_finding`), the last
+/// record: `{RECOVERY_A}{case}{SENSITIVE_BECAUSE}{N}{RECOVERY_TAIL}` items `]`.
+pub(crate) const RECOVERY_A: &str = " S11-G recovery guard (R-b'): load case ";
+pub(crate) const RECOVERY_TAIL: &str = " member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [";
+pub(crate) const GROUP_Q: [&str; 2] = [": q=", ", B="];
+pub(crate) const GROUP_COMPARISON: &str = ": member comparison unavailable (";
+pub(crate) const GROUP_BOUND: &str = ": the member bound is unavailable (";
+/// `formation_guard::member_group_decision`'s reasons.
+pub(crate) const COMPARISON_REASONS: [&str; 6] = [
+    "nonfinite published group norm",
+    "nonfinite certified group magnitude",
+    "nonfinite member bound",
+    "nonfinite body action scale",
+    "invalid member comparison inputs",
+    "exact member comparison range",
+];
+/// Both guards' overflow suffix.
+pub(crate) const AND_MORE: [&str; 2] = ["; and ", " more"];
+/// The linear recovery demotion that names no groups (product_physics: the
+/// member-relative check unavailable), the last record.
+pub(crate) const MEMBER_RELATIVE_UNAVAILABLE: &str = " the member-relative formation check is not available on this route; member rows are binary64 recoveries";
+/// The range-scaling evidence record that may follow the first record.
+pub(crate) const RANGE_SCALING: &str = " range_scaling: ";
 /// The guard's named-row limit (`formation_guard::NAMED`).
 const NAMED: usize = 6;
-/// Recovery-guard demotions without named groups (product_physics: the
-/// member-relative check unavailable, or a nonlinear state not established).
-const RECOVERY_UNAVAILABLE: [&str; 2] = [
-    " the member-relative formation check is not available on this route; member rows are binary64 recoveries",
-    " the converged support state is not established at 128-bit precision (",
-];
-const RECOVERY_UNAVAILABLE_END: &str = "; member rows are binary64 recoveries";
+/// At most this many S11-G recovery leads are tried; more is ambiguous.
+const RECOVERY_LEAD_LIMIT: usize = 8;
 
 #[derive(Debug, Serialize)]
 struct Health {
@@ -88,21 +131,27 @@ struct Cause {
     locations: Vec<Location>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 enum Location {
-    NodeDof { node: String, dof: String },
+    NodeDof {
+        node: String,
+        dof: String,
+    },
     Ref {
         #[serde(rename = "ref")]
         reference: String,
     },
-    Text { text: String },
+    Text {
+        text: String,
+    },
 }
 
 #[derive(Debug, Serialize)]
 struct CombinationHealth {
     combination_id: String,
-    state: &'static str,
+    /// `None` for a withheld combination: it keeps its finding and has no badge.
+    state: Option<&'static str>,
     cases: Vec<String>,
     withheld: bool,
 }
@@ -123,31 +172,106 @@ pub fn numerical_health_json(
         .map_err(|error| format!("NUMERICAL_HEALTH_SERIALIZATION: {error}"))
 }
 
+/// The envelope's diagnostics, indexed once.
+struct Diagnostics<'a> {
+    by_id: HashMap<&'a str, Vec<&'a Value>>,
+    /// (code, first affected ref) for the causes named by other diagnostics.
+    by_code_case: HashMap<&'a str, HashMap<&'a str, Vec<&'a Value>>>,
+    /// Cases a nonlinear support loop names.
+    nonlinear: HashSet<&'a str>,
+}
+
+impl<'a> Diagnostics<'a> {
+    fn new(source: &'a Value) -> Self {
+        let mut index = Diagnostics {
+            by_id: HashMap::new(),
+            by_code_case: HashMap::new(),
+            nonlinear: HashSet::new(),
+        };
+        for d in array(&source["diagnostics"]) {
+            if let Some(id) = d["id"].as_str() {
+                index.by_id.entry(id).or_default().push(d);
+            }
+            let refs = array(&d["affected_refs"]);
+            match d["code"].as_str() {
+                Some(code @ (LOAD_CONTRIBUTION_ABSORBED | CURVED_BEND_SHORT)) => {
+                    if let Some(case) = refs.first().and_then(Value::as_str) {
+                        index
+                            .by_code_case
+                            .entry(code)
+                            .or_default()
+                            .entry(case)
+                            .or_default()
+                            .push(d);
+                    }
+                }
+                Some(code) if code.starts_with(NONLINEAR_LOOP_PREFIX) => {
+                    index
+                        .nonlinear
+                        .extend(refs.iter().filter_map(Value::as_str));
+                }
+                _ => {}
+            }
+        }
+        index
+    }
+
+    fn with_id(&self, id: &str) -> &[&'a Value] {
+        self.by_id.get(id).map(Vec::as_slice).unwrap_or(&[])
+    }
+
+    /// §2.6's integrity diagnostic: exactly one diagnostic with the case's id,
+    /// and its `affected_refs` exactly `[case]`.
+    fn integrity(&self, case_id: &str) -> Option<&'a Value> {
+        let [d] = self.with_id(&format!("{INTEGRITY_ID_PREFIX}{case_id}")) else {
+            return None;
+        };
+        let refs = d["affected_refs"].as_array()?;
+        (refs.len() == 1 && refs[0].as_str() == Some(case_id)).then_some(*d)
+    }
+
+    fn related(&self, code: &'static str, case_id: &str) -> &[&'a Value] {
+        self.by_code_case
+            .get(code)
+            .and_then(|cases| cases.get(case_id))
+            .map(Vec::as_slice)
+            .unwrap_or(&[])
+    }
+}
+
 fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
     let route = route_of(source);
-    let diagnostics = array(&source["diagnostics"]);
-    let quality_cases = array(&source["numerical_quality"]["cases"]);
+    let index = Diagnostics::new(source);
     let mut cases = Vec::new();
     let mut seen = HashSet::new();
-    for entry in quality_cases {
-        let Some(case_id) = load_case_id(entry) else { continue };
-        seen.insert(case_id.to_string());
-        let state = state_of(entry["solve_quality"].as_str());
-        cases.push(case_health(diagnostics, case_id, state));
+    for entry in array(&source["numerical_quality"]["cases"]) {
+        // One entry per case id; a duplicate is refused by `verdict_only`.
+        let Some(case_id) = load_case_id(entry) else {
+            continue;
+        };
+        if seen.insert(case_id.to_string()) {
+            cases.push(case_health(
+                &index,
+                case_id,
+                state_of(entry["solve_quality"].as_str()),
+            ));
+        }
     }
     // A load case the envelope names but `numerical_quality` omits is not
     // assessed (§2.6 "Grey").
     for case_id in named_load_cases(source) {
-        if seen.insert(case_id.clone()) {
-            cases.push(case_health(diagnostics, &case_id, "not_assessed"));
+        if seen.insert(case_id.to_string()) {
+            cases.push(case_health(&index, case_id, "not_assessed"));
         }
     }
-    let states: HashMap<&str, &'static str> =
-        cases.iter().map(|case| (case.case_id.as_str(), case.state)).collect();
+    let states: HashMap<&str, &'static str> = cases
+        .iter()
+        .map(|case| (case.case_id.as_str(), case.state))
+        .collect();
     let combinations = combinations(source, &states);
     Health {
         route,
-        verdict_only: verdict_only(route, source, reader_findings),
+        verdict_only: verdict_only(route, source, &index, reader_findings),
         cases,
         combinations,
     }
@@ -185,79 +309,83 @@ fn state_of(solve_quality: Option<&str>) -> &'static str {
     }
 }
 
-/// The load cases the envelope itself names: its load-case result rows, its
-/// preview evidence and its integrity diagnostics.
-fn named_load_cases(source: &Value) -> Vec<String> {
-    let mut named: Vec<String> = Vec::new();
-    let mut push = |id: &str| {
-        if !named.iter().any(|n| n == id) {
-            named.push(id.to_string());
-        }
-    };
-    for row in array(&source["results"]) {
-        if let Some(id) = load_case_id(row) {
-            push(id);
-        }
-    }
-    for case in array(&source["contract_evidence"]["preview_cases"]) {
-        if let Some(id) = case["load_case_id"].as_str() {
-            push(id);
-        }
-    }
-    for diagnostic in array(&source["diagnostics"]) {
-        if let Some(id) = diagnostic["id"].as_str().and_then(|id| id.strip_prefix(INTEGRITY_ID_PREFIX)) {
-            push(id);
-        }
-    }
-    named
+/// The load cases the envelope itself names, in first-seen order: its
+/// load-case result rows, its preview evidence and its integrity diagnostics.
+fn named_load_cases(source: &Value) -> Vec<&str> {
+    let mut seen = HashSet::new();
+    let rows = array(&source["results"]).iter().filter_map(load_case_id);
+    let preview = array(&source["contract_evidence"]["preview_cases"])
+        .iter()
+        .filter_map(|c| c["load_case_id"].as_str());
+    let integrity = array(&source["diagnostics"]).iter().filter_map(|d| {
+        d["id"]
+            .as_str()
+            .and_then(|id| id.strip_prefix(INTEGRITY_ID_PREFIX))
+    });
+    rows.chain(preview)
+        .chain(integrity)
+        .filter(|id| seen.insert(*id))
+        .collect()
 }
 
-/// §2.6's integrity diagnostic: exactly one diagnostic with the case's id,
-/// and its `affected_refs` exactly `[case]`.
-fn integrity_diagnostic<'a>(diagnostics: &'a [Value], case_id: &str) -> Option<&'a Value> {
-    let id = format!("{INTEGRITY_ID_PREFIX}{case_id}");
-    let mut found = diagnostics.iter().filter(|d| d["id"].as_str() == Some(id.as_str()));
-    let first = found.next()?;
-    if found.next().is_some() {
-        return None;
-    }
-    let refs = first["affected_refs"].as_array()?;
-    (refs.len() == 1 && refs[0].as_str() == Some(case_id)).then_some(first)
-}
-
-fn case_health(diagnostics: &[Value], case_id: &str, state: &'static str) -> CaseHealth {
-    let integrity = integrity_diagnostic(diagnostics, case_id);
+fn case_health(index: &Diagnostics, case_id: &str, state: &'static str) -> CaseHealth {
+    let integrity = index.integrity(case_id);
     let code = integrity.and_then(|d| d["code"].as_str());
     let integrity_id = integrity.and_then(|d| d["id"].as_str()).map(String::from);
     let report = integrity
         .filter(|_| matches!(code, Some(CHECKS_PASSED | SENSITIVE)))
         .and_then(|d| d["message"].as_str())
         .and_then(|message| Report::parse(message, case_id));
-    let nonlinear_loop = diagnostics.iter().any(|d| {
-        d["code"].as_str().is_some_and(|c| c.starts_with(NONLINEAR_LOOP_PREFIX))
-            && array(&d["affected_refs"]).iter().any(|r| r.as_str() == Some(case_id))
-    });
-    let linear = !nonlinear_loop && report.as_ref().is_some_and(Report::linear);
-    let rcond = report.as_ref().filter(|_| linear).and_then(|r| parse_rcond(r.span));
+    let linear = !index.nonlinear.contains(case_id) && report.as_ref().is_some_and(|r| r.linear);
+    let rcond = report
+        .as_ref()
+        .filter(|_| linear)
+        .and_then(|r| parse_rcond(r.span));
     let conditioning_sensitive = rcond.is_some_and(|r| r < f64::EPSILON.sqrt());
+    let sensitive = code == Some(SENSITIVE);
 
     let mut causes = Vec::new();
-    if conditioning_sensitive {
-        causes.push(Cause { kind: "conditioning", diagnostic_id: integrity_id.clone(), locations: Vec::new() });
+    // Every cause the integrity record carries is a demotion's: SENSITIVE only.
+    if conditioning_sensitive && sensitive {
+        causes.push(Cause {
+            kind: "conditioning",
+            diagnostic_id: integrity_id.clone(),
+            locations: Vec::new(),
+        });
     }
-    for d in related(diagnostics, case_id, LOAD_CONTRIBUTION_ABSORBED) {
-        causes.push(Cause { kind: "load_fidelity", diagnostic_id: d["id"].as_str().map(String::from), locations: extra_refs(d, case_id) });
+    for d in index.related(LOAD_CONTRIBUTION_ABSORBED, case_id) {
+        causes.push(Cause {
+            kind: "load_fidelity",
+            diagnostic_id: d["id"].as_str().map(String::from),
+            locations: extra_refs(d, case_id),
+        });
     }
-    if let Some(report) = report.as_ref().filter(|_| code == Some(SENSITIVE)) {
-        if let Some(locations) = report.formation(case_id) {
-            causes.push(Cause { kind: "formation", diagnostic_id: integrity_id.clone(), locations });
+    if let Some(records) = report
+        .as_ref()
+        .filter(|_| sensitive)
+        .map(|r| r.records(case_id))
+    {
+        if let Some(locations) = records.formation {
+            causes.push(Cause {
+                kind: "formation",
+                diagnostic_id: integrity_id.clone(),
+                locations,
+            });
         }
-        if let Some(locations) = report.formation_recovery(case_id) {
-            causes.push(Cause { kind: "formation_recovery", diagnostic_id: integrity_id.clone(), locations });
+        if let Some(locations) = records.formation_recovery {
+            causes.push(Cause {
+                kind: "formation_recovery",
+                diagnostic_id: integrity_id.clone(),
+                locations,
+            });
         }
     }
-    for d in related(diagnostics, case_id, CURVED_BEND_SHORT) {
-        causes.push(Cause { kind: "curved_bend_short", diagnostic_id: d["id"].as_str().map(String::from), locations: extra_refs(d, case_id) });
+    for d in index.related(CURVED_BEND_SHORT, case_id) {
+        causes.push(Cause {
+            kind: "curved_bend_short",
+            diagnostic_id: d["id"].as_str().map(String::from),
+            locations: extra_refs(d, case_id),
+        });
     }
     let coded = match code {
         Some(RECOVERY_BASIS_UNQUALIFIED) => Some("recovery_basis_unqualified"),
@@ -266,7 +394,11 @@ fn case_health(diagnostics: &[Value], case_id: &str, state: &'static str) -> Cas
         _ => None,
     };
     if let Some(kind) = coded {
-        causes.push(Cause { kind, diagnostic_id: integrity_id.clone(), locations: Vec::new() });
+        causes.push(Cause {
+            kind,
+            diagnostic_id: integrity_id.clone(),
+            locations: Vec::new(),
+        });
     }
     CaseHealth {
         case_id: case_id.to_string(),
@@ -281,143 +413,281 @@ fn case_health(diagnostics: &[Value], case_id: &str, state: &'static str) -> Cas
     }
 }
 
-/// The diagnostics of `code` whose first affected ref is the case (the
-/// producer puts the case first: `append_load_contribution_absorbed`,
-/// `append_short_bend_refusal`).
-fn related<'a>(diagnostics: &'a [Value], case_id: &'a str, code: &'a str) -> impl Iterator<Item = &'a Value> + 'a {
-    diagnostics.iter().filter(move |d| {
-        d["code"] == code && array(&d["affected_refs"]).first().and_then(Value::as_str) == Some(case_id)
-    })
-}
-
 fn extra_refs(diagnostic: &Value, case_id: &str) -> Vec<Location> {
-    let mut out: Vec<Location> = Vec::new();
-    for reference in array(&diagnostic["affected_refs"]).iter().skip(1).filter_map(Value::as_str) {
-        let location = Location::Ref { reference: reference.to_string() };
-        if reference != case_id && !out.contains(&location) {
-            out.push(location);
-        }
-    }
-    out
+    let mut seen = HashSet::new();
+    array(&diagnostic["affected_refs"])
+        .iter()
+        .skip(1)
+        .filter_map(Value::as_str)
+        .filter(|r| *r != case_id && seen.insert(*r))
+        .map(|r| Location::Ref {
+            reference: r.to_string(),
+        })
+        .collect()
 }
 
 /// A parsed integrity message of `append_integrity_report`'s form.
 struct Report<'m> {
     /// The report span: after the exact lead, up to `; global_dof_map=`.
     span: &'m str,
-    /// The DOF map's labels, when its Debug list parses and round-trips.
-    dof_map: Option<Vec<String>>,
-    /// The text after the DOF map's `]. `.
-    tail: Option<&'m str>,
+    /// Whether the base message is the linear one.
+    linear: bool,
+    /// The DOF map's labels and the appended records (the text after the base
+    /// message's closing sentence), when the DOF map parses and round-trips
+    /// and the fixed text after it is the linear or nonlinear base.
+    tail: Option<(Labels, &'m str)>,
+}
+
+/// The causes the appended records state: `Some(locations)` when present.
+#[derive(Default)]
+struct Records {
+    formation: Option<Vec<Location>>,
+    formation_recovery: Option<Vec<Location>>,
 }
 
 impl<'m> Report<'m> {
     fn parse(message: &'m str, case_id: &str) -> Option<Self> {
-        let lead = format!(
-            "{POLICY} represented original-equation structural evidence for load case {case_id}: StructuralReport {{ policy: \"{POLICY}\", quality: "
-        );
-        let body = message.strip_prefix(lead.as_str())?;
+        let body = message
+            .strip_prefix(LEAD_A)?
+            .strip_prefix(case_id)?
+            .strip_prefix(LEAD_B)?;
         let end = body.find(DOF_MAP_FIELD)?;
         let after = &body[end + DOF_MAP_FIELD.len()..];
-        let (dof_map, tail) = match parse_debug_string_list(after) {
-            Some((labels, rest)) => match rest.strip_prefix(". ") {
-                Some(tail) => (Some(labels), Some(tail)),
-                None => (None, None),
-            },
-            None => (None, None),
+        let mut linear = false;
+        let tail = parse_debug_string_list(after).and_then(|(labels, rest)| {
+            let rest = rest.strip_prefix(". ")?;
+            let records = if let Some(records) = rest
+                .strip_prefix(LINEAR_TEXT)
+                .and_then(|r| r.strip_prefix(CLAIM_TEXT))
+            {
+                linear = true;
+                records
+            } else {
+                // The nonlinear equilibrium evidence is numbers and fixed text.
+                let close = rest.find(CLAIM_TEXT)?;
+                if !rest[..close].ends_with(NONLINEAR_TEXT_END) {
+                    return None;
+                }
+                &rest[close + CLAIM_TEXT.len()..]
+            };
+            Some((Labels::new(labels), records))
+        });
+        Some(Report {
+            span: &body[..end],
+            linear: tail.is_some() && linear,
+            tail,
+        })
+    }
+
+    /// The appended records, in the producer's order: an S11-G load-row
+    /// sentence or K-D5's line first; then optional range-scaling and
+    /// nonlinear evidence lines; an S11-G recovery demotion last. Under the
+    /// guards' no-op rule at most one demotion record is present.
+    fn records(&self, case_id: &str) -> Records {
+        let Some((labels, records)) = &self.tail else {
+            return Records::default();
         };
-        Some(Report { span: &body[..end], dof_map, tail })
+        let mut out = Records::default();
+        let load_row = [LOAD_ROW_A, case_id, SENSITIVE_BECAUSE].concat();
+        if let Some(text) = records.strip_prefix(load_row.as_str()) {
+            let located = parse_load_rows(text, labels);
+            out.formation = Some(located.unwrap_or_default());
+            return out;
+        }
+        if let Some(text) = records.strip_prefix(KD5_LINE) {
+            let located = text
+                .strip_prefix(KD5_ESTIMATE)
+                .and_then(|row| labels.prefix(row, KD5_ROW_END))
+                .and_then(|(label, _)| node_dof(label));
+            out.formation = Some(located.into_iter().collect());
+            return out;
+        }
+        if records.ends_with(MEMBER_RELATIVE_UNAVAILABLE) {
+            out.formation_recovery = Some(Vec::new());
+            return out;
+        }
+        // The recovery sentence ends the message; its position follows records
+        // whose identifiers are not parsed, so each lead is tried and must
+        // parse exactly to the end.
+        let lead = [RECOVERY_A, case_id, SENSITIVE_BECAUSE].concat();
+        let starts: Vec<usize> = records
+            .match_indices(lead.as_str())
+            .map(|(i, _)| i)
+            .take(RECOVERY_LEAD_LIMIT + 1)
+            .collect();
+        if starts.is_empty() || starts.len() > RECOVERY_LEAD_LIMIT {
+            return out;
+        }
+        let parsed: Vec<Vec<Location>> = starts
+            .iter()
+            .filter_map(|&i| parse_recovery_groups(&records[i + lead.len()..]))
+            .collect();
+        if let Some(groups) = parsed.first() {
+            // A lead inside a group's text makes the groups ambiguous.
+            out.formation_recovery = Some(if starts.len() == 1 {
+                groups.clone()
+            } else {
+                Vec::new()
+            });
+        }
+        out
+    }
+}
+
+/// The DOF map's labels, for exact lookups.
+struct Labels {
+    set: HashSet<String>,
+    longest: usize,
+}
+
+impl Labels {
+    fn new(labels: Vec<String>) -> Self {
+        let longest = labels.iter().map(String::len).max().unwrap_or(0);
+        Labels {
+            set: labels.into_iter().collect(),
+            longest,
+        }
     }
 
-    /// The linear report's fixed sentence follows the DOF map; a nonlinear
-    /// report carries its equilibrium evidence there instead.
-    fn linear(&self) -> bool {
-        self.tail.is_some_and(|tail| tail.starts_with(LINEAR_TEXT))
+    /// The unique label at the start of `text` followed by `separator`, and the
+    /// text after the separator. Only the label-length window is examined.
+    fn prefix<'t>(&self, text: &'t str, separator: &str) -> Option<(&'t str, &'t str)> {
+        let mut end = text.len().min(self.longest + separator.len());
+        while !text.is_char_boundary(end) {
+            end -= 1;
+        }
+        let mut found = text[..end]
+            .match_indices(separator)
+            .map(|(i, _)| i)
+            .filter(|&i| self.set.contains(&text[..i]));
+        let first = found.next()?;
+        found
+            .next()
+            .is_none()
+            .then(|| (&text[..first], &text[first + separator.len()..]))
     }
+}
 
-    /// K-D5's line, or an S11-G load-row demotion: `Some(locations)` when the
-    /// evidence is present.
-    fn formation(&self, case_id: &str) -> Option<Vec<Location>> {
-        let tail = self.tail?;
-        let map = self.dof_map.as_deref().unwrap_or(&[]);
-        let kd5 = tail.matches(KD5_MARK).count();
-        let lead = format!(" S11-G formation-noise guard: load case {case_id} is Sensitive because ");
-        let s11g = tail.matches(lead.as_str()).count();
-        if kd5 == 0 && s11g == 0 {
+/// The S11-G load-row list (`{N}{LOAD_ROW_TAIL}` already past the lead): each
+/// item a DOF-map label and one of the guard's three reasons; the list closed
+/// by `]`, the optional overflow suffix, and the record's end. The named rows
+/// as locations, or `None` when anything fails to parse.
+fn parse_load_rows(text: &str, labels: &Labels) -> Option<Vec<Location>> {
+    let (count, mut rest) = counted_list(text, LOAD_ROW_TAIL)?;
+    let mut located = Vec::new();
+    loop {
+        if located.len() == NAMED {
             return None;
         }
-        let mut locations = Vec::new();
-        if kd5 == 1 {
-            if let Some(rest) = tail.find(KD5_ESTIMATE).map(|i| &tail[i + KD5_ESTIMATE.len()..]) {
-                let found = unique_labels(map, |label| rest.starts_with(&format!("{label}{KD5_ROW_END}")));
-                if let [label] = found.as_slice() {
-                    locations.extend(node_dof(label));
-                }
-            }
+        let (label, after) = labels.prefix(rest, ": ")?;
+        rest = parse_row_reason(after)?;
+        located.push(node_dof(label)?);
+        if let Some(next) = rest.strip_prefix("; ") {
+            rest = next;
+            continue;
         }
-        if s11g == 1 {
-            let after = &tail[tail.find(lead.as_str()).unwrap() + lead.len()..];
-            if let Some((count, list)) = counted_list(after, LOAD_ROW_TAIL) {
-                let mut labels = Vec::new();
-                let mut ambiguous = false;
-                for start in item_starts(list) {
-                    let item = &list[start..];
-                    let found = unique_labels(map, |label| {
-                        LOAD_ROW_REASONS.iter().any(|reason| item.starts_with(&format!("{label}: {reason}")))
-                    });
-                    match found.as_slice() {
-                        [] => {}
-                        [label] => labels.push(label.clone()),
-                        _ => ambiguous = true,
-                    }
-                }
-                if !ambiguous && labels.len() == count.min(NAMED) {
-                    for location in labels.iter().filter_map(|label| node_dof(label)) {
-                        if !locations.contains(&location) {
-                            locations.push(location);
-                        }
-                    }
-                }
-            }
-        }
-        Some(locations)
+        rest = rest.strip_prefix(']')?;
+        break;
     }
+    rest = strip_and_more(rest)?;
+    let ends = rest.is_empty() || rest.starts_with(RANGE_SCALING);
+    (ends && located.len() == count.min(NAMED)).then(|| {
+        let mut seen = HashSet::new();
+        located
+            .into_iter()
+            .filter(|l| seen.insert(l.clone()))
+            .collect()
+    })
+}
 
-    /// An S11-G recovery demotion (its groups as text), or a recovery-guard
-    /// demotion that names no groups.
-    fn formation_recovery(&self, case_id: &str) -> Option<Vec<Location>> {
-        let tail = self.tail?;
-        let lead = format!(" S11-G recovery guard (R-b'): load case {case_id} is Sensitive because ");
-        let named = tail.matches(lead.as_str()).count();
-        let unnamed = tail.contains(RECOVERY_UNAVAILABLE[0])
-            || tail.find(RECOVERY_UNAVAILABLE[1]).is_some_and(|i| tail[i..].contains(RECOVERY_UNAVAILABLE_END));
-        if named == 0 && !unnamed {
+/// One load-row reason (`formation_guard::decide_row`); the text after it.
+fn parse_row_reason(text: &str) -> Option<&str> {
+    if let Some(rest) = text.strip_prefix(ROW_RANGE) {
+        return paren_close(rest);
+    }
+    if let Some(rest) = text.strip_prefix(ROW_CANNOT_BOUND) {
+        return parse_debug_string_list(rest)?.1.strip_prefix(')');
+    }
+    let mut rest = text.strip_prefix(ROW_DEFECT[0])?;
+    for literal in &ROW_DEFECT[1..] {
+        rest = number(rest)?.strip_prefix(literal)?;
+    }
+    Some(parse_debug_string_list(rest)?.1)
+}
+
+/// The S11-G recovery list (`{N}{RECOVERY_TAIL}` already past the lead), which
+/// must end the message. Group names as text, or `None`.
+fn parse_recovery_groups(text: &str) -> Option<Vec<Location>> {
+    let (count, mut rest) = counted_list(text, RECOVERY_TAIL)?;
+    let mut groups = Vec::new();
+    loop {
+        if groups.len() == NAMED {
             return None;
         }
-        let mut locations = Vec::new();
-        if named == 1 {
-            let after = &tail[tail.find(lead.as_str()).unwrap() + lead.len()..];
-            if let Some((count, list)) = counted_list(after, RECOVERY_TAIL) {
-                let mut groups = Vec::new();
-                for start in item_starts(list) {
-                    let item = &list[start..];
-                    let Some(end) = RECOVERY_REASONS.iter().filter_map(|r| item.find(r)).min() else { continue };
-                    let group = &item[..end];
-                    if !group.is_empty() && !group.contains("; ") {
-                        groups.push(group.to_string());
-                    }
-                }
-                if groups.len() == count.min(NAMED) {
-                    for group in groups {
-                        let location = Location::Text { text: group };
-                        if !locations.contains(&location) {
-                            locations.push(location);
-                        }
-                    }
-                }
-            }
+        // A group name is `{member}.{location}.{kind}`: it ends at the first
+        // reason; a name holding "; " or "]" is not parsed.
+        let end = [GROUP_Q[0], GROUP_COMPARISON, GROUP_BOUND]
+            .iter()
+            .filter_map(|m| rest.find(m))
+            .min()?;
+        let name = &rest[..end];
+        if name.is_empty() || name.contains("; ") || name.contains(']') {
+            return None;
         }
-        Some(locations)
+        let reason = &rest[end..];
+        rest = if let Some(r) = reason.strip_prefix(GROUP_Q[0]) {
+            number(number(r)?.strip_prefix(GROUP_Q[1])?)?
+        } else if let Some(r) = reason.strip_prefix(GROUP_COMPARISON) {
+            let reason = COMPARISON_REASONS.iter().find(|c| r.starts_with(**c))?;
+            r[reason.len()..].strip_prefix(')')?
+        } else {
+            paren_close(reason.strip_prefix(GROUP_BOUND)?)?
+        };
+        groups.push(Location::Text {
+            text: name.to_string(),
+        });
+        if let Some(next) = rest.strip_prefix("; ") {
+            rest = next;
+            continue;
+        }
+        rest = rest.strip_prefix(']')?;
+        break;
+    }
+    (strip_and_more(rest)?.is_empty() && groups.len() == count.min(NAMED)).then(|| {
+        let mut seen = HashSet::new();
+        groups
+            .into_iter()
+            .filter(|g| seen.insert(g.clone()))
+            .collect()
+    })
+}
+
+/// A number token in `{:e}` or `{:?}` form; the text after it.
+fn number(text: &str) -> Option<&str> {
+    let end = text
+        .find(|c: char| !(c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '+')))
+        .unwrap_or(text.len());
+    (end > 0).then(|| &text[end..])
+}
+
+/// A parenthesized free reason: the text after the first `)` that closes an
+/// item (`)` followed by `; ` or `]`).
+fn paren_close(text: &str) -> Option<&str> {
+    text.match_indices(')')
+        .map(|(i, _)| &text[i + 1..])
+        .find(|rest| rest.starts_with("; ") || rest.starts_with(']'))
+}
+
+/// The guards' optional `; and {n} more`.
+fn strip_and_more(text: &str) -> Option<&str> {
+    match text.strip_prefix(AND_MORE[0]) {
+        None => Some(text),
+        Some(rest) => {
+            let digits = rest.bytes().take_while(u8::is_ascii_digit).count();
+            (digits > 0)
+                .then(|| rest[digits..].strip_prefix(AND_MORE[1]))
+                .flatten()
+        }
     }
 }
 
@@ -425,17 +695,20 @@ impl<'m> Report<'m> {
 /// followed by a number token and `, residual_rows: `; the token is Rust's
 /// shortest round-trip `f64` form of a finite value with 0 < rcond <= 1.
 fn parse_rcond(span: &str) -> Option<f64> {
-    if span.matches(RCOND_FIELD).count() != 1 {
+    let mut found = span.match_indices(RCOND_FIELD);
+    let (start, _) = found.next()?;
+    if found.next().is_some() {
         return None;
     }
-    let rest = &span[span.find(RCOND_FIELD)? + RCOND_FIELD.len()..];
+    let rest = &span[start + RCOND_FIELD.len()..];
     let end = rest.find(',')?;
     if !rest[end..].starts_with(RESIDUAL_FIELD) {
         return None;
     }
     let token = &rest[..end];
     let value: f64 = token.parse().ok()?;
-    (format!("{value:?}") == token && value.is_finite() && value > 0.0 && value <= 1.0).then_some(value)
+    (format!("{value:?}") == token && value.is_finite() && value > 0.0 && value <= 1.0)
+        .then_some(value)
 }
 
 /// A Debug-formatted `Vec<String>` at the start of `text`: its decoded
@@ -474,6 +747,9 @@ fn parse_debug_string_list(text: &str) -> Option<(Vec<String>, &str)> {
                                 if h == '}' {
                                     break;
                                 }
+                                if hex.len() == 6 {
+                                    return None;
+                                }
                                 hex.push(h);
                             }
                             decoded.push(char::from_u32(u32::from_str_radix(&hex, 16).ok()?)?);
@@ -497,39 +773,32 @@ fn parse_debug_string_list(text: &str) -> Option<(Vec<String>, &str)> {
     }
 }
 
-/// The distinct DOF-map labels satisfying `test`.
-fn unique_labels(map: &[String], test: impl Fn(&str) -> bool) -> Vec<String> {
-    let mut found: Vec<String> = Vec::new();
-    for label in map {
-        if test(label) && !found.contains(label) {
-            found.push(label.clone());
-        }
-    }
-    found
-}
-
 /// A DOF-map label `{node}:{DOF}` (`integrity_dof_label`) as a location.
 fn node_dof(label: &str) -> Option<Location> {
     let (node, dof) = label.rsplit_once(':')?;
-    (!node.is_empty() && DOF_NAMES.contains(&dof)).then(|| Location::NodeDof { node: node.to_string(), dof: dof.to_string() })
+    (!node.is_empty() && DOF_NAMES.contains(&dof)).then(|| Location::NodeDof {
+        node: node.to_string(),
+        dof: dof.to_string(),
+    })
 }
 
 /// `{N}{tail}` at the start of `text`: the count and the list after the tail.
 fn counted_list<'t>(text: &'t str, tail: &str) -> Option<(usize, &'t str)> {
-    let digits = text.chars().take_while(char::is_ascii_digit).count();
+    let digits = text.bytes().take_while(u8::is_ascii_digit).count();
     let count = text[..digits].parse().ok()?;
     Some((count, text[digits..].strip_prefix(tail)?))
 }
 
-/// Candidate item starts of a `"; "`-joined list: its start and every
-/// position after a `"; "`.
-fn item_starts(list: &str) -> Vec<usize> {
-    std::iter::once(0).chain(list.match_indices("; ").map(|(i, _)| i + 2)).collect()
-}
-
 /// §2.6's result-level flag: a presentation projection, never admission.
-fn verdict_only(route: &str, source: &Value, reader_findings: Option<&Value>) -> bool {
-    route == "generic" && reader_findings.is_some_and(is_verdict_pair) && quality_consistent(source)
+fn verdict_only(
+    route: &str,
+    source: &Value,
+    index: &Diagnostics,
+    reader_findings: Option<&Value>,
+) -> bool {
+    route == "generic"
+        && reader_findings.is_some_and(is_verdict_pair)
+        && quality_consistent(source, index)
 }
 
 /// The reader's findings are exactly `NUMERICAL_INTEGRITY_NOT_QUALIFIED` and
@@ -540,43 +809,66 @@ fn is_verdict_pair(findings: &Value) -> bool {
         .or_else(|| findings["standing"]["findings"].as_array())
         .or_else(|| findings["findings"].as_array());
     let Some(list) = list else { return false };
-    let codes: Option<Vec<&str>> = list.iter().map(|f| f.as_str().or_else(|| f["code"].as_str())).collect();
+    let codes: Option<Vec<&str>> = list
+        .iter()
+        .map(|f| f.as_str().or_else(|| f["code"].as_str()))
+        .collect();
     let Some(mut codes) = codes else { return false };
     codes.sort_unstable();
     codes == [EVIDENCE_INCOMPLETE, NOT_QUALIFIED]
 }
 
 /// §2.6's evidence clauses over `numerical_quality` and the diagnostics.
-fn quality_consistent(source: &Value) -> bool {
-    const ORDER: [&str; 5] = ["checks_passed", "sensitive", "not_assessed", "unresolved", "failed"];
+fn quality_consistent(source: &Value, index: &Diagnostics) -> bool {
+    const ORDER: [&str; 5] = [
+        "checks_passed",
+        "sensitive",
+        "not_assessed",
+        "unresolved",
+        "failed",
+    ];
     let quality = &source["numerical_quality"];
-    let Some(cases) = quality["cases"].as_array().filter(|cases| !cases.is_empty()) else { return false };
-    let Some(diagnostics) = source["diagnostics"].as_array() else { return false };
+    let Some(cases) = quality["cases"]
+        .as_array()
+        .filter(|cases| !cases.is_empty())
+    else {
+        return false;
+    };
+    let Some(diagnostics) = source["diagnostics"].as_array() else {
+        return false;
+    };
     // Every emitted diagnostic id is a unique non-empty string.
-    let mut emitted = HashSet::new();
-    for diagnostic in diagnostics {
-        match diagnostic["id"].as_str() {
-            Some(id) if !id.is_empty() && emitted.insert(id) => {}
-            _ => return false,
-        }
+    if diagnostics
+        .iter()
+        .any(|d| d["id"].as_str().map_or(true, str::is_empty))
+        || index.by_id.values().any(|ds| ds.len() != 1)
+    {
+        return false;
     }
     let mut case_ids = HashSet::new();
     let mut worst = 0;
     for case in cases {
-        let Some(case_id) = load_case_id(case) else { return false };
+        let Some(case_id) = load_case_id(case) else {
+            return false;
+        };
         if !case_ids.insert(case_id) {
             return false;
         }
-        let Some(rank) = ORDER.iter().position(|s| case["solve_quality"] == *s) else { return false };
+        let Some(rank) = ORDER.iter().position(|s| case["solve_quality"] == *s) else {
+            return false;
+        };
         worst = worst.max(rank);
         let refs = array(&case["evidence_refs"]);
-        if refs.is_empty() || !refs.iter().all(|r| r.as_str().is_some_and(|r| emitted.contains(r))) {
+        if refs.is_empty()
+            || !refs
+                .iter()
+                .all(|r| r.as_str().is_some_and(|r| index.by_id.contains_key(r)))
+        {
             return false;
         }
-        let integrity_id = format!("{INTEGRITY_ID_PREFIX}{case_id}");
-        let code = diagnostics
-            .iter()
-            .find(|d| d["id"].as_str() == Some(integrity_id.as_str()))
+        let code = index
+            .with_id(&format!("{INTEGRITY_ID_PREFIX}{case_id}"))
+            .first()
             .map(|d| d["code"].as_str());
         let (structural, solve, fidelity, accuracy) = derived_fields(code);
         if case["structural_status"] != structural
@@ -587,7 +879,10 @@ fn quality_consistent(source: &Value) -> bool {
             return false;
         }
     }
-    if named_load_cases(source).iter().any(|id| !case_ids.contains(id.as_str())) {
+    if named_load_cases(source)
+        .iter()
+        .any(|id| !case_ids.contains(id))
+    {
         return false;
     }
     quality["status"] == ORDER[worst]
@@ -595,95 +890,235 @@ fn quality_consistent(source: &Value) -> bool {
 
 /// `assessed_numerical_quality`'s fields from the case's integrity code
 /// (`None`: no integrity diagnostic; `Some(None)`: a code that is not text).
-fn derived_fields(code: Option<Option<&str>>) -> (&'static str, &'static str, &'static str, &'static str) {
+fn derived_fields(
+    code: Option<Option<&str>>,
+) -> (&'static str, &'static str, &'static str, &'static str) {
     match code {
-        Some(Some(CHECKS_PASSED)) => ("passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"),
-        Some(Some(SENSITIVE)) => ("passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"),
-        Some(Some(PHYSICAL_MECHANISM)) => ("physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"),
-        Some(Some(NEGATIVE_ENERGY)) => ("negative_energy_witnessed", "failed", "not_assessed", "not_claimed"),
-        Some(Some(RECOVERY_BASIS_UNQUALIFIED)) => ("numerically_unresolved", "unresolved", "not_assessed", "unresolved"),
-        Some(Some("NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED")) => ("numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"),
-        Some(Some("NUMERICAL_INTEGRITY_FAILED")) => ("numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"),
-        Some(_) => ("numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"),
-        None => ("numerically_unresolved", "not_assessed", "not_assessed", "not_claimed"),
+        Some(Some(CHECKS_PASSED)) => (
+            "passive_model_basis",
+            "checks_passed",
+            "represented_equations_retained",
+            "not_claimed",
+        ),
+        Some(Some(SENSITIVE)) => (
+            "passive_model_basis",
+            "sensitive",
+            "represented_equations_retained",
+            "not_claimed",
+        ),
+        Some(Some(PHYSICAL_MECHANISM)) => (
+            "physical_mechanism_witnessed",
+            "failed",
+            "not_assessed",
+            "not_claimed",
+        ),
+        Some(Some(NEGATIVE_ENERGY)) => (
+            "negative_energy_witnessed",
+            "failed",
+            "not_assessed",
+            "not_claimed",
+        ),
+        Some(Some(RECOVERY_BASIS_UNQUALIFIED)) => (
+            "numerically_unresolved",
+            "unresolved",
+            "not_assessed",
+            "unresolved",
+        ),
+        Some(Some("NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED")) => (
+            "numerically_unresolved",
+            "unresolved",
+            "assembly_loss_detected",
+            "unresolved",
+        ),
+        Some(Some("NUMERICAL_INTEGRITY_FAILED")) => (
+            "numerically_unresolved",
+            "failed",
+            "assembly_uncertainty",
+            "unresolved",
+        ),
+        Some(_) => (
+            "numerically_unresolved",
+            "unresolved",
+            "assembly_uncertainty",
+            "unresolved",
+        ),
+        None => (
+            "numerically_unresolved",
+            "not_assessed",
+            "not_assessed",
+            "not_claimed",
+        ),
     }
+}
+
+/// A combination row's resolution: the load cases at its leaves, and whether
+/// every branch reached a load case.
+#[derive(Clone, Default)]
+struct Resolution<'a> {
+    cases: BTreeSet<&'a str>,
+    unresolved: bool,
+}
+
+impl<'a> Resolution<'a> {
+    fn merge(&mut self, other: &Resolution<'a>) {
+        self.cases.extend(other.cases.iter().copied());
+        self.unresolved |= other.unresolved;
+    }
+}
+
+/// Resolves the combination row `start` to its load-case leaves, iteratively,
+/// memoizing finished rows (shared ancestry) apart from rows still on the
+/// path (a cycle, including a self-reference). A branch with no source refs,
+/// a missing or malformed ref, a cycle or a non-load-case leaf is unresolved.
+fn resolve<'a>(
+    start: &'a str,
+    by_id: &HashMap<&'a str, &'a Value>,
+    memo: &mut HashMap<&'a str, Option<Resolution<'a>>>,
+) -> Resolution<'a> {
+    if let Some(Some(done)) = memo.get(start) {
+        return done.clone();
+    }
+    memo.insert(start, None);
+    let mut stack: Vec<(&'a str, usize, Resolution<'a>)> = vec![(start, 0, Resolution::default())];
+    while let Some(&(id, next, _)) = stack.last() {
+        let refs = by_id
+            .get(id)
+            .copied()
+            .map_or(&[][..], |row: &'a Value| array(&row["source_result_refs"]));
+        if next >= refs.len() {
+            let (id, _, mut done) = stack.pop().unwrap();
+            if refs.is_empty() {
+                done.unresolved = true;
+            }
+            memo.insert(id, Some(done.clone()));
+            match stack.last_mut() {
+                Some(parent) => parent.2.merge(&done),
+                None => return done,
+            }
+            continue;
+        }
+        let reference = &refs[next];
+        let top = stack.len() - 1;
+        stack[top].1 += 1;
+        let Some(source_row) = reference
+            .as_str()
+            .and_then(|r| by_id.get_key_value(r))
+            .map(|(r, row)| (*r, *row))
+        else {
+            stack[top].2.unresolved = true;
+            continue;
+        };
+        match (
+            source_row.1["basis_ref"]["ref_type"].as_str(),
+            source_row.1["basis_ref"]["ref_id"].as_str(),
+        ) {
+            (Some("load_case"), Some(case)) => {
+                stack[top].2.cases.insert(case);
+            }
+            (Some("combination"), Some(_)) => match memo.get(source_row.0) {
+                Some(Some(done)) => {
+                    let done = done.clone();
+                    stack[top].2.merge(&done);
+                }
+                Some(None) => stack[top].2.unresolved = true,
+                None => {
+                    memo.insert(source_row.0, None);
+                    stack.push((source_row.0, 0, Resolution::default()));
+                }
+            },
+            _ => stack[top].2.unresolved = true,
+        }
+    }
+    unreachable!("the start row is popped last")
 }
 
 /// §2 decision 5: a combination inherits the worst badge of the load cases
 /// its rows are formed from (red > grey > green); a named case without a
-/// state, or a source row that does not resolve to a load case, reads not
-/// assessed. A withheld combination has no rows, so it names no cases.
+/// state, or an unresolved branch, reads not assessed. A withheld combination
+/// publishes no rows and gets no state.
 fn combinations(source: &Value, states: &HashMap<&str, &'static str>) -> Vec<CombinationHealth> {
     let results = array(&source["results"]);
     let mut by_id: HashMap<&str, &Value> = HashMap::new();
-    for row in results {
-        if let Some(id) = row["id"].as_str() {
-            by_id.entry(id).or_insert(row);
-        }
-    }
-    let mut ids: Vec<(String, bool)> = Vec::new();
+    let mut rows: HashMap<&str, Vec<&str>> = HashMap::new();
+    let mut ids: Vec<(&str, bool)> = Vec::new();
+    let mut seen = HashSet::new();
     for gate in array(&source["contract_evidence"]["combination_gates"]) {
         if let Some(id) = gate["combination_id"].as_str() {
-            if !ids.iter().any(|(i, _)| i == id) {
-                ids.push((id.to_string(), gate["withheld"] == true));
+            if seen.insert(id) {
+                ids.push((id, gate["withheld"] == true));
             }
         }
     }
     for row in results {
-        if row["basis_ref"]["ref_type"] == "combination" {
-            if let Some(id) = row["basis_ref"]["ref_id"].as_str() {
-                if !ids.iter().any(|(i, _)| i == id) {
-                    ids.push((id.to_string(), false));
-                }
+        let Some(id) = row["id"].as_str() else {
+            continue;
+        };
+        by_id.entry(id).or_insert(row);
+        if let (Some("combination"), Some(combination)) = (
+            row["basis_ref"]["ref_type"].as_str(),
+            row["basis_ref"]["ref_id"].as_str(),
+        ) {
+            // A modulus-basis presence record (`append_combination_modulus_basis_records`)
+            // carries no value formed by result algebra: it is not a branch.
+            if row["kind"] != MODULUS_BASIS_RECORD {
+                rows.entry(combination).or_default().push(id);
+            }
+            if seen.insert(combination) {
+                ids.push((combination, false));
             }
         }
     }
+    let order: HashMap<&str, usize> = array(&source["numerical_quality"]["cases"])
+        .iter()
+        .filter_map(load_case_id)
+        .enumerate()
+        .map(|(i, id)| (id, i))
+        .collect();
+    let mut memo = HashMap::new();
     ids.into_iter()
         .map(|(combination_id, withheld)| {
-            let mut cases: Vec<String> = Vec::new();
-            let mut unresolved = false;
-            let mut visited = HashSet::new();
-            let mut stack: Vec<&Value> = results
-                .iter()
-                .filter(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == combination_id.as_str())
-                .collect();
-            while let Some(row) = stack.pop() {
-                for reference in array(&row["source_result_refs"]) {
-                    let Some(reference) = reference.as_str() else {
-                        unresolved = true;
-                        continue;
-                    };
-                    if !visited.insert(reference) {
-                        continue;
-                    }
-                    match by_id.get(reference) {
-                        Some(source_row) => match source_row["basis_ref"]["ref_type"].as_str() {
-                            Some("load_case") => match source_row["basis_ref"]["ref_id"].as_str() {
-                                Some(case) if !cases.iter().any(|c| c == case) => cases.push(case.to_string()),
-                                Some(_) => {}
-                                None => unresolved = true,
-                            },
-                            Some("combination") => stack.push(source_row),
-                            _ => unresolved = true,
-                        },
-                        None => unresolved = true,
-                    }
+            let mut resolution = Resolution::default();
+            let branches = rows.get(combination_id).map(Vec::as_slice).unwrap_or(&[]);
+            for &row in branches {
+                let branch = resolve(row, &by_id, &mut memo);
+                resolution.merge(&branch);
+            }
+            let mut cases: Vec<&str> = resolution.cases.into_iter().collect();
+            cases.sort_by_key(|c| (order.get(c).copied().unwrap_or(usize::MAX), *c));
+            let state = (!withheld).then(|| {
+                let mut worst = if cases.is_empty() || resolution.unresolved {
+                    badge_rank("not_assessed")
+                } else {
+                    0
+                };
+                for case in &cases {
+                    worst = worst.max(badge_rank(
+                        states.get(case).copied().unwrap_or("not_assessed"),
+                    ));
                 }
+                BADGE_ORDER[worst]
+            });
+            CombinationHealth {
+                combination_id: combination_id.to_string(),
+                state,
+                cases: cases.into_iter().map(String::from).collect(),
+                withheld,
             }
-            // Cases in `numerical_quality` order, then any others by id.
-            let order: Vec<&str> = array(&source["numerical_quality"]["cases"]).iter().filter_map(load_case_id).collect();
-            cases.sort_by_key(|c| (order.iter().position(|o| o == c).unwrap_or(usize::MAX), c.clone()));
-            let mut worst = if cases.is_empty() || unresolved { badge_rank("not_assessed") } else { 0 };
-            for case in &cases {
-                worst = worst.max(badge_rank(states.get(case.as_str()).copied().unwrap_or("not_assessed")));
-            }
-            CombinationHealth { combination_id, state: BADGE_ORDER[worst], cases, withheld }
         })
         .collect()
 }
 
+/// The combination presence record kind that names an operand's solve basis.
+pub(crate) const MODULUS_BASIS_RECORD: &str = "combination_modulus_basis_record";
+
 /// Worst-badge order: green < grey < red, the reds in the engine's order.
-const BADGE_ORDER: [&str; 5] = ["checks_passed", "not_assessed", "sensitive", "quality_unresolved", "solve_failed"];
+const BADGE_ORDER: [&str; 5] = [
+    "checks_passed",
+    "not_assessed",
+    "sensitive",
+    "quality_unresolved",
+    "solve_failed",
+];
 fn badge_rank(state: &str) -> usize {
     BADGE_ORDER.iter().position(|s| *s == state).unwrap_or(1)
 }
@@ -693,12 +1128,21 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    const MULTICASE: &str =
-        include_str!("../../../../fixtures/product_preview/w1_controls/ui/multicase-sparse_interactive.raw.json");
-    const PAIR: &str = r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]"#;
+    const MULTICASE: &str = include_str!(
+        "../../../../fixtures/product_preview/w1_controls/ui/multicase-sparse_interactive.raw.json"
+    );
+    const PAIR: &str =
+        r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]"#;
 
     /// A report message in `append_integrity_report`'s linear form.
-    fn message(case: &str, quality: &str, rcond: &str, after_rcond: &str, map: &str, tail: &str) -> String {
+    fn message(
+        case: &str,
+        quality: &str,
+        rcond: &str,
+        after_rcond: &str,
+        map: &str,
+        tail: &str,
+    ) -> String {
         format!(
             "M03-INTEGRITY-v1 represented original-equation structural evidence for load case {case}: StructuralReport {{ policy: \"M03-INTEGRITY-v1\", quality: {quality}, factorization: \"positive skyline LDL\", scale_exponents: [-11], pivots: [PivotEvidence {{ ordered_index: 0, global_dof: 0, pivot: 1.0 }}], condition_estimator: \"Hager-Higham\", reciprocal_condition_estimate: {rcond}{after_rcond}[ResidualRow {{ global_dof: 0 }}], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 1.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: None }}; global_dof_map={map}. {LINEAR_TEXT} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.{tail}"
         )
@@ -718,22 +1162,47 @@ mod tests {
     }
 
     fn health(source: &Value, findings: Option<&str>) -> Value {
-        serde_json::from_str(&numerical_health_json(&source.to_string(), findings).unwrap()).unwrap()
+        serde_json::from_str(&numerical_health_json(&source.to_string(), findings).unwrap())
+            .unwrap()
     }
 
     fn one_case(case: &str, code: &str, solve_quality: &str, message: String) -> Value {
-        let out = health(&envelope(case, solve_quality, vec![integrity(case, code, message)]), None);
+        let out = health(
+            &envelope(case, solve_quality, vec![integrity(case, code, message)]),
+            None,
+        );
         out["cases"][0].clone()
     }
 
     #[test]
     fn a_linear_report_yields_its_rcond_and_digits() {
-        let c = one_case("case", CHECKS_PASSED, "checks_passed", message("case", "Passed", &format!("{:?}", 1.0578136350861028e-3_f64), RESIDUAL_FIELD, MAP, ""));
+        let c = one_case(
+            "case",
+            CHECKS_PASSED,
+            "checks_passed",
+            message(
+                "case",
+                "Passed",
+                &format!("{:?}", 1.0578136350861028e-3_f64),
+                RESIDUAL_FIELD,
+                MAP,
+                "",
+            ),
+        );
         assert_eq!(c["state"], "checks_passed");
         assert_eq!(c["code"], CHECKS_PASSED);
-        assert_eq!(c["integrity_diagnostic_id"], "diagnostic:numerical-integrity:case");
-        assert_eq!(c["rcond"].as_f64().unwrap().to_bits(), 1.0578136350861028e-3_f64.to_bits());
-        assert_eq!(c["digits"].as_f64().unwrap(), -(1.0578136350861028e-3_f64.log10()));
+        assert_eq!(
+            c["integrity_diagnostic_id"],
+            "diagnostic:numerical-integrity:case"
+        );
+        assert_eq!(
+            c["rcond"].as_f64().unwrap().to_bits(),
+            1.0578136350861028e-3_f64.to_bits()
+        );
+        assert_eq!(
+            c["digits"].as_f64().unwrap(),
+            -(1.0578136350861028e-3_f64.log10())
+        );
         assert_eq!(c["conditioning_sensitive"], false);
         assert_eq!(c["causes"], json!([]));
     }
@@ -743,22 +1212,85 @@ mod tests {
         let line = f64::EPSILON.sqrt();
         let below = f64::from_bits(line.to_bits() - 1);
         for (value, sensitive) in [(below, true), (line, false), (1.0578136350861028e-11, true)] {
-            let c = one_case("case", SENSITIVE, "sensitive", message("case", "Sensitive", &format!("{value:?}"), RESIDUAL_FIELD, MAP, ""));
+            let c = one_case(
+                "case",
+                SENSITIVE,
+                "sensitive",
+                message(
+                    "case",
+                    "Sensitive",
+                    &format!("{value:?}"),
+                    RESIDUAL_FIELD,
+                    MAP,
+                    "",
+                ),
+            );
             assert_eq!(c["rcond"].as_f64().unwrap().to_bits(), value.to_bits());
             assert_eq!(c["conditioning_sensitive"], sensitive, "{value:?}");
-            assert_eq!(c["causes"].as_array().unwrap().iter().any(|k| k["kind"] == "conditioning"), sensitive);
+            assert_eq!(
+                c["causes"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|k| k["kind"] == "conditioning"),
+                sensitive
+            );
         }
+        // The cause is a demotion's: under CHECKS_PASSED the flag stands alone.
+        let c = one_case(
+            "case",
+            CHECKS_PASSED,
+            "checks_passed",
+            message("case", "Passed", "1e-11", RESIDUAL_FIELD, MAP, ""),
+        );
+        assert_eq!(
+            (c["conditioning_sensitive"].clone(), c["causes"].clone()),
+            (json!(true), json!([]))
+        );
     }
 
     #[test]
     fn rcond_one_is_zero_digits_and_out_of_range_tokens_give_no_figure() {
-        let c = one_case("case", CHECKS_PASSED, "checks_passed", message("case", "Passed", "1.0", RESIDUAL_FIELD, MAP, ""));
+        let c = one_case(
+            "case",
+            CHECKS_PASSED,
+            "checks_passed",
+            message("case", "Passed", "1.0", RESIDUAL_FIELD, MAP, ""),
+        );
         assert_eq!(c["rcond"], json!(1.0));
         assert_eq!(c["digits"].as_f64().unwrap().to_bits(), 0.0_f64.to_bits());
-        for token in ["0.0", "-0.0", "-1e-5", "NaN", "inf", "1.0000000000000002", "2.0", "1e-400", "0.50", "5e-1", "1", "x", "1.0578136350861028e-3", "+0.5", " 0.5"] {
-            let c = one_case("case", CHECKS_PASSED, "checks_passed", message("case", "Passed", token, RESIDUAL_FIELD, MAP, ""));
-            assert_eq!((c["rcond"].clone(), c["digits"].clone()), (Value::Null, Value::Null), "{token}");
-            assert_eq!(c["state"], "checks_passed", "a missing figure never changes a state");
+        for token in [
+            "0.0",
+            "-0.0",
+            "-1e-5",
+            "NaN",
+            "inf",
+            "1.0000000000000002",
+            "2.0",
+            "1e-400",
+            "0.50",
+            "5e-1",
+            "1",
+            "x",
+            "1.0578136350861028e-3",
+            "+0.5",
+            " 0.5",
+        ] {
+            let c = one_case(
+                "case",
+                CHECKS_PASSED,
+                "checks_passed",
+                message("case", "Passed", token, RESIDUAL_FIELD, MAP, ""),
+            );
+            assert_eq!(
+                (c["rcond"].clone(), c["digits"].clone()),
+                (Value::Null, Value::Null),
+                "{token}"
+            );
+            assert_eq!(
+                c["state"], "checks_passed",
+                "a missing figure never changes a state"
+            );
             assert_eq!(c["conditioning_sensitive"], false);
         }
     }
@@ -775,37 +1307,94 @@ mod tests {
             assert_eq!(c["rcond"], json!(0.125), "{case}");
         }
         // A message whose lead names another case gives no figure.
-        let c = one_case("a", CHECKS_PASSED, "checks_passed", message("b", "Passed", "0.125", RESIDUAL_FIELD, MAP, ""));
+        let c = one_case(
+            "a",
+            CHECKS_PASSED,
+            "checks_passed",
+            message("b", "Passed", "0.125", RESIDUAL_FIELD, MAP, ""),
+        );
         assert_eq!(c["rcond"], Value::Null);
         // The field twice in the span is ambiguous.
-        let twice = message("case", "Passed", "0.125", &format!("{RESIDUAL_FIELD}[]{RCOND_FIELD}0.5{RESIDUAL_FIELD}"), MAP, "");
-        assert_eq!(one_case("case", CHECKS_PASSED, "checks_passed", twice)["rcond"], Value::Null);
+        let twice = message(
+            "case",
+            "Passed",
+            "0.125",
+            &format!("{RESIDUAL_FIELD}[]{RCOND_FIELD}0.5{RESIDUAL_FIELD}"),
+            MAP,
+            "",
+        );
+        assert_eq!(
+            one_case("case", CHECKS_PASSED, "checks_passed", twice)["rcond"],
+            Value::Null
+        );
     }
 
     #[test]
     fn intended_residual_rows_is_not_the_residual_field() {
-        let c = one_case("case", CHECKS_PASSED, "checks_passed", message("case", "Passed", "0.125", ", intended_residual_rows: ", MAP, ""));
+        let c = one_case(
+            "case",
+            CHECKS_PASSED,
+            "checks_passed",
+            message(
+                "case",
+                "Passed",
+                "0.125",
+                ", intended_residual_rows: ",
+                MAP,
+                "",
+            ),
+        );
         assert_eq!(c["rcond"], Value::Null);
     }
 
     #[test]
     fn two_diagnostics_with_the_case_id_give_no_figure_and_no_code() {
         let case = "case";
-        let d = integrity(case, CHECKS_PASSED, message(case, "Passed", "0.125", RESIDUAL_FIELD, MAP, ""));
-        let out = health(&envelope(case, "checks_passed", vec![d.clone(), d]), Some(PAIR));
+        let d = integrity(
+            case,
+            CHECKS_PASSED,
+            message(case, "Passed", "0.125", RESIDUAL_FIELD, MAP, ""),
+        );
+        let out = health(
+            &envelope(case, "checks_passed", vec![d.clone(), d]),
+            Some(PAIR),
+        );
         let c = &out["cases"][0];
-        assert_eq!((c["rcond"].clone(), c["code"].clone(), c["integrity_diagnostic_id"].clone()), (Value::Null, Value::Null, Value::Null));
+        assert_eq!(
+            (
+                c["rcond"].clone(),
+                c["code"].clone(),
+                c["integrity_diagnostic_id"].clone()
+            ),
+            (Value::Null, Value::Null, Value::Null)
+        );
         assert_eq!(c["state"], "checks_passed");
         // affected_refs other than exactly [case] also refuse.
-        let mut wide = integrity(case, CHECKS_PASSED, message(case, "Passed", "0.125", RESIDUAL_FIELD, MAP, ""));
+        let mut wide = integrity(
+            case,
+            CHECKS_PASSED,
+            message(case, "Passed", "0.125", RESIDUAL_FIELD, MAP, ""),
+        );
         wide["affected_refs"] = json!([case, "x"]);
-        assert_eq!(health(&envelope(case, "checks_passed", vec![wide]), None)["cases"][0]["rcond"], Value::Null);
+        assert_eq!(
+            health(&envelope(case, "checks_passed", vec![wide]), None)["cases"][0]["rcond"],
+            Value::Null
+        );
     }
 
     #[test]
     fn only_passed_or_sensitive_codes_carry_a_figure() {
-        for code in ["NUMERICAL_INTEGRITY_UNRESOLVED", RECOVERY_BASIS_UNQUALIFIED, "OTHER"] {
-            let c = one_case("case", code, "unresolved", message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, ""));
+        for code in [
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            RECOVERY_BASIS_UNQUALIFIED,
+            "OTHER",
+        ] {
+            let c = one_case(
+                "case",
+                code,
+                "unresolved",
+                message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, ""),
+            );
             assert_eq!(c["rcond"], Value::Null, "{code}");
             assert_eq!(c["state"], "quality_unresolved");
         }
@@ -815,52 +1404,190 @@ mod tests {
     fn a_debug_quality_passed_under_code_sensitive_still_parses() {
         // S11-G demotion: the code changes, the report's Debug quality does not.
         let tail = " S11-G formation-noise guard: load case case is Sensitive because 2 load row(s) carry formed-term formation noise above the 1e-9 criterion; every value is kept for inspection. Rows: [N1:RX: net formation defect 1e-3, self-equilibrated defect 0e0, bound 0e0, intended net at least 1e0, body scale 1e0, threshold 1e-9 (self-equilibrated threshold 1e-9); formed sources [\"a; N0:UX: range failure (x)\"]; N0:UZ: range failure (overflow)]";
-        let c = one_case("case", SENSITIVE, "sensitive", message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, tail));
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, tail),
+        );
         assert_eq!(c["rcond"], json!(0.125));
         assert_eq!(c["conditioning_sensitive"], false);
-        // The spoofed label inside a source id makes three label matches for
-        // two named rows: the locations are omitted, the cause stays.
-        assert_eq!(c["causes"], json!([{"kind": "formation", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": []}]));
+        // The row list is parsed by its structure: a label-like text inside a
+        // Debug source id is not an item.
+        let rows = json!([{"kind": "node_dof", "node": "N1", "dof": "RX"}, {"kind": "node_dof", "node": "N0", "dof": "UZ"}]);
+        assert_eq!(
+            c["causes"],
+            json!([{"kind": "formation", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": rows}])
+        );
         let clean = tail.replace("[\"a; N0:UX: range failure (x)\"]", "[\"a\"]");
-        let c = one_case("case", SENSITIVE, "sensitive", message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &clean));
-        assert_eq!(c["causes"][0]["locations"], json!([
-            {"kind": "node_dof", "node": "N1", "dof": "RX"}, {"kind": "node_dof", "node": "N0", "dof": "UZ"}]));
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &clean),
+        );
+        assert_eq!(c["causes"][0]["locations"], rows);
+        // A miscounted list keeps the cause (its record is at the fixed
+        // position) and omits the locations; so does an overflow suffix.
+        let miscounted = clean.replace("because 2 load", "because 3 load");
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &miscounted),
+        );
+        assert_eq!(c["causes"][0]["locations"], json!([]));
+        let more = clean.replace("because 2 load", "because 8 load") + "; and 6 more";
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &more),
+        );
+        assert_eq!(
+            c["causes"][0]["locations"],
+            json!([]),
+            "two named rows are not min(8, 6)"
+        );
         // The same sentence under code CHECKS_PASSED is not a demotion.
-        let c = one_case("case", CHECKS_PASSED, "checks_passed", message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &clean));
+        let c = one_case(
+            "case",
+            CHECKS_PASSED,
+            "checks_passed",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &clean),
+        );
         assert_eq!(c["causes"], json!([]));
     }
 
     #[test]
     fn the_kd5_line_names_its_row_only_when_it_is_a_dof_map_label() {
-        let kd5 = |row: &str| format!(" formation_check: reason=estimate; row={row}; doubled_correction=8.09e-14; scale=3.3e-5; trigger_ratio=2.4");
-        let locations = |row: &str| {
-            one_case("case", SENSITIVE, "sensitive", message("case", "Sensitive", "0.125", RESIDUAL_FIELD, MAP, &kd5(row)))["causes"][0]["locations"].clone()
+        let kd5 = |row: &str| {
+            format!(" formation_check: reason=estimate; row={row}; doubled_correction=8.09e-14; scale=3.3e-5; trigger_ratio=2.4")
         };
-        assert_eq!(locations("N1:RX"), json!([{"kind": "node_dof", "node": "N1", "dof": "RX"}]));
+        let locations = |row: &str| {
+            one_case(
+                "case",
+                SENSITIVE,
+                "sensitive",
+                message("case", "Sensitive", "0.125", RESIDUAL_FIELD, MAP, &kd5(row)),
+            )["causes"][0]["locations"]
+                .clone()
+        };
+        assert_eq!(
+            locations("N1:RX"),
+            json!([{"kind": "node_dof", "node": "N1", "dof": "RX"}])
+        );
         for row in ["N9:RX", "global_dof=7", "none"] {
             assert_eq!(locations(row), json!([]), "{row}");
         }
         let unavailable = " formation_check: reason=formation_check_unavailable; detail=x";
-        let c = one_case("case", SENSITIVE, "sensitive", message("case", "Sensitive", "0.125", RESIDUAL_FIELD, MAP, unavailable));
-        assert_eq!(c["causes"], json!([{"kind": "formation", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": []}]));
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message(
+                "case",
+                "Sensitive",
+                "0.125",
+                RESIDUAL_FIELD,
+                MAP,
+                unavailable,
+            ),
+        );
+        assert_eq!(
+            c["causes"],
+            json!([{"kind": "formation", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": []}])
+        );
         // Node ids with colons and escapes decode through the Debug map.
         let map = r#"["a:b\"c:UX", "a:b\"c:UY"]"#;
-        let c = one_case("case", SENSITIVE, "sensitive", message("case", "Sensitive", "0.125", RESIDUAL_FIELD, map, &kd5("a:b\"c:UY")));
-        assert_eq!(c["causes"][0]["locations"], json!([{"kind": "node_dof", "node": "a:b\"c", "dof": "UY"}]));
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message(
+                "case",
+                "Sensitive",
+                "0.125",
+                RESIDUAL_FIELD,
+                map,
+                &kd5("a:b\"c:UY"),
+            ),
+        );
+        assert_eq!(
+            c["causes"][0]["locations"],
+            json!([{"kind": "node_dof", "node": "a:b\"c", "dof": "UY"}])
+        );
     }
 
     #[test]
     fn recovery_demotions_name_their_groups_as_text() {
         let tail = " S11-G recovery guard (R-b'): load case case is Sensitive because 2 member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [pipe:P.end_i.force: q=1e0, B=2e-9; support:S.node.moment: the member bound is unavailable (x)]";
-        let c = one_case("case", SENSITIVE, "sensitive", message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, tail));
-        assert_eq!(c["causes"], json!([{"kind": "formation_recovery", "diagnostic_id": "diagnostic:numerical-integrity:case",
-            "locations": [{"kind": "text", "text": "pipe:P.end_i.force"}, {"kind": "text", "text": "support:S.node.moment"}]}]));
-        let over = tail.replace("because 2 member", "because 9 member");
-        let c = one_case("case", SENSITIVE, "sensitive", message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &over));
-        assert_eq!(c["causes"][0]["locations"], json!([]), "two named groups cannot be min(9, 6)");
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, tail),
+        );
+        assert_eq!(
+            c["causes"],
+            json!([{"kind": "formation_recovery", "diagnostic_id": "diagnostic:numerical-integrity:case",
+            "locations": [{"kind": "text", "text": "pipe:P.end_i.force"}, {"kind": "text", "text": "support:S.node.moment"}]}])
+        );
+        // The recovery sentence ends the message after unparsed records, so it
+        // counts only when it parses exactly to the end.
+        let ranged = format!(" range_scaling: force_scale_exponent=3; basis=exact power-of-two; subnormal=reaction@N0:UX:relative_precision=1e-3{tail}");
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &ranged),
+        );
+        assert_eq!(c["causes"][0]["locations"].as_array().unwrap().len(), 2);
+        for broken in [
+            tail.replace("because 2 member", "because 9 member"),
+            format!("{tail} x"),
+            tail.replace("q=1e0", "q=1 e0"),
+        ] {
+            let c = one_case(
+                "case",
+                SENSITIVE,
+                "sensitive",
+                message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &broken),
+            );
+            assert_eq!(c["causes"], json!([]), "{broken}");
+        }
         let unnamed = " the member-relative formation check is not available on this route; member rows are binary64 recoveries";
-        let c = one_case("case", SENSITIVE, "sensitive", message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, unnamed));
-        assert_eq!(c["causes"], json!([{"kind": "formation_recovery", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": []}]));
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, unnamed),
+        );
+        assert_eq!(
+            c["causes"],
+            json!([{"kind": "formation_recovery", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": []}])
+        );
+        // The nonlinear "not established" demotion names no cause.
+        let nonlinear = " the converged support state is not established at 128-bit precision (confirmation attempt: not run); member rows are binary64 recoveries";
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, nonlinear),
+        );
+        assert_eq!(c["causes"], json!([]));
+        // A lead inside a real group's name: the demotion is real, its groups ambiguous.
+        let nested = tail.replace("[pipe:P.end_i.force", "[pipe:P S11-G recovery guard (R-b'): load case case is Sensitive because 2 member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [W.end_i.force");
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, &nested),
+        );
+        assert_eq!(
+            c["causes"],
+            json!([{"kind": "formation_recovery", "diagnostic_id": "diagnostic:numerical-integrity:case", "locations": []}])
+        );
     }
 
     #[test]
@@ -868,10 +1595,25 @@ mod tests {
         let mut m = message("case", "Passed", "0.125", RESIDUAL_FIELD, MAP, "");
         m = m.replace(LINEAR_TEXT, "M03-PRODUCT-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: X");
         let c = one_case("case", CHECKS_PASSED, "checks_passed", m);
-        assert_eq!((c["rcond"].clone(), c["digits"].clone(), c["conditioning_sensitive"].clone()), (Value::Null, Value::Null, json!(false)));
+        assert_eq!(
+            (
+                c["rcond"].clone(),
+                c["digits"].clone(),
+                c["conditioning_sensitive"].clone()
+            ),
+            (Value::Null, Value::Null, json!(false))
+        );
         // A nonlinear support loop naming the case also refuses the figure.
         let case = "case";
-        let mut source = envelope(case, "checks_passed", vec![integrity(case, CHECKS_PASSED, message(case, "Passed", "0.125", RESIDUAL_FIELD, MAP, ""))]);
+        let mut source = envelope(
+            case,
+            "checks_passed",
+            vec![integrity(
+                case,
+                CHECKS_PASSED,
+                message(case, "Passed", "0.125", RESIDUAL_FIELD, MAP, ""),
+            )],
+        );
         source["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:nonlinear:case:loop", "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED", "affected_refs": [case, "DEC-046"]}));
         assert_eq!(health(&source, None)["cases"][0]["rcond"], Value::Null);
     }
@@ -879,36 +1621,82 @@ mod tests {
     #[test]
     fn located_causes_from_other_diagnostics_and_failure_codes() {
         let case = "load:L";
-        let mut source = envelope(case, "sensitive", vec![integrity(case, SENSITIVE, message(case, "Sensitive", "0.125", RESIDUAL_FIELD, MAP, ""))]);
+        let mut source = envelope(
+            case,
+            "sensitive",
+            vec![integrity(
+                case,
+                SENSITIVE,
+                message(case, "Sensitive", "0.125", RESIDUAL_FIELD, MAP, ""),
+            )],
+        );
         let diagnostics = source["diagnostics"].as_array_mut().unwrap();
         diagnostics.push(json!({"id": "diagnostic:load-fidelity:load-L", "code": LOAD_CONTRIBUTION_ABSORBED, "affected_refs": [case, "load:L-X", "load:L-Y"]}));
         diagnostics.push(json!({"id": "diagnostic:load-fidelity:other", "code": LOAD_CONTRIBUTION_ABSORBED, "affected_refs": ["load:M", "load:M-X"]}));
         diagnostics.push(json!({"id": "diagnostic:curved-bend-short:load-L", "code": CURVED_BEND_SHORT, "affected_refs": [case, "component:B", "pipe:P"]}));
         let c = &health(&source, None)["cases"][0];
-        assert_eq!(c["causes"], json!([
-            {"kind": "load_fidelity", "diagnostic_id": "diagnostic:load-fidelity:load-L", "locations": [{"kind": "ref", "ref": "load:L-X"}, {"kind": "ref", "ref": "load:L-Y"}]},
-            {"kind": "curved_bend_short", "diagnostic_id": "diagnostic:curved-bend-short:load-L", "locations": [{"kind": "ref", "ref": "component:B"}, {"kind": "ref", "ref": "pipe:P"}]},
-        ]));
+        assert_eq!(
+            c["causes"],
+            json!([
+                {"kind": "load_fidelity", "diagnostic_id": "diagnostic:load-fidelity:load-L", "locations": [{"kind": "ref", "ref": "load:L-X"}, {"kind": "ref", "ref": "load:L-Y"}]},
+                {"kind": "curved_bend_short", "diagnostic_id": "diagnostic:curved-bend-short:load-L", "locations": [{"kind": "ref", "ref": "component:B"}, {"kind": "ref", "ref": "pipe:P"}]},
+            ])
+        );
         for (code, quality, state, kind) in [
             (PHYSICAL_MECHANISM, "failed", "solve_failed", "mechanism"),
             (NEGATIVE_ENERGY, "failed", "solve_failed", "negative_energy"),
-            (RECOVERY_BASIS_UNQUALIFIED, "unresolved", "quality_unresolved", "recovery_basis_unqualified"),
+            (
+                RECOVERY_BASIS_UNQUALIFIED,
+                "unresolved",
+                "quality_unresolved",
+                "recovery_basis_unqualified",
+            ),
         ] {
             let c = one_case(case, code, quality, format!("Load case {case}: x"));
             assert_eq!(c["state"], state);
-            assert_eq!(c["causes"], json!([{"kind": kind, "diagnostic_id": "diagnostic:numerical-integrity:load:L", "locations": []}]));
+            assert_eq!(
+                c["causes"],
+                json!([{"kind": kind, "diagnostic_id": "diagnostic:numerical-integrity:load:L", "locations": []}])
+            );
         }
     }
 
     #[test]
     fn states_follow_solve_quality_and_absent_cases_are_not_assessed() {
         let mut source = envelope("a", "failed", vec![]);
-        source["results"] = json!([{"id": "r1", "basis_ref": {"ref_type": "load_case", "ref_id": "b"}}]);
+        source["results"] =
+            json!([{"id": "r1", "basis_ref": {"ref_type": "load_case", "ref_id": "b"}}]);
         let out = health(&source, None);
         assert_eq!(out["cases"][0]["state"], "solve_failed");
-        assert_eq!((out["cases"][1]["case_id"].clone(), out["cases"][1]["state"].clone()), (json!("b"), json!("not_assessed")));
-        for (quality, state) in [("checks_passed", "checks_passed"), ("sensitive", "sensitive"), ("unresolved", "quality_unresolved"), ("not_assessed", "not_assessed"), ("bogus", "not_assessed")] {
-            assert_eq!(health(&envelope("a", quality, vec![]), None)["cases"][0]["state"], state);
+        assert_eq!(
+            (
+                out["cases"][1]["case_id"].clone(),
+                out["cases"][1]["state"].clone()
+            ),
+            (json!("b"), json!("not_assessed"))
+        );
+        // A duplicated case id gives one entry.
+        let mut duplicated = envelope("a", "sensitive", vec![]);
+        let copy = duplicated["numerical_quality"]["cases"][0].clone();
+        duplicated["numerical_quality"]["cases"]
+            .as_array_mut()
+            .unwrap()
+            .push(copy);
+        assert_eq!(
+            health(&duplicated, None)["cases"].as_array().unwrap().len(),
+            1
+        );
+        for (quality, state) in [
+            ("checks_passed", "checks_passed"),
+            ("sensitive", "sensitive"),
+            ("unresolved", "quality_unresolved"),
+            ("not_assessed", "not_assessed"),
+            ("bogus", "not_assessed"),
+        ] {
+            assert_eq!(
+                health(&envelope("a", quality, vec![]), None)["cases"][0]["state"],
+                state
+            );
         }
     }
 
@@ -930,17 +1718,181 @@ mod tests {
                 {"id": "ab:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:ab"}, "source_result_refs": ["rb", "ra"]},
                 {"id": "ab:mag", "basis_ref": {"ref_type": "combination", "ref_id": "combination:ab"}, "source_result_refs": ["ab:x"]},
                 {"id": "a:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:a"}, "source_result_refs": ["ra"]},
+                {"id": "a:modulus", "kind": "combination_modulus_basis_record", "entity_ref": "a", "basis_ref": {"ref_type": "combination", "ref_id": "combination:a"}},
                 {"id": "ac:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:ac"}, "source_result_refs": ["ra", "rc"]},
-                {"id": "am:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:am"}, "source_result_refs": ["ra", "missing"]}]
+                {"id": "am:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:am"}, "source_result_refs": ["ra", "missing"]},
+                {"id": "shared:1", "basis_ref": {"ref_type": "combination", "ref_id": "combination:shared"}, "source_result_refs": ["a:x", "ab:x"]},
+                {"id": "shared:2", "basis_ref": {"ref_type": "combination", "ref_id": "combination:shared"}, "source_result_refs": ["a:x"]},
+                {"id": "cyc:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:cyc"}, "source_result_refs": ["ra", "cyc:y"]},
+                {"id": "cyc:y", "basis_ref": {"ref_type": "combination", "ref_id": "combination:cyc"}, "source_result_refs": ["cyc:x"]},
+                {"id": "self:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:self"}, "source_result_refs": ["ra", "self:x"]},
+                {"id": "empty:x", "basis_ref": {"ref_type": "combination", "ref_id": "combination:empty"}, "source_result_refs": []},
+                {"id": "empty:y", "basis_ref": {"ref_type": "combination", "ref_id": "combination:empty2"}, "source_result_refs": ["ra"]},
+                {"id": "empty:z", "basis_ref": {"ref_type": "combination", "ref_id": "combination:empty2"}}]
         });
         let out = health(&source, None);
-        assert_eq!(out["combinations"], json!([
-            {"combination_id": "combination:ab", "state": "sensitive", "cases": ["a", "b"], "withheld": false},
-            {"combination_id": "combination:w", "state": "not_assessed", "cases": [], "withheld": true},
-            {"combination_id": "combination:a", "state": "checks_passed", "cases": ["a"], "withheld": false},
-            {"combination_id": "combination:ac", "state": "not_assessed", "cases": ["a", "c"], "withheld": false},
-            {"combination_id": "combination:am", "state": "not_assessed", "cases": ["a"], "withheld": false},
-        ]));
+        assert_eq!(
+            out["combinations"],
+            json!([
+                {"combination_id": "combination:ab", "state": "sensitive", "cases": ["a", "b"], "withheld": false},
+                {"combination_id": "combination:w", "state": null, "cases": [], "withheld": true},
+                {"combination_id": "combination:a", "state": "checks_passed", "cases": ["a"], "withheld": false},
+                {"combination_id": "combination:ac", "state": "not_assessed", "cases": ["a", "c"], "withheld": false},
+                {"combination_id": "combination:am", "state": "not_assessed", "cases": ["a"], "withheld": false},
+                // Shared ancestry is not a cycle.
+                {"combination_id": "combination:shared", "state": "sensitive", "cases": ["a", "b"], "withheld": false},
+                // A cycle, a self-reference, or a branch without sources never reads green.
+                {"combination_id": "combination:cyc", "state": "not_assessed", "cases": ["a"], "withheld": false},
+                {"combination_id": "combination:self", "state": "not_assessed", "cases": ["a"], "withheld": false},
+                {"combination_id": "combination:empty", "state": "not_assessed", "cases": [], "withheld": false},
+                {"combination_id": "combination:empty2", "state": "not_assessed", "cases": ["a"], "withheld": false},
+            ])
+        );
+        // A long chain resolves without recursion.
+        let mut chain =
+            vec![json!({"id": "ra", "basis_ref": {"ref_type": "load_case", "ref_id": "a"}})];
+        for i in 0..20_000 {
+            let next = if i == 19_999 {
+                "ra".to_string()
+            } else {
+                format!("c{}", i + 1)
+            };
+            chain.push(json!({"id": format!("c{i}"), "basis_ref": {"ref_type": "combination", "ref_id": "combination:chain"}, "source_result_refs": [next]}));
+        }
+        let long = json!({"numerical_quality": {"cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": "a"}, "solve_quality": "checks_passed"}]},
+            "diagnostics": [], "results": chain});
+        assert_eq!(
+            health(&long, None)["combinations"][0]["state"],
+            "checks_passed"
+        );
+    }
+
+    #[test]
+    fn identifiers_carrying_record_text_fabricate_no_cause() {
+        let spoofs = [
+            "N1 the member-relative formation check is not available on this route; member rows are binary64 recoveries",
+            "N1 formation_check: reason=estimate; row=N1:RX; doubled_correction=1.0",
+            "N1 S11-G formation-noise guard: load case case is Sensitive because 1 load row(s) carry formed-term formation noise above the 1e-9 criterion; every value is kept for inspection. Rows: [N1:RX: range failure (x)]",
+            "N1 S11-G recovery guard (R-b'): load case case is Sensitive because 1 member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [m.l.k: q=1e0, B=1e0]",
+        ];
+        for spoof in spoofs {
+            let labels: Vec<String> = DOF_NAMES.iter().map(|d| format!("{spoof}:{d}")).collect();
+            let map = format!("{labels:?}");
+            let c = one_case(
+                "case",
+                SENSITIVE,
+                "sensitive",
+                message("case", "Sensitive", "0.125", RESIDUAL_FIELD, &map, ""),
+            );
+            assert_eq!(c["causes"], json!([]), "{spoof}");
+            assert_eq!(c["rcond"], json!(0.125), "the figure still parses");
+            // As the case id, too.
+            let c = one_case(
+                spoof,
+                SENSITIVE,
+                "sensitive",
+                message(spoof, "Sensitive", "0.125", RESIDUAL_FIELD, MAP, ""),
+            );
+            assert_eq!(c["causes"], json!([]), "{spoof}");
+        }
+        // Many recovery leads are ambiguous: no cause.
+        let lead = " S11-G recovery guard (R-b'): load case case is Sensitive because ";
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message(
+                "case",
+                "Passed",
+                "0.125",
+                RESIDUAL_FIELD,
+                MAP,
+                &lead.repeat(9),
+            ),
+        );
+        assert_eq!(c["causes"], json!([]));
+    }
+
+    #[test]
+    fn hostile_lengths_parse_in_linear_time() {
+        // A long DOF map, long labels and a long list complete promptly.
+        let labels: Vec<String> = (0..20_000)
+            .flat_map(|n| {
+                DOF_NAMES
+                    .iter()
+                    .map(move |d| format!("{}{n}:{d}", "x".repeat(64)))
+            })
+            .collect();
+        let map = format!("{labels:?}");
+        let rows = format!(" S11-G formation-noise guard: load case case is Sensitive because 1 load row(s) carry formed-term formation noise above the 1e-9 criterion; every value is kept for inspection. Rows: [{}: range failure ({})]", labels[7], "; ".repeat(200_000));
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, &map, &rows),
+        );
+        assert_eq!(c["causes"][0]["kind"], "formation");
+        let groups = format!(" S11-G recovery guard (R-b'): load case case is Sensitive because 1 member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [{}]", ": q=".repeat(200_000));
+        let c = one_case(
+            "case",
+            SENSITIVE,
+            "sensitive",
+            message("case", "Passed", "0.125", RESIDUAL_FIELD, &map, &groups),
+        );
+        assert_eq!(c["causes"], json!([]));
+    }
+
+    /// The producer text the parser copies occurs verbatim in
+    /// `core/product_physics` (compile reads of the producer sources).
+    #[test]
+    fn producer_text_is_pinned() {
+        const LIB: &str = include_str!("../../../product_physics/src/lib.rs");
+        const GUARD: &str = include_str!("../../../product_physics/src/formation_guard.rs");
+        let lib_pins = [
+            "\"{} represented original-equation structural evidence for load case {}: {:?}; global_dof_map={:?}. {} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.\"".to_string(),
+            format!("\"{LINEAR_TEXT}\""),
+            format!("{NONLINEAR_TEXT_END}\",e.policy,e)"),
+            "\"formation_check: reason=estimate; row={}; doubled_correction={:?}; scale={:?}; trigger_ratio={:?}\"".to_string(),
+            "\"formation_check: reason=formation_check_unavailable; detail={detail}\"".to_string(),
+            "\"range_scaling: force_scale_exponent={}; basis=exact power-of-two{named}{more}\"".to_string(),
+            "let route = \"on this route\";".to_string(),
+            "format!(\"the member-relative formation check is not available {route}; member rows are binary64 recoveries\")".to_string(),
+            "format!(\"the converged support state is not established at 128-bit precision ({reason}); member rows are binary64 recoveries\")".to_string(),
+            "\"{} {}\",\n            record.message,\n            formation_check_evidence_line(model, check)".to_string(),
+            "fn integrity_diagnostic_id(case_id: &str) -> String {\n    format!(\"diagnostic:numerical-integrity:{case_id}\")".to_string(),
+            "[\"UX\", \"UY\", \"UZ\", \"RX\", \"RY\", \"RZ\"].map(|dof| format!(\"{}:{dof}\", node.id))".to_string(),
+            format!("kind: \"{MODULUS_BASIS_RECORD}\""),
+        ];
+        let guard_pins = [
+            format!("\"S11-G formation-noise guard: load case {{case_id}}{SENSITIVE_BECAUSE}{{}}{LOAD_ROW_TAIL}{{}}]{{}}\""),
+            format!("\"S11-G recovery guard (R-b'): load case {{case_id}}{SENSITIVE_BECAUSE}{{}}{RECOVERY_TAIL}{{}}]{{}}\""),
+            "format!(\"{}: {reason}\", dof_label(row.dof))".to_string(),
+            "format!(\"range failure ({failure})\")".to_string(),
+            "\"no conservative formation bound (CannotBound: curved-span consistent load vector from {:?})\"".to_string(),
+            "\"net formation defect {net:e}, self-equilibrated defect {self_equilibrated:e}, bound {:e}, intended net at least {:e}, body scale {s_star:e}, threshold {t0:e} (self-equilibrated threshold {tf:e}); formed sources {:?}\"".to_string(),
+            "\"{}.{}.{}: q={:e}, B={bound:e}\"".to_string(),
+            "\"{}.{}.{}: member comparison unavailable ({reason})\"".to_string(),
+            "\"{}.{}.{}: the member bound is unavailable ({reason})\"".to_string(),
+            "format!(\"; and {} more\", fired.len() - NAMED)".to_string(),
+            "pub(crate) const NAMED: usize = 6;".to_string(),
+            "diagnostic.message = format!(\"{} {}\", diagnostic.message, finding.sentence);".to_string(),
+        ];
+        for pin in &lib_pins {
+            assert!(
+                LIB.contains(pin.as_str()),
+                "product_physics/src/lib.rs: {pin}"
+            );
+        }
+        for pin in &guard_pins {
+            assert!(GUARD.contains(pin.as_str()), "formation_guard.rs: {pin}");
+        }
+        for reason in COMPARISON_REASONS {
+            assert!(GUARD.contains(&format!("\"{reason}\"")), "{reason}");
+        }
+        // The composed constants agree with those templates.
+        assert_eq!(format!("{LEAD_A}{{}}{LEAD_B}"), "M03-INTEGRITY-v1 represented original-equation structural evidence for load case {}: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: ");
+        assert_eq!(ROW_DEFECT.concat(), "net formation defect , self-equilibrated defect , bound , intended net at least , body scale , threshold  (self-equilibrated threshold ); formed sources ");
+        assert_eq!(format!("{}{}", &MEMBER_RELATIVE_UNAVAILABLE[1..], ""), "the member-relative formation check is not available on this route; member rows are binary64 recoveries");
     }
 
     /// The committed multicase result (preview-physics-2, two sensitive cases).
@@ -954,14 +1906,33 @@ mod tests {
         assert_eq!(route_of(&source), "generic");
         assert_eq!(health(&source, Some(PAIR))["verdict_only"], true);
         let dispatch = json!({"standing": {"findings": [NOT_QUALIFIED, EVIDENCE_INCOMPLETE]}});
-        assert_eq!(health(&source, Some(&dispatch.to_string()))["verdict_only"], true);
+        assert_eq!(
+            health(&source, Some(&dispatch.to_string()))["verdict_only"],
+            true
+        );
         let objects = json!([{"code": EVIDENCE_INCOMPLETE}, {"code": NOT_QUALIFIED}]);
-        assert_eq!(health(&source, Some(&objects.to_string()))["verdict_only"], true);
-        for findings in [None, Some("null"), Some("[]"), Some(r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED"]"#),
-            Some(r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE","MECHANICS_NOT_SOLVED"]"#),
+        assert_eq!(
+            health(&source, Some(&objects.to_string()))["verdict_only"],
+            true
+        );
+        for findings in [
+            None,
+            Some("null"),
+            Some("[]"),
+            Some(r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED"]"#),
+            Some(
+                r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE","MECHANICS_NOT_SOLVED"]"#,
+            ),
             Some(r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_INTEGRITY_NOT_QUALIFIED"]"#),
-            Some(r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE","NUMERICAL_AGGREGATE_CONTRADICTION"]"#)] {
-            assert_eq!(health(&source, findings)["verdict_only"], false, "{findings:?}");
+            Some(
+                r#"["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE","NUMERICAL_AGGREGATE_CONTRADICTION"]"#,
+            ),
+        ] {
+            assert_eq!(
+                health(&source, findings)["verdict_only"],
+                false,
+                "{findings:?}"
+            );
         }
         assert!(numerical_health_json(MULTICASE, Some("not json")).is_err());
         assert!(numerical_health_json("not json", None).is_err());
@@ -970,7 +1941,10 @@ mod tests {
     /// The multicase result with its first case made a passing companion.
     fn with_passing_companion() -> Value {
         let mut source = multicase();
-        let first = source["numerical_quality"]["cases"][0]["basis_ref"]["ref_id"].as_str().unwrap().to_string();
+        let first = source["numerical_quality"]["cases"][0]["basis_ref"]["ref_id"]
+            .as_str()
+            .unwrap()
+            .to_string();
         source["numerical_quality"]["cases"][0]["solve_quality"] = json!("checks_passed");
         let id = format!("{INTEGRITY_ID_PREFIX}{first}");
         for d in source["diagnostics"].as_array_mut().unwrap() {
@@ -986,10 +1960,18 @@ mod tests {
         let companion = with_passing_companion();
         assert_eq!(health(&companion, Some(PAIR))["verdict_only"], true);
         for index in [0, 1] {
-            for refs in [json!([]), json!(["diagnostic:numerical-integrity:renamed"]), Value::Null] {
+            for refs in [
+                json!([]),
+                json!(["diagnostic:numerical-integrity:renamed"]),
+                Value::Null,
+            ] {
                 let mut source = companion.clone();
                 source["numerical_quality"]["cases"][index]["evidence_refs"] = refs.clone();
-                assert_eq!(health(&source, Some(PAIR))["verdict_only"], false, "case {index} refs {refs}");
+                assert_eq!(
+                    health(&source, Some(PAIR))["verdict_only"],
+                    false,
+                    "case {index} refs {refs}"
+                );
             }
         }
         // A duplicated diagnostic id.
@@ -1000,21 +1982,39 @@ mod tests {
         // A duplicated case id, a dropped case, a wrong aggregate, a wrong verdict-linked field.
         let mut source = multicase();
         let copy = source["numerical_quality"]["cases"][0].clone();
-        source["numerical_quality"]["cases"].as_array_mut().unwrap().push(copy);
+        source["numerical_quality"]["cases"]
+            .as_array_mut()
+            .unwrap()
+            .push(copy);
         assert_eq!(health(&source, Some(PAIR))["verdict_only"], false);
         let mut source = multicase();
-        source["numerical_quality"]["cases"].as_array_mut().unwrap().remove(1);
+        source["numerical_quality"]["cases"]
+            .as_array_mut()
+            .unwrap()
+            .remove(1);
         assert_eq!(health(&source, Some(PAIR))["verdict_only"], false);
         let mut source = multicase();
         source["numerical_quality"]["status"] = json!("unresolved");
         assert_eq!(health(&source, Some(PAIR))["verdict_only"], false);
-        for field in ["structural_status", "model_matrix_fidelity", "accuracy_evidence"] {
+        for field in [
+            "structural_status",
+            "model_matrix_fidelity",
+            "accuracy_evidence",
+        ] {
             let mut source = multicase();
             source["numerical_quality"]["cases"][1][field] = json!("not_assessed_x");
-            assert_eq!(health(&source, Some(PAIR))["verdict_only"], false, "{field}");
+            assert_eq!(
+                health(&source, Some(PAIR))["verdict_only"],
+                false,
+                "{field}"
+            );
         }
         let mut source = multicase();
         source["numerical_quality"]["cases"][1]["solve_quality"] = json!("checks_passed");
-        assert_eq!(health(&source, Some(PAIR))["verdict_only"], false, "solve_quality against the code");
+        assert_eq!(
+            health(&source, Some(PAIR))["verdict_only"],
+            false,
+            "solve_quality against the code"
+        );
     }
 }
