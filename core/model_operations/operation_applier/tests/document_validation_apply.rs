@@ -54,15 +54,17 @@ fn codes(outcome: &OperationOutcome) -> Vec<(&str, &str)> {
     outcome.diagnostics.iter().map(|item| (item.code.as_str(), item.severity.as_str())).collect()
 }
 
-/// Deleting a pipe that a line still groups would leave the line naming a
-/// pipe the document lacks: the result is malformed, so the operation is
-/// refused with the validator's named diagnostic and no document returns.
-/// (S2 makes pipe deletion remove the pipe from its line, §3.2 and §6.)
+/// An operation whose result would carry a malformed model-data slot is refused with the
+/// validator's named diagnostic and no document returns. Here the line already names a pipe the
+/// document lacks, so any applied result is malformed. (Deleting a pipe that a line or a
+/// constraint still names is refused earlier, by W-10's dependent-reference check, before any
+/// result exists; S2 makes pipe deletion remove the pipe from its line, §3.2 and §6.)
 #[test]
 fn an_operation_whose_result_is_malformed_is_refused() {
-    let model = every_slot();
+    let mut model = every_slot();
+    model["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
     let before = model.clone();
-    let outcome = apply_operation(&model, &delete_pipe("pipe:P-1", "Run; node:N-1->node:N-2; material=material:steel"), None);
+    let outcome = apply_operation(&model, &rename_node("Elbow", "Elbow (renamed)"), None);
     assert_eq!(model, before, "the input is never mutated");
     assert!(outcome.applied_model.is_none());
     assert!(outcome.applied_model_backend_hash.is_none());
@@ -72,22 +74,32 @@ fn an_operation_whose_result_is_malformed_is_refused() {
     let line = outcome.diagnostics.iter().find(|item| item.code == "MODEL-LINE-PIPE-MISSING").expect("named refusal");
     assert_eq!(line.severity, "blocking");
     assert!(line.message.contains("(at lines[0].pipe_refs[0])"), "{}", line.message);
-    assert_eq!(line.affected_refs, vec!["line:L-100".to_string(), "pipe:P-1".to_string()]);
+    assert_eq!(line.affected_refs, vec!["line:L-100".to_string(), "pipe:P-absent".to_string()]);
     assert_eq!(outcome.acceptance.persistence_status, "not_applicable_no_application");
 
-    // The same deletion inside an atomic batch rolls the whole batch back.
+    // The same malformed result inside an atomic batch rolls the whole batch back.
     let batch = json!({"batch_id": "batch:validator", "operations": [
         rename_node("Elbow", "Elbow (renamed)"),
-        delete_pipe("pipe:P-1", "Run; node:N-1->node:N-2; material=material:steel"),
     ]});
     let outcome = apply_operation_batch(&model, &batch, Some(&claim(&model)));
     assert!(outcome["applied_model"].is_null());
     assert_eq!(outcome["validation"]["application_status"], json!("blocked"));
     assert_eq!(outcome["simulation_disposition"], json!("rolled_back_no_model_published"));
     assert!(outcome["diagnostics"].as_array().unwrap().iter().any(|item| item["code"] == json!("MODEL-LINE-PIPE-MISSING")));
+}
 
-    // A pipe no line groups deletes normally; the constraint that names the
-    // other pipe is untouched.
+/// W-10 and the validator together: deleting a pipe that the line and a constraint still name
+/// is refused by W-10's dependent-reference check, which names both; a pipe nothing names
+/// deletes normally, and the constraint that names the other pipe is untouched.
+#[test]
+fn pipe_deletion_with_model_data_references() {
+    let model = every_slot();
+    let outcome = apply_operation(&model, &delete_pipe("pipe:P-1", "Run; node:N-1->node:N-2; material=material:steel"), None);
+    assert!(outcome.applied_model.is_none());
+    assert_eq!(outcome.validation.application_status, "blocked");
+    let refused = outcome.diagnostics.iter().find(|item| item.code == "OP-PIPE-DELETE-REFERENCED").expect("dependent refusal");
+    assert!(refused.message.contains("constraints[0]") && refused.message.contains("line:L-100"), "{}", refused.message);
+
     let outcome = apply_operation(&model, &delete_pipe("pipe:P-2", "Riser; node:N-2->node:N-3; material=material:steel"), None);
     assert_eq!(outcome.validation.application_status, "applied_to_session_model", "{:?}", codes(&outcome));
     assert!(codes(&outcome).is_empty(), "{:?}", codes(&outcome));
