@@ -34,6 +34,12 @@ value-bound by W1's own checks (its preservation census skips `w1_member_*`), so
 corpus to `ac07a34ccd`: every entry present there is unchanged except corner 1's
 enumerated moves, and the only additions are its enumerated entries.
 
+The silent-drop guard (2026-10-23) closed the model root, so the W-CB1 inputs carry their
+depth-16 raw-only value on the declared `diagnostics` member instead of the unknown
+`unknown_depth_witness` member. Its three regenerated bases (`SILENT_DROP_MOVED`) are bound
+here to their corner-1 bytes: with that one request key restored, they differ only by
+binding hashes (the invocation hash, the receipt and the successor-bytes digests).
+
 The document-diagnostics repair (DEL-04-07 Design `desktop-exact-outputs.md` §11)
 regenerated the retained-successor derivative goldens, two of them listed here, in
 their diagnostics only. This check reads those two at the repair's parent
@@ -86,6 +92,13 @@ W1_CORNER1_ADDED = {
     "mutations": frozenset(),
     "must_pass": frozenset(f"w1_member_hull_d02_{mode}_must_pass" for mode in ("sparse_interactive", "dense_scrutiny")),
 }
+# The silent-drop guard's regenerated bases: the request's depth-16 member renamed.
+SILENT_DROP_MOVED = {
+    "cases": frozenset({"w_cb1_sparse_interactive", "w_cb1_dense_scrutiny", "w_cb1z_sparse_interactive"}),
+    "mutations": frozenset(),
+    "must_pass": frozenset(),
+}
+SILENT_DROP_KEY = ("unknown_depth_witness", "diagnostics")
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -468,18 +481,39 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
         first = next((pair for pair in zip(landed_ids, after_ids) if pair[0] != pair[1]), None)
         assert after_ids == landed_ids, (member, "position: corner 1's id, then the committed id", first)
         pinned = dict(landed_entries)
-        moved = {k for k, entry in after if k in known and classify(known[k], entry)}
+        moved = {k for k, entry in after if k in known and k not in SILENT_DROP_MOVED[member] and classify(known[k], entry)}
         assert moved == W1_CORNER1_MOVED[member], (member, sorted(moved))
         # The entries corner 1 moved or added equal its own bytes, so they are bound too
         # (Opus review, round 4).
         for key, entry in after:
             if key in W1_CORNER1_MOVED[member] or key in W1_CORNER1_ADDED[member]:
                 assert not classify(pinned[key], entry), (member, key, "differs from corner 1")
+            if key in SILENT_DROP_MOVED[member]:
+                leaves = classify(pinned[key], _silent_drop_restored(key, entry))
+                assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
     before, after = dict(load(base)), dict(load(now))
     assert list(before) == list(after)
     for member in before:
         if member not in ("cases", "mutations", "must_pass"):
             assert not classify(before[member], after[member]), member
+
+
+def _silent_drop_restored(key, entry):
+    """The entry with its request's `diagnostics` member renamed back to `unknown_depth_witness`,
+    in that member's original (sorted, last) position; asserts the member moved exactly so."""
+    old, new = SILENT_DROP_KEY
+    invocation = dict(entry)["invocation"]
+    model = dict(dict(invocation)["request"])["model"]
+    names = [k for k, _ in model]
+    assert new in names and old not in names, (key, names)
+    value = dict(model)[new]
+    restored = Obj(sorted([(k, v) for k, v in model if k != new] + [(old, value)], key=lambda pair: pair[0]))
+    assert [k for k, _ in restored] == sorted([k for k, _ in restored]), key
+
+    def replace(obj, name, value):
+        return Obj([(k, value if k == name else v) for k, v in obj])
+    request = replace(dict(invocation)["request"], "model", restored)
+    return replace(entry, "invocation", replace(invocation, "request", request))
 
 
 def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
