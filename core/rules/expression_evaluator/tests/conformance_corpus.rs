@@ -20,9 +20,10 @@
 //! protected standards content; no compliance/certification/approval claims.
 
 use open_pipe_stress_expression_evaluator::{
-    evaluate, AggregateFunction, AnalysisStatus, BinaryOperator, BindingSource, ComparisonOperator,
-    Dimension, EvaluationInput, EvaluationValue, Expression, FindingCode, LogicalOperator,
-    LookupMode, Quantity, TableRow, UnaryOperator, UserTable, VariableBinding, GRAMMAR_VERSION,
+    check_expression_types, evaluate, AggregateFunction, AnalysisStatus, BinaryOperator,
+    BindingSource, ComparisonOperator, Dimension, EvaluationInput, EvaluationValue, Expression,
+    FindingCode, LogicalOperator, LookupMode, Quantity, TableRow, TypeEnv, UnaryOperator,
+    UserTable, VariableBinding, GRAMMAR_VERSION,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
@@ -840,5 +841,321 @@ fn conformance_corpus_pins_the_frozen_grammar() {
     assert!(
         has_unsupported_grammar_case,
         "coverage floor: corpus must pin grammar-version blocking"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Static type check parity (W-17, DEL-06-02 `Design/rule-pack-unit-check.md`)
+// ---------------------------------------------------------------------------
+
+/// The finding codes the static check can derive without values (design
+/// §2.2, the set S).
+const STATIC_CODES: &[FindingCode] = &[
+    FindingCode::TypeMismatch,
+    FindingCode::DimensionMismatch,
+    FindingCode::UnitMismatch,
+    FindingCode::UnsupportedExpressionForm,
+    FindingCode::UnsafeConstruct,
+    FindingCode::InvalidReference,
+    FindingCode::MissingVariable,
+    FindingCode::UnitMetadataMissing,
+    FindingCode::TableMalformed,
+];
+
+/// Cases with a value-, binding- or status-dependent expected finding, or a
+/// grammar-version finding: compared for soundness only (design §4).
+const NON_COMPARABLE_CASES: &[u32] = &[30, 31, 32, 44, 45, 46, 47, 48, 58, 62, 63, 66];
+
+struct StaticCase {
+    case_id: String,
+    number: u32,
+    expression: Expression,
+    bindings: Vec<VariableBinding>,
+    required_variable_ids: Vec<String>,
+    expected: Vec<(FindingCode, String)>,
+}
+
+fn load_static_cases() -> Vec<StaticCase> {
+    case_paths()
+        .iter()
+        .map(|path| {
+            let text = fs::read_to_string(path).expect("case file must be readable");
+            let json = Reader::parse(&text);
+            let case = as_object(&json, "case");
+            let case_id = string_field(case, "case_id", "case");
+            let context = case_id.as_str();
+            let number: u32 = case_id
+                .strip_prefix("case_")
+                .and_then(|rest| rest.split('_').next())
+                .and_then(|digits| digits.parse().ok())
+                .unwrap_or_else(|| panic!("{context}: case id has no number"));
+            let expression = decode_expression(
+                field(case, "expression", context),
+                context,
+                &mut BTreeSet::new(),
+            );
+            let bindings = array_field(case, "bindings", context)
+                .iter()
+                .map(|binding| {
+                    let binding = as_object(binding, context);
+                    VariableBinding {
+                        variable_id: string_field(binding, "variable_id", context),
+                        source: decode_source(&string_field(binding, "source", context), context),
+                        quantity: match field(binding, "quantity", context) {
+                            Json::Null => None,
+                            quantity => Some(decode_quantity(quantity, context)),
+                        },
+                    }
+                })
+                .collect();
+            let required_variable_ids = array_field(case, "required_variable_ids", context)
+                .iter()
+                .map(|id| match id {
+                    Json::String(id) => id.clone(),
+                    _ => panic!("{context}: required_variable_ids must be strings"),
+                })
+                .collect();
+            let expected = decode_expected(field(case, "expected", context), context).findings;
+            StaticCase {
+                case_id,
+                number,
+                expression,
+                bindings,
+                required_variable_ids,
+                expected,
+            }
+        })
+        .collect()
+}
+
+/// The corpus adapter (design §4). The type environment is built from all of
+/// a case's bindings, in the evaluator's binding order (`build_binding_map`):
+/// an empty id is an invalid reference; a repeated id keeps its first
+/// binding; a null quantity is `Unknown`, not missing; a quantity without
+/// its unit metadata reports `unit_metadata_missing` and is then unbound. Any
+/// other AST variable is undeclared. `required_variable_ids` does not build
+/// the environment; only its static check (an empty id) is taken from it.
+/// The findings come back in the evaluator's order: bindings, required
+/// variables, then the expression.
+fn static_findings(case: &StaticCase) -> Vec<(FindingCode, String)> {
+    let mut findings = Vec::new();
+    let mut env = TypeEnv::new();
+    let mut seen = BTreeSet::new();
+    for binding in &case.bindings {
+        if binding.variable_id.trim().is_empty() {
+            findings.push((FindingCode::InvalidReference, "binding".to_string()));
+            continue;
+        }
+        if !seen.insert(binding.variable_id.clone()) {
+            continue;
+        }
+        match &binding.quantity {
+            None => env.insert_unknown(&binding.variable_id),
+            Some(quantity)
+                if !(quantity.unit_required
+                    && quantity.dimension_check_required
+                    && !quantity.unit_ref.trim().is_empty()) =>
+            {
+                findings.push((FindingCode::UnitMetadataMissing, binding.variable_id.clone()));
+            }
+            Some(quantity) => {
+                env.insert_typed(&binding.variable_id, quantity.dimension, &quantity.unit_ref)
+            }
+        }
+    }
+    for id in &case.required_variable_ids {
+        if id.trim().is_empty() {
+            findings.push((FindingCode::InvalidReference, "required_variable".to_string()));
+        }
+    }
+    let check = check_expression_types(&case.expression, &env);
+    assert_eq!(
+        check,
+        check_expression_types(&case.expression, &env),
+        "{}: the static check must be deterministic",
+        case.case_id
+    );
+    findings.extend(
+        check
+            .findings
+            .into_iter()
+            .map(|finding| (finding.code, finding.subject_id)),
+    );
+    findings
+}
+
+#[test]
+fn static_type_check_is_sound_and_exact_on_comparable_corpus_cases() {
+    let cases = load_static_cases();
+    assert!(cases.len() >= 60, "corpus must not shrink");
+    let mut non_comparable = Vec::new();
+    for case in &cases {
+        let actual = static_findings(case);
+
+        // Soundness: every expected finding in S is derived statically, with
+        // the same code and subject.
+        for expected in case
+            .expected
+            .iter()
+            .filter(|(code, _)| STATIC_CODES.contains(code))
+        {
+            assert!(
+                actual.contains(expected),
+                "{}: static check misses {expected:?}; static findings {actual:?}",
+                case.case_id
+            );
+        }
+
+        // Equality on comparable cases: every expected finding lies in S (or
+        // there is none), and the static findings are exactly the expected ones.
+        if case
+            .expected
+            .iter()
+            .all(|(code, _)| STATIC_CODES.contains(code))
+        {
+            assert_eq!(
+                actual, case.expected,
+                "{}: static findings differ from the evaluator's",
+                case.case_id
+            );
+        } else {
+            non_comparable.push(case.number);
+        }
+    }
+    assert_eq!(
+        non_comparable, NON_COMPARABLE_CASES,
+        "the cases compared for soundness only are those the design names"
+    );
+}
+
+fn literal(value: f64, dimension: Dimension, unit_ref: &str) -> Expression {
+    Expression::Literal(Quantity::new(value, dimension, unit_ref).expect("invented quantity"))
+}
+
+fn evaluated_findings(expression: &Expression) -> Vec<(FindingCode, String)> {
+    evaluate(&EvaluationInput {
+        expression: expression.clone(),
+        bindings: Vec::new(),
+        required_variable_ids: Vec::new(),
+        statuses: vec![AnalysisStatus::MechanicsSolved],
+        declared_grammar_version: GRAMMAR_VERSION.to_string(),
+    })
+    .findings
+    .into_iter()
+    .map(|finding| (finding.code, finding.subject_id))
+    .collect()
+}
+
+fn checked_findings(expression: &Expression) -> Vec<(FindingCode, String)> {
+    check_expression_types(expression, &TypeEnv::new())
+        .findings
+        .into_iter()
+        .map(|finding| (finding.code, finding.subject_id))
+        .collect()
+}
+
+#[test]
+fn static_check_reports_the_quotient_form_behind_a_zero_divisor() {
+    // Case 57's operands with a zero divisor: the evaluator tests the divisor
+    // first, so it reports only the division by zero; statically the
+    // quotient Stress / Time is unrepresentable on every run.
+    let expression = Expression::Binary {
+        operator: BinaryOperator::Divide,
+        left: Box::new(literal(12.0, Dimension::Stress, "invented_stress_unit")),
+        right: Box::new(literal(0.0, Dimension::Time, "invented_time_unit")),
+    };
+    assert_eq!(
+        evaluated_findings(&expression),
+        vec![(FindingCode::DivisionByZero, "divide".to_string())]
+    );
+    assert_eq!(
+        checked_findings(&expression),
+        vec![(
+            FindingCode::UnsupportedExpressionForm,
+            "divide".to_string()
+        )]
+    );
+}
+
+#[test]
+fn static_check_reports_a_unit_mismatch_behind_a_table_range_failure() {
+    // The left operand is out of the table's range and the right operand's
+    // unit differs from the table result's: the evaluator stops at the range
+    // finding; statically the sum's units never match.
+    let table = UserTable {
+        table_id: "invented_lookup_table".to_string(),
+        argument_dimension: Dimension::Temperature,
+        argument_unit_ref: "invented_temperature_unit".to_string(),
+        result_dimension: Dimension::Stress,
+        result_unit_ref: "invented_stress_unit".to_string(),
+        rows: vec![
+            TableRow {
+                argument: 10.0,
+                result: 1.5,
+            },
+            TableRow {
+                argument: 20.0,
+                result: 2.5,
+            },
+        ],
+    };
+    let expression = Expression::Binary {
+        operator: BinaryOperator::Add,
+        left: Box::new(Expression::Interpolate {
+            table,
+            argument: Box::new(literal(
+                5.0,
+                Dimension::Temperature,
+                "invented_temperature_unit",
+            )),
+        }),
+        right: Box::new(literal(1.0, Dimension::Stress, "invented_other_stress_unit")),
+    };
+    assert_eq!(
+        evaluated_findings(&expression),
+        vec![(
+            FindingCode::TableOutOfRange,
+            "invented_lookup_table".to_string()
+        )]
+    );
+    assert_eq!(
+        checked_findings(&expression),
+        vec![(FindingCode::UnitMismatch, "add_subtract".to_string())]
+    );
+}
+
+#[test]
+fn static_check_gives_unknown_operands_no_finding() {
+    // An Unknown variable makes its ancestors unknown without findings; a
+    // typed sibling mismatch elsewhere is still reported.
+    let mut env = TypeEnv::new();
+    env.insert_unknown("invented_tbd_input");
+    env.insert_typed("invented_stress_input", Dimension::Stress, "invented_stress_unit");
+    let expression = Expression::Logical {
+        operator: LogicalOperator::And,
+        left: Box::new(Expression::Compare {
+            operator: ComparisonOperator::LessThan,
+            left: Box::new(Expression::VariableRef("invented_tbd_input".to_string())),
+            right: Box::new(literal(1.0, Dimension::Length, "invented_length_unit")),
+        }),
+        right: Box::new(Expression::Compare {
+            operator: ComparisonOperator::LessThan,
+            left: Box::new(Expression::VariableRef("invented_stress_input".to_string())),
+            right: Box::new(literal(1.0, Dimension::Length, "invented_length_unit")),
+        }),
+    };
+    let check = check_expression_types(&expression, &env);
+    let findings: Vec<(FindingCode, String, String)> = check
+        .findings
+        .iter()
+        .map(|finding| (finding.code, finding.subject_id.clone(), finding.path.clone()))
+        .collect();
+    assert_eq!(
+        findings,
+        vec![(
+            FindingCode::DimensionMismatch,
+            "comparison".to_string(),
+            "expression.right".to_string()
+        )]
     );
 }
