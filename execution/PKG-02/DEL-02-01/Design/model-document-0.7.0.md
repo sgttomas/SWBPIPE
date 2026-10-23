@@ -640,7 +640,7 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
 ## 7. Owner-reserved text (exact old → new to HELP_HUMAN at the slice that needs it)
 
 1. **Version token 0.6.0 → 0.7.0.** These record OD-4, so HELP_HUMAN approves
-   them (HELP_HUMAN, 2026-10-23). Item 2 goes to the owner.
+   them (HELP_HUMAN, 2026-10-23). Item 2 went to the owner and is approved.
    - DEL-02-05 ScopeOfWork CLM-003, lines 33, 35, 37 and 100, and CLM-013
      line 178.
      - Line 33's "defined by the T4-U4b/U5b epoch" becomes a pointer to this
@@ -665,8 +665,9 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
        clause requires a root-level summary. The report's provenance summary
        stays with the Report row (CLM-012, line 177).
    - **This narrows no FR-MOD requirement.** It is still commitment text, so it
-     goes to the owner through HELP_HUMAN as exact old → new. Its approval is a
-     precondition for merging S1b.
+     went to the owner through HELP_HUMAN as exact old → new. **Approved:**
+     owner, 2026-10-23: "CLM‑006/CLM‑012, option A as recommended." The new
+     text below is applied in the ScopeOfWork.
    - **Exact text.** These are DEL-02-01 ScopeOfWork CLM-006 lines 79–83; lines
      77, 84 and 86 are unchanged.
      - **Old 79:** `- document/root metadata: schema version, application/schema identity, provenance summary, and migration/compatibility status where persisted;`
