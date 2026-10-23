@@ -163,7 +163,7 @@ def test_b7b_jr_guards_pressure_findings_diagnostic_at_multiplicity_zero(monkeyp
     push = next(i + 1 for i in range(start, len(lines)) if "diagnostics.push(diag(" in lines[i])
     assert "refs.extend(extra.map(str::to_string));" in lines[push - 2]
     d = decisions(monkeypatch)
-    assert [key for key, _ in d["O10_MULT0_SITES"]] == [f"joint.rs:{push}"]
+    assert [key for key, _ in d["O10_MULT0_SITES"] if key.startswith("joint.rs:")] == [f"joint.rs:{push}"]
     assert not any(str(key).startswith("joint.rs:") and key == f"joint.rs:{push}" for key, _, _ in d.get("O10_SITE_SIZE", []))
     assert not any(key == f"joint.rs:{push}" for key, _ in d.get("SITE_ZERO", []))
 

@@ -2057,3 +2057,48 @@ if fnkey("republication", _PU_LIB) and fnkey("fail_closed_form", _PU_LIB):
     )
     if not all(_pu_guards):
         raise SystemExit(f"PU-R1: the republication's run order changed; re-review G4's one-run cap: {_pu_guards}")
+
+# ---- The silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases that apply nothing";
+# retained-pricing-rules.md §8.15). Each rule applies only where the guard's code exists, so earlier revisions price as
+# before.
+_SZ_V = PP_ + "validation.rs"
+_SZ_R = PP_ + "case_state/resolve.rs"
+if fnkey("validate_required_collections", _SZ_V) and '"LOAD_CASE_APPLIES_NO_ACTION",' in _fn_text("validate_required_collections", _SZ_V):
+    _SZ_BODY = _fn_text("validate_required_collections", _SZ_V)
+    # SZ-TX (guard): the guard's one diagnostic site, read at the snapshot: one loop over the authored load cases that
+    # apply nothing, one LOAD_CASE_APPLIES_NO_ACTION diag whose id is `diagnostic:load-case:{}:applies-no-action` over
+    # stable_suffix(&case.id), whose message is one static literal (priced by the inventory at its own bytes) and whose
+    # refs are the one case id.
+    _SZ_LIT = _re.findall(r'"(the load case applies no action:(?:[^"\\]|\\.)*)"', _SZ_BODY)
+    _sz_guards = (
+        len(_SZ_LIT) == 1,
+        _SZ_BODY.count("for case in model.load_cases.iter().filter(|case| case_applies_nothing(case)) {") == 1,
+        _SZ_BODY.count('"LOAD_CASE_APPLIES_NO_ACTION",') == 1,
+        _SZ_BODY.count('&format!("diagnostic:load-case:{}:applies-no-action", stable_suffix(&case.id)),') == 1,
+        _SZ_BODY.count("vec![case.id.clone()],") == 1,
+        _SZ_BODY.count("diag(") == 4,
+    )
+    if not all(_sz_guards):
+        raise SystemExit(f"SZ-TX: the silent-zero guard's diagnostic changed; re-review its bounds: {_sz_guards}")
+    # SZ-ID (ID_AUDIT): the id format's stable_suffix(&case.id) (an authored case id with ':' replaced, same length,
+    # IN128) and the refs' case.id clone (IN128), as the sibling per-case sites in validation.rs are priced. The site is
+    # inside the loop over load cases, so it keeps its full multiplicity: once per authored case per call.
+    O10_ID_AUDIT += [
+        (site("validate_required_collections", _SZ_V,
+              'format!("diagnostic:load-case:{}:applies-no-action", stable_suffix(&case.id))', full=True),
+         {"stable_suffix(&case.id)": IN}),
+        (site("validate_required_collections", _SZ_V, "vec![case.id.clone()],", full=True), {"case.id": IN}),
+    ]
+# SZ-LS: resolve_case's two new findings (LOAD_STATE_CASE_APPLIES_NO_ACTION through `block`, LOAD_STATE_SOURCE_EXCLUDED)
+# are load-state resolution, reached only under case_state::is_load_state (lib.rs's load_state branch and the
+# captured load-state replay). D1.3 refuses every authored load/reference-state field on every branch (retained_memory.rs
+# family_clauses: ReferenceConfigurations, MaterialExpansionLaw, RequestExpansionLaws; per case AnalysisState), so
+# is_load_state is false on both routes (B7b-LS; route L also has no exact contract) and the base chain's case_state/
+# file zero holds. Their text sites have multiplicity 0, guarded rather than assumed.
+if fnkey("resolve_case", _SZ_R) and '"LOAD_STATE_SOURCE_EXCLUDED",' in _fn_text("resolve_case", _SZ_R):
+    _SZ_LS = O10 + "SZ-LS: load-state resolution has multiplicity 0 by D1.3 (no authored load/reference-state field; B7b-LS)"
+    O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+        (site("resolve_case", _SZ_R, '"LOAD_STATE_SOURCE_EXCLUDED",', row="diag("), _SZ_LS),
+        (site("resolve_case", _SZ_R, '"the load case applies no action: none of its {} stored', row="format!("), _SZ_LS),
+        (site("resolve_case", _SZ_R, "let mut text = ids.iter().take(crate::formation_guard::NAMED)"), _SZ_LS),
+    ]

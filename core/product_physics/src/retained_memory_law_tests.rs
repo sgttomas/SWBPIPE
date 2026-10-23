@@ -1534,12 +1534,13 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // Current canonical TEXT closure at the pre-0.4 failure unification's source 64144ab20b, C_eq = 3,
-    // maximum over the L/E routes (retained-pricing-rules.md §8.14): +429 B from the T4-U4b/U5b epoch's
-    // 269,494,417 (b4c9f35f8e; unchanged through O4's 7823a79f45 and R-A's 7d946b7e94), the three S3
-    // finalization diagnostics whose error text may now be the S2 cause (PU-S2). T4-U6/U8's at
-    // 588de796a4: 262,735,773; B7b's at 7e63847: 264,366,429.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 269_494_846, "current text closure at C_eq = 3, maximum over routes");
+    // Current canonical TEXT closure at the silent-zero guard's source 7a81b247ed, C_eq = 3, maximum
+    // over the L/E routes (retained-pricing-rules.md §8.15): +7,194 B from the pre-0.4 failure
+    // unification's 269,494,846 (64144ab20b, §8.14), the per-case LOAD_CASE_APPLIES_NO_ACTION warning,
+    // 3 × 2,398 B (SZ-ID). §8.14's was +429 B from the T4-U4b/U5b epoch's 269,494,417 (b4c9f35f8e;
+    // unchanged through O4's 7823a79f45 and R-A's 7d946b7e94). T4-U6/U8's at 588de796a4: 262,735,773;
+    // B7b's at 7e63847: 264,366,429.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 269_502_040, "current text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_595, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -1548,7 +1549,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 28_799, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 28_802, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1777,18 +1778,18 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// Pre-0.4 failure unification actual-source record at 64144ab20b (retained-pricing-rules.md
-/// §8.14): requested + moving bytes, without R or the separately upward-rounded TEXT reserve, from
-/// the canonical 100-form union, now over eight phases. From R-A's record (7d946b7e94, §8.13) TAV_W
-/// and TAV_X rise by 6,277,658 B (the cause texts reachable on route E: PU-ID, PU-S2, PU-C, PU-CL)
-/// and FAILED_MANIFEST_COPY, STAGED, SUCC, T16, T17 and T25 by 429 B each (Text(diag_env)'s three S3
-/// finalization diagnostics, PU-S2), so W1, W2 and X2 rise by 6,278,087 B, W5 and X1 by
-/// 6,278,516 B and W3 and W4 by 6,278,945 B in both modes. X3 is new (PU-X3): the republication's
-/// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
-/// registration is separate below.
+/// Silent-zero guard actual-source record at 7a81b247ed (retained-pricing-rules.md §8.15):
+/// requested + moving bytes, without R or the separately upward-rounded TEXT reserve, from the
+/// canonical 100-form union over eight phases. From the pre-0.4 failure unification's record
+/// (64144ab20b, §8.14) the per-case LOAD_CASE_APPLIES_NO_ACTION warning (SZ-ID) raises TAV_W by
+/// 32,028 B and TAV_X by 16,014 B, Text(diag_env) by 7,194 B and D_env by 3, and the envelope
+/// and evidence forms that carry them, so W1 and W2 rise by 42,246 B, W3 by 126,856 B, W4 by
+/// 111,582 B, W5 by 76,618 B, X1 by 38,610 B, X2 by 47,490 B and X3 by 26,232 B in both modes.
+/// The build identity, atoms and native values are unchanged; reviewed-input registration is
+/// separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_211_314_679, 6_546_767_800, 8_441_982_408, 8_236_509_373, 7_342_296_592, 8_279_887_861, 7_115_881_661, 6_794_165_825],
-    [6_270_446_023, 6_605_899_144, 8_501_113_752, 8_295_640_717, 7_401_427_936, 8_339_019_205, 7_175_013_005, 6_853_297_169],
+    [6_211_356_925, 6_546_810_046, 8_442_109_264, 8_236_620_955, 7_342_373_210, 8_279_926_471, 7_115_929_151, 6_794_192_057],
+    [6_270_488_269, 6_605_941_390, 8_501_240_608, 8_295_752_299, 7_401_504_554, 8_339_057_815, 7_175_060_495, 6_853_323_401],
 ];
 
 #[test]
@@ -1907,7 +1908,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_799, "current canonical D_env at C_eq = 3 (T4-U4b/U5b epoch source b4c9f35f8e; unchanged at O4's 7823a79f45)");
+    assert_eq!(caps.complete[3], 28_802, "current canonical D_env at C_eq = 3 (the silent-zero guard's source 7a81b247ed, §8.15: +3, one warning per case; 28,799 from the T4-U4b/U5b epoch b4c9f35f8e through §8.14)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
