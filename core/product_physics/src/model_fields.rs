@@ -234,43 +234,49 @@ mod tests {
         keys.iter().map(|k| k.to_string()).collect()
     }
 
-    /// The S1a model document schema's key lists for the closed records, copied
-    /// from `projects/chirality-piping/schemas/model.schema.yaml` on branch
-    /// `claude/piping-model-schema-s1a-20261023` (commit 2538e044a9): root
-    /// `properties`, `$defs/LoadCase`, `$defs/LoadRecord`, `$defs/Combination`,
-    /// `$defs/CombinationTerm`, `$defs/Quantity` (magnitude, modulus_basis_temperature),
-    /// `$defs/EquivalentStatic`, `$defs/SeismicEquivalentStaticInput`,
-    /// `$defs/WindEquivalentStaticInput`, `$defs/WindExposedSpan` and the
-    /// node/element arms of `$defs/LoadTarget`. Rebind to the committed schema once S1a merges.
-    const S1A_ROOT: &[&str] = &["analysis_status", "combinations", "components", "data_boundary", "diagnostics", "document_kind", "load_cases", "materials", "nodes", "pipe_segments", "pressure_contract", "project", "reference_configurations", "schema_version", "sections", "supports"];
-    const S1A_LOAD_CASE: &[&str] = &["analysis_state", "equivalent_static", "id", "kind", "label", "modulus_basis_ref", "modulus_basis_temperature", "pressure_regions", "primitive_loads", "provenance", "status"];
-    const S1A_LOAD_RECORD: &[&str] = &["category", "dimension", "direction", "id", "magnitude", "provenance", "target"];
-    const S1A_COMBINATION: &[&str] = &["basis", "id", "label", "minuend_id", "mode", "operand_ids", "provenance", "subtrahend_id", "terms"];
-    const S1A_TERM: &[&str] = &["factor", "load_case"];
-    const S1A_QUANTITY: &[&str] = &["unit", "value"];
-    const S1A_EQUIVALENT_STATIC: &[&str] = &["provenance", "seismic", "wind"];
-    const S1A_SEISMIC: &[&str] = &["g_factor_x", "g_factor_y", "g_factor_z", "gravity_acceleration"];
-    const S1A_WIND: &[&str] = &["direction", "exposed_pipe_refs", "exposed_spans", "pressure", "shape_factor"];
-    const S1A_EXPOSED_SPAN: &[&str] = &["end_fraction", "pipe_ref", "start_fraction"];
+    /// The committed model document schema (S1a, `schemas/model.schema.yaml`,
+    /// JSON syntax) is the authoritative key list of each closed record.
+    const MODEL_SCHEMA: &str = include_str!("../../../schemas/model.schema.yaml");
+
+    fn schema() -> serde_json::Value {
+        serde_json::from_str(MODEL_SCHEMA).expect("model.schema.yaml is JSON")
+    }
+
+    fn keys(record: &serde_json::Value, what: &str) -> BTreeSet<String> {
+        assert_eq!(record["additionalProperties"], serde_json::json!(false), "{what} is a closed schema record");
+        let keys: BTreeSet<String> = record["properties"].as_object().unwrap_or_else(|| panic!("{what} properties")).keys().cloned().collect();
+        assert!(!keys.is_empty(), "{what}");
+        keys
+    }
+
+    fn def(schema: &serde_json::Value, name: &str) -> BTreeSet<String> {
+        keys(&schema["$defs"][name], name)
+    }
 
     #[test]
-    fn declared_fields_match_the_s1a_schema_key_lists() {
+    fn declared_fields_match_the_committed_schema_key_lists() {
+        let schema = schema();
         let fields = record_fields();
         // `shear_model` is a rejection-only root member (refused by name), not an accepted key.
         let mut root = set(fields.model);
         assert!(root.remove("shear_model"));
-        assert_eq!(root, set(S1A_ROOT), "model root");
-        assert_eq!(set(fields.load_case), set(S1A_LOAD_CASE), "load case");
-        assert_eq!(set(fields.primitive_load), set(S1A_LOAD_RECORD), "load record");
-        assert_eq!(set(fields.combination), set(S1A_COMBINATION), "combination");
-        assert_eq!(set(fields.term), set(S1A_TERM), "combination term");
-        assert_eq!(set(fields.magnitude), set(S1A_QUANTITY), "magnitude");
-        assert_eq!(set(fields.equivalent_static), set(S1A_EQUIVALENT_STATIC), "equivalent static");
-        assert_eq!(set(fields.seismic), set(S1A_SEISMIC), "seismic input");
-        assert_eq!(set(fields.wind), set(S1A_WIND), "wind input");
-        assert_eq!(set(fields.exposed_span), set(S1A_EXPOSED_SPAN), "exposed span");
-        assert_eq!(set(target_fields("node").unwrap()), set(&["type", "node"]));
-        assert_eq!(set(target_fields("element").unwrap()), set(&["type", "pipe"]));
+        assert_eq!(root, keys(&schema, "model root"), "model root");
+        assert_eq!(set(fields.load_case), def(&schema, "LoadCase"), "load case");
+        assert_eq!(set(fields.primitive_load), def(&schema, "LoadRecord"), "load record");
+        assert_eq!(set(fields.combination), def(&schema, "Combination"), "combination");
+        assert_eq!(set(fields.term), def(&schema, "CombinationTerm"), "combination term");
+        assert_eq!(set(fields.magnitude), def(&schema, "Quantity"), "magnitude and solve temperature");
+        assert_eq!(set(fields.equivalent_static), def(&schema, "EquivalentStatic"), "equivalent static");
+        assert_eq!(set(fields.seismic), def(&schema, "SeismicEquivalentStaticInput"), "seismic input");
+        assert_eq!(set(fields.wind), def(&schema, "WindEquivalentStaticInput"), "wind input");
+        assert_eq!(set(fields.exposed_span), def(&schema, "WindExposedSpan"), "exposed span");
+        // The node and element arms of LoadTarget; its support arm is refused as an unknown
+        // variant by the typed target (and, on a pre-load-state model, by name before parsing).
+        let arms = schema["$defs"]["LoadTarget"]["oneOf"].as_array().expect("LoadTarget arms");
+        for kind in ["node", "element"] {
+            let arm = arms.iter().find(|arm| arm["properties"]["type"]["const"] == kind).unwrap_or_else(|| panic!("{kind} arm"));
+            assert_eq!(set(target_fields(kind).unwrap()), keys(arm, kind), "{kind} target");
+        }
     }
 
     #[test]
