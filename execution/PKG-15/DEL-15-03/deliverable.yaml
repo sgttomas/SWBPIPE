@@ -226,5 +226,12 @@ code_paths:
 - core/handoff/exporter/workflow.py
 - schemas/handoff_package.schema.json
 - schemas/target_mapping.schema.json
+- apps/desktop/src/features/handoff/HandoffPanel.tsx
+- apps/desktop/src/features/native-package/NativePackagePanel.tsx
 checks:
 - tests/test_handoff_export_workflow.py
+- apps/desktop/src/features/handoff/HandoffPanel.test.tsx
+- apps/desktop/src/features/native-package/NativePackagePanel.test.ts
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts

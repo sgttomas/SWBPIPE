@@ -283,6 +283,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > ##### Considerations
 >
 > - The current schema-backed metadata contract is `schemas/external_prover_metadata.schema.json`, with generated-output behavior in `core/handoff/external_prover/metadata.py`.
+> - Current implementation (at `62c1efd75b`): the desktop Exports section renders `apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx`, which builds its own preview metadata record in TypeScript and invokes no external tool. It does not call `core/handoff/external_prover/` and is not validated against `schemas/external_prover_metadata.schema.json`.
 > - Boundary validation tests are implemented in `tests/test_external_prover_boundary_metadata.py`, including positive flexible-metadata cases and negative prohibited-status/attachment cases.
 > - The approved local dependency mirror says this deliverable binds to handoff package, target mapping, export workflow, immutable state, and professional-boundary context. Those rows are evidence of dependency direction only; they do not provide the content of those predecessor deliverables.
 > - Comprehensive commercial-tool result ingestion is explicitly deferred for MVP; a metadata link to an external artifact is not the same as parsing, validating, or accepting that artifact.
