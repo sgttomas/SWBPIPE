@@ -90,14 +90,14 @@ pub const CONSTRAINT_KINDS: [&str; 9] = [
     "vent",
     "access",
 ];
-/// `ConstraintRecord.state`'s enum, unchanged (§3.6).
-pub const CONSTRAINT_STATES: [&str; 6] = [
+/// `ConstraintRecord.state`'s enum without `TBD`: these slots never carry
+/// the TBD sentinel (design §6).
+pub const CONSTRAINT_STATES: [&str; 5] = [
     "proposed",
     "active",
     "inactive",
     "superseded",
     "blocked_by_missing_data",
-    "TBD",
 ];
 
 /// Provenance-record dispositions (§3.5), the library import's vocabulary.
@@ -128,13 +128,15 @@ pub const RULE_PACK_REDISTRIBUTION_STATUSES: [&str; 5] = [
     "protected_suspected",
     "invented_non_engineering_example",
 ];
-/// The fixed members of the pack's stamped `ComputedRulePackChecksum`
-/// (`core/rules/rule_pack_document/src/lib.rs`).
+/// A rule-pack reference's checksum: the members common to the pack's stored
+/// stamped record (`checksums.rule_pack_checksum`) and the computed
+/// `ComputedRulePackChecksum` (`core/rules/rule_pack_document/src/lib.rs`).
+pub const RULE_PACK_CHECKSUM_MEMBERS: [&str; 5] =
+    ["algorithm", "canonicalization", "payload_scope", "payload_excludes", "value"];
 pub const RULE_PACK_CHECKSUM_ALGORITHM: &str = "sha256";
 pub const RULE_PACK_CHECKSUM_CANONICALIZATION: &str = "JCS";
 pub const RULE_PACK_CHECKSUM_PAYLOAD_SCOPE: &str = "rule_pack_payload";
 pub const RULE_PACK_CHECKSUM_PAYLOAD_EXCLUDES: [&str; 1] = ["checksums"];
-pub const RULE_PACK_CHECKSUM_BASIS: &str = "rfc8785_jcs_sha256_excluding_checksums";
 
 /// One finding: a named code, its severity, the JSON path of the offending
 /// member (`""` for the whole document) and the entity ids it concerns.
@@ -647,7 +649,7 @@ impl Validator {
                 &["rule_pack_id", "name", "rule_pack_version", "checksum", "redistribution_status", "source_notice"],
                 &refs,
             );
-            let pack_id = self.text(record, at, "rule_pack_id", RULE_PACK_REF_INVALID, &refs);
+            self.text(record, at, "rule_pack_id", RULE_PACK_REF_INVALID, &refs);
             self.texts(record, at, &["name", "rule_pack_version", "source_notice"], RULE_PACK_REF_INVALID, &refs);
             let status = self.token(record, at, "redistribution_status", &RULE_PACK_REDISTRIBUTION_STATUSES, RULE_PACK_REF_INVALID, &refs);
             if status == Some("protected_suspected") {
@@ -655,32 +657,25 @@ impl Validator {
                 self.warn(PROVENANCE_QUARANTINE, &path, format!("{path} is protected_suspected: the library-import policy quarantines this disposition; request human review before any export."), refs.clone());
             }
             if let Some(checksum) = record.get("checksum") {
-                self.rule_pack_checksum(checksum, &format!("{at}.checksum"), pack_id, &refs);
+                self.rule_pack_checksum(checksum, &format!("{at}.checksum"), &refs);
             }
         }
     }
 
-    fn rule_pack_checksum(&mut self, value: &Value, at: &str, pack_id: Option<&str>, refs: &[String]) {
+    /// The common subset of the pack's stored stamped record
+    /// (`checksums.rule_pack_checksum`) and `ComputedRulePackChecksum`:
+    /// closed, every member required. A reference's identity is
+    /// `rule_pack_id` + `rule_pack_version` + `checksum.value`.
+    fn rule_pack_checksum(&mut self, value: &Value, at: &str, refs: &[String]) {
         let code = RULE_PACK_REF_INVALID;
         let Some(checksum) = value.as_object() else {
-            self.block(code, at, format!("{at} is {}; the pack's stamped checksum record (an object) is required.", kind_name(value)), refs.to_vec());
+            self.block(code, at, format!("{at} is {}; the pack's checksum record (an object) is required.", kind_name(value)), refs.to_vec());
             return;
         };
-        let fields = [
-            "algorithm",
-            "canonicalization",
-            "payload_scope",
-            "payload_ref",
-            "payload_excludes",
-            "basis",
-            "grammar_version",
-            "grammar_version_bound",
-            "value",
-        ];
         for key in checksum.keys() {
-            if !fields.contains(&key.as_str()) {
+            if !RULE_PACK_CHECKSUM_MEMBERS.contains(&key.as_str()) {
                 let path = format!("{at}.{key}");
-                self.block(code, &path, format!("{path} is not a member of the rule-pack checksum record."), refs.to_vec());
+                self.block(code, &path, format!("{path} is not a member of the rule-pack checksum reference ({}).", RULE_PACK_CHECKSUM_MEMBERS.join(", ")), refs.to_vec());
             }
         }
         let fixed = |key: &str, expected: &str, this: &mut Self| {
@@ -694,13 +689,6 @@ impl Validator {
         fixed("algorithm", RULE_PACK_CHECKSUM_ALGORITHM, self);
         fixed("canonicalization", RULE_PACK_CHECKSUM_CANONICALIZATION, self);
         fixed("payload_scope", RULE_PACK_CHECKSUM_PAYLOAD_SCOPE, self);
-        fixed("basis", RULE_PACK_CHECKSUM_BASIS, self);
-        match pack_id {
-            Some(id) => fixed("payload_ref", id, self),
-            None => {
-                self.text(checksum, at, "payload_ref", code, refs);
-            }
-        }
         let excludes_path = format!("{at}.payload_excludes");
         let excludes_ok = checksum.get("payload_excludes").and_then(Value::as_array).is_some_and(|items| {
             items.len() == RULE_PACK_CHECKSUM_PAYLOAD_EXCLUDES.len()
@@ -708,14 +696,6 @@ impl Validator {
         });
         if !excludes_ok {
             self.block(code, &excludes_path, format!("{excludes_path} must be [\"{}\"].", RULE_PACK_CHECKSUM_PAYLOAD_EXCLUDES.join("\", \"")), refs.to_vec());
-        }
-        let grammar_path = format!("{at}.grammar_version");
-        if !checksum.get("grammar_version").and_then(Value::as_str).is_some_and(is_semver) {
-            self.block(code, &grammar_path, format!("{grammar_path} must be a MAJOR.MINOR.PATCH grammar version."), refs.to_vec());
-        }
-        let bound_path = format!("{at}.grammar_version_bound");
-        if checksum.get("grammar_version_bound") != Some(&Value::Bool(true)) {
-            self.block(code, &bound_path, format!("{bound_path} must be true: the stamped checksum is bound to the grammar version."), refs.to_vec());
         }
         let value_path = format!("{at}.value");
         if !checksum.get("value").and_then(Value::as_str).is_some_and(is_sha256_hex) {
@@ -808,18 +788,6 @@ fn describe(value: &Value) -> String {
         Value::String(text) => format!("`{text}`"),
         other => kind_name(other).to_string(),
     }
-}
-
-/// `rule_pack_lifecycle::is_semver_grammar_version`'s rule.
-fn is_semver(version: &str) -> bool {
-    let parts: Vec<&str> = version.split('.').collect();
-    parts.len() == 3
-        && parts.iter().all(|part| {
-            !part.is_empty()
-                && part.len() <= 9
-                && part.bytes().all(|byte| byte.is_ascii_digit())
-                && (*part == "0" || !part.starts_with('0'))
-        })
 }
 
 fn is_sha256_hex(value: &str) -> bool {

@@ -211,6 +211,8 @@ fn constraints_use_the_constraint_record_vocabulary_without_evaluation() {
     blocks(&mutated(|d| d["constraints"][0]["constraint_kind"] = json!("equipment_interface")), CONSTRAINT_KIND_INVALID, "constraints[0].constraint_kind");
     blocks(&mutated(|d| d["constraints"][0]["constraint_kind"] = json!("missing_required_data")), CONSTRAINT_KIND_INVALID, "constraints[0].constraint_kind");
     blocks(&mutated(|d| d["constraints"][0]["state"] = json!("satisfied")), CONSTRAINT_STATE_INVALID, "constraints[0].state");
+    // No TBD sentinel in these slots (design §6).
+    blocks(&mutated(|d| d["constraints"][0]["state"] = json!("TBD")), CONSTRAINT_STATE_INVALID, "constraints[0].state");
     blocks(&mutated(|d| { let k = d["constraints"][0].clone(); d["constraints"].as_array_mut().unwrap().push(k); }), SLOT_ID_DUPLICATE, "constraints[1].constraint_id");
     blocks(&mutated(|d| { d["constraints"][0].as_object_mut().unwrap().remove("name"); }), SLOT_SHAPE, "constraints[0].name");
     blocks(&mutated(|d| d["constraints"][0]["parameters"] = json!([])), SLOT_SHAPE, "constraints[0].parameters");
@@ -256,12 +258,12 @@ fn rule_pack_refs_carry_the_stamped_checksum_record() {
         ("algorithm", json!("sha512")),
         ("canonicalization", json!("rfc8785_jcs")),
         ("payload_scope", json!("model_payload")),
-        ("payload_ref", json!("another_pack")),
         ("payload_excludes", json!([])),
-        ("basis", json!("Canonical JSON/JCS-compatible")),
-        ("grammar_version", json!("1.0")),
-        ("grammar_version_bound", json!(false)),
         ("value", json!("C2B4DDCE48CD07BED4BB2FF0BE3A81D3755365E255896A0BBF583725A3FA47BD")),
+        // Closed: members outside the common subset are refused.
+        ("payload_ref", json!("invented_demo_rule_pack")),
+        ("basis", json!("rfc8785_jcs_sha256_excluding_checksums")),
+        ("grammar_version", json!("1.0.0")),
         ("verification_status", json!("verified")),
     ] {
         blocks(
@@ -282,39 +284,59 @@ fn rule_pack_refs_carry_the_stamped_checksum_record() {
     assert_eq!(suspected.iter().map(|item| (item.code, item.severity)).collect::<Vec<_>>(), vec![(PROVENANCE_QUARANTINE, SEVERITY_WARNING)]);
 }
 
-/// Parity with the owners of the vocabularies: the rule pack's own computed
-/// checksum record is accepted as a reference's checksum, and the library
-/// import's required-provenance fields and kinds are this validator's.
+/// Parity with the owners of the vocabularies: a reference's checksum is the
+/// subset common to the pack's stored stamped record and its computed
+/// record, and both projections validate; the library import's
+/// required-provenance fields and kinds are this validator's.
 #[test]
 fn vocabularies_match_their_owning_crates() {
     use open_pipe_stress_library_import_document::{LibraryKind, REQUIRED_PROVENANCE_FIELDS};
-    use open_pipe_stress_rule_pack_document::{compute_rule_pack_checksum, CHECKSUM_BASIS, CHECKSUM_PAYLOAD_EXCLUDES};
+    use open_pipe_stress_rule_pack_document::{compute_rule_pack_checksum, CHECKSUM_PAYLOAD_EXCLUDES};
 
     assert_eq!(PROVENANCE_RECORD_FIELDS, REQUIRED_PROVENANCE_FIELDS);
     for kind in LIBRARY_KINDS {
         assert_eq!(LibraryKind::from_token(kind).map(LibraryKind::token), Some(kind));
     }
-    assert_eq!(RULE_PACK_CHECKSUM_BASIS, CHECKSUM_BASIS);
     assert_eq!(RULE_PACK_CHECKSUM_PAYLOAD_EXCLUDES.as_slice(), CHECKSUM_PAYLOAD_EXCLUDES);
 
     let pack: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/product_preview/invented_demo_rule_pack.json"
     ))
     .unwrap();
-    let computed = serde_json::to_value(compute_rule_pack_checksum(&pack).unwrap()).unwrap();
-    let document = mutated(|d| {
-        d["rule_pack_refs"][0]["rule_pack_id"] = pack["metadata"]["rule_pack_id"].clone();
-        d["rule_pack_refs"][0]["checksum"] = computed.clone();
-        d["rule_pack_refs"][0]["redistribution_status"] = pack["classification"]["redistribution_status"].clone();
-    });
-    clean(&document);
+    let project = |record: &Value| -> Value {
+        Value::Object(
+            RULE_PACK_CHECKSUM_MEMBERS
+                .iter()
+                .map(|member| (member.to_string(), record.get(*member).cloned().unwrap_or(Value::Null)))
+                .collect(),
+        )
+    };
+    let stored = project(&pack["checksums"]["rule_pack_checksum"]);
+    let computed = project(&serde_json::to_value(compute_rule_pack_checksum(&pack).unwrap()).unwrap());
+    // Every common member is present in both records.
+    for record in [&stored, &computed] {
+        assert!(record.as_object().unwrap().values().all(|value| !value.is_null()), "{record}");
+    }
+    for checksum in [stored, computed] {
+        clean(&mutated(|d| {
+            d["rule_pack_refs"][0]["rule_pack_id"] = pack["metadata"]["rule_pack_id"].clone();
+            d["rule_pack_refs"][0]["rule_pack_version"] = pack["metadata"]["rule_pack_version"].clone();
+            d["rule_pack_refs"][0]["checksum"] = checksum.clone();
+            d["rule_pack_refs"][0]["redistribution_status"] = pack["classification"]["redistribution_status"].clone();
+        }));
+    }
 
-    // Constraint kinds and states are constraint.schema.json's, as §3.6 says.
+    // Constraint kinds and states are constraint.schema.json's, less the
+    // excluded kinds and the TBD sentinel (design §3.6, §6).
     let schema: Value = serde_json::from_str(include_str!("../../../../schemas/constraint.schema.json")).unwrap();
-    let kinds: Vec<&str> = schema["$defs"]["ConstraintKind"]["enum"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();
-    let expected: Vec<&str> = kinds.into_iter().filter(|kind| !matches!(*kind, "TBD" | "equipment_interface" | "missing_required_data")).collect();
-    assert_eq!(CONSTRAINT_KINDS.as_slice(), expected.as_slice());
-    let states: Vec<&str> = schema["$defs"]["ConstraintRecord"]["properties"]["state"]["enum"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();
+    let tokens = |pointer: &str| -> Vec<String> {
+        schema.pointer(pointer).unwrap().as_array().unwrap().iter().map(|v| v.as_str().unwrap().to_string()).collect()
+    };
+    let kinds: Vec<String> = tokens("/$defs/ConstraintKind/enum").into_iter()
+        .filter(|kind| !matches!(kind.as_str(), "TBD" | "equipment_interface" | "missing_required_data")).collect();
+    assert_eq!(CONSTRAINT_KINDS.as_slice(), kinds.as_slice());
+    let states: Vec<String> = tokens("/$defs/ConstraintRecord/properties/state/enum").into_iter()
+        .filter(|state| state != "TBD").collect();
     assert_eq!(CONSTRAINT_STATES.as_slice(), states.as_slice());
 }
 
