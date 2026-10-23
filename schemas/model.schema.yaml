@@ -724,7 +724,7 @@
         },
         "name": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "constraint_kind": {
           "type": "string",
@@ -760,7 +760,7 @@
         },
         "statement": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "tags": {
           "$ref": "#/$defs/Tags"
@@ -769,7 +769,8 @@
           "$ref": "#/$defs/Notes"
         },
         "provenance": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         }
       }
     },
@@ -1113,14 +1114,15 @@
           "$ref": "#/$defs/Id"
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         },
         "node_ref": {
           "$ref": "#/$defs/Id"
         },
         "equipment_label": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "tags": {
           "$ref": "#/$defs/Tags"
@@ -1129,7 +1131,8 @@
           "$ref": "#/$defs/Notes"
         },
         "provenance": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         }
       }
     },
@@ -1156,14 +1159,12 @@
       "pattern": "\\S"
     },
     "LibraryRef": {
-      "description": "The local library record an entity was inserted from, keyed as the store keys libraries (library_kind, library_id) with the version recorded at insertion; the library payload never enters the document. A later stored version is reported, never silently adopted.",
+      "description": "The local library record an entity was inserted from, keyed as the store keys libraries (library_kind, library_id), with the version and record recorded at insertion where known; the library payload never enters the document. A later stored version is reported, never silently adopted.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "library_kind",
-        "library_id",
-        "library_version",
-        "record_id"
+        "library_id"
       ],
       "properties": {
         "library_kind": {
@@ -1177,15 +1178,15 @@
         },
         "library_id": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "library_version": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "record_id": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         }
       }
     },
@@ -1202,7 +1203,8 @@
           "$ref": "#/$defs/Id"
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         },
         "pipe_refs": {
           "type": "array",
@@ -1218,7 +1220,8 @@
           "$ref": "#/$defs/Notes"
         },
         "provenance": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         }
       }
     },
@@ -1724,9 +1727,9 @@
       }
     },
     "Notes": {
-      "description": "Free text the user owns: one non-empty string.",
+      "description": "Free text the user owns: one string with at least one non-whitespace character (clearing notes removes the member).",
       "type": "string",
-      "minLength": 1
+      "pattern": "\\S"
     },
     "ObjectiveConnector": {
       "description": "Explicit objective connector (objective_connector 1.0.0) of an expansion_joint component on an exact-pressure document: connector frame, end attachments, a 6x6 scaled work matrix with its basis and provenance, topology, hardware and pressure model. Admission and numerical checks remain the solver's.",
@@ -2251,23 +2254,23 @@
       "properties": {
         "source_name": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "source_location": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "source_license": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "contributor": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "contributor_certification": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "redistribution_status": {
           "type": "string",
@@ -2289,7 +2292,7 @@
         },
         "reviewed_by": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "reviewed_on": {
           "type": "string",
@@ -2297,7 +2300,7 @@
         },
         "verification_note": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "library_ref": {
           "$ref": "#/$defs/LibraryRef"
@@ -2360,7 +2363,8 @@
         },
         "payload_ref": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "The referencing record's rule_pack_id (the document validator checks the equality)."
         },
         "payload_excludes": {
           "type": "array",
@@ -2374,7 +2378,7 @@
         },
         "grammar_version": {
           "type": "string",
-          "minLength": 1
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
         },
         "grammar_version_bound": {
           "type": "boolean",
@@ -2387,7 +2391,7 @@
       }
     },
     "RulePackRef": {
-      "description": "A rule pack used with this model, by identity only (PRD §20.3: rule content never enters the document). Names and notices can be private; export routes apply the export policy to private_only references. A reference never makes a check pass.",
+      "description": "A rule pack used with this model, by identity only (PRD §20.3: rule content never enters the document). Names and notices can be private; export routes apply the export policy to private_only references. A reference never makes a check pass. invented_non_engineering_example is the rule-pack lifecycle's disposition of the bundled invented demonstration pack.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -2400,15 +2404,15 @@
       "properties": {
         "rule_pack_id": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "name": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "rule_pack_version": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "checksum": {
           "$ref": "#/$defs/RulePackChecksum"
@@ -2416,15 +2420,16 @@
         "redistribution_status": {
           "type": "string",
           "enum": [
-            "public_permissive",
             "private_only",
+            "public_permissive",
             "unknown",
-            "protected_suspected"
+            "protected_suspected",
+            "invented_non_engineering_example"
           ]
         },
         "source_notice": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         }
       }
     },
@@ -2689,7 +2694,7 @@
         },
         "statement": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "status": {
           "type": "string",
@@ -2708,7 +2713,7 @@
         },
         "resolution_note": {
           "type": "string",
-          "minLength": 1
+          "pattern": "\\S"
         },
         "tags": {
           "$ref": "#/$defs/Tags"
