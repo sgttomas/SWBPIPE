@@ -88,7 +88,7 @@ CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # (o4_owners_model.py); the caps module, census, late admission bodies and every other clause are byte-identical.
 FAMILY_PIN = "e234ac88ff7a894707225c05d6c361c85492263749177d15984c654247ac2603"
 ADMISSION_MARKER = "// ---- D-6: the build status --------------------------------------------------"
-ADMISSION_PREFIX_PIN = "4fae305654f8e1e542b01a1d3ab9307a96f32be42a77d21b288c6a7b57dd9810"
+ADMISSION_PREFIX_PIN = "b3d2134779276f2970c94acdc7287a967a4725911011d33e8f0c64fe542fc141"
 ADMISSION_LATE_PINS = {"law_order":"b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3","admit":"67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8","admission":"7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"}
 MATERIALS = 4
 OPERAND_WORDS = 26
