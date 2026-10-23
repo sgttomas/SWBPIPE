@@ -183,6 +183,7 @@ code_paths:
 - apps/desktop/src/services/operationService.ts
 - schemas/model.schema.yaml
 - schemas/results.schema.yaml
+- apps/desktop/src/features/workspace/table/**
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
@@ -191,3 +192,8 @@ checks:
 - apps/desktop/src/features/model-tree/PropertyInspector.test.tsx
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
+- apps/desktop/src/features/model-tree/MaterialTable.test.tsx
+- apps/desktop/src/features/model-tree/SectionTable.test.tsx
+- apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx
+- apps/desktop/e2e/b4-table-editing.spec.ts
+- apps/desktop/e2e/b4-sections.spec.ts

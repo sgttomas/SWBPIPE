@@ -185,6 +185,8 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > - comparison overlays
 >
 > Exact implementation file paths and product code artifacts are TBD because this workflow does not create product code.
+>
+> Current implementation (at `62c1efd75b`): the workspace is `apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx`. The design knowledge panel is `apps/desktop/src/features/knowledge/KnowledgePanel.tsx`. Operation diff review is `apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx`, with the ledger in `apps/desktop/src/features/operations/OperationLedgerPanel.tsx`. Comparison is the delta table in `apps/desktop/src/features/comparison/ComparisonPanel.tsx`, built by `buildPreviewComparison` in `apps/desktop/src/services/previewService.ts` (`comparison_kind: "single_run_load_basis_review"`, comparing two load or combination bases of one run's result); no viewport comparison overlay is drawn. No separate state/run browser ships: the workspace summary counts at most the current analysis run. `core/gui/design_workspace/engine.py` is a reference module exercised by `tests/test_design_authoring_comparison_workspace.py` and is not called by the desktop.
 - **AC-001** — The contract preserves the declared authoring and comparison surfaces, upstream ownership of backend schemas and engines, proposed/validated/accepted/audited state distinctions, diagnostic visibility, no silent defaults, and no external-validation or professional-approval claim.
 
 ## Production and Verification Method — Praxeology
