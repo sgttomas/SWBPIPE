@@ -428,7 +428,7 @@ DESKTOP_EMISSION_PATHS = [
     "blank_project", "blank_load_reference_project", "node_creation", "material_creation", "section_creation",
     "pipe_creation", "support_creation", "load_creation", "combination_creation", "project_tags_and_notes",
     "entity_tags_and_notes", "provenance_records", "line", "assumptions_and_open_issues",
-    "constraints_and_equipment_interfaces", "rule_pack_ref",
+    "constraints_and_equipment_interfaces", "rule_pack_ref", "library_material_insert",
 ]
 
 

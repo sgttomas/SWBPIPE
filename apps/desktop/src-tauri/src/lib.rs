@@ -7942,6 +7942,8 @@ mod tests {
         for slot in ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs"] {
             assert!(model[slot].as_array().is_some_and(|items| !items.is_empty()), "{slot}");
         }
+        // W-17: the round trip carries one library-applied entity.
+        assert!(model["materials"].as_array().unwrap().iter().any(|m| m.pointer("/provenance_record/library_ref/library_version").is_some()));
         let project_id = model["project"]["id"].as_str().unwrap().to_string();
         let save = |model: &Value, confirmed: Option<String>| save_project_in_store(db.clone(), SaveLocalProjectRequest::from_value(json!({
             "project_id": project_id, "project_name": "Invented slots", "model": model,
