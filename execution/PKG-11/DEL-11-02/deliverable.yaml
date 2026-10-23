@@ -154,3 +154,4 @@ needs:
   gating: true
 code_paths:
 - tools/validation/validate_dependencies_schema.py
+- docs/developer_guide/index.md

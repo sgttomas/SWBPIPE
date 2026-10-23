@@ -117,3 +117,8 @@ needs:
     Target description — TargetName: Agentic development workflow; TargetRefID: OPS-AGENTIC-WORKFLOW;
     TargetLocation: docs/AGENTIC_DEVELOPMENT_WORKFLOW.md'
   evidence: execution/PKG-01/DEL-01-01/Datasheet.md
+code_paths:
+- LICENSE.md
+- docs/README.md
+- docs/CONTRACT.md
+- governance/MAINTAINERS.md

@@ -177,7 +177,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/schemas/local_fea_handoff.schema.yaml
+  evidence: schemas/local_fea_handoff.schema.yaml
 - from: DEL-02-02
   condition: 'DEL-10-03 depends on DEL-02-02 because handoff packages require explicit units manifests
     for coordinate, force, moment, displacement, rotation, stress, and temperature units.
@@ -191,7 +191,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/schemas/local_fea_handoff.schema.yaml
+  evidence: schemas/local_fea_handoff.schema.yaml
 - from: DEL-02-03
   condition: 'DEL-10-03 depends on DEL-02-03 because handoff guidance assessments are advisory, require
     human review, and must not become software compliance or approval claims.
@@ -205,7 +205,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/docs/local_analysis/local_fea_handoff_guidance.md
+  evidence: docs/local_analysis/local_fea_handoff_guidance.md
 - from: DEL-02-05
   condition: 'DEL-10-03 depends on DEL-02-05 because handoff records carry source snapshot references,
     model/result hashes, package hashes, and canonicalization metadata.
@@ -219,7 +219,12 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/schemas/local_fea_handoff.schema.yaml
+  evidence: schemas/local_fea_handoff.schema.yaml
 code_paths:
 - schemas/local_fea_handoff.schema.yaml
 - tools/validation/validate_dependencies_schema.py
+- docs/local_analysis/local_fea_handoff_guidance.md
+- apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx
+checks:
+- tests/test_local_fea_handoff_contract.py
+- apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx
