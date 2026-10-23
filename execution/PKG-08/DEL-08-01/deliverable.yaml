@@ -308,6 +308,20 @@ code_paths:
 - apps/desktop/src/features/report/RenderedReportPanel.tsx
 - apps/desktop/src/features/report/renderableReportInput.ts
 - apps/desktop/src/features/report/renderedReport.test.tsx
+- core/reporting/report_renderer/**
+- core/reporting/pdf_emitter/**
+- apps/desktop/src/services/reportRenderService.ts
+- apps/desktop/src/features/report/reportRedactionProjector.ts
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/src/report_package_bridge.rs
+- apps/desktop/src-tauri/src/atomic_report_package_save.rs
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
+- core/reporting/report_renderer/tests/render.rs
+- core/reporting/pdf_emitter/tests/emit.rs
+- tests/test_report_generator_contract.py
+- apps/desktop/src/features/report/renderedReport.test.tsx
+- apps/desktop/src/features/report/reportRedactionProjector.test.ts
+- apps/desktop/e2e/report-package-dist.spec.ts
+- apps/desktop/e2e/r2-smoke.spec.ts

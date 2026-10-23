@@ -174,3 +174,12 @@ needs:
   evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 code_paths:
 - schemas/rule_pack.schema.yaml
+- core/rules/rule_pack_document/**
+- apps/desktop/src/services/rulePackService.ts
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx
+- apps/desktop/src-tauri/src/lib.rs
+checks:
+- tests/test_rule_pack_schema.py
+- core/rules/rule_pack_document/tests/*.rs
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts

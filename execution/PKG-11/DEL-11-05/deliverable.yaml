@@ -139,3 +139,4 @@ needs:
   gating: true
 code_paths:
 - tools/validation/validate_dependencies_schema.py
+- docs/contributor_guide/index.md

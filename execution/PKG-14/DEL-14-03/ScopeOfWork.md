@@ -80,7 +80,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > | Construction surface | Conservative construction note |
 > |---|---|
-> | Backend slice | Implement as a backend/service feature aligned with the Rust core/application-service architecture basis. Exact module path is `TBD`. |
+> | Backend slice | Implement as a backend/service feature aligned with the Rust core/application-service architecture basis. Current implementation (at `62c1efd75b`): the Python reference module `core/comparison/model_state/engine.py` (`compare_model_states`), checked by `tests/test_model_state_comparison.py`; no other product code calls it, and the desktop has no model-state comparison route. |
 > | Input contract | Accept two immutable model-state references or payloads once `DEL-14-01` defines the state record contract. |
 > | Matching contract | Prefer stable IDs. Require explicit mapping records for intentional correspondence where IDs differ. |
 > | Diff contract | Report added, removed, changed, and unchanged model entities. Exact entity categories and payload normalization are `TBD` pending state schema detail. |

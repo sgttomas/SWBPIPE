@@ -98,6 +98,8 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 >
 > Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`.
 >
+> Current implementation (at `62c1efd75b`): the rule-pack surface that ships is a manager, not a reference-only editor. `apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx` lists, creates, opens, saves and deletes project-scoped local rule packs, shows validation findings and generates and stamps checksums; its `ExpressionComposer.tsx`, `DeclarationsEditor.tsx` and `CheckDefinitionsEditor.tsx` build the document structure. It calls `apps/desktop/src/services/rulePackService.ts` and the desktop commands in `apps/desktop/src-tauri/src/lib.rs`. Private material, section and component libraries are imported, validated and stored locally through `apps/desktop/src/features/library/LibraryManagerPanel.tsx` and `apps/desktop/src/services/libraryImportService.ts`. Material, section and component fields are edited in the model-tree tables and the property-inspector forms (`apps/desktop/src/features/model-tree/`, with `material-temperature/`, `bend-authoring/`, `component-creation/` and `rich-authoring/`); load cases in `apps/desktop/src/features/load-cases/`; self-weight plans in `apps/desktop/src/features/self-weight-authoring/`. The editor-kind behaviour recorded in CLM-017 is that of the reference module `core/gui/editors/engine.py` (`tests/test_gui_editors_contract.py`), which the desktop does not call.
+>
 ### CLM-006 — References
 
 > ##### References
@@ -155,6 +157,8 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 >
 >
 > This deliverable specifies the setup documentation for future GUI editor panels and validation UI tests covering material, section, component, load-case, support/restraint, rule-pack reference, and private-library editing within `PKG-07`.
+>
+> Current implementation (at `62c1efd75b`): the editor panels and their UI tests ship in the desktop app, as listed in the CLM-005 current-implementation note: the rule-pack manager (`apps/desktop/src/features/rule-packs/`), the private-library manager (`apps/desktop/src/features/library/`), load-case editing (`apps/desktop/src/features/load-cases/`) and the model-tree and property-inspector forms.
 >
 > In scope:
 >

@@ -257,6 +257,8 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > Concrete validation command names are `TBD` until the regression runner, CI entry points, and nonlinear solver diagnostics exist. Do not substitute placeholder commands as if they were accepted release gates.
 >
+> Current implementation (at `62c1efd75b`): the suite is the Cargo crate `validation/benchmarks/nonlinear` (`open_pipe_stress_nonlinear_benchmarks`), with its tests in `src/lib.rs`. It exercises `core/solver/nonlinear_integration` and `core/solver/nonlinear_supports`, which `core/product_physics` also links. The product route's converged active-set checks against `validation/references/kd5_nonlinear/` are in `core/product_physics/src/kd5_nonlinear_tests.rs`.
+>
 ### CLM-022 — Records
 
 > ##### Records

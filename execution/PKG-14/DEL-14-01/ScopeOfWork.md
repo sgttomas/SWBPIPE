@@ -83,7 +83,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > | Snapshot immutability rule | Required concept; exact enforcement mechanism TBD |
 > | Canonical payload scope | Consult the hash definitions and payload references in `schemas/model_state.schema.json`; retain explicit hash scope. A broader non-JSON partitioning decision is not implied. |
 > | Schema property names and required/optional cardinality | Defined by `schemas/model_state.schema.json`; check its current required fields and immutable-hash binding. Schema presence alone does not demonstrate product persistence. |
-> | Persistence module path and service API | TBD; exact package/module layout remains implementation-level detail |
+> | Persistence module path and service API | Current implementation (at `62c1efd75b`): the Python reference module `core/project_persistence/service.py`. `build_project_persistence_envelope` carries `model_state_refs` and `model_state_records`, and `create_project_store`/`save_project_store`/`open_project_store` keep them in a local SQLite store. Its hashes are SHA-256 over sorted-key compact JSON (`SORTED_COMPACT_JSON`), which the module states is not RFC 8785/JCS. On the desktop, analysis-run records (`apps/desktop/src/services/analysisRunCompatibility.ts`) and the report's `model_state_record` section (`apps/desktop/src/features/report/stateComparisonHandoffSections.ts`) carry a derived `model_state_ref` (`state:<model_ref>:preview`); the desktop stores no model-state record. |
 >
 
 ### CLM-007 — References

@@ -118,6 +118,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > This deliverable defines the invented non-code demonstration rule-pack contract, realized by `examples/rule_packs/invented_demo.yaml` and its notice. Each maintenance brief supplies its write boundary; no lifecycle or publication follows from example existence.
 >
+> Current implementation (at `62c1efd75b`): the desktop Run Rule Checks panel loads the example from `fixtures/product_preview/invented_demo_rule_pack.json` (`loadDemoRuleCheckPack` in `apps/desktop/src/services/ruleCheckService.ts`), a JSON copy whose parsed content equals `examples/rule_packs/invented_demo.yaml` at this revision. The example is read by `tests/test_invented_example_models.py`, `tests/test_rule_pack_schema.py`, `core/rules/rule_pack_document/tests/invented_demo_document.rs` and `core/rules/rule_check_runner/tests/invented_demo_run.rs`.
+>
 > The deliverable covers:
 >
 > - the public/protected data boundary for a future invented rule-pack example;

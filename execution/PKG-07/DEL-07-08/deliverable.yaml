@@ -312,7 +312,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-08/core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
+  evidence: core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
 - from: DEL-02-05
   condition: 'DEL-07-08 directly depends on DEL-02-05 because state/run browser and workspace comparison
     records expose model/run hashes while keeping workspace_hash scoped to GUI composition state.
@@ -325,7 +325,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-08/core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
+  evidence: core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
 - from: DEL-13-04
   condition: 'DEL-13-04 enables DEL-07-08 because design-authoring workspace consumes physical-to-analytical
     transform output.
@@ -343,3 +343,13 @@ needs:
 code_paths:
 - apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
 - apps/desktop/src/features/comparison/ComparisonPanel.tsx
+- apps/desktop/src/features/knowledge/KnowledgePanel.tsx
+- apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx
+- apps/desktop/src/features/operations/OperationLedgerPanel.tsx
+- apps/desktop/src/services/previewService.ts
+- core/gui/design_workspace/**
+checks:
+- apps/desktop/src/App.test.tsx
+- apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
+- apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
+- tests/test_design_authoring_comparison_workspace.py
