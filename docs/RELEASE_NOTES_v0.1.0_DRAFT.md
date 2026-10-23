@@ -115,17 +115,25 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 - macOS on Apple silicon (`aarch64-apple-darwin`) only: Tauri `.app` bundle `SWBPIPE`, version 0.1.0, identifier `com.chirality.swbpipe`.
 - Distributed as a zip with a SHA-256 checksum file. The app is signed with the developer's Developer ID certificate (hardened runtime) and notarized by Apple with the ticket stapled (D-06b, owner, 2026-10-23); see the install note.
 
+### In v0.1 scope, not yet in this source tree
+
+Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2) places these in v0.1. They are not implemented in this source tree:
+
+- Named immutable model states and an analysis-run browser (OD-1).
+- Comparison of two saved model states or analysis runs, an entity-mapping editor and tolerance profiles (OD-1). The Comparison panel is a single-result preview with no tolerance classification.
+- Export of the canonical model document to a file, independent of a solve, with a schema-conformant handoff manifest (OD-1, OD-4).
+- Rigid or semi-rigid stiffness for valves, flanges, reducers and specialty items through DEC-045 stiffness scaling (OD-2).
+- Stress or result colour overlays and reaction arrows in the viewport (OD-5).
+
 ### Not in v0.1
 
-- Comparison of two saved model states or analysis runs, an entity-mapping editor and tolerance profiles. The Comparison panel is a single-result preview with no tolerance classification.
-- Named immutable model states and an analysis-run browser.
-- Design-knowledge authoring, constraint checks (clearance, no-go volumes, slope) and candidate generation. The Design Knowledge panel shows a bundled document.
+- Design-knowledge authoring, constraint checks (clearance, no-go volumes, slope) and candidate generation; deferred to v0.2 by the same ruling (OD-1, OD-3). The Design Knowledge panel shows a bundled document.
+- Further agent-proposal work (PKG-16) and further export formats (PKG-17); deferred to v0.2 (OD-1). The offline proposal intake and the export panels described above are unchanged.
 - Principal, von Mises and Tresca stresses.
-- Rigid or semi-rigid stiffness for valves, flanges, reducers and specialty items; reducer eccentricity.
+- Reducer eccentricity.
 - Hydrotest cases; rotational gap and friction supports; rigid strut and sliding-support families; hanger preload from installed, cold or hot loads.
 - Flow momentum, Bourdon effect, ovalization and external-pressure collapse.
 - Verified result bounds (retained precision) on any product surface.
-- Stress or result colour overlays and reaction arrows in the viewport.
 - Report packages for current results; final report layout and PDF policy (`TBD`).
 - A live agent provider; public API transport, plugin loading and the local FEA package format (`TBD`).
 - Windows, Linux and Intel Mac builds.
