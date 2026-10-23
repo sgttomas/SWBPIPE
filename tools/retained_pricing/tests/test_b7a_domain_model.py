@@ -135,7 +135,7 @@ def test_prepare_preserves_all_unrelated_positive_rules_and_base_bytes(tmp_path)
     actual_text = json.loads(Path(paths["text_args.g4.json"]).read_text())
     expected_text = deepcopy(old_text)
     expected_text["id_audit"].pop("core/solver/frame_kernel/src/structural/retained/adaptive.rs:5082")
-    expected_text["id_audit"]["core/product_physics/src/lib.rs:10230"]["basis_record"] = {"bytes": 2914, "source": "COMP"}
+    expected_text["id_audit"]["core/product_physics/src/lib.rs:10231"]["basis_record"] = {"bytes": 2914, "source": "COMP"}
     old_join = MODEL["BASE_PREIMAGES"]["provenance_join"]
     expected_text["join_rules"][expected_text["join_rules"].index(old_join)] = next(
         x["after"] for x in report["alterations"] if x["family"] == "join_rules")
@@ -162,7 +162,7 @@ def test_exact_positive_rule_preimages_refuse_drift(tmp_path, change):
         target = Path(inherited["text_args.g4.json"])
         data = json.loads(target.read_text())
         if change == "record":
-            data["id_audit"]["core/product_physics/src/lib.rs:10230"]["basis_record"]["bytes"] = 599
+            data["id_audit"]["core/product_physics/src/lib.rs:10231"]["basis_record"]["bytes"] = 599
         elif change == "join":
             rule = next(r for r in data["join_rules"] if r["re"] == "^provenance_records$")
             rule["bytes"] = "2647"
@@ -198,23 +198,23 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     actual = dict(audits)
     pp = "core/product_physics/src/"
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
-    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; silent-zero guard: + 1, unchanged text).
+    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2, unchanged text).
     sites = {
-        "lib.rs:11416": {"load_case_id"},
-        "lib.rs:11430": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11437": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11442": {"load.load_id"},
-        "lib.rs:11443": {"bend.pipe_id"},
-        "lib.rs:11444": {"bend.component_id"},
-        "lib.rs:11445": {"load_case_id"},
-        "lib.rs:11504": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11511": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11516": {"load.load_id"},
-        "lib.rs:11517": {"bend.pipe_id"},
-        "lib.rs:11518": {"bend.component_id"},
-        "lib.rs:11519": {"load_case_id"},
-        "lib.rs:11558": {"stable_suffix(&load.load_id)"},
-        "lib.rs:11565": {"load.load_id", "load_case_id"},
+        "lib.rs:11419": {"load_case_id"},
+        "lib.rs:11433": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11440": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11445": {"load.load_id"},
+        "lib.rs:11446": {"bend.pipe_id"},
+        "lib.rs:11447": {"bend.component_id"},
+        "lib.rs:11448": {"load_case_id"},
+        "lib.rs:11507": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11514": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11519": {"load.load_id"},
+        "lib.rs:11520": {"bend.pipe_id"},
+        "lib.rs:11521": {"bend.component_id"},
+        "lib.rs:11522": {"load_case_id"},
+        "lib.rs:11561": {"stable_suffix(&load.load_id)"},
+        "lib.rs:11568": {"load.load_id", "load_case_id"},
         "certified_loads.rs:236": {"case_id"},
         "certified_loads.rs:259": {"case_id"},
     }

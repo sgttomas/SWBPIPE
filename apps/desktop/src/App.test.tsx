@@ -10873,10 +10873,11 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
     ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
+    // W-8 topology warning added; no number moved (BRANCH_TOPOLOGY_INVALID on the demo's tee C-120).
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-    ).toContain("6 Warnings");
+    ).toContain("7 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);

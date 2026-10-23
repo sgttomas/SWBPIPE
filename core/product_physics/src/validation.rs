@@ -1183,6 +1183,12 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
         .iter()
         .map(|pipe| (pipe.id.as_str(), pipe))
         .collect::<HashMap<_, _>>();
+    // W-8 (DEL-04-06 Design/model-topology-checks.md): members meeting at each node.
+    let mut node_degree = HashMap::<&str, usize>::new();
+    for pipe in &model.pipe_segments {
+        *node_degree.entry(pipe.from.as_str()).or_default() += 1;
+        *node_degree.entry(pipe.to.as_str()).or_default() += 1;
+    }
     for component in &model.components {
         if !component.node.trim().is_empty() && !node_ids.contains(component.node.as_str()) {
             diagnostics.push(diag(
@@ -1293,6 +1299,23 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     "warning",
                     "branch component header and branch pipe references must exist and terminate at the component node before stress modifier rows can be generated for those pipe sides",
                     vec![component.id.clone()],
+                ));
+            }
+            let degree = node_degree
+                .get(component.node.as_str())
+                .copied()
+                .unwrap_or(0);
+            // A component without a node is reported by the node checks above.
+            if !component.node.trim().is_empty() && branch_topology_invalid(component, degree) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:branch-topology",
+                        stable_suffix(&component.id)
+                    ),
+                    "BRANCH_TOPOLOGY_INVALID",
+                    "warning",
+                    format!("a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}", component.node),
+                    vec![component.id.clone(), component.node.clone()],
                 ));
             }
             if branch_modifier_missing(component) {
@@ -1649,6 +1672,21 @@ fn branch_mapping_invalid(
             .map(|pipe| pipe.from != component.node && pipe.to != component.node)
             .unwrap_or(true)
     })
+}
+
+/// W-8: a tee joins a run in, a run out and a branch; a header pipe that is
+/// also the branch pipe names one side twice.
+fn branch_topology_invalid(component: &crate::PreviewComponent, degree: usize) -> bool {
+    let same_pipe = component.geometry.as_ref().is_some_and(|geometry| {
+        matches!(
+            (
+                geometry.branch_header_pipe_ref.as_deref(),
+                geometry.branch_branch_pipe_ref.as_deref()
+            ),
+            (Some(header), Some(branch)) if !header.trim().is_empty() && header == branch
+        )
+    });
+    degree != 3 || same_pipe
 }
 
 fn branch_modifier_missing(component: &crate::PreviewComponent) -> bool {

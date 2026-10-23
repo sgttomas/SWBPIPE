@@ -70,6 +70,15 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     route: { surface: "operations", focusTestId: "", elementId: "geometry-tools" }
   },
   {
+    id: "build.reconnect",
+    label: "Reconnect pipe end",
+    group: "Build",
+    vocabularyRows: [1],
+    status: "supported",
+    description: "Move one end of one pipe to another existing or new node. Components, pressure regions and unsupported records can block it; validate before applying.",
+    route: { surface: "operations", focusTestId: "", elementId: "geometry-tools" }
+  },
+  {
     id: "supports.restraint",
     label: "Restraint / anchor",
     group: "Supports",

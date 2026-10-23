@@ -130,6 +130,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64::consts::PI;
 
+mod topology;
 mod validation;
 use validation::validate_model_inputs;
 
@@ -2735,6 +2736,7 @@ fn run_linear_static_preview_observed_inner(
     }
     let built = built.expect("build_model returns Some when no blocking diagnostics were added");
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
     let potential_contact_dofs = eligible_contact_dofs(

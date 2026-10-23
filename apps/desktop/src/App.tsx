@@ -5,6 +5,8 @@ import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { operationExamples } from "./features/geometry-tools/reconnectExample";
+import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
@@ -509,6 +511,7 @@ function AppSession() {
                   operation_schema: operationSchema,
                   provider_status: "Live provider is held; offline proposals require explicit human review."
                 }}
+                loadOperationExamples={() => operationExamples(model)}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
@@ -537,6 +540,7 @@ function AppSession() {
                 revision={modelRevision.current} busy={operationBusy} message={batchMessage}
                 onValidate={(entry) => void handleRunOperationBatch(entry, false)}
                 onApply={(entry) => void handleRunOperationBatch(entry, true)}
+                onSelectRef={(ref) => { const target = resolveEntitySelection(model, ref); if (target) handleSelectEntity(target); }}
               />
               <OperationApplyPanel
                 queuedIntents={editorIntents}

@@ -67,6 +67,18 @@ describe("human toolkit", () => {
       if (["unavailable", "gated"].includes(entry.status)) expect(capabilityRoute(entry, context)).toBeUndefined();
     }
   });
+  it("routes the reconnect capability to Geometry tools (W-10)", () => {
+    const reconnect = toolkitCapabilities.find((entry) => entry.id === "build.reconnect")!;
+    expect(reconnect).toMatchObject({ label: "Reconnect pipe end", group: "Build", status: "supported" });
+    expect(capabilityAvailability(reconnect, context).enabled).toBe(true);
+    expect(capabilityRoute(reconnect, context)).toEqual({ surface: "operations", focusTestId: "", elementId: "geometry-tools" });
+    const onChoose = vi.fn();
+    render(<ToolkitPalette context={context} onChoose={onChoose} />);
+    fireEvent.click(screen.getByRole("button", { name: "Find modeling commands" }));
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "reconnect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Reconnect pipe end" }));
+    expect(onChoose).toHaveBeenCalledWith(reconnect);
+  });
   it("searches descriptions and explains a missing selection without dispatch", () => {
     const onChoose = vi.fn();
     render(<ToolkitPalette context={context} onChoose={onChoose} />);

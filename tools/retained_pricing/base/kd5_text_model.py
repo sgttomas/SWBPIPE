@@ -174,9 +174,11 @@ def inspect_directed_helpers(snapshot):
 # observation lane stays deleted.
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's republication, screen, cause and row-binding diff adds or removes no
 # `.min(`/`.max(` call, and the observation lane stays deleted.
+# W-8 topology warnings D3 (§8.16): lib.rs's two added lines add no `.min(`/`.max(` call (topology.rs's own receivers
+# are listed by name in o10_rules' KD5C4 set, W8-CG).
 # Silent-zero guard D3 (§8.15): lib.rs adds one call, `case_state::resolve::refuse_all_reference_states`, in the
 # load-state branch; it adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '775fe4339ac51e35d38ebc6cb2ef764f34ded2d386f41f37c6fdd8ffa5fd232a'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b72fa1427239c8e14e9903a2aaeef1e2b27424d762e05538f2d04bf01774084d'
 
 
 def primitive_lib_minmax_callers(snapshot):
