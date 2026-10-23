@@ -6,20 +6,6 @@ environment. Work in `projects/chirality-piping`. Start from the affected
 current technical rulings, and `deliverable.yaml` states dependency conditions.
 Consult `docs/PRD.md` and its technical companions for the requirements involved.
 
-Use this course of knowledge work as a heuristic, not a prescribed path:
-
-Problem Statement → Requirements → Objectives → Production → Evaluation →
-Assessment → Implementation → Verification → Validation → Integration →
-Reflection → Iteration → Resolution.
-
-It creates no additional stages, artifacts, reviews, approvals, or completion
-conditions. Enter where the work currently stands and revisit activities as
-evidence requires. Work within the given scope and authority; resolve against
-the agreed outcome and adequate supporting evidence.
-
-Find the current manuals through the [manual index](../../../docs/alignment-manual/README.md).
-Consult the relevant sections when the work needs them; no full-manual reading is required.
-
 From the repository root:
 
 ```sh
@@ -31,9 +17,7 @@ changes. Update current conditions when their meaning changes, not on every run.
 
 ## Implementation and reconciliation
 
-Owner rule, 2026-10-17:
-
-> Going forward, each implementation return must include reconciliation of its affected Scope of Work, Design and dependency conditions before integration.
+Each implementation return must include reconciliation of its affected Scope of Work, Design and dependency conditions before integration.
 
 The implementation manager owns this reconciliation. Carry the rule into every
 implementation brief and identify the affected deliverables. TASKs report the
@@ -77,49 +61,9 @@ checks and independent scrutiny specified in Root `AGENTS.md`.
 
 ## Hard boundaries
 
-F-PIP-1 and F-PIP-2 are preserved verbatim from the accepted workplan. The owner
-amended F-PIP-3 and F-PIP-4 on 2026-10-10 ("Adopt both F-PIP drafts as written"),
-replacing references to the retired register gates and lifecycle states.
-
-- **F-PIP-1 (boundary prohibitions):** local-only operation — no cloud, daemon,
-  network, or telemetry features; no repository-default private-data writes;
-  user-created models never committed; no protected standards content or private
-  project data; invented bundled fixtures only.
-- **F-PIP-2 (claims):** no release-readiness, professional approval, certification,
-  sealing, authentication, or code-compliance claims. Git closeout is source-control
-  hygiene, not lifecycle issuance.
-  *Authoring note (DEC-081):* the fence text above is the governing definition and
-  is never edited. New artifacts do not restate it as an ad-hoc litany — write
-  "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)." and use
-  `docs/claims_registry.md` for any surface-facing boundary statement.
 - **F-PIP-3 (acceptance and issuance):** acceptance, issuance and release of any
   deliverable, package or product baseline are the owner's acts. Agents do not
   record, imply or derive acceptance, issuance or lifecycle standing from completed
   work, checks, reviews or merges. A baseline the owner has issued or protected
   changes only through a change the owner approves.
-- **F-PIP-4 (scope-gated integrations):** promoting a live external SDK or harness,
-  binding a domain engine, and promoting a version scope each require the owner's
-  explicit steer for that scope; ruled decisions that bear on them (for example
-  D-22, D-24 and D-30) continue to apply. Tier-0 and domain-engine surfaces
-  (`_DomainEngines/**`) belong to their own projects; SWBPIPE work never writes them.
 
-## Knowledge-source constraint (DEC-043)
-
-The owner amended DEC-043 on 2026-10-10 ("Adopt DEC-043 as drafted"); the
-original decision remains in `execution/_Decomposition/SOFTWARE_DECOMP.md`.
-
-**DEC-043 (knowledge-source reliability):** in the `domains/piping-design/`
-retrieval corpus, prose, concept and design-guidance content is reliable and may
-be cited for concepts, terminology and approach. Its extracted equation artifacts
-are unreviewed OCR extractions and are not reliable. Any agent, skill (including
-`researcher`) or retrieval consumer, including a future embedded design agent:
-
-1. never presents an extracted equation from this corpus as authoritative, and
-   shows each artifact's review status (cleared or unverified) from the
-   maintainer's per-artifact JSON review, which is the system of record;
-2. never uses a corpus equation artifact as a reference for a physics-model build
-   (solver, kernel or analytic verification) or to ground an engineering decision.
-   Physics and equations come from the maintainer's vetted sources.
-
-This creates no lifecycle, release, professional, certification, sealing,
-authentication or code-compliance claim.

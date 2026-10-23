@@ -11,7 +11,7 @@ release assessment. Classifications are facts read from code, tests and one
 hands-on run (§5). They are not acceptance: acceptance, issuance and release
 remain the owner's (F-PIP-3).
 
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Classes**
 - **D:** delivered, with evidence (code a user reaches, and tests).
@@ -146,7 +146,7 @@ class, the evidence, and the deliverables.
 | FR-GUI-005 (502) | Should | D | `workspaceSession.ts:1182-1188` (depth 25); `e2e/b3a-session-status.spec.ts` | DEL-00-05, DEL-07-11 | Session-only. |
 | FR-GUI-006 (503) | Must | D | `MissingDataBlockingPanel.tsx:5-11,165-187`; `App.test.tsx:2966-3004`; `e2e/gui-workflow-validation.spec.ts:110` | DEL-07-04 | Shown in drift §3 (DEL-07-04). |
 | FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts:654,739` (`single_run_load_basis_review`) | DEL-07-08, DEL-14-05 | Within one run only. |
-| FR-AGENT-001 (568) | Should | D | Offline intake `OfflineProposalIntakePanel.tsx` → `atomic_batch.rs:285-345` | DEL-16-01, DEL-16-06 | The live provider is O (D-22/DEC-041; F-PIP-4). |
+| FR-AGENT-001 (568) | Should | D | Offline intake `OfflineProposalIntakePanel.tsx` → `atomic_batch.rs:285-345` | DEL-16-01, DEL-16-06 | The live provider is O (D-22/DEC-041). |
 | FR-AGENT-002 (569) | Should | D | `atomic_batch.rs` preflight and its tests `:717-802` | DEL-16-02, DEL-16-06 | |
 | FR-AGENT-003 (570) | Should | D | Queue, review/diff, explicit Apply (`workspaceSession.ts:1180-1191`) | DEL-07-08, DEL-16-06 | No e2e for offline intake. |
 | FR-AGENT-004 (571) | Should | P | Rationale and source required (`atomic_batch.rs:322-341`) | DEL-16-03, DEL-16-04 | No assumptions or constraints-considered keys. Receipts are session-only. |
