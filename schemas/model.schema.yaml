@@ -1,255 +1,202 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/model.schema.yaml",
-  "title": "OpenPipeStress Canonical Domain Model Schema",
-  "description": "Code-neutral canonical project/model schema for OpenPipeStress. It describes public structure only; code-specific, proprietary, protected, or project-private engineering values are user-supplied and provenance-marked.",
+  "title": "OpenPipeStress model document",
+  "description": "The model document openpipestress.product_preview.model, version 0.6.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. Values are user-entered; the software supplies no code value and no acceptance.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema_version",
-    "project"
+    "document_kind",
+    "project",
+    "analysis_status",
+    "nodes",
+    "pipe_segments",
+    "supports"
   ],
   "properties": {
     "schema_version": {
-      "description": "Model document 0.6.0 is the one current version. A pressure_contract is optional; only actual key absence is pressure-free. Model documents 0.1.0, 0.2.0, 0.3.0, 0.4.0 and 0.5.0 are retired and refused by name. Re-authoring is explicit; nothing is migrated.",
+      "description": "Model document 0.6.0 is the one current version. Versions 0.1.0 to 0.5.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
       "type": "string",
       "enum": [
         "0.6.0"
       ]
     },
+    "document_kind": {
+      "type": "string",
+      "const": "openpipestress.product_preview.model"
+    },
     "pressure_contract": {
       "$ref": "#/$defs/PressureContract"
     },
+    "data_boundary": {
+      "$ref": "#/$defs/DataBoundary"
+    },
     "project": {
       "$ref": "#/$defs/Project"
+    },
+    "analysis_status": {
+      "$ref": "#/$defs/AnalysisStatus"
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Material"
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Section"
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Node"
+      }
+    },
+    "pipe_segments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PipeSegment"
+      }
+    },
+    "supports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Support"
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Component"
+      }
+    },
+    "load_cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LoadCase"
+      }
+    },
+    "combinations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Combination"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      }
+    },
+    "reference_configurations": {
+      "description": "Load/reference-state group: model-level reference configurations.",
+      "type": "array",
+      "items": {
+        "$ref": "load_reference_state.schema.json#/$defs/ReferenceConfiguration"
+      }
     }
   },
   "$defs": {
     "AnalysisStatus": {
-      "type": "string",
-      "enum": [
-        "MODEL_INCOMPLETE",
-        "MECHANICS_SOLVED",
-        "RULE_INPUTS_INCOMPLETE",
-        "USER_RULE_CHECKED",
-        "USER_RULE_FAILED",
-        "HUMAN_REVIEW_REQUIRED",
-        "HUMAN_APPROVED_FOR_PROJECT"
-      ]
-    },
-    "Assumption": {
+      "description": "Authored status strings carried by the document. They are labels, not results: the solve publishes its own status, and professional acceptance is never derived by the software.",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id",
-        "statement",
-        "status",
-        "affected_refs",
-        "provenance"
+        "mechanics",
+        "rule_check",
+        "professional_acceptance"
       ],
       "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "statement": {
-          "type": "string",
-          "minLength": 1
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "unresolved",
-            "resolved",
-            "rejected",
-            "TBD"
-          ]
-        },
-        "affected_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "resolution_note": {
+        "mechanics": {
           "type": "string"
         },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
+        "rule_check": {
+          "type": "string"
+        },
+        "professional_acceptance": {
+          "type": "string"
         }
       }
     },
-    "Axis": {
-      "type": "string",
-      "enum": [
-        "X",
-        "Y",
-        "Z",
-        "UX",
-        "UY",
-        "UZ",
-        "RX",
-        "RY",
-        "RZ"
-      ]
-    },
-    "Checksum": {
+    "BoundaryAssociation": {
+      "description": "Desktop and applier equipment-boundary grouping of supports; the solver ignores it. nozzle_reference is present exactly for equipment_nozzle.",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "algorithm",
-        "canonicalization",
-        "payload_ref",
-        "value"
+        "boundary_id",
+        "kind",
+        "equipment_reference",
+        "coordinate_system"
       ],
       "properties": {
-        "algorithm": {
-          "type": "string",
-          "enum": [
-            "sha256",
-            "sha512",
-            "TBD"
-          ]
-        },
-        "canonicalization": {
-          "type": "string",
-          "enum": [
-            "SORTED_COMPACT_JSON",
-            "JCS",
-            "NONE",
-            "TBD"
-          ]
-        },
-        "payload_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "value": {
+        "boundary_id": {
           "type": "string",
           "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "equipment",
+            "equipment_nozzle"
+          ]
+        },
+        "equipment_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nozzle_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coordinate_system": {
+          "type": "string",
+          "const": "global"
         }
       }
     },
     "Combination": {
+      "description": "mechanics combines terms linearly; result_state_subtraction is minuend minus subtrahend; range_envelope applies mode over operand_ids.",
       "type": "object",
       "additionalProperties": false,
-      "allOf": [
-        {
-          "if": {
-            "required": [
-              "basis"
-            ],
-            "properties": {
-              "basis": {
-                "enum": [
-                  "mechanics",
-                  "user_rule_pack",
-                  "owner_design_basis",
-                  "TBD"
-                ]
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "terms"
-            ]
-          }
-        },
-        {
-          "if": {
-            "required": [
-              "basis"
-            ],
-            "properties": {
-              "basis": {
-                "const": "result_state_subtraction"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "minuend_ref",
-              "subtrahend_ref"
-            ]
-          }
-        },
-        {
-          "if": {
-            "required": [
-              "basis"
-            ],
-            "properties": {
-              "basis": {
-                "const": "range_envelope"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "operand_refs",
-              "mode"
-            ]
-          }
-        }
-      ],
       "required": [
         "id",
-        "name",
-        "basis",
-        "provenance"
+        "basis"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/Id"
         },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "description": {
+        "label": {
           "type": "string"
         },
         "basis": {
           "type": "string",
           "enum": [
             "mechanics",
-            "user_rule_pack",
-            "owner_design_basis",
             "result_state_subtraction",
-            "range_envelope",
-            "TBD"
+            "range_envelope"
           ]
         },
         "terms": {
           "type": "array",
-          "minItems": 1,
           "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "load_case_ref",
-              "factor"
-            ],
-            "properties": {
-              "load_case_ref": {
-                "$ref": "#/$defs/Reference"
-              },
-              "factor": {
-                "type": "number"
-              }
-            }
+            "$ref": "#/$defs/CombinationTerm"
           }
         },
-        "minuend_ref": {
-          "$ref": "#/$defs/Reference"
+        "minuend_id": {
+          "$ref": "#/$defs/Id"
         },
-        "subtrahend_ref": {
-          "$ref": "#/$defs/Reference"
+        "subtrahend_id": {
+          "$ref": "#/$defs/Id"
         },
-        "operand_refs": {
+        "operand_ids": {
           "type": "array",
-          "minItems": 1,
           "items": {
-            "$ref": "#/$defs/Reference"
+            "$ref": "#/$defs/Id"
           }
         },
         "mode": {
@@ -258,38 +205,27 @@
             "min",
             "max",
             "min_abs",
-            "max_abs",
-            "TBD"
+            "max_abs"
           ]
         },
-        "modulus_basis_records": {
-          "description": "Explicit record of the modulus basis each range term solved with. Expansion-range combinations record, per operand load case, the exact user-entered temperature-point basis, the DEC-077 interpolated solve-temperature basis with source-point/method provenance, or the reserved label material_base_values. Records are declarations of the solved basis, not selectors.",
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/ModulusBasisRecord"
-          }
-        },
         "provenance": {
-          "$ref": "#/$defs/Provenance"
+          "type": "string"
         }
       }
     },
-    "ModulusBasisRecord": {
+    "CombinationTerm": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "load_case_ref",
-        "modulus_basis_ref"
+        "load_case",
+        "factor"
       ],
       "properties": {
-        "load_case_ref": {
-          "$ref": "#/$defs/Reference"
+        "load_case": {
+          "$ref": "#/$defs/Id"
         },
-        "modulus_basis_ref": {
-          "description": "User-assigned temperature-point basis id, or the reserved label material_base_values when the operand solved on the material base values.",
-          "type": "string",
-          "minLength": 1
+        "factor": {
+          "type": "number"
         }
       }
     },
@@ -298,110 +234,591 @@
       "additionalProperties": false,
       "required": [
         "id",
-        "component_type",
-        "geometry",
-        "mechanics_modifiers",
-        "provenance"
+        "kind",
+        "node"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/Id"
         },
-        "component_type": {
-          "type": "string",
-          "enum": [
-            "bend",
-            "elbow",
-            "branch",
-            "reducer",
-            "valve",
-            "flange",
-            "expansion_joint",
-            "rigid",
-            "specialty",
-            "other",
-            "TBD"
-          ]
-        },
-        "name": {
+        "label": {
           "type": "string"
         },
-        "geometry": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/$defs/Quantity"
-          }
+        "kind": {
+          "$ref": "#/$defs/ComponentKind"
         },
-        "mechanics_modifiers": {
+        "node": {
+          "$ref": "#/$defs/Id"
+        },
+        "geometry": {
+          "$ref": "#/$defs/ComponentGeometry"
+        },
+        "modifiers": {
+          "$ref": "#/$defs/ComponentModifiers"
+        },
+        "mechanics_interface": {
+          "$ref": "#/$defs/ComponentMechanicsInterface"
+        },
+        "objective_connector": {
+          "$ref": "#/$defs/ObjectiveConnector"
+        },
+        "completeness": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/UserSuppliedValue"
+            "$ref": "#/$defs/ComponentCompletenessFinding"
           }
         },
         "provenance": {
-          "$ref": "#/$defs/Provenance"
+          "type": "string"
         }
       }
     },
-    "CoordinateSystem": {
+    "ComponentCompletenessFinding": {
+      "description": "Desktop component-completeness finding carried with the component; the solver ignores it.",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "type",
-        "axes"
+        "status",
+        "diagnostic_code"
       ],
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "cartesian",
-            "TBD"
-          ]
+        "finding_id": {
+          "type": "string"
         },
-        "axes": {
+        "status": {
+          "type": "string"
+        },
+        "diagnostic_code": {
+          "type": "string"
+        },
+        "missing_field_kinds": {
           "type": "array",
-          "minItems": 3,
-          "maxItems": 3,
           "items": {
-            "$ref": "#/$defs/Axis"
+            "type": "string"
           }
-        },
-        "y_reference": {
-          "$ref": "#/$defs/DirectionVector"
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
         }
       }
     },
+    "ComponentGeometry": {
+      "description": "User-entered component geometry. Every member is optional and never defaulted.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "bend_pipe_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "bend_radius": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "bend_angle": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "bend_plane_orientation": {
+          "type": "string"
+        },
+        "bend_geometry_source_reference": {
+          "type": "string"
+        },
+        "branch_header_pipe_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "branch_branch_pipe_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "branch_run_size": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "branch_header_size": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "branch_connection_angle": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "branch_connection_type": {
+          "type": "string"
+        },
+        "branch_reinforcement_area": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "branch_reinforcement_reference": {
+          "type": "string"
+        },
+        "branch_geometry_source_reference": {
+          "type": "string"
+        },
+        "rigid_pipe_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "rigid_body_length": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "end_a_size": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "end_b_size": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "weight": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "center_of_gravity": {
+          "$ref": "#/$defs/VectorQuantity"
+        },
+        "connection_end_a_reference": {
+          "type": "string"
+        },
+        "connection_end_b_reference": {
+          "type": "string"
+        },
+        "stiffness_behavior_reference": {
+          "type": "string"
+        },
+        "rigid_component_source_reference": {
+          "type": "string"
+        },
+        "expansion_joint_pipe_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "effective_area": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "movement_limit": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "hardware_reference": {
+          "type": "string"
+        },
+        "manufacturer_reference": {
+          "type": "string"
+        },
+        "pressure_thrust_reference": {
+          "type": "string"
+        },
+        "expansion_joint_source_reference": {
+          "type": "string"
+        }
+      }
+    },
+    "ComponentKind": {
+      "description": "Component families the readers and writers name: bend/elbow, branch/tee/branch_connection, the rigid families (valve, flange, reducer, rigid, specialty), expansion_joint, and terminal (a marker the bundled demo writes; no solver contribution).",
+      "type": "string",
+      "enum": [
+        "bend",
+        "elbow",
+        "branch",
+        "tee",
+        "branch_connection",
+        "reducer",
+        "valve",
+        "flange",
+        "rigid",
+        "specialty",
+        "expansion_joint",
+        "terminal"
+      ]
+    },
+    "ComponentMechanicsInterface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "solver_consumption": {
+          "type": "string",
+          "description": "How the solver consumes the component, e.g. mechanics_geometry_only, mechanics_geometry_and_user_flexibility, curved_bend_macro_element, objective_connector or not_solver_consumed."
+        },
+        "rule_check_consumption": {
+          "type": "string"
+        }
+      }
+    },
+    "ComponentModifiers": {
+      "description": "User-entered component modifiers with their source reference; no factor is supplied by the software.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "sif_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "branch_header_sif_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "branch_branch_sif_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "sif_in_plane_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "sif_out_of_plane_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "flexibility_factor_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "stiffness_scaling_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "linear_stiffness_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "rotational_stiffness_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "axial_stiffness_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "lateral_stiffness_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "angular_stiffness_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "torsional_stiffness_user_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "source_reference": {
+          "type": "string"
+        }
+      }
+    },
+    "ConnectorEnd": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_ref",
+        "initial_node_axes_global",
+        "offset_local"
+      ],
+      "properties": {
+        "node_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "initial_node_axes_global": {
+          "$ref": "#/$defs/Matrix3"
+        },
+        "offset_local": {
+          "$ref": "#/$defs/VectorQuantity"
+        }
+      }
+    },
+    "ConnectorHardware": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "untied"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "rods"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "explicit_axial_rods_v1"
+            },
+            "rods": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/ConnectorRod"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ConnectorPressureModel": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "unpressurized"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "effective_area",
+            "pressure_basis",
+            "source_reference"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "constant_effective_area_reference_v1"
+            },
+            "effective_area": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "pressure_basis": {
+              "type": "string",
+              "const": "internal_differential_zero_external_v1"
+            },
+            "source_reference": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "ConnectorRod": {
+      "description": "One explicit elastic axial tie rod.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "law",
+        "offset_i",
+        "offset_j",
+        "stiffness",
+        "reference_extension",
+        "source_reference"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "law": {
+          "type": "string",
+          "const": "bilateral_linear"
+        },
+        "offset_i": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "z"
+          ],
+          "properties": {
+            "x": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "y": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "z": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        "offset_j": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "z"
+          ],
+          "properties": {
+            "x": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "y": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "z": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        "stiffness": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "reference_extension": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "source_reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "DataBoundary": {
+      "description": "Desktop data-boundary statement: named policy strings the desktop writes and requires on open. The solver ignores it.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "public_examples_policy": {
+          "type": "string"
+        },
+        "protected_source_policy": {
+          "type": "string"
+        },
+        "private_data_policy": {
+          "type": "string"
+        },
+        "professional_boundary": {
+          "type": "string"
+        },
+        "solver_capacity_claim": {
+          "type": "string"
+        }
+      }
+    },
+    "DesktopDocument": {
+      "description": "The desktop's open and save profile: the format plus the members the desktop shape check requires (apps/desktop/src/features/model-file/modelDocumentShape.ts). Documents the desktop writes satisfy it; headless solve requests need only the format.",
+      "allOf": [
+        {
+          "$ref": "model.schema.yaml"
+        },
+        {
+          "type": "object",
+          "required": [
+            "data_boundary",
+            "components",
+            "load_cases",
+            "diagnostics"
+          ],
+          "properties": {
+            "project": {
+              "required": [
+                "id",
+                "name",
+                "description",
+                "units"
+              ]
+            },
+            "materials": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "label",
+                  "provenance"
+                ]
+              }
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "name",
+                  "section_type",
+                  "provenance"
+                ]
+              }
+            },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "label",
+                  "provenance"
+                ]
+              }
+            },
+            "pipe_segments": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "label",
+                  "from",
+                  "to",
+                  "material",
+                  "provenance"
+                ]
+              }
+            },
+            "supports": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "label",
+                  "node",
+                  "provenance"
+                ]
+              }
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "label",
+                  "kind",
+                  "node",
+                  "provenance"
+                ]
+              }
+            },
+            "load_cases": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "label",
+                  "kind",
+                  "status",
+                  "provenance"
+                ]
+              }
+            },
+            "combinations": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "id",
+                  "label",
+                  "basis",
+                  "terms",
+                  "provenance"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
     "Diagnostic": {
+      "description": "Authored document diagnostic carried by the desktop; the solver ignores it and publishes its own diagnostics.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "code",
-        "class",
         "severity",
-        "source",
-        "affected_object",
-        "message",
-        "remediation",
-        "provenance"
+        "message"
       ],
       "properties": {
+        "id": {
+          "type": "string"
+        },
         "code": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
+        },
+        "diagnostic_class": {
+          "type": "string"
         },
         "class": {
-          "type": "string",
-          "enum": [
-            "SOLVE_BLOCKING",
-            "RULE_CHECK_BLOCKING",
-            "PROVENANCE_WARNING",
-            "ASSUMPTION_WARNING",
-            "NONLINEAR_WARNING",
-            "IP_BOUNDARY_WARNING"
-          ]
+          "type": "string"
         },
         "severity": {
           "type": "string",
@@ -412,185 +829,55 @@
             "blocking"
           ]
         },
-        "source": {
-          "type": "string",
-          "minLength": 1
-        },
-        "affected_object": {
-          "$ref": "#/$defs/Reference"
-        },
         "message": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "remediation": {
           "type": "string"
         },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "Element": {
-      "type": "object",
-      "additionalProperties": false,
-      "allOf": [
-        {
-          "if": {
-            "required": [
-              "element_type"
-            ],
-            "properties": {
-              "element_type": {
-                "const": "straight_pipe"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "local_coordinate_system": {
-                "required": [
-                  "y_reference"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "required": [
-        "id",
-        "element_type",
-        "start_node_ref",
-        "end_node_ref",
-        "material_ref",
-        "section_ref",
-        "local_coordinate_system",
-        "result_stations"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
+        "source": {
+          "type": "string"
         },
-        "element_type": {
-          "type": "string",
-          "enum": [
-            "straight_pipe",
-            "frame",
-            "rigid",
-            "component_link",
-            "TBD"
-          ]
-        },
-        "start_node_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "end_node_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "material_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "section_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "component_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "local_coordinate_system": {
-          "$ref": "#/$defs/CoordinateSystem"
-        },
-        "result_stations": {
+        "affected_refs": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Quantity"
+            "type": "string"
           }
+        },
+        "provenance": {
+          "type": "string"
         }
       }
     },
-    "Id": {
+    "Dof": {
+      "description": "Frame degree of freedom; the readers and the applier accept these spellings.",
       "type": "string",
-      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+      "enum": [
+        "UX",
+        "Ux",
+        "ux",
+        "UY",
+        "Uy",
+        "uy",
+        "UZ",
+        "Uz",
+        "uz",
+        "RX",
+        "Rx",
+        "rx",
+        "RY",
+        "Ry",
+        "ry",
+        "RZ",
+        "Rz",
+        "rz"
+      ]
     },
-    "DirectionVector": {
-      "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
-      "items": {
-        "type": "number"
-      }
-    },
-    "LoadCase": {
+    "EquivalentStatic": {
+      "description": "User-entered static-equivalent occasional-load generation inputs; missing inputs block, nothing is defaulted.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "id",
-        "name",
-        "load_type",
-        "loads",
-        "provenance"
-      ],
-      "allOf": [
-        {
-          "not": {
-            "required": [
-              "modulus_basis_ref",
-              "modulus_basis_temperature"
-            ]
-          }
-        }
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "load_type": {
-          "type": "string",
-          "enum": [
-            "weight",
-            "pressure",
-            "temperature",
-            "imposed_displacement",
-            "hydrotest",
-            "wind",
-            "seismic",
-            "user_occasional",
-            "other",
-            "TBD"
-          ]
-        },
-        "loads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/LoadRecord"
-          }
-        },
-        "equivalent_static_generation": {
-          "$ref": "#/$defs/EquivalentStaticGeneration"
-        },
-        "modulus_basis_ref": {
-          "description": "Optional exact modulus basis: the user-assigned temperature-point id whose explicit user-entered elastic modulus (E), shear modulus (G), and, when present, thermal expansion coefficient (alpha) this load case solves with. A selected point must provide G; no property value is defaulted or substituted from base material values. Exact-id selection remains available under DEC-077 and DEC-092. This field is mutually exclusive with modulus_basis_temperature.",
-          "$ref": "#/$defs/Id"
-        },
-        "modulus_basis_temperature": {
-          "description": "Optional user-entered absolute solve temperature for DEC-077 and DEC-092 linear interpolation of explicit elastic modulus (E), shear modulus (G), and thermal expansion coefficient (alpha) between two adjacent user-entered material temperature points. Both bracketing points must provide G; requests at or beyond stored range edges block. No property value is defaulted or substituted from base material values, and extrapolation is never performed. This field is mutually exclusive with modulus_basis_ref.",
-          "$ref": "#/$defs/QuantityValue"
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "EquivalentStaticGeneration": {
-      "description": "User-entered static-equivalent occasional-load generation inputs. Seismic: per-global-axis g-factors and an explicit user-entered gravity acceleration multiply the model's own computed mass distribution. Wind: user-entered pressure and shape parameters project onto the exposed diameter of user-marked spans. No code coefficient, catalog value, or default is encoded; missing inputs are blocking diagnostics.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "provenance"
-      ],
+      "required": [],
       "properties": {
         "seismic": {
           "$ref": "#/$defs/SeismicEquivalentStaticInput"
@@ -599,340 +886,747 @@
           "$ref": "#/$defs/WindEquivalentStaticInput"
         },
         "provenance": {
-          "$ref": "#/$defs/Provenance"
+          "type": "string"
         }
       }
     },
-    "SeismicEquivalentStaticInput": {
+    "Id": {
+      "description": "Entity identity or reference: a string with at least one non-whitespace character (the readers' EMPTY_ID rule). Identities are compared byte for byte; Unicode identities are admitted. The operation applier's stricter ASCII pattern applies only to identities it generates.",
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "LoadCase": {
+      "description": "One load case (`load_cases[]`). label, kind and status are desktop members the solver ignores; analysis_state belongs to the load/reference-state group.",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "gravity_acceleration",
-        "g_factors"
+        "id"
       ],
       "properties": {
-        "gravity_acceleration": {
-          "$ref": "#/$defs/AccelerationQuantity"
+        "id": {
+          "$ref": "#/$defs/Id"
         },
-        "g_factors": {
+        "label": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "primitive_loads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadRecord"
+          }
+        },
+        "pressure_regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PressureRegion"
+          }
+        },
+        "equivalent_static": {
+          "$ref": "#/$defs/EquivalentStatic"
+        },
+        "modulus_basis_ref": {
+          "description": "Exact modulus basis: the id of a user-entered material temperature point whose E, G and alpha this case solves with. Mutually exclusive with modulus_basis_temperature; nothing is defaulted.",
+          "$ref": "#/$defs/Id"
+        },
+        "modulus_basis_temperature": {
+          "description": "Solve temperature for linear interpolation of E, G and alpha between adjacent user-entered temperature points; no extrapolation.",
+          "$ref": "#/$defs/Quantity"
+        },
+        "analysis_state": {
+          "$ref": "load_reference_state.schema.json#/$defs/AnalysisState"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      },
+      "not": {
+        "required": [
+          "modulus_basis_ref",
+          "modulus_basis_temperature"
+        ]
+      }
+    },
+    "LoadCategory": {
+      "description": "Primitive-load categories. pressure primitives are retired and refused (pressure is authored as pressure_regions); imposed_displacement on a support target is refused by the preview solve outside the load/reference-state group.",
+      "type": "string",
+      "enum": [
+        "weight",
+        "distributed_force",
+        "pressure",
+        "thermal",
+        "hydrotest",
+        "wind",
+        "seismic",
+        "occasional",
+        "concentrated_force",
+        "concentrated_moment",
+        "imposed_displacement"
+      ]
+    },
+    "LoadDimension": {
+      "type": "string",
+      "enum": [
+        "force",
+        "moment",
+        "force_per_length",
+        "pressure",
+        "temperature_change",
+        "temperature_interval",
+        "acceleration",
+        "displacement",
+        "rotation"
+      ]
+    },
+    "LoadDirection": {
+      "description": "Global load direction or frame degree of freedom.",
+      "type": "string",
+      "enum": [
+        "global_x",
+        "global_y",
+        "global_z",
+        "GLOBAL_X",
+        "GLOBAL_Y",
+        "GLOBAL_Z",
+        "rotation_x",
+        "rotation_y",
+        "rotation_z",
+        "UX",
+        "Ux",
+        "ux",
+        "UY",
+        "Uy",
+        "uy",
+        "UZ",
+        "Uz",
+        "uz",
+        "RX",
+        "Rx",
+        "rx",
+        "RY",
+        "Ry",
+        "ry",
+        "RZ",
+        "Rz",
+        "rz"
+      ]
+    },
+    "LoadRecord": {
+      "description": "One user-entered primitive load of a load case (`load_cases[].primitive_loads[]`).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "target",
+        "direction",
+        "magnitude",
+        "dimension"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "category": {
+          "$ref": "#/$defs/LoadCategory"
+        },
+        "target": {
+          "$ref": "#/$defs/LoadTarget"
+        },
+        "direction": {
+          "$ref": "#/$defs/LoadDirection"
+        },
+        "magnitude": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "dimension": {
+          "$ref": "#/$defs/LoadDimension"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "LoadTarget": {
+      "oneOf": [
+        {
           "type": "object",
           "additionalProperties": false,
-          "minProperties": 1,
+          "required": [
+            "type",
+            "node"
+          ],
           "properties": {
-            "x": {
-              "$ref": "#/$defs/DimensionlessQuantity"
+            "type": {
+              "type": "string",
+              "const": "node"
             },
-            "y": {
-              "$ref": "#/$defs/DimensionlessQuantity"
+            "node": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "pipe"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "element"
             },
-            "z": {
-              "$ref": "#/$defs/DimensionlessQuantity"
+            "pipe": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "support",
+            "dof"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "support"
+            },
+            "support": {
+              "$ref": "#/$defs/Id"
+            },
+            "dof": {
+              "$ref": "#/$defs/Dof"
+            }
+          }
+        }
+      ]
+    },
+    "Material": {
+      "description": "User-entered material record. expansion_laws belongs to the load/reference-state group.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "elastic_modulus"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "type": "string"
+        },
+        "constitutive_basis": {
+          "type": "string",
+          "enum": [
+            "homogeneous_isotropic_E_nu_v1"
+          ]
+        },
+        "elastic_modulus": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "shear_modulus": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "poisson_ratio": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "thermal_expansion_coefficient": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "temperature_points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MaterialTemperaturePoint"
+          }
+        },
+        "expansion_laws": {
+          "$ref": "load_reference_state.schema.json#/$defs/MaterialExpansionLaws"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "MaterialTemperaturePoint": {
+      "description": "User-entered temperature-indexed property point. A load case may name it as its modulus basis or interpolate between points; no value is defaulted or extrapolated.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "temperature": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "elastic_modulus": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "shear_modulus": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "poisson_ratio": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "thermal_expansion_coefficient": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "Matrix3": {
+      "description": "A 3x3 row-major matrix of finite numbers whose columns are axes in the global frame.",
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "Node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "position"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "type": "string"
+        },
+        "position": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "NonlinearSupport": {
+      "description": "User-entered nonlinear support condition; the readers and the applier accept these token spellings.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "behavior",
+        "dof"
+      ],
+      "properties": {
+        "behavior": {
+          "type": "string",
+          "enum": [
+            "one_way",
+            "one-way",
+            "oneway",
+            "gap",
+            "lift_off",
+            "lift-off",
+            "liftoff",
+            "friction"
+          ]
+        },
+        "dof": {
+          "$ref": "#/$defs/Dof"
+        },
+        "initial_state": {
+          "type": "string",
+          "enum": [
+            "active",
+            "ACTIVE",
+            "inactive",
+            "INACTIVE",
+            "sticking",
+            "STICKING",
+            "sliding",
+            "SLIDING"
+          ]
+        },
+        "active_when": {
+          "type": "string",
+          "enum": [
+            "positive_reaction",
+            "positive",
+            "POSITIVE_REACTION",
+            "POSITIVE",
+            "negative_reaction",
+            "negative",
+            "NEGATIVE_REACTION",
+            "NEGATIVE"
+          ]
+        },
+        "contact_when": {
+          "type": "string",
+          "enum": [
+            "positive_reaction",
+            "positive",
+            "POSITIVE_REACTION",
+            "POSITIVE",
+            "negative_reaction",
+            "negative",
+            "NEGATIVE_REACTION",
+            "NEGATIVE"
+          ]
+        },
+        "closes_when": {
+          "type": "string",
+          "enum": [
+            "positive_displacement",
+            "positive",
+            "POSITIVE_DISPLACEMENT",
+            "POSITIVE",
+            "negative_displacement",
+            "negative",
+            "NEGATIVE_DISPLACEMENT",
+            "NEGATIVE"
+          ]
+        },
+        "gap": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "friction_coefficient": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "normal_reaction": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "normal_reaction_source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "support_ref",
+            "dof"
+          ],
+          "properties": {
+            "support_ref": {
+              "$ref": "#/$defs/Id"
+            },
+            "dof": {
+              "$ref": "#/$defs/Dof"
             }
           }
         }
       }
     },
-    "WindEquivalentStaticInput": {
+    "ObjectiveConnector": {
+      "description": "Explicit objective connector (objective_connector 1.0.0) of an expansion_joint component on an exact-pressure document: connector frame, end attachments, a 6x6 scaled work matrix with its basis and provenance, topology, hardware and pressure model. Admission and numerical checks remain the solver's.",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "pressure",
-        "shape_factor",
-        "direction"
-      ],
-      "anyOf": [
-        {
-          "required": [
-            "exposed_element_refs"
-          ]
-        },
-        {
-          "required": [
-            "exposed_spans"
-          ]
-        }
+        "version",
+        "motion_basis",
+        "end_i",
+        "end_j",
+        "connector_axes_global",
+        "installed_reference_temperature",
+        "temperature_applicability",
+        "reference_state",
+        "q_ref",
+        "stiffness",
+        "topology",
+        "calibration",
+        "hardware",
+        "pressure_model",
+        "provenance"
       ],
       "properties": {
-        "pressure": {
-          "$ref": "#/$defs/PressureQuantity"
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
         },
-        "shape_factor": {
-          "$ref": "#/$defs/DimensionlessQuantity"
+        "motion_basis": {
+          "type": "string",
+          "const": "symmetric_midpoint_small_rotation_v1"
         },
-        "direction": {
-          "$ref": "#/$defs/ForceDirection"
+        "end_i": {
+          "$ref": "#/$defs/ConnectorEnd"
         },
-        "exposed_element_refs": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/ElementReference"
+        "end_j": {
+          "$ref": "#/$defs/ConnectorEnd"
+        },
+        "connector_axes_global": {
+          "$ref": "#/$defs/Matrix3"
+        },
+        "installed_reference_temperature": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "temperature_applicability": {
+          "type": "string",
+          "const": "fixed_installed_parameters_v1"
+        },
+        "reference_state": {
+          "type": "string",
+          "enum": [
+            "stress_free",
+            "prestressed"
+          ]
+        },
+        "q_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "translation",
+            "rotation"
+          ],
+          "properties": {
+            "translation": {
+              "$ref": "#/$defs/VectorQuantity"
+            },
+            "rotation": {
+              "$ref": "#/$defs/VectorQuantity"
+            }
           }
         },
-        "exposed_spans": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "element_ref",
-              "extent"
-            ],
-            "properties": {
-              "element_ref": {
-                "$ref": "#/$defs/ElementReference"
-              },
-              "extent": {
-                "$ref": "#/$defs/ElementLoadSpan"
+        "stiffness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "representation",
+            "translation_scale",
+            "rotation_scale",
+            "coefficient_unit",
+            "upper_triangle",
+            "coordinate_order",
+            "provenance"
+          ],
+          "properties": {
+            "version": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "representation": {
+              "type": "string",
+              "const": "scaled_work_coefficients_v1"
+            },
+            "translation_scale": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "rotation_scale": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "coefficient_unit": {
+              "type": "string",
+              "const": "N*m"
+            },
+            "upper_triangle": {
+              "type": "array",
+              "minItems": 21,
+              "maxItems": 21,
+              "items": {
+                "type": "number"
+              }
+            },
+            "coordinate_order": {
+              "type": "array",
+              "const": [
+                "tx",
+                "ty",
+                "tz",
+                "rx",
+                "ry",
+                "rz"
+              ]
+            },
+            "provenance": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source_reference",
+                "measurement_restraints",
+                "basis_transform_reference"
+              ],
+              "properties": {
+                "source_reference": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "measurement_restraints": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "basis_transform_reference": {
+                  "type": "string",
+                  "minLength": 1
+                }
               }
             }
           }
-        }
-      }
-    },
-    "LoadRecord": {
-      "oneOf": [
-        {
-          "$ref": "#/$defs/NodalForceLoadRecord"
         },
-        {
-          "$ref": "#/$defs/NodalMomentLoadRecord"
+        "topology": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "span_ref"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "replaces_span"
+            },
+            "span_ref": {
+              "$ref": "#/$defs/Id"
+            }
+          }
         },
-        {
-          "$ref": "#/$defs/ElementPointForceLoadRecord"
+        "calibration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "includes_pressure_dependent_tangent",
+            "installed_geometry"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "constant_structural_elasticity_v1"
+            },
+            "includes_pressure_dependent_tangent": {
+              "type": "boolean"
+            },
+            "installed_geometry": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         },
-        {
-          "$ref": "#/$defs/ElementUniformDistributedForceLoadRecord"
-        }
-      ]
-    },
-    "NodalForceLoadRecord": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "load_record_type",
-        "target_ref",
-        "direction",
-        "quantity",
-        "provenance"
-      ],
-      "properties": {
-        "load_record_type": {
-          "const": "nodal_force"
+        "hardware": {
+          "$ref": "#/$defs/ConnectorHardware"
         },
-        "target_ref": {
-          "$ref": "#/$defs/NodeReference"
-        },
-        "direction": {
-          "$ref": "#/$defs/ForceDirection"
-        },
-        "quantity": {
-          "$ref": "#/$defs/ForceQuantity"
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "NodalMomentLoadRecord": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "load_record_type",
-        "target_ref",
-        "direction",
-        "quantity",
-        "provenance"
-      ],
-      "properties": {
-        "load_record_type": {
-          "const": "nodal_moment"
-        },
-        "target_ref": {
-          "$ref": "#/$defs/NodeReference"
-        },
-        "direction": {
-          "$ref": "#/$defs/MomentDirection"
-        },
-        "quantity": {
-          "$ref": "#/$defs/MomentQuantity"
+        "pressure_model": {
+          "$ref": "#/$defs/ConnectorPressureModel"
         },
         "provenance": {
-          "$ref": "#/$defs/Provenance"
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_reference",
+            "measurement_restraints",
+            "basis_transform_reference",
+            "validity_statement"
+          ],
+          "properties": {
+            "source_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "measurement_restraints": {
+              "type": "string",
+              "minLength": 1
+            },
+            "basis_transform_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "validity_statement": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       }
     },
-    "ElementPointForceLoadRecord": {
+    "PipeSection": {
+      "description": "Per-span section quantities. Absent optional members mean no value, never zero. corrosion_allowance is required explicitly under the exact pressure contract.",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "load_record_type",
-        "target_ref",
-        "station_fraction",
-        "direction",
-        "quantity",
-        "provenance"
+        "outside_diameter",
+        "wall_thickness"
       ],
       "properties": {
-        "load_record_type": {
-          "const": "element_point_force"
+        "outside_diameter": {
+          "$ref": "#/$defs/Quantity"
         },
-        "target_ref": {
-          "$ref": "#/$defs/ElementReference"
+        "wall_thickness": {
+          "$ref": "#/$defs/Quantity"
         },
-        "station_fraction": {
-          "$ref": "#/$defs/FractionQuantity"
+        "mill_tolerance": {
+          "$ref": "#/$defs/Quantity"
         },
-        "direction": {
-          "$ref": "#/$defs/ForceDirection"
+        "corrosion_allowance": {
+          "$ref": "#/$defs/Quantity"
         },
-        "quantity": {
-          "$ref": "#/$defs/ForceQuantity"
+        "material_density": {
+          "$ref": "#/$defs/Quantity"
         },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
+        "contents_density": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "insulation_thickness": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "insulation_density": {
+          "$ref": "#/$defs/Quantity"
         }
       }
     },
-    "ElementUniformDistributedForceLoadRecord": {
+    "PipeSegment": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "load_record_type",
-        "target_ref",
-        "span",
-        "direction",
-        "quantity",
-        "provenance"
+        "id",
+        "from",
+        "to",
+        "section",
+        "material"
       ],
       "properties": {
-        "load_record_type": {
-          "const": "element_uniform_distributed_force"
-        },
-        "target_ref": {
-          "$ref": "#/$defs/ElementReference"
-        },
-        "span": {
-          "$ref": "#/$defs/ElementLoadSpan"
-        },
-        "direction": {
-          "$ref": "#/$defs/ForceDirection"
-        },
-        "quantity": {
-          "$ref": "#/$defs/ForcePerLengthQuantity"
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "NodeReference": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "object_type",
-        "id"
-      ],
-      "properties": {
-        "object_type": {
-          "const": "Node"
-        },
         "id": {
           "$ref": "#/$defs/Id"
-        }
-      }
-    },
-    "ElementReference": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "object_type",
-        "id"
-      ],
-      "properties": {
-        "object_type": {
-          "const": "Element"
         },
-        "id": {
+        "label": {
+          "type": "string"
+        },
+        "from": {
           "$ref": "#/$defs/Id"
+        },
+        "to": {
+          "$ref": "#/$defs/Id"
+        },
+        "section": {
+          "$ref": "#/$defs/PipeSection"
+        },
+        "section_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "material": {
+          "$ref": "#/$defs/Id"
+        },
+        "y_reference": {
+          "description": "Explicit local y reference direction in the global frame.",
+          "$ref": "#/$defs/Vector3"
+        },
+        "provenance": {
+          "type": "string"
         }
       }
-    },
-    "ForceDirection": {
-      "type": "string",
-      "enum": [
-        "X",
-        "Y",
-        "Z"
-      ]
-    },
-    "MomentDirection": {
-      "type": "string",
-      "enum": [
-        "RX",
-        "RY",
-        "RZ"
-      ]
-    },
-    "ForceQuantity": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/Quantity"
-        },
-        {
-          "properties": {
-            "dimension": {
-              "const": "force"
-            }
-          }
-        }
-      ]
-    },
-    "MomentQuantity": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/Quantity"
-        },
-        {
-          "properties": {
-            "dimension": {
-              "const": "moment"
-            }
-          }
-        }
-      ]
-    },
-    "ForcePerLengthQuantity": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/Quantity"
-        },
-        {
-          "properties": {
-            "dimension": {
-              "const": "force_per_length"
-            }
-          }
-        }
-      ]
-    },
-    "AccelerationQuantity": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/Quantity"
-        },
-        {
-          "properties": {
-            "dimension": {
-              "const": "acceleration"
-            }
-          }
-        }
-      ]
     },
     "PressureContract": {
-      "description": "Current exact pressure contract: a closed object with explicit version, mode and shear_model. Present null, scalars and arrays are invalid. Operative preview pipe sections require an explicit local corrosion_allowance; zero is authored, never defaulted, and a nonzero allowance is admitted with mill tolerance plus allowance below the wall. shear_model selects the straight members' shear deformation: euler_bernoulli, or timoshenko_annulus_energy_v1 (the energy-matched annular shear factor on the nominal section); realized arcs are Euler–Bernoulli under either. Stiffness and pipe metal mass use the nominal wall; contents mass and pressure end caps use the reduced bore; stresses are published on both the nominal and the reduced section (wall minus mill tolerance and corrosion allowance). Canonical Section.properties uses its separate code-neutral Quantity representation.",
+      "description": "The exact pressure contract. Only actual key absence is pressure-free; a present null, scalar or array is invalid. Operative pipe sections then carry an explicit corrosion_allowance, and each case states its pressure_regions (an explicit empty array for an unpressurized case). Other contract versions are refused by the reader with a re-author diagnostic.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -958,522 +1652,133 @@
         }
       }
     },
-    "PressureQuantity": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/Quantity"
-        },
-        {
-          "properties": {
-            "dimension": {
-              "const": "pressure"
-            }
-          }
-        }
-      ]
-    },
-    "DimensionlessQuantity": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/Quantity"
-        },
-        {
-          "properties": {
-            "dimension": {
-              "const": "dimensionless"
-            }
-          }
-        }
-      ]
-    },
-    "FractionQuantity": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/Quantity"
-        },
-        {
-          "properties": {
-            "value": {
-              "minimum": 0,
-              "maximum": 1
-            },
-            "dimension": {
-              "const": "dimensionless"
-            }
-          }
-        }
-      ]
-    },
-    "ElementLoadSpan": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "start_fraction",
-        "end_fraction"
-      ],
-      "properties": {
-        "start_fraction": {
-          "$ref": "#/$defs/FractionQuantity"
-        },
-        "end_fraction": {
-          "$ref": "#/$defs/FractionQuantity"
-        }
-      }
-    },
-    "Material": {
+    "PressureRegion": {
+      "description": "One exact pressure region of a load case under the exact pressure contract.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "id",
-        "name",
-        "properties",
+        "member_pipe_ids",
+        "pressure_basis",
+        "pressure",
+        "terminals",
         "provenance"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/Id"
         },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "properties": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/$defs/Quantity"
-          }
-        },
-        "user_supplied_values": {
+        "member_pipe_ids": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/UserSuppliedValue"
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "member_connector_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "pressure_basis": {
+          "type": "string",
+          "const": "internal_differential_zero_external_v1"
+        },
+        "pressure": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "terminals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PressureTerminal"
           }
         },
         "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "Model": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "name",
-        "model_role",
-        "coordinate_system",
-        "nodes",
-        "elements",
-        "components",
-        "materials",
-        "sections",
-        "supports",
-        "load_cases",
-        "combinations",
-        "results",
-        "diagnostics",
-        "unresolved_assumptions",
-        "traceability_links",
-        "design_knowledge_refs",
-        "constraint_refs",
-        "equipment_interface_refs",
-        "operation_refs",
-        "model_state_refs",
-        "analysis_run_refs",
-        "comparison_refs",
-        "handoff_package_refs",
-        "external_reference_refs",
-        "provenance"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "description": {
           "type": "string"
-        },
-        "model_role": {
-          "$ref": "#/$defs/ModelRole"
-        },
-        "source_model_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "coordinate_system": {
-          "$ref": "#/$defs/CoordinateSystem"
-        },
-        "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Node"
-          }
-        },
-        "elements": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Element"
-          }
-        },
-        "components": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Component"
-          }
-        },
-        "materials": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Material"
-          }
-        },
-        "sections": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Section"
-          }
-        },
-        "supports": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Support"
-          }
-        },
-        "load_cases": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/LoadCase"
-          }
-        },
-        "combinations": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Combination"
-          }
-        },
-        "results": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Result"
-          }
-        },
-        "diagnostics": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Diagnostic"
-          }
-        },
-        "unresolved_assumptions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Assumption"
-          }
-        },
-        "traceability_links": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/TraceabilityLink"
-          }
-        },
-        "design_knowledge_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "constraint_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "equipment_interface_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "operation_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "model_state_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "analysis_run_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "comparison_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "handoff_package_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "external_reference_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
         }
       }
     },
-    "ModelRole": {
-      "type": "string",
-      "enum": [
-        "physical_source_of_truth",
-        "analytical_solver_model",
-        "derived_view",
-        "TBD"
-      ]
-    },
-    "Node": {
+    "PressureTerminal": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id",
-        "coordinates",
-        "degrees_of_freedom"
+        "node_ref",
+        "closure_transfer",
+        "provenance"
       ],
       "properties": {
-        "id": {
+        "node_ref": {
           "$ref": "#/$defs/Id"
         },
-        "coordinates": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "x",
-            "y",
-            "z"
-          ],
-          "properties": {
-            "x": {
-              "$ref": "#/$defs/Quantity"
-            },
-            "y": {
-              "$ref": "#/$defs/Quantity"
-            },
-            "z": {
-              "$ref": "#/$defs/Quantity"
-            }
-          }
+        "closure_transfer": {
+          "type": "string",
+          "enum": [
+            "transfers_to_wall",
+            "separately_supported_or_compensated"
+          ]
         },
-        "degrees_of_freedom": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "UX",
-            "UY",
-            "UZ",
-            "RX",
-            "RY",
-            "RZ"
-          ],
-          "properties": {
-            "UX": {
-              "$ref": "#/$defs/DofState"
-            },
-            "UY": {
-              "$ref": "#/$defs/DofState"
-            },
-            "UZ": {
-              "$ref": "#/$defs/DofState"
-            },
-            "RX": {
-              "$ref": "#/$defs/DofState"
-            },
-            "RY": {
-              "$ref": "#/$defs/DofState"
-            },
-            "RZ": {
-              "$ref": "#/$defs/DofState"
-            }
-          }
-        },
-        "imposed_displacement_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
+        "provenance": {
+          "type": "string"
         }
       }
-    },
-    "DofState": {
-      "type": "string",
-      "enum": [
-        "free",
-        "restrained",
-        "coupled",
-        "imposed",
-        "TBD"
-      ]
-    },
-    "PrivacyClass": {
-      "type": "string",
-      "enum": [
-        "public",
-        "private",
-        "mixed",
-        "TBD"
-      ]
     },
     "Project": {
+      "description": "Project identity and units. name and description are desktop members the solver ignores.",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id",
-        "name",
-        "unit_system",
-        "privacy_class",
-        "storage_policy",
-        "models",
-        "rule_pack_refs",
-        "report_settings",
-        "reports",
-        "diagnostics",
-        "hashes"
+        "id"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/Id"
         },
         "name": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "description": {
           "type": "string"
         },
-        "unit_system": {
-          "$ref": "#/$defs/UnitSystem"
-        },
-        "privacy_class": {
-          "$ref": "#/$defs/PrivacyClass"
-        },
-        "storage_policy": {
-          "type": "string",
-          "enum": [
-            "user_controlled_private",
-            "public_example",
-            "TBD"
-          ]
-        },
-        "models": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/Model"
-          }
-        },
-        "rule_pack_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/RulePackRef"
-          }
-        },
-        "report_settings": {
-          "$ref": "#/$defs/ReportSettings"
-        },
-        "reports": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Report"
-          }
-        },
-        "diagnostics": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Diagnostic"
-          }
-        },
-        "hashes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Checksum"
-          }
+        "units": {
+          "$ref": "#/$defs/ProjectUnits"
         }
       }
     },
-    "Provenance": {
+    "ProjectUnits": {
+      "description": "Project display and authoring units. The solver reads length (node coordinates); the applier reads force, length, temperature and angle when it authors loads.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "source_name",
-        "source_location",
-        "source_license",
-        "contributor",
-        "contributor_certification",
-        "redistribution_status",
-        "review_status"
-      ],
       "properties": {
-        "source_name": {
-          "type": "string",
-          "minLength": 1
+        "length": {
+          "type": "string"
         },
-        "source_location": {
-          "type": "string",
-          "minLength": 1
+        "force": {
+          "type": "string"
         },
-        "source_license": {
-          "type": "string",
-          "minLength": 1
+        "moment": {
+          "type": "string"
         },
-        "contributor": {
-          "type": "string",
-          "minLength": 1
+        "pressure": {
+          "type": "string"
         },
-        "contributor_certification": {
-          "type": "string",
-          "minLength": 1
+        "stress": {
+          "type": "string"
         },
-        "redistribution_status": {
-          "type": "string",
-          "enum": [
-            "public_permissive",
-            "private_only",
-            "unknown",
-            "protected_suspected"
-          ]
+        "temperature": {
+          "type": "string"
         },
-        "review_status": {
-          "type": "string",
-          "enum": [
-            "pending",
-            "accepted",
-            "rejected",
-            "quarantined"
-          ]
+        "angle": {
+          "type": "string"
         }
       }
     },
     "Quantity": {
+      "description": "Authored quantity {value, unit}. Shape only: unit-catalog membership, dimension and positivity are reader and applier admission rules.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "value",
-        "unit",
-        "dimension",
-        "provenance"
+        "unit"
       ],
       "properties": {
         "value": {
@@ -1482,331 +1787,24 @@
         "unit": {
           "type": "string",
           "minLength": 1
-        },
-        "dimension": {
-          "type": "string",
-          "enum": [
-            "dimensionless",
-            "length",
-            "mass",
-            "time",
-            "temperature",
-            "temperature_interval",
-            "angle",
-            "rotation",
-            "force",
-            "force_per_length",
-            "moment",
-            "pressure",
-            "stress",
-            "area",
-            "volume",
-            "density",
-            "linear_stiffness",
-            "rotational_stiffness",
-            "displacement",
-            "velocity",
-            "acceleration",
-            "thermal_conductivity",
-            "specific_heat",
-            "thermal_expansion_coefficient",
-            "second_moment_area",
-            "section_modulus",
-            "mass_per_length",
-            "volume_per_length",
-            "slope",
-            "TBD"
-          ]
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "Reference": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "object_type",
-        "id"
-      ],
-      "properties": {
-        "object_type": {
-          "type": "string",
-          "enum": [
-            "Project",
-            "Model",
-            "Node",
-            "Element",
-            "Component",
-            "Material",
-            "Section",
-            "Support",
-            "LoadCase",
-            "Combination",
-            "RulePackRef",
-            "Result",
-            "Report",
-            "ReportSettings",
-            "Diagnostic",
-            "DesignKnowledge",
-            "Constraint",
-            "EquipmentInterface",
-            "ModelOperation",
-            "ModelState",
-            "AnalysisRun",
-            "Comparison",
-            "HandoffPackage",
-            "ExternalProverReference",
-            "Assumption",
-            "TraceabilityLink",
-            "external",
-            "TBD"
-          ]
-        },
-        "id": {
-          "$ref": "#/$defs/Id"
         }
       }
     },
     "Report": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "settings_ref",
-        "model_ref",
-        "input_manifest",
-        "hashes",
-        "analysis_statuses",
-        "diagnostics",
-        "rule_pack_refs",
-        "provenance_summary",
-        "professional_boundary_notice"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "settings_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "model_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "input_manifest": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "hashes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Checksum"
-          }
-        },
-        "analysis_statuses": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/AnalysisStatus"
-          }
-        },
-        "diagnostics": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Diagnostic"
-          }
-        },
-        "rule_pack_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/RulePackRef"
-          }
-        },
-        "provenance_summary": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Provenance"
-          }
-        },
-        "professional_boundary_notice": {
-          "type": "string",
-          "minLength": 1
-        }
-      }
-    },
-    "ReportSettings": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "include_input_manifest",
-        "include_provenance_summary",
-        "include_professional_boundary_notice",
-        "result_refs",
-        "rule_pack_refs",
-        "provenance"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "include_input_manifest": {
-          "type": "boolean"
-        },
-        "include_provenance_summary": {
-          "type": "boolean"
-        },
-        "include_professional_boundary_notice": {
-          "type": "boolean"
-        },
-        "result_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "rule_pack_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
+      "description": "Report record (REQ-02-01-02), defined by reference: the report-section envelope, report_sections.schema.yaml ReportSectionEnvelope. Reports are not model-document members; the root does not use this definition.",
+      "$ref": "report_sections.schema.yaml#/$defs/ReportSectionEnvelope"
     },
     "Result": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "result_type",
-        "model_ref",
-        "analysis_statuses",
-        "diagnostics",
-        "provenance"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "result_type": {
-          "type": "string",
-          "enum": [
-            "displacement",
-            "reaction",
-            "element_force",
-            "element_moment",
-            "stress",
-            "rule_check",
-            "diagnostic_summary",
-            "TBD"
-          ]
-        },
-        "model_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "load_case_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "combination_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "values": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "target_ref",
-              "quantity"
-            ],
-            "properties": {
-              "target_ref": {
-                "$ref": "#/$defs/Reference"
-              },
-              "quantity": {
-                "$ref": "#/$defs/Quantity"
-              }
-            }
-          }
-        },
-        "analysis_statuses": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/AnalysisStatus"
-          }
-        },
-        "diagnostics": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Diagnostic"
-          }
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
+      "description": "Result record (REQ-02-01-02), defined by reference: the result envelope of the current result export, results.v0.3.schema.yaml ResultEnvelope. Results are not model-document members; the root does not use this definition.",
+      "$ref": "results.v0.3.schema.yaml#/$defs/ResultEnvelope"
     },
-    "RulePackRef": {
+    "Section": {
+      "description": "Shared section record. Explicit pipe outside_diameter and wall_thickness are the bindable properties.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "id",
         "name",
-        "version",
-        "checksum",
-        "source_notice",
-        "redistribution_status",
-        "required_input_refs",
-        "provenance"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "version": {
-          "type": "string",
-          "minLength": 1
-        },
-        "checksum": {
-          "$ref": "#/$defs/Checksum"
-        },
-        "source_notice": {
-          "type": "string"
-        },
-        "redistribution_status": {
-          "type": "string",
-          "enum": [
-            "public_permissive",
-            "private_only",
-            "unknown",
-            "protected_suspected"
-          ]
-        },
-        "required_input_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "Section": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
         "section_type",
         "properties",
         "provenance"
@@ -1815,80 +1813,64 @@
         "id": {
           "$ref": "#/$defs/Id"
         },
-        "section_type": {
-          "type": "string",
-          "enum": [
-            "pipe",
-            "rigid",
-            "custom",
-            "TBD"
-          ]
-        },
         "name": {
           "type": "string"
+        },
+        "section_type": {
+          "type": "string",
+          "description": "Only `pipe` sections bind to pipe spans (section_ref)."
         },
         "properties": {
           "type": "object",
           "additionalProperties": {
             "$ref": "#/$defs/Quantity"
-          },
-          "description": "Code-neutral section properties. corrosion_allowance is a Quantity here; the operative preview input is local PipeSectionInput.corrosion_allowance. This representation creates no flattening adapter or shared OD/wall binding propagation.",
-          "properties": {
-            "corrosion_allowance": {
-              "allOf": [
-                {
-                  "$ref": "#/$defs/Quantity"
-                },
-                {
-                  "properties": {
-                    "dimension": {
-                      "const": "length"
-                    },
-                    "value": {
-                      "minimum": 0
-                    }
-                  }
-                }
-              ]
-            }
           }
         },
         "provenance": {
-          "$ref": "#/$defs/Provenance"
+          "description": "A string, or an object. The reader accepts any JSON value here and reads none of its members; no writer emits the object form.",
+          "type": [
+            "string",
+            "object"
+          ]
+        }
+      }
+    },
+    "SeismicEquivalentStaticInput": {
+      "description": "User-entered seismic static-equivalent inputs; gravity is an explicit input, not a constant default.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "gravity_acceleration": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "g_factor_x": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "g_factor_y": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "g_factor_z": {
+          "$ref": "#/$defs/Quantity"
         }
       }
     },
     "SpringHanger": {
+      "description": "User-entered spring hanger or constant-effort support data.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "hanger_type",
-        "source_reference"
-      ],
+      "required": [],
       "properties": {
         "hanger_type": {
           "type": "string",
           "enum": [
             "variable_spring_hanger",
-            "constant_effort_support",
-            "TBD"
+            "spring_hanger",
+            "constant_effort_support"
           ]
         },
         "stiffness": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "dof",
-            "value"
-          ],
-          "properties": {
-            "dof": {
-              "$ref": "#/$defs/Axis"
-            },
-            "value": {
-              "$ref": "#/$defs/Quantity"
-            }
-          }
+          "$ref": "#/$defs/SupportStiffness"
         },
         "installed_load": {
           "$ref": "#/$defs/Quantity"
@@ -1927,202 +1909,181 @@
       "additionalProperties": false,
       "required": [
         "id",
-        "support_type",
-        "target_ref",
-        "directions",
-        "properties",
-        "provenance"
+        "node",
+        "restraints"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/Id"
         },
-        "support_type": {
-          "type": "string",
-          "enum": [
-            "anchor",
-            "guide",
-            "line_stop",
-            "restraint",
-            "spring",
-            "variable_spring_hanger",
-            "constant_effort_support",
-            "gap",
-            "friction",
-            "other",
-            "TBD"
-          ]
+        "label": {
+          "type": "string"
         },
-        "target_ref": {
-          "$ref": "#/$defs/Reference"
+        "node": {
+          "$ref": "#/$defs/Id"
         },
-        "directions": {
+        "restraints": {
           "type": "array",
-          "minItems": 1,
           "items": {
-            "$ref": "#/$defs/Axis"
+            "$ref": "#/$defs/Dof"
           }
         },
-        "properties": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/$defs/Quantity"
-          }
+        "family": {
+          "$ref": "#/$defs/SupportFamily"
+        },
+        "stiffness": {
+          "$ref": "#/$defs/SupportStiffness"
         },
         "hanger": {
           "$ref": "#/$defs/SpringHanger"
         },
-        "active_state_result_ref": {
-          "$ref": "#/$defs/Reference"
+        "nonlinear": {
+          "$ref": "#/$defs/NonlinearSupport"
         },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      }
-    },
-    "TraceabilityLink": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "trace_type",
-        "source_ref",
-        "target_ref",
-        "diagnostics",
-        "provenance"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
+        "boundary_association": {
+          "$ref": "#/$defs/BoundaryAssociation"
         },
-        "trace_type": {
-          "type": "string",
-          "enum": [
-            "physical_to_analytical",
-            "operation_application",
-            "state_snapshot",
-            "analysis_run",
-            "comparison",
-            "handoff",
-            "external_reference",
-            "TBD"
-          ]
-        },
-        "source_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "target_ref": {
-          "$ref": "#/$defs/Reference"
-        },
-        "source_field_path": {
-          "type": "string",
-          "minLength": 1,
-          "description": "Optional field-scalar path within source_ref. When present, target_field_path is also required."
-        },
-        "target_field_path": {
-          "type": "string",
-          "minLength": 1,
-          "description": "Optional field-scalar path within target_ref. When present, source_field_path is also required."
-        },
-        "assumption_refs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Reference"
-          }
-        },
-        "diagnostics": {
-          "type": "array",
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/$defs/Diagnostic"
-              },
-              {
-                "$ref": "#/$defs/Reference"
-              }
-            ]
-          }
-        },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
-        }
-      },
-      "dependentRequired": {
-        "source_field_path": [
-          "target_field_path"
-        ],
-        "target_field_path": [
-          "source_field_path"
-        ]
-      }
-    },
-    "UnitSystem": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "base_units"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Id"
-        },
-        "description": {
-          "type": "string"
-        },
-        "base_units": {
+        "properties": {
+          "description": "Applier-authored support creation stiffness; the solver ignores it.",
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "length",
-            "mass",
-            "force",
-            "temperature",
-            "angle"
-          ],
+          "required": [],
           "properties": {
-            "length": {
-              "type": "string",
-              "minLength": 1
-            },
-            "mass": {
-              "type": "string",
-              "minLength": 1
-            },
-            "force": {
-              "type": "string",
-              "minLength": 1
-            },
-            "temperature": {
-              "type": "string",
-              "minLength": 1
-            },
-            "angle": {
-              "type": "string",
-              "minLength": 1
+            "linear_stiffness": {
+              "$ref": "#/$defs/Quantity"
             }
+          }
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "SupportFamily": {
+      "type": "string",
+      "enum": [
+        "anchor",
+        "guide",
+        "line_stop",
+        "vertical_support",
+        "spring",
+        "variable_spring_hanger",
+        "spring_hanger",
+        "constant_effort_support",
+        "nonlinear"
+      ]
+    },
+    "SupportStiffness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dof",
+        "value"
+      ],
+      "properties": {
+        "dof": {
+          "$ref": "#/$defs/Dof"
+        },
+        "value": {
+          "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "Vector3": {
+      "description": "Components in the document's global Cartesian frame; positions are in project.units.length.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "VectorQuantity": {
+      "description": "Three global components sharing one unit.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "z",
+        "unit"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "WindEquivalentStaticInput": {
+      "description": "User-entered wind static-equivalent inputs over user-marked exposed spans.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "pressure": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "shape_factor": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "global_x",
+            "global_y",
+            "global_z"
+          ]
+        },
+        "exposed_pipe_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "exposed_spans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WindExposedSpan"
           }
         }
       }
     },
-    "UserSuppliedValue": {
+    "WindExposedSpan": {
+      "description": "A user-marked partial exposed extent of one pipe span.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name",
-        "quantity",
-        "provenance"
-      ],
+      "required": [],
       "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 1
+        "pipe_ref": {
+          "$ref": "#/$defs/Id"
         },
-        "quantity": {
+        "start_fraction": {
           "$ref": "#/$defs/Quantity"
         },
-        "provenance": {
-          "$ref": "#/$defs/Provenance"
+        "end_fraction": {
+          "$ref": "#/$defs/Quantity"
         }
       }
     }

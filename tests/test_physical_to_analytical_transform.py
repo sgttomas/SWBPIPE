@@ -20,7 +20,8 @@ from core.model_transform.physical_to_analytical.contract import (  # noqa: E402
 from schema_validation import schema_for_definition, validate_instance  # noqa: E402
 
 
-MODEL_SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
+# The transform's reference format (FR-MOD-007, DEL-13-04); not the model document.
+TRANSFORM_SCHEMA_PATH = ROOT / "schemas" / "physical_transform_model.schema.yaml"
 PHYSICAL_SOURCE_FIXTURE = ROOT / "fixtures" / "domain" / "invented_physical_source_of_truth_model.json"
 TRACE_GAP_FIXTURE = ROOT / "fixtures" / "domain" / "invented_physical_to_analytical_trace_gap.json"
 PREVIEW_ONLY_FIXTURE_KEYS = {
@@ -104,13 +105,13 @@ def all_text(value):
 
 
 def test_canonical_physical_source_fixture_validates_and_transforms_deterministically():
-    schema = load_json(MODEL_SCHEMA_PATH)
+    schema = load_json(TRANSFORM_SCHEMA_PATH)
     source = canonical_physical_model()
 
     assert validate_instance(
         schema_for_definition(schema, "Model"),
         source,
-        schema_label=f"{MODEL_SCHEMA_PATH}#/$defs/Model",
+        schema_label=f"{TRANSFORM_SCHEMA_PATH}#/$defs/Model",
         instance_label=str(PHYSICAL_SOURCE_FIXTURE),
     )
     assert source["model_role"] == "physical_source_of_truth"
@@ -540,7 +541,7 @@ def test_non_axis_aligned_load_metadata_survives_transform():
 
 
 def test_equivalent_static_generation_inputs_survive_transform_and_validate():
-    schema = load_json(MODEL_SCHEMA_PATH)
+    schema = load_json(TRANSFORM_SCHEMA_PATH)
     source = physical_model()
     generation = {
         "seismic": {
@@ -574,7 +575,7 @@ def test_equivalent_static_generation_inputs_survive_transform_and_validate():
 
 
 def test_equivalent_static_generation_rejects_defaulted_or_extra_fields():
-    schema = load_json(MODEL_SCHEMA_PATH)
+    schema = load_json(TRANSFORM_SCHEMA_PATH)
     load_case_schema = schema_for_definition(schema, "LoadCase")
     source = physical_model()
     base = {
@@ -607,7 +608,7 @@ def test_equivalent_static_generation_rejects_defaulted_or_extra_fields():
 
 
 def test_subspan_wind_exposed_spans_survive_transform_and_validate():
-    schema = load_json(MODEL_SCHEMA_PATH)
+    schema = load_json(TRANSFORM_SCHEMA_PATH)
     source = physical_model()
     generation = {
         "wind": {
@@ -644,7 +645,7 @@ def test_subspan_wind_exposed_spans_survive_transform_and_validate():
 
 
 def test_subspan_wind_marking_rules_reject_invalid_documents():
-    schema = load_json(MODEL_SCHEMA_PATH)
+    schema = load_json(TRANSFORM_SCHEMA_PATH)
     load_case_schema = schema_for_definition(schema, "LoadCase")
     source = physical_model()
     base = {
@@ -691,7 +692,7 @@ def test_subspan_wind_marking_rules_reject_invalid_documents():
 
 
 def test_modulus_basis_references_survive_transform_and_validate():
-    schema = load_json(MODEL_SCHEMA_PATH)
+    schema = load_json(TRANSFORM_SCHEMA_PATH)
     source = physical_model()
     source["load_cases"][0]["modulus_basis_ref"] = "temperature-point.hot"
 

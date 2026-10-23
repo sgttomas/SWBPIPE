@@ -197,8 +197,10 @@ code_paths:
 - core/model_transform/physical_to_analytical/_solver_boundary_adapter.py
 - core/model_transform/physical_to_analytical/contract.py
 - schemas/constraint.schema.json
+- schemas/physical_transform_model.schema.yaml
 checks:
 - tests/test_analytical_solver_boundary_adapter.py
 - tests/test_constraint_schema.py
 - tests/test_constraint_validation.py
 - tests/test_physical_to_analytical_transform.py
+- tests/test_physical_transform_model_schema.py

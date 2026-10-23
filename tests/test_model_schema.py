@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Stdlib checks for the canonical domain model schema."""
+"""Contract checks for the model document schema (schemas/model.schema.yaml).
+
+The schema describes the desktop's model document, `openpipestress.product_preview.model`
+0.6.0 (owner OD-4, 2026-10-23). Its root is the format the Rust reader decodes; its
+`$defs/DesktopDocument` is the desktop's open and save profile. Committed documents are
+checked against it in test_model_document_schema.py. The transform's older project/model
+shape is schemas/physical_transform_model.schema.yaml (test_physical_transform_model_schema.py).
+"""
 
 import json
+import re
 import sys
-from copy import deepcopy
 from pathlib import Path
 
 
@@ -12,101 +19,12 @@ TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
-from schema_validation import (  # noqa: E402
-    JsonSchemaDependencyMissing,
-    _skip_or_note_missing_jsonschema,
-    enum_at,
-    load_schema,
-    required_at,
-    schema_for_definition,
-    validate_instance,
-    validate_schema_document,
-    walk_keys,
-    walk_strings,
-)
+from schema_validation import load_schema, validate_schema_document, walk_keys, walk_strings  # noqa: E402
 
 SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
-MINIMAL_PROJECT_FIXTURE = ROOT / "fixtures" / "domain" / "invented_minimal_project_model.json"
-PHYSICAL_MODEL_FIXTURE = ROOT / "fixtures" / "domain" / "invented_physical_source_of_truth_model.json"
-
-REQUIRED_DEFS = {
-    "Assumption",
-    "Project",
-    "Model",
-    "ModelRole",
-    "Node",
-    "Element",
-    "Component",
-    "Material",
-    "Section",
-    "Support",
-    "LoadCase",
-    "Combination",
-    "RulePackRef",
-    "Result",
-    "ReportSettings",
-    "Report",
-    "Quantity",
-    "Provenance",
-    "Diagnostic",
-    "Checksum",
-    "Reference",
-    "TraceabilityLink",
-    "DirectionVector",
-    "NodalForceLoadRecord",
-    "NodalMomentLoadRecord",
-    "ElementPointForceLoadRecord",
-    "ElementUniformDistributedForceLoadRecord",
-}
-
-REQUIRED_ANALYSIS_STATUSES = {
-    "MODEL_INCOMPLETE",
-    "MECHANICS_SOLVED",
-    "RULE_INPUTS_INCOMPLETE",
-    "USER_RULE_CHECKED",
-    "USER_RULE_FAILED",
-    "HUMAN_REVIEW_REQUIRED",
-    "HUMAN_APPROVED_FOR_PROJECT",
-}
-
-CANONICAL_DIMENSIONS = [
-    "dimensionless",
-    "length",
-    "mass",
-    "time",
-    "temperature",
-    "temperature_interval",
-    "angle",
-    "rotation",
-    "force",
-    "force_per_length",
-    "moment",
-    "pressure",
-    "stress",
-    "area",
-    "volume",
-    "density",
-    "linear_stiffness",
-    "rotational_stiffness",
-    "displacement",
-    "velocity",
-    "acceleration",
-    "thermal_conductivity",
-    "specific_heat",
-    "thermal_expansion_coefficient",
-    "second_moment_area",
-    "section_modulus",
-    "mass_per_length",
-    "volume_per_length",
-    "slope",
-    "TBD",
-]
-
-RETIRED_DIMENSIONS = {
-    "temperature_difference",
-    "area_moment",
-    "stiffness",
-}
+WIRE_SOURCE = ROOT / "core" / "product_physics" / "src" / "lib.rs"
+DESKTOP_SHAPE = ROOT / "apps" / "desktop" / "src" / "features" / "model-file" / "modelDocumentShape.ts"
+LRS = "load_reference_state.schema.json#/$defs/"
 
 FORBIDDEN_SCHEMA_TEXT = {
     "CODE_COMPLIANT",
@@ -119,616 +37,175 @@ FORBIDDEN_SCHEMA_TEXT = {
 }
 
 
-def load_json(path):
-    with path.open(encoding="utf-8") as fixture_file:
-        return json.load(fixture_file)
+def schema():
+    return load_schema(SCHEMA_PATH)
 
 
-def provenance():
-    return {
-        "source_name": "PKG-02 invented schema test",
-        "source_location": "tests/test_model_schema.py",
-        "source_license": "project invented public example",
-        "contributor": "OpenPipeStress Type 2 worker",
-        "contributor_certification": "invented non-engineering example",
-        "redistribution_status": "public_permissive",
-        "review_status": "accepted",
-    }
+def defs():
+    return schema()["$defs"]
 
 
-def quantity(value, unit, dimension):
-    return {
-        "value": value,
-        "unit": unit,
-        "dimension": dimension,
-        "provenance": provenance(),
-    }
-
-
-def reference(object_type, object_id):
-    return {
-        "object_type": object_type,
-        "id": object_id,
-    }
-
-
-def normalized_minimal_fixture_for_current_schema():
-    fixture = load_json(MINIMAL_PROJECT_FIXTURE)
-    load = fixture["project"]["models"][0]["load_cases"][0]["loads"][0]
-    load["load_record_type"] = "nodal_force"
-    return fixture
-
-
-def normalized_physical_fixture_for_current_schema():
-    fixture = load_json(PHYSICAL_MODEL_FIXTURE)
-    physical_model = fixture["model"]
-    for element in physical_model["elements"]:
-        if element["element_type"] == "straight_pipe":
-            coordinate_system = element["local_coordinate_system"]
-            coordinate_system["y_reference"] = [0.0, 1.0, 0.0]
-            coordinate_system["provenance"] = physical_model["provenance"]
-    loads = physical_model["load_cases"][0]["loads"]
-    loads[0]["load_record_type"] = "element_uniform_distributed_force"
-    loads[0]["quantity"]["unit"] = "N/m"
-    loads[0]["quantity"]["dimension"] = "force_per_length"
-    loads[0]["span"] = {
-        "start_fraction": quantity(0.0, "1", "dimensionless"),
-        "end_fraction": quantity(1.0, "1", "dimensionless"),
-    }
-    loads[1]["load_record_type"] = "element_point_force"
-    loads[1]["station_fraction"] = quantity(0.5, "1", "dimensionless")
-    loads[2]["load_record_type"] = "nodal_moment"
-    loads[2]["target_ref"] = reference("Node", "N-1")
-    return fixture
-
-
-def assert_required_fields(schema, definition_name, record):
-    assert required_at(schema, definition_name) <= set(record)
-
-
-def check_schema_contract():
-    schema = load_schema(SCHEMA_PATH)
-    defs = schema["$defs"]
-
-    assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-    assert schema["additionalProperties"] is False
-    assert "default" not in set(walk_keys(schema))
-    assert {"schema_version", "project"} <= set(schema["required"])
-    assert REQUIRED_DEFS <= set(defs)
-
-    assert REQUIRED_ANALYSIS_STATUSES <= enum_at(schema, "AnalysisStatus")
-    assert "CODE_COMPLIANT" not in enum_at(schema, "AnalysisStatus")
-
-    assert {
-        "id",
-        "name",
-        "unit_system",
-        "privacy_class",
-        "storage_policy",
-        "models",
-        "rule_pack_refs",
-        "report_settings",
-        "reports",
-        "diagnostics",
-        "hashes",
-    } <= required_at(schema, "Project")
-
-    assert {
-        "model_role",
-        "nodes",
-        "elements",
-        "components",
-        "materials",
-        "sections",
-        "supports",
-        "load_cases",
-        "combinations",
-        "results",
-        "diagnostics",
-        "unresolved_assumptions",
-        "traceability_links",
-        "design_knowledge_refs",
-        "constraint_refs",
-        "equipment_interface_refs",
-        "operation_refs",
-        "model_state_refs",
-        "analysis_run_refs",
-        "comparison_refs",
-        "handoff_package_refs",
-        "external_reference_refs",
-        "provenance",
-    } <= required_at(schema, "Model")
-    assert {
-        "physical_source_of_truth",
-        "analytical_solver_model",
-        "derived_view",
-        "TBD",
-    } <= enum_at(schema, "ModelRole")
-
-    assert {"id", "statement", "status", "affected_refs", "provenance"} <= required_at(
-        schema, "Assumption"
-    )
-    assert {"unresolved", "resolved", "rejected", "TBD"} <= set(
-        defs["Assumption"]["properties"]["status"]["enum"]
-    )
-
-    assert {
-        "id",
-        "trace_type",
-        "source_ref",
-        "target_ref",
-        "diagnostics",
-        "provenance",
-    } <= required_at(schema, "TraceabilityLink")
-    assert {
-        "physical_to_analytical",
-        "operation_application",
-        "state_snapshot",
-        "analysis_run",
-        "comparison",
-        "handoff",
-        "external_reference",
-        "TBD",
-    } <= set(defs["TraceabilityLink"]["properties"]["trace_type"]["enum"])
-
-    assert {
-        "DesignKnowledge",
-        "Constraint",
-        "EquipmentInterface",
-        "ModelOperation",
-        "ModelState",
-        "AnalysisRun",
-        "Comparison",
-        "HandoffPackage",
-        "ExternalProverReference",
-        "Assumption",
-        "TraceabilityLink",
-    } <= set(defs["Reference"]["properties"]["object_type"]["enum"])
-
-    assert {"value", "unit", "dimension", "provenance"} <= required_at(
-        schema, "Quantity"
-    )
-    dimensions = defs["Quantity"]["properties"]["dimension"]["enum"]
-    assert dimensions == CANONICAL_DIMENSIONS
-    assert not (set(dimensions) & RETIRED_DIMENSIONS)
-
-    coordinate_system = defs["CoordinateSystem"]
-    assert coordinate_system["additionalProperties"] is False
-    assert {"type", "axes"} <= set(coordinate_system["required"])
-    assert {"y_reference", "provenance"} <= set(coordinate_system["properties"])
-    assert "local_x_axis" not in coordinate_system["properties"]
-    assert defs["DirectionVector"]["minItems"] == 3
-    assert defs["DirectionVector"]["maxItems"] == 3
-
-    element_contract_text = json.dumps(defs["Element"])
-    assert '"const": "straight_pipe"' in element_contract_text
-    assert '"y_reference"' in element_contract_text
-
-    assert {
-        "bend",
-        "elbow",
-        "branch",
-        "reducer",
-        "valve",
-        "flange",
-        "expansion_joint",
-        "rigid",
-        "specialty",
-        "other",
-        "TBD",
-    } <= set(defs["Component"]["properties"]["component_type"]["enum"])
-    assert {
-        "source_name",
-        "source_location",
-        "source_license",
-        "contributor",
-        "contributor_certification",
-        "redistribution_status",
-        "review_status",
-    } <= required_at(schema, "Provenance")
-
-    assert {
-        "code",
-        "class",
-        "severity",
-        "source",
-        "affected_object",
-        "message",
-        "remediation",
-        "provenance",
-    } <= required_at(schema, "Diagnostic")
-    assert {
-        "SOLVE_BLOCKING",
-        "RULE_CHECK_BLOCKING",
-        "PROVENANCE_WARNING",
-        "ASSUMPTION_WARNING",
-        "NONLINEAR_WARNING",
-        "IP_BOUNDARY_WARNING",
-    } <= set(defs["Diagnostic"]["properties"]["class"]["enum"])
-
-    assert {"algorithm", "canonicalization", "payload_ref", "value"} <= required_at(
-        schema, "Checksum"
-    )
-    assert {"JCS", "NONE", "TBD"} <= set(
-        defs["Checksum"]["properties"]["canonicalization"]["enum"]
-    )
-
-    assert [item["$ref"] for item in defs["LoadRecord"]["oneOf"]] == [
-        "#/$defs/NodalForceLoadRecord",
-        "#/$defs/NodalMomentLoadRecord",
-        "#/$defs/ElementPointForceLoadRecord",
-        "#/$defs/ElementUniformDistributedForceLoadRecord",
-    ]
-    for load_def in [
-        "NodalForceLoadRecord",
-        "NodalMomentLoadRecord",
-        "ElementPointForceLoadRecord",
-        "ElementUniformDistributedForceLoadRecord",
-    ]:
-        assert defs[load_def]["additionalProperties"] is False
-        assert {
-            "load_record_type",
-            "target_ref",
-            "direction",
-            "quantity",
-            "provenance",
-        } <= required_at(schema, load_def)
-    assert defs["NodalForceLoadRecord"]["properties"]["load_record_type"]["const"] == (
-        "nodal_force"
-    )
-    assert defs["NodalMomentLoadRecord"]["properties"]["load_record_type"]["const"] == (
-        "nodal_moment"
-    )
-    assert defs["ElementPointForceLoadRecord"]["properties"]["load_record_type"][
-        "const"
-    ] == "element_point_force"
-    assert defs["ElementUniformDistributedForceLoadRecord"]["properties"][
-        "load_record_type"
-    ]["const"] == "element_uniform_distributed_force"
-    # DEC-068 item 1 + DEC-077 + DEC-092: exact selection remains available
-    # and an explicit solve temperature enables bounded E/G/alpha interpolation.
-    assert "modulus_basis_ref" in defs["LoadCase"]["properties"]
-    modulus_basis_ref = defs["LoadCase"]["properties"]["modulus_basis_ref"]
-    assert "exact" in modulus_basis_ref["description"]
-    assert "shear modulus (G)" in modulus_basis_ref["description"]
-    assert (
-        "thermal expansion coefficient (alpha)" in modulus_basis_ref["description"]
-    )
-    assert "no property value is defaulted" in modulus_basis_ref["description"]
-    assert "substituted from base material values" in modulus_basis_ref["description"]
-    assert "mutually exclusive" in modulus_basis_ref["description"]
-    modulus_basis_temperature = defs["LoadCase"]["properties"][
-        "modulus_basis_temperature"
-    ]
-    assert modulus_basis_temperature["$ref"] == "#/$defs/QuantityValue"
-    assert "linear interpolation" in modulus_basis_temperature["description"]
-    assert "shear modulus (G)" in modulus_basis_temperature["description"]
-    assert (
-        "thermal expansion coefficient (alpha)"
-        in modulus_basis_temperature["description"]
-    )
-    assert (
-        "No property value is defaulted" in modulus_basis_temperature["description"]
-    )
-    assert (
-        "substituted from base material values"
-        in modulus_basis_temperature["description"]
-    )
-    assert "extrapolation" in modulus_basis_temperature["description"]
-    assert {
-        "modulus_basis_ref",
-        "modulus_basis_temperature",
-    } == set(defs["LoadCase"]["allOf"][0]["not"]["required"])
-    assert "modulus_basis_records" in defs["Combination"]["properties"]
-    modulus_record = defs["ModulusBasisRecord"]
-    assert modulus_record["additionalProperties"] is False
-    assert {"load_case_ref", "modulus_basis_ref"} <= set(modulus_record["required"])
-
-    # DEC-068 item 2: static-equivalent occasional-load generation inputs.
-    assert "equivalent_static_generation" in defs["LoadCase"]["properties"]
-    equivalent_static = defs["EquivalentStaticGeneration"]
-    assert equivalent_static["additionalProperties"] is False
-    assert {"provenance"} <= set(equivalent_static["required"])
-    assert {"seismic", "wind", "provenance"} <= set(equivalent_static["properties"])
-    seismic = defs["SeismicEquivalentStaticInput"]
-    assert seismic["additionalProperties"] is False
-    assert {"gravity_acceleration", "g_factors"} <= set(seismic["required"])
-    g_factors = seismic["properties"]["g_factors"]
-    assert g_factors["additionalProperties"] is False
-    assert g_factors["minProperties"] == 1
-    assert set(g_factors["properties"]) == {"x", "y", "z"}
-    wind = defs["WindEquivalentStaticInput"]
-    assert wind["additionalProperties"] is False
-    # Single authorized replacement (CB-2026-07-20-T4-PKG05-SUBSPAN-WIND-001
-    # section 3.6 v2): the marking form is enforced by anyOf, so
-    # exposed_element_refs is no longer unconditionally required.
-    assert {
-        "pressure",
-        "shape_factor",
-        "direction",
-    } <= set(wind["required"])
-    assert wind["anyOf"] == [
-        {"required": ["exposed_element_refs"]},
-        {"required": ["exposed_spans"]},
-    ]
-    assert wind["properties"]["exposed_element_refs"]["minItems"] == 1
-    wind_exposed_spans = wind["properties"]["exposed_spans"]
-    assert wind_exposed_spans["minItems"] == 1
-    wind_span_item = wind_exposed_spans["items"]
-    assert wind_span_item["additionalProperties"] is False
-    assert set(wind_span_item["required"]) == {"element_ref", "extent"}
-    assert wind_span_item["properties"]["element_ref"]["$ref"] == (
-        "#/$defs/ElementReference"
-    )
-    assert wind_span_item["properties"]["extent"]["$ref"] == "#/$defs/ElementLoadSpan"
-    assert (
-        defs["AccelerationQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
-        == "acceleration"
-    )
-    assert (
-        defs["PressureQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
-        == "pressure"
-    )
-    assert (
-        defs["DimensionlessQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
-        == "dimensionless"
-    )
-    assert defs["ForceDirection"]["enum"] == ["X", "Y", "Z"]
-    assert defs["MomentDirection"]["enum"] == ["RX", "RY", "RZ"]
-    assert defs["ForceQuantity"]["allOf"][1]["properties"]["dimension"]["const"] == "force"
-    assert defs["MomentQuantity"]["allOf"][1]["properties"]["dimension"]["const"] == "moment"
-    assert (
-        defs["ForcePerLengthQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
-        == "force_per_length"
-    )
-    assert defs["FractionQuantity"]["allOf"][1]["properties"]["dimension"]["const"] == (
-        "dimensionless"
-    )
-    assert defs["FractionQuantity"]["allOf"][1]["properties"]["value"] == {
-        "minimum": 0,
-        "maximum": 1,
-    }
-    assert {
-        "id",
-        "support_type",
-        "target_ref",
-        "directions",
-        "properties",
-        "provenance",
-    } <= required_at(schema, "Support")
-
-    assert {"diagnostics", "provenance"} <= required_at(schema, "Result")
-    assert {
-        "input_manifest",
-        "hashes",
-        "analysis_statuses",
-        "diagnostics",
-        "rule_pack_refs",
-        "provenance_summary",
-        "professional_boundary_notice",
-    } <= required_at(schema, "Report")
-    assert {"checksum", "source_notice", "required_input_refs"} <= required_at(
-        schema, "RulePackRef"
-    )
-
-    all_text = "\n".join(walk_strings(schema))
-    for forbidden in FORBIDDEN_SCHEMA_TEXT:
-        assert forbidden not in all_text
-
-
-def check_domain_fixtures():
-    schema = load_schema(SCHEMA_PATH)
-    minimal = load_json(MINIMAL_PROJECT_FIXTURE)
-    physical = load_json(PHYSICAL_MODEL_FIXTURE)
-
-    assert set(minimal) == {"schema_version", "project"}
-    assert minimal["schema_version"] == "0.6.0"
-    project = minimal["project"]
-    assert_required_fields(schema, "Project", project)
-    assert project["privacy_class"] == "public"
-    assert project["storage_policy"] == "public_example"
-    assert project["models"]
-
-    model = project["models"][0]
-    assert_required_fields(schema, "Model", model)
-    assert model["model_role"] == "analytical_solver_model"
-    assert model["coordinate_system"]["type"] == "cartesian"
-    assert model["load_cases"], "fixture must exercise unit-bearing load records"
-    quantity = model["load_cases"][0]["loads"][0]["quantity"]
-    assert_required_fields(schema, "Quantity", quantity)
-    assert quantity["dimension"] == "force"
-    assert_required_fields(schema, "Provenance", quantity["provenance"])
-    assert_required_fields(schema, "ReportSettings", project["report_settings"])
-    assert_required_fields(schema, "Checksum", project["hashes"][0])
-
-    physical_model = physical["model"]
-    assert_required_fields(schema, "Model", physical_model)
-    assert physical_model["model_role"] == "physical_source_of_truth"
-    assert physical_model["unresolved_assumptions"]
-    assert_required_fields(schema, "Assumption", physical_model["unresolved_assumptions"][0])
-    assert physical_model["traceability_links"]
-    assert_required_fields(schema, "TraceabilityLink", physical_model["traceability_links"][0])
-    assert physical_model["diagnostics"]
-    assert_required_fields(schema, "Diagnostic", physical_model["diagnostics"][0])
-
-    fixture_text = "\n".join(
-        walk_strings({"minimal": minimal, "physical": physical})
-    )
-    for forbidden in FORBIDDEN_SCHEMA_TEXT:
-        assert forbidden not in fixture_text
-
-
-def check_jsonschema_validation():
-    schema = load_schema(SCHEMA_PATH)
-    minimal = normalized_minimal_fixture_for_current_schema()
-    physical = normalized_physical_fixture_for_current_schema()
-    try:
-        assert validate_schema_document(schema, schema_label=str(SCHEMA_PATH))
-        assert validate_instance(
-            schema,
-            minimal,
-            schema_label=str(SCHEMA_PATH),
-            instance_label=str(MINIMAL_PROJECT_FIXTURE),
-        )
-        model_schema = schema_for_definition(schema, "Model")
-        assert validate_instance(
-            model_schema,
-            physical["model"],
-            schema_label=f"{SCHEMA_PATH}#/$defs/Model",
-            instance_label=f"{PHYSICAL_MODEL_FIXTURE}:model",
-        )
-    except JsonSchemaDependencyMissing as exc:
-        _skip_or_note_missing_jsonschema(exc)
-
-
-def check_typed_load_records_and_orientation_validation():
-    schema = load_schema(SCHEMA_PATH)
-    load_record_schema = schema_for_definition(schema, "LoadRecord")
-    element_schema = schema_for_definition(schema, "Element")
-
-    valid_nodal_force = {
-        "load_record_type": "nodal_force",
-        "target_ref": reference("Node", "N-1"),
-        "direction": "X",
-        "quantity": quantity(1.0, "N", "force"),
-        "provenance": provenance(),
-    }
-    valid_nodal_moment = {
-        "load_record_type": "nodal_moment",
-        "target_ref": reference("Node", "N-1"),
-        "direction": "RZ",
-        "quantity": quantity(1.0, "N-m", "moment"),
-        "provenance": provenance(),
-    }
-    valid_element_point_force = {
-        "load_record_type": "element_point_force",
-        "target_ref": reference("Element", "E-1"),
-        "station_fraction": quantity(0.5, "1", "dimensionless"),
-        "direction": "Z",
-        "quantity": quantity(1.0, "N", "force"),
-        "provenance": provenance(),
-    }
-    valid_uniform_force = {
-        "load_record_type": "element_uniform_distributed_force",
-        "target_ref": reference("Element", "E-1"),
-        "span": {
-            "start_fraction": quantity(0.0, "1", "dimensionless"),
-            "end_fraction": quantity(1.0, "1", "dimensionless"),
-        },
-        "direction": "Y",
-        "quantity": quantity(1.0, "N/m", "force_per_length"),
-        "provenance": provenance(),
-    }
-    valid_straight_pipe = {
-        "id": "E-1",
-        "element_type": "straight_pipe",
-        "start_node_ref": reference("Node", "N-1"),
-        "end_node_ref": reference("Node", "N-2"),
-        "material_ref": reference("Material", "MAT-1"),
-        "section_ref": reference("Section", "SEC-1"),
-        "local_coordinate_system": {
-            "type": "cartesian",
-            "axes": ["X", "Y", "Z"],
-            "y_reference": [0.0, 1.0, 0.0],
-            "provenance": provenance(),
-        },
-        "result_stations": [quantity(0.0, "m", "length")],
-    }
-
-    try:
-        for record in [
-            valid_nodal_force,
-            valid_nodal_moment,
-            valid_element_point_force,
-            valid_uniform_force,
-        ]:
-            assert validate_instance(load_record_schema, record)
-        assert validate_instance(element_schema, valid_straight_pipe)
-
-        invalid_moment_direction = deepcopy(valid_nodal_force)
-        invalid_moment_direction["direction"] = "RX"
-        assert_invalid_instance(load_record_schema, invalid_moment_direction)
-
-        invalid_target = deepcopy(valid_element_point_force)
-        invalid_target["target_ref"] = reference("Node", "N-1")
-        assert_invalid_instance(load_record_schema, invalid_target)
-
-        invalid_uniform_dimension = deepcopy(valid_uniform_force)
-        invalid_uniform_dimension["quantity"] = quantity(1.0, "N", "force")
-        assert_invalid_instance(load_record_schema, invalid_uniform_dimension)
-
-        invalid_fraction = deepcopy(valid_element_point_force)
-        invalid_fraction["station_fraction"] = quantity(1.1, "1", "dimensionless")
-        assert_invalid_instance(load_record_schema, invalid_fraction)
-
-        missing_orientation = deepcopy(valid_straight_pipe)
-        del missing_orientation["local_coordinate_system"]["y_reference"]
-        assert_invalid_instance(element_schema, missing_orientation)
-
-        forbidden_local_x = deepcopy(valid_straight_pipe)
-        forbidden_local_x["local_coordinate_system"]["local_x_axis"] = [1.0, 0.0, 0.0]
-        assert_invalid_instance(element_schema, forbidden_local_x)
-    except JsonSchemaDependencyMissing as exc:
-        _skip_or_note_missing_jsonschema(exc)
-
-
-def assert_invalid_instance(schema, instance):
-    try:
-        validate_instance(schema, instance)
-    except AssertionError:
+def object_schemas(value, path="$"):
+    """Every subschema that declares `properties` or `type: object`, with its JSON path."""
+    if not isinstance(value, dict):
         return
-    raise AssertionError("instance unexpectedly passed JSON Schema validation")
+    if "properties" in value or value.get("type") == "object" or "object" in (value.get("type") or []):
+        yield path, value
+    for keyword in ("properties", "$defs"):
+        for name, item in value.get(keyword, {}).items():
+            yield from object_schemas(item, f"{path}.{keyword}.{name}")
+    for keyword in ("items", "additionalProperties", "not"):
+        yield from object_schemas(value.get(keyword), f"{path}.{keyword}")
+    for keyword in ("allOf", "oneOf", "anyOf"):
+        for index, item in enumerate(value.get(keyword, [])):
+            yield from object_schemas(item, f"{path}.{keyword}[{index}]")
 
 
-def test_model_schema_contract():
-    check_schema_contract()
+def wire_required_members():
+    """Members `PreviewModelWire` (the reader's wire form) decodes without a default."""
+    source = WIRE_SOURCE.read_text(encoding="utf-8")
+    body = re.search(r"struct PreviewModelWire \{(.*?)\n\}", source, re.S).group(1)
+    required, defaulted = [], False
+    for line in body.splitlines():
+        line = line.strip()
+        if line.startswith("#[serde(") and "default" in line:
+            defaulted = True
+            continue
+        field = re.match(r"(\w+):", line)
+        if field:
+            if not defaulted:
+                required.append(field.group(1))
+            defaulted = False
+    return required
 
 
-def test_domain_fixtures_exercise_foundation_contracts():
-    check_domain_fixtures()
+def desktop_entity_requirements():
+    """modelDocumentShape.ts ENTITY_STRINGS: collection -> (required strings, optional collection)."""
+    source = DESKTOP_SHAPE.read_text(encoding="utf-8")
+    rows = re.findall(r'\["(\w+)", \[([^\]]*)\](, true)?\]', source)
+    return {name: (re.findall(r'"(\w+)"', fields), bool(optional)) for name, fields, optional in rows}
 
 
-def test_model_schema_jsonschema_validation_helper():
-    check_jsonschema_validation()
+def test_schema_is_a_draft_2020_12_document_with_stable_identity():
+    document = schema()
+    assert document["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+    assert document["$id"] == "https://openpipestress.org/schemas/model.schema.yaml"
+    assert validate_schema_document(document, schema_label=str(SCHEMA_PATH))
+    assert "default" not in set(walk_keys(document))
 
 
-def test_typed_load_records_and_straight_pipe_orientation_contract():
-    check_typed_load_records_and_orientation_validation()
-
-
-def test_traceability_link_field_scalar_paths_are_paired():
-    schema = load_schema(SCHEMA_PATH)
-    definition = schema["$defs"]["TraceabilityLink"]
-    assert {"source_field_path", "target_field_path"} <= set(
-        definition["properties"]
-    )
-    assert definition["dependentRequired"] == {
-        "source_field_path": ["target_field_path"],
-        "target_field_path": ["source_field_path"],
+def test_root_is_the_current_model_document_format():
+    document = schema()
+    assert document["additionalProperties"] is False
+    assert document["properties"]["schema_version"]["enum"] == ["0.6.0"]
+    assert document["properties"]["document_kind"]["const"] == "openpipestress.product_preview.model"
+    # The root requires exactly what the Rust reader's wire form requires.
+    assert sorted(document["required"]) == sorted(wire_required_members())
+    assert set(document["required"]) == {
+        "schema_version", "document_kind", "project", "analysis_status", "nodes", "pipe_segments", "supports",
     }
-
-    link = deepcopy(load_json(PHYSICAL_MODEL_FIXTURE)["model"]["traceability_links"][0])
-    link["source_field_path"] = "components[id=COMP-1].geometry.face_to_face.value"
-    link["target_field_path"] = "components[id=COMP-1].geometry.face_to_face.value"
-    link_schema = schema_for_definition(schema, "TraceabilityLink")
-    assert validate_instance(link_schema, link)
-
-    unpaired = deepcopy(link)
-    del unpaired["target_field_path"]
-    try:
-        validate_instance(link_schema, unpaired)
-    except AssertionError as exc:
-        assert "target_field_path" in str(exc)
-    else:
-        raise AssertionError("unpaired field-scalar trace path must be rejected")
+    # The rejection-only `shear_model` presence is never a document member.
+    assert "shear_model" not in document["properties"]
+    assert "implicit global" in document["description"]
 
 
-def main():
-    check_schema_contract()
-    check_domain_fixtures()
-    check_jsonschema_validation()
-    check_typed_load_records_and_orientation_validation()
+def test_every_record_is_closed():
+    open_records = []
+    for path, record in object_schemas(schema()):
+        if path.startswith("$.$defs.DesktopDocument"):
+            continue  # the profile overlay adds requirements to the closed format records
+        if record.get("additionalProperties") is not False:
+            open_records.append(path)
+    # Section.properties is a map of quantities, not a record. Section provenance
+    # is a string or an object whose members no reader reads and no writer emits
+    # (the section reader takes any JSON value).
+    assert open_records == [
+        "$.$defs.Section.properties.properties",
+        "$.$defs.Section.properties.provenance",
+    ], open_records
+    assert defs()["Section"]["properties"]["properties"]["additionalProperties"] == {"$ref": "#/$defs/Quantity"}
 
 
-if __name__ == "__main__":
-    main()
+def test_quantities_and_identities():
+    quantity = defs()["Quantity"]
+    assert quantity["required"] == ["value", "unit"]
+    assert set(quantity["properties"]) == {"value", "unit"}
+    # Readers refuse only a blank identity (EMPTY_ID); Unicode identities are admitted.
+    pattern = re.compile(defs()["Id"]["pattern"])
+    for valid in ("node:N-100", "support:锚", "load:𝔫", "invented:o4|zero"):
+        assert pattern.search(valid)
+    for blank in ("", " ", "\t"):
+        assert not pattern.search(blank)
+
+
+def test_load_reference_state_group_is_referenced_unchanged():
+    d = defs()
+    assert schema()["properties"]["reference_configurations"]["items"] == {"$ref": LRS + "ReferenceConfiguration"}
+    assert d["Material"]["properties"]["expansion_laws"] == {"$ref": LRS + "MaterialExpansionLaws"}
+    assert d["LoadCase"]["properties"]["analysis_state"] == {"$ref": LRS + "AnalysisState"}
+
+
+def test_load_case_and_load_record_are_the_desktop_records_bound_by_the_load_crates():
+    d = defs()
+    load_case = d["LoadCase"]
+    assert load_case["properties"]["primitive_loads"]["items"] == {"$ref": "#/$defs/LoadRecord"}
+    assert {"label", "kind", "status", "pressure_regions", "equivalent_static", "modulus_basis_ref",
+            "modulus_basis_temperature", "analysis_state"} <= set(load_case["properties"])
+    assert load_case["not"] == {"required": ["modulus_basis_ref", "modulus_basis_temperature"]}
+    assert set(d["LoadRecord"]["required"]) == {"id", "category", "target", "direction", "magnitude", "dimension"}
+    for source in ("core/loads/primitive_loads/src/lib.rs", "core/loads/user_loads/src/lib.rs"):
+        text = (ROOT / source).read_text(encoding="utf-8")
+        assert "schemas/model.schema.yaml#/$defs/LoadRecord" in text
+
+
+def test_known_vocabularies():
+    d = defs()
+    assert set(d["SupportFamily"]["enum"]) == {
+        "anchor", "guide", "line_stop", "vertical_support", "spring", "variable_spring_hanger",
+        "spring_hanger", "constant_effort_support", "nonlinear",
+    }
+    assert {"UX", "UY", "UZ", "RX", "RY", "RZ"} <= set(d["Dof"]["enum"])
+    assert {"weight", "distributed_force", "thermal", "concentrated_force", "concentrated_moment",
+            "imposed_displacement", "pressure"} <= set(d["LoadCategory"]["enum"])
+    assert {"global_x", "global_y", "global_z", "rotation_x", "rotation_y", "rotation_z"} <= set(d["LoadDirection"]["enum"])
+    assert d["Combination"]["properties"]["basis"]["enum"] == ["mechanics", "result_state_subtraction", "range_envelope"]
+    assert d["Combination"]["properties"]["mode"]["enum"] == ["min", "max", "min_abs", "max_abs"]
+    assert {"one_way", "gap", "lift_off", "friction"} <= set(d["NonlinearSupport"]["properties"]["behavior"]["enum"])
+    contract = d["PressureContract"]
+    assert contract["required"] == ["version", "mode", "shear_model"]
+    assert contract["properties"]["version"]["const"] == "3.0.0"
+    assert contract["properties"]["mode"]["const"] == "exact_pressure_v3"
+    assert contract["properties"]["shear_model"]["enum"] == ["euler_bernoulli", "timoshenko_annulus_energy_v1"]
+    assert d["ObjectiveConnector"]["properties"]["version"]["const"] == "1.0.0"
+    targets = [branch["properties"]["type"]["const"] for branch in d["LoadTarget"]["oneOf"]]
+    assert targets == ["node", "element", "support"]
+
+
+def test_desktop_document_is_the_format_plus_the_desktop_shape_check():
+    profile = defs()["DesktopDocument"]
+    format_ref, overlay = profile["allOf"]
+    assert format_ref == {"$ref": "model.schema.yaml"}
+    assert set(overlay["properties"]["project"]["required"]) == {"id", "name", "description", "units"}
+    always = {"data_boundary", "project", "analysis_status"}
+    required_collections = set()
+    for collection, (fields, optional) in desktop_entity_requirements().items():
+        if not optional:
+            required_collections.add(collection)
+        if collection == "diagnostics":
+            assert defs()["Diagnostic"]["required"] == fields
+            continue
+        required = set(overlay["properties"][collection]["items"]["required"])
+        expected = set(fields) | {"provenance"} if collection == "sections" else set(fields)
+        if collection == "combinations":
+            expected |= {"terms"}
+        assert required == expected, collection
+    assert required_collections == {"nodes", "pipe_segments", "supports", "components", "load_cases", "diagnostics"}
+    root_required = set(schema()["required"])
+    assert set(overlay["required"]) | root_required >= required_collections | always
+    assert set(overlay["required"]) == (required_collections | always) - root_required
+
+
+def test_schema_text_makes_no_claim():
+    text = "\n".join(walk_strings(schema()))
+    for forbidden in FORBIDDEN_SCHEMA_TEXT:
+        assert forbidden not in text

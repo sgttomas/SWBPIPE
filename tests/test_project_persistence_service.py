@@ -33,15 +33,20 @@ from core.project_persistence import (
     validate_project_persistence_envelope,
     version_check_project_store,
 )
-from schema_validation import validate_instance  # noqa: E402
+from schema_validation import schema_for_definition, validate_instance  # noqa: E402
 
 
 FIXTURE_PATH = ROOT / "fixtures" / "persistence" / "invented_persisted_preview_project.json"
 MODEL_SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
+LOAD_REFERENCE_STATE_SCHEMA_PATH = ROOT / "schemas" / "load_reference_state.schema.json"
+PHYSICAL_TRANSFORM_SCHEMA_PATH = ROOT / "schemas" / "physical_transform_model.schema.yaml"
 PERSISTENCE_SCHEMA_PATH = ROOT / "schemas" / "project_persistence.schema.yaml"
 MODEL_STATE_SCHEMA_PATH = ROOT / "schemas" / "model_state.schema.json"
 ANALYSIS_RUN_SCHEMA_PATH = ROOT / "schemas" / "analysis_run.schema.json"
 PHYSICAL_SOURCE_FIXTURE = ROOT / "fixtures" / "domain" / "invented_physical_source_of_truth_model.json"
+# The canonical payload of the persistence checks below: the bundled invented
+# demo, a model document (schemas/model.schema.yaml) the desktop writes.
+CANONICAL_MODEL_FIXTURE = ROOT / "fixtures" / "product_preview" / "invented_demo_model.json"
 
 
 def persisted_project():
@@ -99,11 +104,11 @@ def professional_boundary():
 
 def invented_model_state_record(model_payload, *, note_statement=None):
     state_id = "state:tp-per-01-invented-preview"
-    model_id = model_payload["project"]["models"][0]["id"]
+    model_id = model_payload["project"]["id"]
     provenance = invented_public_provenance(
         "Invented DEL-14-01 model-state persistence record"
     )
-    model_ref = state_ref("Model", model_id, "Invented transformed analytical model")
+    model_ref = state_ref("Model", model_id, "Invented canonical model document")
     return {
         "schema_version": "0.1.0",
         "deliverable_id": "DEL-14-01",
@@ -254,6 +259,7 @@ def validate_persistence_instance(instance, instance_label):
 
     persistence_schema = load_json(PERSISTENCE_SCHEMA_PATH)
     model_schema = load_json(MODEL_SCHEMA_PATH)
+    load_reference_state_schema = load_json(LOAD_REFERENCE_STATE_SCHEMA_PATH)
     model_state_schema = load_json(MODEL_STATE_SCHEMA_PATH)
     analysis_run_schema = load_json(ANALYSIS_RUN_SCHEMA_PATH)
     registry = Registry().with_resources(
@@ -263,6 +269,8 @@ def validate_persistence_instance(instance, instance_label):
                 (model_schema["$id"], model_schema),
                 ("https://openpipestress.org/schemas/model.schema.yaml", model_schema),
                 ("model.schema.yaml", model_schema),
+                (load_reference_state_schema["$id"], load_reference_state_schema),
+                ("load_reference_state.schema.json", load_reference_state_schema),
                 (model_state_schema["$id"], model_state_schema),
                 ("https://openpipestress.org/schemas/model_state.schema.json", model_state_schema),
                 ("model_state.schema.json", model_state_schema),
@@ -286,92 +294,60 @@ def format_schema_error(error):
     return f"{path}: {error.message}"
 
 
-def transformed_physical_source_payload():
+def transformed_physical_source_model():
+    """The headless transform's analytical model. It is checked against the
+    transform's own reference format; it is not a model document."""
     physical_model = load_json(PHYSICAL_SOURCE_FIXTURE)["model"]
     transform = transform_physical_to_analytical(physical_model)
     assert not transform.has_blocking_findings
-    analytical_model = transform.analytical_model
-    payload = {
-        "schema_version": "0.6.0",
-        "project": {
-            "id": "project:tp-phys-012-derived",
-            "name": "TP-PHYS-012 invented derived analytical project",
-            "description": "Invented project payload derived from the canonical physical source fixture.",
-            "unit_system": {
-                "id": "unit-system:tp-phys-012-si",
-                "description": "Invented SI-like unit metadata for transform persistence checks.",
-                "base_units": {
-                    "length": "m",
-                    "mass": "kg",
-                    "force": "N",
-                    "temperature": "degC",
-                    "angle": "rad",
-                },
-            },
-            "privacy_class": "public",
-            "storage_policy": "public_example",
-            "models": [analytical_model],
-            "rule_pack_refs": [],
-            "report_settings": {
-                "id": "report-settings:tp-phys-012-derived",
-                "include_input_manifest": True,
-                "include_provenance_summary": True,
-                "include_professional_boundary_notice": True,
-                "result_refs": [],
-                "rule_pack_refs": [],
-                "provenance": analytical_model["provenance"],
-            },
-            "reports": [],
-            "diagnostics": [],
-            "hashes": [
-                {
-                    "algorithm": "sha256",
-                    "canonicalization": "SORTED_COMPACT_JSON",
-                    "payload_ref": {
-                        "object_type": "Project",
-                        "id": "project:tp-phys-012-derived",
-                    },
-                    "value": "tp-phys-012-invented-placeholder-hash",
-                }
-            ],
-        },
-    }
+    return transform.analytical_model
+
+
+def validate_transform_model(analytical_model, instance_label):
+    validate_instance(
+        schema_for_definition(load_json(PHYSICAL_TRANSFORM_SCHEMA_PATH), "Model"),
+        analytical_model,
+        schema_label=f"{PHYSICAL_TRANSFORM_SCHEMA_PATH}#/$defs/Model",
+        instance_label=instance_label,
+    )
+
+
+def canonical_model_payload():
+    payload = load_json(CANONICAL_MODEL_FIXTURE)
     validate_instance(
         load_json(MODEL_SCHEMA_PATH),
         payload,
         schema_label=str(MODEL_SCHEMA_PATH),
-        instance_label="TP-PHYS-012 derived analytical payload",
+        instance_label="invented canonical model payload",
     )
     return payload
 
 
-def derived_transform_envelope(model_payload, *, model_state_records=None):
+def canonical_payload_envelope(model_payload, *, model_state_records=None):
     state_refs = (
         [
             artifact_ref("model_state", item["model_state"]["state_id"])
             for item in model_state_records
         ]
         if model_state_records
-        else [artifact_ref("model_state", "model-state:tp-phys-012-derived")]
+        else [artifact_ref("model_state", "model-state:tp-per-01-canonical")]
     )
     return build_project_persistence_envelope(
-        project_id="project:tp-phys-012-derived",
-        project_name="TP-PHYS-012 invented derived analytical project",
+        project_id=model_payload["project"]["id"],
+        project_name=model_payload["project"]["name"],
         model_payload=model_payload,
         model_state_refs=state_refs,
         model_state_records=model_state_records,
         analysis_run_refs=[
-            artifact_ref("analysis_run", "analysis-run:tp-phys-012-derived")
+            artifact_ref("analysis_run", "analysis-run:tp-per-01-canonical")
         ],
         result_envelope_refs=[
-            artifact_ref("result_envelope", "result-envelope:tp-phys-012-derived")
+            artifact_ref("result_envelope", "result-envelope:tp-per-01-canonical")
         ],
         result_refs=[
-            artifact_ref("result", "result:tp-phys-012-derived-schema-probe")
+            artifact_ref("result", "result:tp-per-01-canonical-schema-probe")
         ],
-        provenance_manifest=[
-            model_payload["project"]["models"][0]["provenance"],
-        ],
+        provenance_manifest=persisted_project()["project"]["provenance_manifest"],
     )
 
 
@@ -408,9 +384,11 @@ def test_invented_persistence_fixture_validates_with_run_history_refs():
     assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y" in {
         item["ref"] for item in run_history["result_refs"]
     }
-    model = envelope["project"]["model_payload"]["project"]["models"][0]
-    assert "loadcase:L200" in {item["id"] for item in model["load_cases"]}
+    model = envelope["project"]["model_payload"]
+    assert model["document_kind"] == "openpipestress.product_preview.model"
+    assert "load:L-200" in {item["id"] for item in model["load_cases"]}
     assert "combination:C-OPER-ALT" in {item["id"] for item in model["combinations"]}
+    validate_persistence_instance(envelope, "invented persisted preview project")
 
 
 def test_canonical_hashes_are_stable_and_cover_project_payloads():
@@ -450,7 +428,7 @@ def test_round_trip_keeps_semantic_equality_and_hashes():
 
 
 def test_model_state_record_embeds_in_run_history_with_deterministic_hash():
-    model_payload = transformed_physical_source_payload()
+    model_payload = canonical_model_payload()
     state_record = invented_model_state_record(model_payload)
     validate_instance(
         load_json(MODEL_STATE_SCHEMA_PATH),
@@ -459,7 +437,7 @@ def test_model_state_record_embeds_in_run_history_with_deterministic_hash():
         instance_label="DEL-14-01 invented model state record",
     )
 
-    envelope = derived_transform_envelope(
+    envelope = canonical_payload_envelope(
         model_payload,
         model_state_records=[state_record],
     )
@@ -483,9 +461,9 @@ def test_model_state_record_embeds_in_run_history_with_deterministic_hash():
 
 
 def test_model_state_record_round_trips_through_persistence_store(tmp_path):
-    model_payload = transformed_physical_source_payload()
+    model_payload = canonical_model_payload()
     state_record = invented_model_state_record(model_payload)
-    envelope = derived_transform_envelope(
+    envelope = canonical_payload_envelope(
         model_payload,
         model_state_records=[state_record],
     )
@@ -513,12 +491,12 @@ def test_model_state_record_round_trips_through_persistence_store(tmp_path):
 
 
 def test_model_state_record_payload_change_changes_persistence_hash():
-    model_payload = transformed_physical_source_payload()
-    original = derived_transform_envelope(
+    model_payload = canonical_model_payload()
+    original = canonical_payload_envelope(
         model_payload,
         model_state_records=[invented_model_state_record(model_payload)],
     )
-    changed = derived_transform_envelope(
+    changed = canonical_payload_envelope(
         model_payload,
         model_state_records=[
             invented_model_state_record(
@@ -644,10 +622,11 @@ def test_fixture_preserves_private_data_provenance_and_professional_boundaries()
     assert not boundary["software_makes_authentication_claim"]
 
 
-def test_transformed_physical_fixture_embeds_in_schema_valid_persistence_envelope():
-    model_payload = transformed_physical_source_payload()
-    envelope = derived_transform_envelope(model_payload)
-    model = envelope["project"]["model_payload"]["project"]["models"][0]
+def test_transformed_physical_output_validates_against_its_reference_format():
+    """TP-PHYS-012: the transform output is checked against the transform's reference
+    format with its traceability; it is not wrapped in a model document."""
+    model = transformed_physical_source_model()
+    validate_transform_model(model, "TP-PHYS-012 transformed analytical model")
 
     assert model["model_role"] == "analytical_solver_model"
     assert model["source_model_ref"] == {"object_type": "Model", "id": "PHYS-1"}
@@ -657,10 +636,24 @@ def test_transformed_physical_fixture_embeds_in_schema_valid_persistence_envelop
         and link["target_ref"] == {"object_type": "Element", "id": "E-1"}
         for link in model["traceability_links"]
     )
+
+    noncanonical = deepcopy(model)
+    noncanonical["sections"][0]["properties"]["area"]["dimension"] = "area_moment"
+    try:
+        validate_transform_model(noncanonical, "TP-PHYS-012 noncanonical-dimension model")
+    except AssertionError as exc:
+        assert "area_moment" in str(exc)
+    else:
+        raise AssertionError("Noncanonical transformed model dimension was accepted.")
+
+
+def test_canonical_payload_embeds_in_schema_valid_persistence_envelope():
+    envelope = canonical_payload_envelope(canonical_model_payload())
+
     assert validate_project_persistence_envelope(envelope) == []
     validate_persistence_instance(
         envelope,
-        "TP-PHYS-012 transformed physical fixture persistence envelope",
+        "invented canonical payload persistence envelope",
     )
     assert project_hash_manifest(envelope) == envelope["hash"]["hash_manifest"]
 
@@ -669,20 +662,18 @@ def test_transformed_physical_fixture_embeds_in_schema_valid_persistence_envelop
     assert round_trip["diagnostics"] == []
 
 
-def test_persistence_schema_rejects_transformed_payload_with_noncanonical_dimension():
-    model_payload = transformed_physical_source_payload()
-    model_payload["project"]["models"][0]["sections"][0]["properties"]["area"][
-        "dimension"
-    ] = "area_moment"
-    envelope = derived_transform_envelope(model_payload)
+def test_persistence_schema_rejects_payload_outside_the_model_document_format():
+    model_payload = canonical_model_payload()
+    model_payload["pipe_segments"][0]["section"]["outside_diameter"]["dimension"] = "length"
+    envelope = canonical_payload_envelope(model_payload)
 
     assert validate_project_persistence_envelope(envelope) == []
     try:
         validate_persistence_instance(
             envelope,
-            "TP-PHYS-012 noncanonical-dimension persistence envelope",
+            "noncanonical-quantity persistence envelope",
         )
     except AssertionError as exc:
-        assert "area_moment" in str(exc)
+        assert "dimension" in str(exc)
     else:
-        raise AssertionError("Noncanonical transformed payload dimension was accepted.")
+        raise AssertionError("A model payload outside the model document format was accepted.")

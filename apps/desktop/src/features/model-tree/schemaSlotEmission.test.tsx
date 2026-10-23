@@ -16,11 +16,9 @@ import { changeFormControl, expectFormControlValue } from "../../test-support/wo
 // OMITTED from the emitted model JSON; entered values are emitted verbatim
 // through the structured-operation intent seam (DEC-020 / ADR-0001 — the
 // GUI never mutates the model directly) and through canonical model-JSON
-// serialization. The canonical `schemas/*.schema.yaml` slots and the
-// preview-model input surface are parallel surfaces (bend_pipe_ref
-// precedent); the schema-binding suite below reads the real schema files
-// and pins the vocabulary correspondence plus the constraints that bind
-// the emitted values directly.
+// serialization. `schemas/model.schema.yaml` describes the model document
+// the desktop emits; the schema-binding suite below reads the real schema
+// files and pins the emitted keys, tokens and quantity constraints directly.
 //
 // All values in this file are invented user-entered test data
 // (PUBLIC_DOMAIN_OR_ORIGINAL); no code coefficient, catalog value, or
@@ -335,69 +333,68 @@ describe("TP-PMM-GUIEMIT-001 emitted model JSON", () => {
 });
 
 describe("TP-PMM-GUIEMIT-001 schema binding", () => {
-  it("emits modulus basis ids and dimension tokens that satisfy the canonical model schema", () => {
-    const modelSchema = readSchema("model.schema.yaml");
-    const modelDefs = defs(modelSchema);
+  // schemas/model.schema.yaml describes the desktop's own model document, so the
+  // emitted keys and tokens are checked against its definitions directly.
+  const props = (def: JsonRecord) => def.properties as JsonRecord;
+  const refName = (slot: unknown) => ((slot as JsonRecord).$ref as string).replace("#/$defs/", "");
 
-    // The canonical LoadCase carries DEC-068/DEC-077 basis slots.
-    const loadCaseProps = (modelDefs.LoadCase as JsonRecord).properties as JsonRecord;
-    expect(Object.keys(loadCaseProps)).toEqual(
-      expect.arrayContaining([
-        "modulus_basis_ref",
-        "modulus_basis_temperature",
-        "equivalent_static_generation"
-      ])
+  it("emits modulus basis ids, slot keys and quantities that the model document schema defines", () => {
+    const modelDefs = defs(readSchema("model.schema.yaml"));
+
+    // Each emitted slot is a member of the record the GUI writes it on.
+    const loadCase = props(modelDefs.LoadCase as JsonRecord);
+    expect(Object.keys(loadCase)).toEqual(
+      expect.arrayContaining(["modulus_basis_ref", "modulus_basis_temperature", "equivalent_static"])
     );
+    expect(Object.keys(props(modelDefs.ComponentGeometry as JsonRecord))).toContain("bend_pipe_ref");
+    expect(Object.keys(props(modelDefs.PipeSection as JsonRecord))).toContain("mill_tolerance");
+    // The two modulus-basis slots are mutually exclusive.
+    expect((modelDefs.LoadCase as JsonRecord).not).toEqual({ required: ["modulus_basis_ref", "modulus_basis_temperature"] });
 
     // The emitted basis id satisfies the schema's own Id pattern.
-    const idPattern = new RegExp(((modelDefs.Id as JsonRecord).pattern as string));
+    const idPattern = new RegExp((modelDefs.Id as JsonRecord).pattern as string);
     expect(idPattern.test("tpoint:invented-op-160C")).toBe(true);
+    expect(idPattern.test("pipe:P-100")).toBe(true);
 
-    // Every dimension token the GUI emits for these slots is in the
-    // canonical Quantity dimension vocabulary.
-    const dimensionEnum = (
-      ((modelDefs.Quantity as JsonRecord).properties as JsonRecord).dimension as JsonRecord
-    ).enum as string[];
+    // Every emitted quantity is exactly {value, unit}: a number and a non-empty unit.
+    const quantity = modelDefs.Quantity as JsonRecord;
+    expect(quantity.additionalProperties).toBe(false);
+    expect(quantity.required).toEqual(["value", "unit"]);
+    expect((props(quantity).value as JsonRecord).type).toBe("number");
+    expect((props(quantity).unit as JsonRecord).minLength).toBe(1);
+    expect(refName(loadCase.modulus_basis_temperature)).toBe("Quantity");
+    expect(refName(props(modelDefs.PipeSection as JsonRecord).mill_tolerance)).toBe("Quantity");
+
+    // The intents carry dimension tokens beside the stored {value, unit}; every
+    // token the GUI emits for these slots is in the unit catalog's dimension vocabulary.
+    const dimensionIds = (defs(readSchema("units.schema.yaml")).DimensionId as JsonRecord).enum as string[];
     for (const token of ["acceleration", "pressure", "length", "temperature", "dimensionless"]) {
-      expect(dimensionEnum).toContain(token);
+      expect(dimensionIds).toContain(token);
     }
   });
 
-  it("covers the canonical seismic/wind generation parameter vocabulary one-to-one", () => {
+  it("covers the emitted seismic/wind generation keys and direction tokens one-to-one", () => {
     const modelDefs = defs(readSchema("model.schema.yaml"));
 
+    const generation = modelDefs.EquivalentStatic as JsonRecord;
+    expect(generation.additionalProperties).toBe(false);
+    expect(Object.keys(props(generation)).sort()).toEqual(["provenance", "seismic", "wind"]);
+    expect(refName(props(generation).seismic)).toBe("SeismicEquivalentStaticInput");
+    expect(refName(props(generation).wind)).toBe("WindEquivalentStaticInput");
+
+    // The schema's seismic keys are exactly the keys the GUI emits, every slot optional.
     const seismic = modelDefs.SeismicEquivalentStaticInput as JsonRecord;
-    expect(seismic.required).toEqual(["gravity_acceleration", "g_factors"]);
-    const gFactorAxes = Object.keys(
-      ((seismic.properties as JsonRecord).g_factors as JsonRecord).properties as JsonRecord
-    );
-    expect(gFactorAxes).toEqual(["x", "y", "z"]);
-    // Preview-surface keys (parallel surface, bend_pipe_ref precedent):
-    // g_factor_x/y/z ↔ g_factors.x/y/z; gravity_acceleration is shared.
-    const previewSeismicKeys = ["gravity_acceleration", "g_factor_x", "g_factor_y", "g_factor_z"];
-    expect(previewSeismicKeys).toEqual([
-      "gravity_acceleration",
-      ...gFactorAxes.map((axis) => `g_factor_${axis}`)
-    ]);
+    expect(seismic.additionalProperties).toBe(false);
+    expect(seismic.required).toEqual([]);
+    expect(Object.keys(props(seismic))).toEqual(["gravity_acceleration", "g_factor_x", "g_factor_y", "g_factor_z"]);
 
     const wind = modelDefs.WindEquivalentStaticInput as JsonRecord;
-    expect(wind.required).toEqual(["pressure", "shape_factor", "direction"]);
-    const windProps = wind.properties as JsonRecord;
-    expect(windProps).toHaveProperty("exposed_element_refs");
-    expect(windProps).toHaveProperty("exposed_spans");
-    // Preview-surface keys: pressure/shape_factor/direction are shared;
-    // exposed_pipe_refs ↔ exposed_element_refs (the canonical whole-element
-    // exposure surface); exposed_spans is the sub-span alternative exposure
-    // surface (landed by R14-W2 T4) with no preview-surface counterpart.
-    const previewWindKeys = ["pressure", "shape_factor", "direction", "exposed_pipe_refs"];
-    expect(previewWindKeys.slice(0, 3)).toEqual(wind.required as string[]);
-
-    // Every preview global-axis token maps into the canonical
-    // ForceDirection axis enum.
-    const forceDirections = (modelDefs.ForceDirection as JsonRecord).enum as string[];
-    for (const token of ["global_x", "global_y", "global_z"]) {
-      expect(forceDirections).toContain(token.replace("global_", "").toUpperCase());
-    }
+    expect(wind.additionalProperties).toBe(false);
+    expect(wind.required).toEqual([]);
+    expect(Object.keys(props(wind))).toEqual(["pressure", "shape_factor", "direction", "exposed_pipe_refs", "exposed_spans"]);
+    // Every global-axis token the GUI emits is in the wind direction enum.
+    expect((props(wind).direction as JsonRecord).enum).toEqual(["global_x", "global_y", "global_z"]);
+    expect(Object.keys(props(modelDefs.WindExposedSpan as JsonRecord))).toEqual(["pipe_ref", "start_fraction", "end_fraction"]);
   });
 
   it("emits mill tolerance under the canonical section dimension vocabulary and quantity constraints", () => {
