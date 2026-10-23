@@ -214,6 +214,11 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         .flat_map(|t| ["nominal_section", "reduced_section"].map(|b| format!("{t}; section_basis={b}")))
         .collect();
     extend(&mut vocabulary, "basis", &u4b_bases.iter().map(String::as_str).collect::<Vec<_>>());
+    // W-7 (DEL-04-01 Design global-end-actions.md): the global end actions' two bases (the
+    // wall basis on pressure members), which the source family does not carry.
+    const W7_BASES: [&str; 2] = ["rotated_from_published_element_local_end_actions_v1",
+        "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"];
+    extend(&mut vocabulary, "basis", &W7_BASES);
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
         "../../../../schemas/results_pressure_2.v0.3.schema.json"
@@ -257,6 +262,16 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // recovery token and section basis (the source family does not carry them).
     let u4b_split = rest.iter().position(|r| !r["kind"].as_str().unwrap().starts_with("connector_")).unwrap_or(rest.len());
     let (connector, u4b) = rest.split_at(u4b_split);
+    // W-7: the six global end-action signatures follow the U4b rows (Fx, Fy, Fz in N; Mx,
+    // My, Mz in N*m; signed linear; no declared basis), pressure-2's own.
+    let (u4b, w7) = u4b.split_at(u4b.len() - 6);
+    let w7_expected: Vec<(String, String, String)> = [("element_global_end_force_v1", "N", ["Fx", "Fy", "Fz"]), ("element_global_end_moment_v1", "N*m", ["Mx", "My", "Mz"])]
+        .iter().flat_map(|(k, u, cs)| cs.iter().map(move |c| (k.to_string(), u.to_string(), c.to_string()))).collect();
+    assert_eq!(w7.iter().map(|r| (r["kind"].as_str().unwrap().to_string(), r["unit"].as_str().unwrap().to_string(), r["component"].as_str().unwrap().to_string())).collect::<Vec<_>>(), w7_expected);
+    for row in w7 {
+        assert!(row.get("source_basis").is_none() && row["combination_algebra"] == "signed_linear" && row["category"] == "physical_quantity", "{row}");
+        assert!(!source_rows_kinds(&q).contains(&row["kind"].as_str().unwrap().to_string()), "{row}: pressure-2's own");
+    }
     assert_eq!(u4b.len(), 22);
     for row in u4b {
         let kind = row["kind"].as_str().unwrap();
@@ -314,9 +329,10 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // T4-U6 (§2.4): 88 + 18 (015-018 become four signatures each, 068 and
     // 072-076 two each); the kinds are unchanged.
     // T4-U5b: + the tie-rod force (097), a new kind; T4-U4b (§2.2): + 22 (six kinds,
-    // both section bases, 098-107) -> 129 rows over 66 kinds.
-    assert_eq!(rows.len(), 129);
-    assert_eq!(p["source_kind_count"], 66);
+    // both section bases, 098-107) -> 129 rows over 66 kinds; W-7: + the six global
+    // end-action signatures (108-113), two new kinds -> 135 over 68.
+    assert_eq!(rows.len(), 135);
+    assert_eq!(p["source_kind_count"], 68);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).

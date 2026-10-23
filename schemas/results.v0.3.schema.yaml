@@ -741,7 +741,9 @@
             "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=nominal_section",
             "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=reduced_section",
             "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
-            "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section"
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
+            "rotated_from_published_element_local_end_actions_v1",
+            "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"
           ]
         },
         "sign_convention": {
@@ -4031,7 +4033,8 @@
             "section_extremes_from_published_stress_rows_v1",
             "saint_venant_annulus_flexure_v1",
             "local_straight_annulus_on_arc",
-            "user_directional_sif_times_tangent_frame_bending_stress_v1"
+            "user_directional_sif_times_tangent_frame_bending_stress_v1",
+            "rotated_from_published_element_local_end_actions_v1"
           ]
         },
         "sign_convention": {

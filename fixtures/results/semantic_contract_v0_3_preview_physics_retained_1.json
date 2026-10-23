@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 74,
-  "source_kind_count": 51,
+  "source_signature_count": 80,
+  "source_kind_count": 53,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -97,7 +97,8 @@
         "section_extremes_from_published_stress_rows_v1",
         "saint_venant_annulus_flexure_v1",
         "local_straight_annulus_on_arc",
-        "user_directional_sif_times_tangent_frame_bending_stress_v1"
+        "user_directional_sif_times_tangent_frame_bending_stress_v1",
+        "rotated_from_published_element_local_end_actions_v1"
       ]
     },
     "sign_convention": {
@@ -1214,6 +1215,96 @@
       "combination_algebra": "never_combined"
     },
     {
+      "signature_id": "supported-source-074",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fx",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-075",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fy",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-076",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fz",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-077",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "Mx",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-078",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "My",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-079",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "Mz",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
       "signature_id": "preview-physics-retained-requested-mode-basis",
       "kind": "retained_precision_requested_mode_basis",
       "unit": "mode_code",
@@ -1277,7 +1368,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387",
+  "inherited_semantic_contract_sha256": "f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",
@@ -1321,7 +1412,9 @@
       "pipe_section_pressure_hoop_stress",
       "pipe_section_pressure_longitudinal_stress",
       "support_reaction_component_v2",
-      "constant_effort_support_applied_load"
+      "constant_effort_support_applied_load",
+      "element_global_end_force_v1",
+      "element_global_end_moment_v1"
     ],
     "recomputed_magnitude_kinds": [
       "displacement_magnitude",
