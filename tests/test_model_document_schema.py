@@ -94,7 +94,8 @@ UNBOUND_FROZEN_INPUTS = {
 }
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
-EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {}
+EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {
+}
 
 
 def _reject_constant(token):

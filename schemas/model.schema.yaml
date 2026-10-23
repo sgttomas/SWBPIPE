@@ -709,7 +709,7 @@
       }
     },
     "Constraint": {
-      "description": "A typed constraint record (FR-MOD-002) sharing schemas/constraint.schema.json ConstraintRecord's field names and enums, so the design-knowledge layer extends this vocabulary. Data only: no constraint is checked. constraint_kind excludes TBD, equipment_interface (equipment_interfaces) and missing_required_data (an open issue in unresolved_assumptions). target_refs never block a deletion; a missing target is reported.",
+      "description": "A typed constraint record (FR-MOD-002) sharing schemas/constraint.schema.json ConstraintRecord's field names and enums, so the design-knowledge layer extends this vocabulary. Data only: no constraint is checked. constraint_kind excludes TBD, equipment_interface (equipment_interfaces) and missing_required_data (an open issue in unresolved_assumptions). target_refs never block a deletion; a missing target is reported. state excludes TBD.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -747,8 +747,7 @@
             "active",
             "inactive",
             "superseded",
-            "blocked_by_missing_data",
-            "TBD"
+            "blocked_by_missing_data"
           ]
         },
         "target_refs": {
@@ -2334,18 +2333,14 @@
       "$ref": "results.v0.3.schema.yaml#/$defs/ResultEnvelope"
     },
     "RulePackChecksum": {
-      "description": "The rule pack's own stamped checksum record (ComputedRulePackChecksum, core/rules/rule_pack_document): grammar-version-bound SHA-256 over the RFC 8785 JCS payload excluding checksums. A reference is checked by comparing it with the stored pack's stamped checksum.",
+      "description": "The common subset of the rule pack's stored checksums.rule_pack_checksum and its ComputedRulePackChecksum (core/rules/rule_pack_document): SHA-256 over the RFC 8785 JCS payload excluding checksums. A reference is checked by comparing it with the stored pack's checksum.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "algorithm",
         "canonicalization",
         "payload_scope",
-        "payload_ref",
         "payload_excludes",
-        "basis",
-        "grammar_version",
-        "grammar_version_bound",
         "value"
       ],
       "properties": {
@@ -2361,28 +2356,11 @@
           "type": "string",
           "const": "rule_pack_payload"
         },
-        "payload_ref": {
-          "type": "string",
-          "minLength": 1,
-          "description": "The referencing record's rule_pack_id (the document validator checks the equality)."
-        },
         "payload_excludes": {
           "type": "array",
           "const": [
             "checksums"
           ]
-        },
-        "basis": {
-          "type": "string",
-          "const": "rfc8785_jcs_sha256_excluding_checksums"
-        },
-        "grammar_version": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
-        },
-        "grammar_version_bound": {
-          "type": "boolean",
-          "const": true
         },
         "value": {
           "type": "string",

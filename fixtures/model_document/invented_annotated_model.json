@@ -785,13 +785,9 @@
         "algorithm": "sha256",
         "canonicalization": "JCS",
         "payload_scope": "rule_pack_payload",
-        "payload_ref": "invented_demo_rule_pack",
         "payload_excludes": [
           "checksums"
         ],
-        "basis": "rfc8785_jcs_sha256_excluding_checksums",
-        "grammar_version": "1.0.0",
-        "grammar_version_bound": true,
         "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
       },
       "redistribution_status": "public_permissive",
