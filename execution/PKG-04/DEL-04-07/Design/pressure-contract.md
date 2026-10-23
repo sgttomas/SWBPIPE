@@ -101,8 +101,12 @@ included, loads nothing, whatever its declared reference state.
 - **Every case empty:** an explicit `pressure_regions: []` means unpressurized
   and applies nothing, so an exact model whose cases are all empty is refused
   with `LOAD_INPUT_MISSING`, as a pressure-free one already was.
-- Neither the warning nor the refusal applies to a model with a model-level
-  preload.
+- **Models with a model-level preload:** the per-case warning does not apply.
+  `LOAD_INPUT_MISSING` keeps its earlier rule there: some case must carry a
+  primitive load, an equivalent-static load or a pressure-region list. So a
+  pressure-free model loaded only by a constant-effort support is still
+  refused, as it was before this change (independent review, round 2: a
+  pre-existing gap, recorded for follow-up, not changed here).
 
 Evidence: `core/product_physics/tests/silent_zero_guard_runtime.rs`, in both
 solver modes. Its refusal and warning tests fail at `9ad5d79fa5`. Its controls
