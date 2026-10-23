@@ -1337,6 +1337,47 @@ button:focus-visible {
   min-width: 0;
 }
 
+/* The result overlay legend (design system 2.6, 5.6): 220 px on the raised surface at elevation 2,
+   in the canvas's top-right under the view controls. Text stays in text tokens; the scale bar and
+   the no-value swatch are its only coloured marks. */
+.viewport-result-legend {
+  position: absolute;
+  z-index: 3;
+  top: 48px;
+  right: 12px;
+  box-sizing: border-box;
+  width: 220px;
+  max-height: calc(100% - 60px - var(--viewport-presentation-bottom-inset, 0px));
+  overflow: auto;
+  padding: 8px 10px;
+  border-radius: var(--radius-card);
+  color: var(--text-primary);
+  background: var(--surface-raised);
+  box-shadow: var(--elevation-2);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.viewport-result-legend p { margin: 4px 0; overflow-wrap: anywhere; }
+.viewport-result-legend small { display: block; margin-top: 4px; color: var(--text-secondary); }
+.viewport-legend-field { display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 6px; margin-bottom: 4px; }
+.viewport-legend-field span { color: var(--text-secondary); }
+.viewport-legend-field select { min-width: 0; font-size: 11px; }
+.viewport-legend-block { padding-top: 6px; margin-top: 6px; border-top: 1px solid var(--border-hairline); }
+.viewport-legend-title { font-weight: 600; }
+.viewport-legend-standing { padding-top: 6px; margin-top: 6px; border-top: 1px solid var(--border-hairline); color: var(--text-secondary); }
+.viewport-result-scale { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 8px; height: 112px; margin: 6px 0; }
+.viewport-result-scale-bar {
+  position: relative;
+  border-radius: 2px;
+  background: linear-gradient(to top, var(--result-scale-1), var(--result-scale-2), var(--result-scale-3), var(--result-scale-4), var(--result-scale-5), var(--result-scale-6), var(--result-scale-7));
+  background: linear-gradient(to top in oklch, var(--result-scale-1), var(--result-scale-2), var(--result-scale-3), var(--result-scale-4), var(--result-scale-5), var(--result-scale-6), var(--result-scale-7));
+}
+.viewport-result-scale-marker { position: absolute; left: -3px; right: -3px; height: 2px; margin-bottom: -1px; background: var(--text-primary); }
+.viewport-result-scale-ticks { display: flex; flex-direction: column; justify-content: space-between; margin: -6px 0; padding: 0; list-style: none; }
+.viewport-legend-no-value { display: flex; align-items: center; gap: 6px; }
+.viewport-result-no-value-swatch { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 2px; background: var(--canvas-unsolved); opacity: 0.6; }
+
 .viewport-deformation-status {
   display: grid;
   flex: 1 1 auto;
