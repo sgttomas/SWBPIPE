@@ -8,6 +8,7 @@ import { buildPreviewComparison, hasNativeMechanicsInvocation } from "../../serv
 import type { PreviewSolverMode } from "../../services/previewService";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -108,6 +109,15 @@ export function useResultsSessionState() {
   // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
   const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
+  // The rule-check run (loaded pack + outcomes) behind the lifted aggregate,
+  // for the rendered report's §19.2 rule-check content. It is exposed only
+  // while its aggregate is the session's current aggregate, so every path that
+  // retires the aggregate also retires it.
+  const [heldRuleCheckRun, setRuleCheckReportRun] = useState<SessionRuleCheckRun | null>(null);
+  const ruleCheckReportRun =
+    heldRuleCheckRun && ruleCheckAggregate !== null && heldRuleCheckRun.result.aggregate_status === ruleCheckAggregate
+      ? heldRuleCheckRun
+      : null;
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
   const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
@@ -143,6 +153,9 @@ export function useResultsSessionState() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
+     * result overlays; it admits nothing by itself. */
+    numericallyEligible,
     numericalHealth: numericalHealthPresentation,
     numericalHealthHold: numericalHealthHoldView,
     analysisRun, setAnalysisRun,
@@ -150,6 +163,7 @@ export function useResultsSessionState() {
     analysisBasisRef,
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
+    ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,

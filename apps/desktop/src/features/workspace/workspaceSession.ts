@@ -55,6 +55,7 @@ import {
 import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
 import { saveReportPackage } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type {
   AnalysisRunEnvelope,
   AppliedOperationReceipt,
@@ -295,6 +296,7 @@ export function useWorkspaceSession() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    numericallyEligible,
     numericalHealth,
     numericalHealthHold,
     analysisRun, setAnalysisRun,
@@ -302,6 +304,7 @@ export function useWorkspaceSession() {
     analysisBasisRef,
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
+    ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,
@@ -1018,7 +1021,8 @@ export function useWorkspaceSession() {
       modelRevision: number;
       result: MechanicsResult | null;
       inputManifest: CurrentSessionInputManifestEvidence | null;
-    }>
+    }>,
+    run: SessionRuleCheckRun | null = null
   ) {
     const renderedBasisIsCurrent = () =>
       projectSessionGenerationRef.current === renderedBasis.projectSessionGeneration &&
@@ -1026,6 +1030,9 @@ export function useWorkspaceSession() {
       currentSolvedResultRef.current === renderedBasis.result &&
       currentInputManifestRef.current === renderedBasis.inputManifest;
     if (!renderedBasisIsCurrent()) return;
+    // The report reads the run only while its aggregate is the current one.
+    const previousRun = heldRuleCheckRun;
+    setRuleCheckReportRun(aggregate !== null && run?.result.aggregate_status === aggregate ? run : null);
     if (aggregate === ruleCheckAggregate) return;
     const previousAggregate = ruleCheckAggregate;
     const revision = ruleRevisionGate.current.start();
@@ -1059,6 +1066,7 @@ export function useWorkspaceSession() {
       // Recording the aggregate failed (e.g. hashing unavailable); keep the
       // solve-time analysis-run envelope rather than surfacing a false outcome.
       setRuleCheckAggregate(previousAggregate);
+      setRuleCheckReportRun(previousRun);
     }
   }
 
@@ -2935,12 +2943,14 @@ export function useWorkspaceSession() {
     results: {
       result,
       currentSolvedResult,
+      numericallyEligible,
       numericalHealth,
       numericalHealthHold,
       historicalRun,
       analysisRun,
       inputManifest,
       ruleCheckAggregate,
+      ruleCheckReportRun,
       ruleCheckRunBasis,
       dormantOutputBasis,
       comparison,

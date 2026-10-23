@@ -136,9 +136,9 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > |---|---|---|
 > | DEL-04-01-REQ-001 | The implementation shall model the primary global analysis system as a 3D centerline/frame model. | SOW-005; OPS-K-MECH-1 |
 > | DEL-04-01-REQ-002 | The implementation shall represent each frame node with six degrees of freedom. | SOW-005 |
-> | DEL-04-01-REQ-003 | The implementation shall provide global stiffness assembly for the frame system. | Deliverables.csv row DEL-04-01 |
-> | DEL-04-01-REQ-004 | The implementation shall provide coordinate transform handling between local and global frame representations; the current validated local-axis direction-cosine convention is documented in `core/solver/frame_kernel/README.md` and its unit tests. | Deliverables.csv row DEL-04-01 |
-> | DEL-04-01-REQ-005 | The implementation shall provide a boundary-condition application interface; supported restraint semantics are delegated to later support deliverables unless explicitly sealed in this deliverable. | Deliverables.csv row DEL-04-01; package scope |
+> | DEL-04-01-REQ-003 | The implementation shall provide global stiffness assembly for the frame system. | Deliverables.csv (retired in `48584391de`; see Git history) row DEL-04-01 |
+> | DEL-04-01-REQ-004 | The implementation shall provide coordinate transform handling between local and global frame representations; the current validated local-axis direction-cosine convention is documented in `core/solver/frame_kernel/README.md` and its unit tests. | Deliverables.csv (retired in `48584391de`; see Git history) row DEL-04-01 |
+> | DEL-04-01-REQ-005 | The implementation shall provide a boundary-condition application interface; supported restraint semantics are delegated to later support deliverables unless explicitly sealed in this deliverable. | Deliverables.csv (retired in `48584391de`; see Git history) row DEL-04-01; package scope |
 > | DEL-04-01-REQ-006 | The implementation shall expose a sparse solve interface designed for sparse numerical performance and reproducible practical-model results; performance targets are TBD. | SOW-035 |
 > | DEL-04-01-REQ-007 | The implementation shall remain unit-aware and dimensionally checked. | OPS-K-UNIT-1 |
 > | DEL-04-01-REQ-008 | The implementation shall report missing solve-required values as explicit findings and shall not supply silent defaults. | OPS-K-DATA-2 |

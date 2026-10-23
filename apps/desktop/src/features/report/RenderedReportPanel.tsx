@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { FileCheck, Printer } from "lucide-react";
@@ -12,11 +12,20 @@ import {
   renderCalculationReport,
   type RenderReportRoute
 } from "../../services/reportRenderService";
-import { buildRenderableReportInput, buildUnitDisplaySummary } from "./renderableReportInput";
-import { controlReportRendererInput } from "./reportRedactionProjector";
+import {
+  buildRenderableReportInput,
+  buildUnitDisplaySummary,
+  type ReportExportContext,
+  type SessionRuleCheckRun
+} from "./renderableReportInput";
+import {
+  controlLocalPrivateRenderedHtml,
+  controlReportRendererInput
+} from "./reportRedactionProjector";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
+import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 
 // DEC-021 (A7): rendered FR-016 calculation report. The Rust renderer crate
 // composes, gates, and hashes the document; this panel only requests a
@@ -24,12 +33,26 @@ import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveSer
 // Save and print are refused while the renderer reports export_blocked.
 // Printed/PDF output is the derived view naming the canonical hash — it is
 // never hash-bound evidence.
+//
+// DEL-12-02 REXC-REQ-006: the panel owns one explicit local-private selection.
+// Unselected, the render runs in the public-report context (private inputs
+// stay withheld). Selected, the render input, the preview, the canonical-HTML
+// save and the print view are each controlled in the local-private context
+// under that same wrapper-owned intent, the warning evidence is shown, and the
+// rendered document records its local-private status. A render is shown only
+// while the selection that produced it is still current; clearing the
+// selection discards it.
+
+const LOCAL_PRIVATE_REPORT_WARNING =
+  "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
 
 export function RenderedReportPanel({
   model,
   result,
   analysisRun,
   projectSummary,
+  inputManifest = null,
+  ruleCheckRun = null,
   packagePrivateIntent = false,
   packageBusy = false,
   packageRedaction = null,
@@ -44,6 +67,8 @@ export function RenderedReportPanel({
   numericalHealth?: NumericalHealthView | null;
   analysisRun: AnalysisRunEnvelope | null;
   projectSummary: LocalProjectSummary | null;
+  inputManifest?: CurrentSessionInputManifestEvidence | null;
+  ruleCheckRun?: SessionRuleCheckRun | null;
   packagePrivateIntent?: boolean;
   packageBusy?: boolean;
   packageRedaction?: ControlledRouteExport | null;
@@ -51,14 +76,86 @@ export function RenderedReportPanel({
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
 }) {
-  const [route, setRoute] = useState<RenderReportRoute | null>(null);
+  const [localPrivateIntent, setLocalPrivateIntent] = useState(false);
+  const currentContext: ReportExportContext = localPrivateIntent ? "local_private" : "public_report";
+  const [renderState, setRenderState] = useState<{
+    context: ReportExportContext;
+    route: RenderReportRoute;
+  } | null>(null);
   const [rendering, setRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [printRequested, setPrintRequested] = useState(false);
-  const [redaction, setRedaction] = useState<ControlledRouteExport | null>(null);
+  const [redactionState, setRedactionState] = useState<{
+    context: ReportExportContext;
+    controlled: ControlledRouteExport;
+  } | null>(null);
+  const renderGeneration = useRef(0);
 
+  // A render (or its redaction evidence) is shown only under the selection
+  // that produced it: a public render never reuses a private render's output.
+  const route = renderState?.context === currentContext ? renderState.route : null;
+  const redaction = redactionState?.context === currentContext ? redactionState.controlled : null;
   const canRender = Boolean(result && analysisRun) && !rendering;
   const outcome = route?.route === "tauri_renderer" ? route.outcome : null;
+  const localPrivateOutcome = outcome !== null && renderState?.context === "local_private";
+  const localPrivateSinks = useMemo(() => {
+    if (!localPrivateOutcome || !outcome || outcome.export_blocked) return null;
+    const html = controlLocalPrivateRenderedHtml(outcome.html, localPrivateIntent);
+    const print = controlLocalPrivateRenderedHtml(outcome.derived_print_html, localPrivateIntent);
+    if (
+      html.blocked ||
+      print.blocked ||
+      html.payload !== outcome.html ||
+      print.payload !== outcome.derived_print_html
+    ) {
+      return null;
+    }
+    return { html: html.payload as string, print: print.payload as string };
+  }, [localPrivateIntent, localPrivateOutcome, outcome]);
+  // Public renders keep their existing sinks; local-private renders expose the
+  // document only through the local-private controlled copies.
+  const previewHtml = outcome && !outcome.export_blocked
+    ? localPrivateOutcome ? localPrivateSinks?.html ?? null : outcome.html
+    : null;
+  const printHtml = outcome && !outcome.export_blocked
+    ? localPrivateOutcome ? localPrivateSinks?.print ?? null : outcome.derived_print_html
+    : null;
+  const sessionRuleCheckRun =
+    ruleCheckRun &&
+    analysisRun?.analysis_run.analysis_status.includes(ruleCheckRun.result.aggregate_status)
+      ? ruleCheckRun
+      : null;
+
+  // Pending render work belongs to the panel instance and the exact source it
+  // was started from. Unmounting (e.g. a project reopen replaces the panel) or
+  // replacing any source invalidates it before it can reach renderer IPC or
+  // write state; a source replacement also retires the shown render.
+  useEffect(() => () => {
+    renderGeneration.current += 1;
+  }, []);
+  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun });
+  useEffect(() => {
+    const previous = sourceRef.current;
+    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun };
+    sourceRef.current = next;
+    if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
+    renderGeneration.current += 1;
+    setRenderState(null);
+    setRedactionState(null);
+    setPrintRequested(false);
+    setRenderError(null);
+    setRendering(false);
+  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun]);
+
+  function onLocalPrivateIntentChange(value: boolean) {
+    renderGeneration.current += 1;
+    setLocalPrivateIntent(value);
+    setRenderState(null);
+    setRedactionState(null);
+    setPrintRequested(false);
+    setRenderError(null);
+    setRendering(false);
+  }
   const unitBasis = result ? buildUnitDisplaySummary(model, result) : null;
   const unitBasisText = unitBasis
     ? [
@@ -72,29 +169,40 @@ export function RenderedReportPanel({
 
   async function onRender() {
     if (!result || !analysisRun || loadReferenceOutputRefusal(result)) return;
+    const generation = ++renderGeneration.current;
+    const intent = localPrivateIntent;
+    const context: ReportExportContext = intent ? "local_private" : "public_report";
+    const isCurrent = () => renderGeneration.current === generation;
     setRendering(true);
     setRenderError(null);
     setPrintRequested(false);
+    setRenderState(null);
+    setRedactionState(null);
     try {
       const input = await buildRenderableReportInput({
         model,
         result,
         analysisRun,
         projectSummary,
+        inputManifest,
+        ruleCheckRun: sessionRuleCheckRun,
+        renderContext: { exportContext: context, generatedAt: new Date().toISOString() },
         numericalHealth
       });
-      const controlled = controlReportRendererInput(input);
-      setRedaction(controlled);
-      if (controlled.blocked || controlled.payload === null) {
-        setRoute(null);
-        return;
-      }
-      setRoute(await renderCalculationReport(controlled));
+      if (!isCurrent()) return;
+      const controlled = controlReportRendererInput(input, intent);
+      setRedactionState({ context, controlled });
+      if (controlled.blocked || controlled.payload === null) return;
+      if (!isCurrent()) return;
+      const next = await renderCalculationReport(controlled, { stillCurrent: isCurrent });
+      if (!isCurrent()) return;
+      setRenderState({ context, route: next });
     } catch (error) {
-      setRoute(null);
+      if (!isCurrent()) return;
+      setRenderState(null);
       setRenderError(error instanceof Error ? error.message : String(error));
     } finally {
-      setRendering(false);
+      if (isCurrent()) setRendering(false);
     }
   }
 
@@ -126,6 +234,15 @@ export function RenderedReportPanel({
           {rendering ? "Rendering…" : "Render report"}
         </button>
         </LoadReferenceOutputGate>
+        <label>
+          <input
+            type="checkbox"
+            data-testid="rendered-report-local-private-intent"
+            checked={localPrivateIntent}
+            onChange={(event) => onLocalPrivateIntentChange(event.currentTarget.checked)}
+          />
+          Include known private values in this local rendered report (your own review; not for sharing)
+        </label>
         {!result || !analysisRun ? (
           <span data-testid="rendered-report-precondition">
             Solve first: rendering needs a mechanics result and analysis-run record.
@@ -197,8 +314,16 @@ export function RenderedReportPanel({
       ) : null}
       {redaction ? (
         <p data-testid="rendered-report-redaction-summary">
-          decisions={redaction.summary.decision_count}; findings={redaction.summary.finding_count}; blocked=
+          route={redaction.summary.route_id}; context={redactionState?.context}; explicit_intent=
+          {String(redaction.summary.local_first?.explicit_local_private_intent === true)}; decisions=
+          {redaction.summary.decision_count}; findings={redaction.summary.finding_count}; warnings=
+          {redaction.summary.warning_count}; blocking={redaction.summary.blocking_count}; blocked=
           {String(redaction.blocked)}
+        </p>
+      ) : null}
+      {redaction && redactionState?.context === "local_private" && !redaction.blocked ? (
+        <p role="note" data-testid="rendered-report-local-private-warning">
+          {LOCAL_PRIVATE_REPORT_WARNING}
         </p>
       ) : null}
       {route?.route === "unavailable_browser_preview" ? (
@@ -209,7 +334,7 @@ export function RenderedReportPanel({
       ) : null}
       {outcome ? (
         <>
-          <div className="report-list">
+          <div className="report-list" data-export-context={renderState?.context}>
             <span data-testid="rendered-report-route">route=tauri_renderer</span>
             <span data-testid="rendered-report-hash">
               Canonical HTML SHA-256: {outcome.sha256_hex}
@@ -228,15 +353,26 @@ export function RenderedReportPanel({
                 <li key={reason}>{reason}</li>
               ))}
             </ul>
-          ) : (
+          ) : previewHtml !== null && printHtml !== null ? (
             <div className="report-actions">
-        <ControlledExportLink
-                data-testid="rendered-report-save"
-                download={`openpipestress-report-${outcome.sha256_hex.slice(0, 12)}.html`}
-                href={`data:text/html;charset=utf-8,${encodeURIComponent(outcome.html)}`}
-              >
-                Save canonical HTML
-        </ControlledExportLink>
+              {localPrivateOutcome ? (
+                <ControlledExportLink
+                  data-testid="rendered-report-save-local-private"
+                  explicitLocalPrivateIntent={localPrivateIntent}
+                  download={`openpipestress-local-private-report-${outcome.sha256_hex.slice(0, 12)}.html`}
+                  href={`data:text/html;charset=utf-8,${encodeURIComponent(previewHtml)}`}
+                >
+                  Save canonical HTML (local private)
+                </ControlledExportLink>
+              ) : (
+                <ControlledExportLink
+                  data-testid="rendered-report-save"
+                  download={`openpipestress-report-${outcome.sha256_hex.slice(0, 12)}.html`}
+                  href={`data:text/html;charset=utf-8,${encodeURIComponent(outcome.html)}`}
+                >
+                  Save canonical HTML
+                </ControlledExportLink>
+              )}
               <button
                 type="button"
                 data-testid="rendered-report-print"
@@ -246,21 +382,25 @@ export function RenderedReportPanel({
                 Print / PDF (derived view)
               </button>
             </div>
+          ) : (
+            <p data-testid="rendered-report-sink-blocked">
+              The rendered document is withheld: its local-private sink control did not pass.
+            </p>
           )}
-          {!outcome.export_blocked ? (
+          {previewHtml !== null ? (
             <iframe
               title="Rendered calculation report preview"
               data-testid="rendered-report-preview"
               sandbox=""
-              srcDoc={outcome.html}
+              srcDoc={previewHtml}
               style={{ width: "100%", height: "20rem", border: "1px solid #888" }}
             />
           ) : null}
-          {printRequested && !outcome.export_blocked ? (
+          {printRequested && printHtml !== null ? (
             <iframe
               title="Derived print view"
               data-testid="rendered-report-print-frame"
-              srcDoc={outcome.derived_print_html}
+              srcDoc={printHtml}
               style={{ position: "absolute", width: 0, height: 0, border: 0 }}
               onLoad={(event) => {
                 event.currentTarget.contentWindow?.print();

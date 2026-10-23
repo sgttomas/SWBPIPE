@@ -51,12 +51,22 @@ export const CATEGORY_TOKEN_SLOTS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8] as co
 
 export type CategoryTokenSlot = (typeof CATEGORY_TOKEN_SLOTS)[number];
 
-export type ViewportTokenName = `canvas.${CanvasTokenKey}` | `cat.${CategoryTokenSlot}` | "surface.raised";
+/** The seven anchors of the result scale, `result.scale.1` (near zero) to `result.scale.7` (maximum). */
+export const RESULT_SCALE_STEPS = Object.freeze([1, 2, 3, 4, 5, 6, 7] as const);
+
+export type ResultScaleStep = (typeof RESULT_SCALE_STEPS)[number];
+
+export type ViewportTokenName =
+  | `canvas.${CanvasTokenKey}`
+  | `cat.${CategoryTokenSlot}`
+  | `result.scale.${ResultScaleStep}`
+  | "surface.raised";
 
 /** Every token the canvas may read. Several have no consumer yet; later slices only add consumers. */
 export const VIEWPORT_TOKEN_NAMES: readonly ViewportTokenName[] = Object.freeze([
   ...CANVAS_TOKEN_KEYS.map((key): ViewportTokenName => `canvas.${key}`),
   ...CATEGORY_TOKEN_SLOTS.map((slot): ViewportTokenName => `cat.${slot}`),
+  ...RESULT_SCALE_STEPS.map((step): ViewportTokenName => `result.scale.${step}`),
   "surface.raised"
 ]);
 
@@ -131,11 +141,15 @@ export const VIEWPORT_PALETTE: Readonly<Record<ViewportPaletteTheme, ViewportPal
  * be used yet: this product still draws both shapes solid at once, so a deformed tube in
  * `canvas.pipe` could not be told from the undeformed tube beside it. `canvas.deformGhost`
  * is the outline's token, and at the overlay's opacity it falls under 3:1 against the
- * ground in both themes. `canvas.vector` is also the load vectors' ink, so the two would
- * share a colour once result colour is drawn; that state is not reached, because when 6.8
- * is built (the undeformed shape becomes the dashed outline, which needs the edge-line
- * mechanism and result colour) this role goes and the deformed shape takes the design's
- * colours.
+ * ground in both themes. `canvas.vector` is also the ink of vectors drawn while result colour
+ * is on (design system 2.1), which here are the support reaction arrows; they share the
+ * deformed shape's colour and are told from it by form. Result colour (6.7) is drawn on the
+ * undeformed tube only; when 6.8 is built (the undeformed shape becomes the dashed outline,
+ * which needs the edge-line mechanism) this role goes and the deformed shape takes the
+ * design's colours.
+ *
+ * Result colour itself is not a role: an element's colour is a position on the result scale
+ * (`resultScaleHex`), or `resultNoValueHex` for an element with no colourable value.
  */
 export const VIEWPORT_ROLE_TOKENS = Object.freeze({
   pipe: "canvas.pipe",
@@ -153,6 +167,10 @@ export const VIEWPORT_ROLE_TOKENS = Object.freeze({
   routeDraft: "canvas.draft",
   loadForce: "cat.1",
   loadMoment: "cat.2",
+  // Support reactions are result vectors: neutral ink (design system 2.1), told apart by form, a
+  // single head for a force and the rotation glyph's double head for a moment.
+  reactionForce: "canvas.vector",
+  reactionMoment: "canvas.vector",
   gizmoAxisX: "canvas.axisX",
   gizmoAxisY: "canvas.axisY",
   gizmoAxisZ: "canvas.axisZ",
@@ -208,4 +226,96 @@ const SHADE_RATIOS: Readonly<Record<ViewportPaletteTheme, readonly [number, numb
  */
 export function viewportShadeRatio(theme: ViewportPaletteTheme): readonly [number, number, number] {
   return SHADE_RATIOS[theme];
+}
+
+// ---------------------------------------------------------------------------
+// The result colour scale (design system 2.6, 6.7).
+// ---------------------------------------------------------------------------
+
+type Oklch = Readonly<{ l: number; c: number; h: number }>;
+
+function srgbChannelToLinear(value: number): number {
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+function linearChannelToSrgb(value: number): number {
+  const clamped = Math.min(1, Math.max(0, value));
+  return clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * clamped ** (1 / 2.4) - 0.055;
+}
+
+/** An sRGB hex colour in OKLCH (Ottosson's OKLab, polar form). */
+export function hexToOklch(hex: number): Oklch {
+  const r = srgbChannelToLinear(((hex >> 16) & 0xff) / 255);
+  const g = srgbChannelToLinear(((hex >> 8) & 0xff) / 255);
+  const b = srgbChannelToLinear((hex & 0xff) / 255);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const lightness = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+  const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const bAxis = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return Object.freeze({ l: lightness, c: Math.hypot(a, bAxis), h: Math.atan2(bAxis, a) });
+}
+
+/** An OKLCH colour back to an sRGB hex, each channel clamped to the gamut and rounded. */
+export function oklchToHex({ l: lightness, c, h }: Oklch): number {
+  const a = c * Math.cos(h);
+  const bAxis = c * Math.sin(h);
+  const l = (lightness + 0.3963377774 * a + 0.2158037573 * bAxis) ** 3;
+  const m = (lightness - 0.1055613458 * a - 0.0638541728 * bAxis) ** 3;
+  const s = (lightness - 0.0894841775 * a - 1.291485548 * bAxis) ** 3;
+  const channel = (value: number) => Math.round(linearChannelToSrgb(value) * 255);
+  const red = channel(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s);
+  const green = channel(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s);
+  const blue = channel(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s);
+  return (red << 16) | (green << 8) | blue;
+}
+
+const RESULT_SCALE_ANCHORS: Readonly<Record<ViewportPaletteTheme, readonly Oklch[]>> = Object.freeze({
+  light: Object.freeze(RESULT_SCALE_STEPS.map((step) => hexToOklch(VIEWPORT_PALETTE.light[`result.scale.${step}`].hex))),
+  dark: Object.freeze(RESULT_SCALE_STEPS.map((step) => hexToOklch(VIEWPORT_PALETTE.dark[`result.scale.${step}`].hex)))
+});
+
+/**
+ * The result scale at a position from 0 (near zero, `result.scale.1`) to 1 (the maximum,
+ * `result.scale.7`): continuous interpolation in OKLCH between the seven anchors, as design
+ * system 2.6 states, with the hue taken along the shorter arc. A position on an anchor is that
+ * token exactly; a position outside 0 to 1, or not finite, is clamped to the nearer end.
+ */
+export function resultScaleHex(theme: ViewportPaletteTheme, position: number): number {
+  const t = Number.isFinite(position) ? Math.min(1, Math.max(0, position)) : 0;
+  const scaled = t * (RESULT_SCALE_STEPS.length - 1);
+  const lower = Math.floor(scaled);
+  const fraction = scaled - lower;
+  if (fraction === 0) return VIEWPORT_PALETTE[theme][`result.scale.${RESULT_SCALE_STEPS[lower]}`].hex;
+  const from = RESULT_SCALE_ANCHORS[theme][lower];
+  const to = RESULT_SCALE_ANCHORS[theme][lower + 1];
+  let hueStep = to.h - from.h;
+  if (hueStep > Math.PI) hueStep -= 2 * Math.PI;
+  if (hueStep < -Math.PI) hueStep += 2 * Math.PI;
+  return oklchToHex({
+    l: from.l + (to.l - from.l) * fraction,
+    c: from.c + (to.c - from.c) * fraction,
+    h: from.h + hueStep * fraction
+  });
+}
+
+/** The opacity at which an element with no colourable value draws (design system 2.6, 6.7). */
+export const RESULT_NO_VALUE_OPACITY = 0.6;
+
+function blendChannel(over: number, under: number, shift: number, opacity: number): number {
+  return Math.round((((over >> shift) & 0xff) * opacity) + (((under >> shift) & 0xff) * (1 - opacity)));
+}
+
+/**
+ * An element with no colourable value: `canvas.unsolved` at 60% opacity over `canvas.bg`, the
+ * colour that opacity gives against the ground, resolved here because an instanced figure has one
+ * opacity for all its instances. Derived from the two tokens alone, as the shade ratio is.
+ */
+export function resultNoValueHex(theme: ViewportPaletteTheme): number {
+  const over = VIEWPORT_PALETTE[theme]["canvas.unsolved"].hex;
+  const under = VIEWPORT_PALETTE[theme]["canvas.bg"].hex;
+  return (blendChannel(over, under, 16, RESULT_NO_VALUE_OPACITY) << 16)
+    | (blendChannel(over, under, 8, RESULT_NO_VALUE_OPACITY) << 8)
+    | blendChannel(over, under, 0, RESULT_NO_VALUE_OPACITY);
 }

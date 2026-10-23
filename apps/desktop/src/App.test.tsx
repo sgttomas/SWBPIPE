@@ -14836,6 +14836,62 @@ describe("primitive case selection display", () => {
 });
 
 describe("historical lifecycle history transitions", () => {
+  it("never sends a pending private report preparation to the renderer after a project reopen (W-3)", async () => {
+    const { model, replay } = await installPreviewReplay();
+    const replacement = inventedOpenEnvelope(model);
+    const preparationGate = deferred<void>();
+    let builderSpy: { mockRestore(): void } | null = null;
+    try {
+      render(<App />);
+      await screen.findByTestId("desktop-preview-shell");
+      fireEvent.click(await runMechanicsButton());
+      await waitFor(
+        () => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"),
+        { timeout: 10000 },
+      );
+      const inputModule = await import("./features/report/renderableReportInput");
+      const realBuild = inputModule.buildRenderableReportInput;
+      let preparations = 0;
+      builderSpy = vi.spyOn(inputModule, "buildRenderableReportInput").mockImplementation(async (args) => {
+        preparations += 1;
+        const input = await realBuild(args);
+        await preparationGate.promise;
+        return input;
+      });
+      const reportSection = openWorkspaceSection("report");
+      (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
+        if (command === "open_local_project") return Promise.resolve(replacement);
+        if (command === "render_calculation_report") return Promise.resolve({});
+        return replay.invoke(command, args, options);
+      });
+      fireEvent.click(within(reportSection).getByTestId("rendered-report-local-private-intent"));
+      fireEvent.click(within(reportSection).getByTestId("rendered-report-render"));
+      await waitFor(() => expect(preparations).toBe(1));
+
+      act(() => nativeMenuCommand("file.open-local"));
+      await waitFor(() =>
+        expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id),
+      );
+      await act(async () => {
+        preparationGate.resolve();
+        await preparationGate.promise;
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+      await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+
+      expect(invokeMock.mock.calls.filter(([command]) => command === "render_calculation_report")).toHaveLength(0);
+      act(() => nativeMenuCommand("view.section.report"));
+      const reopenedReport = screen.getByTestId("workspace-section-report");
+      expect(within(reopenedReport).getByTestId("rendered-report-local-private-intent")).not.toBeChecked();
+      expect(within(reopenedReport).queryByTestId("rendered-report-redaction-summary")).not.toBeInTheDocument();
+    } finally {
+      builderSpy?.mockRestore();
+      preparationGate.resolve();
+      delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    }
+  });
+
   it("cannot publish delayed inactive export or report completions after a project reopen", async () => {
     const { model, replay } = await installPreviewReplay();
     const replacement = inventedOpenEnvelope(model);
@@ -14897,30 +14953,26 @@ describe("historical lifecycle history transitions", () => {
       );
 
       // This case exercises completion ownership beyond the renderer policy seam.
-      // The production public-report policy correctly blocks this private input.
-      // Preserve that verdict, then use the real controller with an explicit
-      // local-private fixture route so the delayed native command can start.
+      // The public-report policy correctly blocks this private input; the
+      // panel's own explicit local-private selection opens the real
+      // local-private route so the delayed native command can start.
       const reportPolicy = await import("./features/report/reportRedactionProjector");
-      const { controlRouteExport } = await import("./features/redaction-controls/redactionExportControls");
-      const publicReportPolicy = reportPolicy.controlReportRendererInput;
+      const rendererPolicy = reportPolicy.controlReportRendererInput;
       const policyObservations: Array<{
         input: unknown;
-        publicControl: ReturnType<typeof publicReportPolicy>;
-        fixtureControl: ReturnType<typeof publicReportPolicy>;
+        explicitIntent: boolean | undefined;
+        publicControl: ReturnType<typeof rendererPolicy>;
+        fixtureControl: ReturnType<typeof rendererPolicy>;
       }> = [];
-      rendererPolicySpy = vi.spyOn(reportPolicy, "controlReportRendererInput").mockImplementation((input) => {
-        const publicControl = publicReportPolicy(input);
-        const fixtureControl = controlRouteExport(input, {
-          routeId: "DREP-IPC-003",
-          exportContext: "local_private",
-          explicitLocalPrivateIntent: true,
-          requireLosslessMaterialization: true,
-        });
-        policyObservations.push({ input, publicControl, fixtureControl });
+      rendererPolicySpy = vi.spyOn(reportPolicy, "controlReportRendererInput").mockImplementation((input, explicitIntent) => {
+        const publicControl = rendererPolicy(input);
+        const fixtureControl = rendererPolicy(input, explicitIntent);
+        policyObservations.push({ input, explicitIntent, publicControl, fixtureControl });
         return fixtureControl;
       });
 
       const reportSection = openWorkspaceSection("report");
+      fireEvent.click(within(reportSection).getByTestId("rendered-report-local-private-intent"));
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
@@ -14934,6 +14986,8 @@ describe("historical lifecycle history transitions", () => {
         ),
       );
       await waitFor(() => expect(policyObservations).toHaveLength(1));
+      expect(policyObservations[0].explicitIntent).toBe(true);
+      expect(policyObservations[0].fixtureControl.summary.local_first?.export_context).toBe("local_private");
       expect(policyObservations[0].publicControl).toMatchObject({
         blocked: true,
         payload: null,

@@ -46,7 +46,7 @@ import { DormantSection } from "./features/workspace/dormantSection";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -179,12 +179,14 @@ function AppSession() {
   const {
     result,
     currentSolvedResult,
+    numericallyEligible,
     numericalHealth,
     numericalHealthHold,
     historicalRun,
     analysisRun,
     inputManifest,
     ruleCheckAggregate,
+    ruleCheckReportRun,
     ruleCheckRunBasis,
     dormantOutputBasis,
     comparison,
@@ -208,6 +210,8 @@ function AppSession() {
     handleSaveReportPackage
   } = session.results;
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
+  // The viewport's result overlays read the same standing and numerical health view as the results panel.
+  const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
     editorIntents,
     retainedReviewContext,
@@ -697,6 +701,8 @@ function AppSession() {
                 numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 projectSummary={projectSummary}
+                inputManifest={inputManifest}
+                ruleCheckRun={ruleCheckReportRun}
                 packagePrivateIntent={reportPackagePrivateIntent}
                 packageBusy={reportPackageBusy}
                 packageRedaction={reportPackageRedaction}
@@ -771,6 +777,7 @@ function AppSession() {
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
+              resultStanding={viewportResultStanding}
               selection={selection}
               selectionState={orderedSelection}
               theme={resolvedTheme}
@@ -937,12 +944,12 @@ function AppSession() {
                 basis={ruleCheckRunBasis}
                 model={model}
                 result={currentSolvedResult}
-                onAggregateChange={(aggregate) => void handleRuleCheckAggregate(aggregate, {
+                onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
                   projectSessionGeneration,
                   modelRevision: uiModelRevision,
                   result: currentSolvedResult,
                   inputManifest
-                })}
+                }, run ?? null)}
                 onR3JourneyEvent={recordR3JourneyEvent}
               />
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />

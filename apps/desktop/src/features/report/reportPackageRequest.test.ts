@@ -100,7 +100,7 @@ describe("report-package current-session request", () => {
       provenance: ""
     });
 
-    const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null });
+    const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
     const recordedIdentity = inputManifest.manifest.solver_basis;
     expect(analysisRun.schema_version).toBe("0.3.0");
     expect(analysisRun.analysis_run.solver_version).toMatchObject({ solver_name: recordedIdentity.solver_name, solver_version: recordedIdentity.solver_version, build_ref: { ref: recordedIdentity.solver_build_ref } });
@@ -207,7 +207,7 @@ describe("report-package current-session request", () => {
     const session = await syntheticPreviewSession(await loadDemoModel());
     const before = JSON.stringify(session);
     const projection = projectReceivedReportResults(session.result, session.analysisRun);
-    const report = await buildRenderableReportInput({ ...session, projectSummary: null });
+    const report = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
     const resultValues = projection.resultSets.flatMap(
       (set) => set.values
     );

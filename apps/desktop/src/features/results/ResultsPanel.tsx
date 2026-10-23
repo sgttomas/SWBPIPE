@@ -13,7 +13,7 @@ import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResul
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
 import { numericalResultStanding } from "./resultStanding";
-import { badgeOf, locationText, numericalHealthView, readNumericalHealth, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
+import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
@@ -667,10 +667,7 @@ function NumericalHealthBadgeText({ badge, text, testId }: { badge: NumericalHea
 
 function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number] }) {
   // No row badge on the pressure-source route: those rows' values are the producer's recovery.
-  if (!health || !health.rowBadges || !item.basis_ref) return null;
-  const { ref_type: refType, ref_id: refId } = item.basis_ref;
-  const state = refType === "load_case" ? health.caseState(refId)
-    : refType === "combination" ? health.combinationState(refId)?.state ?? null : null;
+  const state = rowHealthState(health, item);
   if (!state) return null;
   return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
