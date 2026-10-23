@@ -293,9 +293,9 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 | `apps/desktop/src-tauri/src/lib.rs` | this slice: the blocked-run projection (`:2913-2929`). Separate slice (§2.7): the shared resolver and `extract_library_slot_value` (`:3155-3166`) | S1b: self-test model (`:4482`), open-path validator | same file, different code; no |
 | D3-pinned files | none; `core/units/src` is only depended on, not edited | S1b's D3 chain | no |
 
-**Sequencing** (coordinator, 2026-10-23): this item lands now. It touches no S1b or S2 file
-except the panel, and no model-document member, so it does not wait for S1b. The
-§2.7 runtime fix is a separate slice. It can also land now, independently.
+**Dependencies.** This item touches no S1b or S2 file except the panel, and no
+model-document member, so it does not depend on S1b. The §2.7 runtime fix is a
+separate slice with no dependency on this one.
 
 ## 6. Review findings resolved
 

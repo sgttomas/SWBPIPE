@@ -560,18 +560,6 @@ applied only through batch review (§3), so this does not affect it.
 
 **Answer.** W-10 can be implemented before S1b without a D3 collision.
 
-**Sequencing (coordinator decision, 2026-10-23).**
-- W-10 lands before S1b.
-- W-10's corpus cases and their routing list entries come in a follow-up after
-  S1b; if they land first instead, S1b re-blesses them mechanically. Whichever
-  lands second re-blesses.
-- Shared-list edits in applier `lib.rs` and `types.ts`: whoever merges second
-  merges main and resolves.
-- Applier `Cargo.toml`, `operation_applier/Cargo.lock` and the routing file's
-  applier digest and source list: whoever lands second regenerates the lockfile
-  and recomputes the digest. S1b leaves the other three lockfiles untouched.
-- W-10 tests use the version constant, so S1b's ripple does not touch them.
-
 ## 6. Size, risks, decisions
 
 **Size: M.** About 450 lines for the Rust module, 700 for applier tests, 60 for
@@ -608,10 +596,8 @@ below. Membership-preserving reconnect inside a region would need the chain
 check at authoring (a D3 on `pressure_runtime.rs` or product_physics `lib.rs`,
 or a duplicate in the applier); it is not provided.
 
-**Proposed records (applied in the implementation PR only after the owner
-approves the exact wording).** The DEL-16-06 limitation line changes a
-commitment, which is owner-reserved; the PR quotes the owner's words approving
-it.
+**Records.** The limitation is recorded in the release notes and DEL-16-06 with
+these texts.
 
 Release notes, `docs/RELEASE_NOTES_v0.1.0_DRAFT.md` line 57. Old:
 
