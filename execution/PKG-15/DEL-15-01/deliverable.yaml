@@ -200,5 +200,7 @@ code_paths:
 - schemas/handoff_package.schema.json
 - schemas/target_mapping.schema.json
 - tools/validation/validate_dependencies_schema.py
+- apps/desktop/src/features/handoff/HandoffPanel.tsx
 checks:
 - tests/test_handoff_package_schema.py
+- apps/desktop/src/features/handoff/HandoffPanel.test.tsx

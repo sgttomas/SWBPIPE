@@ -201,5 +201,9 @@ code_paths:
 - core/handoff/external_prover/authority_boundary.py
 - core/handoff/external_prover/metadata.py
 - schemas/external_prover_metadata.schema.json
+- apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx
 checks:
 - tests/test_external_prover_boundary_metadata.py
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/src/App.test.tsx

@@ -137,6 +137,8 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 >
 > Current source evidence: `core/handoff/caepipe_external/run.py` supplies a bounded reference implementation. The original Phase A no-code/no-fixture statement describes that run only. Retain the full accepted contract and explicit runtime, provenance, target/executable and validation holds; reference construction does not retire unmet requirements.
+>
+> Current implementation (at `62c1efd75b`): the desktop Exports section renders `apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx`, which builds a preview run package (JSON and CSV) in TypeScript (`document_kind: openpipestress.technical_preview.caepipe_external_run_package`, `invocation_mode: parser_only_not_invoked`). It does not configure or invoke an external executable and does not call `core/handoff/caepipe_external/run.py`.
 
 ### CLM-012 — Requirements
 
