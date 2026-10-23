@@ -178,3 +178,4 @@ checks:
 - validation/benchmarks/numerical_robustness/tests/*.rs
 - validation/benchmarks/physics_audit_regression/tests/*.rs
 - validation/benchmarks/physics_audit_regression/src/lib.rs
+- core/product_physics/tests/w9_solver_benchmarks.rs
