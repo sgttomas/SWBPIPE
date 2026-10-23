@@ -286,7 +286,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | Axial-effect check | Documents limit axial effects to thermal and pressure mechanics helpers from caller-supplied properties without code stress/compliance claims. |
 > | Test check | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` passes or any failure is recorded with boundaries. |
 > | Diff hygiene check | `git diff --check` passes for touched files or any failure is recorded. |
-> | Status check | `_STATUS.md` remains unchanged unless a later brief explicitly authorizes a lifecycle update. |
+> | Status check | `_STATUS.md` (retired in `497a8d81e4`; see Git history) remains unchanged unless a later brief explicitly authorizes a lifecycle update. |
 >
 
 ### CLM-024 — Records

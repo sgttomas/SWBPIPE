@@ -175,7 +175,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 >
 > | Verification target | Required evidence |
 > |---|---|
-> | Scope alignment | DEL-16-03 ID, PKG-16 package, SOW-069/SOW-070 scope, and OBJ-015 objective match `_CONTEXT.md`, registers, and decomposition. |
+> | Scope alignment | DEL-16-03 ID, PKG-16 package, SOW-069/SOW-070 scope, and OBJ-015 objective match `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), registers, and decomposition. |
 > | Audit-log content | Operation audit log records disposition, affected entities, actor/source metadata, timestamp, assumptions, rationale/history where accepted, and audit metadata. |
 > | Acceptance workflow | Tests cover accepted and rejected model-operation paths and demonstrate that default user acceptance gates proposed operations. |
 > | Boundary language | Review confirms no prohibited authority claim (PRD §21.2) is introduced. |

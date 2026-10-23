@@ -231,7 +231,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | Source inventory control | Content review | Candidate sources carry the minimum provenance fields and a status of `ACCEPTED`, `REJECTED`, `QUARANTINED`, or `TBD`; only accepted public/permissive sources support final claims |
 > | Semantic setup | Artifact review | `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and P3 run record exist and preserve lens-not-authority language |
 > | Dependency setup | Tool validation | `Dependencies.csv` passes v3.1 schema validation and `_DEPENDENCIES.md` counts match |
-> | Lifecycle gate | `_STATUS.md` review | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
+> | Lifecycle gate | `_STATUS.md` review | Use the current lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 > Final theory-note coverage checklist for future production:
 >
