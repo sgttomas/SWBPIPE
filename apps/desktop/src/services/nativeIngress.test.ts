@@ -90,6 +90,23 @@ describe("invokeWithIngress", () => {
     expect(sends).toBe(Math.floor(HEADROOM_RESEND_WINDOW_MS / HEADROOM_RESEND_INTERVAL_MS) + 1);
   });
 
+  it("starts no send after the window even when a timer fires late", async () => {
+    vi.useFakeTimers();
+    invokeMock
+      .mockRejectedValueOnce(headroomRefusal(17_363_664, 1))
+      .mockResolvedValueOnce({ outcome: "saved" });
+    const pending = invokeWithIngress("save_local_result_json", { request: {} }).catch((error: unknown) => error);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(invokeMock).toHaveBeenCalledOnce();
+    // The host stalls past the window before the pause's timer runs.
+    vi.setSystemTime(Date.now() + HEADROOM_RESEND_WINDOW_MS + 3000);
+    await vi.runAllTimersAsync();
+    const failure = await pending;
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 17_363_664, available_bytes: 1 });
+    expect(invokeMock).toHaveBeenCalledOnce();
+  });
+
   it("does not re-send any other refusal or failure", async () => {
     for (const rejection of [
       { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pool_exhausted", requested_bytes: 1, reserved_bytes: 2, pool_bytes: 3 }, pool: null },

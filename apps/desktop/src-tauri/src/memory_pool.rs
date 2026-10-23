@@ -486,13 +486,13 @@ impl MemoryPool {
             if cancelled() {
                 return Err(ResampleStop::Cancelled);
             }
-            // The deadline bounds when an attempt may start: past it, the
-            // refusal already observed stands.
+            // The deadline bounds when an attempt may start, checked once the
+            // lock is held again: past it, the refusal already observed stands.
+            state = self.lock();
             if deadline.is_none_or(|deadline| Instant::now() >= deadline) {
-                self.lock().last_refusal = Some(refusal.clone());
+                state.last_refusal = Some(refusal.clone());
                 return Err(ResampleStop::Refused(refusal));
             }
-            state = self.lock();
         }
     }
 
@@ -1413,6 +1413,28 @@ mod tests {
         assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
         assert!(waited >= Duration::from_millis(100) && waited < Duration::from_secs(10), "bounded by the window, not the tick: {waited:?}");
         assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(refusal));
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// A waiter that reacquires the pool lock only after the deadline does not
+    /// attempt again, even though the host would now admit.
+    #[test]
+    fn resampling_starts_no_attempt_after_waiting_past_the_deadline_for_the_lock() {
+        let host = ScriptedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_millis(20));
+        let holder = {
+            let (pool, host) = (pool.clone(), host.clone());
+            std::thread::spawn(move || {
+                std::thread::sleep(Duration::from_millis(50));
+                let state = pool.lock();
+                std::thread::sleep(Duration::from_millis(200));
+                host.set(|s| s.headroom_bytes = Some(GIB));
+                drop(state);
+            })
+        };
+        let refusal = refused(pool.acquire_resampling(MIB, LeasePurpose::Ingress, NEVER).unwrap_err());
+        holder.join().unwrap();
+        assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
         assert_eq!(pool.reserved_total(), 0);
     }
 
