@@ -307,9 +307,10 @@ silent result.
   `connect_pipe_run`. **Guarantee:** the warnings cover exact node-pair
   duplicates and full-span geometric coincidence within the tolerance; partial
   collinear overlap is not detected.
-- **Orphan.** An unconnected, unrestrained node is expected to make the solve
-  report a mechanism; the nearest existing witness is the disconnected-body
-  test (`product_physics/src/lib.rs:15409-15434`), and §4 pins this case. The
+- **Orphan.** An unconnected, unrestrained node makes the solve refuse with
+  `NUMERICAL_INTEGRITY_UNRESOLVED` (a zero original diagonal at the node) and
+  publish no result; it is not reported as a witnessed mechanism. §4 pins this
+  case. The
   desktop offers to delete O in the same batch (§3). A cycle is allowed with no
   diagnostic.
 - **Bend tangency.** Insert-at-corner places the bend component at the arc's
@@ -452,8 +453,9 @@ unrestrained (a mechanism), so each applies the batch [`reconnect`,
   E·A·Δ/L_new in magnitude, against an independently authored model.
 - **Local frame.** After a reconnect that rotates P's axis, the solve succeeds
   and reports local results; the near-parallel case does not reach the solve.
-- **Orphan.** Orphaning an unsupported node gives a mechanism status, not a
-  result.
+- **Orphan.** Orphaning an unsupported node gives a blocking
+  `NUMERICAL_INTEGRITY_UNRESOLVED` refusal and no result
+  (`tests/pipe_reconnect.rs`, `orphaning_an_unsupported_node_refuses_the_solve_without_a_result`).
 - **Exact pressure.** A document whose region fails
   `PRESSURE_REGION_INTERNAL_BRANCH` (`pressure_runtime.rs:1541-1549`) because a
   non-member pipe ends at an internal node; reconnecting that pipe away gives a
