@@ -4,7 +4,7 @@
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
-**Status** (coordinator, 2026-10-23): the model-and-states manager implements this, as part of W-13 S2 or right after it; W-13 §3.5 assigns the work there. Two items are proposals relayed to that manager: the `library_version` definition (`sha256:` and the SHA-256 of the record's RFC 8785 form, §2.5) and the warning `MODEL-LIBRARY-REF-UNRESOLVED` (§2.7).
+**Proposed definitions** (for W-13 §3.5 and the S1b schema description): the `library_version` definition (`sha256:` and the SHA-256 of the record's RFC 8785 form, §2.5) and the warning `MODEL-LIBRARY-REF-UNRESOLVED` (§2.7).
 
 Requirements: FR-RULE-005 (Must) and FR-RULE-006 (Should). The map rows read
 "Library records cannot be applied to model materials". Related: the W-13 design
@@ -407,8 +407,8 @@ scope (§6, §8.3) adds only generic `provenance_record` carriage on the existin
 change kinds. It designs no insertion flow, field mapping, record digest or drift
 check. **This item is the work that sentence assigns to S2.** It depends on S1b,
 which adds the slot to the format, and on S2's applier carriage of
-`provenance_record`. Recommendation: S2 records the sentence as delivered by this
-item, and this item lands as its own slice right after S2. That keeps S2 bounded.
+`provenance_record`. S2's sentence is delivered by this item, as its own slice,
+which keeps S2 bounded.
 
 ## 6. Files, overlap and sequencing
 
@@ -425,21 +425,20 @@ item, and this item lands as its own slice right after S2. That keeps S2 bounded
 | `fixtures/model_document/desktop_emitted.json` | one entry | S2 creates the golden | yes (S2) |
 | D3-pinned files | none | S1b's D3 chain | no |
 
-**Sequencing.**
-- **Not before S1b.** `provenance_record` does not exist in 0.6.0, and the S1a
+**Dependencies.**
+- **Requires S1b.** `provenance_record` does not exist in 0.6.0, and the S1a
   schema's closed records refuse it.
 - **A string-only interim** would leave drift undetectable, and the hanger fix
   would have to be done twice.
-- **Before S2 merges,** `libraryApply.ts` and its tests can be written against
-  the S1b schema, but they land after S2.
+- **Requires S2's applier carriage** of `provenance_record`; `libraryApply.ts`
+  and its tests are written against the S1b schema.
 
-**Proposal relayed to the model-and-states manager** (W-13 §3.5 and the S1b schema description): "`library_version`
+**Proposed definition** (W-13 §3.5 and the S1b schema description): "`library_version`
 is `sha256:` and the SHA-256 of the applied record's RFC 8785 form. Library
 documents carry no version member."
 
-**W-13 §3.5 reconciliation: requested, not completed.** As of this design,
-W-13 §3.5's sentences are unchanged. The requests to the model-and-states
-manager:
+**Proposed W-13 §3.5 changes.** As of this design, W-13 §3.5's sentences are
+unchanged. The proposed changes:
 - **Digest comparison.** The library-version comparison becomes a record-digest
   comparison. `MODEL-LIBRARY-REF-VERSION-CHANGED` compares the digest of the
   stored record with `library_version`.
@@ -447,10 +446,6 @@ manager:
   document" becomes "Only the enumerated applied values (DEL-03-01 Design
   `apply-library-records.md` §2.3), their units and the combined
   `provenance_record` enter the document; no other library content does."
-- **Assign the work explicitly.** "The desktop sets it when it inserts a library
-  record (S2)" names the work: the model-and-states manager implements
-  insertion, apply, re-apply and drift checks per this design, as part of S2 or
-  right after it.
 
 ## 7. Decision: the E/ν route
 
@@ -468,7 +463,7 @@ So:
 - A stored G is used and never overwritten.
 - A derived G's provenance names the derivation and the record's E and ν
   values and units it came from.
-- The model-and-states manager settles how §2.3a's E/G and E/ν forms carry
+- The implementation settles how §2.3a's E/G and E/ν forms carry
   this (in particular whether the inserted material also carries ν and the
   exact basis) against the material validator.
 

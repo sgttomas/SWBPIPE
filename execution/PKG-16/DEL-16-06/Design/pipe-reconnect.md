@@ -558,19 +558,6 @@ applied only through batch review (§3), so this does not affect it.
 
 **Answer.** W-10 can be implemented before S1b without a D3 collision.
 
-**Sequencing (coordinator decision, 2026-10-23).**
-- W-10 lands before S1b.
-- W-10's three corpus cases (one accept, R9 and R10 blocks) and their routing
-  list entries are re-blessed by S1b: they come in a follow-up after S1b, or,
-  if they land first, S1b re-blesses them mechanically. Whichever lands second
-  re-blesses.
-- Shared-list edits in applier `lib.rs` and `types.ts`: whoever merges second
-  merges main and resolves.
-- Applier `Cargo.toml`, `operation_applier/Cargo.lock` and the routing file's
-  applier digest and source list: whoever lands second regenerates the lockfile
-  and recomputes the digest. S1b leaves the other three lockfiles untouched.
-- W-10 tests use the version constant, so S1b's ripple does not touch them.
-
 ## 6. Size, risks, decisions
 
 **Size: M.** About 450 lines for the Rust module, 700 for applier tests, 60 for
@@ -607,12 +594,8 @@ below. Membership-preserving reconnect inside a region would need the chain
 check at authoring (a D3 on `pressure_runtime.rs` or product_physics `lib.rs`,
 or a duplicate in the applier); it is not provided.
 
-**Records (approved; the W-10 implementation PR applies them verbatim).** The
-coordinator approved both texts on 2026-10-23: "The W-10 limitation lines
-(release notes line 57 and DEL-16-06): approved as written. They record the
-v0.1 limitation I accepted (reconnect refuses component-bearing and
-pressure-region pipes, each with a named reason) and change no commitment.
-Apply them verbatim in the W-10 implementation PR." The owner is informed.
+**Records.** The limitation is recorded in the release notes and DEL-16-06 with
+these texts.
 
 Release notes, `docs/RELEASE_NOTES_v0.1.0_DRAFT.md` line 57. Old:
 
@@ -652,9 +635,6 @@ section blocks deleting it. The same latent issue would affect any delete that
 scans stored diagnostics; the W-10 scans skip them.
 
 ## 7. `delete_pipe_run` dangling references (defect, fixed in W-10)
-
-**Decision (coordinator, 2026-10-23).** W-10 fixes this: refuse with named
-dependents, never leave a dangling reference, with a regression test.
 
 **Defect.** `resolve_delete_pipe_run` (`lib.rs:3955-4058`) refuses only for
 primitive loads and pressure regions (`pipe_primitive_load_references`,

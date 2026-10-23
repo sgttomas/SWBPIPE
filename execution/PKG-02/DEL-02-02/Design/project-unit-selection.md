@@ -190,15 +190,13 @@ SI/US entered and display catalog, entered units preserved).
 | `schemas/model.schema.yaml` | none | S1b rewrites it | no |
 | D3-pinned files (`core/product_physics/**`, `core/units/**`, …) | none | S1b's D3 chain | no |
 
-**Sequencing** (coordinator, 2026-10-23). The work is two slices:
-- **Slice (a): selecting units at creation. It lands now.**
+**Slices.** The work is two slices:
+- **Slice (a): selecting units at creation.**
   - Scope: the blank-project dialog and the seven keys including `angle`
     (§2.1-2.4, §2.6), the composed defaults, and the builder, dialog,
     default and angle tests.
-  - It touches no applier or pinned file. If S1b merges first, this slice
-    rebases onto it.
-- **Slice (b): editing units after creation. It waits for W-13 S2**
-  (coordinator, 2026-10-23).
+  - It touches no applier or pinned file.
+- **Slice (b): editing units after creation.**
   - Scope: `set_project_unit` (§2.5, §2.7), the Project units section with its
     missing-key handling, and the applier tests.
   - It reuses the `Project` target that S2 adds in applier `lib.rs`, rather than

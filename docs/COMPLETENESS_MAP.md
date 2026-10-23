@@ -454,20 +454,20 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-1 | Pointer and ScopeOfWork reconciliation sweep (§3 [fix] items) | M | docs | light | — | No |
 | W-2 | Validation-manual and user-guide currency (D-VM1 etc.), then a fresh R6 reproduction bundle at HEAD | S–M | docs | light → heavy for the run | — | Acceptance of the reproduction is the owner's |
 | W-3 | Rendered report reachable for local private sessions: give the render the same local-private intent the exports already use; add §19.2 content (rule-pack refs, rule-check outcomes, software/solver versions, date, settings, coordinate system) | M | desktop | heavy | DEL-12-02 design check | No, unless DEL-12-02 rules it out |
-| W-4 | R2 end to end in the native smoke: a from-blank GUI-authored model → native solve → results, deformed shape → save → reopen; add the §5 probe steps (report, rule checks, EX gates) as permanent checks | S–M | desktop test | heavy | W-13 S1b: authored against model document 0.7.0 (coordinator, 2026-10-23) | No |
+| W-4 | R2 end to end in the native smoke: a from-blank GUI-authored model → native solve → results, deformed shape → save → reopen; add the §5 probe steps (report, rule checks, EX gates) as permanent checks | S–M | desktop test | heavy | — | No |
 | W-5 | Memory-pool headroom: on a loaded Mac, the app refused a 16.56 MiB result-export save with 6.44 MiB "free" (free list only; `src-tauri/src/host_memory.rs:5-13`). Check the interactive-save admission against D-72 criteria and make ordinary saves succeed | S–M | desktop (Rust) | heavy | D-72 | Only if D-72 acceptance text must change |
 | W-6 | Canonical model export from the desktop (save model document to file; FR-HAND-001), independent of a solve; schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | OD-4 for "canonical" | No |
 | W-7 | Global-frame element-end forces (FR-SOL-007) | S | numerical | heavy, scrutiny | — | No |
 | W-8 | Pre-solve connectivity check (disconnected anchored sub-models, invalid branch topology; FR-KNOW-002); near-duplicate node detection (§12.8) | S–M | numerical-adjacent | heavy, scrutiny | — | No |
 | W-9 | Missing benchmarks: L-shaped thermal frame, simply supported weight, imposed anchor displacement on a frame; rigid link after OD-2 | S | numerical | heavy | OD-2 (rigid link) | No |
-| W-10 | Pipe reconnect operation (FR-GUI-004), with the `delete_pipe_run` dangling-reference fix; design DEL-16-06 `Design/pipe-reconnect.md` | S–M | desktop + Rust | heavy, scrutiny (topology) | Lands before W-13 S1b; S1b re-blesses its 3 corpus cases (coordinator, 2026-10-23) | No |
+| W-10 | Pipe reconnect operation (FR-GUI-004) | S–M | desktop + Rust | heavy, scrutiny (topology) | — | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open | M–L | docs + desktop | heavy | W-3 | Opening returns to owner |
 | W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | OD-1 | OD-1 |
 | W-13 | Product document ↔ canonical schema; tags, notes, assumptions, rule-pack refs, structured provenance (FR-MOD-001/002/004/005/006) | L | schema + persistence | heavy, scrutiny | OD-4 | OD-4 |
 | W-14 | Design-knowledge entry and constraint validation in the desktop (FR-KNOW-001/003/004) | L | desktop + schema | heavy | OD-3 | OD-3 |
 | W-15 | Rigid / semi-rigid components (FR-SOL-004/012), including component weight and EX admission | M–L | numerical | heavy, scrutiny | OD-2 | OD-2 |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, or a ruling that EX is its only route (FR-SOL-006) | M | numerical | heavy, scrutiny | — | No |
-| W-17 | Smaller usability gaps: project unit selection; applying library records to model entities; unit check at rule-pack validation; rule-pack schema categories and load mappings (§17.2) | S–M each | desktop/schema | heavy | §17.2 needs a scope ruling. Unit selection at creation and the rule-pack unit check land now; `set_project_unit` waits for W-13 S2; applying library records moved to the model-and-states manager with or after S2 (coordinator, 2026-10-23; designs in DEL-02-02, DEL-06-02, DEL-03-01) | §17.2 only |
+| W-17 | Smaller usability gaps: project unit selection; applying library records to model entities; unit check at rule-pack validation; rule-pack schema categories and load mappings (§17.2) | S–M each | desktop/schema | heavy | §17.2 needs a scope ruling | §17.2 only |
 
 **Sequencing:**
 - **Before development testing broadens:** W-1, W-2, W-4 and W-5. These give
