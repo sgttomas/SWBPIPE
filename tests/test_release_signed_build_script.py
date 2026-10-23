@@ -33,9 +33,11 @@ def test_redact_masks_identity_names_teams_and_hashes():
         "error: Developer ID Application: Example Person (ABCDE12345): ambiguous (matches 89ABCDEF0123456789ABCDEF0123456789ABCDEF)",
         "TeamIdentifier=ABCDE12345",
         "Apple Distribution: Example Person (ABCDE12345)",
+        'error: ambiguous (matches "Developer ID Application: Example "Research" Ltd (ABCDE12345)" and "Developer ID Application: Other Ltd (FGHIJ67890)")',
     ):
         masked = build.redact(line)
         assert "Example Person" not in masked and "ABCDE12345" not in masked
+        assert "Research" not in masked and "Other Ltd" not in masked
         assert "89ABCDEF0123456789ABCDEF0123456789ABCDEF" not in masked
     assert build.redact('Signing with identity "Developer ID Application"') == 'Signing with identity "Developer ID Application"'
 

@@ -44,7 +44,8 @@ _IDENTITY_KINDS = (
     r"3rd Party Mac Developer Installer|iPhone Developer|iPhone Distribution"
 )
 _REDACTIONS = (
-    (re.compile(rf"({_IDENTITY_KINDS}): [^\"\n]*"), r"\1: <redacted>"),
+    # Everything after an identity kind, to the end of the line: names may hold quotes.
+    (re.compile(rf"({_IDENTITY_KINDS}): .*"), r"\1: <redacted>"),
     (re.compile(r"\b[0-9A-Fa-f]{40}\b"), "<redacted-sha1>"),
     (re.compile(r"(TeamIdentifier=)\S+"), r"\1<redacted>"),
     (re.compile(r"\([A-Z0-9]{10}\)"), "(<redacted-team>)"),
