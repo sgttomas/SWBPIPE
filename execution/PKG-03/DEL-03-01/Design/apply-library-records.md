@@ -617,3 +617,9 @@ Where the code reads the decisions above differently, this is the reading:
   (`pipe_materials[].G_pa`); it equals the desktop-derived G bit for bit.
   Another pins the emission golden's `library_version` to the native RFC
   8785 SHA-256 of the same record.
+- **Refusal messages** (HELP_HUMAN, 2026-10-23: "Each refusal must tell the
+  user how to proceed"). Every library-apply refusal names its cause and the
+  way forward. The desktop texts are pinned in
+  `features/library/libraryApply.messages.json` (checked by
+  `libraryApply.test.ts`); the applier appends a per-code next step
+  (`library_apply.rs` `next_step`), pinned in `tests/library_apply.rs`.

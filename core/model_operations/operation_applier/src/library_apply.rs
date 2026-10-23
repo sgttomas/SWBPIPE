@@ -152,8 +152,37 @@ fn members(object_type: &str) -> Option<(&'static str, &'static [Member])> {
     }
 }
 
+/// How to proceed after each refusal (HELP_HUMAN, 2026-10-23: "Each refusal
+/// must tell the user how to proceed"); appended to the cause.
+pub(crate) fn next_step(code: &str) -> &'static str {
+    match code {
+        "OP-LIBRARY-APPLY-SHAPE-INVALID" | "OP-LIBRARY-APPLY-PAYLOAD-INVALID" | "OP-LIBRARY-APPLY-MEMBER-INVALID" => {
+            "Prepare the apply again from the Library Manager, which builds this change."
+        }
+        "OP-TARGET-NOT-FOUND" => "Select an entity that is in the model and prepare the apply again.",
+        "OP-LIBRARY-APPLY-KIND-MISMATCH" => "Choose a record for this component's kind, or select a component of the record's kind.",
+        "OP-LIBRARY-APPLY-REQUIRED-MEMBER" => "Keep the member (choose \"keep them\"), or apply a record that supplies it.",
+        "OP-LIBRARY-APPLY-VALUE-INVALID" => "Correct the value or its unit in the library, re-import it, and prepare the apply again.",
+        "OP-LIBRARY-APPLY-SIF-PAIR" => {
+            "Supply both directional SIF values, and apply them only to a bend realized as the curved-bend macro element."
+        }
+        "OP-STALE-BEFORE-VALUE" => "The model changed after the apply was prepared; prepare it again.",
+        "OP-LIBRARY-APPLY-UNCHANGED" => "There is nothing to apply; choose a different record or leave the entity as it is.",
+        "OP-LIBRARY-APPLY-MATERIAL-INVALID" => {
+            "Choose the other material mode, or a record with a complete E/ν or E/G set, and prepare the apply again."
+        }
+        "OP-SECTION-GEOMETRY-INVALID" => "Choose a record whose wall thickness is less than half its outside diameter.",
+        "OP-SECTION-BINDING-INVALID" => {
+            "Adjust the bound pipes' mill tolerance or corrosion allowance, or detach them from the section, then apply again."
+        }
+        _ => "Prepare the apply again from the Library Manager.",
+    }
+}
+
 fn err(code: &'static str, message: impl Into<String>, target: &str) -> GeometryError {
-    GeometryError { code, message: message.into(), affected_refs: vec![target.to_string()] }
+    let cause = message.into();
+    let separator = if cause.ends_with('.') { " " } else { ". " };
+    GeometryError { code, message: format!("{cause}{separator}{}", next_step(code)), affected_refs: vec![target.to_string()] }
 }
 
 fn get_path<'a>(entity: &'a Value, path: &str) -> Option<&'a Value> {

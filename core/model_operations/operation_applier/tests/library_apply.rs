@@ -496,3 +496,57 @@ fn emission_golden_library_version_is_the_records_rfc8785_sha256() {
     assert_eq!(material["shear_modulus"]["value"].as_f64().unwrap().to_bits(),
         open_pipe_stress_operation_applier::derived_shear_modulus_pa(2.0e11, "Pa", 0.3).unwrap().to_bits());
 }
+
+/// HELP_HUMAN, 2026-10-23: "Each refusal must tell the user how to proceed".
+/// Each applier-side library-apply refusal names its cause and the way
+/// forward; the texts are pinned here.
+fn refusal_messages() -> Vec<(String, String)> {
+    let message = |model: &Value, op: &Value| -> (String, String) {
+        let outcome = apply_operation(model, op, Some(&claim(model)));
+        assert!(outcome.applied_model.is_none());
+        let d = outcome.diagnostics.iter().find(|d| d.severity == "blocking").unwrap();
+        (d.code.clone(), d.message.clone())
+    };
+    let mut out = Vec::new();
+    let mut material_model = pressure_free_fixture();
+    material_model["materials"][0] = json!({"id":"material:fixture-isotropic","label":"old","elastic_modulus":{"value":1.9e11,"unit":"Pa"},
+        "shear_modulus":{"value":7.3e10,"unit":"Pa"},"provenance":"invented old source"});
+    let id = "material:fixture-isotropic";
+    out.push(message(&material_model, &apply_intent(&material_model, "Material", "materials", id, &json!({"density":{"value":7800,"unit":"kg/m^3"}}))));
+    out.push(message(&material_model, &apply_intent(&material_model, "Material", "materials", id, &json!({"elastic_modulus":{"value":2.0,"unit":"m"}}))));
+    out.push(message(&material_model, &apply_intent(&material_model, "Material", "materials", id, &json!({"elastic_modulus":null}))));
+    out.push(message(&material_model, &apply_intent(&material_model, "Material", "materials", id, &json!({"poisson_ratio":{"value":0.3,"unit":"1"}}))));
+    let mut stale = apply_intent(&material_model, "Material", "materials", id, &json!({"label":"new"}));
+    stale["change"]["before"] = json!("{\"label\":\"older\"}");
+    out.push(message(&material_model, &stale));
+    out.push(message(&material_model, &apply_intent(&material_model, "Material", "materials", id, &json!({"label":"old"}))));
+    let sections = bound_section_model();
+    out.push(message(&sections, &apply_intent(&sections, "Section", "sections", "section:shared", &json!({"properties.outside_diameter":{"value":0.14,"unit":"m"},"properties.wall_thickness":{"value":0.004,"unit":"m"}}))));
+    out.push(message(&sections, &apply_intent(&sections, "Section", "sections", "section:shared", &json!({"properties.wall_thickness":{"value":0.07,"unit":"m"}}))));
+    let demo = demo_components();
+    out.push(message(&demo, &apply_intent(&demo, "Component", "components", "component:C-130", &json!({"geometry.bend_radius":{"value":0.5,"unit":"m"}}))));
+    out.push(message(&demo, &apply_intent(&demo, "Component", "components", "component:C-110", &json!({"modifiers.sif_in_plane_user_value":{"value":1.2,"unit":"1"}}))));
+    out
+}
+
+#[test]
+fn every_applier_library_refusal_names_its_cause_and_the_way_forward() {
+    let expected = [
+        ("OP-LIBRARY-APPLY-MEMBER-INVALID", "`density` is not a member a library record can write on a Material. Prepare the apply again from the Library Manager, which builds this change."),
+        ("OP-LIBRARY-APPLY-VALUE-INVALID", "`elastic_modulus` unit `m` is not an accepted DEC-018 stress unit; nothing is converted. Correct the value or its unit in the library, re-import it, and prepare the apply again."),
+        ("OP-LIBRARY-APPLY-REQUIRED-MEMBER", "`elastic_modulus` is required for this Material and is never removed by a library apply. Keep the member (choose \"keep them\"), or apply a record that supplies it."),
+        ("OP-LIBRARY-APPLY-MATERIAL-INVALID", "The applied material would be invalid: E/nu authoring requires homogeneous_isotropic_E_nu_v1. Choose the other material mode, or a record with a complete E/ν or E/G set, and prepare the apply again."),
+        ("OP-STALE-BEFORE-VALUE", "The change's before no longer matches the current members of `material:fixture-isotropic` ({\"label\":\"old\"}). The model changed after the apply was prepared; prepare it again."),
+        ("OP-LIBRARY-APPLY-UNCHANGED", "Every member already holds the library value; `material:fixture-isotropic` is unchanged. There is nothing to apply; choose a different record or leave the entity as it is."),
+        ("OP-SECTION-BINDING-INVALID", "Mill tolerance must be nonnegative and leave a positive effective wall. Adjust the bound pipes' mill tolerance or corrosion allowance, or detach them from the section, then apply again."),
+        ("OP-SECTION-GEOMETRY-INVALID", "Section `section:shared` requires type pipe and accepted length quantities with 0 < wall < outside diameter / 2. Choose a record whose wall thickness is less than half its outside diameter."),
+        ("OP-LIBRARY-APPLY-KIND-MISMATCH", "`geometry.bend_radius` belongs to the bend/elbow families; component `component:C-130` is a `valve`. Choose a record for this component's kind, or select a component of the record's kind."),
+        ("OP-LIBRARY-APPLY-SIF-PAIR", "The in-plane and out-of-plane SIF values are written together or not at all. Supply both directional SIF values, and apply them only to a bend realized as the curved-bend macro element."),
+    ];
+    let actual = refusal_messages();
+    assert_eq!(actual.len(), expected.len());
+    for ((code, message), (expected_code, expected_message)) in actual.iter().zip(expected) {
+        assert_eq!(code, expected_code);
+        assert_eq!(message, expected_message);
+    }
+}

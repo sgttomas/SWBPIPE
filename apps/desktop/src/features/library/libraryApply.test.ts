@@ -221,7 +221,7 @@ describe("material apply: basis, retained values and dispositions", () => {
     // E/G onto a material that holds ν would discard it: refused.
     next.materials![0].provenance_record = { source_name: "Invented", review_status: "pending" };
     await expect(buildMaterialApply({ model: next, document: materialLibrary([E(), G()]), recordId: "mat.invented.steel", targetId: target.id, mode: "e_g", replace: "all", catalog }))
-      .rejects.toThrow(/LIBRARY-APPLY-NU-NOT-DISCARDED.*holds poisson_ratio/);
+      .rejects.toThrow(/LIBRARY-APPLY-NU-NOT-DISCARDED.*already has poisson_ratio/);
     // The diff names each removal and the derived G replacing the stored one.
     const rows = JSON.parse(plan.batch.operations[0].change.after);
     expect(rows.thermal_expansion_coefficient).toBeNull();
@@ -437,5 +437,77 @@ describe("batch, undo/redo and re-apply", () => {
     const reapplied = result.current.model.model!.materials![0].provenance_record!;
     expect(reapplied.library_ref!.library_version).toBe(independentVersion(revised.material_records[0]));
     expect(reapplied.verification_note).toContain(`previous library reference library:material:matlib.invented.private#mat.invented.steel (${independentVersion(document.material_records[0])})`);
+  });
+});
+
+// HELP_HUMAN, 2026-10-23: "Each refusal must tell the user how to proceed".
+// Every desktop-side library-apply refusal names its cause and the way
+// forward; the texts are pinned in libraryApply.messages.json.
+describe("refusal messages name the cause and how to proceed", () => {
+  async function scenarios(): Promise<Array<[string, () => Promise<unknown>]>> {
+    const model = await demo();
+    const withNu = structuredClone(model);
+    withNu.materials![0] = { ...withNu.materials![0], constitutive_basis: "homogeneous_isotropic_E_nu_v1", poisson_ratio: { value: 0.3, unit: "1" } };
+    const bound = await boundModel();
+    const insert = (properties: Json[], mode: "e_nu" | "e_g", record: Json = {}, library: Json = {}) =>
+      () => buildMaterialInsert({ model, document: materialLibrary(properties, record, library), recordId: "mat.invented.steel", newId: "material:x", mode, catalog });
+    const temperatureG = property("shear_modulus", 1.0e10, "unit:pascal", { temperature: true, suffix: ".hot" });
+    const quarantinedNu = property("poisson_ratio", 0.3, "unit:one", { review: "quarantined", suffix: ".q" });
+    const quarantinedTarget = structuredClone(model);
+    quarantinedTarget.materials![0].provenance_record = { source_name: "Invented", review_status: "quarantined" };
+    const unsourced = await demo();
+    delete (unsourced.components.find((component) => component.id === "component:C-130")!.geometry as Json).rigid_component_source_reference;
+    return [
+      ["record missing", () => buildMaterialInsert({ model, document: materialLibrary([E()]), recordId: "mat.absent", newId: "material:x", mode: "e_g", catalog })],
+      ["source rejected", insert([E(), NU()], "e_nu", { review_status: "rejected" })],
+      ["magnitude invalid", insert([property("elastic_modulus", "2e11x", "unit:pascal"), NU()], "e_nu")],
+      ["unit unresolved", insert([property("elastic_modulus", 123, "unit.MPa"), NU()], "e_nu")],
+      ["ambiguous source", insert([E(), { ...E(), property_id: "p.e2" }, NU()], "e_nu")],
+      ["E missing", insert([NU(), G()], "e_nu")],
+      ["ν blocked (E/ν)", insert([E(), quarantinedNu], "e_nu")],
+      ["ν missing (E/ν)", insert([E(), G()], "e_nu")],
+      ["ν unit", insert([E(), property("poisson_ratio", 0.3, "unit:pascal")], "e_nu")],
+      ["G blocked (E/ν)", insert([E(), NU(), temperatureG], "e_nu")],
+      ["ν provided (E/G)", insert([E(), NU(), G()], "e_g")],
+      ["ν blocked (E/G)", insert([E(), G(), quarantinedNu], "e_g")],
+      ["G blocked (E/G)", insert([E(), temperatureG], "e_g")],
+      ["G missing (E/G)", insert([E()], "e_g")],
+      ["target ν (E/G apply)", () => buildMaterialApply({ model: withNu, document: materialLibrary([E(), G()]), recordId: "mat.invented.steel", targetId: withNu.materials![0].id, mode: "e_g", replace: "none", catalog })],
+      ["retained quarantined", () => buildMaterialApply({ model: quarantinedTarget, document: materialLibrary([E(), NU()]), recordId: "mat.invented.steel", targetId: model.materials![0].id, mode: "e_nu", replace: "none", catalog })],
+      ["material target missing", () => buildMaterialApply({ model, document: materialLibrary([E(), G()]), recordId: "mat.invented.steel", targetId: "material:absent", mode: "e_g", replace: "none", catalog })],
+      ["id invalid", () => buildMaterialInsert({ model, document: materialLibrary([E(), G()]), recordId: "mat.invented.steel", newId: "9bad", mode: "e_g", catalog })],
+      ["id taken", () => buildMaterialInsert({ model, document: materialLibrary([E(), G()]), recordId: "mat.invented.steel", newId: model.materials![0].id, mode: "e_g", catalog })],
+      ["section type", () => buildSectionInsert({ model, document: { ...sectionLibrary([]), section_records: [{ ...sectionLibrary([]).section_records[0], section_type: "rigid" }] }, recordId: "sec.invented.pipe", newId: "section:x" })],
+      ["section member missing", () => buildSectionInsert({ model, document: sectionLibrary([dimension("outside_diameter", 0.2)]), recordId: "sec.invented.pipe", newId: "section:x" })],
+      ["section nothing copied", () => buildSectionApply({ model: bound, document: sectionLibrary([]), recordId: "sec.invented.pipe", targetId: "section:shared", replace: "none" })],
+      ["section replace all", () => buildSectionApply({ model: bound, document: sectionLibrary([dimension("outside_diameter", 0.2)]), recordId: "sec.invented.pipe", targetId: "section:shared", replace: "all" })],
+      ["section target missing", () => buildSectionApply({ model: bound, document: sectionLibrary([dimension("outside_diameter", 0.2)]), recordId: "sec.invented.pipe", targetId: "section:absent", replace: "none" })],
+      ["component kind", () => buildComponentApply({ model, document: componentLibrary("valve", [slot("weight", 1, "N")]), recordId: "comp.invented", targetId: "component:C-110", replace: "none" })],
+      ["component no values", () => buildComponentApply({ model, document: componentLibrary("terminal", [slot("weight", 1, "N")]), recordId: "comp.invented", targetId: "component:C-140", replace: "none" })],
+      ["component nothing copied", () => buildComponentApply({ model, document: componentLibrary("bend", [slot("center_of_gravity", 0.1, "m")]), recordId: "comp.invented", targetId: "component:C-110", replace: "none" })],
+      ["component required", () => buildComponentApply({ model, document: componentLibrary("bend", [slot("sif_user_value", 1.3, "1")]), recordId: "comp.invented", targetId: "component:C-110", replace: "group" })],
+      ["component unsourced", () => buildComponentApply({ model: unsourced, document: componentLibrary("valve", [slot("weight", 500, "N")]), recordId: "comp.invented", targetId: "component:C-130", replace: "none" })],
+      ["component target missing", () => buildComponentApply({ model, document: componentLibrary("bend", [slot("bend_radius", 0.5, "m")]), recordId: "comp.invented", targetId: "component:absent", replace: "none" })],
+      ["hanger quantity", () => hangerLibraryProvenance({ library_id: "h", name: "H", privacy_class: "private_user_supplied", provenance: PRIVATE },
+        { hanger_id: "h1", name: "H1", provenance: PRIVATE }, [{ magnitude: 1, unit: "N", dimension: "force", provenance: { ...PRIVATE, review_status: "quarantined" } }])]
+    ];
+  }
+
+  it("pins every refusal text", async () => {
+    const actual: Record<string, string> = {};
+    for (const [label, run] of await scenarios()) {
+      try { await run(); actual[label] = "NOT REFUSED"; } catch (error) { actual[label] = (error as Error).message; }
+    }
+    const pinned = (await import("./libraryApply.messages.json")).default as Record<string, string>;
+    if (process.env.LIBRARY_APPLY_MESSAGES_UPDATE === "1") {
+      const { writeFileSync } = await import("node:fs");
+      writeFileSync("src/features/library/libraryApply.messages.json", `${JSON.stringify(actual, null, 2)}\n`);
+      return;
+    }
+    expect(actual).toEqual(pinned);
+    for (const [label, message] of Object.entries(actual)) {
+      // A cause, then at least one sentence telling the user what to do.
+      expect(message, label).toMatch(/^LIBRARY-APPLY-[A-Z-]+: .+\. (Choose|Fix|Correct|Use|Select|Enter|Refresh|Check|Apply|Keep|Have)/);
+    }
   });
 });

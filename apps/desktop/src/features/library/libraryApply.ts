@@ -165,10 +165,10 @@ async function context(kind: Exclude<ApplyLibraryKind, "hanger">, document: Json
   const library = obj(document[keys.library]);
   const records = Array.isArray(document[keys.records]) ? (document[keys.records] as unknown[]) : [];
   const record = records.map(obj).find((item) => item?.[keys.id] === recordId);
-  if (!library || !record) refuse("LIBRARY-APPLY-RECORD-MISSING", "The selected record is not in the stored library. Refresh the library.");
+  if (!library || !record) refuse("LIBRARY-APPLY-RECORD-MISSING", "The selected record is not in the stored library. Refresh the library list, open the library again and choose a record it holds.");
   for (const [label, level] of [["library", library], ["record", record]] as const) {
     const blocked = blockedTokens(level);
-    if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `The ${label} carries ${blocked.join(", ")}; its data is never applied.`);
+    if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `The ${label} is marked ${blocked.join(", ")}, so its data is not applied. Choose a different record, or re-import the library with reviewed source dispositions.`);
   }
   return {
     kind,
@@ -191,7 +191,7 @@ function provenanceRecord(ctx: Context, copies: Copy[], previous: Previous | nul
     if (blocked.length) {
       refuse(
         "LIBRARY-APPLY-RETAINED-QUARANTINED",
-        `The entity keeps ${retained.join(", ")} under a previous record marked ${blocked.join(", ")}; choose "replace all values" to drop them.`
+        `The entity keeps ${retained.join(", ")} from a previous source marked ${blocked.join(", ")}, so they cannot be combined with this record. Choose "replace all values" to remove them, or have the previous source reviewed first, then apply.`
       );
     }
     // A missing previous record counts as unknown and pending.
@@ -224,7 +224,7 @@ function provenanceRecord(ctx: Context, copies: Copy[], previous: Previous | nul
 
 function magnitude(raw: unknown, source: string): number {
   const value = typeof raw === "number" ? raw : typeof raw === "string" && /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(raw.trim()) ? Number(raw.trim()) : NaN;
-  if (!Number.isFinite(value)) refuse("LIBRARY-APPLY-MAGNITUDE-INVALID", `${source}: the magnitude ${JSON.stringify(raw)} is not a finite number.`);
+  if (!Number.isFinite(value)) refuse("LIBRARY-APPLY-MAGNITUDE-INVALID", `Slot ${source} has the magnitude ${JSON.stringify(raw)}, which is not a finite number. Correct the value in the library and re-import it, or choose a different record.`);
   return value;
 }
 
@@ -233,7 +233,7 @@ function magnitude(raw: unknown, source: string): number {
 export function resolveCatalogUnit(catalog: UnitCatalog | null, unitId: unknown, source: string): string {
   const entry = typeof unitId === "string" ? catalog?.entries.find((item) => item.unit_id === unitId) : undefined;
   if (!entry) {
-    refuse("LIBRARY-APPLY-UNIT-UNRESOLVED", `${source}: unit ${JSON.stringify(unitId)} is not a unit of the DEC-018 catalog${catalog ? "" : " (the catalog is available in the desktop application)"}.`);
+    refuse("LIBRARY-APPLY-UNIT-UNRESOLVED", `Slot ${source} names unit ${JSON.stringify(unitId)}, which is not a unit of the DEC-018 catalog${catalog ? "" : " (the catalog is loaded only in the desktop application)"}. Use a catalog unit id (for example unit:pascal) in the library and re-import it${catalog ? "" : ", or apply from the desktop application"}.`);
   }
   return entry!.symbol;
 }
@@ -287,7 +287,7 @@ function materialValues(ctx: Context, catalog: UnitCatalog | null): MaterialValu
       skip(`value status ${str(property.value_status) ?? "missing"} is not copied`);
       continue;
     }
-    if (copies.has(kind)) refuse("LIBRARY-APPLY-AMBIGUOUS-SOURCE", `The record holds more than one ${kind}.`);
+    if (copies.has(kind)) refuse("LIBRARY-APPLY-AMBIGUOUS-SOURCE", `The record holds more than one copyable ${kind}, so the source is ambiguous. Keep one ${kind} in the record and re-import the library, or choose a different record.`);
     const unitRef = obj(value.unit_ref);
     const unit = resolveCatalogUnit(catalog, unitRef?.ref_id, source);
     const number = magnitude(value.magnitude, source);
@@ -313,16 +313,16 @@ function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: Materi
   const g = copies.get("shear_modulus");
   const nu = copies.get("poisson_ratio");
   const alpha = copies.get("thermal_expansion_coefficient");
-  if (!e) refuse("LIBRARY-APPLY-MEMBER-MISSING", "The record holds no copyable elastic_modulus (E).");
+  if (!e) refuse("LIBRARY-APPLY-MEMBER-MISSING", "The record has no copyable elastic_modulus (E). Choose a record that provides E, or add E to this record and re-import the library.");
   const members: Record<string, unknown> = { label: str(ctx.record.name), elastic_modulus: e!.value };
   const used: Copy[] = [e!];
   const notes: string[] = [];
   const storedNu = stored.get("poisson_ratio");
   const storedG = stored.get("shear_modulus");
   if (mode === "e_nu") {
-    if (!nu && storedNu) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `The record stores poisson_ratio (ν) only in slots that cannot be copied: ${describeStored(storedNu)}.`);
-    if (!nu) refuse("LIBRARY-APPLY-MEMBER-MISSING", "E/ν mode needs poisson_ratio (ν); the record holds no copyable ν.");
-    if (nu!.unit !== "1") refuse("LIBRARY-APPLY-UNIT-UNRESOLVED", `${nu!.source}: Poisson's ratio carries unit 1, not ${nu!.unit}.`);
+    if (!nu && storedNu) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `The record stores ν but it cannot be copied (${describeStored(storedNu)}). Fix or re-import the record's ν, or choose a different record.`);
+    if (!nu) refuse("LIBRARY-APPLY-MEMBER-MISSING", "E/ν mode needs poisson_ratio (ν), and the record has none. Choose E/G mode if the record provides G, or choose a record that provides ν.");
+    if (nu!.unit !== "1") refuse("LIBRARY-APPLY-UNIT-UNRESOLVED", `Slot ${nu!.source} gives ν in unit ${nu!.unit}; ν must carry unit 1 (unit:one). Correct the unit in the library and re-import it, or choose a different record.`);
     members.constitutive_basis = "homogeneous_isotropic_E_nu_v1";
     members.poisson_ratio = nu!.value;
     used.push(nu!);
@@ -333,13 +333,13 @@ function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: Materi
       notes.push(`shear_modulus: stored in the record (${g.source}), copied as stored; not derived.`);
     } else {
       // The record stores a G it cannot copy: G is never derived in its place.
-      if (storedG) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `The record stores shear_modulus (G) only in slots that cannot be copied: ${describeStored(storedG)}; G is never derived when the record stores one.`);
+      if (storedG) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `The record stores G but it cannot be copied (${describeStored(storedG)}), and G is never derived when the record stores one. Fix or re-import the record's G, or choose a different record.`);
       const eValue = e!.value as { value: number; unit: string };
       const nuValue = (nu!.value as { value: number }).value;
       // The applier's derivation, bit for bit the exact route's: E in Pa
       // through the unit catalog, then E / (2 × (1 + ν)); stored in Pa.
       const derived = JSON.parse(derivedG(eValue.value, eValue.unit, nuValue)) as { value?: number; unit?: string; error?: string };
-      if (derived.error || derived.value === undefined) refuse("LIBRARY-APPLY-MEMBER-MISSING", `G cannot be derived from E and ν: ${derived.error ?? "no value"}.`);
+      if (derived.error || derived.value === undefined) refuse("LIBRARY-APPLY-MEMBER-MISSING", `G cannot be derived from E and ν (${derived.error ?? "no value"}). Check the record's E and ν values, or choose a record that provides G.`);
       members.shear_modulus = { value: derived.value, unit: "Pa" };
       notes.push(
         `shear_modulus: derived from E and ν (isotropic), G = E/(2(1+ν)) with E in Pa, from elastic_modulus ${e!.source} ` +
@@ -347,10 +347,10 @@ function materialMembers(ctx: Context, catalog: UnitCatalog | null, mode: Materi
       );
     }
   } else {
-    if (nu) refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `The record holds poisson_ratio (${nu.source}); ν is never discarded. Choose E/ν mode.`);
-    if (storedNu) refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `The record stores poisson_ratio (ν) in ${describeStored(storedNu)}; ν is never discarded, and it cannot be copied.`);
-    if (!g && storedG) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `E/G mode needs shear_modulus (G); the record stores it only in slots that cannot be copied: ${describeStored(storedG)}.`);
-    if (!g) refuse("LIBRARY-APPLY-MEMBER-MISSING", "E/G mode needs shear_modulus (G); the record holds no copyable G.");
+    if (nu) refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `The record provides ν (slot ${nu.source}), and E/G mode would discard it. Choose E/ν mode.`);
+    if (storedNu) refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `The record stores ν but it cannot be copied (${describeStored(storedNu)}), and ν is never discarded. Fix or re-import the record's ν, or choose a different record.`);
+    if (!g && storedG) refuse("LIBRARY-APPLY-MEMBER-BLOCKED", `The record stores G but it cannot be copied (${describeStored(storedG)}). Fix or re-import the record's G, or choose a different record.`);
+    if (!g) refuse("LIBRARY-APPLY-MEMBER-MISSING", "E/G mode needs shear_modulus (G), and the record has none. Choose E/ν mode if the record provides ν, or choose a record that provides G.");
     members.shear_modulus = g!.value;
     used.push(g!);
   }
@@ -408,12 +408,12 @@ export function defaultMaterialMode(material: Pick<Material, "constitutive_basis
 export async function buildMaterialApply(input: ApplyMaterialInput): Promise<LibraryApplyPlan> {
   const ctx = await context("material", input.document, input.recordId);
   const target = input.model.materials?.find((material) => material.id === input.targetId);
-  if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Material ${input.targetId} is not in the model.`);
+  if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Material ${input.targetId} is not in the model. Select a material in the model and prepare the apply again.`);
   const current = target as unknown as Json;
   // ν is never discarded: E/G does not apply onto a material that holds ν (a
   // basis change stays possible through ordinary material editing).
   if (input.mode === "e_g" && current.poisson_ratio !== undefined) {
-    refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `Material ${input.targetId} holds poisson_ratio (ν); E/G would discard it. Choose E/ν mode.`);
+    refuse("LIBRARY-APPLY-NU-NOT-DISCARDED", `This material already has poisson_ratio (ν = ${shown((current.poisson_ratio as { value?: unknown } | undefined)?.value)}). Apply a record that provides ν in E/ν mode, or clear ν from the material first, then apply.`);
   }
   const result = materialMembers(ctx, input.catalog, input.mode, (await loadWasmEngine()).derivedShearModulusJson);
   const after: Record<string, unknown> = { ...result.members };
@@ -451,16 +451,16 @@ async function applyPlan(
 }
 
 function checkNewId(model: PreviewModel, id: string) {
-  if (!/^[A-Za-z][A-Za-z0-9_.:-]*$/.test(id)) refuse("LIBRARY-APPLY-ID-INVALID", `${JSON.stringify(id)} is not a valid model id (a letter, then letters, digits, _ . : -).`);
+  if (!/^[A-Za-z][A-Za-z0-9_.:-]*$/.test(id)) refuse("LIBRARY-APPLY-ID-INVALID", `${JSON.stringify(id)} is not a valid model id. Enter an id that starts with a letter and uses only letters, digits, _ . : or -.`);
   const taken = [...(model.materials ?? []), ...(model.sections ?? []), ...model.nodes, ...model.pipe_segments, ...model.supports, ...model.components]
     .some((entity) => entity.id === id);
-  if (taken) refuse("LIBRARY-APPLY-ID-INVALID", `${id} is already used in the model.`);
+  if (taken) refuse("LIBRARY-APPLY-ID-INVALID", `${id} is already used in the model. Enter an id the model does not use yet.`);
 }
 
 // ---- section (§2.3) --------------------------------------------------------
 
 function sectionValues(ctx: Context): { copies: Map<string, Copy>; notCopied: NotCopiedRow[] } {
-  if (ctx.record.section_type !== "pipe") refuse("LIBRARY-APPLY-SECTION-TYPE", `Only pipe sections apply; the record is ${shown(ctx.record.section_type)}.`);
+  if (ctx.record.section_type !== "pipe") refuse("LIBRARY-APPLY-SECTION-TYPE", `Only pipe sections apply, and this record is ${shown(ctx.record.section_type)}. Choose a record whose section_type is pipe.`);
   const copies = new Map<string, Copy>();
   const notCopied: NotCopiedRow[] = [];
   for (const slot of (Array.isArray(ctx.record.dimensions) ? (ctx.record.dimensions as unknown[]) : []).map(obj)) {
@@ -479,7 +479,7 @@ function sectionValues(ctx: Context): { copies: Map<string, Copy>; notCopied: No
       notCopied.push({ source, reason: `value status ${status} is not copied` });
       continue;
     }
-    if (copies.has(kind)) refuse("LIBRARY-APPLY-AMBIGUOUS-SOURCE", `The record holds more than one ${kind}.`);
+    if (copies.has(kind)) refuse("LIBRARY-APPLY-AMBIGUOUS-SOURCE", `The record holds more than one copyable ${kind}, so the source is ambiguous. Keep one ${kind} in the record and re-import the library, or choose a different record.`);
     const number = magnitude(value.magnitude, source);
     const unit = str(value.unit) ?? "";
     copies.set(kind, { member: `properties.${kind}`, value: { value: number, unit }, unit, source, levels: [slot, value], display: String(number) });
@@ -496,7 +496,7 @@ export async function buildSectionInsert(input: InsertSectionInput): Promise<Lib
   const ctx = await context("section", input.document, input.recordId);
   checkNewId(input.model, input.newId);
   const { copies, notCopied } = sectionValues(ctx);
-  for (const kind of ["outside_diameter", "wall_thickness"]) if (!copies.has(kind)) refuse("LIBRARY-APPLY-MEMBER-MISSING", `A new section needs ${kind}; the record holds no copyable value.`);
+  for (const kind of ["outside_diameter", "wall_thickness"]) if (!copies.has(kind)) refuse("LIBRARY-APPLY-MEMBER-MISSING", `A new section needs ${kind}, and the record has no copyable value for it. Choose a record that provides it, or apply this record to an existing section instead.`);
   const used = [...copies.values()];
   const provenance = libraryProvenanceString("section", ctx.libraryId, ctx.recordId);
   const record = provenanceRecord(ctx, used, null, []);
@@ -520,14 +520,14 @@ export type ApplySectionInput = { model: PreviewModel; document: Json; recordId:
 export async function buildSectionApply(input: ApplySectionInput): Promise<LibraryApplyPlan> {
   const ctx = await context("section", input.document, input.recordId);
   const target = input.model.sections?.find((section) => section.id === input.targetId);
-  if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Section ${input.targetId} is not in the model.`);
+  if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Section ${input.targetId} is not in the model. Select a section in the model and prepare the apply again.`);
   const { copies, notCopied } = sectionValues(ctx);
   const used = [...copies.values()];
-  if (!used.length) refuse("LIBRARY-APPLY-NOTHING-COPIED", "The record supplies no copyable outside_diameter or wall_thickness.");
+  if (!used.length) refuse("LIBRARY-APPLY-NOTHING-COPIED", "The record has no copyable outside_diameter or wall_thickness, so nothing would change. Choose a record that provides them, or add them to this record and re-import the library.");
   const after: Record<string, unknown> = { name: str(ctx.record.name) ?? target!.name };
   for (const copy of used) after[copy.member] = copy.value;
   const retained = ["outside_diameter", "wall_thickness"].filter((kind) => !copies.has(kind) && target!.properties[kind] !== undefined).map((kind) => `properties.${kind}`);
-  if (input.replace === "all" && retained.length) refuse("LIBRARY-APPLY-REQUIRED-MEMBER", `A pipe section requires ${retained.join(", ")}; the record does not supply it, so it cannot be replaced.`);
+  if (input.replace === "all" && retained.length) refuse("LIBRARY-APPLY-REQUIRED-MEMBER", `A pipe section requires ${retained.join(", ")}, and the record does not supply it, so "replace all values" cannot remove it. Choose "keep them", or a record that supplies both dimensions.`);
   const dependents = input.model.pipe_segments.filter((pipe) => pipe.section_ref === input.targetId).map((pipe) => pipe.id).sort();
   return applyPlan(ctx, input.model, "Section", input.targetId, target as unknown as Json, after, { copies: used, notCopied, notes: [], members: {} }, retained, [], dependents);
 }
@@ -625,14 +625,14 @@ export type ApplyComponentInput = { model: PreviewModel; document: Json; recordI
 export async function buildComponentApply(input: ApplyComponentInput): Promise<LibraryApplyPlan> {
   const ctx = await context("component", input.document, input.recordId);
   const target = input.model.components.find((component) => component.id === input.targetId);
-  if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Component ${input.targetId} is not in the model.`);
+  if (!target) refuse("LIBRARY-APPLY-TARGET-MISSING", `Component ${input.targetId} is not in the model. Select a component in the model and prepare the apply again.`);
   const entity = target as unknown as Json;
   const componentType = str(ctx.record.component_type) ?? "TBD";
   if (!recordMatchesKind(componentType, target!.kind)) {
-    refuse("LIBRARY-APPLY-KIND-MISMATCH", `A ${componentType} record does not apply to a ${target!.kind} component.`);
+    refuse("LIBRARY-APPLY-KIND-MISMATCH", `A ${componentType} record does not apply to a ${target!.kind} component. Choose a ${target!.kind} record, or select a ${componentType} component.`);
   }
   const family = FAMILY[target!.kind];
-  if (!family) refuse("LIBRARY-APPLY-KIND-MISMATCH", `A ${target!.kind} component takes no library values.`);
+  if (!family) refuse("LIBRARY-APPLY-KIND-MISMATCH", `A ${target!.kind} component takes no library values. Select a bend, branch, rigid or expansion-joint component.`);
   const realized = ["bend", "elbow"].includes(target!.kind) && target!.mechanics_interface?.solver_consumption === "curved_bend_macro_element";
 
   const copies = new Map<string, Copy>();
@@ -656,7 +656,7 @@ export async function buildComponentApply(input: ApplyComponentInput): Promise<L
       notCopied.push({ source, reason: `value status ${!value ? str(slot.value_status) ?? "missing" : status} is not copied` });
       continue;
     }
-    if (copies.has(kind)) refuse("LIBRARY-APPLY-AMBIGUOUS-SOURCE", `The record holds more than one ${kind}.`);
+    if (copies.has(kind)) refuse("LIBRARY-APPLY-AMBIGUOUS-SOURCE", `The record holds more than one copyable ${kind}, so the source is ambiguous. Keep one ${kind} in the record and re-import the library, or choose a different record.`);
     const number = magnitude(value.magnitude, source);
     const unit = str(value.unit) ?? "";
     copies.set(kind, { member: row.member, value: { value: number, unit }, unit, source, levels: [slot, value], display: String(number) });
@@ -672,7 +672,7 @@ export async function buildComponentApply(input: ApplyComponentInput): Promise<L
   }
 
   const used = [...copies.values()];
-  if (!used.length) refuse("LIBRARY-APPLY-NOTHING-COPIED", "The record supplies no value this component can take.");
+  if (!used.length) refuse("LIBRARY-APPLY-NOTHING-COPIED", "The record supplies no value this component can take, so nothing would change. Choose a record that provides a value from the copy table for this component, or add one to this record and re-import the library.");
   const written = new Set(used.map((copy) => copy.member));
   const after: Record<string, unknown> = {};
   for (const copy of used) after[copy.member] = copy.value;
@@ -683,7 +683,7 @@ export async function buildComponentApply(input: ApplyComponentInput): Promise<L
   for (const group of removalGroups) {
     for (const member of REPLACEABLE[group]) {
       if (written.has(member) || at(entity, member) === undefined) continue;
-      if (required.has(member)) refuse("LIBRARY-APPLY-REQUIRED-MEMBER", `${member} is required for a ${target!.kind} and the record does not supply it; it is not removed.`);
+      if (required.has(member)) refuse("LIBRARY-APPLY-REQUIRED-MEMBER", `${member} is required for a ${target!.kind}, and the record does not supply it, so it is not removed. Choose "keep them", or a record that supplies ${member}.`);
       after[member] = null;
       removed.push(member);
     }
@@ -696,7 +696,7 @@ export async function buildComponentApply(input: ApplyComponentInput): Promise<L
     const previous = str(at(entity, SOURCE_STRING[group]))?.trim();
     if (!retainedInGroup.length) after[SOURCE_STRING[group]] = libraryString;
     else if (previous) after[SOURCE_STRING[group]] = `${previous}; ${libraryString}: ${writtenInGroup.join(", ")}`;
-    else refuse("LIBRARY-APPLY-RETAINED-UNSOURCED", `${retainedInGroup.join(", ")} keep values with no previous source reference.`);
+    else refuse("LIBRARY-APPLY-RETAINED-UNSOURCED", `${retainedInGroup.join(", ")} would keep values that have no source reference. Enter the group's source reference on the component first, then apply again.`);
   }
   // Governed values the entity keeps (every unwritten quantity of its groups).
   const retained = [...new Set([...groupValues(entity, family!), ...groupValues(entity, "modifiers")])]
@@ -724,7 +724,7 @@ export async function hangerLibraryProvenance(library: Json, record: Json, copie
   }
   for (const quantity of copiedQuantities) {
     const blocked = blockedTokens(quantity);
-    if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `A copied hanger quantity carries ${[...new Set(blocked)].join(", ")}; its data is never applied.`);
+    if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `A hanger quantity in this record is marked ${[...new Set(blocked)].join(", ")}, so the record is not applied. Choose a different record, or re-import the library with reviewed source dispositions.`);
   }
   const copies: Copy[] = copiedQuantities.map((quantity, index) => ({ member: `hanger.${index}`, value: quantity, unit: str(quantity.unit) ?? "", source: ctx.recordId, levels: [quantity], display: "" }));
   return { provenance: libraryProvenanceString("hanger", ctx.libraryId, ctx.recordId), provenanceRecord: provenanceRecord(ctx, copies, null, []) };
