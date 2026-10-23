@@ -300,12 +300,18 @@ fn recorded_list(values: &[String]) -> String {
     }
 }
 
-fn user_rule_check_status_label(status: &UserRuleCheckStatus) -> &'static str {
-    match status {
-        UserRuleCheckStatus::RuleInputsIncomplete => "RULE_INPUTS_INCOMPLETE",
-        UserRuleCheckStatus::UserRuleChecked => "USER_RULE_CHECKED",
-        UserRuleCheckStatus::UserRuleFailed => "USER_RULE_FAILED",
-    }
+/// Registered display form of a user-rule check status token
+/// (`docs/claims_registry.md` §2.1, DEC-102): the label is shown with its
+/// authority domain and with the token reachable in place.
+fn user_rule_check_status_display(status: &UserRuleCheckStatus) -> String {
+    let (token, label) = match status {
+        UserRuleCheckStatus::RuleInputsIncomplete => {
+            ("RULE_INPUTS_INCOMPLETE", "Rule inputs incomplete")
+        }
+        UserRuleCheckStatus::UserRuleChecked => ("USER_RULE_CHECKED", "User-rule checked"),
+        UserRuleCheckStatus::UserRuleFailed => ("USER_RULE_FAILED", "User-rule failed"),
+    };
+    format!("User-rule-check authority · {label} ({token})")
 }
 
 fn export_context_label(context: &ReportExportContext) -> &'static str {
@@ -843,6 +849,7 @@ cannot appear inside the bytes it binds.",
                     .map(|rule_pack| {
                         vec![
                             rule_pack.rule_pack_id.clone(),
+                            recorded(rule_pack.name.as_ref()),
                             rule_pack.version.clone(),
                             checksum_text(&rule_pack.checksum),
                             rule_pack.source_notice.clone(),
@@ -857,6 +864,7 @@ cannot appear inside the bytes it binds.",
                     blocks.push(table(
                         &[
                             "Rule pack",
+                            "Name",
                             "Version",
                             "Checksum",
                             "Source notice",
@@ -875,7 +883,7 @@ cannot appear inside the bytes it binds.",
                             "Rule pack: {} · Grammar version: {} · Aggregate status: {}",
                             run.rule_pack_id,
                             run.grammar_version,
-                            user_rule_check_status_label(&run.aggregate_status)
+                            user_rule_check_status_display(&run.aggregate_status)
                         )));
                         let check_rows = run
                             .checks
@@ -883,7 +891,7 @@ cannot appear inside the bytes it binds.",
                             .map(|check| {
                                 vec![
                                     check.check_id.clone(),
-                                    user_rule_check_status_label(&check.status).to_string(),
+                                    user_rule_check_status_display(&check.status),
                                     if check.missing_inputs.is_empty() {
                                         "none".to_string()
                                     } else {

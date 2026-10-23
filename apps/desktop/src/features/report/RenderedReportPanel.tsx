@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { FileCheck, Printer } from "lucide-react";
@@ -122,6 +122,27 @@ export function RenderedReportPanel({
       ? ruleCheckRun
       : null;
 
+  // Pending render work belongs to the panel instance and the exact source it
+  // was started from. Unmounting (e.g. a project reopen replaces the panel) or
+  // replacing any source invalidates it before it can reach renderer IPC or
+  // write state; a source replacement also retires the shown render.
+  useEffect(() => () => {
+    renderGeneration.current += 1;
+  }, []);
+  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun });
+  useEffect(() => {
+    const previous = sourceRef.current;
+    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun };
+    sourceRef.current = next;
+    if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
+    renderGeneration.current += 1;
+    setRenderState(null);
+    setRedactionState(null);
+    setPrintRequested(false);
+    setRenderError(null);
+    setRendering(false);
+  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun]);
+
   function onLocalPrivateIntentChange(value: boolean) {
     renderGeneration.current += 1;
     setLocalPrivateIntent(value);
@@ -167,7 +188,8 @@ export function RenderedReportPanel({
       const controlled = controlReportRendererInput(input, intent);
       setRedactionState({ context, controlled });
       if (controlled.blocked || controlled.payload === null) return;
-      const next = await renderCalculationReport(controlled);
+      if (!isCurrent()) return;
+      const next = await renderCalculationReport(controlled, { stillCurrent: isCurrent });
       if (!isCurrent()) return;
       setRenderState({ context, route: next });
     } catch (error) {

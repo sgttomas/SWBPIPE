@@ -4,7 +4,7 @@
 use open_pipe_stress_pdf_emitter::{assemble_full_report_package, emit_calculation_report_pdf};
 use open_pipe_stress_report_renderer::{
     assemble_report_sections, render_calculation_report, RenderableReportInput, ReportContext,
-    ReportExportContext, ResultRow,
+    ReportExportContext, ResultRow, UserRuleCheckOutcome, UserRuleCheckRun, UserRuleCheckStatus,
 };
 use open_pipe_stress_report_sections as sections;
 
@@ -297,4 +297,28 @@ fn local_private_notice_reaches_the_pdf_only_for_a_local_private_context() {
     assert!(!private.export_blocked, "{:?}", private.blocking_reasons);
     assert!(pdf_contains(&private.pdf_bytes, "LOCAL PRIVATE REPORT"));
     assert_eq!(private.pdf_bytes, emit_calculation_report_pdf(&input).pdf_bytes);
+}
+
+#[test]
+fn rule_pack_name_and_registered_status_forms_reach_the_pdf() {
+    let mut input = fixture_input();
+    input.calculation_report.rule_pack_refs[0].name = Some("Invented Pack".to_string());
+    input.user_rule_checks = Some(UserRuleCheckRun {
+        rule_pack_id: input.calculation_report.rule_pack_refs[0].rule_pack_id.clone(),
+        grammar_version: "1.0.0".to_string(),
+        aggregate_status: UserRuleCheckStatus::UserRuleChecked,
+        checks: vec![UserRuleCheckOutcome {
+            check_id: "chk-a".to_string(),
+            status: UserRuleCheckStatus::UserRuleChecked,
+            missing_inputs: vec![],
+        }],
+    });
+    let outcome = emit_calculation_report_pdf(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(pdf_contains(&outcome.pdf_bytes, "Invented Pack"));
+    // The aggregate meta line carries domain, display form and token.
+    assert!(pdf_contains(&outcome.pdf_bytes, "User-rule checked"));
+    // PDF literal strings escape parentheses.
+    assert!(pdf_contains(&outcome.pdf_bytes, r"\(USER_RULE_CHECKED\)"));
+    assert!(pdf_contains(&outcome.pdf_bytes, "User-rule-check authority"));
 }

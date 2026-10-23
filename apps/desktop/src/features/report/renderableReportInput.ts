@@ -409,8 +409,12 @@ async function rulePackReference(run: SessionRuleCheckRun) {
     throw new Error("REPORT-RULE-CHECK-PACK-MISMATCH: the rule-check run and the loaded rule pack differ.");
   }
   const redistribution = text(classification.redistribution_status);
+  const name = text(metadata.name);
   return {
     rule_pack_id: ruleId,
+    // Safe display name (PRD §19.2); omitted when the pack records none, which
+    // the renderer discloses as "not recorded".
+    ...(name ? { name } : {}),
     version: text(metadata.rule_pack_version) ?? "not recorded",
     checksum: declaredValue
       ? {
@@ -429,7 +433,14 @@ async function rulePackReference(run: SessionRuleCheckRun) {
     source_notice: text(metadata.source_notice) ?? "not recorded",
     redistribution_status:
       redistribution && REPORT_REDISTRIBUTION_STATUSES.has(redistribution) ? redistribution : "unknown",
-    completeness_status: run.result.aggregate_status === "RULE_INPUTS_INCOMPLETE" ? "incomplete" : "complete",
+    // Required-input status: incomplete when any check lacks inputs. The
+    // aggregate ranks a failed check above an incomplete one, so it cannot be
+    // the basis here.
+    completeness_status:
+      run.result.aggregate_status === "RULE_INPUTS_INCOMPLETE" ||
+      run.result.checks.some((check) => check.status === "RULE_INPUTS_INCOMPLETE")
+        ? "incomplete"
+        : "complete",
     private_payload_redacted: true
   };
 }

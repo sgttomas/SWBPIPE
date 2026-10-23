@@ -396,13 +396,23 @@ fn user_rule_check_outcomes_render_identity_status_and_missing_inputs_only() {
     let html = &outcome.html;
     assert!(html.contains("User-Rule Check Outcomes"));
     assert!(html.contains(
-        "Rule pack: invented-rule-pack · Grammar version: 1.0.0 · Aggregate status: RULE_INPUTS_INCOMPLETE"
+        "Rule pack: invented-rule-pack · Grammar version: 1.0.0 · Aggregate status: User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"
     ));
-    assert!(html.contains("<td>invented-check-a</td><td>USER_RULE_CHECKED</td><td>none</td>"));
     assert!(html.contains(
-        "<td>invented-check-b</td><td>RULE_INPUTS_INCOMPLETE</td><td>invented_input_x, invented_input_y</td>"
+        "<td>invented-check-a</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
     ));
-    assert!(html.contains("<td>invented-rule-pack</td><td>0.1.0</td>"));
+    assert!(html.contains(
+        "<td>invented-check-b</td><td>User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)</td><td>invented_input_x, invented_input_y</td>"
+    ));
+    // The fixture reference records no display name; it is disclosed as such.
+    assert!(html.contains("<td>invented-rule-pack</td><td>not recorded</td><td>0.1.0</td>"));
+    for raw in [
+        "<td>USER_RULE_CHECKED</td>",
+        "<td>RULE_INPUTS_INCOMPLETE</td>",
+        "Aggregate status: RULE_INPUTS_INCOMPLETE",
+    ] {
+        assert!(!html.contains(raw), "raw status token shown without its display form: {raw}");
+    }
     let again = render_calculation_report(&input);
     assert_eq!(again.sha256_hex, outcome.sha256_hex);
 }
@@ -474,4 +484,60 @@ fn demo_rule_pack_safe_metadata_and_local_private_context_pass_the_lint_gates() 
         "blocking reasons: {:?}",
         outcome.blocking_reasons
     );
+}
+
+const DEMO_RULE_PACK: &str =
+    include_str!("../../../../fixtures/product_preview/invented_demo_rule_pack.json");
+
+/// The rule-pack reference the desktop builder derives from the unchanged demo
+/// pack: safe metadata only, including its display name.
+fn demo_rule_pack_ref() -> open_pipe_stress_report_generator::RulePackRef {
+    let pack: serde_json::Value = serde_json::from_str(DEMO_RULE_PACK).expect("demo pack parses");
+    let metadata = &pack["metadata"];
+    let checksum = &pack["checksums"]["rule_pack_checksum"];
+    serde_json::from_value(serde_json::json!({
+        "rule_pack_id": metadata["rule_pack_id"],
+        "name": metadata["name"],
+        "version": metadata["rule_pack_version"],
+        "checksum": {
+            "algorithm": checksum["algorithm"],
+            "canonicalization": checksum["canonicalization"],
+            "payload_ref": {"ref_type": "rule_pack", "ref_id": metadata["rule_pack_id"]},
+            "value": checksum["value"]
+        },
+        "source_notice": metadata["source_notice"],
+        "redistribution_status": pack["classification"]["redistribution_status"],
+        "completeness_status": "incomplete",
+        "private_payload_redacted": true
+    }))
+    .expect("demo rule-pack reference deserializes")
+}
+
+#[test]
+fn demo_rule_pack_name_version_and_checksum_render() {
+    let mut input = fixture_input();
+    input.calculation_report.rule_pack_refs = vec![demo_rule_pack_ref()];
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(outcome.html.contains(
+        "<td>invented_demo_rule_pack</td><td>Invented Demonstration Rule Pack</td><td>0.2.0</td>"
+    ));
+    assert!(outcome
+        .html
+        .contains("c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"));
+    let json = serde_json::to_value(&input.calculation_report.rule_pack_refs[0]).expect("serializes");
+    assert_eq!(json["name"], "Invented Demonstration Rule Pack");
+}
+
+#[test]
+fn blank_rule_pack_name_is_an_unsafe_reference() {
+    let mut input = fixture_input();
+    let mut reference = demo_rule_pack_ref();
+    reference.name = Some("  ".to_string());
+    input.calculation_report.rule_pack_refs = vec![reference];
+    let outcome = render_calculation_report(&input);
+    assert!(outcome
+        .blocking_reasons
+        .iter()
+        .any(|reason| reason == "report validation: REPORT-RULE-PACK-REF-UNSAFE"));
 }

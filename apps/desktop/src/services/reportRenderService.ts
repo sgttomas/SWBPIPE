@@ -44,7 +44,10 @@ function isTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
-export async function renderCalculationReport(input: unknown): Promise<RenderReportRoute> {
+export async function renderCalculationReport(
+  input: unknown,
+  options: { stillCurrent?: () => boolean } = {}
+): Promise<RenderReportRoute> {
   if (!isControlledReportInput(input)) {
     return {
       route: "redaction_blocked",
@@ -73,6 +76,11 @@ export async function renderCalculationReport(input: unknown): Promise<RenderRep
         "desktop (Tauri) runtime only; the browser preview exposes no rendering seam and no " +
         "fallback renderer exists."
     };
+  }
+  // The caller's request may have been retired (panel unmounted, source
+  // replaced, selection changed); a retired request never reaches IPC.
+  if (options.stillCurrent && !options.stillCurrent()) {
+    return { route: "redaction_blocked", diagnostic: "REPORT-RENDER-REQUEST-RETIRED: the render request is no longer current." };
   }
   const outcome = await invokeWithIngress<RenderedReportOutcome>("render_calculation_report", { input: input.payload });
   return { route: "tauri_renderer", outcome };

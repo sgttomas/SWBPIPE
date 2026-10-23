@@ -971,6 +971,7 @@ describe("PRD §19.2 report context (W-3)", () => {
     expect(Object.keys(ref).sort()).toEqual([
       "checksum",
       "completeness_status",
+      "name",
       "private_payload_redacted",
       "redistribution_status",
       "rule_pack_id",
@@ -979,6 +980,8 @@ describe("PRD §19.2 report context (W-3)", () => {
     ]);
     expect(ref).toMatchObject({
       rule_pack_id: "invented_demo_rule_pack",
+      // Display name from the unchanged demo fixture's metadata.name.
+      name: "Invented Demonstration Rule Pack",
       version: "0.2.0",
       checksum: {
         algorithm: "sha256",
@@ -1019,6 +1022,50 @@ describe("PRD §19.2 report context (W-3)", () => {
     })).rejects.toThrow("REPORT-RULE-CHECK-PACK-MISMATCH");
   });
 
+  it("marks required inputs incomplete when any check lacks inputs, even under a failed aggregate", async () => {
+    const base = await inventedRuleCheckRun("RULE_INPUTS_INCOMPLETE");
+    const [incomplete] = base.result.checks;
+    const mixed: SessionRuleCheckRun = {
+      rulePackDocument: base.rulePackDocument,
+      result: {
+        ...base.result,
+        // The runner ranks a failed check above an incomplete one.
+        aggregate_status: "USER_RULE_FAILED",
+        checks: [
+          { ...incomplete, check_id: "demo_failed_check", status: "USER_RULE_FAILED", bound_inputs: [] },
+          incomplete
+        ]
+      }
+    };
+    const input = await buildRenderableReportInput({
+      model: inventedModel(),
+      result: inventedResult(),
+      analysisRun: inventedRun(),
+      projectSummary: null,
+      ruleCheckRun: mixed,
+      renderContext: LOCAL_PRIVATE_CONTEXT
+    });
+    expect(input.calculation_report.rule_pack_refs[0].completeness_status).toBe("incomplete");
+    expect(input.user_rule_checks?.checks.map((check) => check.status)).toEqual([
+      "USER_RULE_FAILED",
+      "RULE_INPUTS_INCOMPLETE"
+    ]);
+
+    const allSupplied: SessionRuleCheckRun = {
+      rulePackDocument: base.rulePackDocument,
+      result: { ...mixed.result, checks: [mixed.result.checks[0]] }
+    };
+    const complete = await buildRenderableReportInput({
+      model: inventedModel(),
+      result: inventedResult(),
+      analysisRun: inventedRun(),
+      projectSummary: null,
+      ruleCheckRun: allSupplied,
+      renderContext: LOCAL_PRIVATE_CONTEXT
+    });
+    expect(complete.calculation_report.rule_pack_refs[0].completeness_status).toBe("complete");
+  });
+
   it("sends the session rule-check run only when the analysis record carries its aggregate", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockResolvedValue(unblockedOutcome());
@@ -1037,5 +1084,103 @@ describe("PRD §19.2 report context (W-3)", () => {
     await waitFor(() => expect(screen.getByTestId("rendered-report-preview")).toBeInTheDocument());
     expect(renderedInput().user_rule_checks).toBeNull();
     expect((renderedInput().calculation_report as { rule_pack_refs: unknown[] }).rule_pack_refs).toEqual([]);
+  });
+});
+
+describe("pending render work is owned by the panel instance and its source (W-3 repair)", () => {
+  async function pendingPreparation() {
+    const real = await buildRenderableReportInput({
+      model: inventedModel(),
+      result: inventedResult(),
+      analysisRun: inventedRun(),
+      projectSummary: null,
+      renderContext: LOCAL_PRIVATE_CONTEXT
+    });
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const inputModule = await import("./renderableReportInput");
+    const builderSpy = vi.spyOn(inputModule, "buildRenderableReportInput").mockImplementation(async () => {
+      await gate;
+      return real;
+    });
+    return { release: () => release(), builderSpy };
+  }
+
+  it("never sends a private render to IPC after the panel unmounts during preparation", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const { release, builderSpy } = await pendingPreparation();
+    const { unmount } = renderPanel();
+
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(builderSpy).toHaveBeenCalled());
+    unmount();
+    release();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(invokeMock).not.toHaveBeenCalledWith("render_calculation_report", expect.anything());
+    builderSpy.mockRestore();
+  });
+
+  it("never sends a private render to IPC after its source is replaced during preparation", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const { release, builderSpy } = await pendingPreparation();
+    const model = inventedModel();
+    const result = inventedResult();
+    const { rerender } = render(
+      <RenderedReportPanel model={model} result={result} analysisRun={inventedRun()} projectSummary={null} />
+    );
+
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(builderSpy).toHaveBeenCalled());
+    // A replacement analysis record (same panel instance) retires the pending render.
+    rerender(<RenderedReportPanel model={model} result={result} analysisRun={inventedRun()} projectSummary={null} />);
+    release();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(invokeMock).not.toHaveBeenCalledWith("render_calculation_report", expect.anything());
+    expect(screen.queryByTestId("rendered-report-redaction-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+    expect(screen.getByTestId("rendered-report-render")).not.toBeDisabled();
+    builderSpy.mockRestore();
+  });
+
+  it("retires a shown render when its source is replaced", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const model = inventedModel();
+    const result = inventedResult();
+    const { rerender } = render(
+      <RenderedReportPanel model={model} result={result} analysisRun={inventedRun()} projectSummary={null} />
+    );
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-preview")).toBeInTheDocument());
+
+    rerender(<RenderedReportPanel model={model} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null} />);
+
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-save-local-private")).not.toBeInTheDocument();
+  });
+
+  it("refuses a retired request immediately before IPC", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const route = await renderCalculationReport(
+      {
+        payload: { report_title: "invented", report_context: { export_context: "local_private" } },
+        findings: [],
+        blocked: false,
+        summary: { route_id: "DREP-IPC-003", local_first: routeEvidence("local_private", true) }
+      },
+      { stillCurrent: () => false }
+    );
+    expect(route.route).toBe("redaction_blocked");
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 });
