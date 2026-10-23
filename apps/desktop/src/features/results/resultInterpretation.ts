@@ -131,6 +131,19 @@ export function resolveEntitySelection(model: PreviewModel, entityRef: string): 
   return null;
 }
 
+/** A numerical-health located cause (DEL-07-05 numerical health §3): a K-D5 or S11-G
+ * row label `{node}:{DOF}` resolves to its node; a named reference (a load-fidelity
+ * source, a curved-bend reference) keeps the direct-id path above; text locations, DOF
+ * indices and mechanism directions do not resolve. */
+export function resolveLocatedCauseSelection(
+  model: PreviewModel,
+  location: Readonly<{ kind: "node_dof"; node: string; dof?: string } | { kind: "ref"; ref: string } | { kind: "text"; text?: string }>
+): EntityRef | null {
+  if (location.kind === "node_dof") return model.nodes.some((item) => item.id === location.node) ? { type: "node", id: location.node } : null;
+  if (location.kind === "ref") return resolveEntitySelection(model, location.ref);
+  return null;
+}
+
 export function resolveDiagnosticEntitySelection({
   model,
   result,

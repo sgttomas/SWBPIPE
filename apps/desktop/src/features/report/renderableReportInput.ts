@@ -7,6 +7,8 @@ import type {
   PreviewModel
 } from "../../types";
 import { canonicalSha256Hex } from "../../services/hashService";
+import type { NumericalHealthView } from "../results/numericalHealth";
+import { reportLineText } from "../results/numericalHealthText";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -278,12 +280,18 @@ export async function buildRenderableReportInput({
   model,
   result,
   analysisRun,
-  projectSummary
+  projectSummary,
+  numericalHealth = null
 }: {
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
   projectSummary: LocalProjectSummary | null;
+  /** DEL-07-05 numerical health §5: the rendered report's one line per load case,
+   * placed after the result rows and so before the diagnostics section, on the generic
+   * route only. Absent, the input is unchanged (the report package passes none). No
+   * figure is exported. */
+  numericalHealth?: NumericalHealthView | null;
 }) {
   const run = analysisRun.analysis_run;
   const provenance = sessionProvenance(model);
@@ -470,6 +478,12 @@ export async function buildRenderableReportInput({
       case_ref: item.basis_ref ? `${item.basis_ref.ref_type}:${item.basis_ref.ref_id}` : "TBD",
       quantity_display: `${item.value} ${item.unit}`,
       source_ref: `result:${item.id}`
-    }))
+    })).concat((numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => ({
+      row_id: `numerical-health:${item.caseId}`,
+      label: reportLineText(item.state),
+      case_ref: `load_case:${item.caseId}`,
+      quantity_display: "",
+      source_ref: item.integrityDiagnosticId ?? "numerical_quality"
+    })))
   };
 }
