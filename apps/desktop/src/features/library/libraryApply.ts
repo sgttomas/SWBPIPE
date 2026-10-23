@@ -642,7 +642,7 @@ export async function buildComponentApply(input: ApplyComponentInput): Promise<L
     refuse("LIBRARY-APPLY-KIND-MISMATCH", `A ${componentType} record does not apply to a ${target!.kind} component. Choose a ${target!.kind} record, or select a ${componentType} component.`);
   }
   const family = FAMILY[target!.kind];
-  if (!family) refuse("LIBRARY-APPLY-KIND-MISMATCH", `A ${target!.kind} component takes no library values. Select a component of kind bend, elbow, branch, tee, branch_connection, reducer, valve, flange, rigid, specialty or expansion_joint whose kind matches the record's component_type (${componentType}).`);
+  if (!family) refuse("LIBRARY-APPLY-KIND-MISMATCH", `A ${target!.kind} component takes no library values. Select a component of kind bend, elbow, branch, tee, branch_connection, reducer, valve, flange, rigid, specialty or expansion_joint whose kind matches the record's component_type (${componentType}), or choose a record of one of those kinds.`);
   const realized = ["bend", "elbow"].includes(target!.kind) && target!.mechanics_interface?.solver_consumption === "curved_bend_macro_element";
 
   const copies = new Map<string, Copy>();
