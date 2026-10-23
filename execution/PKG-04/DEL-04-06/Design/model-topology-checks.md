@@ -65,8 +65,7 @@ is linear in the node count for ordinary models.
 
 The bundled desktop demo (`fixtures/product_preview/invented_demo_model.json`)
 and `invented_preview_model.json` declare a tee (`C-120` at `node:N-120`) on a
-node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them. The
-demo is not changed by this unit (Agent 0, 2026-10-23).
+node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them.
 
 ## Evidence
 
