@@ -68,11 +68,12 @@ describe("ResultsPanel numerical health", () => {
   });
 
   it("gives a withheld combination's rows no badge", () => {
-    const raw = genericHealth(true);
-    raw.combinations[0].withheld = true;
+    const raw = genericHealth(true) as { combinations: { withheld: boolean; state: string | null; cases: string[] }[] };
+    Object.assign(raw.combinations[0], { withheld: true, state: null, cases: [] });
     const result = genericResult();
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={view(raw, { eligible: false, verdictHold: true })} />);
     expect(screen.queryByTestId("numerical-health-combination-badge-combination:Σ")).toBeNull();
+    expect(screen.queryByTestId("numerical-health-combination-combination:Σ")).toBeNull();
     const combinationRow = result.results.slice(0, 50).find((row) => row.basis_ref?.ref_type === "combination");
     if (combinationRow) expect(screen.queryByTestId(`result-row-health-${combinationRow.id}`)).toBeNull();
   });

@@ -55,6 +55,8 @@ describe("parseNumericalHealth (fail closed)", () => {
       raw("generic", false, [healthCase("LC1", "checks_passed", { causes: [{ kind: "stiffness_contrast", locations: [] }] })]),
       raw("generic", false, [healthCase("LC1", "checks_passed", { causes: [{ kind: "formation", locations: [{ kind: "dof_index", index: 3 }] }] })]),
       raw("generic", false, [healthCase("", "checks_passed")]),
+      raw("generic", false, [healthCase("LC1", null as unknown as string)]),
+      raw("generic", false, [], [{ combination_id: "C", state: "withheld", cases: [], withheld: true }]),
       // verdict_only is the generic route's flag only.
       raw("pressure_source", true, [healthCase("LC1", "sensitive")]),
       raw("retained", true, [healthCase("LC1", "sensitive")])
@@ -105,15 +107,17 @@ describe("numericalHealthView", () => {
     const view = numericalHealthView(health("generic", false, [healthCase("LC1", "sensitive"), healthCase("LC2", "checks_passed")], [
       { combination_id: "C1", state: "sensitive", cases: ["LC1", "LC2"], withheld: false },
       { combination_id: "C2", state: "not_assessed", cases: [{ case_id: "LC2" }, { case_id: "LC9" }], withheld: false },
-      { combination_id: "C3", state: "sensitive", cases: [{ case_id: "LC1", state: "sensitive" }], withheld: true }
+      { combination_id: "C3", state: null, cases: [], withheld: true },
+      { combination_id: "C4", state: "sensitive", cases: [{ case_id: "LC1", state: "sensitive" }], withheld: true }
     ]), { eligible: false, verdictHold: false })!;
     expect(view.combinations).toEqual([
       { combinationId: "C1", state: "sensitive", badge: "red", text: "Inherited from its load cases: LC1: sensitive; LC2: checks passed." },
       // A case missing from numerical_quality reads "not assessed".
       { combinationId: "C2", state: "not_assessed", badge: "grey", text: "Inherited from its load cases: LC2: checks passed; LC9: not assessed." },
-      { combinationId: "C3", state: "sensitive", badge: null, text: "Inherited from its load cases: LC1: sensitive." }
     ]);
-    expect(view.combinationState("C3")?.badge).toBeNull();
+    // Withheld combinations keep their existing finding: no badge and no detail of their own.
+    expect(view.combinationState("C3")).toBeNull();
+    expect(view.combinationState("C4")).toBeNull();
     expect(view.caseState("LC1")).toBe("sensitive");
     expect(view.caseState("LC9")).toBeNull();
   });
@@ -141,6 +145,10 @@ describe("numericalHealthView", () => {
       "Estimated sensitivity of the scaled linear solve: rounding can be magnified by roughly 11.0 of the about 16 decimal digits the computer carries (the solver marks a case sensitive at about 7.8). This is an estimate; it does not estimate the error in individual results."
     );
     expect(view.cases[0].locations).toHaveLength(5);
+    const unnamed = numericalHealthView(health("generic", true, [healthCase("LC1", "sensitive", {
+      causes: [{ kind: "formation_recovery", diagnostic_id: null, locations: [] }]
+    })]), { eligible: false, verdictHold: true })!;
+    expect(unnamed.cases[0].sentences[2]).toBe("The solver could not confirm some recovered member or support quantities at full precision.");
     const bare = numericalHealthView(health("generic", true, [healthCase("LC1", "sensitive")]), { eligible: false, verdictHold: true })!;
     expect(bare.cases[0].sentences.slice(2)).toEqual([
       "See the solver diagnostic for the reason.",

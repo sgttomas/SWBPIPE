@@ -57,14 +57,19 @@ export function sensitiveLeadText(caseId: string): string {
 }
 export const KEPT_FOR_INSPECTION_TEXT = "Its values are kept for inspection.";
 export const CONDITIONING_CAUSE_TEXT = "The scaled stiffness is poorly conditioned.";
+/** The cause sentences name their locations in parentheses; with no named location
+ * the parenthetical is left out. */
+function named(locations: string): string {
+  return locations ? ` (${locations})` : "";
+}
 export function loadFidelityCauseText(sources: string): string {
-  return `The solver could not confirm that every applied load was carried at full precision (${sources}).`;
+  return `The solver could not confirm that every applied load was carried at full precision${named(sources)}.`;
 }
 export function formationCauseText(rows: string): string {
-  return `The solver's formation check could not confirm some stiffness or load terms at full precision (${rows}).`;
+  return `The solver's formation check could not confirm some stiffness or load terms at full precision${named(rows)}.`;
 }
 export function formationRecoveryCauseText(groups: string): string {
-  return `The solver could not confirm some recovered member or support quantities at full precision (${groups}).`;
+  return `The solver could not confirm some recovered member or support quantities at full precision${named(groups)}.`;
 }
 export const SEE_DIAGNOSTIC_TEXT = "See the solver diagnostic for the reason.";
 export const SENSITIVE_CLOSING_TEXT =

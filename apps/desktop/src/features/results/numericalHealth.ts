@@ -62,7 +62,8 @@ export type NumericalHealthCase = Readonly<{
 /** A combination's load cases: each named case, with its state where Rust gives one. */
 export type NumericalHealthCombination = Readonly<{
   combination_id: string;
-  state: NumericalHealthState;
+  /** Null for a withheld combination: it has no health of its own. */
+  state: NumericalHealthState | null;
   cases: readonly Readonly<{ case_id: string; state: NumericalHealthState | null }>[];
   withheld: boolean;
 }>;
@@ -144,7 +145,7 @@ function combinationCase(value: unknown): { case_id: string; state: NumericalHea
 }
 function combination(value: unknown): NumericalHealthCombination {
   const o = obj(value);
-  return { combination_id: str(o.combination_id), state: state(o.state), cases: arr(o.cases).map(combinationCase), withheld: bool(o.withheld, false) };
+  return { combination_id: str(o.combination_id), state: o.state === null ? null : state(o.state), cases: arr(o.cases).map(combinationCase), withheld: bool(o.withheld, false) };
 }
 
 /** The shape check of `numerical_health_json`'s output; null for anything else. */
@@ -287,8 +288,7 @@ export type NumericalHealthCaseView = Readonly<{
 export type NumericalHealthCombinationView = Readonly<{
   combinationId: string;
   state: NumericalHealthState;
-  /** No badge of its own for a withheld combination. */
-  badge: NumericalHealthBadge | null;
+  badge: NumericalHealthBadge;
   text: string;
 }>;
 /** The one derived presentation object every surface reads. */
@@ -327,13 +327,15 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
     locations: c.causes.flatMap((x) => x.locations),
     integrityDiagnosticId: c.integrity_diagnostic_id
   }));
-  const combinations = health.combinations.map((m): NumericalHealthCombinationView => ({
+  // A withheld combination (or one with no state) keeps its existing finding and gets
+  // no badge or detail of its own.
+  const combinations = health.combinations.flatMap((m): NumericalHealthCombinationView[] => m.withheld || m.state === null ? [] : [{
     combinationId: m.combination_id,
     state: m.state,
-    badge: m.withheld ? null : badgeOf(m.state),
+    badge: badgeOf(m.state),
     // A case missing from numerical_quality reads "not assessed".
     text: combinationText(m.cases.map((c) => [c.case_id, c.state ?? caseStates.get(c.case_id) ?? "not_assessed"] as const))
-  }));
+  }]);
   const notPassed = health.cases.filter((c) => c.state !== "checks_passed").length;
   const byCombination = new Map(combinations.map((m) => [m.combinationId, m]));
   return Object.freeze({

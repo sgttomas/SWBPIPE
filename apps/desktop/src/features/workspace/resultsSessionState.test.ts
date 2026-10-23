@@ -10,7 +10,8 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
-import { useResultsSessionState } from "./resultsSessionState";
+import { currentRequirementsExceptNumericalEligibility, useResultsSessionState } from "./resultsSessionState";
+import { loadedWasmEngine, type WasmOperationEngine } from "../../services/wasmEngine/loadWasmEngine";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -166,4 +167,40 @@ it.each([["pressure_source", "pressure_source/physics_source", "n05.request.json
  act(()=>result.current.setResult(copy));
  expect(numericalResultStanding(copy,model).eligible).toBe(false);
  expect(result.current.currentSolvedResult).toBeNull();
+});
+
+// DEL-07-05 numerical health §3: the factored Current predicate and the session's
+// indicator. Admission is unchanged: the indicator never makes or unmakes Current, and
+// the hold applies only to a non-Current result whose other requirements hold.
+const engineForHealth = loadedWasmEngine() as WasmOperationEngine;
+const originalHealthBinding = engineForHealth.numericalHealthJson;
+afterEach(() => { engineForHealth.numericalHealthJson = originalHealthBinding; });
+it("keeps admission as the full conjunction and reads the indicator beside it", async () => {
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  const replay = createNativeMechanicsReplay({ profile: "preview" });
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(replay.invoke);
+  const source = await runPreviewMechanics(pair.model, pair.mode);
+  const manifest = await buildCurrentSessionInputManifest({ model: pair.model, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:numerical-health-session", solver_mode: pair.mode, settings: {} }, active_rule_packs: [], external_assets: [] });
+  const analysis = await buildAnalysisRunPreview(source, { inputManifest: manifest });
+  const { result } = renderHook(() => useResultsSessionState());
+  act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
+  expect(currentRequirementsExceptNumericalEligibility({ result: source, analysisRun: analysis, inputManifest: manifest })).toBe(true);
+  expect(result.current.currentSolvedResult).toBe(source);
+  expect(result.current.numericalHealth?.headline).toBe("Numerical health: checks passed");
+  expect(result.current.numericalHealthHold).toBeNull();
+
+  // Even an indicator claiming a verdict-only red case changes neither Current nor the hold.
+  engineForHealth.numericalHealthJson = () => JSON.stringify({ route: "generic", verdict_only: true, cases: [{ case_id: "x", state: "sensitive" }], combinations: [] });
+  const copy = structuredClone(source);
+  act(() => result.current.setResult(copy));
+  expect(result.current.currentSolvedResult).toBeNull();
+  // A copy has no native registration: another Current requirement fails, so no hold.
+  expect(currentRequirementsExceptNumericalEligibility({ result: copy, analysisRun: analysis, inputManifest: manifest })).toBe(false);
+  expect(result.current.numericalHealth?.headline).toBe("Numerical health: 1 sensitive");
+  expect(result.current.numericalHealth?.outputSentence).toBeNull();
+  expect(result.current.numericalHealthHold).toBeNull();
+  act(() => result.current.setResult(source));
+  expect(result.current.currentSolvedResult).toBe(source);
+  expect(result.current.numericalHealthHold).toBeNull();
 });

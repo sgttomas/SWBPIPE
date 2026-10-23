@@ -137,7 +137,7 @@ export function resolveEntitySelection(model: PreviewModel, entityRef: string): 
  * indices and mechanism directions do not resolve. */
 export function resolveLocatedCauseSelection(
   model: PreviewModel,
-  location: Readonly<{ kind: "node_dof"; node: string } | { kind: "ref"; ref: string } | { kind: "text" }>
+  location: Readonly<{ kind: "node_dof"; node: string; dof?: string } | { kind: "ref"; ref: string } | { kind: "text"; text?: string }>
 ): EntityRef | null {
   if (location.kind === "node_dof") return model.nodes.some((item) => item.id === location.node) ? { type: "node", id: location.node } : null;
   if (location.kind === "ref") return resolveEntitySelection(model, location.ref);

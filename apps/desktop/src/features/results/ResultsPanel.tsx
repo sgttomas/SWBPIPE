@@ -667,7 +667,7 @@ function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; 
   if (!health || !health.rowBadges || !item.basis_ref) return null;
   const { ref_type: refType, ref_id: refId } = item.basis_ref;
   const state = refType === "load_case" ? health.caseState(refId)
-    : refType === "combination" ? (health.combinationState(refId)?.badge ? health.combinationState(refId)!.state : null) : null;
+    : refType === "combination" ? health.combinationState(refId)?.state ?? null : null;
   if (!state) return null;
   return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
@@ -709,7 +709,7 @@ function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCauseLoca
       ))}
       {health.combinations.map((m) => (
         <article key={m.combinationId} data-testid={`numerical-health-combination-${m.combinationId}`}>
-          <h4>{m.combinationId}{m.badge ? <> <NumericalHealthBadgeText badge={m.badge} text={NUMERICAL_HEALTH_STATE_TEXT[m.state]} testId={`numerical-health-combination-badge-${m.combinationId}`} /></> : null}</h4>
+          <h4>{m.combinationId} <NumericalHealthBadgeText badge={m.badge} text={NUMERICAL_HEALTH_STATE_TEXT[m.state]} testId={`numerical-health-combination-badge-${m.combinationId}`} /></h4>
           <p>{m.text}</p>
         </article>
       ))}

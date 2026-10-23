@@ -13,6 +13,8 @@ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../t
 import { renderCalculationReport } from "../../services/reportRenderService";
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { RenderedReportPanel } from "./RenderedReportPanel";
+import { ReportPanel } from "./ReportPanel";
+import { numericalHealthView, parseNumericalHealth } from "../results/numericalHealth";
 import * as reportRedactionProjector from "./reportRedactionProjector";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -554,5 +556,57 @@ describe("renderer received-result hash binding", () => {
     const future = structuredClone(session.analysisRun);
     future.schema_version = "0.4.0";
     await expect(buildRenderableReportInput({ ...session, analysisRun: future, projectSummary: null })).rejects.toThrow("REPORT-ANALYSIS-VERSION-UNSUPPORTED");
+  });
+});
+
+// DEL-07-05 numerical health §5: one line per load case before the diagnostics section
+// in the rendered report's emitted renderer input; the report package's input (built
+// without the indicator) is unchanged; no conditioning figure is exported.
+describe("numerical health report line", () => {
+  const healthView = () => numericalHealthView(parseNumericalHealth({
+    route: "generic", verdict_only: false,
+    cases: [{ case_id: "load_case:invented-weight", state: "checks_passed", code: "NUMERICAL_INTEGRITY_CHECKS_PASSED", integrity_diagnostic_id: "diagnostic:numerical-integrity:load_case:invented-weight", rcond: 0.01, digits: 2, conditioning_sensitive: false, causes: [] }],
+    combinations: []
+  }), { eligible: true, verdictHold: false });
+
+  it("appends the line after the result rows, so before the diagnostics section, and only when supplied", async () => {
+    const base = { model: inventedModel(), result: inventedResult(), analysisRun: inventedRun(), projectSummary: null };
+    const without = await buildRenderableReportInput(base);
+    const withHealth = await buildRenderableReportInput({ ...base, numericalHealth: healthView() });
+    expect(withHealth.result_rows.slice(0, without.result_rows.length)).toEqual(without.result_rows);
+    expect(withHealth.result_rows.slice(without.result_rows.length)).toEqual([{
+      row_id: "numerical-health:load_case:invented-weight",
+      label: "Numerical health of the ordinary solve: checks passed.",
+      case_ref: "load_case:load_case:invented-weight",
+      quantity_display: "",
+      source_ref: "diagnostic:numerical-integrity:load_case:invented-weight"
+    }]);
+    expect({ ...withHealth, result_rows: without.result_rows }).toEqual(without);
+    expect(JSON.stringify(withHealth)).not.toMatch(/roughly|decimal digits|rcond/);
+  });
+
+  it("emits the line in the renderer input the panel sends", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const projectorSpy = vi.spyOn(reportRedactionProjector, "controlReportRendererInput");
+    render(<RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null} numericalHealth={healthView()} />);
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(projectorSpy).toHaveBeenCalled());
+    const emitted = projectorSpy.mock.calls[0][0] as { result_rows: { label: string }[] };
+    expect(emitted.result_rows.map((row) => row.label)).toContain("Numerical health of the ordinary solve: checks passed.");
+  });
+
+  it("shows the line in the report packet body before its diagnostics lines", () => {
+    // The invented session is private project data; show the DOM body unredacted here.
+    vi.spyOn(reportRedactionProjector, "controlReportDomAndJson").mockImplementation((payload) => ({
+      payload, decisions: [], findings: [], blocked: false,
+      summary: { decision_count: 0, finding_count: 0, redacted_count: 0, omitted_count: 0, warning_count: 0, blocking_count: 0, cloud_transmission_attempted: false, professional_claims_made: false, route_id: "test", materialization_withheld: false }
+    }) as unknown as ReturnType<typeof reportRedactionProjector.controlReportDomAndJson>);
+    render(<ReportPanel model={inventedModel()} knowledge={null} result={inventedResult()} analysisRun={inventedRun()} comparison={null}
+      editorIntents={[]} projectOperation="idle" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} numericalHealth={healthView()} />);
+    const line = screen.queryByTestId("report-numerical-health-load_case:invented-weight");
+    expect(line).toHaveTextContent("Numerical health of the ordinary solve: checks passed.");
+    const body = screen.getByTestId("report-packet-body").textContent ?? "";
+    expect(body.indexOf("Numerical health of the ordinary solve")).toBeLessThan(body.indexOf("Diagnostic scope"));
   });
 });

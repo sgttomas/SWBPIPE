@@ -61,6 +61,9 @@ describe("numerical health text pins", () => {
     expect(text.formationRecoveryCauseText("member forces")).toBe(
       "The solver could not confirm some recovered member or support quantities at full precision (member forces)."
     );
+    expect(text.loadFidelityCauseText("")).toBe("The solver could not confirm that every applied load was carried at full precision.");
+    expect(text.formationCauseText("")).toBe("The solver's formation check could not confirm some stiffness or load terms at full precision.");
+    expect(text.formationRecoveryCauseText("")).toBe("The solver could not confirm some recovered member or support quantities at full precision.");
     expect(text.SEE_DIAGNOSTIC_TEXT).toBe("See the solver diagnostic for the reason.");
     expect(text.SENSITIVE_CLOSING_TEXT).toBe(
       "Solving the unchanged model again in the same solver mode gives the same result. A very short or very stiff element next to flexible ones, stiffnesses that differ by many orders of magnitude, or a weakly restrained direction are common causes."
