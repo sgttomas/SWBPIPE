@@ -31,7 +31,7 @@ Two further units follow epoch 7 (owner, 2026-10-21: "A accept your recommendati
 
 These are not decided here.
 - **G10 interpretation.** B7a changed the milestone model's document version, its ordinary-route bytes and its displayed rows (C4, E14, the model format). Whether G10 is witnessed before B7a, or re-issued against the B7 head, is the owner's choice.
-- **B8 (activation).** R and B7a changed the desktop's retained standing text and notices. Nothing here activates anything.
+- **B8 (activation).** R and B7a changed the desktop's retained standing text and notices. Nothing here activates anything. For v0.1 the owner kept the method dormant and redirected the desktop to a numerical health indicator built from the ordinary diagnostics (owner, 2026-10-23: "I agree with your recommendation. Proceed accordingly."; DEL-07-05 Design `numerical-health-indicator.md`).
 - **Decision 22.** Budget-model or qualification changes outside the owner-approved 12 GiB base allowance and shared 75% pool policy. Implementing and qualifying that selected policy is already authorized; larger numerical domains, risk acceptance and other unselected choices still require the owner.
 
 ## Owner decision: the frozen UI benchmark
