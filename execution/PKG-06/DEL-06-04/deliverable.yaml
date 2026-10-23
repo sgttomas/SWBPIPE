@@ -133,3 +133,14 @@ needs:
   evidence: execution/PKG-06/DEL-06-04/docs/_Registers/Deliverables.csv
 code_paths:
 - core/rules/rule_pack_lifecycle/
+- core/rules/rule_pack_document/src/lib.rs
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src/services/rulePackService.ts
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx
+checks:
+- core/rules/rule_pack_lifecycle/src/lib.rs
+- fixtures/rule_expressions/checksum_binding/**
+- core/rules/rule_pack_document/tests/invented_demo_document.rs
+- tests/test_invented_example_models.py
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts

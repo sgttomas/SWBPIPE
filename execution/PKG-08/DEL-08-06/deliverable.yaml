@@ -316,6 +316,8 @@ code_paths:
 - apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts
 - core/reporting/report_package/**
 - core/reporting/state_comparison_handoff_sections/**
+- apps/desktop/src/features/report/ReportPanel.tsx
+- apps/desktop/src-tauri/src/report_package_bridge.rs
 checks:
 - tests/test_state_comparison_handoff_report_sections.py
 - core/reporting/report_package/tests/container.rs
