@@ -141,5 +141,11 @@ code_paths:
 - core/model_operations/operation_applier/src/lib.rs
 - core/product_physics/src/lib.rs
 - schemas/component.schema.yaml
+- core/product_physics/src/validation.rs
+- core/product_physics/src/exact_admission.rs
+- apps/desktop/src/features/component-creation/componentIntent.ts
 checks:
 - tests/test_component_section_schema.py
+- core/product_physics/tests/exact_admission_seam.rs
+- core/product_physics/tests/exact_route_refusals.rs
+- apps/desktop/src/features/component-creation/componentIntent.test.ts

@@ -145,9 +145,19 @@ code_paths:
 - apps/desktop/src/services/blankLoadStateModel.test.ts
 - apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
 - core/reporting/report_package/src/reader.rs
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/src/model_document_file.rs
+- apps/desktop/src/services/modelDocumentFile.ts
+- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/e2e/b3b-project-persistence.spec.ts
 checks:
 - tests/test_persistence_schema.py
 - tests/test_project_persistence_service.py
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/src/services/blankLoadStateModel.test.ts
 - core/reporting/report_package/tests/reader.rs
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/src/model_document_file.rs
+- apps/desktop/src-tauri/src/model_document_version.rs
+- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/e2e/b3b-project-persistence.spec.ts
