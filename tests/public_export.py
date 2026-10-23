@@ -4,15 +4,20 @@
 monorepo's `loop/` and `execution/` (its `EXCLUDED_TOP_LEVEL`) and without the
 repository root around it. A test that reads a surface the export leaves out
 runs in the monorepo and, in the export, skips with the surface named
-(DEL-10-04:1, a self-verifying export). Both directories must be absent: hosted
-CI's sparse checkout drops `execution/` only, so it is not taken for the export.
+(DEL-10-04:1, a self-verifying export).
+
+The tree counts as the export only outside a monorepo checkout, where this
+project sits at `projects/<name>` under a root carrying `AGENTS.md`, and only
+with both directories absent. A sparse monorepo clone that drops them, or
+hosted CI's checkout (which drops `execution/` only), is not the export.
 """
 from pathlib import Path
 
 import pytest
 
 PROJECT = Path(__file__).resolve().parents[1]
-PUBLIC_EXPORT = not (PROJECT / "loop").is_dir() and not (PROJECT / "execution").is_dir()
+IN_MONOREPO = PROJECT.parent.name == "projects" and (PROJECT.parents[1] / "AGENTS.md").is_file()
+PUBLIC_EXPORT = not IN_MONOREPO and not (PROJECT / "loop").is_dir() and not (PROJECT / "execution").is_dir()
 
 
 def monorepo_only(surface: str):

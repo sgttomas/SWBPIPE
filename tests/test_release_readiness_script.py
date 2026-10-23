@@ -21,7 +21,6 @@ def load_module():
     return module
 
 
-@monorepo_only("execution/_DAG")
 def test_required_release_paths_exist():
     release = load_module()
     assert release.check_required_paths(ROOT) == []
@@ -45,22 +44,21 @@ def test_cargo_manifest_discovery_is_crate_local():
     assert all("target" not in manifest.parts for manifest in manifests)
 
 
-@monorepo_only("execution/_DAG")
 def test_skeleton_plan_uses_local_commands_only():
     release = load_module()
     steps = release.build_plan("skeleton", ROOT)
     commands = [" ".join(step.command) for step in steps]
 
+    # The DAG schema step runs in the monorepo; the public export has no DAG.
     assert any(
         "validate_dependencies_schema.py execution/_DAG/DAG-011/DependencyEdges.csv"
         in command
         for command in commands
-    )
+    ) is not release.is_public_export(ROOT)
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert all(isinstance(step.command, tuple) for step in steps)
 
 
-@monorepo_only("execution/_DAG")
 def test_python_profiles_use_coordination_maintenance_test():
     release = load_module()
     expected = (
@@ -78,16 +76,16 @@ def test_python_profiles_use_coordination_maintenance_test():
         assert all(old_target not in part for command in commands for part in command)
 
 
-@monorepo_only("execution/_DAG")
 def test_all_profile_preserves_current_command_surface():
     release = load_module()
     commands = [" ".join(step.command) for step in release.build_plan("all", ROOT)]
 
+    # The DAG schema step runs in the monorepo; the public export has no DAG.
     assert any(
         "validate_dependencies_schema.py execution/_DAG/DAG-011/DependencyEdges.csv"
         in command
         for command in commands
-    )
+    ) is not release.is_public_export(ROOT)
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert any(" -m pytest -q tests" in command for command in commands)
     assert any("test_coordination_maintenance.py" in command for command in commands)
@@ -125,7 +123,6 @@ def test_run_steps_forces_cargo_offline_environment(monkeypatch):
     assert seen[0][1]["CARGO_NET_OFFLINE"] == "true"
 
 
-@monorepo_only("execution/_DAG")
 def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
     release = load_module()
 
@@ -139,12 +136,12 @@ def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
 
     assert result == 0
     assert "SWBPIPE release readiness profile (dry-run)" in captured.out
-    assert "execution/_DAG/DAG-011/DependencyEdges.csv" in captured.out
-    assert "planned checks: 2" in captured.out
+    export = release.is_public_export(ROOT)
+    assert ("execution/_DAG/DAG-011/DependencyEdges.csv" in captured.out) is not export
+    assert f"planned checks: {1 if export else 2}" in captured.out
     assert "running:" not in captured.out
 
 
-@monorepo_only("execution/_DAG")
 def test_main_execute_runs_planned_steps(monkeypatch, capsys):
     release = load_module()
     executed: list[str] = []
@@ -163,7 +160,10 @@ def test_main_execute_runs_planned_steps(monkeypatch, capsys):
 
     assert result == 0
     assert "SWBPIPE release readiness profile (execute)" in captured.out
-    assert executed == ["dag dependency schema", "release readiness script tests"]
+    expected = ["release readiness script tests"]
+    if not release.is_public_export(ROOT):
+        expected.insert(0, "dag dependency schema")
+    assert executed == expected
 
 
 def test_public_export_plans_without_the_monorepo_dag(tmp_path, capsys):
@@ -181,3 +181,20 @@ def test_public_export_plans_without_the_monorepo_dag(tmp_path, capsys):
     (tmp_path / "execution").mkdir()
     assert not release.is_public_export(tmp_path)
     assert release.check_required_paths(tmp_path) == ["execution/_DAG/_LATEST.md"]
+
+
+def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp_path):
+    release = load_module()
+    project = tmp_path / "projects" / "chirality-piping"
+    project.mkdir(parents=True)
+    (tmp_path / "AGENTS.md").write_text("fixture")
+    # No loop/ or execution/, as a sparse clone could leave it.
+    assert not release.is_public_export(project)
+    assert release.check_required_paths(project) != []
+    probe_source = (ROOT / "tests" / "public_export.py").read_text()
+    (project / "tests").mkdir()
+    (project / "tests" / "public_export.py").write_text(probe_source)
+    spec = importlib.util.spec_from_file_location("public_export_sparse_probe", project / "tests" / "public_export.py")
+    probe = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(probe)
+    assert probe.PUBLIC_EXPORT is False
