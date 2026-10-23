@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SI_PROJECT_UNITS, US_CUSTOMARY_PROJECT_UNITS, buildBlankLocalModelDocument, type ProjectUnitMap } from "../../services/projectService";
 import { computeModelHash } from "../../services/hashService";
@@ -14,15 +14,15 @@ import { PropertyInspector } from "../model-tree/PropertyInspector";
 // W-17 slice (a) §2.4 and §4: the forms' composed defaults against the catalog,
 // and a rotational imposed displacement on a new blank document. Unit validation
 // and operation validation run in the real core engine (wasm).
-const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null }));
+const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null, pending: null as Promise<UnitCatalogRoute> | null }));
 vi.mock("../../services/unitCatalogService", async (original) => ({
   ...await original<typeof import("../../services/unitCatalogService")>(),
-  loadUnitCatalog: async () => route.current
+  loadUnitCatalog: async () => route.pending ? await route.pending : route.current
 }));
 const CATALOG: UnitCatalogRoute = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
 const PREVIEW: UnitCatalogRoute = { route: "unavailable_browser_preview", diagnostic: "UNIT-CATALOG-DESKTOP-ONLY: fixture" };
 
-afterEach(() => { cleanup(); route.current = null; });
+afterEach(() => { cleanup(); route.current = null; route.pending = null; });
 
 /** A new blank document with invented entities: every value is synthetic test input. */
 function blankWith(units: ProjectUnitMap): PreviewModel {
@@ -190,6 +190,116 @@ describe("present but invalid keys never compose (Codex P2 on 93acfa719d)", () =
     expectFormControlValue(byId("create-support-stiffness-unit"), "");
     expect(byId("create-material-thermal-unit-notice")).toHaveTextContent("project.units.temperature is empty; choose one");
     expectFormControlValue(byId("create-material-thermal-unit"), "");
+  });
+});
+
+describe("a replaced project never keeps an inherited default unit (Codex P2 on 9018ebf587)", () => {
+  function renderLoads(model: PreviewModel) {
+    const queue = vi.fn<(intent: EditorOperationIntent) => void>();
+    const view = render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: model.project.id }} />);
+    const replace = (next: PreviewModel) =>
+      view.rerender(<LoadCaseManagerPanel model={next} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: next.project.id }} />);
+    return { queue, replace };
+  }
+
+  function withoutMoment(units: ProjectUnitMap): PreviewModel {
+    const model = blankWith(units);
+    delete model.project.units.moment;
+    return model;
+  }
+
+  async function expectNothingQueueable(queue: ReturnType<typeof vi.fn>) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(byId("queue-create-primitive-intent")).toBeDisabled();
+    fireEvent.click(byId("queue-create-primitive-intent"));
+    expect(queue).not.toHaveBeenCalled();
+  }
+
+  for (const [label, moment] of [["empty", ""], ["whitespace", "  "]] as const) {
+    it(`replacing a composed N*m draft with a project whose moment key is ${label} clears the unit`, async () => {
+      route.current = PREVIEW;
+      const { queue, replace } = renderLoads(withoutMoment(SI_PROJECT_UNITS));
+      choose("load-manager-create-primitive-category", "concentrated_moment");
+      fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "80" } });
+      expect(byId("load-manager-create-primitive-unit")).toHaveValue("N*m");
+      await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
+      const next = blankWith(SI_PROJECT_UNITS);
+      next.project.id = "project:replacement";
+      next.project.units.moment = moment;
+      replace(next);
+      expect(byId("load-manager-create-primitive-unit")).toHaveValue("");
+      expect(byId("load-manager-create-primitive-unit-notice")).toHaveTextContent("project.units.moment is empty; choose one");
+      await expectNothingQueueable(queue);
+    });
+  }
+
+  it("the catalog resolving after the replacement clears a default the new project's catalog lacks", async () => {
+    let resolveCatalog!: (catalog: UnitCatalogRoute) => void;
+    route.pending = new Promise((resolve) => { resolveCatalog = resolve; });
+    const { queue, replace } = renderLoads(withoutMoment(SI_PROJECT_UNITS));
+    choose("load-manager-create-primitive-category", "concentrated_moment");
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "80" } });
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("N*m");
+    // The replacement composes N*mm, unchecked while the catalog is still loading.
+    replace(withoutMoment({ ...SI_PROJECT_UNITS, length: "mm" }));
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("N*mm");
+    await act(async () => resolveCatalog(CATALOG));
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-notice")).toHaveTextContent("N*mm is not a catalog unit; choose one");
+    await expectNothingQueueable(queue);
+  });
+
+  it("the catalog resolving after a replacement with an empty moment key keeps the unit cleared", async () => {
+    let resolveCatalog!: (catalog: UnitCatalogRoute) => void;
+    route.pending = new Promise((resolve) => { resolveCatalog = resolve; });
+    const { queue, replace } = renderLoads(withoutMoment(SI_PROJECT_UNITS));
+    choose("load-manager-create-primitive-category", "concentrated_moment");
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "80" } });
+    const next = blankWith(SI_PROJECT_UNITS);
+    next.project.units.moment = "";
+    replace(next);
+    await act(async () => resolveCatalog(CATALOG));
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-notice")).toHaveTextContent("project.units.moment is empty; choose one");
+    await expectNothingQueueable(queue);
+  });
+
+  it("keeps an explicit unit choice across the replacement", async () => {
+    route.current = CATALOG;
+    const { queue, replace } = renderLoads(withoutMoment(SI_PROJECT_UNITS));
+    await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
+    choose("load-manager-create-primitive-category", "concentrated_moment");
+    choose("load-manager-create-primitive-unit", "lbf*ft");
+    const next = blankWith(SI_PROJECT_UNITS);
+    next.project.units.moment = "";
+    replace(next);
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("lbf*ft");
+    await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
+    fireEvent.click(byId("queue-create-primitive-intent"));
+    expect(queue.mock.calls.at(-1)![0].change).toMatchObject({ unit: "lbf*ft", dimension: "moment" });
+  });
+
+  it("inspector: replacing the project clears an inherited stiffness and expansion default", async () => {
+    route.current = PREVIEW;
+    const queue = vi.fn<(intent: EditorOperationIntent) => void>();
+    const first = blankWith(SI_PROJECT_UNITS);
+    const tree = (model: PreviewModel) => <DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} /></DisplayUnitsProvider>;
+    const view = render(tree(first));
+    expectFormControlValue(byId("create-support-stiffness-unit"), "N/m");
+    expectFormControlValue(byId("create-material-thermal-unit"), "1/degC");
+    fireEvent.change(byId("create-support-stiffness"), { target: { value: "1500" } });
+    expect(byId("queue-create-support-intent")).toBeEnabled();
+    const next = blankWith(SI_PROJECT_UNITS);
+    next.project.units.length = " ";
+    next.project.units.temperature = "";
+    view.rerender(tree(next));
+    expectFormControlValue(byId("create-support-stiffness-unit"), "");
+    expect(byId("create-support-stiffness-unit-notice")).toHaveTextContent("project.units.length is empty; choose one");
+    expectFormControlValue(byId("create-material-thermal-unit"), "");
+    expect(byId("create-material-thermal-unit-notice")).toHaveTextContent("project.units.temperature is empty; choose one");
+    expect(byId("queue-create-support-intent")).toBeDisabled();
+    fireEvent.click(byId("queue-create-support-intent"));
+    expect(queue).not.toHaveBeenCalled();
   });
 });
 

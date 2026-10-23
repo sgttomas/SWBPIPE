@@ -80,8 +80,8 @@ export function PropertyInspector({
   const [proposedUnit, setProposedUnit] = useState(editableFields[0]?.unit ?? "");
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
-  const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
-  const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
+  const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
+  const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const [componentDraft, setComponentDraft] = useState(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
@@ -91,6 +91,15 @@ export function PropertyInspector({
   }) ?? [selection];
   const multiSelection = aggregateRefs.length > 1;
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  // Default-sourced composed units follow the current project's rule on every render
+  // (W-17 §2.4), so a replaced project, a project-unit change or a catalog that arrives
+  // later never leaves an inherited unit in place. Explicit choices are kept.
+  const materialDraft: MaterialDraft = materialDraftState.thermalExpansionUnitSource === "default"
+    ? { ...materialDraftState, thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) }
+    : materialDraftState;
+  const supportDraft: SupportDraft = supportDraftState.linearStiffnessUnitSource === "default"
+    ? { ...supportDraftState, linearStiffnessUnit: linearStiffnessUnit(model, unitCatalogRoute) }
+    : supportDraftState;
   const selectedPipe = propertiesTarget.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === propertiesTarget.id) : null;
   // Rich Properties controls follow their own explicit command/live-selection
   // target. Inline Task mutations remain bound to the frozen Task target until
@@ -267,21 +276,6 @@ export function PropertyInspector({
     };
   }, []);
 
-  // Drafts start before the catalog has loaded. Once it has, a composed default
-  // the catalog lacks is cleared rather than kept or substituted.
-  useEffect(() => {
-    if (unitCatalogRoute?.route !== "tauri_unit_catalog") return;
-    const thermal = thermalExpansionUnit(model);
-    const checkedThermal = thermalExpansionUnit(model, unitCatalogRoute);
-    if (checkedThermal !== thermal) {
-      setMaterialDraft((draft) => draft.thermalExpansionUnit === thermal ? { ...draft, thermalExpansionUnit: checkedThermal } : draft);
-    }
-    const stiffness = linearStiffnessUnit(model);
-    const checkedStiffness = linearStiffnessUnit(model, unitCatalogRoute);
-    if (checkedStiffness !== stiffness) {
-      setSupportDraft((draft) => draft.linearStiffnessUnit === stiffness ? { ...draft, linearStiffnessUnit: checkedStiffness } : draft);
-    }
-  }, [model, unitCatalogRoute]);
 
   function handleFieldChange(fieldPath: string) {
     taskGenerationRef.current += 1;
@@ -376,11 +370,19 @@ export function PropertyInspector({
   }
 
   function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
-    setMaterialDraft((current) => ({ ...current, [key]: value }));
+    setMaterialDraft((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "thermalExpansionUnit" ? { thermalExpansionUnitSource: "user" as const } : {})
+    }));
   }
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
-    setSupportDraft((current) => ({ ...current, [key]: value }));
+    setSupportDraft((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "linearStiffnessUnit" ? { linearStiffnessUnitSource: "user" as const } : {})
+    }));
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(key: K, value: ComponentDraft[K]) {
@@ -1080,6 +1082,8 @@ type SupportDraft = {
   node: string;
   restraints: string[];
   linearStiffnessUnit: string;
+  /** "default" follows the project's composed default; "user" is an explicit choice. */
+  linearStiffnessUnitSource: "default" | "user";
   linearStiffness: string;
   provenance: string;
 };
@@ -1091,6 +1095,8 @@ type MaterialDraft = {
   elasticModulus: string;
   shearModulus: string;
   thermalExpansionUnit: string;
+  /** "default" follows the project's composed default; "user" is an explicit choice. */
+  thermalExpansionUnitSource: "default" | "user";
   thermalExpansion: string;
   provenance: string;
 };
@@ -2973,6 +2979,7 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
     elasticModulus: "",
     shearModulus: "",
     thermalExpansionUnit: thermalExpansionUnit(model, route),
+    thermalExpansionUnitSource: "default",
     thermalExpansion: "",
     provenance: "user_entered_local_preview"
   };
@@ -3003,6 +3010,7 @@ function defaultSupportDraftWithReserved(
     node,
     restraints: ["UX", "UY", "UZ"],
     linearStiffnessUnit: linearStiffnessUnit(model, route),
+    linearStiffnessUnitSource: "default",
     linearStiffness: "",
     provenance: "user_entered_local_preview"
   };
