@@ -54,7 +54,7 @@ export function RulePackModelReferences(props: ModelDataQueueProps & {
       {entries.map((entry) => {
         const used = references.some((reference) => reference.rule_pack_id === entry.rule_pack_id);
         return (
-          <button key={`${entry.project_id}:${entry.rule_pack_id}`} type="button" data-testid={`rule-pack-use-with-model-${entry.project_id}-${entry.rule_pack_id}`} disabled={busy || used}
+          <button key={JSON.stringify([entry.project_id, entry.rule_pack_id])} type="button" data-testid={`rule-pack-use-with-model-${entry.project_id}-${entry.rule_pack_id}`} disabled={busy || used}
             title={used ? "Already referenced by this model." : undefined}
             onClick={() => void use(entry)}>
             Use with this model: {entry.rule_pack_name} ({entry.project_id})
