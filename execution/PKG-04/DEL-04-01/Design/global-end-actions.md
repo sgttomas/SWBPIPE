@@ -89,11 +89,6 @@ Twelve rows per member per case, after the member's local end rows:
   compare and the fit of every priced phase against M = 12 GiB; a phase that
   no longer fits stops the work for the owner (decision 22). The retained
   method is dormant in v0.1, so this changes nothing a user sees.
-  The retained-profile registry is shared with W-8's and the silent-zero
-  guard's D3s and with the model-and-states S1b re-registration: whichever
-  merges later merges main in, re-prices on top and reruns `generate --check`
-  (Agent 0, 2026-10-23). W-7 lands after W-8 (both regenerate the retained
-  corpus and re-price `lib.rs`).
 - **Source-recovery publications** (source-selected cases): the composite
   receipt admits only qualified physical rows, so these publications omit the
   new rows by a named rule (`global_end_rows_published`).
