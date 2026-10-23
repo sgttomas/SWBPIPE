@@ -185,6 +185,7 @@ function AppSession() {
     analysisRun,
     inputManifest,
     ruleCheckAggregate,
+    ruleCheckReportRun,
     ruleCheckRunBasis,
     dormantOutputBasis,
     comparison,
@@ -697,6 +698,8 @@ function AppSession() {
                 numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 projectSummary={projectSummary}
+                inputManifest={inputManifest}
+                ruleCheckRun={ruleCheckReportRun}
                 packagePrivateIntent={reportPackagePrivateIntent}
                 packageBusy={reportPackageBusy}
                 packageRedaction={reportPackageRedaction}
@@ -937,12 +940,12 @@ function AppSession() {
                 basis={ruleCheckRunBasis}
                 model={model}
                 result={currentSolvedResult}
-                onAggregateChange={(aggregate) => void handleRuleCheckAggregate(aggregate, {
+                onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
                   projectSessionGeneration,
                   modelRevision: uiModelRevision,
                   result: currentSolvedResult,
                   inputManifest
-                })}
+                }, run ?? null)}
                 onR3JourneyEvent={recordR3JourneyEvent}
               />
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
