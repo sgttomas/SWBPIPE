@@ -120,8 +120,10 @@ you choose.
 **3. Open the unsigned app.** The v0.1 build is not code-signed or notarized
 (`DEC-057`; signing is decided separately). macOS Gatekeeper therefore blocks
 the first launch of a downloaded copy and reports that it cannot verify the
-developer. The checksum you verified in step 1 takes the place of an operating
-system signature. After that check, open the app in one of these ways:
+developer. The checksum you verified in step 1 does not identify a developer as
+a signature would. It shows that your zip is byte-for-byte the published one,
+and the release artifact record ties that digest to the source commit and its
+evidence sweep (`DEC-057`). After that check, open the app in one of these ways:
 
 - in Finder, Control-click (or right-click) `SWBPIPE.app`, choose **Open**, then
   choose **Open** again in the dialog. On recent macOS versions where that

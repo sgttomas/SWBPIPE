@@ -74,17 +74,17 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 - The model's declared pressure contract selects one of two routes:
   - Pressure-free route: Euler–Bernoulli straight pipes; realized curved bends; anchors, guides, line stops, vertical supports and linear springs; variable spring hangers as linear springs from the entered stiffness; constant-effort supports as a constant force when one translational DOF and a constant load are entered; nonlinear one-way, gap, lift-off and friction supports, iterated to a converged active set. Loads: weight and distributed force, concentrated force and moment, element temperature change, and wind and seismic static-equivalent loads generated from user inputs. Pressure and imposed support displacement are refused on this route.
   - Exact pressure route (`3.0.0/exact_pressure_v3`): straight circular pipes (Euler–Bernoulli or Timoshenko), realized curved bends, objective-connector expansion joints with optional tie rods, and linear restraints and springs. Loads: internal pressure as a signed differential per explicit region, force, moment and line loads, and load/reference states for thermal and fit strain and prescribed support motion. Valves, flanges, reducers, tees, rigid components, nonlinear and constant-effort supports, combinations and wind or seismic generation are refused by name.
-- Material moduli for a load case come from a named temperature point or from linear interpolation between two entered points. There is no extrapolation.
+- Material moduli come from the entered base material properties. A load case may instead select a named temperature point, or linear interpolation between two entered points; there is no extrapolation.
 - Valves, flanges, reducers, tees and rigid or specialty components carry user data, and user SIFs feed review rows. Their span is analysed as pipe; no rigid or semi-rigid stiffness is assembled.
 - Documents with legacy pressure primitives or legacy four-rate expansion joints are refused by name and must be re-authored. Nothing is converted.
-- Missing, invalid or unsupported inputs block the solve with named diagnostics. Nothing is defaulted.
+- Missing, invalid or unsupported inputs that the solve needs block it with named diagnostics; nothing is defaulted. Some records the solve does not consume (for example a constant-effort support it cannot apply) contribute nothing and are reported with a warning, while the solve proceeds.
 
 ### Results and stress recovery
 
 - Nodal displacements and rotations; element-local axial force, shears, torsion and bending moments at member ends and stations; signed support reactions.
 - Mechanics stresses: axial, bending and torsional shear components, and a per-member maximum elastic normal stress |N/A| + hypot(My, Mz)/Z. The exact route adds pressure hoop (Lamé) and longitudinal stresses, each on the nominal and the reduced section.
 - Where the user supplied a SIF, an intensified bending measure labelled as not a code stress.
-- Combinations are evaluated on the pressure-free route. They are withheld where superposition is not a solved state: nonlinear supports, constant effort with a factor sum other than 1, or mixed moduli.
+- Combinations are evaluated on the pressure-free route. Factored-linear ("mechanics") combinations are withheld where superposition is not a solved state: nonlinear supports, constant effort with a factor sum other than 1, or mixed moduli. Result-state subtraction and range envelopes operate on the solved results and are not gated this way.
 - Results table, deformed shape and rotation glyphs in the viewport. Each result shows its numerical-integrity standing and diagnostics.
 
 ### User rule packs
@@ -99,7 +99,7 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 - Rendered HTML calculation report from the Rust renderer, with its canonical SHA-256 and a derived Print/PDF view, for pressure-free results. Rendering is refused when the public-report redaction control would have to withhold values.
 - Report record JSON and report-lint JSON.
 - Save Report Package… (`.opsproj`) is present but refuses every result the current solver produces.
-- Result JSON and stress-neutral CSV/JSON exports, offered when the result's standing admits them. These are the only outputs open to exact-route results.
+- Result JSON and stress-neutral CSV/JSON exports, offered when the result's standing admits them. These are the only export formats open to exact-route results; eligible exact-route results can also be rule-checked.
 - For pressure-free results also: native JSON package, handoff package JSON, conservative PCF (straight-pipe records; supports and components go to a loss report), glTF review geometry, a `.mbf` model batch file (nodes, elements, supports and load cases; target version and record subset `TBD`) and a local FEA handoff JSON packet.
 - `openpipestress-runner` command-line runner, built from source and not bundled in the app: `solve`, `validate-input`, `export-results`, `run-benchmark`, `run-regression` and `read`; JSON in and out; exit codes 0, 1 and 2; `--solver-mode`. The desktop exports a matching runner envelope JSON.
 
