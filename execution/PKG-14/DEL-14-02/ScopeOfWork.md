@@ -66,8 +66,8 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 >
 > | Condition | Status | Source |
 > |---|---|---|
-> | Exact analysis-run schema fields | Defined in the analysis record 0.3 schema; required SOW-072 categories still need producer/persistence conformance. | `_CONTEXT.md`; SOW-072 |
-> | Analysis run identifier format | Versioned schema and `core/analysis_runs/compatibility.py` define `run_id` and immutable record-revision identity; new identity semantics remain separately governed. | `_CONTEXT.md`; `docs/TYPES.md` general identifier guidance only |
+> | Exact analysis-run schema fields | Defined in the analysis record 0.3 schema; required SOW-072 categories still need producer/persistence conformance. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); SOW-072 |
+> | Analysis run identifier format | Versioned schema and `core/analysis_runs/compatibility.py` define `run_id` and immutable record-revision identity; new identity semantics remain separately governed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/TYPES.md` general identifier guidance only |
 > | Model-state reference semantics | Must bind to exact model states; detailed state-record schema is upstream and outside this folder. | SOW-072; `Dependencies.csv` DAG-002-E0783 |
 > | Solver version and settings representation | Required as part of the saved run record; versioned object evidence is in the selected schema member. | SOW-072 |
 > | Unit-system representation | Required as part of the saved run record; missing unit metadata for unit-bearing physical values must be diagnostic rather than silently supplied. | SOW-072; `docs/SPEC.md` section 4 |
@@ -75,7 +75,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > | Diagnostics and analysis statuses | Required as part of the saved run record; must preserve the professional-boundary status model. | SOW-072; `docs/SPEC.md` analysis boundary section |
 > | Rule-pack and library references | Required as references/checksum/provenance surfaces; private payloads and protected content are not public artifact content. | SOW-072; `docs/SPEC.md` rule-pack/result export sections |
 > | Result hashes | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | Reproducibility tests | Required artifact class; contract/compatibility test sources exist; no new execution pass is claimed. | `_CONTEXT.md` anticipated artifacts |
+> | Reproducibility tests | Required artifact class; contract/compatibility test sources exist; no new execution pass is claimed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) anticipated artifacts |
 >
 
 ### CLM-006 — Construction

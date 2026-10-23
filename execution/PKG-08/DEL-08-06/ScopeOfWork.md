@@ -64,9 +64,9 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 >
 > | Condition | Value | Source |
 > |---|---|---|
-> | Lifecycle state at four-doc pass start | OPEN | `_STATUS.md` |
-> | Context envelope | M | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row DEL-08-06 |
-> | Package exclusion | PKG-08 does not authenticate or certify engineering work. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-08 |
+> | Lifecycle state at four-doc pass start | OPEN | `_STATUS.md` (retired in `497a8d81e4`; see Git history) |
+> | Context envelope | M | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-08-06 |
+> | Package exclusion | PKG-08 does not authenticate or certify engineering work. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-08 |
 > | Public/private content posture | Private rule packs, material libraries, component libraries, owner requirements, project values, and private templates remain user-controlled unless intentionally exported or contributed with documented rights. | `docs/IP_AND_DATA_BOUNDARY.md` sections 6 and 7 |
 > | Missing engineering values | Missing solve-required or rule-check-required values remain explicit findings, not defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4.3 and 9 |
 > | Runtime/code locations | Current bounded source exists; complete integration not inferred | The bounded assembly implementation is `core/reporting/report_package/`; producer/consumer coverage and missing integration remain separate delivery obligations. |

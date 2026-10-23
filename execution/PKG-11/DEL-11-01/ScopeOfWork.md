@@ -64,12 +64,12 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > | Condition | Source basis | Effect on the guide skeleton |
 > |---|---|---|
-> | User documentation is in scope for PKG-11. | `docs/_Registers/Deliverables.csv` row DEL-11-01; `docs/_Registers/ScopeLedger.csv` row SOW-033 | The skeleton covers the user-facing workflow, not source code or examples. |
+> | User documentation is in scope for PKG-11. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-11-01; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-033 | The skeleton covers the user-facing workflow, not source code or examples. |
 > | Open mechanics and protected standards data must remain separated. | `AGENTS.md`; `docs/DIRECTIVE.md` sections 1-4; OPS-K-IP-1 through OPS-K-IP-3 | Guide sections must describe user/private data requirements without copying or paraphrasing protected standards content. |
 > | Mechanics solve, user rule check, and professional approval are separate states. | `docs/TYPES.md` sections 4 and 6; OPS-K-AUTH-1 | The guide outline must explain statuses and warnings without implying automatic code compliance (PRD §21.2). |
 > | Primary global analysis is a 3D centerline/frame model. | `docs/DIRECTIVE.md` section 3; `docs/SPEC.md` sections 1 and 4 | Modeling sections emphasize centerline nodes, elements, components, supports, loads, and unit-aware fields. |
 > | Reports must be auditable and boundary-aware. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 and OPS-K-AUTH-1 | Reporting sections include provenance, warnings, hashes/checksums, limitations, and human review notice. |
-> | Future implementation details are unresolved. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
+> | Future implementation details are unresolved. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
 >
 
 ### CLM-006 — Construction

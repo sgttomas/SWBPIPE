@@ -65,11 +65,11 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 >
 > | Condition | Value | Source |
 > |---|---|---|
-> | Upstream architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | `_CONTEXT.md` Architecture Basis Injection; `Dependencies.csv` rows DAG-002-E0723 through DAG-002-E0729 |
+> | Upstream architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `Dependencies.csv` rows DAG-002-E0723 through DAG-002-E0729 |
 > | Upstream professional-boundary dependency | DEL-01-04 | `Dependencies.csv` row DAG-002-E0818 |
 > | Upstream handoff/state dependencies | DEL-15-01, DEL-15-02, DEL-15-03, DEL-14-01 | `Dependencies.csv` rows DAG-002-E0819 through DAG-002-E0822 |
 > | Approved DAG mirror status | Resolve current graph and row statuses through `execution/_DAG/_LATEST.md`; former synchronization count is historical evidence | `_DEPENDENCIES.md`; `Dependencies.csv` |
-> | Boundary validation tests | `tests/test_external_prover_boundary_metadata.py` validates generated records against schema and boundary behavior | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
+> | Boundary validation tests | `tests/test_external_prover_boundary_metadata.py` validates generated records against schema and boundary behavior | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-15-04 |
 >
 
 ### CLM-006 — Construction
