@@ -387,7 +387,7 @@ These have the largest effect, because `tools.deliverables touches` and
 | 23 | DEL-02-05 SOW:201 (REQ-015 source) | "section 22.1" | "§24 R0 (v0.1 §22.1)" or "§22.1 (V&V)" | v0.1 §22.1 was release R0; current §22.1 is Verification Philosophy | Owner (which was meant) |
 | 24 | `execution/_Coordination/_COORDINATION.md:28` | "PRD R5 exit criterion" | "historical v0.1 R5 (= v0.3 §24 R6) exit criterion" | numbering | Apply |
 | 25 | `apps/desktop/native-smoke/expected.json` | rows 98/99, 625/627; N1 "…198" | 113/113, 745/745; "…199" | stale expected values | Routed to release-rehearsal lane (PR #1532) |
-| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | "retired 2026-10-10 (`48584391de`); in Git history" | files removed | Apply as one mechanical pass (W-1 reference-list pass covers non-requirement cells) |
+| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | the path kept, annotated with its retiring commit: `_STATUS.md`/`_CONTEXT.md` "(retired in `497a8d81e4`; see Git history)", `docs/_Registers/*` "(retired in `48584391de`; …)", `execution/_Reconciliation/…` "(retired in `11718e61a2`; …)", as #1550 does for reference lists | files removed | Apply as one mechanical pass (#1550 covers the reference lists) |
 
 ## 4. Proposed work plan
 
