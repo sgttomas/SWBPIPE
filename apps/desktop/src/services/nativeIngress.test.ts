@@ -79,13 +79,13 @@ describe("invokeWithIngress", () => {
     vi.useFakeTimers();
     let sends = 0;
     invokeMock.mockImplementation(() => Promise.reject(headroomRefusal(17_363_664, ++sends)));
-    const started = Date.now();
+    const started = performance.now();
     const pending = invokeWithIngress("save_local_project", { request: {} }).catch((error: unknown) => error);
     await vi.runAllTimersAsync();
     const failure = await pending;
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 17_363_664, available_bytes: sends });
-    expect(Date.now() - started).toBeLessThanOrEqual(HEADROOM_RESEND_WINDOW_MS);
+    expect(performance.now() - started).toBeLessThanOrEqual(HEADROOM_RESEND_WINDOW_MS);
     // Sends at 0, 100, …, 2000 ms: none starts after the window.
     expect(sends).toBe(Math.floor(HEADROOM_RESEND_WINDOW_MS / HEADROOM_RESEND_INTERVAL_MS) + 1);
   });
@@ -99,8 +99,10 @@ describe("invokeWithIngress", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(invokeMock).toHaveBeenCalledOnce();
     // The host stalls past the window before the pause's timer runs.
-    vi.setSystemTime(Date.now() + HEADROOM_RESEND_WINDOW_MS + 3000);
+    const stalled = performance.now() + HEADROOM_RESEND_WINDOW_MS + 3000;
+    const clock = vi.spyOn(performance, "now").mockReturnValue(stalled);
     await vi.runAllTimersAsync();
+    clock.mockRestore();
     const failure = await pending;
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 17_363_664, available_bytes: 1 });

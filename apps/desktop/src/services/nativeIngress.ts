@@ -54,7 +54,7 @@ export const HEADROOM_RESEND_INTERVAL_MS = 100;
  * stands after it. */
 export async function invokeWithIngress<T>(command: NativeIngressCommand, args: Record<string, unknown>): Promise<T> {
   const body = new TextEncoder().encode(JSON.stringify(args));
-  const deadline = Date.now() + HEADROOM_RESEND_WINDOW_MS;
+  const deadline = performance.now() + HEADROOM_RESEND_WINDOW_MS;
   for (;;) {
     let refusal: ResourceUnavailableError;
     try {
@@ -64,10 +64,10 @@ export async function invokeWithIngress<T>(command: NativeIngressCommand, args: 
       if (!(read instanceof ResourceUnavailableError) || read.refusal.kind !== "headroom_insufficient") throw read;
       refusal = read;
     }
-    if (Date.now() + HEADROOM_RESEND_INTERVAL_MS > deadline) throw refusal;
+    if (performance.now() + HEADROOM_RESEND_INTERVAL_MS > deadline) throw refusal;
     await new Promise((resolve) => setTimeout(resolve, HEADROOM_RESEND_INTERVAL_MS));
     // A late timer must not start a send after the window: the last refusal stands.
-    if (Date.now() > deadline) throw refusal;
+    if (performance.now() > deadline) throw refusal;
   }
 }
 
