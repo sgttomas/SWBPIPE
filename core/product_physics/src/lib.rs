@@ -3017,7 +3017,12 @@ fn run_linear_static_preview_observed_inner(
     let combining = preview.is_some() && !model.combinations.is_empty();
     #[cfg(test)]
     let combining = combining || (l5_tests::former_aggregation() && preview.is_some());
-    for (index, solve) in load_case_solves.into_iter().enumerate() {
+    for (index, mut solve) in load_case_solves.into_iter().enumerate() {
+        // W-7: a source-recovery publication carries no global end rows, on any of its cases
+        // (an ordinary-physics case of the composite included; its receipt rows omit them).
+        if !global_end_rows_published(source_selected) {
+            solve.results.retain(|row| !is_global_end_kind(&row.kind));
+        }
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
         if let Some(mut evidence) = solve.exact_case_evidence.clone() {
@@ -6789,9 +6794,12 @@ fn solve_prepared_load_case(
 }
 
 fn qualify_source_case_rows(model: &PreviewModel, case_id: &str, rows: &[ResultItem]) -> Vec<ResultItem> {
+    // W-7 (`global_end_rows_published`): a source-recovery receipt never binds a global end row;
+    // its publication omits them.
+    let rows: Vec<&ResultItem> = rows.iter().filter(|row| !is_global_end_kind(&row.kind)).collect();
     let is_default = model.load_cases.first().is_some_and(|case| case.id == case_id);
     let ids: HashMap<_, _> = rows.iter().map(|row| (row.id.clone(), if is_default || (pressure_runtime::is_exact(model) && row.kind.ends_with("_v2")) { row.id.clone() } else { qualified_load_case_result_id(case_id, &row.id) })).collect();
-    rows.iter().cloned().map(|mut row| {
+    rows.into_iter().cloned().map(|mut row| {
         row.id = ids[&row.id].clone();
         row.basis_ref = Some(ResultBasisRef { ref_type: "load_case".into(), ref_id: case_id.into() });
         for reference in &mut row.source_result_refs {
@@ -12246,9 +12254,13 @@ pub(crate) const GLOBAL_END_WALL_BASIS: &str =
 pub(crate) const GLOBAL_END_SIGN: &str = "global end action on the element at its node (node on element), F = R\u{1d40} f; the element acts on its node with \u{2212}F";
 
 /// W-7 named exemption (Design `global-end-actions.md`, Consumers): a
-/// source-recovery publication (a source-selected EX case) does not carry the
-/// global end rows; every other ordinary case publishes them. The retained
-/// successor's own exemption is `retained_product::GLOBAL_END_ROWS_NOT_RETAINED`.
+/// source-recovery publication (an EX invocation with a source-selected case)
+/// does not carry the global end rows, on any of its cases: a selected case
+/// does not form them, the case receipts never bind them
+/// (`qualify_source_case_rows`) and the composite's other cases drop them at
+/// assembly. Every other publication carries them. A retained (W1) successor
+/// carries them as named not-covered rows (`GLOBAL_END_ROWS_NOT_COVERED` in
+/// `retained_product`).
 pub(crate) fn global_end_rows_published(source_selected: bool) -> bool {
     !source_selected
 }
@@ -15234,7 +15246,7 @@ mod tests {
             assert!(output.diagnostics[index+1].message.contains("standing remains NUMERICAL_INTEGRITY_SENSITIVE"));
             let message=&output.diagnostics[index+1].message;
             let force_bound:f64=message.split("bounded by ").nth(1).unwrap().split(" N").next().unwrap().parse().unwrap();
-            let moment_bound:f64=message.split("every moment row by ").nth(1).unwrap().split(" N*m").next().unwrap().parse().unwrap();
+            let moment_bound:f64=message.split("support moment row by ").nth(1).unwrap().split(" N*m").next().unwrap().parse().unwrap();
             assert!(force_bound>=oracle["force_norm_upper_n"].as_f64().unwrap(),"notice X must contain the independently solved intended force groups");
             assert!(moment_bound>=oracle["moment_norm_upper_nm"].as_f64().unwrap(),"notice Y must contain the tiny nonzero intended moments, not merely published noise");
             for row in &output.results {

@@ -22,7 +22,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 
 /// The linear state kinds admitted to combination algebra (table
 /// `combination_policy.linear_state_kinds`).
-const LINEAR_STATE_KINDS: [&str; 20] = [
+const LINEAR_STATE_KINDS: [&str; 22] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -43,6 +43,9 @@ const LINEAR_STATE_KINDS: [&str; 20] = [
     "pipe_section_pressure_longitudinal_stress",
     "support_reaction_component_v2",
     "constant_effort_support_applied_load",
+    // W-7 (DEL-04-01 Design `global-end-actions.md`): the global end actions.
+    "element_global_end_force_v1",
+    "element_global_end_moment_v1",
 ];
 const ARC_STRESS_KINDS: [&str; 6] = [
     "element_local_axial_normal_stress",
