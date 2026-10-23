@@ -4,7 +4,8 @@
 //! diagnostics (listed exactly in `RESULT_FIXTURES`).
 use open_pipe_stress_operation_applier::{numerical_health_json, reader_dispatch_json};
 use open_pipe_stress_product_physics::{
-    run_linear_static_preview_value_with_mode, PreviewSolverMode,
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
+    LinearStaticPreviewRequest, PreviewSolverMode,
 };
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -219,12 +220,23 @@ fn live(spec: &Live) -> Vec<(Value, Value)> {
 }
 
 fn live_request(spec: &Live, request: Value) -> Vec<(Value, Value)> {
+    live_entry(spec, request, false)
+}
+
+/// `typed`: the historical typed entry (`run_linear_static_preview_with_mode`),
+/// as the engine's own S11-G probes run, for inputs the captured entry's
+/// checked JSON refuses (an integral 1e80).
+fn live_entry(spec: &Live, request: Value, typed: bool) -> Vec<(Value, Value)> {
     let mut outs = Vec::new();
     for (mode, wire) in MODES {
         let label = format!("{} {wire}", spec.request);
-        let envelope = serde_json::to_value(
-            run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap(),
-        )
+        let envelope = serde_json::to_value(if typed {
+            let typed: LinearStaticPreviewRequest =
+                serde_json::from_value(request.clone()).unwrap();
+            run_linear_static_preview_with_mode(typed, mode)
+        } else {
+            run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()
+        })
         .unwrap();
         let dispatch = dispatch(&envelope, &request, wire);
         let out = health(&envelope, Some(&dispatch));
@@ -451,6 +463,83 @@ fn a_nonlinear_recovery_basis_refusal_is_unresolved_with_its_cause() {
             "diagnostic_id": "diagnostic:numerical-integrity:load:L-MIXED-NONLINEAR", "locations": []}])
         );
         assert!(case["rcond"].is_null());
+    }
+}
+
+/// The engine's S11-G probe A (`product_physics` s11g_tests `probe_a(1e80,
+/// [1, 0, -1])`): a cantilever under three uniform loads whose 1e80 terms
+/// cancel, so the certified rows' bound far exceeds 1e-9 of the group norm and
+/// the recovery guard demotes the case. `pipe` names its single member.
+fn probe_a(pipe: &str) -> Value {
+    const INVENTED: &str = "invented_t3_s11g_test_input_not_library_data";
+    let load = |i: usize, value: f64| {
+        json!({"id": format!("udl:{i}"), "category": "distributed_force",
+        "target": {"type": "element", "pipe": pipe}, "direction": "global_y", "magnitude": {"value": value, "unit": "N/m"},
+        "dimension": "force_per_length", "provenance": INVENTED})
+    };
+    json!({"model": {
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+            "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+        "project": {"id": "invented:t3-s11g:probe-a", "units": {"length": "m", "force": "N", "angle": "rad",
+            "pressure": "Pa", "temperature": "degC", "stress": "Pa"}},
+        "nodes": [{"id": "root", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": INVENTED},
+            {"id": "tip", "position": {"x": 2.0, "y": 0.0, "z": 0.0}, "provenance": INVENTED}],
+        "pipe_segments": [{"id": pipe, "from": "root", "to": "tip", "material": "material",
+            "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+            "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"}},
+            "provenance": INVENTED}],
+        "materials": [{"id": "material", "elastic_modulus": {"value": 200e9, "unit": "Pa"},
+            "shear_modulus": {"value": 80e9, "unit": "Pa"},
+            "thermal_expansion_coefficient": {"value": 1.2e-5, "unit": "1/degC"}, "provenance": INVENTED}],
+        "supports": [{"id": "anchor", "node": "root", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": INVENTED}],
+        "components": [],
+        "load_cases": [{"id": "case", "label": "probe-a", "kind": "primitive_user_load",
+            "primitive_loads": [load(0, 1e80), load(1, 0.3), load(2, -1e80)], "provenance": INVENTED}],
+        "combinations": []},
+        "materials": []})
+}
+
+#[test]
+fn a_recovery_demotion_keeps_its_cause_for_any_member_id() {
+    for pipe in ["pipe", "pipe]"] {
+        let spec = Live {
+            request: "probe A (S11-G recovery guard)",
+            route: "generic",
+            linear: true,
+            states: &["sensitive"],
+            verdict_only: true,
+        };
+        for (envelope, out) in live_entry(&spec, probe_a(pipe), true) {
+            let message = integrity(&envelope, "case")[0]["message"].as_str().unwrap();
+            assert!(
+                message
+                    .contains(" S11-G recovery guard (R-b'): load case case is Sensitive because "),
+                "{pipe}: precondition"
+            );
+            let case = &out["cases"][0];
+            let recovery: Vec<&Value> = case["causes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|c| c["kind"] == "formation_recovery")
+                .collect();
+            assert_eq!(recovery.len(), 1, "{pipe}: {}", case["causes"]);
+            let locations = recovery[0]["locations"].as_array().unwrap();
+            if pipe == "pipe" {
+                // Group names are `{member}.{location}.{kind}` (the pipe's and
+                // the anchor support's).
+                assert!(
+                    locations
+                        .iter()
+                        .any(|l| l["text"].as_str().unwrap().starts_with("pipe.")),
+                    "{locations:?}"
+                );
+            } else {
+                // A name holding `]` is not parsed: the cause stays without locations.
+                assert!(locations.is_empty(), "{locations:?}");
+            }
+        }
     }
 }
 
