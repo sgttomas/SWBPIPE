@@ -157,6 +157,8 @@ code_paths:
 - validation/benchmarks/physics_audit_regression/**
 - validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/**
 - validation/hand_calcs/mechanics/**
+- validation/references/w9_benchmarks/**
+- core/product_physics/tests/w9_solver_benchmarks.rs
 - validation/qualification/**
 - tools/validation/qualification_*.py
 - tools/validation/build_first_static_selection.py
