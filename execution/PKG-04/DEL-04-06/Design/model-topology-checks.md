@@ -51,9 +51,15 @@ relative) and well below any deliberate spacing in a piping model (for a 100 m
 model, 0.1 mm). Two nodes an element joins are left out: the element's own
 length checks (`AXIS_TOLERANCE`, DEL-04-01) govern them.
 
-**Search.** Nodes are placed in cells of size τ·L; each node is compared with
-the nodes of its own and the 26 neighbouring cells, so the cost is linear in
-the node count for ordinary models.
+**Search.** Nodes are placed in cells twice the tolerance wide, and each
+node is compared with the nodes of its own and the 26 neighbouring cells.
+Rounding in a cell index moves a point by far less than half a cell, so every
+pair within the tolerance is examined (a cell exactly the tolerance wide could
+put such a pair two cells apart). Distances use a norm scaled by the largest
+component, so no square underflows or overflows; coincidence is exact
+coordinate equality. Only the first six pairs in node order are kept, with
+exact counts, so storage stays bounded however many nodes coincide; the time
+is linear in the node count for ordinary models.
 
 ## Known effect on bundled data
 

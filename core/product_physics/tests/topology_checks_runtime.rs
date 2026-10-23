@@ -204,3 +204,64 @@ fn a_tee_must_join_three_pipes_with_distinct_header_and_branch() {
         assert!(found[0]["message"].as_str().unwrap().ends_with("node node:b joins 3"));
     }
 }
+
+/// Two unjoined nodes on a part each, at a spacing just inside the tolerance
+/// where rounding in the cell index once put them two cells apart
+/// (independent review's case: x-extent [-1, 1], tolerance 2e-6).
+#[test]
+fn a_near_pair_across_a_cell_boundary_is_found() {
+    let (a, b) = (-0.49981000000000003_f64, -0.4998080000000001_f64);
+    assert!((b - a) < 2e-6);
+    let nodes = json!([node("node:a", -1.0, 0.0, 0.0), node("node:b", a, 0.0, 0.0),
+        node("node:c", b, 0.0, 0.0), node("node:d", 1.0, 0.0, 0.0)]);
+    let pipes = json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]), pipe("pipe:c-d", "node:c", "node:d", [0.0, 1.0, 0.0])]);
+    let supports = json!([anchor("support:a", "node:a"), anchor("support:d", "node:d")]);
+    for mode in MODES {
+        let v = envelope(&base("m", nodes.clone(), pipes.clone(), supports.clone(), json!([])), mode);
+        let found = with_code(&v, "NODE_NEAR_DUPLICATE");
+        assert_eq!(found.len(), 1, "{:?}", diagnostics(&v));
+        assert_eq!(found[0]["affected_refs"], json!(["node:b", "node:c"]));
+    }
+}
+
+/// Distances do not underflow: a gap of 1e-200 m is near, not coincident.
+/// (Squares cannot overflow through this entry: the checked-JSON gate refuses
+/// floats at or above 2^53 as unsafe integral floats; the norm is scaled anyway.)
+#[test]
+fn a_tiny_gap_is_near_not_coincident() {
+    let tiny = cantilevers(Some(([1.0, 1e-200, 0.0], true)), "m", 1.0);
+    for mode in MODES {
+        let v = envelope(&tiny, mode);
+        assert!(with_code(&v, "NODE_COINCIDENT").is_empty(), "{:?}", diagnostics(&v));
+        let found = with_code(&v, "NODE_NEAR_DUPLICATE");
+        assert_eq!(found.len(), 1, "{:?}", diagnostics(&v));
+        assert!(found[0]["message"].as_str().unwrap().contains("node:b and node:c (1e-200 m apart)"));
+    }
+}
+
+/// Eight anchored parts: six are named, the rest counted.
+#[test]
+fn more_than_six_parts_are_counted_and_six_named() {
+    let mut nodes = Vec::new();
+    let mut pipes = Vec::new();
+    let mut supports = Vec::new();
+    for k in 0..8 {
+        let (i, j) = (format!("node:{k}i"), format!("node:{k}j"));
+        nodes.push(node(&i, 0.0, 0.0, 2.0 * k as f64));
+        nodes.push(node(&j, 1.0, 0.0, 2.0 * k as f64));
+        pipes.push(pipe(&format!("pipe:{k}"), &i, &j, [0.0, 1.0, 0.0]));
+        supports.push(anchor(&format!("support:{k}"), &i));
+    }
+    // The load case loads node:b, which does not exist here: load the first part's tip.
+    let mut wire = base("m", json!(nodes), json!(pipes), json!(supports), json!([]));
+    wire["model"]["load_cases"][0]["primitive_loads"][0]["target"]["node"] = json!("node:0j");
+    for mode in MODES {
+        let v = envelope(&wire, mode);
+        let found = with_code(&v, "MODEL_TOPOLOGY_DISCONNECTED");
+        assert_eq!(found.len(), 1, "{:?}", diagnostics(&v));
+        let message = found[0]["message"].as_str().unwrap();
+        assert!(message.contains("form 8 disconnected parts"), "{message}");
+        assert!(message.ends_with("; and 2 more"), "{message}");
+        assert_eq!(found[0]["affected_refs"].as_array().unwrap().len(), 6);
+    }
+}

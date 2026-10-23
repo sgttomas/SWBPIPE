@@ -1229,7 +1229,8 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                 .get(component.node.as_str())
                 .copied()
                 .unwrap_or(0);
-            if branch_topology_invalid(component, degree) {
+            // A component without a node is reported by the node checks above.
+            if !component.node.trim().is_empty() && branch_topology_invalid(component, degree) {
                 diagnostics.push(diag(
                     &format!(
                         "diagnostic:component:{}:branch-topology",
