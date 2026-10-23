@@ -47,9 +47,13 @@ The native smoke and the probe in §5 exercised this path in the real app.
 - **Rule packs:** author a private rule pack and run it against results. Missing
   inputs block pass/fail.
 - **Libraries:** import private material, section and component libraries.
-- **Exports:** export result JSON and stress-neutral files on both routes. PF
-  results also export PCF, MBF, glTF, a native package review manifest and a
-  preview handoff JSON.
+- **Exports:** export result JSON and stress-neutral JSON on both routes. PF
+  results also export the PCF and MBF package documents (redacted), a native
+  package review manifest and a preview handoff JSON. The byte-exact
+  downstream outputs (stress-neutral CSV, glTF review geometry, PCF text and
+  MBF text) are withheld by the desktop: their routes require lossless
+  materialization and session values are private
+  (`ControlledExportLink.tsx:36-48`).
 
 The biggest gaps:
 
@@ -399,8 +403,9 @@ exercise today:
 - **Results:** results table, standing, diagnostics and deformed shape.
 - **Proposals and data:** offline proposals; libraries.
 - **Rule packs:** authoring and rule-check runs.
-- **Exports:** result JSON and stress-neutral (both routes); PCF, MBF and glTF
-  (PF; glTF on EX too).
+- **Exports:** result JSON and stress-neutral JSON (both routes); PCF and MBF
+  package documents (PF). Stress-neutral CSV, glTF, PCF text and MBF text are
+  withheld by the desktop (`ControlledExportLink.tsx:36-48`).
 - **Boundaries:** local-only storage and telemetry.
 
 These are **not ready**: reports, model states and comparison, canonical model
