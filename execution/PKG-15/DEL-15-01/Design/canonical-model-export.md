@@ -131,7 +131,8 @@ writer keeps its `.opsproj` checks unchanged. Model saves admit `.json`.
 
 ## 3. W-6b: Save Handoff… (FR-HAND-001/002, PRD §16.1)
 
-**Ordering.** It lands after W-12's state store, because `model_state_refs`
+**Ordering** (agreed with HELP_HUMAN, 2026-10-23; landing order W-13 S1b →
+S2 → W-6a → W-12 → W-6b). It lands after W-12's state store, because `model_state_refs`
 has `minItems: 1` and PRD §15.1 names a `handoff_basis` state kind. It does not
 wait for comparison.
 
