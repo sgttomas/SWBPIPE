@@ -6,11 +6,12 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as previewService from "../../services/previewService";
-import { computeModelHash } from "../../services/hashService";
+import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import { buildReconnectBatch, emptyGeometryDraft, type GeometryDraft } from "../geometry-tools/geometryDraft";
 import { parseOfflineBatch } from "../offline-proposal-intake/OfflineProposalIntakePanel";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
-import { useWorkspaceSession } from "./workspaceSession";
+import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
+type WorkspaceSessionApply = WorkspaceSession["operations"]["handleApplyIntent"];
 import type { PreviewModel } from "../../types";
 import { reconnectModel } from "../../test-support/reconnectModel";
 
@@ -102,5 +103,51 @@ describe("reconnect preview gate (central, producer-independent)", () => {
     expect(result.current.operations.queuedBatches[0].batch.operations).toEqual([intent]);
     await act(async () => { applied = await result.current.operations.handleApplyIntent(coordinateIntent(model)); });
     expect(applied).toBe(true);
+  });
+});
+
+describe("delete_pipe_run dependents (W-10 §7)", () => {
+  const boundary = {
+    validation: { schema_validation: "not_run", constraint_validation: "not_run", unit_validation: "not_run", diff_preview_status: "not_generated", application_status: "not_applied" },
+    audit_boundary: { mutation_route: "structured_operations_only", direct_model_mutation_allowed: false, requires_user_acceptance: true, mutates_accepted_model_state: false },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    }
+  };
+  const deletePipe = (model: PreviewModel) => {
+    const pipe = model.pipe_segments.find((p) => p.id === "pipe:R")!;
+    return { operation_id: "op:delete-pipe-R", operation_kind: "delete", operation_status: "proposed", author_type: "user", target: { object_type: "Element", ref: "pipe:R" },
+      change: { change_id: "change:delete-pipe-R", change_kind: "delete_pipe_run", field_label: "Delete pipe", field_path: "pipe_segments", before: `${pipe.label}; ${pipe.from}->${pipe.to}; material=${pipe.material}`, after: "not_present", unit: "none", dimension: "dimensionless", source_note: "invented" },
+      rationale: "invented W-10 delete", ...boundary } as unknown as Parameters<WorkspaceSessionApply>[0];
+  };
+  const deleteComponent = async (model: PreviewModel) => ({ operation_id: "op:delete-bend", operation_kind: "delete", operation_status: "proposed", author_type: "user", target: { object_type: "Component", ref: "component:bend-R" },
+    change: { change_id: "change:delete-bend", change_kind: "delete_component", field_label: "Delete component", field_path: "components", before: await canonicalJsonString(model.components[0]), after: "deleted", unit: "none", dimension: "dimensionless", source_note: "invented" },
+    rationale: "invented W-10 delete", ...boundary } as unknown as Parameters<WorkspaceSessionApply>[0]);
+  it("refuses a pipe a bend names, naming the bend; [delete_component, delete_pipe_run] applies once and one Undo restores both", async () => {
+    const model = reconnectModel();
+    model.components = [{ id: "component:bend-R", kind: "bend", node: "node:C", geometry: { bend_pipe_ref: "pipe:R" }, provenance: "invented" } as unknown as PreviewModel["components"][number]];
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(model);
+    const { result } = renderHook(() => useWorkspaceSession());
+    await waitFor(() => expect(result.current.model.model).not.toBeNull());
+    const basis = structuredClone(result.current.model.model!);
+    let applied = true;
+    await act(async () => { applied = await result.current.operations.handleApplyIntent(deletePipe(basis)); });
+    expect(applied).toBe(false);
+    expect(result.current.model.model).toEqual(basis);
+    const refusal = Object.values(result.current.operations.operationOutcomes)[0].diagnostics.find((d) => d.code === "OP-PIPE-DELETE-REFERENCED")!;
+    expect(refusal.message).toBe("Pipe segment pipe:R is still named by: component:bend-R (geometry.bend_pipe_ref).");
+    expect(refusal.affected_refs).toEqual(["pipe:R", "component:bend-R"]);
+    await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "batch:delete-both", operations: [await deleteComponent(basis), deletePipe(basis)] }); });
+    await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], true); });
+    expect(result.current.model.model!.components).toEqual([]);
+    expect(result.current.model.model!.pipe_segments.map((p) => p.id)).toEqual(["pipe:P", "pipe:Q"]);
+    expect(result.current.operations.undoStack).toHaveLength(1);
+    act(() => result.current.operations.handleUndoSessionModelEdit());
+    expect(result.current.model.model).toEqual(basis);
   });
 });

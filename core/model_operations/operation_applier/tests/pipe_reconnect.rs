@@ -691,7 +691,7 @@ fn random_model(seed: u64) -> Value {
     }
     let nodes: Vec<Value> = positions.iter().enumerate().map(|(i, p)| node(&format!("node:{i}"), p[0], p[1], p[2])).collect();
     let mut pipes = Vec::new();
-    let mut add = |rng: &mut Lcg, a: usize, b: usize, pipes: &mut Vec<Value>| {
+    let add = |rng: &mut Lcg, a: usize, b: usize, pipes: &mut Vec<Value>| {
         if positions[a] == positions[b] {
             return;
         }
