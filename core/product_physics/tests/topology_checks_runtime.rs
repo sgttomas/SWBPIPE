@@ -141,7 +141,8 @@ fn an_isolated_anchored_node_is_not_a_part() {
 
 #[test]
 fn coincident_and_near_duplicate_nodes_warn_in_any_length_unit() {
-    // Extent of the model: about 1.5 m, so the tolerance is about 1.5e-6 m.
+    // The default node-proximity tolerance is 5 mm, inclusive, whatever the
+    // model's length unit or extent.
     for (unit, scale) in [("m", 1.0), ("mm", 1000.0)] {
         for mode in MODES {
             // c coincides with b.
@@ -154,21 +155,34 @@ fn coincident_and_near_duplicate_nodes_warn_in_any_length_unit() {
             assert!(with_code(&v, "NODE_NEAR_DUPLICATE").is_empty());
             assert_eq!(with_code(&v, "MODEL_TOPOLOGY_DISCONNECTED").len(), 1);
 
-            // c lies 1e-7 of the extent from b: near, not coincident.
-            let gap = 1.0e-7 * scale;
-            let v = envelope(&cantilevers(Some(([scale, gap, 0.0], true)), unit, scale), mode);
-            let found = with_code(&v, "NODE_NEAR_DUPLICATE");
-            assert_eq!(found.len(), 1, "{unit}: {:?}", diagnostics(&v));
-            assert_eq!(found[0]["affected_refs"], json!(["node:b", "node:c"]));
-            assert!(found[0]["message"].as_str().unwrap().contains("node:b and node:c (1e-7 m apart)"),
-                "{}", found[0]["message"]);
-            assert!(with_code(&v, "NODE_COINCIDENT").is_empty());
+            // c lies 4.9 mm and exactly 5 mm from b: near, not coincident.
+            for gap in [0.0049 * scale, 0.005 * scale] {
+                let v = envelope(&cantilevers(Some(([scale, gap, 0.0], true)), unit, scale), mode);
+                let found = with_code(&v, "NODE_NEAR_DUPLICATE");
+                assert_eq!(found.len(), 1, "{unit} {gap}: {:?}", diagnostics(&v));
+                assert_eq!(found[0]["severity"], "warning");
+                assert_eq!(found[0]["affected_refs"], json!(["node:b", "node:c"]));
+                let message = found[0]["message"].as_str().unwrap();
+                assert!(message.contains("node-proximity tolerance (5e-3 m)"), "{message}");
+                assert!(with_code(&v, "NODE_COINCIDENT").is_empty());
+            }
 
-            // c lies 1e-3 of the extent from b: not near.
-            let v = envelope(&cantilevers(Some(([scale, 1.0e-3 * scale, 0.0], true)), unit, scale), mode);
+            // c lies just beyond 5 mm from b: not near.
+            let beyond = if unit == "m" { f64::from_bits(0.005_f64.to_bits() + 1) } else { 5.000001 };
+            let v = envelope(&cantilevers(Some(([scale, beyond, 0.0], true)), unit, scale), mode);
             assert!(with_code(&v, "NODE_NEAR_DUPLICATE").is_empty(), "{unit}: {:?}", diagnostics(&v));
             assert!(with_code(&v, "NODE_COINCIDENT").is_empty());
         }
+    }
+}
+
+/// The tolerance does not scale with the model: in a 2 km model two unjoined
+/// nodes 4 mm apart warn, and 6 mm apart do not.
+#[test]
+fn the_tolerance_is_absolute_in_a_large_model() {
+    for (gap, warns) in [(0.004, true), (0.006, false)] {
+        let v = envelope(&cantilevers(Some(([2000.0, gap, 0.0], true)), "m", 2000.0), PreviewSolverMode::SparseInteractive);
+        assert_eq!(with_code(&v, "NODE_NEAR_DUPLICATE").len(), usize::from(warns), "{gap}: {:?}", diagnostics(&v));
     }
 }
 
@@ -205,13 +219,11 @@ fn a_tee_must_join_three_pipes_with_distinct_header_and_branch() {
     }
 }
 
-/// Two unjoined nodes on a part each, at a spacing just inside the tolerance
-/// where rounding in the cell index once put them two cells apart
-/// (independent review's case: x-extent [-1, 1], tolerance 2e-6).
+/// Two unjoined nodes on a part each, 4 mm apart across a cell boundary
+/// (cells are 8 x 5 mm = 0.04 m wide; the pair straddles x = 0.04).
 #[test]
 fn a_near_pair_across_a_cell_boundary_is_found() {
-    let (a, b) = (-0.49981000000000003_f64, -0.4998080000000001_f64);
-    assert!((b - a) < 2e-6);
+    let (a, b) = (0.038_f64, 0.042_f64);
     let nodes = json!([node("node:a", -1.0, 0.0, 0.0), node("node:b", a, 0.0, 0.0),
         node("node:c", b, 0.0, 0.0), node("node:d", 1.0, 0.0, 0.0)]);
     let pipes = json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]), pipe("pipe:c-d", "node:c", "node:d", [0.0, 1.0, 0.0])]);

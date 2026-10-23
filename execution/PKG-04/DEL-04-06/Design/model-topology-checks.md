@@ -34,7 +34,7 @@ entry (`run_linear_static_preview_observed_inner`). They change no number.
 |---|---|---|
 | `MODEL_TOPOLOGY_DISCONNECTED` | `core/product_physics/src/topology.rs` | The elements (straight members other than connector-replaced spans, curved spans and objective connectors) form two or more connected parts. A node no element touches is not a part. One diagnostic names up to six parts, each by its first node in model order, its node count, and `supported` or `no support` (any linear or nonlinear support at one of its nodes). |
 | `NODE_COINCIDENT` | `topology.rs` | Two distinct nodes have exactly the same position and no element joins them. |
-| `NODE_NEAR_DUPLICATE` | `topology.rs` | Two distinct nodes lie within τ·L of each other (and are not coincident), and no element joins them. |
+| `NODE_NEAR_DUPLICATE` | `topology.rs` | Two distinct nodes lie no farther apart than the node-proximity tolerance τ (and are not coincident), and no element joins them. |
 | `BRANCH_TOPOLOGY_INVALID` | `core/product_physics/src/validation.rs` | A `branch`, `tee` or `branch_connection` component's node joins a number of pipes other than three, or its header and branch pipe references name the same pipe. One diagnostic per component. |
 
 The disconnected and node checks run on the built model, after unit
@@ -42,20 +42,31 @@ normalization, so positions are in metres. Each of those codes yields at most
 one diagnostic naming at most six parts or pairs (`formation_guard::NAMED`), so
 the diagnostic count does not grow with model size.
 
-**Tolerance.** τ = 1e-6 and L is the diagonal of the bounding box of all nodes.
-A relative tolerance makes the check independent of the length unit and of
-the model's scale; an absolute one (say 1 mm) would flag every node of a
-millimetre-scale test model and miss a 1 mm gap in a kilometre-long line.
-1e-6 of the extent is well above binary64 coordinate noise (about 1e-16
-relative) and well below any deliberate spacing in a piping model (for a 100 m
-model, 0.1 mm). Two nodes an element joins are left out: the element's own
-length checks (`AXIS_TOLERANCE`, DEL-04-01) govern them.
+**Tolerance.** τ is an absolute length, 5 mm unless the model sets another
+value, and a pair at exactly τ is near. The owner chose it (2026-10-23): "I
+choose C, but my value is "5mm" and give the user the means to change it. No
+computed by any 1e-4, just 5mm". The model sets its value in
+`model_settings.node_proximity_tolerance` (a length with a unit; schema 0.7.0),
+whose reader validates it (finite, positive, a length unit). Until the check
+reads that field, every model uses 5 mm.
 
-**Search.** Nodes are placed in cells twice the tolerance wide, and each
-node is compared with the nodes of its own and the 26 neighbouring cells.
-Rounding in a cell index moves a point by far less than half a cell, so every
-pair within the tolerance is examined (a cell exactly the tolerance wide could
-put such a pair two cells apart). Distances use a norm scaled by the largest
+τ replaced a relative tolerance (1e-6 of the diagonal of the nodes' bounding
+box). A relative tolerance made the finding depend on parts of the model
+unrelated to the two nodes: adding a distant line changed it; in a model 1 m
+across only gaps below about 1 µm were flagged, and in a line 2 km long gaps
+up to 2 mm were. A modeller judges a gap in absolute terms, and the value they
+accept depends on their work, so τ is a fixed default the model can override.
+Two nodes an element joins are left out: the element's own length checks
+(`AXIS_TOLERANCE`, DEL-04-01) govern them.
+
+**Search.** Nodes are placed in cells 8τ wide, indexed by the coordinate
+divided by the width (no offset by the lowest coordinate, whose rounding can
+exceed a cell far from the origin), and each node is compared with the nodes
+of its own and the 26 neighbouring cells. Two distinct coordinates within τ
+on an axis have a spacing of at most 2τ there, so their quotients are below
+2^51 and each rounds by at most a quarter cell: their indices differ by at
+most one, and every pair within τ is examined. Indices saturate; a neighbour
+past a saturated index is skipped, so no cell is visited twice. Distances use a norm scaled by the largest
 component, so no square underflows or overflows; coincidence is exact
 coordinate equality. Only the first six pairs in node order are kept, with
 exact counts, so storage stays bounded however many nodes coincide; the time
@@ -73,6 +84,10 @@ node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them.
 the desktop's value entry in both solver modes: a connected model and an
 isolated anchored node give no finding; two anchored cantilevers warn and
 their tip displacement equals the cantilever solved alone; an unsupported
-part is named and still refused; coincident and near nodes warn identically in
-metres and millimetres, and a gap of 1e-3·L does not; a tee on two pipes and a
-tee whose header is its branch warn, and a valid tee does not.
+part is named and still refused; coincident nodes, and nodes 4.9 mm and
+exactly 5 mm apart, warn identically in metres and millimetres, and nodes just
+beyond 5 mm do not; in a 2 km model 4 mm warns and 6 mm does not; a pair
+across a cell boundary is found; a tee on two pipes and a tee whose header is
+its branch warn, and a valid tee does not. `src/topology_tests.rs` passes the
+tolerance directly: another value is used inclusively, a node at -4e15 m does
+not separate a near pair, and a saturated cell counts a pair once.
