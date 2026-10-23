@@ -348,6 +348,9 @@ These have the largest effect, because `tools.deliverables touches` and
     basis (`index.md:27-28`) and the DEL-09-05 pointer (`index.md:200`).
   - **Still open:** `index.md:63` (PRD §16.5, which does not exist), `:76`
     (missing path), `:284` (R5 → R6 numbering). The `:168` table is empty.
+  - **Fixed:** the case-page generator
+    (`cases/generate_validation_case_pages.py`) cites PRD §24 R6 and §22.2
+    instead of v0.1 §16.5 and §16.2; the pages are regenerated.
 - **User guide** `docs/user_guide/index.md:70,232,236,394`: describes a
   skeleton and missing install steps, and says the report package works.
 - **`apps/desktop/SMOKE.md:22-140`:** historical browser checks against strings
@@ -356,7 +359,8 @@ These have the largest effect, because `tools.deliverables touches` and
   is refused when…" understates that every session is blocked. This file is in
   the release-rehearsal lane; it is left to that manager.
 - **Code comments:**
-  - `LibraryManagerPanel.tsx:41-42` says library wiring is absent; it exists.
+  - **Fixed:** `LibraryManagerPanel.tsx:41-42` now describes the existing
+    rule-pack library wiring (`resolve_library_value_bindings`).
   - `product_physics/src/validation.rs:1268` implies scaling is applied when a
     mapping is valid; it never is. This one needs a DEC-081 claims check.
 - **Corpus-wide:** ScopeOfWork files cite `_STATUS.md`, `_CONTEXT.md`,
