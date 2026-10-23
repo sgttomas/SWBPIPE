@@ -93,12 +93,12 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and dependency envelope.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and dependency envelope.
 > - `_REFERENCES.md` - local reference index for this deliverable.
 > - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis.
-> - `docs/_Registers/Deliverables.csv` - deliverable row `DEL-14-03`.
-> - `docs/_Registers/ScopeLedger.csv` - rows `SOW-071` and `SOW-073`.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - deliverable row `DEL-14-03`.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - rows `SOW-071` and `SOW-073`.
 > - `docs/CONTRACT.md` - invariants for IDs, units, professional authority, data, and agent behavior.
 > - `docs/SPEC.md` - unit, persistence, analysis-boundary, reporting/result-envelope, and validation mechanics.
 > - `docs/TYPES.md` - reference, traceability, checksum, diagnostic, result, and report boundary definitions.

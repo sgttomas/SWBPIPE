@@ -118,14 +118,14 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for sealed deliverable identity, write boundary, scope, objectives, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, write boundary, scope, objectives, and architecture-basis injection.
 > - `_REFERENCES.md` for currently available governing references.
 > - `AGENTS.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
 > - `docs/CONTRACT.md` for invariants `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-AUTH-1`, `OPS-K-MECH-1`, `OPS-K-MECH-2`, and `OPS-K-AGENT-1..4`.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for public/permissive source provenance fields, protected-content quarantine expectations, and contribution-review controls.
 > - `docs/PROFESSIONAL_BOUNDARY.md` for product-claim and professional-reliance boundaries.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
-> - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` rows for `DEL-11-03` and `SOW-033`.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) rows for `DEL-11-03` and `SOW-033`.
 
 ## Completion and Reliance Basis — Epistemology
 

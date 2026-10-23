@@ -96,9 +96,9 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > | Source | SourceRef | Use |
 > |---|---|---|
-> | `_CONTEXT.md` | Scope Coverage; Architecture Basis Injection | Deliverable identity, scope, objective, accepted architecture basis, and write boundary. |
-> | `docs/_Registers/Deliverables.csv` | Row DEL-08-01 | Registered description, anticipated artifacts, scope, objective, context envelope, and risk note. |
-> | `docs/_Registers/ScopeLedger.csv` | Row SOW-024 | Report content scope and protected-content warning. |
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Scope Coverage; Architecture Basis Injection | Deliverable identity, scope, objective, accepted architecture basis, and write boundary. |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Row DEL-08-01 | Registered description, anticipated artifacts, scope, objective, context envelope, and risk note. |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Row SOW-024 | Report content scope and protected-content warning. |
 > | `docs/CONTRACT.md` | OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-RULE-1..3, OPS-K-AUTH-1, OPS-K-REPORT-1..2, OPS-K-PRIV-1..2, OPS-K-UNIT-1, OPS-K-AGENT-1..4 | Invariant constraints for report generation. |
 > | `docs/SPEC.md` | Sections 1, 3, 6, 7, 8, 9, 11 | Architecture, report domain object, rule-pack metadata, warning classes, reporting/audit content, report tests, and acceptance semantics. |
 > | `docs/TYPES.md` | Sections 4, 6, 8, 9 | Analysis-status vocabulary, professional boundary terms, report settings/report object definitions, and lifecycle meaning. |

@@ -11,6 +11,9 @@ package_objective_refs: [OBJ-014]
 
 Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
+
+**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1 and OD-3: PKG-13 (design knowledge, constraint validation and the physical-to-analytical transform contract) is deferred to v0.2. This records the ruling; the clauses below are unchanged.
+
 ## Purpose and Objective Traceability
 
 This candidate defines `DEL-13-04` in service of project scope [SOW-066] and package objectives [OBJ-014].
@@ -143,13 +146,13 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 
 > ##### References
 >
-> - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and accepted decomposition reference.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and accepted decomposition reference.
 > - `_REFERENCES.md` - governing reference list and source boundary.
 > - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, and deliverable entries.
-> - `docs/_Registers/Deliverables.csv` - row DEL-13-04.
-> - `docs/_Registers/ScopeLedger.csv` - row SOW-066.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-04.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-13-04.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-066.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-13-04.
 > - `docs/CONTRACT.md` - invariant catalog, especially OPS-K-IP-1, OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-MECH-1, OPS-K-UNIT-1, OPS-K-SOLVER-1.
 > - `docs/SPEC.md` - physical model source-of-truth, unit contract, and missing-data warning classes.
 > - `docs/TYPES.md` - model, model role, traceability, diagnostic, and mechanics-boundary registry meanings.

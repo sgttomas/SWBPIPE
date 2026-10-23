@@ -91,7 +91,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 
 > ##### References
 >
-> - `_CONTEXT.md` for deliverable identity, scope, objectives, and architecture-basis injection.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, and architecture-basis injection.
 > - `docs/CONTRACT.md` for invariants OPS-K-DATA-1/2/3, OPS-K-RULE-1/2/3, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV, and OPS-K-AGENT-1..4.
 > - `docs/SPEC.md` section 8 for GUI warnings and warning classes.
 > - `docs/TYPES.md` section 4 for analysis-status vocabulary.

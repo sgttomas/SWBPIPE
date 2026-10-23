@@ -6,12 +6,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
-import { invokeWithIngress, NATIVE_INGRESS_COMMANDS, nativeFailureText } from "./nativeIngress";
+import { HEADROOM_RESEND_INTERVAL_MS, HEADROOM_RESEND_WINDOW_MS, invokeWithIngress, NATIVE_INGRESS_COMMANDS, nativeFailureText } from "./nativeIngress";
 import { ResourceUnavailableError } from "./memoryPool";
 import { INGRESS_COMMANDS, ingressArgs } from "../test/nativeIngress";
 
 const GiB = 1024 ** 3;
-afterEach(() => invokeMock.mockReset());
+afterEach(() => {
+  invokeMock.mockReset();
+  vi.useRealTimers();
+});
 
 describe("invokeWithIngress", () => {
   it("names exactly the commands the native host takes as a raw body", () => {
@@ -39,13 +42,86 @@ describe("invokeWithIngress", () => {
   });
 
   it("reads a typed resource refusal as a ResourceUnavailableError with its plain-language sentence", async () => {
+    vi.useFakeTimers();
     const pool = null;
     invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 3 * GiB, available_bytes: GiB }, pool });
-    const failure = await invokeWithIngress("validate_model_operation", { model: {}, intent: {}, claimedModelHash: null }).catch((error: unknown) => error);
+    const pending = invokeWithIngress("validate_model_operation", { model: {}, intent: {}, claimedModelHash: null }).catch((error: unknown) => error);
+    await vi.runAllTimersAsync();
+    const failure = await pending;
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 3 * GiB, available_bytes: GiB });
     expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available.");
     expect(nativeFailureText(failure)).toBe("Refused by the native memory pool: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available.");
+  });
+
+  const headroomRefusal = (required: number, available: number) => ({
+    code: "RESOURCE_UNAVAILABLE",
+    refusal: { kind: "headroom_insufficient", required_bytes: required, available_bytes: available },
+    pool: null
+  });
+
+  it("re-sends the same bytes after a headroom_insufficient refusal and returns the first admitted result", async () => {
+    vi.useFakeTimers();
+    invokeMock
+      .mockRejectedValueOnce(headroomRefusal(17_363_664, 6_752_829))
+      .mockRejectedValueOnce(headroomRefusal(17_363_664, 0))
+      .mockResolvedValueOnce({ outcome: "saved" });
+    const pending = invokeWithIngress("save_local_result_json", { request: { href: "data:application/json;charset=utf-8,%7B%7D" } });
+    await vi.runAllTimersAsync();
+    expect(await pending).toEqual({ outcome: "saved" });
+    expect(invokeMock).toHaveBeenCalledTimes(3);
+    const bodies = invokeMock.mock.calls.map((call) => new TextDecoder().decode(call[1] as Uint8Array));
+    expect(new Set(bodies).size).toBe(1);
+    for (const call of invokeMock.mock.calls) expect(call[2]).toEqual({ headers: { "x-swbpipe-ingress": "args-json-v1" } });
+  });
+
+  it("stops re-sending once the window would be exceeded and reports the last refusal", async () => {
+    vi.useFakeTimers();
+    let sends = 0;
+    invokeMock.mockImplementation(() => Promise.reject(headroomRefusal(17_363_664, ++sends)));
+    const started = performance.now();
+    const pending = invokeWithIngress("save_local_project", { request: {} }).catch((error: unknown) => error);
+    await vi.runAllTimersAsync();
+    const failure = await pending;
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 17_363_664, available_bytes: sends });
+    expect(performance.now() - started).toBeLessThanOrEqual(HEADROOM_RESEND_WINDOW_MS);
+    // Sends at 0, 100, …, 2000 ms: none starts after the window.
+    expect(sends).toBe(Math.floor(HEADROOM_RESEND_WINDOW_MS / HEADROOM_RESEND_INTERVAL_MS) + 1);
+  });
+
+  it("starts no send after the window even when a timer fires late", async () => {
+    vi.useFakeTimers();
+    invokeMock
+      .mockRejectedValueOnce(headroomRefusal(17_363_664, 1))
+      .mockResolvedValueOnce({ outcome: "saved" });
+    const pending = invokeWithIngress("save_local_result_json", { request: {} }).catch((error: unknown) => error);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(invokeMock).toHaveBeenCalledOnce();
+    // The host stalls past the window before the pause's timer runs.
+    const stalled = performance.now() + HEADROOM_RESEND_WINDOW_MS + 3000;
+    const clock = vi.spyOn(performance, "now").mockReturnValue(stalled);
+    await vi.runAllTimersAsync();
+    clock.mockRestore();
+    const failure = await pending;
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 17_363_664, available_bytes: 1 });
+    expect(invokeMock).toHaveBeenCalledOnce();
+  });
+
+  it("does not re-send any other refusal or failure", async () => {
+    for (const rejection of [
+      { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pool_exhausted", requested_bytes: 1, reserved_bytes: 2, pool_bytes: 3 }, pool: null },
+      { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_unknown" }, pool: null },
+      { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "ingress_exceeds_budget", required_bytes: 2, budget_bytes: 1 }, pool: null },
+      { code: "INVALID_REQUEST", message: "no" },
+      "PROJECT-BASE-MOVED: the stored project changed"
+    ]) {
+      invokeMock.mockReset();
+      invokeMock.mockRejectedValue(rejection);
+      await invokeWithIngress("save_local_project", { request: {} }).catch(() => undefined);
+      expect(invokeMock).toHaveBeenCalledOnce();
+    }
   });
 
   it("reads a typed invalid request as an INVALID_REQUEST error", async () => {

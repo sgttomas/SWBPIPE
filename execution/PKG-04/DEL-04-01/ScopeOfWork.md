@@ -96,12 +96,12 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` - local sealed context for DEL-04-01.
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - local sealed context for DEL-04-01.
 > - `_REFERENCES.md` - governing references and register pointers.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) - PKG-04, DEL-04-01, SOW-005, SOW-035, OBJ-003, AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08.
-> - `docs/_Registers/Deliverables.csv` - row DEL-04-01.
-> - `docs/_Registers/ScopeLedger.csv` - rows SOW-005 and SOW-035.
-> - `docs/_Registers/ContextBudgetQA.csv` - row DEL-04-01.
+> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-04-01.
+> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - rows SOW-005 and SOW-035.
+> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-04-01.
 > - `docs/CONTRACT.md` - applicable invariants named in the task brief.
 
 ## Completion and Reliance Basis — Epistemology

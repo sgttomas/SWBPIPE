@@ -90,7 +90,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 
 > ##### References
 >
-> - `_CONTEXT.md`
+> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
 > - `_REFERENCES.md`
 > - `_DEPENDENCIES.md`
 > - `Dependencies.csv`
