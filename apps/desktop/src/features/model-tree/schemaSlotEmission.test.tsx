@@ -336,7 +336,12 @@ describe("TP-PMM-GUIEMIT-001 schema binding", () => {
   // schemas/model.schema.yaml describes the desktop's own model document, so the
   // emitted keys and tokens are checked against its definitions directly.
   const props = (def: JsonRecord) => def.properties as JsonRecord;
-  const refName = (slot: unknown) => ((slot as JsonRecord).$ref as string).replace("#/$defs/", "");
+  // A slot is a $ref, or an anyOf of that $ref and null where null is accepted.
+  const refName = (slot: unknown) => {
+    const record = slot as JsonRecord;
+    const branches = (record.anyOf as JsonRecord[] | undefined) ?? [record];
+    return (branches.find((branch) => typeof branch.$ref === "string")!.$ref as string).replace("#/$defs/", "");
+  };
 
   it("emits modulus basis ids, slot keys and quantities that the model document schema defines", () => {
     const modelDefs = defs(readSchema("model.schema.yaml"));
@@ -349,7 +354,7 @@ describe("TP-PMM-GUIEMIT-001 schema binding", () => {
     expect(Object.keys(props(modelDefs.ComponentGeometry as JsonRecord))).toContain("bend_pipe_ref");
     expect(Object.keys(props(modelDefs.PipeSection as JsonRecord))).toContain("mill_tolerance");
     // The two modulus-basis slots are mutually exclusive.
-    expect((modelDefs.LoadCase as JsonRecord).not).toEqual({ required: ["modulus_basis_ref", "modulus_basis_temperature"] });
+    expect(((modelDefs.LoadCase as JsonRecord).not as JsonRecord).required).toEqual(["modulus_basis_ref", "modulus_basis_temperature"]);
 
     // The emitted basis id satisfies the schema's own Id pattern.
     const idPattern = new RegExp((modelDefs.Id as JsonRecord).pattern as string);

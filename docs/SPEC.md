@@ -157,8 +157,8 @@ The unit contract is represented by `schemas/units.schema.yaml` and the
 - test obligations and open decisions that block downstream schema/API freeze
   where decisions remain `TBD`.
 
-The accepted PKG-02 semantic dimension vocabulary is shared by
-`schemas/units.schema.yaml` and `schemas/model.schema.yaml`: `dimensionless`,
+The accepted PKG-02 semantic dimension vocabulary is defined by
+`schemas/units.schema.yaml` `DimensionId` (also used by `schemas/physical_transform_model.schema.yaml`): `dimensionless`,
 `length`, `mass`, `time`, `temperature`, `temperature_interval`, `angle`,
 `rotation`, `force`, `force_per_length`, `moment`, `pressure`, `stress`,
 `area`, `volume`, `density`, `linear_stiffness`, `rotational_stiffness`,

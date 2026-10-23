@@ -827,7 +827,15 @@
                   "id",
                   "label",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "sections": {
@@ -838,7 +846,21 @@
                   "name",
                   "section_type",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "section_type": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": [
+                      "string",
+                      "object"
+                    ]
+                  }
+                }
               }
             },
             "nodes": {
@@ -848,7 +870,15 @@
                   "id",
                   "label",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "pipe_segments": {
@@ -861,7 +891,29 @@
                   "to",
                   "material",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  },
+                  "material": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": "string"
+                  },
+                  "section": {
+                    "additionalProperties": {
+                      "$ref": "#/$defs/Quantity"
+                    }
+                  }
+                }
               }
             },
             "supports": {
@@ -872,7 +924,18 @@
                   "label",
                   "node",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "node": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "components": {
@@ -884,7 +947,21 @@
                   "kind",
                   "node",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "node": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "load_cases": {
@@ -896,7 +973,21 @@
                   "kind",
                   "status",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "combinations": {
@@ -908,7 +999,18 @@
                   "basis",
                   "terms",
                   "provenance"
-                ]
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "basis": {
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
@@ -962,7 +1064,11 @@
           }
         },
         "provenance": {
-          "type": "string"
+          "description": "A string, or an object the desktop shows as JSON (apps/desktop/src/types.ts Diagnostic, resultInterpretation.ts); no member of the object is read.",
+          "type": [
+            "string",
+            "object"
+          ]
         }
       }
     },
@@ -1152,12 +1258,26 @@
           "$ref": "#/$defs/EquivalentStatic"
         },
         "modulus_basis_ref": {
-          "description": "Exact modulus basis: the id of a user-entered material temperature point whose E, G and alpha this case solves with. Mutually exclusive with modulus_basis_temperature; nothing is defaulted.",
-          "$ref": "#/$defs/Id"
+          "description": "Exact modulus basis: the id of a user-entered material temperature point whose E, G and alpha this case solves with. Mutually exclusive with modulus_basis_temperature; nothing is defaulted. null is accepted: the applier reads a null basis as absent (rich_authoring.rs and its modulus-basis conflict check).",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "modulus_basis_temperature": {
-          "description": "Solve temperature for linear interpolation of E, G and alpha between adjacent user-entered temperature points; no extrapolation.",
-          "$ref": "#/$defs/Quantity"
+          "description": "Solve temperature for linear interpolation of E, G and alpha between adjacent user-entered temperature points; no extrapolation. null is accepted: the applier reads a null basis as absent.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "analysis_state": {
           "$ref": "load_reference_state.schema.json#/$defs/AnalysisState"
@@ -1176,7 +1296,19 @@
         "required": [
           "modulus_basis_ref",
           "modulus_basis_temperature"
-        ]
+        ],
+        "properties": {
+          "modulus_basis_ref": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "modulus_basis_temperature": {
+            "not": {
+              "type": "null"
+            }
+          }
+        }
       }
     },
     "LoadCategory": {
@@ -1455,13 +1587,29 @@
           "$ref": "#/$defs/Id"
         },
         "label": {
-          "type": "string"
+          "description": "null is accepted: the applier's geometry operations accept and carry null label/provenance metadata (operation_applier geometry_operations.rs record_shape); the desktop profile requires a string",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "position": {
           "$ref": "#/$defs/Vector3"
         },
         "provenance": {
-          "type": "string"
+          "description": "null is accepted: the applier's geometry operations accept and carry null label/provenance metadata (operation_applier geometry_operations.rs record_shape); the desktop profile requires a string",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "tags": {
           "$ref": "#/$defs/Tags"
@@ -1801,7 +1949,7 @@
       }
     },
     "PipeSection": {
-      "description": "Per-span section quantities. Absent optional members mean no value, never zero. corrosion_allowance is required explicitly under the exact pressure contract.",
+      "description": "Per-span section quantities. Absent optional members mean no value, never zero. corrosion_allowance is required explicitly under the exact pressure contract; a present null is refused.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -1815,23 +1963,63 @@
         "wall_thickness": {
           "$ref": "#/$defs/Quantity"
         },
-        "mill_tolerance": {
-          "$ref": "#/$defs/Quantity"
-        },
         "corrosion_allowance": {
           "$ref": "#/$defs/Quantity"
         },
+        "mill_tolerance": {
+          "description": "null is accepted: the applier treats a null optional section quantity as absent and carries the section record as authored (rich_authoring.rs validate_pipe_section_inputs, section_bindings.rs); the reader reads it as absent. corrosion_allowance is never null",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "material_density": {
-          "$ref": "#/$defs/Quantity"
+          "description": "null is accepted: the applier treats a null optional section quantity as absent and carries the section record as authored (rich_authoring.rs validate_pipe_section_inputs, section_bindings.rs); the reader reads it as absent. corrosion_allowance is never null",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "contents_density": {
-          "$ref": "#/$defs/Quantity"
+          "description": "null is accepted: the applier treats a null optional section quantity as absent and carries the section record as authored (rich_authoring.rs validate_pipe_section_inputs, section_bindings.rs); the reader reads it as absent. corrosion_allowance is never null",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "insulation_thickness": {
-          "$ref": "#/$defs/Quantity"
+          "description": "null is accepted: the applier treats a null optional section quantity as absent and carries the section record as authored (rich_authoring.rs validate_pipe_section_inputs, section_bindings.rs); the reader reads it as absent. corrosion_allowance is never null",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "insulation_density": {
-          "$ref": "#/$defs/Quantity"
+          "description": "null is accepted: the applier treats a null optional section quantity as absent and carries the section record as authored (rich_authoring.rs validate_pipe_section_inputs, section_bindings.rs); the reader reads it as absent. corrosion_allowance is never null",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -1850,7 +2038,15 @@
           "$ref": "#/$defs/Id"
         },
         "label": {
-          "type": "string"
+          "description": "null is accepted: the applier's geometry operations accept and carry null label/provenance metadata (operation_applier geometry_operations.rs record_shape); the desktop profile requires a string",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "from": {
           "$ref": "#/$defs/Id"
@@ -1872,7 +2068,15 @@
           "$ref": "#/$defs/Vector3"
         },
         "provenance": {
-          "type": "string"
+          "description": "null is accepted: the applier's geometry operations accept and carry null label/provenance metadata (operation_applier geometry_operations.rs record_shape); the desktop profile requires a string",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "tags": {
           "$ref": "#/$defs/Tags"
@@ -2008,9 +2212,8 @@
       }
     },
     "ProjectUnits": {
-      "description": "Project display and authoring units. The solver reads length (node coordinates); the applier reads force, length, temperature and angle when it authors loads.",
+      "description": "Project display and authoring units, typed by the desktop as Record<string, string>: an object whose values are unit strings, keyed by dimension. Known keys: length (read by the solver for node coordinates), force, moment, pressure, stress, temperature (written by the desktop's blank documents) and angle (read by the applier). The desktop round-trips and exports every entry.",
       "type": "object",
-      "additionalProperties": false,
       "properties": {
         "length": {
           "type": "string"
@@ -2033,6 +2236,9 @@
         "angle": {
           "type": "string"
         }
+      },
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "ProvenanceRecord": {
@@ -2295,6 +2501,7 @@
       "required": [],
       "properties": {
         "hanger_type": {
+          "description": "Hanger family. The applier admits exactly these spellings; the solver also trims surrounding whitespace and falls back to the support family when this member is absent or blank.",
           "type": "string",
           "enum": [
             "variable_spring_hanger",
@@ -2362,7 +2569,15 @@
           }
         },
         "family": {
-          "$ref": "#/$defs/SupportFamily"
+          "description": "null is accepted: an explicit null family keeps the solver's family inference (product_physics lib.rs f3_missing_and_null_family test); the applier accepts and carries it (rich_authoring.rs validate_support_configuration, lib.rs create_support)",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SupportFamily"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "stiffness": {
           "$ref": "#/$defs/SupportStiffness"
@@ -2371,20 +2586,29 @@
           "$ref": "#/$defs/SpringHanger"
         },
         "nonlinear": {
-          "$ref": "#/$defs/NonlinearSupport"
+          "description": "null is accepted: the applier reads a null nonlinear member as a linear support (rich_authoring.rs friction normal-reaction source check)",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NonlinearSupport"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "boundary_association": {
           "$ref": "#/$defs/BoundaryAssociation"
         },
         "properties": {
-          "description": "Applier-authored support creation stiffness; the solver ignores it.",
+          "description": "Support properties, typed by the desktop as an open map of quantities. Known key: linear_stiffness (written by the applier's support creation and shown by the desktop). The solver ignores it.",
           "type": "object",
-          "additionalProperties": false,
-          "required": [],
           "properties": {
             "linear_stiffness": {
               "$ref": "#/$defs/Quantity"
             }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/Quantity"
           }
         },
         "provenance": {

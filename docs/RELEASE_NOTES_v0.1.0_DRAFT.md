@@ -86,6 +86,7 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 - Where the user supplied a SIF, an intensified bending measure labelled as not a code stress.
 - Combinations are evaluated on the pressure-free route. Factored-linear ("mechanics") combinations are withheld where superposition is not a solved state: nonlinear supports, constant effort with a factor sum other than 1, or mixed moduli. Result-state subtraction and range envelopes operate on the solved results and are not gated this way.
 - Results table, deformed shape and rotation glyphs in the viewport. Each result shows its numerical-integrity standing and diagnostics.
+- A numerical health indicator for each load case, from the solver's existing residual and conditioning checks: checks passed, sensitive, quality unresolved, solve failed or not assessed. Each state comes with an estimated conditioning figure where available, the cause where the solver names one, and a link to the solver diagnostic. These checks look for numerical trouble; they do not measure the error.
 
 ### User rule packs
 

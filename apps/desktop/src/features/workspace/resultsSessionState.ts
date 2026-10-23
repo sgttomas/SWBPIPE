@@ -1,5 +1,6 @@
 import { currentSemanticContract } from "../results/resultReader";
-import { numericalResultStanding } from "../results/resultStanding";
+import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
+import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -19,6 +20,39 @@ import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { RuleRevisionGenerationGate, SolveRunGenerationGate } from "./solveGates";
 import { initialSolveJob } from "./solveJobAudit";
 import type { SolveProofEvidence } from "./solveProof";
+
+/**
+ * Every independent Current requirement other than numerical eligibility: the
+ * fresh semantic identity, the analysis-run record, the input manifest, the producer
+ * and the native invocation with its record binding. `currentSolvedResult` is this
+ * conjunction and numerical eligibility; the numerical health indicator reads the same
+ * conjunction to tell a result held back by its verdict alone (DEL-07-05 numerical
+ * health §3). It admits nothing by itself.
+ */
+export function currentRequirementsExceptNumericalEligibility({ result, analysisRun, inputManifest }: {
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  inputManifest: CurrentSessionInputManifestEvidence | null;
+}): boolean {
+  const currentSolver = inputManifest?.manifest.solver_basis;
+  const currentRecord = analysisRun?.analysis_run;
+  const currentContract = currentSemanticContract(result);
+  return Boolean(result && currentContract && isFreshSemanticResult(result) && analysisRun?.schema_version === "0.3.0"
+    && currentRecord?.run_id === result.run_id
+    && inputManifest?.manifest.model_basis.model_ref === result.model_ref
+    && currentRecord.reproducibility.input_manifest_refs.length === 1
+    && currentRecord.reproducibility.input_manifest_refs[0].ref === inputManifest?.manifest_ref.ref
+    && currentRecord.reproducibility.input_manifest_hashes.length === 1
+    && currentRecord.reproducibility.input_manifest_hashes[0].value === inputManifest?.manifest_sha256
+    && currentRecord.reproducibility.semantic_contract?.id === currentContract.id
+    && currentRecord.reproducibility.semantic_contract?.sha256 === currentContract.sha256
+    && currentSolver?.solver_name === result.producer?.component_name
+    && currentSolver?.solver_version === result.producer?.component_version
+    && currentRecord.solver_version?.solver_name === currentSolver?.solver_name
+    && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
+    && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
+    && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode));
+}
 
 /**
  * The results cells of the workspace session: the result, the historical run,
@@ -47,30 +81,30 @@ export function useResultsSessionState() {
   if (analysisBasisRef.current.value !== analysisRun) analysisBasisRef.current = { value: analysisRun, sequence: analysisBasisRef.current.sequence + 1 };
   const [inputManifest, setInputManifest] =
     useState<CurrentSessionInputManifestEvidence | null>(null);
-  const currentSolver = inputManifest?.manifest.solver_basis;
-  const currentRecord = analysisRun?.analysis_run;
-  const currentContract = currentSemanticContract(result);
-  let numericallyEligible = false;
-  try { numericallyEligible = !!result && numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload).eligible; }
+  let standing: NumericalStanding | null = null;
+  try { standing = result ? numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload) : null; }
   catch { /* Malformed retained carriers remain inspectable, never Current. */ }
+  const numericallyEligible = !!standing?.eligible;
+  const otherCurrentRequirementsHold = currentRequirementsExceptNumericalEligibility({ result, analysisRun, inputManifest });
   // T0R: Current only for the static fresh-identity set with Current standing;
   // other identities stay readable, never Current.
-  const currentSolvedResult = result && currentContract && isFreshSemanticResult(result) && analysisRun?.schema_version === "0.3.0"
-    && currentRecord?.run_id === result.run_id
-    && inputManifest?.manifest.model_basis.model_ref === result.model_ref
-    && currentRecord.reproducibility.input_manifest_refs.length === 1
-    && currentRecord.reproducibility.input_manifest_refs[0].ref === inputManifest?.manifest_ref.ref
-    && currentRecord.reproducibility.input_manifest_hashes.length === 1
-    && currentRecord.reproducibility.input_manifest_hashes[0].value === inputManifest?.manifest_sha256
-    && currentRecord.reproducibility.semantic_contract?.id === currentContract.id
-    && currentRecord.reproducibility.semantic_contract?.sha256 === currentContract.sha256
-    && currentSolver?.solver_name === result.producer?.component_name
-    && currentSolver?.solver_version === result.producer?.component_version
-    && currentRecord.solver_version?.solver_name === currentSolver?.solver_name
-    && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
-    && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
-    && numericallyEligible
-    && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode) ? result : null;
+  const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
+  // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
+  // findings from the standing above. Presentation only; it reads nothing back into
+  // Current standing or any output gate.
+  const standingFindingsKey = standing ? JSON.stringify(standing.findings) : null;
+  const numericalHealth = useMemo(
+    () => (result && standingFindingsKey !== null ? readNumericalHealth(result, JSON.parse(standingFindingsKey) as string[]) : null),
+    [result, standingFindingsKey]
+  );
+  const verdictHold = numericalHealthHold({ isCurrent: currentSolvedResult !== null, otherCurrentRequirementsHold, health: numericalHealth });
+  const numericalHealthPresentation = useMemo(
+    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold }),
+    [numericalHealth, numericallyEligible, verdictHold]
+  );
+  const numericalHealthHoldView: NumericalHealthHold | null = verdictHold && numericalHealthPresentation
+    ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline, outputSentence: numericalHealthPresentation.outputSentence }
+    : null;
   // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
   const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
@@ -109,6 +143,8 @@ export function useResultsSessionState() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    numericalHealth: numericalHealthPresentation,
+    numericalHealthHold: numericalHealthHoldView,
     analysisRun, setAnalysisRun,
     resultBasisRef,
     analysisBasisRef,

@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 
@@ -10,23 +11,44 @@ export function DiagnosticsPanel({
   knowledge,
   result,
   selectedDiagnosticId,
+  filterRequest = null,
   onSelectDiagnostic
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
   result: MechanicsResult | null;
   selectedDiagnosticId: string | null;
+  /** A request to show exactly this diagnostic (each new sequence applies once; a
+   * cleared request clears the filter it set). */
+  filterRequest?: DiagnosticFilterRequest | null;
   onSelectDiagnostic: (diagnosticId: string) => void;
 }) {
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState(filterRequest?.diagnosticId ?? "");
+  // The requested id, matched exactly while the filter text is that id.
+  const [pinnedId, setPinnedId] = useState<string | null>(filterRequest?.diagnosticId ?? null);
+  const pinnedRef = useRef(pinnedId);
+  pinnedRef.current = pinnedId;
+  const requestSequence = filterRequest?.sequence;
+  const requestId = filterRequest?.diagnosticId;
+  useEffect(() => {
+    if (requestSequence !== undefined && requestId !== undefined) {
+      setFilterText(requestId);
+      setPinnedId(requestId);
+    } else if (pinnedRef.current !== null) {
+      setFilterText("");
+      setPinnedId(null);
+    }
+  }, [requestSequence, requestId]);
   const diagnostics: Diagnostic[] = [
     ...model.diagnostics,
     ...(knowledge?.diagnostics ?? []),
     ...(result?.diagnostics ?? [])
   ];
   const filteredDiagnostics = useMemo(
-    () => filterDiagnostics(diagnostics, filterText),
-    [diagnostics, filterText]
+    () => pinnedId !== null && filterText === pinnedId
+      ? diagnostics.filter((item) => (item.id ?? item.code) === pinnedId)
+      : filterDiagnostics(diagnostics, filterText),
+    [diagnostics, filterText, pinnedId]
   );
   const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId });
   return (
