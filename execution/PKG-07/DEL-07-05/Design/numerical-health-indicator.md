@@ -12,7 +12,7 @@ This design gives each desktop result a plain numerical-health indicator, built 
 
 The indicator serves PRD FR-SOL-015: "Solver reports singularities, ill-conditioning, residuals, convergence issues, and invalid elements." It is a results-viewer presentation (DEL-07-05) of solver diagnostics. DEL-04-01's kernel and DEL-04-06's diagnostics produce them, and DEL-04-07 publishes them.
 
-**Revision 2** answers the first dual review of `b71c3a23ad`: an independent Claude reviewer and Codex, both "changes required".
+**Revisions 2 and 3** answer the dual reviews of `b71c3a23ad` and `e06b2f26f5`, by an independent Claude reviewer and Codex.
 
 ## 1. What the engine and desktop already provide
 
@@ -95,7 +95,9 @@ Standing differs by route:
 
      It is the follow-on if the text seam proves brittle.
 4. **The conditioning figure** is d = −log₁₀ rcond, printed to one decimal and only in the detail text (§3). It is never in a headline, chip or export. The wording names it as an estimate for the scaled linear solve and gives the solver's own reference point: the sensitivity line √ε ≈ 1.5·10⁻⁸, which is d ≈ 7.8.
-   - It is shown for linear cases only. A nonlinear case shows it only if the implementation's live tests establish that the report belongs to the final support state's linear solve, and then the wording names that state. Otherwise it is omitted.
+   - It is shown for linear cases only. In v0.1 nonlinear cases show no figure.
+   - **The cause is decided on the parsed value.** The conditioning cause applies only when the parsed rcond satisfies the kernel's own comparison, `rcond < f64::EPSILON.sqrt()` (`structural.rs:1959`), evaluated in Rust. Rounding is for display only.
+   - **Display.** d is printed to one decimal, and to two decimals when 7.7 ≤ d ≤ 7.9, so that values either side of the line do not print alike. When rcond = 1, d is printed as "below 0.1".
 5. **Combinations** are formed by result algebra, not a solve, so they inherit health from their load cases and say so (§3). A withheld combination keeps its existing finding and gets no badge of its own. Header counts are of load cases, each counted once.
 6. **Stiffness contrast is not added in v0.1.** The engine does not compute it for straight members, and a desktop computation would re-derive section stiffness outside the engine. The causes shown are those the existing diagnostics name, including `CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS` where it is present.
 
@@ -105,9 +107,18 @@ Standing differs by route:
 
 - the state (from `solve_quality`);
 - its code;
-- the optional d;
+- the optional d, with a Rust-computed `conditioning_sensitive` flag (the kernel's comparison);
 - located causes (§3);
 - the integrity diagnostic id, when one exists.
+
+It also returns one result-level flag, `verdict_only`. The flag is true only when all of these hold:
+
+- every `numerical_quality.cases[]` entry has non-empty `evidence_refs`, each naming an emitted diagnostic;
+- the case ids are unique and every requested load case is covered;
+- `numerical_quality.status` equals the cases' aggregate;
+- the only fields that differ from a passing case's are the verdict-linked ones (`solve_quality` and the `structural_status`, `model_matrix_fidelity` and `accuracy_evidence` values that `assessed_numerical_quality` derives from it).
+
+`verdict_only` is a presentation projection computed in Rust. It never takes part in admission or standing. A maintained test ties it to the reader: for every corpus input with `verdict_only = true`, the reader's findings are exactly `NUMERICAL_INTEGRITY_NOT_QUALIFIED` and `NUMERICAL_CASE_EVIDENCE_INCOMPLETE`. A non-passing case, or a passing companion case, whose `evidence_refs` is emptied or renamed gives `verdict_only = false`.
 
 The figure is returned only when **all** of these hold:
 
@@ -133,7 +144,11 @@ The label is **"Numerical health"**. Each load case has one state:
 | solve failed | `failed` | red | "Numerical health: solve failed" |
 | not assessed | `not_assessed` or absent | grey | "Numerical health: not assessed" |
 
-On the `pressure-source-1` route the headline is prefixed "Ordinary solve —", so that it is not read as the recovered result's standing. That route's existing recovery-evidence text stays beside it.
+On the `pressure-source-1` route the headline is prefixed "Ordinary solve —", so that it is not read as the recovered result's standing.
+
+- **Where the reader's standing is numerically eligible** (the recovery passed), the detail adds: "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
+- **No row badge on recovered rows.** The badge is not placed on rows whose values are recovered; it stays on the header and the per-case detail.
+- The existing recovery-evidence text stays.
 
 **Result header and shell chip.**
 
@@ -142,8 +157,8 @@ On the `pressure-source-1` route the headline is prefixed "Ordinary solve —", 
 
 **Replacing "Needs recompute".** The chip and the rail caption show the health header instead of "Needs recompute" when the result is held back only by its numerical verdict. That means all of these hold:
 
-- every independent Current requirement in `resultsSessionState.ts:57-72` holds: manifest, run, producer, native invocation and record binding;
-- the reader's findings are only the verdict-derived pair `NUMERICAL_INTEGRITY_NOT_QUALIFIED` and `NUMERICAL_CASE_EVIDENCE_INCOMPLETE`, for cases whose `solve_quality` is not `checks_passed`;
+- every independent Current requirement in `resultsSessionState.ts:57-73`, other than numerical eligibility, holds: manifest, run, producer, native invocation and record binding. This uses one shared session predicate, factored out of today's conjunction;
+- `numerical_health_json`'s `verdict_only` is true (§2.6);
 - some load case is red or grey.
 
 Missing or malformed evidence findings keep "Needs recompute". Admission is unchanged.
@@ -153,10 +168,11 @@ Missing or malformed evidence findings keep "Needs recompute". Admission is unch
 **Detail texts.** All literals are in `apps/desktop/src/features/results/numericalHealthText.ts`. Values in braces are filled in.
 
 - **checks passed:** "The solver's residual and conditioning checks passed for {case}. These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."
-- **sensitive:** "The solver's checks flagged {case} as numerically sensitive. Its values are kept for inspection." Then the cause sentence for each reason present, in this order:
-  - **conditioning** (d > 7.8): "The scaled stiffness is poorly conditioned."
+- **sensitive:** "The solver's checks flagged {case} as numerically sensitive." It adds "Its values are kept for inspection." only where the result's standing is not numerically eligible. Then the cause sentence for each reason present, in this order:
+  - **conditioning** (`conditioning_sensitive`): "The scaled stiffness is poorly conditioned."
   - **load fidelity** (`LOAD_CONTRIBUTION_ABSORBED` present): "The solver could not confirm that every applied load was carried at full precision ({sources})."
-  - **K-D5 or S11-G demotion:** "The solver's formation check could not confirm some stiffness or load terms at full precision ({rows})."
+  - **K-D5 demotion, or an S11-G load-row demotion:** "The solver's formation check could not confirm some stiffness or load terms at full precision ({rows})."
+  - **S11-G recovery demotion:** "The solver could not confirm some recovered member or support quantities at full precision ({groups})." The groups are listed as text.
 
   If no reason is identifiable: "See the solver diagnostic for the reason." It ends with: "Solving the unchanged model again in the same solver mode gives the same result. A very short or very stiff element next to flexible ones, stiffnesses that differ by many orders of magnitude, or a weakly restrained direction are common causes."
 - **quality unresolved:** "The solver could not confirm the numerical quality of {case} at working precision. See the solver diagnostic for the reason. A near-mechanism or extreme stiffness contrast are common causes."
@@ -167,7 +183,7 @@ Missing or malformed evidence findings keep "Needs recompute". Admission is unch
   - otherwise: "See the solver diagnostic for the reason."
 - **not assessed:** "The solver did not assess the numerical quality of {case}."
 - **Combinations:** "Inherited from its load cases: {case}: {state}; …". The combination takes the worst of its load cases' badges. A combination that names a case missing from `numerical_quality` reads "not assessed".
-- **Conditioning detail** (checks passed and sensitive, when d is present): "Estimated conditioning of the scaled linear solve: about {d} decimal digits (the solver marks a case sensitive above about 7.8). This is an estimate of the system's sensitivity; it does not estimate the error in individual results."
+- **Conditioning detail** (checks passed and sensitive, when d is present): "Estimated sensitivity of the scaled linear solve: rounding can be magnified by roughly {d} of the about 16 decimal digits the computer carries (the solver marks a case sensitive at about 7.8). This is an estimate; it does not estimate the error in individual results."
 
 **Located causes and navigation.**
 
@@ -180,7 +196,7 @@ Missing or malformed evidence findings keep "Needs recompute". Admission is unch
 ## 4. Placement
 
 - **Results panel.** The `numerical-result-standing` line becomes the health header on the generic and pressure-source routes. Each load case and combination row carries its badge. The retained and unsupported texts are unchanged.
-- **Shell chip and rail caption.** They show the replacement described in §3.
+- **Shell chip and rail caption.** They show the replacement described in §3. The rail uses the short form "Numerical health: {worst state}".
 - **Solve panel.** The diagnostics tile gains the header badge.
 - **Diagnostics panel.** It is unchanged, apart from the filtered open.
 
@@ -219,6 +235,7 @@ No ScopeOfWork or PRD text changes. The indicator implements PRD FR-SOL-015 and 
 - **Desktop tests:**
   - states, header counts and combination inheritance;
   - the chip and rail predicate on the generic, pressure-source and retained routes, including that missing evidence keeps "Needs recompute";
+  - the pressure-source eligible wording, with no row badges on recovered rows;
   - the output sentence only under the verdict-only condition;
   - text and vocabulary pins, and GEN-13;
   - located-cause navigation;
@@ -226,7 +243,10 @@ No ScopeOfWork or PRD text changes. The indicator implements PRD FR-SOL-015 and 
 
   Then the full `desktop-test` with the wasm engine rebuilt, compared with main.
 - **Python.** The full registered `piping-pytest` with the binary presets for the head, compared with main.
-- **Real desktop.** Screenshots of a green result (the milestone model) and a red one (a sensitive invented fixture) in the actual app, recorded in the pull request. The open path is unchanged: no new job and no new solve.
+- **Real desktop.** Screenshots in the actual app, recorded in the pull request, of three results:
+  - a green result (the milestone model);
+  - a red generic-route result (a sensitive invented fixture);
+  - an eligible pressure-source result whose ordinary case is sensitive (`n05`). The open path is unchanged: no new job and no new solve.
 - **Review.** Dual review on the final head (independent Claude and Codex), because the conditioning text carries numerical meaning.
 
 ## 8. Unchanged
