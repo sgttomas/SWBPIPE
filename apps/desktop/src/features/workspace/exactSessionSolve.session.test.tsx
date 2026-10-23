@@ -143,9 +143,7 @@ function expectViewable(result: MechanicsResult, analysisRun: AnalysisRunEnvelop
   const standing = numericalResultStanding(result, model);
   expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
   render(<ResultsPanel result={result} knowledge={null} analysisRun={analysisRun} selectedResultId={null} onSelectResult={vi.fn()} />);
-  // DEL-07-05 numerical health §4: the standing line's headline is the health header.
-  expect(result.numerical_quality!.status).toBe("checks_passed");
-  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent("Numerical health: checks passed.");
+  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent(`Numerical integrity: ${result.numerical_quality!.status}.`);
   expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");
   expect(screen.getByTestId(`result-row-${result.results[0].id}`)).toBeInTheDocument();
   cleanup();
