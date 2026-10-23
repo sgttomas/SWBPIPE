@@ -42,14 +42,25 @@ normalization, so positions are in metres. Each of those codes yields at most
 one diagnostic naming at most six parts or pairs (`formation_guard::NAMED`), so
 the diagnostic count does not grow with model size.
 
-**Tolerance.** τ = 1e-6 and L is the diagonal of the bounding box of all nodes.
-A relative tolerance makes the check independent of the length unit and of
-the model's scale; an absolute one (say 1 mm) would flag every node of a
-millimetre-scale test model and miss a 1 mm gap in a kilometre-long line.
-1e-6 of the extent is well above binary64 coordinate noise (about 1e-16
-relative) and well below any deliberate spacing in a piping model (for a 100 m
-model, 0.1 mm). Two nodes an element joins are left out: the element's own
-length checks (`AXIS_TOLERANCE`, DEL-04-01) govern them.
+**Tolerance.** The implemented tolerance is relative: τ = 1e-6 and L is the
+diagonal of the bounding box of all nodes. Two nodes an element joins are left
+out: the element's own length checks (`AXIS_TOLERANCE`, DEL-04-01) govern
+them.
+
+**Decided, not yet implemented:** an absolute node-proximity tolerance of 5 mm
+that the user can change, replacing τ·L entirely. The owner ruled
+(2026-10-23): "I choose C, but my value is "5mm" and give the user the means
+to change it. No computed by any 1e-4, just 5mm". The check will warn when two
+distinct nodes that no element joins lie no farther apart than the model's
+node-proximity tolerance (a pair at exactly that distance warns). The model
+sets the value in `model_settings.node_proximity_tolerance` (a length with a
+unit, schema 0.7.0; absent means 5 mm), whose reader refuses a non-finite,
+non-positive or non-length value. The relative tolerance made the finding
+depend on parts of the model unrelated to the two nodes: adding a distant
+line changed it; in a model 1 m across only gaps below about 1 µm were
+flagged, and in a line 2 km long gaps up to 2 mm were. A modeller judges a gap
+in absolute terms, and the value they accept depends on their work, so it is a
+fixed default the model can override.
 
 **Search.** Nodes are placed in cells twice the tolerance wide, and each
 node is compared with the nodes of its own and the 26 neighbouring cells.
