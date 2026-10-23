@@ -10,8 +10,9 @@ project running the R2 smoke and save/reopen journey and the rotation-glyph
 browser evidence (DEL-07-05:1). The browser matrix runs only by explicit
 workflow dispatch.
 
-The `piping-desktop` selection adds the full desktop Vitest suite
-(`npm run test:desktop`) to that product job, before the build. It is selected
+The `piping-desktop` selection adds the full desktop Vitest suite, run in two
+shards (`vitest --shard=1/2` and `2/2`) as jobs beside the product job, under
+the same aggregate. It is selected
 when the PR diff changes an input the suite reads or compiles into its wasm
 engines:
 - any shared CI input that selects the piping product;
@@ -26,7 +27,10 @@ Python- or Rust-only diffs outside those inputs do not select it. Docs that
 desktop tests read select it, and with it the product job. An unreadable
 source tree, crate or compile read selects the suite. The selection's reasons
 are in the plan artifact. The browser reuse key includes whether the suite ran,
-so a pass without it is never reused for a run that needs it. Dispatch runs the
+so a pass without it is never reused for a run that needs it. The product job
+and both shards each compute and publish that key. The record is saved only
+after all of them succeed, and only when every one published the same key; if a
+runner image differed between them, nothing is saved. Dispatch runs the
 suite.
 
 Rust changes select their owning crate and transitive consumers through resolved
