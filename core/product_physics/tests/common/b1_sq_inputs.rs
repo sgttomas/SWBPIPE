@@ -24,16 +24,18 @@ use serde_json::{json, Value};
 pub const MILESTONE: &str = include_str!("../../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 
-/// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`).
+/// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`). The silent-drop guard
+/// (2026-10-23) moved the stressed inputs' depth-16 value from an unknown root member to the
+/// declared `diagnostics` member (`stressed`), which re-pinned the i3 inputs below.
 pub const W2B_SHA256: &str = "1b2fe2e0cf5b080d4d54e8b3e80ac721fb51564dd68711b662977fab8f1ce326";
 pub const B2_K1E3_SHA256: &str = "4a0b788840fbd93f5f73459400b7e0ea3ade54bfbae6cf65ceaa7f2f3dc08e26";
 pub const C1_SHA256: &str = "8f184995b0601c869eca84966f41dc2c0ef1f215b9e7cb158f5b0fdf7200f331";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "dc1b86985dccdfde03548bba7756c41facd1ec6045196be5e0ac4eb33e6a658f"),
-    ("case:b", "7069b6f9b630dde37c8edebd75a307be69b5c8e1b4c2b93a2a1e643ae1b0116a"),
-    ("case:c", "2d8ae6dcd1777fcd10d387ea0b44d04c536ad8474b4a539c08d48dd68503bb25"),
+    ("case:a", "d78dd366ecd9ff62d62fecdca08bf272042686219ba3f80be93b5cdacb685e01"),
+    ("case:b", "31a70d493e57c0d467208badc9df13aca3e618dec93f21e3948de67fd91610b5"),
+    ("case:c", "9f125e60fd3b1fd9ba913b035ae39eae38e75d4eb7b478c0209baed82ddbfa94"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "9fb58cb60d43fd839289e540de9d962f792dfb1f51ddb72a9ffc2beb4895d21f";
+pub const I3_THREE_CASE_SHA256: &str = "70f1e686513bf5c66efe1a460cac37b1d5d26ca678f605d030ed866dfd1283bf";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
@@ -305,9 +307,14 @@ pub fn depth_16_value() -> Value {
     }
     deep
 }
+/// Every provenance escaped and the depth-16 raw-only value carried by the model's declared, solve-ignored `diagnostics` member: since the model root is closed
+/// (silent-drop guard, 2026-10-23) an unknown root member refuses, and `diagnostics` is read as
+/// `serde::de::IgnoredAny`, so it accepts this raw-only value unchanged. Of the carriers that keep
+/// the same maximum raw depth (16) it changes the fewest bytes: the same value at the same depth
+/// under a different key (an open record would need two fewer array levels and move the value).
 fn stressed(mut raw: Value) -> Value {
     escape_every_provenance(&mut raw);
-    raw["model"]["unknown_depth_witness"] = depth_16_value();
+    raw["model"]["diagnostics"] = depth_16_value();
     raw
 }
 /// gen_inputs.py `i3_sets`: three 128-moment sets on c1's model. A: each copy's net the

@@ -53,6 +53,12 @@ fn cap(fact: CapFact) -> impl Fn(Option<AdmissionRefusal>) -> bool {
 fn model(r: &mut Value) -> &mut serde_json::Map<String, Value> {
     r["model"].as_object_mut().unwrap()
 }
+/// A record that still accepts unknown members: the model root, load cases, primitive loads
+/// and combinations are closed (an unknown key refuses before admission), so raw-only members
+/// for the raw-census rows ride on a node record instead.
+fn open(r: &mut Value) -> &mut serde_json::Map<String, Value> {
+    r["model"]["nodes"][3].as_object_mut().unwrap()
+}
 fn family(clause: D1Clause, fact: FamilyFact) -> Option<AdmissionRefusal> {
     Some(AdmissionRefusal::Family(clause, fact))
 }
@@ -1233,8 +1239,8 @@ fn actual_inputs_map_each_cap_fact() {
     })));
     assert!(cap(CapFact::TypedTextBytes)(over(&|r| r["model"]["nodes"][3]["provenance"] = json!(text("p", 129)))));
     // A raw-only string (an unknown field) is bounded by the raw text row.
-    assert!(cap(CapFact::RawTextBytes)(over(&|r| model(r).insert("unknown".into(), json!(text("u", 129))).map(drop).unwrap_or(()))));
-    assert!(cap(CapFact::RawKeyTextBytes)(over(&|r| model(r).insert(text("k", 129), json!(1)).map(drop).unwrap_or(()))));
+    assert!(cap(CapFact::RawTextBytes)(over(&|r| open(r).insert("unknown".into(), json!(text("u", 129))).map(drop).unwrap_or(()))));
+    assert!(cap(CapFact::RawKeyTextBytes)(over(&|r| open(r).insert(text("k", 129), json!(1)).map(drop).unwrap_or(()))));
     assert!(cap(CapFact::ControlBytes)(over(&|r| r["model"]["nodes"][3]["provenance"] = json!("tab\there"))));
     assert_eq!(over(&|r| r["model"]["nodes"][3]["provenance"] = json!("quote\" and \\backslash")), None, "escapes are not control bytes");
     // Raw depth 16 is admitted, 17 is not (the census counts the root as 0).
@@ -1245,28 +1251,28 @@ fn actual_inputs_map_each_cap_fact() {
         }
         v
     };
-    // `model.deep` sits at depth 2, so `levels` arrays put its scalar at depth levels + 2.
-    assert_eq!(over(&|r| model(r).insert("deep".into(), nested(14)).map(drop).unwrap_or(())), None, "depth 16");
-    assert!(cap(CapFact::RawDepth)(over(&|r| model(r).insert("deep".into(), nested(15)).map(drop).unwrap_or(()))));
+    // `model.nodes[3].deep` sits at depth 4, so `levels` arrays put its scalar at depth levels + 4.
+    assert_eq!(over(&|r| open(r).insert("deep".into(), nested(12)).map(drop).unwrap_or(())), None, "depth 16");
+    assert!(cap(CapFact::RawDepth)(over(&|r| open(r).insert("deep".into(), nested(13)).map(drop).unwrap_or(()))));
     // Raw totals: string bytes and key bytes.
     assert!(cap(CapFact::RawStringBytes)(over(&|r| {
-        model(r).insert("bulk".into(), Value::Array((0..520).map(|i| json!(text(&format!("b{i}"), 128))).collect())).map(drop).unwrap_or(())
+        open(r).insert("bulk".into(), Value::Array((0..520).map(|i| json!(text(&format!("b{i}"), 128))).collect())).map(drop).unwrap_or(())
     })));
     assert!(cap(CapFact::RawKeyBytes)(over(&|r| {
         let keys: serde_json::Map<String, Value> = (0..520).map(|i| (text(&format!("k{i}"), 128), json!(0))).collect();
-        model(r).insert("keys".into(), Value::Object(keys)).map(drop).unwrap_or(())
+        open(r).insert("keys".into(), Value::Object(keys)).map(drop).unwrap_or(())
     })));
     // Raw value count: past 16,384 the census itself stops (D1.2).
     let report = admitted({
         let mut raw = cap_maximal();
-        model(&mut raw).insert("many".into(), Value::Array(vec![json!(0); VALUE_LIMIT]));
+        open(&mut raw).insert("many".into(), Value::Array(vec![json!(0); VALUE_LIMIT]));
         raw
     });
     assert_eq!(report.law().domain, Some(AdmissionRefusal::Census(CensusPart::Raw, CensusStatus::ValueLimit)));
     // Raw capacities: owners with spare capacity in an unknown field.
     let spare = |value: Value| {
         let mut raw = cap_maximal();
-        model(&mut raw).insert("spare".into(), value);
+        open(&mut raw).insert("spare".into(), value);
         domain(raw)
     };
     let mut big = String::with_capacity(131_073);
