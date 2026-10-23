@@ -1,4 +1,4 @@
-import { invokeWithIngress } from "./nativeIngress";
+import { IngressRequestRetiredError, invokeWithIngress } from "./nativeIngress";
 
 // DEC-021 (A7): the hash-bound report renderer is a Rust crate reached
 // through the desktop (Tauri) command seam. The browser preview exposes no
@@ -78,12 +78,24 @@ export async function renderCalculationReport(
     };
   }
   // The caller's request may have been retired (panel unmounted, source
-  // replaced, selection changed); a retired request never reaches IPC.
-  if (options.stillCurrent && !options.stillCurrent()) {
-    return { route: "redaction_blocked", diagnostic: "REPORT-RENDER-REQUEST-RETIRED: the render request is no longer current." };
+  // replaced, selection changed); a retired request never reaches IPC, on the
+  // first send or on any re-send after a headroom refusal.
+  const retired: RenderReportRoute = {
+    route: "redaction_blocked",
+    diagnostic: "REPORT-RENDER-REQUEST-RETIRED: the render request is no longer current."
+  };
+  if (options.stillCurrent && !options.stillCurrent()) return retired;
+  try {
+    const outcome = await invokeWithIngress<RenderedReportOutcome>(
+      "render_calculation_report",
+      { input: input.payload },
+      { stillCurrent: options.stillCurrent }
+    );
+    return { route: "tauri_renderer", outcome };
+  } catch (error) {
+    if (error instanceof IngressRequestRetiredError) return retired;
+    throw error;
   }
-  const outcome = await invokeWithIngress<RenderedReportOutcome>("render_calculation_report", { input: input.payload });
-  return { route: "tauri_renderer", outcome };
 }
 
 function isControlledReportInput(value: unknown): value is {

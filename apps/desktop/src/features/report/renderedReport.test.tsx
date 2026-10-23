@@ -1168,6 +1168,51 @@ describe("pending render work is owned by the panel instance and its source (W-3
     expect(screen.queryByTestId("rendered-report-save-local-private")).not.toBeInTheDocument();
   });
 
+  // W-3 repair round 2 (Codex): a headroom refusal is re-sent by the desktop
+  // (nativeIngress.ts); a request retired during that pause is never re-sent.
+  const headroomRefusal = { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 2 ** 24, available_bytes: 0 }, pool: null };
+  const renderCalls = () => invokeMock.mock.calls.filter(([command]) => command === "render_calculation_report").length;
+  async function firstSendRefused() {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation((command: string) =>
+      command === "render_calculation_report" && renderCalls() === 1 ? Promise.reject(headroomRefusal) : Promise.resolve(unblockedOutcome()));
+    const view = renderPanel();
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(renderCalls()).toBe(1));
+    return view;
+  }
+  const afterResendWindow = () => new Promise((resolve) => setTimeout(resolve, 400));
+
+  it("never re-sends a private render after the selection is revoked during a headroom re-send pause", async () => {
+    await firstSendRefused();
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    await afterResendWindow();
+    expect(renderCalls()).toBe(1);
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+  });
+
+  it("never re-sends a private render after the panel unmounts during a headroom re-send pause", async () => {
+    const { unmount } = await firstSendRefused();
+    unmount();
+    await afterResendWindow();
+    expect(renderCalls()).toBe(1);
+  });
+
+  it("never re-sends a private render after its source is replaced during a headroom re-send pause", async () => {
+    const { rerender } = await firstSendRefused();
+    rerender(<RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null} />);
+    await afterResendWindow();
+    expect(renderCalls()).toBe(1);
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+  });
+
+  it("re-sends a current private render after a headroom refusal and shows it", async () => {
+    await firstSendRefused();
+    await waitFor(() => expect(screen.getByTestId("rendered-report-preview")).toBeInTheDocument(), { timeout: 3000 });
+    expect(renderCalls()).toBe(2);
+  });
+
   it("refuses a retired request immediately before IPC", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockResolvedValue(unblockedOutcome());
