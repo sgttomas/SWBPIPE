@@ -170,3 +170,4 @@ needs:
   evidence: execution/PKG-11/DEL-11-03/Specification.md
 code_paths:
 - tools/validation/validate_dependencies_schema.py
+- docs/theory/centerline_analysis.md

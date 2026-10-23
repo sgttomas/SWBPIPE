@@ -150,5 +150,13 @@ needs:
   evidence: execution/PKG-14/DEL-14-04/Procedure.md
 code_paths:
 - core/comparison/analysis_run/engine.py
+- schemas/comparison_mapping.schema.json
+- schemas/comparison_tolerance.schema.json
+- apps/desktop/src/services/previewService.ts
+- apps/desktop/src/features/comparison/ComparisonPanel.tsx
+- apps/desktop/src/features/workspace/resultsSessionState.ts
 checks:
 - tests/test_analysis_run_comparison.py
+- tests/test_comparison_contracts.py
+- apps/desktop/src/App.test.tsx
+- apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx

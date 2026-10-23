@@ -157,7 +157,7 @@ needs:
     CONTRIBUTING.md'
   direction: downstream
   gating: false
-  evidence: execution/PKG-01/DEL-01-03/CONTRIBUTING.md
+  evidence: CONTRIBUTING.md
 - from: doc:governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
   condition: 'The draft repo-level contributor certification template exists as a handoff artifact for
     public contribution review.
@@ -176,4 +176,9 @@ needs:
     TargetLocation: governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md'
   direction: downstream
   gating: false
-  evidence: execution/PKG-01/DEL-01-03/governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
+  evidence: governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
+code_paths:
+- CONTRIBUTING.md
+- governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
+- .github/ISSUE_TEMPLATE/**
+- tools/release/export_public_openpipestress.py

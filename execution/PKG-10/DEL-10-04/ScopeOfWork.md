@@ -198,6 +198,15 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > package scripts, Playwright configs, manifests, source code, or release
 > authority.
 >
+> Current implementation (at `62c1efd75b`): hosted CI runs from
+> repository-root workflows, which project-relative `code_paths` cannot name:
+> `.github/workflows/piping-desktop-e2e.yml` (called as the `piping` job of
+> `governance-harness.yml`, whose `harness` job requires it) runs the
+> project's `tools/ci/numerical_ci.py` and `tools/ci/python_ci.py`;
+> `shared-build-cache.yml` runs `numerical_ci.py --build-only` and
+> `piping-e2e-cache.yml` prepares dependency caches on `main`. Registered
+> local checks and path rules are in `software-workflow.json`.
+>
 
 ### CLM-014 — Standards
 
