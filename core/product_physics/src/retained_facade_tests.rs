@@ -2761,10 +2761,11 @@ fn b3b_exact_successor_is_pinned_in_both_modes() {
         // T4-U6 (D-5 §2.1, §2.5): the 98 current rows after E14's observation retirement, plus
         // the reduced twin of each of the member's 21 stress rows (20 element-local stress rows
         // and its maximum); T4-U4b (U4B-RP): σ⁺, σ⁻ and τ_v,max at five stations on both bases
-        // (30 derived not-covered rows, 15 of them on the reduced basis).
+        // (30 derived not-covered rows, 15 of them on the reduced basis); W-7: the member's 12
+        // global end rows (not-covered, no section basis).
         let rows = successor["results"].as_array().unwrap();
         let reduced = rows.iter().filter(|r| r["metadata"]["basis"].as_str().is_some_and(|b| b.ends_with("; section_basis=reduced_section"))).count();
-        assert_eq!((rows.len(), reduced), (98 + 21 + 30, 21 + 15), "{name}: current rows after E14 observation retirement, the reduced twins and the derived rows");
+        assert_eq!((rows.len(), reduced), (98 + 21 + 30 + 12, 21 + 15), "{name}: current rows after E14 observation retirement, the reduced twins and the derived rows");
         let bytes = serde_json::to_vec(&successor).unwrap();
         let document = exact_document(&raw, mode, &successor);
         println!("B3B_EXACT_PIN {name} {} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes), sha(document.as_bytes()));

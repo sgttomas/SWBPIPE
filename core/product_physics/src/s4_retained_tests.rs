@@ -14,6 +14,9 @@ use open_pipe_stress_result_export::{reader_verdict, retained_precision as reade
 
 /// The two derived kinds W1 carries (straight members only; arcs never reach W1).
 pub(super) const DERIVED: [&str; 2] = ["element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"];
+/// W-7 (DEL-04-01 Design `global-end-actions.md`, GLOBAL_END_ROWS_NOT_COVERED): the global end
+/// actions, the other recipe-free not-covered rows W1 carries (twelve per member).
+pub(super) const GLOBAL_END: [&str; 2] = ["element_global_end_force_v1", "element_global_end_moment_v1"];
 const STATIONS: [&str; 5] = ["end_i", "end_j", "quarter_1", "midspan", "quarter_3"];
 
 fn basis_of(row: &Value) -> Option<&str> {
@@ -84,10 +87,11 @@ pub(super) fn receipt_and_reader_classify(label: &str, successor: &Value, raw: &
     let not_covered: Vec<Value> = cases.iter().flat_map(|c| c["selection"]["not_covered"].as_array().cloned().unwrap_or_default()).collect();
     // A `not_required` case has no retained selection; its rows stay ordinary.
     let selected: Vec<&Value> = cases.iter().filter(|c| c["status"] == "selected").map(|c| &c["basis_ref"]).collect();
+    // W-7: the global end rows are not_covered beside the derived rows.
     let derived: Vec<&Value> = successor["results"].as_array().unwrap().iter()
-        .filter(|r| DERIVED.contains(&r["kind"].as_str().unwrap()) && selected.contains(&&r["basis_ref"])).collect();
+        .filter(|r| (DERIVED.contains(&r["kind"].as_str().unwrap()) || GLOBAL_END.contains(&r["kind"].as_str().unwrap())) && selected.contains(&&r["basis_ref"])).collect();
     assert!(!derived.is_empty(), "{label}: derived rows carried");
-    assert_eq!(not_covered.len(), derived.len(), "{label}: not_covered lists the selected cases' derived rows and nothing else");
+    assert_eq!(not_covered.len(), derived.len(), "{label}: not_covered lists the selected cases' derived and global end rows and nothing else");
     for row in &derived {
         assert!(not_covered.contains(&row["id"]), "{label}: {} listed not_covered", row["id"]);
         let class = validation.classifications.iter().find(|c| c.result_id == row["id"].as_str().unwrap())
@@ -158,12 +162,12 @@ fn s4_w1l_not_covered_recipes_are_position_bound_class_none_verdicts() {
         let bound = candidate.capture().bind_rows(candidate.envelope(), owner).unwrap();
         let verdicts = candidate.certificate().verdicts();
         assert_eq!(bound.len(), verdicts.len());
-        let mut derived = 0;
+        let (mut derived, mut global) = (0, 0);
         for (i, (row, verdict)) in bound.iter().zip(verdicts).enumerate() {
             let item = &ordinary.results[i];
             assert_eq!(row.id, item.id);
-            if DERIVED.contains(&item.kind.as_str()) {
-                derived += 1;
+            if DERIVED.contains(&item.kind.as_str()) || GLOBAL_END.contains(&item.kind.as_str()) {
+                if GLOBAL_END.contains(&item.kind.as_str()) { global += 1; } else { derived += 1; }
                 assert_eq!(row.recipe, k::ProductRecipe::NotCovered { row: i as u32 }, "{label}: {}", row.id);
                 assert_eq!((verdict.class, verdict.passed, verdict.scale_bits), (None, true, 0), "{label}: {}", row.id);
             } else {
@@ -171,6 +175,7 @@ fn s4_w1l_not_covered_recipes_are_position_bound_class_none_verdicts() {
             }
         }
         assert_eq!(derived, 15 * raw["model"]["pipe_segments"].as_array().unwrap().len());
+        assert_eq!(global, 12 * raw["model"]["pipe_segments"].as_array().unwrap().len(), "{label}: W-7 global end rows");
         assert!(candidate.certificate().passed(), "{label}");
     }
 }
@@ -294,7 +299,8 @@ fn s4_w1e_derived_rows_bind_in_either_sigma_order() {
 }
 
 /// §4.2: a retained-selected mechanics combination publishes no never_combined derived row, and
-/// REQ-001's 7n + 50m + 8g rows per combination stay exact; its operand cases carry theirs.
+/// REQ-001's 7n + 50m + 8g rows per combination stay exact, plus (W-7) each member's 12 global end
+/// rows, which are signed linear and combined; its operand cases carry theirs.
 #[test]
 fn s4_combinations_publish_no_derived_rows_and_keep_7n_50m_8g() {
     let raw = w_cb3();
@@ -316,7 +322,7 @@ fn s4_combinations_publish_no_derived_rows_and_keep_7n_50m_8g() {
             let block: Vec<&Value> = rows.iter().filter(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == id).collect();
             assert!(block.iter().all(|r| !DERIVED.contains(&r["kind"].as_str().unwrap())), "{label}: {id} publishes no derived row");
             let g = block.iter().filter(|r| r["kind"] == "support_reaction_component_v2").count() / 6;
-            assert_eq!(block.len(), 7 * n + 50 * m + 8 * g, "{label}: {id} has 7n + 50m + 8g rows");
+            assert_eq!(block.len(), 7 * n + (50 + 12) * m + 8 * g, "{label}: {id} has 7n + 50m + 8g rows and 12m global end rows");
             assert_eq!(combination["result_ids"].as_array().unwrap().len(), block.len(), "{label}: {id} owner lists its block");
         }
         assert!(selected > 0, "{label}: a retained-selected combination");

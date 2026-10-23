@@ -1419,9 +1419,13 @@ fn row_scales_reduced(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts]
                 if !ok { return Err(bad("reduced row identity")); }
             }
             // §2.7/§4.2: a combination publishes no never_combined (not-covered derived) row.
-            if combination && matches!(r.recipe, ProductRecipe::NonQuantity
-                | ProductRecipe::ModulusBasisRecord | ProductRecipe::CircularMaximum { .. }
-                | ProductRecipe::NotCovered { .. }) {
+            // W-7 (DEL-04-01 Design `global-end-actions.md`): a not-covered force or moment row
+            // (a member's global end action, signed linear) is combined and admitted; the
+            // derived not-covered rows are stresses.
+            if combination && (matches!(r.recipe, ProductRecipe::NonQuantity
+                | ProductRecipe::ModulusBasisRecord | ProductRecipe::CircularMaximum { .. })
+                || (matches!(r.recipe, ProductRecipe::NotCovered { .. })
+                    && !matches!(r.unit, ProductUnit::Newton | ProductUnit::NewtonMetre))) {
                 return Err(bad("combination row family"));
             }
             match r.recipe {

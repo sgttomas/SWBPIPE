@@ -225,7 +225,9 @@ fn u1_milestone_successor_both_modes() {
                 Some(k::RowClass::Unpublishable) => panic!("unpublishable"),
                 // T4-U4b §4.1: a class-None verdict is a record's (non_quantity) or a
                 // not-covered derived row's (its recipe is NotCovered).
-                None if rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap()) => reader::AccuracyClass::NotCovered,
+                // W-7: a global end row is a named not-covered row too (GLOBAL_END_ROWS_NOT_COVERED).
+                None if rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap())
+                    || crate::is_global_end_kind(successor["results"][v.row]["kind"].as_str().unwrap()) => reader::AccuracyClass::NotCovered,
                 None => reader::AccuracyClass::NonQuantity,
             };
             assert_eq!(c.class, expected, "{name}: {}", c.result_id);
