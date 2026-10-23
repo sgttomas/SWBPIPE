@@ -1,0 +1,106 @@
+/** W-10 (DEL-16-06 Design `pipe-reconnect.md` §3): any batch containing a
+ * `reconnect_pipe_run` is applied only after a clean preview, whatever its
+ * producer; the apply path enforces the same predicate as the button, and a
+ * single reconnect intent is routed to batch review. The session runs the
+ * actual wasm engine on an invented inline model. */
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as previewService from "../../services/previewService";
+import { computeModelHash } from "../../services/hashService";
+import { buildReconnectBatch, emptyGeometryDraft, type GeometryDraft } from "../geometry-tools/geometryDraft";
+import { parseOfflineBatch } from "../offline-proposal-intake/OfflineProposalIntakePanel";
+import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
+import { useWorkspaceSession } from "./workspaceSession";
+import type { PreviewModel } from "../../types";
+import { reconnectModel } from "../../test-support/reconnectModel";
+
+function draft(over: Partial<GeometryDraft> = {}): GeometryDraft {
+  return { ...emptyGeometryDraft(), action: "reconnect", pipeRefs: ["pipe:P"], reconnectEnd: "to", targetNode: "node:C", yReference: { x: "0", y: "0", z: "1" }, ...over };
+}
+function coordinateIntent(model: PreviewModel) {
+  const target = model.nodes[2];
+  const column: GridColumn = { key: "y", label: "Y", fieldPath: "position.y", objectType: "Node", changeKind: "set_field", dimension: "length", sourceNote: "entered coordinate", unit: () => model.project.units.length, value: () => String(target.position.y) };
+  return buildGridOperationIntent({ column, model, row: { id: target.id, label: target.label, type: "node", raw: target, searchText: "" }, sequence: 1, value: "2.5", interaction: "cell" });
+}
+async function session() {
+  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(reconnectModel());
+  const hook = renderHook(() => useWorkspaceSession());
+  await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+  return hook.result;
+}
+afterEach(() => { vi.restoreAllMocks(); });
+
+describe("reconnect preview gate (central, producer-independent)", () => {
+  it("sets requiresPreview for builder, offline-intake and requeued reconnect batches, not for other batches", async () => {
+    const result = await session();
+    const model = structuredClone(result.current.model.model!);
+    const built = await buildReconnectBatch(model, draft(), "batch:builder");
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(built); });
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(parseOfflineBatch(JSON.stringify({ ...built, batch_id: "batch:imported" }))); });
+    await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "requeue-0", operations: [structuredClone(built.operations[0])] }); });
+    await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "batch:other", operations: [coordinateIntent(model)] }); });
+    expect(result.current.operations.queuedBatches.map((entry) => [entry.batch.batch_id, entry.requiresPreview])).toEqual([
+      ["batch:builder", true], ["batch:imported", true], ["requeue-0", true], ["batch:other", false]]);
+    // A batch without a reconnect applies as today, with no preview.
+    const other = result.current.operations.queuedBatches[3];
+    await act(async () => { await result.current.operations.handleRunOperationBatch(other, true); });
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
+  });
+
+  it("refuses an unpreviewed reconnect batch on the apply path, applies after a clean preview, and Undo restores the absent y_reference", async () => {
+    const result = await session();
+    const original = structuredClone(result.current.model.model!);
+    const originalHash = (await computeModelHash(original))!.value;
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(await buildReconnectBatch(original, draft(), "batch:gate")); });
+    const entry = result.current.operations.queuedBatches[0];
+    await act(async () => { await result.current.operations.handleRunOperationBatch(entry, true); });
+    expect(result.current.model.model).toEqual(original);
+    expect(result.current.operations.undoStack).toHaveLength(0);
+    expect(result.current.operations.batchMessage).toContain("was not applied. This batch contains a reconnect.");
+    await act(async () => { await result.current.operations.handleRunOperationBatch(entry, false); });
+    expect(result.current.operations.batchOutcomes[entry.key].validation.batch_validation_status).toBe("passed");
+    await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], true); });
+    const applied = result.current.model.model!.pipe_segments.find((pipe) => pipe.id === "pipe:P")!;
+    expect(applied.to).toBe("node:C");
+    expect(applied.y_reference).toEqual({ x: 0, y: 0, z: 1 });
+    expect(result.current.operations.undoStack).toHaveLength(1);
+    // The forward change added a y_reference: only the checkpoint Undo restores its absence.
+    act(() => result.current.operations.handleUndoSessionModelEdit());
+    expect(result.current.model.model!.pipe_segments[0].y_reference).toBeUndefined();
+    expect((await computeModelHash(result.current.model.model!))!.value).toBe(originalHash);
+    // The retained intent requeues as a gated batch.
+    const retained = result.current.operations.retainedReviewContext.find((intent) => intent.change.change_kind === "reconnect_pipe_run")!;
+    await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "requeue-1", operations: [retained] }); });
+    expect(result.current.operations.queuedBatches.at(-1)!.requiresPreview).toBe(true);
+  });
+
+  it("keeps Apply refused after a blocking preview", async () => {
+    const result = await session();
+    const model = structuredClone(result.current.model.model!);
+    // T = F: zero length, a blocking finding.
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(await buildReconnectBatch(model, draft({ targetNode: "node:A" }), "batch:blocked")); });
+    const entry = result.current.operations.queuedBatches[0];
+    await act(async () => { await result.current.operations.handleRunOperationBatch(entry, false); });
+    expect(result.current.operations.batchOutcomes[entry.key].operation_outcomes[0].diagnostics.map((d) => d.code)).toContain("OP-RECONNECT-ZERO-LENGTH");
+    await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], true); });
+    expect(result.current.model.model).toEqual(model);
+    expect(result.current.operations.undoStack).toHaveLength(0);
+  });
+
+  it("routes a single reconnect intent to batch review and applies other intents as today", async () => {
+    const result = await session();
+    const model = structuredClone(result.current.model.model!);
+    const [intent] = (await buildReconnectBatch(model, draft(), "batch:single")).operations;
+    let applied = true;
+    await act(async () => { applied = await result.current.operations.handleApplyIntent(intent); });
+    expect(applied).toBe(false);
+    expect(result.current.model.model).toEqual(model);
+    expect(result.current.operations.undoStack).toHaveLength(0);
+    expect(result.current.operations.operationMessage).toBe("Reconnect is applied through batch review; it has been queued there.");
+    expect(result.current.operations.queuedBatches).toHaveLength(1);
+    expect(result.current.operations.queuedBatches[0].requiresPreview).toBe(true);
+    expect(result.current.operations.queuedBatches[0].batch.operations).toEqual([intent]);
+    await act(async () => { applied = await result.current.operations.handleApplyIntent(coordinateIntent(model)); });
+    expect(applied).toBe(true);
+  });
+});

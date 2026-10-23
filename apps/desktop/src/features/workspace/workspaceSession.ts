@@ -80,7 +80,7 @@ import {
   resolveEntitySelection
 } from "../results/resultInterpretation";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
-import type { QueuedBatch } from "../toolkit/BatchReviewPanel";
+import { batchRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -1145,7 +1145,10 @@ export function useWorkspaceSession() {
       if (revision !== modelRevision.current || epoch !== requestEpochRef.current) return;
       if (!basisHash) throw new Error("The current model hash is unavailable.");
       const key = `operation-batch-${++batchSequence.current}`;
-      setQueuedBatches((current) => [...current, { key, batch: submitted, basisModel, basisHash, basisRevision: revision }]);
+      // W-10: derived centrally from the batch contents, whatever its producer
+      // (geometry builder, offline intake, requeue or a routed single intent).
+      const requiresPreview = batchRequiresPreview(submitted);
+      setQueuedBatches((current) => [...current, { key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview }]);
       setBatchMessage("Batch queued for validation and explicit application.");
       setActiveSection("operations");
       setOperationTab("review");
@@ -1159,6 +1162,11 @@ export function useWorkspaceSession() {
 
   async function handleRunOperationBatch(entry: QueuedBatch, apply: boolean) {
     if (operationRequest.current.busy || entry.basisRevision !== modelRevision.current) return;
+    // The same predicate as the Apply button: no caller bypasses the preview gate.
+    if (apply && !previewSatisfied(entry, batchOutcomes[entry.key], modelRevision.current)) {
+      setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON}`);
+      return;
+    }
     const revision = modelRevision.current;
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
@@ -1437,6 +1445,12 @@ export function useWorkspaceSession() {
 
   async function handleApplyIntent(intent: EditorOperationIntent, ownedOutcome?: { current?: Readonly<OperationOutcome> }): Promise<boolean> {
     if (!model || operationRequest.current.busy) return false;
+    // W-10: a reconnect is never applied without preview; route it to batch review.
+    if (intent?.change?.change_kind === "reconnect_pipe_run") {
+      setOperationMessage("Reconnect is applied through batch review; it has been queued there.");
+      await handleQueueOperationBatch({ batch_id: `reconnect-${intentKey(intent)}`, operations: [structuredClone(intent)] });
+      return false;
+    }
     const revision = modelRevision.current;
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
