@@ -155,9 +155,9 @@ describe("the standing line beside the health header", () => {
     expect(standing.textContent).toBe(original(result));
     const header = screen.getByTestId("numerical-health-header-line");
     expect(standing).not.toContainElement(screen.getByTestId("numerical-health-header"));
-    // Header line, then the unchanged standing line, then the per-case detail.
-    expect(header.nextElementSibling).toBe(standing);
-    expect(standing.nextElementSibling).toBe(screen.getByTestId("numerical-health-detail"));
+    // Header, then the per-case detail (its causes stay above the long standing text), then the unchanged standing line.
+    expect(header.nextElementSibling).toBe(screen.getByTestId("numerical-health-detail"));
+    expect(screen.getByTestId("numerical-health-detail").nextElementSibling).toBe(standing);
     cleanup();
     // And the same text with no indicator at all.
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
