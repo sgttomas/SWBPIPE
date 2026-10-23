@@ -63,9 +63,18 @@ The biggest gaps:
    - Affected: FR-REP-001 (Must) and MVP "basic report generation".
 2. **No model states, run history or comparison between states or runs.**
    FR-CMP-001..004 are Must and §23 MVP items. They exist as schemas and
-   headless Python engines only. No owner ruling removes them from v0.1. The
-   only "Not in v0.1" text is the agent-drafted release-notes draft
-   (`docs/RELEASE_NOTES_v0.1.0_DRAFT.md:118-121`, commit 91eb15e09e).
+   headless Python engines only. No ruling says explicitly whether software
+   0.1.0 includes them. Two texts point in different directions:
+   - The owner-adopted issuance-wave ruling D-11 (DEC-062, 2026-07-04) places
+     PKG-14 in "W7 — Forward horizon v0.2" (Phase G). DEL-14-01:3 marks the
+     program "stage-gated: v0.2 R3".
+   - PRD §23 still lists these items in the MVP. The "v0.2" in D-11 names the
+     PRD v0.2 milestone set, not a software version.
+
+   The "Not in v0.1" text in the release-notes draft
+   (`docs/RELEASE_NOTES_v0.1.0_DRAFT.md:118-121`, commit 91eb15e09e) is an
+   agent's reading, not a ruling. The same W7 placement covers PKG-13 (design
+   knowledge), PKG-15 (handoff), PKG-16 (agent) and PKG-17 (exports).
 3. **No rigid elements.** Valves, flanges, reducers and rigid or specialty
    components are analysed as plain pipe on PF and refused on EX.
    - DEC-045 (owner, 2026-06-20) chose geometry plus user stiffness scaling,
@@ -108,8 +117,8 @@ class, the evidence, and the deliverables.
 | FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402` | DEL-03-01, DEL-03-07 | Model entities have one free provenance string. |
 | FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/model.schema.yaml:1075` only | DEL-02-01, DEL-13-01 | No slot in the desktop document, and no entry path. |
 | FR-MOD-007 (482) | Must | P | **Python transform:** `core/model_transform/physical_to_analytical/contract.py:113`, used by tests only. **Desktop:** solves the document directly in Rust (`preview_physics.rs`) | DEL-13-04 | No transformation-warning record on the solve path; holds DEL-13-04:2/3 apply. |
-| FR-KNOW-001 (488) | Must | P | `lib.rs:1773` returns a compiled-in fixture; `KnowledgePanel.tsx` is read-only | DEL-13-01 | **Scope unclear:** Must requirement and R6 deliverable, while §23 omits it. No ruling. |
-| FR-KNOW-002 (489) | Must | P | Unknown references give `MODEL_INCOMPLETE` (`lib.rs:19079`); an unrestrained body is caught at solve (`lib.rs:15409`) | DEL-13-03 | No topology check: a disconnected but separately anchored route is not flagged. |
+| FR-KNOW-001 (488) | Must | P | `lib.rs:1773` returns a compiled-in fixture; `KnowledgePanel.tsx` is read-only | DEL-13-01 | **Scope unclear:** Must requirement and R6 deliverable, while §23 omits it and D-11 places PKG-13 in W7 ("Forward horizon v0.2"). |
+| FR-KNOW-002 (489) | Must | P | Unknown references give `MODEL_INCOMPLETE` (`lib.rs:19079`). An unrestrained body is caught at solve (`lib.rs:15409`). Exact pressure regions reject branching, cycles and disconnected traversal (`pressure_runtime.rs:1535,1594`) | DEL-13-03 | No general topology check: a disconnected but separately anchored route is not flagged. |
 | FR-KNOW-003 (490) | Should | P | `core/constraints/validation/engine.py`; `tests/test_constraint_validation.py` | DEL-13-03, DEL-13-02 | Python only; record checks, no geometry. |
 | FR-KNOW-004 (491) | Should | P | `schemas/constraint.schema.json` | DEL-13-02 | Schema only. |
 | FR-KNOW-005 (492) | Could | P | Absent (PRD §13.3 says "In future releases") | (R7) | |
@@ -140,10 +149,10 @@ class, the evidence, and the deliverables.
 | FR-SOL-001 (510) | Must | D | `core/solver/frame_kernel/src/lib.rs:1591`; t3_r1 references | DEL-04-01 | Both routes. |
 | FR-SOL-002 (511) | Must | D | `MECH-PORTAL-SWAY`, `-INCLINED-MEMBER-TRANSFORM`, `-FIXED-FIXED-THERMAL-AXIAL` (`validation/benchmarks/mechanics/src/lib.rs`) | DEL-04-01, DEL-09-01 | |
 | FR-SOL-003 (512) | Must | D | `core/solver/straight_pipe`; self-weight `product_physics/src/self_weight.rs:507-515`; `STRESS-*` fixtures | DEL-04-02, DEL-05-03 | PF uses Euler–Bernoulli; EX adds Timoshenko. |
-| FR-SOL-004 (513) | Must | P | No rigid element in the kernel (`frame_kernel/src/rigid_body.rs` is a rigid-motion screen). PF only normalizes and diagnoses (`product_physics/src/validation.rs:1247-1311`); EX refuses (`exact_admission.rs:196-210`) | DEL-03-05 (data) | DEC-045's stiffness scaling is never assembled; no rigid-link benchmark. **Scope unclear:** §23/R1. |
+| FR-SOL-004 (513) | Must | P | No rigid element in the kernel: `frame_kernel/src/rigid_body.rs` is a rigid-motion screen, used for mechanism detection (`nonlinear_integration/src/structural_adapter.rs:1633,1761`). PF only normalizes and diagnoses (`product_physics/src/validation.rs:1247-1311`); EX refuses (`exact_admission.rs:196-210`) | DEL-03-05 (data) | Offsets exist only on connectors and tie rods (`connector.rs:12`, `tie_rod.rs:17`). DEC-045's stiffness scaling is never assembled. No rigid-link benchmark. **Scope unclear:** §23/R1. |
 | FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; `lib.rs:8263,8315`; EX admits linear restraints and springs (`exact_admission.rs:6`) | DEL-04-03 | Both routes. |
 | FR-SOL-006 (515) | Must | P | EX: pressure, loads, load states (`exact_admission.rs:103-108`). PF refuses imposed displacement (`preview_physics.rs:1041-1093`) | DEL-05-01, DEL-05-05, DEL-04-07 | Complete on EX only. |
-| FR-SOL-007 (516) | Must | P | Only `element_local_*` force and moment rows are published | DEL-04-01/02 | No element-end forces in global coordinates. |
+| FR-SOL-007 (516) | Must | P | Pipe and bend end rows are `element_local` only (`product_physics/src/lib.rs:12363,12384`; test `:16027`). Objective connectors publish global end actions (`lib.rs:4433,4441`) | DEL-04-01/02 | Global-frame end forces are missing for pipes and bends. |
 | FR-SOL-008 (517) | Must | D | `core/loads/stress_recovery`; Lamé hoop and longitudinal on EX (`product_physics/tests/t4_u6_section_bases.rs`) | DEL-05-03 | Pressure stresses exist only where pressure exists (EX). |
 | FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; tests `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | PF only: EX refuses combinations (`exact_admission.rs:142,240`). |
 | FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070; expansion-loop k-sweep | DEL-03-03, DEL-04-07 | |
@@ -163,7 +172,7 @@ class, the evidence, and the deliverables.
 |---|---|---|---|---|---|
 | FR-RULE-001 (530) | Must | P | `schemas/rule_pack.schema.yaml`; `RulePackManagerPanel.tsx:304-519`; `e2e/r2-smoke.spec.ts:1173-1241` | DEL-06-01, DEL-07-03 | No stress categories, load-case mappings or required load cases (§17.2). |
 | FR-RULE-002 (531) | Must | D | `core/rules/rule_pack_document/src/lib.rs:993-1002`; units refused `rule_check_runner/src/lib.rs:1286`; `expression_evaluator/tests/conformance_corpus.rs` | DEL-06-02 | Units are checked at run time, not when the pack is validated. |
-| FR-RULE-003 (532) | Must | D | `lib.rs:2906-2925`; tests `lib.rs:7888,7903`; observed natively on both routes (§5) | DEL-06-03 | |
+| FR-RULE-003 (532) | Must | D (qualified) | `rule_check_runner/src/lib.rs:749`; desktop `lib.rs:2906-2925`; tests `lib.rs:7888,7903`; observed natively on both routes (§5) | DEL-06-03 | A check with missing inputs is never evaluated. The aggregate ranks failed above incomplete (`rule_check_runner/src/lib.rs:200,355`), so a pack where one check fails and another is incomplete shows aggregate FAILED. It never shows PASS. Whether that meets "refuses to report pass/fail" is a reading for the owner (Codex). |
 | FR-RULE-004 (533) | Must | D | `rulePackService.ts:225-249` (private by default); local SQLite | DEL-06-04 | No pack file export. |
 | FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; `lib.rs:8544`; `tests/test_library_import_provenance.py` | DEL-03-01, DEL-03-07 | Library records cannot be applied to model materials. |
 | FR-RULE-006 (535) | Should | D | Same panel, component kind | DEL-03-02, DEL-03-07 | As above. |
@@ -185,7 +194,7 @@ class, the evidence, and the deliverables.
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-CMP-001 (542) | Must | P | `schemas/model_state.schema.json`; no producer; one `analysis_run_json` slot per project (`lib.rs:1129-1151`) | DEL-14-01, DEL-07-08 | **Scope unclear:** §23 vs release-notes draft; no ruling. SOW-071..076 are `IN`, and DEC-056 adopted v0.2 R3. |
+| FR-CMP-001 (542) | Must | P | `schemas/model_state.schema.json`. Headless persistence keeps caller-supplied state records (`core/project_persistence/service.py:103,494`). The desktop keeps one model/run slot per project (`src-tauri/src/lib.rs:896,1129`) | DEL-14-01, DEL-07-08 | No named-state producer. **Scope unclear:** §23 (MVP) and SOW-071..076 `IN`, versus D-11/DEC-062 "W7 — Forward horizon v0.2" and DEL-14-01:3 "stage-gated: v0.2 R3". |
 | FR-CMP-002 (543) | Must | P | `analysisRunCompatibility.ts:160-170` | DEL-14-02 | Synthetic `model_state_ref`; empty rule-pack and library refs; one run per project. |
 | FR-CMP-003 (544) | Must | P | `core/comparison/model_state/engine.py:64`; `tests/test_model_state_comparison.py` | DEL-14-03 | Headless only. Scope unclear. |
 | FR-CMP-004 (545) | Must | P | `core/comparison/analysis_run/engine.py:165`; `tests/test_analysis_run_comparison.py` | DEL-14-04 | Headless only. Scope unclear. |
@@ -385,9 +394,9 @@ These are reserved because they concern v0.1 scope, commitments or a hold:
 
 | # | Decision | Consequence |
 |---|---|---|
-| OD-1 | Are FR-CMP-001..004 (named states, runs tied to states, state and run comparison) in v0.1? | **In:** unit W-12 (L) before validation. **Out:** a ruling, and the release-notes and PRD-scope text follow it. |
+| OD-1 | Does D-11's "W7 — Forward horizon v0.2" placement (PKG-13/14/15/16/17) mean outside software 0.1.0, despite PRD §23 listing states, runs tied to states, state and run comparison, and canonical model export in the MVP? | **In:** unit W-12 (L) and W-6 come before validation. **Out:** a ruling, and PRD §23 and the release-notes text follow it. Either answer also settles OD-3 for PKG-13. |
 | OD-2 | Rigid elements (FR-SOL-004, Must, MVP) | **Options:** build DEC-045's stiffness scaling (M); build a dedicated rigid element and offsets, which reopens DEC-045 (L); or defer by ruling. |
-| OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? | **In:** W-14 (L). **Out:** a ruling. |
+| OD-3 | Design-knowledge entry and constraint validation (FR-KNOW-001, Must; R6) in v0.1? Settled with OD-1 if the W7 reading applies. | **In:** W-14 (L). **Out:** a ruling. |
 | OD-4 | Which model format is canonical: the desktop 0.6.0 document or `schemas/model.schema.yaml`? (FR-MOD-001/004/006) | Fixes the target for W-13, a new document version under the one-version rule. |
 | OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. |
 | OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. |
@@ -471,4 +480,19 @@ driver in place of `driver.js` and a throwaway HOME.
 
 ## 6. Independent spot-check
 
-Codex results are recorded here when returned.
+Codex (GPT-6.1-Sol, read-only, `7a780551f0`) checked 13 claims independently
+before this map was returned.
+
+- **Confirmed (7):** FR-SOL-005, FR-GUI-005, FR-RULE-005 and FR-SOL-013 as D;
+  FR-HAND-001, FR-REP-001 and FR-MOD-006 as P.
+- **Qualified (6):**
+  - FR-RULE-003: aggregate ordering.
+  - FR-SOL-004: connector offsets exist.
+  - FR-SOL-007: connectors publish global end actions.
+  - FR-CMP-001: headless state persistence exists.
+  - FR-KNOW-002: exact pressure regions check topology.
+  - Scope: D-11/DEC-062's W7 placement.
+- **Refuted:** none.
+
+Every qualification is folded into the rows above, and none changed a class
+other than FR-RULE-003's note. The W7 finding reframed OD-1.
