@@ -928,6 +928,27 @@ The merged tree at native atoms, against ⌊0.9M⌋:
 
 Of the 80, the tightest is merged dense W3 at +2,788,880,864 B, 128,457 B below §8.14's +2,789,009,321 B (E + R +126,856 B, reserve +1,601 B). Each unmerged point's tightest is still dense W3: L(3,0) at +3,390,708,455 B (154,194 B lower), E at +2,866,987,601 B (128,457 B lower), L(2,1) at +4,124,710,299 B (102,796 B lower) and L(1,2) at +5,092,603,513 B (51,398 B lower).
 
+**On W-8 (registration).** W-8 (§8.16) registered first, so the guard is re-priced on top of it. The priced revision is `9937feaab1`, the merge `1272673d93` of the guard's final source `1cb6b275f6` with main `f0b6ae40a0`, plus the emitter hash below. The merge's conflicts were in pricing files only. The tool files are main's W-8 versions with this section's changes re-applied:
+- lib.rs's full-file pin moves `17d2d1d5…` → `b72fa142…`;
+- W-8's lib.rs keys after its line 2719 move +1 with unchanged text (`b7a_domain_model.py`'s eighteen audit keys, `b7a_owner_choices.py`'s helpers 14048/14049/14469/14470 → +1, `SOLVE` 4774 → 4775, `b7a_returning_errors.py`'s owners, sites and callers, `b7a_scoped_text_model.py`'s four lines);
+- the `_X` emitter, with `retained_w1` carried to lib.rs:3619, adds hash `d8f2b65c…` to `MODE_SOURCE`;
+- the SZ rules follow W-8's.
+
+The run completes on all four points with both o10 checks at zero, and its prune is main's. Main's own tree, priced by its committed tool at `f0b6ae40a0`, reproduces §8.16's registered block. Against it `compare` gives `a_le_b` false and `a_ge_b` true. 1,478 coefficients are equal and 98 rise by exactly the increments stated above: TAV_W +32,028 B, TAV_X +16,014 B, Text(diag_env) 269,511,224 → 269,518,418, D 76,378 → 76,384 and D_env 28,802 → 28,805. The block is regenerated with basis "SQ2 G5 at 9937feaab1: …", and `generate --check` reproduces it. P_FINAL (7,785) and P_FINAL_EXACT (11,241) are unchanged. On W-8's record the phase record rises, in both modes, by W1/W2 +42,246, W3 +126,856, W4 +109,518, W5 +75,882, X1 +39,642, X2 +47,490 and X3 +26,232 B (W4, W5 and X1 differ from the increments on §8.14's tree; the in-build record above is the measured value), and the challenge's `W1_PHASE_BYTES` and `MAX_PHASE_BYTES` with it. The merged tree at native atoms, against ⌊0.9M⌋ (this table supersedes the one above for registration):
+
+| Phase | Dense E + R | Sparse E + R | TEXT reserve | Dense headroom | Sparse headroom |
+|---|---:|---:|---:|---:|---:|
+| W1 | 6,337,713,291 | 6,278,581,947 | 239,184,340 | +5,019,514,068 | +5,078,645,412 |
+| W2 | 6,673,166,412 | 6,614,035,068 | 239,184,340 | +4,684,060,947 | +4,743,192,291 |
+| W3 | 8,568,568,608 | 8,509,437,264 | 239,184,340 | +2,788,658,751 | +2,847,790,095 |
+| W4 | 8,363,062,961 | 8,303,931,617 | 239,184,340 | +2,994,164,398 | +3,053,295,742 |
+| W5 | 7,468,772,396 | 7,409,641,052 | 239,184,340 | +3,888,454,963 | +3,947,586,307 |
+| X1 | 8,406,305,431 | 8,347,174,087 | 268,326,097 | +2,921,780,171 | +2,980,911,515 |
+| X2 | 7,242,306,775 | 7,183,175,431 | 268,326,097 | +4,085,778,827 | +4,144,910,171 |
+| X3 | 6,920,548,423 | 6,861,417,079 | 268,326,097 | +4,407,537,179 | +4,466,668,523 |
+
+The tightest is merged dense W3 at +2,788,658,751 B, 128,457 B below §8.16's +2,788,787,208 B.
+
 ### 8.16 W-8 topology warnings actual-source D3
 
 W-8's pre-solve topology warnings ([model-topology-checks.md](../../DEL-04-06/Design/model-topology-checks.md)) re-price at `34e96d6b17`, the commit that carries the pins and adds the rules below. Its product source equals `97e6fda00f`, W-8 after its independent review (a first pricing at `b8b236e2ef`, of the pre-review source, was superseded). The comparison basis is main's registered tree. Main `44c31ab439` changes no priced crate's `src` and no tool file since `7ded624835`, whose committed tool prices it with exit 0; `generate --check` reproduces §8.14's registered block with §8.14's basis line. Against it the priced source moves in four ways:
