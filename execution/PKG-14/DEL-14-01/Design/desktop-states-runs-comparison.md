@@ -263,7 +263,8 @@ Python agree.
    - sets the real `model_state_ref` `{ModelState, <state id>}`;
    - takes `rule_pack_refs` from the input manifest's `active_rule_packs` (what
      the solve used, not the document's identity-only references) and
-     `library_refs` from the resolved `provenance_record.library_ref`s;
+     `library_refs` from the model's `library_ref`s, as the model document's
+     one walk finds them;
    - drops the `created_at_unavailable` determinism note, in both TypeScript
      (`analysisRunCompatibility.ts:169` hard-codes it today) and Python
      (`compatibility.py:147` already drops it when `created_at` is set);
@@ -386,9 +387,31 @@ the History panel and `useModelStateHistory.ts`.
 - **The revision.**
   - `rule_pack_refs` are `{RulePack, "<rule_pack_id>@<version>"}`, in the
     manifest's order (the manifest sorts them when it is built).
-  - `library_refs` are `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`.
-    There is one for each distinct `provenance_record.library_ref` at any depth
-    of the solved model, sorted by code point.
+  - `library_refs` are `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`,
+    deduplicated and sorted by code point.
+    - **Sites.** The sites are every `library_ref` object at any depth and
+      under any owner, found by the model document's one walk. Rust reuses
+      `model_document_save::library_ref_sites`, the native save's walk. The
+      TypeScript builder uses `libraryRefSites`, and Python mirrors it as
+      `library_ref_sites`.
+    - **Normalization.** Kind, id and record id are normalized as that walk
+      does (`library_ref_identity`): Rust's White_Space trim (`trimLikeRust`
+      in TypeScript, the same 25 characters in Python), with nothing when a
+      value is blank or not text.
+    - **Version.** `library_version` is kept verbatim when it is text, as the
+      store check compares it.
+    - **Null identities.** A site whose kind or id is blank or not text (a
+      null `identity` in the table) names no library and is omitted. The
+      state's hashed model payload still holds it, and the open-time store
+      check reports it as `MODEL-LIBRARY-REF-UNRESOLVED`.
+    - **Unknown kinds** are kept, as the native walk keeps them.
+    - **Pinning.** Rust, TypeScript and Python each pin this to
+      `fixtures/model_document/library_ref_sites.json`. Each test also pins
+      a shared White_Space vector: U+FEFF and U+001F stay, and U+3000,
+      U+0085 and U+2003 are trimmed.
+    - **Before the alignment with #1595.** Only a `library_ref` directly under a
+      `provenance_record` was collected, untrimmed. The committed witness's
+      model has no `library_ref`, so it is unchanged.
   - Rust hashes with `open_pipe_stress_canonical_json::canonical_json_checked_v1_text`,
     now a direct dependency of the desktop crate.
   - Parity: the TypeScript builder `recordedAnalysisRunRevision` and Python's
