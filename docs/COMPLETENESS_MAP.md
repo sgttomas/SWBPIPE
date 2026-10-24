@@ -141,7 +141,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-MOD-003 (478) | Must | D | Identity changes refused: `operation_applier/src/rich_authoring.rs:1092`, test `:864`; `atomic_batch.rs:690`; reconnect keeps ids (`pipe_reconnect.rs`) | DEL-02-01, DEL-16-06 | No all-operations id-survival test. |
 | FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | No tags or notes. |
 | FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402` | DEL-03-01, DEL-03-07 | Model entities have one free provenance string. |
-| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists only in `schemas/physical_transform_model.schema.yaml` | DEL-02-01, DEL-13-01 | No slot in 0.6.0 and no entry path. |
+| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | No slot in 0.6.0 and no entry path. |
 | FR-MOD-007 (482) | Must | O | OD-1 defers PKG-13, which holds "the physical-to-analytical transform contract" (DEL-13-04 SOW:15). The desktop solves the document directly (PP `lib.rs:2635-2739`); `core/model_transform/physical_to_analytical/contract.py` is test-only | DEL-13-04 | The ruling defers the package, not this FR by name; the owner may confirm (§6). |
 | FR-KNOW-001 (488) | Must | O | OD-3 (DEL-13-01 SOW:15). Desktop `lib.rs:1773` returns a bundled fixture; `KnowledgePanel.tsx` has no inputs | DEL-13-01 | |
 | FR-KNOW-002 (489) | Must | D | W-8: `core/product_physics/src/topology.rs:46`, called once at PP `lib.rs:2739` on the shared path of both routes; `MODEL_TOPOLOGY_DISCONNECTED` (`topology.rs:136`), `BRANCH_TOPOLOGY_INVALID` (`validation.rs:1310-1320`); unsupported parts still refused (PP `lib.rs:15412`); EX pressure-region topology (`pressure_runtime.rs:1538,1548,1595`). **Tests:** `tests/topology_checks_runtime.rs` (9). **Desktop:** Diagnostics panel (`App.test.tsx:10877`) | DEL-04-06 | Findings are warnings; PRD §14.4 lists topology under "blocking for model validity" (§6). Tests use PF requests only. The bundled demo now warns `BRANCH_TOPOLOGY_INVALID` (tee C-120). |
@@ -173,7 +173,7 @@ class, the evidence, and the deliverables. Paths are under
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
 | FR-SOL-001 (510) | Must | D | `core/solver/frame_kernel/src/lib.rs:17,1591`; t3_r1 references | DEL-04-01 | Both routes. |
-| FR-SOL-002 (511) | Must | D | `validation/benchmarks/mechanics/src/lib.rs:934,963,1693`; W9-A/C | DEL-04-01, DEL-09-01 | |
+| FR-SOL-002 (511) | Must | P | `validation/benchmarks/mechanics/src/lib.rs:934,963,1693`; W9-A (both routes), W9-C | DEL-04-01, DEL-09-01 | Beams, frames, transforms and thermal pass on both routes. The imposed-displacement benchmarks (W9-C, `mechanics/src/lib.rs:948`) run on EX only, because PF refuses support motion (FR-SOL-006). |
 | FR-SOL-003 (512) | Must | D | `core/solver/straight_pipe`; `self_weight.rs:505-512`; `STRESS-*` | DEL-04-02, DEL-05-03 | PF Euler–Bernoulli; EX adds Timoshenko. |
 | FR-SOL-004 (513) | Must | P | No rigid element and no DEC-045 scaling applied: `stiffness_scaling_user_value` is unit-normalized (PP `lib.rs:9483`) and validated (`validation.rs:777,1346-1411`) only. EX refuses rigid and specialty components (`exact_admission.rs:208-210,285`) | DEL-03-05 | OD-2: build the scaling (W-15). Offsets exist only on connectors and tie rods. No rigid-link benchmark. |
 | FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; PP `lib.rs:2741`; EX admits linear restraints and springs (`exact_admission.rs:295-305`) | DEL-04-03 | Both routes. |
@@ -255,10 +255,12 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 42 P, 33 D, 9 O and no R:
+This map has 43 P, 32 D, 9 O and no R:
 - **P → D (4):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569). The first two were already updated in the map by their
   PRs.
+- **D → P (1):** FR-SOL-002. Its acceptance criterion includes imposed
+  displacements, which pass on EX only; the route rule now applies (Codex, §6).
 - **P → O (6):** FR-KNOW-001, -003, -004, -005 and FR-MOD-007 (OD-1/OD-3);
   FR-AGENT-005 (OD-5).
 - **New rows (5):** §12.3 reducers, §12.5 load types, §16.1–16.3 and §19.1 (P);
@@ -339,15 +341,17 @@ below are what remains or is new at this basis.
 - DEL-12-01 `deliverable.yaml`: `code_paths` add `tauri.conf.json` (the CSP
   setting).
 
-**Left to the in-flight PR that edits the file** [fix]:
-- `DEL-02-01/Design/model-document-0.7.0.md:51-52` says `schemas/model.schema.yaml`
-  "describes an older shape … The bundled demo fails it with 11 errors". That
-  is stale since #1554. #1565 and #1566 edit this file.
+- `DEL-02-01/Design/model-document-0.7.0.md:51-52` said `schemas/model.schema.yaml`
+  "describes an older shape … The bundled demo fails it with 11 errors", stale
+  since #1554. It now records that state as before S1a.
 - `DEL-02-02/Design/project-unit-selection.md` §1 "Where things stand" ("Blank
-  projects fix SI", "No `angle` key is written") describes the state before
-  slice (a). #1566 edits this file.
-- `DEL-04-06/Design/model-topology-checks.md` and SOW:189 move to the
-  implemented wording when #1574 lands.
+  projects fix SI", "No `angle` key is written") described the state before
+  slice (a). It is now headed as the starting point, with one sentence on what
+  slice (a) changed. Without this, the §10.1 row would be R (Codex, §6).
+  #1565 and #1566 edit other hunks of these two files.
+
+**Left to the in-flight PR** [fix]: `DEL-04-06/Design/model-topology-checks.md`
+and SOW:189 move to the implemented wording when #1574 lands.
 
 **Still open** [fix]:
 - **Release-notes draft** (`docs/RELEASE_NOTES_v0.1.0_DRAFT.md`, release lane;
@@ -511,7 +515,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
 | W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
-| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
+| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | §17.2 needs a scope ruling | §17.2 only |
 | W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private) | M | desktop + Rust | heavy | W-3 | A shareable path needs a DEL-12-02 design check |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
@@ -571,4 +575,24 @@ second run saved in place.
 
 ## 6. Independent spot-check
 
-[Filled in by the Codex spot-check before the PR is returned.]
+Codex (GPT-6.1-Sol, xhigh, read-only, branch head `289f9039ba` over basis
+`8a8a8b2584`) checked 19 placements independently, 7 of them changed class.
+
+- **Confirmed (18):** FR-KNOW-002 (D), FR-MOD-007, FR-KNOW-001 and
+  FR-AGENT-005 (O), FR-GUI-001 and FR-GUI-004 (D), FR-MOD-001 (P), FR-SOL-015
+  (D), FR-REP-001 (P), FR-RULE-002 (D), FR-SOL-006, -007 and -009 (P),
+  FR-HAND-002 and FR-CMP-001 (P), §12.8 near-duplicate nodes (P), §22.2 13 of
+  14 (P), FR-RULE-005 (D).
+- **Refuted (1):** §10.1 step 1 as D. The DEL-02-02 Design still described
+  blank projects as offering no choice, so under the class rules it was R. This
+  change corrects that Design text, and the row is D on this branch.
+- **Further corrections, folded in:**
+  - FR-SOL-002 moves D → P. Its acceptance includes imposed displacements,
+    which pass on EX only.
+  - The FR-MOD-006 evidence named one schema as the only home of
+    `unresolved_assumptions`; it is also in the model-state and handoff
+    schemas.
+- **`expected.json`:** all five causes are plausible from the records and
+  fixtures (15 rows per member per case; parity row removal; `norm3`
+  rounding). Codex could not run the app; the observed values come from the
+  native smoke in §5.
