@@ -7,7 +7,9 @@
 //! AST), and [`open_pipe_stress_expression_evaluator`] (compute the formula and
 //! the acceptability comparison). It produces, per check, one of the three
 //! automatic rule-check statuses (`RULE_INPUTS_INCOMPLETE`,
-//! `USER_RULE_CHECKED`, `USER_RULE_FAILED`) and aggregates them worst-of.
+//! `USER_RULE_CHECKED`, `USER_RULE_FAILED`) and aggregates them so that the
+//! pack never headlines pass or fail while any check is incomplete (FR-RULE-003;
+//! DEL-06-03 Design `pack-aggregate-incomplete.md`).
 //!
 //! It does not parse text, execute host-language code, access files, access the
 //! network, spawn processes, load plugins, store private data, embed protected
@@ -197,12 +199,15 @@ impl RuleCheckStatus {
         }
     }
 
-    /// Worst-of precedence: failed (2) > incomplete (1) > checked (0).
-    fn severity_rank(self) -> u8 {
+    /// Aggregate precedence: incomplete (2) > failed (1) > checked (0). While
+    /// any check is incomplete the pack aggregate is `RULE_INPUTS_INCOMPLETE`,
+    /// never a pass or fail (FR-RULE-003); failed checks stay visible in the
+    /// per-check outcomes and in [`RuleCheckStatusCounts`].
+    fn aggregate_rank(self) -> u8 {
         match self {
             RuleCheckStatus::UserRuleChecked => 0,
-            RuleCheckStatus::RuleInputsIncomplete => 1,
-            RuleCheckStatus::UserRuleFailed => 2,
+            RuleCheckStatus::UserRuleFailed => 1,
+            RuleCheckStatus::RuleInputsIncomplete => 2,
         }
     }
 }
@@ -272,8 +277,32 @@ pub struct RuleCheckRunResult {
     pub professional_boundary_notice: String,
 }
 
+/// How many of a run's checks ended in each status: the counts behind the
+/// pack headline "INCOMPLETE — n check(s) failed; m check(s) blocked".
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct RuleCheckStatusCounts {
+    pub failed: usize,
+    pub incomplete: usize,
+    pub checked: usize,
+}
+
+impl RuleCheckRunResult {
+    pub fn status_counts(&self) -> RuleCheckStatusCounts {
+        let mut counts = RuleCheckStatusCounts::default();
+        for check in &self.checks {
+            match check.status {
+                RuleCheckStatus::UserRuleFailed => counts.failed += 1,
+                RuleCheckStatus::RuleInputsIncomplete => counts.incomplete += 1,
+                RuleCheckStatus::UserRuleChecked => counts.checked += 1,
+            }
+        }
+        counts
+    }
+}
+
 /// Run every `check_definition` in the rule pack against the caller-resolved
-/// values and return per-check outcomes plus a worst-of aggregate.
+/// values and return per-check outcomes plus the pack aggregate (incomplete if
+/// any check is incomplete, else failed if any check failed, else checked).
 pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
     run_rule_checks_with_bounds(input, &[])
 }
@@ -359,7 +388,7 @@ pub fn run_rule_checks_with_bounds(
             .iter()
             .map(|c| c.status)
             .reduce(|acc, next| {
-                if next.severity_rank() > acc.severity_rank() {
+                if next.aggregate_rank() > acc.aggregate_rank() {
                     next
                 } else {
                     acc
@@ -2330,6 +2359,96 @@ mod tests {
         assert_eq!(result.checks[0].status, RuleCheckStatus::UserRuleChecked);
         assert_eq!(result.checks[1].status, RuleCheckStatus::UserRuleFailed);
         assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
+    }
+
+    /// The demo pack extended with a strict check (fails at ratio 0.5) and a
+    /// check whose limit slot the caller never supplies (incomplete).
+    fn mixed_pack() -> Value {
+        let mut pack = demo_pack();
+        for slot in ["ratio_limit_strict", "ratio_limit_unsupplied"] {
+            pack["value_slots"].as_array_mut().unwrap().push(json!({
+                "slot_id": slot, "slot_kind": "ratio_limit",
+                "quantity_intent": {
+                    "dimension": "dimensionless", "unit_ref": "ratio",
+                    "unit_required": true, "dimension_check_required": true
+                }
+            }));
+        }
+        for (check_id, slot) in [("ratio_check_strict", "ratio_limit_strict"), ("ratio_check_unsupplied", "ratio_limit_unsupplied")] {
+            let mut check = pack["check_definitions"][0].clone();
+            check["check_id"] = json!(check_id);
+            check["value_slot_refs"] = json!([{ "ref_id": slot, "ref_type": "value_slot" }]);
+            pack["check_definitions"].as_array_mut().unwrap().push(check);
+        }
+        pack
+    }
+
+    #[test]
+    fn aggregate_is_incomplete_when_a_check_failed_and_another_is_incomplete() {
+        // FR-RULE-003: the pack never headlines a fail while a check is incomplete.
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 0.25, "ratio", "dimensionless"),
+            ],
+        );
+        let statuses: Vec<_> = result.checks.iter().map(|c| c.status).collect();
+        assert_eq!(
+            statuses,
+            vec![RuleCheckStatus::UserRuleChecked, RuleCheckStatus::UserRuleFailed, RuleCheckStatus::RuleInputsIncomplete]
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 1, incomplete: 1, checked: 1 });
+    }
+
+    #[test]
+    fn aggregate_is_incomplete_when_only_incomplete_and_checked() {
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 0, incomplete: 1, checked: 2 });
+    }
+
+    #[test]
+    fn aggregate_is_checked_only_when_every_check_is_checked() {
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_unsupplied", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 0, incomplete: 0, checked: 3 });
+    }
+
+    #[test]
+    fn aggregate_is_failed_when_a_check_failed_and_none_is_incomplete() {
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 0.25, "ratio", "dimensionless"),
+                supplied("ratio_limit_unsupplied", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 1, incomplete: 0, checked: 2 });
     }
 
     #[test]
