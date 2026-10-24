@@ -764,12 +764,65 @@ fn rule_pack_and_library_refs_follow_the_manifest() {
             { "id": "material:b", "provenance_record": { "library_ref": { "library_kind": "material", "library_id": "invented-lib", "library_version": "sha256:aa", "record_id": "steel" } } }
         ],
         "components": [{ "id": "component:c", "nested": { "provenance_record": { "library_ref": { "library_kind": "component", "library_id": "valves" } } } }],
-        "library_ref": { "library_kind": "material", "library_id": "not-under-a-provenance-record" }
+        "library_ref": { "library_kind": "material", "library_id": "outside-a-provenance-record" }
     });
     assert_eq!(library_refs(&payload), vec![
         json!({ "object_type": "Library", "ref": "library:component/valves" }),
-        json!({ "object_type": "Library", "ref": "library:material/invented-lib@sha256:aa#steel" })
-    ]);
+        json!({ "object_type": "Library", "ref": "library:material/invented-lib@sha256:aa#steel" }),
+        json!({ "object_type": "Library", "ref": "library:material/outside-a-provenance-record" })
+    ], "every library_ref the one walk finds, once each, in code-point order");
+    // Rust's White_Space trim: U+3000, U+0085 and U+2003 go; U+FEFF and U+001F stay.
+    let spaced = json!({ "a": { "library_ref": { "library_kind": "\u{3000}k\u{85}", "library_id": "\u{FEFF}id\u{2003}", "record_id": "\u{1F}" } } });
+    assert_eq!(library_refs(&spaced), vec![json!({ "object_type": "Library", "ref": "library:k/\u{FEFF}id#\u{1F}" })]);
+}
+
+/// The recorded revision's `library_refs` come from the model document's one
+/// walk, pinned to the shared site table as the native save's walk
+/// (`library_ref_walk_matches_the_shared_site_table`) and the webview's
+/// `libraryRefSites` are: every site with a table identity, normalized as the
+/// table normalizes it, and no other; a site whose identity is null is omitted.
+#[test]
+fn library_refs_follow_the_shared_site_table() {
+    let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_sites.json")).unwrap();
+    let document = &table["document"];
+    // serde_json's maps keep keys sorted, so the walk visits them in key order.
+    let mut walked: Vec<String> = crate::model_document_save::library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
+    let mut tabled: Vec<String> = table["sites"].as_array().unwrap().iter().map(|site| site["path"].as_str().unwrap().to_string()).collect();
+    walked.sort();
+    tabled.sort();
+    assert_eq!(walked, tabled, "the one walk finds every site of the table, and no other");
+    let expected: std::collections::BTreeSet<String> = table["sites"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|site| !site["identity"].is_null())
+        .map(|site| {
+            let identity = site["identity"].as_array().unwrap();
+            let pointer = format!("/{}", site["path"].as_str().unwrap().replace('[', ".").replace(']', "").replace('.', "/"));
+            let version = document.pointer(&pointer).unwrap().get("library_version").and_then(Value::as_str);
+            format!(
+                "library:{}/{}{}{}",
+                identity[0].as_str().unwrap(),
+                identity[1].as_str().unwrap(),
+                version.map(|version| format!("@{version}")).unwrap_or_default(),
+                identity[2].as_str().map(|record| format!("#{record}")).unwrap_or_default()
+            )
+        })
+        .collect();
+    let refs = library_refs(document);
+    assert_eq!(refs, expected.iter().map(|text| json!({ "object_type": "Library", "ref": text })).collect::<Vec<_>>());
+    assert_eq!(
+        refs.iter().map(|reference| reference["ref"].as_str().unwrap()).collect::<Vec<_>>(),
+        vec![
+            "library:component/complib.invented.sites#comp.inner",
+            "library:hanger/hanglib.invented.sites",
+            "library:material/matlib.invented.root#mat.root",
+            "library:material/matlib.invented.sites#mat.padded",
+            "library:material/matlib.invented.sites@sha256:recorded#mat.top",
+            "library:section/seclib.invented.sites",
+        ],
+        "trimmed identities; blank record ids dropped; null identities omitted"
+    );
 }
 
 #[test]

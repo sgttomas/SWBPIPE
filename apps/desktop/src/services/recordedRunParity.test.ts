@@ -22,6 +22,14 @@ import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1 } 
 import { buildCurrentSessionInputManifest, type CurrentSessionInputManifest } from "./inputManifestService";
 import { buildAnalysisRunPreview } from "./previewService";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../types";
+import siteTable from "../../../../fixtures/model_document/library_ref_sites.json";
+
+function codePointCompareForTest(left: string, right: string): number {
+  const a = [...left].map((c) => c.codePointAt(0)!);
+  const b = [...right].map((c) => c.codePointAt(0)!);
+  for (let i = 0; i < Math.min(a.length, b.length); i += 1) if (a[i] !== b[i]) return a[i] - b[i];
+  return a.length - b.length;
+}
 
 const PERSISTENCE_FIXTURES = resolve(__dirname, "../../../../fixtures/persistence");
 const INPUT_PATH = resolve(PERSISTENCE_FIXTURES, "transient_run_input.json");
@@ -125,16 +133,43 @@ describe("the recorded revision of a transient record", () => {
         { id: "material:b", provenance_record: { library_ref: { library_kind: "material", library_id: "invented-lib", library_version: "sha256:aa", record_id: "steel" } } }
       ],
       components: [{ id: "component:c", nested: { provenance_record: { library_ref: { library_kind: "component", library_id: "valves" } } } }],
-      library_ref: { library_kind: "material", library_id: "not-under-a-provenance-record" }
+      library_ref: { library_kind: "material", library_id: "outside-a-provenance-record" }
     };
     // The same vector as the Rust test `rule_pack_and_library_refs_follow_the_manifest`.
     expect(recordedLibraryRefs(payload)).toEqual([
       { object_type: "Library", ref: "library:component/valves" },
-      { object_type: "Library", ref: "library:material/invented-lib@sha256:aa#steel" }
+      { object_type: "Library", ref: "library:material/invented-lib@sha256:aa#steel" },
+      { object_type: "Library", ref: "library:material/outside-a-provenance-record" }
     ]);
+    // Rust's White_Space trim: U+3000, U+0085 and U+2003 go; U+FEFF and U+001F stay.
+    const spaced = { a: { library_ref: { library_kind: "\u3000k\u0085", library_id: "\uFEFFid\u2003", record_id: "\u001F" } } };
+    expect(recordedLibraryRefs(spaced)).toEqual([{ object_type: "Library", ref: "library:k/\uFEFFid#\u001F" }]);
     // Code-point order, not UTF-16 order: U+FF5A sorts before U+1F600.
     const astral = { a: { provenance_record: { library_ref: { library_kind: "k", library_id: "\u{1F600}" } } }, b: { provenance_record: { library_ref: { library_kind: "k", library_id: "ｚ" } } } };
     expect(recordedLibraryRefs(astral).map((ref) => ref.ref)).toEqual(["library:k/ｚ", "library:k/\u{1F600}"]);
+  });
+
+  it("library references follow the shared library_ref site table", () => {
+    // As the Rust test `library_refs_follow_the_shared_site_table` and Python's
+    // `test_library_refs_follow_the_shared_site_table`: every site with a table identity,
+    // normalized as the table is, and no other; a null identity is omitted.
+    const sites = siteTable.sites as Array<{ path: string; identity: [string, string, string | null] | null }>;
+    const at = (path: string) =>
+      path.replace(/\[(\d+)\]/g, ".$1").split(".").reduce<unknown>((value, key) => (value as Record<string, unknown>)[key], siteTable.document) as Record<string, unknown>;
+    const expected = [...new Set(sites.flatMap(({ path, identity }) => {
+      if (!identity) return [];
+      const version = at(path).library_version;
+      return [`library:${identity[0]}/${identity[1]}${typeof version === "string" ? `@${version}` : ""}${identity[2] !== null ? `#${identity[2]}` : ""}`];
+    }))].sort(codePointCompareForTest);
+    expect(recordedLibraryRefs(siteTable.document).map((ref) => ref.ref)).toEqual(expected);
+    expect(expected).toEqual([
+      "library:component/complib.invented.sites#comp.inner",
+      "library:hanger/hanglib.invented.sites",
+      "library:material/matlib.invented.root#mat.root",
+      "library:material/matlib.invented.sites#mat.padded",
+      "library:material/matlib.invented.sites@sha256:recorded#mat.top",
+      "library:section/seclib.invented.sites"
+    ]);
   });
 });
 

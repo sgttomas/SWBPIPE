@@ -202,29 +202,59 @@ def recorded_rule_pack_refs(input_manifest: Mapping[str, Any]) -> list[dict[str,
     return refs
 
 
-def recorded_library_refs(model_payload: Any) -> list[dict[str, str]]:
-    """Every `provenance_record.library_ref` of the solved model (at any depth), once each,
-    in code-point order, as `library:<kind>/<id>[@<version>][#<record id>]`."""
-    found: set[str] = set()
+# Unicode White_Space, the set Rust's `str::trim` strips (and `trimLikeRust` in the
+# webview). Python's `str.strip()` also strips U+001C..U+001F, which are not White_Space.
+_RUST_WHITE_SPACE = "\u0009\u000a\u000b\u000c\u000d\u0020\u0085\u00a0\u1680" + "".join(
+    chr(point) for point in range(0x2000, 0x200B)) + "\u2028\u2029\u202f\u205f\u3000"
 
-    def visit(value: Any) -> None:
+
+def _library_identity(value: Any) -> str | None:
+    """A `library_ref` identity member as the native walk normalizes it
+    (`library_ref_identity`): Rust's trim, and nothing when blank or not text."""
+    if not isinstance(value, str):
+        return None
+    return value.strip(_RUST_WHITE_SPACE) or None
+
+
+def library_ref_sites(document: Any) -> list[tuple[str, Mapping[str, Any]]]:
+    """Every `library_ref` object of a model document at any depth, with its path: the
+    one walk (`libraryRefSites`, `model_document_save::library_ref_sites`), pinned to
+    `fixtures/model_document/library_ref_sites.json`."""
+    sites: list[tuple[str, Mapping[str, Any]]] = []
+
+    def walk(value: Any, path: str) -> None:
         if isinstance(value, list):
-            for item in value:
-                visit(item)
+            for index, item in enumerate(value):
+                walk(item, f"{path}[{index}]")
         elif isinstance(value, Mapping):
             for key, child in value.items():
-                if key == "provenance_record" and isinstance(child, Mapping):
-                    ref = child.get("library_ref")
-                    if isinstance(ref, Mapping) and isinstance(ref.get("library_kind"), str) and isinstance(ref.get("library_id"), str):
-                        text = f"library:{ref['library_kind']}/{ref['library_id']}"
-                        if isinstance(ref.get("library_version"), str):
-                            text += f"@{ref['library_version']}"
-                        if isinstance(ref.get("record_id"), str):
-                            text += f"#{ref['record_id']}"
-                        found.add(text)
-                visit(child)
+                at = f"{path}.{key}" if path else key
+                if key == "library_ref" and isinstance(child, Mapping):
+                    sites.append((at, child))
+                walk(child, at)
 
-    visit(model_payload)
+    walk(document, "")
+    return sites
+
+
+def recorded_library_refs(model_payload: Any) -> list[dict[str, str]]:
+    """The recorded revision's `library_refs`: every `library_ref` site of the solved
+    model that the one walk finds, its identity normalized as the native walk does
+    (Rust's White_Space trim), `library_version` verbatim when it is text. A site whose
+    kind or id is blank or not text is omitted. Once each, in code-point order, as
+    `library:<kind>/<id>[@<version>][#<record id>]`."""
+    found: set[str] = set()
+    for _, ref in library_ref_sites(model_payload):
+        kind, library_id = _library_identity(ref.get("library_kind")), _library_identity(ref.get("library_id"))
+        if kind is None or library_id is None:
+            continue
+        text = f"library:{kind}/{library_id}"
+        if isinstance(ref.get("library_version"), str):
+            text += f"@{ref['library_version']}"
+        record_id = _library_identity(ref.get("record_id"))
+        if record_id is not None:
+            text += f"#{record_id}"
+        found.add(text)
     return [{"object_type": "Library", "ref": text} for text in sorted(found)]
 
 

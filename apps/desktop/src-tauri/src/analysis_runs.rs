@@ -224,46 +224,35 @@ pub(crate) fn rule_pack_refs(manifest: &Value) -> Result<Vec<Value>, String> {
         .collect()
 }
 
-/// One `provenance_record.library_ref` as a reference:
-/// `library:<kind>/<id>[@<version>][#<record id>]`.
-fn library_reference_text(library_ref: &Value) -> Option<String> {
-    let kind = library_ref.get("library_kind")?.as_str()?;
-    let id = library_ref.get("library_id")?.as_str()?;
-    let mut text = format!("library:{kind}/{id}");
-    if let Some(version) = library_ref.get("library_version").and_then(Value::as_str) {
-        text.push('@');
-        text.push_str(version);
-    }
-    if let Some(record) = library_ref.get("record_id").and_then(Value::as_str) {
-        text.push('#');
-        text.push_str(record);
-    }
-    Some(text)
-}
-
-fn collect_library_refs(value: &Value, found: &mut BTreeSet<String>) {
-    match value {
-        Value::Object(map) => {
-            for (key, child) in map {
-                if key == "provenance_record" {
-                    if let Some(text) = child.get("library_ref").and_then(library_reference_text) {
-                        found.insert(text);
-                    }
-                }
-                collect_library_refs(child, found);
-            }
-        }
-        Value::Array(items) => items.iter().for_each(|item| collect_library_refs(item, found)),
-        _ => {}
-    }
-}
-
-/// The recorded revision's `library_refs`: every `provenance_record.library_ref`
-/// of the solved model (at any depth), once each, sorted by code point, as
-/// `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`.
+/// The recorded revision's `library_refs`: every `library_ref` site of the
+/// solved model that the model document's one walk finds
+/// (`model_document_save::library_ref_sites`, pinned to
+/// `fixtures/model_document/library_ref_sites.json`), with its identity
+/// normalized as that walk normalizes it (`library_ref_identity`: Rust's
+/// White_Space trim). Each is written as
+/// `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`, with
+/// `library_version` verbatim when it is text (the store check compares it
+/// verbatim). The list is deduplicated and sorted by code point. A site whose
+/// identity is null in the table (its kind or id blank or not text) names no
+/// library and is omitted; the state's hashed model payload still holds it, and
+/// the open-time store check reports it as unresolved.
 pub(crate) fn library_refs(model_payload: &Value) -> Vec<Value> {
-    let mut found = BTreeSet::new();
-    collect_library_refs(model_payload, &mut found);
+    let found: BTreeSet<String> = crate::model_document_save::library_ref_sites(model_payload)
+        .into_iter()
+        .filter_map(|(_, reference)| {
+            let (kind, id, record_id) = crate::model_document_save::library_ref_identity(reference)?;
+            let mut text = format!("library:{kind}/{id}");
+            if let Some(version) = reference.get("library_version").and_then(Value::as_str) {
+                text.push('@');
+                text.push_str(version);
+            }
+            if let Some(record_id) = record_id {
+                text.push('#');
+                text.push_str(record_id);
+            }
+            Some(text)
+        })
+        .collect();
     found.iter().map(|text| reference("Library", text)).collect()
 }
 

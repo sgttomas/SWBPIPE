@@ -19,12 +19,13 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
+import re
 from pathlib import Path
 
 import pytest
 
 from core.analysis_runs.compatibility import (
-    CREATED_AT_UNAVAILABLE, analysis_record_projection, recorded_library_refs, recorded_revision, recorded_rule_pack_refs,
+    CREATED_AT_UNAVAILABLE, analysis_record_projection, library_ref_sites, recorded_library_refs, recorded_revision, recorded_rule_pack_refs,
     validate_analysis_run_v0_3, verify_analysis_run_record,
 )
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
@@ -121,14 +122,51 @@ def test_rule_pack_and_library_refs_follow_the_manifest() -> None:
             {"id": "material:b", "provenance_record": {"library_ref": {"library_kind": "material", "library_id": "invented-lib", "library_version": "sha256:aa", "record_id": "steel"}}},
         ],
         "components": [{"id": "component:c", "nested": {"provenance_record": {"library_ref": {"library_kind": "component", "library_id": "valves"}}}}],
-        "library_ref": {"library_kind": "material", "library_id": "not-under-a-provenance-record"},
+        "library_ref": {"library_kind": "material", "library_id": "outside-a-provenance-record"},
     }
     assert recorded_library_refs(payload) == [
         {"object_type": "Library", "ref": "library:component/valves"},
-        {"object_type": "Library", "ref": "library:material/invented-lib@sha256:aa#steel"}]
+        {"object_type": "Library", "ref": "library:material/invented-lib@sha256:aa#steel"},
+        {"object_type": "Library", "ref": "library:material/outside-a-provenance-record"}]
+    # Rust's White_Space trim: U+3000, U+0085 and U+2003 go; U+FEFF and U+001F stay.
+    spaced = {"a": {"library_ref": {"library_kind": "\u3000k\u0085", "library_id": "\ufeffid\u2003", "record_id": "\u001f"}}}
+    assert recorded_library_refs(spaced) == [{"object_type": "Library", "ref": "library:k/\ufeffid#\u001f"}]
     astral = {"a": {"provenance_record": {"library_ref": {"library_kind": "k", "library_id": "\U0001F600"}}},
               "b": {"provenance_record": {"library_ref": {"library_kind": "k", "library_id": "ｚ"}}}}
     assert [ref["ref"] for ref in recorded_library_refs(astral)] == ["library:k/ｚ", "library:k/\U0001F600"]
+
+
+def test_library_refs_follow_the_shared_site_table() -> None:
+    # As the Rust test `library_refs_follow_the_shared_site_table` and the TypeScript
+    # parity test: the one walk finds every site of the table and no other, and the
+    # recorded refs are the sites with a table identity, normalized as the table is; a
+    # null identity is omitted.
+    table = json.loads((ROOT / "fixtures" / "model_document" / "library_ref_sites.json").read_text(encoding="utf-8"))
+    document = table["document"]
+    assert [path for path, _ in library_ref_sites(document)] == [site["path"] for site in table["sites"]]
+
+    def at(path: str) -> dict:
+        value = document
+        for key in re.sub(r"\[(\d+)\]", r".\1", path).split("."):
+            value = value[int(key)] if isinstance(value, list) else value[key]
+        return value
+
+    expected = set()
+    for site in table["sites"]:
+        if site["identity"] is None:
+            continue
+        kind, library_id, record_id = site["identity"]
+        version = at(site["path"]).get("library_version")
+        expected.add(f"library:{kind}/{library_id}" + (f"@{version}" if isinstance(version, str) else "") + (f"#{record_id}" if record_id is not None else ""))
+    refs = [ref["ref"] for ref in recorded_library_refs(document)]
+    assert refs == sorted(expected) == [
+        "library:component/complib.invented.sites#comp.inner",
+        "library:hanger/hanglib.invented.sites",
+        "library:material/matlib.invented.root#mat.root",
+        "library:material/matlib.invented.sites#mat.padded",
+        "library:material/matlib.invented.sites@sha256:recorded#mat.top",
+        "library:section/seclib.invented.sites",
+    ]
 
 
 def _reseal(record: dict) -> dict:

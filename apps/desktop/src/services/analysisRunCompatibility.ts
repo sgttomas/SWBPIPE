@@ -9,6 +9,8 @@ import physicsRetainedTable from "../../../../fixtures/results/semantic_contract
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { inputManifestRef, type CurrentSessionInputManifest } from "./inputManifestService";
+import { libraryRefSites } from "./libraryImportService";
+import { trimLikeRust } from "./rustTrim";
 
 /** The one current analysis-run version (b7-plan E1). */
 export const ANALYSIS_RUN_V03 = "0.3.0";
@@ -245,24 +247,27 @@ export function recordedRulePackRefs(manifest: Pick<CurrentSessionInputManifest,
   });
 }
 
-/** The recorded revision's `library_refs`: every `provenance_record.library_ref` of the
- * solved model, once each, in code-point order. */
+/** The recorded revision's `library_refs`: every `library_ref` site of the solved model
+ * that the one walk finds (`libraryRefSites`, pinned with the native walk to
+ * `fixtures/model_document/library_ref_sites.json`), its identity normalized as the
+ * native walk normalizes it (`library_ref_identity`: Rust's White_Space trim,
+ * `trimLikeRust`; nothing when blank or not text). `library_version` is kept verbatim
+ * when it is text. A site whose kind or id is blank or not text names no library and is
+ * omitted. Once each, in code-point order, as
+ * `library:<kind>/<id>[@<version>][#<record id>]`. */
 export function recordedLibraryRefs(modelPayload: unknown): ObjectRef[] {
-  const found = new Set<string>();
-  const visit = (value: unknown): void => {
-    if (Array.isArray(value)) { value.forEach(visit); return; }
-    if (!value || typeof value !== "object") return;
-    for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-      if (key === "provenance_record" && child && typeof child === "object") {
-        const ref = (child as Record<string, unknown>).library_ref as Record<string, unknown> | undefined;
-        if (ref && typeof ref === "object" && typeof ref.library_kind === "string" && typeof ref.library_id === "string") {
-          found.add(`library:${ref.library_kind}/${ref.library_id}${typeof ref.library_version === "string" ? `@${ref.library_version}` : ""}${typeof ref.record_id === "string" ? `#${ref.record_id}` : ""}`);
-        }
-      }
-      visit(child);
-    }
+  const identity = (value: unknown): string | null => {
+    const trimmed = typeof value === "string" ? trimLikeRust(value) : "";
+    return trimmed ? trimmed : null;
   };
-  visit(modelPayload);
+  const found = new Set<string>();
+  for (const { reference } of libraryRefSites(modelPayload)) {
+    const kind = identity(reference.library_kind);
+    const id = identity(reference.library_id);
+    if (!kind || !id) continue;
+    const record = identity(reference.record_id);
+    found.add(`library:${kind}/${id}${typeof reference.library_version === "string" ? `@${reference.library_version}` : ""}${record ? `#${record}` : ""}`);
+  }
   return [...found].sort(codePointCompare).map((ref) => ({ object_type: "Library", ref }));
 }
 
