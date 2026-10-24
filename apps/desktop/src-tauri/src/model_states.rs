@@ -691,23 +691,40 @@ pub(crate) fn stored_record(state: &NewState<'_>) -> Result<(Value, String), Str
         "provenance": record_provenance()
     });
     let hash = record_hash_hex(&record)?;
-    record["hashes"] = json!([
+    record["hashes"] = checksum_descriptors(
+        state.project_id,
+        state.state_id,
+        state.model_hash_hex,
+        &hash,
+    );
+    Ok((record, hash))
+}
+
+/// A record's `hashes`: exactly these two descriptors, in this order. The
+/// record digest leaves `hashes` out, so verification rebuilds this value from
+/// the verified fields and requires the stored one to equal it.
+fn checksum_descriptors(
+    project_id: &str,
+    state_id: &str,
+    model_hash_hex: &str,
+    record_hash_hex: &str,
+) -> Value {
+    json!([
         {
             "algorithm": "sha256",
             "canonicalization": "JCS",
-            "payload_ref": reference("Model", state.project_id),
+            "payload_ref": reference("Model", project_id),
             "payload_scope": "model_payload",
-            "value": state.model_hash_hex
+            "value": model_hash_hex
         },
         {
             "algorithm": "sha256",
             "canonicalization": "SORTED_COMPACT_JSON",
-            "payload_ref": reference("ModelState", state.state_id),
+            "payload_ref": reference("ModelState", state_id),
             "payload_scope": "model_state_record",
-            "value": hash
+            "value": record_hash_hex
         }
-    ]);
-    Ok((record, hash))
+    ])
 }
 
 /// The record as read: the stored record with the labels joined in. Tags become
@@ -1032,7 +1049,7 @@ fn verified_record(columns: &IdentityColumns<'_>, record_json: &str) -> Result<V
         Some(parent) => json!([reference("ModelState", parent)]),
         None => json!([]),
     };
-    let checks: [(&str, bool); 7] = [
+    let checks: [(&str, bool); 6] = [
         ("state_id", field("/state_id") == Some(columns.state_id)),
         (
             "project",
@@ -1057,25 +1074,27 @@ fn verified_record(columns: &IdentityColumns<'_>, record_json: &str) -> Result<V
                 .strip_prefix("sha256:")
                 .is_some_and(|hex| claimed_hash(&record, "model_payload") == Some(hex)),
         ),
-        (
-            "record hash reference",
-            record
-                .get("hashes")
-                .and_then(Value::as_array)
-                .is_some_and(|hashes| {
-                    hashes.iter().any(|hash| {
-                        hash.get("payload_scope").and_then(Value::as_str)
-                            == Some("model_state_record")
-                            && hash.get("payload_ref")
-                                == Some(&reference("ModelState", columns.state_id))
-                    })
-                }),
-        ),
     ];
     if let Some((name, _)) = checks.iter().find(|(_, holds)| !holds) {
         return Err(integrity_of(
             id,
             format_args!("the row's {name} differs from its verified record"),
+        ));
+    }
+    // The digest does not cover `hashes`: the whole array must be exactly the
+    // descriptors the verified fields give (algorithm, canonicalization, scope,
+    // payload ref, value), with no duplicate, extra or missing entry.
+    let model_hash_hex = columns.model_hash.strip_prefix("sha256:").unwrap_or("");
+    let expected = checksum_descriptors(
+        columns.project_id,
+        columns.state_id,
+        model_hash_hex,
+        &recomputed,
+    );
+    if record.get("hashes") != Some(&expected) {
+        return Err(integrity_of(
+            id,
+            "the record's checksum descriptors differ from the expected ones",
         ));
     }
     Ok(record)
@@ -2759,6 +2778,88 @@ mod tests {
             ),
         );
         expect_identity_refused(&path, PROJECT, &saved.state.state_id, "model hash");
+    }
+
+    #[test]
+    fn checksum_descriptors_must_be_exactly_the_expected_ones() {
+        // Each edit changes only `hashes`, which the record digest leaves out.
+        type Edit = fn(&mut Value);
+        let edits: [(&str, Edit); 9] = [
+            ("model payload ref", |hashes| {
+                hashes[0]["payload_ref"]["ref"] = json!("project:other")
+            }),
+            ("model payload ref type", |hashes| {
+                hashes[0]["payload_ref"]["object_type"] = json!("Project")
+            }),
+            ("canonicalization", |hashes| {
+                hashes[0]["canonicalization"] = json!("NONE")
+            }),
+            ("algorithm", |hashes| {
+                hashes[1]["algorithm"] = json!("sha512")
+            }),
+            ("payload scope", |hashes| {
+                hashes[0]["payload_scope"] = json!("state_payload_partition")
+            }),
+            ("record payload ref", |hashes| {
+                hashes[1]["payload_ref"]["ref"] = json!("state:other")
+            }),
+            ("duplicate entry", |hashes| {
+                let copy = hashes[1].clone();
+                hashes.as_array_mut().unwrap().push(copy);
+            }),
+            ("extra entry", |hashes| {
+                hashes.as_array_mut().unwrap().push(json!({
+                "algorithm": "sha256", "canonicalization": "NONE", "payload_ref": { "object_type": "AuditManifest", "ref": "x" },
+                "payload_scope": "audit_manifest", "value": "00" }))
+            }),
+            ("missing entry", |hashes| {
+                hashes.as_array_mut().unwrap().remove(0);
+            }),
+        ];
+        for (index, (name, edit)) in edits.into_iter().enumerate() {
+            let path = store_with_project(&format!("descriptor-{index}"), "sha256:base-1");
+            let saved = save(
+                &path,
+                request(&model("Invented project"), "sha256:base-1", "Basis"),
+                "00000000000000000000000000000b01",
+                1_000,
+            )
+            .unwrap();
+            let record_json: String = Connection::open(&path)
+                .unwrap()
+                .query_row("SELECT record_json FROM model_states", [], |row| row.get(0))
+                .unwrap();
+            let mut record: Value = serde_json::from_str(&record_json).unwrap();
+            edit(&mut record["hashes"]);
+            assert_eq!(
+                record_hash_hex(&record).unwrap(),
+                saved.state.record_hash,
+                "{name}: the digest does not see it"
+            );
+            tamper(
+                &path,
+                &format!(
+                    "UPDATE model_states SET record_json = '{}';",
+                    serde_json::to_string(&record).unwrap().replace('\'', "''")
+                ),
+            );
+            // A changed scope, or a missing model entry, already hides the model
+            // hash from the identity check, which refuses first.
+            let reason = if matches!(name, "payload scope" | "missing entry") {
+                "the row's model hash differs from its verified record"
+            } else {
+                "the record's checksum descriptors differ from the expected ones"
+            };
+            let expected = format!(
+                "MODEL-STATE-INTEGRITY: saved state `{}`: {reason}",
+                saved.state.state_id
+            );
+            let (connection, _) = crate::open_project_store(&path).unwrap();
+            let listed = list_states(&connection, PROJECT).unwrap_err();
+            assert!(listed.starts_with(&expected), "{name}, list: {listed}");
+            let read = read_state_in_store(&path, PROJECT, &saved.state.state_id).unwrap_err();
+            assert!(read.starts_with(&expected), "{name}, read: {read}");
+        }
     }
 
     #[test]

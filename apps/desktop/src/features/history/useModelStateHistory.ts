@@ -38,8 +38,9 @@ export type ModelStateHistoryDeps = {
   confirmReplacingEdits: (request: UnsavedChangesRequest) => Promise<UnsavedChangesOutcome>;
   acquireProjectOperation: () => symbol | null;
   releaseProjectOperation: (owner: symbol) => void;
-  /** Save Local Project's flow, with its replace prompt. */
-  saveLocalProject: () => Promise<void>;
+  /** Save Local Project's flow, with its replace prompt: the save that landed,
+   * or null. "Save as a new project" lands under a new project id. */
+  saveLocalProject: () => Promise<LandedProjectSave | null>;
   /** Makes an opened state's snapshot the working model (a new project session). */
   adoptStateSnapshot: (opened: ModelStateRead, snapshotHash: ModelHashEvidence) => void;
 };
@@ -48,6 +49,10 @@ export type ModelStateHistoryDeps = {
 export function notOpenableReason(state: ModelStateSummary): string {
   return `the saved state ${modelStateDescription(state)} is MODEL_INCOMPLETE: its model has blocking document findings, so it is kept as a comparison basis but cannot be opened as the working model (as such a project cannot be opened).`;
 }
+
+/** A Save Local Project that landed: the stored project, its new base and the
+ * document it stored (after "Save as a new project", the renamed working model). */
+export type LandedProjectSave = { projectId: string; base: string | null; model: PreviewModel };
 
 export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 
@@ -119,9 +124,10 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
    * project. A state needs the project's stored row: when the session is not
    * that stored project, Save Local Project's flow runs first. */
   async function saveState(form: SaveModelStateForm): Promise<boolean> {
-    const requestModel = depsRef.current.currentModel.current;
+    let requestModel = depsRef.current.currentModel.current;
     if (!requestModel) return false;
-    const requestProjectId = requestModel.project.id;
+    let requestProjectId = requestModel.project.id;
+    let parentStateId = basisStateId;
     if (!form.labels.state_name.trim()) {
       setHistoryMessage("Not saved: a model state needs a name.");
       setHistoryOperation("save_state_refused");
@@ -133,7 +139,23 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     };
     if (!isStoredProject()) {
       setHistoryMessage("A model state needs its project's stored copy: saving the local project first.");
-      await depsRef.current.saveLocalProject();
+      const landed = await depsRef.current.saveLocalProject();
+      if (!landed) {
+        setHistoryMessage("Not saved: the local project was not saved, so the model state was not saved.");
+        setHistoryOperation("save_state_needs_project");
+        return false;
+      }
+      if (depsRef.current.currentModel.current !== landed.model) {
+        setHistoryMessage("Not saved: the working model changed while the local project was saved, so the model state was not saved.");
+        setHistoryOperation("save_state_superseded");
+        return false;
+      }
+      // The continuation follows the save that landed: after "Save as a new
+      // project" that is the renamed working model under its new project id,
+      // and a parent state of the old project no longer applies.
+      if (landed.projectId !== requestProjectId) parentStateId = null;
+      requestModel = landed.model;
+      requestProjectId = landed.projectId;
       if (!isStoredProject()) {
         setHistoryMessage("Not saved: the local project was not saved, so the model state was not saved.");
         setHistoryOperation("save_state_needs_project");
@@ -149,7 +171,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
         expectedBase: depsRef.current.storedBaseRef.current!.value!,
         model: requestModel,
         kind: form.kind,
-        parentStateId: basisStateId,
+        parentStateId,
         labels: form.labels
       });
       if (!sameSession()) return true;

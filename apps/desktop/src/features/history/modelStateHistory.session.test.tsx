@@ -40,9 +40,10 @@ type SaveRequest = {
 };
 
 /** A fake of the native store: one project row and its states. */
-function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEntry | null; refuseProjectSave?: string } = {}) {
+function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEntry | null; refuseProjectSave?: string; storedDemo?: StoredProjectEntry } = {}) {
   const store = {
     projectStored: options.projectStored ?? false,
+    storedProjects: new Set<string>(),
     states: [] as ModelStateSummary[],
     snapshots: new Map<string, string>(),
     sequence: 0
@@ -52,11 +53,17 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
       case "sync_native_shell_state":
         return null;
       case "find_local_project":
+        if (options.storedDemo) return args.projectId === DEMO.project.id ? options.storedDemo : null;
         return options.find ?? null;
       case "save_local_project": {
         if (options.refuseProjectSave) throw options.refuseProjectSave;
-        const request = args.request as { model: PreviewModel; model_hash: unknown };
+        const request = args.request as { model: PreviewModel; model_hash: unknown; confirmed_revision?: string | null };
+        // A stored demo row: writing the demo's id needs the Replace the prompt showed.
+        if (options.storedDemo && request.model.project.id === DEMO.project.id && request.confirmed_revision !== options.storedDemo.revision) {
+          throw `PROJECT-ID-EXISTS: project \`${DEMO.project.id}\` ("${options.storedDemo.project_name}", last saved at unix ${options.storedDemo.updated_at_unix}) is already stored; replacing it needs the user's confirmation.`;
+        }
         store.projectStored = true;
+        store.storedProjects.add(request.model.project.id);
         return {
           summary: { project_id: request.model.project.id, project_name: request.model.project.name, message: "Saved current project model snapshot without external file copies." },
           model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: null,
@@ -65,7 +72,7 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
       }
       case "save_model_state": {
         const request = args.request as SaveRequest;
-        if (!store.projectStored) throw `MODEL-STATE-PROJECT-MISSING: project \`${request.project_id}\` has no stored local project; save the local project first.`;
+        if (!store.projectStored || (options.storedDemo && !store.storedProjects.has(request.project_id))) throw `MODEL-STATE-PROJECT-MISSING: project \`${request.project_id}\` has no stored local project; save the local project first.`;
         if (request.expected_base !== BASE) throw `PROJECT-BASE-MOVED: project \`${request.project_id}\` changed after this session opened or saved it.`;
         const existing = store.states.find((state) => state.model_hash === request.model_hash);
         if (existing) return { outcome: "already_saved", state: existing, message: `This model is already saved as state "${existing.state_name}" (${existing.state_id}); nothing was written.` };
@@ -235,6 +242,60 @@ describe("model states in the session (W-12 S1)", () => {
     fireEvent.click(screen.getByTestId("replace-project-cancel"));
     await waitFor(() => expect(historyMessage()).toHaveTextContent("Not saved: the local project was not saved, so the model state was not saved."));
     expect(calls("save_model_state")).toHaveLength(0);
+  });
+
+  describe("Save Model State… whose prerequisite project save meets a stored project id", () => {
+    const STORED: StoredProjectEntry = {
+      project_id: DEMO.project.id, project_name: "Stored invented demo", storage_mode: "local_sqlite",
+      created_at_unix: 1760000000, updated_at_unix: 1760086400, revision: "sha256:stored@1760086400", saved_state_count: 0
+    };
+
+    async function saveThroughReplacePrompt(choice: "save-as-new" | "replace" | "cancel") {
+      await renderApp();
+      setTauriRuntime(true);
+      const store = nativeStore({ storedDemo: STORED });
+      await refreshHistory();
+      const panel = openProjectSection();
+      fireEvent.click(within(panel).getByTestId("model-state-save-open"));
+      fireEvent.change(within(panel).getByTestId("model-state-save-name"), { target: { value: "Basis" } });
+      fireEvent.click(within(panel).getByTestId("model-state-save-submit"));
+      await screen.findByTestId("replace-project-prompt");
+      fireEvent.click(screen.getByTestId(`replace-project-${choice === "save-as-new" ? "save-as-new" : choice}`));
+      return store;
+    }
+
+    it("Save as a new project: the state is saved once, under the new project id and its base", async () => {
+      const store = await saveThroughReplacePrompt("save-as-new");
+      await waitFor(() => expect(historyMessage()).toHaveTextContent('Saved model state "Basis"'));
+      const projectSaves = calls("save_local_project").map((args) => (args.request as { model: PreviewModel }).model.project.id);
+      expect(projectSaves).toHaveLength(2);
+      expect(projectSaves[0]).toBe(DEMO.project.id);
+      expect(projectSaves[1]).toMatch(new RegExp(`^${DEMO.project.id}:copy-`));
+      const stateSaves = calls("save_model_state").map((args) => args.request as SaveRequest);
+      expect(stateSaves).toHaveLength(1);
+      expect(stateSaves[0].project_id).toBe(projectSaves[1]);
+      expect(stateSaves[0].expected_base).toBe(BASE);
+      expect(JSON.parse(stateSaves[0].model_canonical).project.id).toBe(projectSaves[1]);
+      expect(stateSaves[0].parent_state_id).toBeNull();
+      expect(store.states.map((state) => state.project_id)).toEqual([projectSaves[1]]);
+      // The History panel now lists the new project's state.
+      expect(await screen.findByTestId(`model-state-${store.states[0].state_id}`)).toBeInTheDocument();
+    });
+
+    it("Replace: the state is saved once, under the original project id", async () => {
+      await saveThroughReplacePrompt("replace");
+      await waitFor(() => expect(historyMessage()).toHaveTextContent('Saved model state "Basis"'));
+      expect(calls("save_local_project").map((args) => (args.request as { confirmed_revision: string | null }).confirmed_revision)).toEqual([null, STORED.revision]);
+      const stateSaves = calls("save_model_state").map((args) => args.request as SaveRequest);
+      expect(stateSaves.map((request) => request.project_id)).toEqual([DEMO.project.id]);
+    });
+
+    it("Cancel: neither the project nor the state is saved", async () => {
+      await saveThroughReplacePrompt("cancel");
+      await waitFor(() => expect(historyMessage()).toHaveTextContent("Not saved: the local project was not saved, so the model state was not saved."));
+      expect(calls("save_local_project")).toHaveLength(1);
+      expect(calls("save_model_state")).toHaveLength(0);
+    });
   });
 
   it("Open State waits behind the unsaved-changes guard and starts a fresh undo history; edits make a new working model", async () => {

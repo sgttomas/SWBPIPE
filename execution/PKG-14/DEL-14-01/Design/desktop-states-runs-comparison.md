@@ -164,7 +164,10 @@ Python agree.
 - **Integrity.** Every list, summary and read verifies the record against its
   hash and its `hashes`. It then checks each identity field the record
   duplicates against the row's columns: project, state id, kind,
-  `created_at`, parent ref and model hash. A read also checks the snapshot:
+  `created_at`, parent ref and model hash. The record digest leaves `hashes`
+  out, so the whole `hashes` array must equal the two expected descriptors
+  (algorithm, canonicalization, scope, payload ref and value). A duplicate,
+  extra or missing entry is refused. A read also checks the snapshot:
   its JCS hash and its project id. Any difference is refused as
   `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
   refused.
@@ -202,6 +205,10 @@ Python agree.
   small commands take 4 KiB of arguments, 256 KiB for a label edit
   (`INGRESS-ARGS-TOO-LARGE`). A label edit names the labels' `updated_at` it
   read (`MODEL-STATE-LABELS-MOVED` otherwise).
+- **Prerequisite project save.** When Save Model State… first runs Save
+  Local Project's flow, the state follows the save that landed. After "Save
+  as a new project" that is the renamed working model, its new project id
+  and base, with no parent state from the old project. Cancel saves neither.
 - **Delete.** Until S2, a state's deletion is blocked only by its child states.
 - **Open State.** The desktop had no unsaved-changes guard. S1 adds one, shared
   by every command that replaces the working model (DEL-07-11 Design

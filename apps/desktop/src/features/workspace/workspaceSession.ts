@@ -111,7 +111,7 @@ import {
   deriveProjectEnvelopeHashIntegrity
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
-import { useModelStateHistory } from "../history/useModelStateHistory";
+import { useModelStateHistory, type LandedProjectSave } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import type { ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
@@ -295,8 +295,9 @@ export function useWorkspaceSession() {
   // The unsaved-changes guard reads the current notion when a command starts.
   const modelEditedRef = useRef(modelEdited);
   modelEditedRef.current = modelEdited;
-  // Set when a Save Local Project lands (the guard's "Save first").
-  const projectSaveLanded = useRef(false);
+  // The Save Local Project that landed, for the continuations that ran it
+  // (the guard's "Save first" and Save Model State's prerequisite save).
+  const projectSaveLanded = useRef<LandedProjectSave | null>(null);
 
   const {
     selection, setPrimarySelection,
@@ -2437,7 +2438,7 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setModelDocumentVersion(saved.model_document_version ?? null);
       setProjectMessage(saved.summary.message);
-      projectSaveLanded.current = true;
+      projectSaveLanded.current = { projectId: saved.summary.project_id, base: saved.project_envelope_hash?.value ?? null, model: requestModel };
       setProjectOperation("save");
     } catch (error) {
       if (pendingObservation && sameProjectSession() &&
@@ -3095,20 +3096,20 @@ export function useWorkspaceSession() {
 
   /** Save Local Project's flow, reporting whether a save landed (the
    * unsaved-changes guard's "Save first"). */
-  async function saveLocalProjectFirst(): Promise<boolean> {
-    projectSaveLanded.current = false;
+  async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
+    projectSaveLanded.current = null;
     await saveProject(null);
     return projectSaveLanded.current;
   }
 
   const { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits } = useUnsavedChangesGuard({
-    modelEditedRef, modalOpenRef: replacePromptOpenRef, saveLocalProject: saveLocalProjectFirst
+    modelEditedRef, modalOpenRef: replacePromptOpenRef, saveLocalProject: async () => (await saveLocalProjectFirst()) !== null
   });
 
   const history = useModelStateHistory({
     model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
-    saveLocalProject: handleSaveProject, adoptStateSnapshot
+    saveLocalProject: saveLocalProjectFirst, adoptStateSnapshot
   });
 
   return {

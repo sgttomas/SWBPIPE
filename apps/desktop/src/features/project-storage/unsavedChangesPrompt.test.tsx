@@ -50,14 +50,26 @@ function otherProject(): PreviewModel {
 }
 
 /** The native commands the flows reach. `saveRefusal` makes Save Local Project fail. */
-function nativeCommands(options: { saveRefusal?: string } = {}) {
+const STORED_DEMO = {
+  project_id: DEMO.project.id, project_name: "Stored invented demo", storage_mode: "local_sqlite",
+  created_at_unix: 1760000000, updated_at_unix: 1760086400, revision: "sha256:stored@1760086400", saved_state_count: 0
+};
+
+function nativeCommands(options: { saveRefusal?: string; storedDemo?: boolean } = {}) {
   invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
     switch (command) {
       case "sync_native_shell_state": return Promise.resolve(null);
       case "list_model_states": return Promise.resolve([]);
-      case "find_local_project": return Promise.resolve(null);
+      case "find_local_project":
+        return Promise.resolve(options.storedDemo && args?.projectId === DEMO.project.id ? STORED_DEMO : null);
       case "save_local_project":
         if (options.saveRefusal) return Promise.reject(options.saveRefusal);
+        if (options.storedDemo) {
+          const request = args!.request as { model: PreviewModel; confirmed_revision: string | null };
+          if (request.model.project.id === DEMO.project.id && request.confirmed_revision !== STORED_DEMO.revision) {
+            return Promise.reject(`PROJECT-ID-EXISTS: project \`${DEMO.project.id}\` ("Stored invented demo", last saved at unix 1760086400) is already stored; replacing it needs the user's confirmation.`);
+          }
+        }
         return Promise.resolve(envelope((args!.request as { model: PreviewModel }).model, "Saved current project model snapshot without external file copies."));
       case "open_local_project": return Promise.resolve(envelope(otherProject(), "Opened local SQLite project snapshot."));
       case "open_model_document_file": return Promise.resolve({ outcome: "cancelled" });
@@ -97,7 +109,7 @@ async function applyNodeEdit() {
 }
 
 /** The bundled demo with one unsaved edit, then the native runtime. */
-async function editedSession(options: { saveRefusal?: string } = {}) {
+async function editedSession(options: { saveRefusal?: string; storedDemo?: boolean } = {}) {
   await renderApp();
   await applyNodeEdit();
   setTauriRuntime(true);
@@ -206,6 +218,19 @@ describe.each(commands)("$name with unsaved edits asks first", ({ command, detai
     expect(order()).toEqual(["save_local_project"]);
     expect(screen.queryByTestId("project-units-dialog")).not.toBeInTheDocument();
     expectEditsKept();
+  });
+
+  it("Save first that meets a stored id and is saved as a new project still goes ahead", async () => {
+    await editedSession({ storedDemo: true });
+    promptFor(command);
+    fireEvent.click(screen.getByTestId("unsaved-changes-save"));
+    fireEvent.click(await screen.findByTestId("replace-project-save-as-new"));
+    await landed();
+    const saves = invokeMock.mock.calls.filter(([name]) => name === "save_local_project")
+      .map(([, args]) => (args as { request: { model: PreviewModel } }).request.model.project.id);
+    expect(saves).toHaveLength(2);
+    expect(saves[1]).toMatch(new RegExp(`^${DEMO.project.id}:copy-`));
+    expect(order()).toEqual(replaced ? ["save_local_project", "save_local_project", replaced] : ["save_local_project", "save_local_project"]);
   });
 
   it("does not ask when there are no unsaved edits", async () => {
