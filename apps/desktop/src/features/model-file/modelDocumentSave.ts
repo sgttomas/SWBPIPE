@@ -31,6 +31,7 @@
 import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
 import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
 import { isTauriRuntime } from "../../services/nativeMenu";
+import { trimLikeRust } from "../../services/rustTrim";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import { MODEL_LIBRARY_REF_UNRESOLVED, openLocalLibrary, type LibraryKind, type LibraryOpenRoute } from "../../services/libraryImportService";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
@@ -276,8 +277,9 @@ export function modelLibraryRefs(model: unknown): ModelLibraryRef[] {
   return found;
 }
 
+/** A library identity as the native store path trims it (Rust's rule, not `trim()`). */
 function trimmed(value: unknown): string | null {
-  return text(typeof value === "string" ? value.trim() : value);
+  return text(typeof value === "string" ? trimLikeRust(value) : value);
 }
 
 /** The library import's verdict inputs for one stored library object or record:
