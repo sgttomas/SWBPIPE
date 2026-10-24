@@ -878,6 +878,7 @@ mod tests {
     use super::*;
     use std::collections::HashSet;
     use std::sync::atomic::{AtomicBool, Ordering};
+    use std::cell::Cell;
     use std::sync::{mpsc, Barrier};
     use std::thread::ThreadId;
 
@@ -1423,6 +1424,63 @@ mod tests {
         }
     }
 
+    /// A caller stalled for a whole re-sampling window before its first
+    /// attempt refuses without waiting, so a test about what follows the wait
+    /// repeats such a run (each run keeps every assertion).
+    const RUNS_TO_REACH_THE_WAIT: usize = 20;
+
+    /// A rendezvous of `parties` threads that can be aborted, so a failing
+    /// coordinator never leaves the other parties blocked.
+    struct Rendezvous {
+        parties: usize,
+        /// (arrived, aborted)
+        state: Mutex<(usize, bool)>,
+        changed: Condvar,
+    }
+
+    impl Rendezvous {
+        fn new(parties: usize) -> Arc<Self> {
+            Arc::new(Self { parties, state: Mutex::new((0, false)), changed: Condvar::new() })
+        }
+
+        /// Waits until every party has arrived or the rendezvous is aborted.
+        fn arrive(&self) {
+            let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+            state.0 += 1;
+            self.changed.notify_all();
+            while state.0 < self.parties && !state.1 {
+                state = self.changed.wait(state).unwrap_or_else(PoisonError::into_inner);
+            }
+        }
+
+        fn abort(&self) {
+            self.state.lock().unwrap_or_else(PoisonError::into_inner).1 = true;
+            self.changed.notify_all();
+        }
+    }
+
+    /// Re-sampling waiter threads. Dropping it, also while the coordinator
+    /// unwinds, aborts their rendezvous, cancels their waits and joins them.
+    struct Waiters {
+        pool: Arc<MemoryPool>,
+        cancel: Arc<AtomicBool>,
+        rendezvous: Vec<Arc<Rendezvous>>,
+        handles: Vec<std::thread::JoinHandle<bool>>,
+    }
+
+    impl Drop for Waiters {
+        fn drop(&mut self) {
+            self.cancel.store(true, Ordering::SeqCst);
+            for rendezvous in &self.rendezvous {
+                rendezvous.abort();
+            }
+            self.pool.wake_waiters();
+            for handle in self.handles.drain(..) {
+                let _ = handle.join();
+            }
+        }
+    }
+
     fn refused(stop: ResampleStop) -> ResourceRefusal {
         match stop {
             ResampleStop::Refused(refusal) => refusal,
@@ -1481,44 +1539,81 @@ mod tests {
     /// stands even if the host would now admit.
     #[test]
     fn resampling_starts_no_attempt_after_the_deadline() {
-        let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
-        let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_secs(60));
-        // The host would admit from 150 ms after the first (refused) attempt's sample.
-        let _samples = host.observe(Some((Duration::from_millis(150), GIB)));
-        let started = Instant::now();
-        let refusal = refused(pool.acquire_resampling(MIB, LeasePurpose::Ingress, NEVER).unwrap_err());
-        let waited = started.elapsed();
-        assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
-        assert!(waited >= Duration::from_millis(100) && waited < Duration::from_secs(10), "bounded by the window, not the tick: {waited:?}");
-        assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(refusal));
-        assert_eq!(pool.reserved_total(), 0);
+        for _ in 0..RUNS_TO_REACH_THE_WAIT {
+            let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+            let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_secs(60));
+            let samples = host.observe(None);
+            // The caller's wait has ended and it has not yet reacquired the lock
+            // (production checks `cancelled` there). From the window after its
+            // first, refused sample its deadline has passed, and the host would
+            // now admit.
+            let waited_once = Cell::new(false);
+            let past_the_deadline = || {
+                if !waited_once.replace(true) {
+                    let first = samples.recv().expect("the caller has attempted").at;
+                    std::thread::sleep((first + Duration::from_millis(100)).saturating_duration_since(Instant::now()));
+                    host.set(|s| s.headroom_bytes = Some(GIB));
+                }
+                false
+            };
+            let started = Instant::now();
+            let refusal = refused(pool.acquire_resampling(MIB, LeasePurpose::Ingress, &past_the_deadline).unwrap_err());
+            let waited = started.elapsed();
+            assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
+            assert!(waited >= Duration::from_millis(100) && waited < Duration::from_secs(10), "bounded by the window, not the tick: {waited:?}");
+            assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(refusal));
+            assert_eq!(pool.reserved_total(), 0);
+            if waited_once.get() {
+                return;
+            }
+        }
+        panic!("no run reached the caller's wait");
     }
 
     /// A waiter that reacquires the pool lock only after the deadline does not
     /// attempt again, even though the host would now admit.
     #[test]
     fn resampling_starts_no_attempt_after_waiting_past_the_deadline_for_the_lock() {
-        let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
-        let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_millis(20));
-        let samples = host.observe(None);
-        let holder = {
-            let (pool, host) = (pool.clone(), host.clone());
-            std::thread::spawn(move || {
-                // The waiter's first attempt has sampled the host, under the
-                // lock: the holder takes the lock only once that attempt is refused.
-                let first = samples.recv().expect("the waiter attempts").at;
-                let state = pool.lock();
-                // The waiter's deadline is at most the 100 ms window after its
-                // first sample; the lock is held, and the host refilled, past it.
-                std::thread::sleep((first + Duration::from_millis(200)).saturating_duration_since(Instant::now()));
-                host.set(|s| s.headroom_bytes = Some(GIB));
-                drop(state);
-            })
-        };
-        let refusal = refused(pool.acquire_resampling(MIB, LeasePurpose::Ingress, NEVER).unwrap_err());
-        holder.join().unwrap();
-        assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
-        assert_eq!(pool.reserved_total(), 0);
+        for _ in 0..RUNS_TO_REACH_THE_WAIT {
+            let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+            let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_millis(20));
+            let samples = host.observe(None);
+            let (held_tx, held) = mpsc::channel();
+            let holder = {
+                let (pool, host) = (pool.clone(), host.clone());
+                std::thread::spawn(move || {
+                    // The waiter's first attempt has sampled the host, under the
+                    // lock: the holder takes the lock only once that attempt is refused.
+                    let first = samples.recv().expect("the waiter attempts").at;
+                    let state = pool.lock();
+                    let _ = held_tx.send(());
+                    // The waiter's deadline is at most the 100 ms window after its
+                    // first sample; the lock is held, and the host refilled, past it.
+                    std::thread::sleep((first + Duration::from_millis(200)).saturating_duration_since(Instant::now()));
+                    host.set(|s| s.headroom_bytes = Some(GIB));
+                    drop(state);
+                })
+            };
+            // The waiter's wait has ended and it has not yet reacquired the lock
+            // (production checks `cancelled` there): it goes on only once the
+            // holder holds the lock, so it reacquires the lock after the holder
+            // releases it, past the deadline.
+            let waited_once = Cell::new(false);
+            let after_the_holder_locks = || {
+                if !waited_once.replace(true) {
+                    held.recv().expect("the holder takes the lock");
+                }
+                false
+            };
+            let refusal = refused(pool.acquire_resampling(MIB, LeasePurpose::Ingress, &after_the_holder_locks).unwrap_err());
+            holder.join().unwrap();
+            assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
+            assert_eq!(pool.reserved_total(), 0);
+            if waited_once.get() {
+                return;
+            }
+        }
+        panic!("no run reached the waiter's wait");
     }
 
     /// A cancellation request (`wake_waiters`) ends the wait at once, reserves
@@ -1630,21 +1725,19 @@ mod tests {
         // The window outlasts the test; the waiters left refused end on cancellation.
         let pool = timed_pool(&host, Duration::from_secs(30), Duration::from_millis(5));
         let samples = host.observe(None);
-        let cancel = Arc::new(AtomicBool::new(false));
-        let start = Arc::new(Barrier::new(7));
-        let done = Arc::new(Barrier::new(7));
-        let handles: Vec<_> = (0..6)
-            .map(|_| {
-                let (pool, start, done, cancel) = (pool.clone(), start.clone(), done.clone(), cancel.clone());
-                std::thread::spawn(move || {
-                    start.wait();
-                    let lease = pool.acquire_resampling(chunk, LeasePurpose::Ingress, &|| cancel.load(Ordering::SeqCst));
-                    done.wait(); // every lease is held until all waits end
-                    lease.is_ok()
-                })
-            })
-            .collect();
-        start.wait();
+        let (start, done) = (Rendezvous::new(7), Rendezvous::new(7));
+        let mut waiters =
+            Waiters { pool: pool.clone(), cancel: Arc::default(), rendezvous: vec![start.clone(), done.clone()], handles: Vec::new() };
+        for _ in 0..6 {
+            let (pool, start, done, cancel) = (pool.clone(), start.clone(), done.clone(), waiters.cancel.clone());
+            waiters.handles.push(std::thread::spawn(move || {
+                start.arrive();
+                let lease = pool.acquire_resampling(chunk, LeasePurpose::Ingress, &|| cancel.load(Ordering::SeqCst));
+                done.arrive(); // every lease is held until all waits end
+                lease.is_ok()
+            }));
+        }
+        start.arrive();
         // Waits until each of the six waiters has sampled the host at `step`.
         let each_waiter_sampled = |step: usize| {
             let mut waiters = HashSet::new();
@@ -1660,10 +1753,10 @@ mod tests {
         each_waiter_sampled(0);
         host.set(|s| s.headroom_bytes = Some(chunk * 5 / 2));
         each_waiter_sampled(1);
-        cancel.store(true, Ordering::SeqCst);
+        waiters.cancel.store(true, Ordering::SeqCst);
         pool.wake_waiters();
-        done.wait();
-        let admitted = handles.into_iter().map(|h| h.join().unwrap()).filter(|ok| *ok).count();
+        done.arrive();
+        let admitted = waiters.handles.drain(..).map(|h| h.join().unwrap()).filter(|ok| *ok).count();
         assert_eq!(admitted, 2);
         assert_eq!(pool.reserved_total(), 0);
     }

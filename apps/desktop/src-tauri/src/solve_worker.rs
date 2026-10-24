@@ -1584,12 +1584,15 @@ pub(crate) mod tests {
         let releaser = {
             let (pool, dir) = (pool.clone(), gate.dir.clone());
             std::thread::spawn(move || {
-                // A bounded wait (a hang guard): the hold is released in any case.
+                // A bounded wait (a hang guard): the hold is released in any
+                // case. A removed gate (the test has ended) ends the releaser.
                 let deadline = Instant::now() + Duration::from_secs(60);
-                while pool.reserved(LeasePurpose::Worker) < 48 * MIB && Instant::now() < deadline {
+                while pool.reserved(LeasePurpose::Worker) < 48 * MIB && Instant::now() < deadline && dir.is_dir() {
                     std::thread::sleep(Duration::from_millis(2));
                 }
-                std::fs::write(dir.join("hold-released"), b"").unwrap();
+                if let Err(error) = std::fs::write(dir.join("hold-released"), b"") {
+                    assert!(!dir.is_dir(), "{error}");
+                }
             })
         };
         let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
