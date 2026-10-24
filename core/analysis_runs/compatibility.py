@@ -90,6 +90,21 @@ RULE_PACK_REF_UNRESOLVED = "MODEL-RULE-PACK-REF-UNRESOLVED"
 RULE_PACK_REF_CHECKSUM_MISMATCH = "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH"
 RULE_PACK_REF_DIAGNOSTIC_SOURCE = "desktop/solve-rule-pack-resolution"
 ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH = "ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH"
+# A run recorded before rule-pack resolution (S2, #1596): the model has references, the
+# manifest's active_rule_packs is empty and the record names no exclusion. Refused by name, not
+# read leniently, so the user knows to re-record it (as Rust and the TypeScript refuse it).
+ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED = "ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED"
+_RULE_PACKS_NOT_RESOLVED_REFUSAL = f"{ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}: recorded before rule-pack resolution; re-record this run"
+
+
+def _rule_pack_diagnostics_refusal(identities: list[str], input_manifest: Mapping[str, Any]) -> str | None:
+    """The refusal for record rule-pack diagnostics naming `identities` against the manifest's
+    exclusions, or None when they agree (`rulePackDiagnosticsRefusal` in the TypeScript)."""
+    excluded = manifest_excluded_rule_pack_identities(input_manifest)
+    if identities == excluded:
+        return None
+    none_resolved = input_manifest.get("active_rule_packs") == []
+    return _RULE_PACKS_NOT_RESOLVED_REFUSAL if not identities and excluded and none_resolved else ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH
 _RULE_PACK_REF_CODES = (RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH)
 _MESSAGE_IDENTITY_LIMIT = 160
 
@@ -232,8 +247,9 @@ def _build_analysis_run(
         raise ValueError("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH")
     rule_pack_diagnostics = [{"source_annotation": rule_pack_ref_diagnostic(item["code"], rule_pack_identity(item["rule_pack_id"], item["rule_pack_version"]))}
                              for item in rule_pack_ref_exclusions]
-    if manifest is not None and [item["source_annotation"]["affected_refs"][0] for item in rule_pack_diagnostics] != manifest_excluded_rule_pack_identities(manifest):
-        raise ValueError(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH)
+    built_refusal = _rule_pack_diagnostics_refusal([item["source_annotation"]["affected_refs"][0] for item in rule_pack_diagnostics], manifest) if manifest is not None else None
+    if built_refusal:
+        raise ValueError(built_refusal)
     solver_basis = manifest.get("solver_basis", {}) if manifest is not None else {}
     solver_name = str(solver_basis.get("solver_name", solver_name))
     solver_version = str(solver_basis.get("solver_version", solver_version))
@@ -800,8 +816,9 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     rule_pack_entries = rule_pack_ref_diagnostic_entries(diagnostics[len(producer):])
     if rule_pack_entries is None:
         raise ValueError("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH")
-    if recorded_state is not None and [identity for _, identity in rule_pack_entries] != manifest_excluded_rule_pack_identities(recorded_state["input_manifest"]):
-        raise ValueError(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH)
+    recorded_refusal = _rule_pack_diagnostics_refusal([identity for _, identity in rule_pack_entries], recorded_state["input_manifest"]) if recorded_state is not None else None
+    if recorded_refusal:
+        raise ValueError(recorded_refusal)
     statuses = run.get("analysis_status")
     source_rule = source.get("status", {}).get("rule_check")
     if source_rule is not None and (not isinstance(source_rule, str) or source_rule not in RULE_STATUSES):

@@ -7,6 +7,7 @@
 // recorded runs (SQLite-only history, design §7), so every call there is refused
 // by name.
 import { invokeWithIngress } from "./nativeIngress";
+import { partitionListed, type UnreadableRow } from "./historyListEntries";
 import { jsonTextKeepingNegativeZero } from "./jsonText";
 import type { CurrentSessionInputManifestEvidence } from "./inputManifestService";
 import { MODEL_STATE_STORE_UNAVAILABLE, type ModelStateSummary, type StateAssumption, type StateLabels } from "./modelStateService";
@@ -128,9 +129,12 @@ export async function recordAnalysisRun(input: RecordRunInput): Promise<RecordRu
   });
 }
 
-export async function listAnalysisRuns(projectId: string): Promise<AnalysisRunSummary[]> {
+/** The project's recorded runs: the readable summaries and, separately, each row the
+ * store cannot read, by its id and refusal only (`historyListEntries.ts`). */
+export async function listAnalysisRuns(projectId: string): Promise<{ runs: AnalysisRunSummary[]; unreadable: UnreadableRow[] }> {
   requireNativeStore();
-  return invokeWithIngress<AnalysisRunSummary[]>("list_analysis_runs", { projectId });
+  const { readable, unreadable } = partitionListed(await invokeWithIngress<Array<AnalysisRunSummary | { unreadable: UnreadableRow }>>("list_analysis_runs", { projectId }));
+  return { runs: readable, unreadable };
 }
 
 export async function readAnalysisRun(projectId: string, recordingId: string): Promise<AnalysisRunRead> {

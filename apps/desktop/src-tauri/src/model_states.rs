@@ -1320,7 +1320,7 @@ fn claimed_hash<'a>(record: &'a Value, scope: &str) -> Option<&'a str> {
 }
 
 fn integrity_of(state_id: &str, detail: impl std::fmt::Display) -> String {
-    format!("MODEL-STATE-INTEGRITY: saved state `{}`: {detail}; it is neither listed nor opened.", stored_read::shown(state_id))
+    format!("MODEL-STATE-INTEGRITY: saved state `{}`: {detail}; it is listed as unreadable and is not opened.", stored_read::shown(state_id))
 }
 
 /// The row's identity columns, which the record duplicates.
@@ -1546,13 +1546,37 @@ pub(crate) fn find_summary_with(
     Ok(Some(summary_from_row(connection, row, memory)?.holding(load)))
 }
 
+/// One entry of a project's saved-state list: a verified state's summary, or a
+/// row that cannot be read, shown only by its id and its named refusal (W-12;
+/// DEL-14-01 Design §2). One unreadable row never hides the others.
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
+pub(crate) enum ListedState {
+    Readable(ModelStateSummary),
+    Unreadable { unreadable: stored_read::UnreadableRow },
+}
+
 /// The project's states, newest first, unmetered, on its own read transaction
-/// (tests; the command uses [`list_states_in_store_with`]).
+/// (tests; the command uses [`list_states_in_store_with`]): the summaries when
+/// every row is readable, else the first unreadable row's refusal (the
+/// refusal its list entry carries). [`list_state_entries`] gives the entries.
 #[cfg(test)]
 pub(crate) fn list_states(
     connection: &Connection,
     project_id: &str,
 ) -> Result<Vec<ModelStateSummary>, String> {
+    list_state_entries(connection, project_id)?
+        .into_iter()
+        .map(|entry| match entry {
+            ListedState::Readable(summary) => Ok(summary),
+            ListedState::Unreadable { unreadable } => Err(unreadable.refusal),
+        })
+        .collect()
+}
+
+/// The project's saved-state list entries, unmetered (tests).
+#[cfg(test)]
+pub(crate) fn list_state_entries(connection: &Connection, project_id: &str) -> Result<Vec<ListedState>, String> {
     let transaction = connection.unchecked_transaction().map_err(sql)?;
     list_states_with(&transaction, project_id, &UnmeteredReadMemory)?.into_unreserved()
 }
@@ -1562,23 +1586,52 @@ pub(crate) fn list_states_in_store_with(
     path: &Path,
     project_id: &str,
     memory: &dyn ReadMemory,
-) -> Result<Metered<Vec<ModelStateSummary>>, String> {
+) -> Result<Metered<Vec<ListedState>>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     list_states_with(&transaction, project_id, memory)
 }
 
-/// [`list_states`] within `memory`: before anything is loaded, the summaries'
-/// lengths are read and their loading reserved (the largest record, as records
-/// are verified one at a time, and every labels row and id list, which the
-/// list keeps); each record's parse is reserved after it is loaded and released
-/// once it is verified, and each row's decoded labels are held with the list.
+/// The state rows of `project_id` whose identity or time column holds more
+/// than its bound, as unreadable entries: only each id's head and the column
+/// named are loaded (repair r5's refusal, now per row).
+fn oversized_state_entries(connection: &Connection, project_id: &str, memory: &dyn ReadMemory) -> Result<Vec<Metered<stored_read::UnreadableRow>>, String> {
+    let oversized = stored_read::oversized_column(&STATE_IDENTITY);
+    let mut statement = connection
+        .prepare(&format!(
+            "SELECT {}, {oversized} FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id
+             WHERE s.project_id = ?1 AND {oversized} IS NOT NULL ORDER BY s.rowid",
+            stored_read::shown_column("s.state_id")
+        ))
+        .map_err(sql)?;
+    let mut rows = statement.query(params![project_id]).map_err(sql)?;
+    let mut entries = Vec::new();
+    while let Some(row) = rows.next().map_err(sql)? {
+        let (head, length, column): (Vec<u8>, i64, String) = (row.get(0).map_err(sql)?, row.get(1).map_err(sql)?, row.get(2).map_err(sql)?);
+        let id = stored_read::shown_head(&head, length);
+        let refusal = integrity_of(&id, format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&STATE_IDENTITY, &column)));
+        entries.push(stored_read::UnreadableRow::reserved(memory, "an unreadable saved state's list entry", &id, refusal)?);
+    }
+    Ok(entries)
+}
+
+/// [`list_state_entries`] within `memory`: before anything is loaded, the
+/// summaries' lengths are read and their loading reserved (the largest record,
+/// as records are verified one at a time, and every labels row and id list,
+/// which the list keeps); each record's parse is reserved after it is loaded
+/// and released once it is verified, and each row's decoded labels are held
+/// with the list. A row that cannot be read (an oversized column, a record or
+/// labels row that does not verify) is listed by its id and refusal only, each
+/// such entry reserved at its bound ([`stored_read::UNREADABLE_ROW_BYTES`]);
+/// its unverified fields are not returned. Memory refusals and SQLite errors
+/// still refuse the list.
 pub(crate) fn list_states_with(
     transaction: &Transaction<'_>,
     project_id: &str,
     memory: &dyn ReadMemory,
-) -> Result<Metered<Vec<ModelStateSummary>>, String> {
+) -> Result<Metered<Vec<ListedState>>, String> {
     let connection: &Connection = transaction;
+    let oversized = stored_read::oversized_column(&STATE_IDENTITY);
     let lengths = connection
         .query_row(
             &format!(
@@ -1586,14 +1639,14 @@ pub(crate) fn list_states_with(
                  SUM(identity_length), COUNT(*)
                  FROM (SELECT {}
                  FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id
-                 WHERE s.project_id = ?1)",
+                 WHERE s.project_id = ?1 AND {oversized} IS NULL)",
                 summary_lengths_sql()
             ),
             params![project_id],
             lengths_row,
         )
         .map_err(sql)?;
-    refuse_oversized_states(connection, project_id, None)?;
+    let oversized_entries = oversized_state_entries(connection, project_id, memory)?;
     let load = memory.reserve(
         &format!("the saved states of project `{}`", stored_read::shown(project_id)),
         stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, summary_load_bytes(&lengths)]),
@@ -1601,7 +1654,7 @@ pub(crate) fn list_states_with(
     let mut statement = connection
         .prepare(&format!(
             "SELECT {SUMMARY_COLUMNS} FROM model_states s LEFT JOIN model_state_labels l
-             ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1
+             ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1 AND {oversized} IS NULL
              ORDER BY s.created_at DESC, s.state_id"
         ))
         .map_err(sql)?;
@@ -1610,10 +1663,25 @@ pub(crate) fn list_states_with(
         .map_err(sql)?
         .collect::<Result<Vec<_>, _>>()
         .map_err(sql)?;
-    let mut listed = Metered::new(Vec::with_capacity(rows.len())).holding(load);
+    let mut listed = Metered::new(Vec::with_capacity(rows.len() + oversized_entries.len())).holding(load);
     for row in rows {
-        listed = listed.join(summary_from_row(connection, row, memory)?, |mut list, summary| {
-            list.push(summary);
+        let state_id = row.1.clone();
+        let entry = match summary_from_row(connection, row, memory) {
+            Ok(summary) => summary.map(ListedState::Readable),
+            Err(error) if error.starts_with("MODEL-STATE-INTEGRITY") => {
+                stored_read::UnreadableRow::reserved(memory, "an unreadable saved state's list entry", &state_id, error)?
+                    .map(|unreadable| ListedState::Unreadable { unreadable })
+            }
+            Err(error) => return Err(error),
+        };
+        listed = listed.join(entry, |mut list, entry| {
+            list.push(entry);
+            list
+        });
+    }
+    for entry in oversized_entries {
+        listed = listed.join(entry, |mut list, unreadable| {
+            list.push(ListedState::Unreadable { unreadable });
             list
         });
     }
@@ -2335,9 +2403,54 @@ pub(crate) fn delete_state_in_store_finishing<R>(
 ) -> Result<R, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
-    let metered = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(|| {
+    let not_found = || {
         format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id))
-    })?;
+    };
+    let metered = match find_summary_with(&transaction, project_id, state_id, memory) {
+        Ok(found) => found.ok_or_else(not_found)?,
+        // An unreadable state may be deleted when nothing depends on it (W-12;
+        // DEL-14-01 Design §2): deleting removes data and trusts none of it. Its
+        // blockers are the rows that name it (child states, recorded runs), counted
+        // from their columns; the row is matched by its exact id and nothing of it
+        // is loaded.
+        Err(error) if error.starts_with("MODEL-STATE-INTEGRITY") => {
+            let count = |sql_text: &str| -> Result<i64, String> {
+                transaction.query_row(sql_text, params![project_id, state_id], |row| row.get(0)).map_err(sql)
+            };
+            if count("SELECT COUNT(*) FROM model_states WHERE project_id = ?1 AND state_id = ?2")? != 1 {
+                return Err(not_found());
+            }
+            let children = count("SELECT COUNT(*) FROM model_states WHERE project_id = ?1 AND parent_state_id = ?2")?;
+            let runs = count("SELECT COUNT(*) FROM analysis_runs WHERE project_id = ?1 AND state_id = ?2")?;
+            if children + runs > 0 {
+                let mut reasons = Vec::new();
+                if children > 0 {
+                    reasons.push(format!("the parent of {children} saved state{}", if children == 1 { "" } else { "s" }));
+                }
+                if runs > 0 {
+                    reasons.push(format!("the state of {runs} recorded run{}", if runs == 1 { "" } else { "s" }));
+                }
+                return Err(format!(
+                    "MODEL-STATE-DELETE-BLOCKED: unreadable state `{}` is {}; delete {} first. Nothing was deleted.",
+                    stored_read::shown(state_id),
+                    reasons.join(" and "),
+                    if children + runs == 1 { "it" } else { "them" }
+                ));
+            }
+            let deleted = transaction
+                .execute("DELETE FROM model_states WHERE project_id = ?1 AND state_id = ?2", params![project_id, state_id])
+                .map_err(sql)?;
+            let finished = finish(Metered::new(ModelStateDeleteReceipt {
+                project_id: project_id.to_string(),
+                state_id: state_id.to_string(),
+                deleted: deleted == 1,
+                message: format!("Deleted unreadable model state `{}`; its record was not read.", stored_read::shown(state_id)),
+            }))?;
+            transaction.commit().map_err(sql)?;
+            return Ok(finished);
+        }
+        Err(error) => return Err(error),
+    };
     let state = metered.get();
     let (children, runs) = (state.child_state_ids.len(), state.recorded_run_ids.len());
     // One cap across both lists (repair r5): at most MAX_NAMED_BLOCKERS named in all.
@@ -2422,7 +2535,7 @@ pub(crate) fn list_model_states_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     memory: &dyn ReadMemory,
-) -> Result<Metered<Vec<ModelStateSummary>>, CommandError> {
+) -> Result<Metered<Vec<ListedState>>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     store()
         .and_then(|path| list_states_in_store_with(&path, &project_id, memory))

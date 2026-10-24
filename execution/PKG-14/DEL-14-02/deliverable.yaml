@@ -211,6 +211,7 @@ code_paths:
 - fixtures/persistence/recorded_run_witness.json
 - fixtures/persistence/transient_run_input_rule_packs.json
 - fixtures/persistence/recorded_run_witness_rule_packs.json
+- fixtures/persistence/s2_unresolved_rule_pack_run.json
 checks:
 - tests/test_analysis_run_compatibility.py
 - tests/test_analysis_run_schema.py

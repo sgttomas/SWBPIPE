@@ -5,6 +5,7 @@
 // the record hash and refuses what does not match. The browser preview keeps no
 // states (SQLite-only history, design §7), so every call there is refused by name.
 import { invokeWithIngress } from "./nativeIngress";
+import { partitionListed, type UnreadableRow } from "./historyListEntries";
 import { canonicalJsonString, computeModelHash } from "./hashService";
 import type { ModelDocumentVersionStatus, PreviewModel } from "../types";
 
@@ -118,9 +119,12 @@ export async function saveModelState(input: SaveModelStateInput): Promise<ModelS
   });
 }
 
-export async function listModelStates(projectId: string): Promise<ModelStateSummary[]> {
+/** The project's saved states: the readable summaries and, separately, each row the
+ * store cannot read, by its id and refusal only (`historyListEntries.ts`). */
+export async function listModelStates(projectId: string): Promise<{ states: ModelStateSummary[]; unreadable: UnreadableRow[] }> {
   requireNativeStore();
-  return invokeWithIngress<ModelStateSummary[]>("list_model_states", { projectId });
+  const { readable, unreadable } = partitionListed(await invokeWithIngress<Array<ModelStateSummary | { unreadable: UnreadableRow }>>("list_model_states", { projectId }));
+  return { states: readable, unreadable };
 }
 
 export async function readModelState(projectId: string, stateId: string): Promise<ModelStateRead> {

@@ -228,6 +228,29 @@ pub(crate) fn shown(text: &str) -> std::borrow::Cow<'_, str> {
     }
 }
 
+/// A history list's entry for a stored row that cannot be read (W-12; DEL-14-01
+/// Design §2, §3): only the row's id, cut as a message quotes it ([`shown`]),
+/// and its named refusal (code and message, [`capped`]). None of the row's
+/// unverified fields is presented. The other rows are listed as usual.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub(crate) struct UnreadableRow {
+    pub(crate) id: String,
+    pub(crate) refusal: String,
+}
+
+/// The bytes an [`UnreadableRow`] can hold: the shown id ([`SHOWN_COLUMN_BYTES`]
+/// with its ellipsis) and the capped refusal (at most [`MAX_MESSAGE_CHARS`]
+/// characters and its ellipsis, four bytes each), with its structure.
+pub(crate) const UNREADABLE_ROW_BYTES: u64 = (SHOWN_COLUMN_BYTES as u64 + 8) + ((MAX_MESSAGE_CHARS as u64 + 1) * 4) + 256;
+
+impl UnreadableRow {
+    /// The entry for row `id` refused by `refusal`, reserved in `memory`.
+    pub(crate) fn reserved(memory: &dyn ReadMemory, what: &str, id: &str, refusal: String) -> Result<Metered<Self>, String> {
+        let reservation = memory.reserve(what, UNREADABLE_ROW_BYTES)?;
+        Ok(Metered::new(Self { id: shown(id).into_owned(), refusal: capped(refusal) }).holding(reservation))
+    }
+}
+
 /// The most characters of any error message a command returns (repair r5): a
 /// last net after every source is bounded (each stored value quoted through
 /// [`shown`], each serde or SQLite error described by [`json_error`] or

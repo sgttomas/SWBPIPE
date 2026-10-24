@@ -121,6 +121,20 @@ export function analysisRecordProjection(record: AnalysisRunEnvelope): AnalysisR
 /** A record's rule-pack reference diagnostics do not name exactly the references its input
  * manifest leaves out of `active_rule_packs`. */
 export const ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH = "ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH";
+/** A run recorded before rule-pack resolution (S2, #1596): the model has references, the
+ * manifest's `active_rule_packs` is empty and the record names no exclusion. Refused by name
+ * (not read leniently) so the user knows to re-record it; Rust and Python refuse it alike. */
+export const ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED = "ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED";
+const RULE_PACKS_NOT_RESOLVED_REFUSAL = `${ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}: recorded before rule-pack resolution; re-record this run`;
+
+/** The refusal for record rule-pack diagnostics naming `identities` against `manifest`'s
+ * exclusions, or null when they agree. */
+function rulePackDiagnosticsRefusal(identities: string[], manifest: Parameters<typeof manifestExcludedRulePackIdentities>[0]): string | null {
+  const excluded = manifestExcludedRulePackIdentities(manifest);
+  if (structurallyEqual(identities, excluded)) return null;
+  const noneResolved = Array.isArray(manifest.active_rule_packs) && manifest.active_rule_packs.length === 0;
+  return identities.length === 0 && excluded.length > 0 && noneResolved ? RULE_PACKS_NOT_RESOLVED_REFUSAL : ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH;
+}
 
 /** The current (0.3.0) record; a result no current record contract reads is refused, never recorded in an older format. */
 /** `rulePackExclusions`: the model's rule-pack references the solve left out of the input
@@ -147,7 +161,8 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs);
   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
   const rulePackDiagnostics = rulePackRefRecordDiagnostics(rulePackExclusions);
-  if (!structurallyEqual(rulePackDiagnostics.map((item) => item.source_annotation.affected_refs[0]), manifestExcludedRulePackIdentities(inputManifest.manifest))) throw new Error(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
+  const builtRefusal = rulePackDiagnosticsRefusal(rulePackDiagnostics.map((item) => item.source_annotation.affected_refs[0]), inputManifest.manifest);
+  if (builtRefusal) throw new Error(builtRefusal);
   const semanticBinding = sourceSemanticBinding(result);
   const rawResult = structuredClone(result);
   const interpret = analysisRowSemanticsReader(result);
@@ -401,7 +416,8 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (!Array.isArray(run.diagnostics) || run.diagnostics.length < producerDiagnostics.length || !same(run.diagnostics.slice(0, producerDiagnostics.length), producerDiagnostics)) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
   const rulePackEntries = rulePackRefDiagnosticEntries(run.diagnostics.slice(producerDiagnostics.length));
   if (!rulePackEntries) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
-  if (recordedState && !structurallyEqual(rulePackEntries.map((entry) => entry.identity), manifestExcludedRulePackIdentities(recordedState.inputManifest))) throw new Error(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
+  const recordedRefusal = recordedState ? rulePackDiagnosticsRefusal(rulePackEntries.map((entry) => entry.identity), recordedState.inputManifest) : null;
+  if (recordedRefusal) throw new Error(recordedRefusal);
   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(source.status.mechanics)) throw new Error("ANALYSIS_SOURCE_MECHANICS_STATUS_INVALID");
   const statuses = run.analysis_status;
   if (!Array.isArray(statuses) || statuses.length !== 3 || new Set(statuses).size !== 3 || !statuses.includes(source.status.mechanics) || !statuses.includes("HUMAN_REVIEW_REQUIRED") || statuses.filter(s => RULE_STATUSES.includes(s)).length !== 1) throw new Error("ANALYSIS_SOURCE_STATUS_MISMATCH");

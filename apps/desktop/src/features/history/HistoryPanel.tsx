@@ -13,6 +13,7 @@ import {
 import { LABELS_DO_NOT_CHANGE_RUN, runDescription, type AnalysisRunSummary, type RunLabels } from "../../services/analysisRunService";
 import { recordedRunBindingFindings } from "../results/HistoricalRunContext";
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
+import { RULE_PACKS_NOT_RESOLVED, unreadableGuidance, type UnreadableRow } from "../../services/historyListEntries";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
 import { notOpenableReason } from "./useModelStateHistory";
 
@@ -211,7 +212,12 @@ function RunRow({ run }: { run: AnalysisRunSummary }) {
       ) : null}
       {check ? (
         <div className="model-history-meta" data-testid={`${testId}-check`} role="status">
-          {check.failure ? <p>Not read: {check.failure}</p> : (
+          {check.failure ? (
+            <>
+              <p>Not read: {check.failure}</p>
+              {check.failure.startsWith(RULE_PACKS_NOT_RESOLVED) ? <p data-testid={`${testId}-re-record`}>{unreadableGuidance(check.failure)}</p> : null}
+            </>
+          ) : (
             <>
               <p>{bindingFindings.length
                 ? "The recorded run does not match its stored state and record:"
@@ -251,6 +257,35 @@ function RunRow({ run }: { run: AnalysisRunSummary }) {
           <button type="button" data-testid={`${testId}-check-run`} disabled={busy} title={reasonFor(busy)} onClick={() => void checkRun(run.recording_id)}>Check record</button>
           <button type="button" data-testid={`${testId}-edit`} disabled={busy || editing !== null} title={reasonFor(busy, editing ? "The labels are being edited below." : null)} onClick={() => setEditing(runDraftFrom(run))}>Edit labels</button>
           <button type="button" data-testid={`${testId}-delete`} disabled={busy} title={reasonFor(busy)} onClick={() => setConfirmingDelete(true)}>Delete…</button>
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** A row the store could not read (W-12): its id, its named refusal and what to do.
+ * Nothing that reads it is offered; delete is (the store refuses a state something
+ * depends on, naming its blockers). */
+function UnreadableRowItem({ kind, row }: { kind: "state" | "run"; row: UnreadableRow }) {
+  const { deleteUnreadable, historyBusy } = useSessionHistory();
+  const { projectBusy } = useSessionProject();
+  const busy = historyBusy || projectBusy;
+  const [confirming, setConfirming] = useState(false);
+  const testId = `unreadable-${kind}-${row.id}`;
+  return (
+    <li className="model-history-unreadable-row" data-testid={testId}>
+      <strong>Unreadable {kind === "state" ? "saved state" : "recorded run"}</strong> <code>{row.id}</code>
+      <p className="model-history-meta" role="note" data-testid={`${testId}-refusal`}>{row.refusal}</p>
+      <p className="model-history-meta" data-testid={`${testId}-guidance`}>{unreadableGuidance(row.refusal)}</p>
+      {confirming ? (
+        <div className="report-actions" role="group" aria-label={`Confirm delete of ${row.id}`}>
+          <span>Delete this unreadable row? This cannot be undone.</span>
+          <button type="button" data-testid={`${testId}-delete-yes`} disabled={busy} title={reasonFor(busy)} onClick={() => { setConfirming(false); void deleteUnreadable(kind, row.id); }}>Delete</button>
+          <button type="button" onClick={() => setConfirming(false)}>Cancel</button>
+        </div>
+      ) : (
+        <div className="report-actions">
+          <button type="button" data-testid={`${testId}-delete`} disabled={busy} title={reasonFor(busy)} onClick={() => setConfirming(true)}>Delete…</button>
         </div>
       )}
     </li>
@@ -384,7 +419,7 @@ function StateRow({ state, states, runs }: { state: ModelStateSummary; states: M
 }
 
 export function HistoryPanel() {
-  const { states, runs, historyMessage, historyBusy, refreshStates, recordRunUnavailableReason } = useSessionHistory();
+  const { states, runs, unreadable, historyMessage, historyBusy, refreshStates, recordRunUnavailableReason } = useSessionHistory();
   const { model } = useSessionModel();
   const { projectBusy } = useSessionProject();
   const [saving, setSaving] = useState(false);
@@ -422,9 +457,19 @@ export function HistoryPanel() {
           <ul className="model-history-list" data-testid="model-history-list">
             {states.map((state) => <StateRow key={`${state.state_id}:${state.labels_updated_at}`} state={state} states={states} runs={runsOf(state.state_id)} />)}
           </ul>
-        ) : (
+        ) : unreadable?.states.length ? null : (
           <p className="muted" data-testid="model-history-empty">No saved model states for this project yet.</p>
         )
+      ) : null}
+      {unreadable && (unreadable.states.length || unreadable.runs.length) ? (
+        <section className="model-history-unreadable" aria-label="Unreadable history rows" data-testid="model-history-unreadable">
+          <strong>Rows the store cannot read</strong>
+          <p className="muted">These stored rows do not verify, so nothing of them is shown, opened, checked or compared; only their ids and the reasons are listed.</p>
+          <ul>
+            {unreadable.states.map((row) => <UnreadableRowItem key={`state:${row.id}`} kind="state" row={row} />)}
+            {unreadable.runs.map((row) => <UnreadableRowItem key={`run:${row.id}`} kind="run" row={row} />)}
+          </ul>
+        </section>
       ) : null}
     </section>
   );

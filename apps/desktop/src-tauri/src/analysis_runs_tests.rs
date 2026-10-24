@@ -29,6 +29,9 @@ const WITNESS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS";
 const TRANSIENT_INPUT_RULE_PACKS: &str = include_str!("../../../../fixtures/persistence/transient_run_input_rule_packs.json");
 const WITNESS_RULE_PACKS: &str = include_str!("../../../../fixtures/persistence/recorded_run_witness_rule_packs.json");
 const WITNESS_RULE_PACKS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS_RULE_PACKS";
+/// A run of a model with rule-pack references as S2 (#1596) recorded it, before
+/// rule-pack resolution (written by `recordedRunParity.test.ts`).
+const S2_UNRESOLVED_RUN: &str = include_str!("../../../../fixtures/persistence/s2_unresolved_rule_pack_run.json");
 
 /// An invented 0.7.0 document of `PROJECT` (`name` makes distinct models).
 fn model(name: &str) -> Value {
@@ -1347,8 +1350,13 @@ fn prescan_invalid_stored_json_is_refused_before_it_is_parsed() {
     let (path, _) = recorded_fixture("invalid-run-labels");
     tamper(&path, &format!("UPDATE analysis_run_labels SET tags_json = '{invalid}';"));
     let memory = PoolReadMemory::unseeded(&pool);
-    let (outcome, measured) = crate::ingress::counting::measure(|| list_runs_in_store_with(&path, PROJECT, &memory).map(|_| ()));
-    refused("run labels", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
+    // The list shows the row as unreadable, by its refusal (W-12), the same refusal.
+    let (outcome, measured) = crate::ingress::counting::measure(|| {
+        list_runs_in_store_with(&path, PROJECT, &memory).map(|listed| unreadable_refusals_of_runs(listed.get()))
+    });
+    let refusals = outcome.unwrap();
+    assert_eq!(refusals.len(), 1);
+    refused("run labels", &refusals[0], measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
     // A state's record and its snapshot.
     for (column, label) in [("record_json", "state record"), ("model_canonical", "state snapshot")] {
         let path = store_with_project(&format!("invalid-{column}"));
@@ -2104,6 +2112,44 @@ fn stored_decoding_and_sqlite_errors_are_described_not_quoted() {
     assert_eq!(stored_read::capped("e".repeat(5000)).chars().count(), stored_read::MAX_MESSAGE_CHARS + 1);
 }
 
+/// The refusals of a run list's unreadable entries (none of their fields is trusted).
+fn unreadable_refusals_of_runs(entries: &[ListedRun]) -> Vec<String> {
+    entries
+        .iter()
+        .filter_map(|entry| match entry {
+            ListedRun::Unreadable { unreadable } => Some(unreadable.refusal.clone()),
+            ListedRun::Readable(_) => None,
+        })
+        .collect()
+}
+
+fn unreadable_refusals_of_states(entries: &[model_states::ListedState]) -> Vec<String> {
+    entries
+        .iter()
+        .filter_map(|entry| match entry {
+            model_states::ListedState::Unreadable { unreadable } => Some(unreadable.refusal.clone()),
+            model_states::ListedState::Readable(_) => None,
+        })
+        .collect()
+}
+
+/// A list holding one row whose identity or time column holds `LARGE` bytes:
+/// the row is listed as unreadable (W-12), by the head of its id and its
+/// refusal, before it is loaded and within the reservations, under the 2 MiB
+/// pool. `list` gives the list's unreadable refusals and its readable count.
+fn assert_oversized_listed(what: &str, column: &str, list: impl FnOnce(&PoolReadMemory<'_>) -> Result<(Vec<String>, usize), String>) {
+    let small = small_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| list(&memory));
+    let (refusals, readable) = outcome.unwrap();
+    assert_eq!((refusals.len(), readable), (1, 0), "{what}");
+    assert!(refusals[0].contains(&format!("its {column} is longer than")), "{what}: {}", stored_read::shown(&refusals[0]));
+    assert_small(what, &refusals[0]);
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "{what}: listed before loading (peak {})", measured.peak_priced);
+    assert!(measured.peak_priced <= memory.peak_reserved().max(1 << 16), "{what}: peak {} within {}", measured.peak_priced, memory.peak_reserved());
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+}
+
 /// A row whose identity or time column holds `LARGE` bytes is refused before
 /// it is loaded, by the head of its id, within the reservations, under the
 /// 2 MiB pool.
@@ -2135,7 +2181,12 @@ fn every_identity_and_time_column_is_bounded_before_it_is_loaded() {
         let path = store_with_project(&format!("r5-state-{column}"));
         let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002601", 1_000);
         tamper_with(&path, &format!("UPDATE {table} SET {set} = ?1"), &large);
-        assert_oversized_refused(&format!("the state list ({column})"), column, |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
+        assert_oversized_listed(&format!("the state list ({column})"), column, |memory| {
+            model_states::list_states_in_store_with(&path, PROJECT, memory).map(|listed| {
+                let entries = listed.get();
+                (unreadable_refusals_of_states(entries), entries.len() - unreadable_refusals_of_states(entries).len())
+            })
+        });
         if column != "state_id" {
             assert_oversized_refused(&format!("the state read ({column})"), column, |memory| {
                 model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)
@@ -2154,7 +2205,12 @@ fn every_identity_and_time_column_is_bounded_before_it_is_loaded() {
         let (path, _) = recorded_fixture(&format!("r5-run-{column}"));
         let id = id_of(&path);
         tamper_with(&path, &format!("UPDATE {table} SET {set} = ?1"), &large);
-        assert_oversized_refused(&format!("the run list ({column})"), column, |memory| list_runs_in_store_with(&path, PROJECT, memory));
+        assert_oversized_listed(&format!("the run list ({column})"), column, |memory| {
+            list_runs_in_store_with(&path, PROJECT, memory).map(|listed| {
+                let entries = listed.get();
+                (unreadable_refusals_of_runs(entries), entries.len() - unreadable_refusals_of_runs(entries).len())
+            })
+        });
         if column != "recording_id" {
             assert_oversized_refused(&format!("the run read ({column})"), column, |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
         }
@@ -2844,4 +2900,175 @@ fn a_model_without_references_excludes_nothing_whatever_the_manifest_holds() {
     assert!(manifest_excluded_rule_packs(&unlisted).unwrap_err().contains("is not a list"));
     let unversioned = json!({ "active_rule_packs": [], "model_basis": { "model_payload": { "rule_pack_refs": [{ "rule_pack_id": "x" }] } } });
     assert!(manifest_excluded_rule_packs(&unversioned).unwrap_err().contains("has no id or version"));
+}
+
+// ---------------------------------------------------------------------------
+// W-12 (DEL-14-01 Design §2, §3): a run recorded before rule-pack resolution is
+// refused by name; the history lists show each unreadable row by its id and
+// refusal only, and the other rows as usual; an unreadable run, or an
+// unreadable state nothing depends on, may be deleted.
+// ---------------------------------------------------------------------------
+
+/// Writes an S2-era store row for the fixture's recorded revision, as S2's Record
+/// Run wrote it (its state saved first), and returns its recording id.
+fn insert_s2_run(path: &Path, fixture: &Value) -> String {
+    let manifest_text = fixture["input_manifest_canonical"].as_str().unwrap();
+    let manifest: Value = serde_json::from_str(manifest_text).unwrap();
+    let payload = &manifest["model_basis"]["model_payload"];
+    let project_id = payload["project"]["id"].as_str().unwrap();
+    let state_id = fixture["state_id"].as_str().unwrap();
+    let model_canonical = canonical_json(payload);
+    let request = SaveModelStateRequest {
+        project_id: project_id.to_string(),
+        expected_base: BASE.to_string(),
+        model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+        model_canonical,
+        state_kind: "post_solve_snapshot".to_string(),
+        parent_state_id: None,
+        labels: labels_from_value(json!({ "state_name": "S2 snapshot" })).unwrap(),
+    };
+    let token = state_id.trim_start_matches("state:").to_string();
+    let allocate = move || Ok((token.clone(), 500));
+    let between_rows = |_: &Transaction<'_>| Ok(());
+    save_state_in_store(path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap();
+    let record = &fixture["recorded_record"];
+    let hash = run_record_hash(record).unwrap();
+    let recording_id = recording_id_of(&hash);
+    let result_hash = record["analysis_run"]["hashes"].as_array().unwrap().iter().find(|hash| hash["payload_scope"] == "received_result").unwrap()["value"].as_str().unwrap().to_string();
+    let connection = Connection::open(path).unwrap();
+    connection
+        .execute(
+            "INSERT INTO analysis_runs (project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash, input_manifest_json, result_json, result_hash)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+            params![project_id, recording_id, state_id, record["analysis_run"]["run_id"].as_str().unwrap(), fixture["created_at"].as_str().unwrap(),
+                    serde_json::to_string(record).unwrap(), hash, manifest_text, SOURCE_RESULT, result_hash],
+        )
+        .unwrap();
+    connection
+        .execute(
+            "INSERT INTO analysis_run_labels (project_id, recording_id, run_name, tags_json, notes_json, assumptions_json, updated_at) VALUES (?1, ?2, 'S2 run', '[]', '[]', '[]', ?3)",
+            params![project_id, recording_id, fixture["created_at"].as_str().unwrap()],
+        )
+        .unwrap();
+    recording_id
+}
+
+#[test]
+fn a_run_recorded_before_rule_pack_resolution_is_refused_by_name_and_the_list_keeps_the_projects_other_runs() {
+    let fixture: Value = serde_json::from_str(S2_UNRESOLVED_RUN).unwrap();
+    let manifest_text = fixture["input_manifest_canonical"].as_str().unwrap().to_string();
+    let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
+    assert_eq!(manifest["active_rule_packs"], json!([]));
+    let payload = manifest["model_basis"]["model_payload"].clone();
+    let project_id = payload["project"]["id"].as_str().unwrap().to_string();
+    let path = scratch_store("s2-unresolved");
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, &project_id, &payload, BASE);
+    drop(connection);
+    // Record Run of S2's transient record: refused by name, nothing written.
+    let now = || Ok(T0);
+    let token = || Ok("000000000000000000000000000052b1".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    let submitted = RecordRunRequest {
+        project_id: project_id.clone(),
+        expected_base: BASE.to_string(),
+        run_record: fixture["run_record"].clone(),
+        result_json: SOURCE_RESULT.to_string(),
+        input_manifest_canonical: manifest_text,
+        state_id: None,
+        new_state: Some(NewStateRequest { labels: labels_from_value(json!({ "state_name": "After solve" })).unwrap(), parent_state_id: None }),
+        run_labels: run_labels("S2 run"),
+    };
+    let error = record_run_in_store(&path, submitted, &hooks).unwrap_err();
+    assert_eq!(error, "ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED: recorded before rule-pack resolution; re-record this run; nothing was recorded.");
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // A stored S2-era row: refused by name at read.
+    let s2_id = insert_s2_run(&path, &fixture);
+    let read = read_run_in_store(&path, &project_id, &s2_id).unwrap_err();
+    assert_eq!(read, format!("ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED: recorded run `{s2_id}`: recorded before rule-pack resolution; re-record this run."));
+    // Another run of the project (the no-reference pair) records and reads.
+    let input: Value = serde_json::from_str(TRANSIENT_INPUT).unwrap();
+    let other_text = input["input_manifest_canonical"].as_str().unwrap().to_string();
+    let other = record_run_in_store(
+        &path,
+        RecordRunRequest {
+            project_id: project_id.clone(),
+            expected_base: BASE.to_string(),
+            run_record: input["run_record"].clone(),
+            result_json: SOURCE_RESULT.to_string(),
+            input_manifest_canonical: other_text,
+            state_id: None,
+            new_state: Some(NewStateRequest { labels: labels_from_value(json!({ "state_name": "Plain" })).unwrap(), parent_state_id: None }),
+            run_labels: run_labels("Plain run"),
+        },
+        &hooks,
+    )
+    .unwrap();
+    read_run_in_store(&path, &project_id, &other.run.recording_id).unwrap();
+    // The list: both runs, each its verified summary (the list reads no manifest;
+    // the S2-era run is refused, by name, when it is read).
+    let entries = list_run_entries(&Connection::open(&path).unwrap(), &project_id).unwrap();
+    let readable: Vec<&str> = entries.iter().filter_map(|entry| match entry { ListedRun::Readable(run) => Some(run.recording_id.as_str()), _ => None }).collect();
+    assert_eq!(readable.len(), 2);
+    assert!(readable.contains(&s2_id.as_str()) && readable.contains(&other.run.recording_id.as_str()));
+}
+
+#[test]
+fn a_tampered_run_is_listed_as_unreadable_by_id_and_refusal_only_and_may_be_deleted() {
+    let (path, _) = recorded_fixture("listed-unreadable-run");
+    let tampered = id_of(&path);
+    let solved = model("Invented project");
+    let kept = record(&path, request(&solved, "Kept"), T0 + 5).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{tampered}';"));
+    let entries = list_run_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap();
+    assert_eq!(entries.len(), 2);
+    let text = serde_json::to_value(&entries).unwrap();
+    let unreadable: Vec<&Value> = text.as_array().unwrap().iter().filter(|entry| entry.get("unreadable").is_some()).collect();
+    assert_eq!(unreadable.len(), 1);
+    // Only the id and the named refusal: no unverified field.
+    assert_eq!(unreadable[0].as_object().unwrap().len(), 1);
+    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["id", "refusal"]);
+    assert_eq!(unreadable[0]["unreadable"]["id"], json!(tampered));
+    let refusal = unreadable[0]["unreadable"]["refusal"].as_str().unwrap();
+    assert!(refusal.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{tampered}`: the row's result hash differs")), "{refusal}");
+    assert!(refusal.chars().count() <= stored_read::MAX_MESSAGE_CHARS + 1);
+    assert!(text.as_array().unwrap().iter().any(|entry| entry["recording_id"] == json!(kept)));
+    // Reads stay refused; the kept run reads.
+    assert!(read_run_in_store(&path, PROJECT, &tampered).unwrap_err().starts_with("ANALYSIS-RUN-INTEGRITY"));
+    read_run_in_store(&path, PROJECT, &kept).unwrap();
+    // Delete removes the unreadable row (trusting none of it) and its labels.
+    let receipt = delete_run_in_store(&path, PROJECT, &tampered).unwrap();
+    assert!(receipt.deleted && receipt.message == format!("Deleted unreadable recorded run `{tampered}`; its record was not read."), "{}", receipt.message);
+    assert_eq!(row_count(&path, "analysis_runs"), 1);
+    assert_eq!(row_count(&path, "analysis_run_labels"), 1);
+    assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+    // An id the store does not hold is still not found.
+    assert!(delete_run_in_store(&path, PROJECT, "runrec:absent").unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+}
+
+#[test]
+fn a_tampered_state_is_listed_as_unreadable_and_is_deleted_only_when_nothing_depends_on_it() {
+    let path = store_with_project("listed-unreadable-state");
+    let solved = model("Invented project");
+    let basis = save_state(&path, &solved, "Basis", "00000000000000000000000000002701", 1_000);
+    let kept = save_state(&path, &model("Kept project"), "Kept", "00000000000000000000000000002702", 2_000);
+    let run = record(&path, request(&solved, "Run"), T0).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", basis.state_id));
+    let entries = model_states::list_state_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap();
+    let text = serde_json::to_value(&entries).unwrap();
+    let unreadable: Vec<&Value> = text.as_array().unwrap().iter().filter(|entry| entry.get("unreadable").is_some()).collect();
+    assert_eq!(unreadable.len(), 1);
+    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["id", "refusal"]);
+    assert_eq!(unreadable[0]["unreadable"]["id"], json!(basis.state_id));
+    assert!(unreadable[0]["unreadable"]["refusal"].as_str().unwrap().starts_with("MODEL-STATE-INTEGRITY"));
+    assert!(text.as_array().unwrap().iter().any(|entry| entry["state_id"] == json!(kept.state_id)));
+    assert!(model_states::read_state_in_store(&path, PROJECT, &basis.state_id).unwrap_err().starts_with("MODEL-STATE-INTEGRITY"));
+    // Blocked while its run is recorded against it.
+    let blocked = model_states::delete_state_in_store(&path, PROJECT, &basis.state_id).unwrap_err();
+    assert_eq!(blocked, format!("MODEL-STATE-DELETE-BLOCKED: unreadable state `{}` is the state of 1 recorded run; delete it first. Nothing was deleted.", basis.state_id));
+    delete_run_in_store(&path, PROJECT, &run).unwrap();
+    let receipt = model_states::delete_state_in_store(&path, PROJECT, &basis.state_id).unwrap();
+    assert!(receipt.deleted && receipt.message.starts_with("Deleted unreadable model state"), "{}", receipt.message);
+    assert_eq!(model_states::list_states(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
 }

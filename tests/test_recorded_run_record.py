@@ -25,7 +25,7 @@ from pathlib import Path
 import pytest
 
 from core.analysis_runs.compatibility import (
-    ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, CREATED_AT_UNAVAILABLE, RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED,
+    ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED, CREATED_AT_UNAVAILABLE, RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED,
     analysis_record_projection, build_analysis_run_v0_3, library_ref_sites, manifest_excluded_rule_pack_identities, manifest_excluded_rule_packs,
     parse_rule_pack_identity, recorded_library_refs, recorded_revision, recorded_rule_pack_refs, rule_pack_identity, rule_pack_ref_diagnostic,
     rule_pack_ref_diagnostic_entries, validate_analysis_run_v0_3, verify_analysis_run_record,
@@ -393,3 +393,29 @@ def test_a_model_without_references_excludes_nothing_whatever_the_manifest_holds
     # As Rust's `manifest_excluded_rule_packs` and the TypeScript `manifestExcludedRulePacks`.
     assert manifest_excluded_rule_packs({"model_basis": {"model_payload": {}}}) == []
     assert manifest_excluded_rule_packs({"model_basis": {"model_payload": {"rule_pack_refs": []}}}) == []
+
+
+# A run recorded before rule-pack resolution (S2, #1596), written by the TypeScript writer in
+# `recordedRunParity.test.ts`: refused by name, as Rust and the TypeScript refuse it.
+S2_RUN = json.loads((PERSISTENCE / "s2_unresolved_rule_pack_run.json").read_text(encoding="utf-8"))
+
+
+def test_a_run_recorded_before_rule_pack_resolution_is_refused_by_name() -> None:
+    manifest = json.loads(S2_RUN["input_manifest_canonical"])
+    assert manifest["active_rule_packs"] == [] and len(manifest["model_basis"]["model_payload"]["rule_pack_refs"]) == 1
+    recorded = S2_RUN["recorded_record"]
+    validate_instance(SCHEMA, recorded, schema_label="analysis_run.v0.3.schema.json", instance_label="S2-era recorded revision")
+    assert recorded_revision(S2_RUN["run_record"], state_id=S2_RUN["state_id"], created_at=S2_RUN["created_at"], input_manifest=manifest) == recorded
+    model = manifest["model_basis"]["model_payload"]
+    basis = ([{"object_type": "LoadCase", "ref": case["id"]} for case in model["load_cases"]]
+             + [{"object_type": "Combination", "ref": combination["id"]} for combination in model.get("combinations", [])])
+    state = {"state_id": S2_RUN["state_id"], "model_hash": S2_RUN["state_model_hash"], "input_manifest": manifest}
+    with pytest.raises(ValueError, match=f"^{ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}: recorded before rule-pack resolution; re-record this run$"):
+        validate_analysis_run_v0_3(recorded, SOURCE, expected_basis_refs=basis, recorded_state=state)
+    # Any other mismatch keeps its code: an active pack named, its exclusion missing.
+    resolved = deepcopy(manifest)
+    resolved["model_basis"]["model_payload"]["rule_pack_refs"].append(deepcopy(resolved["model_basis"]["model_payload"]["rule_pack_refs"][0]) | {"rule_pack_id": "invented-pack-held"})
+    resolved["active_rule_packs"] = [{"rule_pack_id": "invented-pack-held", "version": "1.0.0", "checksum_sha256": "a" * 64, "source_notice": "n"}]
+    from core.analysis_runs.compatibility import _rule_pack_diagnostics_refusal
+    assert _rule_pack_diagnostics_refusal([], resolved) == ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH
+    assert _rule_pack_diagnostics_refusal([], manifest).startswith(ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED)
