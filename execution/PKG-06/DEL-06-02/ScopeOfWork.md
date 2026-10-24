@@ -94,7 +94,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > - `core/rules/expression_evaluator/` - current evaluator source and contract.
 > - Evaluator crate tests and golden conformance corpus - candidate-bound verification evidence.
-> - `Design/rule-pack-unit-check.md` (W-17): a design, not yet implemented, for checking expression units when a pack is validated.
+> - `Design/rule-pack-unit-check.md` (W-17): expression units are also checked statically when a pack is validated (`unit_check` in the validation response); units of solver results and entered values are still checked when the check runs.
 >
 
 ### CLM-008 — References

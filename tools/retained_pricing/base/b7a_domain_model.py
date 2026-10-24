@@ -74,7 +74,12 @@ import runpy
 # W-8 topology warnings D3 (retained-pricing-rules.md §8.16): read 86836546e5; lib.rs declares `mod topology` and
 # calls topology::append_topology_diagnostics once after the build in run_linear_static_preview_observed_inner (its
 # owners: w8_topology_model, W8-TW; its texts: o10_rules W8-*). No owner this model prices changes.
-SOURCE_FILES = {'core/product_physics/src/lib.rs': '7b798c8baba263209fa264691a8f45d5a3a7554f2db1282ec485f6b62826ae04', 'core/product_physics/src/certified_loads.rs': '56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f', 'core/product_physics/src/retained_product.rs': 'd9b960fc255e29facf0ee6b3864c39705643cf81a796c83da92bdd5d4d497862', 'core/product_physics/src/retained_wire.rs': '1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40', 'core/product_physics/src/certified_publication.rs': '8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7', 'core/loads/primitive_loads/src/lib.rs': 'c8a3571dd1e557403d93dc4b6a2fa709f4240b4b3870dc9a76adfe77c05e4d68', 'core/solver/straight_pipe/src/lib.rs': 'a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7', 'core/product_physics/src/preview_physics.rs': 'a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7', 'core/reporting/result_export/src/retained_precision.rs': '7176d1a0f9923bf61c2ec0eb522949184ebd454e1421657b101c966b988c2ab8', 'core/product_physics/src/model_format.rs': '8a5ea4f8f1619667c5ccdf2af906a3f6bf8079f71246b4f94afb7299463a8cf1', 'core/product_physics/src/pressure_runtime.rs': 'a934ab66013bdac4c04f9c91c62af379359ebf91a7c4396899e546f28d59cafe', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': 'f4e44d91966a2dadb9955f17c207aca6629a04f1a613bac0d1c6eb2d5573b9df', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '05f7bf0048b6c078060b55e5a080266ec52946eb0b1f9aaa9c60699621996b42', 'core/solver/frame_kernel/src/lib.rs': 'af5497d7f082ae76dc368a5001ba3cb2d4b91d61e17efa3a3ce1328d4111ed43', 'core/reporting/result_export/src/semantic_contract.rs': '090d1b8282e44d88b14d9cad2235b25cdfe6a7e886d95800832eac7eba9705b3', 'core/reporting/result_export/src/physics_source.rs': '9520686c4455f8aa73f1004523ad4f8c069c33b6cd3b7fafb1aa674c9f62c072'}
+# Silent-zero guard D3 (retained-pricing-rules.md §8.15): read 1cb6b275f6; lib.rs adds one call in
+# run_linear_static_preview_observed_inner's load-state branch (refuse_all_reference_states, after
+# refuse_resolved_span_strain), unreachable on D1 (B7b-LS, SZ-LS). No owner this model prices changes.
+# Model document 0.7.0 D3 (§8.17): lib.rs adds model_settings' module, re-export and PreviewModel/wire members
+# before every key below (+7 lines, unchanged text); no owner this model prices changes.
+SOURCE_FILES = {'core/product_physics/src/lib.rs': '0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0', 'core/product_physics/src/certified_loads.rs': '56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f', 'core/product_physics/src/retained_product.rs': 'd9b960fc255e29facf0ee6b3864c39705643cf81a796c83da92bdd5d4d497862', 'core/product_physics/src/retained_wire.rs': '1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40', 'core/product_physics/src/certified_publication.rs': '8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7', 'core/loads/primitive_loads/src/lib.rs': 'c8a3571dd1e557403d93dc4b6a2fa709f4240b4b3870dc9a76adfe77c05e4d68', 'core/solver/straight_pipe/src/lib.rs': 'a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7', 'core/product_physics/src/preview_physics.rs': 'a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7', 'core/reporting/result_export/src/retained_precision.rs': '7176d1a0f9923bf61c2ec0eb522949184ebd454e1421657b101c966b988c2ab8', 'core/product_physics/src/model_format.rs': '8a5ea4f8f1619667c5ccdf2af906a3f6bf8079f71246b4f94afb7299463a8cf1', 'core/product_physics/src/pressure_runtime.rs': 'a934ab66013bdac4c04f9c91c62af379359ebf91a7c4396899e546f28d59cafe', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': 'f4e44d91966a2dadb9955f17c207aca6629a04f1a613bac0d1c6eb2d5573b9df', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '05f7bf0048b6c078060b55e5a080266ec52946eb0b1f9aaa9c60699621996b42', 'core/solver/frame_kernel/src/lib.rs': 'af5497d7f082ae76dc368a5001ba3cb2d4b91d61e17efa3a3ce1328d4111ed43', 'core/reporting/result_export/src/semantic_contract.rs': '090d1b8282e44d88b14d9cad2235b25cdfe6a7e886d95800832eac7eba9705b3', 'core/reporting/result_export/src/physics_source.rs': '9520686c4455f8aa73f1004523ad4f8c069c33b6cd3b7fafb1aa674c9f62c072'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
@@ -316,21 +321,22 @@ def text_decisions(snapshot, resolved):
         # screen hook, the republication, the fail-closed form and the support-norm cause precede them).
         # W-8 topology warnings D3 (§8.16): every lib.rs key below moved with unchanged text (+1 before the topology
         # call, +2 after it: `mod topology;` and the call).
-        (pp + "lib.rs:11424", {"load_case_id": inp}),
-        (pp + "lib.rs:11438", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11445", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:11450", {"load.load_id": inp}),
-        (pp + "lib.rs:11451", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:11452", {"bend.component_id": inp}),
-        (pp + "lib.rs:11453", {"load_case_id": inp}),
-        (pp + "lib.rs:11512", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11519", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:11524", {"load.load_id": inp}),
-        (pp + "lib.rs:11525", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:11526", {"bend.component_id": inp}),
-        (pp + "lib.rs:11527", {"load_case_id": inp}),
-        (pp + "lib.rs:11566", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11573", {"load.load_id": inp, "load_case_id": inp}),
+        # Silent-zero guard D3 (§8.15): the lib.rs keys after 2719 move +1 more (one load-state call), unchanged text.
+        (pp + "lib.rs:11425", {"load_case_id": inp}),
+        (pp + "lib.rs:11439", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11446", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:11451", {"load.load_id": inp}),
+        (pp + "lib.rs:11452", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:11453", {"bend.component_id": inp}),
+        (pp + "lib.rs:11454", {"load_case_id": inp}),
+        (pp + "lib.rs:11513", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11520", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:11525", {"load.load_id": inp}),
+        (pp + "lib.rs:11526", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:11527", {"bend.component_id": inp}),
+        (pp + "lib.rs:11528", {"load_case_id": inp}),
+        (pp + "lib.rs:11567", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11574", {"load.load_id": inp, "load_case_id": inp}),
         (pp + "certified_loads.rs:236", {"case_id": inp}),
         (pp + "certified_loads.rs:259", {"case_id": inp}),
         (pp + 'retained_product.rs:4742', {"stable_suffix(id)": inp}),
@@ -343,9 +349,9 @@ def text_decisions(snapshot, resolved):
         (pp + 'retained_product.rs:4812', {"ordinary.document_kind": static}),
         (pp + 'retained_product.rs:4813', {"ordinary.model_ref": inp}),
         (pp + "lib.rs:1110", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3192", {"context.semantic_id()": static}),
-        (pp + "lib.rs:5689", {"support.id": inp}),
-        (pp + "lib.rs:6428", {"pipe.element_id": inp}),
+        (pp + "lib.rs:3193", {"context.semantic_id()": static}),
+        (pp + "lib.rs:5690", {"support.id": inp}),
+        (pp + "lib.rs:6429", {"pipe.element_id": inp}),
         (pp + "model_format.rs:26", {"version": static}),
         # ccb19ba0bf: +17 lines (section_allowances), same text.
         # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.

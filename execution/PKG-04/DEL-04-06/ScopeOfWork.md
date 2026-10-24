@@ -159,6 +159,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | REQ-04-06-009 | Nonconvergence diagnostics shall classify residual/tolerance evidence as no diagnostic, warning-level `NonConvergence`, or failure-level `NonConvergence` using caller-supplied tolerance and iteration count. | OPS-K-SOLVER-2; `convergence_diagnostic` |
 > | REQ-04-06-010 | Sparse adoption shall be reported against DEC-023/050/053; `TolerancePolicyTbd` remains applicable to genuinely unmeasured or unaccepted criteria under DEC-026/046. Do not label the settled solver strategy as undecided. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Still TBD; OI-005; `sparse_solver_tbd_diagnostic`; `tolerance_policy_tbd_diagnostic` |
 > | REQ-04-06-011 | The diagnostic slice shall preserve mechanics-only boundaries and shall not claim certification, sealing, approval, professional reliance, release readiness, or code compliance (PRD §21.2). | OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/README.md` |
+> | REQ-04-06-012 | Before solving, on both solve routes and without refusing or changing any published value, the product shall warn when the model's elements form two or more disconnected parts (naming each and whether it is supported), when distinct nodes that no element joins coincide or lie no farther apart than the model's node-proximity tolerance (5 mm unless the user sets another value), and when a branch component's node does not join exactly three pipes or its header and branch name the same pipe. | PRD FR-KNOW-002; PRD §12.8; `Design/model-topology-checks.md` |
 >
 
 ### CLM-014 — Standards
@@ -185,6 +186,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | REQ-04-06-009 | Unit coverage includes failed nonconvergence and converged residual cases. |
 > | REQ-04-06-010 | Unit coverage includes sparse-solver `TBD` warning behavior; tolerance-policy `TBD` is implemented as the companion unresolved-policy diagnostic and remains a release deferral. |
 > | REQ-04-06-011 | Boundary review checks wording and run-record evidence for no release, professional approval, or code-compliance claim (PRD §21.2). |
+> | REQ-04-06-012 | `core/product_physics/tests/topology_checks_runtime.rs`, through the desktop's value entry in both solver modes: a connected model and an isolated anchored node give no finding; two anchored parts warn and the tip displacement equals the part solved alone; an unsupported part is named and still refused; coincident and near nodes warn in metre and millimetre input; a near pair across a cell boundary and a tiny gap are found; more than six parts are counted and six named; a tee on two pipes, or whose header is its branch, warns and a valid tee does not. These tests exercise the implemented relative tolerance; the tests of the 5 mm default (inside, at and beyond, in metre and millimetre input), a user-set value and the refusal of an invalid value come with the implementation. |
 >
 
 ### CLM-016 — Documentation

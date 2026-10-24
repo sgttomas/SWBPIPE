@@ -39,13 +39,15 @@ use b1_sq_inputs as inputs;
 // W-8 topology warnings D3 bounds at 34e96d6b17 (retained-pricing-rules.md §8.16): +116,158 B in both
 // modes from the pre-0.4 unification's 6,211,314,679 and 6,270,446,023 (§8.14: +6,278,087 B from R-A's
 // 6,205,036,592 and 6,264,167,936); checked against the in-build profile.
-const W1_PHASE_BYTES: [u64; 2] = [6_211_430_837, 6_270_562_181];
+// Silent-zero guard on W-8 (§8.15): +42,246 B in both modes from W-8's 6,211,430,837 and 6,270,562,181.
+const W1_PHASE_BYTES: [u64; 2] = [6_211_473_083, 6_270_604_427];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
 /// unification's 8,441,982,408 and 8,501,113,752 (§8.14: +6,278,945 B from R-A's 8,435,703,463 and
 /// 8,494,834,807).
-const MAX_PHASE_BYTES: [u64; 2] = [8_442_201_544, 8_501_332_888];
+// Silent-zero guard on W-8 (§8.15): +126,856 B in both modes from W-8's 8,442,201,544 and 8,501,332,888.
+const MAX_PHASE_BYTES: [u64; 2] = [8_442_328_400, 8_501_459_744];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

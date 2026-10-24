@@ -312,6 +312,7 @@ code_paths:
 - apps/desktop/src-tauri/src/host_memory.rs
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
+- core/product_physics/tests/silent_zero_guard_runtime.rs
 - core/product_physics/tests/pressure_runtime.rs
 - core/product_physics/tests/pressure_section_geometry.rs
 - core/product_physics/tests/t4_u2_pressure_references.rs

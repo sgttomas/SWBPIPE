@@ -9699,6 +9699,28 @@
   ],
   "diagnostics": [
     {
+      "id": "diagnostic:load-state:case-cold:LOAD_STATE_SOURCE_EXCLUDED",
+      "code": "LOAD_STATE_SOURCE_EXCLUDED",
+      "severity": "warning",
+      "message": "1 stored primitive load in this load case is not listed in analysis_state.load_sources and is not applied: load:stored-unused:case:cold",
+      "source": "core/product_physics/src/case_state/resolve.rs",
+      "affected_refs": [
+        "case:cold",
+        "load:stored-unused:case:cold"
+      ]
+    },
+    {
+      "id": "diagnostic:load-state:case-hot:LOAD_STATE_SOURCE_EXCLUDED",
+      "code": "LOAD_STATE_SOURCE_EXCLUDED",
+      "severity": "warning",
+      "message": "1 stored primitive load in this load case is not listed in analysis_state.load_sources and is not applied: load:stored-unused:case:hot",
+      "source": "core/product_physics/src/case_state/resolve.rs",
+      "affected_refs": [
+        "case:hot",
+        "load:stored-unused:case:hot"
+      ]
+    },
+    {
       "id": "diagnostic:load:load-transverse-case-cold:category-mapping",
       "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
       "severity": "warning",

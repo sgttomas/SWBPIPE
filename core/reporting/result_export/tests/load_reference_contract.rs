@@ -273,15 +273,17 @@ fn current_inputs_table_and_schema_are_pinned() {
     // T4-U6: regenerated again on the D-5 producer (both section-basis families);
     // model 0.6.0: again for the pressure-2 identity (identity bytes only);
     // T4-U4b: again for the section stress rows on every member;
-    // O4 (DEL-04-08 `o4-source-extension.md` §3.3): again for limitation [7] only.
+    // O4 (DEL-04-08 `o4-source-extension.md` §3.3): again for limitation [7] only;
+    // connected: silent-zero diagnostic added; no number moved (two LOAD_STATE_SOURCE_EXCLUDED
+    // warnings, DEL-04-07 Design pressure-contract.md "Load cases that apply nothing").
     for (name, digest) in [
         (
             "connected-sparse",
-            "c2aeba7cd9a2ec98b6f2a12e90e33dc5f36d5a17017665e6b038ae4b4174afc8",
+            "6fe1adfeff67a461c6d38bb68f6d59568e858c1faf0e7818f94b605a1fe16c0f",
         ),
         (
             "connected-dense",
-            "2b325b918e020e06f651bb89df3ff06f6ced27e4dcd7080398a5c4051ee88a10",
+            "e1f530529067a97822f6058e4a9a59c9cc4c9cc551779761c5bd5a37b8c394bb",
         ),
         (
             "pressure-sparse",

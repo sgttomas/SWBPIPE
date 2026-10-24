@@ -130,3 +130,5 @@ checks:
 - tests/test_rule_interval.py
 - fixtures/rule_expressions/conformance_corpus/**
 - core/rules/rule_pack_document/tests/corpus_parity.rs
+- core/rules/rule_pack_document/tests/unit_check.rs
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.unitCheck.test.tsx
