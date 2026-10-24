@@ -1769,12 +1769,14 @@ mod tests {
         }
         start.arrive();
         // Waits until each of the six waiters has sampled the host at `step`.
+        // A waiter that ends before the coordinator releases it has panicked.
         let each_waiter_sampled = |step: usize| {
-            let mut waiters = HashSet::new();
-            while waiters.len() < 6 {
+            let mut sampled_by = HashSet::new();
+            while sampled_by.len() < 6 {
                 let sampled = samples.recv_timeout(Duration::from_secs(10)).expect("every waiter samples the host");
+                assert!(!waiters.handles.iter().any(std::thread::JoinHandle::is_finished), "a waiter ended early");
                 if sampled.step == step {
-                    waiters.insert(sampled.thread);
+                    sampled_by.insert(sampled.thread);
                 }
             }
         };
