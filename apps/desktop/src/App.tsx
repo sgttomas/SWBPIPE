@@ -923,7 +923,8 @@ function AppSession() {
             >
               {activeSection === "libraries" || activatedExpensiveSections.has("libraries") ? (
               <DormantSection active={activeSection === "libraries"} sessionGeneration={projectSessionGeneration}>
-              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
+              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
+                selection={selection} onQueueBatch={handleQueueOperationBatch} operationBusy={operationBusy} />
               </DormantSection>) : null}
             </section>
 

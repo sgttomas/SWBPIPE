@@ -153,9 +153,15 @@ code_paths:
 - apps/desktop/src/services/libraryImportService.ts
 - core/library_import/**
 - apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src/features/library/libraryApply.ts
+- apps/desktop/src/features/library/LibraryApplySection.tsx
+- apps/desktop/src/features/hanger-selection/hangerSelection.ts
+- core/model_operations/operation_applier/src/library_apply.rs
 checks:
 - tests/test_material_schema.py
 - tests/test_library_import_provenance.py
 - apps/desktop/src/features/library/LibraryManagerPanel.test.tsx
 - apps/desktop/src/services/libraryImportService.test.ts
 - core/library_import/library_import_document/tests/provenance_parity.rs
+- apps/desktop/src/features/library/libraryApply.test.ts
+- core/model_operations/operation_applier/tests/library_apply.rs
