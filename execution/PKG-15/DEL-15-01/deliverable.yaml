@@ -201,6 +201,13 @@ code_paths:
 - schemas/target_mapping.schema.json
 - tools/validation/validate_dependencies_schema.py
 - apps/desktop/src/features/handoff/HandoffPanel.tsx
+- apps/desktop/src/features/model-file/modelDocumentSave.ts
+- apps/desktop/src/features/model-file/ModelDocumentSaveDialog.tsx
+- apps/desktop/src-tauri/src/model_document_save.rs
+- apps/desktop/src-tauri/src/atomic_report_package_save.rs
 checks:
 - tests/test_handoff_package_schema.py
 - apps/desktop/src/features/handoff/HandoffPanel.test.tsx
+- apps/desktop/src/features/model-file/modelDocumentSave.test.tsx
+- tests/security/test_redaction_export_controls.py
+- apps/desktop/native-smoke/run.mjs
