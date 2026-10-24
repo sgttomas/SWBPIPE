@@ -135,6 +135,9 @@ use std::f64::consts::PI;
 mod topology;
 mod validation;
 use validation::validate_model_inputs;
+mod rigid_component;
+#[cfg(test)]
+mod w15_rigid_scaling_tests;
 
 #[cfg(test)]
 #[cfg(test)]
@@ -2284,6 +2287,32 @@ struct BuiltModel {
     nonlinear_friction_normal_reactions: Vec<FrictionNormalReaction>,
     nonlinear_derived_friction_normal_reactions: Vec<DerivedFrictionNormalReaction>,
     sections: HashMap<String, DerivedSection>,
+    /// W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.2):
+    /// each member formed with a rigid-family component's scale, keyed by
+    /// member ID, with the selected unscaled E/G pair it was formed from.
+    scaled_members: HashMap<String, ScaledMember>,
+}
+
+/// W-15: a member formed as a component body, with s*E and s*G on its pipe
+/// section. `elastic_modulus` and `shear_modulus` are the selected unscaled
+/// pair (material, named or interpolated basis, or the resolved case's).
+#[derive(Debug, Clone, PartialEq)]
+struct ScaledMember {
+    component_id: String,
+    scale: f64,
+    elastic_modulus: f64,
+    shear_modulus: f64,
+}
+
+impl BuiltModel {
+    /// The selected unscaled (E, G) of a built member: its section's, or for
+    /// a component body the pair its scaled section was formed from.
+    fn unscaled_moduli(&self, pipe: &StraightPipeElement) -> (f64, f64) {
+        self.scaled_members.get(&pipe.element_id).map_or(
+            (pipe.section.elastic_modulus, pipe.section.shear_modulus),
+            |member| (member.elastic_modulus, member.shear_modulus),
+        )
+    }
 }
 
 #[derive(Debug)]
@@ -3917,10 +3946,19 @@ fn load_state_eigen_loads(
         .filter(|member| member.strain.total_eigenstrain != 0.0 || certified_loads::has_eigen_source(&member.thermal_input,member.fit_input))
         .map(|member| {
             let section = built.sections.get(&member.pipe_id).ok_or_else(|| member.pipe_id.clone())?;
+            // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
+            // §2.2): the built member's section E, for the thermal and the fit
+            // eigenstrain alike (s*E on a component body; the resolved pair's
+            // E, bit for bit, on any other member).
+            let frame = built
+                .pipes
+                .get(member.pipe_index)
+                .filter(|frame| frame.element_id == member.pipe_id)
+                .ok_or_else(|| member.pipe_id.clone())?;
             Ok(ThermalElementLoad {
                 element_index: member.pipe_index,
                 source: source_recovery::eigen_source_id(&member.pipe_id),
-                axial_load: member.material.pair.elastic_modulus_pa()
+                axial_load: frame.section.elastic_modulus
                     * section.area
                     * member.strain.total_eigenstrain,
                 thermal_strain: member.strain.total_eigenstrain,
@@ -4865,7 +4903,7 @@ fn solve_prepared_load_case(
             load_case,
             &material_map,
             &pipe_map,
-            &built.sections,
+            built,
             diagnostics,
         ),
     };
@@ -6482,7 +6520,10 @@ fn solve_prepared_load_case(
                         .map(|q| q.value))
                     .unwrap_or(f64::NAN)
             } else {
-                u4b_rows::preview_poisson_ratio(pipe.section.elastic_modulus, pipe.section.shear_modulus)
+                // W-15 §2.2: a component body's nu is that of the selected
+                // unscaled E/G pair, never of its scaled section.
+                let (elastic_modulus, shear_modulus) = built.unscaled_moduli(pipe);
+                u4b_rows::preview_poisson_ratio(elastic_modulus, shear_modulus)
             };
             let bases = u4b_rows::member_bases(section, exact_bases);
             let directional = macro_bend.and_then(|bend| u4b_rows::directional_pair(model, bend));
@@ -7987,6 +8028,10 @@ fn build_model_for_members(
     // member pair. Straight pipes insert nothing (RV12 S-3).
     let mut member_moduli: HashMap<&str, (f64, f64)> = HashMap::new();
     let mut exact_sections = HashMap::new();
+    // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.2): each
+    // eligible rigid-family component's member is formed with s*E and s*G.
+    let rigid_scales = rigid_component::applied_scales(model);
+    let mut scaled_members = HashMap::new();
     for pipe in &model.pipe_segments {
         let Some(&from) = node_map.get(pipe.from.as_str()) else {
             diagnostics.push(diag(
@@ -8123,6 +8168,34 @@ fn build_model_for_members(
         } else {
             None
         };
+        // W-15 §2.2: the scale enters once, as the products s*E and s*G, each
+        // rounded once; Phi = 12EI/(kappa*G*A*L^2) is unchanged in exact
+        // arithmetic, and the shear area keeps the member's selected nu. A
+        // product outside binary64's normal range is refused here by name.
+        let mut scaled_member = None;
+        let (elastic_modulus, shear_modulus) = match rigid_scales.get(pipe.id.as_str()) {
+            Some(applied) => {
+                let (scaled_e, scaled_g) = (applied.scale * elastic_modulus, applied.scale * shear_modulus);
+                if !scaled_e.is_normal() || !scaled_g.is_normal() {
+                    diagnostics.push(diag(
+                        &format!("diagnostic:pipe-section:{}:rigid-scale", stable_suffix(&pipe.id)),
+                        "PIPE_SECTION_INPUT_INVALID",
+                        "blocking",
+                        format!("rigid/semi-rigid component {} scales member {} by {}: the scaled moduli s*E = {scaled_e:e} Pa and s*G = {scaled_g:e} Pa must be normal positive binary64 values; the member is not formed", applied.component_id, pipe.id, applied.scale),
+                        vec![pipe.id.clone(), applied.component_id.clone()],
+                    ));
+                    continue;
+                }
+                scaled_member = Some(ScaledMember {
+                    component_id: applied.component_id.clone(),
+                    scale: applied.scale,
+                    elastic_modulus,
+                    shear_modulus,
+                });
+                (scaled_e, scaled_g)
+            }
+            None => (elastic_modulus, shear_modulus),
+        };
         let section = match shear_area.map_or_else(|| StraightPipeSectionProperties::new(
             elastic_modulus,
             shear_modulus,
@@ -8178,6 +8251,9 @@ fn build_model_for_members(
             );
         }
         sections.insert(pipe.id.clone(), derived);
+        if let Some(member) = scaled_member {
+            scaled_members.insert(pipe.id.clone(), member);
+        }
         pipes.push(element);
     }
 
@@ -8289,6 +8365,7 @@ fn build_model_for_members(
         nonlinear_friction_normal_reactions: nonlinear.friction_normal_reactions,
         nonlinear_derived_friction_normal_reactions: nonlinear.derived_friction_normal_reactions,
         sections,
+        scaled_members,
     })
 }
 
@@ -11604,7 +11681,7 @@ fn build_thermal_element_loads(
     load_case: &PreviewLoadCase,
     material_map: &HashMap<&str, &MaterialInput>,
     pipe_map: &HashMap<&str, usize>,
-    sections: &HashMap<String, DerivedSection>,
+    built: &BuiltModel,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Vec<ThermalElementLoad> {
     let mut loads = Vec::new();
@@ -11637,14 +11714,22 @@ fn build_thermal_element_loads(
             ));
             continue;
         };
-        let Some(section) = sections.get(&pipe_input.id) else {
+        let Some(section) = built.sections.get(&pipe_input.id) else {
+            continue;
+        };
+        // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.2):
+        // E is the built member's section E (s*E for a component body), so the
+        // free growth stays alpha*dT*L and the certified re-formation's
+        // FreeStrainStraight E*A*eps reads the same frame E. For any other
+        // member it is the selected material E, bit for bit.
+        let Some(frame) = built.pipes.get(element_index).filter(|frame| frame.element_id == pipe_input.id) else {
             continue;
         };
         let epsilon_th = alpha * load.magnitude.value;
         loads.push(ThermalElementLoad {
             element_index,
             source: load.id.clone(),
-            axial_load: material.elastic_modulus.value * section.area * epsilon_th,
+            axial_load: frame.section.elastic_modulus * section.area * epsilon_th,
             thermal_strain: epsilon_th,
             strain_primitive: certified_loads::constant_alpha(alpha, load.magnitude.value),
         });

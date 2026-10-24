@@ -280,7 +280,7 @@ fn guard_view(request: &Value, case_index: usize) -> GuardView {
         load_case,
         &material_map,
         &pipe_map,
-        &built.sections,
+        &built,
         &mut diagnostics,
     );
     let ledger = case_force_ledger(
@@ -2968,7 +2968,7 @@ fn curved_thermal_records_name_the_pushed_products() {
         &model.load_cases[0],
         &material_map,
         &pipe_map,
-        &built.sections,
+        &built,
         &mut diagnostics,
     );
     assert_eq!(thermal.len(), 1);
