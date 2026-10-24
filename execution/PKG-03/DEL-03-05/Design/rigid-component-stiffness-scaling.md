@@ -285,7 +285,8 @@ These are the decisions; the consumer lists come from round-2 scrutiny (Codex).
   reason `COMPONENT_BODY_REFERENCE_SECTION`. No new outcome kind is added. A
   pack that binds every member is therefore incomplete while a scaled body is
   among them, which is the conservative reading. If rule scope cannot exclude
-  members, that is reported before release of the slice, not worked around.
+  members, that consequence goes to Agent 0 as an open choice, not worked
+  around.
 - **Exports.** Derivative quantity rows and source annotations copy the record
   verbatim. Both exporters (Rust `derivative.rs`, desktop
   `resultExportAdapter.ts`) validate it against the source row.
@@ -357,8 +358,25 @@ What each decision touches:
     `timoshenko_annulus_energy_v1` is selectable (PP `pressure_runtime.rs`
     ~49). Both solver modes, at the 1e-9 relative criterion with W-9's
     zero-scale rule.
+- **Reference formulas** (independent generator):
+  - transverse tip load F: δ = F·Σᵢ∫(L−x)²/(sᵢEᵢIᵢ)dx, plus F·Σᵢ Lᵢ/(sᵢκᵢGᵢAᵢ)
+    for Timoshenko. Axial and torsional cases use their compliance sums. In
+    the rigid limit the body's compliance is removed and its moment arms kept.
+  - thermal and fit series, tension positive:
+    N = −Σᵢ(εᵢLᵢ) / Σᵢ[Lᵢ/(sᵢEᵢAᵢ)].
+  - EX closed end: Nm = (1−2ν)pAᵢ, Nw = pAᵢ, ε = (1−2ν)pAᵢ/(sEAₙ).
+- **Headline switch.** The indeterminate two-member case of §2.4 at s = 1 and
+  s = 4, through the public readers. Its checks:
+  - the headline stays on the pipe;
+  - the body's rows carry `component_body`;
+  - the coverage entry lists the body;
+  - a rule bound to the body reports `COMPONENT_BODY_REFERENCE_SECTION`;
+  - both exporters preserve and validate the record;
+  - forged, missing and inconsistent records are refused;
+  - an all-body case has a null headline.
 - **Thermal series case.** Frozen independent expectations, with signs and
-  zero scales. A member anchored at both ends, a scaled body in series with
+  zero scales. It includes nonzero fit strain, fit-only loading and
+  thermal/fit cancellation. A member anchored at both ends, a scaled body in series with
   pipe, under ΔT: the reactions follow the series stiffness. A free scaled
   body's growth is αΔT·L. Both thermal producers are covered (the element
   thermal load and the load-state member pair with its fit eigenstrain), on
