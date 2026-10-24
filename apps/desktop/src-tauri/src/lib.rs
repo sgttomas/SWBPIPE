@@ -2212,6 +2212,10 @@ fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersio
     if status.is_refused() {
         return Err(refuse_model_document(&status));
     }
+    // W-13 §5.3 (S2): create and save refuse a document whose model-data
+    // slots carry a blocking validator finding, named with its JSON path;
+    // nothing is repaired. Warnings never refuse.
+    refuse_malformed_model_slots(model)?;
     Ok(status)
 }
 
@@ -7781,6 +7785,84 @@ mod tests {
         let after = load_project(&connection, Some("project:slots-malformed")).unwrap().unwrap();
         assert_eq!(after.model, malformed, "the stored bytes are never rewritten");
         drop(connection);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// W-13 §5.4 (S2): a desktop-emitted document carrying every model-data
+    /// member goes through Save Local Project and back with equal content and
+    /// model hash; an edit (create a line) saved in place and its undo (the
+    /// inverse operation) saved again return the original document and hash.
+    /// Save refuses a document with a blocking validator finding, by name, and
+    /// leaves the stored bytes as they were.
+    #[test]
+    fn save_local_project_round_trips_every_slot_and_refuses_malformed_slots() {
+        let root = std::env::temp_dir().join(format!(
+            "ops-slot-save-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let golden: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_document/desktop_emitted.json"
+        )).unwrap();
+        let model = golden["entries"].as_array().unwrap().last().unwrap()["document"].clone();
+        for slot in ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs"] {
+            assert!(model[slot].as_array().is_some_and(|items| !items.is_empty()), "{slot}");
+        }
+        let project_id = model["project"]["id"].as_str().unwrap().to_string();
+        let save = |model: &Value, confirmed: Option<String>| save_project_in_store(db.clone(), SaveLocalProjectRequest::from_value(json!({
+            "project_id": project_id, "project_name": "Invented slots", "model": model,
+            "model_hash": computed_model_hash(model, &project_id), "confirmed_revision": confirmed
+        })).unwrap());
+        let confirmed = || {
+            let (connection, _) = open_project_store(&db).unwrap();
+            let entry = stored_project_entry(&connection, &project_id).unwrap().unwrap();
+            Some(stored_revision(&connection, &entry).unwrap())
+        };
+
+        save(&model, None).expect("an every-slot document saves");
+        let opened = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(opened.model, model);
+        assert_eq!(hash_value_string(&opened.model_hash), model_payload_hash(&model));
+
+        let line = json!({"id": "line:L-900", "label": "Invented line", "pipe_refs": []});
+        let intent = |kind: &str, change_kind: &str, before: String, after: String| json!({
+            "operation_id": format!("operation:{change_kind}"), "operation_kind": kind, "operation_status": "proposed",
+            "author_type": "user", "target": {"object_type": "Line", "ref": "line:L-900"},
+            "change": {"change_id": format!("change:{change_kind}"), "change_kind": change_kind, "field_label": "Line",
+                "field_path": "lines", "before": before, "after": after, "unit": "none", "dimension": "dimensionless",
+                "source_note": "invented"},
+            "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run",
+                "diff_preview_status": "not_generated", "application_status": "not_applied"},
+            "audit_boundary": {"mutation_route": "structured_operations_only", "direct_model_mutation_allowed": false,
+                "requires_user_acceptance": true, "mutates_accepted_model_state": false},
+            "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false,
+                "software_makes_certification_claim": false, "software_makes_sealing_claim": false,
+                "software_makes_approval_claim": false, "software_makes_authentication_claim": false},
+            "rationale": "invented"
+        });
+        let canonical = open_pipe_stress_operation_applier::canonical_json;
+        let edited = open_pipe_stress_operation_applier::apply_operation(&opened.model,
+            &intent("create", "create_line", "not_present".into(), canonical(&line)), None)
+            .applied_model.expect("create_line applies");
+        save(&edited, confirmed()).expect("the edit saves in place");
+        let reopened = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(reopened.model, edited);
+        let undone = open_pipe_stress_operation_applier::apply_operation(&reopened.model,
+            &intent("delete", "delete_line", canonical(&line), "not_present".into()), None)
+            .applied_model.expect("the inverse applies");
+        save(&undone, confirmed()).expect("the undo saves in place");
+        let restored = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(restored.model, model);
+        assert_eq!(model_payload_hash(&restored.model), model_payload_hash(&model));
+
+        let mut malformed = model.clone();
+        malformed["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
+        let error = save(&malformed, confirmed()).expect_err("save refuses a malformed slot");
+        assert!(error.contains("MODEL-LINE-PIPE-MISSING at lines[0].pipe_refs[0]"), "{error}");
+        let still = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(still.model, model, "the stored bytes are untouched");
         std::fs::remove_dir_all(root).unwrap();
     }
 

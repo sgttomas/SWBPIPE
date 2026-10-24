@@ -49,6 +49,7 @@ import {
 } from "../../services/projectService";
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
+import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
   type ReplaceProjectChoice,
@@ -2134,7 +2135,9 @@ export function useWorkspaceSession() {
       setProjectSummary(opened.summary);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
       setModelDocumentVersion(opened.model_document_version ?? null);
-      setProjectMessage(opened.summary.message);
+      // W-13 §5.3: the validator's warnings show at project load (blocking
+      // findings were refused by the store).
+      setProjectMessage(`${opened.summary.message}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);
       const recomputedHash = await computeModelHash(opened.model);
