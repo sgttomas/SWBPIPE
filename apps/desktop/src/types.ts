@@ -2,12 +2,80 @@ export type Vec3 = { x: number; y: number; z: number };
 
 export type QuantityValue = { value: number; unit: string };
 
-export type PreviewComponent = {
+/** W-13 §3.1: free-form tags (unique, trimmed, at most 64 characters) and
+ * notes (one non-empty string). Absent means none; clearing removes them. */
+export type ModelAnnotations = {
+  tags?: string[];
+  notes?: string;
+};
+
+/** W-13 §3.5: structured provenance on materials, sections, components and
+ * supports (the library import's field names and enums). `review_status`
+ * describes source-data review only ("Source review" in the UI). */
+export type ProvenanceRecord = {
+  source_name: string;
+  source_location?: string;
+  source_license?: string;
+  contributor?: string;
+  contributor_certification?: string;
+  redistribution_status?: "public_permissive" | "private_only" | "unknown" | "protected_suspected";
+  review_status?: "pending" | "accepted" | "rejected" | "quarantined";
+  reviewed_by?: string;
+  reviewed_on?: string;
+  verification_note?: string;
+  library_ref?: { library_kind: "material" | "section" | "component" | "hanger"; library_id: string; library_version?: string; record_id?: string };
+};
+
+/** W-13 §3.2: a typed line groups existing pipes (grouping only; the solve does not read it). */
+export type ModelLine = ModelAnnotations & { id: string; label?: string; pipe_refs: string[]; provenance?: string };
+
+/** W-13 §3.3: `model_state.schema.json` AssumptionRecord vocabulary. */
+export type ModelAssumption = ModelAnnotations & {
+  assumption_id: string;
+  kind: "assumption" | "open_issue";
+  statement: string;
+  status: "unresolved" | "resolved" | "rejected";
+  affected_refs?: string[];
+  resolution_note?: string;
+};
+
+/** W-13 §3.6: a constraint record with no evaluation (ConstraintRecord subset). */
+export type ModelConstraint = ModelAnnotations & {
+  constraint_id: string;
+  name: string;
+  constraint_kind: string;
+  state: string;
+  target_refs?: string[];
+  statement?: string;
+  provenance?: string;
+};
+
+/** W-13 §3.6: an equipment interface record with no evaluation. */
+export type EquipmentInterfaceRecord = ModelAnnotations & {
+  id: string;
+  label?: string;
+  node_ref: string;
+  equipment_label?: string;
+  provenance?: string;
+};
+
+/** W-13 §3.4: a rule-pack reference: identity and the pack's stamped checksum only. */
+export type RulePackReference = {
+  rule_pack_id: string;
+  name: string;
+  rule_pack_version: string;
+  checksum: { algorithm: "sha256"; canonicalization: "JCS"; payload_scope: "rule_pack_payload"; payload_excludes: ["checksums"]; value: string };
+  redistribution_status: "private_only" | "public_permissive" | "unknown" | "protected_suspected" | "invented_non_engineering_example";
+  source_notice?: string;
+};
+
+export type PreviewComponent = ModelAnnotations & {
   id: string;
   label: string;
   kind: string;
   node: string;
   provenance: string;
+  provenance_record?: ProvenanceRecord;
   geometry?: {
     bend_radius?: QuantityValue;
     bend_angle?: QuantityValue;
@@ -308,7 +376,7 @@ export type PreviewModel = {
   schema_version: string;
   document_kind: string;
   data_boundary: Record<string, string>;
-  project: {
+  project: ModelAnnotations & {
     id: string;
     name: string;
     description: string;
@@ -319,7 +387,8 @@ export type PreviewModel = {
     rule_check: string;
     professional_acceptance: string;
   };
-  materials?: Array<{
+  materials?: Array<ModelAnnotations & {
+    provenance_record?: ProvenanceRecord;
     id: string;
     label: string;
     elastic_modulus: { value: number; unit: string };
@@ -340,7 +409,8 @@ export type PreviewModel = {
     expansion_laws?: ExpansionLawInput[] | null;
     provenance: string;
   }>;
-  sections?: Array<{
+  sections?: Array<ModelAnnotations & {
+    provenance_record?: ProvenanceRecord;
     id: string;
     name: string;
     section_type: "pipe" | "rigid" | "custom" | "TBD" | string;
@@ -351,13 +421,13 @@ export type PreviewModel = {
     };
     provenance: string | Record<string, unknown>;
   }>;
-  nodes: Array<{
+  nodes: Array<ModelAnnotations & {
     id: string;
     label: string;
     position: Vec3;
     provenance: string;
   }>;
-  pipe_segments: Array<{
+  pipe_segments: Array<ModelAnnotations & {
     id: string;
     label: string;
     from: string;
@@ -375,7 +445,8 @@ export type PreviewModel = {
     y_reference?: Vec3;
     provenance: string;
   }>;
-  supports: Array<{
+  supports: Array<ModelAnnotations & {
+    provenance_record?: ProvenanceRecord;
     boundary_association?: {
       boundary_id: string;
       kind: "equipment" | "equipment_nozzle";
@@ -428,7 +499,7 @@ export type PreviewModel = {
     provenance: string;
   }>;
   components: PreviewComponent[];
-  load_cases: Array<{
+  load_cases: Array<ModelAnnotations & {
     id: string;
     label: string;
     kind: string;
@@ -447,7 +518,7 @@ export type PreviewModel = {
     /** Model 0.4.0: the case-owned resolved-state request. */
     analysis_state?: AnalysisStateInput | null;
   }>;
-  combinations?: Array<{
+  combinations?: Array<ModelAnnotations & {
     id: string;
     label: string;
     /** Closed basis set mirroring core/loads/load_case_algebra vocabulary:
@@ -463,6 +534,12 @@ export type PreviewModel = {
   diagnostics: Diagnostic[];
   /** Model 0.4.0: reference configurations (stress-free installed states). */
   reference_configurations?: ReferenceConfigurationInput[] | null;
+  /** Model 0.7.0 (W-13 §3): model-data slots the solve does not read. Absent means none. */
+  lines?: ModelLine[];
+  unresolved_assumptions?: ModelAssumption[];
+  constraints?: ModelConstraint[];
+  equipment_interfaces?: EquipmentInterfaceRecord[];
+  rule_pack_refs?: RulePackReference[];
   /** Model 0.7.0 (W-13 Design §3.8): model-level settings; absent members take their defaults. */
   model_settings?: ModelSettings;
 };
@@ -997,7 +1074,14 @@ export type EditorOperationObjectType =
   | "Component"
   | "Support"
   | "Load"
-  | "Combination";
+  | "Combination"
+  // W-13 §6: the project singleton (tags, notes) and the model-data record families.
+  | "Project"
+  | "Line"
+  | "Assumption"
+  | "Constraint"
+  | "EquipmentInterface"
+  | "RulePackRef";
 
 export type EditorOperationSource = {
   source_ref: string;
@@ -1047,7 +1131,24 @@ export type EditorOperationIntent = {
       | "reconnect_pipe_run"
       | "insert_bend_at_corner"
       | "delete_combination_term"
-      | "insert_component_symbol";
+      | "insert_component_symbol"
+      // W-13 §6: model-data record operations.
+      | "create_line"
+      | "update_line"
+      | "delete_line"
+      | "create_assumption"
+      | "update_assumption"
+      | "delete_assumption"
+      | "create_constraint"
+      | "update_constraint"
+      | "delete_constraint"
+      | "create_equipment_interface"
+      | "update_equipment_interface"
+      | "delete_equipment_interface"
+      | "add_rule_pack_ref"
+      | "remove_rule_pack_ref"
+      // W-17 (DEL-03-01 Design apply-library-records.md §2.2).
+      | "apply_library_record";
     field_label: string;
     field_path: string;
     before: string;

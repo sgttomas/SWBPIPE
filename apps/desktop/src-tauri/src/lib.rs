@@ -2299,6 +2299,10 @@ fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersio
     if status.is_refused() {
         return Err(refuse_model_document(&status));
     }
+    // W-13 §5.3 (S2): create and save refuse a document whose model-data
+    // slots carry a blocking validator finding, named with its JSON path;
+    // nothing is repaired. Warnings never refuse.
+    refuse_malformed_model_slots(model)?;
     Ok(status)
 }
 
@@ -4164,6 +4168,150 @@ fn delete_local_library(
     })
 }
 
+/// One `provenance_record.library_ref` of the model, as the webview sends it
+/// for the store check (W-13 §3.5; W-17 §2.7).
+#[derive(Debug, Deserialize)]
+struct ModelLibraryRef {
+    entity_ref: String,
+    library_kind: String,
+    library_id: String,
+    #[serde(default)]
+    library_version: Option<String>,
+    #[serde(default)]
+    record_id: Option<String>,
+}
+
+/// A store finding on a model library reference. Both codes are warnings: the
+/// model's values stand, and the recorded version is never updated here.
+#[derive(Debug, Serialize, PartialEq)]
+struct LibraryRefFinding {
+    code: &'static str,
+    severity: &'static str,
+    entity_ref: String,
+    library_kind: String,
+    library_id: String,
+    record_id: Option<String>,
+    recorded_version: Option<String>,
+    stored_version: Option<String>,
+    message: String,
+}
+
+const MODEL_LIBRARY_REF_UNRESOLVED: &str = "MODEL-LIBRARY-REF-UNRESOLVED";
+const MODEL_LIBRARY_REF_VERSION_CHANGED: &str = "MODEL-LIBRARY-REF-VERSION-CHANGED";
+
+fn library_records_key(library_kind: &str) -> Option<(&'static str, &'static str)> {
+    match library_kind {
+        "material" => Some(("material_records", "material_id")),
+        "section" => Some(("section_records", "section_id")),
+        "component" => Some(("component_records", "component_id")),
+        "hanger" => Some(("hanger_records", "hanger_id")),
+        _ => None,
+    }
+}
+
+/// `library_version` of a stored record: "sha256:" + the SHA-256 of its RFC
+/// 8785 (JCS) form, the digest the desktop records at insert and apply.
+fn library_record_version(record: &Value) -> String {
+    format!(
+        "sha256:{}",
+        open_pipe_stress_operation_applier::sha256_hex(&open_pipe_stress_operation_applier::canonical_json(record))
+    )
+}
+
+/// Compare each reference with the project's local store: a missing library or
+/// record is `MODEL-LIBRARY-REF-UNRESOLVED`; a stored record whose digest
+/// differs from the recorded `library_version` is
+/// `MODEL-LIBRARY-REF-VERSION-CHANGED`.
+fn library_ref_findings(
+    connection: &Connection,
+    project_id: &str,
+    references: &[ModelLibraryRef],
+) -> Result<Vec<LibraryRefFinding>, String> {
+    let mut findings = Vec::new();
+    for reference in references {
+        let finding = |code, stored_version: Option<String>, message: String| LibraryRefFinding {
+            code,
+            severity: "warning",
+            entity_ref: reference.entity_ref.clone(),
+            library_kind: reference.library_kind.clone(),
+            library_id: reference.library_id.clone(),
+            record_id: reference.record_id.clone(),
+            recorded_version: reference.library_version.clone(),
+            stored_version,
+            message,
+        };
+        let stored = match library_records_key(&reference.library_kind) {
+            Some(_) => load_library(connection, project_id, &reference.library_kind, &reference.library_id)?,
+            None => None,
+        };
+        let Some(row) = stored else {
+            findings.push(finding(
+                MODEL_LIBRARY_REF_UNRESOLVED,
+                None,
+                format!(
+                    "{} names {} library `{}`, which the local store does not hold for project `{project_id}`. \
+                     The model's values stand. A project saved under a new id reads its references as unresolved \
+                     until the library is imported into that project.",
+                    reference.entity_ref, reference.library_kind, reference.library_id
+                ),
+            ));
+            continue;
+        };
+        let (records_key, id_key) = library_records_key(&reference.library_kind).expect("checked above");
+        let record = reference.record_id.as_deref().and_then(|record_id| {
+            row.document
+                .get(records_key)
+                .and_then(Value::as_array)
+                .and_then(|records| records.iter().find(|record| record.get(id_key).and_then(Value::as_str) == Some(record_id)))
+        });
+        let Some(record) = record else {
+            findings.push(finding(
+                MODEL_LIBRARY_REF_UNRESOLVED,
+                None,
+                format!(
+                    "{} names record `{}` of {} library `{}`, which the stored library does not hold. The model's values stand.",
+                    reference.entity_ref,
+                    reference.record_id.as_deref().unwrap_or("(none recorded)"),
+                    reference.library_kind,
+                    reference.library_id
+                ),
+            ));
+            continue;
+        };
+        let stored_version = library_record_version(record);
+        if let Some(recorded) = &reference.library_version {
+            if recorded != &stored_version {
+                findings.push(finding(
+                    MODEL_LIBRARY_REF_VERSION_CHANGED,
+                    Some(stored_version),
+                    format!(
+                        "The stored record `{}` of {} library `{}` has changed since {} recorded it. The model's values and \
+                         recorded version stand; re-apply from the library to adopt the stored record.",
+                        reference.record_id.as_deref().unwrap_or(""),
+                        reference.library_kind,
+                        reference.library_id,
+                        reference.entity_ref
+                    ),
+                ));
+            }
+        }
+    }
+    Ok(findings)
+}
+
+/// Checks the model's library references against the local store at project
+/// open and load and on library-list refresh (W-13 §3.5). Read-only.
+#[tauri::command]
+fn check_model_library_refs(
+    app: AppHandle,
+    project_id: String,
+    references: Vec<ModelLibraryRef>,
+) -> Result<Vec<LibraryRefFinding>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    library_ref_findings(&connection, project_id.trim(), &references)
+}
+
 const NATIVE_MENU_DOM_EVENT: &str = "openpipestress-native-menu-command";
 
 #[derive(Debug, Deserialize)]
@@ -5022,6 +5170,7 @@ macro_rules! app_invoke_handler {
             save_local_library,
             open_local_library,
             list_local_libraries,
+            check_model_library_refs,
             delete_local_library,
             render_calculation_report,
             save_report_package,
@@ -7874,6 +8023,86 @@ mod tests {
         std::fs::remove_dir_all(root).unwrap();
     }
 
+    /// W-13 §5.4 (S2): a desktop-emitted document carrying every model-data
+    /// member goes through Save Local Project and back with equal content and
+    /// model hash; an edit (create a line) saved in place and its undo (the
+    /// inverse operation) saved again return the original document and hash.
+    /// Save refuses a document with a blocking validator finding, by name, and
+    /// leaves the stored bytes as they were.
+    #[test]
+    fn save_local_project_round_trips_every_slot_and_refuses_malformed_slots() {
+        let root = std::env::temp_dir().join(format!(
+            "ops-slot-save-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let golden: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_document/desktop_emitted.json"
+        )).unwrap();
+        let model = golden["entries"].as_array().unwrap().last().unwrap()["document"].clone();
+        for slot in ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs"] {
+            assert!(model[slot].as_array().is_some_and(|items| !items.is_empty()), "{slot}");
+        }
+        // W-17: the round trip carries one library-applied entity.
+        assert!(model["materials"].as_array().unwrap().iter().any(|m| m.pointer("/provenance_record/library_ref/library_version").is_some()));
+        let project_id = model["project"]["id"].as_str().unwrap().to_string();
+        let save = |model: &Value, confirmed: Option<String>| save_project_in_store(db.clone(), SaveLocalProjectRequest::from_value(json!({
+            "project_id": project_id, "project_name": "Invented slots", "model": model,
+            "model_hash": computed_model_hash(model, &project_id), "confirmed_revision": confirmed
+        })).unwrap());
+        let confirmed = || {
+            let (connection, _) = open_project_store(&db).unwrap();
+            let entry = stored_project_entry(&connection, &project_id).unwrap().unwrap();
+            Some(stored_revision(&connection, &entry).unwrap())
+        };
+
+        save(&model, None).expect("an every-slot document saves");
+        let opened = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(opened.model, model);
+        assert_eq!(hash_value_string(&opened.model_hash), model_payload_hash(&model));
+
+        let line = json!({"id": "line:L-900", "label": "Invented line", "pipe_refs": []});
+        let intent = |kind: &str, change_kind: &str, before: String, after: String| json!({
+            "operation_id": format!("operation:{change_kind}"), "operation_kind": kind, "operation_status": "proposed",
+            "author_type": "user", "target": {"object_type": "Line", "ref": "line:L-900"},
+            "change": {"change_id": format!("change:{change_kind}"), "change_kind": change_kind, "field_label": "Line",
+                "field_path": "lines", "before": before, "after": after, "unit": "none", "dimension": "dimensionless",
+                "source_note": "invented"},
+            "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run",
+                "diff_preview_status": "not_generated", "application_status": "not_applied"},
+            "audit_boundary": {"mutation_route": "structured_operations_only", "direct_model_mutation_allowed": false,
+                "requires_user_acceptance": true, "mutates_accepted_model_state": false},
+            "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false,
+                "software_makes_certification_claim": false, "software_makes_sealing_claim": false,
+                "software_makes_approval_claim": false, "software_makes_authentication_claim": false},
+            "rationale": "invented"
+        });
+        let canonical = open_pipe_stress_operation_applier::canonical_json;
+        let edited = open_pipe_stress_operation_applier::apply_operation(&opened.model,
+            &intent("create", "create_line", "not_present".into(), canonical(&line)), None)
+            .applied_model.expect("create_line applies");
+        save(&edited, confirmed()).expect("the edit saves in place");
+        let reopened = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(reopened.model, edited);
+        let undone = open_pipe_stress_operation_applier::apply_operation(&reopened.model,
+            &intent("delete", "delete_line", canonical(&line), "not_present".into()), None)
+            .applied_model.expect("the inverse applies");
+        save(&undone, confirmed()).expect("the undo saves in place");
+        let restored = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(restored.model, model);
+        assert_eq!(model_payload_hash(&restored.model), model_payload_hash(&model));
+
+        let mut malformed = model.clone();
+        malformed["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
+        let error = save(&malformed, confirmed()).expect_err("save refuses a malformed slot");
+        assert!(error.contains("MODEL-LINE-PIPE-MISSING at lines[0].pipe_refs[0]"), "{error}");
+        let still = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(still.model, model, "the stored bytes are untouched");
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
     #[test]
     fn a_current_document_persists_with_its_raw_received_claims() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
@@ -8844,6 +9073,44 @@ mod tests {
             },
             "material_records": []
         })
+    }
+
+    #[test]
+    fn model_library_refs_warn_when_unresolved_or_changed_and_never_update_the_version() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let mut document = storable_material_payload("matlib.invented.alpha");
+        document["material_records"] = json!([{"material_id":"mat.invented.alpha","name":"Invented material alpha","properties":[]}]);
+        let record_id = document["material_records"][0]["material_id"].as_str().unwrap().to_string();
+        upsert_library(&connection, "project:lib-refs", "material", "matlib.invented.alpha", &document).expect("upserts");
+        let stored = library_record_version(&document["material_records"][0]);
+        // The digest is the SHA-256 of the record's RFC 8785 form.
+        assert_eq!(stored, format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&open_pipe_stress_operation_applier::canonical_json(&document["material_records"][0]))));
+        let reference = |library_id: &str, record: &str, version: &str| ModelLibraryRef {
+            entity_ref: "material:inserted".into(),
+            library_kind: "material".into(),
+            library_id: library_id.into(),
+            library_version: Some(version.into()),
+            record_id: Some(record.into()),
+        };
+        let current = [reference("matlib.invented.alpha", &record_id, &stored)];
+        assert!(library_ref_findings(&connection, "project:lib-refs", &current).unwrap().is_empty());
+        // Another project id (Save as new project) does not hold the library.
+        let other = library_ref_findings(&connection, "project:renamed", &current).unwrap();
+        assert_eq!(other[0].code, MODEL_LIBRARY_REF_UNRESOLVED);
+        let missing = library_ref_findings(&connection, "project:lib-refs", &[reference("matlib.absent", &record_id, &stored), reference("matlib.invented.alpha", "mat.absent", &stored)]).unwrap();
+        assert_eq!(missing.iter().map(|f| (f.code, f.severity)).collect::<Vec<_>>(), vec![(MODEL_LIBRARY_REF_UNRESOLVED, "warning"); 2]);
+        // The stored record changes: the version warning names both digests,
+        // and the recorded version is reported, not replaced.
+        document["material_records"][0]["name"] = json!("Invented material alpha, revised");
+        upsert_library(&connection, "project:lib-refs", "material", "matlib.invented.alpha", &document).expect("upserts");
+        let changed = library_ref_findings(&connection, "project:lib-refs", &current).unwrap();
+        assert_eq!(changed.len(), 1);
+        assert_eq!(changed[0].code, MODEL_LIBRARY_REF_VERSION_CHANGED);
+        assert_eq!(changed[0].severity, "warning");
+        assert_eq!(changed[0].recorded_version.as_deref(), Some(stored.as_str()));
+        assert_eq!(changed[0].stored_version, Some(library_record_version(&document["material_records"][0])));
+        assert_eq!(current[0].library_version.as_deref(), Some(stored.as_str()));
     }
 
     #[test]

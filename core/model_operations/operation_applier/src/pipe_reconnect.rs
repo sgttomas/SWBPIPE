@@ -124,14 +124,20 @@ pub(crate) fn owner_of(model: &Value, segs: &[Seg]) -> (String, String) {
 /// `ids` in the document, as structured segment paths, except the root
 /// `diagnostics` (derived records), the root `label`/`name`/`provenance`
 /// subtrees, the pipe record `skip_pipe` and the node records in `skip_nodes`
-/// (self-references).
+/// (self-references). The model-data collections are not scanned either
+/// (W-13 §6): naming an entity in a line, assumption, constraint, equipment
+/// interface or rule-pack reference never blocks its edit or deletion, a
+/// deleted pipe leaves its line explicitly, and a missing subject is the
+/// document validator's warning.
 pub(crate) fn scan(model: &Value, ids: &BTreeSet<String>, skip_pipe: Option<&str>, skip_nodes: &BTreeSet<String>) -> Vec<Vec<Seg>> {
     let mut out = Vec::new();
     let Some(root) = model.as_object() else {
         return out;
     };
     for (key, value) in root {
-        if matches!(key.as_str(), "diagnostics" | "label" | "name" | "provenance") {
+        if matches!(key.as_str(), "diagnostics" | "label" | "name" | "provenance")
+            || crate::model_data_authoring::MODEL_DATA_COLLECTIONS.contains(&key.as_str())
+        {
             continue;
         }
         let skip = |row: &Value| {

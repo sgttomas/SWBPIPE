@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { Library, ShieldAlert } from "lucide-react";
 import type { PreviewModel } from "../../types";
 import {
+  checkModelLibraryRefs,
+  modelLibraryRefs,
+  MODEL_LIBRARY_REF_VERSION_CHANGED,
+  type LibraryRefFinding,
   buildInventedLibraryImportTemplate,
   deleteLocalLibrary,
   listLocalLibraries,
@@ -22,6 +26,10 @@ import {
   unitEntryMatchesDimension,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
+import type { OperationBatch } from "../../services/operationBatchService";
+import type { EntityRef } from "../../types";
+import { LibraryApplySection, type LibraryApplyTarget } from "./LibraryApplySection";
+import { currentLibraryRefFindings, publishLibraryRefFindings, usePublishedLibraryRefFindings } from "./libraryRefFindings";
 
 // Private Library Manager (PRD §13 / §14.6 / §14.1 "Library manager"). Phase C3
 // GUI slice (TP-C3-LIBGUI-001), replicating the C2 Rule-Pack Manager pattern:
@@ -186,11 +194,29 @@ const COMPONENT_FIELD_SPECS = {
 
 export function LibraryManagerPanel({
   model,
-  onR3JourneyEvent
+  onR3JourneyEvent,
+  selection = null,
+  onQueueBatch,
+  operationBusy = false
 }: {
   model: PreviewModel | null;
   onR3JourneyEvent?: (event: LibraryR3JourneyEvent) => void;
+  /** W-17: the entity "Apply to selected" targets. */
+  selection?: EntityRef | null;
+  /** W-17: queue a library insert/apply batch for the existing review. */
+  onQueueBatch?: (batch: OperationBatch) => void;
+  operationBusy?: boolean;
 }) {
+  // W-17 (DEL-03-01 Design apply-library-records.md §3): the stored library
+  // opened from the list (never the editable draft) is what applies, and the
+  // model's library references are checked against the store on refresh.
+  const [opened, setOpened] = useState<{ entry: LocalLibraryIndexEntry; document: Record<string, unknown> } | null>(null);
+  const [applyPreset, setApplyPreset] = useState<LibraryApplyTarget | null>(null);
+  const [, setRefFindings] = useState<LibraryRefFinding[]>([]);
+  // Shown as the diagnostics list and inspector show them: only while the
+  // entity still carries the reference a finding was raised on.
+  const publishedRefFindings = usePublishedLibraryRefFindings();
+  const refFindings = model ? currentLibraryRefFindings(model, publishedRefFindings) : [];
   const [draft, setDraft] = useState<DraftState | null>(null);
   const [libraryKind, setLibraryKind] = useState<LibraryKind>("material");
   const [intendedVisibility, setIntendedVisibility] = useState<IntendedVisibility>("private");
@@ -253,6 +279,8 @@ export function LibraryManagerPanel({
   // until saved).
   useEffect(() => {
     setEntries([]);
+    setOpened(null);
+    setRefFindings([]);
     setListStatus("Local library list not refreshed for this project yet.");
   }, [projectId]);
 
@@ -447,6 +475,12 @@ export function LibraryManagerPanel({
         return;
       }
       setEntries(route.entries);
+      if (model) {
+        const checked = await checkModelLibraryRefs(model.project.id, modelLibraryRefs(model));
+        const findings = checked.route === "tauri_backend" ? checked.findings : [];
+        setRefFindings(findings);
+        publishLibraryRefFindings(model.project.id, findings);
+      }
       setListStatus(
         `Local store listed ${route.entries.length} library(ies)` +
           (projectId ? ` for ${projectId}.` : " across all local projects.")
@@ -536,6 +570,8 @@ export function LibraryManagerPanel({
       });
       setValidation(route.envelope.validation);
       setActionStatus(`${route.envelope.message} (library_id=${route.envelope.library_id}).`);
+      const storable = route.envelope.validation.accepted && !route.envelope.validation.has_blocking_findings;
+      setOpened(storable ? { entry, document: route.envelope.document as Record<string, unknown> } : null);
     } catch (error) {
       reportBackendError("open", error);
     } finally {
@@ -906,6 +942,51 @@ export function LibraryManagerPanel({
           </article>
         ))}
       </div>
+
+      {refFindings.length ? (
+        <div className="report-list" data-testid="library-ref-findings">
+          <strong>Model library references</strong>
+          {refFindings.map((finding) => (
+            <article className="operation-record" key={`${finding.entity_ref}:${finding.code}`} data-testid={`library-ref-finding-${finding.entity_ref}`}>
+              <small role="note">{finding.code} (warning): {finding.message}</small>
+              {finding.code === MODEL_LIBRARY_REF_VERSION_CHANGED && finding.record_id ? (
+                <button type="button" data-testid={`library-ref-reapply-${finding.entity_ref}`} disabled={inFlight || operationBusy}
+                  onClick={() => {
+                    const entry = entries.find((item) => item.library_kind === finding.library_kind && item.library_id === finding.library_id);
+                    if (!entry) return;
+                    setApplyPreset({ recordId: finding.record_id!, entityId: finding.entity_ref });
+                    void handleOpen(entry);
+                  }}>
+                  Re-apply from library
+                </button>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      ) : null}
+
+      {opened && model && onQueueBatch ? (
+        <LibraryApplySection
+          key={`${opened.entry.library_kind}:${opened.entry.library_id}:${applyPreset?.entityId ?? ""}`}
+          model={model}
+          libraryKind={opened.entry.library_kind}
+          document={opened.document}
+          selection={selection}
+          catalog={unitCatalogRoute?.route === "tauri_unit_catalog" ? unitCatalogRoute.catalog : null}
+          busy={inFlight || operationBusy}
+          preset={applyPreset}
+          reopen={async () => {
+            const route = await openLocalLibrary(opened.entry.project_id, opened.entry.library_kind, opened.entry.library_id);
+            if (route.route === "unavailable_browser_preview") throw new Error(route.diagnostic);
+            if (!route.envelope) throw new Error("The stored library no longer exists. Refresh the list.");
+            if (!route.envelope.validation.accepted || route.envelope.validation.has_blocking_findings) {
+              throw new Error("The stored library now has blocking import findings, so it is not applied. Review the findings in the Library Manager (Open, then Validate import) and re-import the library.");
+            }
+            return route.envelope.document as Record<string, unknown>;
+          }}
+          onQueueBatch={(batch) => { setApplyPreset(null); onQueueBatch(batch); }}
+        />
+      ) : null}
 
       <div className="report-list">
         <label htmlFor="library-draft-json-input">

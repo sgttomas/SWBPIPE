@@ -51,6 +51,10 @@ CURRENT_VERSION = "0.7.0"
 RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"}
 BUNDLED_DEMO = "fixtures/product_preview/invented_demo_model.json"
 DESKTOP_PROFILE_PREFIXES = ("apps/desktop/e2e/", "fixtures/persistence/")
+# The desktop emission golden (§5.2, TP-PMM-GUIEMIT-001): documents the desktop wrote.
+DESKTOP_EMISSION_GOLDEN = "fixtures/model_document/desktop_emitted.json"
+# The applier golden (§5.2): one applied document per W-13 model-data operation kind.
+APPLIER_EMISSION_GOLDEN = "fixtures/model_document/applier_emitted.json"
 # The applier contract corpus's partial documents: a case file's base or expected
 # applied model carrying only the members its operation reads (no `project`).
 PARTIAL_OPERATION_PREFIX = "fixtures/model_operations/contract_corpus/case_"
@@ -188,7 +192,7 @@ def is_frozen_input(relative: str) -> bool:
 
 
 def is_desktop_profile(relative: str) -> bool:
-    return relative == BUNDLED_DEMO or relative.startswith(DESKTOP_PROFILE_PREFIXES)
+    return relative in {BUNDLED_DEMO, DESKTOP_EMISSION_GOLDEN} or relative.startswith(DESKTOP_PROFILE_PREFIXES)
 
 
 def classify():
@@ -418,6 +422,63 @@ def test_frozen_coverage_includes_every_retired_version_and_json_lines():
     assert not any(relative.startswith(FROZEN_ROOT) for bucket, relative, _, _ in classify() if bucket == "retired")
     assert any(relative.endswith(".jsonl") for relative, _ in frozen)
 
+
+
+DESKTOP_EMISSION_PATHS = [
+    "blank_project", "blank_load_reference_project", "node_creation", "material_creation", "section_creation",
+    "pipe_creation", "support_creation", "load_creation", "combination_creation", "project_tags_and_notes",
+    "entity_tags_and_notes", "provenance_records", "line", "assumptions_and_open_issues",
+    "constraints_and_equipment_interfaces", "rule_pack_ref", "library_material_insert",
+]
+
+
+def test_tp_pmm_guiemit_001_desktop_emission_golden_validates_against_the_desktop_profile():
+    """TP-PMM-GUIEMIT-001 (§5.2): every document the desktop emission golden records — one per authoring path,
+    written by `desktopEmission.golden.test.ts` under a fixed clock — validates against `$defs/DesktopDocument`
+    and against the format root, and the paths cover the blank projects, entity creation and every §3 slot."""
+    golden = strict_json(ROOT / DESKTOP_EMISSION_GOLDEN)
+    assert golden["document_kind"] == "openpipestress.test.desktop_emission_golden"
+    assert [entry["path"] for entry in golden["entries"]] == DESKTOP_EMISSION_PATHS
+    rows = {(relative, pointer): bucket for bucket, relative, pointer, _ in classify() if relative == DESKTOP_EMISSION_GOLDEN}
+    assert set(rows.values()) == {"desktop"}
+    assert len(rows) == len(DESKTOP_EMISSION_PATHS)
+    desktop, root = desktop_schema(), format_schema()
+    for index, entry in enumerate(golden["entries"]):
+        document = entry["document"]
+        assert document["schema_version"] == CURRENT_VERSION, entry["path"]
+        _validate(desktop, document, f"{DESKTOP_EMISSION_GOLDEN}#/entries/{index}/document (DesktopDocument)")
+        _validate(root, document, f"{DESKTOP_EMISSION_GOLDEN}#/entries/{index}/document")
+    last = golden["entries"][-1]["document"]
+    for member in ("lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs"):
+        assert last[member], member
+    assert "tags" in last["project"] and "notes" in last["project"]
+    assert any("provenance_record" in record for record in last["materials"])
+    assert any("provenance_record" in record for record in last["supports"])
+
+
+APPLIER_EMISSION_KINDS = [
+    "create_line", "update_line", "delete_line",
+    "create_assumption", "update_assumption", "delete_assumption",
+    "create_constraint", "update_constraint", "delete_constraint",
+    "create_equipment_interface", "update_equipment_interface", "delete_equipment_interface",
+    "add_rule_pack_ref", "remove_rule_pack_ref",
+    "tags", "notes", "provenance_record",
+]
+
+
+def test_applier_model_data_golden_validates_against_the_format():
+    """§5.2: the Rust applier golden (`tests/model_data_authoring.rs`) records one applied document per new
+    operation kind; each validates against the format root."""
+    golden = strict_json(ROOT / APPLIER_EMISSION_GOLDEN)
+    assert golden["document_kind"] == "openpipestress.test.applier_model_data_golden"
+    assert [entry["operation"] for entry in golden["entries"]] == APPLIER_EMISSION_KINDS
+    buckets = {bucket for bucket, relative, _, _ in classify() if relative == APPLIER_EMISSION_GOLDEN}
+    assert buckets == {"format"}
+    root = format_schema()
+    for index, entry in enumerate(golden["entries"]):
+        document = entry["applied_model"]
+        assert document["schema_version"] == CURRENT_VERSION, entry["operation"]
+        _validate(root, document, f"{APPLIER_EMISSION_GOLDEN}#/entries/{index}/applied_model")
 
 
 def test_shape_corpus_does_not_silently_enter_the_current_format_population():
