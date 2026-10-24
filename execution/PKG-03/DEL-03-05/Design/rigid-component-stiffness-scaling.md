@@ -95,8 +95,11 @@ Otherwise the member solves as unscaled pipe, and a warning names the first
 unmet condition (§2.6). This includes an absent consumption declaration, which
 gets its own warning, since no mode is assumed. `not_solver_consumed` is
 honoured: the member solves as pipe with no rigid warning beyond the existing
-unsupported-interface diagnostics (PP `validation.rs` ~1227-1253). Three
-mappings that today pass silently are refused (blocking, by name):
+unsupported-interface diagnostics (PP `validation.rs` ~1227-1253). The first unmet condition is reported in the order listed. Three
+mappings that today pass silently are refused (blocking, by name), counting
+every rigid-family component that maps a member, whether or not it is eligible
+(a `not_solver_consumed` record sharing a member with an active one is a
+conflict):
 - the mapped member is a realized curved bend (PP `lib.rs` ~8171);
 - the mapped member is a span replaced by an objective connector (~7982, ~8173);
 - two components map the same member.
@@ -110,18 +113,17 @@ body joins a single pipe with no external load at the joint, nodal equilibrium
 makes its end forces equal that pipe's. At a branch or a loaded junction only
 the nodal sum balances.
 
-In slice a the rows keep their current shape, as they do today for every
-mapped member. The scale does not create the labelling gap: before W-15 the
-demo valve's member already published ordinary pipe stress rows. In a simple
-chain the body's forces are fixed by equilibrium, so scaling does not change
-them. Scaling redistributes forces only in statically indeterminate systems.
-An info diagnostic per scaled component, `RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED`,
-names the member and the scale. It states that the member's stress rows are
-the reference pipe section's and are not a body stress.
-
-Machine-readable identification of those rows is slice d (§5). It is a
-result-contract change across readers, exports, rule binding and the desktop,
-and it is designed and scrutinized on its own.
+Before W-15 the demo valve's member already published ordinary pipe stress
+rows. In a statically determinate chain the body's forces are fixed by
+equilibrium alone, so scaling does not change them. In an indeterminate system
+scaling redistributes force onto the stiffer body. Take two collinear members
+of equal E·A meeting at a loaded node, each anchored at its far end, with the
+body twice the pipe's length. At s = 1 the pipe carries 2F/3 and governs; at
+s = 4 the body carries 2F/3. Scaling can therefore newly move the headline, a
+headline-bound rule and the headline-derived local-FEA region onto a reference
+section. Slice a ships only with slice d's identification (§5), in one
+implementation. An info diagnostic per scaled component,
+`RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED`, names the member and the scale.
 
 ### 2.5 Numerical bound
 
@@ -137,8 +139,9 @@ qualification: the pivot screen (FK `structural.rs` ~1747), the sparse pivot
 ratio (DEC-050), and formation and recovery qualification, including
 force-scaled recovery after a range failure (PP `lib.rs` ~4017-4027). None of
 them proves member-force accuracy, and the warning does not replace them. An
-s·E·A outside binary64's range fails at stiffness formation, where it is
-refused by name.
+s·E, s·G or a product formed from them outside binary64's normal range
+(overflow, or underflow for a small s) fails at section or stiffness
+formation, where it is refused by name.
 
 ### 2.6 Diagnostics
 
@@ -163,9 +166,11 @@ applied.
 EX admits valve, flange, rigid and specialty components under
 `3.0.0/exact_pressure_v3` with the same scaling. The admission table and its
 texts (PP `exact_admission.rs` ~197-251, unit test ~312-350) change, and so
-does the pinned "Admitted families" sentence of the pressure-2 semantic
-contract (`fixtures/results/semantic_contract_v0_3_pressure_2.json` ~2187),
-through its maintained generator.
+does the "Admitted families" sentence of the pressure-2 semantic contract
+(`fixtures/results/semantic_contract_v0_3_pressure_2.json` ~2187). That
+sentence is authored by hand (`tools/serialization/semantic_contract_tables.py`
+~4). Its derived tables and pins are then regenerated with `derive` and
+`repin`, followed by the required carrier regeneration.
 
 A reducer whose mapped member belongs to any pressure region in any case is
 refused on EX, by an explicit, case-specific refusal,
@@ -181,8 +186,9 @@ those of the mapped section.
 
 The retained and source sub-routes still refuse every component
 (`retained_memory.rs` ~922, `source_recovery.rs` ~874) and are not touched.
-Both assert frame E equal to material E, which a scaled member would break, so
-the refusal is kept deliberately.
+Each asserts frame E equal to material E (`retained_product.rs` ~2093,
+`source_recovery.rs` ~1659), which a scaled member would break, so the refusal
+is kept deliberately.
 
 ### 2.8 Retained-memory pricing (D3)
 
@@ -190,10 +196,11 @@ Slice a changes the priced files PP `lib.rs`, `validation.rs`
 (`validate_components` is body-pinned by `w8_topology_model.py`) and
 `exact_admission.rs`, so it needs re-pricing and re-registration under
 `tools/retained_pricing/README.md` in the solver lane's D3 turn. It changes
-no FK file and no P_FINAL term. The scale adds no new owner on the
-admitted domain beyond ordinary component diagnostics and the `component_body`
-rows; the eligibility predicate and the mapping-conflict check are pricing
-inputs to be priced or bounded in the registration, not assumed free. The registration must still show every priced
+no FK file. The retained route refuses components, so its rows and P_FINAL
+census are unchanged; slice d's optional row and coverage members appear only
+on results with an applied scale. The eligibility predicate and the
+mapping-conflict check are pricing inputs, to be priced or bounded in the
+registration, not assumed free. The registration must still show every priced
 phase fits M = 12 GiB; a misfit stops for the owner (decision 22).
 
 ## 3. Component weight and centre of gravity (slice b)
@@ -258,9 +265,36 @@ coordination.
 ## 5. Identifying reference-section results (slice d)
 
 A scaled member's stress rows are stresses of a reference pipe section. Slice
-d makes that meaning travel with the result. It needs its own design and
-scrutiny before implementation. Round-2 scrutiny (Codex) set out what that
-design must settle:
+d makes that meaning travel with the result, and ships with slice a (§2.4).
+These are the decisions; the consumer lists come from round-2 scrutiny (Codex).
+
+- **Applies to.** Only results with an applied scale. A result without one keeps
+  its shape byte for byte, so no golden without a scaled component moves.
+- **Row record.** `component_body`: {`component_ref`, `stiffness_scale`,
+  `section_role: "reference_pipe_section"`}. It is an optional, closed member
+  on every stress row, stress extremum and maximum row of a scaled member, on
+  both routes, every section basis and combination rows. Model-bound readers
+  derive the expected set from the model's eligibility predicate. They refuse
+  a missing, forged or inconsistent record, and refuse disagreement between
+  basis twins.
+- **Maximum.** Per-member maxima and extrema stay. The case maximum and the
+  headline range over non-body members. The coverage entry carries
+  `component_body_pipe_ids` when nonempty. Completeness is unchanged. A case
+  whose every available member is a body has a null headline.
+- **Rules.** A rule bound to a body row reports `RULE_INPUTS_INCOMPLETE` with
+  reason `COMPONENT_BODY_REFERENCE_SECTION`. No new outcome kind is added. A
+  pack that binds every member is therefore incomplete while a scaled body is
+  among them, which is the conservative reading. If rule scope cannot exclude
+  members, that is reported before release of the slice, not worked around.
+- **Exports.** Derivative quantity rows and source annotations copy the record
+  verbatim. Both exporters (Rust `derivative.rs`, desktop
+  `resultExportAdapter.ts`) validate it against the source row.
+- **Desktop.** The stress headline and the local-FEA region from it never name
+  a body. A body included for another reason, such as adjoining the
+  displacement node or the fixed P-120 preference, is shown with its
+  identification.
+
+What each decision touches:
 
 1. **Maximum and coverage.** Per-member maxima and `pipe_stress_extrema` stay
    published for every available member, so the coverage and row-binding
