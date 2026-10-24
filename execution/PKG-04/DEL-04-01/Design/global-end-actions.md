@@ -95,6 +95,12 @@ Twelve rows per member per case, after the member's local end rows:
 - **Readers:** the EX evidence validator checks the new rows explicitly
   (kind, unit, location, coordinate system, basis, one row per member, end and
   component); malformed rows are refused by name.
+  The readers also check that each end's global vector has the norm of the
+  local vector it rotates, an internal-consistency check that does not
+  establish direction. Its bound is the frame error the kernel admits
+  (`AXIS_TOLERANCE` = 1e-12 per axis length and per pair: 5·1e-12 relative)
+  plus 64 epsilon of rounding. A near-parallel `y_reference` the kernel admits
+  gives axes 2.46e-13 from orthogonal, which a bound of rounding alone refused.
 - **Desktop, exports, verifiers:** the desktop's declared result dimensions,
   the stress-neutral export's family mapping and the Python verifiers read the
   new kinds from the tables or list them explicitly.

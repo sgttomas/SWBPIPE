@@ -16,12 +16,25 @@
 //!   redefined) and stays readable; one global end row requires them all.
 //! - Rotation invariance: at each end the global vector's norm equals the norm
 //!   of the published local vector it rotates (the wall action as axial where
-//!   the wall basis is named), to 64 epsilon relative. A rotation preserves the
-//!   norm; this checks the rows against their local operands without the
-//!   geometry. It is an internal-consistency check, not an accuracy claim.
+//!   the wall basis is named), to [`NORM_TOLERANCE`] relative. A rotation
+//!   preserves the norm; this checks the rows against their local operands
+//!   without the geometry. It is an internal-consistency check, not an accuracy
+//!   claim: it does not establish the vector's direction (a permutation of the
+//!   components keeps the norm).
 use open_pipe_stress_correct_norm::norm3;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+/// The frame kernel admits local axes (`FrameOrientation::new`) that are unit
+/// length and mutually orthogonal each to within `AXIS_TOLERANCE` = 1e-12
+/// (`frame_kernel/src/lib.rs`), so R Rᵀ = I + E with |E_ii| ≤ 2t + t² and
+/// |E_ij| ≤ t, and ‖E‖₂ ≤ ‖E‖_F ≤ √18·t < 5t. Since ‖Rᵀf‖² = fᵀ R Rᵀ f, a
+/// rotated vector's norm differs from the operand's by at most ‖E‖·‖f‖. The
+/// bound adds 64 epsilon for the rotation's and the norms' rounding.
+/// (Independent W-7 review: an admitted near-parallel `y_reference` gives axes
+/// 2.46e-13 from orthogonal and a norm drift of 1.23e-13.)
+const ADMITTED_AXIS_TOLERANCE: f64 = 1.0e-12;
+pub(crate) const NORM_TOLERANCE: f64 = 5.0 * ADMITTED_AXIS_TOLERANCE + 64.0 * f64::EPSILON;
 
 type Check = Result<(), String>;
 
@@ -186,7 +199,7 @@ pub(crate) fn coverage(rows: &[Value]) -> Check {
                     norm3(g[3 * block], g[3 * block + 1], g[3 * block + 2]),
                 );
                 require(
-                    (a - b).abs() <= 64.0 * f64::EPSILON * a.max(f64::MIN_POSITIVE),
+                    (a - b).abs() <= NORM_TOLERANCE * a.max(f64::MIN_POSITIVE),
                     "ROTATION_NORM",
                 )?;
             }
@@ -235,6 +248,24 @@ mod tests {
     }
     fn refused(rows: &[Value], code: &str) {
         assert_eq!(coverage(rows).unwrap_err(), format!("SOURCE_GLOBAL_END_{code}"));
+    }
+
+    /// The norm bound is the kernel's admitted frame error plus rounding: a
+    /// global force block whose norm is off by half the bound is read, and by
+    /// twice the bound is refused (|f| = 13 here).
+    #[test]
+    fn the_rotation_norm_bound_is_the_admitted_frame_error() {
+        let scaled = |factor: f64| {
+            let mut rows = member(false);
+            for row in rows.iter_mut().filter(|r| r["kind"] == FORCE) {
+                let value = row["value"].as_f64().unwrap();
+                row["value"] = json!(value * factor);
+            }
+            rows
+        };
+        coverage(&scaled(1.0 + 0.5 * NORM_TOLERANCE)).unwrap();
+        refused(&scaled(1.0 + 2.0 * NORM_TOLERANCE), "ROTATION_NORM");
+        assert!(NORM_TOLERANCE > 4.25e-12 && NORM_TOLERANCE < 5.1e-12);
     }
 
     #[test]

@@ -7,7 +7,8 @@ the member's wall end action is published at that end), sign convention and no d
 row carries its combination's basis. Coverage: one row per member, end and component for every member that publishes
 element-local end rows, none elsewhere (a document with no global end row at all is a pre-W-7 publication under the
 same contract id and is read). Rotation invariance: the global vector's norm equals the published local
-vector's (the wall action as axial where named) to 64 epsilon relative. Internal consistency only, no accuracy claim.
+vector's (the wall action as axial where named) to NORM_TOLERANCE relative. Internal consistency only, no accuracy claim
+(the norm does not establish direction).
 """
 from __future__ import annotations
 
@@ -28,6 +29,10 @@ WALL_KIND = "pipe_wall_endpoint_action_v2"
 ENDS = ("end_i", "end_j")
 EPSILON = 2.0 ** -52  # binary64 epsilon
 MIN_POSITIVE = 2.0 ** -1022  # smallest positive normal binary64
+# The frame kernel admits axes unit and mutually orthogonal to within 1e-12 each (AXIS_TOLERANCE), so
+# R R^T = I + E with ||E||_2 <= sqrt(18) t < 5 t, and a rotated norm drifts by at most ||E|| |f|; plus 64 eps rounding.
+ADMITTED_AXIS_TOLERANCE = 1.0e-12
+NORM_TOLERANCE = 5 * ADMITTED_AXIS_TOLERANCE + 64 * EPSILON
 METADATA_KEYS = {"component", "coordinate_system", "location", "basis", "sign_convention"}
 
 
@@ -105,4 +110,4 @@ def coverage(rows: list[Mapping[str, Any]]) -> None:
             g = glob[key][end]
             for block in (0, 3):
                 a, b = math.hypot(*f[block:block + 3]), math.hypot(*g[block:block + 3])
-                _require(abs(a - b) <= 64 * EPSILON * max(a, MIN_POSITIVE), "ROTATION_NORM")
+                _require(abs(a - b) <= NORM_TOLERANCE * max(a, MIN_POSITIVE), "ROTATION_NORM")

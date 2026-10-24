@@ -579,3 +579,36 @@ fn readers_refuse_malformed_global_rows_by_name() {
         refused(&|v| { let copy = v["results"][first].clone(); let mut copy = copy; copy["id"] = json!("result:w7:duplicate"); v["results"].as_array_mut().unwrap().push(copy); }, "SOURCE_GLOBAL_END_SLOT_DUPLICATE");
     }
 }
+
+// Regression from independent W-7 review: a frame admitted by the kernel's
+// 1e-12 orientation tolerance must remain readable after global row rotation.
+#[test]
+fn readers_accept_global_end_rows_from_an_admitted_near_parallel_y_reference() {
+    for exact_route in [false, true] {
+        let nodes = vec![node("node:a", [0.0, 0.0, 0.0]), node("node:b", [1.0, 2.0, 3.0])];
+        let pipes = vec![pipe("pipe:ab", "node:a", "node:b", [1.001, 2.0, 3.0], exact_route)];
+        let supports = vec![anchor("support:a", "node:a")];
+        let mut case = json!({"id": "case:edge", "primitive_loads":
+            nodal("load:edge", "node:b", [-1230.0, -386.0, -579.0], [19.0, -37.0, 43.0]),
+            "provenance": PROV});
+        let (wire, reader) = if exact_route {
+            case["pressure_regions"] = json!([]);
+            (exact(nodes, pipes, supports, vec![], vec![case]), "pressure")
+        } else {
+            (preview(nodes, pipes, supports, vec![], vec![case], vec![]), "preview-physics")
+        };
+        for mode in MODES {
+            let out = solve(&wire, mode, "admitted near-parallel y_reference");
+            assert_eq!(global_rows(&out), 12);
+            let raw = serde_json::to_value(&out).unwrap();
+            // Removing only W-7 rows is a control: all other reader checks pass.
+            let mut old = raw.clone();
+            old["results"].as_array_mut().unwrap().retain(|r|
+                r["kind"] != FORCE && r["kind"] != MOMENT);
+            assert_eq!(reader_verdict::validate(reader, &old, Some(&wire["model"]), None),
+                json!({"ok": true}));
+            assert_eq!(reader_verdict::validate(reader, &raw, Some(&wire["model"]), None),
+                json!({"ok": true}), "{reader} {mode:?}: producer output must remain readable");
+        }
+    }
+}
