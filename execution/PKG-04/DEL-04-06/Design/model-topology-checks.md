@@ -49,7 +49,7 @@ supported, coincident or near-duplicate nodes, a malformed tee) is a §14.4
 | `MODEL_TOPOLOGY_DISCONNECTED` | `core/product_physics/src/topology.rs` | The elements (straight members other than connector-replaced spans, curved spans and objective connectors) form two or more connected parts. A node no element touches is not a part. One diagnostic names up to six parts, each by its first node in model order, its node count, and `supported` or `no support` (any linear or nonlinear support at one of its nodes). |
 | `NODE_COINCIDENT` | `topology.rs` | Two distinct nodes have exactly the same position and no element joins them. |
 | `NODE_NEAR_DUPLICATE` | `topology.rs` | Two distinct nodes lie no farther apart than the node-proximity tolerance τ (and are not coincident), and no element joins them. |
-| `BRANCH_TOPOLOGY_INVALID` | `core/product_physics/src/validation.rs` | A `branch`, `tee` or `branch_connection` component's node joins a number of pipes other than three, or its header and branch pipe references name the same pipe. One diagnostic per component. |
+| `BRANCH_TOPOLOGY_INVALID` | `core/product_physics/src/validation.rs` | A `branch`, `tee` or `branch_connection` component's node joins a number of pipes other than three, or its header and branch pipe references name the same pipe. One diagnostic per component. The finding warns and does not refuse (REQ-04-06-012), and the component's branch stress factors are still applied by pipe reference. So the message names each side still applied ("its branch stress factors are still applied (header SIF to pipe:…, branch SIF to pipe:…)"): a side whose factors are entered and valid, on a named pipe that ends at the component's node, the same conditions as the stress-multiplier rows. Without such a side the message claims none. |
 
 The disconnected and node checks run on the built model, after unit
 normalization, so positions are in metres. Each of those codes yields at most
@@ -118,6 +118,6 @@ part is named and still refused; coincident nodes, and nodes 4.9 mm and
 exactly 5 mm apart, warn identically in metres and millimetres, and nodes just
 beyond 5 mm do not; in a 2 km model 4 mm warns and 6 mm does not; a pair
 across a cell boundary is found; a tee on two pipes and a tee whose header is
-its branch warn, and a valid tee does not. `src/topology_tests.rs` passes the
+its branch warn, and a valid tee does not; with entered factors the warning names the header and branch SIFs still applied, and those pipes carry the intensified rows, and without factors it names none. `src/topology_tests.rs` passes the
 tolerance directly: another value is used inclusively, a node at -4e15 m does
 not separate a near pair, and a saturated cell counts a pair once.

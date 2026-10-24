@@ -1314,7 +1314,11 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     ),
                     "BRANCH_TOPOLOGY_INVALID",
                     "warning",
-                    format!("a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}", component.node),
+                    format!(
+                        "a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}{}",
+                        component.node,
+                        branch_factors_still_applied(component, &pipe_map)
+                    ),
                     vec![component.id.clone(), component.node.clone()],
                 ));
             }
@@ -1687,6 +1691,43 @@ fn branch_topology_invalid(component: &crate::PreviewComponent, degree: usize) -
         )
     });
     degree != 3 || same_pipe
+}
+
+/// The sides whose branch stress factors are still applied despite an invalid
+/// topology: `branch_stress_modifier_for_pipe` applies them by pipe reference,
+/// with no degree check (owner ruling, 2026-10-23: findings warn, not refuse).
+/// As in the stress-multiplier rows, a side applies only to a pipe that exists
+/// and has an end at the component's node.
+fn branch_factors_still_applied(
+    component: &crate::PreviewComponent,
+    pipes: &HashMap<&str, &crate::PreviewPipe>,
+) -> String {
+    let Some(geometry) = &component.geometry else {
+        return String::new();
+    };
+    let mut applied: Vec<String> = Vec::new();
+    for pipe in [&geometry.branch_header_pipe_ref, &geometry.branch_branch_pipe_ref]
+        .into_iter()
+        .flatten()
+    {
+        let ends_here = pipes
+            .get(pipe.as_str())
+            .is_some_and(|segment| segment.from == component.node || segment.to == component.node);
+        if !ends_here {
+            continue;
+        }
+        if let Some(modifier) = crate::branch_stress_modifier_for_pipe(component, pipe) {
+            let side = format!("{} SIF to {pipe}", modifier.side);
+            if !applied.contains(&side) {
+                applied.push(side);
+            }
+        }
+    }
+    if applied.is_empty() {
+        String::new()
+    } else {
+        format!("; its branch stress factors are still applied ({})", applied.join(", "))
+    }
 }
 
 fn branch_modifier_missing(component: &crate::PreviewComponent) -> bool {

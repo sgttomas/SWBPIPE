@@ -219,6 +219,48 @@ fn a_tee_must_join_three_pipes_with_distinct_header_and_branch() {
     }
 }
 
+/// Owner ruling (2026-10-23): topology findings warn, not refuse, and the warning
+/// says plainly that the tee's branch stress factors are still applied to the
+/// pipes it names; without entered factors the warning claims none.
+#[test]
+fn an_invalid_tee_says_which_branch_stress_factors_still_apply() {
+    let with_factors = |mut model: Value| {
+        model["model"]["components"][0]["modifiers"] = json!({
+            "branch_header_sif_user_value": {"value": 1.4, "unit": "none"},
+            "branch_branch_sif_user_value": {"value": 1.9, "unit": "none"},
+            "flexibility_factor_user_value": {"value": 1.0, "unit": "none"},
+            "source_reference": "w8_invented_factors"
+        });
+        model
+    };
+    let intensified = |v: &Value, pipe: &str| {
+        v["results"].as_array().unwrap().iter().filter(|r| {
+            let id = r["id"].as_str().unwrap_or("");
+            id.contains("intensified-bending:component-tee") && id.contains(&pipe.replace(':', "-"))
+        }).count()
+    };
+    for mode in MODES {
+        let v = envelope(&with_factors(run_with_tee(false, "pipe:a-b", "pipe:b-c")), mode);
+        let found = with_code(&v, "BRANCH_TOPOLOGY_INVALID");
+        assert_eq!(found.len(), 1, "{:?}", diagnostics(&v));
+        assert!(found[0]["message"].as_str().unwrap().ends_with(
+            "node node:b joins 2; its branch stress factors are still applied (header SIF to pipe:a-b, branch SIF to pipe:b-c)"
+        ), "{}", found[0]["message"]);
+        assert!(intensified(&v, "pipe:a-b") > 0 && intensified(&v, "pipe:b-c") > 0, "the named factors are applied");
+
+        let v = envelope(&with_factors(run_with_tee(true, "pipe:b-d", "pipe:b-d")), mode);
+        let found = with_code(&v, "BRANCH_TOPOLOGY_INVALID");
+        assert!(found[0]["message"].as_str().unwrap().ends_with(
+            "node node:b joins 3; its branch stress factors are still applied (header SIF to pipe:b-d)"
+        ), "{}", found[0]["message"]);
+        assert!(intensified(&v, "pipe:b-d") > 0);
+        assert_eq!(intensified(&v, "pipe:a-b") + intensified(&v, "pipe:b-c"), 0);
+
+        let v = envelope(&run_with_tee(false, "pipe:a-b", "pipe:b-c"), mode);
+        assert_eq!(intensified(&v, "pipe:a-b") + intensified(&v, "pipe:b-c"), 0, "no factors entered");
+    }
+}
+
 /// Two unjoined nodes on a part each, 4 mm apart across a cell boundary
 /// (cells are 8 x 5 mm = 0.04 m wide; the pair straddles x = 0.04).
 #[test]
