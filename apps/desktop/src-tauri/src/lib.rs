@@ -4285,15 +4285,21 @@ fn library_record_version(record: &Value) -> String {
     )
 }
 
-/// Compare each reference with the project's local store: a missing library or
-/// record is `MODEL-LIBRARY-REF-UNRESOLVED`; a stored record whose digest
-/// differs from the recorded `library_version` is
-/// `MODEL-LIBRARY-REF-VERSION-CHANGED`.
+/// Compare each reference with the project's local store under the save
+/// screen's rules (`model_document_save`, W-6a): the identities are normalized
+/// by `library_identity` (Rust `trim`, as `open_local_library` and the save's
+/// lookup normalize them) and the stored records are every record
+/// `matching_library_records` finds, never the first. A missing library or
+/// record is `MODEL-LIBRARY-REF-UNRESOLVED`; a recorded `library_version` that
+/// differs from the digest of any matching stored record is
+/// `MODEL-LIBRARY-REF-VERSION-CHANGED`, naming the first differing digest. The
+/// finding echoes the reference as the model records it.
 fn library_ref_findings(
     connection: &Connection,
     project_id: &str,
     references: &[ModelLibraryRef],
 ) -> Result<Vec<LibraryRefFinding>, String> {
+    use model_document_save::{library_identity, matching_library_records};
     let mut findings = Vec::new();
     for reference in references {
         let finding = |code, stored_version: Option<String>, message: String| LibraryRefFinding {
@@ -4307,8 +4313,9 @@ fn library_ref_findings(
             stored_version,
             message,
         };
-        let stored = match library_records_key(&reference.library_kind) {
-            Some(_) => load_library(connection, project_id, &reference.library_kind, &reference.library_id)?,
+        let kind = reference.library_kind.trim();
+        let stored = match library_records_key(kind) {
+            Some(_) => load_library(connection, project_id, kind, reference.library_id.trim())?,
             None => None,
         };
         let Some(row) = stored else {
@@ -4324,14 +4331,13 @@ fn library_ref_findings(
             ));
             continue;
         };
-        let (records_key, id_key) = library_records_key(&reference.library_kind).expect("checked above");
-        let record = reference.record_id.as_deref().and_then(|record_id| {
-            row.document
-                .get(records_key)
-                .and_then(Value::as_array)
-                .and_then(|records| records.iter().find(|record| record.get(id_key).and_then(Value::as_str) == Some(record_id)))
-        });
-        let Some(record) = record else {
+        let records = reference
+            .record_id
+            .as_deref()
+            .and_then(library_identity)
+            .map(|record_id| matching_library_records(kind, &row.document, record_id))
+            .unwrap_or_default();
+        if records.is_empty() {
             findings.push(finding(
                 MODEL_LIBRARY_REF_UNRESOLVED,
                 None,
@@ -4344,10 +4350,13 @@ fn library_ref_findings(
                 ),
             ));
             continue;
-        };
-        let stored_version = library_record_version(record);
+        }
         if let Some(recorded) = &reference.library_version {
-            if recorded != &stored_version {
+            let changed = records
+                .iter()
+                .map(|record| library_record_version(&Value::Object((*record).clone())))
+                .find(|stored_version| stored_version != recorded);
+            if let Some(stored_version) = changed {
                 findings.push(finding(
                     MODEL_LIBRARY_REF_VERSION_CHANGED,
                     Some(stored_version),
@@ -9189,6 +9198,100 @@ mod tests {
         assert_eq!(changed[0].recorded_version.as_deref(), Some(stored.as_str()));
         assert_eq!(changed[0].stored_version, Some(library_record_version(&document["material_records"][0])));
         assert_eq!(current[0].library_version.as_deref(), Some(stored.as_str()));
+    }
+
+    /// A store holding one invented material library for the open-time
+    /// check's rule tests: duplicate ids, a padded stored id and a single record.
+    fn library_rules_store() -> (Connection, Value) {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let mut document = storable_material_payload("matlib.invented.rules");
+        document["material_records"] = json!([
+            {"material_id": "mat.dup", "name": "Invented duplicate, first", "properties": []},
+            {"material_id": "mat.dup", "name": "Invented duplicate, revised", "properties": []},
+            {"material_id": "mat.pad", "name": "Invented padded, clear", "properties": []},
+            {"material_id": " mat.pad ", "name": "Invented padded, revised", "properties": []},
+            {"material_id": "mat.solo", "name": "Invented single", "properties": []}
+        ]);
+        upsert_library(&connection, "project:lib-rules", "material", "matlib.invented.rules", &document).expect("upserts");
+        (connection, document)
+    }
+
+    fn rules_reference(kind: &str, library_id: &str, record: Option<&str>, recorded: Option<String>) -> ModelLibraryRef {
+        ModelLibraryRef {
+            entity_ref: "material:rules".into(),
+            library_kind: kind.into(),
+            library_id: library_id.into(),
+            library_version: recorded,
+            record_id: record.map(str::to_string),
+        }
+    }
+
+    fn rules_codes(findings: &[LibraryRefFinding]) -> Vec<&'static str> {
+        findings.iter().map(|finding| finding.code).collect()
+    }
+
+    // The open-time check applies the save screen's rules (W-6a,
+    // `model_document_save`): identities trimmed, every matching record. Each
+    // of the next three cases passed silently, or drew the wrong finding, under
+    // the old first-match, untrimmed lookup.
+
+    #[test]
+    fn model_library_refs_read_every_matching_record_not_the_first() {
+        let (connection, document) = library_rules_store();
+        let version = |index: usize| library_record_version(&document["material_records"][index]);
+        let found = library_ref_findings(&connection, "project:lib-rules", &[rules_reference("material", "matlib.invented.rules", Some("mat.dup"), Some(version(0)))]).unwrap();
+        assert_eq!(rules_codes(&found), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a clear first record hid a changed duplicate");
+        assert_eq!(found[0].stored_version, Some(version(1)));
+        assert_eq!(found[0].recorded_version, Some(version(0)), "the recorded version is reported, never replaced");
+    }
+
+    #[test]
+    fn model_library_refs_compare_stored_record_ids_trimmed() {
+        let (connection, document) = library_rules_store();
+        let version = |index: usize| library_record_version(&document["material_records"][index]);
+        let found = library_ref_findings(&connection, "project:lib-rules", &[rules_reference("material", "matlib.invented.rules", Some("mat.pad"), Some(version(2)))]).unwrap();
+        assert_eq!(rules_codes(&found), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a padded stored duplicate escaped the check");
+        assert_eq!(found[0].stored_version, Some(version(3)));
+    }
+
+    #[test]
+    fn model_library_refs_trim_the_reference_like_open_local_library() {
+        let (connection, document) = library_rules_store();
+        let stored = library_record_version(&document["material_records"][4]);
+        let padded = |recorded: String| rules_reference(" material ", " matlib.invented.rules ", Some("\tmat.solo "), Some(recorded));
+        let changed = library_ref_findings(&connection, "project:lib-rules", &[padded("sha256:recorded-earlier".into())]).unwrap();
+        assert_eq!(rules_codes(&changed), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a padded reference was read as unresolved");
+        assert_eq!(changed[0].stored_version, Some(stored.clone()));
+        // The finding echoes the reference as the model records it.
+        assert_eq!((changed[0].library_kind.as_str(), changed[0].library_id.as_str(), changed[0].record_id.as_deref()),
+            (" material ", " matlib.invented.rules ", Some("\tmat.solo ")));
+        assert!(library_ref_findings(&connection, "project:lib-rules", &[padded(stored)]).unwrap().is_empty(), "a padded reference to an unchanged record resolves");
+    }
+
+    /// What the old and new rules agree on behaves as before: an unchanged
+    /// single record, no recorded version, a missing library or record, no
+    /// record id, a blank record or library id, an unknown kind and another
+    /// project.
+    #[test]
+    fn model_library_refs_keep_the_cases_both_rules_agree_on() {
+        let (connection, document) = library_rules_store();
+        let solo = Some(library_record_version(&document["material_records"][4]));
+        let check = |references: &[ModelLibraryRef]| library_ref_findings(&connection, "project:lib-rules", references).unwrap();
+        assert!(check(&[rules_reference("material", "matlib.invented.rules", Some("mat.solo"), solo.clone())]).is_empty());
+        assert!(check(&[rules_reference("material", "matlib.invented.rules", Some("mat.dup"), None)]).is_empty());
+        let unresolved = check(&[
+            rules_reference("material", "matlib.invented.absent", Some("mat.solo"), solo.clone()),
+            rules_reference("material", "matlib.invented.rules", Some("mat.absent"), solo.clone()),
+            rules_reference("material", "matlib.invented.rules", None, solo.clone()),
+            rules_reference("material", "matlib.invented.rules", Some("  "), solo.clone()),
+            rules_reference("pipe", "matlib.invented.rules", Some("mat.solo"), solo.clone()),
+            rules_reference("material", "  ", Some("mat.solo"), solo.clone()),
+        ]);
+        assert_eq!(rules_codes(&unresolved), vec![MODEL_LIBRARY_REF_UNRESOLVED; 6]);
+        assert!(unresolved[2].message.contains("names record `(none recorded)`"), "{}", unresolved[2].message);
+        let other = library_ref_findings(&connection, "project:renamed", &[rules_reference("material", "matlib.invented.rules", Some("mat.solo"), None)]).unwrap();
+        assert_eq!(rules_codes(&other), vec![MODEL_LIBRARY_REF_UNRESOLVED]);
     }
 
     #[test]

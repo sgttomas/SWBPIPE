@@ -122,7 +122,8 @@ The biggest gaps:
    - Pipe and bend end forces are element-local only (FR-SOL-007; W-7 is in
      flight).
 7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
-   required load cases (FR-RULE-001).
+   required load cases (FR-RULE-001). In v0.1 by ruling (owner, 2026-10-24,
+   option A: all three; W-17 rest).
 
 ## 2. Outcome table
 
@@ -543,8 +544,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..004, -006) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
-| W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | §17.2 needs a scope ruling | §17.2 only |
-| W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness with the desktop still closed, is on branch `claude/piping-reports-w18a-20261024`; (b1) native screening and (b2) desktop opening remain (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | A shareable path needs a DEL-12-02 design check |
+| W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
+| W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness with the desktop still closed, is on branch `claude/piping-reports-w18a-20261024`; (b1) native screening and (b2) desktop opening remain (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-20 (new) | Pressure stress benchmark family in the DEL-09-02 suite: pressure-derived hoop and longitudinal stress against closed forms (DEL-09-02 commits pressure coverage; the suite's families have none) | S | numerical | heavy, scrutiny | — | No |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 

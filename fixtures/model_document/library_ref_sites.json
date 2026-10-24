@@ -1,0 +1,79 @@
+{
+  "description": "Invented data. Every library_ref object at any depth, as the one webview walk (libraryRefSites, apps/desktop/src/services/libraryImportService.ts) finds it for the open-time store check and the save screen, and as the native save's walk (apps/desktop/src-tauri/src/model_document_save.rs) groups it. entity_ref is the id of the nearest enclosing object with one, else the reference's own path. identity is the reference's [library_kind, library_id, record_id] as library_identity normalizes them (Rust trim; null when blank); a site whose identity is null is not looked up by the save screen and is sent as recorded by the open-time check, where it reads as unresolved.",
+  "document": {
+    "provenance_record": {
+      "source_name": "Invented root",
+      "library_ref": { "library_kind": "material", "library_id": "matlib.invented.root", "record_id": "mat.root" }
+    },
+    "materials": [
+      {
+        "id": "material:top",
+        "provenance_record": {
+          "source_name": "Invented",
+          "library_ref": { "library_kind": "material", "library_id": "matlib.invented.sites", "library_version": "sha256:recorded", "record_id": "mat.top" }
+        }
+      },
+      {
+        "id": "material:padded",
+        "provenance_record": {
+          "source_name": "Invented",
+          "library_ref": { "library_kind": " material ", "library_id": " matlib.invented.sites ", "record_id": "\tmat.padded " }
+        }
+      }
+    ],
+    "components": [
+      {
+        "id": "component:outer",
+        "parts": [
+          {
+            "id": "part:inner",
+            "provenance_record": {
+              "source_name": "Invented nested",
+              "library_ref": { "library_kind": "component", "library_id": "complib.invented.sites", "record_id": "comp.inner" }
+            }
+          },
+          {
+            "detail": {
+              "provenance_record": {
+                "source_name": "Invented nested, no own id",
+                "library_ref": { "library_kind": "section", "library_id": "seclib.invented.sites" }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:bare",
+        "hanger": {
+          "library_ref": { "library_kind": "hanger", "library_id": "hanglib.invented.sites", "record_id": "  " }
+        }
+      },
+      {
+        "id": "support:blank",
+        "provenance_record": {
+          "source_name": "Invented",
+          "library_ref": { "library_kind": "material", "library_id": "   " }
+        }
+      },
+      {
+        "id": "support:not-text",
+        "provenance_record": {
+          "source_name": "Invented",
+          "library_ref": { "library_kind": 7, "library_id": "matlib.invented.sites" }
+        }
+      }
+    ]
+  },
+  "sites": [
+    { "path": "provenance_record.library_ref", "entity_ref": "provenance_record.library_ref", "identity": ["material", "matlib.invented.root", "mat.root"] },
+    { "path": "materials[0].provenance_record.library_ref", "entity_ref": "material:top", "identity": ["material", "matlib.invented.sites", "mat.top"] },
+    { "path": "materials[1].provenance_record.library_ref", "entity_ref": "material:padded", "identity": ["material", "matlib.invented.sites", "mat.padded"] },
+    { "path": "components[0].parts[0].provenance_record.library_ref", "entity_ref": "part:inner", "identity": ["component", "complib.invented.sites", "comp.inner"] },
+    { "path": "components[0].parts[1].detail.provenance_record.library_ref", "entity_ref": "component:outer", "identity": ["section", "seclib.invented.sites", null] },
+    { "path": "supports[0].hanger.library_ref", "entity_ref": "support:bare", "identity": ["hanger", "hanglib.invented.sites", null] },
+    { "path": "supports[1].provenance_record.library_ref", "entity_ref": "support:blank", "identity": null },
+    { "path": "supports[2].provenance_record.library_ref", "entity_ref": "support:not-text", "identity": null }
+  ]
+}
