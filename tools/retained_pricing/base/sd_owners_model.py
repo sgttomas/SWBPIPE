@@ -19,6 +19,7 @@ call (SD-NF) and the record field lists are 'static slices read from the serde d
 Bound to the exact statements; a snapshot without the guard adds nothing (earlier registered trees keep their
 coefficients), a partly present or changed owner stops the run."""
 import os
+import re
 
 from g3lib import B, X, Xc, s, pushcap, HashMov
 
@@ -29,15 +30,16 @@ FIELDS = PP + "model_fields.rs"
 NAMED = 8
 ENTRY = 1024 + len(" (load-case algebra refused)")          # 1,052: the longest withheld name (SD-WT)
 
+# (file, function, statement): each once in its function (the probe's error twice, in its two methods).
 STATEMENTS = (
-    (PREVIEW, "let mut withheld: Vec<String> = Vec::new();"),
-    (PREVIEW, "const NAMED: usize = 8;"),
-    (PREVIEW, 'let mut named = withheld.iter().take(NAMED).cloned().collect::<Vec<_>>().join(", ");'),
-    (PREVIEW, "let mut rows = Vec::new();"),
-    (PREVIEW, "Ok(rows) => results.extend(rows),"),
-    (VAL, "let mut seen = HashSet::new();"),
-    (VAL, "if !seen.insert(term.load_case.as_str()) {"),
-    (FIELDS, 'Err(de::Error::custom("field probe"))'),
+    (PREVIEW, "append_combination_results", "let mut withheld: Vec<String> = Vec::new();"),
+    (PREVIEW, "append_combination_results", "const NAMED: usize = 8;"),
+    (PREVIEW, "append_combination_results", 'let mut named = withheld.iter().take(NAMED).cloned().collect::<Vec<_>>().join(", ");'),
+    (PREVIEW, "append_combination_results", "let mut rows = Vec::new();"),
+    (PREVIEW, "append_combination_results", "Ok(rows) => results.extend(rows),"),
+    (VAL, "validate_mechanics_combination", "let mut seen = HashSet::new();"),
+    (VAL, "validate_mechanics_combination", "if !seen.insert(term.load_case.as_str()) {"),
+    (FIELDS, "declared_fields", 'Err(de::Error::custom("field probe"))'),
 )
 
 
@@ -49,17 +51,25 @@ def _read(snapshot, rel):
         return stream.read()
 
 
+def _body(text, name):
+    hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
+    if len(hits) != 1:
+        return ""
+    end = text.find("\n" + hits[0].group(1) + "}\n", hits[0].start())
+    return text[hits[0].start():end] if end >= 0 else ""
+
+
 def inspect(snapshot):
     """True when the guard's owners are present as reviewed; False on an earlier revision; anything else stops."""
     texts = {rel: _read(snapshot, rel) or "" for rel in (PREVIEW, VAL, FIELDS)}
-    present = [texts[rel].count(needle) for rel, needle in STATEMENTS]
+    present = [_body(texts[rel], fn).count(needle) for rel, fn, needle in STATEMENTS]
     if not any(present):
         return False
     expected = [1, 1, 1, 1, 1, 1, 1, 2]
     if present != expected:
         raise SystemExit(f"SD owners: the guard's owning statements changed; re-review the owners they price: {present}")
     # The support group pushes its rows only into its own `rows` (two pushes: components and magnitudes).
-    group = texts[PREVIEW].split("let group = || -> Result<Vec<ResultItem>, &'static str> {", 1)
+    group = _body(texts[PREVIEW], "append_combination_results").split("let group = || -> Result<Vec<ResultItem>, &'static str> {", 1)
     if len(group) != 2 or group[1].split("Ok(rows)", 1)[0].count("rows.push(") != 2:
         raise SystemExit("SD owners: the support group's rows changed; re-review SD-WH")
     return True
