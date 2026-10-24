@@ -3263,6 +3263,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
