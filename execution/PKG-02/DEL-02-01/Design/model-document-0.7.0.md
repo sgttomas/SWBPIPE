@@ -468,8 +468,9 @@ never block deletion, and a missing entity is reported as a warning.
   (`model_settings.rs`, a closed `ModelSettings`) and exposes the effective
   tolerance in metres (`PreviewModel::node_proximity_tolerance_m`). The
   topology check (DEL-04-06 Design `model-topology-checks.md`) reads it through
-  that accessor; until it does, nothing changes behaviour. The desktop editing
-  control comes with the S2 authoring surface; the desktop already round-trips
+  that accessor, and the solve refuses a malformed value with the accessor's
+  code before the check runs (`validation::validate_model_settings`). The desktop has no
+  editing control for it yet (S2a, #1565, authored the other slots); the desktop round-trips
   the whole document.
 
 ## 4. The schema

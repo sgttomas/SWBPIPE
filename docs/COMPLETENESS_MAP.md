@@ -36,7 +36,6 @@ the previous map left open; rows cite them where they apply.
 
 **Not on main, so not counted here (in flight):**
 - #1573 (strict inputs, no silent drops of authored input or combination rows);
-- #1574 (absolute 5 mm node-proximity tolerance);
 - branch `claude/piping-w7-global-end-forces-20261023` (W-7, no PR yet);
 - #1567 (DBM concordance review).
 
@@ -121,8 +120,9 @@ The biggest gaps:
      build it there in two stages.
    - Pipe and bend end forces are element-local only (FR-SOL-007; W-7 is in
      flight).
-   - The near-duplicate node tolerance is relative (1e-6 of the model extent),
-     not the owner's 5 mm (REQ-04-06-012; #1574 in flight).
+   - The near-duplicate node tolerance is the owner's absolute 5 mm, settable in
+     the model document; the desktop has no control for it yet, and no unit
+     carries one (REQ-04-06-012).
 7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
    required load cases (FR-RULE-001).
 
@@ -190,7 +190,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
 | §12.3 reducers (no row before) | — | P | No eccentric offset vector in `core/product_physics/src` | DEL-03-05 | Part of W-15. |
 | §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`) | DEL-05-01 | EX refuses `equivalent_static`; imposed rotations and nozzle movement follow FR-SOL-006. |
-| §12.8 near-duplicate nodes (775) | — | P | W-8: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` at 1e-6 of the model extent (`topology.rs:19,171,290-293`); tests `topology_checks_runtime.rs:143,212,231` | DEL-04-06 | REQ-04-06-012 (owner) sets 5 mm absolute and user-settable; #1574 in flight. |
+| §12.8 near-duplicate nodes (775) | — | P | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193` | DEL-04-06 | REQ-04-06-012 (owner) is met in the product and the document; the desktop has no control for it (W-13 S2a, #1565, authored the other 0.7.0 slots, not `model_settings`), so a desktop user cannot yet change it (only headless, so P). No unit carries the control yet. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
 | §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b | DEL-09-02 | The DEL-09-02 stress suite itself has no pressure family, although DEL-09-02 commits pressure coverage (W-20). |
@@ -355,8 +355,8 @@ below are what remains or is new at this basis.
   slice (a) changed. Without this, the §10.1 row would be R (Codex, §6).
   #1565 and #1566 edit other hunks of these two files.
 
-**Left to the in-flight PR** [fix]: `DEL-04-06/Design/model-topology-checks.md`
-and SOW:189 move to the implemented wording when #1574 lands.
+**Done in #1574** [fix]: `DEL-04-06/Design/model-topology-checks.md` and
+REQ-04-06-012's verification row (SOW:189) carry the implemented wording.
 
 **Still open** [fix]:
 - **Release-notes draft** (`docs/RELEASE_NOTES_v0.1.0_DRAFT.md`, release lane;
@@ -383,16 +383,16 @@ and SOW:189 move to the implemented wording when #1574 lands.
   Identification and Attributes boilerplate stays as written (Agent 0,
   2026-10-23).
 
-**Owner-reserved text (exact old → new, not applied).** These change commitment,
+**Owner-reserved text (exact old → new).** These change commitment,
 scope or acceptance wording. "Rec." is the recommendation.
 
 | # | Location | Old | New | Reason | Rec. |
 |---|---|---|---|---|---|
-| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Apply with the G10 bundle |
-| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Apply with the G10 bundle |
-| 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Apply with the G10 bundle |
-| 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Apply with the G10 bundle |
-| 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Apply with the G10 bundle |
+| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
 | 6 | DEL-09-01 SOW:69 | "The future mechanics benchmark suite must stay aligned…" | "The mechanics benchmark suite must stay aligned…" | The suite exists (`validation/benchmarks/mechanics`, W-9) | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
 | 7 | DEL-09-01 SOW:135 | "This deliverable specifies setup evidence for a future mechanics benchmark suite covering…" | "This deliverable specifies the contract and evidence basis for the implemented mechanics benchmark suite covering…" | as #6 | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
 | 8 | DEL-09-02 SOW:81 | "This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, …" | "The original setup kit defined the benchmark-suite boundary only. It did not create benchmark source files, implement tests, …; the suite now exists in `validation/benchmarks/stress`." | the suite exists | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
@@ -431,9 +431,11 @@ DEL-09-03, DEL-08-03, DEL-08-06 and DEL-06-02, with still-open `TBD`s, held
 choices and obligations for new cases kept.
 
 **Owner notes (not text changes):**
-- REQ-04-06-012 (5 mm) and DEL-04-03 R01 (imposed displacement) state ruled
-  commitments that the code does not yet meet. Both are disclosed, and the work
-  is in flight or planned (#1574; FR-SOL-006 stages).
+- REQ-04-06-012 (5 mm the user can change: met in the document, not yet in the
+  desktop) and DEL-04-03 R01 (imposed displacement) state ruled commitments
+  that the code does not yet fully meet. Both are disclosed, and the work
+  is in flight or planned (FR-SOL-006 stages); REQ-04-06-012's desktop control is
+  not yet in any unit.
 - DEL-13-03-R1 (deferred PKG-13) still commits connectivity, which DEL-04-06
   now delivers.
 
@@ -461,8 +463,8 @@ exercise today:
   PCF text and MBF text are withheld by the desktop.
 - **Boundaries:** local-only storage and telemetry.
 
-Testers should know the native smoke's 10 stale `expected.json` values
-(§3 rows 1–5) before reading its output.
+The native smoke's five stale `expected.json` values (§3 rows 1–5) are applied,
+so a run on main shows no known failure.
 
 These are **not ready**: shareable or EX reports, the report package, model
 states and comparison, canonical model export, rigid components, EX
@@ -509,7 +511,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-1 | Pointer and ScopeOfWork reconciliation sweep | #1540–#1546, #1550, #1557, #1560, #1575; remaining drift in §3 |
 | W-3 | Rendered report for local private sessions, with §19.2 content | #1553 (+#1555); observed natively (§5) |
 | W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5) |
-| W-8 | Pre-solve topology and near-duplicate warnings | #1559; the 5 mm tolerance is #1574 (in flight) |
+| W-8 | Pre-solve topology and near-duplicate warnings | #1559; the absolute 5 mm, model-settable tolerance and the branch warning's applied-factor statement are #1574 |
 | W-9 | Missing benchmarks: L-frame, simply supported weight, anchor settlement | #1548; the rigid link waits for W-15 |
 | W-10 | Pipe reconnect | #1563, with its declared limitation |
 | — | Viewport result colour and reaction arrows (OD-5) | #1556 |
@@ -529,7 +531,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | PR or branch |
 |---|---|---|
 | W-7 | Global-frame element-end forces (FR-SOL-007) | branch `claude/piping-w7-global-end-forces-20261023` (no PR) |
-| W-8 follow-on | Absolute 5 mm node-proximity tolerance, user-settable | #1574 (reads the 0.7.0 `model_settings` member, #1564) |
 | — | Strict inputs: no silent drops of authored input or combination rows | #1573 |
 | — | DBM concordance review | #1567 |
 
@@ -549,9 +550,9 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
-- **Before development testing broadens:** the G10 values (§3 rows 1–5) put
-  to the owner, so the native smoke proves itself without known failures (W-4
-  is done). The §3 [fix] remainder can go with it.
+- **Before development testing broadens:** the G10 values (§3 rows 1–5) are
+  applied by the owner's ruling, so the native smoke proves itself without known
+  failures (W-4 is done). The §3 [fix] remainder can go with it.
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
