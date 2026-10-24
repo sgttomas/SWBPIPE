@@ -31,11 +31,11 @@ pub const W2B_SHA256: &str = "2b2f398d15da0832cff6294c776bda79bd83ef52495e2f31e7
 pub const B2_K1E3_SHA256: &str = "10d54e956d093784cfb761635a37bfb27a3300224ba440d0e5941addda5dc393";
 pub const C1_SHA256: &str = "4eb2bac2cef38f221f1509ae516589320080046af64f1f9d12e353226aa3d3bd";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "496f4756eabe81ac836d3998e947b3b8ee77a55daf47fd89c110b399529f49c1"),
-    ("case:b", "a38130bb61d0816dd91d5d2916c7b3f05fa0433fafb51e516719c8099f993df2"),
-    ("case:c", "7b6b401d81eb80fb8fdaa887eabc504b54c8a5d93e575841c0e4ea025f7f1585"),
+    ("case:a", "26b4860a70e2f83f77f0b1ac53c29943e676902281984370a56b922b3360458e"),
+    ("case:b", "7f52e5bc2edb1f67e376660dcc701b210a3eba01cd32ffb30b03284bcad0e4d5"),
+    ("case:c", "a2692dffea9fa8bcc5519e408b0c8060b27995e2b759526254bc4de105fa4f44"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "30661719867d629682d1d1da146d2c4b4875f5511a2e0973749d2b262c1f2e42";
+pub const I3_THREE_CASE_SHA256: &str = "ceb08a01c38cbc9813e3daf085431ee7659060fb7f76c6723a05e3c1d899985b";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()

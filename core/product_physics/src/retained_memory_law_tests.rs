@@ -1798,6 +1798,11 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// Silent-drop guard at bc99d4d09f (retained-pricing-rules.md §8.19): from the node-proximity
+/// tolerance's record below, TAV_W and TAV_X rise by 1,245,594 B (the closed-record scan's names and
+/// paths at E's and L(3,0)'s caps, SD-ID) and O_base by 49 B and s(&str) by 4 (validation's
+/// duplicate-term set, SD-HS, and the scan's probe error, SD-PB), so every phase rises by 1,245,707 B
+/// in both modes. D, D_env and Text(diag_env) are unchanged.
 /// Absolute node-proximity tolerance at f985fe297a (retained-pricing-rules.md §8.18): from the
 /// silent-zero guard's record below, TAV_W rises by 63,748 B and TAV_X by 35,648 B (the tolerance
 /// refusal's diagnostic and the accessor's five texts, NP-MS/NP-PT, the units lookup's extra calls and
@@ -1824,8 +1829,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_211_548_237, 6_547_001_358, 8_442_447_512, 8_236_936_923, 7_342_626_554, 8_280_124_403, 7_116_120_707, 6_794_355_269],
-    [6_270_679_581, 6_606_132_702, 8_501_578_856, 8_296_068_267, 7_401_757_898, 8_339_255_747, 7_175_252_051, 6_853_486_613],
+    [6_212_793_944, 6_548_247_065, 8_443_693_219, 8_238_182_630, 7_343_872_261, 8_281_370_110, 7_117_366_414, 6_795_600_976],
+    [6_271_925_288, 6_607_378_409, 8_502_824_563, 8_297_313_974, 7_403_003_605, 8_340_501_454, 7_176_497_758, 6_854_732_320],
 ];
 
 #[test]
