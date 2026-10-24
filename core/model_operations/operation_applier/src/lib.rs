@@ -27,6 +27,7 @@ pub mod document_validator;
 mod geometry_operations;
 mod library_apply;
 mod model_data_authoring;
+mod model_settings_authoring;
 mod pipe_reconnect;
 mod rich_authoring;
 mod retained_semantics_binding;
@@ -1504,6 +1505,31 @@ fn run_with_context(
         }
     }
 
+    // Model settings (DEL-02-01 Design §3.8): set or clear
+    // `model_settings.node_proximity_tolerance` on the Project singleton.
+    if model_settings_authoring::is_change_kind(&change_kind) && !checker.schema_blocked {
+        match model_settings_authoring::resolve(model, intent) {
+            Ok(edit) => {
+                checker.reference_state = "passed";
+                checker.unit_state = "passed";
+                checker.before_state = "passed";
+                geometry_edit = Some(edit);
+            }
+            Err(error) => {
+                if error.code == "OP-STALE-BEFORE-VALUE" {
+                    checker.before_state = "blocked_stale";
+                }
+                checker.push(
+                    error.code,
+                    "blocking",
+                    error.message,
+                    "Enter a finite length greater than zero in a length unit of the units catalog, or reset the setting to its default.",
+                    error.affected_refs,
+                );
+            }
+        }
+    }
+
     // W-17 (DEL-03-01 Design apply-library-records.md §2.2): a library
     // record applied to an existing material, section or component. The
     // change names every member it writes; a section carries its bound pipes.
@@ -2609,7 +2635,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "delete_combination_term"
             | "insert_component_symbol"
             | "apply_library_record"
-    ) || model_data_authoring::operation_kind_for(change_kind).is_some();
+    ) || model_data_authoring::operation_kind_for(change_kind).is_some()
+        || model_settings_authoring::is_change_kind(change_kind);
     if !supported_change {
         checker.schema_blocked = true;
         checker.push(
@@ -2627,7 +2654,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
         | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner"
-        | "apply_library_record" => "modify",
+        | "apply_library_record" | "set_model_setting" | "clear_model_setting" => "modify",
         "create_node"
         | "create_section"
         | "create_material"
