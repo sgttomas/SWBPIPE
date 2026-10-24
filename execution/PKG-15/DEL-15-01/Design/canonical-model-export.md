@@ -129,7 +129,7 @@ on either route. It needs no solve and no result.
     open path, and the adoption mutation test covers the demo's string members;
   - disposition screening at any depth: every `provenance_record`, every
     `rule_pack_refs[]` entry, and every `library_ref`, resolved against the
-    local library store. Identities are trimmed as `open_local_library` does,
+    local library store. Identities are trimmed as `open_local_library` does (Unicode White_Space, as Rust's `trim`; the webview uses `trimLikeRust`),
     and every matching record is screened. The verdict is a port of the
     library import's disposition rules, including the hanger conflict rule.
     A parity test (`disposition_verdicts_match_the_library_import`) pins it
