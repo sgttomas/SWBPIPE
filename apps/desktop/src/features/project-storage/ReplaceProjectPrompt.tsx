@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { storedProjectDescription, type ReplaceProjectPromptState } from "./storedProjectConflict";
+import { savedStatesSentence, storedProjectDescription, type ReplaceProjectPromptState } from "./storedProjectConflict";
 
 /** Asks before a save would replace a stored project (HELP_HUMAN rulings
  * 2026-10-10). It is modal: the workspace is inert while it is open (App.tsx),
@@ -62,6 +62,7 @@ export function ReplaceProjectPrompt({ prompt }: { prompt: ReplaceProjectPromptS
           {prompt.stale
             ? <>The stored project {storedProjectDescription(prompt.existing)} has been saved since this session last saw it. {prompt.kind === "create" ? "Creating" : "Saving"} this project would replace that stored copy.</>
             : <>{prompt.kind === "create" ? "Creating" : "Saving"} this project would replace the stored project {storedProjectDescription(prompt.existing)}.</>}
+          {savedStatesSentence(prompt.existing)}
         </p>
         <div className="report-actions">
           <button type="button" ref={cancel} data-testid="replace-project-cancel" onClick={() => prompt.choose("cancel")}>

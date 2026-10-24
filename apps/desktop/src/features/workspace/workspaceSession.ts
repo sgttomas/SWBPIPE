@@ -110,6 +110,8 @@ import {
   deriveProjectEnvelopeHashIntegrity
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
+import { useModelStateHistory } from "../history/useModelStateHistory";
+import type { ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
 import { useSelectionSessionState } from "./selectionSessionState";
@@ -3000,6 +3002,51 @@ export function useWorkspaceSession() {
     return () => window.removeEventListener("keydown", handleShellAccelerator);
   }, []);
 
+  /** W-12 S1 Open State: the saved state's snapshot becomes the working model of
+   * the same stored project, as an open does. It starts a new project session:
+   * the undo and redo history is cleared, so undo never walks back into the
+   * model the session held before; results, queued operations and the review
+   * context go with it. The stored base is unchanged (the session is still that
+   * stored project), and the saved basis is the state's model hash, so the
+   * first edit makes a new, edited working model. */
+  function adoptStateSnapshot(opened: ModelStateRead, snapshotHash: ModelHashEvidence) {
+    ruleRevisionGate.current.invalidate();
+    setModelHashIntegrity(null);
+    setProjectEnvelopeHashIntegrity(null);
+    advanceProjectSession();
+    commitModel(opened.model);
+    savedBasisSequence.current += 1;
+    setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: snapshotHash.value, source: "open" });
+    setSelection(defaultSelection(opened.model));
+    setUndoStack([]);
+    setRedoStack([]);
+    setAppliedOperations([]);
+    withdrawBatchRegistrations();
+    setQueuedBatches([]);
+    setBatchOutcomes({});
+    setBatchReceipts([]);
+    setBatchMessage(null);
+    setOperationOutcomes({});
+    setOperationMessage(null);
+    setHistoricalRun(null);
+    setResult(null);
+    setAnalysisRun(null);
+    setInputManifest(null);
+    setRuleCheckAggregate(null);
+    setProposal(null);
+    setRetainedReviewContext([]);
+    setEditorIntents([]);
+    setSelectedReviewTarget(null);
+    setSolveJob(initialSolveJob());
+    setModelDocumentVersion(opened.model_document_version ?? null);
+  }
+
+  const history = useModelStateHistory({
+    model, currentModel, modelEdited, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
+    modalOpenRef: replacePromptOpenRef, acquireProjectOperation, releaseProjectOperation,
+    saveLocalProject: handleSaveProject, adoptStateSnapshot
+  });
+
   return {
     model: {
       model,
@@ -3113,7 +3160,9 @@ export function useWorkspaceSession() {
       handleOpenModelDocument,
       handleSaveProject,
       handleListProjects,
-      replaceProjectPrompt
+      replaceProjectPrompt,
+      // W-12 S1: the saved model states of the session's project (History panel).
+      history
     },
     chrome: {
       uiPreferences, setUiPreferences,

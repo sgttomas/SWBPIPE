@@ -92,6 +92,8 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
+import { HistoryPanel } from "./features/history/HistoryPanel";
+import { OpenStatePrompt } from "./features/history/OpenStatePrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
@@ -265,6 +267,7 @@ function AppSession() {
     handleListProjects,
     replaceProjectPrompt
   } = session.project;
+  const { openStatePrompt } = session.project.history;
   const {
     uiPreferences, setUiPreferences,
     resolvedTheme,
@@ -333,7 +336,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt and the units dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || openStatePrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -980,6 +983,7 @@ function AppSession() {
                 modelHashIntegrity={modelHashIntegrity}
                 projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
               />
+              <HistoryPanel />
               <ProjectValidationPanel
                 model={model}
                 storageCapability={storageCapability}
@@ -1084,6 +1088,7 @@ function AppSession() {
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
+      <OpenStatePrompt prompt={openStatePrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
     </main>
     </CompactSelectScope>

@@ -502,8 +502,10 @@ export async function createLocalProject(
   });
 }
 
-/** A stored project's index entry and the revision a Replace of it confirms. */
-export type StoredProjectEntry = LocalProjectIndexEntry & { revision: string };
+/** A stored project's index entry and the revision a Replace of it confirms.
+ * `saved_state_count` (W-12 §2): the saved model states a Replace keeps; the
+ * native store reports it, the browser preview keeps no states. */
+export type StoredProjectEntry = LocalProjectIndexEntry & { revision: string; saved_state_count?: number };
 
 function browserRevision(stored: BrowserStoredProject): string {
   return `${stored.envelope.project_envelope_hash?.value ?? ""}@${stored.writeSequence}`;

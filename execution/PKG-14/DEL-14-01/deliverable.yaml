@@ -180,7 +180,15 @@ needs:
 code_paths:
 - schemas/model_state.schema.json
 - core/project_persistence/service.py
+- apps/desktop/src-tauri/src/model_states.rs
+- apps/desktop/src/services/modelStateService.ts
+- apps/desktop/src/features/history/useModelStateHistory.ts
+- fixtures/persistence/sorted_compact_json_vectors.json
+- fixtures/persistence/model_state_record_witness.json
 checks:
 - tests/test_model_state_schema.py
 - tests/test_project_persistence_service.py
 - tests/test_persistence_schema.py
+- tests/test_model_state_record_parity.py
+- apps/desktop/src-tauri/src/model_states.rs
+- apps/desktop/src/features/history/modelStateHistory.session.test.tsx

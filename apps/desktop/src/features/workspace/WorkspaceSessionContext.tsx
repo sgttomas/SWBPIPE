@@ -48,3 +48,7 @@ export function useSessionProject(): WorkspaceSession["project"] {
 export function useSessionChrome(): WorkspaceSession["chrome"] {
   return useWorkspaceSessionContext().chrome;
 }
+
+export function useSessionHistory(): WorkspaceSession["project"]["history"] {
+  return useWorkspaceSessionContext().project.history;
+}

@@ -1,0 +1,302 @@
+// The session's model-state history (W-12 S1; DEL-14-01 Design
+// `desktop-states-runs-comparison.md` §2): Save Model State…, Open State, the
+// History panel's list, label edits and delete. Called only by the session
+// (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
+// History panel reads the result through `useSessionHistory()`.
+import { useEffect, useRef, useState } from "react";
+import type { MutableRefObject } from "react";
+import {
+  deleteModelState,
+  editModelStateLabels,
+  listModelStates,
+  MODEL_STATE_STORE_UNAVAILABLE,
+  modelStateDescription,
+  readModelState,
+  saveModelState,
+  type ModelStateKind,
+  type ModelStateRead,
+  type ModelStateSummary,
+  type StateLabels
+} from "../../services/modelStateService";
+import { computeModelHash } from "../../services/hashService";
+import { nativeFailureText } from "../../services/nativeIngress";
+import { evaluateModelDocumentLocal } from "../../services/projectService";
+import type { ModelHashEvidence, PreviewModel } from "../../types";
+import { buildModelIndex } from "../workspace/modelIndex";
+
+export type OpenStateChoice = "open" | "cancel";
+
+/** The unsaved-changes guard of Open State: the working model has edits that
+ * no project save or state holds, and opening the state replaces it. */
+export type OpenStatePromptState = {
+  state: ModelStateSummary;
+  /** Where focus was when the prompt opened; it returns there on close. */
+  opener: HTMLElement | null;
+  choose: (choice: OpenStateChoice) => void;
+};
+
+export type ModelStateHistoryDeps = {
+  /** The session's model as rendered, and the one it holds now. */
+  model: PreviewModel | null;
+  currentModel: MutableRefObject<PreviewModel | null>;
+  /** The working model has edits no saved basis holds. */
+  modelEdited: boolean;
+  projectSessionGeneration: number;
+  projectSessionGenerationRef: MutableRefObject<number>;
+  /** The stored project this session is, at the envelope hash it last opened or wrote. */
+  storedBaseRef: MutableRefObject<{ projectId: string; value: string | null } | null>;
+  /** True while a modal prompt holds the window (menu commands wait). */
+  modalOpenRef: MutableRefObject<boolean>;
+  acquireProjectOperation: () => symbol | null;
+  releaseProjectOperation: (owner: symbol) => void;
+  /** Save Local Project's flow, with its replace prompt. */
+  saveLocalProject: () => Promise<void>;
+  /** Makes an opened state's snapshot the working model (a new project session). */
+  adoptStateSnapshot: (opened: ModelStateRead, snapshotHash: ModelHashEvidence) => void;
+};
+
+export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
+
+function storeAvailable(): boolean {
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
+
+export function useModelStateHistory(deps: ModelStateHistoryDeps) {
+  const [states, setStates] = useState<ModelStateSummary[] | null>(null);
+  const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
+  const [historyMessage, setHistoryMessage] = useState("No model states listed yet.");
+  const [historyOperation, setHistoryOperation] = useState("not_started");
+  const [historyBusy, setHistoryBusy] = useState(false);
+  const [openStatePrompt, setOpenStatePrompt] = useState<OpenStatePromptState | null>(null);
+  // The saved state the working model was opened from or last saved as, for
+  // this project session: the parent of the next state saved.
+  const [basis, setBasis] = useState<{ generation: number; projectId: string; stateId: string } | null>(null);
+  const listRequest = useRef(0);
+  const depsRef = useRef(deps);
+  depsRef.current = deps;
+
+  const projectId = deps.model?.project.id ?? null;
+  const basisStateId = basis && basis.generation === deps.projectSessionGeneration && basis.projectId === projectId ? basis.stateId : null;
+
+  async function refreshStates(forProjectId: string | null = depsRef.current.currentModel.current?.project.id ?? null) {
+    const request = ++listRequest.current;
+    if (!forProjectId) return;
+    if (!storeAvailable()) {
+      setStates(null);
+      setStatesProjectId(forProjectId);
+      setHistoryMessage(MODEL_STATE_STORE_UNAVAILABLE);
+      setHistoryOperation("store_unavailable");
+      return;
+    }
+    try {
+      const listed = await listModelStates(forProjectId);
+      if (request !== listRequest.current) return;
+      setStates(listed);
+      setStatesProjectId(forProjectId);
+    } catch (error) {
+      if (request !== listRequest.current) return;
+      setStates(null);
+      setStatesProjectId(forProjectId);
+      setHistoryMessage(`List failed: ${nativeFailureText(error)}`);
+      setHistoryOperation("list_failed");
+    }
+  }
+
+  useEffect(() => {
+    void refreshStates(projectId);
+  }, [projectId, deps.projectSessionGeneration]);
+
+  function begin(): symbol | null {
+    const owner = depsRef.current.acquireProjectOperation();
+    if (!owner) {
+      setHistoryMessage("Another project operation is in progress; try again when it finishes.");
+      setHistoryOperation("busy");
+      return null;
+    }
+    setHistoryBusy(true);
+    return owner;
+  }
+
+  function end(owner: symbol) {
+    depsRef.current.releaseProjectOperation(owner);
+    setHistoryBusy(false);
+  }
+
+  /** Save Model State…: the working model as a new immutable state of its
+   * project. A state needs the project's stored row: when the session is not
+   * that stored project, Save Local Project's flow runs first. */
+  async function saveState(form: SaveModelStateForm): Promise<boolean> {
+    const requestModel = depsRef.current.currentModel.current;
+    if (!requestModel) return false;
+    const requestProjectId = requestModel.project.id;
+    if (!form.labels.state_name.trim()) {
+      setHistoryMessage("Not saved: a model state needs a name.");
+      setHistoryOperation("save_state_refused");
+      return false;
+    }
+    const isStoredProject = () => {
+      const base = depsRef.current.storedBaseRef.current;
+      return base?.projectId === requestProjectId && Boolean(base.value);
+    };
+    if (!isStoredProject()) {
+      setHistoryMessage("A model state needs its project's stored copy: saving the local project first.");
+      await depsRef.current.saveLocalProject();
+      if (!isStoredProject()) {
+        setHistoryMessage("Not saved: the local project was not saved, so the model state was not saved.");
+        setHistoryOperation("save_state_needs_project");
+        return false;
+      }
+    }
+    const owner = begin();
+    if (!owner) return false;
+    const generation = depsRef.current.projectSessionGenerationRef.current;
+    const sameSession = () => generation === depsRef.current.projectSessionGenerationRef.current;
+    try {
+      const outcome = await saveModelState({
+        expectedBase: depsRef.current.storedBaseRef.current!.value!,
+        model: requestModel,
+        kind: form.kind,
+        parentStateId: basisStateId,
+        labels: form.labels
+      });
+      if (!sameSession()) return true;
+      if (depsRef.current.currentModel.current === requestModel) {
+        setBasis({ generation, projectId: requestProjectId, stateId: outcome.state.state_id });
+      }
+      setHistoryMessage(outcome.message);
+      setHistoryOperation(outcome.outcome === "saved" ? "save_state" : "save_state_already_saved");
+      await refreshStates(requestProjectId);
+      return true;
+    } catch (error) {
+      if (!sameSession()) return false;
+      setHistoryMessage(`Not saved: ${nativeFailureText(error)}`);
+      setHistoryOperation("save_state_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
+  function askBeforeReplacingEdits(state: ModelStateSummary): Promise<OpenStateChoice> {
+    return new Promise((resolve) => {
+      depsRef.current.modalOpenRef.current = true;
+      const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setOpenStatePrompt({
+        state,
+        opener,
+        choose: (choice) => {
+          depsRef.current.modalOpenRef.current = false;
+          setOpenStatePrompt(null);
+          resolve(choice);
+        }
+      });
+    });
+  }
+
+  /** Open State: the state's snapshot becomes the working model, behind the
+   * unsaved-changes guard. Its version goes through the one-current-version
+   * check and its hash is recomputed before it is adopted. */
+  async function openState(stateId: string): Promise<boolean> {
+    const state = states?.find((candidate) => candidate.state_id === stateId);
+    const requestProjectId = depsRef.current.currentModel.current?.project.id;
+    if (!state || !requestProjectId) return false;
+    if (depsRef.current.modelEdited) {
+      const choice = await askBeforeReplacingEdits(state);
+      if (choice !== "open") {
+        setHistoryMessage("Not opened: the working model and its unsaved edits were kept.");
+        setHistoryOperation("open_state_cancelled");
+        return false;
+      }
+    }
+    const owner = begin();
+    if (!owner) return false;
+    const generation = depsRef.current.projectSessionGenerationRef.current;
+    const heldModel = depsRef.current.currentModel.current;
+    const unchanged = () => generation === depsRef.current.projectSessionGenerationRef.current && depsRef.current.currentModel.current === heldModel;
+    try {
+      const opened = await readModelState(requestProjectId, stateId);
+      const version = evaluateModelDocumentLocal(opened.model);
+      if (version.status !== "current") {
+        throw new Error(`Model document refused for editing: status=${version.status}; ${version.detail}`);
+      }
+      const hash = await computeModelHash(opened.model);
+      if (!hash || hash.value !== opened.state.model_hash || opened.model.project.id !== requestProjectId) {
+        throw new Error("MODEL-STATE-INTEGRITY: the opened snapshot does not match the saved state's model hash or project.");
+      }
+      buildModelIndex(opened.model, 0, 0);
+      if (!unchanged()) {
+        setHistoryMessage("Not opened: the session changed while the state was read; the working model was kept.");
+        setHistoryOperation("open_state_superseded");
+        return false;
+      }
+      depsRef.current.adoptStateSnapshot(opened, hash);
+      setBasis({ generation: depsRef.current.projectSessionGenerationRef.current, projectId: requestProjectId, stateId });
+      setHistoryMessage(`Opened model state ${modelStateDescription(opened.state)} as the working model. Edits make a new working model; the saved state does not change.`);
+      setHistoryOperation("open_state");
+      return true;
+    } catch (error) {
+      setHistoryMessage(`Not opened: ${nativeFailureText(error)}`);
+      setHistoryOperation("open_state_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
+  async function editLabels(stateId: string, labels: StateLabels): Promise<boolean> {
+    const state = states?.find((candidate) => candidate.state_id === stateId);
+    if (!state) return false;
+    const owner = begin();
+    if (!owner) return false;
+    try {
+      const edited = await editModelStateLabels(state.project_id, stateId, labels, state.labels_updated_at);
+      setHistoryMessage(`Labels of model state ${modelStateDescription(edited)} saved. Renaming, tagging or adding notes does not change the saved state.`);
+      setHistoryOperation("edit_state_labels");
+      await refreshStates(state.project_id);
+      return true;
+    } catch (error) {
+      setHistoryMessage(`Labels not saved: ${nativeFailureText(error)}`);
+      setHistoryOperation("edit_state_labels_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
+  async function deleteState(stateId: string): Promise<boolean> {
+    const state = states?.find((candidate) => candidate.state_id === stateId);
+    if (!state) return false;
+    const owner = begin();
+    if (!owner) return false;
+    try {
+      const receipt = await deleteModelState(state.project_id, stateId);
+      if (basis?.stateId === stateId) setBasis(null);
+      setHistoryMessage(receipt.message);
+      setHistoryOperation("delete_state");
+      await refreshStates(state.project_id);
+      return true;
+    } catch (error) {
+      setHistoryMessage(`Not deleted: ${nativeFailureText(error)}`);
+      setHistoryOperation("delete_state_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
+  return {
+    states: statesProjectId === projectId ? states : null,
+    basisStateId,
+    historyMessage,
+    historyOperation,
+    historyBusy,
+    openStatePrompt,
+    refreshStates,
+    saveState,
+    openState,
+    editLabels,
+    deleteState
+  };
+}
+
+export type ModelStateHistory = ReturnType<typeof useModelStateHistory>;

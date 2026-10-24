@@ -60,7 +60,8 @@ review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 document (the W-6a bytes) plus its sha256, which is the session's model hash.
 
 **Store (migration v12).** Every statement uses `IF NOT EXISTS`, including the
-triggers and the index.
+triggers and the index. v12 holds the state tables only; the run tables of §3
+are v13, added with recorded runs (W-12 S2).
 
 ```sql
 CREATE TABLE IF NOT EXISTS model_states(
@@ -143,6 +144,42 @@ Python agree.
   project's states and runs. The confirmation prompt states how many saved
   states and recorded runs will remain attached to that project id.
 
+**As built (S1, states).** `apps/desktop/src-tauri/src/model_states.rs`,
+`apps/desktop/src/services/modelStateService.ts` and `apps/desktop/src/features/history/`.
+- **Versions.** `STORE_SCHEMA_TARGET_VERSION` is 12. A store whose
+  `user_version` is above the target was written by a newer build. It is
+  refused (`STORE-SCHEMA-NEWER`) before any pragma or migration writes;
+  before S1 it was opened as current.
+- **Hash forms.** The `model_hash` column holds the session's form
+  (`sha256:<hex>`). The record's `hashes` values are bare hex, as the Python
+  service writes them. `record_json` stores the record without the label
+  fields; `record_hash` is over that record without `hashes`. A read
+  re-verifies both hashes and refuses a mismatch (`MODEL-STATE-INTEGRITY`).
+- **Serializer.** Floats are written as Python's `repr`; keys sort by code
+  point. Vectors computed by `service.py`
+  (`fixtures/persistence/sorted_compact_json_vectors.json`) and a witness
+  written by the save and read path (`model_state_record_witness.json`) are
+  checked by the Rust tests and `tests/test_model_state_record_parity.py`.
+- **Labels.** The state-level assumptions use the model's
+  `unresolved_assumptions` vocabulary. An empty `affected_refs` names the state
+  (`{ModelState, <state id>}`). An id may not repeat a model assumption id.
+  Notes become `StateNote`s `<state id>:note:<n>`, `visibility: private`.
+  Every provenance in the record is `review_status: pending`.
+- **Commands.** `save_model_state`, `list_model_states`, `read_model_state`,
+  `edit_model_state_labels` and `delete_model_state`. The save carries the
+  canonical text, the claim and the session's base (`expected_base`). The four
+  small commands take 4 KiB of arguments, 256 KiB for a label edit
+  (`INGRESS-ARGS-TOO-LARGE`). A label edit names the labels' `updated_at` it
+  read (`MODEL-STATE-LABELS-MOVED` otherwise).
+- **Delete.** Until S2, a state's deletion is blocked only by its child states.
+- **Open State.** The desktop had no unsaved-changes guard. S1 adds one for
+  Open State: Cancel is the default. Opening starts a new project session
+  with empty undo and redo stacks, so undo never reaches the previous model.
+  The stored base is kept, and the state's hash becomes the saved basis. The
+  state is the parent of the next state saved from that session.
+- **Browser preview.** It keeps no states (SQLite-only history) and refuses
+  every state command (`MODEL-STATE-STORE-UNAVAILABLE`).
+
 ## 3. Runs tied to states (FR-CMP-002; FR-MOD-006 run level)
 
 **Two kinds of run record:**
@@ -198,7 +235,7 @@ accept either form:
 `HistoricalRunContext` accepts real state refs from recorded runs, verified
 against the stored state, and keeps flagging any other mismatch.
 
-**Store (v12 continued):**
+**Store (v13, with recorded runs):**
 
 ```sql
 CREATE TABLE IF NOT EXISTS analysis_runs(
