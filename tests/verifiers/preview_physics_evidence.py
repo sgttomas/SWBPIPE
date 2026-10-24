@@ -202,6 +202,8 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         _shape(component_body.without_record(coverage), {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
         _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]) and _strings(coverage["outside_domain_pipe_ids"]), "maximum coverage values")
         _require(not set(coverage["unavailable_pipe_ids"]) & set(coverage["outside_domain_pipe_ids"]), "maximum coverage overlap")
+        # W-15 slice d: the optional body list is a nonempty list of distinct member ids (the raw reader binds it to rows).
+        _require(component_body.COVERAGE_KEY not in coverage or (_strings(coverage[component_body.COVERAGE_KEY]) and bool(coverage[component_body.COVERAGE_KEY])), "maximum coverage bodies")
         # T4-U4b (§2.1, review item 6): arcs publish their maximum; no member is outside its domain.
         _require(not coverage["outside_domain_pipe_ids"], "maximum coverage outside the domain")
         _require(coverage["complete"] == (not coverage["unavailable_pipe_ids"] and not coverage["outside_domain_pipe_ids"]), "maximum coverage completeness")
@@ -215,6 +217,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         _require(not set(attribution["attributed_support_ids"]) & {record["support_id"] for record in attribution["withheld"]}, "support both attributed and withheld")
         for extremum in case["pipe_stress_extrema"]:
             _shape(component_body.without_record(extremum), EXTREMA_KEYS, "extrema shape")
+            _require(component_body.RECORD not in extremum or component_body.record_shape(extremum[component_body.RECORD]), "extrema body record")
             # T4-U4b (§2.3): the straight tokens or, on an arc (checked against the rows below), the arc tokens.
             arc_constants = dict(zip(EXTREMA_CONSTANTS, ("arc_closed_form_section_statics", "arc_end_j_force_and_uniform_intensities_binary64_enclosures",
                                                          "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate")))
@@ -279,8 +282,6 @@ def _validate(source: Mapping[str, Any]) -> None:
     _require(len(rows) == len(results), "duplicate result ID")
     from . import u4b
     arcs = u4b.preview_arcs(results)
-    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records.
-    bodies = component_body.source_bodies(source, TABLE)
 
     # 2. Every row kind has a signature.
     for row in results:
@@ -318,6 +319,9 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
         _require("component_stress_modifier_count" not in summary or (_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == 0), "blocked envelope counts intensified rows")
+    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records
+    # (after the blocked-envelope rule, as the Rust reader).
+    bodies = component_body.source_bodies(source, TABLE)
     for row in results:
         basis = row.get("basis_ref")
         if basis is None:

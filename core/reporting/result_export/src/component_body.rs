@@ -244,11 +244,12 @@ pub fn derivative_record(row: &Value) -> Option<Value> {
 }
 
 /// A derivative quantity's record agrees with its source row: both absent, or
-/// the row's record verbatim.
+/// the row's record by value (the scale bit for bit, so a JSON form change such
+/// as JCS's `15` for `15.0` still binds).
 pub fn derivative_agrees(quantity: &Value, row: &Value) -> bool {
     match (quantity.get(RECORD), row.get(RECORD)) {
         (None, None) => true,
-        (Some(q), Some(r)) => record_shape(r) && q == r,
+        (Some(q), Some(r)) => record_shape(q) && record_shape(r) && same_record(q, r),
         _ => false,
     }
 }

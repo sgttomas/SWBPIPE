@@ -308,9 +308,6 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             "ROW_BASIS",
         )?;
     }
-    // W-15 slice d (DEL-03-05 Design §5): the component bodies and their
-    // reference-section records, checked once over rows, extrema and coverage.
-    let bodies = crate::component_body::source_bodies(source, table)?;
     // 3. Completeness of result-namespace references (F-1).
     for diagnostic in diagnostics {
         // A1 a: the key may be absent; A2 item 5: when present, an array of
@@ -356,6 +353,10 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             "BLOCKED_ENVELOPE",
         );
     }
+    // W-15 slice d (DEL-03-05 Design §5): the component bodies and their
+    // reference-section records, checked once over rows, extrema and coverage
+    // (after the blocked-envelope rule, which a blocked envelope's rows meet first).
+    let bodies = crate::component_body::source_bodies(source, table)?;
 
     // 4. Cases bind the numerical quality cases.
     // A2 item 2: same load cases in the same order.

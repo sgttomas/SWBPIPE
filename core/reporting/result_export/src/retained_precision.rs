@@ -6749,9 +6749,11 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             "preview case lists",
         )?;
         let coverage = &c["stress_maximum_coverage"];
+        // W-15 slice d (DEL-03-05 Design §5): the optional body list, a nonempty
+        // list of distinct member ids when present; the raw reader binds it to rows.
         demand(
             shape(
-                coverage,
+                &crate::component_body::without_record(coverage),
                 &[
                     "complete",
                     "unavailable_pipe_ids",
@@ -6759,6 +6761,10 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
                 ],
             ),
             "maximum coverage shape",
+        )?;
+        demand(
+            coverage.get(crate::component_body::COVERAGE_KEY).is_none_or(|ids| strings(ids) && !list(ids).is_empty()),
+            "maximum coverage bodies",
         )?;
         let (unavailable, outside) = (
             &coverage["unavailable_pipe_ids"],
@@ -6810,7 +6816,12 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             "support both attributed and withheld",
         )?;
         for x in list(&c["pipe_stress_extrema"]) {
-            demand(shape(x, &EXTREMA), "extrema shape")?;
+            // W-15 slice d: an extremum of a body carries its closed record.
+            demand(shape(&crate::component_body::without_record(x), &EXTREMA), "extrema shape")?;
+            demand(
+                x.get(crate::component_body::RECORD).is_none_or(crate::component_body::record_shape),
+                "extrema body record",
+            )?;
             // T4-U4b (§2.3): the straight token triple or the arc record's (the raw
             // reader binds an arc's record to its rows; transport has no rows).
             let tokens = (x["approximation"].as_str(), x["coefficient_basis"].as_str(), x["enclosure_scope"].as_str());
