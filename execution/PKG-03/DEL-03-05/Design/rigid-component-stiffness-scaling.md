@@ -110,27 +110,18 @@ body joins a single pipe with no external load at the joint, nodal equilibrium
 makes its end forces equal that pipe's. At a branch or a loaded junction only
 the nodal sum balances.
 
-Because the reference section can govern only by being an artificial choice,
-the meaning travels with the result:
-- **Rows.** Every stress row of a scaled member carries a `component_body`
-  record: `component_ref`, `stiffness_scale` and
-  `section_role: "reference_pipe_section"`. This holds on both routes and
-  every section basis.
-- **Maximum and headline.** The case stress maximum and the headline exclude
-  scaled members, and the maximum record lists them in
-  `component_body_pipe_ids`, beside the existing `unavailable_pipe_ids` (PP
-  `lib.rs` ~6662). An excluded member is not an unavailable one, and the
-  maximum's completeness is unchanged by it. The local-FEA selection, which
-  takes the headline member as its region (`LocalFeaHandoffPanel.tsx`
-  ~282-319), therefore never selects a reference section.
-- **Rule binding.** A rule bound to a tagged row reports not-applicable with
-  the named reason `COMPONENT_BODY_REFERENCE_SECTION`, instead of evaluating
-  the reference-section stress (`result_export/src/semantic_contract.rs`
-  ~683).
-- **Exports and readers.** Exports carry the record, and the model-bound
-  readers check it.
+In slice a the rows keep their current shape, as they do today for every
+mapped member. The scale does not create the labelling gap: before W-15 the
+demo valve's member already published ordinary pipe stress rows. In a simple
+chain the body's forces are fixed by equilibrium, so scaling does not change
+them. Scaling redistributes forces only in statically indeterminate systems.
+An info diagnostic per scaled component, `RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED`,
+names the member and the scale. It states that the member's stress rows are
+the reference pipe section's and are not a body stress.
 
-An info diagnostic per scaled component names the member and the scale.
+Machine-readable identification of those rows is slice d (§5). It is a
+result-contract change across readers, exports, rule binding and the desktop,
+and it is designed and scrutinized on its own.
 
 ### 2.5 Numerical bound
 
@@ -159,7 +150,7 @@ refused by name.
 | `RIGID_COMPONENT_MAPPING_CONFLICT` (new) | blocking | §2.3's three refusals |
 | `RIGID_COMPONENT_STIFFNESS_INPUT_MISSING` | warning | the scale or its source reference is missing; the member solves as pipe, unscaled |
 | `RIGID_COMPONENT_STIFFNESS_INPUT_INVALID` | warning | the scale, or a supplied linear or rotational stiffness, is not finite positive; the member solves as pipe, unscaled |
-| `RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED` (replaces `..._REVIEWED`) | info | the scale is applied: names the member and s, and states that stress rows use the pipe section and linear/rotational stiffness are not applied |
+| `RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED` (replaces `..._REVIEWED`) | info | the scale is applied: names the member and s, and states that the member's stress rows are the reference pipe section's (not a body stress) and that linear/rotational stiffness are not applied |
 | `RIGID_COMPONENT_SCALE_PRECISION` (new) | warning | s ≥ 1e8 (§2.5) |
 
 These replace the stale texts at PP `validation.rs` ~1386 and ~1426 ("no
@@ -217,9 +208,9 @@ carries one magnitude and one direction (PP `lib.rs` ~788-805), so the
 generator emits the force primitive plus one moment primitive per nonzero
 component of M. With axis-aligned gravity that is at most two moments; for
 example r = (1, 2, 3) m and F = (0, 0, −10) N give M = (−20, 10, 0) N·m.
-Identities are deterministic:
-`load:<case>:component-weight:<component>:force_<axis>` and
-`:moment_<axis>`. Both routes already solve nodal forces and
+Identities are deterministic and follow the generator's length-prefixed
+convention (`self_weight.rs` ~376), with the component id, the wrench part
+(force or moment) and the axis. Both routes already solve nodal forces and
 moments (PP `lib.rs` ~802, ~14322; EX `tests/pressure_runtime.rs` ~984). The
 pair is statically exact for the body; for a semi-rigid body it places the
 weight at the body's node rather than along the member.
@@ -252,7 +243,9 @@ offset is geometry the nodes must agree with.
 - **Relation.** The axis t (unit) and body length L = `rigid_body_length`
   satisfy x_B − x_A = L·t + e. With d = x_B − x_A − e, validation requires
   |‖d‖ − L| and |e·d/‖d‖| each within the model's node-proximity tolerance,
-  and blocks on a mismatch. A concentric reducer has e = 0 or no field.
+  and blocks on a mismatch. A zero or non-finite ‖d‖ is refused before
+  normalizing, as is an end with no adjoining pipe or with more than one
+  candidate adjoining section. A concentric reducer has e = 0 or no field.
 - **Desktop.** It can place B from A, t, L and e.
 
 The model document's component geometry record is closed in the schema
@@ -262,7 +255,59 @@ document version (0.8.0) and its schema, validator and fixture regeneration,
 which is a shared interface with W-6 and W-12. Slice c waits for that
 coordination.
 
-## 5. Verification
+## 5. Identifying reference-section results (slice d)
+
+A scaled member's stress rows are stresses of a reference pipe section. Slice
+d makes that meaning travel with the result. It needs its own design and
+scrutiny before implementation. Round-2 scrutiny (Codex) set out what that
+design must settle:
+
+1. **Maximum and coverage.** Per-member maxima and `pipe_stress_extrema` stay
+   published for every available member, so the coverage and row-binding
+   invariants hold. The case maximum and headline are taken over the
+   remaining, non-body members. Each coverage entry lists `component_body_pipe_ids`.
+   If no eligible member remains, the headline is null. Consumers include:
+   - Rust readers: `result_export/src/section_basis.rs` ~497/552,
+     `physics_evidence.rs` ~561/583/1140/1519,
+     `preview_physics_evidence.rs` ~420/508/854;
+   - Python verifiers: `tests/verifiers/section_basis.py` ~341/370,
+     `preview_physics_evidence.py` ~199/229/350, `pressure_2.py` ~1105;
+   - closed schemas: `schemas/results.v0.3.schema.yaml` ~2427/3493,
+     `PhysicsStressMaximumCoverageEntry`, and
+     `schemas/stress_neutral_export.v0.3.schema.json` ~2697/3075;
+   - `joint.rs` ~1008 and `tools/validation/qualification_physics_structure.py`
+     ~465;
+   - shared retained and source shapes: `physics_source.rs` ~278,
+     `retained_precision.rs` ~6751, `retained_product.rs` ~2919/3069,
+     `source_receipt/composite.rs` ~535. Their component refusals stay, but
+     any unconditional new field changes their output shape.
+2. **Rows and exports.** The record must have one explicit representation,
+   preserved and validated in the source row, in derivative quantity rows
+   (`result_export/src/derivative.rs` ~291, desktop `resultExportAdapter.ts`
+   ~113, the closed `QuantityResult`/`PressureQuantityResult`/metadata shapes)
+   and in source annotations. Missing, forged and inconsistent tags are
+   refused, including on basis twins and combination rows. Existing bitwise
+   checks keep their strength.
+3. **Rules.** The rule runner has no not-applicable outcome
+   (`rule_check_runner/src/lib.rs` ~123/184/283/551). Slice d either uses
+   `RULE_INPUTS_INCOMPLETE` with the refusal reason
+   `COMPONENT_BODY_REFERENCE_SECTION`, or adds an applicability outcome. The
+   second touches aggregation, counts, declared statuses, persistence, the
+   native binding (`src-tauri/src/lib.rs` ~3432), `ruleCheckService.ts`,
+   `knownSemanticLimitations.ts`, `core/analysis_runs/compatibility.py` and
+   `schemas/rule_pack.schema.yaml` ~102.
+4. **Desktop.** The local-FEA handoff also selects pipes adjoining the
+   displacement-headline node, and prefers a fixed P-120 row
+   (`LocalFeaHandoffPanel.tsx` ~287/296/348). Selection and disclosure must
+   carry the identification wherever a body member is included. The same
+   applies to `ResultsPanel.tsx` ~232, `PhysicsSourceEvidencePanel.tsx` ~46,
+   `ReportPanel.tsx` ~292, `HandoffPanel.tsx` ~335 and
+   `NativePackagePanel.tsx` ~795.
+5. **Semantic-contract tables.** The pressure-2 table and its pins are
+   regenerated with `tools/serialization/semantic_contract_tables.py`
+   (`derive`, `repin`), alongside the retained inherited-table pins.
+
+## 6. Verification
 
 - **Rigid-link benchmark** (PRD §22.2), following W-9
   (`validation/references/w9_benchmarks`, `tests/w9_solver_benchmarks.rs`).
@@ -274,8 +319,10 @@ coordination.
     member's end forces and the support reactions. It also checks the s → ∞
     limit against the rigid-link closed form.
   - **Runs.** s = 1 (equal to plain pipe), a soft s = 0.25, s = 1e3 and
-    s = 1e6. Euler–Bernoulli and Timoshenko, both routes, both solver modes,
-    at the 1e-9 relative criterion with W-9's zero-scale rule.
+    s = 1e6. Euler–Bernoulli on both routes, and Timoshenko on EX, where
+    `timoshenko_annulus_energy_v1` is selectable (PP `pressure_runtime.rs`
+    ~49). Both solver modes, at the 1e-9 relative criterion with W-9's
+    zero-scale rule.
 - **Thermal series case.** Frozen independent expectations, with signs and
   zero scales. A member anchored at both ends, a scaled body in series with
   pipe, under ΔT: the reactions follow the series stiffness. A free scaled
@@ -293,9 +340,9 @@ coordination.
   - Reducers on EX: inside a single-member region, inside an equal-bore
     region, at a region's boundary, and outside every region.
   - PF ν: absent, and consistent and inconsistent optional ν, through the
-    model-bound reader.
-  - The `component_body` record, maximum exclusion and rule not-applicable
-    through the public readers.
+    model-bound reader on material and named bases. Interpolated PF ν already
+    skips model-bound recomputation (`u4b_evidence.rs` ~523); that existing
+    limit is stated, not closed, here.
   - The s ≥ 1e8 warning, with formation and recovery qualification unchanged.
   - Slice b: weight replacement, staleness, every gravity axis and sign, and
     wrench components.
