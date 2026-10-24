@@ -1603,6 +1603,465 @@ fn validate_finite(name: &'static str, value: f64) -> Result<(), EvaluationError
 }
 
 // ---------------------------------------------------------------------------
+// Static type check (W-17, DEL-06-02 `Design/rule-pack-unit-check.md` §2.1)
+// ---------------------------------------------------------------------------
+//
+// [`check_expression_types`] derives, without values, every finding the point
+// path can derive from an expression, its literals and its variables' types:
+// type, dimension and unit mismatches, unrepresentable forms, unsafe
+// constructs, empty references, unbound variables, missing literal unit
+// metadata and malformed tables. It is additive: [`evaluate`] and the interval
+// path are unchanged. Like the interval path, it runs the point path's own
+// structural checks on shadow values (a quantity of value 1.0 carrying the
+// operand's dimension and unit, or `true`), so the two cannot drift.
+//
+// Traversal differs from the evaluator's. The evaluator stops a node at its
+// first failing child and tests a zero divisor before dimensions; the static
+// check has no values, so it visits every child and never reports a
+// value-dependent finding (division by zero, table range or key, overflow).
+// A type error the evaluator hides behind a value failure is still reported.
+// An operand of unknown type gives an unknown result with no finding, and no
+// ancestor reports a finding against it. The grammar is unchanged.
+
+/// The static type of one variable in a [`TypeEnv`].
+#[derive(Debug, Clone, PartialEq)]
+pub enum VariableType {
+    /// Bound at run time as a quantity of this dimension and unit, with the
+    /// metadata flags every bound quantity carries ([`Quantity::new`]).
+    Typed {
+        dimension: Dimension,
+        unit_ref: String,
+    },
+    /// Declared, but with `TBD` or empty dimension or unit metadata.
+    Unknown,
+}
+
+/// Variable ids mapped to their static types. An id absent from the
+/// environment is undeclared: a reference to it is reported as
+/// [`FindingCode::MissingVariable`], as the evaluator reports an unbound one.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct TypeEnv {
+    variables: HashMap<String, VariableType>,
+}
+
+impl TypeEnv {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Declares a typed variable. An empty unit reference cannot bind (as
+    /// [`Quantity::new`] refuses it), so it declares the variable `Unknown`.
+    pub fn insert_typed(
+        &mut self,
+        variable_id: impl Into<String>,
+        dimension: Dimension,
+        unit_ref: impl Into<String>,
+    ) {
+        let unit_ref = unit_ref.into();
+        let variable_type = if unit_ref.trim().is_empty() {
+            VariableType::Unknown
+        } else {
+            VariableType::Typed {
+                dimension,
+                unit_ref: unit_ref.trim().to_string(),
+            }
+        };
+        self.variables.insert(variable_id.into(), variable_type);
+    }
+
+    /// Declares a variable whose type is not known statically.
+    pub fn insert_unknown(&mut self, variable_id: impl Into<String>) {
+        self.variables
+            .insert(variable_id.into(), VariableType::Unknown);
+    }
+
+    pub fn get(&self, variable_id: &str) -> Option<&VariableType> {
+        self.variables.get(variable_id)
+    }
+}
+
+/// The statically inferred type of an expression.
+#[derive(Debug, Clone, PartialEq)]
+pub enum StaticType {
+    Quantity { dimension: Dimension, unit_ref: String },
+    Boolean,
+    /// Depends on an `Unknown` variable or on a part that already failed.
+    Unknown,
+}
+
+/// One statically derived finding. `code` and `subject_id` are exactly those
+/// the evaluator would report; `path` locates the node with the rule-pack
+/// codec's breadcrumbs (`expression`, `expression.left`,
+/// `expression.operands[1]`, `expression.table`); `operand_types` are the
+/// types the failing rule compared. Nothing here carries a magnitude.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StaticFinding {
+    pub code: FindingCode,
+    pub subject_id: String,
+    pub message: String,
+    pub path: String,
+    pub operand_types: Vec<StaticType>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct TypeCheck {
+    pub value_type: StaticType,
+    pub findings: Vec<StaticFinding>,
+}
+
+impl TypeCheck {
+    /// True when some finding blocks every evaluation of the expression.
+    pub fn is_blocked(&self) -> bool {
+        !self.findings.is_empty()
+    }
+}
+
+/// Type-checks `expression` against `env` without values (see the section
+/// comment above).
+pub fn check_expression_types(expression: &Expression, env: &TypeEnv) -> TypeCheck {
+    let mut findings = Vec::new();
+    let value_type = static_type(expression, env, "expression", &mut findings);
+    TypeCheck {
+        value_type,
+        findings,
+    }
+}
+
+fn static_shadow(value_type: &StaticType) -> Option<EvaluationValue> {
+    match value_type {
+        StaticType::Quantity {
+            dimension,
+            unit_ref,
+        } => Some(EvaluationValue::Quantity(Quantity {
+            value: 1.0,
+            dimension: *dimension,
+            unit_ref: unit_ref.clone(),
+            unit_required: true,
+            dimension_check_required: true,
+        })),
+        StaticType::Boolean => Some(EvaluationValue::Boolean(true)),
+        StaticType::Unknown => None,
+    }
+}
+
+fn static_type_of_value(value: &EvaluationValue) -> StaticType {
+    match value {
+        EvaluationValue::Quantity(quantity) => StaticType::Quantity {
+            dimension: quantity.dimension,
+            unit_ref: quantity.unit_ref.clone(),
+        },
+        EvaluationValue::Boolean(_) => StaticType::Boolean,
+    }
+}
+
+fn push_static(
+    findings: &mut Vec<StaticFinding>,
+    produced: Vec<EvaluationFinding>,
+    path: &str,
+    operand_types: &[StaticType],
+) {
+    for finding in produced {
+        findings.push(StaticFinding {
+            code: finding.code,
+            subject_id: finding.subject_id,
+            message: finding.message,
+            path: path.to_string(),
+            operand_types: operand_types.to_vec(),
+        });
+    }
+}
+
+/// Runs one point-path structural check on the shadows of `operand_types`.
+/// Any unknown operand gives an unknown result and no finding.
+fn static_rule(
+    operand_types: &[StaticType],
+    path: &str,
+    findings: &mut Vec<StaticFinding>,
+    rule: impl FnOnce(Vec<EvaluationValue>, &mut Vec<EvaluationFinding>) -> Option<EvaluationValue>,
+) -> StaticType {
+    let Some(shadows) = operand_types
+        .iter()
+        .map(static_shadow)
+        .collect::<Option<Vec<_>>>()
+    else {
+        return StaticType::Unknown;
+    };
+    let mut produced = Vec::new();
+    let value = rule(shadows, &mut produced);
+    push_static(findings, produced, path, operand_types);
+    value
+        .as_ref()
+        .map(static_type_of_value)
+        .unwrap_or(StaticType::Unknown)
+}
+
+fn static_type(
+    expression: &Expression,
+    env: &TypeEnv,
+    path: &str,
+    findings: &mut Vec<StaticFinding>,
+) -> StaticType {
+    match expression {
+        // Literals and refusal markers are pack content: the point path's own
+        // checks apply to them unchanged.
+        Expression::Literal(_)
+        | Expression::UnsupportedForm { .. }
+        | Expression::UnsafeHostAccess { .. } => {
+            let mut produced = Vec::new();
+            let value = eval_expression(expression, &HashMap::new(), &mut Vec::new(), &mut produced);
+            push_static(findings, produced, path, &[]);
+            value
+                .as_ref()
+                .map(static_type_of_value)
+                .unwrap_or(StaticType::Unknown)
+        }
+        Expression::VariableRef(variable_id) => {
+            if variable_id.trim().is_empty() {
+                push_static(
+                    findings,
+                    vec![EvaluationFinding::new(
+                        FindingCode::InvalidReference,
+                        "variable_ref",
+                        "variable reference must not be empty",
+                    )],
+                    path,
+                    &[],
+                );
+                return StaticType::Unknown;
+            }
+            match env.get(variable_id) {
+                Some(VariableType::Typed {
+                    dimension,
+                    unit_ref,
+                }) => StaticType::Quantity {
+                    dimension: *dimension,
+                    unit_ref: unit_ref.clone(),
+                },
+                Some(VariableType::Unknown) => StaticType::Unknown,
+                None => {
+                    push_static(
+                        findings,
+                        vec![EvaluationFinding::new(
+                            FindingCode::MissingVariable,
+                            variable_id,
+                            "variable reference is not bound",
+                        )],
+                        path,
+                        &[],
+                    );
+                    StaticType::Unknown
+                }
+            }
+        }
+        Expression::Unary { operator, operand } => {
+            let operand = static_type(operand, env, &format!("{path}.operand"), findings);
+            static_rule(&[operand], path, findings, |mut shadows, produced| {
+                eval_unary(*operator, shadows.remove(0), produced)
+            })
+        }
+        Expression::Binary {
+            operator,
+            left,
+            right,
+        } => {
+            let left = static_type(left, env, &format!("{path}.left"), findings);
+            let right = static_type(right, env, &format!("{path}.right"), findings);
+            static_rule(&[left, right], path, findings, |mut shadows, produced| {
+                let right = shadows.remove(1);
+                eval_binary(*operator, shadows.remove(0), right, produced)
+            })
+        }
+        Expression::Compare {
+            operator,
+            left,
+            right,
+        } => {
+            let left = static_type(left, env, &format!("{path}.left"), findings);
+            let right = static_type(right, env, &format!("{path}.right"), findings);
+            static_rule(&[left, right], path, findings, |mut shadows, produced| {
+                let right = shadows.remove(1);
+                eval_compare(*operator, shadows.remove(0), right, produced)
+            })
+        }
+        Expression::Logical {
+            operator,
+            left,
+            right,
+        } => {
+            let left = static_type(left, env, &format!("{path}.left"), findings);
+            let right = static_type(right, env, &format!("{path}.right"), findings);
+            static_rule(&[left, right], path, findings, |mut shadows, produced| {
+                let right = shadows.remove(1);
+                eval_logical(*operator, shadows.remove(0), right, produced)
+            })
+        }
+        Expression::Select {
+            condition,
+            then_branch,
+            else_branch,
+        } => {
+            let condition = static_type(condition, env, &format!("{path}.condition"), findings);
+            let then_type = static_type(then_branch, env, &format!("{path}.then"), findings);
+            let else_type = static_type(else_branch, env, &format!("{path}.else"), findings);
+            static_rule(
+                &[condition, then_type, else_type],
+                path,
+                findings,
+                |mut shadows, produced| {
+                    let else_value = shadows.remove(2);
+                    let then_value = shadows.remove(1);
+                    eval_select(shadows.remove(0), then_value, else_value, produced)
+                },
+            )
+        }
+        Expression::Aggregate { function, operands } => {
+            static_aggregate(*function, operands, env, path, findings)
+        }
+        Expression::Interpolate { table, argument } => {
+            static_table(table, None, argument, env, path, findings)
+        }
+        Expression::Lookup {
+            table,
+            mode,
+            argument,
+        } => static_table(table, Some(*mode), argument, env, path, findings),
+    }
+}
+
+/// Mirrors [`eval_aggregate`]'s checks and their order.
+fn static_aggregate(
+    function: AggregateFunction,
+    operands: &[Expression],
+    env: &TypeEnv,
+    path: &str,
+    findings: &mut Vec<StaticFinding>,
+) -> StaticType {
+    let subject_id = match function {
+        AggregateFunction::Min => "min",
+        AggregateFunction::Max => "max",
+    };
+    if operands.is_empty() {
+        push_static(
+            findings,
+            vec![EvaluationFinding::new(
+                FindingCode::UnsupportedExpressionForm,
+                subject_id,
+                "min/max requires at least one operand",
+            )],
+            path,
+            &[],
+        );
+        return StaticType::Unknown;
+    }
+    let operand_types: Vec<StaticType> = operands
+        .iter()
+        .enumerate()
+        .map(|(index, operand)| {
+            static_type(operand, env, &format!("{path}.operands[{index}]"), findings)
+        })
+        .collect();
+    let Some(shadows) = operand_types
+        .iter()
+        .map(static_shadow)
+        .collect::<Option<Vec<_>>>()
+    else {
+        return StaticType::Unknown;
+    };
+    let mut quantities = Vec::with_capacity(shadows.len());
+    for (shadow, operand_type) in shadows.into_iter().zip(&operand_types) {
+        let EvaluationValue::Quantity(quantity) = shadow else {
+            push_static(
+                findings,
+                vec![EvaluationFinding::new(
+                    FindingCode::TypeMismatch,
+                    subject_id,
+                    "min/max operands must be numeric quantities",
+                )],
+                path,
+                std::slice::from_ref(operand_type),
+            );
+            return StaticType::Unknown;
+        };
+        quantities.push(quantity);
+    }
+    let first = &quantities[0];
+    for (quantity, operand_type) in quantities[1..].iter().zip(&operand_types[1..]) {
+        let produced = if quantity.dimension != first.dimension {
+            dimension_mismatch(subject_id, first.dimension, quantity.dimension)
+        } else if !quantity_units_match(first, quantity) {
+            unit_mismatch(subject_id, first, quantity)
+        } else {
+            continue;
+        };
+        push_static(
+            findings,
+            vec![produced],
+            path,
+            &[operand_types[0].clone(), operand_type.clone()],
+        );
+        return StaticType::Unknown;
+    }
+    operand_types[0].clone()
+}
+
+/// Mirrors [`eval_table_expression`]'s checks and their order: the table's
+/// structure (pack literals), then the argument, then the argument's type
+/// against the table's.
+fn static_table(
+    table: &UserTable,
+    mode: Option<LookupMode>,
+    argument: &Expression,
+    env: &TypeEnv,
+    path: &str,
+    findings: &mut Vec<StaticFinding>,
+) -> StaticType {
+    let minimum_rows = if mode.is_none() { 2 } else { 1 };
+    let mut produced = Vec::new();
+    let table_valid = validate_table(table, minimum_rows, &mut produced);
+    push_static(findings, produced, &format!("{path}.table"), &[]);
+    let argument_type = static_type(argument, env, &format!("{path}.argument"), findings);
+    if !table_valid {
+        return StaticType::Unknown;
+    }
+    let subject_id = table.table_id.trim().to_string();
+    let table_argument = StaticType::Quantity {
+        dimension: table.argument_dimension,
+        unit_ref: table.argument_unit_ref.clone(),
+    };
+    let finding = match &argument_type {
+        StaticType::Unknown => return StaticType::Unknown,
+        StaticType::Boolean => EvaluationFinding::new(
+            FindingCode::TypeMismatch,
+            &subject_id,
+            "table argument must be a numeric quantity",
+        ),
+        StaticType::Quantity { dimension, .. } if *dimension != table.argument_dimension => {
+            dimension_mismatch(&subject_id, *dimension, table.argument_dimension)
+        }
+        StaticType::Quantity { unit_ref, .. }
+            if unit_ref.trim() != table.argument_unit_ref.trim() =>
+        {
+            EvaluationFinding::new(
+                FindingCode::UnitMismatch,
+                &subject_id,
+                format!(
+                    "unit mismatch: argument={}, table={}",
+                    unit_ref, table.argument_unit_ref
+                ),
+            )
+        }
+        StaticType::Quantity { .. } => {
+            return StaticType::Quantity {
+                dimension: table.result_dimension,
+                unit_ref: table.result_unit_ref.trim().to_string(),
+            }
+        }
+    };
+    push_static(findings, vec![finding], path, &[argument_type, table_argument]);
+    StaticType::Unknown
+}
+
+// ---------------------------------------------------------------------------
 // Interval mode: conservative interval binding (T3 D2 §4.11, option C)
 // ---------------------------------------------------------------------------
 //

@@ -868,6 +868,87 @@ The merged tree at native atoms, against ⌊0.9M⌋:
 
 The tightest of 80 is merged dense W3, +2,789,009,321 B: 6,592,828 B below §8.13's +2,795,602,149 B (E + R +6,278,945 B, reserve +313,883 B). Each unmerged point's tightest remains dense W3: L(3,0) +3,390,862,649 B and E +2,867,116,058 B (each 6,592,828 B lower), L(2,1) +4,124,813,095 B (4,448,408 B lower) and L(1,2) +5,092,654,911 B (2,303,988 B lower).
 
+### 8.15 Silent-zero guard
+
+The silent-zero guard (DEL-04-07 [pressure-contract.md](../../DEL-04-07/Design/pressure-contract.md), "Load cases that apply nothing") re-prices at its product source `7a81b247ed`. The comparison basis is main `9ad5d79fa5`: the committed tool prices it with exit 0 (the SZ rules add nothing there), and `generate --check` reproduces §8.14's registered block with §8.14's basis line. Against it the priced source moves in two ways:
+- PP `validation.rs`, `validate_required_collections`: a load-state model returns before the load checks (`case_state::resolve` judges its cases); an explicit `pressure_regions: []` applies nothing; and, unless the model has a constant-effort support or an objective connector (`model_loads_every_case`), each authored case that applies nothing among loaded ones gets a `LOAD_CASE_APPLIES_NO_ACTION` warning, in a loop over the load cases;
+- PP `case_state/resolve.rs`, `resolve_case`: `LOAD_STATE_CASE_APPLIES_NO_ACTION` (blocking, through `block`) when a case's stored primitives are all unlisted and it applies no other action, and the `LOAD_STATE_SOURCE_EXCLUDED` warning otherwise when some are unlisted; both name at most `formation_guard::NAMED` = 6 primitive ids.
+
+**Pins and carried rules.** Neither file is pinned, and no pinned file or body moves (`case_state/mod.rs` keeps `633b46de…` in `b7a_domain_model.py`, `formation_guard.rs` keeps `5c67a95e…`). The line map carries every rule with no unmapped key; its 32 pruned rules and two reviewed resolutions are main's, entry for entry. At the head the run was incomplete on every point with three unclassified arguments, all at the validation site: its message, the id format's `stable_suffix(&case.id)` and the refs' `case.id`. The guard's message is a 198-byte static literal, within the template inventory's 200-character cut, so the inventory prices it at its own bytes. The loop `for case in model.load_cases.iter().filter(|case| case_applies_nothing(case))` is already bound at `cases` (lc) by the inherited per-case rule. Rules added, by label:
+
+| Rule | Argument |
+|---|---|
+| **SZ-TX** (`o10_rules.py`, guard) | In `validate_required_collections`, read at the snapshot: one loop over the load cases that apply nothing, one `LOAD_CASE_APPLIES_NO_ACTION` diag with the id format `diagnostic:load-case:{}:applies-no-action` over `stable_suffix(&case.id)`, one static message literal, refs `vec![case.id.clone()]`, and four `diag(` sites in the function. A changed site stops the run. |
+| **SZ-ID** (`O10_ID_AUDIT`) | `stable_suffix(&case.id)` is an authored case id with `:` replaced by `-`, the same length, IN128; the refs' `case.id` clone is IN128. They are priced as the sibling per-case sites in `validation.rs`. The site keeps its full multiplicity, once per authored case per call of `validate_required_collections` (2·lc). No credit is taken for the `else` branch, where at least one case is loaded and so at most lc − 1 cases are empty, or for its exclusion of `LOAD_INPUT_MISSING`. |
+| **SZ-LS** (`O10_MULT0_SITES`) | `resolve_case` runs only under `case_state::is_load_state` (the `load_state` branch of the ordinary run and the captured load-state replay). D1.3 refuses every authored load/reference-state field on every branch (`retained_memory.rs` `family_clauses`: `ReferenceConfigurations`, `MaterialExpansionLaw`, `RequestExpansionLaws`, and per case `AnalysisState`), and route L has no exact contract, so `is_load_state` is false on both routes (B7b-LS) and the base chain's `case_state/` file zero holds. The new findings' sites (the `LOAD_STATE_SOURCE_EXCLUDED` diag, the refusal's `format!` and the named-ids join) are guarded at multiplicity 0 rather than assumed. The early return in `validate_required_collections` is therefore never taken on D1 either; it allocates nothing. |
+
+`tests/test_silent_zero_guard.py` covers SZ-ID's and SZ-LS's keys at the current source and SZ-TX's stop. `test_b7b_exclusive_diagnostics.py` now reads B7b-JR's own `joint.rs` entry among the multiplicity-0 sites.
+
+The run at `7a81b247ed` completes on all four points with no unmapped header or unclassified argument, and both o10 checks are at zero. `compare` against main's tree gives `a_le_b` false and `a_ge_b` true (structure equal). 1,470 coefficients are equal and 98 rise; none fall. The warning adds 6 diagnostics at E's and L(3,0)'s caps (D 76,375 → 76,381; 43,418 → 43,424) and 3 to the envelope (D_env 28,799 → 28,802; PushCap(D_env) stays 32,768). Each warning is 2,398 B (2,048 fixed, the 198-byte message, 152 B of refs).
+- **`TAV_W[1]` and `TAV_X[1]`.** 4,783,595,226 → 4,783,627,254 (+32,028 B) and 5,366,446,372 → 5,366,462,386 (+16,014 B). `TAV_text_requested` and `TAV_text_moving` rise by 32,028 B. At E's caps the rise is the warning's sites, 30,492 B (the diag with its message 26,952 B, the id format 2,004 B and the refs clone 1,536 B), and `stable_suffix`'s six more calls, 1,536 B. L(3,0)'s TAV rises by 57,240 B, which adds the preview evidence reader's per-diagnostic text (25,212 B). L(2,1)'s rises by 38,160 B and L(1,2)'s by 19,080 B.
+- **`Text(diag_env)` and `Text(diag_total)`.** 269,494,846 → 269,502,040 (+7,194 B) and 448,964,078 → 448,978,466 (+14,388 B). The `[1]` and per-node coefficients of FAILED_MANIFEST_COPY, STAGED, SUCC, BODY, T16_P1–P4, T17_V2/V4–V6 and T25_I1–I3 rise with them, and NOTICE_moving's and STAGED's `s(Diagnostic)` with D_env.
+
+D_converged holds on every point. At native atoms, in both modes, W1 and W2 rise by 42,246 B, W3 by 126,856 B, W4 by 111,582 B, W5 by 76,618 B, X1 by 38,610 B, X2 by 47,490 B and X3 by 26,232 B. W3 is still the maximum. All 80 native evaluations (eight phases, both modes, the merged tree and four points) fit at the unchanged policy: M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and the upward-rounded 5 % TEXT reserve.
+
+**Registration.** The generated block's basis is "SQ2 G5 at 7a81b247ed: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128". It has 320 atoms, 100 forms, 26 SourceUpper and no Estimate (1,568 coefficients), and PHASES = 8. The in-build collector supplies all 320 values unchanged from §8.14, and route L's other shapes use the same-build `Node(String,BTreeMap)` = 648 B. P_FINAL (7n + 66m + 8g + 3 = 2,595 at the caps, 7,785 rows over C_eq = 3 cases) and P_FINAL_EXACT (7n + 102m + 8g + 3 = 3,747, 11,241 rows over three cases) are outside the block and unchanged. `REGISTERED_PROFILES` keeps the exact build identity, reader layouts, the twelve reviewed-input digests and `threshold_bytes` = 12,884,901,888. `generate --check` reproduces the block. The pins that move:
+- the law tests' phase record, both modes;
+- Text(diag_env) 269,502,040, which moves G-C's 2·Text(diag_env) bound by +14,388;
+- D_env 28,802;
+- the challenge binary's `W1_PHASE_BYTES` (6,211,356,925 and 6,270,488,269) and `MAX_PHASE_BYTES` (8,442,109,264 and 8,501,240,608).
+
+The `profile_` law tests and `challenge_bounds_are_the_profile` pass in the registered build.
+
+**Final source.** The guard's final source is `ad1188308a`, priced as merged with main `cd6339926d` at `074cd8b67c`. Main changed no priced crate after `9ad5d79fa5`; its changes are in operation_applier and the report crates. Main's registered tree is therefore unchanged. Against `7a81b247ed` the priced source moves in three ways:
+- PP `validation.rs`: a new `model_loads_every_case`, which is true for a constant-effort support or a connector with a nonzero `q_ref` component or rod `reference_extension`, and which the guard now reads.
+- PP `case_state/resolve.rs`: the action test also counts that model-level preload, a case already refused gets no verdict, `ResolvedCase` gains `applies_action`, and a new `refuse_all_reference_states` blocks a load-state model whose every case applies nothing (`LOAD_INPUT_MISSING`, a static message).
+- PP `lib.rs`: one call, `case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);`, after `refuse_resolved_span_strain` in `run_linear_static_preview_observed_inner`'s load-state branch.
+
+Every changed span was read. lib.rs's full-file pin moves, `e8185273…` → `775fe433…`, in `b7a_domain_model.py`, `w1_reductions_model.py`'s reduced cohort and `kd5_text_model.py`'s KD5C4 binding, which still finds no added or removed `.min(`/`.max(` call. Every lib.rs line from 2719 on moves +1 with unchanged text. The re-keyed snapshot keys are: `b7a_domain_model.py`'s eighteen audit keys after 2718; `b7a_owner_choices.py`'s helper keys (14046/14047/14467/14468 → +1); `b7a_phase_model.py`'s `solve_prepared_load_case` (4772 → 4773); `b7a_returning_errors.py`'s owners, sites and callers; and `b7a_scoped_text_model.py`'s four lines. The carried `retained_w1` key in `sens.py`'s `_X` emitter moves 3616 → 3617, and its hash `ac4588f5…` joins `b7a_returning_errors.py`'s `MODE_SOURCE`. No body pin moves. The line map carries every rule, its 32 pruned rules and two resolutions are main's, and the tool's tests follow the moved keys.
+
+- **`model_loads_every_case`.** It allocates no text. Its `.any` closures over supports, the connector components (empty by P2), `q_ref`'s keys and rods reach text only through by-name edges to unrelated `get` functions, none of which holds a TEXT site. It needs no rule, and its loops bound nothing priced.
+- **SZ-TX, SZ-ID.** Unchanged; the validation site's text and keys are as above.
+- **SZ-LS.** `refuse_all_reference_states` reads resolved cases, which exist only for a load-state document, so its `LOAD_INPUT_MISSING` site joins SZ-LS's guarded multiplicity-0 sites, now four. Its 233-byte message is past the inventory's 200-character cut, so it would be unclassified if it were ever reached.
+
+- **SZ-CP** (`O10_EDGE_ZERO`; source `25937463f0`, priced at `21fa9116df`). `model_loads_every_case` now decides a connector's preload by `connector_preloads`, passed as a function value to `model.components.iter().any(..)`, its only call. That function decodes the connector (`joint::connector_spec` and its field decoders) and tests K·q_ref exactly. Without a rule the call graph reaches the decoders' text at the function's own multiplicity, and the run is incomplete (six unmapped decoder loops, twelve unclassified arguments). P2 (D1.4: no components) leaves the iteration empty on both routes, so the edge `model_loads_every_case → connector_preloads` is zero. The rule guards its source: one call, over `model.components`, and no other caller. `joint.rs`'s reached functions and multiplicities are then those of `074cd8b67c`.
+
+The runs at `074cd8b67c` and, with SZ-CP, `21fa9116df` complete on all four points with both o10 checks at zero. Each tree is coefficient-identical to `7a81b247ed`'s, merged and on each point (1,568 coefficients; `compare` is `identical_but_basis`). Against main's registered tree it is as stated above. The block registered at `7a81b247ed`'s basis is unchanged, and `generate --check` reproduces it from this tree. The law-test record, text pins, challenge literals and the phase fits below are unchanged, and the `retained_memory` law tests pass in the registered build.
+
+The merged tree at native atoms, against ⌊0.9M⌋:
+
+| Phase | Dense E + R | Sparse E + R | TEXT reserve | Dense headroom | Sparse headroom |
+|---|---:|---:|---:|---:|---:|
+| W1 | 6,337,597,133 | 6,278,465,789 | 239,181,363 | +5,019,633,203 | +5,078,764,547 |
+| W2 | 6,673,050,254 | 6,613,918,910 | 239,181,363 | +4,684,180,082 | +4,743,311,426 |
+| W3 | 8,568,349,472 | 8,509,218,128 | 239,181,363 | +2,788,880,864 | +2,848,012,208 |
+| W4 | 8,362,861,163 | 8,303,729,819 | 239,181,363 | +2,994,369,173 | +3,053,500,517 |
+| W5 | 7,468,613,418 | 7,409,482,074 | 239,181,363 | +3,888,616,918 | +3,947,748,262 |
+| X1 | 8,406,166,679 | 8,347,035,335 | 268,323,120 | +2,921,921,900 | +2,981,053,244 |
+| X2 | 7,242,169,359 | 7,183,038,015 | 268,323,120 | +4,085,919,220 | +4,145,050,564 |
+| X3 | 6,920,432,265 | 6,861,300,921 | 268,323,120 | +4,407,656,314 | +4,466,787,658 |
+
+Of the 80, the tightest is merged dense W3 at +2,788,880,864 B, 128,457 B below §8.14's +2,789,009,321 B (E + R +126,856 B, reserve +1,601 B). Each unmerged point's tightest is still dense W3: L(3,0) at +3,390,708,455 B (154,194 B lower), E at +2,866,987,601 B (128,457 B lower), L(2,1) at +4,124,710,299 B (102,796 B lower) and L(1,2) at +5,092,603,513 B (51,398 B lower).
+
+**On W-8 (registration).** W-8 (§8.16) registered first, so the guard is re-priced on top of it. The priced revision is `9937feaab1`, the merge `1272673d93` of the guard's final source `1cb6b275f6` with main `f0b6ae40a0`, plus the emitter hash below. The merge's conflicts were in pricing files only. The tool files are main's W-8 versions with this section's changes re-applied:
+- lib.rs's full-file pin moves `17d2d1d5…` → `b72fa142…`;
+- W-8's lib.rs keys after its line 2719 move +1 with unchanged text (`b7a_domain_model.py`'s eighteen audit keys, `b7a_owner_choices.py`'s helpers 14048/14049/14469/14470 → +1, `SOLVE` 4774 → 4775, `b7a_returning_errors.py`'s owners, sites and callers, `b7a_scoped_text_model.py`'s four lines);
+- the `_X` emitter, with `retained_w1` carried to lib.rs:3619, adds hash `d8f2b65c…` to `MODE_SOURCE`;
+- the SZ rules follow W-8's.
+
+The run completes on all four points with both o10 checks at zero, and its prune is main's. Main's own tree, priced by its committed tool at `f0b6ae40a0`, reproduces §8.16's registered block. Against it `compare` gives `a_le_b` false and `a_ge_b` true. 1,478 coefficients are equal and 98 rise by exactly the increments stated above: TAV_W +32,028 B, TAV_X +16,014 B, Text(diag_env) 269,511,224 → 269,518,418, D 76,378 → 76,384 and D_env 28,802 → 28,805. The block is regenerated with basis "SQ2 G5 at 9937feaab1: …", and `generate --check` reproduces it. P_FINAL (7,785) and P_FINAL_EXACT (11,241) are unchanged. On W-8's record the phase record rises, in both modes, by W1/W2 +42,246, W3 +126,856, W4 +109,518, W5 +75,882, X1 +39,642, X2 +47,490 and X3 +26,232 B (W4, W5 and X1 differ from the increments on §8.14's tree; the in-build record above is the measured value), and the challenge's `W1_PHASE_BYTES` and `MAX_PHASE_BYTES` with it. The merged tree at native atoms, against ⌊0.9M⌋ (this table supersedes the one above for registration):
+
+| Phase | Dense E + R | Sparse E + R | TEXT reserve | Dense headroom | Sparse headroom |
+|---|---:|---:|---:|---:|---:|
+| W1 | 6,337,713,291 | 6,278,581,947 | 239,184,340 | +5,019,514,068 | +5,078,645,412 |
+| W2 | 6,673,166,412 | 6,614,035,068 | 239,184,340 | +4,684,060,947 | +4,743,192,291 |
+| W3 | 8,568,568,608 | 8,509,437,264 | 239,184,340 | +2,788,658,751 | +2,847,790,095 |
+| W4 | 8,363,062,961 | 8,303,931,617 | 239,184,340 | +2,994,164,398 | +3,053,295,742 |
+| W5 | 7,468,772,396 | 7,409,641,052 | 239,184,340 | +3,888,454,963 | +3,947,586,307 |
+| X1 | 8,406,305,431 | 8,347,174,087 | 268,326,097 | +2,921,780,171 | +2,980,911,515 |
+| X2 | 7,242,306,775 | 7,183,175,431 | 268,326,097 | +4,085,778,827 | +4,144,910,171 |
+| X3 | 6,920,548,423 | 6,861,417,079 | 268,326,097 | +4,407,537,179 | +4,466,668,523 |
+
+The tightest is merged dense W3 at +2,788,658,751 B, 128,457 B below §8.16's +2,788,787,208 B.
+
 ### 8.16 W-8 topology warnings actual-source D3
 
 W-8's pre-solve topology warnings ([model-topology-checks.md](../../DEL-04-06/Design/model-topology-checks.md)) re-price at `34e96d6b17`, the commit that carries the pins and adds the rules below. Its product source equals `97e6fda00f`, W-8 after its independent review (a first pricing at `b8b236e2ef`, of the pre-review source, was superseded). The comparison basis is main's registered tree. Main `44c31ab439` changes no priced crate's `src` and no tool file since `7ded624835`, whose committed tool prices it with exit 0; `generate --check` reproduces §8.14's registered block with §8.14's basis line. Against it the priced source moves in four ways:
@@ -936,14 +1017,14 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 ### Registration and qualification
 
 - **Generated block.** `generate` replaces only the GENERATED PROFILE block and keeps `REGISTERED_PROFILES.threshold_bytes`; it does not select or register M. `generate --check` confirms that a committed block is the generator's output for a tree. The law tests pin the in-build phase record, so the merged tree's E + R is checked against the in-build value in all 16 phase/mode identities (14 before §8.14).
-- **Registered profile.** `REGISTERED_PROFILES` binds the exact build identity (rustc 1.97.1, aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the reviewed-input record, the reader layouts (`READER_LAYOUTS`) and `threshold_bytes` = M. The reviewed inputs are the PP lock, the reader statics in their preserved order, the resident pressure-source table, the nonresident pressure result schema and the resident ordinary pressure table (twelve inputs); duplicate parsed caches remain priced. A build whose identity, inputs or layouts differ is Stale. The current registration is the W-8 topology warnings', on the tree priced at `34e96d6b17` (§8.16); the pre-0.4 failure unification's at `64144ab20b` (§8.14) preceded it.
+- **Registered profile.** `REGISTERED_PROFILES` binds the exact build identity (rustc 1.97.1, aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the reviewed-input record, the reader layouts (`READER_LAYOUTS`) and `threshold_bytes` = M. The reviewed inputs are the PP lock, the reader statics in their preserved order, the resident pressure-source table, the nonresident pressure result schema and the resident ordinary pressure table (twelve inputs); duplicate parsed caches remain priced. A build whose identity, inputs or layouts differ is Stale. The current registration is the silent-zero guard's on top of W-8, on the tree priced at the merge of `1cb6b275f6` with main `f0b6ae40a0` (§8.15); W-8's at `34e96d6b17` (§8.16) preceded it.
 - **Law tests.** The law tests (`cargo test --lib profile_` in `core/product_physics`) pin the in-build phase record, the text atoms (for example D_env 28,799 and Text(diag_env) 269,494,417 at the T4-U4b/U5b registration, §8.8, unchanged at O4's, §8.9), M and ⌊0.9 M⌋, R, and the digests. Their `I65_G5_ATOM` lines feed `eval`.
 - **Atoms.** Native atoms come from the same implementation's in-build collector. Evaluating route L's unmerged combination shapes additionally needs the native `Node(String,BTreeMap)` atom (648 B in RF's same-build layout evidence). No illustrative layout fills a missing atom.
 - **Qualification.** A complete `run` is a pricing-completeness result. Registration additionally requires the native atoms, all 80 budget evaluations, the reviewed inputs and layouts, and independent source and pricing scrutiny; a source proof in this text alone confers no budget pass.
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now the registered W-8 topology warnings source, `34e96d6b17`, §8.16); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now the registered silent-zero guard source merged with W-8, §8.15 and §8.16); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -956,6 +1037,7 @@ The following are historical replay results, not procedures for the current tool
 - **W1 coverage repair corner 2 at `7299e6319d`.** Its committed tool priced `7299e6319d` with exit 0, and `generate --check` of that tree matched §8.11's registered block; it is §8.12's comparison basis.
 - **Pre-0.4 failure unification at `64144ab20b`.** Its committed tool (at `7ded624835`, unchanged since `c29eed7cbb`) priced `7ded624835` with exit 0, and `generate --check` matched §8.14's registered block with §8.14's basis line; it is §8.16's comparison basis.
 - **R-A at `7d946b7e94`.** Its committed tool (at `ac1f57a207`) priced `ac1f57a207`, whose priced source equals R-A's, with exit 0, and `generate --check` matched §8.13's registered block; it is §8.14's comparison basis.
+- **Pre-0.4 failure unification at `64144ab20b`.** The silent-zero guard's tool (§8.15) priced main `9ad5d79fa5`, whose pinned sources equal `64144ab20b`'s, with exit 0 (its SZ rules add nothing there), and `generate --check` with §8.14's basis line matched §8.14's registered block; it is §8.15's comparison basis.
 - **W1 coverage repair corner 1 at `aefefa5043`.** Its committed tool (at `9e03991d39`) priced `aefefa5043` with exit 0, and `generate --check` of that tree matched §8.12's registered block as committed at `9e03991d39`; it is §8.13's comparison basis.
 - **RF and W1.** The current W1 tool fails closed outside its reviewed cohort and cannot replay RF by restoring only pins and keys, because the current formation traversal warrant also names Cow's `.iter()` spelling. Reproduce RF (source `03f39bb49d9`) or the pre-stage-2 reductions with their own committed tool and source revision (tool README, "Adding an adjudication rule").
 
@@ -987,4 +1069,5 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "W1 coverage repair corner 1 actual-source D3", "§8.12" | §8.12 |
 | "R-A actual-source D3", "§8.13" (RA-*) | §8.13 |
 | "Pre-0.4 failure unification actual-source D3", "§8.14" (PU-*) | §8.14 |
+| "Silent-zero guard", "§8.15" (SZ-*) | §8.15 |
 | "W-8 topology warnings actual-source D3", "§8.16" (W8-*) | §8.16 |

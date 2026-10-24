@@ -28,6 +28,20 @@ Every finding here is a **warning**. Nothing new refuses:
 The checks run on both routes (PF and EX) because both go through the same
 entry (`run_linear_static_preview_observed_inner`). They change no number.
 
+**Reading of PRD §14.4** (owner, 2026-10-23: "I accept your other
+recommendations for the matters you needed from me"). §14.4 lists "schema or
+topology invalid" under "Blocking for model validity". That clause is read as
+topology that prevents the mechanics from being formed, which already blocks:
+- a pipe endpoint that names an unknown node (`MODEL_INCOMPLETE`);
+- a part with no support (the solve's mechanism and restraint checks);
+- an invalid exact-route pressure-region chain: branching, cycles or
+  disconnected traversal (`PRESSURE_REGION_TOPOLOGY_INVALID`,
+  `PRESSURE_REGION_INTERNAL_BRANCH` in `pressure_runtime.rs`).
+
+A model that can be formed but is unusual (disconnected parts that are each
+supported, coincident or near-duplicate nodes, a malformed tee) is a §14.4
+"Warning". REQ-04-06-012 stands as approved.
+
 ## Checks
 
 | Code | Where | Fires when |
@@ -58,6 +72,22 @@ up to 2 mm were. A modeller judges a gap in absolute terms, and the value they
 accept depends on their work, so τ is a fixed default the model can override.
 Two nodes an element joins are left out: the element's own length checks
 (`AXIS_TOLERANCE`, DEL-04-01) govern them.
+
+**User control of the node-proximity tolerance (owner ruling, 2026-10-23).**
+The owner ruled that the near-duplicate node warning uses a fixed 5 mm
+tolerance "and give the user the means to change it". The ruling replaced the
+relative tolerance.
+- **Storage.** The tolerance is an optional model-document member in 0.7.0: a
+  length with a unit, default 5 mm (DEL-02-01 Design `model-document-0.7.0.md`).
+- **Control.** The desktop shows it in project or analysis settings, where the
+  user can see and edit it:
+  - any length unit from the catalog may be entered;
+  - non-positive values are refused;
+  - when the member is unset, the control shows "5 mm (default)".
+- **Editing.** The edit is an applier operation on the `Project` target, like
+  `set_project_unit` (DEL-02-02 Design `project-unit-selection.md` §2.7).
+- **Status.** The control is not implemented. It needs the 0.7.0 member and the
+  `Project` target.
 
 **Search.** Nodes are placed in cells 8τ wide, indexed by the coordinate
 divided by the width (no offset by the lowest coordinate, whose rounding can

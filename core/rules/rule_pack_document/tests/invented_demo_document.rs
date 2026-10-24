@@ -110,3 +110,38 @@ fn example_pack_document_validation_has_no_blocking_findings() {
     assert_eq!(outcome.formulas.len(), 1);
     assert_eq!(outcome.formulas[0].decode_status, "decoded");
 }
+
+#[test]
+fn example_pack_unit_check_shows_only_the_catalog_warning() {
+    // W-17 (DEL-06-02 `Design/rule-pack-unit-check.md` §4): the invented
+    // `demo_unit` and the evaluator's `ratio` token are not catalog symbols,
+    // so the declarations get warnings; the check itself is consistent and
+    // validation stays non-blocking.
+    let outcome = validate_rule_pack_document(&example_document(), true);
+    let unit_check = &outcome.unit_check;
+    assert_eq!(unit_check.status, "findings");
+    assert_eq!(unit_check.checks.len(), 1);
+    assert_eq!(unit_check.checks[0].check_id, "demo_training_check");
+    assert_eq!(unit_check.checks[0].status, "consistent");
+    assert!(unit_check.checks[0].findings.is_empty());
+    let declarations: Vec<(&str, &str, &str)> = unit_check
+        .declaration_findings
+        .iter()
+        .map(|finding| {
+            (
+                finding.code.as_str(),
+                finding.severity.as_str(),
+                finding.subject.as_str(),
+            )
+        })
+        .collect();
+    assert_eq!(
+        declarations,
+        vec![
+            ("RULE_PACK_UNIT_NOT_IN_CATALOG", "warning", "demo_actual_quantity"),
+            ("RULE_PACK_UNIT_NOT_IN_CATALOG", "warning", "demo_limit_quantity"),
+            ("RULE_PACK_UNIT_NOT_IN_CATALOG", "warning", "demo_limit_slot"),
+        ]
+    );
+    assert!(!outcome.has_blocking_findings);
+}

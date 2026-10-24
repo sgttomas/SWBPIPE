@@ -195,7 +195,7 @@ SWBPIPE is decision-support software. It may compute mechanics, evaluate
 user-supplied rule packs, record diagnostics, and assemble auditable reports.
 Competent human review remains required.
 
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Standard claim fence applies (claims taxonomy per DEC-081).
 
 ## Reproducibility Manifest
 

@@ -2717,6 +2717,7 @@ fn run_linear_static_preview_observed_inner(
             return blocked_envelope(model, diagnostics);
         }
         case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
+        case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);
         if has_blocking(&diagnostics) {
             return blocked_envelope(model, diagnostics);
         }

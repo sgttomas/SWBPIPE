@@ -2588,6 +2588,19 @@ fn rule_pack_validation_value(document: &Value, public_export_requested: bool) -
     })
 }
 
+/// The validation embedded in a blocked-run response (W-17, DEL-06-02
+/// `Design/rule-pack-unit-check.md` §2.6): the whole validation without its
+/// `unit_check`. Unit-check diagnostics carry pack ids and unit tokens, which
+/// may be private; they appear only in validation responses to the local Rule
+/// Pack Manager (`validate_rule_pack`, save and open), never in run responses.
+fn run_response_rule_pack_validation_value(document: &Value) -> Value {
+    let mut validation = rule_pack_validation_value(document, false);
+    if let Some(members) = validation.as_object_mut() {
+        members.remove("unit_check");
+    }
+    validation
+}
+
 struct StoredRulePackRow {
     document: Value,
     created_at_unix: i64,
@@ -2924,7 +2937,7 @@ fn run_rule_checks_core(
                 .unwrap_or_default(),
             "aggregate_status": "RULE_INPUTS_INCOMPLETE",
             "checks": [],
-            "rule_pack_validation": rule_pack_validation_value(&rule_pack_document, false),
+            "rule_pack_validation": run_response_rule_pack_validation_value(&rule_pack_document),
             "professional_boundary_notice": rule_check_runner::PROFESSIONAL_BOUNDARY_NOTICE,
         }));
     }
@@ -8381,6 +8394,145 @@ mod tests {
             .filter_map(|finding| finding["code"].as_str())
             .collect();
         assert!(codes.contains(&"MISSING_GRAMMAR_VERSION"));
+    }
+
+    /// W-17 (DEL-06-02 `Design/rule-pack-unit-check.md` §4): the example
+    /// pack with a second check whose formula subtracts quantities in two
+    /// different units (and a second required input for it).
+    fn example_rule_pack_with_unit_inconsistent_check(other_unit: &str, restamp: bool) -> Value {
+        let mut pack = example_rule_pack_document();
+        let mut other_input = pack["required_inputs"][1].clone();
+        other_input["input_id"] = json!("demo_other_quantity");
+        other_input["quantity_intent"]["unit_ref"] = json!(other_unit);
+        pack["required_inputs"]
+            .as_array_mut()
+            .expect("required inputs")
+            .push(other_input);
+        let mut formula = pack["formula_declarations"][0].clone();
+        formula["formula_id"] = json!("demo_mismatch_expression");
+        formula["declaration_payload"]["expression_ast"] = json!({
+            "node": "binary",
+            "operator": "subtract",
+            "left": {"node": "variable_ref", "variable_id": "demo_actual_quantity"},
+            "right": {"node": "variable_ref", "variable_id": "demo_other_quantity"}
+        });
+        formula["input_refs"] = json!([
+            {"ref_id": "demo_actual_quantity", "ref_type": "required_input"},
+            {"ref_id": "demo_other_quantity", "ref_type": "required_input"}
+        ]);
+        pack["formula_declarations"]
+            .as_array_mut()
+            .expect("formulas")
+            .push(formula);
+        let mut check = pack["check_definitions"][0].clone();
+        check["check_id"] = json!("demo_inconsistent_check");
+        check["formula_ref"]["ref_id"] = json!("demo_mismatch_expression");
+        check["required_input_refs"] = json!([
+            {"ref_id": "demo_actual_quantity", "ref_type": "required_input"},
+            {"ref_id": "demo_other_quantity", "ref_type": "required_input"}
+        ]);
+        pack["check_definitions"]
+            .as_array_mut()
+            .expect("checks")
+            .push(check);
+        if restamp {
+            let computed =
+                rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
+            pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
+        }
+        pack
+    }
+
+    #[test]
+    fn run_rule_checks_core_runs_other_checks_when_one_is_unit_inconsistent() {
+        let pack = example_rule_pack_with_unit_inconsistent_check("other_demo_unit", true);
+        let validation =
+            validate_rule_pack_value(pack.clone(), None).expect("validation runs");
+        assert_eq!(validation["has_blocking_findings"], json!(false));
+        assert_eq!(validation["unit_check"]["status"], json!("findings"));
+        assert_eq!(
+            validation["unit_check"]["checks"][0]["status"],
+            json!("consistent")
+        );
+        let inconsistent = &validation["unit_check"]["checks"][1];
+        assert_eq!(inconsistent["check_id"], json!("demo_inconsistent_check"));
+        assert_eq!(inconsistent["status"], json!("findings"));
+        assert_eq!(inconsistent["findings"][0]["code"], json!("UnitMismatch"));
+        assert_eq!(inconsistent["findings"][0]["subject"], json!("add_subtract"));
+        assert_eq!(inconsistent["findings"][0]["severity"], json!("blocking"));
+
+        let mut supplied = demo_supplied_values();
+        supplied.as_array_mut().expect("supplied").push(json!({
+            "ref_id": "demo_other_quantity",
+            "value": 10.0,
+            "unit": "other_demo_unit",
+            "dimension": "stress"
+        }));
+        let outcome = run_rule_checks_core(
+            pack,
+            demo_solved_envelope(50.0),
+            Some(demo_solver_selectors()),
+            Some(supplied),
+            None,
+        )
+        .expect("rule checks run");
+        assert!(outcome.get("rule_pack_validation").is_none());
+        assert_eq!(outcome["checks"][0]["check_id"], json!("demo_training_check"));
+        assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(outcome["checks"][1]["check_id"], json!("demo_inconsistent_check"));
+        assert_eq!(outcome["checks"][1]["status"], json!("RULE_INPUTS_INCOMPLETE"));
+        let runtime: Vec<(&str, &str)> = outcome["checks"][1]["evaluator_findings"]
+            .as_array()
+            .expect("evaluator findings")
+            .iter()
+            .map(|finding| {
+                (
+                    finding["code"].as_str().unwrap_or_default(),
+                    finding["subject_id"].as_str().unwrap_or_default(),
+                )
+            })
+            .collect();
+        assert_eq!(runtime, vec![("UnitMismatch", "add_subtract")]);
+    }
+
+    #[test]
+    fn unit_check_private_tokens_reach_validation_but_never_a_blocked_run_response() {
+        // Adversarial private strings as a unit token and as a value-slot id.
+        const PRIVATE_UNIT: &str = "PRIVATE-UNIT-7f3a<script>\"'";
+        const PRIVATE_SLOT: &str = "PRIVATE-SLOT-91c2</div>";
+        let mut pack = example_rule_pack_with_unit_inconsistent_check(PRIVATE_UNIT, false);
+        pack["check_definitions"][0]["value_slot_refs"]
+            .as_array_mut()
+            .expect("slot refs")
+            .push(json!({"ref_id": PRIVATE_SLOT, "ref_type": "value_slot"}));
+
+        let validation = validate_rule_pack_value(pack.clone(), None).expect("validation runs");
+        let unit_check = serde_json::to_string(&validation["unit_check"]).expect("serializes");
+        assert!(
+            unit_check.contains("PRIVATE-UNIT-7f3a<script>"),
+            "{unit_check}"
+        );
+        assert!(unit_check.contains("PRIVATE-SLOT-91c2</div>"), "{unit_check}");
+        // The checksum was not restamped, so validation blocks the run.
+        assert_eq!(validation["has_blocking_findings"], json!(true));
+
+        let outcome = run_rule_checks_core(
+            pack,
+            demo_solved_envelope(50.0),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+            None,
+        )
+        .expect("blocked run returns a response");
+        assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+        assert_eq!(outcome["checks"], json!([]));
+        let embedded = &outcome["rule_pack_validation"];
+        assert!(embedded.is_object(), "{outcome}");
+        assert_eq!(embedded["has_blocking_findings"], json!(true));
+        assert!(embedded.get("unit_check").is_none(), "{embedded}");
+        let response = serde_json::to_string(&outcome).expect("serializes");
+        assert!(!response.contains("PRIVATE-"), "{response}");
+        assert!(!response.contains("unit_check"), "{response}");
     }
 
     #[test]

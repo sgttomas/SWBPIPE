@@ -48,9 +48,11 @@ unchanged: no new slot renames or re-keys an entity.
   the decoder ignores: `data_boundary`, `project.name`/`description`, string
   labels and `diagnostics`. The desktop also writes members the decoder ignores,
   e.g. `components[].completeness`.
-- **The current schema.** `schemas/model.schema.yaml` describes an older shape
-  (`project.models[]`, `elements`, `traceability_links`). The bundled demo fails
-  it with 11 errors. Its consumers:
+- **The schema before S1a.** `schemas/model.schema.yaml` described an older
+  shape (`project.models[]`, `elements`, `traceability_links`), which the
+  bundled demo failed with 11 errors. Since S1a (#1554) it describes the 0.6.0
+  document and the old shape is `schemas/physical_transform_model.schema.yaml`.
+  The consumers of the old shape at the design basis:
   - **Validate old-shape fixtures:** `test_model_schema.py`,
     `test_physical_to_analytical_transform.py`,
     `test_invented_example_models.py` and `test_project_persistence_service.py`.
