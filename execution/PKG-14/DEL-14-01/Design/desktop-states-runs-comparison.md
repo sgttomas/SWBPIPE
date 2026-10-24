@@ -171,12 +171,15 @@ Python agree.
   its JCS hash and its project id. Any difference is refused as
   `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
   refused.
-- **Memory (S2 repairs r1 to r4).** All five state commands are metered as
+- **Memory (S2 repairs r1 to r5).** All five state commands are metered as
   §3's As built (S2) describes (`stored_read.rs`): `save_model_state`,
   `list_model_states`, `read_model_state`, the label edit and the delete.
   - **Before loading.** Each takes memory-pool leases sized from the stored
-    lengths before loading anything: records, snapshots, label columns and
-    the child and run lists. It measures and loads in one transaction.
+    lengths before loading anything: records, snapshots, label columns, the
+    child and run lists, and every identity and time column. It measures and
+    loads in one transaction.
+  - **Identity columns (r5).** A row whose identity or time column exceeds
+    its fixed bound is refused before it is loaded.
   - **Hash texts.** It reserves the record's sorted-compact hash text at its
     exact escaped length before writing it. The writer that counts the length
     is the one that writes the text.
@@ -186,9 +189,10 @@ Python agree.
   - **Project row (r4).** Save checks the project row and its stored base
     with a targeted, priced query. The stored project name is quoted only when
     the save is refused.
-  - **Names in messages (r4).** Messages and refusals quote at most 120
-    characters of a stored name or id, then `…`. A blocked delete names at most
-    ten blockers, then `and N more`.
+  - **Names in messages (r4, r5).** Messages and refusals quote at most 120
+    characters of any interpolated value, then `…`. They describe a serde or
+    SQLite error by its category or code, never by its text. A blocked delete
+    names at most ten blockers in all, then `and N more`.
   - **Refusal.** A command whose lease the pool refuses is refused with
     `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
 - **Label bounds (r2, r3).** Every label write (Save Model State, Record Run,
@@ -519,7 +523,7 @@ the History panel and `useModelStateHistory.ts`.
     not shown in the results view, so its per-run state (page, filters, selected
     row) keys on nothing new. A re-solve and a recording keep the page
     (`recordRun.session.test.tsx`).
-- **Memory (repairs r1 to r4, `stored_read.rs`).** Ten commands are metered:
+- **Memory (repairs r1 to r5, `stored_read.rs`).** Ten commands are metered:
   the five state commands, the five run commands (`record_analysis_run`,
   `list_analysis_runs`, `read_analysis_run`, the run label edit and the run
   delete).
@@ -535,7 +539,32 @@ the History panel and `useModelStateHistory.ts`.
       label column (name, tags, notes, assumptions), as SQLite's value plus the
       copied `String`;
     - the relationship lists (child and blocker ids) it materializes;
+    - every identity and time column it loads, as measured (r5);
     - a fixed 512 KiB overhead.
+  - **Every column measured (r5).** No loaded column has a fixed allowance.
+    - **Bounds.** Identity and time columns have fixed bounds, chosen against
+      what the app writes:
+      - ids: 4 KiB (no command can name a longer one through its 4 KiB
+        argument budget);
+      - kinds: 64 bytes;
+      - times: 32 bytes;
+      - hashes: 80 bytes.
+    - **State rows:** project, state, kind, created_at, parent, model and
+      record hashes, and the labels' `updated_at`.
+    - **Run rows:** project, recording, state, producer run id, created_at,
+      record and result hashes, and the labels' `updated_at`.
+    - **Refusal.** Before anything of a row loads, a row whose column exceeds
+      its bound is an integrity refusal, naming the row by the head of its id.
+    - **The auxiliary loads are bounded too:**
+      - the latest `created_at` Record Run reads, after every run's
+        `created_at` is checked against its bound;
+      - the existing state found by its model hash, whose id loads only within
+        its bound;
+      - the blockers' heads;
+      - the project row's measured envelope hash, and its name's head.
+    - **Status lists.** A verified record's `analysis_status` is copied into a
+      summary only when it serializes to at most 4 KiB, because the copy
+      outlives the record's reservation.
   - **One snapshot.** The measurement and every load it prices run in one
     transaction. The reads use `BEGIN DEFERRED`, whose first statement fixes
     the WAL snapshot. The edits, deletes, Save and Record Run use their
@@ -567,12 +596,27 @@ the History panel and `useModelStateHistory.ts`.
     length. The record hash writes the record without `hashes`, without
     copying it. A text whose counted length differs from the stored text's is
     not canonical and is refused without building it.
-  - **Messages and refusals (r4).** Every message, receipt and refusal quotes
-    at most 120 characters of each stored name or id (`stored_read::shown`),
-    then `…`. The structured fields keep the full, metered values.
-    - A blocked delete names at most ten blockers, then `and N more`. It reads
-      only the head of each blocker's id and name from SQLite
-      (`shown_column`: the first 484 bytes and the byte length).
+  - **Messages and refusals (r4, r5).** Every message, receipt, refusal and
+    reservation description quotes at most 120 characters of each
+    interpolated value (`stored_read::shown`), then `…`: names, ids, times,
+    kinds, hashes, project ids and the document's version. The structured
+    fields keep the full, metered values.
+    - **Serde errors.** A serde error is described by its category and
+      position (`json_error`), never by its text, which can quote the value.
+    - **SQLite errors.** A SQLite error is described by its code and extended
+      code (`sql_error`), with its message only when that is at most 120
+      printable characters (SQLite's own texts and the store's trigger codes).
+      rusqlite copies the message into the error before the store sees it;
+      nothing longer is copied again.
+    - **Foreign messages.** The core canonicalizer's refusals are cut to 120
+      characters. The shared store opener's refusals are capped. The
+      model-version and malformed-slot refusals are rebuilt with cut values,
+      at most three findings, then `and N more`.
+    - **Last net.** Every error a command returns is cut to 1024 characters.
+    - A blocked delete names at most ten blockers across its child states and
+      its runs together (r5), then `and N more`. It reads only the head of
+      each blocker's id and name from SQLite (`shown_column`: the first 484
+      bytes and the byte length).
     - A state summary loads its runs' ids, not their names.
     - The project-row guard of Save and Record Run quotes the stored project
       name only when it refuses, and so does `refuse_unconfirmed_replacement`'s
@@ -589,6 +633,13 @@ the History panel and `useModelStateHistory.ts`.
     The session's base must equal the stored hash value, as
     `refuse_unconfirmed_replacement` decides with no confirmed revision.
     Project save and open are unchanged.
+
+    One deliberate difference from the former guard (r5) concerns a stored
+    envelope hash the ingress prescan refuses, such as one holding serde_json's
+    private `$serde_json::private::RawValue` key. The guard reads it as no
+    hash, so the save or recording is refused as `PROJECT-BASE-MOVED`. The
+    former guard parsed it and admitted a matching base. Ordinary hash rows
+    are read as before.
   - **The response.** The response is serialized at its exact length, counted
     first without allocating, into a buffer reserved at that length.
   - **Holding.** A value read or built from the store is a `Metered` value
@@ -598,7 +649,11 @@ the History panel and `useModelStateHistory.ts`.
     - a list's labels, a read's state summary and the current summary of an
       edit, while its record is loaded, stay reserved while they are live;
     - a delete receipt, a save outcome and a Record Run outcome are held
-      through serialization.
+      through serialization;
+    - a serialized response keeps its buffer's reservation across the commit
+      until it is handed to Tauri (r5);
+    - the project row's parsed envelope hash keeps its parse's reservation
+      while it lives (r5).
 
     `map`, `join` and the commit-last `finish` steps take closures. The rule
     is that a closure moves the value into its result and does not capture or
@@ -683,31 +738,64 @@ the History panel and `useModelStateHistory.ts`.
         the current summary dropped early, the receipt's message unreserved;
       - r4: a commit before `finish`, uncut names, the old project guard, an
         unseeded invocation total.
+    - **Errors (r5).** Codex r5's cases each serialize to under 2 KiB:
+      - a state's and a run's `tags_json` holding a 3 MiB NUL string;
+      - a 4,000-NUL recording id with no labels row;
+      - a 3 MiB recording id;
+      - a stored trigger whose message is 3 MiB.
+    - **Identity columns (r5).** A 3 MiB value is put in each identity and
+      time column of a state row (except its project id, by which rows are
+      found) and of a run row. Each is refused before loading under the 2 MiB
+      pool, through the list and the read, with a small message and a peak
+      within its reservations or below 64 KiB. So are:
+      - the latest `created_at` that Record Run reads;
+      - the existing state's id that Save finds.
+    - **Held across the commit (r5).** Recording against a state with a 3 MiB
+      name keeps its 3 MiB response reserved when the commit begins and after
+      it. The reservation is released when the response is handed on.
+    - **Minor (r5).** A stored hash with the RawValue key is refused as
+      `PROJECT-BASE-MOVED` (the former reading admitted it). Six child states
+      and six runs are named as ten blockers in all, then `and 2 more`.
+    - **Mutations (r5).** Each r5 test fails when its defect is put back:
+      - serde's or SQLite's text quoted;
+      - the list's bound check removed;
+      - the response's reservation released before the commit;
+      - separate blocker caps.
     - **Large pool.** Each tested read, list, label edit and delete
       serializes its response within its held reservation, with its peak
       within its reservations' peak.
   - **S3.** §4.2's comparison of two stored results reuses this pricing.
-  - **Residual (not bounded by this pricing):**
-    - **After the command.** The `Response` handed to Tauri, and the IPC
-      copies made after the command returns.
-    - **Argument lease.** These are working memory within the request's
-      argument lease, not reserved separately:
-      - Record Run's transient record clones (the hash projection and the
+  - **What is bounded.** Every read and mutation of stored data:
+    - every column it loads is measured and reserved before it loads, and its
+      identity and time columns are bounded;
+    - every parse, canonical text and response is reserved before it is made;
+    - every message is capped.
+  - **What is not bounded:**
+    - **Tauri and IPC.** The `Response` handed to Tauri, and the IPC copies
+      made after the command returns.
+    - **SQLite.** SQLite's own allocations, including its reads of whole
+      values for `substr` and `octet_length`. They are priced only by the load
+      estimate (three envelopes of each loaded column), not measured: the
+      tests' counting allocator counts Rust allocations, not SQLite's.
+    - **Unpriced working memory.** Two items are not separately priced:
+      - Record Run's transient record copies (the hash projection and the
         recorded revision);
       - the `Value` of a new state's record, built from its snapshot (mapped
         assumptions, validation warnings).
 
-      Review r2 measured about 26.0 MiB against a 10.1 MiB lease for Record
-      Run's large case before r2; this has not been re-measured since r2's and
-      r3's reservations.
-    - **Refusals.** A refusal outlives the command's leases, but its stored
-      quotes are cut to 120 characters, so it is small.
-    - **SQLite.** SQLite's own allocations are priced by the load estimate
-      (three envelopes of each loaded column). The tests' counting allocator
-      counts Rust allocations, not SQLite's.
-    - **Counter allocations.** The length counters allocate each object's
-      sorted key list (space proportional to the object's width, one pointer a
-      key) and each number's short text. Neither is proportional to escapes.
+      They are covered by the request's argument lease only by assumption,
+      not by measurement. Review r2 measured about 26.0 MiB against a
+      10.1 MiB lease for Record Run's large case before r2; this has not been
+      re-measured.
+    - **Transient copies before a cap.**
+      - The core canonicalizer, the shared store opener and rusqlite make
+        their own messages before they are cut. These are copies of text the
+        command has already priced or the argument carries.
+      - The length counters allocate each object's sorted key list (space
+        proportional to the object's width, one pointer a key) and each
+        number's short text.
+  - **No whole-command claim.** S2 bounds each priced stage as above. It makes
+    no claim of a complete memory bound for a whole command.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 
