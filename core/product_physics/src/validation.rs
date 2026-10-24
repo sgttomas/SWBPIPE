@@ -2019,10 +2019,19 @@ fn validate_mechanics_combination(
         ));
     }
     let mut seen = HashSet::new();
-    for term in &combination.terms {
+    for (index, term) in combination.terms.iter().enumerate() {
         // The load-case algebra refuses a repeated operand, which would leave
-        // every combined row unevaluated; block it by name here instead.
+        // every combined row unevaluated; block it by name here instead, once
+        // per repeated case (at its second occurrence), so the diagnostic id
+        // stays unique however often the case repeats.
         if !seen.insert(term.load_case.as_str()) {
+            let earlier = combination.terms[..index]
+                .iter()
+                .filter(|other| other.load_case == term.load_case)
+                .count();
+            if earlier != 1 {
+                continue;
+            }
             diagnostics.push(diag(
                 &format!(
                     "diagnostic:combination:{}:{}:duplicate",
@@ -2145,8 +2154,12 @@ fn validate_range_envelope_combination(
         return;
     }
     let mut seen = HashSet::new();
-    for operand_id in operand_ids {
+    for (index, operand_id) in operand_ids.iter().enumerate() {
+        // Once per repeated operand (at its second occurrence), so the id stays unique.
         if !seen.insert(operand_id.as_str()) {
+            if operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1 {
+                continue;
+            }
             diagnostics.push(diag(
                 &format!(
                     "diagnostic:combination:{}:{}:duplicate",

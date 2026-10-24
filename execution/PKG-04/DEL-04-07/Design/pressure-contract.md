@@ -121,9 +121,10 @@ unloaded model.
 
 ## Pressure-free input closure
 
-Authored input is never dropped silently on the pressure-free route either
-(Agent 0, 2026-10-23, as above). The solve's model records are closed, and the
-combination reader names every row it does not publish.
+Authored input on the pressure-free route's model root, load cases, primitive
+loads and combinations is never dropped silently either (Agent 0, 2026-10-23,
+as above). Those records are closed, and the combination reader names every
+row it does not publish. The other model records are not yet closed (below).
 
 - **Closed records:** the model root (`PreviewModelWire`), a load case with
   its `modulus_basis_temperature` and `equivalent_static` inputs (seismic,
@@ -142,14 +143,21 @@ combination reader names every row it does not publish.
   member. Each closed record's accepted key set is exactly its record's key
   list in `schemas/model.schema.yaml` (0.7.0), bound by `model_fields.rs`'s
   key test.
-- **Combinations:** a `mechanics` term naming a load case twice is refused
-  with the blocking `LOAD_COMBINATION_DUPLICATE_TERM`. A row missing in the
+- **Combinations:** a `mechanics` term naming a load case twice, or a
+  `range_envelope` naming an operand twice, is refused with the blocking
+  `LOAD_COMBINATION_DUPLICATE_TERM`, once per repeated case at its second
+  occurrence, so each diagnostic id is unique however often a case repeats. A row missing in the
   first operand is reported as `LOAD_COMBINATION_SOURCE_RESULT_MISSING`, as
   for any other operand. A row the load-case algebra refuses or that has no
   algebra dimension, and a support action group that cannot be formed
   whole, are withheld under one `LOAD_COMBINATION_ROW_WITHHELD` warning per
   combination, naming up to eight; a support's group publishes all its rows
   or none.
+- **Still open:** nodes, pipe segments and their sections, supports,
+  components and materials are not closed records. An unknown or misspelled
+  key there is still ignored without a finding; for example a pipe section's
+  `mill_tolerence` (for `mill_tolerance`) solves as if the member were absent.
+  This was so before this change too (independent review of #1573).
 
 Evidence: `core/product_physics/tests/silent_drop_guard_runtime.rs` and
 `src/silent_drop_unit_tests.rs`, both solver modes; the annotated 0.7.0

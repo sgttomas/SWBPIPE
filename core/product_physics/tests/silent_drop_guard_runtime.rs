@@ -211,6 +211,40 @@ fn a_duplicate_mechanics_term_blocks_by_name() {
 }
 
 #[test]
+fn three_repeated_terms_emit_unique_diagnostic_ids() {
+    let mut model = linear();
+    let term = model["combinations"][0]["terms"][0].clone();
+    model["combinations"][0]["terms"] = json!([term.clone(), term.clone(), term]);
+    for mode in MODES {
+        let envelope = solve(&model, mode).unwrap();
+        assert_eq!(envelope.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(codes(&envelope).contains(&"LOAD_COMBINATION_DUPLICATE_TERM"));
+        let ids: Vec<&str> = envelope.diagnostics.iter().map(|d| d.id.as_str()).collect();
+        let unique: std::collections::HashSet<&str> = ids.iter().copied().collect();
+        assert_eq!(ids.len(), unique.len(), "{mode:?}: emitted diagnostic ids must be unambiguous");
+    }
+}
+
+#[test]
+fn three_repeated_range_operands_emit_unique_diagnostic_ids() {
+    let mut model = linear();
+    let case = model["combinations"][0]["terms"][0]["load_case"].clone();
+    model["combinations"] = json!([{"id": "combination:range", "basis": "range_envelope",
+        "operand_ids": [case.clone(), case.clone(), case], "mode": "max", "provenance": "silent-drop"}]);
+    for mode in MODES {
+        let envelope = solve(&model, mode).unwrap();
+        assert_eq!(envelope.status.mechanics, "MODEL_INCOMPLETE");
+        let duplicates = envelope.diagnostics.iter().filter(|d| d.code == "LOAD_COMBINATION_DUPLICATE_TERM").count();
+        assert_eq!(duplicates, 1, "{mode:?}: one diagnostic per repeated operand");
+        let blocking: Vec<&str> = envelope.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.as_str()).collect();
+        assert_eq!(blocking, ["LOAD_COMBINATION_DUPLICATE_TERM"], "{mode:?}: the repeat is the only refusal");
+        let ids: Vec<&str> = envelope.diagnostics.iter().map(|d| d.id.as_str()).collect();
+        let unique: std::collections::HashSet<&str> = ids.iter().copied().collect();
+        assert_eq!(ids.len(), unique.len(), "{mode:?}: emitted diagnostic ids must be unambiguous");
+    }
+}
+
+#[test]
 fn well_formed_documents_with_declared_ignored_members_publish() {
     // The demo carries data_boundary, diagnostics and load-case kind/label/status.
     let demo = demo();
