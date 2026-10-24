@@ -362,6 +362,31 @@ PREFIX.update({
 ID_AUDIT = ID_AUDIT + [
     (rs_line('result_id: text(&row["id"]).into(),', "r_comb_1"), {'text(&row[""])': RS_}),
 ]
+# Silent-drop guard D3 (retained-pricing-rules.md §8.19, SD-RK): PP preview_physics.rs append_combination_results names
+# every withheld row, so two basis keys of its audited sites no longer carry by line: the source-missing diagnostic's refs
+# (basis :990) moved into the `source_missing` closure, where its text is no longer unique in the function (the new
+# LOAD_COMBINATION_ROW_WITHHELD diagnostic has the same refs line), and a support component row's source refs (basis
+# :1022) are now pushed to the group's `rows` (`rows.push(..)`, was `results.push(..)`). Both are re-keyed by name at the
+# snapshot to the same sites with unchanged audits; a source without the closure keeps the basis keys.
+def _pp_combination_line(text, after=None, within=8):
+    f = P_ + "preview_physics.rs"
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+    start = int(rs("append_combination_results", f).split(":")[1])
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"(pub(\([a-z]+\))?\s+)?fn\s", lines[i])), len(lines))
+    if after is not None:
+        anchors = [i + 1 for i in range(start - 1, end - 1) if after in lines[i]]
+        if len(anchors) != 1: raise SystemExit(f"SD-RK: {after!r} in append_combination_results: {anchors}")
+        start, end = anchors[0], min(end, anchors[0] + within)
+    hits = [i + 1 for i in range(start - 1, end - 1) if text in lines[i]]
+    if len(hits) != 1: raise SystemExit(f"SD-RK: {text!r} in append_combination_results: {hits}")
+    return Resolved(f"{f}:{hits[0]}")
+if "let source_missing = |diagnostics: &mut Vec<Diagnostic>|" in open(_os.path.join(_SNAP, P_ + "preview_physics.rs"), encoding="utf-8").read():
+    _SD_RK = {
+        P_ + "preview_physics.rs:990": _pp_combination_line("vec![combination.id.clone()],", after="combination-source-missing:"),
+        P_ + "preview_physics.rs:1022": _pp_combination_line(
+            "rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));"),
+    }
+    ID_AUDIT = [(_SD_RK.get(k, k) if isinstance(k, str) and type(k).__name__ != "Resolved" else k, v) for k, v in ID_AUDIT]
 ARGS_FIRST = ARGS_FIRST + [
     {"re": r'^text\(&x\[" "\]\)$', "max": "static",
      "why": RSR + "g5_native: `text(&x[\"slot\"]).to_owned()`: a Group import's slot name, one of the producer's seven slot tokens (SLOTS): a static literal"},
