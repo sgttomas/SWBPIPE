@@ -146,7 +146,7 @@ Python agree.
 
 **As built (S1, states).** `apps/desktop/src-tauri/src/model_states.rs`,
 `apps/desktop/src/services/modelStateService.ts` and `apps/desktop/src/features/history/`.
-- **Versions.** `STORE_SCHEMA_TARGET_VERSION` is 12. A store whose
+- **Versions.** S1 made `STORE_SCHEMA_TARGET_VERSION` 12 (S2 made it 13). A store whose
   `user_version` is above the target was written by a newer build. It is
   refused (`STORE-SCHEMA-NEWER`) before any pragma or migration writes;
   before S1 it was opened as current.
@@ -209,7 +209,8 @@ Python agree.
   Local Project's flow, the state follows the save that landed. After "Save
   as a new project" that is the renamed working model, its new project id
   and base, with no parent state from the old project. Cancel saves neither.
-- **Delete.** Until S2, a state's deletion is blocked only by its child states.
+- **Delete.** A state's deletion is blocked by its child states and, since S2, by
+  its recorded runs.
 - **Open State.** The desktop had no unsaved-changes guard. S1 adds one, shared
   by every command that replaces the working model (DEL-07-11 Design
   `model-document-open-and-native-smoke.md`): Cancel (the default), Save Local
@@ -324,6 +325,113 @@ CREATE TRIGGER IF NOT EXISTS analysis_runs_immutable BEFORE UPDATE ON analysis_r
   hash is unchanged.
 - **Size.** Recording uses Save Local Project's memory guard (W-5). The History
   panel lists runs from columns, without loading `result_json`.
+
+**As built (S2, recorded runs).** `apps/desktop/src-tauri/src/analysis_runs.rs`
+(tests in `analysis_runs_tests.rs`), `apps/desktop/src/services/analysisRunService.ts`,
+the History panel and `useModelStateHistory.ts`.
+- **Versions.** `STORE_SCHEMA_TARGET_VERSION` is 13 (`store-v13-analysis-runs-tables`).
+  The tables, index and trigger are the SQL above, plus `analysis_runs_no_replace`
+  (`BEFORE INSERT`, on `recording_id` or `run_record_hash`, as S1's trigger). A v14
+  store is refused (`STORE-SCHEMA-NEWER`).
+- **Commands.** `record_analysis_run` is admitted as `save_local_project` is (the
+  per-invocation budget through its lease). `list_analysis_runs`,
+  `read_analysis_run` and `delete_analysis_run` take 4 KiB of arguments, and
+  `edit_analysis_run_labels` 256 KiB. The browser preview refuses them all
+  (`MODEL-STATE-STORE-UNAVAILABLE`).
+- **Request.** It carries the transient record, the result's JSON text (stored
+  as given), the manifest's canonical text, the session's base, and optionally
+  the state the session expects (`state_id`, checked:
+  `ANALYSIS-RUN-STATE-MISMATCH`). When no state holds the solved model, it names a
+  `post_solve_snapshot` (`new_state`); without one the request is refused with
+  `ANALYSIS-RUN-STATE-REQUIRED`. The snapshot is the manifest's model payload. Its
+  parent is the session's basis state.
+- **Checks before the store.**
+  - `ANALYSIS-RUN-MANIFEST-MISMATCH`: the manifest is not its own canonical text;
+    its hash is not `input_manifest_hashes[0]`; that entry's ref is not
+    `input_manifest_refs[0]`; or the manifest is not the project's.
+  - `ANALYSIS-RUN-NOT-TRANSIENT`: the record is not a v0.3 record with
+    `created_at: null` and the synthetic ref, or its own checksum does not verify.
+    A recorded revision is never recorded again.
+  - `ANALYSIS-RUN-RESULT-MISMATCH`: the result's checked hash or ref is not the
+    record's `received_result`, or the result is not the record's run of the
+    project.
+  - Rust does not re-derive the record's semantics; the validators do.
+- **The revision.**
+  - `rule_pack_refs` are `{RulePack, "<rule_pack_id>@<version>"}`, in the
+    manifest's order (the manifest sorts them when it is built).
+  - `library_refs` are `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`.
+    There is one for each distinct `provenance_record.library_ref` at any depth
+    of the solved model, sorted by code point.
+  - Rust hashes with `open_pipe_stress_canonical_json::canonical_json_checked_v1_text`,
+    now a direct dependency of the desktop crate.
+  - Parity: the TypeScript builder `recordedAnalysisRunRevision` and Python's
+    `recorded_revision` rebuild the store's witness
+    (`fixtures/persistence/recorded_run_witness.json`) exactly. The store writes
+    the witness from a transient record that the TypeScript session builder made
+    for a real producer result (`transient_run_input.json`).
+- **Integrity.**
+  - **List.** The list reads each run's record, but never its result or
+    manifest. It checks the record hash and the identity columns against the
+    record:
+    - the recording id against the hash;
+    - the state id against `model_state_ref`;
+    - the producer run id, `created_at` and the result hash against
+      `received_result`;
+    - the project against the record's `unit_system_ref`, which names the
+      project and the manifest hash.
+  - **Read.** A read also checks the stored result's checked hash, the
+    manifest's canonical form and hash against the record, its project, and its
+    model payload's hash against the state's model hash. A coherent forgery that
+    names another state is refused there.
+  - Any difference is refused as `ANALYSIS-RUN-INTEGRITY`, naming the run.
+- **Delete.**
+  - **State.** A state with recorded runs is not deleted
+    (`MODEL-STATE-DELETE-BLOCKED`, naming the runs). The `NO ACTION` foreign key
+    refuses the deletion in SQL as well.
+  - **Run.** A run is deleted only as a whole row with its labels; no other row
+    depends on a run.
+  - **Project.** Deleting the project row removes its runs, child states,
+    states and all their labels in one statement. A Replace keeps all of them.
+  - **Replace prompt.** It says how many saved states and recorded runs remain
+    attached.
+- **Labels.** The run's name, tags, notes and run-level assumptions follow
+  S1's label rules (`ANALYSIS-RUN-LABELS-INVALID`), with `run_name` required. A
+  label edit names the `updated_at` it read (`ANALYSIS-RUN-LABELS-MOVED`).
+  "Renaming, tagging or adding notes does not change the recorded run."
+- **Validators.**
+  - TypeScript `validateAnalysisRunV03(…, recordedState)` and Python
+    `validate_analysis_run_v0_3(…, recorded_state=…)` read the recorded form. They
+    check the state ref, `created_at`, the stored manifest's hash and project, its
+    model payload against the state's model hash
+    (`ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH`) and the references.
+  - Each form is refused in the other's place. Transient records and their
+    fixtures validate as before.
+- **`HistoricalRunContext`.**
+  - `buildRecordedRunContext` (`designation: recorded_run`) accepts the real
+    state ref of the stored state it was read with, and adds no
+    `HISTORICAL_INPUT_MANIFEST_MISSING`. It still flags every other mismatch.
+  - A project row's saved run keeps today's checks.
+  - The History panel's "Check record" shows its findings. It establishes no
+    standing and does not replace the session's result.
+- **UI.**
+  - **Placement.** Record Run… sits in the History panel. It goes through the
+    one-owner check and the busy refusal, and is disabled with a stated reason.
+  - **Unavailable.** Without a solve it shows `RUN-RECORD-NO-RUN`. A slot
+    restored from the project row (no manifest) shows
+    `RUN-RECORD-MANIFEST-UNAVAILABLE`: "re-solve to record this run".
+  - **Prerequisite project save.** When Record Run first runs Save Local
+    Project's flow, it follows the save that landed. After "Save as a new
+    project" the solve is of the old project id, so nothing is recorded and the
+    message says why.
+  - **Current-run slot.** Record Run never changes it, so the project envelope
+    hash is unchanged.
+  - **Results view.** The producer's `run_id` is unchanged and recorded runs are
+    not shown in the results view, so its per-run state (page, filters, selected
+    row) keys on nothing new. A re-solve and a recording keep the page
+    (`recordRun.session.test.tsx`).
+- **Residual.** As for `read_model_state`, `read_analysis_run`'s response (the
+  record, result and manifest) is serialized under its small ingress lease;
+  responses are not separately bounded.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 

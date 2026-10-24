@@ -344,6 +344,7 @@ code_paths:
 - apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
 - apps/desktop/src/features/comparison/ComparisonPanel.tsx
 - apps/desktop/src/features/history/HistoryPanel.tsx
+- apps/desktop/src/features/history/useModelStateHistory.ts
 - apps/desktop/src/features/project-storage/UnsavedChangesPrompt.tsx
 - apps/desktop/src/features/knowledge/KnowledgePanel.tsx
 - apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx
@@ -355,4 +356,6 @@ checks:
 - apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
 - apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
 - apps/desktop/src/features/history/modelStateHistory.session.test.tsx
+- apps/desktop/src/features/history/HistoryPanel.runs.test.tsx
+- apps/desktop/src/features/history/recordRun.session.test.tsx
 - tests/test_design_authoring_comparison_workspace.py
