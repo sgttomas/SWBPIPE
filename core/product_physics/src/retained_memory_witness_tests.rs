@@ -175,7 +175,9 @@ per_mode! {
     witness_w2_deep_milestone_publishes, |mode| {
         let mut raw = milestone();
         escape_every_provenance(&mut raw);
-        raw["model"]["deep_input_witness"] = depth_16_value();
+        // The depth-16 raw-only value rides on the declared, solve-ignored `diagnostics` member
+        // (the closed model root refuses an unknown member; see `b1_sq_inputs::stressed`).
+        raw["model"]["diagnostics"] = depth_16_value();
         let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
         let report = super::super::assess(&capture, &request, super::super::Entry::Direct, RETAINED_LIMIT);
         assert_eq!(report.law().domain, None, "inside D1");
@@ -1077,7 +1079,7 @@ fn b1_sq_inputs_are_i86s_and_the_committed_helpers() {
     assert_eq!(sha256_of(&inputs::w2b()), W2B_INPUT_SHA256, "W2b's PROBE pin");
     let mut w2 = super::law_tests::cap_maximal();
     escape_every_provenance(&mut w2);
-    w2["model"]["unknown_depth_witness"] = depth_16_value();
+    w2["model"]["diagnostics"] = depth_16_value();
     assert_eq!(inputs::w2(), w2, "W2's input");
     assert_eq!(inputs::w_c2(), crate::retained_facade_tests::w_c2(), "W-C2");
     let mut ac = crate::retained_facade_tests::w_c2();

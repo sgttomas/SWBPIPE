@@ -37,13 +37,13 @@ SOURCES = {
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11280,
+    "line": 11343,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11238:exact_straight_summary_extrema",
-    "short": "lib.rs:11280",
-    "from": "lib.rs:11238:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11301:exact_straight_summary_extrema",
+    "short": "lib.rs:11343",
+    "from": "lib.rs:11301:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4782:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -51,13 +51,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11286,
+    "line": 11349,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11238:exact_straight_summary_extrema",
-    "short": "lib.rs:11286",
-    "from": "lib.rs:11238:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11301:exact_straight_summary_extrema",
+    "short": "lib.rs:11349",
+    "from": "lib.rs:11301:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4782:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -65,13 +65,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11941,
+    "line": 12004,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11922:recover_curved_bend_local_forces",
-    "short": "lib.rs:11941",
-    "from": "lib.rs:11922:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11985:recover_curved_bend_local_forces",
+    "short": "lib.rs:12004",
+    "from": "lib.rs:11985:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4782:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case"
     ]
   },
   {
@@ -127,7 +127,10 @@ MODE_SOURCE = {
            # Silent-zero guard D3 (§8.15), merged on W-8: the same _X emitter, with retained_w1 carried to lib.rs:3619.
            "d8f2b65c5788b7e4104a6faa2acc4b666f54709fec7de0909422a8dbc0cf1c72",
            # Model document 0.7.0 D3 (§8.17), on the silent-zero guard: the same _X emitter, with retained_w1 carried to lib.rs:3626.
-           "b8ad36562dbc2091bf1e83b297aac99a364a245944acad2aeeb68187253d709a"},
+           "b8ad36562dbc2091bf1e83b297aac99a364a245944acad2aeeb68187253d709a",
+           # Silent-drop guard D3 (§8.19): the same _X emitter, with retained_w1 carried to lib.rs:3689 (its only
+           # difference from b8ad3656…).
+           "836d05df66da34b1464bb5c067c6d8f68662e15d67b048f32662ea06901ad6f8"},
 }
 
 
