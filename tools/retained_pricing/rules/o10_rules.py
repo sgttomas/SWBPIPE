@@ -2254,3 +2254,15 @@ if fnkey("resolve_case", _SZ_R) and '"LOAD_STATE_SOURCE_EXCLUDED",' in _fn_text(
     # the resolved cases, which exist only for a load-state document; its LOAD_INPUT_MISSING site is guarded the same way.
     if fnkey("refuse_all_reference_states", _SZ_R):
         O10_MULT0_SITES += [(site("refuse_all_reference_states", _SZ_R, '"LOAD_INPUT_MISSING",', row="diag("), _SZ_LS)]
+
+# S1B-MV (W-13 S1b, model document 0.7.0; retained-pricing-rules.md §8.17): the load/reference-state version-mismatch
+# diagnostic (`case_state/resolve.rs`) and the joint authoring refusal (`joint.rs authoring_findings`) name the current
+# model version through the shared constant. The argument `crate::MODEL_SCHEMA_VERSION` is a `&'static str` whose bytes
+# are model_format.rs's one plain literal, read here at the snapshot; any other form stops the run.
+_S1B_MV = _re.search(r'^pub const MODEL_SCHEMA_VERSION: &str = "([0-9.]+)";$',
+                     open(_os.path.join(_SNAP, PP_ + "model_format.rs"), encoding="utf-8").read(), _re.M)
+if _S1B_MV is None:
+    raise SystemExit("S1B-MV: MODEL_SCHEMA_VERSION is not one plain version literal; re-review the version arguments")
+O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+    {"re": r"^crate::MODEL_SCHEMA_VERSION$", "max": len(_S1B_MV.group(1).encode()),
+     "why": O10 + "S1B-MV: the current model version constant, a static literal of " + str(len(_S1B_MV.group(1).encode())) + " B"}]

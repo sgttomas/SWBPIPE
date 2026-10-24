@@ -18,6 +18,8 @@ pub use case_state::input::{
 };
 pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID};
 mod model_format;
+pub mod model_settings;
+pub use model_settings::{ModelSettingError, ModelSettings, DEFAULT_NODE_PROXIMITY_TOLERANCE_M};
 pub use model_format::{
     carries_load_reference_state, is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
     MODEL_SCHEMA_VERSION_RETIRED, RETIRED_MODEL_SCHEMA_VERSIONS,
@@ -223,6 +225,8 @@ pub struct PreviewModel {
     pub combinations: Vec<PreviewCombination>,
     /// Optional connected load/reference-state group on the current exact document.
     pub reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    /// Optional model-level settings (`model_settings`, W-13 Design §3.8); absent means the defaults.
+    pub model_settings: Option<ModelSettings>,
     /// Material-owned `expansion_laws`, parallel to `materials` by index. The
     /// authored key lives on each material record; `MaterialInput` is unchanged.
     pub material_expansion_laws: Vec<Authored<Vec<ExpansionLawInput>>>,
@@ -272,6 +276,8 @@ struct PreviewModelWire {
     combinations: Vec<PreviewCombination>,
     #[serde(default)]
     reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    #[serde(default, deserialize_with = "deserialize_present_object")]
+    model_settings: Option<ModelSettings>,
 }
 
 impl<'de> Deserialize<'de> for PreviewModel {
@@ -304,6 +310,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             load_cases: wire.load_cases,
             combinations: wire.combinations,
             reference_configurations: wire.reference_configurations,
+            model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
         })
@@ -14763,7 +14770,7 @@ mod tests {
         const CONTROL:&str=include_str!("../../../validation/references/kd5_member_bound/two_body_request.json");
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/two_body_oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap());
-        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.6.0.
+        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.7.0.
         let wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
         let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         normalize_model_units(&mut model,&mut materials,&mut diagnostics);
@@ -14984,7 +14991,7 @@ mod tests {
     fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
         use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
         // B7b: the load/reference-state group keys on the current exact contract and
-        // the group's presence (0.6.0), never on a version string.
+        // the group's presence (0.7.0), never on a version string.
         let mut model=p5_beam_request().model;model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
         model.pressure_contract=Some(PressureContractInput {version:Some("3.0.0".into()),mode:Some("exact_pressure_v3".into()),shear_model:Some("euler_bernoulli".into())});
         let case_id=model.load_cases[0].id.clone();
@@ -15048,7 +15055,7 @@ mod tests {
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap(),"the independent oracle binds the complete maintained control bytes");
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.6.0.
+            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.7.0.
             let mut wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
             let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();
             let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
@@ -24134,7 +24141,7 @@ mod tests {
             .solver_consumption = Some("mechanics_geometry_only".to_string());
         for model in [&realized, &geometry_only] {
             assert_eq!(warnings(model), Vec::<String>::new(), "D-B");
-            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0"] {
+            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0"] {
                 let mut declared = model.clone();
                 v2(&mut declared, schema);
                 assert_eq!(warnings(&declared), Vec::<String>::new(), "no v2 condition at {schema}");

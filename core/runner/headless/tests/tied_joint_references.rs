@@ -1,7 +1,7 @@
 //! T4-U5b references (`validation/references/t4_u5b/`) through the actual
 //! typed, captured and headless consumers, in both solver modes, with export
 //! (DEL-04-07 Design `u4b-u5b-implementation.md` §7 item 2). Each of the 38
-//! requests is authored in model 0.6.0 in memory from its SHA-bound case
+//! requests is authored in model 0.7.0 in memory from its SHA-bound case
 //! description by the shared builder (`product_physics/tests/common/t4_u5b.rs`):
 //! its t4_u5a base is re-expressed by the current-model rule and the rods are
 //! added in §3.1's shape, offsets in the connector axes. Every frozen
@@ -467,7 +467,7 @@ fn u5b_discriminator_wrong_values_are_separated_from_the_product_in_both_modes()
     }
 }
 
-/// The committed builder outputs (README "Binding to model 0.6.0"), kept beside
+/// The committed builder outputs (README "Binding to model 0.7.0"), kept beside
 /// this test, outside the frozen reference tree (DEL-04-07 Design §1.4).
 const COMMITTED: [(&str, &str); 39] = [
     ("AS-A.request.json", include_str!("t4_u5b_requests/AS-A.request.json")),
@@ -531,7 +531,7 @@ fn request_files() -> BTreeMap<String, Vec<u8>> {
         files.insert(path, bytes);
     }
     let record = serde_json::json!({
-        "binding": "validation/references/t4_u5b README \"Binding to model 0.6.0\": one model 0.6.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base, kept beside the headless t4_u5b test outside the frozen reference tree; only request bytes and hashes are added, and no oracle value, case description or reference file moves",
+        "binding": "validation/references/t4_u5b README \"Binding to model 0.7.0\": one model 0.7.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base, kept beside the headless t4_u5b test outside the frozen reference tree; only request bytes and hashes are added, and no oracle value, case description or reference file moves",
         "cases": bindings,
     });
     files.insert("bindings.json".into(), t4_u5b::request_bytes(&record));

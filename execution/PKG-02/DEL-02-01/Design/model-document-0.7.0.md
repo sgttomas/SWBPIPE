@@ -421,6 +421,37 @@ never block deletion, and a missing entity is reported as a warning.
 - **Rigid elements (DEC-045).** Components already carry `geometry.rigid_*` and
   `modifiers.stiffness_scaling_user_value`; W-13 adds no rigid fields.
 
+### 3.8 Model settings (node-proximity tolerance)
+
+- **Ruling.** The owner ruled (2026-10-23, relayed by HELP_HUMAN) that the
+  near-duplicate node check uses a fixed 5 mm tolerance "and give the user the
+  means to change it". HELP_HUMAN approved this design the same day, adding that
+  the unit must be a length unit of the units catalog. The setting lives in the
+  model document, so the desktop and the headless runner warn identically.
+- **Member.** An optional top-level `model_settings`: a closed record of
+  model-level analysis and modeling settings, every member optional. Its one
+  member is `node_proximity_tolerance`, a length quantity `{value, unit}`.
+- **Default rule.** An absent `model_settings`, or an absent member, means
+  5 mm. The product never writes the default into a document the user did not
+  author. An authored `null` is not absence: the validator refuses it as
+  `MODEL-SLOT-SHAPE` and the solve wire refuses it, as for `model_settings`
+  itself.
+- **Admission.** The value must be finite and greater than zero, and the unit a
+  length unit of the units catalog; converted to metres, the value must still be
+  finite and greater than zero (a value too small to represent in metres is
+  `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`). Each refusal is named:
+  `MODEL-SETTING-TOLERANCE-NOT-FINITE`, `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`
+  and `MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH` (a non-length or unknown unit);
+  a malformed record is `MODEL-SLOT-SHAPE`. The document validator (§5.3) and
+  product_physics' accessor give the same codes and messages.
+- **Readers.** product_physics declares the record on the solve wire
+  (`model_settings.rs`, a closed `ModelSettings`) and exposes the effective
+  tolerance in metres (`PreviewModel::node_proximity_tolerance_m`). The
+  topology check (DEL-04-06 Design `model-topology-checks.md`) reads it through
+  that accessor; until it does, nothing changes behaviour. The desktop editing
+  control comes with the S2 authoring surface; the desktop already round-trips
+  the whole document.
+
 ## 4. The schema
 
 `schemas/model.schema.yaml` is rewritten (same path and `$id`, strict JSON
@@ -647,7 +678,7 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
 ## 7. Owner-reserved text (exact old → new to HELP_HUMAN at the slice that needs it)
 
 1. **Version token 0.6.0 → 0.7.0.** These record OD-4, so HELP_HUMAN approves
-   them (HELP_HUMAN, 2026-10-23). Item 2 goes to the owner.
+   them (HELP_HUMAN, 2026-10-23). Item 2 went to the owner and is approved.
    - DEL-02-05 ScopeOfWork CLM-003, lines 33, 35, 37 and 100, and CLM-013
      line 178.
      - Line 33's "defined by the T4-U4b/U5b epoch" becomes a pointer to this
@@ -672,8 +703,9 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
        clause requires a root-level summary. The report's provenance summary
        stays with the Report row (CLM-012, line 177).
    - **This narrows no FR-MOD requirement.** It is still commitment text, so it
-     goes to the owner through HELP_HUMAN as exact old → new. Its approval is a
-     precondition for merging S1b.
+     went to the owner through HELP_HUMAN as exact old → new. **Approved:**
+     owner, 2026-10-23: "CLM‑006/CLM‑012, option A as recommended." The new
+     text below is applied in the ScopeOfWork.
    - **Exact text.** These are DEL-02-01 ScopeOfWork CLM-006 lines 79–83; lines
      77, 84 and 86 are unchanged.
      - **Old 79:** `- document/root metadata: schema version, application/schema identity, provenance summary, and migration/compatibility status where persisted;`

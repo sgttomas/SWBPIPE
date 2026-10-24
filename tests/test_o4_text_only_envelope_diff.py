@@ -92,6 +92,10 @@ SZ_REGENERATED = {
 }
 SZ_CODES = frozenset({"LOAD_STATE_SOURCE_EXCLUDED", "LOAD_CASE_APPLIES_NO_ACTION"})
 SZ_MOVED = re.compile(r"^/analysis_run/hashes/\d+/value$")
+# Model document 0.7.0 (W-13 S1b) regenerated the listed files again (version token and the
+# digests binding it) on top of main 9bfd04c255; files no earlier change regenerated are read there,
+# and so are the silent-zero files for that guard's own check.
+S1B_BASE = "9bfd04c25550c8600a5ae3fec55e008337e97b3a"
 # What the repair moved: each diagnostic's source type, affected object and remediation
 # (and class, where Rust's rules give another), and the derivative hash that binds them.
 DIAG_MOVED = re.compile(r"^/result_envelope/(diagnostics/\d+/(class|source/ref_type|affected_object/ref_type|affected_object/ref_id|remediation)|reproducibility/derivative_hash/value)$")
@@ -260,6 +264,14 @@ def base_text(name: str) -> str:
     ).stdout
 
 
+def s1b_base_text(name: str) -> str:
+    """A file's bytes at the S1b base, before model document 0.7.0 regenerated it."""
+    return subprocess.run(
+        ["git", "show", f"{S1B_BASE}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
 def _ra_regenerated() -> frozenset:
     from tests import test_ra_work_only_envelope_diff as ra
     return frozenset(ra.RAW) | {name for name, _ in ra.DERIVED} | {ra.O4_CONTROLS, ra.J2_CORPUS, ra.J7_CENSUS}
@@ -267,15 +279,13 @@ def _ra_regenerated() -> frozenset:
 
 def current_text(name: str) -> str:
     """The file's bytes after O4's regeneration: before the later change that regenerated
-    it (W1 corner 1, R-A, the diagnostics repair or the silent-zero guard), else as committed."""
+    it (W1 corner 1, R-A, the diagnostics repair, the silent-zero guard or W-13 S1b)."""
     at = (W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated()
-          else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED else None)
-    if at is not None:
-        return subprocess.run(
-            ["git", "show", f"{at}:projects/chirality-piping/{name}"],
-            cwd=REPOSITORY, check=True, capture_output=True, text=True,
-        ).stdout
-    return (PROJECT / name).read_text()
+          else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED else S1B_BASE)
+    return subprocess.run(
+        ["git", "show", f"{at}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
 
 
 def diff(name: str, base: str | None = None, current: str | None = None):
@@ -552,7 +562,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w
     counter), its two enumerated mutations only by the diagnostic index each names, rebased past the
     inserted warning; every other entry and member unchanged."""
     landed = _corner1_corpus()
-    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    now = s1b_base_text(RETAINED_CORPUS) if current is None else current
     base_cases = dict(_entries(landed, "cases", _pair_id))
     now_cases = dict(_entries(now, "cases", _pair_id))
     for member in ("cases", "mutations", "must_pass"):
@@ -594,7 +604,7 @@ def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
     """A value planted in a W-8 case or in an entry W-8 did not move, or a second inserted
     warning, fails the W-8 enumeration."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(s1b_base_text(RETAINED_CORPUS))
     for ident in ("w_c2_sparse_interactive", "w1_member_route_e_baseline_sparse_interactive"):
         document = storage.expand(committed)
         entry = next(e for e in document["cases"] if e.get("id") == ident)
@@ -776,7 +786,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostic
     for name in DIAG_GOLDENS:
         before = exact(subprocess.run(["git", "show", f"{DIAG_BASE}:projects/chirality-piping/{name}"],
                                       cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = exact((PROJECT / name).read_text() if current is None else current[name])
+        after = exact(s1b_base_text(name) if current is None else current[name])
         moved = _leaf_paths(before, after)
         assert moved and all(DIAG_MOVED.match(p) for p in moved), (name, [p for p in moved if not DIAG_MOVED.match(p)][:8])
         for diagnostic in after["result_envelope"]["diagnostics"]:
@@ -787,7 +797,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
     """A changed number outside the diagnostics (the golden's first `"value"`, in the carried
     receipt), the same number turned into a string, or a dropped diagnostic, in a regenerated
     golden fails at that path; each mutant keeps every other token."""
-    texts = {name: (PROJECT / name).read_text() for name in DIAG_GOLDENS}
+    texts = {name: s1b_base_text(name) for name in DIAG_GOLDENS}
     name = DIAG_GOLDENS[0]
     # The token-preserving re-serialisation alone passes, so each failure is the mutation's.
     test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(
@@ -819,7 +829,7 @@ def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(cur
     for name, pointer in SZ_REGENERATED.items():
         before = load(subprocess.run(["git", "show", f"{SZ_BASE}:projects/chirality-piping/{name}"],
                                      cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = load((PROJECT / name).read_text() if current is None else current[name])
+        after = load(s1b_base_text(name) if current is None else current[name])
         lists = []
         for document in (before, after):
             holder = document
@@ -840,7 +850,7 @@ def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(cur
 def test_o4_text_only_envelope_diff_silent_zero_refuses_other_moves():
     """A changed number, an added diagnostic of another code, or a dropped earlier diagnostic in
     a silent-zero regenerated file fails at that file."""
-    texts = {name: (PROJECT / name).read_text() for name in SZ_REGENERATED}
+    texts = {name: s1b_base_text(name) for name in SZ_REGENERATED}
     name = next(iter(SZ_REGENERATED))
     test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(
         current=dict(texts, **{name: _dump(load(texts[name]))}))

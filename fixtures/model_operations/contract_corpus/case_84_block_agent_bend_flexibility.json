@@ -144,7 +144,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": [
       {
         "family": "anchor",
@@ -183,7 +183,7 @@
     "hash_status": "computed_local_preview",
     "payload_ref": "project:corpus-bend",
     "payload_scope": "model_payload",
-    "value": "sha256:b39091d4d12abe559ff774c37282398c601b02bd8c1d454168c97f8e5241013b"
+    "value": "sha256:f17c10aa47f4670e17dd7358b482e1783ac69e396dd107ff8c9f1d672ef15f98"
   },
   "description": "An agent-authored operation never writes the bend flexibility factor k.",
   "expected": {
@@ -225,10 +225,10 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:b39091d4d12abe559ff774c37282398c601b02bd8c1d454168c97f8e5241013b",
+        "backend_model_hash": "sha256:f17c10aa47f4670e17dd7358b482e1783ac69e396dd107ff8c9f1d672ef15f98",
         "binding_status": "claimed_model_hash_matches_current_backend_model",
         "claimed_hash_canonicalization": "rfc8785_jcs",
-        "claimed_model_hash": "sha256:b39091d4d12abe559ff774c37282398c601b02bd8c1d454168c97f8e5241013b"
+        "claimed_model_hash": "sha256:f17c10aa47f4670e17dd7358b482e1783ac69e396dd107ff8c9f1d672ef15f98"
       },
       "operation_id": "op:corpus-block-agent-bend-flexibility",
       "operation_kind": "modify",

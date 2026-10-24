@@ -2390,7 +2390,7 @@ fn b2p_early_hook_refuses_combinations_outside_d14() {
     }
 }
 /// T4 (RV14 N2), after B7b D4 (a): the capture's exact-route scope clause reads the current
-/// `3.0.0/exact_pressure_v3` contract that D1.3's branch E admits on model 0.6.0. A current
+/// `3.0.0/exact_pressure_v3` contract that D1.3's branch E admits on model 0.7.0. A current
 /// exact document is in scope on the exact route only; a pressure-free document on the
 /// preview route only; a document still declaring the retired v2 contract is not exact, is
 /// refused on the exact route, and D1.3 gives it no W1 route at all.

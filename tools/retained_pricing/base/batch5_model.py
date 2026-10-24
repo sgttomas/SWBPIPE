@@ -36,7 +36,7 @@ PINS = {
     # load-state refusals that empty the carriers' children are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "23321435fdd5cb20fa77c253a61c99381cfc7e32d4692e337843a408002493f1",
+        "family_clauses": "e234ac88ff7a894707225c05d6c361c85492263749177d15984c654247ac2603",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -55,7 +55,9 @@ PINS = {
 # the arc_stress_definitions evidence (region path only: absent on L, explicitly empty on E). No carrier, child or
 # staging changes. solve_prepared_load_case's U4b rows, arc maxima and corrected displacement are priced at their own
 # sites (U4B-ST, U5B-PD); family_clauses changes only its 0.6.0 comment.
-PRESSURE_PREFIX_PIN = "b474e34acff4c7a10178f30c18cc56341ee7d29862ac0378465a08b0336abf11"
+# Model document 0.7.0 D3 (W-13 S1b): the prefix reads 0.7.0 in the same two validate_profile texts (same length);
+# family_clauses changes only its 0.7.0 comment. No carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "4541c94c88fc90988a7746e3f86622c574338b098778190457f97193e763bcc9"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

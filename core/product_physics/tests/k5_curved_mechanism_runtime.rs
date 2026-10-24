@@ -80,7 +80,7 @@ fn model_with(o: f64, r: f64, rx: bool, gap: bool, x_case: bool) -> Value {
         load_cases.push(json!({"id": "case:x",
             "primitive_loads": [force("x", "node:b", "global_x", 1000.0)], "provenance": "k5"}));
     }
-    json!({"model": {"schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:k5", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",

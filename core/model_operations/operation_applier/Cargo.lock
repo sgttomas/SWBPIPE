@@ -107,10 +107,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_expression_evaluator"
+version = "0.1.0"
+
+[[package]]
 name = "open_pipe_stress_frame_kernel"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_correct_norm",
+]
+
+[[package]]
+name = "open_pipe_stress_library_import_document"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -153,7 +165,9 @@ version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_library_import_document",
  "open_pipe_stress_product_physics",
+ "open_pipe_stress_rule_pack_document",
  "open_pipe_stress_units",
  "serde",
  "serde_json",
@@ -203,6 +217,22 @@ dependencies = [
  "serde_json",
  "sha2",
 ]
+
+[[package]]
+name = "open_pipe_stress_rule_pack_document"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_canonical_json",
+ "open_pipe_stress_expression_evaluator",
+ "open_pipe_stress_rule_pack_lifecycle",
+ "open_pipe_stress_units",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "open_pipe_stress_rule_pack_lifecycle"
+version = "0.1.0"
 
 [[package]]
 name = "open_pipe_stress_solver_diagnostics"

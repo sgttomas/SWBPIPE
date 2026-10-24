@@ -7,6 +7,7 @@
 // it reports its own named diagnostics on solve. As a last guard the session
 // also builds the model index for the candidate and refuses it if that throws.
 import type { PreviewModel } from "../../types";
+import { loadedWasmEngine, WASM_ENGINE_ABSENT_DIAGNOSTIC, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
 
 export type ModelFileDiagnostic = { code: string; path: string; message: string };
 
@@ -109,4 +110,37 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
 
 export function isDesktopModelDocument(document: unknown): document is PreviewModel {
   return modelDocumentShapeDiagnostics(document).length === 0;
+}
+
+/** The one document validator's findings for `document`, split by severity. */
+export type ModelDocumentSlotValidation = { blocking: ModelFileDiagnostic[]; warnings: ModelFileDiagnostic[] };
+
+type ValidatorFinding = { code: string; severity: string; path: string; message: string };
+
+/**
+ * W-13 §5.3: the model-data slots (tags, notes, lines, assumptions, constraints,
+ * equipment interfaces, rule-pack references, provenance records), checked by the
+ * applier's Rust validator through the wasm engine. The webview never re-implements
+ * it; without the engine the document is refused by name, never adopted unchecked.
+ */
+export function modelDocumentSlotValidation(document: unknown): ModelDocumentSlotValidation {
+  const engine = loadedWasmEngine();
+  if (!engine) {
+    return {
+      blocking: [{
+        code: WASM_ENGINE_ABSENT_DIAGNOSTIC,
+        path: "",
+        message: `The document validator is in the wasm engine, which is not loaded; build it with \`${WASM_ENGINE_BUILD_COMMAND}\`.`
+      }],
+      warnings: []
+    };
+  }
+  const report = JSON.parse(engine.validateModelDocumentJson(JSON.stringify(document))) as
+    { diagnostics?: ValidatorFinding[]; error?: { code: string; message: string } };
+  if (report.error) return { blocking: [{ code: report.error.code, path: "", message: report.error.message }], warnings: [] };
+  const findings = report.diagnostics ?? [];
+  const named = (severity: string) => findings
+    .filter((item) => item.severity === severity)
+    .map(({ code, path, message }) => ({ code, path, message }));
+  return { blocking: named("blocking"), warnings: named("warning") };
 }

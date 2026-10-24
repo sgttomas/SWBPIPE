@@ -946,7 +946,8 @@ fn work_masked_sha256(source:&Value)->String {
 /// through the corner-2 head). The six `w1_member_values_failure_*`, `w1_member_multi_*` and
 /// `w1_member_combination_*` pins are those pre-repair documents plus W-8's one inserted
 /// `MODEL_TOPOLOGY_DISCONNECTED` warning and the hashes binding it (W-8 topology warning added;
-/// no number moved), so the work-only rule below still holds against them.
+/// no number moved), so the work-only rule below still holds against them. They bind model 0.6.0
+/// requests; see `as_pre_repair_invocation`.
 const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
     ("w1_member_load_sparse_interactive","700353cf3af9fb5f0d59bb4ad8b6a1cf75b267b335f888d179437c3e5ec1ac98"),
     ("w1_member_load_dense_scrutiny","61634aab1b957f7568aa9f4d8dc63cc53e7ee75127890b5c564c1378d700ae58"),
@@ -966,6 +967,24 @@ const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
 /// number, class, selection, maximum value and status) equals the pre-repair document's
 /// (with W-8's warning, where it applies).
 /// The live producer reproduces each committed entry byte for byte.
+/// The model version the pre-repair documents' requests were authored at. Model 0.7.0
+/// (DEL-02-01 Design `model-document-0.7.0.md` §2; W-13 S1b) re-authored the corpus
+/// requests by their version token alone, which moves only the successor's invocation
+/// digest. The pins stay the pre-repair documents': the successor is compared with its
+/// invocation digest restored to that of the same request at the pre-repair version, so
+/// any other byte change still fails.
+const PRE_REPAIR_MODEL_VERSION: &str = "0.6.0";
+fn as_pre_repair_invocation(source:&Value,invocation:&Value)->Value {
+    let mut raw=invocation["request"].clone();
+    assert_eq!(raw["model"]["schema_version"],json!(crate::MODEL_SCHEMA_VERSION),"the current model version");
+    raw["model"]["schema_version"]=json!(PRE_REPAIR_MODEL_VERSION);
+    let mode=MODES.into_iter().find(|m|m.as_str()==invocation["solver_mode"]).unwrap();
+    let (_,capture)=source_receipt::CapturedInvocation::parse(raw,mode).unwrap();
+    let mut v=source.clone();
+    v["retained_precision"]["body"]["invocation"]["value"]=json!(capture.borrowed_digest());
+    v
+}
+
 #[test]
 fn w1_hull_repair_moves_only_work_on_converging_members() {
     let cases=corpus_member_cases(&["w1_member_load_","w1_member_values_failure_","w1_member_multi_","w1_member_combination_"]);
@@ -977,7 +996,7 @@ fn w1_hull_repair_moves_only_work_on_converging_members() {
             hooks::fault_case(1,crate::retained_receipt::TraceFault::ValuesCompletion);
         });
         println!("W1_HULL_WORK_MASKED {id} committed={} live={}",work_masked_sha256(&case["source"]),work_masked_sha256(&current));
-        assert_eq!(work_masked_sha256(&current),pin,"{id}: a byte other than work moved");
+        assert_eq!(work_masked_sha256(&as_pre_repair_invocation(&current,&case["invocation"])),pin,"{id}: a byte other than work moved");
         assert!(serde_json::to_vec(&current).unwrap()==serde_json::to_vec(&case["source"]).unwrap(),"{id}: the committed entry is the live producer's");
     }
 }

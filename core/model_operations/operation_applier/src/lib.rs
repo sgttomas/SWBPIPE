@@ -23,6 +23,7 @@ mod atomic_batch;
 mod bend_authoring;
 mod boundary_association;
 mod display_units;
+pub mod document_validator;
 mod geometry_operations;
 mod pipe_reconnect;
 mod rich_authoring;
@@ -38,6 +39,7 @@ mod section_bindings;
 mod b7b_transport_tests;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
+pub use document_validator::{validate_model_document, DocumentDiagnostic};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
 pub const OUTCOME_DOCUMENT_KIND: &str = "openpipestress.desktop.operation_outcome";
@@ -1036,6 +1038,17 @@ mod wasm_api {
         claimed_model_hash_json: &str,
     ) -> String {
         batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
+    }
+
+    /// W-13 §5.3: the one model-document validator, for the webview open
+    /// path. Returns the validation report (`document_validator::validation_report`)
+    /// as JSON text, or the input-error envelope when the text is not JSON.
+    #[wasm_bindgen]
+    pub fn validate_model_document_json(model_json: &str) -> String {
+        match parse_input("model", model_json) {
+            Ok(model) => super::document_validator::validation_report(&model).to_string(),
+            Err(error) => error,
+        }
     }
 
     /// Display-only numeric conversion through the one accepted unit catalog.
@@ -2254,6 +2267,31 @@ fn run_with_context(
         }
     }
 
+    // W-13 §5.3: the one document validator checks every applied result. A
+    // result whose model-data slots are malformed is refused (the operation
+    // is blocked and no document is returned); warnings ride along.
+    if let Some(candidate) = &applied_model {
+        let findings = document_validator::validate_model_document(candidate);
+        if document_validator::has_blocking(&findings) {
+            checker.schema_blocked = true;
+            applied_model = None;
+            applied_model_backend_hash = None;
+        }
+        for finding in findings {
+            checker.push(
+                finding.code,
+                finding.severity,
+                format!("{} (at {})", finding.message, finding.path),
+                if finding.is_blocking() {
+                    "The operation's result would leave a malformed model-data slot; correct the slot or the operation and retry."
+                } else {
+                    "Review the named record; this warning does not block editing."
+                },
+                finding.affected_refs,
+            );
+        }
+    }
+
     let blocking_after_apply = checker.blocking();
     let applied = applied_model.is_some();
 
@@ -2715,7 +2753,7 @@ fn resolve_expansion_joint_creation(
             "OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED",
             "blocking",
             "Legacy four-rate expansion-joint creation (a pipe reference with scalar stiffness rates) is retired: such a joint is neither solved nor converted.".to_string(),
-            "On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a pressure-free 0.6.0 document (no pressure contract) create the annotation mode (not_solver_consumed).",
+            &format!("On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a pressure-free {} document (no pressure contract) create the annotation mode (not_solver_consumed).", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
             vec![target_ref.to_string()],
         );
         return None;
@@ -2737,9 +2775,9 @@ fn resolve_expansion_joint_creation(
             // the solver's JOINT_HARDWARE_NOT_DEFINED, as before).
             let hardware = connector.get("hardware").is_some_and(|h| h != &serde_json::json!({"kind": "untied"}));
             if pressure || hardware {
-                if schema != "0.6.0" {
+                if schema != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION {
                     let (code, what) = if pressure { ("JOINT_PRESSURE_INTERFACE_UNRESOLVED", "constant_effective_area_reference_v1 is") } else { ("JOINT_TIE_ROD_INPUT_INVALID", "connector hardware other than untied is") };
-                    checker.push(code,"blocking",format!("{what} defined only on model 0.6.0"),"Use the current model format before authoring a joint pressure model or tie rods.",vec![target_ref.into()]);
+                    checker.push(code,"blocking",format!("{what} defined only on model {}", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),"Use the current model format before authoring a joint pressure model or tie rods.",vec![target_ref.into()]);
                     return None;
                 }
                 let mut candidate=model.clone();
@@ -2828,7 +2866,7 @@ fn resolve_expansion_joint_creation(
             checker.push(
                 "OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY",
                 "blocking",
-                "On a pressure-free 0.6.0 document (no pressure contract) an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.".to_string(),
+                format!("On a pressure-free {} document (no pressure contract) an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
                 "Create the annotation, or move the model to a 3.0.0/exact_pressure_v3 document and author an objective connector.",
                 vec![target_ref.to_string()],
             );
@@ -2847,7 +2885,7 @@ fn resolve_expansion_joint_creation(
     checker.push(
         "OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED",
         "blocking",
-        "Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on pressure-free 0.6.0 documents (no pressure contract); this document's contract admits neither.".to_string(),
+        format!("Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on pressure-free {} documents (no pressure contract); this document's contract admits neither.", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
         "Use a 3.0.0/exact_pressure_v3 document for a solved joint.",
         vec![target_ref.to_string()],
     );
@@ -5237,7 +5275,7 @@ fn resolve_create_primitive_load(
             "OP-PRESSURE-PRIMITIVE-RETIRED",
             "blocking",
             "Pressure primitive loads are retired, zero values included; the product refuses them (PRESSURE_MODEL_REAUTHOR_REQUIRED).".to_string(),
-            "Author pressure as exact pressure regions: on model 0.6.0 select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
+            &format!("Author pressure as exact pressure regions: on model {} select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
             vec![target_ref.to_string()],
         );
         return None;
@@ -9019,7 +9057,7 @@ mod tests {
 
     fn sample_model() -> Value {
         json!({
-            "schema_version": "0.6.0",
+            "schema_version": "0.7.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
@@ -13505,7 +13543,7 @@ mod tests {
         let outcome = apply_operation(&model, &expansion_joint_intent(&not_annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"]);
         // B7a: the contract's absence selects the annotation, not the version string. A
-        // 0.6.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
+        // 0.7.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
         // take neither form.
         let mut with_contract = model.clone();
         with_contract["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
@@ -13522,7 +13560,7 @@ mod tests {
     /// A v3 document: the objective connector for the replaced span between
     /// its end nodes.
     fn v3_model() -> Value {
-        // B7b: the current 0.6.0 exact document (sample_model is already 0.6.0).
+        // B7b: the current 0.7.0 exact document (sample_model is already 0.7.0).
         let mut model = sample_model();
         model["pressure_contract"] =
             json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});

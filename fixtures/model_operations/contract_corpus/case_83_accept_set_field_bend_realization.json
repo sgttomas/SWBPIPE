@@ -201,7 +201,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": [
       {
         "family": "anchor",
@@ -240,7 +240,7 @@
     "hash_status": "computed_local_preview",
     "payload_ref": "project:corpus-bend",
     "payload_scope": "model_payload",
-    "value": "sha256:14b2adf022a12ce6c8742664f89614dbab330676eda42114fc705931f79cc13a"
+    "value": "sha256:c144be3211e4a2657b5e80dedac685c66344f1de12bb0e1b35505d830be3d107"
   },
   "description": "Realize a geometry-only span bend: solver consumption, the user's k and its source; tangent at both ends.",
   "expected": {
@@ -456,7 +456,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "supports": [
         {
           "family": "anchor",
@@ -488,7 +488,7 @@
         }
       ]
     },
-    "applied_model_canonical_sha256": "sha256:b15dba5ab14a229011712360b725854b9591ca9b30b655ee5a4f8acf5f67d9d0",
+    "applied_model_canonical_sha256": "sha256:97506ba8f4665a3842613bb4e7ed3c1743f1de14ea764d65123b227de7839106",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -527,10 +527,10 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:14b2adf022a12ce6c8742664f89614dbab330676eda42114fc705931f79cc13a",
+        "backend_model_hash": "sha256:c144be3211e4a2657b5e80dedac685c66344f1de12bb0e1b35505d830be3d107",
         "binding_status": "claimed_model_hash_matches_current_backend_model",
         "claimed_hash_canonicalization": "rfc8785_jcs",
-        "claimed_model_hash": "sha256:14b2adf022a12ce6c8742664f89614dbab330676eda42114fc705931f79cc13a"
+        "claimed_model_hash": "sha256:c144be3211e4a2657b5e80dedac685c66344f1de12bb0e1b35505d830be3d107"
       },
       "operation_id": "op:corpus-accept-set-field-bend-realization",
       "operation_kind": "modify",

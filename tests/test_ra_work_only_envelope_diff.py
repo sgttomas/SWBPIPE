@@ -41,6 +41,9 @@ from tests.retained_precision_corpus import _STORAGE
 PROJECT = Path(__file__).resolve().parents[1]
 REPOSITORY = PROJECT.parents[1]
 BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
+# Model document 0.7.0 (W-13 S1b) regenerated these files again (version token and the digests
+# binding it) on top of main 116149085a; R-A's check reads each there, before that regeneration.
+S1B_BASE = "116149085a523678cc8247b81e9c367bd08d4dcc"
 
 # Counted-work leaves, by (parent key, key): a case's or the census's method
 # work, and the invocation ledger. Limits are deliberately absent.
@@ -172,9 +175,17 @@ def base_text(name: str) -> str:
     ).stdout
 
 
+def s1b_base_text(name: str) -> str:
+    """A file's bytes at the S1b base, before model document 0.7.0 regenerated it."""
+    return subprocess.run(
+        ["git", "show", f"{S1B_BASE}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
 def diff(name: str, base: str | None = None, current: str | None = None):
     base = base_text(name) if base is None else base
-    current = (PROJECT / name).read_text() if current is None else current
+    current = s1b_base_text(name) if current is None else current
     return classify(load(base), load(current))
 
 
@@ -263,9 +274,9 @@ def test_ra_work_only_envelope_diff_j2_corpus_entries():
     """J2: the same entries in the same order; each differs only in work, its printed
     text and the receipt and publication hashes."""
     base = _entries(base_text(J2_CORPUS), "entries", lambda e: e["id"])
-    now = _entries((PROJECT / J2_CORPUS).read_text(), "entries", lambda e: e["id"])
+    now = _entries(s1b_base_text(J2_CORPUS), "entries", lambda e: e["id"])
     assert [k for k, _ in base] == [k for k, _ in now]
-    found = classify(load(base_text(J2_CORPUS)), load((PROJECT / J2_CORPUS).read_text()))
+    found = classify(load(base_text(J2_CORPUS)), load(s1b_base_text(J2_CORPUS)))
     summary = check(J2_CORPUS, RECEIPT_HASHES, found=found)
     assert _moved_work(summary)
     assert not any("/expected/" in path for _, path in summary), "no reader verdict moves"
@@ -275,7 +286,7 @@ def test_ra_work_only_envelope_diff_j7_census():
     """J7 (§4): exactly the 66 directly selected entries move, in their method work; only
     the 4 published ones also move their envelope and diagnostic digests."""
     base_text_ = base_text(J7_CENSUS)
-    current_text = (PROJECT / J7_CENSUS).read_text()
+    current_text = s1b_base_text(J7_CENSUS)
     base_doc, now_doc = dict(load(base_text_)), dict(load(current_text))
     for member in base_doc:
         if member != "entries":
@@ -307,7 +318,7 @@ def test_ra_work_only_envelope_diff_j7_census():
 def test_ra_work_only_envelope_diff_refuses_a_moved_value():
     """A moved value, limit or response digest fails; so does an unmasked text change."""
     name = RAW[0]
-    current = (PROJECT / name).read_text()
+    current = s1b_base_text(name)
     match = re.search(r'"value":(-?[0-9][0-9.eE+-]*)', current)
     assert match
     token = match.group(1)
@@ -318,7 +329,7 @@ def test_ra_work_only_envelope_diff_refuses_a_moved_value():
         check(name, RECEIPT_HASHES, current=current.replace('"limit":8000000', '"limit":8000001', 1))
     with pytest.raises(AssertionError, match="differs beyond counted work"):
         check(name, RECEIPT_HASHES, current=current.replace("limit: 8000000 }", "limit: 8000001 }", 1))
-    j7 = (PROJECT / J7_CENSUS).read_text()
+    j7 = s1b_base_text(J7_CENSUS)
     digest = re.search(r'"response_digest": ?"([0-9a-f]{64})"', j7).group(1)
     with pytest.raises(AssertionError, match="hashes outside"):
         check(J7_CENSUS, J7_HASHES, current=j7.replace(digest, "0" * 64, 1))
@@ -328,11 +339,11 @@ def test_ra_work_only_envelope_diff_refuses_a_moved_value():
 def test_ra_work_only_envelope_diff_refuses_container_and_token_changes():
     """An empty array turned into an empty object fails, and so does a number token that
     rounds to the same binary64 in the DAG-stored J2 corpus (Codex review, round 2)."""
-    name = next(n for n in RAW if '"connector":[]' in (PROJECT / n).read_text())
-    current = (PROJECT / name).read_text()
+    name = next(n for n in RAW if '"connector":[]' in s1b_base_text(n))
+    current = s1b_base_text(name)
     with pytest.raises(AssertionError, match="differs beyond counted work"):
         check(name, RECEIPT_HASHES, current=current.replace('"connector":[]', '"connector":{}', 1))
-    corpus = (PROJECT / J2_CORPUS).read_text()
+    corpus = s1b_base_text(J2_CORPUS)
     token = re.search(r"(?<=[\[,])0\.25(?=[,\]])", corpus)
     assert token
     mutated = corpus[: token.start()] + "0.25000000000000000000000001" + corpus[token.end():]

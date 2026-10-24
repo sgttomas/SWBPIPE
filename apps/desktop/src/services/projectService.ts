@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
+import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -48,13 +49,11 @@ function hasTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
-// DEL-02-05 CLM-003 (b7-plan "Current model format"): model document 0.6.0 is
-// the one current version; its pressure_contract is optional and its absence
-// makes the document pressure-free. Every other version is refused by name and
-// nothing is migrated. Mirrors apps/desktop/src-tauri/src/model_document_version.rs.
-export const MODEL_SCHEMA_VERSION = "0.6.0";
-// Retired versions, refused by name with a re-author diagnostic.
-export const RETIRED_MODEL_SCHEMA_VERSIONS: ReadonlyArray<string> = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0"];
+// DEL-02-05 CLM-003 (b7-plan "Current model format"): MODEL_SCHEMA_VERSION is
+// the one current model document version; its pressure_contract is optional and
+// its absence makes the document pressure-free. Every other version is refused by
+// name and nothing is migrated. Mirrors apps/desktop/src-tauri/src/model_document_version.rs.
+export { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
 
 function parseSemver(raw: string): [number, number, number] | null {
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(raw);
@@ -73,7 +72,7 @@ export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentVe
       source_schema_version: raw,
       target_schema_version: raw,
       detail:
-        "Model document 0.6.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately."
+        `Model document ${MODEL_SCHEMA_VERSION} is the current version; a pressure contract, when present, and solve eligibility are validated separately.`
     };
   }
   const version = parseSemver(raw);
@@ -443,12 +442,12 @@ export function buildBlankLocalModelDocument(
 }
 
 /** T1 WP3 (D3): a blank document for load/reference-state work, beside the unchanged
- * blank path. B7b: it is model 0.6.0 with the exact contract the load/reference-state
+ * blank path. B7b: it is the current model version with the exact contract the load/reference-state
  * group requires, the current 3.0.0/exact_pressure_v3 (since T4-U8 with the authoring
  * default timoshenko_annulus_energy_v1, D-6/O3), and an empty
  * reference-configuration list; it carries no materials, sections, cases or reference
  * values, and no document is upgraded to produce it. */
-export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = "0.6.0";
+export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = MODEL_SCHEMA_VERSION;
 export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" } as const;
 export function buildBlankLoadStateModelDocument(
   createdAt: Date = new Date(),
@@ -461,7 +460,7 @@ export function buildBlankLoadStateModelDocument(
     pressure_contract: { ...BLANK_LOAD_STATE_PRESSURE_CONTRACT },
     reference_configurations: [],
     ...blank,
-    project: { ...blank.project, name: "Blank Local Load/reference Model 0.6.0" }
+    project: { ...blank.project, name: `Blank Local Load/reference Model ${MODEL_SCHEMA_VERSION}` }
   };
 }
 

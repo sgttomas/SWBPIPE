@@ -210,3 +210,4 @@ checks:
 - tests/test_operation_validation_preview.py
 - apps/desktop/src/services/operationBatchService.test.ts
 - apps/desktop/src/services/operationService.test.ts
+- core/model_operations/operation_applier/tests/document_validation_apply.rs

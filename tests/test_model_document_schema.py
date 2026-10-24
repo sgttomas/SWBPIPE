@@ -5,7 +5,7 @@ Every committed JSON file and every line of every committed JSON Lines file is
 searched for model documents by `document_kind`, including documents embedded in
 requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md §5.1):
 
-- a document at the current version (0.6.0) validates against the schema root;
+- a document at the current version (0.7.0) validates against the schema root;
 - a desktop-profile document also validates against `$defs/DesktopDocument`: the
   bundled demo (named explicitly), the desktop e2e fixtures, and saved projects in
   the persistence fixtures;
@@ -13,7 +13,7 @@ requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md
   file's SHA256SUMS digest is required and checked, then the copy is re-authored in
   memory (`qualification_physics.reauthor_model`) and validated. A frozen input
   that no SHA256SUMS binds is excluded only by its entry in UNBOUND_FROZEN_INPUTS;
-- any other retired-version document (0.1.0-0.5.0) is excluded: it is a refusal
+- any other retired-version document (0.1.0-0.6.0) is excluded: it is a refusal
   control;
 - a partial applier operation fixture is excluded: the material-only base and
   applied documents of the applier contract corpus, pinned below;
@@ -47,8 +47,8 @@ from qualification_physics import reauthor_model  # noqa: E402
 SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
 SCHEMA_ID = "https://openpipestress.org/schemas/model.schema.yaml"
 DOCUMENT_KIND = "openpipestress.product_preview.model"
-CURRENT_VERSION = "0.6.0"
-RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0"}
+CURRENT_VERSION = "0.7.0"
+RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"}
 BUNDLED_DEMO = "fixtures/product_preview/invented_demo_model.json"
 DESKTOP_PROFILE_PREFIXES = ("apps/desktop/e2e/", "fixtures/persistence/")
 # The applier contract corpus's partial documents: a case file's base or expected
@@ -94,7 +94,8 @@ UNBOUND_FROZEN_INPUTS = {
 }
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
-EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {}
+EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {
+}
 
 
 def _reject_constant(token):
@@ -327,6 +328,71 @@ def test_result_and_report_are_defined_by_resolvable_reference(definition, targe
         _skip_or_note_missing_jsonschema(exc)
 
 
+ANNOTATED_FIXTURE = "fixtures/model_document/invented_annotated_model.json"
+# PRD §20.2: the fields a public data record carries (library import REQUIRED_PROVENANCE_FIELDS).
+PUBLIC_PROVENANCE_FIELDS = ("source_name", "source_location", "source_license", "contributor",
+                            "contributor_certification", "redistribution_status", "review_status")
+PROVENANCE_RECORD_COLLECTIONS = ("materials", "sections", "components", "supports")
+
+
+def test_the_invented_annotated_model_carries_every_new_member():
+    """DEL-02-01 Design model-document-0.7.0.md §3: one committed invented document authors every slot."""
+    rows = [(bucket, document) for bucket, relative, pointer, document in classify()
+            if relative == ANNOTATED_FIXTURE and pointer == ""]
+    assert [bucket for bucket, _ in rows] == ["format"]
+    document = rows[0][1]
+    for member in ("lines", "unresolved_assumptions", "rule_pack_refs", "constraints", "equipment_interfaces"):
+        assert document[member], member
+    for collection in ("nodes", "pipe_segments", "sections", "materials", "supports", "components", "load_cases",
+                       "combinations", "lines", "unresolved_assumptions", "constraints", "equipment_interfaces"):
+        assert any("tags" in record and "notes" in record for record in document[collection]), collection
+    assert "tags" in document["project"] and "notes" in document["project"]
+    for collection in PROVENANCE_RECORD_COLLECTIONS:
+        assert any("provenance_record" in record for record in document[collection]), collection
+    assert {record["kind"] for record in document["unresolved_assumptions"]} == {"assumption", "open_issue"}
+
+
+def test_committed_provenance_records_are_complete_and_public():
+    """§3.5: a committed model document is public data, so each provenance_record carries all seven §20.2 fields
+    with a public disposition (public_permissive, never rejected or quarantined). Committed fixtures stay invented
+    (F-PIP-1)."""
+    seen = 0
+    for relative, pointer, document in committed_documents():
+        for collection in PROVENANCE_RECORD_COLLECTIONS:
+            records = document.get(collection)
+            for index, record in enumerate(records if isinstance(records, list) else []):
+                provenance = record.get("provenance_record") if isinstance(record, dict) else None
+                if provenance is None:
+                    continue
+                seen += 1
+                label = f"{relative}#{pointer}/{collection}/{index}/provenance_record"
+                missing = [field for field in PUBLIC_PROVENANCE_FIELDS
+                           if not (isinstance(provenance.get(field), str) and provenance[field].strip())]
+                assert not missing, (label, missing)
+                assert provenance["redistribution_status"] == "public_permissive", label
+                assert provenance["review_status"] not in {"rejected", "quarantined"}, label
+    assert seen >= len(PROVENANCE_RECORD_COLLECTIONS)
+
+
+def test_the_canonical_load_bindings_name_defined_schema_records():
+    """§4 "Pointer strings": the primitive_loads model bindings resolve in the committed schemas (ModelResultValue
+    names the results schema's QuantityResult, the result value its consumers bind)."""
+    source = (ROOT / "core" / "loads" / "primitive_loads" / "src" / "lib.rs").read_text(encoding="utf-8")
+    bindings = {}
+    for variant in ("ModelLoadCase", "ModelLoadRecord", "ModelResultValue"):
+        marker = f"Self::{variant} => \""
+        start = source.index(marker) + len(marker)
+        bindings[variant] = source[start:source.index('"', start)]
+    assert bindings["ModelResultValue"] == "schemas/results.v0.3.schema.yaml#/$defs/QuantityResult"
+    for variant, reference in bindings.items():
+        file, _, pointer = reference.partition("#")
+        node = strict_json(ROOT / file)
+        for part in pointer.strip("/").split("/"):
+            assert isinstance(node, dict) and part in node, (variant, reference)
+            node = node[part]
+        assert node.get("type") == "object" and node.get("additionalProperties") is False, (variant, reference)
+
+
 def test_partial_operation_documents_are_the_pinned_ones():
     partial = {(relative, pointer) for bucket, relative, pointer, _ in classify() if bucket == "partial_operation"}
     assert partial == PARTIAL_OPERATION_DOCUMENTS
@@ -345,8 +411,10 @@ def test_a_full_document_missing_project_is_not_partial_and_fails():
 def test_frozen_coverage_includes_every_retired_version_and_json_lines():
     frozen = [(relative, document["schema_version"]) for bucket, relative, _, document in classify()
               if bucket == "reauthored_frozen"]
-    # The 0.1.0 frozen requests (validation/references/kd5_nonlinear) are unbound (UNBOUND_FROZEN_INPUTS).
-    assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.1.0"}
+    # The 0.1.0 frozen requests (validation/references/kd5_nonlinear) are unbound (UNBOUND_FROZEN_INPUTS). No frozen
+    # 0.6.0 model document exists under validation/**: the t4_u4b and t4_u5b references are case descriptions that
+    # the builders author requests from, and the committed 0.6.0 requests elsewhere were re-authored to 0.7.0.
+    assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.1.0", "0.6.0"}
     assert not any(relative.startswith(FROZEN_ROOT) for bucket, relative, _, _ in classify() if bucket == "retired")
     assert any(relative.endswith(".jsonl") for relative, _ in frozen)
 

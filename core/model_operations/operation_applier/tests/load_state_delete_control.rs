@@ -23,7 +23,8 @@
 //! with `LOAD_REFERENCE_DELETE_CONTROL_BLESS=1` from the current applier on
 //! those inputs; they now pin the current outcomes (no longer the base
 //! revision's bytes). Model 0.6.0 re-authored the inputs by version alone and
-//! re-blessed both goldens: only each row's `outcome_sha256` moved. Every row's `applied` flag and diagnostic codes were
+//! re-blessed both goldens: only each row's `outcome_sha256` moved; model 0.7.0
+//! (W-13 S1b) did the same. Every row's `applied` flag and diagnostic codes were
 //! compared with the previous golden; the comparison and the classification of
 //! each changed row are B7b evidence outside the repository.
 use open_pipe_stress_operation_applier::{
@@ -37,7 +38,7 @@ fn fixture(text: &str) -> Value {
     let value: Value = serde_json::from_str(text).unwrap();
     value.get("model").cloned().unwrap_or(value)
 }
-/// The load/reference-state witnesses (current 0.6.0) with every
+/// The load/reference-state witnesses (current 0.7.0) with every
 /// load/reference-state record removed.
 fn stripped(text: &str) -> Value {
     let mut model = fixture(text);
@@ -285,7 +286,7 @@ fn delete_outcomes_without_load_state_records_match_the_golden() {
 
 // ---------------------------------------------------------------------------
 // Addendum 2 (review B F1, F2, F9): temperature-point authoring on the models
-// without the load/reference-state group (re-blessed on the 0.5.0 inputs at B7b and on the 0.6.0 inputs at T4-S1).
+// without the load/reference-state group (re-blessed on the 0.5.0 inputs at B7b, on the 0.6.0 inputs at T4-S1 and on the 0.7.0 inputs at W-13 S1b).
 // ---------------------------------------------------------------------------
 
 const AUTHORING_GOLDEN: &str =

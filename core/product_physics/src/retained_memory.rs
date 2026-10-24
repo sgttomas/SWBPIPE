@@ -809,10 +809,10 @@ fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
 /// `PressureContract`, as any other contract outside L and E.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum NamespaceBranch {
-    /// L, the pressure-free preview route: a current-version (0.6.0) document that carries no
+    /// L, the pressure-free preview route: a current-version (0.7.0) document that carries no
     /// pressure contract (`model_format::is_pressure_free`). The contract's absence selects it.
     Preview,
-    /// E (B3b; B7b D4 (a); O4): a current-version (0.6.0) document declaring the exact
+    /// E (B3b; B7b D4 (a); O4): a current-version (0.7.0) document declaring the exact
     /// `3.0.0/exact_pressure_v3` contract with `shear_model` `euler_bernoulli` or
     /// `timoshenko_annulus_energy_v1`. Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
     Exact,
@@ -876,8 +876,8 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     let refuse = |clause, fact| Err(AdmissionRefusal::Family(clause, fact));
     let m = &request.model;
     // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1–§4.3):
-    // branch L, a pressure-free 0.6.0 document (no pressure contract); or branch E (B3b; B7b
-    // D4 (a); O4 §4.1), 0.6.0 with exactly `{version "3.0.0", mode "exact_pressure_v3",
+    // branch L, a pressure-free 0.7.0 document (no pressure contract); or branch E (B3b; B7b
+    // D4 (a); O4 §4.1), 0.7.0 with exactly `{version "3.0.0", mode "exact_pressure_v3",
     // shear_model "euler_bernoulli" | "timoshenko_annulus_energy_v1"}` (the
     // load/reference-state group stays out). A retired schema refuses
     // with `SchemaVersion`, any other contract with `PressureContract`. Then, on every branch, no sections (S-4).
@@ -1192,16 +1192,16 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
-    // R-A actual-source D3 at 7d946b7e94 (retained-pricing-rules.md §8.13): the source
-    // route's B1 hint vectors and evaluate's Shortcuts are priced (RA-HS, RA-SC); the
-    // canonical 100-form union binds 320 native/text values (s(Option<u32>) added), every
-    // phase rises by 59,424 B and all 70 evaluations fit at the unchanged policy. The twelve
-    // reviewed-input digests, identity and reader layouts are unchanged. The W1 coverage
-    // repair corner 1's D3 at aefefa5043 (§8.12) was the previous registration. The one
-    // registered entry supplies G0; its genuine profile, input, witness and resource checks
-    // still govern.
+    // Model document 0.7.0 D3 at 7222d954a8 (W-13 S1b on main's silent-zero guard on W-8;
+    // retained-pricing-rules.md §8.17): the tree is coefficient-identical to the silent-zero
+    // guard's on W-8 (§8.15, 1,576 coefficients; only the basis line moves). The reviewed inputs
+    // DEF-E (#8), physics-retained-1 (#9), pressure-source-1 (#10) and pressure-2 (#12) take
+    // their 0.7.0 version-token bytes; the identity, reader layouts and threshold are unchanged.
+    // The silent-zero guard's D3 on W-8 at 9937feaab1 (§8.15, "On W-8 (registration)") was the
+    // previous registration. The one registered entry supplies G0; its genuine profile, input,
+    // witness and resource checks still govern.
     identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
-    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=61ee4298678fc487d611cfb275dfdcf739481ce0ec00a7b753154b7d641565d0;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=bb35cd6a546e3dcbe5f8e7d82f0ba6df3e427e543f9548a785a859654beeec7f;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86;../../schemas/results_pressure_2.v0.3.schema.json=9a7d5ab6b7491f9b5c6a421ff7bb14d6a24c915ef29dd608fde004e4a5c409ee;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788",
+    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=8f1f308092121cfe56e08199703c681ba74fd7d6d359d4eafed05d86ef8645a4;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=ff7f3159d69fca32acfdea00f6b07a7c90a168f77fd264e45c997b053daf3de7;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7;../../schemas/results_pressure_2.v0.3.schema.json=9a7d5ab6b7491f9b5c6a421ff7bb14d6a24c915ef29dd608fde004e4a5c409ee;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba",
     reader_layouts: [
         TypeLayout { size: 56, align: 8 },
         TypeLayout { size: 64, align: 8 },
@@ -1310,7 +1310,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at 9937feaab1: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at 7222d954a8: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;

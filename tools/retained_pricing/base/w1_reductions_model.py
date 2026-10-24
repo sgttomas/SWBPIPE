@@ -51,9 +51,11 @@ RF_PINS = {
 # W-8 topology warnings D3 (§8.16): lib.rs's `mod topology;` and its one call change no reduction's owner or lifetime.
 # Silent-zero guard D3 (§8.15): lib.rs's one load-state call (refuse_all_reference_states) changes no reduction's owner
 # or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
+# Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines and retained_wire.rs's DEF-E hash constant change no
+# reduction's owner or lifetime.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "b72fa1427239c8e14e9903a2aaeef1e2b27424d762e05538f2d04bf01774084d",
-    "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
+    "core/product_physics/src/lib.rs": "0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0",
+    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
     "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",

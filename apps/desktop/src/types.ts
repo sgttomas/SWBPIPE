@@ -110,7 +110,7 @@ export type EquivalentStaticGenerationInput = {
 export type PressureRegionInput = {
   id: string;
   member_pipe_ids: string[];
-  /** Defined only in model 0.6.0; old documents never author this member. */
+  /** Defined only in model 0.7.0; old documents never author this member. */
   member_connector_ids?: string[];
   pressure_basis: string;
   pressure: QuantityValue;
@@ -463,6 +463,14 @@ export type PreviewModel = {
   diagnostics: Diagnostic[];
   /** Model 0.4.0: reference configurations (stress-free installed states). */
   reference_configurations?: ReferenceConfigurationInput[] | null;
+  /** Model 0.7.0 (W-13 Design §3.8): model-level settings; absent members take their defaults. */
+  model_settings?: ModelSettings;
+};
+
+/** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
+ * tolerance, a length quantity; absent means 5 mm. The desktop never writes the default. */
+export type ModelSettings = {
+  node_proximity_tolerance?: QuantityValue;
 };
 
 export type Diagnostic = {

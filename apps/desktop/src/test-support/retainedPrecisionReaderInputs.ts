@@ -12,7 +12,7 @@ const DEF_O = "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41"
 /** DEF-E's H, as result_export's `retained_precision::EXACT_DEFINITION_HASH` (re-based on
  * pressure-1 by a43583c625, B7b D4 (a); T4-U6's DEF-E states zero mill tolerance and lists the
  * reduced-basis rows); the rehash mirrors that constant, it states no result. */
-const DEF_E = "8d2bc091712e744a6182a6e6ecd73e9e40916e8530f52e44fe1eeb2415b78fae";
+const DEF_E = "bd3c7de76f4ba2d1f7a72894c173e9c449e27f318359de648f912a192f7cb031";
 const EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 /** The shared corpus's successor fixtures (`retained_precision_*_successor_*.json`). */
 export const SUCCESSOR_FIXTURES = [

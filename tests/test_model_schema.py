@@ -2,7 +2,7 @@
 """Contract checks for the model document schema (schemas/model.schema.yaml).
 
 The schema describes the desktop's model document, `openpipestress.product_preview.model`
-0.6.0 (owner OD-4, 2026-10-23). Its root is the format the Rust reader decodes; its
+0.7.0 (owner OD-4, 2026-10-23). Its root is the format the Rust reader decodes; its
 `$defs/DesktopDocument` is the desktop's open and save profile. Committed documents are
 checked against it in test_model_document_schema.py. The transform's older project/model
 shape is schemas/physical_transform_model.schema.yaml (test_physical_transform_model_schema.py).
@@ -104,7 +104,7 @@ def test_schema_is_a_draft_2020_12_document_with_stable_identity():
 def test_root_is_the_current_model_document_format():
     document = schema()
     assert document["additionalProperties"] is False
-    assert document["properties"]["schema_version"]["enum"] == ["0.6.0"]
+    assert document["properties"]["schema_version"]["enum"] == ["0.7.0"]
     assert document["properties"]["document_kind"]["const"] == "openpipestress.product_preview.model"
     # The root requires exactly what the Rust reader's wire form requires.
     assert sorted(document["required"]) == sorted(wire_required_members())

@@ -1,5 +1,5 @@
 {
-  "status": "Invented producer models for the derivative binding tests (moved from the retired result_export_v0_2.json under b7-plan E2; the models and expected statuses are unchanged except that each model is re-authored as model document 0.6.0, the only current pressure-free version). No library data; standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
+  "status": "Invented producer models for the derivative binding tests (moved from the retired result_export_v0_2.json under b7-plan E2; the models and expected statuses are unchanged except that each model is re-authored as model document 0.7.0, the only current pressure-free version). No library data; standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
   "producer_cases": [
     {
       "case_id": "straight-full",
@@ -595,7 +595,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "family": "anchor",
@@ -887,7 +887,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "family": "anchor",
@@ -1082,7 +1082,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "family": "anchor",
@@ -1697,7 +1697,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "family": "anchor",
@@ -2056,7 +2056,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "id": "support:G-ANCHOR",
@@ -2386,7 +2386,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "id": "support:G-ANCHOR",
@@ -2722,7 +2722,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "id": "support:G-ANCHOR",

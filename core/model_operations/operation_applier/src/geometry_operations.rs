@@ -698,9 +698,10 @@ pub(crate) fn resolve_geometry(model: &Value, intent: &Value) -> Result<Option<G
     if model["document_kind"] != "openpipestress.product_preview.model"
         || model["schema_version"] != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION
     {
-        return Err(err(
-            "Geometry operations require the current product_preview.model schema 0.6.0",
-        ));
+        return Err(err(format!(
+            "Geometry operations require the current product_preview.model schema {}",
+            open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION
+        )));
     }
     if intent["operation_kind"] != "modify"
         || intent["target"]["object_type"] != "Element"
@@ -727,7 +728,7 @@ pub(crate) fn resolve_geometry(model: &Value, intent: &Value) -> Result<Option<G
 mod tests {
     use super::*;
     fn model() -> Value {
-        json!({"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model","project":{"id":"project:test","units":{"length":"m"}},"nodes":[{"id":"node:a","label":"A","position":{"x":0.,"y":0.,"z":0.},"provenance":"user"},{"id":"node:b","label":"B","position":{"x":4.,"y":0.,"z":0.},"provenance":"user"}],"pipe_segments":[{"id":"pipe:a","label":"Pipe","from":"node:a","to":"node:b","section":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.005,"unit":"m"},"contents_density":{"value":800.,"unit":"kg/m^3"}},"material":"material:a","y_reference":{"x":0.,"y":1.,"z":0.},"provenance":"user"}],"materials":[{"id":"material:a"}],"supports":[],"components":[],"load_cases":[]})
+        json!({"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model","project":{"id":"project:test","units":{"length":"m"}},"nodes":[{"id":"node:a","label":"A","position":{"x":0.,"y":0.,"z":0.},"provenance":"user"},{"id":"node:b","label":"B","position":{"x":4.,"y":0.,"z":0.},"provenance":"user"}],"pipe_segments":[{"id":"pipe:a","label":"Pipe","from":"node:a","to":"node:b","section":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.005,"unit":"m"},"contents_density":{"value":800.,"unit":"kg/m^3"}},"material":"material:a","y_reference":{"x":0.,"y":1.,"z":0.},"provenance":"user"}],"materials":[{"id":"material:a"}],"supports":[],"components":[],"load_cases":[]})
     }
     fn split_payload() -> Value {
         json!({"pipe_ref":"pipe:a","fraction":0.25,"new_node":{"id":"node:new","label":"New","provenance":"user"},"new_pipe":{"id":"pipe:new","label":"New pipe","provenance":"user"}})

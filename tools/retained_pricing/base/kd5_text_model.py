@@ -178,7 +178,8 @@ def inspect_directed_helpers(snapshot):
 # are listed by name in o10_rules' KD5C4 set, W8-CG).
 # Silent-zero guard D3 (§8.15): lib.rs adds one call, `case_state::resolve::refuse_all_reference_states`, in the
 # load-state branch; it adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b72fa1427239c8e14e9903a2aaeef1e2b27424d762e05538f2d04bf01774084d'
+# Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines add no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0'
 
 
 def primitive_lib_minmax_callers(snapshot):

@@ -1,5 +1,5 @@
 //! T4-U4b frozen references (`validation/references/t4_u4b/`): the builder
-//! that authors the eight model 0.6.0 requests from `cases.json` by the
+//! that authors the eight model 0.7.0 requests from `cases.json` by the
 //! README's "Binding" rules, and the PP reference test over both modes and
 //! both entries (DEL-04-07 Design `u4b-u5b-implementation.md` §7.1).
 //!
@@ -19,14 +19,14 @@ const STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_
 
 /// The SHA-256 of each authored request's compact JSON (serde_json order).
 const REQUEST_SHA256: [(&str, &str); 8] = [
-    ("U4B-L90-P", "a2103afca3dfe8b090561036981649713ed259f1c7c6dbfc453866faed7009a3"),
-    ("U4B-L90-P-COINCIDENT", "b0ac7a7c99d31f8116aad8402ea80c7568fefd4fd0fb925681b8e6165ad2cfed"),
-    ("U4B-L90-P-MOVED", "ad11f417596137b456a2e168666be42718c6410fb7d98cd0fbc1e9ffdf65a18e"),
-    ("U4B-ARC106-RADIAL-NEGP", "1fbabee6758b2a6fa3d80a453477a2a0094f0b3dcfe407c340b7a24456312ffa"),
-    ("U4B-ARC90-TIGHT-NSIGN-P", "7ed30eedec4e3965635728e5c0fbde65ae46b7a8dce6f8f51e8f28b0301d53ac"),
-    ("U4B-ARC90-OOP-PREVIEW", "9adcf701a5523968ea6b75be66906a4a85f445639f5cb08970db365fb09b61d5"),
-    ("U4B-Z-PREVIEW-REV", "0b3c89a83bbfff423ff777127e0b18b9fbc2e21f46c026d45bc6b9af27a71091"),
-    ("U4B-RISE74-P-REV", "922ddb6159dad2243fac0ec5e816689412967d435c75770dffa1bbd7601a5b6c"),
+    ("U4B-L90-P", "7208627df7f7a2289e628d87e7da7d07ed2888bc2da9ae11cfb765424284453b"),
+    ("U4B-L90-P-COINCIDENT", "0db58acb3bc32932f5faabaf4e2018210787716e59182e12e19f7c76c997aa56"),
+    ("U4B-L90-P-MOVED", "b2f834a6224b05637463177c5fe66a7c7e81a10f9bab455ec2f1266a0c12117e"),
+    ("U4B-ARC106-RADIAL-NEGP", "82aaa0387aef68bf2e76a8aa220f470efd7a7789c41c95f44a78b39181bb9f95"),
+    ("U4B-ARC90-TIGHT-NSIGN-P", "c7d4c19793c681acc4aad71f9f6cbebad742129eef15c5e23eb8858afab6baa3"),
+    ("U4B-ARC90-OOP-PREVIEW", "b8b6167a2a2492c1037ff82fa7f46ccea597c6e600041d8e8cf6f53bc80d09ab"),
+    ("U4B-Z-PREVIEW-REV", "e8ba0ca91718ca81d157d9439ef799d7f9712691a66812caf5f53b30102011e1"),
+    ("U4B-RISE74-P-REV", "c081eee0379397536711936b439e8d9b15be18e026f892d089fbbe7e2de0db92"),
 ];
 
 fn n(v: &Value) -> f64 {
@@ -49,7 +49,7 @@ pub(crate) fn inputs() -> (Value, Value) {
     (cases, oracle)
 }
 
-/// One model 0.6.0 request from a case description (README "Binding"): bend
+/// One model 0.7.0 request from a case description (README "Binding"): bend
 /// components at the arc's authored from node with R, the binary64 bend angle,
 /// k and the directional pair; primitive loads per nonzero global component;
 /// the pressure region and its terminals; the shear model. The two preview

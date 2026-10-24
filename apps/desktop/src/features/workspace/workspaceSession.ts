@@ -48,7 +48,7 @@ import {
   type ProjectUnitMap
 } from "../../services/projectService";
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
-import { modelFileRefusalMessage, openModelDocumentFile } from "../../services/modelDocumentFile";
+import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import {
   keptStoredProjectMessage,
   type ReplaceProjectChoice,
@@ -82,6 +82,7 @@ import {
   resolveDiagnosticEntitySelection,
   resolveEntitySelection
 } from "../results/resultInterpretation";
+import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
 import { batchRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
@@ -1951,10 +1952,10 @@ export function useWorkspaceSession() {
     return createBlankProjectFrom(() => buildBlankLocalModelDocument(new Date(), units), "Created blank local model document without fixture entities or external file copies.");
   }
 
-  /** T1 WP3: a blank load/reference-state document (B7b: model 0.6.0 with the exact
+  /** T1 WP3: a blank load/reference-state document (B7b: the current model version with the exact
    * pressure contract, no engineering content) through the same create path as New Blank. */
   async function handleCreateBlankLoadStateProject(units: ProjectUnitMap = SI_PROJECT_UNITS) {
-    return createBlankProjectFrom(() => buildBlankLoadStateModelDocument(new Date(), units), "Created blank local load/reference-state model 0.6.0 document without fixture entities, engineering values or external file copies.");
+    return createBlankProjectFrom(() => buildBlankLoadStateModelDocument(new Date(), units), `Created blank local load/reference-state model ${MODEL_SCHEMA_VERSION} document without fixture entities, engineering values or external file copies.`);
   }
 
   async function createBlankProjectFrom(buildBlankModel: () => PreviewModel, createdMessage: string) {
@@ -2231,7 +2232,7 @@ export function useWorkspaceSession() {
       setProjectSummary(null);
       setProjectEnvelopeHash(null);
       setModelDocumentVersion(null);
-      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${opened.schema_status}). Not saved as a local project yet.`);
+      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${opened.schema_status}). Not saved as a local project yet.${modelFileWarningSuffix(opened.warnings)}`);
       setProjectOperation("open_model");
       setActiveSection(null);
       const hash = await computeModelHash(document);

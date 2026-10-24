@@ -10,7 +10,7 @@ const TOPOLOGY_CODES: [&str; 4] =
     ["MODEL_TOPOLOGY_DISCONNECTED", "NODE_COINCIDENT", "NODE_NEAR_DUPLICATE", "BRANCH_TOPOLOGY_INVALID"];
 
 fn base(length_unit: &str, nodes: Value, pipes: Value, supports: Value, components: Value) -> Value {
-    json!({"model":{"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
+    json!({"model":{"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:w8","units":{"length":length_unit,"force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":nodes,"pipe_segments":pipes,"supports":supports,"components":components,

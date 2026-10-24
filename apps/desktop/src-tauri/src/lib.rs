@@ -2189,6 +2189,20 @@ fn refuse_model_document(status: &ModelDocumentVersionStatus) -> String {
     )
 }
 
+/// W-13 §5.3: the one document validator's blocking findings, named with
+/// their JSON paths, refuse the document. Warnings never refuse.
+fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
+    let blocking: Vec<String> = open_pipe_stress_operation_applier::validate_model_document(model)
+        .into_iter()
+        .filter(open_pipe_stress_operation_applier::DocumentDiagnostic::is_blocking)
+        .map(|finding| format!("{} at {}: {}", finding.code, finding.path, finding.message))
+        .collect();
+    if blocking.is_empty() {
+        return Ok(());
+    }
+    Err(format!("Model document refused: malformed model-data slots: {}", blocking.join(" | ")))
+}
+
 /// The version check for create/save (DEL-02-05 CLM-003): a document that is
 /// not current is refused by name. A current document is persisted exactly as
 /// received, with the received hash evidence; nothing is migrated, normalized
@@ -2378,9 +2392,16 @@ fn open_local_project(
     app: AppHandle,
     project_id: Option<String>,
 ) -> Result<Option<LocalProjectEnvelope>, String> {
-    let path = app_store_path(&app)?;
+    open_project_in_store(app_store_path(&app)?, project_id.as_deref())
+}
+
+/// `open_local_project` on a given store.
+fn open_project_in_store(
+    path: PathBuf,
+    project_id: Option<&str>,
+) -> Result<Option<LocalProjectEnvelope>, String> {
     let (connection, migration) = open_project_store(&path)?;
-    load_project(&connection, project_id.as_deref())?
+    load_project(&connection, project_id)?
         .map(|record| {
             // DEL-02-05 CLM-003: the restored document is opened exactly as
             // stored when its version is current; any other version is refused
@@ -2389,6 +2410,9 @@ fn open_local_project(
             if status.is_refused() {
                 return Err(refuse_model_document(&status));
             }
+            // W-13 §5.3: a stored document with a malformed model-data slot is
+            // refused by name, never repaired.
+            refuse_malformed_model_slots(&record.model)?;
             let model = record.model;
             Ok(LocalProjectEnvelope {
                 summary: project_summary(
@@ -4490,9 +4514,9 @@ fn packaged_saved_edited_load_intent() -> Value {
 
 fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, String> {
     // Embedded frozen synthetic model: the executable never reads repository
-    // fixtures. The document is the current version, saved as authored.
-    let model: Value = serde_json::from_str(r#"{
-  "schema_version": "0.6.0",
+    // fixtures. The document is the current version, saved as authored; its
+    // version is the shared constant, never a literal.
+    let mut model: Value = serde_json::from_str(r#"{
   "document_kind": "openpipestress.product_preview.model",
   "data_boundary": {
     "public_examples_policy": "invented_or_cleared_data_only",
@@ -4632,10 +4656,11 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
   "diagnostics": []
 }"#)
         .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
+    model["schema_version"] = json!(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION);
     let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
         &open_pipe_stress_operation_applier::canonical_json(payload)));
     let baseline_hash = hash(&model);
-    if baseline_hash != "sha256:e752078003553242025372a97cb775fe89212805423374b2f942f5666947493a" {
+    if baseline_hash != "sha256:6ab326322a5e10568a71048a22cc7cb633b4422a0ade86e021debc01f0f6ddcf" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH: {baseline_hash}"));
     }
     let baseline = solve_preview_mechanics(model.clone())?;
@@ -4655,7 +4680,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let edited_model = applied["applied_model"].clone();
     let edited_hash = hash(&edited_model);
-    if edited_hash != "sha256:add9381f2009cdf7046a8b1b0966774bb77f6143094a15e61a1785dda682cec3" {
+    if edited_hash != "sha256:042bf3a9b2a2b52aba14bf759bb34ffd0f4c125422cbb1aa9520d28e0ab69012" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
     let agent_intent: Value = serde_json::from_str(r#"{
@@ -5265,7 +5290,7 @@ mod tests {
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
         // B4/D1 (b): source blocks remain only on the exact route's composites, so this
         // control reads pressure-source-1's committed request (B7b: an exact-contract
-        // 0.6.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
+        // 0.7.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
         let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
@@ -6289,8 +6314,8 @@ mod tests {
         let project_id = model["project"]["id"].as_str().unwrap();
         let version = check_model_document_for_persist(&model).unwrap();
         assert_eq!(version.status, "current");
-        // B7b: the exact form is a contract-present 0.6.0 document (3.0.0/exact_pressure_v3).
-        assert_eq!(version.target_schema_version, "0.6.0");
+        // B7b: the exact form is a contract-present 0.7.0 document (3.0.0/exact_pressure_v3).
+        assert_eq!(version.target_schema_version, "0.7.0");
         let prepared = model.clone();
         upsert_project(
             &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
@@ -6301,7 +6326,7 @@ mod tests {
         assert_eq!(loaded.model, model);
         let reopened = evaluate_model_document(&loaded.model);
         assert_eq!(reopened.status, "current");
-        assert_eq!(reopened.target_schema_version, "0.6.0");
+        assert_eq!(reopened.target_schema_version, "0.7.0");
         let (status, _, signature) = unit_round_trip_summary(&loaded.model);
         assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
         assert!(signature.contains("poisson_ratio=1"));
@@ -6329,7 +6354,7 @@ mod tests {
             .unwrap()
     }
 
-    /// T1 WP2, on the current format (B7b): a 0.6.0 exact-contract model with the
+    /// T1 WP2, on the current format (B7b): a 0.7.0 exact-contract model with the
     /// load/reference-state group is saved and reopened exactly as any current
     /// document is, and its saved pressure-2 result keeps its raw hash and its
     /// resolved evidence bytes. The model and result are committed producer
@@ -6340,7 +6365,7 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let model = request["model"].clone();
-        assert_eq!(model["schema_version"], "0.6.0");
+        assert_eq!(model["schema_version"], "0.7.0");
         let result: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         )).unwrap();
@@ -6370,8 +6395,8 @@ mod tests {
             apply_store_migrations(&connection).unwrap();
             let status = check_model_document_for_persist(&current).unwrap();
             assert_eq!(status.status, "current");
-            assert_eq!(status.source_schema_version, "0.6.0");
-            assert_eq!(status.target_schema_version, "0.6.0");
+            assert_eq!(status.source_schema_version, "0.7.0");
+            assert_eq!(status.target_schema_version, "0.7.0");
             let (persisted, saved_mh, saved_eh) = (current.clone(), mh.clone(), eh.clone());
             assert_eq!(persisted, model);
             upsert_project(
@@ -6386,7 +6411,7 @@ mod tests {
             let loaded = load_project(&reopened, Some(&project)).unwrap().unwrap();
             let status = evaluate_model_document(&loaded.model);
             assert_eq!(status.status, "current");
-            assert_eq!(status.target_schema_version, "0.6.0");
+            assert_eq!(status.target_schema_version, "0.7.0");
             let opened = loaded.model;
             assert_eq!(opened, model);
             assert_eq!(serde_json::to_string(&opened).unwrap(), model_bytes);
@@ -6419,8 +6444,8 @@ mod tests {
     }
 
     /// T1 WP2 (D3), on the current format (B7b): exact-contract and pressure-free
-    /// 0.6.0 documents persist unchanged with no load/reference-state key added; a
-    /// pressure-free 0.6.0 document that carries the load/reference-state group
+    /// 0.7.0 documents persist unchanged with no load/reference-state key added; a
+    /// pressure-free 0.7.0 document that carries the load/reference-state group
     /// (which requires the exact contract) is kept as authored (not stripped, not
     /// re-stamped) and the product blocks on solve.
     #[test]
@@ -6487,11 +6512,11 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let carried = pressure_free(&request["model"]);
-        assert_eq!(carried["schema_version"], "0.6.0");
+        assert_eq!(carried["schema_version"], "0.7.0");
         assert!(carries_load_reference_keys(&carried));
         let (loaded, status) = round_trip(&carried);
         assert_eq!(loaded, carried);
-        assert_eq!(status.target_schema_version, "0.6.0");
+        assert_eq!(status.target_schema_version, "0.7.0");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let solved = run_linear_static_preview_with_mode(
                 serde_json::from_value(json!({"model": loaded.clone(), "materials": []})).unwrap(),
@@ -6514,7 +6539,7 @@ mod tests {
         assert!(fts5_available(&connection));
 
         let model = json!({
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
@@ -7194,7 +7219,7 @@ mod tests {
         );
     }
 
-    /// U3 (D-2 A1), on the current format (B7b): a 0.6.0 document declaring the
+    /// U3 (D-2 A1), on the current format (B7b): a 0.7.0 document declaring the
     /// retired 1.0.0/legacy_pressure_v1 or 2.0.0/exact_straight_pressure_v2 contract
     /// opens unchanged (no migration rewrites it), and its solve is refused with
     /// PRESSURE_MODEL_REAUTHOR_REQUIRED; nothing is published.
@@ -7215,7 +7240,7 @@ mod tests {
             let before = labelled.clone();
             let opened = evaluate_model_document(&labelled);
             assert_eq!(opened.status, "current", "{contract}");
-            assert_eq!(opened.target_schema_version, "0.6.0", "{contract}");
+            assert_eq!(opened.target_schema_version, "0.7.0", "{contract}");
             assert_eq!(labelled, before);
 
             let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
@@ -7232,7 +7257,7 @@ mod tests {
     #[test]
     fn run_preview_mechanics_reports_blank_model_incomplete_without_defaults() {
         let blank = json!({
-            "schema_version": "0.6.0",
+            "schema_version": "0.7.0",
             "document_kind": "openpipestress.product_preview.model",
             "data_boundary": {
                 "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
@@ -7595,7 +7620,7 @@ mod tests {
             "value": "raw-received-model-claim"
         });
         let received_envelope_claim = json!(["raw", "received", "envelope", "claim"]);
-        // The derived fixture is a current (0.6.0) document: it persists exactly
+        // The derived fixture is a current (0.7.0) document: it persists exactly
         // as edited, with the received hash claims kept raw; nothing is migrated
         // and no evidence is minted.
         let document_status = check_model_document_for_persist(&edited_model)
@@ -7655,14 +7680,14 @@ mod tests {
 
     #[test]
     fn persist_preparation_refuses_retired_newer_and_unsupported_model_documents() {
-        for version in ["0.1.0", "0.2.0", "0.5.0"] {
+        for version in ["0.1.0", "0.2.0", "0.5.0", "0.6.0"] {
             let retired = json!({ "schema_version": version, "project": { "id": "project:retired", "name": "Retired" } });
             let error = check_model_document_for_persist(&retired)
                 .expect_err("retired documents must be refused by name");
             assert!(error.contains("retired_schema") && error.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{error}");
             assert!(error.contains(version) && error.contains("re-author"), "{error}");
         }
-        let newer = json!({ "schema_version": "0.6.1", "project": { "id": "project:newer", "name": "Newer" } });
+        let newer = json!({ "schema_version": "0.7.1", "project": { "id": "project:newer", "name": "Newer" } });
         let error = check_model_document_for_persist(&newer)
             .expect_err("newer-than-supported documents must be refused");
         assert!(error.contains("newer_than_supported"), "{error}");
@@ -7679,8 +7704,8 @@ mod tests {
         let model = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
         let status = check_model_document_for_persist(&model).expect("current documents persist");
         assert_eq!(status.status, "current");
-        assert_eq!(status.source_schema_version, "0.6.0");
-        assert_eq!(status.target_schema_version, "0.6.0");
+        assert_eq!(status.source_schema_version, "0.7.0");
+        assert_eq!(status.target_schema_version, "0.7.0");
     }
 
     /// B7a: a project stored as a retired version (here a 0.1.0 row a previous
@@ -7716,6 +7741,45 @@ mod tests {
         let (connection, _) = open_project_store(&db).unwrap();
         let after = load_project(&connection, Some("project:retired")).unwrap().unwrap();
         assert_eq!(after.model, stored_model, "the stored bytes are never rewritten");
+        drop(connection);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// W-13 §5.3 at project load: a stored document carrying every model-data
+    /// slot opens exactly as stored with its model hash; a stored document with
+    /// a malformed slot is refused by name and its stored bytes are untouched.
+    #[test]
+    fn project_load_validates_model_data_slots() {
+        let root = std::env::temp_dir().join(format!(
+            "ops-slot-model-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let every_slot: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_document/invented_every_slot_model.json"
+        )).unwrap();
+        let mut malformed = every_slot.clone();
+        malformed["project"]["id"] = json!("project:slots-malformed");
+        malformed["constraints"][0]["constraint_kind"] = json!("equipment_interface");
+        {
+            let (mut connection, _) = open_project_store(&db).unwrap();
+            for (id, model) in [("project:slots", &every_slot), ("project:slots-malformed", &malformed)] {
+                upsert_project(&mut connection, id, "Invented slots", model, &json!([]),
+                    &Value::Null, &Value::Null, &Value::Null, &Value::Null,
+                    &computed_model_hash(model, id), &Value::Null).unwrap();
+            }
+        }
+        let opened = open_project_in_store(db.clone(), Some("project:slots")).unwrap().unwrap();
+        assert_eq!(opened.model, every_slot);
+        assert_eq!(hash_value_string(&opened.model_hash), model_payload_hash(&every_slot));
+        let error = open_project_in_store(db.clone(), Some("project:slots-malformed"))
+            .expect_err("a malformed slot is refused at project load");
+        assert!(error.contains("MODEL-CONSTRAINT-KIND-INVALID at constraints[0].constraint_kind"), "{error}");
+        let (connection, _) = open_project_store(&db).unwrap();
+        let after = load_project(&connection, Some("project:slots-malformed")).unwrap().unwrap();
+        assert_eq!(after.model, malformed, "the stored bytes are never rewritten");
         drop(connection);
         std::fs::remove_dir_all(root).unwrap();
     }
