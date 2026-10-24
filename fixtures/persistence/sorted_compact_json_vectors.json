@@ -1,0 +1,106 @@
+{
+  "description": "Sorted-compact JSON vectors for the W-12 model-state record hash (DEL-14-01 Design desktop-states-runs-comparison.md section 2, serializer pin). Each expected text and digest was computed by core/project_persistence/service.py canonical_json (json.dumps sort_keys=True, separators=(',', ':'), ensure_ascii=True); tests/test_model_state_record_parity.py recomputes them from service.py and the desktop store's Rust serializer test (apps/desktop/src-tauri/src/model_states.rs) must produce the same text.",
+  "vectors": [
+    {
+      "name": "non_ascii_text_and_keys",
+      "value": {
+        "z": "Z\u00fcrich \u03a9 \u914d\u7ba1 \ud83d\ude00",
+        "\u00e9": [
+          "na\u00efve",
+          "\u00df"
+        ],
+        "Z": "upper",
+        "a": {
+          "\ud83d\ude00": 1,
+          "\u00e9": 2,
+          "e": 3
+        }
+      },
+      "sorted_compact_json": "{\"Z\":\"upper\",\"a\":{\"e\":3,\"\\u00e9\":2,\"\\ud83d\\ude00\":1},\"z\":\"Z\\u00fcrich \\u03a9 \\u914d\\u7ba1 \\ud83d\\ude00\",\"\\u00e9\":[\"na\\u00efve\",\"\\u00df\"]}",
+      "sha256": "6d5b2463befb0c638752fb5d3414f3f416746303ddb3e745c0e1b873f4263ed2"
+    },
+    {
+      "name": "escapes_and_controls",
+      "value": {
+        "quote": "say \"hi\"",
+        "backslash": "a\\b",
+        "slash": "a/b",
+        "controls": "\u0001\u001f\u007f\b\f\n\r\t",
+        "nbsp": "\u00a0",
+        "line_sep": "\u2028"
+      },
+      "sorted_compact_json": "{\"backslash\":\"a\\\\b\",\"controls\":\"\\u0001\\u001f\\u007f\\b\\f\\n\\r\\t\",\"line_sep\":\"\\u2028\",\"nbsp\":\"\\u00a0\",\"quote\":\"say \\\"hi\\\"\",\"slash\":\"a/b\"}",
+      "sha256": "b79c41eecc564d72263c9636ef7ab7d99dd9bbb06b6f4b3d04cfa5deb2a43ed6"
+    },
+    {
+      "name": "numbers",
+      "value": {
+        "ints": [
+          0,
+          -1,
+          42,
+          9007199254740993,
+          -9223372036854775808
+        ],
+        "floats": [
+          0.1,
+          1.5,
+          -0.0,
+          0.0,
+          1e-05,
+          0.0001,
+          1e+16,
+          1000000000000000.0,
+          123.0,
+          2.5e-07,
+          -3.25,
+          1.7976931348623157e+308,
+          5e-324,
+          1234567.125
+        ]
+      },
+      "sorted_compact_json": "{\"floats\":[0.1,1.5,-0.0,0.0,1e-05,0.0001,1e+16,1000000000000000.0,123.0,2.5e-07,-3.25,1.7976931348623157e+308,5e-324,1234567.125],\"ints\":[0,-1,42,9007199254740993,-9223372036854775808]}",
+      "sha256": "78e08f1ba6b8c9bcc5330ef8cb5546fc26b284df97436c9034741b148b1ec191"
+    },
+    {
+      "name": "literals_and_empty",
+      "value": {
+        "t": true,
+        "f": false,
+        "n": null,
+        "empty_list": [],
+        "empty_object": {},
+        "nested": [
+          [],
+          [
+            {}
+          ],
+          [
+            null
+          ]
+        ]
+      },
+      "sorted_compact_json": "{\"empty_list\":[],\"empty_object\":{},\"f\":false,\"n\":null,\"nested\":[[],[{}],[null]],\"t\":true}",
+      "sha256": "b32eabc62504aa644926829784e6073d7fe77bacbcf17d2fd619733dd11bceac"
+    },
+    {
+      "name": "model_state_like",
+      "value": {
+        "state_name": "Basis \u2013 rev B \u00b7 \u00abtie-in\u00bb",
+        "tags": [
+          {
+            "tag": "r\u00e9vision",
+            "tag_kind": "user_label"
+          }
+        ],
+        "notes": [
+          {
+            "statement": "\u0394p \u2264 5 kPa; see \u201cnote\u201d"
+          }
+        ]
+      },
+      "sorted_compact_json": "{\"notes\":[{\"statement\":\"\\u0394p \\u2264 5 kPa; see \\u201cnote\\u201d\"}],\"state_name\":\"Basis \\u2013 rev B \\u00b7 \\u00abtie-in\\u00bb\",\"tags\":[{\"tag\":\"r\\u00e9vision\",\"tag_kind\":\"user_label\"}]}",
+      "sha256": "3587b91bf2ee6cc07216084afa17ee8ab8dbd66d101dd1ee1bdb3ad93148b8c5"
+    }
+  ]
+}
