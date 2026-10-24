@@ -483,8 +483,12 @@ never block deletion, and a missing entity is reported as a warning.
     `dimensionless`. It removes the member, and removes `model_settings` when
     that leaves it empty. Clearing an absent setting, or setting the stored
     value again, is `OP-MODEL-SETTING-UNCHANGED`.
-  - Each operation's inverse is the other one. The desktop undoes through its
-    session checkpoint, which restores the prior document.
+  - Each operation's inverse is the other one at the member: the inverse of a
+    set restores the prior member or its absence. The inverse cannot restore
+    an authored empty `model_settings: {}` that a set-then-clear removed. The
+    desktop undoes through its session checkpoint, which restores the exact
+    prior document and model hash, including an authored empty record
+    (`modelSettingsCheckpoint.test.tsx`).
   - **Desktop.** The Project page of the property inspector has a Model
     settings section (`features/model-settings/ModelSettingsSection.tsx`). It
     shows the effective value ("5 mm (default)" while unset), takes a value in
