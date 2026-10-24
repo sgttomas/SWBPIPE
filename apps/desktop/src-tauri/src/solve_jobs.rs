@@ -1378,15 +1378,21 @@ mod tests {
     #[test]
     fn result_lease_overlaps_the_grant_until_the_worker_is_reaped() {
         let host = ScriptedHost::normal();
-        let launcher = Arc::new(Arc::unwrap_or_clone(TestLauncher::scripted("result:7")).with_env(crate::solve_worker::tests::EXIT_DELAY_ENV, "400"));
+        // The worker's exit is held at a gate until the overlap has been inspected.
+        let exit = Gate::new("exit");
+        let launcher = Arc::new(
+            Arc::unwrap_or_clone(TestLauncher::scripted("result:7"))
+                .with_env(crate::solve_worker::tests::EXIT_GATE_ENV, exit.dir.display().to_string()),
+        );
         let registry = registry(&host, launcher);
         let receipt = registry.start(MODEL, None).unwrap();
-        // The worker has sent its result and is still alive (exit delay).
+        // The worker has sent its result and is still alive (its exit is held).
         let overlap = wait_for(&registry, &receipt.job_id, |_| registry.pool().reserved(LeasePurpose::Result) > 0);
         assert_eq!(overlap.state, "running");
         assert_eq!(registry.pool().reserved(LeasePurpose::Result), 16);
         assert_eq!(registry.pool().reserved(LeasePurpose::Worker), start_grant(), "the grant is still held");
         assert_eq!(registry.pool_status().running_workers, 1);
+        std::fs::write(exit.dir.join("exit-released"), b"").unwrap();
         let status = wait_terminal(&registry, &receipt.job_id);
         assert_eq!(status.state, "completed");
         assert_eq!((registry.pool().reserved(LeasePurpose::Worker), registry.pool().reserved(LeasePurpose::Result)), (0, 16));
@@ -1528,13 +1534,19 @@ mod tests {
         let pool_bytes = 2 * start + start / 2;
         registry.configure_pool(pool_bytes, 2 * start, false).unwrap();
         let stop = Arc::new(AtomicBool::new(false));
+        // The monitor reports when it has seen two workers running, so the
+        // workers are not released before it has.
+        let (saw_two_tx, saw_two) = mpsc::channel();
         let monitor = {
             let (pool, stop) = (registry.pool().clone(), stop.clone());
             std::thread::spawn(move || {
-                let mut most = 0;
+                let (mut most, mut reported) = (0, false);
                 while !stop.load(Ordering::SeqCst) {
                     assert!(pool.reserved_total() <= pool_bytes, "never over-reserved");
                     most = most.max(pool.running_workers());
+                    if most >= 2 && !reported {
+                        reported = saw_two_tx.send(()).is_ok();
+                    }
                     std::thread::sleep(Duration::from_millis(1));
                 }
                 most
@@ -1555,12 +1567,17 @@ mod tests {
             .map(|h| h.join().unwrap())
             .collect();
         gate.wait_started(2);
-        std::thread::sleep(Duration::from_millis(100));
+        // Every job has either started or been refused its grant at least
+        // once (its supervisor recorded the queue reason).
+        for receipt in &receipts {
+            wait_for(&registry, &receipt.job_id, |s| s.state != "queued" || s.queue_reason.is_some());
+        }
         assert_eq!(gate.started_count(), 2, "only two grants fit");
         let states: Vec<_> = receipts.iter().map(|r| registry.status(&r.job_id).unwrap()).collect();
         assert_eq!(states.iter().filter(|s| s.state == "running").count(), 2);
         assert!(states.iter().filter(|s| s.state == "queued").all(pool_exhausted));
         assert_eq!(registry.pool().reserved(LeasePurpose::Worker), 2 * start);
+        saw_two.recv_timeout(Duration::from_secs(60)).expect("the monitor sees the two running workers");
         for _ in 0..jobs {
             gate.release("{\"r\":1}");
         }
