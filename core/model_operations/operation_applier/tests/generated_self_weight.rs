@@ -11,7 +11,8 @@ fn claim(m: &Value) -> Value {
 fn legacy_model() -> Value {
     let mut model: Value = serde_json::from_str(include_str!("../../../loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json")).unwrap();
     model["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().truncate(1);
-    model["load_cases"][0]["primitive_loads"][0]["annotation"] = json!("preserve exactly");
+    // The stored primitive carries only declared members: primitive loads are closed records
+    // (silent-drop guard, 2026-10-23), so an extra member would refuse the typed inspection.
     model
 }
 fn refresh(m: &Value) -> Value {
@@ -49,7 +50,9 @@ fn refresh_needs_current_hash_and_preserves_identity() {
     assert!(apply_operation(&m,&op,None).applied_model.is_none());
     let out=apply_operation(&m,&op,Some(&claim(&m)));
     assert_eq!(out.applied_model.as_ref().unwrap()["load_cases"][0]["primitive_loads"],next,"{:?}",out.diagnostics);
-    let mut altered=next.clone(); altered[0]["annotation"]=json!("changed");
+    // Any other altered stored member is refused: here the declared `direction`, which a refresh
+    // never changes (formerly an undeclared `annotation` member, now refused by the closed record).
+    let mut altered=next.clone(); assert_eq!(altered[0]["direction"], json!("global_y")); altered[0]["direction"]=json!("global_z");
     assert!(apply_operation(&m,&edit(&m,&altered,"bad"),Some(&claim(&m))).applied_model.is_none());
     let mut duplicate=next.clone(); duplicate.as_array_mut().unwrap().push(next[0].clone());
     assert!(apply_operation(&m,&edit(&m,&duplicate,"dup"),Some(&claim(&m))).applied_model.is_none());
@@ -84,18 +87,19 @@ fn source_plan_guard_and_late_failure_publish_no_model() {
 #[test]
 fn canonical_transport_preserves_integral_float_manual_records_and_detached_physics() {
     let (mut m, mut next) = fixture();
-    let manual = json!({"id":"manual-tip","category":"concentrated_force","target":{"type":"node","node":"node:tip"},"direction":"global_y","magnitude":{"value":-11.0,"unit":"N"},"dimension":"force","provenance":"ordinary manual input","extra":{"number":2.0}});
+    let manual = json!({"id":"manual-tip","category":"concentrated_force","target":{"type":"node","node":"node:tip"},"direction":"global_y","magnitude":{"value":-11.0,"unit":"N"},"dimension":"force","provenance":"ordinary manual input"});
     m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(manual.clone());
     next.as_array_mut().unwrap().push(manual.clone());
-    m["load_cases"][0]["primitive_loads"][0]["extra"] = json!({"number":3.0});
-    next[0]["extra"] = json!({"number":3.0});
+    // Primitive loads are closed records (silent-drop guard, 2026-10-23), so the integral floats
+    // ride on declared members: the manual record's magnitude -11.0 (formerly also an undeclared
+    // `extra: {number: 2.0}` member here and `{number: 3.0}` on the generated record).
     let mut record: Value = serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
     record["source_model_hash"] = claim(&m)["value"].clone();
     next[0]["provenance"] = json!(record.to_string());
     let out = apply_operation(&m, &edit(&m,&next,"refresh-float"), Some(&claim(&m)));
     let applied = out.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}",out.diagnostics));
     assert_eq!(applied["load_cases"][0]["primitive_loads"][1], manual);
-    assert_eq!(applied["load_cases"][0]["primitive_loads"][0]["extra"], m["load_cases"][0]["primitive_loads"][0]["extra"]);
+    assert!(applied["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].is_f64(), "the integral float stays a float");
     next[1]["magnitude"]["value"] = json!(-12);
     assert!(apply_operation(&m,&edit(&m,&next,"changed-manual"),Some(&claim(&m))).applied_model.is_none());
 
