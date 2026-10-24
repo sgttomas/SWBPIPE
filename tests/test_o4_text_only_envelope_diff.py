@@ -106,8 +106,11 @@ W7_BASE = "9bfd04c25550c8600a5ae3fec55e008337e97b3a"
 W7_ENVELOPES = (
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+    "fixtures/model_operations/pressure_v3_l_line_authoring.json",
     *(f"fixtures/product_preview/pressure/load_reference/{name}-{mode}.raw.json"
       for name in ("connected", "pressure") for mode in ("dense_scrutiny", "sparse_interactive")),
+    "fixtures/results/pressure_connected_mechanics_dense.json",
+    "fixtures/results/pressure_connected_mechanics_sparse.json",
     "fixtures/results/pressure_v3_arc_reader_corpus.json",
     "fixtures/results/pressure_v3_connector_reader_corpus.json",
     "fixtures/results/pressure_v3_joint_reader_control.json",
