@@ -123,9 +123,10 @@ on either route. It needs no solve and no result.
   - the webview shape check, ported to Rust (`model_document_shape.rs`) and
     kept equal by a shared invented corpus
     (`fixtures/model_document/desktop_shape_cases.json`);
-  - the open path's indexing preconditions, which the shape check now states
-    explicitly (a present `section_ref` is a string). Every shape-clean corpus
-    case saves and re-opens through the open path;
+  - the open path's adoption preconditions, which the shape check now states
+    explicitly (DEL-07-11 Design `model-document-open-and-native-smoke.md`,
+    "Shape check"). Every shape-clean corpus case saves and re-opens through the
+    open path, and the adoption mutation test covers the demo's string members;
   - disposition screening at any depth: every `provenance_record`, every
     `rule_pack_refs[]` entry, and every `library_ref`, resolved against the
     local library store. Identities are trimmed as `open_local_library` does,
