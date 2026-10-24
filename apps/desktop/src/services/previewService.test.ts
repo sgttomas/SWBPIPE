@@ -166,8 +166,11 @@ describe("previewService explicit reference inspection and browser refusal", () 
       kind: "nonlinear_support_final_reaction",
       entity_ref: "support:NL-130-FRIC",
       unit: "N",
-      // The certified coupled friction force (DEL-04-01 kd5-nonlinear-active-set.md §3.4, R4).
-      value: 0.5237328198735871,
+      // The certified coupled friction force (DEL-04-01 kd5-nonlinear-active-set.md §3.4, R4) of the
+      // regenerated demo, whose valve C-130 is solved with its scale 15 (W-15, DEL-03-05 Design §6). The
+      // unscaled demo's 0.5237328198735871 N stays held against its independent record by
+      // core/product_physics/tests/friction_reversal_stop_release_runtime.rs (C-130 not consumed).
+      value: 0.5692827995447135,
     });
     const frictionNormal = result.results.find(
       (item) =>
@@ -177,8 +180,9 @@ describe("previewService explicit reference inspection and browser refusal", () 
     expect(frictionNormal).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      // The source restraint's certified reaction (DEL-04-01 kd5-nonlinear-active-set.md §3.1).
-      value: 52.373281987358716,
+      // The source restraint's certified reaction (DEL-04-01 kd5-nonlinear-active-set.md §3.1) of the
+      // regenerated demo with valve C-130's scale 15 (W-15; was 52.373281987358716 unscaled).
+      value: 56.92827995447134,
       unit: "N",
     });
     // The accepted same-iterate current-normal law, at the old fixture's 6-digit rounding.

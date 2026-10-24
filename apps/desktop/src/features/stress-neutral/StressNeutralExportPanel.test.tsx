@@ -159,7 +159,11 @@ it('keeps preserved references available only to the pure packet projector',asyn
 it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',async()=>{
  // B1: the minimal preview-physics-2 transport statement replaces the retired precision-1 header.
  // Explicit synthetic consumer semantics for transport vectors; no physical producer qualification.
- const model=structuredClone(modelJson) as PreviewModel,result=minimalPreviewStatement({run_id:'run:transport-vectors',model_ref:model.project.id,
+ // W-15 slice d: the synthetic statement forms no member, so its test-local model does not consume valve
+ // C-130's scale (the model-bound reader would otherwise expect pipe:P-130's body records).
+ const model=structuredClone(modelJson) as PreviewModel;
+ (model.components.find(c=>c.id==='component:C-130') as any).mechanics_interface.solver_consumption='not_solver_consumed'; // eslint-disable-line @typescript-eslint/no-explicit-any
+ const result=minimalPreviewStatement({run_id:'run:transport-vectors',model_ref:model.project.id,
   rows:transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',entity_ref:'node:transport',value:JSON.parse(v.decimal),unit:'rad',metadata:{component:'nodal_rotation_x',coordinate_system:'global',location:'summary',basis:'synthetic consumer transport fixture',sign_convention:'synthetic signed scalar'}})),
   diagnostics:[{id:'gate:test',code:'SYNTHETIC_GATE',severity:'info',message:'Consumer fixture only'}],
   cases:model.load_cases.map(c=>({basis_ref:{ref_type:'load_case',ref_id:c.id},structural_status:'passive_model_basis',solve_quality:'checks_passed',model_matrix_fidelity:'represented_equations_retained',accuracy_evidence:'not_claimed',evidence_refs:['gate:test']}))});
