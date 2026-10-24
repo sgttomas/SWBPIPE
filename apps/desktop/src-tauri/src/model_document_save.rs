@@ -300,6 +300,37 @@ fn collect_values<'a>(value: &'a Value, path: &str, out: &mut Vec<(String, &'a M
     }
 }
 
+/// A `library_ref` identity member (`library_kind`, `library_id`,
+/// `record_id`) as the store's open path normalizes it: Rust `trim`
+/// (`open_local_library`), and nothing when blank. The one rule of the save
+/// screen and the open-time store check (`check_model_library_refs`).
+pub(crate) fn library_identity(value: &str) -> Option<&str> {
+    Some(value.trim()).filter(|value| !value.is_empty())
+}
+
+/// Every record of a stored `kind` library document whose record id, trimmed,
+/// equals `record_id` (already normalized by [`library_identity`]). All of them,
+/// never the first: a clear first record never hides a blocked or changed
+/// duplicate, and a padded id never escapes. The one rule of the save screen
+/// and the open-time store check (`check_model_library_refs`).
+pub(crate) fn matching_library_records<'a>(kind: &str, stored: &'a Value, record_id: &str) -> Vec<&'a Map<String, Value>> {
+    // The store's kind table (`library_records_key`).
+    let Some((records_key, id_key)) = crate::library_records_key(kind) else {
+        return Vec::new();
+    };
+    stored
+        .get(records_key)
+        .and_then(Value::as_array)
+        .map(|records| {
+            records
+                .iter()
+                .filter_map(Value::as_object)
+                .filter(|record| record.get(id_key).and_then(Value::as_str).map(str::trim) == Some(record_id))
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
 fn join(path: &str, key: &str) -> String {
     if path.is_empty() { key.to_string() } else { format!("{path}.{key}") }
 }
@@ -362,7 +393,7 @@ impl DispositionScreen {
                         ("library_ref", Value::Object(reference)) => {
                             // Identities as the store's open path normalizes them
                             // (`open_local_library` trims kind and id).
-                            let text = |key: &str| truthy_str(reference.get(key)).map(str::trim).filter(|value| !value.is_empty());
+                            let text = |key: &str| truthy_str(reference.get(key)).and_then(library_identity);
                             if let (Some(kind), Some(id)) = (text("library_kind"), text("library_id")) {
                                 let record_id = text("record_id").map(str::to_string);
                                 self.library_refs.entry((kind.to_string(), id.to_string())).or_default().push((at.clone(), record_id));
@@ -408,9 +439,6 @@ pub fn screen_model_document_dispositions(
         if let Some(library) = stored.get(format!("{kind}_library")).and_then(Value::as_object) {
             screen.screen_stored(&kind, library, &references[0].0, &named, "stored library");
         }
-        // The store's kind table (`library_records_key`, shared with `check_model_library_refs`).
-        let id_key = crate::library_records_key(&kind).map(|(_, key)| key);
-        let records = stored.get(format!("{kind}_records")).and_then(Value::as_array);
         let mut screened = Vec::new();
         for (path, record_id) in &references {
             let Some(record_id) = record_id else { continue };
@@ -418,17 +446,8 @@ pub fn screen_model_document_dispositions(
                 continue;
             }
             screened.push(record_id.clone());
-            // Every record with this id is screened: a clear first record never
-            // hides a blocked duplicate. Ids compare trimmed, so a padded id
-            // never escapes screening.
-            let matching: Vec<&Map<String, Value>> = match (id_key, records) {
-                (Some(key), Some(records)) => records
-                    .iter()
-                    .filter_map(Value::as_object)
-                    .filter(|record| record.get(key).and_then(Value::as_str).map(str::trim) == Some(record_id.as_str()))
-                    .collect(),
-                _ => Vec::new(),
-            };
+            // Every record with this id is screened (`matching_library_records`).
+            let matching = matching_library_records(&kind, &stored, record_id);
             for record in &matching {
                 screen.screen_stored(&kind, record, path, &format!("{named}#{record_id}"), "stored library record");
             }
@@ -802,6 +821,36 @@ mod tests {
         let hash = hash_of(&text);
         let refused = admit_model_document_text(text, &hash, &hash_of("{}"), &mut no_store).unwrap_err();
         assert_eq!(refused[0].code, EVIDENCE_UNBOUND);
+    }
+
+    /// The native save's walk finds the `library_ref`s, with the identities,
+    /// that the webview's one walk (`libraryRefSites`, used by the save screen
+    /// and the open-time store check) finds: the shared site table. The table
+    /// holds known kinds only. For an unknown `library_kind` the surfaces differ,
+    /// as on main: the webview save skips the lookup and reports nothing, while
+    /// the native save and the open check report `MODEL-LIBRARY-REF-UNRESOLVED`.
+    #[test]
+    fn library_ref_walk_matches_the_shared_site_table() {
+        let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_sites.json")).unwrap();
+        let mut screen = DispositionScreen::default();
+        screen.walk(&table["document"], "");
+        let by_path = |left: &Value, right: &Value| left["path"].as_str().cmp(&right["path"].as_str());
+        let mut walked: Vec<Value> = std::mem::take(&mut screen.library_refs)
+            .into_iter()
+            .flat_map(|((kind, id), references)| {
+                references.into_iter().map(move |(path, record_id)| json!({"path": path, "identity": [kind, id, record_id]}))
+            })
+            .collect();
+        walked.sort_by(by_path);
+        let mut expected: Vec<Value> = table["sites"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|site| !site["identity"].is_null())
+            .map(|site| json!({"path": site["path"], "identity": site["identity"]}))
+            .collect();
+        expected.sort_by(by_path);
+        assert_eq!(walked, expected);
     }
 
     #[test]

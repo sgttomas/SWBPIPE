@@ -33,7 +33,7 @@ import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngre
 import { isTauriRuntime } from "../../services/nativeMenu";
 import { trimLikeRust } from "../../services/rustTrim";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
-import { MODEL_LIBRARY_REF_UNRESOLVED, openLocalLibrary, type LibraryKind, type LibraryOpenRoute } from "../../services/libraryImportService";
+import { MODEL_LIBRARY_REF_UNRESOLVED, libraryRefSites, openLocalLibrary, type LibraryKind, type LibraryOpenRoute } from "../../services/libraryImportService";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
 import {
   classifyExportItem,
@@ -254,27 +254,17 @@ const LIBRARY_RECORD_ID_KEY: Record<LibraryKind, string> = {
 
 export type ModelLibraryRef = { path: string; library_kind: LibraryKind; library_id: string; record_id: string | null };
 
-/** Every `library_ref` of a model, at any depth, with its path. */
+/** Every `library_ref` of a model, at any depth, with its path: the walk the
+ * open-time store check uses (`libraryRefSites`). */
 export function modelLibraryRefs(model: unknown): ModelLibraryRef[] {
-  const found: ModelLibraryRef[] = [];
-  const walk = (value: unknown, path: string) => {
-    if (Array.isArray(value)) { value.forEach((entry, index) => walk(entry, `${path}[${index}]`)); return; }
-    if (!isPlainObject(value)) return;
-    for (const [key, child] of Object.entries(value)) {
-      const at = path ? `${path}.${key}` : key;
-      if (key === "library_ref" && isPlainObject(child)) {
-        // Identities as the store's open path normalizes them (`open_local_library` trims).
-        const kind = trimmed(child.library_kind);
-        const id = trimmed(child.library_id);
-        if (kind && LIBRARY_KINDS.has(kind) && id) {
-          found.push({ path: at, library_kind: kind as LibraryKind, library_id: id, record_id: trimmed(child.record_id) });
-        }
-      }
-      walk(child, at);
-    }
-  };
-  walk(model, "");
-  return found;
+  return libraryRefSites(model).flatMap(({ path, reference }) => {
+    // Identities as the store's open path normalizes them (`open_local_library` trims).
+    const kind = trimmed(reference.library_kind);
+    const id = trimmed(reference.library_id);
+    return kind && LIBRARY_KINDS.has(kind) && id
+      ? [{ path, library_kind: kind as LibraryKind, library_id: id, record_id: trimmed(reference.record_id) }]
+      : [];
+  });
 }
 
 /** A library identity as the native store path trims it (Rust's rule, not `trim()`). */
