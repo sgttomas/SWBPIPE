@@ -2393,7 +2393,7 @@ if fnkey("unknown_field_refusal", _SD_MF):
         < _SD_DISPATCH.index("retained_memory::admit("),
         _SD_DISPATCH.split("{", 1)[1].lstrip().startswith("// Closed model records")
         and _SD_DISPATCH.split("{", 1)[1].split("\n", 2)[2].startswith(_sd_call),
-        _production(_LIB).count("model_fields::unknown_field_refusal(") == 1,
+        _text_of(_LIB).count("unknown_field_refusal(") == 1,
         _re.sub(r"//[^\n]*", "", _production(_SD_MF)).count("unknown_field_refusal(") == 1,
         _SD_CHECK.count(_sd_push) == 1, _production(_SD_MF).count(".push(") == 1,
         _SD_SCAN.count(_sd_tail) == 1, _SD_SCAN.count("findings.push(") == 0,
