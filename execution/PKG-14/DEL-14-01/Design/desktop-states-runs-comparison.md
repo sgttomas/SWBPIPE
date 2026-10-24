@@ -834,8 +834,13 @@ the History panel and `useModelStateHistory.ts`.
       bounded;
     - every parse, canonical text and response is reserved before it is made;
     - every message is capped.
-  - **What is not bounded.** The first two are residuals for the owner's risk
-    decision:
+  - **What is not bounded.** The owner accepted the six items below as
+    documented v0.1 residuals (owner ruling, 2026-10-24, relayed by HELP_HUMAN:
+    "for this W-12 issue I approve Option A as recommended"). They are
+    instances of `memory-budget-decision.md`'s existing residual "command
+    working memory and responses are not separately bounded" (DEL-04-07 Design).
+    Sizes are Codex review r7's conditional planning estimates, not measured
+    whole-command bounds:
     - **Tauri and IPC.** The `Response` handed to Tauri, and the IPC copies
       made after the command returns.
     - **SQLite.** SQLite's own allocations, including its reads of whole
@@ -862,6 +867,20 @@ the History panel and `useModelStateHistory.ts`.
         number's short text.
   - **No whole-command claim.** S2 bounds each priced stage as above. It makes
     no claim of a complete memory bound for a whole command.
+  - **Native measurement (development testing; D-72 item 6).** The IPC copies of
+    a run read are to be measured natively during development testing:
+    - the run-read response is estimated at about 200–250 MiB for a
+      100,000-row run, and about 0.6–1.2 GiB in IPC and webview copies;
+    - the measurement takes the native process's footprint while a large
+      recorded run is read through the History panel.
+
+    If the copies matter in practice, paged or streamed run reads become a
+    scheduled unit (owner ruling, 2026-10-24, Option A).
+  - **Stores modified outside the app (class B).** A row changed outside the
+    app (tampered or corrupted) is detected by the integrity checks above: the
+    record hash, identity columns, exact descriptors and the manifest binding.
+    It is refused by name. S2 claims no memory bound for the work done before
+    such a refusal beyond the stage pricing above.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 
