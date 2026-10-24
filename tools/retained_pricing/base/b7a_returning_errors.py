@@ -125,7 +125,9 @@ MODE_SOURCE = {
            # W-8 topology warnings D3 (§8.16): the same _X emitter, with retained_w1 carried to lib.rs:3618.
            "779a5d3019558c983accbb7e19e5c0507be150138d226c5baa0ea829ea9d07ec",
            # Silent-zero guard D3 (§8.15), merged on W-8: the same _X emitter, with retained_w1 carried to lib.rs:3619.
-           "d8f2b65c5788b7e4104a6faa2acc4b666f54709fec7de0909422a8dbc0cf1c72"},
+           "d8f2b65c5788b7e4104a6faa2acc4b666f54709fec7de0909422a8dbc0cf1c72",
+           # Model document 0.7.0 D3 (§8.17), on the silent-zero guard: the same _X emitter, with retained_w1 carried to lib.rs:3626.
+           "b8ad36562dbc2091bf1e83b297aac99a364a245944acad2aeeb68187253d709a"},
 }
 
 
