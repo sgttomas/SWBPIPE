@@ -342,6 +342,78 @@ describe("RuleCheckRunPanel", () => {
     expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
   });
 
+  describe("FR-RULE-003 pack headline", () => {
+    const check = (check_id: string, status: string) => ({
+      check_id,
+      status,
+      computed_value: null,
+      limit_value: null,
+      acceptability_relation: "less_than_or_equal",
+      bound_inputs: [],
+      completeness_findings: [],
+      evaluator_findings: [],
+      diagnostic_codes: []
+    });
+    const onAggregateChange = vi.fn();
+    const runWith = async (aggregate_status: string, checks: unknown[]) => {
+      const native = await nativeSolvedBasis();
+      mockCatalogAndRuleRun({
+        document_kind: "openpipestress.rule_check.run",
+        rule_pack_id: "invented_demo_rule_pack",
+        grammar_version: "1.0.0",
+        aggregate_status,
+        checks,
+        professional_boundary_notice: "Human review remains required."
+      });
+      onAggregateChange.mockClear();
+      render(<RuleCheckRunPanel model={native.model} result={native.result} onAggregateChange={onAggregateChange} />);
+      fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+      await screen.findByTestId("rule-check-binding-plan");
+      fireEvent.click(screen.getByTestId("rule-check-run"));
+      await screen.findByTestId("rule-check-run-result");
+      return screen.getByTestId("rule-check-aggregate-status");
+    };
+
+    it("headlines INCOMPLETE with real counts when a check failed and another is blocked", async () => {
+      const headline = await runWith("RULE_INPUTS_INCOMPLETE", [
+        check("check_failed", "USER_RULE_FAILED"),
+        check("check_blocked", "RULE_INPUTS_INCOMPLETE"),
+        check("check_passed", "USER_RULE_CHECKED")
+      ]);
+      expect(headline.textContent).toContain("INCOMPLETE — 1 check(s) failed; 1 check(s) blocked (RULE_INPUTS_INCOMPLETE)");
+      expect(headline.textContent).not.toContain("(fail)");
+      expect(headline).toHaveAttribute("data-status", "RULE_INPUTS_INCOMPLETE");
+      // The failed check stays listed with its own status.
+      expect(screen.getByTestId("rule-check-outcome-check_failed").textContent).toContain("USER_RULE_FAILED");
+      expect(screen.getByTestId("rule-check-run-status")).toHaveTextContent("(1 failed; 1 blocked; 1 checked;");
+    });
+
+    it("never headlines a fail while a check is blocked, even if the run carries a failed aggregate", async () => {
+      const headline = await runWith("USER_RULE_FAILED", [check("check_failed", "USER_RULE_FAILED"), check("check_blocked", "RULE_INPUTS_INCOMPLETE")]);
+      expect(headline.textContent).toContain("INCOMPLETE — 1 check(s) failed; 1 check(s) blocked");
+      expect(headline).toHaveAttribute("data-status", "RULE_INPUTS_INCOMPLETE");
+      // The status line, the lifted aggregate and the held run agree with the headline.
+      expect(screen.getByTestId("rule-check-run-status")).toHaveTextContent("aggregate=RULE_INPUTS_INCOMPLETE");
+      expect(screen.getByTestId("rule-check-run-status")).not.toHaveTextContent("aggregate=USER_RULE_FAILED");
+      const [aggregate, held] = onAggregateChange.mock.calls.at(-1)!;
+      expect(aggregate).toBe("RULE_INPUTS_INCOMPLETE");
+      expect(held.result.aggregate_status).toBe("RULE_INPUTS_INCOMPLETE");
+      expect(held.result.checks.map((item: { status: string }) => item.status)).toEqual(["USER_RULE_FAILED", "RULE_INPUTS_INCOMPLETE"]);
+    });
+
+    it("headlines INCOMPLETE with zero failures when checks are only blocked", async () => {
+      const headline = await runWith("RULE_INPUTS_INCOMPLETE", [check("check_blocked", "RULE_INPUTS_INCOMPLETE")]);
+      expect(headline.textContent).toContain("INCOMPLETE — 0 check(s) failed; 1 check(s) blocked");
+    });
+
+    it("shows pass only when every check was evaluated and passed", async () => {
+      const headline = await runWith("USER_RULE_CHECKED", [check("check_a", "USER_RULE_CHECKED"), check("check_b", "USER_RULE_CHECKED")]);
+      expect(headline.textContent).toContain("USER_RULE_CHECKED (pass)");
+      expect(headline.textContent).not.toContain("INCOMPLETE");
+      expect(headline).toHaveAttribute("data-status", "USER_RULE_CHECKED");
+    });
+  });
+
   it("renders per-check outcomes and the aggregate from a desktop run", async () => {
     const native = await nativeSolvedBasis();
     mockCatalogAndRuleRun({
@@ -469,7 +541,7 @@ describe("RuleCheckRunPanel", () => {
 });
 
 // Phase C4 app-held envelope wiring (TP-C4-APPAGG-001). The panel lifts the
-// worst-of rule-check aggregate to the app via onAggregateChange so it can be
+// pack rule-check aggregate to the app via onAggregateChange so it can be
 // recorded in the app-held analysis-run envelope. It reports the aggregate on a
 // successful desktop run and null whenever there is no current run outcome.
 describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
@@ -493,7 +565,7 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
         "Rule-check results are engineering decision-support information computed from user-supplied rules and data. Human review remains required."
   };
 
-  it("lifts the worst-of aggregate to onAggregateChange on a desktop run", async () => {
+  it("lifts the pack aggregate to onAggregateChange on a desktop run", async () => {
     const native = await nativeSolvedBasis();
     mockCatalogAndRuleRun(passingRun);
     const onAggregateChange = vi.fn();

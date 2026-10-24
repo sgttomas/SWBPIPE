@@ -43,33 +43,35 @@ afterEach(() => {
 });
 
 describe("projectService model-document version evidence (DEL-02-05 CLM-003, browser preview)", () => {
-  it("evaluates the current 0.6.0 document as current with the in-document version authority", () => {
+  it("evaluates the current 0.7.0 document as current with the in-document version authority", () => {
     const status = evaluateModelDocumentLocal(sampleModel(MODEL_SCHEMA_VERSION));
     expect(status).toEqual({
       status: "current",
-      source_schema_version: "0.6.0",
-      target_schema_version: "0.6.0",
-      detail: "Model document 0.6.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately."
+      source_schema_version: "0.7.0",
+      target_schema_version: "0.7.0",
+      detail: "Model document 0.7.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately."
     });
   });
 
   // Each version the native evaluation handles (model_document_version.rs
-  // `evaluate_model_document`), with its native outcome. 0.1.0 to 0.5.0 are
-  // retired (B7b: 0.3.0 and 0.4.0 with the v2 exact contract; 0.5.0 since 0.6.0): refused by name with
+  // `evaluate_model_document`), with its native outcome. 0.1.0 to 0.6.0 are
+  // retired (B7b: 0.3.0 and 0.4.0 with the v2 exact contract; 0.5.0 since 0.6.0; 0.6.0 since 0.7.0): refused by name with
   // the re-author diagnostic, never migrated.
   it.each([
-    ["0.1.0", "retired_schema", "0.6.0"],
-    ["0.2.0", "retired_schema", "0.6.0"],
-    ["0.0.9", "retired_schema", "0.6.0"],
-    ["0.3.1", "retired_schema", "0.6.0"],
-    ["0.3.0", "retired_schema", "0.6.0"],
-    ["0.4.0", "retired_schema", "0.6.0"],
-    ["0.5.0", "retired_schema", "0.6.0"],
-    ["0.5.1", "retired_schema", "0.6.0"],
-    ["0.6.0", "current", "0.6.0"],
-    ["0.6.1", "newer_than_supported", "0.6.0"],
-    ["1.0.0", "newer_than_supported", "0.6.0"],
-    ["not-semver", "unsupported_schema", "0.6.0"]
+    ["0.1.0", "retired_schema", "0.7.0"],
+    ["0.2.0", "retired_schema", "0.7.0"],
+    ["0.0.9", "retired_schema", "0.7.0"],
+    ["0.3.1", "retired_schema", "0.7.0"],
+    ["0.3.0", "retired_schema", "0.7.0"],
+    ["0.4.0", "retired_schema", "0.7.0"],
+    ["0.5.0", "retired_schema", "0.7.0"],
+    ["0.5.1", "retired_schema", "0.7.0"],
+    ["0.6.0", "retired_schema", "0.7.0"],
+    ["0.6.1", "retired_schema", "0.7.0"],
+    ["0.7.0", "current", "0.7.0"],
+    ["0.7.1", "newer_than_supported", "0.7.0"],
+    ["1.0.0", "newer_than_supported", "0.7.0"],
+    ["not-semver", "unsupported_schema", "0.7.0"]
   ])("mirrors native for %s: %s, target %s", (version, status, target) => {
     const model = sampleModel(version);
     const before = JSON.stringify(model);
@@ -79,19 +81,19 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(JSON.stringify(model)).toBe(before);
   });
 
-  it.each(["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0"])("refuses the retired %s by name with a re-author diagnostic and never migrates it", async (version) => {
+  it.each(["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"])("refuses the retired %s by name with a re-author diagnostic and never migrates it", async (version) => {
     const evaluated = evaluateModelDocumentLocal(sampleModel(version));
-    expect(evaluated.detail).toBe(`MODEL_SCHEMA_VERSION_RETIRED: model document ${version} is retired; re-author it as model document 0.6.0 (a pressure-free model omits pressure_contract). Nothing is migrated.`);
+    expect(evaluated.detail).toBe(`MODEL_SCHEMA_VERSION_RETIRED: model document ${version} is retired; re-author it as model document 0.7.0 (a pressure-free model omits pressure_contract). Nothing is migrated.`);
     await expect(createLocalProject(sampleModel(version))).rejects.toThrow(/status=retired_schema; source_schema_version=/);
     await expect(saveLocalProject(sampleModel(version))).rejects.toThrow(/MODEL_SCHEMA_VERSION_RETIRED/);
     expect(await findLocalProject("project:doc-migration-test")).toBeNull();
   });
 
-  it("mirrors native: the explicit exact profile (0.6.0 with 3.0.0/exact_pressure_v3) opens and saves in the browser as authored", async () => {
-    const model: PreviewModel = { ...sampleModel("0.6.0"), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } } as PreviewModel;
+  it("mirrors native: the explicit exact profile (0.7.0 with 3.0.0/exact_pressure_v3) opens and saves in the browser as authored", async () => {
+    const model: PreviewModel = { ...sampleModel("0.7.0"), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } } as PreviewModel;
     const before = JSON.stringify(model);
     const status = evaluateModelDocumentLocal(model);
-    expect(status.detail).toBe("Model document 0.6.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.");
+    expect(status.detail).toBe("Model document 0.7.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.");
     const created = await createLocalProject(model);
     expect(created.model_document_version?.status).toBe("current");
     expect(JSON.stringify(created.model)).toBe(before);
@@ -102,11 +104,11 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
   });
 
   it("refuses newer-than-supported and invalid versions without coercion", () => {
-    const newer = evaluateModelDocumentLocal(sampleModel("0.6.1"));
+    const newer = evaluateModelDocumentLocal(sampleModel("0.7.1"));
     expect(newer.status).toBe("newer_than_supported");
     expect(newer.detail).toContain("no down-migration");
 
-    const invalid = evaluateModelDocumentLocal(sampleModel(" 0.6.0"));
+    const invalid = evaluateModelDocumentLocal(sampleModel(" 0.7.0"));
     expect(invalid.status).toBe("unsupported_schema");
   });
 

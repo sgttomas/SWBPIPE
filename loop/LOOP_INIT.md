@@ -21,7 +21,14 @@ verification progress. Include warranted edits in the same implementation PR; a
 brief explanation in the PR suffices when no edits are warranted. HELP_HUMAN may
 edit acceptance-criterion wording that must change only to describe consequences
 of decisions the owner has already made, with every protected fact unchanged,
-and reports the exact old and new text (owner, 2026-10-19).
+and reports the exact old and new text (owner, 2026-10-19). HELP_HUMAN may also
+replace ScopeOfWork, Design and acceptance wording as it recommends, without
+asking first, once an independent review has examined the exact old and new text
+and HELP_HUMAN is clear in the matter (owner, 2026-10-23: "You can continue to
+replace wording as you recommend without asking me any more so long as an
+independent review has been done and you're clear in the matter."). The PR
+quotes the old and new text and the review. Scope, risk acceptance, holds,
+release and the native-smoke `expected.json` values stay with the owner.
 
 Agent 0 checks that the implementation and its declarations agree before
 integration.

@@ -6,6 +6,7 @@
 //! criteria, or professional approval claims are encoded here.
 
 use open_pipe_stress_frame_kernel::{FrameNode, DOF_PER_NODE, ELEMENT_DOF, RX, RZ, UX, UY};
+use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 #[cfg(test)]
 use open_pipe_stress_result_export::sorted_result_values;
 use open_pipe_stress_result_export::{
@@ -23,11 +24,13 @@ use open_pipe_stress_straight_pipe::{
 };
 use open_pipe_stress_stress_recovery::{
     recover_station_stress_sweep, recover_station_stresses, recover_stress_range,
-    recover_stress_range_with_modulus_basis, recover_stresses, AnalysisStatus, ForceResultants,
+    recover_stress_range_with_modulus_basis, recover_stresses,
+    section_stress_quantities::toroidal_membrane_hoop, AnalysisStatus, ForceResultants,
     StationStressRecoveryInput, StationStressRecoveryResult,
     StressRangeModulusBasisRecord, StressRangeResult, StressRecoveryInput, StressRecoveryResult,
     StressSectionProperties,
 };
+use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 // Ungated (value unchanged) so `recorded_comparison_holds` can expose the
@@ -85,6 +88,7 @@ pub enum StressBenchmarkFamily {
     CanonicalAnalyticalResultantStress,
     MillToleranceEffectiveWallStress,
     ModulusBasisStressRange,
+    PressureHoopLongitudinal,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -445,6 +449,7 @@ pub fn fixture_inventory() -> Vec<StressBenchmark> {
         tp_phys_015_canonical_resultant_stress_fixture(),
         tp_pmm_p3_milltol_effective_wall_stress_fixture(),
         tp_pmm_p3_modulusbasis_range_stress_fixture(),
+        pressure_hoop_longitudinal_fixture(),
     ]
 }
 
@@ -476,6 +481,7 @@ pub fn missing_required_families(fixtures: &[StressBenchmark]) -> Vec<StressBenc
         StressBenchmarkFamily::CanonicalAnalyticalResultantStress,
         StressBenchmarkFamily::MillToleranceEffectiveWallStress,
         StressBenchmarkFamily::ModulusBasisStressRange,
+        StressBenchmarkFamily::PressureHoopLongitudinal,
     ];
 
     required
@@ -1789,6 +1795,368 @@ pub fn tp_pmm_p3_modulusbasis_range_stress_fixture() -> StressBenchmark {
     }
 }
 
+// --- Pressure hoop and longitudinal stress fixture: one straight annulus under
+// internal pressure (Lame thick-wall solution, closed-end, open-end and
+// axially restrained longitudinal membrane), driven through the product's
+// exact-pressure preview entry ---
+
+const PRESSURE_OUTSIDE_DIAMETER: f64 = 0.3;
+const PRESSURE_WALL: f64 = 0.02;
+const PRESSURE_CORROSION_ALLOWANCE: f64 = 0.004;
+const PRESSURE_MEMBER_LENGTH: f64 = 3.0;
+const PRESSURE_ELASTIC_MODULUS: f64 = 2.0e11;
+const PRESSURE_POISSON_RATIO: f64 = 0.25;
+const PRESSURE_INTERNAL: f64 = 4.0e6;
+/// Any bend radius above the outer radius: the toroidal crown hoop does not
+/// depend on it.
+const PRESSURE_CROSS_CHECK_BEND_RADIUS: f64 = 1.0;
+const PRESSURE_PROVENANCE: &str =
+    "invented DEL-09-02 pressure stress benchmark input; not library, catalog, manufacturer, standard or code-rule data";
+pub const PRESSURE_PIPE_ID: &str = "pipe:A-B";
+pub const PRESSURE_CLOSED_END_CASE: &str = "case:closed-end";
+pub const PRESSURE_OPEN_END_CASE: &str = "case:open-end";
+pub const PRESSURE_ZERO_CASE: &str = "case:zero-pressure";
+pub const PRESSURE_RESTRAINED_CASE: &str = "case:restrained-closed-end";
+pub const PRESSURE_STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
+pub const PRESSURE_SECTION_BASES: [&str; 2] = ["nominal_section", "reduced_section"];
+pub const PRESSURE_SOLVER_MODES: [PreviewSolverMode; 2] = [
+    PreviewSolverMode::SparseInteractive,
+    PreviewSolverMode::DenseScrutiny,
+];
+
+pub fn pressure_outer_radius() -> f64 {
+    PRESSURE_OUTSIDE_DIAMETER / 2.0
+}
+
+/// Nominal section: the authored wall.
+pub fn pressure_nominal_inner_radius() -> f64 {
+    pressure_outer_radius() - PRESSURE_WALL
+}
+
+/// Reduced wall: authored wall minus corrosion allowance (the mill-tolerance
+/// slot is absent, which means no reduction).
+pub fn pressure_reduced_wall() -> f64 {
+    PRESSURE_WALL - PRESSURE_CORROSION_ALLOWANCE
+}
+
+/// Pressure bore: the inner radius of the reduced wall. The closure (cap)
+/// area is pi times its square on both bases.
+pub fn pressure_bore_radius() -> f64 {
+    pressure_outer_radius() - pressure_reduced_wall()
+}
+
+pub fn pressure_basis_inner_radius(basis: &str) -> f64 {
+    match basis {
+        "nominal_section" => pressure_nominal_inner_radius(),
+        "reduced_section" => pressure_bore_radius(),
+        other => panic!("unknown section basis {other}"),
+    }
+}
+
+/// Lame thick-wall hoop stress at radius r of an annulus ri..ro under
+/// internal pressure p and zero external pressure:
+/// sigma_theta(r) = p ri^2/(ro^2 - ri^2) (1 + ro^2/r^2).
+pub fn lame_hoop_stress(pressure: f64, inner: f64, outer: f64, radius: f64) -> f64 {
+    pressure * inner * inner / (outer * outer - inner * inner)
+        * (1.0 + outer * outer / (radius * radius))
+}
+
+/// Lame thick-wall radial stress: sigma_r(r) = p ri^2/(ro^2 - ri^2) (1 - ro^2/r^2).
+pub fn lame_radial_stress(pressure: f64, inner: f64, outer: f64, radius: f64) -> f64 {
+    pressure * inner * inner / (outer * outer - inner * inner)
+        * (1.0 - outer * outer / (radius * radius))
+}
+
+/// Wall axial force carried by the pipe wall as a multiple of the closure
+/// thrust p pi r_bore^2: 1 for closed ends transferring to the wall, 0 for
+/// separately supported closures on a free member, 2 nu for an axially
+/// restrained member (zero axial strain: sigma_x = nu (sigma_r + sigma_theta)).
+pub fn pressure_wall_axial_force(thrust_multiple: f64, pressure: f64) -> f64 {
+    let bore = pressure_bore_radius();
+    thrust_multiple * pressure * core::f64::consts::PI * bore * bore
+}
+
+/// Longitudinal membrane stress on one basis: the wall force divided by that
+/// basis's wall area pi (ro^2 - ri_b^2) (pi cancels).
+pub fn pressure_axial_membrane_stress(thrust_multiple: f64, pressure: f64, basis: &str) -> f64 {
+    let bore = pressure_bore_radius();
+    let outer = pressure_outer_radius();
+    let inner = pressure_basis_inner_radius(basis);
+    thrust_multiple * pressure * bore * bore / (outer * outer - inner * inner)
+}
+
+fn pressure_load_case(case: &str, pressure: f64, closure_transfer: &str) -> Value {
+    let terminal = |node: &str| {
+        json!({"node_ref": node, "closure_transfer": closure_transfer, "provenance": PRESSURE_PROVENANCE})
+    };
+    json!({
+        "id": case,
+        "primitive_loads": [],
+        "pressure_regions": [{
+            "id": format!("region:{}", case.trim_start_matches("case:")),
+            "member_pipe_ids": [PRESSURE_PIPE_ID],
+            "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": {"value": pressure, "unit": "Pa"},
+            "terminals": [terminal("node:A"), terminal("node:B")],
+            "provenance": PRESSURE_PROVENANCE
+        }],
+        "provenance": PRESSURE_PROVENANCE
+    })
+}
+
+fn pressure_anchor(node: &str) -> Value {
+    json!({
+        "id": format!("support:{}", node.trim_start_matches("node:")),
+        "node": node,
+        "family": "anchor",
+        "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"],
+        "provenance": PRESSURE_PROVENANCE
+    })
+}
+
+/// The product document for one restraint arrangement: a cantilever anchored
+/// at A carrying the closed-end, open-end and zero-pressure cases, or a member
+/// anchored at both ends carrying the restrained closed-end case.
+pub fn pressure_stress_request(restrained: bool) -> Value {
+    let node = |id: &str, x: f64| {
+        json!({"id": id, "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": PRESSURE_PROVENANCE})
+    };
+    let (supports, load_cases) = if restrained {
+        (
+            vec![pressure_anchor("node:A"), pressure_anchor("node:B")],
+            vec![pressure_load_case(PRESSURE_RESTRAINED_CASE, PRESSURE_INTERNAL, "transfers_to_wall")],
+        )
+    } else {
+        (
+            vec![pressure_anchor("node:A")],
+            vec![
+                pressure_load_case(PRESSURE_CLOSED_END_CASE, PRESSURE_INTERNAL, "transfers_to_wall"),
+                pressure_load_case(
+                    PRESSURE_OPEN_END_CASE,
+                    PRESSURE_INTERNAL,
+                    "separately_supported_or_compensated",
+                ),
+                pressure_load_case(PRESSURE_ZERO_CASE, 0.0, "transfers_to_wall"),
+            ],
+        )
+    };
+    json!({
+        "model": {
+            "schema_version": "0.7.0",
+            "document_kind": "openpipestress.product_preview.model",
+            "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
+            "project": {
+                "id": if restrained { "project:invented-del-09-02-pressure-restrained" } else { "project:invented-del-09-02-pressure-cantilever" },
+                "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}
+            },
+            "analysis_status": {
+                "mechanics": "ready_for_preview_diagnostics",
+                "rule_check": "not_performed_user_rule_inputs_missing",
+                "professional_acceptance": "not_provided"
+            },
+            "nodes": [node("node:A", 0.0), node("node:B", PRESSURE_MEMBER_LENGTH)],
+            "pipe_segments": [{
+                "id": PRESSURE_PIPE_ID,
+                "from": "node:A",
+                "to": "node:B",
+                "section": {
+                    "outside_diameter": {"value": PRESSURE_OUTSIDE_DIAMETER, "unit": "m"},
+                    "wall_thickness": {"value": PRESSURE_WALL, "unit": "m"},
+                    "corrosion_allowance": {"value": PRESSURE_CORROSION_ALLOWANCE, "unit": "m"}
+                },
+                "material": "material:pressure-benchmark",
+                "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+                "provenance": PRESSURE_PROVENANCE
+            }],
+            "supports": supports,
+            "components": [],
+            "materials": [{
+                "id": "material:pressure-benchmark",
+                "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+                "elastic_modulus": {"value": PRESSURE_ELASTIC_MODULUS, "unit": "Pa"},
+                "poisson_ratio": {"value": PRESSURE_POISSON_RATIO, "unit": "1"},
+                "provenance": PRESSURE_PROVENANCE
+            }],
+            "load_cases": load_cases,
+            "combinations": []
+        },
+        "materials": []
+    })
+}
+
+/// One product solve of one restraint arrangement in one solver mode.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PressureStressRun {
+    pub restrained: bool,
+    pub mode: PreviewSolverMode,
+    pub envelope: Value,
+}
+
+/// Solve both restraint arrangements in both preview solver modes through the
+/// product's exact-pressure entry. Nothing here computes an expected value.
+pub fn recover_pressure_hoop_longitudinal_fixture() -> Result<Vec<PressureStressRun>, String> {
+    let mut runs = Vec::new();
+    for restrained in [false, true] {
+        for mode in PRESSURE_SOLVER_MODES {
+            let envelope =
+                run_linear_static_preview_value_with_mode(pressure_stress_request(restrained), mode)?;
+            let envelope = serde_json::to_value(envelope).map_err(|error| error.to_string())?;
+            runs.push(PressureStressRun {
+                restrained,
+                mode,
+                envelope,
+            });
+        }
+    }
+    Ok(runs)
+}
+
+fn pressure_row_number(value: &Value) -> Option<f64> {
+    match value {
+        Value::Number(number) => number.as_f64(),
+        Value::String(text) => text.parse().ok(),
+        _ => None,
+    }
+}
+
+/// The section basis a published row names (`; section_basis=...` suffix of
+/// its recovery token), or "" for a row published once.
+fn pressure_row_basis(row: &Value) -> &str {
+    row["metadata"]["basis"]
+        .as_str()
+        .and_then(|basis| basis.rsplit_once("; section_basis="))
+        .map_or("", |(_, basis)| basis)
+}
+
+/// The product's toroidal crown membrane hoop (`toroidal_membrane_hoop`) on the
+/// pressure bore and reduced wall. It is p r_i/t whatever the bend radius
+/// above r_o, the straight-cylinder through-wall equilibrium mean hoop.
+pub fn recover_pressure_crown_membrane_hoop() -> Result<f64, String> {
+    toroidal_membrane_hoop(
+        PRESSURE_INTERNAL,
+        pressure_bore_radius(),
+        pressure_reduced_wall(),
+        pressure_outer_radius(),
+        PRESSURE_CROSS_CHECK_BEND_RADIUS,
+    )
+    .map(|hoop| hoop.crown)
+    .map_err(|error| format!("{error:?}"))
+}
+
+/// Every published value of `kind`/`component` at `location` on `case` and
+/// `basis` ("" selects rows published once), with its unit.
+pub fn published_pressure_values(
+    envelope: &Value,
+    case: &str,
+    kind: &str,
+    component: &str,
+    location: &str,
+    basis: &str,
+) -> Vec<(f64, String)> {
+    envelope["results"]
+        .as_array()
+        .map(|rows| {
+            rows.iter()
+                .filter(|row| {
+                    row["kind"] == kind
+                        && row["entity_ref"] == PRESSURE_PIPE_ID
+                        && row["metadata"]["component"] == component
+                        && row["metadata"]["location"] == location
+                        && row["basis_ref"]["ref_id"] == case
+                        && pressure_row_basis(row) == basis
+                })
+                .filter_map(|row| {
+                    Some((
+                        pressure_row_number(&row["value"])?,
+                        row["unit"].as_str().unwrap_or("").to_string(),
+                    ))
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+pub fn pressure_hoop_longitudinal_fixture() -> StressBenchmark {
+    let p = PRESSURE_INTERNAL;
+    let ro = pressure_outer_radius();
+    let ri_n = pressure_nominal_inner_radius();
+    let ri_r = pressure_bore_radius();
+    let stress = |name: &'static str, value: f64| ExpectedValue {
+        name,
+        value,
+        unit: "Pa",
+        dimension: "stress",
+        tolerance_policy: None,
+    };
+    let force = |name: &'static str, value: f64| ExpectedValue {
+        name,
+        value,
+        unit: "N",
+        dimension: "force",
+        tolerance_policy: None,
+    };
+    StressBenchmark {
+        fixture_id: "STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL",
+        family: StressBenchmarkFamily::PressureHoopLongitudinal,
+        description: "Invented straight annulus under internal pressure: Lame hoop and radial surface stresses and the closed-end, open-end and axially restrained longitudinal membrane, on the nominal and reduced section bases, through the product's exact-pressure preview entry.",
+        assumptions: &[
+            "Lame thick-wall solution of a long straight elastic annulus with internal pressure and zero external pressure; small strain, homogeneous isotropic material.",
+            "Each basis's hoop and radial stresses are those of its own annulus; the closure (cap) thrust acts on the pressure bore (the reduced bore) on both bases.",
+            "Closed ends transferring to the wall carry the full cap thrust; separately supported closures on a free member carry none; an axially restrained member carries 2 nu times the cap thrust (zero axial strain).",
+            "The fixture does not encode a code stress category, stress index, allowable, design-pressure formula, or acceptance criterion.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/stress/pressure_hoop_longitudinal.md",
+        ),
+        unit_basis: STRESS_FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            stress("nominal_lame_inner_hoop", lame_hoop_stress(p, ri_n, ro, ri_n)),
+            stress("nominal_lame_outer_hoop", lame_hoop_stress(p, ri_n, ro, ro)),
+            stress("nominal_lame_inner_radial", lame_radial_stress(p, ri_n, ro, ri_n)),
+            stress("nominal_lame_outer_radial", lame_radial_stress(p, ri_n, ro, ro)),
+            stress("reduced_lame_inner_hoop", lame_hoop_stress(p, ri_r, ro, ri_r)),
+            stress("reduced_lame_outer_hoop", lame_hoop_stress(p, ri_r, ro, ro)),
+            stress("reduced_lame_inner_radial", lame_radial_stress(p, ri_r, ro, ri_r)),
+            stress("reduced_lame_outer_radial", lame_radial_stress(p, ri_r, ro, ro)),
+            force("closed_end_wall_axial_force", pressure_wall_axial_force(1.0, p)),
+            stress(
+                "closed_end_nominal_axial_membrane",
+                pressure_axial_membrane_stress(1.0, p, "nominal_section"),
+            ),
+            stress(
+                "closed_end_reduced_axial_membrane",
+                pressure_axial_membrane_stress(1.0, p, "reduced_section"),
+            ),
+            force("open_end_wall_axial_force", pressure_wall_axial_force(0.0, p)),
+            stress(
+                "open_end_nominal_axial_membrane",
+                pressure_axial_membrane_stress(0.0, p, "nominal_section"),
+            ),
+            stress(
+                "open_end_reduced_axial_membrane",
+                pressure_axial_membrane_stress(0.0, p, "reduced_section"),
+            ),
+            force(
+                "restrained_wall_axial_force",
+                pressure_wall_axial_force(2.0 * PRESSURE_POISSON_RATIO, p),
+            ),
+            stress(
+                "restrained_nominal_axial_membrane",
+                pressure_axial_membrane_stress(2.0 * PRESSURE_POISSON_RATIO, p, "nominal_section"),
+            ),
+            stress(
+                "restrained_reduced_axial_membrane",
+                pressure_axial_membrane_stress(2.0 * PRESSURE_POISSON_RATIO, p, "reduced_section"),
+            ),
+            stress("zero_pressure_stress", 0.0),
+            stress(
+                "reduced_equilibrium_mean_hoop",
+                p * ri_r / pressure_reduced_wall(),
+            ),
+        ],
+    }
+}
+
 fn governed_stress_result_provenance() -> ExportProvenance {
     ExportProvenance {
         source_name: "OpenPipeStress original stress recovery benchmark".to_string(),
@@ -1860,7 +2228,7 @@ mod tests {
     fn inventory_covers_required_stress_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 14);
+        assert_eq!(fixtures.len(), 15);
         assert!(fixtures.iter().any(|fixture| {
             fixture.fixture_id == "STRESS-TP-PHYS-007-STATION-SWEEP-STRESS"
                 && fixture.family == StressBenchmarkFamily::StationSweepStress
@@ -2490,5 +2858,270 @@ mod tests {
         }));
         assert!(envelope.professional_boundary.human_review_required);
         assert!(!envelope.professional_boundary.software_makes_approval_claim);
+    }
+
+    // --- STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL ---
+
+    /// The DEC-024/DEC-026 analytic-class relative seed (1.0e-9), scaled by
+    /// the larger of the expected magnitude and the case's load scale (so a
+    /// zero expectation is judged on the scale of the applied pressure or cap
+    /// thrust, never absolutely). The fixture's tolerance_policy stays None.
+    const PRESSURE_ANALYTIC_RELATIVE_SEED: f64 = 1.0e-9;
+
+    fn assert_pressure_close(actual: f64, expected: f64, scale: f64, context: &str) {
+        let tolerance = PRESSURE_ANALYTIC_RELATIVE_SEED * expected.abs().max(scale);
+        assert!(
+            (actual - expected).abs() <= tolerance,
+            "{context}: expected {expected:e}, got {actual:e} (tolerance {tolerance:e})"
+        );
+    }
+
+    fn pressure_expected(name: &str) -> f64 {
+        pressure_hoop_longitudinal_fixture()
+            .expected_values
+            .iter()
+            .find(|value| value.name == name)
+            .unwrap_or_else(|| panic!("missing expected value {name}"))
+            .value
+    }
+
+    fn one_pressure_value(
+        envelope: &Value,
+        case: &str,
+        kind: &str,
+        component: &str,
+        location: &str,
+        basis: &str,
+        unit: &str,
+    ) -> f64 {
+        let found = published_pressure_values(envelope, case, kind, component, location, basis);
+        match found.as_slice() {
+            [(value, published_unit)] => {
+                assert_eq!(published_unit, unit, "{case} {kind} {component} {location} {basis}");
+                *value
+            }
+            other => panic!(
+                "{case} {kind} {component} {location} {basis}: expected one published row, found {other:?}"
+            ),
+        }
+    }
+
+    const PRESSURE_SURFACE_ROWS: [(&str, &str, &str); 4] = [
+        ("pipe_lame_hoop_stress_v2", "lame_inner_hoop_stress", "lame_inner_hoop"),
+        ("pipe_lame_hoop_stress_v2", "lame_outer_hoop_stress", "lame_outer_hoop"),
+        ("pipe_lame_radial_stress_v2", "lame_inner_radial_stress", "lame_inner_radial"),
+        ("pipe_lame_radial_stress_v2", "lame_outer_radial_stress", "lame_outer_radial"),
+    ];
+
+    fn basis_prefix(basis: &str) -> &'static str {
+        match basis {
+            "nominal_section" => "nominal",
+            "reduced_section" => "reduced",
+            other => panic!("unknown section basis {other}"),
+        }
+    }
+
+    #[test]
+    fn pressure_fixture_recovers_lame_and_longitudinal_membrane_on_both_bases() {
+        let runs = recover_pressure_hoop_longitudinal_fixture()
+            .expect("the product accepts both pressure documents");
+        assert_eq!(runs.len(), 4);
+        let p = PRESSURE_INTERNAL;
+        let thrust_scale = pressure_wall_axial_force(1.0, p);
+        let mut compared = 0;
+        for run in &runs {
+            let context = format!(
+                "{} {:?}",
+                if run.restrained { "restrained" } else { "cantilever" },
+                run.mode
+            );
+            assert_eq!(
+                run.envelope["status"]["mechanics"],
+                json!("MECHANICS_SOLVED"),
+                "{context}: {}",
+                run.envelope["diagnostics"]
+            );
+            assert_eq!(
+                run.envelope["formulation_basis"]["profile_id"],
+                json!("exact_pressure_v3"),
+                "{context}"
+            );
+            let cases: &[(&str, &str)] = if run.restrained {
+                &[(PRESSURE_RESTRAINED_CASE, "restrained")]
+            } else {
+                &[
+                    (PRESSURE_CLOSED_END_CASE, "closed_end"),
+                    (PRESSURE_OPEN_END_CASE, "open_end"),
+                ]
+            };
+            for (case, prefix) in cases {
+                for location in PRESSURE_STATIONS {
+                    let at = format!("{context} {case} {location}");
+                    let wall_force = one_pressure_value(
+                        &run.envelope,
+                        case,
+                        "pipe_wall_axial_force_v2",
+                        "wall_axial_force",
+                        location,
+                        "",
+                        "N",
+                    );
+                    assert_pressure_close(
+                        wall_force,
+                        pressure_expected(&format!("{prefix}_wall_axial_force")),
+                        thrust_scale,
+                        &at,
+                    );
+                    compared += 1;
+                    for basis in PRESSURE_SECTION_BASES {
+                        let short = basis_prefix(basis);
+                        for (kind, component, name) in PRESSURE_SURFACE_ROWS {
+                            let value = one_pressure_value(
+                                &run.envelope,
+                                case,
+                                kind,
+                                component,
+                                location,
+                                basis,
+                                "Pa",
+                            );
+                            assert_pressure_close(
+                                value,
+                                pressure_expected(&format!("{short}_{name}")),
+                                p,
+                                &format!("{at} {basis} {component}"),
+                            );
+                            compared += 1;
+                        }
+                        let membrane = one_pressure_value(
+                            &run.envelope,
+                            case,
+                            "pipe_axial_membrane_stress_v2",
+                            "axial_membrane_stress",
+                            location,
+                            basis,
+                            "Pa",
+                        );
+                        assert_pressure_close(
+                            membrane,
+                            pressure_expected(&format!("{prefix}_{short}_axial_membrane")),
+                            p,
+                            &format!("{at} {basis} axial_membrane_stress"),
+                        );
+                        compared += 1;
+                    }
+                }
+            }
+        }
+        // 2 modes x (2 cantilever cases + 1 restrained case) x 5 stations x
+        // (1 wall force + 2 bases x 5 stress rows).
+        assert_eq!(compared, 2 * 3 * 5 * 11);
+    }
+
+    #[test]
+    fn pressure_fixture_zero_pressure_publishes_zero_pressure_stresses() {
+        let runs = recover_pressure_hoop_longitudinal_fixture()
+            .expect("the product accepts both pressure documents");
+        let zero = pressure_expected("zero_pressure_stress");
+        assert_eq!(zero, 0.0);
+        let mut compared = 0;
+        for run in runs.iter().filter(|run| !run.restrained) {
+            for location in PRESSURE_STATIONS {
+                for basis in PRESSURE_SECTION_BASES {
+                    let rows = PRESSURE_SURFACE_ROWS
+                        .iter()
+                        .map(|(kind, component, _)| (*kind, *component))
+                        .chain([("pipe_axial_membrane_stress_v2", "axial_membrane_stress")]);
+                    for (kind, component) in rows {
+                        let value = one_pressure_value(
+                            &run.envelope,
+                            PRESSURE_ZERO_CASE,
+                            kind,
+                            component,
+                            location,
+                            basis,
+                            "Pa",
+                        );
+                        // Judged on the scale of the other cases' pressure.
+                        assert_pressure_close(
+                            value,
+                            zero,
+                            PRESSURE_INTERNAL,
+                            &format!("{:?} {location} {basis} {component}", run.mode),
+                        );
+                        compared += 1;
+                    }
+                }
+            }
+        }
+        assert_eq!(compared, 2 * 5 * 2 * 5);
+    }
+
+    #[test]
+    fn pressure_fixture_relations_discriminate_thin_wall_and_basis_mixing() {
+        let runs = recover_pressure_hoop_longitudinal_fixture()
+            .expect("the product accepts both pressure documents");
+        let run = runs
+            .iter()
+            .find(|run| !run.restrained)
+            .expect("a cantilever run");
+        let p = PRESSURE_INTERNAL;
+        let ro = pressure_outer_radius();
+        let value = |kind: &str, component: &str, basis: &str| {
+            one_pressure_value(
+                &run.envelope,
+                PRESSURE_CLOSED_END_CASE,
+                kind,
+                component,
+                "midspan",
+                basis,
+                "Pa",
+            )
+        };
+        for basis in PRESSURE_SECTION_BASES {
+            let inner_hoop = value("pipe_lame_hoop_stress_v2", "lame_inner_hoop_stress", basis);
+            let outer_hoop = value("pipe_lame_hoop_stress_v2", "lame_outer_hoop_stress", basis);
+            let inner_radial =
+                value("pipe_lame_radial_stress_v2", "lame_inner_radial_stress", basis);
+            let outer_radial =
+                value("pipe_lame_radial_stress_v2", "lame_outer_radial_stress", basis);
+            let membrane = value("pipe_axial_membrane_stress_v2", "axial_membrane_stress", basis);
+
+            // Lame: the hoop falls by exactly p from bore to outside, and
+            // sigma_r + sigma_theta is the same constant 2A at both surfaces.
+            assert_pressure_close(inner_hoop - outer_hoop, p, p, basis);
+            assert_pressure_close(inner_hoop + inner_radial, outer_hoop + outer_radial, p, basis);
+            assert_pressure_close(inner_radial, -p, p, basis);
+
+            // Thin-wall sanity: the through-wall mean hoop p ri/t (exact
+            // half-cylinder equilibrium) lies strictly between the Lame surface
+            // values, and the p D/(2t) form lies above both, so neither
+            // thin-wall value can stand in for a published Lame row.
+            let inner = pressure_basis_inner_radius(basis);
+            let wall = ro - inner;
+            let mean = p * inner / wall;
+            let outside_form = p * (2.0 * ro) / (2.0 * wall);
+            assert!(outer_hoop < mean && mean < inner_hoop, "{basis}: {outer_hoop:e} < {mean:e} < {inner_hoop:e}");
+            assert!(outside_form > inner_hoop * (1.0 + 1.0e-3), "{basis}: {outside_form:e} vs {inner_hoop:e}");
+
+            // Closed-end consistency holds only where the cap bore and the
+            // basis annulus coincide (reduced basis); on the nominal basis the
+            // cap thrust on the pressure bore is divided by the nominal area.
+            let half_outer = outer_hoop / 2.0;
+            if basis == "reduced_section" {
+                assert_pressure_close(membrane, half_outer, p, basis);
+            } else {
+                assert!(
+                    (membrane - half_outer).abs() > 1.0e-2 * p,
+                    "nominal membrane {membrane:e} must not be the nominal annulus's closed-end {half_outer:e}"
+                );
+            }
+        }
+
+        // The product's toroidal crown membrane hoop at the same bore and wall
+        // is the straight-cylinder equilibrium mean p ri/t.
+        let crown =
+            recover_pressure_crown_membrane_hoop().expect("the bend radius exceeds the outer radius");
+        assert_pressure_close(crown, pressure_expected("reduced_equilibrium_mean_hoop"), p, "crown");
     }
 }

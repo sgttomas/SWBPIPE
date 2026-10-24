@@ -4,7 +4,12 @@ mod host_memory;
 mod ingress;
 mod memory_pool;
 mod model_document_file;
+mod model_document_save;
+mod model_document_shape;
 mod model_document_version;
+mod model_states;
+mod analysis_runs;
+mod stored_read;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
@@ -210,6 +215,40 @@ async fn save_report_package_decoded(
     redaction_evidence: ReportPackageRedactionEvidence,
     local_first_evidence: Option<ReportPackageLocalFirstEvidence>,
 ) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    save_report_package_with_picker(request, redaction_evidence, local_first_evidence, |file_name| {
+        app.dialog()
+            .file()
+            .set_file_name(file_name)
+            .add_filter("SWBPIPE Project Package", &["opsproj"])
+            .blocking_save_file()
+            .map(|selected| selected.into_path().map_err(|error| error.to_string()))
+    })
+}
+
+/// The W-18 slice (a) native hold (DEL-08-01 Design
+/// `report-package-current-results.md` §2.6, "Slice (a) hold"). From package
+/// version 2.0.0 the shared producer admits Current pressure-free requests,
+/// and the TypeScript availability gate is not an IPC boundary. Until slice
+/// (b1) installs the content-screened admission, this desktop command refuses
+/// every request before evidence use, package assembly, the save dialog or any
+/// write. It does not close the shared producer or the headless runner. Slice
+/// (b1) removes this hold and its test.
+const REPORT_PACKAGE_SAVE_HOLD: &str =
+    "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
+
+fn report_package_save_hold() -> Result<(), ReportPackageSaveCommandError> {
+    Err(ReportPackageSaveCommandError::bridge(REPORT_PACKAGE_SAVE_HOLD.to_string()))
+}
+
+/// The save after argument decoding; `choose` is the save dialog (a counting
+/// seam in tests): `None` is a cancel, `Some(Err)` an unusable path.
+fn save_report_package_with_picker(
+    request: report_package_bridge::ReportPackageRequest,
+    redaction_evidence: ReportPackageRedactionEvidence,
+    local_first_evidence: Option<ReportPackageLocalFirstEvidence>,
+    choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
+) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    report_package_save_hold()?;
     if redaction_evidence.route_id != "DREP-PACKAGE-SAVE-009"
         || redaction_evidence.blocking_count != 0
     {
@@ -228,13 +267,7 @@ async fn save_report_package_decoded(
         )));
     }
 
-    let selected = app
-        .dialog()
-        .file()
-        .set_file_name(&package.container_file_name)
-        .add_filter("SWBPIPE Project Package", &["opsproj"])
-        .blocking_save_file();
-    let Some(selected) = selected else {
+    let Some(selected) = choose(&package.container_file_name) else {
         return Ok(ReportPackageSaveReceipt {
             outcome: "cancelled".to_string(),
             stage: "picker".to_string(),
@@ -301,7 +334,7 @@ async fn save_report_package_decoded(
             limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
         });
     };
-    let destination = selected.into_path().map_err(|error| {
+    let destination = selected.map_err(|error| {
         ReportPackageSaveCommandError::bridge(format!(
             "REPORT-PACKAGE-PICKER-PATH-INVALID: {error}"
         ))
@@ -720,7 +753,7 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 11;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 13;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -886,6 +919,20 @@ fn store_migrations() -> Vec<StoreMigration> {
                     .map_err(|error| error.to_string())
             },
         },
+        // Named immutable model states and their labels (W-12 S1, DEL-14-01
+        // Design `desktop-states-runs-comparison.md` §2).
+        StoreMigration {
+            version: 12,
+            migration_id: "store-v12-model-states-tables",
+            apply: model_states::migrate_v12_model_states,
+        },
+        // Analysis runs recorded against model states, and their labels (W-12
+        // S2, the same design §3).
+        StoreMigration {
+            version: 13,
+            migration_id: "store-v13-analysis-runs-tables",
+            apply: analysis_runs::migrate_v13_analysis_runs,
+        },
     ]
 }
 
@@ -927,10 +974,23 @@ fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence
     Ok((connection, migration))
 }
 
+/// One current store version: a store whose `user_version` is above this build's
+/// target was written by a newer build. It is refused by name before anything
+/// is written (no pragma that writes, no migration), never opened as current.
+fn refuse_newer_store(version: i64) -> Result<(), String> {
+    if version > STORE_SCHEMA_TARGET_VERSION {
+        return Err(format!(
+            "STORE-SCHEMA-NEWER: the local project store is at store schema v{version}, newer than this build's v{STORE_SCHEMA_TARGET_VERSION}; it was written by a newer SWBPIPE build. Nothing was read or written; open it with that build."
+        ));
+    }
+    Ok(())
+}
+
 // Each migration step is idempotent (IF NOT EXISTS / column probes), so legacy
 // stores written before the user_version ledger existed reconcile cleanly from
 // version 0 without data loss.
 fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvidence, String> {
+    refuse_newer_store(store_user_version(connection)?)?;
     connection
         .execute_batch(
             "
@@ -1382,9 +1442,13 @@ fn refuse_unconfirmed_replacement(
     let Some(entry) = stored_project_entry(connection, project_id)? else {
         return Ok(());
     };
+    // The stored name is quoted as every message quotes stored names (at most
+    // 120 characters, `stored_read::shown`); the decision is unchanged.
     let stored = format!(
         "project `{}` (\"{}\", last saved at unix {})",
-        entry.project_id, entry.project_name, entry.updated_at_unix
+        stored_read::shown(&entry.project_id),
+        stored_read::shown(&entry.project_name),
+        entry.updated_at_unix
     );
     if let Some(confirmed) = confirmed_revision {
         return if confirmed == stored_revision(connection, &entry)? {
@@ -1413,6 +1477,12 @@ struct StoredProjectEntry {
     entry: LocalProjectIndexEntry,
     /// What a Replace of this project confirms (`stored_revision`).
     revision: String,
+    /// The saved model states attached to this project id; a Replace keeps
+    /// them, and the prompt says how many (W-12 §2).
+    saved_state_count: i64,
+    /// The recorded analysis runs attached to this project id; a Replace keeps
+    /// them too, and the prompt counts them (W-12 §3).
+    recorded_run_count: i64,
 }
 
 /// The stored project with this id, if any, and its revision, for the replace prompt.
@@ -1421,7 +1491,14 @@ fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<Store
     let path = app_store_path(&app)?;
     let (connection, _migration) = open_project_store(&path)?;
     stored_project_entry(&connection, &project_id)?
-        .map(|entry| Ok(StoredProjectEntry { revision: stored_revision(&connection, &entry)?, entry }))
+        .map(|entry| {
+            Ok(StoredProjectEntry {
+                revision: stored_revision(&connection, &entry)?,
+                saved_state_count: model_states::saved_state_count(&connection, &entry.project_id)?,
+                recorded_run_count: analysis_runs::recorded_run_count(&connection, &entry.project_id)?,
+                entry,
+            })
+        })
         .transpose()
 }
 
@@ -1787,6 +1864,91 @@ async fn open_model_document_file(app: AppHandle) -> Result<model_document_file:
     tauri::async_runtime::spawn_blocking(move || model_document_file::read_model_document_file(&path))
         .await
         .map_err(|error| error.to_string())
+}
+
+/// File > Save Model Document… (DEL-15-01 W-6a): the session's model document
+/// as its RFC 8785 canonical text, admitted by `model_document_save` (route
+/// evidence, the open cap, the canonical-text and hash check, the open path's
+/// document checks) before the chooser is shown, then written by the atomic
+/// writer as `.json`. Cancel is an outcome, not an error. Async so the blocking
+/// chooser stays off the main thread (as `save_report_package`); the ingress
+/// lease is held through admission, the chooser and the write.
+#[tauri::command]
+async fn save_model_document_file(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
+    let request = model_document_save::save_model_document_args(&mut args)?;
+    drop(args);
+    respond(Ok(save_model_document_decoded(app, request).await))
+}
+
+async fn save_model_document_decoded(
+    app: AppHandle,
+    request: model_document_save::ModelDocumentSaveRequest,
+) -> model_document_save::ModelDocumentSaveOutcome {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    if let Err(diagnostic) =
+        model_document_save::validate_model_document_save_evidence(&request.screening, &request.local_first)
+    {
+        return Outcome::refused(vec![diagnostic]);
+    }
+    let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, screening, .. } = request;
+    let store_app = app.clone();
+    let admitted = match tauri::async_runtime::spawn_blocking(move || {
+        // The local library store, opened only if the document references a
+        // library, as `open_local_library` opens it. A read error refuses.
+        let mut connection: Option<Connection> = None;
+        let mut lookup = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
+            if connection.is_none() {
+                connection = Some(open_project_store(&app_store_path(&store_app)?)?.0);
+            }
+            let connection = connection.as_ref().expect("opened above");
+            // The identities as `open_local_library` normalizes them.
+            load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim()).map(|row| row.map(|row| row.document))
+        };
+        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
+    })
+    .await
+    {
+        Ok(Ok(admitted)) => admitted,
+        Ok(Err(diagnostics)) => return Outcome::refused(diagnostics),
+        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The save's admission worker did not complete."),
+    };
+    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+    let destination = match choose_model_document_save_path(&app, &admitted.suggested_file_name, directory) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return Outcome::Cancelled,
+        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
+    };
+    tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
+        .await
+        .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
+}
+
+fn choose_model_document_save_path(
+    app: &AppHandle,
+    suggested_file_name: &str,
+    directory: Option<PathBuf>,
+) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
+    let mut chooser = app
+        .dialog()
+        .file()
+        .set_file_name(suggested_file_name)
+        .add_filter("SWBPIPE model document", &["json"]);
+    if let Some(directory) = directory {
+        chooser = chooser.set_directory(directory);
+    }
+    let Some(selected) = chooser.blocking_save_file() else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
 }
 
 fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
@@ -2189,15 +2351,42 @@ fn refuse_model_document(status: &ModelDocumentVersionStatus) -> String {
     )
 }
 
+/// W-13 §5.3: the one document validator's blocking findings, named with
+/// their JSON paths, refuse the document. Warnings never refuse.
+fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
+    let blocking: Vec<String> = open_pipe_stress_operation_applier::validate_model_document(model)
+        .into_iter()
+        .filter(open_pipe_stress_operation_applier::DocumentDiagnostic::is_blocking)
+        .map(|finding| format!("{} at {}: {}", finding.code, finding.path, finding.message))
+        .collect();
+    if blocking.is_empty() {
+        return Ok(());
+    }
+    Err(format!("Model document refused: malformed model-data slots: {}", blocking.join(" | ")))
+}
+
+/// The one-current-version check alone (DEL-02-05 CLM-003): a document that is
+/// not current is refused by name. Project persistence adds the blocking-slot
+/// refusal (`check_model_document_for_persist`); a saved model state uses this
+/// alone, since a state may hold an incomplete model (W-12 §2, `MODEL_INCOMPLETE`).
+fn check_model_document_version(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
+    let status = evaluate_model_document(model);
+    if status.is_refused() {
+        return Err(refuse_model_document(&status));
+    }
+    Ok(status)
+}
+
 /// The version check for create/save (DEL-02-05 CLM-003): a document that is
 /// not current is refused by name. A current document is persisted exactly as
 /// received, with the received hash evidence; nothing is migrated, normalized
 /// or re-stamped.
 fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
-    let status = evaluate_model_document(model);
-    if status.is_refused() {
-        return Err(refuse_model_document(&status));
-    }
+    let status = check_model_document_version(model)?;
+    // W-13 §5.3 (S2): create and save refuse a document whose model-data
+    // slots carry a blocking validator finding, named with its JSON path;
+    // nothing is repaired. Warnings never refuse.
+    refuse_malformed_model_slots(model)?;
     Ok(status)
 }
 
@@ -2378,9 +2567,16 @@ fn open_local_project(
     app: AppHandle,
     project_id: Option<String>,
 ) -> Result<Option<LocalProjectEnvelope>, String> {
-    let path = app_store_path(&app)?;
+    open_project_in_store(app_store_path(&app)?, project_id.as_deref())
+}
+
+/// `open_local_project` on a given store.
+fn open_project_in_store(
+    path: PathBuf,
+    project_id: Option<&str>,
+) -> Result<Option<LocalProjectEnvelope>, String> {
     let (connection, migration) = open_project_store(&path)?;
-    load_project(&connection, project_id.as_deref())?
+    load_project(&connection, project_id)?
         .map(|record| {
             // DEL-02-05 CLM-003: the restored document is opened exactly as
             // stored when its version is current; any other version is refused
@@ -2389,6 +2585,9 @@ fn open_local_project(
             if status.is_refused() {
                 return Err(refuse_model_document(&status));
             }
+            // W-13 §5.3: a stored document with a malformed model-data slot is
+            // refused by name, never repaired.
+            refuse_malformed_model_slots(&record.model)?;
             let model = record.model;
             Ok(LocalProjectEnvelope {
                 summary: project_summary(
@@ -4053,6 +4252,159 @@ fn delete_local_library(
     })
 }
 
+/// One `provenance_record.library_ref` of the model, as the webview sends it
+/// for the store check (W-13 §3.5; W-17 §2.7).
+#[derive(Debug, Deserialize)]
+struct ModelLibraryRef {
+    entity_ref: String,
+    library_kind: String,
+    library_id: String,
+    #[serde(default)]
+    library_version: Option<String>,
+    #[serde(default)]
+    record_id: Option<String>,
+}
+
+/// A store finding on a model library reference. Both codes are warnings: the
+/// model's values stand, and the recorded version is never updated here.
+#[derive(Debug, Serialize, PartialEq)]
+struct LibraryRefFinding {
+    code: &'static str,
+    severity: &'static str,
+    entity_ref: String,
+    library_kind: String,
+    library_id: String,
+    record_id: Option<String>,
+    recorded_version: Option<String>,
+    stored_version: Option<String>,
+    message: String,
+}
+
+const MODEL_LIBRARY_REF_UNRESOLVED: &str = "MODEL-LIBRARY-REF-UNRESOLVED";
+const MODEL_LIBRARY_REF_VERSION_CHANGED: &str = "MODEL-LIBRARY-REF-VERSION-CHANGED";
+
+fn library_records_key(library_kind: &str) -> Option<(&'static str, &'static str)> {
+    match library_kind {
+        "material" => Some(("material_records", "material_id")),
+        "section" => Some(("section_records", "section_id")),
+        "component" => Some(("component_records", "component_id")),
+        "hanger" => Some(("hanger_records", "hanger_id")),
+        _ => None,
+    }
+}
+
+/// `library_version` of a stored record: "sha256:" + the SHA-256 of its RFC
+/// 8785 (JCS) form, the digest the desktop records at insert and apply.
+fn library_record_version(record: &Value) -> String {
+    format!(
+        "sha256:{}",
+        open_pipe_stress_operation_applier::sha256_hex(&open_pipe_stress_operation_applier::canonical_json(record))
+    )
+}
+
+/// Compare each reference with the project's local store under the save
+/// screen's rules (`model_document_save`, W-6a): the identities are normalized
+/// by `library_identity` (Rust `trim`, as `open_local_library` and the save's
+/// lookup normalize them) and the stored records are every record
+/// `matching_library_records` finds, never the first. A missing library or
+/// record is `MODEL-LIBRARY-REF-UNRESOLVED`; a recorded `library_version` that
+/// differs from the digest of any matching stored record is
+/// `MODEL-LIBRARY-REF-VERSION-CHANGED`, naming the first differing digest. The
+/// finding echoes the reference as the model records it.
+fn library_ref_findings(
+    connection: &Connection,
+    project_id: &str,
+    references: &[ModelLibraryRef],
+) -> Result<Vec<LibraryRefFinding>, String> {
+    use model_document_save::{library_identity, matching_library_records};
+    let mut findings = Vec::new();
+    for reference in references {
+        let finding = |code, stored_version: Option<String>, message: String| LibraryRefFinding {
+            code,
+            severity: "warning",
+            entity_ref: reference.entity_ref.clone(),
+            library_kind: reference.library_kind.clone(),
+            library_id: reference.library_id.clone(),
+            record_id: reference.record_id.clone(),
+            recorded_version: reference.library_version.clone(),
+            stored_version,
+            message,
+        };
+        let kind = reference.library_kind.trim();
+        let stored = match library_records_key(kind) {
+            Some(_) => load_library(connection, project_id, kind, reference.library_id.trim())?,
+            None => None,
+        };
+        let Some(row) = stored else {
+            findings.push(finding(
+                MODEL_LIBRARY_REF_UNRESOLVED,
+                None,
+                format!(
+                    "{} names {} library `{}`, which the local store does not hold for project `{project_id}`. \
+                     The model's values stand. A project saved under a new id reads its references as unresolved \
+                     until the library is imported into that project.",
+                    reference.entity_ref, reference.library_kind, reference.library_id
+                ),
+            ));
+            continue;
+        };
+        let records = reference
+            .record_id
+            .as_deref()
+            .and_then(library_identity)
+            .map(|record_id| matching_library_records(kind, &row.document, record_id))
+            .unwrap_or_default();
+        if records.is_empty() {
+            findings.push(finding(
+                MODEL_LIBRARY_REF_UNRESOLVED,
+                None,
+                format!(
+                    "{} names record `{}` of {} library `{}`, which the stored library does not hold. The model's values stand.",
+                    reference.entity_ref,
+                    reference.record_id.as_deref().unwrap_or("(none recorded)"),
+                    reference.library_kind,
+                    reference.library_id
+                ),
+            ));
+            continue;
+        }
+        if let Some(recorded) = &reference.library_version {
+            let changed = records
+                .iter()
+                .map(|record| library_record_version(&Value::Object((*record).clone())))
+                .find(|stored_version| stored_version != recorded);
+            if let Some(stored_version) = changed {
+                findings.push(finding(
+                    MODEL_LIBRARY_REF_VERSION_CHANGED,
+                    Some(stored_version),
+                    format!(
+                        "The stored record `{}` of {} library `{}` has changed since {} recorded it. The model's values and \
+                         recorded version stand; re-apply from the library to adopt the stored record.",
+                        reference.record_id.as_deref().unwrap_or(""),
+                        reference.library_kind,
+                        reference.library_id,
+                        reference.entity_ref
+                    ),
+                ));
+            }
+        }
+    }
+    Ok(findings)
+}
+
+/// Checks the model's library references against the local store at project
+/// open and load and on library-list refresh (W-13 §3.5). Read-only.
+#[tauri::command]
+fn check_model_library_refs(
+    app: AppHandle,
+    project_id: String,
+    references: Vec<ModelLibraryRef>,
+) -> Result<Vec<LibraryRefFinding>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    library_ref_findings(&connection, project_id.trim(), &references)
+}
+
 const NATIVE_MENU_DOM_EVENT: &str = "openpipestress-native-menu-command";
 
 #[derive(Debug, Deserialize)]
@@ -4160,6 +4512,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         ("file.open-model", !state.project_busy),
         ("file.open-local", !state.project_busy),
         ("file.save-local", !state.project_busy),
+        ("file.save-model-document", !state.project_busy),
         ("file.list-local", !state.project_busy),
         ("view.view.table", true),
         ("view.view.model", state.stage != "review"),
@@ -4317,6 +4670,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("file.list-local", "List Local Projects")
         .separator()
         .text("file.save-local", "Save Local Project")
+        .text("file.save-model-document", "Save Model Document…")
         .text("file.save-report-package", "Save Report Package…")
         .build()?;
 
@@ -4490,9 +4844,9 @@ fn packaged_saved_edited_load_intent() -> Value {
 
 fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, String> {
     // Embedded frozen synthetic model: the executable never reads repository
-    // fixtures. The document is the current version, saved as authored.
-    let model: Value = serde_json::from_str(r#"{
-  "schema_version": "0.6.0",
+    // fixtures. The document is the current version, saved as authored; its
+    // version is the shared constant, never a literal.
+    let mut model: Value = serde_json::from_str(r#"{
   "document_kind": "openpipestress.product_preview.model",
   "data_boundary": {
     "public_examples_policy": "invented_or_cleared_data_only",
@@ -4632,10 +4986,11 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
   "diagnostics": []
 }"#)
         .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
+    model["schema_version"] = json!(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION);
     let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
         &open_pipe_stress_operation_applier::canonical_json(payload)));
     let baseline_hash = hash(&model);
-    if baseline_hash != "sha256:e752078003553242025372a97cb775fe89212805423374b2f942f5666947493a" {
+    if baseline_hash != "sha256:6ab326322a5e10568a71048a22cc7cb633b4422a0ade86e021debc01f0f6ddcf" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH: {baseline_hash}"));
     }
     let baseline = solve_preview_mechanics(model.clone())?;
@@ -4655,7 +5010,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let edited_model = applied["applied_model"].clone();
     let edited_hash = hash(&edited_model);
-    if edited_hash != "sha256:add9381f2009cdf7046a8b1b0966774bb77f6143094a15e61a1785dda682cec3" {
+    if edited_hash != "sha256:042bf3a9b2a2b52aba14bf759bb34ffd0f4c125422cbb1aa9520d28e0ab69012" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
     let agent_intent: Value = serde_json::from_str(r#"{
@@ -4873,6 +5228,7 @@ macro_rules! app_invoke_handler {
             load_preview_model,
             load_design_knowledge,
             open_model_document_file,
+            save_model_document_file,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
@@ -4895,6 +5251,16 @@ macro_rules! app_invoke_handler {
             list_local_projects,
             find_local_project,
             save_local_project,
+            model_states::save_model_state,
+            model_states::list_model_states,
+            model_states::read_model_state,
+            model_states::edit_model_state_labels,
+            model_states::delete_model_state,
+            analysis_runs::record_analysis_run,
+            analysis_runs::list_analysis_runs,
+            analysis_runs::read_analysis_run,
+            analysis_runs::edit_analysis_run_labels,
+            analysis_runs::delete_analysis_run,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
@@ -4907,6 +5273,7 @@ macro_rules! app_invoke_handler {
             save_local_library,
             open_local_library,
             list_local_libraries,
+            check_model_library_refs,
             delete_local_library,
             render_calculation_report,
             save_report_package,
@@ -5265,7 +5632,7 @@ mod tests {
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
         // B4/D1 (b): source blocks remain only on the exact route's composites, so this
         // control reads pressure-source-1's committed request (B7b: an exact-contract
-        // 0.6.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
+        // 0.7.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
         let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
@@ -5596,7 +5963,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));
@@ -5966,6 +6333,10 @@ mod tests {
             json!({"ref_type": "project", "ref_id": model_id});
         fixture["calculation_report"]["model_input_summary"]["model_ref"] =
             json!({"ref_type": "model", "ref_id": model_id});
+        // The model hash names the summary's model (checksum subjects,
+        // DEL-08-01 Design §2.4).
+        fixture["calculation_report"]["model_input_summary"]["model_hash"]["payload_ref"] =
+            json!({"ref_type": "model", "ref_id": model_id});
         fixture["calculation_report"]["model_input_summary"]["persistence_ref"] = json!({"ref_type": "project_persistence", "ref_id": "session_state_only_not_yet_saved"});
         fixture["calculation_report"]["model_input_summary"]["unit_system_ref"] =
             json!({"ref_type": "unit_system", "ref_id": "a12-rehearsal-si-local"});
@@ -6289,8 +6660,8 @@ mod tests {
         let project_id = model["project"]["id"].as_str().unwrap();
         let version = check_model_document_for_persist(&model).unwrap();
         assert_eq!(version.status, "current");
-        // B7b: the exact form is a contract-present 0.6.0 document (3.0.0/exact_pressure_v3).
-        assert_eq!(version.target_schema_version, "0.6.0");
+        // B7b: the exact form is a contract-present 0.7.0 document (3.0.0/exact_pressure_v3).
+        assert_eq!(version.target_schema_version, "0.7.0");
         let prepared = model.clone();
         upsert_project(
             &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
@@ -6301,7 +6672,7 @@ mod tests {
         assert_eq!(loaded.model, model);
         let reopened = evaluate_model_document(&loaded.model);
         assert_eq!(reopened.status, "current");
-        assert_eq!(reopened.target_schema_version, "0.6.0");
+        assert_eq!(reopened.target_schema_version, "0.7.0");
         let (status, _, signature) = unit_round_trip_summary(&loaded.model);
         assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
         assert!(signature.contains("poisson_ratio=1"));
@@ -6329,7 +6700,7 @@ mod tests {
             .unwrap()
     }
 
-    /// T1 WP2, on the current format (B7b): a 0.6.0 exact-contract model with the
+    /// T1 WP2, on the current format (B7b): a 0.7.0 exact-contract model with the
     /// load/reference-state group is saved and reopened exactly as any current
     /// document is, and its saved pressure-2 result keeps its raw hash and its
     /// resolved evidence bytes. The model and result are committed producer
@@ -6340,7 +6711,7 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let model = request["model"].clone();
-        assert_eq!(model["schema_version"], "0.6.0");
+        assert_eq!(model["schema_version"], "0.7.0");
         let result: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         )).unwrap();
@@ -6370,8 +6741,8 @@ mod tests {
             apply_store_migrations(&connection).unwrap();
             let status = check_model_document_for_persist(&current).unwrap();
             assert_eq!(status.status, "current");
-            assert_eq!(status.source_schema_version, "0.6.0");
-            assert_eq!(status.target_schema_version, "0.6.0");
+            assert_eq!(status.source_schema_version, "0.7.0");
+            assert_eq!(status.target_schema_version, "0.7.0");
             let (persisted, saved_mh, saved_eh) = (current.clone(), mh.clone(), eh.clone());
             assert_eq!(persisted, model);
             upsert_project(
@@ -6386,7 +6757,7 @@ mod tests {
             let loaded = load_project(&reopened, Some(&project)).unwrap().unwrap();
             let status = evaluate_model_document(&loaded.model);
             assert_eq!(status.status, "current");
-            assert_eq!(status.target_schema_version, "0.6.0");
+            assert_eq!(status.target_schema_version, "0.7.0");
             let opened = loaded.model;
             assert_eq!(opened, model);
             assert_eq!(serde_json::to_string(&opened).unwrap(), model_bytes);
@@ -6419,8 +6790,8 @@ mod tests {
     }
 
     /// T1 WP2 (D3), on the current format (B7b): exact-contract and pressure-free
-    /// 0.6.0 documents persist unchanged with no load/reference-state key added; a
-    /// pressure-free 0.6.0 document that carries the load/reference-state group
+    /// 0.7.0 documents persist unchanged with no load/reference-state key added; a
+    /// pressure-free 0.7.0 document that carries the load/reference-state group
     /// (which requires the exact contract) is kept as authored (not stripped, not
     /// re-stamped) and the product blocks on solve.
     #[test]
@@ -6487,11 +6858,11 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let carried = pressure_free(&request["model"]);
-        assert_eq!(carried["schema_version"], "0.6.0");
+        assert_eq!(carried["schema_version"], "0.7.0");
         assert!(carries_load_reference_keys(&carried));
         let (loaded, status) = round_trip(&carried);
         assert_eq!(loaded, carried);
-        assert_eq!(status.target_schema_version, "0.6.0");
+        assert_eq!(status.target_schema_version, "0.7.0");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let solved = run_linear_static_preview_with_mode(
                 serde_json::from_value(json!({"model": loaded.clone(), "materials": []})).unwrap(),
@@ -6514,7 +6885,7 @@ mod tests {
         assert!(fts5_available(&connection));
 
         let model = json!({
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
@@ -6825,11 +7196,13 @@ mod tests {
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
+                "store-v12-model-states-tables",
+                "store-v13-analysis-runs-tables",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v11"
+            "migrated_on_open_store_schema_v0_to_v13"
         );
 
         let second_open =
@@ -6846,7 +7219,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v11_no_pending_migrations"
+            "current_store_schema_v13_no_pending_migrations"
         );
     }
 
@@ -6883,10 +7256,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 11);
+        assert_eq!(migration.migrations_applied_on_open.len(), 13);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v11"
+            "migrated_on_open_store_schema_v0_to_v13"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -6954,12 +7327,14 @@ mod tests {
                 "store-v8-project-envelope-hash-column",
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
-                "store-v11-local-libraries-table"
+                "store-v11-local-libraries-table",
+                "store-v12-model-states-tables",
+                "store-v13-analysis-runs-tables"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v11"
+            "migrated_on_open_store_schema_v7_to_v13"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))
@@ -7195,7 +7570,7 @@ mod tests {
         );
     }
 
-    /// U3 (D-2 A1), on the current format (B7b): a 0.6.0 document declaring the
+    /// U3 (D-2 A1), on the current format (B7b): a 0.7.0 document declaring the
     /// retired 1.0.0/legacy_pressure_v1 or 2.0.0/exact_straight_pressure_v2 contract
     /// opens unchanged (no migration rewrites it), and its solve is refused with
     /// PRESSURE_MODEL_REAUTHOR_REQUIRED; nothing is published.
@@ -7216,7 +7591,7 @@ mod tests {
             let before = labelled.clone();
             let opened = evaluate_model_document(&labelled);
             assert_eq!(opened.status, "current", "{contract}");
-            assert_eq!(opened.target_schema_version, "0.6.0", "{contract}");
+            assert_eq!(opened.target_schema_version, "0.7.0", "{contract}");
             assert_eq!(labelled, before);
 
             let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
@@ -7233,7 +7608,7 @@ mod tests {
     #[test]
     fn run_preview_mechanics_reports_blank_model_incomplete_without_defaults() {
         let blank = json!({
-            "schema_version": "0.6.0",
+            "schema_version": "0.7.0",
             "document_kind": "openpipestress.product_preview.model",
             "data_boundary": {
                 "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
@@ -7596,7 +7971,7 @@ mod tests {
             "value": "raw-received-model-claim"
         });
         let received_envelope_claim = json!(["raw", "received", "envelope", "claim"]);
-        // The derived fixture is a current (0.6.0) document: it persists exactly
+        // The derived fixture is a current (0.7.0) document: it persists exactly
         // as edited, with the received hash claims kept raw; nothing is migrated
         // and no evidence is minted.
         let document_status = check_model_document_for_persist(&edited_model)
@@ -7656,14 +8031,14 @@ mod tests {
 
     #[test]
     fn persist_preparation_refuses_retired_newer_and_unsupported_model_documents() {
-        for version in ["0.1.0", "0.2.0", "0.5.0"] {
+        for version in ["0.1.0", "0.2.0", "0.5.0", "0.6.0"] {
             let retired = json!({ "schema_version": version, "project": { "id": "project:retired", "name": "Retired" } });
             let error = check_model_document_for_persist(&retired)
                 .expect_err("retired documents must be refused by name");
             assert!(error.contains("retired_schema") && error.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{error}");
             assert!(error.contains(version) && error.contains("re-author"), "{error}");
         }
-        let newer = json!({ "schema_version": "0.6.1", "project": { "id": "project:newer", "name": "Newer" } });
+        let newer = json!({ "schema_version": "0.7.1", "project": { "id": "project:newer", "name": "Newer" } });
         let error = check_model_document_for_persist(&newer)
             .expect_err("newer-than-supported documents must be refused");
         assert!(error.contains("newer_than_supported"), "{error}");
@@ -7680,8 +8055,8 @@ mod tests {
         let model = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
         let status = check_model_document_for_persist(&model).expect("current documents persist");
         assert_eq!(status.status, "current");
-        assert_eq!(status.source_schema_version, "0.6.0");
-        assert_eq!(status.target_schema_version, "0.6.0");
+        assert_eq!(status.source_schema_version, "0.7.0");
+        assert_eq!(status.target_schema_version, "0.7.0");
     }
 
     /// B7a: a project stored as a retired version (here a 0.1.0 row a previous
@@ -7718,6 +8093,125 @@ mod tests {
         let after = load_project(&connection, Some("project:retired")).unwrap().unwrap();
         assert_eq!(after.model, stored_model, "the stored bytes are never rewritten");
         drop(connection);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// W-13 §5.3 at project load: a stored document carrying every model-data
+    /// slot opens exactly as stored with its model hash; a stored document with
+    /// a malformed slot is refused by name and its stored bytes are untouched.
+    #[test]
+    fn project_load_validates_model_data_slots() {
+        let root = std::env::temp_dir().join(format!(
+            "ops-slot-model-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let every_slot: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_document/invented_every_slot_model.json"
+        )).unwrap();
+        let mut malformed = every_slot.clone();
+        malformed["project"]["id"] = json!("project:slots-malformed");
+        malformed["constraints"][0]["constraint_kind"] = json!("equipment_interface");
+        {
+            let (mut connection, _) = open_project_store(&db).unwrap();
+            for (id, model) in [("project:slots", &every_slot), ("project:slots-malformed", &malformed)] {
+                upsert_project(&mut connection, id, "Invented slots", model, &json!([]),
+                    &Value::Null, &Value::Null, &Value::Null, &Value::Null,
+                    &computed_model_hash(model, id), &Value::Null).unwrap();
+            }
+        }
+        let opened = open_project_in_store(db.clone(), Some("project:slots")).unwrap().unwrap();
+        assert_eq!(opened.model, every_slot);
+        assert_eq!(hash_value_string(&opened.model_hash), model_payload_hash(&every_slot));
+        let error = open_project_in_store(db.clone(), Some("project:slots-malformed"))
+            .expect_err("a malformed slot is refused at project load");
+        assert!(error.contains("MODEL-CONSTRAINT-KIND-INVALID at constraints[0].constraint_kind"), "{error}");
+        let (connection, _) = open_project_store(&db).unwrap();
+        let after = load_project(&connection, Some("project:slots-malformed")).unwrap().unwrap();
+        assert_eq!(after.model, malformed, "the stored bytes are never rewritten");
+        drop(connection);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    /// W-13 §5.4 (S2): a desktop-emitted document carrying every model-data
+    /// member goes through Save Local Project and back with equal content and
+    /// model hash; an edit (create a line) saved in place and its undo (the
+    /// inverse operation) saved again return the original document and hash.
+    /// Save refuses a document with a blocking validator finding, by name, and
+    /// leaves the stored bytes as they were.
+    #[test]
+    fn save_local_project_round_trips_every_slot_and_refuses_malformed_slots() {
+        let root = std::env::temp_dir().join(format!(
+            "ops-slot-save-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let golden: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_document/desktop_emitted.json"
+        )).unwrap();
+        let model = golden["entries"].as_array().unwrap().last().unwrap()["document"].clone();
+        for slot in ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs"] {
+            assert!(model[slot].as_array().is_some_and(|items| !items.is_empty()), "{slot}");
+        }
+        // W-17: the round trip carries one library-applied entity.
+        assert!(model["materials"].as_array().unwrap().iter().any(|m| m.pointer("/provenance_record/library_ref/library_version").is_some()));
+        let project_id = model["project"]["id"].as_str().unwrap().to_string();
+        let save = |model: &Value, confirmed: Option<String>| save_project_in_store(db.clone(), SaveLocalProjectRequest::from_value(json!({
+            "project_id": project_id, "project_name": "Invented slots", "model": model,
+            "model_hash": computed_model_hash(model, &project_id), "confirmed_revision": confirmed
+        })).unwrap());
+        let confirmed = || {
+            let (connection, _) = open_project_store(&db).unwrap();
+            let entry = stored_project_entry(&connection, &project_id).unwrap().unwrap();
+            Some(stored_revision(&connection, &entry).unwrap())
+        };
+
+        save(&model, None).expect("an every-slot document saves");
+        let opened = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(opened.model, model);
+        assert_eq!(hash_value_string(&opened.model_hash), model_payload_hash(&model));
+
+        let line = json!({"id": "line:L-900", "label": "Invented line", "pipe_refs": []});
+        let intent = |kind: &str, change_kind: &str, before: String, after: String| json!({
+            "operation_id": format!("operation:{change_kind}"), "operation_kind": kind, "operation_status": "proposed",
+            "author_type": "user", "target": {"object_type": "Line", "ref": "line:L-900"},
+            "change": {"change_id": format!("change:{change_kind}"), "change_kind": change_kind, "field_label": "Line",
+                "field_path": "lines", "before": before, "after": after, "unit": "none", "dimension": "dimensionless",
+                "source_note": "invented"},
+            "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run",
+                "diff_preview_status": "not_generated", "application_status": "not_applied"},
+            "audit_boundary": {"mutation_route": "structured_operations_only", "direct_model_mutation_allowed": false,
+                "requires_user_acceptance": true, "mutates_accepted_model_state": false},
+            "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false,
+                "software_makes_certification_claim": false, "software_makes_sealing_claim": false,
+                "software_makes_approval_claim": false, "software_makes_authentication_claim": false},
+            "rationale": "invented"
+        });
+        let canonical = open_pipe_stress_operation_applier::canonical_json;
+        let edited = open_pipe_stress_operation_applier::apply_operation(&opened.model,
+            &intent("create", "create_line", "not_present".into(), canonical(&line)), None)
+            .applied_model.expect("create_line applies");
+        save(&edited, confirmed()).expect("the edit saves in place");
+        let reopened = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(reopened.model, edited);
+        let undone = open_pipe_stress_operation_applier::apply_operation(&reopened.model,
+            &intent("delete", "delete_line", canonical(&line), "not_present".into()), None)
+            .applied_model.expect("the inverse applies");
+        save(&undone, confirmed()).expect("the undo saves in place");
+        let restored = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(restored.model, model);
+        assert_eq!(model_payload_hash(&restored.model), model_payload_hash(&model));
+
+        let mut malformed = model.clone();
+        malformed["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
+        let error = save(&malformed, confirmed()).expect_err("save refuses a malformed slot");
+        assert!(error.contains("MODEL-LINE-PIPE-MISSING at lines[0].pipe_refs[0]"), "{error}");
+        let still = open_project_in_store(db.clone(), Some(&project_id)).unwrap().unwrap();
+        assert_eq!(still.model, model, "the stored bytes are untouched");
         std::fs::remove_dir_all(root).unwrap();
     }
 
@@ -8694,6 +9188,138 @@ mod tests {
     }
 
     #[test]
+    fn model_library_refs_warn_when_unresolved_or_changed_and_never_update_the_version() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let mut document = storable_material_payload("matlib.invented.alpha");
+        document["material_records"] = json!([{"material_id":"mat.invented.alpha","name":"Invented material alpha","properties":[]}]);
+        let record_id = document["material_records"][0]["material_id"].as_str().unwrap().to_string();
+        upsert_library(&connection, "project:lib-refs", "material", "matlib.invented.alpha", &document).expect("upserts");
+        let stored = library_record_version(&document["material_records"][0]);
+        // The digest is the SHA-256 of the record's RFC 8785 form.
+        assert_eq!(stored, format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&open_pipe_stress_operation_applier::canonical_json(&document["material_records"][0]))));
+        let reference = |library_id: &str, record: &str, version: &str| ModelLibraryRef {
+            entity_ref: "material:inserted".into(),
+            library_kind: "material".into(),
+            library_id: library_id.into(),
+            library_version: Some(version.into()),
+            record_id: Some(record.into()),
+        };
+        let current = [reference("matlib.invented.alpha", &record_id, &stored)];
+        assert!(library_ref_findings(&connection, "project:lib-refs", &current).unwrap().is_empty());
+        // Another project id (Save as new project) does not hold the library.
+        let other = library_ref_findings(&connection, "project:renamed", &current).unwrap();
+        assert_eq!(other[0].code, MODEL_LIBRARY_REF_UNRESOLVED);
+        let missing = library_ref_findings(&connection, "project:lib-refs", &[reference("matlib.absent", &record_id, &stored), reference("matlib.invented.alpha", "mat.absent", &stored)]).unwrap();
+        assert_eq!(missing.iter().map(|f| (f.code, f.severity)).collect::<Vec<_>>(), vec![(MODEL_LIBRARY_REF_UNRESOLVED, "warning"); 2]);
+        // The stored record changes: the version warning names both digests,
+        // and the recorded version is reported, not replaced.
+        document["material_records"][0]["name"] = json!("Invented material alpha, revised");
+        upsert_library(&connection, "project:lib-refs", "material", "matlib.invented.alpha", &document).expect("upserts");
+        let changed = library_ref_findings(&connection, "project:lib-refs", &current).unwrap();
+        assert_eq!(changed.len(), 1);
+        assert_eq!(changed[0].code, MODEL_LIBRARY_REF_VERSION_CHANGED);
+        assert_eq!(changed[0].severity, "warning");
+        assert_eq!(changed[0].recorded_version.as_deref(), Some(stored.as_str()));
+        assert_eq!(changed[0].stored_version, Some(library_record_version(&document["material_records"][0])));
+        assert_eq!(current[0].library_version.as_deref(), Some(stored.as_str()));
+    }
+
+    /// A store holding one invented material library for the open-time
+    /// check's rule tests: duplicate ids, a padded stored id and a single record.
+    fn library_rules_store() -> (Connection, Value) {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let mut document = storable_material_payload("matlib.invented.rules");
+        document["material_records"] = json!([
+            {"material_id": "mat.dup", "name": "Invented duplicate, first", "properties": []},
+            {"material_id": "mat.dup", "name": "Invented duplicate, revised", "properties": []},
+            {"material_id": "mat.pad", "name": "Invented padded, clear", "properties": []},
+            {"material_id": " mat.pad ", "name": "Invented padded, revised", "properties": []},
+            {"material_id": "mat.solo", "name": "Invented single", "properties": []}
+        ]);
+        upsert_library(&connection, "project:lib-rules", "material", "matlib.invented.rules", &document).expect("upserts");
+        (connection, document)
+    }
+
+    fn rules_reference(kind: &str, library_id: &str, record: Option<&str>, recorded: Option<String>) -> ModelLibraryRef {
+        ModelLibraryRef {
+            entity_ref: "material:rules".into(),
+            library_kind: kind.into(),
+            library_id: library_id.into(),
+            library_version: recorded,
+            record_id: record.map(str::to_string),
+        }
+    }
+
+    fn rules_codes(findings: &[LibraryRefFinding]) -> Vec<&'static str> {
+        findings.iter().map(|finding| finding.code).collect()
+    }
+
+    // The open-time check applies the save screen's rules (W-6a,
+    // `model_document_save`): identities trimmed, every matching record. Each
+    // of the next three cases passed silently, or drew the wrong finding, under
+    // the old first-match, untrimmed lookup.
+
+    #[test]
+    fn model_library_refs_read_every_matching_record_not_the_first() {
+        let (connection, document) = library_rules_store();
+        let version = |index: usize| library_record_version(&document["material_records"][index]);
+        let found = library_ref_findings(&connection, "project:lib-rules", &[rules_reference("material", "matlib.invented.rules", Some("mat.dup"), Some(version(0)))]).unwrap();
+        assert_eq!(rules_codes(&found), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a clear first record hid a changed duplicate");
+        assert_eq!(found[0].stored_version, Some(version(1)));
+        assert_eq!(found[0].recorded_version, Some(version(0)), "the recorded version is reported, never replaced");
+    }
+
+    #[test]
+    fn model_library_refs_compare_stored_record_ids_trimmed() {
+        let (connection, document) = library_rules_store();
+        let version = |index: usize| library_record_version(&document["material_records"][index]);
+        let found = library_ref_findings(&connection, "project:lib-rules", &[rules_reference("material", "matlib.invented.rules", Some("mat.pad"), Some(version(2)))]).unwrap();
+        assert_eq!(rules_codes(&found), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a padded stored duplicate escaped the check");
+        assert_eq!(found[0].stored_version, Some(version(3)));
+    }
+
+    #[test]
+    fn model_library_refs_trim_the_reference_like_open_local_library() {
+        let (connection, document) = library_rules_store();
+        let stored = library_record_version(&document["material_records"][4]);
+        let padded = |recorded: String| rules_reference(" material ", " matlib.invented.rules ", Some("\tmat.solo "), Some(recorded));
+        let changed = library_ref_findings(&connection, "project:lib-rules", &[padded("sha256:recorded-earlier".into())]).unwrap();
+        assert_eq!(rules_codes(&changed), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a padded reference was read as unresolved");
+        assert_eq!(changed[0].stored_version, Some(stored.clone()));
+        // The finding echoes the reference as the model records it.
+        assert_eq!((changed[0].library_kind.as_str(), changed[0].library_id.as_str(), changed[0].record_id.as_deref()),
+            (" material ", " matlib.invented.rules ", Some("\tmat.solo ")));
+        assert!(library_ref_findings(&connection, "project:lib-rules", &[padded(stored)]).unwrap().is_empty(), "a padded reference to an unchanged record resolves");
+    }
+
+    /// What the old and new rules agree on behaves as before: an unchanged
+    /// single record, no recorded version, a missing library or record, no
+    /// record id, a blank record or library id, an unknown kind and another
+    /// project.
+    #[test]
+    fn model_library_refs_keep_the_cases_both_rules_agree_on() {
+        let (connection, document) = library_rules_store();
+        let solo = Some(library_record_version(&document["material_records"][4]));
+        let check = |references: &[ModelLibraryRef]| library_ref_findings(&connection, "project:lib-rules", references).unwrap();
+        assert!(check(&[rules_reference("material", "matlib.invented.rules", Some("mat.solo"), solo.clone())]).is_empty());
+        assert!(check(&[rules_reference("material", "matlib.invented.rules", Some("mat.dup"), None)]).is_empty());
+        let unresolved = check(&[
+            rules_reference("material", "matlib.invented.absent", Some("mat.solo"), solo.clone()),
+            rules_reference("material", "matlib.invented.rules", Some("mat.absent"), solo.clone()),
+            rules_reference("material", "matlib.invented.rules", None, solo.clone()),
+            rules_reference("material", "matlib.invented.rules", Some("  "), solo.clone()),
+            rules_reference("pipe", "matlib.invented.rules", Some("mat.solo"), solo.clone()),
+            rules_reference("material", "  ", Some("mat.solo"), solo.clone()),
+        ]);
+        assert_eq!(rules_codes(&unresolved), vec![MODEL_LIBRARY_REF_UNRESOLVED; 6]);
+        assert!(unresolved[2].message.contains("names record `(none recorded)`"), "{}", unresolved[2].message);
+        let other = library_ref_findings(&connection, "project:renamed", &[rules_reference("material", "matlib.invented.rules", Some("mat.solo"), None)]).unwrap();
+        assert_eq!(rules_codes(&other), vec![MODEL_LIBRARY_REF_UNRESOLVED]);
+    }
+
+    #[test]
     fn local_library_store_round_trips_accepted_import_per_project() {
         let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         apply_store_migrations(&connection).expect("store migrations apply");
@@ -9051,6 +9677,43 @@ mod tests {
             })
         }
 
+        /// W-18 slice (a) native hold (DEL-08-01 Design §2.6): an otherwise
+        /// valid 2.0.0 request with clean caller-supplied evidence, decoded
+        /// through the command's own argument path, is refused before the save
+        /// dialog or any write. Control: the shared producer alone assembles
+        /// the same request unblocked, so the refusal is the hold's. Slice (b1)
+        /// replaces this test with the screened admission's.
+        #[test]
+        fn report_package_save_is_held_until_native_screening() {
+            let request = witness_report_request();
+            let direct: report_package_bridge::ReportPackageRequest = serde_json::from_value(request.clone()).unwrap();
+            let control = report_package_bridge::assemble_request(direct).expect("the witness request assembles");
+            assert!(!control.export_blocked, "{:?}", control.blocking_reasons);
+
+            let registry = registry(ScriptedHost::normal());
+            let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
+            let body = json!({"request": request, "redactionEvidence": redaction_evidence(), "localFirstEvidence": local_first_evidence()});
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", decoding, &body).unwrap();
+            let (decoded, redaction, local_first) = save_report_package_args(&mut args).unwrap();
+            let sandbox = std::env::temp_dir().join(format!("ops-w18a-hold-{}", std::process::id()));
+            fs::create_dir_all(&sandbox).unwrap();
+            let mut picks = 0usize;
+            let outcome = save_report_package_with_picker(decoded, redaction, local_first, |_| {
+                picks += 1;
+                Some(Ok(sandbox.join("held.opsproj")))
+            });
+            let error = match outcome {
+                Err(error) => error,
+                Ok(receipt) => panic!("the hold must refuse, got {}", receipt.code),
+            };
+            assert_eq!(error.code, "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE");
+            assert_eq!(error.message, REPORT_PACKAGE_SAVE_HOLD);
+            assert_eq!(error.stage, "assemble");
+            assert_eq!(picks, 0, "no save dialog is requested");
+            assert_eq!(fs::read_dir(&sandbox).unwrap().count(), 0, "nothing is written");
+            fs::remove_dir_all(&sandbox).unwrap();
+        }
+
         #[test]
         fn report_package_command_decodes_its_typed_request() {
             let request = witness_report_request();
@@ -9159,6 +9822,77 @@ mod tests {
                 let raw = serde_json::to_vec(&json!({"request": request})).unwrap();
                 let _ = check_decode_bound(&raw, ArgsDecoding::Moved, |args| save_local_result_json_args(args).map(drop));
             }
+        }
+    }
+
+    /// The node-proximity tolerance control's path (DEL-02-01 Design §3.8;
+    /// DEL-04-06 Design `model-topology-checks.md`): the desktop applies
+    /// `set_model_setting` / `clear_model_setting` through the apply command, and
+    /// the native solve reads the result. An anchored node 3 mm from node:N-140
+    /// warns at the 5 mm default and not at a 2 mm tolerance; one 8 mm away warns
+    /// at 1 cm (10 mm) and, reset to the default, does not. Invented data only.
+    #[test]
+    fn a_tolerance_set_through_the_apply_command_changes_which_nodes_warn() {
+        fn with_near_node(gap_m: f64) -> Value {
+            let mut model = read_fixture("invented_demo_model.json").expect("bundled preview model loads");
+            assert!(model.get("model_settings").is_none());
+            let position = model["nodes"].as_array().unwrap().iter().find(|node| node["id"] == "node:N-140").unwrap()["position"].clone();
+            let y = position["y"].as_f64().unwrap() + gap_m;
+            model["nodes"].as_array_mut().unwrap().push(json!({"id":"node:near","position":{"x":position["x"],"y":y,"z":position["z"]},"provenance":"invented_test_node"}));
+            model["supports"].as_array_mut().unwrap().push(json!({"id":"support:near","node":"node:near","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"invented_test_support"}));
+            model
+        }
+        fn intent(model: &Value, change_kind: &str, after: &str, unit: &str, dimension: &str) -> Value {
+            let before = model
+                .pointer("/model_settings/node_proximity_tolerance")
+                .map(open_pipe_stress_operation_applier::canonical_json)
+                .unwrap_or_else(|| "not_present".into());
+            json!({
+                "operation_id": format!("op:model-settings:{change_kind}"), "operation_kind": "modify", "operation_status": "proposed",
+                "author_type": "user", "target": {"object_type": "Project", "ref": model["project"]["id"]},
+                "change": {"change_id": format!("change:model-settings:{change_kind}"), "change_kind": change_kind,
+                    "field_label": "Node-proximity tolerance", "field_path": "model_settings.node_proximity_tolerance",
+                    "before": before, "after": after, "unit": unit, "dimension": dimension, "source_note": "invented test input"},
+                "validation": {"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run",
+                    "diff_preview_status":"not_generated","application_status":"not_applied"},
+                "audit_boundary": {"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,
+                    "requires_user_acceptance":true,"mutates_accepted_model_state":false},
+                "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,
+                    "software_makes_certification_claim":false,"software_makes_sealing_claim":false,
+                    "software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+                "rationale": "Invented node-proximity tolerance test"
+            })
+        }
+        fn applied(model: &Value, intent: Value) -> Value {
+            let outcome = apply_model_operation_value(model.clone(), intent, None).expect("command returns outcome");
+            assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{}", outcome["diagnostics"]);
+            outcome["applied_model"].clone()
+        }
+        fn near_pairs(model: &Value, mode: PreviewSolverMode) -> Vec<Value> {
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("solve returns an envelope");
+            let diagnostics = solved["diagnostics"].as_array().cloned().unwrap_or_default();
+            assert!(diagnostics.iter().all(|item| item["severity"] != "blocking"), "{diagnostics:?}");
+            diagnostics
+                .into_iter()
+                .filter(|item| item["code"] == "NODE_NEAR_DUPLICATE")
+                .map(|item| item["affected_refs"].clone())
+                .collect()
+        }
+        let pair = json!(["node:N-140", "node:near"]);
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let three_mm = with_near_node(0.003);
+            assert_eq!(near_pairs(&three_mm, mode), vec![pair.clone()], "3 mm warns at the default");
+            let two_mm_tolerance = applied(&three_mm, intent(&three_mm, "set_model_setting", "2", "mm", "length"));
+            assert_eq!(two_mm_tolerance["model_settings"], json!({"node_proximity_tolerance": {"value": 2.0, "unit": "mm"}}));
+            assert!(near_pairs(&two_mm_tolerance, mode).is_empty(), "3 mm does not warn at 2 mm");
+
+            let eight_mm = with_near_node(0.008);
+            assert!(near_pairs(&eight_mm, mode).is_empty(), "8 mm does not warn at the default");
+            let one_cm_tolerance = applied(&eight_mm, intent(&eight_mm, "set_model_setting", "10", "mm", "length"));
+            assert_eq!(near_pairs(&one_cm_tolerance, mode), vec![pair.clone()], "8 mm warns at 1 cm");
+            let reset = applied(&one_cm_tolerance, intent(&one_cm_tolerance, "clear_model_setting", "not_present", "none", "dimensionless"));
+            assert!(reset.get("model_settings").is_none(), "reset never writes the default");
+            assert!(near_pairs(&reset, mode).is_empty(), "reset to the default, 8 mm does not warn");
         }
     }
 }

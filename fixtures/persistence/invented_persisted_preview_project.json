@@ -22,7 +22,7 @@
       "ref": "unit-system:SI-preview"
     },
     "model_payload": {
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "document_kind": "openpipestress.product_preview.model",
       "data_boundary": {
         "public_examples_policy": "invented_or_cleared_data_only",
@@ -929,7 +929,7 @@
         "ref": "project-payload"
       },
       "payload_scope": "project_payload",
-      "value": "fef2bbbd99d1b14f30a4e53369eb79b666708ba88272f6b87844fc77ec2ed126"
+      "value": "84a8bf0457f32414d75b92c19b36ccbfb00ea3ccf525b6edbd82872f3c8e1f7c"
     },
     "hash_manifest": [
       {
@@ -940,7 +940,7 @@
           "ref": "project-payload"
         },
         "payload_scope": "project_payload",
-        "value": "fef2bbbd99d1b14f30a4e53369eb79b666708ba88272f6b87844fc77ec2ed126"
+        "value": "84a8bf0457f32414d75b92c19b36ccbfb00ea3ccf525b6edbd82872f3c8e1f7c"
       },
       {
         "algorithm": "sha256",
@@ -950,7 +950,7 @@
           "ref": "model-payload"
         },
         "payload_scope": "model_payload",
-        "value": "13310cda63d6809b743a086817a07969c2ae3634beea4aff09efcdb9fee7b88c"
+        "value": "f983ac47672943e78cebe52455490038e0a32563e46b3391af3d35f86b0af0bf"
       },
       {
         "algorithm": "sha256",
@@ -960,7 +960,7 @@
           "ref": "project-envelope-without-hash"
         },
         "payload_scope": "project_envelope",
-        "value": "4d683bbd0431247affc3a88b1d4fb5a81f431f327b6592c7a1d7988cb47286a1"
+        "value": "6a723657b89f0a3f4039c3b46ebab4d0333f5f38ea3f523dfbd79537f92d302c"
       }
     ],
     "payload_partition_status": "json_payloads_defined",

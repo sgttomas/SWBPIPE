@@ -20,6 +20,7 @@ GOVERNED_LOCAL_FIRST_ROUTE_IDS = frozenset(
         "DOTH-FORMAT-003",
         "DOTH-HANDOFF-002",
         "DOTH-JSON-001",
+        "DOTH-MODEL-DOC-007",
         "DOTH-PRIVATE-004",
         "DREP-HTML-SAVE-005",
         "DREP-IPC-003",

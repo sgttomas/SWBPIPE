@@ -14,7 +14,7 @@ import pressure from "../../../../../fixtures/product_preview/pressure/load_refe
 import eigenMotion from "../../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json";
 import connectedRaw from "../../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json";
 
-// T1 WP3 addendum, on the current format (B7b): the committed 0.6.0 exact-contract
+// T1 WP3 addendum, on the current format (B7b): the committed 0.7.0 exact-contract
 // request models with the load/reference-state group are used unmodified
 // (headlessly authored: their load cases may have no label, kind or status and
 // the model may have no desktop `diagnostics` array). Invented pass-through

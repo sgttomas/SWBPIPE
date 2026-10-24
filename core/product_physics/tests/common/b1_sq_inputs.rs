@@ -24,16 +24,18 @@ use serde_json::{json, Value};
 pub const MILESTONE: &str = include_str!("../../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 
-/// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`).
-pub const W2B_SHA256: &str = "1b2fe2e0cf5b080d4d54e8b3e80ac721fb51564dd68711b662977fab8f1ce326";
-pub const B2_K1E3_SHA256: &str = "4a0b788840fbd93f5f73459400b7e0ea3ade54bfbae6cf65ceaa7f2f3dc08e26";
-pub const C1_SHA256: &str = "8f184995b0601c869eca84966f41dc2c0ef1f215b9e7cb158f5b0fdf7200f331";
+/// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`). The silent-drop guard
+/// (2026-10-23) moved the stressed inputs' depth-16 value from an unknown root member to the
+/// declared `diagnostics` member (`stressed`), which re-pinned the i3 inputs below.
+pub const W2B_SHA256: &str = "2b2f398d15da0832cff6294c776bda79bd83ef52495e2f31e72cd85d9312e9d1";
+pub const B2_K1E3_SHA256: &str = "10d54e956d093784cfb761635a37bfb27a3300224ba440d0e5941addda5dc393";
+pub const C1_SHA256: &str = "4eb2bac2cef38f221f1509ae516589320080046af64f1f9d12e353226aa3d3bd";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "dc1b86985dccdfde03548bba7756c41facd1ec6045196be5e0ac4eb33e6a658f"),
-    ("case:b", "7069b6f9b630dde37c8edebd75a307be69b5c8e1b4c2b93a2a1e643ae1b0116a"),
-    ("case:c", "2d8ae6dcd1777fcd10d387ea0b44d04c536ad8474b4a539c08d48dd68503bb25"),
+    ("case:a", "26b4860a70e2f83f77f0b1ac53c29943e676902281984370a56b922b3360458e"),
+    ("case:b", "7f52e5bc2edb1f67e376660dcc701b210a3eba01cd32ffb30b03284bcad0e4d5"),
+    ("case:c", "a2692dffea9fa8bcc5519e408b0c8060b27995e2b759526254bc4de105fa4f44"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "9fb58cb60d43fd839289e540de9d962f792dfb1f51ddb72a9ffc2beb4895d21f";
+pub const I3_THREE_CASE_SHA256: &str = "ceb08a01c38cbc9813e3daf085431ee7659060fb7f76c6723a05e3c1d899985b";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
@@ -100,7 +102,7 @@ pub fn law_cap_maximal() -> Value {
         .collect();
     json!({
         "model": {
-            "schema_version": "0.6.0",
+            "schema_version": "0.7.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
             "project": {"id": text("project:", 128), "units": {"length": "m", "force": "N"}},
@@ -305,9 +307,14 @@ pub fn depth_16_value() -> Value {
     }
     deep
 }
+/// Every provenance escaped and the depth-16 raw-only value carried by the model's declared, solve-ignored `diagnostics` member: since the model root is closed
+/// (silent-drop guard, 2026-10-23) an unknown root member refuses, and `diagnostics` is read as
+/// `serde::de::IgnoredAny`, so it accepts this raw-only value unchanged. Of the carriers that keep
+/// the same maximum raw depth (16) it changes the fewest bytes: the same value at the same depth
+/// under a different key (an open record would need two fewer array levels and move the value).
 fn stressed(mut raw: Value) -> Value {
     escape_every_provenance(&mut raw);
-    raw["model"]["unknown_depth_witness"] = depth_16_value();
+    raw["model"]["diagnostics"] = depth_16_value();
     raw
 }
 /// gen_inputs.py `i3_sets`: three 128-moment sets on c1's model. A: each copy's net the
@@ -431,7 +438,7 @@ pub fn b2_c1_range_mechanics() -> Value {
 /// Euler-Bernoulli and an explicit zero corrosion allowance on every pipe section.
 pub fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.6.0");
+    m["schema_version"] = json!("0.7.0");
     m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");

@@ -32,3 +32,10 @@ sha2 = "0.10"
 # Pinned exactly: the wasm-bindgen CLI version must match the crate version
 # (see docs/BUILD_AND_RELEASE.md and apps/desktop wasm build script).
 wasm-bindgen = { version = "=0.2.123", optional = true }
+
+[dev-dependencies]
+# Vocabulary parity only (document_validator tests): the validator's
+# rule-pack checksum and library-import provenance tokens are pinned against
+# their owning crates without adding them to the wasm/runtime dependency set.
+open_pipe_stress_library_import_document = { path = "../../library_import/library_import_document" }
+open_pipe_stress_rule_pack_document = { path = "../../rules/rule_pack_document" }

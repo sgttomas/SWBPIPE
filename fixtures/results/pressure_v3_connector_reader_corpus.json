@@ -1,7 +1,7 @@
 {
   "cases": [
     {
-      "document_schema_version": "0.6.0",
+      "document_schema_version": "0.7.0",
       "envelope": {
         "accepted_model_state_mutated": false,
         "contract_evidence": {
@@ -24856,7 +24856,7 @@
       "solver_mode": "sparse_interactive"
     },
     {
-      "document_schema_version": "0.6.0",
+      "document_schema_version": "0.7.0",
       "envelope": {
         "accepted_model_state_mutated": false,
         "contract_evidence": {
@@ -50340,7 +50340,7 @@
       "solver_mode": "dense_scrutiny"
     },
     {
-      "document_schema_version": "0.6.0",
+      "document_schema_version": "0.7.0",
       "envelope": {
         "accepted_model_state_mutated": false,
         "contract_evidence": {
@@ -58327,7 +58327,7 @@
       "solver_mode": "sparse_interactive"
     },
     {
-      "document_schema_version": "0.6.0",
+      "document_schema_version": "0.7.0",
       "envelope": {
         "accepted_model_state_mutated": false,
         "contract_evidence": {
@@ -64180,7 +64180,7 @@
       "solver_mode": "dense_scrutiny"
     },
     {
-      "document_schema_version": "0.6.0",
+      "document_schema_version": "0.7.0",
       "envelope": {
         "accepted_model_state_mutated": false,
         "contract_evidence": {
@@ -69956,7 +69956,7 @@
       "solver_mode": "sparse_interactive"
     },
     {
-      "document_schema_version": "0.6.0",
+      "document_schema_version": "0.7.0",
       "envelope": {
         "accepted_model_state_mutated": false,
         "contract_evidence": {
@@ -75732,7 +75732,7 @@
       "solver_mode": "dense_scrutiny"
     },
     {
-      "document_schema_version": "0.6.0",
+      "document_schema_version": "0.7.0",
       "envelope": {
         "accepted_model_state_mutated": false,
         "contract_evidence": {
@@ -83711,8 +83711,8 @@
   "corpus": "T4-U3 pressure-1 objective connector reader corpus",
   "generator": "core/product_physics/tests/connector_readers.rs::shared_connector_reader_corpus_is_current",
   "inputs": [
-    "validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time",
-    "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.6.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)",
+    "validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.7.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time",
+    "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.7.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)",
     "three requests derived at test time from t4_u5b MO-F, AS-F-R and AS-F (connector_readers.rs derived_tied): MO-F re-placed as a single-rod Q = I control, AS-F-R with a perpendicular rod, AS-F with a skewed one, the first two unpressurized and unloaded; invented controls, not references"
   ]
 }

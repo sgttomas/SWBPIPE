@@ -10,7 +10,7 @@ const TOPOLOGY_CODES: [&str; 4] =
     ["MODEL_TOPOLOGY_DISCONNECTED", "NODE_COINCIDENT", "NODE_NEAR_DUPLICATE", "BRANCH_TOPOLOGY_INVALID"];
 
 fn base(length_unit: &str, nodes: Value, pipes: Value, supports: Value, components: Value) -> Value {
-    json!({"model":{"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
+    json!({"model":{"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:w8","units":{"length":length_unit,"force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":nodes,"pipe_segments":pipes,"supports":supports,"components":components,
@@ -141,7 +141,8 @@ fn an_isolated_anchored_node_is_not_a_part() {
 
 #[test]
 fn coincident_and_near_duplicate_nodes_warn_in_any_length_unit() {
-    // Extent of the model: about 1.5 m, so the tolerance is about 1.5e-6 m.
+    // The default node-proximity tolerance is 5 mm, inclusive, whatever the
+    // model's length unit or extent.
     for (unit, scale) in [("m", 1.0), ("mm", 1000.0)] {
         for mode in MODES {
             // c coincides with b.
@@ -154,20 +155,90 @@ fn coincident_and_near_duplicate_nodes_warn_in_any_length_unit() {
             assert!(with_code(&v, "NODE_NEAR_DUPLICATE").is_empty());
             assert_eq!(with_code(&v, "MODEL_TOPOLOGY_DISCONNECTED").len(), 1);
 
-            // c lies 1e-7 of the extent from b: near, not coincident.
-            let gap = 1.0e-7 * scale;
-            let v = envelope(&cantilevers(Some(([scale, gap, 0.0], true)), unit, scale), mode);
-            let found = with_code(&v, "NODE_NEAR_DUPLICATE");
-            assert_eq!(found.len(), 1, "{unit}: {:?}", diagnostics(&v));
-            assert_eq!(found[0]["affected_refs"], json!(["node:b", "node:c"]));
-            assert!(found[0]["message"].as_str().unwrap().contains("node:b and node:c (1e-7 m apart)"),
-                "{}", found[0]["message"]);
-            assert!(with_code(&v, "NODE_COINCIDENT").is_empty());
+            // c lies 4.9 mm and exactly 5 mm from b: near, not coincident.
+            for gap in [0.0049 * scale, 0.005 * scale] {
+                let v = envelope(&cantilevers(Some(([scale, gap, 0.0], true)), unit, scale), mode);
+                let found = with_code(&v, "NODE_NEAR_DUPLICATE");
+                assert_eq!(found.len(), 1, "{unit} {gap}: {:?}", diagnostics(&v));
+                assert_eq!(found[0]["severity"], "warning");
+                assert_eq!(found[0]["affected_refs"], json!(["node:b", "node:c"]));
+                let message = found[0]["message"].as_str().unwrap();
+                assert!(message.contains("node-proximity tolerance (5e-3 m)"), "{message}");
+                assert!(with_code(&v, "NODE_COINCIDENT").is_empty());
+            }
 
-            // c lies 1e-3 of the extent from b: not near.
-            let v = envelope(&cantilevers(Some(([scale, 1.0e-3 * scale, 0.0], true)), unit, scale), mode);
+            // c lies just beyond 5 mm from b: not near.
+            let beyond = if unit == "m" { f64::from_bits(0.005_f64.to_bits() + 1) } else { 5.000001 };
+            let v = envelope(&cantilevers(Some(([scale, beyond, 0.0], true)), unit, scale), mode);
             assert!(with_code(&v, "NODE_NEAR_DUPLICATE").is_empty(), "{unit}: {:?}", diagnostics(&v));
             assert!(with_code(&v, "NODE_COINCIDENT").is_empty());
+        }
+    }
+}
+
+/// The tolerance does not scale with the model: in a 2 km model two unjoined
+/// nodes 4 mm apart warn, and 6 mm apart do not.
+#[test]
+fn the_tolerance_is_absolute_in_a_large_model() {
+    for (gap, warns) in [(0.004, true), (0.006, false)] {
+        let v = envelope(&cantilevers(Some(([2000.0, gap, 0.0], true)), "m", 2000.0), PreviewSolverMode::SparseInteractive);
+        assert_eq!(with_code(&v, "NODE_NEAR_DUPLICATE").len(), usize::from(warns), "{gap}: {:?}", diagnostics(&v));
+    }
+}
+
+/// REQ-04-06-012: the model sets the tolerance in
+/// `model_settings.node_proximity_tolerance` (any catalog length unit); the
+/// check and its message use that value, inclusive, instead of 5 mm.
+#[test]
+fn a_user_set_tolerance_replaces_the_default() {
+    let with_tolerance = |mut wire: Value, value: f64, unit: &str| {
+        wire["model"]["model_settings"] = json!({"node_proximity_tolerance": {"value": value, "unit": unit}});
+        wire
+    };
+    for mode in MODES {
+        // 8 mm apart: beyond the 5 mm default, within a user-set 10 mm.
+        let wire = cantilevers(Some(([1.0, 0.008, 0.0], true)), "m", 1.0);
+        assert!(with_code(&envelope(&wire, mode), "NODE_NEAR_DUPLICATE").is_empty());
+        for (value, unit) in [(10.0, "mm"), (0.01, "m")] {
+            let v = envelope(&with_tolerance(wire.clone(), value, unit), mode);
+            let found = with_code(&v, "NODE_NEAR_DUPLICATE");
+            assert_eq!(found.len(), 1, "{value} {unit}: {:?}", diagnostics(&v));
+            let message = found[0]["message"].as_str().unwrap();
+            assert!(message.contains("node-proximity tolerance (1e-2 m)"), "{message}");
+            assert!(blocking(&v).is_empty(), "{:?}", blocking(&v));
+        }
+        // Exactly the user-set value is near; a smaller value than the gap is not.
+        let v = envelope(&with_tolerance(wire.clone(), 8.0, "mm"), mode);
+        assert_eq!(with_code(&v, "NODE_NEAR_DUPLICATE").len(), 1, "{:?}", diagnostics(&v));
+        let gap_4mm = cantilevers(Some(([1.0, 0.004, 0.0], true)), "m", 1.0);
+        let v = envelope(&with_tolerance(gap_4mm, 2.0, "mm"), mode);
+        assert!(with_code(&v, "NODE_NEAR_DUPLICATE").is_empty(), "{:?}", diagnostics(&v));
+    }
+}
+
+/// REQ-04-06-012: a non-finite, non-positive or non-length tolerance is refused
+/// by the solve with the setting reader's named code, as the document validator
+/// refuses it; nothing is solved.
+#[test]
+fn an_invalid_tolerance_is_refused_by_name() {
+    let wire = cantilevers(Some(([1.0, 0.004, 0.0], true)), "m", 1.0);
+    for mode in MODES {
+        for (value, unit, code) in [
+            (json!(0.0), "mm", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE"),
+            (json!(-5.0), "mm", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE"),
+            (json!(5.0), "N", "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH"),
+            (json!(5.0), "furlong_invented", "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH"),
+            (json!(1e-322), "mm", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE"),
+        ] {
+            let mut bad = wire.clone();
+            bad["model"]["model_settings"] = json!({"node_proximity_tolerance": {"value": value, "unit": unit}});
+            let v = envelope(&bad, mode);
+            let refused = blocking(&v);
+            assert_eq!(refused.len(), 1, "{value} {unit}: {:?}", diagnostics(&v));
+            assert_eq!(refused[0]["code"], code, "{value} {unit}");
+            assert_eq!(refused[0]["affected_refs"], json!(["model_settings.node_proximity_tolerance"]));
+            assert!(v["results"].as_array().is_none_or(|rows| rows.is_empty()), "{value} {unit}: nothing is solved");
+            assert!(topology_codes(&v).is_empty(), "{value} {unit}: the topology check does not run");
         }
     }
 }
@@ -205,13 +276,237 @@ fn a_tee_must_join_three_pipes_with_distinct_header_and_branch() {
     }
 }
 
-/// Two unjoined nodes on a part each, at a spacing just inside the tolerance
-/// where rounding in the cell index once put them two cells apart
-/// (independent review's case: x-extent [-1, 1], tolerance 2e-6).
+/// Owner ruling (2026-10-23): topology findings warn, not refuse, and the warning
+/// says plainly that the tee's branch stress factors are still applied to the
+/// pipes it names; without entered factors the warning claims none.
+#[test]
+fn an_invalid_tee_says_which_branch_stress_factors_still_apply() {
+    let with_factors = |mut model: Value| {
+        model["model"]["components"][0]["modifiers"] = json!({
+            "branch_header_sif_user_value": {"value": 1.4, "unit": "none"},
+            "branch_branch_sif_user_value": {"value": 1.9, "unit": "none"},
+            "flexibility_factor_user_value": {"value": 1.0, "unit": "none"},
+            "source_reference": "w8_invented_factors"
+        });
+        model
+    };
+    let intensified = |v: &Value, pipe: &str| {
+        v["results"].as_array().unwrap().iter().filter(|r| {
+            let id = r["id"].as_str().unwrap_or("");
+            id.contains("intensified-bending:component-tee") && id.contains(&pipe.replace(':', "-"))
+        }).count()
+    };
+    for mode in MODES {
+        let v = envelope(&with_factors(run_with_tee(false, "pipe:a-b", "pipe:b-c")), mode);
+        let found = with_code(&v, "BRANCH_TOPOLOGY_INVALID");
+        assert_eq!(found.len(), 1, "{:?}", diagnostics(&v));
+        assert!(found[0]["message"].as_str().unwrap().ends_with(
+            "node node:b joins 2; its branch stress factors are still applied (header SIF to pipe:a-b, branch SIF to pipe:b-c)"
+        ), "{}", found[0]["message"]);
+        assert!(intensified(&v, "pipe:a-b") > 0 && intensified(&v, "pipe:b-c") > 0, "the named factors are applied");
+
+        let v = envelope(&with_factors(run_with_tee(true, "pipe:b-d", "pipe:b-d")), mode);
+        let found = with_code(&v, "BRANCH_TOPOLOGY_INVALID");
+        assert!(found[0]["message"].as_str().unwrap().ends_with(
+            "node node:b joins 3; its branch stress factors are still applied (header SIF to pipe:b-d)"
+        ), "{}", found[0]["message"]);
+        assert!(intensified(&v, "pipe:b-d") > 0);
+        assert_eq!(intensified(&v, "pipe:a-b") + intensified(&v, "pipe:b-c"), 0);
+
+        let v = envelope(&run_with_tee(false, "pipe:a-b", "pipe:b-c"), mode);
+        assert_eq!(intensified(&v, "pipe:a-b") + intensified(&v, "pipe:b-c"), 0, "no factors entered");
+    }
+}
+
+/// The sides an envelope publishes intensified rows for, read from its
+/// evidence records ("header SIF to pipe:…" or "branch SIF to pipe:…"); each
+/// record's row is checked to be a published intensified row, and every such
+/// row of the tee to have its record.
+fn published_sides(v: &Value) -> Vec<String> {
+    let rows = v["results"].as_array().cloned().unwrap_or_default();
+    let mut sides = Vec::new();
+    let mut records = 0;
+    for case in v["contract_evidence"]["preview_cases"].as_array().into_iter().flatten() {
+        for record in case["intensified_measures"].as_array().into_iter().flatten() {
+            if record["component_id"] != "component:tee" {
+                continue;
+            }
+            records += 1;
+            let id = record["result_id"].as_str().unwrap();
+            assert!(rows.iter().any(|r| r["id"] == id && r["kind"] == "component_equal_factor_intensified_bending_stress_v1"
+                && r["entity_ref"] == "component:tee"), "the record's row {id} is published");
+            let side = match record["factor_role"].as_str() {
+                Some("branch_header") => "header",
+                Some("branch_branch") => "branch",
+                other => panic!("unexpected factor role {other:?}"),
+            };
+            let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap());
+            if !sides.contains(&named) {
+                sides.push(named);
+            }
+        }
+    }
+    let tee_rows = rows.iter().filter(|r| r["kind"] == "component_equal_factor_intensified_bending_stress_v1"
+        && r["entity_ref"] == "component:tee").count();
+    assert_eq!(tee_rows, records, "every published intensified row of the tee has its record");
+    sides.sort_by_key(|side| !side.starts_with("header"));
+    sides
+}
+
+/// REQ-04-06-012 and the owner's ruling (2026-10-23): the branch-topology warning
+/// names exactly the sides whose intensified rows the envelope publishes: never
+/// a side it does not publish, never omitting one it does, in both solver modes.
+/// Every combination of header and branch SIF (absent, zero, negative, positive,
+/// positive in a non-dimensionless unit) and flexibility factor (absent, present,
+/// zero, present in a non-dimensionless unit) on: a node joining two pipes; a header
+/// pipe that is missing or does not end at the node; a header that is the branch
+/// (on three pipes); a missing branch pipe; another solver consumption; a branch
+/// pipe realized as a curved-bend arc; and a valid tee (no warning). Also a tee
+/// without modifiers, and a model refused for missing supports (the warning
+/// stays; nothing is claimed).
+#[test]
+fn the_branch_warning_names_exactly_the_published_sides() {
+    let factors = [
+        None,
+        Some(json!({"value": 0.0, "unit": "none"})),
+        Some(json!({"value": -1.0, "unit": "none"})),
+        Some(json!({"value": 1.4, "unit": "none"})),
+        Some(json!({"value": 1.9, "unit": "N"})),
+    ];
+    let flexibilities = [
+        None,
+        Some(json!({"value": 1.0, "unit": "none"})),
+        Some(json!({"value": 0.0, "unit": "none"})),
+        Some(json!({"value": 1.0, "unit": "N"})),
+    ];
+    let topology = |degree: usize| {
+        format!("a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node node:b joins {degree}")
+    };
+    // (scenario, the model, the node's pipe count; None for a valid tee).
+    let arc = || {
+        // a-b straight; b-c a quarter arc realized by the bend at c; c-d straight.
+        base("m",
+            json!([node("node:a", 0.0, 0.0, 0.0), node("node:b", 1.0, 0.0, 0.0), node("node:c", 1.2, 0.2, 0.0), node("node:d", 1.2, 1.2, 0.0)]),
+            json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]),
+                pipe("pipe:b-c", "node:b", "node:c", [std::f64::consts::FRAC_1_SQRT_2, -std::f64::consts::FRAC_1_SQRT_2, 0.0]),
+                pipe("pipe:c-d", "node:c", "node:d", [1.0, 0.0, 0.0])]),
+            json!([anchor("support:a", "node:a"), anchor("support:d", "node:d")]),
+            json!([tee("component:tee", "node:b", "pipe:a-b", "pipe:b-c"),
+                {"id":"component:bend","kind":"bend","node":"node:c",
+                 "geometry":{"bend_pipe_ref":"pipe:b-c","bend_radius":{"value":0.2,"unit":"m"},"bend_angle":{"value":std::f64::consts::FRAC_PI_2,"unit":"rad"},
+                    "bend_plane_orientation":"global_xy_preview","bend_geometry_source_reference":"w8"},
+                 "modifiers":{"flexibility_factor_user_value":{"value":2.0,"unit":"none"},"source_reference":"w8_invented"},
+                 "mechanics_interface":{"solver_consumption":"curved_bend_macro_element"},"provenance":"w8"}]))
+    };
+    let remote = || {
+        let mut w = run_with_tee(false, "pipe:remote", "pipe:b-c");
+        w["model"]["nodes"].as_array_mut().unwrap().extend([node("node:r", 5.0, 0.0, 0.0), node("node:s", 6.0, 0.0, 0.0)]);
+        w["model"]["pipe_segments"].as_array_mut().unwrap().push(pipe("pipe:remote", "node:r", "node:s", [0.0, 1.0, 0.0]));
+        w["model"]["supports"].as_array_mut().unwrap().push(anchor("support:r", "node:r"));
+        w
+    };
+    let other_consumption = || {
+        let mut w = run_with_tee(false, "pipe:a-b", "pipe:b-c");
+        w["model"]["components"][0]["mechanics_interface"] = json!({"solver_consumption": "not_solver_consumed"});
+        w
+    };
+    let scenarios: Vec<(&str, Value, Option<usize>)> = vec![
+        ("two pipes", run_with_tee(false, "pipe:a-b", "pipe:b-c"), Some(2)),
+        ("missing header pipe", run_with_tee(false, "pipe:absent", "pipe:b-c"), Some(2)),
+        ("header pipe not at the node", remote(), Some(2)),
+        ("header is the branch", run_with_tee(true, "pipe:a-b", "pipe:a-b"), Some(3)),
+        ("missing branch pipe", run_with_tee(false, "pipe:a-b", "pipe:absent"), Some(2)),
+        ("other solver consumption", other_consumption(), Some(2)),
+        ("arc branch pipe", arc(), Some(2)),
+        ("valid tee", run_with_tee(true, "pipe:a-b", "pipe:b-d"), None),
+    ];
+    let (mut cases, mut claimed_without_flexibility, mut refused_with_valid_sif, mut arc_header_only) = (0, 0, 0, 0);
+    for mode in MODES {
+        for (name, model, degree) in &scenarios {
+            for header in &factors {
+                for branch in &factors {
+                    for flexibility in &flexibilities {
+                        let mut w = model.clone();
+                        let modifiers = &mut w["model"]["components"][0]["modifiers"];
+                        *modifiers = json!({"source_reference": "w8_invented_factors"});
+                        for (key, value) in [("branch_header_sif_user_value", header), ("branch_branch_sif_user_value", branch),
+                            ("flexibility_factor_user_value", flexibility)] {
+                            if let Some(value) = value {
+                                modifiers[key] = value.clone();
+                            }
+                        }
+                        let v = envelope(&w, mode);
+                        let published = published_sides(&v);
+                        let found = with_code(&v, "BRANCH_TOPOLOGY_INVALID");
+                        let context = format!("{name} {mode:?} header={header:?} branch={branch:?} flexibility={flexibility:?}");
+                        let Some(degree) = degree else {
+                            assert!(found.is_empty(), "{context}: {:?}", diagnostics(&v));
+                            cases += 1;
+                            continue;
+                        };
+                        assert_eq!(found.len(), 1, "{context}: {:?}", diagnostics(&v));
+                        let expected = if published.is_empty() {
+                            topology(*degree)
+                        } else {
+                            format!("{}; its branch stress factors are still applied ({})", topology(*degree), published.join(", "))
+                        };
+                        assert_eq!(found[0]["message"], expected.as_str(), "{context}");
+                        if v["status"]["mechanics"] != "MECHANICS_SOLVED" {
+                            assert!(published.is_empty(), "{context}: a refused envelope publishes nothing");
+                            if header.as_ref().is_some_and(|q| q["unit"] == "none" && q["value"] == 1.4) {
+                                refused_with_valid_sif += 1;
+                            }
+                        }
+                        if flexibility.is_none() && !published.is_empty() {
+                            claimed_without_flexibility += 1;
+                        }
+                        if *name == "arc branch pipe" {
+                            // The arc publishes no intensified row (its member is not straight).
+                            assert!(published.iter().all(|side| side.starts_with("header")), "{context}: {published:?}");
+                            if v["status"]["mechanics"] == "MECHANICS_SOLVED" {
+                                assert_eq!(v["summary"]["curved_bend_macro_element_count"], 1, "{context}");
+                            }
+                            if published == ["header SIF to pipe:a-b"] && branch.as_ref().is_some_and(|q| q["unit"] == "none" && q["value"] == 1.4) {
+                                arc_header_only += 1;
+                            }
+                        }
+                        cases += 1;
+                    }
+                }
+            }
+        }
+        // A tee with no modifiers claims nothing.
+        let v = envelope(&run_with_tee(false, "pipe:a-b", "pipe:b-c"), mode);
+        assert!(published_sides(&v).is_empty());
+        assert_eq!(with_code(&v, "BRANCH_TOPOLOGY_INVALID")[0]["message"], topology(2).as_str());
+        // Refused after the topology check (no support): the warning stays, without the statement.
+        let mut w = run_with_tee(false, "pipe:a-b", "pipe:b-c");
+        w["model"]["components"][0]["modifiers"] = json!({
+            "branch_header_sif_user_value": {"value": 1.4, "unit": "none"},
+            "branch_branch_sif_user_value": {"value": 1.9, "unit": "none"},
+            "flexibility_factor_user_value": {"value": 1.0, "unit": "none"},
+            "source_reference": "w8_invented_factors"
+        });
+        w["model"]["supports"] = json!([]);
+        let v = envelope(&w, mode);
+        assert!(blocking(&v).iter().any(|d| d["code"] == "SUPPORT_INPUT_MISSING"), "{:?}", diagnostics(&v));
+        assert!(published_sides(&v).is_empty());
+        assert_eq!(with_code(&v, "BRANCH_TOPOLOGY_INVALID")[0]["message"], topology(2).as_str());
+        cases += 2;
+    }
+    // The combinations reach the cases the review found: a side published with no
+    // flexibility factor is named; a refused envelope with a valid SIF claims none;
+    // an arc branch pipe publishes (and the warning names) the header only.
+    assert!(claimed_without_flexibility > 0 && refused_with_valid_sif > 0 && arc_header_only > 0,
+        "{claimed_without_flexibility} {refused_with_valid_sif} {arc_header_only}");
+    assert_eq!(cases, 2 * (8 * 5 * 5 * 4 + 2));
+}
+
+/// Two unjoined nodes on a part each, 4 mm apart across a cell boundary
+/// (cells are 8 x 5 mm = 0.04 m wide; the pair straddles x = 0.04).
 #[test]
 fn a_near_pair_across_a_cell_boundary_is_found() {
-    let (a, b) = (-0.49981000000000003_f64, -0.4998080000000001_f64);
-    assert!((b - a) < 2e-6);
+    let (a, b) = (0.038_f64, 0.042_f64);
     let nodes = json!([node("node:a", -1.0, 0.0, 0.0), node("node:b", a, 0.0, 0.0),
         node("node:c", b, 0.0, 0.0), node("node:d", 1.0, 0.0, 0.0)]);
     let pipes = json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]), pipe("pipe:c-d", "node:c", "node:d", [0.0, 1.0, 0.0])]);

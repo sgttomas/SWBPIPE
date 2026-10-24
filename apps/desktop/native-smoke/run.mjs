@@ -7,7 +7,8 @@
 // runs the real app twice against a throwaway HOME (so the project store and
 // Downloads are isolated from the user's own):
 //
-//   1. open-solve-save: three named refusals; then for the milestone model and
+//   1. open-solve-save: File > Save Model Document… on the bundled demo, re-open
+//      the saved file and save it again (W-6a); three named refusals; then for the milestone model and
 //      the demo model, File > Open Model Document…, solve sparse and dense,
 //      read standing, rows, N1 displacement and the solve proof, export the
 //      result JSON where the product offers it, and save as a local project;
@@ -31,7 +32,7 @@ const tauriDir = path.join(desktop, "src-tauri");
 const binary = path.join(tauriDir, "target", "debug", "openpipestress-desktop");
 const args = new Set(process.argv.slice(2));
 const expected = JSON.parse(readFileSync(path.join(here, "expected.json"), "utf8"));
-const PHASE_TIMEOUT_MS = 15 * 60 * 1000;
+const PHASE_TIMEOUT_MS = 25 * 60 * 1000;
 const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
 const IDENTIFIER = TAURI_CONF.identifier;
 // macOS suspends the timers of a webview that is not on screen (display asleep,
@@ -76,6 +77,11 @@ const models = path.join(root, "models");
 mkdirSync(home);
 mkdirSync(path.join(home, "Downloads"));
 mkdirSync(models);
+// W-6a. Where the save chooser is answered: outside HOME's Documents, so the
+// files are the ones this run wrote.
+const savedModels = path.join(root, "saved-model-documents");
+mkdirSync(savedModels);
+const MODEL_DOCUMENT_SAVE = { first: path.join(savedModels, "saved-demo.json"), second: path.join(savedModels, "saved-demo-reopened.json") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -89,14 +95,36 @@ writeFileSync(path.join(models, "newer-schema.json"), JSON.stringify({ ...demo, 
 writeFileSync(path.join(models, "solve-request-model.json"), JSON.stringify(request.model));
 writeFileSync(path.join(models, "not-json.json"), "{ this is not JSON");
 
-function launch(phase) {
+// W-4. An exact-route (pressure-2) document for the output gates, and the model
+// the driver authors from blank. Neither needs a pinned value: the blank
+// cantilever's tip deflection is checked against PL^3/3EI from these inputs.
+const exactFixture = "fixtures/model_operations/exact_pressure_authoring_model.json";
+const exactPath = path.join(models, path.basename(exactFixture));
+copyFileSync(path.join(project, exactFixture), exactPath);
+const exactDocument = JSON.parse(readFileSync(exactPath, "utf8"));
+const BLANK = {
+  anchor: "node:W4-A", tip: "node:W4-B", material: "material:w4-steel", pipe: "pipe:W4-1", support: "support:W4-A",
+  load_case: "load:W4", provenance: "invented_synthetic_native_smoke_input",
+  elastic_modulus_pa: 200e9, shear_modulus_pa: 77e9, length_m: 3, outside_diameter_m: 0.168, wall_m: 0.007, force_n: 350,
+  probe: "result:disp:node-W4-B"
+};
+// Euler-Bernoulli cantilever tip deflection in mm (the pressure-free route's straight member).
+const blankInertia = (Math.PI / 64) * (BLANK.outside_diameter_m ** 4 - (BLANK.outside_diameter_m - 2 * BLANK.wall_m) ** 4);
+const blankTipMm = (BLANK.force_n * BLANK.length_m ** 3) / (3 * BLANK.elastic_modulus_pa * blankInertia) * 1000;
+const UNIT_KEYS = ["length", "force", "moment", "pressure", "stress", "temperature", "angle"];
+
+function launch(phase, extra = {}) {
   const report = path.join(root, `report-${phase}.json`);
   const plan = {
     phase,
     bundled_project_id: expected.bundled_project_id,
     refusals: expected.refusals.map((item) => ({ path: path.join(models, item.file) })),
     // The first case also exercises the replace prompt (HELP_HUMAN ruling 2026-10-10).
-    documents: documents.map(({ case: name, path: file, project_id, modes, probe }, index) => ({ case: name, path: file, project_id, modes, probe: probe ?? null, replace_flows: index === 0 }))
+    documents: documents.map(({ case: name, path: file, project_id, modes, probe }, index) => ({ case: name, path: file, project_id, modes, probe: probe ?? null, replace_flows: index === 0 })),
+    exact: { path: exactPath, project_id: exactDocument.project.id },
+    blank: BLANK,
+    model_document: MODEL_DOCUMENT_SAVE,
+    ...extra
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
   return new Promise((resolve) => {
@@ -149,6 +177,31 @@ function checkObservation(prefix, seen, want, modelHash) {
 
 const first = await launch("open-solve-save");
 check("phase open-solve-save completed", first.ok, first.error);
+// W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
+// the expected bytes and hash are computed from the bundled demo fixture.
+{
+  const saved = first.model_document?.saved;
+  const resaved = first.model_document?.resaved;
+  const demoText = canonical(demo);
+  const demoHash = modelSha256(demo);
+  const fileOf = (file) => (existsSync(file) ? readFileSync(file) : null);
+  const firstBytes = fileOf(MODEL_DOCUMENT_SAVE.first);
+  const secondBytes = fileOf(MODEL_DOCUMENT_SAVE.second);
+  const sha = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  const reported = (shown) => shown?.match(/^Saved model document (\S+) \((\d+) bytes; model hash (sha256:[0-9a-f]{64})\)\.$/);
+  check("save model document: the dialog asks for the explicit intent before the chooser (unchecked; Save disabled; Cancel focused)",
+    saved && !saved.intent_checked_initially && saved.confirm_disabled_before_intent && saved.cancel_focused
+      && saved.intent_label === "Save my model document, including private project data, to a file I choose", saved && { ...saved, message: undefined });
+  check("save model document: the file is the demo's RFC 8785 text, with no trailing newline",
+    firstBytes && firstBytes.toString("utf8") === demoText && firstBytes.at(-1) !== 0x0a, firstBytes?.length);
+  check("save model document: SHA-256 of the file is the demo's model hash, as the status line reports",
+    firstBytes && sha(firstBytes) === demoHash && reported(saved?.message)?.[3] === demoHash
+      && Number(reported(saved?.message)?.[2]) === firstBytes.length && reported(saved?.message)?.[1] === path.basename(MODEL_DOCUMENT_SAVE.first), saved?.message);
+  check("save model document: the saved file re-opens through Open Model Document…",
+    first.model_document?.reopened?.startsWith(`Opened model document ${path.basename(MODEL_DOCUMENT_SAVE.first)} (${firstBytes?.length} bytes; `), first.model_document?.reopened);
+  check("save model document: the re-opened session saves identical bytes under an equal model hash",
+    firstBytes && secondBytes && Buffer.compare(firstBytes, secondBytes) === 0 && reported(resaved?.message)?.[3] === demoHash, resaved?.message);
+}
 for (const want of expected.refusals) {
   const seen = first.refusals?.find((item) => item.file === want.file);
   check(`refusal ${want.file}: ${want.code}`, seen?.message?.includes(`refused (${want.file}): ${want.code}`) && seen.prior_model_kept, seen?.message);
@@ -186,6 +239,60 @@ function checkPrompt(name, prompt, storedName, storedId) {
   const replace = promptFor(first, `${promptCase.case}/replace`);
   checkPrompt("save over the stored project", replace, promptCase.document.project.name, promptCase.project_id);
   check("Replace: written only after confirmation", replace?.message?.includes("Created local SQLite project snapshot"), replace?.message);
+}
+
+// W-4. The bundled demo pack's two inputs are named missing on every model the smoke checks.
+const DEMO_PACK_INPUTS = ["demo_actual_quantity", "demo_limit_quantity"];
+const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_INPUTS_INCOMPLETE")
+  && DEMO_PACK_INPUTS.every((input) => rules.outcomes?.includes(`${input}=MISSING`)));
+// W-4. The demo's local-private report and rule checks.
+{
+  const render = first.report_render;
+  check("demo local-private report: rendered unblocked in the local-private context", render?.redaction?.includes("context=local_private") && render.redaction.includes("blocked=false"), render?.redaction ?? render?.error);
+  check("demo local-private report: canonical HTML SHA-256 shown", /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(render?.hash ?? ""), render?.hash);
+  check("demo local-private report: export gates passed", render?.gate === "export gates passed", render?.gate);
+  check("demo local-private report: local-private warning, save and the document's notice", render?.local_private_warning && render.save_offered && render.preview_local_private_notice, render && { warning: render.local_private_warning, save: render.save_offered, notice: render.preview_local_private_notice });
+  const rules = first.rule_checks;
+  check("demo rule checks: refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(rules), rules?.outcomes);
+}
+// W-4. Exact-route (pressure-2) gates, by name.
+{
+  const exact = first.exact;
+  const solved = exact?.solve;
+  check("exact route: solved, its proof bound to the opened document", solved?.solve_job_summary?.includes("state=completed") && solved.proof_model_sha256 === modelSha256(exactDocument) && solved.solve_proof?.includes("identity=match"), solved?.proof_model_sha256);
+  check("exact route: the standing names the route", solved?.standing?.includes("3.0.0/exact_pressure_v3"), solved?.standing?.slice(0, 80));
+  check("exact route: rendered report refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no render control",
+    exact?.rendered_report_panel && !exact.render_control_present && exact.render_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.render_refusal);
+  check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package or MBF text download",
+    exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
+  check("exact route: result JSON export offered", exact?.result_export_link === true);
+  check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
+}
+// W-4. The model authored from blank in the GUI.
+const blankId = first.blank?.project_id ?? null;
+const enteredMm = (shown) => {
+  const match = shown?.match(/^Entered: (\S+) mm$/);
+  return match ? Number(match[1]) : NaN;
+};
+const tipMm = (observed) => enteredMm(observed?.probe_entered);
+const withinCriterion = (observedMm) => Math.abs(observedMm - blankTipMm) <= 1e-9 * Math.abs(blankTipMm); // DEC-024/026 criterion
+// The +Y tip force deflects the tip by +PL^3/3EI along Y and nowhere else.
+const signedTip = (observed) => {
+  const [ux, uy, uz] = ["ux", "uy", "uz"].map((axis) => enteredMm(observed?.components?.[axis]));
+  return withinCriterion(uy) && Math.abs(ux) <= 1e-9 * blankTipMm && Math.abs(uz) <= 1e-9 * blankTipMm;
+};
+{
+  const blank = first.blank;
+  check("from blank: New Blank Project opens the units dialog (SI, US customary, custom)", ["si", "us_customary", "custom"].every((preset) => blank?.unit_presets?.includes(preset)), blank?.unit_presets);
+  check("from blank: node, material, pipe, support, load case and force authored through the GUI", blank?.steps?.length === 8, blank?.steps);
+  const solved = blank?.solve;
+  check("from blank: native solve completed, its proof bound to the session's project", solved?.solve_job_summary?.includes("state=completed") && solved.proof_project === blankId && solved.solve_proof?.includes("identity=match"), solved?.solve_job_summary);
+  check("from blank: numerical integrity checks passed", solved?.standing?.startsWith("Numerical integrity: checks_passed."), solved?.standing?.slice(0, 60));
+  check("from blank: the unfiltered results count every solved row", solved && solved.proof_rows > 0 && solved.all_rows_summary === `${solved.proof_rows} of ${solved.proof_rows} results match filter`, `${solved?.proof_rows}; ${solved?.all_rows_summary}`);
+  check("from blank: deformation overlay available for both nodes", solved?.deformation?.startsWith("available; nodes=2;"), solved?.deformation);
+  check(`from blank: tip deflection magnitude equals PL^3/3EI = ${blankTipMm} mm within 1e-9 relative`, withinCriterion(tipMm(solved)), solved?.probe_entered);
+  check("from blank: tip uy = +PL^3/3EI, ux and uz zero", signedTip(solved), solved?.components);
+  check("from blank: Save Local Project saves in place without a prompt", blank?.save && !blank.save.prompted && blank.save.message?.includes("Saved current project model snapshot"), blank?.save?.message);
 }
 
 // The store under the throwaway HOME holds both projects.
@@ -229,8 +336,26 @@ for (const doc of documents) {
   check("save as a new project: the solve proof's model hash is the copy's, not the original's",
     copyModel && copySeen?.proof_model_sha256 === modelSha256(copyModel) && modelSha256(copyModel) !== modelSha256(originalModel), copySeen?.proof_model_sha256);
   check("own project saved elsewhere since, Cancel: the other writer's revision (no run) is what the store holds", copyModel && storedRuns[copyId] === null);
-  check("store holds exactly the expected projects", canonical(Object.keys(stored).sort()) === canonical([...documents.map((doc) => doc.project_id), copyId].sort()), Object.keys(stored));
+  check("store holds exactly the expected projects", canonical(Object.keys(stored).sort()) === canonical([...documents.map((doc) => doc.project_id), copyId, ...(blankId ? [blankId] : [])].sort()), Object.keys(stored));
 }
+// W-4. The stored blank project is the model the GUI authored and solved.
+const blankStored = blankId ? (stored[blankId]?.model ?? stored[blankId]) : null;
+{
+  const ids = (key) => (blankStored?.[key] ?? []).map((item) => item.id);
+  check("from blank: stored with all seven unit keys", blankStored && UNIT_KEYS.every((key) => typeof blankStored.project?.units?.[key] === "string"), blankStored?.project?.units);
+  check("from blank: stored model holds the authored entities",
+    blankStored && [BLANK.anchor, BLANK.tip].every((id) => ids("nodes").includes(id)) && ids("pipe_segments").includes(BLANK.pipe)
+      && ids("supports").includes(BLANK.support) && ids("materials").includes(BLANK.material) && ids("load_cases").includes(BLANK.load_case), blankId);
+  const force = (blankStored?.load_cases ?? []).find((item) => item.id === BLANK.load_case)?.primitive_loads?.find((item) => item.id === `${BLANK.load_case}-FY`);
+  check("from blank: stored tip force is 350 N along global_y at the tip node",
+    force?.category === "concentrated_force" && force.target?.node === BLANK.tip && force.direction === "global_y"
+      && force.magnitude?.value === BLANK.force_n && force.magnitude?.unit === "N", force && { target: force.target, direction: force.direction, magnitude: force.magnitude });
+  const fixed = (blankStored?.supports ?? []).find((item) => item.id === BLANK.support);
+  check("from blank: stored support fixes all six DOF at the anchor", fixed?.node === BLANK.anchor
+    && ["UX", "UY", "UZ", "RX", "RY", "RZ"].every((dof) => fixed.restraints?.includes(dof)), fixed && { node: fixed.node, restraints: fixed.restraints });
+  check("from blank: the stored model is the model that was solved", blankStored && first.blank?.solve?.proof_model_sha256 === modelSha256(blankStored), first.blank?.solve?.proof_model_sha256);
+}
+
 const downloads = path.join(home, "Downloads");
 const exported = existsSync(downloads) ? readdirSync(downloads).filter((name) => name.endsWith(".json")) : [];
 for (const item of first.exports ?? []) {
@@ -276,7 +401,7 @@ for (const doc of documents) {
 if (documents.some((doc) => (doc.result_export ?? { offered: true }).offered)) check("at least one result export written", exported.length > 0, exported);
 else check("no result export written: no case offers one", exported.length === 0, exported);
 
-const second = await launch("reopen");
+const second = await launch("reopen", blankId ? { blank: { ...BLANK, project_id: blankId } } : {});
 check("phase reopen completed", second.ok, second.error);
 {
   const bundled = promptFor(second, "bundled-demo/save");
@@ -292,6 +417,16 @@ for (const doc of documents) {
     const before = observation(first, doc.case, mode);
     check(`${doc.case}/${mode}/reopened: same rows and probed value as before save`, seen && before && seen.proof_rows === before.proof_rows && seen.probe_entered === before.probe_entered);
   }
+}
+
+// W-4. The blank project, reopened in a fresh process, solves to the same rows and value.
+{
+  const before = first.blank?.solve;
+  const after = second.blank?.solve;
+  check("from blank, reopened: solved, its proof bound to the stored model", after?.solve_job_summary?.includes("state=completed") && blankStored && after.proof_model_sha256 === modelSha256(blankStored) && after.solve_proof?.includes("identity=match"), after?.proof_model_sha256 ?? after?.solve_job_summary);
+  check("from blank, reopened: same rows, tip value and model hash as before save", after && before && after.proof_rows === before.proof_rows && after.probe_entered === before.probe_entered && after.proof_model_sha256 === before.proof_model_sha256, `${after?.proof_rows}; ${after?.probe_entered}`);
+  check("from blank, reopened: tip deflection still equals PL^3/3EI, along +Y only", withinCriterion(tipMm(after)) && signedTip(after), after?.components);
+  check("from blank, reopened: the unfiltered results count every solved row", after && after.all_rows_summary === `${after.proof_rows} of ${after.proof_rows} results match filter`, after?.all_rows_summary);
 }
 
 const failed = checks.filter((item) => !item.ok);

@@ -180,6 +180,40 @@ pub(crate) fn admit_body(
     }
 }
 
+/// [`admit`] for a command whose arguments are small by contract: a raw body
+/// longer than `max_raw_bytes` is refused `INVALID_REQUEST`
+/// (`INGRESS-ARGS-TOO-LARGE`) before the prescan and before any lease. The
+/// model-state commands (W-12 S1) use it with their own budgets.
+pub(crate) fn admit_within(
+    registry: &SolveJobRegistry,
+    request: &tauri::ipc::Request<'_>,
+    command: &'static str,
+    decoding: ArgsDecoding,
+    max_raw_bytes: usize,
+) -> Result<(Args, Lease), SolveJobError> {
+    admit_body_within(registry, request.body(), request.headers(), command, decoding, max_raw_bytes)
+}
+
+/// [`admit_within`] on a body and headers (testable without Tauri).
+pub(crate) fn admit_body_within(
+    registry: &SolveJobRegistry,
+    body: &InvokeBody,
+    headers: &HeaderMap,
+    command: &'static str,
+    decoding: ArgsDecoding,
+    max_raw_bytes: usize,
+) -> Result<(Args, Lease), SolveJobError> {
+    if let InvokeBody::Raw(raw) = body {
+        if raw.len() > max_raw_bytes {
+            return Err(invalid_request(format!(
+                "INGRESS-ARGS-TOO-LARGE: `{command}` takes at most {max_raw_bytes} bytes of arguments; {} were sent.",
+                raw.len()
+            )));
+        }
+    }
+    admit_body(registry, body, headers, command, decoding)
+}
+
 /// Serializes a command's outcome while its ingress lease is still held.
 pub(crate) fn respond<T: Serialize, E>(outcome: Result<T, CommandError<E>>) -> Result<Response, CommandError<E>> {
     let value = outcome?;
@@ -563,8 +597,10 @@ impl<'de> de::VariantAccess<'de> for VariantDecoder {
 /// maximized over cap and the fewest elements cap admits, is at most this
 /// constant for every vector type the request contains (checked by
 /// `report_package_vec_expansion_bounds_every_vector_type`); the shares of
-/// different vectors are disjoint parts of M. The worst type is
-/// `QuantityResultDto` (S = 584 B, c = 1024 B: ratio 3.556 at k = 1).
+/// different vectors are disjoint parts of M. Since request 2.0.0 the worst
+/// types are `RulePackAuditRefDto` (S = 224 B) and `AssetManifestEntryDto`
+/// (S = 216 B), both with c = 256 B: ratio 2.667; the constant keeps its
+/// earlier margin.
 pub(crate) const REPORT_PACKAGE_VEC_EXPANSION: u64 = 4;
 
 #[cfg(test)]
@@ -940,57 +976,16 @@ mod tests {
         use F::*;
         vec![
             ("ReferenceDto", size_of::<wire::ReferenceDto>(), vec![Str, Str]),
-            ("ProvenanceDto", size_of::<wire::ProvenanceDto>(), vec![Str; 7]),
-            ("ChecksumDto", size_of::<wire::ChecksumDto>(), vec![Str, Str, Struct("ReferenceDto"), Str]),
-            (
-                "DiagnosticDto",
-                size_of::<wire::DiagnosticDto>(),
-                vec![Str, Str, Str, Struct("ReferenceDto"), Struct("ReferenceDto"), Str, Str, Struct("ProvenanceDto")],
-            ),
-            (
-                "ResultTraceLinkDto",
-                size_of::<wire::ResultTraceLinkDto>(),
-                vec![Str, Str, Struct("ReferenceDto"), Struct("ReferenceDto"), Struct("ProvenanceDto"), Vec],
-            ),
-            (
-                "QuantityResultDto",
-                size_of::<wire::QuantityResultDto>(),
-                vec![
-                    Str, Str, Struct("ReferenceDto"), Struct("ReferenceDto"), Opt, Num, Str, Str, Opt, Vec, Vec,
-                    Struct("ProvenanceDto"),
-                ],
-            ),
-            ("ResultSetDto", size_of::<wire::ResultSetDto>(), vec![Str, Str, Struct("ReferenceDto"), Vec]),
-            (
-                "ReproducibilityDto",
-                size_of::<wire::ReproducibilityDto>(),
-                vec![Struct("ChecksumDto"), Vec, Struct("ReferenceDto"), Bool],
-            ),
-            (
-                "RulePackExportRefDto",
-                size_of::<wire::RulePackExportRefDto>(),
-                vec![Str, Str, Struct("ChecksumDto"), Str, Str, Str, Bool],
-            ),
             ("ProfessionalBoundaryDto", size_of::<wire::ProfessionalBoundaryDto>(), vec![Bool, Bool, Bool, Bool, Bool, Default]),
-            (
-                "ResultEnvelopeDto",
-                size_of::<wire::ResultEnvelopeDto>(),
-                vec![
-                    Str, Str, Struct("ReferenceDto"), Struct("ReferenceDto"), Str, Str, Str, Struct("ReferenceDto"), Vec, Vec,
-                    Vec, Struct("ProvenanceDto"), Struct("ReproducibilityDto"), Vec, Vec, Struct("ProfessionalBoundaryDto"),
-                ],
-            ),
             ("RulePackAuditRefDto", size_of::<wire::RulePackAuditRefDto>(), vec![Str, Str, Str, Str, Opt, Bool]),
             ("AssetManifestEntryDto", size_of::<wire::AssetManifestEntryDto>(), vec![Str, Str, Str, Opt, Str]),
         ]
     }
 
     /// The vector element types of the request: the structs above that
-    /// appear in a `Vec`, plus `Vec<String>` and `Vec<Value>`.
-    const VECTOR_STRUCTS: [&str; 10] = [
-        "ReferenceDto", "ChecksumDto", "DiagnosticDto", "ResultTraceLinkDto", "QuantityResultDto", "ResultSetDto",
-        "RulePackExportRefDto", "ResultEnvelopeDto", "RulePackAuditRefDto", "AssetManifestEntryDto",
-    ];
+    /// appear in a `Vec`, plus `Vec<String>` and `Vec<Value>` (the result
+    /// documents, their source results and the handoff records).
+    const VECTOR_STRUCTS: [&str; 3] = ["ReferenceDto", "RulePackAuditRefDto", "AssetManifestEntryDto"];
 
     fn shape(name: &str) -> Vec<F> {
         shapes().into_iter().find(|(n, _, _)| *n == name).unwrap_or_else(|| panic!("{name}")).2
@@ -1097,26 +1092,17 @@ mod tests {
             assert!(T::deserialize(ValueDecoder(Value::Array(long))).is_err(), "{name}: more fields");
         }
         check::<wire::ReferenceDto>("ReferenceDto");
-        check::<wire::ProvenanceDto>("ProvenanceDto");
-        check::<wire::ChecksumDto>("ChecksumDto");
-        check::<wire::DiagnosticDto>("DiagnosticDto");
-        check::<wire::ResultTraceLinkDto>("ResultTraceLinkDto");
-        check::<wire::QuantityResultDto>("QuantityResultDto");
-        check::<wire::ResultSetDto>("ResultSetDto");
-        check::<wire::ReproducibilityDto>("ReproducibilityDto");
-        check::<wire::RulePackExportRefDto>("RulePackExportRefDto");
         check::<wire::ProfessionalBoundaryDto>("ProfessionalBoundaryDto");
-        check::<wire::ResultEnvelopeDto>("ResultEnvelopeDto");
         check::<wire::RulePackAuditRefDto>("RulePackAuditRefDto");
         check::<wire::AssetManifestEntryDto>("AssetManifestEntryDto");
     }
 
-    fn report_request(result_envelopes: Value) -> Value {
+    fn report_request(source_basis_refs: Value, result_documents: Value) -> Value {
         json!({
             "package_id": "pkg",
             "export_profile_id": "profile",
             "source_model_ref": ["model", "m"],
-            "source_basis_refs": [["load_case", "LC1"]],
+            "source_basis_refs": source_basis_refs,
             "report": {"sections": [{"title": "t", "rows": [1, 2, 3]}]},
             "audit_manifest": {
                 "manifest_id": "m",
@@ -1128,45 +1114,24 @@ mod tests {
                 "assets": [minimal("AssetManifestEntryDto")],
                 "professional_boundary": minimal("ProfessionalBoundaryDto")
             },
-            "result_envelopes": result_envelopes,
+            "result_documents": result_documents.clone(),
+            "source_results": result_documents,
             "state_comparison_handoff_records": [{"a": [1, {"b": "c"}]}, []],
             "rule_check_aggregate": null,
             "solve_rule_check_status": "s"
         })
     }
 
-    /// An array-form result envelope with exactly one element in each of its
-    /// struct vectors, nested as deep as the request goes (the k = 1 case,
-    /// the worst ratio).
-    fn one_of_each_envelope() -> Value {
-        let mut diagnostic = minimal("DiagnosticDto");
-        diagnostic[0] = json!("d");
-        let mut trace = minimal("ResultTraceLinkDto");
-        trace[5] = json!([diagnostic.clone()]);
-        let mut value = minimal("QuantityResultDto");
-        value[9] = json!([diagnostic.clone()]);
-        value[10] = json!([trace]);
-        let mut set = minimal("ResultSetDto");
-        set[3] = json!([value]);
-        let mut envelope = minimal("ResultEnvelopeDto");
-        envelope[8] = json!([["load_case", "LC1"]]);
-        envelope[9] = json!([set]);
-        envelope[10] = json!([diagnostic]);
-        envelope[13] = json!(["ok"]);
-        envelope[14] = json!([minimal("RulePackExportRefDto")]);
-        envelope
-    }
-
     fn decode_report(args: &mut Args) -> Result<wire::ReportPackageRequest, SolveJobError> {
         args.decode::<wire::ReportPackageRequest>("request")
     }
 
-    /// The rebuilt decoding of the typed report-package request stays within
-    /// envelope(raw) + (2 + REPORT_PACKAGE_VEC_EXPANSION) M + the allowance,
-    /// for the invented witness and adversarial shapes: many one-element
-    /// vectors in array form, long vectors (growth transients), duplicated
-    /// object-form envelopes, and refused requests (a failing element after
-    /// many decoded ones, long strings in refused positions).
+    /// The rebuilt decoding of the typed report-package request (version
+    /// 2.0.0) stays within envelope(raw) + (2 + REPORT_PACKAGE_VEC_EXPANSION) M
+    /// + the allowance, for the invented witness and adversarial shapes: many
+    /// one-element struct vectors in array form, long vectors (growth
+    /// transients), many result documents, and refused requests (a failing
+    /// element after many decoded ones, long strings in refused positions).
     #[test]
     fn report_package_decoding_stays_within_its_lease() {
         let decoding = ArgsDecoding::Rebuilt { vec_expansion: REPORT_PACKAGE_VEC_EXPANSION };
@@ -1175,27 +1140,30 @@ mod tests {
         ))
         .unwrap();
         let witness_request = witness["export_results"].clone();
-        let mut long_values = minimal("ResultSetDto");
-        long_values[3] = Value::Array(vec![minimal("QuantityResultDto"); 5_000]);
-        let mut long_envelope = minimal("ResultEnvelopeDto");
-        long_envelope[9] = Value::Array(vec![long_values; 2]);
-        long_envelope[8] = Value::Array(vec![json!(["", ""]); 3_000]);
+        let one = json!([["analysis_run", "r"]]);
         let mut duplicated = witness_request.clone();
-        let envelope = duplicated["result_envelopes"][0].clone();
-        duplicated["result_envelopes"] = Value::Array(vec![envelope; 200]);
-        let mut failing = report_request(Value::Array(vec![one_of_each_envelope(); 300]));
-        failing["result_envelopes"].as_array_mut().unwrap().push(json!({}));
-        let mut long_string_refused = report_request(json!([]));
+        let document = duplicated["result_documents"][0].clone();
+        duplicated["result_documents"] = Value::Array(vec![document.clone(); 200]);
+        duplicated["source_results"] = Value::Array(vec![document; 200]);
+        let mut failing = report_request(Value::Array(vec![json!(["load_case", "LC1"]); 3_000]), json!([]));
+        failing["source_basis_refs"].as_array_mut().unwrap().push(json!({}));
+        let mut many_rule_packs = report_request(one.clone(), json!([]));
+        many_rule_packs["audit_manifest"]["rule_pack_refs"] = Value::Array(vec![minimal("RulePackAuditRefDto"); 4_000]);
+        let mut failing_rule_packs = many_rule_packs.clone();
+        failing_rule_packs["audit_manifest"]["rule_pack_refs"].as_array_mut().unwrap().push(json!({}));
+        let mut long_string_refused = report_request(one.clone(), json!([]));
         long_string_refused["audit_manifest"]["professional_boundary"][0] = json!("\u{1}\u{85}".repeat(40_000));
         let cases = [
             ("witness", witness_request, true),
-            ("one_of_each", report_request(Value::Array(vec![one_of_each_envelope(); 400])), true),
-            ("one_of_each_single", report_request(json!([one_of_each_envelope()])), true),
-            ("long_vectors", report_request(json!([long_envelope])), true),
-            ("duplicated_witness_envelopes", duplicated, true),
+            ("one_reference", report_request(one.clone(), json!([{}])), true),
+            ("long_references", report_request(Value::Array(vec![json!(["load_case", "LC1"]); 5_000]), json!([])), true),
+            ("many_documents", report_request(one.clone(), Value::Array(vec![json!({"a": [1, 2, {"b": "c"}]}); 5_000])), true),
+            ("duplicated_witness_documents", duplicated, true),
+            ("many_rule_packs", many_rule_packs, true),
             ("failing_after_many", failing, false),
+            ("failing_rule_packs", failing_rule_packs, false),
             ("long_string_refused", long_string_refused, false),
-            ("empty_objects", report_request(Value::Array(vec![json!({}); 20_000])), false),
+            ("empty_objects", report_request(Value::Array(vec![json!({}); 20_000]), json!([])), false),
         ];
         for (name, request, decodes) in cases {
             let body = serde_json::to_vec(&json!({ "request": request })).unwrap();

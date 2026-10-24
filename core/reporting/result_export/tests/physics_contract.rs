@@ -1,5 +1,5 @@
 //! Actual sparse/dense producer bytes of the current exact pressure contract
-//! (pressure-2, 0.6.0/3.0.0/exact_pressure_v3), retained under fixtures/results.
+//! (pressure-2, 0.7.0/3.0.0/exact_pressure_v3), retained under fixtures/results.
 //! B7b moved these physical-evidence checks from the retired physics-1 statements
 //! onto their pressure-2 twins (`pressure_*_mechanics_*`, same physical inputs).
 //! This proves consumer admission and source binding, not producer authentication.

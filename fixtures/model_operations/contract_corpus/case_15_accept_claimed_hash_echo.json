@@ -147,7 +147,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": [
       {
         "id": "support:S-1",
@@ -169,7 +169,7 @@
     "hash_status": "computed_local_preview",
     "payload_ref": "project:corpus",
     "payload_scope": "model_payload",
-    "value": "sha256:0736aa62e8ba27237f6d2097ae9cddc838bf5e424d89a52933ce45f2f46f0733"
+    "value": "sha256:908c396df8dac0826ad50e7eabd2150714b01644bfbb37b0bd54095c1584e67e"
   },
   "description": "Accepted apply with a supported claimed model hash that matches the current backend RFC8785/JCS model hash.",
   "expected": {
@@ -321,7 +321,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "supports": [
         {
           "id": "support:S-1",
@@ -336,7 +336,7 @@
         }
       ]
     },
-    "applied_model_canonical_sha256": "sha256:22f1a47bdfe09c7a3842b4984cfd84099eb63ca2eabf0850042a1cafc8d3fef1",
+    "applied_model_canonical_sha256": "sha256:9b381299cc17d5819584ac46d74deda775111cd9830ed619f0d554bc3a7d1ddd",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -375,10 +375,10 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:0736aa62e8ba27237f6d2097ae9cddc838bf5e424d89a52933ce45f2f46f0733",
+        "backend_model_hash": "sha256:908c396df8dac0826ad50e7eabd2150714b01644bfbb37b0bd54095c1584e67e",
         "binding_status": "claimed_model_hash_matches_current_backend_model",
         "claimed_hash_canonicalization": "rfc8785_jcs",
-        "claimed_model_hash": "sha256:0736aa62e8ba27237f6d2097ae9cddc838bf5e424d89a52933ce45f2f46f0733"
+        "claimed_model_hash": "sha256:908c396df8dac0826ad50e7eabd2150714b01644bfbb37b0bd54095c1584e67e"
       },
       "operation_id": "op:corpus-accept-claimed-hash-echo",
       "operation_kind": "modify",

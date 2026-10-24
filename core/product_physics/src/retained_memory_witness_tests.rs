@@ -175,7 +175,9 @@ per_mode! {
     witness_w2_deep_milestone_publishes, |mode| {
         let mut raw = milestone();
         escape_every_provenance(&mut raw);
-        raw["model"]["deep_input_witness"] = depth_16_value();
+        // The depth-16 raw-only value rides on the declared, solve-ignored `diagnostics` member
+        // (the closed model root refuses an unknown member; see `b1_sq_inputs::stressed`).
+        raw["model"]["diagnostics"] = depth_16_value();
         let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
         let report = super::super::assess(&capture, &request, super::super::Entry::Direct, RETAINED_LIMIT);
         assert_eq!(report.law().domain, None, "inside D1");
@@ -227,9 +229,9 @@ fn w2b_input() -> Value {
     raw
 }
 /// The PROBE pins (R/I81/b1_probe_01, `input_sha` lines) of W2b's and W6's PHYS-R4 inputs, each
-/// moved with its version-only re-authoring (T4-S1: 0.6.0; `w6_input` changes nothing else).
-const W2B_INPUT_SHA256: &str = "1b2fe2e0cf5b080d4d54e8b3e80ac721fb51564dd68711b662977fab8f1ce326";
-const W6_PHYS_R4_INPUT_SHA256: &str = "eb6171c80bb27ffa98eb345f06d3c63b995c3d8dff6255039bf7857de869a469";
+/// moved with its version-only re-authoring (T4-S1: 0.6.0; W-13 S1b: 0.7.0; `w6_input` changes nothing else).
+const W2B_INPUT_SHA256: &str = "2b2f398d15da0832cff6294c776bda79bd83ef52495e2f31e72cd85d9312e9d1";
+const W6_PHYS_R4_INPUT_SHA256: &str = "309f5cf526dc466a1d7ae3537c1258941915433e3f179bd3dc4d21e4c8e77cff";
 
 per_mode! {
     /// W3: an in-domain request whose legacy exact recovery selects (the X branch: T25's
@@ -243,16 +245,16 @@ per_mode! {
         // Selected source blocks require admitted E. Keep N05's physical
         // request frozen, and exercise the governed E counterpart.
         assert_eq!(format!("{:x}", sha2::Sha256::digest(file.as_bytes())),
-            "2391b89e96b47c9902b7a8f9da2131f725aa4c63fd56f1a3ce4a042bbaa1e95b");
+            "9a0caca31d6704bfb4a89eb91e225b750c8220f4277691a44f2e43465f1ceb67");
         let original: Value = serde_json::from_str(file).unwrap();
-        assert_eq!(original["model"]["schema_version"], json!("0.6.0"));
+        assert_eq!(original["model"]["schema_version"], json!("0.7.0"));
         let (original_request, _) = CapturedInvocation::parse(original.clone(), mode).unwrap();
         assert_eq!(namespace_branch(&original_request.model), Ok(NamespaceBranch::Preview));
         let original_control = original.clone();
         assert_eq!(witness(&format!("W3 original L {mode:?}"), WITNESS_STACK,
             move || permitted_work(original_control, mode, |_| {})), Ran::Successor);
         // B7b D3 re-authored the E counterpart once from the retired 0.3.0/v2 declaration to the
-        // current one (D4 (a)): the same 0.6.0 document with `3.0.0/exact_pressure_v3`, shear
+        // current one (D4 (a)): the same 0.7.0 document with `3.0.0/exact_pressure_v3`, shear
         // model Euler-Bernoulli and an explicit zero corrosion allowance on each pipe section.
         let mut raw = original.clone();
         raw["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
@@ -331,7 +333,7 @@ pub(super) fn w6_input() -> Value {
     let tip = f64::from_bits(0x0031fa182c40c60d);
     let p = "invented_t3_g5_witness_input_no_library_data";
     let raw = json!({"model": {
-        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "nodes": [{"id": a, "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": p},
@@ -645,7 +647,7 @@ per_mode! {
 }
 
 per_mode! {
-    /// The exact successor (B3-W's `m3x`): the milestone authored as exact (B7b: 0.6.0 with the
+    /// The exact successor (B3-W's `m3x`): the milestone authored as exact (B7b: 0.7.0 with the
     /// v3 contract and a zero allowance). A successor.
     witness_m3x, |mode| {
         let raw = inputs::m3x();
@@ -657,7 +659,7 @@ per_mode! {
 
 per_mode! {
     /// The cap-maximal exact input: the cap-maximal three-case input (`i3_three_case`) authored as
-    /// exact (B7b: 0.6.0, v3), route E's priced shape (c = 3, z = 0) at the count caps.
+    /// exact (B7b: 0.7.0, v3), route E's priced shape (c = 3, z = 0) at the count caps.
     witness_exact_cap_maximal, |mode| {
         let raw = inputs::exact_cap_maximal();
         inside_d1("exact cap-maximal", &raw, mode, 3, 0, true);
@@ -920,7 +922,7 @@ fn source_selected_ties() -> Value {
             {"id": format!("{id}:moment"), "category": "concentrated_moment", "target": {"type": "node", "node": "S1"},
                 "direction": "RZ", "magnitude": {"value": f, "unit": "N*m"}, "dimension": "moment", "provenance": p}]});
     json!({"materials": [material], "model": {
-        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "professional_acceptance": "not_provided",
             "rule_check": "not_performed_user_rule_inputs_missing"},
         "project": {"id": "invented:t4-u6u8-reg2:source-selected-ties", "units": {"angle": "rad", "force": "N", "length": "m",
@@ -1077,7 +1079,7 @@ fn b1_sq_inputs_are_i86s_and_the_committed_helpers() {
     assert_eq!(sha256_of(&inputs::w2b()), W2B_INPUT_SHA256, "W2b's PROBE pin");
     let mut w2 = super::law_tests::cap_maximal();
     escape_every_provenance(&mut w2);
-    w2["model"]["unknown_depth_witness"] = depth_16_value();
+    w2["model"]["diagnostics"] = depth_16_value();
     assert_eq!(inputs::w2(), w2, "W2's input");
     assert_eq!(inputs::w_c2(), crate::retained_facade_tests::w_c2(), "W-C2");
     let mut ac = crate::retained_facade_tests::w_c2();

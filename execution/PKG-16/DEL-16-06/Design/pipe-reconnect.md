@@ -262,14 +262,16 @@ unsupported shape across a geometry change. W-10 does not harden the decoder.
 
 Any other node-id hit refuses (R12).
 
-**0.7.0 dependency.** `record_shape` has a closed field list
-(`geometry_operations.rs:128-157`), so reconnect refuses a pipe or node that
-carries `tags` or `notes` until S2 widens it. The 0.7.0 collections `lines`,
-`unresolved_assumptions`, `constraints` and `equipment_interfaces` (0.7.0 design
-§3.2–§3.6) do not exist yet; when S2 adds them it adds their skips to this scan
-(lines by id with no contiguity rule, so a reconnected pipe stays in its line;
-assumptions and constraints never block). Until then a document carrying them
-fails closed under R12.
+**0.7.0 dependency (as built with W-13 S2a).** `record_shape` accepts `tags`
+and `notes` on pipes and nodes, and the scan (`reference_segments`) skips the
+`tags`, `notes` and `provenance_record` annotations wherever they occur. The
+scan does not read the root model-data collections `lines`,
+`unresolved_assumptions`, `constraints`, `equipment_interfaces` and
+`rule_pack_refs` (0.7.0 design §3.2–§3.6, §6). Lines hold pipes by id with no
+contiguity rule, so a reconnected pipe stays in its line. Assumptions,
+constraints and equipment interfaces never block; a missing subject is the
+document validator's warning. The same skips apply to `delete_pipe_run`'s
+dependent check (§7), which shares this scan.
 
 ### 2.3 Orientation (R6, R7)
 

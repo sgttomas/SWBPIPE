@@ -201,6 +201,11 @@ code_paths:
 - apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
 - apps/desktop/src/features/results/analysisResultHashScope.ts
 - apps/desktop/src/features/results/analysisResultHashScope.test.ts
+- apps/desktop/src-tauri/src/analysis_runs.rs
+- apps/desktop/src-tauri/src/stored_read.rs
+- apps/desktop/src/services/analysisRunService.ts
+- fixtures/persistence/transient_run_input.json
+- fixtures/persistence/recorded_run_witness.json
 checks:
 - tests/test_analysis_run_compatibility.py
 - tests/test_analysis_run_schema.py
@@ -209,3 +214,8 @@ checks:
 - apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
 - apps/desktop/src/services/pressureSourceBridge.test.ts
 - apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts
+- tests/test_recorded_run_record.py
+- apps/desktop/src-tauri/src/analysis_runs_tests.rs
+- apps/desktop/src/services/recordedRunParity.test.ts
+- apps/desktop/src/features/results/recordedRunContext.test.ts
+- apps/desktop/src/features/history/recordRun.session.test.tsx

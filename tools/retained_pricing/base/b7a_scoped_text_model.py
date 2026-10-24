@@ -26,16 +26,18 @@ RE = 'core/reporting/result_export/src/'
 # the fail-closed form, the screen hook and the support-norm cause precede them).
 # W-8 topology warnings D3 (§8.16): the four lib.rs lines move +2 with unchanged text (`mod topology;` and its call).
 # Silent-zero guard D3 (§8.15): +1 more with unchanged text (refuse_all_reference_states' call precedes them).
+# Model document 0.7.0 D3 (§8.17): the four lib.rs lines move +7 with unchanged text (`model_settings`' module, re-export,
+# PreviewModel and wire members and their move).
 LN = {
     'problem': 159,       # pressure_runtime.rs fn problem (160) [148]
     'diag': 165,          # `let mut finding = diag(` (166) [154]
     'format': 166,        # `&format!(` (167) [155]
     'join': 168,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    'unit_message': 9824, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 14471,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 14420,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 14470,   # lib.rs fn stable_suffix (13613) [13618]
+    'unit_message': 9894, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 14541,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 14490,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 14540,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'

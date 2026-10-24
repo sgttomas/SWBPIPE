@@ -119,6 +119,53 @@ the reference-states-only model are each refused. `stress_maximum_coverage.rs`'s
 anchored node, whose load goes wholly to the reaction, instead of solving an
 unloaded model.
 
+## Pressure-free input closure
+
+Authored input on the pressure-free route's model root, load cases, primitive
+loads and combinations is never dropped silently either (Agent 0, 2026-10-23,
+as above). Those records are closed, and the combination reader names every
+row it does not publish. The other model records are not yet closed (below).
+
+- **Closed records:** the model root (`PreviewModelWire`), a load case with
+  its `modulus_basis_temperature` and `equivalent_static` inputs (seismic,
+  wind and its exposed spans), a primitive load with its target and
+  magnitude, a combination and a combination term deny unknown fields. The
+  value entry scans the actual request first, before any route, and refuses
+  an undeclared key with `UNKNOWN_MODEL_FIELD`, naming each key with its
+  record (by id) and path, at most eight named and the rest counted; nothing
+  is solved. Every typed reader refuses the same keys.
+- **Declared and ignored:** members a document may carry that the solve does
+  not read are declared on the closed records and accepted unread: on the
+  root `data_boundary`, `diagnostics` and model document 0.7.0's `lines`,
+  `unresolved_assumptions`, `constraints`, `equipment_interfaces` and
+  `rule_pack_refs`; on a load case `kind`, `label`, `status`, `tags` and
+  `notes`; on a combination `tags` and `notes`. `model_settings` is a typed
+  member. Each closed record's accepted key set is exactly its record's key
+  list in `schemas/model.schema.yaml` (0.7.0), bound by `model_fields.rs`'s
+  key test.
+- **Combinations:** a `mechanics` term naming a load case twice, or a
+  `range_envelope` naming an operand twice, is refused with the blocking
+  `LOAD_COMBINATION_DUPLICATE_TERM`, once per repeated case at its second
+  occurrence, so each diagnostic id is unique however often a case repeats. A row missing in the
+  first operand is reported as `LOAD_COMBINATION_SOURCE_RESULT_MISSING`, as
+  for any other operand. A row the load-case algebra refuses or that has no
+  algebra dimension, and a support action group that cannot be formed
+  whole, are withheld under one `LOAD_COMBINATION_ROW_WITHHELD` warning per
+  combination, naming up to eight; a support's group publishes all its rows
+  or none.
+- **Still open:** nodes, pipe segments and their sections, supports,
+  components and materials are not closed records. An unknown or misspelled
+  key there is still ignored without a finding; for example a pipe section's
+  `mill_tolerence` (for `mill_tolerance`) solves as if the member were absent.
+  This was so before this change too (independent review of #1573).
+
+Evidence: `core/product_physics/tests/silent_drop_guard_runtime.rs` and
+`src/silent_drop_unit_tests.rs`, both solver modes; the annotated 0.7.0
+document (`tests/annotated_model_document_solve.rs`) solves byte-identically
+with and without its declared members. Priced change: DEL-04-08
+[retained-pricing-rules.md](../../DEL-04-08/Design/retained-pricing-rules.md)
+§8.19.
+
 ## Imposed displacement on the pressure-free route
 
 Owner, 2026-10-23, verbatim: "Row 2 I approve option A". Imposed

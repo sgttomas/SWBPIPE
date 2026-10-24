@@ -4,7 +4,7 @@
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
-**Proposed definitions** (for W-13 §3.5 and the S1b schema description): the `library_version` definition (`sha256:` and the SHA-256 of the record's RFC 8785 form, §2.5) and the warning `MODEL-LIBRARY-REF-UNRESOLVED` (§2.7).
+**Definitions applied** in W-13 §3.5 and the schema's `LibraryRef.library_version` description: `library_version` (`sha256:` and the SHA-256 of the record's RFC 8785 form, §2.5) and the warning `MODEL-LIBRARY-REF-UNRESOLVED` (§2.7). Implemented in S2b; §9 records the code's reading where it differs from the text.
 
 Requirements: FR-RULE-005 (Must) and FR-RULE-006 (Should). The map rows read
 "Library records cannot be applied to model materials". Related: the W-13 design
@@ -83,36 +83,76 @@ and §6 authoring.
 
 | Kind | Copies | Not copied (reason) |
 |---|---|---|
-| Material | `name`→`label`; per the chosen mode (§2.3a): `elastic_modulus`, `shear_modulus` or `poisson_ratio`, and `thermal_expansion_coefficient`. Only properties with no `temperature_ref` and a `value_status` of `provided` or `private_user_supplied` | the property not used by the chosen mode; `density` (the model holds density per pipe, `section.material_density`); strengths, `allowable_stress` and allowables (rule checks read them from the library at run time); temperature-referenced properties (library temperature points carry no temperature value); `specific_heat`, `thermal_conductivity`, `user_defined` (no model slot) |
+| Material | `name`→`label`; per the chosen mode (§2.3a): `elastic_modulus` and `shear_modulus` (stored, or derived in E/ν mode), and in E/ν mode `poisson_ratio` and the exact basis; `thermal_expansion_coefficient`. Only properties with no `temperature_ref` and a `value_status` of `provided` or `private_user_supplied` | `density` (the model holds density per pipe, `section.material_density`); strengths, `allowable_stress` and allowables (rule checks read them from the library at run time); temperature-referenced properties (library temperature points carry no temperature value); `specific_heat`, `thermal_conductivity`, `user_defined` (no model slot) |
 | Section | `name`; `section_type` `pipe` only; the `outside_diameter` and `wall_thickness` dimensions → `properties` | Every other dimension or property. A bound section must hold only those two properties, or the solver refuses it (`core/product_physics/src/lib.rs:8751-8758`). Allowances and insulation are pipe fields. |
 | Component | Only the source kinds in table §2.3b | Every other kind (§2.3b) |
 | Hanger | As `hangerSelection.ts:42-51` maps today | Unchanged |
 
-   **3a. Material modes.** The user chooses one mode, and nothing is inferred
-   from which properties a record happens to hold.
-   - **E/G mode** (the default) writes E and G with no `constitutive_basis` and
-     no `poisson_ratio`; ν is listed as not copied. Both create_material and
-     the material validator require exactly this form: a material carrying ν or
-     a basis is treated as exact (applier `lib.rs:4410`), and the legacy form
-     requires G (`pressure_authoring.rs:66-91`).
-   - **E/ν mode,** chosen explicitly, writes E, ν (unit `1`) and
-     `constitutive_basis: "homogeneous_isotropic_E_nu_v1"`, the exact-material
-     form that `validate_create_material` requires (`pressure_authoring.rs:93-107`,
-     through `validate_material` `:71-84`).
-     - G is written only if the record holds it, as a retained value. On the
-       exact route the solver derives G from the selected E/ν pair and warns
-       that a retained G is ignored (`core/product_physics/src/pressure_material.rs:61-92`, warning at `:86`).
-     - Superseded for records without a stored G by the coordinator's decision
-       (§7): insertion derives G = E / (2(1+ν)) and records the derivation in
-       provenance. The implementer reconciles the modes in this section with §7.
-   - **Apply to an existing material** keeps that material's basis by default.
-     Changing the basis is a separate, explicit choice: the diff shows the
-     `constitutive_basis`, `poisson_ratio` and `shear_modulus` members being
-     added or removed.
-   - **A missing member fails the mode.** If the chosen mode needs a member the
-     record lacks, the apply is refused and names the member: G for E/G, unless
-     the record holds E and ν and the user chose the E/ν route (§7); ν for E/ν.
-     No other value is derived.
+   **3a. Material modes** (reconciled with the HELP_HUMAN E/ν rule,
+   2026-10-23, which supersedes the earlier text where they conflicted: "the
+   inserted material carries E, ν and G. G is either stored (copied) or
+   derived as G = E/(2(1+ν)), and `provenance_record` states which, naming
+   the basis 'derived from E and ν (isotropic)'. Never derive G when the
+   record already stores one, and never discard ν."). The user chooses one
+   mode; nothing is inferred from which properties a record holds.
+   - **E/ν mode** (the default for an insert) writes E, ν (unit `1`), G and
+     `constitutive_basis: "homogeneous_isotropic_E_nu_v1"`. A material
+     carrying ν must carry that basis (applier `lib.rs` create path,
+     `pressure_authoring.rs` `validate_material`), and the basis then accepts
+     a retained positive G.
+     - **G stored:** the record's G is copied as stored (same magnitude bits
+       and unit) and never overwritten; `verification_note` says it was
+       stored and copied.
+     - **G derived:** with no stored G, G is derived exactly as the exact
+       route derives it, so the two are bit-identical for the same E and ν:
+       E is normalized to Pa by `convert_for_dimension(E, Stress, unit,
+       canonical_unit(Stress))` (the solver's `normalize_quantity`; identity
+       for Pa), then G = E_Pa / (2 × (1 + ν)) in binary64 in that order: 1 + ν
+       rounded once, the doubling exact, the quotient rounded once. That is
+       the order of `IsotropicENu::new` (`pressure_exact.rs`, called from
+       `pressure_material.rs`), whose dyadic `Scaled` add and divide round as
+       binary64 does for normal values. The applier's
+       `derived_shear_modulus_pa` computes it (exported to the desktop through
+       the wasm engine) and refuses a non-normal result. The derived G is
+       stored in Pa, not E's entered unit: converting it back and normalizing
+       it again on the pressure-free route could change its last bit.
+       `verification_note` names the basis "derived from E and ν
+       (isotropic)" and the E and ν slot ids, values and units.
+     - **Solve routes.** On the exact route the solver derives G from the
+       selected E/ν pair itself and ignores the retained G with the warning
+       `EXACT_PRESSURE_REDUNDANT_G_IGNORED`
+       (`core/product_physics/src/pressure_material.rs:61-92`). On the
+       pressure-free route the stored G is the stiffness G (ν and the basis
+       are carried; the route's ν is read back from E and G). A derived G is
+       bit-identical to the exact route's, so both routes use the same G; a
+       stored G that differs from E/(2(1+ν)) governs only the pressure-free
+       route. A sweep test compares the derivation bit for bit with a port of
+       the solver's arithmetic (applier `tests/library_apply.rs`).
+   - **E/G mode** writes E and G with no basis and no ν. It needs a stored G
+     and is refused when the record holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`),
+     because ν is never discarded.
+   - **Presence is judged apart from copy eligibility** (following the
+     HELP_HUMAN ruling literally). A record "stores" G or ν when a slot of
+     that kind carries a value (or is marked `protected_suspected`), whether
+     or not the slot can be copied. A stored slot that cannot be copied
+     (temperature-referenced, an excluded disposition, an ineligible value
+     status) refuses, naming the slot:
+     - a stored G with no copyable G refuses both modes
+       (`LIBRARY-APPLY-MEMBER-BLOCKED`); G is never derived in its place;
+     - a stored ν with no copyable ν refuses E/ν
+       (`LIBRARY-APPLY-MEMBER-BLOCKED`) and E/G
+       (`LIBRARY-APPLY-NU-NOT-DISCARDED`).
+     A copyable G alongside an uncopyable one is copied, never derived.
+   - **Apply to an existing material** preselects that material's basis (E/ν
+     when it carries the basis or ν). E/G onto a material that holds ν is
+     refused (`LIBRARY-APPLY-NU-NOT-DISCARDED`; manager ruling, following
+     "never discard ν"). The product has no edit that removes ν from a
+     material, so the way forward is a record that provides ν (E/ν mode), or
+     inserting the E/G record as a new material. E/ν onto an E/G material adds
+     the basis and ν, and the diff shows each member added or replaced.
+   - **A missing member fails the mode,** naming it
+     (`LIBRARY-APPLY-MEMBER-MISSING`): E always; ν for E/ν; G for E/G. No
+     other value is derived.
 
    **3b. Component source kinds.** Mapping is by an exhaustive table from source
    `field_kind` to a destination path and type. A library slot holds either
@@ -311,7 +351,13 @@ and §6 authoring.
    - **Checks.** On project load and on library-list refresh, the desktop's
      Rust side reads the store for each `library_ref` in the document and
      compares record digests. This needs the store, so it is not part of the
-     store-free S1b validator.
+     store-free S1b validator. The check applies the model-document save
+     screen's rules (DEL-15-01 `canonical-model-export.md` §2): every
+     `library_ref` at any depth, found by the one webview walk the save
+     screen also uses; kind, library id and record id trimmed as
+     `open_local_library` trims them; and every stored record with a matching
+     trimmed id, never the first. A recorded version that differs from any
+     matching record's digest is a changed version.
    - **Warnings.** A changed digest reports `MODEL-LIBRARY-REF-VERSION-CHANGED`
      (W-13). A missing library or record reports `MODEL-LIBRARY-REF-UNRESOLVED`
      (new). Both are warnings, and the model's values stand.
@@ -437,15 +483,10 @@ which keeps S2 bounded.
 is `sha256:` and the SHA-256 of the applied record's RFC 8785 form. Library
 documents carry no version member."
 
-**Proposed W-13 §3.5 changes.** As of this design, W-13 §3.5's sentences are
-unchanged. The proposed changes:
-- **Digest comparison.** The library-version comparison becomes a record-digest
-  comparison. `MODEL-LIBRARY-REF-VERSION-CHANGED` compares the digest of the
-  stored record with `library_version`.
-- **Narrow the payload sentence.** "The library payload never enters the
-  document" becomes "Only the enumerated applied values (DEL-03-01 Design
-  `apply-library-records.md` §2.3), their units and the combined
-  `provenance_record` enter the document; no other library content does."
+**W-13 §3.5 changes made.** The library-version comparison is a record-digest
+comparison, and §3.5's payload sentence reads "No library metadata or record
+snapshot enters the document; only the mapped values the user applies (with
+their units), the combined `provenance_record` and `library_ref` do."
 
 ## 7. Decision: the E/ν route
 
@@ -463,9 +504,8 @@ So:
 - A stored G is used and never overwritten.
 - A derived G's provenance names the derivation and the record's E and ν
   values and units it came from.
-- The implementation settles how §2.3a's E/G and E/ν forms carry
-  this (in particular whether the inserted material also carries ν and the
-  exact basis) against the material validator.
+- Settled in §2.3a under the HELP_HUMAN E/ν rule: the inserted material
+  carries E, ν, G and the exact basis.
 
 ## 8. Review findings resolved
 
@@ -515,3 +555,87 @@ Codex round 3 (on `cb49504802`):
     removed; removing a required member is refused; retained members keep
     their previous attribution (§2.3b).
 13. **Item 3's wording** no longer says source references are not written.
+
+## 9. As built (S2b)
+
+Where the code reads the decisions above differently, this is the reading:
+
+- **Wire.** `apply_library_record` (operation kind `modify`) targets the
+  Material, Section or Component with `field_path` `library_record`, unit
+  `none`, dimension `dimensionless`. `after` maps dot-separated member paths
+  to the new value, or `null` to remove; `before` maps the same paths to their
+  current values and omits absent members. The applier
+  (`operation_applier/src/library_apply.rs`) holds the writable members per
+  object type and family, checks dimension and sign, refuses a stale
+  `before`, a removal of a required member (`OP-LIBRARY-APPLY-REQUIRED-MEMBER`),
+  a member outside the target's family (`OP-LIBRARY-APPLY-KIND-MISMATCH`) and
+  the directional SIF pair off a realized bend, requires the model hash, and
+  runs a Section change through `section_bindings::propagate`. An agent never
+  writes the bend flexibility factor through it.
+- **Create kinds** carry `provenance_record` (`create_material`,
+  `create_section`, `create_support`); the document validator judges it.
+- **Review.** The Library Manager's prop is `onQueueBatch` (the existing
+  batch review: validate, diff, apply, one undo checkpoint), not
+  `onApplyBatch`.
+- **Ambiguity** (`LIBRARY-APPLY-AMBIGUOUS-SOURCE`) is judged among the slots
+  that would be copied, and applies to materials and sections as well as
+  components. Duplicate excluded kinds do not refuse.
+- **Family fit.** A component record's `component_type` must equal the
+  target's `kind` (a `branch` record also matches `tee` and
+  `branch_connection`). A table destination outside the target's family is
+  listed as not copied rather than refusing.
+- **Dispositions.** A library or record carrying `rejected`,
+  `protected_suspected` or `quarantined` refuses
+  (`LIBRARY-APPLY-SOURCE-REJECTED`); so does a copied hanger quantity. A
+  retained previous record that is `rejected` is refused like a quarantined
+  one (`LIBRARY-APPLY-RETAINED-QUARANTINED`). Every supported private
+  privacy token raises the combination to `private_only`: the `private_*`
+  classes, `project_private` (section, component and hanger schemas; the
+  hanger importer reads it as private project data) and the material
+  `quarantine_metadata_only`. A combination is never promoted to public.
+  `verification_note` names the previous library reference an apply replaces.
+- **Sections.** Insert needs both OD and wall. Apply copies what the record
+  supplies; an unsupplied OD or wall is retained (its previous attribution
+  counts), "replace all values" with one unsupplied is refused, and an apply
+  that copies neither is refused (`LIBRARY-APPLY-NOTHING-COPIED`).
+- **Preparation.** The Library Manager re-opens and re-validates the stored
+  library when the user prepares an apply, so the plan and its
+  `library_version` come from the current stored record, not the copy shown
+  at open. A prepared plan belongs to its inputs (model, opened document,
+  selection and target, record and every choice); any change drops it, and a
+  preparation still in flight when they change is discarded.
+- **Hangers.** `provenance` and `source_note` are the short reference; the
+  combined `provenance_record` travels in the `create_support` payload, or as
+  a second `update_support` annotation in the same batch for an existing
+  support.
+- **Store warnings.** `check_model_library_refs` (desktop backend) compares
+  each reference with the project's store at project open, model-document
+  open and Library Manager list refresh. It shares the save screen's rules
+  (§2.7 Checks): the webview sends every site `libraryRefSites`
+  (`services/libraryImportService.ts`) finds, keyed to the nearest enclosing
+  object's `id`, and the backend normalizes and matches records with the
+  save's own `library_identity` and `matching_library_records`
+  (`src-tauri/src/model_document_save.rs`). The native save's walk is pinned
+  to the webview walk by `fixtures/model_document/library_ref_sites.json`.
+  Where the save screen reads nothing, the check still warns: a reference
+  with no or a blank record id, a blank library id or an unknown kind reads
+  unresolved, as before. The warnings are appended to the
+  project message, listed in the Library Manager with "Re-apply from
+  library", entered in the diagnostics list as warnings keyed to the entity,
+  and shown in that entity's Provenance record section; the Library
+  Manager's list uses the same filter. A finding is shown only while the
+  entity still carries the reference it was raised on, at any depth
+  (`features/library/libraryRefFindings.ts`).
+- **Tests of the derived G against the solver.** Besides the sweep against
+  a port of the solver's arithmetic, an applier test solves the exact route
+  with an inserted E/ν/derived-G material and reads the G that built
+  stiffness from the result's public per-member material evidence
+  (`pipe_materials[].G_pa`); it equals the desktop-derived G bit for bit.
+  Another pins the emission golden's `library_version` to the native RFC
+  8785 SHA-256 of the same record.
+- **Refusal messages** (HELP_HUMAN, 2026-10-23: "Each refusal must tell the
+  user how to proceed"). Every library-apply refusal names its cause and the
+  way forward. The desktop texts are pinned in
+  `features/library/libraryApply.messages.json` (checked by
+  `libraryApply.test.ts`); the applier appends a per-code next step
+  (`library_apply.rs` `next_step`), pinned in `tests/library_apply.rs`.

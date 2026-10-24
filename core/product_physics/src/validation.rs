@@ -24,6 +24,22 @@ pub(crate) fn validate_model_inputs(
     validate_directional_sifs(model, diagnostics);
     validate_thermal_inputs(model, materials, diagnostics);
     validate_combinations(model, diagnostics);
+    validate_model_settings(model, diagnostics);
+}
+
+/// REQ-04-06-012: the solve refuses a malformed `model_settings.node_proximity_tolerance`
+/// with the accessor's code and message, as the document validator does, so the
+/// topology check never runs on an invalid tolerance.
+fn validate_model_settings(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    if let Err(error) = model.node_proximity_tolerance_m() {
+        diagnostics.push(diag(
+            "diagnostic:model-settings:node-proximity-tolerance",
+            error.code,
+            "blocking",
+            error.message,
+            vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],
+        ));
+    }
 }
 
 // Local solve readiness only: records remain deserializable and editable.
@@ -1314,7 +1330,10 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     ),
                     "BRANCH_TOPOLOGY_INVALID",
                     "warning",
-                    format!("a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}", component.node),
+                    format!(
+                        "a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}",
+                        component.node
+                    ),
                     vec![component.id.clone(), component.node.clone()],
                 ));
             }
@@ -1689,6 +1708,48 @@ fn branch_topology_invalid(component: &crate::PreviewComponent, degree: usize) -
     degree != 3 || same_pipe
 }
 
+/// W-8 (owner ruling, 2026-10-23: topology findings warn, not refuse, and the
+/// warning "must state plainly that the component's branch stress factors are
+/// still applied to the named pipes"). Called once, where a solved preview
+/// envelope is assembled, after every refusal that can follow publication: each
+/// BRANCH_TOPOLOGY_INVALID warning gains the sides whose intensified rows that
+/// envelope publishes. They are read from the publication's own records
+/// (`preview_physics::render`'s `intensified_measures`, one beside each published
+/// row, from `associations` over the straight members only), so the statement
+/// names exactly the published sides. A refused envelope, and an exact-route one
+/// (which publishes no intensified row), keep the topology text alone.
+pub(crate) fn state_applied_branch_factors(
+    model_components: &[crate::PreviewComponent],
+    preview_cases: &[serde_json::Value],
+    diagnostics: &mut [Diagnostic],
+) {
+    for component in model_components {
+        let Some(warning) = diagnostics.iter_mut().find(|d| {
+            d.code == "BRANCH_TOPOLOGY_INVALID" && d.affected_refs.first() == Some(&component.id)
+        }) else {
+            continue;
+        };
+        let mut applied: Vec<String> = Vec::new();
+        for (role, side) in [("branch_header", "header"), ("branch_branch", "branch")] {
+            for record in preview_cases
+                .iter()
+                .filter_map(|case| case["intensified_measures"].as_array())
+                .flatten()
+                .filter(|record| record["component_id"] == component.id.as_str() && record["factor_role"] == role)
+            {
+                let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());
+                if !applied.contains(&named) {
+                    applied.push(named);
+                }
+            }
+        }
+        if !applied.is_empty() {
+            let sides = applied.join(", ");
+            warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));
+        }
+    }
+}
+
 fn branch_modifier_missing(component: &crate::PreviewComponent) -> bool {
     let Some(modifiers) = &component.modifiers else {
         return true;
@@ -1957,7 +2018,33 @@ fn validate_mechanics_combination(
             vec![combination.id.clone()],
         ));
     }
-    for term in &combination.terms {
+    let mut seen = HashSet::new();
+    for (index, term) in combination.terms.iter().enumerate() {
+        // The load-case algebra refuses a repeated operand, which would leave
+        // every combined row unevaluated; block it by name here instead, once
+        // per repeated case (at its second occurrence), so the diagnostic id
+        // stays unique however often the case repeats.
+        if !seen.insert(term.load_case.as_str()) {
+            let earlier = combination.terms[..index]
+                .iter()
+                .filter(|other| other.load_case == term.load_case)
+                .count();
+            if earlier != 1 {
+                continue;
+            }
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:combination:{}:{}:duplicate",
+                    stable_suffix(&combination.id),
+                    stable_suffix(&term.load_case)
+                ),
+                "LOAD_COMBINATION_DUPLICATE_TERM",
+                "blocking",
+                "mechanics combination terms must name each load case once; a duplicate term is blocked",
+                vec![combination.id.clone(), term.load_case.clone()],
+            ));
+            continue;
+        }
         if !term.factor.is_finite() {
             diagnostics.push(diag(
                 &format!(
@@ -2067,8 +2154,12 @@ fn validate_range_envelope_combination(
         return;
     }
     let mut seen = HashSet::new();
-    for operand_id in operand_ids {
+    for (index, operand_id) in operand_ids.iter().enumerate() {
+        // Once per repeated operand (at its second occurrence), so the id stays unique.
         if !seen.insert(operand_id.as_str()) {
+            if operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1 {
+                continue;
+            }
             diagnostics.push(diag(
                 &format!(
                     "diagnostic:combination:{}:{}:duplicate",

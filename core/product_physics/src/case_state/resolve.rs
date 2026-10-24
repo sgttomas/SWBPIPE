@@ -76,7 +76,7 @@ pub(crate) fn validate_document(
     if !super::is_load_state(model) {
         if carries {
             block(diagnostics, "LOAD_STATE_CONTRACT_VERSION_MISMATCH", &["schema_version"],
-                "reference_configurations, material expansion_laws (model or request materials) and case analysis_state require current model 0.6.0 with the exact pressure contract; the group is never ignored, and an explicit null counts as carrying the key");
+                format!("reference_configurations, material expansion_laws (model or request materials) and case analysis_state require current model {} with the exact pressure contract; the group is never ignored, and an explicit null counts as carrying the key", crate::MODEL_SCHEMA_VERSION));
         }
         return;
     }

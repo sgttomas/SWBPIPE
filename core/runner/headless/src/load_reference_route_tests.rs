@@ -1,4 +1,4 @@
-//! T1 WP4, re-pointed by B7b: the load/reference-state group (model 0.6.0 with
+//! T1 WP4, re-pointed by B7b: the load/reference-state group (model 0.7.0 with
 //! the exact contract 3.0.0/exact_pressure_v3) through the headless value runner,
 //! in both solver modes. Tests only; no product semantics change.
 //!

@@ -143,7 +143,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": [
       {
         "id": "support:S-1",
@@ -200,7 +200,7 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:8401ab4318c3a5535a9c6631d3017fe7b9b8b3db072595d924a6a5f7b4c8743c",
+        "backend_model_hash": "sha256:f991cba324f00d7c74018612563643b87708908546a16275017fa1935aabae31",
         "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
         "claimed_hash_canonicalization": "not_provided",
         "claimed_model_hash": "not_provided"

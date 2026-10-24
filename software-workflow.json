@@ -19,6 +19,16 @@
         "test:desktop"
       ]
     },
+    "desktop-rust-test": {
+      "cwd": ".",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml"
+      ]
+    },
     "piping-pytest": {
       "cwd": ".",
       "command": [
@@ -69,6 +79,14 @@
       "checks": [
         "desktop-test",
         "desktop-build"
+      ]
+    },
+    {
+      "paths": [
+        "apps/desktop/src-tauri/**"
+      ],
+      "checks": [
+        "desktop-rust-test"
       ]
     },
     {

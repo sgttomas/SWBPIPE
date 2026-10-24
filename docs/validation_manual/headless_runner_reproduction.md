@@ -128,23 +128,27 @@ json.dump(body, open(sys.argv[1], "w"))
 EOF
 ```
 
-The committed `del1005_export_results_*` inputs record the solver identity
-`open_pipe_stress_product_physics@0.1.0`. The runner refuses any identity
-other than the product-physics component it links, which is `0.2.0` at
-`62c1efd75b` (`core/product_physics/Cargo.toml`). The contract tests bind
-the identity to the linked component before testing anything else, and this
-procedure does the same. Use the version in `core/product_physics/Cargo.toml`
-at the commit being reproduced:
+The `del1005_export_results_*` inputs are version 2.0.0 package requests.
+`core/runner/headless/tests/del1005_package_witness.rs` generates the success
+input and the alias overlay (the alias input as leaf replacements over the
+success input) from a real headless solve against the product-physics
+component the runner links, so they record its identity.
+`validation/witness/inputs/generate_del1005_export_results_inputs.py` derives
+the committed missing-payload input from the success input, and, with
+`--out "$SCRATCH"`, also the binding-mismatch and producer-blocked inputs, one
+edit each; those two are not committed, and the contract tests make the same
+edits in memory. The runner refuses any other
+identity. The contract tests assert that the committed identity is the linked
+one, so a component version change fails them until the generator is re-run.
+The result document is self-hashed and validated against its source, so its
+identity cannot be rewritten in place. The stale-identity control C12 changes
+only the audit manifest's identity:
 
 ```bash
-python3 - "$SCRATCH/export_success_input.json" <<'EOF'
+python3 - "$SCRATCH/export_stale_identity_input.json" <<'EOF'
 import json, sys
 body = json.load(open("validation/witness/inputs/del1005_export_results_success_input.json"))
-identity = {"solver_name": "open_pipe_stress_product_physics", "solver_version": "0.2.0",
-            "solver_build_ref": "open_pipe_stress_product_physics@0.2.0"}
-body["export_results"]["audit_manifest"]["solver_version"].update(identity)
-for envelope in body["export_results"]["result_envelopes"]:
-    envelope.update(identity)
+body["export_results"]["audit_manifest"]["solver_version"]["solver_version"] = "0.1.0"
 json.dump(body, open(sys.argv[1], "w"))
 EOF
 ```
@@ -159,17 +163,18 @@ EOF
 | C4 | `"$RUNNER" solve --explicit-local-private-intent --input $I/tp_runner_015_final_cli_solve_input.json --output "$SCRATCH/c04.json"` | 1 | The legacy-content refusal control (Part 1 case 1): job state `COMPLETED`, mechanics `MODEL_INCOMPLETE`, blocking `PRESSURE_MODEL_REAUTHOR_REQUIRED` for each legacy nonzero pressure load and `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`, result validation `HEADLESS_RUNNER_RESULT_REFS_MISSING`, empty `result_refs`. | `test_final_runner_refuses_legacy_pressure_demo_as_explicit_control`; 2026-10-19 note |
 | C5 | `"$RUNNER" run-benchmark --explicit-local-private-intent --input $I/tp_runner_015_final_cli_benchmark_stub_input.json --output "$SCRATCH/c05.json"` | 1 | `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING` (Part 1 case 3). | Part 1 case 3; source |
 | C6–C10 | The five Part 2 commands, with `"$RUNNER"` in place of `cargo run … --` and outputs under `"$SCRATCH"` | 0, 0, 0, 1, 1 | As the Part 2 fixture table states. | Part 2 |
-| C11 | `"$RUNNER" export-results --explicit-local-private-intent --input "$SCRATCH/export_success_input.json" --output "$SCRATCH/c11.json"` | 0 | `payload.report_package` is present, with `container_bytes` whose SHA-256 equals `container_sha256_hex`; a repeat run gives the same bytes. | `test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact` |
-| C12 | `"$RUNNER" export-results --explicit-local-private-intent --input $I/del1005_export_results_success_input.json --output "$SCRATCH/c12.json"` | 1 | The unbound committed input is refused: `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID` with `REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH` in its message; no `report_package`; no `c12.json`. | `test_final_runner_export_results_refuses_unlinked_solver_identity` |
+| C11 | `"$RUNNER" export-results --explicit-local-private-intent --input $I/del1005_export_results_success_input.json --output "$SCRATCH/c11.json"` | 0 | `payload.report_package` is present, with `container_bytes` whose SHA-256 equals `container_sha256_hex`; a repeat run gives the same bytes. | `test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact` |
+| C12 | `"$RUNNER" export-results --explicit-local-private-intent --input "$SCRATCH/export_stale_identity_input.json" --output "$SCRATCH/c12.json"` | 1 | The stale identity is refused: `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID` with `REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH` in its message; no `report_package`; no `c12.json`. | `test_final_runner_export_results_refuses_unlinked_solver_identity` |
 | C13 | `printf '{' \| "$RUNNER" validate-input --explicit-local-private-intent` | 2 | `HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`. | `test_final_runner_subprocess_malformed_input_exits_two` |
 
-The other committed `export-results` inputs behave as follows. Missing
-payload gives `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING`, and binding
-mismatch gives `HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH`, whether or
-not the identity is rebound: both checks run before the identity check.
-Producer blocked gives `HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED`
-only after rebinding; unbound, the identity refusal comes first. All three
-exit 1 and write no file.
+The other `export-results` inputs (`$SCRATCH` copies from the generator's
+`--out`) behave as follows. Missing payload gives
+`HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING`, binding mismatch gives
+`HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH`, and producer blocked gives
+`HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED`. All three exit 1 and write
+no file. The alias input, whose request names the model by another reference,
+succeeds like C11 (`export_results_binds_the_request_alias_not_a_second_actual_identity`
+applies the overlay).
 
 A whole-suite `run-benchmark` or `run-regression` (input without `cases`)
 exits 1 whenever any case is blocked, under the fail-closed semantics below.
@@ -249,8 +254,9 @@ witness and prior reproduction bundles — including
 three committed generated witnesses and the generator remain byte-identical
 frozen surfaces. The input fixtures are re-authored when the model document
 version changes: the solve input's model `schema_version` token moved to
-0.5.0 at B7a and to 0.6.0 at T4-S1, and the generator reproduces the
-current inputs byte for byte from the invented preview model fixture.
+0.5.0 at B7a, to 0.6.0 at T4-S1 and to 0.7.0 at W-13 S1b, and the generator
+reproduces the current inputs byte for byte from the invented preview model
+fixture.
 
 **Dated note (2026-07-20).** Case 1's committed-witness byte expectation is
 historical for sources at or after R14-W1 T2 (implementation commit
@@ -292,7 +298,7 @@ Re-run on `main` at `084ff961f8`:
 
   Result validation adds the blocking `HEADLESS_RUNNER_RESULT_REFS_MISSING`
   diagnostic.
-- *Why.* The input's model `schema_version` is the current `0.6.0`, so this is
+- *Why.* The input's model `schema_version` is the current `0.7.0`, so this is
   not a version refusal. The generator copies the bundled legacy demo
   `fixtures/product_preview/invented_preview_model.json`, whose *content* uses
   retired contracts. Legacy nonzero pressure loads have been refused since
@@ -348,7 +354,9 @@ PR #287 (`CB-2026-07-19-DEL-10-05-RUNNER-PAYLOADS-001`) bound the
 suite crates (`DEL-09-01` mechanics, `DEL-09-02` stress recovery, `DEL-09-03`
 nonlinear support). `export-results` was later bound to the report-package
 payload (f82bb28e25; witnesses
-`validation/witness/generated/del1005_export_results_*.json`). The
+`validation/witness/generated/del1005_export_results_*.json`, except the
+success output, which embeds the whole package and is reproduced by C11
+rather than committed). The
 deterministic input source is the committed generator
 `validation/witness/inputs/generate_del1005_payload_binding_inputs.py`; it
 writes only `del1005_payload_binding_*` input files and does not touch the

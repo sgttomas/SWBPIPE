@@ -878,6 +878,14 @@ fn evaluate_values(
     algebra.quantity.map(|q| q.value)
 }
 
+/// Kinds a combination combines (as the reference row's kind); every other
+/// kind is never combined and publishes no combination row.
+/// (`displacement_magnitude` combines on both paths: as the norm of combined
+/// signed components, or range-selected directly.)
+fn combined_kind(kind: &str) -> bool {
+    !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
+}
+
 /// Combination rows for preview-physics-2 (S1 §7). Returns the evidence gates.
 pub(crate) fn append_combination_results(
     model: &PreviewModel,
@@ -917,22 +925,43 @@ pub(crate) fn append_combination_results(
         let range = matches!(expression, CombinationExpression::RangeEnvelope { .. });
         let operands = expression.operand_ids();
 
+        // Every combination row this combination does not publish is named:
+        // a missing operand row by LOAD_COMBINATION_SOURCE_RESULT_MISSING, any
+        // other withheld row in one bounded LOAD_COMBINATION_ROW_WITHHELD.
+        let mut withheld: Vec<String> = Vec::new();
+
         // Ordinary rows grouped by base id.
         for base_id in &base_ids {
             let source_rows = &rows_by_base_id[base_id];
-            let Some(reference) = source_rows.get(expression.reference_operand_id()) else { continue };
+            let source_missing = |diagnostics: &mut Vec<Diagnostic>| {
+                diagnostics.push(diag(
+                    &format!("diagnostic:preview-physics:combination-source-missing:{}", identity(&[&combination.id, base_id])),
+                    "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
+                    "warning",
+                    format!("combination {} omits {base_id} because a matching source row is missing in an operand case", combination.id),
+                    vec![combination.id.clone()],
+                ));
+            };
+            let Some(reference) = source_rows.get(expression.reference_operand_id()) else {
+                // The reference (first) operand lacks a row another operand has:
+                // reported exactly as a missing row in any other operand.
+                if operands.iter().filter_map(|case| source_rows.get(*case)).next().is_some_and(|row| combined_kind(&row.kind)) {
+                    source_missing(diagnostics);
+                }
+                continue;
+            };
             let kind = reference.kind.as_str();
-            if kind.ends_with("_v2") {
+            if !combined_kind(kind) {
                 continue;
             }
             if kind == "displacement_magnitude" && !range {
                 append_combined_vector_magnitude(combination, &expression, base_id, reference, rows_by_base_id, results, diagnostics);
                 continue;
             }
-            if !(LINEAR_STATE_KINDS.contains(&kind) || (range && kind == "displacement_magnitude")) {
+            let Some(dimension) = algebra_dimension(reference) else {
+                withheld.push(format!("{base_id} (no algebra dimension)"));
                 continue;
-            }
-            let Some(dimension) = algebra_dimension(reference) else { continue };
+            };
             let mut values = Vec::new();
             let mut refs = Vec::new();
             let mut complete = true;
@@ -946,21 +975,17 @@ pub(crate) fn append_combination_results(
                 }
             }
             if !complete {
-                diagnostics.push(diag(
-                    &format!("diagnostic:preview-physics:combination-source-missing:{}", identity(&[&combination.id, base_id])),
-                    "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
-                    "warning",
-                    format!("combination {} omits {base_id} because a matching source row is missing in an operand case", combination.id),
-                    vec![combination.id.clone()],
-                ));
+                source_missing(diagnostics);
                 continue;
             }
-            if let Some(value) = evaluate_values(&expression, &values, dimension) {
-                results.push(combination_row(combination, &expression, reference, qualified_combination_result_id(&combination.id, base_id), value, refs));
+            match evaluate_values(&expression, &values, dimension) {
+                Some(value) => results.push(combination_row(combination, &expression, reference, qualified_combination_result_id(&combination.id, base_id), value, refs)),
+                None => withheld.push(format!("{base_id} (load-case algebra refused)")),
             }
         }
 
-        // Signed support actions, grouped by (support, component).
+        // Signed support actions, grouped by (support, component). A support's
+        // group publishes whole or not at all: no partial component set.
         for support in &model.supports {
             let find = |case: &str, component: &str| {
                 case_rows.iter().find(|r| {
@@ -970,52 +995,73 @@ pub(crate) fn append_combination_results(
                         && r.kind.starts_with("support_reaction_")
                 })
             };
-            if operands.iter().any(|case| find(case, "Fx").is_none()) {
-                continue;
-            }
             let base = |component: &str| format!("support-action:{}:{}:{component}", support.id.len(), support.id);
-            let mut combined = [0.0; 6];
-            let mut complete = true;
-            for (slot, component) in SUPPORT_COMPONENTS.iter().enumerate() {
-                let sources: Vec<&ResultItem> = operands.iter().filter_map(|case| find(case, component)).collect();
-                let dimension = if slot < 3 { LoadDimension::Force } else { LoadDimension::Moment };
-                let values: Vec<(&str, f64)> = operands.iter().copied().zip(sources.iter().map(|s| s.value)).collect();
-                match evaluate_values(&expression, &values, dimension) {
-                    Some(value) => {
-                        combined[slot] = value;
-                        results.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));
-                    }
-                    None => complete = false,
-                }
-            }
-            if !complete {
+            if operands.iter().all(|case| find(case, "Fx").is_none()) {
                 continue;
             }
-            for (component, value) in [
-                ("force_magnitude", norm3(combined[0], combined[1], combined[2])),
-                ("moment_magnitude", norm3(combined[3], combined[4], combined[5])),
-            ] {
-                let sources: Vec<&ResultItem> = operands.iter().filter_map(|case| find(case, component)).collect();
-                let value = if range {
-                    let dimension = if component == "force_magnitude" { LoadDimension::Force } else { LoadDimension::Moment };
+            let all_sources = |component: &str| -> Option<Vec<&ResultItem>> {
+                operands.iter().map(|case| find(case, component)).collect()
+            };
+            let group = || -> Result<Vec<ResultItem>, &'static str> {
+                let mut rows = Vec::new();
+                let mut combined = [0.0; 6];
+                for (slot, component) in SUPPORT_COMPONENTS.iter().enumerate() {
+                    let sources = all_sources(component).ok_or("source support row missing in an operand case")?;
+                    let dimension = if slot < 3 { LoadDimension::Force } else { LoadDimension::Moment };
                     let values: Vec<(&str, f64)> = operands.iter().copied().zip(sources.iter().map(|s| s.value)).collect();
-                    match evaluate_values(&expression, &values, dimension) {
-                        Some(value) => value,
-                        None => continue,
+                    let value = evaluate_values(&expression, &values, dimension).ok_or("load-case algebra refused")?;
+                    combined[slot] = value;
+                    rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));
+                }
+                for (component, value) in [
+                    ("force_magnitude", norm3(combined[0], combined[1], combined[2])),
+                    ("moment_magnitude", norm3(combined[3], combined[4], combined[5])),
+                ] {
+                    // A linear magnitude is the norm of the combined components;
+                    // its row identity is the first operand row that has it.
+                    let sources = if range {
+                        all_sources(component)
+                    } else {
+                        Some(operands.iter().filter_map(|case| find(case, component)).collect::<Vec<_>>()).filter(|rows| !rows.is_empty())
                     }
-                } else {
-                    value
-                };
-                let refs = if range {
-                    sources.iter().map(|s| s.id.clone()).collect()
-                } else {
-                    SUPPORT_COMPONENTS
-                        .iter()
-                        .map(|c| qualified_combination_result_id(&combination.id, &base(c)))
-                        .collect()
-                };
-                results.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, refs));
+                    .ok_or("source support row missing in an operand case")?;
+                    let value = if range {
+                        let dimension = if component == "force_magnitude" { LoadDimension::Force } else { LoadDimension::Moment };
+                        let values: Vec<(&str, f64)> = operands.iter().copied().zip(sources.iter().map(|s| s.value)).collect();
+                        evaluate_values(&expression, &values, dimension).ok_or("load-case algebra refused")?
+                    } else {
+                        value
+                    };
+                    let refs = if range {
+                        sources.iter().map(|s| s.id.clone()).collect()
+                    } else {
+                        SUPPORT_COMPONENTS
+                            .iter()
+                            .map(|c| qualified_combination_result_id(&combination.id, &base(c)))
+                            .collect()
+                    };
+                    rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, refs));
+                }
+                Ok(rows)
+            };
+            match group() {
+                Ok(rows) => results.extend(rows),
+                Err(reason) => withheld.push(format!("support-action:{}:{} ({reason})", support.id.len(), support.id)),
             }
+        }
+        if !withheld.is_empty() {
+            const NAMED: usize = 8;
+            let mut named = withheld.iter().take(NAMED).cloned().collect::<Vec<_>>().join(", ");
+            if withheld.len() > NAMED {
+                named.push_str(&format!(", and {} more", withheld.len() - NAMED));
+            }
+            diagnostics.push(diag(
+                &format!("diagnostic:preview-physics:combination-row-withheld:{}", identity(&[&combination.id])),
+                "LOAD_COMBINATION_ROW_WITHHELD",
+                "warning",
+                format!("combination {} withholds {} combined row(s) that could not be formed: {named}", combination.id, withheld.len()),
+                vec![combination.id.clone()],
+            ));
         }
         if has_maximum {
             diagnostics.push(diag(
@@ -1093,6 +1139,10 @@ pub(crate) fn imposed_displacement_refusal(
         .collect();
     Some(Ok(blocked_envelope(request.model, diagnostics)))
 }
+
+#[cfg(test)]
+#[path = "silent_drop_unit_tests.rs"]
+mod silent_drop_unit_tests;
 
 #[cfg(test)]
 mod tests {

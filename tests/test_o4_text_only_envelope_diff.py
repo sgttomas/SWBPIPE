@@ -48,6 +48,15 @@ their diagnostics only. This check reads those two at the repair's parent
 `be7d474958`, and `..._diagnostics_repair_moves_only_the_diagnostics` binds all four
 committed goldens to it.
 
+The silent-drop guard (DEL-04-07 Design `pressure-contract.md`, "Pressure-free input
+closure") closed the model root, so W-CB1's and W-CB1z's inputs carry their depth-16
+raw-only value on the declared `diagnostics` member instead of the unknown
+`unknown_depth_witness` member. Its three regenerated corpus bases (`SILENT_DROP_MOVED`)
+are bound by `..._retained_corpus_moves_since_main_are_the_silent_drop_carrier` to main's
+bytes at the merge base `SD_BASE`: with that one request key restored, they differ only by
+binding hashes (the invocation hash, the receipt and the successor-bytes digests), and every
+other entry and member is unchanged.
+
 The silent-zero guard (DEL-04-07 Design `pressure-contract.md`, "Load cases that apply
 nothing") regenerated the connected load/reference-state raws and their AnalysisRun
 carriers with two added `LOAD_STATE_SOURCE_EXCLUDED` warnings: silent-zero diagnostic
@@ -57,9 +66,9 @@ added; no number moved. This check reads those four at the regeneration's parent
 W-7's member end actions in global coordinates (DEL-04-01 Design `global-end-actions.md`)
 regenerated the pressure-2 envelopes, corpora and load/reference-state carriers listed in
 `W7_REGENERATED` with twelve `element_global_end_*` rows per member and case: W-7 global end
-rows added; no other number moved. This check reads them at main `9bfd04c255`, their bytes
-before W-7's regeneration (the silent-zero check reads its four there too), and
-`..._w7_moves_only_added_global_end_rows` binds the committed files to those bytes.
+rows added; no other number moved. The earlier checks read them at the S1b base `9bfd04c255`,
+before W-7's regeneration, and `..._w7_moves_only_added_global_end_rows` binds the committed files
+to main `2653f87392`'s bytes, the main W-7 last merged.
 """
 from __future__ import annotations
 
@@ -99,10 +108,15 @@ SZ_REGENERATED = {
 }
 SZ_CODES = frozenset({"LOAD_STATE_SOURCE_EXCLUDED", "LOAD_CASE_APPLIES_NO_ACTION"})
 SZ_MOVED = re.compile(r"^/analysis_run/hashes/\d+/value$")
+# Model document 0.7.0 (W-13 S1b) regenerated the listed files again (version token and the
+# digests binding it) on top of main 9bfd04c255; files no earlier change regenerated are read there,
+# and so are the silent-zero files for that guard's own check.
+S1B_BASE = "9bfd04c25550c8600a5ae3fec55e008337e97b3a"
 # W-7 global end rows added; no other number moved: the files W-7's regeneration moved, read at
-# main `9bfd04c255` (their bytes before it). The envelopes gain only the rows; the derived carriers
-# gain the rows' derived items and move only their positions, counts and binding hashes.
-W7_BASE = "9bfd04c25550c8600a5ae3fec55e008337e97b3a"
+# main `2653f87392` (their bytes before it, on the main W-7 last merged). The envelopes gain only
+# the rows; the derived carriers gain the rows' derived items and move only their positions, counts
+# and binding hashes.
+W7_BASE = "2653f8739262251d9fa2cc339f03422f8fea9052"
 W7_ENVELOPES = (
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
@@ -160,6 +174,15 @@ W8_MOVED = {
 }
 # Where W-8's one warning sits in each moved case's diagnostics: first (pre-solve).
 W8_POSITION = 0
+# The silent-drop guard's regenerated bases (the request's depth-16 member renamed), against main at the
+# merge that brought model document 0.7.0 and W-8 under the guard.
+SD_BASE = "f1da661c6d4f681df2dabed06a65f16fc50ff623"
+SILENT_DROP_MOVED = {
+    "cases": frozenset({"w_cb1_sparse_interactive", "w_cb1_dense_scrutiny", "w_cb1z_sparse_interactive"}),
+    "mutations": frozenset(),
+    "must_pass": frozenset(),
+}
+SILENT_DROP_KEY = ("unknown_depth_witness", "diagnostics")
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -294,6 +317,14 @@ def base_text(name: str) -> str:
     ).stdout
 
 
+def s1b_base_text(name: str) -> str:
+    """A file's bytes at the S1b base, before model document 0.7.0 regenerated it."""
+    return subprocess.run(
+        ["git", "show", f"{S1B_BASE}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
 def _ra_regenerated() -> frozenset:
     from tests import test_ra_work_only_envelope_diff as ra
     return frozenset(ra.RAW) | {name for name, _ in ra.DERIVED} | {ra.O4_CONTROLS, ra.J2_CORPUS, ra.J7_CENSUS}
@@ -301,16 +332,14 @@ def _ra_regenerated() -> frozenset:
 
 def current_text(name: str) -> str:
     """The file's bytes after O4's regeneration: before the later change that regenerated
-    it (W1 corner 1, R-A, the diagnostics repair, the silent-zero guard or W-7), else as committed."""
+    it (W1 corner 1, R-A, the diagnostics repair, the silent-zero guard or W-13 S1b; W-7's
+    files are read at the S1b base too, which precedes W-7)."""
     at = (W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated()
-          else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED
-          else W7_BASE if name in W7_REGENERATED else None)
-    if at is not None:
-        return subprocess.run(
-            ["git", "show", f"{at}:projects/chirality-piping/{name}"],
-            cwd=REPOSITORY, check=True, capture_output=True, text=True,
-        ).stdout
-    return (PROJECT / name).read_text()
+          else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED else S1B_BASE)
+    return subprocess.run(
+        ["git", "show", f"{at}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
 
 
 def diff(name: str, base: str | None = None, current: str | None = None):
@@ -587,7 +616,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w
     counter), its two enumerated mutations only by the diagnostic index each names, rebased past the
     inserted warning; every other entry and member unchanged."""
     landed = _corner1_corpus()
-    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    now = s1b_base_text(RETAINED_CORPUS) if current is None else current
     base_cases = dict(_entries(landed, "cases", _pair_id))
     now_cases = dict(_entries(now, "cases", _pair_id))
     for member in ("cases", "mutations", "must_pass"):
@@ -629,7 +658,7 @@ def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
     """A value planted in a W-8 case or in an entry W-8 did not move, or a second inserted
     warning, fails the W-8 enumeration."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(s1b_base_text(RETAINED_CORPUS))
     for ident in ("w_c2_sparse_interactive", "w1_member_route_e_baseline_sparse_interactive"):
         document = storage.expand(committed)
         entry = next(e for e in document["cases"] if e.get("id") == ident)
@@ -656,6 +685,70 @@ def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
     mutation["edits"][0]["path"][1] -= 1
     with pytest.raises(AssertionError, match="b2o_m31_combination_selected_diagnostic_removed"):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+
+
+def _silent_drop_restored(key, entry):
+    """The entry with its request's `diagnostics` member renamed back to `unknown_depth_witness`,
+    in that member's original (sorted, last) position; asserts the member moved exactly so."""
+    old, new = SILENT_DROP_KEY
+    invocation = dict(entry)["invocation"]
+    model = dict(dict(invocation)["request"])["model"]
+    names = [k for k, _ in model]
+    assert new in names and old not in names, (key, names)
+    value = dict(model)[new]
+    restored = Obj(sorted([(k, v) for k, v in model if k != new] + [(old, value)], key=lambda pair: pair[0]))
+    assert [k for k, _ in restored] == sorted([k for k, _ in restored]), key
+
+    def replace(obj, name, value):
+        return Obj([(k, value if k == name else v) for k, v in obj])
+    request = replace(dict(invocation)["request"], "model", restored)
+    return replace(entry, "invocation", replace(invocation, "request", request))
+
+
+def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=None):
+    """The silent-drop guard: the committed retained corpus against main's bytes at `SD_BASE`. The same
+    entries in the same order; its three enumerated bases differ, with the request's depth-16 member
+    renamed back, only by binding hashes (no number, status, class or work counter); every other entry
+    and member is unchanged."""
+    base = subprocess.run(
+        ["git", "show", f"{SD_BASE}:projects/chirality-piping/{RETAINED_CORPUS}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    for member in ("cases", "mutations", "must_pass"):
+        before = _entries(base, member, _pair_id)
+        after = _entries(now, member, _pair_id)
+        assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
+        known = dict(before)
+        moved = {k for k, entry in after if classify(known[k], entry)}
+        assert moved == SILENT_DROP_MOVED[member], (member, sorted(moved ^ SILENT_DROP_MOVED[member]))
+        for key, entry in after:
+            if key in moved:
+                leaves = classify(known[key], _silent_drop_restored(key, entry))
+                assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
+    before, after = dict(load(base)), dict(load(now))
+    assert list(before) == list(after)
+    for member in before:
+        if member not in ("cases", "mutations", "must_pass"):
+            assert not classify(before[member], after[member]), member
+
+
+def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves():
+    """A value planted in a silent-drop base or in an entry it did not move, or the carrier left under
+    another key, fails the silent-drop enumeration."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    for ident in ("w_cb1_sparse_interactive", "w_cb2_sparse_interactive"):
+        document = storage.expand(committed)
+        entry = next(e for e in document["cases"] if e.get("id") == ident)
+        assert _plant(entry["source"]), ident
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+    document = storage.expand(committed)
+    model = next(e for e in document["cases"] if e.get("id") == "w_cb1_dense_scrutiny")["invocation"]["request"]["model"]
+    model["notes"] = model.pop("diagnostics")
+    with pytest.raises(AssertionError, match="w_cb1_dense_scrutiny"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
 
 
 def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
@@ -811,7 +904,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostic
     for name in DIAG_GOLDENS:
         before = exact(subprocess.run(["git", "show", f"{DIAG_BASE}:projects/chirality-piping/{name}"],
                                       cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = exact((PROJECT / name).read_text() if current is None else current[name])
+        after = exact(s1b_base_text(name) if current is None else current[name])
         moved = _leaf_paths(before, after)
         assert moved and all(DIAG_MOVED.match(p) for p in moved), (name, [p for p in moved if not DIAG_MOVED.match(p)][:8])
         for diagnostic in after["result_envelope"]["diagnostics"]:
@@ -822,7 +915,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
     """A changed number outside the diagnostics (the golden's first `"value"`, in the carried
     receipt), the same number turned into a string, or a dropped diagnostic, in a regenerated
     golden fails at that path; each mutant keeps every other token."""
-    texts = {name: (PROJECT / name).read_text() for name in DIAG_GOLDENS}
+    texts = {name: s1b_base_text(name) for name in DIAG_GOLDENS}
     name = DIAG_GOLDENS[0]
     # The token-preserving re-serialisation alone passes, so each failure is the mutation's.
     test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(
@@ -862,7 +955,7 @@ def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(cur
     for name, pointer in SZ_REGENERATED.items():
         before = load(subprocess.run(["git", "show", f"{SZ_BASE}:projects/chirality-piping/{name}"],
                                      cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = load(_before_w7(name) if current is None else current[name])
+        after = load(s1b_base_text(name) if current is None else current[name])
         lists = []
         for document in (before, after):
             holder = document
@@ -883,7 +976,7 @@ def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(cur
 def test_o4_text_only_envelope_diff_silent_zero_refuses_other_moves():
     """A changed number, an added diagnostic of another code, or a dropped earlier diagnostic in
     a silent-zero regenerated file fails at that file."""
-    texts = {name: _before_w7(name) for name in SZ_REGENERATED}
+    texts = {name: s1b_base_text(name) for name in SZ_REGENERATED}
     name = next(iter(SZ_REGENERATED))
     test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(
         current=dict(texts, **{name: _dump(load(texts[name]))}))

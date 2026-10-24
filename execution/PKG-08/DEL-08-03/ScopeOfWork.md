@@ -72,13 +72,13 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | User/private data handling | Report section may reference private rule-pack or source identifiers but must not expose protected/private content in public templates by default |
 > | Engineering values | No engineering values are created here; unknown or absent values remain `TBD` or report findings |
 > | Certification/compliance claims | Prohibited for software-generated report language |
-> | Unit handling | Any future rendered values must preserve units and dimensional context; this setup artifact does not define value schemas |
+> | Unit handling | Rendered values must preserve units and dimensional context; value schemas are defined in `schemas/report_sections.schema.yaml` and `core/reporting/report_sections`, not in this Scope of Work |
 >
 ### CLM-006 — Construction
 
 > ##### Construction
 >
-> The future report section is expected to be a report-renderer subsection that consumes already-classified diagnostics and provenance metadata rather than creating new engineering judgments. The section should present the following report-facing groups:
+> The report section is a report-renderer subsection that consumes already-classified diagnostics and provenance metadata rather than creating new engineering judgments. The section should present the following report-facing groups:
 >
 > | Group | Purpose | Boundary |
 > |---|---|---|
@@ -135,7 +135,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > - report-facing requirements for warning, assumption, missing-data, and provenance disclosure;
 > - integration expectations for diagnostics/result-envelope data supplied by GUI/core/rule/report workflows;
 > - protected-content and professional-responsibility guardrails for public report templates;
-> - acceptance criteria and evidence expected from future implementation work.
+> - acceptance criteria and evidence expected from implementation work.
 >
 > Out of scope:
 >
@@ -178,7 +178,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 
 > ##### Verification
 >
-> Future implementation work should provide at least these checks:
+> The implementation should provide at least these checks (current tests: `core/reporting/report_renderer/tests/render.rs` and the test module of `core/reporting/report_sections/src/lib.rs`; per-row coverage is not asserted here):
 >
 > | Check | Purpose |
 > |---|---|
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > - `_run_records/*`
 > - `_STATUS.md`
 >
-> Future production artifacts anticipated by the register:
+> Production artifacts named by the register, now implemented in `core/reporting/report_sections` and `core/reporting/report_renderer` with their tests:
 >
 > - report provenance section;
 > - tests.
@@ -225,7 +225,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 
 > ##### Purpose
 >
-> This procedure describes how a future TASK implementation should produce and verify the warnings, assumptions, and provenance report section while preserving the sealed scope, protected-data boundary, diagnostics/result-envelope boundary, and professional-responsibility boundary.
+> This procedure describes how a TASK implementation produces, changes and verifies the warnings, assumptions, and provenance report section under an active bounded brief, while preserving the sealed scope, protected-data boundary, diagnostics/result-envelope boundary, and professional-responsibility boundary.
 >
 
 ### CLM-019 — Prerequisites
@@ -239,7 +239,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > |---|---|---|
 > | Sealed DEL-08-03 brief and explicit write scope | `_CONTEXT.md` and human dispatch | Available for setup |
 > | Applicable invariants and architecture basis | `docs/CONTRACT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | Available for setup |
-> | Diagnostics/result-envelope contract | AB-00-06 and future schema/interface artifacts | Partly available; exact implementation `TBD` |
+> | Diagnostics/result-envelope contract | AB-00-06; `schemas/report_sections.schema.yaml` and `core/reporting/report_sections` (CLM-007) | Available; consumed by `core/reporting/report_renderer` |
 > | Report generator integration point | DEL-08-01 | Upstream/integration dependency |
 > | Audit manifest/hash metadata | DEL-08-02 | Upstream/integration dependency |
 > | Warning data from GUI/core | DEL-07-04, DEL-07-07, solver/rule diagnostics deliverables | Upstream/integration dependency |

@@ -60,7 +60,8 @@ review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 document (the W-6a bytes) plus its sha256, which is the session's model hash.
 
 **Store (migration v12).** Every statement uses `IF NOT EXISTS`, including the
-triggers and the index.
+triggers and the index. v12 holds the state tables only; the run tables of §3
+are v13, added with recorded runs (W-12 S2).
 
 ```sql
 CREATE TABLE IF NOT EXISTS model_states(
@@ -143,6 +144,137 @@ Python agree.
   project's states and runs. The confirmation prompt states how many saved
   states and recorded runs will remain attached to that project id.
 
+**As built (S1, states).** `apps/desktop/src-tauri/src/model_states.rs`,
+`apps/desktop/src/services/modelStateService.ts` and `apps/desktop/src/features/history/`.
+- **Versions.** S1 made `STORE_SCHEMA_TARGET_VERSION` 12 (S2 made it 13). A store whose
+  `user_version` is above the target was written by a newer build. It is
+  refused (`STORE-SCHEMA-NEWER`) before any pragma or migration writes;
+  before S1 it was opened as current.
+- **Admission.** A state save applies the one-current-version check alone
+  (`check_model_document_version`, the version part of
+  `check_model_document_for_persist`). A state may therefore hold a model with
+  blocking slot findings: its record says `MODEL_INCOMPLETE`, and it is kept
+  as a comparison basis. The record mapping still refuses, by name, any slot
+  it cannot map. Project create and save keep #1565's blocking-slot refusal,
+  and opening a state keeps it too, so an incomplete state is never opened.
+- **Hash forms.** The `model_hash` column holds the session's form
+  (`sha256:<hex>`). The record's `hashes` values are bare hex, as the Python
+  service writes them. `record_json` stores the record without the label
+  fields; `record_hash` is over that record without `hashes`.
+- **Integrity.** Every list, summary and read verifies the record against its
+  hash and its `hashes`. It then checks each identity field the record
+  duplicates against the row's columns: project, state id, kind,
+  `created_at`, parent ref and model hash. The record digest leaves `hashes`
+  out, so the whole `hashes` array must equal the two expected descriptors
+  (algorithm, canonicalization, scope, payload ref and value). A duplicate,
+  extra or missing entry is refused. A read also checks the snapshot:
+  its JCS hash and its project id. Any difference is refused as
+  `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
+  refused.
+- **Memory (S2 repairs r1 to r6).** All five state commands are metered as
+  §3's As built (S2) describes (`stored_read.rs`): `save_model_state`,
+  `list_model_states`, `read_model_state`, the label edit and the delete.
+  - **Before loading.** Each takes memory-pool leases sized from the stored
+    lengths before loading anything: records, snapshots, label columns, the
+    child and run lists, and every identity and time column. It measures and
+    loads in one transaction.
+  - **Identity columns (r5, r6).** A row whose identity or time column exceeds
+    a bound the app holds at every write is refused before it is loaded. A
+    project id is measured and priced, never refused by size.
+  - **Hash texts.** It reserves the record's sorted-compact hash text at its
+    exact escaped length before writing it. The writer that counts the length
+    is the one that writes the text.
+  - **Holding.** It holds its leases until its response is serialized.
+  - **Commit last (r4).** Save, the label edit and the delete serialize their
+    response before they commit. So a refusal of the response writes nothing.
+  - **Project row (r4).** Save checks the project row and its stored base
+    with a targeted, priced query. The stored project name is quoted only when
+    the save is refused.
+  - **Names in messages (r4, r5).** Messages and refusals quote at most 120
+    characters of any interpolated value, then `…`. They describe a serde or
+    SQLite error by its category or code, never by its text. A blocked delete
+    names at most ten blockers in all, then `and N more`.
+  - **Refusal.** A command whose lease the pool refuses is refused with
+    `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
+- **Label bounds (r2, r3).** Every label write (Save Model State, Record Run,
+  both label edits) keeps at most 256 tags, notes and assumptions together.
+  - **JSON size.** It also keeps at most 196,608 bytes (192 KiB) of the whole
+    labels object as the label edit carries it, serialized with its escapes:
+    `{name, tags, notes, assumptions}`, name included. A name of 196,602 NULs
+    serializes to 1,179,667 bytes and is refused.
+  - **Editability.** A compile-time assertion keeps these 192 KiB, plus a
+    project id of up to 63 KiB and 1 KiB of fixed members, within the label
+    edit's 256 KiB argument budget (r6: the app does not bound project ids, so
+    the length is stated). So any kept labels can be edited in a project with
+    an id up to 63 KiB, which a test checks for both edits. Smaller labels
+    leave room for a longer id.
+  - **Reads.** Reads still price whatever is stored.
+- **Serializer.** Keys sort by code point, and i64/u64 integers are written
+  in decimal. No field of `model_state.schema.json` has a number type, so the
+  record hash fails closed on any other number (a float, or an integer outside
+  i64/u64), with `MODEL-STATE-RECORD-NUMBER-UNSUPPORTED`. It does not
+  approximate Python's `repr(float)`, whose tie-breaking Rust's shortest-digit
+  formatter does not share (Codex r1).
+- **Parity checks.** `tools/fixtures/sorted_compact_json_vectors.py` writes
+  `fixtures/persistence/sorted_compact_json_vectors.json` from `service.py`:
+  the vectors and the refused numbers. A witness of a populated record and
+  of an empty-label record is written by the save and read path
+  (`model_state_record_witness.json`). The Rust tests and
+  `tests/test_model_state_record_parity.py` check both files.
+- **Immutability in SQL.**
+  - `model_states_immutable` refuses every `UPDATE`.
+  - `model_states_no_replace` (v12, `BEFORE INSERT`) refuses an insert that
+    meets an existing row of the project on `state_id` or `model_hash`. It
+    fires before conflict resolution, so `INSERT OR REPLACE` and `REPLACE`
+    can neither overwrite a snapshot nor cascade-delete its labels.
+  - **Deleted identity.** A state id is a 128-bit random token and is never
+    reused. Re-saving a deleted state's model creates a new state, which
+    UNIQUE allows after the delete.
+  - **Concurrent saves.** Two windows saving one model at once give one
+    `saved` and one `already_saved`.
+- **Labels.** The state-level assumptions use the model's
+  `unresolved_assumptions` vocabulary. An empty `affected_refs` names the state
+  (`{ModelState, <state id>}`). An id may not repeat a model assumption id.
+  Notes become `StateNote`s `<state id>:note:<n>`, `visibility: private`.
+  Every provenance in the record is `review_status: pending`.
+- **Commands.** `save_model_state`, `list_model_states`, `read_model_state`,
+  `edit_model_state_labels` and `delete_model_state`. The save carries the
+  canonical text, the claim and the session's base (`expected_base`). The four
+  small commands take 256 KiB of arguments each. Before S2 r7 the list, read
+  and delete took 4 KiB, which left a project with a longer id (the app keeps
+  any) without a reachable history. A request over the budget is refused by
+  name at ingress (`INGRESS-ARGS-TOO-LARGE`), and the History panel shows that
+  refusal. A label edit names the labels' `updated_at` it read
+  (`MODEL-STATE-LABELS-MOVED` otherwise).
+- **Prerequisite project save.** When Save Model State… first runs Save
+  Local Project's flow, the state follows the save that landed. After "Save
+  as a new project" that is the renamed working model, its new project id
+  and base, with no parent state from the old project. Cancel saves neither.
+- **Delete.** A state's deletion is blocked by its child states and, since S2, by
+  its recorded runs.
+- **Open State.** The desktop had no unsaved-changes guard. S1 adds one, shared
+  by every command that replaces the working model (DEL-07-11 Design
+  `model-document-open-and-native-smoke.md`): Cancel (the default), Save Local
+  Project first, or Discard. A `MODEL_INCOMPLETE` state is kept as a comparison
+  basis but is not opened; the History panel says why. Opening starts a new project session
+  with empty undo and redo stacks, so undo never reaches the previous model.
+  The state's hash becomes the saved basis, and the state is the parent of the
+  next state saved from that session.
+  - **Binding.** The session becomes the state's project. Its stored base is
+    one the session itself saw for that project, never one read afresh from
+    the store, so another window's save still meets the stale-window check:
+    - the base it holds now, when that is the project's (no save, or the
+      guard's Save first saved in place);
+    - otherwise the base captured before the guard, when that was the
+      project's (Save first went to "Save as a new project");
+    - otherwise none, so a later save asks.
+    The project summary and envelope hash follow the base.
+  - **Library references.** The adopted snapshot's library references are
+    checked as a project open checks them (#1566). The warnings join the
+    message only while the session is still the one that opened the state.
+- **Browser preview.** It keeps no states (SQLite-only history) and refuses
+  every state command (`MODEL-STATE-STORE-UNAVAILABLE`).
+
 ## 3. Runs tied to states (FR-CMP-002; FR-MOD-006 run level)
 
 **Two kinds of run record:**
@@ -161,7 +293,8 @@ Python agree.
    - sets the real `model_state_ref` `{ModelState, <state id>}`;
    - takes `rule_pack_refs` from the input manifest's `active_rule_packs` (what
      the solve used, not the document's identity-only references) and
-     `library_refs` from the resolved `provenance_record.library_ref`s;
+     `library_refs` from the model's `library_ref`s, as the model document's
+     one walk finds them;
    - drops the `created_at_unavailable` determinism note, in both TypeScript
      (`analysisRunCompatibility.ts:169` hard-codes it today) and Python
      (`compatibility.py:147` already drops it when `created_at` is set);
@@ -198,7 +331,7 @@ accept either form:
 `HistoricalRunContext` accepts real state refs from recorded runs, verified
 against the stored state, and keeps flagging any other mismatch.
 
-**Store (v12 continued):**
+**Store (v13, with recorded runs):**
 
 ```sql
 CREATE TABLE IF NOT EXISTS analysis_runs(
@@ -234,6 +367,520 @@ CREATE TRIGGER IF NOT EXISTS analysis_runs_immutable BEFORE UPDATE ON analysis_r
   hash is unchanged.
 - **Size.** Recording uses Save Local Project's memory guard (W-5). The History
   panel lists runs from columns, without loading `result_json`.
+
+**As built (S2, recorded runs).** `apps/desktop/src-tauri/src/analysis_runs.rs`
+(tests in `analysis_runs_tests.rs`), `apps/desktop/src/services/analysisRunService.ts`,
+the History panel and `useModelStateHistory.ts`.
+- **Versions.** `STORE_SCHEMA_TARGET_VERSION` is 13 (`store-v13-analysis-runs-tables`).
+  The tables, index and trigger are the SQL above, plus `analysis_runs_no_replace`
+  (`BEFORE INSERT`, on `recording_id` or `run_record_hash`, as S1's trigger). A v14
+  store is refused (`STORE-SCHEMA-NEWER`).
+- **Commands.** `record_analysis_run` is admitted as `save_local_project` is (the
+  per-invocation budget through its lease). `list_analysis_runs`,
+  `read_analysis_run`, `delete_analysis_run` and `edit_analysis_run_labels`
+  take 256 KiB of arguments each (r7; 4 KiB for the first three before). A
+  request over the budget is refused by name at ingress
+  (`INGRESS-ARGS-TOO-LARGE`). The browser preview refuses them all
+  (`MODEL-STATE-STORE-UNAVAILABLE`).
+- **Request.** It carries the transient record, the result's JSON text (stored
+  as given), the manifest's canonical text, the session's base, and optionally
+  the state the session expects (`state_id`, checked:
+  `ANALYSIS-RUN-STATE-MISMATCH`). When no state holds the solved model, it names a
+  `post_solve_snapshot` (`new_state`); without one the request is refused with
+  `ANALYSIS-RUN-STATE-REQUIRED`. The snapshot is the manifest's model payload. Its
+  parent is the session's basis state.
+- **Checks before the store.**
+  - `ANALYSIS-RUN-MANIFEST-MISMATCH`: the manifest is not its own canonical text;
+    its hash is not `input_manifest_hashes[0]`; that entry's ref is not
+    `input_manifest_refs[0]`; or the manifest is not the project's.
+  - `ANALYSIS-RUN-NOT-TRANSIENT`: the record is not a v0.3 record with
+    `created_at: null` and the synthetic ref, or its own checksum does not verify.
+    A recorded revision is never recorded again.
+  - `ANALYSIS-RUN-RESULT-MISMATCH`: the result's checked hash or ref is not the
+    record's `received_result`, or the result is not the record's run of the
+    project.
+  - `ANALYSIS-RUN-CHECKSUM-MISMATCH`: the record's whole `hashes` inventory is
+    not exactly the v0.3 descriptors. That means the record checksum, then the
+    received-result checksum, each with exactly its algorithm, profile, scope,
+    payload ref and value, and nothing else. Each result ref must also carry
+    exactly its row's checksum descriptor. The record digest leaves its own
+    checksum out, so only this check sees a mislabelled algorithm or profile
+    (Codex r1).
+  - `ANALYSIS-RUN-MANIFEST-MISMATCH` also covers every record member the
+    manifest fixes, derived from the manifest and never from the record:
+    - its ref and checksum descriptor;
+    - the solver name, version and build ref;
+    - the settings ref and the unit-system ref;
+    - the load basis (the manifest's load cases, then its combinations);
+    - the rule-pack and library references, which are empty in a transient
+      record.
+  - Rust does not re-derive the rest of the record's semantics; the validators
+    do.
+- **The revision.**
+  - `rule_pack_refs` are `{RulePack, "<rule_pack_id>@<version>"}`, in the
+    manifest's order (the manifest sorts them when it is built).
+  - `library_refs` are `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`,
+    deduplicated and sorted by code point.
+    - **Sites.** The sites are every `library_ref` object at any depth and
+      under any owner, found by the model document's one walk. Rust reuses
+      `model_document_save::library_ref_sites`, the native save's walk. The
+      TypeScript builder uses `libraryRefSites`, and Python mirrors it as
+      `library_ref_sites`.
+    - **Normalization.** Kind, id and record id are normalized as that walk
+      does (`library_ref_identity`): Rust's White_Space trim (`trimLikeRust`
+      in TypeScript, the same 25 characters in Python), with nothing when a
+      value is blank or not text.
+    - **Version.** `library_version` is kept verbatim when it is text, as the
+      store check compares it.
+    - **Null identities.** A site whose kind or id is blank or not text (a
+      null `identity` in the table) names no library and is omitted. The
+      state's hashed model payload still holds it, and the open-time store
+      check reports it as `MODEL-LIBRARY-REF-UNRESOLVED`.
+    - **Unknown kinds** are kept, as the native walk keeps them.
+    - **Pinning.** Rust, TypeScript and Python each pin this to
+      `fixtures/model_document/library_ref_sites.json`. Each test also pins
+      a shared White_Space vector: U+FEFF and U+001F stay, and U+3000,
+      U+0085 and U+2003 are trimmed.
+    - **Before the alignment with #1595.** Only a `library_ref` directly under a
+      `provenance_record` was collected, untrimmed. The committed witness's
+      model has no `library_ref`, so it is unchanged.
+  - Rust hashes with `open_pipe_stress_canonical_json::canonical_json_checked_v1_text`,
+    now a direct dependency of the desktop crate.
+  - Parity: the TypeScript builder `recordedAnalysisRunRevision` and Python's
+    `recorded_revision` rebuild the store's witness
+    (`fixtures/persistence/recorded_run_witness.json`) exactly. The store writes
+    the witness from a transient record that the TypeScript session builder made
+    for a real producer result (`transient_run_input.json`).
+- **Integrity.**
+  - **List.** The list reads each run's record, but never its result or
+    manifest. It checks the record hash and the identity columns against the
+    record:
+    - the recording id against the hash;
+    - the state id against `model_state_ref`;
+    - the producer run id, `created_at` and the result hash against
+      `received_result`;
+    - the project against the record's `unit_system_ref`, which names the
+      project and the manifest hash;
+    - the whole checksum inventory, the manifest's ref and checksum, and the
+      settings and unit-system refs against the descriptors that the verified
+      fields, the project and the manifest hash give.
+  - **Read.** A read also checks:
+    - the stored result's checked hash and each row's checksum descriptor;
+    - the manifest's canonical form, its hash against the record, and its
+      project;
+    - every record member the manifest fixes (as at Record Run, with the
+      rule-pack and library references);
+    - the manifest's model payload hash against the state's model hash.
+  - A coherently resealed forgery, one that names another state or contradicts
+    its manifest, is refused there.
+  - Any difference is refused as `ANALYSIS-RUN-INTEGRITY`, naming the run.
+- **Delete.**
+  - **State.** A state with recorded runs is not deleted
+    (`MODEL-STATE-DELETE-BLOCKED`, naming the runs). The `NO ACTION` foreign key
+    refuses the deletion in SQL as well.
+  - **Run.** A run is deleted only as a whole row with its labels; no other row
+    depends on a run.
+  - **Project.** Deleting the project row removes its runs, child states,
+    states and all their labels in one statement. A Replace keeps all of them.
+  - **Replace prompt.** It says how many saved states and recorded runs remain
+    attached.
+- **Labels.** The run's name, tags, notes and run-level assumptions follow
+  S1's label rules (`ANALYSIS-RUN-LABELS-INVALID`), with `run_name` required. A
+  label edit names the `updated_at` it read (`ANALYSIS-RUN-LABELS-MOVED`).
+  "Renaming, tagging or adding notes does not change the recorded run."
+- **Validators.**
+  - TypeScript `validateAnalysisRunV03(…, recordedState)` and Python
+    `validate_analysis_run_v0_3(…, recorded_state=…)` read the recorded form. They
+    check the state ref, `created_at`, the stored manifest's project, and its
+    model payload against the state's model hash
+    (`ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH`).
+  - **Derived from the manifest (repair r1).** These checks run first, and every
+    expected value comes from the stored manifest, never from the record:
+    - the manifest's ref and checksum (`…_INPUT_MANIFEST_MISMATCH`);
+    - the solver identity and build ref (`…_SOLVER_MISMATCH`);
+    - the settings ref (`…_SETTINGS_MISMATCH`);
+    - the unit-system ref (`…_UNITS_MISMATCH`);
+    - the load basis (`…_LOAD_BASIS_MISMATCH`);
+    - the rule-pack and library references (`…_REFERENCES_MISMATCH`).
+  - **The load basis.** The recorded form's load basis is the manifest's. A
+    caller's basis that differs from it is refused.
+  - **Equality.** References compare structurally in all three languages:
+    member order is not significant, while array order and extra members are.
+  - Each form is refused in the other's place. Transient records and their
+    fixtures validate as before.
+- **`HistoricalRunContext`.**
+  - `buildRecordedRunContext` (`designation: recorded_run`) accepts the real
+    state ref of the stored state it was read with, and adds no
+    `HISTORICAL_INPUT_MANIFEST_MISSING`. It still flags every other mismatch.
+  - A project row's saved run keeps today's checks.
+  - The History panel's "Check record" shows its findings. It establishes no
+    standing and does not replace the session's result.
+- **UI.**
+  - **Placement.** Record Run… sits in the History panel. It goes through the
+    one-owner check and the busy refusal, and is disabled with a stated reason.
+  - **Unavailable.** Without a solve it shows `RUN-RECORD-NO-RUN`. A slot
+    restored from the project row (no manifest) shows
+    `RUN-RECORD-MANIFEST-UNAVAILABLE`: "re-solve to record this run".
+  - **Prerequisite project save.** When Record Run first runs Save Local
+    Project's flow, it follows the save that landed. After "Save as a new
+    project" the solve is of the old project id, so nothing is recorded and the
+    message says why.
+  - **Current-run slot.** Record Run never changes it, so the project envelope
+    hash is unchanged.
+  - **Results view.** The producer's `run_id` is unchanged and recorded runs are
+    not shown in the results view, so its per-run state (page, filters, selected
+    row) keys on nothing new. A re-solve and a recording keep the page
+    (`recordRun.session.test.tsx`).
+- **Memory (repairs r1 to r6, `stored_read.rs`).** Ten commands are metered:
+  the five state commands, the five run commands (`record_analysis_run`,
+  `list_analysis_runs`, `read_analysis_run`, the run label edit and the run
+  delete).
+  - **Leases.** Each reserves its work before it makes it, through interactive
+    memory-pool leases: Save Local Project's ingress admission (the pool, fresh
+    headroom, and the per-invocation budget over the command's live leases
+    together). The accounting starts from the command's argument lease, so
+    every admission counts it with the command's reservations (r4).
+  - **Before loading.** A command takes, with `octet_length` and `COUNT`, the
+    byte lengths of every column it will load and of the state's child and run
+    lists, without loading them. It then reserves:
+    - loading each column: records, results, manifests, snapshots, and every
+      label column (name, tags, notes, assumptions), as SQLite's value plus the
+      copied `String`;
+    - the relationship lists (child and blocker ids) it materializes;
+    - every identity and time column it loads, as measured (r5);
+    - a fixed 512 KiB overhead.
+  - **Every column measured (r5).** No loaded column has a fixed allowance.
+    - **Bounds (r6).** Only columns the app bounds at every write have a
+      fixed bound:
+      - ids the app generates, and the references to them: 4 KiB (state ids
+        and recording ids are 38 and 39 bytes: `state:` or `runrec:` and 32
+        hex);
+      - kinds: 64 bytes (a state kind is one of the five);
+      - times: 32 bytes (`utc_iso_millis` writes 24);
+      - hashes: 80 bytes (64 hex, or `sha256:` and 64 hex).
+
+      Ids the app does not bound are measured and priced, never refused by
+      size: a project id (Save Local Project keeps any) and a producer's run
+      id. Data that S1 or project save wrote with a 4,097-byte or 64 KiB
+      project id still lists, reads, edits its labels and saves its duplicate
+      in the store.
+      - **Through the commands (r7).** The six history commands (both lists,
+        both reads, both deletes) are admitted with the label edits' 256 KiB
+        argument budget, so they reach a project id of up to about 256 KiB.
+      - **Longer ids.** A longer id is refused by name at ingress
+        (`INGRESS-ARGS-TOO-LARGE`), and the History panel shows that refusal.
+    - **State rows:** state, kind, created_at, parent, model and record
+      hashes, and the labels' `updated_at` are bounded; the project id is
+      measured only.
+    - **Run rows:** recording, state, created_at, record and result hashes,
+      and the labels' `updated_at` are bounded; the project id and producer
+      run id are measured only.
+    - **Refusal.** Before anything of a row loads, a row whose column exceeds
+      its bound is an integrity refusal, naming the row by the head of its id.
+    - **The auxiliary loads are bounded too:**
+      - the latest `created_at` Record Run reads, after every run's
+        `created_at` is checked against its bound;
+      - the existing state found by its model hash, whose id loads only within
+        its bound;
+      - the blockers' heads;
+      - the project row's measured envelope hash, and its name's head.
+    - **Status lists (r5, r6).** A verified record's `analysis_status` is
+      copied into a summary only when it serializes to at most 4 KiB. The copy
+      outlives the record's reservation, so it is reserved as it is retained:
+      from its element count and their bytes (each `String`'s header
+      included), with its transient `Value` copy. Record Run accepts only
+      v0.3's six status words (the schema's enum), each at most once, as the
+      app produces them. This is stricter than the schema, which leaves the
+      list's length open.
+  - **One snapshot.** The measurement and every load it prices run in one
+    transaction. The reads use `BEGIN DEFERRED`, whose first statement fixes
+    the WAL snapshot. The edits, deletes, Save and Record Run use their
+    `BEGIN IMMEDIATE`. The metered readers take a `Transaction`, so a load
+    outside the measured snapshot does not type-check. A row another connection
+    commits after the measurement is not loaded.
+  - **Before parsing.** Each JSON text is prescanned after it loads and before
+    it is deserialized. Text the prescan finds invalid is refused before
+    deserialization as `MODEL-STATE-INTEGRITY` or `ANALYSIS-RUN-INTEGRITY`
+    (for Record Run, as `ANALYSIS-RUN-RESULT-MISMATCH` or
+    `ANALYSIS-RUN-MANIFEST-MISMATCH`), naming the row. Valid text reserves its
+    parse at the prescan's bound.
+  - **Before building a hash or canonical text.** Every text built to hash or
+    compare is counted first, without building it:
+    - the record hash's sorted-compact text (`sorted_compact_length`);
+    - the JCS texts of a snapshot, a manifest and a model payload
+      (`jcs_length`);
+    - the checked texts of a run record, a result and each result row (their
+      serde text, its checked parse and the JCS text).
+
+    The text is then reserved at that exact length and built:
+    - the sorted-compact text, and serde texts, into a buffer of exactly that
+      capacity;
+    - the JCS text through the canonicalizer's growing buffer, reserved at six
+      times the length for its growth and per-string escapes.
+
+    Escapes make a character up to six bytes, and a number's canonical form up
+    to about five times its stored form. So no text is priced from a stored
+    length. The record hash writes the record without `hashes`, without
+    copying it. A text whose counted length differs from the stored text's is
+    not canonical and is refused without building it.
+  - **Messages and refusals (r4, r5).** Every message, receipt, refusal and
+    reservation description quotes at most 120 characters of each
+    interpolated value (`stored_read::shown`), then `…`: names, ids, times,
+    kinds, hashes, project ids and the document's version. The structured
+    fields keep the full, metered values.
+    - **Serde errors.** A serde error is described by its category and
+      position (`json_error`), never by its text, which can quote the value.
+    - **SQLite errors.** A SQLite error is described by its code and extended
+      code (`sql_error`), with its message only when that is at most 120
+      printable characters (SQLite's own texts and the store's trigger codes).
+      rusqlite copies the message into the error before the store sees it;
+      nothing longer is copied again.
+    - **Foreign messages.** The core canonicalizer's refusals are cut to 120
+      characters. The shared store opener's refusals are capped. The
+      model-version and malformed-slot refusals are rebuilt with cut values,
+      at most three findings, then `and N more`.
+    - **Last net.** Every error a command returns is cut to 1024 characters.
+    - A blocked delete names at most ten blockers across its child states and
+      its runs together (r5), then `and N more`. It reads only the head of
+      each blocker's id and name from SQLite (`shown_column`: the first 484
+      bytes and the byte length).
+    - A state summary loads its runs' ids, not their names.
+    - The project-row guard of Save and Record Run quotes the stored project
+      name only when it refuses, and so does `refuse_unconfirmed_replacement`'s
+      message (its decisions are unchanged).
+
+    So every message built from stored data has a small constant bound (at
+    most six serialized bytes a character) and is not reserved.
+  - **Project row (r4).** Save and Record Run check the project row with
+    targeted queries, never the project index:
+    - the row's existence;
+    - its envelope hash, reserved before it is loaded and parsed only when the
+      prescan accepts it.
+
+    The session's base must equal the stored hash value, as
+    `refuse_unconfirmed_replacement` decides with no confirmed revision.
+    Project save and open are unchanged.
+
+    One deliberate difference from the former guard (r5) concerns a stored
+    envelope hash the ingress prescan refuses, such as one holding serde_json's
+    private `$serde_json::private::RawValue` key. The guard reads it as no
+    hash, so the save or recording is refused as `PROJECT-BASE-MOVED`. The
+    former guard parsed it and admitted a matching base. Ordinary hash rows
+    are read as before.
+  - **The response.** The response is serialized at its exact length, counted
+    first without allocating, into a buffer reserved at that length.
+  - **Holding.** A value read or built from the store is a `Metered` value
+    that cannot be taken apart. It is borrowed, mapped or joined with its
+    reservations kept, and it leaves them only when it is serialized. An
+    unmetered caller can take its value only when it holds no lease. So:
+    - a list's labels, a read's state summary and the current summary of an
+      edit, while its record is loaded, stay reserved while they are live;
+    - a delete receipt, a save outcome and a Record Run outcome are held
+      through serialization;
+    - a serialized response keeps its buffer's reservation across the commit
+      until it is handed to Tauri (r5);
+    - the project row's parsed envelope hash keeps its parse's reservation
+      while it lives (r5). Since r6 it is one `Metered` value, as decoded
+      labels are, so the value is dropped before its reservation. No binding
+      pairs a value with its reservation in a tuple.
+
+    `map`, `join` and the commit-last `finish` steps take closures. The rule
+    is that a closure moves the value into its result and does not capture or
+    keep it elsewhere. The type checks a closure's result, not its captures,
+    so this is a reviewed rule, not an enforced one.
+  - **Commit last (r4).** Each of the six mutating commands passes its
+    outcome, still holding its reservations, to a `finish` step before it
+    commits: Save, Record Run, both label edits and both deletes. In the
+    command, `finish` serializes the response (`serialize_metered`). So a
+    refusal of the response, or of anything before it, rolls the transaction
+    back: nothing is written and the failure is reported. After the commit
+    the command only hands the already serialized text to Tauri. A failed
+    commit writes nothing.
+  - **Refusal.** A refusal is `STORE-READ-MEMORY-UNAVAILABLE`, naming what was
+    to be read or built, and nothing more is loaded. All leases are released
+    when the command returns.
+  - **Lists.** A list reserves its largest record and the sum of the labels and
+    relationship lists it returns. It then verifies records one at a time:
+    - each record's parse and hash texts are reserved after it loads;
+    - they are released, with the record, once it is verified.
+
+    It never loads a result or a manifest.
+  - **Record Run and Save.**
+    - The submitted manifest's and result's parses, and every canonical text,
+      are reserved before they are made.
+    - Every summary they read is metered: the named or found state, the
+      parent, the new state, the run.
+    - The new record's hash text and serialized text are reserved at their
+      exact lengths.
+  - **Tests.** Counting-allocator tests with pool accounting
+    (`analysis_runs_tests.rs`).
+    - **Large rows** (3 MiB snapshots, results, records and run names; 1024
+      state notes), read under a 2 MiB pool:
+      - the same read of small rows is admitted;
+      - the large one is refused with its column unloaded (allocator peak
+        below 768 KiB) and every lease released.
+    - **Invalid JSON.** 1 MiB of prescan-invalid JSON stored in the run
+      record, result or labels, or in the state record or snapshot, is refused
+      before it is parsed. The peak stays below 16 times its length.
+    - **Escaped record (r3).** A normally saved state's 3 MiB U+007F
+      assumption escapes to an 18 MiB record-hash text:
+      - its list, read and label edit, and the read of a run recorded against
+        it, reserve the escaped text and peak within their reservations;
+      - Record Run against it and both saves of it (existing and new) reserve
+        the escaped text (their peak is not asserted).
+
+      Codex r3's probe peaked at 62,948,320 bytes against 34,134,656
+      reserved.
+    - **Snapshot (r3).** Another connection commits a 3 MiB run, or an
+      18 MiB-escaped state, between a list's measurement and its loads. The
+      list returns the rows it measured, within its reservation under the
+      2 MiB pool.
+    - **Holding (r3).**
+      - An edit of a state with a stored 3 MiB name still holds the name's
+        reservation when it reserves the record.
+      - State and run delete receipts quoting a 3 MiB name are held through
+        serialization.
+    - **Labels (r3).** The 196,602-NUL name is refused.
+    - **Exact lengths (r3).** Over 2,000 adversarial values (controls, DEL,
+      escapes, separators, non-BMP characters, extreme integers and floats),
+      the length counters equal the texts' lengths. So does the labels
+      object's.
+    - **Commit last (r4).** For each mutating command, a refused response is
+      reported by name and writes nothing: no state, run or snapshot is saved,
+      no labels change, the deleted rows stay. Admitted, the delete commits
+      after its response exists.
+    - **Bounded refusals (r4).** These refusals serialize to under 2 KiB, with
+      the allocator peak within their reservations:
+      - a blocked delete naming a 3 MiB run name;
+      - stale-label refusals of a state and of a run quoting a 3 MiB NUL name
+        (Codex r4 measured 18,874,519 bytes serialized).
+
+      Twelve blocking runs are named as ten and `and 2 more`.
+    - **Project name (r4).** With a 3 MiB stored project name, Save and Record
+      Run succeed under the 2 MiB pool within their reservations. A stale save
+      is refused quoting the name's head.
+    - **Invocation total (r4).** A Record Run whose argument lease plus its
+      reservations exceed the per-invocation budget is refused before it
+      records. With a small argument lease, the same run is admitted.
+    - **Mutations.** Each r3 and r4 test fails when its defect is put back:
+      - r3: the snapshot broken, the hash priced from a sixth of its length,
+        the current summary dropped early, the receipt's message unreserved;
+      - r4: a commit before `finish`, uncut names, the old project guard, an
+        unseeded invocation total.
+    - **Errors (r5).** Codex r5's cases each serialize to under 2 KiB:
+      - a state's and a run's `tags_json` holding a 3 MiB NUL string;
+      - a 4,000-NUL recording id with no labels row;
+      - a 3 MiB recording id;
+      - a stored trigger whose message is 3 MiB.
+    - **Identity columns (r5).** A 3 MiB value is put in each identity and
+      time column of a state row (except its project id, by which rows are
+      found) and of a run row. Each is refused before loading under the 2 MiB
+      pool, through the list and the read, with a small message and a peak
+      within its reservations or below 64 KiB. So are:
+      - the latest `created_at` that Record Run reads;
+      - the existing state's id that Save finds.
+    - **Held across the commit (r5).** Recording against a state with a 3 MiB
+      name keeps its 3 MiB response reserved when the commit begins and after
+      it. The reservation is released when the response is handed on.
+    - **Minor (r5).** A stored hash with the RawValue key is refused as
+      `PROJECT-BASE-MOVED` (the former reading admitted it). Six child states
+      and six runs are named as ten blockers in all, then `and 2 more`.
+    - **Mutations (r5).** Each r5 test fails when its defect is put back:
+      - serde's or SQLite's text quoted;
+      - the list's bound check removed;
+      - the response's reservation released before the commit;
+      - separate blocker caps.
+    - **Drop order (r6).** At every release of a reservation, what is live is
+      within what is still held, with 1 MiB for small unpriced allocations.
+      This is checked over:
+      - Save with Codex's envelope hash of 100,000 empty strings, which left
+        4,202,224 bytes live with 1,581,776 held before the fix;
+      - the lists, reads, label edits and deletes of states and runs with
+        large labels.
+    - **Status (r6).** Record Run refuses 1,000 empty status strings, a
+      repeated word and an unknown word. Codex's case is 128 runs, forged past
+      Record Run, each with 1,000 empty status strings. Their list peaks within
+      its reservations; before the fix, 5,083,456 bytes were priced against
+      3,988,608 reserved.
+    - **Long project ids (r6, r7).** For 4,097-byte and 64 KiB project ids, the
+      following work:
+      - in the store: list, read, both label edits (through their commands)
+        and the duplicate save;
+      - Record Run's state-required refusal and a blocked delete, each under
+        2 KiB;
+      - since r7, through the real writers (project save, Save Model State,
+        Record Run) and then the six history commands' argument decoders.
+
+      A project id over 256 KiB is refused by name at ingress.
+    - **Times (r6).** A 24-byte stored time whose last character is two bytes
+      wide no longer panics:
+      - **Record Run** refuses a run's malformed `created_at` as
+        `ANALYSIS-RUN-INTEGRITY` ("is not a recording time").
+      - **A label edit** does not refuse a malformed previous `updated_at`. It
+        reads it as no earlier time and writes the current time in its place.
+    - **Mutations (r6).** Each r6 test fails when its defect is put back:
+      - the tuple drop order;
+      - the status reservation removed;
+      - the project id bounded again;
+      - the project id uncapped in the state-required refusal;
+      - the byte slice.
+    - **Large pool.** Each tested read, list, label edit and delete
+      serializes its response within its held reservation, with its peak
+      within its reservations' peak.
+  - **S3.** §4.2's comparison of two stored results reuses this pricing.
+  - **What is bounded.** Every read and mutation of stored data:
+    - every column it loads is measured and reserved before it loads;
+    - the identity and time columns the app bounds at every write are
+      bounded;
+    - every parse, canonical text and response is reserved before it is made;
+    - every message is capped.
+  - **What is not bounded.** The owner accepted the six items below as
+    documented v0.1 residuals (owner ruling, 2026-10-24, relayed by HELP_HUMAN:
+    "for this W-12 issue I approve Option A as recommended"). They are
+    instances of `memory-budget-decision.md`'s existing residual "command
+    working memory and responses are not separately bounded" (DEL-04-07 Design).
+    Sizes are Codex review r7's conditional planning estimates, not measured
+    whole-command bounds:
+    - **Tauri and IPC.** The `Response` handed to Tauri, and the IPC copies
+      made after the command returns.
+    - **SQLite.** SQLite's own allocations, including its reads of whole
+      values for `substr` and `octet_length`. They are priced only by the load
+      estimate (three envelopes of each loaded column), not measured: the
+      tests' counting allocator counts Rust allocations, not SQLite's.
+    - **Unpriced working memory.** Two items are not separately priced:
+      - Record Run's transient record copies (the hash projection and the
+        recorded revision);
+      - the `Value` of a new state's record, built from its snapshot (mapped
+        assumptions, validation warnings).
+
+      They are covered by the request's argument lease only by assumption.
+      This remains explicitly unmeasured. Review r2 measured about 26.0 MiB
+      against a 10.1 MiB lease for Record Run's large case before r2; this has
+      not been re-measured.
+    - **Transient copies before a cap.**
+      - The core canonicalizer, the shared store opener and rusqlite make
+        their own messages before they are cut. These are copies of text the
+        command has already priced or the argument carries. They remain
+        explicitly unmeasured.
+      - The length counters allocate each object's sorted key list (space
+        proportional to the object's width, one pointer a key) and each
+        number's short text.
+  - **No whole-command claim.** S2 bounds each priced stage as above. It makes
+    no claim of a complete memory bound for a whole command.
+  - **Native measurement (development testing; D-72 item 6).** The IPC copies of
+    a run read are to be measured natively during development testing:
+    - the run-read response is estimated at about 200–250 MiB for a
+      100,000-row run, and about 0.6–1.2 GiB in IPC and webview copies;
+    - the measurement takes the native process's footprint while a large
+      recorded run is read through the History panel.
+
+    If the copies matter in practice, paged or streamed run reads become a
+    scheduled unit (owner ruling, 2026-10-24, Option A).
+  - **Stores modified outside the app (class B).** A row changed outside the
+    app (tampered or corrupted) is detected by the integrity checks above: the
+    record hash, identity columns, exact descriptors and the manifest binding.
+    It is refused by name. S2 claims no memory bound for the work done before
+    such a refusal beyond the stage pricing above.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 

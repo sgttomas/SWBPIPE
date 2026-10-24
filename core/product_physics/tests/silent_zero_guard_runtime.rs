@@ -43,7 +43,7 @@ fn exact_contract() -> Value {
 }
 fn base(supports: Vec<Value>, cases: Vec<Value>, exact: bool, load_state: bool) -> Value {
     let mut model = json!({
-        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:silent-zero", "units": {"length": "m"}},
         "analysis_status": {"mechanics": "ready", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "nodes": [node("node:a", 0.0), node("node:b", 1.0)], "pipe_segments": [pipe(exact)], "supports": supports,

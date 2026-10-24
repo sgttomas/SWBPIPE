@@ -611,9 +611,9 @@ if fnkey("fallback_circular_maximum", _CP):
         "case_state/thermal.rs": ["integral", "dilation_difference", "check_path"],
         "certified_publication.rs": ["fallback_denominator_relative_error"],
     }
-    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16): near_duplicate_nodes' min/max receivers are the
-    # bounding box's f64 coordinates (`low[axis].min(..)`, `high[axis].max(..)`) and an edge's usize node indices
-    # (`a.min(b)`, `a.max(b)`); scaled_norm's fold takes `m.max(x.abs())` over f64. Only where the topology checks exist.
+    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16, §8.18): near_duplicate_nodes' min/max receivers
+    # are an edge's usize node indices (`a.min(b)`, `a.max(b)`; the bounding box's f64 `low`/`high` folds are gone with
+    # the absolute tolerance); scaled_norm's fold takes `m.max(x.abs())` over f64. Only where the topology checks exist.
     if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
         _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"] + (
             ["scaled_norm"] if fnkey("scaled_norm", PP_ + "topology.rs") else [])
@@ -2155,7 +2155,7 @@ if fnkey("append_topology_diagnostics", _W8):
          {"described": _W8_C(_W8_DESCRIBED, "<= NAMED part descriptions joined by '; '"), "more": _W8_MORE_C}),
         (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes share a position', full=True, row="format!("),
          {"named": _W8_C(_W8_COINCIDENT, "<= NAMED coincident pairs joined by '; '"), "more(coincident_count)": _W8_MORE_C}),
-        (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes lie within', full=True, row="format!("),
+        (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes lie no farther apart than', full=True, row="format!("),
          {"named": _W8_C(_W8_NEARNAMED, "<= NAMED near pairs joined by '; '"), "more(near_count)": _W8_MORE_C}),
     ]
     # W8-RF (REFS_FIRST): the three diagnostics' affected refs. The disconnected parts' refs collect `.take(NAMED)` of
@@ -2192,8 +2192,111 @@ if fnkey("branch_topology_invalid", _W8V):
         (site("validate_components", _W8V, '"diagnostic:component:{}:branch-topology",', row="format!("),
          O10 + "W8-BT: its id has multiplicity 0 by P2 (D1.4: no components)"),
     ]
-    O10_ID_AUDIT += [(site("validate_components", _W8V, "joins {degree}", full=True),
+    # §8.18: the warning's message is a multi-line format!, so its TEXT row is the `format!(` line.
+    O10_ID_AUDIT += [(site("validate_components", _W8V, "joins {degree}", full=True, row="format!("),
                       {"degree": {"bytes": 20, "source": O10 + "W8-BT: a usize member count"}})]
+# W8-BF (retained-pricing-rules.md §8.18): the branch-topology warning's statement of the branch stress factors still
+# applied is added after publication by `state_applied_branch_factors(components, preview_cases, diagnostics)`, called
+# once, from run_linear_static_preview_observed_inner's solved preview envelope with `&model.components`. Everything it
+# allocates lies inside its loop over those components, which D1 refuses (P2, D1.4: `F::Components`), so the loop is
+# bound 0 on both routes (U6-LF: placed first, by its own exact header) and its sites have multiplicity 0,
+# guarded by o10_check. Its texts are still bounded at their sites: a side is `{side} SIF to {pipe}` with a static
+# side ("header" | "branch", 6 B) and a published record's pipe id (an admitted pipe id, IN128); at most two sides (one
+# per role: a role's records name the one pipe its reference names; deduplicated) joined by ", "; the suffix adds its
+# literal around them.
+if fnkey("state_applied_branch_factors", _W8V):
+    _W8_BF = _fn_text("state_applied_branch_factors", _W8V)
+    _W8_RUN = _fn_text("run_linear_static_preview_observed_inner", PP_ + "lib.rs")
+    _w8_bf_loop = "for component in model_components {"
+    _w8_bf_side_t = 'let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());'
+    _w8_bf_join_t = 'let sides = applied.join(", ");'
+    _w8_bf_all_t = 'warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));'
+    _w8_bf_sig = ("pub(crate) fn state_applied_branch_factors( model_components: &[crate::PreviewComponent], "
+                  "preview_cases: &[serde_json::Value], diagnostics: &mut [Diagnostic], ) {")
+    _w8_bf_call = ("validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, "
+                   "&mut envelope.diagnostics);")
+    _w8_bf = (
+        _W8_BF.count(_w8_bf_loop) == 1, _W8_BF.count("for ") == 3,
+        _W8_BF.count('for (role, side) in [("branch_header", "header"), ("branch_branch", "branch")]') == 1,
+        _W8_BF.count(_w8_bf_side_t) == 1, _W8_BF.count(_w8_bf_join_t) == 1, _W8_BF.count(_w8_bf_all_t) == 1,
+        _W8_BF.count("format!(") == 2, _W8_BF.count(".join(") == 1, _W8_BF.count("Vec::new()") == 1,
+        _W8_BF.count("applied.push(named);") == 1, _W8_BF.count(".push(") == 1, _W8_BF.count(".push_str(") == 1,
+        # Nothing outside the loop: the signature, then the loop, which closes the body.
+        " ".join(_W8_BF[:_W8_BF.index(_w8_bf_loop)].split()) == _w8_bf_sig,
+        _W8_BF.rstrip().endswith("\n    }\n}") and _W8_BF.count("\n    }\n") == 1,
+        _W8_RUN.count(_w8_bf_call) == 1, _text_of(PP_ + "lib.rs").count("state_applied_branch_factors(") == 1,
+        _text_of(_W8V).count("state_applied_branch_factors(") == 1,
+    )
+    if not all(_w8_bf):
+        raise SystemExit(f"W8-BF: state_applied_branch_factors changed; re-review its zero and bounds: {_w8_bf}")
+    _W8_BF_SIDE = len(" SIF to ") + len("header") + 128                          # 142
+    _W8_BF_JOIN = 2 * _W8_BF_SIDE + len(", ")                                    # 286
+    _W8_BF_ALL = len("; its branch stress factors are still applied ()") + _W8_BF_JOIN   # 334
+    _W8_BF_WHY = O10 + "W8-BF: multiplicity 0 by P2 (D1.4: no components), as W8-BT"
+    O10_LOOPS_FIRST += [(_w8_bf_loop[:-2], "0", _W8_BF_WHY + " (its one caller passes &model.components)",
+                         ["validation.rs:state_applied_branch_factors"])]
+    O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+        (site("state_applied_branch_factors", _W8V, _w8_bf_side_t), _W8_BF_WHY + " (a side's text)"),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t), _W8_BF_WHY + " (the statement)"),
+    ]
+    O10_ID_AUDIT += [
+        (site("state_applied_branch_factors", _W8V, _w8_bf_side_t, full=True),
+         {"side": {"bytes": len("header"), "source": O10 + "W8-BF: a static side, header | branch"},
+          'record["pipe_id"].as_str().unwrap_or_default()': IN}),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t, full=True),
+         {"sides": {"bytes": _W8_BF_JOIN, "source": O10 + "W8-BF: <= 2 sides joined by ', '"}}),
+    ]
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
+        (site("state_applied_branch_factors", _W8V, _w8_bf_join_t),
+         {"class": _W8_BF_JOIN, "why": O10 + "W8-BF: <= 2 sides joined by ', ' (multiplicity 0)"}),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t),
+         {"class": _W8_BF_ALL, "why": O10 + "W8-BF: the statement, its literal around <= 2 sides (multiplicity 0)"})]
+
+# NP-MS (retained-pricing-rules.md §8.18): validate_model_settings refuses a malformed
+# `model_settings.node_proximity_tolerance` with one blocking diagnostic carrying the accessor's code and message. D1
+# admits the record (no D1.3-D1.8 clause names it; its unit is raw text within RawTextBytes, l <= 128), and a finite
+# value that is not positive, a unit outside the catalog's lengths or a conversion that over- or underflows
+# deserializes and reaches validation, so the site keeps the chain's own multiplicity (once per validate_model_inputs
+# call). The accessor `node_proximity_tolerance_m` returns at most one of its five refusal texts per call; the chain
+# charges each at every call (two validation calls and the topology call at E), an over-bound kept. Their bounds:
+# the path constant at its literal bytes (NP-PT, read here), the authored unit IN128, the value in Display (327) or
+# Debug (24) by the inherited f64 classes. The diagnostic's message `error.message` is one of those texts, at most
+# 39 + 58 + 327 = 424 B, priced by its inherited class (8,192 B); its refs are the one path String (the default
+# vec! element, 24 + 128 B; the to_string site at the literal's bytes).
+_NP_MS = PP_ + "model_settings.rs"
+if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_message", _NP_MS):
+    _NP_TEXT = _text_of(_NP_MS)
+    _NP_PATH = _re.findall(r'^pub const NODE_PROXIMITY_TOLERANCE_PATH: &str = "([^"\\]*)";$', _NP_TEXT, _re.M)
+    _NP_VMS = _fn_text("validate_model_settings", _W8V)
+    _NP_T = {
+        "tolerance_not_finite_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH}.value is {value}; a finite length greater than zero is required.")',
+        "tolerance_not_positive_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH}.value is {value}; the tolerance must be greater than zero.")',
+        "tolerance_unit_not_length_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH}.unit `{unit}` is not a length unit of the units catalog.")',
+        "tolerance_zero_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is zero in metres; the tolerance must be greater than zero.")',
+        "tolerance_not_finite_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is not finite in metres; a finite length greater than zero is required.")',
+    }
+    _np = (
+        len(_NP_PATH) == 1,
+        all(_fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _NP_T.items()),
+        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T),
+        _NP_VMS.count("diag(") == 1, _NP_VMS.count("error.message,") == 1, _NP_VMS.count("error.code,") == 1,
+        _NP_VMS.count('"blocking",') == 1, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
+        _NP_VMS.count("vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],") == 1,
+        _fn_text("validate_model_inputs", _W8V).count("validate_model_settings(model, diagnostics);") == 1,
+        _text_of(_W8V).count("validate_model_settings(") == 2,
+    )
+    if not all(_np):
+        raise SystemExit(f"NP-MS: the node-proximity tolerance's refusal texts changed; re-review their bounds: {_np}")
+    _NP_PB = len(_NP_PATH[0].encode())                                                    # 39 (NP-PT)
+    _NP_PT = {"NODE_PROXIMITY_TOLERANCE_PATH": {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}}
+    for _fn, _t in _NP_T.items():
+        _audit = dict(_NP_PT)
+        if "{unit}" in _t:
+            _audit["unit"] = IN
+        O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), _audit)]
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, ".to_string()],", full=True),
+                      {"crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH":
+                       {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}})]
 
 # ---- The silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases that apply nothing";
 # retained-pricing-rules.md §8.15). Each rule applies only where the guard's code exists, so earlier revisions price as
@@ -2254,3 +2357,225 @@ if fnkey("resolve_case", _SZ_R) and '"LOAD_STATE_SOURCE_EXCLUDED",' in _fn_text(
     # the resolved cases, which exist only for a load-state document; its LOAD_INPUT_MISSING site is guarded the same way.
     if fnkey("refuse_all_reference_states", _SZ_R):
         O10_MULT0_SITES += [(site("refuse_all_reference_states", _SZ_R, '"LOAD_INPUT_MISSING",', row="diag("), _SZ_LS)]
+
+# S1B-MV (W-13 S1b, model document 0.7.0; retained-pricing-rules.md §8.17): the load/reference-state version-mismatch
+# diagnostic (`case_state/resolve.rs`) and the joint authoring refusal (`joint.rs authoring_findings`) name the current
+# model version through the shared constant. The argument `crate::MODEL_SCHEMA_VERSION` is a `&'static str` whose bytes
+# are model_format.rs's one plain literal, read here at the snapshot; any other form stops the run.
+_S1B_MV = _re.search(r'^pub const MODEL_SCHEMA_VERSION: &str = "([0-9.]+)";$',
+                     open(_os.path.join(_SNAP, PP_ + "model_format.rs"), encoding="utf-8").read(), _re.M)
+if _S1B_MV is None:
+    raise SystemExit("S1B-MV: MODEL_SCHEMA_VERSION is not one plain version literal; re-review the version arguments")
+O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+    {"re": r"^crate::MODEL_SCHEMA_VERSION$", "max": len(_S1B_MV.group(1).encode()),
+     "why": O10 + "S1B-MV: the current model version constant, a static literal of " + str(len(_S1B_MV.group(1).encode())) + " B"}]
+
+# ---- The silent-drop guard (DEL-04-07 Design pressure-contract.md, "Pressure-free input closure";
+# retained-pricing-rules.md §8.19). Each rule applies only where the guard's code exists, so earlier revisions price as
+# before.
+_SD_MF = PP_ + "model_fields.rs"
+_SD_PP = PP_ + "preview_physics.rs"
+_SD_V = PP_ + "validation.rs"
+if fnkey("unknown_field_refusal", _SD_MF):
+    _SD_SCAN = _fn_text("unknown_field_refusal", _SD_MF)
+    _SD_CHECK = _fn_text("check", _SD_MF)
+    _SD_DISPATCH = _fn_text("run_linear_static_preview_value_dispatch", _LIB)
+    _sd_call = ("    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {\n"
+                "        return Err(refusal);\n    }\n")
+    _sd_push = "findings.push(Finding { field: key.clone(), record: name(), path: path.to_string() });"
+    _sd_tail = "    if findings.is_empty() {\n        return None;\n    }\n"
+    # SD-NF (guard): the scan is the value entry's first statement and refuses on any finding, before the captured
+    # invocation is parsed and before admission (retained_memory::admit); it has one caller and is the scan's only
+    # entry; `check` is the only place a finding is pushed, and every refusal text follows the one early return.
+    _sd_nf = (
+        _SD_DISPATCH.count(_sd_call) == 1,
+        _SD_DISPATCH.index(_sd_call) < _SD_DISPATCH.index("source_receipt::CapturedInvocation::parse(")
+        < _SD_DISPATCH.index("retained_memory::admit("),
+        _SD_DISPATCH.split("{", 1)[1].lstrip().startswith("// Closed model records")
+        and _SD_DISPATCH.split("{", 1)[1].split("\n", 2)[2].startswith(_sd_call),
+        _text_of(_LIB).count("unknown_field_refusal(") == 1,
+        _re.sub(r"//[^\n]*", "", _production(_SD_MF)).count("unknown_field_refusal(") == 1,
+        _SD_CHECK.count(_sd_push) == 1, _production(_SD_MF).count(".push(") == 1,
+        _SD_SCAN.count(_sd_tail) == 1, _SD_SCAN.count("findings.push(") == 0,
+    )
+    if not all(_sd_nf):
+        raise SystemExit(f"SD-NF: the closed-record scan's place or refusal path changed; re-review its zero: {_sd_nf}")
+    _SD_NF = (O10 + "SD-NF: multiplicity 0 on a permitted call: the scan runs first in the value entry and returns "
+              "Err on any finding before the invocation is captured or admitted, so an admitted request has no finding")
+    O10_SITE_ZERO += [(site("check", _SD_MF, _sd_push), _SD_NF + " (the one finding push)")] + [
+        (site("unknown_field_refusal", _SD_MF, _t), _SD_NF + " (the refusal text, after the one early return)")
+        for _t in ('.map(|f| format!("unknown field `{}` in {} ({})", f.field, f.record, f.path))', '.join("; ");',
+                   'named_findings.push_str(&format!("; and {} more", findings.len() - NAMED_LIMIT));',
+                   "    Some(format!(")]
+    # SD-L1 (loops): the scan walks the raw request's closed records. On D1 the authored load cases are `cases`, a
+    # case's primitive loads <= l, the combinations <= z and a combination's terms <= 3 (D1.4, D1.9), each visited once;
+    # `check`'s key loop visits one closed record's keys, which on a permitted call are all declared (SD-NF), so <= the
+    # largest closed record's declared members (the model root, counted here from PreviewModelWire's fields).
+    def _sd_fields(struct):
+        body = _re.search(r"\n(?:pub )?struct " + struct + r" \{\n(.*?)\n\}\n", _text_of(_LIB), _re.S)
+        if not body:
+            raise SystemExit(f"SD-L1: struct {struct} not found")
+        return len(_re.findall(r"^    (?:pub )?[a-z_]+: ", body.group(1), _re.M))
+    _SD_RECORDS = ("PreviewModelWire", "PreviewLoadCase", "PreviewPrimitiveLoad", "PreviewCombination",
+                   "PreviewCombinationTerm", "EquivalentStaticGenerationInput", "SeismicGenerationInput",
+                   "WindGenerationInput", "WindExposedSpanInput")
+    _SD_KEYS = _sd_fields("PreviewModelWire")
+    if max(_sd_fields(r) for r in _SD_RECORDS) != _SD_KEYS:
+        raise SystemExit("SD-L1: the model root is no longer the largest closed record; re-review the key-loop bound")
+    _SD_F = ["model_fields.rs:unknown_field_refusal"]
+    O10_LOOPS_LAST += [
+        ('for (i, case) in objects(model, " ")', "cases", O10 + "SD-L1: the authored load cases, once each", _SD_F),
+        ('for (j, load) in objects(case, " ")', "l", O10 + "SD-L1: one case's primitive loads (<= l)", _SD_F),
+        ('for (i, combination) in objects(model, " ")', "z", O10 + "SD-L1: the model combinations (<= z)", _SD_F),
+        ('for (j, term) in objects(combination, " ")', "3", O10 + "SD-L1: one combination's terms (<= 3, D1.4)", _SD_F),
+        ("for key in record.keys()", str(_SD_KEYS),
+         O10 + f"SD-L1: one closed record's keys, all declared on a permitted call (SD-NF): <= {_SD_KEYS}, the model "
+         "root's declared members", ["model_fields.rs:check"]),
+    ]
+    # SD-ID (ID_AUDIT, LEX_SITE_SIZE): the scan's composed names and paths, at their sites. A record name is
+    # `{kind} `{id}`` (kind a static literal of <= 14 B, id the record's raw id, D1 raw text <= 128 B) or `{kind} {index}`
+    # (a usize); a path is a static prefix with usize indices. The per-record closures (the finding's record name) are
+    # charged at their sites' multiplicity, an over-bound kept.
+    _SD_KINDS = _re.findall(r'named\("([a-z ]+)", id_of\(', _SD_SCAN)
+    if sorted(set(_SD_KINDS)) != ["combination", "load case", "primitive load"] or len(_SD_KINDS) != 3:
+        raise SystemExit(f"SD-ID: the scan's record kinds changed; re-review the name bounds: {_SD_KINDS}")
+    _SD_KIND = max(len(k) for k in _SD_KINDS)                                              # 14
+    _SD_INT = 20
+    _sd_named = lambda kind: max(len(kind) + 3 + 128, len(kind) + 1 + _SD_INT)
+    _SD_CASE_NAME = _sd_named("load case")                                                 # 140
+    _SD_LOAD_NAME = _sd_named("primitive load") + len(" in ") + _SD_CASE_NAME             # 289
+    _SD_COMB_NAME = _sd_named("combination")                                               # 142
+    _SD_CASE_PATH = len("model.load_cases[]") + _SD_INT                                    # 38
+    _SD_GEN_PATH = _SD_CASE_PATH + len(".equivalent_static")                               # 56
+    _SD_LOAD_PATH = _SD_CASE_PATH + len(".primitive_loads[]") + _SD_INT                    # 76
+    _SD_COMB_PATH = len("model.combinations[]") + _SD_INT                                  # 40
+    _sd_texts = {
+        'let case_path = format!("model.load_cases[{i}]");', 'let load_path = format!("{case_path}.primitive_loads[{j}]");',
+        'let generation_path = format!("{case_path}.equivalent_static");',
+        'let combination_path = format!("model.combinations[{i}]");',
+        'let load_name = format!("{} in {case_name}", named("primitive load", id_of(load), j));',
+        'let case_name = named("load case", id_of(case), i);', 'let combination_name = named("combination", id_of(combination), i);'}
+    if not all(_SD_SCAN.count(t) == 1 for t in _sd_texts) or _fn_text("named", _SD_MF).count("format!(") != 2:
+        raise SystemExit("SD-ID: the scan's names or paths changed; re-review their bounds")
+    _sd_c = lambda b, why: {"bytes": b, "source": O10 + "SD-ID: " + why}
+    _SD_A = {"case_name": _sd_c(_SD_CASE_NAME, "a load case's name"), "load_name": _sd_c(_SD_LOAD_NAME, "a primitive load's name"),
+             "combination_name": _sd_c(_SD_COMB_NAME, "a combination's name"),
+             "case_path": _sd_c(_SD_CASE_PATH, "`model.load_cases[{i}]`"), "generation_path": _sd_c(_SD_GEN_PATH, "a case's equivalent_static path"),
+             "load_path": _sd_c(_SD_LOAD_PATH, "a primitive load's path"), "combination_path": _sd_c(_SD_COMB_PATH, "`model.combinations[{i}]`"),
+             "k": _sd_c(_SD_INT, "a usize index"), "j": _sd_c(_SD_INT, "a usize index"), "i": _sd_c(_SD_INT, "a usize index")}
+    # Each site's own placeholders (an audit entry naming another site's placeholder would be stale).
+    for _t, _args in (
+            ("|| case_name.clone()", ("case_name",)),
+            ("{case_path}.modulus_basis_temperature", ("case_name", "case_path")),
+            ("let generation_path = format!(", ("case_path",)),
+            ("the equivalent_static of {case_name}", ("case_name",)),
+            ("{generation_path}.seismic", ("case_name", "generation_path")),
+            ('{generation_path}.wind"', ("case_name", "generation_path")),
+            ("{generation_path}.wind.exposed_spans[{k}]", ("case_name", "generation_path", "k")),
+            ("let load_name = format!(", ("case_name",)),
+            ("let load_path = format!(", ("case_path", "j")),
+            ("|| load_name.clone()", ("load_name",)),
+            ("{load_path}.target", ("load_name", "load_path")),
+            ("{load_path}.magnitude", ("load_name", "load_path")),
+            ("|| combination_name.clone()", ("combination_name",)),
+            ("{combination_path}.terms[{j}]", ("combination_name", "combination_path", "j"))):
+        O10_ID_AUDIT += [(site("unknown_field_refusal", _SD_MF, _t, full=True), {a: _SD_A[a] for a in _args})]
+    O10_ID_AUDIT += [(site("named", _SD_MF, _t, full=True), {"kind": _sd_c(_SD_KIND, "a static record kind"), **_a})
+                     for _t, _a in (('Some(id) => format!("{kind} `{id}`"),', {"id": IN}),
+                                    ('None => format!("{kind} {index}"),', {"index": _sd_c(_SD_INT, "a usize index")}))]
+    # The load name's `named(..)` argument and the closures' clones of the names.
+    O10_ID_AUDIT += [(site("unknown_field_refusal", _SD_MF, "let load_name = format!(", full=True),
+                      {'named("primitiveload",id_of(load),j)': _sd_c(_sd_named("primitive load"), "a primitive load's own name")})]
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", []))
+    # The refusal text's placeholders (multiplicity 0 by SD-NF; bounded at their sites regardless): a finding's field is a
+    # request key (D1 raw text <= 128 B), its record the longest record name, its path the longest path; the named list
+    # joins <= NAMED_LIMIT (8) findings.
+    _SD_RECORD = max(len("the magnitude of ") + _SD_LOAD_NAME, len("the target of ") + _SD_LOAD_NAME,
+                     len("the modulus_basis_temperature of ") + _SD_CASE_NAME, len("exposed span  of ") + _SD_INT + _SD_CASE_NAME,
+                     len("term  of ") + _SD_INT + _SD_COMB_NAME)                           # 306
+    _SD_PATH = max(_SD_LOAD_PATH + len(".magnitude"), _SD_GEN_PATH + len(".wind.exposed_spans[]") + _SD_INT,
+                   _SD_COMB_PATH + len(".terms[]") + _SD_INT, _SD_CASE_PATH + len(".modulus_basis_temperature"))
+    _SD_ONE = len("unknown field `` in  ()") + 128 + _SD_RECORD + _SD_PATH
+    if _re.search(r"^const NAMED_LIMIT: usize = 8;$", _text_of(_SD_MF), _re.M) is None:
+        raise SystemExit("SD-ID: NAMED_LIMIT changed; re-review the refusal text's bound")
+    _SD_LIST = 8 * _SD_ONE + 7 * len("; ") + len("; and  more") + _SD_INT
+    O10_ID_AUDIT += [
+        (site("unknown_field_refusal", _SD_MF, ".map(|f| format!(", full=True),
+         {"f.field": IN, "f.record": _sd_c(_SD_RECORD, "the longest record name"), "f.path": _sd_c(_SD_PATH, "the longest path")}),
+        (site("unknown_field_refusal", _SD_MF, "{UNKNOWN_MODEL_FIELD}: request: {named_findings}", full=True, row="format!("),
+         {"named_findings": _sd_c(_SD_LIST, "<= 8 findings joined by '; ' and the `and N more` suffix")}),
+    ]
+    LEX_SITE_SIZE += [
+        (site("unknown_field_refusal", _SD_MF, '.join("; ");'), {"class": 8 * _SD_ONE + 7 * len("; "), "why": O10 + "SD-ID: <= 8 findings joined (multiplicity 0)"}),
+        (site("check", _SD_MF, _sd_push), {"class": max(128, _SD_PATH), "why": O10 + "SD-ID: a request key or a path (multiplicity 0)"}),
+    ]
+    # SD-EV (EDGE_ZERO): `findings.push(..)` in check is Vec::push; by name the call graph also reaches
+    # load_ledger::LoadLedger::push, which check never calls.
+    if fnkey("push", FK_ + "load_ledger.rs"):
+        O10_EDGE_ZERO += [(fnkey("check", _SD_MF), fnkey("push", FK_ + "load_ledger.rs"),
+                           O10 + "SD-EV: `findings.push(..)` is Vec::push on a Vec<Finding>, not LoadLedger::push")]
+# SD-WT (ID_AUDIT, LEX_SITE_SIZE): append_combination_results names each withheld combination row: a base id with a
+# static reason, or a support group `support-action:{len}:{support id} ({reason})` with one of the group's two static
+# reasons; one LOAD_COMBINATION_ROW_WITHHELD warning per combination names <= NAMED (8) of them joined by ", " with an
+# `and N more` count. The sites keep their chain multiplicities (per base id, per support, per combination).
+if fnkey("append_combination_results", _SD_PP) and "let mut withheld: Vec<String> = Vec::new();" in _fn_text("append_combination_results", _SD_PP):
+    _SD_ACR = _fn_text("append_combination_results", _SD_PP)
+    _sd_base_t = ('withheld.push(format!("{base_id} (no algebra dimension)"));', 'None => withheld.push(format!("{base_id} (load-case algebra refused)")),')
+    _sd_support_t = 'Err(reason) => withheld.push(format!("support-action:{}:{} ({reason})", support.id.len(), support.id)),'
+    _SD_REASONS = _re.findall(r'\.ok_or\("([^"]+)"\)\?', _SD_ACR)
+    _sd_wt = (all(_SD_ACR.count(t) == 1 for t in _sd_base_t), _SD_ACR.count(_sd_support_t) == 1,
+              _SD_ACR.count("withheld.push(") == 3, len(set(_SD_REASONS)) == 2, "const NAMED: usize = 8;" in _SD_ACR,
+              _SD_ACR.count("withheld.iter().take(NAMED).cloned().collect::<Vec<_>>().join(\", \");") == 1)
+    if not all(_sd_wt):
+        raise SystemExit(f"SD-WT: the withheld-row names changed; re-review their bounds: {_sd_wt}")
+    _SD_REASON = max(len(r) for r in _SD_REASONS)                                          # 45
+    _SD_BASE_ENTRY = 1024 + max(len(" (no algebra dimension)"), len(" (load-case algebra refused)"))
+    _SD_SUPPORT_ENTRY = len("support-action:: ()") + 20 + 128 + _SD_REASON
+    _SD_ENTRY = max(_SD_BASE_ENTRY, _SD_SUPPORT_ENTRY)                                     # 1,052
+    _SD_JOIN = 8 * _SD_ENTRY + 7 * len(", ")
+    _SD_NAMED = _SD_JOIN + len(", and  more") + 20
+    _sd_w = lambda b, why: {"bytes": b, "source": O10 + "SD-WT: " + why}
+    O10_ID_AUDIT += [
+        (site("append_combination_results", _SD_PP, _sd_base_t[0], full=True), {"base_id": RS_}),
+        (site("append_combination_results", _SD_PP, _sd_base_t[1], full=True), {"base_id": RS_}),
+        (site("append_combination_results", _SD_PP, _sd_support_t, full=True),
+         {"support.id": IN, "support.id.len()": NUM_, "reason": _sd_w(_SD_REASON, "one of the group's two static reasons")}),
+        (site("append_combination_results", _SD_PP, '"diagnostic:preview-physics:combination-row-withheld:{}"', full=True),
+         {"identity(&[&combination.id])": CP}),
+        (site("append_combination_results", _SD_PP, "withholds {} combined row(s) that could not be formed: {named}", full=True),
+         {"combination.id": IN, "withheld.len()": NUM_, "named": _sd_w(_SD_NAMED, "<= 8 withheld rows joined by ', ' and the `and N more` count")}),
+        (site_after("append_combination_results", _SD_PP, "withholds {} combined row(s) that could not be formed", "vec![combination.id.clone()],", within=3),
+         {"combination.id": IN}),
+    ]
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
+        (site("append_combination_results", _SD_PP, 'withheld.iter().take(NAMED).cloned().collect::<Vec<_>>().join(", ");'),
+         {"class": _SD_JOIN, "why": O10 + "SD-WT: <= 8 withheld rows joined by ', '"})]
+# SD-DT (ID_AUDIT): validate_mechanics_combination's LOAD_COMBINATION_DUPLICATE_TERM, once per repeated term, priced as
+# its sibling per-term diagnostics: the id's two stable_suffix ids and the refs' two id clones (IN128).
+if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICATE_TERM",' in _fn_text("validate_mechanics_combination", _SD_V):
+    # SD-DL (O10_LOOPS_LAST): the per-term and per-operand loops now enumerate, so a repeated case is reported once, at
+    # its second occurrence (`combination.terms[..index]` / `operand_ids[..index]` counted by a borrowing
+    # `.iter().filter(..).count()`, which allocates nothing and reaches no text). Each visits one combination's terms or
+    # range operands once: <= 3 (D1.4), the inherited bound of the former headers, only in its own function.
+    # Each loop's complete earlier-occurrence statement is pinned (whitespace and line breaks removed), so a changed
+    # slice, iterator chain, predicate or an added allocation (`.to_vec()`, `.cloned()`, `.collect()`) stops the run.
+    _SD_DL = (("validate_mechanics_combination", "for (index, term) in combination.terms.iter().enumerate()",
+               "let earlier = combination.terms[..index].iter().filter(|other| other.load_case == term.load_case).count();"),
+              ("validate_range_envelope_combination", "for (index, operand_id) in operand_ids.iter().enumerate()",
+               "if operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1 {"))
+    for _fn, _h, _c in _SD_DL:
+        _b = _fn_text(_fn, _SD_V)
+        _flat = _re.sub(r"\s*\n\s*", "", _b)
+        if (_b.count(_h + " {") != 1 or _flat.count(_c) != 1 or _b.count(".count()") != 1 or _b.count("[..index]") != 1
+                or any(_a in _b for _a in (".to_vec()", ".collect", ".cloned()", ".to_owned()"))):
+            raise SystemExit(f"SD-DL: {_fn}'s duplicate loop or its earlier-occurrence count changed; re-review its bound: {_h}")
+    O10_LOOPS_LAST += [
+        (_SD_DL[0][1], "3", O10 + "SD-DL: one combination's terms (<= 3, D1.4), once each", ["validation.rs:validate_mechanics_combination"]),
+        (_SD_DL[1][1], "3", O10 + "SD-DL: one combination's range operands (<= 3, D1.4), once each", ["validation.rs:validate_range_envelope_combination"]),
+    ]
+    O10_ID_AUDIT += [
+        (site("validate_mechanics_combination", _SD_V, '"diagnostic:combination:{}:{}:duplicate",', full=True, row="&format!("),
+         {"stable_suffix(&combination.id)": IN, "stable_suffix(&term.load_case)": IN}),
+        (site_after("validate_mechanics_combination", _SD_V, '"LOAD_COMBINATION_DUPLICATE_TERM",', "vec![combination.id.clone(), term.load_case.clone()],", within=4),
+         {"combination.id": IN}),
+    ]

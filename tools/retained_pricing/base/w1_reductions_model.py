@@ -51,12 +51,20 @@ RF_PINS = {
 # W-8 topology warnings D3 (§8.16): lib.rs's `mod topology;` and its one call change no reduction's owner or lifetime.
 # Silent-zero guard D3 (§8.15): lib.rs's one load-state call (refuse_all_reference_states) changes no reduction's owner
 # or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
+# Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines and retained_wire.rs's DEF-E hash constant change no
+# reduction's owner or lifetime.
+# Branch-warning statement D3 (§8.18): lib.rs's contract_evidence line also calls validation::state_applied_branch_factors
+# (no line moves); no reduction's owner or lifetime changes.
+# Silent-drop guard D3 (§8.19): lib.rs's closed wire records and the value entry's first call
+# (model_fields::unknown_field_refusal) change no reduction's owner or lifetime; preview_physics.rs's
+# append_combination_results keeps the L5 callee's inputs (rows_by_base_id, case_rows) and names its withheld rows; the
+# L5 guard, shadow, insert and call texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "b72fa1427239c8e14e9903a2aaeef1e2b27424d762e05538f2d04bf01774084d",
-    "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
+    "core/product_physics/src/lib.rs": "86bc015fc0625b425327b2e292362d1c8b2b1568798d95407c73d2e9e5f8dc35",
+    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
-    "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",
+    "core/product_physics/src/preview_physics.rs": "a906bf72fae06f232ead4236bd7b4d1f73a64515270b77c3efccb0cbe6691071",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

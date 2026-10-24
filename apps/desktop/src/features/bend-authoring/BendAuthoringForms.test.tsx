@@ -143,8 +143,8 @@ describe("the objective connector form (T4-U2)", () => {
     render(<ConnectorDraftFields model={free} draft={draft} prefix="create" TextInput={() => <input />} update={vi.fn()} />);
     expect(screen.getByTestId("create-component-connector-unavailable")).toHaveTextContent(CONNECTOR_CONTRACT_NOTICE);
   });
-  it("authors the effective area only when the model is 0.6.0", () => {
-    const model = structuredClone(authored); model.schema_version = "0.6.0";
+  it("authors the effective area only when the model is 0.7.0", () => {
+    const model = structuredClone(authored); model.schema_version = "0.7.0";
     const draft = { ...defaultComponentDraft(model, { type: "node", id: "node:A" }, [], "expansion_joint"), primaryPipeRef: "pipe:S1", ...connector,
       pressureModel: "constant_effective_area_reference_v1", effectiveArea: "0.004", effectiveAreaUnit: "m^2", pressureBasis: "internal_differential_zero_external_v1", pressureSourceReference: "invented explicit area" } as ComponentDraft;
     expect(isComponentDraftValid(model, draft)).toBe(true);
@@ -157,8 +157,8 @@ describe("the objective connector form (T4-U2)", () => {
   // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.1, §5.2): the rod table.
   const rodRow = (id: string, y: string) => ({ id, offsetI: `-0.05 ${y} 0`, offsetJ: `0.05 ${y} 0`, offsetUnit: "m", stiffness: "10000", stiffnessUnit: "kN/m",
     referenceExtension: "-0.025", referenceExtensionUnit: "mm", sourceReference: "invented rod" });
-  it("offers explicit tie rods on 0.6.0 with a rod table, and builds the hardware the engine accepts", async () => {
-    const model = structuredClone(authored); model.schema_version = "0.6.0";
+  it("offers explicit tie rods on 0.7.0 with a rod table, and builds the hardware the engine accepts", async () => {
+    const model = structuredClone(authored); model.schema_version = "0.7.0";
     for (const loadCase of model.load_cases) { loadCase.pressure_regions = []; loadCase.primitive_loads = []; }
     const rods = [rodRow("rod:a", "0.1"), rodRow("rod:b", "-0.1")];
     const draft = { ...defaultComponentDraft(model, { type: "node", id: "node:A" }, [], "expansion_joint"), primaryPipeRef: "pipe:S1", ...connector,
@@ -192,8 +192,8 @@ describe("the objective connector form (T4-U2)", () => {
     const refused = await validateModelOperation(model, { ...intent, change: { ...intent.change, after: JSON.stringify(ideal) } }, await computeModelHash(model));
     expect(refused.diagnostics.map(d => d.message).join(" ")).toContain("JOINT_HARDWARE_LAW_UNSUPPORTED");
   });
-  it("renders the rod table, adds and removes rows, and offers rods only on 0.6.0", () => {
-    const model = structuredClone(authored); model.schema_version = "0.6.0";
+  it("renders the rod table, adds and removes rows, and offers rods only on 0.7.0", () => {
+    const model = structuredClone(authored); model.schema_version = "0.7.0";
     const update = vi.fn();
     const draft = { ...defaultComponentDraft(model, { type: "node", id: "node:A" }, [], "expansion_joint"), primaryPipeRef: "pipe:S1", ...connector,
       hardwareKind: "explicit_axial_rods_v1", tieRods: JSON.stringify([rodRow("rod:a", "0.1")]) } as ComponentDraft;

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { isPressureV3 } from "./pressureContract";
+import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 
 export function JointPressureModelEditor(props: RichFormProps) {
   const component = props.model.components.find(component => props.selection.type === "component" && component.id === props.selection.id);
   const connector = record(record(component).objective_connector);
-  if (props.model.schema_version !== "0.6.0" || !isPressureV3(props.model) || component?.kind !== "expansion_joint" || connector.version !== "1.0.0") return null;
+  if (props.model.schema_version !== MODEL_SCHEMA_VERSION || !isPressureV3(props.model) || component?.kind !== "expansion_joint" || connector.version !== "1.0.0") return null;
   return <Editor key={component.id} {...props} componentId={component.id} pressureModel={connector.pressure_model} />;
 }
 function Editor(props: RichFormProps & { componentId: string; pressureModel: unknown }) {

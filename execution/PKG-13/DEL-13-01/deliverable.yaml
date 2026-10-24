@@ -178,8 +178,10 @@ code_paths:
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src-tauri/src/lib.rs
 - core/product_preview/service.py
+- apps/desktop/src/features/model-data/AssumptionsPanel.tsx
 checks:
 - tests/test_design_knowledge_schema.py
 - tests/product_preview/test_product_preview_service.py
 - apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
+- apps/desktop/src/features/model-data/modelData.test.tsx

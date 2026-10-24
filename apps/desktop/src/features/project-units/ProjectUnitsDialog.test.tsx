@@ -125,7 +125,7 @@ describe("the session's blank routes ask for units first", () => {
     expect(hook.result.current.model.model?.project.name).toBe("Blank Local Model");
     act(() => hook.result.current.project.requestBlankProject("load_state"));
     act(() => hook.result.current.project.blankProjectUnitsRequest!.create({ ...SI_PROJECT_UNITS, length: "mm" }));
-    await waitFor(() => expect(hook.result.current.model.model?.project.name).toBe("Blank Local Load/reference Model 0.6.0"));
+    await waitFor(() => expect(hook.result.current.model.model?.project.name).toBe("Blank Local Load/reference Model 0.7.0"));
     expect(hook.result.current.model.model?.project.units).toEqual({ ...SI_PROJECT_UNITS, length: "mm" });
   });
 });

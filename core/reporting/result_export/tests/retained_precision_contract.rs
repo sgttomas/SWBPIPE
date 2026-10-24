@@ -2763,7 +2763,7 @@ fn d30_native_run_ref_on_nonselected_run() {
 }
 
 /// D31, as B7a keys it (b7-plan "Model format, pressure-free half"): G8's preview
-/// namespace is the current model version 0.6.0 without a pressure contract; the
+/// namespace is the current model version 0.7.0 without a pressure contract; the
 /// retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3a (B3-D §6.3,
 /// decision B3D-10): 0.3.0 without a contract is outside D1.3 (the producer cannot
 /// emit it, `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0
@@ -2780,7 +2780,7 @@ fn d31_model_schema_versions_at_g8() {
     };
     let mut misses = Vec::new();
     for (version, want) in [
-        ("0.6.0", Value::Null),
+        ("0.7.0", Value::Null),
         ("0.1.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.2.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.3.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
@@ -4870,7 +4870,7 @@ fn b1_i4p_transport_metadata_demands_alone() {
 
 /// B3a dropped (RR "Owner decisions: the legacy pressure contract is retired
 /// product-wide; ..."; formerly B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's
-/// namespace predicate is type-strict. Only branch L (current 0.6.0,
+/// namespace predicate is type-strict. Only branch L (current 0.7.0,
 /// `pressure_contract` absent; B7a: a JSON null is present, so refused) is admitted; any other value is G8
 /// INVOCATION_MISMATCH. "L3" in the entry names is B3a's retired contract
 /// `{"version":"1.0.0","mode":"legacy_pressure_v1"}` on 0.3.0, now refused on
@@ -4923,8 +4923,8 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
     }
     for (name, edits, want) in [
         // B7a: a present null contract is authored presence, outside branch L.
-        ("L: 0.6.0, contract null", vec![contract(Value::Null)], inv.clone()),
-        ("L: 0.6.0, contract absent", vec![schema("0.6.0"), no_contract()], Value::Null),
+        ("L: 0.7.0, contract null", vec![contract(Value::Null)], inv.clone()),
+        ("L: 0.7.0, contract absent", vec![schema("0.7.0"), no_contract()], Value::Null),
         ("L3: mode exact_straight_pressure_v2, version 1.0.0", vec![schema("0.3.0"), contract(with("mode", json!("exact_straight_pressure_v2")))], inv.clone()),
         ("L3: version 1.0.1", vec![schema("0.3.0"), contract(with("version", json!("1.0.1")))], inv.clone()),
         ("L3: the exact contract 2.0.0", vec![schema("0.3.0"), contract(json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}))], inv.clone()),
@@ -4937,14 +4937,14 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
         ("L3: version a number", vec![schema("0.3.0"), contract(with("version", json!(1.0)))], inv.clone()),
         ("L3: mode null", vec![schema("0.3.0"), contract(with("mode", Value::Null))], inv.clone()),
         ("0.3.0, contract {}", vec![schema("0.3.0"), contract(json!({}))], inv.clone()),
-        ("0.6.0 keeping the L3 contract", vec![contract(l3.clone())], inv.clone()),
+        ("0.7.0 keeping the L3 contract", vec![contract(l3.clone())], inv.clone()),
         ("0.1.0 keeping the L3 contract", vec![schema("0.1.0"), contract(l3.clone())], inv.clone()),
         ("0.4.0 with the L3 contract", vec![schema("0.4.0"), contract(l3.clone())], inv.clone()),
-        ("N-4: 0.6.0, contract {}", vec![contract(json!({}))], inv.clone()),
-        ("N-4: 0.6.0, contract false", vec![contract(json!(false))], inv.clone()),
-        ("N-4: 0.6.0, contract []", vec![contract(json!([]))], inv.clone()),
-        ("N-4: 0.6.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
-        ("N-4: 0.6.0, contract 0", vec![contract(json!(0))], inv.clone()),
+        ("N-4: 0.7.0, contract {}", vec![contract(json!({}))], inv.clone()),
+        ("N-4: 0.7.0, contract false", vec![contract(json!(false))], inv.clone()),
+        ("N-4: 0.7.0, contract []", vec![contract(json!([]))], inv.clone()),
+        ("N-4: 0.7.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
+        ("N-4: 0.7.0, contract 0", vec![contract(json!(0))], inv.clone()),
         ("N-11: L3 with a zero-magnitude element pressure load", vec![schema("0.3.0"), contract(l3.clone()), zero_pressure(ORD)], inv.clone()),
     ] {
         entries.push((name.to_string(), ORD, edits, want));
@@ -5184,7 +5184,7 @@ fn d5_rows(source: &mut Value) {
 /// A reader-local synthetic exact successor (not producer output; lane P's
 /// `m3x` successors replace it as the witness): a shared preview base whose
 /// cases are all selected, re-stated on the exact route.
-/// - Invocation (B7b: the current exact document): model 0.6.0 with
+/// - Invocation (B7b: the current exact document): model 0.7.0 with
 ///   `{3.0.0, exact_pressure_v3, euler_bernoulli}` and an authored zero
 ///   `corrosion_allowance` on every pipe section, every case's
 ///   `pressure_regions` explicitly [], each material with `poisson_ratio`
@@ -5205,7 +5205,7 @@ fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
     let mut invocation = case["invocation"].clone();
     {
         let model = &mut invocation["request"]["model"];
-        model["schema_version"] = json!("0.6.0");
+        model["schema_version"] = json!("0.7.0");
         model["pressure_contract"] =
             json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
         for p in model["pipe_segments"].as_array_mut().unwrap() {
@@ -5327,15 +5327,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "2b54360a0612137f11b9b461c9245e2bc2912b9025f32f440eddd51c57c75dd3",
-        "723fe1c25ffcb8149aa81146f1b3927d6333a53314ee6790aa6402004ea6860d",
+        "08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82",
+        "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "7cb4acd6434438a30cb975f2506306c1cf25f29868cb98867a2ce276d03cf3cd",
-        "18b5605d744d5f0b1f5f4d0a649e7edba1ecc098311fe6edcf7e4152d60bf85b",
+        "04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535",
+        "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5588,7 +5588,7 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// B7a's one corpus regeneration moved the bases again; the current digests are the ones the
 /// R1 reader-outcomes record (`fixtures/results/retained_precision_reader_outcomes.json`) states.
 /// B7b re-stated the synthetic exact construction and RV120's inputs on the current exact
-/// route (model 0.6.0, the complete v3 contract, a zero corrosion allowance, profile_mode
+/// route (model 0.7.0, the complete v3 contract, a zero corrosion allowance, profile_mode
 /// exact_pressure_v3; W1's `retained_precision_rv120_b3_inputs.json` and m3x successors), so
 /// all eight digests moved; each equals the R1 record's input digest for the same RV120 key.
 /// T4-U6 re-stated the synthetic exact successor on D-5 (both section bases, per-basis
@@ -5605,9 +5605,13 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// identity, publication and receipt), so all eight moved again (N2b were 19f94ef3... and
 /// b9232716...; N2 41b9866c... and a3580bd0...; F2 eff92fdd..., 0de13ab8..., d54ce46c... and
 /// ae5926bd...); RV120's inputs were re-derived by `test_rv120_inputs_write` from `B3B_INPUTS_OUT`.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["18d1f483b4366d805c798c49a33951fa32ec96e7c30d05b3e231ffa7d3f5e6af", "f45107464cfb471b6fdfe5180d788230996c248318142c9f923d3493528da577"];
+/// Model 0.7.0 (W-13 S1b) re-authored every base's captured request by its version token, moving
+/// the invocation digests and the hashes binding them, so all eight moved again (N2b were
+/// 18d1f483... and f4510746...; N2 f8c1359b... and 4d667a78...; F2 3a493409..., 09d19623...,
+/// 29993a70... and 1a907970...); RV120's inputs were re-derived the same way.
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["b70082f2ec110cb82f2c46294f59ba9fe9902d8c7c6a86ceb5de41dc08037c27", "e2aac985479b3b7901e546e9cbb70c1301d2cbd64f5128f291c8c6488f1582f1"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["f8c1359b51434ac78b09e5ca4b71aeae5f14abf28224c8ff324150813e9c498b", "4d667a78e1e6ecba6acfcdaaafc8bbdcab08fdbf5ef7204986899cebf65bdfc3"];
+const RV120_N2_INPUTS: [&str; 2] = ["fab66d1ab53dc09e88efb3fc42ea9ecd37eea95c5b5df4345b7fbab30bd692b3", "c4f6dda5433102cf9fb579e723817767e719f6b38b35dda493d2e75035339996"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5616,10 +5620,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "3a493409408a38dd1e77120b5a6c7b9032f569f2909a60a2a9729d8ae64e2acb"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "09d19623fd9163d2942bc5a0bf1dea820f70fb1693ce0d5d23c3b450fadb4b5c"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "29993a70e9ba1a45c6bf87322e2539518a3b6a48ddd41efe5a32a2a50f8b406a"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "1a90797041f4c688d9845237a34ab7fe4922f6af43607bfdefe82993219cfd5e"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "b262fc9144ed4357674a13ddfa2a7c01a3b18840e740ac3069bf59a46920f5cf"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "ad38a8c45358e24274745efe9e44dcfebb45aa288e3d1e0949b1b303db09d0d5"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "796a633f266209561dd20bf55261243d6814268b0951909d30060b9e8d9eccd5"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "e1ac7b26db9d835abfae967e3561f233eac5017432fdc7ccbdddbc63671ba974"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.

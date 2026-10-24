@@ -23,7 +23,11 @@ mod atomic_batch;
 mod bend_authoring;
 mod boundary_association;
 mod display_units;
+pub mod document_validator;
 mod geometry_operations;
+mod library_apply;
+mod model_data_authoring;
+mod model_settings_authoring;
 mod pipe_reconnect;
 mod rich_authoring;
 mod retained_semantics_binding;
@@ -38,6 +42,8 @@ mod section_bindings;
 mod b7b_transport_tests;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
+pub use library_apply::derived_shear_modulus_pa;
+pub use document_validator::{validate_model_document, DocumentDiagnostic};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
 pub const OUTCOME_DOCUMENT_KIND: &str = "openpipestress.desktop.operation_outcome";
@@ -877,7 +883,12 @@ fn collection_for(object_type: &str) -> Option<&'static str> {
         "Component" => Some("components"),
         "Load" => Some("load_cases"),
         "Combination" => Some("combinations"),
-        _ => None,
+        // W-13 §6: the model-data record families (lines, assumptions,
+        // constraints, equipment interfaces, rule-pack references). Their
+        // records are found by each family's id key
+        // (`model_data_authoring::target`); `Project` is a singleton target
+        // for project tags and notes and has no collection.
+        other => model_data_authoring::collection_for(other),
     }
 }
 
@@ -1038,6 +1049,17 @@ mod wasm_api {
         batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
     }
 
+    /// W-13 §5.3: the one model-document validator, for the webview open
+    /// path. Returns the validation report (`document_validator::validation_report`)
+    /// as JSON text, or the input-error envelope when the text is not JSON.
+    #[wasm_bindgen]
+    pub fn validate_model_document_json(model_json: &str) -> String {
+        match parse_input("model", model_json) {
+            Ok(model) => super::document_validator::validation_report(&model).to_string(),
+            Err(error) => error,
+        }
+    }
+
     /// Display-only numeric conversion through the one accepted unit catalog.
     #[wasm_bindgen]
     pub fn convert_display_quantities_json(input_json: &str) -> String {
@@ -1128,6 +1150,16 @@ mod wasm_api {
                 "WASM-ENGINE-INPUT-JSON-INVALID: value is not valid JSON: {error}"
             ))
         })
+    }
+
+    /// W-17 §2.3a: the shear modulus a library insert derives from E and ν,
+    /// as `{"value": <G in Pa>, "unit": "Pa"}`, or `{"error": …}`.
+    #[wasm_bindgen]
+    pub fn derived_shear_modulus_json(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> String {
+        match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
+            Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
+            Err(error) => json!({"error": error}).to_string(),
+        }
     }
 
     /// Canonicalize a JSON document with the engine's canonical form —
@@ -1369,7 +1401,8 @@ fn run_with_context(
     // never writes it, through any operation that can.
     let writes_flexibility = change_kind == "insert_bend_at_corner"
         || (object_type == "Component"
-            && matches!(field_path.as_str(), "bend_realization" | "modifiers.flexibility_factor_user_value.value"));
+            && matches!(field_path.as_str(), "bend_realization" | "modifiers.flexibility_factor_user_value.value"))
+        || (change_kind == library_apply::CHANGE_KIND && library_apply::writes_flexibility(intent));
     if writes_flexibility && string_at(intent, &["author_type"]).as_deref() != Some("user") {
         checker.schema_blocked = true;
         checker.push(
@@ -1446,6 +1479,94 @@ fn run_with_context(
         }
     }
 
+    // W-13 §6: model-data record operations (lines, assumptions,
+    // constraints, equipment interfaces, rule-pack references). They resolve
+    // to a candidate document and diff rows like the geometry operations.
+    if model_data_authoring::is_record_change_kind(&change_kind) && !checker.schema_blocked {
+        match model_data_authoring::resolve_record(model, intent) {
+            Ok(edit) => {
+                checker.reference_state = "passed";
+                checker.unit_state = "passed";
+                checker.before_state = "passed";
+                geometry_edit = Some(edit);
+            }
+            Err(error) => {
+                if error.code == "OP-STALE-BEFORE-VALUE" {
+                    checker.before_state = "blocked_stale";
+                }
+                checker.push(
+                    error.code,
+                    "blocking",
+                    error.message,
+                    "Refresh the record from the current model and correct the explicit payload.",
+                    error.affected_refs,
+                );
+            }
+        }
+    }
+
+    // Model settings (DEL-02-01 Design §3.8): set or clear
+    // `model_settings.node_proximity_tolerance` on the Project singleton.
+    if model_settings_authoring::is_change_kind(&change_kind) && !checker.schema_blocked {
+        match model_settings_authoring::resolve(model, intent) {
+            Ok(edit) => {
+                checker.reference_state = "passed";
+                checker.unit_state = "passed";
+                checker.before_state = "passed";
+                geometry_edit = Some(edit);
+            }
+            Err(error) => {
+                if error.code == "OP-STALE-BEFORE-VALUE" {
+                    checker.before_state = "blocked_stale";
+                }
+                checker.push(
+                    error.code,
+                    "blocking",
+                    error.message,
+                    "Enter a finite length greater than zero in a length unit of the units catalog, or reset the setting to its default.",
+                    error.affected_refs,
+                );
+            }
+        }
+    }
+
+    // W-17 (DEL-03-01 Design apply-library-records.md §2.2): a library
+    // record applied to an existing material, section or component. The
+    // change names every member it writes; a section carries its bound pipes.
+    if change_kind == library_apply::CHANGE_KIND && !checker.schema_blocked {
+        if claimed_model_hash.is_none_or(Value::is_null) {
+            checker.schema_blocked = true;
+            checker.push(
+                "OP-LIBRARY-APPLY-MODEL-HASH-REQUIRED",
+                "blocking",
+                "Applying a library record requires the current complete model hash.".into(),
+                "Refresh the model basis before review and application.",
+                vec![target_ref.clone()],
+            );
+        } else {
+            match library_apply::resolve(model, intent) {
+                Ok(edit) => {
+                    checker.reference_state = "passed";
+                    checker.unit_state = "passed";
+                    checker.before_state = "passed";
+                    geometry_edit = Some(edit);
+                }
+                Err(error) => {
+                    if error.code == "OP-STALE-BEFORE-VALUE" {
+                        checker.before_state = "blocked_stale";
+                    }
+                    checker.push(
+                        error.code,
+                        "blocking",
+                        error.message,
+                        "Prepare the library apply again from the current model and the stored library record.",
+                        error.affected_refs,
+                    );
+                }
+            }
+        }
+    }
+
     // Field-level resolution proceeds only for supported structured payloads;
     // underspecified viewport gestures are held rather than invented.
     let rich_kind = match (object_type.as_str(), field_path.as_str()) {
@@ -1457,6 +1578,11 @@ fn run_with_context(
         ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
         ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
+        // W-13 §6: tags, notes and provenance_record on each family's existing
+        // change kind; clearing removes the member.
+        (object, field) if model_data_authoring::is_annotation(object, field) => {
+            Some(model_data_authoring::annotation_change_kind(object))
+        }
         _ => None,
     };
     if object_type == "Load" && field_path == "generated_self_weight"
@@ -1510,6 +1636,8 @@ fn run_with_context(
                 bend_authoring::resolve
             } else if load_state_authoring::owns(&object_type, &field_path) {
                 load_state_authoring::resolve
+            } else if model_data_authoring::is_annotation(&object_type, &field_path) {
+                model_data_authoring::resolve_annotation
             } else {
                 rich_authoring::resolve
             };
@@ -1532,9 +1660,9 @@ fn run_with_context(
                         &mut checker,
                     );
                     let mut candidate = model.clone();
-                    let target = if object_type == "Model" { Some(&mut candidate) } else { collection_for(&object_type).and_then(|collection| {
-                        find_entity_mut(&mut candidate, collection, &target_ref)
-                    }) };
+                    let target = if object_type == "Model" { Some(&mut candidate) } else {
+                        model_data_authoring::target_mut(&mut candidate, &object_type, &target_ref)
+                    };
                     let mut written = true;
                     if let Some(target) = target {
                         for (segments, value) in &edit.writes {
@@ -2054,11 +2182,18 @@ fn run_with_context(
 
     if !blocking {
         diff_preview.extend(section_diffs);
+        // W-13 §3.2: deleting a pipe also removes it from its line.
+        if let Some(pipe_id) = &deleted_pipe {
+            diff_preview.extend(model_data_authoring::remove_pipe_from_lines(&mut model.clone(), pipe_id));
+        }
     }
 
+    // The candidate result is built in both modes so the one document
+    // validator judges a validate-only preview exactly as it judges the
+    // apply (W-13 §5.3); a validate-only outcome never returns it.
     let mut applied_model = None;
     let mut applied_model_backend_hash = None;
-    if mode == Mode::Apply && !blocking {
+    if !blocking {
         if let Some(candidate) = geometry_edit
             .map(|edit| edit.model)
             .or(section_model)
@@ -2252,6 +2387,35 @@ fn run_with_context(
                 applied_model = Some(next_model);
             }
         }
+    }
+
+    // W-13 §5.3: the one document validator checks every applied result. A
+    // result whose model-data slots are malformed is refused (the operation
+    // is blocked and no document is returned); warnings ride along.
+    if let Some(candidate) = &applied_model {
+        let findings = document_validator::validate_model_document(candidate);
+        if document_validator::has_blocking(&findings) {
+            checker.schema_blocked = true;
+            applied_model = None;
+            applied_model_backend_hash = None;
+        }
+        for finding in findings {
+            checker.push(
+                finding.code,
+                finding.severity,
+                format!("{} (at {})", finding.message, finding.path),
+                if finding.is_blocking() {
+                    "The operation's result would leave a malformed model-data slot; correct the slot or the operation and retry."
+                } else {
+                    "Review the named record; this warning does not block editing."
+                },
+                finding.affected_refs,
+            );
+        }
+    }
+    if mode == Mode::ValidateOnly {
+        applied_model = None;
+        applied_model_backend_hash = None;
     }
 
     let blocking_after_apply = checker.blocking();
@@ -2470,7 +2634,9 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "delete_support"
             | "delete_combination_term"
             | "insert_component_symbol"
-    );
+            | "apply_library_record"
+    ) || model_data_authoring::operation_kind_for(change_kind).is_some()
+        || model_settings_authoring::is_change_kind(change_kind);
     if !supported_change {
         checker.schema_blocked = true;
         checker.push(
@@ -2487,7 +2653,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
-        | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner" => "modify",
+        | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner"
+        | "apply_library_record" | "set_model_setting" | "clear_model_setting" => "modify",
         "create_node"
         | "create_section"
         | "create_material"
@@ -2506,7 +2673,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         "delete_pipe_run" => "delete",
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
-        _ => unreachable!("supported_change guarantees a known change kind"),
+        other => model_data_authoring::operation_kind_for(other)
+            .expect("supported_change guarantees a known change kind"),
     };
     if operation_kind != expected_operation_kind {
         checker.schema_blocked = true;
@@ -2715,7 +2883,7 @@ fn resolve_expansion_joint_creation(
             "OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED",
             "blocking",
             "Legacy four-rate expansion-joint creation (a pipe reference with scalar stiffness rates) is retired: such a joint is neither solved nor converted.".to_string(),
-            "On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a pressure-free 0.6.0 document (no pressure contract) create the annotation mode (not_solver_consumed).",
+            &format!("On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a pressure-free {} document (no pressure contract) create the annotation mode (not_solver_consumed).", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
             vec![target_ref.to_string()],
         );
         return None;
@@ -2737,9 +2905,9 @@ fn resolve_expansion_joint_creation(
             // the solver's JOINT_HARDWARE_NOT_DEFINED, as before).
             let hardware = connector.get("hardware").is_some_and(|h| h != &serde_json::json!({"kind": "untied"}));
             if pressure || hardware {
-                if schema != "0.6.0" {
+                if schema != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION {
                     let (code, what) = if pressure { ("JOINT_PRESSURE_INTERFACE_UNRESOLVED", "constant_effective_area_reference_v1 is") } else { ("JOINT_TIE_ROD_INPUT_INVALID", "connector hardware other than untied is") };
-                    checker.push(code,"blocking",format!("{what} defined only on model 0.6.0"),"Use the current model format before authoring a joint pressure model or tie rods.",vec![target_ref.into()]);
+                    checker.push(code,"blocking",format!("{what} defined only on model {}", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),"Use the current model format before authoring a joint pressure model or tie rods.",vec![target_ref.into()]);
                     return None;
                 }
                 let mut candidate=model.clone();
@@ -2828,7 +2996,7 @@ fn resolve_expansion_joint_creation(
             checker.push(
                 "OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY",
                 "blocking",
-                "On a pressure-free 0.6.0 document (no pressure contract) an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.".to_string(),
+                format!("On a pressure-free {} document (no pressure contract) an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
                 "Create the annotation, or move the model to a 3.0.0/exact_pressure_v3 document and author an objective connector.",
                 vec![target_ref.to_string()],
             );
@@ -2847,7 +3015,7 @@ fn resolve_expansion_joint_creation(
     checker.push(
         "OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED",
         "blocking",
-        "Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on pressure-free 0.6.0 documents (no pressure contract); this document's contract admits neither.".to_string(),
+        format!("Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on pressure-free {} documents (no pressure contract); this document's contract admits neither.", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
         "Use a 3.0.0/exact_pressure_v3 document for a solved joint.",
         vec![target_ref.to_string()],
     );
@@ -3875,6 +4043,11 @@ fn entity_reference_paths(
         }
         Value::Object(map) => {
             for (key, item) in map {
+                // W-13 §6: tags, notes and provenance records are annotations,
+                // never references.
+                if model_data_authoring::ANNOTATION_MEMBERS.contains(&key.as_str()) {
+                    continue;
+                }
                 let is_ref = (key == "id" && (reference_slot || map.contains_key("object_type")))
                     || key == "ref"
                     || key.ends_with("_ref")
@@ -3969,6 +4142,14 @@ fn resolve_delete_entity(
         .and_then(Value::as_array_mut)
         .unwrap()
         .retain(|row| row.get("id").and_then(Value::as_str) != Some(target_ref));
+    // W-13 §3.3, §6: naming an entity in a line, assumption, constraint,
+    // equipment interface or rule-pack reference never blocks its deletion;
+    // a missing subject is the document validator's warning.
+    if let Some(root) = remainder.as_object_mut() {
+        for slot in model_data_authoring::MODEL_DATA_COLLECTIONS {
+            root.remove(slot);
+        }
+    }
     let mut references = Vec::new();
     entity_reference_paths(&remainder, &ids, "$", false, &mut references);
     if !references.is_empty() {
@@ -4329,7 +4510,7 @@ fn resolve_create_section(
         return None;
     }
 
-    Some(serde_json::json!({
+    let mut section = serde_json::json!({
         "id": id,
         "name": name,
         "section_type": "pipe",
@@ -4338,7 +4519,13 @@ fn resolve_create_section(
             "wall_thickness": { "value": wall_thickness.value, "unit": wall_thickness.unit }
         },
         "provenance": provenance,
-    }))
+    });
+    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // record; the document validator judges its members.
+    if let Some(record) = record.get("provenance_record") {
+        section["provenance_record"] = record.clone();
+    }
+    Some(section)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -4477,7 +4664,13 @@ fn resolve_create_material(
     let shear_modulus = dimensioned_quantity(record, &["shear_modulus"], Dimension::Stress, true);
     let exact_material = record.contains_key("constitutive_basis") || record.contains_key("poisson_ratio");
     if exact_material {
-        if let Err(error) = pressure_authoring::validate_create_material(&payload) {
+        // The structured provenance record is the document validator's to
+        // judge; the constitutive check sees the material members only.
+        let mut constitutive = payload.clone();
+        if let Some(map) = constitutive.as_object_mut() {
+            map.remove("provenance_record");
+        }
+        if let Err(error) = pressure_authoring::validate_create_material(&constitutive) {
             checker.push(error.code, "blocking", error.message, "Supply explicit E/nu constitutive inputs.", vec![target_ref.to_string()]);
             return None;
         }
@@ -4553,6 +4746,11 @@ fn resolve_create_material(
             "value": thermal.value,
             "unit": thermal.unit,
         });
+    }
+    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // record; the document validator judges its members.
+    if let Some(record) = record.get("provenance_record") {
+        material["provenance_record"] = record.clone();
     }
 
     Some(material)
@@ -4802,6 +5000,7 @@ fn resolve_create_support(
         "hanger",
         "nonlinear",
         "boundary_association",
+        "provenance_record",
     ] {
         if let Some(value) = record.get(key) {
             support[key] = value.clone();
@@ -4820,6 +5019,7 @@ fn resolve_create_support(
             "hanger",
             "nonlinear",
             "boundary_association",
+            "provenance_record",
         ]
         .contains(&key.as_str())
     }) {
@@ -5237,7 +5437,7 @@ fn resolve_create_primitive_load(
             "OP-PRESSURE-PRIMITIVE-RETIRED",
             "blocking",
             "Pressure primitive loads are retired, zero values included; the product refuses them (PRESSURE_MODEL_REAUTHOR_REQUIRED).".to_string(),
-            "Author pressure as exact pressure regions: on model 0.6.0 select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
+            &format!("Author pressure as exact pressure regions: on model {} select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
             vec![target_ref.to_string()],
         );
         return None;
@@ -7903,6 +8103,8 @@ fn apply_deleted_pipe(model: &mut Value, pipe_id: &str) -> bool {
         return false;
     };
     pipes.remove(index);
+    // W-13 §3.2: the pipe leaves its line in the same operation.
+    model_data_authoring::remove_pipe_from_lines(model, pipe_id);
     true
 }
 
@@ -9019,7 +9221,7 @@ mod tests {
 
     fn sample_model() -> Value {
         json!({
-            "schema_version": "0.6.0",
+            "schema_version": "0.7.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
@@ -13505,7 +13707,7 @@ mod tests {
         let outcome = apply_operation(&model, &expansion_joint_intent(&not_annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"]);
         // B7a: the contract's absence selects the annotation, not the version string. A
-        // 0.6.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
+        // 0.7.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
         // take neither form.
         let mut with_contract = model.clone();
         with_contract["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
@@ -13522,7 +13724,7 @@ mod tests {
     /// A v3 document: the objective connector for the replaced span between
     /// its end nodes.
     fn v3_model() -> Value {
-        // B7b: the current 0.6.0 exact document (sample_model is already 0.6.0).
+        // B7b: the current 0.7.0 exact document (sample_model is already 0.7.0).
         let mut model = sample_model();
         model["pressure_contract"] =
             json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});

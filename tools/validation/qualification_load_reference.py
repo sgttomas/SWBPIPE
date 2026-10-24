@@ -5,7 +5,7 @@ B7b retired load-reference-1 (and the 0.4.0 model document under 2.0.0/exact_str
 pressure-2 publishes the load/reference-state group (its ``load_reference_states`` records keep the
 ``resolved_straight_load_state_v1`` record profile). The frozen, hash-bound package inputs are never
 edited; each run submits their declared re-authored copy (``qualification_physics.reauthor_runner_input``,
-the product tests' one re-authoring rule: model 0.6.0, the current exact contract, an explicit zero
+the product tests' one re-authoring rule: model 0.7.0, the current exact contract, an explicit zero
 corrosion allowance), against which the raw is read. The frozen package's selectors name the retired
 load-reference-1 as their authoring identity; that is admitted for selectors only, never for a raw.
 
@@ -459,7 +459,7 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
     model = product['model']
     require(type(model) is dict and ((model.get('schema_version'), model.get('pressure_contract')) == FROZEN_MODEL
                                      or (model.get('schema_version'), model.get('pressure_contract')) == (MODEL_VERSION, PRESSURE_CONTRACT))
-            and physics.model_carries_load_state(model), 'frozen 0.4.0 or current 0.6.0 load/reference-state model required')
+            and physics.model_carries_load_state(model), 'frozen 0.4.0 or current 0.7.0 load/reference-state model required')
     _text(model['project']['id'], 'actual model ID')
     # The frozen input stays bound by its bytes; the runner receives the declared re-authored copy (the identity on a
     # current document).
@@ -512,9 +512,9 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
 
 
 def current_model(model) -> None:
-    """The submitted document: model 0.6.0 under the current exact contract, carrying the load/reference-state group."""
+    """The submitted document: model 0.7.0 under the current exact contract, carrying the load/reference-state group."""
     require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and model.get('pressure_contract') == PRESSURE_CONTRACT
-            and physics.model_carries_load_state(model), 'actual 0.6.0 load/reference-state model under the current contract required')
+            and physics.model_carries_load_state(model), 'actual 0.7.0 load/reference-state model under the current contract required')
 
 
 # --------------------------------------------------------------------------

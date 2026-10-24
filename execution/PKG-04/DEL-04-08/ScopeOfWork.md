@@ -105,7 +105,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - It also covers mechanics combinations under the B2-C contract. Each combination has its own solve on the combined exact ledger and at least one selected operand. It publishes exactly 7n + 50m + 8g rows (n nodes, m members, g attributed supports), of which constrained displacement components are `input_derived` +0.
     - Combination maxima, intensified rows, range envelopes, state differences and combinations with member-load operands are not covered.
   - **Route E domain.** It covers direct load cases with nodal loads only, under these conditions:
-    - current model 0.6.0 with the explicit `3.0.0/exact_pressure_v3` contract;
+    - current model 0.7.0 with the explicit `3.0.0/exact_pressure_v3` contract;
     - explicitly empty pressure regions;
     - straight members;
     - base common E and ν;
@@ -119,7 +119,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 
   **Eligibility.** All of these must hold:
   - the solve captured its invocation;
-  - current model 0.6.0 with the `3.0.0/exact_pressure_v3` contract;
+  - current model 0.7.0 with the `3.0.0/exact_pressure_v3` contract;
   - no nonlinear supports and no combinations;
   - an explicitly empty pressure-region inventory;
   - at most 256 degrees of freedom;
@@ -237,7 +237,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - **(a) O4: the Timoshenko and corrosion-allowance source extension.** This is the fifth shared epoch in the owner's order of 2026-10-14. It extends retained-source and W1-E publication to the documents REQ-006 (a) declined, including those with a nonzero mill tolerance. It keeps RF's closure, witness and charging rules. **Discharged on 2026-10-20.** O4 is on main through #1468. The stack-headroom repair (#1476, b7-plan item 5a) makes the AC-004 stack-headroom witnesses pass, completing AC-007's conditions. HELP_HUMAN records this discharge under the owner's decision of 2026-10-20 ("All as recommended").
   - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch in this deliverable's `Design/b7-plan.md` ("After B7b"). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge. **Discharged on 2026-10-20.** The repair is on main through #1483 and #1484: corner 2 (the receipt states the product gate's final scales) and corner 1 (the admitted lane's search converges at the represented-Z hull's binding endpoint), with every gate, tolerance and limit unchanged (Design `w1-coverage-repair.md`). The decline tests they retire are replaced by admission and refusal tests (VER-003, VER-006). HELP_HUMAN records this discharge under the owner's decision of 2026-10-20 ("I approve 1A, 2A, 3A.").
   - **(c) Desktop outputs for the current exact identity.** This is a follow-on unit. The owner chose "Merge with the gap" on 2026-10-15, and on 2026-10-20 placed the unit as epoch 8 in this deliverable's `Design/b7-plan.md`, after epoch 7, with its design started alongside epoch 7. T4-U4b/U5b replaced `pressure-1` with `pressure-2`. **Discharged on 2026-10-21.** The desktop outputs are on main through #1505: the result JSON export, the stress-neutral export and the rule check admit `pressure-2` and `pressure-source-1` results at the Rust reader's numerically eligible standing, an eligible `pressure-2` load/reference-state result included, each taking the reader's verdict and standing; every other desktop output surface refuses them (DEL-04-07 Design `desktop-exact-outputs.md`). AC-005 and the desktop output-policy tests pass on that head. Recorded under the owner's decision of 2026-10-21 ("A accept your recommendations for the entire set.").
-- **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal. The fallback tests and the W1 census tests assert the resulting ordinary result at the facade. The desktop output policy refuses each named identity with its stated code. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
+- **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal. The fallback tests and the W1 census tests assert the resulting ordinary result at the facade. The desktop output policy refuses each named identity with its stated code, and the report package's Rust boundary refuses every identity except preview-physics-2. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
 - **AC-007** — A duty in REQ-007 is discharged only when the conditions for it hold. Until then it remains listed here as open.
   - **(a) O4 and (b) the W1 repair:**
     - the cases they extend to publish verified results under REQ-001 or REQ-002;
@@ -259,7 +259,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - The formation definitions and the tables' formation warrants use "certificate" throughout, as the technical name of the numerical error proof.
   - **The choice.** The texts can keep these words, or the user-facing ones can adopt the nonlinear K-D5 ruling R5's wording ("established", "confirmed"). The choice is the owner's.
   - **Consequences of a change.** The tables and definitions are reviewed inputs: changing their text changes their digests and requires a D3 re-registration. The messages are pinned in committed successor bytes, which would need to be regenerated.
-- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.6.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
+- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.7.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
 
 ## Production and Verification Method — Praxeology
 
@@ -309,6 +309,7 @@ The registered checks are those in `software-workflow.json`.
 - **VER-006** — For REQ-006:
   - the VER-003 decline and fallback tests, and the facade-level W1 census tests `core/product_physics/src/w1_source_census_tests.rs` and `w1_successor_census_tests.rs` (`macos-release-sweep`);
   - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts`, `retainedPrecisionOutputRefusal.test.tsx`, `loadReferenceOutputRefusal.test.tsx`, `apps/desktop/src/features/report/reportPackageRequest.test.ts` and `apps/desktop/src/services/ruleCheckService.test.ts`;
+  - the report package's identity refusals: `core/reporting/report_package/tests/current_result_package.rs`, exercised by `cargo test --manifest-path core/reporting/report_package/Cargo.toml --test current_result_package` and run in hosted CI by manifest selection (`core/reporting/report_package/Cargo.toml`; `tools/hosted-ci-routing.json`);
   - `macos-release-sweep`: `core/runner/headless/tests/retained_precision_admission.rs` and `core/product_physics/tests/retained_precision_admission.rs`;
   - for (e), `macos-release-sweep`: `o4_w1e_sharper_allowance_refusal_keeps_the_ordinary_result` in `core/product_physics/src/o4_m3_judging_tests.rs`.
   - for (f), `macos-release-sweep`: `w1_loaded_maximum_too_wide_for_the_gate_keeps_the_ordinary_result` in `core/product_physics/src/w1_domain_stage1_tests.rs`.

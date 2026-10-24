@@ -39,14 +39,14 @@ PROJECT = Path(__file__).resolve().parents[1]
 CASES_PATH = PROJECT / "core/reporting/result_export/tests/fixtures/load_reference_mutations.json"
 CASES = json.loads(CASES_PATH.read_text())
 FROZEN = {
-    "fixtures/product_preview/pressure/load_reference/connected.request.json": "785b1af7d23ec6bbb3519ac955411b0682360abee4446827a11aa6f481a359e0",
+    "fixtures/product_preview/pressure/load_reference/connected.request.json": "43989de7b7bb11688daac07f5cfe9564bbfaa29e99d80f02ea7746a270b44de0",
     # T4-U6 (D-5): the regenerated producer envelopes (both section-basis families);
     # O4 (DEL-04-08 `o4-source-extension.md` §3.3): regenerated for limitation [7] only.
     # connected: silent-zero diagnostic added; no number moved (two LOAD_STATE_SOURCE_EXCLUDED warnings).
     # W-7 global end rows added; no other number moved (connected +48 rows, pressure +24 rows).
     "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "9494dfad726e83b36c67705a282da4c4cfdd8951632d24bc05e0c8e8276ace66",
     "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "2bfa5363081b93788a9a910368071aecdec970a295ba621377231566d592ed15",
-    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "a223889792cca7c0839045cc24a0ac36785acb63589e50af4edc27cf99cfa92f",
+    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "a187c0949ce6fad0f357f9439daf95b63886be582f95ebee4181d327da882eca",
     "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "861cb4f728d3450329f30b8b531416926133acfae8482701baac580c925b5bde",
     "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "31a217d3044731453a34d4dff8abf39de05d0c69c39f7f3bc502baecb3637ee0",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
@@ -321,7 +321,7 @@ def test_retired_load_reference_identity_is_refused_by_name():
     stored["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/load-reference-1"
     stored["formulation_basis"]["profile_id"] = "resolved_straight_load_state_v1"
     text = ("SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-            "re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis")
+            "re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis")
     assert outcome(lambda: _source_contract(stored)) == text
     assert outcome(lambda: verifier._source_contract(stored)) == text
     assert numerical_use_standing(stored, bases(stored)) == "unsupported"

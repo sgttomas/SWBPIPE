@@ -167,7 +167,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > |---|---|---|
 > | JSON Schema 2020-12 contracts | Applicable architecture basis | `_CONTEXT.md` identifies JSON Schema 2020-12 contracts. The dispatcher/member schema files supply `$schema`, `$id` and placement evidence; public changes retain their governing scope. |
 > | Analysis-record hash basis | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | PRD v0.2 sections 8.7 and 15.2 / FR-CMP-002 | Referenced but not locally accessible as primary source text | Decomposition and registers cite these references. Do not derive clause-level requirements beyond the accessible SOW-072 wording. |
+> | PRD analysis-run requirements | Current primary source: docs/PRD.md §§8.7, 11.6 (FR-CMP-002), and 15.2 | Historical PRD v0.2 citations resolve to docs/PRD.md under its Forward Authority and Citation Resolution. Apply these requirements together with SOW-072 and the governing one-version serialization contract. |
 > | Protected-content and private-data governance | Applicable | `docs/CONTRACT.md` and `docs/IP_AND_DATA_BOUNDARY.md` govern public/private data handling. |
 > | Professional responsibility boundary | Applicable | `docs/CONTRACT.md` and `docs/SPEC.md` prohibit software-generated professional approval/compliance claims. |
 >
@@ -317,7 +317,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > - SOW-072 is sufficient to identify required binding categories, but it is not sufficient to define exact schema field names, cardinality, or migration behavior.
 > - The dependency mirror records approved graph resolved through `execution/_DAG/_LATEST.md` predecessor evidence for architecture basis, immutable model state records, analysis status semantics, audit manifest/hash conventions, result export format, and persistence/round-trip support. Those rows are an evidence surface, not independent graph authority.
 > - The deliverable should align with `schemas/results.schema.yaml` and result-export envelopes where run records include or point to result payloads, but this folder does not define the final result export schema.
-> - `PRD v0.2` references are cited by decomposition/register rows but the PRD source text was not locally read in this task. Requirements must not exceed accessible SOW/decomposition wording.
+> - Use `docs/PRD.md` §§8.7, 11.6 (FR-CMP-002), and 15.2 for analysis-run requirements; retain explicit TBDs for field-level choices not settled by the governing contracts.
 >
 
 ### CLM-027 — Trade-offs
@@ -346,7 +346,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | None identified | No direct source conflict was identified in the accessible source slices. Several details remain TBD because source text is absent or implementation-specific. | N/A | N/A | N/A | N/A | N/A |
+> | None identified | No direct source conflict has been identified. Details not settled by `docs/PRD.md` §§8.7, 11.6 and 15.2, SOW-072 or the governing contracts remain TBD. | N/A | N/A | N/A | N/A | N/A |
 
 ## Output and Evaluation Matrix
 
@@ -358,6 +358,6 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 
 These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
 
-- **DEL-14-02:1** — R5 continuation delivery task: Complete analysis-run producer/persistence conformance to analysis record 0.3.0: preserve diagnostics, units, record-revision identity and exact source/run basis; refuse older records by name without relabeling their bytes (CLM-006/011/018; AC-001).
+- **DEL-14-02:1** — R5 continuation delivery task: Complete analysis-run producer/persistence conformance to analysis record 0.3.0: preserve diagnostics, units, record-revision identity and exact source/run basis; refuse older records by name without relabeling their bytes (CLM-006/011/018; AC-001). The desktop persists recorded 0.3.0 revisions tied to saved model states with checked binding (W-12 S2); producer-side diagnostic breadth and PDU-033 (:2, :3) remain open.
 - **DEL-14-02:2** — Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
 - **DEL-14-02:3** — Preserve PDU-033 for producer-supplied physical dimensions and other governed result metadata absent from received rows. The current foundation is analysis record 0.3 under checked profile `openpipestress_jcs_ijson_v1`, with immutable rule-check revisions; the 0.1 profiles and the 0.2 record are refused by name (owner, 2026-10-10; removed in B7a). Raw source rows remain unchanged; semantic interpretation beside them does not create missing producer evidence, and explicit `unverifiable` states do not close PDU-033.

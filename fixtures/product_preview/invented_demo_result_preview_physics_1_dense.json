@@ -15466,7 +15466,7 @@
       "id": "diagnostic:component:component-C-120:branch-topology",
       "code": "BRANCH_TOPOLOGY_INVALID",
       "severity": "warning",
-      "message": "a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node node:N-120 joins 2",
+      "message": "a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node node:N-120 joins 2; its branch stress factors are still applied (header SIF to pipe:P-120, branch SIF to pipe:P-110)",
       "source": "core/product_physics",
       "affected_refs": [
         "component:C-120",

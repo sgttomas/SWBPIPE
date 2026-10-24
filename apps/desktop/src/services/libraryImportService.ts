@@ -390,3 +390,93 @@ export function classifyLibraryReference(
   if (!record) return "record_missing";
   return record.slot_ids.includes(slotId) ? "resolves" : "slot_missing";
 }
+
+// --- Model library references (W-13 §3.5; W-17 §2.7) ---
+// Each `library_ref` of the model is compared with the project's local store
+// at project open and load and on library-list refresh:
+// MODEL-LIBRARY-REF-UNRESOLVED when the store holds no such library or record,
+// MODEL-LIBRARY-REF-VERSION-CHANGED when a stored record's digest differs
+// from the recorded `library_version`. Both are warnings; the recorded version
+// is never updated by the check. Only the references travel to the backend.
+//
+// The check applies the save screen's rules (W-6a, `modelDocumentSave.ts`,
+// `src-tauri/src/model_document_save.rs`): the references are found by the one
+// walk below, which the save screen also uses (every `library_ref` object at
+// any depth); the backend trims the identities and reads every matching
+// stored record (`library_identity`, `matching_library_records`), never the
+// first. The native save's walk is pinned to this one by
+// `fixtures/model_document/library_ref_sites.json`.
+
+export const MODEL_LIBRARY_REF_UNRESOLVED = "MODEL-LIBRARY-REF-UNRESOLVED";
+export const MODEL_LIBRARY_REF_VERSION_CHANGED = "MODEL-LIBRARY-REF-VERSION-CHANGED";
+
+export type ModelLibraryRef = {
+  entity_ref: string;
+  library_kind: LibraryKind;
+  library_id: string;
+  library_version?: string;
+  record_id?: string;
+};
+
+export type LibraryRefFinding = ModelLibraryRef & {
+  code: typeof MODEL_LIBRARY_REF_UNRESOLVED | typeof MODEL_LIBRARY_REF_VERSION_CHANGED;
+  severity: "warning";
+  recorded_version: string | null;
+  stored_version: string | null;
+  message: string;
+};
+
+/** One `library_ref` object of a model: its path, the id of its nearest
+ * enclosing object that has a non-empty string `id` (else the reference's own
+ * path), and the reference as recorded. */
+export type LibraryRefSite = { path: string; entity_ref: string; reference: Record<string, unknown> };
+
+function isRecordObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Every `library_ref` object of a model at any depth, in document order. The
+ * one walk of the open-time store check and the save screen. */
+export function libraryRefSites(model: unknown): LibraryRefSite[] {
+  const found: LibraryRefSite[] = [];
+  const walk = (value: unknown, path: string, owner: string | null) => {
+    if (Array.isArray(value)) { value.forEach((entry, index) => walk(entry, `${path}[${index}]`, owner)); return; }
+    if (!isRecordObject(value)) return;
+    const own = typeof value.id === "string" && value.id.length > 0 ? value.id : null;
+    const named = own ?? owner;
+    for (const [key, child] of Object.entries(value)) {
+      const at = path ? `${path}.${key}` : key;
+      if (key === "library_ref" && isRecordObject(child)) {
+        found.push({ path: at, entity_ref: named ?? at, reference: child });
+      }
+      walk(child, at, named);
+    }
+  };
+  walk(model, "", null);
+  return found;
+}
+
+/** The references the open-time store check sends, as the model records them
+ * (the backend normalizes). A non-string kind or library id is sent empty, so
+ * it reads as unresolved rather than failing the check. */
+export function modelLibraryRefs(model: unknown): ModelLibraryRef[] {
+  const textOf = (value: unknown) => (typeof value === "string" ? value : "");
+  return libraryRefSites(model).map(({ entity_ref, reference }) => ({
+    entity_ref,
+    library_kind: textOf(reference.library_kind) as LibraryKind,
+    library_id: textOf(reference.library_id),
+    ...(typeof reference.library_version === "string" ? { library_version: reference.library_version } : {}),
+    ...(typeof reference.record_id === "string" ? { record_id: reference.record_id } : {})
+  }));
+}
+
+export type LibraryRefCheckRoute =
+  | { route: "tauri_backend"; findings: LibraryRefFinding[] }
+  | { route: "unavailable_browser_preview"; diagnostic: string };
+
+export async function checkModelLibraryRefs(projectId: string, references: ModelLibraryRef[]): Promise<LibraryRefCheckRoute> {
+  if (!isTauriRuntime()) return libraryImportUnavailable();
+  if (references.length === 0) return { route: "tauri_backend", findings: [] };
+  const findings = await invoke<LibraryRefFinding[]>("check_model_library_refs", { projectId, references });
+  return { route: "tauri_backend", findings };
+}

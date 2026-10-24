@@ -45,9 +45,14 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6): against main the milestone
 /// successor differs only by the current maximum declaration and fallback enclosure, the two
 /// linear limitation sentences, and the receipt and publication hashes that bind them.
+/// Model 0.7.0 re-pin (W-13 S1b; DEL-02-01 Design `model-document-0.7.0.md` §2): every pinned
+/// request and witness input was re-authored by its version token alone. The input sha256 pins, the
+/// successors' invocation digests, the exact route's DEF-E-bound preparation and source identity
+/// hashes, and the receipt, publication and document hashes binding them moved and follow the
+/// maintained writers' bytes; no numeric leaf, class, selection, status or verdict moved.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "d79b9b53fd88e61c84a9446aa2682a0943acde8d2ab4b251b3d393d4a4786caa", "2f2260237fcae99adbecc4c208ad0f66a76bdc630fb5d7ddcaca2909a85444a4"),
-    ("dense_scrutiny", "104b8fcb7eb4ccdda48d1dfa88c527a2835ec4f2746693b76821d34baeee5f85", "53d34043560deaac649f0090fc2a14bb452fe30e2e014607624eb55090f00642"),
+    ("sparse_interactive", "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119", "5d1faa58971f43063cfcd4277ee0f4dab5d6601bb83ec4330f616b767e829136"),
+    ("dense_scrutiny", "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba", "42fba5d63668f917ed23b0e9b88e946a8b0ba7670ddb8580783ae0397e0d2ca5"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -56,11 +61,11 @@ fn sha(bytes: &[u8]) -> String {
 fn milestone_raw() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
 }
-/// The private prepared driver on the unchanged 0.6.0 milestone: the candidate,
+/// The private prepared driver on the unchanged 0.7.0 milestone: the candidate,
 /// its captured invocation and the bytes of its single ordinary run.
 fn milestone_candidate(mode: PreviewSolverMode) -> (rp::PrivatePreparedCandidate, source_receipt::CapturedInvocation, Vec<u8>) {
     let raw = milestone_raw();
-    assert_eq!(raw["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "milestone request unchanged at 0.6.0");
+    assert_eq!(raw["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "milestone request unchanged at 0.7.0");
     let (request, capture) = source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
     let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
     let ordinary = serde_json::to_vec(prepared.ordinary()).unwrap();

@@ -95,7 +95,7 @@ needs:
 - from: DEL-02-05
   condition: 'DEL-12-01''s storage conventions must stay compatible with DEL-02-05''s project persistence:
     deterministic round-trip serialization through the native local store (`apps/desktop/src-tauri/src/lib.rs`),
-    which applies the one model-document version check (0.6.0 current; every other version refused by
+    which applies the one model-document version check (0.7.0 current; every other version refused by
     name, nothing migrated) and never rewrites a stored document, and the store''s own versioned schema
     migration ledger. Runtime storage service, package/container mechanics, OS roots and approval choices
     remain deferred.

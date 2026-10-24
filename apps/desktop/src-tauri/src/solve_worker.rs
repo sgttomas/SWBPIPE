@@ -961,7 +961,8 @@ pub(crate) mod tests {
     pub(crate) const CHILD_ENV: &str = "SWBPIPE_TEST_SOLVE_WORKER";
     pub(crate) const OUT_FD_ENV: &str = "SWBPIPE_TEST_WORKER_OUT_FD";
     pub(crate) const WORKLOAD_ENV: &str = "SWBPIPE_TEST_WORKER_WORKLOAD";
-    pub(crate) const EXIT_DELAY_ENV: &str = "SWBPIPE_TEST_WORKER_EXIT_DELAY_MS";
+    /// A directory: the worker's exit is held until `exit-released` exists in it.
+    pub(crate) const EXIT_GATE_ENV: &str = "SWBPIPE_TEST_WORKER_EXIT_GATE";
     const MIB: u64 = 1 << 20;
 
     /// The worker entry in the test binary: inert unless started as a worker.
@@ -976,10 +977,39 @@ pub(crate) mod tests {
         std::env::var(WORKLOAD_ENV).ok()
     }
 
+    /// Holds the worker's exit, after its terminal frame is sent, until the
+    /// test releases it ([`EXIT_GATE_ENV`]) or removes the directory.
     pub(super) fn exit_delay() {
-        if let Some(ms) = std::env::var(EXIT_DELAY_ENV).ok().and_then(|v| v.parse().ok()) {
-            std::thread::sleep(Duration::from_millis(ms));
+        if let Some(dir) = std::env::var_os(EXIT_GATE_ENV).map(std::path::PathBuf::from) {
+            await_release(&dir, "exit-released");
         }
+    }
+
+    /// Waits until `dir/name` exists, or `dir` is gone (its test has ended).
+    fn await_release(dir: &std::path::Path, name: &str) {
+        while dir.is_dir() && !dir.join(name).exists() {
+            std::thread::sleep(Duration::from_millis(2));
+        }
+    }
+
+    /// Maps `total` bytes outside the counted heap (anonymous mappings,
+    /// touched) in `step`-byte steps, `interval_ms` apart; returns the bytes mapped.
+    #[cfg(unix)]
+    fn map_uncounted(step: usize, total: usize, interval_ms: u64) -> usize {
+        let mut mapped = 0;
+        while mapped < total {
+            // SAFETY: an anonymous private mapping of `step` bytes, touched page by page (kept until exit).
+            unsafe {
+                let map = libc::mmap(std::ptr::null_mut(), step, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_PRIVATE | libc::MAP_ANON, -1, 0);
+                assert_ne!(map, libc::MAP_FAILED);
+                for offset in (0..step).step_by(4096) {
+                    *(map as *mut u8).add(offset) = 1;
+                }
+            }
+            mapped += step;
+            std::thread::sleep(Duration::from_millis(interval_ms));
+        }
+        mapped
     }
 
     fn touched(bytes: usize) -> Vec<u8> {
@@ -1078,21 +1108,16 @@ pub(crate) mod tests {
             // it for `arg3` ms: only polling sees it.
             #[cfg(unix)]
             "uncounted" => {
-                let (step, total) = (arg(0) as usize, arg(1) as usize);
-                let mut mapped = 0;
-                while mapped < total {
-                    // SAFETY: an anonymous private mapping of `step` bytes, touched page by page (kept until exit).
-                    unsafe {
-                        let map = libc::mmap(std::ptr::null_mut(), step, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_PRIVATE | libc::MAP_ANON, -1, 0);
-                        assert_ne!(map, libc::MAP_FAILED);
-                        for offset in (0..step).step_by(4096) {
-                            *(map as *mut u8).add(offset) = 1;
-                        }
-                    }
-                    mapped += step;
-                    std::thread::sleep(Duration::from_millis(arg(2)));
-                }
+                let mapped = map_uncounted(arg(0) as usize, arg(1) as usize, arg(2));
                 std::thread::sleep(Duration::from_millis(arg(3)));
+                Ok(mapped.to_string())
+            }
+            // As `uncounted`, but the memory is held until the test creates
+            // `hold-released` in the directory `arg3`, not for a fixed time.
+            #[cfg(unix)]
+            "uncounted_gate" => {
+                let mapped = map_uncounted(arg(0) as usize, arg(1) as usize, arg(2));
+                await_release(std::path::Path::new(args.splitn(4, ':').nth(3).unwrap()), "hold-released");
                 Ok(mapped.to_string())
             }
             // The fds open in the worker.
@@ -1205,6 +1230,8 @@ pub(crate) mod tests {
 
     struct Hooks {
         attached: Option<Arc<WorkerControl>>,
+        /// When the supervisor attached the spawned worker.
+        attached_at: Option<Instant>,
         cancelled: Arc<std::sync::atomic::AtomicBool>,
         grants: Arc<Mutex<Vec<u64>>>,
         /// The grant in force when each footprint was observed.
@@ -1216,6 +1243,7 @@ pub(crate) mod tests {
     impl SupervisorHooks for Hooks {
         fn attach(&mut self, control: Arc<WorkerControl>) -> bool {
             self.attached = Some(control);
+            self.attached_at = Some(Instant::now());
             !self.cancelled()
         }
         fn cancelled(&self) -> bool {
@@ -1239,6 +1267,7 @@ pub(crate) mod tests {
         observed: Vec<(u64, u64)>,
         events: Vec<Event>,
         pid: Option<i32>,
+        attached_at: Option<Instant>,
     }
 
     impl Run {
@@ -1264,6 +1293,7 @@ pub(crate) mod tests {
         let ingress = pool.acquire(crate::ingress::allocation_envelope(body.len() as u64).unwrap(), LeasePurpose::Ingress).unwrap();
         let mut hooks = Hooks {
             attached: None,
+            attached_at: None,
             cancelled: Default::default(),
             grants: Default::default(),
             current: start,
@@ -1277,7 +1307,14 @@ pub(crate) mod tests {
         drop(grant);
         assert_eq!(pool.running_workers(), 0);
         let grants = hooks.grants.lock().unwrap().clone();
-        Run { outcome, grants, observed: hooks.observed, events: hooks.events, pid: hooks.attached.map(|c| c.pid()) }
+        Run {
+            outcome,
+            grants,
+            observed: hooks.observed,
+            events: hooks.events,
+            pid: hooks.attached.map(|c| c.pid()),
+            attached_at: hooks.attached_at,
+        }
     }
 
     fn assert_reaped(pid: Option<i32>) {
@@ -1314,6 +1351,7 @@ pub(crate) mod tests {
         let ingress = pool.acquire(64, LeasePurpose::Ingress).unwrap();
         let mut hooks = Hooks {
             attached: None,
+            attached_at: None,
             cancelled: Default::default(),
             grants: Default::default(),
             current: PROCESS_RESERVE_BYTES + MIB,
@@ -1539,8 +1577,26 @@ pub(crate) mod tests {
         let pool = pool();
         let reserve = 16 * MIB;
         let start = initial_grant(reserve, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap();
-        let launcher = TestLauncher::scripted(format!("uncounted:{}:{}:50:800", 8 * MIB, 48 * MIB));
+        // The worker holds its memory until a poll has grown the grant to
+        // cover it, not for a fixed time a delayed supervisor could miss.
+        let gate = Gate::new("uncounted");
+        let launcher = TestLauncher::scripted(format!("uncounted_gate:{}:{}:50:{}", 8 * MIB, 48 * MIB, gate.dir.display()));
+        let releaser = {
+            let (pool, dir) = (pool.clone(), gate.dir.clone());
+            std::thread::spawn(move || {
+                // A bounded wait (a hang guard): the hold is released in any
+                // case. A removed gate (the test has ended) ends the releaser.
+                let deadline = Instant::now() + Duration::from_secs(60);
+                while pool.reserved(LeasePurpose::Worker) < 48 * MIB && Instant::now() < deadline && dir.is_dir() {
+                    std::thread::sleep(Duration::from_millis(2));
+                }
+                if let Err(error) = std::fs::write(dir.join("hold-released"), b"") {
+                    assert!(!dir.is_dir(), "{error}");
+                }
+            })
+        };
         let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
+        releaser.join().unwrap();
         assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == b"50331648"), "{:?}", run.outcome);
         assert!(run.grew_to_cover_a_footprint_above_the_grant(reserve, 12 * GIB), "{:?}", run.events);
         assert!(*run.grants.last().unwrap() >= 48 * MIB, "the lease covers the uncounted memory: {:?}", run.grants);
@@ -1549,8 +1605,10 @@ pub(crate) mod tests {
         // Beyond the budget: found by a poll, killed, refused.
         let budget = reserve + 24 * MIB;
         let launcher = TestLauncher::scripted(format!("uncounted:{}:{}:50:5000", 8 * MIB, 64 * MIB));
-        let started = std::time::Instant::now();
         let run = super::tests::run(&pool, &*launcher, BODY, budget, reserve);
+        // From the worker's start, which precedes its 5 s hold: the spawn
+        // (serialized with other tests' spawns) is no part of the poll's promptness.
+        let started = run.attached_at.expect("a worker was attached");
         match run.outcome {
             WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
                 assert!(grant_bytes >= start && grant_bytes <= budget);

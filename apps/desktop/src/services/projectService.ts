@@ -1,5 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
+import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
+import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
+import { modelDocumentSlotValidation } from "../features/model-file/modelDocumentShape";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -48,13 +51,11 @@ function hasTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
-// DEL-02-05 CLM-003 (b7-plan "Current model format"): model document 0.6.0 is
-// the one current version; its pressure_contract is optional and its absence
-// makes the document pressure-free. Every other version is refused by name and
-// nothing is migrated. Mirrors apps/desktop/src-tauri/src/model_document_version.rs.
-export const MODEL_SCHEMA_VERSION = "0.6.0";
-// Retired versions, refused by name with a re-author diagnostic.
-export const RETIRED_MODEL_SCHEMA_VERSIONS: ReadonlyArray<string> = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0"];
+// DEL-02-05 CLM-003 (b7-plan "Current model format"): MODEL_SCHEMA_VERSION is
+// the one current model document version; its pressure_contract is optional and
+// its absence makes the document pressure-free. Every other version is refused by
+// name and nothing is migrated. Mirrors apps/desktop/src-tauri/src/model_document_version.rs.
+export { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
 
 function parseSemver(raw: string): [number, number, number] | null {
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(raw);
@@ -73,7 +74,7 @@ export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentVe
       source_schema_version: raw,
       target_schema_version: raw,
       detail:
-        "Model document 0.6.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately."
+        `Model document ${MODEL_SCHEMA_VERSION} is the current version; a pressure contract, when present, and solve eligibility are validated separately.`
     };
   }
   const version = parseSemver(raw);
@@ -145,7 +146,32 @@ function requireEditableModelDocument(model: PreviewModel): ModelDocumentVersion
       `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}`
     );
   }
+  refuseMalformedModelSlots(model);
   return status;
+}
+
+/** W-13 §5.3 (S2): the browser-preview project store refuses to create, save or
+ * open a document whose model-data slots carry a blocking validator finding,
+ * named with its JSON path, as the native store does in src-tauri
+ * (`refuse_malformed_model_slots`). The check is `modelDocumentSlotValidation`,
+ * which also refuses, by name, when the wasm engine that holds the validator is
+ * not loaded or reports an input error: the store never adopts an unchecked
+ * document. */
+export function refuseMalformedModelSlots(model: PreviewModel): void {
+  const { blocking } = modelDocumentSlotValidation(model);
+  if (blocking.length > 0) {
+    throw new Error(`Model document refused: malformed model-data slots: ${blocking.map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}: ${item.message}`).join(" | ")}`);
+  }
+}
+
+/** Load the wasm engine (the validator's home) before a browser-preview store
+ * check; a failed load leaves the engine absent, which the check then names. */
+async function loadValidatorEngine(): Promise<void> {
+  try {
+    await loadWasmEngine();
+  } catch {
+    // Absence is reported by refuseMalformedModelSlots as WASM-ENGINE-ASSET-ABSENT.
+  }
 }
 
 function localOnlyCapability(): LocalStorageCapability {
@@ -443,12 +469,12 @@ export function buildBlankLocalModelDocument(
 }
 
 /** T1 WP3 (D3): a blank document for load/reference-state work, beside the unchanged
- * blank path. B7b: it is model 0.6.0 with the exact contract the load/reference-state
+ * blank path. B7b: it is the current model version with the exact contract the load/reference-state
  * group requires, the current 3.0.0/exact_pressure_v3 (since T4-U8 with the authoring
  * default timoshenko_annulus_energy_v1, D-6/O3), and an empty
  * reference-configuration list; it carries no materials, sections, cases or reference
  * values, and no document is upgraded to produce it. */
-export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = "0.6.0";
+export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = MODEL_SCHEMA_VERSION;
 export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" } as const;
 export function buildBlankLoadStateModelDocument(
   createdAt: Date = new Date(),
@@ -461,7 +487,7 @@ export function buildBlankLoadStateModelDocument(
     pressure_contract: { ...BLANK_LOAD_STATE_PRESSURE_CONTRACT },
     reference_configurations: [],
     ...blank,
-    project: { ...blank.project, name: "Blank Local Load/reference Model 0.6.0" }
+    project: { ...blank.project, name: `Blank Local Load/reference Model ${MODEL_SCHEMA_VERSION}` }
   };
 }
 
@@ -477,6 +503,7 @@ export async function createLocalProject(
   confirmedRevision: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    await loadValidatorEngine();
     refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, null);
     return storeBrowserProject(envelope(
       model,
@@ -503,8 +530,11 @@ export async function createLocalProject(
   });
 }
 
-/** A stored project's index entry and the revision a Replace of it confirms. */
-export type StoredProjectEntry = LocalProjectIndexEntry & { revision: string };
+/** A stored project's index entry and the revision a Replace of it confirms.
+ * `saved_state_count` and `recorded_run_count` (W-12 §2, §3): the saved model
+ * states and recorded runs a Replace keeps; the native store reports them, the
+ * browser preview keeps neither. */
+export type StoredProjectEntry = LocalProjectIndexEntry & { revision: string; saved_state_count?: number; recorded_run_count?: number };
 
 function browserRevision(stored: BrowserStoredProject): string {
   return `${stored.envelope.project_envelope_hash?.value ?? ""}@${stored.writeSequence}`;
@@ -550,6 +580,7 @@ export async function openLocalProject(projectId: string | null = null): Promise
   if (!hasTauriRuntime()) {
     const stored = projectId ? browserPreviewStore.get(projectId) : browserProjectsByRecency()[0];
     if (!stored) return null;
+    await loadValidatorEngine();
     requireEditableModelDocument(stored.envelope.model);
     const opened = cloneEnvelope(stored.envelope);
     opened.summary.message = projectId
@@ -586,6 +617,7 @@ export async function saveLocalProject(
   expectedBase: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    await loadValidatorEngine();
     refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
     return storeBrowserProject(envelope(
       model,
