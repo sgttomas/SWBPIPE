@@ -473,7 +473,7 @@ package needs:
 
 The exact-route document already exists (`resultExportAdapter.ts:82-83,88`).
 
-## 3. A shareable report path: the DEL-12-02 check (finding only)
+## 3. A shareable report path: the DEL-12-02 check (finding; option B decided, §7)
 
 **What the product does today.**
 - Every session value is classified `private_project_data` / `private_only`
@@ -638,22 +638,30 @@ Implementation edits (not commitment text):
 (b1) and (b2) may land as one PR if review prefers. The order is (a), then (b1)
 and (b2).
 
-## 7. Open items
+## 7. Decided items and the wording route
 
-- **O-1 (owner): the shareable path.** §3 options A, B or C. If none is chosen,
-  the product has no shareable report and the notice stays.
-- **O-2 (manager, owner if it changes a check): the runner transition.**
-  - Recommended: the fixture transition (§2.7). It keeps the determinism and
-    zip-exact witness.
-  - Alternative: a named refusal. This changes an existing success witness and
-    test expectation into a refusal, so it needs the owner's agreement.
-- **O-3 (manager): sequencing on W-6a.** (b1) depends on #1588. If #1588 is
-  delayed, the alternatives are:
-  - (i) wait;
-  - (ii) land (b1) with its own copy and dedupe in a follow-up. This is not
-    recommended: it duplicates the import-parity logic.
-- **O-4 (manager wording route): Appendix A.** A5-A7 change commitment and
-  acceptance text, so the owner accepts them.
+- **O-1, decided by the owner (2026-10-24):** "I accept your recommendations for
+  each of these three: G10, W-12, W-18." This is option B, a user release of the
+  user's own project data, in v0.1, sequenced after W-6a and this package
+  (W-18a).
+  - The release is recorded **per report** (HELP_HUMAN, 2026-10-24, option (1)).
+    It is made at report time by an explicit selection and the user's statement
+    of the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6).
+  - It is recorded in that report's `report_context` and the package manifest,
+    and bound to the model hash and result-set identity the report covers.
+  - Nothing persists, and there is no model-document change. A report without
+    the selection stays local-private exactly as described here.
+  - The design is W-18b, in its own section or design after this one. It needs
+    the DEL-12-02 classification (wording route), targeted regression checks
+    and Codex scrutiny. This design does not build it.
+- **O-2, decided (manager): the fixture transition** (§2.7). It keeps the
+  determinism and zip-exact witnesses, and no existing success expectation
+  becomes a refusal.
+- **O-3, decided (manager): wait for #1588.** Slice (b1) builds on W-6a's merged
+  screening module; nothing is copied.
+- **O-4: the wording route.** Appendix A's A1–A7 old → new texts are reviewed by
+  Codex as exact text and go to HELP_HUMAN before they are applied. They are
+  applied in the implementing slice's PR.
 
 ## Appendix A. Wording-route drafts (old → new; not applied)
 
