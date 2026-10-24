@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
 import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
+import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
+import { modelDocumentSlotValidation } from "../features/model-file/modelDocumentShape";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -144,7 +146,32 @@ function requireEditableModelDocument(model: PreviewModel): ModelDocumentVersion
       `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}`
     );
   }
+  refuseMalformedModelSlots(model);
   return status;
+}
+
+/** W-13 §5.3 (S2): the browser-preview project store refuses to create, save or
+ * open a document whose model-data slots carry a blocking validator finding,
+ * named with its JSON path, as the native store does in src-tauri
+ * (`refuse_malformed_model_slots`). The check is `modelDocumentSlotValidation`,
+ * which also refuses, by name, when the wasm engine that holds the validator is
+ * not loaded or reports an input error: the store never adopts an unchecked
+ * document. */
+export function refuseMalformedModelSlots(model: PreviewModel): void {
+  const { blocking } = modelDocumentSlotValidation(model);
+  if (blocking.length > 0) {
+    throw new Error(`Model document refused: malformed model-data slots: ${blocking.map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}: ${item.message}`).join(" | ")}`);
+  }
+}
+
+/** Load the wasm engine (the validator's home) before a browser-preview store
+ * check; a failed load leaves the engine absent, which the check then names. */
+async function loadValidatorEngine(): Promise<void> {
+  try {
+    await loadWasmEngine();
+  } catch {
+    // Absence is reported by refuseMalformedModelSlots as WASM-ENGINE-ASSET-ABSENT.
+  }
 }
 
 function localOnlyCapability(): LocalStorageCapability {
@@ -476,6 +503,7 @@ export async function createLocalProject(
   confirmedRevision: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    await loadValidatorEngine();
     refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, null);
     return storeBrowserProject(envelope(
       model,
@@ -549,6 +577,7 @@ export async function openLocalProject(projectId: string | null = null): Promise
   if (!hasTauriRuntime()) {
     const stored = projectId ? browserPreviewStore.get(projectId) : browserProjectsByRecency()[0];
     if (!stored) return null;
+    await loadValidatorEngine();
     requireEditableModelDocument(stored.envelope.model);
     const opened = cloneEnvelope(stored.envelope);
     opened.summary.message = projectId
@@ -585,6 +614,7 @@ export async function saveLocalProject(
   expectedBase: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    await loadValidatorEngine();
     refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
     return storeBrowserProject(envelope(
       model,

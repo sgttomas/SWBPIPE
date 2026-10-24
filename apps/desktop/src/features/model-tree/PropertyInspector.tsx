@@ -7,6 +7,7 @@ import { JointPressureModelEditor } from "../pressure-authoring/JointPressureMod
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
+import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -587,6 +588,10 @@ export function PropertyInspector({
       <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <details className="inspector-details" data-testid="model-data-annotations-details">
+        <summary>Tags, notes and provenance</summary>
+        <ModelDataAnnotations key={`model-data:${projectSessionGeneration}`} model={model} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      </details>
       <details className="inspector-details">
         <summary>New section</summary>
         <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
@@ -3150,3 +3155,14 @@ function deepFreezeIntent(intent: EditorOperationIntent): EditorOperationIntent 
   };
   return visit(intent) as EditorOperationIntent;
 }
+
+/** The inspector's create paths (default drafts and intent builders), for the
+ * desktop emission golden that drives each authoring path (W-13 §5.2). */
+export const inspectorAuthoringPaths = {
+  defaultMaterialDraft,
+  buildCreateMaterialIntent,
+  defaultSectionDraft,
+  buildCreateSectionIntent,
+  defaultSupportDraft,
+  buildCreateSupportIntent
+};

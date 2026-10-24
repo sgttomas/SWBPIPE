@@ -485,11 +485,22 @@ fn r12_unknown_slots_refuse_and_stored_diagnostics_are_skipped() {
     m["extension"] = json!({"required_input_refs": [{"id": "pipe:P"}]});
     let refusal = refused(&m, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
     assert_eq!(refusal[0].message, "Cannot reconnect pipe:P: pipe:P is named at extension.required_input_refs[0].id, which reconnect does not carry across a geometry change.");
-    // The S2 collections do not exist yet: a document carrying one fails closed.
+    // S2 (0.7.0 design §6; §2.2 here): the scan does not read the model-data
+    // collections. A line keeps P by id across the reconnect; an assumption, a
+    // constraint or an equipment interface naming P or O never blocks; tags and
+    // notes are annotations, not links.
     let mut m = base.clone();
-    m["lines"] = json!([{"id": "line:1", "member_pipe_ids": ["pipe:P"]}]);
-    let refusal = refused(&m, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
-    assert_eq!(refusal[0].affected_refs, vec!["pipe:P", "line:1"]);
+    m["lines"] = json!([{"id": "line:1", "label": "Invented line", "pipe_refs": ["pipe:P"]}]);
+    m["unresolved_assumptions"] = json!([{"assumption_id": "assumption:1", "kind": "assumption", "statement": "Invented.", "status": "unresolved", "affected_refs": ["node:B", "pipe:P"]}]);
+    m["constraints"] = json!([{"constraint_id": "constraint:1", "name": "Invented", "constraint_kind": "clearance", "state": "proposed", "target_refs": ["pipe:P"], "statement": "Invented."}]);
+    m["equipment_interfaces"] = json!([{"id": "equipment-interface:1", "label": "Invented nozzle", "node_ref": "node:B", "equipment_label": "Invented pump"}]);
+    m["pipe_segments"][1]["tags"] = json!(["pipe:P"]);
+    m["supports"][0]["notes"] = json!("node:C");
+    let (applied, warnings, _) = accepted(&m, &intent);
+    assert!(warnings.is_empty(), "{warnings:?}");
+    for slot in ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces"] {
+        assert_eq!(applied[slot], m[slot], "{slot} is carried unchanged");
+    }
     // An unknown slot naming F.
     let mut m = base.clone();
     m["supports"][0]["reaction_node_ref"] = json!("node:A");

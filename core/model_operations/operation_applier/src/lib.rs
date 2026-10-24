@@ -25,6 +25,8 @@ mod boundary_association;
 mod display_units;
 pub mod document_validator;
 mod geometry_operations;
+mod library_apply;
+mod model_data_authoring;
 mod pipe_reconnect;
 mod rich_authoring;
 mod retained_semantics_binding;
@@ -39,6 +41,7 @@ mod section_bindings;
 mod b7b_transport_tests;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
+pub use library_apply::derived_shear_modulus_pa;
 pub use document_validator::{validate_model_document, DocumentDiagnostic};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
@@ -879,7 +882,12 @@ fn collection_for(object_type: &str) -> Option<&'static str> {
         "Component" => Some("components"),
         "Load" => Some("load_cases"),
         "Combination" => Some("combinations"),
-        _ => None,
+        // W-13 §6: the model-data record families (lines, assumptions,
+        // constraints, equipment interfaces, rule-pack references). Their
+        // records are found by each family's id key
+        // (`model_data_authoring::target`); `Project` is a singleton target
+        // for project tags and notes and has no collection.
+        other => model_data_authoring::collection_for(other),
     }
 }
 
@@ -1143,6 +1151,16 @@ mod wasm_api {
         })
     }
 
+    /// W-17 §2.3a: the shear modulus a library insert derives from E and ν,
+    /// as `{"value": <G in Pa>, "unit": "Pa"}`, or `{"error": …}`.
+    #[wasm_bindgen]
+    pub fn derived_shear_modulus_json(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> String {
+        match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
+            Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
+            Err(error) => json!({"error": error}).to_string(),
+        }
+    }
+
     /// Canonicalize a JSON document with the engine's canonical form —
     /// RFC 8785 (JCS) since completion-plan H5 — the same function the
     /// engine uses for model hashes. H1 / F-5a hash seam: the desktop
@@ -1382,7 +1400,8 @@ fn run_with_context(
     // never writes it, through any operation that can.
     let writes_flexibility = change_kind == "insert_bend_at_corner"
         || (object_type == "Component"
-            && matches!(field_path.as_str(), "bend_realization" | "modifiers.flexibility_factor_user_value.value"));
+            && matches!(field_path.as_str(), "bend_realization" | "modifiers.flexibility_factor_user_value.value"))
+        || (change_kind == library_apply::CHANGE_KIND && library_apply::writes_flexibility(intent));
     if writes_flexibility && string_at(intent, &["author_type"]).as_deref() != Some("user") {
         checker.schema_blocked = true;
         checker.push(
@@ -1459,6 +1478,69 @@ fn run_with_context(
         }
     }
 
+    // W-13 §6: model-data record operations (lines, assumptions,
+    // constraints, equipment interfaces, rule-pack references). They resolve
+    // to a candidate document and diff rows like the geometry operations.
+    if model_data_authoring::is_record_change_kind(&change_kind) && !checker.schema_blocked {
+        match model_data_authoring::resolve_record(model, intent) {
+            Ok(edit) => {
+                checker.reference_state = "passed";
+                checker.unit_state = "passed";
+                checker.before_state = "passed";
+                geometry_edit = Some(edit);
+            }
+            Err(error) => {
+                if error.code == "OP-STALE-BEFORE-VALUE" {
+                    checker.before_state = "blocked_stale";
+                }
+                checker.push(
+                    error.code,
+                    "blocking",
+                    error.message,
+                    "Refresh the record from the current model and correct the explicit payload.",
+                    error.affected_refs,
+                );
+            }
+        }
+    }
+
+    // W-17 (DEL-03-01 Design apply-library-records.md §2.2): a library
+    // record applied to an existing material, section or component. The
+    // change names every member it writes; a section carries its bound pipes.
+    if change_kind == library_apply::CHANGE_KIND && !checker.schema_blocked {
+        if claimed_model_hash.is_none_or(Value::is_null) {
+            checker.schema_blocked = true;
+            checker.push(
+                "OP-LIBRARY-APPLY-MODEL-HASH-REQUIRED",
+                "blocking",
+                "Applying a library record requires the current complete model hash.".into(),
+                "Refresh the model basis before review and application.",
+                vec![target_ref.clone()],
+            );
+        } else {
+            match library_apply::resolve(model, intent) {
+                Ok(edit) => {
+                    checker.reference_state = "passed";
+                    checker.unit_state = "passed";
+                    checker.before_state = "passed";
+                    geometry_edit = Some(edit);
+                }
+                Err(error) => {
+                    if error.code == "OP-STALE-BEFORE-VALUE" {
+                        checker.before_state = "blocked_stale";
+                    }
+                    checker.push(
+                        error.code,
+                        "blocking",
+                        error.message,
+                        "Prepare the library apply again from the current model and the stored library record.",
+                        error.affected_refs,
+                    );
+                }
+            }
+        }
+    }
+
     // Field-level resolution proceeds only for supported structured payloads;
     // underspecified viewport gestures are held rather than invented.
     let rich_kind = match (object_type.as_str(), field_path.as_str()) {
@@ -1470,6 +1552,11 @@ fn run_with_context(
         ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
         ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
+        // W-13 §6: tags, notes and provenance_record on each family's existing
+        // change kind; clearing removes the member.
+        (object, field) if model_data_authoring::is_annotation(object, field) => {
+            Some(model_data_authoring::annotation_change_kind(object))
+        }
         _ => None,
     };
     if object_type == "Load" && field_path == "generated_self_weight"
@@ -1523,6 +1610,8 @@ fn run_with_context(
                 bend_authoring::resolve
             } else if load_state_authoring::owns(&object_type, &field_path) {
                 load_state_authoring::resolve
+            } else if model_data_authoring::is_annotation(&object_type, &field_path) {
+                model_data_authoring::resolve_annotation
             } else {
                 rich_authoring::resolve
             };
@@ -1545,9 +1634,9 @@ fn run_with_context(
                         &mut checker,
                     );
                     let mut candidate = model.clone();
-                    let target = if object_type == "Model" { Some(&mut candidate) } else { collection_for(&object_type).and_then(|collection| {
-                        find_entity_mut(&mut candidate, collection, &target_ref)
-                    }) };
+                    let target = if object_type == "Model" { Some(&mut candidate) } else {
+                        model_data_authoring::target_mut(&mut candidate, &object_type, &target_ref)
+                    };
                     let mut written = true;
                     if let Some(target) = target {
                         for (segments, value) in &edit.writes {
@@ -2067,11 +2156,18 @@ fn run_with_context(
 
     if !blocking {
         diff_preview.extend(section_diffs);
+        // W-13 §3.2: deleting a pipe also removes it from its line.
+        if let Some(pipe_id) = &deleted_pipe {
+            diff_preview.extend(model_data_authoring::remove_pipe_from_lines(&mut model.clone(), pipe_id));
+        }
     }
 
+    // The candidate result is built in both modes so the one document
+    // validator judges a validate-only preview exactly as it judges the
+    // apply (W-13 §5.3); a validate-only outcome never returns it.
     let mut applied_model = None;
     let mut applied_model_backend_hash = None;
-    if mode == Mode::Apply && !blocking {
+    if !blocking {
         if let Some(candidate) = geometry_edit
             .map(|edit| edit.model)
             .or(section_model)
@@ -2291,6 +2387,10 @@ fn run_with_context(
             );
         }
     }
+    if mode == Mode::ValidateOnly {
+        applied_model = None;
+        applied_model_backend_hash = None;
+    }
 
     let blocking_after_apply = checker.blocking();
     let applied = applied_model.is_some();
@@ -2508,7 +2608,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "delete_support"
             | "delete_combination_term"
             | "insert_component_symbol"
-    );
+            | "apply_library_record"
+    ) || model_data_authoring::operation_kind_for(change_kind).is_some();
     if !supported_change {
         checker.schema_blocked = true;
         checker.push(
@@ -2525,7 +2626,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
-        | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner" => "modify",
+        | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner"
+        | "apply_library_record" => "modify",
         "create_node"
         | "create_section"
         | "create_material"
@@ -2544,7 +2646,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         "delete_pipe_run" => "delete",
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
-        _ => unreachable!("supported_change guarantees a known change kind"),
+        other => model_data_authoring::operation_kind_for(other)
+            .expect("supported_change guarantees a known change kind"),
     };
     if operation_kind != expected_operation_kind {
         checker.schema_blocked = true;
@@ -3913,6 +4016,11 @@ fn entity_reference_paths(
         }
         Value::Object(map) => {
             for (key, item) in map {
+                // W-13 §6: tags, notes and provenance records are annotations,
+                // never references.
+                if model_data_authoring::ANNOTATION_MEMBERS.contains(&key.as_str()) {
+                    continue;
+                }
                 let is_ref = (key == "id" && (reference_slot || map.contains_key("object_type")))
                     || key == "ref"
                     || key.ends_with("_ref")
@@ -4007,6 +4115,14 @@ fn resolve_delete_entity(
         .and_then(Value::as_array_mut)
         .unwrap()
         .retain(|row| row.get("id").and_then(Value::as_str) != Some(target_ref));
+    // W-13 §3.3, §6: naming an entity in a line, assumption, constraint,
+    // equipment interface or rule-pack reference never blocks its deletion;
+    // a missing subject is the document validator's warning.
+    if let Some(root) = remainder.as_object_mut() {
+        for slot in model_data_authoring::MODEL_DATA_COLLECTIONS {
+            root.remove(slot);
+        }
+    }
     let mut references = Vec::new();
     entity_reference_paths(&remainder, &ids, "$", false, &mut references);
     if !references.is_empty() {
@@ -4367,7 +4483,7 @@ fn resolve_create_section(
         return None;
     }
 
-    Some(serde_json::json!({
+    let mut section = serde_json::json!({
         "id": id,
         "name": name,
         "section_type": "pipe",
@@ -4376,7 +4492,13 @@ fn resolve_create_section(
             "wall_thickness": { "value": wall_thickness.value, "unit": wall_thickness.unit }
         },
         "provenance": provenance,
-    }))
+    });
+    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // record; the document validator judges its members.
+    if let Some(record) = record.get("provenance_record") {
+        section["provenance_record"] = record.clone();
+    }
+    Some(section)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -4515,7 +4637,13 @@ fn resolve_create_material(
     let shear_modulus = dimensioned_quantity(record, &["shear_modulus"], Dimension::Stress, true);
     let exact_material = record.contains_key("constitutive_basis") || record.contains_key("poisson_ratio");
     if exact_material {
-        if let Err(error) = pressure_authoring::validate_create_material(&payload) {
+        // The structured provenance record is the document validator's to
+        // judge; the constitutive check sees the material members only.
+        let mut constitutive = payload.clone();
+        if let Some(map) = constitutive.as_object_mut() {
+            map.remove("provenance_record");
+        }
+        if let Err(error) = pressure_authoring::validate_create_material(&constitutive) {
             checker.push(error.code, "blocking", error.message, "Supply explicit E/nu constitutive inputs.", vec![target_ref.to_string()]);
             return None;
         }
@@ -4591,6 +4719,11 @@ fn resolve_create_material(
             "value": thermal.value,
             "unit": thermal.unit,
         });
+    }
+    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // record; the document validator judges its members.
+    if let Some(record) = record.get("provenance_record") {
+        material["provenance_record"] = record.clone();
     }
 
     Some(material)
@@ -4840,6 +4973,7 @@ fn resolve_create_support(
         "hanger",
         "nonlinear",
         "boundary_association",
+        "provenance_record",
     ] {
         if let Some(value) = record.get(key) {
             support[key] = value.clone();
@@ -4858,6 +4992,7 @@ fn resolve_create_support(
             "hanger",
             "nonlinear",
             "boundary_association",
+            "provenance_record",
         ]
         .contains(&key.as_str())
     }) {
@@ -7941,6 +8076,8 @@ fn apply_deleted_pipe(model: &mut Value, pipe_id: &str) -> bool {
         return false;
     };
     pipes.remove(index);
+    // W-13 §3.2: the pipe leaves its line in the same operation.
+    model_data_authoring::remove_pipe_from_lines(model, pipe_id);
     true
 }
 
