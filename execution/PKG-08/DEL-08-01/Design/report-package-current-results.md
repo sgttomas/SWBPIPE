@@ -3,8 +3,9 @@
 **Basis:** `origin/main` at `9361129700` (2026-10-24), after W-3 (#1553, the
 local-private rendered report) and W-19 (#1585, the rule-check headline).
 Citations are at that head unless marked as the unmerged W-6a branch
-(`claude/piping-reports-w6a-20261024` at `c38e1b63cb`, PR #1588). Revision 3,
-after two independent Codex reviews. Design before implementation.
+(`claude/piping-reports-w6a-20261024` at `cb87128b69`, PR #1588; its screening
+code is unchanged from `c38e1b63cb`). Revision 4, after three independent Codex
+reviews. Design before implementation.
 Standard claim fence applies (claims taxonomy per DEC-081).
 
 ## 0. Rulings and requirements
@@ -99,10 +100,17 @@ Standard claim fence applies (claims taxonomy per DEC-081).
 - **Menu.** Enablement stays synchronous: the route gate plus the presence
   checks (`App.tsx:354`). There is no asynchronous precheck. A builder refusal is
   shown in the status line after the attempt (`App.tsx:734`).
-- **Retired.** `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE` and `N_REPORT`
-  (`knownSemanticLimitations.ts:27,36`; `wire.rs:659-704,711-718`), the test seam
-  `assembleReportPackageRequestBelowAvailabilityGate` and their tests; the texts
-  that cite them change as §5 lists.
+- **Retired, by slice.**
+  - In (a), the shared producer's fresh-result refusal and its metadata tokens
+    (`wire.rs:659-704,711-718`) are retired. The native command keeps the same
+    code as its temporary hold (§2.6, "Slice (a) hold").
+  - In (b1), that hold is removed.
+  - In (b2), the TypeScript gate's `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE` and
+    `N_REPORT` (`knownSemanticLimitations.ts:27,36`), the test seam
+    `assembleReportPackageRequestBelowAvailabilityGate` and their tests are
+    retired.
+
+  The texts that cite them change as §5 lists.
 
 ### 2.2 Members (package version 2.0.0)
 
@@ -146,29 +154,30 @@ new request. Changes from `wire.rs:8-20`:
 - `rule_check_aggregate`, `solve_rule_check_status` stay.
 
 Before assembly, a new `report_package::bindings` module checks, in this order,
-each with a named `REPORT-PACKAGE-…` code. Items 1-3 are source-independent and
-shared with the reader; items 4-7 need the source and the request.
+each with a named `REPORT-PACKAGE-…` code:
+- item 0 is the route preflight;
+- items 1-3 are source-independent and shared with the reader;
+- items 4-8 need the source and the request.
+
+0. **Route preflight.** The producer reads `result_envelope.producer.semantic_contract_id`
+   first. If the id is outside the package's admitted set, `[PREVIEW_PHYSICS_ID]`
+   only, it returns `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`. That includes an
+   unknown id and a missing one. So the exact routes stay closed at both
+   boundaries, and an unknown id is not reported as a form error, which the
+   schema's producer enum would otherwise produce first (`results.v0.3.schema.yaml:989-995`).
+   Route admission is the producer's check. It is distinct from the header
+   dispatch in item 2.
 1. **Document form: the complete 0.3.0 contract.** A new source-independent
    validator, `result_export::document_form::validate_result_export_form(doc)`,
    replaces what `validate_result_envelope` gave the 1.0.0 path
    (`result_export/src/lib.rs:397-479`; called at
    `report_package/src/lib.rs:220-239`). `validate_document` explicitly leaves
    whole-schema validation to a separate gate (`derivative.rs:388-389`), so
-   this validator provides it:
-   - the document is `guard_json`-clean (`derivative.rs:70-90`);
-   - it matches `schemas/results.v0.3.schema.yaml` from its root, using the
-     crate's closed-shape checker (`source_blocks.rs:70-75`). That schema
-     requires every wrapper member (`export_format_status`, `objectives`,
-     `package_id`, `scope_item`) and every envelope member (`run_ref`,
-     `solver_version`, `unit_system_ref`, `load_basis_refs`, `result_sets`,
-     `row_accounting`, `source_annotations`, `review_evidence`,
-     `row_disclosures`, `diagnostics`, `provenance`, `analysis_status`,
-     `downstream_use`, `professional_boundary`). It pins the boundary flags as
-     constants (`human_review_required: true`, every `software_makes_*`
-     `false`) and `deterministic_ordering: true`;
-   - one test enumerates every keyword the schema uses and fails if the checker
-     does not implement it, so an unimplemented keyword cannot pass silently;
-   - the invariants the schema cannot state, carried over from
+   this validator provides it. It does four things:
+   - it checks that the document is `guard_json`-clean (`derivative.rs:70-90`);
+   - it evaluates `schemas/results.v0.3.schema.yaml` from its root with JSON
+     Schema 2020-12 semantics, with the evaluator described below;
+   - it checks the invariants the schema cannot state, carried over from
      `validate_result_envelope`:
      - `analysis_status` holds `MECHANICS_SOLVED` and `HUMAN_REVIEW_REQUIRED`
        and at most one rule token;
@@ -178,18 +187,88 @@ shared with the reader; items 4-7 need the source and the request.
      - every magnitude is finite;
      - `schema_version` and `result_envelope.schema_version` are both `0.3.0`
        (`RESULT_EXPORT_VERSION`, `semantic_contract.rs:458`), and
-       `deliverable_id` is `DEL-08-04`.
+       `deliverable_id` is `DEL-08-04`;
+   - through the schema, it enforces every wrapper member and every envelope
+     member (`run_ref`, `solver_version`, `unit_system_ref`, `load_basis_refs`,
+     `result_sets`, `row_accounting`, `source_annotations`, `review_evidence`,
+     `row_disclosures`, `diagnostics`, `provenance`, `analysis_status`,
+     `downstream_use`, `professional_boundary`), the boundary flags as
+     constants, and `deliverable_id`/`deterministic_ordering: true`.
+
    The reviewer's header-only counterexample
    (`scratch/rep-w18-review2/reader-header-only-counterexample.json`) has an
    admitted header and a valid self-hash but no `result_sets`,
    `row_accounting`, `professional_boundary` or `run_ref`. This validator
    refuses it.
-2. **Identity and table.** `for_export_metadata(doc.result_envelope)`
-   (`semantic_contract.rs:464-477`) accepts the transported header. Its
-   `producer.semantic_contract_id` is in the package's admitted set,
-   `[PREVIEW_PHYSICS_ID]` only, and `semantic_contract_ref` names it. Any other
-   identity is refused with `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`, so the exact
-   routes stay closed at both boundaries.
+
+   **The evaluator (slice (a)).** The existing checker cannot do this
+   unchanged:
+   - `source_blocks::shape_in` (`source_blocks.rs:70-169`) has no `contains`,
+     `dependentRequired`, `if`/`then`/`else`, `not` or `uniqueItems`. The root
+     schema uses the first five (`results.v0.3.schema.yaml:33,216,523,931,1277,2017,2154,2300,3837`)
+     and its closure uses `uniqueItems` (`results_pressure_2.v0.3.schema.json:629`);
+   - it applies `required` only inside an object branch with `properties`
+     (`:122-144`);
+   - it refuses objects without a `properties` map (`:133-137`), which
+     `RawSourceAnnotationMetadata` deliberately allows (schema `:2178-2187`);
+   - it adds an implicit 16384-item cap (`:148`);
+   - it supplies no resources (`:70-71`), and it resolves only fragment
+     references (`:80`), not whole resources (schema `:1366`).
+
+   A new module, `result_export::schema_eval`, is therefore written:
+   - It evaluates the complete root schema and its transitively referenced
+     repository resources with JSON Schema 2020-12 semantics.
+   - It uses a closed, explicit local resource catalog and never loads a schema
+     from the network. The catalog is `results.v0.3.schema.yaml`,
+     `results_pressure_2.v0.3.schema.json`, `physics_source_recovery.schema.json`,
+     `retained_precision_mp_v2.schema.json` and `load_reference_state.schema.json`,
+     embedded with `include_str!`, which is the reviewer's measured closure
+     (`scratch/rep-w18-review3/schema-resource-closure.json`).
+   - It supplies `contains`, `dependentRequired`, `if`/`then`/`else`, `not` and
+     `uniqueItems`.
+   - It resolves both fragment and whole-resource references. An unknown
+     reference or keyword fails closed.
+   - It enforces `required` independently of `properties` or an explicit
+     `type`.
+   - Object schemas without `properties` admit their unconstrained members
+     unless another keyword forbids them, so `RawSourceAnnotationMetadata`
+     keeps preserving arbitrary JSON objects.
+   - Schema validation adds no implicit `maxItems` limit. Any independent
+     package resource limit is named separately and tested.
+   - The keyword census covers the transitive closure and separates
+     annotations (`description`, `title`, `$id`, `$schema`, `$defs`,
+     `x-rp-encoding`, which the retained schema's `:5` defines as a G2 encoding
+     note) from assertion and applicator keywords.
+   - Positive and negative behavioural tests exercise every supported
+     constraint. A list of keyword names alone is not evidence of correct
+     evaluation.
+   - The existing source-block checker and its consumers keep their current
+     behaviour, unless a separately reviewed change establishes compatibility.
+
+   **Independent oracle.** A Draft 2020-12 validator already exists in the
+   repository: the piping tests' `tests/schema_validation.py` (`:25-28`,
+   `validate_instance` `:133-145`) uses Python `jsonschema.Draft202012Validator`
+   with the same local registry (`:78-87`). The evaluator's committed
+   vectors, `fixtures/results/schema_eval_vectors.json`, hold one valid and
+   one invalid instance per keyword and per probe in
+   `scratch/rep-w18-review3/shape-probes.json`, plus the counterexample and
+   real derived documents. A pytest, `tests/test_schema_eval_parity.py`,
+   validates every vector with that helper and asserts that the expected
+   verdicts equal the Rust evaluator's verdicts. A Rust test asserts the same
+   expected verdicts from the same file. In its routed lane the parity test
+   requires `jsonschema` and fails if it is missing; it does not skip
+   (`schema_validation.py:197`).
+
+   **Considered and not chosen: a Rust validator crate.** The only Rust
+   JSON Schema crate in the repository is `jsonschema = "=0.58.5"` in App v4
+   (`projects/chirality-app-v4/app/src-tauri/Cargo.toml:27`). It is in no
+   SWBPIPE Cargo workspace. Adopting it would add a new third-party dependency
+   tree to the product, with its lockfile, licence and CI-digest changes. The
+   repaired evaluator plus the Python oracle gives the same assurance without
+   that.
+2. **Header dispatch.** `for_export_metadata(doc.result_envelope)`
+   (`semantic_contract.rs:464-477`) accepts the transported header, and
+   `semantic_contract_ref` names the producer's contract.
 3. **Self-hash.** The derivative hash verifies over the document without its own
    hash (`derivative.rs:760-773`).
 4. **Source validity.** `for_source(source)` (`semantic_contract.rs:626`)
@@ -222,11 +301,21 @@ shared with the reader; items 4-7 need the source and the request.
      is the same in `a.model_hash`, `e.reproducibility.model_hash`,
      `…model_input_summary.model_hash`, and `h`'s `model_state_record`
      `hash_refs[0]`.
-   - **Run:** these all name the same run:
+   - **Run, package group:** these all name the same analysis run:
      - `source_basis_refs[0]` = `e.run_ref` = `r.report_sections.run_ref`
        (each `analysis_run`);
      - `h`'s `analysis_run_record` `run_ref` (`AnalysisRun`);
      - `r.calculation_report.audit_manifest_refs[0].ref` (`analysis_run`).
+   - **Run, tied to the source, by origin.** This ties the group to the source.
+     Without it, a coherent relabelling of the whole group could pass.
+     - For `received_current_dimension_absent` (the desktop), `e.run_ref.ref_id`
+       equals `source.run_id`.
+     - For `attested_headless_producer`, `e.run_ref.ref_id` equals the origin's
+       `request_run_ref.ref_id` (type `runner_run`), and `source.run_id` stays
+       bound to the origin's `mechanics_run_ref` by `validate_document`
+       (`derivative.rs:467-475`; the producer sets both,
+       `result_envelope_binding.rs:272`). The analysis-run and mechanics-run
+       identities are not collapsed.
    - **Received result:** `digest(source)` (the carrier digest, available
      here) equals all of these:
      - the `received_result` entry of `e.reproducibility.run_hashes`, with
@@ -246,6 +335,16 @@ shared with the reader; items 4-7 need the source and the request.
    - **Load basis:** `source_basis_refs[1..]` = `e.load_basis_refs` = `h`'s
      `analysis_run_record` `load_basis_refs`, each as a duplicate-free set of
      (type, id).
+   - **Current state and run sections in `h`.** Each of the two current
+     sections occurs exactly once.
+     - The `model_state_record` has `state_ref`
+       `{ModelState, state:<actual model id>:preview}`, `section_id`
+       `state-run:state:<actual model id>:preview`, and a `hash_refs[0]` payload
+       ref naming that state.
+     - The `analysis_run_record` has `state_ref` naming the same state and
+       `section_id` `state-run:<analysis run id>`
+       (`stateComparisonHandoffSections.ts:107-120,144-148`).
+     - Comparison sections keep their own separately labelled sources.
    - **Solver:** these all equal the linked identity (as the audit manifest's
      already must, `wire.rs:310-318`):
      - `e.solver_version.solver_name`/`solver_version`;
@@ -271,43 +370,89 @@ shared with the reader; items 4-7 need the source and the request.
 
      The input manifest itself is not in the request, so its digest is bound,
      not recomputed.
-   - **Unit system:** `a.unit_system_ref` = `e.unit_system_ref.ref_id`.
-     `…model_input_summary.unit_display_summary.result_units` equals the sorted
-     distinct units of the source rows (`renderableReportInput.ts:108-117`).
+   - **Unit system and display policy:** `a.unit_system_ref` =
+     `e.unit_system_ref.ref_id`. On the desktop profile, `e.unit_system_ref`
+     is `{unit_system, <actual model id>:units}`.
+     `…model_input_summary.unit_system_ref` is the DEC-018 display-policy
+     reference `{unit_system, unit-system:dec-018-si-dual-display}`. The unit
+     display summary is the complete projection of `renderableReportInput.ts:56-59,108-117`:
+     - `storage_convention` is `entered_units_preserved`;
+     - `quantity_display_policy` is "display result-row values with their
+       explicit units; no report-time conversion";
+     - `conversion_performed` is `false`;
+     - `result_units` is the sorted distinct non-empty source-row unit list;
+     - `model_units` equals the parsed model's `project.units` map, desktop
+       only (§2.6 item 5), compared by keys and values in any property order.
+
+     The renderer prints these verbatim (`report_renderer/src/lib.rs:636-665`),
+     and the completeness checker does not restrict them
+     (`report_generator/src/lib.rs:219-227`). These checks assert that the
+     recorded units are preserved. They do not assert a conversion.
    - **Status:** the document's rule tokens are exactly
      `[rule_check_aggregate]` when the aggregate is present, and a subset of
      `[solve_rule_check_status]` otherwise. These sets are equal:
      - `r.calculation_report.analysis_status`, with `HUMAN_REVIEW_REQUIRED`;
      - `h`'s `analysis_run_record` `analysis_status`;
      - `e.analysis_status`.
-6. **Displayed content.** The renderer prints its inputs verbatim
-   (`report_renderer/src/lib.rs:625-685,710-738`). The report validator checks
-   completeness, not equality with the source
+6. **Displayed content: the report-row contract.** The renderer prints its
+   inputs verbatim (`report_renderer/src/lib.rs:625-685,710-738`). The report
+   validator checks completeness, not equality with the source
    (`report_generator/src/lib.rs:537-596`). So the producer derives the
    expected rows from the validated source and requires equality
-   (`REPORT-PACKAGE-REPORT-ROWS-MISMATCH`). It applies the desktop's rule
-   (`renderableReportInput.ts:671-676`):
+   (`REPORT-PACKAGE-REPORT-ROWS-MISMATCH`). The five-field source-row
+   projection is the shared report-row contract. Document composition stays
+   with `report_renderer`, and nothing here reimplements HTML or PDF
+   rendering. The contract (today `renderableReportInput.ts:671-676`):
    - one row per source row, in order;
    - `row_id` is `row:<id>`;
    - `label` is `<kind> (<metadata.component>)`, or `<kind>` when there is no
      metadata;
    - `case_ref` is `<basis type>:<basis id>`, or `TBD`;
-   - `quantity_display` is `<value> <unit>`, the value in the ECMAScript
-     Number-to-String form that RFC 8785 also uses;
+   - `quantity_display` is `<value> <unit>`;
    - `source_ref` is `result:<id>`.
+
+   Two pure helpers implement it:
+   - **TypeScript.** `reportResultRows(result)` is extracted from
+     `renderableReportInput.ts:671-676` into
+     `apps/desktop/src/features/report/reportResultRows.ts` and called by
+     `buildRenderableReportInput`. The value text is JavaScript's own
+     `${value}`.
+   - **Rust.** `report_package::bindings::expected_report_result_rows(source)`
+     is used by the producer check and by the fixture generator. The value text
+     is `open_pipe_stress_canonical_json::canonical_number`
+     (`canonical_json/src/lib.rs:400`), the ECMAScript Number-to-String form,
+     after `guard_json`, never Rust's `Display`, whose exponent and
+     negative-zero text differ.
+
+   **Row parity.** Both helpers are checked against the same committed
+   vectors, `fixtures/reports/invented/report_result_rows_parity.json` (input
+   rows and expected rows):
+   - the vitest `reportResultRows.parity.test.ts` runs in `desktop-test`;
+   - the Rust `report_package/tests/report_rows_parity.rs` runs in the
+     report-package lane;
+   - both are registered in `tools/hosted-ci-routing.json`.
+
+   The vectors cover:
+   - metadata present and absent;
+   - basis present and absent;
+   - source order;
+   - Unicode ids and units;
+   - `-0`;
+   - small and large exponent notation (`1e-7`, `1e21`);
+   - integer-valued binary64 values.
+
+   A change to the projection updates the contract, both helpers and the
+   vectors together.
 
    The package passes no numerical-health rows (`renderableReportInput.ts:486-490`),
    so the row lists match one for one. This is what keeps the rendered rows
    equal to the result member's source values.
 
-   Handoff checks:
-   - The handoff record set's `section_set_id` names the run.
-   - Comparison sections keep their own labelled `run_context` (left and
-     right) and are not forced to the current run.
-   - Their content stays the DEL-08-06 assembler's, under the existing parity
-     fixture.
-
-   The desktop native layer adds the model-text checks (§2.6 item 5).
+   Handoff content: the handoff record set's `section_set_id` names the run,
+   and the current sections are bound as in item 5. Comparison sections keep
+   their own labelled `run_context` (left and right) and the DEL-08-06
+   assembler's content under its parity fixture. The desktop native layer adds
+   the model-text checks (§2.6 item 5).
 7. **Rule-check content (§2.5).**
    - `rule_check_aggregate` is present exactly when `r.user_rule_checks` is,
      and equals its `aggregate_status`.
@@ -326,12 +471,16 @@ member's form validation (item 1, as a blocking reason), and `export_blocked`
 
 **The reader.** `check_member_document` checks only the deliverable id and file
 name (`reader.rs:951-962`), so an old or malformed member inside a relabelled
-2.0.0 package would pass. For every package, blocked or not, the result member
-must pass items 1-3: the complete 0.3.0 form, the transported header and the
-self-hash. For an unblocked package, in addition:
-- its identity is in the admitted set;
-- the audit member's `manifest_id` equals the member's `audit_manifest_ref.ref_id`;
-- the audit member's model-hash value equals the member's.
+2.0.0 package would pass. The reader runs in this order:
+1. **Every package, blocked or not:** every result member must pass items 1-3,
+   that is the complete 0.3.0 form, the transported-header dispatch and the
+   self-hash. A failure is a reader refusal, not a blocked-package diagnosis.
+2. **An unblocked package, in addition:**
+   - the member's producer id is in the package's admitted set (the route
+     admission of item 0, applied after form);
+   - the audit member's `manifest_id` equals the member's
+     `audit_manifest_ref.ref_id`;
+   - the audit member's model-hash value equals the member's.
 
 These are equality checks, not signatures, not source authentication and not
 row accounting. The reader has no source, so row accounting stays the
@@ -465,7 +614,7 @@ producer's check. Its module text (`reader.rs:30-37`) is updated to say so.
   the build and after the save returns, as today (`workspaceSession.ts:2609,2620`).
 - **Invalidation under the same aggregate.** `handleRuleCheckAggregate` returns
   early when the aggregate is unchanged (`workspaceSession.ts:1059-1060`), before
-  `invalidateReportPackageComputedState` (`:1063`, body `:1679-1685`). A changed
+  `invalidateReportPackageComputedState` (`:1066`, body `:1679-1685`). A changed
   pack or changed outcomes under the same aggregate would leave a stale package
   route. The run comparison moves above the early return:
   `if (nextRun !== previousRun) invalidateReportPackageComputedState();`. Presence
@@ -554,16 +703,43 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
    - `report_title` is `<project.name> — Calculation Report`.
    - `…unit_display_summary.model_units` equals the model's `project.units`
      (`renderableReportInput.ts:108-117`).
-   - `report_context.software_name` and `software_version` equal the running
-     application's package info. This is the native counterpart of
-     `renderableReportInput.ts:379-380`.
+   - `report_context.software_name` is `app.package_info().name`, and
+     `software_version` is `app.package_info().version.to_string()`. The
+     compiled Tauri context takes these from `tauri.conf.json` `productName` and
+     `version`, as the desktop builder does (`renderableReportInput.ts:16,379-380`).
+     `admit_report_package` receives these expected values as arguments, so it
+     stays testable without a window.
 6. **Typed conversion and the shared producer** (§2.3), then `export_blocked`
    (`lib.rs:224-229`), then the picker and the atomic write (`:232-310`).
    Admission is a pure `admit_report_package(...)` function, so its tests need
    no window.
 
+**Slice (a) hold.** The TypeScript gate is not an IPC boundary
+(`reportPackageRequest.ts:27-30,218-221`). After (a), the shared producer
+admits current requests, and the native command calls it directly
+(`lib.rs:199-236`; `report_package_bridge.rs:3-18`). (a) therefore adds a
+native hold, local to the desktop command:
+- `save_report_package_decoded` first returns
+  `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable
+  for fresh results.` with stage `assemble`. This happens before evidence use,
+  package assembly, the picker or any write.
+- Every request the 2.0.0 producer could admit is a current result, so the hold
+  is unconditional.
+- It does not close the shared producer or the headless runner.
+- A command-path regression in `lib.rs`'s tests,
+  `report_package_save_is_held_until_native_screening`, submits an otherwise
+  valid 2.0.0 request (the derived fixture) with clean caller-supplied evidence
+  through `save_report_package_args` and `save_report_package_decoded`. It
+  asserts the code, that no picker was requested (a counting picker seam), and
+  that the sandbox directory stays empty.
+- **Removal:** (b1) deletes the hold and its test and installs the screened
+  admission of items 1-6 above, with the TypeScript gate still closed until
+  (b2).
+- Merging (a) and (b1) atomically would be an equally sound alternative. With
+  (a) landing first, the hold is required.
+
 **Sharing with W-6a.**
-- W-18's desktop slice starts after #1588 merges.
+- W-18's (b1) starts after #1588 (head `cb87128b69`) merges.
 - It extracts the disposition code from `model_document_save.rs` into a
   crate-private `export_disposition_screen.rs`: `blocking_dispositions`,
   `stored_item_blocking`, `collect_objects`, `DispositionScreen`,
@@ -607,66 +783,110 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
   - `runner.unit_system_ref.ref_id` equals `a.unit_system_ref` and
     `e.unit_system_ref.ref_id`.
   - `runner.load_basis_refs` equals `e.load_basis_refs` as a set.
-- **Fixture transition (decided, O-2).** The witness basis is produced by the
-  real headless producer, in process, before anything is hashed. It is not made
-  by re-labelling an unrelated base. A Rust generator test in
-  `core/reporting/report_package/tests/witness_inputs.rs` writes the inputs
-  under an update variable and otherwise asserts them byte for byte:
-  1. **Inputs.** The model `M` is `fixtures/product_preview/invented_preview_model.json`
-     (`project:invented-loop-01`, load cases `load:L-100`, `load:L-200`). A
-     committed invented input manifest,
-     `fixtures/reports/invented/del1005_input_manifest.json`, names `M`. A
-     runner request `Q` is built from them:
-     - `model_ref` `{model, project:invented-loop-01}`;
-     - `input_manifest_ref` naming that manifest;
-     - `unit_system_ref` `<model id>:units`;
-     - `load_basis_refs` `M`'s two load cases;
-     - the witness's invented provenance and boundary.
+- **Fixture transition (decided, O-2).** A Rust generator test,
+  `core/reporting/report_package/tests/witness_inputs.rs`, writes the inputs
+  when an update variable is set and otherwise asserts them byte for byte.
+  1. **Inputs.**
+     - **The model.** The success model `M` is
+       `core/product_physics/tests/fixtures/preview_physics_invented_model.json`
+       (`project:invented-loop-01`, load cases `load:L-100`, `load:L-200`): the
+       committed joint-free, pressure-free derivative of the original demo,
+       which the headless tests already solve (`core/runner/headless/src/lib.rs:1139-1147`).
+       `fixtures/product_preview/invented_preview_model.json` stays a refusal
+       control: its legacy joint gives `MODEL_INCOMPLETE` and no document even
+       without pressure (`core/runner/headless/tests/preview_physics_admission.rs:192-228`;
+       `tests/test_headless_runner_contract.py:32-37`).
+     - **The input manifest.** A committed invented input manifest,
+       `fixtures/reports/invented/del1005_input_manifest.json`, names `M`.
+     - **The request.** A runner request `Q` has:
+       - `model_ref` `{model, project:invented-loop-01}`;
+       - `input_manifest_ref` naming that manifest;
+       - `unit_system_ref` `<model id>:units`;
+       - `load_basis_refs` `M`'s two load cases;
+       - the witness's invented, test-labelled provenance and boundary.
+     - **The alias fixture.** It differs only in `Q.model_ref`
+       (`{model, invented-model-alias}`) and repeats every later step from
+       its own `Q`, so its request hash and origin stay coherent.
+  2. **Solve once.** The generator solves `M` once through the real headless
+     producer, `run_preview_model_value_with_rule_check(Q, {"model": M, "materials": []}, None)`
+     (`core/runner/headless/src/lib.rs:721`). It keeps the mechanics carrier
+     `S` and the producer-derived document `D` (`result_envelope_document`,
+     `:685-695`). It asserts that `S` is `MECHANICS_SOLVED` and that `D` is
+     present.
 
-     The alias fixture differs only in `Q.model_ref`
-     (`{model, invented-model-alias}`).
-  2. **Solve and derive once.**
-     `run_preview_model_value_with_rule_check(Q, {"model": M, "materials": []}, None)`
-     (`core/runner/headless/src/lib.rs:721`) returns the mechanics carrier
-     and `result_envelope_document` (`:685-695`). The headless producer
-     builds that document from its own base (`result_envelope_binding.rs:235-275,280-411`)
-     and derives it once, so every derived field comes from `Q` and the solve:
-     - the full solver stamp;
-     - `run_ref`, `load_basis_refs` and `unit_system_ref`;
-     - the run hashes and `audit_manifest_ref` (`audit-manifest:<run>`);
-     - the attested origin and its limit;
-     - the model hash and `request_hash`;
-     - the derivative hash.
+     The two run identities stay explicit:
+     - `S.run_id` names the mechanics run;
+     - `D.result_envelope.run_ref` names the headless analysis run,
+       `run:headless-preview:<request id>` (`lib.rs:859`), which equals the
+       origin's `request_run_ref` id (`result_envelope_binding.rs:272`).
+  3. **Normalize `D` into a package base.** `D` is not yet a package fixture:
+     - its `run_hashes` hold only the headless `result_envelope` checksum
+       (`lib.rs:955-963`; copied at `result_envelope_binding.rs:333-383`), not
+       the `analysis_run_record` and `received_result` pair that §2.3 item 5
+       requires;
+     - `derive_document` leaves `run_hashes` untouched (`derivative.rs:337-384`).
 
-     The generator then asserts:
-     - `analysis_status` is exactly `MECHANICS_SOLVED`,
-       `RULE_INPUTS_INCOMPLETE`, `HUMAN_REVIEW_REQUIRED`. If the producer emits
-       no rule token without an aggregate, the generator passes the carrier's
-       own `status.rule_check` as the aggregate;
-     - every hash is 64-hex.
-  3. **Matching members from the same basis.**
-     - The audit manifest has `manifest_id` = the document's
-       `audit_manifest_ref`, `model_hash` = the document's value under
-       `rfc8785_jcs`, `input_manifest_hash` = the digest of the committed
-       manifest, `unit_system_ref` = `Q`'s, and the linked solver.
-     - The renderer input is built by the §2.3 item 6 rule from the carrier,
-       with `report_context` `local_private` and the document's solver fields.
-     - The handoff record carries the same run, hashes and load basis.
+     The generator therefore:
+     - builds an invented, explicitly test-labelled analysis-record payload for
+       the package run, which records the mechanics run separately. It computes
+       its `analysis_run_record` digest over the RFC 8785 bytes of
+       `analysis_record_projection` (`core/analysis_runs/compatibility.py:73-80`),
+       which removes the record's own `analysis_run_record` entry from
+       `analysis_run.hashes`. That record shape and its self-hash exclusion rule
+       are committed with the fixture, as
+       `fixtures/reports/invented/del1005_analysis_record.json`, not inferred
+       from a digest value;
+     - computes `digest(S)`, `digest(row)` for every source row, and the input
+       manifest's digest;
+     - normalizes a clone of `D` as the package base:
+       - the two package run-hash records carry exactly the references,
+         algorithms, bases and values that §2.3 requires;
+       - `audit_manifest_ref` names the generated audit member;
+       - the statuses are exactly `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`
+         and `HUMAN_REVIEW_REQUIRED`;
+       - the solver stamp is the producer's;
+     - leaves the producer's origin, the mechanics carrier and the model
+       unchanged;
+     - removes the inherited `derivative_hash` and calls `derive_document` on
+       this normalized base with `M`, `S`, the original origin and `Q`. This
+       creates the final package document, whose derivative hash is computed
+       once.
+
+     No field of that final document changes afterwards. This is an explicit
+     invented fixture transformation of real producer output. It does not
+     assert that the headless producer already emits desktop analysis-record
+     hashes, and it changes no live result-export producer.
+  4. **Matching members from the same basis.**
+     - The audit manifest has:
+       - `manifest_id` = the document's `audit_manifest_ref`;
+       - `model_hash` = the document's value under `rfc8785_jcs`;
+       - `input_manifest_hash` = the manifest's digest;
+       - `unit_system_ref` = `Q`'s;
+       - the linked solver.
+     - The renderer input uses the §2.3 item 6 helper on `S`, plus the
+       model-summary references, row digests, input-manifest evidence, statuses
+       and solver stamp from the same basis, with `report_context`
+       `local_private`.
+     - The handoff record carries the same states, run, hashes and load basis.
      - `source_model_ref` and `source_basis_refs` come from the document.
-  4. **Variants.** `generate_del1005_export_results_inputs.py` reads the
+
+     The generator checks the final request against every shared §2.3 binding
+     before writing it.
+  5. **Variants.** `generate_del1005_export_results_inputs.py` reads the
      Rust-written success input and derives the binding-mismatch,
      producer-blocked and missing-payload inputs from it by one edit each. The
      generated witnesses are regenerated in 2.0.0 form, with their codes
      unchanged.
-  5. **Tests.** The determinism and zip-exact assertions
-     (`tests/test_headless_runner_contract.py:652`) are unchanged.
+  6. **Tests.** The success, mismatch, producer-blocked, missing-payload,
+     determinism and zip-exact tests (`tests/test_headless_runner_contract.py:652`
+     and its neighbours) exercise the fixture unchanged in what they assert.
      `export_input(…, linked_solver_identity)` no longer rewrites the solver
      identity. It asserts that the committed identity equals the linked one, so
      a product version bump fails until the generator is re-run. There is no
      live identity rewrite.
 
-  What this witness is: valid versioned input. Python's `zipfile` and `hashlib`
-  and repeated process output check archive encoding, integrity and determinism
+  What this witness is: versioned input. Python's `zipfile` and `hashlib` and
+  repeated process output check archive encoding, integrity and determinism
   independently of the Rust producer. It is not an independent numerical or
   physical-validity witness and is not described as one.
 - **Considered and not selected:** a named refusal of `export-results` in place
@@ -677,7 +897,7 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
 Nothing opens here. When the owner opens exact-route reports (W-11), the
 package needs:
 - the policy cell;
-- the identity added to the admitted set (§2.3 item 2);
+- the identity added to the admitted set (§2.3 item 0);
 - W-11's rendered limitation sections.
 
 The exact-route document already exists (`resultExportAdapter.ts:82-83,88`).
@@ -746,10 +966,13 @@ through the T3 wrappers.
     with a 0.1.0 result member, re-hashed so the inventory is consistent, is
     refused by the reader; a mixed `schema_version` / `result_envelope.schema_version`
     member is refused;
-  - **identity:** pressure-2, pressure-source-1, the retained identities and an
-    unknown id are each refused with `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`; a
-    document whose `semantic_contract_ref` differs from its producer's is
-    refused;
+  - **identity and order:** pressure-2, pressure-source-1, the retained
+    identities, an unknown id and a missing id are each refused with
+    `REPORT-PACKAGE-ROUTE-NOT-ADMITTED` by the preflight, before any form
+    error. A document whose `semantic_contract_ref` differs from its producer's
+    is refused. At the reader, a malformed member of a blocked package is
+    refused, and an unblocked package with a non-admitted but well-formed
+    member is refused;
   - **tamper:** a value edit with a recomputed derivative hash is refused by
     `validate_document`; a stale derivative hash is refused by the reader too;
   - **form, at producer and reader:**
@@ -764,13 +987,38 @@ through the T3 wrappers.
       - an unknown analysis status;
       - two rule tokens;
       - incomplete provenance;
-    - the schema-keyword census test;
+    - the schema-keyword census test, over the transitive closure, with
+      annotations separated;
+  - **evaluator (`result_export::schema_eval`):**
+    - a positive and a negative case for each assertion and applicator keyword
+      in the closure, including `contains`, `dependentRequired`,
+      `if`/`then`/`else`, `not` and `uniqueItems`;
+    - `required` without `properties`;
+    - an unconstrained object, and `RawSourceAnnotationMetadata` with arbitrary
+      metadata, accepted;
+    - an unbounded array longer than 16384, accepted;
+    - fragment and whole-resource references resolved, and an unknown
+      reference refused;
+    - the existing `source_blocks` consumers unchanged;
+    - the Python Draft 2020-12 oracle parity
+      (`tests/test_schema_eval_parity.py`) over the same vectors;
   - **cross-member substitution:** one test per §2.3 item 5 binding, including
     the model-summary `model_ref` and `project_ref` and the `solver_build_ref`.
     Also: a source carrier from another run, an audit manifest from another
     model, a swapped `manifest_id`, a hash record with the right value but the
     wrong reference or basis, and a handoff record with another run's or
     model's hashes;
+  - **run, state and unit policy:** each of these, changed alone, is refused:
+    - a coherent relabelling of every package run reference on the desktop
+      profile while `source.run_id` stays unchanged;
+    - on the runner profile, `e.run_ref` not equal to `request_run_ref`;
+    - each current state reference and section id, and a duplicated or
+      missing current section;
+    - `conversion_performed: true`, `storage_convention` and
+      `quantity_display_policy`;
+    - the model-summary `unit_system_ref`, and the desktop `e.unit_system_ref`;
+  - **row parity:** the TypeScript and Rust row helpers both match
+    `report_result_rows_parity.json`;
   - **displayed content:** one `result_rows[].quantity_display` replaced by an
     unrelated safe value, and a row reordered, dropped or added, are refused;
     `result_export_refs` with a wrong row checksum is refused; a comparison
@@ -806,7 +1054,9 @@ through the T3 wrappers.
     the audit hash; a model whose library record is quarantined in the store;
     a store read error;
   - a model text whose `project.id`, name or units differ from the request's,
-    and a forged `software_version`;
+    and a forged `software_name` or `software_version`;
+  - **slice (a) hold:** `report_package_save_is_held_until_native_screening`,
+    as specified in §2.6; it exists in (a) only and is replaced in (b1);
   - a `public_report` report context under local-private evidence; a forged
     profile id; the existing evidence-shape refusals;
   - **native save and read-back:** admitted bytes written to the sandbox are
@@ -853,10 +1103,13 @@ stays true, or makes only the factual change its own work establishes.
 
 - **Slice (a): producer, reader, version and checksum bases.**
   - A4, DEL-02-05 ScopeOfWork :214: the reader's 2.0.0 version and the
-    result-member form check.
+    result-member form check. A4's "DEL-08-04 0.3.0 schema" is applied only
+    with the full-schema evaluator and its oracle parity in the same PR.
   - A6, DEL-04-08 AC-006 :240: the Rust boundary refuses every identity but
     preview-physics-2.
-  - A7, DEL-04-08 VER-006 :311: the Rust identity test.
+  - A7, DEL-04-08 VER-006 :311: the Rust identity test. The named test
+    `current_result_package` and its `tools/hosted-ci-routing.json`
+    registration are in the same PR.
   - DEL-08-02 ScopeOfWork :116: (a) adds only the basis fact: "`validate_manifest`
     accepts `rfc8785_jcs` and `rule_pack_payload_jcs` in their defined slots
     alongside `project_local_deterministic_json`." Its desktop-refusal sentence
@@ -868,7 +1121,10 @@ stays true, or makes only the factual change its own work establishes.
     bases; the form validator).
   - CI routing (`tools/hosted-ci-routing.json`) for the reporting and runner
     sources and tests (~:2494-2496 and the `report_package` tests list), the new
-    fixtures and changed manifest digests (e.g. `:290`).
+    `schema_eval` module, the fixtures and vectors, the schema-parity and
+    row-parity tests, and changed manifest digests (e.g. `:290`).
+  - The native hold (§2.6) needs no text change: every desktop text still says
+    the package is refused.
   - `docs/COMPLETENESS_MAP.md`: the W-18 row (:543) records (a) only.
 - **Slice (b1): native route declarations.**
   - The `DREP-PACKAGE-SAVE-009` declarations:
@@ -877,7 +1133,7 @@ stays true, or makes only the factual change its own work establishes.
     - the package-save entry in `apps/desktop/SMOKE.md` (:9881);
     - DEL-12-02 text naming the native package checks.
   - CI routing for the Tauri sources (~:2357-2372, `export_disposition_screen.rs`).
-  - The desktop gate stays closed in (b1).
+  - The (a) hold and its test are removed; the desktop gate stays closed in (b1).
 - **Slice (b2): desktop opening.**
   - A1, DEL-08-01 ScopeOfWork :81; `deliverable.yaml` pointers.
   - A2, DEL-08-06 ScopeOfWork :118.
@@ -902,9 +1158,9 @@ stays true, or makes only the factual change its own work establishes.
 
 | Slice | Content | Size | Persistence / data boundary |
 |---|---|---|---|
-| **(a) Rust 2.0.0 transition** | `wire` request 2.0.0, `bindings`, the 0.3.0 form validator, assembler input, reader member checks, version 2.0.0; `audit_manifest` bases; headless runner request, bindings and the generated witness. Every direct consumer of the old types moves with it, not only the bridge: the Tauri bridge and ingress pricing (`command_ingress.rs:552-568,976-1181`), and the `report_package` test helpers and reader tests (e.g. `tests/common/mod.rs:228-251`, `tests/reader.rs:211-226`). The desktop stays gated, since its TypeScript gate is unchanged in (a). Its §5 texts | L (~1.8k lines with tests, plus regenerated witnesses) | **Persistence:** the `.opsproj` format and its reader. Numerical meaning untouched |
-| **(b1) Native admission and screening** | Canonical-text command, evidence binding, shared `export_disposition_screen.rs` extracted from W-6a, both screens over request and model, model-text bindings, `admit_report_package`, forged-evidence, model-only and read-back tests. Starts after #1588 merges. Its §5 texts | M-L (~1.1k) | **Data boundary and file output** |
-| **(b2) Desktop wiring** | `reportPackageRequest.ts` rewrite, gate and menu, rule-run threading and guards, the split save service, retired constants, vitest, native smoke step. Its §5 texts | M-L (~1k) | Data boundary (webview evidence) |
+| **(a) Rust 2.0.0 transition** | `wire` request 2.0.0, `bindings`, the 0.3.0 form validator, assembler input, reader member checks, version 2.0.0; `audit_manifest` bases; headless runner request, bindings and the generated witness. Every direct consumer of the old types moves with it, not only the bridge: the Tauri bridge and ingress pricing (`command_ingress.rs:552-568,976-1181`), and the `report_package` test helpers and reader tests (e.g. `tests/common/mod.rs:228-251`, `tests/reader.rs:211-226`). The repaired schema evaluator (`schema_eval`) with its vectors and Python oracle parity; the row-parity helper and vectors; the native hold in `save_report_package` with its test (§2.6). The desktop stays closed, by the TypeScript gate and the native hold. Its §5 texts | L-XL (~2.5k lines with tests, plus regenerated witnesses and vectors) | **Persistence:** the `.opsproj` format and its reader. Numerical meaning untouched |
+| **(b1) Native admission and screening** | Canonical-text command, evidence binding, shared `export_disposition_screen.rs` extracted from W-6a, both screens over request and model, model-text bindings, `admit_report_package`, forged-evidence, model-only and read-back tests. It replaces the (a) hold. Starts after #1588 merges. Its §5 texts | M-L (~1.1k) | **Data boundary and file output** |
+| **(b2) Desktop wiring** | `reportPackageRequest.ts` rewrite using the extracted `reportResultRows` helper, gate and menu, rule-run threading and guards, the split save service, retired constants, vitest, native smoke step. Its §5 texts | M-L (~1k) | Data boundary (webview evidence) |
 
 (b1) and (b2) may land as one PR if review prefers. The order is (a), then
 (b1), then (b2), which opens the desktop route.
