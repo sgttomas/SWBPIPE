@@ -171,15 +171,16 @@ Python agree.
   its JCS hash and its project id. Any difference is refused as
   `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
   refused.
-- **Memory (S2 repairs r1 to r5).** All five state commands are metered as
+- **Memory (S2 repairs r1 to r6).** All five state commands are metered as
   §3's As built (S2) describes (`stored_read.rs`): `save_model_state`,
   `list_model_states`, `read_model_state`, the label edit and the delete.
   - **Before loading.** Each takes memory-pool leases sized from the stored
     lengths before loading anything: records, snapshots, label columns, the
     child and run lists, and every identity and time column. It measures and
     loads in one transaction.
-  - **Identity columns (r5).** A row whose identity or time column exceeds
-    its fixed bound is refused before it is loaded.
+  - **Identity columns (r5, r6).** A row whose identity or time column exceeds
+    a bound the app holds at every write is refused before it is loaded. A
+    project id is measured and priced, never refused by size.
   - **Hash texts.** It reserves the record's sorted-compact hash text at its
     exact escaped length before writing it. The writer that counts the length
     is the one that writes the text.
@@ -202,9 +203,11 @@ Python agree.
     `{name, tags, notes, assumptions}`, name included. A name of 196,602 NULs
     serializes to 1,179,667 bytes and is refused.
   - **Editability.** A compile-time assertion keeps these 192 KiB, plus a
-    project id at the list's whole 4 KiB budget and 1 KiB of fixed members,
-    within the label edit's 256 KiB argument budget. So any kept labels can be
-    edited, which a test checks for both edits.
+    project id of up to 63 KiB and 1 KiB of fixed members, within the label
+    edit's 256 KiB argument budget (r6: the app does not bound project ids, so
+    the length is stated). So any kept labels can be edited in a project with
+    an id up to 63 KiB, which a test checks for both edits. Smaller labels
+    leave room for a longer id.
   - **Reads.** Reads still price whatever is stored.
 - **Serializer.** Keys sort by code point, and i64/u64 integers are written
   in decimal. No field of `model_state.schema.json` has a number type, so the
@@ -523,7 +526,7 @@ the History panel and `useModelStateHistory.ts`.
     not shown in the results view, so its per-run state (page, filters, selected
     row) keys on nothing new. A re-solve and a recording keep the page
     (`recordRun.session.test.tsx`).
-- **Memory (repairs r1 to r5, `stored_read.rs`).** Ten commands are metered:
+- **Memory (repairs r1 to r6, `stored_read.rs`).** Ten commands are metered:
   the five state commands, the five run commands (`record_analysis_run`,
   `list_analysis_runs`, `read_analysis_run`, the run label edit and the run
   delete).
@@ -542,17 +545,25 @@ the History panel and `useModelStateHistory.ts`.
     - every identity and time column it loads, as measured (r5);
     - a fixed 512 KiB overhead.
   - **Every column measured (r5).** No loaded column has a fixed allowance.
-    - **Bounds.** Identity and time columns have fixed bounds, chosen against
-      what the app writes:
-      - ids: 4 KiB (no command can name a longer one through its 4 KiB
-        argument budget);
-      - kinds: 64 bytes;
-      - times: 32 bytes;
-      - hashes: 80 bytes.
-    - **State rows:** project, state, kind, created_at, parent, model and
-      record hashes, and the labels' `updated_at`.
-    - **Run rows:** project, recording, state, producer run id, created_at,
-      record and result hashes, and the labels' `updated_at`.
+    - **Bounds (r6).** Only columns the app bounds at every write have a
+      fixed bound:
+      - ids the app generates, and the references to them: 4 KiB (state ids
+        and recording ids are 38 and 39 bytes: `state:` or `runrec:` and 32
+        hex);
+      - kinds: 64 bytes (a state kind is one of the five);
+      - times: 32 bytes (`utc_iso_millis` writes 24);
+      - hashes: 80 bytes (64 hex, or `sha256:` and 64 hex).
+
+      Ids the app does not bound are measured and priced, never refused by
+      size: a project id (Save Local Project keeps any) and a producer's run
+      id. Data that S1 or project save wrote with a 4,097-byte or 64 KiB
+      project id still lists, reads, edits its labels and saves its duplicate.
+    - **State rows:** state, kind, created_at, parent, model and record
+      hashes, and the labels' `updated_at` are bounded; the project id is
+      measured only.
+    - **Run rows:** recording, state, created_at, record and result hashes,
+      and the labels' `updated_at` are bounded; the project id and producer
+      run id are measured only.
     - **Refusal.** Before anything of a row loads, a row whose column exceeds
       its bound is an integrity refusal, naming the row by the head of its id.
     - **The auxiliary loads are bounded too:**
@@ -562,9 +573,14 @@ the History panel and `useModelStateHistory.ts`.
         its bound;
       - the blockers' heads;
       - the project row's measured envelope hash, and its name's head.
-    - **Status lists.** A verified record's `analysis_status` is copied into a
-      summary only when it serializes to at most 4 KiB, because the copy
-      outlives the record's reservation.
+    - **Status lists (r5, r6).** A verified record's `analysis_status` is
+      copied into a summary only when it serializes to at most 4 KiB. The copy
+      outlives the record's reservation, so it is reserved as it is retained:
+      from its element count and their bytes (each `String`'s header
+      included), with its transient `Value` copy. Record Run accepts only
+      v0.3's six status words (the schema's enum), each at most once, as the
+      app produces them. This is stricter than the schema, which leaves the
+      list's length open.
   - **One snapshot.** The measurement and every load it prices run in one
     transaction. The reads use `BEGIN DEFERRED`, whose first statement fixes
     the WAL snapshot. The edits, deletes, Save and Record Run use their
@@ -653,7 +669,9 @@ the History panel and `useModelStateHistory.ts`.
     - a serialized response keeps its buffer's reservation across the commit
       until it is handed to Tauri (r5);
     - the project row's parsed envelope hash keeps its parse's reservation
-      while it lives (r5).
+      while it lives (r5). Since r6 it is one `Metered` value, as decoded
+      labels are, so the value is dropped before its reservation. No binding
+      pairs a value with its reservation in a tuple.
 
     `map`, `join` and the commit-last `finish` steps take closures. The rule
     is that a closure moves the value into its result and does not capture or
@@ -761,16 +779,44 @@ the History panel and `useModelStateHistory.ts`.
       - the list's bound check removed;
       - the response's reservation released before the commit;
       - separate blocker caps.
+    - **Drop order (r6).** At every release of a reservation, what is live is
+      within what is still held, with 1 MiB for small unpriced allocations.
+      This is checked over:
+      - Save with Codex's envelope hash of 100,000 empty strings, which left
+        4,202,224 bytes live with 1,581,776 held before the fix;
+      - the lists, reads, label edits and deletes of states and runs with
+        large labels.
+    - **Status (r6).** Record Run refuses 1,000 empty status strings, a
+      repeated word and an unknown word. Codex's case is 128 runs, forged past
+      Record Run, each with 1,000 empty status strings. Their list peaks within
+      its reservations; before the fix, 5,083,456 bytes were priced against
+      3,988,608 reserved.
+    - **Long project ids (r6).** For 4,097-byte and 64 KiB project ids, the
+      following work:
+      - list, read, both label edits (through their commands) and the
+        duplicate save;
+      - Record Run's state-required refusal and a blocked delete, each under
+        2 KiB.
+    - **Times (r6).** A 24-byte stored time whose last character is two bytes
+      wide is refused, not a panic, by Record Run and by a label edit.
+    - **Mutations (r6).** Each r6 test fails when its defect is put back:
+      - the tuple drop order;
+      - the status reservation removed;
+      - the project id bounded again;
+      - the project id uncapped in the state-required refusal;
+      - the byte slice.
     - **Large pool.** Each tested read, list, label edit and delete
       serializes its response within its held reservation, with its peak
       within its reservations' peak.
   - **S3.** §4.2's comparison of two stored results reuses this pricing.
   - **What is bounded.** Every read and mutation of stored data:
-    - every column it loads is measured and reserved before it loads, and its
-      identity and time columns are bounded;
+    - every column it loads is measured and reserved before it loads;
+    - the identity and time columns the app bounds at every write are
+      bounded;
     - every parse, canonical text and response is reserved before it is made;
     - every message is capped.
-  - **What is not bounded:**
+  - **What is not bounded.** The first two are residuals for the owner's risk
+    decision:
     - **Tauri and IPC.** The `Response` handed to Tauri, and the IPC copies
       made after the command returns.
     - **SQLite.** SQLite's own allocations, including its reads of whole
@@ -783,14 +829,15 @@ the History panel and `useModelStateHistory.ts`.
       - the `Value` of a new state's record, built from its snapshot (mapped
         assumptions, validation warnings).
 
-      They are covered by the request's argument lease only by assumption,
-      not by measurement. Review r2 measured about 26.0 MiB against a
-      10.1 MiB lease for Record Run's large case before r2; this has not been
-      re-measured.
+      They are covered by the request's argument lease only by assumption.
+      This remains explicitly unmeasured. Review r2 measured about 26.0 MiB
+      against a 10.1 MiB lease for Record Run's large case before r2; this has
+      not been re-measured.
     - **Transient copies before a cap.**
       - The core canonicalizer, the shared store opener and rusqlite make
         their own messages before they are cut. These are copies of text the
-        command has already priced or the argument carries.
+        command has already priced or the argument carries. They remain
+        explicitly unmeasured.
       - The length counters allocate each object's sorted key list (space
         proportional to the object's width, one pointer a key) and each
         number's short text.
