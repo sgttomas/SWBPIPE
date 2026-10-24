@@ -679,11 +679,15 @@ mod tests {
 
     #[test]
     fn directory_sync_timeout_is_bounded_and_reports_uncertain() {
-        let result = run_directory_sync_bounded(Duration::from_millis(5), || {
-            thread::sleep(Duration::from_millis(50));
+        // The operation is held until the timeout has been observed, so no scheduling
+        // delay of the caller can let it finish first.
+        let (release, held) = mpsc::channel::<()>();
+        let result = run_directory_sync_bounded(Duration::from_millis(5), move || {
+            let _ = held.recv();
             Ok(())
         });
         assert_eq!(result, DirectorySyncResult::TimedOut);
+        drop(release);
     }
 
     #[test]
@@ -706,16 +710,26 @@ mod tests {
     #[test]
     fn timed_out_directory_sync_worker_does_not_accumulate() {
         let active_workers = Box::leak(Box::new(AtomicUsize::new(0)));
-        let first = run_directory_sync_guarded(active_workers, Duration::from_millis(5), || {
-            thread::sleep(Duration::from_millis(50));
-            Ok(())
-        });
+        // The timed-out operation is held until the test has seen it counted as active and
+        // a second call refused, then released; a fixed sleep let it finish early, or not
+        // release in time, on a loaded hosted runner.
+        let (release, held) = mpsc::channel::<()>();
+        let first =
+            run_directory_sync_guarded(active_workers, Duration::from_millis(5), move || {
+                let _ = held.recv();
+                Ok(())
+            });
         assert_eq!(first, DirectorySyncResult::TimedOut);
         assert_eq!(active_workers.load(Ordering::Acquire), 1);
         let second =
             run_directory_sync_guarded(active_workers, Duration::from_millis(5), || Ok(()));
         assert_eq!(second, DirectorySyncResult::WorkerAlreadyActive);
-        thread::sleep(Duration::from_millis(75));
+        drop(release);
+        // The worker's guard releases the slot after the operation returns.
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        while active_workers.load(Ordering::Acquire) != 0 && std::time::Instant::now() < deadline {
+            thread::sleep(Duration::from_millis(5));
+        }
         assert_eq!(active_workers.load(Ordering::Acquire), 0);
     }
 
