@@ -100,7 +100,7 @@ The biggest gaps:
    are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
    #1589): save, open, label and delete, kept only in the SQLite store. Runs tied
    to states and both comparisons exist as schemas and headless Python engines
-   only (W-12 S2, S3). Affected: FR-CMP-001..010.
+   only (W-12 S2, S3). Affected: FR-CMP-001..004, -006.
 3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
    validated but never applied, and EX refuses these components. Affected:
    FR-SOL-004/012.
@@ -223,8 +223,10 @@ class, the evidence, and the deliverables. Paths are under
 
 ### 2.5 States, runs, comparison, V&V (PRD §11.6, §15, §21–22)
 
-All FR-CMP rows are in v0.1 by OD-1 (unit W-12, design
-`DEL-14-01/Design/desktop-states-runs-comparison.md`, not implemented).
+FR-CMP-001..004 and -006 are in v0.1 by OD-1 (unit W-12, design
+`DEL-14-01/Design/desktop-states-runs-comparison.md`). FR-CMP-005, -007, -008, -009
+and -010 remain in v0.2 R3 under that design and PRD §24. FR-CMP-011 is not an
+MVP requirement (PRD §15.6).
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
@@ -289,7 +291,7 @@ This map has 42 P, 34 D, 8 O and no R:
 - **R1:** partly. Rigid elements are absent; §22.2 lacks the rigid link.
 - **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The native smoke now runs
   a GUI-authored model through solve, review, save and reopen (W-4).
-- **R3 (States, Runs, Comparison):** not met; in v0.1 by OD-1.
+- **R3 (States, Runs, Comparison):** not met; states, run history and basic state/run comparison are in v0.1 by OD-1. Mapping editor/manual mappings, tolerance profiles, graphical diffs and comparison export remain in v0.2 R3.
 - **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). A report
   is obtainable only as a local private PF document.
 - **R6:** partly. Design knowledge is deferred (OD-3); no fresh reproduction
@@ -538,7 +540,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
-| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
+| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..004, -006) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | §17.2 needs a scope ruling | §17.2 only |
