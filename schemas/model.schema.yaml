@@ -2827,18 +2827,22 @@
       "properties": {
         "node_proximity_tolerance": {
           "description": "The length within which the near-duplicate node check treats two nodes as near duplicates (owner, 2026-10-23: a fixed 5 mm default \"and give the user the means to change it\"). Absent model_settings or absent member: 5 mm. A finite value greater than zero in a length unit of the units catalog; a non-finite or non-positive value or a non-length or unknown unit is refused by name (MODEL-SETTING-TOLERANCE-NOT-FINITE, -NOT-POSITIVE, -UNIT-NOT-LENGTH).",
-          "allOf": [
-            {
-              "$ref": "#/$defs/Quantity"
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0
             },
-            {
-              "properties": {
-                "value": {
-                  "exclusiveMinimum": 0
-                }
-              }
+            "unit": {
+              "type": "string",
+              "minLength": 1
             }
-          ]
+          }
         }
       }
     }
