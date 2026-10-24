@@ -1414,9 +1414,13 @@ fn refuse_unconfirmed_replacement(
     let Some(entry) = stored_project_entry(connection, project_id)? else {
         return Ok(());
     };
+    // The stored name is quoted as every message quotes stored names (at most
+    // 120 characters, `stored_read::shown`); the decision is unchanged.
     let stored = format!(
         "project `{}` (\"{}\", last saved at unix {})",
-        entry.project_id, entry.project_name, entry.updated_at_unix
+        stored_read::shown(&entry.project_id),
+        stored_read::shown(&entry.project_name),
+        entry.updated_at_unix
     );
     if let Some(confirmed) = confirmed_revision {
         return if confirmed == stored_revision(connection, &entry)? {

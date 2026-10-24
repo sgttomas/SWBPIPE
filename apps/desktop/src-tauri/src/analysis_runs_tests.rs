@@ -1,6 +1,6 @@
 //! Store tests of recorded analysis runs (W-12 S2; DEL-14-01 Design §3 and §6).
 use super::*;
-use crate::command_ingress::test_support::{check_decode_bound, headers, registry};
+use crate::command_ingress::test_support::{admit_json, check_decode_bound, headers, registry};
 use crate::command_ingress::{admit_body_within, INGRESS_ARGS_JSON_V1};
 use crate::memory_pool::test_host::ScriptedHost;
 use crate::model_states::{labels_from_value, save_state_in_store, SaveModelStateRequest};
@@ -1081,7 +1081,7 @@ fn assert_refused_unloaded<T: std::fmt::Debug>(
     what: &str,
     read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>,
 ) {
-    let memory = PoolReadMemory::new(pool);
+    let memory = PoolReadMemory::unseeded(pool);
     let (outcome, measured) = crate::ingress::counting::measure(|| read(&memory));
     let error = outcome.unwrap_err();
     assert!(error.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading {what}")), "{error}");
@@ -1092,7 +1092,7 @@ fn assert_refused_unloaded<T: std::fmt::Debug>(
 /// The same read admitted by `pool` (the baseline that makes a refusal mean the
 /// large column was priced, not the read's fixed overhead).
 fn assert_admitted<T>(pool: &crate::solve_jobs::SolveJobRegistry, what: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>) {
-    let memory = PoolReadMemory::new(pool);
+    let memory = PoolReadMemory::unseeded(pool);
     if let Err(error) = read(&memory) {
         panic!("{what}: the baseline read is refused: {error}");
     }
@@ -1107,7 +1107,7 @@ fn assert_admitted<T>(pool: &crate::solve_jobs::SolveJobRegistry, what: &str, re
 /// Returns the response's length.
 fn assert_within_reservation<T: Serialize>(what: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<Metered<T>, String>) -> u64 {
     let pool = registry(ScriptedHost::normal());
-    let memory = PoolReadMemory::new(&pool);
+    let memory = PoolReadMemory::unseeded(&pool);
     let (outcome, measured) = crate::ingress::counting::measure(|| {
         let metered = read(&memory)?;
         let length = stored_read::serialized_length(metered.get())?;
@@ -1233,11 +1233,14 @@ fn large_stored_labels_are_priced_before_they_are_loaded() {
     assert_refused_unloaded(&small, &format!("recorded run `{id}`"), |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
     assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_in_store_with(&path, PROJECT, memory));
     assert_refused_unloaded(&small, &format!("recorded run `{id}`"), |memory| delete_run_in_store_with(&path, PROJECT, &id, memory));
-    // The state summary loads its runs' names (the delete blockers).
-    assert_refused_unloaded(&small, &format!("the saved states of project `{PROJECT}`"), |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
-    assert_refused_unloaded(&small, &format!("saved state `{}`", state.state_id), |memory| {
-        model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory)
-    });
+    // The state summary loads its runs' ids, not their names (repair r4): the
+    // state list is admitted, and the blocked delete quotes the name's head only.
+    assert_admitted(&small, "the states after", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, &memory).map(|_| ()));
+    let error = outcome.unwrap_err();
+    assert!(error.starts_with("MODEL-STATE-DELETE-BLOCKED: ") && error.len() < 1024 && error.contains("…"), "{error}");
+    assert!(measured.peak_priced <= memory.peak_reserved(), "peak {} within {}", measured.peak_priced, memory.peak_reserved());
     assert!(assert_within_reservation("read_analysis_run", |memory| read_run_in_store_with(&path, PROJECT, &id, memory)) as usize > LARGE);
     assert!(assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory)) as usize > LARGE);
     assert_within_reservation("list_model_states", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
@@ -1301,19 +1304,19 @@ fn prescan_invalid_stored_json_is_refused_before_it_is_parsed() {
     let (path, _) = recorded_fixture("invalid-run-record");
     tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = '{invalid}';"));
     let id: String = Connection::open(&path).unwrap().query_row("SELECT recording_id FROM analysis_runs", [], |row| row.get(0)).unwrap();
-    let memory = PoolReadMemory::new(&pool);
+    let memory = PoolReadMemory::unseeded(&pool);
     let (outcome, measured) = crate::ingress::counting::measure(|| read_run_in_store_with(&path, PROJECT, &id, &memory).map(|_| ()));
     refused("run record", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
     // A run's result.
     let (path, _) = recorded_fixture("invalid-run-result");
     tamper(&path, &format!("UPDATE analysis_runs SET result_json = '{invalid}';"));
-    let memory = PoolReadMemory::new(&pool);
+    let memory = PoolReadMemory::unseeded(&pool);
     let (outcome, measured) = crate::ingress::counting::measure(|| read_run_in_store_with(&path, PROJECT, &id_of(&path), &memory).map(|_| ()));
     refused("run result", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
     // A run's label list.
     let (path, _) = recorded_fixture("invalid-run-labels");
     tamper(&path, &format!("UPDATE analysis_run_labels SET tags_json = '{invalid}';"));
-    let memory = PoolReadMemory::new(&pool);
+    let memory = PoolReadMemory::unseeded(&pool);
     let (outcome, measured) = crate::ingress::counting::measure(|| list_runs_in_store_with(&path, PROJECT, &memory).map(|_| ()));
     refused("run labels", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
     // A state's record and its snapshot.
@@ -1321,7 +1324,7 @@ fn prescan_invalid_stored_json_is_refused_before_it_is_parsed() {
         let path = store_with_project(&format!("invalid-{column}"));
         let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000001701", 1_000);
         tamper(&path, &format!("UPDATE model_states SET {column} = '{invalid}';"));
-        let memory = PoolReadMemory::new(&pool);
+        let memory = PoolReadMemory::unseeded(&pool);
         let (outcome, measured) = crate::ingress::counting::measure(|| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, &memory).map(|_| ()));
         refused(label, &outcome.unwrap_err(), measured, memory.peak_reserved(), "MODEL-STATE-INTEGRITY");
     }
@@ -1377,7 +1380,7 @@ fn a_reads_reservation_is_held_until_its_response_is_serialized() {
     let (path, _) = recorded_fixture("memory-held");
     let id = id_of(&path);
     let pool = registry(ScriptedHost::normal());
-    let memory = PoolReadMemory::new(&pool);
+    let memory = PoolReadMemory::unseeded(&pool);
     let metered = read_run_in_store_with(&path, PROJECT, &id, &memory).unwrap();
     let held = pool.pool_status().reserved_bytes;
     assert!(held > 0, "the returned read still holds its reservation");
@@ -1388,7 +1391,7 @@ fn a_reads_reservation_is_held_until_its_response_is_serialized() {
     drop(response);
     // A response buffer the pool does not admit is refused by name, before it is serialized.
     let small = small_pool();
-    let memory = PoolReadMemory::new(&small);
+    let memory = PoolReadMemory::unseeded(&small);
     let Err(refused) = stored_read::respond_metered::<_, String>(&memory, "read_analysis_run", Ok(Metered::new("r".repeat(LARGE)))) else {
         panic!("the response buffer was admitted");
     };
@@ -1413,12 +1416,12 @@ fn record_run_prices_its_extra_parse_before_it_parses() {
     let token = || Ok("0000000000000000000000000000beef".to_string());
     let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
     let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
-    let error = record_run_in_store_with(&path, submitted, &hooks, &PoolReadMemory::new(&small)).unwrap_err();
+    let error = record_run_in_store_with(&path, submitted, &hooks, &PoolReadMemory::unseeded(&small)).unwrap_err();
     assert!(error.starts_with("STORE-READ-MEMORY-UNAVAILABLE: reading the run to record"), "{error}");
     assert_eq!(row_count(&path, "analysis_runs"), 0);
     let mut invalid = request(&solved, "Invalid result");
     invalid.result_json = invalid_json();
-    let error = record_run_in_store_with(&path, invalid, &hooks, &PoolReadMemory::new(&small)).unwrap_err();
+    let error = record_run_in_store_with(&path, invalid, &hooks, &PoolReadMemory::unseeded(&small)).unwrap_err();
     assert!(error.starts_with("ANALYSIS-RUN-RESULT-MISMATCH: the result: the stored JSON is invalid"), "{error}");
 }
 
@@ -1533,7 +1536,7 @@ fn a_record_hash_text_is_reserved_at_its_escaped_length() {
     // A run recorded against it (Record Run verifies the state) and its read.
     let solved = escaped_assumption_model();
     let pool = registry(ScriptedHost::normal());
-    let memory = PoolReadMemory::new(&pool);
+    let memory = PoolReadMemory::unseeded(&pool);
     let now = || Ok(T0);
     let token = || Ok("0000000000000000000000000000c0de".to_string());
     let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
@@ -1559,7 +1562,7 @@ fn a_record_hash_text_is_reserved_at_its_escaped_length() {
         };
         let allocate = move || Ok((token.to_string(), T0));
         let between_rows = |_: &Transaction<'_>| Ok(());
-        let memory = PoolReadMemory::new(&pool);
+        let memory = PoolReadMemory::unseeded(&pool);
         let outcome = model_states::save_state_in_store_with(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }, &memory).unwrap();
         (outcome.get().outcome, memory.peak_reserved())
     };
@@ -1614,7 +1617,7 @@ fn a_list_loads_the_snapshot_it_measured() {
         .join()
         .unwrap()
     };
-    let memory = Interleaved { inner: PoolReadMemory::new(&small), between: std::cell::RefCell::new(Some(Box::new(|| writer(path.clone())))) };
+    let memory = Interleaved { inner: PoolReadMemory::unseeded(&small), between: std::cell::RefCell::new(Some(Box::new(|| writer(path.clone())))) };
     let (listed, measured) = crate::ingress::counting::measure(|| list_runs_in_store_with(&path, PROJECT, &memory));
     let listed = listed.unwrap();
     assert_eq!(listed.get().len(), 1, "the list holds the rows it measured");
@@ -1631,7 +1634,7 @@ fn a_list_loads_the_snapshot_it_measured() {
         .join()
         .unwrap()
     };
-    let memory = Interleaved { inner: PoolReadMemory::new(&small), between: std::cell::RefCell::new(Some(Box::new(|| writer(path.clone())))) };
+    let memory = Interleaved { inner: PoolReadMemory::unseeded(&small), between: std::cell::RefCell::new(Some(Box::new(|| writer(path.clone())))) };
     let (listed, measured) = crate::ingress::counting::measure(|| model_states::list_states_in_store_with(&path, PROJECT, &memory));
     assert_eq!(listed.unwrap().get().len(), 1);
     assert!(measured.peak_priced <= memory.inner.peak_reserved());
@@ -1661,7 +1664,7 @@ fn a_label_edit_holds_the_current_summary_while_it_loads_the_record() {
     let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002101", 1_000);
     set_label(&path, "model_state_labels", "state_name", &"n".repeat(LARGE));
     let pool = registry(ScriptedHost::normal());
-    let memory = Recording { inner: PoolReadMemory::new(&pool), seen: std::cell::RefCell::new(Vec::new()) };
+    let memory = Recording { inner: PoolReadMemory::unseeded(&pool), seen: std::cell::RefCell::new(Vec::new()) };
     let edited = model_states::edit_labels_in_store_with(&path, PROJECT, &state.state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0, &memory)
         .unwrap();
     assert_eq!(edited.get().labels.state_name, "Renamed");
@@ -1674,8 +1677,9 @@ fn a_label_edit_holds_the_current_summary_while_it_loads_the_record() {
     assert_eq!(pool.pool_status().reserved_bytes, 0);
 }
 
-/// Delete receipts name what they deleted; they hold its reservations until
-/// they are serialized.
+/// Delete receipts name what they deleted, its name cut to 120 characters
+/// (repair r4); they hold the deleted summary's reservations until they are
+/// serialized.
 #[test]
 fn delete_receipts_are_held_until_they_are_serialized() {
     // A state with a stored 3 MiB name.
@@ -1683,23 +1687,23 @@ fn delete_receipts_are_held_until_they_are_serialized() {
     let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002201", 1_000);
     set_label(&path, "model_state_labels", "state_name", &"n".repeat(LARGE));
     let pool = registry(ScriptedHost::normal());
-    let memory = PoolReadMemory::new(&pool);
+    let memory = PoolReadMemory::unseeded(&pool);
     let receipt = model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, &memory).unwrap();
     let length = stored_read::serialized_length(receipt.get()).unwrap();
-    assert!(length as usize > LARGE);
-    assert!(receipt.reserved_bytes() >= length, "the receipt holds {} for its {length}-byte message", receipt.reserved_bytes());
+    assert!(length < 1024 && receipt.get().message.contains(&format!("{}…", "n".repeat(120))), "{}", receipt.get().message);
+    assert!(receipt.reserved_bytes() >= LARGE as u64, "the receipt holds the deleted summary's reservations ({})", receipt.reserved_bytes());
     assert!(receipt.into_unreserved().is_err(), "a metered receipt does not leave its reservations");
     assert_eq!(pool.pool_status().reserved_bytes, 0);
     // Through serialization (a fresh state: the first was deleted).
     let path = store_with_project("memory-delete-state-2");
     let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002202", 1_000);
     set_label(&path, "model_state_labels", "state_name", &"n".repeat(LARGE));
-    assert!(assert_within_reservation("delete_model_state", |memory| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory)) as usize > LARGE);
+    assert!(assert_within_reservation("delete_model_state", |memory| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory)) < 1024);
     // A run with a stored 3 MiB name.
     let (path, _) = recorded_fixture("memory-delete-run");
     let id = id_of(&path);
     set_label(&path, "analysis_run_labels", "run_name", &"n".repeat(LARGE));
-    assert!(assert_within_reservation("delete_analysis_run", |memory| delete_run_in_store_with(&path, PROJECT, &id, memory)) as usize > LARGE);
+    assert!(assert_within_reservation("delete_analysis_run", |memory| delete_run_in_store_with(&path, PROJECT, &id, memory)) < 1024);
     assert_eq!(row_count(&path, "analysis_runs"), 0);
 }
 
@@ -1758,4 +1762,239 @@ fn the_labels_bound_is_the_serialized_labels_objects_and_every_kept_label_can_be
         EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES,
     )
     .is_ok());
+}
+
+// ---------------------------------------------------------------------------
+// Repair r4: a mutating command serializes its outcome before it commits;
+// messages quote at most 120 characters of a stored name; the project guard
+// prices what it reads; the invocation total counts the argument lease.
+// ---------------------------------------------------------------------------
+
+/// A pool memory that refuses every reservation whose description starts with
+/// `refused` (a response the pool does not admit).
+struct RefusedAt<'a> {
+    inner: PoolReadMemory<'a>,
+    refused: String,
+}
+
+impl ReadMemory for RefusedAt<'_> {
+    fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+        if what.starts_with(&self.refused) {
+            return Err(format!("STORE-READ-MEMORY-UNAVAILABLE: reading {what} needs {bytes} bytes of the memory pool, which refused them (test); nothing more was read."));
+        }
+        self.inner.reserve(what, bytes)
+    }
+}
+
+/// Runs a mutating command's argument handler with its response refused: the
+/// refusal is reported, by name.
+fn refused_response(command: &'static str, args: Value, run: impl FnOnce(&mut Args, &dyn ReadMemory) -> Result<stored_read::Serialized, CommandError>) {
+    let pool = registry(ScriptedHost::normal());
+    let (mut args, _lease) = admit_json(&pool, command, ArgsDecoding::Moved, &args).unwrap();
+    let memory = RefusedAt { inner: PoolReadMemory::unseeded(&pool), refused: format!("the response to {command}") };
+    match run(&mut args, &memory) {
+        Err(CommandError::Command(message)) => {
+            assert!(message.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading the response to {command}")), "{message}")
+        }
+        other => panic!("{command}: the refused response was not reported: {other:?}"),
+    }
+}
+
+fn labels_row(path: &Path, table: &str, column: &str) -> String {
+    Connection::open(path).unwrap().query_row(&format!("SELECT {column} FROM {table}"), [], |row| row.get(0)).unwrap()
+}
+
+#[test]
+fn a_mutation_whose_response_is_refused_writes_nothing() {
+    let (path, _) = recorded_fixture("r4-rollback");
+    let store = || Ok(path.clone());
+    let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM model_states", [], |row| row.get(0)).unwrap();
+    let id = id_of(&path);
+    let (states, runs) = (row_count(&path, "model_states"), row_count(&path, "analysis_runs"));
+    // Save Model State: no new state.
+    let other = model("Another invented model");
+    let canonical = canonical_json(&other);
+    refused_response(
+        "save_model_state",
+        json!({ "request": { "project_id": PROJECT, "expected_base": BASE, "model_canonical": canonical,
+                             "model_hash": format!("sha256:{}", sha256_hex(&canonical)), "state_kind": "design_snapshot",
+                             "labels": { "state_name": "Refused" } } }),
+        |args, memory| model_states::save_model_state_args(args, store, memory),
+    );
+    assert_eq!(row_count(&path, "model_states"), states, "Save wrote nothing");
+    // Record Run: no new run (and no post-solve snapshot).
+    let submitted = with_new_state(request(&other, "Refused run"), "Refused snapshot");
+    refused_response(
+        "record_analysis_run",
+        json!({ "request": { "project_id": PROJECT, "expected_base": BASE, "run_record": submitted.run_record,
+                             "result_json": submitted.result_json, "input_manifest_canonical": submitted.input_manifest_canonical,
+                             "new_state": { "labels": { "state_name": "Refused snapshot" } }, "run_labels": { "run_name": "Refused run" } } }),
+        |args, memory| record_analysis_run_args(args, store, memory),
+    );
+    assert_eq!((row_count(&path, "model_states"), row_count(&path, "analysis_runs")), (states, runs), "Record Run wrote nothing");
+    // Both label edits: the labels are unchanged.
+    let (state_name, run_name) = (labels_row(&path, "model_state_labels", "state_name"), labels_row(&path, "analysis_run_labels", "run_name"));
+    refused_response(
+        "edit_model_state_labels",
+        json!({ "projectId": PROJECT, "stateId": state_id, "labels": { "state_name": "Refused rename" }, "expectedUpdatedAt": null }),
+        |args, memory| model_states::edit_model_state_labels_args(args, store, memory),
+    );
+    refused_response(
+        "edit_analysis_run_labels",
+        json!({ "projectId": PROJECT, "recordingId": id, "labels": { "run_name": "Refused rename" }, "expectedUpdatedAt": null }),
+        |args, memory| edit_analysis_run_labels_args(args, store, memory),
+    );
+    assert_eq!(labels_row(&path, "model_state_labels", "state_name"), state_name);
+    assert_eq!(labels_row(&path, "analysis_run_labels", "run_name"), run_name);
+    // Both deletes: the rows stay (the run first: the state is its run's).
+    refused_response("delete_analysis_run", json!({ "projectId": PROJECT, "recordingId": id }), |args, memory| {
+        delete_analysis_run_args(args, store, memory)
+    });
+    assert_eq!(row_count(&path, "analysis_runs"), runs, "the run was not deleted");
+    delete_run_in_store(&path, PROJECT, &id).unwrap();
+    refused_response("delete_model_state", json!({ "projectId": PROJECT, "stateId": state_id }), |args, memory| {
+        model_states::delete_model_state_args(args, store, memory)
+    });
+    assert_eq!(row_count(&path, "model_states"), states, "the state was not deleted");
+    // Admitted, each commits after its response exists.
+    let pool = registry(ScriptedHost::normal());
+    let (mut args, _lease) = admit_json(&pool, "delete_model_state", ArgsDecoding::Moved, &json!({ "projectId": PROJECT, "stateId": state_id })).unwrap();
+    let response = model_states::delete_model_state_args(&mut args, store, &PoolReadMemory::unseeded(&pool)).unwrap();
+    assert!(response.text().contains("\"deleted\":true"), "{}", response.text());
+    assert_eq!(row_count(&path, "model_states"), states - 1);
+}
+
+/// Writes a stored text column with a bound parameter (a NUL cannot be written
+/// as an SQL literal).
+fn set_column(path: &Path, table: &str, column: &str, value: &str) {
+    Connection::open(path).unwrap().execute(&format!("UPDATE {table} SET {column} = ?1"), params![value]).unwrap();
+}
+
+/// A refusal measured within its reservation, its text small (the error is
+/// serialized after every lease is released).
+fn assert_small_refusal(what: &str, code: &str, refuse: impl FnOnce(&PoolReadMemory<'_>) -> Result<(), String>) {
+    let pool = registry(ScriptedHost::normal());
+    let memory = PoolReadMemory::unseeded(&pool);
+    let (outcome, measured) = crate::ingress::counting::measure(|| refuse(&memory));
+    let error = outcome.unwrap_err();
+    assert!(error.starts_with(code), "{what}: {error}");
+    let serialized = serde_json::to_string(&error).unwrap().len();
+    assert!(serialized < 2048 && error.contains('…'), "{what}: the refusal serializes to {serialized} bytes");
+    assert!(measured.peak_priced <= memory.peak_reserved(), "{what}: peak {} within the reservation {}", measured.peak_priced, memory.peak_reserved());
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+#[test]
+fn refusals_quote_stored_names_cut_to_a_small_bound() {
+    // Codex r4: a blocked delete naming one 3 MiB run name; stale-label
+    // refusals quoting a 3 MiB NUL name (six bytes a character serialized).
+    let (path, _) = recorded_fixture("r4-refusals");
+    let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM model_states", [], |row| row.get(0)).unwrap();
+    let id = id_of(&path);
+    set_column(&path, "analysis_run_labels", "run_name", &"n".repeat(LARGE));
+    assert_small_refusal("a blocked delete", "MODEL-STATE-DELETE-BLOCKED: ", |memory| {
+        model_states::delete_state_in_store_with(&path, PROJECT, &state_id, memory).map(|_| ())
+    });
+    let nul = "\u{0}".repeat(LARGE);
+    set_column(&path, "model_state_labels", "state_name", &nul);
+    set_column(&path, "analysis_run_labels", "run_name", &nul);
+    assert_small_refusal("a stale state edit", "MODEL-STATE-LABELS-MOVED: ", |memory| {
+        model_states::edit_labels_in_store_with(&path, PROJECT, &state_id, labels_from_value(json!({ "state_name": "New" })).unwrap(), Some("stale"), T0, memory)
+            .map(|_| ())
+    });
+    assert_small_refusal("a stale run edit", "ANALYSIS-RUN-LABELS-MOVED: ", |memory| {
+        edit_run_labels_in_store_with(&path, PROJECT, &id, run_labels("New"), Some("stale"), T0, memory).map(|_| ())
+    });
+    // Many blockers: ten are named, the rest counted.
+    let path = store_with_project("r4-blockers");
+    let solved = model("Invented project");
+    let state = save_state(&path, &solved, "Basis", "00000000000000000000000000002301", 1_000);
+    for index in 0..12 {
+        record(&path, request(&solved, &format!("Run {index}")), T0 + index).unwrap();
+    }
+    let error = model_states::delete_state_in_store(&path, PROJECT, &state.state_id).unwrap_err();
+    assert!(error.contains(" and 2 more") && error.matches("runrec:").count() == 10, "{error}");
+    // The cut itself.
+    assert_eq!(stored_read::shown(&"é".repeat(120)), "é".repeat(120));
+    assert_eq!(stored_read::shown(&"é".repeat(121)), format!("{}…", "é".repeat(120)));
+    let head = "\u{1f600}".repeat(200);
+    assert_eq!(stored_read::shown_head(&head.as_bytes()[..stored_read::SHOWN_COLUMN_BYTES], head.len() as i64), format!("{}…", "\u{1f600}".repeat(120)));
+}
+
+#[test]
+fn the_project_guard_prices_what_it_reads_and_quotes_the_name_only_when_it_refuses() {
+    // Codex r4: a 3 MiB stored project name.
+    let path = store_with_project("r4-project-name");
+    set_column(&path, "local_projects", "project_name", &"p".repeat(LARGE));
+    let solved = model("Invented project");
+    let model_canonical = canonical_json(&solved);
+    let save = |expected_base: &str| SaveModelStateRequest {
+        project_id: PROJECT.to_string(),
+        expected_base: expected_base.to_string(),
+        model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+        model_canonical: model_canonical.clone(),
+        state_kind: "design_snapshot".to_string(),
+        parent_state_id: None,
+        labels: labels_from_value(json!({ "state_name": "Basis" })).unwrap(),
+    };
+    let allocate = || Ok(("00000000000000000000000000002401".to_string(), 1_000));
+    let between_rows = |_: &Transaction<'_>| Ok(());
+    let hooks = StateWriteHooks { allocate: &allocate, between_rows: &between_rows };
+    // Saved under the 2 MiB pool, within its reservations (the name is never loaded).
+    let small = small_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| model_states::save_state_in_store_with(&path, save(BASE), &hooks, &memory).map(|_| ()));
+    outcome.unwrap();
+    assert!(measured.peak_priced <= memory.peak_reserved(), "save: peak {} within {}", measured.peak_priced, memory.peak_reserved());
+    assert!(measured.peak_priced < (LARGE as u64) / 4);
+    // Record Run against it, likewise.
+    let memory = PoolReadMemory::unseeded(&small);
+    let now = || Ok(T0);
+    let token = || Ok("0000000000000000000000000000d00d".to_string());
+    let run_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let run_hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &run_rows };
+    let (outcome, measured) = crate::ingress::counting::measure(|| record_run_in_store_with(&path, request(&solved, "Run"), &run_hooks, &memory).map(|_| ()));
+    outcome.unwrap();
+    assert!(measured.peak_priced <= memory.peak_reserved(), "Record Run: peak {} within {}", measured.peak_priced, memory.peak_reserved());
+    assert!(measured.peak_priced < (LARGE as u64) / 4);
+    // A stale base is refused quoting the name's head only.
+    assert_small_refusal("a stale save", "PROJECT-BASE-MOVED: ", |memory| {
+        let mut stale = save("sha256:older");
+        stale.model_canonical = canonical_json(&model("Other"));
+        stale.model_hash = format!("sha256:{}", sha256_hex(&stale.model_canonical));
+        model_states::save_state_in_store_with(&path, stale, &hooks, memory).map(|_| ())
+    });
+}
+
+#[test]
+fn the_invocation_total_counts_the_argument_lease() {
+    // Codex r4: a command's argument lease and its reservations together.
+    let path = store_with_project("r4-invocation");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002501", 1_000);
+    let now = || Ok(T0);
+    let token = || Ok("0000000000000000000000000000f00d".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    // What a Record Run reserves, alone.
+    let pool = registry(ScriptedHost::normal());
+    let probe = store_with_project("r4-invocation-probe");
+    save_state(&probe, &solved, "Basis", "00000000000000000000000000002502", 1_000);
+    let memory = PoolReadMemory::unseeded(&pool);
+    record_run_in_store_with(&probe, request(&solved, "Probe"), &hooks, &memory).unwrap();
+    let alone = memory.peak_reserved();
+    // A budget that admits the reservations alone, and an argument lease that
+    // leaves less than them.
+    let budget = alone * 2;
+    let pool = registry(ScriptedHost::normal());
+    pool.configure_pool(budget * 4, budget, false).unwrap();
+    let lease = pool.acquire_interactive_ingress(budget - alone / 2).unwrap();
+    let error = record_run_in_store_with(&path, request(&solved, "Over"), &hooks, &PoolReadMemory::new(&pool, &lease)).unwrap_err();
+    assert!(error.starts_with("STORE-READ-MEMORY-UNAVAILABLE: ") && error.contains("above the per-invocation budget"), "{error}");
+    assert_eq!(row_count(&path, "analysis_runs"), 0, "nothing was recorded");
+    drop(lease);
+    // Without the argument lease's share the same run is admitted.
+    let lease = pool.acquire_interactive_ingress(1024).unwrap();
+    record_run_in_store_with(&path, request(&solved, "Within"), &hooks, &PoolReadMemory::new(&pool, &lease)).unwrap();
+    assert_eq!(row_count(&path, "analysis_runs"), 1);
 }

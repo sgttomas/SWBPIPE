@@ -85,8 +85,9 @@ pub(crate) trait ReadMemory {
 }
 
 /// The application's memory pool, through the job registry. Each reservation is
-/// one interactive lease; together the read's live reservations stay within the
-/// per-invocation budget, as one command's lease does.
+/// one interactive lease; together with the command's argument lease, which the
+/// accounting starts from (repair r4), the command's live leases stay within the
+/// per-invocation budget.
 pub(crate) struct PoolReadMemory<'a> {
     registry: &'a SolveJobRegistry,
     held: Rc<Cell<u64>>,
@@ -96,7 +97,16 @@ pub(crate) struct PoolReadMemory<'a> {
 }
 
 impl<'a> PoolReadMemory<'a> {
-    pub(crate) fn new(registry: &'a SolveJobRegistry) -> Self {
+    /// The memory of a command admitted with `argument_lease`: every later
+    /// admission counts the argument lease with the command's reservations.
+    pub(crate) fn new(registry: &'a SolveJobRegistry, argument_lease: &Lease) -> Self {
+        let argument = argument_lease.bytes();
+        Self { registry, held: Rc::new(Cell::new(argument)), peak: Cell::new(argument) }
+    }
+
+    /// A command's memory with no argument lease (tests).
+    #[cfg(test)]
+    pub(crate) fn unseeded(registry: &'a SolveJobRegistry) -> Self {
         Self { registry, held: Rc::new(Cell::new(0)), peak: Cell::new(0) }
     }
 
@@ -169,20 +179,45 @@ pub(crate) fn exact_text_bytes(length: u64) -> u64 {
     envelope(length)
 }
 
-/// `parts` joined into a buffer of exactly their length (no growth: a message
-/// quoting a stored name copies it once).
-pub(crate) fn exact_concat(parts: &[&str]) -> String {
-    let mut text = String::with_capacity(parts.iter().map(|part| part.len()).sum());
-    parts.iter().for_each(|part| text.push_str(part));
-    text
+/// The most characters of a stored name or id a message, receipt or refusal
+/// quotes (repair r4): a longer one is cut there with an ellipsis, so every
+/// message built from stored data has a small constant bound (at most six
+/// serialized bytes a character) and needs no reservation. The structured
+/// fields keep the full, metered values.
+pub(crate) const MAX_SHOWN_CHARS: usize = 120;
+
+/// `text` as a message quotes it: whole when it has at most
+/// [`MAX_SHOWN_CHARS`] characters, else its first ones and `…`.
+pub(crate) fn shown(text: &str) -> std::borrow::Cow<'_, str> {
+    match text.char_indices().nth(MAX_SHOWN_CHARS) {
+        None => std::borrow::Cow::Borrowed(text),
+        Some((cut, _)) => std::borrow::Cow::Owned(format!("{}…", &text[..cut])),
+    }
 }
 
-/// A message a response carries, joined from `parts` within `memory`: reserved
-/// at its exact length before it is built (it quotes stored names).
-pub(crate) fn message(memory: &dyn ReadMemory, what: &str, parts: &[&str]) -> Result<Metered<String>, String> {
-    let length = parts.iter().map(|part| part.len() as u64).sum();
-    let reservation = memory.reserve(what, exact_text_bytes(length))?;
-    Ok(Metered::new(exact_concat(parts)).holding(reservation))
+/// The bytes of a stored text column a message reads ([`shown_column`]): enough
+/// for [`MAX_SHOWN_CHARS`] characters and one more (UTF-8 takes at most four
+/// bytes a character).
+pub(crate) const SHOWN_COLUMN_BYTES: usize = (MAX_SHOWN_CHARS + 1) * 4;
+
+/// SQL selecting the head of a stored text `column` for a message, without
+/// loading the rest into the process: its first [`SHOWN_COLUMN_BYTES`] bytes
+/// and its byte length (read as `(Vec<u8>, i64)`, then [`shown_head`]). Bytes,
+/// not characters, as SQLite's character functions stop at a NUL.
+pub(crate) fn shown_column(column: &str) -> String {
+    format!("substr(CAST({column} AS BLOB), 1, {SHOWN_COLUMN_BYTES}), octet_length({column})")
+}
+
+/// A column head read by [`shown_column`], as [`shown`] quotes the whole text.
+pub(crate) fn shown_head(head: &[u8], length: i64) -> String {
+    let text = String::from_utf8_lossy(head);
+    let shown = shown(&text);
+    if matches!(shown, std::borrow::Cow::Borrowed(_)) && (head.len() as i64) < length {
+        // Only a cut inside the last character can leave it short of the cut.
+        format!("{}…", text.trim_end_matches('\u{fffd}'))
+    } else {
+        shown.into_owned()
+    }
 }
 
 /// `value`'s serde_json text, written into a buffer of its exact length, which
@@ -255,6 +290,10 @@ impl<T> Metered<T> {
         &self.value
     }
 
+    /// The rule for `map`, `join` and the commit-last `finish` steps: the
+    /// closure moves the value into its result and does not capture or keep it
+    /// (or a copy of a stored part of it) elsewhere. The type checks the
+    /// result, not the captures, so this is a reviewed rule.
     pub(crate) fn map<U>(self, f: impl FnOnce(T) -> U) -> Metered<U> {
         Metered { value: f(self.value), held: self.held }
     }
@@ -387,6 +426,40 @@ pub(crate) fn checked_sha256_text(memory: &dyn ReadMemory, what: &str, text: &st
     let parse = parse_bytes(text)?;
     let _work = memory.reserve(what, total(&[parse, grown_text_bytes(jcs_length(parsed))]))?;
     Ok(sha256_hex(&canonical_json_checked_v1_text(text)?))
+}
+
+/// A command's response, serialized (its reservations already released). A
+/// mutating command makes it before it commits ([`serialize_metered`]), so
+/// nothing after the commit can fail.
+#[derive(Debug)]
+pub(crate) struct Serialized(String);
+
+impl Serialized {
+    #[cfg(test)]
+    pub(crate) fn text(&self) -> &str {
+        &self.0
+    }
+}
+
+/// Serializes `metered` within `memory`: the exact length is counted first,
+/// a buffer of exactly that capacity is reserved, and the value is serialized
+/// into it while its own reservations are still held; every reservation is
+/// released once the text exists. A refusal names `what`'s response.
+pub(crate) fn serialize_metered<T: Serialize>(memory: &dyn ReadMemory, what: &str, metered: Metered<T>) -> Result<Serialized, String> {
+    let length = serialized_length(&metered.value)?;
+    let length_usize = usize::try_from(length).map_err(|error| error.to_string())?;
+    let buffer_reservation = memory.reserve(&format!("the response to {what}"), envelope(length))?;
+    let mut buffer = Vec::with_capacity(length_usize);
+    serde_json::to_writer(&mut buffer, &metered.value).map_err(|error| error.to_string())?;
+    let text = String::from_utf8(buffer).map_err(|error| error.to_string())?;
+    drop(metered);
+    drop(buffer_reservation);
+    Ok(Serialized(text))
+}
+
+/// The response of a mutating command, serialized before it committed.
+pub(crate) fn respond_serialized<E>(outcome: Result<Serialized, CommandError<E>>) -> Result<Response, CommandError<E>> {
+    Ok(Response::new(outcome?.0))
 }
 
 /// Serializes a metered read's response within `memory`: the response's exact

@@ -43,7 +43,7 @@ use crate::model_states::{
     StateWriteHooks,
 };
 use crate::solve_jobs::SolveJobRegistry;
-use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, ReadReservation, UnmeteredReadMemory};
+use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, ReadReservation, Serialized, UnmeteredReadMemory};
 #[cfg(test)]
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
 use open_pipe_stress_canonical_json::CHECKED_PROFILE_V1;
@@ -758,7 +758,7 @@ fn decode_run_labels(
 }
 
 fn integrity_of(recording_id: &str, detail: impl std::fmt::Display) -> String {
-    format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`: {detail}; it is neither listed nor read.")
+    format!("ANALYSIS-RUN-INTEGRITY: recorded run `{}`: {detail}; it is neither listed nor read.", stored_read::shown(recording_id))
 }
 
 /// The row's identity columns, which the record duplicates.
@@ -1077,15 +1077,10 @@ pub(crate) fn recorded_run_count(connection: &Connection, project_id: &str) -> R
         .map_err(sql)
 }
 
-/// `"<name>" (<recording id>)`, in pieces (a response message joins them
-/// within its reservation, [`stored_read::message`]).
-pub(crate) fn run_description_parts(run: &AnalysisRunSummary) -> [&str; 5] {
-    ["\"", &run.labels.run_name, "\" (", &run.recording_id, ")"]
-}
-
-/// `"<name>" (<recording id>)`, one exact-capacity copy of the name (refusals).
+/// `"<name>" (<recording id>)` as a message quotes them ([`stored_read::shown`]:
+/// at most 120 characters each), so a message naming a run is small.
 pub(crate) fn run_description(run: &AnalysisRunSummary) -> String {
-    stored_read::exact_concat(&run_description_parts(run))
+    format!("\"{}\" ({})", stored_read::shown(&run.labels.run_name), stored_read::shown(&run.recording_id))
 }
 
 /// The recording time: the later of `now` and one millisecond after the
@@ -1152,20 +1147,32 @@ pub(crate) fn record_run_in_store(
     record_run_in_store_with(path, request, hooks, &UnmeteredReadMemory)?.into_unreserved()
 }
 
-/// [`record_run_in_store`] with its working memory reserved in `memory` before
-/// it is used: the checks' parses and canonical texts ([`checked_submission`]),
-/// the post-solve snapshot's checks and record, the recorded revision's hash
-/// and serialized text, and every summary it reads (the state, the run). The
-/// outcome holds the run's and the state's summaries' reservations until it is
-/// serialized. Residual: the transient record's clones (its hash projection and
-/// the recorded revision) are working memory within the request's argument
-/// lease.
+/// [`record_run_in_store_finishing`], keeping the outcome (tests).
 pub(crate) fn record_run_in_store_with(
     path: &Path,
     request: RecordRunRequest,
     hooks: &RunWriteHooks<'_>,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<RecordRunOutcome>, String> {
+    record_run_in_store_finishing(path, request, hooks, memory, Ok)
+}
+
+/// [`record_run_in_store`] with its working memory reserved in `memory` before
+/// it is used: the checks' parses and canonical texts ([`checked_submission`]),
+/// the post-solve snapshot's checks and record, the recorded revision's hash
+/// and serialized text, and every summary it reads (the state, the run). The
+/// outcome, holding the run's and the state's summaries' reservations, goes to
+/// `finish` (the command serializes it) before the transaction commits, so a
+/// refusal there records nothing (repair r4). Residual: the transient record's
+/// clones (its hash projection and the recorded revision) are working memory
+/// within the request's argument lease.
+pub(crate) fn record_run_in_store_finishing<R>(
+    path: &Path,
+    request: RecordRunRequest,
+    hooks: &RunWriteHooks<'_>,
+    memory: &dyn ReadMemory,
+    finish: impl FnOnce(Metered<RecordRunOutcome>) -> Result<R, String>,
+) -> Result<R, String> {
     let project_id = request.project_id.as_str();
     let submission = checked_submission(
         project_id,
@@ -1176,12 +1183,16 @@ pub(crate) fn record_run_in_store_with(
     )?;
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
-    if crate::stored_project_entry(&transaction, project_id)?.is_none() {
-        return Err(format!(
-            "ANALYSIS-RUN-PROJECT-MISSING: project `{project_id}` has no stored local project; save the local project first. Nothing was recorded."
-        ));
-    }
-    crate::refuse_unconfirmed_replacement(&transaction, project_id, None, Some(&request.expected_base))?;
+    model_states::require_project_base(
+        &transaction,
+        project_id,
+        &request.expected_base,
+        format!(
+            "ANALYSIS-RUN-PROJECT-MISSING: project `{}` has no stored local project; save the local project first. Nothing was recorded.",
+            stored_read::shown(project_id)
+        ),
+        memory,
+    )?;
     let (state, state_outcome) = match &request.state_id {
         Some(state_id) => {
             let state = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(|| {
@@ -1276,26 +1287,22 @@ pub(crate) fn record_run_in_store_with(
     // The state as it now stands (its recorded runs include this one).
     let state = find_summary_with(&transaction, project_id, &state_id, memory)?
         .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished."))?;
-    transaction.commit().map_err(sql)?;
     let unused = if state_outcome == "existing" && request.state_id.is_none() && request.new_state.is_some() {
         " The solved model was already saved as that state, so the post-solve snapshot name was not used."
     } else {
         ""
     };
-    let against = if state_outcome == "created" { "the new post-solve snapshot " } else { "model state " };
-    let message = stored_read::message(
-        memory,
-        "Record Run's message",
-        &[
-            &["Recorded run "][..],
-            &run_description_parts(run.get()),
-            &[" against ", against],
-            &model_states::state_description_parts(state.get()),
-            &[".", unused, " ", LABELS_DO_NOT_CHANGE_RUN],
-        ]
-        .concat(),
-    )?;
-    Ok(run.join(state, |run, state| (run, state)).join(message, |(run, state), message| RecordRunOutcome { run, state, state_outcome, message }))
+    let finished = finish(run.join(state, |run, state| {
+        let against = if state_outcome == "created" {
+            format!("the new post-solve snapshot {}", state_description(&state))
+        } else {
+            format!("model state {}", state_description(&state))
+        };
+        let message = format!("Recorded run {} against {against}.{unused} {LABELS_DO_NOT_CHANGE_RUN}", run_description(&run));
+        RecordRunOutcome { run, state, state_outcome, message }
+    }))?;
+    transaction.commit().map_err(sql)?;
+    Ok(finished)
 }
 
 /// `read_analysis_run` on a given store: the record, the stored result and the
@@ -1448,6 +1455,22 @@ pub(crate) fn edit_run_labels_in_store_with(
     now_millis: i64,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<AnalysisRunSummary>, String> {
+    edit_run_labels_in_store_finishing(path, project_id, recording_id, labels, expected_updated_at, now_millis, memory, Ok)
+}
+
+/// [`edit_run_labels_in_store_with`], the edited summary going to `finish` (the
+/// command serializes it) before the transaction commits (repair r4).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn edit_run_labels_in_store_finishing<R>(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    labels: RunLabels,
+    expected_updated_at: Option<&str>,
+    now_millis: i64,
+    memory: &dyn ReadMemory,
+    finish: impl FnOnce(Metered<AnalysisRunSummary>) -> Result<R, String>,
+) -> Result<R, String> {
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
     let current = find_run_with(&transaction, project_id, recording_id, memory)?
@@ -1468,8 +1491,9 @@ pub(crate) fn edit_run_labels_in_store_with(
     let summary = find_run_with(&transaction, project_id, recording_id, memory)?
         .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` vanished."))?
         .map(|(summary, _)| summary);
+    let finished = finish(summary)?;
     transaction.commit().map_err(sql)?;
-    Ok(summary)
+    Ok(finished)
 }
 
 /// `delete_analysis_run` on a given store: the whole immutable row goes, with
@@ -1479,16 +1503,28 @@ pub(crate) fn delete_run_in_store(path: &Path, project_id: &str, recording_id: &
     delete_run_in_store_with(path, project_id, recording_id, &UnmeteredReadMemory)?.into_unreserved()
 }
 
-/// [`delete_run_in_store`] within `memory`, on its `BEGIN IMMEDIATE`
-/// transaction: the run it verifies is priced before it is loaded, and the
-/// receipt, which names the run, holds the run's reservations until it is
-/// serialized.
+/// [`delete_run_in_store_finishing`], keeping the receipt (tests).
 pub(crate) fn delete_run_in_store_with(
     path: &Path,
     project_id: &str,
     recording_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<AnalysisRunDeleteReceipt>, String> {
+    delete_run_in_store_finishing(path, project_id, recording_id, memory, Ok)
+}
+
+/// [`delete_run_in_store`] within `memory`, on its `BEGIN IMMEDIATE`
+/// transaction: the run it verifies is priced before it is loaded. The
+/// receipt, holding the run's reservations, goes to `finish` (the command
+/// serializes it) before the transaction commits, so a refusal there deletes
+/// nothing (repair r4).
+pub(crate) fn delete_run_in_store_finishing<R>(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+    finish: impl FnOnce(Metered<AnalysisRunDeleteReceipt>) -> Result<R, String>,
+) -> Result<R, String> {
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
     let found = find_run_with(&transaction, project_id, recording_id, memory)?
@@ -1499,18 +1535,14 @@ pub(crate) fn delete_run_in_store_with(
             params![project_id, recording_id],
         )
         .map_err(sql)?;
-    transaction.commit().map_err(sql)?;
-    let message = stored_read::message(
-        memory,
-        "the delete's receipt",
-        &[&["Deleted recorded run "][..], &run_description_parts(&found.get().0), &["."]].concat(),
-    )?;
-    Ok(found.join(message, |_found, message| AnalysisRunDeleteReceipt {
+    let finished = finish(found.map(|(run, _record)| AnalysisRunDeleteReceipt {
         project_id: project_id.to_string(),
         recording_id: recording_id.to_string(),
         deleted: deleted == 1,
-        message,
-    }))
+        message: format!("Deleted recorded run {}.", run_description(&run)),
+    }))?;
+    transaction.commit().map_err(sql)?;
+    Ok(finished)
 }
 
 // ---------------------------------------------------------------------------
@@ -1522,10 +1554,11 @@ pub(crate) fn record_analysis_run_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     memory: &dyn ReadMemory,
-) -> Result<Metered<RecordRunOutcome>, CommandError> {
+) -> Result<Serialized, CommandError> {
     let request = args.decode_with("request", RecordRunRequest::from_value)?;
+    let finish = |outcome| stored_read::serialize_metered(memory, "record_analysis_run", outcome);
     store()
-        .and_then(|path| record_run_in_store_with(&path, request, &PRODUCTION_RUN_HOOKS, memory))
+        .and_then(|path| record_run_in_store_finishing(&path, request, &PRODUCTION_RUN_HOOKS, memory, finish))
         .map_err(CommandError::Command)
 }
 
@@ -1559,14 +1592,15 @@ pub(crate) fn edit_analysis_run_labels_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     memory: &dyn ReadMemory,
-) -> Result<Metered<AnalysisRunSummary>, CommandError> {
+) -> Result<Serialized, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let recording_id: String = args.decode("recordingId")?;
     let labels = args.decode_with("labels", |value| run_labels_from_value(value).map_err(serde::de::Error::custom))?;
     let expected: Option<String> = args.decode("expectedUpdatedAt")?;
+    let finish = |summary| stored_read::serialize_metered(memory, "edit_analysis_run_labels", summary);
     store()
         .and_then(|path| {
-            edit_run_labels_in_store_with(&path, &project_id, &recording_id, labels, expected.as_deref(), now_unix_millis()?, memory)
+            edit_run_labels_in_store_finishing(&path, &project_id, &recording_id, labels, expected.as_deref(), now_unix_millis()?, memory, finish)
         })
         .map_err(CommandError::Command)
 }
@@ -1576,11 +1610,12 @@ pub(crate) fn delete_analysis_run_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     memory: &dyn ReadMemory,
-) -> Result<Metered<AnalysisRunDeleteReceipt>, CommandError> {
+) -> Result<Serialized, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let recording_id: String = args.decode("recordingId")?;
+    let finish = |receipt| stored_read::serialize_metered(memory, "delete_analysis_run", receipt);
     store()
-        .and_then(|path| delete_run_in_store_with(&path, &project_id, &recording_id, memory))
+        .and_then(|path| delete_run_in_store_finishing(&path, &project_id, &recording_id, memory, finish))
         .map_err(CommandError::Command)
 }
 
@@ -1591,9 +1626,9 @@ pub fn record_analysis_run(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
     // Save Local Project's memory guard: the per-invocation budget through the lease.
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "record_analysis_run", ArgsDecoding::Moved)?;
-    let memory = PoolReadMemory::new(&registry);
-    stored_read::respond_metered(&memory, "record_analysis_run", record_analysis_run_args(&mut args, || crate::app_store_path(&app), &memory))
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "record_analysis_run", ArgsDecoding::Moved)?;
+    let memory = PoolReadMemory::new(&registry, &lease);
+    stored_read::respond_serialized(record_analysis_run_args(&mut args, || crate::app_store_path(&app), &memory))
 }
 
 #[tauri::command]
@@ -1602,14 +1637,14 @@ pub fn list_analysis_runs(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit_within(
+    let (mut args, lease) = command_ingress::admit_within(
         &registry,
         &invoke,
         "list_analysis_runs",
         ArgsDecoding::Moved,
         LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES,
     )?;
-    let memory = PoolReadMemory::new(&registry);
+    let memory = PoolReadMemory::new(&registry, &lease);
     stored_read::respond_metered(&memory, "list_analysis_runs", list_analysis_runs_args(&mut args, || crate::app_store_path(&app), &memory))
 }
 
@@ -1619,14 +1654,14 @@ pub fn read_analysis_run(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit_within(
+    let (mut args, lease) = command_ingress::admit_within(
         &registry,
         &invoke,
         "read_analysis_run",
         ArgsDecoding::Moved,
         READ_ANALYSIS_RUN_MAX_ARGS_BYTES,
     )?;
-    let memory = PoolReadMemory::new(&registry);
+    let memory = PoolReadMemory::new(&registry, &lease);
     stored_read::respond_metered(&memory, "read_analysis_run", read_analysis_run_args(&mut args, || crate::app_store_path(&app), &memory))
 }
 
@@ -1636,15 +1671,15 @@ pub fn edit_analysis_run_labels(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit_within(
+    let (mut args, lease) = command_ingress::admit_within(
         &registry,
         &invoke,
         "edit_analysis_run_labels",
         ArgsDecoding::Moved,
         EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES,
     )?;
-    let memory = PoolReadMemory::new(&registry);
-    stored_read::respond_metered(&memory, "edit_analysis_run_labels", edit_analysis_run_labels_args(&mut args, || crate::app_store_path(&app), &memory))
+    let memory = PoolReadMemory::new(&registry, &lease);
+    stored_read::respond_serialized(edit_analysis_run_labels_args(&mut args, || crate::app_store_path(&app), &memory))
 }
 
 #[tauri::command]
@@ -1653,15 +1688,15 @@ pub fn delete_analysis_run(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit_within(
+    let (mut args, lease) = command_ingress::admit_within(
         &registry,
         &invoke,
         "delete_analysis_run",
         ArgsDecoding::Moved,
         DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES,
     )?;
-    let memory = PoolReadMemory::new(&registry);
-    stored_read::respond_metered(&memory, "delete_analysis_run", delete_analysis_run_args(&mut args, || crate::app_store_path(&app), &memory))
+    let memory = PoolReadMemory::new(&registry, &lease);
+    stored_read::respond_serialized(delete_analysis_run_args(&mut args, || crate::app_store_path(&app), &memory))
 }
 
 #[cfg(test)]
