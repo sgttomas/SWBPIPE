@@ -408,6 +408,13 @@ fn model_settings_tolerance_refusals_are_named() {
         "model_settings.node_proximity_tolerance.basis is not a member of this record.");
     refused(&tolerance(json!(5)), "MODEL-SLOT-SHAPE", "model_settings.node_proximity_tolerance",
         "model_settings.node_proximity_tolerance is number; a length quantity {value, unit} is required.");
+    // An authored null is not absence (product_physics refuses it at the wire too).
+    refused(&tolerance(Value::Null), "MODEL-SLOT-SHAPE", "model_settings.node_proximity_tolerance",
+        "model_settings.node_proximity_tolerance is null; a length quantity {value, unit} is required.");
+    // A positive value that is zero in metres is refused with the accessor's code and message.
+    refused(&tolerance(json!({"value": 5e-324, "unit": "mm"})), "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+        "model_settings.node_proximity_tolerance",
+        "model_settings.node_proximity_tolerance is 5e-324 mm, which is zero in metres; the tolerance must be greater than zero.");
     refused(&mutated(|d| d["model_settings"] = json!({"proximity": 1})), "MODEL-SLOT-SHAPE",
         "model_settings.proximity", "model_settings.proximity is not a member of this record.");
     refused(&mutated(|d| d["model_settings"] = json!([])), "MODEL-SLOT-SHAPE", "model_settings",

@@ -743,16 +743,28 @@ impl Validator {
             }
             None => None,
         };
+        let mut admitted = true;
         if let Some(number) = number {
             if !number.is_finite() {
+                admitted = false;
                 self.block(ms::MODEL_SETTING_TOLERANCE_NOT_FINITE, &format!("{at}.value"), ms::tolerance_not_finite_message(number), Vec::new());
             } else if number <= 0.0 {
+                admitted = false;
                 self.block(ms::MODEL_SETTING_TOLERANCE_NOT_POSITIVE, &format!("{at}.value"), ms::tolerance_not_positive_message(number), Vec::new());
             }
         }
         if let Some(unit) = unit {
             if !ms::is_catalog_length_unit(unit) {
+                admitted = false;
                 self.block(ms::MODEL_SETTING_TOLERANCE_UNIT_NOT_LENGTH, &format!("{at}.unit"), ms::tolerance_unit_not_length_message(unit), Vec::new());
+            }
+        }
+        // A value and unit each admitted can still be zero or non-finite in metres; the
+        // accessor's own conversion decides, with its code and message.
+        if let (true, Some(number), Some(unit)) = (admitted, number, unit) {
+            let quantity = open_pipe_stress_product_physics::Quantity { value: number, unit: unit.to_owned() };
+            if let Err(error) = ms::node_proximity_tolerance_m(&quantity) {
+                self.block(error.code, at, error.message, Vec::new());
             }
         }
     }

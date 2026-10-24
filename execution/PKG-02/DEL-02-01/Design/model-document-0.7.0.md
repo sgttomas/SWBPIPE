@@ -433,9 +433,13 @@ never block deletion, and a missing entity is reported as a warning.
   member is `node_proximity_tolerance`, a length quantity `{value, unit}`.
 - **Default rule.** An absent `model_settings`, or an absent member, means
   5 mm. The product never writes the default into a document the user did not
-  author.
+  author. An authored `null` is not absence: the validator refuses it as
+  `MODEL-SLOT-SHAPE` and the solve wire refuses it, as for `model_settings`
+  itself.
 - **Admission.** The value must be finite and greater than zero, and the unit a
-  length unit of the units catalog. Each refusal is named:
+  length unit of the units catalog; converted to metres, the value must still be
+  finite and greater than zero (a value too small to represent in metres is
+  `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`). Each refusal is named:
   `MODEL-SETTING-TOLERANCE-NOT-FINITE`, `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`
   and `MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH` (a non-length or unknown unit);
   a malformed record is `MODEL-SLOT-SHAPE`. The document validator (§5.3) and

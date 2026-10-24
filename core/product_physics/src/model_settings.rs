@@ -32,8 +32,9 @@ pub const NODE_PROXIMITY_TOLERANCE_PATH: &str = "model_settings.node_proximity_t
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ModelSettings {
-    /// The near-duplicate node tolerance, a length quantity. Absent: 5 mm.
-    #[serde(default)]
+    /// The near-duplicate node tolerance, a length quantity. Absent: 5 mm. An authored `null`
+    /// is not absence: it is refused, as for the `model_settings` record itself.
+    #[serde(default, deserialize_with = "crate::deserialize_present_object")]
     pub node_proximity_tolerance: Option<Quantity>,
 }
 
@@ -59,12 +60,23 @@ pub fn tolerance_unit_not_length_message(unit: &str) -> String {
     format!("{NODE_PROXIMITY_TOLERANCE_PATH}.unit `{unit}` is not a length unit of the units catalog.")
 }
 
+/// The refusal message for a positive value that is zero in metres (the conversion underflows).
+pub fn tolerance_zero_in_metres_message(value: f64, unit: &str) -> String {
+    format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is zero in metres; the tolerance must be greater than zero.")
+}
+
+/// The refusal message for a finite value that is not finite in metres (the conversion overflows).
+pub fn tolerance_not_finite_in_metres_message(value: f64, unit: &str) -> String {
+    format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is not finite in metres; a finite length greater than zero is required.")
+}
+
 /// Whether `unit` is a length unit of the units catalog.
 pub fn is_catalog_length_unit(unit: &str) -> bool {
     unit_by_symbol(unit, Dimension::Length).is_ok()
 }
 
-/// The effective tolerance in metres of a quantity: finite, then positive, then a catalog length unit.
+/// The effective tolerance in metres of a quantity: finite, then positive, then a catalog length unit,
+/// then finite and greater than zero once converted to metres.
 pub fn node_proximity_tolerance_m(quantity: &Quantity) -> Result<f64, ModelSettingError> {
     if !quantity.value.is_finite() {
         return Err(ModelSettingError {
@@ -84,7 +96,20 @@ pub fn node_proximity_tolerance_m(quantity: &Quantity) -> Result<f64, ModelSetti
     };
     let from = unit_by_symbol(&quantity.unit, Dimension::Length).map_err(|_| not_length())?;
     let to = canonical_unit(Dimension::Length).ok_or_else(not_length)?;
-    convert_for_dimension(quantity.value, Dimension::Length, from, to).map_err(|_| not_length())
+    let metres = convert_for_dimension(quantity.value, Dimension::Length, from, to).map_err(|_| not_length())?;
+    if !metres.is_finite() {
+        return Err(ModelSettingError {
+            code: MODEL_SETTING_TOLERANCE_NOT_FINITE,
+            message: tolerance_not_finite_in_metres_message(quantity.value, &quantity.unit),
+        });
+    }
+    if metres <= 0.0 {
+        return Err(ModelSettingError {
+            code: MODEL_SETTING_TOLERANCE_NOT_POSITIVE,
+            message: tolerance_zero_in_metres_message(quantity.value, &quantity.unit),
+        });
+    }
+    Ok(metres)
 }
 
 impl PreviewModel {
@@ -139,6 +164,11 @@ mod tests {
         let error = parsed(Some(serde_json::json!({"proximity": 1}))).err().expect("unknown member refused").to_string();
         assert!(error.contains("unknown field `proximity`"), "{error}");
         assert!(parsed(Some(serde_json::Value::Null)).is_err(), "null is not an absent record");
+        let error = parsed(Some(serde_json::json!({"node_proximity_tolerance": null})))
+            .err()
+            .expect("an authored null tolerance is not the default")
+            .to_string();
+        assert!(error.contains("an authored object"), "{error}");
         assert!(parsed(Some(serde_json::json!([]))).is_err());
     }
 
@@ -181,6 +211,13 @@ mod tests {
                 })
             );
         }
+        assert_eq!(
+            node_proximity_tolerance_m(&quantity(5e-324, "mm")),
+            Err(ModelSettingError {
+                code: "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+                message: "model_settings.node_proximity_tolerance is 5e-324 mm, which is zero in metres; the tolerance must be greater than zero.".into(),
+            })
+        );
         let model = parsed(Some(serde_json::json!({"node_proximity_tolerance": {"value": 5.0, "unit": "N"}}))).unwrap();
         assert_eq!(model.node_proximity_tolerance_m().unwrap_err().code, MODEL_SETTING_TOLERANCE_UNIT_NOT_LENGTH);
     }
