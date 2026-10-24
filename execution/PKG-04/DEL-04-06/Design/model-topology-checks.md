@@ -61,8 +61,12 @@ value, and a pair at exactly τ is near. The owner chose it (2026-10-23): "I
 choose C, but my value is "5mm" and give the user the means to change it. No
 computed by any 1e-4, just 5mm". The model sets its value in
 `model_settings.node_proximity_tolerance` (a length with a unit; schema 0.7.0),
-whose reader validates it (finite, positive, a length unit). Until the check
-reads that field, every model uses 5 mm.
+whose reader validates it (finite, positive, a length unit). The check reads
+it through `PreviewModel::node_proximity_tolerance_m`. The solve refuses a
+malformed value as a blocking diagnostic with the reader's code
+(`MODEL-SETTING-TOLERANCE-NOT-FINITE`, `-NOT-POSITIVE`, `-UNIT-NOT-LENGTH`),
+as the document validator does, so the check never runs on an invalid
+tolerance.
 
 τ replaced a relative tolerance (1e-6 of the diagonal of the nodes' bounding
 box). A relative tolerance made the finding depend on parts of the model
@@ -118,6 +122,6 @@ part is named and still refused; coincident nodes, and nodes 4.9 mm and
 exactly 5 mm apart, warn identically in metres and millimetres, and nodes just
 beyond 5 mm do not; in a 2 km model 4 mm warns and 6 mm does not; a pair
 across a cell boundary is found; a tee on two pipes and a tee whose header is
-its branch warn, and a valid tee does not; with entered factors the warning names the header and branch SIFs still applied, and those pipes carry the intensified rows, and without factors it names none. `src/topology_tests.rs` passes the
+its branch warn, and a valid tee does not; a user-set tolerance (10 mm, in mm or m) replaces the default and is inclusive, and a zero, negative, underflowing or non-length value is refused by name with nothing solved; with entered factors the warning names the header and branch SIFs still applied, and those pipes carry the intensified rows, and without factors it names none. `src/topology_tests.rs` passes the
 tolerance directly: another value is used inclusively, a node at -4e15 m does
 not separate a near pair, and a saturated cell counts a pair once.

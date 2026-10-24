@@ -13,10 +13,6 @@ use super::{diag, BuiltModel, Diagnostic, PreviewModel};
 use crate::formation_guard::{Bodies, NAMED};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-/// The node-proximity tolerance when the model sets none, in metres (5 mm;
-/// the owner's ruling, DEL-04-06 `Design/model-topology-checks.md`).
-pub(crate) const NODE_PROXIMITY_DEFAULT_M: f64 = 0.005;
-
 /// The element graph's edges: straight members other than connector-replaced
 /// spans, curved spans and objective connectors (as `formation_bodies`).
 fn element_edges(built: &BuiltModel) -> Vec<(usize, usize)> {
@@ -61,7 +57,11 @@ pub(crate) fn append_topology_diagnostics(
             .unwrap_or_else(|| format!("node#{index}"))
     };
     disconnected_parts(built, &coordinates, &edges, &node_id, diagnostics);
-    near_duplicate_nodes(&coordinates, &edges, &node_id, NODE_PROXIMITY_DEFAULT_M, diagnostics);
+    // The model's `model_settings.node_proximity_tolerance`, else 5 mm; validation has
+    // already refused a malformed value (`validate_model_settings`).
+    if let Ok(tolerance) = model.node_proximity_tolerance_m() {
+        near_duplicate_nodes(&coordinates, &edges, &node_id, tolerance, diagnostics);
+    }
 }
 
 /// FR-KNOW-002: two or more parts that each contain an element. A node with

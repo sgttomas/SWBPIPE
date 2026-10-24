@@ -24,6 +24,22 @@ pub(crate) fn validate_model_inputs(
     validate_directional_sifs(model, diagnostics);
     validate_thermal_inputs(model, materials, diagnostics);
     validate_combinations(model, diagnostics);
+    validate_model_settings(model, diagnostics);
+}
+
+/// REQ-04-06-012: the solve refuses a malformed `model_settings.node_proximity_tolerance`
+/// with the accessor's code and message, as the document validator does, so the
+/// topology check never runs on an invalid tolerance.
+fn validate_model_settings(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    if let Err(error) = model.node_proximity_tolerance_m() {
+        diagnostics.push(diag(
+            "diagnostic:model-settings:node-proximity-tolerance",
+            error.code,
+            "blocking",
+            error.message,
+            vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],
+        ));
+    }
 }
 
 // Local solve readiness only: records remain deserializable and editable.

@@ -4,6 +4,7 @@
 //! value entry.
 
 use super::*;
+use crate::DEFAULT_NODE_PROXIMITY_TOLERANCE_M as NODE_PROXIMITY_DEFAULT_M;
 
 fn codes(coordinates: &[[f64; 3]], edges: &[(usize, usize)], tolerance: f64) -> Vec<Diagnostic> {
     let node_id = |index: usize| format!("node:{index}");

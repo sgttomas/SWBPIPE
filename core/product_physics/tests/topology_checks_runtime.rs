@@ -186,6 +186,63 @@ fn the_tolerance_is_absolute_in_a_large_model() {
     }
 }
 
+/// REQ-04-06-012: the model sets the tolerance in
+/// `model_settings.node_proximity_tolerance` (any catalog length unit); the
+/// check and its message use that value, inclusive, instead of 5 mm.
+#[test]
+fn a_user_set_tolerance_replaces_the_default() {
+    let with_tolerance = |mut wire: Value, value: f64, unit: &str| {
+        wire["model"]["model_settings"] = json!({"node_proximity_tolerance": {"value": value, "unit": unit}});
+        wire
+    };
+    for mode in MODES {
+        // 8 mm apart: beyond the 5 mm default, within a user-set 10 mm.
+        let wire = cantilevers(Some(([1.0, 0.008, 0.0], true)), "m", 1.0);
+        assert!(with_code(&envelope(&wire, mode), "NODE_NEAR_DUPLICATE").is_empty());
+        for (value, unit) in [(10.0, "mm"), (0.01, "m")] {
+            let v = envelope(&with_tolerance(wire.clone(), value, unit), mode);
+            let found = with_code(&v, "NODE_NEAR_DUPLICATE");
+            assert_eq!(found.len(), 1, "{value} {unit}: {:?}", diagnostics(&v));
+            let message = found[0]["message"].as_str().unwrap();
+            assert!(message.contains("node-proximity tolerance (1e-2 m)"), "{message}");
+            assert!(blocking(&v).is_empty(), "{:?}", blocking(&v));
+        }
+        // Exactly the user-set value is near; a smaller value than the gap is not.
+        let v = envelope(&with_tolerance(wire.clone(), 8.0, "mm"), mode);
+        assert_eq!(with_code(&v, "NODE_NEAR_DUPLICATE").len(), 1, "{:?}", diagnostics(&v));
+        let gap_4mm = cantilevers(Some(([1.0, 0.004, 0.0], true)), "m", 1.0);
+        let v = envelope(&with_tolerance(gap_4mm, 2.0, "mm"), mode);
+        assert!(with_code(&v, "NODE_NEAR_DUPLICATE").is_empty(), "{:?}", diagnostics(&v));
+    }
+}
+
+/// REQ-04-06-012: a non-finite, non-positive or non-length tolerance is refused
+/// by the solve with the setting reader's named code, as the document validator
+/// refuses it; nothing is solved.
+#[test]
+fn an_invalid_tolerance_is_refused_by_name() {
+    let wire = cantilevers(Some(([1.0, 0.004, 0.0], true)), "m", 1.0);
+    for mode in MODES {
+        for (value, unit, code) in [
+            (json!(0.0), "mm", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE"),
+            (json!(-5.0), "mm", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE"),
+            (json!(5.0), "N", "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH"),
+            (json!(5.0), "furlong_invented", "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH"),
+            (json!(1e-322), "mm", "MODEL-SETTING-TOLERANCE-NOT-POSITIVE"),
+        ] {
+            let mut bad = wire.clone();
+            bad["model"]["model_settings"] = json!({"node_proximity_tolerance": {"value": value, "unit": unit}});
+            let v = envelope(&bad, mode);
+            let refused = blocking(&v);
+            assert_eq!(refused.len(), 1, "{value} {unit}: {:?}", diagnostics(&v));
+            assert_eq!(refused[0]["code"], code, "{value} {unit}");
+            assert_eq!(refused[0]["affected_refs"], json!(["model_settings.node_proximity_tolerance"]));
+            assert!(v["results"].as_array().is_none_or(|rows| rows.is_empty()), "{value} {unit}: nothing is solved");
+            assert!(topology_codes(&v).is_empty(), "{value} {unit}: the topology check does not run");
+        }
+    }
+}
+
 /// a-b-c a straight run with a branch b-d along +y, or without it.
 fn run_with_tee(branch: bool, header: &str, branch_ref: &str) -> Value {
     let mut nodes = vec![node("node:a", 0.0, 0.0, 0.0), node("node:b", 1.0, 0.0, 0.0), node("node:c", 2.0, 0.0, 0.0)];
