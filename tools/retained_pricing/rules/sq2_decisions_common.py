@@ -381,12 +381,12 @@ def _pp_combination_line(text, after=None, within=8):
     if len(hits) != 1: raise SystemExit(f"SD-RK: {text!r} in append_combination_results: {hits}")
     return Resolved(f"{f}:{hits[0]}")
 if "let source_missing = |diagnostics: &mut Vec<Diagnostic>|" in open(_os.path.join(_SNAP, P_ + "preview_physics.rs"), encoding="utf-8").read():
-    _SD_RK = {
+    _sd_rekeys = {
         P_ + "preview_physics.rs:990": _pp_combination_line("vec![combination.id.clone()],", after="combination-source-missing:"),
         P_ + "preview_physics.rs:1022": _pp_combination_line(
             "rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));"),
     }
-    ID_AUDIT = [(_SD_RK.get(k, k) if isinstance(k, str) and type(k).__name__ != "Resolved" else k, v) for k, v in ID_AUDIT]
+    ID_AUDIT = [(_sd_rekeys.get(k, k) if isinstance(k, str) and type(k).__name__ != "Resolved" else k, v) for k, v in ID_AUDIT]
 ARGS_FIRST = ARGS_FIRST + [
     {"re": r'^text\(&x\[" "\]\)$', "max": "static",
      "why": RSR + "g5_native: `text(&x[\"slot\"]).to_owned()`: a Group import's slot name, one of the producer's seven slot tokens (SLOTS): a static literal"},
