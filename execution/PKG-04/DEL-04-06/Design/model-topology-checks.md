@@ -28,6 +28,20 @@ Every finding here is a **warning**. Nothing new refuses:
 The checks run on both routes (PF and EX) because both go through the same
 entry (`run_linear_static_preview_observed_inner`). They change no number.
 
+**Reading of PRD §14.4** (owner, 2026-10-23: "I accept your other
+recommendations for the matters you needed from me"). §14.4 lists "schema or
+topology invalid" under "Blocking for model validity". That clause is read as
+topology that prevents the mechanics from being formed, which already blocks:
+- a pipe endpoint that names an unknown node (`MODEL_INCOMPLETE`);
+- a part with no support (the solve's mechanism and restraint checks);
+- an invalid exact-route pressure-region chain: branching, cycles or
+  disconnected traversal (`PRESSURE_REGION_TOPOLOGY_INVALID`,
+  `PRESSURE_REGION_INTERNAL_BRANCH` in `pressure_runtime.rs`).
+
+A model that can be formed but is unusual (disconnected parts that are each
+supported, coincident or near-duplicate nodes, a malformed tee) is a §14.4
+"Warning". REQ-04-06-012 stands as approved.
+
 ## Checks
 
 | Code | Where | Fires when |

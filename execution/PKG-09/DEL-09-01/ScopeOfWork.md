@@ -66,7 +66,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 >
 > This setup context authorizes only document production and local setup registers. It does not authorize edits to validation benchmark source files, implementation tests, solver modules, repo-level CI, or `ISSUED` lifecycle state.
 >
-> The future mechanics benchmark suite must stay aligned with the architecture-basis constraints for module boundaries, diagnostics/result envelopes, layered validation gates, unit safety, and protected-content/provenance review. Exact fixture schema, runner command, solver numerical library, output comparison format, comparison tolerances, and CI/release thresholds remain `TBD`.
+> The mechanics benchmark suite must stay aligned with the architecture-basis constraints for module boundaries, diagnostics/result envelopes, layered validation gates, unit safety, and protected-content/provenance review. As implemented, fixtures are the `MechanicsBenchmark`/`ExpectedValue` records returned by `fixture_inventory()` in `validation/benchmarks/mechanics/src/lib.rs`. The suite runs as that crate's tests, which the piping numerical CI suite runs when the crate is selected, and through the headless runner's `run-benchmark` verb (suite `mechanics`). It runs against the in-repository solver crates named in its `Cargo.toml`. Per-case reports compare recorded and observed values under the suite's encoded predicates. Approval of a fixture schema and result-comparison format (CLM-035) remains `TBD`. DEC-026 governs comparison-policy structure; unadopted numerical comparison criteria and CI/release thresholds remain `TBD`.
 >
 ### CLM-006 — Construction
 
@@ -132,7 +132,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This deliverable specifies setup evidence for a future mechanics benchmark suite covering cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms.
+> This deliverable specifies the contract and evidence basis for the implemented mechanics benchmark suite covering cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms.
 >
 > The original setup pass does not implement benchmark source files, add tests, create numerical hand-calculation cases, modify solver code, edit validation directories outside this deliverable, choose final tolerances, or introduce protected/proprietary benchmark data.
 >
@@ -166,7 +166,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 >
 > | Verification area | Minimum setup expectation |
 > |---|---|
-> | Required family coverage | The future fixture inventory explicitly maps each case to one or more required benchmark families. |
+> | Required family coverage | The fixture inventory (`fixture_inventory()` in `validation/benchmarks/mechanics/src/lib.rs`) records one `BenchmarkFamily` per case; `missing_required_families()` checks required-family coverage. |
 > | Analytical derivation | Hand-calculation notes identify assumptions, units, equations used from public/original mechanics, and expected result fields. |
 > | Numerical comparison | Tolerance policy is cited when approved; until then each tolerance field remains `TBD`. |
 > | Unit safety | Inputs, expected values, and outputs are dimensionally checked under the accepted unit system. |
@@ -212,7 +212,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Describe how a future TASK worker should produce or use the mechanics benchmark suite once implementation is authorized, while preserving the current setup-only boundary.
+> Describe how a TASK worker produces, extends or uses the mechanics benchmark suite under an active bounded brief.
 >
 ### CLM-022 — Prerequisites
 
@@ -304,7 +304,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### Considerations
 >
-> Cantilever, frame, thermal-growth, imposed-displacement, and stiffness-transform cases exercise different solver interfaces. Future implementation should identify which solver/load/support contracts each case depends on before marking a benchmark executable.
+> Cantilever, frame, thermal-growth, imposed-displacement, and stiffness-transform cases exercise different solver interfaces. Each case, existing or new, should identify which solver/load/support contracts it depends on before it is marked executable; the suite's solver, load and support dependencies are the crates named in `validation/benchmarks/mechanics/Cargo.toml`.
 >
 > Thermal-growth and imposed-displacement cases can look similar to code or owner-standard examples if copied from protected sources. Future workers should create original cases or use permissively licensed/public-domain mechanics references, then record source and license status before publishing fixtures.
 >

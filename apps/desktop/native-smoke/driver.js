@@ -243,6 +243,268 @@
     return shown;
   }
 
+  // --- W-4: a model authored from blank in the GUI, and the output gates ----
+  // Controlled inputs other than <input> (selects, textareas) take the value
+  // through their own prototype's setter.
+  function setValue(element, value) {
+    const proto = element instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype
+      : element instanceof HTMLSelectElement ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(proto, "value").set.call(element, value);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  function fillAny(id, value) {
+    const element = byTestId(id);
+    if (!element) throw new Error(`no element ${id}`);
+    setValue(element, value);
+  }
+  function checkBox(id) {
+    const element = byTestId(id);
+    if (!element) throw new Error(`no element ${id}`);
+    if (!element.checked) element.click();
+  }
+  function chooseRadio(name) {
+    const radio = [...document.querySelectorAll('input[type="radio"]')]
+      .find((item) => item.labels?.[0]?.textContent?.trim() === name || item.getAttribute("aria-label") === name);
+    if (!radio) throw new Error(`no radio ${name}`);
+    if (!radio.checked) radio.click();
+  }
+  // The searchable target picker: type the id, then click the option that ends with it.
+  async function pickTarget(testId, value) {
+    const picker = byTestId(testId);
+    if (!picker) throw new Error(`no picker ${testId}`);
+    const search = picker.querySelector('[role="combobox"]');
+    if (!search) throw new Error(`no combobox in ${testId}`);
+    search.focus();
+    setValue(search, value);
+    const option = await waitFor(`${testId} option ${value}`, () => [...picker.querySelectorAll('[role="option"]')].find((item) => item.textContent.trim().endsWith(value)), 10000);
+    option.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    option.click();
+    await waitFor(`${testId} = ${value}`, () => picker.querySelector(".virtual-target-picker-current")?.textContent?.includes(value), 10000);
+  }
+  const visible = (element) => Boolean(element && element.offsetParent !== null);
+  async function showOperations() {
+    if (visible(byTestId("workspace-review"))) click("workspace-review");
+    else await menu("view.section.operations");
+    await waitFor("operations section", () => visible(byTestId("workspace-section-operations")));
+    const tab = byTestId("operation-tab-review");
+    if (tab && tab.getAttribute("aria-pressed") !== "true") tab.click();
+  }
+  async function closeSection() {
+    const close = byTestId("workspace-dock-close");
+    if (visible(close)) close.click();
+    await sleep(200);
+  }
+  // Apply the queued intent through Review changes, as a person does.
+  async function applyQueued(label) {
+    await showOperations();
+    const apply = await waitFor(`${label}: apply`, () => { const item = document.querySelector('[data-testid^="apply-intent-"]'); return item && !item.disabled ? item : null; }, 15000);
+    const before = text("operation-apply-message");
+    apply.click();
+    const shown = await waitFor(`${label}: applied`, () => {
+      const now = text("operation-apply-message") ?? "";
+      if (now !== before && /refus|reject|fail/i.test(now)) throw Object.assign(new Error(`${label}: ${now}`), { hard: true });
+      return now !== before && now.includes("Applied") ? now : null;
+    }, 30000);
+    await closeSection();
+    return shown;
+  }
+  async function applyReviewedDraft(label) {
+    await waitFor(`${label}: review`, () => byTestId("viewport-draft-review-preview"), 10000);
+    click("apply-reviewed-draft");
+  }
+  async function ensureInspector() {
+    const toggle = byTestId("toggle-inspector");
+    if (toggle?.getAttribute("aria-disabled") === "true" && toggle.getAttribute("aria-expanded") !== "true") click("view-switch-both");
+    if (byTestId("toggle-inspector")?.getAttribute("aria-expanded") !== "true") byTestId("toggle-inspector")?.click();
+    await sleep(300);
+  }
+  const typedTreeRow = (type, id) => byTestId(`tree-row-${encodeURIComponent(type)}-${encodeURIComponent(id)}`);
+  const CODE_PATTERN = /\b[A-Z][A-Z0-9]*(?:[-_][A-Z0-9]+)+\b/g;
+  const codesIn = (element) => [...new Set((element?.textContent ?? "").match(CODE_PATTERN) ?? [])];
+  const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
+
+  // One solve from the current session in the default (sparse) mode, read from the window.
+  async function solveCurrent(label, projectId, probe) {
+    await showSection("solve");
+    click("solver-mode-sparse");
+    await waitFor("sparse selected", () => byTestId("solver-mode-sparse")?.getAttribute("aria-pressed") === "true");
+    const prior = proofText();
+    await menu("analyze.run");
+    await waitFor(`${label} solve`, () => {
+      const summary = text("solve-job-summary") ?? "";
+      if (/state=(failed|cancelled)/.test(summary)) throw Object.assign(new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`), { hard: true });
+      const proof = proofText();
+      return summary.includes("state=completed") && proof && proof !== prior && proof.includes(`project=${projectId}`);
+    }, 300000);
+    const observation = await observe(label, projectId, probe);
+    if (probe) {
+      // The probe row is the displacement magnitude; its signed components are separate rows.
+      fill("result-filter-input", probe);
+      observation.components = {};
+      for (const axis of ["ux", "uy", "uz"]) observation.components[axis] = await waitFor(`${probe}:${axis} row`, () => text(`result-row-dual-${probe}:${axis}`));
+      fill("result-filter-input", "");
+    }
+    // With the filter cleared, the summary must count every solved row.
+    const all = `${observation.proof_rows} of ${observation.proof_rows} results match filter`;
+    observation.all_rows_summary = await waitFor(`${label}: unfiltered summary`, () => text("result-filter-summary") === all ? all : null, 15000).catch(() => text("result-filter-summary"));
+    observation.deformation = text("viewport-deformation-summary");
+    observation.health = text("numerical-health-header-line");
+    return observation;
+  }
+
+  async function renderLocalPrivateReport(label) {
+    await showSection("report");
+    const intent = byTestId("rendered-report-local-private-intent");
+    if (!intent) throw new Error("no local-private report selection");
+    if (!intent.checked) { intent.click(); await waitFor("report intent", () => byTestId("rendered-report-local-private-intent")?.checked, 10000); }
+    await waitFor("render enabled", () => byTestId("rendered-report-render") && !byTestId("rendered-report-render").disabled, 30000);
+    click("rendered-report-render");
+    await waitFor(`${label} render`, () => byTestId("rendered-report-hash") || byTestId("rendered-report-error") || byTestId("rendered-report-route"), 180000);
+    await waitFor(`${label} render settled`, () => !/Rendering/.test(byTestId("rendered-report-render")?.textContent ?? ""), 180000);
+    const html = byTestId("rendered-report-preview")?.getAttribute("srcdoc") ?? "";
+    const observation = {
+      label,
+      redaction: text("rendered-report-redaction-summary"),
+      hash: text("rendered-report-hash"),
+      gate: text("rendered-report-gate"),
+      error: text("rendered-report-error"),
+      local_private_warning: Boolean(byTestId("rendered-report-local-private-warning")),
+      save_offered: Boolean(byTestId("rendered-report-save-local-private")),
+      preview_local_private_notice: /LOCAL PRIVATE REPORT/.test(html),
+      preview_chars: html.length
+    };
+    await log(`${label}: ${JSON.stringify(observation)}`);
+    return observation;
+  }
+
+  async function runRuleChecks(label) {
+    await showSection("solve");
+    const load = byTestId("rule-check-load-demo");
+    if (load && !load.disabled) { load.click(); await sleep(500); }
+    const run = await waitFor(`${label}: rule-check run enabled`, () => { const button = byTestId("rule-check-run"); return button && !button.disabled ? button : null; }, 30000);
+    run.click();
+    const aggregate = await waitFor(`${label}: rule-check aggregate`, () => text("rule-check-aggregate-status"), 120000);
+    const observation = { label, aggregate, status: text("rule-check-run-status"), outcomes: text("rule-check-outcomes")?.slice(0, 600) ?? null };
+    await log(`${label}: ${JSON.stringify(observation)}`);
+    return observation;
+  }
+
+  // EX (pressure-2) output gates: the report is refused by name; the export panels say what they offer.
+  async function exactRouteGates(plan, report) {
+    const shown = await openModelDocument(plan.exact.path);
+    await waitFor("exact model in the model tree", () => treeRow(plan.exact.project_id));
+    const solved = await solveCurrent("exact", plan.exact.project_id, null);
+    await showSection("report");
+    // The rendered-report panel's own output gate: its refusal replaces the render control.
+    const renderedPanel = byTestId("rendered-report-panel");
+    const gates = {
+      opened: shown,
+      solve: solved,
+      rendered_report_panel: Boolean(renderedPanel),
+      render_control_present: Boolean(renderedPanel?.querySelector('[data-testid="rendered-report-render"]')),
+      render_refusal: renderedPanel?.querySelector('[data-testid="rendered-report-load-reference-output-unavailable"]')?.textContent?.trim() ?? null
+    };
+    await showSection("exports");
+    // The result packet is assembled asynchronously (8.5 s observed on a loaded Mac).
+    gates.result_export_link = Boolean(await waitFor("exact result export link", () => byTestId("result-export-link"), 40000).catch(() => null));
+    const mbfPanel = byTestId("caepipe-mbf-panel");
+    gates.mbf_panel = Boolean(mbfPanel);
+    gates.mbf_refusal = mbfPanel?.querySelector('[data-testid="caepipe-mbf-load-reference-output-unavailable"]')?.textContent?.trim() ?? null;
+    gates.mbf_download_controls = Boolean(mbfPanel?.querySelector('[data-testid="caepipe-mbf-export-link"], [data-testid="caepipe-mbf-text-link"]'));
+    gates.export_codes = codesIn(byTestId("workspace-section-exports"));
+    gates.rule_checks = await runRuleChecks("exact/rule-checks");
+    await log(`exact gates: ${JSON.stringify({ ...gates, solve: undefined, rule_checks: undefined })}`);
+    report.exact = gates;
+  }
+
+  // Author a cantilever from blank through the GUI: units dialog, node, material,
+  // pipe to a new node, fixed support, load case and a tip force; solve; save in place.
+  async function authorFromBlank(plan, report) {
+    const blank = plan.blank;
+    const steps = [];
+    report.blank = { steps };
+    const step = async (name, fn) => { await log(`blank: ${name}`); const value = await fn(); steps.push(name); return value; };
+    await closeSection();
+    await step("units dialog", async () => {
+      await menu("file.new-blank");
+      await waitFor("units dialog", () => byTestId("project-units-dialog"), 20000);
+      const preset = byTestId("project-units-preset");
+      report.blank.unit_presets = preset ? [...preset.querySelectorAll("option")].map((option) => option.value) : [];
+      click("project-units-create");
+      await waitFor("units dialog closed", () => !byTestId("project-units-dialog"), 20000);
+      const row = await waitFor("blank project in the tree", () => document.querySelector('[data-testid^="tree-row-project-"]'), 20000);
+      report.blank.project_id = decodeURIComponent(row.getAttribute("data-testid").slice("tree-row-project-".length));
+    });
+    await step("node", async () => {
+      click("command-node");
+      await waitFor("node form", () => byTestId("viewport-create-node-id"), 10000);
+      fillAny("viewport-create-node-id", blank.anchor); fillAny("viewport-create-node-label", "Anchor");
+      fillAny("viewport-create-node-x", "0"); fillAny("viewport-create-node-y", "0"); fillAny("viewport-create-node-z", "0");
+      fillAny("viewport-create-node-provenance", blank.provenance);
+      click("queue-explicit-node-intent");
+      await applyReviewedDraft("node");
+      await waitFor("node in the tree", () => typedTreeRow("node", blank.anchor), 20000);
+    });
+    await step("material", async () => {
+      await ensureInspector();
+      click("toolkit-entry"); await sleep(300); click("toolkit-properties.material");
+      await waitFor("material form", () => byTestId("create-material-id"), 10000);
+      fillAny("create-material-id", blank.material); fillAny("create-material-label", "Invented steel");
+      fillAny("create-material-elastic", String(blank.elastic_modulus_pa)); fillAny("create-material-shear", String(blank.shear_modulus_pa));
+      fillAny("create-material-provenance", blank.provenance);
+      click("queue-create-material-intent");
+      await applyQueued("material");
+    });
+    await step("pipe", async () => {
+      click("command-pipe");
+      await waitFor("pipe form", () => byTestId("viewport-create-pipe-id"), 10000);
+      fillAny("viewport-create-pipe-id", blank.pipe); fillAny("viewport-create-pipe-label", "Cantilever");
+      await pickTarget("viewport-create-pipe-from", blank.anchor);
+      chooseRadio("New node");
+      fillAny("viewport-route-end-id", blank.tip); fillAny("viewport-route-end-label", "Free end");
+      fillAny("viewport-route-end-x", String(blank.length_m)); fillAny("viewport-route-end-y", "0"); fillAny("viewport-route-end-z", "0");
+      fillAny("viewport-route-end-provenance", blank.provenance);
+      await pickTarget("viewport-create-pipe-material", blank.material);
+      fillAny("viewport-create-pipe-od", String(blank.outside_diameter_m)); fillAny("viewport-create-pipe-wall", String(blank.wall_m));
+      fillAny("viewport-create-pipe-yref-x", "0"); fillAny("viewport-create-pipe-yref-y", "0"); fillAny("viewport-create-pipe-yref-z", "1");
+      fillAny("viewport-create-pipe-provenance", blank.provenance);
+      click("queue-explicit-pipe-intent");
+      await applyReviewedDraft("pipe");
+      await waitFor("pipe in the tree", () => typedTreeRow("pipe", blank.pipe), 20000);
+    });
+    await step("support", async () => {
+      click("command-support");
+      await waitFor("support form", () => byTestId("create-support-id"), 10000);
+      fillAny("create-support-id", blank.support); fillAny("create-support-label", "Anchor support");
+      await pickTarget("create-support-node", blank.anchor);
+      for (const dof of ["TX", "TY", "TZ", "RX", "RY", "RZ", "UX", "UY", "UZ"]) if (byTestId(`create-support-restraint-${dof}`)) checkBox(`create-support-restraint-${dof}`);
+      fillAny("create-support-provenance", blank.provenance);
+      click("queue-create-support-intent");
+      await applyQueued("support");
+    });
+    await step("load", async () => {
+      await showSection("loads");
+      fillAny("load-manager-create-load-id", blank.load_case); fillAny("load-manager-create-load-label", "Invented tip force");
+      fillAny("load-manager-create-load-kind", "primitive_user_load"); fillAny("load-manager-create-load-status", "preview_only");
+      fillAny("load-manager-create-load-provenance", blank.provenance);
+      click("queue-create-load-case-intent");
+      await applyQueued("load case");
+      await showSection("loads");
+      await pickTarget("load-manager-create-primitive-load-case", blank.load_case);
+      fillAny("load-manager-create-primitive-category", "concentrated_force");
+      fillAny("load-manager-create-primitive-id", `${blank.load_case}-FY`);
+      await pickTarget("load-manager-create-primitive-node", blank.tip);
+      fillAny("load-manager-create-primitive-direction", "global_y");
+      fillAny("load-manager-create-primitive-magnitude", String(blank.force_n));
+      fillAny("load-manager-create-primitive-provenance", blank.provenance);
+      click("queue-create-primitive-intent");
+      await applyQueued("tip force");
+    });
+    report.blank.solve = await step("solve", () => solveCurrent("blank", report.blank.project_id, blank.probe));
+    report.blank.save = await step("save in place", () => saveInPlace("blank/save"));
+  }
+
   async function phaseOpenSolveSave(plan, report) {
     for (const refusal of plan.refusals) {
       report.refusals.push({ file: refusal.path.split("/").pop(), message: await openModelDocument(refusal.path), prior_model_kept: Boolean(treeRow(plan.bundled_project_id)) });
@@ -256,6 +518,11 @@
       report.saved.push({ case: doc.case, message: await saveAsProject(doc.project_id) });
       if (doc.replace_flows) await replaceFlows(doc, report);
     }
+    // The session is now the saved demo: its local-private report and rule checks.
+    report.report_render = await renderLocalPrivateReport("demo/report");
+    report.rule_checks = await runRuleChecks("demo/rule-checks");
+    await exactRouteGates(plan, report);
+    await authorFromBlank(plan, report);
   }
 
   async function phaseReopen(plan, report) {
@@ -266,6 +533,11 @@
       report.opened.push({ case: doc.case, message: await openProjectById(doc.project_id, previousId) });
       previousId = doc.project_id;
       for (const mode of doc.modes) report.observations.push({ case: doc.case, mode, ...(await solve(mode, `${doc.case}/${mode}/reopened`, doc.project_id, doc.probe)) });
+    }
+    // W-4: the project authored from blank, reopened in this fresh process and solved again.
+    if (plan.blank?.project_id) {
+      report.opened.push({ case: "blank", message: await openProjectById(plan.blank.project_id, previousId) });
+      report.blank = { solve: await solveCurrent("blank/reopened", plan.blank.project_id, plan.blank.probe) };
     }
   }
 

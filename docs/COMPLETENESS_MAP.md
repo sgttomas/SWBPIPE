@@ -1,6 +1,8 @@
 # SWBPIPE completeness and reconciliation map
 
-**Basis:** `origin/main` at `8a8a8b2584` (2026-10-23). This is a replaceable
+**Basis:** `origin/main` at `8a8a8b2584` (2026-10-23). Folded in since: W-4
+(#1582) and the owner's rulings and readings of 2026-10-23 on §3 rows 6–15,
+PRD §14.4 topology, FR-MOD-007 and FR-RULE-003. This is a replaceable
 current-state record for the owner and the work plan. Replace it when the
 basis moves materially; do not append to it. It replaces the map at
 `7a780551f0`; Git holds that version.
@@ -119,9 +121,7 @@ The biggest gaps:
      flight).
    - The near-duplicate node tolerance is relative (1e-6 of the model extent),
      not the owner's 5 mm (REQ-04-06-012; #1574 in flight).
-7. **No permanent end-to-end check of R2.** The probe ran the from-blank native
-   path once (§5). The native smoke still opens fixture documents only (W-4).
-8. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
+7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
    required load cases (FR-RULE-001). Library records cannot yet be applied to
    model entities (#1566 in flight).
 
@@ -142,7 +142,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | No tags or notes. |
 | FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402` | DEL-03-01, DEL-03-07 | Model entities have one free provenance string. |
 | FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | No slot in 0.6.0 and no entry path. |
-| FR-MOD-007 (482) | Must | O | OD-1 defers PKG-13, which holds "the physical-to-analytical transform contract" (DEL-13-04 SOW:15). The desktop solves the document directly (PP `lib.rs:2635-2739`); `core/model_transform/physical_to_analytical/contract.py` is test-only | DEL-13-04 | The ruling defers the package, not this FR by name; the owner may confirm (§6). |
+| FR-MOD-007 (482) | Must | D (bounded) | On the live solve path the product derives its analytical model (`BuiltModel`, PP `lib.rs:2261`; `build_model` `:7930`) from the supported canonical-document fields and records diagnostics (PP `lib.rs:2635-2739`) | DEL-13-04, DEL-04-07 | Owner reading (2026-10-23, accepted): D bounded to this derivation. The richer PKG-13 transform contract (`core/model_transform/physical_to_analytical/contract.py`, test-only) stays deferred under OD-1. |
 | FR-KNOW-001 (488) | Must | O | OD-3 (DEL-13-01 SOW:15). Desktop `lib.rs:1773` returns a bundled fixture; `KnowledgePanel.tsx` has no inputs | DEL-13-01 | |
 | FR-KNOW-002 (489) | Must | D | W-8: `core/product_physics/src/topology.rs:46`, called once at PP `lib.rs:2739` on the shared path of both routes; `MODEL_TOPOLOGY_DISCONNECTED` (`topology.rs:136`), `BRANCH_TOPOLOGY_INVALID` (`validation.rs:1310-1320`); unsupported parts still refused (PP `lib.rs:15412`); EX pressure-region topology (`pressure_runtime.rs:1538,1548,1595`). **Tests:** `tests/topology_checks_runtime.rs` (9). **Desktop:** Diagnostics panel (`App.test.tsx:10877`) | DEL-04-06 | Findings are warnings; PRD §14.4 lists topology under "blocking for model validity" (§6). Tests use PF requests only. The bundled demo now warns `BRANCH_TOPOLOGY_INVALID` (tee C-120). |
 | FR-KNOW-003 (490) | Should | O | OD-1/OD-3 (DEL-13-03 SOW:15). `core/constraints/validation/engine.py`, Python only | DEL-13-03, DEL-13-02 | |
@@ -154,7 +154,7 @@ class, the evidence, and the deliverables. Paths are under
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| R2 exit (1572) | — | P | `native-smoke/driver.js` opens, solves, saves and reopens fixture documents only. The browser from-blank journey (`e2e/r2-smoke.spec.ts:932`, `linear-authoring.spec.ts`) ends at `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`. The §5 probe ran the from-blank native path once | DEL-07-11, DEL-07-01/02/05/07 | No permanent native check of a GUI-authored model (W-4). |
+| R2 exit (1572) | — | D | W-4 (#1582): the native smoke authors a cantilever from blank through the GUI (`native-smoke/driver.js`, `authorFromBlank`), solves natively, checks the tip deflection against PL³/3EI within 1e-9, saves in place, reopens in a fresh process and re-solves to the same rows, value and model hash (`run.mjs`, "from blank" checks) | DEL-07-11, DEL-07-01/02/05/07 | The browser journey still ends at `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, by design. One model shape and the SI preset only. |
 | FR-GUI-001 (498) | Must | D | `PipeViewport.tsx:1289-1291` (nodes, supports, components); deformed shape `:1306-1310`; rotation glyphs `:1313`; reaction arrows `:1315-1317`; result colour `:1323-1327`; load arrows `:1332`; labels `:1374-1429`; legend `:2456`. **Tests:** `e2e/result-overlays.spec.ts:158` (PR core lane), `PipeViewport.overlays.test.tsx`, `c3-viewport-visibility.spec.ts`, `rotation-glyph.spec.ts` | DEL-07-01, DEL-07-05 | Overlays are off by default. Colour is one value per member. Reaction arrows come from global-frame rows only. The D-72 orbit qualification with result colour has not run. §14.2 bend arcs, corridors and no-go volumes are not drawn. |
 | FR-GUI-002 (499) | Must | P | `ModelTree.tsx:40-57` | DEL-07-02 | No lines, states or runs. |
 | FR-GUI-003 (500) | Must | P | `PropertyInspector.tsx:1276,1291,1311`; `typedInspector.test.tsx` | DEL-07-02 | No dependencies, linked assumptions or dependent rule-pack inputs. |
@@ -192,7 +192,7 @@ class, the evidence, and the deliverables. Paths are under
 | §12.8 near-duplicate nodes (775) | — | P | W-8: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` at 1e-6 of the model extent (`topology.rs:19,171,290-293`); tests `topology_checks_runtime.rs:143,212,231` | DEL-04-06 | REQ-04-06-012 (owner) sets 5 mm absolute and user-settable; #1574 in flight. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
-| §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; t4_u6/u4b | DEL-09-02 | |
+| §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b | DEL-09-02 | The DEL-09-02 stress suite itself has no pressure family, although DEL-09-02 commits pressure coverage (W-20). |
 
 ### 2.4 Rule packs, reporting, handoff and export (PRD §11.5, §11.7, §11.9, §16–19)
 
@@ -200,7 +200,7 @@ class, the evidence, and the deliverables. Paths are under
 |---|---|---|---|---|---|
 | FR-RULE-001 (530) | Must | P | `schemas/rule_pack.schema.yaml`; `RulePackManagerPanel.tsx:302-602`; `e2e/r2-smoke.spec.ts:1175` | DEL-06-01, DEL-07-03 | No stress categories, load-case mappings or required load cases (§17.2). |
 | FR-RULE-002 (531) | Must | D | `rule_pack_document/src/lib.rs:1184` calls `check_rule_pack_units` (`:1482`); UI `RulePackManagerPanel.tsx:503-560`; run time `rule_check_runner/src/lib.rs:1286`. **Tests:** `tests/unit_check.rs`, `RulePackManagerPanel.unitCheck.test.tsx`, desktop `lib.rs:8452,8499` | DEL-06-02 | Static findings do not block save or run; an inconsistent check still blocks when it runs. A dimensionless limit declared `1` does not match a ratio formula's `ratio`. |
-| FR-RULE-003 (532) | Must | D (qualified) | `rule_check_runner/src/lib.rs:199-200,355,749`; desktop `lib.rs:2919-2943`; tests `:7901,7916`; observed natively on both routes (§5) | DEL-06-03 | A check with missing inputs is never evaluated. The aggregate ranks failed above incomplete, so a pack with one failing and one incomplete check shows FAILED, never PASS. Whether that meets "refuses to report pass/fail" is a reading for the owner. |
+| FR-RULE-003 (532) | Must | P | `rule_check_runner/src/lib.rs:199-200,355,749`; desktop `lib.rs:2919-2943`; tests `:7901,7916`; observed natively on both routes (§5) | DEL-06-03 | A check with missing inputs is never evaluated, but the aggregate ranks failed above incomplete, so a pack with one failing and one incomplete check headlines FAILED. Owner reading (2026-10-23, accepted; DEL-06-03 Design `pack-aggregate-incomplete.md`): while any check is incomplete the headline is "INCOMPLETE — n check(s) failed; m check(s) blocked". P until built (W-19). |
 | FR-RULE-004 (533) | Must | D | `rulePackService.ts:241-284` (private by default); local SQLite | DEL-06-04 | No pack file export. |
 | FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; desktop `lib.rs:8593`; `tests/test_library_import_provenance.py` | DEL-03-01, DEL-03-07 | Records feed rule checks only (desktop `lib.rs:3029`); applying them to model entities is #1566 (in flight). |
 | FR-RULE-006 (535) | Should | D | Same panel, component kind | DEL-03-02, DEL-03-07 | As above. |
@@ -255,14 +255,16 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 43 P, 32 D, 9 O and no R:
-- **P → D (4):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
-  §10.1 step 1 (#1569). The first two were already updated in the map by their
-  PRs.
-- **D → P (1):** FR-SOL-002. Its acceptance criterion includes imposed
+This map has 43 P, 33 D, 8 O and no R:
+- **P → D (5):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+  §10.1 step 1 (#1569), and the R2 exit (W-4, #1582, after the basis). The
+  first two were already updated in the map by their PRs.
+- **D → P (2):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
-- **P → O (6):** FR-KNOW-001, -003, -004, -005 and FR-MOD-007 (OD-1/OD-3);
-  FR-AGENT-005 (OD-5).
+  FR-RULE-003, by the owner's reading of 2026-10-23, until W-19 is built.
+- **P → O (5):** FR-KNOW-001, -003, -004 and -005 (OD-1/OD-3); FR-AGENT-005
+  (OD-5).
+- **P → D (bounded) (1):** FR-MOD-007, by the owner's reading of 2026-10-23.
 - **New rows (5):** §12.3 reducers, §12.5 load types, §16.1–16.3 and §19.1 (P);
   §20.1–20.2 (D).
 - **Reason changed, class kept:** FR-CMP-001..006 lose "scope unclear" (OD-1);
@@ -284,8 +286,8 @@ This map has 43 P, 32 D, 9 O and no R:
 **§24 milestones, factually:**
 - **R0:** met.
 - **R1:** partly. Rigid elements are absent; §22.2 lacks the rigid link.
-- **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The §5 probe ran the
-  from-blank native path once; there is no permanent check (W-4).
+- **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The native smoke now runs
+  a GUI-authored model through solve, review, save and reopen (W-4).
 - **R3 (States, Runs, Comparison):** not met; in v0.1 by OD-1.
 - **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). A report
   is obtainable only as a local private PF document.
@@ -388,26 +390,44 @@ scope or acceptance wording. "Rec." is the recommendation.
 | 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Apply with the G10 bundle |
 | 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Apply with the G10 bundle |
 | 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Apply with the G10 bundle |
-| 6 | DEL-09-01 SOW:69 | "The future mechanics benchmark suite must stay aligned…" | "The mechanics benchmark suite must stay aligned…" | The suite exists (`validation/benchmarks/mechanics`, W-9) | Apply |
-| 7 | DEL-09-01 SOW:135 | "This deliverable specifies setup evidence for a future mechanics benchmark suite covering…" | "This deliverable specifies the mechanics benchmark suite covering…" | as #6 | Apply |
-| 8 | DEL-09-02 SOW:81 | "This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, …" | "The original setup kit defined the benchmark-suite boundary only and did not create benchmark source files, implement tests, …; the suite now exists in `validation/benchmarks/stress`." | the suite exists | Apply |
-| 9 | DEL-09-02 SOW:126 | "…setup evidence for a future stress recovery benchmark suite." | "…the stress recovery benchmark suite." | as #8 | Apply |
-| 10 | DEL-09-03 SOW:108 | "…the setup surface for a future nonlinear support regression suite…" | "…the nonlinear support regression suite…" | conflicts with its own `:260` current-implementation paragraph | Apply |
-| 11 | DEL-08-03 SOW:81 | "The future report section is expected to be a report-renderer subsection…" | "The report section is a report-renderer subsection…" | ships, as its `:99` says | Apply |
-| 12 | DEL-08-06 SOW:343 | "ASSUMPTION: the future implementation should assemble sections…" | "ASSUMPTION: the implementation should assemble sections…" | `report_package` exists | Apply |
-| 13 | DEL-06-02 SOW:77 (Determinism) | "Future implementation must produce repeatable results…" | "The implementation must produce repeatable results…" | evaluator ships | Apply |
-| 14 | DEL-14-02 SOW:170, :320 | "Referenced but not locally accessible as primary source text" / "the PRD source text was not locally read in this task" | "Read from `docs/PRD.md` §15.2 (FR-CMP-002)" / remove the sentence | `docs/PRD.md` is present; the text limits requirement derivation, so it is the owner's | Owner |
-| 15 | DEL-14-01 SOW:342 (DEL-14-01:3); DEL-15-01 SOW:387 (DEL-15-01:2) | "(stage-gated: v0.2 R3)" / "(stage-gated: v0.2 R6; …" beside the appended OD-1 ruling | drop the stage-gate tag, keeping the ruling | the tag and the ruling read as mixed signals | Owner (optional) |
-| 16 | DEL-15-01 SOW:183 (V-02) | "Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, …" | "… trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, …" | the row-26 annotation, in a verification check cell | Apply (Agent 0 may, under row 26's rule) |
+| 6 | DEL-09-01 SOW:69 | "The future mechanics benchmark suite must stay aligned…" | "The mechanics benchmark suite must stay aligned…" | The suite exists (`validation/benchmarks/mechanics`, W-9) | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 7 | DEL-09-01 SOW:135 | "This deliverable specifies setup evidence for a future mechanics benchmark suite covering…" | "This deliverable specifies the contract and evidence basis for the implemented mechanics benchmark suite covering…" | as #6 | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 8 | DEL-09-02 SOW:81 | "This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, …" | "The original setup kit defined the benchmark-suite boundary only. It did not create benchmark source files, implement tests, …; the suite now exists in `validation/benchmarks/stress`." | the suite exists | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 9 | DEL-09-02 SOW:126 | "This deliverable specifies setup evidence for a future stress recovery benchmark suite. It covers benchmark planning for…" | "This deliverable specifies the contract and evidence basis for the stress recovery benchmark suite in `validation/benchmarks/stress`. Its required coverage remains …; implemented fixture coverage is recorded in the suite's fixture inventory." | as #8 | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 10 | DEL-09-03 SOW:108 | "…the setup surface for a future nonlinear support regression suite…" | "…the contract and evidence basis for the implemented nonlinear support regression suite…" | conflicts with its own current-implementation paragraph | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 11 | DEL-08-03 SOW:81 | "The future report section is expected to be a report-renderer subsection…" | "The report section is a report-renderer subsection…" | ships, as its `:99` says | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 12 | DEL-08-06 SOW:343 | "ASSUMPTION: the future implementation should assemble sections…" | "ASSUMPTION: the implementation should assemble sections…" | `report_package` exists | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 13 | DEL-06-02 SOW:77 (Determinism) | "Future implementation must produce repeatable results…" | "The implementation must produce repeatable results…" | evaluator ships | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 14 | DEL-14-02 SOW:170, :320 | the "PRD v0.2 … not locally accessible" source row / "the PRD source text was not locally read in this task" bullet | Source "PRD analysis-run requirements", status "Current primary source: docs/PRD.md §§8.7, 11.6 (FR-CMP-002), and 15.2", with resolution guidance / "Use `docs/PRD.md` §§8.7, 11.6 (FR-CMP-002), and 15.2 for analysis-run requirements; retain explicit TBDs…" | `docs/PRD.md` is present | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 15 | DEL-14-01 SOW:342 (DEL-14-01:3); DEL-15-01 SOW:387 (DEL-15-01:2) | "(stage-gated: v0.2 R3) " / "(stage-gated: v0.2 R6; Owner ruling," | deleted / "(Owner ruling," | the tag and the ruling read as mixed signals | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 16 | DEL-15-01 SOW:183 (V-02) | "Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, …" | "… trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, …" | the row-26 annotation, in a verification check cell | Apply — **Applied** (Agent 0, 2026-10-24, under the row-26 rule; #1582) |
 
 **Previous table, now closed.** Rows 1, 3–21, 23, 24 and 26 are applied. Row 2
 stays not applied by the owner's ruling (FR-SOL-006 is built on PF instead), and
 row 22 stays Leave. Row 25 (`expected.json`) is rows 1–5 above, now with each
 cause named.
 
+**Owner readings recorded** (owner, 2026-10-23: "I accept your other
+recommendations for the matters you needed from me"):
+- **PRD §14.4 topology:** "topology invalid" is topology that prevents the
+  mechanics being formed (unknown pipe endpoints, unsupported parts, invalid EX
+  pressure-region chains), which already blocks. W-8's other findings are
+  warnings and REQ-04-06-012 stands (DEL-04-06 Design `model-topology-checks.md`).
+  Two follow-ons go to the numerical lane: the malformed-branch warning will say
+  the component's branch stress factors are still applied, and the bundled
+  demo's malformed tee C-120 is fixed.
+- **FR-MOD-007:** D, bounded to the live derivation of `BuiltModel`; the PKG-13
+  transform contract stays deferred (§2.1).
+- **FR-RULE-003:** the aggregate headlines INCOMPLETE while any check is
+  incomplete (DEL-06-03 Design `pack-aggregate-incomplete.md`; W-19).
+
+**Further SOW wording, applied** (owner, 2026-10-23: "I approve the 24 items as
+above (14 as drafted, 9 amended, and the :110/:117 alternative in place of
+:114)"): stale "future" and setup-only wording in DEL-09-01, DEL-09-02,
+DEL-09-03, DEL-08-03, DEL-08-06 and DEL-06-02, with still-open `TBD`s, held
+choices and obligations for new cases kept.
+
 **Owner notes (not text changes):**
-- PRD §14.4 lists topology under "blocking for model validity". W-8 reports
-  topology findings as warnings (DEL-04-06 Design `model-topology-checks.md`).
 - REQ-04-06-012 (5 mm) and DEL-04-03 R01 (imposed displacement) state ruled
   commitments that the code does not yet meet. Both are disclosed, and the work
   is in flight or planned (#1574; FR-SOL-006 stages).
@@ -493,7 +513,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Numerical health indicator (FR-SOL-015 display) | #1544 |
 | — | Refusal of load cases that apply nothing (silent zero) | #1568 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
-| W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide is updated again here after W-3 and W-17 |
+| W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
+| W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
 
 **In flight** (not on main):
 
@@ -510,7 +531,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | Size | Kind | Lane | Depends on | Owner? |
 |---|---|---|---|---|---|---|
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
-| W-4 | Make the from-blank native journey a permanent smoke check: author → solve → results → save → reopen → solve; add the §5 report, rule-check and EX-gate steps. The §5 probe driver shows the path works | S | desktop test | heavy | — | `expected.json` values are the owner's (§3 rows 1–5) |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
 | W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
@@ -518,16 +538,18 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | §17.2 needs a scope ruling | §17.2 only |
 | W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private) | M | desktop + Rust | heavy | W-3 | A shareable path needs a DEL-12-02 design check |
+| W-19 (new) | Rule-check aggregate headlines INCOMPLETE while any check is incomplete, with real failed and blocked counts; failures stay prominent (FR-RULE-003; DEL-06-03 Design `pack-aggregate-incomplete.md`) | S | Rust + desktop | heavy, scrutiny (persisted aggregate meaning) | — | No (reading accepted 2026-10-23) |
+| W-20 (new) | Pressure stress benchmark family in the DEL-09-02 suite: pressure-derived hoop and longitudinal stress against closed forms (DEL-09-02 commits pressure coverage; the suite's families have none) | S | numerical | heavy, scrutiny | — | No |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
-- **Before development testing broadens:** W-4, and the G10 values (§3 rows
-  1–5) put to the owner, so the native smoke proves itself without known
-  failures. The §3 [fix] remainder can go with it.
+- **Before development testing broadens:** the G10 values (§3 rows 1–5) put
+  to the owner, so the native smoke proves itself without known failures (W-4
+  is done). The §3 [fix] remainder can go with it.
 - **Before the owner's hands-on use:** the W-13 in-flight slices, then W-6 and
   W-18 (a model the owner can export and a report package). W-3 and W-5 are
   done.
-- **Before validation:** W-12, W-15, W-16, W-11 and the in-flight W-7, #1573
+- **Before validation:** W-12, W-15, W-16, W-19, W-20, W-11 and the in-flight W-7, #1573
   and #1574. The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 
@@ -578,7 +600,8 @@ second run saved in place.
 Codex (GPT-6.1-Sol, xhigh, read-only, branch head `289f9039ba` over basis
 `8a8a8b2584`) checked 19 placements independently, 7 of them changed class.
 
-- **Confirmed (18):** FR-KNOW-002 (D), FR-MOD-007, FR-KNOW-001 and
+- **Confirmed (18)** (FR-MOD-007 and FR-RULE-003 were later re-classed by the
+  owner's readings, §3): FR-KNOW-002 (D), FR-MOD-007, FR-KNOW-001 and
   FR-AGENT-005 (O), FR-GUI-001 and FR-GUI-004 (D), FR-MOD-001 (P), FR-SOL-015
   (D), FR-REP-001 (P), FR-RULE-002 (D), FR-SOL-006, -007 and -009 (P),
   FR-HAND-002 and FR-CMP-001 (P), §12.8 near-duplicate nodes (P), §22.2 13 of
