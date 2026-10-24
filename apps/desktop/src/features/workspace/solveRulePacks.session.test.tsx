@@ -237,6 +237,55 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     expect(recordedRunBindingFindings(context).length).toBeGreaterThan(0);
   });
 
+  it("two unresolved references whose flattened identities would collide publish the solve and record", async () => {
+    const references = [inventedReference("invented-pack@branch", hex("2")), inventedReference("invented-pack", hex("3"), "branch@1.0.0")];
+    const { state, store } = await session(references, []);
+    await solve(state);
+    const transient = state().results.analysisRun!;
+    const producerCount = state().results.result!.diagnostics.length;
+    expect(transient.analysis_run.diagnostics!.slice(producerCount).map((item) => (item.source_annotation as { affected_refs: string[] }).affected_refs[0]))
+      .toEqual(["invented-pack%40branch@1.0.0", "invented-pack@branch%401.0.0"]);
+    let recorded = false;
+    await act(async () => { recorded = await state().project.history.recordRun({ labels: LABELS, snapshotName: "After solve" }); });
+    expect(recorded).toBe(true);
+    const read = store.reads.get(store.runs[0].recording_id)!;
+    expect(read.record.analysis_run.diagnostics).toEqual(transient.analysis_run.diagnostics);
+    expect(recordedRunBindingFindings(await buildRecordedRunContext(read))).toEqual([]);
+  });
+
+  it("the exclusion diagnostics survive checked, failed and cleared rule-check aggregates; the result is unchanged", async () => {
+    const project = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }).model.project.id;
+    const { state } = await session([inventedReference("invented-pack-alpha", hex("a")), inventedReference("invented-pack-missing", hex("2"))], [inventedEnvelope(project, "invented-pack-alpha", hex("a"))]);
+    await solve(state);
+    const result = state().results.result!;
+    const resultBytes = await canonicalJsonString(result);
+    const solveTime = state().results.analysisRun!;
+    const exclusions = solveTime.analysis_run.diagnostics!.slice(result.diagnostics.length);
+    expect(exclusions).toHaveLength(1);
+    const received = (run: typeof solveTime) => run.analysis_run.hashes.filter((hash) => hash.payload_scope === "received_result");
+    for (const aggregate of ["USER_RULE_CHECKED", "USER_RULE_FAILED", null] as const) {
+      const before = state().results.analysisRun;
+      const current = state();
+      await act(async () => {
+        await current.results.handleRuleCheckAggregate(aggregate, {
+          projectSessionGeneration: current.model.projectSessionGeneration,
+          modelRevision: current.model.uiModelRevision,
+          result: current.results.currentSolvedResult,
+          inputManifest: current.results.inputManifest
+        });
+      });
+      await waitFor(() => expect(state().results.analysisRun).not.toBe(before));
+      const revised = state().results.analysisRun!;
+      expect(revised.analysis_run.analysis_status).toContain(aggregate ?? solveTime.analysis_run.analysis_status.find((status) => status.startsWith("RULE_"))!);
+      expect(revised.analysis_run.diagnostics!.slice(result.diagnostics.length)).toEqual(exclusions);
+      expect(received(revised)).toEqual(received(solveTime));
+      expect(state().results.result).toBe(result);
+      expect(await canonicalJsonString(state().results.result)).toBe(resultBytes);
+    }
+    // Cleared: the record is the solve-time record again, byte for byte.
+    expect(await canonicalJsonString(state().results.analysisRun)).toBe(await canonicalJsonString(solveTime));
+  });
+
   it("the browser preview refuses the solve before any manifest, so no rule-pack resolution runs", async () => {
     const { state } = await session([inventedReference("invented-pack-alpha", hex("a"))], [], { tauri: false });
     await act(async () => { await state().results.handleRun(); });

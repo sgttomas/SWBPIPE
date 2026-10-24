@@ -11,7 +11,7 @@ import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from
 import { inputManifestRef, type CurrentSessionInputManifest } from "./inputManifestService";
 import { libraryRefSites } from "./libraryImportService";
 import { trimLikeRust } from "./rustTrim";
-import { manifestExcludedRulePackIdentities, rulePackRefDiagnosticEntries, rulePackRefRecordDiagnostics, type ExcludedRulePackRef } from "./rulePackRefDiagnostics";
+import { manifestExcludedRulePackIdentities, rulePackIdentity, rulePackRefDiagnosticEntries, rulePackRefRecordDiagnostics, type ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 
 /** The one current analysis-run version (b7-plan E1). */
 export const ANALYSIS_RUN_V03 = "0.3.0";
@@ -248,12 +248,13 @@ function codePointCompare(left: string, right: string): number {
   return a.length - b.length;
 }
 
-/** The recorded revision's `rule_pack_refs`: the manifest's `active_rule_packs`, in its order. */
+/** The recorded revision's `rule_pack_refs`: the manifest's `active_rule_packs`, in its order, as
+ * `{RulePack, rulePackIdentity(id, version)}` (`%` and `@` percent-encoded in each component). */
 export function recordedRulePackRefs(manifest: Pick<CurrentSessionInputManifest, "active_rule_packs">): ObjectRef[] {
   if (!Array.isArray(manifest.active_rule_packs)) throw new Error("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list.");
   return manifest.active_rule_packs.map((pack) => {
     if (typeof pack?.rule_pack_id !== "string" || !pack.rule_pack_id || typeof pack.version !== "string" || !pack.version) throw new Error("ANALYSIS-RUN-MANIFEST-INVALID: an active rule pack has no id or version.");
-    return { object_type: "RulePack", ref: `${pack.rule_pack_id}@${pack.version}` };
+    return { object_type: "RulePack", ref: rulePackIdentity(pack.rule_pack_id, pack.version) };
   });
 }
 

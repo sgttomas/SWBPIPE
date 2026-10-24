@@ -941,7 +941,7 @@ fn the_rule_pack_witness_keeps_the_transient_diagnostics_under_the_record_hash()
     let witness: Value = serde_json::from_str(&text).unwrap();
     let recorded = &witness["recorded_record"]["analysis_run"];
     assert_eq!(recorded["diagnostics"], input["run_record"]["analysis_run"]["diagnostics"]);
-    assert_eq!(recorded["rule_pack_refs"], json!([{ "object_type": "RulePack", "ref": "invented-pack-held@1.0.0" }]));
+    assert_eq!(recorded["rule_pack_refs"], json!([{ "object_type": "RulePack", "ref": "invented-pack%40held@1.0.0" }]));
     compare_or_write_witness(&text, WITNESS_RULE_PACKS, WITNESS_RULE_PACKS_PATH_ENV);
 }
 
@@ -2654,4 +2654,128 @@ fn the_history_commands_reach_long_project_ids_written_by_the_real_writers() {
         }
     }
     assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+// ---------------------------------------------------------------------------
+// Rule-pack reference diagnostics (FR-CMP-002; DEL-14-01 Design §3): the
+// record's diagnostics are the result's, then one per model reference the
+// manifest leaves out of active_rule_packs, each exactly its code's and
+// identity's, at Record Run and at read. All rule-pack data are invented.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn rule_pack_identities_percent_encode_each_component() {
+    // The same vectors as `modelRulePackResolution.test.tsx` and `test_recorded_run_record.py`.
+    assert_eq!(rule_pack_identity("rule-pack:b", "2"), "rule-pack:b@2");
+    assert_eq!(rule_pack_identity("invented-pack@branch", "1.0.0"), "invented-pack%40branch@1.0.0");
+    assert_eq!(rule_pack_identity("invented-pack", "branch@1.0.0"), "invented-pack@branch%401.0.0");
+    assert_eq!(rule_pack_identity("pack%40x@y", "1%@2"), "pack%2540x%40y@1%25%402");
+    let manifest = json!({ "active_rule_packs": [{ "rule_pack_id": "invented-pack@branch", "version": "1.0.0", "checksum_sha256": "a", "source_notice": "n" }] });
+    assert_eq!(rule_pack_refs(&manifest).unwrap(), vec![json!({ "object_type": "RulePack", "ref": "invented-pack%40branch@1.0.0" })]);
+}
+
+/// The model's invented references: the first resolved (in the manifest's
+/// active_rule_packs), the two whose flattened identities would collide excluded.
+fn rule_pack_model() -> Value {
+    let mut solved = model("Invented project");
+    let reference = |id: &str, version: &str| json!({ "rule_pack_id": id, "name": "Invented", "rule_pack_version": version,
+        "checksum": { "algorithm": "sha256", "canonicalization": "JCS", "payload_scope": "rule_pack_payload", "payload_excludes": ["checksums"], "value": "a".repeat(64) },
+        "redistribution_status": "invented_non_engineering_example" });
+    solved["rule_pack_refs"] = json!([reference("rule-pack:invented", "1.0.0"), reference("invented-pack@branch", "1.0.0"), reference("invented-pack", "branch@1.0.0")]);
+    solved
+}
+
+fn exclusion_diagnostics() -> Value {
+    json!([
+        { "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, &rule_pack_identity("invented-pack@branch", "1.0.0")) },
+        { "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, &rule_pack_identity("invented-pack", "branch@1.0.0")) }
+    ])
+}
+
+fn rule_pack_request(solved: &Value, edit: Option<Mutation>) -> RecordRunRequest {
+    let mut submitted = request(solved, "Run");
+    submitted.run_record["analysis_run"]["diagnostics"] = exclusion_diagnostics();
+    if let Some(edit) = edit {
+        edit(&mut submitted.run_record);
+    }
+    reseal(&mut submitted.run_record);
+    submitted
+}
+
+const RULE_PACK_DIAGNOSTIC_EDITS: [(&str, Mutation); 5] = [
+    ("an exclusion dropped", |record| { record["analysis_run"]["diagnostics"].as_array_mut().unwrap().pop(); }),
+    ("its message changed", |record| record["analysis_run"]["diagnostics"][0]["source_annotation"]["message"] = json!("Rule pack was applied")),
+    ("its identity replaced", |record| record["analysis_run"]["diagnostics"][0]["source_annotation"]["affected_refs"] = json!(["invented-pack@other"])),
+    ("an extra exclusion", |record| {
+        let extra = json!({ "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, "rule-pack:invented@1.0.0") });
+        record["analysis_run"]["diagnostics"].as_array_mut().unwrap().push(extra);
+    }),
+    ("the exclusions reordered", |record| record["analysis_run"]["diagnostics"].as_array_mut().unwrap().swap(0, 1)),
+];
+
+#[test]
+fn rule_pack_reference_diagnostics_are_recorded_and_read_unchanged_when_they_name_the_exclusions() {
+    let path = store_with_project("rule-pack-diagnostics");
+    let solved = rule_pack_model();
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002001", 1_000);
+    let submitted = rule_pack_request(&solved, None);
+    let outcome = record(&path, submitted, T0).unwrap();
+    let read = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap();
+    assert_eq!(read.record["analysis_run"]["diagnostics"], exclusion_diagnostics());
+    assert_eq!(read.record["analysis_run"]["rule_pack_refs"], json!([{ "object_type": "RulePack", "ref": "rule-pack:invented@1.0.0" }]));
+    // The two would share `invented-pack@branch@1.0.0` flattened; encoded they are distinct.
+    assert_eq!(read.record["analysis_run"]["diagnostics"][0]["source_annotation"]["affected_refs"], json!(["invented-pack%40branch@1.0.0"]));
+    assert_eq!(read.record["analysis_run"]["diagnostics"][1]["source_annotation"]["affected_refs"], json!(["invented-pack@branch%401.0.0"]));
+}
+
+#[test]
+fn rule_pack_reference_diagnostics_that_do_not_name_the_exclusions_are_refused_at_record_run_and_at_read() {
+    for (index, (name, edit)) in RULE_PACK_DIAGNOSTIC_EDITS.into_iter().enumerate() {
+        // At Record Run: nothing is written.
+        let path = store_with_project(&format!("rule-pack-submit-{index}"));
+        let solved = rule_pack_model();
+        save_state(&path, &solved, "Basis", "00000000000000000000000000002001", 1_000);
+        let error = record(&path, rule_pack_request(&solved, Some(edit)), T0).unwrap_err();
+        assert!(error.starts_with("ANALYSIS-RUN-MANIFEST-MISMATCH: the record's rule-pack reference diagnostics are not exactly those"), "{name}: {error}");
+        assert!(error.ends_with("nothing was recorded."), "{name}: {error}");
+        assert_eq!(row_count(&path, "analysis_runs"), 0, "{name}");
+        // At read: a coherently resealed stored record is refused.
+        let outcome = record(&path, rule_pack_request(&solved, None), T0).unwrap();
+        let mut stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+        edit(&mut stored);
+        reseal(&mut stored);
+        let recording_id = forge(&path, &stored);
+        let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+        assert!(read.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`")), "{name}, read: {read}");
+        assert!(read.contains("rule-pack reference diagnostics differ from the references its stored input manifest leaves out"), "{name}, read: {read}");
+    }
+}
+
+#[test]
+fn the_records_diagnostics_must_begin_with_the_results() {
+    let path = store_with_project("producer-diagnostics");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002002", 1_000);
+    // A result carrying one diagnostic; a record must list it first.
+    let diagnostic = json!({ "code": "INVENTED", "severity": "warning", "message": "Invented." });
+    let with_result = |listed: bool| {
+        let mut submitted = request(&solved, "Run");
+        submitted.result_json = result_text(1.25).replace("\"diagnostics\": []", &format!("\"diagnostics\": [{diagnostic}]"));
+        submitted.run_record = transient(&submitted.result_json, &submitted.input_manifest_canonical);
+        if listed {
+            submitted.run_record["analysis_run"]["diagnostics"] = json!([{ "source_annotation": diagnostic.clone() }]);
+            reseal(&mut submitted.run_record);
+        }
+        submitted
+    };
+    let error = record(&path, with_result(false), T0).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-RESULT-MISMATCH: the record's diagnostics do not begin with the result's"), "{error}");
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    let outcome = record(&path, with_result(true), T0).unwrap();
+    let mut stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+    stored["analysis_run"]["diagnostics"] = json!([]);
+    reseal(&mut stored);
+    let recording_id = forge(&path, &stored);
+    let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+    assert!(read.contains("the record's diagnostics do not begin with its stored result's"), "{read}");
 }

@@ -112,11 +112,11 @@
         {
           "source_annotation": {
             "affected_refs": [
-              "invented-pack-missing@1.0.0"
+              "invented-pack%40branch@1.0.0"
             ],
             "code": "MODEL-RULE-PACK-REF-UNRESOLVED",
-            "id": "diagnostic:rule-pack-ref:invented-pack-missing@1.0.0",
-            "message": "Rule pack invented-pack-missing@1.0.0 is referenced by the model, but the local rule-pack store held no such pack for this project at solve time; it is not among this run's rule-pack references.",
+            "id": "diagnostic:rule-pack-ref:invented-pack%40branch@1.0.0",
+            "message": "Rule pack invented-pack%40branch@1.0.0 is referenced by the model, but the local rule-pack store held no such pack for this project at solve time; it is not among this run's rule-pack references.",
             "severity": "warning",
             "source": "desktop/solve-rule-pack-resolution"
           }
@@ -124,11 +124,23 @@
         {
           "source_annotation": {
             "affected_refs": [
-              "invented-pack-changed@2.0.0"
+              "invented-pack@branch%401.0.0"
+            ],
+            "code": "MODEL-RULE-PACK-REF-UNRESOLVED",
+            "id": "diagnostic:rule-pack-ref:invented-pack@branch%401.0.0",
+            "message": "Rule pack invented-pack@branch%401.0.0 is referenced by the model, but the local rule-pack store held no such pack for this project at solve time; it is not among this run's rule-pack references.",
+            "severity": "warning",
+            "source": "desktop/solve-rule-pack-resolution"
+          }
+        },
+        {
+          "source_annotation": {
+            "affected_refs": [
+              "invented-pack-changed@2.0%25"
             ],
             "code": "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH",
-            "id": "diagnostic:rule-pack-ref:invented-pack-changed@2.0.0",
-            "message": "Rule pack invented-pack-changed@2.0.0 is referenced by the model, but the stored pack's checksum was not the reference's at solve time; it is not among this run's rule-pack references.",
+            "id": "diagnostic:rule-pack-ref:invented-pack-changed@2.0%25",
+            "message": "Rule pack invented-pack-changed@2.0%25 is referenced by the model, but the stored pack's checksum was not the reference's at solve time; it is not among this run's rule-pack references.",
             "severity": "warning",
             "source": "desktop/solve-rule-pack-resolution"
           }
@@ -143,7 +155,7 @@
             "ref": "run:preview-linear-static-001"
           },
           "payload_scope": "analysis_run_record",
-          "value": "9113a6f93cfd4c9760a3e8434032502874db926728f209c2f94fb3aac745b278"
+          "value": "379a1fe66e4170973939af07b71df06e63ecfb493284fa5194f60601c3985a14"
         },
         {
           "algorithm": "sha256",
@@ -199,16 +211,16 @@
             "canonicalization": "rfc8785_jcs",
             "payload_ref": {
               "object_type": "InputManifest",
-              "ref": "input-manifest:project-precision-connected-fixture:788e0ba08a897efa1d22813d1932aa67d87438b3e4dbf582500c15980dfee11c"
+              "ref": "input-manifest:project-precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
             },
             "payload_scope": "input_manifest",
-            "value": "788e0ba08a897efa1d22813d1932aa67d87438b3e4dbf582500c15980dfee11c"
+            "value": "b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
           }
         ],
         "input_manifest_refs": [
           {
             "object_type": "InputManifest",
-            "ref": "input-manifest:project-precision-connected-fixture:788e0ba08a897efa1d22813d1932aa67d87438b3e4dbf582500c15980dfee11c"
+            "ref": "input-manifest:project-precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
           }
         ],
         "semantic_contract": {
@@ -4660,7 +4672,7 @@
       "rule_pack_refs": [
         {
           "object_type": "RulePack",
-          "ref": "invented-pack-held@1.0.0"
+          "ref": "invented-pack%40held@1.0.0"
         }
       ],
       "run_id": "run:preview-linear-static-001",
@@ -4668,7 +4680,7 @@
       "run_name": "run:preview-linear-static-001 analysis record",
       "settings_ref": {
         "object_type": "SolverSettings",
-        "ref": "solver-settings:input-manifest:project-precision-connected-fixture:788e0ba08a897efa1d22813d1932aa67d87438b3e4dbf582500c15980dfee11c:788e0ba08a897efa1d22813d1932aa67d87438b3e4dbf582500c15980dfee11c"
+        "ref": "solver-settings:input-manifest:project-precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
       },
       "solver_version": {
         "build_ref": {
@@ -4680,7 +4692,7 @@
       },
       "unit_system_ref": {
         "object_type": "UnitSystem",
-        "ref": "unit-system:project:precision-connected-fixture:788e0ba08a897efa1d22813d1932aa67d87438b3e4dbf582500c15980dfee11c"
+        "ref": "unit-system:project:precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
       }
     },
     "deliverable_id": "DEL-14-02",
@@ -4696,8 +4708,8 @@
     "schema_version": "0.3.0",
     "scope_item": "SOW-072"
   },
-  "recording_id": "runrec:9113a6f93cfd4c9760a3e84340325028",
-  "run_record_hash": "9113a6f93cfd4c9760a3e8434032502874db926728f209c2f94fb3aac745b278",
+  "recording_id": "runrec:379a1fe66e4170973939af07b71df06e",
+  "run_record_hash": "379a1fe66e4170973939af07b71df06e63ecfb493284fa5194f60601c3985a14",
   "state_id": "state:0123456789abcdef0123456789abcdef",
-  "state_model_hash": "sha256:e8839583e35365f477887aa3d43b231713b2abb66ab8e322dea1cb913f724540"
+  "state_model_hash": "sha256:83dc28cdaac0a3b59807ea18efc715ba1fa78765ceeceb0b6a02d26c782d471d"
 }

@@ -6,8 +6,9 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildCurrentSessionInputManifest, type CurrentSessionInputManifestArgs } from "./inputManifestService";
 import { recordRulePackExclusions, resolveModelRulePacks, RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED, runRulePackLines } from "./modelRulePackResolution";
-import { rulePackRefDiagnostic, rulePackRefDiagnosticEntries, RULE_PACK_REF_DIAGNOSTIC_SOURCE } from "./rulePackRefDiagnostics";
-import { ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, analysisRecordProjection, validateAnalysisRunV03, verifyAnalysisRunRecord } from "./analysisRunCompatibility";
+import { parseRulePackIdentity, rulePackIdentity, rulePackRefDiagnostic, rulePackRefDiagnosticEntries, RULE_PACK_REF_DIAGNOSTIC_SOURCE } from "./rulePackRefDiagnostics";
+import { ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, analysisRecordProjection, recordedAnalysisRunRevision, recordedRulePackRefs, validateAnalysisRunV03, verifyAnalysisRunRecord } from "./analysisRunCompatibility";
+import { canonicalSha256Hex } from "./hashService";
 import { canonicalJsonString, canonicalSha256HexCheckedV1 } from "./hashService";
 import { RULE_PACK_BACKEND_DIAGNOSTIC, type RulePackOpenRoute } from "./rulePackService";
 import { buildAnalysisRunPreview, loadPreviewModel } from "./previewService";
@@ -205,6 +206,33 @@ describe("resolving the model's rule-pack references at solve time", () => {
     expect(await canonicalJsonString(record)).toBe(await canonicalJsonString(plain));
     expect(record.analysis_run.diagnostics).toEqual(pair.source.diagnostics.map((source_annotation) => ({ source_annotation })));
     expect(runRulePackLines(manifest.manifest, record)).toBeNull();
+  });
+});
+
+describe("rule-pack identities", () => {
+  it("percent-encode `%` and `@` in each component, so distinct (id, version) pairs never share a string", () => {
+    // The same vectors as the Rust test `rule_pack_identities_percent_encode_each_component` and Python's.
+    expect(rulePackIdentity("rule-pack:b", "2")).toBe("rule-pack:b@2");
+    expect(rulePackIdentity("invented-pack@branch", "1.0.0")).toBe("invented-pack%40branch@1.0.0");
+    expect(rulePackIdentity("invented-pack", "branch@1.0.0")).toBe("invented-pack@branch%401.0.0");
+    expect(rulePackIdentity("pack%40x@y", "1%@2")).toBe("pack%2540x%40y@1%25%402");
+    for (const [id, version] of [["pack%40x@y", "1%@2"], ["invented-pack@branch", "1.0.0"], ["invented-pack", "branch@1.0.0"], ["%", "@"], ["a", ""]]) {
+      expect(parseRulePackIdentity(rulePackIdentity(id, version))).toEqual({ rule_pack_id: id, rule_pack_version: version });
+    }
+    for (const text of ["a@b@c", "a", "a%2Fb@1", "a%4@1", "a%40@1%"]) expect(parseRulePackIdentity(text)).toBeNull();
+    expect(recordedRulePackRefs({ active_rule_packs: [{ rule_pack_id: "invented-pack@branch", version: "1.0.0", checksum_sha256: "a", source_notice: "n" }] }))
+      .toEqual([{ object_type: "RulePack", ref: "invented-pack%40branch@1.0.0" }]);
+  });
+
+  it("two unresolved references whose flattened identities would collide publish a record and record", async () => {
+    const { pair, manifest, record } = await solvedWith([inventedReference("invented-pack@branch", hex("2")), inventedReference("invented-pack", hex("3"), "branch@1.0.0")]);
+    const appended = record.analysis_run.diagnostics!.slice(pair.source.diagnostics.length).map((item) => (item.source_annotation as { affected_refs: string[] }).affected_refs[0]);
+    expect(appended).toEqual(["invented-pack%40branch@1.0.0", "invented-pack@branch%401.0.0"]);
+    await expect(validateAnalysisRunV03(record, pair.source, record.analysis_run.load_basis_refs)).resolves.toBeUndefined();
+    const stateId = "state:0123456789abcdef0123456789abcdef";
+    const recorded = await recordedAnalysisRunRevision(record, { stateId, createdAt: "2026-10-27T11:30:45.123Z", inputManifest: manifest.manifest });
+    await expect(validateAnalysisRunV03(recorded, pair.source, undefined, { stateId, modelHash: `sha256:${await canonicalSha256Hex(manifest.manifest.model_basis.model_payload)}`, inputManifest: manifest.manifest })).resolves.toBeUndefined();
+    expect(recorded.analysis_run.diagnostics).toEqual(record.analysis_run.diagnostics);
   });
 });
 

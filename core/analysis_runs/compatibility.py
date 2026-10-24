@@ -94,9 +94,27 @@ _RULE_PACK_REF_CODES = (RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATC
 _MESSAGE_IDENTITY_LIMIT = 160
 
 
+def _identity_component(component: str) -> str:
+    return component.replace("%", "%25").replace("@", "%40")
+
+
 def rule_pack_identity(rule_pack_id: str, version: str) -> str:
-    """`<rule_pack_id>@<version>`, as the recorded revision's `rule_pack_refs` name a pack."""
-    return f"{rule_pack_id}@{version}"
+    """`<rule_pack_id>@<version>`, as the recorded revision's `rule_pack_refs` and the rule-pack
+    reference diagnostics name a pack: each component with `%` (as `%25`) and then `@` (as `%40`)
+    percent-encoded, so distinct (id, version) pairs never share a string. An id and version
+    without `%` or `@` are unchanged. Mirrors `rulePackIdentity` (TS) and Rust's `rule_pack_identity`."""
+    return f"{_identity_component(rule_pack_id)}@{_identity_component(version)}"
+
+
+def parse_rule_pack_identity(identity: str) -> tuple[str, str] | None:
+    """The (id, version) pair an identity names, or None when the text is not an identity."""
+    parts = identity.split("@")
+    if len(parts) != 2 or any(re.search(r"%(?!25|40)", part) for part in parts):
+        return None
+    decoded = [re.sub(r"%40|%25", lambda match: "@" if match.group() == "%40" else "%", part) for part in parts]
+    if rule_pack_identity(decoded[0], decoded[1]) != identity:
+        return None
+    return decoded[0], decoded[1]
 
 
 def rule_pack_ref_diagnostic(code: str, identity: str) -> dict[str, Any]:
@@ -128,7 +146,7 @@ def rule_pack_ref_diagnostic_entries(diagnostics: Sequence[Any]) -> list[tuple[s
         if code not in _RULE_PACK_REF_CODES or not isinstance(refs, list) or len(refs) != 1 or not isinstance(refs[0], str) or not refs[0]:
             return None
         identity = refs[0]
-        if identity in seen or dict(annotation) != rule_pack_ref_diagnostic(code, identity):
+        if parse_rule_pack_identity(identity) is None or identity in seen or dict(annotation) != rule_pack_ref_diagnostic(code, identity):
             return None
         seen.add(identity)
         entries.append((code, identity))
@@ -138,10 +156,16 @@ def rule_pack_ref_diagnostic_entries(diagnostics: Sequence[Any]) -> list[tuple[s
 def manifest_excluded_rule_pack_identities(input_manifest: Mapping[str, Any]) -> list[str]:
     """The identities of the model's references the manifest's `active_rule_packs` leaves
     out, in the model's order: what a record's rule-pack diagnostics must name."""
-    active = {rule_pack_identity(pack.get("rule_pack_id"), pack.get("version")) for pack in input_manifest.get("active_rule_packs", []) if isinstance(pack, Mapping)}
+    return [rule_pack_identity(rule_pack_id, version) for rule_pack_id, version in manifest_excluded_rule_packs(input_manifest)]
+
+
+def manifest_excluded_rule_packs(input_manifest: Mapping[str, Any]) -> list[tuple[str, str]]:
+    """The model's references the manifest's `active_rule_packs` leaves out, as (id, version)
+    pairs in the model's order."""
+    active = {(pack.get("rule_pack_id"), pack.get("version")) for pack in input_manifest.get("active_rule_packs", []) if isinstance(pack, Mapping)}
     references = input_manifest.get("model_basis", {}).get("model_payload", {}).get("rule_pack_refs", [])
-    identities = [rule_pack_identity(ref.get("rule_pack_id"), ref.get("rule_pack_version")) for ref in references if isinstance(ref, Mapping)]
-    return [identity for identity in identities if identity not in active]
+    pairs = [(ref.get("rule_pack_id"), ref.get("rule_pack_version")) for ref in references if isinstance(ref, Mapping)]
+    return [pair for pair in pairs if pair not in active]
 
 
 def _build_analysis_run(
@@ -266,7 +290,7 @@ def recorded_rule_pack_refs(input_manifest: Mapping[str, Any]) -> list[dict[str,
         version = pack.get("version") if isinstance(pack, Mapping) else None
         if not isinstance(rule_pack_id, str) or not rule_pack_id or not isinstance(version, str) or not version:
             raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: an active rule pack has no id or version.")
-        refs.append({"object_type": "RulePack", "ref": f"{rule_pack_id}@{version}"})
+        refs.append({"object_type": "RulePack", "ref": rule_pack_identity(rule_pack_id, version)})
     return refs
 
 

@@ -38,9 +38,31 @@ export type RulePackRefDiagnosticAnnotation = {
 const CODES: readonly string[] = [RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH];
 const MESSAGE_IDENTITY_LIMIT = 160;
 
-/** A pack's identity as the recorded revision's `rule_pack_refs` name it: `<rule_pack_id>@<version>`. */
+/** One component of a rule-pack identity: `%` as `%25`, then `@` as `%40`. */
+function encodeIdentityComponent(component: string): string {
+  return component.replaceAll("%", "%25").replaceAll("@", "%40");
+}
+
+/** A pack's identity as the recorded revision's `rule_pack_refs` and the rule-pack reference
+ * diagnostics name it: `<rule_pack_id>@<version>`, each component with `%` and `@`
+ * percent-encoded, so the one `@` left separates them and distinct (id, version) pairs never
+ * share a string. An id and version without `%` or `@` are unchanged. Rust
+ * (`analysis_runs::rule_pack_identity`) and Python (`rule_pack_identity`) encode the same. */
 export function rulePackIdentity(rulePackId: string, version: string): string {
-  return `${rulePackId}@${version}`;
+  return `${encodeIdentityComponent(rulePackId)}@${encodeIdentityComponent(version)}`;
+}
+
+/** The (id, version) pair an identity names, or null when the text is not an identity. */
+export function parseRulePackIdentity(identity: string): { rule_pack_id: string; rule_pack_version: string } | null {
+  const parts = identity.split("@");
+  if (parts.length !== 2) return null;
+  const decode = (component: string): string | null => {
+    if (/%(?!25|40)/.test(component)) return null;
+    return component.replace(/%40|%25/g, (escape) => escape === "%40" ? "@" : "%");
+  };
+  const id = decode(parts[0]), version = decode(parts[1]);
+  if (id === null || version === null || rulePackIdentity(id, version) !== identity) return null;
+  return { rule_pack_id: id, rule_pack_version: version };
 }
 
 /** The identity as the message shows it: at most 160 code points, then an ellipsis. */
@@ -90,21 +112,26 @@ export function rulePackRefDiagnosticEntries(diagnostics: readonly unknown[]): A
     const { code, affected_refs: refs } = annotation as { code?: unknown; affected_refs?: unknown };
     if (typeof code !== "string" || !CODES.includes(code) || !Array.isArray(refs) || refs.length !== 1 || typeof refs[0] !== "string" || !refs[0]) return null;
     const identity = refs[0];
-    if (seen.has(identity) || canonicalText(annotation) !== canonicalText(rulePackRefDiagnostic(code as ExcludedRulePackRefCode, identity))) return null;
+    if (!parseRulePackIdentity(identity) || seen.has(identity) || canonicalText(annotation) !== canonicalText(rulePackRefDiagnostic(code as ExcludedRulePackRefCode, identity))) return null;
     seen.add(identity);
     entries.push({ code: code as ExcludedRulePackRefCode, identity });
   }
   return entries;
 }
 
-/** The identities of the model's references the manifest's `active_rule_packs` leaves out,
- * in the model's order: the references a run record's rule-pack diagnostics must name. */
-export function manifestExcludedRulePackIdentities(manifest: {
+/** The model's references the manifest's `active_rule_packs` leaves out, as (id, version)
+ * pairs in the model's order: the references a run record's rule-pack diagnostics must name. */
+export function manifestExcludedRulePacks(manifest: {
   model_basis?: { model_payload?: { rule_pack_refs?: Array<{ rule_pack_id: string; rule_pack_version: string }> } };
   active_rule_packs?: Array<{ rule_pack_id: string; version: string }>;
-}): string[] {
-  const active = new Set((manifest.active_rule_packs ?? []).map((pack) => rulePackIdentity(pack.rule_pack_id, pack.version)));
+}): Array<{ rule_pack_id: string; rule_pack_version: string }> {
+  const active = manifest.active_rule_packs ?? [];
   return (manifest.model_basis?.model_payload?.rule_pack_refs ?? [])
-    .map((reference) => rulePackIdentity(reference.rule_pack_id, reference.rule_pack_version))
-    .filter((identity) => !active.has(identity));
+    .filter((reference) => !active.some((pack) => pack.rule_pack_id === reference.rule_pack_id && pack.version === reference.rule_pack_version))
+    .map((reference) => ({ rule_pack_id: reference.rule_pack_id, rule_pack_version: reference.rule_pack_version }));
+}
+
+/** [`manifestExcludedRulePacks`] as the identities the diagnostics carry. */
+export function manifestExcludedRulePackIdentities(manifest: Parameters<typeof manifestExcludedRulePacks>[0]): string[] {
+  return manifestExcludedRulePacks(manifest).map((pair) => rulePackIdentity(pair.rule_pack_id, pair.rule_pack_version));
 }

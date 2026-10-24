@@ -306,16 +306,23 @@ Python agree.
      `diagnostics`, in the model's order, in the producer's diagnostic shape:
      code `MODEL-RULE-PACK-REF-UNRESOLVED` (the pack is absent, or the store is
      unavailable or fails) or `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (the
-     checksums differ), severity `warning`, `affected_refs`
-     `["<rule_pack_id>@<version>"]` as `rule_pack_refs` name a pack, and a
-     fixed message, with the identity shown to at most 160 code points, that
-     says the pack is not among the run's rule-pack references. The recorded
-     revision keeps them unchanged under its record hash (Rust, TypeScript and
-     Python). The validators (TypeScript and Python) accept, after the
-     producer's diagnostics, only diagnostics exactly as their code and
-     identity determine them. A recorded revision's must name exactly the
-     model references its stored manifest leaves out of `active_rule_packs`
-     (`ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH` otherwise). The reason
+     checksums differ), severity `warning`, `affected_refs` `[<identity>]`
+     with the pack's identity as `rule_pack_refs` name it (below), the `id`
+     `diagnostic:rule-pack-ref:<identity>`, and a fixed message, with the
+     identity shown to at most 160 code points, that says the pack is not
+     among the run's rule-pack references. The recorded revision keeps them
+     unchanged under its record hash (Rust, TypeScript and Python). The
+     validators (TypeScript and Python) and the native Record Run and read
+     accept, after the producer's diagnostics, only diagnostics exactly as
+     their code and identity determine them, with no identity repeated. A
+     recorded revision's, and natively a submitted transient record's, must
+     name exactly the model references
+     (`model_basis.model_payload.rule_pack_refs`) its stored manifest leaves
+     out of `active_rule_packs`, compared as (id, version) pairs, in order
+     (`ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH` in the validators;
+     natively `ANALYSIS-RUN-MANIFEST-MISMATCH` at Record Run, or
+     `ANALYSIS-RUN-RESULT-MISMATCH` when the result's diagnostics are not
+     first, and `ANALYSIS-RUN-INTEGRITY` at read). The reason
      (which code) is not derivable from the manifest and is protected by the
      record hash. A rule-check revision of the transient record carries them
      over. They are shown with the solve, in the Record Run form and in a
@@ -447,9 +454,16 @@ the History panel and `useModelStateHistory.ts`.
   - Rust does not re-derive the rest of the record's semantics; the validators
     do.
 - **The revision.**
-  - `rule_pack_refs` are `{RulePack, "<rule_pack_id>@<version>"}`, in the
-    manifest's order, which is the model's reference order (the manifest no
-    longer sorts them).
+  - `rule_pack_refs` are `{RulePack, <identity>}`, in the manifest's order,
+    which is the model's reference order (the manifest no longer sorts them).
+    A pack's identity is `<rule_pack_id>@<version>` with `%` (as `%25`) and
+    then `@` (as `%40`) percent-encoded in each component, so the one `@`
+    left separates them and distinct (id, version) pairs never share a string
+    (`invented@branch` 1.0.0 is `invented%40branch@1.0.0`; `invented`
+    `branch@1.0.0` is `invented@branch%401.0.0`). An id and version without
+    `%` or `@` are unchanged. Rust (`rule_pack_identity`), TypeScript
+    (`rulePackIdentity`) and Python (`rule_pack_identity`) encode the same.
+    Comparisons use the (id, version) pairs.
   - `library_refs` are `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`,
     deduplicated and sorted by code point.
     - **Sites.** The sites are every `library_ref` object at any depth and

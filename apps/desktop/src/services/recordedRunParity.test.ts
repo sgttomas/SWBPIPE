@@ -55,14 +55,17 @@ async function sessionTransient(options: { rulePacks?: boolean } = {}) {
   let excluded: Awaited<ReturnType<typeof resolveModelRulePacks>>["excluded"] = [];
   let active: Awaited<ReturnType<typeof resolveModelRulePacks>>["active_rule_packs"] = [];
   if (options.rulePacks) {
+    // `@` and `%` in ids and versions: the two unresolved references would share one
+    // flattened `<id>@<version>` string; percent-encoded they do not.
     pair.model.rule_pack_refs = [
-      inventedReference("invented-pack-held", hex("1")),
-      inventedReference("invented-pack-missing", hex("2")),
-      inventedReference("invented-pack-changed", hex("3"), "2.0.0")
+      inventedReference("invented-pack@held", hex("1")),
+      inventedReference("invented-pack@branch", hex("2")),
+      inventedReference("invented-pack", hex("4"), "branch@1.0.0"),
+      inventedReference("invented-pack-changed", hex("3"), "2.0%")
     ];
     const store = new Map([
-      ["invented-pack-held", inventedEnvelope(pair.model.project.id, "invented-pack-held", hex("1"))],
-      ["invented-pack-changed", inventedEnvelope(pair.model.project.id, "invented-pack-changed", hex("9"), { version: "2.0.0" })]
+      ["invented-pack@held", inventedEnvelope(pair.model.project.id, "invented-pack@held", hex("1"))],
+      ["invented-pack-changed", inventedEnvelope(pair.model.project.id, "invented-pack-changed", hex("9"), { version: "2.0%" })]
     ]);
     ({ active_rule_packs: active, excluded } = await resolveModelRulePacks(pair.model, async (_projectId, id) => ({ route: "tauri_backend", envelope: store.get(id) ?? null })));
   }
@@ -268,7 +271,7 @@ describe("the recorded revision of a transient record with rule-pack reference d
   it("the committed input is the session's record of the preview pair with invented rule-pack references (the writer)", async () => {
     const { manifest, record } = await sessionTransient({ rulePacks: true });
     const input: TransientInput = {
-      description: "A transient analysis_run.v0.3 record built by the desktop session's builder (buildAnalysisRunPreview) for fixtures/results/preview_physics_connected_sparse.json and fixtures/model_operations/precision_connected_ui_model.json given three invented rule_pack_refs (one resolved, one unresolved, one checksum-mismatched against an invented store), with its input manifest's canonical text. The excluded references are rule-pack reference diagnostics after the producer's. Written by apps/desktop/src/services/recordedRunParity.test.ts with OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT_RULE_PACKS=<path>; apps/desktop/src-tauri/src/analysis_runs_tests.rs records it to fixtures/persistence/recorded_run_witness_rule_packs.json.",
+      description: "A transient analysis_run.v0.3 record built by the desktop session's builder (buildAnalysisRunPreview) for fixtures/results/preview_physics_connected_sparse.json and fixtures/model_operations/precision_connected_ui_model.json given four invented rule_pack_refs (one resolved, two unresolved whose flattened identities would collide, one checksum-mismatched against an invented store; ids and versions carry `@` and `%`), with its input manifest's canonical text. The excluded references are rule-pack reference diagnostics after the producer's. Written by apps/desktop/src/services/recordedRunParity.test.ts with OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT_RULE_PACKS=<path>; apps/desktop/src-tauri/src/analysis_runs_tests.rs records it to fixtures/persistence/recorded_run_witness_rule_packs.json.",
       source_result_ref: "fixtures/results/preview_physics_connected_sparse.json",
       run_record: record,
       input_manifest_canonical: manifest.canonical_bytes
@@ -288,13 +291,14 @@ describe("the recorded revision of a transient record with rule-pack reference d
     expect(rebuilt.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value).toBe(witness.run_record_hash);
     const run = witness.recorded_record.analysis_run;
     expect(run.diagnostics).toEqual(input.run_record.analysis_run.diagnostics);
-    expect(run.diagnostics!.slice(-2).map((item) => (item.source_annotation as { code: string; affected_refs: string[] })))
+    expect(run.diagnostics!.slice(-3).map((item) => (item.source_annotation as { code: string; affected_refs: string[] })))
       .toEqual([
-        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-UNRESOLVED", affected_refs: ["invented-pack-missing@1.0.0"] }),
-        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH", affected_refs: ["invented-pack-changed@2.0.0"] })
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-UNRESOLVED", affected_refs: ["invented-pack%40branch@1.0.0"] }),
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-UNRESOLVED", affected_refs: ["invented-pack@branch%401.0.0"] }),
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH", affected_refs: ["invented-pack-changed@2.0%25"] })
       ]);
-    expect(run.rule_pack_refs).toEqual([{ object_type: "RulePack", ref: "invented-pack-held@1.0.0" }]);
-    expect(manifest.active_rule_packs.map((pack) => pack.rule_pack_id)).toEqual(["invented-pack-held"]);
+    expect(run.rule_pack_refs).toEqual([{ object_type: "RulePack", ref: "invented-pack%40held@1.0.0" }]);
+    expect(manifest.active_rule_packs.map((pack) => pack.rule_pack_id)).toEqual(["invented-pack@held"]);
   });
 
   it("the validator accepts both forms and refuses a recorded revision whose diagnostics do not name the manifest's exclusions", async () => {
@@ -312,7 +316,7 @@ describe("the recorded revision of a transient record with rule-pack reference d
     expect(await verifyAnalysisRunRecord(dropped)).toBe("match");
     await expect(validateAnalysisRunV03(dropped, source, basis, binding)).rejects.toThrow(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
     const swapped = structuredClone(witness.recorded_record);
-    swapped.analysis_run.diagnostics!.push(swapped.analysis_run.diagnostics!.splice(-2, 1)[0]);
+    swapped.analysis_run.diagnostics!.push(swapped.analysis_run.diagnostics!.splice(-3, 1)[0]);
     await reseal(swapped);
     await expect(validateAnalysisRunV03(swapped, source, basis, binding)).rejects.toThrow(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
   });

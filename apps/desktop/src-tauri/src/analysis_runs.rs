@@ -211,9 +211,135 @@ fn reference(object_type: &str, reference: &str) -> Value {
     json!({ "object_type": object_type, "ref": reference })
 }
 
+/// A rule pack's identity as `rule_pack_refs` and the rule-pack reference
+/// diagnostics name it: `<rule_pack_id>@<version>`, each component with `%`
+/// (as `%25`) and then `@` (as `%40`) percent-encoded, so distinct (id,
+/// version) pairs never share a string. An id and version without `%` or `@`
+/// are unchanged. TypeScript (`rulePackIdentity`) and Python
+/// (`rule_pack_identity`) encode the same.
+pub(crate) fn rule_pack_identity(rule_pack_id: &str, version: &str) -> String {
+    let component = |text: &str| text.replace('%', "%25").replace('@', "%40");
+    format!("{}@{}", component(rule_pack_id), component(version))
+}
+
+pub(crate) const RULE_PACK_REF_UNRESOLVED: &str = "MODEL-RULE-PACK-REF-UNRESOLVED";
+pub(crate) const RULE_PACK_REF_CHECKSUM_MISMATCH: &str = "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH";
+
+/// The run record's diagnostic for a model rule-pack reference the solve left
+/// out of the manifest's `active_rule_packs`, determined by its code and
+/// identity alone (`rulePackRefDiagnostic` in TypeScript, Python's
+/// `rule_pack_ref_diagnostic`): the producer's diagnostic shape, the identity
+/// shown in the message to at most 160 code points.
+pub(crate) fn rule_pack_ref_diagnostic(code: &str, identity: &str) -> Value {
+    let shown: String = if identity.chars().count() > 160 {
+        identity.chars().take(160).chain(std::iter::once('\u{2026}')).collect()
+    } else {
+        identity.to_string()
+    };
+    let reason = if code == RULE_PACK_REF_CHECKSUM_MISMATCH {
+        "the stored pack's checksum was not the reference's at solve time"
+    } else {
+        "the local rule-pack store held no such pack for this project at solve time"
+    };
+    json!({
+        "id": format!("diagnostic:rule-pack-ref:{identity}"),
+        "code": code,
+        "severity": "warning",
+        "message": format!("Rule pack {shown} is referenced by the model, but {reason}; it is not among this run's rule-pack references."),
+        "source": "desktop/solve-rule-pack-resolution",
+        "affected_refs": [identity]
+    })
+}
+
+/// The model's rule-pack references (`model_basis.model_payload.rule_pack_refs`)
+/// the manifest's `active_rule_packs` leaves out, as (id, version) pairs in the
+/// model's order.
+pub(crate) fn manifest_excluded_rule_packs(manifest: &Value) -> Result<Vec<(String, String)>, String> {
+    let invalid = |detail: &str| format!("ANALYSIS-RUN-MANIFEST-INVALID: {detail}.");
+    let pair = |item: &Value, version_key: &str| match (item.get("rule_pack_id").and_then(Value::as_str), item.get(version_key).and_then(Value::as_str)) {
+        (Some(id), Some(version)) => Some((id.to_string(), version.to_string())),
+        _ => None,
+    };
+    let active = manifest
+        .get("active_rule_packs")
+        .and_then(Value::as_array)
+        .ok_or_else(|| invalid("the input manifest has no active_rule_packs list"))?
+        .iter()
+        .map(|pack| pair(pack, "version").ok_or_else(|| invalid("an active rule pack has no id or version")))
+        .collect::<Result<Vec<_>, _>>()?;
+    let references = match manifest.pointer("/model_basis/model_payload/rule_pack_refs") {
+        None => return Ok(Vec::new()),
+        Some(value) => value.as_array().ok_or_else(|| invalid("the model's rule_pack_refs is not a list"))?,
+    };
+    let mut excluded = Vec::new();
+    for reference in references {
+        let pair = pair(reference, "rule_pack_version").ok_or_else(|| invalid("a model rule-pack reference has no id or version"))?;
+        if !active.contains(&pair) {
+            excluded.push(pair);
+        }
+    }
+    Ok(excluded)
+}
+
+/// Which of the record's `diagnostics` its result and stored manifest do not
+/// fix, if any: the received result's diagnostics come first, each as
+/// `{source_annotation: <diagnostic>}`; then exactly one rule-pack reference
+/// diagnostic per reference the manifest leaves out of `active_rule_packs`, in
+/// the model's order, each exactly the one its code and identity determine.
+/// `Err` when the manifest's references cannot be read. The comparison clones
+/// nothing from the stored texts; the expected rule-pack diagnostics are built
+/// from the manifest's identities (residual: their size is the identities',
+/// within the manifest's reserved parse).
+pub(crate) fn diagnostics_difference(record: &Value, result: &Value, manifest: &Value) -> Result<Option<DiagnosticsDifference>, String> {
+    let empty = Vec::new();
+    let produced = match result.get("diagnostics") {
+        None => &empty,
+        Some(value) => match value.as_array() {
+            Some(items) => items,
+            None => return Ok(Some(DiagnosticsDifference::Producer)),
+        },
+    };
+    // An absent list is an empty one (the v0.3 builders always write it).
+    let diagnostics = match record.pointer("/analysis_run/diagnostics") {
+        None => &empty,
+        Some(value) => match value.as_array() {
+            Some(items) => items,
+            None => return Ok(Some(DiagnosticsDifference::Producer)),
+        },
+    };
+    let wraps = |item: &Value, diagnostic: &Value| item.as_object().is_some_and(|object| object.len() == 1 && object.get("source_annotation") == Some(diagnostic));
+    if diagnostics.len() < produced.len() || !diagnostics.iter().zip(produced).all(|(item, diagnostic)| wraps(item, diagnostic)) {
+        return Ok(Some(DiagnosticsDifference::Producer));
+    }
+    let excluded = manifest_excluded_rule_packs(manifest)?;
+    let appended = &diagnostics[produced.len()..];
+    if appended.len() != excluded.len() {
+        return Ok(Some(DiagnosticsDifference::RulePacks));
+    }
+    for (item, (id, version)) in appended.iter().zip(&excluded) {
+        let identity = rule_pack_identity(id, version);
+        let code = item.pointer("/source_annotation/code").and_then(Value::as_str);
+        let accepted = matches!(code, Some(RULE_PACK_REF_UNRESOLVED | RULE_PACK_REF_CHECKSUM_MISMATCH))
+            && wraps(item, &rule_pack_ref_diagnostic(code.unwrap_or_default(), &identity));
+        if !accepted {
+            return Ok(Some(DiagnosticsDifference::RulePacks));
+        }
+    }
+    Ok(None)
+}
+
+/// What [`diagnostics_difference`] found.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DiagnosticsDifference {
+    /// The received result's diagnostics are not the record's first ones.
+    Producer,
+    /// The rest are not exactly the stored manifest's excluded references' diagnostics.
+    RulePacks,
+}
+
 /// The recorded revision's `rule_pack_refs`: the manifest's `active_rule_packs`
 /// (what the solve used), in the manifest's order, as
-/// `{RulePack, "<rule_pack_id>@<version>"}`.
+/// `{RulePack, rule_pack_identity(<rule_pack_id>, <version>)}`.
 pub(crate) fn rule_pack_refs(manifest: &Value) -> Result<Vec<Value>, String> {
     let packs = manifest
         .get("active_rule_packs")
@@ -226,7 +352,7 @@ pub(crate) fn rule_pack_refs(manifest: &Value) -> Result<Vec<Value>, String> {
             let version = pack.get("version").and_then(Value::as_str);
             match (id, version) {
                 (Some(id), Some(version)) if !id.is_empty() && !version.is_empty() => {
-                    Ok(reference("RulePack", &format!("{id}@{version}")))
+                    Ok(reference("RulePack", &rule_pack_identity(id, version)))
                 }
                 _ => Err("ANALYSIS-RUN-MANIFEST-INVALID: an active rule pack has no id or version.".to_string()),
             }
@@ -602,6 +728,18 @@ pub(crate) fn checked_submission(
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
     })? {
         return Err(refused("ANALYSIS-RUN-CHECKSUM-MISMATCH", detail));
+    }
+    // The record's diagnostics: the result's, then the rule-pack reference
+    // diagnostics of exactly the references the manifest leaves out.
+    match diagnostics_difference(transient, &result, &manifest).map_err(|error| refused(MANIFEST, error))? {
+        Some(DiagnosticsDifference::Producer) => return Err(refused(RESULT, "the record's diagnostics do not begin with the result's")),
+        Some(DiagnosticsDifference::RulePacks) => {
+            return Err(refused(
+                MANIFEST,
+                "the record's rule-pack reference diagnostics are not exactly those of the references the input manifest leaves out of active_rule_packs",
+            ))
+        }
+        None => {}
     }
     drop((result, result_reservation));
     Ok(payload_canonical.holding(manifest_reservation).map(|payload_canonical| CheckedSubmission {
@@ -1489,7 +1627,6 @@ pub(crate) fn read_run_in_store_with(
     if result_rows_difference(record, &result, memory).map_err(memory_or("result"))?.is_some() {
         return Err(refuse("result's row checksums"));
     }
-    drop(result);
     let manifest: Value = serde_json::from_str(&manifest_text).map_err(|_| refuse("input manifest"))?;
     let manifest_hash = sha256_hex(&manifest_text);
     let claimed_manifest_hash = single_manifest_hash(record).and_then(|hash| hash.get("value")).and_then(Value::as_str);
@@ -1505,6 +1642,18 @@ pub(crate) fn read_run_in_store_with(
     if let Some(name) = first_difference(record, &members) {
         return Err(integrity_of(recording_id, format_args!("the record's {name} differs from its stored input manifest")));
     }
+    // Both parses are within `parse`'s reservation.
+    match diagnostics_difference(record, &result, &manifest).map_err(|_| refuse("input manifest"))? {
+        Some(DiagnosticsDifference::Producer) => return Err(integrity_of(recording_id, "the record's diagnostics do not begin with its stored result's")),
+        Some(DiagnosticsDifference::RulePacks) => {
+            return Err(integrity_of(
+                recording_id,
+                "the record's rule-pack reference diagnostics differ from the references its stored input manifest leaves out",
+            ))
+        }
+        None => {}
+    }
+    drop(result);
     let state = model_states::find_summary_with(&transaction, project_id, &run.state_id, memory)?.ok_or_else(|| {
         integrity_of(recording_id, format_args!("its state `{}` is not saved", stored_read::shown(&run.state_id)))
     })?;

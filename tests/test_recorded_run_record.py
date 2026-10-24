@@ -26,9 +26,9 @@ import pytest
 
 from core.analysis_runs.compatibility import (
     ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, CREATED_AT_UNAVAILABLE, RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED,
-    analysis_record_projection, build_analysis_run_v0_3, library_ref_sites, manifest_excluded_rule_pack_identities, recorded_library_refs,
-    recorded_revision, recorded_rule_pack_refs, rule_pack_ref_diagnostic, rule_pack_ref_diagnostic_entries, validate_analysis_run_v0_3,
-    verify_analysis_run_record,
+    analysis_record_projection, build_analysis_run_v0_3, library_ref_sites, manifest_excluded_rule_pack_identities, manifest_excluded_rule_packs,
+    parse_rule_pack_identity, recorded_library_refs, recorded_revision, recorded_rule_pack_refs, rule_pack_identity, rule_pack_ref_diagnostic,
+    rule_pack_ref_diagnostic_entries, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from schema_validation import validate_instance
@@ -269,12 +269,15 @@ def test_the_rule_pack_witness_keeps_the_transient_diagnostics_and_python_rebuil
     producer = [{"source_annotation": item} for item in SOURCE["diagnostics"]]
     assert run["diagnostics"][:len(producer)] == producer
     # Python gives the same bytes for the same code and identity (the TypeScript builder wrote them).
+    # The two unresolved references would share `invented-pack@branch@1.0.0` flattened.
     assert run["diagnostics"][len(producer):] == [
-        {"source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, "invented-pack-missing@1.0.0")},
-        {"source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_CHECKSUM_MISMATCH, "invented-pack-changed@2.0.0")},
+        {"source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, rule_pack_identity("invented-pack@branch", "1.0.0"))},
+        {"source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, rule_pack_identity("invented-pack", "branch@1.0.0"))},
+        {"source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_CHECKSUM_MISMATCH, rule_pack_identity("invented-pack-changed", "2.0%"))},
     ]
-    assert manifest_excluded_rule_pack_identities(RP_MANIFEST) == ["invented-pack-missing@1.0.0", "invented-pack-changed@2.0.0"]
-    assert run["rule_pack_refs"] == [{"object_type": "RulePack", "ref": "invented-pack-held@1.0.0"}]
+    assert manifest_excluded_rule_pack_identities(RP_MANIFEST) == ["invented-pack%40branch@1.0.0", "invented-pack@branch%401.0.0", "invented-pack-changed@2.0%25"]
+    assert manifest_excluded_rule_packs(RP_MANIFEST) == [("invented-pack@branch", "1.0.0"), ("invented-pack", "branch@1.0.0"), ("invented-pack-changed", "2.0%")]
+    assert run["rule_pack_refs"] == [{"object_type": "RulePack", "ref": "invented-pack%40held@1.0.0"}]
     assert set(RP_MANIFEST) == set(MANIFEST), "the manifest gains no member"
 
 
@@ -321,8 +324,9 @@ def test_the_python_builder_appends_the_exclusions_and_refuses_ones_the_manifest
     manifest_ref = RP_INPUT["run_record"]["analysis_run"]["reproducibility"]["input_manifest_refs"][0]
     manifest_hash = RP_INPUT["run_record"]["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]["value"]
     exclusions = [
-        {"rule_pack_id": "invented-pack-missing", "rule_pack_version": "1.0.0", "code": RULE_PACK_REF_UNRESOLVED},
-        {"rule_pack_id": "invented-pack-changed", "rule_pack_version": "2.0.0", "code": RULE_PACK_REF_CHECKSUM_MISMATCH},
+        {"rule_pack_id": "invented-pack@branch", "rule_pack_version": "1.0.0", "code": RULE_PACK_REF_UNRESOLVED},
+        {"rule_pack_id": "invented-pack", "rule_pack_version": "branch@1.0.0", "code": RULE_PACK_REF_UNRESOLVED},
+        {"rule_pack_id": "invented-pack-changed", "rule_pack_version": "2.0%", "code": RULE_PACK_REF_CHECKSUM_MISMATCH},
     ]
     record = build_analysis_run_v0_3(SOURCE, expected_basis_refs=rp_basis(), input_manifest_ref=manifest_ref, input_manifest_hash=manifest_hash,
                                      input_manifest=RP_MANIFEST, rule_pack_ref_exclusions=exclusions)
@@ -330,3 +334,18 @@ def test_the_python_builder_appends_the_exclusions_and_refuses_ones_the_manifest
     with pytest.raises(ValueError, match=f"^{ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH}$"):
         build_analysis_run_v0_3(SOURCE, expected_basis_refs=rp_basis(), input_manifest_ref=manifest_ref, input_manifest_hash=manifest_hash,
                                 input_manifest=RP_MANIFEST, rule_pack_ref_exclusions=exclusions[:1])
+
+
+def test_rule_pack_identities_percent_encode_each_component() -> None:
+    # The same vectors as the Rust test `rule_pack_identities_percent_encode_each_component` and
+    # `modelRulePackResolution.test.tsx`.
+    assert rule_pack_identity("rule-pack:b", "2") == "rule-pack:b@2"
+    assert rule_pack_identity("invented-pack@branch", "1.0.0") == "invented-pack%40branch@1.0.0"
+    assert rule_pack_identity("invented-pack", "branch@1.0.0") == "invented-pack@branch%401.0.0"
+    assert rule_pack_identity("pack%40x@y", "1%@2") == "pack%2540x%40y@1%25%402"
+    for pair in [("pack%40x@y", "1%@2"), ("invented-pack@branch", "1.0.0"), ("invented-pack", "branch@1.0.0"), ("%", "@"), ("a", "")]:
+        assert parse_rule_pack_identity(rule_pack_identity(*pair)) == pair
+    for text in ["a@b@c", "a", "a%2Fb@1", "a%4@1", "a%40@1%"]:
+        assert parse_rule_pack_identity(text) is None
+    assert recorded_rule_pack_refs({"active_rule_packs": [{"rule_pack_id": "invented-pack@branch", "version": "1.0.0", "checksum_sha256": "a", "source_notice": "n"}]}) == [
+        {"object_type": "RulePack", "ref": "invented-pack%40branch@1.0.0"}]
