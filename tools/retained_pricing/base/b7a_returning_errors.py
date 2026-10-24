@@ -127,7 +127,10 @@ MODE_SOURCE = {
            # Silent-zero guard D3 (§8.15), merged on W-8: the same _X emitter, with retained_w1 carried to lib.rs:3619.
            "d8f2b65c5788b7e4104a6faa2acc4b666f54709fec7de0909422a8dbc0cf1c72",
            # Model document 0.7.0 D3 (§8.17), on the silent-zero guard: the same _X emitter, with retained_w1 carried to lib.rs:3626.
-           "b8ad36562dbc2091bf1e83b297aac99a364a245944acad2aeeb68187253d709a"},
+           "b8ad36562dbc2091bf1e83b297aac99a364a245944acad2aeeb68187253d709a",
+           # Silent-drop guard D3 (§8.19): the same _X emitter, with retained_w1 carried to lib.rs:3689 (its only
+           # difference from b8ad3656…).
+           "836d05df66da34b1464bb5c067c6d8f68662e15d67b048f32662ea06901ad6f8"},
 }
 
 
