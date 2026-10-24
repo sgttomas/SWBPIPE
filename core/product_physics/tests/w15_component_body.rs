@@ -406,3 +406,22 @@ fn w15_an_all_body_case_has_a_null_headline() {
         }
     }
 }
+
+/// A result that is not solved formed no member, so it carries no record and
+/// the model-bound reader expects none, whatever the model declares: here the
+/// body's scaled moduli leave binary64's normal range and the producer refuses
+/// the member (`PIPE_SECTION_INPUT_INVALID`, Design §2.2).
+#[test]
+fn w15_an_unsolved_result_carries_no_body_whatever_the_model_declares() {
+    for route in ROUTES {
+        let wire = request(route, vec![valve(VALVE, "node:b", BODY, 1.0e-320)]);
+        let out = run_linear_static_preview_value_with_mode(wire.clone(), MODES[0]).expect("the request parses");
+        assert_ne!(out.status.mechanics, "MECHANICS_SOLVED", "{route:?}");
+        assert!(out.diagnostics.iter().any(|d| d.code == "PIPE_SECTION_INPUT_INVALID"), "{route:?}");
+        let source = serde_json::to_value(&out).unwrap();
+        let mut members = Vec::new();
+        carriers(&source, String::new(), &mut members);
+        assert!(members.is_empty(), "{route:?}");
+        admitted(route, &source, &wire["model"], &format!("{route:?} unsolved"));
+    }
+}

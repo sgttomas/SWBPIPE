@@ -221,9 +221,13 @@ pub fn model_bodies(model: &Value) -> Result<BTreeMap<String, (String, f64)>, St
 }
 
 /// The model-bound check: the source's bodies and records are exactly the
-/// model's (component and scale bit for bit).
+/// model's (component and scale bit for bit). A result that is not solved
+/// formed no member, so it carries no body whatever the model declares.
 pub fn model_checks(source: &Value, model: &Value, table: &Value) -> Check {
     let received = source_bodies(source, table)?;
+    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return require(received.is_empty(), "MODEL_MISMATCH");
+    }
     let expected = model_bodies(model)?;
     require(received.len() == expected.len(), "MODEL_MISMATCH")?;
     for (pipe, (component, scale)) in &expected {

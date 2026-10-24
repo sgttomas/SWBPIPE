@@ -140,8 +140,13 @@ def model_bodies(model: Mapping[str, Any]) -> dict[str, tuple[str, float]]:
 
 
 def model_checks(source: Mapping[str, Any], model: Mapping[str, Any], table: Mapping[str, Any]) -> None:
-    """The source's bodies and records are exactly the model's (component and scale bit for bit)."""
+    """The source's bodies and records are exactly the model's (component and scale bit for bit).
+
+    A result that is not solved formed no member, so it carries no body whatever the model declares."""
     received = source_bodies(source, table)
+    if (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
+        _require(not received, "model mismatch")
+        return
     expected = model_bodies(model)
     _require(set(received) == set(expected), "model mismatch")
     for pipe, (component, scale) in expected.items():
