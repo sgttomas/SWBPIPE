@@ -72,7 +72,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | User/private data handling | Report section may reference private rule-pack or source identifiers but must not expose protected/private content in public templates by default |
 > | Engineering values | No engineering values are created here; unknown or absent values remain `TBD` or report findings |
 > | Certification/compliance claims | Prohibited for software-generated report language |
-> | Unit handling | Any future rendered values must preserve units and dimensional context; this setup artifact does not define value schemas |
+> | Unit handling | Rendered values must preserve units and dimensional context; value schemas are defined in `schemas/report_sections.schema.yaml` and `core/reporting/report_sections`, not in this Scope of Work |
 >
 ### CLM-006 — Construction
 
@@ -135,7 +135,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > - report-facing requirements for warning, assumption, missing-data, and provenance disclosure;
 > - integration expectations for diagnostics/result-envelope data supplied by GUI/core/rule/report workflows;
 > - protected-content and professional-responsibility guardrails for public report templates;
-> - acceptance criteria and evidence expected from future implementation work.
+> - acceptance criteria and evidence expected from implementation work.
 >
 > Out of scope:
 >
@@ -178,7 +178,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 
 > ##### Verification
 >
-> Future implementation work should provide at least these checks:
+> The implementation should provide at least these checks (current tests: `core/reporting/report_renderer/tests/render.rs` and the test module of `core/reporting/report_sections/src/lib.rs`; per-row coverage is not asserted here):
 >
 > | Check | Purpose |
 > |---|---|

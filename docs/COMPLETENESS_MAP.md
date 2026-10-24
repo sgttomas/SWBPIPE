@@ -422,6 +422,12 @@ recommendations for the matters you needed from me"):
 - **FR-RULE-003:** the aggregate headlines INCOMPLETE while any check is
   incomplete (DEL-06-03 Design `pack-aggregate-incomplete.md`; built in W-19).
 
+**Further SOW wording, applied** (owner, 2026-10-23: "I approve the 24 items as
+above (14 as drafted, 9 amended, and the :110/:117 alternative in place of
+:114)"): stale "future" and setup-only wording in DEL-09-01, DEL-09-02,
+DEL-09-03, DEL-08-03, DEL-08-06 and DEL-06-02, with still-open `TBD`s, held
+choices and obligations for new cases kept.
+
 **Owner notes (not text changes):**
 - REQ-04-06-012 (5 mm) and DEL-04-03 R01 (imposed displacement) state ruled
   commitments that the code does not yet meet. Both are disclosed, and the work

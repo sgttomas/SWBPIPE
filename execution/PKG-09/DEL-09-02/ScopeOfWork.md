@@ -80,7 +80,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 >
 > The original setup kit defined the benchmark-suite boundary only. It did not create benchmark source files, implement tests, add hand-calculation formulas, choose final numerical tolerances, import external examples, or move anything to `ISSUED`; the suite now exists in `validation/benchmarks/stress`.
 >
-> Future benchmark cases are expected to be small, deterministic, synthetic or cleared, unit-aware, and traceable to public/original/permissive source material. Missing source, unit, convention, or tolerance information must remain explicit `TBD` rather than becoming a silent default.
+> Benchmark cases, current and new, are expected to be small, deterministic, synthetic or cleared, unit-aware, and traceable to public/original/permissive source material. Missing source, unit, convention, or tolerance information must remain explicit `TBD` rather than becoming a silent default.
 >
 ### CLM-007 — References
 
@@ -157,11 +157,11 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > | Verification area | Minimum setup expectation |
 > |---|---|
 > | Coverage completeness | Axial, bending, torsion, pressure, and stress range slots are explicitly represented. |
-> | Source provenance | Each future benchmark case has source, license/redistribution status, contributor certification, and review disposition. |
-> | Unit safety | Future fixtures include unit metadata and dimensional checking for inputs, expected outputs, and comparisons. |
-> | Protected-content boundary | Future fixtures and notes are screened for protected standards content, code formulas, proprietary values, and protected examples. |
+> | Source provenance | Each benchmark case has source, license/redistribution status, contributor certification, and review disposition. |
+> | Unit safety | For current and new fixtures, require unit metadata and dimensional checking for inputs, expected outputs, and comparisons. Current metadata checks and scalar comparison predicates alone do not establish complete dimensional checking. |
+> | Protected-content boundary | Screen fixtures and hand-calculation notes, current and new, for protected standards content, code formulas, proprietary values, and protected examples. |
 > | Tolerance authority | DEC-026 governs class-tiered relative+absolute pairs and the measured analytic `1e-9` relative seed; unmeasured per-kind pairs remain `TBD`. |
-> | Result-envelope boundary | Future checks inspect mechanics results and diagnostics without making compliance or approval claims. |
+> | Result-envelope boundary | Benchmark checks inspect mechanics results and diagnostics without making compliance or approval claims. |
 >
 
 ### CLM-015 — Documentation
@@ -254,7 +254,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > - `_run_records/*` setup run records.
 > - `_STATUS.md` showing `SEMANTIC_READY` only after setup gates pass.
 >
-> For PDU-039, execute the stress benchmark crate with an external `CARGO_TARGET_DIR`; require the governed-envelope test to preserve the six recovered values, trace links, evidence diagnostic, deterministic hashes, `HUMAN_REVIEW_REQUIRED`, and no approval claim. Record the run as verification only.
+> For PDU-039, execute the stress benchmark crate with an external `CARGO_TARGET_DIR`; require the governed-envelope test to preserve the four recovered values, trace links, evidence diagnostic, deterministic hashes, `HUMAN_REVIEW_REQUIRED`, and no approval claim. Record the run as verification only.
 - **VER-001** — Validate the contract and review source parity, all five behavior slots, provenance and protected-content limits, units and dimensional checks, diagnostic/result-envelope preservation, DEC-026 tolerance limits without generalization, and professional-authority boundaries.
 
 ## Governing Values and Decisions — Axiology
