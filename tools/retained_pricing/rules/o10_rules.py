@@ -611,9 +611,9 @@ if fnkey("fallback_circular_maximum", _CP):
         "case_state/thermal.rs": ["integral", "dilation_difference", "check_path"],
         "certified_publication.rs": ["fallback_denominator_relative_error"],
     }
-    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16): near_duplicate_nodes' min/max receivers are the
-    # bounding box's f64 coordinates (`low[axis].min(..)`, `high[axis].max(..)`) and an edge's usize node indices
-    # (`a.min(b)`, `a.max(b)`); scaled_norm's fold takes `m.max(x.abs())` over f64. Only where the topology checks exist.
+    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16, §8.18): near_duplicate_nodes' min/max receivers
+    # are an edge's usize node indices (`a.min(b)`, `a.max(b)`; the bounding box's f64 `low`/`high` folds are gone with
+    # the absolute tolerance); scaled_norm's fold takes `m.max(x.abs())` over f64. Only where the topology checks exist.
     if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
         _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"] + (
             ["scaled_norm"] if fnkey("scaled_norm", PP_ + "topology.rs") else [])
@@ -2155,7 +2155,7 @@ if fnkey("append_topology_diagnostics", _W8):
          {"described": _W8_C(_W8_DESCRIBED, "<= NAMED part descriptions joined by '; '"), "more": _W8_MORE_C}),
         (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes share a position', full=True, row="format!("),
          {"named": _W8_C(_W8_COINCIDENT, "<= NAMED coincident pairs joined by '; '"), "more(coincident_count)": _W8_MORE_C}),
-        (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes lie within', full=True, row="format!("),
+        (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes lie no farther apart than', full=True, row="format!("),
          {"named": _W8_C(_W8_NEARNAMED, "<= NAMED near pairs joined by '; '"), "more(near_count)": _W8_MORE_C}),
     ]
     # W8-RF (REFS_FIRST): the three diagnostics' affected refs. The disconnected parts' refs collect `.take(NAMED)` of
@@ -2192,8 +2192,111 @@ if fnkey("branch_topology_invalid", _W8V):
         (site("validate_components", _W8V, '"diagnostic:component:{}:branch-topology",', row="format!("),
          O10 + "W8-BT: its id has multiplicity 0 by P2 (D1.4: no components)"),
     ]
-    O10_ID_AUDIT += [(site("validate_components", _W8V, "joins {degree}", full=True),
+    # §8.18: the warning's message is a multi-line format!, so its TEXT row is the `format!(` line.
+    O10_ID_AUDIT += [(site("validate_components", _W8V, "joins {degree}", full=True, row="format!("),
                       {"degree": {"bytes": 20, "source": O10 + "W8-BT: a usize member count"}})]
+# W8-BF (retained-pricing-rules.md §8.18): the branch-topology warning's statement of the branch stress factors still
+# applied is added after publication by `state_applied_branch_factors(components, preview_cases, diagnostics)`, called
+# once, from run_linear_static_preview_observed_inner's solved preview envelope with `&model.components`. Everything it
+# allocates lies inside its loop over those components, which D1 refuses (P2, D1.4: `F::Components`), so the loop is
+# bound 0 on both routes (U6-LF: placed first, by its own exact header) and its sites have multiplicity 0,
+# guarded by o10_check. Its texts are still bounded at their sites: a side is `{side} SIF to {pipe}` with a static
+# side ("header" | "branch", 6 B) and a published record's pipe id (an admitted pipe id, IN128); at most two sides (one
+# per role: a role's records name the one pipe its reference names; deduplicated) joined by ", "; the suffix adds its
+# literal around them.
+if fnkey("state_applied_branch_factors", _W8V):
+    _W8_BF = _fn_text("state_applied_branch_factors", _W8V)
+    _W8_RUN = _fn_text("run_linear_static_preview_observed_inner", PP_ + "lib.rs")
+    _w8_bf_loop = "for component in model_components {"
+    _w8_bf_side_t = 'let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());'
+    _w8_bf_join_t = 'let sides = applied.join(", ");'
+    _w8_bf_all_t = 'warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));'
+    _w8_bf_sig = ("pub(crate) fn state_applied_branch_factors( model_components: &[crate::PreviewComponent], "
+                  "preview_cases: &[serde_json::Value], diagnostics: &mut [Diagnostic], ) {")
+    _w8_bf_call = ("validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, "
+                   "&mut envelope.diagnostics);")
+    _w8_bf = (
+        _W8_BF.count(_w8_bf_loop) == 1, _W8_BF.count("for ") == 3,
+        _W8_BF.count('for (role, side) in [("branch_header", "header"), ("branch_branch", "branch")]') == 1,
+        _W8_BF.count(_w8_bf_side_t) == 1, _W8_BF.count(_w8_bf_join_t) == 1, _W8_BF.count(_w8_bf_all_t) == 1,
+        _W8_BF.count("format!(") == 2, _W8_BF.count(".join(") == 1, _W8_BF.count("Vec::new()") == 1,
+        _W8_BF.count("applied.push(named);") == 1, _W8_BF.count(".push(") == 1, _W8_BF.count(".push_str(") == 1,
+        # Nothing outside the loop: the signature, then the loop, which closes the body.
+        " ".join(_W8_BF[:_W8_BF.index(_w8_bf_loop)].split()) == _w8_bf_sig,
+        _W8_BF.rstrip().endswith("\n    }\n}") and _W8_BF.count("\n    }\n") == 1,
+        _W8_RUN.count(_w8_bf_call) == 1, _text_of(PP_ + "lib.rs").count("state_applied_branch_factors(") == 1,
+        _text_of(_W8V).count("state_applied_branch_factors(") == 1,
+    )
+    if not all(_w8_bf):
+        raise SystemExit(f"W8-BF: state_applied_branch_factors changed; re-review its zero and bounds: {_w8_bf}")
+    _W8_BF_SIDE = len(" SIF to ") + len("header") + 128                          # 142
+    _W8_BF_JOIN = 2 * _W8_BF_SIDE + len(", ")                                    # 286
+    _W8_BF_ALL = len("; its branch stress factors are still applied ()") + _W8_BF_JOIN   # 334
+    _W8_BF_WHY = O10 + "W8-BF: multiplicity 0 by P2 (D1.4: no components), as W8-BT"
+    O10_LOOPS_FIRST += [(_w8_bf_loop[:-2], "0", _W8_BF_WHY + " (its one caller passes &model.components)",
+                         ["validation.rs:state_applied_branch_factors"])]
+    O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+        (site("state_applied_branch_factors", _W8V, _w8_bf_side_t), _W8_BF_WHY + " (a side's text)"),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t), _W8_BF_WHY + " (the statement)"),
+    ]
+    O10_ID_AUDIT += [
+        (site("state_applied_branch_factors", _W8V, _w8_bf_side_t, full=True),
+         {"side": {"bytes": len("header"), "source": O10 + "W8-BF: a static side, header | branch"},
+          'record["pipe_id"].as_str().unwrap_or_default()': IN}),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t, full=True),
+         {"sides": {"bytes": _W8_BF_JOIN, "source": O10 + "W8-BF: <= 2 sides joined by ', '"}}),
+    ]
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
+        (site("state_applied_branch_factors", _W8V, _w8_bf_join_t),
+         {"class": _W8_BF_JOIN, "why": O10 + "W8-BF: <= 2 sides joined by ', ' (multiplicity 0)"}),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t),
+         {"class": _W8_BF_ALL, "why": O10 + "W8-BF: the statement, its literal around <= 2 sides (multiplicity 0)"})]
+
+# NP-MS (retained-pricing-rules.md §8.18): validate_model_settings refuses a malformed
+# `model_settings.node_proximity_tolerance` with one blocking diagnostic carrying the accessor's code and message. D1
+# admits the record (no D1.3-D1.8 clause names it; its unit is raw text within RawTextBytes, l <= 128), and a finite
+# value that is not positive, a unit outside the catalog's lengths or a conversion that over- or underflows
+# deserializes and reaches validation, so the site keeps the chain's own multiplicity (once per validate_model_inputs
+# call). The accessor `node_proximity_tolerance_m` returns at most one of its five refusal texts per call; the chain
+# charges each at every call (two validation calls and the topology call at E), an over-bound kept. Their bounds:
+# the path constant at its literal bytes (NP-PT, read here), the authored unit IN128, the value in Display (327) or
+# Debug (24) by the inherited f64 classes. The diagnostic's message `error.message` is one of those texts, at most
+# 39 + 58 + 327 = 424 B, priced by its inherited class (8,192 B); its refs are the one path String (the default
+# vec! element, 24 + 128 B; the to_string site at the literal's bytes).
+_NP_MS = PP_ + "model_settings.rs"
+if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_message", _NP_MS):
+    _NP_TEXT = _text_of(_NP_MS)
+    _NP_PATH = _re.findall(r'^pub const NODE_PROXIMITY_TOLERANCE_PATH: &str = "([^"\\]*)";$', _NP_TEXT, _re.M)
+    _NP_VMS = _fn_text("validate_model_settings", _W8V)
+    _NP_T = {
+        "tolerance_not_finite_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH}.value is {value}; a finite length greater than zero is required.")',
+        "tolerance_not_positive_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH}.value is {value}; the tolerance must be greater than zero.")',
+        "tolerance_unit_not_length_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH}.unit `{unit}` is not a length unit of the units catalog.")',
+        "tolerance_zero_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is zero in metres; the tolerance must be greater than zero.")',
+        "tolerance_not_finite_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is not finite in metres; a finite length greater than zero is required.")',
+    }
+    _np = (
+        len(_NP_PATH) == 1,
+        all(_fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _NP_T.items()),
+        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T),
+        _NP_VMS.count("diag(") == 1, _NP_VMS.count("error.message,") == 1, _NP_VMS.count("error.code,") == 1,
+        _NP_VMS.count('"blocking",') == 1, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
+        _NP_VMS.count("vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],") == 1,
+        _fn_text("validate_model_inputs", _W8V).count("validate_model_settings(model, diagnostics);") == 1,
+        _text_of(_W8V).count("validate_model_settings(") == 2,
+    )
+    if not all(_np):
+        raise SystemExit(f"NP-MS: the node-proximity tolerance's refusal texts changed; re-review their bounds: {_np}")
+    _NP_PB = len(_NP_PATH[0].encode())                                                    # 39 (NP-PT)
+    _NP_PT = {"NODE_PROXIMITY_TOLERANCE_PATH": {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}}
+    for _fn, _t in _NP_T.items():
+        _audit = dict(_NP_PT)
+        if "{unit}" in _t:
+            _audit["unit"] = IN
+        O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), _audit)]
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, ".to_string()],", full=True),
+                      {"crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH":
+                       {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}})]
 
 # ---- The silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases that apply nothing";
 # retained-pricing-rules.md §8.15). Each rule applies only where the guard's code exists, so earlier revisions price as

@@ -3185,7 +3185,7 @@ fn run_linear_static_preview_observed_inner(
     };
     if let Some(rendered) = &preview {
         envelope.formulation_basis = preview_physics::formulation_basis();
-        envelope.contract_evidence = Some(rendered.evidence(preview_gates));
+        validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
     if let (true, Some(context)) = (source_selected, composite_context) {
