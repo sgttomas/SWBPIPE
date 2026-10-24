@@ -807,6 +807,10 @@ pub(crate) struct ModelStateSummary {
     pub(crate) labels_updated_at: String,
     /// The saved states whose parent this state is; they block its deletion.
     pub(crate) child_state_ids: Vec<String>,
+    /// The record's `analysis_status` (from its column). `MODEL_INCOMPLETE`: the
+    /// snapshot has blocking document findings, so it is kept (a comparison
+    /// basis) but not opened as the working model, as a project would not be.
+    pub(crate) analysis_status: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -989,6 +993,25 @@ fn children(
     Ok(ids)
 }
 
+fn analysis_status(
+    connection: &Connection,
+    project_id: &str,
+    state_id: &str,
+) -> Result<Vec<String>, String> {
+    let text: Option<String> = connection
+        .query_row(
+            "SELECT json_extract(record_json, '$.analysis_status') FROM model_states WHERE project_id = ?1 AND state_id = ?2",
+            params![project_id, state_id],
+            |row| row.get(0),
+        )
+        .map_err(sql)?;
+    serde_json::from_str(text.as_deref().unwrap_or("[]")).map_err(|error| {
+        format!(
+            "MODEL-STATE-INTEGRITY: state `{state_id}` has a malformed analysis status ({error})."
+        )
+    })
+}
+
 fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<ModelStateSummary, String> {
     let (
         project_id,
@@ -1012,7 +1035,9 @@ fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<ModelSta
         ));
     };
     let child_state_ids = children(connection, &project_id, &state_id)?;
+    let analysis_status = analysis_status(connection, &project_id, &state_id)?;
     Ok(ModelStateSummary {
+        analysis_status,
         labels: decode_labels(name, &tags, &notes, &assumptions)?,
         project_id,
         state_id,
@@ -2438,6 +2463,51 @@ mod tests {
             .unwrap();
         assert_eq!(row_count(&path, "model_states"), 0);
         assert_eq!(row_count(&path, "model_state_labels"), 0);
+    }
+
+    #[test]
+    fn a_state_with_blocking_findings_is_saved_incomplete_and_not_opened() {
+        let path = store_with_project("incomplete", "sha256:base-1");
+        let mut incomplete = model("Invented project");
+        // A resolved record without its resolution note blocks (W-13 §3.3).
+        incomplete["unresolved_assumptions"][1]
+            .as_object_mut()
+            .unwrap()
+            .remove("resolution_note");
+        let saved = save(
+            &path,
+            request(&incomplete, "sha256:base-1", "Incomplete basis"),
+            "00000000000000000000000000000501",
+            1_000,
+        )
+        .unwrap();
+        assert_eq!(saved.outcome, "saved");
+        assert_eq!(
+            saved.state.analysis_status,
+            vec!["HUMAN_REVIEW_REQUIRED", "MODEL_INCOMPLETE"]
+        );
+        let (connection, _) = crate::open_project_store(&path).unwrap();
+        assert_eq!(
+            list_states(&connection, PROJECT).unwrap()[0].analysis_status,
+            saved.state.analysis_status
+        );
+        let error = read_state_in_store(&path, PROJECT, &saved.state.state_id).unwrap_err();
+        assert!(
+            error.starts_with("Model document refused: malformed model-data slots: MODEL-ASSUMPTION-RESOLUTION-NOTE-REQUIRED"),
+            "{error}"
+        );
+        // A complete state lists only the review status.
+        let complete = save(
+            &path,
+            request(&model("Invented project"), "sha256:base-1", "Complete"),
+            "00000000000000000000000000000502",
+            2_000,
+        )
+        .unwrap();
+        assert_eq!(
+            complete.state.analysis_status,
+            vec!["HUMAN_REVIEW_REQUIRED"]
+        );
     }
 
     #[test]

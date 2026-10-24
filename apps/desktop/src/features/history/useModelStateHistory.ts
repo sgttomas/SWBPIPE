@@ -13,6 +13,7 @@ import {
   modelStateDescription,
   readModelState,
   saveModelState,
+  stateIsOpenable,
   type ModelStateKind,
   type ModelStateRead,
   type ModelStateSummary,
@@ -23,30 +24,18 @@ import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
 import { buildModelIndex } from "../workspace/modelIndex";
-
-export type OpenStateChoice = "open" | "cancel";
-
-/** The unsaved-changes guard of Open State: the working model has edits that
- * no project save or state holds, and opening the state replaces it. */
-export type OpenStatePromptState = {
-  state: ModelStateSummary;
-  /** Where focus was when the prompt opened; it returns there on close. */
-  opener: HTMLElement | null;
-  choose: (choice: OpenStateChoice) => void;
-};
+import { unsavedChangesRefusal, type UnsavedChangesOutcome, type UnsavedChangesRequest } from "../project-storage/unsavedChangesGuard";
 
 export type ModelStateHistoryDeps = {
   /** The session's model as rendered, and the one it holds now. */
   model: PreviewModel | null;
   currentModel: MutableRefObject<PreviewModel | null>;
-  /** The working model has edits no saved basis holds. */
-  modelEdited: boolean;
   projectSessionGeneration: number;
   projectSessionGenerationRef: MutableRefObject<number>;
   /** The stored project this session is, at the envelope hash it last opened or wrote. */
   storedBaseRef: MutableRefObject<{ projectId: string; value: string | null } | null>;
-  /** True while a modal prompt holds the window (menu commands wait). */
-  modalOpenRef: MutableRefObject<boolean>;
+  /** The session's unsaved-changes guard (`unsavedChangesGuard.ts`). */
+  confirmReplacingEdits: (request: UnsavedChangesRequest) => Promise<UnsavedChangesOutcome>;
   acquireProjectOperation: () => symbol | null;
   releaseProjectOperation: (owner: symbol) => void;
   /** Save Local Project's flow, with its replace prompt. */
@@ -54,6 +43,11 @@ export type ModelStateHistoryDeps = {
   /** Makes an opened state's snapshot the working model (a new project session). */
   adoptStateSnapshot: (opened: ModelStateRead, snapshotHash: ModelHashEvidence) => void;
 };
+
+/** Why a state with blocking document findings is not opened. */
+export function notOpenableReason(state: ModelStateSummary): string {
+  return `the saved state ${modelStateDescription(state)} is MODEL_INCOMPLETE: its model has blocking document findings, so it is kept as a comparison basis but cannot be opened as the working model (as such a project cannot be opened).`;
+}
 
 export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 
@@ -67,7 +61,6 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const [historyMessage, setHistoryMessage] = useState("No model states listed yet.");
   const [historyOperation, setHistoryOperation] = useState("not_started");
   const [historyBusy, setHistoryBusy] = useState(false);
-  const [openStatePrompt, setOpenStatePrompt] = useState<OpenStatePromptState | null>(null);
   // The saved state the working model was opened from or last saved as, for
   // this project session: the parent of the next state saved.
   const [basis, setBasis] = useState<{ generation: number; projectId: string; stateId: string } | null>(null);
@@ -177,22 +170,6 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
-  function askBeforeReplacingEdits(state: ModelStateSummary): Promise<OpenStateChoice> {
-    return new Promise((resolve) => {
-      depsRef.current.modalOpenRef.current = true;
-      const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      setOpenStatePrompt({
-        state,
-        opener,
-        choose: (choice) => {
-          depsRef.current.modalOpenRef.current = false;
-          setOpenStatePrompt(null);
-          resolve(choice);
-        }
-      });
-    });
-  }
-
   /** Open State: the state's snapshot becomes the working model, behind the
    * unsaved-changes guard. Its version goes through the one-current-version
    * check and its hash is recomputed before it is adopted. */
@@ -200,13 +177,18 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     const state = states?.find((candidate) => candidate.state_id === stateId);
     const requestProjectId = depsRef.current.currentModel.current?.project.id;
     if (!state || !requestProjectId) return false;
-    if (depsRef.current.modelEdited) {
-      const choice = await askBeforeReplacingEdits(state);
-      if (choice !== "open") {
-        setHistoryMessage("Not opened: the working model and its unsaved edits were kept.");
-        setHistoryOperation("open_state_cancelled");
-        return false;
-      }
+    if (!stateIsOpenable(state)) {
+      setHistoryMessage(`Not opened: ${notOpenableReason(state)}`);
+      setHistoryOperation("open_state_refused");
+      return false;
+    }
+    const guarded = await depsRef.current.confirmReplacingEdits({
+      action: `Opening the saved state ${modelStateDescription(state)}`, verb: "open it"
+    });
+    if (guarded !== "proceed") {
+      setHistoryMessage(unsavedChangesRefusal(guarded, "Not opened"));
+      setHistoryOperation("open_state_cancelled");
+      return false;
     }
     const owner = begin();
     if (!owner) return false;
@@ -290,7 +272,6 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     historyMessage,
     historyOperation,
     historyBusy,
-    openStatePrompt,
     refreshStates,
     saveState,
     openState,

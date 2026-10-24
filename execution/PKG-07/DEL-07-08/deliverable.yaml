@@ -344,7 +344,7 @@ code_paths:
 - apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
 - apps/desktop/src/features/comparison/ComparisonPanel.tsx
 - apps/desktop/src/features/history/HistoryPanel.tsx
-- apps/desktop/src/features/history/OpenStatePrompt.tsx
+- apps/desktop/src/features/project-storage/UnsavedChangesPrompt.tsx
 - apps/desktop/src/features/knowledge/KnowledgePanel.tsx
 - apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx
 - apps/desktop/src/features/operations/OperationLedgerPanel.tsx

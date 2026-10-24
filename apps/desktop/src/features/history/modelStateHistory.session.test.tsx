@@ -73,7 +73,8 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
         const state: ModelStateSummary = {
           ...request.labels, project_id: request.project_id, state_id: `state:${String(store.sequence).padStart(32, "0")}`,
           state_kind: request.state_kind as ModelStateSummary["state_kind"], created_at, parent_state_id: request.parent_state_id,
-          model_hash: request.model_hash, record_hash: `record-${store.sequence}`, labels_updated_at: created_at, child_state_ids: []
+          model_hash: request.model_hash, record_hash: `record-${store.sequence}`, labels_updated_at: created_at, child_state_ids: [],
+          analysis_status: ["HUMAN_REVIEW_REQUIRED"]
         };
         store.states = [state, ...store.states.map((other) => other.state_id === request.parent_state_id ? { ...other, child_state_ids: [...other.child_state_ids, state.state_id] } : other)];
         store.snapshots.set(state.state_id, request.model_canonical);
@@ -249,18 +250,18 @@ describe("model states in the session (W-12 S1)", () => {
 
     // Cancel (the default) keeps the working model and its edits.
     fireEvent.click(within(openProjectSection()).getByTestId(`model-state-${basis.state_id}-open`));
-    expect(await screen.findByTestId("open-state-prompt")).toHaveAttribute("role", "alertdialog");
-    expect(screen.getByTestId("open-state-detail")).toHaveTextContent(`Opening the saved state "Basis" (${basis.state_id}) replaces the working model.`);
-    expect(screen.getByTestId("open-state-cancel")).toHaveFocus();
+    expect(await screen.findByTestId("unsaved-changes-prompt")).toHaveAttribute("role", "alertdialog");
+    expect(screen.getByTestId("unsaved-changes-detail")).toHaveTextContent(`Opening the saved state "Basis" (${basis.state_id}) replaces the working model.`);
+    expect(screen.getByTestId("unsaved-changes-cancel")).toHaveFocus();
     expect(screen.getByTestId("desktop-preview-shell")).toHaveAttribute("inert");
-    fireEvent.click(screen.getByTestId("open-state-cancel"));
+    fireEvent.click(screen.getByTestId("unsaved-changes-cancel"));
     await waitFor(() => expect(historyMessage()).toHaveTextContent("Not opened: the working model and its unsaved edits were kept."));
     expect(calls("read_model_state")).toHaveLength(0);
     expect(screen.getByTestId("project-edited")).toBeInTheDocument();
 
     // Open replaces it with the snapshot; undo cannot walk back into the edited model.
     fireEvent.click(within(openProjectSection()).getByTestId(`model-state-${basis.state_id}-open`));
-    fireEvent.click(await screen.findByTestId("open-state-confirm"));
+    fireEvent.click(await screen.findByTestId("unsaved-changes-discard"));
     await waitFor(() => expect(historyMessage()).toHaveTextContent(`Opened model state "Basis" (${basis.state_id}) as the working model.`));
     expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
     expect(screen.getByTestId("workspace-undo")).toBeDisabled();
@@ -285,6 +286,43 @@ describe("model states in the session (W-12 S1)", () => {
     expect(second.model_hash).not.toBe(basis.model_hash);
     expect(store.states).toHaveLength(2);
     expect(calls("save_local_project")).toHaveLength(1);
+  });
+
+  it("Open State's Save Local Project first saves the edits, then opens the state", async () => {
+    await renderApp();
+    setTauriRuntime(true);
+    const store = nativeStore();
+    await refreshHistory();
+    await saveStateNamed("Basis");
+    const basis = store.states[0];
+    await applyNodeEdit("0.5", 1);
+    const savesBefore = calls("save_local_project").length;
+    act(() => { fireEvent.click(within(openProjectSection()).getByTestId(`model-state-${basis.state_id}-open`)); });
+    expect(screen.getByTestId("unsaved-changes-cancel")).toHaveFocus();
+    fireEvent.click(screen.getByTestId("unsaved-changes-save"));
+    await waitFor(() => expect(historyMessage()).toHaveTextContent(`Opened model state "Basis" (${basis.state_id}) as the working model.`));
+    expect(calls("save_local_project")).toHaveLength(savesBefore + 1);
+    const saved = calls("save_local_project").at(-1)!.request as { model: PreviewModel };
+    expect(saved.model.nodes.find((node) => node.id === "node:N-100")!.position.y).toBe(0.5);
+    const sequence = commandOrder();
+    expect(sequence.lastIndexOf("save_local_project")).toBeLessThan(sequence.lastIndexOf("read_model_state"));
+    expect(sequence.filter((name) => name === "read_model_state")).toHaveLength(1);
+  });
+
+  it("names why a state with blocking document findings cannot be opened, and does not open it", async () => {
+    await renderApp();
+    setTauriRuntime(true);
+    const store = nativeStore();
+    await refreshHistory();
+    await saveStateNamed("Incomplete basis");
+    store.states[0] = { ...store.states[0], analysis_status: ["HUMAN_REVIEW_REQUIRED", "MODEL_INCOMPLETE"] };
+    await refreshHistory();
+    const id = store.states[0].state_id;
+    await waitFor(() => expect(screen.getByTestId(`model-state-${id}-not-openable`)).toHaveTextContent(
+      `Cannot be opened: the saved state "Incomplete basis" (${id}) is MODEL_INCOMPLETE: its model has blocking document findings, so it is kept as a comparison basis but cannot be opened as the working model`
+    ));
+    expect(screen.getByTestId(`model-state-${id}-open`)).toBeDisabled();
+    expect(calls("read_model_state")).toHaveLength(0);
   });
 
   it("edits labels with the sentence that they do not change the saved state, and names a delete's blockers", async () => {

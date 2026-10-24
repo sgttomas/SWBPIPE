@@ -48,7 +48,15 @@ export type ModelStateSummary = StateLabels & {
   labels_updated_at: string;
   /** Saved states whose parent this is; they block its deletion. */
   child_state_ids: string[];
+  /** The record's analysis status. `MODEL_INCOMPLETE`: blocking document
+   * findings; the state is kept (a comparison basis) but cannot be opened. */
+  analysis_status: string[];
 };
+
+/** A state whose snapshot has blocking document findings is not opened as the working model. */
+export function stateIsOpenable(state: Pick<ModelStateSummary, "analysis_status">): boolean {
+  return !state.analysis_status.includes("MODEL_INCOMPLETE");
+}
 
 export type ModelStateSaveOutcome = {
   outcome: "saved" | "already_saved";

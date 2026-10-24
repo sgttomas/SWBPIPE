@@ -111,6 +111,7 @@ import {
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory } from "../history/useModelStateHistory";
+import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import type { ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
@@ -290,6 +291,11 @@ export function useWorkspaceSession() {
     modelHashOwner.current?.revision === uiModelRevision;
   const modelEdited = Boolean(model && isLocalModelEdited(savedModelBasis, projectSessionGeneration,
     uiModelRevision, currentHashOwned, modelHash));
+  // The unsaved-changes guard reads the current notion when a command starts.
+  const modelEditedRef = useRef(modelEdited);
+  modelEditedRef.current = modelEdited;
+  // Set when a Save Local Project lands (the guard's "Save first").
+  const projectSaveLanded = useRef(false);
 
   const {
     selection, setPrimarySelection,
@@ -1936,16 +1942,35 @@ export function useWorkspaceSession() {
     if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || projectOperationOwner.current !== null) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
-    projectUnitsDialogOpenRef.current = true;
-    setBlankProjectUnitsRequest({
-      kind,
-      opener,
-      cancel: close,
-      create: (units) => {
-        close();
-        void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+    const askUnits = () => {
+      const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
+      projectUnitsDialogOpenRef.current = true;
+      setBlankProjectUnitsRequest({
+        kind,
+        opener,
+        cancel: close,
+        create: (units) => {
+          close();
+          void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+        }
+      });
+    };
+    // A new blank replaces the working model: with unsaved edits it asks first.
+    if (!replacingNeedsConfirmation()) {
+      askUnits();
+      return;
+    }
+    void confirmReplacingEdits({
+      action: kind === "load_state" ? "Creating a new blank load/reference model" : "Creating a new blank project",
+      verb: "create it"
+    }).then((guarded) => {
+      if (guarded !== "proceed") {
+        setProjectMessage(unsavedChangesRefusal(guarded, "Not created"));
+        setProjectOperation("create_blank_kept_edits");
+        return;
       }
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || projectOperationOwner.current !== null) return;
+      askUnits();
     });
   }
 
@@ -2074,6 +2099,19 @@ export function useWorkspaceSession() {
   }
 
   async function handleOpenProject(projectId: string | null = null) {
+    // An open replaces the working model: with unsaved edits it asks first.
+    if (replacingNeedsConfirmation()) {
+      if (projectOperationOwner.current !== null) return;
+      const guarded = await confirmReplacingEdits({
+        action: projectId ? `Opening local project ${projectId}` : "Opening the most recent local project",
+        verb: "open it"
+      });
+      if (guarded !== "proceed") {
+        setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
+        setProjectOperation("open_kept_edits");
+        return;
+      }
+    }
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
@@ -2175,6 +2213,16 @@ export function useWorkspaceSession() {
    * session's model, unchanged. It starts unsaved, as the bundled demo does; New
    * Local Project saves it as a project. A refusal leaves the session as it was. */
   async function handleOpenModelDocument() {
+    // An open replaces the working model: with unsaved edits it asks first.
+    if (replacingNeedsConfirmation()) {
+      if (projectOperationOwner.current !== null) return;
+      const guarded = await confirmReplacingEdits({ action: "Opening a model document", verb: "open it" });
+      if (guarded !== "proceed") {
+        setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
+        setProjectOperation("open_model_kept_edits");
+        return;
+      }
+    }
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
@@ -2386,6 +2434,7 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setModelDocumentVersion(saved.model_document_version ?? null);
       setProjectMessage(saved.summary.message);
+      projectSaveLanded.current = true;
       setProjectOperation("save");
     } catch (error) {
       if (pendingObservation && sameProjectSession() &&
@@ -3041,9 +3090,21 @@ export function useWorkspaceSession() {
     setModelDocumentVersion(opened.model_document_version ?? null);
   }
 
+  /** Save Local Project's flow, reporting whether a save landed (the
+   * unsaved-changes guard's "Save first"). */
+  async function saveLocalProjectFirst(): Promise<boolean> {
+    projectSaveLanded.current = false;
+    await saveProject(null);
+    return projectSaveLanded.current;
+  }
+
+  const { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits } = useUnsavedChangesGuard({
+    modelEditedRef, modalOpenRef: replacePromptOpenRef, saveLocalProject: saveLocalProjectFirst
+  });
+
   const history = useModelStateHistory({
-    model, currentModel, modelEdited, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
-    modalOpenRef: replacePromptOpenRef, acquireProjectOperation, releaseProjectOperation,
+    model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
+    confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
     saveLocalProject: handleSaveProject, adoptStateSnapshot
   });
 
@@ -3161,6 +3222,7 @@ export function useWorkspaceSession() {
       handleSaveProject,
       handleListProjects,
       replaceProjectPrompt,
+      unsavedChangesPrompt,
       // W-12 S1: the saved model states of the session's project (History panel).
       history
     },

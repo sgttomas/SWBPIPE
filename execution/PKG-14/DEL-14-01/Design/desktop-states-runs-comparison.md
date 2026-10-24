@@ -172,8 +172,11 @@ Python agree.
   (`INGRESS-ARGS-TOO-LARGE`). A label edit names the labels' `updated_at` it
   read (`MODEL-STATE-LABELS-MOVED` otherwise).
 - **Delete.** Until S2, a state's deletion is blocked only by its child states.
-- **Open State.** The desktop had no unsaved-changes guard. S1 adds one for
-  Open State: Cancel is the default. Opening starts a new project session
+- **Open State.** The desktop had no unsaved-changes guard. S1 adds one, shared
+  by every command that replaces the working model (DEL-07-11 Design
+  `model-document-open-and-native-smoke.md`): Cancel (the default), Save Local
+  Project first, or Discard. A `MODEL_INCOMPLETE` state is kept as a comparison
+  basis but is not opened; the History panel says why. Opening starts a new project session
   with empty undo and redo stacks, so undo never reaches the previous model.
   The stored base is kept, and the state's hash becomes the saved basis. The
   state is the parent of the next state saved from that session.

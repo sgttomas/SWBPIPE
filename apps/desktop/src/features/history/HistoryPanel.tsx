@@ -4,12 +4,14 @@ import {
   LABELS_DO_NOT_CHANGE_STATE,
   MODEL_STATE_KINDS,
   modelStateDescription,
+  stateIsOpenable,
   type ModelStateKind,
   type ModelStateSummary,
   type StateAssumption,
   type StateLabels
 } from "../../services/modelStateService";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
+import { notOpenableReason } from "./useModelStateHistory";
 
 // The History panel (W-12 S1; DEL-14-01 Design `desktop-states-runs-comparison.md`
 // §2, §4.3): the project's saved model states with their labels, Save Model
@@ -197,6 +199,9 @@ function StateRow({ state, states }: { state: ModelStateSummary; states: ModelSt
           </div>
         </form>
       ) : null}
+      {!stateIsOpenable(state) ? (
+        <p className="muted" data-testid={`${testId}-not-openable`}>Cannot be opened: {notOpenableReason(state)}</p>
+      ) : null}
       {state.child_state_ids.length ? (
         <p className="muted" data-testid={`${testId}-delete-blocked`}>
           Delete is blocked while saved state{state.child_state_ids.length === 1 ? "" : "s"} {state.child_state_ids.map(named).join(", ")} name{state.child_state_ids.length === 1 ? "s" : ""} it as parent.
@@ -210,7 +215,7 @@ function StateRow({ state, states }: { state: ModelStateSummary; states: ModelSt
         </div>
       ) : (
         <div className="report-actions">
-          <button type="button" data-testid={`${testId}-open`} disabled={historyBusy} onClick={() => void openState(state.state_id)}>Open state</button>
+          <button type="button" data-testid={`${testId}-open`} disabled={historyBusy || !stateIsOpenable(state)} onClick={() => void openState(state.state_id)}>Open state</button>
           <button type="button" data-testid={`${testId}-edit`} disabled={historyBusy || editing !== null} onClick={() => setEditing(draftFrom(state))}>Edit labels</button>
           <button type="button" data-testid={`${testId}-delete`} disabled={historyBusy || state.child_state_ids.length > 0} onClick={() => setConfirmingDelete(true)}>Delete…</button>
         </div>

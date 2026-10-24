@@ -93,7 +93,7 @@ import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { HistoryPanel } from "./features/history/HistoryPanel";
-import { OpenStatePrompt } from "./features/history/OpenStatePrompt";
+import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
@@ -267,7 +267,7 @@ function AppSession() {
     handleListProjects,
     replaceProjectPrompt
   } = session.project;
-  const { openStatePrompt } = session.project.history;
+  const { unsavedChangesPrompt } = session.project;
   const {
     uiPreferences, setUiPreferences,
     resolvedTheme,
@@ -336,7 +336,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt and the units dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || openStatePrompt !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1088,7 +1088,7 @@ function AppSession() {
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
-      <OpenStatePrompt prompt={openStatePrompt} />
+      <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
     </main>
     </CompactSelectScope>
