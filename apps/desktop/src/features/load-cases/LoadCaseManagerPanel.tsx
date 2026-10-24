@@ -2589,3 +2589,14 @@ function stringField(record: Record<string, unknown>, key: string): string {
 function safeToken(value: string): string {
   return value.replace(/[^A-Za-z0-9_.:-]+/g, "-");
 }
+
+/** The Load Case Manager's create paths (default drafts and intent builders),
+ * for the desktop emission golden that drives each authoring path (W-13 §5.2). */
+export const loadCaseAuthoringPaths = {
+  defaultLoadCaseDraft,
+  buildCreateLoadCaseIntent,
+  defaultPrimitiveLoadDraft,
+  buildCreatePrimitiveLoadIntent,
+  defaultCombinationDraft,
+  buildCreateCombinationIntent
+};
