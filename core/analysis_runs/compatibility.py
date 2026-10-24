@@ -162,10 +162,29 @@ def manifest_excluded_rule_pack_identities(input_manifest: Mapping[str, Any]) ->
 def manifest_excluded_rule_packs(input_manifest: Mapping[str, Any]) -> list[tuple[str, str]]:
     """The model's references the manifest's `active_rule_packs` leaves out, as (id, version)
     pairs in the model's order."""
-    active = {(pack.get("rule_pack_id"), pack.get("version")) for pack in input_manifest.get("active_rule_packs", []) if isinstance(pack, Mapping)}
-    references = input_manifest.get("model_basis", {}).get("model_payload", {}).get("rule_pack_refs", [])
-    pairs = [(ref.get("rule_pack_id"), ref.get("rule_pack_version")) for ref in references if isinstance(ref, Mapping)]
-    return [pair for pair in pairs if pair not in active]
+    # As Rust's `manifest_excluded_rule_packs` and the TypeScript: a list of packs and
+    # references with text ids and versions is required.
+    def pair(item: Any, version_key: str, what: str) -> tuple[str, str]:
+        rule_pack_id = item.get("rule_pack_id") if isinstance(item, Mapping) else None
+        version = item.get(version_key) if isinstance(item, Mapping) else None
+        if not isinstance(rule_pack_id, str) or not isinstance(version, str):
+            raise ValueError(f"ANALYSIS-RUN-MANIFEST-INVALID: {what} has no id or version.")
+        return rule_pack_id, version
+    # A model without references excludes nothing, whatever the manifest holds.
+    payload = input_manifest.get("model_basis", {}).get("model_payload", {})
+    if not isinstance(payload, Mapping) or "rule_pack_refs" not in payload:
+        return []
+    references = payload["rule_pack_refs"]
+    if not isinstance(references, list):
+        raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: the model's rule_pack_refs is not a list.")
+    if not references:
+        return []
+    packs = input_manifest.get("active_rule_packs")
+    if not isinstance(packs, list):
+        raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list.")
+    active = [pair(pack, "version", "an active rule pack") for pack in packs]
+    pairs = [pair(reference, "rule_pack_version", "a model rule-pack reference") for reference in references]
+    return [item for item in pairs if item not in active]
 
 
 def _build_analysis_run(

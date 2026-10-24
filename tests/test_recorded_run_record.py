@@ -349,3 +349,47 @@ def test_rule_pack_identities_percent_encode_each_component() -> None:
         assert parse_rule_pack_identity(text) is None
     assert recorded_rule_pack_refs({"active_rule_packs": [{"rule_pack_id": "invented-pack@branch", "version": "1.0.0", "checksum_sha256": "a", "source_notice": "n"}]}) == [
         {"object_type": "RulePack", "ref": "invented-pack%40branch@1.0.0"}]
+
+
+def test_a_repeated_exclusion_identity_is_refused_even_when_the_model_repeats_the_pair() -> None:
+    # As the Rust tests `a_repeated_exclusion_identity_is_refused_at_record_run_and_at_read` and
+    # `diagnostics_difference_refuses_a_repeat_even_when_the_model_repeats_the_pair`, and the
+    # TypeScript `modelRulePackResolution.test.tsx`: no identity twice, whatever the model names.
+    identity = rule_pack_identity("invented-pack@branch", "1.0.0")
+    one = {"source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, identity)}
+    assert rule_pack_ref_diagnostic_entries([one, deepcopy(one)]) is None
+    manifest = deepcopy(RP_MANIFEST)
+    refs = manifest["model_basis"]["model_payload"]["rule_pack_refs"]
+    refs.append(deepcopy(refs[1]))
+    assert manifest_excluded_rule_pack_identities(manifest).count(identity) == 2
+    manifest_ref = RP_INPUT["run_record"]["analysis_run"]["reproducibility"]["input_manifest_refs"][0]
+    manifest_hash = RP_INPUT["run_record"]["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]["value"]
+    exclusions = [
+        {"rule_pack_id": "invented-pack@branch", "rule_pack_version": "1.0.0", "code": RULE_PACK_REF_UNRESOLVED},
+        {"rule_pack_id": "invented-pack", "rule_pack_version": "branch@1.0.0", "code": RULE_PACK_REF_UNRESOLVED},
+        {"rule_pack_id": "invented-pack-changed", "rule_pack_version": "2.0%", "code": RULE_PACK_REF_CHECKSUM_MISMATCH},
+    ]
+    with pytest.raises(ValueError, match="^ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH$"):
+        build_analysis_run_v0_3(SOURCE, expected_basis_refs=rp_basis(), input_manifest_ref=manifest_ref, input_manifest_hash=manifest_hash,
+                                input_manifest=manifest, rule_pack_ref_exclusions=exclusions + exclusions[:1])
+    with pytest.raises(ValueError, match=f"^{ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH}$"):
+        build_analysis_run_v0_3(SOURCE, expected_basis_refs=rp_basis(), input_manifest_ref=manifest_ref, input_manifest_hash=manifest_hash,
+                                input_manifest=manifest, rule_pack_ref_exclusions=exclusions)
+
+
+@pytest.mark.parametrize(("edit", "detail"), [
+    (lambda manifest: manifest.pop("active_rule_packs"), "no active_rule_packs list"),
+    (lambda manifest: manifest["model_basis"]["model_payload"].update(rule_pack_refs=None), "is not a list"),
+    (lambda manifest: manifest["model_basis"]["model_payload"]["rule_pack_refs"].append({"rule_pack_id": "x"}), "has no id or version"),
+], ids=["no active list", "references not a list", "a reference without a version"])
+def test_unreadable_rule_pack_references_are_refused_as_rust_refuses_them(edit, detail) -> None:
+    manifest = deepcopy(RP_MANIFEST)
+    edit(manifest)
+    with pytest.raises(ValueError, match=f"^ANALYSIS-RUN-MANIFEST-INVALID: .*{detail}"):
+        manifest_excluded_rule_packs(manifest)
+
+
+def test_a_model_without_references_excludes_nothing_whatever_the_manifest_holds() -> None:
+    # As Rust's `manifest_excluded_rule_packs` and the TypeScript `manifestExcludedRulePacks`.
+    assert manifest_excluded_rule_packs({"model_basis": {"model_payload": {}}}) == []
+    assert manifest_excluded_rule_packs({"model_basis": {"model_payload": {"rule_pack_refs": []}}}) == []

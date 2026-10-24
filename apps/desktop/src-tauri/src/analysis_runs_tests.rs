@@ -96,7 +96,7 @@ fn transient(result: &str, manifest: &str) -> Value {
                                 "build_ref": { "object_type": "ExternalReference", "ref": "invented-solver@0.0.1" } },
             "settings_ref": { "object_type": "SolverSettings", "ref": format!("solver-settings:input-manifest:project-w12-invented-runs:{manifest_hash}:{manifest_hash}") },
             "unit_system_ref": { "object_type": "UnitSystem", "ref": format!("unit-system:{PROJECT}:{manifest_hash}") },
-            "load_basis_refs": [], "result_refs": result_refs,
+            "load_basis_refs": [], "result_refs": result_refs, "diagnostics": [],
             "rule_pack_refs": [], "library_refs": [],
             "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"],
             "hashes": [
@@ -2528,7 +2528,7 @@ fn transient_in(project: &str, result: &str, manifest: &str) -> Value {
                                 "build_ref": { "object_type": "ExternalReference", "ref": "invented-solver@0.0.1" } },
             "settings_ref": { "object_type": "SolverSettings", "ref": format!("solver-settings:input-manifest:{}:{manifest_hash}:{manifest_hash}", safe_token(project)) },
             "unit_system_ref": { "object_type": "UnitSystem", "ref": format!("unit-system:{project}:{manifest_hash}") },
-            "load_basis_refs": [], "result_refs": result_refs,
+            "load_basis_refs": [], "result_refs": result_refs, "diagnostics": [],
             "rule_pack_refs": [], "library_refs": [],
             "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"],
             "hashes": [
@@ -2778,4 +2778,70 @@ fn the_records_diagnostics_must_begin_with_the_results() {
     let recording_id = forge(&path, &stored);
     let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
     assert!(read.contains("the record's diagnostics do not begin with its stored result's"), "{read}");
+}
+
+#[test]
+fn a_repeated_exclusion_identity_is_refused_at_record_run_and_at_read() {
+    // A model naming one excluded (id, version) pair twice (the document validator refuses
+    // repeated authored ids; a direct submission or a forged store need not): its two
+    // identical exclusion diagnostics are refused, as the TypeScript and Python validators
+    // refuse a repeated identity.
+    let path = store_with_project("rule-pack-repeat");
+    let mut solved = rule_pack_model();
+    let repeated = solved["rule_pack_refs"][1].clone();
+    solved["rule_pack_refs"].as_array_mut().unwrap().push(repeated);
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002003", 1_000);
+    let repeat = |record: &mut Value| {
+        let first = record["analysis_run"]["diagnostics"][0].clone();
+        record["analysis_run"]["diagnostics"].as_array_mut().unwrap().push(first);
+    };
+    let mut submitted = request(&solved, "Run");
+    submitted.run_record["analysis_run"]["diagnostics"] = exclusion_diagnostics();
+    repeat(&mut submitted.run_record);
+    reseal(&mut submitted.run_record);
+    let error = record(&path, submitted, T0).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-MANIFEST-MISMATCH: the record's rule-pack reference diagnostics are not exactly those"), "{error}");
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // At read: a run recorded for a model without the repeat, its stored record and
+    // manifest model forged coherently to repeat the pair, is refused.
+    let path = store_with_project("rule-pack-repeat-read");
+    let plain = rule_pack_model();
+    save_state(&path, &plain, "Basis", "00000000000000000000000000002004", 1_000);
+    let outcome = record(&path, rule_pack_request(&plain, None), T0).unwrap();
+    let mut stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+    repeat(&mut stored);
+    reseal(&mut stored);
+    let recording_id = forge(&path, &stored);
+    let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+    assert!(read.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`")), "{read}");
+    assert!(read.contains("rule-pack reference diagnostics differ from the references its stored input manifest leaves out"), "{read}");
+}
+
+#[test]
+fn diagnostics_difference_refuses_a_repeat_even_when_the_model_repeats_the_pair() {
+    // The pure check, with the manifest's model naming the pair twice: the exact two
+    // diagnostics are refused (no identity twice), as are one and three.
+    let reference = json!({ "rule_pack_id": "invented-pack@branch", "rule_pack_version": "1.0.0" });
+    let manifest = json!({ "active_rule_packs": [], "model_basis": { "model_payload": { "rule_pack_refs": [reference.clone(), reference] } } });
+    let result = json!({ "diagnostics": [] });
+    let one = json!({ "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, &rule_pack_identity("invented-pack@branch", "1.0.0")) });
+    for count in [1, 2, 3] {
+        let record = json!({ "analysis_run": { "diagnostics": vec![one.clone(); count] } });
+        assert_eq!(diagnostics_difference(&record, &result, &manifest).unwrap(), Some(DiagnosticsDifference::RulePacks), "{count}");
+    }
+    // And a record without a diagnostics list is refused.
+    assert_eq!(diagnostics_difference(&json!({ "analysis_run": {} }), &result, &json!({ "active_rule_packs": [] })).unwrap(), Some(DiagnosticsDifference::Producer));
+}
+
+#[test]
+fn a_model_without_references_excludes_nothing_whatever_the_manifest_holds() {
+    // As the TypeScript `manifestExcludedRulePacks` and Python's `manifest_excluded_rule_packs`.
+    assert_eq!(manifest_excluded_rule_packs(&json!({ "model_basis": { "model_payload": {} } })).unwrap(), Vec::<(String, String)>::new());
+    assert_eq!(manifest_excluded_rule_packs(&json!({ "model_basis": { "model_payload": { "rule_pack_refs": [] } } })).unwrap(), Vec::<(String, String)>::new());
+    let referenced = json!({ "model_basis": { "model_payload": { "rule_pack_refs": [{ "rule_pack_id": "x", "rule_pack_version": "1" }] } } });
+    assert!(manifest_excluded_rule_packs(&referenced).unwrap_err().starts_with("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list"));
+    let unlisted = json!({ "active_rule_packs": [], "model_basis": { "model_payload": { "rule_pack_refs": null } } });
+    assert!(manifest_excluded_rule_packs(&unlisted).unwrap_err().contains("is not a list"));
+    let unversioned = json!({ "active_rule_packs": [], "model_basis": { "model_payload": { "rule_pack_refs": [{ "rule_pack_id": "x" }] } } });
+    assert!(manifest_excluded_rule_packs(&unversioned).unwrap_err().contains("has no id or version"));
 }

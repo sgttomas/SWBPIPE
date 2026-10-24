@@ -6,8 +6,8 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildCurrentSessionInputManifest, type CurrentSessionInputManifestArgs } from "./inputManifestService";
 import { recordRulePackExclusions, resolveModelRulePacks, RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED, runRulePackLines } from "./modelRulePackResolution";
-import { parseRulePackIdentity, rulePackIdentity, rulePackRefDiagnostic, rulePackRefDiagnosticEntries, RULE_PACK_REF_DIAGNOSTIC_SOURCE } from "./rulePackRefDiagnostics";
-import { ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, analysisRecordProjection, recordedAnalysisRunRevision, recordedRulePackRefs, validateAnalysisRunV03, verifyAnalysisRunRecord } from "./analysisRunCompatibility";
+import { manifestExcludedRulePacks, parseRulePackIdentity, rulePackIdentity, rulePackRefDiagnostic, rulePackRefDiagnosticEntries, RULE_PACK_REF_DIAGNOSTIC_SOURCE } from "./rulePackRefDiagnostics";
+import { ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, analysisRecordProjection, buildAnalysisRunV03, modelLoadBasisRefs, recordedAnalysisRunRevision, recordedRulePackRefs, validateAnalysisRunV03, verifyAnalysisRunRecord } from "./analysisRunCompatibility";
 import { canonicalSha256Hex } from "./hashService";
 import { canonicalJsonString, canonicalSha256HexCheckedV1 } from "./hashService";
 import { RULE_PACK_BACKEND_DIAGNOSTIC, type RulePackOpenRoute } from "./rulePackService";
@@ -233,6 +233,37 @@ describe("rule-pack identities", () => {
     const recorded = await recordedAnalysisRunRevision(record, { stateId, createdAt: "2026-10-27T11:30:45.123Z", inputManifest: manifest.manifest });
     await expect(validateAnalysisRunV03(recorded, pair.source, undefined, { stateId, modelHash: `sha256:${await canonicalSha256Hex(manifest.manifest.model_basis.model_payload)}`, inputManifest: manifest.manifest })).resolves.toBeUndefined();
     expect(recorded.analysis_run.diagnostics).toEqual(record.analysis_run.diagnostics);
+  });
+});
+
+describe("a repeated exclusion identity", () => {
+  it("is refused even when the model names the pair twice, as Rust and Python refuse it", async () => {
+    // As the Rust tests `a_repeated_exclusion_identity_is_refused_at_record_run_and_at_read` and
+    // `diagnostics_difference_refuses_a_repeat_even_when_the_model_repeats_the_pair`, and Python's.
+    const identity = rulePackIdentity("invented-pack@branch", "1.0.0");
+    const one = { source_annotation: rulePackRefDiagnostic(RULE_PACK_REF_UNRESOLVED, identity) };
+    expect(rulePackRefDiagnosticEntries([one, structuredClone(one)])).toBeNull();
+    const twice = inventedReference("invented-pack@branch", hex("2"));
+    const { pair, manifest } = await solvedWith([twice], new Map());
+    const repeated = structuredClone(manifest);
+    repeated.manifest.model_basis.model_payload.rule_pack_refs = [twice, structuredClone(twice)];
+    const exclusion = { rule_pack_id: "invented-pack@branch", rule_pack_version: "1.0.0", code: RULE_PACK_REF_UNRESOLVED } as const;
+    // The builder's check against the manifest passes for two; the record's own validation refuses the repeat.
+    await expect(buildAnalysisRunV03(pair.source, repeated, undefined, modelLoadBasisRefs(repeated.manifest.model_basis.model_payload), [exclusion, exclusion]))
+      .rejects.toThrow("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
+    await expect(buildAnalysisRunV03(pair.source, repeated, undefined, modelLoadBasisRefs(repeated.manifest.model_basis.model_payload), [exclusion]))
+      .rejects.toThrow(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
+  });
+
+  it("unreadable references are refused as Rust refuses them", () => {
+    const base = { active_rule_packs: [], model_basis: { model_payload: { rule_pack_refs: [] } } };
+    const referenced = { model_basis: { model_payload: { rule_pack_refs: [{ rule_pack_id: "x", rule_pack_version: "1" }] } } };
+    expect(() => manifestExcludedRulePacks({ ...referenced, active_rule_packs: undefined })).toThrow(/^ANALYSIS-RUN-MANIFEST-INVALID: .*no active_rule_packs list/);
+    // A model without references excludes nothing, whatever the manifest holds (as Rust and Python).
+    expect(manifestExcludedRulePacks({ ...base, active_rule_packs: undefined })).toEqual([]);
+    expect(() => manifestExcludedRulePacks({ ...base, model_basis: { model_payload: { rule_pack_refs: null as never } } })).toThrow(/^ANALYSIS-RUN-MANIFEST-INVALID: .*is not a list/);
+    expect(() => manifestExcludedRulePacks({ ...base, model_basis: { model_payload: { rule_pack_refs: [{ rule_pack_id: "x" }] as never } } })).toThrow(/^ANALYSIS-RUN-MANIFEST-INVALID: .*has no id or version/);
+    expect(manifestExcludedRulePacks({ active_rule_packs: [], model_basis: { model_payload: {} } })).toEqual([]);
   });
 });
 

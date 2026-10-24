@@ -260,6 +260,14 @@ pub(crate) fn manifest_excluded_rule_packs(manifest: &Value) -> Result<Vec<(Stri
         (Some(id), Some(version)) => Some((id.to_string(), version.to_string())),
         _ => None,
     };
+    // A model without references excludes nothing, whatever the manifest holds.
+    let references = match manifest.pointer("/model_basis/model_payload/rule_pack_refs") {
+        None => return Ok(Vec::new()),
+        Some(value) => value.as_array().ok_or_else(|| invalid("the model's rule_pack_refs is not a list"))?,
+    };
+    if references.is_empty() {
+        return Ok(Vec::new());
+    }
     let active = manifest
         .get("active_rule_packs")
         .and_then(Value::as_array)
@@ -267,10 +275,6 @@ pub(crate) fn manifest_excluded_rule_packs(manifest: &Value) -> Result<Vec<(Stri
         .iter()
         .map(|pack| pair(pack, "version").ok_or_else(|| invalid("an active rule pack has no id or version")))
         .collect::<Result<Vec<_>, _>>()?;
-    let references = match manifest.pointer("/model_basis/model_payload/rule_pack_refs") {
-        None => return Ok(Vec::new()),
-        Some(value) => value.as_array().ok_or_else(|| invalid("the model's rule_pack_refs is not a list"))?,
-    };
     let mut excluded = Vec::new();
     for reference in references {
         let pair = pair(reference, "rule_pack_version").ok_or_else(|| invalid("a model rule-pack reference has no id or version"))?;
@@ -285,7 +289,8 @@ pub(crate) fn manifest_excluded_rule_packs(manifest: &Value) -> Result<Vec<(Stri
 /// fix, if any: the received result's diagnostics come first, each as
 /// `{source_annotation: <diagnostic>}`; then exactly one rule-pack reference
 /// diagnostic per reference the manifest leaves out of `active_rule_packs`, in
-/// the model's order, each exactly the one its code and identity determine.
+/// the model's order, each exactly the one its code and identity determine, no
+/// identity twice. A record without a `diagnostics` list differs.
 /// `Err` when the manifest's references cannot be read. The comparison clones
 /// nothing from the stored texts; the expected rule-pack diagnostics are built
 /// from the manifest's identities (residual: their size is the identities',
@@ -299,13 +304,9 @@ pub(crate) fn diagnostics_difference(record: &Value, result: &Value, manifest: &
             None => return Ok(Some(DiagnosticsDifference::Producer)),
         },
     };
-    // An absent list is an empty one (the v0.3 builders always write it).
-    let diagnostics = match record.pointer("/analysis_run/diagnostics") {
-        None => &empty,
-        Some(value) => match value.as_array() {
-            Some(items) => items,
-            None => return Ok(Some(DiagnosticsDifference::Producer)),
-        },
+    // The list is required (v0.3; the TypeScript and Python validators refuse a record without it).
+    let Some(diagnostics) = record.pointer("/analysis_run/diagnostics").and_then(Value::as_array) else {
+        return Ok(Some(DiagnosticsDifference::Producer));
     };
     let wraps = |item: &Value, diagnostic: &Value| item.as_object().is_some_and(|object| object.len() == 1 && object.get("source_annotation") == Some(diagnostic));
     if diagnostics.len() < produced.len() || !diagnostics.iter().zip(produced).all(|(item, diagnostic)| wraps(item, diagnostic)) {
@@ -316,7 +317,13 @@ pub(crate) fn diagnostics_difference(record: &Value, result: &Value, manifest: &
     if appended.len() != excluded.len() {
         return Ok(Some(DiagnosticsDifference::RulePacks));
     }
+    // No identity twice, as the TypeScript and Python validators refuse a repeat
+    // (a model naming one (id, version) pair twice included).
+    let mut seen = std::collections::HashSet::new();
     for (item, (id, version)) in appended.iter().zip(&excluded) {
+        if !seen.insert((id, version)) {
+            return Ok(Some(DiagnosticsDifference::RulePacks));
+        }
         let identity = rule_pack_identity(id, version);
         let code = item.pointer("/source_annotation/code").and_then(Value::as_str);
         let accepted = matches!(code, Some(RULE_PACK_REF_UNRESOLVED | RULE_PACK_REF_CHECKSUM_MISMATCH))

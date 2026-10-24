@@ -125,10 +125,24 @@ export function manifestExcludedRulePacks(manifest: {
   model_basis?: { model_payload?: { rule_pack_refs?: Array<{ rule_pack_id: string; rule_pack_version: string }> } };
   active_rule_packs?: Array<{ rule_pack_id: string; version: string }>;
 }): Array<{ rule_pack_id: string; rule_pack_version: string }> {
-  const active = manifest.active_rule_packs ?? [];
-  return (manifest.model_basis?.model_payload?.rule_pack_refs ?? [])
-    .filter((reference) => !active.some((pack) => pack.rule_pack_id === reference.rule_pack_id && pack.version === reference.rule_pack_version))
-    .map((reference) => ({ rule_pack_id: reference.rule_pack_id, rule_pack_version: reference.rule_pack_version }));
+  // As Rust's `manifest_excluded_rule_packs` and Python's: a list of packs and references
+  // with text ids and versions is required ("ANALYSIS-RUN-MANIFEST-INVALID" otherwise).
+  const invalid = (detail: string) => new Error(`ANALYSIS-RUN-MANIFEST-INVALID: ${detail}.`);
+  const pair = (item: unknown, versionKey: "version" | "rule_pack_version") => {
+    const record = item && typeof item === "object" && !Array.isArray(item) ? item as Record<string, unknown> : {};
+    const id = record.rule_pack_id, version = record[versionKey];
+    return typeof id === "string" && typeof version === "string" ? { rule_pack_id: id, rule_pack_version: version } : null;
+  };
+  // A model without references excludes nothing, whatever the manifest holds.
+  const references: unknown = manifest.model_basis?.model_payload?.rule_pack_refs;
+  if (references === undefined) return [];
+  if (!Array.isArray(references)) throw invalid("the model's rule_pack_refs is not a list");
+  if (references.length === 0) return [];
+  if (!Array.isArray(manifest.active_rule_packs)) throw invalid("the input manifest has no active_rule_packs list");
+  const active = manifest.active_rule_packs.map((pack) => pair(pack, "version") ?? (() => { throw invalid("an active rule pack has no id or version"); })());
+  return references
+    .map((reference) => pair(reference, "rule_pack_version") ?? (() => { throw invalid("a model rule-pack reference has no id or version"); })())
+    .filter((reference) => !active.some((pack) => pack.rule_pack_id === reference.rule_pack_id && pack.rule_pack_version === reference.rule_pack_version));
 }
 
 /** [`manifestExcludedRulePacks`] as the identities the diagnostics carry. */
