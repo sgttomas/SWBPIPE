@@ -22,6 +22,9 @@ pub const RESULT_HEADER_INVALID: &str = "REPORT-PACKAGE-RESULT-HEADER-INVALID";
 pub const DERIVATIVE_HASH_MISMATCH: &str = "REPORT-PACKAGE-DERIVATIVE-HASH-MISMATCH";
 pub const AUDIT_BINDING_MISMATCH: &str = "REPORT-PACKAGE-AUDIT-BINDING-MISMATCH";
 
+/// The 0.3.0 schema's provenance record definition.
+const PROVENANCE_DEF: &str = "/$defs/Provenance";
+
 const RULE_TOKENS: [&str; 3] = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
 
 /// The document's producer semantic-contract id, if it has one.
@@ -47,9 +50,14 @@ pub fn validate_result_export_form(document: &Value) -> Result<(), String> {
     if let Err(detail) = guard_json(document) {
         return fail(detail);
     }
-    if let Err(failure) = Catalog::results_v03().validate(RESULTS_V03, document) {
-        return fail(failure.to_string());
-    }
+    // The schema pass also returns where the schema types a provenance record
+    // (`$defs/Provenance`), so the completeness invariant below reads exactly
+    // those records and never a member that merely has that name inside
+    // unconstrained raw metadata.
+    let provenance_records = match Catalog::results_v03().validate_marking(RESULTS_V03, document, RESULTS_V03, PROVENANCE_DEF) {
+        Ok(records) => records,
+        Err(failure) => return fail(failure.to_string()),
+    };
     if document["schema_version"] != RESULT_EXPORT_VERSION
         || document["result_envelope"]["schema_version"] != RESULT_EXPORT_VERSION
         || document["deliverable_id"] != "DEL-08-04"
@@ -67,10 +75,13 @@ pub fn validate_result_export_form(document: &Value) -> Result<(), String> {
     if statuses.iter().filter(|status| RULE_TOKENS.contains(status)).count() > 1 {
         return fail("analysis_status holds more than one rule token".to_string());
     }
-    let mut incomplete = Vec::new();
-    incomplete_provenance(envelope, "/result_envelope", &mut incomplete);
-    if let Some(path) = incomplete.first() {
-        return fail(format!("provenance at {path} is incomplete"));
+    for path in &provenance_records {
+        let complete = document.pointer(path).and_then(Value::as_object).is_some_and(|record| {
+            record.values().all(|field| field.as_str().is_none_or(|text| !text.trim().is_empty()))
+        });
+        if !complete {
+            return fail(format!("provenance at {path} is incomplete"));
+        }
     }
     for key in ["solver_name", "solver_version", "solver_build_ref"] {
         if envelope["solver_version"][key].as_str().is_none_or(|text| text.trim().is_empty()) {
@@ -78,31 +89,6 @@ pub fn validate_result_export_form(document: &Value) -> Result<(), String> {
         }
     }
     Ok(())
-}
-
-/// Every `provenance` object whose string members are not all non-blank.
-fn incomplete_provenance(value: &Value, path: &str, out: &mut Vec<String>) {
-    match value {
-        Value::Object(members) => {
-            for (key, member) in members {
-                let at = format!("{path}/{key}");
-                if key == "provenance" {
-                    if let Value::Object(record) = member {
-                        if record.values().any(|field| field.as_str().is_some_and(|text| text.trim().is_empty())) {
-                            out.push(at.clone());
-                        }
-                    }
-                }
-                incomplete_provenance(member, &at, out);
-            }
-        }
-        Value::Array(items) => {
-            for (index, item) in items.iter().enumerate() {
-                incomplete_provenance(item, &format!("{path}/{index}"), out);
-            }
-        }
-        _ => {}
-    }
 }
 
 /// Item 2, header dispatch: the transported producer header is read as a

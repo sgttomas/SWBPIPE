@@ -141,11 +141,18 @@ pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String>
 }
 
 /// The safe-reference projection of the report's rule-pack checksum to its
-/// audit basis and payload reference (§2.4). Any other declared pair refuses.
+/// audit basis and payload reference (§2.4). Any other declared pair refuses,
+/// and so does a checksum whose payload reference names another rule pack:
+/// projection never relabels another payload's checksum as this pack's.
 fn projected_rule_pack_checksum(checksum: &Value, rule_pack_id: &str) -> Result<(audit::Canonicalization, String), String> {
     let algorithm = checksum["algorithm"].as_str().unwrap_or("not recorded");
     let basis = checksum["canonicalization"].as_str().unwrap_or("not recorded");
     let payload_type = checksum["payload_ref"]["ref_type"].as_str().unwrap_or("");
+    if checksum["payload_ref"]["ref_id"].as_str() != Some(rule_pack_id) {
+        return Err(format!(
+            "{RULE_CHECK_BINDING_MISMATCH}: the rule pack's checksum names another payload than rule pack {rule_pack_id}"
+        ));
+    }
     match (algorithm, basis, payload_type) {
         ("sha256", "JCS", "rule_pack") => Ok((audit::Canonicalization::RulePackPayloadJcs, rule_pack_id.to_string())),
         ("sha256", "rfc8785_jcs", "rule_pack_document") => {

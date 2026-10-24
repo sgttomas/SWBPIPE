@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
+import re
 from pathlib import Path
 import sys
 
@@ -89,17 +90,63 @@ def test_the_oracle_dependency_is_present():
     assert _draft202012_validator() is not None
 
 
+# The one admitted disagreement class (DEL-08-01 Design §2.3 item 1): an
+# ECMA-262 `$` does not match before a final line feed; Python's `re` does.
+FINAL_LF_CLASS = "ecma_dollar_before_final_line_feed"
+CLOSURE_TEXT = "".join(
+    (ROOT / "schemas" / name).read_text(encoding="utf-8")
+    for name in (
+        "results.v0.3.schema.yaml",
+        "results_pressure_2.v0.3.schema.json",
+        "physics_source_recovery.schema.json",
+        "retained_precision_mp_v2.schema.json",
+        "load_reference_state.schema.json",
+    )
+)
+
+
+def _without_final_line_feed(case):
+    """The case with the line feed removed from its recorded string."""
+    pointer = case["oracle_divergence"]["string_pointer"]
+    twin = deepcopy(case)
+    value = _pointer(case_instance(case), pointer)
+    if pointer:
+        twin.setdefault("patch", [])
+        twin["patch"] = [op for op in twin["patch"] if op.get("path") != pointer]
+        twin["patch"].append({"op": "replace", "path": pointer, "value": value[:-1]})
+    else:
+        twin.pop("patch", None)
+        twin["instance"] = value[:-1]
+    return twin
+
+
+def check_final_line_feed_entry(case):
+    """An enumerated class entry: the ECMA verdict is invalid, the oracle's is
+    valid, and the final line feed is the whole difference."""
+    divergence = case["oracle_divergence"]
+    assert set(divergence) == {"class", "string_pointer", "pattern"}, case["id"]
+    assert divergence["class"] == FINAL_LF_CLASS
+    assert divergence["class"] in VECTORS["known_oracle_divergences"]
+    assert "pattern" in case["covers"]
+    pattern = divergence["pattern"]
+    assert re.fullmatch(r"\^\[0-9a-f\]\{\d+\}\$", pattern), pattern
+    assert json.dumps(pattern) in CLOSURE_TEXT, "the pattern is one of the closure's"
+    value = _pointer(case_instance(case), divergence["string_pointer"])
+    assert isinstance(value, str) and value.endswith("\n") and "\n" not in value[:-1]
+    # ECMA-262 `$` without the m flag is end of input, Python's `\Z`.
+    assert re.search(pattern, value) is not None
+    assert re.search(pattern[:-1] + r"\Z", value) is None
+    assert case["valid"] is False, "the expected (Rust) verdict is the ECMA-262 one"
+    assert oracle_verdict(case) is True
+    assert oracle_verdict(_without_final_line_feed(case)) is True
+
+
 @pytest.mark.parametrize("case", VECTORS["cases"], ids=[case["id"] for case in VECTORS["cases"]])
 def test_oracle_verdict_matches_the_expected_verdict(case):
-    expected = case["valid"]
-    divergence = case.get("oracle_divergence")
-    if divergence is not None:
-        assert divergence in VECTORS["known_oracle_divergences"]
-        # The recorded divergence: the oracle accepts what ECMA-262 refuses.
-        assert expected is False
-        assert oracle_verdict(case) is True
+    if "oracle_divergence" in case:
+        check_final_line_feed_entry(case)
     else:
-        assert oracle_verdict(case) is expected
+        assert oracle_verdict(case) is case["valid"]
 
 
 def test_every_evaluated_keyword_has_a_valid_and_an_invalid_case():
@@ -113,3 +160,15 @@ def test_every_evaluated_keyword_has_a_valid_and_an_invalid_case():
     missing = sorted(f"{keyword}:{verdict}" for keyword in evaluated for verdict in (True, False)
                      if (keyword, verdict) not in seen)
     assert not missing, missing
+
+
+def test_every_vector_has_the_same_verdict_outside_the_enumerated_class():
+    """Parity: every disagreement is an enumerated final-line-feed entry, and
+    that class has exactly the one recorded name (review round 1, S3)."""
+    assert set(VECTORS["known_oracle_divergences"]) == {FINAL_LF_CLASS}
+    mismatches = sorted(case["id"] for case in VECTORS["cases"] if oracle_verdict(case) is not case["valid"])
+    enumerated = sorted(case["id"] for case in VECTORS["cases"] if "oracle_divergence" in case)
+    assert mismatches == enumerated
+    for case in VECTORS["cases"]:
+        if case["id"] in enumerated:
+            check_final_line_feed_entry(case)

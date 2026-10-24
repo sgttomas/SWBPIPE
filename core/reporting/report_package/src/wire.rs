@@ -276,6 +276,11 @@ pub fn assemble_wire_request(
     request: ReportPackageRequest,
     linked_solver: &LinkedSolverIdentity<'_>,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
+    // Item 0, the route preflight, comes before any other check, including the
+    // audit conversion (DEL-08-01 Design §2.3).
+    for document in &request.result_documents {
+        crate::document_form::check_route_admitted(document)?;
+    }
     let audit_manifest = audit_manifest(request.audit_manifest.clone(), linked_solver)?;
     crate::bindings::check_request(&request, &audit_manifest, linked_solver)?;
     let report: RenderableReportInput = serde_json::from_value(request.report)

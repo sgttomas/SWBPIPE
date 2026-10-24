@@ -106,6 +106,19 @@ pub const MAP_KEYWORDS: [&str; 3] = ["properties", "$defs", "dependentRequired"]
 /// fails closed instead of recursing without end.
 const MAX_DEPTH: usize = 256;
 
+/// The instance paths at which one marked schema location was applied (see
+/// [`Catalog::validate_marking`]).
+struct Marks<'a> {
+    target: Option<&'a Value>,
+    found: Vec<String>,
+}
+
+impl Marks<'_> {
+    fn none() -> Self {
+        Marks { target: None, found: Vec::new() }
+    }
+}
+
 /// Why an instance or a schema did not validate.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SchemaFailure {
@@ -181,7 +194,35 @@ impl Catalog {
             detail: format!("pointer {pointer} is not in {resource}"),
         })?;
         let mut path = String::new();
-        self.eval(index, schema, instance, &mut path, 0)
+        self.eval(index, schema, instance, &mut path, 0, &mut Marks::none())
+    }
+
+    /// Validates `instance` like [`Catalog::validate_at`], and returns the
+    /// instance paths (RFC 6901) at which the schema `marked_pointer` of
+    /// `marked_resource` was applied by a `$ref` and held, outside any failed
+    /// branch. This is how a caller finds the instance locations the schema
+    /// itself types as, say, a provenance record, without reading arbitrary
+    /// members of the same name elsewhere.
+    pub fn validate_marking(
+        &self,
+        resource: &str,
+        instance: &Value,
+        marked_resource: &str,
+        marked_pointer: &str,
+    ) -> Result<Vec<String>, SchemaFailure> {
+        let unsupported = |detail: String| SchemaFailure::Unsupported { detail };
+        let index = self.index(resource).ok_or_else(|| unsupported(format!("resource {resource} is not in the catalog")))?;
+        let marked_index = self
+            .index(marked_resource)
+            .ok_or_else(|| unsupported(format!("resource {marked_resource} is not in the catalog")))?;
+        let target = self.resources[marked_index]
+            .1
+            .pointer(marked_pointer)
+            .ok_or_else(|| unsupported(format!("pointer {marked_pointer} is not in {marked_resource}")))?;
+        let mut marks = Marks { target: Some(target), found: Vec::new() };
+        let mut path = String::new();
+        self.eval(index, &self.resources[index].1, instance, &mut path, 0, &mut marks)?;
+        Ok(marks.found)
     }
 
     /// Validates `instance` against the whole resource `resource`.
@@ -207,6 +248,7 @@ impl Catalog {
         instance: &Value,
         path: &mut String,
         depth: usize,
+        marks: &mut Marks<'_>,
     ) -> Result<(), SchemaFailure> {
         if depth > MAX_DEPTH {
             return Err(SchemaFailure::Unsupported { detail: "evaluation depth bound reached".to_string() });
@@ -227,7 +269,10 @@ impl Catalog {
                 detail: "non-string $ref".to_string(),
             })?;
             let (target_resource, target) = self.resolve(resource, reference)?;
-            self.eval(target_resource, target, instance, path, depth + 1)?;
+            self.eval(target_resource, target, instance, path, depth + 1, marks)?;
+            if marks.target.is_some_and(|marked| std::ptr::eq(marked, target)) {
+                marks.found.push(path.clone());
+            }
         }
         if let Some(types) = schema.get("type") {
             if !type_matches(types, instance)? {
@@ -248,20 +293,20 @@ impl Catalog {
         match instance {
             Value::Number(number) => self.eval_number(schema, number, path)?,
             Value::String(text) => eval_string(schema, text, path)?,
-            Value::Array(items) => self.eval_array(resource, schema, items, path, depth)?,
-            Value::Object(members) => self.eval_object(resource, schema, members, path, depth)?,
+            Value::Array(items) => self.eval_array(resource, schema, items, path, depth, marks)?,
+            Value::Object(members) => self.eval_object(resource, schema, members, path, depth, marks)?,
             _ => {}
         }
         if let Some(all) = schema.get("allOf") {
             for branch in all.as_array().ok_or_else(|| unsupported_value("allOf"))? {
-                self.eval(resource, branch, instance, path, depth + 1)?;
+                self.eval(resource, branch, instance, path, depth + 1, marks)?;
             }
         }
         if let Some(any) = schema.get("anyOf") {
             let branches = any.as_array().ok_or_else(|| unsupported_value("anyOf"))?;
             let mut matched = false;
             for branch in branches {
-                if self.passes(resource, branch, instance, path, depth)? {
+                if self.passes(resource, branch, instance, path, depth, marks)? {
                     matched = true;
                     break;
                 }
@@ -274,7 +319,7 @@ impl Catalog {
             let branches = one.as_array().ok_or_else(|| unsupported_value("oneOf"))?;
             let mut matched = 0usize;
             for branch in branches {
-                if self.passes(resource, branch, instance, path, depth)? {
+                if self.passes(resource, branch, instance, path, depth, marks)? {
                     matched += 1;
                 }
             }
@@ -283,17 +328,17 @@ impl Catalog {
             }
         }
         if let Some(negated) = schema.get("not") {
-            if self.passes(resource, negated, instance, path, depth)? {
+            if self.passes(resource, negated, instance, path, depth, marks)? {
                 return Err(invalid(path, "not"));
             }
         }
         if let Some(condition) = schema.get("if") {
-            if self.passes(resource, condition, instance, path, depth)? {
+            if self.passes(resource, condition, instance, path, depth, marks)? {
                 if let Some(then) = schema.get("then") {
-                    self.eval(resource, then, instance, path, depth + 1)?;
+                    self.eval(resource, then, instance, path, depth + 1, marks)?;
                 }
             } else if let Some(otherwise) = schema.get("else") {
-                self.eval(resource, otherwise, instance, path, depth + 1)?;
+                self.eval(resource, otherwise, instance, path, depth + 1, marks)?;
             }
         }
         Ok(())
@@ -308,10 +353,15 @@ impl Catalog {
         instance: &Value,
         path: &mut String,
         depth: usize,
+        marks: &mut Marks<'_>,
     ) -> Result<bool, SchemaFailure> {
         let length = path.len();
-        let outcome = self.eval(resource, schema, instance, path, depth + 1);
+        let marked = marks.found.len();
+        let outcome = self.eval(resource, schema, instance, path, depth + 1, marks);
         path.truncate(length);
+        if outcome.is_err() {
+            marks.found.truncate(marked);
+        }
         match outcome {
             Ok(()) => Ok(true),
             Err(SchemaFailure::Invalid { .. }) => Ok(false),
@@ -353,6 +403,7 @@ impl Catalog {
         items: &[Value],
         path: &mut String,
         depth: usize,
+        marks: &mut Marks<'_>,
     ) -> Result<(), SchemaFailure> {
         if let Some(minimum) = count(schema, "minItems")? {
             if (items.len() as u64) < minimum {
@@ -367,10 +418,8 @@ impl Catalog {
         match schema.get("uniqueItems") {
             None | Some(Value::Bool(false)) => {}
             Some(Value::Bool(true)) => {
-                for (index, item) in items.iter().enumerate() {
-                    if items[..index].iter().any(|earlier| json_equal(earlier, item)) {
-                        return Err(invalid(path, "uniqueItems"));
-                    }
+                if has_duplicate(items) {
+                    return Err(invalid(path, "uniqueItems"));
                 }
             }
             Some(_) => return Err(unsupported_value("uniqueItems")),
@@ -379,7 +428,7 @@ impl Catalog {
             for (index, item) in items.iter().enumerate() {
                 let length = path.len();
                 path.push_str(&format!("/{index}"));
-                self.eval(resource, item_schema, item, path, depth + 1)?;
+                self.eval(resource, item_schema, item, path, depth + 1, marks)?;
                 path.truncate(length);
             }
         }
@@ -388,7 +437,7 @@ impl Catalog {
             for (index, item) in items.iter().enumerate() {
                 let length = path.len();
                 path.push_str(&format!("/{index}"));
-                let passes = self.passes(resource, contained, item, path, depth)?;
+                let passes = self.passes(resource, contained, item, path, depth, marks)?;
                 path.truncate(length);
                 if passes {
                     found = true;
@@ -409,6 +458,7 @@ impl Catalog {
         members: &Map<String, Value>,
         path: &mut String,
         depth: usize,
+        marks: &mut Marks<'_>,
     ) -> Result<(), SchemaFailure> {
         if let Some(required) = schema.get("required") {
             for name in required.as_array().ok_or_else(|| unsupported_value("required"))? {
@@ -443,7 +493,7 @@ impl Catalog {
                     let length = path.len();
                     path.push('/');
                     path.push_str(&escape_pointer(name));
-                    self.eval(resource, property_schema, member, path, depth + 1)?;
+                    self.eval(resource, property_schema, member, path, depth + 1, marks)?;
                     path.truncate(length);
                 }
             }
@@ -456,7 +506,7 @@ impl Catalog {
                 let length = path.len();
                 path.push('/');
                 path.push_str(&escape_pointer(name));
-                self.eval(resource, additional, member, path, depth + 1)?;
+                self.eval(resource, additional, member, path, depth + 1, marks)?;
                 path.truncate(length);
             }
         }
@@ -553,19 +603,92 @@ pub fn json_equal(left: &Value, right: &Value) -> bool {
     }
 }
 
+/// A JSON integer's exact value.
+fn integer_value(number: &Number) -> Option<i128> {
+    number.as_i64().map(i128::from).or_else(|| number.as_u64().map(i128::from))
+}
+
+/// A binary64 value's exact integer value, when it is integral and in range.
+fn integral_value(value: f64) -> Option<i128> {
+    // 2^126: every integral binary64 below it converts to i128 exactly.
+    (value.is_finite() && value.fract() == 0.0 && value.abs() < 8.507_059_173_023_462e37).then(|| value as i128)
+}
+
+/// Equality by mathematical value, exactly: integers against integers, an
+/// integral binary64 exactly against an integer (never by rounding the
+/// integer), and binary64 values by value (so -0 equals 0).
 fn number_equal(left: &Number, right: &Number) -> bool {
-    match (left.as_i64(), right.as_i64()) {
-        (Some(left), Some(right)) => return left == right,
-        _ => {}
-    }
-    match (left.as_u64(), right.as_u64()) {
-        (Some(left), Some(right)) => return left == right,
-        _ => {}
-    }
-    match (left.as_f64(), right.as_f64()) {
+    match (integer_value(left), integer_value(right)) {
         (Some(left), Some(right)) => left == right,
-        _ => false,
+        (Some(integer), None) => right.as_f64().and_then(integral_value) == Some(integer),
+        (None, Some(integer)) => left.as_f64().and_then(integral_value) == Some(integer),
+        (None, None) => match (left.as_f64(), right.as_f64()) {
+            (Some(left), Some(right)) => left == right,
+            _ => false,
+        },
     }
+}
+
+/// A hash consistent with [`json_equal`]: equal values hash equally. Numbers
+/// hash by exact value (an integral value as its integer), objects by sorted
+/// member names.
+fn hash_json(value: &Value, state: &mut impl std::hash::Hasher) {
+    use std::hash::Hash;
+    match value {
+        Value::Null => 0u8.hash(state),
+        Value::Bool(flag) => (1u8, *flag).hash(state),
+        Value::Number(number) => {
+            2u8.hash(state);
+            match integer_value(number).or_else(|| number.as_f64().and_then(integral_value)) {
+                Some(integer) => (0u8, integer).hash(state),
+                None => (1u8, number.as_f64().map(f64::to_bits)).hash(state),
+            }
+        }
+        Value::String(text) => (3u8, text).hash(state),
+        Value::Array(items) => {
+            (4u8, items.len()).hash(state);
+            for item in items {
+                hash_json(item, state);
+            }
+        }
+        Value::Object(members) => {
+            (5u8, members.len()).hash(state);
+            let mut names: Vec<&String> = members.keys().collect();
+            names.sort();
+            for name in names {
+                name.hash(state);
+                hash_json(&members[name], state);
+            }
+        }
+    }
+}
+
+/// `uniqueItems` in near-linear work: items are bucketed by [`hash_json`] and
+/// compared with [`json_equal`] only within a bucket.
+fn has_duplicate(items: &[Value]) -> bool {
+    use std::hash::{BuildHasher, Hasher};
+    let seed = std::collections::hash_map::RandomState::new();
+    let mut buckets: std::collections::HashMap<u64, Vec<usize>> = std::collections::HashMap::with_capacity(items.len());
+    for (index, item) in items.iter().enumerate() {
+        let mut hasher = seed.build_hasher();
+        hash_json(item, &mut hasher);
+        let bucket = buckets.entry(hasher.finish()).or_default();
+        if bucket.iter().any(|&earlier| {
+            #[cfg(test)]
+            UNIQUE_COMPARISONS.with(|count| count.set(count.get() + 1));
+            json_equal(&items[earlier], item)
+        }) {
+            return true;
+        }
+        bucket.push(index);
+    }
+    false
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Equality comparisons made by [`has_duplicate`] (work-bound test).
+    static UNIQUE_COMPARISONS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
 fn is_known_keyword(key: &str) -> bool {
@@ -660,6 +783,53 @@ mod tests {
     fn unbounded_arrays_have_no_implicit_cap() {
         let items: Vec<Value> = (0..20_000).map(|index| json!(index)).collect();
         assert_eq!(verdict(json!({"type": "array", "items": {"type": "number"}}), Value::Array(items)), Ok(()));
+    }
+
+    /// `uniqueItems` work is near-linear: 100k distinct strings (the shape of
+    /// the unbounded `member_connector_ids`) need almost no equality
+    /// comparisons, where pairwise checking needs about 5e9; a duplicate at
+    /// the end is still found. Work is counted, not timed.
+    #[test]
+    fn unique_items_work_is_near_linear() {
+        let schema = json!({"type": "array", "uniqueItems": true, "items": {"type": "string"}});
+        let mut items: Vec<Value> = (0..100_000).map(|index| json!(format!("connector:{index:06}"))).collect();
+        UNIQUE_COMPARISONS.with(|count| count.set(0));
+        assert_eq!(verdict(schema.clone(), Value::Array(items.clone())), Ok(()));
+        let comparisons = UNIQUE_COMPARISONS.with(|count| count.get());
+        assert!(comparisons < 1_000, "{comparisons} comparisons for 100000 distinct items");
+        items.push(json!("connector:000042"));
+        assert!(matches!(verdict(schema, Value::Array(items)), Err(SchemaFailure::Invalid { keyword, .. }) if keyword == "uniqueItems"));
+        // Equal by value across representations: 1 and 1.0, member order.
+        assert!(has_duplicate(&[json!(1), json!(1.0)]));
+        assert!(has_duplicate(&[json!({"a": 1, "b": 2}), json!({"b": 2.0, "a": 1})]));
+        assert!(!has_duplicate(&[json!(9007199254740993u64), json!(9007199254740992.0)]));
+    }
+
+    #[test]
+    fn number_equality_is_exact() {
+        let parse = |text: &str| serde_json::from_str::<Value>(text).unwrap();
+        assert!(!json_equal(&parse("9007199254740993"), &parse("9007199254740992.0")));
+        assert!(json_equal(&parse("9007199254740992"), &parse("9007199254740992.0")));
+        assert!(!json_equal(&parse("18446744073709551615"), &parse("18446744073709551616.0")));
+        assert!(json_equal(&parse("-0.0"), &parse("0")));
+        assert!(!json_equal(&parse("1.5"), &parse("1")));
+    }
+
+    #[test]
+    fn marks_skip_failed_branches_and_unmarked_members() {
+        let catalog = inline(json!({
+            "$defs": {"Record": {"type": "object", "required": ["name"]}},
+            "type": "object",
+            "properties": {
+                "record": {"$ref": "#/$defs/Record"},
+                "either": {"anyOf": [{"$ref": "#/$defs/Record", "required": ["never"]}, true]},
+                "free": {"type": "object"}
+            }
+        }));
+        let found = catalog
+            .validate_marking("inline.schema.json", &json!({"record": {"name": "a"}, "either": {"name": "b"}, "free": {"record": {"name": ""}}}), "inline.schema.json", "/$defs/Record")
+            .unwrap();
+        assert_eq!(found, ["/record"]);
     }
 
     #[test]

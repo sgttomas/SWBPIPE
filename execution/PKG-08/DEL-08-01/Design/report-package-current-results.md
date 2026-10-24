@@ -269,6 +269,33 @@ each with a named `REPORT-PACKAGE-…` code:
    requires `jsonschema` and fails if it is missing; it does not skip
    (`schema_validation.py:197`).
 
+   One disagreement class is admitted, by name and case by case:
+   `ecma_dollar_before_final_line_feed`. It covers a `pattern` of the form
+   `^[0-9a-f]{N}$` against a string whose last character is a line feed.
+   JSON Schema 2020-12 patterns use the ECMA-262 dialect, where `$` without
+   the `m` flag matches only at the end of input. Python's `re`, the oracle's
+   engine, also matches `$` before a final line feed. The evaluator keeps the
+   ECMA-262 verdict, invalid (coordinator decision, W-18a review round 1).
+   Each entry records its string's pointer and pattern. For each entry the
+   test checks four things: the expected verdict is invalid, the oracle's is
+   valid, the same case without the line feed is valid to the oracle, and the
+   pattern refuses the string under an end-of-input anchor. Any other
+   disagreement fails the test. The vectors include the round-1 reviewer's
+   eight line-feed probes: the model and derivative hashes of the runner,
+   pressure-2 and retained documents, and two 16-digit fragments.
+
+   Two evaluator properties are also bound by tests:
+   - Numeric equality is exact. Integers compare as integers, and an integral
+     binary64 compares exactly with an integer, never by rounding the integer.
+   - `uniqueItems` does near-linear work. Items are bucketed by a hash
+     consistent with JSON equality and compared only within a bucket. A unit
+     test counts the comparisons over 100 000 distinct items.
+
+   The provenance completeness invariant (item 1) applies only at the
+   instance paths where the schema applies `$defs/Provenance`. The evaluator
+   reports those paths, so a member named `provenance` inside unconstrained
+   raw annotation metadata is not read as a provenance record.
+
    **Considered and not chosen: a Rust validator crate.** The only Rust
    JSON Schema crate in the repository is `jsonschema = "=0.58.5"` in App v4
    (`projects/chirality-app-v4/app/src-tauri/Cargo.toml:27`). It is in no
@@ -571,9 +598,15 @@ producer's check. Its module text (`reader.rs:30-37`) is updated to say so.
   - any other declared pair (`sha512`, `CALLER_SUPPLIED_JCS_BYTES_UNVERIFIED`,
     `NONE`, `TBD`, "not recorded") is refused with
     `REPORT-PACKAGE-RULE-PACK-CHECKSUM-BASIS-UNSUPPORTED`, naming the pair. The
-    rendered report still shows the checksum as declared. Considered and not
-    chosen: recording a desktop-computed document digest instead, because the
-    audit value would then differ from the report's.
+    rendered report still shows the checksum as declared;
+  - under either supported pair, the checksum's `payload_ref.ref_id` must be
+    the reference's own `rule_pack_id`; a checksum naming another payload is
+    refused with `REPORT-PACKAGE-RULE-CHECK-BINDING-MISMATCH`, so projection
+    never relabels another pack's checksum (review round 1, B1).
+
+  Considered and not chosen for the checksum record: recording a
+  desktop-computed document digest instead, because the audit value would then
+  differ from the report's.
 
   **Declared, not verified.** A `rule_pack_payload_jcs` record carries the
   pack's own declared digest:

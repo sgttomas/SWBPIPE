@@ -38,13 +38,21 @@ fn runner() -> Value {
 }
 
 fn desktop_with(run_override: Option<&str>) -> Value {
+    desktop_from(run_override, |_| {})
+}
+
+/// The desktop-profile basis, derived by the shared builder from the
+/// committed source after `edit_source`.
+fn desktop_from(run_override: Option<&str>, edit_source: impl FnOnce(&mut Value)) -> Value {
     let runner = runner();
     let model: Value = serde_json::from_str(MODEL).unwrap();
     let manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
     let solver = &runner["audit_manifest"]["solver_version"];
+    let mut source = runner["source_results"][0].clone();
+    edit_source(&mut source);
     let inputs = Inputs {
         model: &model,
-        source: &runner["source_results"][0],
+        source: &source,
         producer_document: &runner["result_documents"][0],
         solve_request: &Value::Null,
         input_manifest: &manifest,
@@ -615,5 +623,59 @@ fn rule_check_mismatches_are_refused() {
         refused(&edited, RULE_PACK_CHECKSUM_BASIS_UNSUPPORTED, "sha512");
         let unprojected = with(&checked, |r| r["audit_manifest"]["rule_pack_refs"][0]["checksum"]["value"] = json!(OTHER_HEX));
         refused(&unprojected, RULE_CHECK_BINDING_MISMATCH, "audit checksum value");
+    }
+}
+
+#[test]
+fn checksum_payload_id_must_name_the_participating_rule_pack() {
+    for request in [runner(), desktop()] {
+        for (basis, payload_type) in [("JCS", "rule_pack"), ("rfc8785_jcs", "rule_pack_document")] {
+            let mut checksum = rule_pack_checksum(basis, payload_type);
+            checksum["payload_ref"]["ref_id"] = json!("invented-other-rule-pack");
+            refused(&with_rule_check(&request, checksum), RULE_CHECK_BINDING_MISMATCH,
+                "a different rule pack's checksum must not be relabelled by projection");
+        }
+    }
+}
+
+#[test]
+fn arbitrary_annotation_metadata_is_not_a_typed_provenance_record() {
+    let request = with_document(&runner(), |d| {
+        d["result_envelope"]["source_annotations"][0]["metadata"] =
+            json!({"provenance": {"optional_note": ""}});
+    });
+    open_pipe_stress_report_package::document_form::check_result_member_form(
+        &request["result_documents"][0]).expect("schema-unconstrained raw annotation metadata must be preserved");
+}
+
+/// B2 on a real derived document: a source row's raw metadata carrying a
+/// member named `provenance` derives a source-valid desktop document, which
+/// assembles unblocked and reads back.
+#[test]
+fn raw_metadata_named_provenance_in_a_derived_desktop_document_is_admitted() {
+    let request = desktop_from(None, |source| {
+        let metadata = source["results"][0]["metadata"].as_object_mut().expect("the first row has metadata");
+        metadata.insert("provenance".into(), json!({"optional_note": ""}));
+    });
+    let annotated = request["result_documents"][0]["result_envelope"]["source_annotations"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|annotation| annotation["metadata"]["provenance"] == json!({"optional_note": ""}));
+    assert!(annotated, "the derived document carries the raw metadata");
+    let outcome = unblocked(&request);
+    read_report_package_container(&outcome.container_bytes).expect("the reader admits it too");
+}
+
+#[test]
+fn route_preflight_precedes_audit_conversion() {
+    for id in [Some("invented-unadmitted-contract"), None] {
+        let mut request = with_document(&runner(), |d| {
+            let producer = d["result_envelope"]["producer"].as_object_mut().unwrap();
+            if let Some(id) = id { producer.insert("semantic_contract_id".into(), json!(id)); }
+            else { producer.remove("semantic_contract_id"); }
+        });
+        request["audit_manifest"]["model_hash"]["canonicalization"] = json!("unsupported-basis");
+        refused(&request, ROUTE_NOT_ADMITTED, "item 0 must run before audit conversion");
     }
 }

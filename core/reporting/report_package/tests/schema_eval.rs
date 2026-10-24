@@ -86,7 +86,17 @@ fn every_vector_has_its_expected_verdict() {
     for case in cases {
         let id = case["id"].as_str().unwrap();
         assert!(ids.insert(id), "duplicate case id {id}");
-        let outcome = catalog_with(&case["schema"]).validate("schema-eval-vector.schema.json", &instance(case));
+        let instance = instance(case);
+        // The one enumerated oracle-disagreement class: the evaluator gives the
+        // ECMA-262 verdict (invalid) for a `pattern` string ending in a line
+        // feed, which Python's `re` accepts (DEL-08-01 Design §2.3 item 1).
+        if let Some(divergence) = case.get("oracle_divergence") {
+            assert_eq!(divergence["class"], "ecma_dollar_before_final_line_feed", "{id}");
+            assert_eq!(case["valid"], false, "{id}");
+            let text = pointer(&instance, divergence["string_pointer"].as_str().unwrap());
+            assert!(text.as_str().is_some_and(|text| text.ends_with('\n')), "{id}");
+        }
+        let outcome = catalog_with(&case["schema"]).validate("schema-eval-vector.schema.json", &instance);
         match outcome {
             Ok(()) => assert!(case["valid"].as_bool().unwrap(), "{id}: expected invalid, evaluated valid"),
             Err(SchemaFailure::Invalid { .. }) => {
@@ -182,4 +192,12 @@ fn every_closure_reference_resolves() {
             assert!(target.and_then(|value| value.pointer(fragment)).is_some(), "{name}: {reference}");
         }
     }
+}
+
+#[test]
+fn numeric_equality_does_not_round_an_integer_before_comparison() {
+    use open_pipe_stress_report_package::schema_eval::json_equal;
+    let integer: Value = serde_json::from_str("9007199254740993").unwrap();
+    let rounded: Value = serde_json::from_str("9007199254740992.0").unwrap();
+    assert!(!json_equal(&integer, &rounded));
 }
