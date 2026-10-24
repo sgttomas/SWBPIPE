@@ -469,9 +469,32 @@ never block deletion, and a missing entity is reported as a warning.
   tolerance in metres (`PreviewModel::node_proximity_tolerance_m`). The
   topology check (DEL-04-06 Design `model-topology-checks.md`) reads it through
   that accessor, and the solve refuses a malformed value with the accessor's
-  code before the check runs (`validation::validate_model_settings`). The desktop has no
-  editing control for it yet (S2a, #1565, authored the other slots); the desktop round-trips
-  the whole document.
+  code before the check runs (`validation::validate_model_settings`).
+- **Authoring (as built).** The applier's `set_model_setting` and
+  `clear_model_setting` (`model_settings_authoring.rs`) target the `Project`
+  singleton (`ref` the document's `project.id`) with `field_path`
+  `model_settings.node_proximity_tolerance`; `before` is the member's canonical
+  JSON or `not_present`.
+  - Set carries the entered number text as `after`, its unit as `unit` and
+    dimension `length`. It writes `{value, unit}` and creates `model_settings`
+    when absent. Value and unit are judged by the accessor above, so a refusal
+    has the accessor's code and message, which the validator also gives.
+  - Clear carries `after` `not_present`, unit `none`, dimension
+    `dimensionless`. It removes the member, and removes `model_settings` when
+    that leaves it empty. Clearing an absent setting, or setting the stored
+    value again, is `OP-MODEL-SETTING-UNCHANGED`.
+  - Each operation's inverse is the other one at the member: the inverse of a
+    set restores the prior member or its absence. The inverse cannot restore
+    an authored empty `model_settings: {}` that a set-then-clear removed. The
+    desktop undoes through its session checkpoint, which restores the exact
+    prior document and model hash, including an authored empty record
+    (`modelSettingsCheckpoint.test.tsx`).
+  - **Desktop.** The Project page of the property inspector has a Model
+    settings section (`features/model-settings/ModelSettingsSection.tsx`). It
+    shows the effective value ("5 mm (default)" while unset), takes a value in
+    a catalog length unit (the project's length unit first), and offers Reset
+    to default. Each edit is checked validate-only by the operation engine and
+    then queued for review and apply; a refusal stays in the section by name.
 
 ## 4. The schema
 

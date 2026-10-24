@@ -8,6 +8,7 @@ import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
+import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -588,6 +589,12 @@ export function PropertyInspector({
       <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details" open data-testid="model-settings-details">
+          <summary>Model settings</summary>
+          <ModelSettingsSection key={`model-settings:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
       <details className="inspector-details" data-testid="model-data-annotations-details">
         <summary>Tags, notes and provenance</summary>
         <ModelDataAnnotations key={`model-data:${projectSessionGeneration}`} model={model} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
