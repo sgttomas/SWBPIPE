@@ -111,3 +111,27 @@ def test_the_duplicate_loops_are_bound_by_their_own_functions(monkeypatch, tmp_p
                          "operand_ids.iter().filter(|other| *other == operand_id).count() > 1")
     with pytest.raises(SystemExit, match="SD-DL"):
         decisions(monkeypatch, snap)
+
+
+MECHANICS_COUNT = "combination.terms[..index]\n                .iter()\n                .filter(|other| other.load_case == term.load_case)\n                .count();"
+RANGE_COUNT = "operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1"
+
+
+@pytest.mark.parametrize("old, new", [
+    (MECHANICS_COUNT, MECHANICS_COUNT.replace("[..index]", "[..]")),
+    (MECHANICS_COUNT, MECHANICS_COUNT.replace("[..index]", "[..index].to_vec()")),
+    (MECHANICS_COUNT, MECHANICS_COUNT.replace(".count();", ".cloned().collect::<Vec<_>>().len();")),
+    (MECHANICS_COUNT, MECHANICS_COUNT.replace("other.load_case == term.load_case", "other.load_case != term.load_case")),
+    (RANGE_COUNT, RANGE_COUNT.replace("[..index]", "[..]")),
+    (RANGE_COUNT, RANGE_COUNT.replace("[..index]", "[..index].to_vec()")),
+    (RANGE_COUNT, RANGE_COUNT.replace(".count() != 1", ".cloned().collect::<Vec<_>>().len() != 1")),
+    (RANGE_COUNT, RANGE_COUNT.replace("*other == operand_id", "*other != operand_id")),
+], ids=["mechanics-full-slice", "mechanics-to_vec", "mechanics-cloned-collect", "mechanics-predicate",
+        "range-full-slice", "range-to_vec", "range-cloned-collect", "range-predicate"])
+def test_a_changed_earlier_occurrence_count_stops(monkeypatch, tmp_path, old, new):
+    """SD-DL: the complete count statement is pinned in both the decision guard and the owner guard."""
+    snap = snapshot_with(tmp_path, VALIDATION, old, new)
+    with pytest.raises(SystemExit, match="SD-DL"):
+        decisions(monkeypatch, snap)
+    with pytest.raises(SystemExit, match="SD owners"):
+        sd_owners_model.inspect(str(snap))

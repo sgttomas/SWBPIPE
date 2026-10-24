@@ -39,6 +39,11 @@ STATEMENTS = (
     (PREVIEW, "append_combination_results", "Ok(rows) => results.extend(rows),"),
     (VAL, "validate_mechanics_combination", "let mut seen = HashSet::new();"),
     (VAL, "validate_mechanics_combination", "if !seen.insert(term.load_case.as_str()) {"),
+    # The earlier-occurrence counts borrow and allocate nothing (SD-DL): each complete statement, line breaks removed.
+    (VAL, "validate_mechanics_combination",
+     "let earlier = combination.terms[..index].iter().filter(|other| other.load_case == term.load_case).count();"),
+    (VAL, "validate_range_envelope_combination",
+     "if operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1 {"),
     (FIELDS, "declared_fields", 'Err(de::Error::custom("field probe"))'),
 )
 
@@ -62,10 +67,10 @@ def _body(text, name):
 def inspect(snapshot):
     """True when the guard's owners are present as reviewed; False on an earlier revision; anything else stops."""
     texts = {rel: _read(snapshot, rel) or "" for rel in (PREVIEW, VAL, FIELDS)}
-    present = [_body(texts[rel], fn).count(needle) for rel, fn, needle in STATEMENTS]
+    present = [re.sub(r"\s*\n\s*", "", _body(texts[rel], fn)).count(needle) for rel, fn, needle in STATEMENTS]
     if not any(present):
         return False
-    expected = [1, 1, 1, 1, 1, 1, 1, 2]
+    expected = [1, 1, 1, 1, 1, 1, 1, 1, 1, 2]
     if present != expected:
         raise SystemExit(f"SD owners: the guard's owning statements changed; re-review the owners they price: {present}")
     # The support group pushes its rows only into its own `rows` (two pushes: components and magnitudes).

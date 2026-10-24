@@ -2557,14 +2557,18 @@ if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICA
     # its second occurrence (`combination.terms[..index]` / `operand_ids[..index]` counted by a borrowing
     # `.iter().filter(..).count()`, which allocates nothing and reaches no text). Each visits one combination's terms or
     # range operands once: <= 3 (D1.4), the inherited bound of the former headers, only in its own function.
+    # Each loop's complete earlier-occurrence statement is pinned (whitespace and line breaks removed), so a changed
+    # slice, iterator chain, predicate or an added allocation (`.to_vec()`, `.cloned()`, `.collect()`) stops the run.
     _SD_DL = (("validate_mechanics_combination", "for (index, term) in combination.terms.iter().enumerate()",
-               ".filter(|other| other.load_case == term.load_case)\n                .count();"),
+               "let earlier = combination.terms[..index].iter().filter(|other| other.load_case == term.load_case).count();"),
               ("validate_range_envelope_combination", "for (index, operand_id) in operand_ids.iter().enumerate()",
-               "operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1"))
+               "if operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1 {"))
     for _fn, _h, _c in _SD_DL:
         _b = _fn_text(_fn, _SD_V)
-        if _b.count(_h + " {") != 1 or _b.count(_c) != 1 or _b.count(".count()") != 1:
-            raise SystemExit(f"SD-DL: {_fn}'s duplicate loop changed; re-review its bound: {_h}")
+        _flat = _re.sub(r"\s*\n\s*", "", _b)
+        if (_b.count(_h + " {") != 1 or _flat.count(_c) != 1 or _b.count(".count()") != 1 or _b.count("[..index]") != 1
+                or any(_a in _b for _a in (".to_vec()", ".collect", ".cloned()", ".to_owned()"))):
+            raise SystemExit(f"SD-DL: {_fn}'s duplicate loop or its earlier-occurrence count changed; re-review its bound: {_h}")
     O10_LOOPS_LAST += [
         (_SD_DL[0][1], "3", O10 + "SD-DL: one combination's terms (<= 3, D1.4), once each", ["validation.rs:validate_mechanics_combination"]),
         (_SD_DL[1][1], "3", O10 + "SD-DL: one combination's range operands (<= 3, D1.4), once each", ["validation.rs:validate_range_envelope_combination"]),
