@@ -193,7 +193,7 @@ mod tests {
     fn fixture() -> (Value, Value) {
         let model = json!({"schema_version":"invented","document_kind":"preview","project":{"id":"invented"},
             "analysis_status":{"mechanics":"draft","rule_check":"not_run","professional_acceptance":"not_assessed"},
-            "extension":{"retained":"full original"},"nodes":[{"id":"a","position":{"x":0,"y":0,"z":0}},{"id":"b","position":{"x":1,"y":0,"z":0}}],
+            "diagnostics":[{"retained":"full original"}],"nodes":[{"id":"a","position":{"x":0,"y":0,"z":0}},{"id":"b","position":{"x":1,"y":0,"z":0}}],
             "pipe_segments":[{"id":"pipe","from":"a","to":"b","material":"invented","provenance":"invented pipe","section":{
                 "outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"},"material_density":{"value":1000,"unit":"kg/m^3"}}}],"supports":[]});
         let request = json!({"case_id":"self","label":"Invented","pipe_refs":["pipe"],"gravity":{"value":-7,"unit":"m/s^2","axis":"global_z"},"provenance":"explicit invented input","source_model_hash":source_hash(&model)});
@@ -238,9 +238,13 @@ mod tests {
         assert_eq!(before, (m, r));
     }
     #[test]
-    fn full_original_hash_rejects_stale_unknown_model_field() {
+    fn full_original_hash_rejects_a_stale_unread_model_field() {
+        // The hash covers the whole original document, including members the
+        // planner does not read; the fixture carries one on the declared
+        // `diagnostics` member, since the PF model wire refuses undeclared keys
+        // (#1573, UNKNOWN_MODEL_FIELD).
         let (mut m, r) = fixture();
-        m["extension"]["retained"] = json!("changed");
+        m["diagnostics"][0]["retained"] = json!("changed");
         let out = generate_plan(&m, &r);
         assert_blocked(&out);
         assert_eq!(
