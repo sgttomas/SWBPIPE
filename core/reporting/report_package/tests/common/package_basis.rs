@@ -177,7 +177,10 @@ pub fn build(inputs: &Inputs<'_>) -> Result<Basis, String> {
             e["result_sets"][0]["basis_ref"] = reference("analysis_run", &run);
             e["unit_system_ref"] = reference("unit_system", &format!("{model_id}:units"));
             e["solver_version"] = json!({"solver_name": inputs.solver_name, "solver_version": inputs.solver_version, "solver_build_ref": linked_build});
-            let carrier = checksum(source, "received_current_dimension_absent_carrier", reference("received_current_carrier", &run))?;
+            // The desktop names the carrier by the source run
+            // (`resultExportAdapter.ts`), whatever the package run.
+            let carrier =
+                checksum(source, "received_current_dimension_absent_carrier", reference("received_current_carrier", &mechanics_run))?;
             let origin = json!({
                 "origin_id": "source-origin:current-received",
                 "origin_class": "received_current_dimension_absent",

@@ -200,6 +200,10 @@ pub fn check_request(
     let (source_table, _) = for_source(source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
     require(std::ptr::eq(source_table, header_table), "the source and the document select different tables")?;
     validate_document(document, source).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
+    // Every checksum record names the subject its location derives (§2.4,
+    // "Checksum subjects"); `validate_document` binds the row records to the
+    // origin's carrier reference, and this binds that reference.
+    document_form::check_document_subjects(document)?;
 
     let e = &document["result_envelope"];
     let report = &request.report;

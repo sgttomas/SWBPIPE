@@ -623,6 +623,56 @@ producer's check. Its module text (`reader.rs:30-37`) is updated to say so.
   rule values. The audit validator still blocks `protected_suspected` and
   unredacted private packs (`audit_manifest/src/lib.rs:444-466`).
 
+**Checksum subjects** (review round 2). There is one rule: every checksum or
+hash record names, in `payload_ref` (type and id), the subject it is attached
+to, and that subject derives from the record's container. A record whose
+location has no derivation is refused.
+
+The rule is applied in four places:
+- the result member: `document_form::check_document_subjects`, at the
+  producer, the writer and the reader (unblocked packages);
+- the audit manifest: `audit_manifest::validate_manifest`
+  (`PayloadSubjectMismatch`), and `document_form::check_audit_subjects` at
+  the reader;
+- the calculation report: `report_generator::validate_report`
+  (`REPORT-CHECKSUM-SUBJECT-MISMATCH`), which blocks the render and so the
+  package;
+- the remaining report and handoff records: `bindings`.
+
+In the result member, the schema's own checksum types (`$defs/Checksum`,
+`$defs/ScopedChecksum`) locate the records, through the evaluator's marking.
+The round-2 review inventoried 640 references in 23 shapes;
+`every_checksum_record_kind_refuses_another_subject` probes each kind for
+both profiles. In the table, E is the result member's `envelope_id`, R is
+its `run_ref`, and C is the carrier: `attested_headless_producer:E` for the
+runner origin, `received_current_carrier:<origin mechanics run>` for the
+desktop origin.
+
+| Record kind | Subject |
+|---|---|
+| member `reproducibility.derivative_hash` | `derivative_document:E` |
+| member `unit_preservation_witnesses[].target_row_checksum` | `derivative_document:E` |
+| member `reproducibility.model_hash` | `model_payload:<e.model_ref>` |
+| member `reproducibility.request_hash` | runner only: `runner_request:<id>`, where the origin's `request_run_ref` is `run:headless-preview:<id>` (the producer's run naming, `headless/src/lib.rs`); otherwise refused |
+| member `reproducibility.run_hashes[]` | `AnalysisRun:R` or `ResultEnvelope:result-envelope:R` (`bindings` also requires both) |
+| member `raw_source_hashes[]` | C; the list is exactly `[original_producer_checksum]` when the producer is authentic, else empty |
+| member origin `received_carrier_checksum` and `original_producer_checksum` | C |
+| member `row_accounting[]`, `row_disclosures[]` and `unit_preservation_witnesses[]` carrier and producer row checksums | C (`validate_document` binds the rows to the origin's reference; this binds that reference) |
+| member `rule_pack_refs[].checksum` | that entry's `rule_pack_id` |
+| audit `assets[].hash` | the entry's `asset_id` |
+| audit `rule_pack_refs[].checksum` | `rule_pack_id`, or `rule_pack_document:<id>` under `rfc8785_jcs` |
+| audit `model_hash`, `input_manifest_hash` | no container subject; `bindings` binds them to the source model and the handoff input manifest, and the reader binds the model hash value to the result member |
+| report `model_input_summary.model_hash` | the summary's `model_ref` |
+| report `result_export_refs[]`, `audit_manifest_refs[]` and `report_section_refs[]` checksums | the entry's own `ref` |
+| report `rule_pack_refs[].checksum` | that entry's `rule_pack_id` |
+| handoff `state_run_sections[]` hash refs, row hash refs and input-manifest hashes | the section's state, run, row and manifest (`bindings`) |
+
+A `report_section_refs[]` entry's own `ref` is a free reference: nothing in
+the package derives which section record it must name. The rule binds its
+checksum to the entry, and its value is declared, not verified, like the
+other report checksums. The reader sees no calculation report, only the
+rendered members, so the report-side rules apply at the producer.
+
 ### 2.5 The W-3 content and stale-work guards (desktop)
 
 - **Input.** `ReportPackageRequestInput` (`reportPackageRequest.ts:207-215`)

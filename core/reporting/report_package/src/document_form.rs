@@ -21,6 +21,14 @@ pub const RESULT_FORM_INVALID: &str = "REPORT-PACKAGE-RESULT-FORM-INVALID";
 pub const RESULT_HEADER_INVALID: &str = "REPORT-PACKAGE-RESULT-HEADER-INVALID";
 pub const DERIVATIVE_HASH_MISMATCH: &str = "REPORT-PACKAGE-DERIVATIVE-HASH-MISMATCH";
 pub const AUDIT_BINDING_MISMATCH: &str = "REPORT-PACKAGE-AUDIT-BINDING-MISMATCH";
+pub const CHECKSUM_SUBJECT_MISMATCH: &str = "REPORT-PACKAGE-CHECKSUM-SUBJECT-MISMATCH";
+
+/// The 0.3.0 schema's two checksum record definitions.
+const CHECKSUM_DEFS: [&str; 2] = ["/$defs/Checksum", "/$defs/ScopedChecksum"];
+/// The headless producer's run naming (`core/runner/headless/src/lib.rs`,
+/// `run_id = "run:headless-preview:{request_id}"`): the run names the request
+/// it was produced for.
+const HEADLESS_RUN_PREFIX: &str = "run:headless-preview:";
 
 /// The 0.3.0 schema's provenance record definition.
 const PROVENANCE_DEF: &str = "/$defs/Provenance";
@@ -122,6 +130,130 @@ pub fn check_self_hash(document: &Value) -> Result<(), String> {
     .map_err(|detail| format!("{DERIVATIVE_HASH_MISMATCH}: {detail}"))?;
     if document["result_envelope"]["reproducibility"]["derivative_hash"] != expected {
         return Err(format!("{DERIVATIVE_HASH_MISMATCH}: the derivative hash does not verify"));
+    }
+    Ok(())
+}
+
+/// One checksum record's location with its index segments replaced by `*`.
+fn record_kind(path: &str) -> String {
+    path.split('/')
+        .map(|segment| if !segment.is_empty() && segment.bytes().all(|byte| byte.is_ascii_digit()) { "*" } else { segment })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+/// Checksum subject attribution in a result member (DEL-08-01 Design §2.4,
+/// "Checksum subjects"). Every checksum record the 0.3.0 schema types
+/// (`$defs/Checksum`, `$defs/ScopedChecksum`) must name, in `payload_ref`,
+/// the subject its location derives; a record at a location with no
+/// derivation is refused. Shared by the producer and the reader, for an
+/// admitted (preview-physics-2) document; source-independent.
+pub fn check_document_subjects(document: &Value) -> Result<(), String> {
+    let fail = |detail: String| Err(format!("{CHECKSUM_SUBJECT_MISMATCH}: {detail}"));
+    let marked: Vec<(&str, &str)> = CHECKSUM_DEFS.iter().map(|pointer| (RESULTS_V03, *pointer)).collect();
+    let records = match Catalog::results_v03().validate_marking_all(RESULTS_V03, document, &marked) {
+        Ok(records) => records.into_iter().flatten().collect::<Vec<_>>(),
+        Err(failure) => return fail(failure.to_string()),
+    };
+    let e = &document["result_envelope"];
+    let text = |value: &Value| value.as_str().unwrap_or("").to_string();
+    let envelope_id = text(&e["envelope_id"]);
+    let run = text(&e["run_ref"]["ref_id"]);
+    let origins = e["reproducibility"]["source_origin_bindings"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let [origin] = origins else {
+        return fail("the result member must carry exactly one source origin".to_string());
+    };
+    // The carrier subject: the received carrier the origin binds.
+    let carrier = match origin["origin_class"].as_str() {
+        Some("attested_headless_producer") => reference("attested_headless_producer", &envelope_id),
+        Some("received_current_dimension_absent") => {
+            reference("received_current_carrier", &text(&origin["mechanics_run_ref"]["ref_id"]))
+        }
+        _ => return fail("the origin class has no derivable carrier subject".to_string()),
+    };
+    let derivative = reference("derivative_document", &envelope_id);
+    let run_subjects = [reference("AnalysisRun", &run), reference("ResultEnvelope", &format!("result-envelope:{run}"))];
+    for path in &records {
+        let record = document.pointer(path).ok_or_else(|| format!("{CHECKSUM_SUBJECT_MISMATCH}: {path} is not in the member"))?;
+        let payload_ref = &record["payload_ref"];
+        let kind = record_kind(path);
+        let accepted = match kind.as_str() {
+            "/result_envelope/reproducibility/derivative_hash"
+            | "/result_envelope/unit_preservation_witnesses/*/target_row_checksum" => *payload_ref == derivative,
+            "/result_envelope/reproducibility/model_hash" => {
+                *payload_ref == reference("model_payload", &text(&e["model_ref"]["ref_id"]))
+            }
+            "/result_envelope/reproducibility/request_hash" => match (
+                origin["origin_class"].as_str(),
+                origin["request_run_ref"]["ref_id"].as_str().and_then(|run| run.strip_prefix(HEADLESS_RUN_PREFIX)),
+            ) {
+                (Some("attested_headless_producer"), Some(request_id)) => {
+                    *payload_ref == reference("runner_request", request_id)
+                }
+                _ => false,
+            },
+            "/result_envelope/reproducibility/run_hashes/*" => run_subjects.contains(payload_ref),
+            "/result_envelope/reproducibility/raw_source_hashes/*"
+            | "/result_envelope/reproducibility/source_origin_bindings/*/received_carrier_checksum"
+            | "/result_envelope/reproducibility/source_origin_bindings/*/original_producer_checksum"
+            | "/result_envelope/row_accounting/*/received_carrier_row_checksum"
+            | "/result_envelope/row_accounting/*/original_producer_row_checksum"
+            | "/result_envelope/row_disclosures/*/received_carrier_row_checksum"
+            | "/result_envelope/row_disclosures/*/original_producer_row_checksum"
+            | "/result_envelope/unit_preservation_witnesses/*/received_carrier_row_checksum"
+            | "/result_envelope/unit_preservation_witnesses/*/original_producer_row_checksum" => *payload_ref == carrier,
+            "/result_envelope/rule_pack_refs/*/checksum" => {
+                let owner = path.strip_suffix("/checksum").and_then(|owner| document.pointer(owner));
+                owner.is_some_and(|owner| payload_ref["ref_id"] == owner["rule_pack_id"])
+            }
+            _ => return fail(format!("the checksum record at {path} has no derivable subject")),
+        };
+        if !accepted {
+            return fail(format!("the checksum record at {path} names {payload_ref}, not the subject its location derives"));
+        }
+    }
+    // The raw-source hashes are the authentic producer's carrier checksum, as
+    // the origin binds it, or nothing.
+    let raw = e["reproducibility"]["raw_source_hashes"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let expected_raw: &[Value] = if origin["authentic_producer_available"] == true {
+        std::slice::from_ref(&origin["original_producer_checksum"])
+    } else {
+        &[]
+    };
+    if raw != expected_raw {
+        return fail("raw_source_hashes is not the origin's original producer checksum".to_string());
+    }
+    Ok(())
+}
+
+/// Checksum subject attribution in an audit-manifest member, as the writer
+/// serializes it (`lib.rs` `audit_manifest_json`): an asset's hash names the
+/// asset, and a rule pack's checksum names the pack (its document, under the
+/// `rfc8785_jcs` basis). The audit's model and input-manifest hashes name
+/// their own payloads; the producer binds those to the model and the input
+/// manifest (`bindings`), and the reader binds the model hash value to the
+/// result member (`check_audit_equalities`).
+pub fn check_audit_subjects(audit: &Value) -> Result<(), String> {
+    let fail = |detail: String| Err(format!("{CHECKSUM_SUBJECT_MISMATCH}: {detail}"));
+    for asset in audit["assets"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        let hash = &asset["hash"];
+        if !hash.is_null() && hash["payload_ref"] != asset["asset_id"] {
+            return fail(format!("the hash of asset {} names another payload", asset["asset_id"]));
+        }
+    }
+    for pack in audit["rule_pack_refs"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        let checksum = &pack["checksum"];
+        if checksum.is_null() {
+            continue;
+        }
+        let id = pack["rule_pack_id"].as_str().unwrap_or("");
+        let expected = match checksum["canonicalization"].as_str() {
+            Some("rfc8785_jcs") => format!("rule_pack_document:{id}"),
+            _ => id.to_string(),
+        };
+        if checksum["payload_ref"].as_str() != Some(expected.as_str()) {
+            return fail(format!("the checksum of rule pack {id} names another payload"));
+        }
     }
     Ok(())
 }

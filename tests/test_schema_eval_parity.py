@@ -27,6 +27,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from schema_validation import (  # noqa: E402
     _draft202012_validator,
+    _registry,
+    _resource_texts,
     validate_instance,
     validate_schema_document,
 )
@@ -120,9 +122,34 @@ def _without_final_line_feed(case):
     return twin
 
 
+def _with_string(case, pointer, text):
+    """The case with the string at `pointer` replaced by `text`."""
+    probe = deepcopy(case)
+    instance = case_instance(case)
+    if pointer:
+        probe["patch"] = [op for op in probe.get("patch", []) if op.get("path") != pointer]
+        probe["patch"].append({"op": "replace", "path": pointer, "value": text})
+    else:
+        probe.pop("patch", None)
+        probe.pop("instance_file", None)
+        probe["instance"] = text
+    return probe, instance
+
+
+def _oracle_errors(case):
+    schema = {"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": VECTOR_ID, **case["schema"]}
+    validator = _draft202012_validator()(schema, registry=_registry(_resource_texts(), VECTOR_ID))
+    return [(error.validator, "".join(f"/{part}" for part in error.absolute_path), error.validator_value)
+            for error in validator.iter_errors(case_instance(case))]
+
+
 def check_final_line_feed_entry(case):
-    """An enumerated class entry: the ECMA verdict is invalid, the oracle's is
-    valid, and the final line feed is the whole difference."""
+    """An enumerated class entry. It is in the class only if the anchored
+    `pattern` at the recorded string is its sole failure under ECMA-262, the
+    oracle (Python `re`) accepts it, and removing the final line feed makes it
+    valid under both. The Rust half (its sole failure is that `pattern`, and
+    the line-feed-free twin is valid) is asserted by
+    core/reporting/report_package/tests/schema_eval.rs."""
     divergence = case["oracle_divergence"]
     assert set(divergence) == {"class", "string_pointer", "pattern"}, case["id"]
     assert divergence["class"] == FINAL_LF_CLASS
@@ -131,14 +158,23 @@ def check_final_line_feed_entry(case):
     pattern = divergence["pattern"]
     assert re.fullmatch(r"\^\[0-9a-f\]\{\d+\}\$", pattern), pattern
     assert json.dumps(pattern) in CLOSURE_TEXT, "the pattern is one of the closure's"
-    value = _pointer(case_instance(case), divergence["string_pointer"])
+    pointer = divergence["string_pointer"]
+    instance = case_instance(case)
+    value = _pointer(instance, pointer)
     assert isinstance(value, str) and value.endswith("\n") and "\n" not in value[:-1]
-    # ECMA-262 `$` without the m flag is end of input, Python's `\Z`.
-    assert re.search(pattern, value) is not None
-    assert re.search(pattern[:-1] + r"\Z", value) is None
     assert case["valid"] is False, "the expected (Rust) verdict is the ECMA-262 one"
     assert oracle_verdict(case) is True
-    assert oracle_verdict(_without_final_line_feed(case)) is True
+    twin = _without_final_line_feed(case)
+    assert oracle_verdict(twin) is True
+    # The schema applies exactly this anchored pattern at the recorded string:
+    # a same-length non-matching probe there fails the oracle by that pattern
+    # alone. With the oracle valid on the case and on its twin, which differ
+    # only in that string's final line feed, the ECMA-262 `$` at this pattern
+    # is the whole difference (other string keywords judge both alike).
+    probe, _ = _with_string(case, pointer, "z" * (len(value) - 1))
+    assert _oracle_errors(probe) == [("pattern", pointer, pattern)], case["id"]
+    # ECMA-262 `$` without the m flag is end of input, Python's `\Z`.
+    assert re.search(pattern[:-1] + r"\Z", value) is None
 
 
 @pytest.mark.parametrize("case", VECTORS["cases"], ids=[case["id"] for case in VECTORS["cases"]])
@@ -172,3 +208,24 @@ def test_every_vector_has_the_same_verdict_outside_the_enumerated_class():
     for case in VECTORS["cases"]:
         if case["id"] in enumerated:
             check_final_line_feed_entry(case)
+
+def test_final_line_feed_class_refuses_an_unrelated_decoy():
+    # The only Rust/oracle disagreement here is numeric bound rounding.
+    # The recorded LF is unconstrained by pattern and cannot explain it.
+    case = {
+        "id": "invented-decoy-LF-unrelated-to-numeric-failure",
+        "schema": {"type": "object", "properties": {
+            "number": {"exclusiveMinimum": 9007199254740992},
+            "decoy": {"type": "string"},
+        }},
+        "instance": {"number": 9007199254740993, "decoy": "a" * 64 + "\n"},
+        "valid": False,
+        "covers": ["pattern"],
+        "oracle_divergence": {
+            "class": FINAL_LF_CLASS,
+            "string_pointer": "/decoy",
+            "pattern": "^[0-9a-f]{64}$",
+        },
+    }
+    with pytest.raises(AssertionError):
+        check_final_line_feed_entry(case)

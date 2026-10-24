@@ -227,6 +227,10 @@ pub enum ManifestFindingCode {
     DuplicateReference,
     PayloadKindMismatch,
     PayloadCanonicalizationMismatch,
+    /// A hash record names another payload than the subject it is attached
+    /// to: an asset's hash names another asset, or a rule pack's checksum
+    /// another pack.
+    PayloadSubjectMismatch,
     ProfessionalBoundaryViolation,
 }
 
@@ -444,6 +448,13 @@ fn check_rule_pack_refs(rule_pack_refs: &[RulePackAuditRef], findings: &mut Vec<
                     &rule_pack.rule_pack_id,
                     findings,
                 );
+                // The checksum's subject is the pack: its payload under the
+                // pack's own bases, its loaded document under `rfc8785_jcs`.
+                let subject = match checksum.canonicalization {
+                    Canonicalization::Rfc8785Jcs => format!("rule_pack_document:{}", rule_pack.rule_pack_id),
+                    _ => rule_pack.rule_pack_id.clone(),
+                };
+                check_hash_subject(checksum, &subject, &rule_pack.rule_pack_id, findings);
             }
             _ => findings.push(ManifestFinding::new(
                 ManifestFindingCode::MissingRulePackChecksum,
@@ -509,6 +520,7 @@ fn check_assets(assets: &[AssetManifestEntry], findings: &mut Vec<ManifestFindin
                     &asset.asset_id,
                     findings,
                 );
+                check_hash_subject(hash, &asset.asset_id, &asset.asset_id, findings);
             }
             _ => findings.push(ManifestFinding::new(
                 ManifestFindingCode::MissingAssetHash,
@@ -594,6 +606,19 @@ fn check_hash_record(
             ManifestFindingSeverity::Blocking,
             subject_id,
             "hash record canonicalization does not match the manifest slot",
+        ));
+    }
+}
+
+/// A hash record names the subject it is attached to (DEL-08-01 Design
+/// `report-package-current-results.md` §2.4, "Checksum subjects").
+fn check_hash_subject(hash: &HashRecord, subject: &str, subject_id: &str, findings: &mut Vec<ManifestFinding>) {
+    if hash.payload_ref != subject {
+        findings.push(ManifestFinding::new(
+            ManifestFindingCode::PayloadSubjectMismatch,
+            ManifestFindingSeverity::Blocking,
+            subject_id,
+            format!("hash record names payload '{}', not its subject '{subject}'", hash.payload_ref),
         ));
     }
 }
@@ -964,6 +989,38 @@ mod tests {
         let result = validate_manifest(&manifest);
 
         assert!(result.findings.is_empty());
+    }
+
+    #[test]
+    fn hash_records_must_name_the_subject_they_are_attached_to() {
+        let subject_findings = |manifest: &AuditManifest| {
+            validate_manifest(manifest)
+                .findings
+                .into_iter()
+                .filter(|finding| finding.code == ManifestFindingCode::PayloadSubjectMismatch)
+                .count()
+        };
+        let model_hash = hash_canonical_json(PayloadKind::ModelJson, "model", &model_payload("r1"));
+        let manifest = valid_manifest(model_hash);
+        assert_eq!(subject_findings(&manifest), 0);
+
+        let mut asset = manifest.clone();
+        asset.assets[0].hash.as_mut().unwrap().payload_ref = "binary-asset-2".to_string();
+        assert_eq!(subject_findings(&asset), 1);
+        assert!(validate_manifest(&asset).has_blocking_findings());
+
+        let mut pack = manifest.clone();
+        pack.rule_pack_refs[0].checksum.as_mut().unwrap().payload_ref = "another-rule-pack".to_string();
+        assert_eq!(subject_findings(&pack), 1);
+
+        // The loaded document's digest names the pack's document.
+        let mut document = manifest.clone();
+        let checksum = document.rule_pack_refs[0].checksum.as_mut().unwrap();
+        checksum.canonicalization = Canonicalization::Rfc8785Jcs;
+        checksum.payload_ref = "rule_pack_document:invented-rule-pack".to_string();
+        assert_eq!(subject_findings(&document), 0);
+        document.rule_pack_refs[0].checksum.as_mut().unwrap().payload_ref = "invented-rule-pack".to_string();
+        assert_eq!(subject_findings(&document), 1);
     }
 
     #[test]

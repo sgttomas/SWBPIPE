@@ -6302,6 +6302,10 @@ mod tests {
             json!({"ref_type": "project", "ref_id": model_id});
         fixture["calculation_report"]["model_input_summary"]["model_ref"] =
             json!({"ref_type": "model", "ref_id": model_id});
+        // The model hash names the summary's model (checksum subjects,
+        // DEL-08-01 Design §2.4).
+        fixture["calculation_report"]["model_input_summary"]["model_hash"]["payload_ref"] =
+            json!({"ref_type": "model", "ref_id": model_id});
         fixture["calculation_report"]["model_input_summary"]["persistence_ref"] = json!({"ref_type": "project_persistence", "ref_id": "session_state_only_not_yet_saved"});
         fixture["calculation_report"]["model_input_summary"]["unit_system_ref"] =
             json!({"ref_type": "unit_system", "ref_id": "a12-rehearsal-si-local"});

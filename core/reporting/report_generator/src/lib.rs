@@ -584,6 +584,7 @@ pub fn validate_report(report: &CalculationReport) -> ReportValidation {
         &report.report_section_refs,
         &mut diagnostics,
     );
+    check_checksum_subjects(report, &mut diagnostics);
     check_reference_boundary_gaps(report, &mut diagnostics);
     if !report
         .rule_pack_refs
@@ -695,6 +696,41 @@ pub fn ordered_sections(report: &CalculationReport) -> Vec<NeutralReportSection>
             .then_with(|| left.section_id.cmp(&right.section_id))
     });
     sections
+}
+
+/// Every checksum names the subject it is attached to (DEL-08-01 Design
+/// `report-package-current-results.md` §2.4, "Checksum subjects"): a
+/// referenced envelope's checksum names that envelope's own reference, a
+/// rule-pack reference's checksum names that pack, and the model hash names
+/// the summary's model.
+fn check_checksum_subjects(report: &CalculationReport, diagnostics: &mut Vec<Diagnostic>) {
+    let mut mismatched: Vec<Reference> = Vec::new();
+    let summary = &report.model_input_summary;
+    if summary.model_hash.payload_ref != summary.model_ref {
+        mismatched.push(summary.model_hash.payload_ref.clone());
+    }
+    for envelope in report
+        .result_export_refs
+        .iter()
+        .chain(&report.audit_manifest_refs)
+        .chain(&report.report_section_refs)
+    {
+        if envelope.checksum.payload_ref != envelope.reference {
+            mismatched.push(envelope.checksum.payload_ref.clone());
+        }
+    }
+    for rule_pack in &report.rule_pack_refs {
+        if rule_pack.checksum.payload_ref.ref_id != rule_pack.rule_pack_id {
+            mismatched.push(rule_pack.checksum.payload_ref.clone());
+        }
+    }
+    for payload_ref in mismatched {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-CHECKSUM-SUBJECT-MISMATCH",
+            payload_ref,
+            "a checksum must name the subject it is attached to: the referenced envelope, the rule pack, or the summary's model",
+        ));
+    }
 }
 
 fn check_referenced_envelopes(
@@ -1002,6 +1038,34 @@ mod tests {
                 review_needed: true,
             }],
         }
+    }
+
+    #[test]
+    fn checksums_must_name_the_subject_they_are_attached_to() {
+        let codes = |report: &CalculationReport| {
+            validate_report(report)
+                .diagnostics
+                .iter()
+                .filter(|diagnostic| diagnostic.code == "REPORT-CHECKSUM-SUBJECT-MISMATCH")
+                .count()
+        };
+        assert_eq!(codes(&report()), 0);
+        let mut section = report();
+        section.report_section_refs[0].checksum.payload_ref.ref_id = "another-section".to_string();
+        assert_eq!(codes(&section), 1);
+        assert!(validate_report(&section).is_blocked());
+        let mut result = report();
+        result.result_export_refs[0].checksum.payload_ref.ref_type = "another_type".to_string();
+        assert_eq!(codes(&result), 1);
+        let mut audit = report();
+        audit.audit_manifest_refs[0].checksum.payload_ref.ref_id = "another-run".to_string();
+        assert_eq!(codes(&audit), 1);
+        let mut pack = report();
+        pack.rule_pack_refs[0].checksum.payload_ref.ref_id = "another-rule-pack".to_string();
+        assert_eq!(codes(&pack), 1);
+        let mut model = report();
+        model.model_input_summary.model_hash.payload_ref.ref_id = "another-model".to_string();
+        assert_eq!(codes(&model), 1);
     }
 
     #[test]

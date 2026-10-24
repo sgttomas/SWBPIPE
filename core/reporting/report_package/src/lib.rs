@@ -241,6 +241,7 @@ pub fn assemble_report_package_container(
             document_form::check_route_admitted(document),
             document_form::check_result_member_form(document),
             document_form::check_audit_equalities(document, &input.audit_manifest.manifest_id, audit_model_hash),
+            document_form::check_document_subjects(document),
         ] {
             if let Err(reason) = check {
                 blocking_reasons.push(format!("result export {envelope_id}: {reason}"));

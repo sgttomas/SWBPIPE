@@ -187,6 +187,28 @@ pub fn rehash(mut document: Value) -> Value {
 pub fn invented_result_document_variant(envelope_id: Option<&str>, magnitude: Option<f64>) -> Value {
     let mut document = invented_result_document();
     if let Some(envelope_id) = envelope_id {
+        // Relabel the envelope coherently: every checksum subject that names
+        // the envelope (the derivative and the attested carrier) follows it.
+        let old = document["result_envelope"]["envelope_id"].clone();
+        fn relabel(value: &mut Value, old: &Value, new: &str) {
+            match value {
+                Value::Object(members) => {
+                    if let Some(subject) = members.get_mut("payload_ref") {
+                        let names_envelope = matches!(
+                            subject["ref_type"].as_str(),
+                            Some("derivative_document" | "attested_headless_producer")
+                        );
+                        if names_envelope && subject["ref_id"] == *old {
+                            subject["ref_id"] = json!(new);
+                        }
+                    }
+                    members.values_mut().for_each(|member| relabel(member, old, new));
+                }
+                Value::Array(items) => items.iter_mut().for_each(|item| relabel(item, old, new)),
+                _ => {}
+            }
+        }
+        relabel(&mut document, &old, envelope_id);
         document["result_envelope"]["envelope_id"] = json!(envelope_id);
     }
     if let Some(magnitude) = magnitude {

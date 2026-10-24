@@ -910,6 +910,10 @@ fn verify_members(
                     .map_err(|reason| defect(reason.to_string()))?;
                 match row.role.as_str() {
                     ROLE_AUDIT_MANIFEST => {
+                        // Checksum subjects (DEL-08-01 Design §2.4).
+                        if !export_blocked {
+                            document_form::check_audit_subjects(&document).map_err(&defect)?;
+                        }
                         audit_identity = Some((
                             document["manifest_id"].as_str().unwrap_or_default().to_string(),
                             document["model_hash"]["value"].as_str().map(str::to_string),
@@ -929,6 +933,7 @@ fn verify_members(
                                 .ok_or_else(|| defect("no audit manifest precedes the result member".to_string()))?;
                             document_form::check_audit_equalities(&document, manifest_id, model_hash.as_deref())
                                 .map_err(&defect)?;
+                            document_form::check_document_subjects(&document).map_err(&defect)?;
                         }
                     }
                     _ => {}

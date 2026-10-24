@@ -1185,3 +1185,35 @@ fn an_unblocked_package_whose_audit_identity_differs_from_its_result_member_is_r
         member_refusal(&with_result_member(&package(), &document), "REPORT-PACKAGE-AUDIT-BINDING-MISMATCH");
     }
 }
+
+/// Checksum subjects at the reader (DEL-08-01 Design §2.4): an unblocked
+/// package whose audit asset hash or result-member carrier checksum names
+/// another subject is refused, although its inventory is consistent.
+#[test]
+fn forged_checksum_subjects_are_refused() {
+    use open_pipe_stress_audit_manifest as audit;
+    let mut fixture = Fixture::new();
+    fixture.audit_manifest.assets.push(audit::AssetManifestEntry {
+        asset_id: "invented-asset-A".to_string(),
+        payload_kind: audit::PayloadKind::BinaryAsset,
+        privacy_class: audit::PrivacyClass::PublicMetadata,
+        hash: Some(audit::hash_asset("invented-asset-A", b"invented asset bytes")),
+        provenance: "Invented public fixture".to_string(),
+    });
+    let outcome = assemble_report_package_container(&fixture.input());
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    read_report_package_container(&outcome.container_bytes).expect("the control reads");
+
+    let mut entries = entries(&outcome);
+    let mut audit_member: Value = serde_json::from_slice(&entries[3].data).unwrap();
+    assert_eq!(audit_member["assets"][0]["hash"]["payload_ref"], "invented-asset-A");
+    audit_member["assets"][0]["hash"]["payload_ref"] = json!("invented-asset-B");
+    replace_member_consistently(&mut entries, 3, canonical_json(&audit_member).into_bytes());
+    member_refusal(&zip(&entries), "REPORT-PACKAGE-CHECKSUM-SUBJECT-MISMATCH");
+
+    let document = edited_document(|d| {
+        d["result_envelope"]["reproducibility"]["raw_source_hashes"][0]["payload_ref"]["ref_id"] =
+            json!("invented-other-producer");
+    });
+    member_refusal(&with_result_member(&outcome, &document), "REPORT-PACKAGE-CHECKSUM-SUBJECT-MISMATCH");
+}

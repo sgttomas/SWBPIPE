@@ -109,13 +109,14 @@ const MAX_DEPTH: usize = 256;
 /// The instance paths at which one marked schema location was applied (see
 /// [`Catalog::validate_marking`]).
 struct Marks<'a> {
-    target: Option<&'a Value>,
-    found: Vec<String>,
+    targets: Vec<&'a Value>,
+    /// `(target index, instance path)`, in evaluation order.
+    found: Vec<(usize, String)>,
 }
 
 impl Marks<'_> {
     fn none() -> Self {
-        Marks { target: None, found: Vec::new() }
+        Marks { targets: Vec::new(), found: Vec::new() }
     }
 }
 
@@ -210,19 +211,43 @@ impl Catalog {
         marked_resource: &str,
         marked_pointer: &str,
     ) -> Result<Vec<String>, SchemaFailure> {
+        let mut found = self.validate_marking_all(resource, instance, &[(marked_resource, marked_pointer)])?;
+        Ok(found.remove(0))
+    }
+
+    /// [`Catalog::validate_marking`] for several marked schema locations at
+    /// once: one path list per `(resource, pointer)`, in the given order.
+    pub fn validate_marking_all(
+        &self,
+        resource: &str,
+        instance: &Value,
+        marked: &[(&str, &str)],
+    ) -> Result<Vec<Vec<String>>, SchemaFailure> {
         let unsupported = |detail: String| SchemaFailure::Unsupported { detail };
         let index = self.index(resource).ok_or_else(|| unsupported(format!("resource {resource} is not in the catalog")))?;
-        let marked_index = self
-            .index(marked_resource)
-            .ok_or_else(|| unsupported(format!("resource {marked_resource} is not in the catalog")))?;
-        let target = self.resources[marked_index]
-            .1
-            .pointer(marked_pointer)
-            .ok_or_else(|| unsupported(format!("pointer {marked_pointer} is not in {marked_resource}")))?;
-        let mut marks = Marks { target: Some(target), found: Vec::new() };
+        let mut targets = Vec::with_capacity(marked.len());
+        for (marked_resource, marked_pointer) in marked {
+            let marked_index = self
+                .index(marked_resource)
+                .ok_or_else(|| unsupported(format!("resource {marked_resource} is not in the catalog")))?;
+            targets.push(
+                self.resources[marked_index]
+                    .1
+                    .pointer(marked_pointer)
+                    .ok_or_else(|| unsupported(format!("pointer {marked_pointer} is not in {marked_resource}")))?,
+            );
+        }
+        let mut marks = Marks { targets, found: Vec::new() };
         let mut path = String::new();
         self.eval(index, &self.resources[index].1, instance, &mut path, 0, &mut marks)?;
-        Ok(marks.found)
+        let mut found = vec![Vec::new(); marked.len()];
+        let mut seen = std::collections::HashSet::new();
+        for (target, path) in marks.found {
+            if seen.insert((target, path.clone())) {
+                found[target].push(path);
+            }
+        }
+        Ok(found)
     }
 
     /// Validates `instance` against the whole resource `resource`.
@@ -270,8 +295,8 @@ impl Catalog {
             })?;
             let (target_resource, target) = self.resolve(resource, reference)?;
             self.eval(target_resource, target, instance, path, depth + 1, marks)?;
-            if marks.target.is_some_and(|marked| std::ptr::eq(marked, target)) {
-                marks.found.push(path.clone());
+            if let Some(marked) = marks.targets.iter().position(|marked| std::ptr::eq(*marked, target)) {
+                marks.found.push((marked, path.clone()));
             }
         }
         if let Some(types) = schema.get("type") {
@@ -304,11 +329,13 @@ impl Catalog {
         }
         if let Some(any) = schema.get("anyOf") {
             let branches = any.as_array().ok_or_else(|| unsupported_value("anyOf"))?;
+            // Every branch is evaluated, not only up to the first match, so
+            // marks come from every successful branch (a failed branch's
+            // marks are rolled back by `passes`).
             let mut matched = false;
             for branch in branches {
                 if self.passes(resource, branch, instance, path, depth, marks)? {
                     matched = true;
-                    break;
                 }
             }
             if !matched {
@@ -369,29 +396,26 @@ impl Catalog {
         }
     }
 
+    /// Numeric bounds, compared exactly (see [`compare_numbers`]).
     fn eval_number(&self, schema: &Map<String, Value>, number: &Number, path: &str) -> Result<(), SchemaFailure> {
-        let value = number.as_f64().ok_or_else(|| unsupported_value("number"))?;
-        let bound = |keyword: &str| -> Result<Option<f64>, SchemaFailure> {
+        use std::cmp::Ordering::{Equal, Greater, Less};
+        let order = |keyword: &str| -> Result<Option<std::cmp::Ordering>, SchemaFailure> {
             match schema.get(keyword) {
                 None => Ok(None),
-                Some(Value::Number(bound)) => Ok(bound.as_f64()),
+                Some(Value::Number(bound)) => {
+                    compare_numbers(number, bound).map(Some).ok_or_else(|| unsupported_value(keyword))
+                }
                 Some(_) => Err(unsupported_value(keyword)),
             }
         };
-        if let Some(minimum) = bound("minimum")? {
-            if value < minimum {
-                return Err(invalid(path, "minimum"));
-            }
+        if order("minimum")? == Some(Less) {
+            return Err(invalid(path, "minimum"));
         }
-        if let Some(maximum) = bound("maximum")? {
-            if value > maximum {
-                return Err(invalid(path, "maximum"));
-            }
+        if order("maximum")? == Some(Greater) {
+            return Err(invalid(path, "maximum"));
         }
-        if let Some(exclusive) = bound("exclusiveMinimum")? {
-            if value <= exclusive {
-                return Err(invalid(path, "exclusiveMinimum"));
-            }
+        if matches!(order("exclusiveMinimum")?, Some(Less | Equal)) {
+            return Err(invalid(path, "exclusiveMinimum"));
         }
         Ok(())
     }
@@ -433,6 +457,7 @@ impl Catalog {
             }
         }
         if let Some(contained) = schema.get("contains") {
+            // Every item is evaluated, so marks come from every matching item.
             let mut found = false;
             for (index, item) in items.iter().enumerate() {
                 let length = path.len();
@@ -441,7 +466,6 @@ impl Catalog {
                 path.truncate(length);
                 if passes {
                     found = true;
-                    break;
                 }
             }
             if !found {
@@ -629,6 +653,40 @@ fn number_equal(left: &Number, right: &Number) -> bool {
     }
 }
 
+/// The exact order of two JSON numbers by mathematical value: integers as
+/// integers, a binary64 against an integer without rounding the integer, and
+/// two binary64 values by value. `None` only for a non-finite value.
+fn compare_numbers(left: &Number, right: &Number) -> Option<std::cmp::Ordering> {
+    match (integer_value(left), integer_value(right)) {
+        (Some(left), Some(right)) => Some(left.cmp(&right)),
+        (Some(integer), None) => Some(compare_integer_float(integer, right.as_f64()?)?),
+        (None, Some(integer)) => Some(compare_integer_float(integer, left.as_f64()?)?.reverse()),
+        (None, None) => left.as_f64()?.partial_cmp(&right.as_f64()?),
+    }
+}
+
+/// `integer` against `value`, exactly.
+fn compare_integer_float(integer: i128, value: f64) -> Option<std::cmp::Ordering> {
+    use std::cmp::Ordering::{Equal, Greater, Less};
+    if !value.is_finite() {
+        return None;
+    }
+    // 2^126 bounds every i64/u64 integer and keeps `truncated as i128` exact.
+    const LIMIT: f64 = 8.507_059_173_023_462e37;
+    if value >= LIMIT {
+        return Some(Less);
+    }
+    if value <= -LIMIT {
+        return Some(Greater);
+    }
+    let truncated = value.trunc();
+    Some(match integer.cmp(&(truncated as i128)) {
+        Equal if value > truncated => Less,
+        Equal if value < truncated => Greater,
+        order => order,
+    })
+}
+
 /// A hash consistent with [`json_equal`]: equal values hash equally. Numbers
 /// hash by exact value (an integral value as its integer), objects by sorted
 /// member names.
@@ -663,8 +721,12 @@ fn hash_json(value: &Value, state: &mut impl std::hash::Hasher) {
     }
 }
 
-/// `uniqueItems` in near-linear work: items are bucketed by [`hash_json`] and
-/// compared with [`json_equal`] only within a bucket.
+/// `uniqueItems` in near-linear expected work: items are bucketed by
+/// [`hash_json`] and compared with [`json_equal`] only within a bucket. The
+/// bound is expected, not strict: distinct values whose hashes collide share
+/// a bucket and are compared pairwise. The hasher is freshly and randomly
+/// keyed per call (SipHash through `RandomState`) and covers the whole
+/// canonical value, so an instance cannot choose colliding items in advance.
 fn has_duplicate(items: &[Value]) -> bool {
     use std::hash::{BuildHasher, Hasher};
     let seed = std::collections::hash_map::RandomState::new();
@@ -803,6 +865,21 @@ mod tests {
         assert!(has_duplicate(&[json!(1), json!(1.0)]));
         assert!(has_duplicate(&[json!({"a": 1, "b": 2}), json!({"b": 2.0, "a": 1})]));
         assert!(!has_duplicate(&[json!(9007199254740993u64), json!(9007199254740992.0)]));
+    }
+
+    #[test]
+    fn numeric_bounds_are_exact() {
+        let parse = |text: &str| serde_json::from_str::<Value>(text).unwrap();
+        let check = |schema: &str, instance: &str| verdict(parse(schema), parse(instance)).is_ok();
+        assert!(check(r#"{"exclusiveMinimum": 9007199254740992}"#, "9007199254740993"));
+        assert!(!check(r#"{"exclusiveMinimum": 9007199254740992}"#, "9007199254740992.0"));
+        assert!(!check(r#"{"maximum": 9007199254740992.0}"#, "9007199254740993"));
+        assert!(check(r#"{"minimum": 18446744073709551615}"#, "18446744073709551615"));
+        assert!(!check(r#"{"minimum": 18446744073709551615}"#, "18446744073709551614"));
+        assert!(check(r#"{"minimum": 0}"#, "-0.0"));
+        assert!(check(r#"{"exclusiveMinimum": 0}"#, "5e-324"));
+        assert!(!check(r#"{"minimum": 1}"#, "0.9999999999999999"));
+        assert!(check(r#"{"maximum": -1}"#, "-1.5"));
     }
 
     #[test]

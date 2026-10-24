@@ -15,7 +15,9 @@ use open_pipe_stress_report_package::bindings::{
     BINDING_MISMATCH, DESKTOP_PROFILE, REPORT_CONTEXT_NOT_LOCAL_PRIVATE, REPORT_ROWS_MISMATCH,
     RULE_CHECK_BINDING_MISMATCH, RULE_PACK_CHECKSUM_BASIS_UNSUPPORTED, SOLVER_IDENTITY_MISMATCH, SOURCE_INVALID,
 };
-use open_pipe_stress_report_package::document_form::{DERIVATIVE_HASH_MISMATCH, RESULT_FORM_INVALID, ROUTE_NOT_ADMITTED};
+use open_pipe_stress_report_package::document_form::{
+    CHECKSUM_SUBJECT_MISMATCH, DERIVATIVE_HASH_MISMATCH, RESULT_FORM_INVALID, ROUTE_NOT_ADMITTED,
+};
 use open_pipe_stress_report_package::wire::{assemble_wire_request, LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_report_package::{
     read_report_package_container, ReportPackageContainerOutcome, PACKAGE_MANIFEST_SCHEMA_VERSION, ROLE_REPORT_HTML,
@@ -418,7 +420,12 @@ fn a_runner_run_other_than_the_request_run_is_refused() {
             json!("run:invented-other");
     });
     let error = assemble(&edited).unwrap_err();
-    assert!(error.starts_with(BINDING_MISMATCH) || error.starts_with(SOURCE_INVALID), "{error}");
+    // The request hash's subject derives from the request run, so the subject
+    // check may refuse it first.
+    assert!(
+        [BINDING_MISMATCH, SOURCE_INVALID, CHECKSUM_SUBJECT_MISMATCH].iter().any(|code| error.starts_with(code)),
+        "{error}"
+    );
 }
 
 #[test]
@@ -678,4 +685,225 @@ fn route_preflight_precedes_audit_conversion() {
         request["audit_manifest"]["model_hash"]["canonicalization"] = json!("unsupported-basis");
         refused(&request, ROUTE_NOT_ADMITTED, "item 0 must run before audit conversion");
     }
+}
+
+#[test]
+fn round2_audit_asset_checksum_must_name_its_asset() {
+    let mut request = runner();
+    request["audit_manifest"]["assets"] = json!([{
+        "asset_id":"invented-asset-A", "payload_kind":"binary_asset", "privacy_class":"public_metadata",
+        "hash":{"algorithm":"sha256", "canonicalization":"none", "payload_kind":"binary_asset",
+            "payload_ref":"invented-asset-A", "value":RULE_PACK_HEX}, "provenance":"Invented public fixture"
+    }]);
+    let control=unblocked(&request);
+    read_report_package_container(&control.container_bytes).unwrap();
+    request["audit_manifest"]["assets"][0]["hash"]["payload_ref"]=json!("invented-asset-B");
+    let result=assemble(&request);
+    assert!(result.as_ref().map_or(true, |r|r.export_blocked), "another asset's hash assembled unblocked");
+}
+
+#[test]
+fn round2_report_section_checksum_must_name_its_reference() {
+    let mut request=runner();
+    unblocked(&request);
+    request["report"]["calculation_report"]["report_section_refs"][0]["checksum"]["payload_ref"]["ref_id"] = json!("invented-other-section");
+    let result=assemble(&request);
+    assert!(result.as_ref().map_or(true, |r|r.export_blocked), "another section's checksum assembled unblocked");
+}
+
+#[test]
+fn round2_raw_source_hash_must_equal_the_bound_original_producer_checksum() {
+    let request=with_document(&runner(), |d| {
+        d["result_envelope"]["reproducibility"]["raw_source_hashes"][0]["payload_ref"]["ref_id"] = json!("invented-other-producer");
+    });
+    let result=assemble(&request);
+    assert!(result.as_ref().map_or(true, |r|r.export_blocked), "unbound raw-source hash assembled unblocked");
+}
+
+#[test]
+fn round2_marking_collects_all_successful_any_of_branches() {
+    use open_pipe_stress_report_package::schema_eval::Catalog;
+    let c=Catalog::new(vec![("inline.json".into(),json!({
+        "$defs":{"Provenance":{"type":"object","required":["source_name"]}},
+        "properties":{"record":{"anyOf":[true,{"$ref":"#/$defs/Provenance"}]}}
+    }))]);
+    let marks=c.validate_marking("inline.json",&json!({"record":{"source_name":" "}}),"inline.json","/$defs/Provenance").unwrap();
+    assert_eq!(marks,["/record"]);
+}
+
+#[test]
+fn round2_marking_collects_all_matching_contains_items() {
+    use open_pipe_stress_report_package::schema_eval::Catalog;
+    let c=Catalog::new(vec![("inline.json".into(),json!({
+        "$defs":{"Provenance":{"type":"object","required":["source_name"]}},
+        "contains":{"$ref":"#/$defs/Provenance"}
+    }))]);
+    let marks=c.validate_marking("inline.json",&json!([{"source_name":"ok"},{"source_name":" "}]),"inline.json","/$defs/Provenance").unwrap();
+    assert_eq!(marks,["/0","/1"]);
+}
+
+#[test]
+fn round2_numeric_bounds_preserve_large_integer_order() {
+    use open_pipe_stress_report_package::schema_eval::Catalog;
+    let c=Catalog::new(vec![("inline.json".into(),json!({"exclusiveMinimum":9007199254740992u64}))]);
+    assert!(c.validate("inline.json", &json!(9007199254740993u64)).is_ok());
+}
+
+#[test]
+fn round2_carrier_checksum_subjects_cannot_be_coherently_relabelled() {
+    fn edit(value:&mut Value) {
+        match value {
+            Value::Object(map)=> {
+                if map.get("payload_ref").is_some_and(|r|r["ref_type"]=="attested_headless_producer") {
+                    map.get_mut("payload_ref").unwrap()["ref_id"]=json!("invented-other-carrier");
+                }
+                for item in map.values_mut() {edit(item);}
+            },
+            Value::Array(items)=>for item in items {edit(item);},
+            _=>{},
+        }
+    }
+    let request=with_document(&runner(),edit);
+    let result=assemble(&request);
+    assert!(result.as_ref().map_or(true, |r|r.export_blocked), "359 carrier checksum subjects relabelled without refusal");
+}
+
+// ---------------------------------------------------------------------------
+// Checksum subjects (DEL-08-01 Design §2.4, "Checksum subjects"): one refusal
+// per record kind, generated from the request's own payload references.
+// ---------------------------------------------------------------------------
+
+/// Every `payload_ref` location in `value`, as JSON pointers.
+fn payload_ref_locations(value: &Value, pointer: &str, out: &mut Vec<String>) {
+    match value {
+        Value::Object(members) => {
+            for (key, member) in members {
+                let at = format!("{pointer}/{}", key.replace('~', "~0").replace('/', "~1"));
+                if key == "payload_ref" {
+                    out.push(at.clone());
+                }
+                payload_ref_locations(member, &at, out);
+            }
+        }
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                payload_ref_locations(item, &format!("{pointer}/{index}"), out);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn record_kind(pointer: &str) -> String {
+    pointer
+        .split('/')
+        .map(|segment| if !segment.is_empty() && segment.bytes().all(|byte| byte.is_ascii_digit()) { "*" } else { segment })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+/// A request carrying every record kind: the basis plus an audit asset and a
+/// rule-check run (the report's and the audit's rule-pack records).
+fn every_kind(request: &Value) -> Value {
+    let mut request = with_rule_check(request, rule_pack_checksum("JCS", "rule_pack"));
+    request["audit_manifest"]["assets"] = json!([{
+        "asset_id": "invented-asset-A", "payload_kind": "binary_asset", "privacy_class": "public_metadata",
+        "hash": {"algorithm": "sha256", "canonicalization": "none", "payload_kind": "binary_asset",
+            "payload_ref": "invented-asset-A", "value": RULE_PACK_HEX},
+        "provenance": "Invented public fixture"
+    }]);
+    request
+}
+
+/// The record kinds the round-2 review inventoried (640 references, 23
+/// shapes), plus the asset and rule-pack records a rule-check package adds.
+const RECORD_KINDS: [&str; 26] = [
+    "/audit_manifest/assets/*/hash/payload_ref",
+    "/audit_manifest/input_manifest_hash/payload_ref",
+    "/audit_manifest/model_hash/payload_ref",
+    "/audit_manifest/rule_pack_refs/*/checksum/payload_ref",
+    "/report/calculation_report/audit_manifest_refs/*/checksum/payload_ref",
+    "/report/calculation_report/model_input_summary/model_hash/payload_ref",
+    "/report/calculation_report/report_section_refs/*/checksum/payload_ref",
+    "/report/calculation_report/result_export_refs/*/checksum/payload_ref",
+    "/report/calculation_report/rule_pack_refs/*/checksum/payload_ref",
+    "/result_documents/*/result_envelope/reproducibility/derivative_hash/payload_ref",
+    "/result_documents/*/result_envelope/reproducibility/model_hash/payload_ref",
+    "/result_documents/*/result_envelope/reproducibility/raw_source_hashes/*/payload_ref",
+    "/result_documents/*/result_envelope/reproducibility/request_hash/payload_ref",
+    "/result_documents/*/result_envelope/reproducibility/run_hashes/*/payload_ref",
+    "/result_documents/*/result_envelope/reproducibility/source_origin_bindings/*/original_producer_checksum/payload_ref",
+    "/result_documents/*/result_envelope/reproducibility/source_origin_bindings/*/received_carrier_checksum/payload_ref",
+    "/result_documents/*/result_envelope/row_accounting/*/original_producer_row_checksum/payload_ref",
+    "/result_documents/*/result_envelope/row_accounting/*/received_carrier_row_checksum/payload_ref",
+    "/result_documents/*/result_envelope/row_disclosures/*/original_producer_row_checksum/payload_ref",
+    "/result_documents/*/result_envelope/row_disclosures/*/received_carrier_row_checksum/payload_ref",
+    "/result_documents/*/result_envelope/unit_preservation_witnesses/*/original_producer_row_checksum/payload_ref",
+    "/result_documents/*/result_envelope/unit_preservation_witnesses/*/received_carrier_row_checksum/payload_ref",
+    "/result_documents/*/result_envelope/unit_preservation_witnesses/*/target_row_checksum/payload_ref",
+    "/state_comparison_handoff_records/*/sections/state_run_sections/*/hash_refs/*/payload_ref",
+    "/state_comparison_handoff_records/*/sections/state_run_sections/*/reproducibility/input_manifest_hashes/*/payload_ref",
+    "/state_comparison_handoff_records/*/sections/state_run_sections/*/result_refs/*/hash_refs/*/payload_ref",
+];
+
+#[test]
+fn every_checksum_record_kind_refuses_another_subject() {
+    for (profile, request) in [("runner", runner()), ("desktop", desktop())] {
+        let request = every_kind(&request);
+        unblocked(&request);
+        let mut locations = Vec::new();
+        payload_ref_locations(&request, "", &mut locations);
+        let mut kinds = std::collections::BTreeMap::new();
+        for location in locations {
+            kinds.entry(record_kind(&location)).or_insert(location);
+        }
+        for kind in RECORD_KINDS {
+            // The desktop document has no request hash or raw-source hash,
+            // and no producer-row checksums (its producer is not available).
+            let desktop_absent = kind.contains("request_hash")
+                || kind.contains("raw_source_hashes")
+                || kind.contains("original_producer");
+            if profile == "runner" || !desktop_absent {
+                assert!(kinds.contains_key(kind), "{profile}: no {kind} record to probe");
+            }
+        }
+        for (kind, location) in &kinds {
+            let mut edited = request.clone();
+            let subject = edited.pointer_mut(location).unwrap();
+            match subject {
+                Value::String(_) => *subject = json!("invented-other-subject"),
+                _ => subject["ref_id"] = json!("invented-other-subject"),
+            }
+            // Re-hash an edited result document, except its own derivative
+            // hash's subject, which the re-hash would restore.
+            if location.starts_with("/result_documents/0/") && !kind.ends_with("/derivative_hash/payload_ref") {
+                edited["result_documents"][0] = common::rehash(edited["result_documents"][0].take());
+            }
+            let outcome = assemble(&edited);
+            assert!(
+                outcome.as_ref().map_or(true, |outcome| outcome.export_blocked),
+                "{profile}: another subject at {location} assembled unblocked"
+            );
+        }
+    }
+}
+
+#[test]
+fn a_document_rule_pack_checksum_names_its_pack() {
+    use open_pipe_stress_report_package::document_form::check_document_subjects;
+    let mut document = runner()["result_documents"][0].clone();
+    check_document_subjects(&document).unwrap();
+    document["result_envelope"]["rule_pack_refs"] = json!([{
+        "rule_pack_id": "invented-rule-pack", "version": "0.1.0",
+        "checksum": rule_pack_checksum("JCS", "rule_pack"),
+        "source_notice": "Invented non-code example only.",
+        "redistribution_status": "invented_non_engineering_example",
+        "completeness_status": "not_checked", "private_payload_redacted": true
+    }]);
+    let document = common::rehash(document);
+    check_document_subjects(&document).unwrap();
+    let mut other = document.clone();
+    other["result_envelope"]["rule_pack_refs"][0]["checksum"]["payload_ref"]["ref_id"] = json!("invented-other-pack");
+    let error = check_document_subjects(&common::rehash(other)).unwrap_err();
+    assert!(error.starts_with(CHECKSUM_SUBJECT_MISMATCH), "{error}");
 }

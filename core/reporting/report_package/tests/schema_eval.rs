@@ -90,11 +90,27 @@ fn every_vector_has_its_expected_verdict() {
         // The one enumerated oracle-disagreement class: the evaluator gives the
         // ECMA-262 verdict (invalid) for a `pattern` string ending in a line
         // feed, which Python's `re` accepts (DEL-08-01 Design §2.3 item 1).
+        // The case is in the class only if its sole failure is the anchored
+        // `pattern` at the recorded string, and removing the final line feed
+        // makes it valid.
         if let Some(divergence) = case.get("oracle_divergence") {
             assert_eq!(divergence["class"], "ecma_dollar_before_final_line_feed", "{id}");
             assert_eq!(case["valid"], false, "{id}");
-            let text = pointer(&instance, divergence["string_pointer"].as_str().unwrap());
-            assert!(text.as_str().is_some_and(|text| text.ends_with('\n')), "{id}");
+            let at = divergence["string_pointer"].as_str().unwrap();
+            let text = pointer(&instance, at).as_str().expect("the recorded value is a string").to_string();
+            assert!(text.ends_with('\n'), "{id}");
+            let catalog = catalog_with(&case["schema"]);
+            let failure = catalog.validate("schema-eval-vector.schema.json", &instance);
+            let path = if at.is_empty() { "/" } else { at };
+            assert_eq!(
+                failure,
+                Err(SchemaFailure::Invalid { instance_path: path.to_string(), keyword: "pattern".to_string() }),
+                "{id}: the only failure is the pattern at the recorded string"
+            );
+            let mut twin = instance.clone();
+            let slot = if at.is_empty() { &mut twin } else { twin.pointer_mut(at).unwrap() };
+            *slot = Value::String(text[..text.len() - 1].to_string());
+            assert_eq!(catalog.validate("schema-eval-vector.schema.json", &twin), Ok(()), "{id}: without the line feed it is valid");
         }
         let outcome = catalog_with(&case["schema"]).validate("schema-eval-vector.schema.json", &instance);
         match outcome {
