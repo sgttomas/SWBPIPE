@@ -1,6 +1,6 @@
 # SWBPIPE completeness and reconciliation map
 
-**Basis:** `origin/main` at `8a8a8b2584` (2026-10-23); W-4 (#W4PR) is folded
+**Basis:** `origin/main` at `8a8a8b2584` (2026-10-23); W-4 (#1582) is folded
 in since. This is a replaceable
 current-state record for the owner and the work plan. Replace it when the
 basis moves materially; do not append to it. It replaces the map at
@@ -153,7 +153,7 @@ class, the evidence, and the deliverables. Paths are under
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| R2 exit (1572) | — | D | W-4 (#W4PR): the native smoke authors a cantilever from blank through the GUI (`native-smoke/driver.js`, `authorFromBlank`), solves natively, checks the tip deflection against PL³/3EI within 1e-9, saves in place, reopens in a fresh process and re-solves to the same rows, value and model hash (`run.mjs`, "from blank" checks) | DEL-07-11, DEL-07-01/02/05/07 | The browser journey still ends at `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, by design. One model shape and the SI preset only. |
+| R2 exit (1572) | — | D | W-4 (#1582): the native smoke authors a cantilever from blank through the GUI (`native-smoke/driver.js`, `authorFromBlank`), solves natively, checks the tip deflection against PL³/3EI within 1e-9, saves in place, reopens in a fresh process and re-solves to the same rows, value and model hash (`run.mjs`, "from blank" checks) | DEL-07-11, DEL-07-01/02/05/07 | The browser journey still ends at `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, by design. One model shape and the SI preset only. |
 | FR-GUI-001 (498) | Must | D | `PipeViewport.tsx:1289-1291` (nodes, supports, components); deformed shape `:1306-1310`; rotation glyphs `:1313`; reaction arrows `:1315-1317`; result colour `:1323-1327`; load arrows `:1332`; labels `:1374-1429`; legend `:2456`. **Tests:** `e2e/result-overlays.spec.ts:158` (PR core lane), `PipeViewport.overlays.test.tsx`, `c3-viewport-visibility.spec.ts`, `rotation-glyph.spec.ts` | DEL-07-01, DEL-07-05 | Overlays are off by default. Colour is one value per member. Reaction arrows come from global-frame rows only. The D-72 orbit qualification with result colour has not run. §14.2 bend arcs, corridors and no-go volumes are not drawn. |
 | FR-GUI-002 (499) | Must | P | `ModelTree.tsx:40-57` | DEL-07-02 | No lines, states or runs. |
 | FR-GUI-003 (500) | Must | P | `PropertyInspector.tsx:1276,1291,1311`; `typedInspector.test.tsx` | DEL-07-02 | No dependencies, linked assumptions or dependent rule-pack inputs. |
@@ -256,7 +256,7 @@ the webview has no network policy.
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
 This map has 42 P, 33 D, 9 O and no R:
 - **P → D (5):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
-  §10.1 step 1 (#1569), and the R2 exit (W-4, #W4PR, after the basis). The
+  §10.1 step 1 (#1569), and the R2 exit (W-4, #1582, after the basis). The
   first two were already updated in the map by their PRs.
 - **D → P (1):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
@@ -397,7 +397,7 @@ scope or acceptance wording. "Rec." is the recommendation.
 | 13 | DEL-06-02 SOW:77 (Determinism) | "Future implementation must produce repeatable results…" | "The implementation must produce repeatable results…" | evaluator ships | Apply |
 | 14 | DEL-14-02 SOW:170, :320 | "Referenced but not locally accessible as primary source text" / "the PRD source text was not locally read in this task" | "Read from `docs/PRD.md` §15.2 (FR-CMP-002)" / remove the sentence | `docs/PRD.md` is present; the text limits requirement derivation, so it is the owner's | Owner |
 | 15 | DEL-14-01 SOW:342 (DEL-14-01:3); DEL-15-01 SOW:387 (DEL-15-01:2) | "(stage-gated: v0.2 R3)" / "(stage-gated: v0.2 R6; …" beside the appended OD-1 ruling | drop the stage-gate tag, keeping the ruling | the tag and the ruling read as mixed signals | Owner (optional) |
-| 16 | DEL-15-01 SOW:183 (V-02) | "Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, …" | "… trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, …" | the row-26 annotation, in a verification check cell | Apply — **Applied** (Agent 0, 2026-10-24, under the row-26 rule; #W4PR) |
+| 16 | DEL-15-01 SOW:183 (V-02) | "Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, …" | "… trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, …" | the row-26 annotation, in a verification check cell | Apply — **Applied** (Agent 0, 2026-10-24, under the row-26 rule; #1582) |
 
 **Previous table, now closed.** Rows 1, 3–21, 23, 24 and 26 are applied. Row 2
 stays not applied by the owner's ruling (FR-SOL-006 is built on PF instead), and
@@ -493,7 +493,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Refusal of load cases that apply nothing (silent zero) | #1568 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
-| W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #W4PR: 25 checks, all passing on its head; no `expected.json` change |
+| W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
 
 **In flight** (not on main):
 
