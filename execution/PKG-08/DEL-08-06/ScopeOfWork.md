@@ -133,7 +133,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 >
 > This deliverable excludes final report styling/layout, GUI presentation, CLI runtime behavior, API transport, arbitrary project-file reading, solver-internal execution, protected-content linting implementation, and private redaction/export control implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). These exclusions are source-grounded in `docs/SPEC.md` section 9 and the approved upstream dependency mirror.
 >
-> Implementation file paths, concrete API names, exact schema fragments, and dependency versions are TBD unless later resolved by human-approved implementation work.
+> Current implementation paths are listed in `deliverable.yaml` `code_paths` (assembly in `core/reporting/report_package/` and `core/reporting/state_comparison_handoff_sections/engine.py`; desktop request in `apps/desktop/src/features/report/`). Unresolved API names, schema fragments and dependency choices for remaining producer bindings (DEL-08-06:1) stay TBD; existing source contracts continue to apply.
 >
 
 ### CLM-012 — Requirements
@@ -357,7 +357,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 > | Human readability vs machine traceability | Preserve stable structured fields first; rendered prose can summarize but should not drop provenance or warning semantics. |
 > | Comparison completeness vs false authority | Present deterministic comparison findings and unresolved mappings without declaring acceptance, validation, or compliance. |
 > | Handoff usefulness vs unsupported-target risk | Expose unsupported or approximate target behavior instead of hiding loss of fidelity. |
-> | Early implementation speed vs report safety | Keep exact APIs and layout TBD until source contracts are available; do not infer product code from decomposition text alone. |
+> | Early implementation speed vs report safety | Use the implemented assembly APIs in `core/reporting/report_package/`; keep unresolved producer interfaces TBD under DEL-08-06:1. Final report styling/layout remains outside this deliverable's scope (CLM-011); do not infer product code from decomposition text alone. |
 >
 
 ### CLM-031 — Examples
