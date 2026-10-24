@@ -171,7 +171,7 @@ Python agree.
   its JCS hash and its project id. Any difference is refused as
   `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
   refused.
-- **Memory (S2 repairs r1 to r3).** All five state commands are metered as
+- **Memory (S2 repairs r1 to r4).** All five state commands are metered as
   §3's As built (S2) describes (`stored_read.rs`): `save_model_state`,
   `list_model_states`, `read_model_state`, the label edit and the delete.
   - **Before loading.** Each takes memory-pool leases sized from the stored
@@ -181,6 +181,14 @@ Python agree.
     exact escaped length before writing it. The writer that counts the length
     is the one that writes the text.
   - **Holding.** It holds its leases until its response is serialized.
+  - **Commit last (r4).** Save, the label edit and the delete serialize their
+    response before they commit. So a refusal of the response writes nothing.
+  - **Project row (r4).** Save checks the project row and its stored base
+    with a targeted, priced query. The stored project name is quoted only when
+    the save is refused.
+  - **Names in messages (r4).** Messages and refusals quote at most 120
+    characters of a stored name or id, then `…`. A blocked delete names at most
+    ten blockers, then `and N more`.
   - **Refusal.** A command whose lease the pool refuses is refused with
     `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
 - **Label bounds (r2, r3).** Every label write (Save Model State, Record Run,
@@ -511,14 +519,15 @@ the History panel and `useModelStateHistory.ts`.
     not shown in the results view, so its per-run state (page, filters, selected
     row) keys on nothing new. A re-solve and a recording keep the page
     (`recordRun.session.test.tsx`).
-- **Memory (repairs r1 to r3, `stored_read.rs`).** Ten commands are metered:
+- **Memory (repairs r1 to r4, `stored_read.rs`).** Ten commands are metered:
   the five state commands, the five run commands (`record_analysis_run`,
   `list_analysis_runs`, `read_analysis_run`, the run label edit and the run
   delete).
   - **Leases.** Each reserves its work before it makes it, through interactive
     memory-pool leases: Save Local Project's ingress admission (the pool, fresh
     headroom, and the per-invocation budget over the command's live leases
-    together). The leases add to the command's argument lease.
+    together). The accounting starts from the command's argument lease, so
+    every admission counts it with the command's reservations (r4).
   - **Before loading.** A command takes, with `octet_length` and `COUNT`, the
     byte lengths of every column it will load and of the state's child and run
     lists, without loading them. It then reserves:
@@ -558,9 +567,28 @@ the History panel and `useModelStateHistory.ts`.
     length. The record hash writes the record without `hashes`, without
     copying it. A text whose counted length differs from the stored text's is
     not canonical and is refused without building it.
-  - **Messages.** A response message that quotes stored names (a delete's
-    receipt, a save's or Record Run's message) is reserved at its exact length
-    and built once.
+  - **Messages and refusals (r4).** Every message, receipt and refusal quotes
+    at most 120 characters of each stored name or id (`stored_read::shown`),
+    then `…`. The structured fields keep the full, metered values.
+    - A blocked delete names at most ten blockers, then `and N more`. It reads
+      only the head of each blocker's id and name from SQLite
+      (`shown_column`: the first 484 bytes and the byte length).
+    - A state summary loads its runs' ids, not their names.
+    - The project-row guard of Save and Record Run quotes the stored project
+      name only when it refuses, and so does `refuse_unconfirmed_replacement`'s
+      message (its decisions are unchanged).
+
+    So every message built from stored data has a small constant bound (at
+    most six serialized bytes a character) and is not reserved.
+  - **Project row (r4).** Save and Record Run check the project row with
+    targeted queries, never the project index:
+    - the row's existence;
+    - its envelope hash, reserved before it is loaded and parsed only when the
+      prescan accepts it.
+
+    The session's base must equal the stored hash value, as
+    `refuse_unconfirmed_replacement` decides with no confirmed revision.
+    Project save and open are unchanged.
   - **The response.** The response is serialized at its exact length, counted
     first without allocating, into a buffer reserved at that length.
   - **Holding.** A value read or built from the store is a `Metered` value
@@ -571,6 +599,19 @@ the History panel and `useModelStateHistory.ts`.
       edit, while its record is loaded, stay reserved while they are live;
     - a delete receipt, a save outcome and a Record Run outcome are held
       through serialization.
+
+    `map`, `join` and the commit-last `finish` steps take closures. The rule
+    is that a closure moves the value into its result and does not capture or
+    keep it elsewhere. The type checks a closure's result, not its captures,
+    so this is a reviewed rule, not an enforced one.
+  - **Commit last (r4).** Each of the six mutating commands passes its
+    outcome, still holding its reservations, to a `finish` step before it
+    commits: Save, Record Run, both label edits and both deletes. In the
+    command, `finish` serializes the response (`serialize_metered`). So a
+    refusal of the response, or of anything before it, rolls the transaction
+    back: nothing is written and the failure is reported. After the commit
+    the command only hands the already serialized text to Tauri. A failed
+    commit writes nothing.
   - **Refusal.** A refusal is `STORE-READ-MEMORY-UNAVAILABLE`, naming what was
     to be read or built, and nothing more is loaded. All leases are released
     when the command returns.
@@ -620,9 +661,28 @@ the History panel and `useModelStateHistory.ts`.
       escapes, separators, non-BMP characters, extreme integers and floats),
       the length counters equal the texts' lengths. So does the labels
       object's.
-    - **Mutations.** Each r3 test fails when its defect is put back: the
-      snapshot broken, the hash priced from a sixth of its length, the current
-      summary dropped early, the receipt's message unreserved.
+    - **Commit last (r4).** For each mutating command, a refused response is
+      reported by name and writes nothing: no state, run or snapshot is saved,
+      no labels change, the deleted rows stay. Admitted, the delete commits
+      after its response exists.
+    - **Bounded refusals (r4).** These refusals serialize to under 2 KiB, with
+      the allocator peak within their reservations:
+      - a blocked delete naming a 3 MiB run name;
+      - stale-label refusals of a state and of a run quoting a 3 MiB NUL name
+        (Codex r4 measured 18,874,519 bytes serialized).
+
+      Twelve blocking runs are named as ten and `and 2 more`.
+    - **Project name (r4).** With a 3 MiB stored project name, Save and Record
+      Run succeed under the 2 MiB pool within their reservations. A stale save
+      is refused quoting the name's head.
+    - **Invocation total (r4).** A Record Run whose argument lease plus its
+      reservations exceed the per-invocation budget is refused before it
+      records. With a small argument lease, the same run is admitted.
+    - **Mutations.** Each r3 and r4 test fails when its defect is put back:
+      - r3: the snapshot broken, the hash priced from a sixth of its length,
+        the current summary dropped early, the receipt's message unreserved;
+      - r4: a commit before `finish`, uncut names, the old project guard, an
+        unseeded invocation total.
     - **Large pool.** Each tested read, list, label edit and delete
       serializes its response within its held reservation, with its peak
       within its reservations' peak.
@@ -640,15 +700,14 @@ the History panel and `useModelStateHistory.ts`.
       Review r2 measured about 26.0 MiB against a 10.1 MiB lease for Record
       Run's large case before r2; this has not been re-measured since r2's and
       r3's reservations.
-    - **Refusals.** A refusal message that quotes stored names, such as a
-      blocked delete naming its blockers, outlives the command's leases. It is
-      built once, at its exact length.
+    - **Refusals.** A refusal outlives the command's leases, but its stored
+      quotes are cut to 120 characters, so it is small.
     - **SQLite.** SQLite's own allocations are priced by the load estimate
       (three envelopes of each loaded column). The tests' counting allocator
       counts Rust allocations, not SQLite's.
-    - **Small allocations.** The length counters allocate only each object's
-      sorted key list and each number's short text: small, and not
-      proportional to escapes.
+    - **Counter allocations.** The length counters allocate each object's
+      sorted key list (space proportional to the object's width, one pointer a
+      key) and each number's short text. Neither is proportional to escapes.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 
