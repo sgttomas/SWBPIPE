@@ -14,6 +14,6 @@ Act as `HELP_HUMAN` for `{WORKING_ROOT}`.
 Read `{WORKING_ROOT}/loop/LOOP_INIT.md` and follow it within the owner's
 steering and live authority.
 
-Steer (this run): <None>
+Orient. The owner's steer follows.
 
 </init-prompt>
