@@ -715,7 +715,13 @@ mod tests {
         let second =
             run_directory_sync_guarded(active_workers, Duration::from_millis(5), || Ok(()));
         assert_eq!(second, DirectorySyncResult::WorkerAlreadyActive);
-        thread::sleep(Duration::from_millis(75));
+        // The detached worker releases its slot once its 50 ms sync returns; wait for that
+        // rather than assume a fixed delay covers the scheduler (a 75 ms sleep failed on
+        // a loaded hosted runner).
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        while active_workers.load(Ordering::Acquire) != 0 && std::time::Instant::now() < deadline {
+            thread::sleep(Duration::from_millis(5));
+        }
         assert_eq!(active_workers.load(Ordering::Acquire), 0);
     }
 
