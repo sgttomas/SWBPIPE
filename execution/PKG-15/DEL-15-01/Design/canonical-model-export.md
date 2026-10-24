@@ -123,9 +123,18 @@ on either route. It needs no solve and no result.
   - the webview shape check, ported to Rust (`model_document_shape.rs`) and
     kept equal by a shared invented corpus
     (`fixtures/model_document/desktop_shape_cases.json`);
+  - the open path's indexing preconditions, which the shape check now states
+    explicitly (a present `section_ref` is a string). Every shape-clean corpus
+    case saves and re-opens through the open path;
   - disposition screening at any depth: every `provenance_record`, every
     `rule_pack_refs[]` entry, and every `library_ref`, resolved against the
-    local library store with the library import's policy;
+    local library store. Identities are trimmed as `open_local_library` does,
+    and every matching record is screened. The verdict is a port of the
+    library import's disposition rules, including the hanger conflict rule.
+    A parity test (`disposition_verdicts_match_the_library_import`) pins it
+    to the public import API. It covers four kinds, library and record level,
+    own and provenance redistribution and review values, and the blocking
+    findings only;
   - a store read error refuses (`MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE`). A
     library or record the store does not hold saves with a
     `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
