@@ -886,10 +886,11 @@ fn every_checksum_record_kind_refuses_another_subject() {
                 let record_pointer = location.strip_suffix("/payload_ref").unwrap().to_string();
                 let subject = edited.pointer_mut(location).unwrap();
                 let is_string = subject.is_string();
+                let (type_key, id_key) = if subject.get("object_type").is_some() { ("object_type", "ref") } else { ("ref_type", "ref_id") };
                 if change != "type" {
                     match subject {
                         Value::String(_) => *subject = json!("invented-other-subject"),
-                        _ => subject["ref_id"] = json!("invented-other-subject"),
+                        _ => subject[id_key] = json!("invented-other-subject"),
                     }
                 }
                 if change != "id" {
@@ -899,8 +900,8 @@ fn every_checksum_record_kind_refuses_another_subject() {
                         record["payload_kind"] = json!(other);
                     } else {
                         let subject = edited.pointer_mut(location).unwrap();
-                        let other = if subject["ref_type"] == "model_payload" { "rule_pack" } else { "model_payload" };
-                        subject["ref_type"] = json!(other);
+                        let other = if subject[type_key] == "model_payload" { "rule_pack" } else { "model_payload" };
+                        subject[type_key] = json!(other);
                     }
                 }
                 // Re-hash an edited result document, except its own
