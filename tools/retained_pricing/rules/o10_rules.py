@@ -2480,9 +2480,9 @@ if fnkey("unknown_field_refusal", _SD_MF):
             ("|| combination_name.clone()", ("combination_name",)),
             ("{combination_path}.terms[{j}]", ("combination_name", "combination_path", "j"))):
         O10_ID_AUDIT += [(site("unknown_field_refusal", _SD_MF, _t, full=True), {a: _SD_A[a] for a in _args})]
-    O10_ID_AUDIT += [(Resolved(f"{_SD_MF}:{int(site('named', _SD_MF, _t).rsplit(':', 1)[1])}"),
-                      {"kind": _sd_c(_SD_KIND, "a static record kind"), "id": IN, "index": _sd_c(_SD_INT, "a usize index")})
-                     for _t in ('Some(id) => format!("{kind} `{id}`"),', 'None => format!("{kind} {index}"),')]
+    O10_ID_AUDIT += [(site("named", _SD_MF, _t, full=True), {"kind": _sd_c(_SD_KIND, "a static record kind"), **_a})
+                     for _t, _a in (('Some(id) => format!("{kind} `{id}`"),', {"id": IN}),
+                                    ('None => format!("{kind} {index}"),', {"index": _sd_c(_SD_INT, "a usize index")}))]
     # The load name's `named(..)` argument and the closures' clones of the names.
     O10_ID_AUDIT += [(site("unknown_field_refusal", _SD_MF, "let load_name = format!(", full=True),
                       {'named("primitiveload",id_of(load),j)': _sd_c(_sd_named("primitive load"), "a primitive load's own name")})]
