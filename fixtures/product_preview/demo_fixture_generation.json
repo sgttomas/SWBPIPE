@@ -76,7 +76,7 @@
     "core/product_physics/src/lib.rs": "0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0",
     "core/product_physics/src/membrane_publication_range.rs": "da0b98ffec6efd12f04831715c755d2205f9b87591c4f143cde834c7126aa76a",
     "core/product_physics/src/model_format.rs": "8a5ea4f8f1619667c5ccdf2af906a3f6bf8079f71246b4f94afb7299463a8cf1",
-    "core/product_physics/src/model_settings.rs": "26f4bba253cdc9980023198a7e3b2659028a84ceaab539935fcca3491a685892",
+    "core/product_physics/src/model_settings.rs": "e7edb527d5eb1db4fdf9372d6ebe6e51022bda899fc2447bd7f96a716310bce4",
     "core/product_physics/src/o4_m3_judging_tests.rs": "88c1f02c1aa82b39ef50fa951d592899fadc7cafb81cfad2c291ed2f2385fcf2",
     "core/product_physics/src/pressure_exact.rs": "d3ca1aea0867781b50bb21db6a360af98254bdc64f13316b9feb70e984abde6d",
     "core/product_physics/src/pressure_exact/source_geometry.rs": "9fdbeaca273322e09ea82fc098c4ac9f1d57a048ce649ed6f94927598940d471",
@@ -627,7 +627,7 @@
     "core/product_physics/src/lib.rs": "0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0",
     "core/product_physics/src/membrane_publication_range.rs": "da0b98ffec6efd12f04831715c755d2205f9b87591c4f143cde834c7126aa76a",
     "core/product_physics/src/model_format.rs": "8a5ea4f8f1619667c5ccdf2af906a3f6bf8079f71246b4f94afb7299463a8cf1",
-    "core/product_physics/src/model_settings.rs": "26f4bba253cdc9980023198a7e3b2659028a84ceaab539935fcca3491a685892",
+    "core/product_physics/src/model_settings.rs": "e7edb527d5eb1db4fdf9372d6ebe6e51022bda899fc2447bd7f96a716310bce4",
     "core/product_physics/src/o4_m3_judging_tests.rs": "88c1f02c1aa82b39ef50fa951d592899fadc7cafb81cfad2c291ed2f2385fcf2",
     "core/product_physics/src/pressure_exact.rs": "d3ca1aea0867781b50bb21db6a360af98254bdc64f13316b9feb70e984abde6d",
     "core/product_physics/src/pressure_exact/source_geometry.rs": "9fdbeaca273322e09ea82fc098c4ac9f1d57a048ce649ed6f94927598940d471",
@@ -1117,7 +1117,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "e619896feaafc81285114052dd6063770c0fb71f87005179a6e08ae326bc571d",
+  "inventory_json_sha256": "48228cb93ebf6c863e32516f0ccf54fdc15685d7e04f3fd79caf37e7064634fc",
   "dependencies": [
     {
       "name": "block-buffer",
