@@ -422,7 +422,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > - Open-decision register for unresolved `TBD` items.
 > - Human review acceptance record before treating the contract as issued.
 >
-> Design (W-17, not yet implemented): `Design/project-unit-selection.md`, which covers project unit selection for new and open projects.
+> Design (W-17; slice (a), units at creation, implemented; slice (b), editing units after creation, not yet implemented): `Design/project-unit-selection.md`, which covers project unit selection for new and open projects.
 
 ### CLM-029 — D-41 R5 T2A persistence hash check (2026-07-12)
 

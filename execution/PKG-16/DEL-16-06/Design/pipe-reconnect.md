@@ -4,8 +4,10 @@
 `origin/claude/piping-model-07-s1b-20261023` (`0d20039cac`, with the S1b-V
 document validator) and
 `origin/claude/piping-model-states-20261023` (`f0cbc15bb6`). Revision 2, after
-a Codex review and an independent Claude review (§8). This is a design; nothing
-is implemented yet. Paths are relative to `projects/chirality-piping/`, except
+a Codex review and an independent Claude review (§8). Implemented in W-10
+(`core/model_operations/operation_applier/src/pipe_reconnect.rs`); where
+implementation review changed a rule, the section states the as-built rule
+(§2.2, §3, §7). Paths are relative to `projects/chirality-piping/`, except
 `tools/hosted-ci-routing.json` at the repository root. Standard claim fence
 applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -165,8 +167,9 @@ rigid component (`rigid_pipe_ref`); an annotation expansion joint
 `lib.rs:2727-2728`). SIF and flexibility modifiers are quantities that name no
 pipe (`schemas/model.schema.yaml:435-484`); they matter only through
 `component.node`. `terminal` markers have no solver contribution (schema
-`ComponentKind` description, `:404`), so they are exempt from the at-node rule;
-otherwise the bundled demo's free end could not be reconnected.
+`ComponentKind` description, `:404`), so they are exempt from the at-node rule:
+a pipe whose end carries only a terminal marker can be reconnected (the marker
+stays on its node), and a pipe can join a node that carries one.
 
 **Why R10–R11.** Region chain topology is checked only at solve
 (`traverse_region`, `pressure_runtime.rs:1458-1597`); authoring checks members,
@@ -195,6 +198,32 @@ and the `nodes[]` records of F, O and T are skipped as self-references.
 
 Two scans run, with separate allowed slots. Paths are written as
 `references()` builds them; `*` is any index.
+
+**As built.**
+- **Structured paths.** The scanner carries structured path segments
+  (`reference_segments`, `geometry_operations.rs`); `references()` renders
+  them only for messages. Paths are never re-parsed, so an object key spelled
+  like path syntax (`"primitive_loads[0].target"`) is a single key.
+- **Wildcards.** In the allowed-slot patterns, `*` matches an array index only,
+  never an object key named `*`.
+- **R9 exemption.** The exemption for R9's own records covers `components`
+  followed by an index, and nothing else.
+- **Malformed collections** (`malformed_collections`). A collection that the
+  checks read as an array is never read as empty when it holds another value;
+  reconnect refuses under R12. This covers:
+  - at the root: `nodes`, `pipe_segments`, `supports`, `components`,
+    `load_cases`, `reference_configurations`;
+  - per load case: `primitive_loads`, `pressure_regions`,
+    `analysis_state.element_states`, `equivalent_static.wind.exposed_pipe_refs`,
+    `equivalent_static.wind.exposed_spans`;
+  - per region: `member_pipe_ids`, `member_connector_ids`, `terminals`;
+  - per reference configuration: `member_references`.
+
+  An explicit `null` in one of these slots also refuses; the solve already
+  refuses such a document (`LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED`).
+- **Malformed items.** A non-string item inside a region's `member_pipe_ids`
+  is dropped by the R11 region read, not refused. That document is
+  schema-invalid, and the solve's typed decoder refuses it.
 
 **Pipe id P — allowed slots (kept):**
 
@@ -307,9 +336,10 @@ silent result.
   `connect_pipe_run`. **Guarantee:** the warnings cover exact node-pair
   duplicates and full-span geometric coincidence within the tolerance; partial
   collinear overlap is not detected.
-- **Orphan.** An unconnected, unrestrained node is expected to make the solve
-  report a mechanism; the nearest existing witness is the disconnected-body
-  test (`product_physics/src/lib.rs:15409-15434`), and §4 pins this case. The
+- **Orphan.** An unconnected, unrestrained node makes the solve refuse with
+  `NUMERICAL_INTEGRITY_UNRESOLVED` (a zero original diagonal at the node) and
+  publish no result; it is not reported as a witnessed mechanism. §4 pins this
+  case. The
   desktop offers to delete O in the same batch (§3). A cycle is allowed with no
   diagnostic.
 - **Bend tangency.** Insert-at-corner places the bend component at the arc's
@@ -365,6 +395,23 @@ producer:
   path of `handleRunOperationBatch` (`workspaceSession.ts:1160`) checks the same
   predicate and refuses with a message before calling the engine, so no other
   caller can bypass the button.
+
+**As built.**
+- **Key only.** `handleRunOperationBatch` takes only the key from its caller.
+  It runs the registered submission, which is deep-frozen at queueing and held
+  in a live registry (a ref, not render-time state).
+- **Whether a preview is required** is derived from the registered batch's
+  operations; the `requiresPreview` flag can only add the requirement.
+- **Preview binding.** A successful validation records the registered batch's
+  canonical SHA-256. A gated apply recomputes it and refuses if it is absent or
+  differs.
+- **Withdrawal.** Every queue withdrawal (clear, new, open or replaced project)
+  revokes all registrations synchronously and advances a queue epoch. The run
+  re-checks its registration after each await, so a handler retained from
+  before a withdrawal refuses.
+- **The queue epoch** is separate from the request epoch, which every
+  selection change advances, so selecting an entity does not strand a
+  previewed batch.
 
 **Single-intent apply.** `handleApplyIntent` (`workspaceSession.ts:1438-1449`,
 reached from `App.tsx:425,551,818` and `workspaceSession.ts:1529-1536`) applies
@@ -437,7 +484,8 @@ highlights P, F, O and T through the existing selection presentation.
 kept, within each solver mode, but only as an identity check. The physical
 expectations are stated independently and every solve asserts its status:
 In the cantilever, wind and fit tests O would otherwise be left orphaned and
-unrestrained (a mechanism), so each applies the batch [`reconnect`,
+unrestrained (the solve then refuses it as `NUMERICAL_INTEGRITY_UNRESOLVED`
+with no result), so each applies the batch [`reconnect`,
 `delete_node` O]; the built-topology test anchors O instead.
 - **Cantilever.** P anchored at F, uniform `distributed_force` w on the
   pressure-free (Euler–Bernoulli) route, reconnected from O to a farther T.
@@ -452,8 +500,9 @@ unrestrained (a mechanism), so each applies the batch [`reconnect`,
   E·A·Δ/L_new in magnitude, against an independently authored model.
 - **Local frame.** After a reconnect that rotates P's axis, the solve succeeds
   and reports local results; the near-parallel case does not reach the solve.
-- **Orphan.** Orphaning an unsupported node gives a mechanism status, not a
-  result.
+- **Orphan.** Orphaning an unsupported node gives a blocking
+  `NUMERICAL_INTEGRITY_UNRESOLVED` refusal and no result
+  (`tests/pipe_reconnect.rs`, `orphaning_an_unsupported_node_refuses_the_solve_without_a_result`).
 - **Exact pressure.** A document whose region fails
   `PRESSURE_REGION_INTERNAL_BRANCH` (`pressure_runtime.rs:1541-1549`) because a
   non-member pipe ends at an internal node; reconnecting that pipe away gives a
@@ -558,18 +607,6 @@ applied only through batch review (§3), so this does not affect it.
 
 **Answer.** W-10 can be implemented before S1b without a D3 collision.
 
-**Sequencing (coordinator decision, 2026-10-23).**
-- W-10 lands before S1b.
-- W-10's corpus cases and their routing list entries come in a follow-up after
-  S1b; if they land first instead, S1b re-blesses them mechanically. Whichever
-  lands second re-blesses.
-- Shared-list edits in applier `lib.rs` and `types.ts`: whoever merges second
-  merges main and resolves.
-- Applier `Cargo.toml`, `operation_applier/Cargo.lock` and the routing file's
-  applier digest and source list: whoever lands second regenerates the lockfile
-  and recomputes the digest. S1b leaves the other three lockfiles untouched.
-- W-10 tests use the version constant, so S1b's ripple does not touch them.
-
 ## 6. Size, risks, decisions
 
 **Size: M.** About 450 lines for the Rust module, 700 for applier tests, 60 for
@@ -606,10 +643,8 @@ below. Membership-preserving reconnect inside a region would need the chain
 check at authoring (a D3 on `pressure_runtime.rs` or product_physics `lib.rs`,
 or a duplicate in the applier); it is not provided.
 
-**Proposed records (applied in the implementation PR only after the owner
-approves the exact wording).** The DEL-16-06 limitation line changes a
-commitment, which is owner-reserved; the PR quotes the owner's words approving
-it.
+**Records.** The limitation is recorded in the release notes and DEL-16-06 with
+these texts.
 
 Release notes, `docs/RELEASE_NOTES_v0.1.0_DRAFT.md` line 57. Old:
 
@@ -686,6 +721,11 @@ others:
 | `load_cases[*].equivalent_static.wind.exposed_pipe_refs[*]`, `exposed_spans[*].pipe_ref` | dangles | refused |
 | any other slot naming the pipe | dangles | refused (fail closed) |
 | `lines`, assumptions, constraints (0.7.0) | — | S2 adds them: deleting a pipe removes it from its line in the same operation; assumptions and constraints never block (0.7.0 design §3.2, §6) |
+
+**As built.** A malformed collection (§2.2, as built) is reported as a named
+dependent, for example `case:w (pressure_regions, not an array)`. Delete
+therefore refuses whenever one is present, even if no readable record names the
+pipe.
 
 **Owner mapping.** Each path maps to its owning record: the first
 `collection[i]` segment gives the record (its `id`); for paths inside

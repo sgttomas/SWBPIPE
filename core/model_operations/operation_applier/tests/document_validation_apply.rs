@@ -90,13 +90,53 @@ fn an_operation_whose_result_is_malformed_is_refused() {
     assert_eq!(outcome["validation"]["application_status"], json!("blocked"));
     assert_eq!(outcome["simulation_disposition"], json!("rolled_back_no_model_published"));
     assert!(outcome["diagnostics"].as_array().unwrap().iter().any(|item| item["code"] == json!("MODEL-LINE-PIPE-SHARED")));
+}
 
-    // A lined pipe deletes and leaves its line; the constraint that names it
-    // keeps the id and warns. A pipe no line groups deletes normally.
+/// An unrelated operation on a document whose line already names a pipe the
+/// document lacks is refused too: any applied result is malformed, so the
+/// validator's named diagnostic returns and no document does.
+#[test]
+fn an_unrelated_operation_on_a_malformed_document_is_refused() {
+    let mut model = every_slot();
+    model["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
+    let before = model.clone();
+    let outcome = apply_operation(&model, &rename_node("Elbow", "Elbow (renamed)"), None);
+    assert_eq!(model, before, "the input is never mutated");
+    assert!(outcome.applied_model.is_none());
+    assert!(outcome.applied_model_backend_hash.is_none());
+    assert_eq!(outcome.validation.application_status, "blocked");
+    assert_eq!(outcome.validation.schema_validation, "blocked");
+    assert_eq!(outcome.validation.diff_preview_status, "blocked_by_validation");
+    let line = outcome.diagnostics.iter().find(|item| item.code == "MODEL-LINE-PIPE-MISSING").expect("named refusal");
+    assert_eq!(line.severity, "blocking");
+    assert!(line.message.contains("(at lines[0].pipe_refs[0])"), "{}", line.message);
+    assert_eq!(line.affected_refs, vec!["line:L-100".to_string(), "pipe:P-absent".to_string()]);
+    assert_eq!(outcome.acceptance.persistence_status, "not_applicable_no_application");
+
+    // The same malformed result inside an atomic batch rolls the whole batch back.
+    let batch = json!({"batch_id": "batch:validator", "operations": [
+        rename_node("Elbow", "Elbow (renamed)"),
+    ]});
+    let outcome = apply_operation_batch(&model, &batch, Some(&claim(&model)));
+    assert!(outcome["applied_model"].is_null());
+    assert_eq!(outcome["validation"]["application_status"], json!("blocked"));
+    assert_eq!(outcome["simulation_disposition"], json!("rolled_back_no_model_published"));
+    assert!(outcome["diagnostics"].as_array().unwrap().iter().any(|item| item["code"] == json!("MODEL-LINE-PIPE-MISSING")));
+}
+
+/// W-10 and the validator together (S2, §3.2, §3.3 and §6): W-10's
+/// dependent-reference check does not read the model-data collections, so a
+/// lined pipe deletes and leaves its line in the same operation, and the
+/// constraint that names it keeps the id and warns. A pipe no line groups
+/// deletes normally, and the constraint that names the other pipe is untouched.
+#[test]
+fn pipe_deletion_with_model_data_references() {
+    let model = every_slot();
     let outcome = apply_operation(&model, &delete_pipe("pipe:P-1", "Run; node:N-1->node:N-2; material=material:steel"), None);
     assert_eq!(outcome.validation.application_status, "applied_to_session_model", "{:?}", codes(&outcome));
     assert_eq!(codes(&outcome), vec![("MODEL-ASSUMPTION-SUBJECT-MISSING", "warning")]);
     assert_eq!(outcome.applied_model.unwrap()["lines"][0]["pipe_refs"], json!([]));
+
     let outcome = apply_operation(&model, &delete_pipe("pipe:P-2", "Riser; node:N-2->node:N-3; material=material:steel"), None);
     assert_eq!(outcome.validation.application_status, "applied_to_session_model", "{:?}", codes(&outcome));
     assert!(codes(&outcome).is_empty(), "{:?}", codes(&outcome));

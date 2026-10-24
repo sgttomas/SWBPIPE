@@ -6,7 +6,8 @@ import { applyOperationBatch, validateOperationBatch } from "../../services/oper
 import { GeometryToolsPanel } from "./GeometryToolsPanel";
 import { buildGeometryBatch, emptyGeometryDraft, type GeometryDraft } from "./geometryDraft";
 import type { PreviewModel } from "../../types";
-import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
+import { chooseVirtualMultiTarget, chooseVirtualTarget } from "../../test-support/workspaceTestControls";
+import { reconnectModel } from "../../test-support/reconnectModel";
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 async function bareModel(): Promise<PreviewModel> {
@@ -130,5 +131,39 @@ describe("geometry tools exact engine batches", () => {
     release(originalCanonical);
     await waitFor(() => expect(screen.getByText(/Preparation cancelled/)).toBeInTheDocument());
     expect(onQueueBatch).not.toHaveBeenCalled();
+  });
+  it("reconnect: fields, Use selected node, the orphan option, and a queued batch the engine validates", async () => {
+    const model = reconnectModel(); model.supports = model.supports.filter((s) => s.node !== "node:A");
+    const onQueueBatch = vi.fn();
+    render(<GeometryToolsPanel model={model} selection={{ type: "node", id: "node:C" }} onQueueBatch={onQueueBatch} />);
+    expect(screen.getByText(/Reconnect moves one end of one pipe to another node/)).toBeInTheDocument();
+    enter("Geometry tool", "reconnect");
+    chooseVirtualMultiTarget("geometry-source-pipes", "pipe:P");
+    expect(screen.getByTestId("reconnect-current-ends")).toHaveTextContent("Current ends of pipe:P: from node:A, to node:B.");
+    expect(screen.getByRole("button", { name: "Queue geometry batch" })).toBeDisabled();
+    enter("Reconnect end", "from");
+    expect(screen.getByLabelText("Also delete node node:A")).not.toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: "Use selected node" }));
+    expect(screen.getByTestId("reconnect-target-node").querySelector(".virtual-target-picker-current")).toHaveTextContent("node:C");
+    fireEvent.click(screen.getByLabelText("Also delete node node:A"));
+    for (const axis of ["X", "Y", "Z"]) enter(`Y reference ${axis}`, axis === "Z" ? "1" : "0");
+    fireEvent.click(screen.getByRole("button", { name: "Queue geometry batch" }));
+    await waitFor(() => expect(onQueueBatch).toHaveBeenCalledOnce());
+    const batch = onQueueBatch.mock.calls[0][0];
+    expect(batch.operations.map((op: { change: { change_kind: string } }) => op.change.change_kind)).toEqual(["reconnect_pipe_run", "delete_node"]);
+    expect(JSON.parse(batch.operations[0].change.after)).toEqual({ pipe_ref: "pipe:P", end: "from", target_node_ref: "node:C", y_reference: { x: 0, y: 0, z: 1 } });
+    const preview = await validateOperationBatch(model, batch, await hashing.computeModelHash(model));
+    expect(preview.validation.batch_validation_status, JSON.stringify(preview.operation_outcomes)).toBe("passed");
+    // The target picker works directly as well.
+    chooseVirtualTarget("reconnect-target-node", "node:D");
+  });
+  it("reconnect to a new point shows the create_node fields", () => {
+    const model = reconnectModel();
+    render(<GeometryToolsPanel model={model} selection={{ type: "project", id: model.project.id }} onQueueBatch={vi.fn()} />);
+    enter("Geometry tool", "reconnect");
+    expect(screen.getByRole("button", { name: "Use selected node" })).toBeDisabled();
+    fireEvent.click(screen.getByLabelText("To a new point"));
+    for (const label of ["New node ID", "New node label", "New node provenance", "New point X", "New point Y", "New point Z"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
+    expect(screen.queryByTestId("reconnect-target-node")).toBeNull();
   });
 });

@@ -5,6 +5,8 @@ import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { operationExamples } from "./features/geometry-tools/reconnectExample";
+import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
@@ -90,6 +92,7 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
+import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -257,8 +260,8 @@ function AppSession() {
     projectOperation,
     projectBusy,
     handleCreateProject,
-    handleCreateBlankProject,
-    handleCreateBlankLoadStateProject,
+    requestBlankProject,
+    blankProjectUnitsRequest,
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
@@ -332,8 +335,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
-      // The replace prompt is modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null}
+      // The replace prompt and the units dialog are modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -525,6 +528,7 @@ function AppSession() {
                   operation_schema: operationSchema,
                   provider_status: "Live provider is held; offline proposals require explicit human review."
                 }}
+                loadOperationExamples={() => operationExamples(model)}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
@@ -553,6 +557,7 @@ function AppSession() {
                 revision={modelRevision.current} busy={operationBusy} message={batchMessage}
                 onValidate={(entry) => void handleRunOperationBatch(entry, false)}
                 onApply={(entry) => void handleRunOperationBatch(entry, true)}
+                onSelectRef={(ref) => { const target = resolveEntitySelection(model, ref); if (target) handleSelectEntity(target); }}
               />
               <OperationApplyPanel
                 queuedIntents={editorIntents}
@@ -856,11 +861,11 @@ function AppSession() {
             <Database size={15} aria-hidden="true" />
             Create local
           </button>
-          <button type="button" onClick={handleCreateBlankProject} disabled={projectBusy}>
+          <button type="button" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             New blank
           </button>
-          <button type="button" data-testid="new-blank-040" onClick={handleCreateBlankLoadStateProject} disabled={projectBusy}>
+          <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             Blank load/reference model
           </button>
@@ -1096,6 +1101,7 @@ function AppSession() {
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
+      <ProjectUnitsDialog request={blankProjectUnitsRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>

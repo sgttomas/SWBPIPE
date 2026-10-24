@@ -17,8 +17,9 @@ const ANNOTATED_COLLECTIONS: [&str; 8] =
 /// Collections whose records may carry `provenance_record`.
 const PROVENANCE_COLLECTIONS: [&str; 4] = ["materials", "sections", "components", "supports"];
 
-/// The same document without any 0.7.0 member: the new top-level members, every
-/// record's `tags` and `notes`, the project's, and every `provenance_record`.
+/// The same document without any 0.7.0 member: the new top-level members, the
+/// `model_settings` record (§3.8; nothing reads it yet), every record's `tags` and
+/// `notes`, the project's, and every `provenance_record`.
 fn without_new_members(document: &Value) -> (Value, usize) {
     let mut stripped = document.clone();
     let mut removed = 0;
@@ -26,6 +27,7 @@ fn without_new_members(document: &Value) -> (Value, usize) {
     for member in DOCUMENT_MEMBERS {
         removed += usize::from(root.remove(member).is_some());
     }
+    removed += usize::from(root.remove("model_settings").is_some());
     let project = root.get_mut("project").and_then(Value::as_object_mut).expect("project object");
     for member in ["tags", "notes"] {
         removed += usize::from(project.remove(member).is_some());
@@ -51,8 +53,9 @@ fn the_annotated_document_solves_exactly_as_the_document_without_its_new_members
     for member in DOCUMENT_MEMBERS {
         assert!(annotated[member].as_array().is_some_and(|items| !items.is_empty()), "the fixture carries {member}");
     }
+    assert!(annotated["model_settings"]["node_proximity_tolerance"].is_object(), "the fixture carries model_settings");
     let (plain, removed) = without_new_members(&annotated);
-    assert!(removed >= DOCUMENT_MEMBERS.len() + 2 + 2 * ANNOTATED_COLLECTIONS.len() + PROVENANCE_COLLECTIONS.len(),
+    assert!(removed >= DOCUMENT_MEMBERS.len() + 1 + 2 + 2 * ANNOTATED_COLLECTIONS.len() + PROVENANCE_COLLECTIONS.len(),
         "every slot kind is exercised ({removed} members removed)");
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let solved = serde_json::to_value(

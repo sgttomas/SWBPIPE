@@ -12,12 +12,12 @@ SOURCE=Path(os.environ.get('B7A_PHASE_TEST_SOURCE',str(PRICING.parents[1])))
 MODEL=runpy.run_path(str(PRICING/'base/b7a_phase_model.py'))
 # T4-U6/U8 snapshot lines, unchanged text (B7b: composite 724/950, source_receipt 646/732/748, lib 2532; B7a:
 # composite 726/952, source_receipt 694/780/796, lib 2543; T4-U6/U8 433fc1f1e4: composite 731/982; T4-U6/U8 final:
-# composite 977, lib 2553; T4-S5 epoch 4: composite 990, lib 2569; pre-0.4 unification: source_receipt +4, lib 2634).
+# composite 977, lib 2553; T4-S5 epoch 4: composite 990, lib 2569; pre-0.4 unification: source_receipt +4, lib 2634; W-8: lib 2635).
 CALLERS={
  'core/product_physics/src/source_receipt/composite.rs:740:composite_exact':MODEL['SOLVE'],
  'core/product_physics/src/source_receipt/composite.rs:1018:ordinary_physics':MODEL['SOLVE'],
  'core/product_physics/src/source_receipt.rs:661:failed':MODEL['SOLVE'],
- 'core/product_physics/src/source_receipt.rs:747:finalize_composite':'core/product_physics/src/lib.rs:2634:run_linear_static_preview_observed_inner',
+ 'core/product_physics/src/source_receipt.rs:747:finalize_composite':'core/product_physics/src/lib.rs:2642:run_linear_static_preview_observed_inner',
  'core/product_physics/src/source_receipt.rs:763:finalize_for':'core/product_physics/src/source_receipt.rs:747:finalize_composite',
 }
 

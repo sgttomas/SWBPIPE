@@ -336,6 +336,7 @@
             "remove_object",
             "split_pipe_run",
         "transform_pipe_run",
+            "reconnect_pipe_run",
         "assign_section",
             "detach_section",
             "delete_material",

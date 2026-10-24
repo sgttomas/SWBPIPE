@@ -11,7 +11,7 @@ import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { analysisRowSemantics, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
-import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
+import { changeFormControl, expectFormControlValue, compactOptionRecords, confirmProjectUnits } from "./test-support/workspaceTestControls";
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import {
   act,
@@ -9190,6 +9190,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(
       within(controls).getByRole("button", { name: /New blank/i }),
     );
+    confirmProjectUnits();
 
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
@@ -10873,10 +10874,11 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
     ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
+    // W-8 topology warning added; no number moved (BRANCH_TOPOLOGY_INVALID on the demo's tee C-120).
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-    ).toContain("6 Warnings");
+    ).toContain("7 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);
@@ -13633,6 +13635,7 @@ describe("native straight-route Add and Apply", () => {
     await screen.findByTestId("desktop-preview-shell");
     const controls = screen.getByLabelText("Local project controls");
     fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
+    confirmProjectUnits();
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Created blank local model"));
     expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
     fireEvent.click(screen.getByTestId("command-node"));

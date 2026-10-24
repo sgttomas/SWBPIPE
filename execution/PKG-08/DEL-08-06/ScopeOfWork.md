@@ -133,7 +133,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 >
 > This deliverable excludes final report styling/layout, GUI presentation, CLI runtime behavior, API transport, arbitrary project-file reading, solver-internal execution, protected-content linting implementation, and private redaction/export control implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). These exclusions are source-grounded in `docs/SPEC.md` section 9 and the approved upstream dependency mirror.
 >
-> Implementation file paths, concrete API names, exact schema fragments, and dependency versions are TBD unless later resolved by human-approved implementation work.
+> Current implementation paths are listed in `deliverable.yaml` `code_paths` (assembly in `core/reporting/report_package/` and `core/reporting/state_comparison_handoff_sections/engine.py`; desktop request in `apps/desktop/src/features/report/`). Unresolved API names, schema fragments and dependency choices for remaining producer bindings (DEL-08-06:1) stay TBD; existing source contracts continue to apply.
 >
 
 ### CLM-012 — Requirements
@@ -287,7 +287,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 > - `ScopeOfWork.md` for setup context.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` for semantic lensing, not engineering authority.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` as the approved DAG-006 local mirror/evidence surface.
-> - Future implementation tests and review notes for section assembly, protected-content avoidance, professional-boundary wording, provenance/checksum preservation, deterministic output, and missing-data findings.
+> - Implementation tests (`core/reporting/report_package/tests/container.rs`, `tests/test_state_comparison_handoff_report_sections.py`, `apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts`, `apps/desktop/src/features/report/reportPackageRequest.test.ts`) and review notes for section assembly, protected-content avoidance, professional-boundary wording, provenance/checksum preservation, deterministic output, and missing-data findings.
 >
 ### CLM-024 — D-41 R5 T4 persisted-run procedure
 
@@ -340,7 +340,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 > ##### Considerations
 >
 > - The report generator, audit manifest, warnings/provenance sections, result export, protected-content linter, private redaction/export controls, state/run records, comparison records, handoff package records, export workflow records, and external-prover metadata are all upstream evidence surfaces in `Dependencies.csv`. This setup pass preserves those edges as ACTIVE and does not reclassify them.
-> - ASSUMPTION: the future implementation should assemble sections from schema-first records rather than from unstructured text scraping. This follows the architecture-basis injection and `docs/SPEC.md` section 9, with current assembly interfaces in `core/reporting/report_package/src/lib.rs`; missing end-to-end evidence remains explicit.
+> - ASSUMPTION: the implementation should assemble sections from schema-first records rather than from unstructured text scraping. This follows the architecture-basis injection and `docs/SPEC.md` section 9, with current assembly interfaces in `core/reporting/report_package/src/lib.rs`; missing end-to-end evidence remains explicit.
 > - Any comparison wording should remain diagnostic/audit-oriented. A deterministic comparison can show changes and deltas; it does not prove external validation or acceptance.
 > - Any handoff wording should expose target mapping metadata and unsupported-target flags when available. It should not imply that a downstream external tool or human has approved the model.
 > - Boundary notices should be stable enough for tests, but exact wording remains TBD until the professional-claims policy deliverable and report templates are accepted.
@@ -357,7 +357,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 > | Human readability vs machine traceability | Preserve stable structured fields first; rendered prose can summarize but should not drop provenance or warning semantics. |
 > | Comparison completeness vs false authority | Present deterministic comparison findings and unresolved mappings without declaring acceptance, validation, or compliance. |
 > | Handoff usefulness vs unsupported-target risk | Expose unsupported or approximate target behavior instead of hiding loss of fidelity. |
-> | Early implementation speed vs report safety | Keep exact APIs and layout TBD until source contracts are available; do not infer product code from decomposition text alone. |
+> | Early implementation speed vs report safety | Use the implemented assembly APIs in `core/reporting/report_package/`; keep unresolved producer interfaces TBD under DEL-08-06:1. Final report styling/layout remains outside this deliverable's scope (CLM-011); do not infer product code from decomposition text alone. |
 >
 
 ### CLM-031 — Examples

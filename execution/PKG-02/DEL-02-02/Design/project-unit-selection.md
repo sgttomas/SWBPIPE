@@ -1,14 +1,20 @@
 # Project unit selection (W-17)
 
-**Basis:** `origin/main` at `356a9be374` (2026-10-23). Design before
-implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
+**Basis:** `origin/main` at `356a9be374` (2026-10-23). Slice (a) (§5) is
+implemented in W-17 (`apps/desktop/src/features/project-units/`); slice (b),
+`set_project_unit` and the Project units section, is not implemented. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
 Requirement: PRD §10.1 step 1, "User creates a project and selects units". Unit
 policy: DEC-018 (D-01 accepted 2026-06-10: SI-canonical calculation, a dual
 SI/US entered and display catalog, entered units preserved).
 
-## 1. Where things stand
+## 1. Where things stood before slice (a)
+
+This section records the starting point at the design basis. Since slice (a),
+blank projects open the units dialog and every new project carries all seven
+keys, including `angle` (§5); the rest still applies.
+
 
 - **Blank projects fix SI.** `buildBlankLocalModelDocument` writes
   `project.units` = `{length: m, force: N, moment: N*m, pressure: Pa, stress: Pa,
@@ -85,8 +91,10 @@ SI/US entered and display catalog, entered units preserved).
    - Custom: any accepted catalog symbol per key, chosen from the unit catalog
      the desktop already loads (`unitCatalogService.ts`).
 4. **Composed defaults are checked against the catalog.**
-   - **Moment** defaults use `project.units.moment`. The `<force>*<length>`
-     composition is removed.
+   - **Moment** defaults use `project.units.moment` whenever that key is
+     present; a present key is never replaced by a composition. Only when the
+     key is absent does the default fall back to `<force>*<length>`, checked
+     against the catalog like the compositions below.
    - **Distributed force, linear stiffness and thermal expansion** defaults keep
      their compositions, and each composed symbol is checked against the catalog
      for its dimension. A composition the catalog lacks gives no default. The
@@ -190,14 +198,13 @@ SI/US entered and display catalog, entered units preserved).
 | `schemas/model.schema.yaml` | none | S1b rewrites it | no |
 | D3-pinned files (`core/product_physics/**`, `core/units/**`, …) | none | S1b's D3 chain | no |
 
-**Sequencing** (coordinator, 2026-10-23). The work is two slices:
-- **Slice (a): selecting units at creation. It lands now.**
+**Slices.** The work is two slices:
+- **Slice (a): selecting units at creation.**
   - Scope: the blank-project dialog and the seven keys including `angle`
     (§2.1-2.4, §2.6), the composed defaults, and the builder, dialog,
     default and angle tests.
-  - It touches no applier or pinned file. If S1b merges first, this slice
-    rebases onto it.
-- **Slice (b): editing units after creation. It waits for W-13 S2.**
+  - It touches no applier or pinned file.
+- **Slice (b): editing units after creation.**
   - Scope: `set_project_unit` (§2.5, §2.7), the Project units section with its
     missing-key handling, and the applier tests.
   - It reuses the `Project` target that S2 adds in applier `lib.rs`, rather than
@@ -215,3 +222,6 @@ them:
    (§2.2, §2.7).
 3. **Missing `length` with existing nodes.** This is now a hard lock with a
    re-author diagnostic, and no repair is offered (§3).
+4. **Moment fallback without a moment key** (found in implementation, not by
+   that review). The composition is kept as the fallback because the bundled
+   sample model has no `moment` key (§2.4).

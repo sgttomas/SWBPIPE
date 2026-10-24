@@ -35,9 +35,12 @@ def test_only_retired_observation_caller_leaves_and_all_28_current_callers_stay(
     assert MODEL["primitive_lib_minmax_callers"](PIPING) == [
         "build_curved_bend_macro_elements", "straight_summary_extrema"]
     rules = c4_rules(PIPING)
-    # RF's upfront unit limit adds prepare_sources' intrinsic usize min.
-    assert len(rules) == 56
-    assert len({rule["caller"] for rule in rules}) == 28
+    # RF's upfront unit limit adds prepare_sources' intrinsic usize min; W-8 (W8-CG, §8.16) adds
+    # topology.rs's near_duplicate_nodes (f64 box bounds and usize node indices) and scaled_norm (f64).
+    assert len(rules) == 60
+    assert len({rule["caller"] for rule in rules}) == 30
+    assert {rule["name"] for rule in rules if "/topology.rs:" in rule["caller"]} == {"min", "max"}
+    assert all(not rule["targets"] for rule in rules if "/topology.rs:" in rule["caller"])
     assert any(rule["caller"].endswith(":prepare_sources") and rule["name"] == "min" for rule in rules)
     assert all("observation_lane_profile" not in rule["caller"] for rule in rules)
     assert all(rule["name"] in ("min", "max") for rule in rules)

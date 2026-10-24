@@ -31,6 +31,40 @@ export type RulePackFormulaValidation = {
   findings: RulePackValidationFinding[];
 };
 
+// The static unit check at validation (W-17, FR-RULE-002; DEL-06-02
+// Design/rule-pack-unit-check.md). Validate, save and open return it; a
+// blocked rule-check run's embedded validation omits it. Its findings never
+// enter has_blocking_findings.
+export type RulePackUnitCheckStatus = "consistent" | "findings" | "not_checkable";
+
+export type RulePackUnitCheckOperand = {
+  kind: "quantity" | "boolean" | "unknown";
+  dimension?: string;
+  unit_ref?: string;
+};
+
+export type RulePackUnitCheckFinding = {
+  code: string;
+  severity: "blocking" | "conditional" | "warning";
+  subject: string;
+  path: string;
+  operands: RulePackUnitCheckOperand[];
+  message: string;
+};
+
+export type RulePackCheckUnitCheck = {
+  check_id: string;
+  formula_id: string;
+  status: RulePackUnitCheckStatus;
+  findings: RulePackUnitCheckFinding[];
+};
+
+export type RulePackUnitCheck = {
+  status: RulePackUnitCheckStatus;
+  checks: RulePackCheckUnitCheck[];
+  declaration_findings: RulePackUnitCheckFinding[];
+};
+
 export type RulePackComputedChecksum = {
   algorithm: string;
   canonicalization: string;
@@ -63,6 +97,7 @@ export type RulePackDocumentValidation = {
   lifecycle_findings: RulePackValidationFinding[];
   lifecycle_blocked: boolean;
   formulas: RulePackFormulaValidation[];
+  unit_check: RulePackUnitCheck;
   checksum: RulePackChecksumValidation;
   publicly_exportable: boolean;
   professional_boundary_notice: string;

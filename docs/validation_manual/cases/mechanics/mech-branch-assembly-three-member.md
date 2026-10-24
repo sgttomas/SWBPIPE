@@ -23,7 +23,7 @@ refs:
 
 ## Test Purpose And Problem Statement
 
-Verify the PRD section 16.2 branch-assembly solver benchmark: a three-member invented frame network (run, riser, and branch) is assembled, solved, and compared against elementary open frame-member stiffness relationships recorded in the reference note.
+Verify the PRD section 22.2 branch-assembly solver benchmark: a three-member invented frame network (run, riser, and branch) is assembled, solved, and compared against elementary open frame-member stiffness relationships recorded in the reference note.
 
 All inputs are invented or user-entered fixture data; nothing is copied from
 protected standards, commercial software examples, or proprietary data.

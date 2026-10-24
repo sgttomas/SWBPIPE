@@ -42,8 +42,8 @@ PROJECT = Path(__file__).resolve().parents[1]
 REPOSITORY = PROJECT.parents[1]
 BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
 # Model document 0.7.0 (W-13 S1b) regenerated these files again (version token and the digests
-# binding it); R-A's check reads each at the S1b base, before that regeneration.
-S1B_BASE = "2538e044a92d3d9ba5132bc7ae75fb0e41f98741"
+# binding it) on top of main 116149085a; R-A's check reads each there, before that regeneration.
+S1B_BASE = "116149085a523678cc8247b81e9c367bd08d4dcc"
 
 # Counted-work leaves, by (parent key, key): a case's or the census's method
 # work, and the invocation ledger. Limits are deliberately absent.

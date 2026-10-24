@@ -1,17 +1,23 @@
 # SWBPIPE completeness and reconciliation map
 
-**Basis:** `origin/main` at `7a780551f0` (2026-10-23). This is a replaceable
+**Basis:** `origin/main` at `8a8a8b2584` (2026-10-23). Folded in since: W-4
+(#1582) and the owner's rulings and readings of 2026-10-23 on §3 rows 6–15,
+PRD §14.4 topology, FR-MOD-007 and FR-RULE-003. This is a replaceable
 current-state record for the owner and the work plan. Replace it when the
-basis moves materially; do not append to it.
+basis moves materially; do not append to it. It replaces the map at
+`7a780551f0`; Git holds that version.
 
-It answers three questions. Which intended outcomes does the product deliver
-today? Which deliverables' documents have drifted from the code? What must come
-before development testing, the owner's hands-on use and validation? It is not a
-release assessment. Classifications are facts read from code, tests and one
-hands-on run (§5). They are not acceptance: acceptance, issuance and release
-remain the owner's (F-PIP-3).
+It answers three questions:
+- Which intended outcomes does the product deliver today?
+- Which deliverables' documents have drifted from the code?
+- What must come before development testing, the owner's hands-on use and
+  validation?
 
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+It is not a release assessment. Classifications are facts read from code, tests,
+one native smoke run and one hands-on probe (§5). They are not acceptance:
+acceptance, issuance and release remain the owner's (F-PIP-3).
+
+Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Classes**
 - **D:** delivered, with evidence (code a user reaches, and tests).
@@ -21,236 +27,273 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 - **O:** out of scope for v0.1 by a cited owner ruling.
 
 A Must requirement met only on one solve route, only headless, or only as a
-schema is P. Where PRD §23 (MVP) or a Must requirement includes something and no
-ruling removes it, the row says **scope unclear**.
-
-The "scope unclear" notes and the "no ruling" statements in §1 and §2 are
-the assessment before the owner's rulings of 2026-10-23. §4.2 records those
-rulings (OD-1 to OD-5), and they take precedence over the earlier notes.
+schema is P. The owner's rulings OD-1 to OD-6 (§4.2) settle the scope questions
+the previous map left open; rows cite them where they apply.
 
 **Two solve routes** recur throughout:
 - **PF:** the pressure-free route, a model with no `pressure_contract`.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
 
+**Not on main, so not counted here (in flight):**
+- #1564 (W-13 S1b, model document 0.7.0), #1565 (W-13 S2a, authoring for the
+  0.7.0 slots) and #1566 (W-13 S2b / W-17, apply library records to model
+  entities);
+- #1573 (strict inputs, no silent drops of authored input or combination rows);
+- #1574 (absolute 5 mm node-proximity tolerance);
+- branch `claude/piping-w7-global-end-forces-20261023` (W-7, no PR yet);
+- #1567 (DBM concordance review).
+
 ## 1. What a user can do today
 
 Working in the macOS desktop app on invented data, a user can do the following.
-The native smoke and the probe in §5 exercised this path in the real app.
+The native smoke and the hands-on probe (§5) exercised this path in the real
+app at the basis.
 
-- **Projects:** open a model document, or start a blank or local project.
+- **Projects:** open a model document, open the bundled demo, or start a blank
+  project. A blank project now opens a units dialog first (SI, US customary or
+  a custom unit per key).
 - **Authoring:** place nodes and pipes in the 3D viewport, assign materials and
   sections, and add bends, expansion joints, supports, load cases and
-  combinations. Every edit is a validated, diffed and undoable operation.
-- **Solving:** solve on either route. PF covers linear and nonlinear supports,
-  wind, seismic and combinations. EX covers pressure, load/reference states and
-  objective-connector joints.
+  combinations. Split, copy, rotate, mirror and reconnect pipes. Every edit is
+  a validated, diffed and undoable operation.
+  - The probe authored a cantilever from blank in the native app: node,
+    material, pipe, fixed support, load case and a 350 N tip force. It solved
+    natively, saved, reopened in a fresh process and solved again identically.
+    The tip displacement (1.3703 mm) agrees with PL³/3EI.
+- **Solving:** solve on either route.
+  - PF covers linear and nonlinear supports, wind, seismic and combinations.
+  - EX covers pressure, load/reference states, imposed support motion and
+    objective-connector joints.
+  - Before solving, both routes warn about disconnected parts, coincident or
+    near-duplicate nodes and invalid tees (W-8).
+  - A load case whose authored loads are not applied is refused by name
+    instead of solving to zeros (#1568).
 - **Results:** read displacements, element-local forces, reactions and
-  stresses, each with a numerical-integrity standing, and view the deformed
-  shape.
+  stresses, each with a numerical-integrity standing and a per-case numerical
+  health indicator. View the deformed shape, colour members by a result
+  quantity, and show support reaction arrows.
 - **Saving:** save the project to the local store and reopen it.
-- **Rule packs:** author a private rule pack and run it against results. Missing
-  inputs block pass/fail.
+- **Rule packs:** author a private rule pack. Validation reports static unit
+  findings per check, and running it against results gives
+  `RULE_INPUTS_INCOMPLETE` with the missing inputs named.
+- **Reports:** render a calculation report for a PF result as a local private
+  document. Tick "Include known private values in this local rendered report"
+  and the render shows a preview and its canonical SHA-256, with Save canonical
+  HTML and Print / PDF. The document carries rule-pack references, user-rule
+  check outcomes, software and solver versions, the generation time, run
+  settings and coordinate systems.
 - **Libraries:** import private material, section and component libraries.
-- **Exports:** export result JSON and stress-neutral JSON on both routes. PF
-  results also export the PCF and MBF package documents (redacted), a native
-  package review manifest and a preview handoff JSON. The byte-exact
-  downstream outputs (stress-neutral CSV, glTF review geometry, PCF text and
-  MBF text) are withheld by the desktop: their routes require lossless
-  materialization and session values are private
-  (`ControlledExportLink.tsx:36-48`).
+- **Exports:** export result JSON and stress-neutral JSON on both routes, each
+  behind local-private intent. PF results also export the PCF and MBF package
+  documents (redacted), the adapter SDK and framework envelopes, a local FEA
+  packet, a native package review manifest and a preview handoff JSON. The
+  byte-exact downstream outputs (stress-neutral CSV, glTF review geometry, PCF
+  text and MBF text) are withheld by the desktop, because session values are
+  private (`ControlledExportLink.tsx`).
 
 The biggest gaps:
 
-1. **No report a user can obtain.** For a pressure-free session, Render gives
-   `blocked=true` (18,031 redaction decisions), with no preview and no hash
-   (§5). Report inputs are classified private, and the render runs under the
-   public-report redaction context with no local-private intent control.
-   - Exact-route results are refused for every report (owner ruling 10A,
-     2026-10-21).
-   - Save Report Package refuses every current result.
-   - Affected: FR-REP-001 (Must) and MVP "basic report generation".
-2. **No model states, run history or comparison between states or runs.**
-   FR-CMP-001..004 are Must and §23 MVP items. They exist as schemas and
-   headless Python engines only. No ruling says explicitly whether software
-   0.1.0 includes them. Two texts point in different directions:
-   - The owner-adopted issuance-wave ruling D-11 (DEC-062, 2026-07-04) places
-     PKG-14 in "W7 — Forward horizon v0.2" (Phase G). DEL-14-01:3 marks the
-     program "stage-gated: v0.2 R3".
-   - PRD §23 still lists these items in the MVP. The "v0.2" in D-11 names the
-     PRD v0.2 milestone set, not a software version.
-
-   The "Not in v0.1" text in the release-notes draft
-   (`docs/RELEASE_NOTES_v0.1.0_DRAFT.md:118-121`, commit 91eb15e09e) is an
-   agent's reading, not a ruling. The same W7 placement covers PKG-13 (design
-   knowledge), PKG-15 (handoff), PKG-16 (agent) and PKG-17 (exports).
-3. **No rigid elements.** Valves, flanges, reducers and rigid or specialty
-   components are analysed as plain pipe on PF and refused on EX.
-   - DEC-045 (owner, 2026-06-20) chose geometry plus user stiffness scaling,
-     but the scaling is never applied.
-   - Affected: FR-SOL-004 (Must) and the MVP/R1 "rigid elements" item.
-4. **No canonical model export.** The desktop has no save-model-to-file command.
-   The handoff download is a preview document that does not conform to
-   `schemas/handoff_package.schema.json`. Nothing is exported for pressure
-   models. Affected: FR-HAND-001 (Must) and the MVP item.
-5. **One model format, missing slots.** Since #1554, `schemas/model.schema.yaml`
-   describes the desktop's model document (0.6.0), and the bundled demo validates
-   against it. The former shape moved to
-   `schemas/physical_transform_model.schema.yaml`. Tags, notes, unresolved
-   assumptions and rule-pack references have no slot. Affected:
-   FR-MOD-001/004/006 (Must).
-6. **No design-knowledge entry or constraint validation in the desktop.** The
-   Design Knowledge panel shows a compiled-in document, and constraint
-   validation is Python-only. Affected: FR-KNOW-001 (Must) and R6.
-7. **No end-to-end proof of R2.** No single automated or human run takes a
-   model authored in the GUI through native solve, review, save and reopen
-   (DEC-047 bypassed the human packaged pass).
-8. **Documents trail the code.** Most PKG-07, PKG-08, PKG-06 and PKG-17
-   `deliverable.yaml` pointers name Python or Rust reference modules the
-   desktop never calls, and omit the desktop code that delivers the outcome.
-   The validation manual's runnable reproduction procedure is out of date (Part 1 is a frozen procedure whose dated notes say its commands now need a flag or are refused). Several
-   ScopeOfWork files still say "not implemented in this setup" for code that
-   ships (§3).
+1. **No shareable report, no EX report, no report package.** A public render of
+   any session stays `blocked=true`, because session provenance is hard-coded
+   private (`renderableReportInput.ts:119-131`). EX results are refused for
+   every report (ruling 10A). Save Report Package refuses every current result
+   (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). The report lacks materials,
+   sections and library records. Affected: FR-REP-001..004.
+2. **No model states, run history or comparison between states or runs.** These
+   are in v0.1 by OD-1. They exist as schemas and headless Python engines; W-12
+   has a design only. Affected: FR-CMP-001..010.
+3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
+   validated but never applied, and EX refuses these components. Affected:
+   FR-SOL-004/012.
+4. **No canonical model export.** No save-model-to-file command. The handoff
+   download is a preview document outside `schemas/handoff_package.schema.json`,
+   with `rule_pack_refs: []` hard-coded. W-6 has a design only. Affected:
+   FR-HAND-001/002.
+5. **Model document slots.** The schema now describes the desktop 0.6.0
+   document, and the bundled demo validates. Tags, notes, unresolved
+   assumptions, rule-pack references and structured entity provenance have no
+   slot until 0.7.0 (#1564–#1566, in flight). Affected: FR-MOD-001/002/004/005/006.
+6. **Mechanics gaps on one route.**
+   - Combinations are refused on EX (FR-SOL-009).
+   - Imposed displacement is refused on PF (FR-SOL-006); the owner ruled to
+     build it there in two stages.
+   - Pipe and bend end forces are element-local only (FR-SOL-007; W-7 is in
+     flight).
+   - The near-duplicate node tolerance is relative (1e-6 of the model extent),
+     not the owner's 5 mm (REQ-04-06-012; #1574 in flight).
+7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
+   required load cases (FR-RULE-001). Library records cannot yet be applied to
+   model entities (#1566 in flight).
 
 ## 2. Outcome table
 
 Each row gives the PRD requirement (`docs/PRD.md` line), its priority and
-class, the evidence, and the deliverables.
+class, the evidence, and the deliverables. Paths are under
+`projects/chirality-piping/`. "Desktop `lib.rs`" is `apps/desktop/src-tauri/src/lib.rs`;
+"PP `lib.rs`" is `core/product_physics/src/lib.rs`.
 
-### 2.1 Model, schema, design knowledge (PRD §11.1–11.2, §13)
+### 2.1 Model, schema, design knowledge (PRD §10.1, §11.1–11.2, §13)
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-MOD-001 (476) | Must | P | **Store:** `apps/desktop/src-tauri/src/lib.rs:2452` save, `:1189` load. **Tests:** `lib.rs:6270,6325,7552`; `e2e/b3b-project-persistence.spec.ts`. **Desktop:** File › New/Save/Open Local Project, Open Model Document | DEL-02-05, DEL-02-01, DEL-00-04 | Model, units and provenance strings round-trip. Tags, notes, assumptions and rule-pack refs have no slot. No save-to-file. The product document fails the canonical schema. |
-| FR-MOD-002 (477) | Must | P | Typed entities in `core/product_physics/src/lib.rs:366,448,577` | DEL-02-01 | Lines, constraints and equipment interfaces are not entities in the product document. |
-| FR-MOD-003 (478) | Must | D | Identity changes refused: `core/model_operations/operation_applier/src/rich_authoring.rs:1092`; test `:864`; `atomic_batch.rs:690` | DEL-02-01, DEL-16-06 | No all-operations ID-survival test. |
+| FR-MOD-001 (476) | Must | P | **Store:** desktop `lib.rs:2432` save, `:1189` load. **Tests:** desktop `lib.rs:6283,6338,6510,7565`; `e2e/b3b-project-persistence.spec.ts`. **Schema:** `schemas/model.schema.yaml` describes the 0.6.0 document; `tests/test_model_document_schema.py:247,254` validates the bundled demo and e2e documents against it | DEL-02-05, DEL-02-01, DEL-00-04 | No tags, notes, assumptions or rule-pack reference slots (0.7.0 in flight). No save-to-file command. Nothing validates against the schema at run time. |
+| FR-MOD-002 (477) | Must | P | Typed entities in PP `lib.rs:367,382,449,578,657` | DEL-02-01 | Lines, constraints and equipment interfaces are not entities (planned for 0.7.0, #1564). |
+| FR-MOD-003 (478) | Must | D | Identity changes refused: `operation_applier/src/rich_authoring.rs:1092`, test `:864`; `atomic_batch.rs:690`; reconnect keeps ids (`pipe_reconnect.rs`) | DEL-02-01, DEL-16-06 | No all-operations id-survival test. |
 | FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | No tags or notes. |
 | FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402` | DEL-03-01, DEL-03-07 | Model entities have one free provenance string. |
-| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists only in `schemas/physical_transform_model.schema.yaml` (the headless transform's format) | DEL-02-01, DEL-13-01 | No slot in the desktop document, and no entry path. |
-| FR-MOD-007 (482) | Must | P | **Python transform:** `core/model_transform/physical_to_analytical/contract.py:113`, used by tests only. **Desktop:** solves the document directly in Rust (`preview_physics.rs`) | DEL-13-04 | No transformation-warning record on the solve path; holds DEL-13-04:2/3 apply. |
-| FR-KNOW-001 (488) | Must | P | `lib.rs:1773` returns a compiled-in fixture; `KnowledgePanel.tsx` is read-only | DEL-13-01 | **Scope unclear:** Must requirement and R6 deliverable, while §23 omits it and D-11 places PKG-13 in W7 ("Forward horizon v0.2"). |
-| FR-KNOW-002 (489) | Must | P | Unknown references give `MODEL_INCOMPLETE` (`lib.rs:19079`). An unrestrained body is caught at solve (`lib.rs:15409`). Exact pressure regions reject branching, cycles and disconnected traversal (`pressure_runtime.rs:1535,1594`) | DEL-13-03 | No general topology check: a disconnected but separately anchored route is not flagged. |
-| FR-KNOW-003 (490) | Should | P | `core/constraints/validation/engine.py`; `tests/test_constraint_validation.py` | DEL-13-03, DEL-13-02 | Python only; record checks, no geometry. |
-| FR-KNOW-004 (491) | Should | P | `schemas/constraint.schema.json` | DEL-13-02 | Schema only. |
-| FR-KNOW-005 (492) | Could | P | Absent (PRD §13.3 says "In future releases") | (R7) | |
-| §10.1 step 1, select units | — | P | `projectService.ts:377-402` fixes SI for a blank project | DEL-02-02 | Display units switchable. |
+| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | No slot in 0.6.0 and no entry path. |
+| FR-MOD-007 (482) | Must | D (bounded) | On the live solve path the product derives its analytical model (`BuiltModel`, PP `lib.rs:2261`; `build_model` `:7930`) from the supported canonical-document fields and records diagnostics (PP `lib.rs:2635-2739`) | DEL-13-04, DEL-04-07 | Owner reading (2026-10-23, accepted): D bounded to this derivation. The richer PKG-13 transform contract (`core/model_transform/physical_to_analytical/contract.py`, test-only) stays deferred under OD-1. |
+| FR-KNOW-001 (488) | Must | O | OD-3 (DEL-13-01 SOW:15). Desktop `lib.rs:1773` returns a bundled fixture; `KnowledgePanel.tsx` has no inputs | DEL-13-01 | |
+| FR-KNOW-002 (489) | Must | D | W-8: `core/product_physics/src/topology.rs:46`, called once at PP `lib.rs:2739` on the shared path of both routes; `MODEL_TOPOLOGY_DISCONNECTED` (`topology.rs:136`), `BRANCH_TOPOLOGY_INVALID` (`validation.rs:1310-1320`); unsupported parts still refused (PP `lib.rs:15412`); EX pressure-region topology (`pressure_runtime.rs:1538,1548,1595`). **Tests:** `tests/topology_checks_runtime.rs` (9). **Desktop:** Diagnostics panel (`App.test.tsx:10877`) | DEL-04-06 | Findings are warnings; PRD §14.4 lists topology under "blocking for model validity" (§6). Tests use PF requests only. The bundled demo now warns `BRANCH_TOPOLOGY_INVALID` (tee C-120). |
+| FR-KNOW-003 (490) | Should | O | OD-1/OD-3 (DEL-13-03 SOW:15). `core/constraints/validation/engine.py`, Python only | DEL-13-03, DEL-13-02 | |
+| FR-KNOW-004 (491) | Should | O | OD-1/OD-3 (DEL-13-02 SOW:15). `schemas/constraint.schema.json` | DEL-13-02 | |
+| FR-KNOW-005 (492) | Could | O | PRD §13.3 "In future releases"; OD-1 defers further PKG-16 features; DEL-16-04:3 "v0.2 R7" | (R7) | |
+| §10.1 step 1, select units (415) | — | D | W-17 (a): `features/project-units/ProjectUnitsDialog.tsx`, mounted at `App.tsx:1087`; `projectService.ts:380-414` (seven keys, SI/US/custom, `PROJECT-UNITS-INCOMPLETE`). **Tests:** `ProjectUnitsDialog.test.tsx`, `projectUnitSelection.test.ts`; e2e `confirmProjectUnits`. Observed natively (§5) | DEL-02-02 | Changing units after creation (slice b) is not built. The e2e confirms SI only. |
 
 ### 2.2 Desktop GUI and operations (PRD §11.3, §11.8, §14)
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| R2 exit (1572) | — | P | Each step is covered somewhere (see A2 path in §5) | DEL-07-11, DEL-07-01/02/05/07 | No native run of a model authored in the GUI. |
-| FR-GUI-001 (498) | Must | D | `PipeViewport.tsx:1249-1331` (pipes, nodes, supports, components, labels); load arrows `:1289`; deformed shape and rotation glyphs `:1268-1283`; `e2e/c3-viewport-visibility.spec.ts`, `rotation-glyph.spec.ts`. **Result overlays (OD-5, PR #1556):** per-member result colour (`resultColourOverlay.ts`, `ResultOverlayLegend.tsx`) and support reaction arrows (`reactionOverlay.ts`, `viewportReactionArrows.ts`); `e2e/result-overlays.spec.ts` in the PR core browser journey | DEL-07-01, DEL-07-05 | Overlays are off by default. Colour is one value per member, with no per-node interpolation, and draws only rows the results table shows under the numerical-health standing. Reaction arrows come from global-frame rows only; withheld attributions are counted, not drawn. The `canvas.edgeAlt` edge line and §2.7 neutral load arrows are not built. The D-72 orbit qualification with result colour has not run. DEL-07-01 REQ-02's "stress-ratio color maps" wording is with the owner. |
+| R2 exit (1572) | — | D | W-4 (#1582): the native smoke authors a cantilever from blank through the GUI (`native-smoke/driver.js`, `authorFromBlank`), solves natively, checks the tip deflection against PL³/3EI within 1e-9, saves in place, reopens in a fresh process and re-solves to the same rows, value and model hash (`run.mjs`, "from blank" checks) | DEL-07-11, DEL-07-01/02/05/07 | The browser journey still ends at `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, by design. One model shape and the SI preset only. |
+| FR-GUI-001 (498) | Must | D | `PipeViewport.tsx:1289-1291` (nodes, supports, components); deformed shape `:1306-1310`; rotation glyphs `:1313`; reaction arrows `:1315-1317`; result colour `:1323-1327`; load arrows `:1332`; labels `:1374-1429`; legend `:2456`. **Tests:** `e2e/result-overlays.spec.ts:158` (PR core lane), `PipeViewport.overlays.test.tsx`, `c3-viewport-visibility.spec.ts`, `rotation-glyph.spec.ts` | DEL-07-01, DEL-07-05 | Overlays are off by default. Colour is one value per member. Reaction arrows come from global-frame rows only. The D-72 orbit qualification with result colour has not run. §14.2 bend arcs, corridors and no-go volumes are not drawn. |
 | FR-GUI-002 (499) | Must | P | `ModelTree.tsx:40-57` | DEL-07-02 | No lines, states or runs. |
-| FR-GUI-003 (500) | Must | P | `PropertyInspector.tsx:1248,1263,1283`; `typedInspector.test.tsx` | DEL-07-02 | No dependencies, linked assumptions or dependent rule-pack inputs. These are not in DEL-07-02 RQ-002. |
-| FR-GUI-004 (501) | Must | P | Create, modify and move (`operation_applier/src/lib.rs:385-404,2395-2470`), delete (`:1732,1774`); split, copy, rotate and mirror (`geometry_operations.rs`); `e2e/b4-table-editing.spec.ts` | DEL-07-01, DEL-16-06 | No reconnect: a pipe's `from`/`to` cannot be retargeted. |
-| FR-GUI-005 (502) | Should | D | `workspaceSession.ts:1182-1188` (depth 25); `e2e/b3a-session-status.spec.ts` | DEL-00-05, DEL-07-11 | Session-only. |
-| FR-GUI-006 (503) | Must | D | `MissingDataBlockingPanel.tsx:5-11,165-187`; `App.test.tsx:2966-3004`; `e2e/gui-workflow-validation.spec.ts:110` | DEL-07-04 | Shown in drift §3 (DEL-07-04). |
-| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts:654,739` (`single_run_load_basis_review`) | DEL-07-08, DEL-14-05 | Within one run only. |
-| FR-AGENT-001 (568) | Should | D | Offline intake `OfflineProposalIntakePanel.tsx` → `atomic_batch.rs:285-345` | DEL-16-01, DEL-16-06 | The live provider is O (D-22/DEC-041; F-PIP-4). |
-| FR-AGENT-002 (569) | Should | D | `atomic_batch.rs` preflight and its tests `:717-802` | DEL-16-02, DEL-16-06 | |
-| FR-AGENT-003 (570) | Should | D | Queue, review/diff, explicit Apply (`workspaceSession.ts:1180-1191`) | DEL-07-08, DEL-16-06 | No e2e for offline intake. |
-| FR-AGENT-004 (571) | Should | P | Rationale and source required (`atomic_batch.rs:322-341`) | DEL-16-03, DEL-16-04 | No assumptions or constraints-considered keys. Receipts are session-only. |
-| FR-AGENT-005 (572) | Must | P | Boundary flags fixed and tamper-checked (`atomic_batch.rs:196-202,427-440`) | DEL-16-04 | The prohibited-claim scanner (`agent_rationale/engine.py`) is headless only. **Scope unclear:** DEL-16-04:3 stages it to R7. |
+| FR-GUI-003 (500) | Must | P | `PropertyInspector.tsx:1276,1291,1311`; `typedInspector.test.tsx` | DEL-07-02 | No dependencies, linked assumptions or dependent rule-pack inputs. |
+| FR-GUI-004 (501) | Must | D | Create, modify, move, delete (refuses while any record names the pipe; `tests/pipe_delete_dependents.rs`); split, copy, rotate, mirror (`geometry_operations.rs`); reconnect (`operation_applier/src/pipe_reconnect.rs`, `tests/pipe_reconnect.rs`, `e2e/pipe-reconnect.spec.ts:52`; UI `GeometryToolsPanel.tsx:65-88`) | DEL-07-01, DEL-16-06 | Declared v0.1 limitation (DEL-16-06 SOW:79): reconnect refuses component-bearing and pressure-region pipes. All four demo pipes are refused. |
+| FR-GUI-005 (502) | Should | D | `workspaceSession.ts` (depth 25); `e2e/b3a-session-status.spec.ts` | DEL-00-05, DEL-07-11 | Session-only. |
+| FR-GUI-006 (503) | Must | D | `MissingDataBlockingPanel.tsx:24,148-181`; `App.test.tsx`; `e2e/gui-workflow-validation.spec.ts:110` | DEL-07-04 | Topology findings are warnings, not blocking. |
+| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts` (`single_run_load_basis_review`) | DEL-07-08, DEL-14-05 | Within one run only (W-12). |
+| FR-AGENT-001 (568) | Should | D | `OfflineProposalIntakePanel.tsx` → `atomic_batch.rs:285-345` | DEL-16-01, DEL-16-06 | The live provider is O (D-22/DEC-041). |
+| FR-AGENT-002 (569) | Should | D | `atomic_batch.rs:8,112`; tests `:529,593,690,746,806` | DEL-16-02, DEL-16-06 | |
+| FR-AGENT-003 (570) | Should | D | Diff review and explicit Apply (`workspaceSession.ts:1345,1496`) | DEL-07-08, DEL-16-06 | No e2e for offline intake. |
+| FR-AGENT-004 (571) | Should | P | Rationale and source required (`atomic_batch.rs:326-341`) | DEL-16-03, DEL-16-04 | No assumptions or constraints-considered keys; receipts are session-only. |
+| FR-AGENT-005 (572) | Must | O | OD-5: the claim scan stays R7 (DEL-16-04:3, SOW:383). Boundary flags fixed and tamper-checked (`atomic_batch.rs:196-204,424-440`) | DEL-16-04 | The scanner is headless only (SOW:136). |
 
 ### 2.3 Solver and mechanics (PRD §11.4, §12, §22.2–22.3)
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-SOL-001 (510) | Must | D | `core/solver/frame_kernel/src/lib.rs:1591`; t3_r1 references | DEL-04-01 | Both routes. |
-| FR-SOL-002 (511) | Must | D | `MECH-PORTAL-SWAY`, `-INCLINED-MEMBER-TRANSFORM`, `-FIXED-FIXED-THERMAL-AXIAL` (`validation/benchmarks/mechanics/src/lib.rs`) | DEL-04-01, DEL-09-01 | |
-| FR-SOL-003 (512) | Must | D | `core/solver/straight_pipe`; self-weight `product_physics/src/self_weight.rs:507-515`; `STRESS-*` fixtures | DEL-04-02, DEL-05-03 | PF uses Euler–Bernoulli; EX adds Timoshenko. |
-| FR-SOL-004 (513) | Must | P | No rigid element in the kernel: `frame_kernel/src/rigid_body.rs` is a rigid-motion screen, used for mechanism detection (`nonlinear_integration/src/structural_adapter.rs:1633,1761`). PF only normalizes and diagnoses (`product_physics/src/validation.rs:1247-1311`); EX refuses (`exact_admission.rs:196-210`) | DEL-03-05 (data) | Offsets exist only on connectors and tie rods (`connector.rs:12`, `tie_rod.rs:17`). DEC-045's stiffness scaling is never assembled. No rigid-link benchmark. **Scope unclear:** §23/R1. |
-| FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; `lib.rs:8263,8315`; EX admits linear restraints and springs (`exact_admission.rs:6`) | DEL-04-03 | Both routes. |
-| FR-SOL-006 (515) | Must | P | EX: pressure, loads, load states (`exact_admission.rs:103-108`). PF refuses imposed displacement (`preview_physics.rs:1041-1093`) | DEL-05-01, DEL-05-05, DEL-04-07 | Complete on EX only. |
-| FR-SOL-007 (516) | Must | P | Pipe and bend end rows are `element_local` only (`product_physics/src/lib.rs:12363,12384`; test `:16027`). Objective connectors publish global end actions (`lib.rs:4433,4441`) | DEL-04-01/02 | Global-frame end forces are missing for pipes and bends. |
-| FR-SOL-008 (517) | Must | D | `core/loads/stress_recovery`; Lamé hoop and longitudinal on EX (`product_physics/tests/t4_u6_section_bases.rs`) | DEL-05-03 | Pressure stresses exist only where pressure exists (EX). |
-| FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; tests `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | PF only: EX refuses combinations (`exact_admission.rs:142,240`). |
-| FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070; expansion-loop k-sweep | DEL-03-03, DEL-04-07 | |
-| FR-SOL-011 (520) | Should | P | SIF → intensified measure (`preview_physics.rs:320-345`) | DEL-03-04 | Branch flexibility is not applied to stiffness. EX refuses tees. |
-| FR-SOL-012 (521) | Should | P | As FR-SOL-004 | DEL-03-05 | Component weight is never applied as a load. |
-| FR-SOL-013 (522) | Should | D | `frame_kernel/src/connector.rs`, `tie_rod.rs`; t4_i12/u5a/u5b references | DEL-03-06 | EX only. Movement limits are stored as data and not enforced. |
-| FR-SOL-014 (523) | Should | P | `core/solver/nonlinear_supports`; `references/kd5_nonlinear`; the native demo converges | DEL-04-04, DEL-04-07, DEL-09-03 | PF only. Rotational gap and friction are refused. |
-| FR-SOL-015 (524) | Must | D | `core/solver/diagnostics`; `NUMERICAL_INTEGRITY_*` (`lib.rs:1197-1225`); `ResultsPanel.tsx:110` | DEL-04-06, DEL-05-04 | Health indicator in progress elsewhere (§4). |
-| §12.8 near-duplicate nodes (775) | — | P | Only `DUPLICATE_ID` found | DEL-04-06 | No deliverable states this clause. |
-| §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (commit b71c3a23ad, on the health-indicator branch); held as B8 in DEL-04-08 SOW:336 | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
-| §22.2 benchmarks (1403) | — | P | 11 of 14 present (`validation/benchmarks/*`, `validation/references/t3_r1`) | DEL-09-01..03 | **Missing:** L-shaped thermal frame, rigid link. **Partial:** simply supported pipe under weight, imposed anchor displacement. |
-| §22.3 stress benchmarks (1422) | — | D | `STRESS-*`, t4_u6/u4b, `STRESS-RANGE-MECHANICS-ORIGINAL` | DEL-09-02 | |
+| FR-SOL-001 (510) | Must | D | `core/solver/frame_kernel/src/lib.rs:17,1591`; t3_r1 references | DEL-04-01 | Both routes. |
+| FR-SOL-002 (511) | Must | P | `validation/benchmarks/mechanics/src/lib.rs:934,963,1693`; W9-A (both routes), W9-C | DEL-04-01, DEL-09-01 | Beams, frames, transforms and thermal pass on both routes. The imposed-displacement benchmarks (W9-C, `mechanics/src/lib.rs:948`) run on EX only, because PF refuses support motion (FR-SOL-006). |
+| FR-SOL-003 (512) | Must | D | `core/solver/straight_pipe`; `self_weight.rs:505-512`; `STRESS-*` | DEL-04-02, DEL-05-03 | PF Euler–Bernoulli; EX adds Timoshenko. |
+| FR-SOL-004 (513) | Must | P | No rigid element and no DEC-045 scaling applied: `stiffness_scaling_user_value` is unit-normalized (PP `lib.rs:9483`) and validated (`validation.rs:777,1346-1411`) only. EX refuses rigid and specialty components (`exact_admission.rs:208-210,285`) | DEL-03-05 | OD-2: build the scaling (W-15). Offsets exist only on connectors and tie rods. No rigid-link benchmark. |
+| FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; PP `lib.rs:2741`; EX admits linear restraints and springs (`exact_admission.rs:295-305`) | DEL-04-03 | Both routes. |
+| FR-SOL-006 (515) | Must | P | EX applies `boundary_motion` (`exact_admission.rs:106`; W9-C `tests/w9_solver_benchmarks.rs:413`). PF refuses support-targeted loads (`preview_physics.rs:1041-1093`, `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`) | DEL-04-03, DEL-04-07, DEL-05-01, DEL-05-05 | Owner (OD-6 row 2): build on PF in two stages (`DEL-04-07 Design/pressure-contract.md`, "Imposed displacement on the pressure-free route"). |
+| FR-SOL-007 (516) | Must | P | Pipe and bend end rows are `element_local` only (PP `lib.rs:12366-12392`; test `:16030`). Connectors publish global end actions (`:4436`) | DEL-04-01/02 | W-7 in flight. No deliverable commits to global end forces (DEL-04-01 SOW:140 covers transforms). |
+| FR-SOL-008 (517) | Must | D | `core/loads/stress_recovery`; `tests/t4_u6_section_bases.rs:270` | DEL-05-03 | Pressure stresses exist where pressure exists (EX). |
+| FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | EX refuses every combination (`pressure_runtime.rs:337-343`; `exact_admission.rs:229`). |
+| FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070 | DEL-03-03, DEL-04-07 | |
+| FR-SOL-011 (520) | Should | P | SIF → intensified measure (`preview_physics.rs:321-347`); `BRANCH_TOPOLOGY_INVALID` (W-8) | DEL-03-04 | Branch flexibility is not assembled (PP `lib.rs:12861`). EX refuses tees (`exact_admission.rs:205`). |
+| FR-SOL-012 (521) | Should | P | As FR-SOL-004; the self-weight request rejects `component_weights` (`self_weight.rs:1453-1457`) | DEL-03-05 | Component weight is never applied as a load. |
+| FR-SOL-013 (522) | Should | D | `frame_kernel/src/connector.rs`, `tie_rod.rs`, `joint.rs:727`; `tests/connector_pp_paths.rs` | DEL-03-06 | EX only. `movement_limit` is normalized, not enforced (PP `lib.rs:9378`). |
+| FR-SOL-014 (523) | Should | P | `core/solver/nonlinear_supports`; `references/kd5_nonlinear`; the native demo converges | DEL-04-04, DEL-04-07, DEL-09-03 | PF only. Rotational gap and friction refused (`validation.rs:88,100`). |
+| FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
+| §12.3 reducers (no row before) | — | P | No eccentric offset vector in `core/product_physics/src` | DEL-03-05 | Part of W-15. |
+| §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`) | DEL-05-01 | EX refuses `equivalent_static`; imposed rotations and nozzle movement follow FR-SOL-006. |
+| §12.8 near-duplicate nodes (775) | — | P | W-8: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` at 1e-6 of the model extent (`topology.rs:19,171,290-293`); tests `topology_checks_runtime.rs:143,212,231` | DEL-04-06 | REQ-04-06-012 (owner) sets 5 mm absolute and user-settable; #1574 in flight. |
+| §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
+| §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
+| §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b | DEL-09-02 | The DEL-09-02 stress suite itself has no pressure family, although DEL-09-02 commits pressure coverage (W-20). |
 
 ### 2.4 Rule packs, reporting, handoff and export (PRD §11.5, §11.7, §11.9, §16–19)
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-RULE-001 (530) | Must | P | `schemas/rule_pack.schema.yaml`; `RulePackManagerPanel.tsx:304-519`; `e2e/r2-smoke.spec.ts:1173-1241` | DEL-06-01, DEL-07-03 | No stress categories, load-case mappings or required load cases (§17.2). |
-| FR-RULE-002 (531) | Must | D | `core/rules/rule_pack_document/src/lib.rs:993-1002`; units refused `rule_check_runner/src/lib.rs:1286`; `expression_evaluator/tests/conformance_corpus.rs` | DEL-06-02 | Units are checked at run time, not when the pack is validated. |
-| FR-RULE-003 (532) | Must | D (qualified) | `rule_check_runner/src/lib.rs:749`; desktop `lib.rs:2906-2925`; tests `lib.rs:7888,7903`; observed natively on both routes (§5) | DEL-06-03 | A check with missing inputs is never evaluated. The aggregate ranks failed above incomplete (`rule_check_runner/src/lib.rs:200,355`), so a pack where one check fails and another is incomplete shows aggregate FAILED. It never shows PASS. Whether that meets "refuses to report pass/fail" is a reading for the owner (Codex). |
-| FR-RULE-004 (533) | Must | D | `rulePackService.ts:225-249` (private by default); local SQLite | DEL-06-04 | No pack file export. |
-| FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; `lib.rs:8544`; `tests/test_library_import_provenance.py` | DEL-03-01, DEL-03-07 | Library records cannot be applied to model materials. |
+| FR-RULE-001 (530) | Must | P | `schemas/rule_pack.schema.yaml`; `RulePackManagerPanel.tsx:302-602`; `e2e/r2-smoke.spec.ts:1175` | DEL-06-01, DEL-07-03 | No stress categories, load-case mappings or required load cases (§17.2). |
+| FR-RULE-002 (531) | Must | D | `rule_pack_document/src/lib.rs:1184` calls `check_rule_pack_units` (`:1482`); UI `RulePackManagerPanel.tsx:503-560`; run time `rule_check_runner/src/lib.rs:1286`. **Tests:** `tests/unit_check.rs`, `RulePackManagerPanel.unitCheck.test.tsx`, desktop `lib.rs:8452,8499` | DEL-06-02 | Static findings do not block save or run; an inconsistent check still blocks when it runs. A dimensionless limit declared `1` does not match a ratio formula's `ratio`. |
+| FR-RULE-003 (532) | Must | D | `rule_check_runner/src/lib.rs` (`aggregate_rank`, `status_counts`); desktop `RuleCheckRunPanel.tsx` headline; renderer `user_rule_check_aggregate_headline`. Tests: runner unit tests and `tests/point_path_non_finite_run.rs`, `report_renderer/tests/render.rs`, `RuleCheckRunPanel.test.tsx` ("FR-RULE-003 pack headline"); observed natively on both routes (§5) | DEL-06-03 | W-19 (#1585): while any check is incomplete the pack headlines "INCOMPLETE — n check(s) failed; m check(s) blocked", with each check listed (owner reading, 2026-10-23; DEL-06-03 Design `pack-aggregate-incomplete.md`). A check with missing inputs is never evaluated. |
+| FR-RULE-004 (533) | Must | D | `rulePackService.ts:241-284` (private by default); local SQLite | DEL-06-04 | No pack file export. |
+| FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; desktop `lib.rs:8593`; `tests/test_library_import_provenance.py` | DEL-03-01, DEL-03-07 | Records feed rule checks only (desktop `lib.rs:3029`); applying them to model entities is #1566 (in flight). |
 | FR-RULE-006 (535) | Should | D | Same panel, component kind | DEL-03-02, DEL-03-07 | As above. |
 | FR-RULE-007 (536) | Must | D | `tests/test_invented_example_models.py`; `examples/rule_packs/invented_demo.yaml` | DEL-11-04, DEL-06-05 | |
-| FR-REP-001 (578) | Must | P | Renderer `core/reporting/report_renderer/src/lib.rs`; desktop `RenderedReportPanel.tsx`; blocked natively for the PF demo (§5); private provenance hard-coded (`renderableReportInput.ts:74-85`); `App.test.tsx:14895-14936` | DEL-08-01, DEL-08-06 | Content also lacks rule-pack refs (`renderableReportInput.ts:433`), software/solver versions, date and settings. EX is refused (10A). The package is refused for every identity. |
-| FR-REP-002 (579) | Must | P | §19.3 notice is verbatim (`report_renderer/src/lib.rs:704-737`) | DEL-08-01 | No rule-check section. The notice reaches users only if the render is not blocked. |
-| FR-REP-003 (580) | Must | P | `report_renderer/src/lib.rs:514-600` | DEL-08-03 | Materials, sections and libraries are absent. |
-| FR-REP-004 (581) | Should | P | Within-run comparison summary only (`ReportPanel.tsx:649-652`) | DEL-08-06 | |
+| FR-REP-001 (578) | Must | P | W-3: local-private render (`RenderedReportPanel.tsx`, `reportRenderService.ts`); rule-pack refs, user-rule outcomes, versions, date, settings and coordinate systems (`renderableReportInput.ts:362-470,637,685`; renderer test `render.rs:321`). Observed natively (§5) | DEL-08-01, DEL-08-06 | A public render is blocked for every session (provenance hard-coded private, `renderableReportInput.ts:119-131`). EX refused (10A). Package refused (`reportPackageRequest.ts:30`). `assumptions: []`; build id and model coordinates "not recorded"; no library refs. |
+| FR-REP-002 (579) | Must | P | Rule-check section `report_renderer/src/lib.rs:845-904`; §19.3 notice and human-review record `:954-990`; test `render.rs:390` | DEL-08-01 | Reached only in the local-private PF render. |
+| FR-REP-003 (580) | Must | P | Provenance notes for session, components and spring hangers (`renderableReportInput.ts:537-545`) | DEL-08-03 | Materials, sections and library records absent. |
+| FR-REP-004 (581) | Should | P | Within-run comparison summary (`ReportPanel.tsx:210-214,663-665`) | DEL-08-06 | No comparison section in the renderer; the package that carries one is refused. |
 | FR-REP-005 (582) | Must | D | `core/reporting/protected_content_linter`; `tests/test_report_protected_content_linter.py` | DEL-08-05 | |
-| FR-HAND-001 (558) | Must | P | `HandoffPanel.tsx:209-232` and `NativePackagePanel.tsx:217-229` produce preview documents; schema producer `core/handoff/exporter/workflow.py:57` has no caller | DEL-15-01, DEL-15-03, DEL-17-03, DEL-07-12 | No model export unless a solved PF result exists; EX refused (10A). |
-| FR-HAND-002 (559) | Must | P | `HandoffPanel.tsx:211-283` | DEL-15-01 | `rule_pack_refs: []` hard-coded (`:237`); no model or export hash. |
-| FR-HAND-003 (560) | Should | P | `target_field_coverage: "TBD"` (`HandoffPanel.tsx:239-245`) | DEL-15-02 | |
-| FR-HAND-004 (561) | Should | P | Loss reports (handoff, PCF) | DEL-15-02, DEL-17-07 | PF only. |
-| FR-HAND-005 (562) | Could | D | PCF, MBF, glTF and SDK panels (`App.tsx:979-999`); observed natively (§5) | DEL-17-04/07/08/09 | The MBF target version is `TBD`. |
-| Result JSON, stress-neutral | — | D | `App.tsx:977-978`; `exactOutputTwins.test.tsx`; observed natively on both routes | DEL-08-04, DEL-17-06 | |
-| Local FEA handoff | — | O | DEC-078 (D-12 O-B): FR-025 post-beta | DEL-10-03 | A gated panel exists. |
+| §19.1 report types (no row before) | — | P | — | DEL-08-06 | No state-comparison, run-comparison or handoff-manifest report a user can reach. |
+| FR-HAND-001 (558) | Must | P | `HandoffPanel.tsx:211-283`, `NativePackagePanel.tsx:217-229` produce preview documents; `core/handoff/exporter/workflow.py:57` is called only by tests | DEL-15-01, DEL-15-03, DEL-17-03, DEL-07-12 | W-6 has a design only. No model export without a solved PF result; EX refused (10A). |
+| FR-HAND-002 (559) | Must | P | `HandoffPanel.tsx:237` `rule_pack_refs: []` hard-coded | DEL-15-01 | No model or export hash. |
+| §16.1–16.3 handoff contents and workflow (no row before) | — | P | — | DEL-15-01 | Export hash, model hash, rule-pack manifest and entity manifests in schema form; state names, tags and notes. Covered by W-6, W-12 and W-13. |
+| FR-HAND-003 (560) | Should | P | `HandoffPanel.tsx:243` `target_field_coverage: "TBD"` | DEL-15-02 | |
+| FR-HAND-004 (561) | Should | P | Loss reports (`HandoffPanel.tsx:187`, PCF) | DEL-15-02, DEL-17-07 | PF only. |
+| FR-HAND-005 (562) | Could | D | PCF, MBF, adapter and SDK panels (`App.tsx:1009-1017`); observed natively (§5) | DEL-17-04/07/08/09 | The MBF target version is `TBD` (`CaepipeMbfExportPanel.tsx:38`). |
+| Result JSON, stress-neutral | — | D | `App.tsx:1007-1008`; `exactOutputTwins.test.tsx`; observed natively (§5) | DEL-08-04, DEL-17-06 | |
+| Local FEA handoff | — | O | DEC-078 (D-12 O-B): FR-025 post-beta (DEL-10-03 SOW:486) | DEL-10-03 | A gated panel exists. |
 
 ### 2.5 States, runs, comparison, V&V (PRD §11.6, §15, §21–22)
 
+All FR-CMP rows are in v0.1 by OD-1 (unit W-12, design
+`DEL-14-01/Design/desktop-states-runs-comparison.md`, not implemented).
+
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-CMP-001 (542) | Must | P | `schemas/model_state.schema.json`. Headless persistence keeps caller-supplied state records (`core/project_persistence/service.py:103,494`). The desktop keeps one model/run slot per project (`src-tauri/src/lib.rs:896,1129`) | DEL-14-01, DEL-07-08 | No named-state producer. **Scope unclear:** §23 (MVP) and SOW-071..076 `IN`, versus D-11/DEC-062 "W7 — Forward horizon v0.2" and DEL-14-01:3 "stage-gated: v0.2 R3". |
-| FR-CMP-002 (543) | Must | P | `analysisRunCompatibility.ts:160-170` | DEL-14-02 | Synthetic `model_state_ref`; empty rule-pack and library refs; one run per project. |
-| FR-CMP-003 (544) | Must | P | `core/comparison/model_state/engine.py:64`; `tests/test_model_state_comparison.py` | DEL-14-03 | Headless only. Scope unclear. |
-| FR-CMP-004 (545) | Must | P | `core/comparison/analysis_run/engine.py:165`; `tests/test_analysis_run_comparison.py` | DEL-14-04 | Headless only. Scope unclear. |
+| FR-CMP-001 (542) | Must | P | `schemas/model_state.schema.json`; headless persistence keeps caller-supplied states (`core/project_persistence/service.py:103,494`); the desktop keeps one model and run per project (desktop `lib.rs:896-902`) | DEL-14-01, DEL-07-08 | No named-state producer or state commands. |
+| FR-CMP-002 (543) | Must | P | `analysisRunCompatibility.ts:164,167` | DEL-14-02 | Synthetic `model_state_ref`; empty rule-pack and library refs; one run per project. |
+| FR-CMP-003 (544) | Must | P | `core/comparison/model_state/engine.py:64`; `tests/test_model_state_comparison.py` | DEL-14-03 | Headless only. |
+| FR-CMP-004 (545) | Must | P | `core/comparison/analysis_run/engine.py:165`; `tests/test_analysis_run_comparison.py` | DEL-14-04 | Headless only. |
 | FR-CMP-005, -007 (546, 548) | Should | P | `schemas/comparison_mapping.schema.json`; `model_state/engine.py:232` | DEL-14-05 | No editor. |
 | FR-CMP-006 (547) | Must | P | `analysis_run/engine.py:229` | DEL-14-03/04 | Desktop uses it within one run only. |
-| FR-CMP-008, -009, -010 (549-551) | Should | P | `schemas/comparison_tolerance.schema.json`; `ComparisonPanel.tsx:57-70` | DEL-14-05, DEL-08-06 | No profiles, no overlays, no CSV. |
+| FR-CMP-008, -009, -010 (549-551) | Should | P | `schemas/comparison_tolerance.schema.json`; `ComparisonPanel.tsx:55-70` | DEL-14-05, DEL-08-06 | No profiles, overlays or CSV. |
 | FR-CMP-011 (552) | Could | P | `schemas/caepipe_external_run.schema.json` | DEL-14-05 | §15.6: not MVP. |
-| §21.3 human acceptance (1385) | — | D | `docs/claims_registry.md:158,185` | DEL-01-04 | No acceptance workflow, as required. |
-| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163-240`; last sweep `validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json` | DEL-00-08, DEL-09-05, DEL-10-04 | There are no states to hash. |
-| §22.5 prover correlation (1455) | — | O | DEC-080: activation is a future owner-gated row; none exists | DEL-09-04, PKG-15 | The schema lacks the §22.5 fields. |
-| R6 reproduction (1636) | — | P | Last bundle `validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/` | DEL-09-04 | No reproduction since 2026-07-20. Part 1 is a frozen procedure that dated notes now qualify; there is no current runnable procedure (drift D-VM1). |
+| §21.3 human acceptance (1385) | — | D | `docs/claims_registry.md:6,184-186` | DEL-01-04 | No acceptance workflow, as required. |
+| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163`; last sweep `validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json` | DEL-00-08, DEL-09-05, DEL-10-04 | No states to hash. The sweep is optional release preparation; the hosted `harness` is the merge check. |
+| §22.5 prover correlation (1455) | — | O | DEC-080: activation is a future owner-gated row | DEL-09-04, PKG-15 | The schema lacks the §22.5 fields. |
+| R6 reproduction (1636) | — | P | Current runnable procedure `docs/validation_manual/headless_runner_reproduction.md:47-193` (W-2); last bundle still `validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/` | DEL-09-04 | No fresh bundle (the heavy half of W-2). |
 
 ### 2.6 Data boundary, local operation (PRD §20)
 
 | ID | Class | Evidence | Deliverables |
 |---|---|---|---|
-| Local-first, private paths (§20.3–20.4) | D | SQLite store in Application Support; no network client in `apps/desktop/src` or `src-tauri/src` | DEL-12-01, DEL-12-04 |
+| Public boundary and provenance (§20.1–20.2, no row before) | D (repository level) | `tools/release/run_release_candidate_scan.py`, `export_public_openpipestress.py`; `tests/test_release_candidate_scan.py`, `tests/test_export_public_openpipestress.py` | DEL-12-05, DEL-10-04 |
+| Local-first, private paths (§20.3–20.4) | D | SQLite store in Application Support; no `fetch`, `XMLHttpRequest`, `WebSocket` or `sendBeacon` in non-test `apps/desktop/src`, and no HTTP client crate in `src-tauri/Cargo.toml` | DEL-12-01, DEL-12-04 |
 | Telemetry (§20.5) | D | `telemetryPolicyService.ts`; `tests/security/test_telemetry_policy.py` | DEL-12-03 |
-| Unit system (MVP) | D | `core/units`; `unitConversion.ts` | DEL-02-02 |
+| Unit system (MVP) | D | `core/units`; `unitConversion.ts`; `ProjectUnitsDialog.tsx` | DEL-02-02 |
 
 `tauri.conf.json:23` sets `"csp": null`. No outbound path was found in code, but
 the webview has no network policy.
 
-### 2.7 MVP (PRD §23) and milestones (§24)
+### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
+
+**Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
+This map has 42 P, 34 D, 8 O and no R:
+- **P → D (5):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+  §10.1 step 1 (#1569), and the R2 exit (W-4, #1582, after the basis). The
+  first two were already updated in the map by their PRs.
+- **D → P (2):** FR-SOL-002. Its acceptance criterion includes imposed
+  displacements, which pass on EX only; the route rule now applies (Codex, §6).
+  (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
+  with W-19, #1585.)
+- **P → O (5):** FR-KNOW-001, -003, -004 and -005 (OD-1/OD-3); FR-AGENT-005
+  (OD-5).
+- **P → D (bounded) (1):** FR-MOD-007, by the owner's reading of 2026-10-23.
+- **New rows (5):** §12.3 reducers, §12.5 load types, §16.1–16.3 and §19.1 (P);
+  §20.1–20.2 (D).
+- **Reason changed, class kept:** FR-CMP-001..006 lose "scope unclear" (OD-1);
+  §12.8 near-duplicate nodes is P now because the owner's 5 mm tolerance is not
+  built; FR-SOL-015 now includes the health indicator.
 
 **§23 MVP items:**
-- **In the desktop:** 21 of 28 items. Imposed displacement works on EX only; the validation suite is headless.
+- **In the desktop:** 21 of 28 items. Imposed displacement works on EX only;
+  combinations on PF only; the validation suite is headless.
 - **Not in the desktop:**
-  - rigid elements (kernel test only);
-  - named immutable states (schema only);
-  - basic state comparison and basic run comparison (headless only);
-  - runs tied to states (partial);
-  - basic report generation (blocked, above);
-  - canonical model package export (preview only, PF only).
+  - rigid elements (W-15);
+  - named immutable states (W-12);
+  - basic state comparison and basic run comparison (headless only; W-12);
+  - runs tied to states (partial; W-12);
+  - basic report generation (local-private PF render only; W-11 and the
+    package);
+  - canonical model package export (preview only, PF only; W-6).
 
 **§24 milestones, factually:**
 - **R0:** met.
-- **R1:** partly. Whole-suite `run-benchmark` gave 11 matched and 13 blocked
-  cases (`docs/validation_manual/headless_runner_reproduction.md`, note of
-  2026-07-20). Rigid elements are absent.
-- **R2:** ruled met under v0.1 tokens (D-14/DEC-035), but see the R2 row above.
-- **R3 (States, Runs, Comparison):** not met, and no owner act has evaluated
-  it.
-- **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). Report
-  integration is blocked.
-- **R6:** partly.
+- **R1:** partly. Rigid elements are absent; §22.2 lacks the rigid link.
+- **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The native smoke now runs
+  a GUI-authored model through solve, review, save and reopen (W-4).
+- **R3 (States, Runs, Comparison):** not met; in v0.1 by OD-1.
+- **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). A report
+  is obtainable only as a local private PF document.
+- **R6:** partly. Design knowledge is deferred (OD-3); no fresh reproduction
+  bundle.
 - **R7:** partly. Offline proposals are delivered; candidate generation is
   absent.
 
@@ -265,135 +308,132 @@ architecture, governance or contract basis:
 - DEL-15-04 and DEL-17-05 (external-prover loop, owner-gated).
 
 **No deliverable owns these outcomes:**
-- **Formats and stores:** the desktop model document format
-  (`openpipestress.product_preview.model` 0.6.0); the desktop project store
-  (partly DEL-12-01).
-- **Solver:** the rigid element and rigid link; global-frame element-end
-  forces; near-duplicate node detection; component-weight load application;
-  model-topology connectivity validation.
+- **Formats and stores:** the desktop project store (partly DEL-12-01).
+- **Solver:** the rigid link; global-frame element-end forces (no deliverable
+  commitment; W-7 is building them under DEL-04-01); component-weight load
+  application; the eccentric reducer offset.
 - **Model and inspector:** the "lines" entity; inspector dependencies and
   assumptions.
-- **Records:** the §22.5 correlation-record fields; the R3 (v0.2) exit review.
+- **Records:** the §22.5 correlation-record fields; the R3 exit review.
+
+Since the previous map, DEL-02-01 owns the desktop model document format
+(#1554), and DEL-04-06 owns topology and near-duplicate node checks (W-8,
+REQ-04-06-012).
 
 ## 3. Reconciliation drift
 
-Items marked **[fix]** are descriptive and safe. Items marked **[owner]** change
-commitment or acceptance text and are listed as exact old → new for the owner.
-"Pointers" means `deliverable.yaml` `code_paths`/`checks`.
+The W-1 sweep (#1540–#1546, #1550, #1557, #1560, #1575) fixed the previous
+map's pointer and ScopeOfWork items, including those for DEL-06-01, DEL-07-01..08,
+DEL-08-01/02/05, DEL-15-01/03, DEL-17-03/04/07/08, DEL-02-01, DEL-02-05,
+DEL-03-04/05/08, DEL-05-05, DEL-09-01..03, DEL-14-01/03..05, DEL-16-04, DEL-01-04
+and DEL-11-02/03/05. W-2 (#1543) fixed the validation manual items. The rows
+below are what remains or is new at this basis.
 
-**Pointers that name unused reference code and omit the desktop code** [fix].
-These have the largest effect, because `tools.deliverables touches` and
-`impact` cannot see the desktop:
-- **PKG-07:**
-  - DEL-07-01: add `features/toolkit/**` and `routeDraft.ts`.
-  - DEL-07-02, DEL-07-05: their `core/gui/*` paths are unused.
-  - DEL-07-03: rule-packs, library and inspector forms.
-  - DEL-07-04: `MissingDataBlockingPanel.tsx`.
-  - DEL-07-06: no pointers at all.
-  - DEL-07-07: `solve_jobs.rs`, `solve_worker.rs`.
-  - DEL-07-08: `core/gui/design_workspace`, plus checks.
-- **PKG-06, PKG-08:**
-  - DEL-06-01: `rule_pack_document` and its tests.
-  - DEL-06-03, DEL-06-04, DEL-06-05: examples and tests.
-  - DEL-08-01: `report_renderer`, `reportRenderService.ts`.
-  - DEL-08-02: `audit_manifest`.
-  - DEL-08-05: tests and `ReportLintPanel.tsx`.
-- **PKG-15, PKG-17:**
-  - DEL-15-01, DEL-15-03: `HandoffPanel.tsx`.
-  - DEL-17-03/04/07/08: the export panels.
-- **PKG-16:** DEL-16-03, DEL-16-04: `atomic_batch.rs`, `OperationLedgerPanel.tsx`.
-- **PKG-02, PKG-03:**
-  - DEL-02-01: `core/product_physics/src/model_format.rs`,
-    `modelDocumentShape.ts`, `types.ts`.
-  - DEL-02-05: the store in `src-tauri/src/lib.rs`, `model_document_file.rs`
-    and its tests.
-  - DEL-03-01, DEL-03-02: the library panel, service and tests.
-  - DEL-03-04, DEL-03-05: `validation.rs`, `exact_admission.rs`.
-  - DEL-03-08: `annulus_geometry.rs`.
-- **PKG-09, PKG-11, others:**
-  - DEL-09-01/02/03: the benchmark crates as checks.
-  - DEL-11-02, DEL-11-03, DEL-11-05: the guide and theory documents.
-  - DEL-13-01: the fixture and `KnowledgePanel.tsx`.
-  - DEL-14-04, DEL-14-05: `previewService.ts`, the tolerance schema.
-  - DEL-01-04: `PROFESSIONAL_BOUNDARY.md`.
-  - DEL-10-04: the CI workflow.
-- **Missing path:** DEL-09-05 lists `tools/coordination`, which does not exist.
+**Fixed in this change** [fix]:
+- `docs/user_guide/index.md`: said the rendered report is always blocked and
+  that a blank project starts in SI. It now describes the local-private render,
+  its content, and the units dialog.
+- DEL-03-05 SOW Attributes: "Realization also includes the DEC-045 product
+  route … with candidate-bound evidence" contradicted the current-implementation
+  paragraph; it now says the route validates but does not apply the scaling.
+  The paragraph's basis and `validation.rs` line range are current.
+- DEL-02-02 `deliverable.yaml`: `code_paths` add `features/project-units/**`
+  and `projectService.ts` (its checks already listed the tests).
+- DEL-15-02 `deliverable.yaml`: `code_paths` add `HandoffPanel.tsx` and
+  `PcfExportPanel.tsx` (the loss reports).
+- DEL-12-01 `deliverable.yaml`: `code_paths` add `tauri.conf.json` (the CSP
+  setting).
 
-**ScopeOfWork statements the code has overtaken** [fix]:
-- **DEL-02-05:** cites "PRD section 10 FR-001/FR-002" and §12.4/§15.3/§18 in
-  v0.1 numbering. These are now §11.1 FR-MOD-001 via D-21 Annex A, and
-  §17.2/§19.2/§20.3. The retired versions now include 0.5.0. The desktop store
-  does not use `project_persistence.schema.yaml`.
-- **DEL-03-05:44,113:** describes a DEC-045 product route that applies no
-  scaling.
-- **DEL-05-05:48:** names a crate the product does not link.
-- **DEL-07-05:119,158,260:** rotation-glyph evidence now exists.
-- **DEL-07-07:126** and **DEL-08-01:79,122,184,205:** "not implemented in this
-  setup", although the code ships.
-- **DEL-07-03:95,157:** describes a reference editor rather than the manager
-  that ships.
-- **DEL-14-01:86,168** and **DEL-14-03:83:** module paths still `TBD`.
-- **DEL-15-01, DEL-15-03:** do not say that the desktop handoff document is
-  outside the schema.
-- **DEL-16-04:134:** does not say the desktop route skips the claim scanner.
-- **DEL-02-01:** add that the desktop document is a separate surface.
+- `DEL-02-01/Design/model-document-0.7.0.md:51-52` said `schemas/model.schema.yaml`
+  "describes an older shape … The bundled demo fails it with 11 errors", stale
+  since #1554. It now records that state as before S1a.
+- `DEL-02-02/Design/project-unit-selection.md` §1 "Where things stand" ("Blank
+  projects fix SI", "No `angle` key is written") described the state before
+  slice (a). It is now headed as the starting point, with one sentence on what
+  slice (a) changed. Without this, the §10.1 row would be R (Codex, §6).
+  #1565 and #1566 edit other hunks of these two files.
 
-**Product documents** [fix]:
-- **Validation manual:**
-  - `docs/validation_manual/headless_runner_reproduction.md:144-150` (D-VM1):
-    Part 1 is the frozen E1 procedure. Its prose says to add
-    `--explicit-local-private-intent` and that the first command is now
-    refused, so a current runnable procedure has to be written beside it (W-2).
-  - **Fixed in PR #1538:** the `export-results` stub statements, the authority
-    basis (`index.md:27-28`) and the DEL-09-05 pointer (`index.md:200`).
-  - **Still open:** `index.md:63` (PRD §16.5, which does not exist), `:76`
-    (missing path), `:284` (R5 → R6 numbering). The `:168` table is empty.
-- **User guide** `docs/user_guide/index.md:70,232,236,394`: describes a
-  skeleton and missing install steps, and says the report package works.
-- **`apps/desktop/SMOKE.md:22-140`:** historical browser checks against strings
-  that no longer exist.
-- **`docs/RELEASE_NOTES_v0.1.0_DRAFT.md`:** glTF is offered on EX too. "Rendering
-  is refused when…" understates that every session is blocked. This file is in
-  the release-rehearsal lane; it is left to that manager.
-- **Code comments:**
-  - `LibraryManagerPanel.tsx:41-42` says library wiring is absent; it exists.
-  - `product_physics/src/validation.rs:1268` implies scaling is applied when a
-    mapping is valid; it never is. This one needs a DEC-081 claims check.
-- **Corpus-wide:** ScopeOfWork files cite `_STATUS.md`, `_CONTEXT.md`,
-  `docs/_Registers/*.csv` and `execution/_Reconciliation/…`, none of which
-  exist on this tree. In reference lists these are [fix]; in requirement
-  source cells they are [owner].
+**Left to the in-flight PR** [fix]: `DEL-04-06/Design/model-topology-checks.md`
+and SOW:189 move to the implemented wording when #1574 lands.
 
-**Owner-reserved text (exact old → new).** Owner, 2026-10-23: "OD‑6, option B (I want to discuss 2 and 23 more)." The 22 rows recommended Apply are applied as written. Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." Row 2 is not applied: the DEL-04-03 requirement stays as written, and imposed displacement is to be built on the pressure-free route (staged: linear first, then with nonlinear supports). Row 23 is applied, citing both numberings; row 22 stays as recommended (Leave) and row 25 stays routed. Separately, owner, 2026-10-23: "and DEL‑07‑01 REQ‑02, option A as recommended." DEL-07-01-REQ-02's "stress-ratio color maps" now reads "stress and result overlays (magnitude colour scale)"; nothing else in that requirement changed. Line numbers are at the W-1 PR heads (#1540–#1546). "Rec." is the reconciliation manager's recommendation: **Apply** (descriptive consequence of shipped code or an existing ruling), **Leave** (no change needed), or **Owner** (a substantive scope choice).
+**Still open** [fix]:
+- **Release-notes draft** (`docs/RELEASE_NOTES_v0.1.0_DRAFT.md`, release lane;
+  release is parked):
+  - `:102` "Rendering is refused when the public-report redaction control would
+    have to withhold values." The public render is blocked for every session,
+    and the local-private render (with rule-check and run context) is not
+    mentioned.
+  - `:106` lists glTF review geometry under "For pressure-free results also".
+    `exactCurrentPanels.test.tsx:7-8,153-157` offers it for exact Current
+    results too. The §5 probe saw no glTF action on either route, because the
+    byte-exact downloads are withheld.
+- **Code comment:** `product_physics/src/validation.rs:1367` "no stiffness
+  scaling is silently applied without a valid mapping" (and the info text at
+  `:1407`) implies scaling is applied when a mapping is valid; it never is.
+  This is product code and needs a DEC-081 claims check. It goes with W-15.
+- **Pointers:** DEL-10-04 lists `software-workflow.json` and `tools/ci/**` but
+  not the root `.github/workflows/piping-*.yml`. DEL-07-02/05/08 still list the
+  unused `core/gui/*` reference modules beside the desktop paths. DEL-13-03
+  names only Python for connectivity; the product check is DEL-04-06's.
+- **Corpus-wide retired paths:** "Sources:" prose and the line-12
+  "Reconciliation evidence" prose of 81 SOWs cite `execution/_Reconciliation/…`
+  without annotation. These are outside #1550 and row 26 of the previous table.
+  Identification and Attributes boilerplate stays as written (Agent 0,
+  2026-10-23).
+
+**Owner-reserved text (exact old → new, not applied).** These change commitment,
+scope or acceptance wording. "Rec." is the recommendation.
 
 | # | Location | Old | New | Reason | Rec. |
 |---|---|---|---|---|---|
-| 1 | DEL-04-07 SOW:29 (CLM-001) | "The PRD's intended pressure capability remains future scope; this does not claim it is implemented." | "Pressure is implemented on the exact route as stated in Design/pressure-contract.md; capabilities that route refuses remain future scope." | EX route ships pressure | Apply — **Applied** (owner, 2026-10-23) |
-| 2 | DEL-04-03 SOW:47,125 (R01) | "…imposed displacement boundary data…" | "…imposed displacement boundary data (exact route load/reference states only; the pressure-free route refuses support-targeted loads)…" | PF refuses imposed displacement | Owner (ties to W-16: either build PF or rule EX is the only route) — **Not applied** (Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." The requirement stays as written; imposed displacement is to be built on the pressure-free route, staged linear first, then with nonlinear supports.) |
-| 3 | DEL-06-01 SOW:131-142 (REQ-06-01-001..012) | "The future schema shall" | "The schema shall" | `rule_pack_document` ships | Apply — **Applied** (owner, 2026-10-23) |
-| 4 | DEL-08-05 SOW:149-159 (REQ-001..009) | "The future linter shall" | "The linter shall" | linter ships | Apply — **Applied** (owner, 2026-10-23) |
-| 5 | DEL-08-05 SOW:160 (REQ-012) | "The future implementation shall preserve" | "The implementation shall preserve" | linter ships | Apply — **Applied** (owner, 2026-10-23) |
-| 6 | DEL-08-02 SOW:112 | "The future implementation shall capture reproducibility metadata" | "The implementation shall capture reproducibility metadata" | `audit_manifest` ships | Apply — **Applied** (owner, 2026-10-23) |
-| 7 | DEL-08-01 SOW:157 (CLM-013) | "The future implementation should be accepted only after these checks exist and pass:" | "The implementation should be accepted only after these checks exist and pass:" | renderer ships; acceptance stays the owner's | Apply — **Applied** (owner, 2026-10-23) |
-| 8 | DEL-08-01 SOW:134 (R-08-01-001 verification) | "Inspect generated report contract/template behavior in future implementation tests." | "Inspect generated report contract/template behavior in implementation tests (`core/reporting/report_renderer/tests/render.rs`)." | tests exist | Apply — **Applied** (owner, 2026-10-23) |
-| 9 | DEL-07-04 SOW:123 | "It does not implement GUI components, application state, schemas, tests, package manifests, or product source code." | "The setup pass did not implement product code; the GUI implementation is `apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx`, rendering all six R-DEL-07-04-001 classes." | panel ships (map row; :44 carries different text and needs no change) | Apply — **Applied** (owner, 2026-10-23) |
-| 10 | DEL-07-05 SOW:160 (VER-07-05-005) | "…and that focused browser evidence for them (CLM-024) stays recorded as open until it is added." | "…and that the focused browser evidence `apps/desktop/e2e/rotation-glyph.spec.ts` (CLM-024) is bound to the tested candidate." | the spec exists and runs in the PR Chromium lane | Apply — **Applied** (owner, 2026-10-23) |
-| 11 | DEL-07-03 SOW:256-260 (CLM-017) | "The DEL-07-03 implementation still accepts only material, component, and rule-pack-reference editor kinds. Load-case and support editor requests remain blocking unsupported kinds in this owner." | "The reference module `core/gui/editors/engine.py` still accepts only material, component, and rule-pack-reference editor kinds and blocks load-case and support requests. The desktop ships load-case editing in `apps/desktop/src/features/load-cases/`; this does not by itself close `DEL-07-03-R-005` or `R-006`." | text describes the reference engine as the implementation | Apply — **Applied** (owner, 2026-10-23) |
-| 12 | DEL-07-09 `Vocabulary_Coverage.csv` row 11, ImplementationLandsIn | "DEL-16-01;DEL-16-02;DEL-16-03" | "DEL-16-01;DEL-16-02;DEL-16-03;DEL-16-06" | DEL-16-06 applies the operations | Apply — **Applied** (owner, 2026-10-23) |
-| 13 | DEL-17-03 SOW:44 | "It does not implement public API, GUI action, persistence runtime, …" | "The Python foundation does not implement public API, persistence runtime, …; the desktop GUI action is `NativePackagePanel.tsx`, a separate TypeScript preview builder." | a GUI action ships | Apply — **Applied** (owner, 2026-10-23) |
-| 14 | DEL-17-04 SOW:44 | "It does not implement a parser, external execution harness, public API, GUI action, …" | "It does not implement a parser, external execution harness, public API, … (the desktop GUI action is `CaepipeMbfExportPanel.tsx`, a separate TypeScript preview builder) …" | a GUI action ships | Apply — **Applied** (owner, 2026-10-23) |
-| 15 | DEL-09-05 SOW:360; DEL-10-04 SOW:66,113,215,371,412 | "DEC-025 governs the local evidence sweep;" | "DEC-025's blanket local sweep is no longer a merge requirement; the hosted `harness` result on the exact PR head is the merge check, and `tools/release/run_evidence_sweep.py` is optional macOS release-candidate preparation;" | LOOP_INIT "Build and verification" already rules this | Apply (Agent 0 may, under the 2026-10-19 rule) — **Applied** (owner, 2026-10-23) |
-| 16 | DEL-14-05 SOW:180 (R004) | "Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`" | "Evidence to assess: `schemas/comparison_tolerance.schema.json`, `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`" | tolerance profiles live in the tolerance schema | Apply — **Applied** (owner, 2026-10-23) |
-| 17 | DEL-14-01 SOW:168 (R1-R3 verification) | "Exact test names TBD." | "Current tests (at `62c1efd75b`): `tests/test_model_state_schema.py`, `tests/test_persistence_schema.py` and `tests/test_project_persistence_service.py` (Python reference store)." | tests exist; desktop has no state store (OD-1) | Apply — **Applied** (owner, 2026-10-23) |
-| 18 | DEL-11-02 SOW:137-149 (REQ-11-02-001..013) | "The future developer guide shall" / "The future guide shall" | "The developer guide shall" / "The guide shall" | `docs/developer_guide/index.md` exists | Apply — **Applied** (owner, 2026-10-23) |
-| 19 | DEL-09-03 SOW:131 (REQ-09-03-001) | "The future suite shall" | "The suite shall" | nonlinear benchmark crate exists | Apply — **Applied** (owner, 2026-10-23) |
-| 20 | DEL-10-04 SOW:158 (REQ-10-04-01) | "Future implementation must provide" | "The implementation must provide" | CI and packaging exist | Apply — **Applied** (owner, 2026-10-23) |
-| 21 | DEL-02-05 SOW:34 (CLM-003) | "Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, or newer)" | "Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, `0.5.0`, or newer)" | code retires 0.5.0 | Apply — **Applied** (owner, 2026-10-23) |
-| 22 | DEL-02-05 requirement source cells (:64-65, :84, :187-211) | v0.1 PRD numbers ("section 10 FR-001/FR-002", "section 12.4", "15.3", "18") | current numbers (§11.1 FR-MOD-001, §17.4, §19.2, §20.3–§20.5) | v0.1 numbering | Leave (the crosswalk note added at :141 resolves them) |
-| 23 | DEL-02-05 SOW:201 (REQ-015 source) | "section 22.1" | "§24 R0 (v0.1 §22.1)" or "§22.1 (V&V)" | v0.1 §22.1 was release R0; current §22.1 is Verification Philosophy | Owner (which was meant) — **Applied** (Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." Applied as "§22.1 (V&V); originally v0.1 §22.1, now §24 R0", citing both.) |
-| 24 | `execution/_Coordination/_COORDINATION.md:28` | "PRD R5 exit criterion" | "historical v0.1 R5 (= v0.3 §24 R6) exit criterion" | numbering | Apply — **Applied** (owner, 2026-10-23) |
-| 25 | `apps/desktop/native-smoke/expected.json` | rows 98/99, 625/627; N1 "…198" | 113/113, 745/745; "…199" | stale expected values | Routed to release-rehearsal lane (PR #1532) |
-| 26 | Corpus-wide: requirement source cells citing `_STATUS.md`, `_CONTEXT.md`, `docs/_Registers/*.csv`, `execution/_Reconciliation/…` | retired paths | the path kept, annotated with its retiring commit: `_STATUS.md`/`_CONTEXT.md` "(retired in `497a8d81e4`; see Git history)", `docs/_Registers/*` "(retired in `48584391de`; …)", `execution/_Reconciliation/…` "(retired in `11718e61a2`; …)", as #1550 does for reference lists | files removed | Apply as one mechanical pass (#1550 covers the reference lists) — **Applied** (owner, 2026-10-23): retired paths annotated in the Source cells (or, where a table has no Source column, its evidence column, such as "Evidence", "Expected evidence" or "Required evidence") of requirement-bearing tables (Requirements, Conditions, Verification and requirement-to-check maps), including anchored, bare and shorthand register citations; the reference-list pass (#1550) is completed for the same forms. Identification and Attributes rows are template boilerplate and stay as written (Agent 0, 2026-10-23) |
+| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Apply with the G10 bundle |
+| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Apply with the G10 bundle |
+| 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Apply with the G10 bundle |
+| 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Apply with the G10 bundle |
+| 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Apply with the G10 bundle |
+| 6 | DEL-09-01 SOW:69 | "The future mechanics benchmark suite must stay aligned…" | "The mechanics benchmark suite must stay aligned…" | The suite exists (`validation/benchmarks/mechanics`, W-9) | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 7 | DEL-09-01 SOW:135 | "This deliverable specifies setup evidence for a future mechanics benchmark suite covering…" | "This deliverable specifies the contract and evidence basis for the implemented mechanics benchmark suite covering…" | as #6 | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 8 | DEL-09-02 SOW:81 | "This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, …" | "The original setup kit defined the benchmark-suite boundary only. It did not create benchmark source files, implement tests, …; the suite now exists in `validation/benchmarks/stress`." | the suite exists | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 9 | DEL-09-02 SOW:126 | "This deliverable specifies setup evidence for a future stress recovery benchmark suite. It covers benchmark planning for…" | "This deliverable specifies the contract and evidence basis for the stress recovery benchmark suite in `validation/benchmarks/stress`. Its required coverage remains …; implemented fixture coverage is recorded in the suite's fixture inventory." | as #8 | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 10 | DEL-09-03 SOW:108 | "…the setup surface for a future nonlinear support regression suite…" | "…the contract and evidence basis for the implemented nonlinear support regression suite…" | conflicts with its own current-implementation paragraph | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 11 | DEL-08-03 SOW:81 | "The future report section is expected to be a report-renderer subsection…" | "The report section is a report-renderer subsection…" | ships, as its `:99` says | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 12 | DEL-08-06 SOW:343 | "ASSUMPTION: the future implementation should assemble sections…" | "ASSUMPTION: the implementation should assemble sections…" | `report_package` exists | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 13 | DEL-06-02 SOW:77 (Determinism) | "Future implementation must produce repeatable results…" | "The implementation must produce repeatable results…" | evaluator ships | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 14 | DEL-14-02 SOW:170, :320 | the "PRD v0.2 … not locally accessible" source row / "the PRD source text was not locally read in this task" bullet | Source "PRD analysis-run requirements", status "Current primary source: docs/PRD.md §§8.7, 11.6 (FR-CMP-002), and 15.2", with resolution guidance / "Use `docs/PRD.md` §§8.7, 11.6 (FR-CMP-002), and 15.2 for analysis-run requirements; retain explicit TBDs…" | `docs/PRD.md` is present | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 15 | DEL-14-01 SOW:342 (DEL-14-01:3); DEL-15-01 SOW:387 (DEL-15-01:2) | "(stage-gated: v0.2 R3) " / "(stage-gated: v0.2 R6; Owner ruling," | deleted / "(Owner ruling," | the tag and the ruling read as mixed signals | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
+| 16 | DEL-15-01 SOW:183 (V-02) | "Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, …" | "… trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, …" | the row-26 annotation, in a verification check cell | Apply — **Applied** (Agent 0, 2026-10-24, under the row-26 rule; #1582) |
+
+**Previous table, now closed.** Rows 1, 3–21, 23, 24 and 26 are applied. Row 2
+stays not applied by the owner's ruling (FR-SOL-006 is built on PF instead), and
+row 22 stays Leave. Row 25 (`expected.json`) is rows 1–5 above, now with each
+cause named.
+
+**Owner readings recorded** (owner, 2026-10-23: "I accept your other
+recommendations for the matters you needed from me"):
+- **PRD §14.4 topology:** "topology invalid" is topology that prevents the
+  mechanics being formed (unknown pipe endpoints, unsupported parts, invalid EX
+  pressure-region chains), which already blocks. W-8's other findings are
+  warnings and REQ-04-06-012 stands (DEL-04-06 Design `model-topology-checks.md`).
+  Two follow-ons go to the numerical lane: the malformed-branch warning will say
+  the component's branch stress factors are still applied, and the bundled
+  demo's malformed tee C-120 is fixed.
+- **FR-MOD-007:** D, bounded to the live derivation of `BuiltModel`; the PKG-13
+  transform contract stays deferred (§2.1).
+- **FR-RULE-003:** the aggregate headlines INCOMPLETE while any check is
+  incomplete (DEL-06-03 Design `pack-aggregate-incomplete.md`; built in W-19).
+
+**Further SOW wording, applied** (owner, 2026-10-23: "I approve the 24 items as
+above (14 as drafted, 9 amended, and the :110/:117 alternative in place of
+:114)"): stale "future" and setup-only wording in DEL-09-01, DEL-09-02,
+DEL-09-03, DEL-08-03, DEL-08-06 and DEL-06-02, with still-open `TBD`s, held
+choices and obligations for new cases kept.
+
+**Owner notes (not text changes):**
+- REQ-04-06-012 (5 mm) and DEL-04-03 R01 (imposed displacement) state ruled
+  commitments that the code does not yet meet. Both are disclosed, and the work
+  is in flight or planned (#1574; FR-SOL-006 stages).
+- DEL-13-03-R1 (deferred PKG-13) still commits connectivity, which DEL-04-06
+  now delivers.
 
 ## 4. Proposed work plan
 
@@ -401,21 +441,31 @@ These have the largest effect, because `tools.deliverables touches` and
 
 These are class D outcomes with a desktop path, which development testing can
 exercise today:
-- **Model and project:** open, save and reopen model documents and projects.
+- **Model and project:** open, save and reopen model documents and projects;
+  choose project units at creation.
 - **Authoring:** nodes, pipes, materials, sections, bends, joints, supports,
-  load cases and combinations, with undo and redo.
+  load cases and combinations; split, copy, rotate, mirror and reconnect; undo
+  and redo. A from-blank model solves natively (§5).
 - **Solving:** PF solve, including nonlinear supports, wind, seismic and
-  combinations; EX solve.
-- **Results:** results table, standing, diagnostics and deformed shape.
+  combinations; EX solve; pre-solve topology warnings; refusal of load cases
+  that apply nothing.
+- **Results:** results table, standing, numerical health indicator,
+  diagnostics, deformed shape, result colour and reaction arrows.
+- **Reports:** the local-private rendered report for PF results.
 - **Proposals and data:** offline proposals; libraries.
-- **Rule packs:** authoring and rule-check runs.
+- **Rule packs:** authoring, static unit check and rule-check runs.
 - **Exports:** result JSON and stress-neutral JSON (both routes); PCF and MBF
-  package documents (PF). Stress-neutral CSV, glTF, PCF text and MBF text are
-  withheld by the desktop (`ControlledExportLink.tsx:36-48`).
+  package documents and the other PF export panels. Stress-neutral CSV, glTF,
+  PCF text and MBF text are withheld by the desktop.
 - **Boundaries:** local-only storage and telemetry.
 
-These are **not ready**: reports, model states and comparison, canonical model
-export, design knowledge, and rigid components.
+Testers should know the native smoke's 10 stale `expected.json` values
+(§3 rows 1–5) before reading its output.
+
+These are **not ready**: shareable or EX reports, the report package, model
+states and comparison, canonical model export, rigid components, EX
+combinations, PF imposed displacement, global-frame end forces and the 0.7.0
+document slots.
 
 ### 4.2 Owner decisions that shape the plan
 
@@ -435,98 +485,138 @@ ruled separately (see the OD-6 row).
 | OD-5 | Viewport result overlays and reaction arrows (FR-GUI-001, Must); the R7 staging of the FR-AGENT-005 claim scan (DEL-16-04:3) | Each is either an S–M unit or a ruling. **Decided:** viewport overlays and reaction arrows are built now; FR-AGENT-005 stays R7. |
 | OD-6 | Owner-reserved text in §3 | Apply as proposed, amend, or leave. **Decided (owner, 2026-10-23, "OD‑6, option B (I want to discuss 2 and 23 more)."):** the 22 Apply rows are applied. Owner, 2026-10-23: "Row 2 I approve option A and Row 23 I approve your recommendation." Row 2 is not applied (the requirement stays; imposed displacement is to be built on the pressure-free route, linear first, then with nonlinear supports); row 23 is applied. |
 
+Also decided on 2026-10-23 and recorded in the governing text: the 5 mm
+node-proximity tolerance, user-settable (REQ-04-06-012); no verified bounds in
+v0.1 (`DEL-04-08 Design/b7-plan.md`); the W-10 reconnect limitation
+(DEL-16-06 SOW:79).
+
 Opening exact-route reports and handoff needs no new decision to start. Ruling
 10A already directs DEL-08-01 to design their limitation sections. Opening the
 surfaces afterwards returns to the owner.
 
-### 4.3 Units in recommended order
+### 4.3 Units
 
 The lane is heavy where builds or numerical checks are needed and light for
 documents. Heavy work that changes numerical meaning or persistence needs
 targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 
+**Done on main** (evidence; the owner's acceptance is separate):
+
+| # | Unit | Evidence |
+|---|---|---|
+| W-1 | Pointer and ScopeOfWork reconciliation sweep | #1540–#1546, #1550, #1557, #1560, #1575; remaining drift in §3 |
+| W-3 | Rendered report for local private sessions, with §19.2 content | #1553 (+#1555); observed natively (§5) |
+| W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5) |
+| W-8 | Pre-solve topology and near-duplicate warnings | #1559; the 5 mm tolerance is #1574 (in flight) |
+| W-9 | Missing benchmarks: L-frame, simply supported weight, anchor settlement | #1548; the rigid link waits for W-15 |
+| W-10 | Pipe reconnect | #1563, with its declared limitation |
+| — | Viewport result colour and reaction arrows (OD-5) | #1556 |
+| — | Numerical health indicator (FR-SOL-015 display) | #1544 |
+| — | Refusal of load cases that apply nothing (silent zero) | #1568 |
+| W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
+| W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
+| W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
+| W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
+
+**In flight** (not on main):
+
+| # | Unit | PR or branch |
+|---|---|---|
+| W-7 | Global-frame element-end forces (FR-SOL-007) | branch `claude/piping-w7-global-end-forces-20261023` (no PR) |
+| W-8 follow-on | Absolute 5 mm node-proximity tolerance, user-settable | #1574 (needs the 0.7.0 member) |
+| W-13 S1b, S2a, S2b | Model document 0.7.0 slots, their authoring, applying library records (also W-17) | #1564, #1565, #1566 |
+| — | Strict inputs: no silent drops of authored input or combination rows | #1573 |
+| — | DBM concordance review | #1567 |
+
+**Remaining:**
+
 | # | Unit | Size | Kind | Lane | Depends on | Owner? |
 |---|---|---|---|---|---|---|
-| W-1 | Pointer and ScopeOfWork reconciliation sweep (§3 [fix] items) | M | docs | light | — | No |
-| W-2 | Validation-manual and user-guide currency (D-VM1 etc.), then a fresh R6 reproduction bundle at HEAD | S–M | docs | light → heavy for the run | — | Acceptance of the reproduction is the owner's |
-| W-3 | Rendered report reachable for local private sessions: give the render the same local-private intent the exports already use; add §19.2 content (rule-pack refs, rule-check outcomes, software/solver versions, date, settings, coordinate system) | M | desktop | heavy | DEL-12-02 design check | No, unless DEL-12-02 rules it out |
-| W-4 | R2 end to end in the native smoke: a from-blank GUI-authored model → native solve → results, deformed shape → save → reopen; add the §5 probe steps (report, rule checks, EX gates) as permanent checks | S–M | desktop test | heavy | — | No |
-| W-5 | Memory-pool headroom: on a loaded Mac, the app refused a 16.56 MiB result-export save with 6.44 MiB "free" (free list only; `src-tauri/src/host_memory.rs:5-13`). Check the interactive-save admission against D-72 criteria and make ordinary saves succeed | S–M | desktop (Rust) | heavy | D-72 | Only if D-72 acceptance text must change |
-| W-6 | Canonical model export from the desktop (save model document to file; FR-HAND-001), independent of a solve; schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | OD-4 for "canonical" | No |
-| W-7 | Global-frame element-end forces (FR-SOL-007) | S | numerical | heavy, scrutiny | — | No |
-| W-8 | Pre-solve connectivity check (disconnected anchored sub-models, invalid branch topology; FR-KNOW-002); near-duplicate node detection (§12.8) | S–M | numerical-adjacent | heavy, scrutiny | — | No |
-| W-9 | Missing benchmarks: L-shaped thermal frame, simply supported weight, imposed anchor displacement on a frame; rigid link after OD-2 | S | numerical | heavy | OD-2 (rigid link) | No |
-| W-10 | Pipe reconnect operation (FR-GUI-004) | S–M | desktop + Rust | heavy, scrutiny (topology) | — | No |
-| W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open | M–L | docs + desktop | heavy | W-3 | Opening returns to owner |
-| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | OD-1 | OD-1 |
-| W-13 | Product document ↔ canonical schema; tags, notes, assumptions, rule-pack refs, structured provenance (FR-MOD-001/002/004/005/006) | L | schema + persistence | heavy, scrutiny | OD-4 | OD-4 |
-| W-14 | Design-knowledge entry and constraint validation in the desktop (FR-KNOW-001/003/004) | L | desktop + schema | heavy | OD-3 | OD-3 |
-| W-15 | Rigid / semi-rigid components (FR-SOL-004/012), including component weight and EX admission | M–L | numerical | heavy, scrutiny | OD-2 | OD-2 |
-| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, or a ruling that EX is its only route (FR-SOL-006) | M | numerical | heavy, scrutiny | — | No |
-| W-17 | Smaller usability gaps: project unit selection; applying library records to model entities; unit check at rule-pack validation; rule-pack schema categories and load mappings (§17.2) | S–M each | desktop/schema | heavy | §17.2 needs a scope ruling | §17.2 only |
+| W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
+| W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
+| W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
+| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
+| W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
+| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
+| W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | §17.2 needs a scope ruling | §17.2 only |
+| W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private) | M | desktop + Rust | heavy | W-3 | A shareable path needs a DEL-12-02 design check |
+| W-20 (new) | Pressure stress benchmark family in the DEL-09-02 suite: pressure-derived hoop and longitudinal stress against closed forms (DEL-09-02 commits pressure coverage; the suite's families have none) | S | numerical | heavy, scrutiny | — | No |
+| W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
-- **Before development testing broadens:** W-1, W-2, W-4 and W-5. These give
-  the testers current documents and a native journey that proves itself.
-- **Before the owner's hands-on use:** answers to OD-1..OD-4, plus W-3 (a
-  report the owner can obtain) and W-6. Otherwise the session meets the MVP
-  gaps of §1 in its first minutes.
-- **Before validation:** the units the owner's answers place in v0.1 (W-12 to
-  W-15), together with W-7 to W-9 and W-16. The reproduction bundle (W-2) is
-  then regenerated at the validation basis.
-
-**In progress elsewhere:** the numerical health indicator (FR-SOL-015 display;
-branches `claude/piping-nh-*`) is under another manager and is not assessed
-here.
+- **Before development testing broadens:** the G10 values (§3 rows 1–5) put
+  to the owner, so the native smoke proves itself without known failures (W-4
+  is done). The §3 [fix] remainder can go with it.
+- **Before the owner's hands-on use:** the W-13 in-flight slices, then W-6 and
+  W-18 (a model the owner can export and a report package). W-3 and W-5 are
+  done.
+- **Before validation:** W-12, W-15, W-16, W-20, W-11 and the in-flight W-7, #1573
+  and #1574. The R6 reproduction bundle (W-2) is then made at the validation
+  basis.
 
 ## 5. Checks run for this map
 
-**Read-only TASK reviews.** Five reviewed the PRD areas against code and tests
-at `7a780551f0`. Codex then spot-checked a sample of D and P placements
-independently (§6). `python3 -m tools.deliverables --project
-projects/chirality-piping check` reported no structural errors and one cycle
-(DEL-09-05 ↔ DEL-10-04).
+**Read-only TASK reviews.** Three reviewed the PRD areas against code and tests
+at `8a8a8b2584`. Codex then spot-checked a sample of placements independently
+(§6). `python3 -m tools.deliverables --project projects/chirality-piping check`
+reported no structural errors and one cycle, a strongly connected group of nine
+deliverables (DEL-04-07, DEL-04-08, DEL-05-02, DEL-08-01, DEL-08-04, DEL-08-05,
+DEL-09-05, DEL-10-04, DEL-10-05). The same cycle exists at `7a780551f0`.
 
-**Native smoke at `7a780551f0`.** The run was `node
-apps/desktop/native-smoke/run.mjs`, a fresh build through `t3_slot.sh` on a
-loaded host. 40 of 62 checks passed.
-- **Expected-value FAILs:** 10, all row counts and one last digit. These are
-  the known stale `expected.json` values (PR #1532).
-- **Cascade FAILs:** the rest followed one product refusal. The demo's
-  result-export save was refused by the native memory pool: "needs 16.56 MiB,
-  6.44 MiB available". This led to W-5.
-- **Passed:** refusals by name, solve on both solver modes, model-hash proofs,
-  and the save, replace and stale-base prompts.
+**Native smoke at `8a8a8b2584`.** A fresh build in a heavy-work tree through
+`t3_slot.sh`, then `node apps/desktop/native-smoke/run.mjs --skip-build`. 73 of
+83 checks passed.
+- **All 10 FAILs are stale `expected.json` values,** each failing once on open
+  and once after reopen: milestone rows 98→113 (sparse) and 99→113 (dense),
+  milestone N1 `…198`→`…199` (sparse), demo rows 625→745 and 627→745. Causes
+  are in §3 rows 1–5.
+- **Passed:** refusals by name; both routes' fixtures on both solver modes;
+  model-hash proofs; the save, replace and stale-base prompts; the demo result
+  export (W-5); reopen in a fresh process.
 
-**Hands-on probe.** The run used the same smoke build, with an untracked probe
-driver in place of `driver.js` and a throwaway HOME.
+**Hands-on probe.** It used the same build, with an untracked probe driver in
+place of `driver.js` and a throwaway HOME.
 
 | Step | Observed |
 |---|---|
-| Demo (PF) solve | completed, 745 rows, `checks_passed` |
-| Demo rendered report | `decisions=18031; findings=18031; blocked=true`; no preview, no hash |
-| Demo rule checks (bundled pack) | `RULE_INPUTS_INCOMPLETE` with named missing inputs |
-| Demo exports | result JSON and stress-neutral JSON (behind local-private intent), stress-neutral CSV, PCF, MBF, CAEPIPE external, SDK, adapter, local FEA, external prover, glTF, headless runner, native package, handoff, export review |
-| EX model `fixtures/model_operations/exact_pressure_authoring_model.json` solve | completed, 297 rows |
-| EX rendered report | refused, `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` |
+| Demo (PF) solve | completed, 745 rows, `checks_passed`; "Numerical health: checks passed" |
+| Demo render, no local-private selection | `context=public_report; decisions=18082; blocked=true`; no preview, no hash |
+| Demo render, local-private selected | canonical HTML SHA-256 shown; "export gates passed"; preview with the LOCAL PRIVATE notice, the software/solver/run section, the numerical-health line and three "not recorded" values; Save canonical HTML and Print offered |
+| Report package | Save disabled; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE` |
+| Demo rule checks (bundled pack) | `RULE_INPUTS_INCOMPLETE`, missing inputs named |
+| Demo result JSON save (W-5) | saved, 3,636,709 bytes |
+| Demo exports | result export, PCF, MBF, adapter SDK, adapter framework, local FEA, native package and handoff offered; stress-neutral CSV and glTF not offered |
+| EX model `fixtures/model_operations/exact_pressure_authoring_model.json` solve | completed, 297 rows, `checks_passed` |
+| EX render | refused, `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` |
 | EX rule checks | run; `RULE_INPUTS_INCOMPLETE` |
-| EX exports | result JSON and stress-neutral JSON (behind intent), stress-neutral CSV, glTF only; the rest refused with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` |
+| EX exports | result and stress-neutral JSON links only (behind local-private intent); MBF and the rest refused or not offered |
+| From blank (W-17, R2) | units dialog (SI, US customary, custom) → node, material, pipe, fixed support, load case and 350 N tip force through the GUI → native solve, 89 rows, `checks_passed`, tip displacement 1.3703288675916625 mm (PL³/3EI ≈ 1.370 mm) → Save Local Project in place → fresh process: reopened, solved again, the same rows and value |
+
+The probe's first run used New Local Project for the save; the store already
+held the blank project, so the app asked before replacing it, as designed. The
+second run saved in place.
 
 ## 6. Independent spot-check
 
-Codex (GPT-6.1-Sol, read-only, `7a780551f0`) checked 13 claims independently
-before this map was returned.
+Codex (GPT-6.1-Sol, xhigh, read-only, branch head `289f9039ba` over basis
+`8a8a8b2584`) checked 19 placements independently, 7 of them changed class.
 
-- **Confirmed (7):** FR-SOL-005, FR-GUI-005, FR-RULE-005 and FR-SOL-013 as D;
-  FR-HAND-001, FR-REP-001 and FR-MOD-006 as P.
-- **Qualified (6):**
-  - FR-RULE-003: aggregate ordering.
-  - FR-SOL-004: connector offsets exist.
-  - FR-SOL-007: connectors publish global end actions.
-  - FR-CMP-001: headless state persistence exists.
-  - FR-KNOW-002: exact pressure regions check topology.
-  - Scope: D-11/DEC-062's W7 placement.
-- **Refuted:** none.
-
-Every qualification is folded into the rows above, and none changed a class
-other than FR-RULE-003's note. The W7 finding reframed OD-1.
+- **Confirmed (18)** (FR-MOD-007 and FR-RULE-003 were later re-classed by the
+  owner's readings, §3): FR-KNOW-002 (D), FR-MOD-007, FR-KNOW-001 and
+  FR-AGENT-005 (O), FR-GUI-001 and FR-GUI-004 (D), FR-MOD-001 (P), FR-SOL-015
+  (D), FR-REP-001 (P), FR-RULE-002 (D), FR-SOL-006, -007 and -009 (P),
+  FR-HAND-002 and FR-CMP-001 (P), §12.8 near-duplicate nodes (P), §22.2 13 of
+  14 (P), FR-RULE-005 (D).
+- **Refuted (1):** §10.1 step 1 as D. The DEL-02-02 Design still described
+  blank projects as offering no choice, so under the class rules it was R. This
+  change corrects that Design text, and the row is D on this branch.
+- **Further corrections, folded in:**
+  - FR-SOL-002 moves D → P. Its acceptance includes imposed displacements,
+    which pass on EX only.
+  - The FR-MOD-006 evidence named one schema as the only home of
+    `unresolved_assumptions`; it is also in the model-state and handoff
+    schemas.
+- **`expected.json`:** all five causes are plausible from the records and
+  fixtures (15 rows per member per case; parity row removal; `norm3`
+  rounding). Codex could not run the app; the observed values come from the
+  native smoke in §5.

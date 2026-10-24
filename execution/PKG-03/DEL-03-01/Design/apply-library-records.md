@@ -4,7 +4,7 @@
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
-**Status** (coordinator, 2026-10-23): the model-and-states manager implements this, as part of W-13 S2 or right after it; W-13 §3.5 assigns the work there. Two items are proposals relayed to that manager: the `library_version` definition (`sha256:` and the SHA-256 of the record's RFC 8785 form, §2.5) and the warning `MODEL-LIBRARY-REF-UNRESOLVED` (§2.7).
+**Proposed definitions** (for W-13 §3.5 and the S1b schema description): the `library_version` definition (`sha256:` and the SHA-256 of the record's RFC 8785 form, §2.5) and the warning `MODEL-LIBRARY-REF-UNRESOLVED` (§2.7).
 
 Requirements: FR-RULE-005 (Must) and FR-RULE-006 (Should). The map rows read
 "Library records cannot be applied to model materials". Related: the W-13 design
@@ -102,15 +102,17 @@ and §6 authoring.
      - G is written only if the record holds it, as a retained value. On the
        exact route the solver derives G from the selected E/ν pair and warns
        that a retained G is ignored (`core/product_physics/src/pressure_material.rs:61-92`, warning at `:86`).
-     - That derivation is the solver's, on an explicitly selected basis. The
-       apply itself never computes G.
+     - Superseded for records without a stored G by the coordinator's decision
+       (§7): insertion derives G = E / (2(1+ν)) and records the derivation in
+       provenance. The implementer reconciles the modes in this section with §7.
    - **Apply to an existing material** keeps that material's basis by default.
      Changing the basis is a separate, explicit choice: the diff shows the
      `constitutive_basis`, `poisson_ratio` and `shear_modulus` members being
      added or removed.
    - **A missing member fails the mode.** If the chosen mode needs a member the
-     record lacks (G for E/G; ν for E/ν), the apply is refused and names the
-     member. No value is derived.
+     record lacks, the apply is refused and names the member: G for E/G, unless
+     the record holds E and ν and the user chose the E/ν route (§7); ν for E/ν.
+     No other value is derived.
 
    **3b. Component source kinds.** Mapping is by an exhaustive table from source
    `field_kind` to a destination path and type. A library slot holds either
@@ -340,6 +342,9 @@ and §6 authoring.
   - copied and not-copied sets, refusal of `unit.MPa`, a string magnitude;
   - E/G and E/ν insert (the E/ν payload carries the basis and ν with unit `1`);
   - a refused E/G insert with no G, and a refused E/ν insert with no ν;
+  - the §7 derivation: an E/ν record without G inserts G = E / (2(1+ν)) with
+    provenance naming the derivation and its E and ν sources; a stored G is
+    used and never overwritten;
   - basis kept on apply-to-existing;
   - a refused component kind mismatch;
   - `center_of_gravity` excluded;
@@ -402,8 +407,8 @@ scope (§6, §8.3) adds only generic `provenance_record` carriage on the existin
 change kinds. It designs no insertion flow, field mapping, record digest or drift
 check. **This item is the work that sentence assigns to S2.** It depends on S1b,
 which adds the slot to the format, and on S2's applier carriage of
-`provenance_record`. Recommendation: S2 records the sentence as delivered by this
-item, and this item lands as its own slice right after S2. That keeps S2 bounded.
+`provenance_record`. S2's sentence is delivered by this item, as its own slice,
+which keeps S2 bounded.
 
 ## 6. Files, overlap and sequencing
 
@@ -420,21 +425,20 @@ item, and this item lands as its own slice right after S2. That keeps S2 bounded
 | `fixtures/model_document/desktop_emitted.json` | one entry | S2 creates the golden | yes (S2) |
 | D3-pinned files | none | S1b's D3 chain | no |
 
-**Sequencing.**
-- **Not before S1b.** `provenance_record` does not exist in 0.6.0, and the S1a
+**Dependencies.**
+- **Requires S1b.** `provenance_record` does not exist in 0.6.0, and the S1a
   schema's closed records refuse it.
 - **A string-only interim** would leave drift undetectable, and the hanger fix
   would have to be done twice.
-- **Before S2 merges,** `libraryApply.ts` and its tests can be written against
-  the S1b schema, but they land after S2.
+- **Requires S2's applier carriage** of `provenance_record`; `libraryApply.ts`
+  and its tests are written against the S1b schema.
 
-**Proposal relayed to the model-and-states manager** (W-13 §3.5 and the S1b schema description): "`library_version`
+**Proposed definition** (W-13 §3.5 and the S1b schema description): "`library_version`
 is `sha256:` and the SHA-256 of the applied record's RFC 8785 form. Library
 documents carry no version member."
 
-**W-13 §3.5 reconciliation: requested, not completed.** As of this design,
-W-13 §3.5's sentences are unchanged. The requests to the model-and-states
-manager:
+**Proposed W-13 §3.5 changes.** As of this design, W-13 §3.5's sentences are
+unchanged. The proposed changes:
 - **Digest comparison.** The library-version comparison becomes a record-digest
   comparison. `MODEL-LIBRARY-REF-VERSION-CHANGED` compares the digest of the
   stored record with `library_version`.
@@ -442,24 +446,26 @@ manager:
   document" becomes "Only the enumerated applied values (DEL-03-01 Design
   `apply-library-records.md` §2.3), their units and the combined
   `provenance_record` enter the document; no other library content does."
-- **Assign the work explicitly.** "The desktop sets it when it inserts a library
-  record (S2)" names the work: the model-and-states manager implements
-  insertion, apply, re-apply and drift checks per this design, as part of S2 or
-  right after it.
 
-## 7. Owner question
+## 7. Decision: the E/ν route
 
-**For insertion, should a stored G always be required, or may the user also
-choose the E/ν route?**
-- **G always required:** only E/G-mode insertion is offered. Records without G
-  cannot be inserted, though ν stays visible in the library.
-- **The E/ν route as well:** the user may choose E/ν mode. The material is then
-  exact-basis (`homogeneous_isotropic_E_nu_v1`), and on the exact route the
-  solver derives G and ignores any retained G.
+The question was whether insertion must always use a stored G, or whether the
+user may also choose the E/ν route. The coordinator decided on 2026-10-23:
+"allow the explicit **E/ν route**. For an isotropic material record that
+supplies E and ν but no G, derive G = E / (2(1+ν)), record in the inserted
+record's provenance that G was derived (and from what), and never overwrite a
+stored G. Records with a stored G use it. That's standard practice for
+isotropic piping materials, and the provenance keeps it auditable."
 
-Either way the basis is written explicitly and never inferred. The design
-supports both. Until the owner answers, the implementation offers E/G only, and
-E/ν waits.
+So:
+- The route is the user's explicit choice; nothing is inferred from which
+  properties a record holds.
+- A stored G is used and never overwritten.
+- A derived G's provenance names the derivation and the record's E and ν
+  values and units it came from.
+- The implementation settles how §2.3a's E/G and E/ν forms carry
+  this (in particular whether the inserted material also carries ν and the
+  exact basis) against the material validator.
 
 ## 8. Review findings resolved
 

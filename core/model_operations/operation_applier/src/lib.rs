@@ -26,6 +26,7 @@ mod display_units;
 pub mod document_validator;
 mod geometry_operations;
 mod model_data_authoring;
+mod pipe_reconnect;
 mod rich_authoring;
 mod retained_semantics_binding;
 pub use retained_semantics_binding::retained_precision_semantics_json;
@@ -1427,6 +1428,42 @@ fn run_with_context(
             }
         }
     }
+    // W-10 (DEL-16-06 Design `pipe-reconnect.md` §1): reconnect one pipe end.
+    // Its typed warnings are pushed in validate and apply mode alike, so the
+    // preview reports exactly what apply will; warnings never block.
+    if change_kind == pipe_reconnect::CHANGE_KIND {
+        if claimed_model_hash.is_none_or(Value::is_null) {
+            checker.schema_blocked = true;
+            checker.push(
+                "OP-GEOMETRY-MODEL-HASH-REQUIRED",
+                "blocking",
+                "Compound geometry operations require complete current model-hash evidence.".into(),
+                "Refresh the full model basis before proposing geometry changes.",
+                vec![target_ref.clone()],
+            );
+        }
+        if !checker.schema_blocked {
+            match pipe_reconnect::resolve(model, intent) {
+                Ok(edit) => {
+                    checker.reference_state = "passed";
+                    checker.unit_state = "passed";
+                    checker.before_state = "passed";
+                    for warning in edit.warnings {
+                        checker.push(warning.code, "warning", warning.message, &warning.remediation, warning.affected_refs);
+                    }
+                    geometry_edit = Some(geometry_operations::GeometryEdit { model: edit.model, diff_preview: edit.diff_preview });
+                }
+                Err(blocks) => {
+                    for block in blocks {
+                        if block.code == "OP-STALE-BEFORE-VALUE" {
+                            checker.before_state = "blocked_stale";
+                        }
+                        checker.push(block.code, "blocking", block.message, &block.remediation, block.affected_refs);
+                    }
+                }
+            }
+        }
+    }
 
     // W-13 §6: model-data record operations (lines, assumptions,
     // constraints, equipment interfaces, rule-pack references). They resolve
@@ -2494,6 +2531,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         change_kind,
         "split_pipe_run"
             | "transform_pipe_run"
+            | "reconnect_pipe_run"
             | "insert_bend_at_corner"
             | "set_field"
             | "update_load"
@@ -2537,7 +2575,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
-        | "split_pipe_run" | "transform_pipe_run" | "insert_bend_at_corner" => "modify",
+        | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner" => "modify",
         "create_node"
         | "create_section"
         | "create_material"
@@ -4138,6 +4176,36 @@ fn resolve_delete_pipe_run(
     }
     let mut references = pipe_primitive_load_references(model, target_ref);
     references.extend(load_state_authoring::pipe_references(model, target_ref));
+    // W-10 §7: every other record naming the pipe (components, wind exposure
+    // and any other slot) refuses too; deletion never cascades. Hits at the
+    // slots the two checks above report are not repeated.
+    let dependents = pipe_reconnect::delete_dependents(model, target_ref);
+    if !dependents.is_empty() {
+        checker.reference_state = "blocked";
+        let named: Vec<String> = references
+            .iter()
+            .cloned()
+            .chain(dependents.iter().map(|(owner, slot)| format!("{owner} ({slot})")))
+            .collect();
+        let mut affected = vec![target_ref.to_string()];
+        affected.extend(references);
+        let mut owners: Vec<String> = dependents.into_iter().map(|(owner, _)| owner).collect();
+        owners.sort();
+        owners.dedup();
+        for owner in owners {
+            if !affected.contains(&owner) {
+                affected.push(owner);
+            }
+        }
+        checker.push(
+            "OP-PIPE-DELETE-REFERENCED",
+            "blocking",
+            format!("Pipe segment {target_ref} is still named by: {}.", named.join(", ")),
+            "Remove or retarget each dependent first; deletion never cascades.",
+            affected,
+        );
+        return None;
+    }
     if !references.is_empty() {
         checker.reference_state = "blocked";
         checker.push(

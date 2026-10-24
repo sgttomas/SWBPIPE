@@ -16,7 +16,7 @@ afterEach(() => { cleanup(); convert.mockReset(); });
 /** Invented two-case model: every value is synthetic test input. */
 function inventedModel(): PreviewModel {
   const model = buildBlankLocalModelDocument(new Date("2026-01-01T00:00:00Z"));
-  model.project.units = { length: "mm", force: "kN", temperature: "C", angle: "rad" };
+  model.project.units = { length: "mm", force: "kN", moment: "kN*m", temperature: "C", angle: "rad" };
   model.nodes = [
     { id: "node:A", label: "Node A", position: { x: 0, y: 0, z: 0 }, provenance: "invented" },
     { id: "node:B", label: "Node B", position: { x: 1, y: 0, z: 0 }, provenance: "invented" }
@@ -252,7 +252,8 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     type("load-manager-create-primitive-category", "concentrated_moment");
     expect(byId("load-manager-create-primitive-node")).toBeInTheDocument();
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-M300");
-    expect(byId("load-manager-create-primitive-unit")).toHaveValue("kN*mm");
+    // W-17 §2.4: the moment default is the moment key, not kN*mm composed from force and length.
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("kN*m");
 
     type("load-manager-create-primitive-category", "distributed_force");
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-D300");

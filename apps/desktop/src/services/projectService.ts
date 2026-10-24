@@ -400,7 +400,24 @@ export async function getLocalStorageCapability(): Promise<LocalStorageCapabilit
   return invoke<LocalStorageCapability>("get_local_storage_capability");
 }
 
-export function buildBlankLocalModelDocument(createdAt: Date = new Date()): PreviewModel {
+// W-17 slice (a) (DEL-02-02 Design `project-unit-selection.md` §2.2-2.3): every new
+// project carries these seven keys, each a canonical DEC-018 catalog symbol for its
+// dimension. The map is the record; a preset is only UI shorthand.
+export const PROJECT_UNIT_KEYS = ["length", "force", "moment", "pressure", "stress", "temperature", "angle"] as const;
+export type ProjectUnitKey = typeof PROJECT_UNIT_KEYS[number];
+export type ProjectUnitMap = Record<ProjectUnitKey, string>;
+/** SI: today's blank set plus `angle: rad`. The default. */
+export const SI_PROJECT_UNITS: Readonly<ProjectUnitMap> = Object.freeze({
+  length: "m", force: "N", moment: "N*m", pressure: "Pa", stress: "Pa", temperature: "degC", angle: "rad"
+});
+export const US_CUSTOMARY_PROJECT_UNITS: Readonly<ProjectUnitMap> = Object.freeze({
+  length: "in", force: "lbf", moment: "lbf*in", pressure: "psi", stress: "psi", temperature: "degF", angle: "deg"
+});
+
+export function buildBlankLocalModelDocument(
+  createdAt: Date = new Date(),
+  units: Readonly<ProjectUnitMap> = SI_PROJECT_UNITS
+): PreviewModel {
   const stamp = createdAt.toISOString().replace(/\.\d{3}Z$/, "Z");
   const token = stamp.replace(/[^0-9TZ]/g, "").toLowerCase();
   const projectId = `project:blank-local-${token}`;
@@ -418,14 +435,11 @@ export function buildBlankLocalModelDocument(createdAt: Date = new Date()): Prev
       name: "Blank Local Model",
       description:
         "User-created local blank model document. Add explicit nodes, pipe runs, supports, materials, loads, and combinations through structured editors before solving.",
-      units: {
-        length: "m",
-        force: "N",
-        moment: "N*m",
-        pressure: "Pa",
-        stress: "Pa",
-        temperature: "degC"
-      }
+      units: Object.fromEntries(PROJECT_UNIT_KEYS.map((key) => {
+        const symbol = units[key];
+        if (typeof symbol !== "string" || !symbol) throw new Error(`PROJECT-UNITS-INCOMPLETE: a new project needs project.units.${key}`);
+        return [key, symbol];
+      }))
     },
     analysis_status: {
       mechanics: "MODEL_INCOMPLETE",
@@ -462,8 +476,11 @@ export function buildBlankLocalModelDocument(createdAt: Date = new Date()): Prev
  * values, and no document is upgraded to produce it. */
 export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = MODEL_SCHEMA_VERSION;
 export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" } as const;
-export function buildBlankLoadStateModelDocument(createdAt: Date = new Date()): PreviewModel {
-  const { schema_version: blankVersion, ...blank } = buildBlankLocalModelDocument(createdAt);
+export function buildBlankLoadStateModelDocument(
+  createdAt: Date = new Date(),
+  units: Readonly<ProjectUnitMap> = SI_PROJECT_UNITS
+): PreviewModel {
+  const { schema_version: blankVersion, ...blank } = buildBlankLocalModelDocument(createdAt, units);
   void blankVersion;
   return {
     schema_version: BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION,

@@ -540,6 +540,14 @@ export type PreviewModel = {
   constraints?: ModelConstraint[];
   equipment_interfaces?: EquipmentInterfaceRecord[];
   rule_pack_refs?: RulePackReference[];
+  /** Model 0.7.0 (W-13 Design §3.8): model-level settings; absent members take their defaults. */
+  model_settings?: ModelSettings;
+};
+
+/** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
+ * tolerance, a length quantity; absent means 5 mm. The desktop never writes the default. */
+export type ModelSettings = {
+  node_proximity_tolerance?: QuantityValue;
 };
 
 export type Diagnostic = {
@@ -1120,6 +1128,7 @@ export type EditorOperationIntent = {
       | "detach_section"
       | "split_pipe_run"
       | "transform_pipe_run"
+      | "reconnect_pipe_run"
       | "insert_bend_at_corner"
       | "delete_combination_term"
       | "insert_component_symbol"

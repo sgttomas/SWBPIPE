@@ -11,7 +11,7 @@ import {
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { applyOperationBatch, validateOperationBatch } from "../../services/operationBatchService";
-import type { OperationBatch } from "../../services/operationBatchService";
+import type { OperationBatch, OperationBatchOutcome } from "../../services/operationBatchService";
 import {
   applyModelOperation,
   validateModelOperation,
@@ -43,8 +43,11 @@ import {
   getLocalStorageCapability,
   listLocalProjects,
   openLocalProject,
-  saveLocalProject
+  saveLocalProject,
+  SI_PROJECT_UNITS,
+  type ProjectUnitMap
 } from "../../services/projectService";
+import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
@@ -82,7 +85,7 @@ import {
 } from "../results/resultInterpretation";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
-import type { QueuedBatch } from "../toolkit/BatchReviewPanel";
+import { batchRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -265,6 +268,10 @@ export function useWorkspaceSession() {
   const [replaceProjectPrompt, setReplaceProjectPrompt] = useState<ReplaceProjectPromptState | null>(null);
   // While the prompt is open, menu commands and shell accelerators are ignored.
   const replacePromptOpenRef = useRef(false);
+  // The open "Units at creation" dialog (W-17 §3), if a blank project is waiting
+  // for its units. It is modal in the same way as the replace prompt.
+  const [blankProjectUnitsRequest, setBlankProjectUnitsRequest] = useState<BlankProjectUnitsRequest | null>(null);
+  const projectUnitsDialogOpenRef = useRef(false);
   // The stored project this session is, at the revision it last opened or wrote:
   // its id and stored envelope hash. Set wherever an open or a write lands for
   // this project session, whether or not a later edit superseded the request,
@@ -1122,6 +1129,7 @@ export function useWorkspaceSession() {
   function handleClearReviewQueue() {
     requestEpochRef.current += 1;
     setRequestEpoch(requestEpochRef.current);
+    withdrawBatchRegistrations();
     setQueuedBatches([]);
     setBatchOutcomes({});
     setBatchMessage("Pending batches cleared. Running requests will not change this session.");
@@ -1136,18 +1144,40 @@ export function useWorkspaceSession() {
     setOperationMessage("Pending changes cleared. Requests already running will not change this session.");
   }
 
+  // W-10: the live registry of queued submissions. A run resolves its batch
+  // here (never from render-time state or the caller's entry), bound to the
+  // queue epoch it was registered in. Every withdrawal (clear, new, open or
+  // replaced project) revokes all registrations synchronously, with the
+  // canonical fingerprint and outcome of their validation, and moves the
+  // epoch. (The request epoch is not used: it also moves on every selection
+  // change, which would strand queued batches whenever a ref is selected.)
+  const batchRegistrations = useRef(new Map<string, BatchRegistration>());
+  const batchQueueEpoch = useRef(0);
+  function withdrawBatchRegistrations() {
+    batchRegistrations.current.clear();
+    batchQueueEpoch.current += 1;
+  }
+
   async function handleQueueOperationBatch(batch: OperationBatch) {
     if (!model) return;
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
+    const queueEpoch = batchQueueEpoch.current;
     const basisModel = clonePreviewModel(model);
     const submitted = structuredClone(batch);
     try {
       const basisHash = await computeModelHash(basisModel);
-      if (revision !== modelRevision.current || epoch !== requestEpochRef.current) return;
+      if (revision !== modelRevision.current || epoch !== requestEpochRef.current || queueEpoch !== batchQueueEpoch.current) return;
       if (!basisHash) throw new Error("The current model hash is unavailable.");
       const key = `operation-batch-${++batchSequence.current}`;
-      setQueuedBatches((current) => [...current, { key, batch: submitted, basisModel, basisHash, basisRevision: revision }]);
+      // W-10: derived centrally from the batch contents, whatever its producer
+      // (geometry builder, offline intake, requeue or a routed single intent).
+      const requiresPreview = batchRequiresPreview(submitted);
+      // The registered submission is immutable: runs resolve it by key and never
+      // read a caller's entry contents.
+      const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview });
+      batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
+      setQueuedBatches((current) => [...current, registered]);
       setBatchMessage("Batch queued for validation and explicit application.");
       setActiveSection("operations");
       setOperationTab("review");
@@ -1159,8 +1189,26 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleRunOperationBatch(entry: QueuedBatch, apply: boolean) {
+  async function handleRunOperationBatch(requested: QueuedBatch, apply: boolean) {
+    // W-10: only the registered, immutable submission runs, resolved by key;
+    // the caller's entry contents (batch, flags, basis) are ignored.
+    const registration = batchRegistrations.current.get(String(requested?.key));
+    const registered = () => batchRegistrations.current.get(registration!.entry.key) === registration && registration!.epoch === batchQueueEpoch.current;
+    if (!registration || !registered()) {
+      setBatchMessage(`Batch ${String(requested?.batch?.batch_id ?? requested?.key ?? "unknown")} is not registered in the review queue; it was not run.`);
+      return;
+    }
+    const entry = registration.entry;
     if (operationRequest.current.busy || entry.basisRevision !== modelRevision.current) return;
+    // The gate follows the registered batch's operations, with the same
+    // predicate as the Apply button, and the preview must be of this exact
+    // batch content (its canonical fingerprint at validation).
+    const gated = apply && batchRequiresPreview(entry.batch);
+    const refusePreview = () => setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON}`);
+    if (gated && (!registration.validated || !previewSatisfied(entry, registration.validated.outcome, modelRevision.current))) {
+      refusePreview();
+      return;
+    }
     const revision = modelRevision.current;
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
@@ -1169,6 +1217,13 @@ export function useWorkspaceSession() {
     setBatchMessage(null);
     try {
       if (!currentModel.current) return;
+      const fingerprint = await canonicalSha256Hex(entry.batch);
+      if (!stillCurrent()) return;
+      if (!registered()) throw new Error("The batch was withdrawn from the review queue; it was not run.");
+      if (gated && fingerprint !== registration.validated?.fingerprint) {
+        refusePreview();
+        return;
+      }
       const initialHash = await computeModelHash(currentModel.current);
       if (!stillCurrent()) return;
       if (!initialHash || initialHash.value !== entry.basisHash.value) throw new Error("The model changed. Prepare a new batch.");
@@ -1186,6 +1241,8 @@ export function useWorkspaceSession() {
       if (!apply && (outcome.acceptance || outcome.applied_model || outcome.validation.application_status === "applied_to_session_model")) {
         throw new Error("Validation returned an application result; it was discarded.");
       }
+      if (!registered()) throw new Error("The batch was withdrawn from the review queue; its result was discarded.");
+      if (!apply) registration.validated = { fingerprint, outcome };
       setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
       if (!apply || outcome.validation.application_status !== "applied_to_session_model") return;
       if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
@@ -1218,6 +1275,7 @@ export function useWorkspaceSession() {
       }]);
       commitModel(outcome.applied_model);
       preserveAndPruneSelection(outcome.applied_model);
+      batchRegistrations.current.delete(entry.key);
       setQueuedBatches((current) => current.filter((candidate) => candidate.key !== entry.key));
       clearComputedModelState(sessionHistoryChangedSolveJob("batch", entry.batch.batch_id));
       setProposal(null);
@@ -1439,6 +1497,12 @@ export function useWorkspaceSession() {
 
   async function handleApplyIntent(intent: EditorOperationIntent, ownedOutcome?: { current?: Readonly<OperationOutcome> }): Promise<boolean> {
     if (!model || operationRequest.current.busy) return false;
+    // W-10: a reconnect is never applied without preview; route it to batch review.
+    if (intent?.change?.change_kind === "reconnect_pipe_run") {
+      setOperationMessage("Reconnect is applied through batch review; it has been queued there.");
+      await handleQueueOperationBatch({ batch_id: `reconnect-${intentKey(intent)}`, operations: [structuredClone(intent)] });
+      return false;
+    }
     const revision = modelRevision.current;
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
@@ -1863,14 +1927,36 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleCreateBlankProject() {
-    return createBlankProjectFrom(buildBlankLocalModelDocument, "Created blank local model document without fixture entities or external file copies.");
+  /** W-17 §3: "New blank", "Blank load/reference model" and `file.new-blank` ask for
+   * the project units first. Create builds the blank with the chosen map; Cancel
+   * creates nothing. */
+  function requestBlankProject(kind: BlankProjectKind) {
+    // A project operation in flight refuses a blank, as the create itself would.
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
+    projectUnitsDialogOpenRef.current = true;
+    setBlankProjectUnitsRequest({
+      kind,
+      opener,
+      cancel: close,
+      create: (units) => {
+        close();
+        void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+      }
+    });
+  }
+
+  /** Creates the blank at once with `units` (SI when omitted); the UI reaches it through requestBlankProject. */
+  async function handleCreateBlankProject(units: ProjectUnitMap = SI_PROJECT_UNITS) {
+    return createBlankProjectFrom(() => buildBlankLocalModelDocument(new Date(), units), "Created blank local model document without fixture entities or external file copies.");
   }
 
   /** T1 WP3: a blank load/reference-state document (B7b: the current model version with the exact
    * pressure contract, no engineering content) through the same create path as New Blank. */
-  async function handleCreateBlankLoadStateProject() {
-    return createBlankProjectFrom(buildBlankLoadStateModelDocument, `Created blank local load/reference-state model ${MODEL_SCHEMA_VERSION} document without fixture entities, engineering values or external file copies.`);
+  async function handleCreateBlankLoadStateProject(units: ProjectUnitMap = SI_PROJECT_UNITS) {
+    return createBlankProjectFrom(() => buildBlankLoadStateModelDocument(new Date(), units), `Created blank local load/reference-state model ${MODEL_SCHEMA_VERSION} document without fixture entities, engineering values or external file copies.`);
   }
 
   async function createBlankProjectFrom(buildBlankModel: () => PreviewModel, createdMessage: string) {
@@ -1955,6 +2041,7 @@ export function useWorkspaceSession() {
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      withdrawBatchRegistrations();
       setQueuedBatches([]);
       setBatchOutcomes({});
       setBatchReceipts([]);
@@ -2025,6 +2112,7 @@ export function useWorkspaceSession() {
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      withdrawBatchRegistrations();
       setQueuedBatches([]);
       setBatchOutcomes({});
       setBatchReceipts([]);
@@ -2127,6 +2215,7 @@ export function useWorkspaceSession() {
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      withdrawBatchRegistrations();
       setQueuedBatches([]);
       setBatchOutcomes({});
       setBatchReceipts([]);
@@ -2531,14 +2620,14 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
         void handleCreateProject();
         break;
       case "file.new-blank":
-        void handleCreateBlankProject();
+        requestBlankProject("local");
         break;
       case "file.open-model":
         void handleOpenModelDocument();
@@ -2882,7 +2971,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       if (key === "z") {
@@ -3021,6 +3110,8 @@ export function useWorkspaceSession() {
       handleCreateProject,
       handleCreateBlankProject,
       handleCreateBlankLoadStateProject,
+      requestBlankProject,
+      blankProjectUnitsRequest,
       handleOpenProject,
       handleOpenModelDocument,
       handleSaveProject,
@@ -3068,3 +3159,19 @@ export function useWorkspaceSession() {
 
 /** What the view receives: the six slices `useWorkspaceSession` returns. */
 export type WorkspaceSession = ReturnType<typeof useWorkspaceSession>;
+
+/** Freeze a queued submission recursively (W-10): no caller can alter it after registration. */
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const child of Object.values(value as Record<string, unknown>)) deepFreeze(child);
+  }
+  return value;
+}
+
+/** W-10: one queued submission as the live registry holds it. */
+type BatchRegistration = {
+  entry: QueuedBatch;
+  epoch: number;
+  validated?: { fingerprint: string; outcome: OperationBatchOutcome };
+};

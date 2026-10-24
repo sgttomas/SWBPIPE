@@ -157,6 +157,29 @@ fn junction(model: &Value, arriving: &Value, leaving: &Value, node: &str, arcs: 
     kink(t_in, t_out).ok()
 }
 
+/// W-10 reconnect (DEL-16-06 Design `pipe-reconnect.md` §2.4): θ at `node`
+/// between pipe `pipe_id` and each realized arc other than it that ends at
+/// `node`, in `model` (the reconnected candidate), by arc span id.
+pub(crate) fn realized_arc_junctions(model: &Value, pipe_id: &str, node: &str) -> Vec<(String, f64)> {
+    let arcs = realized_arcs(model);
+    let Some(pipe) = find(model, "pipe_segments", pipe_id) else {
+        return Vec::new();
+    };
+    let mut spans: Vec<&String> = arcs.keys().filter(|span| span.as_str() != pipe_id).collect();
+    spans.sort();
+    spans
+        .into_iter()
+        .filter_map(|span| {
+            let arc = find(model, "pipe_segments", span)?;
+            let (from, to) = ends(arc)?;
+            if from != node && to != node {
+                return None;
+            }
+            junction(model, arc, pipe, node, &arcs).map(|theta| (span.clone(), theta))
+        })
+        .collect()
+}
+
 fn mitre_message(node: &str, a: &str, b: &str, theta: f64) -> String {
     format!(
         "members {a} and {b} meet at {node} with a direction change of {theta:e} rad, above the tangency tolerance alpha_tan = {TANGENCY_TOLERANCE_RAD:e} rad at a realized bend's end; a kink this large is a mitre, which 3.0.0/exact_pressure_v3 does not model. Make the bend tangent (Insert bend at corner places tangent points exactly) or end the region at {node}"

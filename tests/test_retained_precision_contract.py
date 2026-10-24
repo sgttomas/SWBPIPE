@@ -1831,8 +1831,9 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # (admitted, not eligible) or a gate and code. An admitted rewrite that changes the classes states its own
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
-N07_W_C2 = {"sparse_interactive": ("6cb92ba34e603c460726493afb59d41e965332643a2cfcf3a5e7674d69361523", "63820715bece7364bc2cc36f24e1e9ca83b604da38cd1a677b75e959cc6b9c95"),
-            "dense_scrutiny": ("b1080b56148f8585687a8a8c99b9ef271d91468ff3f01bce57ce026f7b9d132c", "7f0e3a6a515f9b3e3686e7e79520dcdb0f05479706e1e202a3a5924bb9937119")}
+# W-8 topology warning added; no number moved.
+N07_W_C2 = {"sparse_interactive": ("0ab4bd76c11b34c0233ea145ef706c8afed6795ee3776f50e32e4d499de36c90", "4312b23bb7393cfd0ba4db00e990fbf31b49d923767aae81397456bb06c071fa"),
+            "dense_scrutiny": ("08caefa0a93b7b174eba819e0a79396174a2620efad0d5d4ffd52a7128a6e4a4", "b4b8ccbce2953f820f9546b450a1c5aaec12440a2b4708201ffd93f11b78f734")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).

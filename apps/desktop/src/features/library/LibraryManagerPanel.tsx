@@ -39,8 +39,10 @@ import {
 //
 // The backend runs in the desktop (Tauri) runtime only; browser preview reports
 // the explicit unavailable route rather than synthesizing a fallback validator
-// or store. Reference wiring between rule packs and imported library allowables
-// is a separate Phase C3 slice and is intentionally absent here.
+// or store. Rule packs consume stored library values outside this panel: a rule
+// check run resolves each `private_library_value` input's `library_value_ref`
+// from the local store at run time (`resolve_library_value_bindings` in
+// `src-tauri/src/lib.rs`). This panel imports and stores libraries only.
 
 const NO_DRAFT_REASON =
   "No import document; load an invented sample or paste a library document first.";

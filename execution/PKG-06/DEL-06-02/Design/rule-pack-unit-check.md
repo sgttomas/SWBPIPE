@@ -1,7 +1,9 @@
 # Unit check at rule-pack validation (W-17)
 
-**Basis:** `origin/main` at `356a9be374` (2026-10-23). Design before
-implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
+**Basis:** `origin/main` at `356a9be374` (2026-10-23). §2.1–2.6, §3 and §4 are
+implemented in W-17 (`check_expression_types` in `expression_evaluator`,
+`check_rule_pack_units` in `rule_pack_document`); §2.8 lists the as-built
+differences. §2.7 is not implemented. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
 Requirement: FR-RULE-002 (Must), "Expressions reject incompatible units". The
@@ -200,6 +202,27 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
    - **It lands as its own slice,** separate from the static check. It changes
      run outcomes, which the static check does not. W-17 item 2's library apply
      uses the same resolver.
+   - **Status: not implemented.** The runtime defect above remains.
+   - **A related case, found at implementation.** A dimensionless limit slot
+     declared with the catalog symbol `1` never matches the evaluator's token
+     `ratio` that a ratio formula produces.
+     - The static check reports it as `RULE_PACK_LIMIT_UNIT_MISMATCH`, which
+       matches run time: the same check blocks there with `UnitMismatch`.
+     - The resolver slice decides whether `1` and `ratio` resolve to one unit.
+       Until then, authors of dimensionless limits see the finding at
+       validation and the block at run time.
+8. **As built (differences from 1–6).**
+   - **Undeclared variables.** An undeclared variable is reported only as
+     `RULE_PACK_UNDECLARED_VARIABLE`; the evaluator's `MissingVariable` is not
+     also shown.
+   - **Codes.** Static expression findings use the runner's code spelling
+     (`UnitMismatch`), so static and run-time codes match.
+   - **Severity.** `RULE_PACK_UNIT_DECLARATION_INCOMPLETE` is a warning.
+   - **Not checkable.** A check that is `not_checkable` has no findings and no
+     reason field.
+   - **The invented demo pack** gets three catalog warnings: two for
+     `demo_unit`, and one for its slot's `ratio`, which is the evaluator's ratio
+     token but not a catalog symbol.
 
 ## 3. Desktop UX
 
@@ -293,9 +316,9 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 | `apps/desktop/src-tauri/src/lib.rs` | this slice: the blocked-run projection (`:2913-2929`). Separate slice (§2.7): the shared resolver and `extract_library_slot_value` (`:3155-3166`) | S1b: self-test model (`:4482`), open-path validator | same file, different code; no |
 | D3-pinned files | none; `core/units/src` is only depended on, not edited | S1b's D3 chain | no |
 
-**Sequencing** (coordinator, 2026-10-23): this item lands now. It touches no S1b or S2 file
-except the panel, and no model-document member, so it does not wait for S1b. The
-§2.7 runtime fix is a separate slice. It can also land now, independently.
+**Dependencies.** This item touches no S1b or S2 file except the panel, and no
+model-document member, so it does not depend on S1b. The §2.7 runtime fix is a
+separate slice with no dependency on this one.
 
 ## 6. Review findings resolved
 

@@ -611,6 +611,12 @@ if fnkey("fallback_circular_maximum", _CP):
         "case_state/thermal.rs": ["integral", "dilation_difference", "check_path"],
         "certified_publication.rs": ["fallback_denominator_relative_error"],
     }
+    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16): near_duplicate_nodes' min/max receivers are the
+    # bounding box's f64 coordinates (`low[axis].min(..)`, `high[axis].max(..)`) and an edge's usize node indices
+    # (`a.min(b)`, `a.max(b)`); scaled_norm's fold takes `m.max(x.abs())` over f64. Only where the topology checks exist.
+    if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
+        _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"] + (
+            ["scaled_norm"] if fnkey("scaled_norm", PP_ + "topology.rs") else [])
     for _file, _names in _primitive_minmax_callers.items():
         for _name in _names:
             _file = PP_ + _file if not _file.startswith(PP_) else _file
@@ -2058,7 +2064,198 @@ if fnkey("republication", _PU_LIB) and fnkey("fail_closed_form", _PU_LIB):
     if not all(_pu_guards):
         raise SystemExit(f"PU-R1: the republication's run order changed; re-review G4's one-run cap: {_pu_guards}")
 
-# S1B-MV (W-13 S1b, model document 0.7.0; retained-pricing-rules.md §8.15): the load/reference-state version-mismatch
+# ---- The W-8 topology warnings (DEL-04-06 Design model-topology-checks.md; retained-pricing-rules.md §8.16). Each rule
+# applies only where W-8's code exists, so earlier revisions price as before. `append_topology_diagnostics` runs once
+# per ordinary run (run_linear_static_preview_observed_inner, after the build), on both routes; its heap owners outside
+# the TEXT inventory are priced positively by base/w8_topology_model.py (W8-TW, W8-ND).
+_W8 = PP_ + "topology.rs"
+_W8V = PP_ + "validation.rs"
+if fnkey("append_topology_diagnostics", _W8):
+    _W8_FG = open(_os.path.join(_SNAP, PP_ + "formation_guard.rs"), encoding="utf-8").read()
+    if _W8_FG.count("pub(crate) const NAMED: usize = 6;") != 1:
+        raise SystemExit("W8-NM: formation_guard's NAMED changed; re-review the W-8 bounds")
+    _W8_NAMED = 6
+    _W8_TOP = _fn_text("append_topology_diagnostics", _W8)
+    _W8_DIS = _fn_text("disconnected_parts", _W8)
+    _W8_NEAR = _fn_text("near_duplicate_nodes", _W8)
+    # W8-TX (guard): the templates the bounds below read, each once, with their literal bytes.
+    _W8_T = {
+        "node": ('format!("node#{index}")', _W8_TOP, len("node#")),
+        "part": ('"part {} (from {}; {} node{}; {})",', _W8_DIS, len("part  (from ;  node; )")),
+        "more_d": ('format!("; and {} more", parts.len() - NAMED)', _W8_DIS, len("; and  more")),
+        "more_n": ('format!("; and {} more", count - NAMED)', _W8_NEAR, len("; and  more")),
+        "pair": ('.map(|&(a, b)| format!("{} and {}", node_id(a), node_id(b)))', _W8_NEAR, len(" and ")),
+        "apart": ('format!("{} and {} ({distance:e} m apart)", node_id(a), node_id(b))', _W8_NEAR, len(" and  ( m apart)")),
+    }
+    for _k, (_t, _body, _lit) in _W8_T.items():
+        if _body.count(_t) != 1:
+            raise SystemExit(f"W8-TX: the {_k} template changed; re-review the W-8 text bounds")
+    if (_W8_TOP.count("n.id.clone()") != 1 or _W8_DIS.count('.join("; ")') != 1 or _W8_NEAR.count('.join("; ")') != 2
+            or '"supported"' not in _W8_DIS or '"no support"' not in _W8_DIS):
+        raise SystemExit("W8-TX: the topology texts changed; re-review the W-8 text bounds")
+    _W8_INT = 20                                                     # a usize's Display (TEXT.md `int`)
+    _W8_ID = max(128, _W8_T["node"][2] + _W8_INT)                     # node_id: an admitted id (l <= 128) or node#{index}
+    _W8_PART = _W8_T["part"][2] + _W8_INT + _W8_ID + _W8_INT + len("s") + len("no support")       # 201
+    _W8_MORE = _W8_T["more_d"][2] + _W8_INT                                                   # 31
+    _W8_JOIN = lambda each: _W8_NAMED * each + (_W8_NAMED - 1) * len("; ")
+    _W8_DESCRIBED = _W8_JOIN(_W8_PART)                                                         # 1,216
+    _W8_COINCIDENT = _W8_JOIN(_W8_T["pair"][2] + 2 * _W8_ID)                                   # 1,576
+    _W8_NEARNAMED = _W8_JOIN(_W8_T["apart"][2] + 2 * _W8_ID + 24)                              # 1,786 (f64_exp 24)
+    # W8-L1: the named parts and pairs are `.take(NAMED)` of the part map and the sorted pair lists.
+    O10_LOOPS_LAST += [
+        ("iter:parts .iter() .take(NAMED) .enumerate().map", str(_W8_NAMED),
+         O10 + "W8-L1: the described parts, `.take(NAMED)` (NAMED = 6)", ["topology.rs:disconnected_parts"]),
+        ("iter:coincident .iter() .take(NAMED).map", str(_W8_NAMED),
+         O10 + "W8-L1: the named coincident pairs, `.take(NAMED)` (NAMED = 6)", ["topology.rs:near_duplicate_nodes"]),
+        ("iter:near .iter() .take(NAMED).map", str(_W8_NAMED),
+         O10 + "W8-L1: the named near pairs, `.take(NAMED)` (NAMED = 6)", ["topology.rs:near_duplicate_nodes"]),
+    # W8-L2: near_duplicate_nodes' two passes over the built nodes' coordinates (the cell grid's fill and the
+    # 27-neighbour scan): coordinates is `built.nodes`' positions, one per node (<= n, D1.9). Only the by-name false
+    # edges (Vec::push, HashMap::get/entry) reach text from these loops; the real body allocates no text.
+        ("for (node, point) in coordinates.iter().enumerate()", "n",
+         O10 + "W8-L2: one visit per built node (<= n)", ["topology.rs:near_duplicate_nodes"]),
+    ]
+    # W8-NI (SITE_FROM): node_id is a closure passed as `&dyn Fn`, so the chain counts its two alternative text sites
+    # (the id clone and `node#{index}`) once per call of their defining function. Per call of
+    # append_topology_diagnostics it runs at most 60 times: disconnected_parts, NAMED for the description and NAMED for
+    # the refs (12); near_duplicate_nodes, two per named pair for each of the two messages and each of the two refs
+    # lists (4 x 2 x NAMED = 48). `more` in near_duplicate_nodes is also a closure, called once per message (2).
+    _W8_NODE_CALLS = 2 * _W8_NAMED + 4 * 2 * _W8_NAMED
+    if (_W8_DIS.count("node_id(") != 2 or _W8_NEAR.count("node_id(") != 6 or _W8_NEAR.count("refs(&mut ") != 2
+            or _W8_NEAR.count("more(") != 2 or _W8_NEAR.count("for id in [node_id(a), node_id(b)]") != 1
+            or _W8_TOP.count("node_id") != 3):
+        raise SystemExit("W8-NI: node_id's or more's call sites changed; re-review their counts")
+    _W8_FROM_TOP = [fnkey("append_topology_diagnostics", _W8)]
+    O10_SITE_FROM += [
+        (site("append_topology_diagnostics", _W8, ".map(|n| n.id.clone())"),
+         {"from": _W8_FROM_TOP, "per": str(_W8_NODE_CALLS), "why": O10 + "W8-NI: node_id's id clone, <= 60 calls per run"}),
+        (site("append_topology_diagnostics", _W8, 'format!("node#{index}")'),
+         {"from": _W8_FROM_TOP, "per": str(_W8_NODE_CALLS), "why": O10 + "W8-NI: node_id's fallback text, <= 60 calls per run"}),
+        (site("near_duplicate_nodes", _W8, 'format!("; and {} more", count - NAMED)'),
+         {"from": [fnkey("near_duplicate_nodes", _W8)], "per": "2", "why": O10 + "W8-NI: the `more` closure, once per message"}),
+    ]
+    # W8-ID (ID_AUDIT): the composed texts' placeholders, at their sites. `described`, `named` and `more` are Strings
+    # here, not the integers the generic `^more$|^named$` argument rule classes them as (lib.rs's counts), so each is
+    # bounded at its site: a join of <= NAMED pieces with "; " separators, or the `more` text.
+    _W8_C = lambda b, why: {"bytes": b, "source": O10 + "W8-ID: " + why}
+    _W8_MORE_C = _W8_C(_W8_MORE, "`; and {} more` with one usize")
+    O10_ID_AUDIT += [
+        (site("append_topology_diagnostics", _W8, ".map(|n| n.id.clone())", full=True), {"n.id": IN}),
+        (site("disconnected_parts", _W8, '"part {} (from {}; {} node{}; {})",', full=True, row="format!("),
+         {"ordinal+1": _W8_C(_W8_INT, "a part's ordinal (usize, <= NAMED)"),
+          "node_id(first)": _W8_C(_W8_ID, "node_id: an admitted node id (<= 128) or node#{index}"),
+          "nodes": _W8_C(_W8_INT, "the part's node count (usize)"),
+          'ifnodes==1{""}else{"s"}': _W8_C(len("s"), "a static plural suffix"),
+          'ifgrounded.contains(&body){"supported"}else{"nosupport"}': _W8_C(len("no support"), "a static support state")}),
+        (site("near_duplicate_nodes", _W8, '.map(|&(a, b)| format!("{} and {}", node_id(a), node_id(b)))', full=True),
+         {"node_id(a)": _W8_C(_W8_ID, "node_id"), "node_id(b)": _W8_C(_W8_ID, "node_id")}),
+        (site("near_duplicate_nodes", _W8, 'format!("{} and {} ({distance:e} m apart)", node_id(a), node_id(b))', full=True),
+         {"node_id(a)": _W8_C(_W8_ID, "node_id"), "node_id(b)": _W8_C(_W8_ID, "node_id")}),
+        (site("disconnected_parts", _W8, '"the model\'s elements form {} disconnected parts;', full=True, row="format!("),
+         {"described": _W8_C(_W8_DESCRIBED, "<= NAMED part descriptions joined by '; '"), "more": _W8_MORE_C}),
+        (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes share a position', full=True, row="format!("),
+         {"named": _W8_C(_W8_COINCIDENT, "<= NAMED coincident pairs joined by '; '"), "more(coincident_count)": _W8_MORE_C}),
+        (site("near_duplicate_nodes", _W8, '"{} pair{} of distinct nodes lie within', full=True, row="format!("),
+         {"named": _W8_C(_W8_NEARNAMED, "<= NAMED near pairs joined by '; '"), "more(near_count)": _W8_MORE_C}),
+    ]
+    # W8-RF (REFS_FIRST): the three diagnostics' affected refs. The disconnected parts' refs collect `.take(NAMED)` of
+    # the part map's keys (an exact-size iterator: capacity <= NAMED); `refs` pushes at most two ids per named pair,
+    # skipping repeats: <= 2 NAMED = 12 Strings in a push-grown Vec (capacity 16).
+    O10_REFS_FIRST = list(globals().get("O10_REFS_FIRST", [])) + [
+        {"re": r"^parts\.keys\(\)\.take\(NAMED\)\.map\(\|&first\| node_id\(first\)\)\.collect\(\)$",
+         "bytes": f"{_W8_NAMED}*(24+{_W8_ID})", "why": O10 + "W8-RF: <= NAMED part ids"},
+        {"re": r"^refs\(&mut (coincident\.iter\(\)\.copied\(\)|near\.iter\(\)\.map\(\|&\(a, b, _\)\| \(a, b\)\))\)$",
+         "bytes": f"16*24+{2 * _W8_NAMED}*{_W8_ID}", "why": O10 + "W8-RF: <= 2 NAMED node ids, capacity 16"},
+    ]
+    # W8-JN (LEX_SITE_SIZE): the three `.join("; ")` sites, each at its own bound (the description and the two pair
+    # lists), in place of the inherited `()` receiver rule (formation_guard's fired items, 50,176 B).
+    _w8_lines, _w8_start, _w8_end = fn_lines("near_duplicate_nodes", _W8)
+    _w8_joins = [i + 1 for i in range(_w8_start - 1, _w8_end - 1) if '.join("; ")' in _w8_lines[i]]
+    if len(_w8_joins) != 2 or not (_W8_NEAR.index("coincident\n            .iter()\n            .take(NAMED)")
+                                   < _W8_NEAR.index("near\n            .iter()\n            .take(NAMED)")):
+        raise SystemExit("W8-JN: near_duplicate_nodes' joins changed; re-review their bounds")
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
+        (site("disconnected_parts", _W8, '.join("; ")'),
+         {"class": _W8_DESCRIBED, "why": O10 + "W8-JN: <= NAMED part descriptions joined by '; '"}),
+        (Resolved(f"topology.rs:{_w8_joins[0]}"),
+         {"class": _W8_COINCIDENT, "why": O10 + "W8-JN: <= NAMED coincident pairs joined by '; '"}),
+        (Resolved(f"topology.rs:{_w8_joins[1]}"),
+         {"class": _W8_NEARNAMED, "why": O10 + "W8-JN: <= NAMED near pairs joined by '; '"}),
+    ]
+# W8-BT: validate_components' branch-topology warning sits in its loop over model.components, which D1 refuses
+# (P2, D1.4: retained_memory.rs `F::Components`), so it has multiplicity 0 on both routes, guarded rather than assumed.
+# Its one unclassified placeholder, the node's member count, is a usize.
+if fnkey("branch_topology_invalid", _W8V):
+    O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+        (site("validate_components", _W8V, '"BRANCH_TOPOLOGY_INVALID",', row="diag("),
+         O10 + "W8-BT: the branch-topology warning has multiplicity 0 by P2 (D1.4: no components)"),
+        (site("validate_components", _W8V, '"diagnostic:component:{}:branch-topology",', row="format!("),
+         O10 + "W8-BT: its id has multiplicity 0 by P2 (D1.4: no components)"),
+    ]
+    O10_ID_AUDIT += [(site("validate_components", _W8V, "joins {degree}", full=True),
+                      {"degree": {"bytes": 20, "source": O10 + "W8-BT: a usize member count"}})]
+
+# ---- The silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases that apply nothing";
+# retained-pricing-rules.md §8.15). Each rule applies only where the guard's code exists, so earlier revisions price as
+# before.
+_SZ_V = PP_ + "validation.rs"
+_SZ_R = PP_ + "case_state/resolve.rs"
+if fnkey("validate_required_collections", _SZ_V) and '"LOAD_CASE_APPLIES_NO_ACTION",' in _fn_text("validate_required_collections", _SZ_V):
+    _SZ_BODY = _fn_text("validate_required_collections", _SZ_V)
+    # SZ-TX (guard): the guard's one diagnostic site, read at the snapshot: one loop over the authored load cases that
+    # apply nothing, one LOAD_CASE_APPLIES_NO_ACTION diag whose id is `diagnostic:load-case:{}:applies-no-action` over
+    # stable_suffix(&case.id), whose message is one static literal (priced by the inventory at its own bytes) and whose
+    # refs are the one case id.
+    _SZ_LIT = _re.findall(r'"(the load case applies no action:(?:[^"\\]|\\.)*)"', _SZ_BODY)
+    _sz_guards = (
+        len(_SZ_LIT) == 1,
+        _SZ_BODY.count("for case in model.load_cases.iter().filter(|case| case_applies_nothing(case)) {") == 1,
+        _SZ_BODY.count('"LOAD_CASE_APPLIES_NO_ACTION",') == 1,
+        _SZ_BODY.count('&format!("diagnostic:load-case:{}:applies-no-action", stable_suffix(&case.id)),') == 1,
+        _SZ_BODY.count("vec![case.id.clone()],") == 1,
+        _SZ_BODY.count("diag(") == 4,
+    )
+    if not all(_sz_guards):
+        raise SystemExit(f"SZ-TX: the silent-zero guard's diagnostic changed; re-review its bounds: {_sz_guards}")
+    # SZ-ID (ID_AUDIT): the id format's stable_suffix(&case.id) (an authored case id with ':' replaced, same length,
+    # IN128) and the refs' case.id clone (IN128), as the sibling per-case sites in validation.rs are priced. The site is
+    # inside the loop over load cases, so it keeps its full multiplicity: once per authored case per call.
+    O10_ID_AUDIT += [
+        (site("validate_required_collections", _SZ_V,
+              'format!("diagnostic:load-case:{}:applies-no-action", stable_suffix(&case.id))', full=True),
+         {"stable_suffix(&case.id)": IN}),
+        (site("validate_required_collections", _SZ_V, "vec![case.id.clone()],", full=True), {"case.id": IN}),
+    ]
+# SZ-CP (EDGE_ZERO): model_loads_every_case decides a connector's preload by `connector_preloads`, passed as a function
+# value to `model.components.iter().any(..)`, its one call; it decodes the connector (joint::connector_spec) and its
+# stiffness. P2 (D1.4) leaves no components, so the edge is never taken on either route and its callees keep only
+# their own callers' multiplicity. Guarded by the source: the one call, over model.components, and no other caller.
+if fnkey("connector_preloads", _SZ_V) and fnkey("model_loads_every_case", _SZ_V):
+    _SZ_MLEC = _fn_text("model_loads_every_case", _SZ_V)
+    if (_SZ_MLEC.count("connector_preloads") != 1 or "model.components.iter().any(connector_preloads)" not in _SZ_MLEC
+            or _text_of(_SZ_V).count("connector_preloads") != 2):
+        raise SystemExit("SZ-CP: connector_preloads' call changed; re-review its zero edge")
+    O10_EDGE_ZERO += [(fnkey("model_loads_every_case", _SZ_V), fnkey("connector_preloads", _SZ_V),
+                       O10 + "SZ-CP: connector_preloads runs once per model component, none under " + D14)]
+# SZ-LS: resolve_case's two new findings (LOAD_STATE_CASE_APPLIES_NO_ACTION through `block`, LOAD_STATE_SOURCE_EXCLUDED)
+# are load-state resolution, reached only under case_state::is_load_state (lib.rs's load_state branch and the
+# captured load-state replay). D1.3 refuses every authored load/reference-state field on every branch (retained_memory.rs
+# family_clauses: ReferenceConfigurations, MaterialExpansionLaw, RequestExpansionLaws; per case AnalysisState), so
+# is_load_state is false on both routes (B7b-LS; route L also has no exact contract) and the base chain's case_state/
+# file zero holds. Their text sites have multiplicity 0, guarded rather than assumed.
+if fnkey("resolve_case", _SZ_R) and '"LOAD_STATE_SOURCE_EXCLUDED",' in _fn_text("resolve_case", _SZ_R):
+    _SZ_LS = O10 + "SZ-LS: load-state resolution has multiplicity 0 by D1.3 (no authored load/reference-state field; B7b-LS)"
+    O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+        (site("resolve_case", _SZ_R, '"LOAD_STATE_SOURCE_EXCLUDED",', row="diag("), _SZ_LS),
+        (site("resolve_case", _SZ_R, '"the load case applies no action: none of its {} stored', row="format!("), _SZ_LS),
+        (site("resolve_case", _SZ_R, "let mut text = ids.iter().take(crate::formation_guard::NAMED)"), _SZ_LS),
+    ]
+    # refuse_all_reference_states (called once in lib.rs's load-state branch, after refuse_resolved_span_strain) reads
+    # the resolved cases, which exist only for a load-state document; its LOAD_INPUT_MISSING site is guarded the same way.
+    if fnkey("refuse_all_reference_states", _SZ_R):
+        O10_MULT0_SITES += [(site("refuse_all_reference_states", _SZ_R, '"LOAD_INPUT_MISSING",', row="diag("), _SZ_LS)]
+
+# S1B-MV (W-13 S1b, model document 0.7.0; retained-pricing-rules.md §8.17): the load/reference-state version-mismatch
 # diagnostic (`case_state/resolve.rs`) and the joint authoring refusal (`joint.rs authoring_findings`) name the current
 # model version through the shared constant. The argument `crate::MODEL_SCHEMA_VERSION` is a `&'static str` whose bytes
 # are model_format.rs's one plain literal, read here at the snapshot; any other form stops the run.

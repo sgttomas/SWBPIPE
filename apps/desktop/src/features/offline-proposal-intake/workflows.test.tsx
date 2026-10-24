@@ -12,6 +12,9 @@ import { applyOperationBatch } from "../../services/operationBatchService";
 import { computeModelHash, canonicalJsonString } from "../../services/hashService";
 import type { PreviewModel } from "../../types";
 import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
+import { reconnectModel } from "../../test-support/reconnectModel";
+import { clearReconnectExampleCache, operationExamples, reconnectOperationExample, RECONNECT_EXAMPLE_CANDIDATE_CAP } from "../geometry-tools/reconnectExample";
+import { validateOperationBatch } from "../../services/operationBatchService";
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 async function massModel() {
@@ -175,5 +178,44 @@ describe("bounded workflow actual engine tests", () => {
       expect(screen.getByRole("alert")).toBeInTheDocument();
     }
     expect(queue).not.toHaveBeenCalled();
+  });
+  it("publishes an executable reconnect example that passes actual offline intake and validates", async () => {
+    clearReconnectExampleCache();
+    const model = reconnectModel(); const queue = vi.fn();
+    const loader = vi.fn(() => operationExamples(model));
+    render(<OfflineProposalIntakePanel model={model} selection={{ type: "project", id: model.project.id }} onQueueBatch={queue}
+      capabilityReference={{ source: "manager catalog" }} loadOperationExamples={loader} />);
+    expect(loader).not.toHaveBeenCalled(); // on demand, never on render
+    const details = screen.getByText("Offline authoring reference").closest("details")!;
+    details.open = true; fireEvent(details, new Event("toggle"));
+    await waitFor(() => expect(screen.getByTestId("capability-reference-json")).toHaveTextContent("reconnect_pipe_run"));
+    const reference = JSON.parse(screen.getByTestId("capability-reference-json").textContent!);
+    const example = reference.operation_examples.reconnect_pipe_run;
+    expect(example.wire).toMatchObject({ change_kind: "reconnect_pipe_run", field_path: "pipe_segments", unit: "none", dimension: "dimensionless" });
+    expect(JSON.parse(example.batch.operations[0].change.after)).toEqual({ pipe_ref: "pipe:P", end: "to", target_node_ref: "node:C" });
+    enter("Proposal batch JSON", JSON.stringify(example.batch)); fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
+    expect(queue).toHaveBeenCalledWith(example.batch);
+    const outcome = await validateOperationBatch(model, queue.mock.calls[0][0], await computeModelHash(model));
+    expect(outcome.validation.batch_validation_status).toBe("passed");
+    // Cached against the model hash: the same promise result, no second search.
+    expect(await reconnectOperationExample(model)).toEqual(example);
+  });
+  it("skips a candidate with an unsupported element-load shape (R13) and omits the example with its reason when none passes", async () => {
+    clearReconnectExampleCache();
+    const model = reconnectModel();
+    model.load_cases[0].primitive_loads = [{ id: "load:extent", category: "distributed_force", target: { type: "element", pipe: "pipe:P" },
+      direction: "global_z", magnitude: { value: -1, unit: "N/m" }, dimension: "force_per_length", provenance: "invented", extent: { start_fraction: 0.2 } }];
+    const example = await reconnectOperationExample(model);
+    expect("batch" in example && example.batch.operations[0].target.ref).toBe("pipe:Q");
+    const outcome = await validateOperationBatch(model, (example as { batch: Parameters<typeof validateOperationBatch>[1] }).batch, await computeModelHash(model));
+    expect(outcome.validation.batch_validation_status).toBe("passed");
+    // The bundled demo: every pipe is named by or ends at a component, so no
+    // candidate passes; with three loose nodes the search reaches its cap.
+    const demo = await loadPreviewModel();
+    const none = await reconnectOperationExample(demo);
+    expect(none).toMatchObject({ omitted_reason: "no valid reconnect found among the 24 candidates of this model", candidates_checked: 24 });
+    for (const id of ["node:X-1", "node:X-2", "node:X-3"]) demo.nodes.push({ ...demo.nodes[0], id, label: id });
+    const capped = await reconnectOperationExample(demo);
+    expect(capped).toMatchObject({ omitted_reason: `no valid reconnect found in the first ${RECONNECT_EXAMPLE_CANDIDATE_CAP} candidates`, candidates_checked: 32 });
   });
 });
