@@ -74,7 +74,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > |---|---|
 > | Public repository boundary | Public artifacts may describe schemas, sandbox behavior, invented examples, and tests. They must not embed protected standards text, tables, proprietary formulas, material allowables, SIF/flexibility tables, or owner design-basis content. |
 > | User-owned rule basis | User rule packs may contain private or licensed formulas and values in user-controlled paths. Public deliverables only define the safe evaluation boundary. |
-> | Determinism | Future implementation must produce repeatable results and diagnostics for the same inputs, units, evaluator version, and rule-pack content. Exact numerical tolerances remain TBD. |
+> | Determinism | The implementation must produce repeatable results and diagnostics for the same inputs, units, evaluator version, and rule-pack content. Exact numerical tolerances remain TBD. |
 > | Diagnostics | Future outputs should use result-envelope diagnostics with code, class, severity, source, affected object, message, remediation, and provenance where applicable. |
 > | Plugin and adapter boundary | Adapters and plugins must not bypass sandboxing, unit validation, provenance checks, diagnostics, or public/private data controls. |
 >
@@ -379,7 +379,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > |---|---|
 > | Unsafe expression and bypass test coverage | Added to `ScopeOfWork.md` (requirements) verification and `ScopeOfWork.md` (procedure) checks. |
 > | Diagnostic-code taxonomy | Retained as `TBD` in `ScopeOfWork.md` (requirements) open decisions. |
-> | Grammar/library decision | Retained as `TBD` and future human architecture decision. |
+> | Grammar/library decision | Ruled by `DEC-022` (frozen in-repo typed expression AST, no text parser; CLM-015); writable text syntax deferred by `DEC-037` (D-02b, Option O-C) behind a named composer-usability trigger. |
 > | Vocabulary normalization | Standardized on evaluator, expression, variable binding, rule-pack check, user-rule checked, and human review boundary. |
 > | Future interface handoff | Recorded as an implementation-stage dependency/proposal rather than a setup implementation step. |
 >

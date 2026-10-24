@@ -105,7 +105,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This deliverable specifies the setup surface for a future nonlinear support regression suite covering active-set, gap, friction, lift-off convergence, and regression cases for OpenPipeStress.
+> This deliverable specifies the contract and evidence basis for the implemented nonlinear support regression suite covering active-set, gap, friction, lift-off convergence, and regression cases for OpenPipeStress.
 >
 > In scope for this setup pass:
 >
@@ -206,7 +206,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Define the operating procedure for producing the future nonlinear support regression suite while preserving the current setup boundary. This procedure is not an implementation runbook for solver code or test files.
+> Define the operating procedure for producing, extending and using the nonlinear support regression suite under an active bounded brief. This procedure is not an implementation runbook for solver code or test files.
 >
 ### CLM-019 — Prerequisites
 
@@ -225,13 +225,13 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > ##### Steps
 >
 > 1. Confirm the working folder is the DEL-09-03 deliverable folder and that writes are deliverable-local.
-> 2. Maintain the `ScopeOfWork.md` describing scope, requirements, guidance, and future execution procedure.
+> 2. Maintain the `ScopeOfWork.md` describing scope, requirements, guidance, and execution procedure.
 > 3. Define future case categories only at the setup level: active-set, gap, friction, lift-off, convergence, and non-convergence behavior.
-> 4. For each future case, require a source/provenance record before implementation. Mark source gaps as `TBD`.
+> 4. For each new case, require a source/provenance record before implementation. Mark source gaps as `TBD`.
 > 5. Do not use protected standards examples, code tables, proprietary commercial software outputs, or vendor data without documented redistribution rights.
 > 6. Defer final numerical convergence tolerances until nonlinear solver evidence is available and reviewed.
 > 7. When implementation is later authorized, create case fixtures and regression tests only in the appropriate validation/test locations named by the decomposition.
-> 8. Validate future tests through unit/schema checks, deterministic reruns, diagnostics/result-envelope review, and protected-content/provenance review.
+> 8. Validate the regression tests through unit/schema checks, deterministic reruns, diagnostics/result-envelope review, and protected-content/provenance review.
 > 9. Report regression outcomes as software-quality evidence only; do not claim code compliance, certification, sealing, approval, or professional reliance (PRD §21.2).
 >
 ### CLM-021 — Verification
@@ -308,9 +308,9 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Nonlinear support behavior is sensitive to solver maturity. A regression suite created too early can freeze incidental behavior instead of intended behavior. This setup therefore records the categories and gates but defers final cases, tolerances, and pass/fail thresholds until the nonlinear active-set solver and diagnostics contract are mature enough to support them.
+> Nonlinear support behavior is sensitive to solver maturity. A regression suite created too early can freeze incidental behavior instead of intended behavior. The original setup therefore recorded the categories and gates and deferred cases, tolerances, and pass/fail thresholds. The suite now holds cases in each required family; scope-specific DEC-046 records govern their adopted thresholds, and unadopted scopes stay deferred until the nonlinear active-set solver and diagnostics contract are mature enough to support them.
 >
-> The suite should distinguish at least these future evidence categories:
+> The suite should distinguish at least these evidence categories:
 >
 > | Category | Setup guidance |
 > |---|---|
@@ -337,7 +337,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Specific regression case definitions are `TBD`. No example model, benchmark file, commercial comparison, or code-derived case is introduced by this setup pass.
+> Regression case definitions are in `validation/benchmarks/nonlinear/src/lib.rs` (`fixture_inventory()`, `assembled_fixture_inventory()` and the multi-support inventories), with source notes in `validation/hand_calcs/nonlinear/`. The original setup pass introduced no example model, benchmark file, commercial comparison, or code-derived case.
 >
 ### CLM-030 — Open Issues
 

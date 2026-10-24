@@ -287,7 +287,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 > - `ScopeOfWork.md` for setup context.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` for semantic lensing, not engineering authority.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` as the approved DAG-006 local mirror/evidence surface.
-> - Future implementation tests and review notes for section assembly, protected-content avoidance, professional-boundary wording, provenance/checksum preservation, deterministic output, and missing-data findings.
+> - Implementation tests (`core/reporting/report_package/tests/container.rs`, `tests/test_state_comparison_handoff_report_sections.py`, `apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts`, `apps/desktop/src/features/report/reportPackageRequest.test.ts`) and review notes for section assembly, protected-content avoidance, professional-boundary wording, provenance/checksum preservation, deterministic output, and missing-data findings.
 >
 ### CLM-024 — D-41 R5 T4 persisted-run procedure
 
@@ -340,7 +340,7 @@ Desktop report-package request (current, after B7b). `apps/desktop/src/features/
 > ##### Considerations
 >
 > - The report generator, audit manifest, warnings/provenance sections, result export, protected-content linter, private redaction/export controls, state/run records, comparison records, handoff package records, export workflow records, and external-prover metadata are all upstream evidence surfaces in `Dependencies.csv`. This setup pass preserves those edges as ACTIVE and does not reclassify them.
-> - ASSUMPTION: the future implementation should assemble sections from schema-first records rather than from unstructured text scraping. This follows the architecture-basis injection and `docs/SPEC.md` section 9, with current assembly interfaces in `core/reporting/report_package/src/lib.rs`; missing end-to-end evidence remains explicit.
+> - ASSUMPTION: the implementation should assemble sections from schema-first records rather than from unstructured text scraping. This follows the architecture-basis injection and `docs/SPEC.md` section 9, with current assembly interfaces in `core/reporting/report_package/src/lib.rs`; missing end-to-end evidence remains explicit.
 > - Any comparison wording should remain diagnostic/audit-oriented. A deterministic comparison can show changes and deltas; it does not prove external validation or acceptance.
 > - Any handoff wording should expose target mapping metadata and unsupported-target flags when available. It should not imply that a downstream external tool or human has approved the model.
 > - Boundary notices should be stable enough for tests, but exact wording remains TBD until the professional-claims policy deliverable and report templates are accepted.

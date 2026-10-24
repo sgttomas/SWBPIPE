@@ -78,7 +78,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, add hand-calculation formulas, choose final numerical tolerances, import external examples, or move anything to `ISSUED`.
+> The original setup kit defined the benchmark-suite boundary only. It did not create benchmark source files, implement tests, add hand-calculation formulas, choose final numerical tolerances, import external examples, or move anything to `ISSUED`; the suite now exists in `validation/benchmarks/stress`.
 >
 > Future benchmark cases are expected to be small, deterministic, synthetic or cleared, unit-aware, and traceable to public/original/permissive source material. Missing source, unit, convention, or tolerance information must remain explicit `TBD` rather than becoming a silent default.
 >
@@ -106,7 +106,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > | Which provenance checklist is mandatory before adding public benchmark source files? | `TBD` |
 > | Which exact file layout under `validation/benchmarks/stress` is authorized for implementation? | Current fixture/crate organization is recorded by `validation/benchmarks/stress/README.md` and its crate. Source eligibility, final tolerances and engineering acceptance remain separate. |
 >
-> PDU-039 current evidence: one complete invented benchmark output is validated in-memory by `open_pipe_stress_result_export`; six stress values preserve diagnostics, trace, units, deterministic hashes, and human-review boundaries. DEC-026's measured analytic relative seed is governed; unmeasured per-kind relative+absolute pairs and release/validation outcomes remain `TBD`.
+> PDU-039 current evidence: one complete invented benchmark output is validated in-memory by `open_pipe_stress_result_export`; four stress values (axial-normal, bending-normal-y, bending-normal-z, torsional-shear) preserve diagnostics, trace, units, deterministic hashes, and human-review boundaries. DEC-026's measured analytic relative seed is governed; unmeasured per-kind relative+absolute pairs and release/validation outcomes remain `TBD`.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -123,7 +123,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This deliverable specifies setup evidence for a future stress recovery benchmark suite. It covers benchmark planning for axial, bending, torsion, pressure, and stress range behavior under the public/open-mechanics verification boundary.
+> This deliverable specifies the contract and evidence basis for the stress recovery benchmark suite in `validation/benchmarks/stress`. Its required coverage remains axial, bending, torsion, pressure, and stress range behavior under the public/open-mechanics verification boundary; implemented fixture coverage is recorded in the suite's fixture inventory.
 >
 > The original setup pass does not implement tests, create benchmark source files, edit repository-level validation folders, introduce protected standards content, copy code formulas, encode code stress equations, select final numerical tolerances, or claim engineering compliance.
 >
@@ -183,7 +183,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### D-41 R5 T4 PDU-039 governed-envelope evidence
 >
-> `governed_complete_stress_result_envelope()` routes the existing complete rights-safe stress-recovery output through the DEL-08-04 governed result-export types and validator. Six stress components carry explicit Pa/stress metadata, recovery-to-result trace links, deterministic fixture hashes, an evidence-only diagnostic, `MECHANICS_SOLVED`, `HUMAN_REVIEW_REQUIRED`, and the default no-authority professional boundary. Passing this conformance check is verification, not engineering validation or release readiness.
+> `governed_complete_stress_result_envelope()` routes the existing complete rights-safe stress-recovery output through the DEL-08-04 governed result-export types and validator. Four stress components (axial-normal, bending-normal-y, bending-normal-z, torsional-shear) carry explicit Pa/stress metadata, recovery-to-result trace links, deterministic fixture hashes, an evidence-only diagnostic, `MECHANICS_SOLVED`, `HUMAN_REVIEW_REQUIRED`, and the default no-authority professional boundary. Passing this conformance check is verification, not engineering validation or release readiness.
 
 - **AC-001** — The contract preserves public/original/permissive provenance, unit and sign conventions, diagnostics and governed result-envelope evidence, DEC-026's measured analytic relative seed, and explicit unmeasured per-kind relative-plus-absolute TBDs; fatigue acceptance remains out of scope. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -202,7 +202,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Define the operating procedure for producing the future stress recovery benchmark suite after implementation work is authorized. This procedure is setup-level only and does not create benchmark files, implement tests, or set final numerical tolerances.
+> Define the operating procedure for producing, extending and using the stress recovery benchmark suite under an active bounded brief. The procedure does not itself set final numerical tolerances.
 >
 ### CLM-021 — Prerequisites
 
@@ -272,7 +272,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This setup deliverable prepares a verification surface for stress recovery behavior without creating benchmark source files or deciding engineering acceptance values. Its value is to make the required coverage, data boundary, unit boundary, and future evidence records explicit before implementation work begins.
+> The original setup pass prepared this verification surface without creating benchmark source files; the suite now exists in `validation/benchmarks/stress`. The deliverable does not decide engineering acceptance values. Its value is to keep the required coverage, data boundary, unit boundary, and evidence records explicit.
 >
 ### CLM-028 — Principles
 
@@ -289,7 +289,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Considerations
 >
-> Future benchmark definitions should separate three concerns:
+> Benchmark definitions, current and new, should separate these concerns:
 >
 > | Concern | Guidance |
 > |---|---|
