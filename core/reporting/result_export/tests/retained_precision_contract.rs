@@ -5322,20 +5322,21 @@ const FILE_BASE: &str = "<file>";
 /// Lane P's m3x exact successors (B3b-P; PP retained_facade_tests.rs `EXACT_PINNED`): base
 /// name, its S-1 shape's base, the document text, its sha256 and the receipt sha256. Every
 /// shape is also read on each.
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes and the hashes binding them).
 const M3X: [(&str, &str, &str, &str, &str); 2] = [
     (
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82",
-        "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531",
+        "7ce37436665a61677edf2de3f6c95a3ff8f513285814c21de89df82ce3558fd4",
+        "a24b05601d7524d27e26da8762ab639ecb1798cf452bca25adc33b4cf18ff4b8",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535",
-        "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc",
+        "2471ee1bf7b46a612883464caec7483a9cfecb08da439be65e7b184de51f516b",
+        "2feffea994cad251b1827d38bb6d408bb72b108c2a640275b19db661afc90c96",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5609,7 +5610,9 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// the invocation digests and the hashes binding them, so all eight moved again (N2b were
 /// 18d1f483... and f4510746...; N2 f8c1359b... and 4d667a78...; F2 3a493409..., 09d19623...,
 /// 29993a70... and 1a907970...); RV120's inputs were re-derived the same way.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["b70082f2ec110cb82f2c46294f59ba9fe9902d8c7c6a86ceb5de41dc08037c27", "e2aac985479b3b7901e546e9cbb70c1301d2cbd64f5128f291c8c6488f1582f1"];
+/// W-15 (DEL-03-05) restated the pressure-2 identity limitation of the exact bases, moving the
+/// hashes binding it (N2b were b70082f2... and e2aac985...); RV120's inputs were re-derived the same way.
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["927641bcc2ed704922da05fa77526d2b5bab77cdb76c065afed5e343586e3683", "2fced73e35246c7ed88e4027823b0734dbd7e62ebaa8d6b356b9402dc99c8d60"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
 const RV120_N2_INPUTS: [&str; 2] = ["fab66d1ab53dc09e88efb3fc42ea9ecd37eea95c5b5df4345b7fbab30bd692b3", "c4f6dda5433102cf9fb579e723817767e719f6b38b35dda493d2e75035339996"];
 fn sha256_canonical(v: &Value) -> String {

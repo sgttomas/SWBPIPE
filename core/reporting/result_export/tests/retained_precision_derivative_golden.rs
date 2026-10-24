@@ -74,24 +74,25 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
 /// O4 (W1-E): re-pinned with the exact goldens after DEF-E's revision (only DEF-E-bound hashes moved).
 /// O4 limitation re-pin (§3.3, §4.9): the base limitation [7] and the hashes binding it moved.
+/// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation and the hashes binding it.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82",
-        "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531",
+        "7ce37436665a61677edf2de3f6c95a3ff8f513285814c21de89df82ce3558fd4",
+        "a24b05601d7524d27e26da8762ab639ecb1798cf452bca25adc33b4cf18ff4b8",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535",
-        "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc",
+        "2471ee1bf7b46a612883464caec7483a9cfecb08da439be65e7b184de51f516b",
+        "2feffea994cad251b1827d38bb6d408bb72b108c2a640275b19db661afc90c96",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "cf2fbdf7e74be32cfd0cd5427d652098584303125e5bf401a3888a67267d1189"),
-    ("dense_scrutiny", "5cb6cd3e390bdd56fe8f1944e8ab71c8548ec834867bdfa23cd7ad0f1554e201"),
+    ("sparse_interactive", "dc3143e9ba3ebed267738a9439acc08c23e414ce5bd3b53c29385363c772b165"),
+    ("dense_scrutiny", "229f21121658a17c853bf0eff2881bb37c3112a9f9e408bba9c5be7ab9a5b599"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

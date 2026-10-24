@@ -2566,9 +2566,10 @@ fn b3b_witness_inputs_and_routes() {
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] restated; against
 /// the DEF-E re-pin only that string and the hashes that bind it differ
 /// (`o4_text_only_envelope_diff`).
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531", "308b77b6da5442455ae6e6361b6823fbcb670b8f122f6c71088c959c2d82dd58", "08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82"),
-    ("dense_scrutiny", "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc", "ae056ff10ca129a583b42de4e51d30a91be7559fa9923889f96bbe4822cc3be4", "04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535"),
+    ("sparse_interactive", "a24b05601d7524d27e26da8762ab639ecb1798cf452bca25adc33b4cf18ff4b8", "8a1a01533cb579c226d2415b143fccf247ed2d8aa0056dd4c845d170fbe78557", "7ce37436665a61677edf2de3f6c95a3ff8f513285814c21de89df82ce3558fd4"),
+    ("dense_scrutiny", "2feffea994cad251b1827d38bb6d408bb72b108c2a640275b19db661afc90c96", "6075bb378e33ad7975b84481ed81c2e47c3e2ebe0c93cbdedc6c20b10d5cddfb", "2471ee1bf7b46a612883464caec7483a9cfecb08da439be65e7b184de51f516b"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2580,7 +2581,8 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "8dba39ccb81324e75208b082c971e2c3ea438562201d47f2f45ff0632e532c58", "f75026b029e4ea4a2f1ee7b8737730e6af0b3ef031f0658e80557600d321c670"),("dense_scrutiny", "e08cb8f49ababb3e0d368135aeafb79f4b09a8d582360ddbf14467ef2d892a32", "a49bd115eb1f203b124877e14c3110a3b54c77d129852b2c71672f36913fa57d")];
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "a75d4fe99978b32d12e0cb299781a80e648c9812b245e29850ebb676ef1110a9", "6dadb31e49dbec9ac405c80510e61a28ce3bf6f0b9ef778f8f132c710fb780ec"),("dense_scrutiny", "cf6b068335fe5e576b040a76b04a1a27bed01d5a08ee0de71ec659cd920e6d1f", "4041ae6e2f3284c079e85d416a63aa9aaa0d234a224eee3f02239b32298ae13f")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3610,11 +3612,12 @@ fn two_member_exact(reversed: bool) -> Value {
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "6fc34f1f97ac95dd858e2aa7c89c598b541133f56e8304939d014fd0bfc0a549"),
-    (false, "dense_scrutiny", "f2f0d7cb052cb3076e702e2d41e22c7e62f46c1ae8c5593455d4f7f54b2ecaf1"),
-    (true, "sparse_interactive", "23c750e388b4638217bf7629b68be65934f35b4f6650e74dad3df3ead8513958"),
-    (true, "dense_scrutiny", "bf4a92e0831b10294ed9b1120c1b14ad3fcf97a1da188801251c603eafe52641")];
+    (false, "sparse_interactive", "a0c427eee3c6405ab9a15bb753eb1f85f084cb86b5eaea3167325cae645d9b0d"),
+    (false, "dense_scrutiny", "3f95dbec205b7043fd32465f371488c6a53068952a96887c3a4c90d35e0b74c1"),
+    (true, "sparse_interactive", "a670cef691130226caf9978db9e5aea0f57eef69f927db596ad7f900e20b88a3"),
+    (true, "dense_scrutiny", "fe2bc8bed41d00f2526650fca1735502f2f524da0b6e35f45230567bd340b5ee")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3661,8 +3664,9 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "bd786b2176f855fcdb6ae367f9f98d6de8288af7db196877ffc76a4fbf3ab654"),
-    ("dense_scrutiny", "97c00e0a66f12eee02040448c1c9a9df8ab4cb3f257fcd2b79a90d96db0173e0")];
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "5c39f95b71d0609d9d60a5a23a363a4aabfa650d740d404e1f654a8b53ef58ce"),
+    ("dense_scrutiny", "8c4409bec1fcdc59ad9522e1fff4530a620f6be9c7210a955dbcbf201f3086db")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

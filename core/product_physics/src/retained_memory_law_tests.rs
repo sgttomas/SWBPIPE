@@ -424,8 +424,13 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited for model 0.7.0 (W-13 S1b): only the inspected production's
             // current_header v2 re-author text changed its model version token (0.6.0 -> 0.7.0,
             // same length); the closed `b7b_current_table_tests` module and E14 are byte-identical.
+            // Re-audited for W-15 slice d (DEL-03-05): only the inspected production's
+            // `rule_binding_refusal` gains its first check (a row carrying `component_body` is
+            // refused with COMPONENT_BODY_REFERENCE_SECTION, two crate constants, seven lines);
+            // no include, path module or static entered, and the closed `b7b_current_table_tests`
+            // module and E14 are byte-identical.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "74987097d004fdafcc3e1c7307258427afb82e8a1a9e19fa6e13cb264d2eea9d",
+            complete_suffix_sha256: "622876384dd4a3720fd2d2285f15bdff112083132fa51c0926245c89e4e0f608",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
