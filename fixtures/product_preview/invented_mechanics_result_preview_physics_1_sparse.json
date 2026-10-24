@@ -163,13 +163,14 @@
       ]
     },
     {
-      "id": "diagnostic:component:component-C-130:rigid-review",
-      "code": "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+      "id": "diagnostic:component:component-C-130:rigid-scaling-applied",
+      "code": "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED",
       "severity": "info",
-      "message": "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied",
+      "message": "rigid/semi-rigid component component:C-130 applies its user-entered stiffness scale 15 to mapped member pipe:P-130 under DEC-045 mechanics_geometry_only: the member is solved with the scaled moduli s*E and s*G on its pipe section; its published stress rows are those of the mapped pipe section, a reference section under the body's forces, not a stress of the component body; linear and rotational stiffness values, where supplied, are recorded and not applied; no protected or default component value is supplied",
       "source": "core/product_physics",
       "affected_refs": [
-        "component:C-130"
+        "component:C-130",
+        "pipe:P-130"
       ]
     }
   ],
