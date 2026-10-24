@@ -223,9 +223,12 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Hi
     findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
   }
   // The record validator's recorded form: the state ref, the manifest's hash and
-  // project, its model payload against the state's model hash, the references.
+  // project, its model payload against the state's model hash, and every member the
+  // stored manifest fixes (solver, settings, units, load basis, references), all
+  // derived from the manifest. No basis is passed: the record's own list is never
+  // its warrant.
   if (currentRecord && mechanicsResult && record && manifest) {
-    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, record.load_basis_refs, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }); }
+    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, undefined, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }); }
     catch (error) {
       const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
       if (!findings.includes(finding)) findings.push(finding);

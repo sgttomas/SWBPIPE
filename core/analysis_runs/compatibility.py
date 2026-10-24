@@ -14,6 +14,7 @@ from __future__ import annotations
 from copy import deepcopy
 from pathlib import Path
 import json
+import re
 from typing import Any, Callable, Mapping
 
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
@@ -249,28 +250,59 @@ def recorded_revision(transient: Mapping[str, Any], *, state_id: str, created_at
     return record
 
 
+def _safe_token(value: str) -> str:
+    """`inputManifestService.ts`'s `safeToken`."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip("-") or "current-session"
+
+
+def manifest_load_basis_refs(input_manifest: Mapping[str, Any]) -> list[dict[str, str]]:
+    """The recorded form's load basis: the stored manifest's load cases, then its combinations."""
+    basis = input_manifest.get("load_basis", {})
+    return ([{"object_type": "LoadCase", "ref": case["id"]} for case in basis.get("load_cases", [])]
+            + [{"object_type": "Combination", "ref": combination["id"]} for combination in basis.get("combinations", [])])
+
+
+def manifest_fixed_members(input_manifest: Mapping[str, Any]) -> list[tuple[str, str, Any, str]]:
+    """Every record member the stored input manifest fixes, derived from the manifest (never
+    from the record), as (section, member, expected, refusal code); mirrors the TypeScript
+    `manifestFixedMembers`."""
+    sha = canonical_sha256_checked_v1(input_manifest)
+    model_ref = input_manifest["model_basis"]["model_ref"]
+    manifest_ref = {"object_type": "InputManifest", "ref": f"input-manifest:{_safe_token(model_ref)}:{sha}"}
+    solver = input_manifest["solver_basis"]
+    return [
+        ("reproducibility", "input_manifest_refs", [manifest_ref], "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH"),
+        ("reproducibility", "input_manifest_hashes", [{"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_ref": manifest_ref, "payload_scope": "input_manifest", "value": sha}], "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH"),
+        ("run", "solver_version", {"solver_name": solver["solver_name"], "solver_version": solver["solver_version"], "build_ref": {"object_type": "ExternalReference", "ref": solver["solver_build_ref"]}}, "ANALYSIS_RECORDED_SOLVER_MISMATCH"),
+        ("run", "settings_ref", {"object_type": "SolverSettings", "ref": f"solver-settings:{manifest_ref['ref']}:{sha}"}, "ANALYSIS_RECORDED_SETTINGS_MISMATCH"),
+        ("run", "unit_system_ref", {"object_type": "UnitSystem", "ref": f"unit-system:{model_ref}:{sha}"}, "ANALYSIS_RECORDED_UNITS_MISMATCH"),
+        ("run", "load_basis_refs", manifest_load_basis_refs(input_manifest), "ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH"),
+        ("run", "rule_pack_refs", recorded_rule_pack_refs(input_manifest), "ANALYSIS_RECORDED_REFERENCES_MISMATCH"),
+        ("run", "library_refs", recorded_library_refs(input_manifest["model_basis"]["model_payload"]), "ANALYSIS_RECORDED_REFERENCES_MISMATCH"),
+    ]
+
+
 def _validate_recorded_binding(run: Mapping[str, Any], source: Mapping[str, Any], recorded_state: Mapping[str, Any]) -> None:
     """A recorded revision's binding to its stored state (as the TypeScript validator's):
     its ref names the state; its `created_at` is set and the `created_at_unavailable` note is
-    gone; the stored input manifest hashes to the record's `input_manifest_hashes[0]` (JCS:
-    the checked profile's canonical text is JCS for the values it admits), is the source's
-    project's, and its model payload hashes to the state's model hash; its rule-pack and
-    library references are the manifest's."""
+    gone; the stored input manifest is the source's project's and its model payload hashes to
+    the state's model hash; and every member the manifest fixes is the manifest's (JCS: the
+    checked profile's canonical text is JCS for the values it admits). Equality is
+    structural: member order is not significant, array order is, extra members differ."""
     if run.get("model_state_ref") != {"object_type": "ModelState", "ref": recorded_state["state_id"]}:
         raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
     reproducibility = run.get("reproducibility", {})
     if not isinstance(run.get("created_at"), str) or not run["created_at"] or CREATED_AT_UNAVAILABLE in reproducibility.get("determinism_notes", []):
         raise ValueError("ANALYSIS_RECORDED_REVISION_TIME_MISSING")
     manifest = recorded_state["input_manifest"]
-    hashes = reproducibility.get("input_manifest_hashes")
-    if not isinstance(hashes, list) or len(hashes) != 1 or hashes[0].get("value") != canonical_sha256_checked_v1(manifest):
-        raise ValueError("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH")
     if manifest.get("model_basis", {}).get("model_ref") != source.get("model_ref"):
         raise ValueError("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH")
     if f"sha256:{canonical_sha256_checked_v1(manifest['model_basis']['model_payload'])}" != recorded_state["model_hash"]:
         raise ValueError("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH")
-    if run.get("rule_pack_refs") != recorded_rule_pack_refs(manifest) or run.get("library_refs") != recorded_library_refs(manifest["model_basis"]["model_payload"]):
-        raise ValueError("ANALYSIS_RECORDED_REFERENCES_MISMATCH")
+    for section, member, expected, code in manifest_fixed_members(manifest):
+        holder = reproducibility if section == "reproducibility" else run
+        if member not in holder or holder[member] != expected:
+            raise ValueError(code)
 
 
 def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> str:
@@ -594,6 +626,14 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     if contract_id not in CURRENT_RECORD_CONTRACT_IDS or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run = envelope.get("analysis_run", {})
+    # The recorded form (W-12 S2): every member the stored manifest fixes is checked first,
+    # against the manifest; its load basis is the manifest's, never a caller's or the record's.
+    if recorded_state is not None:
+        _validate_recorded_binding(run, source, recorded_state)
+        manifest_basis = manifest_load_basis_refs(recorded_state["input_manifest"])
+        if expected_basis_refs is not None and list(expected_basis_refs) != manifest_basis:
+            raise ValueError("ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH")
+        expected_basis_refs = manifest_basis
     if contract_id in SOURCE_RECORD_CONTRACT_IDS:
         if not _same_canonical(run.get("source_block_recovery"), source["source_block_recovery"]):
             raise ValueError("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH")
@@ -625,9 +665,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     solver = run.get("solver_version", {})
     if solver.get("solver_name") != source["producer"]["component_name"] or solver.get("solver_version") != source["producer"]["component_version"]:
         raise ValueError("ANALYSIS_SOURCE_PRODUCER_MISMATCH")
-    if recorded_state is not None:
-        _validate_recorded_binding(run, source, recorded_state)
-    elif run.get("model_state_ref") != transient_model_state_ref(source.get("model_ref")):
+    if recorded_state is None and run.get("model_state_ref") != transient_model_state_ref(source.get("model_ref")):
         raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
     if run.get("run_id") != source.get("run_id"):
         raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")

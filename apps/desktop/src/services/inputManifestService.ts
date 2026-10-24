@@ -271,6 +271,7 @@ function safeToken(value: string): string {
   );
 }
 
-function inputManifestRef(modelRef: string, digest: string): string {
+/** The input manifest's ref (`input-manifest:<safe model ref>:<sha256>`); the native store derives the same. */
+export function inputManifestRef(modelRef: string, digest: string): string {
   return `input-manifest:${safeToken(modelRef)}:${digest}`;
 }

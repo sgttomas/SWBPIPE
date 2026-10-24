@@ -9,6 +9,8 @@ import type { AnalysisRunRead } from "../../services/analysisRunService";
 import type { ModelStateSummary } from "../../services/modelStateService";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope } from "../../types";
 import { buildHistoricalRunContext, buildRecordedRunContext, recordedRunBindingFindings } from "./HistoricalRunContext";
+import { analysisRecordProjection } from "../../services/analysisRunCompatibility";
+import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 
 const root = resolve(__dirname, "../../../../../");
 const text = (path: string) => readFileSync(resolve(root, path), "utf8");
@@ -76,6 +78,20 @@ describe("a recorded run's context", () => {
     const transient = read();
     transient.record = structuredClone(input.run_record);
     expect(recordedRunBindingFindings(await buildRecordedRunContext(transient))).toContain("HISTORICAL_MODEL_STATE_REF_MISMATCH");
+  });
+
+  it("flags a coherently resealed record that contradicts its stored manifest (Codex r1's mutation)", async () => {
+    const forged = read();
+    const run = forged.record.analysis_run;
+    run.settings_ref = { object_type: "SolverSettings", ref: "solver-settings:other" };
+    run.solver_version!.build_ref = { object_type: "ExternalReference", ref: "other-solver@9" };
+    run.load_basis_refs.push({ object_type: "LoadCase", ref: "LC-ABSENT" });
+    const claim = run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!;
+    claim.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(forged.record));
+    forged.run = { ...forged.run, run_record_hash: claim.value };
+    const findings = recordedRunBindingFindings(await buildRecordedRunContext(forged));
+    expect(findings).not.toEqual([]);
+    expect(findings).toContain("ANALYSIS_RECORDED_SOLVER_MISMATCH");
   });
 
   it("a saved project row still flags any ref other than the synthetic one", async () => {

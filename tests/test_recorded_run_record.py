@@ -129,3 +129,70 @@ def test_rule_pack_and_library_refs_follow_the_manifest() -> None:
     astral = {"a": {"provenance_record": {"library_ref": {"library_kind": "k", "library_id": "\U0001F600"}}},
               "b": {"provenance_record": {"library_ref": {"library_kind": "k", "library_id": "ｚ"}}}}
     assert [ref["ref"] for ref in recorded_library_refs(astral)] == ["library:k/ｚ", "library:k/\U0001F600"]
+
+
+def _reseal(record: dict) -> dict:
+    claim = next(row for row in record["analysis_run"]["hashes"] if row["payload_scope"] == "analysis_run_record")
+    claim["value"] = canonical_sha256_checked_v1(analysis_record_projection(record))
+    return record
+
+
+def _set(path: tuple, value):
+    def edit(run: dict) -> None:
+        target = run
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+    return edit
+
+
+def _manifest_ref(run: dict) -> None:
+    other = {"object_type": "InputManifest", "ref": "input-manifest:other"}
+    run["reproducibility"]["input_manifest_refs"] = [other]
+    run["reproducibility"]["input_manifest_hashes"][0]["payload_ref"] = dict(other)
+
+
+# Mirrors MANIFEST_CONTRADICTIONS in apps/desktop/src/services/recordedRunParity.test.ts: each
+# edits one member the stored manifest fixes, coherently resealed; the manifest is unchanged.
+MANIFEST_CONTRADICTIONS = [
+    ("settings ref", _set(("settings_ref",), {"object_type": "SolverSettings", "ref": "solver-settings:other"}), "ANALYSIS_RECORDED_SETTINGS_MISMATCH"),
+    ("solver build ref", _set(("solver_version", "build_ref"), {"object_type": "ExternalReference", "ref": "other-solver@9"}), "ANALYSIS_RECORDED_SOLVER_MISMATCH"),
+    ("solver version", _set(("solver_version", "solver_version"), "9.9.9"), "ANALYSIS_RECORDED_SOLVER_MISMATCH"),
+    ("unit-system ref", _set(("unit_system_ref",), {"object_type": "UnitSystem", "ref": "unit-system:other"}), "ANALYSIS_RECORDED_UNITS_MISMATCH"),
+    ("load case absent from the manifest", lambda run: run["load_basis_refs"].append({"object_type": "LoadCase", "ref": "LC-ABSENT"}), "ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH"),
+    ("load case replaced", lambda run: run["load_basis_refs"].__setitem__(0, {"object_type": "Combination", "ref": run["load_basis_refs"][0]["ref"]}), "ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH"),
+    ("rule-pack ref", _set(("rule_pack_refs",), [{"object_type": "RulePack", "ref": "rule-pack:other@1"}]), "ANALYSIS_RECORDED_REFERENCES_MISMATCH"),
+    ("library ref", _set(("library_refs",), [{"object_type": "Library", "ref": "library:material/other"}]), "ANALYSIS_RECORDED_REFERENCES_MISMATCH"),
+    ("input manifest ref", _manifest_ref, "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH"),
+    ("extra member in a ref", lambda run: run["settings_ref"].__setitem__("label", "x"), "ANALYSIS_RECORDED_SETTINGS_MISMATCH"),
+]
+
+
+@pytest.mark.parametrize(("name", "edit", "code"), MANIFEST_CONTRADICTIONS, ids=[case[0] for case in MANIFEST_CONTRADICTIONS])
+def test_a_resealed_contradiction_of_the_stored_manifest_is_refused(name, edit, code) -> None:
+    record = deepcopy(WITNESS["recorded_record"])
+    edit(record["analysis_run"])
+    _reseal(record)
+    assert verify_analysis_run_record(record) == "match", name
+    with pytest.raises(ValueError, match=f"^{code}$"):
+        validate_analysis_run_v0_3(record, SOURCE, recorded_state=binding())
+
+
+def test_a_callers_basis_may_not_stand_in_for_the_manifests() -> None:
+    validate_analysis_run_v0_3(WITNESS["recorded_record"], SOURCE, recorded_state=binding())
+    with pytest.raises(ValueError, match="^ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH$"):
+        validate_analysis_run_v0_3(WITNESS["recorded_record"], SOURCE, expected_basis_refs=[{"object_type": "LoadCase", "ref": "LC-ABSENT"}], recorded_state=binding())
+
+
+def test_references_compare_structurally_not_by_member_order() -> None:
+    # Mirrors "compares references structurally" in recordedRunParity.test.ts.
+    record = deepcopy(WITNESS["recorded_record"])
+    run = record["analysis_run"]
+    run["model_state_ref"] = {"ref": run["model_state_ref"]["ref"], "object_type": "ModelState"}
+    run["settings_ref"] = {"ref": run["settings_ref"]["ref"], "object_type": run["settings_ref"]["object_type"]}
+    run["load_basis_refs"] = [{"ref": ref["ref"], "object_type": ref["object_type"]} for ref in run["load_basis_refs"]]
+    build = run["solver_version"]["build_ref"]
+    run["solver_version"] = {"build_ref": {"ref": build["ref"], "object_type": build["object_type"]},
+                             "solver_version": run["solver_version"]["solver_version"], "solver_name": run["solver_version"]["solver_name"]}
+    assert verify_analysis_run_record(record) == "match"
+    validate_analysis_run_v0_3(record, SOURCE, recorded_state=binding())

@@ -8,7 +8,7 @@ import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_c
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
-import type { CurrentSessionInputManifest } from "./inputManifestService";
+import { inputManifestRef, type CurrentSessionInputManifest } from "./inputManifestService";
 
 /** The one current analysis-run version (b7-plan E1). */
 export const ANALYSIS_RUN_V03 = "0.3.0";
@@ -284,21 +284,62 @@ export async function recordedAnalysisRunRevision(transient: AnalysisRunEnvelope
   return record;
 }
 
+/** Structural JSON equality: object member order is not significant, array order is,
+ * and an extra or missing member is a difference (as Rust's and Python's equality). */
+export function structurallyEqual(left: unknown, right: unknown): boolean {
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((item, index) => structurallyEqual(item, right[index]));
+  }
+  if (left && right && typeof left === "object" && typeof right === "object") {
+    const a = left as Record<string, unknown>, b = right as Record<string, unknown>;
+    const keys = Object.keys(a);
+    return keys.length === Object.keys(b).length && keys.every((key) => Object.hasOwn(b, key) && structurallyEqual(a[key], b[key]));
+  }
+  return Object.is(left, right) || (typeof left === "number" && left === right);
+}
+
+/** The recorded form's load basis: the stored manifest's load cases, then its combinations. */
+export function manifestLoadBasisRefs(manifest: Pick<CurrentSessionInputManifest, "load_basis">): ObjectRef[] {
+  return [
+    ...manifest.load_basis.load_cases.map((loadCase) => ({ object_type: "LoadCase", ref: loadCase.id })),
+    ...(manifest.load_basis.combinations ?? []).map((combination) => ({ object_type: "Combination", ref: combination.id }))
+  ];
+}
+
+/** Every record member the stored input manifest fixes, derived from the manifest (never
+ * from the record), with the refusal each difference gets: the manifest's ref and checksum,
+ * the solver identity and build ref, the settings and unit-system refs, the load basis,
+ * and the rule-pack and library references. */
+export async function manifestFixedMembers(manifest: CurrentSessionInputManifest): Promise<Array<{ member: keyof AnalysisRunEnvelope["analysis_run"] | "input_manifest_refs" | "input_manifest_hashes"; expected: unknown; code: string }>> {
+  const sha = await canonicalSha256Hex(manifest);
+  const modelRef = manifest.model_basis.model_ref;
+  const manifestRef = { object_type: "InputManifest", ref: inputManifestRef(modelRef, sha) };
+  return [
+    { member: "input_manifest_refs", expected: [manifestRef], code: "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH" },
+    { member: "input_manifest_hashes", expected: [{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: manifestRef, payload_scope: "input_manifest", value: sha }], code: "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH" },
+    { member: "solver_version", expected: { solver_name: manifest.solver_basis.solver_name, solver_version: manifest.solver_basis.solver_version, build_ref: { object_type: "ExternalReference", ref: manifest.solver_basis.solver_build_ref } }, code: "ANALYSIS_RECORDED_SOLVER_MISMATCH" },
+    { member: "settings_ref", expected: { object_type: "SolverSettings", ref: `solver-settings:${manifestRef.ref}:${sha}` }, code: "ANALYSIS_RECORDED_SETTINGS_MISMATCH" },
+    { member: "unit_system_ref", expected: { object_type: "UnitSystem", ref: `unit-system:${modelRef}:${sha}` }, code: "ANALYSIS_RECORDED_UNITS_MISMATCH" },
+    { member: "load_basis_refs", expected: manifestLoadBasisRefs(manifest), code: "ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH" },
+    { member: "rule_pack_refs", expected: recordedRulePackRefs(manifest), code: "ANALYSIS_RECORDED_REFERENCES_MISMATCH" },
+    { member: "library_refs", expected: recordedLibraryRefs(manifest.model_basis.model_payload), code: "ANALYSIS_RECORDED_REFERENCES_MISMATCH" }
+  ];
+}
+
 /** A recorded revision's binding to its stored state: its ref names the state; its
  * `created_at` is set and the `created_at_unavailable` note is gone; the stored manifest
- * hashes to the record's `input_manifest_hashes[0]`, is the source's project's, and its
- * model payload hashes to the state's model hash; its rule-pack and library references
- * are the manifest's. */
+ * is the source's project's and its model payload hashes to the state's model hash; and
+ * every member the manifest fixes is the manifest's. */
 async function validateRecordedBinding(record: AnalysisRunEnvelope, source: MechanicsResult, binding: RecordedStateBinding): Promise<void> {
   const run = record.analysis_run;
-  if (run.model_state_ref?.object_type !== "ModelState" || run.model_state_ref.ref !== binding.stateId || Object.keys(run.model_state_ref).length !== 2) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
+  if (!structurallyEqual(run.model_state_ref, { object_type: "ModelState", ref: binding.stateId })) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
   if (typeof run.created_at !== "string" || !run.created_at || run.reproducibility.determinism_notes?.includes(CREATED_AT_UNAVAILABLE)) throw new Error("ANALYSIS_RECORDED_REVISION_TIME_MISSING");
-  const manifestHashes = run.reproducibility.input_manifest_hashes;
-  if (!Array.isArray(manifestHashes) || manifestHashes.length !== 1 || manifestHashes[0].value !== await canonicalSha256Hex(binding.inputManifest)) throw new Error("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH");
   if (binding.inputManifest.model_basis?.model_ref !== source.model_ref) throw new Error("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH");
   if (`sha256:${await canonicalSha256Hex(binding.inputManifest.model_basis.model_payload)}` !== binding.modelHash) throw new Error("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH");
-  const sameRefs = (left: unknown, right: ObjectRef[]) => JSON.stringify(left) === JSON.stringify(right);
-  if (!sameRefs(run.rule_pack_refs, recordedRulePackRefs(binding.inputManifest)) || !sameRefs(run.library_refs, recordedLibraryRefs(binding.inputManifest.model_basis.model_payload))) throw new Error("ANALYSIS_RECORDED_REFERENCES_MISMATCH");
+  for (const { member, expected, code } of await manifestFixedMembers(binding.inputManifest)) {
+    const actual = member === "input_manifest_refs" || member === "input_manifest_hashes" ? run.reproducibility?.[member] : run[member];
+    if (!structurallyEqual(actual, expected)) throw new Error(code);
+  }
 }
 
 /** Source interpretation validation is distinct from checksum verification and producer authentication.
@@ -316,6 +357,14 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (sourceContract(source) === "pressure") readerValidate("pressure", source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
+  // The recorded form (W-12 S2): every member the stored manifest fixes is checked first,
+  // against the manifest; its load basis is the manifest's, never a caller's or the record's.
+  if (recordedState) {
+    await validateRecordedBinding(record, source, recordedState);
+    const manifestBasis = manifestLoadBasisRefs(recordedState.inputManifest);
+    if (expectedBasisRefs !== undefined && !structurallyEqual(expectedBasisRefs, manifestBasis)) throw new Error("ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH");
+    expectedBasisRefs = manifestBasis;
+  }
   if (sourceContract(source) === "pressure_source") {
     await validateRetainedRecoverySource(source);
     if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
@@ -336,8 +385,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (!same(run.load_basis_refs, expectedLoadBasis(source, expectedBasisRefs))) throw new Error("ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH");
   if (run.solver_version?.solver_name !== source.producer!.component_name || run.solver_version?.solver_version !== source.producer!.component_version) throw new Error("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
   if (run.run_id !== source.run_id) throw new Error("ANALYSIS_SOURCE_RUN_MISMATCH");
-  if (recordedState) await validateRecordedBinding(record, source, recordedState);
-  else if (!same(run.model_state_ref, transientModelStateRef(source.model_ref))) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
+  if (!recordedState && !same(run.model_state_ref, transientModelStateRef(source.model_ref))) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
   const contract = sourceSemanticBinding(source);
   if (!same(run.reproducibility.semantic_contract, contract)) throw new Error("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
   const checksum = async (scope: string, ref: ObjectRef, value: unknown) => ({algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: ref, payload_scope: scope, value: await canonicalSha256HexCheckedV1(value)});
