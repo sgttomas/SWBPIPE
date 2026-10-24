@@ -335,7 +335,8 @@ third vocabulary:
 `library_ref` records the local library and record an entity was inserted from.
 - It matches the store's key `(project_id, library_kind, library_id)`
   (`src-tauri/src/lib.rs:875-885`).
-- The desktop sets it when it inserts a library record (S2).
+- The desktop sets it when it inserts or applies a library record (W-17,
+  DEL-03-01 Design `apply-library-records.md`; built in S2b).
 - It is the source of the handoff manifest's `library_refs` (W-6b).
 - `library_version` = "sha256:" + the SHA-256 of the inserted record's RFC 8785
   (JCS) form.
@@ -347,12 +348,31 @@ third vocabulary:
     from `library_version`.
 
   The recorded version is never silently updated.
-- **E/ν route** (W-17 design, DEL-03-01; HELP_HUMAN ruling, 2026-10-23). An
-  isotropic material record with E and ν but no G derives G = E / (2(1+ν)). The
-  `provenance_record` records that G was derived and from what. A stored G is
-  used and never overwritten. This is numerical meaning, so it gets targeted
-  regression tests and independent scrutiny.
-- The library payload never enters the document.
+- **E/ν rule** (HELP_HUMAN ruling, 2026-10-23: "the inserted material carries
+  E, ν and G. G is either stored (copied) or derived as G = E/(2(1+ν)), and
+  `provenance_record` states which, naming the basis 'derived from E and ν
+  (isotropic)'. Never derive G when the record already stores one, and never
+  discard ν."). As reconciled in W-17 §2.3a:
+  - **E/ν mode** writes E, ν (unit `1`), G and
+    `constitutive_basis: homogeneous_isotropic_E_nu_v1`, the only form the
+    material validators accept for a material carrying ν. G is the record's
+    stored G, copied bit for bit, or derived in Pa exactly as the exact route
+    derives it (E normalized to Pa, then E/(2(1+ν)); W-17 §2.3a), so the two
+    are bit-identical; `verification_note` says which and, when derived,
+    names the E and ν slots and values it came from.
+  - **E/G mode** writes E and G with no basis, and is refused when the record
+    or the target material holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`).
+  - A record that stores G or ν in a slot that cannot be copied refuses,
+    naming the slot; G is never derived in place of a stored G.
+  - **Solve routes.** On the exact route the solver derives G from the
+    selected E/ν pair and ignores the retained G with
+    `EXACT_PRESSURE_REDUNDANT_G_IGNORED` (`pressure_material.rs`); on the
+    pressure-free route the stored G is the stiffness G. A derived G is the
+    same G on both routes; a stored G that differs from E/(2(1+ν)) is not. This is numerical meaning, so it has targeted
+    regression tests (applier `tests/library_apply.rs`).
+- No library metadata or record snapshot enters the document; only the
+  mapped values the user applies (with their units), the combined
+  `provenance_record` and `library_ref` do.
 
 - **Field names and enums** are the library import's
   (`REQUIRED_PROVENANCE_FIELDS`, `library_import_document/src/lib.rs:25`).

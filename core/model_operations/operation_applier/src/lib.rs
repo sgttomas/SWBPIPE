@@ -25,6 +25,7 @@ mod boundary_association;
 mod display_units;
 pub mod document_validator;
 mod geometry_operations;
+mod library_apply;
 mod model_data_authoring;
 mod pipe_reconnect;
 mod rich_authoring;
@@ -40,6 +41,7 @@ mod section_bindings;
 mod b7b_transport_tests;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
+pub use library_apply::derived_shear_modulus_pa;
 pub use document_validator::{validate_model_document, DocumentDiagnostic};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
@@ -1149,6 +1151,16 @@ mod wasm_api {
         })
     }
 
+    /// W-17 §2.3a: the shear modulus a library insert derives from E and ν,
+    /// as `{"value": <G in Pa>, "unit": "Pa"}`, or `{"error": …}`.
+    #[wasm_bindgen]
+    pub fn derived_shear_modulus_json(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> String {
+        match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
+            Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
+            Err(error) => json!({"error": error}).to_string(),
+        }
+    }
+
     /// Canonicalize a JSON document with the engine's canonical form —
     /// RFC 8785 (JCS) since completion-plan H5 — the same function the
     /// engine uses for model hashes. H1 / F-5a hash seam: the desktop
@@ -1388,7 +1400,8 @@ fn run_with_context(
     // never writes it, through any operation that can.
     let writes_flexibility = change_kind == "insert_bend_at_corner"
         || (object_type == "Component"
-            && matches!(field_path.as_str(), "bend_realization" | "modifiers.flexibility_factor_user_value.value"));
+            && matches!(field_path.as_str(), "bend_realization" | "modifiers.flexibility_factor_user_value.value"))
+        || (change_kind == library_apply::CHANGE_KIND && library_apply::writes_flexibility(intent));
     if writes_flexibility && string_at(intent, &["author_type"]).as_deref() != Some("user") {
         checker.schema_blocked = true;
         checker.push(
@@ -1487,6 +1500,43 @@ fn run_with_context(
                     "Refresh the record from the current model and correct the explicit payload.",
                     error.affected_refs,
                 );
+            }
+        }
+    }
+
+    // W-17 (DEL-03-01 Design apply-library-records.md §2.2): a library
+    // record applied to an existing material, section or component. The
+    // change names every member it writes; a section carries its bound pipes.
+    if change_kind == library_apply::CHANGE_KIND && !checker.schema_blocked {
+        if claimed_model_hash.is_none_or(Value::is_null) {
+            checker.schema_blocked = true;
+            checker.push(
+                "OP-LIBRARY-APPLY-MODEL-HASH-REQUIRED",
+                "blocking",
+                "Applying a library record requires the current complete model hash.".into(),
+                "Refresh the model basis before review and application.",
+                vec![target_ref.clone()],
+            );
+        } else {
+            match library_apply::resolve(model, intent) {
+                Ok(edit) => {
+                    checker.reference_state = "passed";
+                    checker.unit_state = "passed";
+                    checker.before_state = "passed";
+                    geometry_edit = Some(edit);
+                }
+                Err(error) => {
+                    if error.code == "OP-STALE-BEFORE-VALUE" {
+                        checker.before_state = "blocked_stale";
+                    }
+                    checker.push(
+                        error.code,
+                        "blocking",
+                        error.message,
+                        "Prepare the library apply again from the current model and the stored library record.",
+                        error.affected_refs,
+                    );
+                }
             }
         }
     }
@@ -2558,6 +2608,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "delete_support"
             | "delete_combination_term"
             | "insert_component_symbol"
+            | "apply_library_record"
     ) || model_data_authoring::operation_kind_for(change_kind).is_some();
     if !supported_change {
         checker.schema_blocked = true;
@@ -2575,7 +2626,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
-        | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner" => "modify",
+        | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner"
+        | "apply_library_record" => "modify",
         "create_node"
         | "create_section"
         | "create_material"
@@ -4431,7 +4483,7 @@ fn resolve_create_section(
         return None;
     }
 
-    Some(serde_json::json!({
+    let mut section = serde_json::json!({
         "id": id,
         "name": name,
         "section_type": "pipe",
@@ -4440,7 +4492,13 @@ fn resolve_create_section(
             "wall_thickness": { "value": wall_thickness.value, "unit": wall_thickness.unit }
         },
         "provenance": provenance,
-    }))
+    });
+    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // record; the document validator judges its members.
+    if let Some(record) = record.get("provenance_record") {
+        section["provenance_record"] = record.clone();
+    }
+    Some(section)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -4579,7 +4637,13 @@ fn resolve_create_material(
     let shear_modulus = dimensioned_quantity(record, &["shear_modulus"], Dimension::Stress, true);
     let exact_material = record.contains_key("constitutive_basis") || record.contains_key("poisson_ratio");
     if exact_material {
-        if let Err(error) = pressure_authoring::validate_create_material(&payload) {
+        // The structured provenance record is the document validator's to
+        // judge; the constitutive check sees the material members only.
+        let mut constitutive = payload.clone();
+        if let Some(map) = constitutive.as_object_mut() {
+            map.remove("provenance_record");
+        }
+        if let Err(error) = pressure_authoring::validate_create_material(&constitutive) {
             checker.push(error.code, "blocking", error.message, "Supply explicit E/nu constitutive inputs.", vec![target_ref.to_string()]);
             return None;
         }
@@ -4655,6 +4719,11 @@ fn resolve_create_material(
             "value": thermal.value,
             "unit": thermal.unit,
         });
+    }
+    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // record; the document validator judges its members.
+    if let Some(record) = record.get("provenance_record") {
+        material["provenance_record"] = record.clone();
     }
 
     Some(material)
@@ -4904,6 +4973,7 @@ fn resolve_create_support(
         "hanger",
         "nonlinear",
         "boundary_association",
+        "provenance_record",
     ] {
         if let Some(value) = record.get(key) {
             support[key] = value.clone();
@@ -4922,6 +4992,7 @@ fn resolve_create_support(
             "hanger",
             "nonlinear",
             "boundary_association",
+            "provenance_record",
         ]
         .contains(&key.as_str())
     }) {

@@ -25,6 +25,8 @@ import { buildNodeCreationSubmission, buildRouteSubmission } from "../viewport/r
 import { inspectorAuthoringPaths } from "../model-tree/PropertyInspector";
 import { loadCaseAuthoringPaths } from "../load-cases/LoadCaseManagerPanel";
 import { RECORD_FAMILIES, annotationIntent, recordIntent, rulePackReferenceFromDocument } from "./modelDataIntents";
+import { buildMaterialInsert } from "../library/libraryApply";
+import type { UnitCatalog } from "../../services/unitCatalogService";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "../../../../..");
@@ -39,6 +41,31 @@ const PUBLIC_PROVENANCE = {
   contributor_certification: "invented-attestation",
   redistribution_status: "public_permissive",
   review_status: "pending"
+};
+
+const EMISSION_CATALOG = {
+  entries: [
+    { unit_id: "unit:pascal", symbol: "Pa", dimension_id: "pressure" },
+    { unit_id: "unit:one", symbol: "1", dimension_id: "dimensionless" }
+  ]
+} as unknown as UnitCatalog;
+const libraryValue = (magnitude: number, unitId: string) => ({
+  magnitude, unit_ref: { ref_type: "UnitDefinition", ref_id: unitId }, dimension_id: "stress", quantity_kind: "unit_bearing",
+  unit_required: true, missing_unit_behavior: "diagnostic_blocking", provenance: PUBLIC_PROVENANCE
+});
+const libraryProperty = (kind: string, magnitude: number, unitId: string) => ({
+  property_id: `mat.invented.emission.${kind}`, property_kind: kind, value_status: "provided", required_for: "mechanics_solve",
+  provenance: PUBLIC_PROVENANCE, review_status: "pending", value: libraryValue(magnitude, unitId)
+});
+const INVENTED_MATERIAL_LIBRARY = {
+  schema_version: "0.1.0",
+  material_library: { library_id: "matlib.invented.emission", name: "Invented emission library", library_scope: "public_schema_fixture",
+    privacy_class: "public_permissive", provenance: PUBLIC_PROVENANCE, review_status: "pending" },
+  material_records: [{
+    material_id: "mat.invented.emission", name: "Invented emission steel", material_family: "invented_example", privacy_class: "public_permissive",
+    redistribution_status: "public_permissive", properties: [libraryProperty("elastic_modulus", 200000000000, "unit:pascal"), libraryProperty("poisson_ratio", 0.3, "unit:one")],
+    allowables: [], completeness: [], provenance: PUBLIC_PROVENANCE, review_status: "pending"
+  }]
 };
 
 async function apply(model: PreviewModel, intent: EditorOperationIntent): Promise<PreviewModel> {
@@ -137,6 +164,12 @@ async function emit(): Promise<Array<{ path: string; document: PreviewModel }>> 
   const pack = JSON.parse(readFileSync(DEMO_RULE_PACK, "utf8")) as Record<string, unknown>;
   model = await apply(model, await recordIntent(canonicalize, RECORD_FAMILIES.rulePackRef, "create", rulePackReferenceFromDocument(pack)));
   record("rule_pack_ref", model);
+  // W-17: one library-applied entity (an E/ν record with no stored G inserted
+  // through the Library Manager's builder; public invented provenance).
+  model = await apply(model, (await buildMaterialInsert({
+    model, document: INVENTED_MATERIAL_LIBRARY, recordId: "mat.invented.emission", newId: "material:library-emission", mode: "e_nu", catalog: EMISSION_CATALOG
+  })).batch.operations[0]);
+  record("library_material_insert", model);
   return entries;
 }
 
@@ -170,7 +203,7 @@ describe("TP-PMM-GUIEMIT-001 desktop emission golden", () => {
       "blank_project", "blank_load_reference_project", "node_creation", "material_creation", "section_creation",
       "pipe_creation", "support_creation", "load_creation", "combination_creation", "project_tags_and_notes",
       "entity_tags_and_notes", "provenance_records", "line", "assumptions_and_open_issues",
-      "constraints_and_equipment_interfaces", "rule_pack_ref"
+      "constraints_and_equipment_interfaces", "rule_pack_ref", "library_material_insert"
     ]);
   });
 });

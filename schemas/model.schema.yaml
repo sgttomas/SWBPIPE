@@ -1183,6 +1183,7 @@
           "pattern": "\\S"
         },
         "library_version": {
+          "description": "sha256: followed by the SHA-256 of the applied library record's RFC 8785 (JCS) form; library documents carry no version member. Recorded at insert and apply; the store check reports a changed digest (MODEL-LIBRARY-REF-VERSION-CHANGED) and never updates it.",
           "type": "string",
           "pattern": "\\S"
         },

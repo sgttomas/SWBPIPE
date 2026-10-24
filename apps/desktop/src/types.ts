@@ -1146,7 +1146,9 @@ export type EditorOperationIntent = {
       | "update_equipment_interface"
       | "delete_equipment_interface"
       | "add_rule_pack_ref"
-      | "remove_rule_pack_ref";
+      | "remove_rule_pack_ref"
+      // W-17 (DEL-03-01 Design apply-library-records.md §2.2).
+      | "apply_library_record";
     field_label: string;
     field_path: string;
     before: string;

@@ -4,6 +4,8 @@
 // structured operation for validation, diff review and apply; clearing
 // removes the member.
 import { useEffect, useState } from "react";
+import { currentLibraryRefFindings, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
+import { MODEL_LIBRARY_REF_VERSION_CHANGED } from "../../services/libraryImportService";
 import type { EditorOperationObjectType, EntityRef, ProvenanceRecord } from "../../types";
 import {
   ANNOTATED_OBJECT_TYPES,
@@ -123,6 +125,8 @@ function ProvenanceRecordEditor(props: Props & { target: EntityRef }) {
   const stored = current.provenance_record as Record<string, unknown> | undefined;
   const [draft, setDraft] = useState<ProvenanceDraft>(() => draftFrom(stored));
   const { busy, error, notice, queue } = useModelDataQueue(props);
+  const publishedLibraryRefs = usePublishedLibraryRefFindings();
+  const libraryRefFindings = currentLibraryRefFindings(model, publishedLibraryRefs).filter((finding) => finding.entity_ref === target.id);
   const storedKey = stableJson(stored ?? null);
   useEffect(() => {
     setDraft(draftFrom(stored));
@@ -161,6 +165,11 @@ function ProvenanceRecordEditor(props: Props & { target: EntityRef }) {
       {stored?.library_ref !== undefined ? (
         <p className="model-data-note" data-testid="provenance-record-library-ref">Library record: {JSON.stringify(stored.library_ref)}</p>
       ) : null}
+      {libraryRefFindings.map((finding) => (
+        <p className="model-data-note" role="note" key={finding.code} data-testid={`provenance-record-library-warning-${finding.code}`}>
+          {finding.code} (warning): {finding.message}{finding.code === MODEL_LIBRARY_REF_VERSION_CHANGED ? " Re-apply from library in the Library Manager to adopt the stored record." : ""}
+        </p>
+      ))}
       <div className="model-data-actions">
         <button type="button" data-testid="provenance-record-queue" {...disabledBy(busy, [!draft.source_name?.trim(), "Enter a source name."], [stableJson(next()) === storedKey, "The provenance record is unchanged."])}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "provenance_record", next(), "Provenance record"))}>
