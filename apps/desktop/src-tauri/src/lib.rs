@@ -7,6 +7,7 @@ mod model_document_file;
 mod model_document_save;
 mod model_document_shape;
 mod model_document_version;
+mod model_states;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
@@ -722,7 +723,7 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 11;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 12;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -888,6 +889,13 @@ fn store_migrations() -> Vec<StoreMigration> {
                     .map_err(|error| error.to_string())
             },
         },
+        // Named immutable model states and their labels (W-12 S1, DEL-14-01
+        // Design `desktop-states-runs-comparison.md` §2). Recorded runs are S2's v13.
+        StoreMigration {
+            version: 12,
+            migration_id: "store-v12-model-states-tables",
+            apply: model_states::migrate_v12_model_states,
+        },
     ]
 }
 
@@ -929,10 +937,23 @@ fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence
     Ok((connection, migration))
 }
 
+/// One current store version: a store whose `user_version` is above this build's
+/// target was written by a newer build. It is refused by name before anything
+/// is written (no pragma that writes, no migration), never opened as current.
+fn refuse_newer_store(version: i64) -> Result<(), String> {
+    if version > STORE_SCHEMA_TARGET_VERSION {
+        return Err(format!(
+            "STORE-SCHEMA-NEWER: the local project store is at store schema v{version}, newer than this build's v{STORE_SCHEMA_TARGET_VERSION}; it was written by a newer SWBPIPE build. Nothing was read or written; open it with that build."
+        ));
+    }
+    Ok(())
+}
+
 // Each migration step is idempotent (IF NOT EXISTS / column probes), so legacy
 // stores written before the user_version ledger existed reconcile cleanly from
 // version 0 without data loss.
 fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvidence, String> {
+    refuse_newer_store(store_user_version(connection)?)?;
     connection
         .execute_batch(
             "
@@ -1415,6 +1436,9 @@ struct StoredProjectEntry {
     entry: LocalProjectIndexEntry,
     /// What a Replace of this project confirms (`stored_revision`).
     revision: String,
+    /// The saved model states attached to this project id; a Replace keeps
+    /// them, and the prompt says how many (W-12 §2).
+    saved_state_count: i64,
 }
 
 /// The stored project with this id, if any, and its revision, for the replace prompt.
@@ -1423,7 +1447,13 @@ fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<Store
     let path = app_store_path(&app)?;
     let (connection, _migration) = open_project_store(&path)?;
     stored_project_entry(&connection, &project_id)?
-        .map(|entry| Ok(StoredProjectEntry { revision: stored_revision(&connection, &entry)?, entry }))
+        .map(|entry| {
+            Ok(StoredProjectEntry {
+                revision: stored_revision(&connection, &entry)?,
+                saved_state_count: model_states::saved_state_count(&connection, &entry.project_id)?,
+                entry,
+            })
+        })
         .transpose()
 }
 
@@ -2290,15 +2320,24 @@ fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
     Err(format!("Model document refused: malformed model-data slots: {}", blocking.join(" | ")))
 }
 
+/// The one-current-version check alone (DEL-02-05 CLM-003): a document that is
+/// not current is refused by name. Project persistence adds the blocking-slot
+/// refusal (`check_model_document_for_persist`); a saved model state uses this
+/// alone, since a state may hold an incomplete model (W-12 §2, `MODEL_INCOMPLETE`).
+fn check_model_document_version(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
+    let status = evaluate_model_document(model);
+    if status.is_refused() {
+        return Err(refuse_model_document(&status));
+    }
+    Ok(status)
+}
+
 /// The version check for create/save (DEL-02-05 CLM-003): a document that is
 /// not current is refused by name. A current document is persisted exactly as
 /// received, with the received hash evidence; nothing is migrated, normalized
 /// or re-stamped.
 fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
-    let status = evaluate_model_document(model);
-    if status.is_refused() {
-        return Err(refuse_model_document(&status));
-    }
+    let status = check_model_document_version(model)?;
     // W-13 §5.3 (S2): create and save refuse a document whose model-data
     // slots carry a blocking validator finding, named with its JSON path;
     // nothing is repaired. Warnings never refuse.
@@ -5167,6 +5206,11 @@ macro_rules! app_invoke_handler {
             list_local_projects,
             find_local_project,
             save_local_project,
+            model_states::save_model_state,
+            model_states::list_model_states,
+            model_states::read_model_state,
+            model_states::edit_model_state_labels,
+            model_states::delete_model_state,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
@@ -7098,11 +7142,12 @@ mod tests {
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
+                "store-v12-model-states-tables",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v11"
+            "migrated_on_open_store_schema_v0_to_v12"
         );
 
         let second_open =
@@ -7119,7 +7164,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v11_no_pending_migrations"
+            "current_store_schema_v12_no_pending_migrations"
         );
     }
 
@@ -7156,10 +7201,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 11);
+        assert_eq!(migration.migrations_applied_on_open.len(), 12);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v11"
+            "migrated_on_open_store_schema_v0_to_v12"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -7227,12 +7272,13 @@ mod tests {
                 "store-v8-project-envelope-hash-column",
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
-                "store-v11-local-libraries-table"
+                "store-v11-local-libraries-table",
+                "store-v12-model-states-tables"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v11"
+            "migrated_on_open_store_schema_v7_to_v12"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))

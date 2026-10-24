@@ -33,6 +33,11 @@ export const NATIVE_INGRESS_COMMANDS = [
   "save_local_library",
   "save_report_package",
   "save_local_result_json",
+  "save_model_state",
+  "list_model_states",
+  "read_model_state",
+  "edit_model_state_labels",
+  "delete_model_state",
   "save_model_document_file"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
