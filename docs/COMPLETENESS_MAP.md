@@ -1,6 +1,7 @@
 # SWBPIPE completeness and reconciliation map
 
-**Basis:** `origin/main` at `8a8a8b2584` (2026-10-23). This is a replaceable
+**Basis:** `origin/main` at `8a8a8b2584` (2026-10-23); W-4 (#W4PR) is folded
+in since. This is a replaceable
 current-state record for the owner and the work plan. Replace it when the
 basis moves materially; do not append to it. It replaces the map at
 `7a780551f0`; Git holds that version.
@@ -119,9 +120,7 @@ The biggest gaps:
      flight).
    - The near-duplicate node tolerance is relative (1e-6 of the model extent),
      not the owner's 5 mm (REQ-04-06-012; #1574 in flight).
-7. **No permanent end-to-end check of R2.** The probe ran the from-blank native
-   path once (§5). The native smoke still opens fixture documents only (W-4).
-8. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
+7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
    required load cases (FR-RULE-001). Library records cannot yet be applied to
    model entities (#1566 in flight).
 
@@ -154,7 +153,7 @@ class, the evidence, and the deliverables. Paths are under
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| R2 exit (1572) | — | P | `native-smoke/driver.js` opens, solves, saves and reopens fixture documents only. The browser from-blank journey (`e2e/r2-smoke.spec.ts:932`, `linear-authoring.spec.ts`) ends at `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`. The §5 probe ran the from-blank native path once | DEL-07-11, DEL-07-01/02/05/07 | No permanent native check of a GUI-authored model (W-4). |
+| R2 exit (1572) | — | D | W-4 (#W4PR): the native smoke authors a cantilever from blank through the GUI (`native-smoke/driver.js`, `authorFromBlank`), solves natively, checks the tip deflection against PL³/3EI within 1e-9, saves in place, reopens in a fresh process and re-solves to the same rows, value and model hash (`run.mjs`, "from blank" checks) | DEL-07-11, DEL-07-01/02/05/07 | The browser journey still ends at `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, by design. One model shape and the SI preset only. |
 | FR-GUI-001 (498) | Must | D | `PipeViewport.tsx:1289-1291` (nodes, supports, components); deformed shape `:1306-1310`; rotation glyphs `:1313`; reaction arrows `:1315-1317`; result colour `:1323-1327`; load arrows `:1332`; labels `:1374-1429`; legend `:2456`. **Tests:** `e2e/result-overlays.spec.ts:158` (PR core lane), `PipeViewport.overlays.test.tsx`, `c3-viewport-visibility.spec.ts`, `rotation-glyph.spec.ts` | DEL-07-01, DEL-07-05 | Overlays are off by default. Colour is one value per member. Reaction arrows come from global-frame rows only. The D-72 orbit qualification with result colour has not run. §14.2 bend arcs, corridors and no-go volumes are not drawn. |
 | FR-GUI-002 (499) | Must | P | `ModelTree.tsx:40-57` | DEL-07-02 | No lines, states or runs. |
 | FR-GUI-003 (500) | Must | P | `PropertyInspector.tsx:1276,1291,1311`; `typedInspector.test.tsx` | DEL-07-02 | No dependencies, linked assumptions or dependent rule-pack inputs. |
@@ -255,10 +254,10 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 43 P, 32 D, 9 O and no R:
-- **P → D (4):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
-  §10.1 step 1 (#1569). The first two were already updated in the map by their
-  PRs.
+This map has 42 P, 33 D, 9 O and no R:
+- **P → D (5):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+  §10.1 step 1 (#1569), and the R2 exit (W-4, #W4PR, after the basis). The
+  first two were already updated in the map by their PRs.
 - **D → P (1):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
 - **P → O (6):** FR-KNOW-001, -003, -004, -005 and FR-MOD-007 (OD-1/OD-3);
@@ -284,8 +283,8 @@ This map has 43 P, 32 D, 9 O and no R:
 **§24 milestones, factually:**
 - **R0:** met.
 - **R1:** partly. Rigid elements are absent; §22.2 lacks the rigid link.
-- **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The §5 probe ran the
-  from-blank native path once; there is no permanent check (W-4).
+- **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The native smoke now runs
+  a GUI-authored model through solve, review, save and reopen (W-4).
 - **R3 (States, Runs, Comparison):** not met; in v0.1 by OD-1.
 - **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). A report
   is obtainable only as a local private PF document.
@@ -398,7 +397,7 @@ scope or acceptance wording. "Rec." is the recommendation.
 | 13 | DEL-06-02 SOW:77 (Determinism) | "Future implementation must produce repeatable results…" | "The implementation must produce repeatable results…" | evaluator ships | Apply |
 | 14 | DEL-14-02 SOW:170, :320 | "Referenced but not locally accessible as primary source text" / "the PRD source text was not locally read in this task" | "Read from `docs/PRD.md` §15.2 (FR-CMP-002)" / remove the sentence | `docs/PRD.md` is present; the text limits requirement derivation, so it is the owner's | Owner |
 | 15 | DEL-14-01 SOW:342 (DEL-14-01:3); DEL-15-01 SOW:387 (DEL-15-01:2) | "(stage-gated: v0.2 R3)" / "(stage-gated: v0.2 R6; …" beside the appended OD-1 ruling | drop the stage-gate tag, keeping the ruling | the tag and the ruling read as mixed signals | Owner (optional) |
-| 16 | DEL-15-01 SOW:183 (V-02) | "Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, …" | "… trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, …" | the row-26 annotation, in a verification check cell | Apply (Agent 0 may, under row 26's rule) |
+| 16 | DEL-15-01 SOW:183 (V-02) | "Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, …" | "… trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, …" | the row-26 annotation, in a verification check cell | Apply — **Applied** (Agent 0, 2026-10-24, under the row-26 rule; #W4PR) |
 
 **Previous table, now closed.** Rows 1, 3–21, 23, 24 and 26 are applied. Row 2
 stays not applied by the owner's ruling (FR-SOL-006 is built on PF instead), and
@@ -493,7 +492,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Numerical health indicator (FR-SOL-015 display) | #1544 |
 | — | Refusal of load cases that apply nothing (silent zero) | #1568 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
-| W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide is updated again here after W-3 and W-17 |
+| W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
+| W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #W4PR: 25 checks, all passing on its head; no `expected.json` change |
 
 **In flight** (not on main):
 
@@ -510,7 +510,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | Size | Kind | Lane | Depends on | Owner? |
 |---|---|---|---|---|---|---|
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
-| W-4 | Make the from-blank native journey a permanent smoke check: author → solve → results → save → reopen → solve; add the §5 report, rule-check and EX-gate steps. The §5 probe driver shows the path works | S | desktop test | heavy | — | `expected.json` values are the owner's (§3 rows 1–5) |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
 | W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
@@ -521,9 +520,9 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
-- **Before development testing broadens:** W-4, and the G10 values (§3 rows
-  1–5) put to the owner, so the native smoke proves itself without known
-  failures. The §3 [fix] remainder can go with it.
+- **Before development testing broadens:** the G10 values (§3 rows 1–5) put
+  to the owner, so the native smoke proves itself without known failures (W-4
+  is done). The §3 [fix] remainder can go with it.
 - **Before the owner's hands-on use:** the W-13 in-flight slices, then W-6 and
   W-18 (a model the owner can export and a report package). W-3 and W-5 are
   done.

@@ -180,7 +180,7 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 > | Check ID | Check | Expected result |
 > |---|---|---|
 > | V-01 | Confirm required `ScopeOfWork.md` exists and keep the default schema sections. | PASS for this setup output. |
-> | V-02 | Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, registers, or governing references. | PASS if every requirement has a source. |
+> | V-02 | Confirm all non-trivial schema requirements trace to `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), decomposition, registers, or governing references. | PASS if every requirement has a source. |
 > | V-03 | Confirm unsupported specifics are marked `TBD` or `ASSUMPTION`. | PASS if package container, concrete mappings, target field coverage, and target-specific implementation are not invented. |
 > | V-04 | Confirm professional-boundary prohibited terms are not used as automatic software statuses. | PASS if no schema requirement creates automatic approval/compliance/certification states (PRD §21.2). |
 > | V-05 | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. | Compare with the current approval record; legacy IDs remain provenance. |
