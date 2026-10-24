@@ -98,7 +98,7 @@ fn transient(result: &str, manifest: &str) -> Value {
                 { "algorithm": "sha256", "canonicalization": CHECKED_PROFILE_V1, "payload_ref": { "object_type": "AnalysisRun", "ref": RUN },
                   "payload_scope": "analysis_run_record", "value": "" },
                 { "algorithm": "sha256", "canonicalization": CHECKED_PROFILE_V1, "payload_ref": { "object_type": "ResultEnvelope", "ref": format!("result-envelope:{RUN}") },
-                  "payload_scope": "received_result", "value": checked_sha256_text(result).unwrap() }
+                  "payload_scope": "received_result", "value": sha256_hex(&canonical_json_checked_v1_text(result).unwrap()) }
             ],
             "reproducibility": {
                 "input_manifest_refs": [manifest_ref.clone()],
@@ -731,7 +731,7 @@ fn a_read_checks_the_stored_result_manifest_and_model_payload() {
     let read = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap();
     let manifest: Value = serde_json::from_str(&read.input_manifest_canonical).unwrap();
     let transient_record = request(&solved, "Run").run_record;
-    let (forged, forged_hash) = recorded_revision(&transient_record, &state_b.state_id, &outcome.run.created_at, &manifest).unwrap();
+    let (forged, forged_hash) = recorded_revision(&UnmeteredReadMemory, &transient_record, &state_b.state_id, &outcome.run.created_at, &manifest).unwrap();
     let forged_id = recording_id_of(&forged_hash);
     tamper(
         &path,
@@ -1110,7 +1110,7 @@ fn assert_within_reservation<T: Serialize>(what: &str, read: impl FnOnce(&PoolRe
     let memory = PoolReadMemory::new(&pool);
     let (outcome, measured) = crate::ingress::counting::measure(|| {
         let metered = read(&memory)?;
-        let length = stored_read::serialized_length(&metered.value)?;
+        let length = stored_read::serialized_length(metered.get())?;
         let held = pool.pool_status().reserved_bytes;
         let response = stored_read::respond_metered::<T, String>(&memory, what, Ok(metered)).map_err(|error| format!("{error:?}"))?;
         Ok::<_, String>((held, length, response))
@@ -1185,8 +1185,7 @@ fn the_lists_and_label_edits_reserve_their_largest_record_before_loading_it() {
     save_state(&path, &solved, "Basis", "00000000000000000000000000001501", 1_000);
     let ordinary = record(&path, request(&solved, "Ordinary record"), T0).unwrap();
     {
-        let (connection, _) = crate::open_project_store(&path).unwrap();
-        assert_admitted(&small_pool(), "an ordinary list", |memory| list_runs_with(&connection, PROJECT, memory));
+        assert_admitted(&small_pool(), "an ordinary list", |memory| list_runs_in_store_with(&path, PROJECT, memory));
         assert_admitted(&small_pool(), "an ordinary edit", |memory| {
             edit_run_labels_in_store_with(&path, PROJECT, &ordinary.run.recording_id, run_labels("Renamed"), None, T0, memory)
         });
@@ -1197,8 +1196,8 @@ fn the_lists_and_label_edits_reserve_their_largest_record_before_loading_it() {
     let outcome = record(&path, submitted, T0).unwrap();
     let small = small_pool();
     let (connection, _) = crate::open_project_store(&path).unwrap();
-    assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_with(&connection, PROJECT, memory));
-    assert_within_reservation("list_analysis_runs", |memory| list_runs_with(&connection, PROJECT, memory));
+    assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_in_store_with(&path, PROJECT, memory));
+    assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory));
     assert_eq!(list_runs(&connection, PROJECT).unwrap().len(), 2);
     assert_refused_unloaded(&small, &format!("recorded run `{}`", outcome.run.recording_id), |memory| {
         edit_run_labels_in_store_with(&path, PROJECT, &outcome.run.recording_id, run_labels("Renamed"), None, T0, memory)
@@ -1227,44 +1226,41 @@ fn large_stored_labels_are_priced_before_they_are_loaded() {
     let outcome = record(&path, request(&solved, "Run"), T0).unwrap();
     let id = outcome.run.recording_id.clone();
     let small = small_pool();
-    let (connection, _) = crate::open_project_store(&path).unwrap();
     assert_admitted(&small, "the run before", |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
-    assert_admitted(&small, "the runs before", |memory| list_runs_with(&connection, PROJECT, memory));
-    assert_admitted(&small, "the states before", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    assert_admitted(&small, "the runs before", |memory| list_runs_in_store_with(&path, PROJECT, memory));
+    assert_admitted(&small, "the states before", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
     set_label(&path, "analysis_run_labels", "run_name", &"n".repeat(LARGE));
     assert_refused_unloaded(&small, &format!("recorded run `{id}`"), |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
-    assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_with(&connection, PROJECT, memory));
+    assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_in_store_with(&path, PROJECT, memory));
     assert_refused_unloaded(&small, &format!("recorded run `{id}`"), |memory| delete_run_in_store_with(&path, PROJECT, &id, memory));
     // The state summary loads its runs' names (the delete blockers).
-    assert_refused_unloaded(&small, &format!("the saved states of project `{PROJECT}`"), |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    assert_refused_unloaded(&small, &format!("the saved states of project `{PROJECT}`"), |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
     assert_refused_unloaded(&small, &format!("saved state `{}`", state.state_id), |memory| {
         model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory)
     });
     assert!(assert_within_reservation("read_analysis_run", |memory| read_run_in_store_with(&path, PROJECT, &id, memory)) as usize > LARGE);
-    assert!(assert_within_reservation("list_analysis_runs", |memory| list_runs_with(&connection, PROJECT, memory)) as usize > LARGE);
-    assert_within_reservation("list_model_states", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    assert!(assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory)) as usize > LARGE);
+    assert_within_reservation("list_model_states", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
 
     // A state's labels: its read, list, label edit and delete.
     let path = store_with_project("memory-labels-state");
     let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000001602", 1_000);
     {
-        let (connection, _) = crate::open_project_store(&path).unwrap();
         assert_admitted(&small, "the state before", |memory| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory));
-        assert_admitted(&small, "the states before", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+        assert_admitted(&small, "the states before", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
     }
     let notes: Vec<String> = (0..1024).map(|index| format!("{index}:{}", "t".repeat(LARGE / 1024))).collect();
     set_label(&path, "model_state_labels", "notes_json", &serde_json::to_string(&notes).unwrap());
     let what = format!("saved state `{}`", state.state_id);
-    let (connection, _) = crate::open_project_store(&path).unwrap();
     assert_refused_unloaded(&small, &what, |memory| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory));
-    assert_refused_unloaded(&small, &format!("the saved states of project `{PROJECT}`"), |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    assert_refused_unloaded(&small, &format!("the saved states of project `{PROJECT}`"), |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
     assert_refused_unloaded(&small, &what, |memory| {
         model_states::edit_labels_in_store_with(&path, PROJECT, &state.state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0, memory)
     });
     assert_refused_unloaded(&small, &what, |memory| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory));
     // 1,024 label items each gain a provenance object in the emitted record.
     assert!(assert_within_reservation("read_model_state", |memory| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)) as usize > LARGE);
-    assert_within_reservation("list_model_states", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    assert_within_reservation("list_model_states", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
 }
 
 #[test]
@@ -1317,9 +1313,8 @@ fn prescan_invalid_stored_json_is_refused_before_it_is_parsed() {
     // A run's label list.
     let (path, _) = recorded_fixture("invalid-run-labels");
     tamper(&path, &format!("UPDATE analysis_run_labels SET tags_json = '{invalid}';"));
-    let (connection, _) = crate::open_project_store(&path).unwrap();
     let memory = PoolReadMemory::new(&pool);
-    let (outcome, measured) = crate::ingress::counting::measure(|| list_runs_with(&connection, PROJECT, &memory).map(|_| ()));
+    let (outcome, measured) = crate::ingress::counting::measure(|| list_runs_in_store_with(&path, PROJECT, &memory).map(|_| ()));
     refused("run labels", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
     // A state's record and its snapshot.
     for (column, label) in [("record_json", "state record"), ("model_canonical", "state snapshot")] {
@@ -1343,7 +1338,7 @@ fn reseal_large_state_record(path: &Path) {
     let record_json: String = Connection::open(path).unwrap().query_row("SELECT record_json FROM model_states", [], |row| row.get(0)).unwrap();
     let mut record: Value = serde_json::from_str(&record_json).unwrap();
     record["padding"] = json!("s".repeat(LARGE));
-    let hash = model_states::record_hash_hex(&record).unwrap();
+    let hash = model_states::record_hash_hex(&record, &UnmeteredReadMemory, "a resealed record").unwrap();
     record["hashes"][1]["value"] = json!(hash);
     tamper(
         path,
@@ -1386,7 +1381,7 @@ fn a_reads_reservation_is_held_until_its_response_is_serialized() {
     let metered = read_run_in_store_with(&path, PROJECT, &id, &memory).unwrap();
     let held = pool.pool_status().reserved_bytes;
     assert!(held > 0, "the returned read still holds its reservation");
-    let length = stored_read::serialized_length(&metered.value).unwrap();
+    let length = stored_read::serialized_length(metered.get()).unwrap();
     let response = stored_read::respond_metered::<_, String>(&memory, "read_analysis_run", Ok(metered)).unwrap();
     assert_eq!(pool.pool_status().reserved_bytes, 0, "released once the response exists");
     assert!(memory.peak_reserved() >= held + crate::ingress::allocation_envelope(length).unwrap(), "the response buffer was reserved on top of the held read");
@@ -1425,4 +1420,342 @@ fn record_run_prices_its_extra_parse_before_it_parses() {
     invalid.result_json = invalid_json();
     let error = record_run_in_store_with(&path, invalid, &hooks, &PoolReadMemory::new(&small)).unwrap_err();
     assert!(error.starts_with("ANALYSIS-RUN-RESULT-MISMATCH: the result: the stored JSON is invalid"), "{error}");
+}
+
+// ---------------------------------------------------------------------------
+// Repair r3: hash and canonical texts are reserved at their exact (escaped)
+// lengths, a metered read measures and loads in one snapshot, a value read from
+// the store keeps its reservations until it is serialized, and the labels bound
+// is the serialized labels object's.
+// ---------------------------------------------------------------------------
+
+/// A deterministic xorshift generator for the adversarial values.
+struct Xorshift(u64);
+
+impl Xorshift {
+    fn next(&mut self) -> u64 {
+        self.0 ^= self.0 << 13;
+        self.0 ^= self.0 >> 7;
+        self.0 ^= self.0 << 17;
+        self.0
+    }
+
+    fn below(&mut self, bound: usize) -> usize {
+        (self.next() % bound as u64) as usize
+    }
+}
+
+/// Characters every serializer here escapes or encodes differently: controls,
+/// DEL, Latin-1, the JSON short escapes, quotes and backslashes, line and
+/// paragraph separators, a BOM, the last BMP character and non-BMP ones.
+const ADVERSARIAL: [char; 22] = [
+    '\u{0}', '\u{1}', '\u{8}', '\t', '\n', '\u{b}', '\u{c}', '\r', '\u{1f}', ' ', '"', '\\', '/', 'a', '\u{7f}', '\u{80}', '\u{e9}',
+    '\u{2028}', '\u{feff}', '\u{ffff}', '\u{1f600}', '\u{10ffff}',
+];
+
+fn adversarial_string(random: &mut Xorshift) -> String {
+    (0..random.below(24)).map(|_| ADVERSARIAL[random.below(ADVERSARIAL.len())]).collect()
+}
+
+/// A random value at most `depth` deep: strings and keys of adversarial
+/// characters, extreme integers, and (when `floats`) floats whose canonical forms
+/// differ from their serde_json forms.
+fn adversarial_value(random: &mut Xorshift, depth: usize, floats: bool) -> Value {
+    let integers = [json!(0), json!(-1), json!(i64::MIN), json!(i64::MAX), json!(u64::MAX), json!(9_007_199_254_740_993u64)];
+    let doubles = [json!(1e20), json!(1e21), json!(1e-7), json!(-0.0), json!(5e-324), json!(1.7976931348623157e308), json!(0.1), json!(123456789.125)];
+    match random.below(if depth == 0 { 4 } else { 6 }) {
+        0 => json!(adversarial_string(random)),
+        1 => integers[random.below(integers.len())].clone(),
+        2 if floats => doubles[random.below(doubles.len())].clone(),
+        2 => json!(null),
+        3 => json!(random.below(2) == 0),
+        4 => Value::Array((0..random.below(5)).map(|_| adversarial_value(random, depth - 1, floats)).collect()),
+        _ => Value::Object((0..random.below(5)).map(|_| (adversarial_string(random), adversarial_value(random, depth - 1, floats))).collect()),
+    }
+}
+
+#[test]
+fn the_exact_length_counters_agree_with_the_texts_over_adversarial_values() {
+    let mut random = Xorshift(0x9e37_79b9_7f4a_7c15);
+    for _ in 0..2_000 {
+        // The record hash's sorted-compact text holds no floats.
+        let value = adversarial_value(&mut random, 4, false);
+        let text = model_states::sorted_compact_json(&value).unwrap();
+        assert_eq!(model_states::sorted_compact_length(&value).unwrap(), text.len() as u64, "{value}");
+        let value = adversarial_value(&mut random, 4, true);
+        let text = canonical_json(&value);
+        assert_eq!(stored_read::jcs_length(&value), text.len() as u64, "{value}");
+        assert_eq!(stored_read::serialized_length(&value).unwrap(), serde_json::to_string(&value).unwrap().len() as u64);
+    }
+    // Every character escapes to at most six bytes in the record hash's text.
+    let all: String = ADVERSARIAL.iter().collect();
+    assert_eq!(model_states::sorted_compact_length(&json!(all)).unwrap(), model_states::sorted_compact_json(&json!(all)).unwrap().len() as u64);
+    assert_eq!(model_states::sorted_compact_length(&json!("\u{7f}".repeat(1000))).unwrap(), 6_002);
+    // The labels object a label edit carries, as the webview serializes it.
+    let labels = model_states::StateLabels {
+        state_name: all.clone(),
+        tags: vec!["t\u{0}".to_string()],
+        notes: vec![all.clone(), "\u{1f600}".to_string()],
+        assumptions: vec![json!({ "assumption_id": "A-1", "statement": all, "status": "unresolved" })],
+    };
+    let carried = json!({ "state_name": labels.state_name, "tags": labels.tags, "notes": labels.notes, "assumptions": labels.assumptions });
+    assert_eq!(model_states::labels_json_length("state_name", &labels), serde_json::to_string(&carried).unwrap().len() as u64);
+}
+
+/// Codex r3's first probe: a normally saved state whose model holds a 3 MiB
+/// assumption of U+007F, which the record hash's text escapes to six bytes a
+/// character.
+fn escaped_assumption_model() -> Value {
+    let mut model = model("Invented project");
+    model["unresolved_assumptions"] = json!([{ "assumption_id": "A-escaped", "kind": "assumption", "statement": "\u{7f}".repeat(LARGE), "status": "unresolved" }]);
+    model
+}
+
+#[test]
+fn a_record_hash_text_is_reserved_at_its_escaped_length() {
+    let path = store_with_project("memory-escaped-hash");
+    let state = save_state(&path, &escaped_assumption_model(), "Escaped", "00000000000000000000000000001901", 1_000);
+    let escaped = (LARGE as u64) * 6;
+    // The list (Codex's probe) and the read: the priced peak stays within the
+    // reservation, which covered the escaped text.
+    let mut reserved = 0;
+    assert_within_reservation("list_model_states", |memory| {
+        let listed = model_states::list_states_in_store_with(&path, PROJECT, memory);
+        reserved = memory.peak_reserved();
+        listed
+    });
+    assert!(reserved >= escaped, "the list reserved {reserved}, below the {escaped}-byte escaped hash text");
+    assert_within_reservation("read_model_state", |memory| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory));
+    // The label edit and the delete verify the record too.
+    assert_within_reservation("edit_model_state_labels", |memory| {
+        model_states::edit_labels_in_store_with(&path, PROJECT, &state.state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0, memory)
+    });
+    // A run recorded against it (Record Run verifies the state) and its read.
+    let solved = escaped_assumption_model();
+    let pool = registry(ScriptedHost::normal());
+    let memory = PoolReadMemory::new(&pool);
+    let now = || Ok(T0);
+    let token = || Ok("0000000000000000000000000000c0de".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    let outcome = record_run_in_store_with(&path, request(&solved, "Escaped run"), &hooks, &memory).unwrap();
+    assert!(memory.peak_reserved() >= escaped, "Record Run reserved the state's escaped hash text");
+    let id = outcome.get().run.recording_id.clone();
+    drop(outcome);
+    assert_within_reservation("read_analysis_run", |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
+    // Saving it again (the existing state is verified) and saving a new one
+    // (its record is hashed) reserve the escaped text too.
+    let model_canonical = canonical_json(&escaped_assumption_model());
+    let save = |solved: &Value, token: &'static str| {
+        let model_canonical = canonical_json(solved);
+        let request = SaveModelStateRequest {
+            project_id: PROJECT.to_string(),
+            expected_base: BASE.to_string(),
+            model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: None,
+            labels: labels_from_value(json!({ "state_name": "Again" })).unwrap(),
+        };
+        let allocate = move || Ok((token.to_string(), T0));
+        let between_rows = |_: &Transaction<'_>| Ok(());
+        let memory = PoolReadMemory::new(&pool);
+        let outcome = model_states::save_state_in_store_with(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }, &memory).unwrap();
+        (outcome.get().outcome, memory.peak_reserved())
+    };
+    assert!(model_canonical.len() > LARGE);
+    let (outcome, reserved) = save(&escaped_assumption_model(), "00000000000000000000000000001902");
+    assert_eq!(outcome, "already_saved");
+    assert!(reserved >= escaped);
+    let mut other = escaped_assumption_model();
+    other["project"]["name"] = json!("Other");
+    let (outcome, reserved) = save(&other, "00000000000000000000000000001903");
+    assert_eq!(outcome, "saved");
+    assert!(reserved >= escaped);
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+/// A pool memory that runs `between` once, at its first reservation: after a
+/// read's measurement and before its loads.
+struct Interleaved<'a> {
+    inner: PoolReadMemory<'a>,
+    between: std::cell::RefCell<Option<Box<dyn FnOnce() + 'a>>>,
+}
+
+impl ReadMemory for Interleaved<'_> {
+    fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+        if let Some(between) = self.between.borrow_mut().take() {
+            between();
+        }
+        self.inner.reserve(what, bytes)
+    }
+}
+
+/// Codex r3's second probe: a valid run with a 3 MiB record (or a state with a
+/// 3 MiB escaped record) is written by another connection between a list's
+/// measurement and its loads. The list loads the snapshot it measured.
+#[test]
+fn a_list_loads_the_snapshot_it_measured() {
+    let path = store_with_project("memory-interleaved");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002001", 1_000);
+    record(&path, request(&solved, "Ordinary"), T0).unwrap();
+    let small = small_pool();
+    // Another connection, on another thread (so the counting allocator measures
+    // the list alone), commits a large run while the list's snapshot is open.
+    let writer = |path: PathBuf| {
+        std::thread::spawn(move || {
+            let solved = model("Invented project");
+            let mut submitted = request(&solved, "Large, written between");
+            submitted.run_record["analysis_run"]["padding"] = json!("r".repeat(LARGE));
+            reseal(&mut submitted.run_record);
+            record(&path, submitted, T0 + 5).unwrap();
+        })
+        .join()
+        .unwrap()
+    };
+    let memory = Interleaved { inner: PoolReadMemory::new(&small), between: std::cell::RefCell::new(Some(Box::new(|| writer(path.clone())))) };
+    let (listed, measured) = crate::ingress::counting::measure(|| list_runs_in_store_with(&path, PROJECT, &memory));
+    let listed = listed.unwrap();
+    assert_eq!(listed.get().len(), 1, "the list holds the rows it measured");
+    assert!(measured.peak_priced <= memory.inner.peak_reserved(), "peak {} within the reservation {}", measured.peak_priced, memory.inner.peak_reserved());
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "the large record written after the measurement was not loaded");
+    drop(listed);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 2, "the run was written");
+    // The state list, with a state whose record escapes to 18 MiB.
+    let writer = |path: PathBuf| {
+        std::thread::spawn(move || {
+            save_state(&path, &escaped_assumption_model(), "Escaped, written between", "00000000000000000000000000002002", 2_000);
+        })
+        .join()
+        .unwrap()
+    };
+    let memory = Interleaved { inner: PoolReadMemory::new(&small), between: std::cell::RefCell::new(Some(Box::new(|| writer(path.clone())))) };
+    let (listed, measured) = crate::ingress::counting::measure(|| model_states::list_states_in_store_with(&path, PROJECT, &memory));
+    assert_eq!(listed.unwrap().get().len(), 1);
+    assert!(measured.peak_priced <= memory.inner.peak_reserved());
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    assert_eq!(model_states::list_states(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 2);
+}
+
+/// A pool memory that records, at each reservation, what the command already holds.
+struct Recording<'a> {
+    inner: PoolReadMemory<'a>,
+    seen: std::cell::RefCell<Vec<(String, u64)>>,
+}
+
+impl ReadMemory for Recording<'_> {
+    fn reserve(&self, what: &str, bytes: u64) -> Result<stored_read::ReadReservation, String> {
+        self.seen.borrow_mut().push((what.to_string(), self.inner.held()));
+        self.inner.reserve(what, bytes)
+    }
+}
+
+/// Codex r3's third probe: a state with a stored 3 MiB name (beyond the write
+/// bound, as a hand edit could leave it). The label edit's current summary,
+/// which holds the name, keeps its reservation while the record is loaded.
+#[test]
+fn a_label_edit_holds_the_current_summary_while_it_loads_the_record() {
+    let path = store_with_project("memory-held-name");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002101", 1_000);
+    set_label(&path, "model_state_labels", "state_name", &"n".repeat(LARGE));
+    let pool = registry(ScriptedHost::normal());
+    let memory = Recording { inner: PoolReadMemory::new(&pool), seen: std::cell::RefCell::new(Vec::new()) };
+    let edited = model_states::edit_labels_in_store_with(&path, PROJECT, &state.state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0, &memory)
+        .unwrap();
+    assert_eq!(edited.get().labels.state_name, "Renamed");
+    let record_load = format!("saved state `{}`'s record, for the label check", state.state_id);
+    let seen = memory.seen.borrow();
+    let held = seen.iter().find(|(what, _)| *what == record_load).map(|(_, held)| *held).expect("the record load was reserved");
+    assert!(held >= LARGE as u64, "the current summary's {LARGE}-byte name was held ({held}) when the record was reserved");
+    drop(seen);
+    drop(edited);
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+/// Delete receipts name what they deleted; they hold its reservations until
+/// they are serialized.
+#[test]
+fn delete_receipts_are_held_until_they_are_serialized() {
+    // A state with a stored 3 MiB name.
+    let path = store_with_project("memory-delete-state");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002201", 1_000);
+    set_label(&path, "model_state_labels", "state_name", &"n".repeat(LARGE));
+    let pool = registry(ScriptedHost::normal());
+    let memory = PoolReadMemory::new(&pool);
+    let receipt = model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, &memory).unwrap();
+    let length = stored_read::serialized_length(receipt.get()).unwrap();
+    assert!(length as usize > LARGE);
+    assert!(receipt.reserved_bytes() >= length, "the receipt holds {} for its {length}-byte message", receipt.reserved_bytes());
+    assert!(receipt.into_unreserved().is_err(), "a metered receipt does not leave its reservations");
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+    // Through serialization (a fresh state: the first was deleted).
+    let path = store_with_project("memory-delete-state-2");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002202", 1_000);
+    set_label(&path, "model_state_labels", "state_name", &"n".repeat(LARGE));
+    assert!(assert_within_reservation("delete_model_state", |memory| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory)) as usize > LARGE);
+    // A run with a stored 3 MiB name.
+    let (path, _) = recorded_fixture("memory-delete-run");
+    let id = id_of(&path);
+    set_label(&path, "analysis_run_labels", "run_name", &"n".repeat(LARGE));
+    assert!(assert_within_reservation("delete_analysis_run", |memory| delete_run_in_store_with(&path, PROJECT, &id, memory)) as usize > LARGE);
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+}
+
+#[test]
+fn the_labels_bound_is_the_serialized_labels_objects_and_every_kept_label_can_be_edited() {
+    // Codex r3's fourth probe: 196,602 NULs pass a byte count but serialize to
+    // six bytes each.
+    let nul_name = "\u{0}".repeat(196_602);
+    let error = model_states::labels_from_value(json!({ "state_name": nul_name })).unwrap_err();
+    assert!(error.starts_with("MODEL-STATE-LABELS-INVALID: the labels hold 1179667 bytes of JSON; at most 196608 are kept"), "{error}");
+    let error = run_labels_from_value(json!({ "run_name": nul_name })).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-LABELS-INVALID: the labels hold"), "{error}");
+    // Through Save Model State's and Record Run's decoding too.
+    let error = SaveModelStateRequest::from_value(json!({
+        "project_id": PROJECT, "expected_base": BASE, "model_canonical": "{}", "model_hash": "sha256:x",
+        "state_kind": "design_snapshot", "labels": { "state_name": nul_name }
+    }))
+    .unwrap_err();
+    assert!(error.to_string().contains("bytes of JSON; at most 196608 are kept"), "{error}");
+    // The largest kept labels of NULs, carried back to each label edit with a
+    // project id at the list's whole budget, fit the edit's argument budget.
+    let fill = |name_key: &str| {
+        let mut count = 32_000usize;
+        loop {
+            let labels = json!({ name_key: "\u{0}".repeat(count + 1), "tags": [], "notes": [], "assumptions": [] });
+            if serde_json::to_string(&labels).unwrap().len() as u64 > model_states::MAX_LABELS_JSON_BYTES {
+                return json!({ name_key: "\u{0}".repeat(count), "tags": [], "notes": [], "assumptions": [] });
+            }
+            count += 1;
+        }
+    };
+    let project = "p".repeat(LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES - 16);
+    let registry = registry(ScriptedHost::normal());
+    let state_labels = fill("state_name");
+    assert!(model_states::labels_from_value(state_labels.clone()).is_ok());
+    let body = serde_json::to_vec(&json!({ "projectId": project, "stateId": format!("state:{}", "0".repeat(32)), "labels": state_labels, "expectedUpdatedAt": "2026-10-24T00:00:00.000Z" })).unwrap();
+    let (mut args, _lease) = admit_body_within(
+        &registry,
+        &InvokeBody::Raw(body),
+        &headers(Some(INGRESS_ARGS_JSON_V1)),
+        "edit_model_state_labels",
+        ArgsDecoding::Moved,
+        model_states::EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES,
+    )
+    .unwrap();
+    assert!(args.decode_with("labels", |value| labels_from_value(value).map_err(serde::de::Error::custom)).is_ok());
+    let run_labels = fill("run_name");
+    assert!(run_labels_from_value(run_labels.clone()).is_ok());
+    let body = serde_json::to_vec(&json!({ "projectId": project, "recordingId": format!("runrec:{}", "0".repeat(32)), "labels": run_labels, "expectedUpdatedAt": "2026-10-24T00:00:00.000Z" })).unwrap();
+    assert!(admit_body_within(
+        &registry,
+        &InvokeBody::Raw(body),
+        &headers(Some(INGRESS_ARGS_JSON_V1)),
+        "edit_analysis_run_labels",
+        ArgsDecoding::Moved,
+        EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES,
+    )
+    .is_ok());
 }

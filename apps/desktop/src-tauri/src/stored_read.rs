@@ -1,45 +1,56 @@
 //! Memory admission for reads of stored rows (W-12; DEL-14-01 Design
 //! `desktop-states-runs-comparison.md` §2, §3 and §4.2).
 //!
-//! The small history commands (`read_model_state`, `read_analysis_run`, the two
-//! lists, the label edits and deletes) are admitted with a few KiB of argument
-//! ingress, but what they then read from the store (a snapshot, a received
-//! result, an input manifest, a run record, labels) can be MiB. A read therefore
-//! prices its work from the stored columns' byte lengths, read with
-//! `octet_length` and counts without loading the values, and takes interactive
-//! memory-pool leases ([`crate::memory_pool::MemoryPool::acquire_interactive`],
-//! the admission Save Local Project's ingress lease uses: the pool and fresh
-//! headroom, with the read's live leases together within the per-invocation
-//! budget) before it loads or parses anything:
+//! The history commands (`read_model_state`, `read_analysis_run`, the two
+//! lists, the label edits and deletes, Save Model State and Record Run) are
+//! admitted with their argument ingress, but what they then read from the store
+//! (a snapshot, a received result, an input manifest, a run record, labels) can
+//! be MiB. A command therefore prices its work and takes interactive memory-pool
+//! leases ([`crate::memory_pool::MemoryPool::acquire_interactive`], the
+//! admission Save Local Project's ingress lease uses: the pool and fresh
+//! headroom, with the command's live leases together within the per-invocation
+//! budget) before it loads, parses or builds anything:
 //!
-//! 1. **Before loading** ([`loaded_text_bytes`], [`text_copy_bytes`],
-//!    [`string_list_bytes`]): each column it loads (SQLite's page cache, the
-//!    statement's value and the `String` it is copied into), labels and
-//!    relationship lists included, and each text copy the read makes (a
-//!    canonical or serialized form for a hash). A refusal loads nothing:
-//!    `STORE-READ-MEMORY-UNAVAILABLE`, naming what was to be read.
+//! 1. **Before loading** ([`loaded_text_bytes`], [`string_list_bytes`]): each
+//!    column it loads, labels and relationship lists included, priced from the
+//!    columns' `octet_length`s and counts, read without loading the values. The
+//!    measurement and every load it prices run in one read transaction
+//!    ([`read_transaction`], or the writer's `BEGIN IMMEDIATE`): the metered
+//!    readers take a `Transaction`, so a row another connection writes after
+//!    the measurement is not loaded under it (WAL snapshot isolation).
 //! 2. **Before parsing** ([`parse_bytes`]): each loaded text's
 //!    `serde_json::Value` materialization, bounded by the allocation-free ingress
-//!    prescan, times the number of trees the read holds at once. A text the
-//!    prescan refuses is refused (as the row's integrity failure) before any
-//!    deserialization of it.
-//! 3. **The response** ([`respond_metered`]): its exact serialized length is
-//!    counted first without allocating, a buffer of exactly that capacity is
-//!    reserved, and the value is serialized into it while every reservation the
-//!    value lives under is still held ([`Metered`]).
+//!    prescan. A text the prescan refuses is refused (as the row's integrity
+//!    failure) before any deserialization of it.
+//! 3. **Before building a hash or canonical text** ([`jcs_text`],
+//!    [`checked_sha256`], `model_states::record_hash_hex`): the text's exact
+//!    length is counted first without allocating ([`jcs_length`],
+//!    [`serialized_length`], `model_states::sorted_compact_length`), never
+//!    estimated from a stored length (escapes expand a character up to six
+//!    bytes, a number's canonical form up to five times its stored form), and
+//!    the text is reserved at that length before it is built.
+//! 4. **The response** ([`respond_metered`]): its exact serialized length is
+//!    counted first, a buffer of exactly that capacity is reserved, and the value
+//!    is serialized into it while every reservation the value lives under is
+//!    still held ([`Metered`], which cannot be taken apart: a value read from
+//!    the store leaves its reservations only through serialization).
 //!
 //! S3's comparison of two stored results (design §4.2) reuses the same pricing.
-//! The counting-allocator tests in `analysis_runs_tests.rs` check a read's
+//! The counting-allocator tests in `analysis_runs_tests.rs` check a command's
 //! priced peak, through its serialized response, against what it reserved.
 
 use crate::command_ingress::CommandError;
 use crate::ingress::{allocation_envelope, prescan};
-use serde::Serialize;
-use tauri::ipc::Response;
 use crate::memory_pool::Lease;
 use crate::solve_jobs::{SolveJobError, SolveJobRegistry};
+use open_pipe_stress_canonical_json::{canonical_json, canonical_json_checked_v1_text, canonical_number};
+use open_pipe_stress_operation_applier::sha256_hex;
+use rusqlite::{Connection, Transaction, TransactionBehavior};
+use serde::Serialize;
+use serde_json::Value;
 use std::cell::Cell;
 use std::rc::Rc;
+use tauri::ipc::Response;
 
 /// The refusal of a read the memory pool does not admit.
 pub(crate) const STORE_READ_MEMORY_UNAVAILABLE: &str = "STORE-READ-MEMORY-UNAVAILABLE";
@@ -92,6 +103,12 @@ impl<'a> PoolReadMemory<'a> {
     #[cfg(test)]
     pub(crate) fn peak_reserved(&self) -> u64 {
         self.peak.get()
+    }
+
+    /// The bytes the command's live reservations hold now.
+    #[cfg(test)]
+    pub(crate) fn held(&self) -> u64 {
+        self.held.get()
     }
 }
 
@@ -146,6 +163,39 @@ pub(crate) fn text_copy_bytes(length: u64) -> u64 {
     envelope(length).saturating_mul(3)
 }
 
+/// A text written into a buffer of exactly `length` bytes (its length counted
+/// first): the allocation itself.
+pub(crate) fn exact_text_bytes(length: u64) -> u64 {
+    envelope(length)
+}
+
+/// `parts` joined into a buffer of exactly their length (no growth: a message
+/// quoting a stored name copies it once).
+pub(crate) fn exact_concat(parts: &[&str]) -> String {
+    let mut text = String::with_capacity(parts.iter().map(|part| part.len()).sum());
+    parts.iter().for_each(|part| text.push_str(part));
+    text
+}
+
+/// A message a response carries, joined from `parts` within `memory`: reserved
+/// at its exact length before it is built (it quotes stored names).
+pub(crate) fn message(memory: &dyn ReadMemory, what: &str, parts: &[&str]) -> Result<Metered<String>, String> {
+    let length = parts.iter().map(|part| part.len() as u64).sum();
+    let reservation = memory.reserve(what, exact_text_bytes(length))?;
+    Ok(Metered::new(exact_concat(parts)).holding(reservation))
+}
+
+/// `value`'s serde_json text, written into a buffer of its exact length, which
+/// is reserved in `memory` before it is written.
+pub(crate) fn json_text<T: Serialize + ?Sized>(memory: &dyn ReadMemory, what: &str, value: &T) -> Result<Metered<String>, String> {
+    let length = serialized_length(value)?;
+    let reservation = memory.reserve(what, exact_text_bytes(length))?;
+    let mut buffer = Vec::with_capacity(usize::try_from(length).map_err(|error| error.to_string())?);
+    serde_json::to_writer(&mut buffer, value).map_err(|error| error.to_string())?;
+    let text = String::from_utf8(buffer).map_err(|error| error.to_string())?;
+    Ok(Metered::new(text).holding(reservation))
+}
+
 /// The `serde_json::Value` materialization of a loaded text, bounded by the
 /// ingress prescan (which allocates nothing). A text the prescan does not accept
 /// as one JSON value is refused here, before any deserialization of it
@@ -169,15 +219,25 @@ pub(crate) fn string_list_bytes(count: u64, bytes: u64) -> u64 {
     total(&[strings, text_copy_bytes(count.saturating_mul(48))])
 }
 
-/// A read's value with the reservations it lives under. The reservations are
-/// dropped only after the value has been serialized ([`respond_metered`]).
+/// A value read or built from stored or submitted data, with the reservations
+/// it lives under. It cannot be taken apart: its value is borrowed ([`get`]),
+/// transformed or combined with the reservations kept ([`map`], [`join`]), and
+/// leaves its reservations only when it is serialized ([`respond_metered`]), or,
+/// for an unmetered caller, when it holds no lease ([`into_unreserved`]).
+///
+/// [`get`]: Metered::get
+/// [`map`]: Metered::map
+/// [`join`]: Metered::join
+/// [`into_unreserved`]: Metered::into_unreserved
 #[derive(Debug)]
 pub(crate) struct Metered<T> {
-    pub(crate) value: T,
+    value: T,
     held: Vec<ReadReservation>,
 }
 
 impl<T> Metered<T> {
+    /// A value that holds nothing read from the store (or whose memory the
+    /// caller's argument lease prices).
     pub(crate) fn new(value: T) -> Self {
         Self { value, held: Vec::new() }
     }
@@ -191,19 +251,41 @@ impl<T> Metered<T> {
         self.held.push(reservation);
     }
 
-    /// Moves `other`'s reservations here and returns its value.
-    pub(crate) fn absorb<U>(&mut self, other: Metered<U>) -> U {
-        self.held.extend(other.held);
-        other.value
+    pub(crate) fn get(&self) -> &T {
+        &self.value
     }
 
     pub(crate) fn map<U>(self, f: impl FnOnce(T) -> U) -> Metered<U> {
         Metered { value: f(self.value), held: self.held }
     }
 
-    pub(crate) fn into_parts(self) -> (T, Vec<ReadReservation>) {
-        (self.value, self.held)
+    /// One value from two, holding both one's reservations.
+    pub(crate) fn join<U, V>(mut self, other: Metered<U>, f: impl FnOnce(T, U) -> V) -> Metered<V> {
+        self.held.extend(other.held);
+        Metered { value: f(self.value, other.value), held: self.held }
     }
+
+    /// The value of an unmetered read ([`UnmeteredReadMemory`]); a value that
+    /// holds a lease is refused rather than outliving it.
+    pub(crate) fn into_unreserved(self) -> Result<T, String> {
+        if self.held.iter().any(|reservation| !reservation._leases.is_empty()) {
+            return Err("STORE-READ-RESERVATION-HELD: a metered value leaves its reservations only when it is serialized.".to_string());
+        }
+        Ok(self.value)
+    }
+
+    /// The bytes this value's reservations hold.
+    #[cfg(test)]
+    pub(crate) fn reserved_bytes(&self) -> u64 {
+        self.held.iter().map(|reservation| reservation.bytes).sum()
+    }
+}
+
+/// A read transaction for a metered read (`BEGIN DEFERRED`): its first
+/// statement, the measurement, fixes the snapshot every later load of the read
+/// sees (the store is in WAL mode), so the loads are those measured.
+pub(crate) fn read_transaction(connection: &mut Connection) -> Result<Transaction<'_>, String> {
+    connection.transaction_with_behavior(TransactionBehavior::Deferred).map_err(|error| error.to_string())
 }
 
 /// Counts the bytes of a serialization without storing them.
@@ -222,10 +304,89 @@ impl std::io::Write for ByteCount {
 /// The exact length of `value`'s JSON serialization, found by a first pass that
 /// writes nowhere (serde_json formats into fixed buffers, so the pass does not
 /// allocate).
-pub(crate) fn serialized_length<T: Serialize>(value: &T) -> Result<u64, String> {
+pub(crate) fn serialized_length<T: Serialize + ?Sized>(value: &T) -> Result<u64, String> {
     let mut count = ByteCount(0);
     serde_json::to_writer(&mut count, value).map_err(|error| error.to_string())?;
     Ok(count.0)
+}
+
+/// The exact length of `open_pipe_stress_canonical_json::canonical_json(value)`
+/// (RFC 8785), counted without building the text: strings and keys as serde_json
+/// escapes them (the canonicalizer's escape table), numbers as the
+/// canonicalizer renders them (a number's short text is formatted and dropped),
+/// keys in any order (their order does not change the length).
+pub(crate) fn jcs_length(value: &Value) -> u64 {
+    match value {
+        Value::Null | Value::Bool(true) => 4,
+        Value::Bool(false) => 5,
+        Value::Number(number) => canonical_number(number).len() as u64,
+        Value::String(text) => serialized_length(text).unwrap_or(u64::MAX),
+        Value::Array(items) => {
+            let commas = items.len().saturating_sub(1) as u64;
+            items.iter().fold(total(&[2, commas]), |length, item| length.saturating_add(jcs_length(item)))
+        }
+        Value::Object(map) => {
+            let mut length = total(&[2, map.len().saturating_sub(1) as u64]);
+            for (key, member) in map {
+                length = total(&[length, serialized_length(key).unwrap_or(u64::MAX), 1, jcs_length(member)]);
+            }
+            length
+        }
+    }
+}
+
+/// Building a text of exactly `length` bytes with a growing `String` (the
+/// canonicalizer's): its last doubling's old and new buffers (three times the
+/// length), and the escaped copy it makes of each string with its own growth
+/// (three times the length again, at most).
+pub(crate) fn grown_text_bytes(length: u64) -> u64 {
+    text_copy_bytes(length).saturating_mul(2)
+}
+
+/// `value`'s RFC 8785 canonical text, reserved at its exact length
+/// ([`jcs_length`]) before it is built.
+pub(crate) fn jcs_text(memory: &dyn ReadMemory, what: &str, value: &Value) -> Result<Metered<String>, String> {
+    let length = jcs_length(value);
+    let reservation = memory.reserve(what, grown_text_bytes(length))?;
+    let text = canonical_json(value);
+    if text.len() as u64 != length {
+        return Err(format!("STORE-READ-LENGTH-MISCOUNTED: {what}'s canonical text is {} bytes, counted {length}.", text.len()));
+    }
+    Ok(Metered::new(text).holding(reservation))
+}
+
+/// Whether `text` is `value`'s canonical text. A text of another length is not,
+/// and nothing is built; otherwise the canonical text is built within `memory`.
+pub(crate) fn is_jcs_text(memory: &dyn ReadMemory, what: &str, value: &Value, text: &str) -> Result<bool, String> {
+    if jcs_length(value) != text.len() as u64 {
+        return Ok(false);
+    }
+    Ok(jcs_text(memory, what, value)?.get() == text)
+}
+
+/// SHA-256 (bare hex) of `value`'s canonical text, built within `memory`.
+pub(crate) fn jcs_sha256(memory: &dyn ReadMemory, what: &str, value: &Value) -> Result<String, String> {
+    Ok(sha256_hex(jcs_text(memory, what, value)?.get()))
+}
+
+/// SHA-256 (bare hex) of `value`'s `openpipestress_jcs_ijson_v1` checked
+/// canonical text, as `canonical_json_checked_v1_text` of its serde_json text
+/// gives it: the text (written into a buffer of its exact length), the checked
+/// parse of it and the canonical text are each reserved before they are built.
+pub(crate) fn checked_sha256(memory: &dyn ReadMemory, what: &str, value: &Value) -> Result<String, String> {
+    let text = json_text(memory, what, value)?;
+    checked_sha256_text(memory, what, text.get(), value)
+}
+
+/// SHA-256 (bare hex) of the checked canonical text of `text`, whose parse is
+/// `parsed` (the caller's): the checked parse the canonicalizer makes (at the
+/// prescan's bound) and the canonical text (at `parsed`'s exact canonical
+/// length; the checked parse rebuilds the same value, or refuses) are reserved
+/// before either is made.
+pub(crate) fn checked_sha256_text(memory: &dyn ReadMemory, what: &str, text: &str, parsed: &Value) -> Result<String, String> {
+    let parse = parse_bytes(text)?;
+    let _work = memory.reserve(what, total(&[parse, grown_text_bytes(jcs_length(parsed))]))?;
+    Ok(sha256_hex(&canonical_json_checked_v1_text(text)?))
 }
 
 /// Serializes a metered read's response within `memory`: the response's exact

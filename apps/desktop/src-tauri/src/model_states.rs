@@ -34,16 +34,15 @@
 //! The record is a review and reproducibility record. Nothing here approves,
 //! accepts, certifies or issues anything (F-PIP-2, F-PIP-3).
 
-use crate::command_ingress::{self, respond, Args, ArgsDecoding, CommandError};
+use crate::command_ingress::{self, Args, ArgsDecoding, CommandError};
 use crate::solve_jobs::SolveJobRegistry;
 use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, ReadReservation, UnmeteredReadMemory};
 use open_pipe_stress_operation_applier::{
-    canonical_json, sha256_hex, validate_model_document, DocumentDiagnostic,
+    sha256_hex, validate_model_document, DocumentDiagnostic,
 };
 use rusqlite::{params, Connection, OptionalExtension, Transaction};
 use serde::Serialize;
 use serde_json::{json, Map, Value};
-use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
@@ -105,9 +104,19 @@ pub(crate) const EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES: usize = 256 * 1024;
 const MAX_TAG_CHARS: usize = 64;
 /// The most tags, notes and assumptions one set of labels keeps (repair r2).
 pub(crate) const MAX_LABEL_ITEMS: usize = 256;
-/// The most JSON one set of labels keeps (name, tags, notes, assumptions), below
-/// the label edit's 256 KiB argument budget (repair r2).
+/// The most JSON one set of labels keeps: the whole labels object as the label
+/// edit carries it (`{"state_name" or "run_name", "tags", "notes",
+/// "assumptions"}`), serialized, escapes included ([`labels_json_length`];
+/// repair r3: a name of NULs serializes to six bytes a character).
 pub(crate) const MAX_LABELS_JSON_BYTES: u64 = 192 * 1024;
+/// Every label set a write keeps can be edited: the labels object, a project id
+/// any listable project has (the list's argument budget holds it), the
+/// fixed-length state or recording id and `updated_at`, and the argument
+/// object's member names fit the label edit's argument budget (the run edit's
+/// budget is the same).
+const _: () = assert!(
+    MAX_LABELS_JSON_BYTES as usize + LIST_MODEL_STATES_MAX_ARGS_BYTES + 1024 <= EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES
+);
 const ASSUMPTION_KINDS: [&str; 2] = ["assumption", "open_issue"];
 const ASSUMPTION_STATUSES: [&str; 3] = ["unresolved", "resolved", "rejected"];
 
@@ -130,92 +139,128 @@ pub(crate) const RECORD_NUMBER_UNSUPPORTED: &str = "MODEL-STATE-RECORD-NUMBER-UN
 /// whitespace, every character outside printable ASCII escaped as lowercase
 /// `\uXXXX` (UTF-16 surrogate pairs above U+FFFF), Python's short escapes and
 /// i64/u64 integers in decimal. Any other number is refused
-/// ([`RECORD_NUMBER_UNSUPPORTED`]). This is not JCS.
+/// ([`RECORD_NUMBER_UNSUPPORTED`]). This is not JCS. The text is written into a
+/// buffer of its exact length ([`sorted_compact_length`]). (The record hash
+/// writes the same text, [`record_hash_hex`]; this whole-value form is the
+/// service.py parity vectors'.)
+#[cfg(test)]
 pub(crate) fn sorted_compact_json(value: &Value) -> Result<String, String> {
-    let mut out = String::new();
-    write_sorted_compact(value, &mut out)?;
+    let length = sorted_compact_length(value)?;
+    let mut out = String::with_capacity(usize::try_from(length).map_err(|error| error.to_string())?);
+    write_sorted_compact(value, None, &mut out)?;
     Ok(out)
 }
 
-fn write_sorted_compact(value: &Value, out: &mut String) -> Result<(), String> {
+/// The exact length of [`sorted_compact_json`]'s text, counted by the same
+/// writer into a counter (nothing is stored; each object's sorted key list is
+/// the only allocation). Escapes make it up to six bytes a stored byte.
+#[cfg(test)]
+pub(crate) fn sorted_compact_length(value: &Value) -> Result<u64, String> {
+    let mut count = LengthCount(0);
+    write_sorted_compact(value, None, &mut count)?;
+    Ok(count.0)
+}
+
+/// Counts what the serializer writes.
+struct LengthCount(u64);
+
+impl std::fmt::Write for LengthCount {
+    fn write_str(&mut self, text: &str) -> std::fmt::Result {
+        self.0 = self.0.saturating_add(text.len() as u64);
+        Ok(())
+    }
+}
+
+/// The one sorted-compact writer: into a `String` (the text) or a
+/// [`LengthCount`] (its length), so the two agree by construction. `omit` leaves
+/// one member out of a top-level object (the record hash's `hashes`), so no copy
+/// of the record is made to hash it.
+fn write_sorted_compact<W: std::fmt::Write>(value: &Value, omit: Option<&str>, out: &mut W) -> Result<(), String> {
+    let put = |out: &mut W, text: &str| out.write_str(text).map_err(|error| error.to_string());
     match value {
-        Value::Null => out.push_str("null"),
-        Value::Bool(true) => out.push_str("true"),
-        Value::Bool(false) => out.push_str("false"),
+        Value::Null => put(out, "null")?,
+        Value::Bool(true) => put(out, "true")?,
+        Value::Bool(false) => put(out, "false")?,
         Value::Number(number) => write_exact_integer(number, out)?,
-        Value::String(text) => write_ascii_string(text, out),
+        Value::String(text) => write_ascii_string(text, out)?,
         Value::Array(items) => {
-            out.push('[');
+            put(out, "[")?;
             for (index, item) in items.iter().enumerate() {
                 if index > 0 {
-                    out.push(',');
+                    put(out, ",")?;
                 }
-                write_sorted_compact(item, out)?;
+                write_sorted_compact(item, None, out)?;
             }
-            out.push(']');
+            put(out, "]")?;
         }
         Value::Object(map) => {
-            let mut keys: Vec<&String> = map.keys().collect();
+            let mut keys: Vec<&String> = map.keys().filter(|key| Some(key.as_str()) != omit).collect();
             keys.sort();
-            out.push('{');
+            put(out, "{")?;
             for (index, key) in keys.into_iter().enumerate() {
                 if index > 0 {
-                    out.push(',');
+                    put(out, ",")?;
                 }
-                write_ascii_string(key, out);
-                out.push(':');
-                write_sorted_compact(&map[key], out)?;
+                write_ascii_string(key, out)?;
+                put(out, ":")?;
+                write_sorted_compact(&map[key], None, out)?;
             }
-            out.push('}');
+            put(out, "}")?;
         }
     }
     Ok(())
 }
 
-fn write_exact_integer(number: &serde_json::Number, out: &mut String) -> Result<(), String> {
+fn write_exact_integer<W: std::fmt::Write>(number: &serde_json::Number, out: &mut W) -> Result<(), String> {
     if let Some(integer) = number.as_i64() {
-        let _ = write!(out, "{integer}");
+        write!(out, "{integer}").map_err(|error| error.to_string())
     } else if let Some(integer) = number.as_u64() {
-        let _ = write!(out, "{integer}");
+        write!(out, "{integer}").map_err(|error| error.to_string())
     } else {
-        return Err(format!(
+        Err(format!(
             "{RECORD_NUMBER_UNSUPPORTED}: the record holds the number {number}; a model-state record holds no floats or integers outside i64/u64, so its hash is not computed."
-        ));
+        ))
     }
-    Ok(())
 }
 
-fn write_ascii_string(text: &str, out: &mut String) {
-    out.push('"');
-    for character in text.chars() {
-        match character {
-            '"' => out.push_str("\\\""),
-            '\\' => out.push_str("\\\\"),
-            '\n' => out.push_str("\\n"),
-            '\r' => out.push_str("\\r"),
-            '\t' => out.push_str("\\t"),
-            '\u{8}' => out.push_str("\\b"),
-            '\u{c}' => out.push_str("\\f"),
-            ' '..='~' => out.push(character),
-            _ => {
-                let mut units = [0u16; 2];
-                for unit in character.encode_utf16(&mut units) {
-                    let _ = write!(out, "\\u{unit:04x}");
+fn write_ascii_string<W: std::fmt::Write>(text: &str, out: &mut W) -> Result<(), String> {
+    let mut write = || -> std::fmt::Result {
+        out.write_char('"')?;
+        for character in text.chars() {
+            match character {
+                '"' => out.write_str("\\\"")?,
+                '\\' => out.write_str("\\\\")?,
+                '\n' => out.write_str("\\n")?,
+                '\r' => out.write_str("\\r")?,
+                '\t' => out.write_str("\\t")?,
+                '\u{8}' => out.write_str("\\b")?,
+                '\u{c}' => out.write_str("\\f")?,
+                ' '..='~' => out.write_char(character)?,
+                _ => {
+                    let mut units = [0u16; 2];
+                    for unit in character.encode_utf16(&mut units) {
+                        write!(out, "\\u{unit:04x}")?;
+                    }
                 }
             }
         }
-    }
-    out.push('"');
+        out.write_char('"')
+    };
+    write().map_err(|error| error.to_string())
 }
 
 /// The `model_state_record` hash: SHA-256 hex of the sorted-compact JSON of the
 /// record without `hashes` (the stored record already holds no label field).
-pub(crate) fn record_hash_hex(stored_record: &Value) -> Result<String, String> {
-    let mut payload = stored_record.clone();
-    if let Some(map) = payload.as_object_mut() {
-        map.remove("hashes");
-    }
-    Ok(sha256_hex(&sorted_compact_json(&payload)?))
+/// The text is counted first ([`sorted_compact_length`]), reserved in `memory`
+/// at that length (`what` names the record) and written into a buffer of
+/// exactly that capacity; the record is not copied.
+pub(crate) fn record_hash_hex(stored_record: &Value, memory: &dyn ReadMemory, what: &str) -> Result<String, String> {
+    let mut count = LengthCount(0);
+    write_sorted_compact(stored_record, Some("hashes"), &mut count)?;
+    let _text = memory.reserve(what, stored_read::exact_text_bytes(count.0))?;
+    let mut text = String::with_capacity(usize::try_from(count.0).map_err(|error| error.to_string())?);
+    write_sorted_compact(stored_record, Some("hashes"), &mut text)?;
+    Ok(sha256_hex(&text))
 }
 
 // ---------------------------------------------------------------------------
@@ -388,30 +433,45 @@ pub(crate) fn labels_from_value_in(
     if let Some(key) = map.keys().next() {
         return Err(labels_invalid(code, format_args!("unknown member `{key}`")));
     }
-    // The write-time bound on labels (repair r2): every path that writes labels
-    // (Save Model State, Record Run, the label edits) keeps at most
-    // MAX_LABEL_ITEMS tags, notes and assumptions together and at most
-    // MAX_LABELS_JSON_BYTES of their JSON, as the label edit's ingress budget
-    // does. Reads still price what is stored, whatever its size.
+    // The write-time bound on labels (repairs r2, r3): every path that writes
+    // labels (Save Model State, Record Run, the label edits) decodes them here
+    // and keeps at most MAX_LABEL_ITEMS tags, notes and assumptions together and
+    // at most MAX_LABELS_JSON_BYTES of the whole labels object serialized, so
+    // the stored labels always fit the label edit's argument budget. Reads still
+    // price what is stored, whatever its size.
     let items = tags.len() + notes.len() + assumptions.len();
     if items > MAX_LABEL_ITEMS {
         return Err(labels_invalid(code, format_args!("{items} tags, notes and assumptions are more than the {MAX_LABEL_ITEMS} kept")));
     }
-    let json_bytes = stored_read::total(&[
-        state_name.len() as u64,
-        stored_read::serialized_length(&tags).unwrap_or(u64::MAX),
-        stored_read::serialized_length(&notes).unwrap_or(u64::MAX),
-        stored_read::serialized_length(&assumptions).unwrap_or(u64::MAX),
-    ]);
-    if json_bytes > MAX_LABELS_JSON_BYTES {
-        return Err(labels_invalid(code, format_args!("the labels hold {json_bytes} bytes of JSON; at most {MAX_LABELS_JSON_BYTES} are kept")));
-    }
-    Ok(StateLabels {
+    let labels = StateLabels {
         state_name,
         tags,
         notes,
         assumptions,
-    })
+    };
+    let json_bytes = labels_json_length(vocabulary.name_key, &labels);
+    if json_bytes > MAX_LABELS_JSON_BYTES {
+        return Err(labels_invalid(code, format_args!("the labels hold {json_bytes} bytes of JSON; at most {MAX_LABELS_JSON_BYTES} are kept")));
+    }
+    Ok(labels)
+}
+
+/// The exact serialized length of the labels object a label edit carries,
+/// `{name_key: name, "tags": [..], "notes": [..], "assumptions": [..]}`, counted
+/// without building it (serde_json's escapes are the webview's
+/// `JSON.stringify`'s; member order does not change the length).
+pub(crate) fn labels_json_length(name_key: &str, labels: &StateLabels) -> u64 {
+    let member = |key: &str, length: Result<u64, String>| {
+        stored_read::total(&[stored_read::serialized_length(key).unwrap_or(u64::MAX), 1, length.unwrap_or(u64::MAX)])
+    };
+    stored_read::total(&[
+        2,
+        3,
+        member(name_key, stored_read::serialized_length(&labels.state_name)),
+        member("tags", stored_read::serialized_length(&labels.tags)),
+        member("notes", stored_read::serialized_length(&labels.notes)),
+        member("assumptions", stored_read::serialized_length(&labels.assumptions)),
+    ])
 }
 
 fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
@@ -702,7 +762,7 @@ pub(crate) struct NewState<'a> {
 /// ones (`state_name`, `tags`, `notes` and the state-level assumptions), with
 /// `hashes` holding the snapshot's JCS hash and the record hash. Returns the
 /// record and its hash.
-pub(crate) fn stored_record(state: &NewState<'_>) -> Result<(Value, String), String> {
+pub(crate) fn stored_record(state: &NewState<'_>, memory: &dyn ReadMemory) -> Result<(Value, String), String> {
     let findings = validate_model_document(state.model);
     let mut analysis_status = vec!["HUMAN_REVIEW_REQUIRED"];
     if findings.iter().any(DocumentDiagnostic::is_blocking) {
@@ -739,7 +799,7 @@ pub(crate) fn stored_record(state: &NewState<'_>) -> Result<(Value, String), Str
         },
         "provenance": record_provenance()
     });
-    let hash = record_hash_hex(&record)?;
+    let hash = record_hash_hex(&record, memory, &format!("the record of new state `{}`", state.state_id))?;
     record["hashes"] = checksum_descriptors(
         state.project_id,
         state.state_id,
@@ -952,15 +1012,22 @@ fn hash_mismatch(detail: &str) -> String {
 }
 
 /// Checks a submitted snapshot: it must be its own unchecked `canonical_json`
-/// and hash to the claim. Returns the parsed model and the bare hex.
-fn verified_snapshot(model_canonical: &str, claimed: &str) -> Result<(Value, String), String> {
+/// and hash to the claim. Returns the parsed model (held under its parse's
+/// reservation, priced at the prescan's bound before parsing) and the bare hex.
+/// The canonical form is built only when its exact length is the text's, within
+/// `memory`.
+fn verified_snapshot(model_canonical: &str, claimed: &str, memory: &dyn ReadMemory) -> Result<(Metered<Value>, String), String> {
+    let parse = stored_read::parse_bytes(model_canonical)
+        .map_err(|detail| hash_mismatch(&format!("the snapshot is not JSON ({detail})")))?;
+    let reservation = memory.reserve("the submitted snapshot", parse)?;
     let model: Value = serde_json::from_str(model_canonical)
         .map_err(|error| hash_mismatch(&format!("the snapshot is not JSON ({error})")))?;
-    if canonical_json(&model) != model_canonical {
+    if !stored_read::is_jcs_text(memory, "the submitted snapshot's canonical text", &model, model_canonical)? {
         return Err(hash_mismatch(
             "the snapshot text is not its own canonical JCS text",
         ));
     }
+    let model = Metered::new(model).holding(reservation);
     let hex = sha256_hex(model_canonical);
     if claimed != format!("sha256:{hex}") {
         return Err(hash_mismatch(&format!(
@@ -1068,12 +1135,12 @@ fn state_summary_lengths(connection: &Connection, project_id: &str, state_id: &s
 }
 
 /// What loading summaries of these lengths needs before any is loaded: the
-/// largest record's loading and sorted-compact hash text, every labels row,
-/// the id and name lists, and each row's small columns.
+/// largest record's loading, every labels row, the id and name lists, and each
+/// row's small columns. (The record's sorted-compact hash text is reserved at
+/// its exact length when it is built, [`record_hash_hex`].)
 pub(crate) fn summary_load_bytes(lengths: &SummaryLengths) -> u64 {
     stored_read::total(&[
         stored_read::loaded_text_bytes(lengths.record),
-        stored_read::text_copy_bytes(lengths.record),
         stored_read::loaded_text_bytes(lengths.labels),
         stored_read::string_list_bytes(lengths.child_count, lengths.child_bytes),
         stored_read::string_list_bytes(lengths.run_count, lengths.run_bytes),
@@ -1188,12 +1255,14 @@ struct IdentityColumns<'a> {
 /// row's columns. Any difference is `MODEL-STATE-INTEGRITY`. Used wherever a
 /// state is listed, summarized or read, so a column edited outside the store
 /// is never reported as the state's.
-fn verified_record(columns: &IdentityColumns<'_>, record_json: &str) -> Result<Value, String> {
+fn verified_record(columns: &IdentityColumns<'_>, record_json: &str, memory: &dyn ReadMemory) -> Result<Value, String> {
     let id = columns.state_id;
     let record: Value = serde_json::from_str(record_json).map_err(|error| {
         integrity_of(id, format_args!("the stored record is not JSON ({error})"))
     })?;
-    let recomputed = record_hash_hex(&record).map_err(|error| integrity_of(id, error))?;
+    let recomputed = record_hash_hex(&record, memory, &format!("saved state `{id}`'s record hash")).map_err(|error| {
+        if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { integrity_of(id, error) }
+    })?;
     if recomputed != columns.record_hash
         || claimed_hash(&record, "model_state_record") != Some(recomputed.as_str())
     {
@@ -1272,15 +1341,15 @@ fn stored_record_json(
         .map_err(sql)
 }
 
-/// One summary from its row. The caller has reserved loading it
-/// ([`summary_load_bytes`]); the record's parse is reserved here before parsing
-/// and released once it is verified; the returned reservation holds the decoded
-/// labels.
+/// One summary from its row, on the caller's transaction. The caller has
+/// reserved loading it ([`summary_load_bytes`]); the record's parse and its
+/// hash text are reserved here before they are made and released once it is
+/// verified; the summary holds its decoded labels' reservation.
 fn summary_from_row(
     connection: &Connection,
     row: SummaryRow,
     memory: &dyn ReadMemory,
-) -> Result<(ModelStateSummary, ReadReservation), String> {
+) -> Result<Metered<ModelStateSummary>, String> {
     let (
         project_id,
         state_id,
@@ -1303,10 +1372,10 @@ fn summary_from_row(
         ));
     };
     let record_json = stored_record_json(connection, &project_id, &state_id)?;
-    // The record's parse and the projection its hash clones (priced before parsing).
+    // The record's parse (priced before parsing; its hash copies nothing).
     let record_parse = stored_read::parse_bytes(&record_json)
         .map_err(|detail| integrity_of(&state_id, format_args!("the stored record: {detail}")))?;
-    let parse = memory.reserve(&format!("saved state `{state_id}`'s record"), record_parse.saturating_mul(2))?;
+    let parse = memory.reserve(&format!("saved state `{state_id}`'s record"), record_parse)?;
     let record = verified_record(
         &IdentityColumns {
             project_id: &project_id,
@@ -1318,6 +1387,7 @@ fn summary_from_row(
             record_hash: &record_hash,
         },
         &record_json,
+        memory,
     )?;
     drop(record_json);
     let analysis_status: Vec<String> =
@@ -1337,7 +1407,7 @@ fn summary_from_row(
         .collect();
     let (labels, labels_reservation) = decode_labels(&state_id, name, &tags, &notes, &assumptions, memory)?;
     drop((tags, notes, assumptions));
-    Ok((ModelStateSummary {
+    Ok(Metered::new(ModelStateSummary {
         analysis_status,
         labels,
         project_id,
@@ -1350,26 +1420,21 @@ fn summary_from_row(
         labels_updated_at: updated_at,
         child_state_ids,
         recorded_run_ids,
-    }, labels_reservation))
+    })
+    .holding(labels_reservation))
 }
 
-pub(crate) fn find_summary(
-    connection: &Connection,
-    project_id: &str,
-    state_id: &str,
-) -> Result<Option<ModelStateSummary>, String> {
-    Ok(find_summary_with(connection, project_id, state_id, &UnmeteredReadMemory)?.map(|metered| metered.into_parts().0))
-}
-
-/// [`find_summary`] within `memory`: the summary's lengths are read first, its
-/// loading is reserved before anything of it is loaded, and the returned
-/// reservations hold the summary.
+/// A state's summary within `memory`, on `transaction` (a read transaction or
+/// the writer's, so the lengths measured are those loaded): the summary's
+/// lengths are read first, its loading is reserved before anything of it is
+/// loaded, and the returned summary holds its reservations.
 pub(crate) fn find_summary_with(
-    connection: &Connection,
+    transaction: &Transaction<'_>,
     project_id: &str,
     state_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Option<Metered<ModelStateSummary>>, String> {
+    let connection: &Connection = transaction;
     let Some(lengths) = state_summary_lengths(connection, project_id, state_id)? else {
         return Ok(None);
     };
@@ -1386,18 +1451,29 @@ pub(crate) fn find_summary_with(
         .optional()
         .map_err(sql)?;
     let Some(row) = row else { return Ok(None) };
-    let (summary, labels) = summary_from_row(connection, row, memory)?;
-    Ok(Some(Metered::new(summary).holding(load).holding(labels)))
+    Ok(Some(summary_from_row(connection, row, memory)?.holding(load)))
 }
 
-/// The project's states, newest first, from columns only (unmetered; the
-/// command uses [`list_states_with`]).
-#[cfg_attr(not(test), allow(dead_code))]
+/// The project's states, newest first, unmetered, on its own read transaction
+/// (tests; the command uses [`list_states_in_store_with`]).
+#[cfg(test)]
 pub(crate) fn list_states(
     connection: &Connection,
     project_id: &str,
 ) -> Result<Vec<ModelStateSummary>, String> {
-    Ok(list_states_with(connection, project_id, &UnmeteredReadMemory)?.into_parts().0)
+    let transaction = connection.unchecked_transaction().map_err(sql)?;
+    list_states_with(&transaction, project_id, &UnmeteredReadMemory)?.into_unreserved()
+}
+
+/// [`list_states_with`] on its own read transaction of the store at `path`.
+pub(crate) fn list_states_in_store_with(
+    path: &Path,
+    project_id: &str,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<Vec<ModelStateSummary>>, String> {
+    let (mut connection, _migration) = crate::open_project_store(path)?;
+    let transaction = stored_read::read_transaction(&mut connection)?;
+    list_states_with(&transaction, project_id, memory)
 }
 
 /// [`list_states`] within `memory`: before anything is loaded, the summaries'
@@ -1406,10 +1482,11 @@ pub(crate) fn list_states(
 /// list keeps); each record's parse is reserved after it is loaded and released
 /// once it is verified, and each row's decoded labels are held with the list.
 pub(crate) fn list_states_with(
-    connection: &Connection,
+    transaction: &Transaction<'_>,
     project_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<Vec<ModelStateSummary>>, String> {
+    let connection: &Connection = transaction;
     let lengths = connection
         .query_row(
             &format!(
@@ -1440,9 +1517,10 @@ pub(crate) fn list_states_with(
         .map_err(sql)?;
     let mut listed = Metered::new(Vec::with_capacity(rows.len())).holding(load);
     for row in rows {
-        let (summary, labels) = summary_from_row(connection, row, memory)?;
-        listed.value.push(summary);
-        listed.hold(labels);
+        listed = listed.join(summary_from_row(connection, row, memory)?, |mut list, summary| {
+            list.push(summary);
+            list
+        });
     }
     Ok(listed)
 }
@@ -1458,8 +1536,15 @@ pub(crate) fn saved_state_count(connection: &Connection, project_id: &str) -> Re
         .map_err(sql)
 }
 
+/// `"<name>" (<state id>)`, in pieces (a response message joins them within its
+/// reservation, [`stored_read::message`]).
+pub(crate) fn state_description_parts(summary: &ModelStateSummary) -> [&str; 5] {
+    ["\"", &summary.labels.state_name, "\" (", &summary.state_id, ")"]
+}
+
+/// `"<name>" (<state id>)`, one exact-capacity copy of the name (refusals).
 pub(crate) fn state_description(summary: &ModelStateSummary) -> String {
-    format!("\"{}\" ({})", summary.labels.state_name, summary.state_id)
+    stored_read::exact_concat(&state_description_parts(summary))
 }
 
 /// Model assumption ids a label assumption may not reuse.
@@ -1503,15 +1588,16 @@ pub(crate) fn checked_new_state(
     state_kind: &str,
     model_canonical: String,
     claimed_hash: &str,
-) -> Result<CheckedSnapshot, String> {
+    memory: &dyn ReadMemory,
+) -> Result<Metered<CheckedSnapshot>, String> {
     if !STATE_KINDS.contains(&state_kind) {
         return Err(format!(
             "MODEL-STATE-KIND-INVALID: `{state_kind}` is not one of {}.",
             STATE_KINDS.join(", ")
         ));
     }
-    let (model, model_hash_hex) = verified_snapshot(&model_canonical, claimed_hash)?;
-    let snapshot_project = crate::project_id_from_model(&model);
+    let (model, model_hash_hex) = verified_snapshot(&model_canonical, claimed_hash, memory)?;
+    let snapshot_project = crate::project_id_from_model(model.get());
     if snapshot_project != project_id {
         return Err(format!(
             "MODEL-STATE-PROJECT-MISMATCH: the snapshot is project `{snapshot_project}`, not `{project_id}`; nothing was saved."
@@ -1521,22 +1607,23 @@ pub(crate) fn checked_new_state(
     // hold a model with blocking slot findings: the record says
     // `MODEL_INCOMPLETE` and the state is not opened (design §2). The record
     // mapping refuses, by name, any slot it cannot map.
-    crate::check_model_document_version(&model)?;
-    Ok(CheckedSnapshot {
+    crate::check_model_document_version(model.get())?;
+    Ok(model.map(|model| CheckedSnapshot {
         model,
         model_canonical,
         model_hash: claimed_hash.to_string(),
         model_hash_hex,
-    })
+    }))
 }
 
-/// The state of `project_id` holding this model hash, if any.
+/// The state of `project_id` holding this model hash, if any, within `memory`.
 pub(crate) fn state_with_model_hash(
-    connection: &Connection,
+    transaction: &Transaction<'_>,
     project_id: &str,
     model_hash: &str,
-) -> Result<Option<ModelStateSummary>, String> {
-    let existing: Option<String> = connection
+    memory: &dyn ReadMemory,
+) -> Result<Option<Metered<ModelStateSummary>>, String> {
+    let existing: Option<String> = transaction
         .query_row(
             "SELECT state_id FROM model_states WHERE project_id = ?1 AND model_hash = ?2",
             params![project_id, model_hash],
@@ -1546,7 +1633,7 @@ pub(crate) fn state_with_model_hash(
         .map_err(sql)?;
     match existing {
         None => Ok(None),
-        Some(state_id) => find_summary(connection, project_id, &state_id)?
+        Some(state_id) => find_summary_with(transaction, project_id, &state_id, memory)?
             .map(Some)
             .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.")),
     }
@@ -1565,9 +1652,10 @@ pub(crate) fn insert_new_state(
     snapshot: &CheckedSnapshot,
     labels: &StateLabels,
     hooks: &StateWriteHooks<'_>,
-) -> Result<ModelStateSummary, String> {
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateSummary>, String> {
     if let Some(parent) = parent_state_id {
-        if find_summary(transaction, project_id, parent)?.is_none() {
+        if find_summary_with(transaction, project_id, parent, memory)?.is_none() {
             return Err(format!(
                 "MODEL-STATE-PARENT-MISSING: project `{project_id}` has no saved state `{parent}`; nothing was saved."
             ));
@@ -1584,9 +1672,10 @@ pub(crate) fn insert_new_state(
         parent_state_id,
         model: &snapshot.model,
         model_hash_hex: &snapshot.model_hash_hex,
-    })?;
+    }, memory)?;
     refuse_assumption_id_collisions(&record, labels)?;
-    let record_json = serde_json::to_string(&record).map_err(|error| error.to_string())?;
+    let record_json = stored_read::json_text(memory, &format!("the record of new state `{state_id}`"), &record)?;
+    drop(record);
     transaction
         .execute(
             "INSERT INTO model_states (project_id, state_id, state_kind, created_at, parent_state_id, model_canonical, model_hash, record_json, record_hash)
@@ -1599,30 +1688,47 @@ pub(crate) fn insert_new_state(
                 parent_state_id,
                 snapshot.model_canonical,
                 snapshot.model_hash,
-                record_json,
+                record_json.get(),
                 record_hash
             ],
         )
         .map_err(sql)?;
+    drop(record_json);
     (hooks.between_rows)(transaction)?;
     write_labels(transaction, project_id, &state_id, labels, &created_at, true)?;
-    find_summary(transaction, project_id, &state_id)?
+    find_summary_with(transaction, project_id, &state_id, memory)?
         .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` was not written."))
 }
 
 /// `save_model_state` on a given store: the checks, then the state row and its
 /// labels row in one `BEGIN IMMEDIATE` transaction with the project row's
-/// stale-window check.
+/// stale-window check (unmetered: tests and callers that price it otherwise).
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn save_state_in_store(
     path: &Path,
     request: SaveModelStateRequest,
     hooks: &StateWriteHooks<'_>,
 ) -> Result<ModelStateSaveOutcome, String> {
+    save_state_in_store_with(path, request, hooks, &UnmeteredReadMemory)?.into_unreserved()
+}
+
+/// [`save_state_in_store`] within `memory`: the snapshot's parse and canonical
+/// form, the new record's hash text and serialized text, and every summary it
+/// reads (the existing state, the parent, the saved state) are reserved before
+/// they are made; the outcome holds its summary's reservations until it is
+/// serialized.
+pub(crate) fn save_state_in_store_with(
+    path: &Path,
+    request: SaveModelStateRequest,
+    hooks: &StateWriteHooks<'_>,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateSaveOutcome>, String> {
     let snapshot = checked_new_state(
         &request.project_id,
         &request.state_kind,
         request.model_canonical,
         &request.model_hash,
+        memory,
     )?;
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
@@ -1638,36 +1744,37 @@ pub(crate) fn save_state_in_store(
         None,
         Some(&request.expected_base),
     )?;
-    if let Some(state) = state_with_model_hash(&transaction, &request.project_id, &snapshot.model_hash)? {
-        let message = format!(
-            "This model is already saved as state {}; nothing was written.",
-            state_description(&state)
-        );
-        return Ok(ModelStateSaveOutcome {
-            outcome: "already_saved",
-            state,
-            message,
-        });
+    if let Some(state) = state_with_model_hash(&transaction, &request.project_id, &snapshot.get().model_hash, memory)? {
+        let message = stored_read::message(
+            memory,
+            "the save's message",
+            &[&["This model is already saved as state "][..], &state_description_parts(state.get()), &["; nothing was written."]].concat(),
+        )?;
+        return Ok(state.join(message, |state, message| ModelStateSaveOutcome { outcome: "already_saved", message, state }));
     }
     let state = insert_new_state(
         &transaction,
         &request.project_id,
         &request.state_kind,
         request.parent_state_id.as_deref(),
-        &snapshot,
+        snapshot.get(),
         &request.labels,
         hooks,
+        memory,
     )?;
+    drop(snapshot);
     transaction.commit().map_err(sql)?;
-    let message = format!(
-        "Saved model state {}. Renaming, tagging or adding notes does not change the saved state.",
-        state_description(&state)
-    );
-    Ok(ModelStateSaveOutcome {
-        outcome: "saved",
-        state,
-        message,
-    })
+    let message = stored_read::message(
+        memory,
+        "the save's message",
+        &[
+            &["Saved model state "][..],
+            &state_description_parts(state.get()),
+            &[". Renaming, tagging or adding notes does not change the saved state."],
+        ]
+        .concat(),
+    )?;
+    Ok(state.join(message, |state, message| ModelStateSaveOutcome { outcome: "saved", message, state }))
 }
 
 fn write_labels(
@@ -1725,15 +1832,17 @@ pub(crate) fn read_state_in_store(
     project_id: &str,
     state_id: &str,
 ) -> Result<ModelStateRead, String> {
-    Ok(read_state_in_store_with(path, project_id, state_id, &UnmeteredReadMemory)?.into_parts().0)
+    read_state_in_store_with(path, project_id, state_id, &UnmeteredReadMemory)?.into_unreserved()
 }
 
-/// [`read_state_in_store`] within `memory` (`stored_read`): the snapshot's and
-/// the record's byte lengths are read first, without loading them, and their
-/// loading and hash copies are reserved before either is loaded (the summary
-/// reserves its own); their parses are reserved before they are parsed, and a
-/// stored text the prescan refuses is refused before it is parsed. The
-/// returned reservations hold the read until its response is serialized
+/// [`read_state_in_store`] within `memory` (`stored_read`), in one read
+/// transaction: the snapshot's and the record's byte lengths are read first,
+/// without loading them, and their loading is reserved before either is loaded
+/// (the summary reserves its own); their parses are reserved before they are
+/// parsed, and a stored text the prescan refuses is refused before it is
+/// parsed; the snapshot's canonical text and the record's hash text are
+/// reserved at their exact lengths before they are built. The returned read
+/// holds its reservations until its response is serialized
 /// ([`stored_read::respond_metered`]). A refusal is
 /// `STORE-READ-MEMORY-UNAVAILABLE` and loads nothing more.
 pub(crate) fn read_state_in_store_with(
@@ -1742,9 +1851,10 @@ pub(crate) fn read_state_in_store_with(
     state_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<ModelStateRead>, String> {
-    let (connection, _migration) = crate::open_project_store(path)?;
+    let (mut connection, _migration) = crate::open_project_store(path)?;
+    let transaction = stored_read::read_transaction(&mut connection)?;
     let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.");
-    let (model_length, record_length): (i64, i64) = connection
+    let (model_length, record_length): (i64, i64) = transaction
         .query_row(
             "SELECT octet_length(model_canonical), octet_length(record_json) FROM model_states WHERE project_id = ?1 AND state_id = ?2",
             params![project_id, state_id],
@@ -1759,20 +1869,19 @@ pub(crate) fn read_state_in_store_with(
     );
     let what = format!("saved state `{state_id}`");
     // Loaded here: the snapshot and the record (the summary reserves its own
-    // load). Copies: the snapshot's canonical text; the record's sorted-compact text.
+    // load; the canonical and hash texts are reserved when they are built).
     let load = memory.reserve(
         &what,
         stored_read::total(&[
             stored_read::READ_OVERHEAD_BYTES,
             stored_read::loaded_text_bytes(model_length),
-            stored_read::text_copy_bytes(model_length),
             stored_read::loaded_text_bytes(record_length),
-            stored_read::text_copy_bytes(record_length),
         ]),
     )?;
     let mut read = Metered::new(()).holding(load);
-    let state = read.absorb(find_summary_with(&connection, project_id, state_id, memory)?.ok_or_else(not_found)?);
-    let (model_canonical, record_json): (String, String) = connection
+    let metered_state = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(not_found)?;
+    let state = metered_state.get();
+    let (model_canonical, record_json): (String, String) = transaction
         .query_row(
             "SELECT model_canonical, record_json FROM model_states WHERE project_id = ?1 AND state_id = ?2",
             params![project_id, state_id],
@@ -1780,8 +1889,8 @@ pub(crate) fn read_state_in_store_with(
         )
         .map_err(sql)?;
     // Parsed: the snapshot, and the validators' indexes of it; the record, its
-    // hash projection and the emitted record, whose label items each gain a
-    // provenance object.
+    // verification's parse and the emitted record, whose label items each gain
+    // a provenance object.
     let model_parse = stored_read::parse_bytes(&model_canonical)
         .map_err(|detail| integrity(format!("the stored snapshot: {detail}")))?;
     let record_parse = stored_read::parse_bytes(&record_json)
@@ -1804,7 +1913,7 @@ pub(crate) fn read_state_in_store_with(
     }
     let model: Value = serde_json::from_str(&model_canonical)
         .map_err(|error| integrity(format!("the stored snapshot is not JSON ({error})")))?;
-    if canonical_json(&model) != model_canonical {
+    if !stored_read::is_jcs_text(memory, &format!("{what}'s canonical snapshot"), &model, &model_canonical)? {
         return Err(integrity(
             "the stored snapshot is not canonical JCS text".to_string(),
         ));
@@ -1822,6 +1931,7 @@ pub(crate) fn read_state_in_store_with(
             record_hash: &state.record_hash,
         },
         &record_json,
+        memory,
     )?;
     if claimed_hash(&stored, "model_payload") != Some(hex.as_str()) {
         return Err(integrity(
@@ -1844,7 +1954,7 @@ pub(crate) fn read_state_in_store_with(
     drop(stored);
     drop(record_json);
     drop(model_canonical);
-    Ok(read.map(|()| ModelStateRead {
+    Ok(read.join(metered_state, |(), state| ModelStateRead {
         state,
         record,
         model,
@@ -1865,14 +1975,14 @@ pub(crate) fn edit_labels_in_store(
     expected_updated_at: Option<&str>,
     now_millis: i64,
 ) -> Result<ModelStateSummary, String> {
-    Ok(edit_labels_in_store_with(path, project_id, state_id, labels, expected_updated_at, now_millis, &UnmeteredReadMemory)?
-        .into_parts()
-        .0)
+    edit_labels_in_store_with(path, project_id, state_id, labels, expected_updated_at, now_millis, &UnmeteredReadMemory)?.into_unreserved()
 }
 
-/// [`edit_labels_in_store`] within `memory`: the summaries it reads and the
-/// record it checks the labels against are reserved before they are loaded,
-/// and their parses before they are parsed.
+/// [`edit_labels_in_store`] within `memory`, on its `BEGIN IMMEDIATE`
+/// transaction: the summaries it reads and the record it checks the labels
+/// against are reserved before they are loaded, and their parses before they
+/// are parsed. The current summary keeps its reservations while it is live
+/// (through the record's load and the write).
 pub(crate) fn edit_labels_in_store_with(
     path: &Path,
     project_id: &str,
@@ -1885,12 +1995,12 @@ pub(crate) fn edit_labels_in_store_with(
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
     let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.");
-    let current = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(not_found)?.into_parts().0;
+    let current = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(not_found)?;
     if let Some(expected) = expected_updated_at {
-        if expected != current.labels_updated_at {
+        if expected != current.get().labels_updated_at {
             return Err(format!(
                 "MODEL-STATE-LABELS-MOVED: the labels of state {} changed after this window read them; nothing was written.",
-                state_description(&current)
+                state_description(current.get())
             ));
         }
     }
@@ -1901,10 +2011,8 @@ pub(crate) fn edit_labels_in_store_with(
             |row| row.get(0),
         )
         .map_err(sql)?;
-    let load = memory.reserve(
-        &format!("saved state `{state_id}`'s record"),
-        stored_read::loaded_text_bytes(u64::try_from(record_length).unwrap_or(0)),
-    )?;
+    let checked = format!("saved state `{state_id}`'s record, for the label check");
+    let load = memory.reserve(&checked, stored_read::loaded_text_bytes(u64::try_from(record_length).unwrap_or(0)))?;
     let record_json: String = transaction
         .query_row(
             "SELECT record_json FROM model_states WHERE project_id = ?1 AND state_id = ?2",
@@ -1913,7 +2021,7 @@ pub(crate) fn edit_labels_in_store_with(
         )
         .map_err(sql)?;
     let parse = memory.reserve(
-        &format!("saved state `{state_id}`'s record"),
+        &checked,
         stored_read::parse_bytes(&record_json).map_err(|detail| integrity_of(state_id, format_args!("the stored record: {detail}")))?,
     )?;
     let stored: Value = serde_json::from_str(&record_json).map_err(|error| error.to_string())?;
@@ -1921,7 +2029,7 @@ pub(crate) fn edit_labels_in_store_with(
     drop((stored, record_json, parse, load));
     // Strictly later than the labels' last write, so `expected_updated_at`
     // tells two writes apart.
-    let previous = parse_iso_millis(&current.labels_updated_at).unwrap_or(i64::MIN);
+    let previous = parse_iso_millis(&current.get().labels_updated_at).unwrap_or(i64::MIN);
     let updated_at = utc_iso_millis(now_millis.max(previous.saturating_add(1)));
     write_labels(
         &transaction,
@@ -1931,6 +2039,7 @@ pub(crate) fn edit_labels_in_store_with(
         &updated_at,
         false,
     )?;
+    drop(current);
     let summary = find_summary_with(&transaction, project_id, state_id, memory)?
         .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished."))?;
     transaction.commit().map_err(sql)?;
@@ -1971,24 +2080,26 @@ pub(crate) fn delete_state_in_store(
     project_id: &str,
     state_id: &str,
 ) -> Result<ModelStateDeleteReceipt, String> {
-    delete_state_in_store_with(path, project_id, state_id, &UnmeteredReadMemory)
+    delete_state_in_store_with(path, project_id, state_id, &UnmeteredReadMemory)?.into_unreserved()
 }
 
-/// [`delete_state_in_store`] within `memory`: the state's summary, each blocking
-/// child's summary (one at a time) and the blockers' names in the refusal are
-/// reserved before they are loaded.
+/// [`delete_state_in_store`] within `memory`, on its `BEGIN IMMEDIATE`
+/// transaction: the state's summary, each blocking child's summary (one at a
+/// time) and the blockers' names in the refusal are reserved before they are
+/// loaded. The receipt, which names the state, holds the summary's
+/// reservations until it is serialized.
 pub(crate) fn delete_state_in_store_with(
     path: &Path,
     project_id: &str,
     state_id: &str,
     memory: &dyn ReadMemory,
-) -> Result<ModelStateDeleteReceipt, String> {
+) -> Result<Metered<ModelStateDeleteReceipt>, String> {
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
     let metered = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(|| {
         format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.")
     })?;
-    let (state, _held) = metered.into_parts();
+    let state = metered.get();
     // The refusal names every blocker: the children's names and the runs' names.
     let (child_names, child_count): (i64, i64) = transaction
         .query_row(
@@ -2014,7 +2125,7 @@ pub(crate) fn delete_state_in_store_with(
             .iter()
             .map(
                 |child| match find_summary_with(&transaction, project_id, child, memory) {
-                    Ok(Some(summary)) => Ok(state_description(&summary.value)),
+                    Ok(Some(summary)) => Ok(state_description(summary.get())),
                     Ok(None) => Ok(child.clone()),
                     Err(error) if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) => Err(error),
                     Err(_) => Ok(child.clone()),
@@ -2058,12 +2169,17 @@ pub(crate) fn delete_state_in_store_with(
         )
         .map_err(sql)?;
     transaction.commit().map_err(sql)?;
-    Ok(ModelStateDeleteReceipt {
+    let message = stored_read::message(
+        memory,
+        "the delete's receipt",
+        &[&["Deleted model state "][..], &state_description_parts(metered.get()), &["."]].concat(),
+    )?;
+    Ok(metered.join(message, |_state, message| ModelStateDeleteReceipt {
         project_id: project_id.to_string(),
         state_id: state_id.to_string(),
         deleted: deleted == 1,
-        message: format!("Deleted model state {}.", state_description(&state)),
-    })
+        message,
+    }))
 }
 
 // ---------------------------------------------------------------------------
@@ -2074,10 +2190,11 @@ pub(crate) fn delete_state_in_store_with(
 pub(crate) fn save_model_state_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
-) -> Result<ModelStateSaveOutcome, CommandError> {
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateSaveOutcome>, CommandError> {
     let request = args.decode_with("request", SaveModelStateRequest::from_value)?;
     store()
-        .and_then(|path| save_state_in_store(&path, request, &PRODUCTION_HOOKS))
+        .and_then(|path| save_state_in_store_with(&path, request, &PRODUCTION_HOOKS, memory))
         .map_err(CommandError::Command)
 }
 
@@ -2089,10 +2206,7 @@ pub(crate) fn list_model_states_args(
 ) -> Result<Metered<Vec<ModelStateSummary>>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     store()
-        .and_then(|path| {
-            let (connection, _migration) = crate::open_project_store(&path)?;
-            list_states_with(&connection, &project_id, memory)
-        })
+        .and_then(|path| list_states_in_store_with(&path, &project_id, memory))
         .map_err(CommandError::Command)
 }
 
@@ -2145,7 +2259,7 @@ pub(crate) fn delete_model_state_args(
     let project_id: String = args.decode("projectId")?;
     let state_id: String = args.decode("stateId")?;
     store()
-        .and_then(|path| delete_state_in_store_with(&path, &project_id, &state_id, memory).map(Metered::new))
+        .and_then(|path| delete_state_in_store_with(&path, &project_id, &state_id, memory))
         .map_err(CommandError::Command)
 }
 
@@ -2157,9 +2271,12 @@ pub fn save_model_state(
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, _lease) =
         command_ingress::admit(&registry, &invoke, "save_model_state", ArgsDecoding::Moved)?;
-    respond(save_model_state_args(&mut args, || {
-        crate::app_store_path(&app)
-    }))
+    let memory = PoolReadMemory::new(&registry);
+    stored_read::respond_metered(
+        &memory,
+        "save_model_state",
+        save_model_state_args(&mut args, || crate::app_store_path(&app), &memory),
+    )
 }
 
 #[tauri::command]
@@ -2249,6 +2366,7 @@ pub fn delete_model_state(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use open_pipe_stress_operation_applier::canonical_json;
     use crate::command_ingress::test_support::{admit_json, check_decode_bound, headers, registry};
     use crate::command_ingress::{admit_body_within, INGRESS_ARGS_JSON_V1};
     use crate::memory_pool::test_host::ScriptedHost;
@@ -2427,14 +2545,14 @@ mod tests {
     #[test]
     fn a_record_holding_a_float_has_no_hash() {
         let mut record = json!({ "state_id": "state:x", "warnings": [] });
-        assert!(record_hash_hex(&record).is_ok());
+        assert!(record_hash_hex(&record, &UnmeteredReadMemory, "a record").is_ok());
         record["warnings"] = json!([{ "magnitude": 999999999999975.2 }]);
-        assert!(record_hash_hex(&record)
+        assert!(record_hash_hex(&record, &UnmeteredReadMemory, "a record")
             .unwrap_err()
             .starts_with(RECORD_NUMBER_UNSUPPORTED));
         record["warnings"] = json!([{ "count": 18446744073709551615_u64 }]);
         assert_eq!(
-            record_hash_hex(&record).unwrap().len(),
+            record_hash_hex(&record, &UnmeteredReadMemory, "a record").unwrap().len(),
             64,
             "a u64 integer is exact"
         );
@@ -3297,7 +3415,7 @@ mod tests {
             let mut record: Value = serde_json::from_str(&record_json).unwrap();
             edit(&mut record["hashes"]);
             assert_eq!(
-                record_hash_hex(&record).unwrap(),
+                record_hash_hex(&record, &UnmeteredReadMemory, "a record").unwrap(),
                 saved.state.record_hash,
                 "{name}: the digest does not see it"
             );
@@ -3580,7 +3698,7 @@ mod tests {
             &json!({ "request": { "project_id": PROJECT } }),
         )
         .unwrap();
-        let error = save_model_state_args(&mut args, || Ok(scratch_store("args"))).unwrap_err();
+        let error = save_model_state_args(&mut args, || Ok(scratch_store("args")), &UnmeteredReadMemory).unwrap_err();
         assert!(
             matches!(error, CommandError::Ingress(SolveJobError::InvalidRequest { ref message }) if message.contains("`request`")),
             "{error:?}"
