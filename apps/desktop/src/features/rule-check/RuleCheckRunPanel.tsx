@@ -49,7 +49,7 @@ import {
 // core/rules/rule_check_runner) is engine-true; this panel makes the R3 exit
 // criterion GUI-true: a user runs a private rule pack's checks against the
 // solved model and sees per-check USER_RULE_CHECKED / USER_RULE_FAILED /
-// RULE_INPUTS_INCOMPLETE plus the worst-of aggregate, with pass/fail BLOCKED on
+// RULE_INPUTS_INCOMPLETE plus the pack aggregate, with pass/fail BLOCKED on
 // missing inputs. The pack comes from the bundled invented demo, a saved
 // local-store pack (the author -> save -> run journey), or pasted JSON; the
 // run itself is desktop-only (the service reports the explicit unavailable
@@ -359,7 +359,7 @@ export function RuleCheckRunPanel({
   basis?: RuleCheckRunBasis;
   model: PreviewModel | null;
   result: MechanicsResult | null;
-  // Lifts the worst-of rule-check aggregate to the app so it can be wired into
+  // Lifts the pack rule-check aggregate to the app so it can be wired into
   // the app-held analysis-run envelope (TP-C4-APPAGG-001). Called with the
   // aggregate on a successful run, and with null whenever there is no current
   // run outcome (new pack loaded/pasted, or a run that did not produce one).
@@ -687,12 +687,13 @@ export function RuleCheckRunPanel({
         return;
       }
       setRunPresentation({ basisKey: requestBasisKey, result: route.result, loadReferenceDisclosure: route.loadReferenceDisclosure ?? null });
-      // Lift the worst-of aggregate so the app can record it in the app-held
+      // Lift the pack aggregate so the app can record it in the app-held
       // analysis-run envelope (TP-C4-APPAGG-001).
       onAggregateChange?.(route.result.aggregate_status, { rulePackDocument: parsed.document, result: route.result });
+      const counts = ruleCheckStatusCounts(route.result);
       setActionStatus(
         `Ran ${route.result.checks.length} check(s); aggregate=${route.result.aggregate_status} ` +
-          `(grammar ${route.result.grammar_version}).`
+          `(${counts.failed} failed; ${counts.incomplete} blocked; ${counts.checked} checked; grammar ${route.result.grammar_version}).`
       );
     } catch (error) {
       if (!isCurrent()) return;
@@ -1017,10 +1018,10 @@ export function RuleCheckRunPanel({
           <div
             className="report-line"
             data-testid="rule-check-aggregate-status"
-            data-status={runResult.aggregate_status}
+            data-status={ruleCheckHeadlineStatus(runResult)}
           >
             <span>Aggregate status</span>
-            <strong>{aggregateLabel(runResult.aggregate_status)}</strong>
+            <strong>{ruleCheckHeadline(runResult)}</strong>
           </div>
           <div className="operation-record-list" data-testid="rule-check-outcomes">
             {runResult.checks.map((check) => {
@@ -1072,6 +1073,26 @@ export function RuleCheckRunPanel({
       </small>
     </section>
   );
+}
+
+// FR-RULE-003 (DEL-06-03 Design `pack-aggregate-incomplete.md`): counted from the
+// checks themselves, so the pack never headlines pass or fail while any check is
+// incomplete, whatever aggregate a run carries; failed checks stay counted and listed.
+function ruleCheckStatusCounts(result: RuleCheckRunResult): { failed: number; incomplete: number; checked: number } {
+  const count = (status: string) => result.checks.filter((check) => check.status === status).length;
+  return { failed: count("USER_RULE_FAILED"), incomplete: count("RULE_INPUTS_INCOMPLETE"), checked: count("USER_RULE_CHECKED") };
+}
+
+function ruleCheckHeadlineStatus(result: RuleCheckRunResult): string {
+  return ruleCheckStatusCounts(result).incomplete > 0 ? "RULE_INPUTS_INCOMPLETE" : result.aggregate_status;
+}
+
+function ruleCheckHeadline(result: RuleCheckRunResult): string {
+  const counts = ruleCheckStatusCounts(result);
+  if (counts.incomplete > 0) {
+    return `INCOMPLETE — ${counts.failed} check(s) failed; ${counts.incomplete} check(s) blocked (RULE_INPUTS_INCOMPLETE)`;
+  }
+  return aggregateLabel(result.aggregate_status);
 }
 
 function aggregateLabel(status: string): string {

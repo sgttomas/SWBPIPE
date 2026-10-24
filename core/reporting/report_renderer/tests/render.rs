@@ -387,6 +387,34 @@ fn local_private_context_records_its_status_in_the_document() {
 }
 
 #[test]
+fn user_rule_check_headline_is_incomplete_while_any_check_is_blocked() {
+    // FR-RULE-003: a failed and a blocked check headline INCOMPLETE with both
+    // counts, even for a run recorded under the earlier failed-first aggregate.
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    let mut run = invented_rule_check_run();
+    run.aggregate_status = UserRuleCheckStatus::UserRuleFailed;
+    run.checks[0].status = UserRuleCheckStatus::UserRuleFailed;
+    input.user_rule_checks = Some(run.clone());
+    let html = render_calculation_report(&input).html;
+    assert!(html.contains("Aggregate status: INCOMPLETE — 1 check(s) failed; 1 check(s) blocked · User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"));
+    assert!(!html.contains("Aggregate status: User-rule-check authority · User-rule failed"));
+    // The failed check stays listed with its own status.
+    assert!(html.contains("<td>invented-check-a</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td>"));
+
+    // With every check evaluated, the recorded aggregate is shown as before.
+    for check in &mut run.checks {
+        check.status = UserRuleCheckStatus::UserRuleChecked;
+        check.missing_inputs.clear();
+    }
+    run.aggregate_status = UserRuleCheckStatus::UserRuleChecked;
+    input.user_rule_checks = Some(run);
+    let html = render_calculation_report(&input).html;
+    assert!(html.contains("Aggregate status: User-rule-check authority · User-rule checked (USER_RULE_CHECKED)"));
+    assert!(!html.contains("INCOMPLETE —"));
+}
+
+#[test]
 fn user_rule_check_outcomes_render_identity_status_and_missing_inputs_only() {
     let mut input = fixture_input();
     input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
@@ -396,7 +424,7 @@ fn user_rule_check_outcomes_render_identity_status_and_missing_inputs_only() {
     let html = &outcome.html;
     assert!(html.contains("User-Rule Check Outcomes"));
     assert!(html.contains(
-        "Rule pack: invented-rule-pack · Grammar version: 1.0.0 · Aggregate status: User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"
+        "Rule pack: invented-rule-pack · Grammar version: 1.0.0 · Aggregate status: INCOMPLETE — 0 check(s) failed; 1 check(s) blocked · User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"
     ));
     assert!(html.contains(
         "<td>invented-check-a</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"

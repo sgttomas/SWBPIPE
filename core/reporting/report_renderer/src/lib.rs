@@ -314,6 +314,24 @@ fn user_rule_check_status_display(status: &UserRuleCheckStatus) -> String {
     format!("User-rule-check authority · {label} ({token})")
 }
 
+/// FR-RULE-003 (DEL-06-03 Design `pack-aggregate-incomplete.md`): while any
+/// check is incomplete the pack headline is "INCOMPLETE — n check(s) failed;
+/// m check(s) blocked", counted from the checks themselves, so a run recorded
+/// under the earlier failed-first aggregate never headlines a fail either.
+fn user_rule_check_aggregate_headline(run: &UserRuleCheckRun) -> String {
+    let count = |status: UserRuleCheckStatus| run.checks.iter().filter(|check| check.status == status).count();
+    let blocked = count(UserRuleCheckStatus::RuleInputsIncomplete);
+    if blocked == 0 {
+        return user_rule_check_status_display(&run.aggregate_status);
+    }
+    format!(
+        "INCOMPLETE — {} check(s) failed; {} check(s) blocked · {}",
+        count(UserRuleCheckStatus::UserRuleFailed),
+        blocked,
+        user_rule_check_status_display(&UserRuleCheckStatus::RuleInputsIncomplete)
+    )
+}
+
 fn export_context_label(context: &ReportExportContext) -> &'static str {
     match context {
         ReportExportContext::PublicReport => "public_report",
@@ -883,7 +901,7 @@ cannot appear inside the bytes it binds.",
                             "Rule pack: {} · Grammar version: {} · Aggregate status: {}",
                             run.rule_pack_id,
                             run.grammar_version,
-                            user_rule_check_status_display(&run.aggregate_status)
+                            user_rule_check_aggregate_headline(run)
                         )));
                         let check_rows = run
                             .checks

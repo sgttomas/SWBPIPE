@@ -539,7 +539,7 @@ const RULE_CHECK_RUN_STATUSES = new Set([
 ]);
 
 // Resolve the rule-check status the app-held analysis-run record should carry.
-// A recognized GUI rule-check aggregate (the worst-of over the checks the user
+// A recognized GUI rule-check aggregate (incomplete-first over the checks the user
 // ran against THIS solve) supersedes the solve envelope's `rule_check`, which a
 // plain solve always leaves at RULE_INPUTS_INCOMPLETE because the solve runs no
 // user rule checks. An absent or unrecognized aggregate falls back to the solve

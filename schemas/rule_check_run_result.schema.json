@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/rule_check_run_result.schema.json",
   "title": "OpenPipeStress Rule-Check Run Result",
-  "description": "Strict JSON syntax schema for the rule_check_runner result: per-check outcomes plus a worst-of aggregate over all of a rule pack's check_definitions. Published by piping DEL-10-03 as the standalone result-schema declaration cited by the tier-0 profile's deterministic_check_result_schema hook. Derived field-by-field from the Rust source of truth core/rules/rule_check_runner/src/lib.rs (DOCUMENT_KIND :74, PROFESSIONAL_BOUNDARY_NOTICE :78-80, RuleCheckStatus :141-150, ComputedQuantity :171-177, BoundInput :179-193, RunFinding :195-202, CheckOutcome :204-223, RuleCheckRunResult :225-232, run_rule_checks :235); on any disagreement the Rust source governs. Software rule-check evidence only; not a professional, certification, sealing, authentication, approval, or code-compliance claim — human review remains required. The wider status vocabulary (MODEL_INCOMPLETE, MECHANICS_SOLVED, HUMAN_REVIEW_REQUIRED) and the external HUMAN_APPROVED_FOR_PROJECT record are intentionally not producible here.",
+  "description": "Strict JSON syntax schema for the rule_check_runner result: per-check outcomes plus the pack aggregate over all of a rule pack's check_definitions. Published by piping DEL-10-03 as the standalone result-schema declaration cited by the tier-0 profile's deterministic_check_result_schema hook. Derived field-by-field from the Rust source of truth core/rules/rule_check_runner/src/lib.rs (DOCUMENT_KIND :74, PROFESSIONAL_BOUNDARY_NOTICE :78-80, RuleCheckStatus :141-150, ComputedQuantity :171-177, BoundInput :179-193, RunFinding :195-202, CheckOutcome :204-223, RuleCheckRunResult :225-232, run_rule_checks :235); on any disagreement the Rust source governs. Software rule-check evidence only; not a professional, certification, sealing, authentication, approval, or code-compliance claim — human review remains required. The wider status vocabulary (MODEL_INCOMPLETE, MECHANICS_SOLVED, HUMAN_REVIEW_REQUIRED) and the external HUMAN_APPROVED_FOR_PROJECT record are intentionally not producible here.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -28,7 +28,7 @@
     },
     "aggregate_status": {
       "$ref": "#/$defs/RuleCheckStatus",
-      "description": "Worst-of precedence across all checks: USER_RULE_FAILED > RULE_INPUTS_INCOMPLETE > USER_RULE_CHECKED (lib.rs:160-168)."
+      "description": "Aggregate precedence across all checks: RULE_INPUTS_INCOMPLETE > USER_RULE_FAILED > USER_RULE_CHECKED, so the pack never headlines pass or fail while any check is incomplete (FR-RULE-003; RuleCheckStatus::aggregate_rank in lib.rs)."
     },
     "checks": {
       "type": "array",

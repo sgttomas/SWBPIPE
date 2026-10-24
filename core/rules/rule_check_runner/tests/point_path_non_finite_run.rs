@@ -195,7 +195,9 @@ fn an_overflowing_ratio_check_blocks_and_the_run_carries_on() {
     assert_eq!(predicate.check_id, "demo_predicate_check");
     assert_eq!(predicate.status, RuleCheckStatus::UserRuleFailed);
     assert!(predicate.evaluator_findings.is_empty());
-    assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
+    // FR-RULE-003 (owner reading, 2026-10-23): with the ratio check blocked the
+    // pack headlines incomplete, not the second check's fail.
+    assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
 }
 
 #[test]
