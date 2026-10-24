@@ -16,6 +16,7 @@ import type { RuleCheckRunResult, RuleCheckStatus } from "../../services/ruleChe
 import desktopAppConfig from "../../../src-tauri/tauri.conf.json";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
+import { reportResultRows } from "./reportResultRows";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -668,13 +669,7 @@ export async function buildRenderableReportInput({
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
-    result_rows: result.results.map((item) => ({
-      row_id: `row:${item.id}`,
-      label: item.metadata ? `${item.kind} (${item.metadata.component})` : item.kind,
-      case_ref: item.basis_ref ? `${item.basis_ref.ref_type}:${item.basis_ref.ref_id}` : "TBD",
-      quantity_display: `${item.value} ${item.unit}`,
-      source_ref: `result:${item.id}`
-    })).concat((numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => ({
+    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => ({
       row_id: `numerical-health:${item.caseId}`,
       label: reportLineText(item.state),
       case_ref: `load_case:${item.caseId}`,

@@ -38,6 +38,11 @@ export const NATIVE_INGRESS_COMMANDS = [
   "read_model_state",
   "edit_model_state_labels",
   "delete_model_state",
+  "record_analysis_run",
+  "list_analysis_runs",
+  "read_analysis_run",
+  "edit_analysis_run_labels",
+  "delete_analysis_run",
   "save_model_document_file",
   "save_handoff_package"
 ] as const;

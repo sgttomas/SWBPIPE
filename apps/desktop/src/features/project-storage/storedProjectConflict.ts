@@ -30,11 +30,15 @@ export function storedProjectDescription(existing: LocalProjectIndexEntry): stri
   return `"${existing.project_name}" (${existing.project_id}), last saved ${lastSavedText(existing.updated_at_unix)}`;
 }
 
-/** W-12 §2: a Replace keeps the project id's saved model states; the prompt says how many. */
+/** W-12 §2, §3: a Replace keeps the project id's saved model states and recorded
+ * runs; the prompt says how many of each. */
 export function savedStatesSentence(existing: StoredProjectEntry): string {
   const count = existing.saved_state_count;
   if (count === undefined) return "";
-  return ` Replacing it keeps the ${count} saved model state${count === 1 ? "" : "s"} attached to project id ${existing.project_id}.`;
+  const states = `${count} saved model state${count === 1 ? "" : "s"}`;
+  const runs = existing.recorded_run_count;
+  const history = runs === undefined ? states : `${states} and ${runs} recorded run${runs === 1 ? "" : "s"}`;
+  return ` Replacing it keeps the ${history} attached to project id ${existing.project_id}.`;
 }
 
 export function keptStoredProjectMessage(existing: LocalProjectIndexEntry): string {

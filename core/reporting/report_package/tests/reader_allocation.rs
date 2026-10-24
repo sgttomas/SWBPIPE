@@ -48,7 +48,7 @@ fn eocd(entries: u16, central_size: u32, central_offset: u32) -> Vec<u8> {
 
 #[test]
 fn shared_local_header_entries_stay_within_an_allocation_budget() {
-    // The writer's own manifest member and its central entry (version 1.0.0,
+    // The writer's own manifest member and its central entry (version 2.0.0,
     // so reading passes the gate), then one local header with a 65535-byte
     // name and 65000 central entries pointing at it.
     let outcome = assemble_report_package_container(&Fixture::new().input());

@@ -374,49 +374,92 @@ impl DispositionScreen {
     }
 
     /// Every `provenance_record` (at any depth, including inside another),
-    /// every `rule_pack_refs[]` entry and every `library_ref`.
+    /// every `rule_pack_refs[]` entry and every `library_ref`: the one walk
+    /// ([`walk_document`]).
     fn walk(&mut self, value: &Value, path: &str) {
-        match value {
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    self.walk(item, &format!("{path}[{index}]"));
+        walk_document(value, path, &mut |site, at| match site {
+            DocumentSite::Provenance { record, name } => self.screen(record, at, &name, "provenance_record"),
+            DocumentSite::RulePackRef { entry, name } => self.screen(entry, at, &name, "rule_pack_ref"),
+            DocumentSite::LibraryRef(reference) => {
+                if let Some((kind, id, record_id)) = library_ref_identity(reference) {
+                    self.library_refs.entry((kind.to_string(), id.to_string())).or_default().push((at.to_string(), record_id.map(str::to_string)));
                 }
             }
-            Value::Object(object) => {
-                let owner = object.get("id").and_then(Value::as_str).filter(|id| !id.is_empty()).map(str::to_string);
-                for (key, child) in object {
-                    let at = join(path, key);
-                    match (key.as_str(), child) {
-                        ("provenance_record", Value::Object(record)) => {
-                            let name = owner.clone().unwrap_or_else(|| if path.is_empty() { "$".to_string() } else { path.to_string() });
-                            self.screen(record, &at, &name, "provenance_record");
-                        }
-                        ("rule_pack_refs", Value::Array(refs)) => {
-                            for (index, entry) in refs.iter().enumerate() {
-                                if let Some(entry) = entry.as_object() {
-                                    let entry_at = format!("{at}[{index}]");
-                                    let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).unwrap_or(&entry_at).to_string();
-                                    self.screen(entry, &entry_at, &name, "rule_pack_ref");
-                                }
-                            }
-                        }
-                        ("library_ref", Value::Object(reference)) => {
-                            // Identities as the store's open path normalizes them
-                            // (`open_local_library` trims kind and id).
-                            let text = |key: &str| truthy_str(reference.get(key)).and_then(library_identity);
-                            if let (Some(kind), Some(id)) = (text("library_kind"), text("library_id")) {
-                                let record_id = text("record_id").map(str::to_string);
-                                self.library_refs.entry((kind.to_string(), id.to_string())).or_default().push((at.clone(), record_id));
-                            }
-                        }
-                        _ => {}
-                    }
-                    self.walk(child, &at);
-                }
-            }
-            _ => {}
-        }
+        });
     }
+}
+
+/// A site of the model document's one walk.
+enum DocumentSite<'a> {
+    /// A `provenance_record` object, named by its owner's `id`, else the
+    /// enclosing object's path (`$` at the root).
+    Provenance { record: &'a Map<String, Value>, name: String },
+    /// A `rule_pack_refs[]` object entry, named by its `rule_pack_id`, else its path.
+    RulePackRef { entry: &'a Map<String, Value>, name: String },
+    /// A `library_ref` object, at any depth and under any owner.
+    LibraryRef(&'a Map<String, Value>),
+}
+
+/// The one walk of a model document (the native save's screen, and the
+/// recorded run revision's `library_refs`), pinned for `library_ref`s to
+/// `fixtures/model_document/library_ref_sites.json` as the webview's
+/// `libraryRefSites` is. Each site is visited with its path before the walk
+/// descends into it.
+fn walk_document<'a>(value: &'a Value, path: &str, visit: &mut dyn FnMut(DocumentSite<'a>, &str)) {
+    match value {
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                walk_document(item, &format!("{path}[{index}]"), visit);
+            }
+        }
+        Value::Object(object) => {
+            let owner = object.get("id").and_then(Value::as_str).filter(|id| !id.is_empty());
+            for (key, child) in object {
+                let at = join(path, key);
+                match (key.as_str(), child) {
+                    ("provenance_record", Value::Object(record)) => {
+                        let name = owner.map(str::to_string).unwrap_or_else(|| if path.is_empty() { "$".to_string() } else { path.to_string() });
+                        visit(DocumentSite::Provenance { record, name }, &at);
+                    }
+                    ("rule_pack_refs", Value::Array(refs)) => {
+                        for (index, entry) in refs.iter().enumerate() {
+                            if let Some(entry) = entry.as_object() {
+                                let entry_at = format!("{at}[{index}]");
+                                let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).unwrap_or(&entry_at).to_string();
+                                visit(DocumentSite::RulePackRef { entry, name }, &entry_at);
+                            }
+                        }
+                    }
+                    ("library_ref", Value::Object(reference)) => visit(DocumentSite::LibraryRef(reference), &at),
+                    _ => {}
+                }
+                walk_document(child, &at, visit);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// A `library_ref`'s identity `(kind, id, record id)` as the store's open path
+/// normalizes it (`open_local_library` trims; [`library_identity`]): `None`
+/// when the kind or id is not text or is blank, and no record id when it is
+/// not text or is blank. The site table's `identity`.
+pub(crate) fn library_ref_identity(reference: &Map<String, Value>) -> Option<(&str, &str, Option<&str>)> {
+    let text = |key: &str| truthy_str(reference.get(key)).and_then(library_identity);
+    Some((text("library_kind")?, text("library_id")?, text("record_id")))
+}
+
+/// Every `library_ref` object of a model document, with its path, in the
+/// walk's order (arrays in order, object keys sorted): the one walk's
+/// `library_ref` sites.
+pub(crate) fn library_ref_sites(document: &Value) -> Vec<(String, &Map<String, Value>)> {
+    let mut sites = Vec::new();
+    walk_document(document, "", &mut |site, at| {
+        if let DocumentSite::LibraryRef(reference) = site {
+            sites.push((at.to_string(), reference));
+        }
+    });
+    sites
 }
 
 /// Native disposition screening of the exact admitted document (review repair 1b/1c).

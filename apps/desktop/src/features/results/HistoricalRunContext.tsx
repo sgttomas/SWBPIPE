@@ -4,15 +4,19 @@ import { numericalResultStanding } from "./resultStanding";
 import { validateRetainedPrecision } from "./retainedPrecisionReader";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
-import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+import type { AnalysisRunRead } from "../../services/analysisRunService";
+import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
 
 // Transient evidence only. Saved run references do not contain the historical
 // input-manifest payload, so reopening cannot establish a current solve basis.
+// A recorded run (W-12 S2) stores its manifest and names a stored state: its
+// binding to that state is checked, but it establishes no current solve either.
 export type HistoricalRunContext = {
-  designation: "historical_saved_run" | "bundled_reference";
+  designation: "historical_saved_run" | "bundled_reference" | "recorded_run";
   referenceModel?: PreviewModel;
   referenceProvenance?: BundledMechanicsReference["provenance"];
   rawMechanicsResult: unknown;
@@ -158,6 +162,88 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
     }
   }
   return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, findings, runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
+}
+
+/** A recorded run read from the store (W-12 S2), checked as a saved run is, with
+ * two differences: its stored input manifest is present, so no
+ * `HISTORICAL_INPUT_MANIFEST_MISSING`; and its `model_state_ref` is a real state
+ * ref, accepted only when it names the stored state it was read with and the
+ * manifest's model payload hashes to that state's model hash (the record
+ * validator's recorded form). Any other mismatch is still flagged. Reading it
+ * establishes nothing: no standing, overlay, rule check or report readiness. */
+export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<HistoricalRunContext> {
+  const findings: string[] = [];
+  const parse = (text: string, finding: string): unknown => {
+    try { return JSON.parse(text); } catch { findings.push(finding); return null; }
+  };
+  const rawMechanicsResult = parse(read.result_json, "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+  const manifest = parse(read.input_manifest_canonical, "RECORDED_RUN_INPUT_MANIFEST_MALFORMED") as CurrentSessionInputManifest | null;
+  const rawAnalysisRun: unknown = read.record;
+  const analysisRun = read.record ?? null;
+  const evidenceResult = isHistoricalMechanicsEvidence(rawMechanicsResult) ? rawMechanicsResult : null;
+  const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
+  if (rawMechanicsResult !== null && !mechanicsResult && !findings.includes("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED")) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+  const model = manifest?.model_basis?.model_payload ?? null;
+  if (mechanicsResult && model) findings.push(...numericalResultStanding(mechanicsResult, model).findings);
+  const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
+  if (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string") findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
+  if (mechanicsResult && isRetainedRoute(sourceContract(mechanicsResult))) {
+    try { await validateRetainedPrecision(mechanicsResult); } catch (error) { findings.push((error as Error).message); }
+    if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
+  }
+  // The state ref names the stored state this run was read with, and nothing else.
+  const stateRef = record?.model_state_ref;
+  if (!stateRef || stateRef.object_type !== "ModelState" || stateRef.ref !== read.state.state_id || read.run.state_id !== read.state.state_id) findings.push("HISTORICAL_MODEL_STATE_REF_MISMATCH");
+  if (evidenceResult && evidenceResult.model_ref !== read.state.project_id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
+  if (!evidenceResult || !record) findings.push("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
+  if (evidenceResult && record && (evidenceResult.run_id !== record.run_id || read.run.producer_run_id !== record.run_id)) findings.push("HISTORICAL_RUN_REF_MISMATCH");
+  const savedVersion = analysisRun?.schema_version;
+  const currentRecord = savedVersion === ANALYSIS_RUN_V03;
+  if (analysisRun && ["0.1.0", "0.2.0"].includes(savedVersion as string)) findings.push(ANALYSIS_RUN_SCHEMA_VERSION_RETIRED);
+  else if (analysisRun && record && !currentRecord) findings.push("HISTORICAL_ANALYSIS_SCHEMA_VERSION_UNSUPPORTED");
+  let modelHash: ModelHashEvidence | null = null;
+  try {
+    if (model) {
+      modelHash = await computeModelHash(model);
+      if (modelHash?.value !== read.state.model_hash) findings.push("RECORDED_RUN_MODEL_STATE_HASH_MISMATCH");
+    }
+    if (manifest && record && record.reproducibility?.input_manifest_hashes?.[0]?.value !== await canonicalSha256Hex(manifest)) findings.push("RECORDED_RUN_INPUT_MANIFEST_HASH_MISMATCH");
+    if (evidenceResult && currentRecord) {
+      const storedResultHash = Array.isArray(record?.hashes) ? record.hashes.find((hash) => hash && typeof hash === "object" && hash.payload_scope === "received_result") : null;
+      if (!storedResultHash) findings.push("HISTORICAL_RESULT_HASH_MISSING");
+      else if (storedResultHash.value !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
+    }
+    if (currentRecord) {
+      const verification = await verifyAnalysisRunRecord(analysisRun!);
+      if (verification === "mismatch") findings.push("HISTORICAL_ANALYSIS_HASH_MISMATCH");
+      if (verification === "unverifiable") findings.push("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE");
+      if (verification === "match" && record && !record.hashes.some((hash) => hash.payload_scope === "analysis_run_record" && hash.value === read.run.run_record_hash)) findings.push("RECORDED_RUN_RECORD_HASH_MISMATCH");
+    }
+  } catch {
+    findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
+  }
+  // The record validator's recorded form: the state ref, the manifest's hash and
+  // project, its model payload against the state's model hash, and every member the
+  // stored manifest fixes (solver, settings, units, load basis, references), all
+  // derived from the manifest. No basis is passed: the record's own list is never
+  // its warrant.
+  if (currentRecord && mechanicsResult && record && manifest) {
+    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, undefined, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }); }
+    catch (error) {
+      const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
+      if (!findings.includes(finding)) findings.push(finding);
+    }
+  }
+  return {
+    designation: "recorded_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash,
+    envelopeHash: null, envelopePayloadHash: null, findings,
+    runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown recorded run")
+  };
+}
+
+/** The findings of a recorded run that concern its record and its binding (not its numerical standing). */
+export function recordedRunBindingFindings(context: HistoricalRunContext): string[] {
+  return context.findings.filter((finding) => /^(HISTORICAL_|RECORDED_RUN_|ANALYSIS[_-])/.test(finding));
 }
 
 /** A bundled example has its own model context and no current run evidence. */

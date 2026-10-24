@@ -147,6 +147,9 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
       }
       case "list_model_states":
         return store.states.filter((state) => state.project_id === args.projectId);
+      case "list_analysis_runs":
+        // W-12 S2: the History panel lists recorded runs with the states; none here.
+        return [];
       case "read_model_state": {
         const state = store.states.find((candidate) => candidate.state_id === args.stateId)!;
         return { state, record: {}, model: JSON.parse(store.snapshots.get(state.state_id)!), model_document_version: { status: "current" } };
@@ -175,7 +178,7 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
 }
 
 const calls = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command).map(([, args]) => args as Record<string, unknown>);
-const commandOrder = () => invokeMock.mock.calls.map(([name]) => name as string).filter((name) => name !== "sync_native_shell_state" && name !== "list_model_states");
+const commandOrder = () => invokeMock.mock.calls.map(([name]) => name as string).filter((name) => name !== "sync_native_shell_state" && name !== "list_model_states" && name !== "list_analysis_runs");
 const historyMessage = () => screen.getByTestId("model-history-message");
 
 async function renderApp() {

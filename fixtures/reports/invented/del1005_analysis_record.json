@@ -1,0 +1,2660 @@
+{
+  "analysis_run": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:headless-preview:del1005-export-results-invented"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "a8ec5a8ec4e52d00c8207c53af13da9f7c644291c5ff1042e73de2925187131e"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:headless-preview:del1005-export-results-invented"
+        },
+        "payload_scope": "received_result",
+        "value": "852daac1324d3a52510f8717af0c8defb4cd4c8d0cb87d34bc8a88fa0191238a"
+      }
+    ],
+    "load_basis_refs": [
+      {
+        "object_type": "load_case",
+        "ref": "case:six-component-load"
+      }
+    ],
+    "mechanics_run_ref": {
+      "ref_id": "run:preview-linear-static-001",
+      "ref_type": "mechanics_run"
+    },
+    "model_state_ref": {
+      "object_type": "ModelState",
+      "ref": "state:project:precision-connected-fixture:preview"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "reproducibility": {
+      "input_manifest_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "object_type": "InputManifest",
+            "ref": "input-manifest:del1005-invented"
+          },
+          "payload_scope": "input_manifest",
+          "value": "daf9d2e4b1b7c1926c220709a3f914cad0dac4069f73a4bad7e8716f8119cb22"
+        }
+      ],
+      "input_manifest_refs": [
+        {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:del1005-invented"
+        }
+      ]
+    },
+    "result_refs": [
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:solver-mode:linear-solve-basis"
+            },
+            "payload_scope": "result_row",
+            "value": "d61ffe4aa388101d2d511ab68e42070a9eb1f34b9f5ed86b9727c3855907e25e"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:solver-mode:linear-solve-basis"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-root"
+            },
+            "payload_scope": "result_row",
+            "value": "0b58f634683d3952f5f3cc0f7aade597ce04d110424bbe8395f81e85e5a08926"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-root"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-tip"
+            },
+            "payload_scope": "result_row",
+            "value": "aef5088fe74058504ec44f264b404f424a03e43406b47c3c1093d960fdf0a865"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-tip"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-root:ux"
+            },
+            "payload_scope": "result_row",
+            "value": "82d30f5d7d97fd7159266d573612410b8807558e8202f5cacf208b849553c40d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-root:ux"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-root:uy"
+            },
+            "payload_scope": "result_row",
+            "value": "271a42e1bbb4f87fd70f6c958849af7fa5a771661ea5d91fd39a9f10f6beaad5"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-root:uy"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-root:uz"
+            },
+            "payload_scope": "result_row",
+            "value": "4a3416ab1d942d468294b1b93294ac8d0e3e31c6f913650bc172c37bb177bd08"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-root:uz"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-root:rx"
+            },
+            "payload_scope": "result_row",
+            "value": "7efc7748524e9e3024b99bd4a9e46a3f3ab7733ce278ee68d8bf5888ec377a53"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-root:rx"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-root:ry"
+            },
+            "payload_scope": "result_row",
+            "value": "610a58f71e9887adf20f6f68b159798dd64ddf00ba1501fd22e30e408f9d836c"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-root:ry"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-root:rz"
+            },
+            "payload_scope": "result_row",
+            "value": "709b435e8ff3fedfc27ca41d75e88e49878c4d294af4c5840177fb403089b23d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-root:rz"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-tip:ux"
+            },
+            "payload_scope": "result_row",
+            "value": "c7d4a8ae85217853927b4588357881c629913952cca4b5b2db3aca73a6199c81"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-tip:ux"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-tip:uy"
+            },
+            "payload_scope": "result_row",
+            "value": "040da7f3d6648a05ad2d7c988ecf6d4dbc714ec4683e1a4325d6baab7fe8f76f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-tip:uy"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-tip:uz"
+            },
+            "payload_scope": "result_row",
+            "value": "9007a9e3df3a8c005866729c1a3ddd77ffc1b2455178d6a39ee35895925b0424"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-tip:uz"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-tip:rx"
+            },
+            "payload_scope": "result_row",
+            "value": "4190741edf90ada08e27738a56edfdd6f4cfa2cbf707149dddccd1d42d04099f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-tip:rx"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-tip:ry"
+            },
+            "payload_scope": "result_row",
+            "value": "ee1777beba56d48ca035315a840c4a06844adadfdcd9191b2095b64d1bad1ab8"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-tip:ry"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-fixture-tip:rz"
+            },
+            "payload_scope": "result_row",
+            "value": "31d195d3e0fff01a1bc251782c49367117726cadad7ccc564696ef828fac70d4"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-fixture-tip:rz"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx"
+            },
+            "payload_scope": "result_row",
+            "value": "d34d74b8ecde90423d03fefcd00332dce6d4edb7f4d9456d1539e9e32ea4ba2a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy"
+            },
+            "payload_scope": "result_row",
+            "value": "a60a136c0819534e91804b7b837e8d6bff8d3395f921c6075dc130daf762de14"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz"
+            },
+            "payload_scope": "result_row",
+            "value": "dacbeda0b27d6bf043ed85ead8960d1fcafa22debd99f6055acc55d6bf597ec9"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx"
+            },
+            "payload_scope": "result_row",
+            "value": "ec3d8e40714cf880de5b2a16e5a85af616f61cdbe1b1ed415d069a13ced2f05a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:My"
+            },
+            "payload_scope": "result_row",
+            "value": "8997e19c1f49db4ab3d7fafb2a2c5f6487d27e35cffd37d76fdc47b2934e1672"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:My"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz"
+            },
+            "payload_scope": "result_row",
+            "value": "004f356b7a095b8bab4883a7d93cc493130d1d76443c6dbd4bb732abb194099a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude"
+            },
+            "payload_scope": "result_row",
+            "value": "127b15f7ecedab3a9ae9a7d0f495a6d58c337e09ebf6da67f49c19464053711c"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude"
+            },
+            "payload_scope": "result_row",
+            "value": "fa6a8855ac4621e3d353ab72a85a4a37913a784c844b586afb5bd1caa7dbc824"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "993ab8b9ed85e3a388fba6111a9e54a0128d7d3e67b25de24de992094b3a0c0c"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:axial"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:axial:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "55fcd58b780ed9e036ed2f7e5e8e302ed9e1b79dcf52a40fe7e0ad4f9474d8b7"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:axial:end-j"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "4e9a2b4cd5a506b8798088db400058898dfbad415bd64661c768deb2839d9621"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:shear-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:shear-y:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "3d79b0ea3bb4b5b43264ad4adb37de1d0c10d34ee8945ee5bd80f71eb49e05f5"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:shear-y:end-j"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "bee864160ba3fe610a1a3518510a06ca908b3205a7a708538f8cd65c859b32ad"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:shear-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:shear-z:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "04e68962a12365bba1d0d24dbc868460ad0208a4452848bcd87e50397630cfb1"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:shear-z:end-j"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "01d5043cbf9c41513df7c4b20f358119b3cf374de4791f83e90cff03b1dc8279"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:torsion"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:torsion:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "8d34d1052dcae4277c34215803bf26662cbd3b716a2ce58fba7cd0fa8079e8ca"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:torsion:end-j"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "7d6e9badcca1aa9f588ae9f490d94027c4520a355a5d86f5d6cc48c15985d66f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:bending-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:bending-y:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "dc87ca7fe77722df4e15bd1b68df0a051a09b007d1c2f79e1948581f8acf3af8"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:bending-y:end-j"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "9a86c178ef0f740580c3e1941fdcaddfa93297e3c083ea05c4d4da896d7a35d0"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:bending-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:bending-z:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "c4bfc0910e11ac9db35a902b78420810aade81e2d0c328473000df0afef05752"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:bending-z:end-j"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:quarter-1:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "a868a2c4317f9fc73bfd79a85825bd3f323b05364d71dccdcadaf9a5b8c136e8"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:quarter-1:axial"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:quarter-1:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "9d65664c75053c1997d8038ce5ebcdbf995ee2721ed87525b37f29de9efc1aa4"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:quarter-1:shear-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:quarter-1:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "08c2596e4971c2a90b356533745dd37141cfa018be2ad55609e4089f6503cab6"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:quarter-1:shear-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:quarter-1:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "2b8bc2b576a656639c127643e354da384f58142fc163e982d328cb7eaa126801"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:quarter-1:torsion"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:quarter-1:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "3d8f03a348576fd3b1f2c634e818c0b00064aa5c98ddc1e9aa06f77a98cf18b9"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:quarter-1:bending-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:quarter-1:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "73f90f709ff3a9d5ee0cc8fa617011380d28553a3f9a5e9bf7791f0f17196bc2"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:quarter-1:bending-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:midspan:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "1c7f1539337cd1215f444f1cad5d8e41315abb7beee8f617493d50b5ab977d35"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:midspan:axial"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:midspan:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "ad24d1f9e53a95996e2651fb70b6899372de4ef6ceed3998353160aa448aee3c"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:midspan:shear-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:midspan:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "4692edb3b8ce4052e6525745ac4d29b4e8603f914b0d18d525bb46ba6b84b11f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:midspan:shear-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:midspan:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "5100835dccba945da61f1fdec9515eeedeaacd14bc8f977ac1ef5e71c81038f2"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:midspan:torsion"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:midspan:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "7a725b58f21191fcd85b5e12ba2316784c3876bede59e60e4264527db72cc6b8"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:midspan:bending-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:midspan:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "f3c1704b138416bec1f72b709773e6585281c26712417da3d9c6b2b37619e3b4"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:midspan:bending-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:quarter-3:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "423c514ad9556ef290107665cb93a44cd0bb53e3f3474513fd31bcb4c0a914cb"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:quarter-3:axial"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:quarter-3:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "52b46c74150a3db565f219fb7117b91e9a4d5ac572e2e1c6de805e5010c33b48"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:quarter-3:shear-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-fixture-span:quarter-3:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "cd59dd37f7030bb01e6ed9ce59cc89e95a3c9620fc3dadff1e10f0263b12a847"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-fixture-span:quarter-3:shear-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:quarter-3:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "1995caf12ee8019683db2818093f7cdc71fffb8278fd02a5242fd3a099600770"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:quarter-3:torsion"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:quarter-3:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "4e879b4c10350e61a8fd42aea4bbe13cafd3458878fda85fc602325e66ab381d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:quarter-3:bending-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-fixture-span:quarter-3:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "7e1ae9402f0613746057a2894c9edd8e2d726b6f6e4c1d9dbaa202a5d2415044"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-fixture-span:quarter-3:bending-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-i:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "f2cd9eb9757509fef7b33129a4ba73ba0b0ba68a5fb53a74855a4cd6b7f0f77b"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-i:axial-normal"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-i:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "d02dba045268f4806a7f830f27ec4ceaf98fc8451b85177f04ba8f34a902baab"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-i:bending-normal-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-i:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "e45c17f549efddf39dd6425a115b09f1846372771179bbb7295ef63c6e7d4c44"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-i:bending-normal-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-i:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "4febf8770dd61d4a197c9c3c6ec32d5baa7373f6682fd68343c23d8f0442ba43"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-i:torsional-shear"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-j:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "a7befaca03302f66f7bcf92a4aa7666224de67c84017c26d8d77c24519644dae"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-j:axial-normal"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-j:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "74c95be79a2a9133d4ce978875675e378f83d84b2e08db4ad5d9d605dd56d4ee"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-j:bending-normal-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-j:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "c108d4ab8818f93c6f3ca40300cc0ff24814abf99868e8a99ca8efcc118cfcd7"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-j:bending-normal-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-j:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "7c9e1c4796ce3f2d745c0d9460c573464c93c15e1889b90dfdc93b4f406c70b1"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-j:torsional-shear"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-1:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "30a94a9ac5d706473aa915c202776650ac872ab0c35c88cdc5ba8167e71ddc5e"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-1:axial-normal"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-1:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "ec9253283b854d80c4f131b4503f6c3bab9b48ee4f6e58fc6dfb619551ec2b96"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-1:bending-normal-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-1:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "39a4b6e3d9810103a44f0bdb196377f4e985e751c0ecaac4f2acd45bb077cde2"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-1:bending-normal-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-1:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "d4be12a687cee85ee3c1f158cdd212c3a033b14284b28e8ba8290771ce20de46"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-1:torsional-shear"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:midspan:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "8796da1fe22d168037614a5b8b42b696d837125f1484be3f9471c668230d225a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:midspan:axial-normal"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:midspan:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "aaba1a8860ec480f4d1b6748a493f83ad03b13df5be3f14e7c81772785a4fe8f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:midspan:bending-normal-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:midspan:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "c5523df5057e139f2da9583abb21a1d93906213f6fb414f144732f7431b9b240"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:midspan:bending-normal-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:midspan:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "729015309581409d75c387713a0b9ec43bbfb313052b36a283b729bc52ebfc79"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:midspan:torsional-shear"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-3:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "226acd0ba0f21ad10cdd1473b2e51a959b75bf91813ce09f4763d990ce007f9a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-3:axial-normal"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-3:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "3793d8d77bbd95699f513001d37bc2a7d836b102b5d606d40ca905ce065e057f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-3:bending-normal-y"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-3:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "c7bc00fe90d7127ce8d67a6f27da8aa1807cf3a3806fbb3419b8c4695177cb31"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-3:bending-normal-z"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-3:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "4ddeefde594820d04c4f454954830cea3fef4278e14f8ac420b03eb0546709ac"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-3:torsional-shear"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span"
+            },
+            "payload_scope": "result_row",
+            "value": "c83c134e008d33793d6ea323c5ab2a81438640dd972d48701bead984f595a60f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-i:sigma-plus"
+            },
+            "payload_scope": "result_row",
+            "value": "44f11cf503f0e862d9c9a4afa402208bdb02b7b543de0911172368b3f9d41aef"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-i:sigma-plus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-i:sigma-minus"
+            },
+            "payload_scope": "result_row",
+            "value": "1bbd99d9286d74b75a9e2903e0b3147e39be179b40ec066fff2124e9de9eb813"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-i:sigma-minus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-i:transverse-shear-max"
+            },
+            "payload_scope": "result_row",
+            "value": "6555e62eed722b996a64501e7b9efbac69fdb1b0157cbb11a2b286cea8ab84e6"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-i:transverse-shear-max"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-j:sigma-plus"
+            },
+            "payload_scope": "result_row",
+            "value": "ed10fcfcaffd2cb34452c6584e327551d24bd6ff2486c9f72ff14a70e5b7f3da"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-j:sigma-plus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-j:sigma-minus"
+            },
+            "payload_scope": "result_row",
+            "value": "d3d2682fe8e45bb84b197f4d79594681db30278fdac1b591ed9c61f0ed134311"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-j:sigma-minus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:end-j:transverse-shear-max"
+            },
+            "payload_scope": "result_row",
+            "value": "4e5028e55e750e3bc3d036e944dd8384ad0d3c9350c3e6ec5ddb115f16c19fc6"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:end-j:transverse-shear-max"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-1:sigma-plus"
+            },
+            "payload_scope": "result_row",
+            "value": "8bc75cb19921dcb7c817ddb992513a49e6c6e8362b1f951b83608c591459f511"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-1:sigma-plus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-1:sigma-minus"
+            },
+            "payload_scope": "result_row",
+            "value": "522444f64c1dcf40102ad0773440003fa823ec1b408e2716bd944b2637dd766b"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-1:sigma-minus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-1:transverse-shear-max"
+            },
+            "payload_scope": "result_row",
+            "value": "2dc75790ab797d7226a003ffea2b5a2b854984c35f4906f624b503b1bb562aa6"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-1:transverse-shear-max"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:midspan:sigma-plus"
+            },
+            "payload_scope": "result_row",
+            "value": "3a575f14f2b99f6af25082c2e3df3df8d4bd51ad66f91635d94836ac88f07b71"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:midspan:sigma-plus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:midspan:sigma-minus"
+            },
+            "payload_scope": "result_row",
+            "value": "573c38f15fb74dbc37f620680a096bdc39124d3a7676f05dd06f0a9abb9fe969"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:midspan:sigma-minus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:midspan:transverse-shear-max"
+            },
+            "payload_scope": "result_row",
+            "value": "6c981f9acea1e441a995790670971469c4c5a7a2df702353948fbe2878c99f46"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:midspan:transverse-shear-max"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-3:sigma-plus"
+            },
+            "payload_scope": "result_row",
+            "value": "f7d4800dfd87fa09428becc8b6ccf89f3ebd41eeee019ee78735fda44f223b16"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-3:sigma-plus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-3:sigma-minus"
+            },
+            "payload_scope": "result_row",
+            "value": "55ed66f47e01ca16604d887cc115f2044c3a6b56522f200b6452d3f8d5bd166c"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-3:sigma-minus"
+        }
+      },
+      {
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-fixture-span:quarter-3:transverse-shear-max"
+            },
+            "payload_scope": "result_row",
+            "value": "939809314d1254c76b8deb2781ee038a35ea3a469c3c3dcd6c28724975b9d09b"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "core/reporting/report_package/tests/common/package_basis.rs",
+          "source_name": "Invented DEL-10-05 report-package witness"
+        },
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-fixture-span:quarter-3:transverse-shear-max"
+        }
+      }
+    ],
+    "run_id": "run:headless-preview:del1005-export-results-invented"
+  },
+  "fixture_label": "Invented DEL-10-05 report-package witness; test-labelled fixture transformation of real headless producer output; not engineering output",
+  "record_shape": "invented_test_analysis_record_1",
+  "self_hash_rule": "the analysis_run_record hash is the SHA-256 of the RFC 8785 bytes of this record with that hash entry removed from analysis_run.hashes (core/analysis_runs/compatibility.py:73-80)"
+}
