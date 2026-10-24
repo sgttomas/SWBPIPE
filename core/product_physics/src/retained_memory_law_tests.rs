@@ -433,8 +433,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited for W-7 (DEL-04-01 Design global-end-actions.md): only the closed
             // `b7b_current_table_tests` module changed (pressure-2's 129 -> 135 rows, with its
             // comment); the inspected production after the resume and E14 are byte-identical.
+            // Re-audited on W-7 merged with main 2653f87392: the closed module is W-7's, the inspected
+            // production after the resume is main's (model 0.7.0's token) and E14 is unchanged, each
+            // byte-identical to its parent's; no production entered the suffix.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "74987097d004fdafcc3e1c7307258427afb82e8a1a9e19fa6e13cb264d2eea9d",
+            complete_suffix_sha256: "e9cd031a23694dc66fb6817f276863c1da707c9355de6774748656d05bd0b440",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -1568,7 +1571,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // was +429 B from the T4-U4b/U5b epoch's 269,494,417 (b4c9f35f8e; unchanged through O4's 7823a79f45
     // and R-A's 7d946b7e94), the three S3 finalization diagnostics whose error text may now be the S2
     // cause (PU-S2). T4-U6/U8's at 588de796a4: 262,735,773; B7b's at 7e63847: 264,366,429.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 269_528_816, "current text closure at C_eq = 3, maximum over routes");
+    // W-7 at 8afaa282b3 (§8.20): +1,028,736 B, the case solve's per-member global end diagnostic (W7-ID: its id,
+    // message and refs, 10,716 B) for each of 32 members in each of 3 cases, on the silent-drop guard's 269,528,816.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 270_557_552, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1578,7 +1583,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 28_806, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 28_902, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1807,6 +1812,14 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W-7 member end actions in global coordinates at 8afaa282b3 (retained-pricing-rules.md §8.20): from
+/// the silent-drop guard's record below, the rows rise to 78 per member on route L and 114 on route E
+/// (W7-RL, W7-RP) with their texts and copies, the case solve's per-member global end diagnostic
+/// (D_env +96, Text(diag_env) +1,028,736 B), the end-action operand table (W7-NC), the source
+/// qualification's filtered references (W7-QF) and the readers' coverage maps (W7-RD, four new node
+/// atoms), so the phases rise by +327,563,426 (W1), +334,104,866 (W2), +391,657,186 (W3),
+/// +389,387,832 (W4), +360,296,930 (W5), +319,511,866 (X1), +215,863,434 (X2) and +210,018,826 B (X3)
+/// in both modes; W3 is still the maximum.
 /// Silent-drop guard at bc99d4d09f (retained-pricing-rules.md §8.19): from the node-proximity
 /// tolerance's record below, TAV_W and TAV_X rise by 1,245,594 B (the closed-record scan's names and
 /// paths at E's and L(3,0)'s caps, SD-ID) and O_base by 49 B and s(&str) by 4 (validation's
@@ -1838,8 +1851,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_212_793_944, 6_548_247_065, 8_443_693_219, 8_238_182_630, 7_343_872_261, 8_281_370_110, 7_117_366_414, 6_795_600_976],
-    [6_271_925_288, 6_607_378_409, 8_502_824_563, 8_297_313_974, 7_403_003_605, 8_340_501_454, 7_176_497_758, 6_854_732_320],
+    [6_540_357_370, 6_882_351_931, 8_835_350_405, 8_627_570_462, 7_704_169_191, 8_600_881_976, 7_333_229_848, 7_005_619_802],
+    [6_599_488_714, 6_941_483_275, 8_894_481_749, 8_686_701_806, 7_763_300_535, 8_660_013_320, 7_392_361_192, 7_064_751_146],
 ];
 
 #[test]
@@ -1958,7 +1971,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_806, "current canonical D_env at C_eq = 3 (the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 28_902, "current canonical D_env at C_eq = 3 (W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
