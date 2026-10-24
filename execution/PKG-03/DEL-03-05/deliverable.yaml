@@ -143,8 +143,11 @@ code_paths:
 - schemas/component.schema.yaml
 - core/product_physics/src/validation.rs
 - core/product_physics/src/exact_admission.rs
+- core/product_physics/src/rigid_component.rs
+- core/product_physics/src/pressure_runtime.rs
 - apps/desktop/src/features/component-creation/componentIntent.ts
 checks:
 - tests/test_component_section_schema.py
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/exact_route_refusals.rs
+- core/product_physics/src/w15_rigid_scaling_tests.rs
