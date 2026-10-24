@@ -108,6 +108,9 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
 import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
+import { LinesSection } from "./features/model-data/LinesSection";
+import { AssumptionsPanel } from "./features/model-data/AssumptionsPanel";
+import { ConstraintsPanel } from "./features/model-data/ConstraintsPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
 import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
@@ -434,6 +437,15 @@ function AppSession() {
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}
             />
+            <LinesSection
+              key={`lines:${projectSessionGeneration}`}
+              model={model}
+              selection={selection}
+              selectionState={orderedSelection}
+              queuedIntents={editorIntents}
+              onQueueIntent={handleQueueEditorIntent}
+              operationBusy={operationBusy}
+            />
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
             <section
@@ -445,7 +457,7 @@ function AppSession() {
               {activeSection === "operations" || activatedExpensiveSections.has("operations") ? (
               <DormantSection active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <nav className="operation-tabs" aria-label="Editing and review tools">
-                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["details", "Details"]].map(([id, label]) => (
+                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
                   <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
                 ))}
               </nav>
@@ -464,6 +476,10 @@ function AppSession() {
                   </details>
                 ))}
               </section>
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "records"}>
+              <AssumptionsPanel key={`assumptions:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
+              <ConstraintsPanel key={`constraints:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "supports"}>
               <HangerSelectionPanel
@@ -907,7 +923,8 @@ function AppSession() {
             >
               {activeSection === "libraries" || activatedExpensiveSections.has("libraries") ? (
               <DormantSection active={activeSection === "libraries"} sessionGeneration={projectSessionGeneration}>
-              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
+              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
+                selection={selection} onQueueBatch={handleQueueOperationBatch} operationBusy={operationBusy} />
               </DormantSection>) : null}
             </section>
 
@@ -918,7 +935,8 @@ function AppSession() {
             >
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
               <DormantSection active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
-              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
+              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
+                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </DormantSection>) : null}
             </section>
 
