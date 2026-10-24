@@ -228,11 +228,14 @@ including any contents the user includes. Generation records the method, the
 component and the omitted member in its evidence rows. Lineage and staleness
 checks extend to node-targeted generated loads.
 
-**Reserved.** DEL-03-05 R10 holds the centre-of-gravity coordinate convention
-and reference frame for a human ruling. Slice b waits for it. Recommended: r
-in the model's global axes, measured from the component's `node`, in model
-length units. It is unambiguous and needs no component-local frame. A model
-transformation rotates r without translating it.
+**Centre-of-gravity convention (DEL-03-05 R10).** The owner ruled on
+2026-10-24: "For the centre-of-gravity I approve option A as recommended."
+Option A: `center_of_gravity` is r, a vector in the model's global X/Y/Z axes,
+measured from the component's `node`, in model length units. Weight is the
+nodal force F at that node plus the moments r × F. The convention is
+unambiguous and needs no component-local frame. A model transformation rotates
+r without translating it. Slice b's tests include a nontrivial offset along
+each axis, checking both the force and the moment.
 
 ## 4. Eccentric reducer offset (slice c)
 
