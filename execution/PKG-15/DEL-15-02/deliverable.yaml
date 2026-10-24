@@ -212,5 +212,7 @@ code_paths:
 - core/handoff/target_mapping/contract.py
 - schemas/target_mapping.schema.json
 - tools/validation/validate_dependencies_schema.py
+- apps/desktop/src/features/handoff/HandoffPanel.tsx
+- apps/desktop/src/features/pcf-export/PcfExportPanel.tsx
 checks:
 - tests/test_target_mapping_contract.py

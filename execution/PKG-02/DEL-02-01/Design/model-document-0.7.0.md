@@ -48,9 +48,11 @@ unchanged: no new slot renames or re-keys an entity.
   the decoder ignores: `data_boundary`, `project.name`/`description`, string
   labels and `diagnostics`. The desktop also writes members the decoder ignores,
   e.g. `components[].completeness`.
-- **The current schema.** `schemas/model.schema.yaml` describes an older shape
-  (`project.models[]`, `elements`, `traceability_links`). The bundled demo fails
-  it with 11 errors. Its consumers:
+- **The schema before S1a.** `schemas/model.schema.yaml` described an older
+  shape (`project.models[]`, `elements`, `traceability_links`), which the
+  bundled demo failed with 11 errors. Since S1a (#1554) it describes the 0.6.0
+  document and the old shape is `schemas/physical_transform_model.schema.yaml`.
+  The consumers of the old shape at the design basis:
   - **Validate old-shape fixtures:** `test_model_schema.py`,
     `test_physical_to_analytical_transform.py`,
     `test_invented_example_models.py` and `test_project_persistence_service.py`.
@@ -438,6 +440,37 @@ never block deletion, and a missing entity is reported as a warning.
   requirement is narrowed (§7).
 - **Rigid elements (DEC-045).** Components already carry `geometry.rigid_*` and
   `modifiers.stiffness_scaling_user_value`; W-13 adds no rigid fields.
+
+### 3.8 Model settings (node-proximity tolerance)
+
+- **Ruling.** The owner ruled (2026-10-23, relayed by HELP_HUMAN) that the
+  near-duplicate node check uses a fixed 5 mm tolerance "and give the user the
+  means to change it". HELP_HUMAN approved this design the same day, adding that
+  the unit must be a length unit of the units catalog. The setting lives in the
+  model document, so the desktop and the headless runner warn identically.
+- **Member.** An optional top-level `model_settings`: a closed record of
+  model-level analysis and modeling settings, every member optional. Its one
+  member is `node_proximity_tolerance`, a length quantity `{value, unit}`.
+- **Default rule.** An absent `model_settings`, or an absent member, means
+  5 mm. The product never writes the default into a document the user did not
+  author. An authored `null` is not absence: the validator refuses it as
+  `MODEL-SLOT-SHAPE` and the solve wire refuses it, as for `model_settings`
+  itself.
+- **Admission.** The value must be finite and greater than zero, and the unit a
+  length unit of the units catalog; converted to metres, the value must still be
+  finite and greater than zero (a value too small to represent in metres is
+  `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`). Each refusal is named:
+  `MODEL-SETTING-TOLERANCE-NOT-FINITE`, `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`
+  and `MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH` (a non-length or unknown unit);
+  a malformed record is `MODEL-SLOT-SHAPE`. The document validator (§5.3) and
+  product_physics' accessor give the same codes and messages.
+- **Readers.** product_physics declares the record on the solve wire
+  (`model_settings.rs`, a closed `ModelSettings`) and exposes the effective
+  tolerance in metres (`PreviewModel::node_proximity_tolerance_m`). The
+  topology check (DEL-04-06 Design `model-topology-checks.md`) reads it through
+  that accessor; until it does, nothing changes behaviour. The desktop editing
+  control comes with the S2 authoring surface; the desktop already round-trips
+  the whole document.
 
 ## 4. The schema
 

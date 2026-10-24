@@ -1,14 +1,20 @@
 # Project unit selection (W-17)
 
-**Basis:** `origin/main` at `356a9be374` (2026-10-23). Design before
-implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per
+**Basis:** `origin/main` at `356a9be374` (2026-10-23). Slice (a) (§5) is
+implemented in W-17 (`apps/desktop/src/features/project-units/`); slice (b),
+`set_project_unit` and the Project units section, is not implemented. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
 Requirement: PRD §10.1 step 1, "User creates a project and selects units". Unit
 policy: DEC-018 (D-01 accepted 2026-06-10: SI-canonical calculation, a dual
 SI/US entered and display catalog, entered units preserved).
 
-## 1. Where things stand
+## 1. Where things stood before slice (a)
+
+This section records the starting point at the design basis. Since slice (a),
+blank projects open the units dialog and every new project carries all seven
+keys, including `angle` (§5); the rest still applies.
+
 
 - **Blank projects fix SI.** `buildBlankLocalModelDocument` writes
   `project.units` = `{length: m, force: N, moment: N*m, pressure: Pa, stress: Pa,
@@ -85,8 +91,10 @@ SI/US entered and display catalog, entered units preserved).
    - Custom: any accepted catalog symbol per key, chosen from the unit catalog
      the desktop already loads (`unitCatalogService.ts`).
 4. **Composed defaults are checked against the catalog.**
-   - **Moment** defaults use `project.units.moment`. The `<force>*<length>`
-     composition is removed.
+   - **Moment** defaults use `project.units.moment` whenever that key is
+     present; a present key is never replaced by a composition. Only when the
+     key is absent does the default fall back to `<force>*<length>`, checked
+     against the catalog like the compositions below.
    - **Distributed force, linear stiffness and thermal expansion** defaults keep
      their compositions, and each composed symbol is checked against the catalog
      for its dimension. A composition the catalog lacks gives no default. The
@@ -214,3 +222,6 @@ them:
    (§2.2, §2.7).
 3. **Missing `length` with existing nodes.** This is now a hard lock with a
    re-author diagnostic, and no repair is offered (§3).
+4. **Moment fallback without a moment key** (found in implementation, not by
+   that review). The composition is kept as the fallback because the bundled
+   sample model has no `moment` key (§2.4).

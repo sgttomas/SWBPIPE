@@ -15,6 +15,8 @@ import {
   type RulePackComputedChecksum,
   type RulePackDocument,
   type RulePackDocumentValidation,
+  type RulePackUnitCheckFinding,
+  type RulePackUnitCheckOperand,
   type RulePackValidationFinding
 } from "../../services/rulePackService";
 import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer";
@@ -520,6 +522,7 @@ export function RulePackManagerPanel({
             grammar={validation.grammar_version} supported=
             {String(validation.grammar_version_supported)}; publicly_exportable=
             {String(validation.publicly_exportable)}
+            {validation.unit_check ? `; unit_check=${validation.unit_check.status}` : null}
           </small>
           <div className="operation-record-list" data-testid="rule-pack-validation-findings">
             {collectFindings(validation).map((finding, index) => (
@@ -535,6 +538,50 @@ export function RulePackManagerPanel({
               </article>
             ))}
           </div>
+          {validation.unit_check ? (
+            <div className="report-list" data-testid="rule-pack-unit-check">
+              <strong>Unit consistency</strong>
+              <small data-testid="rule-pack-unit-check-note">
+                Units of solver results and entered values are checked when the check runs.
+              </small>
+              <div className="operation-record-list">
+                {validation.unit_check.checks.map((check, checkIndex) => (
+                  <article
+                    className="operation-record"
+                    data-testid={`rule-pack-unit-check-${check.check_id}`}
+                    key={`${check.check_id}:${checkIndex}`}
+                  >
+                    <strong>
+                      {check.check_id} (formula {check.formula_id || "none"})
+                    </strong>
+                    <small data-testid={`rule-pack-unit-check-status-${check.check_id}`}>
+                      status={check.status}
+                    </small>
+                    {check.findings.map((finding, index) => (
+                      <UnitCheckFindingRow
+                        finding={finding}
+                        key={`${finding.code}:${finding.path}:${index}`}
+                      />
+                    ))}
+                  </article>
+                ))}
+                {validation.unit_check.declaration_findings.length > 0 ? (
+                  <article
+                    className="operation-record"
+                    data-testid="rule-pack-unit-check-declarations"
+                  >
+                    <strong>Declared units</strong>
+                    {validation.unit_check.declaration_findings.map((finding, index) => (
+                      <UnitCheckFindingRow
+                        finding={finding}
+                        key={`${finding.code}:${finding.path}:${index}`}
+                      />
+                    ))}
+                  </article>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -546,6 +593,25 @@ export function RulePackManagerPanel({
         software computation over user-supplied data.
       </small>
     </section>
+  );
+}
+
+function describeOperand(operand: RulePackUnitCheckOperand): string {
+  if (operand.kind !== "quantity") return operand.kind;
+  return `${operand.dimension ?? "?"} [${operand.unit_ref ?? "?"}]`;
+}
+
+function UnitCheckFindingRow({ finding }: { finding: RulePackUnitCheckFinding }) {
+  return (
+    <div data-testid="rule-pack-unit-check-finding">
+      <small>
+        {finding.code} ({finding.severity}) subject={finding.subject}; path={finding.path}
+        {finding.operands.length > 0
+          ? `; operands=${finding.operands.map(describeOperand).join(" vs ")}`
+          : ""}
+      </small>
+      <p>{finding.message}</p>
+    </div>
   );
 }
 

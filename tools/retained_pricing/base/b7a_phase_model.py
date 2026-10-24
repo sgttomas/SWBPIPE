@@ -35,7 +35,7 @@ INVALIDATION = ("The stage-1 lc-1 preparation-refusal credit is retired. Every a
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:4772:solve_prepared_load_case"   # pre-0.4 unification (§8.14; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:4782:solve_prepared_load_case"   # model document 0.7.0 (§8.17; silent-zero guard: 4775; W-8: 4774; pre-0.4 unification: 4772; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",
@@ -224,13 +224,14 @@ def selected_publication_context(snapshot, directory, graph):
     # T4-S6 (S6-HS: the streamed `hash`, -9): source_receipt 664/750/766 -> 655/741/757, unchanged text.
     # O4 S5 (§8.9): composite 726/990 -> 740/1018 (the basis-section parameters and the second maximum), lib 2569 -> 2572,
     # source_receipt 655/741/757 -> 657/743/759 (a test re-export), unchanged text. Pre-0.4 failure unification (§8.14):
-    # lib 2572 -> 2634 and source_receipt 657/743/759 -> 661/747/763 (`requested`'s doc comment), unchanged text.
+    # lib 2572 -> 2634 and source_receipt 657/743/759 -> 661/747/763 (`requested`'s doc comment), unchanged text. W-8
+    # topology warnings (§8.16): lib 2634 -> 2635 (`mod topology;`), unchanged text.
     expected = {
         "core/product_physics/src/source_receipt/composite.rs:740:composite_exact": SOLVE,
         "core/product_physics/src/source_receipt/composite.rs:1018:ordinary_physics": SOLVE,
         "core/product_physics/src/source_receipt.rs:661:failed": SOLVE,
         "core/product_physics/src/source_receipt.rs:747:finalize_composite":
-            "core/product_physics/src/lib.rs:2634:run_linear_static_preview_observed_inner",
+            "core/product_physics/src/lib.rs:2642:run_linear_static_preview_observed_inner",
         "core/product_physics/src/source_receipt.rs:763:finalize_for":
             "core/product_physics/src/source_receipt.rs:747:finalize_composite",
     }

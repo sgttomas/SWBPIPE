@@ -23,6 +23,16 @@ fn nodal(id: &str, direction: &str, value: f64, moment: bool) -> Value {
     json!({"id":id,"category":if moment {"concentrated_moment"} else {"concentrated_force"},"target":{"type":"node","node":"node:b"},"direction":direction,"magnitude":{"value":value,"unit":if moment {"N*m"} else {"N"}},"dimension":if moment {"moment"} else {"force"},"provenance":"independent_statics"})
 }
 
+/// An exact-zero response: one load on the anchored node goes wholly to its
+/// reaction, so every displacement, member action and stress is exactly zero.
+/// (An unloaded model is refused, `LOAD_INPUT_MISSING`: DEL-04-07 Design
+/// pressure-contract.md, "Load cases that apply nothing".)
+fn load_at_anchor() -> Value {
+    let mut load = nodal("load:at-anchor", "global_x", 1000.0, false);
+    load["target"]["node"] = json!("node:a");
+    json!([load])
+}
+
 // Finite binary64 edge control, not a realistic material or engineering benchmark.
 // The two signed normal components are finite; their aggregate exceeds f64.
 fn coverage_wire(two_members: bool) -> Value {
@@ -172,6 +182,7 @@ fn exact_zero_displacement_ties_use_location_identity_not_node_order() {
     ] {
         for reverse in [false, true] {
             let mut wire = fixture();
+            wire["model"]["load_cases"][0]["primitive_loads"] = load_at_anchor();
             if reverse {
                 wire["model"]["nodes"].as_array_mut().unwrap().reverse();
             }
@@ -199,7 +210,7 @@ fn exact_zero_stress_ties_use_location_identity_not_member_order() {
         for reverse in [false, true] {
             let mut wire = coverage_wire(true);
             wire["model"]["materials"][0]["elastic_modulus"]["value"] = json!(200e9);
-            wire["model"]["load_cases"][0]["primitive_loads"] = json!([]);
+            wire["model"]["load_cases"][0]["primitive_loads"] = load_at_anchor();
             if reverse {
                 wire["model"]["pipe_segments"]
                     .as_array_mut()

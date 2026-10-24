@@ -5,7 +5,7 @@ const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
   new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url),
 ), "utf8"));
 import { expect, test, type Page } from "@playwright/test";
-import { projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { confirmProjectUnits, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
 import {
   APPEARANCE_DENSITIES,
   APPEARANCE_THEMES,
@@ -1905,7 +1905,7 @@ for (const route of ["Select", "New blank"] as const) test(`${route} retires cap
   await setup(page); const input = await begin(page);
   // Slice B3: New blank is a File-menu command here; the Project page would cover the canvas whose pointer is held.
   if (route === "Select") { await page.getByTestId("workspace-select").focus(); await page.keyboard.press("Enter"); }
-  else await projectCommand(page, "new-blank", true);
+  else { await projectCommand(page, "new-blank", true); await confirmProjectUnits(page, true); }
   if (route === "New blank") {
     await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(input.before.snapshot.model.projectSessionGeneration + 1);
     await expect.poll(async () => (await read(page)).snapshot.viewport.selection.primaryRef?.type).toBe("project");

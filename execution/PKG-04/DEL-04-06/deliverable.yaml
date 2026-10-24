@@ -113,6 +113,9 @@ needs:
   gating: true
 code_paths:
 - core/solver/diagnostics/**
+- core/product_physics/src/topology.rs
+- core/product_physics/tests/topology_checks_runtime.rs
 - tools/validation/validate_dependencies_schema.py
 checks:
 - core/solver/diagnostics/src/lib.rs
+- core/product_physics/tests/topology_checks_runtime.rs

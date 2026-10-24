@@ -133,6 +133,9 @@
       "items": {
         "$ref": "#/$defs/EquipmentInterface"
       }
+    },
+    "model_settings": {
+      "$ref": "#/$defs/ModelSettings"
     }
   },
   "$defs": {
@@ -2215,7 +2218,7 @@
       }
     },
     "ProjectUnits": {
-      "description": "Project display and authoring units, typed by the desktop as Record<string, string>: an object whose values are unit strings, keyed by dimension. Known keys: length (read by the solver for node coordinates), force, moment, pressure, stress, temperature (written by the desktop's blank documents) and angle (read by the applier). The desktop round-trips and exports every entry.",
+      "description": "Project display and authoring units, typed by the desktop as Record<string, string>: an open map whose values are unit strings, keyed by dimension; unknown keys are kept. Known keys: length (read by the solver for node coordinates), force, moment, pressure, stress, temperature and angle (read by the applier). New projects write all seven known keys, each a canonical unit-catalog symbol for its dimension (DEL-02-02 Design project-unit-selection.md §2.2); existing documents may lack some (for example angle or moment) and keep a legacy temperature symbol C. A new moment field defaults to the moment key when it is present; only when the key is absent does the default fall back to the composed <force>*<length>, and only if the unit catalog accepts that symbol (§2.4). The desktop round-trips and exports every entry.",
       "type": "object",
       "properties": {
         "length": {
@@ -2815,6 +2818,32 @@
         },
         "end_fraction": {
           "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "ModelSettings": {
+      "description": "Model-level analysis and modeling settings (W-13 Design §3.8), a closed record; every member is optional and an absent member takes its default. The product never writes a default into a document the user did not author.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node_proximity_tolerance": {
+          "description": "The length within which the near-duplicate node check treats two nodes as near duplicates (owner, 2026-10-23: a fixed 5 mm default \"and give the user the means to change it\"). Absent model_settings or absent member: 5 mm. A finite value greater than zero in a length unit of the units catalog; a non-finite or non-positive value or a non-length or unknown unit is refused by name (MODEL-SETTING-TOLERANCE-NOT-FINITE, -NOT-POSITIVE, -UNIT-NOT-LENGTH).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       }
     }

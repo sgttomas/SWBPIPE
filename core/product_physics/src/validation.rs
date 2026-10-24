@@ -164,11 +164,30 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
             vec!["pipe_segments".to_string()],
         ));
     }
-    if model.load_cases.iter().all(|case| {
+    // An explicit empty pressure-region list (`[]`, the exact route's
+    // "unpressurized") applies nothing.
+    let case_applies_nothing = |case: &crate::PreviewLoadCase| {
         case.primitive_loads.is_empty()
             && case.equivalent_static.is_none()
-            && case.pressure_regions.is_none()
-    }) {
+            && case.pressure_regions.as_ref().is_none_or(|regions| regions.is_empty())
+    };
+    // Load-state cases are judged on their resolved actions
+    // (`case_state::resolve`): a boundary motion or member eigenstrain
+    // applies an action with no primitive load.
+    if crate::case_state::is_load_state(model) {
+        return;
+    }
+    let model_loads_every_case = model_loads_every_case(model);
+    let all_cases_empty = if model_loads_every_case {
+        model.load_cases.iter().all(|case| {
+            case.primitive_loads.is_empty()
+                && case.equivalent_static.is_none()
+                && case.pressure_regions.is_none()
+        })
+    } else {
+        model.load_cases.iter().all(case_applies_nothing)
+    };
+    if all_cases_empty {
         diagnostics.push(diag(
             "diagnostic:physics:loads-missing",
             "LOAD_INPUT_MISSING",
@@ -176,7 +195,64 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
             "linear-static preview requires at least one explicit primitive load; no hidden loads are applied",
             vec!["load_cases".to_string()],
         ));
+    } else if !model_loads_every_case {
+        // Silent-zero guard (DEL-04-07 Design/pressure-contract.md, "Load
+        // cases that apply nothing"): an empty case among loaded ones
+        // publishes an all-zero result; it may be deliberate (a cold operand
+        // of a range), so it is reported, not refused.
+        for case in model.load_cases.iter().filter(|case| case_applies_nothing(case)) {
+            diagnostics.push(diag(
+                &format!("diagnostic:load-case:{}:applies-no-action", stable_suffix(&case.id)),
+                "LOAD_CASE_APPLIES_NO_ACTION",
+                "warning",
+                "the load case applies no action: it has no primitive load, equivalent-static load or pressure region, so its published result is all zero; add the loads the case should apply if that is not intended",
+                vec![case.id.clone()],
+            ));
+        }
     }
+}
+
+/// Whether a model-level action loads every case (DEL-04-07 Design
+/// pressure-contract.md, "Load cases that apply nothing"): a constant-effort
+/// support, or an objective connector with a preload — K q_ref ≠ 0, decided
+/// exactly as the kernel's `ObjectiveConnector::stress_free` decides it, or a
+/// tie rod with a nonzero reference extension. A `q_ref` in K's null space
+/// loads nothing (K may be positive semidefinite).
+pub(crate) fn model_loads_every_case(model: &PreviewModel) -> bool {
+    model.supports.iter().any(crate::is_constant_effort_support)
+        || model.components.iter().any(connector_preloads)
+}
+
+fn connector_preloads(component: &crate::PreviewComponent) -> bool {
+    use open_pipe_stress_frame_kernel::connector::symmetric_from_upper;
+    use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+    // A connector that does not decode is refused by the connector findings.
+    let Some(spec) = crate::joint::connector_spec(component) else {
+        return false;
+    };
+    // A tie rod pretensions when its decoded (SI) reference extension is
+    // nonzero, the value the kernel's rod load reads.
+    if spec.tie_rods.iter().any(|rod| rod.input.reference_extension != 0.0) {
+        return true;
+    }
+    // The kernel's decode: K = D⁻¹HD⁻¹, a translation index divides by Ls.
+    let h = symmetric_from_upper(&spec.stiffness.upper_triangle);
+    let ls = spec.stiffness.translation_scale;
+    let k = |i: usize, j: usize| {
+        let mut value = h[i][j];
+        if i < 3 {
+            value /= ls;
+        }
+        if j < 3 {
+            value /= ls;
+        }
+        value
+    };
+    (0..6).any(|row| {
+        let mut sum = ExactAccumulator::new();
+        (0..6).all(|column| sum.add_product(k(row, column), spec.q_ref[column]).is_ok())
+            && !sum.is_zero()
+    })
 }
 
 fn validate_ids(
@@ -1107,6 +1183,12 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
         .iter()
         .map(|pipe| (pipe.id.as_str(), pipe))
         .collect::<HashMap<_, _>>();
+    // W-8 (DEL-04-06 Design/model-topology-checks.md): members meeting at each node.
+    let mut node_degree = HashMap::<&str, usize>::new();
+    for pipe in &model.pipe_segments {
+        *node_degree.entry(pipe.from.as_str()).or_default() += 1;
+        *node_degree.entry(pipe.to.as_str()).or_default() += 1;
+    }
     for component in &model.components {
         if !component.node.trim().is_empty() && !node_ids.contains(component.node.as_str()) {
             diagnostics.push(diag(
@@ -1217,6 +1299,23 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     "warning",
                     "branch component header and branch pipe references must exist and terminate at the component node before stress modifier rows can be generated for those pipe sides",
                     vec![component.id.clone()],
+                ));
+            }
+            let degree = node_degree
+                .get(component.node.as_str())
+                .copied()
+                .unwrap_or(0);
+            // A component without a node is reported by the node checks above.
+            if !component.node.trim().is_empty() && branch_topology_invalid(component, degree) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:branch-topology",
+                        stable_suffix(&component.id)
+                    ),
+                    "BRANCH_TOPOLOGY_INVALID",
+                    "warning",
+                    format!("a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}", component.node),
+                    vec![component.id.clone(), component.node.clone()],
                 ));
             }
             if branch_modifier_missing(component) {
@@ -1573,6 +1672,21 @@ fn branch_mapping_invalid(
             .map(|pipe| pipe.from != component.node && pipe.to != component.node)
             .unwrap_or(true)
     })
+}
+
+/// W-8: a tee joins a run in, a run out and a branch; a header pipe that is
+/// also the branch pipe names one side twice.
+fn branch_topology_invalid(component: &crate::PreviewComponent, degree: usize) -> bool {
+    let same_pipe = component.geometry.as_ref().is_some_and(|geometry| {
+        matches!(
+            (
+                geometry.branch_header_pipe_ref.as_deref(),
+                geometry.branch_branch_pipe_ref.as_deref()
+            ),
+            (Some(header), Some(branch)) if !header.trim().is_empty() && header == branch
+        )
+    });
+    degree != 3 || same_pipe
 }
 
 fn branch_modifier_missing(component: &crate::PreviewComponent) -> bool {

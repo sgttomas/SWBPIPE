@@ -163,7 +163,11 @@ def test_b7b_jr_guards_pressure_findings_diagnostic_at_multiplicity_zero(monkeyp
     push = next(i + 1 for i in range(start, len(lines)) if "diagnostics.push(diag(" in lines[i])
     assert "refs.extend(extra.map(str::to_string));" in lines[push - 2]
     d = decisions(monkeypatch)
-    assert [key for key, _ in d["O10_MULT0_SITES"]] == [f"joint.rs:{push}"]
+    # W8-BT (§8.16) adds validate_components' branch-topology warning and its id, also guarded at multiplicity 0.
+    assert [key for key, _ in d["O10_MULT0_SITES"] if key.startswith("joint.rs:")] == [f"joint.rs:{push}"]
+    # SZ-LS (§8.15) guards load-state resolution's sites in case_state/resolve.rs (test_silent_zero_guard.py).
+    assert [key.split(":")[0] for key, _ in d["O10_MULT0_SITES"]
+            if not key.startswith(("joint.rs:", "case_state/resolve.rs:"))] == ["validation.rs"] * 2
     assert not any(str(key).startswith("joint.rs:") and key == f"joint.rs:{push}" for key, _, _ in d.get("O10_SITE_SIZE", []))
     assert not any(key == f"joint.rs:{push}" for key, _ in d.get("SITE_ZERO", []))
 

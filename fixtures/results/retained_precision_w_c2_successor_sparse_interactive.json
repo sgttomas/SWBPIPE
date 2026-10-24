@@ -550,6 +550,17 @@
     "diagnostics": [
       {
         "affected_refs": [
+          "N0",
+          "node:section-a"
+        ],
+        "code": "MODEL_TOPOLOGY_DISCONNECTED",
+        "id": "diagnostic:topology:disconnected",
+        "message": "the model's elements form 2 disconnected parts; each part is solved as a separate structure and no force or movement passes between them: part 1 (from N0; 2 nodes; supported); part 2 (from node:section-a; 2 nodes; supported)",
+        "severity": "warning",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
           "load:0",
           "case-a"
         ],
@@ -16636,7 +16647,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "701fc6b3fe5037bdf78c1508e51408417993cf07a29fe79c6575f0a1fa4c1483",
+        "publication_sha256": "929ee32b7b6cd60c9ee06df3ece10aa2ef825e12904ea3877355f6fb60c96111",
         "receipt_version": 1,
         "sources": [
           {
@@ -20163,7 +20174,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "63820715bece7364bc2cc36f24e1e9ca83b604da38cd1a677b75e959cc6b9c95"
+      "receipt_sha256": "4312b23bb7393cfd0ba4db00e990fbf31b49d923767aae81397456bb06c071fa"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

@@ -5,7 +5,7 @@
 // resolution note. Every edit is a structured operation queued for review.
 import { useMemo, useState } from "react";
 import type { EntityRef, ModelAssumption } from "../../types";
-import { RECORD_FAMILIES, nextModelDataId, recordIntent, useReseed } from "./modelDataIntents";
+import { RECORD_FAMILIES, disabledBy, nextModelDataId, recordIntent, useReseed } from "./modelDataIntents";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
 
 const STATUSES = ["unresolved", "resolved", "rejected"] as const;
@@ -86,7 +86,7 @@ export function AssumptionsPanel(props: ModelDataQueueProps & { selection?: Enti
           <textarea aria-label="Statement" data-testid="assumption-create-statement" rows={2} value={statement} onChange={(event) => setStatement(event.target.value)} />
         </label>
         <p className="model-data-note" data-testid="assumption-create-subject">Subject: {subject ?? `project ${model.project.id}`}</p>
-        <button type="button" data-testid="assumption-create" disabled={busy || !statement.trim()} onClick={add}>Add record</button>
+        <button type="button" data-testid="assumption-create" {...disabledBy(busy, [!statement.trim(), "Enter a statement."])} onClick={add}>Add record</button>
       </fieldset>
       {error ? <p role="alert">{error}</p> : null}
       {notice ? <p role="status">{notice}</p> : null}
@@ -122,7 +122,7 @@ function AssumptionRow(props: ModelDataQueueProps & { record: ModelAssumption })
       <label>Statement
         <textarea aria-label={`Statement ${id}`} data-testid={`assumption-statement-${id}`} rows={2} value={statement} onChange={(event) => setStatement(event.target.value)} />
       </label>
-      <button type="button" data-testid={`assumption-edit-${id}`} disabled={busy || !statement.trim() || statement.trim() === record.statement}
+      <button type="button" data-testid={`assumption-edit-${id}`} {...disabledBy(busy, [!statement.trim(), "Enter a statement."], [statement.trim() === record.statement, "The statement is unchanged."])}
         onClick={() => update({ ...record, statement: statement.trim() })}>
         Save statement
       </button>
@@ -130,12 +130,12 @@ function AssumptionRow(props: ModelDataQueueProps & { record: ModelAssumption })
         <input aria-label={`Resolution note ${id}`} data-testid={`assumption-note-${id}`} value={note} onChange={(event) => setNote(event.target.value)} />
       </label>
       <div className="model-data-actions">
-        <button type="button" data-testid={`assumption-resolve-${id}`} disabled={busy || !note.trim()} onClick={() => settle("resolved")}>Resolve</button>
-        <button type="button" data-testid={`assumption-reject-${id}`} disabled={busy || !note.trim()} onClick={() => settle("rejected")}>Reject</button>
+        <button type="button" data-testid={`assumption-resolve-${id}`} {...disabledBy(busy, [!note.trim(), "Enter a resolution note first."])} onClick={() => settle("resolved")}>Resolve</button>
+        <button type="button" data-testid={`assumption-reject-${id}`} {...disabledBy(busy, [!note.trim(), "Enter a resolution note first."])} onClick={() => settle("rejected")}>Reject</button>
         {record.status !== "unresolved" ? (
-          <button type="button" data-testid={`assumption-reopen-${id}`} disabled={busy} onClick={reopen}>Reopen</button>
+          <button type="button" data-testid={`assumption-reopen-${id}`} {...disabledBy(busy)} onClick={reopen}>Reopen</button>
         ) : null}
-        <button type="button" data-testid={`assumption-remove-${id}`} disabled={busy}
+        <button type="button" data-testid={`assumption-remove-${id}`} {...disabledBy(busy)}
           onClick={() => void queue((canonicalize) => recordIntent(canonicalize, family, "delete", record, record))}>
           Remove
         </button>

@@ -14,8 +14,10 @@ const AT = new Date("2026-06-12T00:00:00Z");
 // sha256 (RFC 8785) of buildBlankLocalModelDocument(AT), computed on the base
 // tree 1b95d0b66 before this change and re-pinned by B7a, which made the blank
 // a current 0.5.0 document, and by models 0.6.0 and 0.7.0 (its schema_version is the only
-// change each time).
-const BASE_BLANK_SHA256 = "e07eb8138e6032297c4b2fd638bfb6a22688faf7a61fefd7663b413f92c924ad";
+// change each time). Re-pinned by W-17 slice (a), which adds project.units.angle
+// = rad and changes nothing else (projectUnitSelection.test.ts checks that the
+// blank without angle still hashes to the previous pin).
+const BASE_BLANK_SHA256 = "62150fee9c6398c823345032f1fba4e710dbf0810c24a6261b96db7fa872dd10";
 // T4-U8 (D-6/O3): the blank's contract carries the authoring default shear model.
 const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
 

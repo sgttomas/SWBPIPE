@@ -169,6 +169,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -532,6 +538,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -886,6 +898,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -1240,6 +1258,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -1603,6 +1627,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -1967,6 +1997,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -2330,6 +2366,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -2694,6 +2736,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -3048,6 +3096,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -3408,6 +3462,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -3769,6 +3829,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -4123,6 +4189,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -4477,6 +4549,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -4846,6 +4924,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -5200,6 +5284,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -5557,6 +5647,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",
@@ -5911,6 +6007,12 @@
             }
           }
         ],
+        "model_settings": {
+          "node_proximity_tolerance": {
+            "unit": "mm",
+            "value": 2.0
+          }
+        },
         "nodes": [
           {
             "id": "node:N-1",

@@ -153,9 +153,11 @@ code_paths:
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src/services/ruleCheckService.ts
 - apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
+- core/reporting/report_renderer/src/lib.rs
 checks:
 - core/rules/completeness_checker/src/lib.rs
 - core/rules/rule_check_runner/tests/*.rs
 - apps/desktop/src/services/ruleCheckService.test.ts
 - apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts
+- core/reporting/report_renderer/tests/render.rs

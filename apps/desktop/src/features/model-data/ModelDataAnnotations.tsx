@@ -14,6 +14,7 @@ import {
   SOURCE_REVIEW_STATUSES,
   annotatedRecord,
   annotationIntent,
+  disabledBy,
   parseTags,
   stableJson
 } from "./modelDataIntents";
@@ -65,11 +66,11 @@ function AnnotationEditor(props: Props & { target: EntityRef; title: string }) {
         />
       </label>
       <div className="model-data-actions">
-        <button type="button" data-testid={`${testId}-tags-queue`} disabled={busy || !tagsChanged || entered.length === 0}
+        <button type="button" data-testid={`${testId}-tags-queue`} {...disabledBy(busy, [entered.length === 0, "Enter at least one tag; Clear tags removes them."], [!tagsChanged, "The tags are unchanged."])}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "tags", entered, "Tags"))}>
           Queue tags
         </button>
-        <button type="button" data-testid={`${testId}-tags-clear`} disabled={busy || current.tags === undefined}
+        <button type="button" data-testid={`${testId}-tags-clear`} {...disabledBy(busy, [current.tags === undefined, "No tags are recorded."])}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "tags", null, "Clear tags"))}>
           Clear tags
         </button>
@@ -84,11 +85,11 @@ function AnnotationEditor(props: Props & { target: EntityRef; title: string }) {
         />
       </label>
       <div className="model-data-actions">
-        <button type="button" data-testid={`${testId}-notes-queue`} disabled={busy || !notesChanged || !notesText.trim()}
+        <button type="button" data-testid={`${testId}-notes-queue`} {...disabledBy(busy, [!notesText.trim(), "Enter a note; Clear notes removes it."], [!notesChanged, "The note is unchanged."])}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "notes", notesText.trim(), "Notes"))}>
           Queue notes
         </button>
-        <button type="button" data-testid={`${testId}-notes-clear`} disabled={busy || current.notes === undefined}
+        <button type="button" data-testid={`${testId}-notes-clear`} {...disabledBy(busy, [current.notes === undefined, "No note is recorded."])}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "notes", null, "Clear notes"))}>
           Clear notes
         </button>
@@ -170,11 +171,11 @@ function ProvenanceRecordEditor(props: Props & { target: EntityRef }) {
         </p>
       ))}
       <div className="model-data-actions">
-        <button type="button" data-testid="provenance-record-queue" disabled={busy || !draft.source_name?.trim() || stableJson(next()) === storedKey}
+        <button type="button" data-testid="provenance-record-queue" {...disabledBy(busy, [!draft.source_name?.trim(), "Enter a source name."], [stableJson(next()) === storedKey, "The provenance record is unchanged."])}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "provenance_record", next(), "Provenance record"))}>
           Queue provenance record
         </button>
-        <button type="button" data-testid="provenance-record-clear" disabled={busy || stored === undefined}
+        <button type="button" data-testid="provenance-record-clear" {...disabledBy(busy, [stored === undefined, "No provenance record is recorded."])}
           onClick={() => void queue((canonicalize) => annotationIntent(canonicalize, objectType, target.id, current, "provenance_record", null, "Clear provenance record"))}>
           Clear provenance record
         </button>

@@ -5,6 +5,7 @@ import {
   optionalString,
   primitiveLoadCategoryFromValue,
   primitiveLoadDefaultUnit,
+  primitiveLoadDefaultUnitChoice,
   primitiveLoadDirectionOptions,
   primitiveLoadDraftDimension,
   primitiveLoadUsesPipeTarget,
@@ -60,6 +61,9 @@ type PrimitiveLoadDraft = {
   direction: string;
   magnitude: string;
   unit: string;
+  /** "default": the unit follows the current project's default rule, recomputed on
+   * every render (W-17 §2.4); "user": an explicit choice, kept as entered. */
+  unitSource: "default" | "user";
   provenance: string;
 };
 
@@ -169,9 +173,16 @@ export function LoadCaseManagerPanel({
   );
   const nextLoadCaseId = useMemo(() => nextLoadCaseIdentifier(model), [model]);
   const [loadCaseDraft, setLoadCaseDraft] = useState<LoadCaseDraft>(() => defaultLoadCaseDraft(nextLoadCaseId));
-  const [primitiveLoadDraft, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
+  const [primitiveLoadDraftState, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
     defaultPrimitiveLoadDraft(model, model.load_cases[0]?.id ?? "")
   );
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  // A default-sourced unit is never retained across a model, project-unit or catalog
+  // change: it is the current rule's default, so a replaced project or a catalog that
+  // arrives later can only clear it, never leave an inherited unit queueable.
+  const primitiveLoadDraft: PrimitiveLoadDraft = primitiveLoadDraftState.unitSource === "default"
+    ? { ...primitiveLoadDraftState, unit: primitiveLoadDefaultUnit(model, primitiveLoadDraftState.category, primitiveLoadDraftState.direction, unitCatalogRoute) }
+    : primitiveLoadDraftState;
   const primitiveUnitSymbol = primitiveLoadDraft.unit.trim();
   const primitiveDimensionId = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
   // Request identity also changes for A → B → A, so an earlier success for A
@@ -194,7 +205,6 @@ export function LoadCaseManagerPanel({
   }, [primitiveUnitSymbol, primitiveDimensionId, primitiveUnitKey]);
   const primitiveUnitReady = primitiveUnitCheck?.key === primitiveUnitKey && primitiveUnitCheck.valid;
   const primitiveUnitDiagnostic = primitiveUnitCheck?.key === primitiveUnitKey ? primitiveUnitCheck.message : "Validating unit dimension…";
-  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const changed = selectedPrimitive
     ? proposedMagnitude.trim() !== currentMagnitude || proposedMagnitudeUnit.trim() !== currentMagnitudeUnit
     : false;
@@ -313,11 +323,10 @@ export function LoadCaseManagerPanel({
   const primitiveDraftDimension = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
   const primitiveDraftUnit = primitiveLoadDraft.unit;
   const primitiveDraftUnitBasis = describeUnitBasis(unitCatalogRoute, primitiveDraftUnit, primitiveDraftDimension);
-  const primitiveDraftUnitOptions = unitOptions(
-    unitCatalogRoute,
-    primitiveDraftDimension,
-    primitiveLoadDefaultUnit(model, primitiveLoadDraft.category, primitiveLoadDraft.direction)
-  );
+  const primitiveDefaultUnitChoice = primitiveLoadDefaultUnitChoice(model, primitiveLoadDraft.category, primitiveLoadDraft.direction, unitCatalogRoute);
+  const primitiveDraftUnitOptions = unitOptions(unitCatalogRoute, primitiveDraftDimension, primitiveDefaultUnitChoice.symbol);
+  // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
+  const primitiveUnitNotice = primitiveLoadDraft.unit === "" ? primitiveDefaultUnitChoice.notice : null;
   const selectedPrimitiveUnitOptions = selectedPrimitive
     ? unitOptions(unitCatalogRoute, primitiveDimension(selectedPrimitive.load), currentMagnitudeUnit)
     : [];
@@ -452,13 +461,15 @@ export function LoadCaseManagerPanel({
   function updatePrimitiveLoadDraft(field: keyof PrimitiveLoadDraft, value: string) {
     setPrimitiveLoadDraft((draft) => {
       const nextDraft = { ...draft, [field]: value } as PrimitiveLoadDraft;
+      if (field === "unit") nextDraft.unitSource = "user";
       if (field === "category") nextDraft.category = primitiveLoadCategoryFromValue(value);
       if (field === "loadCaseId" || field === "category") {
         nextDraft.direction = defaultPrimitiveLoadDirection(nextDraft.category);
         nextDraft.id = nextPrimitiveLoadIdentifier(model, nextDraft.loadCaseId, nextDraft.category);
       }
       if (field === "category" || field === "direction") {
-        nextDraft.unit = primitiveLoadDefaultUnit(model, nextDraft.category, nextDraft.direction);
+        nextDraft.unit = primitiveLoadDefaultUnit(model, nextDraft.category, nextDraft.direction, unitCatalogRoute);
+        nextDraft.unitSource = "default";
       }
       return nextDraft;
     });
@@ -669,6 +680,7 @@ export function LoadCaseManagerPanel({
                 </option>
               ))}
             </select>
+            {primitiveUnitNotice ? <span className="muted" data-testid="load-manager-create-primitive-unit-notice">{primitiveUnitNotice}</span> : null}
           </label>
           <label>
             <span>Magnitude ({primitiveDraftUnitBasis.label})</span>
@@ -704,8 +716,8 @@ export function LoadCaseManagerPanel({
             ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveDraftTarget}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; unit_validation=${createPrimitiveLoadIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
             : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
               ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
-              : !primitiveUnitReady ? primitiveUnitDiagnostic
-              : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load"}
+              : primitiveUnitNotice ?? (!primitiveUnitReady ? primitiveUnitDiagnostic
+              : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load")}
           </p>
       </section>
 
@@ -1388,6 +1400,7 @@ function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): Pri
     direction,
     magnitude: "250",
     unit: primitiveLoadDefaultUnit(model, category, direction),
+    unitSource: "default",
     provenance: "user_entered_local_preview"
   };
 }
@@ -2515,9 +2528,14 @@ function primitiveUnit(load: PrimitiveLoad): string {
 }
 
 function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
-  const fallback = { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
-  if (!fallbackSymbol || fallbackSymbol === "TBD") return [fallback];
-  if (route?.route !== "tauri_unit_catalog") return [fallback];
+  // "" is an unselected default (W-17 §2.4): offer a placeholder and the catalog, nothing in its place.
+  const fallback = fallbackSymbol === ""
+    ? { symbol: "", label: "Choose a unit" }
+    : { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
+  // An undeclared project unit (TBD) has no default; with the catalog loaded the
+  // field still offers its catalog units to choose from (W-17 §2.4: the moment
+  // default is project.units.moment, never composed).
+  if (route?.route !== "tauri_unit_catalog" || !Array.isArray(route.catalog?.entries)) return [fallback];
   const options = acceptedUnits(route.catalog)
     .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
     .map((entry) => ({

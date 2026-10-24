@@ -24,7 +24,8 @@
             "moment": "N*m",
             "pressure": "Pa",
             "stress": "Pa",
-            "temperature": "degC"
+            "temperature": "degC",
+            "angle": "rad"
           }
         },
         "analysis_status": {
@@ -81,7 +82,8 @@
             "moment": "N*m",
             "pressure": "Pa",
             "stress": "Pa",
-            "temperature": "degC"
+            "temperature": "degC",
+            "angle": "rad"
           }
         },
         "analysis_status": {
@@ -180,6 +182,7 @@
           "id": "project:blank-local-20260101t000000z",
           "name": "Blank Local Model",
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -280,6 +283,7 @@
           "id": "project:blank-local-20260101t000000z",
           "name": "Blank Local Model",
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -380,6 +384,7 @@
           "id": "project:blank-local-20260101t000000z",
           "name": "Blank Local Model",
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -544,6 +549,7 @@
           "id": "project:blank-local-20260101t000000z",
           "name": "Blank Local Model",
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -708,6 +714,7 @@
           "id": "project:blank-local-20260101t000000z",
           "name": "Blank Local Model",
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -909,6 +916,7 @@
           "id": "project:blank-local-20260101t000000z",
           "name": "Blank Local Model",
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -1123,6 +1131,7 @@
           "id": "project:blank-local-20260101t000000z",
           "name": "Blank Local Model",
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -1342,6 +1351,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -1568,6 +1578,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -1803,6 +1814,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -2058,6 +2070,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -2313,6 +2326,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -2607,6 +2621,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",
@@ -2901,6 +2916,7 @@
             "rev-A"
           ],
           "units": {
+            "angle": "rad",
             "force": "N",
             "length": "m",
             "moment": "N*m",

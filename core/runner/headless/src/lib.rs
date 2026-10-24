@@ -797,7 +797,7 @@ fn run_preview_model_value_dispatch(request: RunnerRequest, solve_payload: Value
 pub fn run_preview_model_value(request: RunnerRequest, solve_payload: Value) -> Result<PreviewRunnerOutput,String> {run_preview_model_value_with_rule_check(request,solve_payload,None)}
 
 /// Map an automatic rule-check status — the `core/rules/rule_check_runner`
-/// worst-of `aggregate_status` vocabulary (`RULE_INPUTS_INCOMPLETE`,
+/// pack `aggregate_status` vocabulary (`RULE_INPUTS_INCOMPLETE`,
 /// `USER_RULE_CHECKED`, `USER_RULE_FAILED`) — to the runner analysis-status
 /// vocabulary. `None` for any other string, so callers never silently coerce an
 /// unrecognized status (CONTRACT no-silent-defaults). The wider model/mechanics

@@ -105,16 +105,16 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This deliverable specifies the setup surface for a future nonlinear support regression suite covering active-set, gap, friction, lift-off convergence, and regression cases for OpenPipeStress.
+> This deliverable specifies the contract and evidence basis for the implemented nonlinear support regression suite covering active-set, gap, friction, lift-off convergence, and regression cases for OpenPipeStress.
 >
-> In scope for this setup pass:
+> In scope for the original setup pass:
 >
 > - document the regression-suite purpose, boundaries, dependencies, and acceptance surface;
 > - preserve public/original/permissive benchmark-source constraints;
 > - identify diagnostics and result-envelope information the future tests must observe;
 > - record `TBD` items that depend on nonlinear solver maturity.
 >
-> Out of scope for this setup pass:
+> Out of scope for the original setup pass:
 >
 > - implementing nonlinear solver behavior;
 > - creating benchmark source files or regression tests;
@@ -206,7 +206,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Define the operating procedure for producing the future nonlinear support regression suite while preserving the current setup boundary. This procedure is not an implementation runbook for solver code or test files.
+> Define the operating procedure for producing, extending and using the nonlinear support regression suite under an active bounded brief. This procedure is not an implementation runbook for solver code or test files.
 >
 ### CLM-019 — Prerequisites
 
@@ -225,13 +225,13 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > ##### Steps
 >
 > 1. Confirm the working folder is the DEL-09-03 deliverable folder and that writes are deliverable-local.
-> 2. Maintain the `ScopeOfWork.md` describing scope, requirements, guidance, and future execution procedure.
-> 3. Define future case categories only at the setup level: active-set, gap, friction, lift-off, convergence, and non-convergence behavior.
-> 4. For each future case, require a source/provenance record before implementation. Mark source gaps as `TBD`.
+> 2. Maintain the `ScopeOfWork.md` describing scope, requirements, guidance, and execution procedure.
+> 3. Map each case to its declared family in `NonlinearRegressionFamily` in `validation/benchmarks/nonlinear/src/lib.rs`; verify active-set, gap, friction, lift-off, convergence and non-convergence behavior against the relevant inventory and expected outcomes. `missing_required_families()` checks family coverage for the `NonlinearRegressionCase` inventory.
+> 4. For each new case, require a source/provenance record before implementation. Mark source gaps as `TBD`.
 > 5. Do not use protected standards examples, code tables, proprietary commercial software outputs, or vendor data without documented redistribution rights.
-> 6. Defer final numerical convergence tolerances until nonlinear solver evidence is available and reviewed.
-> 7. When implementation is later authorized, create case fixtures and regression tests only in the appropriate validation/test locations named by the decomposition.
-> 8. Validate future tests through unit/schema checks, deterministic reruns, diagnostics/result-envelope review, and protected-content/provenance review.
+> 6. Apply the scope-specific DEC-046 records in `validation/benchmarks/nonlinear/` where they govern; defer final numerical convergence tolerances for unadopted scopes until nonlinear solver evidence is available and reviewed.
+> 7. Under an active bounded brief, create or change case fixtures and regression tests only in the appropriate validation/test locations named by the decomposition and permitted by that brief; current locations include `validation/benchmarks/nonlinear/`. Keep hand-calculation/source notes in `validation/hand_calcs/nonlinear/`.
+> 8. Validate the regression tests through unit/schema checks, deterministic reruns, diagnostics/result-envelope review, and protected-content/provenance review.
 > 9. Report regression outcomes as software-quality evidence only; do not claim code compliance, certification, sealing, approval, or professional reliance (PRD §21.2).
 >
 ### CLM-021 — Verification
@@ -255,7 +255,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > - active-state and convergence diagnostic checks;
 > - protected-content scan and human review gate.
 >
-> Concrete validation command names are `TBD` until the regression runner, CI entry points, and nonlinear solver diagnostics exist. Do not substitute placeholder commands as if they were accepted release gates.
+> Current validation commands are the crate tests (`cargo test --locked --manifest-path validation/benchmarks/nonlinear/Cargo.toml`, which the piping numerical CI suite runs through `tools/ci/numerical_ci.py` when the crate is selected) and the headless runner's `run-regression` verb (suite `nonlinear`). Which commands are release gates remains `TBD`; do not present these commands as accepted release gates.
 >
 > Current implementation (at `62c1efd75b`): the suite is the Cargo crate `validation/benchmarks/nonlinear` (`open_pipe_stress_nonlinear_benchmarks`), with its tests in `src/lib.rs`. It exercises `core/solver/nonlinear_integration` and `core/solver/nonlinear_supports`, which `core/product_physics` also links. The product route's converged active-set checks against `validation/references/kd5_nonlinear/` are in `core/product_physics/src/kd5_nonlinear_tests.rs`.
 >
@@ -308,16 +308,16 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Nonlinear support behavior is sensitive to solver maturity. A regression suite created too early can freeze incidental behavior instead of intended behavior. This setup therefore records the categories and gates but defers final cases, tolerances, and pass/fail thresholds until the nonlinear active-set solver and diagnostics contract are mature enough to support them.
+> Nonlinear support behavior is sensitive to solver maturity. A regression suite created too early can freeze incidental behavior instead of intended behavior. The original setup therefore recorded the categories and gates and deferred cases, tolerances, and pass/fail thresholds. The suite now holds cases in each required family; scope-specific DEC-046 records govern their adopted thresholds, and unadopted scopes stay deferred until the nonlinear active-set solver and diagnostics contract are mature enough to support them.
 >
-> The suite should distinguish at least these future evidence categories:
+> The suite should distinguish at least these evidence categories:
 >
 > | Category | Setup guidance |
 > |---|---|
-> | Active-set state | Verify active/inactive state reporting when the solver exposes it. |
+> | Active-set state | Verify active/inactive state reporting (`ActiveSetState` in `core/solver/nonlinear_supports`). |
 > | Gap closure/opening | Verify state transition and diagnostic reporting without inventing protected benchmark values. |
 > | Lift-off | Verify one-way support disengagement behavior using original or permissive cases. |
-> | Friction state | Verify stick/slip or equivalent reported state only after the solver defines the state vocabulary. |
+> | Friction state | Verify stick/slip reported state against the solver's `Sticking`/`Sliding` states. |
 > | Convergence | Record iteration counts, tolerance basis, and non-convergence warnings through the result envelope. |
 > | Regression stability | Compare deterministic outputs for the same model, units, solver version, and input manifest. |
 >
@@ -337,7 +337,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> Specific regression case definitions are `TBD`. No example model, benchmark file, commercial comparison, or code-derived case is introduced by this setup pass.
+> Regression case definitions are in `validation/benchmarks/nonlinear/src/lib.rs` (`fixture_inventory()`, `assembled_fixture_inventory()` and the multi-support inventories), with source notes in `validation/hand_calcs/nonlinear/`. The original setup pass introduced no example model, benchmark file, commercial comparison, or code-derived case.
 >
 ### CLM-030 — Open Issues
 

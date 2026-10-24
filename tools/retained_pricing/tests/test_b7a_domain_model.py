@@ -198,23 +198,23 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     actual = dict(audits)
     pp = "core/product_physics/src/"
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
-    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103, unchanged text).
+    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7, unchanged text).
     sites = {
-        "lib.rs:11415": {"load_case_id"},
-        "lib.rs:11429": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11436": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11441": {"load.load_id"},
-        "lib.rs:11442": {"bend.pipe_id"},
-        "lib.rs:11443": {"bend.component_id"},
-        "lib.rs:11444": {"load_case_id"},
-        "lib.rs:11503": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11510": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11515": {"load.load_id"},
-        "lib.rs:11516": {"bend.pipe_id"},
-        "lib.rs:11517": {"bend.component_id"},
-        "lib.rs:11518": {"load_case_id"},
-        "lib.rs:11557": {"stable_suffix(&load.load_id)"},
-        "lib.rs:11564": {"load.load_id", "load_case_id"},
+        "lib.rs:11425": {"load_case_id"},
+        "lib.rs:11439": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11446": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11451": {"load.load_id"},
+        "lib.rs:11452": {"bend.pipe_id"},
+        "lib.rs:11453": {"bend.component_id"},
+        "lib.rs:11454": {"load_case_id"},
+        "lib.rs:11513": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11520": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11525": {"load.load_id"},
+        "lib.rs:11526": {"bend.pipe_id"},
+        "lib.rs:11527": {"bend.component_id"},
+        "lib.rs:11528": {"load_case_id"},
+        "lib.rs:11567": {"stable_suffix(&load.load_id)"},
+        "lib.rs:11574": {"load.load_id", "load_case_id"},
         "certified_loads.rs:236": {"case_id"},
         "certified_loads.rs:259": {"case_id"},
     }

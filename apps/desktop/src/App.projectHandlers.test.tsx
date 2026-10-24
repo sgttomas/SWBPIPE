@@ -11,6 +11,7 @@ import * as previewService from "./services/previewService";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
 import { applyModelOperation } from "./services/operationService";
 import { getLocalStorageCapability } from "./services/projectService";
+import { confirmProjectUnits } from "./test-support/workspaceTestControls";
 import type {
   EditorOperationIntent,
   LocalProjectEnvelope,
@@ -396,6 +397,7 @@ describe("project handlers: a failed or empty open leaves the open project as it
         : Promise.reject(new Error(`Unexpected command ${command}`)),
     );
     act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
     await waitFor(() => expect(projectMessage()).toHaveTextContent("Blank create failed: Error: Invented blank create failure"));
     expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
@@ -698,6 +700,7 @@ describe("project handlers: a landed write records snapshot verification even wh
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
     await applyGridEditWhilePending();
     // This reachable model edit supersedes Create; a second project command is now blocked.

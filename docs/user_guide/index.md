@@ -88,11 +88,21 @@ A model solves on one of two routes:
 
 **What the app refuses or does not offer today:**
 
-- **No report you can obtain.**
-  - On a pressure-free result, **Render report** is blocked. Report inputs
-    are classified private, and the render runs under the public-report
-    redaction context, which has no local-private intent control. The result
-    is `blocked=true`, with no preview and no hash.
+- **Reports are local-private only, and pressure-free only.**
+  - On a pressure-free result, **Render report** works for your own review
+    when you tick "Include known private values in this local rendered
+    report". The render then shows a preview and its canonical HTML SHA-256,
+    and offers Save canonical HTML (local private) and Print / PDF. The
+    document carries a "LOCAL PRIVATE REPORT … not for sharing or
+    publication" notice. Without that selection the render runs in the
+    public-report redaction context and stays `blocked=true` with no preview,
+    because session inputs are classified private.
+  - The rendered report carries the rule-pack name, id, version and checksum,
+    each user-rule check's id, status and missing-input names, the software
+    and solver versions, the generation time, solver mode and settings from
+    a run manifest that verifies, and the result coordinate systems. The
+    build or release id, the run's creation time and model-level coordinates
+    are stated as "not recorded".
   - Every report surface refuses exact-route results with
     `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` (owner ruling 10A, 2026-10-21;
     `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`).
@@ -135,7 +145,7 @@ The guide should refer to these current surfaces when explaining behavior:
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
 | GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite macOS desktop app in `apps/desktop` is the user surface ([Current Desktop App](#current-desktop-app-010)); the `core/gui/*` modules are contract/reference modules (Python engines and a standalone Rust crate) that the app does not call or link. Its native smoke (`apps/desktop/native-smoke/`) and browser specs (`apps/desktop/e2e/`) exercise the app; no single run yet takes a model authored in the app through solve, review, save and reopen. Supported-release acceptance and other platforms remain `TBD`. |
-| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, but the app yields no report today: rendering is blocked for pressure-free results, exact-route results are refused, and the report package refuses every current result ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
+| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, and the app renders a local private report for a pressure-free result after the local-private selection; a public render stays blocked, exact-route results are refused, and the report package refuses every current result ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome. |
 | Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Public API transport, endpoint syntax, plugin runtime/loading/signing, concrete target field coverage, and local FEA package format remain `TBD`. Adapters cannot bypass units, provenance, privacy, protected-content screening, diagnostics, rule sandboxing, report controls, or human-review boundaries. |
@@ -295,8 +305,11 @@ In the desktop app the workflow is:
    Local Project. The project lives in the local SQLite store (§3.2). Storage
    roots for other operating systems and a portable project export/copy
    remain `TBD`.
-2. Check the units. A blank project starts in SI; the display units can be
-   switched.
+2. Choose the units. New Blank Project opens a units dialog: SI (the
+   default), US customary, or a custom unit per key (length, force, moment,
+   pressure, stress, temperature, angle) from the unit catalog. Values are
+   stored in the units entered, and the length unit is fixed once the project
+   has nodes. The display units can be switched.
 3. In the Model stage, create the centerline: place nodes and pipes in the
    viewport, then add bends, expansion joints and other components.
 4. Assign materials and sections, and add supports and restraints.
@@ -377,12 +390,14 @@ public defaults.
 
 ## 10. Reports And Audit Records
 
-The desktop app yields no report today: rendering is blocked for
-pressure-free results, exact-route results are refused, and the report
-package refuses every current result (see
+The desktop app renders a report only as a local private document for a
+pressure-free result, after the local-private selection; exact-route results
+are refused, and the report package refuses every current result (see
 [Current Desktop App](#current-desktop-app-010)). The table below is the
-intended report content. The renderer's input does not yet carry rule-pack
-references, software and solver versions, a date or analysis settings.
+intended report content. The rendered report now carries rule-pack
+references, user-rule check outcomes, software and solver versions, the
+generation time and the analysis settings a verified run manifest binds;
+materials, sections and libraries are not yet in it.
 
 Reports are structured review artifacts. A report should include or reference:
 
@@ -464,8 +479,8 @@ interpretation, rule-check readiness, privacy, or review.
 The following remain explicit limitations or open decisions:
 
 - the app refusals and gaps listed under
-  [Current Desktop App](#current-desktop-app-010): no obtainable report, no
-  model states, run history or comparison, no rigid elements, no model export
+  [Current Desktop App](#current-desktop-app-010): reports only as local private
+  documents and only for pressure-free results, no model states, run history or comparison, no rigid elements, no model export
   to a file, and no design-knowledge entry or constraint validation;
 - publication of the v0.1 macOS Apple Silicon `.app` zip, which is the
   owner's act; the published location is still to be named (§3.1);

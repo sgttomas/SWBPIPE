@@ -363,3 +363,60 @@ fn bundled_demo_is_clean() {
     .unwrap();
     clean(&demo);
 }
+
+/// §3.8: `model_settings.node_proximity_tolerance` is a closed length quantity, finite, greater
+/// than zero, in a catalog length unit. Each refusal is pinned with its code, path and message
+/// (the same messages product_physics' accessor gives); absence and a valid tolerance are clean.
+#[test]
+fn model_settings_tolerance_refusals_are_named() {
+    #[track_caller]
+    fn refused(document: &Value, code: &str, path: &str, message: &str) {
+        let found = validate_model_document(document);
+        let blocking: Vec<_> = found.iter().filter(|item| item.is_blocking()).collect();
+        assert_eq!(blocking.len(), 1, "{found:?}");
+        assert_eq!((blocking[0].code, blocking[0].path.as_str(), blocking[0].message.as_str()), (code, path, message));
+    }
+    let tolerance = |value: Value| mutated(|d| d["model_settings"] = json!({ "node_proximity_tolerance": value }));
+    clean(&mutated(|d| { d.as_object_mut().unwrap().remove("model_settings"); }));
+    clean(&mutated(|d| d["model_settings"] = json!({})));
+    clean(&tolerance(json!({"value": 5, "unit": "mm"})));
+    clean(&tolerance(json!({"value": 0.25, "unit": "in"})));
+    refused(&tolerance(json!({"value": 0, "unit": "mm"})), "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+        "model_settings.node_proximity_tolerance.value",
+        "model_settings.node_proximity_tolerance.value is 0; the tolerance must be greater than zero.");
+    refused(&tolerance(json!({"value": -2.5, "unit": "mm"})), "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+        "model_settings.node_proximity_tolerance.value",
+        "model_settings.node_proximity_tolerance.value is -2.5; the tolerance must be greater than zero.");
+    refused(&tolerance(json!({"value": 5, "unit": "N"})), "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH",
+        "model_settings.node_proximity_tolerance.unit",
+        "model_settings.node_proximity_tolerance.unit `N` is not a length unit of the units catalog.");
+    refused(&tolerance(json!({"value": 5, "unit": "mmm"})), "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH",
+        "model_settings.node_proximity_tolerance.unit",
+        "model_settings.node_proximity_tolerance.unit `mmm` is not a length unit of the units catalog.");
+    // JSON carries no non-finite number; the finite check is product_physics' accessor's, pinned there.
+    refused(&tolerance(json!({"value": "5", "unit": "mm"})), "MODEL-SLOT-SHAPE",
+        "model_settings.node_proximity_tolerance.value",
+        "model_settings.node_proximity_tolerance.value is string; number required.");
+    refused(&tolerance(json!({"value": 5, "unit": 3})), "MODEL-SLOT-SHAPE",
+        "model_settings.node_proximity_tolerance.unit",
+        "model_settings.node_proximity_tolerance.unit is number; string required.");
+    refused(&tolerance(json!({"value": 5})), "MODEL-SLOT-SHAPE",
+        "model_settings.node_proximity_tolerance.unit",
+        "model_settings.node_proximity_tolerance.unit is missing (required).");
+    refused(&tolerance(json!({"value": 5, "unit": "mm", "basis": "x"})), "MODEL-SLOT-SHAPE",
+        "model_settings.node_proximity_tolerance.basis",
+        "model_settings.node_proximity_tolerance.basis is not a member of this record.");
+    refused(&tolerance(json!(5)), "MODEL-SLOT-SHAPE", "model_settings.node_proximity_tolerance",
+        "model_settings.node_proximity_tolerance is number; a length quantity {value, unit} is required.");
+    // An authored null is not absence (product_physics refuses it at the wire too).
+    refused(&tolerance(Value::Null), "MODEL-SLOT-SHAPE", "model_settings.node_proximity_tolerance",
+        "model_settings.node_proximity_tolerance is null; a length quantity {value, unit} is required.");
+    // A positive value that is zero in metres is refused with the accessor's code and message.
+    refused(&tolerance(json!({"value": 5e-324, "unit": "mm"})), "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+        "model_settings.node_proximity_tolerance",
+        "model_settings.node_proximity_tolerance is 5e-324 mm, which is zero in metres; the tolerance must be greater than zero.");
+    refused(&mutated(|d| d["model_settings"] = json!({"proximity": 1})), "MODEL-SLOT-SHAPE",
+        "model_settings.proximity", "model_settings.proximity is not a member of this record.");
+    refused(&mutated(|d| d["model_settings"] = json!([])), "MODEL-SLOT-SHAPE", "model_settings",
+        "model_settings is array; object required.");
+}

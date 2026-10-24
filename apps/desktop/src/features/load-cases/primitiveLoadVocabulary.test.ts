@@ -69,10 +69,11 @@ describe("primitive load category vocabulary", () => {
   });
 
   it("derives default units only from declared project units", () => {
-    const model = withUnits({ force: "kN", length: "mm", temperature: "C", angle: "rad" });
+    const model = withUnits({ force: "kN", length: "mm", moment: "kN*m", temperature: "C", angle: "rad" });
     expect(primitiveLoadDefaultUnit(model, "concentrated_force", "global_y")).toBe("kN");
     expect(primitiveLoadDefaultUnit(model, "distributed_force", "global_y")).toBe("kN/mm");
-    expect(primitiveLoadDefaultUnit(model, "concentrated_moment", "rotation_z")).toBe("kN*mm");
+    // W-17 §2.4: the moment reads the moment key; it is not composed as kN*mm.
+    expect(primitiveLoadDefaultUnit(model, "concentrated_moment", "rotation_z")).toBe("kN*m");
     // The legacy "C" spelling is offered as the temperature-interval symbol degC.
     expect(primitiveLoadDefaultUnit(model, "thermal", "global_z")).toBe("degC");
     expect(primitiveLoadDefaultUnit(model, "imposed_displacement", "UZ")).toBe("mm");
@@ -88,14 +89,17 @@ describe("primitive load category vocabulary", () => {
     ] as const) {
       expect(primitiveLoadDefaultUnit(empty, category, direction)).toBe("TBD");
     }
-    // A compound unit needs both parts; a blank declaration counts as absent.
+    // A compound unit needs both parts. W-17 §2.4: a present but blank part is not
+    // absent; the compositions give no default ("", unselected) rather than TBD.
     const forceOnly = withUnits({ force: "N", length: "  " });
     expect(primitiveLoadDefaultUnit(forceOnly, "concentrated_force", "global_y")).toBe("N");
-    expect(primitiveLoadDefaultUnit(forceOnly, "distributed_force", "global_y")).toBe("TBD");
-    expect(primitiveLoadDefaultUnit(forceOnly, "concentrated_moment", "rotation_z")).toBe("TBD");
-    // The blank document declares no angle unit, so a rotational imposed displacement has none.
+    expect(primitiveLoadDefaultUnit(forceOnly, "distributed_force", "global_y")).toBe("");
+    expect(primitiveLoadDefaultUnit(forceOnly, "concentrated_moment", "rotation_z")).toBe("");
+    expect(primitiveLoadDefaultUnit(withUnits({ force: "N" }), "distributed_force", "global_y")).toBe("TBD");
+    expect(primitiveLoadDefaultUnit(withUnits({ force: "N" }), "concentrated_moment", "rotation_z")).toBe("TBD");
+    // W-17: the blank document declares angle (rad), so a rotational imposed displacement has a unit.
     const blank = buildBlankLocalModelDocument(new Date("2026-01-01T00:00:00Z"));
-    expect(primitiveLoadDefaultUnit(blank, "imposed_displacement", "RY")).toBe("TBD");
+    expect(primitiveLoadDefaultUnit(blank, "imposed_displacement", "RY")).toBe("rad");
     expect(primitiveLoadDefaultUnit(blank, "thermal", "global_z")).toBe("degC");
   });
 
