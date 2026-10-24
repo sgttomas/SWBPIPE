@@ -215,6 +215,88 @@ fn reference_privacy(redistribution: &str, private: &'static str) -> &'static st
     }
 }
 
+/// Redistribution dispositions from most to least permissive; anything
+/// unlisted ranks with `TBD`.
+const REDISTRIBUTION_ORDER: [&str; 7] = [
+    "public_permissive",
+    "invented_non_engineering_example",
+    "commercial_tool_reference_only",
+    "unknown",
+    "TBD",
+    "private_only",
+    "protected_suspected",
+];
+/// Review classifications from most to least settled.
+const REVIEW_ORDER: [&str; 6] = ["human_reviewed_reference_only", "machine_checked", "human_review_required", "unreviewed", "TBD", "quarantined"];
+
+fn rank(order: &[&str], value: &str) -> usize {
+    order.iter().position(|item| *item == value).unwrap_or_else(|| order.iter().position(|item| *item == "TBD").unwrap())
+}
+
+/// The least permissive of the redistribution dispositions a record includes
+/// (design §3 `redistribution_classification`).
+fn least_permissive<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
+    values.into_iter().max_by_key(|value| rank(&REDISTRIBUTION_ORDER, value)).unwrap_or("TBD")
+}
+
+/// The least settled of the review classifications a record includes.
+fn least_reviewed<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
+    values.into_iter().max_by_key(|value| rank(&REVIEW_ORDER, value)).unwrap_or("TBD")
+}
+
+/// W-6a's disposition policy applied to every object of a resolved record at
+/// any depth, by its own fields: a `redistribution_status` of
+/// `protected_suspected` or `rejected`, or a `review_status` of `quarantined`
+/// or `rejected`, blocks. An item's own field never hides a blocked
+/// provenance under it, because every provenance the manifest emits is judged
+/// by itself. Returned as `path member value`.
+fn resolved_blocking(value: &Value, path: &str, found: &mut Vec<String>) {
+    match value {
+        Value::Object(object) => {
+            for (key, statuses) in [("redistribution_status", ["protected_suspected", "rejected"]), ("review_status", ["quarantined", "rejected"])] {
+                if let Some(status) = object.get(key).and_then(Value::as_str).filter(|status| statuses.contains(status)) {
+                    found.push(format!("{path}.{key} {status}"));
+                }
+            }
+            for (key, child) in object {
+                resolved_blocking(child, &format!("{path}.{key}"), found);
+            }
+        }
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                resolved_blocking(item, &format!("{path}[{index}]"), found);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn blocked_record(path: &str, record: &str, what: &str, found: &[String]) -> Diagnostic {
+    diagnostic(
+        model_document_save::PROTECTED_CONTENT_BLOCKED,
+        path,
+        format!("{record} ({what}: {}) blocks the save; request human review of the record's disposition first.", found.join(", ")),
+    )
+}
+
+/// The disposition members of a stored rule pack the manifest maps, judged by
+/// W-6a's policy: its `provenance` at any depth, its `classification`, and its
+/// `metadata.lifecycle_status` (`quarantined` or `rejected` block, as a review
+/// disposition).
+fn rule_pack_blocking(pack: &Value) -> Vec<String> {
+    let mut found = Vec::new();
+    if let Some(provenance) = pack.get("provenance") {
+        resolved_blocking(provenance, "provenance", &mut found);
+    }
+    if let Some(classification) = pack.get("classification") {
+        resolved_blocking(classification, "classification", &mut found);
+    }
+    if let Some(status @ ("quarantined" | "rejected")) = pack.pointer("/metadata/lifecycle_status").and_then(Value::as_str) {
+        found.push(format!("metadata.lifecycle_status {status}"));
+    }
+    found
+}
+
 #[allow(clippy::too_many_arguments)]
 fn provenance_record(
     source_name: &str,
@@ -678,18 +760,37 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
         }
     }
     let mut refs = Vec::new();
-    for ((kind, id, version), _) in distinct {
+    let mut refusals = Vec::new();
+    for ((kind, id, version), first) in distinct {
         let stored = stored_libraries.get(&(kind.clone(), id.clone())).cloned().flatten();
         let library = stored.as_ref().and_then(|stored| stored.get(format!("{kind}_library"))).and_then(Value::as_object);
         let provenance_source = library.and_then(|library| library.get("provenance")).and_then(Value::as_object);
+        // Every resolved library object the manifest maps is screened, its
+        // provenance at every level by itself (review round 1, finding 2).
+        if let Some(library) = library {
+            let mut found = Vec::new();
+            resolved_blocking(&Value::Object(library.clone()), &format!("{kind}_library"), &mut found);
+            if !found.is_empty() {
+                refusals.push(blocked_record(&first.path, &format!("{kind}:{id}"), "stored library", &found));
+                continue;
+            }
+        }
         let metadata = json!({
             "library_kind": kind,
             "library_id": id,
             "library_version": version,
             "document_sha256": stored.as_ref().map(|stored| sha256_hex(&canonical_json(stored)))
         });
-        let redistribution = handoff_redistribution(library.and_then(|library| own_or_provenance(library, "redistribution_status")));
-        let review = review_classification(library.and_then(|library| own_or_provenance(library, "review_status")));
+        // The least permissive disposition the reference includes: the
+        // library's own and its emitted provenance's.
+        let redistribution = least_permissive([
+            handoff_redistribution(library.and_then(|library| own_or_provenance(library, "redistribution_status"))),
+            handoff_redistribution(text(provenance_source, "redistribution_status")),
+        ]);
+        let review = least_reviewed([
+            review_classification(library.and_then(|library| own_or_provenance(library, "review_status"))),
+            review_classification(text(provenance_source, "review_status")),
+        ]);
         let privacy = reference_privacy(redistribution, "private_library_data");
         let notice = match library {
             Some(library) => text(Some(library), "source_notice").or_else(|| text(provenance_source, "source_name")).unwrap_or("TBD").to_string(),
@@ -716,7 +817,7 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
             "provenance": mapped_provenance(provenance_source, if library.is_some() { "TBD" } else { unresolved_name.as_str() }, privacy)
         }));
     }
-    Ok((refs, warnings))
+    if refusals.is_empty() { Ok((refs, warnings)) } else { Err(refusals) }
 }
 
 /// `rule_pack_refs` (design §3): the document's references, each with a
@@ -744,13 +845,27 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
         let stored = lookup(project_id, id).map_err(|error| {
             vec![diagnostic(RULE_PACK_STORE_UNAVAILABLE, &path, format!("The local rule-pack store could not be read to resolve `{id}` ({error}); nothing was saved."))]
         })?;
-        let pack = stored.into_iter().find(|pack| pack.pointer("/checksums/rule_pack_checksum/value").and_then(Value::as_str) == Some(stamped));
+        // Resolved only when the stored stamp is the reference's and the
+        // pack's checksum, recomputed from its stored document, is that stamp
+        // (review round 1, finding 5: an edited draft keeps its old stamp).
+        let pack = stored.into_iter().find(|pack| {
+            pack.pointer("/checksums/rule_pack_checksum/value").and_then(Value::as_str) == Some(stamped)
+                && open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(pack).is_ok_and(|computed| computed.value == stamped)
+        });
         if pack.is_none() {
             warnings.push(diagnostic(
                 RULE_PACK_REF_UNRESOLVED,
                 &path,
-                format!("The local store holds no rule pack `{id}` with the referenced stamped checksum {stamped}; its grammar version, lifecycle and provenance are not known here."),
+                format!("The local store holds no rule pack `{id}` whose document hashes to the referenced stamped checksum {stamped}; its grammar version, lifecycle and provenance are not known here."),
             ));
+        }
+        // A resolved pack is screened before anything of it is mapped (finding 1).
+        if let Some(pack) = &pack {
+            let found = rule_pack_blocking(pack);
+            if !found.is_empty() {
+                refusals.push(blocked_record(&path, &format!("rule_pack:{id}"), "stored rule pack", &found));
+                continue;
+            }
         }
         let pack_metadata = pack.as_ref().and_then(|pack| pack.get("metadata")).and_then(Value::as_object);
         let metadata = json!({
@@ -760,7 +875,21 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
             "basis": open_pipe_stress_rule_pack_document::CHECKSUM_BASIS,
             "grammar_version": pack.as_ref().and_then(|pack| pack.get("grammar_version")).cloned().unwrap_or(Value::Null)
         });
-        let redistribution = handoff_redistribution(entry.get("redistribution_status").and_then(Value::as_str));
+        let pack_provenance = pack.as_ref().and_then(|pack| pack.get("provenance")).and_then(Value::as_object);
+        let pack_classification = pack.as_ref().and_then(|pack| pack.get("classification")).and_then(Value::as_object);
+        // The least permissive disposition the reference includes: its own,
+        // the pack's classification and its emitted provenance's.
+        let mut dispositions = vec![handoff_redistribution(entry.get("redistribution_status").and_then(Value::as_str))];
+        if pack.is_some() {
+            dispositions.push(handoff_redistribution(text(pack_classification, "redistribution_status")));
+            dispositions.push(handoff_redistribution(text(pack_provenance, "redistribution_status")));
+        }
+        let redistribution = least_permissive(dispositions);
+        let review = if pack.is_some() {
+            least_reviewed([lifecycle_review_classification(text(pack_metadata, "lifecycle_status")), review_classification(text(pack_provenance, "review_status"))])
+        } else {
+            "TBD"
+        };
         let privacy = reference_privacy(redistribution, "private_rule_pack_data");
         let source_notice = text(Some(entry), "source_notice").or_else(|| text(pack_metadata, "source_notice")).unwrap_or("TBD");
         let unresolved_name = format!("rule pack {id} (not held by the local rule-pack store)");
@@ -770,11 +899,11 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
             "checksum": checksum("RulePack", id, "rule_pack_reference_metadata", "JCS", &sha256_hex(&canonical_json(&metadata))),
             "source_notice": source_notice,
             "redistribution_status": redistribution,
-            "review_classification": lifecycle_review_classification(text(pack_metadata, "lifecycle_status")),
+            "review_classification": review,
             "privacy_classification": privacy,
             "private_payload_redacted": true,
             "provenance": mapped_provenance(
-                pack.as_ref().and_then(|pack| pack.get("provenance")).and_then(Value::as_object),
+                pack_provenance,
                 if pack.is_some() { "TBD" } else { unresolved_name.as_str() },
                 privacy
             )
@@ -971,6 +1100,12 @@ pub fn handoff_manifest(prepared: &PreparedHandoff, stamp: &PackageStamp<'_>) ->
         "unreviewed",
         "private_project_data",
     );
+    let included = || prepared.library_refs.iter().chain(&prepared.rule_pack_refs);
+    let included_redistribution = least_permissive(
+        std::iter::once("private_only").chain(included().filter_map(|item| item.get("redistribution_status").and_then(Value::as_str))),
+    );
+    let included_review =
+        least_reviewed(std::iter::once("unreviewed").chain(included().filter_map(|item| item.get("review_classification").and_then(Value::as_str))));
     let manifest = json!({
         "package_identity": {
             "handoff_package_id": handoff_id,
@@ -1067,10 +1202,10 @@ pub fn handoff_manifest(prepared: &PreparedHandoff, stamp: &PackageStamp<'_>) ->
             "commercial_tool_payload_embedded": false,
             "redaction_refs": []
         },
-        // The manifest's own provenance is private_only, so not every included
-        // record is public (design §3): private_only / unreviewed.
-        "redistribution_classification": "private_only",
-        "review_classification": "unreviewed",
+        // The least permissive disposition of every included record (design
+        // §3), the manifest's own provenance (private_only, unreviewed) among them.
+        "redistribution_classification": included_redistribution,
+        "review_classification": included_review,
         "provenance": product,
         "professional_boundary": {
             "human_review_required": true,
@@ -1088,6 +1223,130 @@ pub fn handoff_manifest(prepared: &PreparedHandoff, stamp: &PackageStamp<'_>) ->
         Value::Object(map) => map,
         _ => unreachable!("a JSON object literal"),
     }
+}
+
+// ---------------------------------------------------------------------------
+// The binding rule set: the producer's own rules, applied by the verifier.
+// ---------------------------------------------------------------------------
+
+/// The handoff `library_kind` of a store kind (hanger has none: `TBD`).
+fn handoff_library_kind(kind: &str) -> &str {
+    match kind {
+        "material" | "section" | "component" => kind,
+        _ => "TBD",
+    }
+}
+
+/// What a manifest must say about the model member it binds (review round 1,
+/// finding 3; the subject rule of #1597): every checksum's `payload_ref` names
+/// the subject it hashes, by type and id; the model member's project is the
+/// manifest's model; the package ids, `entity_ids`, assumptions and reference
+/// identities are the ones this producer derives from that model; the basis
+/// state references agree. `verify_handoff_package` applies these to every
+/// package, the producer's own staged output included; the Python twin
+/// (`tests/verifiers/handoff_package.py`) states the same rules. Returns the
+/// findings (empty when bound).
+pub fn manifest_binding_findings(manifest: &Map<String, Value>, model: &Value, model_hex: &str) -> Vec<String> {
+    fn expect(findings: &mut Vec<String>, what: &str, found: Option<&Value>, wanted: &Value) {
+        if found != Some(wanted) {
+            findings.push(format!("{what} is {}, not {wanted}", found.map(Value::to_string).unwrap_or_else(|| "absent".to_string())));
+        }
+    }
+    let mut findings = Vec::new();
+    let Some(project_id) = model.pointer("/project/id").and_then(Value::as_str).filter(|id| !id.is_empty()) else {
+        return vec!["the model member has no project id".to_string()];
+    };
+    let get = |pointer: &str| Value::Object(manifest.clone()).pointer(pointer).cloned();
+    let model_ref = reference("Model", project_id);
+    let model_checksum = checksum("Model", project_id, "model_payload", "JCS", model_hex);
+    expect(&mut findings, "model_basis.model_ref", get("/model_basis/model_ref").as_ref(), &model_ref);
+    expect(&mut findings, "model_hash", manifest.get("model_hash"), &model_checksum);
+    expect(&mut findings, "model_basis.hash_refs", get("/model_basis/hash_refs").as_ref(), &json!([model_checksum.clone()]));
+    let token = package_token(project_id, model_hex);
+    expect(&mut findings, "package_identity.handoff_package_id", get("/package_identity/handoff_package_id").as_ref(), &json!(format!("handoff:{token}")));
+    expect(&mut findings, "package_identity.manifest_id", get("/package_identity/manifest_id").as_ref(), &json!(format!("manifest:{token}")));
+    // The basis state.
+    let basis = get("/model_basis/basis_state_ref");
+    let state_id = basis
+        .as_ref()
+        .filter(|basis| basis.get("object_type").and_then(Value::as_str) == Some("ModelState") && basis.as_object().is_some_and(|basis| basis.len() == 2))
+        .and_then(|basis| basis.get("ref"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+    if state_id.is_empty() {
+        findings.push("model_basis.basis_state_ref is not a ModelState reference".to_string());
+    }
+    let states = manifest.get("model_state_refs").and_then(Value::as_array).cloned().unwrap_or_default();
+    if states.len() != 1 {
+        findings.push(format!("model_state_refs holds {} references, not the one basis state", states.len()));
+    }
+    if let Some(state) = states.first() {
+        expect(&mut findings, "model_state_refs[0].model_state_ref", state.get("model_state_ref"), &reference("ModelState", &state_id));
+        let hashes = state.get("hash_refs").and_then(Value::as_array).cloned().unwrap_or_default();
+        if hashes.len() != 2 {
+            findings.push(format!("model_state_refs[0].hash_refs holds {} checksums, not the model's and the state record's", hashes.len()));
+        }
+        expect(&mut findings, "model_state_refs[0].hash_refs[0]", hashes.first(), &model_checksum);
+        if let Some(record) = hashes.get(1) {
+            expect(&mut findings, "model_state_refs[0].hash_refs[1].payload_ref", record.get("payload_ref"), &reference("ModelState", &state_id));
+            expect(&mut findings, "model_state_refs[0].hash_refs[1].payload_scope", record.get("payload_scope"), &json!("model_state_record"));
+        }
+    }
+    // The inventories derived from the model member.
+    match entity_ids(model, project_id, &state_id) {
+        Ok(derived) => expect(&mut findings, "entity_ids", manifest.get("entity_ids"), &derived),
+        Err(_) => findings.push("the model member's entity ids are not handoff identifiers".to_string()),
+    }
+    match unresolved_assumptions(model, project_id) {
+        Ok(derived) => expect(&mut findings, "unresolved_assumptions", manifest.get("unresolved_assumptions"), &Value::Array(derived)),
+        Err(_) => findings.push("the model member's assumption ids are not handoff identifiers".to_string()),
+    }
+    // The units manifest hashes its own block.
+    if let Some(Value::Object(units)) = manifest.get("units_manifest") {
+        let mut block = units.clone();
+        block.remove("hash_refs");
+        let system = units.get("unit_system_ref").and_then(|unit| unit.get("ref")).and_then(Value::as_str).unwrap_or("");
+        let wanted = json!([checksum("UnitSystem", system, "units_manifest", "JCS", &sha256_hex(&canonical_json(&Value::Object(block))))]);
+        expect(&mut findings, "units_manifest.hash_refs", units.get("hash_refs"), &wanted);
+        expect(&mut findings, "units_manifest.unit_system_ref", units.get("unit_system_ref"), &reference("UnitSystem", UNIT_SYSTEM_REF));
+    } else {
+        findings.push("units_manifest is not an object".to_string());
+    }
+    // Library references: one per distinct model reference, each checksum's subject its own library.
+    let mut found = Vec::new();
+    collect_library_refs(model, "", &mut found);
+    let distinct: BTreeSet<(String, String, Option<String>)> = found.into_iter().map(|item| (item.kind, item.id, item.version)).collect();
+    let libraries = manifest.get("library_refs").and_then(Value::as_array).cloned().unwrap_or_default();
+    if libraries.len() != distinct.len() {
+        findings.push(format!("library_refs holds {} references; the model member names {}", libraries.len(), distinct.len()));
+    }
+    for (index, ((kind, id, version), entry)) in distinct.iter().zip(&libraries).enumerate() {
+        expect(&mut findings, &format!("library_refs[{index}].library_ref"), entry.get("library_ref"), &reference("Library", id));
+        expect(&mut findings, &format!("library_refs[{index}].library_kind"), entry.get("library_kind"), &json!(handoff_library_kind(kind)));
+        expect(&mut findings, &format!("library_refs[{index}].version"), entry.get("version"), &json!(version.as_deref().unwrap_or("TBD")));
+        expect(&mut findings, &format!("library_refs[{index}].checksum.payload_ref"), entry.pointer("/checksum/payload_ref"), &reference("Library", id));
+        expect(&mut findings, &format!("library_refs[{index}].checksum.payload_scope"), entry.pointer("/checksum/payload_scope"), &json!("library_reference_metadata"));
+    }
+    // Rule-pack references: the model's, in order, each checksum's subject its own pack.
+    let documented: Vec<(String, String)> = members(model, "rule_pack_refs")
+        .map(|(_, entry)| {
+            let field = |key: &str| entry.get(key).and_then(Value::as_str).unwrap_or("").to_string();
+            let version = field("rule_pack_version");
+            (field("rule_pack_id"), if version.trim().is_empty() { "TBD".to_string() } else { version })
+        })
+        .collect();
+    let packs = manifest.get("rule_pack_refs").and_then(Value::as_array).cloned().unwrap_or_default();
+    if packs.len() != documented.len() {
+        findings.push(format!("rule_pack_refs holds {} references; the model member names {}", packs.len(), documented.len()));
+    }
+    for (index, ((id, version), entry)) in documented.iter().zip(&packs).enumerate() {
+        expect(&mut findings, &format!("rule_pack_refs[{index}].rule_pack_id"), entry.get("rule_pack_id"), &json!(id));
+        expect(&mut findings, &format!("rule_pack_refs[{index}].version"), entry.get("version"), &json!(version));
+        expect(&mut findings, &format!("rule_pack_refs[{index}].checksum.payload_ref"), entry.pointer("/checksum/payload_ref"), &reference("RulePack", id));
+        expect(&mut findings, &format!("rule_pack_refs[{index}].checksum.payload_scope"), entry.pointer("/checksum/payload_scope"), &json!("rule_pack_reference_metadata"));
+    }
+    findings
 }
 
 /// The local time now as ISO 8601 with its UTC offset (`2026-10-24T09:30:00.125-06:00`).
@@ -1158,6 +1417,11 @@ mod tests {
     const WITNESS_MODEL: &str = include_str!("../../../../fixtures/handoff/invented_witness.swbhandoff/model/model.json");
     const WITNESS_MANIFEST: &str = include_str!("../../../../fixtures/handoff/invented_witness.swbhandoff/handoff_package.json");
     const WITNESS_ENV: &str = "SWBPIPE_WRITE_HANDOFF_WITNESS";
+    const BINARY64_MODEL: &str = include_str!("../../../../fixtures/handoff/invented_binary64_witness.swbhandoff/model/model.json");
+    const BINARY64_MANIFEST: &str = include_str!("../../../../fixtures/handoff/invented_binary64_witness.swbhandoff/handoff_package.json");
+    const BINARY64_ENV: &str = "SWBPIPE_WRITE_HANDOFF_BINARY64_WITNESS";
+    const VECTORS: &str = include_str!("../../../../fixtures/handoff/canonical_text_vectors.json");
+    const VECTORS_ENV: &str = "SWBPIPE_WRITE_HANDOFF_CANONICAL_VECTORS";
     const BASE: &str = "invented-envelope-base";
     const CREATED_AT: &str = "2026-10-24T12:00:00.000-06:00";
 
@@ -1654,6 +1918,69 @@ mod tests {
         assert!(verify_handoff_package(&committed).is_ok());
     }
 
+    /// Review round 1, finding 6: a produced package whose model holds a number
+    /// outside the checked profile (an elastic modulus of 1e20 Pa, which W-6a
+    /// admits and the session hashes), committed so that the Python twin is
+    /// checked against the producer's own bytes. Regenerate with
+    /// `SWBPIPE_WRITE_HANDOFF_BINARY64_WITNESS=<package folder> cargo test binary64_witness`.
+    #[test]
+    fn binary64_witness_package_is_the_producers_output() {
+        let mut model: Value = serde_json::from_str(DEMO).unwrap();
+        model["materials"][0]["elastic_modulus"]["value"] = json!(1e20);
+        let store = store("binary64-witness", &model, false);
+        let state = save_state(&store, &model, "handoff_basis", "fedcba9876543210fedcba9876543210").state;
+        let prepared = prepare(&store, &model, &state.state_id).unwrap();
+        assert!(prepared.model_text.contains("100000000000000000000"), "the JCS text of 1e20");
+        let manifest = handoff_manifest(&prepared, &PackageStamp { package_name: "invented_binary64_witness.swbhandoff", created_at: CREATED_AT });
+        let (text, _) = publish::seal_manifest(manifest, &prepared.model_hex);
+        if let Ok(folder) = std::env::var(BINARY64_ENV) {
+            let folder = PathBuf::from(folder);
+            fs::create_dir_all(folder.join(MODEL_DIRECTORY)).unwrap();
+            fs::write(folder.join(MODEL_DIRECTORY).join(MODEL_FILE), &prepared.model_text).unwrap();
+            fs::write(folder.join(MANIFEST_MEMBER), &text).unwrap();
+            return;
+        }
+        assert_eq!(BINARY64_MODEL, prepared.model_text, "the binary64 witness model differs; regenerate it");
+        assert_eq!(BINARY64_MANIFEST, text, "the binary64 witness manifest differs; regenerate it");
+        let committed = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/handoff/invented_binary64_witness.swbhandoff");
+        assert!(verify_handoff_package(&committed).is_ok());
+    }
+
+    /// The cross-language vector set (finding 6): W-6a's unchecked canonical
+    /// text (`canonical_json`, the session's model-hash serializer) of numbers
+    /// and strings at the profile's edges, pinned here and checked by the Python
+    /// twin (`tests/test_handoff_package_witness.py`). Regenerate with
+    /// `SWBPIPE_WRITE_HANDOFF_CANONICAL_VECTORS=<path> cargo test canonical_text_vectors`.
+    #[test]
+    fn canonical_text_vectors_are_w6a_serializer_output() {
+        let inputs = [
+            "1e20", "100000000000000000000", "1e21", "123456789012345678901234567890", "1e-7", "1e-6", "0.000001", "-0", "-0.0",
+            "0.1", "1.0", "1.5e300", "5e-324", "1.7976931348623157e308", "2.2250738585072014e-308", "9007199254740991",
+            "9007199254740992", "9007199254740993", "18446744073709551615", "18446744073709551616", "-9223372036854775808",
+            "-9223372036854775809", "4.35", "0.30000000000000004", "1e+22", "-1.2e-05",
+            "\"é中😀\"", "\"\\u0000\\u001f\\u007f\\u2028\\\"\\\\/\"", "\"\\ud83d\\ude00\"",
+            "{\"b\":1,\"a\":[true,false,null],\"😀\":2,\"\\uffff\":3,\"é\":4}",
+            "{\"value\":200000000000.0,\"unit\":\"Pa\",\"nested\":{\"z\":1.2e-05,\"y\":[1e20,-0.0,3]}}",
+        ];
+        let vectors: Vec<Value> = inputs
+            .iter()
+            .map(|input| {
+                let text = canonical_json(&serde_json::from_str::<Value>(input).unwrap());
+                json!({ "input_json": input, "canonical_text": text, "sha256": sha256_hex(&text) })
+            })
+            .collect();
+        let table = json!({
+            "description": "Invented cross-language vectors (DEL-15-01 W-6b review round 1): the unchecked RFC 8785 text of W-6a's serializer (open_pipe_stress_operation_applier::canonical_json) for each input, which the Python handoff verifier twin must reproduce. Generated by handoff_package.rs canonical_text_vectors_are_w6a_serializer_output.",
+            "vectors": vectors,
+        });
+        if let Ok(path) = std::env::var(VECTORS_ENV) {
+            fs::write(path, format!("{}\n", serde_json::to_string_pretty(&table).unwrap())).unwrap();
+            return;
+        }
+        let pinned: Value = serde_json::from_str(VECTORS).unwrap();
+        assert_eq!(pinned, table, "the pinned vectors differ from the serializer's output; regenerate them");
+    }
+
     // --- Command surface ------------------------------------------------------
 
     fn screening(payload: &str) -> ModelDocumentSaveScreening {
@@ -1719,5 +2046,272 @@ mod tests {
         );
         assert_eq!(suggested_package_name(&json!({"project": {"id": "project:invented-demo-loop-01"}})), "invented-demo-loop-01.swbhandoff");
         assert!(local_iso_now().len() >= "2026-10-24T00:00:00.000+00:00".len());
+    }
+
+    // --- Review round 1 regressions (Codex, scratch/rep-w6b-review/regressions.patch) ---
+
+    /// Where the review regressions write their packages: a fresh scratch folder
+    /// (the reviewer kept them under `W6B_REVIEW_OUTPUT`).
+    fn review_output() -> PathBuf {
+        match std::env::var("W6B_REVIEW_OUTPUT") {
+            Ok(path) => {
+                let path = PathBuf::from(path);
+                fs::create_dir_all(&path).unwrap();
+                path
+            }
+            Err(_) => sandbox("review"),
+        }
+    }
+    fn review_emit(name: &str, prepared: PreparedHandoff) {
+        let target = review_output().join(format!("{name}.swbhandoff"));
+        let out = write(&target, prepared);
+        assert!(matches!(&out, HandoffSaveOutcome::Saved { .. }), "{name}: {out:?}");
+    }
+    #[test]
+    fn review_resolved_rule_pack_dispositions_must_refuse() {
+        let mut escaped = Vec::new();
+        for (tag, pointer, status) in [
+            ("lifecycle-quarantined", "/metadata/lifecycle_status", "quarantined"),
+            ("lifecycle-rejected", "/metadata/lifecycle_status", "rejected"),
+            ("provenance-protected", "/provenance/redistribution_status", "protected_suspected"),
+            ("provenance-quarantined", "/provenance/review_status", "quarantined"),
+            ("provenance-rejected", "/provenance/review_status", "rejected"),
+        ] {
+            let mut model = witness_model();
+            let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            *pack.pointer_mut(pointer).unwrap() = json!(status);
+            let computed = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap();
+            pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
+            model["rule_pack_refs"][0]["checksum"]["value"] = json!(computed.value);
+            let store = store(tag, &model, true);
+            crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(), "project:slots", "invented_demo_rule_pack", &pack).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+            match prepare(&store, &model, &state.state_id) {
+                Ok(prepared) => {
+                    println!("ESCAPED {tag}: {}", prepared.rule_pack_refs[0]);
+                    review_emit(tag, prepared);
+                    escaped.push(tag);
+                },
+                Err(diagnostics) => {
+                    println!("REFUSED {tag}: {diagnostics:?}");
+                    assert_eq!((diagnostics[0].code.as_str(), diagnostics[0].path.as_str()), (model_document_save::PROTECTED_CONTENT_BLOCKED, "rule_pack_refs[0]"), "{tag}");
+                    assert!(diagnostics[0].message.contains("rule_pack:invented_demo_rule_pack"), "{tag}: {}", diagnostics[0].message);
+                }
+            }
+        }
+        assert!(escaped.is_empty(), "stored rule-pack dispositions escaped: {escaped:?}");
+    }
+    #[test]
+    fn review_resolved_library_provenance_must_refuse() {
+        let model = witness_model();
+        let store = store("library-conflict", &model, true);
+        let mut library = material_library();
+        library["material_library"]["redistribution_status"] = json!("public_permissive");
+        library["material_library"]["provenance"]["redistribution_status"] = json!("protected_suspected");
+        crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
+        let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+        let result = prepare(&store, &model, &state.state_id);
+        if let Ok(prepared) = result {
+            println!("ESCAPED library provenance: {}", prepared.library_refs[0]);
+            review_emit("library-conflict", prepared);
+            panic!("protected library provenance was serialized into a successful package");
+        }
+        let refused = result.unwrap_err();
+        assert_eq!((refused[0].code.as_str(), refused[0].path.as_str()), (model_document_save::PROTECTED_CONTENT_BLOCKED, "materials[0].provenance_record.library_ref"));
+        assert!(refused[0].message.contains("material:library:invented-materials") && refused[0].message.contains("provenance.redistribution_status protected_suspected"), "{}", refused[0].message);
+    }
+    #[test]
+    fn review_produce_real_packages_and_unsafe_binary64() {
+        let demo: Value = serde_json::from_str(DEMO).unwrap();
+        let milestone: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json")).unwrap();
+        for (tag, mut model, refs) in [
+            ("demo", demo.clone(), false),
+            ("milestone", milestone.clone(), false),
+            ("library-applied", witness_model(), true),
+            ("refs-assumptions", witness_model(), true),
+            ("unsafe-binary64", demo.clone(), false),
+        ] {
+            if tag == "library-applied" { model["rule_pack_refs"] = json!([]); }
+            if tag == "unsafe-binary64" { model["materials"][0]["elastic_modulus"]["value"] = json!(1e20); }
+            let store = store(tag, &model, refs);
+            let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+            match prepare(&store, &model, &state.state_id) {
+                Ok(prepared) => review_emit(tag, prepared),
+                Err(errors) => {
+                    fs::write(review_output().join(format!("{tag}-refusal.json")), serde_json::to_vec(&errors).unwrap()).unwrap();
+                    println!("PRODUCER REFUSAL {tag}: {errors:?}");
+                    assert_eq!(tag, "milestone", "unexpected refusal");
+                }
+            }
+        }
+    }
+    #[test]
+    fn review_destination_changed_to_nonpackage_must_not_be_swapped() {
+        let (store, first) = prepared_demo("target-race");
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+        let before = || {
+            fs::rename(&target, store.root.join("retained-old.swbhandoff"))?;
+            fs::create_dir(&target)?;
+            fs::write(target.join("unrelated.txt"), b"unrelated user data")
+        };
+        let hooks = PublishHooks { before_commit: &before, ..PRODUCTION_HOOKS };
+        let (_, second) = prepared_demo("target-race-new");
+        let outcome = write_handoff_package(&target, second, CREATED_AT, &hooks);
+        println!("RACE OUTCOME {outcome:?}; target still unrelated: {}", target.join("unrelated.txt").exists());
+        assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::DESTINATION_CHANGED), "a concurrently introduced non-package was replaced: {outcome:?}");
+        assert!(target.join("unrelated.txt").exists());
+        assert_eq!(fs::read(target.join("unrelated.txt")).unwrap(), b"unrelated user data");
+        assert!(verify_handoff_package(&store.root.join("retained-old.swbhandoff")).is_ok(), "the previous package is untouched");
+        assert!(staging_left(&store.root).is_empty(), "{:?}", staging_left(&store.root));
+    }
+    #[test]
+    fn review_verifier_checks_subject_identity() {
+        let (store, prepared) = prepared_demo("forged-subject");
+        let mut manifest = handoff_manifest(&prepared, &PackageStamp { package_name: "forged.swbhandoff", created_at: CREATED_AT });
+        manifest.get_mut("model_hash").unwrap()["payload_ref"] = reference("RulePack", "rule-pack:unrelated");
+        let (text, _) = publish::seal_manifest(manifest, &prepared.model_hex);
+        let target = store.root.join("forged.swbhandoff");
+        let result = publish::publish_package(&target, prepared.model_text.as_bytes(), text.as_bytes(), &PRODUCTION_HOOKS);
+        println!("FORGED SUBJECT PUBLISH {result:?}");
+        let keep = review_output().join("forged-subject.swbhandoff");
+        if result.is_ok() {
+            fs::create_dir_all(keep.join("model")).unwrap();
+            fs::write(keep.join("model/model.json"), &prepared.model_text).unwrap();
+            fs::write(keep.join("handoff_package.json"), &text).unwrap();
+        }
+        assert!(result.is_err(), "model checksum claiming to hash a RulePack must not verify");
+    }
+    #[test]
+    fn review_grammar_must_come_from_verified_stamped_pack() {
+        let model = witness_model();
+        let store = store("stale-stamp", &model, true);
+        let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        pack["grammar_version"] = json!("9.9.9");
+        assert_ne!(open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value, pack["checksums"]["rule_pack_checksum"]["value"].as_str().unwrap());
+        // The normal store command keeps editable drafts, including invalid ones.
+        crate::save_local_rule_pack_value(|| Ok(store.path.clone()), "project:slots".to_string(), pack).unwrap();
+        let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+        let prepared = prepare(&store, &model, &state.state_id).unwrap();
+        println!("STALE GRAMMAR RESOLUTION warnings: {:?}; rule ref {}", prepared.save_warnings, prepared.rule_pack_refs[0]);
+        review_emit("stale-grammar", prepared);
+        let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&Connection::open(&store.path).unwrap(), project, id);
+        let (_, warnings) = rule_pack_refs(&model, "project:slots", &mut packs).unwrap();
+        assert!(warnings.iter().any(|w| w.code == RULE_PACK_REF_UNRESOLVED), "invalid stamped checksum was treated as a resolved pack");
+    }
+    #[test]
+    fn review_publication_failures_and_symlinks() {
+        use std::os::unix::fs::symlink;
+        let (store, prepared) = prepared_demo("more-failures");
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, prepared), HandoffSaveOutcome::Saved { .. }));
+        let original = package_bytes(&target);
+        let token_fail = || -> io::Result<String> { Err(io::Error::other("token failure")) };
+        let swap_fail = |_: &Path, _: &Path| -> io::Result<()> { Err(io::Error::other("swap failure")) };
+        for hooks in [PublishHooks { token: &token_fail, ..PRODUCTION_HOOKS }, PublishHooks { swap: &swap_fail, ..PRODUCTION_HOOKS }] {
+            let (_, prepared) = prepared_demo("more-failures-payload");
+            assert!(matches!(write_handoff_package(&target, prepared, CREATED_AT, &hooks), HandoffSaveOutcome::Refused { .. }));
+            assert_eq!(package_bytes(&target), original);
+        }
+        for stage in ["manifest-write", "sync-model-dir", "verify"] {
+            let token = || Ok(format!("review-{stage}"));
+            let staging = store.root.join(format!("target.swbhandoff.staging-review-{stage}"));
+            let alter = || match stage {
+                "manifest-write" => fs::create_dir(staging.join(MANIFEST_MEMBER)),
+                "sync-model-dir" => fs::rename(staging.join(MODEL_DIRECTORY), staging.join("renamed-model")),
+                _ => fs::write(staging.join(MODEL_DIRECTORY).join(MODEL_FILE), b"{}"),
+            };
+            let hooks = PublishHooks { token: &token, after_model_member: &alter, ..PRODUCTION_HOOKS };
+            let (_, prepared) = prepared_demo("more-failures-payload");
+            assert!(matches!(write_handoff_package(&target, prepared, CREATED_AT, &hooks), HandoffSaveOutcome::Refused { .. }));
+            assert_eq!(package_bytes(&target), original, "{stage}");
+        }
+        let link = store.root.join("linked.swbhandoff");
+        symlink(&target, &link).unwrap();
+        let (_, prepared) = prepared_demo("symlink-payload");
+        assert!(matches!(write(&link, prepared), HandoffSaveOutcome::Refused { .. }));
+        let linked_parent = store.root.join("linked-parent");
+        symlink(&store.root, &linked_parent).unwrap();
+        let (_, prepared) = prepared_demo("symlink-parent-payload");
+        assert!(matches!(write(&linked_parent.join("target.swbhandoff"), prepared), HandoffSaveOutcome::Refused { .. }));
+        assert_eq!(package_bytes(&target), original);
+    }
+    #[test]
+    fn review_concurrent_saves_are_complete() {
+        use std::sync::Barrier;
+        for replacing in [false, true] {
+            let (store, first) = prepared_demo("concurrent-root");
+            let target = store.root.join("target.swbhandoff");
+            if replacing { assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. })); }
+            let (_left, l) = prepared_demo("concurrent-left");
+            let (_right, r) = prepared_demo("concurrent-right");
+            let barrier = Barrier::new(2);
+            let outcomes = std::thread::scope(|s| {
+                let target_ref = &target; let barrier_ref = &barrier;
+                let a = s.spawn(move || { let before = || { barrier_ref.wait(); Ok(()) }; write_handoff_package(target_ref, l, CREATED_AT, &PublishHooks { before_commit: &before, ..PRODUCTION_HOOKS }) });
+                let b = s.spawn(move || { let before = || { barrier_ref.wait(); Ok(()) }; write_handoff_package(target_ref, r, CREATED_AT, &PublishHooks { before_commit: &before, ..PRODUCTION_HOOKS }) });
+                (a.join().unwrap(), b.join().unwrap())
+            });
+            println!("CONCURRENT replacing={replacing}: {outcomes:?}");
+            let saved = [&outcomes.0, &outcomes.1].into_iter().filter(|o| matches!(o,HandoffSaveOutcome::Saved { .. })).count();
+            // Review round 1, finding 4: a replacement whose destination another save
+            // replaced first is refused by name (both may land when they serialize).
+            if replacing { assert!(saved >= 1, "{outcomes:?}") } else { assert_eq!(saved, 1) }
+            for outcome in [&outcomes.0, &outcomes.1] {
+                if let HandoffSaveOutcome::Refused { diagnostics } = outcome {
+                    let wanted = if replacing { publish::DESTINATION_CHANGED } else { publish::DESTINATION_APPEARED };
+                    assert_eq!(diagnostics[0].code, wanted, "{outcomes:?}");
+                }
+            }
+            assert!(verify_handoff_package(&target).is_ok());
+            assert!(staging_left(&store.root).is_empty());
+        }
+    }
+    #[test]
+    fn review_member_substitution_must_not_keep_old_model_identity() {
+        let (store, prepared) = prepared_demo("substitution");
+        let mut other: Value = serde_json::from_str(DEMO).unwrap();
+        other["project"]["id"] = json!("project:unrelated-model");
+        other["nodes"][0]["id"] = json!("node:unrelated-node");
+        let text = canonical_json(&other); let model_hex = sha256_hex(&text);
+        let mut manifest = handoff_manifest(&prepared, &PackageStamp { package_name: "substituted.swbhandoff", created_at: CREATED_AT });
+        manifest.get_mut("model_hash").unwrap()["value"] = json!(model_hex);
+        let (manifest_text, _) = publish::seal_manifest(manifest, &model_hex);
+        let target = review_output().join("substituted-model.swbhandoff");
+        let result = publish::publish_package(&target, text.as_bytes(), manifest_text.as_bytes(), &PRODUCTION_HOOKS);
+        println!("SUBSTITUTED MEMBER {result:?}; old project {}, model project {}", prepared.project_id, other["project"]["id"]);
+        assert!(result.is_err(), "a re-inventoried different model must not verify against the previous model identity, state refs and entity ids");
+        drop(store);
+    }
+
+    /// Review round 1, finding 4, the residual window: a destination replaced
+    /// after the last identity check and before the swap is detected in what the
+    /// swap moved out; the swap is undone, the other folder keeps its name and
+    /// contents, and nothing of it is moved away for deletion.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_destination_replaced_inside_the_swap_window_is_swapped_back_untouched() {
+        let (store, first) = prepared_demo("swap-window");
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+        let moved = store.root.join("moved-old.swbhandoff");
+        let racing_swap = |staging: &Path, destination: &Path| -> io::Result<()> {
+            fs::rename(destination, &moved)?;
+            fs::create_dir(destination)?;
+            fs::write(destination.join("unrelated.txt"), b"unrelated user data")?;
+            publish::platform_swap(staging, destination)
+        };
+        // Only the first swap races; the undo is the real swap.
+        let raced = std::cell::Cell::new(false);
+        let swap = |staging: &Path, destination: &Path| -> io::Result<()> {
+            if raced.replace(true) { publish::platform_swap(staging, destination) } else { racing_swap(staging, destination) }
+        };
+        let (_, second) = prepared_demo("swap-window-new");
+        let outcome = write_handoff_package(&target, second, CREATED_AT, &PublishHooks { swap: &swap, ..PRODUCTION_HOOKS });
+        assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::DESTINATION_CHANGED), "{outcome:?}");
+        assert_eq!(fs::read(target.join("unrelated.txt")).unwrap(), b"unrelated user data");
+        assert_eq!(fs::read_dir(&target).unwrap().count(), 1);
+        assert!(verify_handoff_package(&moved).is_ok(), "the previous package is untouched");
+        assert!(staging_left(&store.root).is_empty(), "{:?}", staging_left(&store.root));
     }
 }

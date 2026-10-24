@@ -60,6 +60,7 @@ pub const HANDOFF_SCHEMA_VERSION: &str = "0.1.0";
 pub const DESTINATION_INVALID: &str = "HANDOFF-DESTINATION-INVALID";
 pub const DESTINATION_NOT_PACKAGE: &str = "HANDOFF-DESTINATION-NOT-PACKAGE";
 pub const DESTINATION_APPEARED: &str = "HANDOFF-DESTINATION-APPEARED";
+pub const DESTINATION_CHANGED: &str = "HANDOFF-DESTINATION-CHANGED";
 pub const REPLACE_UNSUPPORTED: &str = "HANDOFF-REPLACE-UNSUPPORTED";
 pub const PUBLISH_FAILED: &str = "HANDOFF-PUBLISH-FAILED";
 pub const STAGING_LEFTOVER: &str = "HANDOFF-STAGING-LEFTOVER";
@@ -333,7 +334,51 @@ fn file_name(path: &Path) -> String {
 /// The target's checks: a `<stem>.swbhandoff` name in an existing non-symlink
 /// directory. Returns the parent and whether a package is to be replaced; an
 /// existing destination that is not a handoff package is refused.
-fn admit_target(target: &Path) -> Result<(PathBuf, bool), Diagnostic> {
+/// A package directory's identity: the device and inode of the folder, its
+/// `model/` folder and both member files (no symlink followed). Recorded when an
+/// existing package is admitted for replacement and required, unchanged and
+/// with the package layout, immediately before the swap and again of what the
+/// swap moved out before anything of it is removed (review round 1, finding 4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PackageIdentity {
+    entries: [(u64, u64); 4],
+}
+
+#[cfg(unix)]
+fn entry_identity(path: &Path) -> io::Result<(u64, u64)> {
+    use std::os::unix::fs::MetadataExt;
+    let metadata = fs::symlink_metadata(path)?;
+    Ok((metadata.dev(), metadata.ino()))
+}
+
+#[cfg(not(unix))]
+fn entry_identity(_: &Path) -> io::Result<(u64, u64)> {
+    Err(io::Error::from(io::ErrorKind::Unsupported))
+}
+
+/// The identity of a folder with the package layout, else `None`.
+pub fn package_identity(directory: &Path) -> Option<PackageIdentity> {
+    if !is_package_layout(directory).ok()? {
+        return None;
+    }
+    let model = directory.join(MODEL_DIRECTORY);
+    Some(PackageIdentity {
+        entries: [
+            entry_identity(directory).ok()?,
+            entry_identity(&model).ok()?,
+            entry_identity(&model.join(MODEL_FILE)).ok()?,
+            entry_identity(&directory.join(MANIFEST_MEMBER)).ok()?,
+        ],
+    })
+}
+
+/// The identity of a folder only (the staging folder this save created).
+fn folder_identity(directory: &Path) -> Option<(u64, u64)> {
+    fs::symlink_metadata(directory).ok().filter(|metadata| metadata.is_dir() && !metadata.file_type().is_symlink())?;
+    entry_identity(directory).ok()
+}
+
+fn admit_target(target: &Path) -> Result<(PathBuf, Option<PackageIdentity>), Diagnostic> {
     let name = file_name(target);
     let stem_ok = name
         .strip_suffix(&format!(".{PACKAGE_EXTENSION}"))
@@ -350,9 +395,9 @@ fn admit_target(target: &Path) -> Result<(PathBuf, bool), Diagnostic> {
         _ => return Err(diagnostic(DESTINATION_INVALID, "", "The package's folder must be an existing folder, not a link.")),
     }
     let replacing = match fs::symlink_metadata(target) {
-        Ok(_) => match is_package_layout(target) {
-            Ok(true) => true,
-            _ => {
+        Ok(_) => match package_identity(target) {
+            Some(identity) => Some(identity),
+            None => {
                 return Err(diagnostic(
                     DESTINATION_NOT_PACKAGE,
                     "",
@@ -360,7 +405,7 @@ fn admit_target(target: &Path) -> Result<(PathBuf, bool), Diagnostic> {
                 ))
             }
         },
-        Err(error) if error.kind() == io::ErrorKind::NotFound => false,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => None,
         Err(error) => return Err(diagnostic(DESTINATION_INVALID, "", format!("`{name}` could not be inspected ({error})."))),
     };
     Ok((parent.to_path_buf(), replacing))
@@ -430,7 +475,21 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
     if let Err(error) = (hooks.before_commit)() {
         return Err(failed("commit", error, &staging));
     }
-    if replacing {
+    if let Some(admitted) = replacing {
+        let changed = || {
+            diagnostic(
+                DESTINATION_CHANGED,
+                "",
+                format!("`{name}` changed while the package was written (it is no longer the handoff package that was there); nothing was replaced. Save again."),
+            )
+        };
+        // Immediately before the swap: the destination is still the package
+        // admitted, by identity and layout.
+        if package_identity(target) != Some(admitted) {
+            let _ = remove_package(&staging);
+            return Err(changed());
+        }
+        let ours = folder_identity(&staging);
         if let Err(error) = (hooks.swap)(&staging, target) {
             if unsupported(&error) {
                 let cleanup = remove_package(&staging).err().map(|cleanup| format!(" The staging folder {} could not be removed ({cleanup}); delete it.", file_name(&staging))).unwrap_or_default();
@@ -442,14 +501,31 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             }
             return Err(failed("swap", error, &staging));
         }
-        // The staging name now holds the old package.
-        match is_package_layout(&staging).map(|layout| layout && remove_package(&staging).is_ok()) {
-            Ok(true) => {}
-            _ => warnings.push(diagnostic(
+        // What the swap moved out must be the package admitted. If the
+        // destination was replaced between the check and the swap, the swap is
+        // undone, so the other folder is back under its name, and nothing of it
+        // is removed.
+        if package_identity(&staging) != Some(admitted) {
+            let restored = folder_identity(target) == ours && (hooks.swap)(&staging, target).is_ok();
+            if restored && folder_identity(&staging) == ours {
+                let _ = remove_package(&staging);
+            }
+            let mut refusal = changed();
+            if !restored {
+                refusal.message.push_str(&format!(
+                    " The folder that was there is now {}; the new package is `{name}`. Check both before deleting either.",
+                    file_name(&staging)
+                ));
+            }
+            return Err(refusal);
+        }
+        // The staging name now holds the admitted package: removed member by member.
+        if remove_package(&staging).is_err() {
+            warnings.push(diagnostic(
                 OLD_PACKAGE_LEFT,
                 "",
                 format!("The replaced package could not be removed and is left as {}; delete it when convenient.", file_name(&staging)),
-            )),
+            ));
         }
     } else if let Err(error) = (hooks.rename_new)(&staging, target) {
         if error.kind() == io::ErrorKind::AlreadyExists {
@@ -459,7 +535,7 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
         return Err(failed("rename", error, &staging));
     }
     let durability = if crate::atomic_report_package_save::sync_directory_durable(&parent) { "durable" } else { "saved_durability_uncertain" };
-    Ok(Published { package_name: name, replaced_existing: replacing, durability: durability.to_string(), warnings })
+    Ok(Published { package_name: name, replaced_existing: replacing.is_some(), durability: durability.to_string(), warnings })
 }
 
 // ---------------------------------------------------------------------------
@@ -494,7 +570,7 @@ pub fn verify_handoff_package(directory: &Path) -> Result<HandoffVerification, S
         Err(error) => return Err(fail(format!("the folder could not be read ({error})"))),
     }
     let model_bytes = fs::read(directory.join(MODEL_DIRECTORY).join(MODEL_FILE)).map_err(|error| fail(format!("{MODEL_MEMBER}: {error}")))?;
-    own_jcs_text(&model_bytes, MODEL_MEMBER).map_err(fail)?;
+    let model = own_jcs_text(&model_bytes, MODEL_MEMBER).map_err(fail)?;
     let model_hex = sha256_hex(std::str::from_utf8(&model_bytes).expect("checked UTF-8"));
     let manifest_bytes = fs::read(directory.join(MANIFEST_MEMBER)).map_err(|error| fail(format!("{MANIFEST_MEMBER}: {error}")))?;
     let instance = own_jcs_text(&manifest_bytes, MANIFEST_MEMBER).map_err(fail)?;
@@ -507,6 +583,11 @@ pub fn verify_handoff_package(directory: &Path) -> Result<HandoffVerification, S
     let mut unsealed = manifest.clone();
     unsealed.remove("checksums");
     let (expected, export_hex) = seal_manifest(unsealed, &model_hex);
+    // The manifest binds this model member (review round 1, finding 3).
+    let findings = crate::handoff_package::manifest_binding_findings(manifest, &model, &model_hex);
+    if !findings.is_empty() {
+        return Err(fail(format!("{MANIFEST_MEMBER} does not bind {MODEL_MEMBER}: {}", findings.join("; "))));
+    }
     if expected.as_bytes() != manifest_bytes.as_slice() {
         return Err(fail(format!(
             "{MANIFEST_MEMBER} is not the contract envelope with the checksum inventory of {MODEL_MEMBER} (sha256 {model_hex}) and the manifest's export hash (sha256 {export_hex})"

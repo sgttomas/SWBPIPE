@@ -40,7 +40,7 @@ if str(ROOT / "tests") not in sys.path:
 
 from core.handoff.exporter import build_handoff_export_workflow  # noqa: E402
 from schema_validation import validate_instance  # noqa: E402
-from tests.verifiers.canonical_json import canonical_json  # noqa: E402
+from tests.verifiers.canonical_json import canonical_json_unchecked as canonical_json  # noqa: E402
 from tests.verifiers.handoff_package import HandoffVerificationError, verify_handoff_package  # noqa: E402
 
 PACKAGE = ROOT / "fixtures" / "handoff" / "invented_witness.swbhandoff"
@@ -169,5 +169,126 @@ def test_the_verifier_refuses_extra_members_and_tolerates_finder_metadata(tmp_pa
     (copy / ".DS_Store").write_bytes(b"invented")
     assert verify_handoff_package(copy)
     (copy / "extra.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(HandoffVerificationError):
+        verify_handoff_package(copy)
+
+
+# --- Review round 1 (Codex; scratch/rep-w6b-review/python-regressions.patch),
+# built here from the committed producer outputs ------------------------------
+
+from tests.verifiers.canonical_json import canonical_json_unchecked, parse_json  # noqa: E402
+from tests.verifiers.handoff_package import checksum_inventory, export_hash  # noqa: E402
+
+BINARY64 = ROOT / "fixtures" / "handoff" / "invented_binary64_witness.swbhandoff"
+VECTORS = ROOT / "fixtures" / "handoff" / "canonical_text_vectors.json"
+
+
+def _reseal(directory: Path, edit_manifest, model_text: str | None = None) -> None:
+    """Rewrites a copied package as a forger would: edit the manifest (and the
+    model member), then recompute the export hash and the checksum inventory so
+    that every hash in it is consistent."""
+    model_bytes = model_text.encode("utf-8") if model_text is not None else (directory / "model" / "model.json").read_bytes()
+    if model_text is not None:
+        (directory / "model" / "model.json").write_bytes(model_bytes)
+    model_hex = sha256(model_bytes).hexdigest()
+    package = json.loads((directory / "handoff_package.json").read_text(encoding="utf-8"))
+    inner = package["handoff_package_manifest"]
+    edit_manifest(inner, model_hex)
+    sealed = {key: value for key, value in inner.items() if key != "checksums"}
+    sealed["checksums"] = checksum_inventory(inner["model_hash"]["payload_ref"], inner["package_identity"]["handoff_package_id"], model_hex, export_hash(inner))
+    package["handoff_package_manifest"] = sealed
+    (directory / "handoff_package.json").write_text(canonical_json_unchecked(package), encoding="utf-8")
+
+
+def _schema_valid(directory: Path) -> None:
+    schema = json.loads(HANDOFF_SCHEMA.read_text(encoding="utf-8"))
+    Draft202012Validator(schema).validate(json.loads((directory / "handoff_package.json").read_text(encoding="utf-8")))
+
+
+@pytest.mark.parametrize("package", [PACKAGE, BINARY64], ids=["witness", "binary64"])
+def test_produced_packages_are_schema_valid_and_verify(package):
+    _schema_valid(package)
+    assert verify_handoff_package(package)
+
+
+def test_python_accepts_the_produced_unchecked_binary64_model():
+    """Finding 6: a model holding 1e20 (outside the checked profile) is W-6a's
+    bytes; the twin reads it with the same unchecked serializer."""
+    text = (BINARY64 / "model" / "model.json").read_text(encoding="utf-8")
+    assert "100000000000000000000" in text
+    assert verify_handoff_package(BINARY64)["model_hash"] == f"sha256:{sha256(text.encode('utf-8')).hexdigest()}"
+
+
+def test_the_unchecked_serializer_matches_the_rust_vectors():
+    vectors = json.loads(VECTORS.read_text(encoding="utf-8"))["vectors"]
+    assert len(vectors) >= 30
+    for vector in vectors:
+        text = canonical_json_unchecked(parse_json(vector["input_json"]))
+        assert text == vector["canonical_text"], vector["input_json"]
+        assert sha256(text.encode("utf-8")).hexdigest() == vector["sha256"], vector["input_json"]
+    cases = json.loads((ROOT / "fixtures" / "canonical_hash" / "cases.json").read_text(encoding="utf-8"))["cases"]
+    for case in cases:
+        assert canonical_json_unchecked(parse_json(case["input_json"])) == case["expected_canonical"], case["case_id"]
+
+
+def _forged_subject(manifest, _model_hex):
+    manifest["model_hash"]["payload_ref"] = {"object_type": "RulePack", "ref": "rule-pack:unrelated"}
+
+
+def _substituted_keep_identity(manifest, model_hex):
+    # Every hash names the substituted bytes; the identity and inventories stay the original model's.
+    for checksum in (manifest["model_hash"], manifest["model_basis"]["hash_refs"][0], manifest["model_state_refs"][0]["hash_refs"][0]):
+        checksum["value"] = model_hex
+    for key, prefix in (("handoff_package_id", "handoff"), ("manifest_id", "manifest")):
+        project = manifest["package_identity"][key].split(":")[1]
+        manifest["package_identity"][key] = f"{prefix}:{project}:{model_hex[:12]}"
+
+
+def _substituted_model_text() -> str:
+    other = parse_json(MODEL.read_text(encoding="utf-8"))
+    other["project"]["id"] = "project:unrelated-model"
+    other["nodes"][0]["id"] = "node:unrelated-node"
+    return canonical_json_unchecked(other)
+
+
+def _substituted_hash_only(manifest, model_hex):
+    manifest["model_hash"]["value"] = model_hex
+
+
+@pytest.mark.parametrize("forgery", ["forged-subject", "substituted-model", "substituted-model-hash-only", "rule-pack-subject", "library-subject"])
+def test_semantically_forged_subjects_are_rejected(tmp_path, forgery):
+    """Finding 3: schema-valid packages whose hashes are all consistent but whose
+    subjects are not the model member's are refused."""
+    copy = tmp_path / "forged.swbhandoff"
+    shutil.copytree(PACKAGE, copy)
+    if forgery == "forged-subject":
+        _reseal(copy, _forged_subject)
+    elif forgery == "substituted-model":
+        _reseal(copy, _substituted_keep_identity, _substituted_model_text())
+    elif forgery == "substituted-model-hash-only":
+        _reseal(copy, _substituted_hash_only, _substituted_model_text())
+    elif forgery == "rule-pack-subject":
+        _reseal(copy, lambda manifest, _: manifest["rule_pack_refs"][0]["checksum"].update(payload_ref={"object_type": "RulePack", "ref": "unrelated_pack"}))
+    else:
+        _reseal(copy, lambda manifest, _: manifest["library_refs"][0]["checksum"].update(payload_ref={"object_type": "Model", "ref": "project:slots"}))
+    _schema_valid(copy)
+    with pytest.raises(HandoffVerificationError):
+        verify_handoff_package(copy)
+
+
+@pytest.mark.parametrize("change", ["member", "inventory-label", "extra-inventory"])
+def test_obvious_substitution_and_forged_inventory_refused(tmp_path, change):
+    copy = tmp_path / "copy.swbhandoff"
+    shutil.copytree(PACKAGE, copy)
+    if change == "member":
+        (copy / "model" / "model.json").write_text("{}", encoding="utf-8")
+    else:
+        package = json.loads((copy / "handoff_package.json").read_text(encoding="utf-8"))
+        inventory = package["handoff_package_manifest"]["checksums"]
+        if change == "inventory-label":
+            inventory[0]["payload_ref"]["label"] = "other-model.json"
+        else:
+            inventory.append(dict(inventory[0]))
+        (copy / "handoff_package.json").write_text(canonical_json_unchecked(package), encoding="utf-8")
     with pytest.raises(HandoffVerificationError):
         verify_handoff_package(copy)
