@@ -580,6 +580,14 @@ fn execute_export_results(
     (0, output)
 }
 
+/// The runner's own bindings of its request to a version 2.0.0 package
+/// request (DEL-08-01 Design `report-package-current-results.md` §2.7). The
+/// shared producer's checks (`report_package::bindings`) run after these, in
+/// `assemble_wire_request`. `source_model_ref` names the actual model; the
+/// runner request's model reference must equal the request alias the document's
+/// origin discloses (`request_model_ref`), or, when the origin discloses none,
+/// the actual identity. In the alias case there is no second equality to the
+/// actual identity.
 fn validate_export_results_bindings(
     runner: &RunnerRequest,
     package: &ReportPackageRequest,
@@ -591,29 +599,31 @@ fn validate_export_results_bindings(
             Ok(())
         }
     }
-
-    fn ref_key(reference: &open_pipe_stress_report_package::wire::ReferenceDto) -> String {
-        format!("{}\u{0}{}", reference.ref_type, reference.ref_id)
+    fn key(ref_type: &str, ref_id: &str) -> (String, String) {
+        (ref_type.to_string(), ref_id.to_string())
     }
 
     complete("runner model_ref.ref_id", &runner.model_ref.ref_id)?;
-    complete(
-        "package source_model_ref.ref_id",
-        &package.source_model_ref.ref_id,
-    )?;
-    if runner.model_ref.ref_type != package.source_model_ref.ref_type
-        || runner.model_ref.ref_id != package.source_model_ref.ref_id
-    {
-        return Err("runner model_ref does not equal package source_model_ref".to_string());
-    }
-
-    let audit_model = package
-        .audit_manifest
-        .model_hash
-        .as_ref()
-        .ok_or_else(|| "audit model_hash is missing".to_string())?;
-    if runner.model_ref.ref_id != audit_model.payload_ref {
-        return Err("runner model_ref does not equal audit model-hash payload_ref".to_string());
+    complete("package source_model_ref.ref_id", &package.source_model_ref.ref_id)?;
+    let [document] = package.result_documents.as_slice() else {
+        return Err("export-results carries exactly one result document".to_string());
+    };
+    let envelope = &document["result_envelope"];
+    let origin = &envelope["reproducibility"]["source_origin_bindings"][0];
+    let runner_model = serde_json::json!({"ref_type": runner.model_ref.ref_type, "ref_id": runner.model_ref.ref_id});
+    match &origin["request_model_ref"] {
+        Value::Null => {
+            if runner.model_ref.ref_type != package.source_model_ref.ref_type
+                || runner.model_ref.ref_id != package.source_model_ref.ref_id
+            {
+                return Err("runner model_ref does not equal package source_model_ref".to_string());
+            }
+        }
+        alias => {
+            if *alias != runner_model {
+                return Err("runner model_ref does not equal the result document's request_model_ref".to_string());
+            }
+        }
     }
     let input_manifest = package
         .audit_manifest
@@ -621,71 +631,30 @@ fn validate_export_results_bindings(
         .as_ref()
         .ok_or_else(|| "audit input_manifest_hash is missing".to_string())?;
     if runner.input_manifest_ref.ref_id != input_manifest.payload_ref {
-        return Err(
-            "runner input_manifest_ref does not equal audit input-manifest payload_ref".to_string(),
-        );
+        return Err("runner input_manifest_ref does not equal audit input-manifest payload_ref".to_string());
     }
-    if runner.unit_system_ref.ref_id != package.audit_manifest.unit_system_ref {
-        return Err("runner unit_system_ref does not equal audit unit_system_ref".to_string());
+    if runner.unit_system_ref.ref_id != package.audit_manifest.unit_system_ref
+        || envelope["unit_system_ref"]["ref_id"].as_str() != Some(runner.unit_system_ref.ref_id.as_str())
+    {
+        return Err("runner unit_system_ref does not equal the audit and result-document unit system".to_string());
     }
-
-    let mut source_basis = std::collections::BTreeSet::new();
-    for reference in &package.source_basis_refs {
-        complete("package source_basis_ref.ref_type", &reference.ref_type)?;
-        complete("package source_basis_ref.ref_id", &reference.ref_id)?;
-        if !source_basis.insert(ref_key(reference)) {
-            return Err("package source_basis_refs contains a duplicate".to_string());
+    let mut runner_loads = std::collections::BTreeSet::new();
+    for reference in &runner.load_basis_refs {
+        if !runner_loads.insert(key(&reference.ref_type, &reference.ref_id)) {
+            return Err("runner load_basis_refs contains a duplicate".to_string());
         }
     }
-    let runner_loads: std::collections::BTreeSet<_> = runner
-        .load_basis_refs
-        .iter()
-        .map(|reference| format!("{}\u{0}{}", reference.ref_type, reference.ref_id))
-        .collect();
-    if runner_loads.len() != runner.load_basis_refs.len() {
-        return Err("runner load_basis_refs contains a duplicate".to_string());
-    }
-
-    for envelope in &package.result_envelopes {
-        if envelope.model_ref.ref_type != runner.model_ref.ref_type
-            || envelope.model_ref.ref_id != runner.model_ref.ref_id
-            || envelope.reproducibility.model_hash.payload_ref.ref_type != runner.model_ref.ref_type
-            || envelope.reproducibility.model_hash.payload_ref.ref_id != runner.model_ref.ref_id
-        {
-            return Err(
-                "result-envelope model binding does not equal runner model_ref".to_string(),
-            );
-        }
-        if envelope.unit_system_ref.ref_id != runner.unit_system_ref.ref_id {
-            return Err(
-                "result-envelope unit-system binding does not equal runner unit_system_ref"
-                    .to_string(),
-            );
-        }
-        let envelope_loads: std::collections::BTreeSet<_> =
-            envelope.load_basis_refs.iter().map(ref_key).collect();
-        if envelope_loads.len() != envelope.load_basis_refs.len() || envelope_loads != runner_loads
-        {
-            return Err(
-                "result-envelope load-basis set does not equal runner load_basis_refs".to_string(),
-            );
-        }
-        if envelope
-            .load_basis_refs
-            .iter()
-            .any(|reference| !source_basis.contains(&ref_key(reference)))
-        {
-            return Err("result-envelope load basis is absent from source_basis_refs".to_string());
-        }
-        if envelope.reproducibility.audit_manifest_ref.ref_id != package.audit_manifest.manifest_id
-        {
-            return Err(
-                "result-envelope audit-manifest ref does not equal supplied manifest".to_string(),
-            );
-        }
-        if !source_basis.contains(&ref_key(&envelope.run_ref)) {
-            return Err("result-envelope run_ref is absent from source_basis_refs".to_string());
-        }
+    let document_loads: std::collections::BTreeSet<_> = envelope["load_basis_refs"]
+        .as_array()
+        .map(|items| {
+            items
+                .iter()
+                .map(|item| key(item["ref_type"].as_str().unwrap_or(""), item["ref_id"].as_str().unwrap_or("")))
+                .collect()
+        })
+        .unwrap_or_default();
+    if document_loads != runner_loads {
+        return Err("result-document load-basis set does not equal runner load_basis_refs".to_string());
     }
     Ok(())
 }
@@ -1320,6 +1289,43 @@ mod tests {
             diagnostic.code == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING"
         }));
         assert!(output.report_package.is_none());
+    }
+
+    /// W-18 slice (a), DEL-08-01 Design §2.7: a disclosed request alias is
+    /// accepted against `request_model_ref`, and a runner model naming neither
+    /// that alias nor (without an alias) the actual model is refused. The
+    /// actual identity alone does not satisfy the alias case.
+    #[test]
+    fn export_results_binds_the_request_alias_not_a_second_actual_identity() {
+        // The alias input is the success input with the leaf replacements the
+        // witness generator records (`tests/del1005_package_witness.rs`).
+        let mut alias: Value = serde_json::from_str(include_str!(
+            "../../../../../validation/witness/inputs/del1005_export_results_success_input.json"
+        ))
+        .expect("success witness parses");
+        let overlay: Value = serde_json::from_str(include_str!(
+            "../../../../../validation/witness/inputs/del1005_export_results_alias_overlay.json"
+        ))
+        .expect("alias overlay parses");
+        for entry in overlay.as_array().expect("an overlay list") {
+            *alias.pointer_mut(entry["pointer"].as_str().unwrap()).expect("the overlay pointer exists") =
+                entry["value"].clone();
+        }
+        assert_eq!(alias["request"]["model_ref"]["ref_id"], "invented-model-alias");
+        let (code, output) = execute_json("export-results", &alias.to_string());
+        assert_eq!(code, 0, "{:?}", output.diagnostics);
+        assert!(output.report_package.is_some());
+        for model_ref in ["project:precision-connected-fixture", "invented-other"] {
+            let mut refused = alias.clone();
+            refused["request"]["model_ref"]["ref_id"] = json!(model_ref);
+            let (code, output) = execute_json("export-results", &refused.to_string());
+            assert_eq!(code, 1, "{model_ref}");
+            assert!(output.report_package.is_none());
+            assert!(output
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH"));
+        }
     }
 
     #[test]

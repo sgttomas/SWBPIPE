@@ -1,17 +1,17 @@
 {
   "request": {
     "input_manifest_ref": {
-      "ref_id": "manifest-1",
+      "ref_id": "input-manifest:del1005-invented",
       "ref_type": "input_manifest"
     },
     "load_basis_refs": [
       {
-        "ref_id": "LC1",
+        "ref_id": "case:six-component-load",
         "ref_type": "load_case"
       }
     ],
     "model_ref": {
-      "ref_id": "invented-model",
+      "ref_id": "project:precision-connected-fixture",
       "ref_type": "model"
     },
     "operation": "export_results",
@@ -34,7 +34,7 @@
       "software_makes_sealing_claim": false
     },
     "project_ref": {
-      "ref_id": "invented-project",
+      "ref_id": "project:precision-connected-fixture",
       "ref_type": "project"
     },
     "provenance": {
@@ -43,7 +43,7 @@
       "redistribution_status": "invented_non_engineering_example",
       "review_status": "accepted",
       "source_license": "project invented",
-      "source_location": "validation/witness/inputs/generate_del1005_export_results_inputs.py",
+      "source_location": "core/runner/headless/tests/del1005_package_witness.rs",
       "source_name": "Invented DEL-10-05 export-results witness"
     },
     "request_id": "del1005-export-results-invented",
@@ -65,7 +65,7 @@
       "release_matrix": "TBD"
     },
     "unit_system_ref": {
-      "ref_id": "invented-si",
+      "ref_id": "project:precision-connected-fixture:units",
       "ref_type": "unit_system"
     }
   }

@@ -4,7 +4,7 @@
 
 mod common;
 
-use common::{invented_result_envelope, Fixture};
+use common::{invented_result_document_variant, Fixture};
 use open_pipe_stress_report_package::{
     assemble_report_package_container, CONTAINER_DOCUMENT_KIND, CONTAINER_EXTENSION,
     PACKAGE_MANIFEST_FILE_NAME, ROLE_AUDIT_MANIFEST, ROLE_PACKAGE_MANIFEST, ROLE_REPORT_HTML,
@@ -197,7 +197,7 @@ fn member_inventory_carries_all_e3_named_members_in_fixed_order() {
             "calculation_report.html",
             "calculation_report.pdf",
             "audit_manifest.json",
-            "result_export_invented-result-envelope-001.json",
+            "result_export_result-envelope-run-headless-preview-del1005-export-results-invented.json",
             "state_comparison_handoff_sections_invented-section-set-001.json",
         ]
     );
@@ -330,7 +330,7 @@ fn input_changes_change_member_and_package_identity_hashes() {
     let baseline = assemble_report_package_container(&fixture.input());
 
     let mut changed_fixture = Fixture::new();
-    changed_fixture.result_envelopes = vec![invented_result_envelope(99.75)];
+    changed_fixture.result_documents = vec![invented_result_document_variant(None, Some(99.75))];
     let changed = assemble_report_package_container(&changed_fixture.input());
 
     let member_hash = |outcome: &open_pipe_stress_report_package::ReportPackageContainerOutcome,
@@ -381,7 +381,7 @@ fn invalid_audit_manifest_blocks_the_package() {
 #[test]
 fn missing_named_members_block_the_package() {
     let mut fixture = Fixture::new();
-    fixture.result_envelopes.clear();
+    fixture.result_documents.clear();
     fixture.sections_records.clear();
     let outcome = assemble_report_package_container(&fixture.input());
 
