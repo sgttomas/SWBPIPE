@@ -1719,11 +1719,11 @@ fn branch_topology_invalid(component: &crate::PreviewComponent, degree: usize) -
 /// names exactly the published sides. A refused envelope, and an exact-route one
 /// (which publishes no intensified row), keep the topology text alone.
 pub(crate) fn state_applied_branch_factors(
-    components: &[crate::PreviewComponent],
+    model_components: &[crate::PreviewComponent],
     preview_cases: &[serde_json::Value],
     diagnostics: &mut [Diagnostic],
 ) {
-    for component in components {
+    for component in model_components {
         let Some(warning) = diagnostics.iter_mut().find(|d| {
             d.code == "BRANCH_TOPOLOGY_INVALID" && d.affected_refs.first() == Some(&component.id)
         }) else {

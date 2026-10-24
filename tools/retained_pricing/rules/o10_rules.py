@@ -2199,7 +2199,7 @@ if fnkey("branch_topology_invalid", _W8V):
 # applied is added after publication by `state_applied_branch_factors(components, preview_cases, diagnostics)`, called
 # once, from run_linear_static_preview_observed_inner's solved preview envelope with `&model.components`. Everything it
 # allocates lies inside its loop over those components, which D1 refuses (P2, D1.4: `F::Components`), so the loop is
-# bound 0 on both routes (U6-LF: before the broad `components` rule of route E) and its sites have multiplicity 0,
+# bound 0 on both routes (U6-LF: placed first, by its own exact header) and its sites have multiplicity 0,
 # guarded by o10_check. Its texts are still bounded at their sites: a side is `{side} SIF to {pipe}` with a static
 # side ("header" | "branch", 6 B) and a published record's pipe id (an admitted pipe id, IN128); at most two sides (one
 # per role: a role's records name the one pipe its reference names; deduplicated) joined by ", "; the suffix adds its
@@ -2207,7 +2207,7 @@ if fnkey("branch_topology_invalid", _W8V):
 if fnkey("state_applied_branch_factors", _W8V):
     _W8_BF = _fn_text("state_applied_branch_factors", _W8V)
     _W8_RUN = _fn_text("run_linear_static_preview_observed_inner", PP_ + "lib.rs")
-    _w8_bf_loop = "for component in components {"
+    _w8_bf_loop = "for component in model_components {"
     _w8_bf_side_t = 'let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());'
     _w8_bf_join_t = 'let sides = applied.join(", ");'
     _w8_bf_all_t = 'warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));'
