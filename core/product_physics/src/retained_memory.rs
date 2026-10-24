@@ -1192,6 +1192,12 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
+    // W-7 D3 (member end actions in global coordinates; retained-pricing-rules.md §8.20): the
+    // contract tables carry the six global end signatures, so the reviewed inputs
+    // preview-physics-retained-1 (#4), preview-physics-2 (#5), physics-retained-1 (#8), the
+    // pressure-2 result schema (#10) and pressure-2 (#11), counted from 0, take their W-7 bytes;
+    // the identity, reader layouts and threshold are unchanged. The silent-drop guard's D3
+    // (§8.19, which kept §8.17's inputs) was the previous registration.
     // Model document 0.7.0 D3 at 7222d954a8 (W-13 S1b on main's silent-zero guard on W-8;
     // retained-pricing-rules.md §8.17): the tree is coefficient-identical to the silent-zero
     // guard's on W-8 (§8.15, 1,576 coefficients; only the basis line moves). The reviewed inputs
@@ -1201,7 +1207,7 @@ static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // previous registration. The one registered entry supplies G0; its genuine profile, input,
     // witness and resource checks still govern.
     identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
-    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=8f1f308092121cfe56e08199703c681ba74fd7d6d359d4eafed05d86ef8645a4;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=ff7f3159d69fca32acfdea00f6b07a7c90a168f77fd264e45c997b053daf3de7;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7;../../schemas/results_pressure_2.v0.3.schema.json=9a7d5ab6b7491f9b5c6a421ff7bb14d6a24c915ef29dd608fde004e4a5c409ee;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba",
+    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=8f1f308092121cfe56e08199703c681ba74fd7d6d359d4eafed05d86ef8645a4;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=92a364559e116f4e4a903ff114e1a530916b9761486bd2441aeb9c3711f290bb;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7;../../schemas/results_pressure_2.v0.3.schema.json=87b7e6667acd1e067238f65759147a0531d3bc50ca706f301c46d4e8bc565414;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815",
     reader_layouts: [
         TypeLayout { size: 56, align: 8 },
         TypeLayout { size: 64, align: 8 },
@@ -3348,15 +3354,19 @@ pub(super) const fn push_capacity(h: u64) -> u64 {
     }
     c
 }
-/// P_final ≤ 7n + 66m + 8g + 3 (DOMAIN.md §2, derived): one case's result rows on route L.
+/// P_final ≤ 7n + 78m + 8g + 3 (DOMAIN.md §2, derived): one case's result rows on route L.
 /// T4-U4b (retained-pricing-rules.md U4B-RL): each straight member publishes the 51 rows of
 /// preview-physics-1 and its derived σ⁺, σ⁻ and τ_v,max at the five stations (51 + 15 rows).
-pub(super) const P_FINAL: u64 = (7 * caps::NODES + 66 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
-/// T4-U6 (D-5; retained-pricing-rules.md U6-RP): route E's P_final ≤ 7n + 102m + 8g + 3. An exact
+/// W-7 (DEL-04-01 Design `global-end-actions.md`; W7-RL, §8.20): and its twelve global end rows
+/// (Fx..Mz at end_i and end_j), on every ordinary run (51 + 15 + 12 = 78; 2,979 at the caps).
+pub(super) const P_FINAL: u64 = (7 * caps::NODES + 78 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
+/// T4-U6 (D-5; retained-pricing-rules.md U6-RP): route E's P_final ≤ 7n + 114m + 8g + 3. An exact
 /// member publishes its 20 element-local stress rows on both section bases and its maximum once
-/// per basis (51 + 21 rows), and (T4-U4b, U4B-RP) its derived σ⁺, σ⁻ and τ_v,max at the five
-/// stations on both bases (30 rows more); route L has no exact contract and keeps `P_FINAL`.
-pub(super) const P_FINAL_EXACT: u64 = (7 * caps::NODES + 102 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
+/// per basis (51 + 21 rows), (T4-U4b, U4B-RP) its derived σ⁺, σ⁻ and τ_v,max at the five
+/// stations on both bases (30 rows more) and (W-7, W7-RP) its twelve global end rows, which the
+/// pressure-source-1 census omits (`global_end_rows_published`): 102 + 12 = 114 (4,131 at the
+/// caps). Route L has no exact contract and keeps `P_FINAL`.
+pub(super) const P_FINAL_EXACT: u64 = (7 * caps::NODES + 114 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
 /// The gate bounds. Count bounds are D1's caps; text bounds are 2× the G4 text
 /// atoms (exact-capacity copies at most double: API_G4.md §2); the preview tree
 /// bounds are ordinary_caps.py's PREVIEW facts at the caps. The byte bounds (T11, T11
@@ -3423,7 +3433,8 @@ const fn p_final_on(route: crate::retained_product::W1Route) -> u64 {
 /// result rows and their capacity, C_eq·P_final at route E's own P_final (T4-U6, D-5: the
 /// chain prices route E's push-built results at pushcap(C_eq·P_final) slots, U6-RB). The rows'
 /// text bound stays route L's 2·C_eq·P_final·Text(row) on both routes: Text(row) bounds one
-/// row's text, and route E's C_eq·P_final rows (11,241 at the caps) stay below route L's 15,570.
+/// row's text, and route E's C_eq·P_final rows (12,393 at the caps) stay below route L's 17,874
+/// (W-7, §8.20: 7n + 114m + 8g + 3 ≤ 2·(7n + 78m + 8g + 3) for all n, m, g ≥ 0).
 /// On both routes the entries bound is cut so that objects + ⌊entries / 5⌋, the BTree node
 /// count the profile prices (`value_tree`: one node per object and per 5 entries), stays within
 /// C·(objects + ⌊entries / 5⌋) at the per-case facts (T3 F1: route L's C·entries left one node

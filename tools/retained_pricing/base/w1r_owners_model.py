@@ -24,7 +24,8 @@ FIELD = "final_scales:Vec<[f64;4]>,"
 
 # Read at 3bbfdd5080 (the repair's implementation head).
 BODY_PINS = {
-    (FKF, "row_scales_reduced"): "32ecd1ac312a0f82efea73531d1f27e9f099f1315876975ea717c9e90a3b4e78",
+    # W-7 D3 (retained-pricing-rules.md §8.20): row_scales_reduced admits a not-covered force or moment row in a combination (a predicate); the final scales are unchanged.
+    (FKF, "row_scales_reduced"): "3322775097f9f9ab59aac76ff2b38bf3dfa3769a76debebe8b155d9403068d26",
     (FKF, "check_intervals"): "0dbce60eb55b833a7a6f81c9482c460399fe2da02d4f2412f16f14ca7564953a",
     (FKF, "certify_final"): "98872d34ac2b49dc783ca36e096361e0dae251c0a56aafd0e842d1086df6938e",
     (RW, "selection"): "4603dee55a5f4d98bd56d21dc1869bc0c66626d70060ee98ba7e8132e5b616cb",

@@ -696,8 +696,9 @@ fn complete_facts_on_route(raw: Value, mode: PreviewSolverMode) -> ([PhaseObserv
 /// T3 F1 (SQ2's G-C finding): route E's G-C bounds. Route L's bounds are `phase_caps()`, whose
 /// entries row is cut from C·553 = 1,659 to 1,654 so that objects + ⌊entries / 5⌋ stays within the
 /// 531 BTree nodes the profile prices. Route E's differ in the result rows and their capacity,
-/// C_eq·P_final at route E's own P_final = 7n + 72m + 8g + 3 (T4-U6, D-5: 8,361 and 16,384 at the
-/// caps, against route L's 6,345 and 8,192), and in the five contract-evidence rows, which are C
+/// C_eq·P_final at route E's own P_final, now 7n + 114m + 8g + 3 (T4-U6, D-5: then 72m, 8,361 and
+/// 16,384 at the caps, against route L's 6,345 and 8,192; W-7, §8.20: 12,393 and 16,384 against
+/// route L's 8,937 and 16,384), and in the five contract-evidence rows, which are C
 /// times route E's per-case facts (the componentwise maximum of the preview tree and the D-5
 /// evidence census at the D1 caps, each source-selected extremum at the maximum over its three
 /// `locations` shapes, U6-RL), the facts the registered profile prices for the evidence owner
@@ -710,8 +711,9 @@ fn f1_g_c_contract_evidence_bounds_are_per_route() {
     use crate::retained_product::W1Route;
     let (l, e) = (phase_caps_on(W1Route::Preview), phase_caps_on(W1Route::Exact));
     assert_eq!((l.late, l.complete), (phase_caps().late, phase_caps().complete), "route L's bounds are phase_caps()");
-    assert_eq!(l.complete[..2], [7_785, 8_192], "route L: C_eq times route L's P_final, and its push capacity");
-    assert_eq!(e.complete[..2], [11_241, 16_384], "route E: C_eq times route E's P_final, and its push capacity");
+    // W-7 (retained-pricing-rules.md §8.20): 78 and 114 rows per member (W7-RL, W7-RP).
+    assert_eq!(l.complete[..2], [8_937, 16_384], "route L: C_eq times route L's P_final, and its push capacity");
+    assert_eq!(e.complete[..2], [12_393, 16_384], "route E: C_eq times route E's P_final, and its push capacity");
     assert_eq!(l.complete[9..14], [480, 201, 1_654, 200_448, 66_360], "route L: C times the preview tree, entries cut to the priced nodes");
     assert_eq!(e.complete[9..14], [9_354, 2_604, 12_274, 1_243_968, 130_893], "route E: C times max(preview tree, D-5 exact census)");
     assert_eq!(e.late, l.late, "G-B is route-independent");
@@ -742,8 +744,8 @@ fn f1_g_c_contract_evidence_bounds_are_per_route() {
 }
 
 /// T3 F1: the cap-maximal exact input passes G-C on route E, while route L's bounds refuse it: at
-/// its result rows first (D-5 and U4b: route E publishes 102m rows per case against route L's 66m,
-/// so its results exceed 7,785), and, with route E's result rows, at the evidence's array
+/// its result rows first (D-5, U4b and W-7: route E publishes 114m rows per case against route L's 78m,
+/// so its results exceed 8,937), and, with route E's result rows, at the evidence's array
 /// elements. An exact owner one array element over route E's bound is still refused there, and
 /// the milestone keeps route L's bounds.
 #[test]
@@ -755,8 +757,8 @@ fn f1_g_c_admits_the_cap_maximal_exact_input_and_refuses_over_cap_evidence() {
         let caps = phase_caps_on(route);
         assert_eq!(check_phase(PhaseGate::Complete, &facts, &caps.complete), Ok(()), "{mode:?}: inside route E's bounds");
         let refusal = check_phase(PhaseGate::Complete, &facts, &phase_caps().complete).unwrap_err();
-        assert_eq!((refusal.fact, refusal.cap), (PhaseFact::EnvelopeResults, 7_785), "{mode:?}: route L's bounds refuse it");
-        assert!(refusal.observed > 7_785 && refusal.observed <= caps.complete[0], "{mode:?}: {}", refusal.observed);
+        assert_eq!((refusal.fact, refusal.cap), (PhaseFact::EnvelopeResults, 8_937), "{mode:?}: route L's bounds refuse it");
+        assert!(refusal.observed > 8_937 && refusal.observed <= caps.complete[0], "{mode:?}: {}", refusal.observed);
         let mut l_with_e_rows = phase_caps().complete;
         l_with_e_rows[..2].copy_from_slice(&caps.complete[..2]);
         let refusal = check_phase(PhaseGate::Complete, &facts, &l_with_e_rows).unwrap_err();
@@ -819,8 +821,8 @@ fn f1_check_complete_reads_the_observer_route() {
         let mut preview = ProductCapture::prepared_probe_on(W1Route::Preview);
         let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(W1Route::Preview), Some(&mut preview));
         let refusal = permit.check_complete(&CompleteFacts { ordinary: &ordinary, capture: &preview, requested_cases }).unwrap_err();
-        assert_eq!((refusal.gate, refusal.fact, refusal.cap), (PhaseGate::Complete, PhaseFact::EnvelopeResults, 7_785), "{mode:?}: route L's bounds");
-        assert!(refusal.observed > 7_785 && refusal.observed <= phase_caps_on(W1Route::Exact).complete[0], "{mode:?}: {}", refusal.observed);
+        assert_eq!((refusal.gate, refusal.fact, refusal.cap), (PhaseGate::Complete, PhaseFact::EnvelopeResults, 8_937), "{mode:?}: route L's bounds");
+        assert!(refusal.observed > 8_937 && refusal.observed <= phase_caps_on(W1Route::Exact).complete[0], "{mode:?}: {}", refusal.observed);
     }
 }
 
@@ -846,8 +848,10 @@ fn u6_rp_route_e_gate_caps_are_the_priced_census() {
     // P_final: route E's per-member coefficient is the census's rows per member; the other rows are route L's.
     let rpm = census["rows_per_member"].as_u64().unwrap();
     let rest = 7 * n + 8 * g + 3;
-    assert_eq!(P_FINAL, rest + 66 * m, "route L's P_final (U4B-RL: 51 + 15 derived rows)");
-    assert_eq!(P_FINAL_EXACT - rest, rpm * m, "route E's per-member coefficient is the census's rows_per_member ({rpm})");
+    assert_eq!(P_FINAL, rest + 78 * m, "route L's P_final (U4B-RL, W7-RL: 51 + 15 derived + 12 global end rows)");
+    // W7-RP (§8.20): the census's pressure-source-1 fixtures omit the twelve global end rows per member
+    // (`global_end_rows_published`) that route E's ordinary envelope carries.
+    assert_eq!(P_FINAL_EXACT - rest, (rpm + 12) * m, "route E's per-member coefficient is the census's rows_per_member ({rpm}) + 12 global end rows");
     // The census's measurement: every empty-region exact case publishes 7n + R·m + 8g rows.
     let measured = census["rows"].as_array().unwrap();
     assert!(!measured.is_empty());

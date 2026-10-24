@@ -804,6 +804,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // §8.9) moves #2 (both section shapes of the retained-precision schema), #7 DEF-E and #8 (DEF-E's
     // hash in the physics-retained table), counted from 0; O4's D3 registration at 7823a79f45 records
     // these bytes. #0, #1 and #9-#11 keep theirs.
+    // W-7 (DEL-04-01 Design `global-end-actions.md`; retained-pricing-rules.md §8.20) moves #4, #5,
+    // #8, #10 and #11 (the tables' six global end signatures, carried to the inheriting tables and
+    // the pressure-2 result schema's closed basis enum), counted from 0; W-7's D3 registration
+    // records these bytes.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
         "6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a",
@@ -1540,13 +1544,14 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
             Err(PhaseRefusal { gate: PhaseGate::Late, fact: late[i], observed: caps.late[i] + 1, cap: caps.late[i] }));
     }
     assert_eq!(caps.late[..9], [32, 32, 32, 32, 128, 384, 192, 192, 8], "D1's counts: n, m, m, g, l, L (B1 SA), k = min(6n, r), s, 4 + 4");
-    assert_eq!(P_FINAL, 2_595);
-    // T4-U6 (D-5, U6-RP), T4-U4b (U4B-RP): route E publishes 102 rows per exact member; its G-C rows and their
-    // capacity are C·P_final at its own P_final, the chain's pushcap(C·P_final) results slots
-    // (U6-RB-V); the rows' text bound stays route L's.
-    assert_eq!(P_FINAL_EXACT, 3_747);
+    // W-7 (§8.20, W7-RL): route L's members also publish their twelve global end rows, 78 per member.
+    assert_eq!(P_FINAL, 2_979);
+    // T4-U6 (D-5, U6-RP), T4-U4b (U4B-RP), W-7 (W7-RP): route E publishes 114 rows per exact member; its G-C
+    // rows and their capacity are C·P_final at its own P_final, the chain's pushcap(C·P_final) results slots
+    // (U6-RB-V); the rows' text bound stays route L's (12,393 <= 17,874 at the caps).
+    assert_eq!(P_FINAL_EXACT, 4_131);
     let exact = phase_caps_on(crate::retained_product::W1Route::Exact).complete;
-    assert_eq!((exact[0], exact[1], exact[2]), (3 * 3_747, 16_384, caps.complete[2]), "route E: C·P_final, PushCap, route L's text");
+    assert_eq!((exact[0], exact[1], exact[2]), (3 * 4_131, 16_384, caps.complete[2]), "route E: C·P_final, PushCap, route L's text");
     // B1 SA (option S3, C = 3): the bounds that read the regenerated profile are asserted as
     // expressions (SF-4's back edge: SQ fixes their values; RV-Q round 1 reviews these).
     let c = caps::LOAD_CASES as u64;
@@ -1564,7 +1569,8 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // and R-A's 7d946b7e94), the three S3 finalization diagnostics whose error text may now be the S2
     // cause (PU-S2). T4-U6/U8's at 588de796a4: 262,735,773; B7b's at 7e63847: 264,366,429.
     assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 269_528_816, "current text closure at C_eq = 3, maximum over routes");
-    assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_595, 8_192), "C·P_final, PushCap(C·P_final)");
+    // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
+    assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
     assert!(caps.complete[16] > 0 && caps.complete[16] < caps.complete[15], "T11.4 < T11");

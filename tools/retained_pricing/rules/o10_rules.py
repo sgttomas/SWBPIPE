@@ -455,7 +455,12 @@ if fnkey("member_group_fires", _FG):
         ("for p in source.loads.iter().filter(|p| p.term_index == i)", "0", O10 + "KD5L12: supplied load primitive list is empty by KD5L3", ["structural/formation_check.rs:evaluate"]),
     ]
     O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [{"re": r"^route$", "max": 128, "why": O10 + "KD5A3: unavailable-route sentence selects 'on this route' or 'on the nonlinear-support route', static <=128"}]
-    for _text in ['format!("diagnostic:stress-free-within-numerical-precision:', 'format!("Load case {case_id}: every member', 'vec![case_id.to_string()]']:
+    # W7-SF (W-7, DEL-04-01 Design `global-end-actions.md`): the notice's sentence names the element-local member rows
+    # and the support rows it bounds; its site is re-keyed by that text, with the same audit (case_id IN128; the two
+    # bounds are `{:e}` numbers). A source before W-7 keeps the former text.
+    _W7_SF = 'format!("Load case {case_id}: every element-local member'
+    _SF = _W7_SF if _W7_SF in open(_os.path.join(_SNAP, _FG), encoding="utf-8").read() else 'format!("Load case {case_id}: every member'
+    for _text in ['format!("diagnostic:stress-free-within-numerical-precision:', _SF, 'vec![case_id.to_string()]']:
         O10_ID_AUDIT += [(site("stress_free_notice", _FG, _text, full=True), {"case_id": IN})]
     _CL = PP_ + "certified_loads.rs"
     O10_ID_AUDIT += [(site("summand", _CL, "family: family.into()", full=True), {"family": ST}),
@@ -2579,3 +2584,68 @@ if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICA
         (site_after("validate_mechanics_combination", _SD_V, '"LOAD_COMBINATION_DUPLICATE_TERM",', "vec![combination.id.clone(), term.load_case.clone()],", within=4),
          {"combination.id": IN}),
     ]
+
+
+# ---- W-7 member end actions in global coordinates (DEL-04-01 Design global-end-actions.md; retained-pricing-rules.md
+# §8.20). Rows: W7-RL (sq2_decisions_L.py) and W7-RP (sq2_decisions_E.py); owners: w7_owners_model (W7-NC, W7-QF, W7-RD).
+_W7_GE = fnkey("append_element_global_end_results", _LIB)
+if _W7_GE:
+    _W7_RP = PP_ + "retained_product.rs"
+    _W7_RE = RE_ + "global_end_evidence.rs"
+    # W7-L1: the loops, each only in its own function. The published-row window `results[from..]` is the current member's
+    # own rows: `from` is taken immediately before the member's element-local end rows, inside the case solve's per-pipe
+    # iteration and in the failed manifest's per-member iteration, and the call follows in the same iteration, so the window
+    # holds only that member's rows published before its global end rows (at most an exact member's 102, W7-RP's census
+    # rows per member, on either route; 51 in the failed manifest). Guard: w7_owners_model binds both positions and calls.
+    O10_LOOPS_LAST += [
+        ("for row in results.get(from..).unwrap_or(&[])", "102", O10 + "W7-L1: one member's own published rows (<= an exact member's 102)",
+         ["lib.rs:append_element_global_end_results"]),
+        ("for (component, value) in local[end].iter().enumerate()", "6", O10 + "W7-L1: the six end-action components", ["lib.rs:append_element_global_end_results"]),
+        ("for (k, name) in names.into_iter().enumerate()", "3", O10 + "W7-L1: the three components of a force or moment", ["lib.rs:append_element_global_end_results"]),
+        ("iter:rows.into_iter().cloned().map", "R0", O10 + "W7-L1: qualify_source_case_rows, the case's rows other than its global end rows <= R0 (the former `rows.iter()` header's bound)",
+         ["lib.rs:qualify_source_case_rows"]),
+        ("for (k,slot) in f.iter_mut().enumerate()", "3", O10 + "W7-L1: one force or moment's three projected operands", ["retained_product.rs:global_end_value"]),
+        ("for key in global.keys()", "cases*m", O10 + "W7-L1: the reader's (load case, member) keys of load-case global end rows <= cases*m",
+         ["global_end_evidence.rs:coverage"]),
+    ]
+    # W7-ID: the composed texts at their sites. The case solve's one blocking diagnostic (an unavailable frame or rotation)
+    # names the member (IN128) by its stable suffix (IN128) and refs the member and the case (IN128 each); the successor's
+    # global end id is the member's suffix (IN128), the checked location (end_i or end_j, 5 B) and the lower-cased
+    # component (2 B); the reader's refusal code is a static token (SOURCE_GLOBAL_END_ + at most 17 B).
+    O10_ID_AUDIT += [
+        (site("solve_prepared_load_case", _LIB, '&format!("diagnostic:stress:{}:global-end-actions", stable_suffix(&pipe.element_id)),', full=True),
+         {"stable_suffix(&pipe.element_id)": IN}),
+        (site("solve_prepared_load_case", _LIB, 'format!("member {} global end actions are unavailable: {message}", pipe.element_id),', full=True),
+         {"pipe.element_id": IN}),
+        (site("solve_prepared_load_case", _LIB, "vec![pipe.element_id.clone(), load_case.id.clone()],", full=True),
+         {"pipe.element_id": IN, "load_case.id": IN}),
+        (site("validate_final_metadata", _W7_RP, 'format!("result:element-global-end:{suffix}:{loc}:{}", component.to_ascii_lowercase())', full=True),
+         {"suffix": IN, "loc": {"bytes": 5, "source": O10 + "W7-ID: the checked location, end_i or end_j"},
+          "component.to_ascii_lowercase()": {"bytes": 2, "source": O10 + "W7-ID: Fx..Mz lower-cased"}}),
+        (site("require", _W7_RE, 'Err(format!("SOURCE_GLOBAL_END_{code}"))', full=True), {"code": ST}),
+    ]
+    # W7-ID (append_element_global_end_results): the pushed rows' texts and the three Err texts, each at its site. Statics
+    # at their literal lengths: a kind (<= 28 B, element_global_end_moment_v1), a unit (<= 3 B), a component name (2 B), a
+    # location (end_i or end_j, 5 B), a matched element-local or wall kind (<= 30 B), the basis (<= 77 B, the wall basis);
+    # the member id and its stable suffix are IN128. `local[end][component].replace(..)` is Option::replace on an f64 slot,
+    # not a String (W7-RZ, as B2-P's Option::replace sites).
+    _W7_LOC = {"bytes": 5, "source": O10 + "W7-ID: end_i or end_j"}
+    _W7_NAME = {"bytes": 2, "source": O10 + "W7-ID: Fx..Mz"}
+    _W7_KIND = {"bytes": 30, "source": O10 + "W7-ID: one of LOCAL's six kinds or the wall kind (<= 30 B)"}
+    _W7_T = lambda text: site("append_element_global_end_results", _LIB, text, full=True)
+    O10_ID_AUDIT += [
+        (_W7_T('return Err(format!("duplicate published {} row at {}", row.kind, metadata.location));'), {"row.kind": _W7_KIND, "metadata.location": _W7_LOC}),
+        (_W7_T('format!("published {} row missing at {location}", LOCAL[component])'), {"LOCAL[component]": _W7_KIND, "location": _W7_LOC}),
+        (_W7_T('return Err(format!("{name} at {location} is not finite"));'), {"name": _W7_NAME, "location": _W7_LOC}),
+        (_W7_T('id: format!("result:element-global-end:{suffix}:{location}:{}", name.to_ascii_lowercase()),'),
+         {"suffix": IN, "location": _W7_LOC, "name.to_ascii_lowercase()": _W7_NAME}),
+        (_W7_T("kind: kind.to_string(),"), {"kind": {"bytes": 28, "source": O10 + "W7-ID: the two global end kinds (<= 28 B)"}}),
+        (_W7_T("unit: unit.to_string(),"), {"unit": {"bytes": 3, "source": O10 + "W7-ID: N or N*m"}}),
+        (_W7_T("entity_ref: pipe_id.to_string(),"), {"pipe_id": IN}),
+        (_W7_T("component: name.to_string(),"), {"name": _W7_NAME}),
+        (_W7_T("location: location.to_string(),"), {"location": _W7_LOC}),
+    ]
+    O10_SITE_ZERO += [(site("append_element_global_end_results", _LIB, "if local[end][component].replace(row.value).is_some() {"),
+                       O10 + "W7-RZ: Option::replace on an f64 slot, not a String")]
+    O10_ARGS_FIRST = [{"re": r"^\{ GLOBAL_END_BASIS \}$", "max": 77,
+                       "why": O10 + "W7-ID: `if wall[end] { GLOBAL_END_WALL_BASIS } else { GLOBAL_END_BASIS }.to_string()`, the longer the wall basis (77 B)"}] + list(globals().get("O10_ARGS_FIRST", []))
