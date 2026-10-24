@@ -63,7 +63,12 @@ component's branch stress factors are still applied to the named pipes".
   topology does not matter. The retired SIF × flexibility rows
   (`branch_stress_modifier_for_pipe`) are published on no route.
 - **Where it is stated.** Validation emits the warning before the build with
-  its topology text only, so it appears in an envelope refused for any reason.
+  its topology text only, so it appears in every envelope that validation
+  reaches, including those refused at or after validation. A request refused
+  before validation carries no validation diagnostics, and so no topology
+  finding: on the preview route, a support with an imposed displacement is
+  refused first (`IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`,
+  `preview_physics.rs`), a shortcut older than these checks.
   `validation::state_applied_branch_factors` adds the statement once, where
   `run_linear_static_preview_observed_inner` assembles the solved preview
   envelope, after the non-finite check, which is the last refusal on the
