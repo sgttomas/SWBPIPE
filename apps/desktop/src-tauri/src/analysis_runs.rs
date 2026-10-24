@@ -43,6 +43,7 @@ use crate::model_states::{
     StateWriteHooks,
 };
 use crate::solve_jobs::SolveJobRegistry;
+use crate::stored_read::{self, PoolReadMemory, ReadMemory, ReadReservation, UnmeteredReadMemory};
 use open_pipe_stress_canonical_json::{canonical_json_checked_v1_text, CHECKED_PROFILE_V1};
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use rusqlite::{params, Connection, OptionalExtension, Transaction};
@@ -313,6 +314,139 @@ pub(crate) fn recording_id_of(record_hash: &str) -> String {
 }
 
 // ---------------------------------------------------------------------------
+// The members a record's checksums and its input manifest fix (repair r1).
+// ---------------------------------------------------------------------------
+
+/// `inputManifestService.ts`'s `safeToken`: every run of characters outside
+/// `[A-Za-z0-9._-]` becomes `-`, leading and trailing `-` are trimmed, and an
+/// empty token is `current-session`.
+pub(crate) fn safe_token(value: &str) -> String {
+    let mut token = String::new();
+    let mut in_run = false;
+    for character in value.chars() {
+        if character.is_ascii_alphanumeric() || matches!(character, '.' | '_' | '-') {
+            token.push(character);
+            in_run = false;
+        } else if !in_run {
+            token.push('-');
+            in_run = true;
+        }
+    }
+    let trimmed = token.trim_matches('-');
+    if trimmed.is_empty() { "current-session".to_string() } else { trimmed.to_string() }
+}
+
+/// The input manifest's ref, as the session builds it.
+pub(crate) fn input_manifest_ref(model_ref: &str, manifest_hash: &str) -> Value {
+    reference("InputManifest", &format!("input-manifest:{}:{manifest_hash}", safe_token(model_ref)))
+}
+
+fn checksum(canonicalization: &str, payload_ref: Value, scope: &str, value: &str) -> Value {
+    json!({ "algorithm": "sha256", "canonicalization": canonicalization, "payload_ref": payload_ref, "payload_scope": scope, "value": value })
+}
+
+/// A v0.3 record's whole `hashes` inventory, exactly as the builders write it:
+/// the record checksum, then the received-result checksum.
+pub(crate) fn expected_hashes(run_id: &str, record_hash: &str, result_hash: &str) -> Value {
+    json!([
+        checksum(CHECKED_PROFILE_V1, reference("AnalysisRun", run_id), "analysis_run_record", record_hash),
+        checksum(CHECKED_PROFILE_V1, reference("ResultEnvelope", &format!("result-envelope:{run_id}")), "received_result", result_hash)
+    ])
+}
+
+/// The record members a project and its input manifest's hash fix without the
+/// manifest itself: the manifest's ref and checksum, the settings ref and the
+/// unit-system ref (`buildAnalysisRunV03`).
+fn manifest_hash_members(model_ref: &str, manifest_hash: &str) -> Vec<(&'static str, &'static str, Value)> {
+    let manifest_ref = input_manifest_ref(model_ref, manifest_hash);
+    let settings = format!("solver-settings:{}:{manifest_hash}", manifest_ref["ref"].as_str().unwrap_or(""));
+    vec![
+        ("input manifest ref", "/reproducibility/input_manifest_refs", json!([manifest_ref.clone()])),
+        ("input manifest checksum", "/reproducibility/input_manifest_hashes", json!([checksum("rfc8785_jcs", manifest_ref, "input_manifest", manifest_hash)])),
+        ("settings ref", "/settings_ref", reference("SolverSettings", &settings)),
+        ("unit-system ref", "/unit_system_ref", reference("UnitSystem", &format!("unit-system:{model_ref}:{manifest_hash}"))),
+    ]
+}
+
+/// Every record member the stored input manifest fixes (never the record's own
+/// values): the members of [`manifest_hash_members`], the solver identity and
+/// build ref, the load basis (the manifest's load cases, then its
+/// combinations), and the rule-pack and library references (`recorded`) or
+/// none (a transient record).
+pub(crate) fn manifest_members(
+    manifest: &Value,
+    manifest_hash: &str,
+    recorded: bool,
+) -> Result<Vec<(&'static str, &'static str, Value)>, String> {
+    let invalid = |detail: &str| format!("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no {detail}.");
+    let model_ref = manifest.pointer("/model_basis/model_ref").and_then(Value::as_str).ok_or_else(|| invalid("model ref"))?;
+    let solver = manifest.get("solver_basis").ok_or_else(|| invalid("solver basis"))?;
+    let text = |key: &str| solver.get(key).and_then(Value::as_str).ok_or_else(|| invalid(&format!("solver_basis.{key}")));
+    let mut load_basis = Vec::new();
+    for (key, object_type) in [("load_cases", "LoadCase"), ("combinations", "Combination")] {
+        let entries = manifest
+            .pointer(&format!("/load_basis/{key}"))
+            .and_then(Value::as_array)
+            .ok_or_else(|| invalid(&format!("load_basis.{key}")))?;
+        for entry in entries {
+            let id = entry.get("id").and_then(Value::as_str).ok_or_else(|| invalid(&format!("id in load_basis.{key}")))?;
+            load_basis.push(reference(object_type, id));
+        }
+    }
+    let mut members = manifest_hash_members(model_ref, manifest_hash);
+    members.push((
+        "solver version",
+        "/solver_version",
+        json!({ "solver_name": text("solver_name")?, "solver_version": text("solver_version")?,
+                "build_ref": reference("ExternalReference", text("solver_build_ref")?) }),
+    ));
+    members.push(("load basis", "/load_basis_refs", Value::Array(load_basis)));
+    let payload = manifest.pointer("/model_basis/model_payload").ok_or_else(|| invalid("model payload"))?;
+    let (rule_packs, libraries) = if recorded {
+        (Value::Array(rule_pack_refs(manifest)?), Value::Array(library_refs(payload)))
+    } else {
+        (json!([]), json!([]))
+    };
+    members.push(("rule-pack refs", "/rule_pack_refs", rule_packs));
+    members.push(("library refs", "/library_refs", libraries));
+    Ok(members)
+}
+
+/// The first of `members` the record's `analysis_run` does not hold exactly
+/// (structural equality: member order inside an object is not significant,
+/// array order is, and an extra or missing member is a difference).
+fn first_difference(record: &Value, members: &[(&'static str, &'static str, Value)]) -> Option<&'static str> {
+    let run = record.get("analysis_run")?;
+    members
+        .iter()
+        .find(|(_, pointer, expected)| run.pointer(pointer) != Some(expected))
+        .map(|(name, _, _)| *name)
+}
+
+/// The record's `result_refs` against the result's rows: one per row, in order,
+/// each naming its row and carrying exactly the row's checked checksum
+/// descriptor. `None` when they agree.
+fn result_rows_difference(record: &Value, result: &Value) -> Result<Option<String>, String> {
+    let rows = result.get("results").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
+    let refs = record.pointer("/analysis_run/result_refs").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
+    if rows.len() != refs.len() {
+        return Ok(Some(format!("the record has {} result refs for {} result rows", refs.len(), rows.len())));
+    }
+    for (index, (row, row_ref)) in rows.iter().zip(refs).enumerate() {
+        let id = row.get("id").and_then(Value::as_str).unwrap_or("");
+        let result_ref = reference("Result", id);
+        let expected = json!([checksum(CHECKED_PROFILE_V1, result_ref.clone(), "result_row", &checked_sha256(row)?)]);
+        if row_ref.get("result_ref") != Some(&result_ref)
+            || row_ref.get("source_row_index") != Some(&json!(index))
+            || row_ref.get("hash_refs") != Some(&expected)
+        {
+            return Ok(Some(format!("result ref {index} does not carry result row `{id}`'s checksum")));
+        }
+    }
+    Ok(None)
+}
+
+// ---------------------------------------------------------------------------
 // The binding checks of Record Run (before any store access).
 // ---------------------------------------------------------------------------
 
@@ -398,11 +532,12 @@ pub(crate) fn checked_submission(
     let run_id = transient.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
     let claim = single_hash(transient, "analysis_run_record");
     let recomputed = run_record_hash(transient).map_err(|error| refused(RECORD, error))?;
-    if claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(recomputed.as_str())
-        || claim.and_then(|hash| hash.get("canonicalization")).and_then(Value::as_str) != Some(CHECKED_PROFILE_V1)
-        || claim.and_then(|hash| hash.get("payload_ref")) != Some(&reference("AnalysisRun", run_id))
-    {
+    if claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(recomputed.as_str()) {
         return Err(refused(RECORD, format_args!("the record's own checksum does not verify (it hashes to {recomputed})")));
+    }
+    // The members the manifest fixes, from the manifest (never from the record).
+    if let Some(name) = first_difference(transient, &manifest_members(&manifest, &manifest_hash_hex, false).map_err(|error| refused(MANIFEST, error))?) {
+        return Err(refused(MANIFEST, format_args!("the record's {name} is not the input manifest's")));
     }
 
     const RESULT: &str = "ANALYSIS-RUN-RESULT-MISMATCH";
@@ -419,6 +554,17 @@ pub(crate) fn checked_submission(
     if head.run_id != run_id || head.model_ref != project_id {
         return Err(refused(RESULT, "the result is not the record's run of this project"));
     }
+    // The whole checksum inventory, exactly: algorithm, profile, scope, payload
+    // ref and value of both checksums, nothing else (v0.3; S1's exact descriptors).
+    if transient.pointer("/analysis_run/hashes") != Some(&expected_hashes(run_id, &recomputed, &result_hash_hex)) {
+        return Err(refused("ANALYSIS-RUN-CHECKSUM-MISMATCH", "the record's checksum descriptors are not exactly the v0.3 ones"));
+    }
+    let result: Value = serde_json::from_str(result_json)
+        .map_err(|error| refused(RESULT, format_args!("the result is not JSON ({error})")))?;
+    if let Some(detail) = result_rows_difference(transient, &result).map_err(|error| refused(RESULT, error))? {
+        return Err(refused("ANALYSIS-RUN-CHECKSUM-MISMATCH", detail));
+    }
+    drop(result);
     Ok(CheckedSubmission {
         manifest,
         payload_canonical,
@@ -599,7 +745,8 @@ fn verified_run_record(columns: &RunColumns<'_>, record_json: &str) -> Result<Va
     let record: Value = serde_json::from_str(record_json)
         .map_err(|error| integrity_of(id, format_args!("the stored record is not JSON ({error})")))?;
     let recomputed = run_record_hash(&record).map_err(|error| integrity_of(id, error))?;
-    let run = record.get("analysis_run").cloned().unwrap_or(Value::Null);
+    let null = Value::Null;
+    let run = record.get("analysis_run").unwrap_or(&null);
     let text = |pointer: &str| run.pointer(pointer).and_then(Value::as_str);
     let claim = single_hash(&record, "analysis_run_record");
     let received = single_hash(&record, "received_result");
@@ -608,14 +755,11 @@ fn verified_run_record(columns: &RunColumns<'_>, record_json: &str) -> Result<Va
         .and_then(Value::as_str)
         .unwrap_or("");
     let run_id = text("/run_id").unwrap_or("");
-    let checks: [(&str, bool); 8] = [
+    let checks: [(&str, bool); 9] = [
         (
             "record hash",
             recomputed == columns.run_record_hash
-                && claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) == Some(recomputed.as_str())
-                && claim.and_then(|hash| hash.get("canonicalization")).and_then(Value::as_str)
-                    == Some(CHECKED_PROFILE_V1)
-                && claim.and_then(|hash| hash.get("payload_ref")) == Some(&reference("AnalysisRun", run_id)),
+                && claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) == Some(recomputed.as_str()),
         ),
         ("recording id", columns.recording_id == recording_id_of(&recomputed)),
         (
@@ -626,9 +770,7 @@ fn verified_run_record(columns: &RunColumns<'_>, record_json: &str) -> Result<Va
         ("created_at", text("/created_at") == Some(columns.created_at)),
         (
             "result hash",
-            received.and_then(|hash| hash.get("value")).and_then(Value::as_str) == Some(columns.result_hash)
-                && received.and_then(|hash| hash.get("payload_ref"))
-                    == Some(&reference("ResultEnvelope", &format!("result-envelope:{run_id}"))),
+            received.and_then(|hash| hash.get("value")).and_then(Value::as_str) == Some(columns.result_hash),
         ),
         (
             "project",
@@ -637,6 +779,15 @@ fn verified_run_record(columns: &RunColumns<'_>, record_json: &str) -> Result<Va
         (
             "schema version",
             record.get("schema_version").and_then(Value::as_str) == Some("0.3.0"),
+        ),
+        // The record digest leaves its own checksum out, so the whole inventory
+        // must be exactly the descriptors the verified fields give, and the
+        // manifest's ref, checksum, settings ref and unit-system ref those its
+        // project and hash give.
+        (
+            "checksum inventory",
+            run.get("hashes") == Some(&expected_hashes(run_id, &recomputed, columns.result_hash))
+                && first_difference(&record, &manifest_hash_members(columns.project_id, manifest_hash)).is_none(),
         ),
     ];
     if let Some((name, _)) = checks.iter().find(|(_, holds)| !holds) {
@@ -680,7 +831,11 @@ fn summary_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<SummaryRow> {
     ))
 }
 
-fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<(AnalysisRunSummary, Value), String> {
+/// A verified run: its summary, its record and the reservation its parsed
+/// record is held under.
+type VerifiedRun = (AnalysisRunSummary, Value, ReadReservation);
+
+fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadMemory) -> Result<VerifiedRun, String> {
     let (project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash, name, tags, notes, assumptions, updated_at) =
         row;
     let (Some(name), Some(tags), Some(notes), Some(assumptions), Some(updated_at)) = (name, tags, notes, assumptions, updated_at)
@@ -694,6 +849,12 @@ fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<(Analysi
             |row| row.get(0),
         )
         .map_err(sql)?;
+    // The record's parse, its hash projection and the checked parse its hash
+    // makes (priced before parsing; held while the record is).
+    let reservation = memory.reserve(
+        &format!("recorded run `{recording_id}`'s record"),
+        stored_read::parse_bytes(&record_json).saturating_mul(3),
+    )?;
     let record = verified_run_record(
         &RunColumns {
             project_id: &project_id,
@@ -722,10 +883,55 @@ fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<(Analysi
             labels_updated_at: updated_at,
         },
         record,
+        reservation,
     ))
 }
 
+/// The byte length of a run's stored record, without loading it.
+fn record_length(connection: &Connection, project_id: &str, recording_id: &str) -> Result<Option<u64>, String> {
+    let length: Option<i64> = connection
+        .query_row(
+            "SELECT octet_length(run_record_json) FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
+            params![project_id, recording_id],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(sql)?;
+    Ok(length.map(|length| u64::try_from(length).unwrap_or(0)))
+}
+
+/// Loading and hashing a run's stored record (its text and two text copies:
+/// the projection's serialization and its checked canonical form).
+fn record_load_bytes(length: u64) -> u64 {
+    stored_read::total(&[stored_read::loaded_text_bytes(length), stored_read::text_copy_bytes(length).saturating_mul(2)])
+}
+
+/// Reserves loading `recording_id`'s record before any of it is loaded.
+fn reserve_record_load(
+    connection: &Connection,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+) -> Result<ReadReservation, String> {
+    let length = record_length(connection, project_id, recording_id)?.unwrap_or(0);
+    memory.reserve(
+        &format!("recorded run `{recording_id}`"),
+        stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, record_load_bytes(length), stored_read::response_bytes(length)]),
+    )
+}
+
 fn find_run(connection: &Connection, project_id: &str, recording_id: &str) -> Result<Option<(AnalysisRunSummary, Value)>, String> {
+    Ok(find_run_with(connection, project_id, recording_id, &UnmeteredReadMemory)?.map(|(summary, record, _)| (summary, record)))
+}
+
+/// [`find_run`] with the record's parse priced by `memory` (the caller has
+/// priced loading it); the returned reservation holds the parsed record.
+fn find_run_with(
+    connection: &Connection,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+) -> Result<Option<VerifiedRun>, String> {
     let row = connection
         .query_row(
             &format!(
@@ -737,12 +943,40 @@ fn find_run(connection: &Connection, project_id: &str, recording_id: &str) -> Re
         )
         .optional()
         .map_err(sql)?;
-    row.map(|row| summary_from_row(connection, row)).transpose()
+    row.map(|row| summary_from_row(connection, row, memory)).transpose()
 }
 
 /// The project's recorded runs, newest first. Each row's record is verified;
 /// the result and the manifest are not loaded.
 pub(crate) fn list_runs(connection: &Connection, project_id: &str) -> Result<Vec<AnalysisRunSummary>, String> {
+    list_runs_with(connection, project_id, &UnmeteredReadMemory)
+}
+
+/// [`list_runs`] within `memory`: before any record is loaded, the largest
+/// record's loading and hash copies and the response (the labels and columns)
+/// are reserved, read with `octet_length`; records are then loaded, verified
+/// and dropped one at a time, each parse reserved after its record is loaded
+/// and released once it is verified.
+pub(crate) fn list_runs_with(
+    connection: &Connection,
+    project_id: &str,
+    memory: &dyn ReadMemory,
+) -> Result<Vec<AnalysisRunSummary>, String> {
+    let (largest, labels) = model_states::list_lengths(
+        connection,
+        "SELECT MAX(octet_length(r.run_record_json)), SUM(octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.run_name) + 1024)
+         FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id WHERE r.project_id = ?1",
+        project_id,
+    )?;
+    let _list = memory.reserve(
+        &format!("the recorded runs of project `{project_id}`"),
+        stored_read::total(&[
+            stored_read::READ_OVERHEAD_BYTES,
+            record_load_bytes(largest),
+            stored_read::text_copy_bytes(labels),
+            stored_read::response_bytes(labels),
+        ]),
+    )?;
     let mut statement = connection
         .prepare(&format!(
             "SELECT {SUMMARY_COLUMNS} FROM analysis_runs r LEFT JOIN analysis_run_labels l
@@ -756,7 +990,7 @@ pub(crate) fn list_runs(connection: &Connection, project_id: &str) -> Result<Vec
         .collect::<Result<Vec<_>, _>>()
         .map_err(sql)?;
     rows.into_iter()
-        .map(|row| summary_from_row(connection, row).map(|(summary, _)| summary))
+        .map(|row| summary_from_row(connection, row, memory).map(|(summary, _, _)| summary))
         .collect()
 }
 
@@ -943,14 +1177,62 @@ pub(crate) fn record_run_in_store(
 
 /// `read_analysis_run` on a given store: the record, the stored result and the
 /// stored manifest, after the bytes are checked against the record and the
-/// state: the record (its hash and identity columns), the result's checked
-/// hash, the manifest's canonical form, its hash against the record, its
-/// project, and its model payload's hash against the state's model hash.
+/// state: the record (its hash, checksum descriptors and identity columns), the
+/// result's checked hash and its rows' checksums, the manifest's canonical form,
+/// its hash against the record, its project, every record member it fixes
+/// (solver, settings, units, load basis, rule-pack and library references), and
+/// its model payload's hash against the state's model hash.
 pub(crate) fn read_run_in_store(path: &Path, project_id: &str, recording_id: &str) -> Result<AnalysisRunRead, String> {
+    read_run_in_store_with(path, project_id, recording_id, &UnmeteredReadMemory)
+}
+
+/// [`read_run_in_store`] within `memory` (`stored_read`): the record's,
+/// result's and manifest's byte lengths are read first, without loading them,
+/// and their loading, text copies and the response are reserved before any is
+/// loaded; each parse is reserved after its text is loaded and before it is
+/// parsed. A refusal is `STORE-READ-MEMORY-UNAVAILABLE` and loads nothing more.
+pub(crate) fn read_run_in_store_with(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+) -> Result<AnalysisRunRead, String> {
     let (connection, _migration) = crate::open_project_store(path)?;
-    let (run, record) = find_run(&connection, project_id, recording_id)?.ok_or_else(|| {
-        format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.")
-    })?;
+    let not_found = || format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.");
+    let lengths: (i64, i64, i64, i64) = connection
+        .query_row(
+            "SELECT octet_length(r.run_record_json), octet_length(r.result_json), octet_length(r.input_manifest_json),
+                    COALESCE((SELECT octet_length(s.record_json) FROM model_states s WHERE s.project_id = r.project_id AND s.state_id = r.state_id), 0)
+             FROM analysis_runs r WHERE r.project_id = ?1 AND r.recording_id = ?2",
+            params![project_id, recording_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+        )
+        .optional()
+        .map_err(sql)?
+        .ok_or_else(not_found)?;
+    let length = |value: i64| u64::try_from(value).unwrap_or(0);
+    let (record_length, result_length, manifest_length, state_record_length) =
+        (length(lengths.0), length(lengths.1), length(lengths.2), length(lengths.3));
+    let what = format!("recorded run `{recording_id}`");
+    // Loaded: the record, the result, the manifest and the state's record.
+    // Copies: the record's two hash texts; the result's checked canonical text
+    // (its rows' texts are smaller); the manifest's and its payload's canonical
+    // texts; the state record's sorted-compact text.
+    let _load = memory.reserve(
+        &what,
+        stored_read::total(&[
+            stored_read::READ_OVERHEAD_BYTES,
+            record_load_bytes(record_length),
+            stored_read::loaded_text_bytes(result_length),
+            stored_read::text_copy_bytes(result_length).saturating_mul(2),
+            stored_read::loaded_text_bytes(manifest_length),
+            stored_read::text_copy_bytes(manifest_length).saturating_mul(2),
+            stored_read::loaded_text_bytes(state_record_length),
+            stored_read::text_copy_bytes(state_record_length),
+            stored_read::response_bytes(record_length.saturating_add(result_length).saturating_add(manifest_length)),
+        ]),
+    )?;
+    let (run, record, _record_reservation) = find_run_with(&connection, project_id, recording_id, memory)?.ok_or_else(not_found)?;
     let (result_json, manifest_text): (String, String) = connection
         .query_row(
             "SELECT result_json, input_manifest_json FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
@@ -958,17 +1240,35 @@ pub(crate) fn read_run_in_store(path: &Path, project_id: &str, recording_id: &st
             |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .map_err(sql)?;
+    // Parsed: the result twice (its checked parse and its rows), the manifest.
+    let _parse = memory.reserve(
+        &what,
+        stored_read::total(&[
+            stored_read::parse_bytes(&result_json).saturating_mul(2),
+            stored_read::parse_bytes(&manifest_text),
+        ]),
+    )?;
     let refuse = |field: &str| integrity_of(recording_id, format_args!("the stored {field} differs from its verified record"));
     if checked_sha256_text(&result_json).ok().as_deref() != Some(run.result_hash.as_str()) {
         return Err(refuse("result"));
     }
+    let result: Value = serde_json::from_str(&result_json).map_err(|_| refuse("result"))?;
+    if result_rows_difference(&record, &result).map_err(|_| refuse("result"))?.is_some() {
+        return Err(refuse("result's row checksums"));
+    }
+    drop(result);
     let manifest: Value = serde_json::from_str(&manifest_text).map_err(|_| refuse("input manifest"))?;
-    let manifest_hash = single_manifest_hash(&record).and_then(|hash| hash.get("value")).and_then(Value::as_str);
-    if canonical_json(&manifest) != manifest_text || manifest_hash != Some(sha256_hex(&manifest_text).as_str()) {
+    let manifest_hash = sha256_hex(&manifest_text);
+    let claimed_manifest_hash = single_manifest_hash(&record).and_then(|hash| hash.get("value")).and_then(Value::as_str);
+    if canonical_json(&manifest) != manifest_text || claimed_manifest_hash != Some(manifest_hash.as_str()) {
         return Err(refuse("input manifest"));
     }
     if manifest.pointer("/model_basis/model_ref").and_then(Value::as_str) != Some(project_id) {
         return Err(refuse("input manifest's project"));
+    }
+    let members = manifest_members(&manifest, &manifest_hash, true).map_err(|_| refuse("input manifest"))?;
+    if let Some(name) = first_difference(&record, &members) {
+        return Err(integrity_of(recording_id, format_args!("the record's {name} differs from its stored input manifest")));
     }
     let state = find_summary(&connection, project_id, &run.state_id)?.ok_or_else(|| {
         integrity_of(recording_id, format_args!("its state `{}` is not saved", run.state_id))
@@ -982,6 +1282,7 @@ pub(crate) fn read_run_in_store(path: &Path, project_id: &str, recording_id: &st
             format_args!("the stored input manifest's model payload is not state {}'s model", state_description(&state)),
         ));
     }
+    drop(manifest);
     Ok(AnalysisRunRead { run, state, record, result_json, input_manifest_canonical: manifest_text })
 }
 
@@ -996,9 +1297,24 @@ pub(crate) fn edit_run_labels_in_store(
     expected_updated_at: Option<&str>,
     now_millis: i64,
 ) -> Result<AnalysisRunSummary, String> {
+    edit_run_labels_in_store_with(path, project_id, recording_id, labels, expected_updated_at, now_millis, &UnmeteredReadMemory)
+}
+
+/// [`edit_run_labels_in_store`] within `memory`: the record it verifies (twice,
+/// one at a time) is priced before it is loaded.
+pub(crate) fn edit_run_labels_in_store_with(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    labels: RunLabels,
+    expected_updated_at: Option<&str>,
+    now_millis: i64,
+    memory: &dyn ReadMemory,
+) -> Result<AnalysisRunSummary, String> {
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
-    let (current, _) = find_run(&transaction, project_id, recording_id)?.ok_or_else(|| {
+    let _load = reserve_record_load(&transaction, project_id, recording_id, memory)?;
+    let (current, _, _) = find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(|| {
         format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.")
     })?;
     if let Some(expected) = expected_updated_at {
@@ -1012,7 +1328,7 @@ pub(crate) fn edit_run_labels_in_store(
     let previous = parse_iso_millis(&current.labels_updated_at).unwrap_or(i64::MIN);
     let updated_at = utc_iso_millis(now_millis.max(previous.saturating_add(1)));
     write_run_labels(&transaction, project_id, recording_id, &labels, &updated_at, false)?;
-    let (summary, _) = find_run(&transaction, project_id, recording_id)?
+    let (summary, _, _) = find_run_with(&transaction, project_id, recording_id, memory)?
         .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` vanished."))?;
     transaction.commit().map_err(sql)?;
     Ok(summary)
@@ -1021,9 +1337,21 @@ pub(crate) fn edit_run_labels_in_store(
 /// `delete_analysis_run` on a given store: the whole immutable row goes, with
 /// its labels row (no other row depends on a run).
 pub(crate) fn delete_run_in_store(path: &Path, project_id: &str, recording_id: &str) -> Result<AnalysisRunDeleteReceipt, String> {
+    delete_run_in_store_with(path, project_id, recording_id, &UnmeteredReadMemory)
+}
+
+/// [`delete_run_in_store`] within `memory`: the record it verifies is priced
+/// before it is loaded.
+pub(crate) fn delete_run_in_store_with(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+) -> Result<AnalysisRunDeleteReceipt, String> {
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
-    let (run, _) = find_run(&transaction, project_id, recording_id)?.ok_or_else(|| {
+    let _load = reserve_record_load(&transaction, project_id, recording_id, memory)?;
+    let (run, _, _) = find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(|| {
         format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.")
     })?;
     let deleted = transaction
@@ -1060,12 +1388,13 @@ pub(crate) fn record_analysis_run_args(
 pub(crate) fn list_analysis_runs_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
+    memory: &dyn ReadMemory,
 ) -> Result<Vec<AnalysisRunSummary>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     store()
         .and_then(|path| {
             let (connection, _migration) = crate::open_project_store(&path)?;
-            list_runs(&connection, &project_id)
+            list_runs_with(&connection, &project_id, memory)
         })
         .map_err(CommandError::Command)
 }
@@ -1074,11 +1403,12 @@ pub(crate) fn list_analysis_runs_args(
 pub(crate) fn read_analysis_run_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
+    memory: &dyn ReadMemory,
 ) -> Result<AnalysisRunRead, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let recording_id: String = args.decode("recordingId")?;
     store()
-        .and_then(|path| read_run_in_store(&path, &project_id, &recording_id))
+        .and_then(|path| read_run_in_store_with(&path, &project_id, &recording_id, memory))
         .map_err(CommandError::Command)
 }
 
@@ -1086,6 +1416,7 @@ pub(crate) fn read_analysis_run_args(
 pub(crate) fn edit_analysis_run_labels_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
+    memory: &dyn ReadMemory,
 ) -> Result<AnalysisRunSummary, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let recording_id: String = args.decode("recordingId")?;
@@ -1093,7 +1424,7 @@ pub(crate) fn edit_analysis_run_labels_args(
     let expected: Option<String> = args.decode("expectedUpdatedAt")?;
     store()
         .and_then(|path| {
-            edit_run_labels_in_store(&path, &project_id, &recording_id, labels, expected.as_deref(), now_unix_millis()?)
+            edit_run_labels_in_store_with(&path, &project_id, &recording_id, labels, expected.as_deref(), now_unix_millis()?, memory)
         })
         .map_err(CommandError::Command)
 }
@@ -1102,11 +1433,12 @@ pub(crate) fn edit_analysis_run_labels_args(
 pub(crate) fn delete_analysis_run_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
+    memory: &dyn ReadMemory,
 ) -> Result<AnalysisRunDeleteReceipt, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let recording_id: String = args.decode("recordingId")?;
     store()
-        .and_then(|path| delete_run_in_store(&path, &project_id, &recording_id))
+        .and_then(|path| delete_run_in_store_with(&path, &project_id, &recording_id, memory))
         .map_err(CommandError::Command)
 }
 
@@ -1134,7 +1466,7 @@ pub fn list_analysis_runs(
         ArgsDecoding::Moved,
         LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES,
     )?;
-    respond(list_analysis_runs_args(&mut args, || crate::app_store_path(&app)))
+    respond(list_analysis_runs_args(&mut args, || crate::app_store_path(&app), &PoolReadMemory::new(&registry)))
 }
 
 #[tauri::command]
@@ -1150,7 +1482,7 @@ pub fn read_analysis_run(
         ArgsDecoding::Moved,
         READ_ANALYSIS_RUN_MAX_ARGS_BYTES,
     )?;
-    respond(read_analysis_run_args(&mut args, || crate::app_store_path(&app)))
+    respond(read_analysis_run_args(&mut args, || crate::app_store_path(&app), &PoolReadMemory::new(&registry)))
 }
 
 #[tauri::command]
@@ -1166,7 +1498,7 @@ pub fn edit_analysis_run_labels(
         ArgsDecoding::Moved,
         EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES,
     )?;
-    respond(edit_analysis_run_labels_args(&mut args, || crate::app_store_path(&app)))
+    respond(edit_analysis_run_labels_args(&mut args, || crate::app_store_path(&app), &PoolReadMemory::new(&registry)))
 }
 
 #[tauri::command]
@@ -1182,7 +1514,7 @@ pub fn delete_analysis_run(
         ArgsDecoding::Moved,
         DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES,
     )?;
-    respond(delete_analysis_run_args(&mut args, || crate::app_store_path(&app)))
+    respond(delete_analysis_run_args(&mut args, || crate::app_store_path(&app), &PoolReadMemory::new(&registry)))
 }
 
 #[cfg(test)]

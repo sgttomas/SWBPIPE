@@ -64,12 +64,20 @@ fn result_text(value: f64) -> String {
     )
 }
 
-/// A transient record whose bindings Rust checks: its own checksum, the received
-/// result's checked hash and the manifest's hash (the record's semantics are the
-/// TypeScript and Python validators' and are not re-derived here).
+/// A transient record whose bindings Rust checks: its own checksum and exact
+/// checksum inventory, the received result's checked hash and its rows'
+/// checksums, and the members the manifest fixes (the record's semantics are
+/// the TypeScript and Python validators' and are not re-derived here).
 fn transient(result: &str, manifest: &str) -> Value {
     let manifest_hash = sha256_hex(manifest);
     let manifest_ref = json!({ "object_type": "InputManifest", "ref": format!("input-manifest:project-w12-invented-runs:{manifest_hash}") });
+    let rows: Value = serde_json::from_str(result).unwrap();
+    let result_refs: Vec<Value> = rows["results"].as_array().unwrap().iter().enumerate().map(|(index, row)| {
+        let id = row["id"].as_str().unwrap();
+        json!({ "result_ref": { "object_type": "Result", "ref": id }, "source_row_index": index,
+                "hash_refs": [{ "algorithm": "sha256", "canonicalization": CHECKED_PROFILE_V1, "payload_ref": { "object_type": "Result", "ref": id },
+                                "payload_scope": "result_row", "value": checked_sha256(row).unwrap() }] })
+    }).collect();
     let mut record = json!({
         "schema_version": "0.3.0",
         "run_contract_status": { "record_contract": "strict_analysis_run_v0_3", "result_binding": "received_mechanics_result",
@@ -77,7 +85,11 @@ fn transient(result: &str, manifest: &str) -> Value {
         "analysis_run": {
             "run_id": RUN, "run_name": format!("{RUN} analysis record"), "run_kind": "mechanics_solve", "created_at": null,
             "model_state_ref": { "object_type": "ModelState", "ref": format!("state:{PROJECT}:preview") },
+            "solver_version": { "solver_name": "invented-solver", "solver_version": "0.0.1",
+                                "build_ref": { "object_type": "ExternalReference", "ref": "invented-solver@0.0.1" } },
+            "settings_ref": { "object_type": "SolverSettings", "ref": format!("solver-settings:input-manifest:project-w12-invented-runs:{manifest_hash}:{manifest_hash}") },
             "unit_system_ref": { "object_type": "UnitSystem", "ref": format!("unit-system:{PROJECT}:{manifest_hash}") },
+            "load_basis_refs": [], "result_refs": result_refs,
             "rule_pack_refs": [], "library_refs": [],
             "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"],
             "hashes": [
@@ -95,8 +107,18 @@ fn transient(result: &str, manifest: &str) -> Value {
             "scale": 0.1
         }
     });
-    record["analysis_run"]["hashes"][0]["value"] = json!(run_record_hash(&record).unwrap());
+    reseal(&mut record);
     record
+}
+
+/// Recomputes a record's own checksum value after an edit (a coherent reseal).
+fn reseal(record: &mut Value) {
+    let hash = run_record_hash(record).unwrap();
+    for entry in record["analysis_run"]["hashes"].as_array_mut().unwrap() {
+        if entry["payload_scope"] == "analysis_run_record" {
+            entry["value"] = json!(hash);
+        }
+    }
 }
 
 fn scratch_store(label: &str) -> PathBuf {
@@ -836,4 +858,269 @@ fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built
         return;
     }
     assert_eq!(text, WITNESS, "the committed witness is stale; regenerate it with {WITNESS_PATH_ENV}");
+}
+
+// ---------------------------------------------------------------------------
+// Repair r1: exact checksum inventories and manifest-fixed members, at Record
+// Run and at the stored-record checks.
+// ---------------------------------------------------------------------------
+
+type Mutation = fn(&mut Value);
+
+/// Rewrites the stored run to `record` with its hash and recording id (and the
+/// labels' recording id) made to agree: a coherent forgery the record's own
+/// hash cannot see.
+fn forge(path: &Path, record: &Value) -> String {
+    let hash = run_record_hash(record).unwrap();
+    let recording_id = recording_id_of(&hash);
+    Connection::open(path)
+        .unwrap()
+        .execute_batch(&format!(
+            "PRAGMA foreign_keys = OFF; DROP TRIGGER IF EXISTS analysis_runs_immutable; DROP TRIGGER IF EXISTS analysis_runs_no_replace;
+             UPDATE analysis_runs SET run_record_json = '{}', run_record_hash = '{hash}', recording_id = '{recording_id}';
+             UPDATE analysis_run_labels SET recording_id = '{recording_id}';",
+            serde_json::to_string(record).unwrap().replace('\'', "''")
+        ))
+        .unwrap();
+    recording_id
+}
+
+fn recorded_fixture(label: &str) -> (PathBuf, Value) {
+    let path = store_with_project(label);
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000001001", 1_000);
+    let outcome = record(&path, request(&solved, "Run"), T0).unwrap();
+    let stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+    (path, stored)
+}
+
+#[test]
+fn every_checksum_descriptor_is_exact_at_record_run_and_in_the_stored_record() {
+    let mutations: [(&str, Mutation); 12] = [
+        ("record algorithm", |record| record["analysis_run"]["hashes"][0]["algorithm"] = json!("sha512")),
+        ("record profile", |record| record["analysis_run"]["hashes"][0]["canonicalization"] = json!("rfc8785_jcs")),
+        ("record scope", |record| record["analysis_run"]["hashes"][0]["payload_scope"] = json!("audit_manifest")),
+        ("record ref", |record| record["analysis_run"]["hashes"][0]["payload_ref"]["ref"] = json!("run:other")),
+        ("record extra field", |record| record["analysis_run"]["hashes"][0]["note"] = json!("x")),
+        ("received algorithm", |record| { record["analysis_run"]["hashes"][1]["algorithm"] = json!("sha512"); reseal(record) }),
+        ("received ref", |record| { record["analysis_run"]["hashes"][1]["payload_ref"]["object_type"] = json!("Result"); reseal(record) }),
+        ("duplicate entry", |record| { let copy = record["analysis_run"]["hashes"][1].clone(); record["analysis_run"]["hashes"].as_array_mut().unwrap().push(copy); reseal(record) }),
+        ("extra entry", |record| {
+            record["analysis_run"]["hashes"].as_array_mut().unwrap().push(json!({ "algorithm": "sha256", "canonicalization": "NONE",
+                "payload_ref": { "object_type": "AuditManifest", "ref": "x" }, "payload_scope": "audit_manifest", "value": "00" }));
+            reseal(record)
+        }),
+        ("missing entry", |record| { record["analysis_run"]["hashes"].as_array_mut().unwrap().remove(1); reseal(record) }),
+        ("manifest checksum algorithm", |record| { record["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]["algorithm"] = json!("sha512"); reseal(record) }),
+        ("row checksum algorithm", |record| { record["analysis_run"]["result_refs"][0]["hash_refs"][0]["algorithm"] = json!("sha512"); reseal(record) }),
+    ];
+    for (index, (name, mutation)) in mutations.into_iter().enumerate() {
+        // At Record Run: the transient record is refused and nothing is written.
+        let path = store_with_project(&format!("descriptor-submit-{index}"));
+        let solved = model("Invented project");
+        save_state(&path, &solved, "Basis", "00000000000000000000000000001101", 1_000);
+        let mut submitted = request(&solved, "Run");
+        mutation(&mut submitted.run_record);
+        let error = record(&path, submitted, T0).unwrap_err();
+        assert!(
+            ["ANALYSIS-RUN-CHECKSUM-MISMATCH", "ANALYSIS-RUN-NOT-TRANSIENT", "ANALYSIS-RUN-MANIFEST-MISMATCH", "ANALYSIS-RUN-RESULT-MISMATCH", "ANALYSIS-RUN-RECORD-CHECKSUM-DUPLICATE"]
+                .iter()
+                .any(|code| error.contains(code)),
+            "{name}, at Record Run: {error}"
+        );
+        assert_eq!(row_count(&path, "analysis_runs"), 0, "{name}");
+        let only_the_descriptor_moves = matches!(name, "record algorithm" | "record profile" | "record extra field");
+        if only_the_descriptor_moves {
+            // The record digest leaves its own checksum out: only the exact inventory sees these.
+            assert!(error.starts_with("ANALYSIS-RUN-CHECKSUM-MISMATCH: the record's checksum descriptors are not exactly the v0.3 ones"), "{name}: {error}");
+        }
+        // In the store: a coherently resealed stored record is refused by the read
+        // (and by the list, which verifies every record but does not load results).
+        let (path, mut stored) = recorded_fixture(&format!("descriptor-store-{index}"));
+        mutation(&mut stored);
+        let recording_id = forge(&path, &stored);
+        let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+        assert!(read.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`")), "{name}, read: {read}");
+        if only_the_descriptor_moves {
+            assert!(read.contains("the row's checksum inventory differs from its verified record"), "{name}: {read}");
+        }
+        let (connection, _) = crate::open_project_store(&path).unwrap();
+        let listed = list_runs(&connection, PROJECT);
+        if name == "row checksum algorithm" {
+            assert!(read.contains("the stored result's row checksums differ"), "{read}");
+        } else {
+            let listed = listed.unwrap_err();
+            assert!(listed.starts_with("ANALYSIS-RUN-INTEGRITY") || listed.starts_with("ANALYSIS-RUN-RECORD-CHECKSUM-DUPLICATE"), "{name}, list: {listed}");
+        }
+    }
+}
+
+#[test]
+fn every_member_the_manifest_fixes_is_derived_from_the_manifest_at_record_run_and_read() {
+    let mutations: [(&str, Mutation); 9] = [
+        ("settings ref", |record| record["analysis_run"]["settings_ref"]["ref"] = json!("solver-settings:other")),
+        ("solver version", |record| record["analysis_run"]["solver_version"]["build_ref"]["ref"] = json!("other-solver@9")),
+        ("solver version", |record| record["analysis_run"]["solver_version"]["solver_version"] = json!("9.9.9")),
+        ("unit-system ref", |record| record["analysis_run"]["unit_system_ref"]["ref"] = json!(format!("unit-system:{PROJECT}:other"))),
+        ("load basis", |record| record["analysis_run"]["load_basis_refs"].as_array_mut().unwrap().push(json!({ "object_type": "LoadCase", "ref": "LC-ABSENT" }))),
+        ("rule-pack refs", |record| record["analysis_run"]["rule_pack_refs"] = json!([{ "object_type": "RulePack", "ref": "rule-pack:other@1" }])),
+        ("library refs", |record| record["analysis_run"]["library_refs"] = json!([{ "object_type": "Library", "ref": "library:material/other" }])),
+        ("input manifest ref", |record| {
+            let other = json!({ "object_type": "InputManifest", "ref": "input-manifest:other" });
+            record["analysis_run"]["reproducibility"]["input_manifest_refs"] = json!([other.clone()]);
+            record["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]["payload_ref"] = other;
+        }),
+        ("solver version", |record| { record["analysis_run"]["solver_version"].as_object_mut().unwrap().insert("extra".into(), json!(1)); }),
+    ];
+    for (index, (name, mutation)) in mutations.into_iter().enumerate() {
+        let path = store_with_project(&format!("members-submit-{index}"));
+        let solved = model("Invented project");
+        save_state(&path, &solved, "Basis", "00000000000000000000000000001201", 1_000);
+        let mut submitted = request(&solved, "Run");
+        mutation(&mut submitted.run_record);
+        reseal(&mut submitted.run_record);
+        let error = record(&path, submitted, T0).unwrap_err();
+        assert!(error.starts_with(&format!("ANALYSIS-RUN-MANIFEST-MISMATCH: the record's {name} is not the input manifest's")), "{name}, at Record Run: {error}");
+        assert_eq!(row_count(&path, "analysis_runs"), 0);
+        let (path, mut stored) = recorded_fixture(&format!("members-store-{index}"));
+        mutation(&mut stored);
+        reseal(&mut stored);
+        let recording_id = forge(&path, &stored);
+        let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+        assert!(read.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`")), "{name}, read: {read}");
+        assert!(
+            read.contains(&format!("the record's {name} differs from its stored input manifest"))
+                || read.contains("the row's checksum inventory differs")
+                || read.contains("the row's project differs"),
+            "{name}, read: {read}"
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Repair r1: reads take memory-pool leases sized from the stored lengths
+// before they load anything.
+// ---------------------------------------------------------------------------
+
+const LARGE: usize = 3 << 20;
+const SMALL_POOL: u64 = 128 * 1024;
+
+fn small_pool() -> crate::solve_jobs::SolveJobRegistry {
+    let small = registry(ScriptedHost::normal());
+    small.configure_pool(SMALL_POOL, SMALL_POOL, false).unwrap();
+    small
+}
+
+/// A refused read loads nothing large: its priced allocation peak stays far
+/// below the large column, and the pool holds nothing afterwards.
+fn assert_refused_unloaded<T: std::fmt::Debug>(
+    pool: &crate::solve_jobs::SolveJobRegistry,
+    what: &str,
+    read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>,
+) {
+    let memory = PoolReadMemory::new(pool);
+    let (outcome, measured) = crate::ingress::counting::measure(|| read(&memory));
+    let error = outcome.unwrap_err();
+    assert!(error.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading {what}")), "{error}");
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "{what}: the large column was not loaded (peak {})", measured.peak_priced);
+    assert_eq!(pool.pool_status().reserved_bytes, 0, "{what}: every lease was released");
+}
+
+/// An admitted read's priced allocation peak stays within what it reserved.
+fn assert_within_reservation<T>(what: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>) -> T {
+    let pool = registry(ScriptedHost::normal());
+    let memory = PoolReadMemory::new(&pool);
+    let (outcome, measured) = crate::ingress::counting::measure(|| read(&memory));
+    let value = outcome.unwrap();
+    assert!(memory.peak_reserved() >= LARGE as u64, "{what}: the reservation covers the large column");
+    assert!(
+        measured.peak_priced <= memory.peak_reserved(),
+        "{what}: priced peak {} exceeds the reservation {}",
+        measured.peak_priced,
+        memory.peak_reserved()
+    );
+    assert_eq!(pool.pool_status().reserved_bytes, 0, "{what}: every lease was released");
+    value
+}
+
+#[test]
+fn read_model_state_is_refused_before_loading_a_large_snapshot_the_pool_does_not_admit() {
+    let path = store_with_project("memory-state");
+    let large = model(&"x".repeat(LARGE));
+    let state = save_state(&path, &large, "Large", "00000000000000000000000000001301", 1_000);
+    let length: i64 = Connection::open(&path)
+        .unwrap()
+        .query_row("SELECT octet_length(model_canonical) FROM model_states", [], |row| row.get(0))
+        .unwrap();
+    assert!(length as usize > LARGE);
+    let small = small_pool();
+    assert_refused_unloaded(&small, &format!("saved state `{}`", state.state_id), |memory| {
+        model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)
+    });
+    let read = assert_within_reservation("read_model_state", |memory| {
+        model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)
+    });
+    assert_eq!(read.model, large);
+}
+
+#[test]
+fn the_run_read_is_refused_before_loading_a_large_result_the_pool_does_not_admit() {
+    let path = store_with_project("memory-run");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000001401", 1_000);
+    let manifest = manifest_text(&solved);
+    let result = format!(
+        "{{\"run_id\":\"{RUN}\",\"model_ref\":\"{PROJECT}\",\"results\":[{{\"id\":\"result:disp:N-100\",\"value\":1.5,\"padding\":\"{}\"}}],\"diagnostics\":[]}}",
+        "p".repeat(LARGE)
+    );
+    let mut submitted = request(&solved, "Large result");
+    submitted.run_record = transient(&result, &manifest);
+    submitted.result_json = result.clone();
+    let outcome = record(&path, submitted, T0).unwrap();
+    let small = small_pool();
+    assert_refused_unloaded(&small, &format!("recorded run `{}`", outcome.run.recording_id), |memory| {
+        read_run_in_store_with(&path, PROJECT, &outcome.run.recording_id, memory)
+    });
+    let read = assert_within_reservation("read_analysis_run", |memory| {
+        read_run_in_store_with(&path, PROJECT, &outcome.run.recording_id, memory)
+    });
+    assert_eq!(read.result_json, result);
+}
+
+#[test]
+fn the_lists_and_label_edits_reserve_their_largest_record_before_loading_it() {
+    let path = store_with_project("memory-list");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000001501", 1_000);
+    let mut submitted = request(&solved, "Large record");
+    submitted.run_record["analysis_run"]["padding"] = json!("r".repeat(LARGE));
+    reseal(&mut submitted.run_record);
+    let outcome = record(&path, submitted, T0).unwrap();
+    record(&path, request(&solved, "Small record"), T0).unwrap();
+    let small = small_pool();
+    let (connection, _) = crate::open_project_store(&path).unwrap();
+    assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_with(&connection, PROJECT, memory));
+    let listed = assert_within_reservation("list_analysis_runs", |memory| list_runs_with(&connection, PROJECT, memory));
+    assert_eq!(listed.len(), 2);
+    assert_refused_unloaded(&small, &format!("recorded run `{}`", outcome.run.recording_id), |memory| {
+        edit_run_labels_in_store_with(&path, PROJECT, &outcome.run.recording_id, run_labels("Renamed"), None, T0, memory)
+    });
+    assert_refused_unloaded(&small, &format!("recorded run `{}`", outcome.run.recording_id), |memory| {
+        delete_run_in_store_with(&path, PROJECT, &outcome.run.recording_id, memory)
+    });
+    assert_eq!(row_count(&path, "analysis_runs"), 2, "nothing was deleted");
+    // The state list prices its largest record the same way.
+    let states = assert_within_reservation_states(&connection);
+    assert_eq!(states, 1);
+}
+
+fn assert_within_reservation_states(connection: &Connection) -> usize {
+    let pool = registry(ScriptedHost::normal());
+    let memory = PoolReadMemory::new(&pool);
+    let states = model_states::list_states_with(connection, PROJECT, &memory).unwrap();
+    assert!(memory.peak_reserved() > 0);
+    let small = small_pool();
+    let error = model_states::list_states_with(connection, PROJECT, &PoolReadMemory::new(&small)).unwrap_err();
+    assert!(error.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading the saved states of project `{PROJECT}`")), "{error}");
+    states.len()
 }

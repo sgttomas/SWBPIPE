@@ -9,6 +9,7 @@ mod model_document_shape;
 mod model_document_version;
 mod model_states;
 mod analysis_runs;
+mod stored_read;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
