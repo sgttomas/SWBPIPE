@@ -214,6 +214,11 @@ DERIVED = (
 O4_CONTROLS = "fixtures/product_preview/pressure_source/o4/o4_source_controls.json"
 J2_CORPUS = "fixtures/results/pressure_source_reader_corpus.json"
 J7_CENSUS = "fixtures/results/j7_rf_census_expected.json"
+# W-7's global end rows (DEL-04-01 Design `global-end-actions.md`) later moved the census's ordinary
+# pressure-2 envelope and results digests (W-7 global end rows added; no other number moved). R-A's
+# check reads the census at main `9bfd04c255`, its bytes before W-7; `test_o4_text_only_envelope_diff`'s
+# `..._w7_moves_only_added_global_end_rows` binds the committed census to those bytes.
+W7_BASE = "9bfd04c25550c8600a5ae3fec55e008337e97b3a"
 J7_PUBLISHED = {
     (f"RF-SKEW-T-PIN-OFF-345-{tolerance}", mode)
     for tolerance in ("r1e-08", "r1e-12")
@@ -275,7 +280,8 @@ def test_ra_work_only_envelope_diff_j7_census():
     """J7 (§4): exactly the 66 directly selected entries move, in their method work; only
     the 4 published ones also move their envelope and diagnostic digests."""
     base_text_ = base_text(J7_CENSUS)
-    current_text = (PROJECT / J7_CENSUS).read_text()
+    current_text = subprocess.run(["git", "show", f"{W7_BASE}:projects/chirality-piping/{J7_CENSUS}"],
+                                  cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout
     base_doc, now_doc = dict(load(base_text_)), dict(load(current_text))
     for member in base_doc:
         if member != "entries":

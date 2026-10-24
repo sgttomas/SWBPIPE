@@ -46,8 +46,9 @@ DEPENDENCIES = {
     # then S4 round 2: the composite recomputes every straight member's σ±/τ and their coverage (was 4bc56dea...);
     # then S4 round 3: the composite refuses TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN by name (was 52a15bec...);
     # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (merged with S4;
-    # was c7699864..., 56f18624..., 58491ca8... and 20337f1c...).
-    MODULE: '520e7189dd83b1fd54622cef9b6974d56c636bbe73dc642c20c9cb04eb96dbaa',
+    # was c7699864..., 56f18624..., 58491ca8... and 20337f1c...);
+    # then W-7 (DEL-04-01 global-end-actions.md): the reader checks the global end-action rows (was 520e7189...).
+    MODULE: '8b61f3400696e4f2aeb12b9838dd537d1aaedace1d355f8e43d39d70319bb31f',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

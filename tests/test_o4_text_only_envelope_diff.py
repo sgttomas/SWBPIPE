@@ -53,6 +53,13 @@ nothing") regenerated the connected load/reference-state raws and their Analysis
 carriers with two added `LOAD_STATE_SOURCE_EXCLUDED` warnings: silent-zero diagnostic
 added; no number moved. This check reads those four at the regeneration's parent
 `7746774e81`, and `..._silent_zero_moves_only_added_diagnostics` binds them to it.
+
+W-7's member end actions in global coordinates (DEL-04-01 Design `global-end-actions.md`)
+regenerated the pressure-2 envelopes, corpora and load/reference-state carriers listed in
+`W7_REGENERATED` with twelve `element_global_end_*` rows per member and case: W-7 global end
+rows added; no other number moved. This check reads them at main `9bfd04c255`, their bytes
+before W-7's regeneration (the silent-zero check reads its four there too), and
+`..._w7_moves_only_added_global_end_rows` binds the committed files to those bytes.
 """
 from __future__ import annotations
 
@@ -92,6 +99,30 @@ SZ_REGENERATED = {
 }
 SZ_CODES = frozenset({"LOAD_STATE_SOURCE_EXCLUDED", "LOAD_CASE_APPLIES_NO_ACTION"})
 SZ_MOVED = re.compile(r"^/analysis_run/hashes/\d+/value$")
+# W-7 global end rows added; no other number moved: the files W-7's regeneration moved, read at
+# main `9bfd04c255` (their bytes before it). The envelopes gain only the rows; the derived carriers
+# gain the rows' derived items and move only their positions, counts and binding hashes.
+W7_BASE = "9bfd04c25550c8600a5ae3fec55e008337e97b3a"
+W7_ENVELOPES = (
+    "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
+    "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+    *(f"fixtures/product_preview/pressure/load_reference/{name}-{mode}.raw.json"
+      for name in ("connected", "pressure") for mode in ("dense_scrutiny", "sparse_interactive")),
+    "fixtures/results/pressure_v3_arc_reader_corpus.json",
+    "fixtures/results/pressure_v3_connector_reader_corpus.json",
+    "fixtures/results/pressure_v3_joint_reader_control.json",
+    "fixtures/results/pressure_v3_straight_reader_corpus.json",
+)
+W7_DERIVED = tuple(f"fixtures/results/pressure_load_state_{name}_{short}.{kind}.json"
+                   for name in ("connected", "pressure") for short in ("dense", "sparse")
+                   for kind in ("document", "stress_neutral", "analysis_run"))
+W7_J7 = "fixtures/results/j7_rf_census_expected.json"
+W7_REGENERATED = frozenset(W7_ENVELOPES + W7_DERIVED + (W7_J7,))
+W7_ROW = re.compile(r"^result:(.+:)?element-global-end:.+:(end_i|end_j):(fx|fy|fz|mx|my|mz)$")
+W7_KINDS = frozenset({"element_global_end_force_v1", "element_global_end_moment_v1"})
+# Positional members of the derived carriers: row indices, witness ids, field paths and annotation ids.
+W7_POSITIONAL = frozenset({"source_row_index", "witness_id", "source_field_path", "target_field_path", "annotation_id"})
+W7_ANNOTATION = re.compile(r"^source-annotation:\d+$")
 # What the repair moved: each diagnostic's source type, affected object and remediation
 # (and class, where Rust's rules give another), and the derivative hash that binds them.
 DIAG_MOVED = re.compile(r"^/result_envelope/(diagnostics/\d+/(class|source/ref_type|affected_object/ref_type|affected_object/ref_id|remediation)|reproducibility/derivative_hash/value)$")
@@ -267,9 +298,10 @@ def _ra_regenerated() -> frozenset:
 
 def current_text(name: str) -> str:
     """The file's bytes after O4's regeneration: before the later change that regenerated
-    it (W1 corner 1, R-A, the diagnostics repair or the silent-zero guard), else as committed."""
+    it (W1 corner 1, R-A, the diagnostics repair, the silent-zero guard or W-7), else as committed."""
     at = (W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated()
-          else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED else None)
+          else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED
+          else W7_BASE if name in W7_REGENERATED else None)
     if at is not None:
         return subprocess.run(
             ["git", "show", f"{at}:projects/chirality-piping/{name}"],
@@ -806,6 +838,14 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
         test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: _dump(document)}))
 
 
+def _before_w7(name: str) -> str:
+    """The file as committed, or, for a file W-7 regenerated, its bytes before W-7 (`W7_BASE`)."""
+    if name in W7_REGENERATED:
+        return subprocess.run(["git", "show", f"{W7_BASE}:projects/chirality-piping/{name}"],
+                              cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout
+    return (PROJECT / name).read_text()
+
+
 def _sz_code(diagnostic):
     """A raw diagnostic's code, or an AnalysisRun diagnostic's (wrapped in its source annotation)."""
     diagnostic = dict(diagnostic)
@@ -819,7 +859,7 @@ def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(cur
     for name, pointer in SZ_REGENERATED.items():
         before = load(subprocess.run(["git", "show", f"{SZ_BASE}:projects/chirality-piping/{name}"],
                                      cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = load((PROJECT / name).read_text() if current is None else current[name])
+        after = load(_before_w7(name) if current is None else current[name])
         lists = []
         for document in (before, after):
             holder = document
@@ -840,7 +880,7 @@ def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(cur
 def test_o4_text_only_envelope_diff_silent_zero_refuses_other_moves():
     """A changed number, an added diagnostic of another code, or a dropped earlier diagnostic in
     a silent-zero regenerated file fails at that file."""
-    texts = {name: (PROJECT / name).read_text() for name in SZ_REGENERATED}
+    texts = {name: _before_w7(name) for name in SZ_REGENERATED}
     name = next(iter(SZ_REGENERATED))
     test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(
         current=dict(texts, **{name: _dump(load(texts[name]))}))
@@ -880,3 +920,112 @@ def test_o4_text_only_envelope_diff_refuses_a_changed_number():
     # A changed string other than the restated segments fails too.
     with pytest.raises(AssertionError, match="differs beyond the limitation text"):
         check(name, current=current.replace("Other source families are declined by name.", "Other families are declined by name.", 1))
+
+
+def _w7_row_name(item):
+    """The W-7 global end row an item is or derives from, else None."""
+    if not isinstance(item, Obj):
+        return None
+    fields = dict(item)
+    for key in ("kind", "source_kind"):
+        if fields.get(key) in W7_KINDS:
+            return str(fields.get("id") or fields.get("result_id") or key)
+    for key, inner in (("id", None), ("result_id", None), ("source_result_id", None), ("result_ref", "ref"),
+                       ("canonical_ref", "ref"), ("export_ref", "ref"), ("source_result_ref", "ref_id"),
+                       ("source_result_ref", "ref"), ("target_result_ref", "ref_id")):
+        value = fields.get(key)
+        if inner is not None:
+            value = dict(value).get(inner) if isinstance(value, Obj) else None
+        if isinstance(value, str) and "element-global-end" in value:
+            return value
+    return None
+
+
+def _without_w7(value, removed, derived):
+    """`value` without W-7's global end rows (counted in `removed`); in a derived carrier also without
+    their derived items, csv lines and positions, and with the row counts of its texts masked."""
+    if isinstance(value, Obj):
+        out = Obj()
+        for key, item in value:
+            if derived and key in W7_POSITIONAL:
+                item = "<position>"
+            elif derived and isinstance(item, str) and W7_ANNOTATION.match(item):
+                item = "<position>"
+            elif derived and key == "csv_text" and isinstance(item, str):
+                lines = item.split("\n")
+                kept = [line for line in lines if "element-global-end" not in line]
+                removed.extend(["csv"] * (len(lines) - len(kept)))
+                item = "\n".join(kept)
+            elif derived and key == "reason" and isinstance(item, str):
+                item = re.sub(r"\b[0-9]+\b", "<count>", item)
+            out.append((key, _without_w7(item, removed, derived)))
+        return out
+    if isinstance(value, list):
+        kept = []
+        for item in value:
+            name = _w7_row_name(item)
+            if name is not None:
+                removed.append(name)
+            else:
+                kept.append(_without_w7(item, removed, derived))
+        return kept
+    return value
+
+
+def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=None):
+    """Each file W-7 regenerated, against its bytes before W-7: without the added global end rows
+    (twelve per member and case: Fx..Mz at end_i and end_j) the envelopes are unchanged; the derived
+    carriers also lose those rows' derived items, and move only positions, row counts and binding
+    hashes; J7 moves only the envelope and results digests of its ordinary pressure-2 entries."""
+    for name in W7_ENVELOPES + W7_DERIVED:
+        before = load(_before_w7(name))
+        after = load((PROJECT / name).read_text() if current is None or name not in current else current[name])
+        derived = name in W7_DERIVED
+        removed_before, removed = [], []
+        before = _without_w7(before, removed_before, derived)
+        after = _without_w7(after, removed, derived)
+        assert not removed_before, (name, "no global end row before W-7")
+        rows = [r for r in removed if r != "csv"]
+        assert rows, (name, "W-7 added global end rows")
+        if not derived:
+            assert len(rows) % 12 == 0 and all(W7_ROW.match(r) for r in rows), (name, rows[:4])
+        found = classify(before, after)
+        assert all(kind == "hash" for kind, _ in found), (name, [p for k, p in found if k != "hash"][:8])
+    before = dict(load(_before_w7(W7_J7)))
+    after = dict(load((PROJECT / W7_J7).read_text() if current is None or W7_J7 not in current else current[W7_J7]))
+    assert list(before) == list(after), W7_J7
+    for member in before:
+        if member != "entries":
+            assert before[member] == after[member], (W7_J7, member)
+    assert len(before["entries"]) == len(after["entries"]), W7_J7
+    for b, a in zip(before["entries"], after["entries"]):
+        found = classify(b, a)
+        if not found:
+            continue
+        public = dict(dict(b)["public"])
+        assert public["outcome"] == "ordinary_published" and public["identity"].endswith("/pressure-2"), (W7_J7, dict(b)["id"])
+        assert {(kind, path) for kind, path in found} <= {("hash", "/public/envelope_sha256"), ("hash", "/public/results_sha256")}, \
+            (W7_J7, dict(b)["id"], found)
+
+
+def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():
+    """A changed number in a W-7 regenerated envelope or derived carrier, a moved J7 digest of a
+    source publication, or a malformed added row fails at that file."""
+    for name in (W7_ENVELOPES[0], W7_DERIVED[0]):
+        text = (PROJECT / name).read_text()
+        value = re.search(r'"(value|magnitude)": ?-?([1-9][0-9.eE+-]*)', text)
+        assert value
+        mutant = text[: value.start(2)] + "1" + text[value.start(2):]
+        with pytest.raises(AssertionError, match=re.escape(name)):
+            test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
+    text = (PROJECT / W7_ENVELOPES[0]).read_text()
+    mutant = text.replace(":end_i:fx", ":end_k:fx", 1)
+    assert mutant != text
+    with pytest.raises(AssertionError, match=re.escape(W7_ENVELOPES[0])):
+        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_ENVELOPES[0]: mutant})
+    document = json.loads((PROJECT / W7_J7).read_text())
+    entry = next(e for e in document["entries"] if e["public"].get("outcome") == "source_published")
+    entry["public"]["results_sha256"] = "0" * 64
+    with pytest.raises(AssertionError, match=re.escape(W7_J7)):
+        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_J7: json.dumps(document)})
+
