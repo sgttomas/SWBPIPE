@@ -233,6 +233,23 @@ describe.each(commands)("$name with unsaved edits asks first", ({ command, detai
     expect(order()).toEqual(replaced ? ["save_local_project", "save_local_project", replaced] : ["save_local_project", "save_local_project"]);
   });
 
+  it("two prompts in sequence (this one, then Replace) release the workspace when the last one closes", async () => {
+    await editedSession({ storedDemo: true });
+    promptFor(command);
+    fireEvent.click(screen.getByTestId("unsaved-changes-save"));
+    await screen.findByTestId("replace-project-prompt");
+    expect(screen.getAllByRole("alertdialog")).toHaveLength(1);
+    // Held while the second prompt is open, though the first has closed.
+    act(() => nativeMenuCommand("edit.undo"));
+    expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited");
+    fireEvent.click(screen.getByTestId("replace-project-cancel"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(refused.replace(KEPT, `the local project was not saved, so ${KEPT}`)));
+    await waitFor(() => expect(screen.getByTestId("desktop-preview-shell")).not.toHaveAttribute("inert"));
+    // Released: the next command runs (Undo drops the unsaved edit).
+    act(() => nativeMenuCommand("edit.undo"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+  });
+
   it("does not ask when there are no unsaved edits", async () => {
     await renderApp();
     setTauriRuntime(true);

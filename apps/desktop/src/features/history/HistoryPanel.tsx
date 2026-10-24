@@ -32,6 +32,15 @@ type LabelsDraft = { name: string; tags: string; notes: string; assumptions: Ass
 
 let draftSequence = 0;
 
+/** The stated reason of a control disabled while a project operation owns the session. */
+const BUSY_REASON = "Another project operation or prompt is in progress.";
+
+/** A disabled control's stated reason (the dead-control audit's accessible reason). */
+function reasonFor(busy: boolean, other: string | null = null): string | undefined {
+  if (busy) return BUSY_REASON;
+  return other ?? undefined;
+}
+
 function draftFrom(labels: StateLabels | null): LabelsDraft {
   return {
     name: labels?.state_name ?? "",
@@ -124,6 +133,8 @@ function LabelsFields({ draft, onChange, testId }: { draft: LabelsDraft; onChang
 
 function SaveStateForm({ onDone }: { onDone: () => void }) {
   const { saveState, historyBusy } = useSessionHistory();
+  const { projectBusy } = useSessionProject();
+  const busy = historyBusy || projectBusy;
   const [draft, setDraft] = useState<LabelsDraft>(() => draftFrom(null));
   const [kind, setKind] = useState<ModelStateKind>("design_snapshot");
   const labels = labelsFromDraft(draft);
@@ -145,7 +156,7 @@ function SaveStateForm({ onDone }: { onDone: () => void }) {
         </select>
       </label>
       <div className="report-actions">
-        <button type="submit" data-testid="model-state-save-submit" disabled={historyBusy || !labels.state_name}>Save state</button>
+        <button type="submit" data-testid="model-state-save-submit" disabled={busy || !labels.state_name} title={reasonFor(busy, labels.state_name ? null : "A model state needs a name.")}>Save state</button>
         <button type="button" onClick={onDone}>Cancel</button>
       </div>
     </form>
@@ -154,6 +165,8 @@ function SaveStateForm({ onDone }: { onDone: () => void }) {
 
 function StateRow({ state, states }: { state: ModelStateSummary; states: ModelStateSummary[] }) {
   const { openState, editLabels, deleteState, historyBusy, basisStateId } = useSessionHistory();
+  const { projectBusy } = useSessionProject();
+  const busy = historyBusy || projectBusy;
   const [editing, setEditing] = useState<LabelsDraft | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const named = (id: string) => {
@@ -194,7 +207,7 @@ function StateRow({ state, states }: { state: ModelStateSummary; states: ModelSt
           <p className="muted" data-testid="model-state-labels-note">{LABELS_DO_NOT_CHANGE_STATE}</p>
           <LabelsFields draft={editing} onChange={setEditing} testId={`${testId}-labels`} />
           <div className="report-actions">
-            <button type="submit" data-testid={`${testId}-labels-save`} disabled={historyBusy || !editing.name.trim()}>Save labels</button>
+            <button type="submit" data-testid={`${testId}-labels-save`} disabled={busy || !editing.name.trim()} title={reasonFor(busy, editing.name.trim() ? null : "A model state needs a name.")}>Save labels</button>
             <button type="button" onClick={() => setEditing(null)}>Cancel</button>
           </div>
         </form>
@@ -211,13 +224,13 @@ function StateRow({ state, states }: { state: ModelStateSummary; states: ModelSt
         <div className="report-actions" data-testid={`${testId}-delete-confirm`}>
           <span>Delete this saved state? This cannot be undone.</span>
           <button type="button" data-testid={`${testId}-delete-cancel`} onClick={() => setConfirmingDelete(false)}>Cancel</button>
-          <button type="button" data-testid={`${testId}-delete-yes`} disabled={historyBusy} onClick={() => { setConfirmingDelete(false); void deleteState(state.state_id); }}>Delete state</button>
+          <button type="button" data-testid={`${testId}-delete-yes`} disabled={busy} title={reasonFor(busy)} onClick={() => { setConfirmingDelete(false); void deleteState(state.state_id); }}>Delete state</button>
         </div>
       ) : (
         <div className="report-actions">
-          <button type="button" data-testid={`${testId}-open`} disabled={historyBusy || !stateIsOpenable(state)} onClick={() => void openState(state.state_id)}>Open state</button>
-          <button type="button" data-testid={`${testId}-edit`} disabled={historyBusy || editing !== null} onClick={() => setEditing(draftFrom(state))}>Edit labels</button>
-          <button type="button" data-testid={`${testId}-delete`} disabled={historyBusy || state.child_state_ids.length > 0} onClick={() => setConfirmingDelete(true)}>Delete…</button>
+          <button type="button" data-testid={`${testId}-open`} disabled={busy || !stateIsOpenable(state)} title={reasonFor(busy, stateIsOpenable(state) ? null : notOpenableReason(state))} onClick={() => void openState(state.state_id)}>Open state</button>
+          <button type="button" data-testid={`${testId}-edit`} disabled={busy || editing !== null} title={reasonFor(busy, editing ? "The labels are being edited below." : null)} onClick={() => setEditing(draftFrom(state))}>Edit labels</button>
+          <button type="button" data-testid={`${testId}-delete`} disabled={busy || state.child_state_ids.length > 0} title={reasonFor(busy, state.child_state_ids.length ? "Saved states name this state as their parent." : null)} onClick={() => setConfirmingDelete(true)}>Delete…</button>
         </div>
       )}
     </li>
@@ -241,10 +254,10 @@ export function HistoryPanel() {
         reopening and comparison. Human review is still required for any use of them.
       </p>
       <div className="report-actions">
-        <button type="button" data-testid="model-state-save-open" disabled={saving || historyBusy || projectBusy} onClick={() => setSaving(true)}>
+        <button type="button" data-testid="model-state-save-open" disabled={saving || historyBusy || projectBusy} title={reasonFor(historyBusy || projectBusy, saving ? "The Save Model State form is open below." : null)} onClick={() => setSaving(true)}>
           Save Model State…
         </button>
-        <button type="button" data-testid="model-history-refresh" disabled={historyBusy} onClick={() => void refreshStates()}>
+        <button type="button" data-testid="model-history-refresh" disabled={historyBusy} title={reasonFor(historyBusy)} onClick={() => void refreshStates()}>
           Refresh
         </button>
       </div>

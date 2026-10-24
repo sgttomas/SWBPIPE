@@ -28,10 +28,14 @@ export type UnsavedChangesPromptState = UnsavedChangesRequest & {
 };
 
 /** `proceed`: no edits, Discard, or Save first and the save landed.
- * `cancelled`: Cancel. `not-saved`: Save first did not land. */
-export type UnsavedChangesOutcome = "proceed" | "cancelled" | "not-saved";
+ * `cancelled`: Cancel. `not-saved`: Save first did not land. `busy`: another
+ * project operation or prompt owns the session, so no prompt was shown. */
+export type UnsavedChangesOutcome = "proceed" | "cancelled" | "not-saved" | "busy";
+
+export const PROJECT_SESSION_BUSY = "another project operation or prompt is in progress; nothing was replaced.";
 
 export function unsavedChangesRefusal(outcome: Exclude<UnsavedChangesOutcome, "proceed">, refused: string): string {
+  if (outcome === "busy") return `${refused}: ${PROJECT_SESSION_BUSY}`;
   return outcome === "cancelled"
     ? `${refused}: the working model and its unsaved edits were kept.`
     : `${refused}: the local project was not saved, so the working model and its unsaved edits were kept.`;
@@ -40,8 +44,11 @@ export function unsavedChangesRefusal(outcome: Exclude<UnsavedChangesOutcome, "p
 export function useUnsavedChangesGuard(deps: {
   /** The session's `modelEdited`, read when a command starts. */
   modelEditedRef: MutableRefObject<boolean>;
-  /** True while a modal prompt holds the window (menu commands wait). */
-  modalOpenRef: MutableRefObject<boolean>;
+  /** Takes the shared modal hold while the prompt is open (`modalHolds.ts`). */
+  holdModal: () => () => void;
+  /** True while another project operation or prompt owns the session: the
+   * guard then shows no prompt (one prompt at a time). */
+  projectSessionBusy: () => boolean;
   /** Save Local Project's flow; true when the save landed. */
   saveLocalProject: () => Promise<boolean>;
 }) {
@@ -57,15 +64,16 @@ export function useUnsavedChangesGuard(deps: {
 
   async function confirmReplacingEdits(request: UnsavedChangesRequest): Promise<UnsavedChangesOutcome> {
     if (!replacingNeedsConfirmation()) return "proceed";
+    if (depsRef.current.projectSessionBusy()) return "busy";
     const choice = await new Promise<UnsavedChangesChoice>((resolve) => {
-      depsRef.current.modalOpenRef.current = true;
+      const release = depsRef.current.holdModal();
       // Captured before the workspace turns inert, which drops its focus.
       const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setUnsavedChangesPrompt({
         ...request,
         opener,
         choose: (picked) => {
-          depsRef.current.modalOpenRef.current = false;
+          release();
           setUnsavedChangesPrompt(null);
           resolve(picked);
         }

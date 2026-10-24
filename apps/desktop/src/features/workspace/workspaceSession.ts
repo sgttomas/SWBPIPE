@@ -115,6 +115,7 @@ import {
 import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
+import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
 import type { ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
@@ -287,6 +288,10 @@ export function useWorkspaceSession() {
   const [replaceProjectPrompt, setReplaceProjectPrompt] = useState<ReplaceProjectPromptState | null>(null);
   // While the prompt is open, menu commands and shell accelerators are ignored.
   const replacePromptOpenRef = useRef(false);
+  // The prompts' shared hold on that flag: set until the last open prompt closes.
+  const modalHolds = useRef<ModalHolds | null>(null);
+  if (!modalHolds.current) modalHolds.current = createModalHolds(replacePromptOpenRef);
+  const holdModal = () => modalHolds.current!.hold();
   // The open "Units at creation" dialog (W-17 §3), if a blank project is waiting
   // for its units. It is modal in the same way as the replace prompt.
   const [blankProjectUnitsRequest, setBlankProjectUnitsRequest] = useState<BlankProjectUnitsRequest | null>(null);
@@ -1745,12 +1750,12 @@ export function useWorkspaceSession() {
       const existing = await findLocalProject(requestModel.project.id);
       if (!existing) return { outcome: "written", envelope: await write(null) };
       const choice = await new Promise<ReplaceProjectChoice>((resolve) => {
-        replacePromptOpenRef.current = true;
+        const release = holdModal();
         // Captured before the workspace turns inert, which drops its focus.
         const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         setReplaceProjectPrompt({
           kind, existing, stale, opener,
-          choose: (picked) => { replacePromptOpenRef.current = false; setReplaceProjectPrompt(null); resolve(picked); }
+          choose: (picked) => { release(); setReplaceProjectPrompt(null); resolve(picked); }
         });
       });
       if (choice === "cancel") return { outcome: "kept", existing };
@@ -1957,7 +1962,7 @@ export function useWorkspaceSession() {
    * creates nothing. */
   function requestBlankProject(kind: BlankProjectKind) {
     // A project operation in flight refuses a blank, as the create itself would.
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    if (projectSessionBusy()) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const askUnits = () => {
@@ -1987,7 +1992,7 @@ export function useWorkspaceSession() {
         setProjectOperation("create_blank_kept_edits");
         return;
       }
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || projectOperationOwner.current !== null) return;
+      if (projectSessionBusy()) return;
       askUnits();
     });
   }
@@ -2117,9 +2122,10 @@ export function useWorkspaceSession() {
   }
 
   async function handleOpenProject(projectId: string | null = null) {
+    // Another project operation or prompt owns the session: nothing starts.
+    if (projectSessionBusy()) return;
     // An open replaces the working model: with unsaved edits it asks first.
     if (replacingNeedsConfirmation()) {
-      if (projectOperationOwner.current !== null) return;
       const guarded = await confirmReplacingEdits({
         action: projectId ? `Opening local project ${projectId}` : "Opening the most recent local project",
         verb: "open it"
@@ -2235,9 +2241,10 @@ export function useWorkspaceSession() {
    * session's model, unchanged. It starts unsaved, as the bundled demo does; New
    * Local Project saves it as a project. A refusal leaves the session as it was. */
   async function handleOpenModelDocument() {
+    // Another project operation or prompt owns the session: nothing starts.
+    if (projectSessionBusy()) return;
     // An open replaces the working model: with unsaved edits it asks first.
     if (replacingNeedsConfirmation()) {
-      if (projectOperationOwner.current !== null) return;
       const guarded = await confirmReplacingEdits({ action: "Opening a model document", verb: "open it" });
       if (guarded !== "proceed") {
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
@@ -3137,6 +3144,12 @@ export function useWorkspaceSession() {
 
   /** Save Local Project's flow, reporting whether a save landed (the
    * unsaved-changes guard's "Save first"). */
+  /** Another project operation, or any project prompt, owns the session. The
+   * model-replacing commands, Open State and Save Model State start nothing then. */
+  function projectSessionBusy(): boolean {
+    return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current;
+  }
+
   async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
     projectSaveLanded.current = null;
     await saveProject(null);
@@ -3144,13 +3157,13 @@ export function useWorkspaceSession() {
   }
 
   const { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits } = useUnsavedChangesGuard({
-    modelEditedRef, modalOpenRef: replacePromptOpenRef, saveLocalProject: async () => (await saveLocalProjectFirst()) !== null
+    modelEditedRef, holdModal, projectSessionBusy, saveLocalProject: async () => (await saveLocalProjectFirst()) !== null
   });
 
   const history = useModelStateHistory({
     model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
-    saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot
+    saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy
   });
 
   return {

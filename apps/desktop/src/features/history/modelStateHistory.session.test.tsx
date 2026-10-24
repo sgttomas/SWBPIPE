@@ -47,6 +47,9 @@ type RowsOptions = {
   refuseOnce?: Set<string>;
   /** `check_model_library_refs`' answer. */
   libraryFindings?: unknown[];
+  /** When set, the next Save Local Project answers only once this settles,
+   * judged against the rows as they are then. */
+  gate?: Promise<void> | null;
 };
 
 function rowEntry(projectId: string, base: string): StoredProjectEntry {
@@ -85,6 +88,11 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
       case "save_local_project": {
         if (options.refuseProjectSave) throw options.refuseProjectSave;
         const request = args.request as { model: PreviewModel; model_hash: unknown; confirmed_revision?: string | null; expected_base?: string | null };
+        if (rows?.gate) {
+          const gate = rows.gate;
+          rows.gate = null;
+          return gate.then(() => answer(command, args));
+        }
         if (rows) {
           const id = request.model.project.id;
           const stored = rows.rows.get(id);
@@ -345,6 +353,93 @@ describe("model states in the session (W-12 S1)", () => {
       await waitFor(() => expect(historyMessage()).toHaveTextContent("Not saved: the local project was not saved, so the model state was not saved."));
       expect(calls("save_local_project")).toHaveLength(1);
       expect(calls("save_model_state")).toHaveLength(0);
+    });
+  });
+
+  describe("while another project operation owns the session", () => {
+    const A = DEMO.project.id;
+
+    it("Codex r4: a pending save keeps Open State and every model-replacing command closed; the Replace prompt is the only dialog and holds input", async () => {
+      await renderApp();
+      setTauriRuntime(true);
+      let release!: () => void;
+      const rows: RowsOptions = { rows: new Map([[A, "sha256:A-1"]]) };
+      const store = nativeStore({ rows });
+      act(() => nativeMenuCommand("file.open-local"));
+      await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Opened local SQLite project snapshot."));
+      await refreshHistory();
+      await saveStateNamed("Basis");
+      const basis = store.states[0];
+      await applyNodeEdit("0.5", 1);
+      // The Save Model State form is open before the operation starts.
+      fireEvent.click(within(openProjectSection()).getByTestId("model-state-save-open"));
+      fireEvent.change(screen.getByTestId("model-state-save-name"), { target: { value: "During the save" } });
+      rows.gate = new Promise<void>((resolve) => { release = resolve; });
+      const callsBefore = invokeMock.mock.calls.length;
+      act(() => nativeMenuCommand("file.save-local"));
+      await waitFor(() => expect(calls("save_local_project")).toHaveLength(1));
+
+      // Open State and Save Model State are disabled with a stated reason.
+      const open = screen.getByTestId(`model-state-${basis.state_id}-open`);
+      expect(open).toBeDisabled();
+      expect(open).toHaveAttribute("title", "Another project operation or prompt is in progress.");
+      expect(screen.getByTestId("model-state-save-submit")).toBeDisabled();
+      expect(screen.getByTestId("model-state-save-submit")).toHaveAttribute("title", "Another project operation or prompt is in progress.");
+      fireEvent.click(open);
+      // Every model-replacing command starts nothing: no prompt, no native call.
+      for (const command of ["file.open-local", "file.open-model", "file.new-blank"]) act(() => nativeMenuCommand(command));
+      for (const id of ["open-local-project", "open-model-document", "new-blank-040"]) expect(screen.getByTestId(id)).toBeDisabled();
+      expect(screen.queryByTestId("unsaved-changes-prompt")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("project-units-dialog")).not.toBeInTheDocument();
+      expect(invokeMock.mock.calls.slice(callsBefore).map(([name]) => name)
+        .filter((name) => ["open_local_project", "open_model_document_file", "read_model_state", "save_model_state"].includes(name as string))).toEqual([]);
+
+      // Another window saves A; the pending save meets it and asks.
+      rows.rows.set(A, "sha256:A-other-window");
+      await act(async () => { release(); });
+      await screen.findByTestId("replace-project-prompt");
+      expect(screen.getAllByRole("alertdialog")).toHaveLength(1);
+      expect(screen.getByTestId("desktop-preview-shell")).toHaveAttribute("inert");
+      // Native Undo and shortcuts are held while the prompt is open.
+      act(() => nativeMenuCommand("edit.undo"));
+      fireEvent.keyDown(screen.getByTestId("replace-project-cancel"), { key: "z", metaKey: true });
+      expect(reviewValue("node:N-100-y")).toBe("0.5");
+      expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited");
+      fireEvent.click(screen.getByTestId("replace-project-cancel"));
+      await waitFor(() => expect(screen.getByTestId("desktop-preview-shell")).not.toHaveAttribute("inert"));
+      // Released: Undo works again, and Open State is enabled.
+      await waitFor(() => expect(screen.getByTestId(`model-state-${basis.state_id}-open`)).toBeEnabled());
+      act(() => nativeMenuCommand("edit.undo"));
+      expect(reviewValue("node:N-100-y")).toBe(originalY);
+      expect(rows.rows.get(A)).toBe("sha256:A-other-window");
+    });
+
+    it("Open State and Save Model State refuse by name if reached while the session is busy", async () => {
+      await renderApp();
+      setTauriRuntime(true);
+      let release!: () => void;
+      const rows: RowsOptions = { rows: new Map([[A, "sha256:A-1"]]) };
+      const store = nativeStore({ rows });
+      act(() => nativeMenuCommand("file.open-local"));
+      await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Opened local SQLite project snapshot."));
+      await refreshHistory();
+      await saveStateNamed("Basis");
+      await applyNodeEdit("0.5", 1);
+      // The commands' own refusal, below the disabled controls: the open runs
+      // through the form submit path of the History hook.
+      const panel = openProjectSection();
+      fireEvent.click(within(panel).getByTestId("model-state-save-open"));
+      fireEvent.change(within(panel).getByTestId("model-state-save-name"), { target: { value: "During the save" } });
+      const form = within(panel).getByTestId("model-state-save-form");
+      rows.gate = new Promise<void>((resolve) => { release = resolve; });
+      act(() => nativeMenuCommand("file.save-local"));
+      await waitFor(() => expect(calls("save_local_project")).toHaveLength(1));
+      fireEvent.submit(form);
+      await waitFor(() => expect(historyMessage()).toHaveTextContent("Not saved: another project operation or prompt is in progress; nothing was replaced."));
+      expect(calls("save_model_state")).toHaveLength(1);
+      expect(store.states).toHaveLength(1);
+      await act(async () => { release(); });
+      await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved current project model snapshot"));
     });
   });
 

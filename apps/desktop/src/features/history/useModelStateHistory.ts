@@ -42,6 +42,9 @@ export type ModelStateHistoryDeps = {
    * or null. "Save as a new project" lands under a new project id. */
   saveLocalProject: () => Promise<LandedProjectSave | null>;
   /** Makes an opened state's snapshot the working model (a new project session). */
+  /** Another project operation or prompt owns the session: Open State and Save
+   * Model State start no prompt and no operation then. */
+  projectSessionBusy: () => boolean;
   /** The session's stored-project binding now (base and persistence metadata). */
   captureProjectBinding: () => ProjectBinding;
   /** Makes an opened state's snapshot the working model, bound to the state's
@@ -136,9 +139,17 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   /** Save Model State…: the working model as a new immutable state of its
    * project. A state needs the project's stored row: when the session is not
    * that stored project, Save Local Project's flow runs first. */
+  function refusedWhileBusy(refused: string, operation: string): boolean {
+    if (!depsRef.current.projectSessionBusy()) return false;
+    setHistoryMessage(unsavedChangesRefusal("busy", refused));
+    setHistoryOperation(operation);
+    return true;
+  }
+
   async function saveState(form: SaveModelStateForm): Promise<boolean> {
     let requestModel = depsRef.current.currentModel.current;
     if (!requestModel) return false;
+    if (refusedWhileBusy("Not saved", "save_state_busy")) return false;
     let requestProjectId = requestModel.project.id;
     let parentStateId = basisStateId;
     if (!form.labels.state_name.trim()) {
@@ -217,6 +228,8 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       setHistoryOperation("open_state_refused");
       return false;
     }
+    // Before the guard: no prompt may open while another operation owns the session.
+    if (refusedWhileBusy("Not opened", "open_state_busy")) return false;
     // Captured before the guard, whose "Save first" may move the session to a
     // copy's project id ("Save as a new project").
     const binding = depsRef.current.captureProjectBinding();

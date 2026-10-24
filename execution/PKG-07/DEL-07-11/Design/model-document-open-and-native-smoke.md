@@ -136,6 +136,14 @@ export use their existing routes unchanged.
       lands.
     - **Discard edits and …** goes ahead without saving.
   - **Without edits** a command starts as before, with no prompt.
+  - **One owner at a time (Codex r4).** None of these commands, nor Save
+    Model State, starts a prompt or an operation while another project
+    operation or prompt owns the session. The History panel's controls are
+    disabled meanwhile, with a stated reason.
+  - **Modal holds.** The replace prompt and the unsaved-changes prompt each
+    take a hold on the shared modal flag (`modalHolds.ts`). Menu commands and
+    shortcuts wait until the last hold is released, whichever prompt closes
+    first.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
   - **No normalization.** Save never rewrites a model document; B7a removed the
