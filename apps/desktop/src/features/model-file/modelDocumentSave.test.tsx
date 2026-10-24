@@ -9,6 +9,8 @@ import demoModel from "../../../../../fixtures/product_preview/invented_demo_mod
 import everySlotModel from "../../../../../fixtures/model_document/invented_every_slot_model.json";
 import dispositionParity from "../../../../../fixtures/model_document/library_disposition_parity.json";
 import { SHAPE_CASES, shapeCaseDocument } from "../../test/shapeCorpus";
+import desktopEmitted from "../../../../../fixtures/model_document/desktop_emitted.json";
+import applierEmitted from "../../../../../fixtures/model_document/applier_emitted.json";
 import { App } from "../../App";
 import { checkNativeOutcome } from "../../services/modelDocumentFile";
 import { buildModelIndex } from "../workspace/modelIndex";
@@ -549,5 +551,22 @@ describe("adoption render preconditions", () => {
     if (scenario === "diagnostic-id") model.diagnostics[0].id = {};
     expect(() => buildModelIndex(model, 0, 0)).not.toThrow();
     expect(codes(await prepared(model))).toEqual([["MODEL-FILE-SHAPE", { "unit-value": "project.units.force", "component-completeness": "components[0].completeness", "diagnostic-id": "diagnostics[0].id" }[scenario]]]);
+  });
+});
+
+// Main's authoring and library-apply outputs (W-13 S2a/S2b emission goldens,
+// including `library_material_insert`): each passes open's admission, indexes and
+// is ready to save.
+describe("emitted documents", () => {
+  const emitted = [
+    ...desktopEmitted.entries.map((entry) => [`desktop ${entry.path}`, entry.document] as const),
+    ...applierEmitted.entries.map((entry, index) => [`applier ${index} ${entry.change_kind}`, entry.applied_model] as const)
+  ];
+  it("has all 34", () => expect(emitted).toHaveLength(34));
+  it.each(emitted)("%s opens and is ready to save", async (_label, document) => {
+    const checked = checkNativeOutcome({ outcome: "opened", file_name: "emitted.json", byte_count: 1, schema_status: "current", document: clone(document) });
+    expect(checked.outcome === "refused" ? checked.diagnostics : []).toEqual([]);
+    expect(() => buildModelIndex(document as unknown as PreviewModel, 0, 0)).not.toThrow();
+    expect(codes(await prepared(clone(document)))).toBe("ready");
   });
 });

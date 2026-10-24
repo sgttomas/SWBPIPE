@@ -62,7 +62,8 @@ pub const EVIDENCE_UNBOUND: &str = "MODEL-DOC-SAVE-EVIDENCE-UNBOUND";
 pub const LIBRARY_STORE_UNAVAILABLE: &str = "MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub const PROTECTED_CONTENT_BLOCKED: &str = "PROTECTED_CONTENT_BLOCKED";
-pub const LIBRARY_REF_UNRESOLVED: &str = "MODEL-LIBRARY-REF-UNRESOLVED";
+/// The store check's code (`check_model_library_refs`, W-13 §3.5).
+pub const LIBRARY_REF_UNRESOLVED: &str = crate::MODEL_LIBRARY_REF_UNRESOLVED;
 
 /// The webview's screening evidence (the `ControlledExportLink` shape of a
 /// lossless local-private route).
@@ -209,9 +210,6 @@ pub struct AdmittedModelDocument {
 /// to the stored `document_json`, `None` when the store holds no such library,
 /// `Err` when the store cannot be read.
 pub type LibraryLookup<'a> = dyn FnMut(&str, &str, &str) -> Result<Option<Value>, String> + 'a;
-
-const LIBRARY_RECORD_ID_KEYS: [(&str, &str); 4] =
-    [("material", "material_id"), ("section", "section_id"), ("component", "component_id"), ("hanger", "hanger_id")];
 
 /// `truthy_str` of the library import: a non-empty string, else nothing.
 fn truthy_str(value: Option<&Value>) -> Option<&str> {
@@ -410,7 +408,8 @@ pub fn screen_model_document_dispositions(
         if let Some(library) = stored.get(format!("{kind}_library")).and_then(Value::as_object) {
             screen.screen_stored(&kind, library, &references[0].0, &named, "stored library");
         }
-        let id_key = LIBRARY_RECORD_ID_KEYS.iter().find(|(name, _)| *name == kind).map(|(_, key)| *key);
+        // The store's kind table (`library_records_key`, shared with `check_model_library_refs`).
+        let id_key = crate::library_records_key(&kind).map(|(_, key)| key);
         let records = stored.get(format!("{kind}_records")).and_then(Value::as_array);
         let mut screened = Vec::new();
         for (path, record_id) in &references {
@@ -1023,6 +1022,35 @@ mod tests {
         assert!(admit_with_store(text, Ok(Some(library))).0.is_err(), "duplicate identities must be refused or every matching record screened");
     }
 
+    /// Main's authoring and library-apply outputs (W-13 S2a/S2b emission goldens,
+    /// including `library_material_insert`) save and re-open unchanged. With an
+    /// empty store each library reference is a `MODEL-LIBRARY-REF-UNRESOLVED`
+    /// warning, never a refusal.
+    #[test]
+    fn every_emitted_authoring_and_library_apply_document_saves_and_reopens() {
+        let root = sandbox("emitted");
+        let mut saved = 0;
+        for (fixture, member) in [
+            (include_str!("../../../../fixtures/model_document/desktop_emitted.json"), "document"),
+            (include_str!("../../../../fixtures/model_document/applier_emitted.json"), "applied_model"),
+        ] {
+            let golden: Value = serde_json::from_str(fixture).unwrap();
+            for (index, entry) in golden["entries"].as_array().unwrap().iter().enumerate() {
+                let label = format!("{member}[{index}] {}", entry.get("path").or_else(|| entry.get("change_kind")).unwrap());
+                let text = canonical_json(&entry[member]);
+                let admitted = admit(text.clone(), &hash_of(&text)).unwrap_or_else(|diagnostics| panic!("{label} refused: {diagnostics:?}"));
+                assert!(admitted.warnings.iter().all(|item| item.code == LIBRARY_REF_UNRESOLVED), "{label}: {:?}", admitted.warnings);
+                let destination = root.join(format!("emitted-{saved}.json"));
+                assert!(matches!(write_admitted_model_document(&destination, admitted), ModelDocumentSaveOutcome::Saved { .. }), "{label}");
+                let ModelDocumentOpenOutcome::Opened { document, .. } = read_model_document_file(&destination) else { panic!("{label} does not re-open") };
+                assert_eq!(canonical_json(&document), text, "{label}");
+                saved += 1;
+            }
+        }
+        assert_eq!(saved, 34);
+        fs::remove_dir_all(root).unwrap();
+    }
+
     /// Every case of the shared shape corpus: admitted exactly when its shape is
     /// clean, and every admitted case, once saved, re-opens through the native
     /// open with a clean shape (the webview half is in modelDocumentSave.test.tsx).
@@ -1111,7 +1139,7 @@ mod disposition_parity {
         if let Some(status) = own.0 { varied["redistribution_status"] = json!(status); }
         if let Some(status) = own.1 { varied["review_status"] = json!(status); }
         let mut library = json!({"library_id": "invented.parity", "provenance": clear});
-        let id_key = LIBRARY_RECORD_ID_KEYS.iter().find(|(name, _)| *name == kind).unwrap().1;
+        let id_key = crate::library_records_key(kind).unwrap().1;
         let mut record = json!({id_key: "invented.record", "provenance": clear});
         let target = if level == "library" { &mut library } else { &mut record };
         for (key, value) in varied.as_object().unwrap() {

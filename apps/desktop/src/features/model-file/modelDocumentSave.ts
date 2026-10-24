@@ -32,7 +32,7 @@ import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashServ
 import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
-import { openLocalLibrary, type LibraryKind, type LibraryOpenRoute } from "../../services/libraryImportService";
+import { MODEL_LIBRARY_REF_UNRESOLVED, openLocalLibrary, type LibraryKind, type LibraryOpenRoute } from "../../services/libraryImportService";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
 import {
   classifyExportItem,
@@ -315,7 +315,8 @@ export function storedDispositions(kind: string, item: PlainObject): Array<{ red
 }
 
 export const MODEL_DOC_SAVE_LIBRARY_STORE_UNAVAILABLE = "MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE";
-export const MODEL_LIBRARY_REF_UNRESOLVED = "MODEL-LIBRARY-REF-UNRESOLVED";
+// The store check's code (`libraryImportService` / `check_model_library_refs`, W-13 §3.5).
+export { MODEL_LIBRARY_REF_UNRESOLVED };
 
 /** The library references resolved against the local store. `storeError` is
  * set when a lookup failed: the save then refuses. A library or record the
