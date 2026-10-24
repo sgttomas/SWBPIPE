@@ -49,7 +49,43 @@ supported, coincident or near-duplicate nodes, a malformed tee) is a §14.4
 | `MODEL_TOPOLOGY_DISCONNECTED` | `core/product_physics/src/topology.rs` | The elements (straight members other than connector-replaced spans, curved spans and objective connectors) form two or more connected parts. A node no element touches is not a part. One diagnostic names up to six parts, each by its first node in model order, its node count, and `supported` or `no support` (any linear or nonlinear support at one of its nodes). |
 | `NODE_COINCIDENT` | `topology.rs` | Two distinct nodes have exactly the same position and no element joins them. |
 | `NODE_NEAR_DUPLICATE` | `topology.rs` | Two distinct nodes lie no farther apart than the node-proximity tolerance τ (and are not coincident), and no element joins them. |
-| `BRANCH_TOPOLOGY_INVALID` | `core/product_physics/src/validation.rs` | A `branch`, `tee` or `branch_connection` component's node joins a number of pipes other than three, or its header and branch pipe references name the same pipe. One diagnostic per component. The finding warns and does not refuse (REQ-04-06-012), and the component's branch stress factors are still applied by pipe reference. So the message names each side still applied ("its branch stress factors are still applied (header SIF to pipe:…, branch SIF to pipe:…)"): a side whose factors are entered and valid, on a named pipe that ends at the component's node, the same conditions as the stress-multiplier rows. Without such a side the message claims none. |
+| `BRANCH_TOPOLOGY_INVALID` | `core/product_physics/src/validation.rs` | A `branch`, `tee` or `branch_connection` component's node joins a number of pipes other than three, or its header and branch pipe references name the same pipe. One diagnostic per component. The finding warns and does not refuse (REQ-04-06-012). When the solved envelope publishes intensified rows for the component, the message also names those sides ("its branch stress factors are still applied (header SIF to pipe:…, branch SIF to pipe:…)"); see "The applied-sides statement" below. |
+
+**The applied-sides statement.** The owner ruled (2026-10-23) that topology
+findings warn, not refuse, and that this warning "must state plainly that the
+component's branch stress factors are still applied to the named pipes".
+- **What is applied.** The branch stress factors reach the results only as the
+  intensified rows that `preview_physics::render` publishes through
+  `associations`: a positive finite user-entered header or branch SIF, solver
+  consumption `mechanics_geometry_only`, a header or branch reference equal to
+  the pipe, and the component at that pipe's end node, on straight members only
+  (an arc member publishes none). No flexibility factor is required, and the
+  topology does not matter. The retired SIF × flexibility rows
+  (`branch_stress_modifier_for_pipe`) are published on no route.
+- **Where it is stated.** Validation emits the warning before the build with
+  its topology text only, so it appears in an envelope refused for any reason.
+  `validation::state_applied_branch_factors` adds the statement once, where
+  `run_linear_static_preview_observed_inner` assembles the solved preview
+  envelope, after the non-finite check, which is the last refusal on the
+  preview route. It reads the sides from that envelope's own
+  `intensified_measures` records, one beside each published row, so it names
+  exactly the sides published. A refused envelope never carries the statement.
+- **Why there.** The other options were to compute the statement in the
+  topology stage, where the arcs are known, or to emit the whole warning after
+  the build. Both still precede refusals that publish nothing, such as a model
+  with no support, a singular solve or a non-finite result. A stage-time
+  statement would then claim factors on a refused envelope. Re-deriving the
+  publication predicate there would also be a second copy that could drift
+  from it. Emitting the warning late would lose it from envelopes refused
+  earlier. Reading the published records avoids both problems.
+- **Limits.** The exact route publishes no intensified row (and refuses tees),
+  so its warning never carries the statement. A certified intensified recovery
+  failure inside the publication loop adds a blocking
+  `ELEMENT_FORCE_RECOVERY_FAILED` and leaves that row out; the envelope is still
+  published. The statement names a side when at least one load case publishes
+  a row for it, so a side whose row failed in one case and was published in
+  another is named. The composite source finalization that can still fail
+  after assembly runs only on the exact route.
 
 The disconnected and node checks run on the built model, after unit
 normalization, so positions are in metres. Each of those codes yields at most
@@ -110,7 +146,10 @@ is linear in the node count for ordinary models.
 
 The bundled desktop demo (`fixtures/product_preview/invented_demo_model.json`)
 and `invented_preview_model.json` declare a tee (`C-120` at `node:N-120`) on a
-node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them.
+node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them. The
+solved demo's warning names the header SIF to `pipe:P-120` and the branch SIF
+to `pipe:P-110`, which carry its intensified rows. The refused demo's warning
+names none, because nothing is published there.
 
 ## Evidence
 
@@ -122,6 +161,18 @@ part is named and still refused; coincident nodes, and nodes 4.9 mm and
 exactly 5 mm apart, warn identically in metres and millimetres, and nodes just
 beyond 5 mm do not; in a 2 km model 4 mm warns and 6 mm does not; a pair
 across a cell boundary is found; a tee on two pipes and a tee whose header is
-its branch warn, and a valid tee does not; a user-set tolerance (10 mm, in mm or m) replaces the default and is inclusive, and a zero, negative, underflowing or non-length value is refused by name with nothing solved; with entered factors the warning names the header and branch SIFs still applied, and those pipes carry the intensified rows, and without factors it names none. `src/topology_tests.rs` passes the
+its branch warn, and a valid tee does not; a user-set tolerance (10 mm, in mm or m) replaces the default and is inclusive, and a zero, negative, underflowing or non-length value is refused by name with nothing solved; with entered factors the warning names the header and branch SIFs still applied, and those pipes carry the intensified rows, and without factors it names none. `the_branch_warning_names_exactly_the_published_sides`
+compares the warning with the published intensified rows in both modes, 802
+runs per mode. Header and branch SIF each take five values: absent, zero,
+negative, positive, or positive in a non-dimensionless unit. The flexibility
+factor takes four: absent, present, zero, or present in a wrong unit. These
+combinations run on seven malformed tees and on a valid tee, which gets no
+warning. The malformed tees are: a node joining two pipes; a missing header
+pipe; a header pipe not ending at the node; a header that is the branch; a
+missing branch pipe; another solver consumption; and a branch pipe realized
+as an arc. Two more runs check a tee with no modifiers and a tee refused for
+missing supports. The warning text must equal the topology text plus exactly
+the published sides. A refused envelope names none, and the arc's side is
+never named. The previous predicate fails this test. `src/topology_tests.rs` passes the
 tolerance directly: another value is used inclusively, a node at -4e15 m does
 not separate a near pair, and a saturated cell counts a pair once.

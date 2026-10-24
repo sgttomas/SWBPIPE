@@ -271,7 +271,8 @@ at most n-1 entries and at most six named pairs per warning) and validation's no
 texts (W8-L1/L2, W8-NI, W8-ID, W8-JN, W8-RF, W8-CG) and guards the branch-topology warning at multiplicity 0 (W8-BT);
 `lib/sq2_rules.py` places the `O10_REFS_FIRST` affected-refs rules before the inherited ones. A snapshot without
 topology.rs adds nothing; a changed or partly present owner stops the run. See the governing rules' §8.16. The absolute
-node-proximity tolerance (§8.18) adds W8-BF (the branch warning's applied-factors suffix, under W8-BT's zero) and NP-MS
+node-proximity tolerance (§8.18) adds W8-BF (the branch warning's statement of the published factor sides, added after publication over the model's
+components, at multiplicity 0 by W8-BT's premise) and NP-MS
 and NP-PT (validation's refusal of a malformed `model_settings.node_proximity_tolerance` and the accessor's texts).
 
 The current source pins fail closed outside the reviewed stage-2 cohort.
