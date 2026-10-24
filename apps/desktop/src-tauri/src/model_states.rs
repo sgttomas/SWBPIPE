@@ -27,9 +27,9 @@
 //! A state needs its project's stored row and is written in one
 //! `BEGIN IMMEDIATE` transaction with that row's stale-window check: the
 //! session's base (the stored envelope hash it last opened or saved) must still
-//! be the stored one (`PROJECT-BASE-MOVED`). Recorded runs and the run tables
-//! are S2's (store v13); until then a state's deletion is blocked only by its
-//! child states.
+//! be the stored one (`PROJECT-BASE-MOVED`). Recorded runs (`analysis_runs.rs`,
+//! store v13) are tied to states; a state's deletion is blocked by its child
+//! states and by its recorded runs.
 //!
 //! The record is a review and reproducibility record. Nothing here approves,
 //! accepts, certifies or issues anything (F-PIP-2, F-PIP-3).
@@ -254,7 +254,7 @@ fn civil_from_days(days: i64) -> (i64, i64, i64) {
 }
 
 /// 128 random bits as 32 lowercase hex characters (the `state:` token).
-fn random_token() -> Result<String, String> {
+pub(crate) fn random_token() -> Result<String, String> {
     let mut bytes = [0u8; 16];
     getrandom::fill(&mut bytes)
         .map_err(|error| format!("MODEL-STATE-TOKEN-UNAVAILABLE: {error}"))?;
@@ -284,23 +284,38 @@ pub(crate) struct StateLabels {
     pub(crate) assumptions: Vec<Value>,
 }
 
-fn labels_invalid(detail: impl std::fmt::Display) -> String {
-    format!("MODEL-STATE-LABELS-INVALID: {detail}")
+/// What a set of labels names and how its refusals are coded: a state's labels
+/// (`state_name`, `MODEL-STATE-LABELS-INVALID`) or a recorded run's (W-12 S2).
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct LabelVocabulary {
+    pub(crate) name_key: &'static str,
+    pub(crate) needs_name: &'static str,
+    pub(crate) code: &'static str,
 }
 
-fn string_list(map: &mut Map<String, Value>, key: &str) -> Result<Vec<String>, String> {
+pub(crate) const STATE_LABEL_VOCABULARY: LabelVocabulary = LabelVocabulary {
+    name_key: "state_name",
+    needs_name: "a state needs a name",
+    code: "MODEL-STATE-LABELS-INVALID",
+};
+
+fn labels_invalid(code: &str, detail: impl std::fmt::Display) -> String {
+    format!("{code}: {detail}")
+}
+
+fn string_list(map: &mut Map<String, Value>, key: &str, code: &str) -> Result<Vec<String>, String> {
     match map.remove(key) {
         None | Some(Value::Null) => Ok(Vec::new()),
         Some(Value::Array(items)) => items
             .into_iter()
             .map(|item| match item {
                 Value::String(text) => Ok(text),
-                _ => Err(labels_invalid(format_args!(
+                _ => Err(labels_invalid(code, format_args!(
                     "`{key}` holds a value that is not a string"
                 ))),
             })
             .collect(),
-        Some(_) => Err(labels_invalid(format_args!(
+        Some(_) => Err(labels_invalid(code, format_args!(
             "`{key}` is not a list of strings"
         ))),
     }
@@ -312,50 +327,60 @@ fn string_list(map: &mut Map<String, Value>, key: &str) -> Result<Vec<String>, S
 /// `status` unresolved/resolved/rejected with a `resolution_note` when resolved
 /// or rejected, unique `affected_refs` entity ids). Unknown members are refused.
 pub(crate) fn labels_from_value(value: Value) -> Result<StateLabels, String> {
+    labels_from_value_in(value, STATE_LABEL_VOCABULARY)
+}
+
+/// [`labels_from_value`] for a vocabulary: the name is `vocabulary.name_key`
+/// (returned in `state_name`), and refusals carry `vocabulary.code`.
+pub(crate) fn labels_from_value_in(
+    value: Value,
+    vocabulary: LabelVocabulary,
+) -> Result<StateLabels, String> {
+    let code = vocabulary.code;
     let Value::Object(mut map) = value else {
-        return Err(labels_invalid("labels must be an object"));
+        return Err(labels_invalid(code, "labels must be an object"));
     };
-    let state_name = match map.remove("state_name") {
+    let state_name = match map.remove(vocabulary.name_key) {
         Some(Value::String(name)) if !name.trim().is_empty() => name.trim().to_string(),
-        _ => return Err(labels_invalid("a state needs a name")),
+        _ => return Err(labels_invalid(code, vocabulary.needs_name)),
     };
-    let tags = string_list(&mut map, "tags")?;
+    let tags = string_list(&mut map, "tags", code)?;
     for (index, tag) in tags.iter().enumerate() {
         if tag.trim() != tag || tag.is_empty() || tag.chars().count() > MAX_TAG_CHARS {
-            return Err(labels_invalid(format_args!(
+            return Err(labels_invalid(code, format_args!(
                 "tag \"{tag}\" must be non-empty, trimmed and at most {MAX_TAG_CHARS} characters"
             )));
         }
         if tags[..index].contains(tag) {
-            return Err(labels_invalid(format_args!(
+            return Err(labels_invalid(code, format_args!(
                 "tag \"{tag}\" is listed twice"
             )));
         }
     }
-    let notes = string_list(&mut map, "notes")?;
+    let notes = string_list(&mut map, "notes", code)?;
     if notes.iter().any(|note| note.trim().is_empty()) {
-        return Err(labels_invalid("a note is blank"));
+        return Err(labels_invalid(code, "a note is blank"));
     }
     let assumptions = match map.remove("assumptions") {
         None | Some(Value::Null) => Vec::new(),
         Some(Value::Array(items)) => items
             .into_iter()
-            .map(label_assumption)
+            .map(|item| label_assumption(item, code))
             .collect::<Result<Vec<_>, _>>()?,
-        Some(_) => return Err(labels_invalid("`assumptions` is not a list")),
+        Some(_) => return Err(labels_invalid(code, "`assumptions` is not a list")),
     };
     let mut ids: Vec<&str> = Vec::new();
     for assumption in &assumptions {
         let id = assumption["assumption_id"].as_str().unwrap_or("");
         if ids.contains(&id) {
-            return Err(labels_invalid(format_args!(
+            return Err(labels_invalid(code, format_args!(
                 "assumption id `{id}` is listed twice"
             )));
         }
         ids.push(id);
     }
     if let Some(key) = map.keys().next() {
-        return Err(labels_invalid(format_args!("unknown member `{key}`")));
+        return Err(labels_invalid(code, format_args!("unknown member `{key}`")));
     }
     Ok(StateLabels {
         state_name,
@@ -365,9 +390,9 @@ pub(crate) fn labels_from_value(value: Value) -> Result<StateLabels, String> {
     })
 }
 
-fn label_assumption(value: Value) -> Result<Value, String> {
+fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
     let Value::Object(map) = value else {
-        return Err(labels_invalid("an assumption must be an object"));
+        return Err(labels_invalid(code, "an assumption must be an object"));
     };
     const ALLOWED: [&str; 6] = [
         "assumption_id",
@@ -378,7 +403,7 @@ fn label_assumption(value: Value) -> Result<Value, String> {
         "resolution_note",
     ];
     if let Some(key) = map.keys().find(|key| !ALLOWED.contains(&key.as_str())) {
-        return Err(labels_invalid(format_args!(
+        return Err(labels_invalid(code, format_args!(
             "unknown assumption member `{key}`"
         )));
     }
@@ -389,25 +414,25 @@ fn label_assumption(value: Value) -> Result<Value, String> {
             .filter(|text| !text.is_empty())
     };
     let id = text("assumption_id")
-        .ok_or_else(|| labels_invalid("an assumption needs an `assumption_id`"))?;
+        .ok_or_else(|| labels_invalid(code, "an assumption needs an `assumption_id`"))?;
     if !is_record_id(id) {
-        return Err(labels_invalid(format_args!(
+        return Err(labels_invalid(code, format_args!(
             "assumption id `{id}` is not a record id ([A-Za-z][A-Za-z0-9_.:-]*)"
         )));
     }
     let kind = text("kind")
         .filter(|kind| ASSUMPTION_KINDS.contains(kind))
         .ok_or_else(|| {
-            labels_invalid(format_args!(
+            labels_invalid(code, format_args!(
                 "assumption `{id}`: `kind` must be assumption or open_issue"
             ))
         })?;
     let statement = text("statement")
-        .ok_or_else(|| labels_invalid(format_args!("assumption `{id}` needs a statement")))?;
+        .ok_or_else(|| labels_invalid(code, format_args!("assumption `{id}` needs a statement")))?;
     let status = text("status")
         .filter(|status| ASSUMPTION_STATUSES.contains(status))
         .ok_or_else(|| {
-            labels_invalid(format_args!(
+            labels_invalid(code, format_args!(
                 "assumption `{id}`: `status` must be unresolved, resolved or rejected"
             ))
         })?;
@@ -421,12 +446,12 @@ fn label_assumption(value: Value) -> Result<Value, String> {
                     .map(str::trim)
                     .filter(|text| !text.is_empty())
                     .ok_or_else(|| {
-                        labels_invalid(format_args!(
+                        labels_invalid(code, format_args!(
                             "assumption `{id}`: an affected ref is not an entity id"
                         ))
                     })?;
                 if refs.iter().any(|known| known == reference) {
-                    return Err(labels_invalid(format_args!(
+                    return Err(labels_invalid(code, format_args!(
                         "assumption `{id}` names `{reference}` twice"
                     )));
                 }
@@ -434,7 +459,7 @@ fn label_assumption(value: Value) -> Result<Value, String> {
             }
         }
         Some(_) => {
-            return Err(labels_invalid(format_args!(
+            return Err(labels_invalid(code, format_args!(
                 "assumption `{id}`: `affected_refs` is not a list"
             )))
         }
@@ -445,12 +470,12 @@ fn label_assumption(value: Value) -> Result<Value, String> {
         .is_some_and(|value| !value.is_null())
         && note.is_none()
     {
-        return Err(labels_invalid(format_args!(
+        return Err(labels_invalid(code, format_args!(
             "assumption `{id}`: the resolution note is blank"
         )));
     }
     if status != "unresolved" && note.is_none() {
-        return Err(labels_invalid(format_args!(
+        return Err(labels_invalid(code, format_args!(
             "assumption `{id}` is {status}: it needs a resolution note"
         )));
     }
@@ -809,6 +834,9 @@ pub(crate) struct ModelStateSummary {
     pub(crate) labels_updated_at: String,
     /// The saved states whose parent this state is; they block its deletion.
     pub(crate) child_state_ids: Vec<String>,
+    /// The recorded runs tied to this state (W-12 S2, oldest first); they block
+    /// its deletion too.
+    pub(crate) recorded_run_ids: Vec<String>,
     /// The record's `analysis_status` (from its column). `MODEL_INCOMPLETE`: the
     /// snapshot has blocking document findings, so it is kept (a comparison
     /// basis) but not opened as the working model, as a project would not be.
@@ -891,7 +919,7 @@ pub(crate) const PRODUCTION_HOOKS: StateWriteHooks<'static> = StateWriteHooks {
     between_rows: &|_| Ok(()),
 };
 
-fn sql(error: rusqlite::Error) -> String {
+pub(crate) fn sql(error: rusqlite::Error) -> String {
     error.to_string()
 }
 
@@ -993,6 +1021,27 @@ fn children(
         .collect::<Result<Vec<_>, _>>()
         .map_err(sql)?;
     Ok(ids)
+}
+
+/// The recorded runs tied to a state, oldest first: `(recording id, run name)`.
+pub(crate) fn recorded_runs_of(
+    connection: &Connection,
+    project_id: &str,
+    state_id: &str,
+) -> Result<Vec<(String, Option<String>)>, String> {
+    let mut statement = connection
+        .prepare(
+            "SELECT r.recording_id, l.run_name FROM analysis_runs r LEFT JOIN analysis_run_labels l
+             ON l.project_id = r.project_id AND l.recording_id = r.recording_id
+             WHERE r.project_id = ?1 AND r.state_id = ?2 ORDER BY r.created_at, r.recording_id",
+        )
+        .map_err(sql)?;
+    let runs = statement
+        .query_map(params![project_id, state_id], |row| Ok((row.get(0)?, row.get(1)?)))
+        .map_err(sql)?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(sql)?;
+    Ok(runs)
 }
 
 /// The value of the stored record's `hashes` entry for `scope`.
@@ -1157,6 +1206,10 @@ fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<ModelSta
                 )
             })?;
     let child_state_ids = children(connection, &project_id, &state_id)?;
+    let recorded_run_ids = recorded_runs_of(connection, &project_id, &state_id)?
+        .into_iter()
+        .map(|(recording_id, _)| recording_id)
+        .collect();
     Ok(ModelStateSummary {
         analysis_status,
         labels: decode_labels(name, &tags, &notes, &assumptions)?,
@@ -1169,10 +1222,11 @@ fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<ModelSta
         record_hash,
         labels_updated_at: updated_at,
         child_state_ids,
+        recorded_run_ids,
     })
 }
 
-fn find_summary(
+pub(crate) fn find_summary(
     connection: &Connection,
     project_id: &str,
     state_id: &str,
@@ -1224,7 +1278,7 @@ pub(crate) fn saved_state_count(connection: &Connection, project_id: &str) -> Re
         .map_err(sql)
 }
 
-fn state_description(summary: &ModelStateSummary) -> String {
+pub(crate) fn state_description(summary: &ModelStateSummary) -> String {
     format!("\"{}\" ({})", summary.labels.state_name, summary.state_id)
 }
 
@@ -1243,12 +1297,137 @@ fn refuse_assumption_id_collisions(stored: &Value, labels: &StateLabels) -> Resu
     for assumption in &labels.assumptions {
         let id = assumption["assumption_id"].as_str().unwrap_or("");
         if model_ids.contains(&id) {
-            return Err(labels_invalid(format_args!(
-                "assumption id `{id}` is already a model assumption of this state"
+            return Err(labels_invalid(
+                STATE_LABEL_VOCABULARY.code,
+                format_args!("assumption id `{id}` is already a model assumption of this state"
             )));
         }
     }
     Ok(())
+}
+
+/// A new state's inputs, checked by [`checked_new_state`]: the snapshot is its
+/// own canonical JCS text and hashes to the claim, it is its project's, and its
+/// document version is current.
+pub(crate) struct CheckedSnapshot {
+    pub(crate) model: Value,
+    pub(crate) model_canonical: String,
+    /// `sha256:<hex>`.
+    pub(crate) model_hash: String,
+    pub(crate) model_hash_hex: String,
+}
+
+/// The snapshot checks of a state save (before any store access).
+pub(crate) fn checked_new_state(
+    project_id: &str,
+    state_kind: &str,
+    model_canonical: String,
+    claimed_hash: &str,
+) -> Result<CheckedSnapshot, String> {
+    if !STATE_KINDS.contains(&state_kind) {
+        return Err(format!(
+            "MODEL-STATE-KIND-INVALID: `{state_kind}` is not one of {}.",
+            STATE_KINDS.join(", ")
+        ));
+    }
+    let (model, model_hash_hex) = verified_snapshot(&model_canonical, claimed_hash)?;
+    let snapshot_project = crate::project_id_from_model(&model);
+    if snapshot_project != project_id {
+        return Err(format!(
+            "MODEL-STATE-PROJECT-MISMATCH: the snapshot is project `{snapshot_project}`, not `{project_id}`; nothing was saved."
+        ));
+    }
+    // One current model-document version. Unlike a project save, a state may
+    // hold a model with blocking slot findings: the record says
+    // `MODEL_INCOMPLETE` and the state is not opened (design §2). The record
+    // mapping refuses, by name, any slot it cannot map.
+    crate::check_model_document_version(&model)?;
+    Ok(CheckedSnapshot {
+        model,
+        model_canonical,
+        model_hash: claimed_hash.to_string(),
+        model_hash_hex,
+    })
+}
+
+/// The state of `project_id` holding this model hash, if any.
+pub(crate) fn state_with_model_hash(
+    connection: &Connection,
+    project_id: &str,
+    model_hash: &str,
+) -> Result<Option<ModelStateSummary>, String> {
+    let existing: Option<String> = connection
+        .query_row(
+            "SELECT state_id FROM model_states WHERE project_id = ?1 AND model_hash = ?2",
+            params![project_id, model_hash],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(sql)?;
+    match existing {
+        None => Ok(None),
+        Some(state_id) => find_summary(connection, project_id, &state_id)?
+            .map(Some)
+            .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.")),
+    }
+}
+
+/// Writes a new state row and its labels row on the caller's `BEGIN IMMEDIATE`
+/// transaction (the caller has checked the project row and its base, and that
+/// no state holds this model hash). Shared by Save Model State and by Record
+/// Run's post-solve snapshot (W-12 S2), which writes the state, its labels, the
+/// run and the run's labels in one transaction.
+pub(crate) fn insert_new_state(
+    transaction: &Transaction<'_>,
+    project_id: &str,
+    state_kind: &str,
+    parent_state_id: Option<&str>,
+    snapshot: &CheckedSnapshot,
+    labels: &StateLabels,
+    hooks: &StateWriteHooks<'_>,
+) -> Result<ModelStateSummary, String> {
+    if let Some(parent) = parent_state_id {
+        if find_summary(transaction, project_id, parent)?.is_none() {
+            return Err(format!(
+                "MODEL-STATE-PARENT-MISSING: project `{project_id}` has no saved state `{parent}`; nothing was saved."
+            ));
+        }
+    }
+    let (token, now) = (hooks.allocate)()?;
+    let state_id = format!("state:{token}");
+    let created_at = utc_iso_millis(now);
+    let (record, record_hash) = stored_record(&NewState {
+        project_id,
+        state_id: &state_id,
+        state_kind,
+        created_at: &created_at,
+        parent_state_id,
+        model: &snapshot.model,
+        model_hash_hex: &snapshot.model_hash_hex,
+    })?;
+    refuse_assumption_id_collisions(&record, labels)?;
+    let record_json = serde_json::to_string(&record).map_err(|error| error.to_string())?;
+    transaction
+        .execute(
+            "INSERT INTO model_states (project_id, state_id, state_kind, created_at, parent_state_id, model_canonical, model_hash, record_json, record_hash)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+            params![
+                project_id,
+                state_id,
+                state_kind,
+                created_at,
+                parent_state_id,
+                snapshot.model_canonical,
+                snapshot.model_hash,
+                record_json,
+                record_hash
+            ],
+        )
+        .map_err(sql)?;
+    (hooks.between_rows)(transaction)?;
+    write_labels(transaction, project_id, &state_id, labels, &created_at, true)?;
+    find_summary(transaction, project_id, &state_id)?
+        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` was not written."))
 }
 
 /// `save_model_state` on a given store: the checks, then the state row and its
@@ -1259,26 +1438,12 @@ pub(crate) fn save_state_in_store(
     request: SaveModelStateRequest,
     hooks: &StateWriteHooks<'_>,
 ) -> Result<ModelStateSaveOutcome, String> {
-    if !STATE_KINDS.contains(&request.state_kind.as_str()) {
-        return Err(format!(
-            "MODEL-STATE-KIND-INVALID: `{}` is not one of {}.",
-            request.state_kind,
-            STATE_KINDS.join(", ")
-        ));
-    }
-    let (model, model_hash_hex) = verified_snapshot(&request.model_canonical, &request.model_hash)?;
-    let snapshot_project = crate::project_id_from_model(&model);
-    if snapshot_project != request.project_id {
-        return Err(format!(
-            "MODEL-STATE-PROJECT-MISMATCH: the snapshot is project `{snapshot_project}`, not `{}`; nothing was saved.",
-            request.project_id
-        ));
-    }
-    // One current model-document version. Unlike a project save, a state may
-    // hold a model with blocking slot findings: the record says
-    // `MODEL_INCOMPLETE` and the state is not opened (design §2). The record
-    // mapping refuses, by name, any slot it cannot map.
-    crate::check_model_document_version(&model)?;
+    let snapshot = checked_new_state(
+        &request.project_id,
+        &request.state_kind,
+        request.model_canonical,
+        &request.model_hash,
+    )?;
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
     if crate::stored_project_entry(&transaction, &request.project_id)?.is_none() {
@@ -1293,17 +1458,7 @@ pub(crate) fn save_state_in_store(
         None,
         Some(&request.expected_base),
     )?;
-    let existing: Option<String> = transaction
-        .query_row(
-            "SELECT state_id FROM model_states WHERE project_id = ?1 AND model_hash = ?2",
-            params![request.project_id, request.model_hash],
-            |row| row.get(0),
-        )
-        .optional()
-        .map_err(sql)?;
-    if let Some(state_id) = existing {
-        let state = find_summary(&transaction, &request.project_id, &state_id)?
-            .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished."))?;
+    if let Some(state) = state_with_model_hash(&transaction, &request.project_id, &snapshot.model_hash)? {
         let message = format!(
             "This model is already saved as state {}; nothing was written.",
             state_description(&state)
@@ -1314,56 +1469,15 @@ pub(crate) fn save_state_in_store(
             message,
         });
     }
-    if let Some(parent) = &request.parent_state_id {
-        if find_summary(&transaction, &request.project_id, parent)?.is_none() {
-            return Err(format!(
-                "MODEL-STATE-PARENT-MISSING: project `{}` has no saved state `{parent}`; nothing was saved.",
-                request.project_id
-            ));
-        }
-    }
-    let (token, now) = (hooks.allocate)()?;
-    let state_id = format!("state:{token}");
-    let created_at = utc_iso_millis(now);
-    let (record, record_hash) = stored_record(&NewState {
-        project_id: &request.project_id,
-        state_id: &state_id,
-        state_kind: &request.state_kind,
-        created_at: &created_at,
-        parent_state_id: request.parent_state_id.as_deref(),
-        model: &model,
-        model_hash_hex: &model_hash_hex,
-    })?;
-    refuse_assumption_id_collisions(&record, &request.labels)?;
-    let record_json = serde_json::to_string(&record).map_err(|error| error.to_string())?;
-    transaction
-        .execute(
-            "INSERT INTO model_states (project_id, state_id, state_kind, created_at, parent_state_id, model_canonical, model_hash, record_json, record_hash)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
-            params![
-                request.project_id,
-                state_id,
-                request.state_kind,
-                created_at,
-                request.parent_state_id,
-                request.model_canonical,
-                request.model_hash,
-                record_json,
-                record_hash
-            ],
-        )
-        .map_err(sql)?;
-    (hooks.between_rows)(&transaction)?;
-    write_labels(
+    let state = insert_new_state(
         &transaction,
         &request.project_id,
-        &state_id,
+        &request.state_kind,
+        request.parent_state_id.as_deref(),
+        &snapshot,
         &request.labels,
-        &created_at,
-        true,
+        hooks,
     )?;
-    let state = find_summary(&transaction, &request.project_id, &state_id)?
-        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` was not written."))?;
     transaction.commit().map_err(sql)?;
     let message = format!(
         "Saved model state {}. Renaming, tagging or adding notes does not change the saved state.",
@@ -1548,7 +1662,7 @@ pub(crate) fn edit_labels_in_store(
 }
 
 /// The inverse of [`utc_iso_millis`] for the text it writes.
-fn parse_iso_millis(text: &str) -> Option<i64> {
+pub(crate) fn parse_iso_millis(text: &str) -> Option<i64> {
     let bytes = text.as_bytes();
     if bytes.len() != 24 || &text[23..] != "Z" {
         return None;
@@ -1573,7 +1687,8 @@ fn parse_iso_millis(text: &str) -> Option<i64> {
 }
 
 /// `delete_model_state` on a given store: refused while a saved state names it
-/// as its parent (the blockers are named); its labels row goes with it.
+/// as its parent or a recorded run is tied to it (the blockers are named; the
+/// run's foreign key refuses it in SQL as well); its labels row goes with it.
 pub(crate) fn delete_state_in_store(
     path: &Path,
     project_id: &str,
@@ -1584,6 +1699,7 @@ pub(crate) fn delete_state_in_store(
     let state = find_summary(&transaction, project_id, state_id)?.ok_or_else(|| {
         format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.")
     })?;
+    let mut reasons = Vec::new();
     if !state.child_state_ids.is_empty() {
         let blockers = state
             .child_state_ids
@@ -1596,11 +1712,33 @@ pub(crate) fn delete_state_in_store(
             )
             .collect::<Vec<_>>()
             .join(", ");
+        reasons.push(format!(
+            "the parent of saved state{} {blockers}",
+            if state.child_state_ids.len() == 1 { "" } else { "s" }
+        ));
+    }
+    let runs = recorded_runs_of(&transaction, project_id, state_id)?;
+    if !runs.is_empty() {
+        let blockers = runs
+            .iter()
+            .map(|(recording_id, name)| match name {
+                Some(name) => format!("\"{name}\" ({recording_id})"),
+                None => recording_id.clone(),
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+        reasons.push(format!(
+            "the state of recorded run{} {blockers}",
+            if runs.len() == 1 { "" } else { "s" }
+        ));
+    }
+    if !reasons.is_empty() {
+        let count = state.child_state_ids.len() + runs.len();
         return Err(format!(
-            "MODEL-STATE-DELETE-BLOCKED: state {} is the parent of saved state{} {blockers}; delete {} first. Nothing was deleted.",
+            "MODEL-STATE-DELETE-BLOCKED: state {} is {}; delete {} first. Nothing was deleted.",
             state_description(&state),
-            if state.child_state_ids.len() == 1 { "" } else { "s" },
-            if state.child_state_ids.len() == 1 { "it" } else { "them" }
+            reasons.join(" and "),
+            if count == 1 { "it" } else { "them" }
         ));
     }
     let deleted = transaction
@@ -2013,10 +2151,10 @@ mod tests {
         }
         let (connection, evidence) = crate::open_project_store(&path).unwrap();
         assert_eq!(evidence.store_schema_version_before_open, 11);
-        assert_eq!(evidence.store_schema_version, 12);
+        assert_eq!(evidence.store_schema_version, crate::STORE_SCHEMA_TARGET_VERSION);
         assert_eq!(
             evidence.migrations_applied_on_open,
-            vec!["store-v12-model-states-tables"]
+            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables"]
         );
         assert!(
             crate::load_project(&connection, Some(PROJECT))
@@ -2041,7 +2179,7 @@ mod tests {
         let (connection, evidence) = crate::open_project_store(&path).unwrap();
         assert_eq!(
             evidence.migrations_applied_on_open,
-            vec!["store-v12-model-states-tables"]
+            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables"]
         );
         migrate_v12_model_states(&connection).unwrap();
         assert_eq!(list_states(&connection, PROJECT).unwrap().len(), 1);
@@ -2064,19 +2202,19 @@ mod tests {
         {
             let connection = Connection::open(&path).unwrap();
             connection
-                .execute_batch("CREATE TABLE marker(x); PRAGMA user_version = 13;")
+                .execute_batch("CREATE TABLE marker(x); PRAGMA user_version = 14;")
                 .unwrap();
         }
         let before = std::fs::read(&path).unwrap();
         let error = crate::open_project_store(&path).map(|_| ()).unwrap_err();
-        assert!(error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v13, newer than this build's v12"), "{error}");
+        assert!(error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v14, newer than this build's v13"), "{error}");
         assert_eq!(std::fs::read(&path).unwrap(), before, "not a byte written");
         let connection = Connection::open(&path).unwrap();
         let mode: String = connection
             .query_row("PRAGMA journal_mode", [], |row| row.get(0))
             .unwrap();
         assert_eq!(mode, "delete", "the journal mode is not switched to WAL");
-        assert_eq!(crate::store_user_version(&connection).unwrap(), 13);
+        assert_eq!(crate::store_user_version(&connection).unwrap(), 14);
         assert!(
             !store_has_table(&connection, "local_projects")
                 && !store_has_table(&connection, "model_states")

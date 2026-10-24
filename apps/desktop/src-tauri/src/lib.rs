@@ -8,6 +8,7 @@ mod model_document_save;
 mod model_document_shape;
 mod model_document_version;
 mod model_states;
+mod analysis_runs;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
@@ -723,7 +724,7 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 12;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 13;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -890,11 +891,18 @@ fn store_migrations() -> Vec<StoreMigration> {
             },
         },
         // Named immutable model states and their labels (W-12 S1, DEL-14-01
-        // Design `desktop-states-runs-comparison.md` §2). Recorded runs are S2's v13.
+        // Design `desktop-states-runs-comparison.md` §2).
         StoreMigration {
             version: 12,
             migration_id: "store-v12-model-states-tables",
             apply: model_states::migrate_v12_model_states,
+        },
+        // Analysis runs recorded against model states, and their labels (W-12
+        // S2, the same design §3).
+        StoreMigration {
+            version: 13,
+            migration_id: "store-v13-analysis-runs-tables",
+            apply: analysis_runs::migrate_v13_analysis_runs,
         },
     ]
 }
@@ -1439,6 +1447,9 @@ struct StoredProjectEntry {
     /// The saved model states attached to this project id; a Replace keeps
     /// them, and the prompt says how many (W-12 §2).
     saved_state_count: i64,
+    /// The recorded analysis runs attached to this project id; a Replace keeps
+    /// them too, and the prompt counts them (W-12 §3).
+    recorded_run_count: i64,
 }
 
 /// The stored project with this id, if any, and its revision, for the replace prompt.
@@ -1451,6 +1462,7 @@ fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<Store
             Ok(StoredProjectEntry {
                 revision: stored_revision(&connection, &entry)?,
                 saved_state_count: model_states::saved_state_count(&connection, &entry.project_id)?,
+                recorded_run_count: analysis_runs::recorded_run_count(&connection, &entry.project_id)?,
                 entry,
             })
         })
@@ -5202,6 +5214,11 @@ macro_rules! app_invoke_handler {
             model_states::read_model_state,
             model_states::edit_model_state_labels,
             model_states::delete_model_state,
+            analysis_runs::record_analysis_run,
+            analysis_runs::list_analysis_runs,
+            analysis_runs::read_analysis_run,
+            analysis_runs::edit_analysis_run_labels,
+            analysis_runs::delete_analysis_run,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
@@ -7134,11 +7151,12 @@ mod tests {
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
+                "store-v13-analysis-runs-tables",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v12"
+            "migrated_on_open_store_schema_v0_to_v13"
         );
 
         let second_open =
@@ -7155,7 +7173,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v12_no_pending_migrations"
+            "current_store_schema_v13_no_pending_migrations"
         );
     }
 
@@ -7192,10 +7210,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 12);
+        assert_eq!(migration.migrations_applied_on_open.len(), 13);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v12"
+            "migrated_on_open_store_schema_v0_to_v13"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -7264,12 +7282,13 @@ mod tests {
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
-                "store-v12-model-states-tables"
+                "store-v12-model-states-tables",
+                "store-v13-analysis-runs-tables"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v12"
+            "migrated_on_open_store_schema_v7_to_v13"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))
