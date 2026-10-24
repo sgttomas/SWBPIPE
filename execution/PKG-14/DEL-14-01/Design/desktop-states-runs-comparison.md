@@ -171,6 +171,11 @@ Python agree.
   its JCS hash and its project id. Any difference is refused as
   `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
   refused.
+- **Read memory (S2 repair r1).** `read_model_state` and `list_model_states`
+  take memory-pool leases sized from the stored lengths before loading
+  anything (`stored_read.rs`, described under §3's As built (S2)). A read
+  whose lease the pool refuses is refused with
+  `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
 - **Serializer.** Keys sort by code point, and i64/u64 integers are written
   in decimal. No field of `model_state.schema.json` has a number type, so the
   record hash fails closed on any other number (a float, or an integer outside
@@ -355,7 +360,23 @@ the History panel and `useModelStateHistory.ts`.
   - `ANALYSIS-RUN-RESULT-MISMATCH`: the result's checked hash or ref is not the
     record's `received_result`, or the result is not the record's run of the
     project.
-  - Rust does not re-derive the record's semantics; the validators do.
+  - `ANALYSIS-RUN-CHECKSUM-MISMATCH`: the record's whole `hashes` inventory is
+    not exactly the v0.3 descriptors. That means the record checksum, then the
+    received-result checksum, each with exactly its algorithm, profile, scope,
+    payload ref and value, and nothing else. Each result ref must also carry
+    exactly its row's checksum descriptor. The record digest leaves its own
+    checksum out, so only this check sees a mislabelled algorithm or profile
+    (Codex r1).
+  - `ANALYSIS-RUN-MANIFEST-MISMATCH` also covers every record member the
+    manifest fixes, derived from the manifest and never from the record:
+    - its ref and checksum descriptor;
+    - the solver name, version and build ref;
+    - the settings ref and the unit-system ref;
+    - the load basis (the manifest's load cases, then its combinations);
+    - the rule-pack and library references, which are empty in a transient
+      record.
+  - Rust does not re-derive the rest of the record's semantics; the validators
+    do.
 - **The revision.**
   - `rule_pack_refs` are `{RulePack, "<rule_pack_id>@<version>"}`, in the
     manifest's order (the manifest sorts them when it is built).
@@ -378,11 +399,19 @@ the History panel and `useModelStateHistory.ts`.
     - the producer run id, `created_at` and the result hash against
       `received_result`;
     - the project against the record's `unit_system_ref`, which names the
-      project and the manifest hash.
-  - **Read.** A read also checks the stored result's checked hash, the
-    manifest's canonical form and hash against the record, its project, and its
-    model payload's hash against the state's model hash. A coherent forgery that
-    names another state is refused there.
+      project and the manifest hash;
+    - the whole checksum inventory, the manifest's ref and checksum, and the
+      settings and unit-system refs against the descriptors that the verified
+      fields, the project and the manifest hash give.
+  - **Read.** A read also checks:
+    - the stored result's checked hash and each row's checksum descriptor;
+    - the manifest's canonical form, its hash against the record, and its
+      project;
+    - every record member the manifest fixes (as at Record Run, with the
+      rule-pack and library references);
+    - the manifest's model payload hash against the state's model hash.
+  - A coherently resealed forgery, one that names another state or contradicts
+    its manifest, is refused there.
   - Any difference is refused as `ANALYSIS-RUN-INTEGRITY`, naming the run.
 - **Delete.**
   - **State.** A state with recorded runs is not deleted
@@ -401,9 +430,21 @@ the History panel and `useModelStateHistory.ts`.
 - **Validators.**
   - TypeScript `validateAnalysisRunV03(…, recordedState)` and Python
     `validate_analysis_run_v0_3(…, recorded_state=…)` read the recorded form. They
-    check the state ref, `created_at`, the stored manifest's hash and project, its
+    check the state ref, `created_at`, the stored manifest's project, and its
     model payload against the state's model hash
-    (`ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH`) and the references.
+    (`ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH`).
+  - **Derived from the manifest (repair r1).** These checks run first, and every
+    expected value comes from the stored manifest, never from the record:
+    - the manifest's ref and checksum (`…_INPUT_MANIFEST_MISMATCH`);
+    - the solver identity and build ref (`…_SOLVER_MISMATCH`);
+    - the settings ref (`…_SETTINGS_MISMATCH`);
+    - the unit-system ref (`…_UNITS_MISMATCH`);
+    - the load basis (`…_LOAD_BASIS_MISMATCH`);
+    - the rule-pack and library references (`…_REFERENCES_MISMATCH`).
+  - **The load basis.** The recorded form's load basis is the manifest's. A
+    caller's basis that differs from it is refused.
+  - **Equality.** References compare structurally in all three languages:
+    member order is not significant, while array order and extra members are.
   - Each form is refused in the other's place. Transient records and their
     fixtures validate as before.
 - **`HistoricalRunContext`.**
@@ -429,9 +470,35 @@ the History panel and `useModelStateHistory.ts`.
     not shown in the results view, so its per-run state (page, filters, selected
     row) keys on nothing new. A re-solve and a recording keep the page
     (`recordRun.session.test.tsx`).
-- **Residual.** As for `read_model_state`, `read_analysis_run`'s response (the
-  record, result and manifest) is serialized under its small ingress lease;
-  responses are not separately bounded.
+- **Read memory (repair r1, `stored_read.rs`).**
+  - **Before loading.** A read takes the byte lengths of the stored columns it
+    needs with `octet_length`, without loading them. It then reserves, through
+    interactive memory-pool leases (Save Local Project's ingress admission:
+    the pool, fresh headroom, and the per-invocation budget over the read's
+    live leases together):
+    - loading each column (SQLite's page cache and value, and the copied
+      `String`);
+    - each text copy it makes for a hash;
+    - the response, as serialized while the command runs.
+  - **Before parsing.** Each parse is reserved after its text is loaded and
+    before it is parsed, at the ingress prescan's bound.
+  - **Refusal.** A refusal is `STORE-READ-MEMORY-UNAVAILABLE`, naming what was
+    to be read, and nothing more is loaded. All leases are released when the
+    read returns.
+  - **Coverage.** This covers `read_model_state`, `read_analysis_run`, the
+    run label edit and delete, and both lists.
+  - **Lists.** A list reserves its largest record and the labels it returns.
+    It then verifies records one at a time, each parse reserved after the
+    record loads and released after it is verified. It never loads a result
+    or a manifest.
+  - **Tests.** Counting-allocator tests store 3 MiB snapshots, results and
+    records and read them under a 128 KiB pool: each read is refused with the
+    large column unloaded. Under a large pool, the read's priced peak stays
+    within its reservation.
+  - **S3.** §4.2's comparison of two stored results reuses this pricing.
+  - **Residual.** Record Run, the state label edit and the state delete keep
+    their existing admission. Record Run is priced by its argument lease; the
+    state records the last two read are small.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 

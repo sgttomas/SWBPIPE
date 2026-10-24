@@ -202,6 +202,7 @@ code_paths:
 - apps/desktop/src/features/results/analysisResultHashScope.ts
 - apps/desktop/src/features/results/analysisResultHashScope.test.ts
 - apps/desktop/src-tauri/src/analysis_runs.rs
+- apps/desktop/src-tauri/src/stored_read.rs
 - apps/desktop/src/services/analysisRunService.ts
 - fixtures/persistence/transient_run_input.json
 - fixtures/persistence/recorded_run_witness.json
