@@ -134,7 +134,9 @@ on either route. It needs no solve and no result.
     references with `libraryRefSites` (`services/libraryImportService.ts`),
     the walk the open-time store check `check_model_library_refs` also uses;
     the native walk is pinned to it by
-    `fixtures/model_document/library_ref_sites.json`, and the identity and
+    `fixtures/model_document/library_ref_sites.json` for known kinds (on an
+    unknown `library_kind` the webview save reports nothing while the native
+    save reports it unresolved, as before this change), and the identity and
     record-matching rules (`library_identity`, `matching_library_records`)
     are one Rust implementation shared with that check (DEL-03-01
     `apply-library-records.md` §2.7). The verdict is a port of the

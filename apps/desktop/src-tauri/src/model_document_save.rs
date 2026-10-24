@@ -825,7 +825,10 @@ mod tests {
 
     /// The native save's walk finds the `library_ref`s, with the identities,
     /// that the webview's one walk (`libraryRefSites`, used by the save screen
-    /// and the open-time store check) finds: the shared site table.
+    /// and the open-time store check) finds: the shared site table. The table
+    /// holds known kinds only. For an unknown `library_kind` the surfaces differ,
+    /// as on main: the webview save skips the lookup and reports nothing, while
+    /// the native save and the open check report `MODEL-LIBRARY-REF-UNRESOLVED`.
     #[test]
     fn library_ref_walk_matches_the_shared_site_table() {
         let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_sites.json")).unwrap();
