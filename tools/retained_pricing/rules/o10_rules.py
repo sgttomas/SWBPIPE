@@ -2553,6 +2553,22 @@ if fnkey("append_combination_results", _SD_PP) and "let mut withheld: Vec<String
 # SD-DT (ID_AUDIT): validate_mechanics_combination's LOAD_COMBINATION_DUPLICATE_TERM, once per repeated term, priced as
 # its sibling per-term diagnostics: the id's two stable_suffix ids and the refs' two id clones (IN128).
 if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICATE_TERM",' in _fn_text("validate_mechanics_combination", _SD_V):
+    # SD-DL (O10_LOOPS_LAST): the per-term and per-operand loops now enumerate, so a repeated case is reported once, at
+    # its second occurrence (`combination.terms[..index]` / `operand_ids[..index]` counted by a borrowing
+    # `.iter().filter(..).count()`, which allocates nothing and reaches no text). Each visits one combination's terms or
+    # range operands once: <= 3 (D1.4), the inherited bound of the former headers, only in its own function.
+    _SD_DL = (("validate_mechanics_combination", "for (index, term) in combination.terms.iter().enumerate()",
+               ".filter(|other| other.load_case == term.load_case)\n                .count();"),
+              ("validate_range_envelope_combination", "for (index, operand_id) in operand_ids.iter().enumerate()",
+               "operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1"))
+    for _fn, _h, _c in _SD_DL:
+        _b = _fn_text(_fn, _SD_V)
+        if _b.count(_h + " {") != 1 or _b.count(_c) != 1 or _b.count(".count()") != 1:
+            raise SystemExit(f"SD-DL: {_fn}'s duplicate loop changed; re-review its bound: {_h}")
+    O10_LOOPS_LAST += [
+        (_SD_DL[0][1], "3", O10 + "SD-DL: one combination's terms (<= 3, D1.4), once each", ["validation.rs:validate_mechanics_combination"]),
+        (_SD_DL[1][1], "3", O10 + "SD-DL: one combination's range operands (<= 3, D1.4), once each", ["validation.rs:validate_range_envelope_combination"]),
+    ]
     O10_ID_AUDIT += [
         (site("validate_mechanics_combination", _SD_V, '"diagnostic:combination:{}:{}:duplicate",', full=True, row="&format!("),
          {"stable_suffix(&combination.id)": IN, "stable_suffix(&term.load_case)": IN}),
