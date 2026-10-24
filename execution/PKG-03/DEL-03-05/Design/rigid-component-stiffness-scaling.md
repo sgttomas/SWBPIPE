@@ -91,11 +91,18 @@ component's mapped member is scaled when all of these hold:
   `modifiers.source_reference`;
 - every supplied linear or rotational stiffness is finite and positive.
 
-Otherwise the member solves as unscaled pipe, and a warning names the first
-unmet condition (§2.6). This includes an absent consumption declaration, which
-gets its own warning, since no mode is assumed. `not_solver_consumed` is
+Otherwise the member solves as unscaled pipe, and one warning names the first
+unmet condition (§2.6), in the order listed. An absent consumption declaration
+gets its own warning when the component carries a scale, since no mode is
+assumed; without a scale, the first unmet later condition is named instead
+(normally the missing scale). An absent or blank `rigid_pipe_ref` is a missing
+mapped member, so the mapping warning is named beside the geometry warning.
+Within the scale condition, presence (scale and source reference) is checked
+before validity. `not_solver_consumed`, like any other declared mode, is
 honoured: the member solves as pipe with no rigid warning beyond the existing
-unsupported-interface diagnostics (PP `validation.rs` ~1227-1253). The first unmet condition is reported in the order listed. Three
+unsupported-interface diagnostics (PP `validation.rs` ~1227-1253). The
+predicate is PP `rigid_component.rs`, read by formation (`lib.rs`
+`build_model_for_members`) and by `validation.rs` alike. Three
 mappings that today pass silently are refused (blocking, by name), counting
 every rigid-family component that maps a member, whether or not it is eligible
 (a `not_solver_consumed` record sharing a member with an active one is a
@@ -141,15 +148,16 @@ force-scaled recovery after a range failure (PP `lib.rs` ~4017-4027). None of
 them proves member-force accuracy, and the warning does not replace them. An
 s·E, s·G or a product formed from them outside binary64's normal range
 (overflow, or underflow for a small s) fails at section or stiffness
-formation, where it is refused by name.
+formation, where it is refused by name: an s·E or s·G that is not a normal
+binary64 value is the blocking `PIPE_SECTION_INPUT_INVALID` of that member.
 
 ### 2.6 Diagnostics
 
 | Code | Severity | When |
 |---|---|---|
 | `RIGID_COMPONENT_GEOMETRY_INPUT_MISSING` | warning | as today |
-| `RIGID_COMPONENT_MAPPING_INPUT_INVALID` | warning | mapped member missing or not ending at the node; the member solves as pipe, unscaled |
-| `RIGID_COMPONENT_CONSUMPTION_UNDECLARED` (new) | warning | rigid-family component with a scale but no `solver_consumption`; the member solves as pipe, unscaled |
+| `RIGID_COMPONENT_MAPPING_INPUT_INVALID` | warning | mapped member missing (no `rigid_pipe_ref`, or an unknown member) or not ending at the node; the member solves as pipe, unscaled |
+| `RIGID_COMPONENT_CONSUMPTION_UNDECLARED` (new) | warning | rigid-family component with a scale but no `solver_consumption`; the member solves as pipe, unscaled. Without a scale, the first unmet later condition is named instead |
 | `RIGID_COMPONENT_MAPPING_CONFLICT` (new) | blocking | §2.3's three refusals |
 | `RIGID_COMPONENT_STIFFNESS_INPUT_MISSING` | warning | the scale or its source reference is missing; the member solves as pipe, unscaled |
 | `RIGID_COMPONENT_STIFFNESS_INPUT_INVALID` | warning | the scale, or a supplied linear or rotational stiffness, is not finite positive; the member solves as pipe, unscaled |
@@ -180,7 +188,10 @@ stand in for this refusal: it compares the bores of traversed members only,
 never reads the reducer, and has nothing to compare in a single-member region.
 A reducer whose mapped member lies outside every region is admitted like a
 valve, including when it is mapped at a region's boundary node but its own
-member is outside the region. Admitted valves and flanges are an equivalent
+member is outside the region. A reducer marker with no mapped member is not
+refused: it solves as pipe with the mapping warning (§2.6), no bore change is
+modelled, and the equal-bore guard still governs any actual bore difference
+between region members. The refusal names (case, region, component, member). Admitted valves and flanges are an equivalent
 pipe of the represented bore: bore continuity, cap thrust and the annular κ are
 those of the mapped section.
 
