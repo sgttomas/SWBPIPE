@@ -308,7 +308,11 @@ third vocabulary:
 - **UI.** References are added and removed from the Rule Pack Manager ("Use with
   this model"). A reference whose pack is no longer in the local store reports
   `MODEL-RULE-PACK-REF-UNRESOLVED` (warning). A reference never makes a check
-  pass.
+  pass. At solve, the session resolves each reference against the local store
+  for the run's input manifest: a matching pack enters `active_rule_packs`, and
+  an unresolved or changed one is excluded with `MODEL-RULE-PACK-REF-UNRESOLVED`
+  or `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (warnings, W-12; DEL-14-01 Design
+  `desktop-states-runs-comparison.md` §3).
 
 ### 3.5 Structured provenance (FR-MOD-005, PRD §20.2)
 
@@ -746,7 +750,9 @@ the text above, the code's reading within this section's intent is:
 - **Desktop.** Edits queue structured operations for review and apply. The
   model-data records live in the operations area's Model records tab.
   `MODEL-RULE-PACK-REF-UNRESOLVED` is shown in the Rule Pack Manager after a
-  list refresh, not in the diagnostics list. Save Local Project and the
+  list refresh, not in the diagnostics list. It and
+  `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` are also shown with a solve, the
+  Record Run form and a recorded run's check (W-12). Save Local Project and the
   browser-preview store refuse a document with a blocking finding, and the
   browser-preview store also refuses, by name, when the wasm engine holding
   the validator is absent; the diagnostics list then says the slots were not

@@ -756,7 +756,7 @@ fn rule_pack_and_library_refs_follow_the_manifest() {
     assert_eq!(rule_pack_refs(&manifest).unwrap(), vec![
         json!({ "object_type": "RulePack", "ref": "rule-pack:b@2" }),
         json!({ "object_type": "RulePack", "ref": "rule-pack:a@1" })
-    ], "the manifest's order (it is sorted when built)");
+    ], "the manifest's order (the model's reference order)");
     assert!(rule_pack_refs(&json!({})).unwrap_err().starts_with("ANALYSIS-RUN-MANIFEST-INVALID"));
     let payload = json!({
         "materials": [
