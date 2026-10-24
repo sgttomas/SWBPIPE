@@ -23,11 +23,12 @@ FG = "core/product_physics/src/formation_guard.rs"
 
 # Read at 91f59b7a56 (§8.18: the absolute node-proximity tolerance read from model_settings, cells 8 tolerances wide
 # indexed with no offset and saturating, no bounding box; scaled norms, the pair lists bounded to NAMED samples with
-# counts and a per-node `found` buffer as at 97e6fda00f; validation skips a component without a node, and its
-# branch-topology warning names the branch stress factors still applied).
+# counts and a per-node `found` buffer as at 97e6fda00f; validation skips a component without a node). Re-read for
+# the branch-warning statement (§8.18, W8-BF): validate_components' warning keeps its topology text only (the applied
+# sides are stated after publication by state_applied_branch_factors); its node-degree map (W8-ND) is unchanged.
 TOP_PIN = "cca9abee30dd68b4fe7d47785d92f4805a921d74742c64687cd7e4542f8be0f9"
 BODY_PINS = {
-    (VAL, "validate_components"): "5b600cef338a56c23a5f7d7afa2a08dd6545f7cf24b1773ccdb570c75a84a9bd",
+    (VAL, "validate_components"): "3a242bc7529e4ccdec1767d17e96e6ac55669f8caabf4f3e8e182a8dc8f1abe3",
     (VAL, "branch_topology_invalid"): "22c8a42d2750e8145c94e009bd9c6fe7f3a5965926aae487a5948b6db34206ae",
 }
 NAMED = 6

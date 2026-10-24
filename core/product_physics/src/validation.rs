@@ -1744,9 +1744,8 @@ pub(crate) fn state_applied_branch_factors(
             }
         }
         if !applied.is_empty() {
-            warning
-                .message
-                .push_str(&format!("; its branch stress factors are still applied ({})", applied.join(", ")));
+            let sides = applied.join(", ");
+            warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));
         }
     }
 }

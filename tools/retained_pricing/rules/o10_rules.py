@@ -2195,51 +2195,58 @@ if fnkey("branch_topology_invalid", _W8V):
     # §8.18: the warning's message is a multi-line format!, so its TEXT row is the `format!(` line.
     O10_ID_AUDIT += [(site("validate_components", _W8V, "joins {degree}", full=True, row="format!("),
                       {"degree": {"bytes": 20, "source": O10 + "W8-BT: a usize member count"}})]
-# W8-BF (retained-pricing-rules.md §8.18): the branch-topology warning's message names the branch stress factors still
-# applied, `branch_factors_still_applied(component, &pipe_map)`, called only as that message's argument inside the same
-# loop over model.components, so W8-BT's premise (P2, D1.4: no components) gives the call, its two text sites and its
-# join multiplicity 0 on both routes, guarded the same way. Its texts are still bounded at their sites: a side is
-# `{side} SIF to {pipe}` with a static side ("header" | "branch", 6 B) and an admitted pipe id (IN128); at most two
-# sides (one loop over the two pipe references, deduplicated) joined by ", "; the suffix adds its literal around them.
-if fnkey("branch_factors_still_applied", _W8V):
-    _W8_BF = _fn_text("branch_factors_still_applied", _W8V)
-    _W8_VC = _fn_text("validate_components", _W8V)
-    _w8_bf_side_t = 'let side = format!("{} SIF to {pipe}", modifier.side);'
-    _w8_bf_all_t = 'format!("; its branch stress factors are still applied ({})", applied.join(", "))'
+# W8-BF (retained-pricing-rules.md §8.18): the branch-topology warning's statement of the branch stress factors still
+# applied is added after publication by `state_applied_branch_factors(components, preview_cases, diagnostics)`, called
+# once, from run_linear_static_preview_observed_inner's solved preview envelope with `&model.components`. Everything it
+# allocates lies inside its loop over those components, which D1 refuses (P2, D1.4: `F::Components`), so the loop is
+# bound 0 on both routes (U6-LF: before the broad `components` rule of route E) and its sites have multiplicity 0,
+# guarded by o10_check. Its texts are still bounded at their sites: a side is `{side} SIF to {pipe}` with a static
+# side ("header" | "branch", 6 B) and a published record's pipe id (an admitted pipe id, IN128); at most two sides (one
+# per role: a role's records name the one pipe its reference names; deduplicated) joined by ", "; the suffix adds its
+# literal around them.
+if fnkey("state_applied_branch_factors", _W8V):
+    _W8_BF = _fn_text("state_applied_branch_factors", _W8V)
+    _W8_RUN = _fn_text("run_linear_static_preview_observed_inner", PP_ + "lib.rs")
+    _w8_bf_loop = "for component in components {"
+    _w8_bf_side_t = 'let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());'
+    _w8_bf_join_t = 'let sides = applied.join(", ");'
+    _w8_bf_all_t = 'warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));'
+    _w8_bf_call = ("validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, "
+                   "&mut envelope.diagnostics);")
     _w8_bf = (
-        _W8_BF.count(_w8_bf_side_t) == 1, _W8_BF.count(_w8_bf_all_t) == 1, _W8_BF.count("format!(") == 2,
-        _W8_BF.count("applied.push(side);") == 1, _W8_BF.count(".push(") == 1,
-        _W8_BF.count("for pipe in [&geometry.branch_header_pipe_ref, &geometry.branch_branch_pipe_ref]") == 1,
-        _W8_VC.count("branch_factors_still_applied(component, &pipe_map)") == 1,
-        _text_of(_W8V).count("branch_factors_still_applied(") == 2,
-        _W8_VC.index("for component in &model.components") < _W8_VC.index("branch_factors_still_applied(")
-        if "for component in &model.components" in _W8_VC else False,
-        '"header",' in _fn_text("branch_stress_modifier_for_pipe", PP_ + "lib.rs")
-        and '"branch",' in _fn_text("branch_stress_modifier_for_pipe", PP_ + "lib.rs"),
+        _W8_BF.count(_w8_bf_loop) == 1, _W8_BF.count("for ") == 3,
+        _W8_BF.count('for (role, side) in [("branch_header", "header"), ("branch_branch", "branch")]') == 1,
+        _W8_BF.count(_w8_bf_side_t) == 1, _W8_BF.count(_w8_bf_join_t) == 1, _W8_BF.count(_w8_bf_all_t) == 1,
+        _W8_BF.count("format!(") == 2, _W8_BF.count(".join(") == 1, _W8_BF.count("Vec::new()") == 1,
+        _W8_BF.count("applied.push(named);") == 1, _W8_BF.count(".push(") == 1, _W8_BF.count(".push_str(") == 1,
+        all(_W8_BF.index(_w8_bf_loop) < _W8_BF.index(t) for t in ("Vec::new()", "format!(", ".push", ".join(")),
+        _W8_RUN.count(_w8_bf_call) == 1, _text_of(PP_ + "lib.rs").count("state_applied_branch_factors(") == 1,
+        _text_of(_W8V).count("state_applied_branch_factors(") == 1,
     )
     if not all(_w8_bf):
-        raise SystemExit(f"W8-BF: branch_factors_still_applied changed; re-review its zero and bounds: {_w8_bf}")
+        raise SystemExit(f"W8-BF: state_applied_branch_factors changed; re-review its zero and bounds: {_w8_bf}")
     _W8_BF_SIDE = len(" SIF to ") + len("header") + 128                          # 142
     _W8_BF_JOIN = 2 * _W8_BF_SIDE + len(", ")                                    # 286
     _W8_BF_ALL = len("; its branch stress factors are still applied ()") + _W8_BF_JOIN   # 334
     _W8_BF_WHY = O10 + "W8-BF: multiplicity 0 by P2 (D1.4: no components), as W8-BT"
+    O10_LOOPS_FIRST += [(_w8_bf_loop[:-2], "0", _W8_BF_WHY + " (its one caller passes &model.components)",
+                         ["validation.rs:state_applied_branch_factors"])]
     O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
-        (site("branch_factors_still_applied", _W8V, _w8_bf_side_t), _W8_BF_WHY + " (a side's text)"),
-        (site("branch_factors_still_applied", _W8V, _w8_bf_all_t), _W8_BF_WHY + " (the suffix)"),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_side_t), _W8_BF_WHY + " (a side's text)"),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t), _W8_BF_WHY + " (the statement)"),
     ]
     O10_ID_AUDIT += [
-        (site("validate_components", _W8V, "joins {degree}", full=True, row="format!("),
-         {"branch_factors_still_applied(component,&pipe_map)":
-          {"bytes": _W8_BF_ALL, "source": O10 + "W8-BF: the applied-factors suffix, <= 2 sides joined (334 B)"}}),
-        (site("branch_factors_still_applied", _W8V, _w8_bf_side_t, full=True),
-         {"modifier.side": {"bytes": len("header"), "source": O10 + "W8-BF: a static side, header | branch"},
-          "pipe": IN}),
-        (site("branch_factors_still_applied", _W8V, _w8_bf_all_t, full=True),
-         {'applied.join(",")': {"bytes": _W8_BF_JOIN, "source": O10 + "W8-BF: <= 2 sides joined by ', '"}}),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_side_t, full=True),
+         {"side": {"bytes": len("header"), "source": O10 + "W8-BF: a static side, header | branch"},
+          'record["pipe_id"].as_str().unwrap_or_default()': IN}),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t, full=True),
+         {"sides": {"bytes": _W8_BF_JOIN, "source": O10 + "W8-BF: <= 2 sides joined by ', '"}}),
     ]
     LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
-        (site("branch_factors_still_applied", _W8V, _w8_bf_all_t),
-         {"class": _W8_BF_JOIN, "why": O10 + "W8-BF: <= 2 sides joined by ', ' (multiplicity 0)"})]
+        (site("state_applied_branch_factors", _W8V, _w8_bf_join_t),
+         {"class": _W8_BF_JOIN, "why": O10 + "W8-BF: <= 2 sides joined by ', ' (multiplicity 0)"}),
+        (site("state_applied_branch_factors", _W8V, _w8_bf_all_t),
+         {"class": _W8_BF_ALL, "why": O10 + "W8-BF: the statement, its literal around <= 2 sides (multiplicity 0)"})]
 
 # NP-MS (retained-pricing-rules.md §8.18): validate_model_settings refuses a malformed
 # `model_settings.node_proximity_tolerance` with one blocking diagnostic carrying the accessor's code and message. D1
