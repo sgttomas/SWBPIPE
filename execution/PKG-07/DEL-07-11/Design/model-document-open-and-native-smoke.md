@@ -205,7 +205,11 @@ Then, for the milestone and the demo, it:
 **Phase 2** is a new process. It reopens each project and solves again.
 
 `run.mjs` checks the observations against `native-smoke/expected.json`. Those
-values come from T3's G10 jsdom replay and are not re-pinned from a native run.
+values come from T3's G10 jsdom replay. The owner's ruling of 2026-10-24 set
+the five row and N1 values to the native observations: milestone 113 rows in
+both modes and N1 "…47199 mm" sparse, demo 745 rows in both modes. The causes
+are #1461 (15 rows per member per case) and #1387 E14 (no dense parity row)
+and E15 (correctly rounded norm3); see DEL-07-05 Design `owner-mac-check.md`.
 It also checks:
 
 - the proof hash against its own JCS hash of each file;
