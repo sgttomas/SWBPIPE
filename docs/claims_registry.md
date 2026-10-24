@@ -4,7 +4,7 @@
 (`execution/_Decomposition/SOFTWARE_DECOMP.md` §12); derives from PRD v0.3
 §19.3 (required report notice), §21.1/§21.2 (permitted/prohibited claims),
 §21.3 (human-acceptance separation), §22.5 (external-prover validation
-posture, `DEC-080`), and F-PIP-2. This registry is the single source for
+posture, `DEC-080`). This registry is the single source for
 boundary language on product and live governance surfaces. It creates no
 lifecycle, release, professional-approval, certification, sealing,
 authentication, or code-compliance claim.
@@ -140,16 +140,43 @@ surfaces could reuse it.
 
 **Belongs on:** nothing. There is no replacement statement.
 
+### NQ-HEALTH — numerical health of the ordinary solve (desktop)
+
+**Canonical:** "These checks look for numerical trouble; they do not measure
+the error, and they say nothing about whether the model, its inputs or its
+design are right."
+
+**Display forms:**
+
+- "Numerical health: checks passed", "Numerical health: sensitive",
+  "Numerical health: quality unresolved", "Numerical health: solve failed"
+  and "Numerical health: not assessed";
+- the prefix "Ordinary solve —", on routes whose standing comes from other
+  evidence;
+- the result header's count form, "Numerical health: {n} {state}, …".
+
+They report the solver's existing integrity verdicts (`M03-INTEGRITY-v1`) for
+each load case. They are numerical-quality indicators, not analysis statuses
+or evidence-status labels (§2.1), and they never use "verified", "certified",
+"bound", "guaranteed", "valid", "approved", "compliant", "correct" or
+"reliable".
+
+**Belongs on:** the desktop's numerical-health indicator, and the
+numerical-health line of generated reports. The canonical sentence accompanies
+the checks-passed state.
+
 ### GF-TOKEN — governance fence token (agent-facing artifacts only)
 
-**Canonical:** "Standard claim fence applies (F-PIP-2; claims taxonomy
-per DEC-081)."
+**Canonical:** "Standard claim fence applies (claims taxonomy per DEC-081)."
 
 **Belongs on:** new governance artifacts — scopes of work, packets, status
 entries, run records, receipts — wherever an author would previously have
-restated the claims litany. The F-PIP-2 fence text itself and OPS-K-AUTH-1
-(`docs/CONTRACT.md`) are the governing definitions and are never edited or
-replaced by this token. Never used on product surfaces.
+restated the claims litany. PRD §21 and OPS-K-AUTH-1
+(`docs/CONTRACT.md`) are the governing definitions; this token cites them and
+never replaces them. Never used on product surfaces. Artifacts written before
+2026-10-23 carry the earlier form, "Standard claim fence applies (F-PIP-2;
+claims taxonomy per DEC-081)."; it is left in place and not used on new
+artifacts (the owner retired F-PIP-1, -2 and -4 and DEC-043 on 2026-10-23).
 
 ## 2. Evidence-status labels
 
@@ -182,7 +209,9 @@ Rules:
 1. A label is never shown without its token reachable in place.
 2. A label is always shown with its authority domain.
 3. No label exists outside the table: there is no seventh status, and
-   `ENGINEER_ACCEPTED` stays reserved and has no display form.
+   `ENGINEER_ACCEPTED` stays reserved and has no display form. The
+   numerical-health forms of `NQ-HEALTH` (§1) are registered there. They are
+   not analysis statuses or evidence-status labels.
 
 The registered forms replace the product's earlier curated labels "Review
 required" and "Inputs needed". The `docs/TYPES.md` §4 tokens and the
@@ -216,7 +245,7 @@ statement (or a listed short variant) verbatim — one surface, one boundary.
 `BS-ACCEPT` is placed on no new artifact (`DEC-107`): it stays registered only
 for the live `ScopeOfWork.md` files that already carry it, and where it has
 been withdrawn nothing is written in its place.
-Do not compose ad-hoc prohibition lists; do not restate F-PIP-2 or
+Do not compose ad-hoc prohibition lists; do not restate PRD §21 or
 OPS-K-AUTH-1 as a litany — cite GF-TOKEN. Deliverable-specific exclusions
 ("does not implement a parser/harness/API...") are scope statements, not
 claims language, and stay as ordinary prose. Structured metadata fields

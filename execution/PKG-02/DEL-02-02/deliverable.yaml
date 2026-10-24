@@ -210,9 +210,14 @@ code_paths:
 - apps/desktop/src/services/unitConversion.ts
 - apps/desktop/src/services/unitCatalogService.ts
 - apps/desktop/src/features/display-units/**
+- apps/desktop/src/features/project-units/**
+- apps/desktop/src/services/projectService.ts
 checks:
 - core/units/src/lib.rs
 - apps/desktop/src/services/displayQuantityPrecision.test.ts
 - apps/desktop/src/services/unitConversion.test.ts
 - apps/desktop/src/services/unitCatalogService.test.ts
 - apps/desktop/src/features/display-units/displayUnits.test.tsx
+- apps/desktop/src/features/project-units/projectUnitSelection.test.ts
+- apps/desktop/src/features/project-units/ProjectUnitsDialog.test.tsx
+- apps/desktop/src/features/project-units/composedDefaultForms.test.tsx

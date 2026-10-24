@@ -163,8 +163,7 @@ fn near_duplicate_nodes(
             high[axis] = high[axis].max(point[axis]);
         }
     }
-    let d = [0, 1, 2].map(|axis| high[axis] - low[axis]);
-    let extent = ((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]).sqrt();
+    let extent = scaled_norm([0, 1, 2].map(|axis| high[axis] - low[axis]));
     if !extent.is_finite() {
         return;
     }
@@ -174,19 +173,28 @@ fn near_duplicate_nodes(
         .iter()
         .map(|&(a, b)| (a.min(b), a.max(b)))
         .collect::<HashSet<_>>();
+    // The first NAMED pairs in (node, other) order, and every pair's count:
+    // storage stays bounded however many nodes coincide.
     let mut coincident = Vec::new();
+    let mut coincident_count = 0usize;
     let mut near = Vec::new();
+    let mut near_count = 0usize;
     if tolerance > 0.0 {
-        // Cells of the tolerance's size: a pair within the tolerance lies in
-        // the same or a neighbouring cell. Indices stay below 2e6 per axis.
+        // Cells twice the tolerance wide: rounding in a cell index moves a
+        // point by far less than half a cell, so a pair within the tolerance
+        // always lies in the same or a neighbouring cell. Indices stay below
+        // 1e6 per axis.
+        let width = 2.0 * tolerance;
         let cell = |point: &[f64; 3]| {
-            [0, 1, 2].map(|axis| ((point[axis] - low[axis]) / tolerance).floor() as i64)
+            [0, 1, 2].map(|axis| ((point[axis] - low[axis]) / width).floor() as i64)
         };
         let mut grid: HashMap<[i64; 3], Vec<usize>> = HashMap::new();
         for (node, point) in coordinates.iter().enumerate() {
             grid.entry(cell(point)).or_default().push(node);
         }
+        let mut found = Vec::new();
         for (node, point) in coordinates.iter().enumerate() {
+            found.clear();
             let c = cell(point);
             for dx in -1..=1 {
                 for dy in -1..=1 {
@@ -200,20 +208,38 @@ fn near_duplicate_nodes(
                             }
                             let q = coordinates[other];
                             let e = [0, 1, 2].map(|axis| q[axis] - point[axis]);
-                            let distance = ((e[0] * e[0] + e[1] * e[1]) + e[2] * e[2]).sqrt();
-                            if distance == 0.0 {
-                                coincident.push((node, other));
-                            } else if distance <= tolerance {
-                                near.push((node, other, distance));
+                            // Distinct finite coordinates never subtract to zero.
+                            if e == [0.0; 3] {
+                                found.push((other, None));
+                            } else {
+                                let distance = scaled_norm(e);
+                                if distance <= tolerance {
+                                    found.push((other, Some(distance)));
+                                }
                             }
+                        }
+                    }
+                }
+            }
+            found.sort_unstable_by_key(|&(other, _)| other);
+            for &(other, distance) in &found {
+                match distance {
+                    None => {
+                        coincident_count += 1;
+                        if coincident.len() < NAMED {
+                            coincident.push((node, other));
+                        }
+                    }
+                    Some(distance) => {
+                        near_count += 1;
+                        if near.len() < NAMED {
+                            near.push((node, other, distance));
                         }
                     }
                 }
             }
         }
     }
-    coincident.sort_unstable();
-    near.sort_unstable_by(|a, b| (a.0, a.1).cmp(&(b.0, b.1)));
     let refs = |pairs: &mut dyn Iterator<Item = (usize, usize)>| {
         let mut refs = Vec::new();
         for (a, b) in pairs.take(NAMED) {
@@ -245,9 +271,9 @@ fn near_duplicate_nodes(
             "warning",
             format!(
                 "{} pair{} of distinct nodes share a position and no element joins them; elements meeting there are not connected unless they share one node: {named}{}",
-                coincident.len(),
-                if coincident.len() == 1 { "" } else { "s" },
-                more(coincident.len())
+                coincident_count,
+                if coincident_count == 1 { "" } else { "s" },
+                more(coincident_count)
             ),
             refs(&mut coincident.iter().copied()),
         ));
@@ -265,11 +291,22 @@ fn near_duplicate_nodes(
             "warning",
             format!(
                 "{} pair{} of distinct nodes lie within {tolerance:e} m of each other (1e-6 of the model's extent) and no element joins them; a pipe may end short of the node it should share: {named}{}",
-                near.len(),
-                if near.len() == 1 { "" } else { "s" },
-                more(near.len())
+                near_count,
+                if near_count == 1 { "" } else { "s" },
+                more(near_count)
             ),
             refs(&mut near.iter().map(|&(a, b, _)| (a, b))),
         ));
     }
+}
+
+/// The Euclidean norm, scaled by the largest component so that no square
+/// overflows or underflows.
+fn scaled_norm(v: [f64; 3]) -> f64 {
+    let largest = v.iter().fold(0.0_f64, |m, x| m.max(x.abs()));
+    if largest == 0.0 || !largest.is_finite() {
+        return largest;
+    }
+    let u = v.map(|x| x / largest);
+    largest * ((u[0] * u[0] + u[1] * u[1]) + u[2] * u[2]).sqrt()
 }

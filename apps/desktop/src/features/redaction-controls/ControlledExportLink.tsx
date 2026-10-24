@@ -25,6 +25,7 @@ const TEST_ID_BINDINGS: Record<string, RouteBinding> = {
   "report-export-link": { routeId: "DREP-JSON-002", context: "public_report" },
   "report-lint-export-link": { routeId: "DREP-LINT-JSON-007", context: "public_report" },
   "rendered-report-save": { routeId: "DREP-HTML-SAVE-005", context: "public_report", lossless: true },
+  "rendered-report-save-local-private": { routeId: "DREP-HTML-SAVE-005", context: "local_private", lossless: true },
   "caepipe-external-export-link": { routeId: "DOTH-CAEPIPE-LOCAL-006", context: "local_private", lossless: true },
   "caepipe-external-csv-link": {
     routeId: "DOTH-CAEPIPE-LOCAL-006",
@@ -71,13 +72,19 @@ type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   children: ReactNode;
   nativeCurrentBinding?: object | null;
   validateDecodedPayload?: (payload: unknown) => Promise<void>;
+  /** Wrapper-owned explicit local-private intent. When the enclosing surface
+   * owns the selection (e.g. the rendered-report panel), it passes it here and
+   * this link shows no second checkbox of its own. */
+  explicitLocalPrivateIntent?: boolean;
   "data-testid"?: string;
 };
 
-export function ControlledExportLink({ href, children, nativeCurrentBinding, validateDecodedPayload, ...anchorProps }: Props) {
+export function ControlledExportLink({ href, children, nativeCurrentBinding, validateDecodedPayload, explicitLocalPrivateIntent, ...anchorProps }: Props) {
   const testId = String(anchorProps["data-testid"] ?? "controlled-export-link");
   const binding = routeBindingForTestId(testId);
-  const [explicitIntent, setExplicitIntent] = useState(false);
+  const [ownIntent, setOwnIntent] = useState(false);
+  const wrapperOwnsIntent = explicitLocalPrivateIntent !== undefined;
+  const explicitIntent = wrapperOwnsIntent ? explicitLocalPrivateIntent === true : ownIntent;
   const decoded = useMemo(() => decodeDataHref(href), [href]);
   const routePayload = useMemo(
     () =>
@@ -206,12 +213,12 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, val
       data-local-first-reason={binding.exactCanonicalPayload && exposureReason ? exposureReason : controlled.summary.local_first?.reason_code ?? "LOCAL_FIRST_EVIDENCE_MISSING"}
       data-route-id={binding.routeId}
     >
-      {binding.context === "local_private" ? (
+      {binding.context === "local_private" && !wrapperOwnsIntent ? (
         <label>
           <input
             checked={explicitIntent}
             data-testid={`${testId}-local-private-intent`}
-            onChange={(event) => setExplicitIntent(event.currentTarget.checked)}
+            onChange={(event) => setOwnIntent(event.currentTarget.checked)}
             type="checkbox"
           />
           Include known private values in this local export

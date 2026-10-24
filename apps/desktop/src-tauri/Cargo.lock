@@ -2172,6 +2172,7 @@ name = "open_pipe_stress_operation_applier"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
+ "open_pipe_stress_frame_kernel",
  "open_pipe_stress_product_physics",
  "open_pipe_stress_units",
  "serde",
@@ -2296,6 +2297,7 @@ dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_expression_evaluator",
  "open_pipe_stress_rule_pack_lifecycle",
+ "open_pipe_stress_units",
  "serde",
  "serde_json",
 ]

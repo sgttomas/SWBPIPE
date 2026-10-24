@@ -12,6 +12,7 @@ import {
   expectStatusChip,
   expectTreeEntity,
   expectVirtualTarget,
+  confirmProjectUnits,
   openWorkspaceSection,
   projectCommand,
   selectTreeEntity,
@@ -934,6 +935,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await ensureEngineReady(page);
   await projectCommand(page, "new-blank");
+  await confirmProjectUnits(page);
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );

@@ -77,3 +77,8 @@ export function compactOptionRecords(control: HTMLElement): Array<{ value: strin
   fireEvent.keyDown(control, { key: "Escape" });
   return records;
 }
+
+/** W-17: the blank routes open the units dialog first; Create accepts its selection (SI unless changed). */
+export function confirmProjectUnits(): void {
+  fireEvent.click(screen.getByTestId("project-units-create"));
+}

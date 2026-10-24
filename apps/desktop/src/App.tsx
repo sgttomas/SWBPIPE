@@ -5,6 +5,8 @@ import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { operationExamples } from "./features/geometry-tools/reconnectExample";
+import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
@@ -46,7 +48,7 @@ import { DormantSection } from "./features/workspace/dormantSection";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -90,6 +92,7 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
+import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -99,6 +102,8 @@ import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
+import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
+import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
@@ -177,10 +182,14 @@ function AppSession() {
   const {
     result,
     currentSolvedResult,
+    numericallyEligible,
+    numericalHealth,
+    numericalHealthHold,
     historicalRun,
     analysisRun,
     inputManifest,
     ruleCheckAggregate,
+    ruleCheckReportRun,
     ruleCheckRunBasis,
     dormantOutputBasis,
     comparison,
@@ -204,6 +213,8 @@ function AppSession() {
     handleSaveReportPackage
   } = session.results;
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
+  // The viewport's result overlays read the same standing and numerical health view as the results panel.
+  const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
     editorIntents,
     retainedReviewContext,
@@ -246,8 +257,8 @@ function AppSession() {
     projectOperation,
     projectBusy,
     handleCreateProject,
-    handleCreateBlankProject,
-    handleCreateBlankLoadStateProject,
+    requestBlankProject,
+    blankProjectUnitsRequest,
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
@@ -288,6 +299,9 @@ function AppSession() {
     exposeViewportForNarrowInteraction,
     toggleWorkspaceRail
   } = session.chrome;
+  // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
+  // Diagnostics panel opens filtered to exactly that diagnostic, once.
+  const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -318,8 +332,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
-      // The replace prompt is modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null}
+      // The replace prompt and the units dialog are modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -342,7 +356,7 @@ function AppSession() {
           stageViewMemory={stageViewMemory}
           pageOpen={shell.page !== null}
           tableDrawer={tableDrawer}
-          run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null })}
+          run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })}
           theme={uiPreferences.theme}
           density={uiPreferences.density}
           onCommand={runMenuCommand}
@@ -358,7 +372,7 @@ function AppSession() {
               stage: shell.stage,
               pageOpen: shell.page !== null,
               stageViewMemory,
-              run: runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null }),
+              run: runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold }),
               theme: uiPreferences.theme,
               density: uiPreferences.density,
               onCommand: runMenuCommand
@@ -498,6 +512,7 @@ function AppSession() {
                   operation_schema: operationSchema,
                   provider_status: "Live provider is held; offline proposals require explicit human review."
                 }}
+                loadOperationExamples={() => operationExamples(model)}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
@@ -526,6 +541,7 @@ function AppSession() {
                 revision={modelRevision.current} busy={operationBusy} message={batchMessage}
                 onValidate={(entry) => void handleRunOperationBatch(entry, false)}
                 onApply={(entry) => void handleRunOperationBatch(entry, true)}
+                onSelectRef={(ref) => { const target = resolveEntitySelection(model, ref); if (target) handleSelectEntity(target); }}
               />
               <OperationApplyPanel
                 queuedIntents={editorIntents}
@@ -627,6 +643,14 @@ function AppSession() {
                 analysisRun={analysisRun}
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
+                numericalHealth={numericalHealth}
+                resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
+                onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
+                onShowDiagnostic={(diagnosticId) => {
+                  handleSelectDiagnostic(diagnosticId);
+                  requestDiagnosticFilter(diagnosticId);
+                  setIssuesDrawerOpen(true);
+                }}
               />}
               <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
               <DesignWorkspacePanel
@@ -679,8 +703,11 @@ function AppSession() {
               <RenderedReportPanel
                 model={model}
                 result={currentSolvedResult}
+                numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 projectSummary={projectSummary}
+                inputManifest={inputManifest}
+                ruleCheckRun={ruleCheckReportRun}
                 packagePrivateIntent={reportPackagePrivateIntent}
                 packageBusy={reportPackageBusy}
                 packageRedaction={reportPackageRedaction}
@@ -693,6 +720,7 @@ function AppSession() {
                 model={model}
                 knowledge={knowledge}
                 result={currentSolvedResult}
+                numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 comparison={comparison}
                 editorIntents={editorIntents}
@@ -754,6 +782,7 @@ function AppSession() {
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
+              resultStanding={viewportResultStanding}
               selection={selection}
               selectionState={orderedSelection}
               theme={resolvedTheme}
@@ -816,11 +845,11 @@ function AppSession() {
             <Database size={15} aria-hidden="true" />
             Create local
           </button>
-          <button type="button" onClick={handleCreateBlankProject} disabled={projectBusy}>
+          <button type="button" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             New blank
           </button>
-          <button type="button" data-testid="new-blank-040" onClick={handleCreateBlankLoadStateProject} disabled={projectBusy}>
+          <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             Blank load/reference model
           </button>
@@ -904,6 +933,7 @@ function AppSession() {
                 analysisRun={analysisRun}
                 model={model}
                 result={result}
+                numericalHealth={numericalHealth}
                 running={running}
                 solveJob={solveJob}
                 solverMode={solverMode}
@@ -919,12 +949,12 @@ function AppSession() {
                 basis={ruleCheckRunBasis}
                 model={model}
                 result={currentSolvedResult}
-                onAggregateChange={(aggregate) => void handleRuleCheckAggregate(aggregate, {
+                onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
                   projectSessionGeneration,
                   modelRevision: uiModelRevision,
                   result: currentSolvedResult,
                   inputManifest
-                })}
+                }, run ?? null)}
                 onR3JourneyEvent={recordR3JourneyEvent}
               />
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
@@ -1048,11 +1078,13 @@ function AppSession() {
           result={result}
           operationOutcomes={operationOutcomes}
           selectedDiagnosticId={selectedReviewTarget?.target_type === "diagnostic" ? selectedReviewTarget.id : null}
+          diagnosticFilterRequest={diagnosticFilterRequest}
           onClose={() => setIssuesDrawerOpen(false)}
           onSelectDiagnostic={handleSelectDiagnostic}
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
+      <ProjectUnitsDialog request={blankProjectUnitsRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1475,6 +1507,7 @@ function IssuesHome({
   result,
   operationOutcomes,
   selectedDiagnosticId,
+  diagnosticFilterRequest = null,
   onClose,
   onSelectDiagnostic
 }: {
@@ -1483,6 +1516,7 @@ function IssuesHome({
   result: MechanicsResult | null;
   operationOutcomes: Record<string, OperationOutcome>;
   selectedDiagnosticId: string | null;
+  diagnosticFilterRequest?: DiagnosticFilterRequest | null;
   onClose: () => void;
   onSelectDiagnostic: (diagnosticId: string) => void;
 }) {
@@ -1514,6 +1548,7 @@ function IssuesHome({
         knowledge={knowledge}
         result={result}
         selectedDiagnosticId={selectedDiagnosticId}
+        filterRequest={diagnosticFilterRequest}
         onSelectDiagnostic={onSelectDiagnostic}
       />
       <MissingDataBlockingPanel model={model} result={result} />

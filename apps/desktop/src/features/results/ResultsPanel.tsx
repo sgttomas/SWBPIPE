@@ -11,6 +11,10 @@ import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
+import type { EntityRef } from "../../types";
+import { numericalResultStanding } from "./resultStanding";
+import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
+import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -46,13 +50,23 @@ export function ResultsPanel({
   knowledge,
   analysisRun,
   selectedResultId,
-  onSelectResult
+  onSelectResult,
+  numericalHealth,
+  resolveCauseLocation,
+  onSelectCauseLocation,
+  onShowDiagnostic
 }: {
   result: MechanicsResult | null;
   knowledge: DesignKnowledge | null;
   analysisRun: AnalysisRunEnvelope | null;
   selectedResultId: string | null;
   onSelectResult: (resultId: string) => void;
+  /** The session's numerical health presentation for this result. Absent (a reopened
+   * run), the panel reads it with no model, so no verdict-only hold applies. */
+  numericalHealth?: NumericalHealthView | null;
+  resolveCauseLocation?: (location: NumericalHealthLocation) => EntityRef | null;
+  onSelectCauseLocation?: (entity: EntityRef) => void;
+  onShowDiagnostic?: (diagnosticId: string) => void;
 }) {
   const [filterText, setFilterText] = useState("");
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
@@ -80,6 +94,9 @@ export function ResultsPanel({
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
     : null;
+  const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result) : null), [numericalHealth, result]);
+  const route = result ? sourceContract(result) : "unsupported";
+  const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   useEffect(() => {
     setPageIndex(0);
   }, [result?.run_id]);
@@ -107,6 +124,10 @@ export function ResultsPanel({
       <div className="panel-title">Results</div>
       {result ? (
         <>
+          {health ? (
+            <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
+          ) : null}
+          {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
           <p data-testid="numerical-result-standing">{sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(sourceContract(result)) ? retainedPrecisionStandingText(result) : sourceContract(result) === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
           <KnownSemanticNotices result={result} testIdPrefix="results" />
           <SectionBasisHeadlines result={result} />
@@ -164,7 +185,7 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}</td>
+                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} /></td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>
@@ -620,4 +641,80 @@ function SemanticResultQuantity({result,id,fallback}:{result:MechanicsResult|nul
 
 function hasResultSemanticToken(value: string, expected: string): boolean {
   return value.split(/[^a-z0-9]+/).includes(expected);
+}
+
+/* -------------------------------------------------------------------------- *
+ * Numerical health (DEL-07-05 Design `numerical-health-indicator.md` §3, §4)
+ * -------------------------------------------------------------------------- */
+/** A reopened run's indicator: read with the reader's findings for the result alone (no
+ * model, so the verdict-only flag cannot hold) and no hold. */
+function standaloneNumericalHealth(result: MechanicsResult): NumericalHealthView | null {
+  let findings: readonly string[] | null = null, eligible = false;
+  try { const standing = numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
+  return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false });
+}
+/** The indicator only where its route agrees with the result's route; otherwise none
+ * (today's text). */
+function routeHealth(route: string, health: NumericalHealthView | null | undefined): NumericalHealthView | null {
+  if (!health) return null;
+  if (health.route === "pressure_source") return route === "pressure_source" ? health : null;
+  return route === "preview_physics" || route === "pressure" ? health : null;
+}
+
+function NumericalHealthBadgeText({ badge, text, testId }: { badge: NumericalHealthBadge; text: string; testId?: string }) {
+  return <span className={`numerical-health-badge numerical-health-${badge}`} data-badge={badge} data-testid={testId}>{text}</span>;
+}
+
+function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number] }) {
+  // No row badge on the pressure-source route: those rows' values are the producer's recovery.
+  const state = rowHealthState(health, item);
+  if (!state) return null;
+  return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
+}
+
+function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCauseLocation, onShowDiagnostic }: {
+  health: NumericalHealthView;
+  resolveCauseLocation?: (location: NumericalHealthLocation) => EntityRef | null;
+  onSelectCauseLocation?: (entity: EntityRef) => void;
+  onShowDiagnostic?: (diagnosticId: string) => void;
+}) {
+  return (
+    // Collapsed when every load case passed its checks; open otherwise.
+    <details className="result-detail-panel numerical-health-detail" aria-label={DETAIL_SECTION_LABEL} data-testid="numerical-health-detail" open={health.cases.some((c) => c.state !== "checks_passed") || health.cases.length === 0}>
+      <summary>{DETAIL_SECTION_LABEL}</summary>
+      {health.cases.map((c) => (
+        <article key={c.caseId} data-testid={`numerical-health-case-${c.caseId}`}>
+          <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>
+          <p data-testid={`numerical-health-case-text-${c.caseId}`}>{c.sentences.join(" ")}</p>
+          {c.conditioning ? <p data-testid={`numerical-health-case-conditioning-${c.caseId}`}>{c.conditioning}</p> : null}
+          {c.locations.length > 0 ? (
+            <div data-testid={`numerical-health-case-locations-${c.caseId}`}>
+              <span>{LOCATED_CAUSES_LABEL}: </span>
+              <ul>
+                {c.locations.map((location, index) => {
+                  const entity = location.kind === "text" ? null : resolveCauseLocation?.(location) ?? null;
+                  return (
+                    <li key={`${index}:${locationText(location)}`}>
+                      {entity && onSelectCauseLocation
+                        ? <button type="button" className="link-button" data-testid={`numerical-health-location-${c.caseId}-${index}`} onClick={() => onSelectCauseLocation(entity)}>{locationText(location)}</button>
+                        : <span data-testid={`numerical-health-location-${c.caseId}-${index}`}>{locationText(location)}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : null}
+          {c.integrityDiagnosticId && onShowDiagnostic ? (
+            <button type="button" data-testid={`numerical-health-show-diagnostic-${c.caseId}`} onClick={() => onShowDiagnostic(c.integrityDiagnosticId!)}>{SHOW_SOLVER_DIAGNOSTIC}</button>
+          ) : null}
+        </article>
+      ))}
+      {health.combinations.map((m) => (
+        <article key={m.combinationId} data-testid={`numerical-health-combination-${m.combinationId}`}>
+          <h4>{m.combinationId} <NumericalHealthBadgeText badge={m.badge} text={NUMERICAL_HEALTH_STATE_TEXT[m.state]} testId={`numerical-health-combination-badge-${m.combinationId}`} /></h4>
+          <p>{m.text}</p>
+        </article>
+      ))}
+    </details>
+  );
 }

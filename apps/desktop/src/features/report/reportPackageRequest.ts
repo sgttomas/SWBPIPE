@@ -272,7 +272,16 @@ export async function assembleReportPackageRequestBelowAvailabilityGate({
     throw new Error("REPORT-PACKAGE-NON-FINITE-RESULT: all result values must be finite.");
   }
 
-  const report = await buildRenderableReportInput({ model, result, analysisRun, projectSummary });
+  // The package route is always local-private (DREP-PACKAGE-SAVE-009); its
+  // members carry no generation time so identical inputs stay byte-identical.
+  const report = await buildRenderableReportInput({
+    model,
+    result,
+    analysisRun,
+    projectSummary,
+    inputManifest,
+    renderContext: { exportContext: "local_private", generatedAt: null }
+  });
   const run = analysisRun.analysis_run;
   const runHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
   const resultEnvelopeHash = run.hashes.find(

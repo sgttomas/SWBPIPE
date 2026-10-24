@@ -42,25 +42,57 @@ normalization, so positions are in metres. Each of those codes yields at most
 one diagnostic naming at most six parts or pairs (`formation_guard::NAMED`), so
 the diagnostic count does not grow with model size.
 
-**Tolerance.** τ = 1e-6 and L is the diagonal of the bounding box of all nodes.
-A relative tolerance makes the check independent of the length unit and of
-the model's scale; an absolute one (say 1 mm) would flag every node of a
-millimetre-scale test model and miss a 1 mm gap in a kilometre-long line.
-1e-6 of the extent is well above binary64 coordinate noise (about 1e-16
-relative) and well below any deliberate spacing in a piping model (for a 100 m
-model, 0.1 mm). Two nodes an element joins are left out: the element's own
-length checks (`AXIS_TOLERANCE`, DEL-04-01) govern them.
+**Tolerance.** The implemented tolerance is relative: τ = 1e-6 and L is the
+diagonal of the bounding box of all nodes. Two nodes an element joins are left
+out: the element's own length checks (`AXIS_TOLERANCE`, DEL-04-01) govern
+them.
 
-**Search.** Nodes are placed in cells of size τ·L; each node is compared with
-the nodes of its own and the 26 neighbouring cells, so the cost is linear in
-the node count for ordinary models.
+**Decided, not yet implemented:** an absolute node-proximity tolerance of 5 mm
+that the user can change, replacing τ·L entirely. The owner ruled
+(2026-10-23): "I choose C, but my value is "5mm" and give the user the means
+to change it. No computed by any 1e-4, just 5mm". The check will warn when two
+distinct nodes that no element joins lie no farther apart than the model's
+node-proximity tolerance (a pair at exactly that distance warns). The model
+sets the value in `model_settings.node_proximity_tolerance` (a length with a
+unit, schema 0.7.0; absent means 5 mm), whose reader refuses a non-finite,
+non-positive or non-length value. The relative tolerance made the finding
+depend on parts of the model unrelated to the two nodes: adding a distant
+line changed it; in a model 1 m across only gaps below about 1 µm were
+flagged, and in a line 2 km long gaps up to 2 mm were. A modeller judges a gap
+in absolute terms, and the value they accept depends on their work, so it is a
+fixed default the model can override.
+
+**User control of the node-proximity tolerance (owner ruling, 2026-10-23).**
+The owner ruled that the near-duplicate node warning uses a fixed 5 mm
+tolerance "and give the user the means to change it". The ruling replaces the
+relative tolerance above.
+- **Storage.** The tolerance is an optional model-document member in 0.7.0: a
+  length with a unit, default 5 mm (DEL-02-01 Design `model-document-0.7.0.md`).
+- **Control.** The desktop shows it in project or analysis settings, where the
+  user can see and edit it:
+  - any length unit from the catalog may be entered;
+  - non-positive values are refused;
+  - when the member is unset, the control shows "5 mm (default)".
+- **Editing.** The edit is an applier operation on the `Project` target, like
+  `set_project_unit` (DEL-02-02 Design `project-unit-selection.md` §2.7).
+- **Status.** The control is not implemented. It needs the 0.7.0 member and the
+  `Project` target.
+
+**Search.** Nodes are placed in cells twice the tolerance wide, and each
+node is compared with the nodes of its own and the 26 neighbouring cells.
+Rounding in a cell index moves a point by far less than half a cell, so every
+pair within the tolerance is examined (a cell exactly the tolerance wide could
+put such a pair two cells apart). Distances use a norm scaled by the largest
+component, so no square underflows or overflows; coincidence is exact
+coordinate equality. Only the first six pairs in node order are kept, with
+exact counts, so storage stays bounded however many nodes coincide; the time
+is linear in the node count for ordinary models.
 
 ## Known effect on bundled data
 
 The bundled desktop demo (`fixtures/product_preview/invented_demo_model.json`)
 and `invented_preview_model.json` declare a tee (`C-120` at `node:N-120`) on a
-node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them. The
-demo is not changed by this unit (Agent 0, 2026-10-23).
+node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them.
 
 ## Evidence
 

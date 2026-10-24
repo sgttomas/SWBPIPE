@@ -94,16 +94,16 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | Diagnostics | `MaterialDiagnostic` records code, class, severity, source, affected reference, message, remediation, and provenance. The fixture emits `MATERIAL_PROPERTY_MISSING` as a blocking solve diagnostic. |
 > | Open decisions | `OpenDecision` preserves unresolved public fixture, source catalog, and allowable storage topics. Temperature interpolation is governed by DEC-077/092; its bounded evidence and no-extrapolation obligations remain required. |
 >
-> Current implementation (at `62c1efd75b`): the desktop Library Manager (`apps/desktop/src/features/library/LibraryManagerPanel.tsx`, through `apps/desktop/src/services/libraryImportService.ts`) imports an already-parsed material, section or component library document. The Tauri command `validate_library_import` in `apps/desktop/src-tauri/src/lib.rs` checks the document with `open_pipe_stress_library_import_document`, the Rust port of the DEL-03-07 provenance checker. It checks provenance, redistribution, review and quarantine; it does not validate the document against `schemas/material.schema.yaml`. `save_local_library` stores an accepted private import in the project's `local_libraries` table. A rule-pack input can read a stored record's value through `library_value_ref`.
+> Current implementation (at `62c1efd75b`): the desktop Library Manager (`apps/desktop/src/features/library/LibraryManagerPanel.tsx`, through `apps/desktop/src/services/libraryImportService.ts`) imports an already-parsed material, section or component library document. The Tauri command `validate_library_import` in `apps/desktop/src-tauri/src/lib.rs` checks the document with `open_pipe_stress_library_import_document`, the Rust port of the DEL-03-07 provenance checker. It checks provenance, redistribution, review and quarantine; it does not validate the document against `schemas/material.schema.yaml`. `save_local_library` stores an accepted private import in the project's `local_libraries` table. A rule-pack input can read a stored record's value through `library_value_ref`. Applying a stored record to model entities is designed in `Design/apply-library-records.md` (W-17) but not yet implemented.
 >
 
 ### CLM-007 — References
 
 > ##### References
 >
-> - docs/_Registers/Deliverables.csv row DEL-03-01
-> - docs/_Registers/ScopeLedger.csv row SOW-017
-> - docs/_Registers/ContextBudgetQA.csv row DEL-03-01
+> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history) row DEL-03-01
+> - docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history) row SOW-017
+> - docs/_Registers/ContextBudgetQA.csv (retired in `48584391de`; see Git history) row DEL-03-01
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - docs/CONTRACT.md invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1..4
 

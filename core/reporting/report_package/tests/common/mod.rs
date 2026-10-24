@@ -91,6 +91,8 @@ pub fn fixture_report_input() -> RenderableReportInput {
             quantity_display: "12.5 MPa".to_string(),
             source_ref: "result_envelope:invented-result".to_string(),
         }],
+        report_context: None,
+        user_rule_checks: None,
     }
 }
 
