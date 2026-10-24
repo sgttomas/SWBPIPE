@@ -9627,6 +9627,77 @@ mod tests {
             }
         }
     }
+
+    /// The node-proximity tolerance control's path (DEL-02-01 Design §3.8;
+    /// DEL-04-06 Design `model-topology-checks.md`): the desktop applies
+    /// `set_model_setting` / `clear_model_setting` through the apply command, and
+    /// the native solve reads the result. An anchored node 3 mm from node:N-140
+    /// warns at the 5 mm default and not at a 2 mm tolerance; one 8 mm away warns
+    /// at 1 cm (10 mm) and, reset to the default, does not. Invented data only.
+    #[test]
+    fn a_tolerance_set_through_the_apply_command_changes_which_nodes_warn() {
+        fn with_near_node(gap_m: f64) -> Value {
+            let mut model = read_fixture("invented_demo_model.json").expect("bundled preview model loads");
+            assert!(model.get("model_settings").is_none());
+            let position = model["nodes"].as_array().unwrap().iter().find(|node| node["id"] == "node:N-140").unwrap()["position"].clone();
+            let y = position["y"].as_f64().unwrap() + gap_m;
+            model["nodes"].as_array_mut().unwrap().push(json!({"id":"node:near","position":{"x":position["x"],"y":y,"z":position["z"]},"provenance":"invented_test_node"}));
+            model["supports"].as_array_mut().unwrap().push(json!({"id":"support:near","node":"node:near","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"invented_test_support"}));
+            model
+        }
+        fn intent(model: &Value, change_kind: &str, after: &str, unit: &str, dimension: &str) -> Value {
+            let before = model
+                .pointer("/model_settings/node_proximity_tolerance")
+                .map(open_pipe_stress_operation_applier::canonical_json)
+                .unwrap_or_else(|| "not_present".into());
+            json!({
+                "operation_id": format!("op:model-settings:{change_kind}"), "operation_kind": "modify", "operation_status": "proposed",
+                "author_type": "user", "target": {"object_type": "Project", "ref": model["project"]["id"]},
+                "change": {"change_id": format!("change:model-settings:{change_kind}"), "change_kind": change_kind,
+                    "field_label": "Node-proximity tolerance", "field_path": "model_settings.node_proximity_tolerance",
+                    "before": before, "after": after, "unit": unit, "dimension": dimension, "source_note": "invented test input"},
+                "validation": {"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run",
+                    "diff_preview_status":"not_generated","application_status":"not_applied"},
+                "audit_boundary": {"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,
+                    "requires_user_acceptance":true,"mutates_accepted_model_state":false},
+                "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,
+                    "software_makes_certification_claim":false,"software_makes_sealing_claim":false,
+                    "software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+                "rationale": "Invented node-proximity tolerance test"
+            })
+        }
+        fn applied(model: &Value, intent: Value) -> Value {
+            let outcome = apply_model_operation_value(model.clone(), intent, None).expect("command returns outcome");
+            assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{}", outcome["diagnostics"]);
+            outcome["applied_model"].clone()
+        }
+        fn near_pairs(model: &Value, mode: PreviewSolverMode) -> Vec<Value> {
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("solve returns an envelope");
+            let diagnostics = solved["diagnostics"].as_array().cloned().unwrap_or_default();
+            assert!(diagnostics.iter().all(|item| item["severity"] != "blocking"), "{diagnostics:?}");
+            diagnostics
+                .into_iter()
+                .filter(|item| item["code"] == "NODE_NEAR_DUPLICATE")
+                .map(|item| item["affected_refs"].clone())
+                .collect()
+        }
+        let pair = json!(["node:N-140", "node:near"]);
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let three_mm = with_near_node(0.003);
+            assert_eq!(near_pairs(&three_mm, mode), vec![pair.clone()], "3 mm warns at the default");
+            let two_mm_tolerance = applied(&three_mm, intent(&three_mm, "set_model_setting", "2", "mm", "length"));
+            assert_eq!(two_mm_tolerance["model_settings"], json!({"node_proximity_tolerance": {"value": 2.0, "unit": "mm"}}));
+            assert!(near_pairs(&two_mm_tolerance, mode).is_empty(), "3 mm does not warn at 2 mm");
+
+            let eight_mm = with_near_node(0.008);
+            assert!(near_pairs(&eight_mm, mode).is_empty(), "8 mm does not warn at the default");
+            let one_cm_tolerance = applied(&eight_mm, intent(&eight_mm, "set_model_setting", "10", "mm", "length"));
+            assert_eq!(near_pairs(&one_cm_tolerance, mode), vec![pair.clone()], "8 mm warns at 1 cm");
+            let reset = applied(&one_cm_tolerance, intent(&one_cm_tolerance, "clear_model_setting", "not_present", "none", "dimensionless"));
+            assert!(reset.get("model_settings").is_none(), "reset never writes the default");
+            assert!(near_pairs(&reset, mode).is_empty(), "reset to the default, 8 mm does not warn");
+        }
+    }
 }
 
 #[cfg(test)]
