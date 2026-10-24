@@ -41,8 +41,8 @@ LEGACY_PRESSURE_PREVIEW_FIXTURE = (
 AUTHORED_PREVIEW_MODEL = (
     ROOT / "fixtures" / "model_operations" / "exact_pressure_authoring_model.json"
 )
-# Solver identity recorded in the DEL-10-05 export-results witness inputs; it
-# was the linked product-physics component version before the 0.2.0 change.
+# A product-physics component version other than the linked one: the stale
+# identity of the unlinked-solver control (the version before the 0.2.0 change).
 PRIOR_PRODUCT_PHYSICS_VERSION = "0.1.0"
 EXPORT_SUCCESS_INPUT = (
     ROOT / "validation/witness/inputs/del1005_export_results_success_input.json"
@@ -50,12 +50,11 @@ EXPORT_SUCCESS_INPUT = (
 EXPORT_MISSING_INPUT = (
     ROOT / "validation/witness/inputs/del1005_export_results_missing_payload_input.json"
 )
-EXPORT_MISMATCH_INPUT = (
-    ROOT / "validation/witness/inputs/del1005_export_results_binding_mismatch_input.json"
-)
-EXPORT_BLOCKED_INPUT = (
-    ROOT / "validation/witness/inputs/del1005_export_results_producer_blocked_input.json"
-)
+# The binding-mismatch and producer-blocked inputs are the success input with
+# one edit each, as validation/witness/inputs/generate_del1005_export_results_inputs.py
+# derives them; they are made in memory rather than committed.
+EXPORT_MISMATCH_INPUT = "binding_mismatch"
+EXPORT_BLOCKED_INPUT = "producer_blocked"
 
 REQUIRED_ROOT = {
     "schema_version",
@@ -407,35 +406,53 @@ def linked_solver_identity(no_cargo_build):
     return package["name"], package["version"]
 
 
-def bind_solver_identity(body, name, version, *, audit=True, envelopes=True):
-    """Set the export-results solver identity; the witness payload is otherwise unchanged."""
-    export = body.get("export_results")
-    if export is None:
-        return body
-    identity = {
-        "solver_name": name,
-        "solver_version": version,
-        "solver_build_ref": f"{name}@{version}",
-    }
+def stale_solver_identity(body, name, version, *, audit=True, documents=True):
+    """Record another solver identity in the audit manifest and/or the result
+    documents, without re-hashing anything (the unlinked-solver control)."""
+    export = body["export_results"]
     if audit:
-        export["audit_manifest"]["solver_version"].update(identity)
-    if envelopes:
-        for envelope in export["result_envelopes"]:
-            envelope.update(identity)
+        export["audit_manifest"]["solver_version"].update(
+            {
+                "solver_name": name,
+                "solver_version": version,
+                "solver_build_ref": f"{name}@{version}",
+            }
+        )
+    if documents:
+        for document in export["result_documents"]:
+            document["result_envelope"]["solver_version"]["solver_version"] = version
     return body
 
 
 def export_input(path, linked_solver_identity):
-    """Load a DEL-10-05 export-results witness bound to the linked solver identity.
+    """Load a DEL-10-05 export-results witness input.
 
-    The witness files record the solver identity of the component they were
-    generated against. The runner correctly refuses any other identity
-    (REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH; see the identity control test),
-    so export-results tests that protect other properties bind the payload to
-    the component actually linked into the runner under test.
+    The inputs are generated against the linked product-physics component
+    (`core/runner/headless/tests/del1005_package_witness.rs`), so they record
+    its identity; this asserts that instead of rewriting it. A stale witness
+    fails here: regenerate it with the generator, not by editing the identity
+    (the result document is self-hashed and validated against its source).
     """
-    body = json.loads(path.read_text(encoding="utf-8"))
-    return bind_solver_identity(body, *linked_solver_identity)
+    if path in (EXPORT_MISMATCH_INPUT, EXPORT_BLOCKED_INPUT):
+        body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+        if path == EXPORT_MISMATCH_INPUT:
+            body["request"]["model_ref"]["ref_id"] = "invented-mismatch"
+        else:
+            body["export_results"]["package_id"] = ""
+    else:
+        body = json.loads(path.read_text(encoding="utf-8"))
+    export = body.get("export_results")
+    if export is not None:
+        name, version = linked_solver_identity
+        assert export["audit_manifest"]["solver_version"] == {
+            "solver_name": name,
+            "solver_version": version,
+            "solver_build_ref": f"{name}@{version}",
+        }
+        for document in export["result_documents"]:
+            solver = document["result_envelope"]["solver_version"]
+            assert (solver["solver_name"], solver["solver_version"]) == (name, version)
+    return body
 
 
 def authored_preview_model():
@@ -789,10 +806,24 @@ def test_final_runner_export_results_invalid_wire_payload_preserves_report_code(
 
 
 @pytest.mark.parametrize(
-    ("stale_audit", "stale_envelopes", "message_detail"),
+    ("stale_audit", "stale_documents", "message_code", "message_detail"),
     [
-        (True, False, "request identity does not match"),
-        (False, True, "result envelope identity does not match"),
+        (
+            True,
+            False,
+            "REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH",
+            "request identity does not match",
+        ),
+        # A result document's identity is under its own derivative hash, so a
+        # stale identity edited into it is refused by the self-hash; the
+        # document-side identity check itself is covered by
+        # core/reporting/report_package/tests/current_result_package.rs.
+        (
+            False,
+            True,
+            "REPORT-PACKAGE-DERIVATIVE-HASH-MISMATCH",
+            "the derivative hash does not verify",
+        ),
     ],
 )
 def test_final_runner_export_results_refuses_unlinked_solver_identity(
@@ -800,19 +831,20 @@ def test_final_runner_export_results_refuses_unlinked_solver_identity(
     linked_solver_identity,
     tmp_path,
     stale_audit,
-    stale_envelopes,
+    stale_documents,
+    message_code,
     message_detail,
 ):
     final, _ = runner_binaries
     name, linked_version = linked_solver_identity
     assert linked_version != PRIOR_PRODUCT_PHYSICS_VERSION
     body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
-    bind_solver_identity(
+    stale_solver_identity(
         body,
         name,
         PRIOR_PRODUCT_PHYSICS_VERSION,
         audit=stale_audit,
-        envelopes=stale_envelopes,
+        documents=stale_documents,
     )
     output = tmp_path / "must-not-exist.json"
     completed = run_final(
@@ -832,7 +864,7 @@ def test_final_runner_export_results_refuses_unlinked_solver_identity(
         for item in controlled["payload"]["diagnostics"]
         if item["code"] == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID"
     )
-    assert "REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH" in diagnostic["message"]
+    assert message_code in diagnostic["message"]
     assert message_detail in diagnostic["message"]
     assert not output.exists()
 

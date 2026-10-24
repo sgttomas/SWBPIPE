@@ -5,7 +5,7 @@
 
 mod common;
 
-use common::{invented_result_envelope, invented_sections_record, Fixture};
+use common::{invented_result_document_variant, invented_sections_record, Fixture};
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_report_package::{
     assemble_report_package_container, read_report_package_container, PackageReadRefusal,
@@ -200,15 +200,15 @@ fn current_version_round_trips() {
     assert_eq!(read.source_basis_refs[0].ref_id, "invented-run");
     assert!(!read.export_blocked);
     assert!(read.blocking_reasons.is_empty());
-    assert_eq!(read.manifest["schema_version"], "1.0.0");
+    assert_eq!(read.manifest["schema_version"], "2.0.0");
 }
 
 #[test]
 fn multi_member_package_round_trips() {
     let mut fixture = Fixture::new();
-    let mut second = invented_result_envelope(7.25);
-    second.envelope_id = "invented-result-envelope-002".to_string();
-    fixture.result_envelopes.push(second);
+    fixture
+        .result_documents
+        .push(invented_result_document_variant(Some("result-envelope:invented-second"), None));
     let mut sections = invented_sections_record();
     sections["section_set_id"] = json!("invented-section-set-002");
     fixture.sections_records.push(sections);
@@ -223,7 +223,7 @@ fn multi_member_package_round_trips() {
 #[test]
 fn blocked_package_reads_with_its_blocked_state() {
     let mut fixture = Fixture::new();
-    fixture.result_envelopes.clear();
+    fixture.result_documents.clear();
     fixture.sections_records.clear();
     let outcome = assemble_report_package_container(&fixture.input());
     assert!(outcome.export_blocked);
@@ -241,12 +241,12 @@ fn blocked_package_reads_with_its_blocked_state() {
 #[test]
 fn supported_version_is_the_writer_version() {
     assert_eq!(SUPPORTED_PACKAGE_VERSION, PACKAGE_MANIFEST_SCHEMA_VERSION);
-    assert_eq!(SUPPORTED_PACKAGE_VERSION, "1.0.0");
+    assert_eq!(SUPPORTED_PACKAGE_VERSION, "2.0.0");
 }
 
 #[test]
 fn older_versions_are_refused_by_name_with_a_re_author_diagnostic() {
-    for version in ["0.9.0", "0.1.0", "0.0.1", "0.99.99"] {
+    for version in ["1.0.0", "1.99.99", "0.9.0", "0.1.0", "0.0.1", "0.99.99"] {
         let refused = refusal(&with_version(json!(version)));
         assert_eq!(
             refused,
@@ -257,7 +257,7 @@ fn older_versions_are_refused_by_name_with_a_re_author_diagnostic() {
         assert_eq!(refused.code(), "OPSPROJ_PACKAGE_VERSION_OLDER");
         let message = refused.to_string();
         assert!(message.contains(version), "{message}");
-        assert!(message.contains("1.0.0"), "{message}");
+        assert!(message.contains("2.0.0"), "{message}");
         assert!(message.contains("does not migrate"), "{message}");
         assert!(message.contains("Re-author"), "{message}");
     }
@@ -265,7 +265,7 @@ fn older_versions_are_refused_by_name_with_a_re_author_diagnostic() {
 
 #[test]
 fn newer_versions_are_refused_by_name() {
-    for version in ["1.0.1", "1.1.0", "2.0.0", "10.0.0"] {
+    for version in ["2.0.1", "2.1.0", "3.0.0", "10.0.0"] {
         let refused = refusal(&with_version(json!(version)));
         assert_eq!(
             refused,
@@ -751,7 +751,7 @@ fn eocd(entries: u16, central_size: u32, central_offset: u32) -> Vec<u8> {
 
 #[test]
 fn central_entries_sharing_one_local_header_are_refused_without_amplification() {
-    // A valid stored 1.0.0 manifest (so parsing passes the version gate), then
+    // A valid stored 2.0.0 manifest (so parsing passes the version gate), then
     // one local header with a 65535-byte name, then ~65000 central entries
     // that all point at it. Copying the local name per entry would allocate
     // about 4 GiB; the reader keeps it as a range and refuses the archive form.
@@ -850,9 +850,9 @@ fn corrupted_current_manifest_is_corruption_not_another_version() {
     let manifest = &outcome.members[0].bytes;
     let at = manifest
         .windows(7)
-        .position(|window| window == b"\"1.0.0\"")
+        .position(|window| window == b"\"2.0.0\"")
         .expect("manifest names its version");
-    // "1.0.0" -> "1.0.1" inside the stored manifest, CRC left unchanged.
+    // "2.0.0" -> "2.0.1" inside the stored manifest, CRC left unchanged.
     bytes[30 + outcome.members[0].file_name.len() + at + 5] ^= 0x01;
     let refused = refusal(&bytes);
     assert_eq!(refused.code(), "OPSPROJ_MEMBER_INTEGRITY", "{refused}");
@@ -862,7 +862,7 @@ fn corrupted_current_manifest_is_corruption_not_another_version() {
 #[test]
 fn forged_unblocked_package_without_required_members_is_refused() {
     let mut fixture = Fixture::new();
-    fixture.result_envelopes.clear();
+    fixture.result_documents.clear();
     fixture.sections_records.clear();
     let blocked = assemble_report_package_container(&fixture.input());
     assert!(blocked.export_blocked);
@@ -1084,4 +1084,104 @@ fn over_long_member_name_blocks_the_package() {
         .iter()
         .any(|reason| reason.contains("exceeds the archive form's 65535-byte limit")));
     assert!(read_report_package_container(&outcome.container_bytes).is_err());
+}
+
+// ---------------------------------------------------------------------------
+// The result member's form, route and audit equalities (DEL-08-01 Design
+// `report-package-current-results.md` §2.3 items 0-3 and the reader order).
+// ---------------------------------------------------------------------------
+
+/// The package with its result member replaced by `document` (re-hashed in
+/// the inventory, so only the member's own checks can refuse it).
+fn with_result_member(outcome: &ReportPackageContainerOutcome, document: &Value) -> Vec<u8> {
+    let mut entries = entries(outcome);
+    assert!(entries[4].name.starts_with("result_export_"));
+    replace_member_consistently(&mut entries, 4, canonical_json(document).into_bytes());
+    zip(&entries)
+}
+
+fn edited_document(edit: impl FnOnce(&mut Value)) -> Value {
+    let mut document = common::invented_result_document();
+    edit(&mut document);
+    common::rehash(document)
+}
+
+fn member_refusal(bytes: &[u8], code: &str) {
+    let refused = refusal(bytes);
+    assert_eq!(refused.code(), "OPSPROJ_MEMBER_INTEGRITY", "{refused}");
+    assert!(refused.to_string().contains(code), "{refused}");
+}
+
+#[test]
+fn result_members_outside_the_0_3_0_form_are_refused_even_when_rehashed() {
+    let outcome = package();
+    let cases: Vec<(&str, Value)> = vec![
+        ("0.1.0 member", edited_document(|d| {
+            d["schema_version"] = json!("0.1.0");
+            d["result_envelope"]["schema_version"] = json!("0.1.0");
+        })),
+        ("mixed versions", edited_document(|d| d["result_envelope"]["schema_version"] = json!("0.1.0"))),
+        ("header only", edited_document(|d| {
+            let e = d["result_envelope"].clone();
+            d["result_envelope"] = json!({
+                "schema_version": e["schema_version"],
+                "envelope_id": e["envelope_id"],
+                "producer": e["producer"],
+                "semantic_contract_ref": e["semantic_contract_ref"],
+                "reproducibility": {"derivative_hash": e["reproducibility"]["derivative_hash"]}
+            });
+        })),
+        ("boundary claim", edited_document(|d| {
+            d["result_envelope"]["professional_boundary"]["software_makes_compliance_claim"] = json!(true)
+        })),
+    ];
+    for (case, document) in cases {
+        let refused = refusal(&with_result_member(&outcome, &document));
+        assert!(refused.to_string().contains("REPORT-PACKAGE-RESULT-FORM-INVALID"), "{case}: {refused}");
+    }
+}
+
+#[test]
+fn a_stale_derivative_hash_is_refused_by_the_reader() {
+    let mut document = common::invented_result_document();
+    document["result_envelope"]["result_sets"][0]["values"][0]["magnitude"] = json!(123.25);
+    member_refusal(&with_result_member(&package(), &document), "REPORT-PACKAGE-DERIVATIVE-HASH-MISMATCH");
+}
+
+#[test]
+fn a_blocked_package_with_a_malformed_result_member_is_refused() {
+    let mut fixture = Fixture::new();
+    fixture.sections_records.clear();
+    let outcome = assemble_report_package_container(&fixture.input());
+    assert!(outcome.export_blocked);
+    let document = edited_document(|d| d["result_envelope"]["professional_boundary"]["human_review_required"] = json!(false));
+    let mut entries = entries(&outcome);
+    let index = entries.iter().position(|entry| entry.name.starts_with("result_export_")).unwrap();
+    replace_member_consistently(&mut entries, index, canonical_json(&document).into_bytes());
+    member_refusal(&zip(&entries), "REPORT-PACKAGE-RESULT-FORM-INVALID");
+}
+
+#[test]
+fn an_unblocked_package_with_a_well_formed_non_admitted_member_is_refused() {
+    let pressure: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/pressure_plain_connected_sparse.document.json"
+    ))
+    .unwrap();
+    let mut pressure = pressure;
+    pressure["result_envelope"]["envelope_id"] = common::invented_result_document()["result_envelope"]["envelope_id"].clone();
+    let pressure = common::rehash(pressure);
+    open_pipe_stress_report_package::document_form::check_result_member_form(&pressure)
+        .expect("the pressure-2 document is well formed");
+    member_refusal(&with_result_member(&package(), &pressure), "REPORT-PACKAGE-ROUTE-NOT-ADMITTED");
+}
+
+#[test]
+fn an_unblocked_package_whose_audit_identity_differs_from_its_result_member_is_refused() {
+    for edit in [
+        (|d: &mut Value| d["result_envelope"]["reproducibility"]["audit_manifest_ref"]["ref_id"] = json!("audit-manifest:invented-other")) as fn(&mut Value),
+        |d: &mut Value| d["result_envelope"]["reproducibility"]["model_hash"]["value"] = json!("0".repeat(64)),
+    ] {
+        let document = edited_document(edit);
+        member_refusal(&with_result_member(&package(), &document), "REPORT-PACKAGE-AUDIT-BINDING-MISMATCH");
+    }
 }

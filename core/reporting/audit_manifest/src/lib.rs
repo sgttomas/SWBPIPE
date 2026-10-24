@@ -71,7 +71,27 @@ pub enum HashAlgorithm {
 pub enum Canonicalization {
     ProjectLocalDeterministicJson,
     None,
+    /// SHA-256 of the RFC 8785 (JCS) bytes of the whole named payload, as the
+    /// producer that recorded the digest computed it. This crate records the
+    /// basis; it does not compute JCS (DEL-08-01 Design
+    /// `report-package-current-results.md` §2.4).
+    Rfc8785Jcs,
+    /// A rule pack's own declared `rule_pack_checksum` under the rule-pack
+    /// schema's definition (`JCS`, scope `rule_pack_payload`, excluding
+    /// `checksums`, grammar-version-bound), carried as declared and not
+    /// recomputed or verified by the carrier.
+    RulePackPayloadJcs,
 }
+
+/// The bases a model or input-manifest hash slot accepts.
+const JSON_PAYLOAD_BASES: [Canonicalization; 2] =
+    [Canonicalization::ProjectLocalDeterministicJson, Canonicalization::Rfc8785Jcs];
+/// The bases a rule-pack checksum slot accepts.
+const RULE_PACK_BASES: [Canonicalization; 3] = [
+    Canonicalization::ProjectLocalDeterministicJson,
+    Canonicalization::Rfc8785Jcs,
+    Canonicalization::RulePackPayloadJcs,
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PayloadKind {
@@ -294,7 +314,7 @@ pub fn validate_manifest(manifest: &AuditManifest) -> ManifestValidationResult {
             check_hash_record(
                 hash,
                 PayloadKind::ModelJson,
-                Canonicalization::ProjectLocalDeterministicJson,
+                &JSON_PAYLOAD_BASES,
                 &hash.payload_ref,
                 &mut findings,
             );
@@ -312,7 +332,7 @@ pub fn validate_manifest(manifest: &AuditManifest) -> ManifestValidationResult {
             check_hash_record(
                 hash,
                 PayloadKind::InputManifestJson,
-                Canonicalization::ProjectLocalDeterministicJson,
+                &JSON_PAYLOAD_BASES,
                 &hash.payload_ref,
                 &mut findings,
             );
@@ -420,7 +440,7 @@ fn check_rule_pack_refs(rule_pack_refs: &[RulePackAuditRef], findings: &mut Vec<
                 check_hash_record(
                     checksum,
                     PayloadKind::RulePackReference,
-                    Canonicalization::ProjectLocalDeterministicJson,
+                    &RULE_PACK_BASES,
                     &rule_pack.rule_pack_id,
                     findings,
                 );
@@ -485,7 +505,7 @@ fn check_assets(assets: &[AssetManifestEntry], findings: &mut Vec<ManifestFindin
                 check_hash_record(
                     hash,
                     asset.payload_kind,
-                    expected_canonicalization,
+                    &[expected_canonicalization],
                     &asset.asset_id,
                     findings,
                 );
@@ -555,7 +575,7 @@ fn push_duplicate_ref<'a>(
 fn check_hash_record(
     hash: &HashRecord,
     expected_payload_kind: PayloadKind,
-    expected_canonicalization: Canonicalization,
+    accepted_canonicalizations: &[Canonicalization],
     subject_id: &str,
     findings: &mut Vec<ManifestFinding>,
 ) {
@@ -568,7 +588,7 @@ fn check_hash_record(
         ));
     }
 
-    if hash.canonicalization != expected_canonicalization {
+    if !accepted_canonicalizations.contains(&hash.canonicalization) {
         findings.push(ManifestFinding::new(
             ManifestFindingCode::PayloadCanonicalizationMismatch,
             ManifestFindingSeverity::Blocking,
@@ -991,5 +1011,50 @@ mod tests {
         assert!(!boundary.software_makes_sealing_claim);
         assert!(!boundary.software_makes_approval_claim);
         assert!(boundary.human_review_required);
+    }
+
+    fn canonicalization_findings(manifest: &AuditManifest) -> usize {
+        validate_manifest(manifest)
+            .findings
+            .iter()
+            .filter(|finding| finding.code == ManifestFindingCode::PayloadCanonicalizationMismatch)
+            .count()
+    }
+
+    /// W-18 (DEL-08-01 Design `report-package-current-results.md` §2.4): the two
+    /// recorded bases are accepted in their slots and refused elsewhere; the
+    /// existing bases keep their slots.
+    #[test]
+    fn recorded_jcs_bases_are_accepted_only_in_their_slots() {
+        let model_hash = hash_canonical_json(PayloadKind::ModelJson, "model", &model_payload("r1"));
+        let base = valid_manifest(model_hash);
+        assert_eq!(canonicalization_findings(&base), 0);
+
+        let mut manifest = base.clone();
+        manifest.model_hash.as_mut().unwrap().canonicalization = Canonicalization::Rfc8785Jcs;
+        manifest.input_manifest_hash.as_mut().unwrap().canonicalization = Canonicalization::Rfc8785Jcs;
+        manifest.rule_pack_refs[0].checksum.as_mut().unwrap().canonicalization = Canonicalization::Rfc8785Jcs;
+        assert_eq!(canonicalization_findings(&manifest), 0);
+        manifest.rule_pack_refs[0].checksum.as_mut().unwrap().canonicalization = Canonicalization::RulePackPayloadJcs;
+        assert_eq!(canonicalization_findings(&manifest), 0);
+
+        for slot in ["model", "input"] {
+            let mut manifest = base.clone();
+            let hash = if slot == "model" { manifest.model_hash.as_mut() } else { manifest.input_manifest_hash.as_mut() };
+            hash.unwrap().canonicalization = Canonicalization::RulePackPayloadJcs;
+            assert_eq!(canonicalization_findings(&manifest), 1, "{slot}");
+            let mut manifest = base.clone();
+            let hash = if slot == "model" { manifest.model_hash.as_mut() } else { manifest.input_manifest_hash.as_mut() };
+            hash.unwrap().canonicalization = Canonicalization::None;
+            assert_eq!(canonicalization_findings(&manifest), 1, "{slot}");
+        }
+        let mut manifest = base.clone();
+        manifest.rule_pack_refs[0].checksum.as_mut().unwrap().canonicalization = Canonicalization::None;
+        assert_eq!(canonicalization_findings(&manifest), 1);
+        for basis in [Canonicalization::Rfc8785Jcs, Canonicalization::RulePackPayloadJcs] {
+            let mut manifest = base.clone();
+            manifest.assets[0].hash.as_mut().unwrap().canonicalization = basis;
+            assert_eq!(canonicalization_findings(&manifest), 1);
+        }
     }
 }

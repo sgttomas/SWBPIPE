@@ -1,7 +1,17 @@
+//! The report-package wire request, version 2.0.0 (DEL-08-01 Design
+//! `report-package-current-results.md` §2.3), shared by the desktop's
+//! `save_report_package` and the headless runner's `export-results`.
+//!
+//! The request carries the DEL-08-04 0.3.0 result document and the source
+//! result it derives from as JSON values. [`assemble_wire_request`] converts
+//! the audit manifest, runs [`crate::bindings::check_request`] and only then
+//! assembles. The typed 1.0.0 result-envelope DTOs and the fresh-result
+//! refusal are retired with the 1.0.0 package. Standard claim fence applies
+//! (claims taxonomy per DEC-081).
+
 use crate as package;
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_report_renderer::RenderableReportInput;
-use open_pipe_stress_result_export as result_export;
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -13,7 +23,11 @@ pub struct ReportPackageRequest {
     pub source_basis_refs: Vec<ReferenceDto>,
     pub report: Value,
     pub audit_manifest: AuditManifestDto,
-    pub result_envelopes: Vec<ResultEnvelopeDto>,
+    /// The DEL-08-04 0.3.0 result-export documents (exactly one).
+    pub result_documents: Vec<Value>,
+    /// The received result each document derives from, in the same order. A
+    /// validation and screening input only; never a package member.
+    pub source_results: Vec<Value>,
     pub state_comparison_handoff_records: Vec<Value>,
     pub rule_check_aggregate: Option<String>,
     pub solve_rule_check_status: String,
@@ -34,14 +48,14 @@ pub struct HashRecordDto {
     pub value: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct SolverVersionDto {
     pub solver_name: String,
     pub solver_version: String,
     pub solver_build_ref: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct ProfessionalBoundaryDto {
     pub human_review_required: bool,
     pub software_makes_compliance_claim: bool,
@@ -52,7 +66,7 @@ pub struct ProfessionalBoundaryDto {
     pub software_makes_authentication_claim: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct RulePackAuditRefDto {
     pub rule_pack_id: String,
     pub rule_pack_version: String,
@@ -62,7 +76,7 @@ pub struct RulePackAuditRefDto {
     pub private_payload_redacted: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct AssetManifestEntryDto {
     pub asset_id: String,
     pub payload_kind: String,
@@ -71,7 +85,7 @@ pub struct AssetManifestEntryDto {
     pub provenance: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct AuditManifestDto {
     pub manifest_id: String,
     pub model_hash: Option<HashRecordDto>,
@@ -80,119 +94,6 @@ pub struct AuditManifestDto {
     pub unit_system_ref: String,
     pub rule_pack_refs: Vec<RulePackAuditRefDto>,
     pub assets: Vec<AssetManifestEntryDto>,
-    pub professional_boundary: ProfessionalBoundaryDto,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct ProvenanceDto {
-    pub source_name: String,
-    pub source_location: String,
-    pub source_license: String,
-    pub contributor: String,
-    pub contributor_certification: String,
-    pub redistribution_status: String,
-    pub review_status: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct ChecksumDto {
-    pub algorithm: String,
-    pub canonicalization: String,
-    pub payload_ref: ReferenceDto,
-    pub value: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct DiagnosticDto {
-    pub code: String,
-    pub class: String,
-    pub severity: String,
-    pub source: ReferenceDto,
-    pub affected_object: ReferenceDto,
-    pub message: String,
-    pub remediation: String,
-    pub provenance: ProvenanceDto,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct ResultTraceLinkDto {
-    pub trace_id: String,
-    pub trace_type: String,
-    pub source_ref: ReferenceDto,
-    pub target_ref: ReferenceDto,
-    pub provenance: ProvenanceDto,
-    pub diagnostics: Vec<DiagnosticDto>,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct ResultMetadataDto {
-    pub component: String,
-    pub coordinate_system: String,
-    pub location: String,
-    pub basis: String,
-    pub sign_convention: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct QuantityResultDto {
-    pub result_id: String,
-    pub family: String,
-    pub object_ref: ReferenceDto,
-    pub basis_ref: ReferenceDto,
-    pub station_ref: Option<ReferenceDto>,
-    pub magnitude: f64,
-    pub unit: String,
-    pub dimension: String,
-    pub metadata: Option<ResultMetadataDto>,
-    pub diagnostics: Vec<DiagnosticDto>,
-    pub trace_chain: Vec<ResultTraceLinkDto>,
-    pub provenance: ProvenanceDto,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ResultSetDto {
-    pub set_id: String,
-    pub set_type: String,
-    pub basis_ref: ReferenceDto,
-    pub values: Vec<QuantityResultDto>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ReproducibilityDto {
-    pub model_hash: ChecksumDto,
-    pub run_hashes: Vec<ChecksumDto>,
-    pub audit_manifest_ref: ReferenceDto,
-    pub deterministic_ordering: bool,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct RulePackExportRefDto {
-    pub rule_pack_id: String,
-    pub version: String,
-    pub checksum: ChecksumDto,
-    pub source_notice: String,
-    pub redistribution_status: String,
-    pub completeness_status: String,
-    pub private_payload_redacted: bool,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ResultEnvelopeDto {
-    pub envelope_id: String,
-    pub schema_version: String,
-    pub model_ref: ReferenceDto,
-    pub run_ref: ReferenceDto,
-    pub solver_name: String,
-    pub solver_version: String,
-    pub solver_build_ref: String,
-    pub unit_system_ref: ReferenceDto,
-    pub load_basis_refs: Vec<ReferenceDto>,
-    pub result_sets: Vec<ResultSetDto>,
-    pub diagnostics: Vec<DiagnosticDto>,
-    pub provenance: ProvenanceDto,
-    pub reproducibility: ReproducibilityDto,
-    pub analysis_status: Vec<String>,
-    pub rule_pack_refs: Vec<RulePackExportRefDto>,
     pub professional_boundary: ProfessionalBoundaryDto,
 }
 
@@ -221,12 +122,6 @@ fn require_sha256_hex(label: &str, value: &str) -> Result<(), String> {
     }
 }
 
-fn reference(value: ReferenceDto) -> Result<result_export::Reference, String> {
-    reject_empty("reference.ref_type", &value.ref_type)?;
-    reject_empty("reference.ref_id", &value.ref_id)?;
-    Ok(result_export::Reference::new(value.ref_type, value.ref_id))
-}
-
 fn package_reference(value: ReferenceDto) -> Result<package::PackageRef, String> {
     reject_empty("package reference ref_type", &value.ref_type)?;
     reject_empty("package reference ref_id", &value.ref_id)?;
@@ -252,6 +147,8 @@ fn audit_canonicalization(value: &str) -> Result<audit::Canonicalization, String
             Ok(audit::Canonicalization::ProjectLocalDeterministicJson)
         }
         "none" => Ok(audit::Canonicalization::None),
+        "rfc8785_jcs" => Ok(audit::Canonicalization::Rfc8785Jcs),
+        "rule_pack_payload_jcs" => Ok(audit::Canonicalization::RulePackPayloadJcs),
         _ => Err(format!(
             "REPORT-PACKAGE-WIRE-ENUM: unsupported canonicalization {value}"
         )),
@@ -369,366 +266,20 @@ fn audit_manifest(
     })
 }
 
-fn result_redistribution(value: &str) -> Result<result_export::RedistributionStatus, String> {
-    match value {
-        "public_permissive" => Ok(result_export::RedistributionStatus::PublicPermissive),
-        "private_only" => Ok(result_export::RedistributionStatus::PrivateOnly),
-        "unknown" => Ok(result_export::RedistributionStatus::Unknown),
-        "protected_suspected" => Ok(result_export::RedistributionStatus::ProtectedSuspected),
-        "invented_non_engineering_example" => {
-            Ok(result_export::RedistributionStatus::InventedNonEngineeringExample)
-        }
-        "TBD" => Ok(result_export::RedistributionStatus::Tbd),
-        _ => Err(format!(
-            "REPORT-PACKAGE-WIRE-ENUM: unsupported result redistribution status {value}"
-        )),
-    }
-}
-
-fn provenance(value: ProvenanceDto) -> Result<result_export::Provenance, String> {
-    Ok(result_export::Provenance {
-        source_name: value.source_name,
-        source_location: value.source_location,
-        source_license: value.source_license,
-        contributor: value.contributor,
-        contributor_certification: value.contributor_certification,
-        redistribution_status: result_redistribution(&value.redistribution_status)?,
-        review_status: value.review_status,
-    })
-}
-
-fn checksum(value: ChecksumDto) -> Result<result_export::ChecksumRef, String> {
-    reject_empty("checksum.value", &value.value)?;
-    if value.algorithm == "sha256" {
-        require_sha256_hex("checksum.value", &value.value)?;
-    }
-    Ok(result_export::ChecksumRef {
-        algorithm: value.algorithm,
-        canonicalization: value.canonicalization,
-        payload_ref: reference(value.payload_ref)?,
-        value: value.value,
-    })
-}
-
-fn diagnostic_class(value: &str) -> Result<result_export::DiagnosticClass, String> {
-    match value {
-        "solve_blocking" => Ok(result_export::DiagnosticClass::SolveBlocking),
-        "rule_check_blocking" => Ok(result_export::DiagnosticClass::RuleCheckBlocking),
-        "provenance_warning" => Ok(result_export::DiagnosticClass::ProvenanceWarning),
-        "assumption_warning" => Ok(result_export::DiagnosticClass::AssumptionWarning),
-        "nonlinear_warning" => Ok(result_export::DiagnosticClass::NonlinearWarning),
-        "ip_boundary_warning" => Ok(result_export::DiagnosticClass::IpBoundaryWarning),
-        "unit_warning" => Ok(result_export::DiagnosticClass::UnitWarning),
-        "export_blocking" => Ok(result_export::DiagnosticClass::ExportBlocking),
-        _ => Err(format!(
-            "REPORT-PACKAGE-WIRE-ENUM: unsupported diagnostic class {value}"
-        )),
-    }
-}
-
-fn diagnostic_severity(value: &str) -> Result<result_export::DiagnosticSeverity, String> {
-    match value {
-        "info" => Ok(result_export::DiagnosticSeverity::Info),
-        "warning" => Ok(result_export::DiagnosticSeverity::Warning),
-        "blocking" => Ok(result_export::DiagnosticSeverity::Blocking),
-        _ => Err(format!(
-            "REPORT-PACKAGE-WIRE-ENUM: unsupported diagnostic severity {value}"
-        )),
-    }
-}
-
-fn diagnostic(value: DiagnosticDto) -> Result<result_export::Diagnostic, String> {
-    Ok(result_export::Diagnostic {
-        code: value.code,
-        class: diagnostic_class(&value.class)?,
-        severity: diagnostic_severity(&value.severity)?,
-        source: reference(value.source)?,
-        affected_object: reference(value.affected_object)?,
-        message: value.message,
-        remediation: value.remediation,
-        provenance: provenance(value.provenance)?,
-    })
-}
-
-fn family(value: &str) -> Result<result_export::ResultFamily, String> {
-    match value {
-        "displacement" => Ok(result_export::ResultFamily::Displacement),
-        "rotation" => Ok(result_export::ResultFamily::Rotation),
-        "force" => Ok(result_export::ResultFamily::Force),
-        "moment" => Ok(result_export::ResultFamily::Moment),
-        "reaction" => Ok(result_export::ResultFamily::Reaction),
-        "stress" => Ok(result_export::ResultFamily::Stress),
-        "section_property" => Ok(result_export::ResultFamily::SectionProperty),
-        "ratio" => Ok(result_export::ResultFamily::Ratio),
-        "rule_check" => Ok(result_export::ResultFamily::RuleCheck),
-        _ => Err(format!(
-            "REPORT-PACKAGE-WIRE-ENUM: unsupported result family {value}"
-        )),
-    }
-}
-
-fn dimension(value: &str) -> Result<result_export::DimensionId, String> {
-    match value {
-        "dimensionless" => Ok(result_export::DimensionId::Dimensionless),
-        "length" => Ok(result_export::DimensionId::Length),
-        "angle" => Ok(result_export::DimensionId::Angle),
-        "force" => Ok(result_export::DimensionId::Force),
-        "moment" => Ok(result_export::DimensionId::Moment),
-        "stress" => Ok(result_export::DimensionId::Stress),
-        "area" => Ok(result_export::DimensionId::Area),
-        "section_modulus" => Ok(result_export::DimensionId::SectionModulus),
-        "second_moment_area" => Ok(result_export::DimensionId::SecondMomentArea),
-        "ratio" => Ok(result_export::DimensionId::Ratio),
-        "time" => Ok(result_export::DimensionId::Time),
-        "temperature" => Ok(result_export::DimensionId::Temperature),
-        "pressure" => Ok(result_export::DimensionId::Pressure),
-        "linear_stiffness" => Ok(result_export::DimensionId::LinearStiffness),
-        "rotational_stiffness" => Ok(result_export::DimensionId::RotationalStiffness),
-        "TBD" => Ok(result_export::DimensionId::Tbd),
-        _ => Err(format!(
-            "REPORT-PACKAGE-WIRE-ENUM: unsupported dimension {value}"
-        )),
-    }
-}
-
-fn analysis_status(value: &str) -> Result<result_export::AnalysisStatus, String> {
-    match value {
-        "MODEL_INCOMPLETE" => Ok(result_export::AnalysisStatus::ModelIncomplete),
-        "MECHANICS_SOLVED" => Ok(result_export::AnalysisStatus::MechanicsSolved),
-        "RULE_INPUTS_INCOMPLETE" => Ok(result_export::AnalysisStatus::RuleInputsIncomplete),
-        "USER_RULE_CHECKED" => Ok(result_export::AnalysisStatus::UserRuleChecked),
-        "USER_RULE_FAILED" => Ok(result_export::AnalysisStatus::UserRuleFailed),
-        "HUMAN_REVIEW_REQUIRED" => Ok(result_export::AnalysisStatus::HumanReviewRequired),
-        _ => Err(format!(
-            "REPORT-PACKAGE-WIRE-ENUM: unsupported analysis status {value}"
-        )),
-    }
-}
-
-fn boundary(value: ProfessionalBoundaryDto) -> result_export::ProfessionalBoundary {
-    result_export::ProfessionalBoundary {
-        human_review_required: value.human_review_required,
-        software_makes_compliance_claim: value.software_makes_compliance_claim,
-        software_makes_certification_claim: value.software_makes_certification_claim,
-        software_makes_sealing_claim: value.software_makes_sealing_claim,
-        software_makes_approval_claim: value.software_makes_approval_claim,
-        software_makes_authentication_claim: value.software_makes_authentication_claim,
-    }
-}
-
-fn result_envelope(
-    value: ResultEnvelopeDto,
-    linked_solver: &LinkedSolverIdentity<'_>,
-) -> Result<result_export::ResultEnvelope, String> {
-    if value.solver_name != linked_solver.solver_name
-        || value.solver_version != linked_solver.solver_version
-        || value.solver_build_ref != linked_solver.solver_build_ref
-    {
-        return Err("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: result envelope identity does not match the linked product-physics component".to_string());
-    }
-    Ok(result_export::ResultEnvelope {
-        envelope_id: value.envelope_id,
-        schema_version: value.schema_version,
-        model_ref: reference(value.model_ref)?,
-        run_ref: reference(value.run_ref)?,
-        solver_name: linked_solver.solver_name.to_string(),
-        solver_version: linked_solver.solver_version.to_string(),
-        solver_build_ref: linked_solver.solver_build_ref.to_string(),
-        unit_system_ref: reference(value.unit_system_ref)?,
-        load_basis_refs: value
-            .load_basis_refs
-            .into_iter()
-            .map(reference)
-            .collect::<Result<Vec<_>, _>>()?,
-        result_sets: value
-            .result_sets
-            .into_iter()
-            .map(|set| {
-                Ok(result_export::ResultSet {
-                    set_id: set.set_id,
-                    set_type: set.set_type,
-                    basis_ref: reference(set.basis_ref)?,
-                    values: set
-                        .values
-                        .into_iter()
-                        .map(|item| {
-                            if !item.magnitude.is_finite() {
-                                return Err(format!(
-                                    "REPORT-PACKAGE-NON-FINITE-RESULT: {}",
-                                    item.result_id
-                                ));
-                            }
-                            Ok(result_export::QuantityResult {
-                                result_id: item.result_id,
-                                family: family(&item.family)?,
-                                object_ref: reference(item.object_ref)?,
-                                basis_ref: reference(item.basis_ref)?,
-                                station_ref: item.station_ref.map(reference).transpose()?,
-                                magnitude: item.magnitude,
-                                unit: item.unit,
-                                dimension: dimension(&item.dimension)?,
-                                metadata: item.metadata.map(|metadata| {
-                                    result_export::ResultMetadata {
-                                        component: metadata.component,
-                                        coordinate_system: metadata.coordinate_system,
-                                        location: metadata.location,
-                                        basis: metadata.basis,
-                                        sign_convention: metadata.sign_convention,
-                                    }
-                                }),
-                                diagnostics: item
-                                    .diagnostics
-                                    .into_iter()
-                                    .map(diagnostic)
-                                    .collect::<Result<Vec<_>, _>>()?,
-                                trace_chain: item
-                                    .trace_chain
-                                    .into_iter()
-                                    .map(|trace| {
-                                        Ok(result_export::ResultTraceLink {
-                                            trace_id: trace.trace_id,
-                                            trace_type: trace.trace_type,
-                                            source_ref: reference(trace.source_ref)?,
-                                            target_ref: reference(trace.target_ref)?,
-                                            provenance: provenance(trace.provenance)?,
-                                            diagnostics: trace
-                                                .diagnostics
-                                                .into_iter()
-                                                .map(diagnostic)
-                                                .collect::<Result<Vec<_>, _>>()?,
-                                        })
-                                    })
-                                    .collect::<Result<Vec<_>, String>>()?,
-                                provenance: provenance(item.provenance)?,
-                            })
-                        })
-                        .collect::<Result<Vec<_>, String>>()?,
-                })
-            })
-            .collect::<Result<Vec<_>, String>>()?,
-        diagnostics: value
-            .diagnostics
-            .into_iter()
-            .map(diagnostic)
-            .collect::<Result<Vec<_>, _>>()?,
-        provenance: provenance(value.provenance)?,
-        reproducibility: result_export::ReproducibilityRefs {
-            model_hash: checksum(value.reproducibility.model_hash)?,
-            run_hashes: value
-                .reproducibility
-                .run_hashes
-                .into_iter()
-                .map(checksum)
-                .collect::<Result<Vec<_>, _>>()?,
-            audit_manifest_ref: reference(value.reproducibility.audit_manifest_ref)?,
-            deterministic_ordering: value.reproducibility.deterministic_ordering,
-        },
-        analysis_status: value
-            .analysis_status
-            .iter()
-            .map(|item| analysis_status(item))
-            .collect::<Result<Vec<_>, _>>()?,
-        rule_pack_refs: value
-            .rule_pack_refs
-            .into_iter()
-            .map(|item| {
-                Ok(result_export::RulePackExportRef {
-                    rule_pack_id: item.rule_pack_id,
-                    version: item.version,
-                    checksum: checksum(item.checksum)?,
-                    source_notice: item.source_notice,
-                    redistribution_status: result_redistribution(&item.redistribution_status)?,
-                    completeness_status: item.completeness_status,
-                    private_payload_redacted: item.private_payload_redacted,
-                })
-            })
-            .collect::<Result<Vec<_>, String>>()?,
-        professional_boundary: boundary(value.professional_boundary),
-    })
-}
-
 pub struct LinkedSolverIdentity<'a> {
     pub solver_name: &'a str,
     pub solver_version: &'a str,
     pub solver_build_ref: &'a str,
 }
 
-/// No fresh result is report-package eligible. The desktop refuses before
-/// building a request (the same text); this boundary refuses the same thing
-/// again, from content, because the wire carries no semantic identity.
-pub const FRESH_RESULT_UNAVAILABLE: &str = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
-
-/// Metadata tokens that only fresh result semantics (preview-physics-2,
-/// physics-1 and their source forms) publish; historical rows never carry them.
-/// A basis is matched before any `; section_basis=` suffix (T4-U6 twins).
-fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
-    matches!(
-        metadata.basis.split(';').next().unwrap_or_default(),
-        "recovered_from_assembled_support_law"
-            | "nominal_straight_beam_formula_on_arc_resultants"
-            | "user_sif_times_member_section_bending_stress_v1"
-            | "retained_source_endpoint_normal_max_v1"
-            // T4-U4b: section extremes, transverse shear, toroidal and directional rows.
-            | "section_extremes_from_published_stress_rows_v1"
-            | "saint_venant_annulus_flexure_v1"
-            | "local_straight_annulus_on_arc"
-            | "bore_load_transferred_toroidal_membrane_v1"
-            | "user_directional_sif_times_tangent_frame_bending_stress_v1"
-            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): the tie-rod force basis.
-            | "recovered_from_tie_rod_extension_v1"
-    ) || matches!(
-        metadata.component.as_str(),
-        "Fx" | "Fy" | "Fz" | "Mx" | "My" | "Mz"
-            | "force_magnitude"
-            | "moment_magnitude"
-            | "maximum_absolute_normal_stress"
-            | "equal_factor_intensified_bending_stress"
-            | "sigma_plus"
-            | "sigma_minus"
-            | "tau_v_max"
-            | "intensified_bending"
-            | "intensified_bending_maximum"
-            | "toroidal_intrados_hoop_stress"
-            | "toroidal_crown_hoop_stress"
-            | "toroidal_extrados_hoop_stress"
-            | "toroidal_inner_radial_stress"
-            | "toroidal_outer_radial_stress"
-            // T4-U5b: the tie-rod force component.
-            | "t_r"
-    ) || matches!(
-        metadata.location.as_str(),
-        "governing_station"
-            // T4-U5b: the tie-rod force location.
-            | "tie_rod"
-    )
-}
-
 pub fn assemble_wire_request(
     request: ReportPackageRequest,
     linked_solver: &LinkedSolverIdentity<'_>,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
-    if request.result_envelopes.iter().any(|envelope| {
-        envelope.result_sets.iter().any(|set| {
-            set.values
-                .iter()
-                .any(|value| value.metadata.as_ref().is_some_and(fresh_semantics_metadata))
-        })
-    }) {
-        return Err(FRESH_RESULT_UNAVAILABLE.to_string());
-    }
-    if request.rule_check_aggregate.is_some()
-        || request.solve_rule_check_status != "RULE_INPUTS_INCOMPLETE"
-    {
-        return Err("REPORT-PACKAGE-RULE-PACK-BINDING-UNAVAILABLE: active rule-pack metadata is unavailable at this boundary".to_string());
-    }
+    let audit_manifest = audit_manifest(request.audit_manifest.clone(), linked_solver)?;
+    crate::bindings::check_request(&request, &audit_manifest, linked_solver)?;
     let report: RenderableReportInput = serde_json::from_value(request.report)
         .map_err(|error| format!("REPORT-PACKAGE-REPORT-DTO-INVALID: {error}"))?;
-    let audit_manifest = audit_manifest(request.audit_manifest, linked_solver)?;
-    let result_envelopes = request
-        .result_envelopes
-        .into_iter()
-        .map(|value| result_envelope(value, linked_solver))
-        .collect::<Result<Vec<_>, _>>()?;
     let source_model_ref = package_reference(request.source_model_ref)?;
     let source_basis_refs = request
         .source_basis_refs
@@ -742,7 +293,7 @@ pub fn assemble_wire_request(
         source_basis_refs,
         report: &report,
         audit_manifest: &audit_manifest,
-        result_envelopes: &result_envelopes,
+        result_documents: &request.result_documents,
         state_comparison_handoff_records: &request.state_comparison_handoff_records,
     };
     Ok(package::assemble_report_package_container(&input))
@@ -816,11 +367,17 @@ mod tests {
         witness["export_results"].clone()
     }
 
+    /// The identity the committed witness was generated against: the linked
+    /// product-physics component at generation (the witness generator asserts
+    /// it equals the linked one).
     fn linked_product_solver() -> LinkedSolverIdentity<'static> {
+        let witness: serde_json::Value = serde_json::from_str(REPORT_PACKAGE_WITNESS).unwrap();
+        let solver = &witness["export_results"]["audit_manifest"]["solver_version"];
+        let leak = |key: &str| -> &'static str { Box::leak(solver[key].as_str().unwrap().to_string().into_boxed_str()) };
         LinkedSolverIdentity {
-            solver_name: "open_pipe_stress_product_physics",
-            solver_version: "0.1.0",
-            solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+            solver_name: leak("solver_name"),
+            solver_version: leak("solver_version"),
+            solver_build_ref: leak("solver_build_ref"),
         }
     }
 
@@ -905,66 +462,7 @@ mod tests {
     }
 
     #[test]
-    fn fresh_result_rows_are_refused() {
-        let witness = request_with_component_provenance_projection();
-        let values = witness
-            .pointer("/result_envelopes/0/result_sets/0/values")
-            .and_then(|v| v.as_array())
-            .expect("witness result values");
-        assert!(!values.is_empty());
-        // Control: the historical witness still assembles past this gate.
-        let request: ReportPackageRequest = serde_json::from_value(witness.clone()).unwrap();
-        let control = assemble_wire_request(request, &linked_product_solver());
-        assert!(control.as_ref().err().is_none_or(|e| !e.starts_with("REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE")));
-        for (field, token) in [
-            ("basis", "recovered_from_assembled_support_law"),
-            ("component", "maximum_absolute_normal_stress"),
-            ("component", "equal_factor_intensified_bending_stress"),
-            ("location", "governing_station"),
-            ("basis", "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section"),
-            ("basis", "saint_venant_annulus_flexure_v1"),
-            ("basis", "local_straight_annulus_on_arc; section_basis=reduced_section"),
-            ("basis", "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section"),
-            ("basis", "user_directional_sif_times_tangent_frame_bending_stress_v1"),
-            ("component", "sigma_plus"),
-            ("component", "sigma_minus"),
-            ("component", "tau_v_max"),
-            ("component", "intensified_bending"),
-            ("component", "intensified_bending_maximum"),
-            ("component", "toroidal_intrados_hoop_stress"),
-            ("component", "toroidal_crown_hoop_stress"),
-            ("component", "toroidal_extrados_hoop_stress"),
-            ("component", "toroidal_inner_radial_stress"),
-            ("component", "toroidal_outer_radial_stress"),
-            // T4-U5b: the tie-rod force row's tokens.
-            ("basis", "recovered_from_tie_rod_extension_v1"),
-            ("component", "t_r"),
-            ("location", "tie_rod"),
-        ] {
-            let mut fresh = witness.clone();
-            let value = fresh.pointer_mut("/result_envelopes/0/result_sets/0/values/0").unwrap();
-            value["metadata"] = serde_json::json!({"component":"axial_force","coordinate_system":"element_local","location":"end_i","basis":"recovered_from_local_element_stiffness","sign_convention":"t0r"});
-            value["metadata"][field] = serde_json::json!(token);
-            let request: ReportPackageRequest = serde_json::from_value(fresh).unwrap();
-            let refused = assemble_wire_request(request, &linked_product_solver()).err().expect("refused");
-            assert_eq!(refused, FRESH_RESULT_UNAVAILABLE, "{field}={token}");
-        }
-    }
-
-    #[test]
-    fn stiffness_dimensions_cross_the_native_report_package_boundary() {
-        assert_eq!(
-            dimension("linear_stiffness").expect("linear stiffness accepted"),
-            result_export::DimensionId::LinearStiffness
-        );
-        assert_eq!(
-            dimension("rotational_stiffness").expect("rotational stiffness accepted"),
-            result_export::DimensionId::RotationalStiffness
-        );
-    }
-
-    #[test]
-    fn audit_and_result_sha256_dtos_reject_malformed_values() {
+    fn audit_sha256_dtos_reject_malformed_values() {
         let audit_error = audit_hash(HashRecordDto {
             algorithm: "sha256".to_string(),
             canonicalization: "project_local_deterministic_json".to_string(),
@@ -974,18 +472,30 @@ mod tests {
         })
         .expect_err("audit SHA-256 must be exact");
         assert!(audit_error.contains("REPORT-PACKAGE-SHA256-INVALID"));
+    }
 
-        let checksum_error = checksum(ChecksumDto {
-            algorithm: "sha256".to_string(),
-            canonicalization: "rfc8785_jcs".to_string(),
-            payload_ref: ReferenceDto {
-                ref_type: "result".to_string(),
-                ref_id: "result:test".to_string(),
-            },
-            value: "sha256:abc".to_string(),
-        })
-        .expect_err("result SHA-256 must be exact");
-        assert!(checksum_error.contains("REPORT-PACKAGE-SHA256-INVALID"));
+    /// DEL-08-01 Design §2.4: the two recorded bases decode; other labels
+    /// (the report's own `JCS` declaration among them) do not.
+    #[test]
+    fn recorded_checksum_bases_decode_by_their_tokens() {
+        assert_eq!(audit_canonicalization("rfc8785_jcs"), Ok(audit::Canonicalization::Rfc8785Jcs));
+        assert_eq!(audit_canonicalization("rule_pack_payload_jcs"), Ok(audit::Canonicalization::RulePackPayloadJcs));
+        for label in ["JCS", "jcs_compatible", "openpipestress_jcs_ijson_v1", "not recorded"] {
+            assert!(audit_canonicalization(label).unwrap_err().contains("REPORT-PACKAGE-WIRE-ENUM"), "{label}");
+        }
+    }
+
+    /// The 1.0.0 request shape is no longer read: its typed result envelopes
+    /// leave the 2.0.0 request without result documents.
+    #[test]
+    fn a_1_0_0_request_shape_is_refused_by_the_typed_decode() {
+        let mut source: serde_json::Value = serde_json::from_str(REPORT_PACKAGE_WITNESS).unwrap();
+        let request = source["export_results"].as_object_mut().unwrap();
+        let documents = request.remove("result_documents").unwrap();
+        request.remove("source_results");
+        request.insert("result_envelopes".to_string(), documents);
+        let error = serde_json::from_value::<ReportPackageRequest>(source["export_results"].clone()).unwrap_err();
+        assert!(error.to_string().contains("missing field `result_documents`"), "{error}");
     }
 
     #[test]
@@ -1014,6 +524,7 @@ mod tests {
         .expect("invented export-results witness must parse");
         let audit_solver = &mut source["export_results"]["audit_manifest"]["solver_version"];
         audit_solver["solver_name"] = serde_json::json!("wrong-solver");
+        audit_solver["solver_version"] = serde_json::json!("0.1.0");
         audit_solver["solver_build_ref"] = serde_json::json!("wrong-solver@0.1.0");
         let request: ReportPackageRequest =
             serde_json::from_value(source["export_results"].clone())
@@ -1028,5 +539,6 @@ mod tests {
         )
         .expect_err("result identity mismatch must block");
         assert!(error.contains("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH"));
+        assert!(error.contains("result document"), "{error}");
     }
 }

@@ -42,8 +42,10 @@ Standard claim fence applies (claims taxonomy per DEC-081).
   and the committed success witness
   `validation/witness/generated/del1005_export_results_success.json` holds a
   hash-valid 1.0.0 package whose one result member is a 0.1.0 envelope
-  (reviewer's parse, `scratch/rep-w18-review/witness-check.json`). The
-  determinism test exercises it (`tests/test_headless_runner_contract.py:652`).
+  (round-1 review). The determinism test exercises the producer
+  (`tests/test_headless_runner_contract.py:652`). Slice (a) stops committing
+  that generated output: no test or tool reads it, and the determinism test and
+  reproduction step C11 produce it.
 - **Why the desktop path was closed.** Below the gate, assembly transcodes the
   result into the typed DEL-08-04 envelope (`reportPackageRequest.ts:340-376`)
   through `projectReceivedReportResults` (`:120-205`):
@@ -168,7 +170,7 @@ each with a named `REPORT-PACKAGE-…` code:
    Route admission is the producer's check. It is distinct from the header
    dispatch in item 2.
 1. **Document form: the complete 0.3.0 contract.** A new source-independent
-   validator, `result_export::document_form::validate_result_export_form(doc)`,
+   validator, `report_package::document_form::validate_result_export_form(doc)`,
    replaces what `validate_result_envelope` gave the 1.0.0 path
    (`result_export/src/lib.rs:397-479`; called at
    `report_package/src/lib.rs:220-239`). `validate_document` explicitly leaves
@@ -215,7 +217,9 @@ each with a named `REPORT-PACKAGE-…` code:
    - it supplies no resources (`:70-71`), and it resolves only fragment
      references (`:80`), not whole resources (schema `:1366`).
 
-   A new module, `result_export::schema_eval`, is therefore written:
+   A new module, `report_package::schema_eval`, is therefore written (in
+   `report_package` with `document_form`, so the pinned `result_export/src/lib.rs`
+   is unchanged):
    - It evaluates the complete root schema and its transitively referenced
      repository resources with JSON Schema 2020-12 semantics.
    - It uses a closed, explicit local resource catalog and never loads a schema
@@ -447,7 +451,9 @@ each with a named `REPORT-PACKAGE-…` code:
    - source order;
    - Unicode ids and units;
    - `-0`;
-   - small and large exponent notation (`1e-7`, `1e21`);
+   - small exponent notation (`1e-7`, `1.5e-6`, `5e-324`); large exponent
+     forms (from `1e21`) are integer-valued above 2^53 − 1, so `guard_json`
+     refuses them before any row is formed, and the vectors record that;
    - integer-valued binary64 values.
 
    A change to the projection updates the contract, both helpers and the
@@ -883,9 +889,14 @@ native hold, local to the desktop command:
      before writing it.
   5. **Variants.** `generate_del1005_export_results_inputs.py` reads the
      Rust-written success input and derives the binding-mismatch,
-     producer-blocked and missing-payload inputs from it by one edit each. The
-     generated witnesses are regenerated in 2.0.0 form, with their codes
-     unchanged.
+     producer-blocked and missing-payload inputs from it by one edit each.
+     Only the missing-payload input, which carries no document, is committed;
+     the contract tests make the other two edits in memory, and the alias
+     input is committed as its leaf replacements over the success input. The
+     generated failure witnesses are regenerated in 2.0.0 form, with their
+     codes unchanged. The generated success output, which no test reads and
+     which embeds the whole package, is not committed; the determinism test
+     and reproduction step C11 produce it.
   6. **Tests.** The success, mismatch, producer-blocked, missing-payload,
      determinism and zip-exact tests (`tests/test_headless_runner_contract.py:652`
      and its neighbours) exercise the fixture unchanged in what they assert.
@@ -998,7 +1009,7 @@ through the T3 wrappers.
       - incomplete provenance;
     - the schema-keyword census test, over the transitive closure, with
       annotations separated;
-  - **evaluator (`result_export::schema_eval`):**
+  - **evaluator (`report_package::schema_eval`):**
     - a positive and a negative case for each assertion and applicator keyword
       in the closure, including `contains`, `dependentRequired`,
       `if`/`then`/`else`, `not` and `uniqueItems`;

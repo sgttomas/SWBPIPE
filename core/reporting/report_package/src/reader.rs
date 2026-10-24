@@ -31,10 +31,15 @@
 //! hashes (`DEC-028`); the manifest hash is the package identity. Reading a
 //! package establishes its form and its integrity against its own manifest
 //! only. The hashes are not signatures: a package re-hashed after editing is
-//! not detected as edited, and member contents beyond their checked envelope
-//! (for example a result envelope's own validity) are not re-validated. It is not
-//! an acceptance or issuance act. Standard claim fence applies (F-PIP-2; claims
-//! taxonomy per DEC-081).
+//! not detected as edited. Each result member is checked against the complete
+//! DEL-08-04 0.3.0 schema, its transported semantic-contract header and its own
+//! derivative hash in every package; in an unblocked package, also for the
+//! admitted identity and for equality of its audit-manifest id and model-hash
+//! value with the audit member's (`document_form`). The reader has no source
+//! result, so source-dependent row accounting stays the producer's check;
+//! other member contents beyond their checked envelope are not re-validated.
+//! It is not an acceptance or issuance act. Standard claim fence applies
+//! (claims taxonomy per DEC-081).
 
 use std::collections::BTreeSet;
 use std::fmt;
@@ -42,6 +47,7 @@ use std::fmt;
 use open_pipe_stress_canonical_json::canonical_json;
 use serde_json::{Map, Value};
 
+use super::document_form;
 use super::{
     build_deterministic_zip, crc32, package_manifest_document, sanitize_component, sha256_hex,
     ContainerMember, ManifestFields, PackageRef, CONTAINER_DOCUMENT_KIND, HASH_BASIS_EXACT,
@@ -828,6 +834,9 @@ fn verify_members(
 
     let mut previous_rank: Option<u8> = None;
     let mut ranks_seen = BTreeSet::new();
+    // The audit member precedes every result member (fixed order), so its id
+    // and model-hash value are known when a result member is checked.
+    let mut audit_identity: Option<(String, Option<String>)> = None;
     for (row, entry) in rows.iter().zip(content_entries) {
         let defect = |reason: String| PackageReadRefusal::MemberIntegrity {
             file_name: row.file_name.clone(),
@@ -899,6 +908,31 @@ fn verify_members(
                 }
                 check_member_document(&row.role, &row.file_name, &document, export_blocked)
                     .map_err(|reason| defect(reason.to_string()))?;
+                match row.role.as_str() {
+                    ROLE_AUDIT_MANIFEST => {
+                        audit_identity = Some((
+                            document["manifest_id"].as_str().unwrap_or_default().to_string(),
+                            document["model_hash"]["value"].as_str().map(str::to_string),
+                        ));
+                    }
+                    // DEL-08-01 Design `report-package-current-results.md`
+                    // §2.3, "The reader": the complete 0.3.0 form, the
+                    // transported header and the self-hash for every package;
+                    // the admitted identity and the audit equalities for an
+                    // unblocked one. Equality checks, not signatures.
+                    ROLE_RESULT_EXPORT => {
+                        document_form::check_result_member_form(&document).map_err(&defect)?;
+                        if !export_blocked {
+                            document_form::check_route_admitted(&document).map_err(&defect)?;
+                            let (manifest_id, model_hash) = audit_identity
+                                .as_ref()
+                                .ok_or_else(|| defect("no audit manifest precedes the result member".to_string()))?;
+                            document_form::check_audit_equalities(&document, manifest_id, model_hash.as_deref())
+                                .map_err(&defect)?;
+                        }
+                    }
+                    _ => {}
+                }
             }
         }
 
