@@ -3,18 +3,17 @@
 // (`src-tauri/src/model_document_shape.rs`), whose test reads the same invented
 // cases. Findings compare as sets.
 import { describe, expect, it } from "vitest";
-import corpus from "../../../../../fixtures/model_document/desktop_shape_cases.json";
+import { SHAPE_CASES, shapeCaseDocument, type ShapeFinding } from "../../test/shapeCorpus";
 import { modelDocumentShapeDiagnostics } from "./modelDocumentShape";
 
-type Finding = { code: string; path: string; message: string };
-const sorted = (items: Finding[]) => items.map(({ code, path, message }) => [code, path, message].join("\u0000")).sort();
+const sorted = (items: ShapeFinding[]) => items.map(({ code, path, message }) => [code, path, message].join("\u0000")).sort();
 
 describe("desktop shape corpus shared with the native save", () => {
   it("has the invented cases", () => {
-    expect(corpus.cases.length).toBeGreaterThanOrEqual(10);
+    expect(SHAPE_CASES.length).toBeGreaterThanOrEqual(10);
   });
 
-  it.each(corpus.cases.map((item) => [item.case_id, item] as const))("%s", (_id, item) => {
-    expect(sorted(modelDocumentShapeDiagnostics(item.document))).toEqual(sorted(item.expected as Finding[]));
+  it.each(SHAPE_CASES.map((item) => [item.case_id, item] as const))("%s", (_id, item) => {
+    expect(sorted(modelDocumentShapeDiagnostics(shapeCaseDocument(item)))).toEqual(sorted(item.expected));
   });
 });

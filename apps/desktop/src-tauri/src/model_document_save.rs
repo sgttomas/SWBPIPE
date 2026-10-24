@@ -957,6 +957,26 @@ mod tests {
         assert_eq!(default_save_directory(None, None), None);
     }
 
+    // Independent review round 3 (the reviewer's regressions): members the
+    // workspace dereferences on adoption.
+    #[test]
+    fn save_refuses_unit_values_that_crash_adoption() {
+        let (text, hash) = canonical_variant(|d| d["project"]["units"]["force"] = json!(17));
+        assert_eq!(codes(admit(text, &hash)), vec![("MODEL-FILE-SHAPE".to_string(), "project.units.force".to_string())], "normalizeSymbol calls symbol.trim() after adoption");
+    }
+
+    #[test]
+    fn save_refuses_component_completeness_that_crashes_adoption() {
+        let (text, hash) = canonical_variant(|d| d["components"][0]["completeness"] = json!({}));
+        assert_eq!(codes(admit(text, &hash)), vec![("MODEL-FILE-SHAPE".to_string(), "components[0].completeness".to_string())], "ModelTree calls component.completeness?.map() after adoption");
+    }
+
+    #[test]
+    fn save_refuses_diagnostic_identity_that_crashes_adoption() {
+        let (text, hash) = canonical_variant(|d| d["diagnostics"] = json!([{"id":{},"code":"INVENTED","severity":"warning","message":"Invented"}]));
+        assert_eq!(codes(admit(text, &hash)), vec![("MODEL-FILE-SHAPE".to_string(), "diagnostics[0].id".to_string())], "ModelTree renders diagnostic.id as a React child after adoption");
+    }
+
     // Independent review round 2 (the reviewer's regressions).
     #[test]
     fn save_refuses_a_document_the_webview_cannot_index() {
@@ -1013,7 +1033,7 @@ mod tests {
         let mut admitted_cases = 0;
         for case in corpus["cases"].as_array().unwrap() {
             let id = case["case_id"].as_str().unwrap();
-            let text = canonical_json(&case["document"]);
+            let text = canonical_json(&crate::model_document_shape::corpus_case_document(&corpus, case));
             let hash = hash_of(&text);
             let shape_clean = case["expected"].as_array().unwrap().is_empty();
             match admit(text.clone(), &hash) {

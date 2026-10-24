@@ -73,6 +73,21 @@ const ENTITY_STRINGS: [(&str, &[&str], bool); 9] = [
     ("diagnostics", &["code", "severity", "message"], false),
 ];
 
+#[derive(Clone, Copy)]
+enum Member {
+    String,
+    Quantity,
+    Point,
+}
+
+/// The webview's `COMPONENT_DESCRIPTORS`: the component members the workspace
+/// formats or trims on adoption, typed as `PreviewComponent` declares them.
+const COMPONENT_DESCRIPTORS: [(&str, &[(&str, Member)]); 3] = [
+    ("geometry", &[("bend_radius", Member::Quantity), ("bend_angle", Member::Quantity), ("bend_plane_orientation", Member::String), ("bend_pipe_ref", Member::String), ("bend_geometry_source_reference", Member::String), ("branch_header_pipe_ref", Member::String), ("branch_branch_pipe_ref", Member::String), ("branch_run_size", Member::Quantity), ("branch_header_size", Member::Quantity), ("branch_connection_angle", Member::Quantity), ("branch_connection_type", Member::String), ("branch_reinforcement_area", Member::Quantity), ("branch_reinforcement_reference", Member::String), ("branch_geometry_source_reference", Member::String), ("rigid_pipe_ref", Member::String), ("rigid_body_length", Member::Quantity), ("end_a_size", Member::Quantity), ("end_b_size", Member::Quantity), ("weight", Member::Quantity), ("center_of_gravity", Member::Point), ("connection_end_a_reference", Member::String), ("connection_end_b_reference", Member::String), ("stiffness_behavior_reference", Member::String), ("rigid_component_source_reference", Member::String), ("expansion_joint_pipe_ref", Member::String), ("effective_area", Member::Quantity), ("movement_limit", Member::Quantity), ("hardware_reference", Member::String), ("manufacturer_reference", Member::String), ("pressure_thrust_reference", Member::String), ("expansion_joint_source_reference", Member::String)]),
+    ("modifiers", &[("sif_user_value", Member::Quantity), ("branch_header_sif_user_value", Member::Quantity), ("branch_branch_sif_user_value", Member::Quantity), ("flexibility_factor_user_value", Member::Quantity), ("sif_in_plane_user_value", Member::Quantity), ("sif_out_of_plane_user_value", Member::Quantity), ("stiffness_scaling_user_value", Member::Quantity), ("linear_stiffness_user_value", Member::Quantity), ("rotational_stiffness_user_value", Member::Quantity), ("axial_stiffness_user_value", Member::Quantity), ("lateral_stiffness_user_value", Member::Quantity), ("angular_stiffness_user_value", Member::Quantity), ("torsional_stiffness_user_value", Member::Quantity), ("source_reference", Member::String)]),
+    ("mechanics_interface", &[("solver_consumption", Member::String), ("rule_check_consumption", Member::String)]),
+];
+
 struct Shape(Vec<ShapeDiagnostic>);
 
 impl Shape {
@@ -133,7 +148,11 @@ pub fn model_document_shape_diagnostics(document: &Value) -> Vec<ShapeDiagnostic
         for key in ["id", "name", "description"] {
             shape.need(project.get(key), &format!("project.{key}"), Kind::String);
         }
-        shape.need(project.get("units"), "project.units", Kind::Object);
+        if let Some(units) = shape.object(project, "units", "project.units") {
+            for (key, value) in units {
+                shape.need(Some(value), &format!("project.units.{key}"), Kind::String);
+            }
+        }
     }
     if let Some(status) = shape.object(doc, "analysis_status", "analysis_status") {
         for key in ["mechanics", "rule_check", "professional_acceptance"] {
@@ -187,6 +206,46 @@ pub fn model_document_shape_diagnostics(document: &Value) -> Vec<ShapeDiagnostic
                         shape.need(Some(section_ref), &format!("{at}.section_ref"), Kind::String);
                     }
                 }
+                "components" => {
+                    for (group, members) in COMPONENT_DESCRIPTORS {
+                        let Some(descriptor) = record.get(group).and_then(Value::as_object) else { continue };
+                        for (key, member) in members {
+                            let Some(value) = descriptor.get(*key).filter(|value| !value.is_null()) else { continue };
+                            let path = format!("{at}.{group}.{key}");
+                            match member {
+                                Member::String => {
+                                    shape.need(Some(value), &path, Kind::String);
+                                }
+                                Member::Quantity => shape.quantity(Some(value), &path),
+                                Member::Point => {
+                                    if shape.need(Some(value), &path, Kind::Object) {
+                                        for axis in ["x", "y", "z"] {
+                                            shape.need(value.get(axis), &format!("{path}.{axis}"), Kind::Number);
+                                        }
+                                        shape.need(value.get("unit"), &format!("{path}.unit"), Kind::String);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if let Some(completeness) = record.get("completeness").filter(|value| !value.is_null()) {
+                        if shape.need(Some(completeness), &format!("{at}.completeness"), Kind::Array) {
+                            for (item, finding) in completeness.as_array().into_iter().flatten().enumerate() {
+                                let finding_at = format!("{at}.completeness[{item}]");
+                                if !shape.need(Some(finding), &finding_at, Kind::Object) {
+                                    continue;
+                                }
+                                shape.need(finding.get("diagnostic_code"), &format!("{finding_at}.diagnostic_code"), Kind::String);
+                                shape.need(finding.get("status"), &format!("{finding_at}.status"), Kind::String);
+                            }
+                        }
+                    }
+                }
+                "diagnostics" => {
+                    if let Some(id) = record.get("id").filter(|value| !value.is_null()) {
+                        shape.need(Some(id), &format!("{at}.id"), Kind::String);
+                    }
+                }
                 "supports" => {
                     if shape.need(record.get("restraints"), &format!("{at}.restraints"), Kind::Array) {
                         for (item, value) in record["restraints"].as_array().into_iter().flatten().enumerate() {
@@ -213,6 +272,38 @@ pub fn model_document_shape_diagnostics(document: &Value) -> Vec<ShapeDiagnostic
     shape.0
 }
 
+/// A case of the shared shape corpus as a document: a copy of the corpus's
+/// schema-valid `base` with the case's `edits` applied (`value` set at `path`,
+/// or the member removed when `remove` is true), or the case's `replace`.
+#[cfg(test)]
+pub(crate) fn corpus_case_document(corpus: &Value, case: &Value) -> Value {
+    if let Some(replace) = case.get("replace") {
+        return replace.clone();
+    }
+    let mut document = corpus["base"].clone();
+    for edit in case["edits"].as_array().expect("edits") {
+        let path = edit["path"].as_array().expect("path");
+        let (last, parents) = path.split_last().expect("non-empty path");
+        let mut target = &mut document;
+        for step in parents {
+            target = match step {
+                Value::String(key) => &mut target[key.as_str()],
+                Value::Number(index) => &mut target[index.as_u64().expect("index") as usize],
+                other => panic!("path step {other}"),
+            };
+        }
+        match (last, edit.get("remove").and_then(Value::as_bool).unwrap_or(false)) {
+            (Value::String(key), true) => {
+                target.as_object_mut().expect("object").remove(key);
+            }
+            (Value::String(key), false) => target[key.as_str()] = edit["value"].clone(),
+            (Value::Number(index), false) => target[index.as_u64().expect("index") as usize] = edit["value"].clone(),
+            (other, _) => panic!("path end {other}"),
+        }
+    }
+    document
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -232,10 +323,11 @@ mod tests {
         let corpus: Value = serde_json::from_str(CASES).unwrap();
         let cases = corpus["cases"].as_array().unwrap();
         assert!(cases.len() >= 10);
+        assert!(corpus.get("base").is_some_and(Value::is_object));
         for case in cases {
             let id = case["case_id"].as_str().unwrap();
             let seen = sorted(
-                model_document_shape_diagnostics(&case["document"])
+                model_document_shape_diagnostics(&corpus_case_document(&corpus, case))
                     .into_iter()
                     .map(|item| (MODEL_FILE_SHAPE.to_string(), item.path, item.message))
                     .collect(),

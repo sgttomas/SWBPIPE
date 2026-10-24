@@ -418,3 +418,15 @@ def test_frozen_coverage_includes_every_retired_version_and_json_lines():
     assert not any(relative.startswith(FROZEN_ROOT) for bucket, relative, _, _ in classify() if bucket == "retired")
     assert any(relative.endswith(".jsonl") for relative, _ in frozen)
 
+
+
+def test_shape_corpus_does_not_silently_enter_the_current_format_population():
+    # Shape-only and deliberate malformed cases must have an explicit reason
+    # in the document population rules; otherwise the format scan treats them
+    # as claims of current-format conformance.
+    rows = [row for row in classify() if row[1] == "fixtures/model_document/desktop_shape_cases.json"]
+    assert rows, "the shared shape corpus must be discovered"
+    schema = format_schema()
+    for bucket, relative, pointer, document in rows:
+        if bucket in {"format", "desktop"}:
+            _validate(schema, document, f"{relative}#{pointer}")

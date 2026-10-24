@@ -8,7 +8,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import everySlotModel from "../../../../../fixtures/model_document/invented_every_slot_model.json";
 import dispositionParity from "../../../../../fixtures/model_document/library_disposition_parity.json";
-import shapeCorpus from "../../../../../fixtures/model_document/desktop_shape_cases.json";
+import { SHAPE_CASES, shapeCaseDocument } from "../../test/shapeCorpus";
 import { App } from "../../App";
 import { checkNativeOutcome } from "../../services/modelDocumentFile";
 import { buildModelIndex } from "../workspace/modelIndex";
@@ -525,16 +525,29 @@ describe("Save Model Document…: review round 2", () => {
   });
 
   it("opens every shape-clean case of the shared corpus through the webview's open checks and model index", () => {
-    const clean = shapeCorpus.cases.filter((item) => item.expected.length === 0);
+    const clean = SHAPE_CASES.filter((item) => item.expected.length === 0);
     expect(clean.length).toBeGreaterThanOrEqual(4);
     for (const item of clean) {
-      const checked = checkNativeOutcome({ outcome: "opened", file_name: `${item.case_id}.json`, byte_count: 1, schema_status: "current", document: clone(item.document) });
+      const checked = checkNativeOutcome({ outcome: "opened", file_name: `${item.case_id}.json`, byte_count: 1, schema_status: "current", document: shapeCaseDocument(item) });
       expect(checked.outcome, item.case_id).toBe("opened");
       if (checked.outcome === "opened") expect(() => buildModelIndex(checked.document, 0, 0), item.case_id).not.toThrow();
     }
-    for (const item of shapeCorpus.cases.filter((entry) => entry.expected.length > 0)) {
-      const checked = checkNativeOutcome({ outcome: "opened", file_name: `${item.case_id}.json`, byte_count: 1, schema_status: "current", document: clone(item.document) });
+    for (const item of SHAPE_CASES.filter((entry) => entry.expected.length > 0)) {
+      const checked = checkNativeOutcome({ outcome: "opened", file_name: `${item.case_id}.json`, byte_count: 1, schema_status: "current", document: shapeCaseDocument(item) });
       expect(checked.outcome, item.case_id).toBe("refused");
     }
+  });
+});
+
+// Independent review round 3 (the reviewer's regression): these documents pass
+// buildModelIndex but crashed the workspace on adoption; preparation refuses them.
+describe("adoption render preconditions", () => {
+  it.each(["unit-value", "component-completeness", "diagnostic-id"])("refuses %s", async (scenario) => {
+    const model = clone(demoModel) as any;
+    if (scenario === "unit-value") model.project.units.force = 17;
+    if (scenario === "component-completeness") model.components[0].completeness = {};
+    if (scenario === "diagnostic-id") model.diagnostics[0].id = {};
+    expect(() => buildModelIndex(model, 0, 0)).not.toThrow();
+    expect(codes(await prepared(model))).toEqual([["MODEL-FILE-SHAPE", { "unit-value": "project.units.force", "component-completeness": "components[0].completeness", "diagnostic-id": "diagnostics[0].id" }[scenario]]]);
   });
 });
