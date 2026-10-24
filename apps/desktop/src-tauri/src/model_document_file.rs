@@ -109,6 +109,13 @@ pub fn read_model_document_bytes(file_name: String, bytes: &[u8]) -> ModelDocume
             return refused(file_name, "MODEL-FILE-NOT-JSON", "", format!("The file is not valid UTF-8 JSON: {error}."));
         }
     };
+    check_model_document(file_name, byte_count, document)
+}
+
+/// The document-level checks of `read_model_document_bytes` over a parsed
+/// document (kind, version, W-13 validator). File > Save Model Document…
+/// applies the same checks before it writes, so every saved file re-opens.
+pub fn check_model_document(file_name: String, byte_count: u64, document: Value) -> ModelDocumentOpenOutcome {
     let Some(object) = document.as_object() else {
         return refused(file_name, "MODEL-FILE-NOT-A-DOCUMENT", "", "The file's JSON is not an object.".to_string());
     };

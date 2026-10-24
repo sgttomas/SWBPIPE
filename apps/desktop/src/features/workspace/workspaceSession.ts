@@ -59,6 +59,15 @@ import {
   type StoredProjectWrite
 } from "../project-storage/storedProjectConflict";
 import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
+import {
+  modelDocumentSaveFailureMessage,
+  modelDocumentSaveMessage,
+  modelDocumentSaveRefusalMessage,
+  prepareModelDocumentSave,
+  resolveLibraryDispositions,
+  saveModelDocumentFile
+} from "../model-file/modelDocumentSave";
+import type { ModelDocumentSaveDialogRequest } from "../model-file/ModelDocumentSaveDialog";
 import { saveReportPackage } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
@@ -296,6 +305,9 @@ export function useWorkspaceSession() {
   // for its units. It is modal in the same way as the replace prompt.
   const [blankProjectUnitsRequest, setBlankProjectUnitsRequest] = useState<BlankProjectUnitsRequest | null>(null);
   const projectUnitsDialogOpenRef = useRef(false);
+  // The open Save Model Document… dialog (DEL-15-01 W-6a), modal in the same way.
+  const [modelDocumentSaveRequest, setModelDocumentSaveRequest] = useState<ModelDocumentSaveDialogRequest | null>(null);
+  const modelDocumentSaveDialogOpenRef = useRef(false);
   // The stored project this session is, at the revision it last opened or wrote:
   // its id and stored envelope hash. Set wherever an open or a write lands for
   // this project session, whether or not a later edit superseded the request,
@@ -319,6 +331,10 @@ export function useWorkspaceSession() {
   // The Save Local Project that landed, for the continuations that ran it
   // (the guard's "Save first" and Save Model State's prerequisite save).
   const projectSaveLanded = useRef<LandedProjectSave | null>(null);
+  // What Save Model Document… saves: the session's current model and its hash,
+  // only while that hash is owned by the current generation and revision.
+  const modelDocumentSaveBasisRef = useRef<{ model: PreviewModel | null; modelHash: ModelHashEvidence | null }>({ model: null, modelHash: null });
+  modelDocumentSaveBasisRef.current = { model, modelHash: currentHashOwned ? modelHash : null };
 
   const {
     selection, setPrimarySelection,
@@ -2329,6 +2345,57 @@ export function useWorkspaceSession() {
     }
   }
 
+  /** File > Save Model Document… (DEL-15-01 W-6a): asks for the explicit
+   * local-private intent first. Available whenever a model is open, on either
+   * route; it needs no solve. Nothing happens while another project operation
+   * or modal is open. */
+  function requestSaveModelDocument() {
+    const saveModel = modelDocumentSaveBasisRef.current.model;
+    if (!saveModel) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
+    modelDocumentSaveDialogOpenRef.current = true;
+    setModelDocumentSaveRequest({
+      projectName: saveModel.project.name,
+      opener,
+      cancel: close,
+      save: (explicitLocalPrivateIntent) => {
+        close();
+        void handleSaveModelDocument(explicitLocalPrivateIntent);
+      }
+    });
+  }
+
+  /** Saves the session's model document under the dialog's intent. Reads the
+   * session and changes only the status line: the model, its hash, the results
+   * and the solve standing are untouched. */
+  async function handleSaveModelDocument(explicitLocalPrivateIntent: boolean) {
+    const { model: saveModel, modelHash: saveHash } = modelDocumentSaveBasisRef.current;
+    if (!saveModel) return;
+    const owner = acquireProjectOperation();
+    if (!owner) return;
+    try {
+      const libraries = await resolveLibraryDispositions(saveModel);
+      const prepared = await prepareModelDocumentSave({ model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent, libraries });
+      if (prepared.status === "refused") {
+        setProjectMessage(modelDocumentSaveRefusalMessage(prepared.diagnostics));
+        setProjectOperation("save_model_document_refused");
+        return;
+      }
+      const outcome = await saveModelDocumentFile(prepared.args);
+      setProjectMessage(modelDocumentSaveMessage(outcome));
+      setProjectOperation(outcome.outcome === "saved" ? "save_model_document"
+        : outcome.outcome === "cancelled" ? "save_model_document_cancelled" : "save_model_document_refused");
+    } catch (error) {
+      setProjectMessage(modelDocumentSaveFailureMessage(error));
+      setProjectOperation("save_model_document_failed");
+    } finally {
+      releaseProjectOperation(owner);
+    }
+  }
+
   async function handleSaveProject() {
     return saveProject(null);
   }
@@ -2699,7 +2766,7 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
@@ -2719,6 +2786,9 @@ export function useWorkspaceSession() {
         break;
       case "file.save-local":
         void handleSaveProject();
+        break;
+      case "file.save-model-document":
+        requestSaveModelDocument();
         break;
       case "file.save-report-package":
         setActiveSection("report");
@@ -3050,7 +3120,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       if (key === "z") {
@@ -3147,7 +3217,8 @@ export function useWorkspaceSession() {
   /** Another project operation, or any project prompt, owns the session. The
    * model-replacing commands, Open State and Save Model State start nothing then. */
   function projectSessionBusy(): boolean {
-    return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current;
+    return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current
+      || modelDocumentSaveDialogOpenRef.current;
   }
 
   async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
@@ -3282,7 +3353,9 @@ export function useWorkspaceSession() {
       replaceProjectPrompt,
       unsavedChangesPrompt,
       // W-12 S1: the saved model states of the session's project (History panel).
-      history
+      history,
+      requestSaveModelDocument,
+      modelDocumentSaveRequest
     },
     chrome: {
       uiPreferences, setUiPreferences,
