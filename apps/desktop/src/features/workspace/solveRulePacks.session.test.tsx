@@ -1,7 +1,8 @@
 /** FR-CMP-002 rule-pack references (DEL-14-01 Design `desktop-states-runs-comparison.md` §3):
  * the solve resolves the model's `rule_pack_refs` against the local rule-pack store and records
- * the resolved packs in the input manifest's `active_rule_packs`, in the model's order; Record
- * Run carries them into the recorded revision's `rule_pack_refs`. The solve is the native job
+ * the resolved packs in the input manifest's `active_rule_packs`, in the model's order, and each
+ * excluded reference as a diagnostic of the run record; Record Run carries the packs into the
+ * recorded revision's `rule_pack_refs` and keeps the diagnostics. The solve is the native job
  * transport replay of committed producer bytes (unit transport replay; NOT a native UI
  * qualification witness); the store's own derivation is `analysis_runs_tests.rs`. All
  * rule-pack data are invented. */
@@ -16,8 +17,8 @@ import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/n
 import { hex, inventedEnvelope, inventedReference } from "../../test/inventedRulePacks";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
-import { computeModelHash } from "../../services/hashService";
-import { recordedAnalysisRunRevision } from "../../services/analysisRunCompatibility";
+import { canonicalJsonString, canonicalSha256HexCheckedV1, computeModelHash } from "../../services/hashService";
+import { analysisRecordProjection, ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, recordedAnalysisRunRevision } from "../../services/analysisRunCompatibility";
 import type { AnalysisRunRead, AnalysisRunSummary, RunLabels } from "../../services/analysisRunService";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { ModelStateSummary } from "../../services/modelStateService";
@@ -138,7 +139,9 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     expect(evidence.manifest_sha256).toBe(committed.run_record.analysis_run.reproducibility.input_manifest_hashes[0].value);
     expect(evidence.manifest_sha256).toBe("dbf365b957c9251feb2f362757cef7a37965219ed2600289497c682f335c6ce1");
     expect(evidence.manifest.active_rule_packs).toEqual([]);
-    expect(Object.hasOwn(evidence.manifest, "excluded_rule_pack_refs")).toBe(false);
+    expect(Object.keys(evidence.manifest).sort()).toEqual(["active_rule_packs", "document_kind", "external_assets", "identity_policy", "load_basis", "model_basis", "replay_boundary", "schema_version", "solver_basis", "unit_basis"]);
+    // The transient record is the committed one, byte for byte (its own hash included).
+    expect(await canonicalJsonString(state().results.analysisRun)).toBe(await canonicalJsonString(committed.run_record));
     expect(calls("open_local_rule_pack")).toHaveLength(0);
     expect(screen.queryByTestId("solve-rule-pack-refs")).toBeNull();
   });
@@ -165,27 +168,35 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
       { rule_pack_id: "invented-pack-zeta", version: "1.0.0", checksum_sha256: hex("e"), source_notice: "Invented notice for invented-pack-zeta; not an engineering basis." },
       { rule_pack_id: "invented-pack-alpha", version: "3.1.0", checksum_sha256: hex("a"), source_notice: "Invented notice for invented-pack-alpha; not an engineering basis." }
     ]);
-    expect(evidence.manifest.excluded_rule_pack_refs).toEqual([
-      { rule_pack_id: "invented-pack-missing", rule_pack_version: "1.0.0", checksum_sha256: hex("2"), code: RULE_PACK_REF_UNRESOLVED },
-      { rule_pack_id: "invented-pack-changed", rule_pack_version: "1.0.0", checksum_sha256: hex("3"), code: RULE_PACK_REF_CHECKSUM_MISMATCH }
-    ]);
+    // The excluded references are diagnostics of the transient record, after the producer's.
+    const transient = state().results.analysisRun!;
+    const producerCount = state().results.result!.diagnostics.length;
+    expect(transient.analysis_run.diagnostics!.slice(producerCount).map((item) => (item.source_annotation as { code: string; affected_refs: string[] })))
+      .toEqual([
+        expect.objectContaining({ code: RULE_PACK_REF_UNRESOLVED, affected_refs: ["invented-pack-missing@1.0.0"] }),
+        expect.objectContaining({ code: RULE_PACK_REF_CHECKSUM_MISMATCH, affected_refs: ["invented-pack-changed@1.0.0"] })
+      ]);
     // Visible with the solve.
     expect(screen.getByTestId("solve-rule-pack-refs-recorded").textContent).toContain("invented-pack-zeta v1.0.0");
     const diagnostics = screen.getAllByTestId("solve-rule-pack-refs-diagnostic").map((node) => node.textContent);
     expect(diagnostics).toHaveLength(2);
-    expect(diagnostics[0]).toMatch(/^MODEL-RULE-PACK-REF-UNRESOLVED \(warning\): invented-pack-missing v1\.0\.0/);
-    expect(diagnostics[1]).toMatch(/^MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH \(warning\): invented-pack-changed v1\.0\.0/);
+    expect(diagnostics[0]).toMatch(/^MODEL-RULE-PACK-REF-UNRESOLVED \(warning\): Rule pack invented-pack-missing@1\.0\.0 /);
+    expect(diagnostics[1]).toMatch(/^MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH \(warning\): Rule pack invented-pack-changed@1\.0\.0 /);
     // The transient record is unchanged: its rule_pack_refs stay empty until Record Run.
     expect(state().results.analysisRun!.analysis_run.rule_pack_refs).toEqual([]);
     // Shown in the Record Run form, before recording.
     expect(state().project.history.recordRunManifest).toBe(evidence.manifest);
+    expect(state().project.history.recordRunRecord).toBe(transient);
 
     let recorded = false;
     await act(async () => { recorded = await state().project.history.recordRun({ labels: LABELS, snapshotName: "After solve" }); });
     expect(recorded).toBe(true);
     const request = store.records[0];
     expect(request.input_manifest_canonical).toBe(evidence.canonical_bytes);
+    expect(request.run_record).toEqual(transient);
     const read = store.reads.get(store.runs[0].recording_id)!;
+    // The recorded revision keeps the diagnostics unchanged, under its new hash.
+    expect(read.record.analysis_run.diagnostics).toEqual(transient.analysis_run.diagnostics);
     expect(read.record.analysis_run.rule_pack_refs).toEqual([
       { object_type: "RulePack", ref: "invented-pack-zeta@1.0.0" },
       { object_type: "RulePack", ref: "invented-pack-alpha@3.1.0" }
@@ -198,7 +209,21 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     expect(check.failure).toBeNull();
     expect(check.context && recordedRunBindingFindings(check.context)).toEqual([]);
     expect(check.manifest?.active_rule_packs.map((pack) => pack.rule_pack_id)).toEqual(["invented-pack-zeta", "invented-pack-alpha"]);
-    expect(check.manifest?.excluded_rule_pack_refs?.map((item) => item.code)).toEqual([RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH]);
+    expect(check.context?.analysisRun?.analysis_run.diagnostics).toEqual(transient.analysis_run.diagnostics);
+  });
+
+  it("a recorded run whose rule-pack diagnostics do not name exactly the references its manifest leaves out is flagged", async () => {
+    const project = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }).model.project.id;
+    const { state, store } = await session([inventedReference("invented-pack-alpha", hex("a")), inventedReference("invented-pack-missing", hex("2"))], [inventedEnvelope(project, "invented-pack-alpha", hex("a"))]);
+    await solve(state);
+    await act(async () => { await state().project.history.recordRun({ labels: LABELS, snapshotName: "After solve" }); });
+    const read = structuredClone(store.reads.get(store.runs[0].recording_id)!);
+    // A coherent forgery: the diagnostic removed and the record re-hashed.
+    read.record.analysis_run.diagnostics!.pop();
+    read.record.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(read.record));
+    read.run.run_record_hash = read.record.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value;
+    const context = await buildRecordedRunContext(read);
+    expect(recordedRunBindingFindings(context)).toEqual([ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH]);
   });
 
   it("a recorded run whose record's rule_pack_refs differ from its stored manifest's packs is flagged", async () => {

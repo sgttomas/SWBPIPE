@@ -209,6 +209,8 @@ code_paths:
 - apps/desktop/src/services/rulePackRefDiagnostics.ts
 - fixtures/persistence/transient_run_input.json
 - fixtures/persistence/recorded_run_witness.json
+- fixtures/persistence/transient_run_input_rule_packs.json
+- fixtures/persistence/recorded_run_witness_rule_packs.json
 checks:
 - tests/test_analysis_run_compatibility.py
 - tests/test_analysis_run_schema.py

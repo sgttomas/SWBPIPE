@@ -543,6 +543,8 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     recordRunUnavailableReason: recordable.reason,
     /** The recordable run's input manifest (its rule-pack references), shown in the Record Run form. */
     recordRunManifest: recordable.run?.inputManifest.manifest ?? null,
+    /** The recordable run's transient record (its rule-pack reference diagnostics). */
+    recordRunRecord: recordable.run?.analysisRun ?? null,
     recordRunState,
     recordRun,
     editRunLabels,

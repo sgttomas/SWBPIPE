@@ -217,7 +217,7 @@ function RunRow({ run }: { run: AnalysisRunSummary }) {
                 ? "The recorded run does not match its stored state and record:"
                 : "The record, its stored result and input manifest, and its state's model hash agree."} This is a record check only; it establishes no current result.</p>
               {check.context?.findings.length ? <ul>{check.context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul> : null}
-              <RulePackRunReferences manifest={check.manifest} testId={`${testId}-rule-pack-refs`} />
+              <RulePackRunReferences manifest={check.manifest} record={check.context?.analysisRun} testId={`${testId}-rule-pack-refs`} />
             </>
           )}
         </div>
@@ -258,7 +258,7 @@ function RunRow({ run }: { run: AnalysisRunSummary }) {
 }
 
 function RecordRunForm({ onDone }: { onDone: () => void }) {
-  const { recordRun, recordRunState, recordRunUnavailableReason, recordRunManifest, historyBusy } = useSessionHistory();
+  const { recordRun, recordRunState, recordRunUnavailableReason, recordRunManifest, recordRunRecord, historyBusy } = useSessionHistory();
   const { projectBusy } = useSessionProject();
   const busy = historyBusy || projectBusy;
   const [draft, setDraft] = useState<LabelsDraft>(() => runDraftFrom(null));
@@ -288,7 +288,7 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
           <input data-testid="record-run-snapshot-name" value={snapshotName} required onChange={(event) => setSnapshotName(event.target.value)} />
         </label>
       ) : null}
-      <RulePackRunReferences manifest={recordRunManifest} testId="record-run-rule-pack-refs" />
+      <RulePackRunReferences manifest={recordRunManifest} record={recordRunRecord} testId="record-run-rule-pack-refs" />
       <LabelsFields draft={draft} onChange={setDraft} testId="record-run" legend={RUN_ASSUMPTIONS_LEGEND} />
       <p className="muted">{LABELS_DO_NOT_CHANGE_RUN} {RUN_ASSUMPTIONS_NOTE}</p>
       <div className="report-actions">

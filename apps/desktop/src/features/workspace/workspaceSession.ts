@@ -9,7 +9,7 @@ import {
   computeProjectEnvelopeHash
 } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
-import { resolveModelRulePacks } from "../../services/modelRulePackResolution";
+import { NO_RULE_PACK_RESOLUTION, recordRulePackExclusions, resolveModelRulePacks } from "../../services/modelRulePackResolution";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { applyOperationBatch, validateOperationBatch } from "../../services/operationBatchService";
 import type { OperationBatch, OperationBatchOutcome } from "../../services/operationBatchService";
@@ -993,7 +993,7 @@ export function useWorkspaceSession() {
       // A model without references makes no store call and keeps `[]`.
       const rulePacks = solveModel.rule_pack_refs?.length
         ? await resolveModelRulePacks(solveModel)
-        : { active_rule_packs: [], excluded_rule_pack_refs: [] };
+        : NO_RULE_PACK_RESOLUTION;
       if (!solveRunGate.current.isCurrent(runGeneration)) return;
       const manifest = await buildCurrentSessionInputManifest({
         model: solveModel,
@@ -1009,12 +1009,13 @@ export function useWorkspaceSession() {
           }
         },
         active_rule_packs: rulePacks.active_rule_packs,
-        excluded_rule_pack_refs: rulePacks.excluded_rule_pack_refs,
         external_assets: []
       });
       if (!solveRunGate.current.isCurrent(runGeneration)) return;
+      // References left out of active_rule_packs become the record's diagnostics.
       const runRecord = await buildAnalysisRunPreview(output, {
-        inputManifest: manifest
+        inputManifest: manifest,
+        rulePackExclusions: rulePacks.excluded
       });
       if (
         modelRevision.current !== solveModelRevision ||
@@ -1107,6 +1108,8 @@ export function useWorkspaceSession() {
     if (!currentSolvedResult || !inputManifest) return;
     const capturedResult = currentSolvedResult;
     const capturedManifest = inputManifest;
+    // The solve-time record's rule-pack reference diagnostics carry over to the revised record.
+    const capturedRulePackExclusions = recordRulePackExclusions(analysisRun, inputManifest.manifest, currentSolvedResult.diagnostics.length);
     const capturedModelRevision = modelRevision.current;
     const capturedSolveGeneration = solveRunGate.current.current();
     const stillCurrent = () =>
@@ -1120,7 +1123,8 @@ export function useWorkspaceSession() {
     try {
       const revisedRecord = await buildAnalysisRunPreview(capturedResult, {
           inputManifest: capturedManifest,
-          ruleCheckAggregate: aggregate
+          ruleCheckAggregate: aggregate,
+          rulePackExclusions: capturedRulePackExclusions
       });
       if (!stillCurrent()) return;
       setAnalysisRun(revisedRecord);

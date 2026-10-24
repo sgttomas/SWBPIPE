@@ -23,6 +23,9 @@ import { buildCurrentSessionInputManifest, type CurrentSessionInputManifest } fr
 import { buildAnalysisRunPreview } from "./previewService";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../types";
 import siteTable from "../../../../fixtures/model_document/library_ref_sites.json";
+import { resolveModelRulePacks } from "./modelRulePackResolution";
+import { ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH } from "./analysisRunCompatibility";
+import { hex, inventedEnvelope, inventedReference } from "../test/inventedRulePacks";
 
 function codePointCompareForTest(left: string, right: string): number {
   const a = [...left].map((c) => c.codePointAt(0)!);
@@ -35,13 +38,34 @@ const PERSISTENCE_FIXTURES = resolve(__dirname, "../../../../fixtures/persistenc
 const INPUT_PATH = resolve(PERSISTENCE_FIXTURES, "transient_run_input.json");
 const WITNESS_PATH = resolve(PERSISTENCE_FIXTURES, "recorded_run_witness.json");
 const WRITE_INPUT_ENV = "OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT";
+// The same pair with invented model rule-pack references: one resolved, one unresolved and one
+// checksum-mismatched, so its transient record carries rule-pack reference diagnostics.
+const RULE_PACK_INPUT_PATH = resolve(PERSISTENCE_FIXTURES, "transient_run_input_rule_packs.json");
+const RULE_PACK_WITNESS_PATH = resolve(PERSISTENCE_FIXTURES, "recorded_run_witness_rule_packs.json");
+const WRITE_RULE_PACK_INPUT_ENV = "OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT_RULE_PACKS";
 
 type TransientInput = { description: string; source_result_ref: string; run_record: AnalysisRunEnvelope; input_manifest_canonical: string };
 type Witness = { state_id: string; state_model_hash: string; created_at: string; recording_id: string; run_record_hash: string; recorded_record: AnalysisRunEnvelope };
 
-/** The transient record a sparse solve of the preview pair gets in the session (`workspaceSession.ts`). */
-async function sessionTransient() {
+/** The transient record a sparse solve of the preview pair gets in the session (`workspaceSession.ts`).
+ * With `rulePacks`, its model carries invented rule-pack references resolved against an invented
+ * store (the producer's result does not depend on them; the solve never reads them). */
+async function sessionTransient(options: { rulePacks?: boolean } = {}) {
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  let excluded: Awaited<ReturnType<typeof resolveModelRulePacks>>["excluded"] = [];
+  let active: Awaited<ReturnType<typeof resolveModelRulePacks>>["active_rule_packs"] = [];
+  if (options.rulePacks) {
+    pair.model.rule_pack_refs = [
+      inventedReference("invented-pack-held", hex("1")),
+      inventedReference("invented-pack-missing", hex("2")),
+      inventedReference("invented-pack-changed", hex("3"), "2.0.0")
+    ];
+    const store = new Map([
+      ["invented-pack-held", inventedEnvelope(pair.model.project.id, "invented-pack-held", hex("1"))],
+      ["invented-pack-changed", inventedEnvelope(pair.model.project.id, "invented-pack-changed", hex("9"), { version: "2.0.0" })]
+    ]);
+    ({ active_rule_packs: active, excluded } = await resolveModelRulePacks(pair.model, async (_projectId, id) => ({ route: "tauri_backend", envelope: store.get(id) ?? null })));
+  }
   const manifest = await buildCurrentSessionInputManifest({
     model: pair.model,
     solver: {
@@ -51,10 +75,10 @@ async function sessionTransient() {
       solver_mode: pair.mode,
       settings: { nonlinear_iteration_policy: "DEC-046-CV-B-product-preview-active-set-count-v1", sparse_evidence_lane: true }
     },
-    active_rule_packs: [],
+    active_rule_packs: active,
     external_assets: []
   });
-  const record = await buildAnalysisRunPreview(pair.source, { inputManifest: manifest });
+  const record = await buildAnalysisRunPreview(pair.source, { inputManifest: manifest, rulePackExclusions: excluded });
   return { pair, manifest, record };
 }
 
@@ -237,5 +261,59 @@ describe("the recorded form derives every manifest-fixed member from the stored 
     expect(structurallyEqual({ a: 1, b: [1, 2] }, { b: [1, 2], a: 1 })).toBe(true);
     expect(structurallyEqual({ a: 1 }, { a: 1, b: undefined })).toBe(false);
     expect(structurallyEqual([1, 2], [2, 1])).toBe(false);
+  });
+});
+
+describe("the recorded revision of a transient record with rule-pack reference diagnostics", () => {
+  it("the committed input is the session's record of the preview pair with invented rule-pack references (the writer)", async () => {
+    const { manifest, record } = await sessionTransient({ rulePacks: true });
+    const input: TransientInput = {
+      description: "A transient analysis_run.v0.3 record built by the desktop session's builder (buildAnalysisRunPreview) for fixtures/results/preview_physics_connected_sparse.json and fixtures/model_operations/precision_connected_ui_model.json given three invented rule_pack_refs (one resolved, one unresolved, one checksum-mismatched against an invented store), with its input manifest's canonical text. The excluded references are rule-pack reference diagnostics after the producer's. Written by apps/desktop/src/services/recordedRunParity.test.ts with OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT_RULE_PACKS=<path>; apps/desktop/src-tauri/src/analysis_runs_tests.rs records it to fixtures/persistence/recorded_run_witness_rule_packs.json.",
+      source_result_ref: "fixtures/results/preview_physics_connected_sparse.json",
+      run_record: record,
+      input_manifest_canonical: manifest.canonical_bytes
+    };
+    const text = `${JSON.stringify(input, null, 2)}\n`;
+    const target = process.env[WRITE_RULE_PACK_INPUT_ENV];
+    if (target) { writeFileSync(target, text); return; }
+    expect(readFileSync(RULE_PACK_INPUT_PATH, "utf8"), `the committed input is stale; regenerate it with ${WRITE_RULE_PACK_INPUT_ENV}`).toBe(text);
+  });
+
+  it("the TypeScript builder gives the native store's witness, which keeps the diagnostics unchanged under its hash", async () => {
+    const input = JSON.parse(readFileSync(RULE_PACK_INPUT_PATH, "utf8")) as TransientInput;
+    const witness = JSON.parse(readFileSync(RULE_PACK_WITNESS_PATH, "utf8")) as Witness;
+    const manifest = JSON.parse(input.input_manifest_canonical) as CurrentSessionInputManifest;
+    const rebuilt = await recordedAnalysisRunRevision(input.run_record, { stateId: witness.state_id, createdAt: witness.created_at, inputManifest: manifest });
+    expect(await canonicalJsonString(rebuilt)).toBe(await canonicalJsonString(witness.recorded_record));
+    expect(rebuilt.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value).toBe(witness.run_record_hash);
+    const run = witness.recorded_record.analysis_run;
+    expect(run.diagnostics).toEqual(input.run_record.analysis_run.diagnostics);
+    expect(run.diagnostics!.slice(-2).map((item) => (item.source_annotation as { code: string; affected_refs: string[] })))
+      .toEqual([
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-UNRESOLVED", affected_refs: ["invented-pack-missing@1.0.0"] }),
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH", affected_refs: ["invented-pack-changed@2.0.0"] })
+      ]);
+    expect(run.rule_pack_refs).toEqual([{ object_type: "RulePack", ref: "invented-pack-held@1.0.0" }]);
+    expect(manifest.active_rule_packs.map((pack) => pack.rule_pack_id)).toEqual(["invented-pack-held"]);
+  });
+
+  it("the validator accepts both forms and refuses a recorded revision whose diagnostics do not name the manifest's exclusions", async () => {
+    const input = JSON.parse(readFileSync(RULE_PACK_INPUT_PATH, "utf8")) as TransientInput;
+    const witness = JSON.parse(readFileSync(RULE_PACK_WITNESS_PATH, "utf8")) as Witness;
+    const source = JSON.parse(readFileSync(resolve(PERSISTENCE_FIXTURES, "..", "..", input.source_result_ref), "utf8")) as MechanicsResult;
+    const manifest = JSON.parse(input.input_manifest_canonical) as CurrentSessionInputManifest;
+    const basis = modelLoadBasisRefs(manifest.model_basis.model_payload);
+    const binding = { stateId: witness.state_id, modelHash: witness.state_model_hash, inputManifest: manifest };
+    await validateAnalysisRunV03(input.run_record, source, basis);
+    await validateAnalysisRunV03(witness.recorded_record, source, basis, binding);
+    const dropped = structuredClone(witness.recorded_record);
+    dropped.analysis_run.diagnostics!.pop();
+    await reseal(dropped);
+    expect(await verifyAnalysisRunRecord(dropped)).toBe("match");
+    await expect(validateAnalysisRunV03(dropped, source, basis, binding)).rejects.toThrow(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
+    const swapped = structuredClone(witness.recorded_record);
+    swapped.analysis_run.diagnostics!.push(swapped.analysis_run.diagnostics!.splice(-2, 1)[0]);
+    await reseal(swapped);
+    await expect(validateAnalysisRunV03(swapped, source, basis, binding)).rejects.toThrow(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
   });
 });

@@ -310,8 +310,9 @@ third vocabulary:
   `MODEL-RULE-PACK-REF-UNRESOLVED` (warning). A reference never makes a check
   pass. At solve, the session resolves each reference against the local store
   for the run's input manifest: a matching pack enters `active_rule_packs`, and
-  an unresolved or changed one is excluded with `MODEL-RULE-PACK-REF-UNRESOLVED`
-  or `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (warnings, W-12; DEL-14-01 Design
+  an unresolved or changed one is excluded and recorded as a diagnostic of the
+  run's analysis record, `MODEL-RULE-PACK-REF-UNRESOLVED` or
+  `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (warnings, W-12; DEL-14-01 Design
   `desktop-states-runs-comparison.md` §3).
 
 ### 3.5 Structured provenance (FR-MOD-005, PRD §20.2)

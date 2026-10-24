@@ -69,7 +69,7 @@ export function SolvePanel({
         </span>
       </div>
       {solveJob.error_message ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
-      <RulePackRunReferences manifest={inputManifest} testId="solve-rule-pack-refs" />
+      <RulePackRunReferences manifest={inputManifest} record={analysisRun} testId="solve-rule-pack-refs" />
       {solveJob.state === "failed" && describeSolveWorkerFailure(solveJob.error_message) ? (
         <p role="status" className="memory-pool-message error" data-testid="solve-job-worker-failure">
           {describeSolveWorkerFailure(solveJob.error_message)}

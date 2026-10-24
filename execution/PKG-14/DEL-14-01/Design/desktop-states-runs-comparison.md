@@ -300,17 +300,31 @@ Python agree.
      checksum_sha256, source_notice}` from the stored pack, when the store holds
      the pack, the stored document's stamped checksum equals the reference's,
      and the document recomputes to that checksum. Any other reference is left
-     out and recorded in the manifest's `excluded_rule_pack_refs` with its
-     diagnostic: `MODEL-RULE-PACK-REF-UNRESOLVED` when the pack is absent or the
-     store is unavailable or fails, and `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`
-     when the checksums differ. The diagnostics are shown with the solve, in the
-     Record Run form and in a recorded run's check. A model without references
-     makes no store call. Its manifest keeps `active_rule_packs: []`, has no
-     `excluded_rule_pack_refs` member, and keeps its earlier bytes. The
-     resolution only records identity. The solve does not read, apply or check
-     a pack, nothing in it reaches the native solve, and a reference never makes
-     a check pass. The browser preview refuses the solve before building a
-     manifest;
+     out of the manifest and becomes a diagnostic of the run's analysis record,
+     not a manifest member (the manifest stays 1.0.0 and is stored with
+     recorded runs). The diagnostics follow the producer's in the record's
+     `diagnostics`, in the model's order, in the producer's diagnostic shape:
+     code `MODEL-RULE-PACK-REF-UNRESOLVED` (the pack is absent, or the store is
+     unavailable or fails) or `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (the
+     checksums differ), severity `warning`, `affected_refs`
+     `["<rule_pack_id>@<version>"]` as `rule_pack_refs` name a pack, and a
+     fixed message, with the identity shown to at most 160 code points, that
+     says the pack is not among the run's rule-pack references. The recorded
+     revision keeps them unchanged under its record hash (Rust, TypeScript and
+     Python). The validators (TypeScript and Python) accept, after the
+     producer's diagnostics, only diagnostics exactly as their code and
+     identity determine them. A recorded revision's must name exactly the
+     model references its stored manifest leaves out of `active_rule_packs`
+     (`ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH` otherwise). The reason
+     (which code) is not derivable from the manifest and is protected by the
+     record hash. A rule-check revision of the transient record carries them
+     over. They are shown with the solve, in the Record Run form and in a
+     recorded run's check, read from the record. A model without references
+     makes no store call, and its manifest (`active_rule_packs: []`) and
+     transient record keep their earlier bytes. The resolution only records
+     identity. The solve does not read, apply or check a pack, nothing in it
+     reaches the native solve, and a reference never makes a check pass. The
+     browser preview refuses the solve before building a manifest;
    - drops the `created_at_unavailable` determinism note, in both TypeScript
      (`analysisRunCompatibility.ts:169` hard-codes it today) and Python
      (`compatibility.py:147` already drops it when `created_at` is set);

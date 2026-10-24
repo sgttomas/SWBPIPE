@@ -24,6 +24,11 @@ const TRANSIENT_INPUT: &str = include_str!("../../../../fixtures/persistence/tra
 const SOURCE_RESULT: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
 const WITNESS: &str = include_str!("../../../../fixtures/persistence/recorded_run_witness.json");
 const WITNESS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS";
+/// The same pair with invented model rule-pack references, whose transient record carries
+/// rule-pack reference diagnostics after the producer's, and its witness.
+const TRANSIENT_INPUT_RULE_PACKS: &str = include_str!("../../../../fixtures/persistence/transient_run_input_rule_packs.json");
+const WITNESS_RULE_PACKS: &str = include_str!("../../../../fixtures/persistence/recorded_run_witness_rule_packs.json");
+const WITNESS_RULE_PACKS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS_RULE_PACKS";
 
 /// An invented 0.7.0 document of `PROJECT` (`name` makes distinct models).
 fn model(name: &str) -> Value {
@@ -867,9 +872,10 @@ fn each_command_is_admitted_with_its_own_budget() {
 /// validates it against `analysis_run.v0.3` and Python's validator. With
 /// `OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<path>` the test writes the witness
 /// there instead of comparing (the maintained writer).
-#[test]
-fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record() {
-    let input: Value = serde_json::from_str(TRANSIENT_INPUT).unwrap();
+/// Records `input_text` (a TypeScript-built transient record and its manifest) through this
+/// module's Record Run path and returns the witness text, with `description`.
+fn recorded_run_witness_text(input_text: &str, description: &str) -> String {
+    let input: Value = serde_json::from_str(input_text).unwrap();
     let manifest_text = input["input_manifest_canonical"].as_str().unwrap().to_string();
     let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
     let solved = manifest["model_basis"]["model_payload"].clone();
@@ -899,7 +905,7 @@ fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built
     let read = read_run_in_store(&path, &project_id, &outcome.run.recording_id).unwrap();
     assert_eq!(read.result_json, SOURCE_RESULT, "the producer's bytes are stored as given");
     let witness = json!({
-        "description": "An analysis_run.v0.3 recorded revision emitted by the desktop store's Record Run path (apps/desktop/src-tauri/src/analysis_runs_tests.rs, test the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record) from fixtures/persistence/transient_run_input.json (a TypeScript-built transient record of fixtures/results/preview_physics_connected_sparse.json). Regenerate with OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<path> on that test. apps/desktop/src/services/recordedRunParity.test.ts rebuilds it with the TypeScript builder; tests/test_recorded_run_record.py validates it against schemas/analysis_run.v0.3.schema.json and Python's validator.",
+        "description": description,
         "state_id": outcome.state.state_id,
         "state_model_hash": outcome.state.model_hash,
         "created_at": outcome.run.created_at,
@@ -907,12 +913,36 @@ fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built
         "run_record_hash": outcome.run.run_record_hash,
         "recorded_record": read.record
     });
-    let text = format!("{}\n", serde_json::to_string_pretty(&witness).unwrap());
-    if let Ok(target) = std::env::var(WITNESS_PATH_ENV) {
-        std::fs::write(target, &text).unwrap();
+    format!("{}\n", serde_json::to_string_pretty(&witness).unwrap())
+}
+
+/// Writes `text` to the path in `env` when set (the maintained writer); otherwise compares it
+/// with the committed witness.
+fn compare_or_write_witness(text: &str, committed: &str, env: &str) {
+    if let Ok(target) = std::env::var(env) {
+        std::fs::write(target, text).unwrap();
         return;
     }
-    assert_eq!(text, WITNESS, "the committed witness is stale; regenerate it with {WITNESS_PATH_ENV}");
+    assert_eq!(text, committed, "the committed witness is stale; regenerate it with {env}");
+}
+
+#[test]
+fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record() {
+    let text = recorded_run_witness_text(TRANSIENT_INPUT, "An analysis_run.v0.3 recorded revision emitted by the desktop store's Record Run path (apps/desktop/src-tauri/src/analysis_runs_tests.rs, test the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record) from fixtures/persistence/transient_run_input.json (a TypeScript-built transient record of fixtures/results/preview_physics_connected_sparse.json). Regenerate with OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<path> on that test. apps/desktop/src/services/recordedRunParity.test.ts rebuilds it with the TypeScript builder; tests/test_recorded_run_record.py validates it against schemas/analysis_run.v0.3.schema.json and Python's validator.");
+    compare_or_write_witness(&text, WITNESS, WITNESS_PATH_ENV);
+}
+
+/// The recorded revision keeps the transient record's rule-pack reference diagnostics
+/// unchanged (they are under its record hash) and takes `rule_pack_refs` from the manifest.
+#[test]
+fn the_rule_pack_witness_keeps_the_transient_diagnostics_under_the_record_hash() {
+    let text = recorded_run_witness_text(TRANSIENT_INPUT_RULE_PACKS, "An analysis_run.v0.3 recorded revision emitted by the desktop store's Record Run path (apps/desktop/src-tauri/src/analysis_runs_tests.rs, test the_rule_pack_witness_keeps_the_transient_diagnostics_under_the_record_hash) from fixtures/persistence/transient_run_input_rule_packs.json (a TypeScript-built transient record of fixtures/results/preview_physics_connected_sparse.json whose model carries invented rule_pack_refs; the excluded references are rule-pack reference diagnostics). Regenerate with OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS_RULE_PACKS=<path> on that test. apps/desktop/src/services/recordedRunParity.test.ts rebuilds it with the TypeScript builder; tests/test_recorded_run_record.py validates it against schemas/analysis_run.v0.3.schema.json and Python's validator.");
+    let input: Value = serde_json::from_str(TRANSIENT_INPUT_RULE_PACKS).unwrap();
+    let witness: Value = serde_json::from_str(&text).unwrap();
+    let recorded = &witness["recorded_record"]["analysis_run"];
+    assert_eq!(recorded["diagnostics"], input["run_record"]["analysis_run"]["diagnostics"]);
+    assert_eq!(recorded["rule_pack_refs"], json!([{ "object_type": "RulePack", "ref": "invented-pack-held@1.0.0" }]));
+    compare_or_write_witness(&text, WITNESS_RULE_PACKS, WITNESS_RULE_PACKS_PATH_ENV);
 }
 
 // ---------------------------------------------------------------------------
