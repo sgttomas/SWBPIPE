@@ -1831,7 +1831,8 @@ async fn save_model_document_decoded(
                 connection = Some(open_project_store(&app_store_path(&store_app)?)?.0);
             }
             let connection = connection.as_ref().expect("opened above");
-            load_library(connection, project_id, library_kind, library_id).map(|row| row.map(|row| row.document))
+            // The identities as `open_local_library` normalizes them.
+            load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim()).map(|row| row.map(|row| row.document))
         };
         model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
     })

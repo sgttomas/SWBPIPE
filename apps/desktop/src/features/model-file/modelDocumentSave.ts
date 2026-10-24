@@ -262,10 +262,11 @@ export function modelLibraryRefs(model: unknown): ModelLibraryRef[] {
     for (const [key, child] of Object.entries(value)) {
       const at = path ? `${path}.${key}` : key;
       if (key === "library_ref" && isPlainObject(child)) {
-        const kind = text(child.library_kind);
-        const id = text(child.library_id);
+        // Identities as the store's open path normalizes them (`open_local_library` trims).
+        const kind = trimmed(child.library_kind);
+        const id = trimmed(child.library_id);
         if (kind && LIBRARY_KINDS.has(kind) && id) {
-          found.push({ path: at, library_kind: kind as LibraryKind, library_id: id, record_id: text(child.record_id) });
+          found.push({ path: at, library_kind: kind as LibraryKind, library_id: id, record_id: trimmed(child.record_id) });
         }
       }
       walk(child, at);
@@ -273,6 +274,44 @@ export function modelLibraryRefs(model: unknown): ModelLibraryRef[] {
   };
   walk(model, "");
   return found;
+}
+
+function trimmed(value: unknown): string | null {
+  return text(typeof value === "string" ? value.trim() : value);
+}
+
+/** The library import's verdict inputs for one stored library object or record:
+ * every `{redistribution_status, review_status}` pair it judges. Material,
+ * section and component libraries judge the object itself (own field, else
+ * provenance). Hanger libraries (`library_import_document/src/lib.rs:797-829`)
+ * judge every object in it that carries a provenance or a disposition member,
+ * and the provenance alone where an own status differs from it. The native
+ * port is `stored_item_blocking`; both are pinned by the parity table
+ * `fixtures/model_document/library_disposition_parity.json`. */
+export function storedDispositions(kind: string, item: PlainObject): Array<{ redistribution_status: string | null; review_status: string | null }> {
+  const pair = (object: unknown) => ({
+    redistribution_status: ownOrProvenance(object, "redistribution_status"),
+    review_status: ownOrProvenance(object, "review_status")
+  });
+  if (kind !== "hanger") return [pair(item)];
+  const pairs: Array<{ redistribution_status: string | null; review_status: string | null }> = [];
+  const visit = (value: unknown, path: string) => {
+    if (Array.isArray(value)) { value.forEach((entry, index) => visit(entry, `${path}[${index}]`)); return; }
+    if (!isPlainObject(value)) return;
+    const judged = "provenance" in value
+      || (!path.endsWith(".provenance") && ["redistribution_status", "review_status", "privacy_class"].some((key) => key in value));
+    if (judged) {
+      pairs.push(pair(value));
+      const provenance = value.provenance;
+      if (isPlainObject(provenance) && (["redistribution_status", "review_status"] as const)
+        .some((key) => key in value && !sameJson(value[key], provenance[key]))) {
+        pairs.push(pair({ provenance }));
+      }
+    }
+    for (const [key, child] of Object.entries(value)) visit(child, `${path}.${key}`);
+  };
+  visit(item, "$");
+  return pairs;
 }
 
 export const MODEL_DOC_SAVE_LIBRARY_STORE_UNAVAILABLE = "MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE";
@@ -324,34 +363,27 @@ export async function resolveLibraryDispositions(
     }
     const library = document[`${ref.library_kind}_library`];
     if (!screened.has(key) && isPlainObject(library)) {
-      dispositions.push({
-        path: ref.path,
-        library_kind: ref.library_kind,
-        library_id: ref.library_id,
-        record_id: null,
-        redistribution_status: ownOrProvenance(library, "redistribution_status"),
-        review_status: ownOrProvenance(library, "review_status")
-      });
+      for (const pair of storedDispositions(ref.library_kind, library)) {
+        dispositions.push({ path: ref.path, library_kind: ref.library_kind, library_id: ref.library_id, record_id: null, ...pair });
+      }
     }
     screened.add(key);
     if (!ref.record_id || screened.has(`${key}#${ref.record_id}`)) continue;
     screened.add(`${key}#${ref.record_id}`);
+    // Every record with this id is screened (a clear first record never hides a
+    // blocked duplicate); ids compare trimmed, so a padded id never escapes.
     const records = document[`${ref.library_kind}_records`];
-    const record = Array.isArray(records)
-      ? records.find((entry) => isPlainObject(entry) && entry[LIBRARY_RECORD_ID_KEY[ref.library_kind]] === ref.record_id)
-      : undefined;
-    if (!record) {
+    const matching = (Array.isArray(records) ? records : [])
+      .filter((entry): entry is PlainObject => isPlainObject(entry) && trimmed(entry[LIBRARY_RECORD_ID_KEY[ref.library_kind]]) === ref.record_id);
+    if (matching.length === 0) {
       warnings.push({ code: MODEL_LIBRARY_REF_UNRESOLVED, path: ref.path, message: `The stored ${ref.library_kind} library \`${ref.library_id}\` holds no record \`${ref.record_id}\`; its disposition is not known here.` });
       continue;
     }
-    dispositions.push({
-      path: ref.path,
-      library_kind: ref.library_kind,
-      library_id: ref.library_id,
-      record_id: ref.record_id,
-      redistribution_status: ownOrProvenance(record, "redistribution_status"),
-      review_status: ownOrProvenance(record, "review_status")
-    });
+    for (const record of matching) {
+      for (const pair of storedDispositions(ref.library_kind, record)) {
+        dispositions.push({ path: ref.path, library_kind: ref.library_kind, library_id: ref.library_id, record_id: ref.record_id, ...pair });
+      }
+    }
   }
   return { dispositions, warnings, storeError: null };
 }

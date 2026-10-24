@@ -182,6 +182,10 @@ pub fn model_document_shape_diagnostics(document: &Value) -> Vec<ShapeDiagnostic
                             shape.quantity(Some(value), &format!("{at}.section.{key}"));
                         }
                     }
+                    // The open's model index trims a present shared-section reference.
+                    if let Some(section_ref) = record.get("section_ref").filter(|value| !value.is_null()) {
+                        shape.need(Some(section_ref), &format!("{at}.section_ref"), Kind::String);
+                    }
                 }
                 "supports" => {
                     if shape.need(record.get("restraints"), &format!("{at}.restraints"), Kind::Array) {

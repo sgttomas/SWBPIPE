@@ -4,8 +4,11 @@
 // them. A document that lacks one is refused by name with its JSON path; the
 // desktop never fills a default in, because the session's model hash must be
 // the hash of the document the user opened. Physics validity is the solver's:
-// it reports its own named diagnostics on solve. As a last guard the session
-// also builds the model index for the candidate and refuses it if that throws.
+// it reports its own named diagnostics on solve. Every member the model index
+// reads with a string method is checked here (`pipe_segments[].section_ref`), so
+// a shape-valid document indexes; as a last guard the session still builds the
+// model index for the candidate and refuses it if that throws. The native save
+// runs a port of this check (`src-tauri/src/model_document_shape.rs`).
 import type { PreviewModel } from "../../types";
 import { loadedWasmEngine, WASM_ENGINE_ABSENT_DIAGNOSTIC, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
 
@@ -91,6 +94,11 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
       }
       if (member === "pipe_segments" && need(record.section, `${at}.section`, "object")) {
         for (const [key, value] of Object.entries(record.section as Record<string, unknown>)) quantity(value, `${at}.section.${key}`);
+      }
+      // A present shared-section reference is a string: the model index trims it
+      // (`modelIndex.ts` buildModelIndex). Absent or null opens without one.
+      if (member === "pipe_segments" && record.section_ref !== undefined && record.section_ref !== null) {
+        need(record.section_ref, `${at}.section_ref`, "string");
       }
       if (member === "supports" && need(record.restraints, `${at}.restraints`, "array")) {
         (record.restraints as unknown[]).forEach((value, item) => need(value, `${at}.restraints[${item}]`, "string"));

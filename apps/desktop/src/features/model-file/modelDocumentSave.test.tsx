@@ -7,7 +7,11 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import everySlotModel from "../../../../../fixtures/model_document/invented_every_slot_model.json";
+import dispositionParity from "../../../../../fixtures/model_document/library_disposition_parity.json";
+import shapeCorpus from "../../../../../fixtures/model_document/desktop_shape_cases.json";
 import { App } from "../../App";
+import { checkNativeOutcome } from "../../services/modelDocumentFile";
+import { buildModelIndex } from "../workspace/modelIndex";
 import { canonicalJsonString, canonicalSha256Hex, computeModelHash } from "../../services/hashService";
 import type { LibraryOpenRoute } from "../../services/libraryImportService";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
@@ -444,5 +448,93 @@ describe("Save Model Document…: serializer witnesses", () => {
     const d = everySlot();
     d.review_probe = "\ud800";
     await expect(prepared(d)).rejects.toThrow();
+  });
+});
+
+// Independent review round 2.
+describe("Save Model Document…: review round 2", () => {
+  const refPath = "materials[0].provenance_record.library_ref";
+  function modelReferencing(reference: Record<string, unknown>) {
+    const d = everySlot();
+    d.materials[0].provenance_record.library_ref = reference;
+    return d as unknown as PreviewModel;
+  }
+  function storeAnswering(match: (kind: string, id: string) => Record<string, unknown> | null) {
+    return async (projectId: string, kind: string, id: string): Promise<LibraryOpenRoute> => {
+      const document = match(kind, id);
+      return { route: "tauri_backend", envelope: document && { project_id: projectId, library_kind: kind, library_id: id, storage_mode: "local", created_at_unix: 0, updated_at_unix: 0, document, validation: {} as never, message: "" } } as LibraryOpenRoute;
+    };
+  }
+  const blockedAt = (model: PreviewModel, libraries: LibraryResolution) =>
+    screenModelDocumentDispositions(model, { explicitLocalPrivateIntent: true, resolvedLibraries: libraries.dispositions })
+      .blocking.filter((item) => item.code === "PROTECTED_CONTENT_BLOCKED").map((item) => item.path);
+
+  it("normalizes library identities as the store's open path does", async () => {
+    const model = modelReferencing({ library_kind: "material", library_id: " library:invented-materials ", record_id: " steel " });
+    const opened: string[] = [];
+    const libraries = await resolveLibraryDispositions(model, storeAnswering((_kind, id) => {
+      opened.push(id);
+      return id === "library:invented-materials" ? { material_library: { review_status: "accepted" }, material_records: [{ material_id: "steel", review_status: "quarantined" }] } : null;
+    }));
+    expect(opened).toEqual(["library:invented-materials"]);
+    expect(blockedAt(model, libraries)).toEqual([refPath]);
+  });
+
+  it("screens every record with the referenced id: a clear first record does not hide a quarantined duplicate", async () => {
+    const model = modelReferencing({ library_kind: "material", library_id: "library:invented-materials", record_id: "steel" });
+    const libraries = await resolveLibraryDispositions(model, storeAnswering(() => ({
+      material_library: { review_status: "accepted" },
+      material_records: [{ material_id: "steel", review_status: "accepted" }, { material_id: "steel", review_status: "quarantined" }]
+    })));
+    expect(blockedAt(model, libraries)).toEqual([refPath]);
+  });
+
+  it("applies the hanger import's conflict rule (own accepted over a quarantined provenance blocks)", async () => {
+    const model = modelReferencing({ library_kind: "hanger", library_id: "invented.hangers", record_id: "invented.variable" });
+    const libraries = await resolveLibraryDispositions(model, storeAnswering(() => ({
+      hanger_library: { library_id: "invented.hangers", provenance: { redistribution_status: "private_only", review_status: "accepted" } },
+      hanger_records: [{ hanger_id: "invented.variable", review_status: "accepted", provenance: { redistribution_status: "private_only", review_status: "quarantined" } }]
+    })));
+    expect(blockedAt(model, libraries)).toEqual([refPath]);
+  });
+
+  it("matches the library import's verdict on every row of the shared parity table", async () => {
+    const idKeys: Record<string, string> = { material: "material_id", section: "section_id", component: "component_id", hanger: "hanger_id" };
+    expect(dispositionParity.rows).toHaveLength(1440);
+    const mismatches: unknown[] = [];
+    for (const row of dispositionParity.rows) {
+      const [kind, level, ownRedistribution, ownReview, provenanceRedistribution, provenanceReview, blocked] = row as [string, string, string | null, string | null, string, string, boolean];
+      const clear = { redistribution_status: "private_only", review_status: "accepted" };
+      const varied: Record<string, unknown> = { provenance: { redistribution_status: provenanceRedistribution, review_status: provenanceReview } };
+      if (ownRedistribution !== null) varied.redistribution_status = ownRedistribution;
+      if (ownReview !== null) varied.review_status = ownReview;
+      const library = { library_id: "invented.parity", provenance: clear, ...(level === "library" ? varied : {}) };
+      const record = { [idKeys[kind]]: "invented.record", provenance: clear, ...(level === "record" ? varied : {}) };
+      const model = modelReferencing({ library_kind: kind, library_id: "invented.parity", record_id: "invented.record" });
+      const libraries = await resolveLibraryDispositions(model, storeAnswering(() => ({ [`${kind}_library`]: library, [`${kind}_records`]: [record] })));
+      if ((blockedAt(model, libraries).length > 0) !== blocked) mismatches.push(row);
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  it("opens a refused section_ref by name instead of failing to index", () => {
+    const d = everySlot();
+    d.pipe_segments[0].section_ref = 17;
+    const checked = checkNativeOutcome({ outcome: "opened", file_name: "n.json", byte_count: 1, schema_status: "current", document: d });
+    expect(checked.outcome === "refused" && checked.diagnostics.map(({ code, path }) => [code, path])).toEqual([["MODEL-FILE-SHAPE", "pipe_segments[0].section_ref"]]);
+  });
+
+  it("opens every shape-clean case of the shared corpus through the webview's open checks and model index", () => {
+    const clean = shapeCorpus.cases.filter((item) => item.expected.length === 0);
+    expect(clean.length).toBeGreaterThanOrEqual(4);
+    for (const item of clean) {
+      const checked = checkNativeOutcome({ outcome: "opened", file_name: `${item.case_id}.json`, byte_count: 1, schema_status: "current", document: clone(item.document) });
+      expect(checked.outcome, item.case_id).toBe("opened");
+      if (checked.outcome === "opened") expect(() => buildModelIndex(checked.document, 0, 0), item.case_id).not.toThrow();
+    }
+    for (const item of shapeCorpus.cases.filter((entry) => entry.expected.length > 0)) {
+      const checked = checkNativeOutcome({ outcome: "opened", file_name: `${item.case_id}.json`, byte_count: 1, schema_status: "current", document: clone(item.document) });
+      expect(checked.outcome, item.case_id).toBe("refused");
+    }
   });
 });

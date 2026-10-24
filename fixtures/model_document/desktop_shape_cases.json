@@ -1891,6 +1891,528 @@
       ]
     },
     {
+      "case_id": "section-ref-number",
+      "document": {
+        "schema_version": "0.7.0",
+        "document_kind": "openpipestress.product_preview.model",
+        "data_boundary": {
+          "classification": "invented_public_example"
+        },
+        "project": {
+          "id": "project:invented-shape-case",
+          "name": "Invented shape case",
+          "description": "Invented shape-check case; not engineering data.",
+          "units": {
+            "length": "m"
+          }
+        },
+        "analysis_status": {
+          "mechanics": "not_run",
+          "rule_check": "not_performed",
+          "professional_acceptance": "not_provided"
+        },
+        "materials": [
+          {
+            "id": "material:M-1",
+            "label": "Invented material",
+            "provenance": "invented",
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "section:S-1",
+            "name": "Invented section",
+            "section_type": "pipe",
+            "properties": {
+              "area": {
+                "value": 0.01,
+                "unit": "m2"
+              }
+            },
+            "provenance": {
+              "source": "invented"
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:N-1",
+            "label": "N-1",
+            "provenance": "invented",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "node:N-2",
+            "label": "N-2",
+            "provenance": "invented",
+            "position": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "pipe_segments": [
+          {
+            "id": "pipe:P-1",
+            "label": "P-1",
+            "from": "node:N-1",
+            "to": "node:N-2",
+            "material": "material:M-1",
+            "provenance": "invented",
+            "section": {
+              "outside_diameter": {
+                "value": 0.1,
+                "unit": "m"
+              }
+            },
+            "section_ref": 17
+          }
+        ],
+        "supports": [
+          {
+            "id": "support:A-1",
+            "label": "A-1",
+            "node": "node:N-1",
+            "provenance": "invented",
+            "restraints": [
+              "UX",
+              "UY"
+            ]
+          }
+        ],
+        "components": [],
+        "load_cases": [
+          {
+            "id": "load:L-1",
+            "label": "L-1",
+            "kind": "weight",
+            "status": "draft",
+            "provenance": "invented"
+          }
+        ],
+        "combinations": [
+          {
+            "id": "combination:C-1",
+            "label": "C-1",
+            "basis": "mechanics",
+            "provenance": "invented",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              }
+            ]
+          }
+        ],
+        "diagnostics": []
+      },
+      "expected": [
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "pipe_segments[0].section_ref",
+          "message": "pipe_segments[0].section_ref is number; string required."
+        }
+      ]
+    },
+    {
+      "case_id": "section-ref-object",
+      "document": {
+        "schema_version": "0.7.0",
+        "document_kind": "openpipestress.product_preview.model",
+        "data_boundary": {
+          "classification": "invented_public_example"
+        },
+        "project": {
+          "id": "project:invented-shape-case",
+          "name": "Invented shape case",
+          "description": "Invented shape-check case; not engineering data.",
+          "units": {
+            "length": "m"
+          }
+        },
+        "analysis_status": {
+          "mechanics": "not_run",
+          "rule_check": "not_performed",
+          "professional_acceptance": "not_provided"
+        },
+        "materials": [
+          {
+            "id": "material:M-1",
+            "label": "Invented material",
+            "provenance": "invented",
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "section:S-1",
+            "name": "Invented section",
+            "section_type": "pipe",
+            "properties": {
+              "area": {
+                "value": 0.01,
+                "unit": "m2"
+              }
+            },
+            "provenance": {
+              "source": "invented"
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:N-1",
+            "label": "N-1",
+            "provenance": "invented",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "node:N-2",
+            "label": "N-2",
+            "provenance": "invented",
+            "position": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "pipe_segments": [
+          {
+            "id": "pipe:P-1",
+            "label": "P-1",
+            "from": "node:N-1",
+            "to": "node:N-2",
+            "material": "material:M-1",
+            "provenance": "invented",
+            "section": {
+              "outside_diameter": {
+                "value": 0.1,
+                "unit": "m"
+              }
+            },
+            "section_ref": {
+              "id": "section:S-1"
+            }
+          }
+        ],
+        "supports": [
+          {
+            "id": "support:A-1",
+            "label": "A-1",
+            "node": "node:N-1",
+            "provenance": "invented",
+            "restraints": [
+              "UX",
+              "UY"
+            ]
+          }
+        ],
+        "components": [],
+        "load_cases": [
+          {
+            "id": "load:L-1",
+            "label": "L-1",
+            "kind": "weight",
+            "status": "draft",
+            "provenance": "invented"
+          }
+        ],
+        "combinations": [
+          {
+            "id": "combination:C-1",
+            "label": "C-1",
+            "basis": "mechanics",
+            "provenance": "invented",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              }
+            ]
+          }
+        ],
+        "diagnostics": []
+      },
+      "expected": [
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "pipe_segments[0].section_ref",
+          "message": "pipe_segments[0].section_ref is object; string required."
+        }
+      ]
+    },
+    {
+      "case_id": "section-ref-null",
+      "document": {
+        "schema_version": "0.7.0",
+        "document_kind": "openpipestress.product_preview.model",
+        "data_boundary": {
+          "classification": "invented_public_example"
+        },
+        "project": {
+          "id": "project:invented-shape-case",
+          "name": "Invented shape case",
+          "description": "Invented shape-check case; not engineering data.",
+          "units": {
+            "length": "m"
+          }
+        },
+        "analysis_status": {
+          "mechanics": "not_run",
+          "rule_check": "not_performed",
+          "professional_acceptance": "not_provided"
+        },
+        "materials": [
+          {
+            "id": "material:M-1",
+            "label": "Invented material",
+            "provenance": "invented",
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "section:S-1",
+            "name": "Invented section",
+            "section_type": "pipe",
+            "properties": {
+              "area": {
+                "value": 0.01,
+                "unit": "m2"
+              }
+            },
+            "provenance": {
+              "source": "invented"
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:N-1",
+            "label": "N-1",
+            "provenance": "invented",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "node:N-2",
+            "label": "N-2",
+            "provenance": "invented",
+            "position": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "pipe_segments": [
+          {
+            "id": "pipe:P-1",
+            "label": "P-1",
+            "from": "node:N-1",
+            "to": "node:N-2",
+            "material": "material:M-1",
+            "provenance": "invented",
+            "section": {
+              "outside_diameter": {
+                "value": 0.1,
+                "unit": "m"
+              }
+            },
+            "section_ref": null
+          }
+        ],
+        "supports": [
+          {
+            "id": "support:A-1",
+            "label": "A-1",
+            "node": "node:N-1",
+            "provenance": "invented",
+            "restraints": [
+              "UX",
+              "UY"
+            ]
+          }
+        ],
+        "components": [],
+        "load_cases": [
+          {
+            "id": "load:L-1",
+            "label": "L-1",
+            "kind": "weight",
+            "status": "draft",
+            "provenance": "invented"
+          }
+        ],
+        "combinations": [
+          {
+            "id": "combination:C-1",
+            "label": "C-1",
+            "basis": "mechanics",
+            "provenance": "invented",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              }
+            ]
+          }
+        ],
+        "diagnostics": []
+      },
+      "expected": []
+    },
+    {
+      "case_id": "section-ref-string",
+      "document": {
+        "schema_version": "0.7.0",
+        "document_kind": "openpipestress.product_preview.model",
+        "data_boundary": {
+          "classification": "invented_public_example"
+        },
+        "project": {
+          "id": "project:invented-shape-case",
+          "name": "Invented shape case",
+          "description": "Invented shape-check case; not engineering data.",
+          "units": {
+            "length": "m"
+          }
+        },
+        "analysis_status": {
+          "mechanics": "not_run",
+          "rule_check": "not_performed",
+          "professional_acceptance": "not_provided"
+        },
+        "materials": [
+          {
+            "id": "material:M-1",
+            "label": "Invented material",
+            "provenance": "invented",
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "section:S-1",
+            "name": "Invented section",
+            "section_type": "pipe",
+            "properties": {
+              "area": {
+                "value": 0.01,
+                "unit": "m2"
+              }
+            },
+            "provenance": {
+              "source": "invented"
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:N-1",
+            "label": "N-1",
+            "provenance": "invented",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "node:N-2",
+            "label": "N-2",
+            "provenance": "invented",
+            "position": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "pipe_segments": [
+          {
+            "id": "pipe:P-1",
+            "label": "P-1",
+            "from": "node:N-1",
+            "to": "node:N-2",
+            "material": "material:M-1",
+            "provenance": "invented",
+            "section": {
+              "outside_diameter": {
+                "value": 0.1,
+                "unit": "m"
+              }
+            },
+            "section_ref": "section:S-1"
+          }
+        ],
+        "supports": [
+          {
+            "id": "support:A-1",
+            "label": "A-1",
+            "node": "node:N-1",
+            "provenance": "invented",
+            "restraints": [
+              "UX",
+              "UY"
+            ]
+          }
+        ],
+        "components": [],
+        "load_cases": [
+          {
+            "id": "load:L-1",
+            "label": "L-1",
+            "kind": "weight",
+            "status": "draft",
+            "provenance": "invented"
+          }
+        ],
+        "combinations": [
+          {
+            "id": "combination:C-1",
+            "label": "C-1",
+            "basis": "mechanics",
+            "provenance": "invented",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              }
+            ]
+          }
+        ],
+        "diagnostics": []
+      },
+      "expected": []
+    },
+    {
       "case_id": "diagnostic-members",
       "document": {
         "schema_version": "0.7.0",

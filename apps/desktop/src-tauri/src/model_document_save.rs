@@ -242,6 +242,66 @@ fn blocking_dispositions(item: &Map<String, Value>) -> Vec<String> {
     found
 }
 
+/// The library import's disposition verdict for one stored library object or
+/// record of `library_kind`, as the blocking `member value` pairs it finds.
+/// Material, section and component libraries judge the object itself
+/// (`validate_object_disposition`). Hanger libraries
+/// (`validate_hanger_import`, `library_import_document/src/lib.rs:797-829`)
+/// judge every object in it that carries a `provenance` or a disposition member,
+/// and, where an object's own `redistribution_status` or `review_status`
+/// differs from its provenance's, the provenance alone as well. Own fields
+/// also block where the import would first refuse a missing provenance.
+/// Pinned against the import by `disposition_verdicts_match_the_library_import`.
+pub(crate) fn stored_item_blocking(library_kind: &str, item: &Map<String, Value>) -> Vec<String> {
+    if library_kind != "hanger" {
+        return blocking_dispositions(item);
+    }
+    let mut objects = Vec::new();
+    collect_objects(item, "$", &mut objects);
+    let mut found = Vec::new();
+    for (path, object) in objects {
+        let judged = object.contains_key("provenance")
+            || (!path.ends_with(".provenance")
+                && ["redistribution_status", "review_status", "privacy_class"].iter().any(|key| object.contains_key(*key)));
+        if !judged {
+            continue;
+        }
+        found.extend(blocking_dispositions(object));
+        if let Some(provenance) = object.get("provenance").and_then(Value::as_object) {
+            let conflict = ["redistribution_status", "review_status"]
+                .iter()
+                .any(|key| object.contains_key(*key) && object.get(*key) != provenance.get(*key));
+            if conflict {
+                let mut alone = Map::new();
+                alone.insert("provenance".to_string(), Value::Object(provenance.clone()));
+                found.extend(blocking_dispositions(&alone).into_iter().map(|item| format!("provenance {item}")));
+            }
+        }
+    }
+    found.sort();
+    found.dedup();
+    found
+}
+
+fn collect_objects<'a>(object: &'a Map<String, Value>, path: &str, out: &mut Vec<(String, &'a Map<String, Value>)>) {
+    out.push((path.to_string(), object));
+    for (key, value) in object {
+        collect_values(value, &format!("{path}.{key}"), out);
+    }
+}
+
+fn collect_values<'a>(value: &'a Value, path: &str, out: &mut Vec<(String, &'a Map<String, Value>)>) {
+    match value {
+        Value::Object(object) => collect_objects(object, path, out),
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                collect_values(item, &format!("{path}[{index}]"), out);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn join(path: &str, key: &str) -> String {
     if path.is_empty() { key.to_string() } else { format!("{path}.{key}") }
 }
@@ -256,6 +316,15 @@ struct DispositionScreen {
 impl DispositionScreen {
     fn screen(&mut self, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
         let found = blocking_dispositions(item);
+        self.block(found, path, record, what);
+    }
+
+    fn screen_stored(&mut self, library_kind: &str, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
+        let found = stored_item_blocking(library_kind, item);
+        self.block(found, path, record, what);
+    }
+
+    fn block(&mut self, found: Vec<String>, path: &str, record: &str, what: &str) {
         if !found.is_empty() {
             self.blocking.push(diagnostic(
                 PROTECTED_CONTENT_BLOCKED,
@@ -293,8 +362,11 @@ impl DispositionScreen {
                             }
                         }
                         ("library_ref", Value::Object(reference)) => {
-                            if let (Some(kind), Some(id)) = (truthy_str(reference.get("library_kind")), truthy_str(reference.get("library_id"))) {
-                                let record_id = truthy_str(reference.get("record_id")).map(str::to_string);
+                            // Identities as the store's open path normalizes them
+                            // (`open_local_library` trims kind and id).
+                            let text = |key: &str| truthy_str(reference.get(key)).map(str::trim).filter(|value| !value.is_empty());
+                            if let (Some(kind), Some(id)) = (text("library_kind"), text("library_id")) {
+                                let record_id = text("record_id").map(str::to_string);
                                 self.library_refs.entry((kind.to_string(), id.to_string())).or_default().push((at.clone(), record_id));
                             }
                         }
@@ -336,7 +408,7 @@ pub fn screen_model_document_dispositions(
             continue;
         };
         if let Some(library) = stored.get(format!("{kind}_library")).and_then(Value::as_object) {
-            screen.screen(library, &references[0].0, &named, "stored library");
+            screen.screen_stored(&kind, library, &references[0].0, &named, "stored library");
         }
         let id_key = LIBRARY_RECORD_ID_KEYS.iter().find(|(name, _)| *name == kind).map(|(_, key)| *key);
         let records = stored.get(format!("{kind}_records")).and_then(Value::as_array);
@@ -347,11 +419,22 @@ pub fn screen_model_document_dispositions(
                 continue;
             }
             screened.push(record_id.clone());
-            let record = id_key.and_then(|key| {
-                records?.iter().filter_map(Value::as_object).find(|record| record.get(key).and_then(Value::as_str) == Some(record_id.as_str()))
-            });
-            match record {
-                Some(record) => screen.screen(record, path, &format!("{named}#{record_id}"), "stored library record"),
+            // Every record with this id is screened: a clear first record never
+            // hides a blocked duplicate. Ids compare trimmed, so a padded id
+            // never escapes screening.
+            let matching: Vec<&Map<String, Value>> = match (id_key, records) {
+                (Some(key), Some(records)) => records
+                    .iter()
+                    .filter_map(Value::as_object)
+                    .filter(|record| record.get(key).and_then(Value::as_str).map(str::trim) == Some(record_id.as_str()))
+                    .collect(),
+                _ => Vec::new(),
+            };
+            for record in &matching {
+                screen.screen_stored(&kind, record, path, &format!("{named}#{record_id}"), "stored library record");
+            }
+            match matching.first() {
+                Some(_) => {}
                 None => warnings.push(diagnostic(
                     LIBRARY_REF_UNRESOLVED,
                     path,
@@ -874,6 +957,84 @@ mod tests {
         assert_eq!(default_save_directory(None, None), None);
     }
 
+    // Independent review round 2 (the reviewer's regressions).
+    #[test]
+    fn save_refuses_a_document_the_webview_cannot_index() {
+        let (text, hash) = canonical_variant(|d| d["pipe_segments"][0]["section_ref"] = json!(17));
+        let refused = admit(text, &hash).expect_err("the actual open's buildModelIndex calls section_ref.trim() and refuses this document");
+        assert_eq!(codes(Err(refused)), vec![("MODEL-FILE-SHAPE".to_string(), "pipe_segments[0].section_ref".to_string())]);
+    }
+
+    #[test]
+    fn library_lookup_normalizes_identity_like_open_local_library() {
+        let (text, hash) = canonical_variant(|d| d["materials"][0]["provenance_record"]["library_ref"]["library_id"] = json!(" library:invented-materials "));
+        let bound = hash_of(&text);
+        let mut lookup = |_: &str, _: &str, id: &str| Ok(if id == "library:invented-materials" {
+            Some(stored_library(json!({"review_status": "quarantined"}), json!([])))
+        } else { None });
+        let refused = admit_model_document_text(text, &hash, &bound, &mut lookup).expect_err("normal open resolves this padded id to a quarantined library");
+        assert_eq!(refused[0].code, PROTECTED_CONTENT_BLOCKED);
+        // A padded record id is screened against the record it names.
+        let (text, hash) = canonical_variant(|d| d["materials"][0]["provenance_record"]["library_ref"]["record_id"] = json!(" steel "));
+        let bound = hash_of(&text);
+        let mut lookup = |_: &str, _: &str, _: &str| Ok(Some(stored_library(json!({"review_status": "accepted"}), json!([{"material_id": "steel", "review_status": "quarantined"}]))));
+        assert_eq!(admit_model_document_text(text, &hash, &bound, &mut lookup).unwrap_err()[0].code, PROTECTED_CONTENT_BLOCKED);
+    }
+
+    #[test]
+    fn resolved_hanger_disposition_agrees_with_the_actual_import() {
+        let mut library: Value = serde_json::from_str(include_str!("../../../../fixtures/hanger/invented_hanger_library_valid.json")).unwrap();
+        library["hanger_records"][0]["review_status"] = json!("accepted");
+        library["hanger_records"][0]["provenance"]["review_status"] = json!("quarantined");
+        let imported = open_pipe_stress_library_import_document::validate_library_import_tokens(&library, "hanger", "private").unwrap();
+        assert_eq!(imported.outcome, "QUARANTINE");
+        let (text, _) = canonical_variant(|d| d["materials"][0]["provenance_record"]["library_ref"] = json!({"library_kind":"hanger", "library_id":"invented.hangers", "record_id":"invented.variable"}));
+        let refused = admit_with_store(text, Ok(Some(library))).0.expect_err("the actual hanger import quarantines this record");
+        assert_eq!(refused[0].code, PROTECTED_CONTENT_BLOCKED);
+    }
+
+    #[test]
+    fn duplicate_matching_library_records_do_not_hide_a_quarantine() {
+        let text = canonical_of(EVERY_SLOT);
+        let library = stored_library(json!({"review_status":"accepted"}), json!([
+            {"material_id":"steel", "review_status":"accepted"},
+            {"material_id":"steel", "review_status":"quarantined"}
+        ]));
+        assert!(admit_with_store(text, Ok(Some(library))).0.is_err(), "duplicate identities must be refused or every matching record screened");
+    }
+
+    /// Every case of the shared shape corpus: admitted exactly when its shape is
+    /// clean, and every admitted case, once saved, re-opens through the native
+    /// open with a clean shape (the webview half is in modelDocumentSave.test.tsx).
+    #[test]
+    fn every_shape_corpus_case_that_admits_reopens() {
+        let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_shape_cases.json")).unwrap();
+        let root = sandbox("corpus-reopen");
+        let mut admitted_cases = 0;
+        for case in corpus["cases"].as_array().unwrap() {
+            let id = case["case_id"].as_str().unwrap();
+            let text = canonical_json(&case["document"]);
+            let hash = hash_of(&text);
+            let shape_clean = case["expected"].as_array().unwrap().is_empty();
+            match admit(text.clone(), &hash) {
+                Ok(admitted) => {
+                    assert!(shape_clean, "{id} admitted despite shape findings");
+                    let destination = root.join(format!("{id}.json"));
+                    assert!(matches!(write_admitted_model_document(&destination, admitted), ModelDocumentSaveOutcome::Saved { .. }), "{id}");
+                    let ModelDocumentOpenOutcome::Opened { document, .. } = read_model_document_file(&destination) else {
+                        panic!("{id}: the saved file does not re-open");
+                    };
+                    assert!(crate::model_document_shape::model_document_shape_diagnostics(&document).is_empty(), "{id}");
+                    assert_eq!(canonical_json(&document), text, "{id}");
+                    admitted_cases += 1;
+                }
+                Err(diagnostics) => assert!(!shape_clean, "{id} refused although its shape is clean: {diagnostics:?}"),
+            }
+        }
+        assert!(admitted_cases >= 4, "{admitted_cases}");
+        fs::remove_dir_all(root).unwrap();
+    }
+
     /// The raw-body arguments decode within the ingress lease (`Moved`).
     #[test]
     fn arguments_decode_through_the_ingress_lease() {
@@ -895,5 +1056,102 @@ mod tests {
         unknown["screening"]["extra"] = json!(true);
         let (mut args, _lease) = admit_json(&registry, "save_model_document_file", ArgsDecoding::Moved, &unknown).unwrap();
         assert!(save_model_document_args(&mut args).is_err());
+    }
+}
+
+/// The disposition parity table (review round 2): the library import's public
+/// API and `stored_item_blocking` judge the same stored documents, across every
+/// library kind, both levels (the library object and a record) and every
+/// combination of own and provenance dispositions below; the verdicts must be
+/// equal and equal to `fixtures/model_document/library_disposition_parity.json`,
+/// which also pins the webview adapter (`modelDocumentSave.parity.test.ts`).
+/// Regenerate the table after an intended import change with
+/// `SWBPIPE_WRITE_DISPOSITION_PARITY=<path> cargo test disposition_verdicts`.
+/// Every row carries a provenance object: where the import first refuses a
+/// missing provenance, the port judges own fields alone (stricter), which this
+/// table does not cover.
+#[cfg(test)]
+mod disposition_parity {
+    use super::*;
+    use open_pipe_stress_library_import_document::validate_library_import_tokens;
+    use serde_json::json;
+
+    const TABLE: &str = include_str!("../../../../fixtures/model_document/library_disposition_parity.json");
+    const KINDS: [&str; 4] = ["material", "section", "component", "hanger"];
+    const LEVELS: [&str; 2] = ["library", "record"];
+    const OWN_REDISTRIBUTION: [Option<&str>; 5] = [None, Some(""), Some("private_only"), Some("protected_suspected"), Some("rejected")];
+    const OWN_REVIEW: [Option<&str>; 4] = [None, Some("accepted"), Some("quarantined"), Some("rejected")];
+    const PROVENANCE_REDISTRIBUTION: [&str; 3] = ["private_only", "protected_suspected", "rejected"];
+    const PROVENANCE_REVIEW: [&str; 3] = ["accepted", "quarantined", "rejected"];
+
+    /// The stored document of one row; the other level is clear.
+    pub(super) fn document(kind: &str, level: &str, own: (Option<&str>, Option<&str>), provenance: (&str, &str)) -> Value {
+        let clear = json!({"redistribution_status": "private_only", "review_status": "accepted"});
+        let mut varied = json!({"provenance": {"redistribution_status": provenance.0, "review_status": provenance.1}});
+        if let Some(status) = own.0 { varied["redistribution_status"] = json!(status); }
+        if let Some(status) = own.1 { varied["review_status"] = json!(status); }
+        let mut library = json!({"library_id": "invented.parity", "provenance": clear});
+        let id_key = LIBRARY_RECORD_ID_KEYS.iter().find(|(name, _)| *name == kind).unwrap().1;
+        let mut record = json!({id_key: "invented.record", "provenance": clear});
+        let target = if level == "library" { &mut library } else { &mut record };
+        for (key, value) in varied.as_object().unwrap() {
+            target[key] = value.clone();
+        }
+        json!({"schema_version": "0.1.0", format!("{kind}_library"): library, format!("{kind}_records"): [record]})
+    }
+
+    fn import_blocks(kind: &str, document: &Value) -> bool {
+        validate_library_import_tokens(document, kind, "private")
+            .unwrap()
+            .findings
+            .iter()
+            .any(|finding| matches!(finding.code.as_str(), "IMPORT_PROTECTED_CONTENT_SUSPECTED" | "IMPORT_REJECTED_SOURCE"))
+    }
+
+    fn port_blocks(kind: &str, document: &Value) -> bool {
+        let library = document[format!("{kind}_library")].as_object().unwrap();
+        let record = document[format!("{kind}_records")][0].as_object().unwrap();
+        !stored_item_blocking(kind, library).is_empty() || !stored_item_blocking(kind, record).is_empty()
+    }
+
+    #[test]
+    fn disposition_verdicts_match_the_library_import() {
+        let mut rows = Vec::new();
+        for kind in KINDS {
+            for level in LEVELS {
+                for own_redistribution in OWN_REDISTRIBUTION {
+                    for own_review in OWN_REVIEW {
+                        for provenance_redistribution in PROVENANCE_REDISTRIBUTION {
+                            for provenance_review in PROVENANCE_REVIEW {
+                                let stored = document(kind, level, (own_redistribution, own_review), (provenance_redistribution, provenance_review));
+                                let imported = import_blocks(kind, &stored);
+                                assert_eq!(port_blocks(kind, &stored), imported, "{kind}/{level}: own {own_redistribution:?}/{own_review:?}, provenance {provenance_redistribution}/{provenance_review}");
+                                rows.push(json!([kind, level, own_redistribution, own_review, provenance_redistribution, provenance_review, imported]));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assert_eq!(rows.len(), 1440);
+        // The hanger conflict rule is exercised: an accepted own review over a quarantined provenance.
+        assert!(rows.contains(&json!(["hanger", "record", null, "accepted", "private_only", "quarantined", true])));
+        assert!(rows.contains(&json!(["material", "record", null, "accepted", "private_only", "quarantined", false])));
+        let table = json!({
+            "description": "Invented library-disposition parity table (DEL-15-01 W-6a review round 2). Columns: library_kind, level (library object or record), own redistribution_status, own review_status (null = absent), provenance redistribution_status, provenance review_status, blocked. blocked is the library import's verdict (IMPORT_PROTECTED_CONTENT_SUSPECTED or IMPORT_REJECTED_SOURCE); the native save and the webview adapter must agree. Generated by model_document_save.rs disposition_verdicts_match_the_library_import.",
+            "columns": ["library_kind", "level", "own_redistribution_status", "own_review_status", "provenance_redistribution_status", "provenance_review_status", "blocked"],
+            "rows": rows,
+        });
+        if let Ok(path) = std::env::var("SWBPIPE_WRITE_DISPOSITION_PARITY") {
+            let lines: Vec<String> = table["rows"].as_array().unwrap().iter().map(|row| format!("    {row}")).collect();
+            let text = format!(
+                "{{\n  \"description\": {},\n  \"columns\": {},\n  \"rows\": [\n{}\n  ]\n}}\n",
+                table["description"], table["columns"], lines.join(",\n")
+            );
+            std::fs::write(path, text).unwrap();
+            return;
+        }
+        let pinned: Value = serde_json::from_str(TABLE).unwrap();
+        assert_eq!(pinned["rows"], table["rows"], "the pinned table differs from the import's verdicts; regenerate it");
     }
 }
