@@ -283,15 +283,37 @@ fn w15_preview_poisson_ratio_uses_the_unscaled_pair() {
     request["materials"][0]["temperature_points"] = json!([{"id": "temperature-point:w15",
         "elastic_modulus": q(named.0, "Pa"), "shear_modulus": q(named.1, "Pa"),
         "thermal_expansion_coefficient": q(ALPHA, "1/degC"), "provenance": PROVENANCE}]);
-    let mut model = request["model"].clone();
-    model["materials"] = request["materials"].clone();
-    for mode in MODES {
-        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
-        assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "{:#?}", envelope.diagnostics);
-        let shear = envelope.results.iter().filter(|r| r.kind == u4b_rows::SHEAR_MAX_KIND && r.entity_ref == BODY).count();
-        assert!(shear >= 2, "{mode:?}: the body's shear rows on both bases");
-        let verdict = crate::result_export::reader_verdict::validate("preview-physics", &serde_json::to_value(&envelope).unwrap(), Some(&model), None);
-        assert_eq!(verdict["ok"], true, "{mode:?}: {verdict}");
+    // §6: an optional authored nu, absent, consistent with E/(2G) - 1 and
+    // inconsistent, on the material and the named point alike. PF never reads
+    // it: nu is the selected unscaled pair's, so every variant gives the same
+    // shear rows bit for bit and the model-bound reader admits each.
+    let consistent = |(e, g): (f64, f64)| q(u4b_rows::preview_poisson_ratio(e, g), "1");
+    let variants = [
+        ("absent", None, None),
+        ("consistent", Some(consistent((E, G))), Some(consistent(named))),
+        ("inconsistent", Some(q(0.45, "1")), Some(q(0.05, "1"))),
+    ];
+    let mut reference: std::collections::HashMap<&str, Vec<u64>> = std::collections::HashMap::new();
+    for (label, material_nu, point_nu) in variants {
+        let mut request = request.clone();
+        if let Some(nu) = material_nu {
+            request["materials"][0]["poisson_ratio"] = nu;
+        }
+        if let Some(nu) = point_nu {
+            request["materials"][0]["temperature_points"][0]["poisson_ratio"] = nu;
+        }
+        let mut model = request["model"].clone();
+        model["materials"] = request["materials"].clone();
+        for mode in MODES {
+            let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+            assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "{label} {mode:?}: {:#?}", envelope.diagnostics);
+            let shear: Vec<u64> = envelope.results.iter().filter(|r| r.kind == u4b_rows::SHEAR_MAX_KIND && r.entity_ref == BODY).map(|r| r.value.to_bits()).collect();
+            assert!(shear.len() >= 2, "{label} {mode:?}: the body's shear rows on both bases");
+            let first = reference.entry(mode.as_str()).or_insert_with(|| shear.clone());
+            assert_eq!(&shear, first, "{label} {mode:?}: an authored nu leaves the PF shear rows unchanged");
+            let verdict = crate::result_export::reader_verdict::validate("preview-physics", &serde_json::to_value(&envelope).unwrap(), Some(&model), None);
+            assert_eq!(verdict["ok"], true, "{label} {mode:?}: {verdict}");
+        }
     }
 }
 
@@ -501,4 +523,23 @@ fn w15_mapping_conflicts_block_by_name() {
     // One component per member, as authored, is no conflict.
     let request = line(&[NODE_A, NODE_C], vec![valve(15.0)], vec![]);
     assert!(!validation_diagnostics(&request).iter().any(|d| d.code == "RIGID_COMPONENT_MAPPING_CONFLICT"));
+}
+
+/// §5: the producer's stress kinds are exactly the row kinds whose physical
+/// dimension is stress in the two current tables (pressure-2 and
+/// preview-physics-2), the set the readers derive from the table.
+#[test]
+fn stress_kinds_are_the_tables_stress_rows() {
+    use crate::result_export::semantic_contract as sc;
+    let mut tables = std::collections::BTreeSet::new();
+    for table in [sc::pressure_rows_contract(), sc::preview_physics_contract()] {
+        for row in table["rows"].as_array().expect("table rows") {
+            if row["source_physical_semantic_dimension"] == "stress" {
+                tables.insert(row["kind"].as_str().expect("row kind").to_string());
+            }
+        }
+    }
+    let producer: std::collections::BTreeSet<String> = rigid_component::STRESS_KINDS.iter().map(|k| k.to_string()).collect();
+    assert_eq!(producer.len(), rigid_component::STRESS_KINDS.len(), "no duplicate kind");
+    assert_eq!(producer, tables);
 }
