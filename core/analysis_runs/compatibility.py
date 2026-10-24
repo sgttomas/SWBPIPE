@@ -152,7 +152,7 @@ def _build_analysis_run(
         "run_contract_status": {"record_contract": "strict_analysis_run_v0_3", "result_binding": "received_mechanics_result", "external_validation_boundary": "reference_only_not_determined_by_software"},
         "analysis_run": {
             "run_id": run_id, "run_name": f"{run_id} analysis record", "run_kind": "mechanics_solve", "created_at": created_at,
-            "model_state_ref": {"object_type": "ModelState", "ref": f"state:{received.get('model_ref', 'unknown')}:preview"},
+            "model_state_ref": transient_model_state_ref(received.get('model_ref', 'unknown')),
             "solver_version": {"solver_name": solver_name, "solver_version": solver_version, "build_ref": deepcopy(dict(solver_build_ref or {"object_type": "ExternalReference", "ref": "unavailable:solver-build-not-supplied"}))},
             "settings_ref": deepcopy(dict(settings_ref or {"object_type": "SolverSettings", "ref": "unavailable:solver-settings-not-supplied"})), "unit_system_ref": deepcopy(dict(unit_system_ref or {"object_type": "UnitSystem", "ref": "unavailable:unit-system-not-supplied"})),
             "load_basis_refs": load_basis_refs, "diagnostics": [{"source_annotation": deepcopy(item)} for item in received.get("diagnostics", [])], "result_refs": refs, "rule_pack_refs": [], "library_refs": [],
@@ -171,6 +171,106 @@ def _build_analysis_run(
         envelope["analysis_run"]["retained_precision"] = deepcopy(received["retained_precision"])
     envelope["analysis_run"]["hashes"].insert(0, _checksum("analysis_run_record", run_ref, analysis_record_projection(envelope), hash_fn))
     return envelope
+
+
+# W-12 S2 (DEL-14-01 Design `desktop-states-runs-comparison.md` section 3): a recorded
+# revision. The desktop store's Record Run (`apps/desktop/src-tauri/src/analysis_runs.rs`)
+# writes a new immutable revision of a solve's transient record, tied to a saved model
+# state; `recorded_revision` mirrors it and the TypeScript `recordedAnalysisRunRevision`,
+# and the parity tests check all three against the store's committed witness.
+CREATED_AT_UNAVAILABLE = "created_at_unavailable"
+
+
+def transient_model_state_ref(model_ref: Any) -> dict[str, str]:
+    """A transient record's synthetic state ref, `state:<model ref>:preview`."""
+    return {"object_type": "ModelState", "ref": f"state:{model_ref}:preview"}
+
+
+def recorded_rule_pack_refs(input_manifest: Mapping[str, Any]) -> list[dict[str, str]]:
+    """The input manifest's `active_rule_packs` (what the solve used), in its order."""
+    packs = input_manifest.get("active_rule_packs")
+    if not isinstance(packs, list):
+        raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list.")
+    refs = []
+    for pack in packs:
+        rule_pack_id = pack.get("rule_pack_id") if isinstance(pack, Mapping) else None
+        version = pack.get("version") if isinstance(pack, Mapping) else None
+        if not isinstance(rule_pack_id, str) or not rule_pack_id or not isinstance(version, str) or not version:
+            raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: an active rule pack has no id or version.")
+        refs.append({"object_type": "RulePack", "ref": f"{rule_pack_id}@{version}"})
+    return refs
+
+
+def recorded_library_refs(model_payload: Any) -> list[dict[str, str]]:
+    """Every `provenance_record.library_ref` of the solved model (at any depth), once each,
+    in code-point order, as `library:<kind>/<id>[@<version>][#<record id>]`."""
+    found: set[str] = set()
+
+    def visit(value: Any) -> None:
+        if isinstance(value, list):
+            for item in value:
+                visit(item)
+        elif isinstance(value, Mapping):
+            for key, child in value.items():
+                if key == "provenance_record" and isinstance(child, Mapping):
+                    ref = child.get("library_ref")
+                    if isinstance(ref, Mapping) and isinstance(ref.get("library_kind"), str) and isinstance(ref.get("library_id"), str):
+                        text = f"library:{ref['library_kind']}/{ref['library_id']}"
+                        if isinstance(ref.get("library_version"), str):
+                            text += f"@{ref['library_version']}"
+                        if isinstance(ref.get("record_id"), str):
+                            text += f"#{ref['record_id']}"
+                        found.add(text)
+                visit(child)
+
+    visit(model_payload)
+    return [{"object_type": "Library", "ref": text} for text in sorted(found)]
+
+
+def recorded_revision(transient: Mapping[str, Any], *, state_id: str, created_at: str, input_manifest: Mapping[str, Any],
+                      hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> dict[str, Any]:
+    """The recorded revision of a transient record: `created_at`, the stored state's ref,
+    the manifest's rule packs and the solved model's library references, the
+    `created_at_unavailable` note dropped and the record hash recomputed. The received-result
+    checksum and every other member are unchanged."""
+    record = deepcopy(dict(transient))
+    run = record["analysis_run"]
+    run["created_at"] = created_at
+    run["model_state_ref"] = {"object_type": "ModelState", "ref": state_id}
+    run["rule_pack_refs"] = recorded_rule_pack_refs(input_manifest)
+    run["library_refs"] = recorded_library_refs(input_manifest["model_basis"]["model_payload"])
+    notes = run.get("reproducibility", {}).get("determinism_notes")
+    if isinstance(notes, list):
+        run["reproducibility"]["determinism_notes"] = [note for note in notes if note != CREATED_AT_UNAVAILABLE]
+    claims = [row for row in run["hashes"] if row.get("payload_scope") == "analysis_run_record"]
+    if len(claims) != 1:
+        raise ValueError("ANALYSIS-RUN-RECORD-INVALID: the record has no single analysis_run_record checksum.")
+    claims[0]["value"] = hash_fn(analysis_record_projection(record))
+    return record
+
+
+def _validate_recorded_binding(run: Mapping[str, Any], source: Mapping[str, Any], recorded_state: Mapping[str, Any]) -> None:
+    """A recorded revision's binding to its stored state (as the TypeScript validator's):
+    its ref names the state; its `created_at` is set and the `created_at_unavailable` note is
+    gone; the stored input manifest hashes to the record's `input_manifest_hashes[0]` (JCS:
+    the checked profile's canonical text is JCS for the values it admits), is the source's
+    project's, and its model payload hashes to the state's model hash; its rule-pack and
+    library references are the manifest's."""
+    if run.get("model_state_ref") != {"object_type": "ModelState", "ref": recorded_state["state_id"]}:
+        raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
+    reproducibility = run.get("reproducibility", {})
+    if not isinstance(run.get("created_at"), str) or not run["created_at"] or CREATED_AT_UNAVAILABLE in reproducibility.get("determinism_notes", []):
+        raise ValueError("ANALYSIS_RECORDED_REVISION_TIME_MISSING")
+    manifest = recorded_state["input_manifest"]
+    hashes = reproducibility.get("input_manifest_hashes")
+    if not isinstance(hashes, list) or len(hashes) != 1 or hashes[0].get("value") != canonical_sha256_checked_v1(manifest):
+        raise ValueError("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH")
+    if manifest.get("model_basis", {}).get("model_ref") != source.get("model_ref"):
+        raise ValueError("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH")
+    if f"sha256:{canonical_sha256_checked_v1(manifest['model_basis']['model_payload'])}" != recorded_state["model_hash"]:
+        raise ValueError("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH")
+    if run.get("rule_pack_refs") != recorded_rule_pack_refs(manifest) or run.get("library_refs") != recorded_library_refs(manifest["model_basis"]["model_payload"]):
+        raise ValueError("ANALYSIS_RECORDED_REFERENCES_MISMATCH")
 
 
 def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> str:
@@ -480,9 +580,13 @@ def build_analysis_run(mechanics_result: Mapping[str, Any], **kwargs: Any) -> di
     return build_analysis_run_v0_3(mechanics_result, **kwargs)
 
 
-def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None) -> None:
+def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None,
+                               recorded_state: Mapping[str, Any] | None = None) -> None:
     """Validate source interpretation/bindings separately from checksum verification.
 
+    A transient record (no ``recorded_state``) names its synthetic state; a recorded
+    revision (W-12 S2) names the stored state passed in as ``{"state_id", "model_hash",
+    "input_manifest"}``, checked against that state's model hash.
     This accepts supplied evidence only; it does not authenticate a claimed build.
     """
     contract_id, contract_hash, path = _source_contract(source)
@@ -521,7 +625,9 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     solver = run.get("solver_version", {})
     if solver.get("solver_name") != source["producer"]["component_name"] or solver.get("solver_version") != source["producer"]["component_version"]:
         raise ValueError("ANALYSIS_SOURCE_PRODUCER_MISMATCH")
-    if run.get("model_state_ref") != {"object_type":"ModelState", "ref":f"state:{source.get('model_ref')}:preview"}:
+    if recorded_state is not None:
+        _validate_recorded_binding(run, source, recorded_state)
+    elif run.get("model_state_ref") != transient_model_state_ref(source.get("model_ref")):
         raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
     if run.get("run_id") != source.get("run_id"):
         raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")
