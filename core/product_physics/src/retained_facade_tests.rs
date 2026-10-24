@@ -4348,14 +4348,14 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// on the declared `diagnostics` member instead of an unknown root member (`sw_stressed`), so
 /// their four rows moved with the request-bound hashes only (scratch structural proof).
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "2a8ba9f9d064fbf5e30cb2b5b8dc6ac7745f5a1a811601319aa053113c1df2de",
-        "c1e53e892f4167cb29f1a136193c780f614ad2d1ce962a82fc697f2070ed923b"),
-    ("w_cb1", "dense_scrutiny", "f815d4b922fa5b6ae9215b2ccb49f298a6c7d4a66841880faa93558ca6d77dad",
-        "c60865dcf4c595a088aac1ba8ffd701bfd6d35c73b68b0d1022b571c10f15797"),
-    ("w_cb1z", "sparse_interactive", "ca5e337900d52db62d261d9d28e5f1487c28f19b5f438bd9311b5ca576d54904",
-        "0b9d15014801fdbd2df7f4ba95b11dee6dbea914fcb10f13a18910f23c887177"),
-    ("w_cb1z", "dense_scrutiny", "bacba3ec9eb42d71ed0a907a307edafb6173a1a50b25248fa22c76a71dfcf113",
-        "2e8ffaeb3af922096ec0b1808549479eaf5b25e4a2fcdd73c58256fecc1b92a4"),
+    ("w_cb1", "sparse_interactive", "4f7b2c2e7eec221b1ae10c25a08a96029fd5625d3ccfcb6f5bf0fa1ca2d5d6db",
+        "fe3ab03ac6749e3920148a07c0322fe4f0722cf1cd58d5a63009a80e780e0f29"),
+    ("w_cb1", "dense_scrutiny", "c8c64551f55d60176e70c31b45507aca4b7dec749f351d834c3e4e4e083cb9c3",
+        "315669fcf04298560602798471d32cc930e9bb0bbb5ad92cf525289d7e35cb2a"),
+    ("w_cb1z", "sparse_interactive", "182181c22e5eabdf011f179bd23ee36d3992277c25c9e10fb20014974653726b",
+        "9869ad87317d3b65223b01f4778eac9e30691d3cec98513f8c0795b405f658d2"),
+    ("w_cb1z", "dense_scrutiny", "491865061285ba4a54101042d1c42b1dcdfe34ff5a194c8904dbfc7e642c070f",
+        "59a37dfc7e7f8e89bfdf3cd77e84cdad8b60907b9026491fbf70a94db51b0d64"),
     ("w_cb2", "sparse_interactive", "6085c0eed2199574de20279dbbcfdc5c05ba97f6c6bd6a2377a9942c06bb2aca",
         "e9434ff8b76ed346b6a4aecaddcde3f56a06b7dcdee013c6f39f3d1fd049cc12"),
     ("w_cb2", "dense_scrutiny", "6363dd535279fd3980525ffd3331c873d2c7742949cdd5f0d8b032983e7ca618",
@@ -4412,8 +4412,8 @@ fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value)
 /// `r7_cb1_halfb` and `r7_cb1`, checked on the records, apart from the model version: B7a
 /// re-authored the witnesses' model to 0.5.0, T4-S1 to 0.6.0 and W-13 S1b to 0.7.0, each of which moved all four input pins;
 /// the silent-drop guard's `diagnostics` carrier moved W-CB1's and W-CB1z's).
-const W_CB1_INPUT_SHA256: &str = "01daddbdc884b92920ce8d4b3389494269dab9e4e8b72cce05260c9b99cc96ba";
-const W_CB1Z_INPUT_SHA256: &str = "462516332b721dc1498362d8d8f7d3593ac88559c82cb12870eb26444c850117";
+const W_CB1_INPUT_SHA256: &str = "a1b8f27b97240a2fbe921b68a09a06322543f0fa8de134a182057561fe0374be";
+const W_CB1Z_INPUT_SHA256: &str = "89ce33bd24aac402d90ae499644057d73ae0d0b3f21189979e7be5937f9577a7";
 /// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
 /// W-CB1z its `r7_cb1_halfb` and `r7_cb1` (JSON-equal, checked on the records); their Value
 /// sha256s. With `I105_B2P_OUT` set, W-CB1's and W-CB1z's requests are written there.
