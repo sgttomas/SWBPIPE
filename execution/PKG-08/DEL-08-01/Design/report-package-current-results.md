@@ -236,9 +236,15 @@ each with a named `REPORT-PACKAGE-…` code:
    - Schema validation adds no implicit `maxItems` limit. Any independent
      package resource limit is named separately and tested.
    - The keyword census covers the transitive closure and separates
-     annotations (`description`, `title`, `$id`, `$schema`, `$defs`,
-     `x-rp-encoding`, which the retained schema's `:5` defines as a G2 encoding
-     note) from assertion and applicator keywords.
+     annotations (`description`, `title`, `$comment`, and `x-rp-encoding`,
+     which the retained schema's `:5` defines as a G2 encoding note) from
+     assertion and applicator keywords. `$comment` is ignored; `$schema`,
+     `$id`, `$defs` and `$ref` receive their core and resource handling. The
+     closure has 32 keywords (round-4 review census).
+   - Coverage includes type unions and applicability, required-only schemas,
+     both conditional branches, overlapping combinators, numeric and compound
+     equality, exact bounds, both regex patterns, unconstrained metadata, array
+     cardinality and uniqueness, and cross-resource reference bases.
    - Positive and negative behavioural tests exercise every supported
      constraint. A list of keyword names alone is not evidence of correct
      evaluation.
@@ -264,8 +270,11 @@ each with a named `REPORT-PACKAGE-…` code:
    (`projects/chirality-app-v4/app/src-tauri/Cargo.toml:27`). It is in no
    SWBPIPE Cargo workspace. Adopting it would add a new third-party dependency
    tree to the product, with its lockfile, licence and CI-digest changes. The
-   repaired evaluator plus the Python oracle gives the same assurance without
-   that.
+   round-4 review prefers the crate for conformance coverage, but finds the
+   bounded evaluator defensible. The manager chose the evaluator to keep the
+   product's dependency tree unchanged. Oracle parity supplies regression
+   evidence; implementation tests and independent review must cover every
+   construct used by the five embedded schemas.
 2. **Header dispatch.** `for_export_metadata(doc.result_envelope)`
    (`semantic_contract.rs:464-477`) accepts the transported header, and
    `semantic_contract_ref` names the producer's contract.
