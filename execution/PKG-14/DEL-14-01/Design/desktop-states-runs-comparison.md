@@ -171,11 +171,17 @@ Python agree.
   its JCS hash and its project id. Any difference is refused as
   `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
   refused.
-- **Read memory (S2 repair r1).** `read_model_state` and `list_model_states`
-  take memory-pool leases sized from the stored lengths before loading
-  anything (`stored_read.rs`, described under §3's As built (S2)). A read
-  whose lease the pool refuses is refused with
-  `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
+- **Read memory (S2 repairs r1, r2).** `read_model_state`,
+  `list_model_states`, the state label edit and the state delete take
+  memory-pool leases sized from the stored lengths before loading anything:
+  records, snapshots, label columns and the child and run lists. They hold
+  those leases until their response is serialized (`stored_read.rs`,
+  described under §3's As built (S2)). A read whose lease the pool refuses is
+  refused with `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
+- **Label bounds (r2).** Every label write (Save Model State, Record Run, both
+  label edits) keeps at most 256 tags, notes and assumptions together. It also
+  keeps at most 196,608 bytes (192 KiB) of label JSON, name included. Larger
+  labels are refused as invalid labels. Reads still price whatever is stored.
 - **Serializer.** Keys sort by code point, and i64/u64 integers are written
   in decimal. No field of `model_state.schema.json` has a number type, so the
   record hash fails closed on any other number (a float, or an integer outside
@@ -470,35 +476,69 @@ the History panel and `useModelStateHistory.ts`.
     not shown in the results view, so its per-run state (page, filters, selected
     row) keys on nothing new. A re-solve and a recording keep the page
     (`recordRun.session.test.tsx`).
-- **Read memory (repair r1, `stored_read.rs`).**
-  - **Before loading.** A read takes the byte lengths of the stored columns it
-    needs with `octet_length`, without loading them. It then reserves, through
-    interactive memory-pool leases (Save Local Project's ingress admission:
-    the pool, fresh headroom, and the per-invocation budget over the read's
-    live leases together):
-    - loading each column (SQLite's page cache and value, and the copied
-      `String`);
+- **Read memory (repairs r1, r2, `stored_read.rs`).** Each stored read is
+  priced in three stages. Each stage reserves through interactive memory-pool
+  leases, which are Save Local Project's ingress admission: the pool, fresh
+  headroom, and the per-invocation budget over the read's live leases
+  together.
+  - **Before loading.** A read takes, with `octet_length` and `COUNT`, the
+    byte lengths of every column it will load and of the state's child and run
+    lists, without loading them. It then reserves:
+    - loading each column: records, results, manifests, snapshots, and every
+      label column (name, tags, notes, assumptions), as SQLite's value plus the
+      copied `String`;
     - each text copy it makes for a hash;
-    - the response, as serialized while the command runs.
-  - **Before parsing.** Each parse is reserved after its text is loaded and
-    before it is parsed, at the ingress prescan's bound.
+    - the relationship lists (child and blocker ids) it materializes;
+    - a fixed 512 KiB overhead.
+  - **Before parsing.** Each JSON text is prescanned after it loads and before
+    it is deserialized. Text the prescan finds invalid is refused before
+    deserialization as `MODEL-STATE-INTEGRITY` or `ANALYSIS-RUN-INTEGRITY`,
+    naming the row. Valid text reserves its parse at the prescan's bound.
+  - **The response.** The response is serialized at its exact length, counted
+    first without allocating, into a buffer reserved at that length. All of
+    the read's reservations are held until serialization ends.
   - **Refusal.** A refusal is `STORE-READ-MEMORY-UNAVAILABLE`, naming what was
     to be read, and nothing more is loaded. All leases are released when the
-    read returns.
-  - **Coverage.** This covers `read_model_state`, `read_analysis_run`, the
-    run label edit and delete, and both lists.
-  - **Lists.** A list reserves its largest record and the labels it returns.
-    It then verifies records one at a time, each parse reserved after the
-    record loads and released after it is verified. It never loads a result
-    or a manifest.
-  - **Tests.** Counting-allocator tests store 3 MiB snapshots, results and
-    records and read them under a 128 KiB pool: each read is refused with the
-    large column unloaded. Under a large pool, the read's priced peak stays
-    within its reservation.
+    command returns.
+  - **Coverage.** The covered commands are:
+    - `read_model_state` and `read_analysis_run`, where the run read prices
+      its state summary, including the state record, through the same metered
+      path;
+    - both lists;
+    - the run and state label edits and deletes;
+    - Record Run's response.
+  - **Lists.** A list reserves its largest record and the sum of the labels and
+    relationship lists it returns. It then verifies records one at a time, each
+    parse reserved after the record loads and released after it is verified.
+    It never loads a result or a manifest.
+  - **Record Run.** Besides its argument lease, Record Run reserves its extra
+    work as "the run to record" before parsing: the result parse twice, the
+    manifest parse, and two text copies of each. Invalid result or manifest
+    JSON is refused before it is parsed.
+  - **Tests.** Counting-allocator tests store large rows: 3 MiB snapshots,
+    results and records, a 3 MiB run name, and 1024 state notes. They read
+    them under a 2 MiB pool and assert through pool accounting:
+    - The same read of small rows is admitted under that pool.
+    - The large one is refused with its column unloaded (allocator peak below
+      768 KiB) and every lease released.
+    - 1 MiB of prescan-invalid JSON stored in the run record, result or labels,
+      or in the state record or snapshot, is refused before it is parsed, with
+      the peak below 16 times its length.
+    - A run read whose state record was resealed at 3 MiB is refused for the
+      state.
+    - The state label edit and delete are refused under the small pool.
+    - Under a large pool, a read's response length is within its held
+      reservation, and the read's peak stays within the reservation's peak.
   - **S3.** §4.2's comparison of two stored results reuses this pricing.
-  - **Residual.** Record Run, the state label edit and the state delete keep
-    their existing admission. Record Run is priced by its argument lease; the
-    state records the last two read are small.
+  - **Residual (not bounded by this pricing):**
+    - the `Response` handed to Tauri and the IPC copies made after the command
+      returns;
+    - Record Run's transient record `Value` clones (the hash projection and the
+      recorded revision), beyond its argument lease and reservation; not
+      re-measured since review r2 found about 26.0 MiB against a 10.1 MiB lease
+      for its large case before r2's reservation;
+    - the state summaries the save and record transactions read internally
+      (`find_summary`), which are unmetered.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 
