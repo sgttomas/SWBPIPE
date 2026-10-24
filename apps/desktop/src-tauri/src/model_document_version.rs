@@ -126,7 +126,7 @@ mod tests {
         let before = doc.clone();
         let evaluated = evaluate_model_document(&doc);
         assert_eq!(evaluated.status, "current");
-        assert_eq!(evaluated.source_schema_version, "0.7.9");
+        assert_eq!(evaluated.source_schema_version, "0.7.0");
         assert_eq!(evaluated.target_schema_version, "0.7.0");
         assert!(!evaluated.is_refused());
         assert_eq!(doc, before);
