@@ -1588,7 +1588,11 @@ mod tests {
     /// attempt again, even though the host would now admit.
     #[test]
     fn resampling_starts_no_attempt_after_waiting_past_the_deadline_for_the_lock() {
-        const WINDOW: Duration = Duration::from_millis(300);
+        const WINDOW: Duration = Duration::from_millis(1200);
+        // A run counts only if the handshake below completes this soon after
+        // `started`, leaving at least WINDOW - COUNTED_WITHIN (800 ms) before
+        // the deadline.
+        const COUNTED_WITHIN: Duration = Duration::from_millis(400);
         for _ in 0..RUNS_TO_REACH_THE_WAIT {
             let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
             let pool = timed_pool(&host, WINDOW, Duration::from_millis(20));
@@ -1635,10 +1639,12 @@ mod tests {
             assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
             assert_eq!(pool.reserved_total(), 0);
             // The run counts only if the holder held the lock, and the waiter
-            // went on towards reacquiring it, with time left before the
-            // deadline (at least the window after `started`): the waiter then
-            // reacquires the lock past the deadline, not before.
-            if holder_locked_by.get().is_some_and(|at| at < started + WINDOW) {
+            // went on towards reacquiring it, at least 800 ms before the
+            // deadline (which is no earlier than the window after `started`):
+            // the waiter then reaches its reacquisition before the deadline,
+            // unless it stalls for 800 ms within a few instructions, and
+            // reacquires the lock only past it. Later handshakes are repeated.
+            if holder_locked_by.get().is_some_and(|at| at < started + COUNTED_WITHIN) {
                 return;
             }
         }
@@ -1788,7 +1794,9 @@ mod tests {
         waiters.cancel.store(true, Ordering::SeqCst);
         pool.wake_waiters();
         done.arrive();
-        let admitted = waiters.handles.drain(..).map(|h| h.join().unwrap()).filter(|ok| *ok).count();
+        // Every waiter is joined before any waiter's panic is propagated.
+        let joined: Vec<_> = waiters.handles.drain(..).map(std::thread::JoinHandle::join).collect();
+        let admitted = joined.into_iter().map(|j| j.unwrap_or_else(|panic| std::panic::resume_unwind(panic))).filter(|ok| *ok).count();
         assert_eq!(admitted, 2);
         assert_eq!(pool.reserved_total(), 0);
     }
