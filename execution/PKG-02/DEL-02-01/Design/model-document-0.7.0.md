@@ -35,8 +35,10 @@ unchanged: no new slot renames or re-keys an entity.
   document, version 0.6.0.
 - **Rust decoding.** `PreviewModel` (`core/product_physics/src/lib.rs:209`,
   wire form `:249`) decodes it.
-  - The top level and the node, pipe, support, material and component records
-    ignore unknown keys.
+  - The node, pipe, support, material and component records ignore unknown
+    keys. The top level, load cases, primitive loads and combinations did too
+    at this design's basis; they are closed since the silent-drop guard (§2,
+    "Strict solve inputs").
   - The load/reference-state group (`case_state/input.rs:1-77`) and the pressure
     contract (`pressure_runtime.rs:57,65,79`) are `deny_unknown_fields`.
   - Section `provenance` is a `serde_json::Value` (`lib.rs:402`), so it may be a

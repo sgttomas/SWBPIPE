@@ -2463,23 +2463,30 @@ if fnkey("unknown_field_refusal", _SD_MF):
              "case_path": _sd_c(_SD_CASE_PATH, "`model.load_cases[{i}]`"), "generation_path": _sd_c(_SD_GEN_PATH, "a case's equivalent_static path"),
              "load_path": _sd_c(_SD_LOAD_PATH, "a primitive load's path"), "combination_path": _sd_c(_SD_COMB_PATH, "`model.combinations[{i}]`"),
              "k": _sd_c(_SD_INT, "a usize index"), "j": _sd_c(_SD_INT, "a usize index"), "i": _sd_c(_SD_INT, "a usize index")}
-    for _ln in sorted({int(site("unknown_field_refusal", _SD_MF, _t, full=True).rsplit(":", 1)[1]) for _t in (
-            "{case_path}.modulus_basis_temperature", 'let generation_path = format!(', "{generation_path}.seismic",
-            "{generation_path}.wind\"", "{generation_path}.wind.exposed_spans[{k}]", "let load_name = format!(",
-            "let load_path = format!(", "{load_path}.target", "{load_path}.magnitude", "{combination_path}.terms[{j}]",
-            "the equivalent_static of {case_name}")}):
-        O10_ID_AUDIT += [(Resolved(f"{_SD_MF}:{_ln}"), dict(_SD_A))]
+    # Each site's own placeholders (an audit entry naming another site's placeholder would be stale).
+    for _t, _args in (
+            ("|| case_name.clone()", ("case_name",)),
+            ("{case_path}.modulus_basis_temperature", ("case_name", "case_path")),
+            ("let generation_path = format!(", ("case_path",)),
+            ("the equivalent_static of {case_name}", ("case_name",)),
+            ("{generation_path}.seismic", ("case_name", "generation_path")),
+            ('{generation_path}.wind"', ("case_name", "generation_path")),
+            ("{generation_path}.wind.exposed_spans[{k}]", ("case_name", "generation_path", "k")),
+            ("let load_name = format!(", ("case_name",)),
+            ("let load_path = format!(", ("case_path", "j")),
+            ("|| load_name.clone()", ("load_name",)),
+            ("{load_path}.target", ("load_name", "load_path")),
+            ("{load_path}.magnitude", ("load_name", "load_path")),
+            ("|| combination_name.clone()", ("combination_name",)),
+            ("{combination_path}.terms[{j}]", ("combination_name", "combination_path", "j"))):
+        O10_ID_AUDIT += [(site("unknown_field_refusal", _SD_MF, _t, full=True), {a: _SD_A[a] for a in _args})]
     O10_ID_AUDIT += [(Resolved(f"{_SD_MF}:{int(site('named', _SD_MF, _t).rsplit(':', 1)[1])}"),
                       {"kind": _sd_c(_SD_KIND, "a static record kind"), "id": IN, "index": _sd_c(_SD_INT, "a usize index")})
                      for _t in ('Some(id) => format!("{kind} `{id}`"),', 'None => format!("{kind} {index}"),')]
     # The load name's `named(..)` argument and the closures' clones of the names.
     O10_ID_AUDIT += [(site("unknown_field_refusal", _SD_MF, "let load_name = format!(", full=True),
                       {'named("primitiveload",id_of(load),j)': _sd_c(_sd_named("primitive load"), "a primitive load's own name")})]
-    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
-        (site("unknown_field_refusal", _SD_MF, "|| case_name.clone()"), {"class": _SD_CASE_NAME, "why": O10 + "SD-ID: a load case's name"}),
-        (site("unknown_field_refusal", _SD_MF, "|| load_name.clone()"), {"class": _SD_LOAD_NAME, "why": O10 + "SD-ID: a primitive load's name"}),
-        (site("unknown_field_refusal", _SD_MF, "|| combination_name.clone()"), {"class": _SD_COMB_NAME, "why": O10 + "SD-ID: a combination's name"}),
-    ]
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", []))
     # The refusal text's placeholders (multiplicity 0 by SD-NF; bounded at their sites regardless): a finding's field is a
     # request key (D1 raw text <= 128 B), its record the longest record name, its path the longest path; the named list
     # joins <= NAMED_LIMIT (8) findings.
@@ -2550,5 +2557,5 @@ if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICA
         (site("validate_mechanics_combination", _SD_V, '"diagnostic:combination:{}:{}:duplicate",', full=True, row="&format!("),
          {"stable_suffix(&combination.id)": IN, "stable_suffix(&term.load_case)": IN}),
         (site_after("validate_mechanics_combination", _SD_V, '"LOAD_COMBINATION_DUPLICATE_TERM",', "vec![combination.id.clone(), term.load_case.clone()],", within=4),
-         {"combination.id": IN, "term.load_case": IN}),
+         {"combination.id": IN}),
     ]
