@@ -131,6 +131,31 @@ export use their existing routes unchanged.
   - **Modality.** While the prompt is open, the workspace is `inert`, Tab
     cycles the prompt's buttons, and menu commands and window shortcuts are
     ignored. When the prompt closes, focus returns to where it was.
+- **Unsaved edits: never silently discarded (Agent 0, 2026-10-24).** A command
+  that replaces the working model asks first while the model has edits no save
+  holds (the toolbar's "Edited"). These are Open Local Project, opening a
+  project from the index, Open Model Document…, New Blank and the blank
+  load/reference model, and Open State (W-12). New Local Project saves the
+  working model, so it does not ask.
+  - **The prompt.** `UnsavedChangesPrompt` (`unsavedChangesGuard.ts`) is one
+    modal alert dialog for every such command. It is modal as the replace
+    prompt is, and sets its focus and key hold in a layout effect.
+  - **The choices.**
+    - **Cancel** is the default: it has focus as the prompt appears, and
+      Escape chooses it. Nothing is replaced and the edits stay.
+    - **Save Local Project, then …** runs Save Local Project's own flow,
+      including its replace prompt. The command goes ahead only if that save
+      lands.
+    - **Discard edits and …** goes ahead without saving.
+  - **Without edits** a command starts as before, with no prompt.
+  - **One owner at a time (Codex r4).** None of these commands, nor Save
+    Model State, starts a prompt or an operation while another project
+    operation or prompt owns the session. The History panel's controls are
+    disabled meanwhile, with a stated reason.
+  - **Modal holds.** The replace prompt and the unsaved-changes prompt each
+    take a hold on the shared modal flag (`modalHolds.ts`). Menu commands and
+    shortcuts wait until the last hold is released, whichever prompt closes
+    first.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
   - **No normalization.** Save never rewrites a model document; B7a removed the

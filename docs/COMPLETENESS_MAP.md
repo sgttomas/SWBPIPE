@@ -96,8 +96,10 @@ The biggest gaps:
    (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
 2. **No model states, run history or comparison between states or runs.** These
-   are in v0.1 by OD-1. They exist as schemas and headless Python engines; W-12
-   has a design only. Affected: FR-CMP-001..010.
+   are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
+   #1589): save, open, label and delete, kept only in the SQLite store. Runs tied
+   to states and both comparisons exist as schemas and headless Python engines
+   only (W-12 S2, S3). Affected: FR-CMP-001..004, -006.
 3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
    validated but never applied, and EX refuses these components. Affected:
    FR-SOL-004/012.
@@ -140,7 +142,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-MOD-003 (478) | Must | D | Identity changes refused: `operation_applier/src/rich_authoring.rs:1092`, test `:864`; `atomic_batch.rs:690`; reconnect keeps ids (`pipe_reconnect.rs`) | DEL-02-01, DEL-16-06 | No all-operations id-survival test. |
 | FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | Tags and notes have 0.7.0 slots (#1564), authored in the inspector for every entity and the project (#1565). |
 | FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402`. Library insert and apply set the entity's `provenance_record` with `library_ref` (record digest `library_version`): `apps/desktop/src/features/library/libraryApply.ts`; tests `libraryApply.test.ts`, `operation_applier/tests/library_apply.rs` | DEL-03-01, DEL-03-07 | 0.7.0 adds a structured `provenance_record` with `library_ref` (#1564). Applying library records (#1566): entities written from a library carry a combined `provenance_record`, and the store check warns on unresolved or changed records (`check_model_library_refs`). |
-| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | 0.7.0 adds the slot (#1564); the Model records tab enters, resolves and rejects them (#1565). |
+| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | 0.7.0 adds the slot (#1564); the Model records tab enters, resolves and rejects them (#1565). State-level assumptions are labels on a saved state, carried into its `ModelStateRecord` (W-12 S1, #1589). The run level is W-12 S2. |
 | FR-MOD-007 (482) | Must | D (bounded) | On the live solve path the product derives its analytical model (`BuiltModel`, PP `lib.rs:2261`; `build_model` `:7930`) from the supported canonical-document fields and records diagnostics (PP `lib.rs:2635-2739`) | DEL-13-04, DEL-04-07 | Owner reading (2026-10-23, accepted): D bounded to this derivation. The richer PKG-13 transform contract (`core/model_transform/physical_to_analytical/contract.py`, test-only) stays deferred under OD-1. |
 | FR-KNOW-001 (488) | Must | O | OD-3 (DEL-13-01 SOW:15). Desktop `lib.rs:1773` returns a bundled fixture; `KnowledgePanel.tsx` has no inputs | DEL-13-01 | |
 | FR-KNOW-002 (489) | Must | D | W-8: `core/product_physics/src/topology.rs:46`, called once at PP `lib.rs:2739` on the shared path of both routes; `MODEL_TOPOLOGY_DISCONNECTED` (`topology.rs:136`), `BRANCH_TOPOLOGY_INVALID` (`validation.rs:1310-1320`); unsupported parts still refused (PP `lib.rs:15412`); EX pressure-region topology (`pressure_runtime.rs:1538,1548,1595`). **Tests:** `tests/topology_checks_runtime.rs` (9). **Desktop:** Diagnostics panel (`App.test.tsx:10877`) | DEL-04-06 | Findings are warnings; PRD §14.4 lists topology under "blocking for model validity" (§6). Tests use PF requests only. The bundled demo now warns `BRANCH_TOPOLOGY_INVALID` (tee C-120). |
@@ -221,12 +223,14 @@ class, the evidence, and the deliverables. Paths are under
 
 ### 2.5 States, runs, comparison, V&V (PRD §11.6, §15, §21–22)
 
-All FR-CMP rows are in v0.1 by OD-1 (unit W-12, design
-`DEL-14-01/Design/desktop-states-runs-comparison.md`, not implemented).
+FR-CMP-001..004 and -006 are in v0.1 by OD-1 (unit W-12, design
+`DEL-14-01/Design/desktop-states-runs-comparison.md`). FR-CMP-005, -007, -008, -009
+and -010 remain in v0.2 R3 under that design and PRD §24. FR-CMP-011 is not an
+MVP requirement (PRD §15.6).
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-CMP-001 (542) | Must | P | `schemas/model_state.schema.json`; headless persistence keeps caller-supplied states (`core/project_persistence/service.py:103,494`); the desktop keeps one model and run per project (desktop `lib.rs:896-902`) | DEL-14-01, DEL-07-08 | No named-state producer or state commands. |
+| FR-CMP-001 (542) | Must | P | **Store:** desktop `src-tauri/src/model_states.rs` (store v12: `model_states`, `model_state_labels`, immutability triggers; save, list, read, label edit, delete), with its tests there. **UI:** `features/history/HistoryPanel.tsx`, `useModelStateHistory.ts`; `modelStateHistory.session.test.tsx`. **Record:** `model_state.schema.json` record with Python-pinned record hash; `tests/test_model_state_record_parity.py` | DEL-14-01, DEL-07-08 | Save, reopen, tag and delete named immutable states in the desktop (W-12 S1, #1589); SQLite-only, with history export open under OI-015. Compare is W-12 S3. The desktop crate's Rust store tests do not run in hosted CI. |
 | FR-CMP-002 (543) | Must | P | `analysisRunCompatibility.ts:164,167` | DEL-14-02 | Synthetic `model_state_ref`; empty rule-pack and library refs; one run per project. |
 | FR-CMP-003 (544) | Must | P | `core/comparison/model_state/engine.py:64`; `tests/test_model_state_comparison.py` | DEL-14-03 | Headless only. |
 | FR-CMP-004 (545) | Must | P | `core/comparison/analysis_run/engine.py:165`; `tests/test_analysis_run_comparison.py` | DEL-14-04 | Headless only. |
@@ -272,11 +276,10 @@ This map has 42 P, 34 D, 8 O and no R:
   built; FR-SOL-015 now includes the health indicator.
 
 **§23 MVP items:**
-- **In the desktop:** 21 of 28 items. Imposed displacement works on EX only;
+- **In the desktop:** 22 of 28 items. Imposed displacement works on EX only;
   combinations on PF only; the validation suite is headless.
 - **Not in the desktop:**
   - rigid elements (W-15);
-  - named immutable states (W-12);
   - basic state comparison and basic run comparison (headless only; W-12);
   - runs tied to states (partial; W-12);
   - basic report generation (local-private PF render only; W-11 and the
@@ -289,7 +292,7 @@ This map has 42 P, 34 D, 8 O and no R:
 - **R1:** partly. Rigid elements are absent; §22.2 lacks the rigid link.
 - **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The native smoke now runs
   a GUI-authored model through solve, review, save and reopen (W-4).
-- **R3 (States, Runs, Comparison):** not met; in v0.1 by OD-1.
+- **R3 (States, Runs, Comparison):** not met; states, run history and basic state/run comparison are in v0.1 by OD-1. Mapping editor/manual mappings, tolerance profiles, graphical diffs and comparison export remain in v0.2 R3.
 - **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). A report
   is obtainable only as a local private PF document.
 - **R6:** partly. Design knowledge is deferred (OD-3); no fresh reproduction
@@ -521,6 +524,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-13 S1b | Model document 0.7.0: the new member slots, one document validator, `model_settings.node_proximity_tolerance` (default 5 mm) | #1564; native smoke with no change beyond the five stale `expected.json` values (§3 rows 1–5) |
 | W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
 | W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
+| W-12 S1 | Named immutable model states in the desktop (store v12, Save/Open State, History panel with labels); one unsaved-changes guard for Open Project, New, Open Model Document and Open State | #1589 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
 
 **In flight** (not on main):
@@ -538,7 +542,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
-| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..010) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
+| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..004, -006) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | §17.2 needs a scope ruling | §17.2 only |

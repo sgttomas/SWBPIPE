@@ -257,6 +257,8 @@ describe("project handlers: open clears the previous project's operation diagnos
       command === "open_local_project" ? Promise.resolve(envelope) : Promise.reject(new Error(`Unexpected command ${command}`)),
     );
     act(() => nativeMenuCommand("file.open-local"));
+    // The applied edit is unsaved: the open asks first (W-12 unsaved-changes guard); Discard is the open this case exercises.
+    fireEvent.click(screen.getByTestId("unsaved-changes-discard"));
     await waitFor(() => expect(projectMessage()).toHaveTextContent(envelope.summary.message));
 
     expect(within(screen.getByTestId("issues-home")).queryByLabelText("Operation diagnostics")).not.toBeInTheDocument();

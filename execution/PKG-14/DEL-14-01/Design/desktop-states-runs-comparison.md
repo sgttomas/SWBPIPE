@@ -60,7 +60,8 @@ review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 document (the W-6a bytes) plus its sha256, which is the session's model hash.
 
 **Store (migration v12).** Every statement uses `IF NOT EXISTS`, including the
-triggers and the index.
+triggers and the index. v12 holds the state tables only; the run tables of §3
+are v13, added with recorded runs (W-12 S2).
 
 ```sql
 CREATE TABLE IF NOT EXISTS model_states(
@@ -143,6 +144,95 @@ Python agree.
   project's states and runs. The confirmation prompt states how many saved
   states and recorded runs will remain attached to that project id.
 
+**As built (S1, states).** `apps/desktop/src-tauri/src/model_states.rs`,
+`apps/desktop/src/services/modelStateService.ts` and `apps/desktop/src/features/history/`.
+- **Versions.** `STORE_SCHEMA_TARGET_VERSION` is 12. A store whose
+  `user_version` is above the target was written by a newer build. It is
+  refused (`STORE-SCHEMA-NEWER`) before any pragma or migration writes;
+  before S1 it was opened as current.
+- **Admission.** A state save applies the one-current-version check alone
+  (`check_model_document_version`, the version part of
+  `check_model_document_for_persist`). A state may therefore hold a model with
+  blocking slot findings: its record says `MODEL_INCOMPLETE`, and it is kept
+  as a comparison basis. The record mapping still refuses, by name, any slot
+  it cannot map. Project create and save keep #1565's blocking-slot refusal,
+  and opening a state keeps it too, so an incomplete state is never opened.
+- **Hash forms.** The `model_hash` column holds the session's form
+  (`sha256:<hex>`). The record's `hashes` values are bare hex, as the Python
+  service writes them. `record_json` stores the record without the label
+  fields; `record_hash` is over that record without `hashes`.
+- **Integrity.** Every list, summary and read verifies the record against its
+  hash and its `hashes`. It then checks each identity field the record
+  duplicates against the row's columns: project, state id, kind,
+  `created_at`, parent ref and model hash. The record digest leaves `hashes`
+  out, so the whole `hashes` array must equal the two expected descriptors
+  (algorithm, canonicalization, scope, payload ref and value). A duplicate,
+  extra or missing entry is refused. A read also checks the snapshot:
+  its JCS hash and its project id. Any difference is refused as
+  `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
+  refused.
+- **Serializer.** Keys sort by code point, and i64/u64 integers are written
+  in decimal. No field of `model_state.schema.json` has a number type, so the
+  record hash fails closed on any other number (a float, or an integer outside
+  i64/u64), with `MODEL-STATE-RECORD-NUMBER-UNSUPPORTED`. It does not
+  approximate Python's `repr(float)`, whose tie-breaking Rust's shortest-digit
+  formatter does not share (Codex r1).
+- **Parity checks.** `tools/fixtures/sorted_compact_json_vectors.py` writes
+  `fixtures/persistence/sorted_compact_json_vectors.json` from `service.py`:
+  the vectors and the refused numbers. A witness of a populated record and
+  of an empty-label record is written by the save and read path
+  (`model_state_record_witness.json`). The Rust tests and
+  `tests/test_model_state_record_parity.py` check both files.
+- **Immutability in SQL.**
+  - `model_states_immutable` refuses every `UPDATE`.
+  - `model_states_no_replace` (v12, `BEFORE INSERT`) refuses an insert that
+    meets an existing row of the project on `state_id` or `model_hash`. It
+    fires before conflict resolution, so `INSERT OR REPLACE` and `REPLACE`
+    can neither overwrite a snapshot nor cascade-delete its labels.
+  - **Deleted identity.** A state id is a 128-bit random token and is never
+    reused. Re-saving a deleted state's model creates a new state, which
+    UNIQUE allows after the delete.
+  - **Concurrent saves.** Two windows saving one model at once give one
+    `saved` and one `already_saved`.
+- **Labels.** The state-level assumptions use the model's
+  `unresolved_assumptions` vocabulary. An empty `affected_refs` names the state
+  (`{ModelState, <state id>}`). An id may not repeat a model assumption id.
+  Notes become `StateNote`s `<state id>:note:<n>`, `visibility: private`.
+  Every provenance in the record is `review_status: pending`.
+- **Commands.** `save_model_state`, `list_model_states`, `read_model_state`,
+  `edit_model_state_labels` and `delete_model_state`. The save carries the
+  canonical text, the claim and the session's base (`expected_base`). The four
+  small commands take 4 KiB of arguments, 256 KiB for a label edit
+  (`INGRESS-ARGS-TOO-LARGE`). A label edit names the labels' `updated_at` it
+  read (`MODEL-STATE-LABELS-MOVED` otherwise).
+- **Prerequisite project save.** When Save Model State… first runs Save
+  Local Project's flow, the state follows the save that landed. After "Save
+  as a new project" that is the renamed working model, its new project id
+  and base, with no parent state from the old project. Cancel saves neither.
+- **Delete.** Until S2, a state's deletion is blocked only by its child states.
+- **Open State.** The desktop had no unsaved-changes guard. S1 adds one, shared
+  by every command that replaces the working model (DEL-07-11 Design
+  `model-document-open-and-native-smoke.md`): Cancel (the default), Save Local
+  Project first, or Discard. A `MODEL_INCOMPLETE` state is kept as a comparison
+  basis but is not opened; the History panel says why. Opening starts a new project session
+  with empty undo and redo stacks, so undo never reaches the previous model.
+  The state's hash becomes the saved basis, and the state is the parent of the
+  next state saved from that session.
+  - **Binding.** The session becomes the state's project. Its stored base is
+    one the session itself saw for that project, never one read afresh from
+    the store, so another window's save still meets the stale-window check:
+    - the base it holds now, when that is the project's (no save, or the
+      guard's Save first saved in place);
+    - otherwise the base captured before the guard, when that was the
+      project's (Save first went to "Save as a new project");
+    - otherwise none, so a later save asks.
+    The project summary and envelope hash follow the base.
+  - **Library references.** The adopted snapshot's library references are
+    checked as a project open checks them (#1566). The warnings join the
+    message only while the session is still the one that opened the state.
+- **Browser preview.** It keeps no states (SQLite-only history) and refuses
+  every state command (`MODEL-STATE-STORE-UNAVAILABLE`).
+
 ## 3. Runs tied to states (FR-CMP-002; FR-MOD-006 run level)
 
 **Two kinds of run record:**
@@ -198,7 +288,7 @@ accept either form:
 `HistoricalRunContext` accepts real state refs from recorded runs, verified
 against the stored state, and keeps flagging any other mismatch.
 
-**Store (v12 continued):**
+**Store (v13, with recorded runs):**
 
 ```sql
 CREATE TABLE IF NOT EXISTS analysis_runs(

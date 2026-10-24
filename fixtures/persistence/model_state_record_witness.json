@@ -1,0 +1,282 @@
+{
+  "description": "ModelStateRecords emitted by the desktop store's save and read path (apps/desktop/src-tauri/src/model_states.rs, test the_record_witness_is_what_the_save_and_read_path_emits) for invented models: emitted_record is populated; empty_labels_record has a name only and no assumptions, tags, notes or warnings. Regenerate with OPENPIPESTRESS_WRITE_MODEL_STATE_WITNESS=<path> on that test. tests/test_model_state_record_parity.py validates both against schemas/model_state.schema.json and recomputes record_hash from stored_record_json with core/project_persistence/service.py.",
+  "emitted_record": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "created_at": "2026-10-27T11:31:40.456Z",
+    "external_references": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "Model",
+          "ref": "project:w12-invented-states"
+        },
+        "payload_scope": "model_payload",
+        "value": "f9a30d10dc82d5818187d2d4db025b7ee1b2087ffe499dd1381b7f8428f37767"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "SORTED_COMPACT_JSON",
+        "payload_ref": {
+          "object_type": "ModelState",
+          "ref": "state:fedcba9876543210fedcba9876543210"
+        },
+        "payload_scope": "model_state_record",
+        "value": "1449d6ec8dbb8ca0e921b1fc98bac5f229460afba06bd5d1d3eb776031dae157"
+      }
+    ],
+    "immutability_policy": {
+      "hash_invalidates_external_acceptance": true,
+      "mutation_policy": "changes_create_new_model_state",
+      "new_state_required_for_change": true,
+      "snapshot_is_read_only": true
+    },
+    "model_ref": {
+      "object_type": "Project",
+      "ref": "project:w12-invented-states"
+    },
+    "notes": [
+      {
+        "note_id": "state:fedcba9876543210fedcba9876543210:note:1",
+        "note_type": "design_note",
+        "provenance": {
+          "contributor": "local user",
+          "contributor_certification": "user-entered-no-professional-claim",
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "user-owned local project data",
+          "source_location": "model state state:fedcba9876543210fedcba9876543210 labels",
+          "source_name": "SWBPIPE model state labels"
+        },
+        "statement": "Basis for the Δp review – invented.",
+        "visibility": "private"
+      }
+    ],
+    "parent_state_refs": [
+      {
+        "object_type": "ModelState",
+        "ref": "state:0123456789abcdef0123456789abcdef"
+      }
+    ],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "SWBPIPE desktop (software-recorded state)",
+      "contributor_certification": "software-recorded-no-professional-claim",
+      "privacy_classification": "private_project_data",
+      "redistribution_status": "private_only",
+      "review_status": "pending",
+      "source_license": "user-owned local project data",
+      "source_location": "apps/desktop/src-tauri/src/model_states.rs",
+      "source_name": "SWBPIPE desktop model state store"
+    },
+    "state_id": "state:fedcba9876543210fedcba9876543210",
+    "state_kind": "comparison_basis",
+    "state_name": "Rev B · für Prüfung",
+    "tags": [
+      {
+        "provenance": {
+          "contributor": "local user",
+          "contributor_certification": "user-entered-no-professional-claim",
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "user-owned local project data",
+          "source_location": "model state state:fedcba9876543210fedcba9876543210 labels",
+          "source_name": "SWBPIPE model state labels"
+        },
+        "tag": "tie-in",
+        "tag_kind": "user_label"
+      },
+      {
+        "provenance": {
+          "contributor": "local user",
+          "contributor_certification": "user-entered-no-professional-claim",
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "user-owned local project data",
+          "source_location": "model state state:fedcba9876543210fedcba9876543210 labels",
+          "source_name": "SWBPIPE model state labels"
+        },
+        "tag": "révision-B",
+        "tag_kind": "user_label"
+      }
+    ],
+    "unresolved_assumptions": [
+      {
+        "affected_refs": [
+          {
+            "object_type": "Model",
+            "ref": "project:w12-invented-states#support:S-404"
+          }
+        ],
+        "assumption_id": "assumption:A-001",
+        "provenance": {
+          "contributor": "local user",
+          "contributor_certification": "user-entered-no-professional-claim",
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "user-owned local project data",
+          "source_location": "model document unresolved_assumptions/assumption:A-001",
+          "source_name": "SWBPIPE model document unresolved_assumptions"
+        },
+        "statement": "Nozzle N-100 treated as an anchor pending vendor loads.",
+        "status": "unresolved"
+      },
+      {
+        "affected_refs": [
+          {
+            "object_type": "Project",
+            "ref": "project:w12-invented-states"
+          }
+        ],
+        "assumption_id": "assumption:OI-002",
+        "provenance": {
+          "contributor": "local user",
+          "contributor_certification": "user-entered-no-professional-claim",
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "user-owned local project data",
+          "source_location": "model document unresolved_assumptions/assumption:OI-002",
+          "source_name": "SWBPIPE model document unresolved_assumptions"
+        },
+        "resolution_note": "Confirmed: 120 kg/m³ (invented).",
+        "statement": "Open issue: Insulation density – confirm with the owner.",
+        "status": "resolved"
+      },
+      {
+        "affected_refs": [
+          {
+            "object_type": "Model",
+            "ref": "project:w12-invented-states#node:N-100"
+          }
+        ],
+        "assumption_id": "assumption:S-1",
+        "provenance": {
+          "contributor": "local user",
+          "contributor_certification": "user-entered-no-professional-claim",
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "user-owned local project data",
+          "source_location": "model state state:fedcba9876543210fedcba9876543210 labels",
+          "source_name": "SWBPIPE model state labels"
+        },
+        "statement": "Open issue: Vendor drawing pending.",
+        "status": "unresolved"
+      }
+    ],
+    "warnings": [
+      {
+        "affected_object": {
+          "label": "unresolved_assumptions[0].affected_refs[0]",
+          "object_type": "Model",
+          "ref": "project:w12-invented-states#assumption:A-001"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "MODEL-ASSUMPTION-SUBJECT-MISSING",
+        "message": "unresolved_assumptions[0].affected_refs[0] names entity `support:S-404`, which this document does not have; the record is kept as authored.",
+        "provenance": {
+          "contributor": "SWBPIPE desktop (software-recorded state)",
+          "contributor_certification": "software-recorded-no-professional-claim",
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "user-owned local project data",
+          "source_location": "apps/desktop/src-tauri/src/model_states.rs",
+          "source_name": "SWBPIPE desktop model state store"
+        },
+        "remediation": "Update or resolve the record so that it names entities the model still has.",
+        "severity": "warning",
+        "source": {
+          "label": "model document validator",
+          "object_type": "Model",
+          "ref": "project:w12-invented-states"
+        }
+      }
+    ]
+  },
+  "empty_labels_record": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "created_at": "2026-10-27T11:33:20.789Z",
+    "external_references": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "Model",
+          "ref": "project:w12-invented-states"
+        },
+        "payload_scope": "model_payload",
+        "value": "ea6e9768c289e5eb33747d7a641f6e9b35015f87a8b8d594d6bd0bbe33f206f5"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "SORTED_COMPACT_JSON",
+        "payload_ref": {
+          "object_type": "ModelState",
+          "ref": "state:00112233445566778899aabbccddeeff"
+        },
+        "payload_scope": "model_state_record",
+        "value": "1b98069d00980a950b8de2e1b2aabf041eb09cb6852c9112699a9d2565fdcaa7"
+      }
+    ],
+    "immutability_policy": {
+      "hash_invalidates_external_acceptance": true,
+      "mutation_policy": "changes_create_new_model_state",
+      "new_state_required_for_change": true,
+      "snapshot_is_read_only": true
+    },
+    "model_ref": {
+      "object_type": "Project",
+      "ref": "project:w12-invented-states"
+    },
+    "notes": [],
+    "parent_state_refs": [],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "SWBPIPE desktop (software-recorded state)",
+      "contributor_certification": "software-recorded-no-professional-claim",
+      "privacy_classification": "private_project_data",
+      "redistribution_status": "private_only",
+      "review_status": "pending",
+      "source_license": "user-owned local project data",
+      "source_location": "apps/desktop/src-tauri/src/model_states.rs",
+      "source_name": "SWBPIPE desktop model state store"
+    },
+    "state_id": "state:00112233445566778899aabbccddeeff",
+    "state_kind": "design_snapshot",
+    "state_name": "Bare",
+    "tags": [],
+    "unresolved_assumptions": [],
+    "warnings": []
+  },
+  "label_assumption_ids": [
+    "assumption:S-1"
+  ],
+  "record_hash": "1449d6ec8dbb8ca0e921b1fc98bac5f229460afba06bd5d1d3eb776031dae157",
+  "stored_record_json": "{\"analysis_status\":[\"HUMAN_REVIEW_REQUIRED\"],\"created_at\":\"2026-10-27T11:31:40.456Z\",\"external_references\":[],\"hashes\":[{\"algorithm\":\"sha256\",\"canonicalization\":\"JCS\",\"payload_ref\":{\"object_type\":\"Model\",\"ref\":\"project:w12-invented-states\"},\"payload_scope\":\"model_payload\",\"value\":\"f9a30d10dc82d5818187d2d4db025b7ee1b2087ffe499dd1381b7f8428f37767\"},{\"algorithm\":\"sha256\",\"canonicalization\":\"SORTED_COMPACT_JSON\",\"payload_ref\":{\"object_type\":\"ModelState\",\"ref\":\"state:fedcba9876543210fedcba9876543210\"},\"payload_scope\":\"model_state_record\",\"value\":\"1449d6ec8dbb8ca0e921b1fc98bac5f229460afba06bd5d1d3eb776031dae157\"}],\"immutability_policy\":{\"hash_invalidates_external_acceptance\":true,\"mutation_policy\":\"changes_create_new_model_state\",\"new_state_required_for_change\":true,\"snapshot_is_read_only\":true},\"model_ref\":{\"object_type\":\"Project\",\"ref\":\"project:w12-invented-states\"},\"parent_state_refs\":[{\"object_type\":\"ModelState\",\"ref\":\"state:0123456789abcdef0123456789abcdef\"}],\"professional_boundary\":{\"human_review_required\":true,\"software_makes_approval_claim\":false,\"software_makes_authentication_claim\":false,\"software_makes_certification_claim\":false,\"software_makes_compliance_claim\":false,\"software_makes_sealing_claim\":false},\"provenance\":{\"contributor\":\"SWBPIPE desktop (software-recorded state)\",\"contributor_certification\":\"software-recorded-no-professional-claim\",\"privacy_classification\":\"private_project_data\",\"redistribution_status\":\"private_only\",\"review_status\":\"pending\",\"source_license\":\"user-owned local project data\",\"source_location\":\"apps/desktop/src-tauri/src/model_states.rs\",\"source_name\":\"SWBPIPE desktop model state store\"},\"state_id\":\"state:fedcba9876543210fedcba9876543210\",\"state_kind\":\"comparison_basis\",\"unresolved_assumptions\":[{\"affected_refs\":[{\"object_type\":\"Model\",\"ref\":\"project:w12-invented-states#support:S-404\"}],\"assumption_id\":\"assumption:A-001\",\"provenance\":{\"contributor\":\"local user\",\"contributor_certification\":\"user-entered-no-professional-claim\",\"privacy_classification\":\"private_project_data\",\"redistribution_status\":\"private_only\",\"review_status\":\"pending\",\"source_license\":\"user-owned local project data\",\"source_location\":\"model document unresolved_assumptions/assumption:A-001\",\"source_name\":\"SWBPIPE model document unresolved_assumptions\"},\"statement\":\"Nozzle N-100 treated as an anchor pending vendor loads.\",\"status\":\"unresolved\"},{\"affected_refs\":[{\"object_type\":\"Project\",\"ref\":\"project:w12-invented-states\"}],\"assumption_id\":\"assumption:OI-002\",\"provenance\":{\"contributor\":\"local user\",\"contributor_certification\":\"user-entered-no-professional-claim\",\"privacy_classification\":\"private_project_data\",\"redistribution_status\":\"private_only\",\"review_status\":\"pending\",\"source_license\":\"user-owned local project data\",\"source_location\":\"model document unresolved_assumptions/assumption:OI-002\",\"source_name\":\"SWBPIPE model document unresolved_assumptions\"},\"resolution_note\":\"Confirmed: 120 kg/m³ (invented).\",\"statement\":\"Open issue: Insulation density – confirm with the owner.\",\"status\":\"resolved\"}],\"warnings\":[{\"affected_object\":{\"label\":\"unresolved_assumptions[0].affected_refs[0]\",\"object_type\":\"Model\",\"ref\":\"project:w12-invented-states#assumption:A-001\"},\"class\":\"ASSUMPTION_WARNING\",\"code\":\"MODEL-ASSUMPTION-SUBJECT-MISSING\",\"message\":\"unresolved_assumptions[0].affected_refs[0] names entity `support:S-404`, which this document does not have; the record is kept as authored.\",\"provenance\":{\"contributor\":\"SWBPIPE desktop (software-recorded state)\",\"contributor_certification\":\"software-recorded-no-professional-claim\",\"privacy_classification\":\"private_project_data\",\"redistribution_status\":\"private_only\",\"review_status\":\"pending\",\"source_license\":\"user-owned local project data\",\"source_location\":\"apps/desktop/src-tauri/src/model_states.rs\",\"source_name\":\"SWBPIPE desktop model state store\"},\"remediation\":\"Update or resolve the record so that it names entities the model still has.\",\"severity\":\"warning\",\"source\":{\"label\":\"model document validator\",\"object_type\":\"Model\",\"ref\":\"project:w12-invented-states\"}}]}"
+}

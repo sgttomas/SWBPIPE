@@ -92,6 +92,8 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
+import { HistoryPanel } from "./features/history/HistoryPanel";
+import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
@@ -270,6 +272,7 @@ function AppSession() {
     replaceProjectPrompt,
     modelDocumentSaveRequest
   } = session.project;
+  const { unsavedChangesPrompt } = session.project;
   const {
     uiPreferences, setUiPreferences,
     resolvedTheme,
@@ -337,8 +340,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
-      // The replace prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || modelDocumentSaveRequest !== null}
+      // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1001,6 +1004,7 @@ function AppSession() {
                 modelHashIntegrity={modelHashIntegrity}
                 projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
               />
+              <HistoryPanel />
               <ProjectValidationPanel
                 model={model}
                 storageCapability={storageCapability}
@@ -1105,6 +1109,7 @@ function AppSession() {
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
+      <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
     </main>
