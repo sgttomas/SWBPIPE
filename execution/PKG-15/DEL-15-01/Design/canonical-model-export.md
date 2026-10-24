@@ -117,6 +117,21 @@ on either route. It needs no solve and no result.
   The screening explicitly covers `provenance_record`, `rule_pack_refs[]` and the
   resolved `library_ref` dispositions. It does not rely on the generic payload
   projection, which passes those through unchanged.
+- **Rust repeats the content checks (implementation review, PR #1588).** The
+  evidence alone does not admit a save. The command re-establishes the
+  conditions on the exact text it admits:
+  - the webview shape check, ported to Rust (`model_document_shape.rs`) and
+    kept equal by a shared invented corpus
+    (`fixtures/model_document/desktop_shape_cases.json`);
+  - disposition screening at any depth: every `provenance_record`, every
+    `rule_pack_refs[]` entry, and every `library_ref`, resolved against the
+    local library store with the library import's policy;
+  - a store read error refuses (`MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE`). A
+    library or record the store does not hold saves with a
+    `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
+    screened;
+  - the screening evidence carries the payload's sha256, and Rust refuses
+    `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless it equals the admitted text's.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
   documents folder, never the repository.
 
