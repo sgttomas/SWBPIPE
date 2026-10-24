@@ -206,6 +206,7 @@ needs:
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx
+- apps/desktop/src/App.resultPaging.test.tsx
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/features/results/ResultsPanel.tsx
 - apps/desktop/src/features/results/resultInterpretation.ts
@@ -243,6 +244,7 @@ code_paths:
 - apps/desktop/e2e/result-overlays/
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
+- apps/desktop/src/App.resultPaging.test.tsx
 - apps/desktop/src/features/results/loadReferenceDisclosure.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
