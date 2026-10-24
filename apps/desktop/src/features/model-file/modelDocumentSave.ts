@@ -16,14 +16,19 @@
 //
 // Disposition screening: the route projection passes `provenance_record`,
 // `rule_pack_refs[]` and library dispositions through as opaque leaves, so they
-// are screened explicitly here with the screener's own classifier
-// (`classifyExportItem`). `protected_suspected`, `quarantined` and `rejected`
-// refuse the save with the screener's code, naming the records; every other
-// disposition, `private_only` and `unknown` included, saves.
+// are screened explicitly here: every `provenance_record` at any depth, every
+// `rule_pack_refs[]` entry and every `library_ref` resolved against the local
+// store, with the library import's policy (own field, else provenance;
+// `protected_suspected`, `quarantined` and `rejected` in either field) and the
+// screener's own classifier (`classifyExportItem`). A blocked disposition
+// refuses with the screener's code, naming the record; `private_only` and
+// `unknown` save. A store read error refuses; a library the store does not
+// hold is a `MODEL-LIBRARY-REF-UNRESOLVED` warning. The native save repeats
+// all of this on the exact bytes it admits and never trusts this evidence.
 //
 // Nothing here transmits anything or records telemetry (F-PIP-1). A save never
 // changes the session's model, hash or solve standing.
-import { canonicalJsonString } from "../../services/hashService";
+import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
 import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
@@ -56,6 +61,8 @@ export type { ModelFileDiagnostic };
 /** A stored library's disposition for one `provenance_record.library_ref`
  * (`record_id: null` is the library's own provenance). */
 export type ResolvedLibraryDisposition = {
+  /** The `library_ref`'s path in the document. */
+  path?: string;
   library_kind: string;
   library_id: string;
   record_id: string | null;
@@ -72,6 +79,8 @@ export type ModelDocumentSaveScreening = {
   lossless_required: boolean;
   exact_payload_match: boolean;
   blocking_count: number;
+  /** `sha256:<hex>` of the canonical text screened; the native save refuses other bytes. */
+  payload_sha256: string;
 };
 
 /** The native command's arguments (`save_model_document_file`). */
@@ -83,12 +92,12 @@ export type ModelDocumentSaveArgs = {
 };
 
 export type ModelDocumentSavePreparation =
-  | { status: "ready"; args: ModelDocumentSaveArgs; decisions: RedactionDecision[] }
+  | { status: "ready"; args: ModelDocumentSaveArgs; decisions: RedactionDecision[]; warnings: ModelFileDiagnostic[] }
   | { status: "refused"; diagnostics: ModelFileDiagnostic[] };
 
 export type ModelDocumentSaveOutcome =
   | { outcome: "cancelled" }
-  | { outcome: "saved"; file_name: string; byte_count: number; model_hash: string; replaced_existing: boolean; durability: string }
+  | { outcome: "saved"; file_name: string; byte_count: number; model_hash: string; replaced_existing: boolean; durability: string; warnings: ModelFileDiagnostic[] }
   | { outcome: "refused"; diagnostics: ModelFileDiagnostic[] };
 
 type PlainObject = Record<string, unknown>;
@@ -113,8 +122,27 @@ function recordName(owner: PlainObject, path: string): string {
   return text(owner.id) ?? path;
 }
 
-/** Every disposition the save screens: each `provenance_record` (at any depth),
- * each `rule_pack_refs[]` entry and each resolved library disposition. */
+/** The library import's status resolution
+ * (`library_import_document/src/lib.rs:297-372`): the item's own field wins
+ * when it is a non-empty string, otherwise its `provenance`'s. */
+function ownOrProvenance(item: unknown, key: "redistribution_status" | "review_status"): string | null {
+  if (!isPlainObject(item)) return null;
+  return text(item[key]) ?? (isPlainObject(item.provenance) ? text(item.provenance[key]) : null);
+}
+
+/** The dispositions the library import quarantines (`protected_suspected`,
+ * `quarantined`) or rejects (`rejected`, in either field). */
+function importPolicyBlocks(redistribution: string | null, review: string | null): string[] {
+  const found: string[] = [];
+  if (redistribution === "protected_suspected" || redistribution === "rejected") found.push(`redistribution_status ${redistribution}`);
+  if (review === "quarantined" || review === "rejected") found.push(`review_status ${review}`);
+  return found;
+}
+
+/** Every disposition the save screens: each `provenance_record` at any depth
+ * (including inside another), each `rule_pack_refs[]` entry and each resolved
+ * library disposition. The native save screens the same set
+ * (`src-tauri/src/model_document_save.rs`). */
 export function modelDocumentDispositionItems(
   model: unknown,
   resolvedLibraries: ReadonlyArray<ResolvedLibraryDisposition> = []
@@ -129,41 +157,48 @@ export function modelDocumentDispositionItems(
     for (const [key, child] of Object.entries(value)) {
       const at = path ? `${path}.${key}` : key;
       if (key === "provenance_record" && isPlainObject(child)) {
+        const record = recordName(value, path || "$");
         items.push({
           path: at,
-          record: recordName(value, path || "$"),
+          record,
           item: {
             field_class: "provenance_record",
-            record_id: recordName(value, path || "$"),
+            record_id: record,
             privacy_classification: MODEL_DOCUMENT_PRIVACY_CLASS,
-            redistribution_status: child.redistribution_status,
-            review_status: child.review_status
+            redistribution_status: ownOrProvenance(child, "redistribution_status") ?? undefined,
+            review_status: ownOrProvenance(child, "review_status") ?? undefined
           }
         });
-      } else {
-        walk(child, at);
+      } else if (key === "rule_pack_refs" && Array.isArray(child)) {
+        child.forEach((ref, index) => {
+          if (!isPlainObject(ref)) return;
+          const refAt = `${at}[${index}]`;
+          const record = text(ref.rule_pack_id) ?? refAt;
+          items.push({
+            path: refAt,
+            record,
+            item: {
+              field_class: "rule_pack_ref",
+              record_id: record,
+              privacy_classification: MODEL_DOCUMENT_PRIVACY_CLASS,
+              redistribution_status: ownOrProvenance(ref, "redistribution_status") ?? undefined,
+              review_status: ownOrProvenance(ref, "review_status") ?? undefined
+            }
+          });
+        });
       }
+      // The walk continues below every screened record.
+      walk(child, at);
     }
   };
   walk(model, "");
-  const refs = isPlainObject(model) && Array.isArray(model.rule_pack_refs) ? model.rule_pack_refs : [];
-  refs.forEach((ref, index) => {
-    if (!isPlainObject(ref)) return;
-    const path = `rule_pack_refs[${index}]`;
-    const record = text(ref.rule_pack_id) ?? path;
-    items.push({
-      path,
-      record,
-      item: { field_class: "rule_pack_ref", record_id: record, privacy_classification: MODEL_DOCUMENT_PRIVACY_CLASS, redistribution_status: ref.redistribution_status }
-    });
-  });
   resolvedLibraries.forEach((library) => {
     const record = `${library.library_kind}:${library.library_id}${library.record_id ? `#${library.record_id}` : ""}`;
     items.push({
-      path: `library_ref(${record})`,
+      path: library.path ?? `library_ref(${record})`,
       record,
       item: {
-        field_class: "library_ref",
+        field_class: library.record_id ? "stored library record" : "stored library",
         record_id: record,
         privacy_classification: MODEL_DOCUMENT_PRIVACY_CLASS,
         redistribution_status: library.redistribution_status ?? undefined,
@@ -176,13 +211,16 @@ export function modelDocumentDispositionItems(
 
 export type DispositionScreening = { decisions: RedactionDecision[]; blocking: ModelFileDiagnostic[] };
 
-/** The screener's decision for every disposition; the blocking ones as named diagnostics. */
+/** The library import's policy, then the screener's decision, for every
+ * disposition; the blocking ones as named diagnostics with the screener's code. */
 export function screenModelDocumentDispositions(
   model: unknown,
   options: { explicitLocalPrivateIntent: boolean; resolvedLibraries?: ReadonlyArray<ResolvedLibraryDisposition> }
 ): DispositionScreening {
   const decisions: RedactionDecision[] = [];
   const blocking: ModelFileDiagnostic[] = [];
+  const named = (record: string, item: PlainObject, shown: string) =>
+    `${record} (${String(item.field_class)}${shown ? `: ${shown}` : ""}) blocks the save; request human review of the record's disposition first.`;
   for (const { path, record, item } of modelDocumentDispositionItems(model, options.resolvedLibraries)) {
     const decision = classifyExportItem(item, {
       exportContext: "local_private",
@@ -190,16 +228,17 @@ export function screenModelDocumentDispositions(
       path
     });
     decisions.push(decision);
+    const policy = importPolicyBlocks(text(item.redistribution_status), text(item.review_status));
+    if (policy.length > 0) {
+      blocking.push({ code: "PROTECTED_CONTENT_BLOCKED", path, message: named(record, item, policy.join(", ")) });
+      continue;
+    }
     if (decision.action !== "block_export") continue;
     const shown = [
       decision.redistribution_status !== "unknown" ? `redistribution_status ${decision.redistribution_status}` : null,
       decision.review_status !== "unknown" ? `review_status ${decision.review_status}` : null
     ].filter(Boolean).join(", ");
-    blocking.push({
-      code: decision.reason_code,
-      path,
-      message: `${record} (${String(item.field_class)}${shown ? `: ${shown}` : ""}) blocks the save; request human review of the record's disposition first.`
-    });
+    blocking.push({ code: decision.reason_code, path, message: named(record, item, shown) });
   }
   return { decisions, blocking };
 }
@@ -212,82 +251,109 @@ const LIBRARY_RECORD_ID_KEY: Record<LibraryKind, string> = {
   hanger: "hanger_id"
 };
 
-/** The distinct `provenance_record.library_ref`s of a model. */
-export function modelLibraryRefs(model: unknown): Array<{ library_kind: LibraryKind; library_id: string; record_id: string | null }> {
-  const found = new Map<string, { library_kind: LibraryKind; library_id: string; record_id: string | null }>();
-  const walk = (value: unknown) => {
-    if (Array.isArray(value)) { value.forEach(walk); return; }
+export type ModelLibraryRef = { path: string; library_kind: LibraryKind; library_id: string; record_id: string | null };
+
+/** Every `library_ref` of a model, at any depth, with its path. */
+export function modelLibraryRefs(model: unknown): ModelLibraryRef[] {
+  const found: ModelLibraryRef[] = [];
+  const walk = (value: unknown, path: string) => {
+    if (Array.isArray(value)) { value.forEach((entry, index) => walk(entry, `${path}[${index}]`)); return; }
     if (!isPlainObject(value)) return;
     for (const [key, child] of Object.entries(value)) {
-      if (key === "provenance_record" && isPlainObject(child) && isPlainObject(child.library_ref)) {
-        const ref = child.library_ref;
-        const kind = text(ref.library_kind);
-        const id = text(ref.library_id);
+      const at = path ? `${path}.${key}` : key;
+      if (key === "library_ref" && isPlainObject(child)) {
+        const kind = text(child.library_kind);
+        const id = text(child.library_id);
         if (kind && LIBRARY_KINDS.has(kind) && id) {
-          const recordId = text(ref.record_id);
-          found.set(JSON.stringify([kind, id, recordId]), { library_kind: kind as LibraryKind, library_id: id, record_id: recordId });
+          found.push({ path: at, library_kind: kind as LibraryKind, library_id: id, record_id: text(child.record_id) });
         }
-      } else {
-        walk(child);
       }
+      walk(child, at);
     }
   };
-  walk(model);
-  return [...found.values()];
+  walk(model, "");
+  return found;
 }
 
-function disposition(item: unknown, key: "redistribution_status" | "review_status"): string | null {
-  if (!isPlainObject(item)) return null;
-  // The library import's rule: the item's own field wins, else its provenance's.
-  return text(item[key]) ?? (isPlainObject(item.provenance) ? text(item.provenance[key]) : null);
-}
+export const MODEL_DOC_SAVE_LIBRARY_STORE_UNAVAILABLE = "MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE";
+export const MODEL_LIBRARY_REF_UNRESOLVED = "MODEL-LIBRARY-REF-UNRESOLVED";
 
-/** Resolves each library reference against the local library store: the
- * library's own disposition and, where the record is found, the record's.
- * A library the store does not hold (or a browser session without the store)
- * resolves to nothing; the model's own `provenance_record` disposition is
- * still screened. */
+/** The library references resolved against the local store. `storeError` is
+ * set when a lookup failed: the save then refuses. A library or record the
+ * store does not hold is no disposition; it is listed in `warnings`. */
+export type LibraryResolution = {
+  dispositions: ResolvedLibraryDisposition[];
+  warnings: ModelFileDiagnostic[];
+  storeError: ModelFileDiagnostic | null;
+};
+
+export const NO_LIBRARY_REFERENCES: LibraryResolution = { dispositions: [], warnings: [], storeError: null };
+
+/** Resolves each library reference against the local library store with the
+ * library import's policy: the library's own disposition and, where the
+ * record is found, the record's (each its own field, else its provenance's).
+ * The model's own `provenance_record` dispositions are screened regardless. */
 export async function resolveLibraryDispositions(
   model: PreviewModel,
   open: (projectId: string, kind: LibraryKind, id: string) => Promise<LibraryOpenRoute> = openLocalLibrary
-): Promise<ResolvedLibraryDisposition[]> {
+): Promise<LibraryResolution> {
   const refs = modelLibraryRefs(model);
-  if (refs.length === 0) return [];
-  const resolved: ResolvedLibraryDisposition[] = [];
-  const libraries = new Map<string, Promise<LibraryOpenRoute | null>>();
+  if (refs.length === 0) return NO_LIBRARY_REFERENCES;
+  const dispositions: ResolvedLibraryDisposition[] = [];
+  const warnings: ModelFileDiagnostic[] = [];
+  const libraries = new Map<string, Promise<{ route: LibraryOpenRoute } | { error: unknown }>>();
+  const screened = new Set<string>();
   for (const ref of refs) {
     const key = JSON.stringify([ref.library_kind, ref.library_id]);
-    if (!libraries.has(key)) libraries.set(key, open(model.project.id, ref.library_kind, ref.library_id).catch(() => null));
-    const route = await libraries.get(key)!;
-    const document = route?.route === "tauri_backend" ? route.envelope?.document : null;
-    if (!isPlainObject(document)) continue;
-    const library = document[`${ref.library_kind}_library`];
-    const libraryProvenance = isPlainObject(library) ? library.provenance : null;
-    const libraryEntry: ResolvedLibraryDisposition = {
-      library_kind: ref.library_kind,
-      library_id: ref.library_id,
-      record_id: null,
-      redistribution_status: disposition({ provenance: libraryProvenance }, "redistribution_status"),
-      review_status: disposition({ provenance: libraryProvenance }, "review_status")
-    };
-    if (!resolved.some((entry) => entry.record_id === null && entry.library_kind === ref.library_kind && entry.library_id === ref.library_id)) {
-      resolved.push(libraryEntry);
+    const named = `${ref.library_kind}:${ref.library_id}`;
+    if (!libraries.has(key)) {
+      libraries.set(key, open(model.project.id, ref.library_kind, ref.library_id).then((route) => ({ route }), (error: unknown) => ({ error })));
     }
-    if (!ref.record_id) continue;
+    const looked = await libraries.get(key)!;
+    if ("error" in looked) {
+      return {
+        dispositions,
+        warnings,
+        storeError: { code: MODEL_DOC_SAVE_LIBRARY_STORE_UNAVAILABLE, path: ref.path, message: `The local library store could not be read to resolve ${named} (${String(looked.error)}); nothing was saved.` }
+      };
+    }
+    const document = looked.route.route === "tauri_backend" ? looked.route.envelope?.document : null;
+    if (!isPlainObject(document)) {
+      warnings.push({ code: MODEL_LIBRARY_REF_UNRESOLVED, path: ref.path, message: `The local library store holds no ${ref.library_kind} library \`${ref.library_id}\`; its disposition is not known here.` });
+      continue;
+    }
+    const library = document[`${ref.library_kind}_library`];
+    if (!screened.has(key) && isPlainObject(library)) {
+      dispositions.push({
+        path: ref.path,
+        library_kind: ref.library_kind,
+        library_id: ref.library_id,
+        record_id: null,
+        redistribution_status: ownOrProvenance(library, "redistribution_status"),
+        review_status: ownOrProvenance(library, "review_status")
+      });
+    }
+    screened.add(key);
+    if (!ref.record_id || screened.has(`${key}#${ref.record_id}`)) continue;
+    screened.add(`${key}#${ref.record_id}`);
     const records = document[`${ref.library_kind}_records`];
     const record = Array.isArray(records)
       ? records.find((entry) => isPlainObject(entry) && entry[LIBRARY_RECORD_ID_KEY[ref.library_kind]] === ref.record_id)
       : undefined;
-    if (!record) continue;
-    resolved.push({
+    if (!record) {
+      warnings.push({ code: MODEL_LIBRARY_REF_UNRESOLVED, path: ref.path, message: `The stored ${ref.library_kind} library \`${ref.library_id}\` holds no record \`${ref.record_id}\`; its disposition is not known here.` });
+      continue;
+    }
+    dispositions.push({
+      path: ref.path,
       library_kind: ref.library_kind,
       library_id: ref.library_id,
       record_id: ref.record_id,
-      redistribution_status: disposition(record, "redistribution_status") ?? libraryEntry.redistribution_status,
-      review_status: disposition(record, "review_status") ?? libraryEntry.review_status
+      redistribution_status: ownOrProvenance(record, "redistribution_status"),
+      review_status: ownOrProvenance(record, "review_status")
     });
   }
-  return resolved;
+  return { dispositions, warnings, storeError: null };
 }
 
 // Exact decoded-JSON equality: the route projection changed no fact.
@@ -311,7 +377,7 @@ export async function prepareModelDocumentSave(input: {
   model: PreviewModel;
   modelHash: ModelHashEvidence | null;
   explicitLocalPrivateIntent: boolean;
-  resolvedLibraries?: ReadonlyArray<ResolvedLibraryDisposition>;
+  libraries?: LibraryResolution;
 }): Promise<ModelDocumentSavePreparation> {
   const { model, modelHash } = input;
   if (input.explicitLocalPrivateIntent !== true) {
@@ -328,9 +394,11 @@ export async function prepareModelDocumentSave(input: {
   if (shape.length > 0) return { status: "refused", diagnostics: shape };
   const slots = modelDocumentSlotValidation(model);
   if (slots.blocking.length > 0) return { status: "refused", diagnostics: slots.blocking };
+  const libraries = input.libraries ?? NO_LIBRARY_REFERENCES;
+  if (libraries.storeError) return { status: "refused", diagnostics: [libraries.storeError] };
   const dispositions = screenModelDocumentDispositions(model, {
     explicitLocalPrivateIntent: true,
-    resolvedLibraries: input.resolvedLibraries
+    resolvedLibraries: libraries.dispositions
   });
   if (dispositions.blocking.length > 0) return { status: "refused", diagnostics: dispositions.blocking };
   const controlled = controlRouteExport(model, {
@@ -350,6 +418,8 @@ export async function prepareModelDocumentSave(input: {
     return refused(MODEL_DOC_SAVE_ROUTE_BLOCKED, `The ${MODEL_DOCUMENT_SAVE_ROUTE_ID} route control changed the document (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED).`);
   }
   const canonicalText = await canonicalJsonString(model);
+  // The hash of the very document screened, which is the hash of `canonicalText`.
+  const payloadSha256 = `sha256:${await canonicalSha256Hex(model)}`;
   const byteCount = new TextEncoder().encode(canonicalText).length;
   if (byteCount > MAX_MODEL_DOCUMENT_BYTES) {
     return refused(MODEL_DOC_SAVE_TOO_LARGE, `The model document is ${byteCount} bytes; a model document may be at most ${MAX_MODEL_DOCUMENT_BYTES} bytes, so it would not re-open.`);
@@ -357,6 +427,7 @@ export async function prepareModelDocumentSave(input: {
   return {
     status: "ready",
     decisions: [...dispositions.decisions, ...controlled.decisions],
+    warnings: libraries.warnings,
     args: {
       canonicalText,
       claimedModelHash: modelHash.value,
@@ -368,7 +439,8 @@ export async function prepareModelDocumentSave(input: {
         materialization_withheld: controlled.summary.materialization_withheld,
         lossless_required: true,
         exact_payload_match: exact,
-        blocking_count: controlled.summary.blocking_count
+        blocking_count: controlled.summary.blocking_count,
+        payload_sha256: payloadSha256
       },
       localFirstEvidence: localFirst
     }
@@ -386,14 +458,16 @@ function readOutcome(value: unknown): ModelDocumentSaveOutcome {
       return { outcome: "refused", diagnostics: value.diagnostics };
     }
     if (value.outcome === "saved" && typeof value.file_name === "string" && typeof value.byte_count === "number"
-      && typeof value.model_hash === "string" && typeof value.replaced_existing === "boolean" && typeof value.durability === "string") {
+      && typeof value.model_hash === "string" && typeof value.replaced_existing === "boolean" && typeof value.durability === "string"
+      && Array.isArray(value.warnings) && value.warnings.every(isDiagnostic)) {
       return {
         outcome: "saved",
         file_name: value.file_name,
         byte_count: value.byte_count,
         model_hash: value.model_hash,
         replaced_existing: value.replaced_existing,
-        durability: value.durability
+        durability: value.durability,
+        warnings: value.warnings
       };
     }
   }
@@ -424,7 +498,10 @@ export function modelDocumentSaveMessage(outcome: ModelDocumentSaveOutcome): str
   if (outcome.outcome === "cancelled") return "Save model document cancelled; nothing was written.";
   if (outcome.outcome === "refused") return modelDocumentSaveRefusalMessage(outcome.diagnostics);
   const durability = outcome.durability === "durable" ? "" : " The file was saved, but its directory sync did not complete; its durability is uncertain.";
-  return `Saved model document ${outcome.file_name} (${outcome.byte_count} bytes; model hash ${outcome.model_hash}).${durability}`;
+  const shown = outcome.warnings.slice(0, 4).map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}`);
+  const more = outcome.warnings.length > shown.length ? ` (+${outcome.warnings.length - shown.length} more)` : "";
+  const warnings = shown.length > 0 ? ` Warnings: ${shown.join(" | ")}${more}.` : "";
+  return `Saved model document ${outcome.file_name} (${outcome.byte_count} bytes; model hash ${outcome.model_hash}).${durability}${warnings}`;
 }
 
 /** The status line for a failed save (an invoke error, a memory-pool refusal). */

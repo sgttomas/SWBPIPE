@@ -5,6 +5,7 @@ mod ingress;
 mod memory_pool;
 mod model_document_file;
 mod model_document_save;
+mod model_document_shape;
 mod model_document_version;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
@@ -1819,9 +1820,20 @@ async fn save_model_document_decoded(
     {
         return Outcome::refused(vec![diagnostic]);
     }
-    let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, .. } = request;
+    let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, screening, .. } = request;
+    let store_app = app.clone();
     let admitted = match tauri::async_runtime::spawn_blocking(move || {
-        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash)
+        // The local library store, opened only if the document references a
+        // library, as `open_local_library` opens it. A read error refuses.
+        let mut connection: Option<Connection> = None;
+        let mut lookup = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
+            if connection.is_none() {
+                connection = Some(open_project_store(&app_store_path(&store_app)?)?.0);
+            }
+            let connection = connection.as_ref().expect("opened above");
+            load_library(connection, project_id, library_kind, library_id).map(|row| row.map(|row| row.document))
+        };
+        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
     })
     .await
     {

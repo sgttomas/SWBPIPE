@@ -2296,8 +2296,8 @@ export function useWorkspaceSession() {
     const owner = acquireProjectOperation();
     if (!owner) return;
     try {
-      const resolvedLibraries = await resolveLibraryDispositions(saveModel);
-      const prepared = await prepareModelDocumentSave({ model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent, resolvedLibraries });
+      const libraries = await resolveLibraryDispositions(saveModel);
+      const prepared = await prepareModelDocumentSave({ model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent, libraries });
       if (prepared.status === "refused") {
         setProjectMessage(modelDocumentSaveRefusalMessage(prepared.diagnostics));
         setProjectOperation("save_model_document_refused");

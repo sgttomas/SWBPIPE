@@ -1,4 +1,5 @@
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from "@testing-library/react";
+import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -25,6 +26,8 @@ import {
   prepareModelDocumentSave,
   resolveLibraryDispositions,
   saveModelDocumentFile,
+  type LibraryResolution,
+  type ResolvedLibraryDisposition,
   screenModelDocumentDispositions,
   type ModelDocumentSaveArgs
 } from "./modelDocumentSave";
@@ -95,7 +98,8 @@ describe("Save Model Document…: the bytes", () => {
       materialization_withheld: false,
       lossless_required: true,
       exact_payload_match: true,
-      blocking_count: 0
+      blocking_count: 0,
+      payload_sha256: `sha256:${createHash("sha256").update(preparation.args.canonicalText).digest("hex")}`
     });
     expect(preparation.args.localFirstEvidence).toEqual({
       route_id: "DOTH-MODEL-DOC-007",
@@ -160,9 +164,11 @@ describe("Save Model Document…: disposition screening", () => {
     expect(modelDocumentSaveRefusalMessage(diagnostics)).toContain(`PROTECTED_CONTENT_BLOCKED at ${path}`);
   });
 
+  const resolvedOnly = (dispositions: ResolvedLibraryDisposition[]): LibraryResolution => ({ dispositions, warnings: [], storeError: null });
+
   it("refuses a resolved library disposition that is quarantined, naming the library record", async () => {
     const preparation = await prepared(everySlotModel, {
-      resolvedLibraries: [{ library_kind: "material", library_id: "library:invented-materials", record_id: "steel", redistribution_status: "public_permissive", review_status: "quarantined" }]
+      libraries: resolvedOnly([{ library_kind: "material", library_id: "library:invented-materials", record_id: "steel", redistribution_status: "public_permissive", review_status: "quarantined" }])
     });
     expect(codes(preparation)).toEqual([["PROTECTED_CONTENT_BLOCKED", "library_ref(material:library:invented-materials#steel)"]]);
   });
@@ -173,10 +179,10 @@ describe("Save Model Document…: disposition screening", () => {
     model.sections[0].provenance_record.redistribution_status = "unknown";
     model.rule_pack_refs[0].redistribution_status = "private_only";
     const preparation = await prepared(model, {
-      resolvedLibraries: [
+      libraries: resolvedOnly([
         { library_kind: "material", library_id: "library:invented-materials", record_id: null, redistribution_status: "private_only", review_status: "accepted" },
         { library_kind: "material", library_id: "library:invented-materials", record_id: "steel", redistribution_status: "unknown", review_status: null }
-      ]
+      ])
     });
     expect(preparation.status).toBe("ready");
     const screening = screenModelDocumentDispositions(model, { explicitLocalPrivateIntent: true });
@@ -188,34 +194,74 @@ describe("Save Model Document…: disposition screening", () => {
     expect(screenModelDocumentDispositions(model, { explicitLocalPrivateIntent: false }).blocking.map((item) => item.code)).toContain("LOCAL_PRIVATE_INTENT_REQUIRED");
   });
 
-  it("resolves library references against the local store: the library's and the record's own dispositions", async () => {
-    const opened: unknown[] = [];
-    const open = async (projectId: string, kind: string, id: string): Promise<LibraryOpenRoute> => {
+  function storeOf(document: Record<string, unknown> | null, opened: unknown[] = []) {
+    return async (projectId: string, kind: string, id: string): Promise<LibraryOpenRoute> => {
       opened.push([projectId, kind, id]);
       return {
         route: "tauri_backend",
-        envelope: {
+        envelope: document && {
           project_id: projectId, library_kind: "material", library_id: id, storage_mode: "local", created_at_unix: 0, updated_at_unix: 0,
-          document: {
-            material_library: { library_id: id, provenance: { redistribution_status: "private_only", review_status: "accepted" } },
-            material_records: [{ material_id: "steel", provenance: { review_status: "quarantined" } }]
-          },
-          validation: {} as never,
-          message: ""
+          document, validation: {} as never, message: ""
         }
       } as LibraryOpenRoute;
     };
-    const resolved = await resolveLibraryDispositions(everySlotModel as unknown as PreviewModel, open);
+  }
+  const refPath = "materials[0].provenance_record.library_ref";
+
+  it("resolves library references against the local store with the library import's own-field precedence", async () => {
+    const opened: unknown[] = [];
+    const resolution = await resolveLibraryDispositions(everySlotModel as unknown as PreviewModel, storeOf({
+      material_library: { library_id: "library:invented-materials", provenance: { redistribution_status: "private_only", review_status: "accepted" } },
+      material_records: [{ material_id: "steel", provenance: { review_status: "quarantined" } }]
+    }, opened));
     expect(opened).toEqual([[everySlotModel.project.id, "material", "library:invented-materials"]]);
-    expect(resolved).toEqual([
-      { library_kind: "material", library_id: "library:invented-materials", record_id: null, redistribution_status: "private_only", review_status: "accepted" },
-      { library_kind: "material", library_id: "library:invented-materials", record_id: "steel", redistribution_status: "private_only", review_status: "quarantined" }
-    ]);
-    expect(await resolveLibraryDispositions(demoModel as unknown as PreviewModel, open)).toEqual([]);
-    const unavailable = async () => ({ route: "unavailable_browser" } as unknown as LibraryOpenRoute);
-    expect(await resolveLibraryDispositions(everySlotModel as unknown as PreviewModel, unavailable)).toEqual([]);
-    const failing = async () => { throw new Error("invented store failure"); };
-    expect(await resolveLibraryDispositions(everySlotModel as unknown as PreviewModel, failing)).toEqual([]);
+    expect(resolution).toEqual({
+      dispositions: [
+        { path: refPath, library_kind: "material", library_id: "library:invented-materials", record_id: null, redistribution_status: "private_only", review_status: "accepted" },
+        { path: refPath, library_kind: "material", library_id: "library:invented-materials", record_id: "steel", redistribution_status: null, review_status: "quarantined" }
+      ],
+      warnings: [],
+      storeError: null
+    });
+    expect(codes(await prepared(everySlotModel, { libraries: resolution }))).toEqual([["PROTECTED_CONTENT_BLOCKED", refPath]]);
+    expect(await resolveLibraryDispositions(demoModel as unknown as PreviewModel, storeOf(null))).toEqual({ dispositions: [], warnings: [], storeError: null });
+  });
+
+  // Review repair 1, findings 2-5 (the reviewer's regressions, adapted to the
+  // resolution object; "library missing" follows the coordinator's ruling: it warns, it does not refuse).
+  it("refuses when the library lookup throws (store unavailable)", async () => {
+    const libraries = await resolveLibraryDispositions(everySlotModel as unknown as PreviewModel, async () => { throw new Error("store unavailable"); });
+    expect(codes(await prepared(everySlotModel, { libraries }))).toEqual([["MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE", refPath]]);
+  });
+
+  it("saves with a MODEL-LIBRARY-REF-UNRESOLVED warning when the store holds no such library or record", async () => {
+    for (const document of [null, { material_library: { provenance: { review_status: "accepted" } }, material_records: [] }]) {
+      const libraries = await resolveLibraryDispositions(everySlotModel as unknown as PreviewModel, storeOf(document));
+      const preparation = await prepared(everySlotModel, { libraries });
+      expect(preparation.status).toBe("ready");
+      expect(preparation.status === "ready" && preparation.warnings.map(({ code, path }) => [code, path])).toEqual([["MODEL-LIBRARY-REF-UNRESOLVED", refPath]]);
+    }
+  });
+
+  it("screens a quarantined provenance record nested below another provenance record", async () => {
+    const d = everySlot();
+    d.review_extension = { provenance_record: { source_name: "outer", review_status: "accepted", nested: { provenance_record: { source_name: "inner", review_status: "quarantined" } } } };
+    expect(codes(await prepared(d))).toEqual([["PROTECTED_CONTENT_BLOCKED", "review_extension.provenance_record.nested.provenance_record"]]);
+  });
+
+  it("lets a library's own explicit protected field override its accepted provenance", async () => {
+    const libraries = await resolveLibraryDispositions(everySlotModel as unknown as PreviewModel, storeOf({
+      material_library: { redistribution_status: "protected_suspected", review_status: "quarantined", provenance: { redistribution_status: "private_only", review_status: "accepted" } },
+      material_records: []
+    }));
+    expect(codes(await prepared(everySlotModel, { libraries }))).toEqual([["PROTECTED_CONTENT_BLOCKED", refPath]]);
+  });
+
+  it("blocks a rejected redistribution on a resolved library even when its review is accepted", async () => {
+    const preparation = await prepared(everySlotModel, {
+      libraries: resolvedOnly([{ library_kind: "material", library_id: "library:invented-materials", record_id: "steel", redistribution_status: "rejected", review_status: "accepted" }])
+    });
+    expect(codes(preparation)).toEqual([["PROTECTED_CONTENT_BLOCKED", "library_ref(material:library:invented-materials#steel)"]]);
   });
 });
 
@@ -235,11 +281,12 @@ describe("Save Model Document…: the native adapter", () => {
     const args = await readyArgs();
     setTauriRuntime();
     const answers: unknown[] = [
-      { outcome: "saved", file_name: "invented-demo-loop-01.json", byte_count: args.canonicalText.length, model_hash: args.claimedModelHash, replaced_existing: false, durability: "durable" },
+      { outcome: "saved", file_name: "invented-demo-loop-01.json", byte_count: args.canonicalText.length, model_hash: args.claimedModelHash, replaced_existing: false, durability: "durable", warnings: [] },
       { outcome: "cancelled" },
       { outcome: "refused", diagnostics: [{ code: "MODEL-DOC-SAVE-HASH-MISMATCH", path: "", message: "m" }] },
-      { outcome: "saved", file_name: "x.json", byte_count: 1, model_hash: "sha256:" + "0".repeat(64), replaced_existing: false, durability: "durable" },
-      { outcome: "saved" }
+      { outcome: "saved", file_name: "x.json", byte_count: 1, model_hash: "sha256:" + "0".repeat(64), replaced_existing: false, durability: "durable", warnings: [] },
+      { outcome: "saved" },
+      { outcome: "saved", file_name: "y.json", byte_count: 1, model_hash: args.claimedModelHash, replaced_existing: false, durability: "durable" }
     ];
     invokeMock.mockImplementation(() => Promise.resolve(answers.shift()));
     const saved = await saveModelDocumentFile(args);
@@ -249,11 +296,16 @@ describe("Save Model Document…: the native adapter", () => {
     expect(modelDocumentSaveMessage(await saveModelDocumentFile(args))).toBe("Save model document refused: MODEL-DOC-SAVE-HASH-MISMATCH: m");
     expect(await saveModelDocumentFile(args)).toMatchObject({ outcome: "refused", diagnostics: [{ code: MODEL_DOC_SAVE_RECEIPT_INVALID }] });
     expect(await saveModelDocumentFile(args)).toMatchObject({ outcome: "refused", diagnostics: [{ code: MODEL_DOC_SAVE_RECEIPT_INVALID }] });
+    // A saved outcome without its warnings list is not read as saved.
+    expect(await saveModelDocumentFile(args)).toMatchObject({ outcome: "refused", diagnostics: [{ code: MODEL_DOC_SAVE_RECEIPT_INVALID }] });
   });
 
   it("names uncertain durability", () => {
-    expect(modelDocumentSaveMessage({ outcome: "saved", file_name: "a.json", byte_count: 2, model_hash: "sha256:h", replaced_existing: true, durability: "saved_durability_uncertain" }))
+    expect(modelDocumentSaveMessage({ outcome: "saved", file_name: "a.json", byte_count: 2, model_hash: "sha256:h", replaced_existing: true, durability: "saved_durability_uncertain", warnings: [] }))
       .toContain("durability is uncertain");
+    expect(modelDocumentSaveMessage({ outcome: "saved", file_name: "a.json", byte_count: 2, model_hash: "sha256:h", replaced_existing: false, durability: "durable",
+      warnings: [{ code: "MODEL-LIBRARY-REF-UNRESOLVED", path: "materials[0].provenance_record.library_ref", message: "m" }] }))
+      .toBe("Saved model document a.json (2 bytes; model hash sha256:h). Warnings: MODEL-LIBRARY-REF-UNRESOLVED at materials[0].provenance_record.library_ref.");
   });
 });
 
@@ -299,7 +351,7 @@ describe("File > Save Model Document…", () => {
     const expectedHash = (await hashOf(demoModel)).value;
     invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       if (command === "save_model_document_file") {
-        return Promise.resolve({ outcome: "saved", file_name: "invented-demo-loop-01.json", byte_count: (args!.canonicalText as string).length, model_hash: args!.claimedModelHash, replaced_existing: false, durability: "durable" });
+        return Promise.resolve({ outcome: "saved", file_name: "invented-demo-loop-01.json", byte_count: (args!.canonicalText as string).length, model_hash: args!.claimedModelHash, replaced_existing: false, durability: "durable", warnings: [] });
       }
       if (command === "sync_native_shell_state") return Promise.resolve(null);
       return Promise.reject(new Error(`Unexpected command ${command}`));
@@ -349,7 +401,7 @@ describe("Save Model Document… leaves the session as it was", () => {
     setTauriRuntime();
     invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       if (command === "save_model_document_file") {
-        return Promise.resolve({ outcome: "saved", file_name: "m.json", byte_count: 1, model_hash: args!.claimedModelHash, replaced_existing: false, durability: "durable" });
+        return Promise.resolve({ outcome: "saved", file_name: "m.json", byte_count: 1, model_hash: args!.claimedModelHash, replaced_existing: false, durability: "durable", warnings: [] });
       }
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
@@ -367,5 +419,30 @@ describe("Save Model Document… leaves the session as it was", () => {
     const now = spine(hook.result.current);
     now.forEach((value, index) => expect(value).toBe(was[index]));
     expect(hook.result.current.project.projectBusy).toBe(false);
+  });
+});
+
+// The independent reviewer's serializer witnesses (W-6a review round 1).
+describe("Save Model Document…: serializer witnesses", () => {
+  const probes: Record<string, unknown> = {
+    unicode: "é中😀", escapes: "\n\t\"\\", large: 1e30, small: 1e-30, negativeZero: -0,
+    keyOrder: { "😀": 1, "é": 2, a: 3, "中": 4 }, unsafeInt: 1000000000000000100
+  };
+  it.each(Object.entries(probes))("%s: the canonical text, no trailing newline, its SHA-256 is the claim", async (_label, probe) => {
+    const d = everySlot();
+    d.review_probe = probe;
+    const preparation = await prepared(d);
+    expect(preparation.status).toBe("ready");
+    if (preparation.status !== "ready") return;
+    expect(preparation.args.canonicalText).toBe(await canonicalJsonString(d));
+    expect(preparation.args.canonicalText.endsWith("\n")).toBe(false);
+    expect(`sha256:${createHash("sha256").update(preparation.args.canonicalText).digest("hex")}`).toBe(preparation.args.claimedModelHash);
+    expect(preparation.args.screening.payload_sha256).toBe(preparation.args.claimedModelHash);
+  });
+
+  it("a lone surrogate refuses before any native invoke", async () => {
+    const d = everySlot();
+    d.review_probe = "\ud800";
+    await expect(prepared(d)).rejects.toThrow();
   });
 });

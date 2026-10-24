@@ -15,10 +15,23 @@
 //! - re-parses and re-canonicalizes the text and refuses
 //!   `MODEL-DOC-SAVE-HASH-MISMATCH` unless the result equals the text and its
 //!   SHA-256 equals the claim;
+//! - refuses `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless the screening evidence
+//!   names the SHA-256 of exactly this text;
 //! - applies the open path's document checks (`check_model_document`: kind,
-//!   current version, the W-13 document validator), so every saved file
-//!   re-opens. The webview has applied the desktop shape check
-//!   (`modelDocumentShape.ts`) and the disposition screening.
+//!   current version, the W-13 document validator) and the desktop shape check
+//!   (`model_document_shape`, the port of `modelDocumentShape.ts`), so every
+//!   saved file re-opens;
+//! - screens the dispositions of the exact admitted document itself (review
+//!   repair 1: evidence is never trusted for content): every
+//!   `provenance_record` at any depth, every `rule_pack_refs[]` entry and every
+//!   `library_ref`, resolved against the local library store. The library
+//!   import's policy applies (`library_import_document/src/lib.rs:297-372`:
+//!   an item's own field wins, else its `provenance`'s); `protected_suspected`,
+//!   `quarantined` and `rejected` refuse with the webview screener's code
+//!   `PROTECTED_CONTENT_BLOCKED`, naming the record. A store read error refuses
+//!   (`MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE`); a library or record the
+//!   store does not hold is no disposition: the save proceeds with a
+//!   `MODEL-LIBRARY-REF-UNRESOLVED` warning naming it.
 //!
 //! The file is written by the extension-neutral atomic writer under the
 //! `.json` model-document format. Nothing is sent anywhere (F-PIP-1); the
@@ -28,10 +41,12 @@
 use crate::atomic_report_package_save::{self, AtomicSaveError, MODEL_DOCUMENT_FORMAT};
 use crate::command_ingress::Args;
 use crate::model_document_file::{check_model_document, ModelDocumentOpenOutcome, MAX_MODEL_DOCUMENT_BYTES};
+use crate::model_document_shape::{model_document_shape_diagnostics, MODEL_FILE_SHAPE};
 use crate::solve_jobs::SolveJobError;
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 /// The governed local-first route of this save.
@@ -43,6 +58,11 @@ pub const TOO_LARGE: &str = "MODEL-DOC-SAVE-TOO-LARGE";
 pub const VERSION_NOT_CURRENT: &str = "MODEL-DOC-SAVE-VERSION-NOT-CURRENT";
 pub const PICKER_PATH_INVALID: &str = "MODEL-DOC-SAVE-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "MODEL-DOC-SAVE-WORKER-FAILED";
+pub const EVIDENCE_UNBOUND: &str = "MODEL-DOC-SAVE-EVIDENCE-UNBOUND";
+pub const LIBRARY_STORE_UNAVAILABLE: &str = "MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE";
+/// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
+pub const PROTECTED_CONTENT_BLOCKED: &str = "PROTECTED_CONTENT_BLOCKED";
+pub const LIBRARY_REF_UNRESOLVED: &str = "MODEL-LIBRARY-REF-UNRESOLVED";
 
 /// The webview's screening evidence (the `ControlledExportLink` shape of a
 /// lossless local-private route).
@@ -57,6 +77,9 @@ pub struct ModelDocumentSaveScreening {
     pub lossless_required: bool,
     pub exact_payload_match: bool,
     pub blocking_count: usize,
+    /// `sha256:<hex>` of the canonical text the webview screened; it must be
+    /// the SHA-256 of the text admitted.
+    pub payload_sha256: String,
 }
 
 /// The metadata-only local-first route evidence (`enforceLocalFirstRoute`).
@@ -118,6 +141,8 @@ pub enum ModelDocumentSaveOutcome {
         /// `durable`, or `saved_durability_uncertain` when the directory sync
         /// after the rename did not complete.
         durability: String,
+        /// Non-blocking findings, e.g. `MODEL-LIBRARY-REF-UNRESOLVED`.
+        warnings: Vec<ModelDocumentSaveDiagnostic>,
     },
     Refused {
         diagnostics: Vec<ModelDocumentSaveDiagnostic>,
@@ -177,6 +202,165 @@ pub struct AdmittedModelDocument {
     /// claimed model hash.
     pub text: String,
     pub suggested_file_name: String,
+    pub warnings: Vec<ModelDocumentSaveDiagnostic>,
+}
+
+/// Reads one stored library document: `(project_id, library_kind, library_id)`
+/// to the stored `document_json`, `None` when the store holds no such library,
+/// `Err` when the store cannot be read.
+pub type LibraryLookup<'a> = dyn FnMut(&str, &str, &str) -> Result<Option<Value>, String> + 'a;
+
+const LIBRARY_RECORD_ID_KEYS: [(&str, &str); 4] =
+    [("material", "material_id"), ("section", "section_id"), ("component", "component_id"), ("hanger", "hanger_id")];
+
+/// `truthy_str` of the library import: a non-empty string, else nothing.
+fn truthy_str(value: Option<&Value>) -> Option<&str> {
+    match value {
+        Some(Value::String(text)) if !text.is_empty() => Some(text.as_str()),
+        _ => None,
+    }
+}
+
+/// The library import's status resolution: the item's own field wins when
+/// usable, otherwise its `provenance`'s.
+fn own_or_provenance<'a>(item: &'a Map<String, Value>, key: &str) -> Option<&'a str> {
+    truthy_str(item.get(key)).or_else(|| truthy_str(item.get("provenance").and_then(Value::as_object).and_then(|provenance| provenance.get(key))))
+}
+
+/// The dispositions the library import quarantines (`protected_suspected`,
+/// `quarantined`) or rejects (`rejected`, in either field), as `member value`.
+fn blocking_dispositions(item: &Map<String, Value>) -> Vec<String> {
+    let redistribution = own_or_provenance(item, "redistribution_status");
+    let review = own_or_provenance(item, "review_status");
+    let mut found = Vec::new();
+    if let Some(status @ ("protected_suspected" | "rejected")) = redistribution {
+        found.push(format!("redistribution_status {status}"));
+    }
+    if let Some(status @ ("quarantined" | "rejected")) = review {
+        found.push(format!("review_status {status}"));
+    }
+    found
+}
+
+fn join(path: &str, key: &str) -> String {
+    if path.is_empty() { key.to_string() } else { format!("{path}.{key}") }
+}
+
+#[derive(Default)]
+struct DispositionScreen {
+    blocking: Vec<ModelDocumentSaveDiagnostic>,
+    /// `library_ref`s by `(kind, id)`: each reference's path and record id.
+    library_refs: BTreeMap<(String, String), Vec<(String, Option<String>)>>,
+}
+
+impl DispositionScreen {
+    fn screen(&mut self, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
+        let found = blocking_dispositions(item);
+        if !found.is_empty() {
+            self.blocking.push(diagnostic(
+                PROTECTED_CONTENT_BLOCKED,
+                path,
+                format!("{record} ({what}: {}) blocks the save; request human review of the record's disposition first.", found.join(", ")),
+            ));
+        }
+    }
+
+    /// Every `provenance_record` (at any depth, including inside another),
+    /// every `rule_pack_refs[]` entry and every `library_ref`.
+    fn walk(&mut self, value: &Value, path: &str) {
+        match value {
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    self.walk(item, &format!("{path}[{index}]"));
+                }
+            }
+            Value::Object(object) => {
+                let owner = object.get("id").and_then(Value::as_str).filter(|id| !id.is_empty()).map(str::to_string);
+                for (key, child) in object {
+                    let at = join(path, key);
+                    match (key.as_str(), child) {
+                        ("provenance_record", Value::Object(record)) => {
+                            let name = owner.clone().unwrap_or_else(|| if path.is_empty() { "$".to_string() } else { path.to_string() });
+                            self.screen(record, &at, &name, "provenance_record");
+                        }
+                        ("rule_pack_refs", Value::Array(refs)) => {
+                            for (index, entry) in refs.iter().enumerate() {
+                                if let Some(entry) = entry.as_object() {
+                                    let entry_at = format!("{at}[{index}]");
+                                    let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).unwrap_or(&entry_at).to_string();
+                                    self.screen(entry, &entry_at, &name, "rule_pack_ref");
+                                }
+                            }
+                        }
+                        ("library_ref", Value::Object(reference)) => {
+                            if let (Some(kind), Some(id)) = (truthy_str(reference.get("library_kind")), truthy_str(reference.get("library_id"))) {
+                                let record_id = truthy_str(reference.get("record_id")).map(str::to_string);
+                                self.library_refs.entry((kind.to_string(), id.to_string())).or_default().push((at.clone(), record_id));
+                            }
+                        }
+                        _ => {}
+                    }
+                    self.walk(child, &at);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Native disposition screening of the exact admitted document (review repair 1b/1c).
+pub fn screen_model_document_dispositions(
+    document: &Value,
+    lookup: &mut LibraryLookup<'_>,
+) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
+    let mut screen = DispositionScreen::default();
+    screen.walk(document, "");
+    let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("").trim().to_string();
+    let mut warnings = Vec::new();
+    for ((kind, id), references) in std::mem::take(&mut screen.library_refs) {
+        let named = format!("{kind}:{id}");
+        let stored = match lookup(&project_id, &kind, &id) {
+            Ok(stored) => stored,
+            Err(error) => {
+                return Err(vec![diagnostic(
+                    LIBRARY_STORE_UNAVAILABLE,
+                    &references[0].0,
+                    format!("The local library store could not be read to resolve {named} ({error}); nothing was saved."),
+                )]);
+            }
+        };
+        let Some(stored) = stored else {
+            for (path, _) in &references {
+                warnings.push(diagnostic(LIBRARY_REF_UNRESOLVED, path, format!("The local library store holds no {kind} library `{id}`; its disposition is not known here.")));
+            }
+            continue;
+        };
+        if let Some(library) = stored.get(format!("{kind}_library")).and_then(Value::as_object) {
+            screen.screen(library, &references[0].0, &named, "stored library");
+        }
+        let id_key = LIBRARY_RECORD_ID_KEYS.iter().find(|(name, _)| *name == kind).map(|(_, key)| *key);
+        let records = stored.get(format!("{kind}_records")).and_then(Value::as_array);
+        let mut screened = Vec::new();
+        for (path, record_id) in &references {
+            let Some(record_id) = record_id else { continue };
+            if screened.contains(record_id) {
+                continue;
+            }
+            screened.push(record_id.clone());
+            let record = id_key.and_then(|key| {
+                records?.iter().filter_map(Value::as_object).find(|record| record.get(key).and_then(Value::as_str) == Some(record_id.as_str()))
+            });
+            match record {
+                Some(record) => screen.screen(record, path, &format!("{named}#{record_id}"), "stored library record"),
+                None => warnings.push(diagnostic(
+                    LIBRARY_REF_UNRESOLVED,
+                    path,
+                    format!("The stored {kind} library `{id}` holds no record `{record_id}`; its disposition is not known here."),
+                )),
+            }
+        }
+    }
+    if screen.blocking.is_empty() { Ok(warnings) } else { Err(screen.blocking) }
 }
 
 fn claimed_hex(claimed: &str) -> Option<&str> {
@@ -189,6 +373,8 @@ fn claimed_hex(claimed: &str) -> Option<&str> {
 pub fn admit_model_document_text(
     canonical_text: String,
     claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    lookup: &mut LibraryLookup<'_>,
 ) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
     let byte_count = canonical_text.len() as u64;
     if byte_count > MAX_MODEL_DOCUMENT_BYTES {
@@ -218,9 +404,16 @@ pub fn admit_model_document_text(
             format!("The text's SHA-256 is sha256:{hex}; the session claimed {claimed_model_hash}."),
         )]);
     }
+    if evidence_payload_sha256 != format!("sha256:{hex}") {
+        return Err(vec![diagnostic(
+            EVIDENCE_UNBOUND,
+            "",
+            format!("The screening evidence is for {evidence_payload_sha256}, not for this text (sha256:{hex})."),
+        )]);
+    }
     let suggested_file_name = suggested_model_document_file_name(&document);
-    match check_model_document(String::new(), byte_count, document) {
-        ModelDocumentOpenOutcome::Opened { schema_status, .. } if schema_status == "current" => {}
+    let document = match check_model_document(String::new(), byte_count, document) {
+        ModelDocumentOpenOutcome::Opened { schema_status, document, .. } if schema_status == "current" => document,
         ModelDocumentOpenOutcome::Opened { schema_status, .. } => {
             return Err(vec![diagnostic(
                 VERSION_NOT_CURRENT,
@@ -235,8 +428,14 @@ pub fn admit_model_document_text(
                 .collect());
         }
         ModelDocumentOpenOutcome::Cancelled => unreachable!("the document checks never cancel"),
+    };
+    let shape = model_document_shape_diagnostics(&document);
+    if !shape.is_empty() {
+        return Err(shape.into_iter().map(|item| diagnostic(MODEL_FILE_SHAPE, &item.path, item.message)).collect());
     }
-    Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name })
+    let warnings = screen_model_document_dispositions(&document, lookup)?;
+    drop(document);
+    Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
 }
 
 /// `<project id without "project:">.json`, restricted to `[A-Za-z0-9._-]`;
@@ -281,6 +480,7 @@ pub fn write_admitted_model_document(destination: &Path, admitted: AdmittedModel
             model_hash: format!("sha256:{}", sha256_hex(&admitted.text)),
             replaced_existing: saved.replaced_existing,
             durability: saved.durability,
+            warnings: admitted.warnings,
         },
         Err(error) => ModelDocumentSaveOutcome::refused(vec![writer_diagnostic(error)]),
     }
@@ -305,6 +505,30 @@ mod tests {
 
     fn hash_of(text: &str) -> String {
         format!("sha256:{}", sha256_hex(text))
+    }
+
+    fn no_store(_: &str, _: &str, _: &str) -> Result<Option<Value>, String> {
+        Ok(None)
+    }
+
+    /// Admission with evidence bound to the text and an empty library store.
+    fn admit(text: String, claimed: &str) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
+        let bound = hash_of(&text);
+        admit_model_document_text(text, claimed, &bound, &mut no_store)
+    }
+
+    fn admit_with_store(
+        text: String,
+        stored: Result<Option<Value>, String>,
+    ) -> (Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>>, Vec<(String, String, String)>) {
+        let hash = hash_of(&text);
+        let mut calls = Vec::new();
+        let mut lookup = |project: &str, kind: &str, id: &str| {
+            calls.push((project.to_string(), kind.to_string(), id.to_string()));
+            stored.clone()
+        };
+        let result = admit_model_document_text(text, &hash, &hash, &mut lookup);
+        (result, calls)
     }
 
     fn codes(result: Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>>) -> Vec<(String, String)> {
@@ -334,6 +558,7 @@ mod tests {
             lossless_required: true,
             exact_payload_match: true,
             blocking_count: 0,
+            payload_sha256: hash_of(&canonical_of(DEMO)),
         }
     }
 
@@ -358,7 +583,7 @@ mod tests {
         for (label, source) in [("demo", DEMO), ("every-slot", EVERY_SLOT)] {
             let text = canonical_of(source);
             let claimed = hash_of(&text);
-            let admitted = admit_model_document_text(text.clone(), &claimed).unwrap();
+            let admitted = admit(text.clone(), &claimed).unwrap();
             assert_eq!(hash_of(&admitted.text), claimed);
             let root = sandbox(label);
             let destination = root.join(&admitted.suggested_file_name);
@@ -398,10 +623,10 @@ mod tests {
         let claimed = hash_of(&text);
         let mismatch = || vec![(HASH_MISMATCH.to_string(), String::new())];
         // Another hash, a malformed claim, the hash without its prefix.
-        assert_eq!(codes(admit_model_document_text(text.clone(), &hash_of("{}"))), mismatch());
-        assert_eq!(codes(admit_model_document_text(text.clone(), "sha256:ABC")), mismatch());
-        assert_eq!(codes(admit_model_document_text(text.clone(), claimed.trim_start_matches("sha256:"))), mismatch());
-        assert_eq!(codes(admit_model_document_text(text.clone(), &claimed.to_uppercase())), mismatch());
+        assert_eq!(codes(admit(text.clone(), &hash_of("{}"))), mismatch());
+        assert_eq!(codes(admit(text.clone(), "sha256:ABC")), mismatch());
+        assert_eq!(codes(admit(text.clone(), claimed.trim_start_matches("sha256:"))), mismatch());
+        assert_eq!(codes(admit(text.clone(), &claimed.to_uppercase())), mismatch());
         // Non-canonical text of the same document: pretty-printed, a trailing
         // newline, the fixture as authored. Each is refused even with its own hash.
         let pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(DEMO).unwrap()).unwrap();
@@ -410,10 +635,10 @@ mod tests {
         for variant in [pretty, newline, as_authored] {
             assert_ne!(variant, text);
             let own = hash_of(&variant);
-            assert_eq!(codes(admit_model_document_text(variant, &own)), mismatch());
+            assert_eq!(codes(admit(variant, &own)), mismatch());
         }
-        assert_eq!(codes(admit_model_document_text("{not json".to_string(), &hash_of("{not json"))), mismatch());
-        assert_eq!(codes(admit_model_document_text(text, &claimed)), vec![("admitted".to_string(), String::new())]);
+        assert_eq!(codes(admit("{not json".to_string(), &hash_of("{not json"))), mismatch());
+        assert_eq!(codes(admit(text, &claimed)), vec![("admitted".to_string(), String::new())]);
     }
 
     fn canonical_variant(edit: impl FnOnce(&mut Value)) -> (String, String) {
@@ -430,26 +655,26 @@ mod tests {
     fn version_kind_and_validator_refusals_are_the_open_paths() {
         for (version, code) in [("0.6.0", "MODEL-FILE-SCHEMA-REFUSED"), ("0.8.0", "MODEL-FILE-SCHEMA-REFUSED"), ("x", "MODEL-FILE-SCHEMA-REFUSED")] {
             let (text, hash) = canonical_variant(|document| document["schema_version"] = json!(version));
-            assert_eq!(codes(admit_model_document_text(text, &hash)), vec![(code.to_string(), "schema_version".to_string())], "{version}");
+            assert_eq!(codes(admit(text, &hash)), vec![(code.to_string(), "schema_version".to_string())], "{version}");
         }
         let (text, hash) = canonical_variant(|document| {
             document.as_object_mut().unwrap().remove("schema_version");
         });
-        assert_eq!(codes(admit_model_document_text(text, &hash))[0].0, "MODEL-FILE-SCHEMA-REFUSED");
+        assert_eq!(codes(admit(text, &hash))[0].0, "MODEL-FILE-SCHEMA-REFUSED");
         let (text, hash) = canonical_variant(|document| document["document_kind"] = json!("openpipestress.other"));
-        assert_eq!(codes(admit_model_document_text(text, &hash)), vec![("MODEL-FILE-DOCUMENT-KIND".to_string(), "document_kind".to_string())]);
+        assert_eq!(codes(admit(text, &hash)), vec![("MODEL-FILE-DOCUMENT-KIND".to_string(), "document_kind".to_string())]);
         let (text, hash) = canonical_variant(|document| {
             document["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
             document["unresolved_assumptions"][0]["status"] = json!("resolved");
         });
-        assert_eq!(codes(admit_model_document_text(text, &hash)), vec![
+        assert_eq!(codes(admit(text, &hash)), vec![
             ("MODEL-LINE-PIPE-MISSING".to_string(), "lines[0].pipe_refs[0]".to_string()),
             ("MODEL-ASSUMPTION-RESOLUTION-NOTE-REQUIRED".to_string(), "unresolved_assumptions[0].resolution_note".to_string()),
         ]);
-        // A validator warning (a quarantined provenance disposition) does not
-        // refuse here: the webview's disposition screening refuses it (§2).
+        // A quarantined provenance disposition is only a validator warning;
+        // the native disposition screening refuses it (review repair 1).
         let (text, hash) = canonical_variant(|document| document["materials"][0]["provenance_record"]["review_status"] = json!("quarantined"));
-        assert!(admit_model_document_text(text, &hash).is_ok());
+        assert_eq!(codes(admit(text, &hash)), vec![(PROTECTED_CONTENT_BLOCKED.to_string(), "materials[0].provenance_record".to_string())]);
     }
 
     #[test]
@@ -458,10 +683,110 @@ mod tests {
         // One byte over the cap: refused by size, whatever the text is.
         let over = "x".repeat(limit + 1);
         let claim = hash_of("x");
-        assert_eq!(codes(admit_model_document_text(over, &claim)), vec![(TOO_LARGE.to_string(), String::new())]);
+        assert_eq!(codes(admit(over, &claim)), vec![(TOO_LARGE.to_string(), String::new())]);
         // At the cap the size check passes and the next check (canonical text) speaks.
         let at = "x".repeat(limit);
-        assert_eq!(codes(admit_model_document_text(at, &claim)), vec![(HASH_MISMATCH.to_string(), String::new())]);
+        assert_eq!(codes(admit(at, &claim)), vec![(HASH_MISMATCH.to_string(), String::new())]);
+    }
+
+    /// Review repair 1 (reviewer regression): complete caller-authored "clear"
+    /// evidence does not admit quarantined content; the native screening does.
+    #[test]
+    fn an_unbound_clean_evidence_object_cannot_admit_quarantined_content() {
+        let (text, hash) = canonical_variant(|document| {
+            document["materials"][0]["provenance_record"]["review_status"] = json!("quarantined");
+        });
+        assert!(validate_model_document_save_evidence(&screening(), &local_first()).is_ok());
+        let refused = admit(text, &hash).expect_err("a complete caller-authored evidence object must not bypass native disposition admission");
+        assert_eq!(refused.len(), 1);
+        assert_eq!((refused[0].code.as_str(), refused[0].path.as_str()), (PROTECTED_CONTENT_BLOCKED, "materials[0].provenance_record"));
+        let every_slot: Value = serde_json::from_str(EVERY_SLOT).unwrap();
+        assert!(refused[0].message.contains(every_slot["materials"][0]["id"].as_str().unwrap()), "{}", refused[0].message);
+    }
+
+    /// Review repair 1 (reviewer regression): the webview's open shape check, natively.
+    #[test]
+    fn a_saved_document_must_meet_the_webviews_required_shape() {
+        let (text, hash) = canonical_variant(|document| {
+            document.as_object_mut().unwrap().remove("nodes");
+        });
+        let refused = admit(text, &hash).expect_err("a file without nodes is refused by the existing webview open path");
+        assert_eq!(codes(Err(refused)), vec![("MODEL-FILE-SHAPE".to_string(), "nodes".to_string())]);
+    }
+
+    #[test]
+    fn evidence_for_other_bytes_is_refused() {
+        let text = canonical_of(DEMO);
+        let hash = hash_of(&text);
+        let refused = admit_model_document_text(text, &hash, &hash_of("{}"), &mut no_store).unwrap_err();
+        assert_eq!(refused[0].code, EVIDENCE_UNBOUND);
+    }
+
+    #[test]
+    fn every_disposition_at_any_depth_is_screened() {
+        let blocked = |edit: fn(&mut Value)| codes(admit(canonical_variant(edit).0, &canonical_variant(edit).1));
+        let protected = |path: &str| vec![(PROTECTED_CONTENT_BLOCKED.to_string(), path.to_string())];
+        // A quarantined record nested inside another provenance record.
+        assert_eq!(blocked(|d| d["review_extension"] = json!({"provenance_record": {"source_name": "outer", "review_status": "accepted", "nested": {"provenance_record": {"source_name": "inner", "review_status": "quarantined"}}}})),
+            protected("review_extension.provenance_record.nested.provenance_record"));
+        assert_eq!(blocked(|d| d["sections"][0]["provenance_record"]["review_status"] = json!("rejected")), protected("sections[0].provenance_record"));
+        assert_eq!(blocked(|d| d["supports"][0]["provenance_record"]["redistribution_status"] = json!("protected_suspected")), protected("supports[0].provenance_record"));
+        assert_eq!(blocked(|d| d["rule_pack_refs"][0]["redistribution_status"] = json!("protected_suspected")), protected("rule_pack_refs[0]"));
+        // `rejected` is outside the rule-pack reference vocabulary: the validator refuses it first.
+        assert_eq!(blocked(|d| d["rule_pack_refs"][0]["redistribution_status"] = json!("rejected")),
+            vec![("MODEL-RULE-PACK-REF-INVALID".to_string(), "rule_pack_refs[0].redistribution_status".to_string())]);
+        // private_only and unknown save.
+        let (text, hash) = canonical_variant(|d| {
+            d["materials"][0]["provenance_record"]["redistribution_status"] = json!("private_only");
+            d["sections"][0]["provenance_record"]["redistribution_status"] = json!("unknown");
+            d["rule_pack_refs"][0]["redistribution_status"] = json!("private_only");
+        });
+        assert!(admit(text, &hash).is_ok());
+    }
+
+    fn stored_library(library: Value, records: Value) -> Value {
+        json!({"schema_version": "0.1.0", "material_library": library, "material_records": records})
+    }
+
+    #[test]
+    fn library_references_resolve_against_the_store_with_the_import_policy() {
+        let every_slot: Value = serde_json::from_str(EVERY_SLOT).unwrap();
+        let reference = &every_slot["materials"][0]["provenance_record"]["library_ref"];
+        let (kind, id, record) = (reference["library_kind"].as_str().unwrap(), reference["library_id"].as_str().unwrap(), reference["record_id"].as_str().unwrap());
+        let text = canonical_of(EVERY_SLOT);
+        let accepted = json!({"redistribution_status": "private_only", "review_status": "accepted"});
+        let path = "materials[0].provenance_record.library_ref";
+        let refused = |stored: Value| match admit_with_store(text.clone(), Ok(Some(stored))).0 {
+            Err(diagnostics) => diagnostics.into_iter().map(|item| (item.code, item.path)).collect::<Vec<_>>(),
+            Ok(_) => vec![],
+        };
+        let protected = vec![(PROTECTED_CONTENT_BLOCKED.to_string(), path.to_string())];
+        // The library's own field wins over permissive provenance.
+        assert_eq!(refused(stored_library(json!({"redistribution_status": "protected_suspected", "review_status": "quarantined", "provenance": accepted}), json!([]))), protected);
+        // A record quarantined through its own provenance.
+        assert_eq!(refused(stored_library(json!({"provenance": accepted}), json!([{"material_id": record, "provenance": {"review_status": "quarantined"}}]))), protected);
+        // The import's rejection vocabulary: a rejected redistribution with an accepted review.
+        assert_eq!(refused(stored_library(json!({"provenance": accepted}), json!([{"material_id": record, "redistribution_status": "rejected", "review_status": "accepted"}]))), protected);
+        // Accepted library and record: saved, the store asked once with the document's project.
+        let (result, calls) = admit_with_store(text.clone(), Ok(Some(stored_library(json!({"provenance": accepted}), json!([{"material_id": record, "provenance": accepted}])))));
+        assert!(result.unwrap().warnings.is_empty());
+        assert_eq!(calls, vec![(every_slot["project"]["id"].as_str().unwrap().to_string(), kind.to_string(), id.to_string())]);
+        // An absent record or library is no disposition: saved with a warning naming it.
+        let (result, _) = admit_with_store(text.clone(), Ok(Some(stored_library(json!({"provenance": accepted}), json!([])))));
+        let warnings = result.unwrap().warnings;
+        assert_eq!((warnings[0].code.as_str(), warnings[0].path.as_str()), (LIBRARY_REF_UNRESOLVED, path));
+        assert!(warnings[0].message.contains(record));
+        let (result, _) = admit_with_store(text.clone(), Ok(None));
+        let warnings = result.unwrap().warnings;
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0].code, LIBRARY_REF_UNRESOLVED);
+        assert!(warnings[0].message.contains(id));
+        // A store read error refuses.
+        let (result, _) = admit_with_store(text, Err("invented store failure".to_string()));
+        assert_eq!(result.unwrap_err()[0].code, LIBRARY_STORE_UNAVAILABLE);
+        // A document without library references never reads the store.
+        let (result, calls) = admit_with_store(canonical_of(DEMO), Err("unread".to_string()));
+        assert!(result.is_ok() && calls.is_empty());
     }
 
     #[test]
@@ -504,7 +829,7 @@ mod tests {
     #[test]
     fn a_write_failure_is_a_named_refusal_and_writes_nothing() {
         let text = canonical_of(DEMO);
-        let admitted = admit_model_document_text(text.clone(), &hash_of(&text)).unwrap();
+        let admitted = admit(text.clone(), &hash_of(&text)).unwrap();
         let root = sandbox("wrong-extension");
         let destination = root.join("invented-model.opsproj");
         let outcome = write_admitted_model_document(&destination, admitted);
@@ -523,10 +848,12 @@ mod tests {
         );
         let saved = ModelDocumentSaveOutcome::Saved {
             file_name: "a.json".into(), byte_count: 2, model_hash: hash_of("{}"), replaced_existing: false, durability: "durable".into(),
+            warnings: vec![diagnostic(LIBRARY_REF_UNRESOLVED, "p", "w")],
         };
         assert_eq!(
             serde_json::to_value(saved).unwrap(),
-            json!({"outcome": "saved", "file_name": "a.json", "byte_count": 2, "model_hash": hash_of("{}"), "replaced_existing": false, "durability": "durable"})
+            json!({"outcome": "saved", "file_name": "a.json", "byte_count": 2, "model_hash": hash_of("{}"), "replaced_existing": false, "durability": "durable",
+                "warnings": [{"code": LIBRARY_REF_UNRESOLVED, "path": "p", "message": "w"}]})
         );
     }
 
