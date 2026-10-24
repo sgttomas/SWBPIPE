@@ -874,9 +874,12 @@ pub(crate) mod test_host {
 
 #[cfg(test)]
 mod tests {
-    use super::test_host::{ScriptedHost, GIB};
+    use super::test_host::{Script, ScriptedHost, GIB};
     use super::*;
-    use std::sync::Barrier;
+    use std::collections::HashSet;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::{mpsc, Barrier};
+    use std::thread::ThreadId;
 
     fn pool(host: &Arc<ScriptedHost>) -> Arc<MemoryPool> {
         MemoryPool::with_wait_tick(host.clone(), Duration::from_millis(5))
@@ -1116,13 +1119,18 @@ mod tests {
         pool.configure(4 * GIB, 4 * GIB, false).unwrap();
         let held = pool.acquire(3 * GIB, LeasePurpose::Worker).unwrap();
         assert_eq!(pool.running_workers(), 1);
+        // The waiter reports each refusal; the test acts once it has been refused.
+        let (refused_tx, refused) = mpsc::channel();
         let waiter = pool.clone();
         let handle = std::thread::spawn(move || {
             let mut reasons = Vec::new();
-            let lease = waiter.wait_acquire(2 * GIB, LeasePurpose::Worker, &|| false, &mut |r| reasons.push(r.clone()));
+            let lease = waiter.wait_acquire(2 * GIB, LeasePurpose::Worker, &|| false, &mut |r| {
+                reasons.push(r.clone());
+                let _ = refused_tx.send(());
+            });
             (lease.map(|l| l.bytes()), reasons)
         });
-        std::thread::sleep(Duration::from_millis(30));
+        refused.recv().expect("the waiter is refused while the pool is held");
         assert_eq!(pool.reserved_total(), 3 * GIB, "the waiter reserved nothing while refused");
         drop(held);
         let (admitted, reasons) = handle.join().unwrap();
@@ -1131,15 +1139,19 @@ mod tests {
         assert_eq!((pool.reserved_total(), pool.running_workers()), (0, 0), "the waiter's lease dropped");
 
         host.set(|s| s.pressure = PressureLevel::Warning);
-        let cancel = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let cancel = Arc::new(AtomicBool::new(false));
+        let (refused_tx, refused) = mpsc::channel();
         let (waiter, flag) = (pool.clone(), cancel.clone());
         let handle = std::thread::spawn(move || {
             let mut last = None;
-            let outcome = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| flag.load(std::sync::atomic::Ordering::SeqCst), &mut |r| last = Some(r.clone()));
+            let outcome = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| flag.load(Ordering::SeqCst), &mut |r| {
+                last = Some(r.clone());
+                let _ = refused_tx.send(());
+            });
             (outcome.map(drop), last)
         });
-        std::thread::sleep(Duration::from_millis(30));
-        cancel.store(true, std::sync::atomic::Ordering::SeqCst);
+        refused.recv().expect("the waiter is refused at warning pressure");
+        cancel.store(true, Ordering::SeqCst);
         pool.wake_waiters();
         let (outcome, last) = handle.join().unwrap();
         assert_eq!(outcome, Err(WaitOutcome::Cancelled));
@@ -1181,13 +1193,17 @@ mod tests {
         );
         // Other purposes are not process-bounded.
         drop(pool.acquire(GIB, LeasePurpose::Result).unwrap());
+        let (refused_tx, refused) = mpsc::channel();
         let waiter = pool.clone();
         let handle = std::thread::spawn(move || {
             let mut reasons = Vec::new();
-            let lease = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| false, &mut |r| reasons.push(r.clone()));
+            let lease = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| false, &mut |r| {
+                reasons.push(r.clone());
+                let _ = refused_tx.send(());
+            });
             (lease.map(|l| l.bytes()), reasons)
         });
-        std::thread::sleep(Duration::from_millis(30));
+        refused.recv().expect("the waiter is refused at the process-count limit");
         drop(a);
         let (admitted, reasons) = handle.join().unwrap();
         assert_eq!(admitted, Ok(GIB));
@@ -1336,8 +1352,75 @@ mod tests {
     const MIB: u64 = 1 << 20;
     const NEVER: &dyn Fn() -> bool = &|| false;
 
-    fn timed_pool(host: &Arc<ScriptedHost>, window: Duration, tick: Duration) -> Arc<MemoryPool> {
+    fn timed_pool<H: HostMemory + 'static>(host: &Arc<H>, window: Duration, tick: Duration) -> Arc<MemoryPool> {
         MemoryPool::with_timing(host.clone(), Duration::from_millis(5), window, tick)
+    }
+
+    /// One host sample taken while a test observes its [`ObservedHost`].
+    #[derive(Debug)]
+    struct Sampled {
+        thread: ThreadId,
+        at: Instant,
+        /// How many [`ObservedHost::set`] edits preceded the sample.
+        step: usize,
+    }
+
+    #[derive(Debug, Default)]
+    struct Observer {
+        report: Option<mpsc::Sender<Sampled>>,
+        first: Option<Instant>,
+        step: usize,
+        /// (delay after the first reported sample, headroom from then on).
+        refill: Option<(Duration, u64)>,
+    }
+
+    /// A scripted host that reports every sample once a test observes it, so
+    /// the test acts after an admission attempt has sampled the host (and,
+    /// since sampling happens under the pool lock, been refused) instead of
+    /// after a fixed sleep. A scheduled refill is applied inside `sample`
+    /// itself, to samples taken at least its delay after the first reported
+    /// one: no helper thread's scheduling decides when an attempt sees it.
+    #[derive(Debug)]
+    struct ObservedHost {
+        script: Arc<ScriptedHost>,
+        observer: Mutex<Observer>,
+    }
+
+    impl ObservedHost {
+        fn with(capacity: Option<u64>, headroom: Option<u64>, pressure: PressureLevel) -> Arc<Self> {
+            Arc::new(Self { script: ScriptedHost::with(capacity, headroom, pressure), observer: Mutex::default() })
+        }
+
+        /// Starts reporting samples (call it after the pool's construction sample).
+        fn observe(&self, refill: Option<(Duration, u64)>) -> mpsc::Receiver<Sampled> {
+            let (report, samples) = mpsc::channel();
+            *self.observer.lock().unwrap() = Observer { report: Some(report), refill, ..Observer::default() };
+            samples
+        }
+
+        /// Edits the script between samples, as one more step.
+        fn set(&self, edit: impl FnOnce(&mut Script)) {
+            let mut observer = self.observer.lock().unwrap();
+            observer.step += 1;
+            self.script.set(edit);
+        }
+    }
+
+    impl HostMemory for ObservedHost {
+        fn sample(&self) -> HostSample {
+            let mut observer = self.observer.lock().unwrap();
+            if let Some(report) = observer.report.clone() {
+                let at = Instant::now();
+                let first = *observer.first.get_or_insert(at);
+                if let Some((delay, headroom)) = observer.refill {
+                    if at.saturating_duration_since(first) >= delay {
+                        self.script.set(|s| s.headroom_bytes = Some(headroom));
+                    }
+                }
+                let _ = report.send(Sampled { thread: std::thread::current().id(), at, step: observer.step });
+            }
+            self.script.sample()
+        }
     }
 
     fn refused(stop: ResampleStop) -> ResourceRefusal {
@@ -1380,19 +1463,14 @@ mod tests {
     /// the first fresh sample that passes, and records no refusal.
     #[test]
     fn a_headroom_dip_within_the_window_admits_a_resampling_lease() {
-        let host = ScriptedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
+        let host = ObservedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
         let pool = MemoryPool::new(host.clone());
-        let refill = {
-            let host = host.clone();
-            std::thread::spawn(move || {
-                std::thread::sleep(Duration::from_millis(300));
-                host.set(|s| s.headroom_bytes = Some(DEMO_SAVE_LEASE));
-            })
-        };
+        // The headroom covers the lease from 300 ms after the first attempt's
+        // sample, which is refused and taken after `started`.
+        let _samples = host.observe(Some((Duration::from_millis(300), DEMO_SAVE_LEASE)));
         let started = Instant::now();
         let lease = pool.acquire_resampling(DEMO_SAVE_LEASE, LeasePurpose::Ingress, NEVER).expect("admitted once a fresh sample covers it");
         let waited = started.elapsed();
-        refill.join().unwrap();
         assert!(waited >= Duration::from_millis(300) && waited < HEADROOM_RESAMPLE_WINDOW, "{waited:?}");
         assert_eq!(lease.bytes(), DEMO_SAVE_LEASE);
         assert_eq!(pool.reserved(LeasePurpose::Ingress), DEMO_SAVE_LEASE);
@@ -1403,19 +1481,13 @@ mod tests {
     /// stands even if the host would now admit.
     #[test]
     fn resampling_starts_no_attempt_after_the_deadline() {
-        let host = ScriptedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+        let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
         let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_secs(60));
-        let refill = {
-            let host = host.clone();
-            std::thread::spawn(move || {
-                std::thread::sleep(Duration::from_millis(150));
-                host.set(|s| s.headroom_bytes = Some(GIB));
-            })
-        };
+        // The host would admit from 150 ms after the first (refused) attempt's sample.
+        let _samples = host.observe(Some((Duration::from_millis(150), GIB)));
         let started = Instant::now();
         let refusal = refused(pool.acquire_resampling(MIB, LeasePurpose::Ingress, NEVER).unwrap_err());
         let waited = started.elapsed();
-        refill.join().unwrap();
         assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: MIB, available_bytes: 0 });
         assert!(waited >= Duration::from_millis(100) && waited < Duration::from_secs(10), "bounded by the window, not the tick: {waited:?}");
         assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(refusal));
@@ -1426,14 +1498,19 @@ mod tests {
     /// attempt again, even though the host would now admit.
     #[test]
     fn resampling_starts_no_attempt_after_waiting_past_the_deadline_for_the_lock() {
-        let host = ScriptedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+        let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
         let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_millis(20));
+        let samples = host.observe(None);
         let holder = {
             let (pool, host) = (pool.clone(), host.clone());
             std::thread::spawn(move || {
-                std::thread::sleep(Duration::from_millis(50));
+                // The waiter's first attempt has sampled the host, under the
+                // lock: the holder takes the lock only once that attempt is refused.
+                let first = samples.recv().expect("the waiter attempts").at;
                 let state = pool.lock();
-                std::thread::sleep(Duration::from_millis(200));
+                // The waiter's deadline is at most the 100 ms window after its
+                // first sample; the lock is held, and the host refilled, past it.
+                std::thread::sleep((first + Duration::from_millis(200)).saturating_duration_since(Instant::now()));
                 host.set(|s| s.headroom_bytes = Some(GIB));
                 drop(state);
             })
@@ -1448,19 +1525,22 @@ mod tests {
     /// nothing and is not a refusal.
     #[test]
     fn resampling_ends_on_cancellation() {
-        let host = ScriptedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+        let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
         let pool = timed_pool(&host, Duration::from_secs(30), Duration::from_secs(30));
-        let flag = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let samples = host.observe(None);
+        let flag = Arc::new(AtomicBool::new(false));
         let canceller = {
             let (pool, flag) = (pool.clone(), flag.clone());
             std::thread::spawn(move || {
-                std::thread::sleep(Duration::from_millis(100));
-                flag.store(true, std::sync::atomic::Ordering::SeqCst);
+                // After the first (refused) attempt: the wake, which takes the
+                // pool lock, reaches the waiter only once it waits.
+                samples.recv().expect("the waiter attempts");
+                flag.store(true, Ordering::SeqCst);
                 pool.wake_waiters();
             })
         };
         let started = Instant::now();
-        let stop = pool.acquire_resampling(MIB, LeasePurpose::Ingress, &|| flag.load(std::sync::atomic::Ordering::SeqCst)).unwrap_err();
+        let stop = pool.acquire_resampling(MIB, LeasePurpose::Ingress, &|| flag.load(Ordering::SeqCst)).unwrap_err();
         canceller.join().unwrap();
         assert_eq!(stop, ResampleStop::Cancelled);
         assert!(started.elapsed() < Duration::from_secs(10), "woken by the request: {:?}", started.elapsed());
@@ -1501,12 +1581,14 @@ mod tests {
     /// the wait with that refusal: the pressure rule still applies.
     #[test]
     fn a_pressure_warning_during_the_window_stands_at_once() {
-        let host = ScriptedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
+        let host = ObservedHost::with(Some(16 * GIB), Some(0), PressureLevel::Normal);
         let pool = timed_pool(&host, Duration::from_secs(30), Duration::from_millis(10));
+        let samples = host.observe(None);
         let warn = {
             let host = host.clone();
             std::thread::spawn(move || {
-                std::thread::sleep(Duration::from_millis(100));
+                // During the window: after the first attempt was refused for headroom.
+                samples.recv().expect("the waiter attempts");
                 host.set(|s| { s.pressure = PressureLevel::Warning; s.headroom_bytes = Some(64 * GIB) });
             })
         };
@@ -1521,11 +1603,14 @@ mod tests {
     /// A release elsewhere wakes a re-sampling admission before its tick.
     #[test]
     fn resampling_admits_after_a_release_frees_headroom() {
-        let host = ScriptedHost::with(Some(16 * GIB), Some(4 * GIB), PressureLevel::Normal);
+        let host = ObservedHost::with(Some(16 * GIB), Some(4 * GIB), PressureLevel::Normal);
         let pool = timed_pool(&host, Duration::from_secs(10), Duration::from_secs(5));
         let held = pool.acquire(3 * GIB, LeasePurpose::Ingress).unwrap();
+        let samples = host.observe(None);
         let releaser = std::thread::spawn(move || {
-            std::thread::sleep(Duration::from_millis(100));
+            // After the first attempt was refused: the release, which takes
+            // the pool lock, wakes the waiter.
+            samples.recv().expect("the waiter attempts");
             drop(held);
         });
         let started = Instant::now();
@@ -1541,24 +1626,42 @@ mod tests {
     #[test]
     fn concurrent_waiters_resuming_from_insufficient_headroom_never_over_admit() {
         let chunk = GIB;
-        let host = ScriptedHost::with(Some(64 * GIB), Some(0), PressureLevel::Normal);
-        let pool = timed_pool(&host, Duration::from_millis(1500), Duration::from_millis(5));
+        let host = ObservedHost::with(Some(64 * GIB), Some(0), PressureLevel::Normal);
+        // The window outlasts the test; the waiters left refused end on cancellation.
+        let pool = timed_pool(&host, Duration::from_secs(30), Duration::from_millis(5));
+        let samples = host.observe(None);
+        let cancel = Arc::new(AtomicBool::new(false));
         let start = Arc::new(Barrier::new(7));
         let done = Arc::new(Barrier::new(7));
         let handles: Vec<_> = (0..6)
             .map(|_| {
-                let (pool, start, done) = (pool.clone(), start.clone(), done.clone());
+                let (pool, start, done, cancel) = (pool.clone(), start.clone(), done.clone(), cancel.clone());
                 std::thread::spawn(move || {
                     start.wait();
-                    let lease = pool.acquire_resampling(chunk, LeasePurpose::Ingress, NEVER);
+                    let lease = pool.acquire_resampling(chunk, LeasePurpose::Ingress, &|| cancel.load(Ordering::SeqCst));
                     done.wait(); // every lease is held until all waits end
                     lease.is_ok()
                 })
             })
             .collect();
         start.wait();
-        std::thread::sleep(Duration::from_millis(50));
+        // Waits until each of the six waiters has sampled the host at `step`.
+        let each_waiter_sampled = |step: usize| {
+            let mut waiters = HashSet::new();
+            while waiters.len() < 6 {
+                let sampled = samples.recv_timeout(Duration::from_secs(10)).expect("every waiter samples the host");
+                if sampled.step == step {
+                    waiters.insert(sampled.thread);
+                }
+            }
+        };
+        // Every waiter is refused before the headroom changes, and every one
+        // attempts again on the new headroom before the rest are cancelled.
+        each_waiter_sampled(0);
         host.set(|s| s.headroom_bytes = Some(chunk * 5 / 2));
+        each_waiter_sampled(1);
+        cancel.store(true, Ordering::SeqCst);
+        pool.wake_waiters();
         done.wait();
         let admitted = handles.into_iter().map(|h| h.join().unwrap()).filter(|ok| *ok).count();
         assert_eq!(admitted, 2);
