@@ -70,7 +70,19 @@ export function ResultsPanel({
 }) {
   const [filterText, setFilterText] = useState("");
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
-  const [pageIndex, setPageIndex] = useState(0);
+  // The page is the user's position in one run's rows, held with that run's id.
+  // Any other run reads as page 1 in the very render that first shows it. A
+  // reset effect would run only after commit, so a click landing in between
+  // (a busy main thread) had its page change undone by the late reset.
+  const runId = result?.run_id ?? null;
+  const [pagePosition, setPagePosition] = useState<{ runId: string | null; index: number }>({ runId, index: 0 });
+  const pageIndex = pagePosition.runId === runId ? pagePosition.index : 0;
+  function setPageIndex(next: number | ((current: number) => number)) {
+    setPagePosition((current) => {
+      const index = current.runId === runId ? current.index : 0;
+      return { runId, index: typeof next === "function" ? next(index) : next };
+    });
+  }
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
   // One reading of the source's row semantics per result, for every row.
   const labels = useMemo(() => (result ? semanticLabels(result) : null), [result]);
@@ -97,9 +109,6 @@ export function ResultsPanel({
   const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result) : null), [numericalHealth, result]);
   const route = result ? sourceContract(result) : "unsupported";
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
-  useEffect(() => {
-    setPageIndex(0);
-  }, [result?.run_id]);
   useEffect(() => {
     setPageIndex((current) => Math.min(current, page.pageCount - 1));
   }, [page.pageCount]);

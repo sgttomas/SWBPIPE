@@ -180,6 +180,40 @@ pub(crate) fn admit_body(
     }
 }
 
+/// [`admit`] for a command whose arguments are small by contract: a raw body
+/// longer than `max_raw_bytes` is refused `INVALID_REQUEST`
+/// (`INGRESS-ARGS-TOO-LARGE`) before the prescan and before any lease. The
+/// model-state commands (W-12 S1) use it with their own budgets.
+pub(crate) fn admit_within(
+    registry: &SolveJobRegistry,
+    request: &tauri::ipc::Request<'_>,
+    command: &'static str,
+    decoding: ArgsDecoding,
+    max_raw_bytes: usize,
+) -> Result<(Args, Lease), SolveJobError> {
+    admit_body_within(registry, request.body(), request.headers(), command, decoding, max_raw_bytes)
+}
+
+/// [`admit_within`] on a body and headers (testable without Tauri).
+pub(crate) fn admit_body_within(
+    registry: &SolveJobRegistry,
+    body: &InvokeBody,
+    headers: &HeaderMap,
+    command: &'static str,
+    decoding: ArgsDecoding,
+    max_raw_bytes: usize,
+) -> Result<(Args, Lease), SolveJobError> {
+    if let InvokeBody::Raw(raw) = body {
+        if raw.len() > max_raw_bytes {
+            return Err(invalid_request(format!(
+                "INGRESS-ARGS-TOO-LARGE: `{command}` takes at most {max_raw_bytes} bytes of arguments; {} were sent.",
+                raw.len()
+            )));
+        }
+    }
+    admit_body(registry, body, headers, command, decoding)
+}
+
 /// Serializes a command's outcome while its ingress lease is still held.
 pub(crate) fn respond<T: Serialize, E>(outcome: Result<T, CommandError<E>>) -> Result<Response, CommandError<E>> {
     let value = outcome?;

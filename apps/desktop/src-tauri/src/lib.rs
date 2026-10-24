@@ -4,7 +4,10 @@ mod host_memory;
 mod ingress;
 mod memory_pool;
 mod model_document_file;
+mod model_document_save;
+mod model_document_shape;
 mod model_document_version;
+mod model_states;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
@@ -720,7 +723,7 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 11;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 12;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -886,6 +889,13 @@ fn store_migrations() -> Vec<StoreMigration> {
                     .map_err(|error| error.to_string())
             },
         },
+        // Named immutable model states and their labels (W-12 S1, DEL-14-01
+        // Design `desktop-states-runs-comparison.md` §2). Recorded runs are S2's v13.
+        StoreMigration {
+            version: 12,
+            migration_id: "store-v12-model-states-tables",
+            apply: model_states::migrate_v12_model_states,
+        },
     ]
 }
 
@@ -927,10 +937,23 @@ fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence
     Ok((connection, migration))
 }
 
+/// One current store version: a store whose `user_version` is above this build's
+/// target was written by a newer build. It is refused by name before anything
+/// is written (no pragma that writes, no migration), never opened as current.
+fn refuse_newer_store(version: i64) -> Result<(), String> {
+    if version > STORE_SCHEMA_TARGET_VERSION {
+        return Err(format!(
+            "STORE-SCHEMA-NEWER: the local project store is at store schema v{version}, newer than this build's v{STORE_SCHEMA_TARGET_VERSION}; it was written by a newer SWBPIPE build. Nothing was read or written; open it with that build."
+        ));
+    }
+    Ok(())
+}
+
 // Each migration step is idempotent (IF NOT EXISTS / column probes), so legacy
 // stores written before the user_version ledger existed reconcile cleanly from
 // version 0 without data loss.
 fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvidence, String> {
+    refuse_newer_store(store_user_version(connection)?)?;
     connection
         .execute_batch(
             "
@@ -1413,6 +1436,9 @@ struct StoredProjectEntry {
     entry: LocalProjectIndexEntry,
     /// What a Replace of this project confirms (`stored_revision`).
     revision: String,
+    /// The saved model states attached to this project id; a Replace keeps
+    /// them, and the prompt says how many (W-12 §2).
+    saved_state_count: i64,
 }
 
 /// The stored project with this id, if any, and its revision, for the replace prompt.
@@ -1421,7 +1447,13 @@ fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<Store
     let path = app_store_path(&app)?;
     let (connection, _migration) = open_project_store(&path)?;
     stored_project_entry(&connection, &project_id)?
-        .map(|entry| Ok(StoredProjectEntry { revision: stored_revision(&connection, &entry)?, entry }))
+        .map(|entry| {
+            Ok(StoredProjectEntry {
+                revision: stored_revision(&connection, &entry)?,
+                saved_state_count: model_states::saved_state_count(&connection, &entry.project_id)?,
+                entry,
+            })
+        })
         .transpose()
 }
 
@@ -1787,6 +1819,91 @@ async fn open_model_document_file(app: AppHandle) -> Result<model_document_file:
     tauri::async_runtime::spawn_blocking(move || model_document_file::read_model_document_file(&path))
         .await
         .map_err(|error| error.to_string())
+}
+
+/// File > Save Model Document… (DEL-15-01 W-6a): the session's model document
+/// as its RFC 8785 canonical text, admitted by `model_document_save` (route
+/// evidence, the open cap, the canonical-text and hash check, the open path's
+/// document checks) before the chooser is shown, then written by the atomic
+/// writer as `.json`. Cancel is an outcome, not an error. Async so the blocking
+/// chooser stays off the main thread (as `save_report_package`); the ingress
+/// lease is held through admission, the chooser and the write.
+#[tauri::command]
+async fn save_model_document_file(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
+    let request = model_document_save::save_model_document_args(&mut args)?;
+    drop(args);
+    respond(Ok(save_model_document_decoded(app, request).await))
+}
+
+async fn save_model_document_decoded(
+    app: AppHandle,
+    request: model_document_save::ModelDocumentSaveRequest,
+) -> model_document_save::ModelDocumentSaveOutcome {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    if let Err(diagnostic) =
+        model_document_save::validate_model_document_save_evidence(&request.screening, &request.local_first)
+    {
+        return Outcome::refused(vec![diagnostic]);
+    }
+    let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, screening, .. } = request;
+    let store_app = app.clone();
+    let admitted = match tauri::async_runtime::spawn_blocking(move || {
+        // The local library store, opened only if the document references a
+        // library, as `open_local_library` opens it. A read error refuses.
+        let mut connection: Option<Connection> = None;
+        let mut lookup = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
+            if connection.is_none() {
+                connection = Some(open_project_store(&app_store_path(&store_app)?)?.0);
+            }
+            let connection = connection.as_ref().expect("opened above");
+            // The identities as `open_local_library` normalizes them.
+            load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim()).map(|row| row.map(|row| row.document))
+        };
+        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
+    })
+    .await
+    {
+        Ok(Ok(admitted)) => admitted,
+        Ok(Err(diagnostics)) => return Outcome::refused(diagnostics),
+        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The save's admission worker did not complete."),
+    };
+    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+    let destination = match choose_model_document_save_path(&app, &admitted.suggested_file_name, directory) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return Outcome::Cancelled,
+        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
+    };
+    tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
+        .await
+        .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
+}
+
+fn choose_model_document_save_path(
+    app: &AppHandle,
+    suggested_file_name: &str,
+    directory: Option<PathBuf>,
+) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
+    let mut chooser = app
+        .dialog()
+        .file()
+        .set_file_name(suggested_file_name)
+        .add_filter("SWBPIPE model document", &["json"]);
+    if let Some(directory) = directory {
+        chooser = chooser.set_directory(directory);
+    }
+    let Some(selected) = chooser.blocking_save_file() else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
 }
 
 fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
@@ -2203,15 +2320,24 @@ fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
     Err(format!("Model document refused: malformed model-data slots: {}", blocking.join(" | ")))
 }
 
+/// The one-current-version check alone (DEL-02-05 CLM-003): a document that is
+/// not current is refused by name. Project persistence adds the blocking-slot
+/// refusal (`check_model_document_for_persist`); a saved model state uses this
+/// alone, since a state may hold an incomplete model (W-12 §2, `MODEL_INCOMPLETE`).
+fn check_model_document_version(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
+    let status = evaluate_model_document(model);
+    if status.is_refused() {
+        return Err(refuse_model_document(&status));
+    }
+    Ok(status)
+}
+
 /// The version check for create/save (DEL-02-05 CLM-003): a document that is
 /// not current is refused by name. A current document is persisted exactly as
 /// received, with the received hash evidence; nothing is migrated, normalized
 /// or re-stamped.
 fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
-    let status = evaluate_model_document(model);
-    if status.is_refused() {
-        return Err(refuse_model_document(&status));
-    }
+    let status = check_model_document_version(model)?;
     // W-13 §5.3 (S2): create and save refuse a document whose model-data
     // slots carry a blocking validator finding, named with its JSON path;
     // nothing is repaired. Warnings never refuse.
@@ -4131,15 +4257,21 @@ fn library_record_version(record: &Value) -> String {
     )
 }
 
-/// Compare each reference with the project's local store: a missing library or
-/// record is `MODEL-LIBRARY-REF-UNRESOLVED`; a stored record whose digest
-/// differs from the recorded `library_version` is
-/// `MODEL-LIBRARY-REF-VERSION-CHANGED`.
+/// Compare each reference with the project's local store under the save
+/// screen's rules (`model_document_save`, W-6a): the identities are normalized
+/// by `library_identity` (Rust `trim`, as `open_local_library` and the save's
+/// lookup normalize them) and the stored records are every record
+/// `matching_library_records` finds, never the first. A missing library or
+/// record is `MODEL-LIBRARY-REF-UNRESOLVED`; a recorded `library_version` that
+/// differs from the digest of any matching stored record is
+/// `MODEL-LIBRARY-REF-VERSION-CHANGED`, naming the first differing digest. The
+/// finding echoes the reference as the model records it.
 fn library_ref_findings(
     connection: &Connection,
     project_id: &str,
     references: &[ModelLibraryRef],
 ) -> Result<Vec<LibraryRefFinding>, String> {
+    use model_document_save::{library_identity, matching_library_records};
     let mut findings = Vec::new();
     for reference in references {
         let finding = |code, stored_version: Option<String>, message: String| LibraryRefFinding {
@@ -4153,8 +4285,9 @@ fn library_ref_findings(
             stored_version,
             message,
         };
-        let stored = match library_records_key(&reference.library_kind) {
-            Some(_) => load_library(connection, project_id, &reference.library_kind, &reference.library_id)?,
+        let kind = reference.library_kind.trim();
+        let stored = match library_records_key(kind) {
+            Some(_) => load_library(connection, project_id, kind, reference.library_id.trim())?,
             None => None,
         };
         let Some(row) = stored else {
@@ -4170,14 +4303,13 @@ fn library_ref_findings(
             ));
             continue;
         };
-        let (records_key, id_key) = library_records_key(&reference.library_kind).expect("checked above");
-        let record = reference.record_id.as_deref().and_then(|record_id| {
-            row.document
-                .get(records_key)
-                .and_then(Value::as_array)
-                .and_then(|records| records.iter().find(|record| record.get(id_key).and_then(Value::as_str) == Some(record_id)))
-        });
-        let Some(record) = record else {
+        let records = reference
+            .record_id
+            .as_deref()
+            .and_then(library_identity)
+            .map(|record_id| matching_library_records(kind, &row.document, record_id))
+            .unwrap_or_default();
+        if records.is_empty() {
             findings.push(finding(
                 MODEL_LIBRARY_REF_UNRESOLVED,
                 None,
@@ -4190,10 +4322,13 @@ fn library_ref_findings(
                 ),
             ));
             continue;
-        };
-        let stored_version = library_record_version(record);
+        }
         if let Some(recorded) = &reference.library_version {
-            if recorded != &stored_version {
+            let changed = records
+                .iter()
+                .map(|record| library_record_version(&Value::Object((*record).clone())))
+                .find(|stored_version| stored_version != recorded);
+            if let Some(stored_version) = changed {
                 findings.push(finding(
                     MODEL_LIBRARY_REF_VERSION_CHANGED,
                     Some(stored_version),
@@ -4332,6 +4467,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         ("file.open-model", !state.project_busy),
         ("file.open-local", !state.project_busy),
         ("file.save-local", !state.project_busy),
+        ("file.save-model-document", !state.project_busy),
         ("file.list-local", !state.project_busy),
         ("view.view.table", true),
         ("view.view.model", state.stage != "review"),
@@ -4489,6 +4625,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("file.list-local", "List Local Projects")
         .separator()
         .text("file.save-local", "Save Local Project")
+        .text("file.save-model-document", "Save Model Document…")
         .text("file.save-report-package", "Save Report Package…")
         .build()?;
 
@@ -5046,6 +5183,7 @@ macro_rules! app_invoke_handler {
             load_preview_model,
             load_design_knowledge,
             open_model_document_file,
+            save_model_document_file,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
@@ -5068,6 +5206,11 @@ macro_rules! app_invoke_handler {
             list_local_projects,
             find_local_project,
             save_local_project,
+            model_states::save_model_state,
+            model_states::list_model_states,
+            model_states::read_model_state,
+            model_states::edit_model_state_labels,
+            model_states::delete_model_state,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
@@ -5770,7 +5913,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));
@@ -6999,11 +7142,12 @@ mod tests {
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
+                "store-v12-model-states-tables",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v11"
+            "migrated_on_open_store_schema_v0_to_v12"
         );
 
         let second_open =
@@ -7020,7 +7164,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v11_no_pending_migrations"
+            "current_store_schema_v12_no_pending_migrations"
         );
     }
 
@@ -7057,10 +7201,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 11);
+        assert_eq!(migration.migrations_applied_on_open.len(), 12);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v11"
+            "migrated_on_open_store_schema_v0_to_v12"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -7128,12 +7272,13 @@ mod tests {
                 "store-v8-project-envelope-hash-column",
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
-                "store-v11-local-libraries-table"
+                "store-v11-local-libraries-table",
+                "store-v12-model-states-tables"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v11"
+            "migrated_on_open_store_schema_v7_to_v12"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))
@@ -9023,6 +9168,100 @@ mod tests {
         assert_eq!(current[0].library_version.as_deref(), Some(stored.as_str()));
     }
 
+    /// A store holding one invented material library for the open-time
+    /// check's rule tests: duplicate ids, a padded stored id and a single record.
+    fn library_rules_store() -> (Connection, Value) {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let mut document = storable_material_payload("matlib.invented.rules");
+        document["material_records"] = json!([
+            {"material_id": "mat.dup", "name": "Invented duplicate, first", "properties": []},
+            {"material_id": "mat.dup", "name": "Invented duplicate, revised", "properties": []},
+            {"material_id": "mat.pad", "name": "Invented padded, clear", "properties": []},
+            {"material_id": " mat.pad ", "name": "Invented padded, revised", "properties": []},
+            {"material_id": "mat.solo", "name": "Invented single", "properties": []}
+        ]);
+        upsert_library(&connection, "project:lib-rules", "material", "matlib.invented.rules", &document).expect("upserts");
+        (connection, document)
+    }
+
+    fn rules_reference(kind: &str, library_id: &str, record: Option<&str>, recorded: Option<String>) -> ModelLibraryRef {
+        ModelLibraryRef {
+            entity_ref: "material:rules".into(),
+            library_kind: kind.into(),
+            library_id: library_id.into(),
+            library_version: recorded,
+            record_id: record.map(str::to_string),
+        }
+    }
+
+    fn rules_codes(findings: &[LibraryRefFinding]) -> Vec<&'static str> {
+        findings.iter().map(|finding| finding.code).collect()
+    }
+
+    // The open-time check applies the save screen's rules (W-6a,
+    // `model_document_save`): identities trimmed, every matching record. Each
+    // of the next three cases passed silently, or drew the wrong finding, under
+    // the old first-match, untrimmed lookup.
+
+    #[test]
+    fn model_library_refs_read_every_matching_record_not_the_first() {
+        let (connection, document) = library_rules_store();
+        let version = |index: usize| library_record_version(&document["material_records"][index]);
+        let found = library_ref_findings(&connection, "project:lib-rules", &[rules_reference("material", "matlib.invented.rules", Some("mat.dup"), Some(version(0)))]).unwrap();
+        assert_eq!(rules_codes(&found), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a clear first record hid a changed duplicate");
+        assert_eq!(found[0].stored_version, Some(version(1)));
+        assert_eq!(found[0].recorded_version, Some(version(0)), "the recorded version is reported, never replaced");
+    }
+
+    #[test]
+    fn model_library_refs_compare_stored_record_ids_trimmed() {
+        let (connection, document) = library_rules_store();
+        let version = |index: usize| library_record_version(&document["material_records"][index]);
+        let found = library_ref_findings(&connection, "project:lib-rules", &[rules_reference("material", "matlib.invented.rules", Some("mat.pad"), Some(version(2)))]).unwrap();
+        assert_eq!(rules_codes(&found), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a padded stored duplicate escaped the check");
+        assert_eq!(found[0].stored_version, Some(version(3)));
+    }
+
+    #[test]
+    fn model_library_refs_trim_the_reference_like_open_local_library() {
+        let (connection, document) = library_rules_store();
+        let stored = library_record_version(&document["material_records"][4]);
+        let padded = |recorded: String| rules_reference(" material ", " matlib.invented.rules ", Some("\tmat.solo "), Some(recorded));
+        let changed = library_ref_findings(&connection, "project:lib-rules", &[padded("sha256:recorded-earlier".into())]).unwrap();
+        assert_eq!(rules_codes(&changed), vec![MODEL_LIBRARY_REF_VERSION_CHANGED], "a padded reference was read as unresolved");
+        assert_eq!(changed[0].stored_version, Some(stored.clone()));
+        // The finding echoes the reference as the model records it.
+        assert_eq!((changed[0].library_kind.as_str(), changed[0].library_id.as_str(), changed[0].record_id.as_deref()),
+            (" material ", " matlib.invented.rules ", Some("\tmat.solo ")));
+        assert!(library_ref_findings(&connection, "project:lib-rules", &[padded(stored)]).unwrap().is_empty(), "a padded reference to an unchanged record resolves");
+    }
+
+    /// What the old and new rules agree on behaves as before: an unchanged
+    /// single record, no recorded version, a missing library or record, no
+    /// record id, a blank record or library id, an unknown kind and another
+    /// project.
+    #[test]
+    fn model_library_refs_keep_the_cases_both_rules_agree_on() {
+        let (connection, document) = library_rules_store();
+        let solo = Some(library_record_version(&document["material_records"][4]));
+        let check = |references: &[ModelLibraryRef]| library_ref_findings(&connection, "project:lib-rules", references).unwrap();
+        assert!(check(&[rules_reference("material", "matlib.invented.rules", Some("mat.solo"), solo.clone())]).is_empty());
+        assert!(check(&[rules_reference("material", "matlib.invented.rules", Some("mat.dup"), None)]).is_empty());
+        let unresolved = check(&[
+            rules_reference("material", "matlib.invented.absent", Some("mat.solo"), solo.clone()),
+            rules_reference("material", "matlib.invented.rules", Some("mat.absent"), solo.clone()),
+            rules_reference("material", "matlib.invented.rules", None, solo.clone()),
+            rules_reference("material", "matlib.invented.rules", Some("  "), solo.clone()),
+            rules_reference("pipe", "matlib.invented.rules", Some("mat.solo"), solo.clone()),
+            rules_reference("material", "  ", Some("mat.solo"), solo.clone()),
+        ]);
+        assert_eq!(rules_codes(&unresolved), vec![MODEL_LIBRARY_REF_UNRESOLVED; 6]);
+        assert!(unresolved[2].message.contains("names record `(none recorded)`"), "{}", unresolved[2].message);
+        let other = library_ref_findings(&connection, "project:renamed", &[rules_reference("material", "matlib.invented.rules", Some("mat.solo"), None)]).unwrap();
+        assert_eq!(rules_codes(&other), vec![MODEL_LIBRARY_REF_UNRESOLVED]);
+    }
+
     #[test]
     fn local_library_store_round_trips_accepted_import_per_project() {
         let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
@@ -9489,6 +9728,77 @@ mod tests {
                 let raw = serde_json::to_vec(&json!({"request": request})).unwrap();
                 let _ = check_decode_bound(&raw, ArgsDecoding::Moved, |args| save_local_result_json_args(args).map(drop));
             }
+        }
+    }
+
+    /// The node-proximity tolerance control's path (DEL-02-01 Design §3.8;
+    /// DEL-04-06 Design `model-topology-checks.md`): the desktop applies
+    /// `set_model_setting` / `clear_model_setting` through the apply command, and
+    /// the native solve reads the result. An anchored node 3 mm from node:N-140
+    /// warns at the 5 mm default and not at a 2 mm tolerance; one 8 mm away warns
+    /// at 1 cm (10 mm) and, reset to the default, does not. Invented data only.
+    #[test]
+    fn a_tolerance_set_through_the_apply_command_changes_which_nodes_warn() {
+        fn with_near_node(gap_m: f64) -> Value {
+            let mut model = read_fixture("invented_demo_model.json").expect("bundled preview model loads");
+            assert!(model.get("model_settings").is_none());
+            let position = model["nodes"].as_array().unwrap().iter().find(|node| node["id"] == "node:N-140").unwrap()["position"].clone();
+            let y = position["y"].as_f64().unwrap() + gap_m;
+            model["nodes"].as_array_mut().unwrap().push(json!({"id":"node:near","position":{"x":position["x"],"y":y,"z":position["z"]},"provenance":"invented_test_node"}));
+            model["supports"].as_array_mut().unwrap().push(json!({"id":"support:near","node":"node:near","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"invented_test_support"}));
+            model
+        }
+        fn intent(model: &Value, change_kind: &str, after: &str, unit: &str, dimension: &str) -> Value {
+            let before = model
+                .pointer("/model_settings/node_proximity_tolerance")
+                .map(open_pipe_stress_operation_applier::canonical_json)
+                .unwrap_or_else(|| "not_present".into());
+            json!({
+                "operation_id": format!("op:model-settings:{change_kind}"), "operation_kind": "modify", "operation_status": "proposed",
+                "author_type": "user", "target": {"object_type": "Project", "ref": model["project"]["id"]},
+                "change": {"change_id": format!("change:model-settings:{change_kind}"), "change_kind": change_kind,
+                    "field_label": "Node-proximity tolerance", "field_path": "model_settings.node_proximity_tolerance",
+                    "before": before, "after": after, "unit": unit, "dimension": dimension, "source_note": "invented test input"},
+                "validation": {"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run",
+                    "diff_preview_status":"not_generated","application_status":"not_applied"},
+                "audit_boundary": {"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,
+                    "requires_user_acceptance":true,"mutates_accepted_model_state":false},
+                "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,
+                    "software_makes_certification_claim":false,"software_makes_sealing_claim":false,
+                    "software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+                "rationale": "Invented node-proximity tolerance test"
+            })
+        }
+        fn applied(model: &Value, intent: Value) -> Value {
+            let outcome = apply_model_operation_value(model.clone(), intent, None).expect("command returns outcome");
+            assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{}", outcome["diagnostics"]);
+            outcome["applied_model"].clone()
+        }
+        fn near_pairs(model: &Value, mode: PreviewSolverMode) -> Vec<Value> {
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("solve returns an envelope");
+            let diagnostics = solved["diagnostics"].as_array().cloned().unwrap_or_default();
+            assert!(diagnostics.iter().all(|item| item["severity"] != "blocking"), "{diagnostics:?}");
+            diagnostics
+                .into_iter()
+                .filter(|item| item["code"] == "NODE_NEAR_DUPLICATE")
+                .map(|item| item["affected_refs"].clone())
+                .collect()
+        }
+        let pair = json!(["node:N-140", "node:near"]);
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let three_mm = with_near_node(0.003);
+            assert_eq!(near_pairs(&three_mm, mode), vec![pair.clone()], "3 mm warns at the default");
+            let two_mm_tolerance = applied(&three_mm, intent(&three_mm, "set_model_setting", "2", "mm", "length"));
+            assert_eq!(two_mm_tolerance["model_settings"], json!({"node_proximity_tolerance": {"value": 2.0, "unit": "mm"}}));
+            assert!(near_pairs(&two_mm_tolerance, mode).is_empty(), "3 mm does not warn at 2 mm");
+
+            let eight_mm = with_near_node(0.008);
+            assert!(near_pairs(&eight_mm, mode).is_empty(), "8 mm does not warn at the default");
+            let one_cm_tolerance = applied(&eight_mm, intent(&eight_mm, "set_model_setting", "10", "mm", "length"));
+            assert_eq!(near_pairs(&one_cm_tolerance, mode), vec![pair.clone()], "8 mm warns at 1 cm");
+            let reset = applied(&one_cm_tolerance, intent(&one_cm_tolerance, "clear_model_setting", "not_present", "none", "dimensionless"));
+            assert!(reset.get("model_settings").is_none(), "reset never writes the default");
+            assert!(near_pairs(&reset, mode).is_empty(), "reset to the default, 8 mm does not warn");
         }
     }
 }

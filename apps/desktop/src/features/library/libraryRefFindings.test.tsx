@@ -5,7 +5,7 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { loadPreviewModel } from "../../services/previewService";
-import type { LibraryRefFinding } from "../../services/libraryImportService";
+import { modelLibraryRefs, type LibraryRefFinding } from "../../services/libraryImportService";
 import type { PreviewModel } from "../../types";
 import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
@@ -57,5 +57,23 @@ describe("library reference warnings in the diagnostics list and the inspector",
     const other = structuredClone(model);
     other.project.id = "project:other";
     expect(currentLibraryRefFindings(other)).toEqual([]);
+  });
+
+  // The save screen's walk (W-6a): every library_ref at any depth, not only
+  // the top-level entities' own provenance records.
+  it("checks a nested reference at open and keeps its finding listed, keyed to its nearest owner", async () => {
+    const model = await referencedModel();
+    const nested = { library_kind: "component" as const, library_id: "complib.invented.nested", library_version: "sha256:n", record_id: "comp.nested" };
+    (model as unknown as Record<string, unknown>).review_extension = { parts: [{ id: "part:nested", provenance_record: { source_name: "Invented", library_ref: nested } }] };
+    expect(modelLibraryRefs(model)).toContainEqual({ entity_ref: "part:nested", ...nested });
+    const finding: LibraryRefFinding = { code: "MODEL-LIBRARY-REF-UNRESOLVED", severity: "warning", entity_ref: "part:nested", ...nested,
+      recorded_version: "sha256:n", stored_version: null, message: "The local store does not hold the library." };
+    publishLibraryRefFindings(model.project.id, [finding]);
+    expect(currentLibraryRefFindings(model)).toEqual([finding]);
+    render(<DiagnosticsPanel model={model} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);
+    expect(screen.getByTestId("diagnostic-MODEL-LIBRARY-REF-UNRESOLVED").className).toContain("warning");
+    const removed = structuredClone(model);
+    delete (removed as unknown as Record<string, unknown>).review_extension;
+    expect(currentLibraryRefFindings(removed)).toEqual([]);
   });
 });

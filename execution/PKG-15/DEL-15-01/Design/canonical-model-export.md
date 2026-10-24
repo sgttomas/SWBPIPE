@@ -117,6 +117,40 @@ on either route. It needs no solve and no result.
   The screening explicitly covers `provenance_record`, `rule_pack_refs[]` and the
   resolved `library_ref` dispositions. It does not rely on the generic payload
   projection, which passes those through unchanged.
+- **Rust repeats the content checks (implementation review, PR #1588).** The
+  evidence alone does not admit a save. The command re-establishes the
+  conditions on the exact text it admits:
+  - the webview shape check, ported to Rust (`model_document_shape.rs`) and
+    kept equal by a shared invented corpus
+    (`fixtures/model_document/desktop_shape_cases.json`);
+  - the open path's adoption preconditions, which the shape check now states
+    explicitly (DEL-07-11 Design `model-document-open-and-native-smoke.md`,
+    "Shape check"). Every shape-clean corpus case saves and re-opens through the
+    open path, and the adoption mutation test covers the demo's string members;
+  - disposition screening at any depth: every `provenance_record`, every
+    `rule_pack_refs[]` entry, and every `library_ref`, resolved against the
+    local library store. Identities are trimmed as `open_local_library` does (Unicode White_Space, as Rust's `trim`; the webview uses `trimLikeRust`),
+    and every matching record is screened. The webview finds the
+    references with `libraryRefSites` (`services/libraryImportService.ts`),
+    the walk the open-time store check `check_model_library_refs` also uses;
+    the native walk is pinned to it by
+    `fixtures/model_document/library_ref_sites.json` for known kinds (on an
+    unknown `library_kind` the webview save reports nothing while the native
+    save reports it unresolved, as before this change), and the identity and
+    record-matching rules (`library_identity`, `matching_library_records`)
+    are one Rust implementation shared with that check (DEL-03-01
+    `apply-library-records.md` §2.7). The verdict is a port of the
+    library import's disposition rules, including the hanger conflict rule.
+    A parity test (`disposition_verdicts_match_the_library_import`) pins it
+    to the public import API. It covers four kinds, library and record level,
+    own and provenance redistribution and review values, and the blocking
+    findings only;
+  - a store read error refuses (`MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE`). A
+    library or record the store does not hold saves with a
+    `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
+    screened;
+  - the screening evidence carries the payload's sha256, and Rust refuses
+    `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless it equals the admitted text's.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
   documents folder, never the repository.
 

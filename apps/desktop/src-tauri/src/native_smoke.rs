@@ -10,7 +10,8 @@
 //! - `SWBPIPE_NATIVE_SMOKE_REPORT`: where `native_smoke_finish` writes the report.
 //!
 //! The harness substitutes exactly two things for a person at the machine: it
-//! names the file the open chooser returns (`native_smoke_choose`) instead of
+//! names the file the next model-document chooser returns (`native_smoke_choose`;
+//! the Open Model Document… and Save Model Document… choosers) instead of
 //! showing the chooser, and it delivers native menu commands through the same
 //! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
@@ -25,7 +26,7 @@ pub struct SmokeState {
     driver_started: Mutex<bool>,
 }
 
-/// The path the next open chooser returns, if the driver named one.
+/// The path the next model-document chooser (open or save) returns, if the driver named one.
 pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>) -> Option<PathBuf> {
     app.try_state::<SmokeState>()?.chosen.lock().ok()?.pop_front()
 }
