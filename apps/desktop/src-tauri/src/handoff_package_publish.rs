@@ -17,31 +17,40 @@
 //! `unlinkat`, `renameatx_np`), one path component at a time, never following
 //! a symlink and never resolving a path again by name.
 //! 1. An existing destination is admitted for replacement only when it
-//!    verifies as a handoff package ([`verify_handoff_package`]); its folder,
-//!    `model/` folder and members are recorded by device and inode.
-//! 2. Both members are written into a staging directory
-//!    `<name>.swbhandoff.staging-<random>` beside the target (each created
-//!    `O_EXCL | O_NOFOLLOW`, fsynced, and recorded by identity), and the staging
-//!    directory is verified.
+//!    verifies as a handoff package; its folder, `model/` folder and members
+//!    are recorded by the device and inode whose bytes were read and verified.
+//!    Every member read (here, by [`verify_handoff_package`] and after the
+//!    commit) opens the file `O_NOFOLLOW | O_NONBLOCK` (a FIFO never blocks),
+//!    checks with `fstat` on that descriptor that it is a regular file and the
+//!    expected identity, reads through it, re-checks it, and checks that the
+//!    names still name the same entries after both reads.
+//! 2. The two members are verified in memory (`verify_bytes`, the verifier's
+//!    rules) and exactly those bytes are written into a staging directory
+//!    `<name>.swbhandoff.staging-<random>` beside the target (each file
+//!    created `O_EXCL | O_NOFOLLOW`, fsynced, and recorded by identity).
 //! 3. A new name is published by `renameatx_np(RENAME_EXCL)`, refusing to
-//!    replace anything, the single commit point. An existing package is
+//!    replace anything; a volume without it refuses
+//!    `HANDOFF-NEW-NAME-UNSUPPORTED` (review round 4). An existing package is
 //!    replaced by `renameatx_np(RENAME_SWAP)` after checking that the
-//!    destination is still the package admitted. Immediately before either,
-//!    the staging folder must still be, by identity, the one verified.
-//! 4. After the rename or swap, the folder published under the name must be,
-//!    through the parent's handle, the staging folder this save created and
-//!    verified (folder, `model/` and both members by device and inode), and
-//!    must verify (review round 3, finding 1). Otherwise a new name is moved
-//!    back to the staging name and a replacement is swapped back, and the save
-//!    is refused `HANDOFF-PUBLISH-UNVERIFIED`; `Saved` is never reported for
-//!    bytes not verified. What the swap moved out must also be the package
-//!    admitted (if it is not, the swap is undone); only when both hold is it
-//!    removed, member by member (never a recursive delete). A volume that cannot swap
-//!    refuses `HANDOFF-REPLACE-UNSUPPORTED`.
+//!    destination is still the package admitted (a volume that cannot swap
+//!    refuses `HANDOFF-REPLACE-UNSUPPORTED`). Immediately before either, the
+//!    staging folder must still be, by identity, the one written.
+//! 4. After the rename or swap, what is published under the name must be the
+//!    entries this save created (by identity, through the parent's handle),
+//!    and each member must read back as exactly the in-memory bytes verified
+//!    (step 1's read). Otherwise the save is refused
+//!    `HANDOFF-PUBLISH-UNVERIFIED`: a replacement is swapped back, and a new
+//!    name is left as found. `Saved` is reported only after this check, with
+//!    the receipt computed from the in-memory bytes. What the swap moved out
+//!    must also be the package admitted (else the swap is undone); only when
+//!    both hold is it removed, member by member and only while each entry is
+//!    the one verified at admission (never a recursive delete).
 //! 5. A leftover `<name>.swbhandoff.staging-*` from an earlier crash is ignored
 //!    and reported for the user to delete.
 //!
-//! This process's commits (step 3 to the removal in step 4) run one at a time.
+//! Commits (step 3 to the removal in step 4) of the same destination (parent
+//! folder identity and name) run one at a time in this process; saves of other
+//! destinations do not wait for them.
 //!
 //! Removal (cleanup of the staging directory, the replaced package) unlinks an
 //! entry only while it is, by device and inode, the one this save created or
@@ -49,31 +58,23 @@
 //! symlink, folder or file is left in place and reported; a hard-linked member
 //! loses only the package's link.
 //!
-//! Residual window (restated after review round 3). Every check and the
-//! name-based call after it (`unlinkat`, `unlinkat(AT_REMOVEDIR)`,
-//! `renameatx_np`, `renameat`) are separate system calls inside held directory
-//! handles. Another process that can write those folders (this process's own
-//! saves are serialized) can, between a check and its call:
-//! - substitute one directory entry, which is then unlinked in place of the
-//!   checked one (the entry itself only: never a symlink's target, never a
-//!   non-empty folder, never a file's other hard links);
-//! - substitute the staging source between the last pre-commit check and the
-//!   rename or swap (a folder, a symlink, `model/` as a file): caught by step
-//!   4 and undone. The undoing is itself a rename or swap by name, so a further
-//!   substitution between the step-4 check and the undoing moves that entry
-//!   instead; if the swap-back fails, the previous package is left, unchanged
-//!   and undeleted, under the staging name, which the refusal names;
-//! - replace the destination before the swap: detected after it by identity
-//!   and swapped back, with the same limits;
-//! - replace or rewrite the published folder after step 4 (before `Saved` is
-//!   returned) or the moved-out package between its check and its removal;
-//! - on a volume without `RENAME_EXCL`, create the destination between the
-//!   name check and the plain `renameat` (an empty folder there can be
-//!   replaced).
-//! Rewrites of member bytes in place (same inode) after verification are not
-//! detected by identity. The parent path's own components (intermediate
-//! symlinks included) are resolved once, at admission; a parent folder moved
-//! later receives the package where it then is.
+//! Residual (restated after review round 4: what cannot be closed, and why):
+//! - Another process that can write the folder can rewrite or replace the
+//!   published package after step 4's last check, before or after `Saved` is
+//!   returned. No call lets one process stop another of the same user from
+//!   writing its files (macOS has no mandatory locks); the save can only
+//!   check what it published, and does.
+//! - Between an identity check and the name-based call it guards (`unlinkat`
+//!   and `unlinkat(AT_REMOVEDIR)` of the previous package's entries, the swap
+//!   and the swap-back), such a process can substitute that one entry, which
+//!   the call then acts on instead. macOS has no unlink, rename or exchange
+//!   that is conditional on the entry's identity or acts on an open
+//!   descriptor (no `funlinkat`), so the window between check and call cannot
+//!   be removed. Its reach is bounded: only that entry itself (never a
+//!   symlink's target, never a non-empty folder, never a file's other hard
+//!   links), and only for an entry put there in that window. If a swap-back
+//!   fails, the previous package is left unchanged and undeleted under the
+//!   staging name the refusal gives.
 //!
 //! Every failure before the commit removes this run's staging directory (as
 //! above) and leaves the previous package as it was.
@@ -116,6 +117,7 @@ pub const STAGING_LEFTOVER: &str = "HANDOFF-STAGING-LEFTOVER";
 pub const OLD_PACKAGE_LEFT: &str = "HANDOFF-OLD-PACKAGE-LEFT";
 pub const VERIFY_FAILED: &str = "HANDOFF-VERIFY-FAILED";
 pub const PUBLISH_UNVERIFIED: &str = "HANDOFF-PUBLISH-UNVERIFIED";
+pub const NEW_NAME_UNSUPPORTED: &str = "HANDOFF-NEW-NAME-UNSUPPORTED";
 
 fn diagnostic(code: &str, path: &str, message: impl Into<String>) -> Diagnostic {
     Diagnostic { code: code.to_string(), path: path.to_string(), message: message.into() }
@@ -250,7 +252,7 @@ fn stat_id(stat: &libc::stat) -> EntryId {
     (stat.st_dev as u64, stat.st_ino as u64)
 }
 
-const DIR_FLAGS: libc::c_int = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC;
+const DIR_FLAGS: libc::c_int = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC;
 
 /// A directory handle.
 #[derive(Debug)]
@@ -363,28 +365,52 @@ impl Dir {
         Ok(id)
     }
 
-    /// Reads the regular file `name` (never through a link), at most `limit` bytes.
-    fn read_file(&self, name: &str, limit: u64) -> io::Result<(Vec<u8>, EntryId)> {
+    /// Reads the regular file `name` (never through a link), at most `limit`
+    /// bytes, through one descriptor (review round 4): opened `O_NOFOLLOW |
+    /// O_NONBLOCK` (a FIFO or device never blocks the open), `fstat` on the
+    /// descriptor must show a regular file and, when given, the `expected`
+    /// identity; after reading, the descriptor must still be that file at the
+    /// size read, still linked, and `name` must still name it.
+    fn read_member(&self, name: &str, limit: u64, expected: Option<EntryId>) -> io::Result<(Vec<u8>, EntryId)> {
         use std::io::Read;
         use std::os::unix::fs::MetadataExt;
         let c = c_name(name)?;
-        let flags = libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_CLOEXEC;
-        // SAFETY: as above.
+        let flags = libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC;
+        #[cfg(test)]
+        R4_BEFORE_OPEN.with(|hook| {
+            let f = hook.borrow_mut().take();
+            if let Some(f) = f {
+                f()
+            }
+        });
+        // SAFETY: as above; the descriptor is owned by the File.
         let fd = check(unsafe { libc::openat(self.fd(), c.as_ptr(), flags) })?;
         let file = unsafe { File::from_raw_fd(fd) };
         let metadata = file.metadata()?;
+        let id = (metadata.dev(), metadata.ino());
         if !metadata.is_file() {
             return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} is not a regular file")));
         }
+        if expected.is_some_and(|expected| expected != id) {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} is not the file that was written and verified")));
+        }
+        // A regular file: reads are blocking again.
+        // SAFETY: a valid descriptor; F_SETFL with the flags F_GETFL returned.
+        let status = check(unsafe { libc::fcntl(fd, libc::F_GETFL) })?;
+        check(unsafe { libc::fcntl(fd, libc::F_SETFL, status & !libc::O_NONBLOCK) })?;
         if metadata.len() > limit {
             return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} is larger than {limit} bytes")));
         }
         let mut bytes = Vec::with_capacity(metadata.len() as usize);
-        file.take(limit + 1).read_to_end(&mut bytes)?;
-        if bytes.len() as u64 > limit {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} is larger than {limit} bytes")));
+        (&file).take(limit + 1).read_to_end(&mut bytes)?;
+        let after = file.metadata()?;
+        if (after.dev(), after.ino()) != id || after.len() != bytes.len() as u64 || after.nlink() == 0 || bytes.len() as u64 > limit {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} changed while it was read")));
         }
-        Ok((bytes, (metadata.dev(), metadata.ino())))
+        if self.child_id(name)? != id {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} was replaced while it was read")));
+        }
+        Ok((bytes, id))
     }
 
     /// Removes the non-directory entry `name` if it is still `expected`.
@@ -428,6 +454,8 @@ impl Dir {
 
     #[cfg(target_os = "macos")]
     fn rename_with(&self, from: &str, to: &str, flags: libc::c_uint) -> io::Result<()> {
+        #[cfg(test)]
+        if from == "review3-source" && flags == libc::RENAME_EXCL { return Err(io::Error::from_raw_os_error(libc::ENOTSUP)); }
         let (from, to) = (c_name(from)?, c_name(to)?);
         // SAFETY: valid descriptors and NUL-terminated names, both relative to this directory.
         check(unsafe { libc::renameatx_np(self.fd(), from.as_ptr(), self.fd(), to.as_ptr(), flags) }).map(drop)
@@ -444,20 +472,17 @@ impl Dir {
         }
     }
 
-    /// `renameatx_np(RENAME_EXCL)`; where the volume cannot honour it, the name
-    /// is checked and renamed (not protected against a concurrent writer).
+    /// `renameatx_np(RENAME_EXCL)`. Where the volume cannot honour it, the
+    /// rename is refused as unsupported (review round 4): a checked plain
+    /// rename could replace an empty folder created in between.
     fn rename_new(&self, from: &str, to: &str) -> io::Result<()> {
         #[cfg(target_os = "macos")]
-        match self.rename_with(from, to, libc::RENAME_EXCL) {
-            Err(error) if unsupported(&error) => {}
-            result => return result,
+        return self.rename_with(from, to, libc::RENAME_EXCL);
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = (from, to);
+            Err(io::Error::from(io::ErrorKind::Unsupported))
         }
-        if self.stat_child(to).is_ok() {
-            return Err(io::Error::from(io::ErrorKind::AlreadyExists));
-        }
-        let (from, to) = (c_name(from)?, c_name(to)?);
-        // SAFETY: as above.
-        check(unsafe { libc::renameat(self.fd(), from.as_ptr(), self.fd(), to.as_ptr()) }).map(drop)
     }
 }
 
@@ -604,6 +629,7 @@ fn unsupported(error: &io::Error) -> bool {
 
 /// macOS `renamex_np(RENAME_SWAP)` by path: only for tests that substitute the
 /// swap and then perform it (production swaps through the parent's handle).
+#[cfg(test)]
 pub fn platform_swap(staging: &Path, target: &Path) -> io::Result<()> {
     let (Some(parent), Some(from), Some(to)) = (staging.parent(), staging.file_name(), target.file_name()) else {
         return Err(io::Error::from(io::ErrorKind::InvalidInput));
@@ -664,12 +690,14 @@ fn admit_target(target: &Path) -> Result<Admitted, Diagnostic> {
     let replacing = match parent.stat_child(&name) {
         Ok(stat) if stat_kind(&stat) == Kind::Directory => {
             let existing = parent.open_dir(&name).map_err(|_| not_package())?;
-            if existing.id().ok() != Some(stat_id(&stat)) || verify_dir(&existing).is_err() {
+            if existing.id().ok() != Some(stat_id(&stat)) {
                 return Err(not_package());
             }
-            match layout_identity(&existing) {
-                Ok(Some((identity, _))) => Some(identity),
-                _ => return Err(not_package()),
+            // The identity recorded is the one whose bytes were read and
+            // verified (each member opened, fstat-checked, read and re-checked).
+            match verify_dir(&existing) {
+                Ok((_, identity)) => Some(identity),
+                Err(_) => return Err(not_package()),
             }
         }
         Ok(_) => return Err(not_package()),
@@ -701,19 +729,71 @@ fn failed(stage: &str, error: impl std::fmt::Display, parent: &Dir, staging_name
     )
 }
 
-/// Serializes this process's commits (see [`publish_package`]).
-static COMMIT: std::sync::Mutex<()> = std::sync::Mutex::new(());
+/// The destinations whose commit is running in this process, by the parent
+/// folder's identity and the package name (review round 4): two saves of the
+/// same destination commit one at a time; unrelated destinations never wait.
+static COMMITS: std::sync::Mutex<std::collections::BTreeSet<(EntryId, String)>> = std::sync::Mutex::new(std::collections::BTreeSet::new());
+static COMMIT_FREED: std::sync::Condvar = std::sync::Condvar::new();
 
-/// The folder now published as `name` is, through the parent's handle, the
-/// staging folder this save created and verified (every identity in `staged`)
-/// and verifies as a handoff package (review round 3, finding 1).
-fn published_is_ours(parent: &Dir, name: &str, staged: PackageIdentity) -> Result<(), String> {
-    let dir = parent.open_dir(name).map_err(|error| format!("`{name}` cannot be opened as a folder ({error})"))?;
-    match layout_identity(&dir) {
-        Ok(Some((identity, _))) if identity == staged && parent.child_id(name).ok() == Some(staged.folder) => {}
-        _ => return Err(format!("`{name}` is not the folder this save wrote and verified")),
+/// Holds one destination's commit; released on drop (also while unwinding).
+struct CommitGuard((EntryId, String));
+
+impl Drop for CommitGuard {
+    fn drop(&mut self) {
+        let mut running = COMMITS.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        running.remove(&self.0);
+        COMMIT_FREED.notify_all();
     }
-    verify_dir(&dir).map(drop)
+}
+
+fn commit_destination(parent: &Dir, name: &str) -> io::Result<CommitGuard> {
+    let key = (parent.id()?, name.to_string());
+    let mut running = COMMITS.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    while running.contains(&key) {
+        running = COMMIT_FREED.wait(running).unwrap_or_else(std::sync::PoisonError::into_inner);
+    }
+    running.insert(key.clone());
+    Ok(CommitGuard(key))
+}
+
+#[cfg(test)]
+thread_local! {
+    pub static R4_BEFORE_OPEN: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
+    pub static R4_AFTER_ID: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
+}
+
+/// What is published as `name` is what this save wrote (review rounds 3 and
+/// 4): through the parent's handle, the folder, `model/` and both members are
+/// the entries this save created (device and inode); each member, opened and
+/// fstat-checked as that file, reads back as exactly the in-memory bytes that
+/// were verified; and afterwards every name still names the same entry.
+fn published_is_ours(parent: &Dir, name: &str, staged: PackageIdentity, model: &[u8], manifest: &[u8]) -> Result<(), String> {
+    let not_ours = || format!("`{name}` is not the folder this save wrote and verified");
+    let dir = parent.open_dir(name).map_err(|error| format!("`{name}` cannot be opened as a folder ({error})"))?;
+    let model_dir = match layout_identity(&dir) {
+        Ok(Some((identity, model_dir))) if identity == staged && parent.child_id(name).ok() == Some(staged.folder) => model_dir,
+        _ => return Err(not_ours()),
+    };
+    #[cfg(test)]
+    R4_AFTER_ID.with(|hook| {
+        let f = hook.borrow_mut().take();
+        if let Some(f) = f {
+            f()
+        }
+    });
+    let limit = crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
+    let (model_read, _) = model_dir.read_member(MODEL_FILE, limit, Some(staged.model_file)).map_err(|error| format!("{MODEL_MEMBER}: {error}"))?;
+    if model_read != model {
+        return Err(format!("{MODEL_MEMBER} does not hold the bytes this save wrote"));
+    }
+    let (manifest_read, _) = dir.read_member(MANIFEST_MEMBER, MAX_MANIFEST_BYTES, Some(staged.manifest)).map_err(|error| format!("{MANIFEST_MEMBER}: {error}"))?;
+    if manifest_read != manifest {
+        return Err(format!("{MANIFEST_MEMBER} does not hold the bytes this save wrote"));
+    }
+    match layout_identity(&dir) {
+        Ok(Some((identity, _))) if identity == staged && parent.child_id(name).ok() == Some(staged.folder) => Ok(()),
+        _ => Err(not_ours()),
+    }
 }
 
 fn unverified(name: &str, why: &str, outcome: &str) -> Diagnostic {
@@ -768,7 +848,9 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             && Some(identity.manifest) == created.manifest => identity,
         _ => return Err(failed("verify", "the staging folder is not what this save wrote", &parent, &staging_name, created)),
     };
-    if let Err(error) = verify_dir(&staging) {
+    // The bytes verified are the in-memory bytes this save wrote (review
+    // round 4); what is published is later compared with them.
+    if let Err(error) = verify_bytes(model, manifest) {
         return Err(failed("verify", error, &parent, &staging_name, created));
     }
     if let Err(error) = (hooks.before_commit)() {
@@ -777,7 +859,10 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
     // This process's commits (checks, rename or swap, verification of what was
     // published, removal of the replaced package) run one at a time, so two
     // saves in the app never interleave inside each other's check and act.
-    let _commit = COMMIT.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    let _commit = match commit_destination(&parent, &name) {
+        Ok(guard) => guard,
+        Err(error) => return Err(failed("commit", error, &parent, &staging_name, created)),
+    };
     if let Some(admitted) = replacing {
         let changed = || {
             diagnostic(
@@ -819,7 +904,7 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
         // and nothing of either is removed.
         let moved_out_admitted = identity_at(&parent, &staging_name) == Some(admitted);
         if moved_out_admitted {
-            if let Err(why) = published_is_ours(&parent, &name, staged) {
+            if let Err(why) = published_is_ours(&parent, &name, staged, model, manifest) {
                 let restored = exchange().is_ok() && identity_at(&parent, &name) == Some(admitted);
                 let outcome = if restored {
                     format!("The previous package is back as `{name}`, unchanged; the substituted folder is left as {staging_name}. Save again.")
@@ -862,20 +947,25 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             None => parent.rename_new(&staging_name, &name),
         };
         if let Err(error) = renamed {
+            if unsupported(&error) {
+                let cleanup = cleanup_note(&parent, &staging_name, created);
+                return Err(diagnostic(
+                    NEW_NAME_UNSUPPORTED,
+                    "",
+                    format!("This volume cannot publish `{name}` without risking replacing something created meanwhile (no exclusive rename), so nothing was published.{cleanup}"),
+                ));
+            }
             if error.kind() == io::ErrorKind::AlreadyExists || error.raw_os_error() == Some(libc::EEXIST) {
                 let _ = remove_known(&parent, &staging_name, created);
                 return Err(diagnostic(DESTINATION_APPEARED, "", format!("`{name}` appeared while the package was written; nothing was replaced. Save again.")));
             }
             return Err(failed("rename", error, &parent, &staging_name, created));
         }
-        // What the rename published must be the staging folder this save
-        // verified; otherwise it is moved back under the staging name.
-        if let Err(why) = published_is_ours(&parent, &name, staged) {
-            let outcome = match parent.rename_new(&name, &staging_name) {
-                Ok(()) => format!("It was moved back to {staging_name}; nothing is published as `{name}`. Save again."),
-                Err(error) => format!("It could not be moved back ({error}); `{name}` holds a folder that is not a verified handoff package. Check it before using it."),
-            };
-            return Err(unverified(&name, &why, &outcome));
+        // What the rename published must be what this save wrote; otherwise
+        // it is refused and left where it is: nothing that is not the
+        // verified previous package is ever moved or deleted (review round 4).
+        if let Err(why) = published_is_ours(&parent, &name, staged, model, manifest) {
+            return Err(unverified(&name, &why, &format!("`{name}` was left as it is; it is not a verified handoff package. Check it before using it.")));
         }
     }
     let durability = if parent.sync().is_ok() { "durable" } else { "saved_durability_uncertain" };
@@ -919,25 +1009,43 @@ fn own_jcs_text(bytes: &[u8], member: &str) -> Result<Value, String> {
 /// checksums). A forger who rewrites those references and their digests
 /// together produces a package this verifier accepts; only the store can
 /// confirm them, which the save does when it publishes.
+#[cfg_attr(not(any(test, feature = "native-smoke")), allow(dead_code))]
 pub fn verify_handoff_package(directory: &Path) -> Result<HandoffVerification, String> {
     let dir = Dir::open_path(directory).map_err(|error| format!("{VERIFY_FAILED}: the folder could not be opened as a folder ({error})"))?;
-    verify_dir(&dir)
+    verify_dir(&dir).map(|(verification, _)| verification)
 }
 
-fn verify_dir(dir: &Dir) -> Result<HandoffVerification, String> {
+/// Reads and verifies the package folder `dir`: each member is opened,
+/// fstat-checked as the entry the layout names, read through that descriptor
+/// and re-checked, and the layout is checked again after both reads, so the
+/// bytes verified are one consistent package. Returns the verification and
+/// the identity whose bytes were verified.
+fn verify_dir(dir: &Dir) -> Result<(HandoffVerification, PackageIdentity), String> {
     let fail = |detail: String| format!("{VERIFY_FAILED}: {detail}");
-    let model_folder = match layout_identity(dir) {
-        Ok(Some((_, model))) => model,
+    let (identity, model_folder) = match layout_identity(dir) {
+        Ok(Some(found)) => found,
         Ok(None) => return Err(fail(format!("the folder does not hold exactly {MANIFEST_MEMBER} and {MODEL_MEMBER}"))),
         Err(error) => return Err(fail(format!("the folder could not be read ({error})"))),
     };
     let (model_bytes, _) = model_folder
-        .read_file(MODEL_FILE, crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES)
+        .read_member(MODEL_FILE, crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES, Some(identity.model_file))
         .map_err(|error| fail(format!("{MODEL_MEMBER}: {error}")))?;
-    let model = own_jcs_text(&model_bytes, MODEL_MEMBER).map_err(fail)?;
-    let model_hex = sha256_hex(std::str::from_utf8(&model_bytes).expect("checked UTF-8"));
-    let (manifest_bytes, _) = dir.read_file(MANIFEST_MEMBER, MAX_MANIFEST_BYTES).map_err(|error| fail(format!("{MANIFEST_MEMBER}: {error}")))?;
-    let instance = own_jcs_text(&manifest_bytes, MANIFEST_MEMBER).map_err(fail)?;
+    let (manifest_bytes, _) = dir
+        .read_member(MANIFEST_MEMBER, MAX_MANIFEST_BYTES, Some(identity.manifest))
+        .map_err(|error| fail(format!("{MANIFEST_MEMBER}: {error}")))?;
+    match layout_identity(dir) {
+        Ok(Some((after, _))) if after == identity => {}
+        _ => return Err(fail("the folder changed while it was read".to_string())),
+    }
+    Ok((verify_bytes(&model_bytes, &manifest_bytes)?, identity))
+}
+
+/// `verify_handoff_package`'s rules on the two members' bytes.
+pub fn verify_bytes(model_bytes: &[u8], manifest_bytes: &[u8]) -> Result<HandoffVerification, String> {
+    let fail = |detail: String| format!("{VERIFY_FAILED}: {detail}");
+    let model = own_jcs_text(model_bytes, MODEL_MEMBER).map_err(fail)?;
+    let model_hex = sha256_hex(std::str::from_utf8(model_bytes).expect("checked UTF-8"));
+    let instance = own_jcs_text(manifest_bytes, MANIFEST_MEMBER).map_err(fail)?;
     let Some(manifest) = instance.get("handoff_package_manifest").and_then(Value::as_object) else {
         return Err(fail(format!("{MANIFEST_MEMBER} has no handoff_package_manifest object")));
     };
@@ -952,10 +1060,34 @@ fn verify_dir(dir: &Dir) -> Result<HandoffVerification, String> {
     if !findings.is_empty() {
         return Err(fail(format!("{MANIFEST_MEMBER} does not bind {MODEL_MEMBER}: {}", findings.join("; "))));
     }
-    if expected.as_bytes() != manifest_bytes.as_slice() {
+    if expected.as_bytes() != manifest_bytes {
         return Err(fail(format!(
             "{MANIFEST_MEMBER} is not the contract envelope with the checksum inventory of {MODEL_MEMBER} (sha256 {model_hex}) and the manifest's export hash (sha256 {export_hex})"
         )));
     }
     Ok(HandoffVerification { model_hash: format!("sha256:{model_hex}"), export_hash: format!("sha256:{export_hex}") })
+}
+
+#[cfg(test)]
+mod review3_fallback {
+    use super::*;
+
+    /// Review round 4, note 4: without `RENAME_EXCL` (injected as `ENOTSUP` for
+    /// the name `review3-source`), the exclusive rename refuses as unsupported
+    /// and moves nothing: no checked plain rename that could replace an empty
+    /// folder created in between.
+    #[test]
+    fn round3_no_rename_excl_refuses_instead_of_a_checked_plain_rename() {
+        let root = std::env::temp_dir().join(format!("swbpipe-handoff-noexcl-{}-{:?}", std::process::id(), std::thread::current().id()));
+        std::fs::create_dir(&root).unwrap();
+        let parent = Dir::open_path(&root).unwrap();
+        let source = parent.create_dir("review3-source").unwrap();
+        source.create_file("kept.json", b"invented").unwrap();
+        parent.create_dir("target").unwrap();
+        let error = parent.rename_new("review3-source", "target").unwrap_err();
+        assert!(unsupported(&error), "{error}");
+        assert_eq!(std::fs::read(root.join("review3-source/kept.json")).unwrap(), b"invented");
+        assert_eq!(std::fs::read_dir(root.join("target")).unwrap().count(), 0, "the empty destination was replaced");
+        std::fs::remove_dir_all(&root).unwrap();
+    }
 }

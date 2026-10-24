@@ -128,6 +128,10 @@
         if (message().includes("MODEL-DOC-SAVE-HASH-PENDING") && attempt < 20) { await sleep(500); continue; }
         throw new Error(`${label}: ${message()}`);
       }
+      // The dialog focuses Cancel in an effect that runs after it is first
+      // painted; under host load the dialog can be seen before that. Give it a
+      // bounded moment (the check below still requires Cancel to have focus).
+      await waitFor(`${label}: Cancel focused`, () => document.activeElement === byTestId("handoff-save-cancel"), 2000).catch(() => null);
       const dialog = {
         label,
         basis: text("handoff-save-basis"),

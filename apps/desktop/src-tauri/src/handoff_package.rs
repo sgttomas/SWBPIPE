@@ -211,15 +211,20 @@ fn lifecycle_review_classification(lifecycle_status: Option<&str>) -> &'static s
 /// allows (public metadata only for `public_permissive`, an invented public
 /// example only for `invented_non_engineering_example`) and of every
 /// `privacy_class` / `privacy_classification` the covered objects state.
-/// A privacy value that is neither public (`public_*`) nor an invented
-/// example (`*invented*example*`) is private, so nothing a covered object
-/// marks private, protected, redacted or unknown is labelled public.
+/// A privacy value outside the schemas' public and invented-example values is
+/// private, so nothing a covered object marks private, protected, redacted,
+/// unknown or malformed is labelled public.
 fn reference_privacy(redistribution: &str, privacy_values: &[&str], private: &'static str) -> &'static str {
+    // Explicit allow-lists from the schemas' `privacy_class` and
+    // `privacy_classification` enums (review round 4, note 3); every other
+    // value, malformed ones included, is private.
+    const PUBLIC: [&str; 5] = ["public", "public_metadata", "public_permissive", "public_permissive_reviewed", "public_schema_only"];
+    const INVENTED_EXAMPLE: [&str; 2] = ["invented_public_example", "public_invented_example"];
     fn rank(value: &str) -> u8 {
-        if value.contains("invented") && value.contains("example") {
-            1
-        } else if value.starts_with("public") {
+        if PUBLIC.contains(&value) {
             0
+        } else if INVENTED_EXAMPLE.contains(&value) {
+            1
         } else {
             2
         }
@@ -2981,7 +2986,9 @@ fn round3_replacement_must_check_what_it_published_before_deleting_old_package()
             };
             let outcome = write_handoff_package(&target, prepared, CREATED_AT, &PublishHooks { rename_new: Some(&rename), ..PRODUCTION_HOOKS });
             assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::PUBLISH_UNVERIFIED), "new {mode}: {outcome:?}");
-            assert!(fs::symlink_metadata(&target).is_err(), "new {mode}: the unverified folder stayed published");
+            // Nothing but the verified previous package is ever moved or
+            // deleted (review round 4): the substitute is left where it is.
+            assert!(fs::symlink_metadata(&target).is_ok() && fs::symlink_metadata(&retained).is_ok(), "new {mode}: something was moved or deleted");
 
             // A replacement.
             let (store, first) = prepared_demo(&format!("round3-commit-swap-{mode}"));
@@ -3004,5 +3011,303 @@ fn round3_replacement_must_check_what_it_published_before_deleting_old_package()
             assert_eq!(package_bytes(&target), old, "swap {mode}: the previous package was not restored unchanged");
             assert!(verify_handoff_package(&target).is_ok(), "swap {mode}");
         }
+    }
+
+
+#[test]
+fn round2_differential_verifier_results() {
+    // A reviewer's harness: runs only when W6B_DIFF_ROOT names a folder of packages.
+    let Ok(root) = std::env::var("W6B_DIFF_ROOT") else { return };
+    let root = PathBuf::from(root);
+    let mut results = BTreeMap::new();
+    for entry in fs::read_dir(&root).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_dir() {
+            let result = verify_handoff_package(&path);
+            results.insert(path.file_name().unwrap().to_string_lossy().to_string(), json!({"ok":result.is_ok(), "result":format!("{result:?}")}));
+        }
+    }
+    fs::write(root.join("rust-results.json"), serde_json::to_vec_pretty(&results).unwrap()).unwrap();
+}
+
+
+#[test]
+fn round3_array_nesting_unexpected_keys_and_escaped_pointer_screen() {
+    let doc = json!({"~unexpected/key": [[[{"nonsense": {"provenance_record": {"privacy_classification": "protected_suspected"}}}]]], "legal": {"privacy_class": "private_user_data", "redistribution_status": "unknown", "review_status": "pending"}});
+    assert_eq!(screen_document(&doc), vec!["/~0unexpected~1key/0/0/0/nonsense/provenance_record/privacy_classification protected_suspected"]);
+    for key in ["review_classification", "redistribution_classification", "reviewStatus", "redistributionStatus"] {
+        println!("ALTERNATE_KEY {key}: {:?}", screen_document(&json!({key:"quarantined"})));
+    }
+}
+
+
+#[test]
+fn round3_intermediate_symlink_and_moved_parent_use_the_original_handle() {
+    let (store, prepared) = prepared_demo("round3-parent");
+    let original = store.root.join("original"); fs::create_dir_all(original.join("inside")).unwrap();
+    let link = store.root.join("link"); std::os::unix::fs::symlink(&original, &link).unwrap();
+    let target = link.join("inside/target.swbhandoff");
+    let moved = store.root.join("moved");
+    let before = || { fs::rename(&original, &moved)?; fs::create_dir_all(original.join("inside")) };
+    let outcome = write_handoff_package(&target, prepared, CREATED_AT, &PublishHooks { before_commit: &before, ..PRODUCTION_HOOKS });
+    assert!(matches!(outcome, HandoffSaveOutcome::Saved {..}), "{outcome:?}");
+    assert!(verify_handoff_package(&moved.join("inside/target.swbhandoff")).is_ok());
+    assert!(!original.join("inside/target.swbhandoff").exists());
+}
+
+
+#[test]
+fn round3_external_bytes_verifier_results() {
+    // A reviewer's harness: runs only when W6B_DIFF_ROOT names a folder of packages.
+    let Ok(root) = std::env::var("W6B_DIFF_ROOT") else { return };
+    let root = PathBuf::from(root);
+    let mut results = BTreeMap::new();
+    for entry in fs::read_dir(&root).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_dir() {
+            let result = verify_handoff_package(&path);
+            results.insert(path.file_name().unwrap().to_string_lossy().to_string(), json!({"ok":result.is_ok(),"result":format!("{result:?}")}));
+        }
+    }
+    fs::write(root.join("rust-results.json"), serde_json::to_vec_pretty(&results).unwrap()).unwrap();
+}
+
+
+#[test]
+fn round3_legitimate_stored_library_documents_do_not_over_refuse() {
+    for (kind, document) in [
+        ("material", include_str!("../../../../fixtures/material/invented_material_library_valid.json")),
+        ("section", include_str!("../../../../fixtures/component/invented_section_library_valid.json")),
+        ("component", include_str!("../../../../fixtures/component/invented_component_library_valid.json")),
+        ("hanger", include_str!("../../../../fixtures/hanger/invented_hanger_library_valid.json")),
+    ] {
+        let model = witness_model();
+        let store = store(&format!("round3-legitimate-{kind}"), &model, false);
+        let document: Value = serde_json::from_str(document).unwrap();
+        let outcome = crate::save_local_library_value(|| Ok(store.path.clone()), "project:slots".to_string(), kind.to_string(), document);
+        let saved = outcome.unwrap();
+        assert!(saved.stored, "{kind}: {}", saved.message);
+        let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", kind, &saved.library_id).unwrap().unwrap();
+        assert!(screen_document(&row.document).is_empty(), "{kind}: {:?}", screen_document(&row.document));
+    }
+    let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+    assert!(screen_document(&pack).is_empty());
+}
+
+#[test]
+fn round4_reference_privacy_uses_exact_known_public_values() {
+    let mut failures = Vec::new();
+    for value in ["TBD", "unknown", "private_user_data", "private_project_data", "redacted", "commercial_tool_metadata", "private_invented_example", "publicity_sensitive", "public_private"] {
+        let got = reference_privacy("public_permissive", &[value], "private_library_data");
+        if got != "private_library_data" { failures.push((value, got)); }
+    }
+    assert!(failures.is_empty(), "unknown/private values promoted: {failures:?}");
+}
+
+#[test]
+fn round4_every_library_kind_propagates_nested_private_values() {
+    for (kind, fixture) in [
+        ("material", include_str!("../../../../fixtures/material/invented_material_library_valid.json")),
+        ("section", include_str!("../../../../fixtures/component/invented_section_library_valid.json")),
+        ("component", include_str!("../../../../fixtures/component/invented_component_library_valid.json")),
+        ("hanger", include_str!("../../../../fixtures/hanger/invented_hanger_library_valid.json"))
+    ] {
+        for key in ["privacy_class", "privacy_classification"] {
+            for private in ["private_user_data", "TBD", "redacted", "unknown", "commercial_tool_metadata"] {
+                let mut model=witness_model();
+                let reference=&mut model["materials"][0]["provenance_record"]["library_ref"];
+                reference["library_kind"]=json!(kind);
+                reference.as_object_mut().unwrap().remove("record_id");
+                let mut lib: Value=serde_json::from_str(fixture).unwrap();
+                fn public(v:&mut Value) { match v { Value::Object(m)=>for (k,v) in m {if k=="redistribution_status"{*v=json!("public_permissive")}else{public(v)}},Value::Array(a)=>for v in a{public(v)},_=>{}} }
+                public(&mut lib);
+                lib[format!("{kind}_library")]["extra_privacy"]=json!({"array":[[{key:private}]]});
+                let mut lookup=|_:&str,_:&str,_:&str|Ok(Some(lib.clone()));
+                let (refs,_)=library_refs(&model,"project:slots",&mut lookup).unwrap();
+                assert_eq!(refs.len(),1,"{kind}");
+                assert_eq!(refs[0]["privacy_classification"],json!("private_library_data"),"{kind}:{key}:{private}");
+                assert_eq!(refs[0]["provenance"]["privacy_classification"],json!("private_library_data"));
+            }
+        }
+    }
+}
+
+#[test]
+fn round4_rule_reference_and_pack_both_propagate_private_values() {
+    for where_ in ["reference","pack"] {
+        for key in ["privacy_class", "privacy_classification"] {
+            for private in ["private_user_data", "TBD", "redacted", "unknown", "commercial_tool_metadata"] {
+                let mut model=witness_model();
+                let mut pack: Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+                if where_=="pack" {pack["extra_privacy"]=json!({"array":[[{key:private}]]});}
+                else {model["rule_pack_refs"][0]["extra_privacy"]=json!({"array":[[{key:private}]]});}
+                let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+                pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+                model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+                let mut lookup=|_:&str,_:&str|Ok(vec![pack.clone()]);
+                let (refs,_)=rule_pack_refs(&model,"project:slots",&mut lookup).unwrap();
+                assert_eq!(refs[0]["privacy_classification"],json!("private_rule_pack_data"),"{where_}:{key}:{private}");
+                assert_eq!(refs[0]["provenance"]["privacy_classification"],json!("private_rule_pack_data"));
+            }
+        }
+    }
+}
+
+#[test]
+fn round4_panic_inside_commit_does_not_poison_following_saves() {
+    let (store,prepared)=prepared_demo("round4-panic");
+    let target=store.root.join("target.swbhandoff");
+    let rename=|_:&Path,_:&Path| -> io::Result<()> {panic!("review injected panic before rename")};
+    let out=std::panic::catch_unwind(std::panic::AssertUnwindSafe(||write_handoff_package(&target,prepared,CREATED_AT,&PublishHooks{rename_new:Some(&rename),..PRODUCTION_HOOKS})));
+    assert!(out.is_err());
+    let (_other,next)=prepared_demo("round4-panic-next");
+    assert!(matches!(write(&target,next),HandoffSaveOutcome::Saved{..}));
+    assert!(verify_handoff_package(&target).is_ok());
+    let old_bytes=package_bytes(&target);
+    let (_third,next)=prepared_demo("round4-panic-after-swap");
+    let token=||Ok("round4-panic-after-swap".to_string());
+    let swap=|a:&Path,b:&Path| -> io::Result<()> {publish::platform_swap(a,b)?;panic!("review injected panic after swap")};
+    let out=std::panic::catch_unwind(std::panic::AssertUnwindSafe(||write_handoff_package(&target,next,CREATED_AT,&PublishHooks{token:&token,swap:Some(&swap),..PRODUCTION_HOOKS})));
+    assert!(out.is_err());
+    let kept=store.root.join("target.swbhandoff.staging-round4-panic-after-swap");
+    assert_eq!(package_bytes(&kept),old_bytes);
+    assert!(verify_handoff_package(&target).is_ok());
+    let (_fourth,next)=prepared_demo("round4-panic-recovered");
+    assert!(matches!(write(&target,next),HandoffSaveOutcome::Saved{..}));
+    assert_eq!(package_bytes(&kept),old_bytes);
+}
+
+#[test]
+fn round4_changed_member_after_identity_check_is_not_the_written_package() {
+    let (store,first)=prepared_demo("round4-read-gap");
+    let target=store.root.join("target.swbhandoff");
+    assert!(matches!(write(&target,first),HandoffSaveOutcome::Saved{..}));
+    let old=package_bytes(&target);
+    let (_other,mut next)=prepared_demo("round4-read-gap-next");
+    next.package_label="Intended package".to_string();
+    let mut forged=handoff_manifest(&next,&PackageStamp{package_name:"target.swbhandoff",created_at:CREATED_AT});
+    forged.get_mut("package_identity").unwrap()["package_label"]=json!("Substituted during post-publication verification");
+    let (forged_text,_)=publish::seal_manifest(forged,&next.model_hex);
+    let target2=target.clone();
+    publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut()=Some(Box::new(move||{
+        let replacement=target2.join("replacement.json");
+        fs::write(&replacement,forged_text).unwrap();
+        fs::rename(&replacement,target2.join("handoff_package.json")).unwrap();
+    })));
+    let out=write(&target,next);
+    let actual=package_bytes(&target);
+    println!("READ_GAP {out:?}; verifies={:?}; old_retained={}",verify_handoff_package(&target),!staging_left(&store.root).is_empty());
+    assert!(matches!(out,HandoffSaveOutcome::Refused{..}),"Saved a member substituted after the identity check; deleted previous {}-byte manifest; published {} bytes",old.0.len(),actual.0.len());
+}
+
+#[test]
+fn round4_fifo_substitution_stalls_unrelated_destinations_until_a_writer_arrives() {
+    use std::sync::mpsc;
+    use std::time::Duration;
+    let (store,prepared)=prepared_demo("round4-fifo");
+    let target=store.root.join("target.swbhandoff");
+    let (_other,other)=prepared_demo("round4-fifo-unrelated");
+    let unrelated=store.root.join("unrelated.swbhandoff");
+    let (ready_tx,ready_rx)=mpsc::channel();
+    let (result_tx,result_rx)=mpsc::channel();
+    let (attempt_tx,attempt_rx)=mpsc::channel();
+    let target2=target.clone();
+    let helper=std::thread::spawn(move|| {
+        ready_rx.recv().unwrap();
+        let save=std::thread::spawn(move||{
+            let before=||{attempt_tx.send(()).unwrap();Ok(())};
+            let out=write_handoff_package(&unrelated,other,CREATED_AT,&PublishHooks{before_commit:&before,..PRODUCTION_HOOKS});
+            result_tx.send(out).unwrap();
+        });
+        attempt_rx.recv().unwrap();
+        let first=result_rx.recv_timeout(Duration::from_millis(250));
+        let blocked=first.is_err();
+        // Release the blocked read-only FIFO open, so this test leaves no hung thread.
+        // (Non-blocking: once the save no longer blocks in the open, no reader holds the FIFO.)
+        use std::os::unix::fs::OpenOptionsExt;
+        drop(fs::OpenOptions::new().write(true).custom_flags(libc::O_NONBLOCK).open(target2.join("model/model.json")));
+        let out=match first { Ok(out)=>out, Err(_)=>result_rx.recv_timeout(Duration::from_secs(10)).unwrap() };
+        save.join().unwrap();
+        assert!(matches!(out,HandoffSaveOutcome::Saved{..}));
+        blocked
+    });
+    let target3=target.clone();
+    publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut()=Some(Box::new(move||{
+        publish::R4_BEFORE_OPEN.with(|next| *next.borrow_mut()=Some(Box::new(move||{
+            let member=target3.join("model/model.json");
+            fs::rename(&member,target3.join("model/retained.json")).unwrap();
+            use std::os::unix::ffi::OsStrExt;
+            let name=std::ffi::CString::new(member.as_os_str().as_bytes()).unwrap();
+            assert_eq!(unsafe{libc::mkfifo(name.as_ptr(),0o600)},0);
+            ready_tx.send(()).unwrap();
+        })));
+    })));
+    let out=write(&target,prepared);
+    println!("FIFO_SUBSTITUTION {out:?}");
+    assert!(matches!(out,HandoffSaveOutcome::Refused{..}));
+    assert!(!helper.join().unwrap(),"opening an untrusted FIFO blocked a different destination behind the process-global commit mutex");
+}
+
+#[test]
+fn round4_member_replaced_during_verification_must_not_return_saved_and_delete_old() {
+    let (store,first)=prepared_demo("round4-inconsistent-read");
+    let target=store.root.join("target.swbhandoff");
+    assert!(matches!(write(&target,first),HandoffSaveOutcome::Saved{..}));
+    let old=package_bytes(&target);
+    let (_other,next)=prepared_demo("round4-inconsistent-read-next");
+    let target2=target.clone();
+    publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut()=Some(Box::new(move||{
+        // This first callback runs before reading the model. Its callback runs
+        // before reading the manifest, after the model bytes have been read.
+        publish::R4_BEFORE_OPEN.with(|next| *next.borrow_mut()=Some(Box::new(move||{
+            publish::R4_BEFORE_OPEN.with(|next| *next.borrow_mut()=Some(Box::new(move||{
+                let replacement=target2.join("model/replacement.json");
+                fs::write(&replacement,b"{}").unwrap();
+                fs::rename(&replacement,target2.join("model/model.json")).unwrap();
+            })));
+        })));
+    })));
+    let out=write(&target,next);
+    let verified=verify_handoff_package(&target);
+    println!("INCONSISTENT_READ {out:?}; verifies={verified:?}; old_retained={}",!staging_left(&store.root).is_empty());
+    assert!(matches!(out,HandoffSaveOutcome::Refused{..}),"Saved an invalid package and removed previous {}-byte manifest",old.0.len());
+}
+
+
+    /// Review round 4, should-fix 2: commits are serialized per destination
+    /// only; a save of another name commits while one is held inside its commit.
+    #[test]
+    fn a_commit_held_open_does_not_stall_a_save_of_another_destination() {
+        use std::sync::mpsc;
+        use std::time::Duration;
+        let (store, held) = prepared_demo("round4-keyed-held");
+        let (_other, free) = prepared_demo("round4-keyed-free");
+        let held_target = store.root.join("held.swbhandoff");
+        let free_target = store.root.join("free.swbhandoff");
+        let (entered_tx, entered_rx) = mpsc::channel();
+        let (release_tx, release_rx) = mpsc::channel::<()>();
+        let holder = std::thread::spawn(move || {
+            let rename = |staging: &Path, destination: &Path| {
+                entered_tx.send(()).unwrap();
+                let _ = release_rx.recv_timeout(Duration::from_secs(10));
+                fs::rename(staging, destination)
+            };
+            write_handoff_package(&held_target, held, CREATED_AT, &PublishHooks { rename_new: Some(&rename), ..PRODUCTION_HOOKS })
+        });
+        entered_rx.recv_timeout(Duration::from_secs(10)).unwrap();
+        let (done_tx, done_rx) = mpsc::channel();
+        let saver = std::thread::spawn(move || done_tx.send(write(&free_target, free)).unwrap());
+        let while_held = done_rx.recv_timeout(Duration::from_secs(5));
+        release_tx.send(()).unwrap();
+        let held = holder.join().unwrap();
+        let independent = while_held.is_ok();
+        let unrelated = match while_held {
+            Ok(outcome) => outcome,
+            Err(_) => done_rx.recv_timeout(Duration::from_secs(10)).unwrap(),
+        };
+        saver.join().unwrap();
+        assert!(independent, "a save of another destination waited for a held commit");
+        assert!(matches!(held, HandoffSaveOutcome::Saved { .. }), "{held:?}");
+        assert!(matches!(unrelated, HandoffSaveOutcome::Saved { .. }), "{unrelated:?}");
     }
 }
