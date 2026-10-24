@@ -80,7 +80,7 @@ CREATE TRIGGER IF NOT EXISTS model_states_no_replace BEFORE INSERT ON model_stat
 pub(crate) fn migrate_v12_model_states(connection: &Connection) -> Result<(), String> {
     connection
         .execute_batch(STORE_V12_MODEL_STATES_SQL)
-        .map_err(|error| error.to_string())
+        .map_err(|error| stored_read::sql_error(&error))
 }
 
 /// `ModelStateRecord.state_kind` without `TBD`; the desktop default is the first.
@@ -146,7 +146,7 @@ pub(crate) const RECORD_NUMBER_UNSUPPORTED: &str = "MODEL-STATE-RECORD-NUMBER-UN
 #[cfg(test)]
 pub(crate) fn sorted_compact_json(value: &Value) -> Result<String, String> {
     let length = sorted_compact_length(value)?;
-    let mut out = String::with_capacity(usize::try_from(length).map_err(|error| error.to_string())?);
+    let mut out = String::with_capacity(usize::try_from(length).map_err(|_| "a length does not fit this platform".to_string())?);
     write_sorted_compact(value, None, &mut out)?;
     Ok(out)
 }
@@ -258,7 +258,7 @@ pub(crate) fn record_hash_hex(stored_record: &Value, memory: &dyn ReadMemory, wh
     let mut count = LengthCount(0);
     write_sorted_compact(stored_record, Some("hashes"), &mut count)?;
     let _text = memory.reserve(what, stored_read::exact_text_bytes(count.0))?;
-    let mut text = String::with_capacity(usize::try_from(count.0).map_err(|error| error.to_string())?);
+    let mut text = String::with_capacity(usize::try_from(count.0).map_err(|_| "a length does not fit this platform".to_string())?);
     write_sorted_compact(stored_record, Some("hashes"), &mut text)?;
     Ok(sha256_hex(&text))
 }
@@ -362,12 +362,12 @@ fn string_list(map: &mut Map<String, Value>, key: &str, code: &str) -> Result<Ve
             .map(|item| match item {
                 Value::String(text) => Ok(text),
                 _ => Err(labels_invalid(code, format_args!(
-                    "`{key}` holds a value that is not a string"
+                    "`{key}` holds a value that is not a string", key = stored_read::shown(&key)
                 ))),
             })
             .collect(),
         Some(_) => Err(labels_invalid(code, format_args!(
-            "`{key}` is not a list of strings"
+            "`{key}` is not a list of strings", key = stored_read::shown(&key)
         ))),
     }
 }
@@ -399,12 +399,12 @@ pub(crate) fn labels_from_value_in(
     for (index, tag) in tags.iter().enumerate() {
         if tag.trim() != tag || tag.is_empty() || tag.chars().count() > MAX_TAG_CHARS {
             return Err(labels_invalid(code, format_args!(
-                "tag \"{tag}\" must be non-empty, trimmed and at most {MAX_TAG_CHARS} characters"
+                "tag \"{tag}\" must be non-empty, trimmed and at most {MAX_TAG_CHARS} characters", tag = stored_read::shown(&tag)
             )));
         }
         if tags[..index].contains(tag) {
             return Err(labels_invalid(code, format_args!(
-                "tag \"{tag}\" is listed twice"
+                "tag \"{tag}\" is listed twice", tag = stored_read::shown(&tag)
             )));
         }
     }
@@ -425,13 +425,13 @@ pub(crate) fn labels_from_value_in(
         let id = assumption["assumption_id"].as_str().unwrap_or("");
         if ids.contains(&id) {
             return Err(labels_invalid(code, format_args!(
-                "assumption id `{id}` is listed twice"
+                "assumption id `{id}` is listed twice", id = stored_read::shown(&id)
             )));
         }
         ids.push(id);
     }
     if let Some(key) = map.keys().next() {
-        return Err(labels_invalid(code, format_args!("unknown member `{key}`")));
+        return Err(labels_invalid(code, format_args!("unknown member `{key}`", key = stored_read::shown(&key))));
     }
     // The write-time bound on labels (repairs r2, r3): every path that writes
     // labels (Save Model State, Record Run, the label edits) decodes them here
@@ -488,7 +488,7 @@ fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
     ];
     if let Some(key) = map.keys().find(|key| !ALLOWED.contains(&key.as_str())) {
         return Err(labels_invalid(code, format_args!(
-            "unknown assumption member `{key}`"
+            "unknown assumption member `{key}`", key = stored_read::shown(&key)
         )));
     }
     let text = |key: &str| {
@@ -501,23 +501,23 @@ fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
         .ok_or_else(|| labels_invalid(code, "an assumption needs an `assumption_id`"))?;
     if !is_record_id(id) {
         return Err(labels_invalid(code, format_args!(
-            "assumption id `{id}` is not a record id ([A-Za-z][A-Za-z0-9_.:-]*)"
+            "assumption id `{id}` is not a record id ([A-Za-z][A-Za-z0-9_.:-]*)", id = stored_read::shown(&id)
         )));
     }
     let kind = text("kind")
         .filter(|kind| ASSUMPTION_KINDS.contains(kind))
         .ok_or_else(|| {
             labels_invalid(code, format_args!(
-                "assumption `{id}`: `kind` must be assumption or open_issue"
+                "assumption `{id}`: `kind` must be assumption or open_issue", id = stored_read::shown(&id)
             ))
         })?;
     let statement = text("statement")
-        .ok_or_else(|| labels_invalid(code, format_args!("assumption `{id}` needs a statement")))?;
+        .ok_or_else(|| labels_invalid(code, format_args!("assumption `{id}` needs a statement", id = stored_read::shown(&id))))?;
     let status = text("status")
         .filter(|status| ASSUMPTION_STATUSES.contains(status))
         .ok_or_else(|| {
             labels_invalid(code, format_args!(
-                "assumption `{id}`: `status` must be unresolved, resolved or rejected"
+                "assumption `{id}`: `status` must be unresolved, resolved or rejected", id = stored_read::shown(&id)
             ))
         })?;
     let mut refs: Vec<String> = Vec::new();
@@ -531,12 +531,12 @@ fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
                     .filter(|text| !text.is_empty())
                     .ok_or_else(|| {
                         labels_invalid(code, format_args!(
-                            "assumption `{id}`: an affected ref is not an entity id"
+                            "assumption `{id}`: an affected ref is not an entity id", id = stored_read::shown(&id)
                         ))
                     })?;
                 if refs.iter().any(|known| known == reference) {
                     return Err(labels_invalid(code, format_args!(
-                        "assumption `{id}` names `{reference}` twice"
+                        "assumption `{id}` names `{reference}` twice", id = stored_read::shown(&id), reference = stored_read::shown(&reference)
                     )));
                 }
                 refs.push(reference.to_string());
@@ -544,7 +544,7 @@ fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
         }
         Some(_) => {
             return Err(labels_invalid(code, format_args!(
-                "assumption `{id}`: `affected_refs` is not a list"
+                "assumption `{id}`: `affected_refs` is not a list", id = stored_read::shown(&id)
             )))
         }
     }
@@ -555,12 +555,12 @@ fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
         && note.is_none()
     {
         return Err(labels_invalid(code, format_args!(
-            "assumption `{id}`: the resolution note is blank"
+            "assumption `{id}`: the resolution note is blank", id = stored_read::shown(&id)
         )));
     }
     if status != "unresolved" && note.is_none() {
         return Err(labels_invalid(code, format_args!(
-            "assumption `{id}` is {status}: it needs a resolution note"
+            "assumption `{id}` is {status}: it needs a resolution note", id = stored_read::shown(&id), status = stored_read::shown(&status)
         )));
     }
     let mut record = json!({
@@ -635,7 +635,7 @@ fn assumption_record(
     let field = |key: &str| record.get(key).and_then(Value::as_str);
     let id = field("assumption_id").unwrap_or("");
     let unmappable = |detail: &str| {
-        format!("MODEL-STATE-ASSUMPTION-UNMAPPABLE: assumption `{id}` {detail}; correct it in the model before saving a state.")
+        format!("MODEL-STATE-ASSUMPTION-UNMAPPABLE: assumption `{id}` {detail}; correct it in the model before saving a state.", id = stored_read::shown(&id))
     };
     if !is_record_id(id) {
         return Err(unmappable("has no record id ([A-Za-z][A-Za-z0-9_.:-]*)"));
@@ -799,7 +799,7 @@ pub(crate) fn stored_record(state: &NewState<'_>, memory: &dyn ReadMemory) -> Re
         },
         "provenance": record_provenance()
     });
-    let hash = record_hash_hex(&record, memory, &format!("the record of new state `{}`", state.state_id))?;
+    let hash = record_hash_hex(&record, memory, &format!("the record of new state `{}`", stored_read::shown(state.state_id)))?;
     record["hashes"] = checksum_descriptors(
         state.project_id,
         state.state_id,
@@ -1004,7 +1004,7 @@ pub(crate) const PRODUCTION_HOOKS: StateWriteHooks<'static> = StateWriteHooks {
 };
 
 pub(crate) fn sql(error: rusqlite::Error) -> String {
-    error.to_string()
+    stored_read::sql_error(&error)
 }
 
 fn hash_mismatch(detail: &str) -> String {
@@ -1021,7 +1021,7 @@ fn verified_snapshot(model_canonical: &str, claimed: &str, memory: &dyn ReadMemo
         .map_err(|detail| hash_mismatch(&format!("the snapshot is not JSON ({detail})")))?;
     let reservation = memory.reserve("the submitted snapshot", parse)?;
     let model: Value = serde_json::from_str(model_canonical)
-        .map_err(|error| hash_mismatch(&format!("the snapshot is not JSON ({error})")))?;
+        .map_err(|error| hash_mismatch(&format!("the snapshot is not JSON ({error})", error = stored_read::json_error(&error))))?;
     if !stored_read::is_jcs_text(memory, "the submitted snapshot's canonical text", &model, model_canonical)? {
         return Err(hash_mismatch(
             "the snapshot text is not its own canonical JCS text",
@@ -1031,7 +1031,7 @@ fn verified_snapshot(model_canonical: &str, claimed: &str, memory: &dyn ReadMemo
     let hex = sha256_hex(model_canonical);
     if claimed != format!("sha256:{hex}") {
         return Err(hash_mismatch(&format!(
-            "the snapshot hashes to sha256:{hex}, not the claimed {claimed}"
+            "the snapshot hashes to sha256:{hex}, not the claimed {claimed}", claimed = stored_read::shown(&claimed)
         )));
     }
     Ok((model, hex))
@@ -1057,15 +1057,15 @@ fn decode_labels(
                 .saturating_mul(2),
         );
     }
-    let reservation = memory.reserve(&format!("saved state `{state_id}`'s labels"), price)?;
+    let reservation = memory.reserve(&format!("saved state `{state_id}`'s labels", state_id = stored_read::shown(&state_id)), price)?;
     let parse = |text: &str| {
         serde_json::from_str::<Value>(text).map_err(|error| {
-            format!("MODEL-STATE-INTEGRITY: a stored label is not JSON ({error}).")
+            format!("MODEL-STATE-INTEGRITY: a stored label is not JSON ({error}).", error = stored_read::json_error(&error))
         })
     };
     let strings = |value: Value| -> Result<Vec<String>, String> {
         serde_json::from_value(value).map_err(|error| {
-            format!("MODEL-STATE-INTEGRITY: a stored label list is malformed ({error}).")
+            format!("MODEL-STATE-INTEGRITY: a stored label list is malformed ({error}).", error = stored_read::json_error(&error))
         })
     };
     let labels = StateLabels {
@@ -1073,7 +1073,7 @@ fn decode_labels(
         tags: strings(parse(tags)?)?,
         notes: strings(parse(notes)?)?,
         assumptions: serde_json::from_value(parse(assumptions)?).map_err(|error| {
-            format!("MODEL-STATE-INTEGRITY: the stored assumptions are malformed ({error}).")
+            format!("MODEL-STATE-INTEGRITY: the stored assumptions are malformed ({error}).", error = stored_read::json_error(&error))
         })?,
     };
     Ok((labels, reservation))
@@ -1082,6 +1082,52 @@ fn decode_labels(
 /// The byte lengths a state summary loads, read with `octet_length` and counts
 /// before any of it is loaded: the record, the labels row, the child state ids,
 /// and the recorded runs' ids and names.
+/// The identity and time columns a state summary loads, each with the bytes
+/// the store keeps in it (repair r5; `stored_read::MAX_ID_BYTES` and the rest).
+const STATE_IDENTITY: [stored_read::BoundedColumn; 8] = [
+    ("s.project_id", "project_id", stored_read::MAX_ID_BYTES),
+    ("s.state_id", "state_id", stored_read::MAX_ID_BYTES),
+    ("s.state_kind", "state_kind", stored_read::MAX_KIND_BYTES),
+    ("s.created_at", "created_at", stored_read::MAX_TIME_BYTES),
+    ("s.parent_state_id", "parent_state_id", stored_read::MAX_ID_BYTES),
+    ("s.model_hash", "model_hash", stored_read::MAX_HASH_BYTES),
+    ("s.record_hash", "record_hash", stored_read::MAX_HASH_BYTES),
+    ("l.updated_at", "labels_updated_at", stored_read::MAX_TIME_BYTES),
+];
+
+/// The byte lengths a state summary loads, with every loaded column measured:
+/// [`SUMMARY_LENGTHS`] and the identity and time columns' sum.
+fn summary_lengths_sql() -> String {
+    format!("{SUMMARY_LENGTHS}, {} AS identity_length", stored_read::columns_bytes(&STATE_IDENTITY))
+}
+
+/// Refuses, before anything of it is loaded, the first state row of
+/// `project_id` (or the state `state_id`) whose identity or time column holds
+/// more than its bound (repair r5): an integrity refusal naming the row by the
+/// head of its id.
+fn refuse_oversized_states(connection: &Connection, project_id: &str, state_id: Option<&str>) -> Result<(), String> {
+    let oversized = stored_read::oversized_column(&STATE_IDENTITY);
+    let found: Option<(Vec<u8>, i64, String)> = connection
+        .query_row(
+            &format!(
+                "SELECT {}, {oversized} FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id
+                 WHERE s.project_id = ?1 AND (?2 IS NULL OR s.state_id = ?2) AND {oversized} IS NOT NULL LIMIT 1",
+                stored_read::shown_column("s.state_id")
+            ),
+            params![project_id, state_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .optional()
+        .map_err(sql)?;
+    match found {
+        None => Ok(()),
+        Some((head, length, column)) => Err(integrity_of(
+            &stored_read::shown_head(&head, length),
+            format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&STATE_IDENTITY, &column)),
+        )),
+    }
+}
+
 const SUMMARY_LENGTHS: &str = "octet_length(s.record_json) AS record_length,
     COALESCE(octet_length(l.state_name) + octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.updated_at), 0) AS labels_length,
     (SELECT COUNT(*) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id) AS child_count,
@@ -1100,6 +1146,7 @@ pub(crate) struct SummaryLengths {
     child_bytes: u64,
     run_count: u64,
     run_bytes: u64,
+    identity: u64,
     rows: u64,
 }
 
@@ -1114,7 +1161,8 @@ fn lengths_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<SummaryLengths> {
         child_bytes: length(3)?,
         run_count: length(4)?,
         run_bytes: length(5)?,
-        rows: length(6)?,
+        identity: length(6)?,
+        rows: length(7)?,
     })
 }
 
@@ -1123,8 +1171,9 @@ fn state_summary_lengths(connection: &Connection, project_id: &str, state_id: &s
     connection
         .query_row(
             &format!(
-                "SELECT {SUMMARY_LENGTHS}, 1 FROM model_states s LEFT JOIN model_state_labels l
-                 ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1 AND s.state_id = ?2"
+                "SELECT {}, 1 FROM model_states s LEFT JOIN model_state_labels l
+                 ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1 AND s.state_id = ?2",
+                summary_lengths_sql()
             ),
             params![project_id, state_id],
             lengths_row,
@@ -1134,16 +1183,19 @@ fn state_summary_lengths(connection: &Connection, project_id: &str, state_id: &s
 }
 
 /// What loading summaries of these lengths needs before any is loaded: the
-/// largest record's loading, every labels row, the id and name lists, and each
-/// row's small columns. (The record's sorted-compact hash text is reserved at
-/// its exact length when it is built, [`record_hash_hex`].)
+/// largest record's loading, every labels row, the id lists, every row's
+/// identity and time columns as measured (each within its bound,
+/// [`refuse_oversized_states`]), and each row's structure. (The record's
+/// sorted-compact hash text is reserved at its exact length when it is built,
+/// [`record_hash_hex`].)
 pub(crate) fn summary_load_bytes(lengths: &SummaryLengths) -> u64 {
     stored_read::total(&[
         stored_read::loaded_text_bytes(lengths.record),
         stored_read::loaded_text_bytes(lengths.labels),
         stored_read::string_list_bytes(lengths.child_count, lengths.child_bytes),
         stored_read::string_list_bytes(lengths.run_count, lengths.run_bytes),
-        lengths.rows.saturating_mul(4096),
+        stored_read::string_list_bytes(lengths.rows.saturating_mul(STATE_IDENTITY.len() as u64), lengths.identity),
+        lengths.rows.saturating_mul(1024),
     ])
 }
 
@@ -1216,13 +1268,14 @@ const MAX_NAMED_BLOCKERS: usize = 10;
 
 /// A refusal's list of blockers from `query` (selecting
 /// `stored_read::shown_column` of an id and of a name, `LIMIT` the named
-/// ones) and their `count`: each `"<name>" (<id>)` (or its id) as
-/// [`stored_read::shown`] quotes it, then `and N more`. Only the heads of the
-/// stored names are read into the process.
-fn named_blockers(connection: &Connection, query: &str, project_id: &str, state_id: &str, count: usize) -> Result<String, String> {
+/// ones) and their `count`: at most `limit` named, each `"<name>" (<id>)` (or
+/// its id) as [`stored_read::shown`] quotes it, then `and N more` (or `N more`
+/// when none is named). Only the heads of the stored names are read into the
+/// process. Returns the text and how many it named.
+fn named_blockers(connection: &Connection, query: &str, project_id: &str, state_id: &str, count: usize, limit: usize) -> Result<(String, usize), String> {
     let mut statement = connection.prepare(query).map_err(sql)?;
     let named = statement
-        .query_map(params![project_id, state_id, MAX_NAMED_BLOCKERS as i64], |row| {
+        .query_map(params![project_id, state_id, limit as i64], |row| {
             let id = stored_read::shown_head(&row.get::<_, Vec<u8>>(0)?, row.get(1)?);
             Ok(match (row.get::<_, Option<Vec<u8>>>(2)?, row.get::<_, Option<i64>>(3)?) {
                 (Some(head), Some(length)) => format!("\"{}\" ({id})", stored_read::shown_head(&head, length)),
@@ -1233,10 +1286,12 @@ fn named_blockers(connection: &Connection, query: &str, project_id: &str, state_
         .collect::<Result<Vec<_>, _>>()
         .map_err(sql)?;
     let mut text = named.join(", ");
-    if count > named.len() {
+    if named.is_empty() {
+        text = format!("{count} more");
+    } else if count > named.len() {
         text.push_str(&format!(" and {} more", count - named.len()));
     }
-    Ok(text)
+    Ok((text, named.len()))
 }
 
 /// The value of the stored record's `hashes` entry for `scope`.
@@ -1277,9 +1332,9 @@ struct IdentityColumns<'a> {
 fn verified_record(columns: &IdentityColumns<'_>, record_json: &str, memory: &dyn ReadMemory) -> Result<Value, String> {
     let id = columns.state_id;
     let record: Value = serde_json::from_str(record_json).map_err(|error| {
-        integrity_of(id, format_args!("the stored record is not JSON ({error})"))
+        integrity_of(id, format_args!("the stored record is not JSON ({error})", error = stored_read::json_error(&error)))
     })?;
-    let recomputed = record_hash_hex(&record, memory, &format!("saved state `{id}`'s record hash")).map_err(|error| {
+    let recomputed = record_hash_hex(&record, memory, &format!("saved state `{}`'s record hash", stored_read::shown(id))).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { integrity_of(id, error) }
     })?;
     if recomputed != columns.record_hash
@@ -1387,14 +1442,14 @@ fn summary_from_row(
         (name, tags, notes, assumptions, updated_at)
     else {
         return Err(format!(
-            "MODEL-STATE-INTEGRITY: state `{state_id}` has no labels row."
+            "MODEL-STATE-INTEGRITY: state `{state_id}` has no labels row.", state_id = stored_read::shown(&state_id)
         ));
     };
     let record_json = stored_record_json(connection, &project_id, &state_id)?;
     // The record's parse (priced before parsing; its hash copies nothing).
     let record_parse = stored_read::parse_bytes(&record_json)
         .map_err(|detail| integrity_of(&state_id, format_args!("the stored record: {detail}")))?;
-    let parse = memory.reserve(&format!("saved state `{state_id}`'s record"), record_parse)?;
+    let parse = memory.reserve(&format!("saved state `{state_id}`'s record", state_id = stored_read::shown(&state_id)), record_parse)?;
     let record = verified_record(
         &IdentityColumns {
             project_id: &project_id,
@@ -1410,11 +1465,11 @@ fn summary_from_row(
     )?;
     drop(record_json);
     let analysis_status: Vec<String> =
-        serde_json::from_value(record.get("analysis_status").cloned().unwrap_or(json!([])))
+        serde_json::from_value(stored_read::bounded_status(record.get("analysis_status")).map_err(|detail| integrity_of(&state_id, detail))?)
             .map_err(|error| {
                 integrity_of(
                     &state_id,
-                    format_args!("its analysis status is malformed ({error})"),
+                    format_args!("its analysis status is malformed ({error})", error = stored_read::json_error(&error)),
                 )
             })?;
     drop(record);
@@ -1454,7 +1509,8 @@ pub(crate) fn find_summary_with(
     let Some(lengths) = state_summary_lengths(connection, project_id, state_id)? else {
         return Ok(None);
     };
-    let load = memory.reserve(&format!("saved state `{state_id}`"), summary_load_bytes(&lengths))?;
+    refuse_oversized_states(connection, project_id, Some(state_id))?;
+    let load = memory.reserve(&format!("saved state `{state_id}`", state_id = stored_read::shown(&state_id)), summary_load_bytes(&lengths))?;
     let row = connection
         .query_row(
             &format!(
@@ -1487,7 +1543,7 @@ pub(crate) fn list_states_in_store_with(
     project_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<Vec<ModelStateSummary>>, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
+    let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     list_states_with(&transaction, project_id, memory)
 }
@@ -1506,17 +1562,20 @@ pub(crate) fn list_states_with(
     let lengths = connection
         .query_row(
             &format!(
-                "SELECT MAX(record_length), SUM(labels_length), SUM(child_count), SUM(child_bytes), SUM(run_count), SUM(run_bytes), COUNT(*)
-                 FROM (SELECT {SUMMARY_LENGTHS}
+                "SELECT MAX(record_length), SUM(labels_length), SUM(child_count), SUM(child_bytes), SUM(run_count), SUM(run_bytes),
+                 SUM(identity_length), COUNT(*)
+                 FROM (SELECT {}
                  FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id
-                 WHERE s.project_id = ?1)"
+                 WHERE s.project_id = ?1)",
+                summary_lengths_sql()
             ),
             params![project_id],
             lengths_row,
         )
         .map_err(sql)?;
+    refuse_oversized_states(connection, project_id, None)?;
     let load = memory.reserve(
-        &format!("the saved states of project `{project_id}`"),
+        &format!("the saved states of project `{}`", stored_read::shown(project_id)),
         stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, summary_load_bytes(&lengths)]),
     )?;
     let mut statement = connection
@@ -1552,6 +1611,44 @@ pub(crate) fn saved_state_count(connection: &Connection, project_id: &str) -> Re
         .map_err(sql)
 }
 
+/// `refuse_model_document`'s refusal, every value it quotes from the document
+/// cut by [`stored_read::shown`]: its detail is kept only when the document's
+/// version is short enough to show, as the detail quotes it.
+fn refuse_version(status: &crate::model_document_version::ModelDocumentVersionStatus) -> String {
+    let detail = if status.source_schema_version.chars().count() <= stored_read::MAX_SHOWN_CHARS {
+        status.detail.as_str()
+    } else {
+        "its schema_version is too long to show"
+    };
+    format!(
+        "Model document refused for editing: status={}; source_schema_version={}; target_schema_version={}; {}",
+        stored_read::shown(&status.status),
+        stored_read::shown(&status.source_schema_version),
+        stored_read::shown(&status.target_schema_version),
+        stored_read::shown(detail)
+    )
+}
+
+/// The most blocking findings a malformed-slot refusal names; the rest are counted.
+const MAX_NAMED_FINDINGS: usize = 3;
+
+/// `refuse_malformed_model_slots` for a stored snapshot: at most
+/// [`MAX_NAMED_FINDINGS`] findings named, each part cut by
+/// [`stored_read::shown`], then `and N more`.
+fn refuse_malformed_slots(model: &Value) -> Result<(), String> {
+    let blocking: Vec<DocumentDiagnostic> = validate_model_document(model).into_iter().filter(DocumentDiagnostic::is_blocking).collect();
+    if blocking.is_empty() {
+        return Ok(());
+    }
+    let named: Vec<String> = blocking
+        .iter()
+        .take(MAX_NAMED_FINDINGS)
+        .map(|finding| format!("{} at {}: {}", stored_read::shown(&finding.code), stored_read::shown(&finding.path), stored_read::shown(&finding.message)))
+        .collect();
+    let more = if blocking.len() > named.len() { format!(" and {} more", blocking.len() - named.len()) } else { String::new() };
+    Err(format!("Model document refused: malformed model-data slots: {}{more}", named.join(" | ")))
+}
+
 /// `"<name>" (<state id>)` as a message quotes them ([`stored_read::shown`]:
 /// at most 120 characters each), so a message naming a state is small.
 pub(crate) fn state_description(summary: &ModelStateSummary) -> String {
@@ -1583,12 +1680,13 @@ pub(crate) fn require_project_base(
     let text: Option<String> = transaction
         .query_row("SELECT project_envelope_hash_json FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
         .map_err(sql)?;
-    let stored = match text.as_deref().map(|text| (text, stored_read::parse_bytes(text))) {
+    // The parse's reservation lives as long as the parsed value (repair r5).
+    let (stored, _parse) = match text.as_deref().map(|text| (text, stored_read::parse_bytes(text))) {
         Some((text, Ok(parse))) => {
-            let _parse = memory.reserve(&what, parse)?;
-            serde_json::from_str::<Value>(text).unwrap_or(Value::Null)
+            let reservation = memory.reserve(&what, parse)?;
+            (serde_json::from_str::<Value>(text).unwrap_or(Value::Null), Some(reservation))
         }
-        _ => Value::Null,
+        _ => (Value::Null, None),
     };
     let stored_base = stored.get("value").and_then(Value::as_str).unwrap_or("");
     // A row without an envelope hash has no revision to compare: it asks.
@@ -1626,7 +1724,7 @@ fn refuse_assumption_id_collisions(stored: &Value, labels: &StateLabels) -> Resu
         if model_ids.contains(&id) {
             return Err(labels_invalid(
                 STATE_LABEL_VOCABULARY.code,
-                format_args!("assumption id `{id}` is already a model assumption of this state"
+                format_args!("assumption id `{id}` is already a model assumption of this state", id = stored_read::shown(id)
             )));
         }
     }
@@ -1655,21 +1753,24 @@ pub(crate) fn checked_new_state(
     if !STATE_KINDS.contains(&state_kind) {
         return Err(format!(
             "MODEL-STATE-KIND-INVALID: `{state_kind}` is not one of {}.",
-            STATE_KINDS.join(", ")
+            STATE_KINDS.join(", "), state_kind = stored_read::shown(&state_kind)
         ));
     }
     let (model, model_hash_hex) = verified_snapshot(&model_canonical, claimed_hash, memory)?;
     let snapshot_project = crate::project_id_from_model(model.get());
     if snapshot_project != project_id {
         return Err(format!(
-            "MODEL-STATE-PROJECT-MISMATCH: the snapshot is project `{snapshot_project}`, not `{project_id}`; nothing was saved."
+            "MODEL-STATE-PROJECT-MISMATCH: the snapshot is project `{snapshot_project}`, not `{project_id}`; nothing was saved.", snapshot_project = stored_read::shown(&snapshot_project), project_id = stored_read::shown(&project_id)
         ));
     }
     // One current model-document version. Unlike a project save, a state may
     // hold a model with blocking slot findings: the record says
     // `MODEL_INCOMPLETE` and the state is not opened (design §2). The record
     // mapping refuses, by name, any slot it cannot map.
-    crate::check_model_document_version(model.get())?;
+    let version = crate::model_document_version::evaluate_model_document(model.get());
+    if version.is_refused() {
+        return Err(refuse_version(&version));
+    }
     Ok(model.map(|model| CheckedSnapshot {
         model,
         model_canonical,
@@ -1685,19 +1786,34 @@ pub(crate) fn state_with_model_hash(
     model_hash: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Option<Metered<ModelStateSummary>>, String> {
-    let existing: Option<String> = transaction
+    // The id is loaded only within its bound (repair r5).
+    let found: Option<(Option<String>, Vec<u8>, i64)> = transaction
         .query_row(
-            "SELECT state_id FROM model_states WHERE project_id = ?1 AND model_hash = ?2",
+            &format!(
+                "SELECT CASE WHEN octet_length(state_id) <= {} THEN state_id END, {} FROM model_states WHERE project_id = ?1 AND model_hash = ?2",
+                stored_read::MAX_ID_BYTES,
+                stored_read::shown_column("state_id")
+            ),
             params![project_id, model_hash],
-            |row| row.get(0),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         )
         .optional()
         .map_err(sql)?;
+    let existing = match found {
+        None => None,
+        Some((Some(state_id), _, _)) => Some(state_id),
+        Some((None, head, length)) => {
+            return Err(integrity_of(
+                &stored_read::shown_head(&head, length),
+                format_args!("its state_id is longer than the {} bytes kept", stored_read::MAX_ID_BYTES),
+            ))
+        }
+    };
     match existing {
         None => Ok(None),
         Some(state_id) => find_summary_with(transaction, project_id, &state_id, memory)?
             .map(Some)
-            .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.")),
+            .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.", state_id = stored_read::shown(&state_id))),
     }
 }
 
@@ -1719,7 +1835,7 @@ pub(crate) fn insert_new_state(
     if let Some(parent) = parent_state_id {
         if find_summary_with(transaction, project_id, parent, memory)?.is_none() {
             return Err(format!(
-                "MODEL-STATE-PARENT-MISSING: project `{project_id}` has no saved state `{parent}`; nothing was saved."
+                "MODEL-STATE-PARENT-MISSING: project `{project_id}` has no saved state `{parent}`; nothing was saved.", project_id = stored_read::shown(&project_id), parent = stored_read::shown(&parent)
             ));
         }
     }
@@ -1736,7 +1852,7 @@ pub(crate) fn insert_new_state(
         model_hash_hex: &snapshot.model_hash_hex,
     }, memory)?;
     refuse_assumption_id_collisions(&record, labels)?;
-    let record_json = stored_read::json_text(memory, &format!("the record of new state `{state_id}`"), &record)?;
+    let record_json = stored_read::json_text(memory, &format!("the record of new state `{}`", stored_read::shown(&state_id)), &record)?;
     drop(record);
     transaction
         .execute(
@@ -1759,7 +1875,7 @@ pub(crate) fn insert_new_state(
     (hooks.between_rows)(transaction)?;
     write_labels(transaction, project_id, &state_id, labels, &created_at, true)?;
     find_summary_with(transaction, project_id, &state_id, memory)?
-        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` was not written."))
+        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` was not written.", state_id = stored_read::shown(&state_id)))
 }
 
 /// `save_model_state` on a given store: the checks, then the state row and its
@@ -1805,8 +1921,8 @@ pub(crate) fn save_state_in_store_finishing<R>(
         &request.model_hash,
         memory,
     )?;
-    let (mut connection, _migration) = crate::open_project_store(path)?;
-    let transaction = crate::immediate_transaction(&mut connection)?;
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
     require_project_base(
         &transaction,
         &request.project_id,
@@ -1856,7 +1972,7 @@ fn write_labels(
     updated_at: &str,
     insert: bool,
 ) -> Result<(), String> {
-    let text = |result: serde_json::Result<String>| result.map_err(|error| error.to_string());
+    let text = |result: serde_json::Result<String>| result.map_err(|error| stored_read::json_error(&error));
     let tags = text(serde_json::to_string(&labels.tags))?;
     let notes = text(serde_json::to_string(&labels.notes))?;
     let assumptions = text(serde_json::to_string(&labels.assumptions))?;
@@ -1883,7 +1999,7 @@ fn write_labels(
         .map_err(sql)?;
     if changed != 1 {
         return Err(format!(
-            "MODEL-STATE-INTEGRITY: the labels of state `{state_id}` were not written."
+            "MODEL-STATE-INTEGRITY: the labels of state `{state_id}` were not written.", state_id = stored_read::shown(&state_id)
         ));
     }
     Ok(())
@@ -1922,9 +2038,9 @@ pub(crate) fn read_state_in_store_with(
     state_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<ModelStateRead>, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
+    let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
-    let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.");
+    let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id));
     let (model_length, record_length): (i64, i64) = transaction
         .query_row(
             "SELECT octet_length(model_canonical), octet_length(record_json) FROM model_states WHERE project_id = ?1 AND state_id = ?2",
@@ -1938,7 +2054,7 @@ pub(crate) fn read_state_in_store_with(
         u64::try_from(model_length).unwrap_or(0),
         u64::try_from(record_length).unwrap_or(0),
     );
-    let what = format!("saved state `{state_id}`");
+    let what = format!("saved state `{state_id}`", state_id = stored_read::shown(&state_id));
     // Loaded here: the snapshot and the record (the summary reserves its own
     // load; the canonical and hash texts are reserved when they are built).
     let load = memory.reserve(
@@ -1979,11 +2095,11 @@ pub(crate) fn read_state_in_store_with(
     if state.model_hash != format!("sha256:{hex}") {
         return Err(integrity(format!(
             "the stored snapshot hashes to sha256:{hex}, not the stored {}",
-            state.model_hash
+            stored_read::shown(&state.model_hash)
         )));
     }
     let model: Value = serde_json::from_str(&model_canonical)
-        .map_err(|error| integrity(format!("the stored snapshot is not JSON ({error})")))?;
+        .map_err(|error| integrity(format!("the stored snapshot is not JSON ({error})", error = stored_read::json_error(&error))))?;
     if !stored_read::is_jcs_text(memory, &format!("{what}'s canonical snapshot"), &model, &model_canonical)? {
         return Err(integrity(
             "the stored snapshot is not canonical JCS text".to_string(),
@@ -2013,14 +2129,14 @@ pub(crate) fn read_state_in_store_with(
     if snapshot_project != state.project_id {
         return Err(integrity(format!(
             "the snapshot is project `{snapshot_project}`, not the state's project `{}`",
-            state.project_id
+            stored_read::shown(&state.project_id), snapshot_project = stored_read::shown(&snapshot_project)
         )));
     }
     let version = crate::model_document_version::evaluate_model_document(&model);
     if version.is_refused() {
-        return Err(crate::refuse_model_document(&version));
+        return Err(refuse_version(&version));
     }
-    crate::refuse_malformed_model_slots(&model)?;
+    refuse_malformed_slots(&model)?;
     let record = emitted_record(&stored, &state.labels)?;
     drop(stored);
     drop(record_json);
@@ -2079,9 +2195,9 @@ pub(crate) fn edit_labels_in_store_finishing<R>(
     memory: &dyn ReadMemory,
     finish: impl FnOnce(Metered<ModelStateSummary>) -> Result<R, String>,
 ) -> Result<R, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
-    let transaction = crate::immediate_transaction(&mut connection)?;
-    let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.");
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
+    let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id));
     let current = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(not_found)?;
     if let Some(expected) = expected_updated_at {
         if expected != current.get().labels_updated_at {
@@ -2098,7 +2214,7 @@ pub(crate) fn edit_labels_in_store_finishing<R>(
             |row| row.get(0),
         )
         .map_err(sql)?;
-    let checked = format!("saved state `{state_id}`'s record, for the label check");
+    let checked = format!("saved state `{state_id}`'s record, for the label check", state_id = stored_read::shown(&state_id));
     let load = memory.reserve(&checked, stored_read::loaded_text_bytes(u64::try_from(record_length).unwrap_or(0)))?;
     let record_json: String = transaction
         .query_row(
@@ -2111,7 +2227,7 @@ pub(crate) fn edit_labels_in_store_finishing<R>(
         &checked,
         stored_read::parse_bytes(&record_json).map_err(|detail| integrity_of(state_id, format_args!("the stored record: {detail}")))?,
     )?;
-    let stored: Value = serde_json::from_str(&record_json).map_err(|error| error.to_string())?;
+    let stored: Value = serde_json::from_str(&record_json).map_err(|error| integrity_of(state_id, format_args!("the stored record is not JSON ({})", stored_read::json_error(&error))))?;
     refuse_assumption_id_collisions(&stored, &labels)?;
     drop((stored, record_json, parse, load));
     // Strictly later than the labels' last write, so `expected_updated_at`
@@ -2128,7 +2244,7 @@ pub(crate) fn edit_labels_in_store_finishing<R>(
     )?;
     drop(current);
     let summary = find_summary_with(&transaction, project_id, state_id, memory)?
-        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished."))?;
+        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.", state_id = stored_read::shown(&state_id)))?;
     let finished = finish(summary)?;
     transaction.commit().map_err(sql)?;
     Ok(finished)
@@ -2194,16 +2310,18 @@ pub(crate) fn delete_state_in_store_finishing<R>(
     memory: &dyn ReadMemory,
     finish: impl FnOnce(Metered<ModelStateDeleteReceipt>) -> Result<R, String>,
 ) -> Result<R, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
-    let transaction = crate::immediate_transaction(&mut connection)?;
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
     let metered = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(|| {
-        format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.")
+        format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id))
     })?;
     let state = metered.get();
     let (children, runs) = (state.child_state_ids.len(), state.recorded_run_ids.len());
+    // One cap across both lists (repair r5): at most MAX_NAMED_BLOCKERS named in all.
+    let mut named_left = MAX_NAMED_BLOCKERS;
     let mut reasons = Vec::new();
     if children > 0 {
-        let blockers = named_blockers(
+        let (blockers, named) = named_blockers(
             &transaction,
             &format!(
                 "SELECT {}, {} FROM model_states c LEFT JOIN model_state_labels l ON l.project_id = c.project_id AND l.state_id = c.state_id
@@ -2214,11 +2332,13 @@ pub(crate) fn delete_state_in_store_finishing<R>(
             project_id,
             state_id,
             children,
+            named_left,
         )?;
+        named_left -= named;
         reasons.push(format!("the parent of saved state{} {blockers}", if children == 1 { "" } else { "s" }));
     }
     if runs > 0 {
-        let blockers = named_blockers(
+        let (blockers, _) = named_blockers(
             &transaction,
             &format!(
                 "SELECT {}, {} FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
@@ -2229,6 +2349,7 @@ pub(crate) fn delete_state_in_store_finishing<R>(
             project_id,
             state_id,
             runs,
+            named_left,
         )?;
         reasons.push(format!("the state of recorded run{} {blockers}", if runs == 1 { "" } else { "s" }));
     }
@@ -2270,7 +2391,7 @@ pub(crate) fn save_model_state_args(
     let finish = |outcome| stored_read::serialize_metered(memory, "save_model_state", outcome);
     store()
         .and_then(|path| save_state_in_store_finishing(&path, request, &PRODUCTION_HOOKS, memory, finish))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId}`.
@@ -2282,7 +2403,7 @@ pub(crate) fn list_model_states_args(
     let project_id: String = args.decode("projectId")?;
     store()
         .and_then(|path| list_states_in_store_with(&path, &project_id, memory))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId, stateId}`.
@@ -2295,7 +2416,7 @@ pub(crate) fn read_model_state_args(
     let state_id: String = args.decode("stateId")?;
     store()
         .and_then(|path| read_state_in_store_with(&path, &project_id, &state_id, memory))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId, stateId, labels, expectedUpdatedAt?}`.
@@ -2324,7 +2445,7 @@ pub(crate) fn edit_model_state_labels_args(
                 finish,
             )
         })
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId, stateId}`.
@@ -2338,7 +2459,7 @@ pub(crate) fn delete_model_state_args(
     let finish = |receipt| stored_read::serialize_metered(memory, "delete_model_state", receipt);
     store()
         .and_then(|path| delete_state_in_store_finishing(&path, &project_id, &state_id, memory, finish))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 #[tauri::command]

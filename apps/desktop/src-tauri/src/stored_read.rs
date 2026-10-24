@@ -195,6 +195,116 @@ pub(crate) fn shown(text: &str) -> std::borrow::Cow<'_, str> {
     }
 }
 
+/// The most characters of any error message a command returns (repair r5): a
+/// last net after every source is bounded (each stored value quoted through
+/// [`shown`], each serde or SQLite error described by [`json_error`] or
+/// [`sql_error`], never by its own text).
+pub(crate) const MAX_MESSAGE_CHARS: usize = 1024;
+
+/// `message` cut to [`MAX_MESSAGE_CHARS`] characters, then `…`.
+pub(crate) fn capped(message: String) -> String {
+    match message.char_indices().nth(MAX_MESSAGE_CHARS) {
+        None => message,
+        Some((cut, _)) => format!("{}…", &message[..cut]),
+    }
+}
+
+/// A serde_json error as a message describes it: its category and, for a
+/// text, its line and column. Never its own text, which can quote the value.
+pub(crate) fn json_error(error: &serde_json::Error) -> String {
+    let category = match error.classify() {
+        serde_json::error::Category::Io => "an I/O error",
+        serde_json::error::Category::Syntax => "a syntax error",
+        serde_json::error::Category::Data => "a value of another type or shape",
+        serde_json::error::Category::Eof => "an unexpected end",
+    };
+    if error.line() > 0 {
+        format!("{category} at line {} column {}", error.line(), error.column())
+    } else {
+        category.to_string()
+    }
+}
+
+/// A SQLite error as a message describes it: SQLite's code and extended
+/// code, and its message only when that is at most [`MAX_SHOWN_CHARS`]
+/// printable characters (SQLite's own texts, such as a constraint or the
+/// store's trigger codes); otherwise a fixed text. rusqlite has already copied
+/// the message by the time it is an error; nothing longer is copied again.
+pub(crate) fn sql_error(error: &rusqlite::Error) -> String {
+    match error {
+        rusqlite::Error::SqliteFailure(failure, message) => {
+            let shown = message
+                .as_deref()
+                .filter(|text| text.chars().count() <= MAX_SHOWN_CHARS && !text.chars().any(char::is_control));
+            match shown {
+                Some(text) => format!("STORE-SQL-ERROR: SQLite {:?} ({}): {text}", failure.code, failure.extended_code),
+                None => format!("STORE-SQL-ERROR: SQLite {:?} ({}): its message is not shown", failure.code, failure.extended_code),
+            }
+        }
+        rusqlite::Error::QueryReturnedNoRows => "STORE-SQL-ERROR: the row is not there".to_string(),
+        rusqlite::Error::InvalidColumnType(index, _, kind) => format!("STORE-SQL-ERROR: column {index} holds a {kind} value"),
+        rusqlite::Error::FromSqlConversionFailure(index, kind, _) => format!("STORE-SQL-ERROR: column {index} ({kind}) could not be read"),
+        rusqlite::Error::IntegralValueOutOfRange(index, _) => format!("STORE-SQL-ERROR: column {index} is out of range"),
+        rusqlite::Error::Utf8Error(_) => "STORE-SQL-ERROR: a stored text is not UTF-8".to_string(),
+        rusqlite::Error::SqlInputError { error, offset, .. } => {
+            format!("STORE-SQL-ERROR: SQLite {:?} ({}): the statement is invalid at byte {offset}", error.code, error.extended_code)
+        }
+        _ => "STORE-SQL-ERROR: the store could not be read or written".to_string(),
+    }
+}
+
+/// The bytes the store keeps in an identity or time column (repair r5),
+/// against what the app writes: ids (`state:` or `runrec:` and 32 hex, a
+/// producer's run id, a project id) are short, and no command can name one
+/// longer than its 4 KiB argument budget; kinds are words; times are
+/// 24-byte ISO texts; hashes are 64 hex, or `sha256:` and 64 hex. A row
+/// holding a longer value is refused, before it is loaded, as the row's
+/// integrity failure.
+pub(crate) const MAX_ID_BYTES: i64 = 4096;
+pub(crate) const MAX_KIND_BYTES: i64 = 64;
+pub(crate) const MAX_TIME_BYTES: i64 = 32;
+pub(crate) const MAX_HASH_BYTES: i64 = 80;
+
+/// The most bytes of a verified record's `analysis_status` a summary copies
+/// out of the record, whose reservation it outlives (repair r5): the app writes
+/// a few short status words.
+pub(crate) const MAX_STATUS_BYTES: u64 = 4096;
+
+/// A record's `analysis_status` (an empty list when it has none), copied only
+/// when it serializes to at most [`MAX_STATUS_BYTES`].
+pub(crate) fn bounded_status(value: Option<&Value>) -> Result<Value, String> {
+    let Some(value) = value else { return Ok(Value::Array(Vec::new())) };
+    let length = serialized_length(value)?;
+    if length > MAX_STATUS_BYTES {
+        return Err(format!("its analysis status holds {length} bytes; at most {MAX_STATUS_BYTES} are kept"));
+    }
+    Ok(value.clone())
+}
+
+/// A loaded identity or time column: its SQL, its name, its bound.
+pub(crate) type BoundedColumn = (&'static str, &'static str, i64);
+
+/// SQL naming the first of `columns` whose stored value exceeds its bound, or
+/// NULL.
+pub(crate) fn oversized_column(columns: &[BoundedColumn]) -> String {
+    let arms: String = columns
+        .iter()
+        .map(|(column, name, max)| format!(" WHEN COALESCE(octet_length({column}), 0) > {max} THEN '{name}'"))
+        .collect();
+    format!("(CASE{arms} ELSE NULL END)")
+}
+
+/// SQL summing the stored bytes of `columns`.
+pub(crate) fn columns_bytes(columns: &[BoundedColumn]) -> String {
+    let terms: Vec<String> = columns.iter().map(|(column, _, _)| format!("COALESCE(octet_length({column}), 0)")).collect();
+    format!("({})", terms.join(" + "))
+}
+
+/// The bound of the column `name` in `columns`.
+pub(crate) fn column_bound(columns: &[BoundedColumn], name: &str) -> i64 {
+    columns.iter().find(|(_, column, _)| *column == name).map(|(_, _, max)| *max).unwrap_or(0)
+}
+
 /// The bytes of a stored text column a message reads ([`shown_column`]): enough
 /// for [`MAX_SHOWN_CHARS`] characters and one more (UTF-8 takes at most four
 /// bytes a character).
@@ -225,9 +335,9 @@ pub(crate) fn shown_head(head: &[u8], length: i64) -> String {
 pub(crate) fn json_text<T: Serialize + ?Sized>(memory: &dyn ReadMemory, what: &str, value: &T) -> Result<Metered<String>, String> {
     let length = serialized_length(value)?;
     let reservation = memory.reserve(what, exact_text_bytes(length))?;
-    let mut buffer = Vec::with_capacity(usize::try_from(length).map_err(|error| error.to_string())?);
-    serde_json::to_writer(&mut buffer, value).map_err(|error| error.to_string())?;
-    let text = String::from_utf8(buffer).map_err(|error| error.to_string())?;
+    let mut buffer = Vec::with_capacity(usize::try_from(length).map_err(|_| "STORE-READ: a length does not fit this platform".to_string())?);
+    serde_json::to_writer(&mut buffer, value).map_err(|error| json_error(&error))?;
+    let text = String::from_utf8(buffer).map_err(|_| "STORE-READ: a serialized text is not UTF-8".to_string())?;
     Ok(Metered::new(text).holding(reservation))
 }
 
@@ -320,11 +430,23 @@ impl<T> Metered<T> {
     }
 }
 
+/// The local store, opened (and migrated) as every command opens it; a
+/// refusal's text is capped ([`capped`]): it comes from the shared opener.
+pub(crate) fn open_store(path: &std::path::Path) -> Result<Connection, String> {
+    crate::open_project_store(path).map(|(connection, _migration)| connection).map_err(capped)
+}
+
+/// A write transaction (`BEGIN IMMEDIATE`), its SQLite refusal described by
+/// [`sql_error`].
+pub(crate) fn write_transaction(connection: &mut Connection) -> Result<Transaction<'_>, String> {
+    connection.transaction_with_behavior(TransactionBehavior::Immediate).map_err(|error| sql_error(&error))
+}
+
 /// A read transaction for a metered read (`BEGIN DEFERRED`): its first
 /// statement, the measurement, fixes the snapshot every later load of the read
 /// sees (the store is in WAL mode), so the loads are those measured.
 pub(crate) fn read_transaction(connection: &mut Connection) -> Result<Transaction<'_>, String> {
-    connection.transaction_with_behavior(TransactionBehavior::Deferred).map_err(|error| error.to_string())
+    connection.transaction_with_behavior(TransactionBehavior::Deferred).map_err(|error| sql_error(&error))
 }
 
 /// Counts the bytes of a serialization without storing them.
@@ -345,7 +467,7 @@ impl std::io::Write for ByteCount {
 /// allocate).
 pub(crate) fn serialized_length<T: Serialize + ?Sized>(value: &T) -> Result<u64, String> {
     let mut count = ByteCount(0);
-    serde_json::to_writer(&mut count, value).map_err(|error| error.to_string())?;
+    serde_json::to_writer(&mut count, value).map_err(|error| json_error(&error))?;
     Ok(count.0)
 }
 
@@ -425,19 +547,31 @@ pub(crate) fn checked_sha256(memory: &dyn ReadMemory, what: &str, value: &Value)
 pub(crate) fn checked_sha256_text(memory: &dyn ReadMemory, what: &str, text: &str, parsed: &Value) -> Result<String, String> {
     let parse = parse_bytes(text)?;
     let _work = memory.reserve(what, total(&[parse, grown_text_bytes(jcs_length(parsed))]))?;
-    Ok(sha256_hex(&canonical_json_checked_v1_text(text)?))
+    // The canonicalizer's refusal can quote the text (a duplicate member's
+    // key, a serde error's value): it is cut to its first characters.
+    let canonical = canonical_json_checked_v1_text(text).map_err(|error| shown(&error).into_owned())?;
+    Ok(sha256_hex(&canonical))
 }
 
-/// A command's response, serialized (its reservations already released). A
-/// mutating command makes it before it commits ([`serialize_metered`]), so
-/// nothing after the commit can fail.
+/// A command's response, serialized, holding its buffer's reservation until
+/// it is handed to Tauri ([`respond_serialized`]; repair r5). A mutating
+/// command makes it before it commits ([`serialize_metered`]), so nothing
+/// after the commit can fail and the text stays reserved across the commit.
 #[derive(Debug)]
-pub(crate) struct Serialized(String);
+pub(crate) struct Serialized {
+    text: String,
+    held: ReadReservation,
+}
 
 impl Serialized {
     #[cfg(test)]
     pub(crate) fn text(&self) -> &str {
-        &self.0
+        &self.text
+    }
+
+    #[cfg(test)]
+    pub(crate) fn reserved_bytes(&self) -> u64 {
+        self.held.bytes
     }
 }
 
@@ -447,19 +581,22 @@ impl Serialized {
 /// released once the text exists. A refusal names `what`'s response.
 pub(crate) fn serialize_metered<T: Serialize>(memory: &dyn ReadMemory, what: &str, metered: Metered<T>) -> Result<Serialized, String> {
     let length = serialized_length(&metered.value)?;
-    let length_usize = usize::try_from(length).map_err(|error| error.to_string())?;
+    let length_usize = usize::try_from(length).map_err(|_| "STORE-READ: a length does not fit this platform".to_string())?;
     let buffer_reservation = memory.reserve(&format!("the response to {what}"), envelope(length))?;
     let mut buffer = Vec::with_capacity(length_usize);
-    serde_json::to_writer(&mut buffer, &metered.value).map_err(|error| error.to_string())?;
-    let text = String::from_utf8(buffer).map_err(|error| error.to_string())?;
+    serde_json::to_writer(&mut buffer, &metered.value).map_err(|error| json_error(&error))?;
+    let text = String::from_utf8(buffer).map_err(|_| "STORE-READ: a serialized text is not UTF-8".to_string())?;
     drop(metered);
-    drop(buffer_reservation);
-    Ok(Serialized(text))
+    Ok(Serialized { text, held: buffer_reservation })
 }
 
-/// The response of a mutating command, serialized before it committed.
+/// The response of a mutating command, serialized before it committed: the
+/// text is handed to Tauri, then its reservation is released.
 pub(crate) fn respond_serialized<E>(outcome: Result<Serialized, CommandError<E>>) -> Result<Response, CommandError<E>> {
-    Ok(Response::new(outcome?.0))
+    let Serialized { text, held } = outcome?;
+    let response = Response::new(text);
+    drop(held);
+    Ok(response)
 }
 
 /// Serializes a metered read's response within `memory`: the response's exact
@@ -478,11 +615,11 @@ where
 {
     let metered = outcome?;
     let length = serialized_length(&metered.value).map_err(CommandError::Response)?;
-    let length_usize = usize::try_from(length).map_err(|error| CommandError::Response(error.to_string()))?;
+    let length_usize = usize::try_from(length).map_err(|_| CommandError::Response("STORE-READ: a length does not fit this platform".to_string()))?;
     let buffer_reservation = memory.reserve(&format!("the response to {what}"), envelope(length)).map_err(|error| CommandError::Command(E::from(error)))?;
     let mut buffer = Vec::with_capacity(length_usize);
-    serde_json::to_writer(&mut buffer, &metered.value).map_err(|error| CommandError::Response(error.to_string()))?;
-    let text = String::from_utf8(buffer).map_err(|error| CommandError::Response(error.to_string()))?;
+    serde_json::to_writer(&mut buffer, &metered.value).map_err(|error| CommandError::Response(json_error(&error)))?;
+    let text = String::from_utf8(buffer).map_err(|_| CommandError::Response("STORE-READ: a serialized text is not UTF-8".to_string()))?;
     let response = Response::new(text);
     drop(metered);
     drop(buffer_reservation);

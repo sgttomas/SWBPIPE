@@ -1998,3 +1998,256 @@ fn the_invocation_total_counts_the_argument_lease() {
     record_run_in_store_with(&path, request(&solved, "Within"), &hooks, &PoolReadMemory::new(&pool, &lease)).unwrap();
     assert_eq!(row_count(&path, "analysis_runs"), 1);
 }
+
+// ---------------------------------------------------------------------------
+// Repair r5: every message is bounded (serde and SQLite errors described, never
+// quoted; every stored value cut); every loaded identity and time column is
+// measured and bounded before it is loaded; serialized responses and parsed
+// values keep their reservations; one blocker cap.
+// ---------------------------------------------------------------------------
+
+fn assert_small(what: &str, error: &str) {
+    let serialized = serde_json::to_string(error).unwrap().len();
+    assert!(serialized < 2048, "{what}: the error serializes to {serialized} bytes: {}", stored_read::shown(error));
+}
+
+/// Drops the store's triggers (as `tamper` does) and runs `statement` with one
+/// bound text parameter.
+fn tamper_with(path: &Path, statement: &str, value: &str) {
+    tamper(path, "");
+    let connection = Connection::open(path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    connection.execute(statement, params![value]).unwrap();
+}
+
+#[test]
+fn stored_decoding_and_sqlite_errors_are_described_not_quoted() {
+    // Codex r5: a tags_json holding a 3 MiB NUL string (a string, not a list).
+    let nul_string = serde_json::to_string(&"\u{0}".repeat(LARGE)).unwrap();
+    let (path, _) = recorded_fixture("r5-typed-errors");
+    let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM model_states", [], |row| row.get(0)).unwrap();
+    set_column(&path, "model_state_labels", "tags_json", &nul_string);
+    let error = model_states::read_state_in_store(&path, PROJECT, &state_id).unwrap_err();
+    assert!(error.starts_with("MODEL-STATE-INTEGRITY: a stored label list is malformed (a value of another type or shape)"), "{}", stored_read::shown(&error));
+    assert_small("a state's typed label error", &error);
+    set_column(&path, "analysis_run_labels", "tags_json", &nul_string);
+    let error = list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-INTEGRITY: a stored run label list is malformed"), "{}", stored_read::shown(&error));
+    assert_small("a run's typed label error", &error);
+
+    // Codex r5: a long recording id with no labels row (within the id bound),
+    // and one past the bound.
+    let (path, _) = recorded_fixture("r5-missing-labels");
+    let copy = |recording_id: &str| {
+        tamper_with(
+            &path,
+            "INSERT INTO analysis_runs (project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash, input_manifest_json, result_json, result_hash)
+             SELECT project_id, ?1, state_id, producer_run_id, created_at, run_record_json, run_record_hash || 'x', input_manifest_json, result_json, result_hash FROM analysis_runs LIMIT 1",
+            recording_id,
+        )
+    };
+    copy(&"\u{0}".repeat(4000));
+    let error = list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap_err();
+    assert!(error.contains("has no labels row"), "{}", stored_read::shown(&error));
+    assert_small("a missing labels row", &error);
+    tamper(&path, "DELETE FROM analysis_runs WHERE length(recording_id) = 0 OR recording_id NOT LIKE 'runrec:%';");
+    copy(&"r".repeat(LARGE));
+    let error = list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap_err();
+    assert!(error.contains("its recording_id is longer than the 4096 bytes kept"), "{}", stored_read::shown(&error));
+    assert_small("an oversized recording id", &error);
+
+    // Codex r5: a stored trigger whose message is 3 MiB.
+    let (path, _) = recorded_fixture("r5-trigger");
+    let id = id_of(&path);
+    Connection::open(&path)
+        .unwrap()
+        .execute_batch(&format!("CREATE TRIGGER invented_noise BEFORE UPDATE ON analysis_run_labels BEGIN SELECT RAISE(ABORT, '{}'); END;", "t".repeat(LARGE)))
+        .unwrap();
+    let error = edit_run_labels_in_store(&path, PROJECT, &id, run_labels("Renamed"), None, T0).unwrap_err();
+    assert!(error.starts_with("STORE-SQL-ERROR: SQLite ConstraintViolation") && error.contains("its message is not shown"), "{}", stored_read::shown(&error));
+    assert_small("a trigger's message", &error);
+    // A short SQLite message is kept (the store's own trigger codes, constraints).
+    assert!(stored_read::sql_error(&rusqlite::Error::SqliteFailure(rusqlite::ffi::Error::new(19), Some("MODEL-STATE-IMMUTABLE".to_string())))
+        .ends_with(": MODEL-STATE-IMMUTABLE"));
+    // Every message a command returns is capped as a last net.
+    assert_eq!(stored_read::capped("e".repeat(5000)).chars().count(), stored_read::MAX_MESSAGE_CHARS + 1);
+}
+
+/// A row whose identity or time column holds `LARGE` bytes is refused before
+/// it is loaded, by the head of its id, within the reservations, under the
+/// 2 MiB pool.
+fn assert_oversized_refused<T: std::fmt::Debug>(what: &str, column: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>) {
+    let small = small_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| read(&memory));
+    let error = outcome.unwrap_err();
+    assert!(error.contains(&format!("its {column} is longer than")), "{what}: {}", stored_read::shown(&error));
+    assert_small(what, &error);
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "{what}: refused before loading (peak {})", measured.peak_priced);
+    assert!(measured.peak_priced <= memory.peak_reserved().max(1 << 16), "{what}: peak {} within {}", measured.peak_priced, memory.peak_reserved());
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+}
+
+#[test]
+fn every_identity_and_time_column_is_bounded_before_it_is_loaded() {
+    let large = "z".repeat(LARGE);
+    // A state's columns, through the list and the read.
+    for (column, table, set) in [
+        ("state_id", "model_states", "state_id"),
+        ("state_kind", "model_states", "state_kind"),
+        ("created_at", "model_states", "created_at"),
+        ("parent_state_id", "model_states", "parent_state_id"),
+        ("model_hash", "model_states", "model_hash"),
+        ("record_hash", "model_states", "record_hash"),
+        ("labels_updated_at", "model_state_labels", "updated_at"),
+    ] {
+        let path = store_with_project(&format!("r5-state-{column}"));
+        let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002601", 1_000);
+        tamper_with(&path, &format!("UPDATE {table} SET {set} = ?1"), &large);
+        assert_oversized_refused(&format!("the state list ({column})"), column, |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
+        if column != "state_id" {
+            assert_oversized_refused(&format!("the state read ({column})"), column, |memory| {
+                model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)
+            });
+        }
+    }
+    // A run's columns, through the list and the read.
+    for (column, table, set) in [
+        ("recording_id", "analysis_runs", "recording_id"),
+        ("state_id", "analysis_runs", "state_id"),
+        ("producer_run_id", "analysis_runs", "producer_run_id"),
+        ("created_at", "analysis_runs", "created_at"),
+        ("run_record_hash", "analysis_runs", "run_record_hash"),
+        ("result_hash", "analysis_runs", "result_hash"),
+        ("labels_updated_at", "analysis_run_labels", "updated_at"),
+    ] {
+        let (path, _) = recorded_fixture(&format!("r5-run-{column}"));
+        let id = id_of(&path);
+        tamper_with(&path, &format!("UPDATE {table} SET {set} = ?1"), &large);
+        assert_oversized_refused(&format!("the run list ({column})"), column, |memory| list_runs_in_store_with(&path, PROJECT, memory));
+        if column != "recording_id" {
+            assert_oversized_refused(&format!("the run read ({column})"), column, |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
+        }
+    }
+    // The latest created_at Record Run reads: refused before it is loaded.
+    let (path, _) = recorded_fixture("r5-latest-created-at");
+    tamper_with(&path, "UPDATE analysis_runs SET created_at = ?1", &large);
+    let solved = model("Invented project");
+    let error = record(&path, request(&solved, "After"), T0 + 99).unwrap_err();
+    assert!(error.contains("its created_at is longer than the 32 bytes kept"), "{}", stored_read::shown(&error));
+    assert_small("the latest created_at", &error);
+    // The existing state Save finds by its model hash: its id is loaded only
+    // within its bound.
+    let path = store_with_project("r5-existing-state-id");
+    save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002602", 1_000);
+    tamper_with(&path, "UPDATE model_states SET state_id = ?1", &large);
+    let model_canonical = canonical_json(&model("Invented project"));
+    let again = SaveModelStateRequest {
+        project_id: PROJECT.to_string(),
+        expected_base: BASE.to_string(),
+        model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+        model_canonical,
+        state_kind: "design_snapshot".to_string(),
+        parent_state_id: None,
+        labels: labels_from_value(json!({ "state_name": "Again" })).unwrap(),
+    };
+    let allocate = || Ok(("00000000000000000000000000002603".to_string(), 2_000));
+    let between_rows = |_: &Transaction<'_>| Ok(());
+    let error = save_state_in_store(&path, again, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap_err();
+    assert!(error.contains("its state_id is longer than the 4096 bytes kept"), "{}", stored_read::shown(&error));
+    assert_small("the existing state's id", &error);
+}
+
+#[test]
+fn a_serialized_response_and_a_parsed_value_keep_their_reservations() {
+    // Codex r5: recording against a state with a large stored name; the
+    // response (3 MiB) stays reserved across the commit until it is handed on.
+    let path = store_with_project("r5-held-across-commit");
+    let solved = model("Invented project");
+    let state = save_state(&path, &solved, "Basis", "00000000000000000000000000002701", 1_000);
+    set_column(&path, "model_state_labels", "state_name", &"n".repeat(LARGE));
+    let pool = registry(ScriptedHost::normal());
+    let memory = PoolReadMemory::unseeded(&pool);
+    let now = || Ok(T0);
+    let token = || Ok("0000000000000000000000000000abba".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    let held_at_finish = Cell::new(0u64);
+    let serialized = record_run_in_store_finishing(&path, request(&solved, "Run"), &hooks, &memory, |outcome| {
+        let serialized = stored_read::serialize_metered(&memory, "record_analysis_run", outcome)?;
+        held_at_finish.set(pool.pool_status().reserved_bytes);
+        Ok(serialized)
+    })
+    .unwrap();
+    let length = serialized.text().len() as u64;
+    assert!(length > LARGE as u64 && serialized.text().contains(&state.state_id));
+    assert!(held_at_finish.get() >= length, "the response was reserved when the commit began ({})", held_at_finish.get());
+    let after_commit = pool.pool_status().reserved_bytes;
+    assert!(after_commit >= length && serialized.reserved_bytes() >= length, "the response stays reserved after the commit ({after_commit})");
+    assert_eq!(row_count(&path, "analysis_runs"), 1, "committed");
+    let response = stored_read::respond_serialized::<String>(Ok(serialized)).unwrap();
+    assert_eq!(pool.pool_status().reserved_bytes, 0, "released once handed to Tauri");
+    drop(response);
+}
+
+#[test]
+fn the_project_guard_refuses_a_stored_hash_the_prescan_refuses() {
+    // Codex r5's minor finding, kept as the new behaviour: a stored envelope
+    // hash holding serde_json's private RawValue key. The former guard parsed
+    // it and admitted the matching base; the prescan refuses the key, so the
+    // stored hash reads as none and the save asks (PROJECT-BASE-MOVED).
+    let path = store_with_project("r5-raw-value-key");
+    let text = format!(r#"{{"value":"{BASE}","$serde_json::private::RawValue":"ignored"}}"#);
+    set_column(&path, "local_projects", "project_envelope_hash_json", &text);
+    assert_eq!(crate::stored_envelope_hash_value(&Connection::open(&path).unwrap(), PROJECT).unwrap(), BASE, "the former guard's reading");
+    let model_canonical = canonical_json(&model("Invented project"));
+    let request = SaveModelStateRequest {
+        project_id: PROJECT.to_string(),
+        expected_base: BASE.to_string(),
+        model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+        model_canonical,
+        state_kind: "design_snapshot".to_string(),
+        parent_state_id: None,
+        labels: labels_from_value(json!({ "state_name": "Basis" })).unwrap(),
+    };
+    let allocate = || Ok(("00000000000000000000000000002801".to_string(), 1_000));
+    let between_rows = |_: &Transaction<'_>| Ok(());
+    let error = save_state_in_store(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap_err();
+    assert!(error.starts_with("PROJECT-BASE-MOVED: "), "{error}");
+    // An ordinary stored hash row is read as before.
+    set_column(&path, "local_projects", "project_envelope_hash_json", &format!(r#"{{"algorithm":"sha256","value":"{BASE}"}}"#));
+    save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002802", 1_000);
+}
+
+#[test]
+fn one_cap_names_at_most_ten_blockers_across_children_and_runs() {
+    let path = store_with_project("r5-blockers");
+    let solved = model("Invented project");
+    let parent = save_state(&path, &solved, "Basis", "00000000000000000000000000002901", 1_000);
+    for index in 0..6 {
+        let child = model(&format!("Child {index}"));
+        let model_canonical = canonical_json(&child);
+        let request = SaveModelStateRequest {
+            project_id: PROJECT.to_string(),
+            expected_base: BASE.to_string(),
+            model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: Some(parent.state_id.clone()),
+            labels: labels_from_value(json!({ "state_name": format!("Child {index}") })).unwrap(),
+        };
+        let token = format!("{:032}", 2910 + index);
+        let allocate = move || Ok((token.clone(), 2_000 + index as i64));
+        let between_rows = |_: &Transaction<'_>| Ok(());
+        save_state_in_store(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap();
+        record(&path, request_against(&solved, &format!("Run {index}")), T0 + index as i64).unwrap();
+    }
+    let error = model_states::delete_state_in_store(&path, PROJECT, &parent.state_id).unwrap_err();
+    // The state itself, then ten blockers in all: six children and four runs.
+    assert_eq!(error.matches("\" (").count(), 11, "{error}");
+    assert!(error.contains("recorded runs ") && error.contains(" and 2 more"), "{error}");
+}
+
+fn request_against(model: &Value, name: &str) -> RecordRunRequest {
+    request(model, name)
+}

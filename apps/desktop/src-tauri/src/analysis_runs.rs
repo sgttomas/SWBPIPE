@@ -93,7 +93,7 @@ CREATE TRIGGER IF NOT EXISTS analysis_runs_no_replace BEFORE INSERT ON analysis_
 pub(crate) fn migrate_v13_analysis_runs(connection: &Connection) -> Result<(), String> {
     connection
         .execute_batch(STORE_V13_ANALYSIS_RUNS_SQL)
-        .map_err(|error| error.to_string())
+        .map_err(|error| stored_read::sql_error(&error))
 }
 
 /// Ingress budgets (raw argument bytes) of the small run commands.
@@ -433,13 +433,13 @@ fn result_rows_difference(record: &Value, result: &Value, memory: &dyn ReadMemor
     for (index, (row, row_ref)) in rows.iter().zip(refs).enumerate() {
         let id = row.get("id").and_then(Value::as_str).unwrap_or("");
         let result_ref = reference("Result", id);
-        let row_hash = stored_read::checked_sha256(memory, &format!("result row `{id}`"), row)?;
+        let row_hash = stored_read::checked_sha256(memory, &format!("result row `{}`", stored_read::shown(id)), row)?;
         let expected = json!([checksum(CHECKED_PROFILE_V1, result_ref.clone(), "result_row", &row_hash)]);
         if row_ref.get("result_ref") != Some(&result_ref)
             || row_ref.get("source_row_index") != Some(&json!(index))
             || row_ref.get("hash_refs") != Some(&expected)
         {
-            return Ok(Some(format!("result ref {index} does not carry result row `{id}`'s checksum")));
+            return Ok(Some(format!("result ref {index} does not carry result row `{}`'s checksum", stored_read::shown(id))));
         }
     }
     Ok(None)
@@ -501,7 +501,7 @@ pub(crate) fn checked_submission(
         stored_read::parse_bytes(manifest_text).map_err(|detail| refused(MANIFEST, format_args!("the input manifest: {detail}")))?;
     let manifest_reservation = memory.reserve("the run to record's input manifest", manifest_parse)?;
     let manifest: Value = serde_json::from_str(manifest_text)
-        .map_err(|error| refused(MANIFEST, format_args!("the input manifest is not JSON ({error})")))?;
+        .map_err(|error| refused(MANIFEST, format_args!("the input manifest is not JSON ({error})", error = stored_read::json_error(&error))))?;
     if !stored_read::is_jcs_text(memory, "the run to record's canonical input manifest", &manifest, manifest_text)? {
         return Err(refused(MANIFEST, "the input manifest is not its own canonical JCS text"));
     }
@@ -524,7 +524,7 @@ pub(crate) fn checked_submission(
         .ok_or_else(|| refused(MANIFEST, "the input manifest has no model payload"))?;
     let manifest_project = manifest.pointer("/model_basis/model_ref").and_then(Value::as_str);
     if manifest_project != Some(project_id) || crate::project_id_from_model(model_payload) != project_id {
-        return Err(refused(MANIFEST, format_args!("the input manifest is not of project `{project_id}`")));
+        return Err(refused(MANIFEST, format_args!("the input manifest is not of project `{project_id}`", project_id = stored_read::shown(&project_id))));
     }
     let payload_canonical = stored_read::jcs_text(memory, "the run to record's model payload", model_payload)?;
     let payload_hash = format!("sha256:{}", sha256_hex(payload_canonical.get()));
@@ -556,10 +556,10 @@ pub(crate) fn checked_submission(
     }
 
     let head: ResultHead = serde_json::from_str(result_json)
-        .map_err(|error| refused(RESULT, format_args!("the result is not a mechanics result ({error})")))?;
+        .map_err(|error| refused(RESULT, format_args!("the result is not a mechanics result ({error})", error = stored_read::json_error(&error))))?;
     let result_reservation = memory.reserve("the run to record's result", result_parse)?;
     let result: Value = serde_json::from_str(result_json)
-        .map_err(|error| refused(RESULT, format_args!("the result is not JSON ({error})")))?;
+        .map_err(|error| refused(RESULT, format_args!("the result is not JSON ({error})", error = stored_read::json_error(&error))))?;
     let result_hash_hex = stored_read::checked_sha256_text(memory, "the run to record's result", result_json, &result).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
     })?;
@@ -738,21 +738,21 @@ fn decode_run_labels(
                 .saturating_mul(2),
         );
     }
-    let reservation = memory.reserve(&format!("recorded run `{recording_id}`'s labels"), price)?;
+    let reservation = memory.reserve(&format!("recorded run `{recording_id}`'s labels", recording_id = stored_read::shown(&recording_id)), price)?;
     let parse = |text: &str| {
         serde_json::from_str::<Value>(text)
-            .map_err(|error| format!("ANALYSIS-RUN-INTEGRITY: a stored run label is not JSON ({error})."))
+            .map_err(|error| format!("ANALYSIS-RUN-INTEGRITY: a stored run label is not JSON ({error}).", error = stored_read::json_error(&error)))
     };
     let strings = |value: Value| -> Result<Vec<String>, String> {
         serde_json::from_value(value)
-            .map_err(|error| format!("ANALYSIS-RUN-INTEGRITY: a stored run label list is malformed ({error})."))
+            .map_err(|error| format!("ANALYSIS-RUN-INTEGRITY: a stored run label list is malformed ({error}).", error = stored_read::json_error(&error)))
     };
     let labels = RunLabels {
         run_name: name,
         tags: strings(parse(tags)?)?,
         notes: strings(parse(notes)?)?,
         assumptions: serde_json::from_value(parse(assumptions)?)
-            .map_err(|error| format!("ANALYSIS-RUN-INTEGRITY: the stored run assumptions are malformed ({error})."))?,
+            .map_err(|error| format!("ANALYSIS-RUN-INTEGRITY: the stored run assumptions are malformed ({error}).", error = stored_read::json_error(&error)))?,
     };
     Ok((labels, reservation))
 }
@@ -782,8 +782,8 @@ struct RunColumns<'a> {
 fn verified_run_record(columns: &RunColumns<'_>, record_json: &str, memory: &dyn ReadMemory) -> Result<Value, String> {
     let id = columns.recording_id;
     let record: Value = serde_json::from_str(record_json)
-        .map_err(|error| integrity_of(id, format_args!("the stored record is not JSON ({error})")))?;
-    let recomputed = run_record_hash_within(&record, memory, &format!("recorded run `{id}`'s record hash")).map_err(|error| {
+        .map_err(|error| integrity_of(id, format_args!("the stored record is not JSON ({error})", error = stored_read::json_error(&error))))?;
+    let recomputed = run_record_hash_within(&record, memory, &format!("recorded run `{}`'s record hash", stored_read::shown(id))).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { integrity_of(id, error) }
     })?;
     let null = Value::Null;
@@ -882,7 +882,7 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
         row;
     let (Some(name), Some(tags), Some(notes), Some(assumptions), Some(updated_at)) = (name, tags, notes, assumptions, updated_at)
     else {
-        return Err(format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` has no labels row."));
+        return Err(format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` has no labels row.", recording_id = stored_read::shown(&recording_id)));
     };
     let record_json: String = connection
         .query_row(
@@ -897,7 +897,7 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
     // prescan refuses is refused before it is parsed.
     let record_parse = stored_read::parse_bytes(&record_json)
         .map_err(|detail| integrity_of(&recording_id, format_args!("the stored record: {detail}")))?;
-    let record_reservation = memory.reserve(&format!("recorded run `{recording_id}`'s record"), record_parse.saturating_mul(2))?;
+    let record_reservation = memory.reserve(&format!("recorded run `{recording_id}`'s record", recording_id = stored_read::shown(&recording_id)), record_parse.saturating_mul(2))?;
     let record = verified_run_record(
         &RunColumns {
             project_id: &project_id,
@@ -912,8 +912,10 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
         memory,
     )?;
     drop(record_json);
-    let analysis_status = serde_json::from_value(record.pointer("/analysis_run/analysis_status").cloned().unwrap_or(json!([])))
-        .map_err(|error| integrity_of(&recording_id, format_args!("its analysis status is malformed ({error})")))?;
+    let analysis_status = serde_json::from_value(
+        stored_read::bounded_status(record.pointer("/analysis_run/analysis_status")).map_err(|detail| integrity_of(&recording_id, detail))?,
+    )
+        .map_err(|error| integrity_of(&recording_id, format_args!("its analysis status is malformed ({error})", error = stored_read::json_error(&error))))?;
     let (labels, labels_reservation) = decode_run_labels(&recording_id, name, &tags, &notes, &assumptions, memory)?;
     drop((tags, notes, assumptions));
     Ok((
@@ -934,19 +936,68 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
     ))
 }
 
+/// The identity and time columns a run summary loads, each with the bytes the
+/// store keeps in it (repair r5).
+const RUN_IDENTITY: [stored_read::BoundedColumn; 8] = [
+    ("r.project_id", "project_id", stored_read::MAX_ID_BYTES),
+    ("r.recording_id", "recording_id", stored_read::MAX_ID_BYTES),
+    ("r.state_id", "state_id", stored_read::MAX_ID_BYTES),
+    ("r.producer_run_id", "producer_run_id", stored_read::MAX_ID_BYTES),
+    ("r.created_at", "created_at", stored_read::MAX_TIME_BYTES),
+    ("r.run_record_hash", "run_record_hash", stored_read::MAX_HASH_BYTES),
+    ("r.result_hash", "result_hash", stored_read::MAX_HASH_BYTES),
+    ("l.updated_at", "labels_updated_at", stored_read::MAX_TIME_BYTES),
+];
+
 /// The byte lengths a run summary loads, read before any of it is loaded: the
-/// record and the labels row.
-const RUN_SUMMARY_LENGTHS: &str = "octet_length(r.run_record_json) AS record_length,
-    COALESCE(octet_length(l.run_name) + octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.updated_at), 0) AS labels_length";
+/// record, the labels row, and the identity and time columns.
+fn run_summary_lengths_sql() -> String {
+    format!(
+        "octet_length(r.run_record_json) AS record_length,
+         COALESCE(octet_length(l.run_name) + octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.updated_at), 0) AS labels_length,
+         {} AS identity_length",
+        stored_read::columns_bytes(&RUN_IDENTITY)
+    )
+}
+
+/// Refuses, before anything of it is loaded, the first run row of
+/// `project_id` (or the run `recording_id`) whose identity or time column holds
+/// more than its bound (repair r5): an integrity refusal naming the row by the
+/// head of its id.
+fn refuse_oversized_runs(connection: &Connection, project_id: &str, recording_id: Option<&str>) -> Result<(), String> {
+    let oversized = stored_read::oversized_column(&RUN_IDENTITY);
+    let found: Option<(Vec<u8>, i64, String)> = connection
+        .query_row(
+            &format!(
+                "SELECT {}, {oversized} FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
+                 WHERE r.project_id = ?1 AND (?2 IS NULL OR r.recording_id = ?2) AND {oversized} IS NOT NULL LIMIT 1",
+                stored_read::shown_column("r.recording_id")
+            ),
+            params![project_id, recording_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .optional()
+        .map_err(sql)?;
+    match found {
+        None => Ok(()),
+        Some((head, length, column)) => Err(integrity_of(
+            &stored_read::shown_head(&head, length),
+            format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&RUN_IDENTITY, &column)),
+        )),
+    }
+}
 
 /// Loading run summaries: the largest record (records are verified one at a
-/// time), every labels row, and each row's small columns. (The record's hash
-/// texts are reserved at their exact lengths when they are built.)
-fn run_summary_load_bytes(record: u64, labels: u64, rows: u64) -> u64 {
+/// time), every labels row, every row's identity and time columns as measured
+/// (each within its bound, [`refuse_oversized_runs`]), and each row's
+/// structure. (The record's hash texts are reserved at their exact lengths when
+/// they are built.)
+fn run_summary_load_bytes(record: u64, labels: u64, identity: u64, rows: u64) -> u64 {
     stored_read::total(&[
         stored_read::loaded_text_bytes(record),
         stored_read::loaded_text_bytes(labels),
-        rows.saturating_mul(4096),
+        stored_read::string_list_bytes(rows.saturating_mul(RUN_IDENTITY.len() as u64), identity),
+        rows.saturating_mul(1024),
     ])
 }
 
@@ -962,22 +1013,24 @@ fn find_run_with(
     memory: &dyn ReadMemory,
 ) -> Result<Option<Metered<(AnalysisRunSummary, Value)>>, String> {
     let connection: &Connection = transaction;
-    let lengths: Option<(i64, i64)> = connection
+    let lengths: Option<(Option<i64>, Option<i64>, Option<i64>)> = connection
         .query_row(
             &format!(
-                "SELECT {RUN_SUMMARY_LENGTHS} FROM analysis_runs r LEFT JOIN analysis_run_labels l
-                 ON l.project_id = r.project_id AND l.recording_id = r.recording_id WHERE r.project_id = ?1 AND r.recording_id = ?2"
+                "SELECT {} FROM analysis_runs r LEFT JOIN analysis_run_labels l
+                 ON l.project_id = r.project_id AND l.recording_id = r.recording_id WHERE r.project_id = ?1 AND r.recording_id = ?2",
+                run_summary_lengths_sql()
             ),
             params![project_id, recording_id],
-            |row| Ok((row.get(0)?, row.get(1)?)),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         )
         .optional()
         .map_err(sql)?;
-    let Some((record, labels)) = lengths else { return Ok(None) };
-    let length = |value: i64| u64::try_from(value).unwrap_or(0);
+    let Some((record, labels, identity)) = lengths else { return Ok(None) };
+    refuse_oversized_runs(connection, project_id, Some(recording_id))?;
+    let length = |value: Option<i64>| u64::try_from(value.unwrap_or(0)).unwrap_or(0);
     let load = memory.reserve(
-        &format!("recorded run `{recording_id}`"),
-        stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, run_summary_load_bytes(length(record), length(labels), 1)]),
+        &format!("recorded run `{}`", stored_read::shown(recording_id)),
+        stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, run_summary_load_bytes(length(record), length(labels), length(identity), 1)]),
     )?;
     let row = connection
         .query_row(
@@ -1010,7 +1063,7 @@ pub(crate) fn list_runs_in_store_with(
     project_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<Vec<AnalysisRunSummary>>, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
+    let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     list_runs_with(&transaction, project_id, memory)
 }
@@ -1027,23 +1080,25 @@ pub(crate) fn list_runs_with(
     memory: &dyn ReadMemory,
 ) -> Result<Metered<Vec<AnalysisRunSummary>>, String> {
     let connection: &Connection = transaction;
-    let (record, labels, rows): (Option<i64>, Option<i64>, i64) = connection
+    let (record, labels, identity, rows): (Option<i64>, Option<i64>, Option<i64>, i64) = connection
         .query_row(
             &format!(
-                "SELECT MAX(record_length), SUM(labels_length), COUNT(*) FROM (SELECT {RUN_SUMMARY_LENGTHS}
+                "SELECT MAX(record_length), SUM(labels_length), SUM(identity_length), COUNT(*) FROM (SELECT {}
                  FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
-                 WHERE r.project_id = ?1)"
+                 WHERE r.project_id = ?1)",
+                run_summary_lengths_sql()
             ),
             params![project_id],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
         )
         .map_err(sql)?;
+    refuse_oversized_runs(connection, project_id, None)?;
     let length = |value: Option<i64>| u64::try_from(value.unwrap_or(0)).unwrap_or(0);
     let load = memory.reserve(
-        &format!("the recorded runs of project `{project_id}`"),
+        &format!("the recorded runs of project `{}`", stored_read::shown(project_id)),
         stored_read::total(&[
             stored_read::READ_OVERHEAD_BYTES,
-            run_summary_load_bytes(length(record), length(labels), length(Some(rows))),
+            run_summary_load_bytes(length(record), length(labels), length(identity), length(Some(rows))),
         ]),
     )?;
     let mut statement = connection
@@ -1086,6 +1141,25 @@ pub(crate) fn run_description(run: &AnalysisRunSummary) -> String {
 /// The recording time: the later of `now` and one millisecond after the
 /// project's latest recorded `created_at` (read inside the write transaction).
 fn allocate_created_at(transaction: &Transaction<'_>, project_id: &str, now: i64) -> Result<String, String> {
+    // Every run's created_at within its bound before the latest is loaded (repair r5).
+    let oversized: Option<(Vec<u8>, i64)> = transaction
+        .query_row(
+            &format!(
+                "SELECT {} FROM analysis_runs WHERE project_id = ?1 AND octet_length(created_at) > {} LIMIT 1",
+                stored_read::shown_column("recording_id"),
+                stored_read::MAX_TIME_BYTES
+            ),
+            params![project_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .optional()
+        .map_err(sql)?;
+    if let Some((head, length)) = oversized {
+        return Err(integrity_of(
+            &stored_read::shown_head(&head, length),
+            format_args!("its created_at is longer than the {} bytes kept", stored_read::MAX_TIME_BYTES),
+        ));
+    }
     let latest: Option<String> = transaction
         .query_row(
             "SELECT MAX(created_at) FROM analysis_runs WHERE project_id = ?1",
@@ -1096,7 +1170,7 @@ fn allocate_created_at(transaction: &Transaction<'_>, project_id: &str, now: i64
     let after_latest = match latest {
         None => i64::MIN,
         Some(text) => parse_iso_millis(&text)
-            .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: a recorded run's created_at `{text}` is not a recording time."))?
+            .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: a recorded run's created_at `{text}` is not a recording time.", text = stored_read::shown(&text)))?
             .saturating_add(1),
     };
     Ok(utc_iso_millis(now.max(after_latest)))
@@ -1110,7 +1184,7 @@ fn write_run_labels(
     updated_at: &str,
     insert: bool,
 ) -> Result<(), String> {
-    let text = |result: serde_json::Result<String>| result.map_err(|error| error.to_string());
+    let text = |result: serde_json::Result<String>| result.map_err(|error| stored_read::json_error(&error));
     let tags = text(serde_json::to_string(&labels.tags))?;
     let notes = text(serde_json::to_string(&labels.notes))?;
     let assumptions = text(serde_json::to_string(&labels.assumptions))?;
@@ -1128,7 +1202,7 @@ fn write_run_labels(
         )
         .map_err(sql)?;
     if changed != 1 {
-        return Err(format!("ANALYSIS-RUN-INTEGRITY: the labels of recorded run `{recording_id}` were not written."));
+        return Err(format!("ANALYSIS-RUN-INTEGRITY: the labels of recorded run `{recording_id}` were not written.", recording_id = stored_read::shown(&recording_id)));
     }
     Ok(())
 }
@@ -1181,8 +1255,8 @@ pub(crate) fn record_run_in_store_finishing<R>(
         &request.input_manifest_canonical,
         memory,
     )?;
-    let (mut connection, _migration) = crate::open_project_store(path)?;
-    let transaction = crate::immediate_transaction(&mut connection)?;
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
     model_states::require_project_base(
         &transaction,
         project_id,
@@ -1196,7 +1270,7 @@ pub(crate) fn record_run_in_store_finishing<R>(
     let (state, state_outcome) = match &request.state_id {
         Some(state_id) => {
             let state = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(|| {
-                refused("ANALYSIS-RUN-STATE-NOT-FOUND", format_args!("project `{project_id}` has no saved state `{state_id}`"))
+                refused("ANALYSIS-RUN-STATE-NOT-FOUND", format_args!("project `{project_id}` has no saved state `{state_id}`", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id)))
             })?;
             if state.get().model_hash != submission.get().payload_hash {
                 return Err(refused(
@@ -1205,7 +1279,7 @@ pub(crate) fn record_run_in_store_finishing<R>(
                         "the solved model hashes to {}, not state {}'s {}",
                         submission.get().payload_hash,
                         state_description(state.get()),
-                        state.get().model_hash
+                        stored_read::shown(&state.get().model_hash)
                     ),
                 ));
             }
@@ -1282,11 +1356,11 @@ pub(crate) fn record_run_in_store_finishing<R>(
     (hooks.between_rows)(&transaction, "run")?;
     write_run_labels(&transaction, project_id, &recording_id, &request.run_labels, &created_at, true)?;
     let run = find_run_with(&transaction, project_id, &recording_id, memory)?
-        .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` was not written."))?
+        .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` was not written.", recording_id = stored_read::shown(&recording_id)))?
         .map(|(run, _record)| run);
     // The state as it now stands (its recorded runs include this one).
     let state = find_summary_with(&transaction, project_id, &state_id, memory)?
-        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished."))?;
+        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.", state_id = stored_read::shown(&state_id)))?;
     let unused = if state_outcome == "existing" && request.state_id.is_none() && request.new_state.is_some() {
         " The solved model was already saved as that state, so the post-solve snapshot name was not used."
     } else {
@@ -1333,9 +1407,9 @@ pub(crate) fn read_run_in_store_with(
     recording_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<AnalysisRunRead>, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
+    let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
-    let not_found = || format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.");
+    let not_found = || format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id));
     let lengths: (i64, i64) = transaction
         .query_row(
             "SELECT octet_length(r.result_json), octet_length(r.input_manifest_json) FROM analysis_runs r WHERE r.project_id = ?1 AND r.recording_id = ?2",
@@ -1347,7 +1421,7 @@ pub(crate) fn read_run_in_store_with(
         .ok_or_else(not_found)?;
     let length = |value: i64| u64::try_from(value).unwrap_or(0);
     let (result_length, manifest_length) = (length(lengths.0), length(lengths.1));
-    let what = format!("recorded run `{recording_id}`");
+    let what = format!("recorded run `{recording_id}`", recording_id = stored_read::shown(&recording_id));
     // Loaded here: the result and the manifest (the summaries reserve their
     // own; the canonical texts are reserved when they are built).
     let load = memory.reserve(
@@ -1405,7 +1479,7 @@ pub(crate) fn read_run_in_store_with(
         return Err(integrity_of(recording_id, format_args!("the record's {name} differs from its stored input manifest")));
     }
     let state = model_states::find_summary_with(&transaction, project_id, &run.state_id, memory)?.ok_or_else(|| {
-        integrity_of(recording_id, format_args!("its state `{}` is not saved", run.state_id))
+        integrity_of(recording_id, format_args!("its state `{}` is not saved", stored_read::shown(&run.state_id)))
     })?;
     let payload_hash = match manifest.pointer("/model_basis/model_payload") {
         Some(payload) => Some(format!("sha256:{}", stored_read::jcs_sha256(memory, &format!("{what}'s model payload"), payload)?)),
@@ -1471,10 +1545,10 @@ pub(crate) fn edit_run_labels_in_store_finishing<R>(
     memory: &dyn ReadMemory,
     finish: impl FnOnce(Metered<AnalysisRunSummary>) -> Result<R, String>,
 ) -> Result<R, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
-    let transaction = crate::immediate_transaction(&mut connection)?;
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
     let current = find_run_with(&transaction, project_id, recording_id, memory)?
-        .ok_or_else(|| format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`."))?;
+        .ok_or_else(|| format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id)))?;
     let (run, _) = current.get();
     if let Some(expected) = expected_updated_at {
         if expected != run.labels_updated_at {
@@ -1489,7 +1563,7 @@ pub(crate) fn edit_run_labels_in_store_finishing<R>(
     write_run_labels(&transaction, project_id, recording_id, &labels, &updated_at, false)?;
     drop(current);
     let summary = find_run_with(&transaction, project_id, recording_id, memory)?
-        .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` vanished."))?
+        .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` vanished.", recording_id = stored_read::shown(&recording_id)))?
         .map(|(summary, _)| summary);
     let finished = finish(summary)?;
     transaction.commit().map_err(sql)?;
@@ -1525,10 +1599,10 @@ pub(crate) fn delete_run_in_store_finishing<R>(
     memory: &dyn ReadMemory,
     finish: impl FnOnce(Metered<AnalysisRunDeleteReceipt>) -> Result<R, String>,
 ) -> Result<R, String> {
-    let (mut connection, _migration) = crate::open_project_store(path)?;
-    let transaction = crate::immediate_transaction(&mut connection)?;
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
     let found = find_run_with(&transaction, project_id, recording_id, memory)?
-        .ok_or_else(|| format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`."))?;
+        .ok_or_else(|| format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id)))?;
     let deleted = transaction
         .execute(
             "DELETE FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
@@ -1559,7 +1633,7 @@ pub(crate) fn record_analysis_run_args(
     let finish = |outcome| stored_read::serialize_metered(memory, "record_analysis_run", outcome);
     store()
         .and_then(|path| record_run_in_store_finishing(&path, request, &PRODUCTION_RUN_HOOKS, memory, finish))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId}`.
@@ -1571,7 +1645,7 @@ pub(crate) fn list_analysis_runs_args(
     let project_id: String = args.decode("projectId")?;
     store()
         .and_then(|path| list_runs_in_store_with(&path, &project_id, memory))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId, recordingId}`.
@@ -1584,7 +1658,7 @@ pub(crate) fn read_analysis_run_args(
     let recording_id: String = args.decode("recordingId")?;
     store()
         .and_then(|path| read_run_in_store_with(&path, &project_id, &recording_id, memory))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId, recordingId, labels, expectedUpdatedAt?}`.
@@ -1602,7 +1676,7 @@ pub(crate) fn edit_analysis_run_labels_args(
         .and_then(|path| {
             edit_run_labels_in_store_finishing(&path, &project_id, &recording_id, labels, expected.as_deref(), now_unix_millis()?, memory, finish)
         })
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 /// `{projectId, recordingId}`.
@@ -1616,7 +1690,7 @@ pub(crate) fn delete_analysis_run_args(
     let finish = |receipt| stored_read::serialize_metered(memory, "delete_analysis_run", receipt);
     store()
         .and_then(|path| delete_run_in_store_finishing(&path, &project_id, &recording_id, memory, finish))
-        .map_err(CommandError::Command)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
 #[tauri::command]
