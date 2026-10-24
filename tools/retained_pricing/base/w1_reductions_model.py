@@ -53,8 +53,10 @@ RF_PINS = {
 # or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
 # Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines and retained_wire.rs's DEF-E hash constant change no
 # reduction's owner or lifetime.
+# Branch-warning statement D3 (§8.18): lib.rs's contract_evidence line also calls validation::state_applied_branch_factors
+# (no line moves); no reduction's owner or lifetime changes.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0",
+    "core/product_physics/src/lib.rs": "2e95bd8f7aa787fe672b9065be9b786aab16bb9f3635f338d9d51a6fa96ed051",
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",

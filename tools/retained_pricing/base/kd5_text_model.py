@@ -179,7 +179,8 @@ def inspect_directed_helpers(snapshot):
 # Silent-zero guard D3 (§8.15): lib.rs adds one call, `case_state::resolve::refuse_all_reference_states`, in the
 # load-state branch; it adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
 # Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines add no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0'
+# Branch-warning statement D3 (§8.18): lib.rs's one changed line adds no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '2e95bd8f7aa787fe672b9065be9b786aab16bb9f3635f338d9d51a6fa96ed051'
 
 
 def primitive_lib_minmax_callers(snapshot):
