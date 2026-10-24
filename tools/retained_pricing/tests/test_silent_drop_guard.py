@@ -97,3 +97,17 @@ def test_a_changed_owner_stops(tmp_path):
     snap = snapshot_with(tmp_path, VALIDATION, "if !seen.insert(term.load_case.as_str()) {", "if !seen.insert(term.load_case.as_str()) && true {")
     with pytest.raises(SystemExit, match="SD owners"):
         sd_owners_model.inspect(str(snap))
+
+
+def test_the_duplicate_loops_are_bound_by_their_own_functions(monkeypatch, tmp_path):
+    """SD-DL: the enumerating duplicate loops are bound at 3, each only in its function; a changed count stops."""
+    d = decisions(monkeypatch, route="L")
+    loops = {h: (b, fns) for h, b, why, fns in d["O10_LOOPS_LAST"] if "SD-DL" in why}
+    assert loops == {
+        "for (index, term) in combination.terms.iter().enumerate()": ("3", ["validation.rs:validate_mechanics_combination"]),
+        "for (index, operand_id) in operand_ids.iter().enumerate()": ("3", ["validation.rs:validate_range_envelope_combination"]),
+    }
+    snap = snapshot_with(tmp_path, VALIDATION, "operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1",
+                         "operand_ids.iter().filter(|other| *other == operand_id).count() > 1")
+    with pytest.raises(SystemExit, match="SD-DL"):
+        decisions(monkeypatch, snap)

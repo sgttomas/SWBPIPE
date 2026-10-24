@@ -282,7 +282,7 @@ closure adds outside the TEXT inventory and prices them positively in `ordinary_
 callee's withheld names, the warning's cloned list and a support group's rows, route L with combinations), SD-HS
 (validation's duplicate-term set) and SD-PB (the closed-record scan's probe error). `rules/o10_rules.py` zeroes the
 scan's finding and refusal sites by its place before admission (SD-NF, guarded), bounds its loops (SD-L1) and texts
-(SD-ID, SD-WT, SD-DT) and removes one by-name false edge (SD-EV); `rules/sq2_decisions_common.py` re-keys two replaced
+(SD-ID, SD-WT, SD-DT) and the duplicate loops (SD-DL) and removes one by-name false edge (SD-EV); `rules/sq2_decisions_common.py` re-keys two replaced
 combination audit keys by name (SD-RK). A snapshot without the guard adds nothing. See the governing rules' §8.19.
 
 The current source pins fail closed outside the reviewed stage-2 cohort.
