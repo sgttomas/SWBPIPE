@@ -43,7 +43,7 @@ use crate::model_states::{
     StateWriteHooks,
 };
 use crate::solve_jobs::SolveJobRegistry;
-use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, ReadReservation, Serialized, UnmeteredReadMemory};
+use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, Serialized, UnmeteredReadMemory};
 #[cfg(test)]
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
 use open_pipe_stress_canonical_json::CHECKED_PROFILE_V1;
@@ -308,7 +308,8 @@ pub(crate) fn recorded_revision(
 
 /// `runrec:` and the first 32 hex characters of the record hash.
 pub(crate) fn recording_id_of(record_hash: &str) -> String {
-    format!("runrec:{}", &record_hash[..record_hash.len().min(32)])
+    // Checked slicing (repair r6): the hash is hex, but nothing here assumes it.
+    format!("runrec:{}", record_hash.get(..32).unwrap_or(record_hash))
 }
 
 // ---------------------------------------------------------------------------
@@ -449,6 +450,10 @@ fn result_rows_difference(record: &Value, result: &Value, memory: &dyn ReadMemor
 // The binding checks of Record Run (before any store access).
 // ---------------------------------------------------------------------------
 
+/// `analysis_run.v0.3`'s analysis status words (its schema's enum).
+const ANALYSIS_STATUS_WORDS: [&str; 6] =
+    ["MODEL_INCOMPLETE", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED", "HUMAN_REVIEW_REQUIRED"];
+
 fn refused(code: &str, detail: impl std::fmt::Display) -> String {
     format!("{code}: {detail}; nothing was recorded.")
 }
@@ -541,6 +546,19 @@ pub(crate) fn checked_submission(
         || transient.pointer("/analysis_run/model_state_ref") != Some(&synthetic)
     {
         return Err(refused(RECORD, "the record is not a solve's transient record (an already recorded run is not recorded again)"));
+    }
+    // What a run's summary retains of its status (repair r6): v0.3's status
+    // words (the schema's enum), each at most once, as the app produces them.
+    // The schema itself leaves the list's length open; Record Run does not.
+    let status = transient.pointer("/analysis_run/analysis_status").and_then(Value::as_array);
+    let status_accepted = status.is_some_and(|items| {
+        items.len() <= ANALYSIS_STATUS_WORDS.len()
+            && items.iter().enumerate().all(|(index, item)| {
+                item.as_str().is_some_and(|word| ANALYSIS_STATUS_WORDS.contains(&word)) && !items[..index].contains(item)
+            })
+    });
+    if !status_accepted {
+        return Err(refused(RECORD, "the record's analysis status is not a list of v0.3's status words, each at most once"));
     }
     let run_id = transient.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
     let claim = single_hash(transient, "analysis_run_record");
@@ -729,7 +747,7 @@ fn decode_run_labels(
     notes: &str,
     assumptions: &str,
     memory: &dyn ReadMemory,
-) -> Result<(RunLabels, ReadReservation), String> {
+) -> Result<Metered<RunLabels>, String> {
     let mut price = 0u64;
     for text in [tags, notes, assumptions] {
         price = price.saturating_add(
@@ -754,7 +772,7 @@ fn decode_run_labels(
         assumptions: serde_json::from_value(parse(assumptions)?)
             .map_err(|error| format!("ANALYSIS-RUN-INTEGRITY: the stored run assumptions are malformed ({error}).", error = stored_read::json_error(&error)))?,
     };
-    Ok((labels, reservation))
+    Ok(Metered::new(labels).holding(reservation))
 }
 
 fn integrity_of(recording_id: &str, detail: impl std::fmt::Display) -> String {
@@ -912,14 +930,18 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
         memory,
     )?;
     drop(record_json);
-    let analysis_status = serde_json::from_value(
-        stored_read::bounded_status(record.pointer("/analysis_run/analysis_status")).map_err(|detail| integrity_of(&recording_id, detail))?,
-    )
+    // The status list outlives the record: its retained copy is reserved (repair r6).
+    let status = stored_read::bounded_status(record.pointer("/analysis_run/analysis_status")).map_err(|detail| integrity_of(&recording_id, detail))?;
+    let status_reservation = memory.reserve(
+        &format!("recorded run `{}`'s analysis status", stored_read::shown(&recording_id)),
+        stored_read::status_bytes(&status),
+    )?;
+    let analysis_status = serde_json::from_value(status)
         .map_err(|error| integrity_of(&recording_id, format_args!("its analysis status is malformed ({error})", error = stored_read::json_error(&error))))?;
-    let (labels, labels_reservation) = decode_run_labels(&recording_id, name, &tags, &notes, &assumptions, memory)?;
+    let labels = decode_run_labels(&recording_id, name, &tags, &notes, &assumptions, memory)?;
     drop((tags, notes, assumptions));
     Ok((
-        Metered::new(AnalysisRunSummary {
+        labels.map(|labels| AnalysisRunSummary {
             labels,
             analysis_status,
             project_id,
@@ -931,7 +953,7 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
             result_hash,
             labels_updated_at: updated_at,
         })
-        .holding(labels_reservation),
+        .holding(status_reservation),
         Metered::new(record).holding(record_reservation),
     ))
 }
@@ -939,10 +961,12 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
 /// The identity and time columns a run summary loads, each with the bytes the
 /// store keeps in it (repair r5).
 const RUN_IDENTITY: [stored_read::BoundedColumn; 8] = [
-    ("r.project_id", "project_id", stored_read::MAX_ID_BYTES),
+    // The app bounds neither a project id nor a producer's run id: measured
+    // and priced, never refused by size (repair r6).
+    ("r.project_id", "project_id", stored_read::MEASURED_ONLY),
     ("r.recording_id", "recording_id", stored_read::MAX_ID_BYTES),
     ("r.state_id", "state_id", stored_read::MAX_ID_BYTES),
-    ("r.producer_run_id", "producer_run_id", stored_read::MAX_ID_BYTES),
+    ("r.producer_run_id", "producer_run_id", stored_read::MEASURED_ONLY),
     ("r.created_at", "created_at", stored_read::MAX_TIME_BYTES),
     ("r.run_record_hash", "run_record_hash", stored_read::MAX_HASH_BYTES),
     ("r.result_hash", "result_hash", stored_read::MAX_HASH_BYTES),
@@ -1292,8 +1316,9 @@ pub(crate) fn record_run_in_store_finishing<R>(
                     return Err(refused(
                         "ANALYSIS-RUN-STATE-REQUIRED",
                         format_args!(
-                            "project `{project_id}` has no saved state of the solved model ({}); name a post-solve snapshot to record the run against",
-                            submission.get().payload_hash
+                            "project `{}` has no saved state of the solved model ({}); name a post-solve snapshot to record the run against",
+                            stored_read::shown(project_id),
+                            stored_read::shown(&submission.get().payload_hash)
                         ),
                     ));
                 };

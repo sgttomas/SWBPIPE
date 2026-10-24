@@ -73,7 +73,40 @@ impl Drop for ReadReservation {
     fn drop(&mut self) {
         if let Some(held) = &self.held {
             held.set(held.get().saturating_sub(self.bytes));
+            #[cfg(test)]
+            release_probe::record(held.get());
         }
+    }
+}
+
+/// What is live when each reservation is released (tests): a value that
+/// outlives its reservation shows as live bytes above what is still held.
+#[cfg(test)]
+pub(crate) mod release_probe {
+    use std::cell::RefCell;
+
+    thread_local! {
+        static RELEASES: RefCell<Option<Vec<(i64, u64)>>> = const { RefCell::new(None) };
+    }
+
+    pub(crate) fn start() {
+        RELEASES.with(|releases| *releases.borrow_mut() = Some(Vec::new()));
+    }
+
+    /// The `(live priced bytes, bytes still held)` at each release since [`start`].
+    pub(crate) fn take() -> Vec<(i64, u64)> {
+        RELEASES.with(|releases| releases.borrow_mut().take().unwrap_or_default())
+    }
+
+    pub(crate) fn record(held_after: u64) {
+        let live = crate::ingress::counting::live_priced();
+        RELEASES.with(|releases| {
+            if let Ok(mut releases) = releases.try_borrow_mut() {
+                if let Some(releases) = releases.as_mut() {
+                    releases.push((live, held_after));
+                }
+            }
+        });
     }
 }
 
@@ -253,13 +286,14 @@ pub(crate) fn sql_error(error: &rusqlite::Error) -> String {
     }
 }
 
-/// The bytes the store keeps in an identity or time column (repair r5),
-/// against what the app writes: ids (`state:` or `runrec:` and 32 hex, a
-/// producer's run id, a project id) are short, and no command can name one
-/// longer than its 4 KiB argument budget; kinds are words; times are
-/// 24-byte ISO texts; hashes are 64 hex, or `sha256:` and 64 hex. A row
-/// holding a longer value is refused, before it is loaded, as the row's
-/// integrity failure.
+/// The bytes the store keeps in an identity or time column the app bounds at
+/// every write (repairs r5, r6): ids the app generates (`state:` or
+/// `runrec:` and 32 hex, and the references to them); kinds, one of the
+/// state kinds; times, 24-byte ISO texts from `utc_iso_millis`; hashes, 64
+/// hex or `sha256:` and 64 hex. A row holding a longer value is refused,
+/// before it is loaded, as the row's integrity failure. Ids the app does not
+/// bound (a project id, a producer's run id) are [`MEASURED_ONLY`]: measured
+/// and priced, never refused by size.
 pub(crate) const MAX_ID_BYTES: i64 = 4096;
 pub(crate) const MAX_KIND_BYTES: i64 = 64;
 pub(crate) const MAX_TIME_BYTES: i64 = 32;
@@ -267,8 +301,17 @@ pub(crate) const MAX_HASH_BYTES: i64 = 80;
 
 /// The most bytes of a verified record's `analysis_status` a summary copies
 /// out of the record, whose reservation it outlives (repair r5): the app writes
-/// a few short status words.
+/// a few short status words. The copy is also reserved as it is retained
+/// ([`status_bytes`], repair r6).
 pub(crate) const MAX_STATUS_BYTES: u64 = 4096;
+
+/// The retained `Vec<String>` of an `analysis_status` (with its transient
+/// `Value` copy): from its element count and their bytes.
+pub(crate) fn status_bytes(value: &Value) -> u64 {
+    let items = value.as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let bytes = items.iter().map(|item| item.as_str().map_or(0, str::len) as u64).fold(0, u64::saturating_add);
+    string_list_bytes(items.len() as u64, bytes).saturating_mul(2)
+}
 
 /// A record's `analysis_status` (an empty list when it has none), copied only
 /// when it serializes to at most [`MAX_STATUS_BYTES`].
@@ -281,14 +324,19 @@ pub(crate) fn bounded_status(value: Option<&Value>) -> Result<Value, String> {
     Ok(value.clone())
 }
 
-/// A loaded identity or time column: its SQL, its name, its bound.
+/// The bound of a column the app does not bound: measured and priced only.
+pub(crate) const MEASURED_ONLY: i64 = i64::MAX;
+
+/// A loaded identity or time column: its SQL, its name, its bound (or
+/// [`MEASURED_ONLY`]).
 pub(crate) type BoundedColumn = (&'static str, &'static str, i64);
 
 /// SQL naming the first of `columns` whose stored value exceeds its bound, or
-/// NULL.
+/// NULL (a [`MEASURED_ONLY`] column never does).
 pub(crate) fn oversized_column(columns: &[BoundedColumn]) -> String {
     let arms: String = columns
         .iter()
+        .filter(|(_, _, max)| *max != MEASURED_ONLY)
         .map(|(column, name, max)| format!(" WHEN COALESCE(octet_length({column}), 0) > {max} THEN '{name}'"))
         .collect();
     format!("(CASE{arms} ELSE NULL END)")

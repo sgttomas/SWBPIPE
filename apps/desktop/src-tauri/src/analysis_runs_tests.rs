@@ -1724,7 +1724,7 @@ fn the_labels_bound_is_the_serialized_labels_objects_and_every_kept_label_can_be
     .unwrap_err();
     assert!(error.to_string().contains("bytes of JSON; at most 196608 are kept"), "{error}");
     // The largest kept labels of NULs, carried back to each label edit with a
-    // project id at the list's whole budget, fit the edit's argument budget.
+    // project id at the stated editable length, fit the edit's argument budget.
     let fill = |name_key: &str| {
         let mut count = 32_000usize;
         loop {
@@ -1735,7 +1735,8 @@ fn the_labels_bound_is_the_serialized_labels_objects_and_every_kept_label_can_be
             count += 1;
         }
     };
-    let project = "p".repeat(LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES - 16);
+    // A project id at the stated editable length (its JSON adds two quotes).
+    let project = "p".repeat(model_states::EDITABLE_PROJECT_ID_BYTES - 2);
     let registry = registry(ScriptedHost::normal());
     let state_labels = fill("state_name");
     assert!(model_states::labels_from_value(state_labels.clone()).is_ok());
@@ -2115,7 +2116,6 @@ fn every_identity_and_time_column_is_bounded_before_it_is_loaded() {
     for (column, table, set) in [
         ("recording_id", "analysis_runs", "recording_id"),
         ("state_id", "analysis_runs", "state_id"),
-        ("producer_run_id", "analysis_runs", "producer_run_id"),
         ("created_at", "analysis_runs", "created_at"),
         ("run_record_hash", "analysis_runs", "run_record_hash"),
         ("result_hash", "analysis_runs", "result_hash"),
@@ -2250,4 +2250,287 @@ fn one_cap_names_at_most_ten_blockers_across_children_and_runs() {
 
 fn request_against(model: &Value, name: &str) -> RecordRunRequest {
     request(model, name)
+}
+
+
+// ---------------------------------------------------------------------------
+// Repair r6: nothing parsed outlives its lease (drop order); the status copy is
+// reserved as retained; ids the app does not bound are measured, not refused;
+// every message's values are cut; stored times never panic.
+// ---------------------------------------------------------------------------
+
+/// Runs `command` (its outcome dropped inside the measurement) and checks, at
+/// every release of a reservation, that what is still live is within what is
+/// still held, with 1 MiB for the command's small unpriced allocations: a
+/// value that outlives its reservation shows as live bytes above it.
+fn assert_nothing_outlives_its_lease<R>(what: &str, command: impl FnOnce() -> R) {
+    const SLACK: i64 = 1 << 20;
+    let (releases, _) = crate::ingress::counting::measure(|| {
+        stored_read::release_probe::start();
+        drop(command());
+        stored_read::release_probe::take()
+    });
+    assert!(!releases.is_empty(), "{what}: nothing was reserved");
+    for (index, (live, held)) in releases.iter().enumerate() {
+        assert!(*live <= *held as i64 + SLACK, "{what}: release {index} left {live} bytes live with {held} held");
+    }
+}
+
+#[test]
+fn nothing_parsed_outlives_its_lease() {
+    // Codex r6: an envelope hash holding 100,000 empty strings, read by the
+    // project guard.
+    let path = store_with_project("r6-drop-order");
+    let padding = vec![""; 100_000];
+    set_column(&path, "local_projects", "project_envelope_hash_json", &serde_json::to_string(&json!({ "algorithm": "sha256", "value": BASE, "padding": padding })).unwrap());
+    let pool = registry(ScriptedHost::normal());
+    let model_canonical = canonical_json(&model("Invented project"));
+    let save = |token: &'static str, model_canonical: String| {
+        let request = SaveModelStateRequest {
+            project_id: PROJECT.to_string(),
+            expected_base: BASE.to_string(),
+            model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: None,
+            labels: labels_from_value(json!({ "state_name": "Basis" })).unwrap(),
+        };
+        let allocate = move || Ok((token.to_string(), 1_000));
+        let between_rows = |_: &Transaction<'_>| Ok(());
+        let memory = PoolReadMemory::unseeded(&pool);
+        model_states::save_state_in_store_with(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }, &memory)
+    };
+    assert_nothing_outlives_its_lease("save, the project guard", || save("00000000000000000000000000003001", model_canonical.clone()).unwrap());
+    // The same probe over the other commands, with large stored rows.
+    let (path, _) = recorded_fixture("r6-drop-order-sweep");
+    let id = id_of(&path);
+    let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM model_states", [], |row| row.get(0)).unwrap();
+    set_column(&path, "model_state_labels", "notes_json", &serde_json::to_string(&vec!["n".repeat(4096); 600]).unwrap());
+    set_column(&path, "analysis_run_labels", "notes_json", &serde_json::to_string(&vec!["n".repeat(4096); 600]).unwrap());
+    let memory = PoolReadMemory::unseeded(&pool);
+    assert_nothing_outlives_its_lease("list states", || model_states::list_states_in_store_with(&path, PROJECT, &memory).unwrap());
+    assert_nothing_outlives_its_lease("read state", || model_states::read_state_in_store_with(&path, PROJECT, &state_id, &memory).unwrap());
+    assert_nothing_outlives_its_lease("list runs", || list_runs_in_store_with(&path, PROJECT, &memory).unwrap());
+    assert_nothing_outlives_its_lease("read run", || read_run_in_store_with(&path, PROJECT, &id, &memory).unwrap());
+    assert_nothing_outlives_its_lease("edit run", || edit_run_labels_in_store_with(&path, PROJECT, &id, run_labels("Renamed"), None, T0 + 1, &memory).unwrap());
+    assert_nothing_outlives_its_lease("edit state", || {
+        model_states::edit_labels_in_store_with(&path, PROJECT, &state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0 + 1, &memory).unwrap()
+    });
+    assert_nothing_outlives_its_lease("delete run", || delete_run_in_store_with(&path, PROJECT, &id, &memory).unwrap());
+    assert_nothing_outlives_its_lease("delete state", || model_states::delete_state_in_store_with(&path, PROJECT, &state_id, &memory).unwrap());
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+/// Rewrites one recorded run's record coherently (its hash, recording id and
+/// labels row follow it).
+fn forge_one(path: &Path, recording_id: &str, record: &Value) -> String {
+    let hash = run_record_hash(record).unwrap();
+    let forged = recording_id_of(&hash);
+    tamper(path, "");
+    let connection = Connection::open(path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    connection
+        .execute(
+            "UPDATE analysis_runs SET run_record_json = ?1, run_record_hash = ?2, recording_id = ?3 WHERE recording_id = ?4",
+            params![serde_json::to_string(record).unwrap(), hash, forged, recording_id],
+        )
+        .unwrap();
+    connection.execute("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = ?2", params![forged, recording_id]).unwrap();
+    forged
+}
+
+#[test]
+fn a_status_list_is_reserved_as_it_is_retained_and_record_run_keeps_v0_3s_words() {
+    // Record Run accepts v0.3's status words, each at most once.
+    let path = store_with_project("r6-status-record");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000003101", 1_000);
+    for status in [json!(vec![""; 1000]), json!(["HUMAN_REVIEW_REQUIRED", "HUMAN_REVIEW_REQUIRED"]), json!(["HUMAN_REVIEW_REQUIRED", "INVENTED"])] {
+        let mut submitted = request(&solved, "Status");
+        submitted.run_record["analysis_run"]["analysis_status"] = status;
+        reseal(&mut submitted.run_record);
+        let error = record(&path, submitted, T0).unwrap_err();
+        assert!(error.starts_with("ANALYSIS-RUN-NOT-TRANSIENT: the record's analysis status is not a list of v0.3's status words"), "{error}");
+    }
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // Codex r6: 128 runs whose stored records (forged past Record Run) hold
+    // 1,000 empty status strings each: the list reserves the retained copies.
+    for index in 0..128 {
+        let outcome = record(&path, request(&solved, &format!("Run {index}")), T0 + index).unwrap();
+        let mut stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+        stored["analysis_run"]["analysis_status"] = json!(vec![""; 1000]);
+        reseal(&mut stored);
+        forge_one(&path, &outcome.run.recording_id, &stored);
+    }
+    assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory));
+    let pool = registry(ScriptedHost::normal());
+    let memory = PoolReadMemory::unseeded(&pool);
+    assert_nothing_outlives_its_lease("the list of 128 runs", || list_runs_in_store_with(&path, PROJECT, &memory).unwrap());
+}
+
+#[test]
+fn long_project_ids_are_measured_not_refused() {
+    // Codex r6: S1-era data with a project id past 4 KiB (Save Local Project
+    // keeps any). Every history command still works on it.
+    for length in [4_097usize, 64 * 1024] {
+        let project = format!("project:{}", "p".repeat(length - 8));
+        let path = scratch_store(&format!("r6-long-project-{length}"));
+        let solved = model_in(&project, "Invented project");
+        {
+            let (mut connection, _) = crate::open_project_store(&path).unwrap();
+            write_project(&mut connection, &project, &solved, BASE);
+        }
+        let model_canonical = canonical_json(&solved);
+        let save = |token: &'static str| {
+            let request = SaveModelStateRequest {
+                project_id: project.clone(),
+                expected_base: BASE.to_string(),
+                model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+                model_canonical: model_canonical.clone(),
+                state_kind: "design_snapshot".to_string(),
+                parent_state_id: None,
+                labels: labels_from_value(json!({ "state_name": "Basis" })).unwrap(),
+            };
+            let allocate = move || Ok((token.to_string(), 1_000));
+            let between_rows = |_: &Transaction<'_>| Ok(());
+            save_state_in_store(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows })
+        };
+        let state = save("00000000000000000000000000003201").unwrap().state;
+        let run = record(&path, request_in(&project, &solved, "Run"), T0).unwrap().run;
+        let pool = registry(ScriptedHost::normal());
+        let memory = PoolReadMemory::unseeded(&pool);
+        assert_eq!(model_states::list_states_in_store_with(&path, &project, &memory).unwrap().get().len(), 1, "{length}: list states");
+        assert_eq!(list_runs_in_store_with(&path, &project, &memory).unwrap().get().len(), 1, "{length}: list runs");
+        model_states::read_state_in_store_with(&path, &project, &state.state_id, &memory).unwrap();
+        read_run_in_store_with(&path, &project, &run.recording_id, &memory).unwrap();
+        // The label edits and the duplicate save, through their commands.
+        let (mut args, lease) = admit_json(&pool, "edit_model_state_labels", ArgsDecoding::Moved,
+            &json!({ "projectId": project, "stateId": state.state_id, "labels": { "state_name": "Renamed" }, "expectedUpdatedAt": null })).unwrap();
+        model_states::edit_model_state_labels_args(&mut args, || Ok(path.clone()), &memory).unwrap();
+        drop((args, lease));
+        let (mut args, lease) = admit_json(&pool, "edit_analysis_run_labels", ArgsDecoding::Moved,
+            &json!({ "projectId": project, "recordingId": run.recording_id, "labels": { "run_name": "Renamed" }, "expectedUpdatedAt": null })).unwrap();
+        edit_analysis_run_labels_args(&mut args, || Ok(path.clone()), &memory).unwrap();
+        drop((args, lease));
+        let again = save("00000000000000000000000000003202").unwrap();
+        assert_eq!((again.outcome, again.state.state_id.as_str()), ("already_saved", state.state_id.as_str()), "{length}: duplicate save");
+        // A refusal quoting the id stays small (Codex r6: ANALYSIS-RUN-STATE-REQUIRED).
+        let other = model_in(&project, "Unsaved model");
+        let error = record(&path, request_in(&project, &other, "Unsaved"), T0 + 1).unwrap_err();
+        assert!(error.starts_with("ANALYSIS-RUN-STATE-REQUIRED: "), "{}", stored_read::shown(&error));
+        assert_small("a refusal quoting a long project id", &error);
+        let error = model_states::delete_state_in_store(&path, &project, &state.state_id).unwrap_err();
+        assert_small("a blocked delete of a long project id", &error);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+    }
+}
+
+#[test]
+fn a_stored_time_with_a_multi_byte_character_is_refused_not_a_panic() {
+    // Codex r6: 24 bytes, the last character two bytes wide.
+    let text = format!("{}é", "x".repeat(22));
+    assert_eq!(text.len(), 24);
+    assert_eq!(parse_iso_millis(&text), None);
+    assert_eq!(parse_iso_millis("2026-10-24T00:00:00.000Z"), Some(1_792_800_000_000));
+    // Through Record Run's latest created_at, and a label edit's updated_at.
+    let (path, _) = recorded_fixture("r6-time-utf8");
+    tamper_with(&path, "UPDATE analysis_runs SET created_at = ?1", &text);
+    let error = record(&path, request(&model("Invented project"), "After"), T0 + 5).unwrap_err();
+    assert!(error.contains("is not a recording time"), "{error}");
+    let (path, _) = recorded_fixture("r6-time-utf8-labels");
+    let id = id_of(&path);
+    set_column(&path, "analysis_run_labels", "updated_at", &text);
+    edit_run_labels_in_store(&path, PROJECT, &id, run_labels("Renamed"), None, T0 + 6).unwrap();
+}
+
+fn model_in(project: &str, name: &str) -> Value {
+    json!({
+        "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION,
+        "document_kind": "openpipestress.product_preview.model",
+        "project": { "id": project, "name": name, "units": { "length": "m" } },
+        "nodes": [{ "id": "node:N-100", "coordinates": [0, 0, 0] }],
+        "pipe_segments": [], "supports": [], "materials": [], "sections": [], "components": [],
+        "load_cases": [], "combinations": []
+    })
+}
+
+fn manifest_text_in(project: &str, model: &Value) -> String {
+    canonical_json(&json!({
+        "schema_version": "1.0.0",
+        "document_kind": "openpipestress.current_session_input_manifest",
+        "model_basis": { "model_ref": project, "model_payload": model },
+        "unit_basis": { "project_units": { "length": "m" } },
+        "solver_basis": { "solver_name": "invented-solver", "solver_version": "0.0.1", "solver_build_ref": "invented-solver@0.0.1",
+                          "solver_mode": "sparse_interactive", "settings": { "sparse_evidence_lane": true } },
+        "load_basis": { "load_cases": [], "combinations": [] },
+        "active_rule_packs": [{ "rule_pack_id": "rule-pack:invented", "version": "1.0.0", "checksum_sha256": "a".repeat(64), "source_notice": "invented" }],
+        "external_assets": [],
+        "identity_policy": { "canonicalization": "rfc8785_jcs", "hash_algorithm": "sha256", "canonical_bytes_scope": "entire_input_manifest_object" },
+        "replay_boundary": { "included_as_package_member": false, "portable_replay_claimed": false, "current_session_ref_hash_integrity_only": true }
+    }))
+}
+
+fn result_text_in(project: &str, value: f64) -> String {
+    let project_json = serde_json::to_string(project).unwrap();
+    format!(
+        "{{ \"run_id\": \"{RUN}\", \"model_ref\": {project_json}, \"results\": [ {{ \"id\": \"result:disp:N-100\", \"value\": {value}, \"offset\": -0 }} ], \"diagnostics\": [] }}"
+    )
+}
+
+fn transient_in(project: &str, result: &str, manifest: &str) -> Value {
+    let manifest_hash = sha256_hex(manifest);
+    let manifest_ref = json!({ "object_type": "InputManifest", "ref": format!("input-manifest:{}:{manifest_hash}", safe_token(project)) });
+    let rows: Value = serde_json::from_str(result).unwrap();
+    let result_refs: Vec<Value> = rows["results"].as_array().unwrap().iter().enumerate().map(|(index, row)| {
+        let id = row["id"].as_str().unwrap();
+        json!({ "result_ref": { "object_type": "Result", "ref": id }, "source_row_index": index,
+                "hash_refs": [{ "algorithm": "sha256", "canonicalization": CHECKED_PROFILE_V1, "payload_ref": { "object_type": "Result", "ref": id },
+                                "payload_scope": "result_row", "value": checked_sha256(row).unwrap() }] })
+    }).collect();
+    let mut record = json!({
+        "schema_version": "0.3.0",
+        "run_contract_status": { "record_contract": "strict_analysis_run_v0_3", "result_binding": "received_mechanics_result",
+                                 "external_validation_boundary": "reference_only_not_determined_by_software" },
+        "analysis_run": {
+            "run_id": RUN, "run_name": format!("{RUN} analysis record"), "run_kind": "mechanics_solve", "created_at": null,
+            "model_state_ref": { "object_type": "ModelState", "ref": format!("state:{project}:preview") },
+            "solver_version": { "solver_name": "invented-solver", "solver_version": "0.0.1",
+                                "build_ref": { "object_type": "ExternalReference", "ref": "invented-solver@0.0.1" } },
+            "settings_ref": { "object_type": "SolverSettings", "ref": format!("solver-settings:input-manifest:{}:{manifest_hash}:{manifest_hash}", safe_token(project)) },
+            "unit_system_ref": { "object_type": "UnitSystem", "ref": format!("unit-system:{project}:{manifest_hash}") },
+            "load_basis_refs": [], "result_refs": result_refs,
+            "rule_pack_refs": [], "library_refs": [],
+            "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"],
+            "hashes": [
+                { "algorithm": "sha256", "canonicalization": CHECKED_PROFILE_V1, "payload_ref": { "object_type": "AnalysisRun", "ref": RUN },
+                  "payload_scope": "analysis_run_record", "value": "" },
+                { "algorithm": "sha256", "canonicalization": CHECKED_PROFILE_V1, "payload_ref": { "object_type": "ResultEnvelope", "ref": format!("result-envelope:{RUN}") },
+                  "payload_scope": "received_result", "value": sha256_hex(&canonical_json_checked_v1_text(result).unwrap()) }
+            ],
+            "reproducibility": {
+                "input_manifest_refs": [manifest_ref.clone()],
+                "input_manifest_hashes": [{ "algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_ref": manifest_ref,
+                                            "payload_scope": "input_manifest", "value": manifest_hash }],
+                "determinism_notes": ["created_at_unavailable", "model_state_ref_and_solver_settings_unit_basis_bound_by_input_manifest"]
+            },
+            "scale": 0.1
+        }
+    });
+    reseal(&mut record);
+    record
+}
+
+fn request_in(project: &str, model: &Value, name: &str) -> RecordRunRequest {
+    let manifest = manifest_text_in(project, model);
+    let result = result_text_in(project, 1.25);
+    RecordRunRequest {
+        project_id: project.to_string(),
+        expected_base: BASE.to_string(),
+        run_record: transient_in(project, &result, &manifest),
+        result_json: result,
+        input_manifest_canonical: manifest,
+        state_id: None,
+        new_state: None,
+        run_labels: run_labels(name),
+    }
 }

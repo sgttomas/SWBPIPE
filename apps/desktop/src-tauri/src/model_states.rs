@@ -36,7 +36,7 @@
 
 use crate::command_ingress::{self, Args, ArgsDecoding, CommandError};
 use crate::solve_jobs::SolveJobRegistry;
-use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, ReadReservation, Serialized, UnmeteredReadMemory};
+use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, Serialized, UnmeteredReadMemory};
 use open_pipe_stress_operation_applier::{
     sha256_hex, validate_model_document, DocumentDiagnostic,
 };
@@ -109,13 +109,16 @@ pub(crate) const MAX_LABEL_ITEMS: usize = 256;
 /// "assumptions"}`), serialized, escapes included ([`labels_json_length`];
 /// repair r3: a name of NULs serializes to six bytes a character).
 pub(crate) const MAX_LABELS_JSON_BYTES: u64 = 192 * 1024;
-/// Every label set a write keeps can be edited: the labels object, a project id
-/// any listable project has (the list's argument budget holds it), the
+/// The longest project id with which any kept label set can still be edited
+/// (repair r6: the app does not bound project ids, so this is stated, not
+/// assumed): the labels object, a project id of this length (serialized), the
 /// fixed-length state or recording id and `updated_at`, and the argument
 /// object's member names fit the label edit's argument budget (the run edit's
-/// budget is the same).
+/// budget is the same). Labels smaller than the bound leave room for a longer
+/// id.
+pub(crate) const EDITABLE_PROJECT_ID_BYTES: usize = 63 * 1024;
 const _: () = assert!(
-    MAX_LABELS_JSON_BYTES as usize + LIST_MODEL_STATES_MAX_ARGS_BYTES + 1024 <= EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES
+    MAX_LABELS_JSON_BYTES as usize + EDITABLE_PROJECT_ID_BYTES + 1024 <= EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES
 );
 const ASSUMPTION_KINDS: [&str; 2] = ["assumption", "open_issue"];
 const ASSUMPTION_STATUSES: [&str; 3] = ["unresolved", "resolved", "rejected"];
@@ -1048,7 +1051,7 @@ fn decode_labels(
     notes: &str,
     assumptions: &str,
     memory: &dyn ReadMemory,
-) -> Result<(StateLabels, ReadReservation), String> {
+) -> Result<Metered<StateLabels>, String> {
     let mut price = 0u64;
     for text in [tags, notes, assumptions] {
         price = price.saturating_add(
@@ -1076,7 +1079,7 @@ fn decode_labels(
             format!("MODEL-STATE-INTEGRITY: the stored assumptions are malformed ({error}).", error = stored_read::json_error(&error))
         })?,
     };
-    Ok((labels, reservation))
+    Ok(Metered::new(labels).holding(reservation))
 }
 
 /// The byte lengths a state summary loads, read with `octet_length` and counts
@@ -1085,7 +1088,9 @@ fn decode_labels(
 /// The identity and time columns a state summary loads, each with the bytes
 /// the store keeps in it (repair r5; `stored_read::MAX_ID_BYTES` and the rest).
 const STATE_IDENTITY: [stored_read::BoundedColumn; 8] = [
-    ("s.project_id", "project_id", stored_read::MAX_ID_BYTES),
+    // The app does not bound a project id (Save Local Project keeps any):
+    // measured and priced, never refused by size (repair r6).
+    ("s.project_id", "project_id", stored_read::MEASURED_ONLY),
     ("s.state_id", "state_id", stored_read::MAX_ID_BYTES),
     ("s.state_kind", "state_kind", stored_read::MAX_KIND_BYTES),
     ("s.created_at", "created_at", stored_read::MAX_TIME_BYTES),
@@ -1464,8 +1469,17 @@ fn summary_from_row(
         memory,
     )?;
     drop(record_json);
+    // The status list outlives the record: its retained copy is reserved (repair r6).
+    let status_reservation;
     let analysis_status: Vec<String> =
-        serde_json::from_value(stored_read::bounded_status(record.get("analysis_status")).map_err(|detail| integrity_of(&state_id, detail))?)
+        serde_json::from_value({
+            let status = stored_read::bounded_status(record.get("analysis_status")).map_err(|detail| integrity_of(&state_id, detail))?;
+            status_reservation = memory.reserve(
+                &format!("saved state `{}`'s analysis status", stored_read::shown(&state_id)),
+                stored_read::status_bytes(&status),
+            )?;
+            status
+        })
             .map_err(|error| {
                 integrity_of(
                     &state_id,
@@ -1476,9 +1490,9 @@ fn summary_from_row(
     drop(parse);
     let child_state_ids = children(connection, &project_id, &state_id)?;
     let recorded_run_ids = recorded_run_ids_of(connection, &project_id, &state_id)?;
-    let (labels, labels_reservation) = decode_labels(&state_id, name, &tags, &notes, &assumptions, memory)?;
+    let labels = decode_labels(&state_id, name, &tags, &notes, &assumptions, memory)?;
     drop((tags, notes, assumptions));
-    Ok(Metered::new(ModelStateSummary {
+    let summary = labels.map(|labels| ModelStateSummary {
         analysis_status,
         labels,
         project_id,
@@ -1491,8 +1505,8 @@ fn summary_from_row(
         labels_updated_at: updated_at,
         child_state_ids,
         recorded_run_ids,
-    })
-    .holding(labels_reservation))
+    });
+    Ok(summary.holding(status_reservation))
 }
 
 /// A state's summary within `memory`, on `transaction` (a read transaction or
@@ -1680,15 +1694,17 @@ pub(crate) fn require_project_base(
     let text: Option<String> = transaction
         .query_row("SELECT project_envelope_hash_json FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
         .map_err(sql)?;
-    // The parse's reservation lives as long as the parsed value (repair r5).
-    let (stored, _parse) = match text.as_deref().map(|text| (text, stored_read::parse_bytes(text))) {
+    // The parsed value and its reservation are one `Metered`, so the value is
+    // dropped before its reservation (repairs r5, r6).
+    let stored: Metered<Value> = match text.as_deref().map(|text| (text, stored_read::parse_bytes(text))) {
         Some((text, Ok(parse))) => {
             let reservation = memory.reserve(&what, parse)?;
-            (serde_json::from_str::<Value>(text).unwrap_or(Value::Null), Some(reservation))
+            Metered::new(serde_json::from_str::<Value>(text).unwrap_or(Value::Null)).holding(reservation)
         }
-        _ => (Value::Null, None),
+        _ => Metered::new(Value::Null),
     };
-    let stored_base = stored.get("value").and_then(Value::as_str).unwrap_or("");
+    drop(text);
+    let stored_base = stored.get().get("value").and_then(Value::as_str).unwrap_or("");
     // A row without an envelope hash has no revision to compare: it asks.
     if !expected_base.is_empty() && expected_base == stored_base {
         return Ok(());
@@ -2253,7 +2269,8 @@ pub(crate) fn edit_labels_in_store_finishing<R>(
 /// The inverse of [`utc_iso_millis`] for the text it writes.
 pub(crate) fn parse_iso_millis(text: &str) -> Option<i64> {
     let bytes = text.as_bytes();
-    if bytes.len() != 24 || &text[23..] != "Z" {
+    // Byte checks only: a stored text may hold a multi-byte character anywhere (repair r6).
+    if bytes.len() != 24 || bytes[23] != b'Z' {
         return None;
     }
     let number = |range: std::ops::Range<usize>| text.get(range)?.parse::<i64>().ok();
