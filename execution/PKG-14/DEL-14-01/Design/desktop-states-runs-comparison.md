@@ -557,7 +557,13 @@ the History panel and `useModelStateHistory.ts`.
       Ids the app does not bound are measured and priced, never refused by
       size: a project id (Save Local Project keeps any) and a producer's run
       id. Data that S1 or project save wrote with a 4,097-byte or 64 KiB
-      project id still lists, reads, edits its labels and saves its duplicate.
+      project id still lists, reads, edits its labels and saves its duplicate
+      in the store.
+      - **Through the commands (r7).** The six history commands (both lists,
+        both reads, both deletes) are admitted with the label edits' 256 KiB
+        argument budget, so they reach a project id of up to about 256 KiB.
+      - **Longer ids.** A longer id is refused by name at ingress
+        (`INGRESS-ARGS-TOO-LARGE`), and the History panel shows that refusal.
     - **State rows:** state, kind, created_at, parent, model and record
       hashes, and the labels' `updated_at` are bounded; the project id is
       measured only.
@@ -791,14 +797,22 @@ the History panel and `useModelStateHistory.ts`.
       Record Run, each with 1,000 empty status strings. Their list peaks within
       its reservations; before the fix, 5,083,456 bytes were priced against
       3,988,608 reserved.
-    - **Long project ids (r6).** For 4,097-byte and 64 KiB project ids, the
+    - **Long project ids (r6, r7).** For 4,097-byte and 64 KiB project ids, the
       following work:
-      - list, read, both label edits (through their commands) and the
-        duplicate save;
+      - in the store: list, read, both label edits (through their commands)
+        and the duplicate save;
       - Record Run's state-required refusal and a blocked delete, each under
-        2 KiB.
+        2 KiB;
+      - since r7, through the real writers (project save, Save Model State,
+        Record Run) and then the six history commands' argument decoders.
+
+      A project id over 256 KiB is refused by name at ingress.
     - **Times (r6).** A 24-byte stored time whose last character is two bytes
-      wide is refused, not a panic, by Record Run and by a label edit.
+      wide no longer panics:
+      - **Record Run** refuses a run's malformed `created_at` as
+        `ANALYSIS-RUN-INTEGRITY` ("is not a recording time").
+      - **A label edit** does not refuse a malformed previous `updated_at`. It
+        reads it as no earlier time and writes the current time in its place.
     - **Mutations (r6).** Each r6 test fails when its defect is put back:
       - the tuple drop order;
       - the status reservation removed;
