@@ -1,15 +1,20 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { savedStatesSentence, storedProjectDescription, type ReplaceProjectPromptState } from "./storedProjectConflict";
 
 /** Asks before a save would replace a stored project (HELP_HUMAN rulings
  * 2026-10-10). It is modal: the workspace is inert while it is open (App.tsx),
  * Tab stays on its buttons, window shortcuts are held back, Cancel has focus and
- * Escape cancels. Nothing is replaced unless Replace is chosen. */
+ * Escape cancels. Nothing is replaced unless Replace is chosen.
+ *
+ * Focus and the key hold are set in a layout effect, inside the commit that
+ * shows the prompt. A passive effect can run a task later, so a key pressed
+ * once the prompt is visible could reach the workspace, or Cancel could lack
+ * focus. */
 export function ReplaceProjectPrompt({ prompt }: { prompt: ReplaceProjectPromptState | null }) {
   const dialog = useRef<HTMLElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!prompt) return;
     const opener = prompt.opener;
     cancel.current?.focus();
