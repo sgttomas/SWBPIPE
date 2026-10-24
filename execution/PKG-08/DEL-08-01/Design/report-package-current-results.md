@@ -624,8 +624,8 @@ producer's check. Its module text (`reader.rs:30-37`) is updated to say so.
   unredacted private packs (`audit_manifest/src/lib.rs:444-466`).
 
 **Checksum subjects** (review round 2). There is one rule: every checksum or
-hash record names, in `payload_ref` (type and id), the subject it is attached
-to, and that subject derives from the record's container. A record whose
+hash record names, in `payload_ref`, the subject it is attached to, by type
+and by id, and that subject derives from the record's container. A record whose
 location has no derivation is refused.
 
 The rule is applied in four places:
@@ -643,7 +643,8 @@ In the result member, the schema's own checksum types (`$defs/Checksum`,
 `$defs/ScopedChecksum`) locate the records, through the evaluator's marking.
 The round-2 review inventoried 640 references in 23 shapes;
 `every_checksum_record_kind_refuses_another_subject` probes each kind for
-both profiles. In the table, E is the result member's `envelope_id`, R is
+both profiles, changing the type alone, the id alone, and both (review
+round 3). In the table, E is the result member's `envelope_id`, R is
 its `run_ref`, and C is the carrier: `attested_headless_producer:E` for the
 runner origin, `received_current_carrier:<origin mechanics run>` for the
 desktop origin.
@@ -658,13 +659,13 @@ desktop origin.
 | member `raw_source_hashes[]` | C; the list is exactly `[original_producer_checksum]` when the producer is authentic, else empty |
 | member origin `received_carrier_checksum` and `original_producer_checksum` | C |
 | member `row_accounting[]`, `row_disclosures[]` and `unit_preservation_witnesses[]` carrier and producer row checksums | C (`validate_document` binds the rows to the origin's reference; this binds that reference) |
-| member `rule_pack_refs[].checksum` | that entry's `rule_pack_id` |
-| audit `assets[].hash` | the entry's `asset_id` |
-| audit `rule_pack_refs[].checksum` | `rule_pack_id`, or `rule_pack_document:<id>` under `rfc8785_jcs` |
+| member `rule_pack_refs[].checksum` | `rule_pack:<that entry's rule_pack_id>`, or `rule_pack_document:<id>` under `rfc8785_jcs` |
+| audit `assets[].hash` | the entry's `asset_id`, with the entry's `payload_kind` (the audit's references are strings; the payload kind is their type) |
+| audit `rule_pack_refs[].checksum` | `rule_pack_id`, or `rule_pack_document:<id>` under `rfc8785_jcs`, with payload kind `rule_pack_reference` |
 | audit `model_hash`, `input_manifest_hash` | no container subject; `bindings` binds them to the source model and the handoff input manifest, and the reader binds the model hash value to the result member |
 | report `model_input_summary.model_hash` | the summary's `model_ref` |
 | report `result_export_refs[]`, `audit_manifest_refs[]` and `report_section_refs[]` checksums | the entry's own `ref` |
-| report `rule_pack_refs[].checksum` | that entry's `rule_pack_id` |
+| report `rule_pack_refs[].checksum` | that entry's `rule_pack_id`, typed `rule_pack` or `rule_pack_document` (bindings further tie the type to the basis) |
 | handoff `state_run_sections[]` hash refs, row hash refs and input-manifest hashes | the section's state, run, row and manifest (`bindings`) |
 
 A `report_section_refs[]` entry's own `ref` is a free reference: nothing in

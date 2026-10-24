@@ -719,9 +719,14 @@ fn check_checksum_subjects(report: &CalculationReport, diagnostics: &mut Vec<Dia
             mismatched.push(envelope.checksum.payload_ref.clone());
         }
     }
+    // Type and id: the pack (`rule_pack`) or its loaded document
+    // (`rule_pack_document`, the desktop's undeclared-checksum fallback).
     for rule_pack in &report.rule_pack_refs {
-        if rule_pack.checksum.payload_ref.ref_id != rule_pack.rule_pack_id {
-            mismatched.push(rule_pack.checksum.payload_ref.clone());
+        let payload_ref = &rule_pack.checksum.payload_ref;
+        if payload_ref.ref_id != rule_pack.rule_pack_id
+            || !matches!(payload_ref.ref_type.as_str(), "rule_pack" | "rule_pack_document")
+        {
+            mismatched.push(payload_ref.clone());
         }
     }
     for payload_ref in mismatched {
@@ -1063,6 +1068,23 @@ mod tests {
         let mut pack = report();
         pack.rule_pack_refs[0].checksum.payload_ref.ref_id = "another-rule-pack".to_string();
         assert_eq!(codes(&pack), 1);
+        let mut pack_type = report();
+        pack_type.rule_pack_refs[0].checksum.payload_ref.ref_type = "model_payload".to_string();
+        assert_eq!(codes(&pack_type), 1);
+        let mut pack_document = report();
+        pack_document.rule_pack_refs[0].checksum.payload_ref.ref_type = "rule_pack_document".to_string();
+        assert_eq!(codes(&pack_document), 0);
+        for kind in ["section", "result", "audit", "model"] {
+            let mut typed = report();
+            let payload_ref = match kind {
+                "section" => &mut typed.report_section_refs[0].checksum.payload_ref,
+                "result" => &mut typed.result_export_refs[0].checksum.payload_ref,
+                "audit" => &mut typed.audit_manifest_refs[0].checksum.payload_ref,
+                _ => &mut typed.model_input_summary.model_hash.payload_ref,
+            };
+            payload_ref.ref_type = "model_payload".to_string();
+            assert_eq!(codes(&typed), 1, "{kind}: a type change alone is refused");
+        }
         let mut model = report();
         model.model_input_summary.model_hash.payload_ref.ref_id = "another-model".to_string();
         assert_eq!(codes(&model), 1);

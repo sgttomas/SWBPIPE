@@ -1013,6 +1013,18 @@ mod tests {
         pack.rule_pack_refs[0].checksum.as_mut().unwrap().payload_ref = "another-rule-pack".to_string();
         assert_eq!(subject_findings(&pack), 1);
 
+        // The audit's references are strings; their type is the payload kind,
+        // which the slot check refuses when it changes.
+        let mut kind = manifest.clone();
+        kind.assets[0].hash.as_mut().unwrap().payload_kind = PayloadKind::ExternalArtifact;
+        assert!(validate_manifest(&kind)
+            .findings
+            .iter()
+            .any(|finding| finding.code == ManifestFindingCode::PayloadKindMismatch));
+        let mut pack_kind = manifest.clone();
+        pack_kind.rule_pack_refs[0].checksum.as_mut().unwrap().payload_kind = PayloadKind::ModelJson;
+        assert!(validate_manifest(&pack_kind).has_blocking_findings());
+
         // The loaded document's digest names the pack's document.
         let mut document = manifest.clone();
         let checksum = document.rule_pack_refs[0].checksum.as_mut().unwrap();

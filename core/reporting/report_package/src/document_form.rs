@@ -203,8 +203,16 @@ pub fn check_document_subjects(document: &Value) -> Result<(), String> {
             | "/result_envelope/unit_preservation_witnesses/*/received_carrier_row_checksum"
             | "/result_envelope/unit_preservation_witnesses/*/original_producer_row_checksum" => *payload_ref == carrier,
             "/result_envelope/rule_pack_refs/*/checksum" => {
+                // Type and id: the pack (`rule_pack`), or its loaded document
+                // under `rfc8785_jcs` (`rule_pack_document`).
                 let owner = path.strip_suffix("/checksum").and_then(|owner| document.pointer(owner));
-                owner.is_some_and(|owner| payload_ref["ref_id"] == owner["rule_pack_id"])
+                let pack_type = match record["canonicalization"].as_str() {
+                    Some("rfc8785_jcs") => "rule_pack_document",
+                    _ => "rule_pack",
+                };
+                owner.is_some_and(|owner| {
+                    owner["rule_pack_id"].as_str().is_some_and(|id| *payload_ref == reference(pack_type, id))
+                })
             }
             _ => return fail(format!("the checksum record at {path} has no derivable subject")),
         };
@@ -235,9 +243,11 @@ pub fn check_document_subjects(document: &Value) -> Result<(), String> {
 /// result member (`check_audit_equalities`).
 pub fn check_audit_subjects(audit: &Value) -> Result<(), String> {
     let fail = |detail: String| Err(format!("{CHECKSUM_SUBJECT_MISMATCH}: {detail}"));
+    // The audit's payload references are strings; their type is the record's
+    // `payload_kind`, checked with the id.
     for asset in audit["assets"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
         let hash = &asset["hash"];
-        if !hash.is_null() && hash["payload_ref"] != asset["asset_id"] {
+        if !hash.is_null() && (hash["payload_ref"] != asset["asset_id"] || hash["payload_kind"] != asset["payload_kind"]) {
             return fail(format!("the hash of asset {} names another payload", asset["asset_id"]));
         }
     }
@@ -251,7 +261,7 @@ pub fn check_audit_subjects(audit: &Value) -> Result<(), String> {
             Some("rfc8785_jcs") => format!("rule_pack_document:{id}"),
             _ => id.to_string(),
         };
-        if checksum["payload_ref"].as_str() != Some(expected.as_str()) {
+        if checksum["payload_ref"].as_str() != Some(expected.as_str()) || checksum["payload_kind"] != "rule_pack_reference" {
             return fail(format!("the checksum of rule pack {id} names another payload"));
         }
     }

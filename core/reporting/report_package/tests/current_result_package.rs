@@ -812,12 +812,22 @@ fn every_kind(request: &Value) -> Value {
             "payload_ref": "invented-asset-A", "value": RULE_PACK_HEX},
         "provenance": "Invented public fixture"
     }]);
+    // The result member's own rule-pack reference, under the document basis.
+    request = with_document(&request, |document| {
+        document["result_envelope"]["rule_pack_refs"] = json!([{
+            "rule_pack_id": "invented-rule-pack", "version": "0.1.0",
+            "checksum": rule_pack_checksum("rfc8785_jcs", "rule_pack_document"),
+            "source_notice": "Invented non-code example only.",
+            "redistribution_status": "invented_non_engineering_example",
+            "completeness_status": "not_checked", "private_payload_redacted": true
+        }]);
+    });
     request
 }
 
 /// The record kinds the round-2 review inventoried (640 references, 23
 /// shapes), plus the asset and rule-pack records a rule-check package adds.
-const RECORD_KINDS: [&str; 26] = [
+const RECORD_KINDS: [&str; 27] = [
     "/audit_manifest/assets/*/hash/payload_ref",
     "/audit_manifest/input_manifest_hash/payload_ref",
     "/audit_manifest/model_hash/payload_ref",
@@ -834,6 +844,7 @@ const RECORD_KINDS: [&str; 26] = [
     "/result_documents/*/result_envelope/reproducibility/run_hashes/*/payload_ref",
     "/result_documents/*/result_envelope/reproducibility/source_origin_bindings/*/original_producer_checksum/payload_ref",
     "/result_documents/*/result_envelope/reproducibility/source_origin_bindings/*/received_carrier_checksum/payload_ref",
+    "/result_documents/*/result_envelope/rule_pack_refs/*/checksum/payload_ref",
     "/result_documents/*/result_envelope/row_accounting/*/original_producer_row_checksum/payload_ref",
     "/result_documents/*/result_envelope/row_accounting/*/received_carrier_row_checksum/payload_ref",
     "/result_documents/*/result_envelope/row_disclosures/*/original_producer_row_checksum/payload_ref",
@@ -868,22 +879,41 @@ fn every_checksum_record_kind_refuses_another_subject() {
             }
         }
         for (kind, location) in &kinds {
-            let mut edited = request.clone();
-            let subject = edited.pointer_mut(location).unwrap();
-            match subject {
-                Value::String(_) => *subject = json!("invented-other-subject"),
-                _ => subject["ref_id"] = json!("invented-other-subject"),
+            // The type alone, the id alone, and both. An audit reference is a
+            // string whose type is the record's `payload_kind`.
+            for change in ["type", "id", "both"] {
+                let mut edited = request.clone();
+                let record_pointer = location.strip_suffix("/payload_ref").unwrap().to_string();
+                let subject = edited.pointer_mut(location).unwrap();
+                let is_string = subject.is_string();
+                if change != "type" {
+                    match subject {
+                        Value::String(_) => *subject = json!("invented-other-subject"),
+                        _ => subject["ref_id"] = json!("invented-other-subject"),
+                    }
+                }
+                if change != "id" {
+                    if is_string {
+                        let record = edited.pointer_mut(&record_pointer).unwrap();
+                        let other = if record["payload_kind"] == "external_artifact" { "binary_asset" } else { "external_artifact" };
+                        record["payload_kind"] = json!(other);
+                    } else {
+                        let subject = edited.pointer_mut(location).unwrap();
+                        let other = if subject["ref_type"] == "model_payload" { "rule_pack" } else { "model_payload" };
+                        subject["ref_type"] = json!(other);
+                    }
+                }
+                // Re-hash an edited result document, except its own
+                // derivative hash's subject, which the re-hash would restore.
+                if location.starts_with("/result_documents/0/") && !kind.ends_with("/derivative_hash/payload_ref") {
+                    edited["result_documents"][0] = common::rehash(edited["result_documents"][0].take());
+                }
+                let outcome = assemble(&edited);
+                assert!(
+                    outcome.as_ref().map_or(true, |outcome| outcome.export_blocked),
+                    "{profile}: a {change} change at {location} assembled unblocked"
+                );
             }
-            // Re-hash an edited result document, except its own derivative
-            // hash's subject, which the re-hash would restore.
-            if location.starts_with("/result_documents/0/") && !kind.ends_with("/derivative_hash/payload_ref") {
-                edited["result_documents"][0] = common::rehash(edited["result_documents"][0].take());
-            }
-            let outcome = assemble(&edited);
-            assert!(
-                outcome.as_ref().map_or(true, |outcome| outcome.export_blocked),
-                "{profile}: another subject at {location} assembled unblocked"
-            );
         }
     }
 }
@@ -906,4 +936,32 @@ fn a_document_rule_pack_checksum_names_its_pack() {
     other["result_envelope"]["rule_pack_refs"][0]["checksum"]["payload_ref"]["ref_id"] = json!("invented-other-pack");
     let error = check_document_subjects(&common::rehash(other)).unwrap_err();
     assert!(error.starts_with(CHECKSUM_SUBJECT_MISMATCH), "{error}");
+}
+
+#[test]
+fn round3_document_rule_pack_checksum_must_name_the_pack_type() {
+    for basis in ["JCS", "rfc8785_jcs"] {
+        let edited = with_document(&runner(), |d| {
+            let mut checksum = rule_pack_checksum(basis, "model_payload");
+            checksum["payload_ref"]["ref_id"] = json!("invented-rule-pack");
+            d["result_envelope"]["rule_pack_refs"] = json!([{
+                "rule_pack_id":"invented-rule-pack", "version":"0.1.0", "checksum":checksum,
+                "source_notice":"Invented non-code example only.",
+                "redistribution_status":"invented_non_engineering_example", "completeness_status":"not_checked", "private_payload_redacted":true
+            }]);
+        });
+        let result = assemble(&edited);
+        assert!(result.as_ref().map_or(true, |r|r.export_blocked),
+            "{basis}: a model_payload checksum was exported as a rule-pack checksum");
+    }
+}
+
+#[test]
+fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
+    let mut request = with_rule_check(&runner(), rule_pack_checksum("JCS", "rule_pack"));
+    request["report"]["calculation_report"]["rule_pack_refs"][0]["checksum"]["payload_ref"]["ref_type"] = json!("model_payload");
+    let report: open_pipe_stress_report_generator::CalculationReport =
+        serde_json::from_value(request["report"]["calculation_report"].clone()).unwrap();
+    assert!(open_pipe_stress_report_generator::validate_report(&report).is_blocked(),
+        "a model_payload checksum was rendered as a rule-pack checksum");
 }
