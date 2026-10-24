@@ -537,7 +537,7 @@
     "schemas/load_reference_state.schema.json": "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0",
     "schemas/local_fea_handoff.schema.yaml": "6693ea5b41e6ec66919e1945c68e0c8d79aae90f546071aaf5107ae185780a94",
     "schemas/material.schema.yaml": "a948c66881823afb794525b63912a7822f358e61d048654fffcdbe68951af172",
-    "schemas/model.schema.yaml": "becdbbfff90fbcd892913f94c69d982cf4fffd7a20148ea1067357d66f71aaef",
+    "schemas/model.schema.yaml": "2bae832e62143e8dd8da6b6519221a927aae52a8ab0793094d91ce522029947d",
     "schemas/model_operation.schema.json": "7b00a2e0996f3beddfecee9b1de83cefece3bc3ad872d37db636026d3b4b60eb",
     "schemas/model_state.schema.json": "d0429889334090fc2b2457cedc71affba64ebeed38ea9f991a72dc02faa4c72b",
     "schemas/native_json_export.schema.json": "f77313c982b2ede5ffb18a284c5069ce9ea9b477e33d08aef0aad9919f51bd67",
@@ -1088,7 +1088,7 @@
     "schemas/load_reference_state.schema.json": "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0",
     "schemas/local_fea_handoff.schema.yaml": "6693ea5b41e6ec66919e1945c68e0c8d79aae90f546071aaf5107ae185780a94",
     "schemas/material.schema.yaml": "a948c66881823afb794525b63912a7822f358e61d048654fffcdbe68951af172",
-    "schemas/model.schema.yaml": "becdbbfff90fbcd892913f94c69d982cf4fffd7a20148ea1067357d66f71aaef",
+    "schemas/model.schema.yaml": "2bae832e62143e8dd8da6b6519221a927aae52a8ab0793094d91ce522029947d",
     "schemas/model_operation.schema.json": "7b00a2e0996f3beddfecee9b1de83cefece3bc3ad872d37db636026d3b4b60eb",
     "schemas/model_state.schema.json": "d0429889334090fc2b2457cedc71affba64ebeed38ea9f991a72dc02faa4c72b",
     "schemas/native_json_export.schema.json": "f77313c982b2ede5ffb18a284c5069ce9ea9b477e33d08aef0aad9919f51bd67",
@@ -1117,7 +1117,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "9b014bbab9463c6f703cfa0f7f042b5279b67f1b01fb5661d10614ae0d511c1d",
+  "inventory_json_sha256": "e619896feaafc81285114052dd6063770c0fb71f87005179a6e08ae326bc571d",
   "dependencies": [
     {
       "name": "block-buffer",
