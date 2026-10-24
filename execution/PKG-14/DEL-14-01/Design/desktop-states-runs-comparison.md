@@ -150,16 +150,47 @@ Python agree.
   `user_version` is above the target was written by a newer build. It is
   refused (`STORE-SCHEMA-NEWER`) before any pragma or migration writes;
   before S1 it was opened as current.
+- **Admission.** A state save applies the one-current-version check alone
+  (`check_model_document_version`, the version part of
+  `check_model_document_for_persist`). A state may therefore hold a model with
+  blocking slot findings: its record says `MODEL_INCOMPLETE`, and it is kept
+  as a comparison basis. The record mapping still refuses, by name, any slot
+  it cannot map. Project create and save keep #1565's blocking-slot refusal,
+  and opening a state keeps it too, so an incomplete state is never opened.
 - **Hash forms.** The `model_hash` column holds the session's form
   (`sha256:<hex>`). The record's `hashes` values are bare hex, as the Python
   service writes them. `record_json` stores the record without the label
-  fields; `record_hash` is over that record without `hashes`. A read
-  re-verifies both hashes and refuses a mismatch (`MODEL-STATE-INTEGRITY`).
-- **Serializer.** Floats are written as Python's `repr`; keys sort by code
-  point. Vectors computed by `service.py`
-  (`fixtures/persistence/sorted_compact_json_vectors.json`) and a witness
-  written by the save and read path (`model_state_record_witness.json`) are
-  checked by the Rust tests and `tests/test_model_state_record_parity.py`.
+  fields; `record_hash` is over that record without `hashes`.
+- **Integrity.** Every list, summary and read verifies the record against its
+  hash and its `hashes`. It then checks each identity field the record
+  duplicates against the row's columns: project, state id, kind,
+  `created_at`, parent ref and model hash. A read also checks the snapshot:
+  its JCS hash and its project id. Any difference is refused as
+  `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
+  refused.
+- **Serializer.** Keys sort by code point, and i64/u64 integers are written
+  in decimal. No field of `model_state.schema.json` has a number type, so the
+  record hash fails closed on any other number (a float, or an integer outside
+  i64/u64), with `MODEL-STATE-RECORD-NUMBER-UNSUPPORTED`. It does not
+  approximate Python's `repr(float)`, whose tie-breaking Rust's shortest-digit
+  formatter does not share (Codex r1).
+- **Parity checks.** `tools/fixtures/sorted_compact_json_vectors.py` writes
+  `fixtures/persistence/sorted_compact_json_vectors.json` from `service.py`:
+  the vectors and the refused numbers. A witness of a populated record and
+  of an empty-label record is written by the save and read path
+  (`model_state_record_witness.json`). The Rust tests and
+  `tests/test_model_state_record_parity.py` check both files.
+- **Immutability in SQL.**
+  - `model_states_immutable` refuses every `UPDATE`.
+  - `model_states_no_replace` (v12, `BEFORE INSERT`) refuses an insert that
+    meets an existing row of the project on `state_id` or `model_hash`. It
+    fires before conflict resolution, so `INSERT OR REPLACE` and `REPLACE`
+    can neither overwrite a snapshot nor cascade-delete its labels.
+  - **Deleted identity.** A state id is a 128-bit random token and is never
+    reused. Re-saving a deleted state's model creates a new state, which
+    UNIQUE allows after the delete.
+  - **Concurrent saves.** Two windows saving one model at once give one
+    `saved` and one `already_saved`.
 - **Labels.** The state-level assumptions use the model's
   `unresolved_assumptions` vocabulary. An empty `affected_refs` names the state
   (`{ModelState, <state id>}`). An id may not repeat a model assumption id.

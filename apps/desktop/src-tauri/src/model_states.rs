@@ -47,9 +47,14 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
 
-/// Store v12: the state and label tables and the immutability trigger, exactly
-/// as design §2 gives them. Every statement is `IF NOT EXISTS`, so the step is
-/// safe to re-run (the store's migrations are not transactional).
+/// Store v12: the state and label tables and the immutability triggers, as
+/// design §2 gives them. Every statement is `IF NOT EXISTS`, so the step is safe
+/// to re-run (the store's migrations are not transactional).
+/// `model_states_immutable` refuses any `UPDATE`. `model_states_no_replace`
+/// refuses an `INSERT` that meets an existing row of the project on either key
+/// (`state_id` or `model_hash`): a BEFORE INSERT trigger fires before conflict
+/// resolution, so `INSERT OR REPLACE` and `REPLACE` can neither overwrite a
+/// snapshot nor cascade-delete its labels.
 pub(crate) const STORE_V12_MODEL_STATES_SQL: &str = "
 CREATE TABLE IF NOT EXISTS model_states(
   project_id TEXT NOT NULL REFERENCES local_projects(project_id) ON DELETE CASCADE,
@@ -65,6 +70,10 @@ CREATE TABLE IF NOT EXISTS model_state_labels(
   PRIMARY KEY(project_id, state_id),
   FOREIGN KEY(project_id, state_id) REFERENCES model_states(project_id, state_id) ON DELETE CASCADE);
 CREATE TRIGGER IF NOT EXISTS model_states_immutable BEFORE UPDATE ON model_states
+  BEGIN SELECT RAISE(ABORT, 'MODEL-STATE-IMMUTABLE'); END;
+CREATE TRIGGER IF NOT EXISTS model_states_no_replace BEFORE INSERT ON model_states
+  WHEN EXISTS (SELECT 1 FROM model_states WHERE project_id = NEW.project_id
+    AND (state_id = NEW.state_id OR model_hash = NEW.model_hash))
   BEGIN SELECT RAISE(ABORT, 'MODEL-STATE-IMMUTABLE'); END;
 ";
 
@@ -100,23 +109,34 @@ const ASSUMPTION_STATUSES: [&str; 3] = ["unresolved", "resolved", "rejected"];
 // The sorted-compact serializer (pinned to service.py's `canonical_json`).
 // ---------------------------------------------------------------------------
 
+/// The record hash refuses numbers it cannot write exactly as Python does.
+/// `model_state.schema.json` gives no field of a `ModelStateRecord` a number
+/// or integer type, so a hashed record never holds a float: the serializer
+/// fails closed instead of approximating Python's `repr(float)` (whose
+/// shortest-digit tie-breaking Rust's formatter does not share). Integers
+/// within i64/u64 are written exactly in decimal, as Python writes them; any
+/// other number (a float, or an integer serde_json could only hold as a
+/// float, such as 18446744073709551616) is refused.
+pub(crate) const RECORD_NUMBER_UNSUPPORTED: &str = "MODEL-STATE-RECORD-NUMBER-UNSUPPORTED";
+
 /// `json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)`
-/// for the values serde_json holds: keys sorted by code point, no whitespace,
-/// every character outside printable ASCII escaped as lowercase `\uXXXX`
-/// (UTF-16 surrogate pairs above U+FFFF), Python's short escapes, integers in
-/// decimal and floats as Python's `repr`. This is not JCS.
-pub(crate) fn sorted_compact_json(value: &Value) -> String {
+/// for the values a hashed record may hold: keys sorted by code point, no
+/// whitespace, every character outside printable ASCII escaped as lowercase
+/// `\uXXXX` (UTF-16 surrogate pairs above U+FFFF), Python's short escapes and
+/// i64/u64 integers in decimal. Any other number is refused
+/// ([`RECORD_NUMBER_UNSUPPORTED`]). This is not JCS.
+pub(crate) fn sorted_compact_json(value: &Value) -> Result<String, String> {
     let mut out = String::new();
-    write_sorted_compact(value, &mut out);
-    out
+    write_sorted_compact(value, &mut out)?;
+    Ok(out)
 }
 
-fn write_sorted_compact(value: &Value, out: &mut String) {
+fn write_sorted_compact(value: &Value, out: &mut String) -> Result<(), String> {
     match value {
         Value::Null => out.push_str("null"),
         Value::Bool(true) => out.push_str("true"),
         Value::Bool(false) => out.push_str("false"),
-        Value::Number(number) => write_python_number(number, out),
+        Value::Number(number) => write_exact_integer(number, out)?,
         Value::String(text) => write_ascii_string(text, out),
         Value::Array(items) => {
             out.push('[');
@@ -124,7 +144,7 @@ fn write_sorted_compact(value: &Value, out: &mut String) {
                 if index > 0 {
                     out.push(',');
                 }
-                write_sorted_compact(item, out);
+                write_sorted_compact(item, out)?;
             }
             out.push(']');
         }
@@ -138,60 +158,25 @@ fn write_sorted_compact(value: &Value, out: &mut String) {
                 }
                 write_ascii_string(key, out);
                 out.push(':');
-                write_sorted_compact(&map[key], out);
+                write_sorted_compact(&map[key], out)?;
             }
             out.push('}');
         }
     }
+    Ok(())
 }
 
-fn write_python_number(number: &serde_json::Number, out: &mut String) {
+fn write_exact_integer(number: &serde_json::Number, out: &mut String) -> Result<(), String> {
     if let Some(integer) = number.as_i64() {
         let _ = write!(out, "{integer}");
     } else if let Some(integer) = number.as_u64() {
         let _ = write!(out, "{integer}");
     } else {
-        // serde_json holds only finite floats.
-        out.push_str(&python_float_repr(number.as_f64().unwrap_or(0.0)));
+        return Err(format!(
+            "{RECORD_NUMBER_UNSUPPORTED}: the record holds the number {number}; a model-state record holds no floats or integers outside i64/u64, so its hash is not computed."
+        ));
     }
-}
-
-/// Python's `repr(float)`: the shortest round-trip digits, positional when the
-/// decimal exponent is in -4..16 (with `.0` for an integral value), otherwise
-/// `d[.ddd]e±XX` with at least two exponent digits.
-fn python_float_repr(value: f64) -> String {
-    let sign = if value.is_sign_negative() { "-" } else { "" };
-    let scientific = format!("{:e}", value.abs());
-    let (mantissa, exponent) = scientific.split_once('e').unwrap_or((&scientific, "0"));
-    let exponent: i32 = exponent.parse().unwrap_or(0);
-    let digits: String = mantissa.chars().filter(|c| *c != '.').collect();
-    if (-4..16).contains(&exponent) {
-        if exponent >= 0 {
-            let integer_len = exponent as usize + 1;
-            if digits.len() <= integer_len {
-                format!("{sign}{digits}{}.0", "0".repeat(integer_len - digits.len()))
-            } else {
-                format!(
-                    "{sign}{}.{}",
-                    &digits[..integer_len],
-                    &digits[integer_len..]
-                )
-            }
-        } else {
-            format!("{sign}0.{}{digits}", "0".repeat((-exponent - 1) as usize))
-        }
-    } else {
-        let mantissa = if digits.len() > 1 {
-            format!("{}.{}", &digits[..1], &digits[1..])
-        } else {
-            digits
-        };
-        format!(
-            "{sign}{mantissa}e{}{:02}",
-            if exponent < 0 { '-' } else { '+' },
-            exponent.abs()
-        )
-    }
+    Ok(())
 }
 
 fn write_ascii_string(text: &str, out: &mut String) {
@@ -219,12 +204,12 @@ fn write_ascii_string(text: &str, out: &mut String) {
 
 /// The `model_state_record` hash: SHA-256 hex of the sorted-compact JSON of the
 /// record without `hashes` (the stored record already holds no label field).
-pub(crate) fn record_hash_hex(stored_record: &Value) -> String {
+pub(crate) fn record_hash_hex(stored_record: &Value) -> Result<String, String> {
     let mut payload = stored_record.clone();
     if let Some(map) = payload.as_object_mut() {
         map.remove("hashes");
     }
-    sha256_hex(&sorted_compact_json(&payload))
+    Ok(sha256_hex(&sorted_compact_json(&payload)?))
 }
 
 // ---------------------------------------------------------------------------
@@ -705,7 +690,7 @@ pub(crate) fn stored_record(state: &NewState<'_>) -> Result<(Value, String), Str
         },
         "provenance": record_provenance()
     });
-    let hash = record_hash_hex(&record);
+    let hash = record_hash_hex(&record)?;
     record["hashes"] = json!([
         {
             "algorithm": "sha256",
@@ -993,23 +978,121 @@ fn children(
     Ok(ids)
 }
 
-fn analysis_status(
+/// The value of the stored record's `hashes` entry for `scope`.
+fn claimed_hash<'a>(record: &'a Value, scope: &str) -> Option<&'a str> {
+    record
+        .get("hashes")
+        .and_then(Value::as_array)
+        .and_then(|hashes| {
+            hashes
+                .iter()
+                .find(|hash| hash.get("payload_scope").and_then(Value::as_str) == Some(scope))
+                .and_then(|hash| hash.get("value"))
+                .and_then(Value::as_str)
+        })
+}
+
+fn integrity_of(state_id: &str, detail: impl std::fmt::Display) -> String {
+    format!("MODEL-STATE-INTEGRITY: saved state `{state_id}`: {detail}; it is neither listed nor opened.")
+}
+
+/// The row's identity columns, which the record duplicates.
+struct IdentityColumns<'a> {
+    project_id: &'a str,
+    state_id: &'a str,
+    state_kind: &'a str,
+    created_at: &'a str,
+    parent_state_id: Option<&'a str>,
+    model_hash: &'a str,
+    record_hash: &'a str,
+}
+
+/// Parses the stored record, checks its hash against the `record_hash` column
+/// and its own `hashes`, and checks every identity field the record duplicates
+/// (project, state id, kind, `created_at`, parent ref, model hash) against the
+/// row's columns. Any difference is `MODEL-STATE-INTEGRITY`. Used wherever a
+/// state is listed, summarized or read, so a column edited outside the store
+/// is never reported as the state's.
+fn verified_record(columns: &IdentityColumns<'_>, record_json: &str) -> Result<Value, String> {
+    let id = columns.state_id;
+    let record: Value = serde_json::from_str(record_json).map_err(|error| {
+        integrity_of(id, format_args!("the stored record is not JSON ({error})"))
+    })?;
+    let recomputed = record_hash_hex(&record).map_err(|error| integrity_of(id, error))?;
+    if recomputed != columns.record_hash
+        || claimed_hash(&record, "model_state_record") != Some(recomputed.as_str())
+    {
+        return Err(integrity_of(
+            id,
+            format_args!("the stored record hashes to {recomputed}, not its recorded hash"),
+        ));
+    }
+    let field = |pointer: &str| record.pointer(pointer).and_then(Value::as_str);
+    let parent_refs = match columns.parent_state_id {
+        Some(parent) => json!([reference("ModelState", parent)]),
+        None => json!([]),
+    };
+    let checks: [(&str, bool); 7] = [
+        ("state_id", field("/state_id") == Some(columns.state_id)),
+        (
+            "project",
+            record.get("model_ref") == Some(&reference("Project", columns.project_id)),
+        ),
+        (
+            "state_kind",
+            field("/state_kind") == Some(columns.state_kind),
+        ),
+        (
+            "created_at",
+            field("/created_at") == Some(columns.created_at),
+        ),
+        (
+            "parent ref",
+            record.get("parent_state_refs") == Some(&parent_refs),
+        ),
+        (
+            "model hash",
+            columns
+                .model_hash
+                .strip_prefix("sha256:")
+                .is_some_and(|hex| claimed_hash(&record, "model_payload") == Some(hex)),
+        ),
+        (
+            "record hash reference",
+            record
+                .get("hashes")
+                .and_then(Value::as_array)
+                .is_some_and(|hashes| {
+                    hashes.iter().any(|hash| {
+                        hash.get("payload_scope").and_then(Value::as_str)
+                            == Some("model_state_record")
+                            && hash.get("payload_ref")
+                                == Some(&reference("ModelState", columns.state_id))
+                    })
+                }),
+        ),
+    ];
+    if let Some((name, _)) = checks.iter().find(|(_, holds)| !holds) {
+        return Err(integrity_of(
+            id,
+            format_args!("the row's {name} differs from its verified record"),
+        ));
+    }
+    Ok(record)
+}
+
+fn stored_record_json(
     connection: &Connection,
     project_id: &str,
     state_id: &str,
-) -> Result<Vec<String>, String> {
-    let text: Option<String> = connection
+) -> Result<String, String> {
+    connection
         .query_row(
-            "SELECT json_extract(record_json, '$.analysis_status') FROM model_states WHERE project_id = ?1 AND state_id = ?2",
+            "SELECT record_json FROM model_states WHERE project_id = ?1 AND state_id = ?2",
             params![project_id, state_id],
             |row| row.get(0),
         )
-        .map_err(sql)?;
-    serde_json::from_str(text.as_deref().unwrap_or("[]")).map_err(|error| {
-        format!(
-            "MODEL-STATE-INTEGRITY: state `{state_id}` has a malformed analysis status ({error})."
-        )
-    })
+        .map_err(sql)
 }
 
 fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<ModelStateSummary, String> {
@@ -1034,8 +1117,27 @@ fn summary_from_row(connection: &Connection, row: SummaryRow) -> Result<ModelSta
             "MODEL-STATE-INTEGRITY: state `{state_id}` has no labels row."
         ));
     };
+    let record = verified_record(
+        &IdentityColumns {
+            project_id: &project_id,
+            state_id: &state_id,
+            state_kind: &state_kind,
+            created_at: &created_at,
+            parent_state_id: parent_state_id.as_deref(),
+            model_hash: &model_hash,
+            record_hash: &record_hash,
+        },
+        &stored_record_json(connection, &project_id, &state_id)?,
+    )?;
+    let analysis_status =
+        serde_json::from_value(record.get("analysis_status").cloned().unwrap_or(json!([])))
+            .map_err(|error| {
+                integrity_of(
+                    &state_id,
+                    format_args!("its analysis status is malformed ({error})"),
+                )
+            })?;
     let child_state_ids = children(connection, &project_id, &state_id)?;
-    let analysis_status = analysis_status(connection, &project_id, &state_id)?;
     Ok(ModelStateSummary {
         analysis_status,
         labels: decode_labels(name, &tags, &notes, &assumptions)?,
@@ -1153,9 +1255,11 @@ pub(crate) fn save_state_in_store(
             request.project_id
         ));
     }
-    // One current model-document version: a state is a document the store
-    // would persist.
-    crate::check_model_document_for_persist(&model)?;
+    // One current model-document version. Unlike a project save, a state may
+    // hold a model with blocking slot findings: the record says
+    // `MODEL_INCOMPLETE` and the state is not opened (design §2). The record
+    // mapping refuses, by name, any slot it cannot map.
+    crate::check_model_document_version(&model)?;
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
     if crate::stored_project_entry(&transaction, &request.project_id)?.is_none() {
@@ -1332,31 +1436,31 @@ pub(crate) fn read_state_in_store(
             "the stored snapshot is not canonical JCS text".to_string(),
         ));
     }
-    let stored: Value = serde_json::from_str(&record_json)
-        .map_err(|error| integrity(format!("the stored record is not JSON ({error})")))?;
-    let recomputed = record_hash_hex(&stored);
-    let claimed = |scope: &str| {
-        stored
-            .get("hashes")
-            .and_then(Value::as_array)
-            .and_then(|hashes| {
-                hashes
-                    .iter()
-                    .find(|hash| hash.get("payload_scope").and_then(Value::as_str) == Some(scope))
-                    .and_then(|hash| hash.get("value"))
-                    .and_then(Value::as_str)
-            })
-    };
-    if recomputed != state.record_hash || claimed("model_state_record") != Some(recomputed.as_str())
-    {
-        return Err(integrity(format!(
-            "the stored record hashes to {recomputed}, not its recorded hash"
-        )));
-    }
-    if claimed("model_payload") != Some(hex.as_str()) {
+    // The summary above verified the record against the row's columns; the
+    // record read here is checked again, then against the snapshot.
+    let stored = verified_record(
+        &IdentityColumns {
+            project_id: &state.project_id,
+            state_id: &state.state_id,
+            state_kind: &state.state_kind,
+            created_at: &state.created_at,
+            parent_state_id: state.parent_state_id.as_deref(),
+            model_hash: &state.model_hash,
+            record_hash: &state.record_hash,
+        },
+        &record_json,
+    )?;
+    if claimed_hash(&stored, "model_payload") != Some(hex.as_str()) {
         return Err(integrity(
             "the record's model_payload hash differs from the snapshot".to_string(),
         ));
+    }
+    let snapshot_project = crate::project_id_from_model(&model);
+    if snapshot_project != state.project_id {
+        return Err(integrity(format!(
+            "the snapshot is project `{snapshot_project}`, not the state's project `{}`",
+            state.project_id
+        )));
     }
     let version = crate::model_document_version::evaluate_model_document(&model);
     if version.is_refused() {
@@ -1793,7 +1897,7 @@ mod tests {
         let vectors = document["vectors"].as_array().unwrap();
         assert!(vectors.len() >= 5);
         for vector in vectors {
-            let text = sorted_compact_json(&vector["value"]);
+            let text = sorted_compact_json(&vector["value"]).unwrap();
             assert_eq!(
                 text,
                 vector["sorted_compact_json"].as_str().unwrap(),
@@ -1808,9 +1912,48 @@ mod tests {
             );
             assert!(text.is_ascii());
         }
-        assert_eq!(python_float_repr(1e22), "1e+22");
-        assert_eq!(python_float_repr(-1.5e-10), "-1.5e-10");
-        assert_eq!(python_float_repr(100.0), "100.0");
+        // Numbers the schema never puts in a record are refused, not approximated.
+        let refused = document["refused_numbers"].as_array().unwrap();
+        assert!(refused.len() >= 10);
+        for entry in refused {
+            let value = json!({ "statement": "s", "number": entry["value"].clone() });
+            let error = sorted_compact_json(&value).unwrap_err();
+            assert!(
+                error.starts_with(
+                    "MODEL-STATE-RECORD-NUMBER-UNSUPPORTED: the record holds the number "
+                ),
+                "{}: {error}",
+                entry["python_sorted_compact_json"]
+            );
+        }
+        for codex in [
+            "999999999999975.2",
+            "279836846559720.12",
+            "18446744073709551616",
+        ] {
+            assert!(
+                refused
+                    .iter()
+                    .any(|entry| entry["python_sorted_compact_json"] == codex),
+                "{codex}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_record_holding_a_float_has_no_hash() {
+        let mut record = json!({ "state_id": "state:x", "warnings": [] });
+        assert!(record_hash_hex(&record).is_ok());
+        record["warnings"] = json!([{ "magnitude": 999999999999975.2 }]);
+        assert!(record_hash_hex(&record)
+            .unwrap_err()
+            .starts_with(RECORD_NUMBER_UNSUPPORTED));
+        record["warnings"] = json!([{ "count": 18446744073709551615_u64 }]);
+        assert_eq!(
+            record_hash_hex(&record).unwrap().len(),
+            64,
+            "a u64 integer is exact"
+        );
     }
 
     #[test]
@@ -2045,11 +2188,19 @@ mod tests {
         );
         assert_eq!(row_count(&path, "model_states"), 1);
         let connection = Connection::open(&path).unwrap();
+        let duplicate_hash = "INSERT INTO model_states SELECT project_id, 'state:other', state_kind, created_at, NULL, model_canonical, model_hash, record_json, record_hash FROM model_states";
+        // The BEFORE INSERT trigger refuses it first...
         let error = connection
-            .execute(
-                "INSERT INTO model_states SELECT project_id, 'state:other', state_kind, created_at, NULL, model_canonical, model_hash, record_json, record_hash FROM model_states",
-                [],
-            )
+            .execute(duplicate_hash, [])
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("MODEL-STATE-IMMUTABLE"), "{error}");
+        // ...and UNIQUE(project_id, model_hash) holds on its own.
+        connection
+            .execute_batch("DROP TRIGGER model_states_no_replace;")
+            .unwrap();
+        let error = connection
+            .execute(duplicate_hash, [])
             .unwrap_err()
             .to_string();
         assert!(error.contains("UNIQUE constraint failed"), "{error}");
@@ -2510,6 +2661,259 @@ mod tests {
         );
     }
 
+    /// Edits rows outside the store's own paths: the triggers dropped and
+    /// foreign keys off, as a hand edit of the file could.
+    fn tamper(path: &Path, statements: &str) {
+        Connection::open(path)
+            .unwrap()
+            .execute_batch(&format!(
+                "PRAGMA foreign_keys = OFF; DROP TRIGGER IF EXISTS model_states_immutable; DROP TRIGGER IF EXISTS model_states_no_replace; {statements}"
+            ))
+            .unwrap();
+    }
+
+    fn expect_identity_refused(path: &Path, project: &str, state_id: &str, field: &str) {
+        let expected = format!("MODEL-STATE-INTEGRITY: saved state `{state_id}`: the row's {field} differs from its verified record");
+        let (connection, _) = crate::open_project_store(path).unwrap();
+        let listed = list_states(&connection, project).unwrap_err();
+        assert!(listed.starts_with(&expected), "list, {field}: {listed}");
+        let read = read_state_in_store(path, project, state_id).unwrap_err();
+        assert!(read.starts_with(&expected), "read, {field}: {read}");
+    }
+
+    #[test]
+    fn each_identity_column_must_agree_with_the_verified_record() {
+        let cases: [(&str, &str); 4] = [
+            ("state_kind", "UPDATE model_states SET state_kind = 'handoff_basis';"),
+            ("created_at", "UPDATE model_states SET created_at = '2000-01-01T00:00:00.000Z';"),
+            ("state_id", "UPDATE model_states SET state_id = 'state:renamed'; UPDATE model_state_labels SET state_id = 'state:renamed';"),
+            (
+                "project",
+                "INSERT INTO local_projects (project_id, project_name, model_json, created_at_unix, updated_at_unix) VALUES ('project:other', 'o', '{}', 1, 1);
+                 UPDATE model_states SET project_id = 'project:other'; UPDATE model_state_labels SET project_id = 'project:other';",
+            ),
+        ];
+        for (index, (field, statements)) in cases.into_iter().enumerate() {
+            let path = store_with_project(&format!("identity-{index}"), "sha256:base-1");
+            let saved = save(
+                &path,
+                request(&model("Invented project"), "sha256:base-1", "Basis"),
+                "00000000000000000000000000000601",
+                1_000,
+            )
+            .unwrap();
+            assert!(read_state_in_store(&path, PROJECT, &saved.state.state_id).is_ok());
+            tamper(&path, statements);
+            let (project, state_id) = match field {
+                "state_id" => (PROJECT, "state:renamed".to_string()),
+                "project" => ("project:other", saved.state.state_id.clone()),
+                _ => (PROJECT, saved.state.state_id.clone()),
+            };
+            expect_identity_refused(&path, project, &state_id, field);
+        }
+    }
+
+    #[test]
+    fn a_parent_column_or_model_hash_column_that_disagrees_with_the_record_is_refused() {
+        let path = store_with_project("identity-parent", "sha256:base-1");
+        let first = save(
+            &path,
+            request(&model("Invented project"), "sha256:base-1", "First"),
+            "00000000000000000000000000000701",
+            1_000,
+        )
+        .unwrap();
+        let second = save(
+            &path,
+            request(&model("Invented project, two"), "sha256:base-1", "Second"),
+            "00000000000000000000000000000702",
+            2_000,
+        )
+        .unwrap();
+        tamper(
+            &path,
+            &format!(
+                "UPDATE model_states SET parent_state_id = '{}' WHERE state_id = '{}';",
+                first.state.state_id, second.state.state_id
+            ),
+        );
+        expect_identity_refused(&path, PROJECT, &second.state.state_id, "parent ref");
+
+        // A snapshot and model hash swapped together for another model's: each
+        // hashes to the other, but the record still names the original model.
+        let path = store_with_project("identity-model", "sha256:base-1");
+        let saved = save(
+            &path,
+            request(&model("Invented project"), "sha256:base-1", "Basis"),
+            "00000000000000000000000000000703",
+            1_000,
+        )
+        .unwrap();
+        let other = canonical_json(&model("Invented project, swapped"));
+        tamper(
+            &path,
+            &format!(
+                "UPDATE model_states SET model_canonical = '{}', model_hash = 'sha256:{}';",
+                other.replace('\'', "''"),
+                sha256_hex(&other)
+            ),
+        );
+        expect_identity_refused(&path, PROJECT, &saved.state.state_id, "model hash");
+    }
+
+    #[test]
+    fn insert_or_replace_and_replace_cannot_overwrite_a_state_or_drop_its_labels() {
+        let path = store_with_project("replace-row", "sha256:base-1");
+        let saved = save(
+            &path,
+            request(&model("Invented project"), "sha256:base-1", "Basis"),
+            "00000000000000000000000000000801",
+            1_000,
+        )
+        .unwrap();
+        let (connection, _) = crate::open_project_store(&path).unwrap();
+        let before: (String, String) = connection
+            .query_row(
+                "SELECT model_canonical, record_json FROM model_states",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        for verb in ["INSERT OR REPLACE INTO", "REPLACE INTO", "INSERT INTO"] {
+            // Same key, different snapshot.
+            let error = connection
+                .execute(
+                    &format!("{verb} model_states VALUES (?1, ?2, 'design_snapshot', 't', NULL, '{{}}', 'sha256:other', '{{}}', 'h')"),
+                    params![PROJECT, saved.state.state_id],
+                )
+                .unwrap_err()
+                .to_string();
+            assert!(
+                error.contains("MODEL-STATE-IMMUTABLE"),
+                "{verb}, same key: {error}"
+            );
+            // Another id, same model hash (the UNIQUE key REPLACE would resolve by deleting).
+            let error = connection
+                .execute(
+                    &format!("{verb} model_states VALUES (?1, 'state:other', 'design_snapshot', 't', NULL, '{{}}', ?2, '{{}}', 'h')"),
+                    params![PROJECT, saved.state.model_hash],
+                )
+                .unwrap_err()
+                .to_string();
+            assert!(
+                error.contains("MODEL-STATE-IMMUTABLE"),
+                "{verb}, same model hash: {error}"
+            );
+        }
+        let after: (String, String) = connection
+            .query_row(
+                "SELECT model_canonical, record_json FROM model_states",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(after, before);
+        assert_eq!(row_count(&path, "model_states"), 1);
+        assert_eq!(
+            row_count(&path, "model_state_labels"),
+            1,
+            "the labels are not cascade-deleted"
+        );
+        assert!(read_state_in_store(&path, PROJECT, &saved.state.state_id).is_ok());
+    }
+
+    #[test]
+    fn a_deleted_state_is_gone_and_its_model_saves_again_as_a_new_state() {
+        let path = store_with_project("deleted-identity", "sha256:base-1");
+        let snapshot = model("Invented project");
+        let first = save(
+            &path,
+            request(&snapshot, "sha256:base-1", "First"),
+            "00000000000000000000000000000901",
+            1_000,
+        )
+        .unwrap();
+        assert!(
+            delete_state_in_store(&path, PROJECT, &first.state.state_id)
+                .unwrap()
+                .deleted
+        );
+        assert!(read_state_in_store(&path, PROJECT, &first.state.state_id)
+            .unwrap_err()
+            .starts_with("MODEL-STATE-NOT-FOUND"));
+        // Re-saving the deleted state's model makes a new state (UNIQUE allows it
+        // after the delete); its id is a fresh random token, never the old one.
+        let again = save(
+            &path,
+            request(&snapshot, "sha256:base-1", "Again"),
+            "00000000000000000000000000000902",
+            2_000,
+        )
+        .unwrap();
+        assert_eq!(again.outcome, "saved");
+        assert_ne!(again.state.state_id, first.state.state_id);
+        assert_eq!(again.state.model_hash, first.state.model_hash);
+        assert_ne!(
+            again.state.record_hash, first.state.record_hash,
+            "a new identity and time make a new record"
+        );
+        // Production tokens are 128 random bits.
+        let tokens: std::collections::BTreeSet<String> =
+            (0..64).map(|_| random_token().unwrap()).collect();
+        assert_eq!(tokens.len(), 64);
+        assert!(tokens
+            .iter()
+            .all(|token| token.len() == 32 && token.bytes().all(|byte| byte.is_ascii_hexdigit())));
+    }
+
+    #[test]
+    fn two_connections_saving_the_same_model_at_once_save_it_once() {
+        let path = store_with_project("concurrent", "sha256:base-1");
+        let barrier = std::sync::Arc::new(std::sync::Barrier::new(2));
+        let handles: Vec<_> = [
+            "00000000000000000000000000000a01",
+            "00000000000000000000000000000a02",
+        ]
+        .into_iter()
+        .enumerate()
+        .map(|(index, token)| {
+            let (path, barrier) = (path.clone(), barrier.clone());
+            std::thread::spawn(move || {
+                let request = request(
+                    &model("Invented project"),
+                    "sha256:base-1",
+                    &format!("Window {index}"),
+                );
+                let allocate = move || Ok((token.to_string(), 1_000 + index as i64));
+                let between_rows = |_: &Transaction<'_>| Ok(());
+                barrier.wait();
+                save_state_in_store(
+                    &path,
+                    request,
+                    &StateWriteHooks {
+                        allocate: &allocate,
+                        between_rows: &between_rows,
+                    },
+                )
+                .unwrap()
+            })
+        })
+        .collect();
+        let outcomes: Vec<ModelStateSaveOutcome> = handles
+            .into_iter()
+            .map(|handle| handle.join().unwrap())
+            .collect();
+        let mut kinds: Vec<&str> = outcomes.iter().map(|outcome| outcome.outcome).collect();
+        kinds.sort();
+        assert_eq!(kinds, vec!["already_saved", "saved"]);
+        assert_eq!(
+            outcomes[0].state.state_id, outcomes[1].state.state_id,
+            "the second names the first's state"
+        );
+        assert_eq!(row_count(&path, "model_states"), 1);
+        assert_eq!(row_count(&path, "model_state_labels"), 1);
+    }
+
     #[test]
     fn a_tampered_stored_state_is_not_opened() {
         let path = store_with_project("tamper", "sha256:base-1");
@@ -2523,8 +2927,12 @@ mod tests {
         let connection = Connection::open(&path).unwrap();
         connection.execute_batch("DROP TRIGGER model_states_immutable; UPDATE model_states SET record_json = replace(record_json, 'HUMAN_REVIEW_REQUIRED', 'MECHANICS_SOLVED');").unwrap();
         let error = read_state_in_store(&path, PROJECT, &saved.state.state_id).unwrap_err();
+        // The summary read verifies the record first, naming the state.
         assert!(
-            error.starts_with("MODEL-STATE-INTEGRITY: the stored record hashes to"),
+            error.starts_with(&format!(
+                "MODEL-STATE-INTEGRITY: saved state `{}`: the stored record hashes to",
+                saved.state.state_id
+            )),
             "{error}"
         );
     }
@@ -2650,8 +3058,25 @@ mod tests {
                 |row| row.get(0),
             )
             .unwrap();
+        // A state with empty labels (a name only) of a model without assumptions.
+        let mut bare_model = model("Invented project – bare");
+        bare_model
+            .as_object_mut()
+            .unwrap()
+            .remove("unresolved_assumptions");
+        let mut bare_request = request(&bare_model, "sha256:base-1", "Bare");
+        bare_request.labels = labels_from_value(json!({ "state_name": "Bare" })).unwrap();
+        let bare = save(
+            &path,
+            bare_request,
+            "00112233445566778899aabbccddeeff",
+            1_793_100_800_789,
+        )
+        .unwrap();
+        let bare_read = read_state_in_store(&path, PROJECT, &bare.state.state_id).unwrap();
         let witness = json!({
-            "description": "A populated ModelStateRecord emitted by the desktop store's save and read path (apps/desktop/src-tauri/src/model_states.rs, test the_record_witness_is_what_the_save_and_read_path_emits) for an invented model. Regenerate with OPENPIPESTRESS_WRITE_MODEL_STATE_WITNESS=<path> on that test. tests/test_model_state_record_parity.py validates emitted_record against schemas/model_state.schema.json and recomputes record_hash from stored_record_json with core/project_persistence/service.py.",
+            "description": "ModelStateRecords emitted by the desktop store's save and read path (apps/desktop/src-tauri/src/model_states.rs, test the_record_witness_is_what_the_save_and_read_path_emits) for invented models: emitted_record is populated; empty_labels_record has a name only and no assumptions, tags, notes or warnings. Regenerate with OPENPIPESTRESS_WRITE_MODEL_STATE_WITNESS=<path> on that test. tests/test_model_state_record_parity.py validates both against schemas/model_state.schema.json and recomputes record_hash from stored_record_json with core/project_persistence/service.py.",
+            "empty_labels_record": bare_read.record,
             "record_hash": child.state.record_hash,
             "label_assumption_ids": child.state.labels.assumptions.iter().map(|assumption| assumption["assumption_id"].clone()).collect::<Vec<_>>(),
             "stored_record_json": stored_record_json,

@@ -1,5 +1,5 @@
 {
-  "description": "A populated ModelStateRecord emitted by the desktop store's save and read path (apps/desktop/src-tauri/src/model_states.rs, test the_record_witness_is_what_the_save_and_read_path_emits) for an invented model. Regenerate with OPENPIPESTRESS_WRITE_MODEL_STATE_WITNESS=<path> on that test. tests/test_model_state_record_parity.py validates emitted_record against schemas/model_state.schema.json and recomputes record_hash from stored_record_json with core/project_persistence/service.py.",
+  "description": "ModelStateRecords emitted by the desktop store's save and read path (apps/desktop/src-tauri/src/model_states.rs, test the_record_witness_is_what_the_save_and_read_path_emits) for invented models: emitted_record is populated; empty_labels_record has a name only and no assumptions, tags, notes or warnings. Regenerate with OPENPIPESTRESS_WRITE_MODEL_STATE_WITNESS=<path> on that test. tests/test_model_state_record_parity.py validates both against schemas/model_state.schema.json and recomputes record_hash from stored_record_json with core/project_persistence/service.py.",
   "emitted_record": {
     "analysis_status": [
       "HUMAN_REVIEW_REQUIRED"
@@ -208,6 +208,71 @@
         }
       }
     ]
+  },
+  "empty_labels_record": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "created_at": "2026-10-27T11:33:20.789Z",
+    "external_references": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "Model",
+          "ref": "project:w12-invented-states"
+        },
+        "payload_scope": "model_payload",
+        "value": "ea6e9768c289e5eb33747d7a641f6e9b35015f87a8b8d594d6bd0bbe33f206f5"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "SORTED_COMPACT_JSON",
+        "payload_ref": {
+          "object_type": "ModelState",
+          "ref": "state:00112233445566778899aabbccddeeff"
+        },
+        "payload_scope": "model_state_record",
+        "value": "1b98069d00980a950b8de2e1b2aabf041eb09cb6852c9112699a9d2565fdcaa7"
+      }
+    ],
+    "immutability_policy": {
+      "hash_invalidates_external_acceptance": true,
+      "mutation_policy": "changes_create_new_model_state",
+      "new_state_required_for_change": true,
+      "snapshot_is_read_only": true
+    },
+    "model_ref": {
+      "object_type": "Project",
+      "ref": "project:w12-invented-states"
+    },
+    "notes": [],
+    "parent_state_refs": [],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "SWBPIPE desktop (software-recorded state)",
+      "contributor_certification": "software-recorded-no-professional-claim",
+      "privacy_classification": "private_project_data",
+      "redistribution_status": "private_only",
+      "review_status": "pending",
+      "source_license": "user-owned local project data",
+      "source_location": "apps/desktop/src-tauri/src/model_states.rs",
+      "source_name": "SWBPIPE desktop model state store"
+    },
+    "state_id": "state:00112233445566778899aabbccddeeff",
+    "state_kind": "design_snapshot",
+    "state_name": "Bare",
+    "tags": [],
+    "unresolved_assumptions": [],
+    "warnings": []
   },
   "label_assumption_ids": [
     "assumption:S-1"

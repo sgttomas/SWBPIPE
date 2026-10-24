@@ -2233,15 +2233,24 @@ fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
     Err(format!("Model document refused: malformed model-data slots: {}", blocking.join(" | ")))
 }
 
+/// The one-current-version check alone (DEL-02-05 CLM-003): a document that is
+/// not current is refused by name. Project persistence adds the blocking-slot
+/// refusal (`check_model_document_for_persist`); a saved model state uses this
+/// alone, since a state may hold an incomplete model (W-12 §2, `MODEL_INCOMPLETE`).
+fn check_model_document_version(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
+    let status = evaluate_model_document(model);
+    if status.is_refused() {
+        return Err(refuse_model_document(&status));
+    }
+    Ok(status)
+}
+
 /// The version check for create/save (DEL-02-05 CLM-003): a document that is
 /// not current is refused by name. A current document is persisted exactly as
 /// received, with the received hash evidence; nothing is migrated, normalized
 /// or re-stamped.
 fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
-    let status = evaluate_model_document(model);
-    if status.is_refused() {
-        return Err(refuse_model_document(&status));
-    }
+    let status = check_model_document_version(model)?;
     // W-13 §5.3 (S2): create and save refuse a document whose model-data
     // slots carry a blocking validator finding, named with its JSON path;
     // nothing is repaired. Warnings never refuse.

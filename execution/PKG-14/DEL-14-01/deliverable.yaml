@@ -184,6 +184,7 @@ code_paths:
 - apps/desktop/src/services/modelStateService.ts
 - apps/desktop/src/features/history/useModelStateHistory.ts
 - fixtures/persistence/sorted_compact_json_vectors.json
+- tools/fixtures/sorted_compact_json_vectors.py
 - fixtures/persistence/model_state_record_witness.json
 checks:
 - tests/test_model_state_schema.py
