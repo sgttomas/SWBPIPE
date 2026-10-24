@@ -206,14 +206,40 @@ fn lifecycle_review_classification(lifecycle_status: Option<&str>) -> &'static s
     }
 }
 
-/// The privacy classification of a referenced record: public metadata only
-/// for a public or invented-example disposition, else `private`.
-fn reference_privacy(redistribution: &str, private: &'static str) -> &'static str {
-    match redistribution {
-        "public_permissive" => "public_metadata",
-        "invented_non_engineering_example" => "invented_public_example",
+/// The privacy classification of a referenced record (review round 3,
+/// should-fix 2): the least permissive of what its redistribution disposition
+/// allows (public metadata only for `public_permissive`, an invented public
+/// example only for `invented_non_engineering_example`) and of every
+/// `privacy_class` / `privacy_classification` the covered objects state.
+/// A privacy value that is neither public (`public_*`) nor an invented
+/// example (`*invented*example*`) is private, so nothing a covered object
+/// marks private, protected, redacted or unknown is labelled public.
+fn reference_privacy(redistribution: &str, privacy_values: &[&str], private: &'static str) -> &'static str {
+    fn rank(value: &str) -> u8 {
+        if value.contains("invented") && value.contains("example") {
+            1
+        } else if value.starts_with("public") {
+            0
+        } else {
+            2
+        }
+    }
+    let allowed = match redistribution {
+        "public_permissive" => 0,
+        "invented_non_engineering_example" => 1,
+        _ => 2,
+    };
+    match privacy_values.iter().map(|value| rank(value)).fold(allowed, u8::max) {
+        0 => "public_metadata",
+        1 => "invented_public_example",
         _ => private,
     }
+}
+
+/// Every `privacy_class` and `privacy_classification` string at any depth of `value`.
+fn privacy_values<'a>(value: &'a Value, out: &mut Vec<&'a str>) {
+    members_at_any_depth(value, "privacy_class", out);
+    members_at_any_depth(value, "privacy_classification", out);
 }
 
 /// Redistribution dispositions from most to least permissive; anything
@@ -873,7 +899,16 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
         let (redistributions, reviews) = covered_dispositions(&covered);
         let redistribution = least_permissive(redistributions);
         let review = least_reviewed(reviews);
-        let privacy = reference_privacy(redistribution, "private_library_data");
+        let mut privacies = Vec::new();
+        for object in &covered {
+            for (key, child) in object.iter() {
+                if let ("privacy_class" | "privacy_classification", Some(value)) = (key.as_str(), child.as_str()) {
+                    privacies.push(value);
+                }
+                privacy_values(child, &mut privacies);
+            }
+        }
+        let privacy = reference_privacy(redistribution, &privacies, "private_library_data");
         let notice = match library {
             Some(library) => text(Some(library), "source_notice").or_else(|| text(provenance_source, "source_name")).unwrap_or("TBD").to_string(),
             None => "not held by the local library store".to_string(),
@@ -979,7 +1014,13 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
         }
         let redistribution = least_permissive(dispositions);
         let review = if pack.is_some() { least_reviewed(reviews) } else { "TBD" };
-        let privacy = reference_privacy(redistribution, "private_rule_pack_data");
+        let entry_value = Value::Object(entry.clone());
+        let mut privacies = Vec::new();
+        privacy_values(&entry_value, &mut privacies);
+        if let Some(pack) = &pack {
+            privacy_values(pack, &mut privacies);
+        }
+        let privacy = reference_privacy(redistribution, &privacies, "private_rule_pack_data");
         let source_notice = text(Some(entry), "source_notice").or_else(|| text(pack_metadata, "source_notice")).unwrap_or("TBD");
         let unresolved_name = format!("rule pack {id} (not held by the local rule-pack store)");
         refs.push(json!({
@@ -2817,5 +2858,151 @@ fn round2_nested_model_provenance_must_not_be_hidden_by_own_fields() {
         }
         let _ = fs::remove_dir_all(&root);
         assert!(disagreements.is_empty(), "{} of {} cases disagree with the Python twin: {:?}", disagreements.len(), cases.len(), &disagreements[..disagreements.len().min(20)]);
+    }
+#[test]
+fn round3_new_destination_must_not_publish_substituted_staging() {
+    let mut escaped = Vec::new();
+    for mode in ["folder", "symlink", "model-file"] {
+        let (store, prepared) = prepared_demo(&format!("round3-stage-{mode}"));
+        let target = store.root.join("target.swbhandoff");
+        let staging = store.root.join("target.swbhandoff.staging-round3-stage");
+        let retained = store.root.join("retained-stage");
+        let token = || Ok("round3-stage".to_string());
+        let before = || {
+            if mode == "model-file" {
+                fs::rename(staging.join("model"), store.root.join("retained-model"))?;
+                fs::write(staging.join("model"), b"unrelated file")?;
+            } else {
+                fs::rename(&staging, &retained)?;
+                if mode == "symlink" {
+                    std::os::unix::fs::symlink(&retained, &staging)?;
+                } else {
+                    fs::create_dir(&staging)?;
+                    fs::write(staging.join("unrelated.txt"), b"unrelated folder")?;
+                }
+            }
+            Ok(())
+        };
+        let outcome = write_handoff_package(&target, prepared, CREATED_AT, &PublishHooks { token: &token, before_commit: &before, ..PRODUCTION_HOOKS });
+        println!("STAGE_SUBSTITUTION {mode}: {outcome:?}; verifies={:?}", verify_handoff_package(&target));
+        if matches!(outcome, HandoffSaveOutcome::Saved {..}) { escaped.push(mode); }
+    }
+    assert!(escaped.is_empty(), "substituted staging published as Saved: {escaped:?}");
+}
+
+#[test]
+fn round3_private_library_privacy_must_not_become_public_metadata() {
+    let model = witness_model();
+    let store = store("round3-private-privacy", &model, true);
+    let mut library: Value = serde_json::from_str(include_str!("../../../../fixtures/material/invented_material_library_valid.json")).unwrap();
+    fn reviewed_public(v: &mut Value) {
+        match v {
+            Value::Object(m) => for (k,v) in m.iter_mut() { if k == "redistribution_status" { *v=json!("public_permissive"); } else if k == "review_status" { *v=json!("accepted"); } else { reviewed_public(v); } },
+            Value::Array(a) => for v in a {reviewed_public(v)}, _ => {}
+        }
+    }
+    reviewed_public(&mut library);
+    library["material_library"]["library_id"] = json!("library:invented-materials");
+    library["material_records"][0]["material_id"] = json!("steel");
+    library["material_records"][0]["privacy_class"] = json!("private_user_data");
+    if let Ok(evidence) = std::env::var("W6B_REVIEW_EVIDENCE") { fs::write(PathBuf::from(evidence).join("private-library-input.json"), serde_json::to_vec_pretty(&library).unwrap()).unwrap(); }
+    crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
+    let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+    let prepared = prepare(&store, &model, &state.state_id).unwrap();
+    println!("PRIVATE_LIBRARY_REFERENCE {}", prepared.library_refs[0]);
+    assert_eq!(prepared.library_refs[0]["privacy_classification"], json!("private_library_data"));
+}
+
+#[test]
+fn round3_private_pack_privacy_must_not_become_public_metadata() {
+    let mut model = witness_model();
+    let store = store("round3-private-pack", &model, true);
+    let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+    pack["classification"]["privacy_class"] = json!("private_user_data");
+    let hash = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+    pack["checksums"]["rule_pack_checksum"]["value"] = json!(hash);
+    model["rule_pack_refs"][0]["checksum"]["value"] = json!(hash);
+    crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(), "project:slots", "invented_demo_rule_pack", &pack).unwrap();
+    let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+    let prepared = prepare(&store, &model, &state.state_id).unwrap();
+    println!("PRIVATE_PACK_REFERENCE {}", prepared.rule_pack_refs[0]);
+    assert_eq!(prepared.rule_pack_refs[0]["privacy_classification"], json!("private_rule_pack_data"));
+}
+
+#[test]
+fn round3_replacement_must_check_what_it_published_before_deleting_old_package() {
+    let (store, mut first) = prepared_demo("round3-swap-source");
+    first.package_label = "The previous package".to_string();
+    let target = store.root.join("target.swbhandoff");
+    assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved {..}));
+    let old = package_bytes(&target);
+    let retained = store.root.join("retained-stage");
+    let swap = |staging: &Path, destination: &Path| {
+        fs::rename(staging, &retained)?;
+        fs::create_dir(staging)?;
+        fs::write(staging.join("unrelated.txt"), b"substituted source")?;
+        publish::platform_swap(staging, destination)
+    };
+    let (_other, next) = prepared_demo("round3-swap-source-next");
+    let outcome = write_handoff_package(&target, next, CREATED_AT, &PublishHooks {swap: Some(&swap), ..PRODUCTION_HOOKS});
+    println!("SWAP_SOURCE_SUBSTITUTION {outcome:?}; verifies={:?}; staging_left={:?}; old_manifest_length={}", verify_handoff_package(&target), staging_left(&store.root), old.0.len());
+    assert!(matches!(outcome, HandoffSaveOutcome::Refused {..}), "a substituted source replaced a valid target and the previous package was removed");
+}
+
+
+    /// Review round 3, finding 1: a staging source substituted inside the
+    /// commit itself (after every pre-commit check) is caught by verifying what
+    /// was published; a new name is moved back, a replacement swapped back, and
+    /// the previous package is never deleted. Three shapes: another folder, a
+    /// symlink to the real staging folder, `model/` replaced by a file.
+    #[test]
+    fn a_source_substituted_inside_the_commit_is_refused_and_the_previous_package_kept() {
+        fn substitute(mode: &str, staging: &Path, retained: &Path) -> io::Result<()> {
+            if mode == "model-file" {
+                fs::rename(staging.join("model"), retained)?;
+                return fs::write(staging.join("model"), b"unrelated file");
+            }
+            fs::rename(staging, retained)?;
+            if mode == "symlink" {
+                std::os::unix::fs::symlink(retained, staging)
+            } else {
+                fs::create_dir(staging)?;
+                fs::write(staging.join("unrelated.txt"), b"unrelated folder")
+            }
+        }
+        for mode in ["folder", "symlink", "model-file"] {
+            // A new name.
+            let (store, prepared) = prepared_demo(&format!("round3-commit-new-{mode}"));
+            let target = store.root.join("target.swbhandoff");
+            let retained = store.root.join("retained");
+            let rename = |staging: &Path, destination: &Path| {
+                substitute(mode, staging, &retained)?;
+                fs::rename(staging, destination)
+            };
+            let outcome = write_handoff_package(&target, prepared, CREATED_AT, &PublishHooks { rename_new: Some(&rename), ..PRODUCTION_HOOKS });
+            assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::PUBLISH_UNVERIFIED), "new {mode}: {outcome:?}");
+            assert!(fs::symlink_metadata(&target).is_err(), "new {mode}: the unverified folder stayed published");
+
+            // A replacement.
+            let (store, first) = prepared_demo(&format!("round3-commit-swap-{mode}"));
+            let target = store.root.join("target.swbhandoff");
+            assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+            let old = package_bytes(&target);
+            let retained = store.root.join("retained");
+            let calls = std::cell::Cell::new(0);
+            let swap = |staging: &Path, destination: &Path| {
+                calls.set(calls.get() + 1);
+                if calls.get() == 1 {
+                    substitute(mode, staging, &retained)?;
+                }
+                publish::platform_swap(staging, destination)
+            };
+            let (_other, next) = prepared_demo(&format!("round3-commit-swap-next-{mode}"));
+            let outcome = write_handoff_package(&target, next, CREATED_AT, &PublishHooks { swap: Some(&swap), ..PRODUCTION_HOOKS });
+            assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::PUBLISH_UNVERIFIED), "swap {mode}: {outcome:?}");
+            assert_eq!(calls.get(), 2, "swap {mode}: the swap was not undone");
+            assert_eq!(package_bytes(&target), old, "swap {mode}: the previous package was not restored unchanged");
+            assert!(verify_handoff_package(&target).is_ok(), "swap {mode}");
+        }
     }
 }

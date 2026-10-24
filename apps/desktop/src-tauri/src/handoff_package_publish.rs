@@ -26,12 +26,22 @@
 //! 3. A new name is published by `renameatx_np(RENAME_EXCL)`, refusing to
 //!    replace anything, the single commit point. An existing package is
 //!    replaced by `renameatx_np(RENAME_SWAP)` after checking that the
-//!    destination is still the package admitted; what the swap moved out is
-//!    checked again, swapped back if it is not, and otherwise removed member by
-//!    member (never a recursive delete). A volume that cannot swap refuses
-//!    `HANDOFF-REPLACE-UNSUPPORTED`.
-//! 4. A leftover `<name>.swbhandoff.staging-*` from an earlier crash is ignored
+//!    destination is still the package admitted. Immediately before either,
+//!    the staging folder must still be, by identity, the one verified.
+//! 4. After the rename or swap, the folder published under the name must be,
+//!    through the parent's handle, the staging folder this save created and
+//!    verified (folder, `model/` and both members by device and inode), and
+//!    must verify (review round 3, finding 1). Otherwise a new name is moved
+//!    back to the staging name and a replacement is swapped back, and the save
+//!    is refused `HANDOFF-PUBLISH-UNVERIFIED`; `Saved` is never reported for
+//!    bytes not verified. What the swap moved out must also be the package
+//!    admitted (if it is not, the swap is undone); only when both hold is it
+//!    removed, member by member (never a recursive delete). A volume that cannot swap
+//!    refuses `HANDOFF-REPLACE-UNSUPPORTED`.
+//! 5. A leftover `<name>.swbhandoff.staging-*` from an earlier crash is ignored
 //!    and reported for the user to delete.
+//!
+//! This process's commits (step 3 to the removal in step 4) run one at a time.
 //!
 //! Removal (cleanup of the staging directory, the replaced package) unlinks an
 //! entry only while it is, by device and inode, the one this save created or
@@ -39,22 +49,31 @@
 //! symlink, folder or file is left in place and reported; a hard-linked member
 //! loses only the package's link.
 //!
-//! Residual window (stated after review round 2). The identity checks and the
-//! name-based calls that follow them (`unlinkat`, `unlinkat(AT_REMOVEDIR)`,
-//! `renameatx_np`) are separate system calls inside held directory handles. A
-//! process that can write those folders can, between a check and its call:
-//! - substitute one directory entry there, which is then unlinked in place of
-//!   the checked one (the entry itself only: never a symlink's target, never a
+//! Residual window (restated after review round 3). Every check and the
+//! name-based call after it (`unlinkat`, `unlinkat(AT_REMOVEDIR)`,
+//! `renameatx_np`, `renameat`) are separate system calls inside held directory
+//! handles. Another process that can write those folders (this process's own
+//! saves are serialized) can, between a check and its call:
+//! - substitute one directory entry, which is then unlinked in place of the
+//!   checked one (the entry itself only: never a symlink's target, never a
 //!   non-empty folder, never a file's other hard links);
+//! - substitute the staging source between the last pre-commit check and the
+//!   rename or swap (a folder, a symlink, `model/` as a file): caught by step
+//!   4 and undone. The undoing is itself a rename or swap by name, so a further
+//!   substitution between the step-4 check and the undoing moves that entry
+//!   instead; if the swap-back fails, the previous package is left, unchanged
+//!   and undeleted, under the staging name, which the refusal names;
 //! - replace the destination before the swap: detected after it by identity
-//!   and swapped back; if the swap-back fails, the other folder is left under
-//!   the staging name, which the refusal names, and nothing of it is removed;
+//!   and swapped back, with the same limits;
+//! - replace or rewrite the published folder after step 4 (before `Saved` is
+//!   returned) or the moved-out package between its check and its removal;
 //! - on a volume without `RENAME_EXCL`, create the destination between the
 //!   name check and the plain `renameat` (an empty folder there can be
 //!   replaced).
 //! Rewrites of member bytes in place (same inode) after verification are not
-//! detected. The parent path's own components are resolved once, at admission;
-//! a parent folder moved later receives the package where it then is.
+//! detected by identity. The parent path's own components (intermediate
+//! symlinks included) are resolved once, at admission; a parent folder moved
+//! later receives the package where it then is.
 //!
 //! Every failure before the commit removes this run's staging directory (as
 //! above) and leaves the previous package as it was.
@@ -96,6 +115,7 @@ pub const PUBLISH_FAILED: &str = "HANDOFF-PUBLISH-FAILED";
 pub const STAGING_LEFTOVER: &str = "HANDOFF-STAGING-LEFTOVER";
 pub const OLD_PACKAGE_LEFT: &str = "HANDOFF-OLD-PACKAGE-LEFT";
 pub const VERIFY_FAILED: &str = "HANDOFF-VERIFY-FAILED";
+pub const PUBLISH_UNVERIFIED: &str = "HANDOFF-PUBLISH-UNVERIFIED";
 
 fn diagnostic(code: &str, path: &str, message: impl Into<String>) -> Diagnostic {
     Diagnostic { code: code.to_string(), path: path.to_string(), message: message.into() }
@@ -681,6 +701,25 @@ fn failed(stage: &str, error: impl std::fmt::Display, parent: &Dir, staging_name
     )
 }
 
+/// Serializes this process's commits (see [`publish_package`]).
+static COMMIT: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+/// The folder now published as `name` is, through the parent's handle, the
+/// staging folder this save created and verified (every identity in `staged`)
+/// and verifies as a handoff package (review round 3, finding 1).
+fn published_is_ours(parent: &Dir, name: &str, staged: PackageIdentity) -> Result<(), String> {
+    let dir = parent.open_dir(name).map_err(|error| format!("`{name}` cannot be opened as a folder ({error})"))?;
+    match layout_identity(&dir) {
+        Ok(Some((identity, _))) if identity == staged && parent.child_id(name).ok() == Some(staged.folder) => {}
+        _ => return Err(format!("`{name}` is not the folder this save wrote and verified")),
+    }
+    verify_dir(&dir).map(drop)
+}
+
+fn unverified(name: &str, why: &str, outcome: &str) -> Diagnostic {
+    diagnostic(PUBLISH_UNVERIFIED, "", format!("The handoff package was not saved: what was published as `{name}` is not the package this save wrote and verified ({why}). {outcome}"))
+}
+
 /// Publishes the two members at `target` (see the module docs).
 pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &PublishHooks<'_>) -> Result<Published, Diagnostic> {
     let Admitted { parent, parent_path, name, replacing } = admit_target(target)?;
@@ -735,6 +774,10 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
     if let Err(error) = (hooks.before_commit)() {
         return Err(failed("commit", error, &parent, &staging_name, created));
     }
+    // This process's commits (checks, rename or swap, verification of what was
+    // published, removal of the replaced package) run one at a time, so two
+    // saves in the app never interleave inside each other's check and act.
+    let _commit = COMMIT.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     if let Some(admitted) = replacing {
         let changed = || {
             diagnostic(
@@ -769,11 +812,24 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             }
             return Err(failed("swap", error, &parent, &staging_name, created));
         }
-        // What the swap moved out must be the package admitted. If the
-        // destination was replaced between the check and the swap, the swap is
-        // undone, so the other folder is back under its name, and nothing of it
-        // is removed.
-        if identity_at(&parent, &staging_name) != Some(admitted) {
+        // What the swap moved out must be the package admitted, and what it
+        // published the staging folder this save verified. If the destination
+        // was replaced between the check and the swap, or the staging source
+        // was, the swap is undone, so the other folder is back under its name,
+        // and nothing of either is removed.
+        let moved_out_admitted = identity_at(&parent, &staging_name) == Some(admitted);
+        if moved_out_admitted {
+            if let Err(why) = published_is_ours(&parent, &name, staged) {
+                let restored = exchange().is_ok() && identity_at(&parent, &name) == Some(admitted);
+                let outcome = if restored {
+                    format!("The previous package is back as `{name}`, unchanged; the substituted folder is left as {staging_name}. Save again.")
+                } else {
+                    format!("The previous package could not be swapped back and is left, unchanged, as {staging_name}; `{name}` holds the unverified folder. Check both before deleting either.")
+                };
+                return Err(unverified(&name, &why, &outcome));
+            }
+        }
+        if !moved_out_admitted {
             let ours_published = parent.child_id(&name).ok() == created.folder;
             let restored = ours_published && exchange().is_ok();
             if restored {
@@ -797,6 +853,10 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             ));
         }
     } else {
+        // Immediately before the rename: the staging folder is still ours.
+        if identity_at(&parent, &staging_name) != Some(staged) {
+            return Err(failed("commit", "the staging folder changed", &parent, &staging_name, created));
+        }
         let renamed = match hooks.rename_new {
             Some(rename) => rename(&staging_path, target),
             None => parent.rename_new(&staging_name, &name),
@@ -807,6 +867,15 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
                 return Err(diagnostic(DESTINATION_APPEARED, "", format!("`{name}` appeared while the package was written; nothing was replaced. Save again.")));
             }
             return Err(failed("rename", error, &parent, &staging_name, created));
+        }
+        // What the rename published must be the staging folder this save
+        // verified; otherwise it is moved back under the staging name.
+        if let Err(why) = published_is_ours(&parent, &name, staged) {
+            let outcome = match parent.rename_new(&name, &staging_name) {
+                Ok(()) => format!("It was moved back to {staging_name}; nothing is published as `{name}`. Save again."),
+                Err(error) => format!("It could not be moved back ({error}); `{name}` holds a folder that is not a verified handoff package. Check it before using it."),
+            };
+            return Err(unverified(&name, &why, &outcome));
         }
     }
     let durability = if parent.sync().is_ok() { "durable" } else { "saved_durability_uncertain" };
