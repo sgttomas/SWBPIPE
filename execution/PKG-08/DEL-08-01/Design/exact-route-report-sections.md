@@ -176,10 +176,10 @@ report, as the result export refuses it.
   `rejected` is blocked by the redaction screener in every context, as for
   every report. `private_only` and `unknown` records render in a local-private
   report.
-- **Dependency.** The slots exist on main (0.7.0). The desktop sets
-  `library_ref` when W-13 S2b (#1566) lands. Until then the section states "No
-  library records referenced", and the tests use invented documents carrying the
-  slots.
+- **Dependency.** The slots exist on main (0.7.0), and the desktop sets
+  `library_ref` when it applies a library record (W-13 S2b, #1566). Resolution
+  and its warnings use the desktop's existing store resolver; the report adds no
+  second resolution rule.
 
 ## 5. What opening would change (for the owner)
 
