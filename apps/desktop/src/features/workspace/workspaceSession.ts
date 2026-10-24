@@ -59,6 +59,15 @@ import {
   type StoredProjectWrite
 } from "../project-storage/storedProjectConflict";
 import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
+import {
+  modelDocumentSaveFailureMessage,
+  modelDocumentSaveMessage,
+  modelDocumentSaveRefusalMessage,
+  prepareModelDocumentSave,
+  resolveLibraryDispositions,
+  saveModelDocumentFile
+} from "../model-file/modelDocumentSave";
+import type { ModelDocumentSaveDialogRequest } from "../model-file/ModelDocumentSaveDialog";
 import { saveReportPackage } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
@@ -113,6 +122,10 @@ import {
   deriveProjectEnvelopeHashIntegrity
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
+import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
+import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
+import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
+import type { ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
 import { useSelectionSessionState } from "./selectionSessionState";
@@ -284,10 +297,17 @@ export function useWorkspaceSession() {
   const [replaceProjectPrompt, setReplaceProjectPrompt] = useState<ReplaceProjectPromptState | null>(null);
   // While the prompt is open, menu commands and shell accelerators are ignored.
   const replacePromptOpenRef = useRef(false);
+  // The prompts' shared hold on that flag: set until the last open prompt closes.
+  const modalHolds = useRef<ModalHolds | null>(null);
+  if (!modalHolds.current) modalHolds.current = createModalHolds(replacePromptOpenRef);
+  const holdModal = () => modalHolds.current!.hold();
   // The open "Units at creation" dialog (W-17 §3), if a blank project is waiting
   // for its units. It is modal in the same way as the replace prompt.
   const [blankProjectUnitsRequest, setBlankProjectUnitsRequest] = useState<BlankProjectUnitsRequest | null>(null);
   const projectUnitsDialogOpenRef = useRef(false);
+  // The open Save Model Document… dialog (DEL-15-01 W-6a), modal in the same way.
+  const [modelDocumentSaveRequest, setModelDocumentSaveRequest] = useState<ModelDocumentSaveDialogRequest | null>(null);
+  const modelDocumentSaveDialogOpenRef = useRef(false);
   // The stored project this session is, at the revision it last opened or wrote:
   // its id and stored envelope hash. Set wherever an open or a write lands for
   // this project session, whether or not a later edit superseded the request,
@@ -305,6 +325,16 @@ export function useWorkspaceSession() {
     modelHashOwner.current?.revision === uiModelRevision;
   const modelEdited = Boolean(model && isLocalModelEdited(savedModelBasis, projectSessionGeneration,
     uiModelRevision, currentHashOwned, modelHash));
+  // The unsaved-changes guard reads the current notion when a command starts.
+  const modelEditedRef = useRef(modelEdited);
+  modelEditedRef.current = modelEdited;
+  // The Save Local Project that landed, for the continuations that ran it
+  // (the guard's "Save first" and Save Model State's prerequisite save).
+  const projectSaveLanded = useRef<LandedProjectSave | null>(null);
+  // What Save Model Document… saves: the session's current model and its hash,
+  // only while that hash is owned by the current generation and revision.
+  const modelDocumentSaveBasisRef = useRef<{ model: PreviewModel | null; modelHash: ModelHashEvidence | null }>({ model: null, modelHash: null });
+  modelDocumentSaveBasisRef.current = { model, modelHash: currentHashOwned ? modelHash : null };
 
   const {
     selection, setPrimarySelection,
@@ -1736,12 +1766,12 @@ export function useWorkspaceSession() {
       const existing = await findLocalProject(requestModel.project.id);
       if (!existing) return { outcome: "written", envelope: await write(null) };
       const choice = await new Promise<ReplaceProjectChoice>((resolve) => {
-        replacePromptOpenRef.current = true;
+        const release = holdModal();
         // Captured before the workspace turns inert, which drops its focus.
         const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         setReplaceProjectPrompt({
           kind, existing, stale, opener,
-          choose: (picked) => { replacePromptOpenRef.current = false; setReplaceProjectPrompt(null); resolve(picked); }
+          choose: (picked) => { release(); setReplaceProjectPrompt(null); resolve(picked); }
         });
       });
       if (choice === "cancel") return { outcome: "kept", existing };
@@ -1948,19 +1978,38 @@ export function useWorkspaceSession() {
    * creates nothing. */
   function requestBlankProject(kind: BlankProjectKind) {
     // A project operation in flight refuses a blank, as the create itself would.
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    if (projectSessionBusy()) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
-    projectUnitsDialogOpenRef.current = true;
-    setBlankProjectUnitsRequest({
-      kind,
-      opener,
-      cancel: close,
-      create: (units) => {
-        close();
-        void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+    const askUnits = () => {
+      const close = () => { projectUnitsDialogOpenRef.current = false; setBlankProjectUnitsRequest(null); };
+      projectUnitsDialogOpenRef.current = true;
+      setBlankProjectUnitsRequest({
+        kind,
+        opener,
+        cancel: close,
+        create: (units) => {
+          close();
+          void (kind === "load_state" ? handleCreateBlankLoadStateProject(units) : handleCreateBlankProject(units));
+        }
+      });
+    };
+    // A new blank replaces the working model: with unsaved edits it asks first.
+    if (!replacingNeedsConfirmation()) {
+      askUnits();
+      return;
+    }
+    void confirmReplacingEdits({
+      action: kind === "load_state" ? "Creating a new blank load/reference model" : "Creating a new blank project",
+      verb: "create it"
+    }).then((guarded) => {
+      if (guarded !== "proceed") {
+        setProjectMessage(unsavedChangesRefusal(guarded, "Not created"));
+        setProjectOperation("create_blank_kept_edits");
+        return;
       }
+      if (projectSessionBusy()) return;
+      askUnits();
     });
   }
 
@@ -2089,6 +2138,20 @@ export function useWorkspaceSession() {
   }
 
   async function handleOpenProject(projectId: string | null = null) {
+    // Another project operation or prompt owns the session: nothing starts.
+    if (projectSessionBusy()) return;
+    // An open replaces the working model: with unsaved edits it asks first.
+    if (replacingNeedsConfirmation()) {
+      const guarded = await confirmReplacingEdits({
+        action: projectId ? `Opening local project ${projectId}` : "Opening the most recent local project",
+        verb: "open it"
+      });
+      if (guarded !== "proceed") {
+        setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
+        setProjectOperation("open_kept_edits");
+        return;
+      }
+    }
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
@@ -2194,6 +2257,17 @@ export function useWorkspaceSession() {
    * session's model, unchanged. It starts unsaved, as the bundled demo does; New
    * Local Project saves it as a project. A refusal leaves the session as it was. */
   async function handleOpenModelDocument() {
+    // Another project operation or prompt owns the session: nothing starts.
+    if (projectSessionBusy()) return;
+    // An open replaces the working model: with unsaved edits it asks first.
+    if (replacingNeedsConfirmation()) {
+      const guarded = await confirmReplacingEdits({ action: "Opening a model document", verb: "open it" });
+      if (guarded !== "proceed") {
+        setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
+        setProjectOperation("open_model_kept_edits");
+        return;
+      }
+    }
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
@@ -2266,6 +2340,57 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       setProjectMessage(`Open model document failed: ${String(error)}`);
       setProjectOperation("open_model_failed");
+    } finally {
+      releaseProjectOperation(owner);
+    }
+  }
+
+  /** File > Save Model Document… (DEL-15-01 W-6a): asks for the explicit
+   * local-private intent first. Available whenever a model is open, on either
+   * route; it needs no solve. Nothing happens while another project operation
+   * or modal is open. */
+  function requestSaveModelDocument() {
+    const saveModel = modelDocumentSaveBasisRef.current.model;
+    if (!saveModel) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
+    modelDocumentSaveDialogOpenRef.current = true;
+    setModelDocumentSaveRequest({
+      projectName: saveModel.project.name,
+      opener,
+      cancel: close,
+      save: (explicitLocalPrivateIntent) => {
+        close();
+        void handleSaveModelDocument(explicitLocalPrivateIntent);
+      }
+    });
+  }
+
+  /** Saves the session's model document under the dialog's intent. Reads the
+   * session and changes only the status line: the model, its hash, the results
+   * and the solve standing are untouched. */
+  async function handleSaveModelDocument(explicitLocalPrivateIntent: boolean) {
+    const { model: saveModel, modelHash: saveHash } = modelDocumentSaveBasisRef.current;
+    if (!saveModel) return;
+    const owner = acquireProjectOperation();
+    if (!owner) return;
+    try {
+      const libraries = await resolveLibraryDispositions(saveModel);
+      const prepared = await prepareModelDocumentSave({ model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent, libraries });
+      if (prepared.status === "refused") {
+        setProjectMessage(modelDocumentSaveRefusalMessage(prepared.diagnostics));
+        setProjectOperation("save_model_document_refused");
+        return;
+      }
+      const outcome = await saveModelDocumentFile(prepared.args);
+      setProjectMessage(modelDocumentSaveMessage(outcome));
+      setProjectOperation(outcome.outcome === "saved" ? "save_model_document"
+        : outcome.outcome === "cancelled" ? "save_model_document_cancelled" : "save_model_document_refused");
+    } catch (error) {
+      setProjectMessage(modelDocumentSaveFailureMessage(error));
+      setProjectOperation("save_model_document_failed");
     } finally {
       releaseProjectOperation(owner);
     }
@@ -2407,6 +2532,7 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setModelDocumentVersion(saved.model_document_version ?? null);
       setProjectMessage(saved.summary.message);
+      projectSaveLanded.current = { projectId: saved.summary.project_id, base: saved.project_envelope_hash?.value ?? null, model: requestModel };
       setProjectOperation("save");
     } catch (error) {
       if (pendingObservation && sameProjectSession() &&
@@ -2640,7 +2766,7 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
@@ -2660,6 +2786,9 @@ export function useWorkspaceSession() {
         break;
       case "file.save-local":
         void handleSaveProject();
+        break;
+      case "file.save-model-document":
+        requestSaveModelDocument();
         break;
       case "file.save-report-package":
         setActiveSection("report");
@@ -2991,7 +3120,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       if (key === "z") {
@@ -3022,6 +3151,91 @@ export function useWorkspaceSession() {
     window.addEventListener("keydown", handleShellAccelerator);
     return () => window.removeEventListener("keydown", handleShellAccelerator);
   }, []);
+
+  /** W-12 S1 Open State: the saved state's snapshot becomes the working model of
+   * the same stored project, as an open does. It starts a new project session:
+   * the undo and redo history is cleared, so undo never walks back into the
+   * model the session held before; results, queued operations and the review
+   * context go with it. The stored base is unchanged (the session is still that
+   * stored project), and the saved basis is the state's model hash, so the
+   * first edit makes a new, edited working model. */
+  function adoptStateSnapshot(opened: ModelStateRead, snapshotHash: ModelHashEvidence, binding: ProjectBinding): Promise<string> {
+    ruleRevisionGate.current.invalidate();
+    setModelHashIntegrity(null);
+    setProjectEnvelopeHashIntegrity(null);
+    advanceProjectSession();
+    commitModel(opened.model);
+    savedBasisSequence.current += 1;
+    setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: snapshotHash.value, source: "open" });
+    setSelection(defaultSelection(opened.model));
+    setUndoStack([]);
+    setRedoStack([]);
+    setAppliedOperations([]);
+    withdrawBatchRegistrations();
+    setQueuedBatches([]);
+    setBatchOutcomes({});
+    setBatchReceipts([]);
+    setBatchMessage(null);
+    setOperationOutcomes({});
+    setOperationMessage(null);
+    setHistoricalRun(null);
+    setResult(null);
+    setAnalysisRun(null);
+    setInputManifest(null);
+    setRuleCheckAggregate(null);
+    setProposal(null);
+    setRetainedReviewContext([]);
+    setEditorIntents([]);
+    setSelectedReviewTarget(null);
+    setSolveJob(initialSolveJob());
+    setModelDocumentVersion(opened.model_document_version ?? null);
+    // The session is the state's project. Its stored base is one this session
+    // saw for that project, never one read afresh from the store (that would
+    // hide another window's save from the stale-window check):
+    // - the base the session holds now, when it is that project's (no save, or
+    //   the guard's Save first saved it in place);
+    // - otherwise the base captured before the guard, when that was the
+    //   project's (the guard's Save first went to "Save as a new project");
+    // - otherwise none: the session never saw a stored revision of it, so a
+    //   save of it asks, as an opened model document's does.
+    const stateProject = opened.model.project.id;
+    if (storedBaseRef.current?.projectId !== stateProject) {
+      const bound = binding.base?.projectId === stateProject;
+      storedBaseRef.current = bound ? binding.base : null;
+      setProjectSummary(bound ? binding.summary : null);
+      setProjectEnvelopeHash(bound ? binding.envelopeHash : null);
+    }
+    return libraryReferenceWarnings(opened.model);
+  }
+
+  function captureProjectBinding(): ProjectBinding {
+    return { base: storedBaseRef.current, summary: projectSummary, envelopeHash: projectEnvelopeHash };
+  }
+
+  /** Save Local Project's flow, reporting whether a save landed (the
+   * unsaved-changes guard's "Save first"). */
+  /** Another project operation, or any project prompt, owns the session. The
+   * model-replacing commands, Open State and Save Model State start nothing then. */
+  function projectSessionBusy(): boolean {
+    return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current
+      || modelDocumentSaveDialogOpenRef.current;
+  }
+
+  async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
+    projectSaveLanded.current = null;
+    await saveProject(null);
+    return projectSaveLanded.current;
+  }
+
+  const { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits } = useUnsavedChangesGuard({
+    modelEditedRef, holdModal, projectSessionBusy, saveLocalProject: async () => (await saveLocalProjectFirst()) !== null
+  });
+
+  const history = useModelStateHistory({
+    model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
+    confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
+    saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy
+  });
 
   return {
     model: {
@@ -3136,7 +3350,12 @@ export function useWorkspaceSession() {
       handleOpenModelDocument,
       handleSaveProject,
       handleListProjects,
-      replaceProjectPrompt
+      replaceProjectPrompt,
+      unsavedChangesPrompt,
+      // W-12 S1: the saved model states of the session's project (History panel).
+      history,
+      requestSaveModelDocument,
+      modelDocumentSaveRequest
     },
     chrome: {
       uiPreferences, setUiPreferences,

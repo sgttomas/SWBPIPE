@@ -13,11 +13,6 @@ use super::{diag, BuiltModel, Diagnostic, PreviewModel};
 use crate::formation_guard::{Bodies, NAMED};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-/// The near-duplicate tolerance relative to the model's extent (the diagonal
-/// of its nodes' bounding box). The check is scale-free: the same model in
-/// any length unit gives the same finding.
-pub(crate) const NEAR_DUPLICATE_RELATIVE: f64 = 1e-6;
-
 /// The element graph's edges: straight members other than connector-replaced
 /// spans, curved spans and objective connectors (as `formation_bodies`).
 fn element_edges(built: &BuiltModel) -> Vec<(usize, usize)> {
@@ -62,7 +57,11 @@ pub(crate) fn append_topology_diagnostics(
             .unwrap_or_else(|| format!("node#{index}"))
     };
     disconnected_parts(built, &coordinates, &edges, &node_id, diagnostics);
-    near_duplicate_nodes(&coordinates, &edges, &node_id, diagnostics);
+    // The model's `model_settings.node_proximity_tolerance`, else 5 mm; validation has
+    // already refused a malformed value (`validate_model_settings`).
+    if let Ok(tolerance) = model.node_proximity_tolerance_m() {
+        near_duplicate_nodes(&coordinates, &edges, &node_id, tolerance, diagnostics);
+    }
 }
 
 /// FR-KNOW-002: two or more parts that each contain an element. A node with
@@ -143,32 +142,19 @@ fn disconnected_parts(
     ));
 }
 
-/// PRD §12.8: distinct nodes at the same position, or within the relative
-/// tolerance of each other, that no element joins. Two nodes an element joins
-/// are left to the element's own length checks.
+/// PRD §12.8: distinct nodes at the same position, or no farther apart than
+/// `tolerance` (metres, finite and positive), that no element joins. Two nodes
+/// an element joins are left to the element's own length checks.
 fn near_duplicate_nodes(
     coordinates: &[[f64; 3]],
     edges: &[(usize, usize)],
     node_id: &dyn Fn(usize) -> String,
+    tolerance: f64,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     if coordinates.len() < 2 {
         return;
     }
-    let mut low = [f64::INFINITY; 3];
-    let mut high = [f64::NEG_INFINITY; 3];
-    for point in coordinates {
-        for axis in 0..3 {
-            low[axis] = low[axis].min(point[axis]);
-            high[axis] = high[axis].max(point[axis]);
-        }
-    }
-    let extent = scaled_norm([0, 1, 2].map(|axis| high[axis] - low[axis]));
-    if !extent.is_finite() {
-        return;
-    }
-    // At zero extent every element has zero length and the build refuses it.
-    let tolerance = NEAR_DUPLICATE_RELATIVE * extent;
     let joined = edges
         .iter()
         .map(|&(a, b)| (a.min(b), a.max(b)))
@@ -179,62 +165,67 @@ fn near_duplicate_nodes(
     let mut coincident_count = 0usize;
     let mut near = Vec::new();
     let mut near_count = 0usize;
-    if tolerance > 0.0 {
-        // Cells twice the tolerance wide: rounding in a cell index moves a
-        // point by far less than half a cell, so a pair within the tolerance
-        // always lies in the same or a neighbouring cell. Indices stay below
-        // 1e6 per axis.
-        let width = 2.0 * tolerance;
-        let cell = |point: &[f64; 3]| {
-            [0, 1, 2].map(|axis| ((point[axis] - low[axis]) / width).floor() as i64)
-        };
-        let mut grid: HashMap<[i64; 3], Vec<usize>> = HashMap::new();
-        for (node, point) in coordinates.iter().enumerate() {
-            grid.entry(cell(point)).or_default().push(node);
-        }
-        let mut found = Vec::new();
-        for (node, point) in coordinates.iter().enumerate() {
-            found.clear();
-            let c = cell(point);
-            for dx in -1..=1 {
-                for dy in -1..=1 {
-                    for dz in -1..=1 {
-                        let Some(others) = grid.get(&[c[0] + dx, c[1] + dy, c[2] + dz]) else {
+    // Cells eight tolerances wide, indexed by the coordinate itself (no
+    // offset, whose rounding can exceed a cell far from the origin). Two
+    // distinct values within the tolerance on an axis have a spacing of
+    // at most twice the tolerance there, so their quotients by the width
+    // are below 2^51 and each rounds by at most a quarter: their indices
+    // differ by at most one. Beyond that no distinct pair is within the
+    // tolerance, and equal values share a cell (indices saturate).
+    let width = 8.0 * tolerance;
+    let cell = |point: &[f64; 3]| point.map(|x| (x / width).floor() as i64);
+    let mut grid: HashMap<[i64; 3], Vec<usize>> = HashMap::new();
+    for (node, point) in coordinates.iter().enumerate() {
+        grid.entry(cell(point)).or_default().push(node);
+    }
+    let mut found = Vec::new();
+    for (node, point) in coordinates.iter().enumerate() {
+        found.clear();
+        let c = cell(point);
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                for dz in -1..=1 {
+                    // A neighbour past a saturated index does not exist.
+                    let (Some(x), Some(y), Some(z)) =
+                        (c[0].checked_add(dx), c[1].checked_add(dy), c[2].checked_add(dz))
+                    else {
+                        continue;
+                    };
+                    let Some(others) = grid.get(&[x, y, z]) else {
+                        continue;
+                    };
+                    for &other in others {
+                        if other <= node || joined.contains(&(node, other)) {
                             continue;
-                        };
-                        for &other in others {
-                            if other <= node || joined.contains(&(node, other)) {
-                                continue;
-                            }
-                            let q = coordinates[other];
-                            let e = [0, 1, 2].map(|axis| q[axis] - point[axis]);
-                            // Distinct finite coordinates never subtract to zero.
-                            if e == [0.0; 3] {
-                                found.push((other, None));
-                            } else {
-                                let distance = scaled_norm(e);
-                                if distance <= tolerance {
-                                    found.push((other, Some(distance)));
-                                }
+                        }
+                        let q = coordinates[other];
+                        let e = [0, 1, 2].map(|axis| q[axis] - point[axis]);
+                        // Distinct finite coordinates never subtract to zero.
+                        if e == [0.0; 3] {
+                            found.push((other, None));
+                        } else {
+                            let distance = scaled_norm(e);
+                            if distance <= tolerance {
+                                found.push((other, Some(distance)));
                             }
                         }
                     }
                 }
             }
-            found.sort_unstable_by_key(|&(other, _)| other);
-            for &(other, distance) in &found {
-                match distance {
-                    None => {
-                        coincident_count += 1;
-                        if coincident.len() < NAMED {
-                            coincident.push((node, other));
-                        }
+        }
+        found.sort_unstable_by_key(|&(other, _)| other);
+        for &(other, distance) in &found {
+            match distance {
+                None => {
+                    coincident_count += 1;
+                    if coincident.len() < NAMED {
+                        coincident.push((node, other));
                     }
-                    Some(distance) => {
-                        near_count += 1;
-                        if near.len() < NAMED {
-                            near.push((node, other, distance));
-                        }
+                }
+                Some(distance) => {
+                    near_count += 1;
+                    if near.len() < NAMED {
+                        near.push((node, other, distance));
                     }
                 }
             }
@@ -290,7 +281,7 @@ fn near_duplicate_nodes(
             "NODE_NEAR_DUPLICATE",
             "warning",
             format!(
-                "{} pair{} of distinct nodes lie within {tolerance:e} m of each other (1e-6 of the model's extent) and no element joins them; a pipe may end short of the node it should share: {named}{}",
+                "{} pair{} of distinct nodes lie no farther apart than the node-proximity tolerance ({tolerance:e} m) and no element joins them; a pipe may end short of the node it should share: {named}{}",
                 near_count,
                 if near_count == 1 { "" } else { "s" },
                 more(near_count)
@@ -310,3 +301,7 @@ fn scaled_norm(v: [f64; 3]) -> f64 {
     let u = v.map(|x| x / largest);
     largest * ((u[0] * u[0] + u[1] * u[1]) + u[2] * u[2]).sqrt()
 }
+
+#[cfg(test)]
+#[path = "topology_tests.rs"]
+mod tests;

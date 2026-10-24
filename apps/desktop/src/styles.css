@@ -4315,3 +4315,37 @@ body { min-width: 760px; min-height: 540px; }
   border-color: var(--border-strong);
   background: var(--status-solvedFill);
 }
+
+/* W-12 S1 History panel (features/history/HistoryPanel.tsx). */
+.model-history-fields,
+.model-history-form,
+.model-history-assumptions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.model-history-assumption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.model-history-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.model-history-state {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.model-history-meta {
+  margin: 0;
+  font-size: var(--type-size-caption);
+  overflow-wrap: anywhere;
+}

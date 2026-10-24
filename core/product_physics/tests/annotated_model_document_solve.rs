@@ -18,7 +18,8 @@ const ANNOTATED_COLLECTIONS: [&str; 8] =
 const PROVENANCE_COLLECTIONS: [&str; 4] = ["materials", "sections", "components", "supports"];
 
 /// The same document without any 0.7.0 member: the new top-level members, the
-/// `model_settings` record (§3.8; nothing reads it yet), every record's `tags` and
+/// `model_settings` record (§3.8; its node-proximity tolerance finds no pair in this
+/// fixture with or without it), every record's `tags` and
 /// `notes`, the project's, and every `provenance_record`.
 fn without_new_members(document: &Value) -> (Value, usize) {
     let mut stripped = document.clone();

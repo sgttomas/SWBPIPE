@@ -7,10 +7,11 @@
 //! identically. An absent record or member means the default, and the product
 //! never writes the default into a document the user did not author.
 //!
-//! Nothing reads the setting yet: the topology check calls
-//! [`PreviewModel::node_proximity_tolerance_m`] when it adopts it. The document
-//! validator (`operation_applier::document_validator`) refuses a malformed value
-//! with the same codes and messages as the accessor below.
+//! The topology check (`topology::append_topology_diagnostics`) reads it through
+//! [`PreviewModel::node_proximity_tolerance_m`]. The solve's validation
+//! (`validation::validate_model_settings`) and the document validator
+//! (`operation_applier::document_validator`) refuse a malformed value with the
+//! same codes and messages as the accessor below.
 use crate::{PreviewModel, Quantity};
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde::Deserialize;
