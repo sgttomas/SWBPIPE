@@ -33,6 +33,39 @@ after all of them succeed, and only when every one published the same key; if a
 runner image differed between them, nothing is saved. Dispatch runs the
 suite.
 
+The `piping-desktop-rust` selection runs the desktop shell crate's Cargo tests
+(`apps/desktop/src-tauri`: store, command and persistence tests) in their own
+job under the same aggregate: `cargo test --locked --manifest-path
+apps/desktop/src-tauri/Cargo.toml` from the project, with the default test
+threads. The job runs on `macos-26`, the product platform (macOS Apple Silicon),
+which needs no webview packages and runs the macOS memory and worker paths the
+tests cover; it builds no frontend. It restores the main-scoped
+`piping-desktop-rust` dependency cache that `shared-build-cache.yml` warms with
+`cargo test --no-run`. It is selected when the PR diff changes:
+- any shared CI input that selects the piping product, or an unmatched input;
+- any file under `apps/desktop/src-tauri/`;
+- a Cargo control the job's `cargo test` reads: `.cargo/` configuration or a
+  `rust-toolchain` file in the project or a directory above the crate, or a
+  project-level `Cargo.toml` or `Cargo.lock` (Cargo reads configuration from its
+  working directory and its ancestors; repository-root files are shared inputs);
+- Rust or a `Cargo.toml` or `Cargo.lock` in a crate it compiles: its normal,
+  build and dev path dependencies, and their normal and build path
+  dependencies, transitively;
+- a file that the crate or those dependencies read by a literal `include*!` or
+  `#[path]` in `src/` or `build.rs`, or that a declared runtime read in their
+  `src/` or `build.rs` names;
+- a project file or directory that the crate's Rust names by a path-like
+  string literal (a format template names the directory before its first
+  slot), which is how its tests read fixtures at run time.
+
+Other Python, Rust, desktop TypeScript and docs changes do not select it. An
+unreadable crate, compile read or stale runtime-read declaration selects it.
+Dispatch runs it. The selection's reasons are in the plan artifact.
+The literal scan finds fixture paths written as one path-like string or format
+template. A test that assembled a fixture path from fragments (`join` of
+separate parts, `concat!`) or took it from the environment would not be found,
+so such a reader should name its path as one literal.
+
 Rust changes select their owning crate and transitive consumers through resolved
 Cargo path dependencies, including dev, build, target and workspace dependencies.
 An exact changed fixture or included source selects its actual readers and their

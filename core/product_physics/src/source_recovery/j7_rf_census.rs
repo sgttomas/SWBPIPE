@@ -4,7 +4,7 @@
 //! genuine request under `3.0.0/exact_pressure_v3` with explicitly empty
 //! `pressure_regions`. Inputs are `fixtures/results/j7_rf_census_inputs.json`
 //! (`tools/fixtures/j7_rf_census_inputs.py` over the frozen references, authored
-//! as 0.3.0); B7b re-authors each copy once, at run time, to the current 0.6.0
+//! as 0.3.0); B7b re-authors each copy once, at run time, to the current 0.7.0
 //! document (`shear_model` Euler-Bernoulli, an explicit zero corrosion allowance
 //! on every pipe section) and changes nothing else. Each case/mode's public
 //! outcome (identity, quality, blocking findings, source attempt, and the digests
@@ -345,7 +345,7 @@ fn public_value(public: &Result<Value, String>) -> Value {
 }
 
 /// One case's request: the committed input's copy, re-authored once to the
-/// current 0.6.0 exact document (B7b); the committed inputs stay 0.3.0.
+/// current 0.7.0 exact document (B7b); the committed inputs stay 0.3.0.
 pub(crate) fn current_request(case: &Value) -> Value {
     let input = &case["request"];
     assert_eq!(input["model"]["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));

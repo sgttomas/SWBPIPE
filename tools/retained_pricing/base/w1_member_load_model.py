@@ -36,11 +36,11 @@ import runpy
 # loaded-maximum-hooks); final_case.rs, origins.rs and structural.rs re-export it under that off feature, and add a
 # census-probe lane hook and work snapshots (W1R-FG). No owner this model prices changes.
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": '7683f8ef8dc9b4f1951bb7ef1e0c274fd9a094fb66f55132de3cf07758ff4e52',
-    "core/product_physics/src/retained_wire.rs": "154ab7511b89f798d39a2b2c34df88ca2f7ecc650b393241e3cbb8bf4a835341",
+    "core/product_physics/src/retained_product.rs": 'd9b960fc255e29facf0ee6b3864c39705643cf81a796c83da92bdd5d4d497862',
+    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "2dbbdd9c9fcdfc87aa0b7358c6a7661e20eded94b64e482ec62dcdbbaedce7a4",
-    "core/reporting/result_export/src/retained_precision.rs": "8890f3c127428d2eb2959a2f74d5a0263bb76ada69ff6ec160617c6d9adf4a24",
+    "core/reporting/result_export/src/retained_precision.rs": "7176d1a0f9923bf61c2ec0eb522949184ebd454e1421657b101c966b988c2ab8",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

@@ -5,6 +5,8 @@ import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { operationExamples } from "./features/geometry-tools/reconnectExample";
+import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
@@ -46,7 +48,7 @@ import { DormantSection } from "./features/workspace/dormantSection";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -90,6 +92,7 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
+import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -105,6 +108,9 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
 import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
+import { LinesSection } from "./features/model-data/LinesSection";
+import { AssumptionsPanel } from "./features/model-data/AssumptionsPanel";
+import { ConstraintsPanel } from "./features/model-data/ConstraintsPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
 import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
@@ -179,6 +185,7 @@ function AppSession() {
   const {
     result,
     currentSolvedResult,
+    numericallyEligible,
     numericalHealth,
     numericalHealthHold,
     historicalRun,
@@ -209,6 +216,8 @@ function AppSession() {
     handleSaveReportPackage
   } = session.results;
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
+  // The viewport's result overlays read the same standing and numerical health view as the results panel.
+  const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
     editorIntents,
     retainedReviewContext,
@@ -251,8 +260,8 @@ function AppSession() {
     projectOperation,
     projectBusy,
     handleCreateProject,
-    handleCreateBlankProject,
-    handleCreateBlankLoadStateProject,
+    requestBlankProject,
+    blankProjectUnitsRequest,
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
@@ -326,8 +335,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
-      // The replace prompt is modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null}
+      // The replace prompt and the units dialog are modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -428,6 +437,15 @@ function AppSession() {
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}
             />
+            <LinesSection
+              key={`lines:${projectSessionGeneration}`}
+              model={model}
+              selection={selection}
+              selectionState={orderedSelection}
+              queuedIntents={editorIntents}
+              onQueueIntent={handleQueueEditorIntent}
+              operationBusy={operationBusy}
+            />
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
             <section
@@ -439,7 +457,7 @@ function AppSession() {
               {activeSection === "operations" || activatedExpensiveSections.has("operations") ? (
               <DormantSection active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <nav className="operation-tabs" aria-label="Editing and review tools">
-                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["details", "Details"]].map(([id, label]) => (
+                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
                   <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
                 ))}
               </nav>
@@ -458,6 +476,10 @@ function AppSession() {
                   </details>
                 ))}
               </section>
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "records"}>
+              <AssumptionsPanel key={`assumptions:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
+              <ConstraintsPanel key={`constraints:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "supports"}>
               <HangerSelectionPanel
@@ -506,6 +528,7 @@ function AppSession() {
                   operation_schema: operationSchema,
                   provider_status: "Live provider is held; offline proposals require explicit human review."
                 }}
+                loadOperationExamples={() => operationExamples(model)}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
@@ -534,6 +557,7 @@ function AppSession() {
                 revision={modelRevision.current} busy={operationBusy} message={batchMessage}
                 onValidate={(entry) => void handleRunOperationBatch(entry, false)}
                 onApply={(entry) => void handleRunOperationBatch(entry, true)}
+                onSelectRef={(ref) => { const target = resolveEntitySelection(model, ref); if (target) handleSelectEntity(target); }}
               />
               <OperationApplyPanel
                 queuedIntents={editorIntents}
@@ -774,6 +798,7 @@ function AppSession() {
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
+              resultStanding={viewportResultStanding}
               selection={selection}
               selectionState={orderedSelection}
               theme={resolvedTheme}
@@ -836,11 +861,11 @@ function AppSession() {
             <Database size={15} aria-hidden="true" />
             Create local
           </button>
-          <button type="button" onClick={handleCreateBlankProject} disabled={projectBusy}>
+          <button type="button" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             New blank
           </button>
-          <button type="button" data-testid="new-blank-040" onClick={handleCreateBlankLoadStateProject} disabled={projectBusy}>
+          <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             Blank load/reference model
           </button>
@@ -898,7 +923,8 @@ function AppSession() {
             >
               {activeSection === "libraries" || activatedExpensiveSections.has("libraries") ? (
               <DormantSection active={activeSection === "libraries"} sessionGeneration={projectSessionGeneration}>
-              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
+              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
+                selection={selection} onQueueBatch={handleQueueOperationBatch} operationBusy={operationBusy} />
               </DormantSection>) : null}
             </section>
 
@@ -909,7 +935,8 @@ function AppSession() {
             >
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
               <DormantSection active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
-              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
+              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
+                queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </DormantSection>) : null}
             </section>
 
@@ -1075,6 +1102,7 @@ function AppSession() {
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
+      <ProjectUnitsDialog request={blankProjectUnitsRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>

@@ -314,6 +314,24 @@ fn user_rule_check_status_display(status: &UserRuleCheckStatus) -> String {
     format!("User-rule-check authority · {label} ({token})")
 }
 
+/// FR-RULE-003 (DEL-06-03 Design `pack-aggregate-incomplete.md`): while any
+/// check is incomplete the pack headline is "INCOMPLETE — n check(s) failed;
+/// m check(s) blocked", counted from the checks themselves, so a run recorded
+/// under the earlier failed-first aggregate never headlines a fail either.
+fn user_rule_check_aggregate_headline(run: &UserRuleCheckRun) -> String {
+    let count = |status: UserRuleCheckStatus| run.checks.iter().filter(|check| check.status == status).count();
+    let blocked = count(UserRuleCheckStatus::RuleInputsIncomplete);
+    if blocked == 0 {
+        return user_rule_check_status_display(&run.aggregate_status);
+    }
+    format!(
+        "INCOMPLETE — {} check(s) failed; {} check(s) blocked · {}",
+        count(UserRuleCheckStatus::UserRuleFailed),
+        blocked,
+        user_rule_check_status_display(&UserRuleCheckStatus::RuleInputsIncomplete)
+    )
+}
+
 fn export_context_label(context: &ReportExportContext) -> &'static str {
     match context {
         ReportExportContext::PublicReport => "public_report",
@@ -883,7 +901,7 @@ cannot appear inside the bytes it binds.",
                             "Rule pack: {} · Grammar version: {} · Aggregate status: {}",
                             run.rule_pack_id,
                             run.grammar_version,
-                            user_rule_check_status_display(&run.aggregate_status)
+                            user_rule_check_aggregate_headline(run)
                         )));
                         let check_rows = run
                             .checks
@@ -1072,12 +1090,32 @@ pub fn report_meta_text(input: &RenderableReportInput) -> String {
 }
 
 /// Emission-neutral analysis-status banner text shared by the HTML and PDF
-/// emissions.
-pub fn status_banner_text(disclosure: &sections::ReportSections) -> String {
-    let labels: Vec<&'static str> = disclosure
+/// emissions. FR-RULE-003: when the recorded user-rule checks include a
+/// blocked check, a recorded rule-check pass or fail is shown as incomplete,
+/// with the recorded status kept beside it (a run recorded under the earlier
+/// failed-first aggregate carries `user_rule_failed`).
+pub fn status_banner_text(input: &RenderableReportInput) -> String {
+    let blocked = input.user_rule_checks.as_ref().is_some_and(|run| {
+        run.checks
+            .iter()
+            .any(|check| check.status == UserRuleCheckStatus::RuleInputsIncomplete)
+    });
+    let labels: Vec<String> = input
+        .report_sections
         .analysis_status_disclosures
         .iter()
-        .map(|item| analysis_status_label(&item.status))
+        .map(|item| match item.status {
+            sections::AnalysisStatus::UserRuleFailed | sections::AnalysisStatus::UserRuleChecked
+                if blocked =>
+            {
+                format!(
+                    "{} (recorded: {})",
+                    analysis_status_label(&sections::AnalysisStatus::RuleInputsIncomplete),
+                    analysis_status_label(&item.status)
+                )
+            }
+            _ => analysis_status_label(&item.status).to_string(),
+        })
         .collect();
     format!("Analysis status: {}", labels.join(", "))
 }
@@ -1194,7 +1232,7 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     ));
     body.push_str(&format!(
         "<div class=\"status-banner\">{}</div>\n",
-        escape_html(&status_banner_text(&input.report_sections)),
+        escape_html(&status_banner_text(input)),
     ));
     if let Some(notice) = local_private_notice_text(input) {
         body.push_str(&format!(

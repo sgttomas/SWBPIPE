@@ -182,19 +182,19 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 >
 > | Req ID | Requirement | Source |
 > |---|---|---|
-> | DEL-07-03-R-001 | The setup artifacts shall preserve `DEL-07-03` as the sole production unit and shall not expand into GUI source implementation. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `_CONTEXT.md`; `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
-> | DEL-07-03-R-002 | The editor workflow shall expose materials, sections, components, load cases, supports, rule packs, and private libraries as editable/reviewable GUI concepts under SOW-021. | `docs/_Registers/ScopeLedger.csv` row `SOW-021`; `docs/SPEC.md` section 7 |
+> | DEL-07-03-R-001 | The setup artifacts shall preserve `DEL-07-03` as the sole production unit and shall not expand into GUI source implementation. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
+> | DEL-07-03-R-002 | The editor workflow shall expose materials, sections, components, load cases, supports, rule packs, and private libraries as editable/reviewable GUI concepts under SOW-021. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-021`; `docs/SPEC.md` section 7 |
 > | DEL-07-03-R-003 | The material editor shall require provenance/source status for material records and shall not provide protected public material allowables or code tables. | `docs/TYPES.md` sections 7 and 8; `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-3`, `OPS-K-IP-1` |
 > | DEL-07-03-R-004 | The section and component editors shall treat dimensions, weights, centers of gravity, SIFs, flexibility factors, stiffnesses, and proprietary catalog values as user-supplied or lawfully imported data with provenance. | `docs/SPEC.md` sections 3 and 4.3; `docs/DIRECTIVE.md` section 3 |
 > | DEL-07-03-R-005 | The load-case editor shall support unit-aware editor input for load cases while leaving code-specific load combinations to user project inputs or rule packs. | `docs/SPEC.md` sections 3 and 5; `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-1` |
 > | DEL-07-03-R-006 | The support/restraint editor implemented by DEL-07-02 shall surface fields needed to represent support/restraint behavior and shall not hide nonlinear active-state uncertainty or non-convergence findings; DEL-07-09 records its R-006 coverage. | `docs/SPEC.md` sections 3, 4.4, and 7 |
 > | DEL-07-03-R-007 | The rule-pack reference editor shall expose rule-pack identity, version, checksum, source notice, redistribution status, required inputs, and missing required-input findings. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` `OPS-K-RULE-1`, `OPS-K-RULE-2`, `OPS-K-RULE-3` |
 > | DEL-07-03-R-008 | Editor mutations shall be modeled as application-service command interactions, not direct bypasses of domain validation, unit checks, provenance checks, or public/private data boundaries. | `docs/SPEC.md` section 1; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-02`, `AB-00-03`, `AB-00-07` |
-> | DEL-07-03-R-009 | Editor state shall separate durable project/model data from transient session, selection, validation, and job-progress state; resolve the implementation choice through the current desktop manifest and consumer under DEC-012. | `_CONTEXT.md` "Still TBD"; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
+> | DEL-07-03-R-009 | Editor state shall separate durable project/model data from transient session, selection, validation, and job-progress state; resolve the implementation choice through the current desktop manifest and consumer under DEC-012. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) "Still TBD"; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
 > | DEL-07-03-R-010 | Editor validation shall surface missing data early using diagnostic/result-envelope warning classes and shall not silently introduce engineering defaults. | `docs/SPEC.md` section 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/CONTRACT.md` `OPS-K-DATA-2` |
 > | DEL-07-03-R-011 | Private material, component, project, and rule-pack data shall remain local/user-controlled by default and shall not be committed or transmitted publicly by this deliverable. | `docs/CONTRACT.md` `OPS-K-PRIV-1`; `docs/DIRECTIVE.md` sections 3 and 6 |
 > | DEL-07-03-R-012 | UI wording and output states shall distinguish editable user data, mechanics solve readiness, user-rule-check readiness, and human professional review without implying code compliance. | `docs/TYPES.md` section 4; `docs/DIRECTIVE.md` section 2.2; `docs/CONTRACT.md` `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
-> | DEL-07-03-R-013 | The future implementation brief shall split this deliverable or request human approval if the editor scope becomes too broad for one bounded GUI slice. | `_CONTEXT.md` "Context Budget QA"; `docs/_Registers/ContextBudgetQA.csv` row `DEL-07-03` |
+> | DEL-07-03-R-013 | The future implementation brief shall split this deliverable or request human approval if the editor scope becomes too broad for one bounded GUI slice. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) "Context Budget QA"; `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row `DEL-07-03` |
 >
 
 ### CLM-013 — Standards
@@ -253,9 +253,11 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 
 > ##### D-41 R5 T5 PDU-041 documented absence
 >
-> The DEL-07-03 implementation still accepts only material, component, and
-> rule-pack-reference editor kinds. Load-case and support editor requests remain
-> blocking unsupported kinds in this owner. Adjacent desktop authoring under
+> The reference module `core/gui/editors/engine.py` still accepts only material,
+> component, and rule-pack-reference editor kinds and blocks load-case and
+> support requests. The desktop ships load-case editing in
+> `apps/desktop/src/features/load-cases/`; this does not by itself close
+> `DEL-07-03-R-005` or `R-006`. Adjacent desktop authoring under
 > other GUI ownership is not reattributed here and does not close
 > `DEL-07-03-R-005` or `DEL-07-03-R-006`.
 

@@ -18,7 +18,7 @@ fn close(label: &str, actual: f64, expected: f64) {
         "{label}: actual={actual:.12}, expected={expected:.12}");
 }
 fn model() -> Value {
-    json!({"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
+    json!({"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:invented-self-weight","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"degC","stress":"Pa"}},
         "analysis_status":{"mechanics":"draft","rule_check":"not_run","professional_acceptance":"not_assessed"},
         "nodes":[{"id":"node:root","label":"Root","position":{"x":0,"y":0,"z":0},"provenance":"invented"},

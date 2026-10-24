@@ -1,5 +1,5 @@
 {
- "description": "Shared adversarial cases for the current pressure-source-1 reader on load/reference-state publications (Rust result_export tests/load_reference_source_contract.rs; the Python verifier and the base-reader corpus read the same file). B7b re-authored the retired load-reference-source-1 cases as v3 twins over the current 0.6.0/3.0.0/exact_pressure_v3 producer fixtures under fixtures/product_preview/pressure_source/ (physical values unchanged). 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source); an accepted case selects 'accept_contract' (default pressure-source-1). 'joined' is the current pressure-source reader (Rust physics_source::validate without an invocation) called directly and defaults to 'dispatch'; it is the one reader of both source families, so the retired physics-source-1 'ps' readings are folded into it. 'lr' (validate_pressure_evidence, the pressure-2 reader) is checked where present. A relabel between the retired joined and ordinary identities became the relabel between pressure-source-1 and pressure-2 (with the coherent profile exact_pressure_v3 where the case set the target's own profile); a relabel to physics-1 or physics-source-1 keeps that retired identity, refused by name (SOURCE_EXACT_PRESSURE_V2_RETIRED); a retired profile or policy string is a value no current identity carries. Keys suffixed _rust or _python replace a shared value where the languages cannot agree, with a note. Ops are those of load_reference_mutations.json plus 'reseal': in order it recomputes each case's physical_evidence_sha256 ('joined' over {exact_case, pressure, load_reference_state} with domain pressure_source_case_evidence_v1, the record being the one whose load_case_id is the exact case's, as the reader binds it; 'joined_without_record' over {exact_case, pressure} with the same domain; 'physics' over {exact_case, pressure} with the retired domain physics_source_case_evidence_v1; null to keep), then the publication_sha256, then the receipt_sha256, so that a check after the receipt can be reached. Transport cases run the pressure-source transport check (physics_source::validate_transport_metadata) on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence, source_block_recovery, carrier_evidence}. Table cases run verify_pressure_source_table on the pinned pressure-source-1 table bytes (or on 'file').",
+ "description": "Shared adversarial cases for the current pressure-source-1 reader on load/reference-state publications (Rust result_export tests/load_reference_source_contract.rs; the Python verifier and the base-reader corpus read the same file). B7b re-authored the retired load-reference-source-1 cases as v3 twins over the current 0.7.0/3.0.0/exact_pressure_v3 producer fixtures under fixtures/product_preview/pressure_source/ (physical values unchanged). 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source); an accepted case selects 'accept_contract' (default pressure-source-1). 'joined' is the current pressure-source reader (Rust physics_source::validate without an invocation) called directly and defaults to 'dispatch'; it is the one reader of both source families, so the retired physics-source-1 'ps' readings are folded into it. 'lr' (validate_pressure_evidence, the pressure-2 reader) is checked where present. A relabel between the retired joined and ordinary identities became the relabel between pressure-source-1 and pressure-2 (with the coherent profile exact_pressure_v3 where the case set the target's own profile); a relabel to physics-1 or physics-source-1 keeps that retired identity, refused by name (SOURCE_EXACT_PRESSURE_V2_RETIRED); a retired profile or policy string is a value no current identity carries. Keys suffixed _rust or _python replace a shared value where the languages cannot agree, with a note. Ops are those of load_reference_mutations.json plus 'reseal': in order it recomputes each case's physical_evidence_sha256 ('joined' over {exact_case, pressure, load_reference_state} with domain pressure_source_case_evidence_v1, the record being the one whose load_case_id is the exact case's, as the reader binds it; 'joined_without_record' over {exact_case, pressure} with the same domain; 'physics' over {exact_case, pressure} with the retired domain physics_source_case_evidence_v1; null to keep), then the publication_sha256, then the receipt_sha256, so that a check after the receipt can be reached. Transport cases run the pressure-source transport check (physics_source::validate_transport_metadata) on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence, source_block_recovery, carrier_evidence}. Table cases run verify_pressure_source_table on the pinned pressure-source-1 table bytes (or on 'file').",
  "sources": {
   "n05-sparse": "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json",
   "n05-dense": "fixtures/product_preview/pressure_source/load_reference_source/n05-dense_scrutiny.raw.json",
@@ -323,7 +323,7 @@
      "value": "exact_straight_pressure_v2"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
    "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
@@ -352,7 +352,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
    "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
@@ -365,7 +365,7 @@
      "value": "openpipestress.result_semantics/0.3.0/physics-source-1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
    "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {

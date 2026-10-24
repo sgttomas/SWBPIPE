@@ -122,7 +122,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-04-03-R01 | The support model shall cover the SOW-011 families: anchors, guides, line stops, vertical supports, springs, and imposed displacement boundary data. | `docs/_Registers/ScopeLedger.csv` row SOW-011 |
+> | DEL-04-03-R01 | The support model shall cover the SOW-011 families: anchors, guides, line stops, vertical supports, springs, and imposed displacement boundary data. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-011 |
 > | DEL-04-03-R02 | Linear support data shall be expressible against the 3D centerline/frame model and the six node degrees of freedom through the frame-kernel `FrameDof` boundary. | `docs/CONTRACT.md` OPS-K-MECH-1; `docs/SPEC.md` section 4.1; `core/solver/linear_supports/src/lib.rs` |
 > | DEL-04-03-R03 | The support model shall keep mechanics solving separate from user-rule evaluation and human professional compliance judgment. | `docs/CONTRACT.md` OPS-K-MECH-2 |
 > | DEL-04-03-R04 | Support stiffnesses, imposed displacements, rotations, and related numerical data shall retain unit intent through `SupportQuantity`; caller-supplied unit metadata shall match the support quantity dimension. | `docs/CONTRACT.md` OPS-K-UNIT-1; `core/solver/linear_supports/src/lib.rs` |
@@ -131,7 +131,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > | DEL-04-03-R07 | Support findings shall remain explicit at the crate boundary; mapping those findings into final AB-00-06 result-envelope fields remains downstream integration work. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 |
 > | DEL-04-03-R08 | The support model shall preserve module boundaries and inward dependencies toward domain contracts; adapters/plugins must not bypass validation, diagnostics, or governance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02 |
 > | DEL-04-03-R09 | Solver-facing support changes shall be covered by deterministic verification tests before release use. | `docs/CONTRACT.md` OPS-K-SOLVER-1; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-08 |
-> | DEL-04-03-R10 | Unknown support coordinate policy, sparse solver integration points, final result-envelope integration, and release-readiness criteria shall remain `TBD` until resolved by a governed brief or human decision. | `docs/CONTRACT.md` OPS-K-AGENT-1; `_CONTEXT.md` Still TBD |
+> | DEL-04-03-R10 | Unknown support coordinate policy, sparse solver integration points, final result-envelope integration, and release-readiness criteria shall remain `TBD` until resolved by a governed brief or human decision. | `docs/CONTRACT.md` OPS-K-AGENT-1; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Still TBD |
 > | DEL-04-03-R11 | Documentation shall not imply nonlinear support behavior, a penalty method, sparse solver integration, release approval, professional approval, or code-compliance acceptance (PRD §21.2). | Human hard stop; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01 |
 > | DEL-04-03-R12 | Boundary preparation and application shall use `prepare_boundary` and `apply_linear_supports` as the current implemented surfaces for dense-system support handling. | `core/solver/linear_supports/src/lib.rs`; `core/solver/linear_supports/README.md` |
 >

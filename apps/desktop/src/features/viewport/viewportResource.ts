@@ -434,6 +434,32 @@ export function applyVisibilityPresentation(
   applyViewportDimming(roots, hiddenKeys, dimmedKeys);
 }
 
+/**
+ * A per-element result colour (design system 6.7), stated for both themes so a theme change
+ * repaints it without deriving it again. Keyed by the element's entity key.
+ */
+export type ResultColourTable = ReadonlyMap<EntityKey, Readonly<Record<ViewportThemePresentation, number>>>;
+
+/** The palette roles result colour is drawn on: the tube (design system 6.7). */
+const RESULT_COLOUR_ROLES: ReadonlySet<ViewportPaletteRole> = new Set<ViewportPaletteRole>(["pipe"]);
+
+/**
+ * Gives every instanced tube under the roots the result colour table, or takes it away (null),
+ * and repaints their instances in place: an instance whose element is in the table takes its
+ * colour, every other instance its role colour. Display only: nothing is created or disposed, and
+ * no other mesh is touched. A dimmed batch is a child of its tube and is reached by the same walk.
+ */
+export function applyResultColourPresentation(roots: readonly THREE.Object3D[], table: ResultColourTable | null): void {
+  for (const root of roots) {
+    root.traverse((object) => {
+      if (!(object instanceof THREE.InstancedMesh) || !RESULT_COLOUR_ROLES.has(object.userData.viewportPaletteRole)) return;
+      if (table) object.userData.viewportResultColours = table;
+      else delete object.userData.viewportResultColours;
+      if (Array.isArray(object.userData.instanceEntityKeys)) paintInstancedBase(object);
+    });
+  }
+}
+
 export type ViewportResourceOptions = {
   onContextStatus?: (status: ViewportContextStatus) => void;
   onAfterMainFrame?: (
@@ -484,6 +510,7 @@ export class ViewportResource {
   private gridVisible = true;
   private authoredLoadsVisible = true;
   private actualOdRadiusByPipe: ReadonlyMap<EntityKey, number> = new Map();
+  private resultColours: ResultColourTable | null = null;
   private renderOrigin: Readonly<Vec3> = Object.freeze({ x: 0, y: 0, z: 0 });
   private labelUpdater: (() => void) | null = null;
   private disposed = false;
@@ -657,6 +684,19 @@ export class ViewportResource {
     this.labelUpdater = updater;
   }
 
+  /**
+   * Result colour on the model's tubes (design system 6.7), or none. Kept, so a rebuilt model
+   * layer takes it again. Display only: instance colours are rewritten in place, once per call,
+   * and nothing is created, disposed or done per frame.
+   */
+  setResultColourPresentation(table: ResultColourTable | null): void {
+    if (table === this.resultColours) return;
+    this.resultColours = table;
+    // A dimmed batch keeps its own instance order, and is painted by its own keys.
+    applyResultColourPresentation([this.modelLayer], table);
+    this.invalidate();
+  }
+
   setSelectionPresentation(selectedKeys: readonly EntityKey[]): void {
     this.selectedKeys = new Set(selectedKeys);
     applySelectionPresentation(
@@ -735,6 +775,7 @@ export class ViewportResource {
     if (objects.length > 0) layer.add(...objects);
     prepareViewportDimming(objects);
     this.ownership.createObjects(objects);
+    if (layer === this.modelLayer) applyResultColourPresentation(objects, this.resultColours);
     applyThemePresentation(this.scene, this.themePresentation);
     // The incoming objects were built without a theme; paint them for the current one so a
     // rebuilt layer is right without a theme change.
@@ -1142,11 +1183,19 @@ function objectMaterials(object: THREE.Object3D): THREE.Material[] {
   return Array.isArray(material) ? material : material ? [material] : [];
 }
 
-/** Every instance at its mesh's base colour. Selection does not enter: it is a halo. */
+/**
+ * Every instance at its mesh's base colour, or at its result colour where the mesh carries a
+ * result colour table for that instance's element. Selection does not enter: it is a halo.
+ */
 function paintInstancedBase(mesh: THREE.InstancedMesh): void {
   const keys = mesh.userData.instanceEntityKeys as readonly EntityKey[];
   const base = scratchBaseColor.setHex(mesh.userData.viewportBaseColor as number);
-  for (let index = 0; index < keys.length; index += 1) mesh.setColorAt(index, base);
+  const table = mesh.userData.viewportResultColours as ResultColourTable | undefined;
+  const theme = (mesh.userData.viewportPaintedTheme as ViewportThemePresentation | undefined) ?? DEFAULT_VIEWPORT_PALETTE_THEME;
+  for (let index = 0; index < keys.length; index += 1) {
+    const result = table?.get(keys[index]);
+    mesh.setColorAt(index, result ? scratchSecondColor.setHex(result[theme]) : base);
+  }
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 }
 
@@ -1170,8 +1219,14 @@ function paintObjectForTheme(object: THREE.Object3D, theme: ViewportThemePresent
   const hex = viewportRoleHex(theme, role);
   if (object instanceof THREE.InstancedMesh) {
     object.userData.viewportBaseColor = hex;
+    object.userData.viewportPaintedTheme = theme;
     const base = scratchBaseColor.setHex(hex);
-    for (let index = 0; index < object.count; index += 1) object.setColorAt(index, base);
+    const table = object.userData.viewportResultColours as ResultColourTable | undefined;
+    const keys = object.userData.instanceEntityKeys as readonly EntityKey[] | undefined;
+    for (let index = 0; index < object.count; index += 1) {
+      const result = table && keys ? table.get(keys[index]) : undefined;
+      object.setColorAt(index, result ? scratchSecondColor.setHex(result[theme]) : base);
+    }
     if (object.instanceColor) object.instanceColor.needsUpdate = true;
     return;
   }

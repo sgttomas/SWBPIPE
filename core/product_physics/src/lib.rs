@@ -19,6 +19,8 @@ pub use case_state::input::{
 pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID};
 mod model_format;
 mod model_fields;
+pub mod model_settings;
+pub use model_settings::{ModelSettingError, ModelSettings, DEFAULT_NODE_PROXIMITY_TOLERANCE_M};
 pub use model_format::{
     carries_load_reference_state, is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
     MODEL_SCHEMA_VERSION_RETIRED, RETIRED_MODEL_SCHEMA_VERSIONS,
@@ -131,6 +133,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64::consts::PI;
 
+mod topology;
 mod validation;
 use validation::validate_model_inputs;
 
@@ -223,6 +226,8 @@ pub struct PreviewModel {
     pub combinations: Vec<PreviewCombination>,
     /// Optional connected load/reference-state group on the current exact document.
     pub reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    /// Optional model-level settings (`model_settings`, W-13 Design §3.8); absent means the defaults.
+    pub model_settings: Option<ModelSettings>,
     /// Material-owned `expansion_laws`, parallel to `materials` by index. The
     /// authored key lives on each material record; `MaterialInput` is unchanged.
     pub material_expansion_laws: Vec<Authored<Vec<ExpansionLawInput>>>,
@@ -248,8 +253,10 @@ struct MaterialRecordWire<L> {
 /// `expansion_laws`, so the new key is never silently discarded.
 ///
 /// Closed record (`model_fields`): an undeclared key refuses by name instead of
-/// being dropped. `data_boundary` and `diagnostics` are declared document
-/// members the solve never reads (accepted and ignored).
+/// being dropped. `data_boundary` and `diagnostics`, and model document 0.7.0's
+/// `lines`, `unresolved_assumptions`, `constraints`, `equipment_interfaces` and
+/// `rule_pack_refs`, are declared document members the solve never reads
+/// (accepted and ignored).
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PreviewModelWire {
@@ -277,12 +284,29 @@ struct PreviewModelWire {
     combinations: Vec<PreviewCombination>,
     #[serde(default)]
     reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    #[serde(default, deserialize_with = "deserialize_present_object")]
+    model_settings: Option<ModelSettings>,
     #[serde(default)]
     #[allow(dead_code)]
     data_boundary: serde::de::IgnoredAny,
     #[serde(default)]
     #[allow(dead_code)]
     diagnostics: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    lines: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    unresolved_assumptions: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    constraints: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    equipment_interfaces: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    rule_pack_refs: serde::de::IgnoredAny,
 }
 
 impl<'de> Deserialize<'de> for PreviewModel {
@@ -315,6 +339,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             load_cases: wire.load_cases,
             combinations: wire.combinations,
             reference_configurations: wire.reference_configurations,
+            model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
         })
@@ -664,8 +689,9 @@ pub struct FrictionNormalReactionSourceInput {
     pub dof: String,
 }
 
-/// Closed record (`model_fields`). `kind`, `label` and `status` are declared
-/// document members the solve never reads (accepted and ignored).
+/// Closed record (`model_fields`). `kind`, `label` and `status`, and model
+/// document 0.7.0's `tags` and `notes`, are declared document members the solve
+/// never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewLoadCase {
@@ -706,6 +732,10 @@ pub struct PreviewLoadCase {
     pub label: serde::de::IgnoredAny,
     #[serde(default)]
     pub status: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -772,7 +802,8 @@ pub struct WindExposedSpanInput {
     pub end_fraction: Option<Quantity>,
 }
 
-/// Closed record (`model_fields`).
+/// Closed record (`model_fields`). Model document 0.7.0's `tags` and `notes`
+/// are declared document members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewCombination {
@@ -796,6 +827,10 @@ pub struct PreviewCombination {
     pub mode: Option<String>,
     #[serde(default)]
     pub provenance: Option<String>,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
 /// Closed record (`model_fields`).
@@ -2752,6 +2787,7 @@ fn run_linear_static_preview_observed_inner(
             return blocked_envelope(model, diagnostics);
         }
         case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
+        case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);
         if has_blocking(&diagnostics) {
             return blocked_envelope(model, diagnostics);
         }
@@ -2770,6 +2806,7 @@ fn run_linear_static_preview_observed_inner(
     }
     let built = built.expect("build_model returns Some when no blocking diagnostics were added");
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
     let potential_contact_dofs = eligible_contact_dofs(
@@ -3211,7 +3248,7 @@ fn run_linear_static_preview_observed_inner(
     };
     if let Some(rendered) = &preview {
         envelope.formulation_basis = preview_physics::formulation_basis();
-        envelope.contract_evidence = Some(rendered.evidence(preview_gates));
+        validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
     if let (true, Some(context)) = (source_selected, composite_context) {
@@ -14796,7 +14833,7 @@ mod tests {
         const CONTROL:&str=include_str!("../../../validation/references/kd5_member_bound/two_body_request.json");
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/two_body_oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap());
-        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.6.0.
+        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.7.0.
         let wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
         let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         normalize_model_units(&mut model,&mut materials,&mut diagnostics);
@@ -15017,7 +15054,7 @@ mod tests {
     fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
         use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
         // B7b: the load/reference-state group keys on the current exact contract and
-        // the group's presence (0.6.0), never on a version string.
+        // the group's presence (0.7.0), never on a version string.
         let mut model=p5_beam_request().model;model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
         model.pressure_contract=Some(PressureContractInput {version:Some("3.0.0".into()),mode:Some("exact_pressure_v3".into()),shear_model:Some("euler_bernoulli".into())});
         let case_id=model.load_cases[0].id.clone();
@@ -15081,7 +15118,7 @@ mod tests {
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap(),"the independent oracle binds the complete maintained control bytes");
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.6.0.
+            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.7.0.
             let mut wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
             let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();
             let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
@@ -17432,6 +17469,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_no_code_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         }];
         request
     }
@@ -21496,6 +21535,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         });
         request.model.combinations.push(PreviewCombination {
             id: "combination:C-OWNER".to_string(),
@@ -21507,6 +21548,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         });
 
         let result = run_linear_static_preview(request);
@@ -21538,6 +21581,8 @@ mod tests {
             provenance: Some(
                 "invented_example_user_defined_subtraction_no_code_default".to_string(),
             ),
+            tags: Default::default(),
+            notes: Default::default(),
         }
     }
 
@@ -21554,6 +21599,8 @@ mod tests {
             provenance: Some(
                 "invented_example_user_defined_range_envelope_no_code_default".to_string(),
             ),
+            tags: Default::default(),
+            notes: Default::default(),
         }
     }
 
@@ -24167,7 +24214,7 @@ mod tests {
             .solver_consumption = Some("mechanics_geometry_only".to_string());
         for model in [&realized, &geometry_only] {
             assert_eq!(warnings(model), Vec::<String>::new(), "D-B");
-            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0"] {
+            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0"] {
                 let mut declared = model.clone();
                 v2(&mut declared, schema);
                 assert_eq!(warnings(&declared), Vec::<String>::new(), "no v2 condition at {schema}");

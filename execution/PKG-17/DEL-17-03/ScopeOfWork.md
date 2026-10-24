@@ -41,7 +41,7 @@ This Scope of Work defines `DEL-17-03` in service of project scope [SOW-030, SOW
 >
 > DEL-17-03 defines the native open JSON export package as the project-owned debug, interchange, archival, adapter-input, manifest, ID-map, and validation-report package target.
 >
-> This deliverable owns the bounded native JSON package foundation: schema contract, deterministic package builder/writer helper, invented public fixture, and focused tests. It does not implement public API, GUI action, persistence runtime, project-store export flow, downstream target adapter behavior, target compatibility, release claims, code-compliance claims, or professional-reliance claims.
+> This deliverable owns the bounded native JSON package foundation: schema contract, deterministic package builder/writer helper, invented public fixture, and focused tests. The Python foundation does not implement public API, persistence runtime, project-store export flow, downstream target adapter behavior, target compatibility, release claims, code-compliance claims, or professional-reliance claims; the desktop GUI action is `NativePackagePanel.tsx`, a separate TypeScript preview builder.
 >
 > Current implementation (at `62c1efd75b`): a desktop export action exists outside this module. The Exports section renders `apps/desktop/src/features/native-package/NativePackagePanel.tsx`, which builds a native JSON package review document in TypeScript (`buildNativePackageReview`, `document_kind: openpipestress.technical_preview.native_json_package_review`) with a member inventory whose manifest and several member hashes are `TBD_*` placeholders. It does not call `core/handoff/native_json/package.py` and is not validated against `schemas/native_json_export.schema.json`.
 >

@@ -18,6 +18,10 @@ export type WasmOperationEngine = {
   validateOperationBatchJson: (modelJson: string, batchJson: string, claimedModelHashJson: string) => string;
   applyOperationBatchJson: (modelJson: string, batchJson: string, claimedModelHashJson: string) => string;
   convertDisplayQuantitiesJson: (inputJson: string) => string;
+  // W-13 §5.3: the one model-document validator (model-data slots). JSON text
+  // in; `{document_kind, blocking, diagnostics}` out, or the input-error
+  // envelope when the text is not JSON.
+  validateModelDocumentJson: (modelJson: string) => string;
   // H1 / F-5a hash seam: the engine's canonicalization and hashing, exported
   // so the frontend never re-implements either. Both throw on invalid JSON
   // input (WASM-ENGINE-INPUT-JSON-INVALID).
@@ -45,6 +49,10 @@ export type WasmOperationEngine = {
   // Presentation only; never read by admission or standing. Throws only on input
   // that is not JSON; the desktop then shows no indicator (fail closed).
   numericalHealthJson: (sourceJson: string, readerFindingsJson?: string) => string;
+  // W-17 §2.3a: the shear modulus a library insert derives from E and ν, bit
+  // for bit the exact route's (`derived_shear_modulus_pa`): `{value, unit:"Pa"}`
+  // or `{error}`.
+  derivedShearModulusJson: (elasticModulus: number, unit: string, poissonRatio: number) => string;
 };
 
 type GeneratedGlueModule = {
@@ -54,6 +62,8 @@ type GeneratedGlueModule = {
   validate_operation_batch_json: WasmOperationEngine["validateOperationBatchJson"];
   apply_operation_batch_json: WasmOperationEngine["applyOperationBatchJson"];
   convert_display_quantities_json: WasmOperationEngine["convertDisplayQuantitiesJson"];
+  validate_model_document_json: WasmOperationEngine["validateModelDocumentJson"];
+  derived_shear_modulus_json: WasmOperationEngine["derivedShearModulusJson"];
   canonical_json_string: (valueJson: string) => string;
   canonical_sha256_hex: (valueJson: string) => string;
   canonical_json_checked_v1: (valueJson: string) => string;
@@ -170,7 +180,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     }
   }
 
-  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "retained_precision_semantics_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json", "numerical_health_json"] as const) {
+  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "validate_model_document_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "retained_precision_semantics_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json", "numerical_health_json"] as const) {
     if (typeof glue[name] !== "function") throw absenceError("required export missing", name);
   }
   return {
@@ -179,6 +189,8 @@ async function instantiate(): Promise<WasmOperationEngine> {
     validateOperationBatchJson: glue.validate_operation_batch_json,
     applyOperationBatchJson: glue.apply_operation_batch_json,
     convertDisplayQuantitiesJson: glue.convert_display_quantities_json,
+    validateModelDocumentJson: glue.validate_model_document_json,
+    derivedShearModulusJson: glue.derived_shear_modulus_json,
     canonicalJsonString: glue.canonical_json_string,
     canonicalSha256Hex: glue.canonical_sha256_hex,
     canonicalJsonCheckedV1: glue.canonical_json_checked_v1,

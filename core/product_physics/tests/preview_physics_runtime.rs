@@ -66,7 +66,7 @@ fn vec3(v: &Value) -> Vec<f64> {
 
 // ------------------------------------------------------------------ model builders
 fn base(nodes: Value, pipes: Value, supports: Value, components: Value, cases: Value, combinations: Value) -> Value {
-    json!({"model":{"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
+    json!({"model":{"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:t0r","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":nodes,"pipe_segments":pipes,"supports":supports,"components":components,

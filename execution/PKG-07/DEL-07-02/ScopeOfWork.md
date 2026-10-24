@@ -66,8 +66,8 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 >
 > | Condition | Status |
 > |---|---|
-> | Tree hierarchy and grouping rules | Bounded implementation exists from accepted model identities; broader canvas gestures and full model-tree UX remain residual. |
-> | Property editor field inventory | Bounded implementation preserves governed unit-bearing fields and metadata; model-level `modulus_basis_records` entry and broader editor coverage remain residual. |
+> | Tree hierarchy and grouping rules | Bounded implementation exists from accepted model identities; the Lines section groups selected pipes into typed lines (W-13 S2a, `apps/desktop/src/features/model-data/LinesSection.tsx`); broader canvas gestures and full model-tree UX remain residual. |
+> | Property editor field inventory | Bounded implementation preserves governed unit-bearing fields and metadata; tags and notes for the selected entity and the project, and provenance records on materials, sections, components and supports, are edited through structured operations (W-13 S2a, `apps/desktop/src/features/model-data/ModelDataAnnotations.tsx`); model-level `modulus_basis_records` entry and broader editor coverage remain residual. |
 > | Selection synchronization contract | Bounded tree/viewport/inspector selection is implemented within the `DEL-00-05` state/interaction architecture; transient state is not durable model truth. |
 > | Command/query contract | Current structured mutations route through the application-service operation seam; broader contract coverage remains governed residual work. |
 > | UI tests | Focused evidence covers bounded tree, selection, and inspector behavior; backfill and factoring for `PropertyInspector` and adjacent surfaces remain residual. |

@@ -11,6 +11,7 @@ import { loadBundledMechanicsReference, loadPreviewModel } from "./services/prev
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
 import type { LocalProjectEnvelope, PreviewModel } from "./types";
+import { confirmProjectUnits } from "./test-support/workspaceTestControls";
 
 // Slice B3: the shell through the product. The rules themselves are unit-tested
 // in features/workspace/shellLayout.test.ts; these tests hold that the shell's
@@ -310,6 +311,7 @@ describe("the status chip policy through the product (§5.4)", () => {
     fireEvent.click(screen.getByTestId("menu-file"));
     invokeMock.mockReset();
     fireEvent.click(screen.getByTestId("menu-item-file.new-blank"));
+    confirmProjectUnits();
     await waitFor(() => expect(chipFaces()).toEqual(["Solver · Model incomplete"]));
     expect(railState("results")).toMatchObject({ disabled: true, reason: "No run yet", caption: null });
   });
@@ -731,6 +733,7 @@ describe("New Blank starts a fresh shell context", () => {
     const preferences = window.localStorage.getItem("chirality.desktop.ui-preferences.v1");
     expect(preferences).not.toBeNull();
     act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
     await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent("Blank Local Model"));
     expect(workspace).toHaveAttribute("data-stage", "model");
     expect(workspace).toHaveAttribute("data-view", "both");
@@ -748,6 +751,7 @@ describe("New Blank starts a fresh shell context", () => {
     expect(workspace).toHaveAttribute("data-stage", "results");
     setTauriRuntime(false);
     act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
     await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent("Blank Local Model"));
     expect(workspace).toHaveAttribute("data-stage", "model");
     expect(workspace).toHaveAttribute("data-view", "both");
@@ -766,6 +770,7 @@ describe("New Blank starts a fresh shell context", () => {
     invokeMock.mockImplementation((command: string) => command === "create_local_project"
       ? Promise.reject(new Error("Invented blank create failure")) : Promise.resolve(null));
     act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Blank create failed: Error: Invented blank create failure"));
     expect(workspace).toHaveAttribute("data-stage", "loads");
     expect(workspace).toHaveAttribute("data-view", "table");
@@ -793,6 +798,7 @@ describe("New Blank starts a fresh shell context", () => {
       return Promise.resolve(null);
     });
     act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
     await waitFor(() => expect(completeCreate).toBeDefined());
     act(() => nativeMenuCommand("file.open-local"));
     expect(invokeMock.mock.calls.some(([command]) => command === "open_local_project")).toBe(false);

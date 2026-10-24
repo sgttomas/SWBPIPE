@@ -155,7 +155,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | REQ-11-03-01 | The theory note shall explain centerline analysis as an educational mechanics concept and shall not assert code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `AGENTS.md` |
 > | REQ-11-03-02 | The theory note shall distinguish mechanics solving from user-supplied rule checks and human professional acceptance. | `docs/CONTRACT.md` `OPS-K-MECH-2`, `OPS-K-DATA-1`; `AGENTS.md` |
 > | REQ-11-03-03 | The theory note shall frame routine global piping analysis as a 3D centerline/frame model and distinguish local shell/solid FEA as a handoff path. | `docs/CONTRACT.md` `OPS-K-MECH-1`; `AGENTS.md` |
-> | REQ-11-03-04 | The theory note shall use only public/permissive sources for historical and mechanics claims and shall cite source provenance. | `_CONTEXT.md`; `docs/CONTRACT.md` `OPS-K-IP-2` |
+> | REQ-11-03-04 | The theory note shall use only public/permissive sources for historical and mechanics claims and shall cite source provenance. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/CONTRACT.md` `OPS-K-IP-2` |
 > | REQ-11-03-05 | The theory note shall not copy or paraphrase protected standards text, examples, figures, tables, code-specific formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-IP-3` |
 > | REQ-11-03-06 | Any technical quantities, units, or dimensional reasoning introduced later shall be unit-aware and shall not rely on silent defaults. | `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-2` |
 > | REQ-11-03-07 | Missing source support, exact source sections, and unresolved historical claims shall be marked `TBD` rather than invented. | `docs/CONTRACT.md` `OPS-K-AGENT-1`, `OPS-K-AGENT-2` |
@@ -231,7 +231,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | Source inventory control | Content review | Candidate sources carry the minimum provenance fields and a status of `ACCEPTED`, `REJECTED`, `QUARANTINED`, or `TBD`; only accepted public/permissive sources support final claims |
 > | Semantic setup | Artifact review | `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and P3 run record exist and preserve lens-not-authority language |
 > | Dependency setup | Tool validation | `Dependencies.csv` passes v3.1 schema validation and `_DEPENDENCIES.md` counts match |
-> | Lifecycle gate | `_STATUS.md` review | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
+> | Lifecycle gate | `_STATUS.md` review | Use the current lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 > Final theory-note coverage checklist for future production:
 >

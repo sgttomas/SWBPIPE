@@ -74,8 +74,8 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > |---|---|
 > | Public repository boundary | Public artifacts may describe schemas, sandbox behavior, invented examples, and tests. They must not embed protected standards text, tables, proprietary formulas, material allowables, SIF/flexibility tables, or owner design-basis content. |
 > | User-owned rule basis | User rule packs may contain private or licensed formulas and values in user-controlled paths. Public deliverables only define the safe evaluation boundary. |
-> | Determinism | Future implementation must produce repeatable results and diagnostics for the same inputs, units, evaluator version, and rule-pack content. Exact numerical tolerances remain TBD. |
-> | Diagnostics | Future outputs should use result-envelope diagnostics with code, class, severity, source, affected object, message, remediation, and provenance where applicable. |
+> | Determinism | The implementation must produce repeatable results and diagnostics for the same inputs, units, evaluator version, and rule-pack content. Exact numerical tolerances remain TBD. |
+> | Diagnostics | Evaluator outputs should reach result-envelope diagnostics with code, class, severity, source, affected object, message, remediation, and provenance where applicable. The evaluator emits `EvaluationFinding` (code, subject, message), which `core/rules/rule_check_runner` carries as `RunFinding` with a severity; the remaining fields are not yet carried. |
 > | Plugin and adapter boundary | Adapters and plugins must not bypass sandboxing, unit validation, provenance checks, diagnostics, or public/private data controls. |
 >
 
@@ -94,6 +94,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > - `core/rules/expression_evaluator/` - current evaluator source and contract.
 > - Evaluator crate tests and golden conformance corpus - candidate-bound verification evidence.
+> - `Design/rule-pack-unit-check.md` (W-17): expression units are also checked statically when a pack is validated (`unit_check` in the validation response); units of solver results and entered values are still checked when the check runs.
 >
 
 ### CLM-008 — References
@@ -202,7 +203,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > Required setup artifacts are `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`.
 >
-> Future implementation documentation should add the selected grammar/library decision record, evaluator threat model, unit-binding contract, diagnostic taxonomy, and test evidence. Those artifacts are outside this setup session.
+> Grammar and text-syntax decisions are D-02/`DEC-022` and D-02b/`DEC-037` in `execution/_Coordination/_DECISIONS/`. STM-007 in `docs/security/threat_model.md` supplies the project-level rule-evaluator threat entry; evaluator-specific threat documentation remains required. Unit and binding decisions are recorded in DEC-018, DEC-022, DEC-031 and CLM-015; current runtime binding and normalization are implemented in `core/rules/rule_check_runner/`. `Design/rule-pack-unit-check.md` documents validation-time unit checking and its remaining limits. Test sources are the evaluator crate tests and `fixtures/rule_expressions/conformance_corpus/`. Unresolved unit-binding contract details, the final diagnostic taxonomy (CLM-015) and applicable verification evidence remain to be added.
 
 - **AC-001** — The contract preserves the accepted no-arbitrary-code, no-side-effect, unit/provenance, protected-content, private-data, and professional-authority boundaries together with the DEC-022 grammar boundary and remaining integration obligations, without embedding proprietary rules, formulas, allowables, silent conversions, or compliance meaning.
 
@@ -272,8 +273,8 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > | Semantic artifact exists and audit states PASS | `_SEMANTIC.md#Audit-Result` |
 > | Lensing coverage exists for matrices A, B, C, F, D, X, and E | `_SEMANTIC_LENSING.md` |
 > | Dependency register is schema-valid | `python3 tools/validation/validate_dependencies_schema.py <deliverable path>/Dependencies.csv` |
-> | Status value is valid | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
-> | No ISSUED transition occurred | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
+> | Status value is valid | Preserve the lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); contract verification does not promote it. |
+> | No ISSUED transition occurred | Preserve the lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); contract verification does not promote it. |
 >
 
 ### CLM-025 — Records
@@ -351,7 +352,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > | Trade-off | Setup guidance |
 > |---|---|
 > | Expressiveness vs sandbox strength | Prefer a small declarative surface that can be validated and audited. Do not trade sandbox guarantees for convenience. |
-> | Unit richness vs implementation scope | Require dimensional checks, but leave final quantity representation and tolerance choices to the future sealed implementation brief. |
+> | Unit richness vs implementation scope | Require dimensional checks; quantity representation follows the implemented evaluator (`DEC-022`, `DEC-031`), and comparison tolerance choices remain TBD (CLM-015). |
 > | Detailed diagnostics vs protected-content leakage | Diagnostics should identify missing inputs and rule-check findings without reproducing licensed formulas or protected standards language in public artifacts. |
 > | Plugin flexibility vs governance | Plugins and adapters may provide data, but they cannot bypass validation, sandboxing, provenance, diagnostics, or public/private boundaries. |
 >
@@ -378,7 +379,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > |---|---|
 > | Unsafe expression and bypass test coverage | Added to `ScopeOfWork.md` (requirements) verification and `ScopeOfWork.md` (procedure) checks. |
 > | Diagnostic-code taxonomy | Retained as `TBD` in `ScopeOfWork.md` (requirements) open decisions. |
-> | Grammar/library decision | Retained as `TBD` and future human architecture decision. |
+> | Grammar/library decision | Ruled by `DEC-022` (frozen in-repo typed expression AST, no text parser; CLM-015); writable text syntax deferred by `DEC-037` (D-02b, Option O-C) behind a named composer-usability trigger. |
 > | Vocabulary normalization | Standardized on evaluator, expression, variable binding, rule-pack check, user-rule checked, and human review boundary. |
 > | Future interface handoff | Recorded as an implementation-stage dependency/proposal rather than a setup implementation step. |
 >

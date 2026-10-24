@@ -9,8 +9,10 @@
 //! - A `mechanics` combination naming one load case twice blocks by name
 //!   (`LOAD_COMBINATION_DUPLICATE_TERM`) instead of losing every combined row.
 //! - Controls: well-formed documents (including the declared, solve-ignored
-//!   `data_boundary`, `diagnostics` and load-case `kind`/`label`/`status`)
-//!   publish; a combination that publishes keeps its rows and diagnostics.
+//!   `data_boundary`, `diagnostics` and load-case `kind`/`label`/`status`, and
+//!   model document 0.7.0's root `lines`, `unresolved_assumptions`,
+//!   `constraints`, `equipment_interfaces` and `rule_pack_refs` and load-case and
+//!   combination `tags`/`notes`) publish; a combination that publishes keeps its rows and diagnostics.
 //!   Setting `SILENT_DROP_GUARD_DUMP=<dir>` writes the control envelopes' exact
 //!   bytes there, for a byte comparison against another tree.
 use open_pipe_stress_product_physics::{
@@ -236,6 +238,16 @@ fn well_formed_documents_with_declared_ignored_members_publish() {
         case["kind"] = json!("varied");
         case["label"] = json!("varied");
         case["status"] = json!("varied");
+        case["tags"] = json!(["varied"]);
+        case["notes"] = json!("varied");
+    }
+    // Model document 0.7.0's declared members (accepted and ignored).
+    for member in ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs"] {
+        varied[member] = json!([{"id": format!("{member}:varied")}]);
+    }
+    for combination in varied["combinations"].as_array_mut().unwrap() {
+        combination["tags"] = json!(["varied"]);
+        combination["notes"] = json!("varied");
     }
     for mode in MODES {
         let base = serde_json::to_vec(&solve(&linear(), mode).unwrap()).unwrap();

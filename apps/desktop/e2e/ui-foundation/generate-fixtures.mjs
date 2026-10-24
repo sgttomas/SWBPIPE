@@ -22,7 +22,7 @@ const BASELINE_CANVAS_CSS = [919, 628];
 //   node generate-fixtures.mjs --check [--protocol-history-dir <absolute dir>]
 //     regenerates every frozen file in memory, compares it by SHA-256 and byte count with the
 //     frozen bytes on disk, and WRITES NOTHING. This is the only mode the frozen first profile needs.
-//     Since the owner's 2026-10-22 re-pin (model document 0.6.0) it reproduces the current manifest;
+//     Since the owner's 2026-10-22 re-pin (model document 0.6.0, then 0.7.0 at W-13 S1b) it reproduces the current manifest;
 //     the first profile still binds the earlier one (REPAIR_2026-09_FIRST_PROFILE.md).
 //   node generate-fixtures.mjs [--protocol-history-dir <absolute dir>]
 //     the original writing mode. It needs the nine preserved protocol-history files, and it now
@@ -194,7 +194,7 @@ function buildModel(pipeCount) {
     };
   });
   return {
-    schema_version: "0.6.0",
+    schema_version: "0.7.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {
       public_examples_policy: "invented_generated_benchmark_data_only",

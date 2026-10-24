@@ -89,7 +89,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.6.0",
+    "schema_version": "0.7.0",
     "supports": []
   },
   "case_id": "accept-delete-pipe-run",
@@ -167,10 +167,10 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.6.0",
+      "schema_version": "0.7.0",
       "supports": []
     },
-    "applied_model_canonical_sha256": "sha256:e0c108a1b35e9969a7c96e59e49d0d8b948cbd5c59b7d91414689c97ac447730",
+    "applied_model_canonical_sha256": "sha256:10597876e878895eba3a250c9066beb99a118510a844fa43a9bfd106900eeebb",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -209,7 +209,7 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:1dbc02e53e40554ec41340ac593ac81f6fcd9d8c081b4d81092a738f3301ad20",
+        "backend_model_hash": "sha256:8112ab1f5e6116b251904341185ba0389efe4d1c2050fa0d89662ee38f3e13c4",
         "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
         "claimed_hash_canonicalization": "not_provided",
         "claimed_model_hash": "not_provided"

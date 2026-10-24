@@ -108,6 +108,16 @@ import {
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
 import { buildDeformationOverlay, buildRotationOverlay, rotationGlyphAnchors } from "./deformationOverlay";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
+import {
+  availableResultColourQuantities,
+  buildResultColourOverlay,
+  resultColourTable,
+  resultOverlayCases
+} from "./resultColourOverlay";
+import { buildReactionOverlay, type ReactionVector } from "./reactionOverlay";
+import { instancedReactionForceMeshes, instancedReactionMomentMeshes, type ReactionArrowPlacement } from "./viewportReactionArrows";
+import { ResultOverlayLegend, type OverlayFocus } from "./ResultOverlayLegend";
+import type { ResultOverlayStanding } from "../results/numericalHealth";
 import type { ViewportPaletteRole } from "./viewportPalette";
 import {
   clearUiDiagnosticsPublisher,
@@ -182,6 +192,9 @@ type Props = {
   queuedIntents?: EditorOperationIntent[];
   reservedIntents?: ReadonlyArray<unknown>;
   result?: MechanicsResult | null;
+  /** The reader's numerical standing and the session's numerical health view of `result`. The
+   * result overlays (colour, reaction arrows) draw only rows these admit; absent, they draw none. */
+  resultStanding?: ResultOverlayStanding | null;
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
   /** Presentation-only clearance below viewport furniture and the painted orientation frame. */
@@ -360,6 +373,7 @@ export function PipeViewport({
   queuedIntents = [],
   reservedIntents = [],
   result = null,
+  resultStanding = null,
   selection,
   selectionState,
   presentationBottomInsetPx = 0,
@@ -445,6 +459,11 @@ export function PipeViewport({
   const [showLabels, setShowLabels] = useState(true);
   const [showLoads, setShowLoads] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
+  // Result overlays (OD-5): session view state, off by default, never persisted, as the toggles above.
+  const [resultColourOn, setResultColourOn] = useState(false);
+  const [reactionsOn, setReactionsOn] = useState(false);
+  const [overlayQuantityId, setOverlayQuantityId] = useState<string | null>(null);
+  const [overlayCaseKey, setOverlayCaseKey] = useState<string | null>(null);
   const [boxSelectActive, setBoxSelectActive] = useState(false);
   const [boxSelectionFilter, setBoxSelectionFilter] = useState<BoxSelectionFilter>("all");
   const [boxRect, setBoxRect] = useState<{ left: number; top: number; right: number; bottom: number } | null>(null);
@@ -596,6 +615,20 @@ export function PipeViewport({
   };
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const rotation = useMemo(() => buildRotationOverlay(model, result), [model, result]);
+  // Derived when the model, result, standing, case or quantity changes; never per frame.
+  const overlayCases = useMemo(() => resultOverlayCases(model, result), [model, result]);
+  const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result), [model, result]);
+  const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
+  const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
+  const colourOverlay = useMemo(
+    () => resultColourOn ? buildResultColourOverlay({ model, result, standing: resultStanding, quantity: overlayQuantity, overlayCase }) : null,
+    [model, overlayCase, overlayQuantity, result, resultColourOn, resultStanding]
+  );
+  const colourTable = useMemo(() => colourOverlay ? resultColourTable(model, colourOverlay) : null, [colourOverlay, model]);
+  const reactionOverlay = useMemo(
+    () => reactionsOn ? buildReactionOverlay({ model, result, standing: resultStanding, overlayCase }) : null,
+    [model, overlayCase, reactionsOn, result, resultStanding]
+  );
   const localNodeMap = useMemo(
     () => new Map(
       model.nodes
@@ -1279,9 +1312,19 @@ export function PipeViewport({
     if (rotation.state === "available") {
       resultObjects.push(...instancedRotationGlyphMeshes(rotationGlyphGroups(model, rotation, deformation, renderTransform.origin, activeModelIndex)));
     }
+    if (reactionOverlay?.state === "available") {
+      resultObjects.push(...instancedReactionForceMeshes(reactionArrowGroups(model, reactionOverlay.forces, renderTransform.origin, activeModelIndex)));
+      resultObjects.push(...instancedReactionMomentMeshes(reactionArrowGroups(model, reactionOverlay.moments, renderTransform.origin, activeModelIndex)));
+    }
     resource.replaceLayer(resource.resultLayer, resultObjects);
     applySelectionPresentation(resource, orderedSelectionKeys);
-  }, [activeModelIndex, deformation, model, renderTransform, rotation]);
+  }, [activeModelIndex, deformation, model, reactionOverlay, renderTransform, rotation]);
+
+  // Result colour on the model's tubes: one in-place repaint of instance colours per change. The
+  // resource keeps the table, so a rebuilt model layer (the effect above this one) takes it again.
+  useEffect(() => {
+    viewportResourceRef.current?.setResultColourPresentation(colourTable);
+  }, [colourTable]);
 
   useEffect(() => {
     const resource = viewportResourceRef.current;
@@ -2244,6 +2287,30 @@ export function PipeViewport({
           >
             Grid
           </button>
+          {result ? (
+            <>
+              <button
+                type="button"
+                data-testid="toggle-viewport-result-colour"
+                aria-pressed={resultColourOn}
+                className={resultColourOn ? "active" : ""}
+                onClick={() => setResultColourOn((value) => !value)}
+                title="Colour members by the magnitude of a result quantity for one case"
+              >
+                Result colour
+              </button>
+              <button
+                type="button"
+                data-testid="toggle-viewport-reactions"
+                aria-pressed={reactionsOn}
+                className={reactionsOn ? "active" : ""}
+                onClick={() => setReactionsOn((value) => !value)}
+                title="Show support reaction arrows for one case"
+              >
+                Reactions
+              </button>
+            </>
+          ) : null}
         </div>
         <div className="viewport-selection-tools" role="group" aria-label="Viewport selection tools">
           <button
@@ -2385,6 +2452,20 @@ export function PipeViewport({
             Isometric
           </button>
         </div>
+        {result && (colourOverlay || reactionOverlay) ? (
+          <ResultOverlayLegend
+            cases={overlayCases}
+            overlayCase={overlayCase}
+            onCaseChange={setOverlayCaseKey}
+            quantities={overlayQuantities}
+            quantity={overlayQuantity}
+            onQuantityChange={setOverlayQuantityId}
+            colour={colourOverlay}
+            reactions={reactionOverlay}
+            standing={resultStanding}
+            focus={overlayFocus(hoveredEntityKey, selection)}
+          />
+        ) : null}
         <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
           <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
         </div>
@@ -3877,6 +3958,32 @@ function rotationGlyphGroups(
     return [key, { ownerKey: key, anchor: authoredToLocal(glyph.anchor, origin), axis: glyph.axis, displayLength: glyph.displayLength }] as const;
   }));
   return spatialGroups(index, placements);
+}
+
+// Reaction arrow placements in render-local coordinates at each support's node, grouped by
+// spatial chunk and owned by the support. Supports or nodes with invalid geometry get none.
+function reactionArrowGroups(
+  model: PreviewModel,
+  vectors: ReadonlyMap<string, ReactionVector>,
+  origin: Readonly<Vec3>,
+  index: ModelIndex
+): ReactionArrowPlacement[][] {
+  const nodes = new Map(model.nodes.map((node) => [node.id, node.position] as const));
+  const placements = new Map<EntityKey, ReactionArrowPlacement>();
+  for (const vector of vectors.values()) {
+    const key = entityKey({ type: "support", id: vector.supportId });
+    const position = nodes.get(vector.nodeId);
+    if (!position || index.invalidGeometry.has(key) || index.invalidGeometry.has(entityKey({ type: "node", id: vector.nodeId }))) continue;
+    placements.set(key, { ownerKey: key, anchor: authoredToLocal(position, origin), direction: vector.direction, displayLength: vector.displayLength });
+  }
+  return spatialGroups(index, placements);
+}
+
+/** The element whose overlay values the legend reads out: the hovered one, else the selection. */
+function overlayFocus(hoveredKey: EntityKey | null, selection: EntityRef): OverlayFocus {
+  const hovered = hoveredKey ? entityRefFromKey(hoveredKey) : null;
+  if (hovered && (hovered.type === "pipe" || hovered.type === "support")) return { ref: hovered, source: "hover" };
+  return selection.type === "pipe" || selection.type === "support" ? { ref: selection, source: "selection" } : null;
 }
 
 function instancedDeformedPipeMesh(

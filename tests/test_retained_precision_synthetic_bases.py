@@ -44,7 +44,7 @@ def test_the_corpus_tool_subcommand_runs_the_same_check():
 
 def test_derived_rows_version_text_and_hashes_are_formed_from_each_bases_own_rows():
     """Strip every synthetic base back to its own rows (no derived rows or not_covered entries, projection
-    indices on the stripped rows, model 0.5.0, stale text and hashes); the writer restores the committed bases."""
+    indices on the stripped rows, model 0.6.0, stale text and hashes); the writer restores the committed bases."""
     storage, layout, committed = _committed()
     stripped = copy.deepcopy(committed)
     synthetic = [base for base in stripped["cases"] if base["provenance"] == writer.SYNTHETIC]
@@ -68,7 +68,7 @@ def test_derived_rows_version_text_and_hashes_are_formed_from_each_bases_own_row
                     if type(outcome.get("row_index")) is int and outcome["row_index"] < len(before[case_id]):
                         outcome["row_index"] = after[case_id].index(before[case_id][outcome["row_index"]])
         source["formulation_basis"] = {"stale": True}
-        base["invocation"]["request"]["model"]["schema_version"] = "0.5.0"
+        base["invocation"]["request"]["model"]["schema_version"] = "0.6.0"
         body["invocation"]["value"] = body["publication_sha256"] = source["retained_precision"]["receipt_sha256"] = "0" * 64
         for case in body["cases"]:
             if "source_identity_sha256" in case:

@@ -5,7 +5,7 @@ Mirrors the load/reference-state adapter: an explicitly selected foreground
 ``openpipestress-runner solve --input - --solver-mode <mode>`` process, the
 ControlledExport/CLI1.0 wrapper and a raw0.2 mechanics envelope whose producer
 is exactly ``openpipestress.result_semantics/0.3.0/pressure-2`` with profile
-``exact_pressure_v3`` on a model document 0.6.0 under the current exact contract
+``exact_pressure_v3`` on a model document 0.7.0 under the current exact contract
 (with its load/reference-state records when the document carries that group).
 B7b retired the 0.3.0/0.4.0 documents: the package's frozen, hash-bound case
 inputs (0.3.0, or 0.4.0 with the group) are never edited; each run submits their
@@ -14,8 +14,8 @@ product tests' one re-authoring rule), against which the raw is read. A package
 document authored on model 0.5.0 (T4-U6's MILLTOL owners: 0.5.0 under
 3.0.0/exact_pressure_v3 with an explicit shear model and an explicit corrosion
 allowance on every section) is likewise kept as bound and submitted as its copy
-re-authored by its version alone (model 0.6.0). A package document already current
-(0.6.0) would be submitted unchanged; its ledger records the identity re-authoring,
+re-authored by its version alone (model 0.7.0). A package document already current
+(0.7.0) would be submitted unchanged; its ledger records the identity re-authoring,
 with the same hash on both sides. Cases come from a hash-locked
 case manifest (``openpipestress.exact_pressure_qualification_manifest/1``)
 named by a run selection record. Every required selector, including the
@@ -68,14 +68,14 @@ READER = 'pressure'
 ENTRYPOINT = 'validate_pressure_evidence'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
 PROFILE = 'exact_pressure_v3'
-# The submitted (re-authored) document is model 0.6.0 under the current contract; the package's frozen
+# The submitted (re-authored) document is model 0.7.0 under the current contract; the package's frozen
 # documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object, or their 0.5.0 spelling (the
 # MILLTOL owners, re-authored by their version alone, DEL-04-07 Design u4b-u5b-implementation.md §1.4).
 MODEL_VERSION = physics.MODEL_VERSION
 PRESSURE_CONTRACT = physics.PRESSURE_CONTRACT
 FROZEN_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
 FROZEN_VERSIONS = ('0.3.0', '0.4.0')
-PREVIOUS_VERSION = physics.PREVIOUS_MODEL_VERSION
+PREVIOUS_VERSIONS = physics.PREVIOUS_MODEL_VERSIONS
 # T4-U6 (manager ruling, 2026-10-16): a package document authored current (the D-5 re-authored T4-I8 MILLTOL) is
 # submitted unchanged. Its contract names its shear model explicitly: Euler-Bernoulli or the T4-U8 Timoshenko model.
 SHEAR_MODELS = ('euler_bernoulli', 'timoshenko_annulus_energy_v1')
@@ -85,7 +85,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
 # T4-U5b added the tie-rod force and T4-U4b (§2.2) the new per-basis kinds: 129 signatures, 66 kinds.
-TABLE_SHA256 = 'e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788'
+TABLE_SHA256 = '6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through
@@ -406,7 +406,7 @@ def current_contract(contract) -> bool:
 
 
 def current_package_document(model, version: str = MODEL_VERSION) -> bool:
-    """A package document authored complete on ``version`` (current 0.6.0, or 0.5.0 before 0.6.0): the current
+    """A package document authored complete on ``version`` (current 0.7.0, or 0.5.0 or 0.6.0 before it): the current
     contract and an explicit corrosion_allowance on every section."""
     sections = [pipe.get('section') if type(pipe) is dict else None for pipe in model.get('pipe_segments') or []] if type(model) is dict else []
     return (type(model) is dict and model.get('schema_version') == version and current_contract(model.get('pressure_contract'))
@@ -415,9 +415,9 @@ def current_package_document(model, version: str = MODEL_VERSION) -> bool:
 
 def model_version(model) -> str:
     """The package document's version: a frozen 0.3.0 (or 0.4.0 with the load/reference-state group) under the former
-    contract; a 0.5.0 document authored complete, re-authored by its version alone; or a document authored current
-    (0.6.0), which is submitted unchanged."""
-    for version in (MODEL_VERSION, PREVIOUS_VERSION):
+    contract; a 0.5.0 or 0.6.0 document authored complete, re-authored by its version alone; or a document authored current
+    (0.7.0), which is submitted unchanged."""
+    for version in (MODEL_VERSION, *PREVIOUS_VERSIONS):
         if type(model) is dict and model.get('schema_version') == version:
             require(current_package_document(model, version), f'a {version} package document requires the current 3.0.0/exact_pressure_v3 '
                     'contract with an explicit shear_model and an explicit corrosion_allowance on every section')
@@ -441,9 +441,9 @@ def submitted_input(data: bytes, model: dict, version: str) -> tuple[bytes, dict
 
 
 def current_model(model) -> bool:
-    """The submitted document: model 0.6.0 under the current contract. Returns the load/reference-state group's presence."""
+    """The submitted document: model 0.7.0 under the current contract. Returns the load/reference-state group's presence."""
     require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and current_contract(model.get('pressure_contract')),
-            'actual 0.6.0 model under the current 3.0.0/exact_pressure_v3 contract required')
+            'actual 0.7.0 model under the current 3.0.0/exact_pressure_v3 contract required')
     return physics.model_carries_load_state(model)
 
 
@@ -474,7 +474,7 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
     runner_input, reauthoring = submitted_input(files['runner_input'], model, version)
     request = gate.strict_json(runner_input)
     load_state = current_model(request['solve']['preview_model']['model'])
-    require(load_state == (version == '0.4.0' or (version in (MODEL_VERSION, PREVIOUS_VERSION) and physics.model_carries_load_state(model))),
+    require(load_state == (version == '0.4.0' or (version in (MODEL_VERSION, *PREVIOUS_VERSIONS) and physics.model_carries_load_state(model))),
             're-authoring changed the load/reference-state group')
     request_cases = load_case_ids(request)
     require(type(reference) is dict and reference.get('format') == REFERENCE_FORMAT and reference.get('case_id') == case['case_id'],

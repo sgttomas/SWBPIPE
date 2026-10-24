@@ -134,10 +134,10 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-14-01-R1 | The product shall save named immutable model states. | SOW-071 in `_CONTEXT.md`, `docs/_Registers/ScopeLedger.csv`, and decomposition section 9 |
-> | DEL-14-01-R2 | A model state record shall carry tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes. | SOW-071 in `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-14-01 |
+> | DEL-14-01-R1 | The product shall save named immutable model states. | SOW-071 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and decomposition section 9 |
+> | DEL-14-01-R2 | A model state record shall carry tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes. | SOW-071 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-14-01 |
 > | DEL-14-01-R3 | Saved model states shall use read-only snapshot semantics. Exact enforcement mechanism is TBD. | Decomposition section 7 DEL-14-01 sizing notes |
-> | DEL-14-01-R4 | JSON payload hashes shall follow the accepted JCS-compatible canonical JSON basis where the payload is JSON. | `_CONTEXT.md` Architecture Basis Injection; `docs/SPEC.md` section 4.4 |
+> | DEL-14-01-R4 | JSON payload hashes shall follow the accepted JCS-compatible canonical JSON basis where the payload is JSON. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R5 | Hash records shall identify payload scope; exact state hash partitioning is TBD. | `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R6 | Round-trip persistence must not insert silent engineering defaults for units, provenance, rule-pack values, material data, component data, SIF/flexibility inputs, allowables, or load-basis values. | `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R7 | Model state records must preserve unresolved assumptions and warnings as visible review evidence, not hidden defaults. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/TYPES.md` entries `Assumption` and `Diagnostic` |
@@ -165,7 +165,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 >
 > | Requirement(s) | Verification approach |
 > |---|---|
-> | R1-R3 | Schema validation and persistence tests should prove that saved records retain identity, metadata, and read-only snapshot semantics. Exact test names TBD. |
+> | R1-R3 | Schema validation and persistence tests should prove that saved records retain identity, metadata, and read-only snapshot semantics. Current tests (at `62c1efd75b`): `tests/test_model_state_schema.py`, `tests/test_persistence_schema.py` and `tests/test_project_persistence_service.py` (Python reference store). |
 > | R4-R5 | Hash determinism tests should compare canonicalized JSON payload bytes and verify payload-scope metadata. Exact canonicalization implementation TBD. |
 > | R6-R7 | Round-trip tests should confirm that assumptions, warnings, provenance-bearing references, and other review evidence survive save/load without silent defaults. |
 > | R8 | Schema and service tests should reject or omit automatic professional approval/code-compliance status fields (PRD §21.2). |
@@ -339,4 +339,4 @@ These clauses retain open delivery duties, owner decisions, and bounded evidence
 
 - **DEL-14-01:1** — R5 continuation delivery task: Demonstrate immutable model-state persistence/round trips and hash-scope enforcement against `schemas/model_state.schema.json` in the product store. Schema fixtures do not establish durable storage; preserve DEC-017/028 strategy and unresolved partitioning (CLM-006).
 - **DEL-14-01:2** — Bind external-reference ingestion/consumption for model-state records to governed privacy and protected-content runtime screening; the adapter declaration gate is not that consumer binding.
-- **DEL-14-01:3** — Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections (stage-gated: v0.2 R3) (Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1: model states, run history and state/run comparison are in software 0.1.0 scope) (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)
+- **DEL-14-01:3** — Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections (Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1: model states, run history and state/run comparison are in software 0.1.0 scope) (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)

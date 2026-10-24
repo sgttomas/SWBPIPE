@@ -157,6 +157,29 @@ fn junction(model: &Value, arriving: &Value, leaving: &Value, node: &str, arcs: 
     kink(t_in, t_out).ok()
 }
 
+/// W-10 reconnect (DEL-16-06 Design `pipe-reconnect.md` §2.4): θ at `node`
+/// between pipe `pipe_id` and each realized arc other than it that ends at
+/// `node`, in `model` (the reconnected candidate), by arc span id.
+pub(crate) fn realized_arc_junctions(model: &Value, pipe_id: &str, node: &str) -> Vec<(String, f64)> {
+    let arcs = realized_arcs(model);
+    let Some(pipe) = find(model, "pipe_segments", pipe_id) else {
+        return Vec::new();
+    };
+    let mut spans: Vec<&String> = arcs.keys().filter(|span| span.as_str() != pipe_id).collect();
+    spans.sort();
+    spans
+        .into_iter()
+        .filter_map(|span| {
+            let arc = find(model, "pipe_segments", span)?;
+            let (from, to) = ends(arc)?;
+            if from != node && to != node {
+                return None;
+            }
+            junction(model, arc, pipe, node, &arcs).map(|theta| (span.clone(), theta))
+        })
+        .collect()
+}
+
 fn mitre_message(node: &str, a: &str, b: &str, theta: f64) -> String {
     format!(
         "members {a} and {b} meet at {node} with a direction change of {theta:e} rad, above the tangency tolerance alpha_tan = {TANGENCY_TOLERANCE_RAD:e} rad at a realized bend's end; a kink this large is a mitre, which 3.0.0/exact_pressure_v3 does not model. Make the bend tangent (Insert bend at corner places tangent points exactly) or end the region at {node}"
@@ -585,6 +608,10 @@ pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<Geometry
     let mut found = vec![];
     for (key, collection) in model.as_object().into_iter().flatten() {
         match key.as_str() {
+            // W-13 §6: model-data records are not attachments; the arc joins
+            // p_in's line below, and a corner named by an equipment interface
+            // leaves the validator's missing-subject warning.
+            slot if crate::model_data_authoring::MODEL_DATA_COLLECTIONS.contains(&slot) => {}
             "nodes" => {
                 for node in rows(model, "nodes").filter(|n| n.get("id").and_then(Value::as_str) != Some(corner)) {
                     references(node, &selected, "nodes", &mut found);
@@ -681,6 +708,9 @@ pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<Geometry
         }
     }
     list.push(arc.clone());
+    // W-13 §3.2: the arc (a clone of p_in, with its tags and notes) joins the
+    // line of the incoming pipe p_in.
+    let line_row = crate::model_data_authoring::join_source_line(&mut candidate, &in_id, arc["id"].as_str().unwrap_or(""));
     let components = candidate
         .as_object_mut()
         .ok_or_else(|| invalid("model must be an object"))?
@@ -716,6 +746,9 @@ pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<Geometry
                 &component,
                 if converted.is_some() { "insert_bend_at_corner" } else { "insert_component_symbol" },
             ),
-        ],
+        ]
+        .into_iter()
+        .chain(line_row)
+        .collect(),
     })
 }

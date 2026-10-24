@@ -7,6 +7,7 @@ import { JointPressureModelEditor } from "../pressure-authoring/JointPressureMod
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
+import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -26,6 +27,7 @@ import {
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
+import { composedDefault, declaredOrComposedDefault } from "../project-units/projectUnitSelection";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
@@ -79,8 +81,8 @@ export function PropertyInspector({
   const [proposedUnit, setProposedUnit] = useState(editableFields[0]?.unit ?? "");
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
-  const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
-  const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
+  const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
+  const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const [componentDraft, setComponentDraft] = useState(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
@@ -90,6 +92,15 @@ export function PropertyInspector({
   }) ?? [selection];
   const multiSelection = aggregateRefs.length > 1;
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  // Default-sourced composed units follow the current project's rule on every render
+  // (W-17 §2.4), so a replaced project, a project-unit change or a catalog that arrives
+  // later never leaves an inherited unit in place. Explicit choices are kept.
+  const materialDraft: MaterialDraft = materialDraftState.thermalExpansionUnitSource === "default"
+    ? { ...materialDraftState, thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) }
+    : materialDraftState;
+  const supportDraft: SupportDraft = supportDraftState.linearStiffnessUnitSource === "default"
+    ? { ...supportDraftState, linearStiffnessUnit: linearStiffnessUnit(model, unitCatalogRoute) }
+    : supportDraftState;
   const selectedPipe = propertiesTarget.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === propertiesTarget.id) : null;
   // Rich Properties controls follow their own explicit command/live-selection
   // target. Inline Task mutations remain bound to the frozen Task target until
@@ -115,12 +126,15 @@ export function PropertyInspector({
   );
   const lengthUnitOptions = unitOptions(unitCatalogRoute, "length", lengthUnit(model));
   const stressUnitOptions = unitOptions(unitCatalogRoute, "stress", stressUnit(model));
-  const supportStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", linearStiffnessUnit(model));
+  const supportStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", linearStiffnessUnit(model, unitCatalogRoute));
   const thermalExpansionUnitOptions = unitOptions(
     unitCatalogRoute,
     "thermal_expansion_coefficient",
-    thermalExpansionUnit(model)
+    thermalExpansionUnit(model, unitCatalogRoute)
   );
+  // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
+  const supportStiffnessUnitNotice = supportDraft.linearStiffnessUnit === "" ? linearStiffnessUnitNotice(model, unitCatalogRoute) : null;
+  const thermalExpansionUnitNotice = materialDraft.thermalExpansionUnit === "" ? thermalExpansionUnitNoticeFor(model, unitCatalogRoute) : null;
   const componentAngleUnitOptions = unitOptions(
     unitCatalogRoute,
     "angle",
@@ -197,9 +211,9 @@ export function PropertyInspector({
     setProposedValue(firstField?.before ?? "");
     setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
-    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents));
+    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
-    setMaterialDraft(defaultMaterialDraft(model, queuedIntents));
+    setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setInspectorView("properties");
     setTaskActive(false);
@@ -263,6 +277,7 @@ export function PropertyInspector({
     };
   }, []);
 
+
   function handleFieldChange(fieldPath: string) {
     taskGenerationRef.current += 1;
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
@@ -313,7 +328,7 @@ export function PropertyInspector({
   function handleQueueSupportIntent() {
     if (multiSelection || !supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
-    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent]));
+    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute));
   }
 
   function handleQueueComponentIntent() {
@@ -342,7 +357,7 @@ export function PropertyInspector({
   function handleQueueMaterialIntent() {
     if (multiSelection || !materialCreateIntent) return;
     onQueueIntent(materialCreateIntent);
-    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent]));
+    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute));
   }
 
   function handleQueueSectionIntent() {
@@ -356,11 +371,19 @@ export function PropertyInspector({
   }
 
   function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
-    setMaterialDraft((current) => ({ ...current, [key]: value }));
+    setMaterialDraft((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "thermalExpansionUnit" ? { thermalExpansionUnitSource: "user" as const } : {})
+    }));
   }
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
-    setSupportDraft((current) => ({ ...current, [key]: value }));
+    setSupportDraft((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "linearStiffnessUnit" ? { linearStiffnessUnitSource: "user" as const } : {})
+    }));
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(key: K, value: ComponentDraft[K]) {
@@ -565,6 +588,10 @@ export function PropertyInspector({
       <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <details className="inspector-details" data-testid="model-data-annotations-details">
+        <summary>Tags, notes and provenance</summary>
+        <ModelDataAnnotations key={`model-data:${projectSessionGeneration}`} model={model} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      </details>
       <details className="inspector-details">
         <summary>New section</summary>
         <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
@@ -711,6 +738,7 @@ export function PropertyInspector({
               value={materialDraft.thermalExpansionUnit}
               options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
+            {thermalExpansionUnitNotice ? <span className="muted" data-testid="create-material-thermal-unit-notice">{thermalExpansionUnitNotice}</span> : null}
           </label>
           <label>
             <span>Thermal expansion ({thermalExpansionBasis.label})</span>
@@ -790,6 +818,7 @@ export function PropertyInspector({
               value={supportDraft.linearStiffnessUnit}
               options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
+            {supportStiffnessUnitNotice ? <span className="muted" data-testid="create-support-stiffness-unit-notice">{supportStiffnessUnitNotice}</span> : null}
           </label>
           <label>
             <span>Linear stiffness ({supportStiffnessBasis.label})</span>
@@ -1058,6 +1087,8 @@ type SupportDraft = {
   node: string;
   restraints: string[];
   linearStiffnessUnit: string;
+  /** "default" follows the project's composed default; "user" is an explicit choice. */
+  linearStiffnessUnitSource: "default" | "user";
   linearStiffness: string;
   provenance: string;
 };
@@ -1069,6 +1100,8 @@ type MaterialDraft = {
   elasticModulus: string;
   shearModulus: string;
   thermalExpansionUnit: string;
+  /** "default" follows the project's composed default; "user" is an explicit choice. */
+  thermalExpansionUnitSource: "default" | "user";
   thermalExpansion: string;
   provenance: string;
 };
@@ -1485,10 +1518,13 @@ function UnitCatalogPanel({ bases, route }: { bases: UnitBasisDisplay[]; route: 
 
 function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
   const fallbackBasis = describeUnitBasis(route, fallbackSymbol, dimensionId);
-  const fallback = {
-    symbol: fallbackBasis.symbol,
-    label: fallbackBasis.label
-  };
+  // "" is an unselected default (W-17 §2.4): offer a placeholder and the catalog, nothing in its place.
+  const fallback = fallbackSymbol === ""
+    ? { symbol: "", label: "Choose a unit" }
+    : {
+        symbol: fallbackBasis.symbol,
+        label: fallbackBasis.label
+      };
   if (route?.route !== "tauri_unit_catalog") return [fallback];
 
   const options = acceptedUnits(route.catalog)
@@ -2935,11 +2971,11 @@ function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: Edi
   };
 }
 
-function defaultMaterialDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[]): MaterialDraft {
-  return defaultMaterialDraftWithReserved(model, queuedIntents);
+function defaultMaterialDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[], route: UnitCatalogRoute | null = null): MaterialDraft {
+  return defaultMaterialDraftWithReserved(model, queuedIntents, route);
 }
 
-function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[]): MaterialDraft {
+function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[], route: UnitCatalogRoute | null = null): MaterialDraft {
   const id = nextMaterialId(model, queuedIntents);
   return {
     id,
@@ -2947,7 +2983,8 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
     stressUnit: stressUnit(model),
     elasticModulus: "",
     shearModulus: "",
-    thermalExpansionUnit: thermalExpansionUnit(model),
+    thermalExpansionUnit: thermalExpansionUnit(model, route),
+    thermalExpansionUnitSource: "default",
     thermalExpansion: "",
     provenance: "user_entered_local_preview"
   };
@@ -2956,15 +2993,17 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
 function defaultSupportDraft(
   model: PreviewModel,
   selection: EntityRef,
-  queuedIntents: EditorOperationIntent[]
+  queuedIntents: EditorOperationIntent[],
+  route: UnitCatalogRoute | null = null
 ): SupportDraft {
-  return defaultSupportDraftWithReserved(model, selection, queuedIntents);
+  return defaultSupportDraftWithReserved(model, selection, queuedIntents, route);
 }
 
 function defaultSupportDraftWithReserved(
   model: PreviewModel,
   selection: EntityRef,
-  queuedIntents: EditorOperationIntent[]
+  queuedIntents: EditorOperationIntent[],
+  route: UnitCatalogRoute | null = null
 ): SupportDraft {
   const id = nextSupportId(model, queuedIntents);
   const selectedNode =
@@ -2975,7 +3014,8 @@ function defaultSupportDraftWithReserved(
     label: `Support ${shortEntityToken(id)}`,
     node,
     restraints: ["UX", "UY", "UZ"],
-    linearStiffnessUnit: linearStiffnessUnit(model),
+    linearStiffnessUnit: linearStiffnessUnit(model, route),
+    linearStiffnessUnitSource: "default",
     linearStiffness: "",
     provenance: "user_entered_local_preview"
   };
@@ -3044,7 +3084,7 @@ function isMaterialDraftValid(model: PreviewModel, draft: MaterialDraft): boolea
     draft.stressUnit !== "TBD" &&
     isPositiveInput(draft.elasticModulus) &&
     isPositiveInput(draft.shearModulus) &&
-    (!thermalProvided || (draft.thermalExpansionUnit !== "TBD" && isFiniteInput(draft.thermalExpansion))) &&
+    (!thermalProvided || (draft.thermalExpansionUnit !== "TBD" && draft.thermalExpansionUnit !== "" && isFiniteInput(draft.thermalExpansion))) &&
     !(model.materials ?? []).some((material) => material.id === draft.id.trim())
   );
 }
@@ -3056,7 +3096,7 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
     model.nodes.some((node) => node.id === draft.node.trim()) &&
     draft.restraints.length > 0 &&
     draft.restraints.every((restraint) => RESTRAINT_OPTIONS.includes(restraint)) &&
-    (!stiffnessProvided || (draft.linearStiffnessUnit !== "TBD" && isPositiveInput(draft.linearStiffness))) &&
+    (!stiffnessProvided || (draft.linearStiffnessUnit !== "TBD" && draft.linearStiffnessUnit !== "" && isPositiveInput(draft.linearStiffness))) &&
     !model.supports.some((support) => support.id === draft.id.trim())
   );
 }
@@ -3069,17 +3109,25 @@ function stressUnit(model: PreviewModel): string {
   return model.project.units.pressure ?? "TBD";
 }
 
-function thermalExpansionUnit(model: PreviewModel): string {
-  const temperature = model.project.units.temperature;
-  return temperature ? `1/${temperature}` : "TBD";
+// Composed defaults (W-17 §2.4): `1/<temperature>` and `<force>/<length>`, each
+// checked against the loaded catalog. A composition the catalog lacks gives ""
+// (unselected), never a substitute. A declared `linear_stiffness` key is used as is.
+function thermalExpansionUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
+  return composedDefault(route, "thermal_expansion", model.project.units).symbol;
 }
 
-function linearStiffnessUnit(model: PreviewModel): string {
-  const direct = model.project.units.linear_stiffness;
-  if (direct) return direct;
-  const force = model.project.units.force;
-  const length = model.project.units.length;
-  return force && length ? `${force}/${length}` : "TBD";
+function thermalExpansionUnitNoticeFor(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
+  return composedDefault(route, "thermal_expansion", model.project.units).notice;
+}
+
+// A present `linear_stiffness` key is used as declared (unchecked, as before); a
+// present but invalid one gives no default. Only an absent key composes.
+function linearStiffnessUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).symbol;
+}
+
+function linearStiffnessUnitNotice(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).notice;
 }
 
 function isFiniteInput(value: string): boolean {
@@ -3107,3 +3155,14 @@ function deepFreezeIntent(intent: EditorOperationIntent): EditorOperationIntent 
   };
   return visit(intent) as EditorOperationIntent;
 }
+
+/** The inspector's create paths (default drafts and intent builders), for the
+ * desktop emission golden that drives each authoring path (W-13 §5.2). */
+export const inspectorAuthoringPaths = {
+  defaultMaterialDraft,
+  buildCreateMaterialIntent,
+  defaultSectionDraft,
+  buildCreateSectionIntent,
+  defaultSupportDraft,
+  buildCreateSupportIntent
+};

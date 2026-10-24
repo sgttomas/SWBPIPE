@@ -120,7 +120,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This deliverable specifies the setup boundary for a future GUI warning and blocking workflow. It covers warning classification, blocking and qualifying behavior, result-envelope visibility, and professional/IP boundary wording for missing or weak data. It does not implement GUI components, application state, schemas, tests, package manifests, or product source code.
+> This deliverable specifies the setup boundary for a future GUI warning and blocking workflow. It covers warning classification, blocking and qualifying behavior, result-envelope visibility, and professional/IP boundary wording for missing or weak data. The setup pass did not implement product code; the GUI implementation is `apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx`, rendering all six R-DEL-07-04-001 classes.
 >
 ### CLM-010 — Requirements
 

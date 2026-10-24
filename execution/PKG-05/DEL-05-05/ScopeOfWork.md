@@ -166,9 +166,9 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-05-05-R1 | Support concentrated force, concentrated moment, and distributed user-load categories as explicit user load inputs. | ScopeLedger.csv row SOW-052; SOFTWARE_DECOMP.md row SOW-052 |
-> | DEL-05-05-R2 | Keep user loads separate from code-specific combinations supplied by users or rule packs. | Deliverables.csv row DEL-05-05; ScopeLedger.csv row SOW-052 |
-> | DEL-05-05-R3 | Keep load input, application records, and result handoff unit-aware and dimensionally checked. | CONTRACT.md OPS-K-UNIT-1; ScopeLedger.csv SOW-025 context via OBJ-012 |
+> | DEL-05-05-R1 | Support concentrated force, concentrated moment, and distributed user-load categories as explicit user load inputs. | ScopeLedger.csv (retired in `48584391de`; see Git history) row SOW-052; SOFTWARE_DECOMP.md row SOW-052 |
+> | DEL-05-05-R2 | Keep user loads separate from code-specific combinations supplied by users or rule packs. | Deliverables.csv (retired in `48584391de`; see Git history) row DEL-05-05; ScopeLedger.csv (retired in `48584391de`; see Git history) row SOW-052 |
+> | DEL-05-05-R3 | Keep load input, application records, and result handoff unit-aware and dimensionally checked. | CONTRACT.md OPS-K-UNIT-1; ScopeLedger.csv (retired in `48584391de`; see Git history) SOW-025 context via OBJ-012 |
 > | DEL-05-05-R4 | Attach load application to the centerline/frame mechanics model and avoid implying shell/solid FEA is the primary global model. | CONTRACT.md OPS-K-MECH-1 |
 > | DEL-05-05-R5 | Provide deterministic verification tests before release use. | CONTRACT.md OPS-K-SOLVER-1; architecture basis AB-00-08 |
 > | DEL-05-05-R6 | Preserve status/provenance distinctions in diagnostics and result hooks without certification or compliance claims. | architecture basis AB-00-03 and AB-00-06; CONTRACT.md OPS-K-MECH-2 |

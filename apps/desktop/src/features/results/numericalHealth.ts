@@ -37,7 +37,7 @@ import {
   solveFailedLeadText,
   type NumericalHealthState
 } from "./numericalHealthText";
-import type { MechanicsResult } from "../../types";
+import type { MechanicsResult, ResultBasisRef } from "../../types";
 
 export type { NumericalHealthState } from "./numericalHealthText";
 export type NumericalHealthRoute = "generic" | "pressure_source" | "retained" | "unsupported";
@@ -369,4 +369,31 @@ export function numericalHealthHold(input: { isCurrent: boolean; otherCurrentReq
   const { isCurrent, otherCurrentRequirementsHold, health } = input;
   return !isCurrent && otherCurrentRequirementsHold && health !== null && health.verdict_only
     && health.cases.some((c) => badgeOf(c.state) !== "green");
+}
+
+/** The state the results table badges a row with: its load case's state, or its combination's
+ * inherited state. Null where the table shows no row badge: the pressure-source route (its rows
+ * are the producer's recovery), a row with no basis, or a basis with no state. */
+export function rowHealthState(health: NumericalHealthView | null, row: Readonly<{ basis_ref?: ResultBasisRef }>): NumericalHealthState | null {
+  if (!health || !health.rowBadges || !row.basis_ref) return null;
+  const { ref_type: refType, ref_id: refId } = row.basis_ref;
+  return refType === "load_case" ? health.caseState(refId)
+    : refType === "combination" ? health.combinationState(refId)?.state ?? null : null;
+}
+
+/** What a result overlay in the viewport (result colour, reaction arrows) is given: the reader's
+ * numerical standing of the result and the session's numerical health presentation of it. */
+export type ResultOverlayStanding = Readonly<{ eligible: boolean; health: NumericalHealthView | null }>;
+
+/**
+ * Whether a row's value may drive a result overlay. It reuses, and adds nothing to, the rules the
+ * results surface already applies: the reader's numerical standing admits the result (when it does
+ * not, the header says that no results of the run can be exported or used by rule checks), the
+ * numerical health indicator exists for the result's route, and the results table gives the row no
+ * badge other than "checks passed". Anything missing fails closed. Presentation only.
+ */
+export function overlayMayShowRow(standing: ResultOverlayStanding | null | undefined, row: Readonly<{ basis_ref?: ResultBasisRef }>): boolean {
+  if (!standing || !standing.eligible || !standing.health) return false;
+  if (!standing.health.rowBadges) return true;
+  return rowHealthState(standing.health, row) === "checks_passed";
 }

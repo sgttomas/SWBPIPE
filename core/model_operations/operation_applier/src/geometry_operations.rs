@@ -24,7 +24,7 @@ fn err(message: impl Into<String>) -> GeometryError {
         affected_refs: vec![],
     }
 }
-fn fields(value: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
+pub(crate) fn fields(value: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
     let map = value
         .as_object()
         .ok_or_else(|| err("Expected an explicit object"))?;
@@ -39,7 +39,7 @@ fn fields(value: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
     }
     Ok(())
 }
-fn text<'a>(v: &'a Value, k: &str) -> Result<&'a str> {
+pub(crate) fn text<'a>(v: &'a Value, k: &str) -> Result<&'a str> {
     v.get(k)
         .and_then(Value::as_str)
         .filter(|s| !s.trim().is_empty())
@@ -50,7 +50,7 @@ fn number(v: &Value) -> Result<f64> {
         .filter(|n| n.is_finite())
         .ok_or_else(|| err("Expected finite number"))
 }
-fn vector(v: &Value) -> Result<Vec3> {
+pub(crate) fn vector(v: &Value) -> Result<Vec3> {
     fields(v, &["x", "y", "z"], &[])?;
     Ok([number(&v["x"])?, number(&v["y"])?, number(&v["z"])?])
 }
@@ -88,7 +88,7 @@ fn normalized(v: Vec3) -> Result<Vec3> {
     }
     Ok(scale(v, 1.0 / norm))
 }
-fn convert(n: f64, from: &str, to: &str, dim: Dimension) -> Result<f64> {
+pub(crate) fn convert(n: f64, from: &str, to: &str, dim: Dimension) -> Result<f64> {
     quantity_value_in_unit(
         &EnteredQuantity {
             value: n,
@@ -115,7 +115,7 @@ fn rows<'a>(model: &'a Value, key: &str) -> Result<&'a Vec<Value>> {
         .and_then(Value::as_array)
         .ok_or_else(|| err(format!("{key} must be an array")))
 }
-fn unique<'a>(model: &'a Value, key: &str, id: &str) -> Result<&'a Value> {
+pub(crate) fn unique<'a>(model: &'a Value, key: &str, id: &str) -> Result<&'a Value> {
     let matching: Vec<_> = rows(model, key)?
         .iter()
         .filter(|r| r.get("id").and_then(Value::as_str) == Some(id))
@@ -125,7 +125,7 @@ fn unique<'a>(model: &'a Value, key: &str, id: &str) -> Result<&'a Value> {
     }
     Ok(matching[0])
 }
-fn record_shape(record: &Value, node: bool) -> Result<()> {
+pub(crate) fn record_shape(record: &Value, node: bool) -> Result<()> {
     for key in ["label", "provenance"] {
         if record
             .get(key)
@@ -134,14 +134,16 @@ fn record_shape(record: &Value, node: bool) -> Result<()> {
             return Err(err(format!("Selected {key} metadata must be text or null")));
         }
     }
+    // W-13 §6: nodes and pipes may carry tags and notes (never a
+    // provenance_record); split, transform and copy carry them with the record.
     if node {
-        fields(record, &["id", "position"], &["label", "provenance"])?;
+        fields(record, &["id", "position"], &["label", "provenance", "tags", "notes"])?;
         vector(&record["position"])?;
     } else {
         fields(
             record,
             &["id", "from", "to", "section", "material"],
-            &["label", "provenance", "y_reference", "section_ref"],
+            &["label", "provenance", "y_reference", "section_ref", "tags", "notes"],
         )?;
         fields(
             &record["section"],
@@ -228,25 +230,65 @@ pub(crate) fn metadata(v: &Value, ids: &mut BTreeSet<String>, copy: bool) -> Res
     text(v, "provenance")?;
     Ok(())
 }
-// Detect any exact selected reference outside understood records. Text metadata
-// is not a link; all other selected-ID occurrences fail closed, including aliases.
-pub(crate) fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mut Vec<String>) {
+/// One step of a reference path: an object key or an array index. Paths are
+/// carried as segments, so a key containing `.`, `[` or `]` stays one key.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum Seg {
+    Key(String),
+    Index(usize),
+}
+/// The one reference scanner: every exact occurrence of `ids` under `v`, as
+/// segment paths below `path`. Text metadata is not a link: the subtrees under
+/// `label`, `name` and `provenance` are skipped, and so are the `tags`, `notes`
+/// and `provenance_record` annotations (W-13 §6). All other occurrences are
+/// reported, including aliases.
+pub(crate) fn reference_segments(v: &Value, ids: &BTreeSet<String>, path: &mut Vec<Seg>, out: &mut Vec<Vec<Seg>>) {
     match v {
-        Value::String(s) if ids.contains(s) => out.push(path.into()),
+        Value::String(s) if ids.contains(s) => out.push(path.clone()),
         Value::Array(a) => {
             for (i, x) in a.iter().enumerate() {
-                references(x, ids, &format!("{path}[{i}]"), out);
+                path.push(Seg::Index(i));
+                reference_segments(x, ids, path, out);
+                path.pop();
             }
         }
         Value::Object(m) => {
             for (k, x) in m {
-                if !matches!(k.as_str(), "label" | "name" | "provenance") {
-                    references(x, ids, &format!("{path}.{k}"), out);
+                if !matches!(k.as_str(), "label" | "name" | "provenance")
+                    && !super::model_data_authoring::ANNOTATION_MEMBERS.contains(&k.as_str())
+                {
+                    path.push(Seg::Key(k.clone()));
+                    reference_segments(x, ids, path, out);
+                    path.pop();
                 }
             }
         }
         _ => {}
     }
+}
+/// A segment path as display text: `.key`, `[i]`, and `["key"]` (JSON-quoted)
+/// for a key that is not a plain identifier, so the text is unambiguous.
+pub(crate) fn render_suffix(segs: &[Seg]) -> String {
+    let mut out = String::new();
+    for seg in segs {
+        match seg {
+            Seg::Key(key) if !key.is_empty() && key.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-' || c == ':') => {
+                out.push('.');
+                out.push_str(key);
+            }
+            Seg::Key(key) => out.push_str(&format!("[{}]", Value::String(key.clone()))),
+            Seg::Index(index) => out.push_str(&format!("[{index}]")),
+        }
+    }
+    out
+}
+// Detect any exact selected reference outside understood records. Text metadata
+// is not a link; all other selected-ID occurrences fail closed, including aliases.
+// Every caller of this string form refuses on any hit; paths are display only.
+pub(crate) fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mut Vec<String>) {
+    let mut hits = Vec::new();
+    reference_segments(v, ids, &mut Vec::new(), &mut hits);
+    out.extend(hits.iter().map(|segs| format!("{path}{}", render_suffix(segs))));
 }
 fn attachments(
     model: &Value,
@@ -267,6 +309,12 @@ fn attachments(
     all.extend(node_ids.iter().cloned());
     let mut found = vec![];
     for (key, collection) in model.as_object().unwrap() {
+        // W-13 §6: lines, assumptions, constraints, equipment interfaces and
+        // rule-pack references are not attachments. A split pipe's line is
+        // extended explicitly; a missing subject is the validator's warning.
+        if super::model_data_authoring::MODEL_DATA_COLLECTIONS.contains(&key.as_str()) {
+            continue;
+        }
         if key == "nodes" {
             for node in rows(model, "nodes")? {
                 if !node_ids.contains(text(node, "id")?) {
@@ -404,9 +452,12 @@ fn split(model: &Value, intent: &Value, payload: &Value, unit: &str) -> Result<G
     list.push(second.clone());
     frame(&candidate, &first, unit, false)?;
     frame(&candidate, &second, unit, false)?;
+    // W-13 §3.2: the new pipe (which inherits the source's tags and notes)
+    // joins the source pipe's line.
+    let line_row = super::model_data_authoring::join_source_line(&mut candidate, id, text(&second, "id")?);
     Ok(GeometryEdit {
         model: candidate,
-        diff_preview: vec![
+        diff_preview: [
             diff(
                 id,
                 "Element",
@@ -431,7 +482,10 @@ fn split(model: &Value, intent: &Value, payload: &Value, unit: &str) -> Result<G
                 &second,
                 "connect_pipe_run",
             ),
-        ],
+        ]
+        .into_iter()
+        .chain(line_row)
+        .collect(),
     })
 }
 
@@ -661,9 +715,10 @@ pub(crate) fn resolve_geometry(model: &Value, intent: &Value) -> Result<Option<G
     if model["document_kind"] != "openpipestress.product_preview.model"
         || model["schema_version"] != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION
     {
-        return Err(err(
-            "Geometry operations require the current product_preview.model schema 0.6.0",
-        ));
+        return Err(err(format!(
+            "Geometry operations require the current product_preview.model schema {}",
+            open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION
+        )));
     }
     if intent["operation_kind"] != "modify"
         || intent["target"]["object_type"] != "Element"
@@ -690,7 +745,7 @@ pub(crate) fn resolve_geometry(model: &Value, intent: &Value) -> Result<Option<G
 mod tests {
     use super::*;
     fn model() -> Value {
-        json!({"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model","project":{"id":"project:test","units":{"length":"m"}},"nodes":[{"id":"node:a","label":"A","position":{"x":0.,"y":0.,"z":0.},"provenance":"user"},{"id":"node:b","label":"B","position":{"x":4.,"y":0.,"z":0.},"provenance":"user"}],"pipe_segments":[{"id":"pipe:a","label":"Pipe","from":"node:a","to":"node:b","section":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.005,"unit":"m"},"contents_density":{"value":800.,"unit":"kg/m^3"}},"material":"material:a","y_reference":{"x":0.,"y":1.,"z":0.},"provenance":"user"}],"materials":[{"id":"material:a"}],"supports":[],"components":[],"load_cases":[]})
+        json!({"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model","project":{"id":"project:test","units":{"length":"m"}},"nodes":[{"id":"node:a","label":"A","position":{"x":0.,"y":0.,"z":0.},"provenance":"user"},{"id":"node:b","label":"B","position":{"x":4.,"y":0.,"z":0.},"provenance":"user"}],"pipe_segments":[{"id":"pipe:a","label":"Pipe","from":"node:a","to":"node:b","section":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.005,"unit":"m"},"contents_density":{"value":800.,"unit":"kg/m^3"}},"material":"material:a","y_reference":{"x":0.,"y":1.,"z":0.},"provenance":"user"}],"materials":[{"id":"material:a"}],"supports":[],"components":[],"load_cases":[]})
     }
     fn split_payload() -> Value {
         json!({"pipe_ref":"pipe:a","fraction":0.25,"new_node":{"id":"node:new","label":"New","provenance":"user"},"new_pipe":{"id":"pipe:new","label":"New pipe","provenance":"user"}})

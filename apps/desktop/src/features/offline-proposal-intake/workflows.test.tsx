@@ -9,9 +9,12 @@ import * as selfWeightService from "../../services/selfWeightPlanService";
 import { generateSelfWeightPlan } from "../../services/selfWeightPlanService";
 import { loadPreviewModel } from "../../services/previewService";
 import { applyOperationBatch } from "../../services/operationBatchService";
-import { computeModelHash, canonicalJsonString } from "../../services/hashService";
+import { computeModelHash, canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
 import type { PreviewModel } from "../../types";
 import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
+import { reconnectModel } from "../../test-support/reconnectModel";
+import { clearReconnectExampleCache, operationExamples, reconnectOperationExample, RECONNECT_EXAMPLE_CANDIDATE_CAP } from "../geometry-tools/reconnectExample";
+import { validateOperationBatch } from "../../services/operationBatchService";
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 async function massModel() {
@@ -25,7 +28,7 @@ function fill(model: PreviewModel) {
   enter("Self-weight provenance", "Invented test only"); chooseVirtualMultiTarget("self-weight-pipes", model.pipe_segments[0].id);
 }
 describe("bounded workflow actual engine tests", () => {
-  it("replaces old support stiffness, retains complete selected provenance and rejects stale before state", async () => {
+  it("replaces old support stiffness, records the library reference and provenance record only, and rejects stale before state", async () => {
     const model = await loadPreviewModel(); const support = model.supports[0];
     support.family = "variable_spring_hanger";
     support.stiffness = { dof: "UY", value: { value: 111, unit: "N/m" } };
@@ -37,13 +40,20 @@ describe("bounded workflow actual engine tests", () => {
     const batch = await buildHangerSelectionBatch(model, doc, doc.hanger_records[0].hanger_id, { supportId: support.id, restraints: ["UY"] });
     const after = JSON.parse(batch.operations[0].change.after);
     expect(after.stiffness).toBeUndefined(); expect(after.nonlinear).toBeUndefined();
-    expect(JSON.parse(after.provenance).record_snapshot).toEqual(doc.hanger_records[0]);
+    // W-17 §2.6: the short reference only; no library metadata or record snapshot.
+    expect(after.provenance).toBe(`library:hanger:${doc.hanger_library.library_id}#${doc.hanger_records[0].hanger_id}`);
     expect(after.provenance).toBe(batch.operations[0].change.source_note);
+    expect(batch.operations[1].change.field_path).toBe("provenance_record");
     const result = await applyOperationBatch(model, batch, await computeModelHash(model));
     expect(result.validation.application_status, JSON.stringify(result.diagnostics)).toBe("applied_to_session_model");
     expect(result.applied_model!.supports[0].stiffness).toBeUndefined();
     expect(result.applied_model!.supports[0].hanger!.stiffness).toEqual({ dof: "UY", value: { value: 123, unit: "N/m" } });
-    expect(JSON.parse(result.applied_model!.supports[0].provenance).library_metadata).toEqual(doc.hanger_library);
+    const record = result.applied_model!.supports[0].provenance_record!;
+    expect(record.library_ref).toEqual({ library_kind: "hanger", library_id: doc.hanger_library.library_id,
+      library_version: `sha256:${await canonicalSha256Hex(doc.hanger_records[0])}`, record_id: doc.hanger_records[0].hanger_id });
+    expect(record).toMatchObject({ source_name: doc.hanger_records[0].provenance.source_name, redistribution_status: "private_only", review_status: "pending" });
+    const saved = JSON.stringify(result.applied_model);
+    expect(saved).not.toContain("record_snapshot"); expect(saved).not.toContain("library_metadata"); expect(saved).not.toContain(doc.hanger_library.name);
     expect(await canonicalJsonString(model)).toBe(original);
     const stale = structuredClone(model); stale.supports[0].provenance = "Changed after preparation";
     const rejected = await applyOperationBatch(stale, batch, await computeModelHash(stale));
@@ -175,5 +185,44 @@ describe("bounded workflow actual engine tests", () => {
       expect(screen.getByRole("alert")).toBeInTheDocument();
     }
     expect(queue).not.toHaveBeenCalled();
+  });
+  it("publishes an executable reconnect example that passes actual offline intake and validates", async () => {
+    clearReconnectExampleCache();
+    const model = reconnectModel(); const queue = vi.fn();
+    const loader = vi.fn(() => operationExamples(model));
+    render(<OfflineProposalIntakePanel model={model} selection={{ type: "project", id: model.project.id }} onQueueBatch={queue}
+      capabilityReference={{ source: "manager catalog" }} loadOperationExamples={loader} />);
+    expect(loader).not.toHaveBeenCalled(); // on demand, never on render
+    const details = screen.getByText("Offline authoring reference").closest("details")!;
+    details.open = true; fireEvent(details, new Event("toggle"));
+    await waitFor(() => expect(screen.getByTestId("capability-reference-json")).toHaveTextContent("reconnect_pipe_run"));
+    const reference = JSON.parse(screen.getByTestId("capability-reference-json").textContent!);
+    const example = reference.operation_examples.reconnect_pipe_run;
+    expect(example.wire).toMatchObject({ change_kind: "reconnect_pipe_run", field_path: "pipe_segments", unit: "none", dimension: "dimensionless" });
+    expect(JSON.parse(example.batch.operations[0].change.after)).toEqual({ pipe_ref: "pipe:P", end: "to", target_node_ref: "node:C" });
+    enter("Proposal batch JSON", JSON.stringify(example.batch)); fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
+    expect(queue).toHaveBeenCalledWith(example.batch);
+    const outcome = await validateOperationBatch(model, queue.mock.calls[0][0], await computeModelHash(model));
+    expect(outcome.validation.batch_validation_status).toBe("passed");
+    // Cached against the model hash: the same promise result, no second search.
+    expect(await reconnectOperationExample(model)).toEqual(example);
+  });
+  it("skips a candidate with an unsupported element-load shape (R13) and omits the example with its reason when none passes", async () => {
+    clearReconnectExampleCache();
+    const model = reconnectModel();
+    model.load_cases[0].primitive_loads = [{ id: "load:extent", category: "distributed_force", target: { type: "element", pipe: "pipe:P" },
+      direction: "global_z", magnitude: { value: -1, unit: "N/m" }, dimension: "force_per_length", provenance: "invented", extent: { start_fraction: 0.2 } }];
+    const example = await reconnectOperationExample(model);
+    expect("batch" in example && example.batch.operations[0].target.ref).toBe("pipe:Q");
+    const outcome = await validateOperationBatch(model, (example as { batch: Parameters<typeof validateOperationBatch>[1] }).batch, await computeModelHash(model));
+    expect(outcome.validation.batch_validation_status).toBe("passed");
+    // The bundled demo: every pipe is named by or ends at a component, so no
+    // candidate passes; with three loose nodes the search reaches its cap.
+    const demo = await loadPreviewModel();
+    const none = await reconnectOperationExample(demo);
+    expect(none).toMatchObject({ omitted_reason: "no valid reconnect found among the 24 candidates of this model", candidates_checked: 24 });
+    for (const id of ["node:X-1", "node:X-2", "node:X-3"]) demo.nodes.push({ ...demo.nodes[0], id, label: id });
+    const capped = await reconnectOperationExample(demo);
+    expect(capped).toMatchObject({ omitted_reason: `no valid reconnect found in the first ${RECONNECT_EXAMPLE_CANDIDATE_CAP} candidates`, candidates_checked: 32 });
   });
 });

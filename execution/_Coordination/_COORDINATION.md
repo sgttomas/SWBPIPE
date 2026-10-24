@@ -25,7 +25,7 @@ the conditional R4 gate and advanced the target stage to R5. Register rows
 `D-14`, `D-26`, and `D-27` name this file as the recording surface for the
 Working Desktop Application Standard current target stage.
 
-**Current target stage - PRD R5 exit criterion (advanced 2026-06-23 by
+**Current target stage - historical v0.1 R5 (= v0.3 §24 R6) exit criterion (advanced 2026-06-23 by
 `DEC-054`, after the conditional R4 target-stage gate in `D-27`).** Phase D/R4
 evidence was reviewed through
 `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`

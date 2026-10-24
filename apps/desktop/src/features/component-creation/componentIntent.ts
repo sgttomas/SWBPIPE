@@ -1,5 +1,6 @@
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { isPressureV3 } from "../pressure-authoring/pressureContract";
+import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 
 export const creatableComponentKinds = ["bend", "tee", "reducer", "valve", "flange", "expansion_joint"] as const;
 export type CreatableComponentKind = (typeof creatableComponentKinds)[number];
@@ -76,14 +77,14 @@ export type ConnectorDraft = {
   pressureSourceReference: string;
 };
 export const CONNECTOR_REFERENCE_STATES = ["stress_free", "prestressed"] as const;
-/** The hardware a connector admits: untied, and on model 0.6.0 (T4-U5b,
+/** The hardware a connector admits: untied, and on the current model version (T4-U5b,
  * DEL-04-07 Design u4b-u5b-implementation.md §3.1) explicit bilateral linear
  * elastic tie rods. Ideal, tension-only and gapped rods, nuts, stops and
  * collective constraints are not offered. */
 export const CONNECTOR_HARDWARE_KINDS = ["untied"] as const;
 export const CURRENT_CONNECTOR_HARDWARE_KINDS = ["untied", "explicit_axial_rods_v1"] as const;
 export function connectorHardwareKinds(model: PreviewModel): readonly string[] {
-  return model.schema_version === "0.6.0" ? CURRENT_CONNECTOR_HARDWARE_KINDS : CONNECTOR_HARDWARE_KINDS;
+  return model.schema_version === MODEL_SCHEMA_VERSION ? CURRENT_CONNECTOR_HARDWARE_KINDS : CONNECTOR_HARDWARE_KINDS;
 }
 /** One tie rod of the table. Offsets are in the connector axes from the
  * connector's end nodes i and j; every value is the user's. */
@@ -133,7 +134,7 @@ function tieRodsValid(text: string): boolean {
 export const CONNECTOR_PRESSURE_MODELS = ["unpressurized"] as const;
 export const CURRENT_CONNECTOR_PRESSURE_MODELS = ["unpressurized", "constant_effective_area_reference_v1"] as const;
 export function connectorPressureModels(model: PreviewModel): readonly string[] {
-  return model.schema_version === "0.6.0" ? CURRENT_CONNECTOR_PRESSURE_MODELS : CONNECTOR_PRESSURE_MODELS;
+  return model.schema_version === MODEL_SCHEMA_VERSION ? CURRENT_CONNECTOR_PRESSURE_MODELS : CONNECTOR_PRESSURE_MODELS;
 }
 export function emptyConnectorDraft(): ConnectorDraft {
   return {

@@ -23,15 +23,17 @@ use serde_json::{Map, Value};
 
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_expression_evaluator::{
-    grammar_version_supported, AggregateFunction, BinaryOperator, ComparisonOperator, Dimension,
-    Expression, LogicalOperator, LookupMode, Quantity, TableRow, UnaryOperator, UserTable,
-    GRAMMAR_VERSION, SUPPORTED_GRAMMAR_VERSIONS,
+    check_expression_types, grammar_version_supported, AggregateFunction, BinaryOperator,
+    ComparisonOperator, Dimension, Expression, FindingCode, LogicalOperator, LookupMode, Quantity,
+    StaticFinding, StaticType, TableRow, TypeEnv, UnaryOperator, UserTable, GRAMMAR_VERSION,
+    SUPPORTED_GRAMMAR_VERSIONS,
 };
 use open_pipe_stress_rule_pack_lifecycle::{
     is_semver_grammar_version, validate_lifecycle, Canonicalization, ChecksumAlgorithm,
     ChecksumRecord, LifecycleStatus, LifecycleValidationInput, PayloadScope, PrivacyClass,
     ProfessionalBoundary, RedistributionStatus, ReviewStatus, RulePackLifecycleRecord,
 };
+use open_pipe_stress_units::{unit_by_symbol, Dimension as UnitDimension};
 
 /// Document member excluded from the canonical checksum payload. The
 /// checksum cannot cover itself; excluding exactly this member keeps the
@@ -838,6 +840,10 @@ pub struct RulePackDocumentValidation {
     pub lifecycle_findings: Vec<ValidationFinding>,
     pub lifecycle_blocked: bool,
     pub formulas: Vec<FormulaValidation>,
+    /// The static unit check (W-17). Its findings never enter
+    /// `has_blocking_findings`: an inconsistent check still blocks at run
+    /// time with the same code, and the run still evaluates the other checks.
+    pub unit_check: UnitCheck,
     pub checksum: ChecksumValidation,
     pub publicly_exportable: bool,
     pub professional_boundary_notice: String,
@@ -1175,6 +1181,8 @@ pub fn validate_rule_pack_document(
         })
         .collect();
 
+    let unit_check = check_rule_pack_units(document);
+
     let has_blocking_findings = document_findings.iter().any(|finding| finding.blocking)
         || lifecycle_findings.iter().any(|finding| finding.blocking)
         || formulas
@@ -1198,6 +1206,7 @@ pub fn validate_rule_pack_document(
         lifecycle_findings,
         lifecycle_blocked,
         formulas,
+        unit_check,
         checksum: ChecksumValidation {
             declared_value,
             computed,
@@ -1209,6 +1218,548 @@ pub fn validate_rule_pack_document(
              computed from user-supplied rule-pack content. Human review remains required."
                 .to_string(),
         has_blocking_findings,
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Static unit check (W-17, FR-RULE-002; DEL-06-02 `Design/rule-pack-unit-check.md`)
+// ---------------------------------------------------------------------------
+
+/// One unit-check operand: a quantity with its dimension and unit tokens, a
+/// boolean, or a type that is not known statically. Tokens only; never a
+/// magnitude.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct UnitCheckOperand {
+    /// `quantity` | `boolean` | `unknown`
+    pub kind: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dimension: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit_ref: Option<String>,
+}
+
+/// One unit-check finding. It carries a code, a subject id, a path into the
+/// pack, the operand dimension and unit tokens and a fixed message; it never
+/// carries a magnitude, a table row, a payload summary or a rendered
+/// expression (design §2.6).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct UnitCheckFinding {
+    /// An evaluator finding code as the runner reports it (`UnitMismatch`),
+    /// or a `RULE_PACK_*` code.
+    pub code: String,
+    /// `blocking`: the check fails on every run. `conditional`: the check
+    /// fails if this value slot supplies the limit at run time. `warning`.
+    pub severity: String,
+    pub subject: String,
+    pub path: String,
+    pub operands: Vec<UnitCheckOperand>,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct CheckUnitCheck {
+    pub check_id: String,
+    pub formula_id: String,
+    /// `consistent` | `findings` | `not_checkable`
+    pub status: String,
+    pub findings: Vec<UnitCheckFinding>,
+}
+
+/// The static unit check over every check definition. Units of solver
+/// results, entered values and library values are known only at run time and
+/// are checked when the check runs.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct UnitCheck {
+    /// `consistent` | `findings` | `not_checkable`
+    pub status: String,
+    pub checks: Vec<CheckUnitCheck>,
+    pub declaration_findings: Vec<UnitCheckFinding>,
+}
+
+const SEVERITY_BLOCKING: &str = "blocking";
+const SEVERITY_CONDITIONAL: &str = "conditional";
+const SEVERITY_WARNING: &str = "warning";
+
+/// A declared quantity intent: typed, or with `TBD`, empty or unknown
+/// dimension or unit metadata.
+enum DeclaredType {
+    Typed { dimension: Dimension, unit_ref: String },
+    Incomplete,
+}
+
+/// Mirrors the runner's binding: the dimension token is decoded as authored
+/// and the unit reference is compared trimmed.
+fn declared_type(intent: Option<&Value>) -> DeclaredType {
+    let token = |key: &str| {
+        intent
+            .and_then(|intent| intent.get(key))
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+    };
+    let unit_ref = token("unit_ref").trim();
+    match decode_dimension(token("dimension")) {
+        Some(dimension)
+            if dimension != Dimension::Tbd && !unit_ref.is_empty() && unit_ref != "TBD" =>
+        {
+            DeclaredType::Typed {
+                dimension,
+                unit_ref: unit_ref.to_string(),
+            }
+        }
+        _ => DeclaredType::Incomplete,
+    }
+}
+
+fn quantity_operand(dimension: Dimension, unit_ref: &str) -> UnitCheckOperand {
+    UnitCheckOperand {
+        kind: "quantity".to_string(),
+        dimension: Some(encode_dimension(dimension).to_string()),
+        unit_ref: Some(unit_ref.to_string()),
+    }
+}
+
+fn static_operand(value_type: &StaticType) -> UnitCheckOperand {
+    match value_type {
+        StaticType::Quantity {
+            dimension,
+            unit_ref,
+        } => quantity_operand(*dimension, unit_ref),
+        StaticType::Boolean => UnitCheckOperand {
+            kind: "boolean".to_string(),
+            dimension: None,
+            unit_ref: None,
+        },
+        StaticType::Unknown => UnitCheckOperand {
+            kind: "unknown".to_string(),
+            dimension: None,
+            unit_ref: None,
+        },
+    }
+}
+
+/// Raw declared tokens of an incomplete intent (each as authored).
+fn declared_operand(intent: Option<&Value>) -> UnitCheckOperand {
+    let token = |key: &str| {
+        intent
+            .and_then(|intent| intent.get(key))
+            .and_then(Value::as_str)
+            .map(str::to_string)
+    };
+    UnitCheckOperand {
+        kind: "unknown".to_string(),
+        dimension: token("dimension"),
+        unit_ref: token("unit_ref"),
+    }
+}
+
+fn expression_finding_message(code: FindingCode) -> &'static str {
+    match code {
+        FindingCode::TypeMismatch => {
+            "operand kinds are incompatible (quantity and boolean); the check fails on every run"
+        }
+        FindingCode::DimensionMismatch => {
+            "operand dimensions differ; the check fails on every run"
+        }
+        FindingCode::UnitMismatch => {
+            "operand units differ and the evaluator does not convert units; the check fails on \
+             every run"
+        }
+        FindingCode::UnsupportedExpressionForm => {
+            "the expression form is not representable in grammar v1.0.0 (an empty min or max, or \
+             an unrepresentable or ambiguous dimension product or quotient); the check fails on \
+             every run"
+        }
+        FindingCode::UnsafeConstruct => {
+            "the expression requests host access, which is never permitted"
+        }
+        FindingCode::InvalidReference => "a variable reference is empty",
+        FindingCode::UnitMetadataMissing => {
+            "a literal quantity lacks its explicit unit metadata; the check fails on every run"
+        }
+        FindingCode::TableMalformed => {
+            "a table in the expression is structurally invalid; the check fails on every run"
+        }
+        FindingCode::NonFiniteInput => "a literal quantity is not finite",
+        _ => "the expression fails this rule on every run",
+    }
+}
+
+/// The path of an expression node in the pack: the type check's
+/// `expression...` breadcrumb under the formula's `expression_ast`.
+fn expression_path(formula_index: usize, finding: &StaticFinding) -> String {
+    let rest = finding
+        .path
+        .strip_prefix("expression")
+        .unwrap_or(&finding.path);
+    format!("formula_declarations[{formula_index}].declaration_payload.expression_ast{rest}")
+}
+
+fn indexed<'a>(document: &'a Value, array_key: &str, id_key: &str) -> Vec<(&'a str, usize, &'a Value)> {
+    document
+        .get(array_key)
+        .and_then(Value::as_array)
+        .map(|items| {
+            items
+                .iter()
+                .enumerate()
+                .filter_map(|(index, item)| {
+                    item.get(id_key)
+                        .and_then(Value::as_str)
+                        .map(|id| (id, index, item))
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// Last declaration wins, as the runner's index does.
+fn find_declaration<'a>(
+    declarations: &[(&'a str, usize, &'a Value)],
+    id: &str,
+) -> Option<(usize, &'a Value)> {
+    declarations
+        .iter()
+        .rev()
+        .find(|(candidate, _, _)| *candidate == id)
+        .map(|(_, index, item)| (*index, *item))
+}
+
+fn ref_ids(value: Option<&Value>) -> Vec<(usize, &str)> {
+    value
+        .and_then(Value::as_array)
+        .map(|refs| {
+            refs.iter()
+                .enumerate()
+                .filter_map(|(index, item)| {
+                    item.pointer("/ref_id")
+                        .and_then(Value::as_str)
+                        .filter(|id| !id.is_empty())
+                        .map(|id| (index, id))
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// Declared units outside the DEC-018 catalog (design §2.4): a warning, not
+/// an error. A binding with the identical unit string still binds.
+fn catalog_findings(
+    declarations: &[(&str, usize, &Value)],
+    array_key: &str,
+    findings: &mut Vec<UnitCheckFinding>,
+) {
+    for (id, index, declaration) in declarations {
+        let intent = declaration.get("quantity_intent");
+        let DeclaredType::Typed {
+            dimension,
+            unit_ref,
+        } = declared_type(intent)
+        else {
+            continue;
+        };
+        let Ok(unit_dimension) = UnitDimension::from_schema_value(encode_dimension(dimension))
+        else {
+            continue;
+        };
+        if unit_by_symbol(&unit_ref, unit_dimension).is_ok() {
+            continue;
+        }
+        findings.push(UnitCheckFinding {
+            code: "RULE_PACK_UNIT_NOT_IN_CATALOG".to_string(),
+            severity: SEVERITY_WARNING.to_string(),
+            subject: id.to_string(),
+            path: format!("{array_key}[{index}].quantity_intent.unit_ref"),
+            operands: vec![quantity_operand(dimension, &unit_ref)],
+            message: "the declared unit is not a catalog unit for the declared dimension; only a \
+                      value entered in exactly this unit binds, and a value in any other unit \
+                      will be refused at run time"
+                .to_string(),
+        });
+    }
+}
+
+/// The static unit check of a rule-pack document (design §2).
+pub fn check_rule_pack_units(document: &Value) -> UnitCheck {
+    let required_inputs = indexed(document, "required_inputs", "input_id");
+    let value_slots = indexed(document, "value_slots", "slot_id");
+    let formulas = indexed(document, "formula_declarations", "formula_id");
+
+    let mut declaration_findings = Vec::new();
+    catalog_findings(&required_inputs, "required_inputs", &mut declaration_findings);
+    catalog_findings(&value_slots, "value_slots", &mut declaration_findings);
+
+    let checks: Vec<CheckUnitCheck> = document
+        .get("check_definitions")
+        .and_then(Value::as_array)
+        .map(|checks| {
+            checks
+                .iter()
+                .enumerate()
+                .map(|(index, check)| {
+                    check_one_unit_check(index, check, &required_inputs, &value_slots, &formulas)
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let status = if !declaration_findings.is_empty()
+        || checks.iter().any(|check| check.status == "findings")
+    {
+        "findings"
+    } else if checks.iter().any(|check| check.status == "not_checkable") {
+        "not_checkable"
+    } else {
+        "consistent"
+    };
+    UnitCheck {
+        status: status.to_string(),
+        checks,
+        declaration_findings,
+    }
+}
+
+fn check_one_unit_check(
+    check_index: usize,
+    check: &Value,
+    required_inputs: &[(&str, usize, &Value)],
+    value_slots: &[(&str, usize, &Value)],
+    formulas: &[(&str, usize, &Value)],
+) -> CheckUnitCheck {
+    let check_id = check
+        .get("check_id")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    let formula_id = check
+        .pointer("/formula_ref/ref_id")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    let not_checkable = || CheckUnitCheck {
+        check_id: check_id.clone(),
+        formula_id: formula_id.clone(),
+        status: "not_checkable".to_string(),
+        findings: Vec::new(),
+    };
+
+    // An undeclared formula, a non-AST declaration form, an absent or
+    // undecodable AST, or an authored refusal marker: the existing formula
+    // findings (or the runner) already block; nothing is repeated here.
+    let Some((formula_index, formula)) = find_declaration(formulas, &formula_id) else {
+        return not_checkable();
+    };
+    if formula.get("declaration_form").and_then(Value::as_str) != Some("declarative_ast") {
+        return not_checkable();
+    }
+    let Some(expression) = formula
+        .pointer("/declaration_payload/expression_ast")
+        .and_then(|ast| decode_expression(ast).ok())
+    else {
+        return not_checkable();
+    };
+    if expression_contains_refusal_marker(&expression) {
+        return not_checkable();
+    }
+
+    let mut findings = Vec::new();
+
+    // The environment (design §2.2): a variable is typed (or unknown) when
+    // the formula lists it in `input_refs`, the check lists it in
+    // `required_input_refs`, and `required_inputs` declares it. The runner
+    // binds exactly these; any other variable never binds.
+    let check_refs: Vec<&str> = ref_ids(check.get("required_input_refs"))
+        .into_iter()
+        .map(|(_, id)| id)
+        .collect();
+    let mut env = TypeEnv::new();
+    let mut incomplete_inputs: Vec<&str> = Vec::new();
+    for (_, id) in ref_ids(formula.get("input_refs")) {
+        if !check_refs.contains(&id) {
+            continue;
+        }
+        let Some((input_index, input)) = find_declaration(required_inputs, id) else {
+            continue;
+        };
+        let intent = input.get("quantity_intent");
+        match declared_type(intent) {
+            DeclaredType::Typed {
+                dimension,
+                unit_ref,
+            } => env.insert_typed(id, dimension, unit_ref),
+            DeclaredType::Incomplete => {
+                env.insert_unknown(id);
+                if !incomplete_inputs.contains(&id) {
+                    incomplete_inputs.push(id);
+                    findings.push(UnitCheckFinding {
+                        code: "RULE_PACK_UNIT_DECLARATION_INCOMPLETE".to_string(),
+                        severity: SEVERITY_WARNING.to_string(),
+                        subject: id.to_string(),
+                        path: format!("required_inputs[{input_index}].quantity_intent"),
+                        operands: vec![declared_operand(intent)],
+                        message: "the input's dimension or unit is TBD or empty, so the parts \
+                                  of the formula that use it cannot be checked statically"
+                            .to_string(),
+                    });
+                }
+            }
+        }
+    }
+
+    let type_check = check_expression_types(&expression, &env);
+    for finding in &type_check.findings {
+        let path = expression_path(formula_index, finding);
+        let operands = finding.operand_types.iter().map(static_operand).collect();
+        if finding.code == FindingCode::MissingVariable {
+            findings.push(UnitCheckFinding {
+                code: "RULE_PACK_UNDECLARED_VARIABLE".to_string(),
+                severity: SEVERITY_BLOCKING.to_string(),
+                subject: finding.subject_id.clone(),
+                path,
+                operands,
+                message: "the variable is not a declared required input listed in both the \
+                          formula's input_refs and the check's required_input_refs, so it never \
+                          binds; the check fails on every run"
+                    .to_string(),
+            });
+            continue;
+        }
+        findings.push(UnitCheckFinding {
+            code: format!("{:?}", finding.code),
+            severity: SEVERITY_BLOCKING.to_string(),
+            subject: finding.subject_id.clone(),
+            path,
+            operands,
+            message: expression_finding_message(finding.code).to_string(),
+        });
+    }
+
+    // The declared output dimension (read by no other code): a warning when
+    // it differs from the inferred quantity type.
+    if let StaticType::Quantity {
+        dimension,
+        unit_ref,
+    } = &type_check.value_type
+    {
+        let intent = formula.get("output_dimension");
+        if let DeclaredType::Typed {
+            dimension: declared_dimension,
+            unit_ref: declared_unit,
+        } = declared_type(intent)
+        {
+            if declared_dimension != *dimension || declared_unit != unit_ref.trim() {
+                findings.push(UnitCheckFinding {
+                    code: "RULE_PACK_OUTPUT_DIMENSION_DIFFERS".to_string(),
+                    severity: SEVERITY_WARNING.to_string(),
+                    subject: formula_id.clone(),
+                    path: format!("formula_declarations[{formula_index}].output_dimension"),
+                    operands: vec![
+                        static_operand(&type_check.value_type),
+                        quantity_operand(declared_dimension, &declared_unit),
+                    ],
+                    message: "the formula's declared output_dimension differs from the type \
+                              inferred from its expression"
+                        .to_string(),
+                });
+            }
+        }
+    }
+
+    // Limits, for quantity formulas only: a Boolean formula is a predicate
+    // and never reads a limit. Which referenced slot supplies the limit is
+    // decided at run time (the first with a supplied binding), so a declared
+    // incompatible slot is conditional, unless every referenced slot is
+    // declared and incompatible.
+    if let StaticType::Quantity {
+        dimension,
+        unit_ref,
+    } = &type_check.value_type
+    {
+        let mut slot_findings = Vec::new();
+        let mut all_incompatible = true;
+        let slot_refs = ref_ids(check.get("value_slot_refs"));
+        for (ref_index, slot_id) in &slot_refs {
+            let path = format!("check_definitions[{check_index}].value_slot_refs[{ref_index}]");
+            let Some((slot_index, slot)) = find_declaration(value_slots, slot_id) else {
+                all_incompatible = false;
+                findings.push(UnitCheckFinding {
+                    code: "RULE_PACK_LIMIT_SLOT_UNDECLARED".to_string(),
+                    severity: SEVERITY_WARNING.to_string(),
+                    subject: slot_id.to_string(),
+                    path,
+                    operands: vec![static_operand(&type_check.value_type)],
+                    message: "the value slot is not declared; its unit comes from the entered \
+                              value at run time, so nothing is checked here"
+                        .to_string(),
+                });
+                continue;
+            };
+            let intent = slot.get("quantity_intent");
+            match declared_type(intent) {
+                DeclaredType::Typed {
+                    dimension: slot_dimension,
+                    unit_ref: slot_unit,
+                } => {
+                    if slot_dimension == *dimension && slot_unit == unit_ref.trim() {
+                        all_incompatible = false;
+                        continue;
+                    }
+                    slot_findings.push(UnitCheckFinding {
+                        code: String::new(),
+                        severity: String::new(),
+                        subject: slot_id.to_string(),
+                        path,
+                        operands: vec![
+                            static_operand(&type_check.value_type),
+                            quantity_operand(slot_dimension, &slot_unit),
+                        ],
+                        message: String::new(),
+                    });
+                }
+                DeclaredType::Incomplete => {
+                    all_incompatible = false;
+                    findings.push(UnitCheckFinding {
+                        code: "RULE_PACK_UNIT_DECLARATION_INCOMPLETE".to_string(),
+                        severity: SEVERITY_WARNING.to_string(),
+                        subject: slot_id.to_string(),
+                        path: format!("value_slots[{slot_index}].quantity_intent"),
+                        operands: vec![declared_operand(intent)],
+                        message: "the value slot's dimension or unit is TBD or empty, so the \
+                                  limit comparison cannot be checked statically"
+                            .to_string(),
+                    });
+                }
+            }
+        }
+        for mut finding in slot_findings {
+            if all_incompatible {
+                finding.code = "RULE_PACK_LIMIT_UNIT_MISMATCH".to_string();
+                finding.severity = SEVERITY_BLOCKING.to_string();
+                finding.message = "every referenced value slot is declared with a dimension or \
+                                   unit that differs from the formula's, so the limit \
+                                   comparison fails on every run"
+                    .to_string();
+            } else {
+                finding.code = "RULE_PACK_LIMIT_CANDIDATE_MISMATCH".to_string();
+                finding.severity = SEVERITY_CONDITIONAL.to_string();
+                finding.message = "this value slot is declared with a dimension or unit that \
+                                   differs from the formula's; the check fails if this slot \
+                                   supplies the limit at run time"
+                    .to_string();
+            }
+            findings.push(finding);
+        }
+    }
+
+    CheckUnitCheck {
+        check_id,
+        formula_id,
+        status: if findings.is_empty() {
+            "consistent"
+        } else {
+            "findings"
+        }
+        .to_string(),
+        findings,
     }
 }
 

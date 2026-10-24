@@ -200,7 +200,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -7189,7 +7189,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "f74f37080bf4ac4919aee5af037607784574d5cde7ea518817a99c5716cb0d94",
+            "source_identity_sha256": "12edf319d801fbf248e77baa0b39f927106f1ae61d667b7564693d97c5e02b29",
             "source_ref": 0,
             "status": "selected"
           },
@@ -7507,7 +7507,7 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "34a0d69e40aee1c808a4d5e07e955339e2a3ffddc5d9bf4b21aae1ed01d573de"
+          "value": "5a4986adc1c4b9a8008aac21b8d5e951cd3920d3f3e8f69613b3c9e8ccc52b27"
         },
         "material_bases": [
           {
@@ -11776,7 +11776,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "188fe85802a59cf793ecbbe58c8ba564afaf74bc4841ce5a86e3947fee0a68fd"
+              "sha256": "1a6467af2ff938dea105d4c6ac469942cf9db19a681dec0718fe14686c33d97e"
             },
             "section_terms": [
               {
@@ -12752,7 +12752,7 @@
             },
             "preparation": {
               "attempt_ref": 1,
-              "sha256": "8f877edfd90bb1b2c2336ab8827ad3c2e6fd16a8eae42c0da15968e62f6b642b"
+              "sha256": "437b03777363492ddb077806e498f0ebd5e4d01d2e92c8785214f9e7a9e1172d"
             },
             "section_terms": [
               {
@@ -12889,7 +12889,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "1bbc2443c6f806640bca52cb67de0bbf4a2a1fda1c5eee7ba02ffbdf41c22fd3"
+      "receipt_sha256": "2419cd2590911167095860aa42cf846c4153ec917d9847f67021517f2f8153e0"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

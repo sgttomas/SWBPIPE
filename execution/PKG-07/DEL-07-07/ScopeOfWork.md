@@ -133,7 +133,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | REQ-07-07-001 | The solve UX shall initiate solve execution through an application-service command or job contract and shall not directly mutate domain-core or solver state from GUI components. | `_CONTEXT.md` Architecture Basis Injection; DEL-00-03 REQ-03-01 and REQ-03-03 |
+> | REQ-07-07-001 | The solve UX shall initiate solve execution through an application-service command or job contract and shall not directly mutate domain-core or solver state from GUI components. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; DEL-00-03 REQ-03-01 and REQ-03-03 |
 > | REQ-07-07-002 | The solve UX shall treat solve execution as a background job where cancellation, progress, and reproducibility metadata are provided by the service/job contract. Exact progress phases, percentages, and event names remain `TBD` until the job contract fixes them. | DEL-00-03 REQ-03-04; SOW-055 |
 > | REQ-07-07-003 | Progress presentation shall display only service-reported states, phases, counts, or messages; it shall not synthesize misleading completion percentages when the job contract does not supply them. | OPS-K-AGENT-1/2; DEL-00-03 REQ-03-04 |
 > | REQ-07-07-004 | Cancellation controls shall issue a cancellation request through the application-service boundary and shall preserve the final job/result-envelope state returned by that boundary. The GUI shall not bypass cancellation boundaries or claim successful cancellation without envelope evidence. | DEL-00-03 REQ-03-04; OPS-K-AGENT-1 |

@@ -11,7 +11,7 @@
 //!   the named load-closure detail while the producer's manifest keeps every
 //!   original summand.
 //!
-//! Requests are the frozen t4_u5b case descriptions, authored in 0.6.0 in
+//! Requests are the frozen t4_u5b case descriptions, authored in 0.7.0 in
 //! memory by the shared builder (`tests/common/t4_u5b.rs`).
 use super::*;
 use crate::certified_loads::supplied_mutant;

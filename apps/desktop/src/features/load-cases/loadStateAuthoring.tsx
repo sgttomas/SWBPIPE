@@ -4,6 +4,7 @@ import { validateModelOperation } from "../../services/operationService";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 import { makeRichIntent, record, setMember, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { isExactPressureContract } from "../pressure-authoring/pressureContract";
+import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 
 /* Plain input fields for the current exact load/reference-state group
  * (`openpipestress.load_reference_state/1.0.0`). Every edit is one whole-record
@@ -14,7 +15,7 @@ import { isExactPressureContract } from "../pressure-authoring/pressureContract"
  * queued for Review/Apply. Nothing here mutates the model, sets a default or
  * judges the record: an empty field is an absent key, and the engine decides. */
 
-export const LOAD_STATE_MODEL_VERSION = "0.6.0";
+export const LOAD_STATE_MODEL_VERSION = MODEL_SCHEMA_VERSION;
 export const LOAD_STATE_CONTRACT = "openpipestress.load_reference_state/1.0.0";
 export const LOAD_STATE_NEEDS_CURRENT = "Load/reference state needs the current model with an explicit exact pressure contract.";
 export const NOT_PRESENT = "not_present";

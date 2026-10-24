@@ -4,8 +4,8 @@ needs:
 - from: DEL-02-01
   condition: >-
     DEL-04-07 decodes the model document that DEL-02-01's canonical schema (`schemas/model.schema.yaml`)
-    defines: model 0.6.0 only, pressure-free without `pressure_contract` and on the exact contract with it,
-    with the retired versions, 0.5.0 included, refused by name (PP `model_format.rs`). It needs that canonical shape,
+    defines: model 0.7.0 only, pressure-free without `pressure_contract` and on the exact contract with it,
+    with the retired versions, 0.5.0 and 0.6.0 included, refused by name (PP `model_format.rs`). It needs that canonical shape,
     including the exact-contract fields (section `corrosion_allowance`, `pressure_contract.shear_model`).
     Primitive mathematics remains with its owners.
   gating: true
@@ -312,6 +312,7 @@ code_paths:
 - apps/desktop/src-tauri/src/host_memory.rs
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
+- core/product_physics/tests/silent_zero_guard_runtime.rs
 - core/product_physics/tests/pressure_runtime.rs
 - core/product_physics/tests/pressure_section_geometry.rs
 - core/product_physics/tests/t4_u2_pressure_references.rs

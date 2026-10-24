@@ -128,18 +128,18 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 >
 > | ID | Requirement | Evidence basis | Verification approach |
 > |---|---|---|---|
-> | REQ-06-01-001 | The future schema shall use JSON Schema 2020-12 conventions for public schema/interchange artifacts. | ContextBudgetQA row DEL-06-01; AB-00-04 | Schema meta-validation in a later implementation pass. |
-> | REQ-06-01-002 | The future schema shall include rule-pack identity, schema version, rule-pack version, lifecycle/status, and source-note metadata. | SOW-042; OPS-K-RULE-3 | Required-field schema validation. |
-> | REQ-06-01-003 | The future schema shall require provenance metadata for rule-pack values, allowable slots, formulas, and source bases. | OPS-K-IP-2; OPS-K-DATA-3; OPS-K-RULE-3 | Positive and negative provenance fixtures. |
-> | REQ-06-01-004 | The future schema shall record public/private classification and redistribution status for each rule pack and public-example candidate. | SOW-042; OPS-K-RULE-3; OPS-K-PRIV-1 | Redistribution-status fixture validation. |
-> | REQ-06-01-005 | The future schema shall include checksum metadata identifying algorithm, hash scope, hash value, and canonicalization basis for JSON payloads. | SOW-042; AB-00-04 | Canonical JSON/JCS-compatible hash fixture validation. |
-> | REQ-06-01-006 | The future schema shall support required-input declarations with units, dimensional categories, source/provenance requirements, and missing-value findings. | SOW-016; OPS-K-DATA-2; OPS-K-UNIT-1 | Missing-input and unit-mismatch fixtures. |
-> | REQ-06-01-007 | The future schema shall support formula declaration slots without embedding protected standards text, protected formulas, copied code equations, or arbitrary executable code. | SOW-016; OPS-K-IP-1; OPS-K-IP-3; OPS-K-RULE-2 | Protected-content review and evaluator-boundary review. |
-> | REQ-06-01-008 | The future schema shall support user-supplied allowable slots with units, provenance, source notes, redistribution status, and completeness status. | SOW-016; OPS-K-DATA-1; OPS-K-DATA-3 | Allowable-slot negative fixture validation. |
-> | REQ-06-01-009 | The future schema shall represent pass/fail/incomplete criteria for user-rule checks while preserving the distinction between user-rule checked and professionally approved. | OBJ-005; OPS-K-MECH-2; OPS-K-AUTH-1 | Status-model and report-wording review. |
-> | REQ-06-01-010 | The future schema shall emit or support structured diagnostics for rule-check blocking, provenance warning, unit mismatch, protected-content warning, evaluator error, and redistribution warning conditions. | AB-00-06; OPS-K-DATA-2; OPS-K-IP-3 | Diagnostic fixture validation. |
-> | REQ-06-01-011 | The future schema shall require public examples to use invented non-code values and explicit non-engineering notices. | OPS-K-RULE-1; SOW-016 note | Public-example protected-content gate. |
-> | REQ-06-01-012 | The future schema shall not treat agent-generated setup text as engineering authority, standards authority, legal conclusion, or professional approval. | OPS-K-AGENT-1; OPS-K-AGENT-4 | Review checklist. |
+> | REQ-06-01-001 | The schema shall use JSON Schema 2020-12 conventions for public schema/interchange artifacts. | ContextBudgetQA row DEL-06-01; AB-00-04 | Schema meta-validation in a later implementation pass. |
+> | REQ-06-01-002 | The schema shall include rule-pack identity, schema version, rule-pack version, lifecycle/status, and source-note metadata. | SOW-042; OPS-K-RULE-3 | Required-field schema validation. |
+> | REQ-06-01-003 | The schema shall require provenance metadata for rule-pack values, allowable slots, formulas, and source bases. | OPS-K-IP-2; OPS-K-DATA-3; OPS-K-RULE-3 | Positive and negative provenance fixtures. |
+> | REQ-06-01-004 | The schema shall record public/private classification and redistribution status for each rule pack and public-example candidate. | SOW-042; OPS-K-RULE-3; OPS-K-PRIV-1 | Redistribution-status fixture validation. |
+> | REQ-06-01-005 | The schema shall include checksum metadata identifying algorithm, hash scope, hash value, and canonicalization basis for JSON payloads. | SOW-042; AB-00-04 | Canonical JSON/JCS-compatible hash fixture validation. |
+> | REQ-06-01-006 | The schema shall support required-input declarations with units, dimensional categories, source/provenance requirements, and missing-value findings. | SOW-016; OPS-K-DATA-2; OPS-K-UNIT-1 | Missing-input and unit-mismatch fixtures. |
+> | REQ-06-01-007 | The schema shall support formula declaration slots without embedding protected standards text, protected formulas, copied code equations, or arbitrary executable code. | SOW-016; OPS-K-IP-1; OPS-K-IP-3; OPS-K-RULE-2 | Protected-content review and evaluator-boundary review. |
+> | REQ-06-01-008 | The schema shall support user-supplied allowable slots with units, provenance, source notes, redistribution status, and completeness status. | SOW-016; OPS-K-DATA-1; OPS-K-DATA-3 | Allowable-slot negative fixture validation. |
+> | REQ-06-01-009 | The schema shall represent pass/fail/incomplete criteria for user-rule checks while preserving the distinction between user-rule checked and professionally approved. | OBJ-005; OPS-K-MECH-2; OPS-K-AUTH-1 | Status-model and report-wording review. |
+> | REQ-06-01-010 | The schema shall emit or support structured diagnostics for rule-check blocking, provenance warning, unit mismatch, protected-content warning, evaluator error, and redistribution warning conditions. | AB-00-06; OPS-K-DATA-2; OPS-K-IP-3 | Diagnostic fixture validation. |
+> | REQ-06-01-011 | The schema shall require public examples to use invented non-code values and explicit non-engineering notices. | OPS-K-RULE-1; SOW-016 note | Public-example protected-content gate. |
+> | REQ-06-01-012 | The schema shall not treat agent-generated setup text as engineering authority, standards authority, legal conclusion, or professional approval. | OPS-K-AGENT-1; OPS-K-AGENT-4 | Review checklist. |
 >
 
 ### CLM-012 — Standards

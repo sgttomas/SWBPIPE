@@ -94,7 +94,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > - docs/AGENTIC_DEVELOPMENT_WORKFLOW.md — Type 2 execution and review expectations.
 > - execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority through the decision register) — DEL-01-02, SOW-003, SOW-028, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
 > - execution/_DAG/_LATEST.md — approved graph authority pointer.
-> - docs/_Registers/Deliverables.csv, ScopeLedger.csv, ContextBudgetQA.csv — register evidence.
+> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history), ScopeLedger.csv (retired in `48584391de`; see Git history), ContextBudgetQA.csv (retired in `48584391de`; see Git history) — register evidence.
 
 ## Completion and Reliance Basis — Epistemology
 

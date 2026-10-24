@@ -234,8 +234,9 @@ mod tests {
         keys.iter().map(|k| k.to_string()).collect()
     }
 
-    /// The committed model document schema (S1a, `schemas/model.schema.yaml`,
-    /// JSON syntax) is the authoritative key list of each closed record.
+    /// The committed model document schema (`schemas/model.schema.yaml`, JSON
+    /// syntax; model document 0.7.0) is the authoritative key list of each
+    /// closed record.
     const MODEL_SCHEMA: &str = include_str!("../../../schemas/model.schema.yaml");
 
     fn schema() -> serde_json::Value {
@@ -251,6 +252,31 @@ mod tests {
 
     fn def(schema: &serde_json::Value, name: &str) -> BTreeSet<String> {
         keys(&schema["$defs"][name], name)
+    }
+
+    /// The members model document 0.7.0 adds to the closed records (DEL-02-01
+    /// Design `model-document-0.7.0.md` §2, §3). `model_settings` is typed
+    /// (`model_settings.rs`); every other one is declared and ignored.
+    const ROOT_0_7_0: [&str; 6] =
+        ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs", "model_settings"];
+    const ANNOTATIONS_0_7_0: [&str; 2] = ["tags", "notes"];
+
+    #[test]
+    fn the_key_lists_are_model_document_0_7_0s() {
+        let schema = schema();
+        assert_eq!(schema["properties"]["schema_version"]["enum"], serde_json::json!([crate::MODEL_SCHEMA_VERSION]));
+        assert_eq!(crate::MODEL_SCHEMA_VERSION, "0.7.0");
+        let fields = record_fields();
+        for key in ROOT_0_7_0 {
+            assert!(fields.model.contains(&key), "model root declares {key}");
+        }
+        for key in ANNOTATIONS_0_7_0 {
+            assert!(fields.load_case.contains(&key), "load case declares {key}");
+            assert!(fields.combination.contains(&key), "combination declares {key}");
+            for (record, declared) in [("primitive load", fields.primitive_load), ("combination term", fields.term)] {
+                assert!(!declared.contains(&key), "{record} does not declare {key}");
+            }
+        }
     }
 
     #[test]

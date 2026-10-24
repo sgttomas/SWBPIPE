@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 import { DEFAULT_SHEAR_MODEL, documentShearModel, isPressureV3, isShearModel, PRESSURE_V3, pressureProfileTarget, SHEAR_MODEL_CHOICES, type ShearModel } from "./pressureContract";
+import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 
 export const MATERIAL_KEYS = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
 export function materialProjection(material: object): DraftRecord {
@@ -161,7 +162,7 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
     <fieldset disabled={state.busy}>{rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
       <TextField label={`Region ${index + 1} ID`} value={row.id} onChange={v => update(index, "id", v)} />
       <VirtualMultiTargetPicker label={`Region ${index + 1} member pipes`} options={pipes} values={Array.isArray(row.member_pipe_ids) ? row.member_pipe_ids as string[] : []} onChange={v => update(index, "member_pipe_ids", v)} />
-      {props.model.schema_version === "0.6.0" && <VirtualMultiTargetPicker label={`Region ${index + 1} member connectors`} options={connectors} values={Array.isArray(row.member_connector_ids) ? row.member_connector_ids as string[] : []} onChange={v => update(index, "member_connector_ids", v)} />}
+      {props.model.schema_version === MODEL_SCHEMA_VERSION && <VirtualMultiTargetPicker label={`Region ${index + 1} member connectors`} options={connectors} values={Array.isArray(row.member_connector_ids) ? row.member_connector_ids as string[] : []} onChange={v => update(index, "member_connector_ids", v)} />}
       <TextField label={`Region ${index + 1} pressure basis`} value={row.pressure_basis} choices={["internal_differential_zero_external_v1"]} onChange={v => update(index, "pressure_basis", v)} />
       <QuantityField label={`Region ${index + 1} pressure`} dimension={signed ? "pressure; signed (a negative value is a net external differential; external-pressure stability and collapse are not assessed)" : "pressure; p >= 0"} value={row.pressure} onChange={v => update(index, "pressure", v)} />
       {[0, 1].map(t => {

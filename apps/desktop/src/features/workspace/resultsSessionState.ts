@@ -106,7 +106,7 @@ export function useResultsSessionState() {
   const numericalHealthHoldView: NumericalHealthHold | null = verdictHold && numericalHealthPresentation
     ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline, outputSentence: numericalHealthPresentation.outputSentence }
     : null;
-  // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
+  // Pack rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
   const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
   // The rule-check run (loaded pack + outcomes) behind the lifted aggregate,
@@ -153,6 +153,9 @@ export function useResultsSessionState() {
     result, setResult,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
+     * result overlays; it admits nothing by itself. */
+    numericallyEligible,
     numericalHealth: numericalHealthPresentation,
     numericalHealthHold: numericalHealthHoldView,
     analysisRun, setAnalysisRun,

@@ -7,6 +7,7 @@
 // it reports its own named diagnostics on solve. As a last guard the session
 // also builds the model index for the candidate and refuses it if that throws.
 import type { PreviewModel } from "../../types";
+import { loadedWasmEngine, WASM_ENGINE_ABSENT_DIAGNOSTIC, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
 
 export type ModelFileDiagnostic = { code: string; path: string; message: string };
 
@@ -109,4 +110,60 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
 
 export function isDesktopModelDocument(document: unknown): document is PreviewModel {
   return modelDocumentShapeDiagnostics(document).length === 0;
+}
+
+/** The one document validator's findings for `document`, split by severity. */
+export type ModelDocumentSlotValidation = { blocking: ModelFileDiagnostic[]; warnings: ModelFileDiagnostic[] };
+
+/** One finding: the validator's own (`origin: "validator"`), or the engine's
+ * failure to judge the document (`origin: "engine"`: the engine is not loaded
+ * or reported an input error), which is blocking because nothing was checked. */
+export type ModelDocumentSlotFinding = ModelFileDiagnostic & {
+  severity: "blocking" | "warning";
+  affected_refs: string[];
+  origin: "validator" | "engine";
+};
+
+type ValidatorFinding = { code: string; severity: string; path: string; message: string; affected_refs?: string[] };
+
+/**
+ * W-13 §5.3: the model-data slots (tags, notes, lines, assumptions, constraints,
+ * equipment interfaces, rule-pack references, provenance records), checked by the
+ * applier's Rust validator through the wasm engine. The webview never re-implements
+ * it; without the engine, or when the engine reports an input error, the result is
+ * a blocking finding that names why, never an unchecked pass.
+ */
+export function modelDocumentSlotFindings(document: unknown): ModelDocumentSlotFinding[] {
+  const engine = loadedWasmEngine();
+  if (!engine) {
+    return [{
+      code: WASM_ENGINE_ABSENT_DIAGNOSTIC,
+      severity: "blocking",
+      path: "",
+      message: `The document validator is in the wasm engine, which is not loaded; build it with \`${WASM_ENGINE_BUILD_COMMAND}\`.`,
+      affected_refs: [],
+      origin: "engine"
+    }];
+  }
+  const report = JSON.parse(engine.validateModelDocumentJson(JSON.stringify(document))) as
+    { diagnostics?: ValidatorFinding[]; error?: { code: string; message: string } };
+  if (report.error) {
+    return [{ code: report.error.code, severity: "blocking", path: "", message: report.error.message, affected_refs: [], origin: "engine" }];
+  }
+  return (report.diagnostics ?? []).map((item) => ({
+    code: item.code,
+    severity: item.severity === "blocking" ? "blocking" : "warning",
+    path: item.path,
+    message: item.message,
+    affected_refs: item.affected_refs ?? [],
+    origin: "validator"
+  }));
+}
+
+export function modelDocumentSlotValidation(document: unknown): ModelDocumentSlotValidation {
+  const findings = modelDocumentSlotFindings(document);
+  const named = (severity: string) => findings
+    .filter((item) => item.severity === severity)
+    .map(({ code, path, message }) => ({ code, path, message }));
+  return { blocking: named("blocking"), warnings: named("warning") };
 }

@@ -94,16 +94,16 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | Diagnostics | `MaterialDiagnostic` records code, class, severity, source, affected reference, message, remediation, and provenance. The fixture emits `MATERIAL_PROPERTY_MISSING` as a blocking solve diagnostic. |
 > | Open decisions | `OpenDecision` preserves unresolved public fixture, source catalog, and allowable storage topics. Temperature interpolation is governed by DEC-077/092; its bounded evidence and no-extrapolation obligations remain required. |
 >
-> Current implementation (at `62c1efd75b`): the desktop Library Manager (`apps/desktop/src/features/library/LibraryManagerPanel.tsx`, through `apps/desktop/src/services/libraryImportService.ts`) imports an already-parsed material, section or component library document. The Tauri command `validate_library_import` in `apps/desktop/src-tauri/src/lib.rs` checks the document with `open_pipe_stress_library_import_document`, the Rust port of the DEL-03-07 provenance checker. It checks provenance, redistribution, review and quarantine; it does not validate the document against `schemas/material.schema.yaml`. `save_local_library` stores an accepted private import in the project's `local_libraries` table. A rule-pack input can read a stored record's value through `library_value_ref`.
+> Current implementation (at `62c1efd75b`): the desktop Library Manager (`apps/desktop/src/features/library/LibraryManagerPanel.tsx`, through `apps/desktop/src/services/libraryImportService.ts`) imports an already-parsed material, section or component library document. The Tauri command `validate_library_import` in `apps/desktop/src-tauri/src/lib.rs` checks the document with `open_pipe_stress_library_import_document`, the Rust port of the DEL-03-07 provenance checker. It checks provenance, redistribution, review and quarantine; it does not validate the document against `schemas/material.schema.yaml`. `save_local_library` stores an accepted private import in the project's `local_libraries` table. A rule-pack input can read a stored record's value through `library_value_ref`. Applying a stored record to model entities is designed in `Design/apply-library-records.md` (W-17) but not yet implemented.
 >
 
 ### CLM-007 — References
 
 > ##### References
 >
-> - docs/_Registers/Deliverables.csv row DEL-03-01
-> - docs/_Registers/ScopeLedger.csv row SOW-017
-> - docs/_Registers/ContextBudgetQA.csv row DEL-03-01
+> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history) row DEL-03-01
+> - docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history) row SOW-017
+> - docs/_Registers/ContextBudgetQA.csv (retired in `48584391de`; see Git history) row DEL-03-01
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - docs/CONTRACT.md invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1..4
 
@@ -142,7 +142,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | REQ-03-01-004 | The schema records public/private classification and redistribution status for material library data. | OPS-K-IP-2; OPS-K-PRIV-1; OPS-K-GOV-4 | Schema enums and fixture validation cover privacy and redistribution dispositions. |
 > | REQ-03-01-005 | The schema expresses missing solve-required or rule-check-required material values as explicit diagnostics or completeness findings, not defaults. | OPS-K-DATA-2; AB-00-06 | Fixture contains omitted values, incomplete status, and blocking `MATERIAL_PROPERTY_MISSING` diagnostics. |
 > | REQ-03-01-006 | The schema supports quarantine/escalation status for suspected protected material content. | OPS-K-IP-3 | Schema includes `protected_suspected` redistribution/value states and protected-content diagnostic code. |
-> | REQ-03-01-007 | The schema preserves versioned, provenance-preserving, schema-governed serialization behavior where material data is serialized. | AB-00-04 | Schema validation is present and project-carried material data consumes DEL-02-05's one-current-version contract (CLM-003; since B7 the code's one current model-document version is `0.6.0` and `0.1.0`–`0.5.0` are refused by name, DEL-04-08 Design `b7-plan.md`); a dedicated material serialization round-trip harness remains downstream `TBD`. |
+> | REQ-03-01-007 | The schema preserves versioned, provenance-preserving, schema-governed serialization behavior where material data is serialized. | AB-00-04 | Schema validation is present and project-carried material data consumes DEL-02-05's one-current-version contract (CLM-003; since B7 the code's one current model-document version is `0.7.0` and `0.1.0`–`0.6.0` are refused by name, DEL-04-08 Design `b7-plan.md`); a dedicated material serialization round-trip harness remains downstream `TBD`. |
 > | REQ-03-01-008 | The deliverable does not treat agent-generated setup text as engineering authority or source data. | OPS-K-AGENT-4 | Fixture provenance labels invented/schema-slot evidence and omits engineering values. |
 > | REQ-03-01-009 | The material property dimension vocabulary stays aligned with accepted PKG-02 dimensions. | DEL-02-01; DEL-02-02; PKG-02 audit finding resolution | `tests/test_material_schema.py` asserts material dimensions are a subset of canonical dimensions and exclude retired aliases. |
 >

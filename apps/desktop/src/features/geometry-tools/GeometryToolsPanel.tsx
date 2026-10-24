@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { TextField } from "../rich-authoring/formSupport";
-import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
+import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { VirtualList } from "../workspace/VirtualList";
 import { batchId, issue, useBatchQueue, type BatchFormProps } from "./batchFormSupport";
-import { buildGeometryBatch, emptyGeometryDraft, emptyIdentity, geometryPayload, selectedGeometry, type GeometryDraft, type NewIdentity } from "./geometryDraft";
+import { buildGeometryBatch, emptyGeometryDraft, emptyIdentity, geometryPayload, orphanCleanupNode, selectedGeometry, type GeometryDraft, type NewIdentity } from "./geometryDraft";
 export { buildGeometryBatch, geometryPayload } from "./geometryDraft";
 export type { GeometryDraft } from "./geometryDraft";
 
@@ -28,6 +28,14 @@ export function GeometryToolsPanel(props: BatchFormProps & { selectedPipeRefs?: 
     label: pipe.label || pipe.id,
     keywords: [pipe.from, pipe.to]
   })), [props.model.pipe_segments]);
+  const nodeOptions = useMemo(() => props.model.nodes.map((node) => ({
+    value: node.id,
+    label: node.label || node.id
+  })), [props.model.nodes]);
+  const reconnectSource = draft.action === "reconnect" && draft.pipeRefs.length === 1
+    ? props.model.pipe_segments.find((pipe) => pipe.id === draft.pipeRefs[0]) : undefined;
+  const orphan = orphanCleanupNode(props.model, draft);
+  const selectedNode = props.selection.type === "node" ? props.selection.id : "";
   const copyRows = useMemo(() => [
     ...draft.copyNodes.map((value) => ({ kind: "copyNodes" as const, value })),
     ...draft.copyPipes.map((value) => ({ kind: "copyPipes" as const, value }))
@@ -54,9 +62,10 @@ export function GeometryToolsPanel(props: BatchFormProps & { selectedPipeRefs?: 
     <h2 id="geometry-tools-title">Geometry tools</h2>
     <p>Split a straight run or transform explicitly selected geometry. All changes enter one batch for validation, preview and separate application.</p>
     <p>Split preserves endpoint nodal loads and supports but blocks components at either endpoint, pipe loads and wind exposure. Transforms block attached supports, components, loads, wind and unknown references. In-place transforms also block unselected incident pipes. Rotation and mirror require existing explicit local Y orientation. The engine reports exact blockers in the batch preview.</p>
+    <p>Reconnect moves one end of one pipe to another node; the other end stays and the pipe keeps its ID and data. It refuses a pipe that a component names, a pipe with a component other than a terminal marker at its fixed end or at the node it leaves or joins, a pressure-region member, a move onto a region's internal node, and any record it cannot carry across the geometry change; each refusal names its blocker. Parallel or coincident spans, a node left with no pipe, a model split and a junction without a branch component are warnings. A batch with a reconnect is applied only after a clean Validate on the current model.</p>
     <fieldset disabled={state.preparing}>
       <legend>Geometry draft</legend>
-      <TextField label="Geometry tool" value={draft.action} choices={["split", "translate", "rotate", "mirror"]} onChange={value => { state.cancel(); setDraft({ ...emptyGeometryDraft(), action: value as GeometryDraft["action"] }); }} />
+      <TextField label="Geometry tool" value={draft.action} choices={["split", "translate", "rotate", "mirror", "reconnect"]} onChange={value => { state.cancel(); setDraft({ ...emptyGeometryDraft(), action: value as GeometryDraft["action"] }); }} />
       <fieldset>
         <legend>Source pipe runs</legend>
         <VirtualMultiTargetPicker
@@ -76,7 +85,36 @@ export function GeometryToolsPanel(props: BatchFormProps & { selectedPipeRefs?: 
           ? `Frozen source snapshot: ${draft.pipeRefs.length} pipe${draft.pipeRefs.length === 1 ? "" : "s"}.`
           : "Select one or more pipes, then freeze them into this draft."}</p>
       </fieldset>
-      {draft.action === "split" ? <>
+      {draft.action === "reconnect" ? <>
+        <p data-testid="reconnect-current-ends">{reconnectSource
+          ? `Current ends of ${reconnectSource.id}: from ${reconnectSource.from}, to ${reconnectSource.to}.`
+          : "Select exactly one source pipe."}</p>
+        <TextField label="Reconnect end" value={draft.reconnectEnd} choices={["from", "to"]} onChange={value => setDraft(previous => ({ ...previous, reconnectEnd: value as GeometryDraft["reconnectEnd"], deleteOrphan: false }))} />
+        <label><input type="checkbox" checked={draft.toNewPoint} onChange={event => set("toNewPoint", event.target.checked)} /> To a new point</label>
+        {draft.toNewPoint ? <>
+          <IdentityFields label="New node" value={draft.newNode} onChange={value => set("newNode", value)} />
+          <fieldset>
+            <legend>New point (project length unit {props.model.project.units.length})</legend>
+            {(["x", "y", "z"] as const).map(key => <TextField key={key} label={`New point ${key.toUpperCase()}`}
+              value={draft.newPoint[key]} onChange={value => set("newPoint", { ...draft.newPoint, [key]: value })} />)}
+          </fieldset>
+        </> : <fieldset>
+          <legend>Target node</legend>
+          <VirtualTargetPicker label="Target node" options={nodeOptions} value={draft.targetNode} onChange={value => set("targetNode", value)} testId="reconnect-target-node" />
+          <button
+            type="button"
+            disabled={!selectedNode}
+            title={selectedNode ? "Use the currently selected node as the target." : "Select a node first."}
+            onClick={() => set("targetNode", selectedNode)}
+          >Use selected node</button>
+        </fieldset>}
+        <fieldset>
+          <legend>Optional y_reference (leave blank to keep the pipe's own)</legend>
+          {(["x", "y", "z"] as const).map(key => <TextField key={key} label={`Y reference ${key.toUpperCase()}`}
+            value={draft.yReference[key]} onChange={value => set("yReference", { ...draft.yReference, [key]: value })} />)}
+        </fieldset>
+        {orphan ? <label><input type="checkbox" checked={draft.deleteOrphan} onChange={event => set("deleteOrphan", event.target.checked)} /> Also delete node {orphan}</label> : null}
+      </> : draft.action === "split" ? <>
         <TextField label="Split fraction" value={draft.fraction} onChange={value => set("fraction", value)} />
         <p>Fraction measured from the source start node; original pipe ID remains on the first half. Coordinates use entered project length units.</p>
         <IdentityFields label="New node" value={draft.newNode} onChange={value => set("newNode", value)} />

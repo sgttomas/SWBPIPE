@@ -66,8 +66,8 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 >
 > | Condition | Status | Source |
 > |---|---|---|
-> | Exact analysis-run schema fields | Defined in the analysis record 0.3 schema; required SOW-072 categories still need producer/persistence conformance. | `_CONTEXT.md`; SOW-072 |
-> | Analysis run identifier format | Versioned schema and `core/analysis_runs/compatibility.py` define `run_id` and immutable record-revision identity; new identity semantics remain separately governed. | `_CONTEXT.md`; `docs/TYPES.md` general identifier guidance only |
+> | Exact analysis-run schema fields | Defined in the analysis record 0.3 schema; required SOW-072 categories still need producer/persistence conformance. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); SOW-072 |
+> | Analysis run identifier format | Versioned schema and `core/analysis_runs/compatibility.py` define `run_id` and immutable record-revision identity; new identity semantics remain separately governed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/TYPES.md` general identifier guidance only |
 > | Model-state reference semantics | Must bind to exact model states; detailed state-record schema is upstream and outside this folder. | SOW-072; `Dependencies.csv` DAG-002-E0783 |
 > | Solver version and settings representation | Required as part of the saved run record; versioned object evidence is in the selected schema member. | SOW-072 |
 > | Unit-system representation | Required as part of the saved run record; missing unit metadata for unit-bearing physical values must be diagnostic rather than silently supplied. | SOW-072; `docs/SPEC.md` section 4 |
@@ -75,7 +75,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > | Diagnostics and analysis statuses | Required as part of the saved run record; must preserve the professional-boundary status model. | SOW-072; `docs/SPEC.md` analysis boundary section |
 > | Rule-pack and library references | Required as references/checksum/provenance surfaces; private payloads and protected content are not public artifact content. | SOW-072; `docs/SPEC.md` rule-pack/result export sections |
 > | Result hashes | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | Reproducibility tests | Required artifact class; contract/compatibility test sources exist; no new execution pass is claimed. | `_CONTEXT.md` anticipated artifacts |
+> | Reproducibility tests | Required artifact class; contract/compatibility test sources exist; no new execution pass is claimed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) anticipated artifacts |
 >
 
 ### CLM-006 — Construction
@@ -146,17 +146,17 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 >
 > | ID | Requirement | Source | Verification |
 > |---|---|---|---|
-> | DEL-14-02-R001 | The deliverable shall produce or define `schemas/analysis_run.schema.json` as the analysis-run record schema artifact. | `_CONTEXT.md` anticipated artifacts; `docs/_Registers/Deliverables.csv` row DEL-14-02 | Artifact exists and is schema-validated once implementation occurs. |
-> | DEL-14-02-R002 | The analysis-run record shall bind each saved run to an exact model state reference. | SOW-072 in `docs/_Registers/ScopeLedger.csv`; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-14-02 row | Schema contains a required model-state reference or equivalent validated binding. |
-> | DEL-14-02-R003 | The analysis-run record shall preserve solver version, solver/settings basis, units, load-case basis, diagnostics, results, rule-pack references, library references, and result hashes. | SOW-072; `_CONTEXT.md` scope detail | Schema inspection and reproducibility tests confirm the categories are present or explicitly referenced. |
-> | DEL-14-02-R004 | Results shall attach to immutable analysis-run records rather than only to mutable current model state. | `docs/_Registers/ScopeLedger.csv` row SOW-072; `_CONTEXT.md` envelope notes | Mutation/round-trip test demonstrates stored run evidence remains associated with the original run basis. |
+> | DEL-14-02-R001 | The deliverable shall produce or define `schemas/analysis_run.schema.json` as the analysis-run record schema artifact. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) anticipated artifacts; `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-14-02 | Artifact exists and is schema-validated once implementation occurs. |
+> | DEL-14-02-R002 | The analysis-run record shall bind each saved run to an exact model state reference. | SOW-072 in `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history); `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-14-02 row | Schema contains a required model-state reference or equivalent validated binding. |
+> | DEL-14-02-R003 | The analysis-run record shall preserve solver version, solver/settings basis, units, load-case basis, diagnostics, results, rule-pack references, library references, and result hashes. | SOW-072; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) scope detail | Schema inspection and reproducibility tests confirm the categories are present or explicitly referenced. |
+> | DEL-14-02-R004 | Results shall attach to immutable analysis-run records rather than only to mutable current model state. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-072; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) envelope notes | Mutation/round-trip test demonstrates stored run evidence remains associated with the original run basis. |
 > | DEL-14-02-R005 | Unit-bearing physical values included or referenced by run records shall carry explicit unit metadata unless explicitly classified as dimensionless, ratio, percentage, or coefficient. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 | Schema validation and negative tests reject or diagnose missing unit metadata where required. |
 > | DEL-14-02-R006 | Missing solve-required or rule-check-required values shall be explicit findings with diagnostics and provenance, not silent defaults. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-DATA-2 | Tests confirm missing required values produce structured diagnostics. |
 > | DEL-14-02-R007 | Hash records shall identify payload scope, record revision and serialization profile. Analysis record 0.3.0 computed hashes use checked `openpipestress_jcs_ijson_v1` (input manifest `rfc8785_jcs`). Preserve received checksum evidence separately. Older records are refused by name and their bytes are never relabeled. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json` | Check 0.3 exact bytes/vectors, mutation sensitivity, received/computed separation, immutable record-revision identity, and the named refusal of 0.1, legacy-desktop 0.1 and 0.2 records. |
 > | DEL-14-02-R008 | The record shall preserve the software authority boundary: solver results and diagnostics are software outputs; human acceptance is external and hash-bound. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2 | Schema/status tests ensure automatic approval, certification, sealing, authentication, or code-compliance labels are not emitted (PRD §21.2). |
 > | DEL-14-02-R009 | Rule-pack and library references shall expose identity/provenance/checksum-style metadata where source-supported, without embedding protected standards text, protected tables, proprietary values, private formulas, or private payloads in public artifacts. | SOW-072; `docs/SPEC.md` result export section; `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content/private-data tests inspect examples and fixtures before acceptance. |
-> | DEL-14-02-R010 | Run reproducibility tests shall be part of the deliverable output surface. | `_CONTEXT.md` anticipated artifacts | Test files exist and exercise stable run-record/hash behavior once implementation occurs. |
-> | DEL-14-02-R011 | The schema and tests shall remain compatible with schema-first command/query/job result-envelope architecture. | `_CONTEXT.md` architecture basis; `docs/SPEC.md` runner/result-envelope sections | Service/result-envelope integration tests or contract tests are added when implementation scope reaches that boundary. |
+> | DEL-14-02-R010 | Run reproducibility tests shall be part of the deliverable output surface. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) anticipated artifacts | Test files exist and exercise stable run-record/hash behavior once implementation occurs. |
+> | DEL-14-02-R011 | The schema and tests shall remain compatible with schema-first command/query/job result-envelope architecture. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) architecture basis; `docs/SPEC.md` runner/result-envelope sections | Service/result-envelope integration tests or contract tests are added when implementation scope reaches that boundary. |
 >
 
 ### CLM-012 — Standards
@@ -167,7 +167,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > |---|---|---|
 > | JSON Schema 2020-12 contracts | Applicable architecture basis | `_CONTEXT.md` identifies JSON Schema 2020-12 contracts. The dispatcher/member schema files supply `$schema`, `$id` and placement evidence; public changes retain their governing scope. |
 > | Analysis-record hash basis | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | PRD v0.2 sections 8.7 and 15.2 / FR-CMP-002 | Referenced but not locally accessible as primary source text | Decomposition and registers cite these references. Do not derive clause-level requirements beyond the accessible SOW-072 wording. |
+> | PRD analysis-run requirements | Current primary source: docs/PRD.md §§8.7, 11.6 (FR-CMP-002), and 15.2 | Historical PRD v0.2 citations resolve to docs/PRD.md under its Forward Authority and Citation Resolution. Apply these requirements together with SOW-072 and the governing one-version serialization contract. |
 > | Protected-content and private-data governance | Applicable | `docs/CONTRACT.md` and `docs/IP_AND_DATA_BOUNDARY.md` govern public/private data handling. |
 > | Professional responsibility boundary | Applicable | `docs/CONTRACT.md` and `docs/SPEC.md` prohibit software-generated professional approval/compliance claims. |
 >
@@ -317,7 +317,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > - SOW-072 is sufficient to identify required binding categories, but it is not sufficient to define exact schema field names, cardinality, or migration behavior.
 > - The dependency mirror records approved graph resolved through `execution/_DAG/_LATEST.md` predecessor evidence for architecture basis, immutable model state records, analysis status semantics, audit manifest/hash conventions, result export format, and persistence/round-trip support. Those rows are an evidence surface, not independent graph authority.
 > - The deliverable should align with `schemas/results.schema.yaml` and result-export envelopes where run records include or point to result payloads, but this folder does not define the final result export schema.
-> - `PRD v0.2` references are cited by decomposition/register rows but the PRD source text was not locally read in this task. Requirements must not exceed accessible SOW/decomposition wording.
+> - Use `docs/PRD.md` §§8.7, 11.6 (FR-CMP-002), and 15.2 for analysis-run requirements; retain explicit TBDs for field-level choices not settled by the governing contracts.
 >
 
 ### CLM-027 — Trade-offs
@@ -346,7 +346,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | None identified | No direct source conflict was identified in the accessible source slices. Several details remain TBD because source text is absent or implementation-specific. | N/A | N/A | N/A | N/A | N/A |
+> | None identified | No direct source conflict has been identified. Details not settled by `docs/PRD.md` §§8.7, 11.6 and 15.2, SOW-072 or the governing contracts remain TBD. | N/A | N/A | N/A | N/A | N/A |
 
 ## Output and Evaluation Matrix
 

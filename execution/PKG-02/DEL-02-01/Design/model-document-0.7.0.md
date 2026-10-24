@@ -24,11 +24,7 @@ implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-0
   Typed lines, constraints (the ConstraintRecord subset) and equipment
   interfaces go in as data slots with no evaluation. That keeps FR-MOD-002
   (Must) met rather than narrowed, and it does not touch OD-3's deferral of
-  design-knowledge evaluation. The CLM-006 reading (§7.2) goes to the owner, and
-  S1b waits on it.
-- **HELP_HUMAN (2026-10-23):** S1 lands before W-4, and W-4 authors 0.7.0. Each
-  D3 exclusive run is scheduled through HELP_HUMAN. Two registrations of the same
-  registry never race: the later one merges main and reruns `generate --check`.
+  design-knowledge evaluation.
 
 Requirements: FR-MOD-001, -002, -004, -005, -006 (PRD §11.1). FR-MOD-003 holds
 unchanged: no new slot renames or re-keys an entity.
@@ -52,9 +48,11 @@ unchanged: no new slot renames or re-keys an entity.
   the decoder ignores: `data_boundary`, `project.name`/`description`, string
   labels and `diagnostics`. The desktop also writes members the decoder ignores,
   e.g. `components[].completeness`.
-- **The current schema.** `schemas/model.schema.yaml` describes an older shape
-  (`project.models[]`, `elements`, `traceability_links`). The bundled demo fails
-  it with 11 errors. Its consumers:
+- **The schema before S1a.** `schemas/model.schema.yaml` described an older
+  shape (`project.models[]`, `elements`, `traceability_links`), which the
+  bundled demo failed with 11 errors. Since S1a (#1554) it describes the 0.6.0
+  document and the old shape is `schemas/physical_transform_model.schema.yaml`.
+  The consumers of the old shape at the design basis:
   - **Validate old-shape fixtures:** `test_model_schema.py`,
     `test_physical_to_analytical_transform.py`,
     `test_invented_example_models.py` and `test_project_persistence_service.py`.
@@ -83,17 +81,17 @@ of the new members is read by the solve.
 
 **The solve decodes the whole document.** There is no projection to solve
 fields.
-- **HELP_HUMAN's ruling on order (2026-10-23).** The numerical-gaps unit's
-  `deny_unknown_fields` on `PreviewModelWire`, `PreviewLoadCase`,
-  `PreviewPrimitiveLoad` and `PreviewCombination` merges first. That change must
-  also declare the members documents already carry: `data_boundary` and
-  `diagnostics` on the root, and `kind`, `label` and `status` on load cases.
-- **What S1b then declares,** as accepted and unread, in the same change:
+- **Strict solve inputs.** `PreviewModelWire`, `PreviewLoadCase`,
+  `PreviewPrimitiveLoad` and `PreviewCombination` refuse unknown keys
+  (`deny_unknown_fields`). Every member a document may carry is declared on them,
+  including the desktop-only `data_boundary` and `diagnostics` on the root and
+  `kind`, `label` and `status` on load cases.
+- **0.7.0 declares,** as accepted and unread:
   - top-level `lines`, `unresolved_assumptions`, `constraints`,
     `equipment_interfaces` and `rule_pack_refs`;
   - `tags` and `notes` on load cases and combinations.
-- **Test.** S1b's tests include a 0.7.0 document carrying every new member that
-  solves end to end.
+- **Test.** A 0.7.0 document carrying every new member solves end to end, with
+  results equal to the same document without them.
 
 **The standard for every regenerated artifact** (precedent `f468da4651`): the
 version token plus every binding digest that follows from it, written by the
@@ -194,8 +192,7 @@ wording change. They are:
   (`semantic_contract_v0_3_pressure_2.json:2187`).
 
 The physics-retained-1 `accuracy_classification.scope` sentence is TBD-002 and
-stays untouched. The re-pricing gets independent review. The exclusive runs go
-through HELP_HUMAN.
+stays untouched. The re-pricing gets independent review.
 
 **`native-smoke/expected.json` does not change.** Both reviews confirmed this:
 it pins no version or hash, `run.mjs:157` hashes the file it opened, and the
@@ -338,13 +335,44 @@ third vocabulary:
 `library_ref` records the local library and record an entity was inserted from.
 - It matches the store's key `(project_id, library_kind, library_id)`
   (`src-tauri/src/lib.rs:875-885`).
-- The desktop sets it when it inserts a library record (S2).
+- The desktop sets it when it inserts or applies a library record (W-17,
+  DEL-03-01 Design `apply-library-records.md`; built in S2b).
 - It is the source of the handoff manifest's `library_refs` (W-6b).
-- The store keeps one document per library id (`:3768`). If the stored
-  library's version later differs from `library_version`, the reference reports
-  `MODEL-LIBRARY-REF-VERSION-CHANGED` (warning) and keeps the recorded version.
-  It is never silently updated.
-- The library payload never enters the document.
+- `library_version` = "sha256:" + the SHA-256 of the inserted record's RFC 8785
+  (JCS) form.
+- **Warnings.** The store keeps one document per library id (`:3768`). Both
+  warnings need the store, so they run at desktop open and load, not in the
+  applier validator:
+  - `MODEL-LIBRARY-REF-UNRESOLVED` when the store has no such library or record;
+  - `MODEL-LIBRARY-REF-VERSION-CHANGED` when the stored record's hash differs
+    from `library_version`.
+
+  The recorded version is never silently updated.
+- **E/ν rule** (HELP_HUMAN ruling, 2026-10-23: "the inserted material carries
+  E, ν and G. G is either stored (copied) or derived as G = E/(2(1+ν)), and
+  `provenance_record` states which, naming the basis 'derived from E and ν
+  (isotropic)'. Never derive G when the record already stores one, and never
+  discard ν."). As reconciled in W-17 §2.3a:
+  - **E/ν mode** writes E, ν (unit `1`), G and
+    `constitutive_basis: homogeneous_isotropic_E_nu_v1`, the only form the
+    material validators accept for a material carrying ν. G is the record's
+    stored G, copied bit for bit, or derived in Pa exactly as the exact route
+    derives it (E normalized to Pa, then E/(2(1+ν)); W-17 §2.3a), so the two
+    are bit-identical; `verification_note` says which and, when derived,
+    names the E and ν slots and values it came from.
+  - **E/G mode** writes E and G with no basis, and is refused when the record
+    or the target material holds ν (`LIBRARY-APPLY-NU-NOT-DISCARDED`).
+  - A record that stores G or ν in a slot that cannot be copied refuses,
+    naming the slot; G is never derived in place of a stored G.
+  - **Solve routes.** On the exact route the solver derives G from the
+    selected E/ν pair and ignores the retained G with
+    `EXACT_PRESSURE_REDUNDANT_G_IGNORED` (`pressure_material.rs`); on the
+    pressure-free route the stored G is the stiffness G. A derived G is the
+    same G on both routes; a stored G that differs from E/(2(1+ν)) is not. This is numerical meaning, so it has targeted
+    regression tests (applier `tests/library_apply.rs`).
+- No library metadata or record snapshot enters the document; only the
+  mapped values the user applies (with their units), the combined
+  `provenance_record` and `library_ref` do.
 
 - **Field names and enums** are the library import's
   (`REQUIRED_PROVENANCE_FIELDS`, `library_import_document/src/lib.rs:25`).
@@ -411,8 +439,39 @@ never block deletion, and a missing entity is reported as a warning.
   It goes to HELP_HUMAN as old → new, with the reasoning that no FR-MOD
   requirement is narrowed (§7).
 - **Rigid elements (DEC-045).** Components already carry `geometry.rigid_*` and
-  `modifiers.stiffness_scaling_user_value`. A field the rigid-element unit needs
-  comes through HELP_HUMAN before S1b's schema lands.
+  `modifiers.stiffness_scaling_user_value`; W-13 adds no rigid fields.
+
+### 3.8 Model settings (node-proximity tolerance)
+
+- **Ruling.** The owner ruled (2026-10-23, relayed by HELP_HUMAN) that the
+  near-duplicate node check uses a fixed 5 mm tolerance "and give the user the
+  means to change it". HELP_HUMAN approved this design the same day, adding that
+  the unit must be a length unit of the units catalog. The setting lives in the
+  model document, so the desktop and the headless runner warn identically.
+- **Member.** An optional top-level `model_settings`: a closed record of
+  model-level analysis and modeling settings, every member optional. Its one
+  member is `node_proximity_tolerance`, a length quantity `{value, unit}`.
+- **Default rule.** An absent `model_settings`, or an absent member, means
+  5 mm. The product never writes the default into a document the user did not
+  author. An authored `null` is not absence: the validator refuses it as
+  `MODEL-SLOT-SHAPE` and the solve wire refuses it, as for `model_settings`
+  itself.
+- **Admission.** The value must be finite and greater than zero, and the unit a
+  length unit of the units catalog; converted to metres, the value must still be
+  finite and greater than zero (a value too small to represent in metres is
+  `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`). Each refusal is named:
+  `MODEL-SETTING-TOLERANCE-NOT-FINITE`, `MODEL-SETTING-TOLERANCE-NOT-POSITIVE`
+  and `MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH` (a non-length or unknown unit);
+  a malformed record is `MODEL-SLOT-SHAPE`. The document validator (§5.3) and
+  product_physics' accessor give the same codes and messages.
+- **Readers.** product_physics declares the record on the solve wire
+  (`model_settings.rs`, a closed `ModelSettings`) and exposes the effective
+  tolerance in metres (`PreviewModel::node_proximity_tolerance_m`). The
+  topology check (DEL-04-06 Design `model-topology-checks.md`) reads it through
+  that accessor, and the solve refuses a malformed value with the accessor's
+  code before the check runs (`validation::validate_model_settings`). The desktop has no
+  editing control for it yet (S2a, #1565, authored the other slots); the desktop round-trips
+  the whole document.
 
 ## 4. The schema
 
@@ -637,10 +696,44 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
   present: it shows "Include nonlinear behavior" checked and then requires a
   behaviour. S2 makes the form read null as absent.
 
+**The wire as built (S2a, `model_data_authoring.rs`).** Where this differs from
+the text above, the code's reading within this section's intent is:
+- **Record operations** target the record's id (`target.ref`) with the
+  collection as `field_path`, unit `none`, dimension `dimensionless`. Create
+  carries before `not_present` and the record's JSON; update and delete carry
+  the current record's canonical JSON as before; delete has after
+  `not_present`. Create's `field_path` `<collection>[<index>]` places the
+  record at that index, so a delete's inverse puts it back where it was; a
+  plain `<collection>` appends. A collection a delete leaves empty is removed.
+  Every record operation therefore has an exact inverse. An authored id matches the applier's id
+  pattern and repeats no id of the document; a rule-pack id is the pack's own
+  and need only be non-blank. Record shape is judged by the validator.
+- **Rule-pack references** use object type `RulePackRef` (beside the four
+  record families and `Project`); there is no update.
+- **Annotations** resolve on the rich-authoring write path, which can remove a
+  member, rather than as a new `FieldKind`. Before is the member's canonical
+  JSON or `not_present`; after is JSON text, and only `null` clears. An
+  authored empty tag list is stored as `[]` (the validator accepts it), so the
+  inverse edit restores it.
+- **Validate-only** previews build the candidate result, so the validator
+  judges a preview as it judges the apply; batches accept the new object
+  types.
+- **Copy** keeps the copied pipe's tags and notes (it clones the record) and
+  joins no line.
+- **Desktop.** Edits queue structured operations for review and apply. The
+  model-data records live in the operations area's Model records tab.
+  `MODEL-RULE-PACK-REF-UNRESOLVED` is shown in the Rule Pack Manager after a
+  list refresh, not in the diagnostics list. Save Local Project and the
+  browser-preview store refuse a document with a blocking finding, and the
+  browser-preview store also refuses, by name, when the wasm engine holding
+  the validator is absent; the diagnostics list then says the slots were not
+  checked. Row editors re-seed from the stored record after apply, undo and
+  redo.
+
 ## 7. Owner-reserved text (exact old → new to HELP_HUMAN at the slice that needs it)
 
 1. **Version token 0.6.0 → 0.7.0.** These record OD-4, so HELP_HUMAN approves
-   them (HELP_HUMAN, 2026-10-23). Item 2 goes to the owner.
+   them (HELP_HUMAN, 2026-10-23). Item 2 went to the owner and is approved.
    - DEL-02-05 ScopeOfWork CLM-003, lines 33, 35, 37 and 100, and CLM-013
      line 178.
      - Line 33's "defined by the T4-U4b/U5b epoch" becomes a pointer to this
@@ -665,8 +758,9 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
        clause requires a root-level summary. The report's provenance summary
        stays with the Report row (CLM-012, line 177).
    - **This narrows no FR-MOD requirement.** It is still commitment text, so it
-     goes to the owner through HELP_HUMAN as exact old → new. Its approval is a
-     precondition for merging S1b.
+     went to the owner through HELP_HUMAN as exact old → new. **Approved:**
+     owner, 2026-10-23: "CLM‑006/CLM‑012, option A as recommended." The new
+     text below is applied in the ScopeOfWork.
    - **Exact text.** These are DEL-02-01 ScopeOfWork CLM-006 lines 79–83; lines
      77, 84 and 86 are unchanged.
      - **Old 79:** `- document/root metadata: schema version, application/schema identity, provenance summary, and migration/compatibility status where persisted;`
@@ -747,8 +841,8 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
      D3.
    - Checks: applier tests, `desktop-test`, `piping-pytest`, the native smoke
      where open/save changes, and dual review.
-4. **Order.** S1a, then S1b, then S2. W-4 authors 0.7.0 after S1b. The rigid-
-   element unit's fields, if any, join S1b.
+4. **Order.** S1a (#1554), then S1b, then S2. The rigid-element unit's fields,
+   if any, join S1b.
 
 ## 9. Reconciliation (per slice)
 

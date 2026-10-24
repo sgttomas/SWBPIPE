@@ -3,16 +3,20 @@
 //!
 //! The native side reads the file the user chose, parses it and applies the
 //! file-level checks: readable, bounded size, one JSON object, the product's
-//! model document kind, and a `schema_version` that the model-document version
-//! check does not refuse. The webview then checks the desktop document
-//! shape (`src/features/model-file/modelDocumentShape.ts`) before the session
-//! adopts the document.
+//! model document kind, a `schema_version` that the model-document version
+//! check does not refuse, and model-data slots that the one document
+//! validator (`open_pipe_stress_operation_applier::document_validator`, W-13
+//! §5.3) does not block. The validator's warnings travel with the opened
+//! document. The webview then checks the desktop document shape
+//! (`src/features/model-file/modelDocumentShape.ts`) and runs the same
+//! validator through the wasm engine before the session adopts the document.
 //!
 //! The document is returned exactly as read. No migration, defaulting or
 //! normalization is applied here, so the session's model hash is the hash of
 //! the file's document. Every refusal is named.
 
 use crate::model_document_version::evaluate_model_document;
+use open_pipe_stress_operation_applier::{validate_model_document, DocumentDiagnostic};
 use serde::Serialize;
 use serde_json::Value;
 use std::{fs, io::Read, path::Path};
@@ -40,11 +44,17 @@ pub enum ModelDocumentOpenOutcome {
         byte_count: u64,
         schema_status: String,
         document: Value,
+        /// The document validator's non-blocking findings (W-13 §5.3).
+        warnings: Vec<ModelFileDiagnostic>,
     },
     Refused {
         file_name: String,
         diagnostics: Vec<ModelFileDiagnostic>,
     },
+}
+
+fn file_diagnostic(finding: DocumentDiagnostic) -> ModelFileDiagnostic {
+    ModelFileDiagnostic { code: finding.code, path: finding.path, message: finding.message }
 }
 
 fn refused(file_name: String, code: &'static str, path: &str, message: String) -> ModelDocumentOpenOutcome {
@@ -133,11 +143,22 @@ pub fn read_model_document_bytes(file_name: String, bytes: &[u8]) -> ModelDocume
             ),
         );
     }
+    // W-13 §5.3: a malformed model-data slot is refused by name with its JSON
+    // path; it is never repaired.
+    let (blocking, warnings): (Vec<_>, Vec<_>) =
+        validate_model_document(&document).into_iter().partition(DocumentDiagnostic::is_blocking);
+    if !blocking.is_empty() {
+        return ModelDocumentOpenOutcome::Refused {
+            file_name,
+            diagnostics: blocking.into_iter().map(file_diagnostic).collect(),
+        };
+    }
     ModelDocumentOpenOutcome::Opened {
         file_name,
         byte_count,
         schema_status: evaluated.status,
         document,
+        warnings: warnings.into_iter().map(file_diagnostic).collect(),
     }
 }
 
@@ -147,6 +168,7 @@ mod tests {
     use serde_json::json;
 
     const DEMO: &str = include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
+    const EVERY_SLOT: &str = include_str!("../../../../fixtures/model_document/invented_every_slot_model.json");
 
     fn code(outcome: &ModelDocumentOpenOutcome) -> &'static str {
         match outcome {
@@ -197,6 +219,51 @@ mod tests {
         let mut document: Value = serde_json::from_str(DEMO).unwrap();
         document.as_object_mut().unwrap().remove("schema_version");
         assert_eq!(named(document.to_string().as_bytes()), "MODEL-FILE-SCHEMA-REFUSED");
+    }
+
+    /// W-13 §5.3: a document carrying every model-data slot opens unchanged; a
+    /// malformed slot is refused by name with its JSON path; a missing subject
+    /// or quarantined disposition opens with a warning.
+    #[test]
+    fn model_data_slots_are_validated_at_open() {
+        let every_slot: Value = serde_json::from_str(EVERY_SLOT).unwrap();
+        let outcome = read_model_document_bytes("slots.json".into(), EVERY_SLOT.as_bytes());
+        let ModelDocumentOpenOutcome::Opened { document, warnings, .. } = outcome else {
+            panic!("every-slot document refused: {outcome:?}");
+        };
+        assert_eq!(document, every_slot);
+        assert!(warnings.is_empty(), "{warnings:?}");
+
+        let mut malformed = every_slot.clone();
+        malformed["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
+        malformed["unresolved_assumptions"][0]["status"] = json!("resolved");
+        let outcome = read_model_document_bytes("m.json".into(), malformed.to_string().as_bytes());
+        let ModelDocumentOpenOutcome::Refused { diagnostics, .. } = outcome else {
+            panic!("malformed slots opened: {outcome:?}");
+        };
+        let named: Vec<_> = diagnostics.iter().map(|item| (item.code, item.path.as_str())).collect();
+        assert_eq!(named, vec![
+            ("MODEL-LINE-PIPE-MISSING", "lines[0].pipe_refs[0]"),
+            ("MODEL-ASSUMPTION-RESOLUTION-NOTE-REQUIRED", "unresolved_assumptions[0].resolution_note"),
+        ]);
+
+        let mut tagged = every_slot.clone();
+        tagged["nodes"][0]["tags"] = json!(["dup", "dup"]);
+        assert_eq!(code(&read_model_document_bytes("m.json".into(), tagged.to_string().as_bytes())), "MODEL-TAGS-INVALID");
+
+        let mut warned = every_slot.clone();
+        warned["equipment_interfaces"][0]["node_ref"] = json!("node:N-absent");
+        warned["materials"][0]["provenance_record"]["review_status"] = json!("quarantined");
+        let outcome = read_model_document_bytes("m.json".into(), warned.to_string().as_bytes());
+        let ModelDocumentOpenOutcome::Opened { document, warnings, .. } = outcome else {
+            panic!("warnings refused the document: {outcome:?}");
+        };
+        assert_eq!(document, warned);
+        let named: Vec<_> = warnings.iter().map(|item| (item.code, item.path.as_str())).collect();
+        assert_eq!(named, vec![
+            ("MODEL-PROVENANCE-QUARANTINE", "materials[0].provenance_record.review_status"),
+            ("MODEL-ASSUMPTION-SUBJECT-MISSING", "equipment_interfaces[0].node_ref"),
+        ]);
     }
 
     #[test]

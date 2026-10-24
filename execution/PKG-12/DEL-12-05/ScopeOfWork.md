@@ -223,7 +223,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | STM-REQ-009 | Diagnostics and result envelopes referenced by the threat model must use warning classes that include provenance, assumption, and IP-boundary signals where relevant. | `AB-00-06`; `docs/SPEC.md` section 7 | Control rows mention diagnostic classes and affected output paths. |
 > | STM-REQ-010 | The threat model must distinguish mechanics solved, user-rule checked, and human-approved states; it must not imply automatic code compliance or professional approval (PRD §21.2). | `OPS-K-AUTH-1`; `OPS-K-MECH-2`; `docs/TYPES.md` section 4 | Authority-boundary section is present and contains no certification/seal claims. |
 > | STM-REQ-011 | Supply-chain threats must include dependency/plugin package provenance, build/release artifact integrity, open-source license review, and protected-content review gates where applicable. | `AB-00-08`; `docs/PRD.md` technology considerations and risk table | Supply-chain threat rows include provenance/review gates and `TBD` implementation details. |
-> | STM-REQ-012 | Unknown implementation choices must remain `TBD` rather than being invented. | `OPS-K-AGENT-1`; `_CONTEXT.md` "Still TBD" | Open questions list marks exact permission, encryption, package, and transport decisions `TBD`. |
+> | STM-REQ-012 | Unknown implementation choices must remain `TBD` rather than being invented. | `OPS-K-AGENT-1`; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) "Still TBD" | Open questions list marks exact permission, encryption, package, and transport decisions `TBD`. |
 >
 
 ### CLM-018 — Threat Inventory

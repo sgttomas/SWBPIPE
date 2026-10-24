@@ -27,7 +27,7 @@ fn axial_request(force_n: f64, gap: Option<(&str, &str)>) -> LinearStaticPreview
     let mut model: Value = serde_json::from_str(include_str!(
         "../../../fixtures/product_preview/invented_preview_model.json"
     )).unwrap();
-    assert_eq!(model["schema_version"], "0.6.0");
+    assert_eq!(model["schema_version"], "0.7.0");
     model["nodes"] = json!([
         {"id":"node:axial-root","position":{"x":0.0,"y":0.0,"z":0.0},
          "provenance":"invented axial publication control; SI coordinates"},

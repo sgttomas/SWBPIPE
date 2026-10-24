@@ -109,7 +109,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The future implementation shall capture reproducibility metadata needed to replay or professionally review an SWBPIPE calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.
+> This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The implementation shall capture reproducibility metadata needed to replay or professionally review an SWBPIPE calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.
 >
 > The original setup run does not implement hashing code, tests, schemas, source files, or a physical project container. Those remain future implementation work under bounded Type 2 briefs.
 >
@@ -121,8 +121,8 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` row DEL-08-02; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
-> | DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+> | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-02; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
+> | DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | DEL-08-02-R3 | Non-JSON and binary assets shall be represented through manifest asset hashes rather than folded into the JSON payload hash. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | DEL-08-02-R4 | The manifest shall record software version and solver version sufficient to interpret deterministic result reproduction. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
 > | DEL-08-02-R5 | The manifest shall record rule-pack name or ID, version, checksum, source notice, and redistribution status where a rule pack participates in a report/run. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `docs/IP_AND_DATA_BOUNDARY.md` section 7 |

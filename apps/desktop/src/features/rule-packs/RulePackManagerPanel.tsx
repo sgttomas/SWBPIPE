@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FileText, ShieldAlert } from "lucide-react";
-import type { PreviewModel } from "../../types";
+import type { EditorOperationIntent, PreviewModel } from "../../types";
+import { RulePackModelReferences } from "../model-data/RulePackModelReferences";
 import {
   buildDraftRulePackDocument,
   computeRulePackChecksum,
@@ -14,6 +15,8 @@ import {
   type RulePackComputedChecksum,
   type RulePackDocument,
   type RulePackDocumentValidation,
+  type RulePackUnitCheckFinding,
+  type RulePackUnitCheckOperand,
   type RulePackValidationFinding
 } from "../../services/rulePackService";
 import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer";
@@ -57,10 +60,17 @@ type RulePackR3JourneyEvent =
 
 export function RulePackManagerPanel({
   model,
-  onR3JourneyEvent
+  onR3JourneyEvent,
+  queuedIntents,
+  onQueueIntent,
+  operationBusy = false
 }: {
   model: PreviewModel | null;
   onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
+  /** W-13 §3.4: "Use with this model" / "Remove from model" queue structured operations. */
+  queuedIntents?: EditorOperationIntent[];
+  onQueueIntent?: (intent: EditorOperationIntent) => void;
+  operationBusy?: boolean;
 }) {
   const [draft, setDraft] = useState<DraftState | null>(null);
   const [actionStatus, setActionStatus] = useState<string>(
@@ -68,6 +78,7 @@ export function RulePackManagerPanel({
   );
   const [listStatus, setListStatus] = useState<string>("Local rule-pack list not refreshed yet.");
   const [entries, setEntries] = useState<LocalRulePackIndexEntry[]>([]);
+  const [listRefreshed, setListRefreshed] = useState(false);
   const [validation, setValidation] = useState<RulePackDocumentValidation | null>(null);
   const [checksum, setChecksum] = useState<RulePackComputedChecksum | null>(null);
   // In-request busy guard: while a backend command is awaiting, the draft
@@ -88,6 +99,7 @@ export function RulePackManagerPanel({
   // project until saved).
   useEffect(() => {
     setEntries([]);
+    setListRefreshed(false);
     setListStatus("Local rule-pack list not refreshed for this project yet.");
   }, [projectId]);
 
@@ -146,6 +158,7 @@ export function RulePackManagerPanel({
         return;
       }
       setEntries(route.entries);
+      setListRefreshed(true);
       setListStatus(
         `Local store listed ${route.entries.length} rule pack(s)` +
           (projectId ? ` for ${projectId}.` : " across all local projects.")
@@ -375,6 +388,17 @@ export function RulePackManagerPanel({
           </article>
         ))}
       </div>
+      {model && onQueueIntent ? (
+        <RulePackModelReferences
+          model={model}
+          entries={entries}
+          listRefreshed={listRefreshed}
+          openPack={(entry) => openLocalRulePack(entry.project_id, entry.rule_pack_id)}
+          queuedIntents={queuedIntents}
+          onQueueIntent={onQueueIntent}
+          operationBusy={operationBusy || inFlight}
+        />
+      ) : null}
 
       {draft ? (
         parsedDraft && parsedDraft.ok ? (
@@ -498,6 +522,7 @@ export function RulePackManagerPanel({
             grammar={validation.grammar_version} supported=
             {String(validation.grammar_version_supported)}; publicly_exportable=
             {String(validation.publicly_exportable)}
+            {validation.unit_check ? `; unit_check=${validation.unit_check.status}` : null}
           </small>
           <div className="operation-record-list" data-testid="rule-pack-validation-findings">
             {collectFindings(validation).map((finding, index) => (
@@ -513,6 +538,50 @@ export function RulePackManagerPanel({
               </article>
             ))}
           </div>
+          {validation.unit_check ? (
+            <div className="report-list" data-testid="rule-pack-unit-check">
+              <strong>Unit consistency</strong>
+              <small data-testid="rule-pack-unit-check-note">
+                Units of solver results and entered values are checked when the check runs.
+              </small>
+              <div className="operation-record-list">
+                {validation.unit_check.checks.map((check, checkIndex) => (
+                  <article
+                    className="operation-record"
+                    data-testid={`rule-pack-unit-check-${check.check_id}`}
+                    key={`${check.check_id}:${checkIndex}`}
+                  >
+                    <strong>
+                      {check.check_id} (formula {check.formula_id || "none"})
+                    </strong>
+                    <small data-testid={`rule-pack-unit-check-status-${check.check_id}`}>
+                      status={check.status}
+                    </small>
+                    {check.findings.map((finding, index) => (
+                      <UnitCheckFindingRow
+                        finding={finding}
+                        key={`${finding.code}:${finding.path}:${index}`}
+                      />
+                    ))}
+                  </article>
+                ))}
+                {validation.unit_check.declaration_findings.length > 0 ? (
+                  <article
+                    className="operation-record"
+                    data-testid="rule-pack-unit-check-declarations"
+                  >
+                    <strong>Declared units</strong>
+                    {validation.unit_check.declaration_findings.map((finding, index) => (
+                      <UnitCheckFindingRow
+                        finding={finding}
+                        key={`${finding.code}:${finding.path}:${index}`}
+                      />
+                    ))}
+                  </article>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -524,6 +593,25 @@ export function RulePackManagerPanel({
         software computation over user-supplied data.
       </small>
     </section>
+  );
+}
+
+function describeOperand(operand: RulePackUnitCheckOperand): string {
+  if (operand.kind !== "quantity") return operand.kind;
+  return `${operand.dimension ?? "?"} [${operand.unit_ref ?? "?"}]`;
+}
+
+function UnitCheckFindingRow({ finding }: { finding: RulePackUnitCheckFinding }) {
+  return (
+    <div data-testid="rule-pack-unit-check-finding">
+      <small>
+        {finding.code} ({finding.severity}) subject={finding.subject}; path={finding.path}
+        {finding.operands.length > 0
+          ? `; operands=${finding.operands.map(describeOperand).join(" vs ")}`
+          : ""}
+      </small>
+      <p>{finding.message}</p>
+    </div>
   );
 }
 

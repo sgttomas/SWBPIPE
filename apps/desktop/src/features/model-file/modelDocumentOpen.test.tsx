@@ -19,10 +19,11 @@ vi.mock("../workspace/modelIndex", async (importOriginal) => {
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import milestoneRequest from "../../../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json";
 import sensitiveTorsionModel from "../../../../../fixtures/product_preview/numerical_sensitive_torsion_model.json";
+import everySlotModel from "../../../../../fixtures/model_document/invented_every_slot_model.json";
 import { App } from "../../App";
-import { checkNativeOutcome, modelFileRefusalMessage, openModelDocumentFile } from "../../services/modelDocumentFile";
+import { checkNativeOutcome, modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import type { PreviewModel } from "../../types";
-import { MODEL_FILE_SHAPE, modelDocumentShapeDiagnostics } from "./modelDocumentShape";
+import { MODEL_FILE_SHAPE, modelDocumentShapeDiagnostics, modelDocumentSlotValidation } from "./modelDocumentShape";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -103,6 +104,47 @@ describe("desktop model document shape", () => {
     expect(modelFileRefusalMessage("m.json", refusal.diagnostics)).toBe("Open model document refused (m.json): MODEL-FILE-NOT-JSON: bad");
   });
 
+  // W-13 §5.3: the webview runs the applier's Rust document validator through the
+  // wasm engine (no TypeScript re-implementation) before adopting a document.
+  it("opens a document carrying every model-data slot unchanged, with no warnings", () => {
+    expect(modelDocumentShapeDiagnostics(everySlotModel)).toEqual([]);
+    expect(modelDocumentSlotValidation(everySlotModel)).toEqual({ blocking: [], warnings: [] });
+    const native = { outcome: "opened" as const, file_name: "slots.json", byte_count: 3, schema_status: "current", document: clone(everySlotModel) };
+    const checked = checkNativeOutcome(native);
+    expect(checked).toEqual({ ...native, warnings: [] });
+    expect(checked.outcome === "opened" && checked.document).toEqual(everySlotModel);
+  });
+
+  it("refuses malformed model-data slots by name with their JSON paths", () => {
+    const document = clone(everySlotModel) as unknown as Record<string, any>;
+    document.lines[1].pipe_refs = ["pipe:P-1"];
+    document.rule_pack_refs[0].checksum.value = "not-a-digest";
+    document.load_cases[0].analysis_state = { notes: "closed solve input" };
+    const checked = checkNativeOutcome({ outcome: "opened", file_name: "bad.json", byte_count: 3, schema_status: "current", document });
+    expect(checked.outcome).toBe("refused");
+    expect(checked.outcome === "refused" && checked.diagnostics.map(({ code, path }) => [code, path])).toEqual([
+      ["MODEL-ANNOTATION-NOT-ALLOWED", "load_cases[0].analysis_state.notes"],
+      ["MODEL-LINE-PIPE-SHARED", "lines[1].pipe_refs[0]"],
+      ["MODEL-RULE-PACK-REF-INVALID", "rule_pack_refs[0].checksum.value"]
+    ]);
+  });
+
+  it("opens with the validator's warnings when a subject is missing or a disposition quarantined", () => {
+    const document = clone(everySlotModel) as unknown as Record<string, any>;
+    document.unresolved_assumptions[0].affected_refs = ["support:S-absent"];
+    document.supports[0].provenance_record.redistribution_status = "protected_suspected";
+    const checked = checkNativeOutcome({ outcome: "opened", file_name: "warn.json", byte_count: 3, schema_status: "current", document });
+    expect(checked.outcome).toBe("opened");
+    const warnings = checked.outcome === "opened" ? checked.warnings : [];
+    expect(warnings.map(({ code, path }) => [code, path])).toEqual([
+      ["MODEL-PROVENANCE-QUARANTINE", "supports[0].provenance_record.redistribution_status"],
+      ["MODEL-ASSUMPTION-SUBJECT-MISSING", "unresolved_assumptions[0].affected_refs[0]"]
+    ]);
+    expect(modelFileWarningSuffix(warnings)).toBe(
+      " Warnings: MODEL-PROVENANCE-QUARANTINE at supports[0].provenance_record.redistribution_status | MODEL-ASSUMPTION-SUBJECT-MISSING at unresolved_assumptions[0].affected_refs[0]."
+    );
+  });
+
   it("is native-only: the browser preview refuses by name without a fixture fallback", async () => {
     const outcome = await openModelDocumentFile();
     expect(outcome).toMatchObject({ outcome: "refused", diagnostics: [{ code: "MODEL-FILE-NATIVE-ONLY" }] });
@@ -135,7 +177,7 @@ describe("File > Open Model Document…", () => {
     await renderApp();
     act(() => nativeMenuCommand("file.open-model"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent(
-      "Opened model document opened.json (1234 bytes; schema_version 0.6.0, current). Not saved as a local project yet."
+      "Opened model document opened.json (1234 bytes; schema_version 0.7.0, current). Not saved as a local project yet."
     ));
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(document.project.id)}`)).toBeInTheDocument();
     expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(demoModel.project.id)}`)).not.toBeInTheDocument();

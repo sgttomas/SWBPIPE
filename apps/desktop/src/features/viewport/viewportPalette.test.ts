@@ -1,11 +1,18 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import * as THREE from "three";
+import { relativeContrastRatio } from "./viewportResource";
 import { describe, expect, it } from "vitest";
 import {
   CANVAS_TOKEN_KEYS,
   CATEGORY_TOKEN_SLOTS,
+  hexToOklch,
   isViewportPaletteRole,
+  oklchToHex,
+  RESULT_NO_VALUE_OPACITY,
+  RESULT_SCALE_STEPS,
+  resultNoValueHex,
+  resultScaleHex,
   parseTokenColour,
   VIEWPORT_PALETTE,
   VIEWPORT_PALETTE_ROLES,
@@ -33,11 +40,12 @@ function statedChannels(value: string): number[] {
 }
 
 describe("viewport palette tokens", () => {
-  it("exposes all 22 canvas tokens, the eight categorical slots and surface.raised", () => {
+  it("exposes all 22 canvas tokens, the eight categorical slots, the seven result-scale anchors and surface.raised", () => {
     expect(CANVAS_TOKEN_KEYS).toHaveLength(22);
     expect(CATEGORY_TOKEN_SLOTS).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(VIEWPORT_TOKEN_NAMES).toHaveLength(31);
-    expect(new Set(VIEWPORT_TOKEN_NAMES).size).toBe(31);
+    expect(RESULT_SCALE_STEPS).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(VIEWPORT_TOKEN_NAMES).toHaveLength(38);
+    expect(new Set(VIEWPORT_TOKEN_NAMES).size).toBe(38);
     expect(VIEWPORT_TOKEN_NAMES).toContain("surface.raised");
     // Every canvas and categorical token the file holds is exposed: a token added to the file
     // later cannot be missed silently.
@@ -45,6 +53,8 @@ describe("viewport palette tokens", () => {
     expect(CANVAS_TOKEN_KEYS.map((key) => `canvas.${key}`).sort()).toEqual(fileCanvasTokens);
     const fileCategoryTokens = Object.keys(tokenFile.color).filter((name) => name.startsWith("cat.")).sort();
     expect(CATEGORY_TOKEN_SLOTS.map((slot) => `cat.${slot}`).sort()).toEqual(fileCategoryTokens);
+    const fileScaleTokens = Object.keys(tokenFile.color).filter((name) => name.startsWith("result.scale.")).sort();
+    expect(RESULT_SCALE_STEPS.map((step) => `result.scale.${step}`).sort()).toEqual(fileScaleTokens);
   });
 
   it("resolves every token in both themes to the value the token file states", () => {
@@ -152,6 +162,8 @@ describe("viewport palette roles", () => {
       routeDraft: "canvas.draft",
       loadForce: "cat.1",
       loadMoment: "cat.2",
+      reactionForce: "canvas.vector",
+      reactionMoment: "canvas.vector",
       gizmoAxisX: "canvas.axisX",
       gizmoAxisY: "canvas.axisY",
       gizmoAxisZ: "canvas.axisZ",
@@ -162,7 +174,7 @@ describe("viewport palette roles", () => {
   });
 
   it("resolves every role in both themes to its token's value in the token file", () => {
-    expect(VIEWPORT_PALETTE_ROLES).toHaveLength(19);
+    expect(VIEWPORT_PALETTE_ROLES).toHaveLength(21);
     for (const theme of VIEWPORT_PALETTE_THEMES) {
       for (const role of VIEWPORT_PALETTE_ROLES) {
         const stated = tokenFile.color[VIEWPORT_ROLE_TOKENS[role]][theme];
@@ -195,6 +207,72 @@ describe("viewport palette roles", () => {
         expect(channel).toBeLessThan(1);
       }
       expect(Object.isFrozen(ratio)).toBe(true);
+    }
+  });
+});
+
+describe("result colour scale", () => {
+  const ground = (theme: "light" | "dark") => viewportTokenColour(theme, "canvas.bg").hex;
+  const samples = Array.from({ length: 61 }, (_, index) => index / 60);
+
+  it("is each result.scale token exactly at its anchor, and clamps outside 0 to 1", () => {
+    for (const theme of VIEWPORT_PALETTE_THEMES) {
+      RESULT_SCALE_STEPS.forEach((step, index) => {
+        expect(resultScaleHex(theme, index / 6), `${theme} ${step}`).toBe(Number.parseInt(tokenFile.color[`result.scale.${step}`][theme].slice(1), 16));
+      });
+      expect(resultScaleHex(theme, -1)).toBe(resultScaleHex(theme, 0));
+      expect(resultScaleHex(theme, 2)).toBe(resultScaleHex(theme, 1));
+      expect(resultScaleHex(theme, Number.NaN)).toBe(resultScaleHex(theme, 0));
+    }
+  });
+
+  it("round-trips a token through OKLCH", () => {
+    for (const theme of VIEWPORT_PALETTE_THEMES) {
+      for (const step of RESULT_SCALE_STEPS) {
+        const hex = viewportTokenColour(theme, `result.scale.${step}`).hex;
+        expect(oklchToHex(hexToOklch(hex))).toBe(hex);
+      }
+    }
+  });
+
+  it("runs monotone in lightness, away from the ground: darker toward the maximum in light, brighter in dark", () => {
+    for (const theme of VIEWPORT_PALETTE_THEMES) {
+      const lightness = samples.map((t) => hexToOklch(resultScaleHex(theme, t)).l);
+      for (let index = 1; index < lightness.length; index += 1) {
+        if (theme === "light") expect(lightness[index], `${theme} ${index}`).toBeLessThanOrEqual(lightness[index - 1] + 1e-9);
+        else expect(lightness[index], `${theme} ${index}`).toBeGreaterThanOrEqual(lightness[index - 1] - 1e-9);
+      }
+    }
+  });
+
+  it("stays one hue (teal) along the whole interpolated scale", () => {
+    for (const theme of VIEWPORT_PALETTE_THEMES) {
+      const hues = samples.map((t) => ((((hexToOklch(resultScaleHex(theme, t)).h * 180) / Math.PI) % 360) + 360) % 360);
+      expect(Math.max(...hues) - Math.min(...hues), theme).toBeLessThan(20);
+      for (const hue of hues) expect(hue).toBeGreaterThan(150);
+    }
+  });
+
+  it("reads at 2:1 or more against the ground everywhere on the scale, in both themes (design system 2.6, 2.9)", () => {
+    for (const theme of VIEWPORT_PALETTE_THEMES) {
+      const lowest = Math.min(...samples.map((t) => relativeContrastRatio(resultScaleHex(theme, t), ground(theme))));
+      expect(lowest, theme).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("derives the no-value colour from canvas.unsolved at 60% over canvas.bg, and keeps it off the scale", () => {
+    expect(RESULT_NO_VALUE_OPACITY).toBe(0.6);
+    for (const theme of VIEWPORT_PALETTE_THEMES) {
+      const over = new THREE.Color(viewportTokenColour(theme, "canvas.unsolved").hex);
+      const under = new THREE.Color(ground(theme));
+      const blended = resultNoValueHex(theme);
+      const channels = (hex: number) => [(hex >> 16) & 0xff, (hex >> 8) & 0xff, hex & 0xff];
+      const [unsolved, bg] = [viewportTokenColour(theme, "canvas.unsolved").hex, ground(theme)].map(channels);
+      expect(channels(blended)).toEqual(unsolved.map((value, index) => Math.round(value * 0.6 + bg[index] * 0.4)));
+      expect(over.equals(under)).toBe(false);
+      // A neutral grey, not a teal: its OKLCH chroma is far below the scale's.
+      expect(hexToOklch(blended).c).toBeLessThan(0.02);
+      expect(Math.min(...samples.map((t) => hexToOklch(resultScaleHex(theme, t)).c))).toBeGreaterThan(0.05);
     }
   });
 });

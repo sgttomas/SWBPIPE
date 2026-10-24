@@ -8,8 +8,8 @@ are not touched here. The synthetic reader controls (provenance
 ``b7-plan.md`` "Terms", *The corpus*) are retained statements with no producer run. This
 writer keeps their T4-U4b content current, deterministically, from each base's own data:
 
-1. the captured request's model ``schema_version`` 0.5.0 is re-authored to 0.6.0 (version
-   token only);
+1. the captured request's model ``schema_version`` 0.5.0 or 0.6.0 is re-authored to 0.7.0
+   (version token only; DEL-02-01 Design ``model-document-0.7.0.md`` section 2);
 2. ``formulation_basis`` takes the current text, read from the producer-written
    successor ``retained_precision_milestone_successor_sparse_interactive.json``;
 3. the not-covered derived rows (sigma+, sigma-, tau_v,max at the five stations) are formed
@@ -63,6 +63,9 @@ PREVIEW_TABLE = "fixtures/results/semantic_contract_v0_3_preview_physics_retaine
 EXACT_TABLE = "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 EXACT_CONTRACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 SYNTHETIC = "synthetic_reader_control_not_producer_execution_or_native_current"
+# The current model document version; the previous versions are re-authored by their version token alone.
+MODEL_VERSION = "0.7.0"
+PREVIOUS_MODEL_VERSIONS = ("0.5.0", "0.6.0")
 
 MAXIMUM = "pipe_elastic_normal_stress_maximum_v2"
 EXTREME = "element_local_normal_stress_extreme"
@@ -358,8 +361,8 @@ def regenerate_base(base, template, forms, definitions):
     """The base's new (source, invocation)."""
     invocation = copy.deepcopy(base["invocation"])
     model = invocation["request"]["model"]
-    if model.get("schema_version") == "0.5.0":
-        model["schema_version"] = "0.6.0"
+    if model.get("schema_version") in PREVIOUS_MODEL_VERSIONS:
+        model["schema_version"] = MODEL_VERSION
     old = base["source"]
     source = copy.deepcopy(old)
     source["formulation_basis"] = copy.deepcopy(template["source"]["formulation_basis"])

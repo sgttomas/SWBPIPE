@@ -14,8 +14,27 @@ export function parseOfflineBatch(text: string): OperationBatch {
     throw new Error("A batch needs a nonempty batch_id and at least one operation.");
   return value as OperationBatch;
 }
-export function OfflineProposalIntakePanel(props: WorkflowProps & { capabilityReference?: unknown }) {
+export function OfflineProposalIntakePanel(props: WorkflowProps & {
+  capabilityReference?: unknown;
+  /** On-demand executable examples (W-10), loaded when the reference is opened. */
+  loadOperationExamples?: () => Promise<Record<string, unknown>>;
+}) {
   const [text, setText] = useState("");
+  const [examples, setExamples] = useState<{ model: unknown; value: Record<string, unknown> } | null>(null);
+  const [examplesState, setExamplesState] = useState<"idle" | "loading" | "failed">("idle");
+  const loadExamples = () => {
+    if (!props.loadOperationExamples || examplesState === "loading" || examples?.model === props.model) return;
+    const model = props.model;
+    setExamplesState("loading");
+    props.loadOperationExamples().then(
+      (value) => { setExamples({ model, value }); setExamplesState("idle"); },
+      () => setExamplesState("failed")
+    );
+  };
+  const currentExamples = examples?.model === props.model ? examples.value : undefined;
+  const reference = props.capabilityReference === undefined || currentExamples === undefined
+    ? props.capabilityReference
+    : { ...(props.capabilityReference as Record<string, unknown>), operation_examples: currentExamples };
   const state = usePreparation(props, text);
   const disabledReason = props.busy ? "Wait for the current operation to finish before editing or queueing a proposal."
     : state.pending ? "Reading the proposal file. Wait for it to finish."
@@ -38,11 +57,15 @@ export function OfflineProposalIntakePanel(props: WorkflowProps & { capabilityRe
       catch (cause) { state.setError(cause instanceof Error ? cause.message : String(cause)); }
     }}>Queue imported batch for review</button>
     {state.error && <p role="alert">{state.error}</p>}
-    <details><summary>Offline authoring reference</summary>
+    <details onToggle={(event) => { if ((event.currentTarget as HTMLDetailsElement).open) loadExamples(); }}><summary>Offline authoring reference</summary>
       <p>Keep author, source, rationale and review flags intact. The application checks the complete batch through the shared operation engine.</p>
       {props.capabilityReference === undefined ? <p>The capability reference is not available in this view.</p> : <>
-        <a download="piping-operation-capabilities.json" href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(props.capabilityReference, null, 2))}`}>Download capability and schema reference</a>
-        <pre>{JSON.stringify(props.capabilityReference, null, 2)}</pre>
+        {props.loadOperationExamples ? <p data-testid="operation-examples-status">{examplesState === "loading"
+          ? "Checking an executable reconnect example against this model with the shared engine."
+          : examplesState === "failed" ? "The executable examples could not be checked; the reference below omits them."
+          : currentExamples ? "Executable examples were checked against this model by the shared engine." : "Open this reference to check executable examples against the current model."}</p> : null}
+        <a download="piping-operation-capabilities.json" href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(reference, null, 2))}`}>Download capability and schema reference</a>
+        <pre data-testid="capability-reference-json">{JSON.stringify(reference, null, 2)}</pre>
       </>}
     </details>
   </section>;

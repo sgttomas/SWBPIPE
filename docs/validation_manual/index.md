@@ -73,9 +73,9 @@ policy records remain the sources of record. All cases are `DRAFT_EVIDENCE`.
 The current PRD (`docs/PRD.md`, v0.4) has no §16.5. v0.1 §16.5 "Validation
 Manual" has no §22 successor; under the SCA-007 token mapping (A020) it maps
 to the §24 R6 validation-manual deliverable. The v0.1 text is at
-`docs/_history/PRD_v0.1.md` in Git history. The case-page generator still
-cites v0.1 numbering: "PRD section 16.5" in its docstring, and "PRD section
-16.2" in the branch-assembly page it renders. v0.1 §16.2 is §22.2 today.
+`docs/_history/PRD_v0.1.md` in Git history. The case-page generator cites
+the current numbering: §24 R6 for the validation manual and §22.2 for the
+branch-assembly benchmark (v0.1 §16.2).
 
 ### 3.1 Mechanics benchmark cases (`DEL-09-01`)
 

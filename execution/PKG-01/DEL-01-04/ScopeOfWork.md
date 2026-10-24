@@ -94,9 +94,9 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > - agents/AGENT_PREPARATION.md
 > - execution/_Decomposition/SOFTWARE_DECOMP.md
 > - execution/_DAG/_LATEST.md
-> - docs/_Registers/Deliverables.csv
-> - docs/_Registers/ScopeLedger.csv
-> - docs/_Registers/ContextBudgetQA.csv
+> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history)
+> - docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history)
+> - docs/_Registers/ContextBudgetQA.csv (retired in `48584391de`; see Git history)
 > - docs/PROFESSIONAL_BOUNDARY.md
 > - docs/report_notice_template.md
 >
@@ -137,7 +137,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | DEL-01-04-R06 | Draft and generated outputs shall remain proposals until accepted by a human gate. | OPS-K-AGENT-4; AGENTIC_DEVELOPMENT_WORKFLOW.md | Lifecycle/status language avoids issued/accepted claims unless human approval exists. |
 > | DEL-01-04-R07 | Unknown policy choices, legal interpretations, or jurisdiction-specific professional obligations shall be marked `TBD` and escalated for human/legal/professional review. | OPS-K-AGENT-1; DIRECTIVE.md stop rules | Review confirms no legal conclusion is stated as fact. |
 > | DEL-01-04-R08 | Public notices and examples shall not reproduce protected standards content or proprietary engineering data. | OPS-K-IP-1; OPS-K-REPORT-2 | Protected-content review gate. |
-> | DEL-01-04-R09 | Repo-level professional-boundary and report-notice text shall remain draft until a human review gate accepts it; local evidence must not present draft text as issued policy. | _CONTEXT.md write-scope limit; OPS-K-AGENT-4 | Review confirms this local kit does not present repo-level text as issued policy. |
+> | DEL-01-04-R09 | Repo-level professional-boundary and report-notice text shall remain draft until a human review gate accepts it; local evidence must not present draft text as issued policy. | _CONTEXT.md (retired in `497a8d81e4`; see Git history) write-scope limit; OPS-K-AGENT-4 | Review confirms this local kit does not present repo-level text as issued policy. |
 > | DEL-01-04-R10 | Product claims may frame SWBPIPE as an analysis-grade piping design engine and stress-model authoring environment only when acceptance and professional judgment remain with the responsible engineer. | SOW-064; OBJ-018; DIRECTIVE.md §1-§3 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance (PRD §21.2). |
 >
 

@@ -78,7 +78,7 @@ fn model(
         })
         .collect::<Vec<_>>();
     json!({"model": {
-        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:load-state-smoke", "units": {"length": "m"}},
         "analysis_status": {"mechanics": "ready", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
@@ -449,7 +449,18 @@ fn identity_material(points: Vec<Value>, laws: Value) -> Value {
 }
 
 fn resolved_member(request: &Value) -> Value {
-    let envelope = run(request, PreviewSolverMode::DenseScrutiny);
+    // A listed tip load gives the case an action, so a member whose state has
+    // no eigenstrain is not a refused reference-state-only model
+    // (`refuse_all_reference_states`); the member evidence read here does not
+    // depend on applied loads.
+    let mut request = request.clone();
+    let case = &mut request["model"]["load_cases"][0];
+    case["primitive_loads"].as_array_mut().unwrap().push(json!({"id": "load:identity-tip",
+        "category": "concentrated_force", "target": {"type": "node", "node": "node:b"}, "direction": "global_y",
+        "magnitude": {"value": 1.0, "unit": "N"}, "dimension": "force", "provenance": "invented"}));
+    case["analysis_state"]["load_sources"].as_array_mut().unwrap()
+        .push(json!({"source_ref": "load:identity-tip", "factor": 1.0}));
+    let envelope = run(&request, PreviewSolverMode::DenseScrutiny);
     assert!(
         blocking_codes(&envelope).is_empty(),
         "{:?}",

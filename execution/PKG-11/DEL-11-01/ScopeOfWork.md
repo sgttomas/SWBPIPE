@@ -64,12 +64,12 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > | Condition | Source basis | Effect on the guide skeleton |
 > |---|---|---|
-> | User documentation is in scope for PKG-11. | `docs/_Registers/Deliverables.csv` row DEL-11-01; `docs/_Registers/ScopeLedger.csv` row SOW-033 | The skeleton covers the user-facing workflow, not source code or examples. |
+> | User documentation is in scope for PKG-11. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-11-01; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-033 | The skeleton covers the user-facing workflow, not source code or examples. |
 > | Open mechanics and protected standards data must remain separated. | `AGENTS.md`; `docs/DIRECTIVE.md` sections 1-4; OPS-K-IP-1 through OPS-K-IP-3 | Guide sections must describe user/private data requirements without copying or paraphrasing protected standards content. |
 > | Mechanics solve, user rule check, and professional approval are separate states. | `docs/TYPES.md` sections 4 and 6; OPS-K-AUTH-1 | The guide outline must explain statuses and warnings without implying automatic code compliance (PRD §21.2). |
 > | Primary global analysis is a 3D centerline/frame model. | `docs/DIRECTIVE.md` section 3; `docs/SPEC.md` sections 1 and 4 | Modeling sections emphasize centerline nodes, elements, components, supports, loads, and unit-aware fields. |
 > | Reports must be auditable and boundary-aware. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 and OPS-K-AUTH-1 | Reporting sections include provenance, warnings, hashes/checksums, limitations, and human review notice. |
-> | Future implementation details are unresolved. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
+> | Future implementation details are unresolved. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
 >
 
 ### CLM-006 — Construction
@@ -136,8 +136,8 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > | ID | Requirement | Source basis | Acceptance hook |
 > |---|---|---|---|
-> | UG-REQ-001 | The guide skeleton shall include sections for project setup, modeling, solving, rule checks, reports, and limitations. | `_CONTEXT.md` Description; `docs/_Registers/Deliverables.csv` row DEL-11-01 | Procedure verification confirms all required section slots exist. |
-> | UG-REQ-002 | Setup content shall preserve unresolved implementation details as `TBD` where packaging, dependency versions, public API transport, import/export formats, solver library, expression grammar, or project container are not yet decided. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` open issues | Review confirms no invented setup commands or product behavior are asserted. |
+> | UG-REQ-001 | The guide skeleton shall include sections for project setup, modeling, solving, rule checks, reports, and limitations. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Description; `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-11-01 | Procedure verification confirms all required section slots exist. |
+> | UG-REQ-002 | Setup content shall preserve unresolved implementation details as `TBD` where packaging, dependency versions, public API transport, import/export formats, solver library, expression grammar, or project container are not yet decided. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` open issues | Review confirms no invented setup commands or product behavior are asserted. |
 > | UG-REQ-003 | Modeling content shall frame the global model as a unit-aware 3D centerline/frame model with explicit nodes, elements, components, supports, loads, and provenance-bearing fields. | `docs/DIRECTIVE.md` sections 2-3; `docs/SPEC.md` sections 1, 3, 4, and 7 | Datasheet Construction and Guidance Principles cover model-building categories. |
 > | UG-REQ-004 | Solving content shall distinguish mechanics solve status from rule-check status and human professional acceptance. | `docs/TYPES.md` sections 4 and 6; OPS-K-MECH-2; OPS-K-AUTH-1 | Search and review confirm no automatic `CODE_COMPLIANT` status or professional approval claim appears. |
 > | UG-REQ-005 | Rule-check content shall state that code-specific values, allowables, combinations, formulas, SIFs, flexibility factors, owner requirements, and proprietary data are supplied by users through lawful private data or rule packs. | `AGENTS.md`; `docs/DIRECTIVE.md` sections 1 and 3; OPS-K-DATA-1; OPS-K-RULE-1 and OPS-K-RULE-3 | Guidance examples exclude protected and proprietary source material. |

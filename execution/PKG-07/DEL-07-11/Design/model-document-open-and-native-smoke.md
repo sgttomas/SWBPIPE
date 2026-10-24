@@ -24,14 +24,14 @@ export use their existing routes unchanged.
   - `MODEL-FILE-DOCUMENT-KIND` (`openpipestress.product_preview.model` only, so a
     solve request `{model, materials}` is refused);
   - `MODEL-FILE-SCHEMA-REFUSED`, for the statuses that project open and save
-    also refuse: `retired_schema` (any version below 0.6.0, including 0.1.0
-    through 0.5.0, with the `MODEL_SCHEMA_VERSION_RETIRED` re-author
+    also refuse: `retired_schema` (any version below 0.7.0, including 0.1.0
+    through 0.6.0, with the `MODEL_SCHEMA_VERSION_RETIRED` re-author
     diagnostic), `newer_than_supported` and `unsupported_schema` from the one
     version check, `evaluate_model_document`
     (`src-tauri/src/model_document_version.rs`; DEL-02-05 CLM-003). Model
-    document 0.6.0 is the one current version; B7b retired 0.3.0 and 0.4.0, and
-    T4-U4b/U5b retired 0.5.0. The version check reads the version only: a 0.6.0
-    document that declares a
+    document 0.7.0 is the one current version; B7b retired 0.3.0 and 0.4.0,
+    T4-U4b/U5b retired 0.5.0 and W-13 S1b retired 0.6.0. The version check reads
+    the version only: a 0.7.0 document that declares a
     retired pressure contract passes it unchanged, and its solve publishes no
     rows, with the blocking diagnostic `PRESSURE_MODEL_REAUTHOR_REQUIRED`. This
     path adds no migration or compatibility code.
@@ -193,7 +193,11 @@ Then, for the milestone and the demo, it:
 **Phase 2** is a new process. It reopens each project and solves again.
 
 `run.mjs` checks the observations against `native-smoke/expected.json`. Those
-values come from T3's G10 jsdom replay and are not re-pinned from a native run.
+values come from T3's G10 jsdom replay. The owner's ruling of 2026-10-24 set
+the five row and N1 values to the native observations: milestone 113 rows in
+both modes and N1 "…47199 mm" sparse, demo 745 rows in both modes. The causes
+are #1461 (15 rows per member per case) and #1387 E14 (no dense parity row)
+and E15 (correctly rounded norm3); see DEL-07-05 Design `owner-mac-check.md`.
 It also checks:
 
 - the proof hash against its own JCS hash of each file;
@@ -215,11 +219,66 @@ It also checks:
   shows the row count the export panel showed, and accounts for every row of the
   solve;
 - where `expected.json` says a case's export is not offered, the export panel's
-  text, and that nothing was written. Since K-D5 (DEL-04-01
-  `kd5-member-relative-bound.md` §5) the demo, like the milestone, is
-  Sensitive and so not Current: neither case offers an export. The saved demo
-  run must be Sensitive, with its rows, and carry two non-blocking
-  `NUMERICAL_INTEGRITY_SENSITIVE` warnings with the route's sentence.
+  text, and that nothing was written. The milestone is Sensitive and so not
+  Current, and offers none. Under K-D5 on the converged active set (DEL-04-01
+  `kd5-nonlinear-active-set.md` §5) the demo is `checks_passed` and Current, and
+  its result export is offered and written.
+
+**From blank and the output gates (W-4).** Phase 1 then continues in the same
+process, and phase 2 reopens what it saved. None of these checks reads a value
+from `expected.json`; each is judged by identity, by a closed form or by a
+refusal named in the product:
+
+- **The demo's local-private report.** With "Include known private values in
+  this local rendered report" selected, the render is unblocked in the
+  `local_private` context, shows a canonical HTML SHA-256, passes its export
+  gates, and offers the local-private save, with the warning and the
+  document's LOCAL PRIVATE notice.
+- **Rule checks.** The bundled demo pack runs on the demo and on the
+  exact-route model. Both are refused as `RULE_INPUTS_INCOMPLETE`, naming
+  `demo_actual_quantity` and `demo_limit_quantity` as missing.
+- **Exact-route gates.** It opens
+  `fixtures/model_operations/exact_pressure_authoring_model.json` and solves
+  it. The proof must carry the file's JCS hash, and the standing must name
+  `3.0.0/exact_pressure_v3`. Each refusal is read from the surface's own output
+  gate:
+  - In the rendered-report panel, the gate shows
+    `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` and no render control.
+  - In the MBF panel, the gate shows the same code, with neither the package
+    nor the MBF text download.
+  - The result JSON export is offered. The driver waits for the asynchronous
+    packet.
+- **A model authored from blank.**
+  - **Authoring.** New Blank Project must open the units dialog (SI, US
+    customary, custom); the default SI is accepted. The driver then authors
+    through the GUI a node, a material, a pipe to a new node, a fixed support,
+    a load case and a 350 N tip force. It uses the viewport commands, the
+    toolkit, the target pickers and Review changes, and applies each queued
+    intent. The inputs are in `run.mjs` (`BLANK`).
+  - **Solve.** It solves natively. Checked:
+    - integrity `checks_passed`;
+    - with the filter cleared, the results count every solved row;
+    - the deformation overlay is available for both nodes. That is the
+      overlay's state, not proof of drawing: no check here or in the browser
+      specs inspects the drawn deformed pipe (`rotation-glyph` draws the
+      rotation glyphs only);
+    - the tip's displacement magnitude and its signed `uy` equal the
+      Euler–Bernoulli PL³/3EI from the same inputs within 1e-9 relative
+      (DEC-024/026 criterion), and `ux` and `uz` are zero.
+  - **Save.** Save Local Project saves in place without a prompt. The stored
+    model must hold:
+    - the seven unit keys and the authored entities;
+    - a support fixing all six DOF at the anchor;
+    - the tip force as 350 N along `global_y` at the tip node.
+
+    Its JCS hash must equal the solve proof's.
+  - **Reopen.** Phase 2 reopens that project in a fresh process and solves it
+    again. The proof must carry the stored model's hash, with the same rows,
+    tip value and hash as before the save, and the same signed tip
+    deflection.
+
+A broken step stops the driver, the phase reports not completed, and every
+later check fails for want of its observation.
 
 Run it on a Mac with a GUI session:
 

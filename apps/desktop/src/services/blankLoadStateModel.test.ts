@@ -13,20 +13,22 @@ import type { PreviewModel } from "../types";
 const AT = new Date("2026-06-12T00:00:00Z");
 // sha256 (RFC 8785) of buildBlankLocalModelDocument(AT), computed on the base
 // tree 1b95d0b66 before this change and re-pinned by B7a, which made the blank
-// a current 0.5.0 document, and by model 0.6.0 (its schema_version is the only
-// change each time).
-const BASE_BLANK_SHA256 = "88ea28c84ddde13c25ef0439cdcda95030d6e5072a212d8469fbbf638ddd4945";
+// a current 0.5.0 document, and by models 0.6.0 and 0.7.0 (its schema_version is the only
+// change each time). Re-pinned by W-17 slice (a), which adds project.units.angle
+// = rad and changes nothing else (projectUnitSelection.test.ts checks that the
+// blank without angle still hashes to the previous pin).
+const BASE_BLANK_SHA256 = "62150fee9c6398c823345032f1fba4e710dbf0810c24a6261b96db7fa872dd10";
 // T4-U8 (D-6/O3): the blank's contract carries the authoring default shear model.
 const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
 
-// The load/reference-state blank is the one current version, 0.6.0, with the exact
+// The load/reference-state blank is the one current version, 0.7.0, with the exact
 // contract the group requires and an empty reference-configuration list (0.4.0 is retired).
-describe("blank load/reference-state model (T1 WP3 item 2; current model 0.6.0)", () => {
+describe("blank load/reference-state model (T1 WP3 item 2; current model 0.7.0)", () => {
   it("leaves the existing blank builder byte-identical", async () => {
     expect(await canonicalSha256Hex(buildBlankLocalModelDocument(AT))).toBe(BASE_BLANK_SHA256);
   });
 
-  it("builds a 0.6.0 document with the current pressure contract (3.0.0/exact_pressure_v3) and no engineering content", async () => {
+  it("builds a 0.7.0 document with the current pressure contract (3.0.0/exact_pressure_v3) and no engineering content", async () => {
     const blank = buildBlankLocalModelDocument(AT);
     const model = buildBlankLoadStateModelDocument(AT);
     expect(model.schema_version).toBe(BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION);
@@ -41,7 +43,7 @@ describe("blank load/reference-state model (T1 WP3 item 2; current model 0.6.0)"
     expect([pressure_contract, reference_configurations]).toEqual([CONTRACT, []]);
     expect(rest).toEqual(blankRest);
     expect({ ...project, name: blankProject.name }).toEqual(blankProject);
-    expect(project.name).toBe("Blank Local Load/reference Model 0.6.0");
+    expect(project.name).toBe("Blank Local Load/reference Model 0.7.0");
     expect(Object.keys(model).slice(0, 2)).toEqual(["schema_version", "pressure_contract"]);
     // The existing builder is not changed by building the load/reference-state document.
     expect(await canonicalSha256Hex(buildBlankLocalModelDocument(AT))).toBe(BASE_BLANK_SHA256);
@@ -70,10 +72,10 @@ describe("blank load/reference-state model (T1 WP3 item 2; current model 0.6.0)"
     const hook = renderHook(() => useWorkspaceSession());
     await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
     await act(async () => { await hook.result.current.project.handleCreateBlankLoadStateProject(); });
-    await waitFor(() => expect(hook.result.current.model.model?.project.name).toBe("Blank Local Load/reference Model 0.6.0"));
+    await waitFor(() => expect(hook.result.current.model.model?.project.name).toBe("Blank Local Load/reference Model 0.7.0"));
     expect(hook.result.current.model.model?.schema_version).toBe(MODEL_SCHEMA_VERSION);
     expect(hook.result.current.model.model?.pressure_contract).toEqual(CONTRACT);
-    expect(hook.result.current.project.projectMessage).toBe("Created blank local load/reference-state model 0.6.0 document without fixture entities, engineering values or external file copies.");
+    expect(hook.result.current.project.projectMessage).toBe("Created blank local load/reference-state model 0.7.0 document without fixture entities, engineering values or external file copies.");
     expect(hook.result.current.project.projectOperation).toBe("create_blank");
     await act(async () => { await hook.result.current.project.handleCreateBlankProject(); });
     await waitFor(() => expect(hook.result.current.model.model?.project.name).toBe("Blank Local Model"));

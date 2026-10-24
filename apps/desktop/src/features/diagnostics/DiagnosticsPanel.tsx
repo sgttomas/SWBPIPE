@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
+import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
+import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 
 export function DiagnosticsPanel({
   model,
@@ -39,8 +41,15 @@ export function DiagnosticsPanel({
       setPinnedId(null);
     }
   }, [requestSequence, requestId]);
+  // W-13 §6: the document validator's findings join the model's own list.
+  const documentDiagnostics = useMemo(() => modelDocumentDiagnostics(model), [model]);
+  // W-13 §3.5: the store's library-reference warnings, keyed to the entity.
+  const publishedLibraryRefs = usePublishedLibraryRefFindings();
+  const libraryRefs = useMemo(() => libraryRefDiagnostics(currentLibraryRefFindings(model, publishedLibraryRefs)), [model, publishedLibraryRefs]);
   const diagnostics: Diagnostic[] = [
     ...model.diagnostics,
+    ...documentDiagnostics,
+    ...libraryRefs,
     ...(knowledge?.diagnostics ?? []),
     ...(result?.diagnostics ?? [])
   ];

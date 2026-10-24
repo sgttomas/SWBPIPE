@@ -3,7 +3,7 @@
 //! `validation/references/o4_retained_source/` (both stiffness readouts, exact).
 //!
 //! Binding (the reference README's "Binding"): each request-agnostic case document becomes one
-//! model 0.6.0 product request (`judged_request`); each source twin is the in-memory
+//! model 0.7.0 product request (`judged_request`); each source twin is the in-memory
 //! re-authoring of its pinned J2 or RF request's load case. Each request runs through the actual
 //! W1 private driver (`retained_w1` after the single observed ordinary run, as the facade runs it
 //! after G-C), in both solver modes. W1 attempts a case only when its ordinary verdict is not
@@ -64,6 +64,17 @@ const PROVENANCE: &str = "invented_o4_m3_judging_no_library_data";
 
 fn sha(bytes: &[u8]) -> String { format!("{:x}", Sha256::digest(bytes)) }
 
+/// The model version the frozen unit pinned J2's committed requests at (model 0.6.0). Model 0.7.0
+/// (DEL-02-01 Design `model-document-0.7.0.md` §2) re-authored those committed requests by their
+/// version token alone, so a request binds to its frozen pin with that one token restored: the
+/// frozen files are not edited, and any other byte change still fails the pin.
+const J2_FROZEN_MODEL_VERSION: &str = "0.6.0";
+fn j2_as_frozen(path: &str, text: &str) -> String {
+    let current = format!("\"schema_version\": \"{}\"", crate::MODEL_SCHEMA_VERSION);
+    assert_eq!(text.matches(&current).count(), 1, "{path}: one current model version token");
+    text.replace(&current, &format!("\"schema_version\": \"{J2_FROZEN_MODEL_VERSION}\""))
+}
+
 /// The frozen files, each bound by the unit's SHA256SUMS; `cases_sha256` binds each oracle to its cases.
 struct Frozen { cases: Value, oracle: Value, twins: Value, twin_oracle: Value }
 fn frozen() -> &'static Frozen {
@@ -78,7 +89,7 @@ fn frozen() -> &'static Frozen {
         assert_eq!(f.oracle["cases_sha256"], json!(sha(CASES.as_bytes())));
         assert_eq!(f.twin_oracle["cases_sha256"], json!(sha(TWIN_CASES.as_bytes())));
         for (path, text) in J2 {
-            assert_eq!(f.twins["inputs"][path], json!(sha(text.as_bytes())), "{path}: the pinned J2 input");
+            assert_eq!(f.twins["inputs"][path], json!(sha(j2_as_frozen(path, text).as_bytes())), "{path}: the pinned J2 input");
         }
         assert_eq!(f.twins["inputs"][RF_INPUTS_PATH], json!(sha(RF_INPUTS.as_bytes())), "the pinned RF census inputs");
         f
@@ -96,7 +107,7 @@ fn direction(kind: &str, axis: &str) -> &'static str {
     }
 }
 
-/// A case document (`cases.json` `document`) as one model 0.6.0 product request (README "Binding" 1).
+/// A case document (`cases.json` `document`) as one model 0.7.0 product request (README "Binding" 1).
 fn judged_request(doc: &Value, project_id: &str) -> Value {
     let mat = &doc["material"];
     let loads: Vec<Value> = doc["loads"].as_array().unwrap().iter().map(|l| {
@@ -135,7 +146,7 @@ fn judged_request(doc: &Value, project_id: &str) -> Value {
         "pressure_contract": {"mode": "exact_pressure_v3", "shear_model": doc["shear_model"], "version": "3.0.0"},
         "project": {"description": "Invented O4 M3-O4 judged document; no external project or library data.", "id": project_id, "name": project_id,
             "units": {"angle": "rad", "force": "N", "length": "m", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
-        "schema_version": "0.6.0",
+        "schema_version": "0.7.0",
         "supports": supports,
     }})
 }
@@ -147,7 +158,7 @@ fn to_m(unit: &str) -> f64 { match unit { "m" => 1.0, "mm" => 0.001, "cm" => 0.0
 /// The source twin's in-memory re-authoring of its pinned request (README "Binding" 4; the
 /// generator's rule): the shear model, and the class's mill tolerance and allowance in the section's
 /// own unit, each asserted equal to the frozen twin document's value. An RF census request (model
-/// 0.3.0, no shear model, no allowances) is re-authored to model 0.6.0 with both explicit.
+/// 0.3.0, no shear model, no allowances) is re-authored to model 0.7.0 with both explicit.
 fn twin_request(twin: &Value) -> Value {
     let file = twin["source"]["file"].as_str().unwrap();
     let mut raw: Value = if file == RF_INPUTS_PATH {
@@ -161,7 +172,7 @@ fn twin_request(twin: &Value) -> Value {
     let rf = file == RF_INPUTS_PATH;
     let model = &mut raw["model"];
     if rf {
-        model["schema_version"] = json!("0.6.0");
+        model["schema_version"] = json!("0.7.0");
         model["pressure_contract"] = json!({"mode": "exact_pressure_v3", "shear_model": theory_token(theory), "version": "3.0.0"});
     } else if variant == "zero" && theory == "eb" {
         return raw;

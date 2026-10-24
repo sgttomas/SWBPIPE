@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/model.schema.yaml",
   "title": "OpenPipeStress model document",
-  "description": "The model document openpipestress.product_preview.model, version 0.6.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. Values are user-entered; the software supplies no code value and no acceptance.",
+  "description": "The model document openpipestress.product_preview.model, version 0.7.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. The annotation and record slots (tags, notes, lines, unresolved_assumptions, rule_pack_refs, provenance_record, constraints, equipment_interfaces) are optional model data that no solve reads; absence means none, and nothing evaluates lines, constraints or equipment interfaces. Values are user-entered; the software supplies no code value and no acceptance.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,10 +16,10 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Model document 0.6.0 is the one current version. Versions 0.1.0 to 0.5.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
+      "description": "Model document 0.7.0 is the one current version. Versions 0.1.0 to 0.6.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
       "type": "string",
       "enum": [
-        "0.6.0"
+        "0.7.0"
       ]
     },
     "document_kind": {
@@ -98,6 +98,44 @@
       "items": {
         "$ref": "load_reference_state.schema.json#/$defs/ReferenceConfiguration"
       }
+    },
+    "lines": {
+      "description": "Typed lines grouping pipe segments (FR-MOD-002); grouping only, the solve does not read them.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Line"
+      }
+    },
+    "unresolved_assumptions": {
+      "description": "Unresolved assumptions and open issues (FR-MOD-006), in model_state.schema.json AssumptionRecord's vocabulary.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/UnresolvedAssumption"
+      }
+    },
+    "rule_pack_refs": {
+      "description": "Rule packs used with this model, by identity and stamped checksum only; rule content never enters the document. A reference never makes a check pass.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RulePackRef"
+      }
+    },
+    "constraints": {
+      "description": "Typed constraint records (FR-MOD-002) in ConstraintRecord's vocabulary. Data only: nothing checks them (design-knowledge evaluation is deferred, OD-1).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Constraint"
+      }
+    },
+    "equipment_interfaces": {
+      "description": "Typed equipment-interface records (FR-MOD-002). Data only: nothing checks them.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EquipmentInterface"
+      }
+    },
+    "model_settings": {
+      "$ref": "#/$defs/ModelSettings"
     }
   },
   "$defs": {
@@ -210,6 +248,12 @@
         },
         "provenance": {
           "type": "string"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
         }
       }
     },
@@ -270,6 +314,15 @@
         },
         "provenance": {
           "type": "string"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        },
+        "provenance_record": {
+          "$ref": "#/$defs/ProvenanceRecord"
         }
       }
     },
@@ -658,6 +711,71 @@
         }
       }
     },
+    "Constraint": {
+      "description": "A typed constraint record (FR-MOD-002) sharing schemas/constraint.schema.json ConstraintRecord's field names and enums, so the design-knowledge layer extends this vocabulary. Data only: no constraint is checked. constraint_kind excludes TBD, equipment_interface (equipment_interfaces) and missing_required_data (an open issue in unresolved_assumptions). target_refs never block a deletion; a missing target is reported. state excludes TBD.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "constraint_id",
+        "name",
+        "constraint_kind",
+        "state"
+      ],
+      "properties": {
+        "constraint_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "constraint_kind": {
+          "type": "string",
+          "enum": [
+            "connectivity",
+            "clearance",
+            "no_go_volume",
+            "support_zone",
+            "route_conflict",
+            "slope",
+            "drain",
+            "vent",
+            "access"
+          ]
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "active",
+            "inactive",
+            "superseded",
+            "blocked_by_missing_data"
+          ]
+        },
+        "target_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "statement": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        },
+        "provenance": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
+    },
     "DataBoundary": {
       "description": "Desktop data-boundary statement, typed by the desktop as Record<string, string>: an object whose values are strings. Known keys: public_examples_policy, protected_source_policy, private_data_policy and professional_boundary (written by the desktop's blank documents) and solver_capacity_claim (written by the UI-foundation fixture generator). The solver ignores it.",
       "type": "object",
@@ -985,6 +1103,41 @@
       "description": "Analytical member (REQ-02-01-02 Element): a pipe segment.",
       "$ref": "#/$defs/PipeSegment"
     },
+    "EquipmentInterface": {
+      "description": "A typed equipment-interface record (FR-MOD-002) at a node. Data only: nothing checks interface consistency. node_ref never blocks the node's deletion; a missing node is reported.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "node_ref"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "node_ref": {
+          "$ref": "#/$defs/Id"
+        },
+        "equipment_label": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        },
+        "provenance": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
+    },
     "EquivalentStatic": {
       "description": "User-entered static-equivalent occasional-load generation inputs; missing inputs block, nothing is defaulted.",
       "type": "object",
@@ -1006,6 +1159,74 @@
       "description": "Entity identity or reference: a string with at least one non-whitespace character (the readers' EMPTY_ID rule). Identities are compared byte for byte; Unicode identities are admitted. The operation applier's stricter ASCII pattern applies only to identities it generates.",
       "type": "string",
       "pattern": "\\S"
+    },
+    "LibraryRef": {
+      "description": "The local library record an entity was inserted from, keyed as the store keys libraries (library_kind, library_id), with the version and record recorded at insertion where known; the library payload never enters the document. A later stored version is reported, never silently adopted.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "library_kind",
+        "library_id"
+      ],
+      "properties": {
+        "library_kind": {
+          "type": "string",
+          "enum": [
+            "material",
+            "section",
+            "component",
+            "hanger"
+          ]
+        },
+        "library_id": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "library_version": {
+          "description": "sha256: followed by the SHA-256 of the applied library record's RFC 8785 (JCS) form; library documents carry no version member. Recorded at insert and apply; the store check reports a changed digest (MODEL-LIBRARY-REF-VERSION-CHANGED) and never updates it.",
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "record_id": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
+    },
+    "Line": {
+      "description": "A typed line (FR-MOD-002): grouping only, never read by the solve. pipe_refs name existing pipe segments, each at most once across all lines (the document validator's rule); an empty list is allowed.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "pipe_refs"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "pipe_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        },
+        "provenance": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
     },
     "LoadCase": {
       "description": "One load case (`load_cases[]`). label, kind and status are desktop members the solver ignores; analysis_state belongs to the load/reference-state group.",
@@ -1069,6 +1290,12 @@
         },
         "provenance": {
           "type": "string"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
         }
       },
       "not": {
@@ -1293,6 +1520,15 @@
         },
         "provenance": {
           "type": "string"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        },
+        "provenance_record": {
+          "$ref": "#/$defs/ProvenanceRecord"
         }
       }
     },
@@ -1380,6 +1616,12 @@
               "type": "null"
             }
           ]
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
         }
       }
     },
@@ -1486,6 +1728,11 @@
           }
         }
       }
+    },
+    "Notes": {
+      "description": "Free text the user owns: one string with at least one non-whitespace character (clearing notes removes the member).",
+      "type": "string",
+      "pattern": "\\S"
     },
     "ObjectiveConnector": {
       "description": "Explicit objective connector (objective_connector 1.0.0) of an expansion_joint component on an exact-pressure document: connector frame, end attachments, a 6x6 scaled work matrix with its basis and provenance, topology, hardware and pressure model. Admission and numerical checks remain the solver's.",
@@ -1836,6 +2083,12 @@
               "type": "null"
             }
           ]
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
         }
       }
     },
@@ -1955,11 +2208,17 @@
         },
         "units": {
           "$ref": "#/$defs/ProjectUnits"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
         }
       }
     },
     "ProjectUnits": {
-      "description": "Project display and authoring units, typed by the desktop as Record<string, string>: an object whose values are unit strings, keyed by dimension. Known keys: length (read by the solver for node coordinates), force, moment, pressure, stress, temperature (written by the desktop's blank documents) and angle (read by the applier). The desktop round-trips and exports every entry.",
+      "description": "Project display and authoring units, typed by the desktop as Record<string, string>: an open map whose values are unit strings, keyed by dimension; unknown keys are kept. Known keys: length (read by the solver for node coordinates), force, moment, pressure, stress, temperature and angle (read by the applier). New projects write all seven known keys, each a canonical unit-catalog symbol for its dimension (DEL-02-02 Design project-unit-selection.md §2.2); existing documents may lack some (for example angle or moment) and keep a legacy temperature symbol C. A new moment field defaults to the moment key when it is present; only when the key is absent does the default fall back to the composed <force>*<length>, and only if the unit catalog accepts that symbol (§2.4). The desktop round-trips and exports every entry.",
       "type": "object",
       "properties": {
         "length": {
@@ -1988,6 +2247,69 @@
         "type": "string"
       }
     },
+    "ProvenanceRecord": {
+      "description": "Structured provenance (FR-MOD-005, PRD §20.2) of a material, section, component (including its SIF and flexibility modifiers) or support, with the library import's field names and enums. Only source_name is required on a private model; public data records carry all seven §20.2 fields (source_name, source_location, source_license, contributor, contributor_certification, redistribution_status, review_status). review_status is source-data review only, never professional acceptance.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "source_location": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "source_license": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "contributor": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "contributor_certification": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined"
+          ]
+        },
+        "reviewed_by": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "reviewed_on": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "verification_note": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "library_ref": {
+          "$ref": "#/$defs/LibraryRef"
+        }
+      }
+    },
     "Quantity": {
       "description": "Authored quantity {value, unit}. Shape only: unit-catalog membership, dimension and positivity are reader and applier admission rules.",
       "type": "object",
@@ -2013,6 +2335,85 @@
     "Result": {
       "description": "Result record (REQ-02-01-02), defined by reference: the result envelope of the current result export, results.v0.3.schema.yaml ResultEnvelope. Results are not model-document members; the root does not use this definition.",
       "$ref": "results.v0.3.schema.yaml#/$defs/ResultEnvelope"
+    },
+    "RulePackChecksum": {
+      "description": "The common subset of the rule pack's stored checksums.rule_pack_checksum and its ComputedRulePackChecksum (core/rules/rule_pack_document): SHA-256 over the RFC 8785 JCS payload excluding checksums. A reference is checked by comparing it with the stored pack's checksum.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_scope",
+        "payload_excludes",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "type": "string",
+          "const": "JCS"
+        },
+        "payload_scope": {
+          "type": "string",
+          "const": "rule_pack_payload"
+        },
+        "payload_excludes": {
+          "type": "array",
+          "const": [
+            "checksums"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "RulePackRef": {
+      "description": "A rule pack used with this model, by identity only (PRD §20.3: rule content never enters the document). Names and notices can be private; export routes apply the export policy to private_only references. A reference never makes a check pass. invented_non_engineering_example is the rule-pack lifecycle's disposition of the bundled invented demonstration pack.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_pack_id",
+        "name",
+        "rule_pack_version",
+        "checksum",
+        "redistribution_status"
+      ],
+      "properties": {
+        "rule_pack_id": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "rule_pack_version": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "checksum": {
+          "$ref": "#/$defs/RulePackChecksum"
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "private_only",
+            "public_permissive",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example"
+          ]
+        },
+        "source_notice": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
     },
     "Section": {
       "description": "Shared section record. Explicit pipe outside_diameter and wall_thickness are the bindable properties.",
@@ -2048,6 +2449,15 @@
             "string",
             "object"
           ]
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        },
+        "provenance_record": {
+          "$ref": "#/$defs/ProvenanceRecord"
         }
       }
     },
@@ -2190,6 +2600,15 @@
         },
         "provenance": {
           "type": "string"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        },
+        "provenance_record": {
+          "$ref": "#/$defs/ProvenanceRecord"
         }
       }
     },
@@ -2221,6 +2640,87 @@
         "value": {
           "$ref": "#/$defs/Quantity"
         }
+      }
+    },
+    "Tags": {
+      "description": "User tags, ordered as authored: unique, non-empty, trimmed strings of at most 64 characters. No vocabulary is enforced (FR-MOD-004).",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+      }
+    },
+    "UnresolvedAssumption": {
+      "description": "An assumption or open issue (FR-MOD-006), in model_state.schema.json AssumptionRecord's vocabulary. An absent or empty affected_refs is project level; otherwise the entity ids it names (lines, components, supports or any entity). A named entity may later be deleted: the reference is kept and reported, never blocking the deletion. resolution_note is required when the status is resolved or rejected.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assumption_id",
+        "kind",
+        "statement",
+        "status"
+      ],
+      "properties": {
+        "assumption_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "assumption",
+            "open_issue"
+          ]
+        },
+        "statement": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unresolved",
+            "resolved",
+            "rejected"
+          ]
+        },
+        "affected_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "resolution_note": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        }
+      },
+      "if": {
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "resolved",
+              "rejected"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "resolution_note"
+        ]
       }
     },
     "Vector3": {
@@ -2318,6 +2818,32 @@
         },
         "end_fraction": {
           "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "ModelSettings": {
+      "description": "Model-level analysis and modeling settings (W-13 Design §3.8), a closed record; every member is optional and an absent member takes its default. The product never writes a default into a document the user did not author.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node_proximity_tolerance": {
+          "description": "The length within which the near-duplicate node check treats two nodes as near duplicates (owner, 2026-10-23: a fixed 5 mm default \"and give the user the means to change it\"). Absent model_settings or absent member: 5 mm. A finite value greater than zero in a length unit of the units catalog; a non-finite or non-positive value or a non-length or unknown unit is refused by name (MODEL-SETTING-TOLERANCE-NOT-FINITE, -NOT-POSITIVE, -UNIT-NOT-LENGTH).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       }
     }

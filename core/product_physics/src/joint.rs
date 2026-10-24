@@ -714,7 +714,7 @@ fn model_findings(
         Ok(_) => findings.extend(tie_rod_formation_findings(model, spec)),
         Err(hardware) => findings.extend(hardware),
     }
-    // Only current 0.6.0 exact documents reach the classifier (`ExactContract::of`).
+    // Only current 0.7.0 exact documents reach the classifier (`ExactContract::of`).
     if let Err(finding) = pressure_model(connector) {
         findings.push(finding);
     }
@@ -835,7 +835,7 @@ pub fn authoring_findings(value: &Value) -> Result<Vec<Diagnostic>, String> {
     let model: PreviewModel = serde_json::from_value(value.clone()).map_err(|error| error.to_string())?;
     if model.schema_version != crate::MODEL_SCHEMA_VERSION
         || super::exact_admission::ExactContract::of(&model).is_none() {
-        return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: joint pressure authoring requires current model 0.6.0 with 3.0.0/exact_pressure_v3".into());
+        return Err(format!("JOINT_PRESSURE_INTERFACE_UNRESOLVED: joint pressure authoring requires current model {} with 3.0.0/exact_pressure_v3", crate::MODEL_SCHEMA_VERSION));
     }
     let mut diagnostics = Vec::new();
     classify_connectors(&model, &mut diagnostics);

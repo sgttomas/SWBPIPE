@@ -76,7 +76,7 @@ pub(crate) fn validate_document(
     if !super::is_load_state(model) {
         if carries {
             block(diagnostics, "LOAD_STATE_CONTRACT_VERSION_MISMATCH", &["schema_version"],
-                "reference_configurations, material expansion_laws (model or request materials) and case analysis_state require current model 0.6.0 with the exact pressure contract; the group is never ignored, and an explicit null counts as carrying the key");
+                format!("reference_configurations, material expansion_laws (model or request materials) and case analysis_state require current model {} with the exact pressure contract; the group is never ignored, and an explicit null counts as carrying the key", crate::MODEL_SCHEMA_VERSION));
         }
         return;
     }
@@ -399,6 +399,9 @@ pub(crate) struct ResolvedCase {
     pub effective_case: PreviewLoadCase,
     /// Resolved consumed inputs, published as the case evidence record.
     pub evidence: Value,
+    /// Whether the case applies an action (silent-zero guard); a case that
+    /// applies none is a reference state.
+    pub applies_action: bool,
 }
 
 fn selection(
@@ -1112,6 +1115,68 @@ pub(crate) fn resolve_case(
         .map(|load| json!({"source_id": load.id, "owner_kind": "stored_primitive", "classification": "excluded",
             "category": load.category, "reason": "not listed in analysis_state.load_sources"}))
         .collect::<Vec<_>>();
+    // Silent-zero guard (DEL-04-07 Design/pressure-contract.md, "Load cases
+    // that apply nothing"): a case whose stored primitives are all unlisted
+    // and that applies no other action would publish an all-zero result as
+    // if its loads had been solved, so it is refused by name. An action is an
+    // included stored primitive, a boundary motion, a pressure region, a
+    // member state with nonzero eigenstrain, or a model-level preload. A
+    // case already refused for another reason is not judged here.
+    let applies_action = !effective_case.primitive_loads.is_empty()
+        || !prescribed.is_empty()
+        || crate::validation::model_loads_every_case(model)
+        || case.pressure_regions.iter().flatten().next().is_some()
+        || contributions.iter().any(|contribution| {
+            contribution["owner_kind"] == "resolved_member_state"
+                && contribution["value"].as_f64().is_some_and(|strain| strain != 0.0)
+        });
+    let excluded_ids = excluded
+        .iter()
+        .filter_map(|source| source["source_id"].as_str())
+        .collect::<Vec<_>>();
+    let named = |ids: &[&str]| {
+        let mut text = ids.iter().take(crate::formation_guard::NAMED).copied().collect::<Vec<_>>().join(", ");
+        if ids.len() > crate::formation_guard::NAMED {
+            text.push_str(&format!(", and {} more", ids.len() - crate::formation_guard::NAMED));
+        }
+        text
+    };
+    // A case with no stored primitive and no action is a reference state
+    // (for example the cold state of a cold/hot/return sequence), whose
+    // all-zero result is correct; it is not refused.
+    let refused_already = diagnostics[before..]
+        .iter()
+        .any(|finding| finding.severity == "blocking");
+    if refused_already {
+        // The case is refused by its own finding; no action verdict is added.
+    } else if !applies_action && !excluded_ids.is_empty() {
+        let message = format!(
+            "the load case applies no action: none of its {} stored primitive load{} ({}) is listed in analysis_state.load_sources, and it has no boundary motion, pressure region or member eigenstrain, so a solve would publish an all-zero result; list each primitive to apply in analysis_state.load_sources",
+            excluded_ids.len(),
+            if excluded_ids.len() == 1 { "" } else { "s" },
+            named(&excluded_ids)
+        );
+        block(diagnostics, "LOAD_STATE_CASE_APPLIES_NO_ACTION", &[id], message);
+    } else if !excluded_ids.is_empty() {
+        let mut finding = diag(
+            &format!("diagnostic:load-state:{}:LOAD_STATE_SOURCE_EXCLUDED", stable_suffix(id)),
+            "LOAD_STATE_SOURCE_EXCLUDED",
+            "warning",
+            format!(
+                "{} stored primitive load{} in this load case {} not listed in analysis_state.load_sources and {} not applied: {}",
+                excluded_ids.len(),
+                if excluded_ids.len() == 1 { "" } else { "s" },
+                if excluded_ids.len() == 1 { "is" } else { "are" },
+                if excluded_ids.len() == 1 { "is" } else { "are" },
+                named(&excluded_ids)
+            ),
+            std::iter::once(id.to_string())
+                .chain(excluded_ids.iter().take(crate::formation_guard::NAMED).map(|source| source.to_string()))
+                .collect(),
+        );
+        finding.source = Some(SOURCE.to_string());
+        diagnostics.push(finding);
+    }
     if diagnostics[before..]
         .iter()
         .any(|finding| finding.severity == "blocking")
@@ -1138,7 +1203,26 @@ pub(crate) fn resolve_case(
         prescribed,
         effective_case,
         evidence,
+        applies_action,
     })
+}
+
+/// Silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases
+/// that apply nothing"): a load-state model whose every case is a reference
+/// state applying no action would publish only all-zero results; it is
+/// refused, as a model whose cases are all empty is on the other routes.
+pub(crate) fn refuse_all_reference_states(cases: &[ResolvedCase], diagnostics: &mut Vec<Diagnostic>) {
+    if !cases.is_empty() && cases.iter().all(|case| !case.applies_action) {
+        let mut finding = diag(
+            "diagnostic:physics:loads-missing",
+            "LOAD_INPUT_MISSING",
+            "blocking",
+            "no load case applies an action: every case is a reference state with no listed stored primitive load, boundary motion, pressure region or member eigenstrain, so a solve would publish only all-zero results; no hidden loads are applied",
+            vec!["load_cases".to_string()],
+        );
+        finding.source = Some(SOURCE.to_string());
+        diagnostics.push(finding);
+    }
 }
 
 /// T4-U3 S20 (b) (RV6 C-1): on 0.4.0, a resolved total eigenstrain on a

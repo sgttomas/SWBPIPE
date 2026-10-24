@@ -1,18 +1,18 @@
 //! Model document format (DEL-04-08 Design `b7-plan.md`, "Current model format").
 //!
-//! Model document 0.6.0 is the one current version. Its behaviour keys on what
-//! the document carries, never on the version string: a 0.6.0 document without
+//! Model document 0.7.0 is the one current version. Its behaviour keys on what
+//! the document carries, never on the version string: a 0.7.0 document without
 //! a `pressure_contract` is pressure-free and solves on the preview route. The
-//! contract-present form of 0.6.0 declares the exact pressure v3 contract.
-//! Model documents 0.1.0, 0.2.0, 0.3.0, 0.4.0 and 0.5.0 are retired:
+//! contract-present form of 0.7.0 declares the exact pressure v3 contract.
+//! Model documents 0.1.0, 0.2.0, 0.3.0, 0.4.0, 0.5.0 and 0.6.0 are retired:
 //! they are refused by name with a re-author diagnostic, and nothing migrates.
 
 use crate::PreviewModel;
 
 /// The current model document version.
-pub const MODEL_SCHEMA_VERSION: &str = "0.6.0";
+pub const MODEL_SCHEMA_VERSION: &str = "0.7.0";
 /// Retired model document versions, refused by name (re-author, no migration).
-pub const RETIRED_MODEL_SCHEMA_VERSIONS: [&str; 5] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0"];
+pub const RETIRED_MODEL_SCHEMA_VERSIONS: [&str; 6] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"];
 /// The diagnostic code of a retired model document version.
 pub const MODEL_SCHEMA_VERSION_RETIRED: &str = "MODEL_SCHEMA_VERSION_RETIRED";
 
@@ -67,7 +67,7 @@ mod tests {
     }
 
     /// Pressure-freedom keys on the contract's absence on the current version. Keying it on
-    /// the version string alone (a 0.6.0 document with a contract would count) or on the
+    /// the version string alone (a 0.7.0 document with a contract would count) or on the
     /// retired versions fails here.
     #[test]
     fn pressure_free_keys_on_the_contracts_absence_not_the_version() {
@@ -78,11 +78,11 @@ mod tests {
             assert!(is_retired_model_schema_version(version));
             assert!(!is_pressure_free(&model(version, None)), "{version} is retired");
         }
-        for version in ["0.5.1", "0.6.1", "1.0.0"] {
+        for version in ["0.5.1", "0.6.1", "0.7.1", "1.0.0"] {
             assert!(!is_retired_model_schema_version(version), "{version}");
         }
         assert!(!is_pressure_free(&model("0.3.0", Some(exact))));
         let message = retired_model_schema_message("0.2.0");
-        assert!(message.contains("0.2.0") && message.contains("re-author") && message.contains("0.6.0"), "{message}");
+        assert!(message.contains("0.2.0") && message.contains("re-author") && message.contains(MODEL_SCHEMA_VERSION), "{message}");
     }
 }

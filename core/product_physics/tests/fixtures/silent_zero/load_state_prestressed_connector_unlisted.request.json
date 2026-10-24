@@ -1,0 +1,449 @@
+{
+  "model": {
+    "schema_version": "0.7.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "project": {
+      "id": "project:silent-zero",
+      "units": {
+        "length": "m"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "ready",
+      "rule_check": "not_performed",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:a",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "invented"
+      },
+      {
+        "id": "node:b",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "invented"
+      },
+      {
+        "id": "node:c",
+        "position": {
+          "x": -1,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "invented"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:1",
+        "from": "node:a",
+        "to": "node:b",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          },
+          "corrosion_allowance": {
+            "value": 0,
+            "unit": "m"
+          }
+        },
+        "material": "material:shared",
+        "y_reference": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        "provenance": "invented"
+      },
+      {
+        "id": "pipe:2",
+        "from": "node:c",
+        "to": "node:a",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          },
+          "corrosion_allowance": {
+            "value": 0,
+            "unit": "m"
+          }
+        },
+        "material": "material:shared",
+        "y_reference": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        "provenance": "invented"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:root",
+        "node": "node:a",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented"
+      },
+      {
+        "id": "support:rear",
+        "node": "node:c",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented"
+      }
+    ],
+    "components": [
+      {
+        "id": "component:connector",
+        "label": "Invented expansion joint (objective connector)",
+        "kind": "expansion_joint",
+        "node": "node:b",
+        "provenance": "invented T4-I12 re-authoring of the invented demo; not library, catalog, manufacturer or code-rule data",
+        "objective_connector": {
+          "version": "1.0.0",
+          "motion_basis": "symmetric_midpoint_small_rotation_v1",
+          "end_i": {
+            "node_ref": "node:a",
+            "initial_node_axes_global": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "offset_local": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "unit": "m"
+            }
+          },
+          "end_j": {
+            "node_ref": "node:b",
+            "initial_node_axes_global": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "offset_local": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "unit": "m"
+            }
+          },
+          "connector_axes_global": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "installed_reference_temperature": {
+            "value": 20,
+            "unit": "degC"
+          },
+          "temperature_applicability": "fixed_installed_parameters_v1",
+          "reference_state": "prestressed",
+          "q_ref": {
+            "translation": {
+              "x": 0.001,
+              "y": 0,
+              "z": 0,
+              "unit": "m"
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "unit": "rad"
+            }
+          },
+          "stiffness": {
+            "version": "1.0.0",
+            "representation": "scaled_work_coefficients_v1",
+            "translation_scale": {
+              "value": 0.5,
+              "unit": "m"
+            },
+            "rotation_scale": {
+              "value": 1,
+              "unit": "rad"
+            },
+            "coefficient_unit": "N*m",
+            "upper_triangle": [
+              800000,
+              0,
+              0,
+              0,
+              0,
+              0,
+              225000,
+              0,
+              0,
+              0,
+              0,
+              225000,
+              0,
+              0,
+              0,
+              620000,
+              0,
+              0,
+              480000,
+              0,
+              480000
+            ],
+            "coordinate_order": [
+              "tx",
+              "ty",
+              "tz",
+              "rx",
+              "ry",
+              "rz"
+            ],
+            "provenance": {
+              "source_reference": "invented demo C-150 four rates, explicitly authored as an uncoupled isotropic 6x6 (T4-I12); not a migration",
+              "measurement_restraints": "invented; symmetric midpoint basis declared by the author",
+              "basis_transform_reference": "none (authored directly in the midpoint basis)"
+            }
+          },
+          "topology": {
+            "type": "replaces_span",
+            "span_ref": "pipe:1"
+          },
+          "calibration": {
+            "kind": "constant_structural_elasticity_v1",
+            "includes_pressure_dependent_tangent": false,
+            "installed_geometry": "authored model geometry"
+          },
+          "hardware": {
+            "kind": "untied"
+          },
+          "pressure_model": {
+            "kind": "unpressurized"
+          },
+          "provenance": {
+            "source_reference": "invented T4-I12 re-authoring of the invented demo; not library, catalog, manufacturer or code-rule data",
+            "measurement_restraints": "invented",
+            "basis_transform_reference": "none",
+            "validity_statement": "invented analytical control; no applicability claim"
+          }
+        }
+      }
+    ],
+    "materials": [
+      {
+        "id": "material:shared",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 200,
+          "unit": "GPa"
+        },
+        "poisson_ratio": {
+          "value": 0.3,
+          "unit": "1"
+        },
+        "shear_modulus": {
+          "value": 76.923076923,
+          "unit": "GPa"
+        },
+        "provenance": "invented",
+        "temperature_points": [
+          {
+            "id": "point:stiff",
+            "temperature": {
+              "value": 20,
+              "unit": "degC"
+            },
+            "elastic_modulus": {
+              "value": 200,
+              "unit": "GPa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            }
+          }
+        ]
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:state",
+        "primitive_loads": [
+          {
+            "id": "load:pull",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "node:b"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 1000,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "invented"
+          }
+        ],
+        "provenance": "invented",
+        "pressure_regions": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:1",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:shared",
+                "point_ref": "point:stiff"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "invented"
+              }
+            },
+            {
+              "pipe_ref": "pipe:2",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:shared",
+                "point_ref": "point:stiff"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "invented"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:rear",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented"
+        }
+      }
+    ],
+    "combinations": [],
+    "pressure_contract": {
+      "version": "3.0.0",
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli"
+    },
+    "reference_configurations": [
+      {
+        "id": "reference:installed",
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "member_references": [
+          {
+            "pipe_ref": "pipe:1",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "invented"
+          },
+          {
+            "pipe_ref": "pipe:2",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "invented"
+          }
+        ],
+        "provenance": "invented"
+      }
+    ]
+  },
+  "materials": []
+}

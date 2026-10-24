@@ -100,9 +100,9 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 > - docs/IP_AND_DATA_BOUNDARY.md
 > - docs/PRD.md
 > - execution/_Decomposition/SOFTWARE_DECOMP.md
-> - docs/_Registers/Deliverables.csv
-> - docs/_Registers/ScopeLedger.csv
-> - docs/_Registers/ContextBudgetQA.csv
+> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history)
+> - docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history)
+> - docs/_Registers/ContextBudgetQA.csv (retired in `48584391de`; see Git history)
 > - execution/PKG-00/DEL-00-03/ArchitectureBasis.md
 > - execution/PKG-00/DEL-00-06/ArchitectureBasis.md
 > - execution/PKG-00/DEL-00-07/ArchitectureBasis.md

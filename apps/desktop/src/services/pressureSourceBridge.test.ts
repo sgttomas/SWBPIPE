@@ -86,7 +86,7 @@ type Group = "ordinary" | "loadState";
 function scenario(group: Group, route: typeof SOURCE_ROUTES[number] = "pressure_source") {
   const binding = SOURCE_BINDINGS[route];
   const model = structuredClone(modelFixture) as unknown as PreviewModel;
-  (model as Json).schema_version = "0.6.0";
+  (model as Json).schema_version = "0.7.0";
   (model as Json).pressure_contract = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" };
   const source = {
     schema_version: "0.2.0", document_kind: "openpipestress.product_preview.mechanics_result",

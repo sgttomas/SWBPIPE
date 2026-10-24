@@ -26,7 +26,7 @@ Compose accepted model, units, section/load/support contracts and kernel outputs
 
 Compose the accepted model, unit, boundary, section, load and kernel contracts into linear/desktop/headless solve entrypoints while preserving source identity and explicit missing-data diagnostics.
 
-The current pressure boundary retires `legacy_pressure_v1` product-wide, including zero-pressure documents (#1168). Current exact-route restrictions and the accepted T4 successor scope are stated in [Design/pressure-contract.md](Design/pressure-contract.md). The PRD's intended pressure capability remains future scope; this does not claim it is implemented.
+The current pressure boundary retires `legacy_pressure_v1` product-wide, including zero-pressure documents (#1168). Current exact-route restrictions and the accepted T4 successor scope are stated in [Design/pressure-contract.md](Design/pressure-contract.md). Pressure is implemented on the exact route as stated in Design/pressure-contract.md; capabilities that route refuses remain future scope.
 
 ### CLM-002 — DEL-04-07-REQ-002
 

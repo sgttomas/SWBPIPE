@@ -50,11 +50,13 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 
 ### Model authoring
 
-- Projects: New Local Project, New Blank Project, Open, Save and List Local Projects, and Open Model Document… for a model JSON file (model schema 0.6.0; other versions are refused by name). An invented demo model is bundled.
+- Projects: New Local Project, New Blank Project, Open, Save and List Local Projects, and Open Model Document… for a model JSON file (model schema 0.7.0; other versions are refused by name). An invented demo model is bundled.
 - 3D centerline viewport: place nodes by coordinates, connect pipes between explicit endpoints (automatic node creation while routing is not provided), box and filtered selection, labels, load arrows, grid and view cube.
 - Model tree with a table view for browsing and inline editing, and a property inspector for the selected entity.
 - Every edit is a model operation: validated by the operation engine, shown as a diff, applied explicitly and recorded in an operation ledger. Undo and redo cover up to 25 edits.
-- Geometry tools: split a pipe at a new node; copy, rotate and mirror selected pipes.
+- Geometry tools: split a pipe at a new node; reconnect one end of a pipe to another existing node; copy, rotate and mirror selected pipes.
+  - Reconnect refuses a pipe that a component names (bend span, tee leg, rigid component, expansion joint or connector span), a pipe with a component other than a terminal marker at either of its ends or at the node it joins, a pipe in a pressure region, and a move onto a pressure region's internal node. The refusal names the blocking component or region; re-author it around the reconnect.
+  - Deleting a pipe is refused while any record still names it; the refusal lists each dependent.
 - Materials with explicit elastic, shear and thermal properties, temperature tables and expansion-law definitions. Shared sections can be assigned to pipes or detached.
 - Components: bend, tee, reducer, valve, flange and expansion joint, with geometry and provenance. A bend can be inserted at a corner with exact tangent points and realized as a curved element carrying the user's flexibility factor and optional directional SIF pair. No factor is suggested or defaulted.
 - Expansion joints are authored as objective connectors (6×6 stiffness, frame, offsets, optional explicit tie rods).
@@ -193,7 +195,7 @@ SWBPIPE is decision-support software. It may compute mechanics, evaluate
 user-supplied rule packs, record diagnostics, and assemble auditable reports.
 Competent human review remains required.
 
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Standard claim fence applies (claims taxonomy per DEC-081).
 
 ## Reproducibility Manifest
 
