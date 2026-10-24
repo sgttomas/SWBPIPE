@@ -171,17 +171,29 @@ Python agree.
   its JCS hash and its project id. Any difference is refused as
   `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
   refused.
-- **Read memory (S2 repairs r1, r2).** `read_model_state`,
-  `list_model_states`, the state label edit and the state delete take
-  memory-pool leases sized from the stored lengths before loading anything:
-  records, snapshots, label columns and the child and run lists. They hold
-  those leases until their response is serialized (`stored_read.rs`,
-  described under §3's As built (S2)). A read whose lease the pool refuses is
-  refused with `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
-- **Label bounds (r2).** Every label write (Save Model State, Record Run, both
-  label edits) keeps at most 256 tags, notes and assumptions together. It also
-  keeps at most 196,608 bytes (192 KiB) of label JSON, name included. Larger
-  labels are refused as invalid labels. Reads still price whatever is stored.
+- **Memory (S2 repairs r1 to r3).** All five state commands are metered as
+  §3's As built (S2) describes (`stored_read.rs`): `save_model_state`,
+  `list_model_states`, `read_model_state`, the label edit and the delete.
+  - **Before loading.** Each takes memory-pool leases sized from the stored
+    lengths before loading anything: records, snapshots, label columns and
+    the child and run lists. It measures and loads in one transaction.
+  - **Hash texts.** It reserves the record's sorted-compact hash text at its
+    exact escaped length before writing it. The writer that counts the length
+    is the one that writes the text.
+  - **Holding.** It holds its leases until its response is serialized.
+  - **Refusal.** A command whose lease the pool refuses is refused with
+    `STORE-READ-MEMORY-UNAVAILABLE`, and nothing large is loaded.
+- **Label bounds (r2, r3).** Every label write (Save Model State, Record Run,
+  both label edits) keeps at most 256 tags, notes and assumptions together.
+  - **JSON size.** It also keeps at most 196,608 bytes (192 KiB) of the whole
+    labels object as the label edit carries it, serialized with its escapes:
+    `{name, tags, notes, assumptions}`, name included. A name of 196,602 NULs
+    serializes to 1,179,667 bytes and is refused.
+  - **Editability.** A compile-time assertion keeps these 192 KiB, plus a
+    project id at the list's whole 4 KiB budget and 1 KiB of fixed members,
+    within the label edit's 256 KiB argument budget. So any kept labels can be
+    edited, which a test checks for both edits.
+  - **Reads.** Reads still price whatever is stored.
 - **Serializer.** Keys sort by code point, and i64/u64 integers are written
   in decimal. No field of `model_state.schema.json` has a number type, so the
   record hash fails closed on any other number (a float, or an integer outside
@@ -499,69 +511,144 @@ the History panel and `useModelStateHistory.ts`.
     not shown in the results view, so its per-run state (page, filters, selected
     row) keys on nothing new. A re-solve and a recording keep the page
     (`recordRun.session.test.tsx`).
-- **Read memory (repairs r1, r2, `stored_read.rs`).** Each stored read is
-  priced in three stages. Each stage reserves through interactive memory-pool
-  leases, which are Save Local Project's ingress admission: the pool, fresh
-  headroom, and the per-invocation budget over the read's live leases
-  together.
-  - **Before loading.** A read takes, with `octet_length` and `COUNT`, the
+- **Memory (repairs r1 to r3, `stored_read.rs`).** Ten commands are metered:
+  the five state commands, the five run commands (`record_analysis_run`,
+  `list_analysis_runs`, `read_analysis_run`, the run label edit and the run
+  delete).
+  - **Leases.** Each reserves its work before it makes it, through interactive
+    memory-pool leases: Save Local Project's ingress admission (the pool, fresh
+    headroom, and the per-invocation budget over the command's live leases
+    together). The leases add to the command's argument lease.
+  - **Before loading.** A command takes, with `octet_length` and `COUNT`, the
     byte lengths of every column it will load and of the state's child and run
     lists, without loading them. It then reserves:
     - loading each column: records, results, manifests, snapshots, and every
       label column (name, tags, notes, assumptions), as SQLite's value plus the
       copied `String`;
-    - each text copy it makes for a hash;
     - the relationship lists (child and blocker ids) it materializes;
     - a fixed 512 KiB overhead.
+  - **One snapshot.** The measurement and every load it prices run in one
+    transaction. The reads use `BEGIN DEFERRED`, whose first statement fixes
+    the WAL snapshot. The edits, deletes, Save and Record Run use their
+    `BEGIN IMMEDIATE`. The metered readers take a `Transaction`, so a load
+    outside the measured snapshot does not type-check. A row another connection
+    commits after the measurement is not loaded.
   - **Before parsing.** Each JSON text is prescanned after it loads and before
     it is deserialized. Text the prescan finds invalid is refused before
-    deserialization as `MODEL-STATE-INTEGRITY` or `ANALYSIS-RUN-INTEGRITY`,
-    naming the row. Valid text reserves its parse at the prescan's bound.
+    deserialization as `MODEL-STATE-INTEGRITY` or `ANALYSIS-RUN-INTEGRITY`
+    (for Record Run, as `ANALYSIS-RUN-RESULT-MISMATCH` or
+    `ANALYSIS-RUN-MANIFEST-MISMATCH`), naming the row. Valid text reserves its
+    parse at the prescan's bound.
+  - **Before building a hash or canonical text.** Every text built to hash or
+    compare is counted first, without building it:
+    - the record hash's sorted-compact text (`sorted_compact_length`);
+    - the JCS texts of a snapshot, a manifest and a model payload
+      (`jcs_length`);
+    - the checked texts of a run record, a result and each result row (their
+      serde text, its checked parse and the JCS text).
+
+    The text is then reserved at that exact length and built:
+    - the sorted-compact text, and serde texts, into a buffer of exactly that
+      capacity;
+    - the JCS text through the canonicalizer's growing buffer, reserved at six
+      times the length for its growth and per-string escapes.
+
+    Escapes make a character up to six bytes, and a number's canonical form up
+    to about five times its stored form. So no text is priced from a stored
+    length. The record hash writes the record without `hashes`, without
+    copying it. A text whose counted length differs from the stored text's is
+    not canonical and is refused without building it.
+  - **Messages.** A response message that quotes stored names (a delete's
+    receipt, a save's or Record Run's message) is reserved at its exact length
+    and built once.
   - **The response.** The response is serialized at its exact length, counted
-    first without allocating, into a buffer reserved at that length. All of
-    the read's reservations are held until serialization ends.
+    first without allocating, into a buffer reserved at that length.
+  - **Holding.** A value read or built from the store is a `Metered` value
+    that cannot be taken apart. It is borrowed, mapped or joined with its
+    reservations kept, and it leaves them only when it is serialized. An
+    unmetered caller can take its value only when it holds no lease. So:
+    - a list's labels, a read's state summary and the current summary of an
+      edit, while its record is loaded, stay reserved while they are live;
+    - a delete receipt, a save outcome and a Record Run outcome are held
+      through serialization.
   - **Refusal.** A refusal is `STORE-READ-MEMORY-UNAVAILABLE`, naming what was
-    to be read, and nothing more is loaded. All leases are released when the
-    command returns.
-  - **Coverage.** The covered commands are:
-    - `read_model_state` and `read_analysis_run`, where the run read prices
-      its state summary, including the state record, through the same metered
-      path;
-    - both lists;
-    - the run and state label edits and deletes;
-    - Record Run's response.
+    to be read or built, and nothing more is loaded. All leases are released
+    when the command returns.
   - **Lists.** A list reserves its largest record and the sum of the labels and
-    relationship lists it returns. It then verifies records one at a time, each
-    parse reserved after the record loads and released after it is verified.
+    relationship lists it returns. It then verifies records one at a time:
+    - each record's parse and hash texts are reserved after it loads;
+    - they are released, with the record, once it is verified.
+
     It never loads a result or a manifest.
-  - **Record Run.** Besides its argument lease, Record Run reserves its extra
-    work as "the run to record" before parsing: the result parse twice, the
-    manifest parse, and two text copies of each. Invalid result or manifest
-    JSON is refused before it is parsed.
-  - **Tests.** Counting-allocator tests store large rows: 3 MiB snapshots,
-    results and records, a 3 MiB run name, and 1024 state notes. They read
-    them under a 2 MiB pool and assert through pool accounting:
-    - The same read of small rows is admitted under that pool.
-    - The large one is refused with its column unloaded (allocator peak below
-      768 KiB) and every lease released.
-    - 1 MiB of prescan-invalid JSON stored in the run record, result or labels,
-      or in the state record or snapshot, is refused before it is parsed, with
-      the peak below 16 times its length.
-    - A run read whose state record was resealed at 3 MiB is refused for the
-      state.
-    - The state label edit and delete are refused under the small pool.
-    - Under a large pool, a read's response length is within its held
-      reservation, and the read's peak stays within the reservation's peak.
+  - **Record Run and Save.**
+    - The submitted manifest's and result's parses, and every canonical text,
+      are reserved before they are made.
+    - Every summary they read is metered: the named or found state, the
+      parent, the new state, the run.
+    - The new record's hash text and serialized text are reserved at their
+      exact lengths.
+  - **Tests.** Counting-allocator tests with pool accounting
+    (`analysis_runs_tests.rs`).
+    - **Large rows** (3 MiB snapshots, results, records and run names; 1024
+      state notes), read under a 2 MiB pool:
+      - the same read of small rows is admitted;
+      - the large one is refused with its column unloaded (allocator peak
+        below 768 KiB) and every lease released.
+    - **Invalid JSON.** 1 MiB of prescan-invalid JSON stored in the run
+      record, result or labels, or in the state record or snapshot, is refused
+      before it is parsed. The peak stays below 16 times its length.
+    - **Escaped record (r3).** A normally saved state's 3 MiB U+007F
+      assumption escapes to an 18 MiB record-hash text:
+      - its list, read and label edit, and the read of a run recorded against
+        it, reserve the escaped text and peak within their reservations;
+      - Record Run against it and both saves of it (existing and new) reserve
+        the escaped text (their peak is not asserted).
+
+      Codex r3's probe peaked at 62,948,320 bytes against 34,134,656
+      reserved.
+    - **Snapshot (r3).** Another connection commits a 3 MiB run, or an
+      18 MiB-escaped state, between a list's measurement and its loads. The
+      list returns the rows it measured, within its reservation under the
+      2 MiB pool.
+    - **Holding (r3).**
+      - An edit of a state with a stored 3 MiB name still holds the name's
+        reservation when it reserves the record.
+      - State and run delete receipts quoting a 3 MiB name are held through
+        serialization.
+    - **Labels (r3).** The 196,602-NUL name is refused.
+    - **Exact lengths (r3).** Over 2,000 adversarial values (controls, DEL,
+      escapes, separators, non-BMP characters, extreme integers and floats),
+      the length counters equal the texts' lengths. So does the labels
+      object's.
+    - **Mutations.** Each r3 test fails when its defect is put back: the
+      snapshot broken, the hash priced from a sixth of its length, the current
+      summary dropped early, the receipt's message unreserved.
+    - **Large pool.** Each tested read, list, label edit and delete
+      serializes its response within its held reservation, with its peak
+      within its reservations' peak.
   - **S3.** §4.2's comparison of two stored results reuses this pricing.
   - **Residual (not bounded by this pricing):**
-    - the `Response` handed to Tauri and the IPC copies made after the command
-      returns;
-    - Record Run's transient record `Value` clones (the hash projection and the
-      recorded revision), beyond its argument lease and reservation; not
-      re-measured since review r2 found about 26.0 MiB against a 10.1 MiB lease
-      for its large case before r2's reservation;
-    - the state summaries the save and record transactions read internally
-      (`find_summary`), which are unmetered.
+    - **After the command.** The `Response` handed to Tauri, and the IPC
+      copies made after the command returns.
+    - **Argument lease.** These are working memory within the request's
+      argument lease, not reserved separately:
+      - Record Run's transient record clones (the hash projection and the
+        recorded revision);
+      - the `Value` of a new state's record, built from its snapshot (mapped
+        assumptions, validation warnings).
+
+      Review r2 measured about 26.0 MiB against a 10.1 MiB lease for Record
+      Run's large case before r2; this has not been re-measured since r2's and
+      r3's reservations.
+    - **Refusals.** A refusal message that quotes stored names, such as a
+      blocked delete naming its blockers, outlives the command's leases. It is
+      built once, at its exact length.
+    - **SQLite.** SQLite's own allocations are priced by the load estimate
+      (three envelopes of each loaded column). The tests' counting allocator
+      counts Rust allocations, not SQLite's.
+    - **Small allocations.** The length counters allocate only each object's
+      sorted key list and each number's short text: small, and not
+      proportional to escapes.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 
