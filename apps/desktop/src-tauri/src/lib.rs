@@ -4,6 +4,7 @@ mod host_memory;
 mod ingress;
 mod memory_pool;
 mod model_document_file;
+mod model_document_save;
 mod model_document_version;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
@@ -1787,6 +1788,79 @@ async fn open_model_document_file(app: AppHandle) -> Result<model_document_file:
     tauri::async_runtime::spawn_blocking(move || model_document_file::read_model_document_file(&path))
         .await
         .map_err(|error| error.to_string())
+}
+
+/// File > Save Model Document… (DEL-15-01 W-6a): the session's model document
+/// as its RFC 8785 canonical text, admitted by `model_document_save` (route
+/// evidence, the open cap, the canonical-text and hash check, the open path's
+/// document checks) before the chooser is shown, then written by the atomic
+/// writer as `.json`. Cancel is an outcome, not an error. Async so the blocking
+/// chooser stays off the main thread (as `save_report_package`); the ingress
+/// lease is held through admission, the chooser and the write.
+#[tauri::command]
+async fn save_model_document_file(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
+    let request = model_document_save::save_model_document_args(&mut args)?;
+    drop(args);
+    respond(Ok(save_model_document_decoded(app, request).await))
+}
+
+async fn save_model_document_decoded(
+    app: AppHandle,
+    request: model_document_save::ModelDocumentSaveRequest,
+) -> model_document_save::ModelDocumentSaveOutcome {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    if let Err(diagnostic) =
+        model_document_save::validate_model_document_save_evidence(&request.screening, &request.local_first)
+    {
+        return Outcome::refused(vec![diagnostic]);
+    }
+    let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, .. } = request;
+    let admitted = match tauri::async_runtime::spawn_blocking(move || {
+        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash)
+    })
+    .await
+    {
+        Ok(Ok(admitted)) => admitted,
+        Ok(Err(diagnostics)) => return Outcome::refused(diagnostics),
+        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The save's admission worker did not complete."),
+    };
+    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+    let destination = match choose_model_document_save_path(&app, &admitted.suggested_file_name, directory) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return Outcome::Cancelled,
+        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
+    };
+    tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
+        .await
+        .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
+}
+
+fn choose_model_document_save_path(
+    app: &AppHandle,
+    suggested_file_name: &str,
+    directory: Option<PathBuf>,
+) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
+    let mut chooser = app
+        .dialog()
+        .file()
+        .set_file_name(suggested_file_name)
+        .add_filter("SWBPIPE model document", &["json"]);
+    if let Some(directory) = directory {
+        chooser = chooser.set_directory(directory);
+    }
+    let Some(selected) = chooser.blocking_save_file() else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
 }
 
 fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
@@ -4184,6 +4258,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         ("file.open-model", !state.project_busy),
         ("file.open-local", !state.project_busy),
         ("file.save-local", !state.project_busy),
+        ("file.save-model-document", !state.project_busy),
         ("file.list-local", !state.project_busy),
         ("view.view.table", true),
         ("view.view.model", state.stage != "review"),
@@ -4341,6 +4416,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("file.list-local", "List Local Projects")
         .separator()
         .text("file.save-local", "Save Local Project")
+        .text("file.save-model-document", "Save Model Document…")
         .text("file.save-report-package", "Save Report Package…")
         .build()?;
 
@@ -4898,6 +4974,7 @@ macro_rules! app_invoke_handler {
             load_preview_model,
             load_design_knowledge,
             open_model_document_file,
+            save_model_document_file,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
@@ -5621,7 +5698,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));

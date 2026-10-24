@@ -4,8 +4,9 @@
 //
 // It works the app as a person would: native menu commands go through the same
 // dispatch a menu click uses, buttons are clicked, and every observation is read
-// from what the window shows. The only substitution is the open chooser: the
-// driver names the file it returns. It records what it saw; `run.mjs` judges.
+// from what the window shows. The only substitution is the model-document
+// chooser (open and save): the driver names the file it returns. It records
+// what it saw; `run.mjs` judges.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
@@ -57,6 +58,58 @@
     });
     await log(`open ${name}: ${shown}`);
     return shown;
+  }
+
+  // W-6a. File > Save Model Document…, answering the save chooser with `path`.
+  // The dialog's own intent control is recorded as shown, then chosen. A save
+  // refused only because the session's model hash is still being computed is
+  // asked again; the queued chooser path is consumed only by a save that
+  // reaches the chooser.
+  async function saveModelDocument(path, label) {
+    await call("native_smoke_choose", { path });
+    for (let attempt = 0; ; attempt += 1) {
+      const before = message();
+      await menu("file.save-model-document");
+      await waitFor(`${label}: save dialog`, () => byTestId("model-document-save-dialog"));
+      const dialog = {
+        label,
+        intent_label: byTestId("model-document-save-intent")?.closest("label")?.textContent?.trim() ?? null,
+        intent_checked_initially: byTestId("model-document-save-intent")?.checked === true,
+        confirm_disabled_before_intent: byTestId("model-document-save-confirm")?.disabled === true,
+        cancel_focused: document.activeElement === byTestId("model-document-save-cancel")
+      };
+      click("model-document-save-intent");
+      await waitFor(`${label}: confirm enabled`, () => byTestId("model-document-save-confirm")?.disabled === false);
+      click("model-document-save-confirm");
+      const pendingAgain = () => attempt > 0 && message() === before && before.includes("MODEL-DOC-SAVE-HASH-PENDING");
+      let shown;
+      try {
+        shown = await waitFor(`${label}: saved`, () => {
+          const now = message();
+          return now !== before && (now.startsWith("Saved model document ") || now.startsWith("Save model document")) ? now : null;
+        }, attempt === 0 ? 120000 : 10000);
+      } catch (error) {
+        // A repeated refusal leaves the same status line in place.
+        if (pendingAgain() && attempt < 20) continue;
+        throw error;
+      }
+      await log(`${label}: ${shown}`);
+      if (shown.includes("MODEL-DOC-SAVE-HASH-PENDING") && attempt < 20) { await sleep(500); continue; }
+      if (!shown.startsWith("Saved model document ")) throw new Error(`${label}: ${shown}`);
+      return { ...dialog, message: shown };
+    }
+  }
+
+  // W-6a. Save the session's model document, re-open the saved file, and save
+  // the re-opened session again; run.mjs compares both files and both reported
+  // hashes with the RFC 8785 SHA-256 it computes from the source document.
+  async function modelDocumentRoundTrip(plan, report) {
+    const { first, second } = plan.model_document;
+    const saved = await saveModelDocument(first, "model-document/save");
+    const reopened = await openModelDocument(first);
+    await waitFor("re-opened document in the model tree", () => treeRow(plan.bundled_project_id));
+    const resaved = await saveModelDocument(second, "model-document/reopened/save");
+    report.model_document = { saved, reopened, resaved };
   }
 
   async function observe(label, projectId, probe) {
@@ -506,6 +559,8 @@
   }
 
   async function phaseOpenSolveSave(plan, report) {
+    // The session starts on the bundled demo, unedited.
+    await modelDocumentRoundTrip(plan, report);
     for (const refusal of plan.refusals) {
       report.refusals.push({ file: refusal.path.split("/").pop(), message: await openModelDocument(refusal.path), prior_model_kept: Boolean(treeRow(plan.bundled_project_id)) });
     }
