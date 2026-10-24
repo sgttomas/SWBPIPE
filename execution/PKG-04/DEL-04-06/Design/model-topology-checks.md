@@ -131,8 +131,9 @@ relative tolerance.
   - when the member is unset, the control shows "5 mm (default)".
 - **Editing.** The edit is an applier operation on the `Project` target, like
   `set_project_unit` (DEL-02-02 Design `project-unit-selection.md` §2.7).
-- **Status.** The control is not implemented. It needs the 0.7.0 member and the
-  `Project` target.
+- **Status.** The control is not implemented, and no unit carries it yet. The
+  0.7.0 member exists (#1564) and W-13 S2a (#1565) did not add a control for it;
+  it still needs the `Project` target.
 
 **Search.** Nodes are placed in cells 8τ wide, indexed by the coordinate
 divided by the width (no offset by the lowest coordinate, whose rounding can

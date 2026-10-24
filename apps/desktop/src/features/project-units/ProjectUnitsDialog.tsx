@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   PROJECT_UNIT_KEYS,
@@ -63,7 +63,9 @@ function OpenProjectUnitsDialog({ request }: { request: BlankProjectUnitsRequest
     return () => { active = false; };
   }, []);
 
-  useEffect(() => {
+  // Focus and the key hold are set inside the commit that shows the dialog,
+  // as in ReplaceProjectPrompt: a passive effect could let an early key through.
+  useLayoutEffect(() => {
     const opener = request.opener;
     presetSelect.current?.focus();
     const hold = (event: KeyboardEvent) => {

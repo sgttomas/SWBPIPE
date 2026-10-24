@@ -35,10 +35,7 @@ the previous map left open; rows cite them where they apply.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
 
 **Not on main, so not counted here (in flight):**
-- #1565 (W-13 S2a, authoring for the 0.7.0 slots) and #1566 (W-13 S2b / W-17,
-  apply library records to model entities);
 - #1573 (strict inputs, no silent drops of authored input or combination rows);
-- #1574 (absolute 5 mm node-proximity tolerance);
 - branch `claude/piping-w7-global-end-forces-20261023` (W-7, no PR yet);
 - #1567 (DBM concordance review).
 
@@ -112,8 +109,9 @@ The biggest gaps:
    schema describes it. Tags, notes, unresolved assumptions and open issues,
    rule-pack references, lines, constraints, equipment interfaces and structured
    entity provenance with `library_ref` have slots, checked by one document
-   validator. Authoring them (#1565) and applying library records (#1566) are in
-   flight. Affected: FR-MOD-001/002/004/005/006.
+   validator, and the desktop authors them (#1565). Library records apply to
+   model entities with their provenance (#1566). Affected:
+   FR-MOD-001/002/004/005/006.
 6. **Mechanics gaps on one route.**
    - Combinations are refused on EX (FR-SOL-009).
    - Imposed displacement is refused on PF (FR-SOL-006); the owner ruled to
@@ -121,11 +119,10 @@ The biggest gaps:
    - Pipe and bend end forces are element-local only (FR-SOL-007; W-7 is in
      flight).
    - The near-duplicate node tolerance is the owner's absolute 5 mm, settable in
-     the model document; the desktop has no control for it yet (REQ-04-06-012;
-     W-13 S2a, #1565).
+     the model document; the desktop has no control for it yet, and no unit
+     carries one (REQ-04-06-012).
 7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
-   required load cases (FR-RULE-001). Library records cannot yet be applied to
-   model entities (#1566 in flight).
+   required load cases (FR-RULE-001).
 
 ## 2. Outcome table
 
@@ -138,12 +135,12 @@ class, the evidence, and the deliverables. Paths are under
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-MOD-001 (476) | Must | P | **Store:** desktop `lib.rs:2432` save, `:1189` load. **Tests:** desktop `lib.rs:6283,6338,6510,7565`; `e2e/b3b-project-persistence.spec.ts`. **Schema:** `schemas/model.schema.yaml` describes the 0.6.0 document; `tests/test_model_document_schema.py:247,254` validates the bundled demo and e2e documents against it | DEL-02-05, DEL-02-01, DEL-00-04 | Tags, notes, assumptions and rule-pack references have 0.7.0 slots (#1564); desktop authoring is #1565. No save-to-file command. Nothing validates against the schema at run time. |
-| FR-MOD-002 (477) | Must | P | Typed entities in PP `lib.rs:367,382,449,578,657` | DEL-02-01 | Lines, constraints and equipment interfaces have 0.7.0 slots as typed records without evaluation (#1564); authoring is #1565. |
+| FR-MOD-001 (476) | Must | P | **Store:** desktop `lib.rs:2432` save, `:1189` load. **Tests:** desktop `lib.rs:6283,6338,6510,7565`; `e2e/b3b-project-persistence.spec.ts`. **Schema:** `schemas/model.schema.yaml` describes the 0.7.0 document; `tests/test_model_document_schema.py:247,254` validates the bundled demo and e2e documents against it | DEL-02-05, DEL-02-01, DEL-00-04 | Tags, notes, assumptions and rule-pack references have 0.7.0 slots (#1564) and are authored in the desktop (#1565). No save-to-file command. Nothing validates against the schema at run time. |
+| FR-MOD-002 (477) | Must | P | Typed entities in PP `lib.rs:367,382,449,578,657` | DEL-02-01 | Lines, constraints and equipment interfaces have 0.7.0 slots as typed records without evaluation (#1564), authored in the Model tree and the Model records tab (#1565). |
 | FR-MOD-003 (478) | Must | D | Identity changes refused: `operation_applier/src/rich_authoring.rs:1092`, test `:864`; `atomic_batch.rs:690`; reconnect keeps ids (`pipe_reconnect.rs`) | DEL-02-01, DEL-16-06 | No all-operations id-survival test. |
-| FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | Tags and notes have 0.7.0 slots (#1564); desktop authoring is #1565. |
-| FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402` | DEL-03-01, DEL-03-07 | 0.7.0 adds a structured `provenance_record` with `library_ref` (#1564); applying library records is #1566. |
-| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | 0.7.0 adds the slot (#1564); the entry path is #1565. |
+| FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | Tags and notes have 0.7.0 slots (#1564), authored in the inspector for every entity and the project (#1565). |
+| FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402`. Library insert and apply set the entity's `provenance_record` with `library_ref` (record digest `library_version`): `apps/desktop/src/features/library/libraryApply.ts`; tests `libraryApply.test.ts`, `operation_applier/tests/library_apply.rs` | DEL-03-01, DEL-03-07 | 0.7.0 adds a structured `provenance_record` with `library_ref` (#1564). Applying library records (#1566): entities written from a library carry a combined `provenance_record`, and the store check warns on unresolved or changed records (`check_model_library_refs`). |
+| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | 0.7.0 adds the slot (#1564); the Model records tab enters, resolves and rejects them (#1565). |
 | FR-MOD-007 (482) | Must | D (bounded) | On the live solve path the product derives its analytical model (`BuiltModel`, PP `lib.rs:2261`; `build_model` `:7930`) from the supported canonical-document fields and records diagnostics (PP `lib.rs:2635-2739`) | DEL-13-04, DEL-04-07 | Owner reading (2026-10-23, accepted): D bounded to this derivation. The richer PKG-13 transform contract (`core/model_transform/physical_to_analytical/contract.py`, test-only) stays deferred under OD-1. |
 | FR-KNOW-001 (488) | Must | O | OD-3 (DEL-13-01 SOW:15). Desktop `lib.rs:1773` returns a bundled fixture; `KnowledgePanel.tsx` has no inputs | DEL-13-01 | |
 | FR-KNOW-002 (489) | Must | D | W-8: `core/product_physics/src/topology.rs:46`, called once at PP `lib.rs:2739` on the shared path of both routes; `MODEL_TOPOLOGY_DISCONNECTED` (`topology.rs:136`), `BRANCH_TOPOLOGY_INVALID` (`validation.rs:1310-1320`); unsupported parts still refused (PP `lib.rs:15412`); EX pressure-region topology (`pressure_runtime.rs:1538,1548,1595`). **Tests:** `tests/topology_checks_runtime.rs` (9). **Desktop:** Diagnostics panel (`App.test.tsx:10877`) | DEL-04-06 | Findings are warnings; PRD §14.4 lists topology under "blocking for model validity" (§6). Tests use PF requests only. The bundled demo now warns `BRANCH_TOPOLOGY_INVALID` (tee C-120). |
@@ -191,7 +188,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
 | §12.3 reducers (no row before) | — | P | No eccentric offset vector in `core/product_physics/src` | DEL-03-05 | Part of W-15. |
 | §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`) | DEL-05-01 | EX refuses `equivalent_static`; imposed rotations and nozzle movement follow FR-SOL-006. |
-| §12.8 near-duplicate nodes (775) | — | P | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193` | DEL-04-06 | REQ-04-06-012 (owner) is met in the product and the document; the desktop editing control comes with W-13 S2a (#1565), so a desktop user cannot yet change it (only headless, so P). |
+| §12.8 near-duplicate nodes (775) | — | P | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193` | DEL-04-06 | REQ-04-06-012 (owner) is met in the product and the document; the desktop has no control for it (W-13 S2a, #1565, authored the other 0.7.0 slots, not `model_settings`), so a desktop user cannot yet change it (only headless, so P). No unit carries the control yet. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
 | §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b | DEL-09-02 | The DEL-09-02 stress suite itself has no pressure family, although DEL-09-02 commits pressure coverage (W-20). |
@@ -204,8 +201,8 @@ class, the evidence, and the deliverables. Paths are under
 | FR-RULE-002 (531) | Must | D | `rule_pack_document/src/lib.rs:1184` calls `check_rule_pack_units` (`:1482`); UI `RulePackManagerPanel.tsx:503-560`; run time `rule_check_runner/src/lib.rs:1286`. **Tests:** `tests/unit_check.rs`, `RulePackManagerPanel.unitCheck.test.tsx`, desktop `lib.rs:8452,8499` | DEL-06-02 | Static findings do not block save or run; an inconsistent check still blocks when it runs. A dimensionless limit declared `1` does not match a ratio formula's `ratio`. |
 | FR-RULE-003 (532) | Must | D | `rule_check_runner/src/lib.rs` (`aggregate_rank`, `status_counts`); desktop `RuleCheckRunPanel.tsx` headline; renderer `user_rule_check_aggregate_headline`. Tests: runner unit tests and `tests/point_path_non_finite_run.rs`, `report_renderer/tests/render.rs`, `RuleCheckRunPanel.test.tsx` ("FR-RULE-003 pack headline"); observed natively on both routes (§5) | DEL-06-03 | W-19 (#1585): while any check is incomplete the pack headlines "INCOMPLETE — n check(s) failed; m check(s) blocked", with each check listed (owner reading, 2026-10-23; DEL-06-03 Design `pack-aggregate-incomplete.md`). A check with missing inputs is never evaluated. |
 | FR-RULE-004 (533) | Must | D | `rulePackService.ts:241-284` (private by default); local SQLite | DEL-06-04 | No pack file export. |
-| FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; desktop `lib.rs:8593`; `tests/test_library_import_provenance.py` | DEL-03-01, DEL-03-07 | Records feed rule checks only (desktop `lib.rs:3029`); applying them to model entities is #1566 (in flight). |
-| FR-RULE-006 (535) | Should | D | Same panel, component kind | DEL-03-02, DEL-03-07 | As above. |
+| FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; desktop `lib.rs:8593`; `tests/test_library_import_provenance.py`; `LibraryApplySection.tsx`, `libraryApply.ts`, applier `library_apply.rs`; tests `libraryApply.test.ts`, `operation_applier/tests/library_apply.rs` | DEL-03-01, DEL-03-07 | Records feed rule checks (desktop `lib.rs:3029`). Applying them to model entities (#1566): stored material and section records insert as new entities or apply to the selected one through one reviewed batch with one undo (material E/ν or E/G mode; a section apply updates its bound pipes). |
+| FR-RULE-006 (535) | Should | D | Same panel, component kind; `libraryApply.ts` `buildComponentApply` | DEL-03-02, DEL-03-07 | Applying records (#1566): stored component records apply to an existing component of the matching kind by a fixed source-kind table (apply only; no insert). |
 | FR-RULE-007 (536) | Must | D | `tests/test_invented_example_models.py`; `examples/rule_packs/invented_demo.yaml` | DEL-11-04, DEL-06-05 | |
 | FR-REP-001 (578) | Must | P | W-3: local-private render (`RenderedReportPanel.tsx`, `reportRenderService.ts`); rule-pack refs, user-rule outcomes, versions, date, settings and coordinate systems (`renderableReportInput.ts:362-470,637,685`; renderer test `render.rs:321`). Observed natively (§5) | DEL-08-01, DEL-08-06 | A public render is blocked for every session (provenance hard-coded private, `renderableReportInput.ts:119-131`). EX refused (10A). Package refused (`reportPackageRequest.ts:30`). `assumptions: []`; build id and model coordinates "not recorded"; no library refs. |
 | FR-REP-002 (579) | Must | P | Rule-check section `report_renderer/src/lib.rs:845-904`; §19.3 notice and human-review record `:954-990`; test `render.rs:390` | DEL-08-01 | Reached only in the local-private PF render. |
@@ -434,7 +431,8 @@ choices and obligations for new cases kept.
 - REQ-04-06-012 (5 mm the user can change: met in the document, not yet in the
   desktop) and DEL-04-03 R01 (imposed displacement) state ruled commitments
   that the code does not yet fully meet. Both are disclosed, and the work
-  is in flight or planned (the desktop control, #1565; FR-SOL-006 stages).
+  is in flight or planned (FR-SOL-006 stages); REQ-04-06-012's desktop control is
+  not yet in any unit.
 - DEL-13-03-R1 (deferred PKG-13) still commits connectivity, which DEL-04-06
   now delivers.
 
@@ -520,6 +518,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
 | W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
 | W-13 S1b | Model document 0.7.0: the new member slots, one document validator, `model_settings.node_proximity_tolerance` (default 5 mm) | #1564; native smoke with no change beyond the five stale `expected.json` values (§3 rows 1–5) |
+| W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
+| W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
 
 **In flight** (not on main):
@@ -527,7 +527,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | PR or branch |
 |---|---|---|
 | W-7 | Global-frame element-end forces (FR-SOL-007) | branch `claude/piping-w7-global-end-forces-20261023` (no PR) |
-| W-13 S2a, S2b | Authoring for the 0.7.0 slots; applying library records (also W-17) | #1565, #1566 |
 | — | Strict inputs: no silent drops of authored input or combination rows | #1573 |
 | — | DBM concordance review | #1567 |
 
@@ -550,8 +549,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before development testing broadens:** the G10 values (§3 rows 1–5) put
   to the owner, so the native smoke proves itself without known failures (W-4
   is done). The §3 [fix] remainder can go with it.
-- **Before the owner's hands-on use:** the W-13 in-flight slices, then W-6 and
-  W-18 (a model the owner can export and a report package). W-3 and W-5 are
+- **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
+  export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
 - **Before validation:** W-12, W-15, W-16, W-20, W-11 and the in-flight W-7, #1573
   and #1574. The R6 reproduction bundle (W-2) is then made at the validation

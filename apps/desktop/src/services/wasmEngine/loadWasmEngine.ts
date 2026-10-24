@@ -49,6 +49,10 @@ export type WasmOperationEngine = {
   // Presentation only; never read by admission or standing. Throws only on input
   // that is not JSON; the desktop then shows no indicator (fail closed).
   numericalHealthJson: (sourceJson: string, readerFindingsJson?: string) => string;
+  // W-17 §2.3a: the shear modulus a library insert derives from E and ν, bit
+  // for bit the exact route's (`derived_shear_modulus_pa`): `{value, unit:"Pa"}`
+  // or `{error}`.
+  derivedShearModulusJson: (elasticModulus: number, unit: string, poissonRatio: number) => string;
 };
 
 type GeneratedGlueModule = {
@@ -59,6 +63,7 @@ type GeneratedGlueModule = {
   apply_operation_batch_json: WasmOperationEngine["applyOperationBatchJson"];
   convert_display_quantities_json: WasmOperationEngine["convertDisplayQuantitiesJson"];
   validate_model_document_json: WasmOperationEngine["validateModelDocumentJson"];
+  derived_shear_modulus_json: WasmOperationEngine["derivedShearModulusJson"];
   canonical_json_string: (valueJson: string) => string;
   canonical_sha256_hex: (valueJson: string) => string;
   canonical_json_checked_v1: (valueJson: string) => string;
@@ -185,6 +190,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     applyOperationBatchJson: glue.apply_operation_batch_json,
     convertDisplayQuantitiesJson: glue.convert_display_quantities_json,
     validateModelDocumentJson: glue.validate_model_document_json,
+    derivedShearModulusJson: glue.derived_shear_modulus_json,
     canonicalJsonString: glue.canonical_json_string,
     canonicalSha256Hex: glue.canonical_sha256_hex,
     canonicalJsonCheckedV1: glue.canonical_json_checked_v1,

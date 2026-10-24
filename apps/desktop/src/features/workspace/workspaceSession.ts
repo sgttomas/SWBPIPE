@@ -49,6 +49,9 @@ import {
 } from "../../services/projectService";
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
+import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
+import { publishLibraryRefFindings } from "../library/libraryRefFindings";
+import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
   type ReplaceProjectChoice,
@@ -172,6 +175,20 @@ import { updateUiPreferences, writeUiPreferences } from "./uiPreferences";
 import { observeWorkspaceCanvasBudget } from "./workspaceCanvasBudget";
 import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
 import type { WorkspaceSectionId } from "./workspaceSections";
+
+/** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
+ * local store at open and load. Warnings only; the recorded versions stand. */
+async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
+  publishLibraryRefFindings(model.project.id, []);
+  try {
+    const checked = await checkModelLibraryRefs(model.project.id, modelLibraryRefs(model));
+    if (checked.route !== "tauri_backend" || checked.findings.length === 0) return "";
+    publishLibraryRefFindings(model.project.id, checked.findings);
+    return modelFileWarningSuffix(checked.findings.map((finding) => ({ code: finding.code, path: finding.entity_ref, message: finding.message })));
+  } catch (error) {
+    return ` Library references were not checked: ${String(error)}.`;
+  }
+}
 
 // Diagnostics generations must not repeat across real same-page App remounts.
 let nextUiModelPublicationGeneration = 0;
@@ -2134,9 +2151,13 @@ export function useWorkspaceSession() {
       setProjectSummary(opened.summary);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
       setModelDocumentVersion(opened.model_document_version ?? null);
-      setProjectMessage(opened.summary.message);
+      // W-13 §5.3: the validator's warnings show at project load (blocking
+      // findings were refused by the store).
+      setProjectMessage(`${opened.summary.message}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);
+      const libraryWarnings = await libraryReferenceWarnings(opened.model);
+      if (libraryWarnings && stillCurrent()) setProjectMessage((message) => `${message}${libraryWarnings}`);
       const recomputedHash = await computeModelHash(opened.model);
       if (recomputedHash && openedGeneration === projectSessionGenerationRef.current && openedBasisSequence === savedBasisSequence.current) {
         setSavedModelBasis({ generation: openedGeneration, revision: openedRevision, hash: recomputedHash.value, source: "open" });
@@ -2235,6 +2256,8 @@ export function useWorkspaceSession() {
       setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${opened.schema_status}). Not saved as a local project yet.${modelFileWarningSuffix(opened.warnings)}`);
       setProjectOperation("open_model");
       setActiveSection(null);
+      const libraryWarnings = await libraryReferenceWarnings(document);
+      if (libraryWarnings && stillCurrent()) setProjectMessage((message) => `${message}${libraryWarnings}`);
       const hash = await computeModelHash(document);
       if (generation === projectSessionGenerationRef.current && sequence === savedBasisSequence.current) {
         setSavedModelBasis({ generation, revision, hash: hash?.value ?? null, source: "loaded-source" });
