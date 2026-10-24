@@ -60,5 +60,6 @@ the current fixture inventory.
 | Canonical analytical resultant stress | `STRESS-TP-PHYS-015-CANONICAL-RESULTANT-STRESS-RECOVERY` |
 | Mill-tolerance effective-wall stress | `STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS` |
 | Modulus-basis stress range | `STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS` |
+| Pressure hoop and longitudinal stress | `STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL` |
 
 Hand-calculation notes are in `validation/hand_calcs/stress/`.

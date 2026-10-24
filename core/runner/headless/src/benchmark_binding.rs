@@ -1626,8 +1626,12 @@ mod tests {
         let stress = run_benchmark_cases("stress", &[]);
         let stress_report = stress.report.expect("stress report");
         assert_eq!(stress_report.executed_and_mismatched, 0);
-        assert_eq!(stress_report.blocked, 3);
-        assert_eq!(stress.diagnostics.len(), 3);
+        // W-20: the pressure family's comparison is the suite's own DEC-026
+        // relative check (product values sit a few ulp from the closed forms,
+        // beyond the runner's absolute recorded comparison), so the runner has
+        // no binding for it and it fails closed through the default branch.
+        assert_eq!(stress_report.blocked, 4);
+        assert_eq!(stress.diagnostics.len(), 4);
         let blocked_ids = stress_report
             .cases
             .iter()
@@ -1640,6 +1644,7 @@ mod tests {
                 "STRESS-TP-PHYS-008-THERMAL-AXIAL-EFFECT-TO-STRESS",
                 "STRESS-TP-PHYS-009-COMBINED-AXIAL-BENDING-TO-STRESS",
                 "STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS",
+                "STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL",
             ]
             .into_iter()
             .collect()
