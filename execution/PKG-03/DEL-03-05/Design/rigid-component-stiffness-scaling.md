@@ -356,6 +356,27 @@ What each decision touches:
    regenerated with `tools/serialization/semantic_contract_tables.py`
    (`derive`, `repin`), alongside the retained inherited-table pins.
 
+As implemented (`core/product_physics/src/rigid_component.rs`,
+`core/reporting/result_export/src/component_body.rs`, mirrored in
+`tests/verifiers/component_body.py`):
+
+- The stress rows are the row kinds whose `source_physical_semantic_dimension`
+  is `stress` in the pressure-2 and preview-physics-2 tables (17 kinds); a unit
+  test pins the producer's list to the tables.
+- A source's bodies are read from its coverage entries, which must agree
+  across cases and section bases; a record is refused as forged off a listed
+  body's stress row, missing on one, or inconsistent across that body's rows,
+  extrema and basis twins (`SOURCE_COMPONENT_BODY_*`). The model-bound
+  readers compare the bodies with the model's eligibility predicate
+  (`SOURCE_COMPONENT_BODY_MODEL_MISMATCH`). The preview reader takes these
+  checks after its blocked-envelope rule.
+- The preview transport check admits the coverage list and the extremum
+  record. A derivative quantity and its source annotation carry the row's
+  record; it is compared by value, the scale bit for bit, so a JSON form
+  change does not unbind it.
+- The pressure-2 table gains one limitation sentence naming the record and
+  the rule refusal; the preview-physics-2 table is unchanged.
+
 ## 6. Verification
 
 - **Rigid-link benchmark** (PRD §22.2), following W-9

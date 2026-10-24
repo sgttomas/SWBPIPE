@@ -145,9 +145,16 @@ code_paths:
 - core/product_physics/src/exact_admission.rs
 - core/product_physics/src/rigid_component.rs
 - core/product_physics/src/pressure_runtime.rs
+- core/reporting/result_export/src/component_body.rs
+- tests/verifiers/component_body.py
+- apps/desktop/src/features/results/componentBody.ts
 - apps/desktop/src/features/component-creation/componentIntent.ts
 checks:
 - tests/test_component_section_schema.py
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/exact_route_refusals.rs
 - core/product_physics/src/w15_rigid_scaling_tests.rs
+- core/product_physics/tests/w15_rigid_scaling_benchmarks.rs
+- core/product_physics/tests/w15_component_body.rs
+- validation/references/w15_rigid_scaling/generators/w15_reference.py
+- apps/desktop/src/features/results/componentBody.test.ts
