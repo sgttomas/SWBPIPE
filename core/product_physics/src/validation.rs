@@ -1331,9 +1331,8 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     "BRANCH_TOPOLOGY_INVALID",
                     "warning",
                     format!(
-                        "a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}{}",
-                        component.node,
-                        branch_factors_still_applied(component, &pipe_map)
+                        "a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node {} joins {degree}",
+                        component.node
                     ),
                     vec![component.id.clone(), component.node.clone()],
                 ));
@@ -1709,40 +1708,46 @@ fn branch_topology_invalid(component: &crate::PreviewComponent, degree: usize) -
     degree != 3 || same_pipe
 }
 
-/// The sides whose branch stress factors are still applied despite an invalid
-/// topology: `branch_stress_modifier_for_pipe` applies them by pipe reference,
-/// with no degree check (owner ruling, 2026-10-23: findings warn, not refuse).
-/// As in the stress-multiplier rows, a side applies only to a pipe that exists
-/// and has an end at the component's node.
-fn branch_factors_still_applied(
-    component: &crate::PreviewComponent,
-    pipes: &HashMap<&str, &crate::PreviewPipe>,
-) -> String {
-    let Some(geometry) = &component.geometry else {
-        return String::new();
-    };
-    let mut applied: Vec<String> = Vec::new();
-    for pipe in [&geometry.branch_header_pipe_ref, &geometry.branch_branch_pipe_ref]
-        .into_iter()
-        .flatten()
-    {
-        let ends_here = pipes
-            .get(pipe.as_str())
-            .is_some_and(|segment| segment.from == component.node || segment.to == component.node);
-        if !ends_here {
+/// W-8 (owner ruling, 2026-10-23: topology findings warn, not refuse, and the
+/// warning "must state plainly that the component's branch stress factors are
+/// still applied to the named pipes"). Called once, where a solved preview
+/// envelope is assembled, after every refusal that can follow publication: each
+/// BRANCH_TOPOLOGY_INVALID warning gains the sides whose intensified rows that
+/// envelope publishes. They are read from the publication's own records
+/// (`preview_physics::render`'s `intensified_measures`, one beside each published
+/// row, from `associations` over the straight members only), so the statement
+/// names exactly the published sides. A refused envelope, and an exact-route one
+/// (which publishes no intensified row), keep the topology text alone.
+pub(crate) fn state_applied_branch_factors(
+    components: &[crate::PreviewComponent],
+    preview_cases: &[serde_json::Value],
+    diagnostics: &mut [Diagnostic],
+) {
+    for component in components {
+        let Some(warning) = diagnostics.iter_mut().find(|d| {
+            d.code == "BRANCH_TOPOLOGY_INVALID" && d.affected_refs.first() == Some(&component.id)
+        }) else {
             continue;
-        }
-        if let Some(modifier) = crate::branch_stress_modifier_for_pipe(component, pipe) {
-            let side = format!("{} SIF to {pipe}", modifier.side);
-            if !applied.contains(&side) {
-                applied.push(side);
+        };
+        let mut applied: Vec<String> = Vec::new();
+        for (role, side) in [("branch_header", "header"), ("branch_branch", "branch")] {
+            for record in preview_cases
+                .iter()
+                .filter_map(|case| case["intensified_measures"].as_array())
+                .flatten()
+                .filter(|record| record["component_id"] == component.id.as_str() && record["factor_role"] == role)
+            {
+                let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());
+                if !applied.contains(&named) {
+                    applied.push(named);
+                }
             }
         }
-    }
-    if applied.is_empty() {
-        String::new()
-    } else {
-        format!("; its branch stress factors are still applied ({})", applied.join(", "))
+        if !applied.is_empty() {
+            warning
+                .message
+                .push_str(&format!("; its branch stress factors are still applied ({})", applied.join(", ")));
+        }
     }
 }
 

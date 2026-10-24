@@ -318,6 +318,190 @@ fn an_invalid_tee_says_which_branch_stress_factors_still_apply() {
     }
 }
 
+/// The sides an envelope publishes intensified rows for, read from its
+/// evidence records ("header SIF to pipe:…" or "branch SIF to pipe:…"); each
+/// record's row is checked to be a published intensified row, and every such
+/// row of the tee to have its record.
+fn published_sides(v: &Value) -> Vec<String> {
+    let rows = v["results"].as_array().cloned().unwrap_or_default();
+    let mut sides = Vec::new();
+    let mut records = 0;
+    for case in v["contract_evidence"]["preview_cases"].as_array().into_iter().flatten() {
+        for record in case["intensified_measures"].as_array().into_iter().flatten() {
+            if record["component_id"] != "component:tee" {
+                continue;
+            }
+            records += 1;
+            let id = record["result_id"].as_str().unwrap();
+            assert!(rows.iter().any(|r| r["id"] == id && r["kind"] == "component_equal_factor_intensified_bending_stress_v1"
+                && r["entity_ref"] == "component:tee"), "the record's row {id} is published");
+            let side = match record["factor_role"].as_str() {
+                Some("branch_header") => "header",
+                Some("branch_branch") => "branch",
+                other => panic!("unexpected factor role {other:?}"),
+            };
+            let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap());
+            if !sides.contains(&named) {
+                sides.push(named);
+            }
+        }
+    }
+    let tee_rows = rows.iter().filter(|r| r["kind"] == "component_equal_factor_intensified_bending_stress_v1"
+        && r["entity_ref"] == "component:tee").count();
+    assert_eq!(tee_rows, records, "every published intensified row of the tee has its record");
+    sides.sort_by_key(|side| !side.starts_with("header"));
+    sides
+}
+
+/// REQ-04-06-012 and the owner's ruling (2026-10-23): the branch-topology warning
+/// names exactly the sides whose intensified rows the envelope publishes: never
+/// a side it does not publish, never omitting one it does, in both solver modes.
+/// Every combination of header and branch SIF (absent, zero, negative, positive,
+/// positive in a non-dimensionless unit) and flexibility factor (absent, present,
+/// zero, present in a non-dimensionless unit) on: a node joining two pipes; a header
+/// pipe that is missing or does not end at the node; a header that is the branch
+/// (on three pipes); a missing branch pipe; another solver consumption; a branch
+/// pipe realized as a curved-bend arc; and a valid tee (no warning). Also a tee
+/// without modifiers, and a model refused for missing supports (the warning
+/// stays; nothing is claimed).
+#[test]
+fn the_branch_warning_names_exactly_the_published_sides() {
+    let factors = [
+        None,
+        Some(json!({"value": 0.0, "unit": "none"})),
+        Some(json!({"value": -1.0, "unit": "none"})),
+        Some(json!({"value": 1.4, "unit": "none"})),
+        Some(json!({"value": 1.9, "unit": "N"})),
+    ];
+    let flexibilities = [
+        None,
+        Some(json!({"value": 1.0, "unit": "none"})),
+        Some(json!({"value": 0.0, "unit": "none"})),
+        Some(json!({"value": 1.0, "unit": "N"})),
+    ];
+    let topology = |degree: usize| {
+        format!("a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node node:b joins {degree}")
+    };
+    // (scenario, the model, the node's pipe count; None for a valid tee).
+    let arc = || {
+        // a-b straight; b-c a quarter arc realized by the bend at c; c-d straight.
+        base("m",
+            json!([node("node:a", 0.0, 0.0, 0.0), node("node:b", 1.0, 0.0, 0.0), node("node:c", 1.2, 0.2, 0.0), node("node:d", 1.2, 1.2, 0.0)]),
+            json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]),
+                pipe("pipe:b-c", "node:b", "node:c", [std::f64::consts::FRAC_1_SQRT_2, -std::f64::consts::FRAC_1_SQRT_2, 0.0]),
+                pipe("pipe:c-d", "node:c", "node:d", [1.0, 0.0, 0.0])]),
+            json!([anchor("support:a", "node:a"), anchor("support:d", "node:d")]),
+            json!([tee("component:tee", "node:b", "pipe:a-b", "pipe:b-c"),
+                {"id":"component:bend","kind":"bend","node":"node:c",
+                 "geometry":{"bend_pipe_ref":"pipe:b-c","bend_radius":{"value":0.2,"unit":"m"},"bend_angle":{"value":std::f64::consts::FRAC_PI_2,"unit":"rad"},
+                    "bend_plane_orientation":"global_xy_preview","bend_geometry_source_reference":"w8"},
+                 "modifiers":{"flexibility_factor_user_value":{"value":2.0,"unit":"none"},"source_reference":"w8_invented"},
+                 "mechanics_interface":{"solver_consumption":"curved_bend_macro_element"},"provenance":"w8"}]))
+    };
+    let remote = || {
+        let mut w = run_with_tee(false, "pipe:remote", "pipe:b-c");
+        w["model"]["nodes"].as_array_mut().unwrap().extend([node("node:r", 5.0, 0.0, 0.0), node("node:s", 6.0, 0.0, 0.0)]);
+        w["model"]["pipe_segments"].as_array_mut().unwrap().push(pipe("pipe:remote", "node:r", "node:s", [0.0, 1.0, 0.0]));
+        w["model"]["supports"].as_array_mut().unwrap().push(anchor("support:r", "node:r"));
+        w
+    };
+    let other_consumption = || {
+        let mut w = run_with_tee(false, "pipe:a-b", "pipe:b-c");
+        w["model"]["components"][0]["mechanics_interface"] = json!({"solver_consumption": "not_solver_consumed"});
+        w
+    };
+    let scenarios: Vec<(&str, Value, Option<usize>)> = vec![
+        ("two pipes", run_with_tee(false, "pipe:a-b", "pipe:b-c"), Some(2)),
+        ("missing header pipe", run_with_tee(false, "pipe:absent", "pipe:b-c"), Some(2)),
+        ("header pipe not at the node", remote(), Some(2)),
+        ("header is the branch", run_with_tee(true, "pipe:a-b", "pipe:a-b"), Some(3)),
+        ("missing branch pipe", run_with_tee(false, "pipe:a-b", "pipe:absent"), Some(2)),
+        ("other solver consumption", other_consumption(), Some(2)),
+        ("arc branch pipe", arc(), Some(2)),
+        ("valid tee", run_with_tee(true, "pipe:a-b", "pipe:b-d"), None),
+    ];
+    let (mut cases, mut claimed_without_flexibility, mut refused_with_valid_sif, mut arc_header_only) = (0, 0, 0, 0);
+    for mode in MODES {
+        for (name, model, degree) in &scenarios {
+            for header in &factors {
+                for branch in &factors {
+                    for flexibility in &flexibilities {
+                        let mut w = model.clone();
+                        let modifiers = &mut w["model"]["components"][0]["modifiers"];
+                        *modifiers = json!({"source_reference": "w8_invented_factors"});
+                        for (key, value) in [("branch_header_sif_user_value", header), ("branch_branch_sif_user_value", branch),
+                            ("flexibility_factor_user_value", flexibility)] {
+                            if let Some(value) = value {
+                                modifiers[key] = value.clone();
+                            }
+                        }
+                        let v = envelope(&w, mode);
+                        let published = published_sides(&v);
+                        let found = with_code(&v, "BRANCH_TOPOLOGY_INVALID");
+                        let context = format!("{name} {mode:?} header={header:?} branch={branch:?} flexibility={flexibility:?}");
+                        let Some(degree) = degree else {
+                            assert!(found.is_empty(), "{context}: {:?}", diagnostics(&v));
+                            cases += 1;
+                            continue;
+                        };
+                        assert_eq!(found.len(), 1, "{context}: {:?}", diagnostics(&v));
+                        let expected = if published.is_empty() {
+                            topology(*degree)
+                        } else {
+                            format!("{}; its branch stress factors are still applied ({})", topology(*degree), published.join(", "))
+                        };
+                        assert_eq!(found[0]["message"], expected.as_str(), "{context}");
+                        if v["status"]["mechanics"] != "MECHANICS_SOLVED" {
+                            assert!(published.is_empty(), "{context}: a refused envelope publishes nothing");
+                            if header.as_ref().is_some_and(|q| q["unit"] == "none" && q["value"] == 1.4) {
+                                refused_with_valid_sif += 1;
+                            }
+                        }
+                        if flexibility.is_none() && !published.is_empty() {
+                            claimed_without_flexibility += 1;
+                        }
+                        if *name == "arc branch pipe" {
+                            // The arc publishes no intensified row (its member is not straight).
+                            assert!(published.iter().all(|side| side.starts_with("header")), "{context}: {published:?}");
+                            if v["status"]["mechanics"] == "MECHANICS_SOLVED" {
+                                assert_eq!(v["summary"]["curved_bend_macro_element_count"], 1, "{context}");
+                            }
+                            if published == ["header SIF to pipe:a-b"] && branch.as_ref().is_some_and(|q| q["unit"] == "none" && q["value"] == 1.4) {
+                                arc_header_only += 1;
+                            }
+                        }
+                        cases += 1;
+                    }
+                }
+            }
+        }
+        // A tee with no modifiers claims nothing.
+        let v = envelope(&run_with_tee(false, "pipe:a-b", "pipe:b-c"), mode);
+        assert!(published_sides(&v).is_empty());
+        assert_eq!(with_code(&v, "BRANCH_TOPOLOGY_INVALID")[0]["message"], topology(2).as_str());
+        // Refused after the topology check (no support): the warning stays, without the statement.
+        let mut w = run_with_tee(false, "pipe:a-b", "pipe:b-c");
+        w["model"]["components"][0]["modifiers"] = json!({
+            "branch_header_sif_user_value": {"value": 1.4, "unit": "none"},
+            "branch_branch_sif_user_value": {"value": 1.9, "unit": "none"},
+            "flexibility_factor_user_value": {"value": 1.0, "unit": "none"},
+            "source_reference": "w8_invented_factors"
+        });
+        w["model"]["supports"] = json!([]);
+        let v = envelope(&w, mode);
+        assert!(blocking(&v).iter().any(|d| d["code"] == "SUPPORT_INPUT_MISSING"), "{:?}", diagnostics(&v));
+        assert!(published_sides(&v).is_empty());
+        assert_eq!(with_code(&v, "BRANCH_TOPOLOGY_INVALID")[0]["message"], topology(2).as_str());
+        cases += 2;
+    }
+    // The combinations reach the cases the review found: a side published with no
+    // flexibility factor is named; a refused envelope with a valid SIF claims none;
+    // an arc branch pipe publishes (and the warning names) the header only.
+    assert!(claimed_without_flexibility > 0 && refused_with_valid_sif > 0 && arc_header_only > 0,
+        "{claimed_without_flexibility} {refused_with_valid_sif} {arc_header_only}");
+    assert_eq!(cases, 2 * (8 * 5 * 5 * 4 + 2));
+}
+
 /// Two unjoined nodes on a part each, 4 mm apart across a cell boundary
 /// (cells are 8 x 5 mm = 0.04 m wide; the pair straddles x = 0.04).
 #[test]
