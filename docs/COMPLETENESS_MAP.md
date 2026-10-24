@@ -200,7 +200,7 @@ class, the evidence, and the deliverables. Paths are under
 |---|---|---|---|---|---|
 | FR-RULE-001 (530) | Must | P | `schemas/rule_pack.schema.yaml`; `RulePackManagerPanel.tsx:302-602`; `e2e/r2-smoke.spec.ts:1175` | DEL-06-01, DEL-07-03 | No stress categories, load-case mappings or required load cases (§17.2). |
 | FR-RULE-002 (531) | Must | D | `rule_pack_document/src/lib.rs:1184` calls `check_rule_pack_units` (`:1482`); UI `RulePackManagerPanel.tsx:503-560`; run time `rule_check_runner/src/lib.rs:1286`. **Tests:** `tests/unit_check.rs`, `RulePackManagerPanel.unitCheck.test.tsx`, desktop `lib.rs:8452,8499` | DEL-06-02 | Static findings do not block save or run; an inconsistent check still blocks when it runs. A dimensionless limit declared `1` does not match a ratio formula's `ratio`. |
-| FR-RULE-003 (532) | Must | P | `rule_check_runner/src/lib.rs:199-200,355,749`; desktop `lib.rs:2919-2943`; tests `:7901,7916`; observed natively on both routes (§5) | DEL-06-03 | A check with missing inputs is never evaluated, but the aggregate ranks failed above incomplete, so a pack with one failing and one incomplete check headlines FAILED. Owner reading (2026-10-23, accepted; DEL-06-03 Design `pack-aggregate-incomplete.md`): while any check is incomplete the headline is "INCOMPLETE — n check(s) failed; m check(s) blocked". P until built (W-19). |
+| FR-RULE-003 (532) | Must | D | `rule_check_runner/src/lib.rs` (`aggregate_rank`, `status_counts`); desktop `RuleCheckRunPanel.tsx` headline; renderer `user_rule_check_aggregate_headline`. Tests: runner unit tests and `tests/point_path_non_finite_run.rs`, `report_renderer/tests/render.rs`, `RuleCheckRunPanel.test.tsx` ("FR-RULE-003 pack headline"); observed natively on both routes (§5) | DEL-06-03 | W-19 (#1585): while any check is incomplete the pack headlines "INCOMPLETE — n check(s) failed; m check(s) blocked", with each check listed (owner reading, 2026-10-23; DEL-06-03 Design `pack-aggregate-incomplete.md`). A check with missing inputs is never evaluated. |
 | FR-RULE-004 (533) | Must | D | `rulePackService.ts:241-284` (private by default); local SQLite | DEL-06-04 | No pack file export. |
 | FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; desktop `lib.rs:8593`; `tests/test_library_import_provenance.py` | DEL-03-01, DEL-03-07 | Records feed rule checks only (desktop `lib.rs:3029`); applying them to model entities is #1566 (in flight). |
 | FR-RULE-006 (535) | Should | D | Same panel, component kind | DEL-03-02, DEL-03-07 | As above. |
@@ -255,13 +255,14 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 43 P, 33 D, 8 O and no R:
+This map has 42 P, 34 D, 8 O and no R:
 - **P → D (5):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569), and the R2 exit (W-4, #1582, after the basis). The
   first two were already updated in the map by their PRs.
 - **D → P (2):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
-  FR-RULE-003, by the owner's reading of 2026-10-23, until W-19 is built.
+  (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
+  with W-19, #1585.)
 - **P → O (5):** FR-KNOW-001, -003, -004 and -005 (OD-1/OD-3); FR-AGENT-005
   (OD-5).
 - **P → D (bounded) (1):** FR-MOD-007, by the owner's reading of 2026-10-23.
@@ -419,7 +420,7 @@ recommendations for the matters you needed from me"):
 - **FR-MOD-007:** D, bounded to the live derivation of `BuiltModel`; the PKG-13
   transform contract stays deferred (§2.1).
 - **FR-RULE-003:** the aggregate headlines INCOMPLETE while any check is
-  incomplete (DEL-06-03 Design `pack-aggregate-incomplete.md`; W-19).
+  incomplete (DEL-06-03 Design `pack-aggregate-incomplete.md`; built in W-19).
 
 **Further SOW wording, applied** (owner, 2026-10-23: "I approve the 24 items as
 above (14 as drafted, 9 amended, and the :110/:117 alternative in place of
@@ -514,6 +515,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Refusal of load cases that apply nothing (silent zero) | #1568 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
+| W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
 
 **In flight** (not on main):
@@ -538,7 +540,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | §17.2 needs a scope ruling | §17.2 only |
 | W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private) | M | desktop + Rust | heavy | W-3 | A shareable path needs a DEL-12-02 design check |
-| W-19 (new) | Rule-check aggregate headlines INCOMPLETE while any check is incomplete, with real failed and blocked counts; failures stay prominent (FR-RULE-003; DEL-06-03 Design `pack-aggregate-incomplete.md`) | S | Rust + desktop | heavy, scrutiny (persisted aggregate meaning) | — | No (reading accepted 2026-10-23) |
 | W-20 (new) | Pressure stress benchmark family in the DEL-09-02 suite: pressure-derived hoop and longitudinal stress against closed forms (DEL-09-02 commits pressure coverage; the suite's families have none) | S | numerical | heavy, scrutiny | — | No |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
@@ -549,7 +550,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** the W-13 in-flight slices, then W-6 and
   W-18 (a model the owner can export and a report package). W-3 and W-5 are
   done.
-- **Before validation:** W-12, W-15, W-16, W-19, W-20, W-11 and the in-flight W-7, #1573
+- **Before validation:** W-12, W-15, W-16, W-20, W-11 and the in-flight W-7, #1573
   and #1574. The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 
