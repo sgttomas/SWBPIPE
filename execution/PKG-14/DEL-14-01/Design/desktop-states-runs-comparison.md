@@ -216,8 +216,20 @@ Python agree.
   Project first, or Discard. A `MODEL_INCOMPLETE` state is kept as a comparison
   basis but is not opened; the History panel says why. Opening starts a new project session
   with empty undo and redo stacks, so undo never reaches the previous model.
-  The stored base is kept, and the state's hash becomes the saved basis. The
-  state is the parent of the next state saved from that session.
+  The state's hash becomes the saved basis, and the state is the parent of the
+  next state saved from that session.
+  - **Binding.** The session becomes the state's project. Its stored base is
+    one the session itself saw for that project, never one read afresh from
+    the store, so another window's save still meets the stale-window check:
+    - the base it holds now, when that is the project's (no save, or the
+      guard's Save first saved in place);
+    - otherwise the base captured before the guard, when that was the
+      project's (Save first went to "Save as a new project");
+    - otherwise none, so a later save asks.
+    The project summary and envelope hash follow the base.
+  - **Library references.** The adopted snapshot's library references are
+    checked as a project open checks them (#1566). The warnings join the
+    message only while the session is still the one that opened the state.
 - **Browser preview.** It keeps no states (SQLite-only history) and refuses
   every state command (`MODEL-STATE-STORE-UNAVAILABLE`).
 

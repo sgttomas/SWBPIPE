@@ -113,7 +113,7 @@ import {
   deriveProjectEnvelopeHashIntegrity
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
-import { useModelStateHistory, type LandedProjectSave } from "../history/useModelStateHistory";
+import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import type { ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
@@ -3082,7 +3082,7 @@ export function useWorkspaceSession() {
    * context go with it. The stored base is unchanged (the session is still that
    * stored project), and the saved basis is the state's model hash, so the
    * first edit makes a new, edited working model. */
-  function adoptStateSnapshot(opened: ModelStateRead, snapshotHash: ModelHashEvidence) {
+  function adoptStateSnapshot(opened: ModelStateRead, snapshotHash: ModelHashEvidence, binding: ProjectBinding): Promise<string> {
     ruleRevisionGate.current.invalidate();
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
@@ -3112,6 +3112,27 @@ export function useWorkspaceSession() {
     setSelectedReviewTarget(null);
     setSolveJob(initialSolveJob());
     setModelDocumentVersion(opened.model_document_version ?? null);
+    // The session is the state's project. Its stored base is one this session
+    // saw for that project, never one read afresh from the store (that would
+    // hide another window's save from the stale-window check):
+    // - the base the session holds now, when it is that project's (no save, or
+    //   the guard's Save first saved it in place);
+    // - otherwise the base captured before the guard, when that was the
+    //   project's (the guard's Save first went to "Save as a new project");
+    // - otherwise none: the session never saw a stored revision of it, so a
+    //   save of it asks, as an opened model document's does.
+    const stateProject = opened.model.project.id;
+    if (storedBaseRef.current?.projectId !== stateProject) {
+      const bound = binding.base?.projectId === stateProject;
+      storedBaseRef.current = bound ? binding.base : null;
+      setProjectSummary(bound ? binding.summary : null);
+      setProjectEnvelopeHash(bound ? binding.envelopeHash : null);
+    }
+    return libraryReferenceWarnings(opened.model);
+  }
+
+  function captureProjectBinding(): ProjectBinding {
+    return { base: storedBaseRef.current, summary: projectSummary, envelopeHash: projectEnvelopeHash };
   }
 
   /** Save Local Project's flow, reporting whether a save landed (the
@@ -3129,7 +3150,7 @@ export function useWorkspaceSession() {
   const history = useModelStateHistory({
     model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
-    saveLocalProject: saveLocalProjectFirst, adoptStateSnapshot
+    saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot
   });
 
   return {

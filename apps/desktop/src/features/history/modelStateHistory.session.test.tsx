@@ -40,7 +40,23 @@ type SaveRequest = {
 };
 
 /** A fake of the native store: one project row and its states. */
-function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEntry | null; refuseProjectSave?: string; storedDemo?: StoredProjectEntry } = {}) {
+type RowsOptions = {
+  /** Stored project rows (id -> envelope hash), checked as the native store checks bases. */
+  rows: Map<string, string>;
+  /** Ids whose next in-place save is refused once, leaving the row unchanged. */
+  refuseOnce?: Set<string>;
+  /** `check_model_library_refs`' answer. */
+  libraryFindings?: unknown[];
+};
+
+function rowEntry(projectId: string, base: string): StoredProjectEntry {
+  return { project_id: projectId, project_name: "Stored invented project", storage_mode: "local_sqlite",
+    created_at_unix: 1760000000, updated_at_unix: 1760086400, revision: `rev:${base}`, saved_state_count: 0 };
+}
+
+function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEntry | null; refuseProjectSave?: string; storedDemo?: StoredProjectEntry; rows?: RowsOptions } = {}) {
+  const rows = options.rows;
+  let rowSequence = 0;
   const store = {
     projectStored: options.projectStored ?? false,
     storedProjects: new Set<string>(),
@@ -52,12 +68,43 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
     switch (command) {
       case "sync_native_shell_state":
         return null;
+      case "check_model_library_refs":
+        return rows?.libraryFindings ?? [];
+      case "open_local_project": {
+        const base = rows!.rows.get(DEMO.project.id)!;
+        return {
+          summary: { project_id: DEMO.project.id, project_name: DEMO.project.name, message: "Opened local SQLite project snapshot." },
+          model: structuredClone(DEMO), editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: null,
+          analysis_run: null, model_hash: null, project_envelope_hash: { value: base }, model_document_version: null
+        } as unknown as LocalProjectEnvelope;
+      }
       case "find_local_project":
+        if (rows) return rows.rows.has(args.projectId as string) ? rowEntry(args.projectId as string, rows.rows.get(args.projectId as string)!) : null;
         if (options.storedDemo) return args.projectId === DEMO.project.id ? options.storedDemo : null;
         return options.find ?? null;
       case "save_local_project": {
         if (options.refuseProjectSave) throw options.refuseProjectSave;
-        const request = args.request as { model: PreviewModel; model_hash: unknown; confirmed_revision?: string | null };
+        const request = args.request as { model: PreviewModel; model_hash: unknown; confirmed_revision?: string | null; expected_base?: string | null };
+        if (rows) {
+          const id = request.model.project.id;
+          const stored = rows.rows.get(id);
+          if (stored !== undefined) {
+            if (rows.refuseOnce?.delete(id)) throw `PROJECT-BASE-MOVED: project \`${id}\` ("Stored invented project", last saved at unix 1760086400) changed after this session opened or saved it; replacing it needs the user's confirmation.`;
+            const confirmed = request.confirmed_revision === `rev:${stored}`;
+            if (!confirmed && request.expected_base !== stored) {
+              throw request.expected_base == null && request.confirmed_revision == null
+                ? `PROJECT-ID-EXISTS: project \`${id}\` ("Stored invented project", last saved at unix 1760086400) is already stored; replacing it needs the user's confirmation.`
+                : `PROJECT-BASE-MOVED: project \`${id}\` ("Stored invented project", last saved at unix 1760086400) changed after this session opened or saved it; replacing it needs the user's confirmation.`;
+            }
+          }
+          const base = `sha256:${id}#${++rowSequence}`;
+          rows.rows.set(id, base);
+          return {
+            summary: { project_id: id, project_name: request.model.project.name, message: "Saved current project model snapshot without external file copies." },
+            model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: null,
+            analysis_run: null, model_hash: request.model_hash, project_envelope_hash: { value: base }, model_document_version: null
+          } as unknown as LocalProjectEnvelope;
+        }
         // A stored demo row: writing the demo's id needs the Replace the prompt showed.
         if (options.storedDemo && request.model.project.id === DEMO.project.id && request.confirmed_revision !== options.storedDemo.revision) {
           throw `PROJECT-ID-EXISTS: project \`${DEMO.project.id}\` ("${options.storedDemo.project_name}", last saved at unix ${options.storedDemo.updated_at_unix}) is already stored; replacing it needs the user's confirmation.`;
@@ -72,8 +119,11 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
       }
       case "save_model_state": {
         const request = args.request as SaveRequest;
-        if (!store.projectStored || (options.storedDemo && !store.storedProjects.has(request.project_id))) throw `MODEL-STATE-PROJECT-MISSING: project \`${request.project_id}\` has no stored local project; save the local project first.`;
-        if (request.expected_base !== BASE) throw `PROJECT-BASE-MOVED: project \`${request.project_id}\` changed after this session opened or saved it.`;
+        if (rows) {
+          if (!rows.rows.has(request.project_id)) throw `MODEL-STATE-PROJECT-MISSING: project \`${request.project_id}\` has no stored local project; save the local project first.`;
+          if (request.expected_base !== rows.rows.get(request.project_id)) throw `PROJECT-BASE-MOVED: project \`${request.project_id}\` changed after this session opened or saved it; replacing it needs the user's confirmation.`;
+        } else if (!store.projectStored || (options.storedDemo && !store.storedProjects.has(request.project_id))) throw `MODEL-STATE-PROJECT-MISSING: project \`${request.project_id}\` has no stored local project; save the local project first.`;
+        if (!rows && request.expected_base !== BASE) throw `PROJECT-BASE-MOVED: project \`${request.project_id}\` changed after this session opened or saved it.`;
         const existing = store.states.find((state) => state.model_hash === request.model_hash);
         if (existing) return { outcome: "already_saved", state: existing, message: `This model is already saved as state "${existing.state_name}" (${existing.state_id}); nothing was written.` };
         const created_at = `2026-10-24T10:00:0${++store.sequence}.000Z`;
@@ -295,6 +345,83 @@ describe("model states in the session (W-12 S1)", () => {
       await waitFor(() => expect(historyMessage()).toHaveTextContent("Not saved: the local project was not saved, so the model state was not saved."));
       expect(calls("save_local_project")).toHaveLength(1);
       expect(calls("save_model_state")).toHaveLength(0);
+    });
+  });
+
+  describe("Open State binds the session to the state's project", () => {
+    const A = DEMO.project.id;
+
+    /** The session opens stored project A (base A-1), saves state "Basis" in
+     * place, edits, then opens "Basis" through Save first → Save as a new project. */
+    async function openBasisThroughSaveAsNew(prepare: (rows: RowsOptions) => void) {
+      await renderApp();
+      setTauriRuntime(true);
+      const rows: RowsOptions = { rows: new Map([[A, "sha256:A-1"]]), refuseOnce: new Set() };
+      const store = nativeStore({ rows });
+      act(() => nativeMenuCommand("file.open-local"));
+      await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Opened local SQLite project snapshot."));
+      await refreshHistory();
+      await saveStateNamed("Basis");
+      const basis = store.states[0];
+      expect(calls("save_local_project")).toHaveLength(0);
+      expect((calls("save_model_state")[0].request as SaveRequest).expected_base).toBe("sha256:A-1");
+      await applyNodeEdit("0.5", 1);
+      prepare(rows);
+      fireEvent.click(within(openProjectSection()).getByTestId(`model-state-${basis.state_id}-open`));
+      fireEvent.click(await screen.findByTestId("unsaved-changes-save"));
+      fireEvent.click(await screen.findByTestId("replace-project-save-as-new"));
+      await waitFor(() => expect(historyMessage()).toHaveTextContent(`Opened model state "Basis" (${basis.state_id}) as the working model.`));
+      const projectSaves = calls("save_local_project").map((args) => (args.request as { model: PreviewModel }).model.project.id);
+      expect(projectSaves).toHaveLength(2);
+      expect(projectSaves[1]).toMatch(new RegExp(`^${A}:copy-`));
+      expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(DEMO.project.name);
+      // An edit of the opened state, then Save Model State.
+      await applyNodeEdit("0.75", 1);
+      const stateSavesBefore = calls("save_model_state").length;
+      await saveStateNamed("Rev B");
+      return { rows, stateSavesBefore };
+    }
+
+    it("keeps the base it held for that project before the guard: one state save, no extra project save", async () => {
+      const { stateSavesBefore } = await openBasisThroughSaveAsNew((rows) => rows.refuseOnce!.add(A));
+      await waitFor(() => expect(historyMessage()).toHaveTextContent('Saved model state "Rev B"'));
+      expect(calls("save_local_project")).toHaveLength(2);
+      const stateSaves = calls("save_model_state").slice(stateSavesBefore).map((args) => args.request as SaveRequest);
+      expect(stateSaves).toHaveLength(1);
+      expect(stateSaves[0].project_id).toBe(A);
+      expect(stateSaves[0].expected_base).toBe("sha256:A-1");
+    });
+
+    it("never hides another window's save: the kept base is refused as PROJECT-BASE-MOVED", async () => {
+      const { rows, stateSavesBefore } = await openBasisThroughSaveAsNew((rows) => rows.rows.set(A, "sha256:A-other-window"));
+      await waitFor(() => expect(historyMessage()).toHaveTextContent("Not saved: PROJECT-BASE-MOVED"));
+      expect(calls("save_local_project")).toHaveLength(2);
+      const stateSaves = calls("save_model_state").slice(stateSavesBefore).map((args) => args.request as SaveRequest);
+      expect(stateSaves.map((request) => [request.project_id, request.expected_base])).toEqual([[A, "sha256:A-1"]]);
+      expect(rows.rows.get(A)).toBe("sha256:A-other-window");
+    });
+
+    it("checks the opened snapshot's library references, as a project open does", async () => {
+      await renderApp();
+      setTauriRuntime(true);
+      const finding = { code: "MODEL-LIBRARY-REF-VERSION-CHANGED", severity: "warning", entity_ref: DEMO.materials![0].id, library_kind: "material",
+        library_id: "matlib.invented.state", record_id: "mat.state", recorded_version: "sha256:old", stored_version: "sha256:new",
+        message: "The stored record has changed since it was applied." };
+      const store = nativeStore({ rows: { rows: new Map([[A, "sha256:A-1"]]), libraryFindings: [finding] } });
+      const withRef = structuredClone(DEMO);
+      withRef.materials![0].provenance_record = { source_name: "Invented", library_ref: { library_kind: "material", library_id: "matlib.invented.state", library_version: "sha256:old", record_id: "mat.state" } };
+      const hash = (await computeModelHash(withRef))!.value;
+      store.states = [{ project_id: A, state_id: "state:library-ref", state_kind: "design_snapshot", created_at: "2026-10-24T10:00:00.000Z",
+        parent_state_id: null, model_hash: hash, record_hash: "record-lib", labels_updated_at: "2026-10-24T10:00:00.000Z", child_state_ids: [],
+        analysis_status: ["HUMAN_REVIEW_REQUIRED"], state_name: "With a library reference", tags: [], notes: [], assumptions: [] }];
+      store.snapshots.set("state:library-ref", JSON.stringify(withRef));
+      await refreshHistory();
+      fireEvent.click(await screen.findByTestId("model-state-state:library-ref-open"));
+      await waitFor(() => expect(historyMessage()).toHaveTextContent("MODEL-LIBRARY-REF-VERSION-CHANGED"));
+      expect(historyMessage()).toHaveTextContent('Opened model state "With a library reference" (state:library-ref) as the working model.');
+      const checks = calls("check_model_library_refs");
+      expect(checks).toHaveLength(1);
+      expect(checks[0]).toEqual({ projectId: A, references: [{ entity_ref: DEMO.materials![0].id, library_kind: "material", library_id: "matlib.invented.state", library_version: "sha256:old", record_id: "mat.state" }] });
     });
   });
 

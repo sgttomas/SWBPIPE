@@ -22,7 +22,7 @@ import {
 import { computeModelHash } from "../../services/hashService";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
-import type { ModelHashEvidence, PreviewModel } from "../../types";
+import type { LocalProjectSummary, ModelHashEvidence, PreviewModel, ProjectEnvelopeHashEvidence } from "../../types";
 import { buildModelIndex } from "../workspace/modelIndex";
 import { unsavedChangesRefusal, type UnsavedChangesOutcome, type UnsavedChangesRequest } from "../project-storage/unsavedChangesGuard";
 
@@ -42,13 +42,26 @@ export type ModelStateHistoryDeps = {
    * or null. "Save as a new project" lands under a new project id. */
   saveLocalProject: () => Promise<LandedProjectSave | null>;
   /** Makes an opened state's snapshot the working model (a new project session). */
-  adoptStateSnapshot: (opened: ModelStateRead, snapshotHash: ModelHashEvidence) => void;
+  /** The session's stored-project binding now (base and persistence metadata). */
+  captureProjectBinding: () => ProjectBinding;
+  /** Makes an opened state's snapshot the working model, bound to the state's
+   * project (`binding`: captured before the unsaved-changes guard ran). Returns
+   * the library-reference warnings of the adopted model, for the message. */
+  adoptStateSnapshot: (opened: ModelStateRead, snapshotHash: ModelHashEvidence, binding: ProjectBinding) => Promise<string>;
 };
 
 /** Why a state with blocking document findings is not opened. */
 export function notOpenableReason(state: ModelStateSummary): string {
   return `the saved state ${modelStateDescription(state)} is MODEL_INCOMPLETE: its model has blocking document findings, so it is kept as a comparison basis but cannot be opened as the working model (as such a project cannot be opened).`;
 }
+
+/** The session's stored-project binding: the stored base it last saw for a
+ * project, and the persistence metadata that goes with it. */
+export type ProjectBinding = {
+  base: { projectId: string; value: string | null } | null;
+  summary: LocalProjectSummary | null;
+  envelopeHash: ProjectEnvelopeHashEvidence | null;
+};
 
 /** A Save Local Project that landed: the stored project, its new base and the
  * document it stored (after "Save as a new project", the renamed working model). */
@@ -204,6 +217,9 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       setHistoryOperation("open_state_refused");
       return false;
     }
+    // Captured before the guard, whose "Save first" may move the session to a
+    // copy's project id ("Save as a new project").
+    const binding = depsRef.current.captureProjectBinding();
     const guarded = await depsRef.current.confirmReplacingEdits({
       action: `Opening the saved state ${modelStateDescription(state)}`, verb: "open it"
     });
@@ -233,10 +249,18 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
         setHistoryOperation("open_state_superseded");
         return false;
       }
-      depsRef.current.adoptStateSnapshot(opened, hash);
-      setBasis({ generation: depsRef.current.projectSessionGenerationRef.current, projectId: requestProjectId, stateId });
+      const libraryWarnings = depsRef.current.adoptStateSnapshot(opened, hash, binding);
+      const adoptedGeneration = depsRef.current.projectSessionGenerationRef.current;
+      const adoptedModel = depsRef.current.currentModel.current;
+      setBasis({ generation: adoptedGeneration, projectId: requestProjectId, stateId });
       setHistoryMessage(`Opened model state ${modelStateDescription(opened.state)} as the working model. Edits make a new working model; the saved state does not change.`);
       setHistoryOperation("open_state");
+      // As a project open does: the snapshot's library references are checked
+      // against the store, and the answer lands only on the session it was asked for.
+      const warnings = await libraryWarnings;
+      if (warnings && adoptedGeneration === depsRef.current.projectSessionGenerationRef.current && depsRef.current.currentModel.current === adoptedModel) {
+        setHistoryMessage((message) => `${message}${warnings}`);
+      }
       return true;
     } catch (error) {
       setHistoryMessage(`Not opened: ${nativeFailureText(error)}`);
