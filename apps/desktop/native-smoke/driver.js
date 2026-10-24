@@ -338,6 +338,16 @@
       return summary.includes("state=completed") && proof && proof !== prior && proof.includes(`project=${projectId}`);
     }, 300000);
     const observation = await observe(label, projectId, probe);
+    if (probe) {
+      // The probe row is the displacement magnitude; its signed components are separate rows.
+      fill("result-filter-input", probe);
+      observation.components = {};
+      for (const axis of ["ux", "uy", "uz"]) observation.components[axis] = await waitFor(`${probe}:${axis} row`, () => text(`result-row-dual-${probe}:${axis}`));
+      fill("result-filter-input", "");
+    }
+    // With the filter cleared, the summary must count every solved row.
+    const all = `${observation.proof_rows} of ${observation.proof_rows} results match filter`;
+    observation.all_rows_summary = await waitFor(`${label}: unfiltered summary`, () => text("result-filter-summary") === all ? all : null, 15000).catch(() => text("result-filter-summary"));
     observation.deformation = text("viewport-deformation-summary");
     observation.health = text("numerical-health-header-line");
     return observation;
@@ -386,19 +396,23 @@
     await waitFor("exact model in the model tree", () => treeRow(plan.exact.project_id));
     const solved = await solveCurrent("exact", plan.exact.project_id, null);
     await showSection("report");
-    const reportSection = byTestId("workspace-section-report");
+    // The rendered-report panel's own output gate: its refusal replaces the render control.
+    const renderedPanel = byTestId("rendered-report-panel");
     const gates = {
       opened: shown,
       solve: solved,
-      render_enabled: Boolean(byTestId("rendered-report-render") && !byTestId("rendered-report-render").disabled),
-      report_codes: codesIn(reportSection)
+      rendered_report_panel: Boolean(renderedPanel),
+      render_control_present: Boolean(renderedPanel?.querySelector('[data-testid="rendered-report-render"]')),
+      render_refusal: renderedPanel?.querySelector('[data-testid="rendered-report-load-reference-output-unavailable"]')?.textContent?.trim() ?? null
     };
     await showSection("exports");
-    await sleep(3000);
-    const exportsSection = byTestId("workspace-section-exports");
-    gates.result_export_link = Boolean(byTestId("result-export-link"));
-    gates.mbf_codes = codesIn(byTestId("caepipe-mbf-export-link")?.closest("section") ?? [...exportsSection.querySelectorAll("section")].find((section) => /\.mbf/i.test(section.getAttribute("aria-label") ?? section.textContent.slice(0, 80))));
-    gates.export_codes = codesIn(exportsSection);
+    // The result packet is assembled asynchronously (8.5 s observed on a loaded Mac).
+    gates.result_export_link = Boolean(await waitFor("exact result export link", () => byTestId("result-export-link"), 40000).catch(() => null));
+    const mbfPanel = byTestId("caepipe-mbf-panel");
+    gates.mbf_panel = Boolean(mbfPanel);
+    gates.mbf_refusal = mbfPanel?.querySelector('[data-testid="caepipe-mbf-load-reference-output-unavailable"]')?.textContent?.trim() ?? null;
+    gates.mbf_download_controls = Boolean(mbfPanel?.querySelector('[data-testid="caepipe-mbf-export-link"], [data-testid="caepipe-mbf-text-link"]'));
+    gates.export_codes = codesIn(byTestId("workspace-section-exports"));
     gates.rule_checks = await runRuleChecks("exact/rule-checks");
     await log(`exact gates: ${JSON.stringify({ ...gates, solve: undefined, rule_checks: undefined })}`);
     report.exact = gates;

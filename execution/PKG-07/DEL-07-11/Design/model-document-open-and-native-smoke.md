@@ -231,14 +231,19 @@ refusal named in the product:
   gates, and offers the local-private save, with the warning and the
   document's LOCAL PRIVATE notice.
 - **Rule checks.** The bundled demo pack runs on the demo and on the
-  exact-route model, and both are refused as `RULE_INPUTS_INCOMPLETE` with the
-  missing inputs named.
+  exact-route model. Both are refused as `RULE_INPUTS_INCOMPLETE`, naming
+  `demo_actual_quantity` and `demo_limit_quantity` as missing.
 - **Exact-route gates.** It opens
   `fixtures/model_operations/exact_pressure_authoring_model.json` and solves
   it. The proof must carry the file's JCS hash, and the standing must name
-  `3.0.0/exact_pressure_v3`. Render report is disabled with
-  `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, the MBF panel refuses with the same
-  code, and the result JSON export is offered.
+  `3.0.0/exact_pressure_v3`. Each refusal is read from the surface's own output
+  gate:
+  - In the rendered-report panel, the gate shows
+    `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` and no render control.
+  - In the MBF panel, the gate shows the same code, with neither the package
+    nor the MBF text download.
+  - The result JSON export is offered. The driver waits for the asynchronous
+    packet.
 - **A model authored from blank.**
   - **Authoring.** New Blank Project must open the units dialog (SI, US
     customary, custom); the default SI is accepted. The driver then authors
@@ -246,16 +251,26 @@ refusal named in the product:
     a load case and a 350 N tip force. It uses the viewport commands, the
     toolkit, the target pickers and Review changes, and applies each queued
     intent. The inputs are in `run.mjs` (`BLANK`).
-  - **Solve.** It solves natively. Checked: integrity `checks_passed`; every
-    row shown; the deformed shape drawn for both nodes; the tip deflection
-    equal to the Euler–Bernoulli PL³/3EI from the same inputs within 1e-9
-    relative (DEC-024/026 criterion).
+  - **Solve.** It solves natively. Checked:
+    - integrity `checks_passed`;
+    - with the filter cleared, the results count every solved row;
+    - the deformation overlay is available for both nodes. That is the
+      overlay's state; the drawing itself is covered by the browser specs
+      `c3-viewport-visibility` and `rotation-glyph`;
+    - the tip's displacement magnitude and its signed `uy` equal the
+      Euler–Bernoulli PL³/3EI from the same inputs within 1e-9 relative
+      (DEC-024/026 criterion), and `ux` and `uz` are zero.
   - **Save.** Save Local Project saves in place without a prompt. The stored
-    model must hold the seven unit keys and the authored entities, and its JCS
-    hash must equal the solve proof's.
+    model must hold:
+    - the seven unit keys and the authored entities;
+    - a support fixing all six DOF at the anchor;
+    - the tip force as 350 N along `global_y` at the tip node.
+
+    Its JCS hash must equal the solve proof's.
   - **Reopen.** Phase 2 reopens that project in a fresh process and solves it
-    again: the proof must carry the stored model's hash, with the same rows,
-    tip value and hash as before the save.
+    again. The proof must carry the stored model's hash, with the same rows,
+    tip value and hash as before the save, and the same signed tip
+    deflection.
 
 A broken step stops the driver, the phase reports not completed, and every
 later check fails for want of its observation.

@@ -209,6 +209,10 @@ function checkPrompt(name, prompt, storedName, storedId) {
   check("Replace: written only after confirmation", replace?.message?.includes("Created local SQLite project snapshot"), replace?.message);
 }
 
+// W-4. The bundled demo pack's two inputs are named missing on every model the smoke checks.
+const DEMO_PACK_INPUTS = ["demo_actual_quantity", "demo_limit_quantity"];
+const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_INPUTS_INCOMPLETE")
+  && DEMO_PACK_INPUTS.every((input) => rules.outcomes?.includes(`${input}=MISSING`)));
 // W-4. The demo's local-private report and rule checks.
 {
   const render = first.report_render;
@@ -217,7 +221,7 @@ function checkPrompt(name, prompt, storedName, storedId) {
   check("demo local-private report: export gates passed", render?.gate === "export gates passed", render?.gate);
   check("demo local-private report: local-private warning, save and the document's notice", render?.local_private_warning && render.save_offered && render.preview_local_private_notice, render && { warning: render.local_private_warning, save: render.save_offered, notice: render.preview_local_private_notice });
   const rules = first.rule_checks;
-  check("demo rule checks: refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", rules?.aggregate?.includes("RULE_INPUTS_INCOMPLETE") && rules.outcomes?.includes("MISSING"), rules?.aggregate);
+  check("demo rule checks: refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(rules), rules?.outcomes);
 }
 // W-4. Exact-route (pressure-2) gates, by name.
 {
@@ -225,18 +229,26 @@ function checkPrompt(name, prompt, storedName, storedId) {
   const solved = exact?.solve;
   check("exact route: solved, its proof bound to the opened document", solved?.solve_job_summary?.includes("state=completed") && solved.proof_model_sha256 === modelSha256(exactDocument) && solved.solve_proof?.includes("identity=match"), solved?.proof_model_sha256);
   check("exact route: the standing names the route", solved?.standing?.includes("3.0.0/exact_pressure_v3"), solved?.standing?.slice(0, 80));
-  check("exact route: rendered report refused (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE)", exact && !exact.render_enabled && exact.report_codes?.includes("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.report_codes);
-  check("exact route: MBF export refused (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE)", exact?.mbf_codes?.includes("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_codes);
+  check("exact route: rendered report refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no render control",
+    exact?.rendered_report_panel && !exact.render_control_present && exact.render_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.render_refusal);
+  check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package or MBF text download",
+    exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
   check("exact route: result JSON export offered", exact?.result_export_link === true);
-  check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE", exact?.rule_checks?.aggregate?.includes("RULE_INPUTS_INCOMPLETE"), exact?.rule_checks?.aggregate);
+  check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
 }
 // W-4. The model authored from blank in the GUI.
 const blankId = first.blank?.project_id ?? null;
-const tipMm = (observed) => {
-  const match = observed?.probe_entered?.match(/^Entered: (\S+) mm$/);
+const enteredMm = (shown) => {
+  const match = shown?.match(/^Entered: (\S+) mm$/);
   return match ? Number(match[1]) : NaN;
 };
+const tipMm = (observed) => enteredMm(observed?.probe_entered);
 const withinCriterion = (observedMm) => Math.abs(observedMm - blankTipMm) <= 1e-9 * Math.abs(blankTipMm); // DEC-024/026 criterion
+// The +Y tip force deflects the tip by +PL^3/3EI along Y and nowhere else.
+const signedTip = (observed) => {
+  const [ux, uy, uz] = ["ux", "uy", "uz"].map((axis) => enteredMm(observed?.components?.[axis]));
+  return withinCriterion(uy) && Math.abs(ux) <= 1e-9 * blankTipMm && Math.abs(uz) <= 1e-9 * blankTipMm;
+};
 {
   const blank = first.blank;
   check("from blank: New Blank Project opens the units dialog (SI, US customary, custom)", ["si", "us_customary", "custom"].every((preset) => blank?.unit_presets?.includes(preset)), blank?.unit_presets);
@@ -244,9 +256,10 @@ const withinCriterion = (observedMm) => Math.abs(observedMm - blankTipMm) <= 1e-
   const solved = blank?.solve;
   check("from blank: native solve completed, its proof bound to the session's project", solved?.solve_job_summary?.includes("state=completed") && solved.proof_project === blankId && solved.solve_proof?.includes("identity=match"), solved?.solve_job_summary);
   check("from blank: numerical integrity checks passed", solved?.standing?.startsWith("Numerical integrity: checks_passed."), solved?.standing?.slice(0, 60));
-  check("from blank: every solved row is shown", solved && solved.proof_rows > 0 && solved.result_filter_summary?.endsWith(`of ${solved.proof_rows} results match filter`), `${solved?.proof_rows}; ${solved?.result_filter_summary}`);
-  check("from blank: deformed shape drawn for both nodes", solved?.deformation?.startsWith("available; nodes=2;"), solved?.deformation);
-  check(`from blank: tip deflection equals PL^3/3EI = ${blankTipMm} mm within 1e-9 relative`, withinCriterion(tipMm(solved)), solved?.probe_entered);
+  check("from blank: the unfiltered results count every solved row", solved && solved.proof_rows > 0 && solved.all_rows_summary === `${solved.proof_rows} of ${solved.proof_rows} results match filter`, `${solved?.proof_rows}; ${solved?.all_rows_summary}`);
+  check("from blank: deformation overlay available for both nodes", solved?.deformation?.startsWith("available; nodes=2;"), solved?.deformation);
+  check(`from blank: tip deflection magnitude equals PL^3/3EI = ${blankTipMm} mm within 1e-9 relative`, withinCriterion(tipMm(solved)), solved?.probe_entered);
+  check("from blank: tip uy = +PL^3/3EI, ux and uz zero", signedTip(solved), solved?.components);
   check("from blank: Save Local Project saves in place without a prompt", blank?.save && !blank.save.prompted && blank.save.message?.includes("Saved current project model snapshot"), blank?.save?.message);
 }
 
@@ -301,6 +314,13 @@ const blankStored = blankId ? (stored[blankId]?.model ?? stored[blankId]) : null
   check("from blank: stored model holds the authored entities",
     blankStored && [BLANK.anchor, BLANK.tip].every((id) => ids("nodes").includes(id)) && ids("pipe_segments").includes(BLANK.pipe)
       && ids("supports").includes(BLANK.support) && ids("materials").includes(BLANK.material) && ids("load_cases").includes(BLANK.load_case), blankId);
+  const force = (blankStored?.load_cases ?? []).find((item) => item.id === BLANK.load_case)?.primitive_loads?.find((item) => item.id === `${BLANK.load_case}-FY`);
+  check("from blank: stored tip force is 350 N along global_y at the tip node",
+    force?.category === "concentrated_force" && force.target?.node === BLANK.tip && force.direction === "global_y"
+      && force.magnitude?.value === BLANK.force_n && force.magnitude?.unit === "N", force && { target: force.target, direction: force.direction, magnitude: force.magnitude });
+  const fixed = (blankStored?.supports ?? []).find((item) => item.id === BLANK.support);
+  check("from blank: stored support fixes all six DOF at the anchor", fixed?.node === BLANK.anchor
+    && ["UX", "UY", "UZ", "RX", "RY", "RZ"].every((dof) => fixed.restraints?.includes(dof)), fixed && { node: fixed.node, restraints: fixed.restraints });
   check("from blank: the stored model is the model that was solved", blankStored && first.blank?.solve?.proof_model_sha256 === modelSha256(blankStored), first.blank?.solve?.proof_model_sha256);
 }
 
@@ -373,7 +393,8 @@ for (const doc of documents) {
   const after = second.blank?.solve;
   check("from blank, reopened: solved, its proof bound to the stored model", after?.solve_job_summary?.includes("state=completed") && blankStored && after.proof_model_sha256 === modelSha256(blankStored) && after.solve_proof?.includes("identity=match"), after?.proof_model_sha256 ?? after?.solve_job_summary);
   check("from blank, reopened: same rows, tip value and model hash as before save", after && before && after.proof_rows === before.proof_rows && after.probe_entered === before.probe_entered && after.proof_model_sha256 === before.proof_model_sha256, `${after?.proof_rows}; ${after?.probe_entered}`);
-  check("from blank, reopened: tip deflection still equals PL^3/3EI", withinCriterion(tipMm(after)), after?.probe_entered);
+  check("from blank, reopened: tip deflection still equals PL^3/3EI, along +Y only", withinCriterion(tipMm(after)) && signedTip(after), after?.components);
+  check("from blank, reopened: the unfiltered results count every solved row", after && after.all_rows_summary === `${after.proof_rows} of ${after.proof_rows} results match filter`, after?.all_rows_summary);
 }
 
 const failed = checks.filter((item) => !item.ok);
