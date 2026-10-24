@@ -5,7 +5,7 @@
 import { useState } from "react";
 import type { EntityRef, ModelLine } from "../../types";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
-import { RECORD_FAMILIES, lineOfPipe, nextModelDataId, recordIntent, selectedPipeIds, useReseed } from "./modelDataIntents";
+import { RECORD_FAMILIES, disabledBy, lineOfPipe, nextModelDataId, recordIntent, selectedPipeIds, useReseed } from "./modelDataIntents";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
 
 export function LinesSection(props: ModelDataQueueProps & { selectionState?: OrderedSelectionState; selection?: EntityRef }) {
@@ -45,7 +45,7 @@ export function LinesSection(props: ModelDataQueueProps & { selectionState?: Ord
         <label>New line label
           <input aria-label="New line label" data-testid="line-create-label" value={label} onChange={(event) => setLabel(event.target.value)} />
         </label>
-        <button type="button" data-testid="line-create" disabled={busy || pipes.length === 0 || lined.length > 0} onClick={create}>
+        <button type="button" data-testid="line-create" {...disabledBy(busy, [pipes.length === 0, "Select one or more pipes to group."], [lined.length > 0, "A selected pipe already belongs to a line."])} onClick={create}>
           Create line from selected pipes ({pipes.length})
         </button>
         {lined.length > 0 ? (
@@ -78,11 +78,11 @@ function LineRow(props: ModelDataQueueProps & { line: ModelLine }) {
       <span data-testid={`line-pipes-${line.id}`}>{line.pipe_refs.length ? line.pipe_refs.join(", ") : "no pipes"}</span>
       <div className="model-data-actions">
         <input aria-label={`Rename ${line.id}`} data-testid={`line-rename-input-${line.id}`} value={name} onChange={(event) => setName(event.target.value)} />
-        <button type="button" data-testid={`line-rename-${line.id}`} disabled={busy || (name.trim() || undefined) === line.label}
+        <button type="button" data-testid={`line-rename-${line.id}`} {...disabledBy(busy, [(name.trim() || undefined) === line.label, "Enter a different label to rename the line."])}
           onClick={() => void queue((canonicalize) => recordIntent(canonicalize, family, "update", renamed(), line))}>
           Rename
         </button>
-        <button type="button" data-testid={`line-remove-${line.id}`} disabled={busy}
+        <button type="button" data-testid={`line-remove-${line.id}`} {...disabledBy(busy)}
           onClick={() => void queue((canonicalize) => recordIntent(canonicalize, family, "delete", line, line))}>
           Remove line
         </button>

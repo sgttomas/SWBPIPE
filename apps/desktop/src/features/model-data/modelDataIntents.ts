@@ -27,6 +27,14 @@ import type {
 export type AnnotationField = "tags" | "notes" | "provenance_record";
 type ChangeKind = EditorOperationIntent["change"]["change_kind"];
 
+/** A model-data control's disabled state with its stated reason (the
+ * dead-control audit, TP-APP-R2-UXSHELL-001): disabled while an edit is being
+ * queued or while a condition holds, titled with the first reason that applies. */
+export function disabledBy(busy: boolean, ...conditions: Array<[boolean, string]>): { disabled: boolean; title?: string } {
+  const reason = busy ? "An edit is being queued." : conditions.find(([holds]) => holds)?.[1];
+  return reason === undefined ? { disabled: false } : { disabled: true, title: reason };
+}
+
 /** Key-order-independent JSON text, for comparing a draft with a stored record. */
 export function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;

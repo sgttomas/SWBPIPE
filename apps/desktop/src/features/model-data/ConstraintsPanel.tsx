@@ -4,7 +4,7 @@
 // every edit is a structured operation queued for review.
 import { useState } from "react";
 import type { EntityRef, EquipmentInterfaceRecord, ModelConstraint } from "../../types";
-import { CONSTRAINT_KINDS, CONSTRAINT_STATES, RECORD_FAMILIES, nextModelDataId, recordIntent, stableJson, useReseed } from "./modelDataIntents";
+import { CONSTRAINT_KINDS, CONSTRAINT_STATES, RECORD_FAMILIES, disabledBy, nextModelDataId, recordIntent, stableJson, useReseed } from "./modelDataIntents";
 import { subjectOf } from "./AssumptionsPanel";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
 
@@ -71,7 +71,7 @@ function ConstraintList(props: ModelDataQueueProps & { selection?: EntityRef | n
         </label>
         <label>Statement<input aria-label="Constraint statement" data-testid="constraint-create-statement" value={statement} onChange={(event) => setStatement(event.target.value)} /></label>
         <p className="model-data-note">Target: {target ?? "none (select an entity to name it)"}</p>
-        <button type="button" data-testid="constraint-create" disabled={busy || !name.trim()} onClick={add}>Add constraint</button>
+        <button type="button" data-testid="constraint-create" {...disabledBy(busy, [!name.trim(), "Enter a name."])} onClick={add}>Add constraint</button>
       </fieldset>
       {error ? <p role="alert">{error}</p> : null}
       {notice ? <p role="status">{notice}</p> : null}
@@ -110,11 +110,11 @@ function ConstraintRow(props: ModelDataQueueProps & { record: ModelConstraint })
       </label>
       <label>Statement<input aria-label={`Statement ${id}`} data-testid={`constraint-statement-${id}`} value={statement} onChange={(event) => setStatement(event.target.value)} /></label>
       <div className="model-data-actions">
-        <button type="button" data-testid={`constraint-edit-${id}`} disabled={busy || !name.trim() || !changed}
+        <button type="button" data-testid={`constraint-edit-${id}`} {...disabledBy(busy, [!name.trim(), "Enter a name."], [!changed, "Nothing has changed."])}
           onClick={() => void queue((canonicalize) => recordIntent(canonicalize, RECORD_FAMILIES.constraint, "update", next(), record))}>
           Save
         </button>
-        <button type="button" data-testid={`constraint-remove-${id}`} disabled={busy}
+        <button type="button" data-testid={`constraint-remove-${id}`} {...disabledBy(busy)}
           onClick={() => void queue((canonicalize) => recordIntent(canonicalize, RECORD_FAMILIES.constraint, "delete", record, record))}>
           Remove
         </button>
@@ -160,7 +160,7 @@ function EquipmentInterfaceList(props: ModelDataQueueProps & { selection?: Entit
         <label>Label<input aria-label="Interface label" data-testid="equipment-interface-create-label" value={label} onChange={(event) => setLabel(event.target.value)} /></label>
         <label>Equipment<input aria-label="Equipment label" data-testid="equipment-interface-create-equipment" value={equipment} onChange={(event) => setEquipment(event.target.value)} /></label>
         <p className="model-data-note">Node: {node ?? "select a node"}</p>
-        <button type="button" data-testid="equipment-interface-create" disabled={busy || !node} onClick={add}>Add equipment interface</button>
+        <button type="button" data-testid="equipment-interface-create" {...disabledBy(busy, [!node, "Select a node."])} onClick={add}>Add equipment interface</button>
       </fieldset>
       {error ? <p role="alert">{error}</p> : null}
       {notice ? <p role="status">{notice}</p> : null}
@@ -192,11 +192,11 @@ function EquipmentInterfaceRow(props: ModelDataQueueProps & { record: EquipmentI
       <label>Label<input aria-label={`Label ${record.id}`} data-testid={`equipment-interface-label-${record.id}`} value={label} onChange={(event) => setLabel(event.target.value)} /></label>
       <label>Equipment<input aria-label={`Equipment ${record.id}`} data-testid={`equipment-interface-equipment-${record.id}`} value={equipment} onChange={(event) => setEquipment(event.target.value)} /></label>
       <div className="model-data-actions">
-        <button type="button" data-testid={`equipment-interface-edit-${record.id}`} disabled={busy || !changed}
+        <button type="button" data-testid={`equipment-interface-edit-${record.id}`} {...disabledBy(busy, [!changed, "Nothing has changed."])}
           onClick={() => void queue((canonicalize) => recordIntent(canonicalize, RECORD_FAMILIES.equipmentInterface, "update", next(), record))}>
           Save
         </button>
-        <button type="button" data-testid={`equipment-interface-remove-${record.id}`} disabled={busy}
+        <button type="button" data-testid={`equipment-interface-remove-${record.id}`} {...disabledBy(busy)}
           onClick={() => void queue((canonicalize) => recordIntent(canonicalize, RECORD_FAMILIES.equipmentInterface, "delete", record, record))}>
           Remove
         </button>
