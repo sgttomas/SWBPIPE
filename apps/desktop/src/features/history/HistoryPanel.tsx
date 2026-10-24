@@ -12,6 +12,7 @@ import {
 } from "../../services/modelStateService";
 import { LABELS_DO_NOT_CHANGE_RUN, runDescription, type AnalysisRunSummary, type RunLabels } from "../../services/analysisRunService";
 import { recordedRunBindingFindings } from "../results/HistoricalRunContext";
+import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
 import { notOpenableReason } from "./useModelStateHistory";
 
@@ -216,6 +217,7 @@ function RunRow({ run }: { run: AnalysisRunSummary }) {
                 ? "The recorded run does not match its stored state and record:"
                 : "The record, its stored result and input manifest, and its state's model hash agree."} This is a record check only; it establishes no current result.</p>
               {check.context?.findings.length ? <ul>{check.context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul> : null}
+              <RulePackRunReferences manifest={check.manifest} testId={`${testId}-rule-pack-refs`} />
             </>
           )}
         </div>
@@ -256,7 +258,7 @@ function RunRow({ run }: { run: AnalysisRunSummary }) {
 }
 
 function RecordRunForm({ onDone }: { onDone: () => void }) {
-  const { recordRun, recordRunState, recordRunUnavailableReason, historyBusy } = useSessionHistory();
+  const { recordRun, recordRunState, recordRunUnavailableReason, recordRunManifest, historyBusy } = useSessionHistory();
   const { projectBusy } = useSessionProject();
   const busy = historyBusy || projectBusy;
   const [draft, setDraft] = useState<LabelsDraft>(() => runDraftFrom(null));
@@ -286,6 +288,7 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
           <input data-testid="record-run-snapshot-name" value={snapshotName} required onChange={(event) => setSnapshotName(event.target.value)} />
         </label>
       ) : null}
+      <RulePackRunReferences manifest={recordRunManifest} testId="record-run-rule-pack-refs" />
       <LabelsFields draft={draft} onChange={setDraft} testId="record-run" legend={RUN_ASSUMPTIONS_LEGEND} />
       <p className="muted">{LABELS_DO_NOT_CHANGE_RUN} {RUN_ASSUMPTIONS_NOTE}</p>
       <div className="report-actions">

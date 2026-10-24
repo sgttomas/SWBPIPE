@@ -3,6 +3,11 @@ import {
   canonicalJsonString,
   canonicalSha256Hex,
 } from "./hashService";
+import {
+  RULE_PACK_REF_CHECKSUM_MISMATCH,
+  RULE_PACK_REF_UNRESOLVED,
+  type ExcludedRulePackRef,
+} from "./rulePackRefDiagnostics";
 
 const SHA256_HEX = /^[0-9a-f]{64}$/;
 
@@ -28,7 +33,10 @@ export type CurrentSessionInputManifestArgs = {
     solver_mode: string;
     settings: Record<string, unknown>;
   };
+  /** The model's resolved rule-pack references, in the model's order (`resolveModelRulePacks`). */
   active_rule_packs: InputManifestRulePack[];
+  /** The model's references left out of `active_rule_packs`, each with its diagnostic. */
+  excluded_rule_pack_refs?: ExcludedRulePackRef[];
   external_assets: InputManifestExternalAsset[];
 };
 
@@ -48,6 +56,9 @@ export type CurrentSessionInputManifest = {
     combinations: NonNullable<PreviewModel["combinations"]>;
   };
   active_rule_packs: InputManifestRulePack[];
+  /** Present only when a model reference was excluded, so a manifest without
+   * exclusions keeps its earlier bytes. */
+  excluded_rule_pack_refs?: ExcludedRulePackRef[];
   external_assets: InputManifestExternalAsset[];
   identity_policy: {
     canonicalization: "rfc8785_jcs";
@@ -93,9 +104,11 @@ export async function buildCurrentSessionInputManifest(
       load_cases: structuredClone(args.model.load_cases),
       combinations: structuredClone(args.model.combinations ?? []),
     },
-    active_rule_packs: args.active_rule_packs
-      .map((item) => ({ ...item }))
-      .sort((left, right) => left.rule_pack_id.localeCompare(right.rule_pack_id)),
+    // The caller's order: the solve passes the model's reference order.
+    active_rule_packs: args.active_rule_packs.map((item) => ({ ...item })),
+    ...(args.excluded_rule_pack_refs?.length
+      ? { excluded_rule_pack_refs: args.excluded_rule_pack_refs.map((item) => ({ ...item })) }
+      : {}),
     external_assets: args.external_assets
       .map((item) => ({ ...item }))
       .sort((left, right) => left.asset_ref.localeCompare(right.asset_ref)),
@@ -221,6 +234,25 @@ function validateArgs(args: CurrentSessionInputManifestArgs): void {
     ) {
       throw new Error(
         "INPUT-MANIFEST-RULE-PACKS-INCOMPLETE: active rule packs require unique IDs, versions, notices, and exact SHA-256.",
+      );
+    }
+    rulePackIds.add(item.rule_pack_id);
+  }
+  if (args.excluded_rule_pack_refs !== undefined && !Array.isArray(args.excluded_rule_pack_refs)) {
+    throw new Error(
+      "INPUT-MANIFEST-RULE-PACKS-INCOMPLETE: excluded rule-pack references must be a list.",
+    );
+  }
+  for (const item of args.excluded_rule_pack_refs ?? []) {
+    if (
+      !item.rule_pack_id?.trim() ||
+      !item.rule_pack_version?.trim() ||
+      typeof item.checksum_sha256 !== "string" ||
+      (item.code !== RULE_PACK_REF_UNRESOLVED && item.code !== RULE_PACK_REF_CHECKSUM_MISMATCH) ||
+      rulePackIds.has(item.rule_pack_id)
+    ) {
+      throw new Error(
+        "INPUT-MANIFEST-RULE-PACKS-INCOMPLETE: excluded rule-pack references require unique IDs, versions, a checksum and a named diagnostic.",
       );
     }
     rulePackIds.add(item.rule_pack_id);

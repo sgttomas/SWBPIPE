@@ -291,10 +291,26 @@ Python agree.
      even when clock readings are equal. Rust then computes the v0.3 hashes. A
      parity test checks them against the TypeScript builder;
    - sets the real `model_state_ref` `{ModelState, <state id>}`;
-   - takes `rule_pack_refs` from the input manifest's `active_rule_packs` (what
-     the solve used, not the document's identity-only references) and
+   - takes `rule_pack_refs` from the input manifest's `active_rule_packs` and
      `library_refs` from the model's `library_ref`s, as the model document's
-     one walk finds them;
+     one walk finds them. At solve time the session resolves the model's
+     `rule_pack_refs` against the local rule-pack store, for the model's
+     project (`modelRulePackResolution.ts`). A reference enters
+     `active_rule_packs`, in the model's order, as `{rule_pack_id, version,
+     checksum_sha256, source_notice}` from the stored pack, when the store holds
+     the pack, the stored document's stamped checksum equals the reference's,
+     and the document recomputes to that checksum. Any other reference is left
+     out and recorded in the manifest's `excluded_rule_pack_refs` with its
+     diagnostic: `MODEL-RULE-PACK-REF-UNRESOLVED` when the pack is absent or the
+     store is unavailable or fails, and `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`
+     when the checksums differ. The diagnostics are shown with the solve, in the
+     Record Run form and in a recorded run's check. A model without references
+     makes no store call. Its manifest keeps `active_rule_packs: []`, has no
+     `excluded_rule_pack_refs` member, and keeps its earlier bytes. The
+     resolution only records identity. The solve does not read, apply or check
+     a pack, nothing in it reaches the native solve, and a reference never makes
+     a check pass. The browser preview refuses the solve before building a
+     manifest;
    - drops the `created_at_unavailable` determinism note, in both TypeScript
      (`analysisRunCompatibility.ts:169` hard-codes it today) and Python
      (`compatibility.py:147` already drops it when `created_at` is set);
@@ -418,7 +434,8 @@ the History panel and `useModelStateHistory.ts`.
     do.
 - **The revision.**
   - `rule_pack_refs` are `{RulePack, "<rule_pack_id>@<version>"}`, in the
-    manifest's order (the manifest sorts them when it is built).
+    manifest's order, which is the model's reference order (the manifest no
+    longer sorts them).
   - `library_refs` are `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`,
     deduplicated and sorted by code point.
     - **Sites.** The sites are every `library_ref` object at any depth and

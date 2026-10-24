@@ -35,6 +35,7 @@ import {
 } from "../../services/analysisRunService";
 import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
 import { computeModelHash } from "../../services/hashService";
+import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
 import type { LocalProjectSummary, ModelHashEvidence, PreviewModel, ProjectEnvelopeHashEvidence } from "../../types";
@@ -94,7 +95,20 @@ export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 export type RecordRunForm = { labels: RunLabels; snapshotName: string | null };
 
 /** A recorded run read and checked against its stored state (`buildRecordedRunContext`). */
-export type RecordedRunCheck = { recordingId: string; context: HistoricalRunContext | null; failure: string | null };
+export type RecordedRunCheck = {
+  recordingId: string; context: HistoricalRunContext | null; failure: string | null;
+  /** The stored input manifest, for the rule-pack references it records (null when unreadable). */
+  manifest?: CurrentSessionInputManifest | null;
+};
+
+function parsedManifest(text: string): CurrentSessionInputManifest | null {
+  try {
+    const value: unknown = JSON.parse(text);
+    return value && typeof value === "object" && !Array.isArray(value) ? value as CurrentSessionInputManifest : null;
+  } catch {
+    return null;
+  }
+}
 
 function storeAvailable(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -510,7 +524,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const read = await readAnalysisRun(run.project_id, recordingId);
       const context = await buildRecordedRunContext(read);
       if (generation !== depsRef.current.projectSessionGenerationRef.current) return false;
-      setRunCheck({ recordingId, context, failure: null });
+      setRunCheck({ recordingId, context, failure: null, manifest: parsedManifest(read.input_manifest_canonical) });
       setHistoryOperation("check_run");
       return true;
     } catch (error) {
@@ -527,6 +541,8 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     runs: statesProjectId === projectId ? runs : null,
     runCheck,
     recordRunUnavailableReason: recordable.reason,
+    /** The recordable run's input manifest (its rule-pack references), shown in the Record Run form. */
+    recordRunManifest: recordable.run?.inputManifest.manifest ?? null,
     recordRunState,
     recordRun,
     editRunLabels,

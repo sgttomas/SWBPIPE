@@ -7,9 +7,12 @@ import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatu
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes } from "../../services/memoryPool";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
 import type { NumericalHealthView } from "../results/numericalHealth";
+import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
+import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 
 export function SolvePanel({
   analysisRun,
+  inputManifest = null,
   model,
   result,
   running,
@@ -21,6 +24,8 @@ export function SolvePanel({
   onSolverModeChange
 }: {
   analysisRun: AnalysisRunEnvelope | null;
+  /** The current solve's input manifest: its recorded rule-pack references and their diagnostics. */
+  inputManifest?: CurrentSessionInputManifest | null;
   model: PreviewModel;
   result: MechanicsResult | null;
   /** DEL-07-05 numerical health: the diagnostics tile's header badge, for the held result. */
@@ -64,6 +69,7 @@ export function SolvePanel({
         </span>
       </div>
       {solveJob.error_message ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
+      <RulePackRunReferences manifest={inputManifest} testId="solve-rule-pack-refs" />
       {solveJob.state === "failed" && describeSolveWorkerFailure(solveJob.error_message) ? (
         <p role="status" className="memory-pool-message error" data-testid="solve-job-worker-failure">
           {describeSolveWorkerFailure(solveJob.error_message)}

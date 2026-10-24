@@ -9,6 +9,7 @@ import {
   computeProjectEnvelopeHash
 } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+import { resolveModelRulePacks } from "../../services/modelRulePackResolution";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { applyOperationBatch, validateOperationBatch } from "../../services/operationBatchService";
 import type { OperationBatch, OperationBatchOutcome } from "../../services/operationBatchService";
@@ -987,6 +988,13 @@ export function useWorkspaceSession() {
       if (!hasCurrentSourceContract(output) || !output.producer) {
         throw new Error("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED: a fresh result requires a recognized current producer contract; historical and unsupported carriers remain available only through their inspection routes.");
       }
+      // The model's rule-pack references, resolved against the local store now
+      // (identity only: nothing here reaches the solve, and no check is run).
+      // A model without references makes no store call and keeps `[]`.
+      const rulePacks = solveModel.rule_pack_refs?.length
+        ? await resolveModelRulePacks(solveModel)
+        : { active_rule_packs: [], excluded_rule_pack_refs: [] };
+      if (!solveRunGate.current.isCurrent(runGeneration)) return;
       const manifest = await buildCurrentSessionInputManifest({
         model: solveModel,
         solver: {
@@ -1000,7 +1008,8 @@ export function useWorkspaceSession() {
             sparse_evidence_lane: solverMode === "sparse_interactive"
           }
         },
-        active_rule_packs: [],
+        active_rule_packs: rulePacks.active_rule_packs,
+        excluded_rule_pack_refs: rulePacks.excluded_rule_pack_refs,
         external_assets: []
       });
       if (!solveRunGate.current.isCurrent(runGeneration)) return;
