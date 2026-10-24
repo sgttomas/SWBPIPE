@@ -37,13 +37,13 @@ SOURCES = {
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11280,
+    "line": 11343,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11238:exact_straight_summary_extrema",
-    "short": "lib.rs:11280",
-    "from": "lib.rs:11238:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11301:exact_straight_summary_extrema",
+    "short": "lib.rs:11343",
+    "from": "lib.rs:11301:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4782:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -51,13 +51,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11286,
+    "line": 11349,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11238:exact_straight_summary_extrema",
-    "short": "lib.rs:11286",
-    "from": "lib.rs:11238:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11301:exact_straight_summary_extrema",
+    "short": "lib.rs:11349",
+    "from": "lib.rs:11301:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4782:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
@@ -65,13 +65,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11941,
+    "line": 12004,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11922:recover_curved_bend_local_forces",
-    "short": "lib.rs:11941",
-    "from": "lib.rs:11922:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11985:recover_curved_bend_local_forces",
+    "short": "lib.rs:12004",
+    "from": "lib.rs:11985:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4782:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case"
     ]
   },
   {
