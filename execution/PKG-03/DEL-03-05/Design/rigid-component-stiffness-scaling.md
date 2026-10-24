@@ -40,9 +40,9 @@ meaning:
 |---|---|
 | Element stiffness | s·K (axial, both bendings, torsion; Timoshenko shear) |
 | Free thermal strain αΔT | unchanged: a stiffened body still expands with temperature, so its equivalent load is s·E·A·αΔT and its free growth αΔT·L |
-| Pressure Poisson elongation (straight member, EX) | the elastic response 2νpAᵢ/(s·E·Aₙ): s times smaller, as for any elastic strain of a stiffer body. The load pair ±2νpAᵢ (PP `pressure_exact/source_geometry.rs:314-323`) has no E and is unchanged; the recovery Nw = Nm + 2νpAᵢ (`:349-379`) is unchanged |
+| Pressure axial strain (straight member, EX) | an elastic response, so s times smaller: the Poisson contraction −2νpAᵢ/(s·E·Aₙ), and with closed ends the free total (1−2ν)pAᵢ/(s·E·Aₙ); multiply by L for the length change. The load pair ±2νpAᵢ (PP `pressure_exact/source_geometry.rs:314-323`) has no E and is unchanged; the recovery Nw = Nm + 2νpAᵢ (`:349-379`) is unchanged |
 | Member end forces and section actions | from s·K·Δu minus the scaled fixed-end loads; equilibrium is unchanged |
-| Stress rows | recovered from the forces on the mapped pipe section, as for pipe (§2.4) |
+| Stress rows | recovered from the forces on the mapped pipe section, which is a reference section, not the body's (§2.4) |
 | Reported material E, G, ν | the material's, unscaled |
 
 ### 2.2 Where it enters
@@ -63,41 +63,91 @@ certified re-formation's `FreeStrainStraight` E·A·ε (FK
 
 Every other later reader is consistent without change. The stress recovery uses
 the geometric `DerivedSection` (~12662). The reported E is the material's or
-the pair's (~6665, ~3935, ~10809). The PF Poisson ratio is read back as
-E/(2G)−1 (~6485 → `u4b_rows.rs:573-575`); under scaling it can differ from the
-material's ν in the last bits, so the scaled member's ν is taken from the
-material directly.
+the pair's (~6665, ~3935, ~10809). The PF Poisson ratio is read back from
+the section as E/(2G)−1 (~6485 → `u4b_rows.rs:573-575`). A PF material need
+not supply ν (the bundled demo gives E and G only), and the independent reader
+recomputes ν from the selected unscaled E/G and checks the shear rows bit for
+bit (`core/reporting/result_export/src/u4b_evidence.rs:530-553`). The PF ν
+of a scaled member is therefore derived from the selected unscaled E/G pair
+(material, named or interpolated temperature basis), never from the scaled
+section; EX keeps its selected E/ν. The load-state function's fit eigenstrain
+uses the same section E as its thermal term.
 
-No FK file changes.
+No FK file changes. The certified binding (FK `formation_check.rs`
+~1220-1376) binds each straight load primitive to its member's frame and does
+not require frame E to equal material E; thermal re-formation uses that frame's
+E (~2244-2262), and pressure primitives take their frame from `built.pipes`
+(`pressure_runtime.rs` ~1274).
 
 ### 2.3 Which members are scaled
 
-Scaling applies when the component is rigid-family, its mapping is valid, and
-its scale is present, finite and positive. Otherwise the member solves as pipe
-and the existing warnings say so in plain terms (§2.5). Three mappings that
-today pass silently are refused (blocking, by name):
+One eligibility predicate decides both formation and the diagnostics. A
+component's mapped member is scaled when all of these hold:
+- the component is rigid-family;
+- `mechanics_interface.solver_consumption` is `mechanics_geometry_only`, the
+  DEC-045 mode for this family;
+- the mapping is valid (§2.6);
+- the scale is present, finite and positive, with a nonblank
+  `modifiers.source_reference`;
+- every supplied linear or rotational stiffness is finite and positive.
+
+Otherwise the member solves as unscaled pipe, and a warning names the first
+unmet condition (§2.6). This includes an absent consumption declaration, which
+gets its own warning, since no mode is assumed. `not_solver_consumed` is
+honoured: the member solves as pipe with no rigid warning beyond the existing
+unsupported-interface diagnostics (PP `validation.rs` ~1227-1253). Three
+mappings that today pass silently are refused (blocking, by name):
 - the mapped member is a realized curved bend (PP `lib.rs` ~8171);
 - the mapped member is a span replaced by an objective connector (~7982, ~8173);
 - two components map the same member.
 
 ### 2.4 Stress rows on a scaled member
 
-The rows remain published: they are the mapped pipe section's stresses under
-the body's actual forces, which at the member ends equal the adjacent pipe's.
-They are not a stress of the valve or flange body, and the product supplies no
-body stress. An info diagnostic per scaled component names the member and says
-so. The rows stay in the case maximum. The rule-check boundary is unchanged;
-rule packs decide whether those members are checked.
+The rows remain published with their values: they are the stresses of the
+mapped pipe section under the body's actual forces. They are not a stress of
+the valve or flange body, and the product supplies no body stress. Where the
+body joins a single pipe with no external load at the joint, nodal equilibrium
+makes its end forces equal that pipe's. At a branch or a loaded junction only
+the nodal sum balances.
+
+Because the reference section can govern only by being an artificial choice,
+the meaning travels with the result:
+- **Rows.** Every stress row of a scaled member carries a `component_body`
+  record: `component_ref`, `stiffness_scale` and
+  `section_role: "reference_pipe_section"`. This holds on both routes and
+  every section basis.
+- **Maximum and headline.** The case stress maximum and the headline exclude
+  scaled members, and the maximum record lists them in
+  `component_body_pipe_ids`, beside the existing `unavailable_pipe_ids` (PP
+  `lib.rs` ~6662). An excluded member is not an unavailable one, and the
+  maximum's completeness is unchanged by it. The local-FEA selection, which
+  takes the headline member as its region (`LocalFeaHandoffPanel.tsx`
+  ~282-319), therefore never selects a reference section.
+- **Rule binding.** A rule bound to a tagged row reports not-applicable with
+  the named reason `COMPONENT_BODY_REFERENCE_SECTION`, instead of evaluating
+  the reference-section stress (`result_export/src/semantic_contract.rs`
+  ~683).
+- **Exports and readers.** Exports carry the record, and the model-bound
+  readers check it.
+
+An info diagnostic per scaled component names the member and the scale.
 
 ### 2.5 Numerical bound
 
-The product accepts any finite positive s; there is no engineering bound. For
-large s, the member's forces come from s·K·Δu with Δu of order 1/s, so about
-log₁₀ s decimal digits of the member's force are lost to cancellation. From
-s ≥ 1e8 (half of binary64's digits) a warning, `RIGID_COMPONENT_SCALE_PRECISION`,
-states this. The existing pivot screens (FK `structural.rs` ~1747; sparse pivot
-ratio, DEC-050) still refuse a singular or ill-conditioned system. Ranges that
-overflow E·A stay refused as `PIPE_SECTION_INPUT_INVALID`.
+The product accepts any finite positive s; there is no engineering bound. A
+large s does not by itself lose accuracy: a grounded scaled member recovers its
+load accurately. Loss arises when the body's small deformation is recovered
+from much larger nodal motions, or when large elastic and eigenload terms
+nearly cancel. From s ≥ 1e8, half of binary64's decimal digits, a warning,
+`RIGID_COMPONENT_SCALE_PRECISION`, states that the scaled member's forces may
+carry reduced precision. This is a conservative numerical heuristic, not an
+accuracy bound or an engineering limit. The existing screens remain the
+qualification: the pivot screen (FK `structural.rs` ~1747), the sparse pivot
+ratio (DEC-050), and formation and recovery qualification, including
+force-scaled recovery after a range failure (PP `lib.rs` ~4017-4027). None of
+them proves member-force accuracy, and the warning does not replace them. An
+s·E·A outside binary64's range fails at stiffness formation, where it is
+refused by name.
 
 ### 2.6 Diagnostics
 
@@ -105,6 +155,7 @@ overflow E·A stay refused as `PIPE_SECTION_INPUT_INVALID`.
 |---|---|---|
 | `RIGID_COMPONENT_GEOMETRY_INPUT_MISSING` | warning | as today |
 | `RIGID_COMPONENT_MAPPING_INPUT_INVALID` | warning | mapped member missing or not ending at the node; the member solves as pipe, unscaled |
+| `RIGID_COMPONENT_CONSUMPTION_UNDECLARED` (new) | warning | rigid-family component with a scale but no `solver_consumption`; the member solves as pipe, unscaled |
 | `RIGID_COMPONENT_MAPPING_CONFLICT` (new) | blocking | §2.3's three refusals |
 | `RIGID_COMPONENT_STIFFNESS_INPUT_MISSING` | warning | the scale or its source reference is missing; the member solves as pipe, unscaled |
 | `RIGID_COMPONENT_STIFFNESS_INPUT_INVALID` | warning | the scale, or a supplied linear or rotational stiffness, is not finite positive; the member solves as pipe, unscaled |
@@ -125,10 +176,17 @@ does the pinned "Admitted families" sentence of the pressure-2 semantic
 contract (`fixtures/results/semantic_contract_v0_3_pressure_2.json` ~2187),
 through its maintained generator.
 
-A reducer stays refused on EX while it sits inside a pressure region: the
-equal-bore guard (PP `pressure_runtime.rs` ~684-690) refuses it, and the
-reducer's thrust from a bore change is not modelled. A reducer outside every
-pressure region is admitted like a valve.
+A reducer whose mapped member belongs to any pressure region in any case is
+refused on EX, by an explicit, case-specific refusal,
+`EXACT_PRESSURE_REDUCER_IN_REGION`. The reducer's thrust from a bore change is
+not modelled. The equal-bore guard (PP `pressure_runtime.rs` ~684-694) cannot
+stand in for this refusal: it compares the bores of traversed members only,
+never reads the reducer, and has nothing to compare in a single-member region.
+A reducer whose mapped member lies outside every region is admitted like a
+valve, including when it is mapped at a region's boundary node but its own
+member is outside the region. Admitted valves and flanges are an equivalent
+pipe of the represented bore: bore continuity, cap thrust and the annular κ are
+those of the mapped section.
 
 The retained and source sub-routes still refuse every component
 (`retained_memory.rs` ~922, `source_recovery.rs` ~874) and are not touched.
@@ -141,18 +199,27 @@ Slice a changes the priced files PP `lib.rs`, `validation.rs`
 (`validate_components` is body-pinned by `w8_topology_model.py`) and
 `exact_admission.rs`, so it needs re-pricing and re-registration under
 `tools/retained_pricing/README.md` in the solver lane's D3 turn. It changes
-no FK file and no P_FINAL term. The scale adds no allocation: it is one f64
-read per member at formation. The registration must still show every priced
+no FK file and no P_FINAL term. The scale adds no new owner on the
+admitted domain beyond ordinary component diagnostics and the `component_body`
+rows; the eligibility predicate and the mapping-conflict check are pricing
+inputs to be priced or bounded in the registration, not assumed free. The registration must still show every priced
 phase fits M = 12 GiB; a misfit stops for the owner (decision 22).
 
 ## 3. Component weight and centre of gravity (slice b)
 
 The component's weight W (a force) acts at its centre of gravity. The
-self-weight generation (PP `self_weight.rs`) emits, for each selected
-rigid-family component with weight and centre of gravity, two node-targeted
-primitives at `component.node` in the same case: a force F = W·ĝ along the
-gravity axis, and a moment M = r × F. Here r is the centre-of-gravity vector
-and ĝ the case's gravity direction. Both routes already solve nodal forces and
+self-weight generation (PP `self_weight.rs`) emits node-targeted primitives at
+`component.node` in the same case for each selected rigid-family component with
+weight and centre of gravity. They are the Cartesian components of the wrench:
+a force F = W·ĝ along the gravity axis, and a moment M = r × F. Here r is the
+centre-of-gravity vector and ĝ the case's gravity direction. A primitive
+carries one magnitude and one direction (PP `lib.rs` ~788-805), so the
+generator emits the force primitive plus one moment primitive per nonzero
+component of M. With axis-aligned gravity that is at most two moments; for
+example r = (1, 2, 3) m and F = (0, 0, −10) N give M = (−20, 10, 0) N·m.
+Identities are deterministic:
+`load:<case>:component-weight:<component>:force_<axis>` and
+`:moment_<axis>`. Both routes already solve nodal forces and
 moments (PP `lib.rs` ~802, ~14322; EX `tests/pressure_runtime.rs` ~984). The
 pair is statically exact for the body; for a semi-rigid body it places the
 weight at the body's node rather than along the member.
@@ -166,18 +233,27 @@ checks extend to node-targeted generated loads.
 **Reserved.** DEL-03-05 R10 holds the centre-of-gravity coordinate convention
 and reference frame for a human ruling. Slice b waits for it. Recommended: r
 in the model's global axes, measured from the component's `node`, in model
-length units. That is the convention the bundled demo's invented values
-already read naturally, and it needs no component-local frame.
+length units. It is unambiguous and needs no component-local frame. A model
+transformation rotates r without translating it.
 
 ## 4. Eccentric reducer offset (slice c)
 
 PRD §12.3 requires an eccentric offset vector for reducers. No slot exists.
 The centerline model already places each node on its own centerline, so the
-offset is geometry the nodes must agree with. The proposed field is
-`geometry.eccentric_offset`: a length vector in global axes from the upstream
-centerline to the downstream centerline. Validation then compares it with the
-mapped member's end positions, within the model's node-proximity tolerance, and
-blocks on a mismatch. The desktop can derive the downstream node from it.
+offset is geometry the nodes must agree with.
+
+- **Ends.** The mapped member's `from` node is the reducer's upstream end A and
+  its `to` node the downstream end B. `end_a_size` and `end_b_size` bind to A
+  and B. The upstream and downstream section assignments are the sections of
+  the pipes adjoining A and B. The body member keeps its own section as the
+  reference section (§2.4).
+- **Field.** `geometry.eccentric_offset` is e: a length vector in global axes
+  from A's centerline to B's centerline, perpendicular to the reducer axis.
+- **Relation.** The axis t (unit) and body length L = `rigid_body_length`
+  satisfy x_B − x_A = L·t + e. With d = x_B − x_A − e, validation requires
+  |‖d‖ − L| and |e·d/‖d‖| each within the model's node-proximity tolerance,
+  and blocks on a mismatch. A concentric reducer has e = 0 or no field.
+- **Desktop.** It can place B from A, t, L and e.
 
 The model document's component geometry record is closed in the schema
 (`schemas/model.schema.yaml` ~355). The product's decoder ignores unknown keys,
@@ -189,22 +265,45 @@ coordination.
 ## 5. Verification
 
 - **Rigid-link benchmark** (PRD §22.2), following W-9
-  (`validation/references/w9_benchmarks`, `tests/w9_solver_benchmarks.rs`). An
-  invented cantilever has a scaled body member between two pipe members, with
-  a tip force and a tip moment. An exact rational generator, which runs no
-  product code, gives tip displacement and rotation in closed form for finite
-  s. It also checks the s → ∞ limit against the rigid-link closed form; the
-  product runs at s = 1e3 and 1e6 against the finite-s form. The benchmark runs
-  on both routes and in both solver modes, at the 1e-9 relative criterion.
-- **Thermal check.** A fixed-fixed member with a scaled body under ΔT: the
-  reactions follow the series stiffness of the body and the pipe, and a free
-  scaled body's growth is αΔT·L.
-- **EX pressure check.** On a closed-end cantilever with a scaled body, the wall
-  axial force on the body is unchanged and its Poisson elongation is s times
-  smaller.
+  (`validation/references/w9_benchmarks`, `tests/w9_solver_benchmarks.rs`).
+  - **Model.** An invented cantilever has a scaled body member between two
+    pipe members, loaded by a tip force (transverse and axial) and a tip
+    torque.
+  - **Reference.** An exact rational generator, which runs no product code,
+    gives in closed form for finite s: tip displacements and rotations, every
+    member's end forces and the support reactions. It also checks the s → ∞
+    limit against the rigid-link closed form.
+  - **Runs.** s = 1 (equal to plain pipe), a soft s = 0.25, s = 1e3 and
+    s = 1e6. Euler–Bernoulli and Timoshenko, both routes, both solver modes,
+    at the 1e-9 relative criterion with W-9's zero-scale rule.
+- **Thermal series case.** Frozen independent expectations, with signs and
+  zero scales. A member anchored at both ends, a scaled body in series with
+  pipe, under ΔT: the reactions follow the series stiffness. A free scaled
+  body's growth is αΔT·L. Both thermal producers are covered (the element
+  thermal load and the load-state member pair with its fit eigenstrain), on
+  material, named and interpolated bases.
+- **EX pressure case.** Frozen independent expectations. A closed-end
+  cantilever with a scaled body: the body's wall axial force is unchanged and
+  its pressure axial strain is s times smaller (§2.1).
+- **Negative and behaviour cases.**
+  - The eligibility conditions of §2.3, one test each. This includes
+    `not_solver_consumed`, an absent declaration and an invalid optional
+    quantity.
+  - The three mapping conflicts.
+  - Reducers on EX: inside a single-member region, inside an equal-bore
+    region, at a region's boundary, and outside every region.
+  - PF ν: absent, and consistent and inconsistent optional ν, through the
+    model-bound reader.
+  - The `component_body` record, maximum exclusion and rule not-applicable
+    through the public readers.
+  - The s ≥ 1e8 warning, with formation and recovery qualification unchanged.
+  - Slice b: weight replacement, staleness, every gravity axis and sign, and
+    wrench components.
+  - Slice c: eccentric geometry, accepted and refused.
 - **Regression.** The bundled demo's valve C-130 (s = 15, `pipe:P-130`) moves
-  the demo and preview-physics result fixtures. These are regenerated by their
-  generators with the cause stated. The native smoke's row counts and standing
+  the demo and preview-physics result fixtures. They are regenerated by their
+  generators with the cause stated. This is regression evidence, not an
+  independent numerical reference. The native smoke's row counts and standing
   are expected unchanged; any `apps/desktop/native-smoke/expected.json` value
   that moves is reported, not edited.
 - **Independent numerical scrutiny** of each slice, and of the D3 registration.
