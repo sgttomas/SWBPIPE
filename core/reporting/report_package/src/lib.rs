@@ -19,14 +19,16 @@
 //! named members): the canonical rendered report HTML and hash-bound
 //! deterministic PDF (both from `pdf_emitter::assemble_full_report_package`,
 //! two emissions of one assembled section model), the audit-manifest member
-//! (DEL-08-02), one result-export envelope member per supplied envelope
-//! (DEL-08-04), and the state/comparison/handoff report-section envelope
+//! (DEL-08-02), one DEL-08-04 0.3.0 result-export document member per
+//! supplied document, and the state/comparison/handoff report-section envelope
 //! members (DEL-08-06, caller-supplied canonical-JSON records).
 //!
 //! Gating: the rendered-report members carry every existing HTML/PDF gate
 //! (validation, pre-render section lint, post-render document lint, PDF
-//! text-model lint); the audit manifest and each result envelope are
-//! validated with their own crates' validators; blocking findings mark the
+//! text-model lint); the audit manifest is validated with its own crate's
+//! validator and each result document with [`document_form`] (route
+//! admission, the complete 0.3.0 form, header and self-hash, and the audit
+//! equalities the reader applies); blocking findings mark the
 //! package export-blocked. A blocked package still assembles (with its
 //! reasons recorded in the manifest) so it can be diagnosed; callers must
 //! honor `export_blocked` before saving or exporting the artifact.
@@ -45,12 +47,14 @@ use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_pdf_emitter as pdf;
 use open_pipe_stress_report_renderer as renderer;
-use open_pipe_stress_result_export as result_export;
 use serde::Serialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+pub mod bindings;
+pub mod document_form;
 pub mod reader;
+pub mod schema_eval;
 pub mod wire;
 
 pub use reader::{
@@ -68,7 +72,7 @@ pub const CONTAINER_DOCUMENT_KIND: &str = "OpenPipeStress Project Package";
 /// Fixed manifest member file name (always the first archive member).
 pub const PACKAGE_MANIFEST_FILE_NAME: &str = "package_manifest.json";
 /// Schema version of the package manifest document.
-pub const PACKAGE_MANIFEST_SCHEMA_VERSION: &str = "1.0.0";
+pub const PACKAGE_MANIFEST_SCHEMA_VERSION: &str = "2.0.0";
 /// Artifact identifier carried by the package manifest document.
 pub const PACKAGE_MANIFEST_ARTIFACT: &str = "openpipestress.full_report_package_manifest";
 
@@ -124,8 +128,11 @@ pub struct ReportPackageContainerInput<'a> {
     pub report: &'a renderer::RenderableReportInput,
     /// The DEL-08-02 audit manifest carried as a canonical-JSON member.
     pub audit_manifest: &'a audit::AuditManifest,
-    /// DEL-08-04 result envelopes, one canonical-JSON member each.
-    pub result_envelopes: &'a [result_export::ResultEnvelope],
+    /// DEL-08-04 0.3.0 result-export documents, one canonical-JSON member
+    /// each (package version 2.0.0; DEL-08-01 Design
+    /// `report-package-current-results.md` §2.2). Each is checked by
+    /// [`document_form`] before it becomes a member.
+    pub result_documents: &'a [Value],
     /// DEL-08-06 state/comparison/handoff report-section records
     /// (caller-assembled), one canonical-JSON member each.
     pub state_comparison_handoff_records: &'a [Value],
@@ -217,26 +224,31 @@ pub fn assemble_report_package_container(
     }
     let audit_member_value = audit_manifest_document(input.audit_manifest);
 
-    // Result-export members (DEL-08-04), validated by their own crate.
-    if input.result_envelopes.is_empty() {
+    // Result-export members (DEL-08-04 0.3.0): the shared source-independent
+    // checks (route admission, the complete 0.3.0 form, the transported header
+    // and the self-hash) and the audit equalities the reader also applies.
+    if input.result_documents.is_empty() {
         blocking_reasons.push("package: at least one result export member is required".to_string());
     }
-    let mut result_members: Vec<(String, Value)> = Vec::new();
-    for envelope in input.result_envelopes {
-        let validation = result_export::validate_result_envelope(envelope);
-        for diagnostic in &validation.diagnostics {
-            if diagnostic.severity == result_export::DiagnosticSeverity::Blocking {
-                blocking_reasons.push(format!(
-                    "result export {}: {}: {}",
-                    envelope.envelope_id, diagnostic.code, diagnostic.message
-                ));
+    let audit_model_hash = input.audit_manifest.model_hash.as_ref().map(|hash| hash.value.as_str());
+    let mut result_members: Vec<(String, &Value)> = Vec::new();
+    for document in input.result_documents {
+        let envelope_id = document
+            .pointer("/result_envelope/envelope_id")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        for check in [
+            document_form::check_route_admitted(document),
+            document_form::check_result_member_form(document),
+            document_form::check_audit_equalities(document, &input.audit_manifest.manifest_id, audit_model_hash),
+            document_form::check_document_subjects(document),
+        ] {
+            if let Err(reason) = check {
+                blocking_reasons.push(format!("result export {envelope_id}: {reason}"));
             }
         }
-        let file_name = format!(
-            "result_export_{}.json",
-            sanitize_component(&envelope.envelope_id)
-        );
-        result_members.push((file_name, result_export::result_export_document(envelope)));
+        let file_name = format!("result_export_{}.json", sanitize_component(envelope_id));
+        result_members.push((file_name, document));
     }
 
     // State/comparison/handoff report-section members (DEL-08-06).
@@ -558,6 +570,8 @@ fn hash_record_json(record: &audit::HashRecord) -> Value {
                 "project_local_deterministic_json"
             }
             audit::Canonicalization::None => "none",
+            audit::Canonicalization::Rfc8785Jcs => "rfc8785_jcs",
+            audit::Canonicalization::RulePackPayloadJcs => "rule_pack_payload_jcs",
         },
         "payload_kind": payload_kind_json(record.payload_kind),
         "payload_ref": record.payload_ref,
