@@ -688,15 +688,15 @@ export function RuleCheckRunPanel({
       }
       // One effective aggregate for the headline, the status line, the lifted
       // aggregate and the held run (FR-RULE-003).
-      const result = withEffectiveAggregate(route.result);
-      setRunPresentation({ basisKey: requestBasisKey, result, loadReferenceDisclosure: route.loadReferenceDisclosure ?? null });
+      const effectiveResult = withEffectiveAggregate(route.result);
+      setRunPresentation({ basisKey: requestBasisKey, result: effectiveResult, loadReferenceDisclosure: route.loadReferenceDisclosure ?? null });
       // Lift the pack aggregate so the app can record it in the app-held
       // analysis-run envelope (TP-C4-APPAGG-001).
-      onAggregateChange?.(result.aggregate_status, { rulePackDocument: parsed.document, result });
-      const counts = ruleCheckStatusCounts(result);
+      onAggregateChange?.(effectiveResult.aggregate_status, { rulePackDocument: parsed.document, result: effectiveResult });
+      const counts = ruleCheckStatusCounts(effectiveResult);
       setActionStatus(
-        `Ran ${result.checks.length} check(s); aggregate=${result.aggregate_status} ` +
-          `(${counts.failed} failed; ${counts.incomplete} blocked; ${counts.checked} checked; grammar ${result.grammar_version}).`
+        `Ran ${effectiveResult.checks.length} check(s); aggregate=${effectiveResult.aggregate_status} ` +
+          `(${counts.failed} failed; ${counts.incomplete} blocked; ${counts.checked} checked; grammar ${effectiveResult.grammar_version}).`
       );
     } catch (error) {
       if (!isCurrent()) return;
