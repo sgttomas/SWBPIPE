@@ -380,16 +380,16 @@ and SOW:189 move to the implemented wording when #1574 lands.
   Identification and Attributes boilerplate stays as written (Agent 0,
   2026-10-23).
 
-**Owner-reserved text (exact old → new, not applied).** These change commitment,
+**Owner-reserved text (exact old → new).** These change commitment,
 scope or acceptance wording. "Rec." is the recommendation.
 
 | # | Location | Old | New | Reason | Rec. |
 |---|---|---|---|---|---|
-| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Apply with the G10 bundle |
-| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Apply with the G10 bundle |
-| 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Apply with the G10 bundle |
-| 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Apply with the G10 bundle |
-| 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Apply with the G10 bundle |
+| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
 | 6 | DEL-09-01 SOW:69 | "The future mechanics benchmark suite must stay aligned…" | "The mechanics benchmark suite must stay aligned…" | The suite exists (`validation/benchmarks/mechanics`, W-9) | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
 | 7 | DEL-09-01 SOW:135 | "This deliverable specifies setup evidence for a future mechanics benchmark suite covering…" | "This deliverable specifies the contract and evidence basis for the implemented mechanics benchmark suite covering…" | as #6 | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
 | 8 | DEL-09-02 SOW:81 | "This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, …" | "The original setup kit defined the benchmark-suite boundary only. It did not create benchmark source files, implement tests, …; the suite now exists in `validation/benchmarks/stress`." | the suite exists | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
@@ -458,8 +458,8 @@ exercise today:
   PCF text and MBF text are withheld by the desktop.
 - **Boundaries:** local-only storage and telemetry.
 
-Testers should know the native smoke's 10 stale `expected.json` values
-(§3 rows 1–5) before reading its output.
+The native smoke's five stale `expected.json` values (§3 rows 1–5) are applied,
+so a run on main shows no known failure.
 
 These are **not ready**: shareable or EX reports, the report package, model
 states and comparison, canonical model export, rigid components, EX
@@ -545,9 +545,9 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
-- **Before development testing broadens:** the G10 values (§3 rows 1–5) put
-  to the owner, so the native smoke proves itself without known failures (W-4
-  is done). The §3 [fix] remainder can go with it.
+- **Before development testing broadens:** the G10 values (§3 rows 1–5) are
+  applied by the owner's ruling, so the native smoke proves itself without known
+  failures (W-4 is done). The §3 [fix] remainder can go with it.
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
