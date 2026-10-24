@@ -61,7 +61,8 @@ app at the basis.
   - EX covers pressure, load/reference states, imposed support motion and
     objective-connector joints.
   - Before solving, both routes warn about disconnected parts, coincident or
-    near-duplicate nodes and invalid tees (W-8).
+    near-duplicate nodes and invalid tees (W-8). The near-duplicate tolerance
+    is 5 mm unless the user sets another in the Project page's Model settings.
   - A load case whose authored loads are not applied is refused by name
     instead of solving to zeros (#1568).
 - **Results:** read displacements, element-local forces, reactions and
@@ -118,9 +119,6 @@ The biggest gaps:
      build it there in two stages.
    - Pipe and bend end forces are element-local only (FR-SOL-007; W-7 is in
      flight).
-   - The near-duplicate node tolerance is the owner's absolute 5 mm, settable in
-     the model document; the desktop has no control for it yet, and no unit
-     carries one (REQ-04-06-012).
 7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
    required load cases (FR-RULE-001).
 
@@ -188,7 +186,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
 | §12.3 reducers (no row before) | — | P | No eccentric offset vector in `core/product_physics/src` | DEL-03-05 | Part of W-15. |
 | §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`) | DEL-05-01 | EX refuses `equivalent_static`; imposed rotations and nozzle movement follow FR-SOL-006. |
-| §12.8 near-duplicate nodes (775) | — | P | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193` | DEL-04-06 | REQ-04-06-012 (owner) is met in the product and the document; the desktop has no control for it (W-13 S2a, #1565, authored the other 0.7.0 slots, not `model_settings`), so a desktop user cannot yet change it (only headless, so P). No unit carries the control yet. |
+| §12.8 near-duplicate nodes (775) | — | D | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193`. The desktop's Project page sets and resets it (`ModelSettingsSection.tsx`; applier `set_model_setting`/`clear_model_setting`, `model_settings_authoring.rs`); through-solve tests `operation_applier/tests/model_settings_authoring.rs`, src-tauri `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` | DEL-04-06, DEL-02-01 | REQ-04-06-012 (owner) is met on both routes, and a desktop user can see the effective value ("5 mm (default)") and change it. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
 | §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b | DEL-09-02 | The DEL-09-02 stress suite itself has no pressure family, although DEL-09-02 commits pressure coverage (W-20). |
@@ -254,10 +252,11 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 42 P, 34 D, 8 O and no R:
-- **P → D (5):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
-  §10.1 step 1 (#1569), and the R2 exit (W-4, #1582, after the basis). The
-  first two were already updated in the map by their PRs.
+This map has 41 P, 35 D, 8 O and no R:
+- **P → D (6):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+  §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), and §12.8
+  near-duplicate nodes (the desktop tolerance control, after the basis). The
+  first two and the last were updated in the map by their own changes.
 - **D → P (2):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
   (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
@@ -268,8 +267,7 @@ This map has 42 P, 34 D, 8 O and no R:
 - **New rows (5):** §12.3 reducers, §12.5 load types, §16.1–16.3 and §19.1 (P);
   §20.1–20.2 (D).
 - **Reason changed, class kept:** FR-CMP-001..006 lose "scope unclear" (OD-1);
-  §12.8 near-duplicate nodes is P now because the owner's 5 mm tolerance is not
-  built; FR-SOL-015 now includes the health indicator.
+  FR-SOL-015 now includes the health indicator.
 
 **§23 MVP items:**
 - **In the desktop:** 21 of 28 items. Imposed displacement works on EX only;
@@ -508,7 +506,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-1 | Pointer and ScopeOfWork reconciliation sweep | #1540–#1546, #1550, #1557, #1560, #1575; remaining drift in §3 |
 | W-3 | Rendered report for local private sessions, with §19.2 content | #1553 (+#1555); observed natively (§5) |
 | W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5) |
-| W-8 | Pre-solve topology and near-duplicate warnings | #1559; the absolute 5 mm, model-settable tolerance and the branch warning's applied-factor statement are #1574 |
+| W-8 | Pre-solve topology and near-duplicate warnings | #1559; the absolute 5 mm, model-settable tolerance and the branch warning's applied-factor statement are #1574; the desktop control that sets and resets the tolerance is branch `claude/piping-tolerance-control-20261024` |
 | W-9 | Missing benchmarks: L-frame, simply supported weight, anchor settlement | #1548; the rigid link waits for W-15 |
 | W-10 | Pipe reconnect | #1563, with its declared limitation |
 | — | Viewport result colour and reaction arrows (OD-5) | #1556 |

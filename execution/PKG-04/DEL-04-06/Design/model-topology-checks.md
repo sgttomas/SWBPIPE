@@ -124,16 +124,22 @@ tolerance "and give the user the means to change it". The ruling replaced the
 relative tolerance.
 - **Storage.** The tolerance is an optional model-document member in 0.7.0: a
   length with a unit, default 5 mm (DEL-02-01 Design `model-document-0.7.0.md`).
-- **Control.** The desktop shows it in project or analysis settings, where the
-  user can see and edit it:
-  - any length unit from the catalog may be entered;
-  - non-positive values are refused;
-  - when the member is unset, the control shows "5 mm (default)".
-- **Editing.** The edit is an applier operation on the `Project` target, like
-  `set_project_unit` (DEL-02-02 Design `project-unit-selection.md` §2.7).
-- **Status.** The control is not implemented, and no unit carries it yet. The
-  0.7.0 member exists (#1564) and W-13 S2a (#1565) did not add a control for it;
-  it still needs the `Project` target.
+- **Control.** The Project page of the desktop's property inspector has a
+  Model settings section (`features/model-settings/ModelSettingsSection.tsx`)
+  where the user can see and edit it:
+  - it shows the effective value: "5 mm (default)" while the member is unset,
+    otherwise the authored value and unit;
+  - any length unit from the catalog may be entered (the project's length unit
+    is offered first);
+  - Reset to default removes the member;
+  - a non-finite, non-positive or non-length value is refused by name, with
+    nothing queued.
+- **Editing.** The edit is an applier operation on the `Project` singleton
+  target, as `set_project_unit` is designed (DEL-02-02 Design
+  `project-unit-selection.md` §2.7): `set_model_setting` and
+  `clear_model_setting` (`operation_applier/src/model_settings_authoring.rs`;
+  wire in DEL-02-01 Design `model-document-0.7.0.md` §3.8). Each is shown as a
+  diff, applied and undone like any other model edit.
 
 **Search.** Nodes are placed in cells 8τ wide, indexed by the coordinate
 divided by the width (no offset by the lowest coordinate, whose rounding can
@@ -182,3 +188,16 @@ the published sides. A refused envelope names none, and the arc's side is
 never named. The previous predicate fails this test. `src/topology_tests.rs` passes the
 tolerance directly: another value is used inclusively, a node at -4e15 m does
 not separate a near pair, and a saturated cell counts a pair once.
+
+The user's control is checked through the solve.
+`operation_applier/tests/model_settings_authoring.rs` applies the operations
+and solves through the desktop's value entry in both solver modes: two nodes
+3 mm apart warn at the 5 mm default and not once the tolerance is set to 2 mm;
+a pair 8 mm apart warns once it is set to 10 mm and not after Reset to default.
+The same file checks that set and clear undo to the prior bytes, that an
+emptied `model_settings` is removed, and that each refusal has the accessor's
+code and the validator's message. In `src-tauri`,
+`a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` runs the
+same sequence through the desktop's apply command and native solve.
+`ModelSettingsSection.test.tsx` covers the control: the default display, set,
+Reset to default and refusals by name, through the wasm applier.
