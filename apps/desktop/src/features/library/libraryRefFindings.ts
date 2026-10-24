@@ -9,7 +9,7 @@
 // undo or a different project hides it without a fresh check. The recorded
 // version is never updated by any of this.
 import { useSyncExternalStore } from "react";
-import type { LibraryRefFinding } from "../../services/libraryImportService";
+import { modelLibraryRefs, type LibraryRefFinding } from "../../services/libraryImportService";
 import type { Diagnostic, PreviewModel } from "../../types";
 
 export const LIBRARY_REF_CHECK_SOURCE = "apps/desktop/src-tauri/src/lib.rs check_model_library_refs";
@@ -31,18 +31,17 @@ export function usePublishedLibraryRefFindings() {
   return useSyncExternalStore(subscribe, () => published, () => published);
 }
 
-type WithRef = { id: string; provenance_record?: { library_ref?: { library_kind: string; library_id: string; library_version?: string; record_id?: string } } };
-
-/** The published findings that still apply to `model`. */
+/** The published findings that still apply to `model`: the entity still
+ * carries, at any depth, the reference the finding was raised on (the open
+ * check's own walk, `modelLibraryRefs`). */
 export function currentLibraryRefFindings(model: PreviewModel, state: typeof published = published): LibraryRefFinding[] {
   if (state.findings.length === 0 || state.projectId !== model.project?.id) return [];
-  const entities = [model.materials, model.sections, model.components, model.supports].flatMap((items) => (items ?? []) as WithRef[]);
-  return state.findings.filter((finding) => {
-    const reference = entities.find((entity) => entity.id === finding.entity_ref)?.provenance_record?.library_ref;
-    return Boolean(reference) && reference!.library_kind === finding.library_kind && reference!.library_id === finding.library_id
-      && (reference!.record_id ?? null) === (finding.record_id ?? null)
-      && (reference!.library_version ?? null) === (finding.recorded_version ?? null);
-  });
+  const references = modelLibraryRefs(model);
+  return state.findings.filter((finding) =>
+    references.some((reference) => reference.entity_ref === finding.entity_ref
+      && reference.library_kind === finding.library_kind && reference.library_id === finding.library_id
+      && (reference.record_id ?? null) === (finding.record_id ?? null)
+      && (reference.library_version ?? null) === (finding.recorded_version ?? null)));
 }
 
 /** Entries of the diagnostics list, keyed to the entity. */
