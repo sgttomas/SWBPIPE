@@ -255,8 +255,9 @@ refusal named in the product:
     - integrity `checks_passed`;
     - with the filter cleared, the results count every solved row;
     - the deformation overlay is available for both nodes. That is the
-      overlay's state; the drawing itself is covered by the browser specs
-      `c3-viewport-visibility` and `rotation-glyph`;
+      overlay's state, not proof of drawing: no check here or in the browser
+      specs inspects the drawn deformed pipe (`rotation-glyph` draws the
+      rotation glyphs only);
     - the tip's displacement magnitude and its signed `uy` equal the
       Euler–Bernoulli PL³/3EI from the same inputs within 1e-9 relative
       (DEC-024/026 criterion), and `ux` and `uz` are zero.
