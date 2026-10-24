@@ -2211,6 +2211,8 @@ if fnkey("state_applied_branch_factors", _W8V):
     _w8_bf_side_t = 'let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());'
     _w8_bf_join_t = 'let sides = applied.join(", ");'
     _w8_bf_all_t = 'warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));'
+    _w8_bf_sig = ("pub(crate) fn state_applied_branch_factors( model_components: &[crate::PreviewComponent], "
+                  "preview_cases: &[serde_json::Value], diagnostics: &mut [Diagnostic], ) {")
     _w8_bf_call = ("validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, "
                    "&mut envelope.diagnostics);")
     _w8_bf = (
@@ -2219,7 +2221,9 @@ if fnkey("state_applied_branch_factors", _W8V):
         _W8_BF.count(_w8_bf_side_t) == 1, _W8_BF.count(_w8_bf_join_t) == 1, _W8_BF.count(_w8_bf_all_t) == 1,
         _W8_BF.count("format!(") == 2, _W8_BF.count(".join(") == 1, _W8_BF.count("Vec::new()") == 1,
         _W8_BF.count("applied.push(named);") == 1, _W8_BF.count(".push(") == 1, _W8_BF.count(".push_str(") == 1,
-        all(_W8_BF.index(_w8_bf_loop) < _W8_BF.index(t) for t in ("Vec::new()", "format!(", ".push", ".join(")),
+        # Nothing outside the loop: the signature, then the loop, which closes the body.
+        " ".join(_W8_BF[:_W8_BF.index(_w8_bf_loop)].split()) == _w8_bf_sig,
+        _W8_BF.rstrip().endswith("\n    }\n}") and _W8_BF.count("\n    }\n") == 1,
         _W8_RUN.count(_w8_bf_call) == 1, _text_of(PP_ + "lib.rs").count("state_applied_branch_factors(") == 1,
         _text_of(_W8V).count("state_applied_branch_factors(") == 1,
     )

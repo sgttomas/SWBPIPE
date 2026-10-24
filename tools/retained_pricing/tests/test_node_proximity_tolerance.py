@@ -1,5 +1,5 @@
-"""W8-BF, NP-MS and NP-PT (retained-pricing-rules.md §8.18): the branch warning's applied-factors suffix stays at
-multiplicity 0 under W8-BT's premise with its texts bounded, the node-proximity tolerance's refusal and the accessor's
+"""W8-BF, NP-MS and NP-PT (retained-pricing-rules.md §8.18): the branch warning's applied-factors statement, added
+after publication over the model's components, stays at multiplicity 0 under W8-BT's premise with its texts bounded, the node-proximity tolerance's refusal and the accessor's
 five texts are priced positively at their audited bytes, and a changed text or call stops the run."""
 from pathlib import Path
 import runpy
@@ -61,18 +61,23 @@ def test_the_tolerance_refusal_is_priced_at_its_audited_bytes(monkeypatch):
     assert not any(str(k).startswith("validation.rs:") and str(k).endswith(f":{diag - 1}") for k, _ in d.get("SITE_ZERO", []))
 
 
-def test_the_applied_factors_suffix_is_guarded_at_zero_and_bounded(monkeypatch):
+def test_the_applied_factors_statement_is_guarded_at_zero_and_bounded(monkeypatch):
     d = decisions(monkeypatch)
-    side = line_of(VALIDATION, 'let side = format!("{} SIF to {pipe}", modifier.side);')
-    suffix = line_of(VALIDATION, 'format!("; its branch stress factors are still applied ({})", applied.join(", "))')
+    side = line_of(VALIDATION, 'let named = format!("{side} SIF to {}", record["pipe_id"].as_str().unwrap_or_default());')
+    join = line_of(VALIDATION, 'let sides = applied.join(", ");')
+    statement = line_of(VALIDATION, 'warning.message.push_str(&format!("; its branch stress factors are still applied ({sides})"));')
     mult0 = [str(k) for k, why in d["O10_MULT0_SITES"] if "W8-BF" in why]
-    assert mult0 == [f"validation.rs:{side}", f"validation.rs:{suffix}"]
+    assert mult0 == [f"validation.rs:{side}", f"validation.rs:{statement}"]
+    loops = [(h, b, fns) for h, b, why, fns in d["O10_LOOPS_FIRST"] if "W8-BF" in why]
+    assert loops == [("for component in model_components", "0", ["validation.rs:state_applied_branch_factors"])]
     audit = audits(d)
-    assert audit[f"{VALIDATION}:{side}"]["modifier.side"]["bytes"] == 6 and audit[f"{VALIDATION}:{side}"]["pipe"] == IN
-    assert audit[f"{VALIDATION}:{suffix}"]['applied.join(",")']["bytes"] == 286
-    message = line_of(VALIDATION, "joins {degree}{}") - 1
-    assert audit[f"{VALIDATION}:{message}"]["degree"]["bytes"] == 20
-    assert audit[f"{VALIDATION}:{message}"]["branch_factors_still_applied(component,&pipe_map)"]["bytes"] == 334
+    assert audit[f"{VALIDATION}:{side}"]["side"]["bytes"] == 6
+    assert audit[f"{VALIDATION}:{side}"]['record["pipe_id"].as_str().unwrap_or_default()'] == IN
+    assert audit[f"{VALIDATION}:{statement}"]["sides"]["bytes"] == 286
+    lex = {str(k): v["class"] for k, v in d["LEX_SITE_SIZE"] if "W8-BF" in v["why"]}
+    assert lex == {f"validation.rs:{join}": 286, f"validation.rs:{statement}": 334}
+    message = line_of(VALIDATION, "joins {degree}\",") - 1
+    assert audit[f"{VALIDATION}:{message}"] == {"degree": {"bytes": 20, "source": "O-10 (T4): W8-BT: a usize member count"}}
 
 
 @pytest.mark.parametrize("path, old, new, match", [
@@ -80,8 +85,12 @@ def test_the_applied_factors_suffix_is_guarded_at_zero_and_bounded(monkeypatch):
      ".value is {value} (as authored); the tolerance must be greater than zero.", "NP-MS"),
     (VALIDATION, "vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],",
      "vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string(), error.message.clone()],", "NP-MS"),
-    (VALIDATION, "                applied.push(side);\n",
-     "                applied.push(side.clone());\n                applied.push(side);\n", "W8-BF"),
+    (VALIDATION, "                    applied.push(named);\n",
+     "                    applied.push(named.clone());\n                    applied.push(named);\n", "W8-BF"),
+    (VALIDATION, "    for component in model_components {\n        let Some(warning)",
+     "    let _all = model_components.to_vec();\n    for component in model_components {\n        let Some(warning)", "W8-BF"),
+    (VALIDATION, "            warning.message.push_str(&format!(\"; its branch stress factors are still applied ({sides})\"));\n        }\n    }\n",
+     "            warning.message.push_str(&format!(\"; its branch stress factors are still applied ({sides})\"));\n        }\n    }\n    let _all = diagnostics.to_vec();\n", "W8-BF"),
 ])
 def test_a_changed_text_or_call_stops(monkeypatch, tmp_path, path, old, new, match):
     with pytest.raises(SystemExit, match=match):
