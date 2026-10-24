@@ -2534,3 +2534,94 @@ fn request_in(project: &str, model: &Value, name: &str) -> RecordRunRequest {
         run_labels: run_labels(name),
     }
 }
+
+// ---------------------------------------------------------------------------
+// Repair r7: the history commands reach a project id of any length up to their
+// 256 KiB argument budget (the app keeps any project id); a longer request is
+// refused by name at ingress.
+// ---------------------------------------------------------------------------
+
+/// Admits `args` for `command` within `budget`, as the command does.
+fn admit_command(pool: &crate::solve_jobs::SolveJobRegistry, command: &'static str, budget: usize, args: &Value) -> Result<(Args, crate::memory_pool::Lease), SolveJobError> {
+    admit_body_within(pool, &InvokeBody::Raw(serde_json::to_vec(args).unwrap()), &headers(Some(INGRESS_ARGS_JSON_V1)), command, ArgsDecoding::Moved, budget)
+}
+
+fn serialized_value(serialized: stored_read::Serialized) -> Value {
+    serde_json::from_str(serialized.text()).unwrap()
+}
+
+#[test]
+fn the_history_commands_reach_long_project_ids_written_by_the_real_writers() {
+    for length in [4_097usize, 64 * 1024] {
+        let project = format!("project:{}", "p".repeat(length - 8));
+        let path = scratch_store(&format!("r7-long-project-{length}"));
+        let store = || Ok(path.clone());
+        let pool = registry(ScriptedHost::normal());
+        // The project, through Create Local Project's decoder.
+        let mut solved = crate::load_preview_model().unwrap();
+        solved["project"]["id"] = json!(project);
+        let (mut args, lease) = admit_json(&pool, "create_local_project", ArgsDecoding::Moved,
+            &json!({ "model": solved, "projectEnvelopeHash": { "value": BASE }, "confirmedRevision": null })).unwrap();
+        crate::create_local_project_args(&mut args, store).unwrap();
+        drop((args, lease));
+        // A state, through Save Model State's decoder.
+        let canonical = canonical_json(&solved);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let (mut args, lease) = admit_json(&pool, "save_model_state", ArgsDecoding::Moved, &json!({ "request": {
+            "project_id": project, "expected_base": BASE, "model_canonical": canonical, "model_hash": format!("sha256:{}", sha256_hex(&canonical)),
+            "state_kind": "design_snapshot", "labels": { "state_name": "Basis" } } })).unwrap();
+        let saved = serialized_value(model_states::save_model_state_args(&mut args, store, &memory).unwrap());
+        drop((args, lease));
+        let state_id = saved["state"]["state_id"].as_str().unwrap().to_string();
+        // A run, through Record Run's decoder.
+        let submitted = request_in(&project, &solved, "Run");
+        let (mut args, lease) = admit_json(&pool, "record_analysis_run", ArgsDecoding::Moved, &json!({ "request": {
+            "project_id": project, "expected_base": BASE, "run_record": submitted.run_record, "result_json": submitted.result_json,
+            "input_manifest_canonical": submitted.input_manifest_canonical, "state_id": state_id, "run_labels": { "run_name": "Run" } } })).unwrap();
+        let recorded = serialized_value(record_analysis_run_args(&mut args, store, &memory).unwrap());
+        drop((args, lease));
+        let recording_id = recorded["run"]["recording_id"].as_str().unwrap().to_string();
+        // The six history commands, admitted within their budgets and decoded by their handlers.
+        let (mut args, lease) = admit_command(&pool, "list_model_states", model_states::LIST_MODEL_STATES_MAX_ARGS_BYTES, &json!({ "projectId": project })).unwrap();
+        assert_eq!(model_states::list_model_states_args(&mut args, store, &memory).unwrap().get().len(), 1, "{length}: list_model_states");
+        drop((args, lease));
+        let (mut args, lease) = admit_command(&pool, "read_model_state", model_states::READ_MODEL_STATE_MAX_ARGS_BYTES, &json!({ "projectId": project, "stateId": state_id })).unwrap();
+        assert_eq!(model_states::read_model_state_args(&mut args, store, &memory).unwrap().get().state.state_id, state_id, "{length}: read_model_state");
+        drop((args, lease));
+        let (mut args, lease) = admit_command(&pool, "list_analysis_runs", LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES, &json!({ "projectId": project })).unwrap();
+        assert_eq!(list_analysis_runs_args(&mut args, store, &memory).unwrap().get().len(), 1, "{length}: list_analysis_runs");
+        drop((args, lease));
+        let (mut args, lease) = admit_command(&pool, "read_analysis_run", READ_ANALYSIS_RUN_MAX_ARGS_BYTES, &json!({ "projectId": project, "recordingId": recording_id })).unwrap();
+        assert_eq!(read_analysis_run_args(&mut args, store, &memory).unwrap().get().run.recording_id, recording_id, "{length}: read_analysis_run");
+        drop((args, lease));
+        let (mut args, lease) = admit_command(&pool, "delete_analysis_run", DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES, &json!({ "projectId": project, "recordingId": recording_id })).unwrap();
+        assert_eq!(serialized_value(delete_analysis_run_args(&mut args, store, &memory).unwrap())["deleted"], json!(true), "{length}: delete_analysis_run");
+        drop((args, lease));
+        let (mut args, lease) = admit_command(&pool, "delete_model_state", model_states::DELETE_MODEL_STATE_MAX_ARGS_BYTES, &json!({ "projectId": project, "stateId": state_id })).unwrap();
+        assert_eq!(serialized_value(model_states::delete_model_state_args(&mut args, store, &memory).unwrap())["deleted"], json!(true), "{length}: delete_model_state");
+        drop((args, lease));
+        assert_eq!((row_count(&path, "analysis_runs"), row_count(&path, "model_states")), (0, 0));
+        drop(memory);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+    }
+    // A project id past the 256 KiB budget is refused by name at ingress, before any lease.
+    let pool = registry(ScriptedHost::normal());
+    let project = "p".repeat(model_states::HISTORY_COMMAND_MAX_ARGS_BYTES + 1);
+    for (command, budget) in [
+        ("list_model_states", model_states::LIST_MODEL_STATES_MAX_ARGS_BYTES),
+        ("read_model_state", model_states::READ_MODEL_STATE_MAX_ARGS_BYTES),
+        ("delete_model_state", model_states::DELETE_MODEL_STATE_MAX_ARGS_BYTES),
+        ("list_analysis_runs", LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES),
+        ("read_analysis_run", READ_ANALYSIS_RUN_MAX_ARGS_BYTES),
+        ("delete_analysis_run", DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES),
+    ] {
+        assert_eq!(budget, 256 * 1024, "{command}");
+        match admit_command(&pool, command, budget, &json!({ "projectId": project, "stateId": "state:x", "recordingId": "runrec:x" })) {
+            Err(SolveJobError::InvalidRequest { message }) => {
+                assert!(message.starts_with(&format!("INGRESS-ARGS-TOO-LARGE: `{command}` takes at most 262144 bytes of arguments")), "{message}")
+            }
+            other => panic!("{command}: {:?}", other.map(|_| ())),
+        }
+    }
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}

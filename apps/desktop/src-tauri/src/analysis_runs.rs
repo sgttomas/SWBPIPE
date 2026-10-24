@@ -99,10 +99,12 @@ pub(crate) fn migrate_v13_analysis_runs(connection: &Connection) -> Result<(), S
 /// Ingress budgets (raw argument bytes) of the small run commands.
 /// `record_analysis_run` carries the result and the manifest and is bounded
 /// by the per-invocation budget through its lease, as `save_local_project` is.
-pub(crate) const LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES: usize = 4 * 1024;
-pub(crate) const READ_ANALYSIS_RUN_MAX_ARGS_BYTES: usize = 4 * 1024;
-pub(crate) const DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES: usize = 4 * 1024;
-pub(crate) const EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES: usize = 256 * 1024;
+/// The history commands share one budget with the state commands (repair r7;
+/// `model_states::HISTORY_COMMAND_MAX_ARGS_BYTES`).
+pub(crate) const LIST_ANALYSIS_RUNS_MAX_ARGS_BYTES: usize = model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const READ_ANALYSIS_RUN_MAX_ARGS_BYTES: usize = model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES: usize = model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES: usize = model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
 
 /// The state kind of the snapshot Record Run creates when no state holds the
 /// solved model.

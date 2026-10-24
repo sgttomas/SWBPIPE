@@ -94,11 +94,17 @@ pub(crate) const STATE_KINDS: [&str; 5] = [
 
 /// Ingress budgets (raw argument bytes) of the small model-state commands.
 /// `save_model_state` carries the snapshot and is bounded by the
-/// per-invocation budget through its lease, as `save_local_project` is.
-pub(crate) const LIST_MODEL_STATES_MAX_ARGS_BYTES: usize = 4 * 1024;
-pub(crate) const READ_MODEL_STATE_MAX_ARGS_BYTES: usize = 4 * 1024;
-pub(crate) const DELETE_MODEL_STATE_MAX_ARGS_BYTES: usize = 4 * 1024;
-pub(crate) const EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES: usize = 256 * 1024;
+/// per-invocation budget through its lease, as `save_local_project` is. The
+/// history commands share the label edit's 256 KiB (repair r7): the app keeps
+/// a project id of any length (Open Model Document, Save Local Project and
+/// Save Model State accept it), so a 4 KiB budget left such a project's
+/// history unreachable. A longer request is refused by name at ingress
+/// (`INGRESS-ARGS-TOO-LARGE`).
+pub(crate) const HISTORY_COMMAND_MAX_ARGS_BYTES: usize = 256 * 1024;
+pub(crate) const LIST_MODEL_STATES_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const READ_MODEL_STATE_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const DELETE_MODEL_STATE_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
 
 /// The longest tag, as for model tags (DEL-02-01 `model-document-0.7.0.md` §3.1).
 const MAX_TAG_CHARS: usize = 64;

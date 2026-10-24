@@ -240,9 +240,12 @@ Python agree.
 - **Commands.** `save_model_state`, `list_model_states`, `read_model_state`,
   `edit_model_state_labels` and `delete_model_state`. The save carries the
   canonical text, the claim and the session's base (`expected_base`). The four
-  small commands take 4 KiB of arguments, 256 KiB for a label edit
-  (`INGRESS-ARGS-TOO-LARGE`). A label edit names the labels' `updated_at` it
-  read (`MODEL-STATE-LABELS-MOVED` otherwise).
+  small commands take 256 KiB of arguments each. Before S2 r7 the list, read
+  and delete took 4 KiB, which left a project with a longer id (the app keeps
+  any) without a reachable history. A request over the budget is refused by
+  name at ingress (`INGRESS-ARGS-TOO-LARGE`), and the History panel shows that
+  refusal. A label edit names the labels' `updated_at` it read
+  (`MODEL-STATE-LABELS-MOVED` otherwise).
 - **Prerequisite project save.** When Save Model State… first runs Save
   Local Project's flow, the state follows the save that landed. After "Save
   as a new project" that is the renamed working model, its new project id
@@ -374,8 +377,10 @@ the History panel and `useModelStateHistory.ts`.
   store is refused (`STORE-SCHEMA-NEWER`).
 - **Commands.** `record_analysis_run` is admitted as `save_local_project` is (the
   per-invocation budget through its lease). `list_analysis_runs`,
-  `read_analysis_run` and `delete_analysis_run` take 4 KiB of arguments, and
-  `edit_analysis_run_labels` 256 KiB. The browser preview refuses them all
+  `read_analysis_run`, `delete_analysis_run` and `edit_analysis_run_labels`
+  take 256 KiB of arguments each (r7; 4 KiB for the first three before). A
+  request over the budget is refused by name at ingress
+  (`INGRESS-ARGS-TOO-LARGE`). The browser preview refuses them all
   (`MODEL-STATE-STORE-UNAVAILABLE`).
 - **Request.** It carries the transient record, the result's JSON text (stored
   as given), the manifest's canonical text, the session's base, and optionally
