@@ -804,10 +804,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8f1f308092121cfe56e08199703c681ba74fd7d6d359d4eafed05d86ef8645a4",
-        "ff7f3159d69fca32acfdea00f6b07a7c90a168f77fd264e45c997b053daf3de7",
+        "d7bc48c919396081495207df35464d3d805436e288a31f9f23f76d28864d382e",
         "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7",
         "9a7d5ab6b7491f9b5c6a421ff7bb14d6a24c915ef29dd608fde004e4a5c409ee",
-        "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba",
+        "22fe1361f7913c88875d1df3faf027bd9db0d6af7a4bb3c214fade33387c3f95",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [

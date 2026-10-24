@@ -3,9 +3,14 @@
 //! Model 0.7.0 declares `3.0.0/exact_pressure_v3` explicitly; an absent
 //! contract selects the pressure-free preview route. Straight circular members
 //! and linear restraints or springs are the base. Realized bends and objective
-//! connectors have their own mechanics, evidence and readers. Other families
-//! retain their named refusals. Admission of another family must supply those
-//! consumers together; lifting a refusal alone cannot establish mechanics.
+//! connectors have their own mechanics, evidence and readers. W-15 (DEL-03-05
+//! Design `rigid-component-stiffness-scaling.md` §2.7) admits valve, flange,
+//! reducer, rigid and specialty components with the DEC-045 stiffness scale of
+//! their mapped straight member, an equivalent pipe of the mapped section; a
+//! reducer whose mapped member belongs to a pressure region is refused by
+//! [`REDUCER_IN_REGION`]. Other families retain their named refusals. Admission
+//! of another family must supply those consumers together; lifting a refusal
+//! alone cannot establish mechanics.
 
 use super::{FormulationBasis, PreviewComponent, PreviewModel, PreviewSupport};
 
@@ -20,6 +25,12 @@ pub(crate) const PRESSURE_PROFILE_ID: &str = "exact_pressure_v3";
 
 /// The named seam refusal for a family a v3 document may not yet contain.
 pub(crate) const FAMILY_NOT_ADMITTED: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
+
+/// W-15 §2.7: the case-specific refusal of a reducer whose mapped member
+/// belongs to a pressure region of that case.
+pub(crate) const REDUCER_IN_REGION: &str = "EXACT_PRESSURE_REDUCER_IN_REGION";
+/// The static text of [`REDUCER_IN_REGION`] (the seam composes no text).
+pub(crate) const REDUCER_IN_REGION_TEXT: &str = "reducer maps a member of this pressure region; a reducer's thrust from a bore change is not modelled under 3.0.0/exact_pressure_v3, and the equal-bore region check never reads the reducer, so the exact route refuses it rather than analyse it as equal-bore pipe; a reducer whose mapped member lies outside every pressure region is admitted with its DEC-045 stiffness scale";
 
 /// The sole exact pressure contract declared on a current model document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -240,16 +251,26 @@ impl ExactFamily {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Admission {
     /// The extension point: T4-U3 admits the objective connector; T4-U2 the
-    /// realized bend.
+    /// realized bend; W-15 the rigid family.
     Admitted,
     /// A refusal's code and text, both static (no text is composed here).
     Refused { code: &'static str, message: &'static str },
 }
 
-/// The current admission table: the objective connector and realized bend
-/// are admitted with their integrated mechanics.
+/// The current admission table: the objective connector, the realized bend
+/// and the rigid family are admitted with their integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
+        // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
+        // valve, flange, reducer, rigid and specialty components solve as their
+        // mapped straight member with the DEC-045 scale (`rigid_component`),
+        // an equivalent pipe of the mapped section: bore continuity, cap thrust
+        // and the annular kappa are the mapped section's. A reducer in a
+        // pressure region is refused case by case ([`reducer_region_refusals`]).
+        (
+            ExactContract::PressureV3,
+            ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer | ExactFamily::RigidComponent,
+        ) => Admission::Admitted,
         // T4-U3: an explicit objective connector on v3, with its own
         // classifier (`joint::classify_connectors`), mechanics and evidence.
         (ExactContract::PressureV3, ExactFamily::ObjectiveConnector) => Admission::Admitted,
@@ -293,6 +314,35 @@ pub(crate) fn component_family(component: &PreviewComponent) -> ExactFamily {
     }
 }
 
+/// W-15 §2.7: each (case, region, reducer, member) where a reducer's mapped
+/// member belongs to a pressure region of that case, in case, region and
+/// model order. Region membership is the authored `member_pipe_ids`; the
+/// equal-bore guard cannot stand in for this refusal (it compares traversed
+/// members only and never reads the reducer). A reducer whose mapped member
+/// lies outside every region, including one mapped at a region's boundary
+/// node, is not listed.
+pub(crate) fn reducer_region_refusals(model: &PreviewModel) -> Vec<[&str; 4]> {
+    let reducers = model
+        .components
+        .iter()
+        .filter(|component| component_family(component) == ExactFamily::Reducer)
+        .filter_map(|component| super::rigid_component::mapped_pipe_ref(component).map(|pipe| (component.id.as_str(), pipe)))
+        .collect::<Vec<_>>();
+    let mut found = Vec::new();
+    for case in &model.load_cases {
+        for region in case.pressure_regions.iter().flatten() {
+            let Some(members) = &region.member_pipe_ids else { continue };
+            let region_id = region.id.as_deref().unwrap_or("");
+            for &(component, pipe) in &reducers {
+                if members.iter().any(|member| member == pipe) {
+                    found.push([case.id.as_str(), region_id, component, pipe]);
+                }
+            }
+        }
+    }
+    found
+}
+
 /// The family of a support outside the straight base, or `None` for a linear
 /// restraint or spring (admitted by every exact contract).
 pub(crate) fn support_family(support: &PreviewSupport) -> Option<ExactFamily> {
@@ -328,11 +378,13 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_and_the_realized_bend_are_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_the_realized_bend_and_the_rigid_family_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
                 Admission::Admitted
-                    if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend) => {}
+                    if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend
+                        | ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer
+                        | ExactFamily::RigidComponent) => {}
                 // T4-U2 (D-2): a chord bend is never admitted; its text asks
                 // the user to realize the bend.
                 Admission::Refused { code, message } if family == ExactFamily::GeometryOnlyBend => {

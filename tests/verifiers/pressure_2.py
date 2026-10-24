@@ -69,7 +69,7 @@ PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_ver
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds.
-TABLE_SHA256 = "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba"
+TABLE_SHA256 = "22fe1361f7913c88875d1df3faf027bd9db0d6af7a4bb3c214fade33387c3f95"
 TABLE_SIGNATURE_COUNT = 129
 TABLE_KIND_COUNT = 66
 
