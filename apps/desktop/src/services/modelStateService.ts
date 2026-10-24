@@ -48,6 +48,8 @@ export type ModelStateSummary = StateLabels & {
   labels_updated_at: string;
   /** Saved states whose parent this is; they block its deletion. */
   child_state_ids: string[];
+  /** Recorded runs tied to this state (W-12 S2, oldest first); they block its deletion too. */
+  recorded_run_ids?: string[];
   /** The record's analysis status. `MODEL_INCOMPLETE`: blocking document
    * findings; the state is kept (a comparison basis) but cannot be opened. */
   analysis_status: string[];
@@ -75,7 +77,7 @@ export type ModelStateRead = {
 export type ModelStateDeleteReceipt = { project_id: string; state_id: string; deleted: boolean; message: string };
 
 export const MODEL_STATE_STORE_UNAVAILABLE =
-  "MODEL-STATE-STORE-UNAVAILABLE: saved model states live only in the desktop app's local SQLite store; the browser preview keeps none.";
+  "MODEL-STATE-STORE-UNAVAILABLE: saved model states and recorded runs live only in the desktop app's local SQLite store; the browser preview keeps none.";
 
 export const LABELS_DO_NOT_CHANGE_STATE = "Renaming, tagging or adding notes does not change the saved state.";
 

@@ -563,6 +563,11 @@ pub(crate) mod counting {
         pub allocations: u64,
     }
 
+    /// The live priced bytes now (inside [`measure`]).
+    pub fn live_priced() -> i64 {
+        LIVE_PRICED.with(Cell::get)
+    }
+
     /// Runs `f` with this thread's accounting active from zero.
     pub fn measure<T>(f: impl FnOnce() -> T) -> (T, Measured) {
         for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED] {

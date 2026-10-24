@@ -2360,6 +2360,7 @@ dependencies = [
  "getrandom 0.3.4",
  "libc",
  "open_pipe_stress_audit_manifest",
+ "open_pipe_stress_canonical_json",
  "open_pipe_stress_library_import_document",
  "open_pipe_stress_operation_applier",
  "open_pipe_stress_product_physics",

@@ -1,6 +1,7 @@
-// The session's model-state history (W-12 S1; DEL-14-01 Design
-// `desktop-states-runs-comparison.md` §2): Save Model State…, Open State, the
-// History panel's list, label edits and delete. Called only by the session
+// The session's model-state history (W-12 S1 and S2; DEL-14-01 Design
+// `desktop-states-runs-comparison.md` §2, §3): Save Model State…, Open State,
+// Record Run, the History panel's lists of states and recorded runs, label
+// edits, delete and a recorded run's check. Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
 import { useEffect, useRef, useState } from "react";
@@ -19,6 +20,20 @@ import {
   type ModelStateSummary,
   type StateLabels
 } from "../../services/modelStateService";
+import {
+  deleteAnalysisRun,
+  editAnalysisRunLabels,
+  LABELS_DO_NOT_CHANGE_RUN,
+  listAnalysisRuns,
+  readAnalysisRun,
+  recordableRun,
+  recordAnalysisRun,
+  runDescription,
+  type AnalysisRunSummary,
+  type CurrentRunSlot,
+  type RunLabels
+} from "../../services/analysisRunService";
+import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
 import { computeModelHash } from "../../services/hashService";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
@@ -51,6 +66,8 @@ export type ModelStateHistoryDeps = {
    * project (`binding`: captured before the unsaved-changes guard ran). Returns
    * the library-reference warnings of the adopted model, for the message. */
   adoptStateSnapshot: (opened: ModelStateRead, snapshotHash: ModelHashEvidence, binding: ProjectBinding) => Promise<string>;
+  /** The session's current-run slot as rendered (W-12 S2): Record Run records it and never changes it. */
+  runSlot: CurrentRunSlot;
 };
 
 /** Why a state with blocking document findings is not opened. */
@@ -72,12 +89,24 @@ export type LandedProjectSave = { projectId: string; base: string | null; model:
 
 export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 
+/** Record Run's form: the run's labels and, when no saved state holds the solved
+ * model, the name of the post-solve snapshot written with it. */
+export type RecordRunForm = { labels: RunLabels; snapshotName: string | null };
+
+/** A recorded run read and checked against its stored state (`buildRecordedRunContext`). */
+export type RecordedRunCheck = { recordingId: string; context: HistoricalRunContext | null; failure: string | null };
+
 function storeAvailable(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
 export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const [states, setStates] = useState<ModelStateSummary[] | null>(null);
+  const [runs, setRuns] = useState<AnalysisRunSummary[] | null>(null);
+  const [runCheck, setRunCheck] = useState<RecordedRunCheck | null>(null);
+  // The model hash of the slot's solved model (its input manifest's payload), for
+  // naming the state Record Run ties the run to.
+  const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
   const [historyMessage, setHistoryMessage] = useState("No model states listed yet.");
   const [historyOperation, setHistoryOperation] = useState("not_started");
@@ -97,19 +126,22 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     if (!forProjectId) return;
     if (!storeAvailable()) {
       setStates(null);
+      setRuns(null);
       setStatesProjectId(forProjectId);
       setHistoryMessage(MODEL_STATE_STORE_UNAVAILABLE);
       setHistoryOperation("store_unavailable");
       return;
     }
     try {
-      const listed = await listModelStates(forProjectId);
+      const [listed, listedRuns] = await Promise.all([listModelStates(forProjectId), listAnalysisRuns(forProjectId)]);
       if (request !== listRequest.current) return;
       setStates(listed);
+      setRuns(listedRuns);
       setStatesProjectId(forProjectId);
     } catch (error) {
       if (request !== listRequest.current) return;
       setStates(null);
+      setRuns(null);
       setStatesProjectId(forProjectId);
       setHistoryMessage(`List failed: ${nativeFailureText(error)}`);
       setHistoryOperation("list_failed");
@@ -118,7 +150,23 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
 
   useEffect(() => {
     void refreshStates(projectId);
+    setRunCheck(null);
   }, [projectId, deps.projectSessionGeneration]);
+
+  const slotManifest = deps.runSlot.inputManifest;
+  useEffect(() => {
+    if (!slotManifest) { setSolvedModelHash(null); return; }
+    let live = true;
+    void computeModelHash(slotManifest.manifest.model_basis.model_payload)
+      .then((hash) => { if (live) setSolvedModelHash({ manifest: slotManifest, hash: hash?.value ?? null }); })
+      .catch(() => { if (live) setSolvedModelHash({ manifest: slotManifest, hash: null }); });
+    return () => { live = false; };
+  }, [slotManifest]);
+
+  const recordable = recordableRun(deps.runSlot);
+  const solvedHash = recordable.run && solvedModelHash?.manifest === recordable.run.inputManifest ? solvedModelHash.hash : null;
+  /** The listed state of the slot's solved model, if any: the state Record Run ties the run to. */
+  const recordRunState = solvedHash ? states?.find((state) => state.model_hash === solvedHash) ?? null : null;
 
   function begin(): symbol | null {
     const owner = depsRef.current.acquireProjectOperation();
@@ -325,7 +373,165 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
+  /** Record Run (W-12 S2): the slot's solve as a recorded revision tied to the
+   * project's state of the solved model, or to a new post-solve snapshot the user
+   * names. The run needs the project's stored row: when the session is not that
+   * stored project, Save Local Project's flow runs first, and the recording follows
+   * the save that landed. The current-run slot is never changed. */
+  async function recordRun(form: RecordRunForm): Promise<boolean> {
+    const slot = recordableRun(depsRef.current.runSlot);
+    if (!slot.run) {
+      setHistoryMessage(`Not recorded: ${slot.reason}`);
+      setHistoryOperation("record_run_unavailable");
+      return false;
+    }
+    const run = slot.run;
+    if (refusedWhileBusy("Not recorded", "record_run_busy")) return false;
+    if (!form.labels.run_name.trim()) {
+      setHistoryMessage("Not recorded: a recorded run needs a name.");
+      setHistoryOperation("record_run_refused");
+      return false;
+    }
+    const runProjectId = run.result.model_ref;
+    const isStoredProject = () => {
+      const base = depsRef.current.storedBaseRef.current;
+      return base?.projectId === runProjectId && Boolean(base.value);
+    };
+    if (!isStoredProject()) {
+      setHistoryMessage("A recorded run needs its project's stored copy: saving the local project first.");
+      const landed = await depsRef.current.saveLocalProject();
+      if (!landed) {
+        setHistoryMessage("Not recorded: the local project was not saved, so the run was not recorded.");
+        setHistoryOperation("record_run_needs_project");
+        return false;
+      }
+      // The recording follows the save that landed. After "Save as a new project"
+      // the stored project is the renamed model's, not the solved model's.
+      if (landed.projectId !== runProjectId) {
+        setHistoryMessage(`Not recorded: the local project was saved as a new project (${landed.projectId}), but the run is a solve of project ${runProjectId}. Solve the new project to record a run of it.`);
+        setHistoryOperation("record_run_saved_as_new");
+        return false;
+      }
+      if (!isStoredProject()) {
+        setHistoryMessage("Not recorded: the local project was not saved, so the run was not recorded.");
+        setHistoryOperation("record_run_needs_project");
+        return false;
+      }
+    }
+    const owner = begin();
+    if (!owner) return false;
+    const generation = depsRef.current.projectSessionGenerationRef.current;
+    const sameSession = () => generation === depsRef.current.projectSessionGenerationRef.current;
+    try {
+      const solved = await computeModelHash(run.inputManifest.manifest.model_basis.model_payload);
+      const listed = statesProjectId === runProjectId ? states : null;
+      const state = solved ? listed?.find((candidate) => candidate.model_hash === solved.value) ?? null : null;
+      const snapshotName = form.snapshotName?.trim() ?? "";
+      if (!state && !snapshotName) {
+        setHistoryMessage("Not recorded: no saved state holds the solved model; name a post-solve snapshot to record the run against.");
+        setHistoryOperation("record_run_needs_snapshot");
+        return false;
+      }
+      const outcome = await recordAnalysisRun({
+        expectedBase: depsRef.current.storedBaseRef.current!.value!,
+        run,
+        stateId: state?.state_id ?? null,
+        newState: state ? null : {
+          labels: { state_name: snapshotName, tags: [], notes: [], assumptions: [] },
+          parentStateId: basisStateId
+        },
+        labels: form.labels
+      });
+      if (!sameSession()) return true;
+      setHistoryMessage(outcome.message);
+      setHistoryOperation(outcome.state_outcome === "created" ? "record_run_with_snapshot" : "record_run");
+      await refreshStates(runProjectId);
+      return true;
+    } catch (error) {
+      if (!sameSession()) return false;
+      setHistoryMessage(`Not recorded: ${nativeFailureText(error)}`);
+      setHistoryOperation("record_run_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
+  async function editRunLabels(recordingId: string, labels: RunLabels): Promise<boolean> {
+    const run = runs?.find((candidate) => candidate.recording_id === recordingId);
+    if (!run) return false;
+    const owner = begin();
+    if (!owner) return false;
+    try {
+      const edited = await editAnalysisRunLabels(run.project_id, recordingId, labels, run.labels_updated_at);
+      setHistoryMessage(`Labels of recorded run ${runDescription(edited)} saved. ${LABELS_DO_NOT_CHANGE_RUN}`);
+      setHistoryOperation("edit_run_labels");
+      await refreshStates(run.project_id);
+      return true;
+    } catch (error) {
+      setHistoryMessage(`Labels not saved: ${nativeFailureText(error)}`);
+      setHistoryOperation("edit_run_labels_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
+  async function deleteRun(recordingId: string): Promise<boolean> {
+    const run = runs?.find((candidate) => candidate.recording_id === recordingId);
+    if (!run) return false;
+    const owner = begin();
+    if (!owner) return false;
+    try {
+      const receipt = await deleteAnalysisRun(run.project_id, recordingId);
+      if (runCheck?.recordingId === recordingId) setRunCheck(null);
+      setHistoryMessage(receipt.message);
+      setHistoryOperation("delete_run");
+      await refreshStates(run.project_id);
+      return true;
+    } catch (error) {
+      setHistoryMessage(`Not deleted: ${nativeFailureText(error)}`);
+      setHistoryOperation("delete_run_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
+  /** Reads a recorded run (the store verifies its bytes) and checks it against its
+   * stored state in this session. Nothing about the session changes. */
+  async function checkRun(recordingId: string): Promise<boolean> {
+    const run = runs?.find((candidate) => candidate.recording_id === recordingId);
+    if (!run) return false;
+    const owner = begin();
+    if (!owner) return false;
+    const generation = depsRef.current.projectSessionGenerationRef.current;
+    try {
+      const read = await readAnalysisRun(run.project_id, recordingId);
+      const context = await buildRecordedRunContext(read);
+      if (generation !== depsRef.current.projectSessionGenerationRef.current) return false;
+      setRunCheck({ recordingId, context, failure: null });
+      setHistoryOperation("check_run");
+      return true;
+    } catch (error) {
+      if (generation !== depsRef.current.projectSessionGenerationRef.current) return false;
+      setRunCheck({ recordingId, context: null, failure: nativeFailureText(error) });
+      setHistoryOperation("check_run_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
   return {
+    runs: statesProjectId === projectId ? runs : null,
+    runCheck,
+    recordRunUnavailableReason: recordable.reason,
+    recordRunState,
+    recordRun,
+    editRunLabels,
+    deleteRun,
+    checkRun,
     states: statesProjectId === projectId ? states : null,
     basisStateId,
     historyMessage,
