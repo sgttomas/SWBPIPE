@@ -229,7 +229,7 @@ fn emit_pdf_document(
     emitter.note(&meta_line);
     emitter.text_block(&meta_line, META_SIZE, META_LEADING, false);
 
-    let status_text = renderer::status_banner_text(&input.report_sections);
+    let status_text = renderer::status_banner_text(input);
     emitter.note(&status_text);
     emitter.banner(&status_text, true);
 

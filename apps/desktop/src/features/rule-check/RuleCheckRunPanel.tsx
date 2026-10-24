@@ -686,14 +686,17 @@ export function RuleCheckRunPanel({
         setActionStatus(route.diagnostic);
         return;
       }
-      setRunPresentation({ basisKey: requestBasisKey, result: route.result, loadReferenceDisclosure: route.loadReferenceDisclosure ?? null });
+      // One effective aggregate for the headline, the status line, the lifted
+      // aggregate and the held run (FR-RULE-003).
+      const result = withEffectiveAggregate(route.result);
+      setRunPresentation({ basisKey: requestBasisKey, result, loadReferenceDisclosure: route.loadReferenceDisclosure ?? null });
       // Lift the pack aggregate so the app can record it in the app-held
       // analysis-run envelope (TP-C4-APPAGG-001).
-      onAggregateChange?.(route.result.aggregate_status, { rulePackDocument: parsed.document, result: route.result });
-      const counts = ruleCheckStatusCounts(route.result);
+      onAggregateChange?.(result.aggregate_status, { rulePackDocument: parsed.document, result });
+      const counts = ruleCheckStatusCounts(result);
       setActionStatus(
-        `Ran ${route.result.checks.length} check(s); aggregate=${route.result.aggregate_status} ` +
-          `(${counts.failed} failed; ${counts.incomplete} blocked; ${counts.checked} checked; grammar ${route.result.grammar_version}).`
+        `Ran ${result.checks.length} check(s); aggregate=${result.aggregate_status} ` +
+          `(${counts.failed} failed; ${counts.incomplete} blocked; ${counts.checked} checked; grammar ${result.grammar_version}).`
       );
     } catch (error) {
       if (!isCurrent()) return;
@@ -1085,6 +1088,14 @@ function ruleCheckStatusCounts(result: RuleCheckRunResult): { failed: number; in
 
 function ruleCheckHeadlineStatus(result: RuleCheckRunResult): string {
   return ruleCheckStatusCounts(result).incomplete > 0 ? "RULE_INPUTS_INCOMPLETE" : result.aggregate_status;
+}
+
+// A result whose checks include a blocked check carries RULE_INPUTS_INCOMPLETE
+// as its aggregate, whatever aggregate it arrived with.
+function withEffectiveAggregate(result: RuleCheckRunResult): RuleCheckRunResult {
+  return ruleCheckStatusCounts(result).incomplete > 0 && result.aggregate_status !== "RULE_INPUTS_INCOMPLETE"
+    ? { ...result, aggregate_status: "RULE_INPUTS_INCOMPLETE" }
+    : result;
 }
 
 function ruleCheckHeadline(result: RuleCheckRunResult): string {

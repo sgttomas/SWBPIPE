@@ -2,7 +2,7 @@
 
 use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_renderer::{
-    derived_print_view, escape_html, public_report_template, render_calculation_report,
+    derived_print_view, escape_html, public_report_template, render_calculation_report, status_banner_text,
     RenderableReportInput, ReportContext, ReportExportContext, ReportSetting, ResultRow,
     UserRuleCheckOutcome, UserRuleCheckRun, UserRuleCheckStatus,
 };
@@ -402,6 +402,24 @@ fn user_rule_check_headline_is_incomplete_while_any_check_is_blocked() {
     // The failed check stays listed with its own status.
     assert!(html.contains("<td>invented-check-a</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td>"));
 
+    // A recorded failed rule-check analysis status is shown as incomplete in
+    // the status banner, with the recorded status kept beside it.
+    input.report_sections.analysis_status_disclosures.push(sections::AnalysisStatusDisclosure {
+        status: sections::AnalysisStatus::UserRuleFailed,
+        source: sections::Reference::new("rule_check_runner", "invented-rule-run"),
+        affected_object: sections::Reference::new("model", "invented-model"),
+        explanation: "Invented recorded rule-check status.".to_string(),
+        human_review_required: true,
+        human_acceptance_ref: None,
+    });
+    let html = render_calculation_report(&input).html;
+    assert!(html.contains("rule_inputs_incomplete (recorded: user_rule_failed)"), "banner keeps a recorded fail headline");
+    assert!(!html.contains("human_review_required, user_rule_failed"));
+    assert_eq!(
+        status_banner_text(&input),
+        "Analysis status: mechanics_solved, human_review_required, rule_inputs_incomplete (recorded: user_rule_failed)"
+    );
+
     // With every check evaluated, the recorded aggregate is shown as before.
     for check in &mut run.checks {
         check.status = UserRuleCheckStatus::UserRuleChecked;
@@ -411,6 +429,7 @@ fn user_rule_check_headline_is_incomplete_while_any_check_is_blocked() {
     input.user_rule_checks = Some(run);
     let html = render_calculation_report(&input).html;
     assert!(html.contains("Aggregate status: User-rule-check authority · User-rule checked (USER_RULE_CHECKED)"));
+    assert!(html.contains("human_review_required, user_rule_failed</div>"), "a recorded status is shown unchanged when no check is blocked");
     assert!(!html.contains("INCOMPLETE —"));
 }
 

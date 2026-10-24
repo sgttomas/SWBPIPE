@@ -322,3 +322,43 @@ fn rule_pack_name_and_registered_status_forms_reach_the_pdf() {
     assert!(pdf_contains(&outcome.pdf_bytes, r"\(USER_RULE_CHECKED\)"));
     assert!(pdf_contains(&outcome.pdf_bytes, "User-rule-check authority"));
 }
+
+#[test]
+fn a_recorded_rule_fail_with_a_blocked_check_is_bannered_incomplete() {
+    // FR-RULE-003: the PDF status banner follows the recorded checks, keeping
+    // the recorded status beside the correction.
+    let mut input = fixture_input();
+    input.report_sections.analysis_status_disclosures.push(sections::AnalysisStatusDisclosure {
+        status: sections::AnalysisStatus::UserRuleFailed,
+        source: sections::Reference::new("rule_check_runner", "invented-rule-run"),
+        affected_object: sections::Reference::new("model", "invented-model"),
+        explanation: "Invented recorded rule-check status.".to_string(),
+        human_review_required: true,
+        human_acceptance_ref: None,
+    });
+    input.user_rule_checks = Some(UserRuleCheckRun {
+        rule_pack_id: "invented-rule-pack".to_string(),
+        grammar_version: "1.0.0".to_string(),
+        aggregate_status: UserRuleCheckStatus::UserRuleFailed,
+        checks: vec![
+            UserRuleCheckOutcome {
+                check_id: "invented-check-failed".to_string(),
+                status: UserRuleCheckStatus::UserRuleFailed,
+                missing_inputs: vec![],
+            },
+            UserRuleCheckOutcome {
+                check_id: "invented-check-blocked".to_string(),
+                status: UserRuleCheckStatus::RuleInputsIncomplete,
+                missing_inputs: vec!["invented_input_x".to_string()],
+            },
+        ],
+    });
+    let outcome = emit_calculation_report_pdf(&input);
+    // The banner word-wraps, so assert fragments that stay on one line.
+    assert!(pdf_contains(&outcome.pdf_bytes, "rule_inputs_incomplete"));
+    assert!(pdf_contains(&outcome.pdf_bytes, "recorded:"));
+    let mut without = input.clone();
+    without.user_rule_checks = None;
+    let plain = emit_calculation_report_pdf(&without);
+    assert!(!pdf_contains(&plain.pdf_bytes, "recorded:"), "no correction without a blocked check");
+}

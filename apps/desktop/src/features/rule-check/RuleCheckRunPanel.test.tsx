@@ -354,6 +354,7 @@ describe("RuleCheckRunPanel", () => {
       evaluator_findings: [],
       diagnostic_codes: []
     });
+    const onAggregateChange = vi.fn();
     const runWith = async (aggregate_status: string, checks: unknown[]) => {
       const native = await nativeSolvedBasis();
       mockCatalogAndRuleRun({
@@ -364,7 +365,8 @@ describe("RuleCheckRunPanel", () => {
         checks,
         professional_boundary_notice: "Human review remains required."
       });
-      render(<RuleCheckRunPanel model={native.model} result={native.result} />);
+      onAggregateChange.mockClear();
+      render(<RuleCheckRunPanel model={native.model} result={native.result} onAggregateChange={onAggregateChange} />);
       fireEvent.click(screen.getByTestId("rule-check-load-demo"));
       await screen.findByTestId("rule-check-binding-plan");
       fireEvent.click(screen.getByTestId("rule-check-run"));
@@ -390,6 +392,13 @@ describe("RuleCheckRunPanel", () => {
       const headline = await runWith("USER_RULE_FAILED", [check("check_failed", "USER_RULE_FAILED"), check("check_blocked", "RULE_INPUTS_INCOMPLETE")]);
       expect(headline.textContent).toContain("INCOMPLETE — 1 check(s) failed; 1 check(s) blocked");
       expect(headline).toHaveAttribute("data-status", "RULE_INPUTS_INCOMPLETE");
+      // The status line, the lifted aggregate and the held run agree with the headline.
+      expect(screen.getByTestId("rule-check-run-status")).toHaveTextContent("aggregate=RULE_INPUTS_INCOMPLETE");
+      expect(screen.getByTestId("rule-check-run-status")).not.toHaveTextContent("aggregate=USER_RULE_FAILED");
+      const [aggregate, held] = onAggregateChange.mock.calls.at(-1)!;
+      expect(aggregate).toBe("RULE_INPUTS_INCOMPLETE");
+      expect(held.result.aggregate_status).toBe("RULE_INPUTS_INCOMPLETE");
+      expect(held.result.checks.map((item: { status: string }) => item.status)).toEqual(["USER_RULE_FAILED", "RULE_INPUTS_INCOMPLETE"]);
     });
 
     it("headlines INCOMPLETE with zero failures when checks are only blocked", async () => {

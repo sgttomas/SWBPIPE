@@ -36,15 +36,21 @@ failed and one incomplete check therefore headlined `USER_RULE_FAILED`.
   states it.
 - **Desktop.** `RuleCheckRunPanel.tsx` headlines "INCOMPLETE — n check(s)
   failed; m check(s) blocked (RULE_INPUTS_INCOMPLETE)" and sets `data-status`
-  to `RULE_INPUTS_INCOMPLETE` whenever any check is incomplete. It counts the
-  checks themselves, so a result carrying the earlier failed-first aggregate
-  never headlines a fail. Each check stays listed with its own status, and the
-  run status line gives all three counts.
+  to `RULE_INPUTS_INCOMPLETE` whenever any check is incomplete. A result whose
+  checks include a blocked check is given the aggregate `RULE_INPUTS_INCOMPLETE`
+  once, on arrival, whatever aggregate it carried. The headline, the run status
+  line, the aggregate lifted to the session (and so the app-held analysis-run
+  record) and the held run then agree. Each check stays listed with its own
+  status, and the run status line gives all three counts.
 - **Rendered report.** The "User-Rule Check Outcomes" line reads "Aggregate
   status: INCOMPLETE — n check(s) failed; m check(s) blocked · User-rule-check
   authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)", counted from
   the recorded checks, so a run recorded before this change is headlined the
-  same way. The per-check table is unchanged.
+  same way. The per-check table is unchanged. The analysis-status banner (HTML
+  and PDF, `status_banner_text`) follows the same rule: where the recorded
+  checks include a blocked check, a recorded `user_rule_failed` or
+  `user_rule_checked` is shown as `rule_inputs_incomplete (recorded: …)`,
+  keeping the recorded status beside it.
 - **Unchanged.** A pack with no incomplete check headlines as before. The
   analysis-status mapping (`core/runner/headless`) and the app-held aggregate
   carry the runner's token, which is now incomplete in the mixed case.
@@ -56,8 +62,10 @@ failed and one incomplete check therefore headlined `USER_RULE_FAILED`.
   incomplete. `tests/point_path_non_finite_run.rs` now expects incomplete for
   its blocked-plus-failed pack.
 - Renderer (`report_renderer/tests/render.rs`): the headline for a blocked
-  check; a failed and a blocked check under a recorded failed aggregate; all
-  checked.
+  check; a failed and a blocked check under a recorded failed aggregate,
+  including the banner for a recorded `user_rule_failed` disclosure; all
+  checked. PDF (`pdf_emitter/tests/emit.rs`): the banner correction, with a
+  control without rule checks.
 - Desktop (`RuleCheckRunPanel.test.tsx`, "FR-RULE-003 pack headline"): failed
-  and blocked; a failed aggregate with a blocked check; blocked only; all
-  passed.
+  and blocked; a failed aggregate with a blocked check, including the status
+  line, the lifted aggregate and the held run; blocked only; all passed.
