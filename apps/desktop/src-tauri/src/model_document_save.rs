@@ -173,10 +173,9 @@ pub fn validate_model_document_save_evidence(
 /// A model document admitted for writing.
 #[derive(Debug)]
 pub struct AdmittedModelDocument {
-    /// The canonical text, exactly as it will be written.
+    /// The canonical text, exactly as it will be written; its SHA-256 is the
+    /// claimed model hash.
     pub text: String,
-    /// `sha256:<hex>` of `text`.
-    pub model_hash: String,
     pub suggested_file_name: String,
 }
 
@@ -237,7 +236,7 @@ pub fn admit_model_document_text(
         }
         ModelDocumentOpenOutcome::Cancelled => unreachable!("the document checks never cancel"),
     }
-    Ok(AdmittedModelDocument { text: canonical_text, model_hash: format!("sha256:{hex}"), suggested_file_name })
+    Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name })
 }
 
 /// `<project id without "project:">.json`, restricted to `[A-Za-z0-9._-]`;
@@ -360,7 +359,7 @@ mod tests {
             let text = canonical_of(source);
             let claimed = hash_of(&text);
             let admitted = admit_model_document_text(text.clone(), &claimed).unwrap();
-            assert_eq!(admitted.model_hash, claimed);
+            assert_eq!(hash_of(&admitted.text), claimed);
             let root = sandbox(label);
             let destination = root.join(&admitted.suggested_file_name);
             let outcome = write_admitted_model_document(&destination, admitted);
