@@ -1392,11 +1392,13 @@ mod tests {
         assert_eq!(code, 1);
         let report = output.suite_run.expect("suite run report present");
         assert!(report.whole_suite_default_applied);
-        assert_eq!(report.requested_case_count, 14);
-        assert_eq!(report.cases.len(), 14);
+        // W-20 adds the pressure family, which fails closed here (its
+        // comparison is the suite's own relative check; see benchmark_binding).
+        assert_eq!(report.requested_case_count, 15);
+        assert_eq!(report.cases.len(), 15);
         assert_eq!(report.executed_and_matched, 11);
         assert_eq!(report.executed_and_mismatched, 0);
-        assert_eq!(report.blocked, 3);
+        assert_eq!(report.blocked, 4);
         assert_eq!(
             report.executed_and_matched + report.executed_and_mismatched + report.blocked,
             report.requested_case_count

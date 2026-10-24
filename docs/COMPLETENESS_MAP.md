@@ -192,7 +192,7 @@ class, the evidence, and the deliverables. Paths are under
 | §12.8 near-duplicate nodes (775) | — | D | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193`. The desktop's Project page sets and resets it (`ModelSettingsSection.tsx`; applier `set_model_setting`/`clear_model_setting`, `model_settings_authoring.rs`); through-solve tests `operation_applier/tests/model_settings_authoring.rs`, src-tauri `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` | DEL-04-06, DEL-02-01 | REQ-04-06-012 (owner) is met on both routes, and a desktop user can see the effective value ("5 mm (default)") and change it. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
-| §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b | DEL-09-02 | The DEL-09-02 stress suite itself has no pressure family, although DEL-09-02 commits pressure coverage (W-20). |
+| §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b; the suite's pressure family `STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL` (W-20, #1599: Lamé hoop and radial, closed-end, open-end and restrained membrane, on both section bases, through the exact-pressure preview entry) | DEL-09-02 | The headless runner has no binding for the pressure family (its comparison is the suite's relative check), so it fails closed there. |
 
 ### 2.4 Rule packs, reporting, handoff and export (PRD §11.5, §11.7, §11.9, §16–19)
 
@@ -533,6 +533,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-7 | Global-frame element-end forces (FR-SOL-007) | branch `claude/piping-w7-global-end-forces-20261023` (no PR) |
 | — | Strict inputs: no silent drops of authored input or combination rows | #1573 |
 | — | DBM concordance review | #1567 |
+| W-20 | Pressure stress benchmark family in the DEL-09-02 suite (hoop and longitudinal stress against closed forms) | #1599 |
 
 **Remaining:**
 
@@ -546,7 +547,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
 | W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness with the desktop still closed, is on branch `claude/piping-reports-w18a-20261024`; (b1) native screening and (b2) desktop opening remain (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
-| W-20 (new) | Pressure stress benchmark family in the DEL-09-02 suite: pressure-derived hoop and longitudinal stress against closed forms (DEL-09-02 commits pressure coverage; the suite's families have none) | S | numerical | heavy, scrutiny | — | No |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
@@ -556,7 +556,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-12, W-15, W-16, W-20, W-11 and the in-flight W-7, #1573
+- **Before validation:** W-12, W-15, W-16, W-20 (#1599), W-11 and the in-flight W-7, #1573
   and #1574. The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 
