@@ -1967,10 +1967,13 @@ async fn save_handoff_package(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_handoff_package", ArgsDecoding::Moved)?;
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_handoff_package", ArgsDecoding::Moved)?;
     let request = handoff_package::save_handoff_package_args(&mut args)?;
     drop(args);
-    respond(Ok(save_handoff_package_decoded(app, request).await))
+    // The lease is held until the command returns; each store read is metered
+    // against the pool with it (W-12 S2's `PoolReadMemory`).
+    let lease = std::sync::Arc::new(lease);
+    respond(Ok(save_handoff_package_decoded(app, request, lease).await))
 }
 
 /// The stored rule-pack documents with `rule_pack_id`, the model's project's
@@ -1990,6 +1993,7 @@ fn stored_rule_packs_with_id(connection: &Connection, project_id: &str, rule_pac
 async fn save_handoff_package_decoded(
     app: AppHandle,
     request: handoff_package::HandoffSaveRequest,
+    lease: std::sync::Arc<memory_pool::Lease>,
 ) -> handoff_package::HandoffSaveOutcome {
     use handoff_package::{HandoffSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
     if let Err(diagnostic) = handoff_package::validate_handoff_evidence(&request.screening, &request.local_first) {
@@ -1997,7 +2001,10 @@ async fn save_handoff_package_decoded(
     }
     let handoff_package::HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
     let store_app = app.clone();
+    let store_lease = std::sync::Arc::clone(&lease);
     let prepared = match tauri::async_runtime::spawn_blocking(move || {
+        let registry = store_app.state::<SolveJobRegistry>();
+        let memory = stored_read::PoolReadMemory::new(&registry, &store_lease);
         // One store connection, opened on first use, as the model-document save opens it.
         let connection: std::cell::RefCell<Option<Connection>> = std::cell::RefCell::new(None);
         let with_store = |read: &mut dyn FnMut(&Connection) -> Result<(), String>| -> Result<(), String> {
@@ -2007,13 +2014,8 @@ async fn save_handoff_package_decoded(
             }
             read(held.as_ref().expect("opened above"))
         };
-        let mut states = |project_id: &str| -> Result<Vec<model_states::ModelStateSummary>, String> {
-            let mut listed = Vec::new();
-            with_store(&mut |connection| {
-                listed = model_states::list_states(connection, project_id)?;
-                Ok(())
-            })?;
-            Ok(listed)
+        let mut states = |project_id: &str, state_id: &str| {
+            handoff_package::stored_state(&app_store_path(&store_app)?, project_id, state_id, &memory)
         };
         let mut libraries = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
             let mut found = None;
@@ -2054,7 +2056,17 @@ async fn save_handoff_package_decoded(
         Ok(None) => return Outcome::Cancelled,
         Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
     };
+    let write_app = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
+        // The basis state is read again immediately before publication.
+        let registry = write_app.state::<SolveJobRegistry>();
+        let memory = stored_read::PoolReadMemory::new(&registry, &lease);
+        let mut states = |project_id: &str, state_id: &str| {
+            handoff_package::stored_state(&app_store_path(&write_app)?, project_id, state_id, &memory)
+        };
+        if let Err(diagnostics) = handoff_package::confirm_basis_state(&prepared, &mut states) {
+            return Outcome::Refused { diagnostics };
+        }
         handoff_package::write_handoff_package(&destination, prepared, &handoff_package::local_iso_now(), &handoff_package_publish::PRODUCTION_HOOKS)
     })
     .await

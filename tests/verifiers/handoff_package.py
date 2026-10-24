@@ -262,7 +262,8 @@ def binding_findings(manifest: dict[str, Any], model: Any, model_hex: str) -> li
     expect("package_identity.manifest_id", identity.get("manifest_id"), f"manifest:{token}")
     basis_ref = basis.get("basis_state_ref")
     state_id = basis_ref.get("ref") if isinstance(basis_ref, dict) and basis_ref.get("object_type") == "ModelState" and len(basis_ref) == 2 else None
-    if not isinstance(state_id, str):
+    if not isinstance(state_id, str) or not state_id:
+        # An empty state id is no reference (as the Rust twin rules).
         findings.append("model_basis.basis_state_ref is not a ModelState reference")
         state_id = ""
     states = manifest.get("model_state_refs") if isinstance(manifest.get("model_state_refs"), list) else []
@@ -327,7 +328,14 @@ def binding_findings(manifest: dict[str, Any], model: Any, model_hex: str) -> li
 
 
 def verify_handoff_package(directory: Path | str) -> dict[str, str]:
-    """Returns `{"model_hash", "export_hash"}` (`sha256:<hex>`) or raises HandoffVerificationError."""
+    """Returns `{"model_hash", "export_hash"}` (`sha256:<hex>`) or raises HandoffVerificationError.
+
+    An offline check of the package's internal consistency, as the Rust twin's:
+    it does not prove that the records the manifest references outside the
+    package (the basis state and its record hash, the stored libraries and rule
+    packs) exist or hold what their digests say. References rewritten together
+    with their digests pass it; only the local store can confirm them.
+    """
     directory = Path(directory)
     if not _layout_ok(directory):
         raise HandoffVerificationError(f"the folder does not hold exactly {MANIFEST_MEMBER} and {MODEL_MEMBER}")

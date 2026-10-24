@@ -131,8 +131,9 @@ pub fn validate_handoff_evidence(screening: &ModelDocumentSaveScreening, local_f
     model_document_save::validate_local_private_route_evidence(HANDOFF_PACKAGE_ROUTE_ID, screening, local_first)
 }
 
-/// The project's saved states (`model_states::list_states`), by project id.
-pub type StateLookup<'a> = dyn FnMut(&str) -> Result<Vec<ModelStateSummary>, String> + 'a;
+/// A project's saved state by project id and state id (production: the metered
+/// `model_states::list_states_in_store_with`), or `None` when it has none.
+pub type StateLookup<'a> = dyn FnMut(&str, &str) -> Result<Option<ModelStateSummary>, String> + 'a;
 /// The stored rule-pack documents with a `rule_pack_id`, the model's project's first.
 pub type RulePackLookup<'a> = dyn FnMut(&str, &str) -> Result<Vec<Value>, String> + 'a;
 
@@ -244,31 +245,57 @@ fn least_reviewed<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
     values.into_iter().max_by_key(|value| rank(&REVIEW_ORDER, value)).unwrap_or("TBD")
 }
 
-/// W-6a's disposition policy applied to every object of a resolved record at
-/// any depth, by its own fields: a `redistribution_status` of
-/// `protected_suspected` or `rejected`, or a `review_status` of `quarantined`
-/// or `rejected`, blocks. An item's own field never hides a blocked
-/// provenance under it, because every provenance the manifest emits is judged
-/// by itself. Returned as `path member value`.
-fn resolved_blocking(value: &Value, path: &str, found: &mut Vec<String>) {
-    match value {
-        Value::Object(object) => {
-            for (key, statuses) in [("redistribution_status", ["protected_suspected", "rejected"]), ("review_status", ["quarantined", "rejected"])] {
-                if let Some(status) = object.get(key).and_then(Value::as_str).filter(|status| statuses.contains(status)) {
-                    found.push(format!("{path}.{key} {status}"));
+/// The disposition members the structural screen judges, with the values that
+/// block: W-6a's policy (`redistribution_status` `protected_suspected` or
+/// `rejected`, `review_status` `quarantined` or `rejected`), the privacy and
+/// classification members' `protected_suspected` (the webview's rule), and a
+/// rule pack's `lifecycle_status` `quarantined` or `rejected`.
+const SCREENED_MEMBERS: [(&str, &[&str]); 6] = [
+    ("redistribution_status", &["protected_suspected", "rejected"]),
+    ("review_status", &["quarantined", "rejected"]),
+    ("privacy_class", &["protected_suspected", "quarantined", "rejected"]),
+    ("privacy_classification", &["protected_suspected", "quarantined", "rejected"]),
+    ("classification", &["protected_suspected", "quarantined", "rejected"]),
+    ("lifecycle_status", &["quarantined", "rejected"]),
+];
+
+/// One RFC 6901 reference token.
+fn pointer_token(key: &str) -> String {
+    key.replace('~', "~0").replace('/', "~1")
+}
+
+/// The structural screen of one document resolved from the store (review
+/// round 2, finding 2): every object at every depth (a wrapper, its records,
+/// array elements, every `provenance` and `provenance_record` beneath them) is
+/// judged by its own [`SCREENED_MEMBERS`]; nothing is inherited and no field
+/// hides another object's. Returned as `<JSON pointer> <value>`, in document
+/// order; empty when nothing blocks. The whole document is screened before
+/// any of it is mapped into the manifest.
+pub(crate) fn screen_document(document: &Value) -> Vec<String> {
+    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
+        match value {
+            Value::Object(object) => {
+                for (key, child) in object {
+                    let at = format!("{pointer}/{}", pointer_token(key));
+                    if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
+                        if blocking.contains(&status) {
+                            found.push(format!("{at} {status}"));
+                        }
+                    }
+                    walk(child, &at, found);
                 }
             }
-            for (key, child) in object {
-                resolved_blocking(child, &format!("{path}.{key}"), found);
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    walk(item, &format!("{pointer}/{index}"), found);
+                }
             }
+            _ => {}
         }
-        Value::Array(items) => {
-            for (index, item) in items.iter().enumerate() {
-                resolved_blocking(item, &format!("{path}[{index}]"), found);
-            }
-        }
-        _ => {}
     }
+    let mut found = Vec::new();
+    walk(document, "", &mut found);
+    found
 }
 
 fn blocked_record(path: &str, record: &str, what: &str, found: &[String]) -> Diagnostic {
@@ -279,22 +306,49 @@ fn blocked_record(path: &str, record: &str, what: &str, found: &[String]) -> Dia
     )
 }
 
-/// The disposition members of a stored rule pack the manifest maps, judged by
-/// W-6a's policy: its `provenance` at any depth, its `classification`, and its
-/// `metadata.lifecycle_status` (`quarantined` or `rejected` block, as a review
-/// disposition).
-fn rule_pack_blocking(pack: &Value) -> Vec<String> {
-    let mut found = Vec::new();
-    if let Some(provenance) = pack.get("provenance") {
-        resolved_blocking(provenance, "provenance", &mut found);
+/// Every string `member` at any depth of `value`.
+fn members_at_any_depth<'a>(value: &'a Value, member: &str, out: &mut Vec<&'a str>) {
+    match value {
+        Value::Object(object) => {
+            for (key, child) in object {
+                if key == member {
+                    if let Some(text) = child.as_str() {
+                        out.push(text);
+                    }
+                }
+                members_at_any_depth(child, member, out);
+            }
+        }
+        Value::Array(items) => items.iter().for_each(|item| members_at_any_depth(item, member, out)),
+        _ => {}
     }
-    if let Some(classification) = pack.get("classification") {
-        resolved_blocking(classification, "classification", &mut found);
+}
+
+/// The dispositions of the objects a reference covers (review round 2,
+/// finding 4): each covered object's own (or else its provenance's) and every
+/// one at any depth beneath it, so a record is never classified by its
+/// wrapper's. Returned as (redistribution dispositions, review classifications).
+fn covered_dispositions<'a>(covered: &[&'a Map<String, Value>]) -> (Vec<&'a str>, Vec<&'static str>) {
+    let mut redistribution = Vec::new();
+    let mut review = Vec::new();
+    for object in covered {
+        redistribution.push(handoff_redistribution(own_or_provenance(object, "redistribution_status")));
+        review.push(review_classification(own_or_provenance(object, "review_status")));
+        let mut found = Vec::new();
+        let mut reviews = Vec::new();
+        for (key, child) in object.iter() {
+            match (key.as_str(), child.as_str()) {
+                ("redistribution_status", Some(status)) => found.push(status),
+                ("review_status", Some(status)) => reviews.push(status),
+                _ => {}
+            }
+            members_at_any_depth(child, "redistribution_status", &mut found);
+            members_at_any_depth(child, "review_status", &mut reviews);
+        }
+        redistribution.extend(found.into_iter().map(|status| handoff_redistribution(Some(status))));
+        review.extend(reviews.into_iter().map(|status| review_classification(Some(status))));
     }
-    if let Some(status @ ("quarantined" | "rejected")) = pack.pointer("/metadata/lifecycle_status").and_then(Value::as_str) {
-        found.push(format!("metadata.lifecycle_status {status}"));
-    }
-    found
+    (redistribution, review)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -426,7 +480,7 @@ pub struct BasisState {
 
 /// An admitted handoff: the model bytes and every manifest part derived from
 /// them and the local store, before the package is named.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PreparedHandoff {
     pub model_text: String,
     pub model_hex: String,
@@ -453,11 +507,24 @@ fn admit_label(label: &str) -> Result<String, Vec<Diagnostic>> {
     Ok(trimmed.to_string())
 }
 
+/// The saved state `state_id` of `project_id` in the store at `path`, read
+/// within `memory` with the state list's metered reader (W-12 S2); the list's
+/// reservations are released once the one summary is taken from it.
+pub(crate) fn stored_state(
+    path: &Path,
+    project_id: &str,
+    state_id: &str,
+    memory: &dyn crate::stored_read::ReadMemory,
+) -> Result<Option<ModelStateSummary>, String> {
+    let listed = crate::model_states::list_states_in_store_with(path, project_id, memory)?;
+    Ok(listed.get().iter().find(|state| state.state_id == state_id).cloned())
+}
+
 fn basis_state(states: &mut StateLookup<'_>, project_id: &str, state_id: &str, model_hex: &str) -> Result<BasisState, Vec<Diagnostic>> {
-    let listed = states(project_id).map_err(|error| {
+    let found = states(project_id, state_id).map_err(|error| {
         vec![diagnostic(STATE_STORE_UNAVAILABLE, "", format!("The saved states of `{project_id}` could not be read ({error}); nothing was saved."))]
     })?;
-    let Some(state) = listed.into_iter().find(|state| state.state_id == state_id) else {
+    let Some(state) = found.filter(|state| state.state_id == state_id) else {
         return Err(vec![diagnostic(
             BASIS_STATE_MISSING,
             "",
@@ -743,6 +810,20 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
         })?;
         stored_libraries.insert(key, stored);
     }
+    // Every stored library document is screened whole before anything of it
+    // is mapped (review round 2, finding 2).
+    let mut refusals = Vec::new();
+    for ((kind, id), stored) in &stored_libraries {
+        let Some(stored) = stored else { continue };
+        let found_blocking = screen_document(stored);
+        if !found_blocking.is_empty() {
+            let path = found.iter().find(|reference| &reference.kind == kind && &reference.id == id).map(|reference| reference.path.as_str()).unwrap_or("");
+            refusals.push(blocked_record(path, &format!("{kind}:{id}"), "stored library", &found_blocking));
+        }
+    }
+    if !refusals.is_empty() {
+        return Err(refusals);
+    }
     let mut warnings = Vec::new();
     for reference in &found {
         let (Some(recorded), Some(record_id)) = (&reference.version, &reference.record_id) else { continue };
@@ -760,37 +841,38 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
         }
     }
     let mut refs = Vec::new();
-    let mut refusals = Vec::new();
-    for ((kind, id, version), first) in distinct {
+    for ((kind, id, version), _) in distinct {
         let stored = stored_libraries.get(&(kind.clone(), id.clone())).cloned().flatten();
         let library = stored.as_ref().and_then(|stored| stored.get(format!("{kind}_library"))).and_then(Value::as_object);
         let provenance_source = library.and_then(|library| library.get("provenance")).and_then(Value::as_object);
-        // Every resolved library object the manifest maps is screened, its
-        // provenance at every level by itself (review round 1, finding 2).
-        if let Some(library) = library {
-            let mut found = Vec::new();
-            resolved_blocking(&Value::Object(library.clone()), &format!("{kind}_library"), &mut found);
-            if !found.is_empty() {
-                refusals.push(blocked_record(&first.path, &format!("{kind}:{id}"), "stored library", &found));
-                continue;
-            }
-        }
         let metadata = json!({
             "library_kind": kind,
             "library_id": id,
             "library_version": version,
             "document_sha256": stored.as_ref().map(|stored| sha256_hex(&canonical_json(stored)))
         });
-        // The least permissive disposition the reference includes: the
-        // library's own and its emitted provenance's.
-        let redistribution = least_permissive([
-            handoff_redistribution(library.and_then(|library| own_or_provenance(library, "redistribution_status"))),
-            handoff_redistribution(text(provenance_source, "redistribution_status")),
-        ]);
-        let review = least_reviewed([
-            review_classification(library.and_then(|library| own_or_provenance(library, "review_status"))),
-            review_classification(text(provenance_source, "review_status")),
-        ]);
+        // The objects the reference covers: the library wrapper and the
+        // records its references name (every record, for a reference that
+        // names none). Its classification is the least permissive of theirs.
+        let mut covered: Vec<&Map<String, Value>> = library.into_iter().collect();
+        if let Some(stored) = &stored {
+            for reference in found.iter().filter(|reference| reference.kind == kind && reference.id == id && reference.version == version) {
+                match &reference.record_id {
+                    Some(record_id) => covered.extend(matching_library_records(&kind, stored, record_id)),
+                    None => covered.extend(
+                        crate::library_records_key(&kind)
+                            .and_then(|(records_key, _)| stored.get(records_key))
+                            .and_then(Value::as_array)
+                            .into_iter()
+                            .flatten()
+                            .filter_map(Value::as_object),
+                    ),
+                }
+            }
+        }
+        let (redistributions, reviews) = covered_dispositions(&covered);
+        let redistribution = least_permissive(redistributions);
+        let review = least_reviewed(reviews);
         let privacy = reference_privacy(redistribution, "private_library_data");
         let notice = match library {
             Some(library) => text(Some(library), "source_notice").or_else(|| text(provenance_source, "source_name")).unwrap_or("TBD").to_string(),
@@ -859,9 +941,10 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
                 format!("The local store holds no rule pack `{id}` whose document hashes to the referenced stamped checksum {stamped}; its grammar version, lifecycle and provenance are not known here."),
             ));
         }
-        // A resolved pack is screened before anything of it is mapped (finding 1).
+        // A resolved pack is screened whole before anything of it is mapped
+        // (review round 2, finding 2).
         if let Some(pack) = &pack {
-            let found = rule_pack_blocking(pack);
+            let found = screen_document(pack);
             if !found.is_empty() {
                 refusals.push(blocked_record(&path, &format!("rule_pack:{id}"), "stored rule pack", &found));
                 continue;
@@ -877,19 +960,25 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
         });
         let pack_provenance = pack.as_ref().and_then(|pack| pack.get("provenance")).and_then(Value::as_object);
         let pack_classification = pack.as_ref().and_then(|pack| pack.get("classification")).and_then(Value::as_object);
-        // The least permissive disposition the reference includes: its own,
-        // the pack's classification and its emitted provenance's.
+        // The least permissive disposition the reference covers: its own,
+        // the pack's classification and provenance, and every object's at any
+        // depth of the pack (review round 2, finding 4).
         let mut dispositions = vec![handoff_redistribution(entry.get("redistribution_status").and_then(Value::as_str))];
-        if pack.is_some() {
+        let mut reviews = Vec::new();
+        if let Some(pack) = &pack {
             dispositions.push(handoff_redistribution(text(pack_classification, "redistribution_status")));
             dispositions.push(handoff_redistribution(text(pack_provenance, "redistribution_status")));
+            reviews.push(lifecycle_review_classification(text(pack_metadata, "lifecycle_status")));
+            reviews.push(review_classification(text(pack_provenance, "review_status")));
+            let mut found = Vec::new();
+            members_at_any_depth(pack, "redistribution_status", &mut found);
+            dispositions.extend(found.into_iter().map(|status| handoff_redistribution(Some(status))));
+            let mut found = Vec::new();
+            members_at_any_depth(pack, "review_status", &mut found);
+            reviews.extend(found.into_iter().map(|status| review_classification(Some(status))));
         }
         let redistribution = least_permissive(dispositions);
-        let review = if pack.is_some() {
-            least_reviewed([lifecycle_review_classification(text(pack_metadata, "lifecycle_status")), review_classification(text(pack_provenance, "review_status"))])
-        } else {
-            "TBD"
-        };
+        let review = if pack.is_some() { least_reviewed(reviews) } else { "TBD" };
         let privacy = reference_privacy(redistribution, "private_rule_pack_data");
         let source_notice = text(Some(entry), "source_notice").or_else(|| text(pack_metadata, "source_notice")).unwrap_or("TBD");
         let unresolved_name = format!("rule pack {id} (not held by the local rule-pack store)");
@@ -1375,6 +1464,23 @@ fn local_offset_seconds(_: i64) -> i64 {
     0
 }
 
+/// The basis state, read again from the store immediately before publication
+/// (review round 2, note 7): it must still be the state the manifest was
+/// prepared from, with the same kind and record hash, and hold this model.
+/// The offline verifier cannot check this; the save does, once.
+pub fn confirm_basis_state(prepared: &PreparedHandoff, states: &mut StateLookup<'_>) -> Result<(), Vec<Diagnostic>> {
+    let state_id = &prepared.basis.state_id;
+    let current = basis_state(states, &prepared.project_id.trim().to_string(), state_id, &prepared.model_hex)?;
+    if current != prepared.basis {
+        return Err(vec![diagnostic(
+            BASIS_STATE_MISMATCH,
+            "",
+            format!("Saved state `{state_id}` changed while the package was prepared (its record is no longer the one referenced); nothing was saved. Save again."),
+        )]);
+    }
+    Ok(())
+}
+
 /// Names, seals and publishes a prepared handoff at `destination`.
 pub fn write_handoff_package(destination: &Path, prepared: PreparedHandoff, created_at: &str, hooks: &PublishHooks<'_>) -> HandoffSaveOutcome {
     let package_name = destination.file_name().map(|name| name.to_string_lossy().into_owned()).unwrap_or_default();
@@ -1516,7 +1622,7 @@ mod tests {
         let connection = Connection::open(&store.path).unwrap();
         let text = canonical_json(model);
         let hash = hash_of(&text);
-        let mut states = |project: &str| crate::model_states::list_states(&connection, project);
+        let mut states = |project: &str, state: &str| stored_state(&store.path, project, state, &crate::stored_read::UnmeteredReadMemory);
         let mut libraries = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project, kind, id).map(|row| row.map(|row| row.document));
         let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
         prepare_handoff(text, &hash, &hash, state_id, "Invented handoff", &mut states, &mut libraries, &mut packs)
@@ -1826,7 +1932,7 @@ mod tests {
         for (label, hooks, code) in [
             ("between members", PublishHooks { after_model_member: &fail, ..PRODUCTION_HOOKS }, publish::PUBLISH_FAILED),
             ("before the swap", PublishHooks { before_commit: &fail, ..PRODUCTION_HOOKS }, publish::PUBLISH_FAILED),
-            ("swap unsupported", PublishHooks { swap: &unsupported, ..PRODUCTION_HOOKS }, publish::REPLACE_UNSUPPORTED),
+            ("swap unsupported", PublishHooks { swap: Some(&unsupported), ..PRODUCTION_HOOKS }, publish::REPLACE_UNSUPPORTED),
         ] {
             let outcome = write_handoff_package(&target, prepare(&store, &edited, &state.state_id).unwrap(), CREATED_AT, &hooks);
             let HandoffSaveOutcome::Refused { diagnostics } = outcome else { panic!("{label}: {outcome:?}") };
@@ -2118,7 +2224,7 @@ mod tests {
         }
         let refused = result.unwrap_err();
         assert_eq!((refused[0].code.as_str(), refused[0].path.as_str()), (model_document_save::PROTECTED_CONTENT_BLOCKED, "materials[0].provenance_record.library_ref"));
-        assert!(refused[0].message.contains("material:library:invented-materials") && refused[0].message.contains("provenance.redistribution_status protected_suspected"), "{}", refused[0].message);
+        assert!(refused[0].message.contains("material:library:invented-materials") && refused[0].message.contains("/material_library/provenance/redistribution_status protected_suspected"), "{}", refused[0].message);
     }
     #[test]
     fn review_produce_real_packages_and_unsafe_binary64() {
@@ -2208,7 +2314,7 @@ mod tests {
         let original = package_bytes(&target);
         let token_fail = || -> io::Result<String> { Err(io::Error::other("token failure")) };
         let swap_fail = |_: &Path, _: &Path| -> io::Result<()> { Err(io::Error::other("swap failure")) };
-        for hooks in [PublishHooks { token: &token_fail, ..PRODUCTION_HOOKS }, PublishHooks { swap: &swap_fail, ..PRODUCTION_HOOKS }] {
+        for hooks in [PublishHooks { token: &token_fail, ..PRODUCTION_HOOKS }, PublishHooks { swap: Some(&swap_fail), ..PRODUCTION_HOOKS }] {
             let (_, prepared) = prepared_demo("more-failures-payload");
             assert!(matches!(write_handoff_package(&target, prepared, CREATED_AT, &hooks), HandoffSaveOutcome::Refused { .. }));
             assert_eq!(package_bytes(&target), original);
@@ -2307,11 +2413,409 @@ mod tests {
             if raced.replace(true) { publish::platform_swap(staging, destination) } else { racing_swap(staging, destination) }
         };
         let (_, second) = prepared_demo("swap-window-new");
-        let outcome = write_handoff_package(&target, second, CREATED_AT, &PublishHooks { swap: &swap, ..PRODUCTION_HOOKS });
+        let outcome = write_handoff_package(&target, second, CREATED_AT, &PublishHooks { swap: Some(&swap), ..PRODUCTION_HOOKS });
         assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::DESTINATION_CHANGED), "{outcome:?}");
         assert_eq!(fs::read(target.join("unrelated.txt")).unwrap(), b"unrelated user data");
         assert_eq!(fs::read_dir(&target).unwrap().count(), 1);
         assert!(verify_handoff_package(&moved).is_ok(), "the previous package is untouched");
         assert!(staging_left(&store.root).is_empty(), "{:?}", staging_left(&store.root));
+    }
+
+#[test]
+fn round2_resolved_library_record_provenance_must_refuse() {
+    let mut escapes = Vec::new();
+    for (tag, field, status) in [("protected", "redistribution_status", "protected_suspected"), ("quarantined", "review_status", "quarantined"), ("rejected", "review_status", "rejected")] {
+        let model = witness_model();
+        let store = store(&format!("round2-record-{tag}"), &model, true);
+        let mut library = material_library();
+        library["material_records"][0]["redistribution_status"] = json!("public_permissive");
+        library["material_records"][0]["review_status"] = json!("accepted");
+        library["material_records"][0]["provenance"][field] = json!(status);
+        crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
+        let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+        let result = prepare(&store, &model, &state.state_id);
+        if let Ok(prepared) = result {
+            let target = review_output().join(format!("record-{tag}.swbhandoff"));
+            let outcome = write(&target, prepared);
+            println!("ESCAPED RECORD {tag}: {outcome:?}");
+            if matches!(outcome, HandoffSaveOutcome::Saved { .. }) { escapes.push(tag); }
+        }
+    }
+    assert!(escapes.is_empty(), "blocked record provenances escaped: {escapes:?}");
+}
+#[test]
+fn round2_cleanup_must_not_follow_model_directory_symlink() {
+    use std::os::unix::fs::symlink;
+    let (store, prepared) = prepared_demo("round2-cleanup");
+    let target = store.root.join("target.swbhandoff");
+    let unrelated = store.root.join("unrelated");
+    fs::create_dir(&unrelated).unwrap();
+    fs::write(unrelated.join("model.json"), b"unrelated user data").unwrap();
+    let token = || Ok("round2-cleanup".to_string());
+    let staging = store.root.join("target.swbhandoff.staging-round2-cleanup");
+    let fail = || {
+        fs::rename(staging.join("model"), store.root.join("retained-model"))?;
+        symlink(&unrelated, staging.join("model"))?;
+        Err(io::Error::other("interrupted publication"))
+    };
+    let outcome = write_handoff_package(&target, prepared, CREATED_AT, &PublishHooks {token: &token, before_commit: &fail, ..PRODUCTION_HOOKS});
+    println!("CLEANUP {outcome:?}; unrelated survives={}", unrelated.join("model.json").exists());
+    assert!(unrelated.join("model.json").exists(), "cleanup followed an intermediate symlink and deleted non-package data");
+}
+#[test]
+fn round2_private_record_must_not_be_classified_public_by_its_library_wrapper() {
+    let model=witness_model();let store=store("round2-private-record",&model,true);
+    let mut library=material_library();
+    library["material_records"][0]["provenance"]["redistribution_status"]=json!("private_only");
+    crate::upsert_library(&Connection::open(&store.path).unwrap(),"project:slots","material","library:invented-materials",&library).unwrap();
+    let state=save_state(&store,&model,"handoff_basis","12340000123400001234000012340000").state;
+    let prepared=prepare(&store,&model,&state.state_id).unwrap();
+    let reference=prepared.library_refs[0].clone();
+    let outcome=write(&review_output().join("private-record.swbhandoff"),prepared);
+    println!("PRIVATE RECORD CLASSIFICATION {reference}; outcome {outcome:?}");
+    assert_eq!(reference["redistribution_status"],json!("private_only"));
+}
+#[test]
+fn round2_nested_rule_pack_provenance_must_refuse() {
+    let mut model=witness_model();let mut pack:Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+    let mut changed=0;
+    fn mutate(v:&mut Value,changed:&mut usize) {
+        match v {
+            Value::Object(m)=>{
+                for (k,w) in m {
+                    if k=="provenance" && w.is_object() {
+                        w["redistribution_status"]=json!("protected_suspected");*changed+=1;
+                    } else {mutate(w,changed);}
+                }
+            },Value::Array(xs)=>for x in xs {mutate(x,changed)},_=>{}
+        }
+    }
+    for (k,v) in pack.as_object_mut().unwrap() {if k!="provenance" {mutate(v,&mut changed)}}
+    assert!(changed>0);
+    let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+    pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+    model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+    let store=store("round2-pack-nested",&model,true);
+    crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+    let state=save_state(&store,&model,"handoff_basis","12340000123400001234000012340000").state;
+    match prepare(&store,&model,&state.state_id) {
+        Err(d)=>assert!(d.iter().any(|d|d.code==model_document_save::PROTECTED_CONTENT_BLOCKED)),
+        Ok(prepared)=>{let outcome=write(&review_output().join("nested-pack.swbhandoff"),prepared);println!("ESCAPED {changed} NESTED RULE PROVENANCES {outcome:?}");assert!(!matches!(outcome,HandoffSaveOutcome::Saved{..}),"nested rule source disposition escaped")}
+    }
+}
+
+#[test]
+fn round2_layout_only_directory_must_not_be_treated_as_verified_handoff_package() {
+    let (store, prepared)=prepared_demo("round2-layout-only");
+    let target=store.root.join("target.swbhandoff");fs::create_dir_all(target.join("model")).unwrap();
+    fs::write(target.join("handoff_package.json"),b"not a handoff manifest").unwrap();
+    fs::write(target.join("model/model.json"),b"unrelated user data").unwrap();
+    assert!(verify_handoff_package(&target).is_err());
+    let outcome=write(&target,prepared);println!("LAYOUT ONLY OUTCOME {outcome:?}");
+    assert!(matches!(outcome,HandoffSaveOutcome::Refused{..}),"an existing non-package with the expected filenames was deleted");
+    assert_eq!(fs::read(target.join("model/model.json")).unwrap(),b"unrelated user data");
+}
+#[test]
+fn round2_preexisting_symlinks_refuse_and_hardlinked_members_keep_other_links() {
+    use std::os::unix::fs::symlink;
+    for (tag,member) in [("target",""),("model","model"),("manifest","handoff_package.json"),("member","model/model.json")] {
+        let (store,prepared)=prepared_demo(&format!("round2-link-{tag}"));let target=store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target,prepared),HandoffSaveOutcome::Saved{..}));
+        let entry=if member.is_empty() { target.clone() } else { target.join(member) };let saved=store.root.join("saved-entry");fs::rename(&entry,&saved).unwrap();symlink(&saved,&entry).unwrap();
+        let (_other,next)=prepared_demo("round2-link-next");let outcome=write(&target,next);
+        assert!(matches!(outcome,HandoffSaveOutcome::Refused{..}),"{tag}: {outcome:?}");assert!(saved.exists());
+    }
+    let (store,first)=prepared_demo("round2-hardlink");let target=store.root.join("target.swbhandoff");
+    assert!(matches!(write(&target,first),HandoffSaveOutcome::Saved{..}));
+    let kept=store.root.join("kept-model.json");fs::hard_link(target.join("model/model.json"),&kept).unwrap();let original=fs::read(&kept).unwrap();
+    let (_other,next)=prepared_demo("round2-hardlink-next");assert!(matches!(write(&target,next),HandoffSaveOutcome::Saved{..}));assert_eq!(fs::read(&kept).unwrap(),original);
+}
+#[test]
+fn round2_concurrent_saves_stress() { for _ in 0..30 { review_concurrent_saves_are_complete(); } }
+
+#[test]
+fn round2_rollback_failure_leaves_both_directories() {
+    let (store,first)=prepared_demo("round2-rollback");let target=store.root.join("target.swbhandoff");
+    assert!(matches!(write(&target,first),HandoffSaveOutcome::Saved{..}));
+    let count=std::cell::Cell::new(0);
+    let swap=|staging:&Path,destination:&Path| -> io::Result<()> {
+        let n=count.get();count.set(n+1);
+        if n>0 {return Err(io::Error::other("injected swap-back failure"));}
+        fs::rename(destination,store.root.join("retained-old"))?;fs::create_dir(destination)?;fs::write(destination.join("unrelated.txt"),b"unrelated user data")?;
+        publish::platform_swap(staging,destination)
+    };
+    let token=||Ok("round2-rollback".to_string());
+    let (_other,next)=prepared_demo("round2-rollback-next");let result=write_handoff_package(&target,next,CREATED_AT,&PublishHooks{swap:Some(&swap),token:&token,..PRODUCTION_HOOKS});
+    assert!(matches!(result,HandoffSaveOutcome::Refused{..}));
+    let staging=store.root.join("target.swbhandoff.staging-round2-rollback");
+    assert_eq!(fs::read(staging.join("unrelated.txt")).unwrap(),b"unrelated user data");
+    assert!(verify_handoff_package(&target).is_ok());
+    assert!(verify_handoff_package(&store.root.join("retained-old")).is_ok());
+}
+#[test]
+fn round2_ingress_larger_and_malformed_arguments_stay_within_the_lease() {
+    for n in [4096,1024*1024,4*1024*1024] {
+        let text="a".repeat(n);
+        let body=json!({"canonicalText":text,"claimedModelHash":hash_of(&text),"screening":serde_json::to_value(screening(&hash_of(&text))).unwrap(),"localFirstEvidence":serde_json::to_value(local_first()).unwrap(),"basisStateId":"state:x","packageLabel":"Invented"});
+        for invalid in [false,true] {
+            let mut args=body.clone();if invalid {args["screening"]["blocking_count"]=json!("s".repeat(n));}
+            let raw=serde_json::to_vec(&args).unwrap();
+            let (result,_,_)=check_decode_bound(&raw,ArgsDecoding::Moved,|args|save_handoff_package_args(args).map(drop));
+            assert_eq!(result.is_err(),invalid);
+        }
+    }
+}
+#[test]
+fn round2_nested_model_provenance_must_not_be_hidden_by_own_fields() {
+    let mut model=witness_model();
+    model["materials"][0]["provenance_record"]["redistribution_status"]=json!("public_permissive");
+    model["materials"][0]["provenance_record"]["provenance"]=json!({"redistribution_status":"protected_suspected","review_status":"quarantined"});
+    let store=store("round2-model-provenance",&model,true);
+    let state=save_state(&store,&model,"handoff_basis","12340000123400001234000012340000").state;
+    let result=prepare(&store,&model,&state.state_id);
+    assert!(result.is_err(),"nested model provenance was hidden by own public disposition");
+}
+
+
+    // -----------------------------------------------------------------------
+    // Review round 2, finding 2: the structural screen, by property.
+    // -----------------------------------------------------------------------
+
+    /// A deterministic xorshift generator (the cases are reproducible by seed).
+    struct Xorshift(u64);
+
+    impl Xorshift {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+
+        fn below(&mut self, bound: usize) -> usize {
+            (self.next() % bound as u64) as usize
+        }
+    }
+
+    /// Every object's JSON pointer in `value`, and every array's.
+    fn containers(value: &Value, pointer: &str, objects: &mut Vec<String>, arrays: &mut Vec<String>) {
+        match value {
+            Value::Object(object) => {
+                objects.push(pointer.to_string());
+                for (key, child) in object {
+                    containers(child, &format!("{pointer}/{}", pointer_token(key)), objects, arrays);
+                }
+            }
+            Value::Array(items) => {
+                arrays.push(pointer.to_string());
+                for (index, item) in items.iter().enumerate() {
+                    containers(item, &format!("{pointer}/{index}"), objects, arrays);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// Plants one blocking disposition at a random object of `document`, in one
+    /// of five positions (the object's own member, a new sibling object, its
+    /// nested `provenance`, a new array element, a nested `provenance_record`'s
+    /// provenance); returns the pointer and value the screen must name.
+    fn plant(document: &mut Value, random: &mut Xorshift, serial: usize) -> String {
+        let (member, blocking) = SCREENED_MEMBERS[random.below(SCREENED_MEMBERS.len())];
+        let status = blocking[random.below(blocking.len())];
+        let (mut objects, mut arrays) = (Vec::new(), Vec::new());
+        containers(document, "", &mut objects, &mut arrays);
+        let at = objects[random.below(objects.len())].clone();
+        let object = document.pointer_mut(&at).unwrap().as_object_mut().unwrap();
+        let planted = match random.below(5) {
+            0 => {
+                object.insert(member.to_string(), json!(status));
+                format!("{at}/{member}")
+            }
+            1 => {
+                let key = format!("planted_sibling_{serial}");
+                object.insert(key.clone(), json!({ member: status }));
+                format!("{at}/{key}/{member}")
+            }
+            2 => match object.get_mut("provenance").and_then(Value::as_object_mut) {
+                Some(provenance) => {
+                    provenance.insert(member.to_string(), json!(status));
+                    format!("{at}/provenance/{member}")
+                }
+                None => {
+                    let key = format!("planted_{serial}");
+                    object.insert(key.clone(), json!({ "provenance": { member: status } }));
+                    format!("{at}/{key}/provenance/{member}")
+                }
+            },
+            3 if !arrays.is_empty() => {
+                let array = arrays[random.below(arrays.len())].clone();
+                let items = document.pointer_mut(&array).unwrap().as_array_mut().unwrap();
+                items.push(json!({ "name": "planted", member: status }));
+                format!("{array}/{}/{member}", items.len() - 1)
+            }
+            _ => {
+                let key = format!("planted_record_{serial}");
+                object.insert(key.clone(), json!({ "provenance_record": { "provenance": { member: status } } }));
+                format!("{at}/{key}/provenance_record/provenance/{member}")
+            }
+        };
+        format!("{planted} {status}")
+    }
+
+    #[test]
+    fn blocking_dispositions_planted_anywhere_in_a_stored_document_are_found_by_pointer() {
+        let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        assert!(screen_document(&material_library()).is_empty() && screen_document(&pack).is_empty(), "the bases block nothing");
+        let mut random = Xorshift(0x5eed_0002_6b0d_2026);
+        for case in 0..4000 {
+            let mut document = if case % 2 == 0 { material_library() } else { pack.clone() };
+            let mut wanted: Vec<String> = (0..1 + random.below(3)).map(|serial| plant(&mut document, &mut random, serial)).collect();
+            // A later plant can overwrite an earlier one's member.
+            wanted.retain(|entry| {
+                let (pointer, status) = entry.rsplit_once(' ').unwrap();
+                document.pointer(pointer).and_then(Value::as_str) == Some(status)
+            });
+            wanted.sort();
+            wanted.dedup();
+            let found = screen_document(&document);
+            for entry in &wanted {
+                assert!(found.contains(entry), "case {case}: {entry} was not found in {found:?}\n{document}");
+            }
+            assert_eq!(found.len(), wanted.len(), "case {case}: {found:?} against {wanted:?}");
+        }
+    }
+
+    #[test]
+    fn blocking_dispositions_planted_anywhere_in_a_stored_library_or_rule_pack_refuse_the_save() {
+        let mut random = Xorshift(0x5eed_0002_6b0d_e2e0);
+        let mut packs_resolved = 0;
+        for case in 0..48 {
+            let mut model = witness_model();
+            let library_case = case % 2 == 0;
+            let (mut document, what) = if library_case { (material_library(), "stored library") } else { (serde_json::from_str(DEMO_RULE_PACK).unwrap(), "stored rule pack") };
+            let planted = plant(&mut document, &mut random, 0);
+            let store = store(&format!("round2-planted-{case}"), &model, true);
+            if library_case {
+                crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &document).unwrap();
+            } else {
+                // The planted pack still resolves when its document hashes to the stamp.
+                let Ok(hash) = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&document).map(|checksum| checksum.value) else { continue };
+                document["checksums"]["rule_pack_checksum"]["value"] = json!(hash);
+                model["rule_pack_refs"][0]["checksum"]["value"] = json!(hash);
+                crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(), "project:slots", "invented_demo_rule_pack", &document).unwrap();
+                packs_resolved += 1;
+            }
+            let state = save_state(&store, &model, "handoff_basis", "12340000123400001234000012340000").state;
+            match prepare(&store, &model, &state.state_id) {
+                Err(refusals) => assert!(
+                    refusals.iter().any(|refusal| refusal.code == model_document_save::PROTECTED_CONTENT_BLOCKED
+                        && (refusal.message.contains(&planted) || refusal.message.contains(planted.rsplit_once(' ').unwrap().1))),
+                    "case {case} ({what}, {planted}): {refusals:?}"
+                ),
+                Ok(_) => panic!("case {case}: {planted} in the {what} was not refused"),
+            }
+        }
+        assert!(packs_resolved >= 12, "only {packs_resolved} planted packs resolved");
+    }
+
+    /// Review round 2, note 7: the basis state is read again before publication.
+    #[test]
+    fn the_basis_state_is_read_again_from_the_store_before_publication() {
+        let (store, prepared) = prepared_demo("round2-basis-recheck");
+        let project = prepared.project_id.clone();
+        let mut states = |project: &str, state: &str| stored_state(&store.path, project, state, &crate::stored_read::UnmeteredReadMemory);
+        assert!(confirm_basis_state(&prepared, &mut states).is_ok());
+        // A record hash that is no longer the stored one is refused.
+        let mut stale = prepared.clone();
+        stale.basis.record_hash_hex = "0".repeat(64);
+        let refused = confirm_basis_state(&stale, &mut states).unwrap_err();
+        assert_eq!(refused[0].code, BASIS_STATE_MISMATCH, "{refused:?}");
+        // A state deleted since preparation is refused.
+        crate::model_states::delete_state_in_store(&store.path, &project, &prepared.basis.state_id).unwrap();
+        let refused = confirm_basis_state(&prepared, &mut states).unwrap_err();
+        assert_eq!(refused[0].code, BASIS_STATE_MISSING, "{refused:?}");
+    }
+
+    /// Review round 2, should-fix 5: both verifiers give every maintained
+    /// differential case the pinned verdict, on the same bytes
+    /// (`tests/test_handoff_verifier_parity.py` documents the cases and edits).
+    #[test]
+    fn verifier_parity_cases_match_the_python_twin() {
+        const CASES: &str = include_str!("../../../../fixtures/handoff/verifier_parity_cases.json");
+        fn resolve<'a>(document: &'a mut Value, pointer: &str) -> (&'a mut Value, String) {
+            let (parent, last) = pointer.rsplit_once('/').expect("a pointer");
+            let last = last.replace("~1", "/").replace("~0", "~");
+            (document.pointer_mut(parent).unwrap_or_else(|| panic!("no parent of {pointer}")), last)
+        }
+        fn apply(document: &mut Value, edits: &[Value], model_hex: &str, project_id: &str) {
+            for edit in edits {
+                let edit = edit.as_array().unwrap();
+                let (pointer, op) = (edit[0].as_str().unwrap(), edit[1].as_str().unwrap());
+                let units_hash = (op == "units_hash").then(|| {
+                    let mut block = document["handoff_package_manifest"]["units_manifest"].as_object().unwrap().clone();
+                    block.remove("hash_refs");
+                    sha256_hex(&canonical_json(&Value::Object(block)))
+                });
+                let (parent, key) = resolve(document, pointer);
+                let slot = match parent {
+                    Value::Array(items) => &mut items[key.parse::<usize>().unwrap()],
+                    Value::Object(object) => object.entry(key).or_insert(Value::Null),
+                    other => panic!("{pointer}: {other} is not a container"),
+                };
+                *slot = match op {
+                    "set" => edit[2].clone(),
+                    "append_x" => json!(format!("{}x", slot.as_str().unwrap())),
+                    "negate" => json!(!slot.as_bool().unwrap()),
+                    "double" => {
+                        let mut items = slot.as_array().unwrap().clone();
+                        items.extend(items.clone());
+                        Value::Array(items)
+                    }
+                    "model_hex" => json!(model_hex),
+                    "handoff_id" => json!(format!("handoff:{}", package_token(project_id, model_hex))),
+                    "manifest_id" => json!(format!("manifest:{}", package_token(project_id, model_hex))),
+                    "units_hash" => json!(units_hash.unwrap()),
+                    other => panic!("unknown edit {other}"),
+                };
+            }
+        }
+        let cases: Value = serde_json::from_str(CASES).unwrap();
+        let cases = cases["cases"].as_array().unwrap();
+        assert!(cases.len() > 2900, "{} cases", cases.len());
+        let root = sandbox("parity");
+        let mut disagreements = Vec::new();
+        for case in cases {
+            let case = case.as_array().unwrap();
+            let (name, edits, model_edits, seal, digest, accepted) =
+                (case[0].as_str().unwrap(), case[1].as_array().unwrap(), case[2].as_array().unwrap(), case[3].as_bool().unwrap(), case[4].as_str().unwrap(), case[5].as_bool().unwrap());
+            let mut model: Value = serde_json::from_str(WITNESS_MODEL).unwrap();
+            apply(&mut model, model_edits, "", "");
+            let model_text = canonical_json(&model);
+            let model_hex = sha256_hex(&model_text);
+            let project_id = model["project"]["id"].as_str().unwrap_or("").to_string();
+            let mut package: Value = serde_json::from_str(WITNESS_MANIFEST).unwrap();
+            apply(&mut package, edits, &model_hex, &project_id);
+            if seal {
+                let manifest = package["handoff_package_manifest"].as_object().unwrap();
+                let model_ref = manifest["model_hash"].get("payload_ref").cloned().unwrap_or(Value::Null);
+                let package_id = manifest["package_identity"]["handoff_package_id"].clone();
+                let mut inventory = publish::checksum_inventory(&model_ref, package_id.as_str().unwrap_or(""), &model_hex, &publish::export_hash_hex(manifest));
+                inventory[1]["payload_ref"]["ref"] = package_id;
+                package["handoff_package_manifest"]["checksums"] = inventory;
+            }
+            let manifest_text = canonical_json(&package);
+            let built = &sha256_hex(&format!("{model_text}\n{manifest_text}"))[..16];
+            let target = root.join(format!("{name}.swbhandoff"));
+            fs::create_dir_all(target.join(MODEL_DIRECTORY)).unwrap();
+            fs::write(target.join(MODEL_DIRECTORY).join(MODEL_FILE), &model_text).unwrap();
+            fs::write(target.join(MANIFEST_MEMBER), &manifest_text).unwrap();
+            let verdict = verify_handoff_package(&target).is_ok();
+            if built != digest || verdict != accepted {
+                disagreements.push(format!("{name}: bytes {built} (pinned {digest}), verdict {verdict} (pinned {accepted})"));
+            }
+        }
+        let _ = fs::remove_dir_all(&root);
+        assert!(disagreements.is_empty(), "{} of {} cases disagree with the Python twin: {:?}", disagreements.len(), cases.len(), &disagreements[..disagreements.len().min(20)]);
     }
 }

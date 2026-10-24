@@ -292,3 +292,17 @@ def test_obvious_substitution_and_forged_inventory_refused(tmp_path, change):
         (copy / "handoff_package.json").write_text(canonical_json_unchecked(package), encoding="utf-8")
     with pytest.raises(HandoffVerificationError):
         verify_handoff_package(copy)
+
+
+def test_review2_empty_basis_state_id_is_refused(tmp_path):
+    copy = tmp_path / "empty-state.swbhandoff"
+    shutil.copytree(PACKAGE, copy)
+    def mutate(manifest, _):
+        for ref in (manifest["model_basis"]["basis_state_ref"],
+                    manifest["model_state_refs"][0]["model_state_ref"],
+                    manifest["model_state_refs"][0]["hash_refs"][1]["payload_ref"]):
+            ref["ref"] = ""
+        manifest["entity_ids"]["model_state_ids"] = [""]
+    _reseal(copy, mutate)
+    with pytest.raises(HandoffVerificationError):
+        verify_handoff_package(copy)
