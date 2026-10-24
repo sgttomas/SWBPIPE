@@ -385,6 +385,11 @@ describe("a run recorded before rule-pack resolution (S2, #1596)", () => {
       .rejects.toThrow(`${ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}: recorded before rule-pack resolution; re-record this run`);
     const evidence = { manifest_ref: run.run_record.analysis_run.reproducibility.input_manifest_refs[0], manifest_sha256: run.run_record.analysis_run.reproducibility.input_manifest_hashes[0].value, manifest };
     await expect(buildAnalysisRunV03(source, evidence, undefined, basis)).rejects.toThrow(ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED);
+    // Corruption keeps its integrity code (the named refusal comes only after every other check).
+    const corrupted = structuredClone(run.recorded_record);
+    corrupted.analysis_run.run_name = "edited without a reseal";
+    await expect(validateAnalysisRunV03(corrupted, source, basis, { stateId: run.state_id, modelHash: run.state_model_hash, inputManifest: manifest })).rejects.toThrow("ANALYSIS_RECORD_CHECKSUM_MISMATCH");
+    await expect(validateAnalysisRunV03(run.recorded_record, source, basis, { stateId: run.state_id, modelHash: `sha256:${"0".repeat(64)}`, inputManifest: manifest })).rejects.toThrow("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH");
     // Any other mismatch keeps its code: one exclusion named, not the model's.
     const other = structuredClone(run.recorded_record);
     other.analysis_run.diagnostics!.push({ source_annotation: { id: "diagnostic:rule-pack-ref:x@1", code: "MODEL-RULE-PACK-REF-UNRESOLVED", severity: "warning", message: "x", source: "desktop/solve-rule-pack-resolution", affected_refs: ["x@1"] } });

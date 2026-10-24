@@ -230,25 +230,96 @@ pub(crate) fn shown(text: &str) -> std::borrow::Cow<'_, str> {
 
 /// A history list's entry for a stored row that cannot be read (W-12; DEL-14-01
 /// Design §2, §3): only the row's id, cut as a message quotes it ([`shown`]),
-/// and its named refusal (code and message, [`capped`]). None of the row's
-/// unverified fields is presented. The other rows are listed as usual.
+/// its named refusal (code and message, [`capped`]), its delete handle (the
+/// row's SQLite rowid and a digest of its stored id, [`row_handle`], distinct
+/// from the display text), and how many other stored rows name it (a state's
+/// child states and runs, counted from their columns; 0 for a run). None of the
+/// row's unverified fields is presented. The other rows are listed as usual.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub(crate) struct UnreadableRow {
     pub(crate) id: String,
     pub(crate) refusal: String,
+    pub(crate) handle: String,
+    pub(crate) references: u64,
 }
 
 /// The bytes an [`UnreadableRow`] can hold: the shown id ([`SHOWN_COLUMN_BYTES`]
-/// with its ellipsis) and the capped refusal (at most [`MAX_MESSAGE_CHARS`]
-/// characters and its ellipsis, four bytes each), with its structure.
-pub(crate) const UNREADABLE_ROW_BYTES: u64 = (SHOWN_COLUMN_BYTES as u64 + 8) + ((MAX_MESSAGE_CHARS as u64 + 1) * 4) + 256;
+/// with its ellipsis), the capped refusal (at most [`MAX_MESSAGE_CHARS`]
+/// characters and its ellipsis, four bytes each) and the handle, with its
+/// structure.
+pub(crate) const UNREADABLE_ROW_BYTES: u64 = (SHOWN_COLUMN_BYTES as u64 + 8) + ((MAX_MESSAGE_CHARS as u64 + 1) * 4) + 128 + 256;
 
 impl UnreadableRow {
-    /// The entry for row `id` refused by `refusal`, reserved in `memory`.
-    pub(crate) fn reserved(memory: &dyn ReadMemory, what: &str, id: &str, refusal: String) -> Result<Metered<Self>, String> {
+    /// The entry for a row shown as `id`, refused by `refusal`, deleted by `handle`, reserved in `memory`.
+    pub(crate) fn reserved(memory: &dyn ReadMemory, what: &str, id: &str, refusal: String, handle: String, references: u64) -> Result<Metered<Self>, String> {
         let reservation = memory.reserve(what, UNREADABLE_ROW_BYTES)?;
-        Ok(Metered::new(Self { id: shown(id).into_owned(), refusal: capped(refusal) }).holding(reservation))
+        Ok(Metered::new(Self { id: shown(id).into_owned(), refusal: capped(refusal), handle, references }).holding(reservation))
     }
+}
+
+/// The bytes of a stored id the handle digest reads from each end.
+const HANDLE_ID_END_BYTES: i64 = 512;
+
+/// SQL selecting what a row handle binds of `id_column` without loading the
+/// rest: its byte length and its first and last [`HANDLE_ID_END_BYTES`] bytes
+/// (read as `(i64, Vec<u8>, Vec<u8>)`).
+pub(crate) fn handle_columns(id_column: &str) -> String {
+    format!(
+        "octet_length({id_column}), substr(CAST({id_column} AS BLOB), 1, {HANDLE_ID_END_BYTES}), substr(CAST({id_column} AS BLOB), -{HANDLE_ID_END_BYTES})"
+    )
+}
+
+/// A row's delete handle: `<kind>:<rowid>:<id byte length>:<digest>`, the
+/// digest the first 16 hex of the SHA-256 of the id's two ends (the whole id
+/// when it has at most 1024 bytes). The rowid names the row; the length and
+/// digest refuse a stale handle (a rowid reused by another row).
+pub(crate) fn row_handle(kind: &str, rowid: i64, length: i64, head: &[u8], tail: &[u8]) -> String {
+    let mut bytes = Vec::with_capacity(head.len() + tail.len() + 1);
+    bytes.extend_from_slice(head);
+    bytes.push(0);
+    bytes.extend_from_slice(tail);
+    let digest = sha256_hex_bytes(&bytes);
+    format!("{kind}:{rowid}:{length}:{}", &digest[..16])
+}
+
+/// SHA-256 over the bytes' hex text (the bytes need not be UTF-8).
+fn sha256_hex_bytes(bytes: &[u8]) -> String {
+    let hex: String = bytes.iter().map(|byte| format!("{byte:02x}")).collect();
+    sha256_hex(&hex)
+}
+
+/// The rowid a handle of `kind` names, or `None` when the text is not such a handle.
+pub(crate) fn handle_rowid(kind: &str, handle: &str) -> Option<i64> {
+    let mut parts = handle.split(':');
+    if parts.next() != Some(kind) {
+        return None;
+    }
+    let rowid = parts.next()?.parse().ok()?;
+    let _length: i64 = parts.next()?.parse().ok()?;
+    let digest = parts.next()?;
+    (parts.next().is_none() && digest.len() == 16 && digest.bytes().all(|byte| byte.is_ascii_hexdigit())).then_some(rowid)
+}
+
+/// SQL true when every bounded column of `columns` whose SQL starts with
+/// `prefix` (such as `"s."`) is within its bound, read under `alias` instead:
+/// the rows a relationship may load an id from (an oversized row is never
+/// loaded, W-12).
+pub(crate) fn within_bounds(columns: &[BoundedColumn], prefix: &str, alias: &str) -> String {
+    let terms: Vec<String> = columns
+        .iter()
+        .filter(|(column, _, max)| column.starts_with(prefix) && *max != MEASURED_ONLY)
+        .map(|(column, _, max)| format!("COALESCE(octet_length({alias}.{}), 0) <= {max}", &column[prefix.len()..]))
+        .collect();
+    if terms.is_empty() { "1".to_string() } else { format!("({})", terms.join(" AND ")) }
+}
+
+/// Whether a SQLite error is a stored value's own type or text failure (one
+/// row's), not the database's: such a row is listed as unreadable (W-12).
+pub(crate) fn is_row_value_error(error: &rusqlite::Error) -> bool {
+    matches!(
+        error,
+        rusqlite::Error::FromSqlConversionFailure(..) | rusqlite::Error::InvalidColumnType(..) | rusqlite::Error::Utf8Error(..) | rusqlite::Error::IntegralValueOutOfRange(..)
+    )
 }
 
 /// The most characters of any error message a command returns (repair r5): a

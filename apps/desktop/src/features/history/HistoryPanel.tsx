@@ -271,21 +271,26 @@ function UnreadableRowItem({ kind, row }: { kind: "state" | "run"; row: Unreadab
   const { projectBusy } = useSessionProject();
   const busy = historyBusy || projectBusy;
   const [confirming, setConfirming] = useState(false);
-  const testId = `unreadable-${kind}-${row.id}`;
+  const testId = `unreadable-${kind}-${row.handle}`;
   return (
     <li className="model-history-unreadable-row" data-testid={testId}>
       <strong>Unreadable {kind === "state" ? "saved state" : "recorded run"}</strong> <code>{row.id}</code>
       <p className="model-history-meta" role="note" data-testid={`${testId}-refusal`}>{row.refusal}</p>
       <p className="model-history-meta" data-testid={`${testId}-guidance`}>{unreadableGuidance(row.refusal)}</p>
+      {row.references ? (
+        <p className="model-history-meta" data-testid={`${testId}-references`}>
+          {row.references} stored row{row.references === 1 ? " names" : "s name"} it; delete {row.references === 1 ? "that row" : "those rows"} first.
+        </p>
+      ) : null}
       {confirming ? (
         <div className="report-actions" role="group" aria-label={`Confirm delete of ${row.id}`}>
           <span>Delete this unreadable row? This cannot be undone.</span>
-          <button type="button" data-testid={`${testId}-delete-yes`} disabled={busy} title={reasonFor(busy)} onClick={() => { setConfirming(false); void deleteUnreadable(kind, row.id); }}>Delete</button>
+          <button type="button" data-testid={`${testId}-delete-yes`} disabled={busy} title={reasonFor(busy)} onClick={() => { setConfirming(false); void deleteUnreadable(kind, row.handle); }}>Delete</button>
           <button type="button" onClick={() => setConfirming(false)}>Cancel</button>
         </div>
       ) : (
         <div className="report-actions">
-          <button type="button" data-testid={`${testId}-delete`} disabled={busy} title={reasonFor(busy)} onClick={() => setConfirming(true)}>Delete…</button>
+          <button type="button" data-testid={`${testId}-delete`} disabled={busy || row.references > 0} title={reasonFor(busy, row.references > 0 ? "Stored rows name this state; delete them first." : null)} onClick={() => setConfirming(true)}>Delete…</button>
         </div>
       )}
     </li>
@@ -345,6 +350,9 @@ function StateRow({ state, states, runs }: { state: ModelStateSummary; states: M
     return found ? modelStateDescription(found) : id;
   };
   const testId = `model-state-${state.state_id}`;
+  // Rows naming this state that the lists could not present as readable runs under it
+  // (unreadable children, run rows not listed as readable): counted, never listed by id.
+  const unreadableNaming = (state.unreadable_references ?? 0) + Math.max(0, (state.recorded_run_count ?? runs.length) - runs.length);
   return (
     <li className="model-history-state" data-testid={testId}>
       <div className="model-history-state-head">
@@ -396,6 +404,11 @@ function StateRow({ state, states, runs }: { state: ModelStateSummary; states: M
           Delete is blocked while recorded run{runs.length === 1 ? "" : "s"} {runs.map(runDescription).join(", ")} {runs.length === 1 ? "is" : "are"} tied to it.
         </p>
       ) : null}
+      {unreadableNaming ? (
+        <p className="muted" data-testid={`${testId}-delete-blocked-unreadable`}>
+          Delete is blocked while {unreadableNaming} stored row{unreadableNaming === 1 ? " that cannot be read names" : "s that cannot be read name"} it; they are listed below.
+        </p>
+      ) : null}
       {confirmingDelete ? (
         <div className="report-actions" data-testid={`${testId}-delete-confirm`}>
           <span>Delete this saved state? This cannot be undone.</span>
@@ -406,7 +419,7 @@ function StateRow({ state, states, runs }: { state: ModelStateSummary; states: M
         <div className="report-actions">
           <button type="button" data-testid={`${testId}-open`} disabled={busy || !stateIsOpenable(state)} title={reasonFor(busy, stateIsOpenable(state) ? null : notOpenableReason(state))} onClick={() => void openState(state.state_id)}>Open state</button>
           <button type="button" data-testid={`${testId}-edit`} disabled={busy || editing !== null} title={reasonFor(busy, editing ? "The labels are being edited below." : null)} onClick={() => setEditing(draftFrom(state))}>Edit labels</button>
-          <button type="button" data-testid={`${testId}-delete`} disabled={busy || state.child_state_ids.length > 0 || runs.length > 0} title={reasonFor(busy, state.child_state_ids.length ? "Saved states name this state as their parent." : runs.length ? "Recorded runs are tied to this state." : null)} onClick={() => setConfirmingDelete(true)}>Delete…</button>
+          <button type="button" data-testid={`${testId}-delete`} disabled={busy || state.child_state_ids.length > 0 || runs.length > 0 || unreadableNaming > 0} title={reasonFor(busy, state.child_state_ids.length ? "Saved states name this state as their parent." : runs.length ? "Recorded runs are tied to this state." : unreadableNaming ? "Stored rows that cannot be read name this state." : null)} onClick={() => setConfirmingDelete(true)}>Delete…</button>
         </div>
       )}
       {runs.length ? (
@@ -424,6 +437,8 @@ export function HistoryPanel() {
   const { projectBusy } = useSessionProject();
   const [saving, setSaving] = useState(false);
   const [recording, setRecording] = useState(false);
+  // A readable run whose state is not a readable listed state has no row under a state.
+  const orphanRuns = states ? (runs ?? []).filter((run) => !states.some((state) => state.state_id === run.state_id)) : [];
   const runsOf = (stateId: string) => (runs ?? []).filter((run) => run.state_id === stateId).sort((left, right) => left.created_at < right.created_at ? -1 : left.created_at > right.created_at ? 1 : 0);
   if (!model) return null;
   return (
@@ -461,13 +476,22 @@ export function HistoryPanel() {
           <p className="muted" data-testid="model-history-empty">No saved model states for this project yet.</p>
         )
       ) : null}
+      {orphanRuns.length ? (
+        <section className="model-history-orphan-runs" aria-label="Runs whose state cannot be read" data-testid="model-history-orphan-runs">
+          <strong>Runs whose state cannot be read</strong>
+          <p className="muted">These recorded runs are readable, but the saved state they are tied to is not, so they are listed here; each can be checked or deleted. A state is deleted only after every row naming it is.</p>
+          <ul className="model-history-list model-history-runs">
+            {orphanRuns.map((run) => <RunRow key={`${run.recording_id}:${run.labels_updated_at}`} run={run} />)}
+          </ul>
+        </section>
+      ) : null}
       {unreadable && (unreadable.states.length || unreadable.runs.length) ? (
         <section className="model-history-unreadable" aria-label="Unreadable history rows" data-testid="model-history-unreadable">
           <strong>Rows the store cannot read</strong>
           <p className="muted">These stored rows do not verify, so nothing of them is shown, opened, checked or compared; only their ids and the reasons are listed.</p>
           <ul>
-            {unreadable.states.map((row) => <UnreadableRowItem key={`state:${row.id}`} kind="state" row={row} />)}
-            {unreadable.runs.map((row) => <UnreadableRowItem key={`run:${row.id}`} kind="run" row={row} />)}
+            {unreadable.states.map((row) => <UnreadableRowItem key={row.handle} kind="state" row={row} />)}
+            {unreadable.runs.map((row) => <UnreadableRowItem key={row.handle} kind="run" row={row} />)}
           </ul>
         </section>
       ) : null}

@@ -927,9 +927,15 @@ pub(crate) struct ModelStateSummary {
     pub(crate) labels_updated_at: String,
     /// The saved states whose parent this state is; they block its deletion.
     pub(crate) child_state_ids: Vec<String>,
-    /// The recorded runs tied to this state (W-12 S2, oldest first); they block
-    /// its deletion too.
-    pub(crate) recorded_run_ids: Vec<String>,
+    /// How many recorded-run rows name this state, counted from their columns
+    /// (W-12): a delete blocker. The runs themselves are presented, each
+    /// verified, by the run list (grouped by state in the History panel); a
+    /// state never presents a run's id from an unverified column.
+    pub(crate) recorded_run_count: u64,
+    /// How many saved-state rows name this state as their parent but cannot be
+    /// read (W-12): counted, never listed by id. `child_state_ids` holds
+    /// verified children only. They block its deletion too.
+    pub(crate) unreadable_references: u64,
     /// The record's `analysis_status` (from its column). `MODEL_INCOMPLETE`: the
     /// snapshot has blocking document findings, so it is kept (a comparison
     /// basis) but not opened as the working model, as a project would not be.
@@ -1108,8 +1114,21 @@ const STATE_IDENTITY: [stored_read::BoundedColumn; 8] = [
 
 /// The byte lengths a state summary loads, with every loaded column measured:
 /// [`SUMMARY_LENGTHS`] and the identity and time columns' sum.
+/// The id lists count only related rows within their bounds (an oversized row is
+/// never loaded, W-12, so its id is never priced into another row's summary).
 fn summary_lengths_sql() -> String {
-    format!("{SUMMARY_LENGTHS}, {} AS identity_length", stored_read::columns_bytes(&STATE_IDENTITY))
+    let child_bounded = stored_read::within_bounds(&STATE_IDENTITY, "s.", "c");
+    let run_bounded = stored_read::within_bounds(&crate::analysis_runs::RUN_IDENTITY, "r.", "r");
+    format!(
+        "octet_length(s.record_json) AS record_length,
+    COALESCE(octet_length(l.state_name) + octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.updated_at), 0) AS labels_length,
+    (SELECT COUNT(*) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id AND {child_bounded}) AS child_count,
+    (SELECT COALESCE(SUM(octet_length(c.state_id)), 0) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id AND {child_bounded}) AS child_bytes,
+    (SELECT COUNT(*) FROM analysis_runs r WHERE r.project_id = s.project_id AND r.state_id = s.state_id AND {run_bounded}) AS run_count,
+    (SELECT COALESCE(SUM(octet_length(r.recording_id)), 0) FROM analysis_runs r
+       WHERE r.project_id = s.project_id AND r.state_id = s.state_id AND {run_bounded}) AS run_bytes, {} AS identity_length",
+        stored_read::columns_bytes(&STATE_IDENTITY)
+    )
 }
 
 /// Refuses, before anything of it is loaded, the first state row of
@@ -1139,13 +1158,6 @@ fn refuse_oversized_states(connection: &Connection, project_id: &str, state_id: 
     }
 }
 
-const SUMMARY_LENGTHS: &str = "octet_length(s.record_json) AS record_length,
-    COALESCE(octet_length(l.state_name) + octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.updated_at), 0) AS labels_length,
-    (SELECT COUNT(*) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id) AS child_count,
-    (SELECT COALESCE(SUM(octet_length(c.state_id)), 0) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id) AS child_bytes,
-    (SELECT COUNT(*) FROM analysis_runs r WHERE r.project_id = s.project_id AND r.state_id = s.state_id) AS run_count,
-    (SELECT COALESCE(SUM(octet_length(r.recording_id)), 0) FROM analysis_runs r
-       WHERE r.project_id = s.project_id AND r.state_id = s.state_id) AS run_bytes";
 
 /// What one or more state summaries load (for a list: the largest record, as
 /// records are verified one at a time, and the sums of the rest).
@@ -1245,65 +1257,61 @@ fn summary_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<SummaryRow> {
     ))
 }
 
-fn children(
+/// A state's relationships as its summary presents them (W-12, DEL-14-01
+/// Design §2): the child states that name it and are themselves readable (each
+/// verified as a list would verify it, one at a time, within its own
+/// reservation), how many child-state rows name it but cannot be read, and how
+/// many recorded-run rows name it (counted from their columns; each run is
+/// verified by the run list, not here, so a state list never loads a run).
+/// Candidate children are loaded only within their bounds; an id that is
+/// oversized, not text or not UTF-8 is never loaded, and counts as unreadable.
+fn verified_relationships(
     connection: &Connection,
     project_id: &str,
     state_id: &str,
-) -> Result<Vec<String>, String> {
-    let mut statement = connection
-        .prepare("SELECT state_id FROM model_states WHERE project_id = ?1 AND parent_state_id = ?2 ORDER BY created_at, state_id")
+    memory: &dyn ReadMemory,
+) -> Result<(Vec<String>, u64, u64), String> {
+    let (naming_children, naming_runs): (i64, i64) = connection
+        .query_row(
+            "SELECT (SELECT COUNT(*) FROM model_states c WHERE c.project_id = ?1 AND c.parent_state_id = ?2),
+                    (SELECT COUNT(*) FROM analysis_runs r WHERE r.project_id = ?1 AND r.state_id = ?2)",
+            params![project_id, state_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
         .map_err(sql)?;
-    let ids = statement
-        .query_map(params![project_id, state_id], |row| row.get::<_, String>(0))
-        .map_err(sql)?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(sql)?;
-    Ok(ids)
-}
-
-/// The ids of the recorded runs tied to a state, oldest first.
-fn recorded_run_ids_of(connection: &Connection, project_id: &str, state_id: &str) -> Result<Vec<String>, String> {
-    let mut statement = connection
-        .prepare("SELECT recording_id FROM analysis_runs WHERE project_id = ?1 AND state_id = ?2 ORDER BY created_at, recording_id")
-        .map_err(sql)?;
-    let ids = statement
-        .query_map(params![project_id, state_id], |row| row.get::<_, String>(0))
-        .map_err(sql)?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(sql)?;
-    Ok(ids)
+    let candidates: Vec<String> = {
+        let mut statement = connection
+            .prepare(&format!(
+                "SELECT c.state_id FROM model_states c WHERE c.project_id = ?1 AND c.parent_state_id = ?2 AND {} ORDER BY c.created_at, c.state_id",
+                stored_read::within_bounds(&STATE_IDENTITY, "s.", "c")
+            ))
+            .map_err(sql)?;
+        let mut rows = statement.query(params![project_id, state_id]).map_err(sql)?;
+        let mut ids = Vec::new();
+        while let Some(row) = rows.next().map_err(sql)? {
+            if let rusqlite::types::ValueRef::Text(bytes) = row.get_ref(0).map_err(sql)? {
+                if let Ok(id) = std::str::from_utf8(bytes) {
+                    ids.push(id.to_string());
+                }
+            }
+        }
+        ids
+    };
+    let mut children = Vec::new();
+    for child in candidates {
+        match find_core_with(connection, project_id, &child, memory) {
+            Ok(Some(_verified)) => children.push(child),
+            Ok(None) => {}
+            Err(error) if error.starts_with("MODEL-STATE-INTEGRITY") => {}
+            Err(error) => return Err(error),
+        }
+    }
+    let unreadable = u64::try_from(naming_children).unwrap_or(0).saturating_sub(children.len() as u64);
+    Ok((children, u64::try_from(naming_runs).unwrap_or(0), unreadable))
 }
 
 /// At most this many blockers a refusal names; the rest are counted (repair r4).
 const MAX_NAMED_BLOCKERS: usize = 10;
-
-/// A refusal's list of blockers from `query` (selecting
-/// `stored_read::shown_column` of an id and of a name, `LIMIT` the named
-/// ones) and their `count`: at most `limit` named, each `"<name>" (<id>)` (or
-/// its id) as [`stored_read::shown`] quotes it, then `and N more` (or `N more`
-/// when none is named). Only the heads of the stored names are read into the
-/// process. Returns the text and how many it named.
-fn named_blockers(connection: &Connection, query: &str, project_id: &str, state_id: &str, count: usize, limit: usize) -> Result<(String, usize), String> {
-    let mut statement = connection.prepare(query).map_err(sql)?;
-    let named = statement
-        .query_map(params![project_id, state_id, limit as i64], |row| {
-            let id = stored_read::shown_head(&row.get::<_, Vec<u8>>(0)?, row.get(1)?);
-            Ok(match (row.get::<_, Option<Vec<u8>>>(2)?, row.get::<_, Option<i64>>(3)?) {
-                (Some(head), Some(length)) => format!("\"{}\" ({id})", stored_read::shown_head(&head, length)),
-                _ => id,
-            })
-        })
-        .map_err(sql)?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(sql)?;
-    let mut text = named.join(", ");
-    if named.is_empty() {
-        text = format!("{count} more");
-    } else if count > named.len() {
-        text.push_str(&format!(" and {} more", count - named.len()));
-    }
-    Ok((text, named.len()))
-}
 
 /// The value of the stored record's `hashes` entry for `scope`.
 fn claimed_hash<'a>(record: &'a Value, scope: &str) -> Option<&'a str> {
@@ -1430,7 +1438,9 @@ fn stored_record_json(
 /// reserved loading it ([`summary_load_bytes`]); the record's parse and its
 /// hash text are reserved here before they are made and released once it is
 /// verified; the summary holds its decoded labels' reservation.
-fn summary_from_row(
+/// A state row verified as its summary, without its relationships (they are
+/// [`verified_relationships`]).
+fn state_core_from_row(
     connection: &Connection,
     row: SummaryRow,
     memory: &dyn ReadMemory,
@@ -1494,8 +1504,6 @@ fn summary_from_row(
             })?;
     drop(record);
     drop(parse);
-    let child_state_ids = children(connection, &project_id, &state_id)?;
-    let recorded_run_ids = recorded_run_ids_of(connection, &project_id, &state_id)?;
     let labels = decode_labels(&state_id, name, &tags, &notes, &assumptions, memory)?;
     drop((tags, notes, assumptions));
     let summary = labels.map(|labels| ModelStateSummary {
@@ -1509,10 +1517,27 @@ fn summary_from_row(
         model_hash,
         record_hash,
         labels_updated_at: updated_at,
-        child_state_ids,
-        recorded_run_ids,
+        child_state_ids: Vec::new(),
+        recorded_run_count: 0,
+        unreadable_references: 0,
     });
     Ok(summary.holding(status_reservation))
+}
+
+/// [`state_core_from_row`] with the state's verified relationships.
+fn summary_from_row(
+    connection: &Connection,
+    row: SummaryRow,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateSummary>, String> {
+    let core = state_core_from_row(connection, row, memory)?;
+    let (children, runs, unreadable) = verified_relationships(connection, &core.get().project_id, &core.get().state_id, memory)?;
+    Ok(core.map(|mut summary| {
+        summary.child_state_ids = children;
+        summary.recorded_run_count = runs;
+        summary.unreadable_references = unreadable;
+        summary
+    }))
 }
 
 /// A state's summary within `memory`, on `transaction` (a read transaction or
@@ -1531,7 +1556,28 @@ pub(crate) fn find_summary_with(
     };
     refuse_oversized_states(connection, project_id, Some(state_id))?;
     let load = memory.reserve(&format!("saved state `{state_id}`", state_id = stored_read::shown(&state_id)), summary_load_bytes(&lengths))?;
-    let row = connection
+    let row = state_row(connection, project_id, state_id)?;
+    let Some(row) = row else { return Ok(None) };
+    Ok(Some(summary_from_row(connection, row, memory)?.holding(load)))
+}
+
+/// A state row verified as a list would verify it, without its relationships
+/// (a related row's check, [`verified_relationships`]), within its own reservation.
+fn find_core_with(connection: &Connection, project_id: &str, state_id: &str, memory: &dyn ReadMemory) -> Result<Option<Metered<ModelStateSummary>>, String> {
+    let Some(lengths) = state_summary_lengths(connection, project_id, state_id)? else {
+        return Ok(None);
+    };
+    refuse_oversized_states(connection, project_id, Some(state_id))?;
+    let load = memory.reserve(&format!("saved state `{state_id}`", state_id = stored_read::shown(&state_id)), summary_load_bytes(&lengths))?;
+    let row = state_row(connection, project_id, state_id)?;
+    let Some(row) = row else { return Ok(None) };
+    Ok(Some(state_core_from_row(connection, row, memory)?.holding(load)))
+}
+
+/// The state row `state_id`, a stored value of the wrong type or not UTF-8
+/// being the row's own integrity failure (W-12).
+fn state_row(connection: &Connection, project_id: &str, state_id: &str) -> Result<Option<SummaryRow>, String> {
+    connection
         .query_row(
             &format!(
                 "SELECT {SUMMARY_COLUMNS} FROM model_states s LEFT JOIN model_state_labels l
@@ -1541,9 +1587,14 @@ pub(crate) fn find_summary_with(
             summary_row,
         )
         .optional()
-        .map_err(sql)?;
-    let Some(row) = row else { return Ok(None) };
-    Ok(Some(summary_from_row(connection, row, memory)?.holding(load)))
+        .map_err(|error| {
+            if stored_read::is_row_value_error(&error) {
+                let detail = sql(error);
+                integrity_of(state_id, format_args!("a stored column cannot be read ({detail})"))
+            } else {
+                sql(error)
+            }
+        })
 }
 
 /// One entry of a project's saved-state list: a verified state's summary, or a
@@ -1592,27 +1643,78 @@ pub(crate) fn list_states_in_store_with(
     list_states_with(&transaction, project_id, memory)
 }
 
+/// The kind of a saved-state row's delete handle.
+pub(crate) const STATE_ROW_HANDLE: &str = "state-row";
+
+/// How many stored rows name the state row `rowid` (as their parent or their
+/// state), counted from their columns: nothing of them is loaded.
+fn rows_naming(connection: &Connection, rowid: i64) -> Result<(i64, i64), String> {
+    connection
+        .query_row(
+            "SELECT (SELECT COUNT(*) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id),
+                    (SELECT COUNT(*) FROM analysis_runs r WHERE r.project_id = s.project_id AND r.state_id = s.state_id)
+             FROM model_states s WHERE s.rowid = ?1",
+            params![rowid],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .map_err(sql)
+}
+
+/// The unreadable entry of the state row `rowid`: its id's head,
+/// `refusal(id)`, its delete handle ([`stored_read::row_handle`]) and how many
+/// rows name it; only the id's head and ends are loaded.
+fn unreadable_state_entry(
+    connection: &Connection,
+    rowid: i64,
+    refusal: impl FnOnce(&str) -> String,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<stored_read::UnreadableRow>, String> {
+    let (head, head_length, length, first, last): (Vec<u8>, i64, i64, Vec<u8>, Vec<u8>) = connection
+        .query_row(
+            &format!("SELECT {}, {} FROM model_states WHERE rowid = ?1", stored_read::shown_column("state_id"), stored_read::handle_columns("state_id")),
+            params![rowid],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
+        )
+        .map_err(sql)?;
+    let (children, runs) = rows_naming(connection, rowid)?;
+    let id = stored_read::shown_head(&head, head_length);
+    let refusal = refusal(&id);
+    stored_read::UnreadableRow::reserved(
+        memory,
+        "an unreadable saved state's list entry",
+        &id,
+        refusal,
+        stored_read::row_handle(STATE_ROW_HANDLE, rowid, length, &first, &last),
+        u64::try_from(children + runs).unwrap_or(0),
+    )
+}
+
 /// The state rows of `project_id` whose identity or time column holds more
-/// than its bound, as unreadable entries: only each id's head and the column
-/// named are loaded (repair r5's refusal, now per row).
+/// than its bound, as unreadable entries: only each id's head and ends and the
+/// column named are loaded (repair r5's refusal, now per row).
 fn oversized_state_entries(connection: &Connection, project_id: &str, memory: &dyn ReadMemory) -> Result<Vec<Metered<stored_read::UnreadableRow>>, String> {
     let oversized = stored_read::oversized_column(&STATE_IDENTITY);
-    let mut statement = connection
-        .prepare(&format!(
-            "SELECT {}, {oversized} FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id
-             WHERE s.project_id = ?1 AND {oversized} IS NOT NULL ORDER BY s.rowid",
-            stored_read::shown_column("s.state_id")
-        ))
-        .map_err(sql)?;
-    let mut rows = statement.query(params![project_id]).map_err(sql)?;
-    let mut entries = Vec::new();
-    while let Some(row) = rows.next().map_err(sql)? {
-        let (head, length, column): (Vec<u8>, i64, String) = (row.get(0).map_err(sql)?, row.get(1).map_err(sql)?, row.get(2).map_err(sql)?);
-        let id = stored_read::shown_head(&head, length);
-        let refusal = integrity_of(&id, format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&STATE_IDENTITY, &column)));
-        entries.push(stored_read::UnreadableRow::reserved(memory, "an unreadable saved state's list entry", &id, refusal)?);
-    }
-    Ok(entries)
+    let found: Vec<(i64, String)> = {
+        let mut statement = connection
+            .prepare(&format!(
+                "SELECT s.rowid, {oversized} FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id
+                 WHERE s.project_id = ?1 AND {oversized} IS NOT NULL ORDER BY s.rowid"
+            ))
+            .map_err(sql)?;
+        let rows = statement.query_map(params![project_id], |row| Ok((row.get(0)?, row.get(1)?))).map_err(sql)?;
+        rows.collect::<Result<_, _>>().map_err(sql)?
+    };
+    found
+        .into_iter()
+        .map(|(rowid, column)| {
+            unreadable_state_entry(
+                connection,
+                rowid,
+                |id| integrity_of(id, format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&STATE_IDENTITY, &column))),
+                memory,
+            )
+        })
+        .collect()
 }
 
 /// [`list_state_entries`] within `memory`: before anything is loaded, the
@@ -1651,28 +1753,39 @@ pub(crate) fn list_states_with(
         &format!("the saved states of project `{}`", stored_read::shown(project_id)),
         stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, summary_load_bytes(&lengths)]),
     )?;
-    let mut statement = connection
-        .prepare(&format!(
-            "SELECT {SUMMARY_COLUMNS} FROM model_states s LEFT JOIN model_state_labels l
-             ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1 AND {oversized} IS NULL
-             ORDER BY s.created_at DESC, s.state_id"
-        ))
-        .map_err(sql)?;
-    let rows = statement
-        .query_map(params![project_id], summary_row)
-        .map_err(sql)?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(sql)?;
+    // Each row decoded on its own: a stored value of the wrong type or not
+    // UTF-8 makes that row unreadable, not the list (W-12).
+    let rows: Vec<(i64, rusqlite::Result<SummaryRow>)> = {
+        let mut statement = connection
+            .prepare(&format!(
+                "SELECT {SUMMARY_COLUMNS}, s.rowid FROM model_states s LEFT JOIN model_state_labels l
+                 ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1 AND {oversized} IS NULL
+                 ORDER BY s.created_at DESC, s.state_id"
+            ))
+            .map_err(sql)?;
+        let mut cursor = statement.query(params![project_id]).map_err(sql)?;
+        let mut rows = Vec::new();
+        while let Some(row) = cursor.next().map_err(sql)? {
+            let rowid: i64 = row.get(12).map_err(sql)?;
+            rows.push((rowid, summary_row(row)));
+        }
+        rows
+    };
     let mut listed = Metered::new(Vec::with_capacity(rows.len() + oversized_entries.len())).holding(load);
-    for row in rows {
-        let state_id = row.1.clone();
-        let entry = match summary_from_row(connection, row, memory) {
-            Ok(summary) => summary.map(ListedState::Readable),
-            Err(error) if error.starts_with("MODEL-STATE-INTEGRITY") => {
-                stored_read::UnreadableRow::reserved(memory, "an unreadable saved state's list entry", &state_id, error)?
+    for (rowid, row) in rows {
+        let entry = match row {
+            Err(error) if stored_read::is_row_value_error(&error) => {
+                let detail = sql(error);
+                unreadable_state_entry(connection, rowid, |id| integrity_of(id, format_args!("a stored column cannot be read ({detail})")), memory)?
                     .map(|unreadable| ListedState::Unreadable { unreadable })
             }
-            Err(error) => return Err(error),
+            Err(error) => return Err(sql(error)),
+            Ok(row) => match summary_from_row(connection, row, memory) {
+                Ok(summary) => summary.map(ListedState::Readable),
+                Err(error) if error.starts_with("MODEL-STATE-INTEGRITY") => unreadable_state_entry(connection, rowid, |_| error, memory)?
+                    .map(|unreadable| ListedState::Unreadable { unreadable }),
+                Err(error) => return Err(error),
+            },
         };
         listed = listed.join(entry, |mut list, entry| {
             list.push(entry);
@@ -2406,95 +2519,35 @@ pub(crate) fn delete_state_in_store_finishing<R>(
     let not_found = || {
         format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id))
     };
-    let metered = match find_summary_with(&transaction, project_id, state_id, memory) {
-        Ok(found) => found.ok_or_else(not_found)?,
-        // An unreadable state may be deleted when nothing depends on it (W-12;
-        // DEL-14-01 Design §2): deleting removes data and trusts none of it. Its
-        // blockers are the rows that name it (child states, recorded runs), counted
-        // from their columns; the row is matched by its exact id and nothing of it
-        // is loaded.
-        Err(error) if error.starts_with("MODEL-STATE-INTEGRITY") => {
-            let count = |sql_text: &str| -> Result<i64, String> {
-                transaction.query_row(sql_text, params![project_id, state_id], |row| row.get(0)).map_err(sql)
-            };
-            if count("SELECT COUNT(*) FROM model_states WHERE project_id = ?1 AND state_id = ?2")? != 1 {
-                return Err(not_found());
-            }
-            let children = count("SELECT COUNT(*) FROM model_states WHERE project_id = ?1 AND parent_state_id = ?2")?;
-            let runs = count("SELECT COUNT(*) FROM analysis_runs WHERE project_id = ?1 AND state_id = ?2")?;
-            if children + runs > 0 {
-                let mut reasons = Vec::new();
-                if children > 0 {
-                    reasons.push(format!("the parent of {children} saved state{}", if children == 1 { "" } else { "s" }));
-                }
-                if runs > 0 {
-                    reasons.push(format!("the state of {runs} recorded run{}", if runs == 1 { "" } else { "s" }));
-                }
-                return Err(format!(
-                    "MODEL-STATE-DELETE-BLOCKED: unreadable state `{}` is {}; delete {} first. Nothing was deleted.",
-                    stored_read::shown(state_id),
-                    reasons.join(" and "),
-                    if children + runs == 1 { "it" } else { "them" }
-                ));
-            }
-            let deleted = transaction
-                .execute("DELETE FROM model_states WHERE project_id = ?1 AND state_id = ?2", params![project_id, state_id])
-                .map_err(sql)?;
-            let finished = finish(Metered::new(ModelStateDeleteReceipt {
-                project_id: project_id.to_string(),
-                state_id: state_id.to_string(),
-                deleted: deleted == 1,
-                message: format!("Deleted unreadable model state `{}`; its record was not read.", stored_read::shown(state_id)),
-            }))?;
-            transaction.commit().map_err(sql)?;
-            return Ok(finished);
-        }
-        Err(error) => return Err(error),
-    };
+    let metered = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(not_found)?;
     let state = metered.get();
-    let (children, runs) = (state.child_state_ids.len(), state.recorded_run_ids.len());
+    let (children, runs, unreadable) = (state.child_state_ids.len(), state.recorded_run_count as usize, state.unreadable_references as usize);
     // One cap across both lists (repair r5): at most MAX_NAMED_BLOCKERS named in all.
-    let mut named_left = MAX_NAMED_BLOCKERS;
+    // Only verified blockers are named (W-12); unreadable rows are counted.
     let mut reasons = Vec::new();
     if children > 0 {
-        let (blockers, named) = named_blockers(
+        let (blockers, _) = named_verified(
             &transaction,
-            &format!(
-                "SELECT {}, {} FROM model_states c LEFT JOIN model_state_labels l ON l.project_id = c.project_id AND l.state_id = c.state_id
-                 WHERE c.project_id = ?1 AND c.parent_state_id = ?2 ORDER BY c.created_at, c.state_id LIMIT ?3",
-                stored_read::shown_column("c.state_id"),
-                stored_read::shown_column("l.state_name")
-            ),
+            "SELECT substr(CAST(state_name AS BLOB), 1, ?3), octet_length(state_name) FROM model_state_labels WHERE project_id = ?1 AND state_id = ?2",
             project_id,
-            state_id,
-            children,
-            named_left,
+            &state.child_state_ids,
+            MAX_NAMED_BLOCKERS,
         )?;
-        named_left -= named;
         reasons.push(format!("the parent of saved state{} {blockers}", if children == 1 { "" } else { "s" }));
     }
     if runs > 0 {
-        let (blockers, _) = named_blockers(
-            &transaction,
-            &format!(
-                "SELECT {}, {} FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
-                 WHERE r.project_id = ?1 AND r.state_id = ?2 ORDER BY r.created_at, r.recording_id LIMIT ?3",
-                stored_read::shown_column("r.recording_id"),
-                stored_read::shown_column("l.run_name")
-            ),
-            project_id,
-            state_id,
-            runs,
-            named_left,
-        )?;
-        reasons.push(format!("the state of recorded run{} {blockers}", if runs == 1 { "" } else { "s" }));
+        // Counted from the runs' columns: the run list names each verified run.
+        reasons.push(format!("the state of {runs} recorded run{}", if runs == 1 { "" } else { "s" }));
+    }
+    if unreadable > 0 {
+        reasons.push(format!("the parent of {unreadable} unreadable saved state row{}", if unreadable == 1 { "" } else { "s" }));
     }
     if !reasons.is_empty() {
         return Err(format!(
             "MODEL-STATE-DELETE-BLOCKED: state {} is {}; delete {} first. Nothing was deleted.",
             state_description(state),
             reasons.join(" and "),
-            if children + runs == 1 { "it" } else { "them" }
+            if children + runs + unreadable == 1 { "it" } else { "them" }
         ));
     }
     let deleted = transaction
@@ -2511,6 +2564,106 @@ pub(crate) fn delete_state_in_store_finishing<R>(
     }))?;
     transaction.commit().map_err(sql)?;
     Ok(finished)
+}
+
+/// The verified blockers `ids` as a refusal names them: at most `limit`, each
+/// `"<name>" (<id>)` with only the head of its stored name read (`query`
+/// selecting it for `?1` the project, `?2` the id, `?3` the head's bytes), then
+/// `and N more` (or `N more`). Returns the text and how many it named.
+fn named_verified(connection: &Connection, query: &str, project_id: &str, ids: &[String], limit: usize) -> Result<(String, usize), String> {
+    let mut named = Vec::new();
+    for id in ids.iter().take(limit) {
+        let name: Option<(Vec<u8>, i64)> = connection
+            .query_row(query, params![project_id, id, stored_read::SHOWN_COLUMN_BYTES as i64], |row| Ok((row.get(0)?, row.get(1)?)))
+            .optional()
+            .map_err(sql)?;
+        named.push(match name {
+            Some((head, length)) => format!("\"{}\" ({})", stored_read::shown_head(&head, length), stored_read::shown(id)),
+            None => stored_read::shown(id).into_owned(),
+        });
+    }
+    let mut text = named.join(", ");
+    if named.is_empty() {
+        text = format!("{} more", ids.len());
+    } else if ids.len() > named.len() {
+        text.push_str(&format!(" and {} more", ids.len() - named.len()));
+    }
+    Ok((text, named.len()))
+}
+
+/// Deletes the state row a list's unreadable entry names by its `handle`
+/// ([`stored_read::row_handle`]; W-12, DEL-14-01 Design §2), on a
+/// `BEGIN IMMEDIATE` transaction: the row of the project with that rowid whose
+/// stored id still has the handle's length and digest, only when no stored row
+/// names it (as its parent or its state, counted from their columns; otherwise
+/// `MODEL-STATE-DELETE-BLOCKED` with the counts). Nothing of the row is loaded
+/// beyond its id's head and ends, and none of it is trusted. A handle that names
+/// no such row, a stale one included, is not found.
+pub(crate) fn delete_unreadable_state_in_store_finishing<R>(
+    path: &Path,
+    project_id: &str,
+    handle: &str,
+    finish: impl FnOnce(Metered<ModelStateDeleteReceipt>) -> Result<R, String>,
+) -> Result<R, String> {
+    let not_found = || {
+        format!(
+            "MODEL-STATE-NOT-FOUND: project `{}` has no unreadable saved state with handle `{}`.",
+            stored_read::shown(project_id),
+            stored_read::shown(handle)
+        )
+    };
+    let rowid = stored_read::handle_rowid(STATE_ROW_HANDLE, handle).ok_or_else(not_found)?;
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
+    let found: Option<(Vec<u8>, i64, i64, Vec<u8>, Vec<u8>)> = transaction
+        .query_row(
+            &format!(
+                "SELECT {}, {} FROM model_states WHERE rowid = ?1 AND project_id = ?2",
+                stored_read::shown_column("state_id"),
+                stored_read::handle_columns("state_id")
+            ),
+            params![rowid, project_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
+        )
+        .optional()
+        .map_err(sql)?;
+    let Some((head, head_length, length, first, last)) = found else { return Err(not_found()) };
+    if stored_read::row_handle(STATE_ROW_HANDLE, rowid, length, &first, &last) != handle {
+        return Err(not_found());
+    }
+    let id = stored_read::shown_head(&head, head_length);
+    let (children, runs) = rows_naming(&transaction, rowid)?;
+    if children + runs > 0 {
+        let mut reasons = Vec::new();
+        if children > 0 {
+            reasons.push(format!("the parent of {children} saved state{}", if children == 1 { "" } else { "s" }));
+        }
+        if runs > 0 {
+            reasons.push(format!("the state of {runs} recorded run{}", if runs == 1 { "" } else { "s" }));
+        }
+        return Err(format!(
+            "MODEL-STATE-DELETE-BLOCKED: unreadable state `{id}` is {}; delete {} first. Nothing was deleted.",
+            reasons.join(" and "),
+            if children + runs == 1 { "it" } else { "them" }
+        ));
+    }
+    let deleted = transaction
+        .execute("DELETE FROM model_states WHERE rowid = ?1 AND project_id = ?2", params![rowid, project_id])
+        .map_err(sql)?;
+    let finished = finish(Metered::new(ModelStateDeleteReceipt {
+        project_id: project_id.to_string(),
+        state_id: id.clone(),
+        deleted: deleted == 1,
+        message: format!("Deleted unreadable model state `{id}`; its record was not read."),
+    }))?;
+    transaction.commit().map_err(sql)?;
+    Ok(finished)
+}
+
+/// [`delete_unreadable_state_in_store_finishing`], keeping the receipt (tests).
+#[cfg(test)]
+pub(crate) fn delete_unreadable_state_in_store(path: &Path, project_id: &str, handle: &str) -> Result<ModelStateDeleteReceipt, String> {
+    delete_unreadable_state_in_store_finishing(path, project_id, handle, Ok)?.into_unreserved()
 }
 
 // ---------------------------------------------------------------------------
@@ -2591,10 +2744,16 @@ pub(crate) fn delete_model_state_args(
     memory: &dyn ReadMemory,
 ) -> Result<Serialized, CommandError> {
     let project_id: String = args.decode("projectId")?;
-    let state_id: String = args.decode("stateId")?;
+    // A readable state by its verified id, or a listed unreadable row by its handle.
+    let state_id: Option<String> = args.decode("stateId")?;
+    let handle: Option<String> = args.decode("unreadableHandle")?;
     let finish = |receipt| stored_read::serialize_metered(memory, "delete_model_state", receipt);
     store()
-        .and_then(|path| delete_state_in_store_finishing(&path, &project_id, &state_id, memory, finish))
+        .and_then(|path| match (state_id, handle) {
+            (Some(state_id), None) => delete_state_in_store_finishing(&path, &project_id, &state_id, memory, finish),
+            (None, Some(handle)) => delete_unreadable_state_in_store_finishing(&path, &project_id, &handle, finish),
+            _ => Err("MODEL-STATE-DELETE-ARGS: name the state by stateId or a listed unreadable row by unreadableHandle, not both.".to_string()),
+        })
         .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 

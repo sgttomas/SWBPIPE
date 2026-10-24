@@ -47,10 +47,14 @@ export type ModelStateSummary = StateLabels & {
   model_hash: string;
   record_hash: string;
   labels_updated_at: string;
-  /** Saved states whose parent this is; they block its deletion. */
+  /** Saved states whose parent this is, each verified (W-12); they block its deletion. */
   child_state_ids: string[];
-  /** Recorded runs tied to this state (W-12 S2, oldest first); they block its deletion too. */
-  recorded_run_ids?: string[];
+  /** How many recorded-run rows name this state, counted from their columns (W-12); they
+   * block its deletion. The runs themselves come from the run list, each verified. */
+  recorded_run_count?: number;
+  /** How many saved-state rows name this state as their parent but cannot be read (W-12);
+   * counted, never listed. They block its deletion too. */
+  unreadable_references?: number;
   /** The record's analysis status. `MODEL_INCOMPLETE`: blocking document
    * findings; the state is kept (a comparison basis) but cannot be opened. */
   analysis_status: string[];
@@ -145,6 +149,12 @@ export async function editModelStateLabels(
 export async function deleteModelState(projectId: string, stateId: string): Promise<ModelStateDeleteReceipt> {
   requireNativeStore();
   return invokeWithIngress<ModelStateDeleteReceipt>("delete_model_state", { projectId, stateId });
+}
+
+/** Deletes the state row an unreadable list entry names, by its handle (never its shown id). */
+export async function deleteUnreadableModelState(projectId: string, unreadableHandle: string): Promise<ModelStateDeleteReceipt> {
+  requireNativeStore();
+  return invokeWithIngress<ModelStateDeleteReceipt>("delete_model_state", { projectId, unreadableHandle });
 }
 
 export function modelStateDescription(state: Pick<ModelStateSummary, "state_name" | "state_id">): string {

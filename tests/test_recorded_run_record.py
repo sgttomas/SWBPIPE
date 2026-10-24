@@ -419,3 +419,21 @@ def test_a_run_recorded_before_rule_pack_resolution_is_refused_by_name() -> None
     from core.analysis_runs.compatibility import _rule_pack_diagnostics_refusal
     assert _rule_pack_diagnostics_refusal([], resolved) == ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH
     assert _rule_pack_diagnostics_refusal([], manifest).startswith(ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED)
+
+
+def test_a_corrupted_run_recorded_before_rule_pack_resolution_keeps_its_integrity_refusal() -> None:
+    # As `recordedRunParity.test.ts` and the Rust `the_named_refusal_comes_only_after_every_other_check_passes`:
+    # the named refusal only once every other check passes.
+    manifest = json.loads(S2_RUN["input_manifest_canonical"])
+    model = manifest["model_basis"]["model_payload"]
+    basis = ([{"object_type": "LoadCase", "ref": case["id"]} for case in model["load_cases"]]
+             + [{"object_type": "Combination", "ref": combination["id"]} for combination in model.get("combinations", [])])
+    state = {"state_id": S2_RUN["state_id"], "model_hash": S2_RUN["state_model_hash"], "input_manifest": manifest}
+    corrupted = deepcopy(S2_RUN["recorded_record"])
+    corrupted["analysis_run"]["run_name"] = "edited without a reseal"
+    with pytest.raises(ValueError, match="^ANALYSIS_RECORD_CHECKSUM_MISMATCH$"):
+        validate_analysis_run_v0_3(corrupted, SOURCE, expected_basis_refs=basis, recorded_state=state)
+    with pytest.raises(ValueError, match="^ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH$"):
+        validate_analysis_run_v0_3(S2_RUN["recorded_record"], SOURCE, expected_basis_refs=basis, recorded_state={**state, "model_hash": "sha256:" + "0" * 64})
+    with pytest.raises(ValueError, match=f"^{ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}"):
+        validate_analysis_run_v0_3(S2_RUN["recorded_record"], SOURCE, expected_basis_refs=basis, recorded_state=state)

@@ -817,7 +817,10 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     if rule_pack_entries is None:
         raise ValueError("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH")
     recorded_refusal = _rule_pack_diagnostics_refusal([identity for _, identity in rule_pack_entries], recorded_state["input_manifest"]) if recorded_state is not None else None
-    if recorded_refusal:
+    # The named refusal of a run recorded before rule-pack resolution comes only after every
+    # other check below passes (the record checksum last), so corruption keeps its own code.
+    deferred_refusal = recorded_refusal if recorded_refusal == _RULE_PACKS_NOT_RESOLVED_REFUSAL else None
+    if recorded_refusal and not deferred_refusal:
         raise ValueError(recorded_refusal)
     statuses = run.get("analysis_status")
     source_rule = source.get("status", {}).get("rule_check")
@@ -858,3 +861,5 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
             raise ValueError("ANALYSIS_ROW_INTERPRETATION_MISMATCH")
     if verify_analysis_run_record(envelope, hash_fn) != "match":
         raise ValueError("ANALYSIS_RECORD_CHECKSUM_MISMATCH")
+    if deferred_refusal:
+        raise ValueError(deferred_refusal)

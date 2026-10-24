@@ -152,6 +152,12 @@ export async function deleteAnalysisRun(projectId: string, recordingId: string):
   return invokeWithIngress<AnalysisRunDeleteReceipt>("delete_analysis_run", { projectId, recordingId });
 }
 
+/** Deletes the run row an unreadable list entry names, by its handle (never its shown id). */
+export async function deleteUnreadableAnalysisRun(projectId: string, unreadableHandle: string): Promise<AnalysisRunDeleteReceipt> {
+  requireNativeStore();
+  return invokeWithIngress<AnalysisRunDeleteReceipt>("delete_analysis_run", { projectId, unreadableHandle });
+}
+
 export function runDescription(run: Pick<AnalysisRunSummary, "run_name" | "recording_id">): string {
   return `"${run.run_name}" (${run.recording_id})`;
 }

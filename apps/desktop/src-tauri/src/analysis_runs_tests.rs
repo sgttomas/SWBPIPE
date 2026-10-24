@@ -248,7 +248,7 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     assert_eq!(evidence.store_schema_version, 13);
     assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
     let listed = model_states::list_states(&connection, PROJECT).unwrap();
-    assert_eq!(listed, vec![ModelStateSummary { recorded_run_ids: vec![], ..state.clone() }]);
+    assert_eq!(listed, vec![ModelStateSummary { recorded_run_count: 0, ..state.clone() }]);
     drop(connection);
     let outcome = record(&path, request(&model("Invented project"), "Run 1"), T0).unwrap();
     // A re-run (as an interrupted, non-transactional migration would) changes nothing.
@@ -257,7 +257,7 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
     migrate_v13_analysis_runs(&connection).unwrap();
     assert_eq!(list_runs(&connection, PROJECT).unwrap(), vec![outcome.run.clone()]);
-    assert_eq!(model_states::list_states(&connection, PROJECT).unwrap()[0].recorded_run_ids, vec![outcome.run.recording_id.clone()]);
+    assert_eq!(model_states::list_states(&connection, PROJECT).unwrap()[0].recorded_run_count, 1);
     let error = connection.execute("UPDATE analysis_runs SET created_at = created_at", []).unwrap_err().to_string();
     assert!(error.contains("ANALYSIS-RUN-IMMUTABLE"), "the trigger survives the re-run: {error}");
     drop(connection);
@@ -280,7 +280,7 @@ fn a_run_is_recorded_against_the_state_of_its_model_listed_and_read() {
     let outcome = record(&path, submitted, T0).unwrap();
     assert_eq!(outcome.state_outcome, "existing");
     assert_eq!(outcome.state.state_id, state.state_id);
-    assert_eq!(outcome.state.recorded_run_ids, vec![outcome.run.recording_id.clone()]);
+    assert_eq!(outcome.state.recorded_run_count, 1);
     let run = &outcome.run;
     assert_eq!(run.created_at, "2026-10-27T11:30:45.123Z");
     assert_eq!(run.labels_updated_at, run.created_at);
@@ -330,7 +330,7 @@ fn a_run_of_an_unsaved_model_needs_a_post_solve_snapshot_written_with_it() {
     assert_eq!(outcome.state.state_id, "state:0000000000000000000000000000beef");
     assert_eq!(outcome.state.labels.state_name, "After solve");
     assert_eq!(outcome.state.model_hash, model_hash(&solved));
-    assert_eq!(outcome.state.recorded_run_ids, vec![outcome.run.recording_id.clone()]);
+    assert_eq!(outcome.state.recorded_run_count, 1);
     assert!(outcome.message.contains("against the new post-solve snapshot \"After solve\""), "{}", outcome.message);
     let opened = model_states::read_state_in_store(&path, PROJECT, &outcome.state.state_id).unwrap();
     assert_eq!(opened.model, solved, "the snapshot is the solved model, from the manifest");
@@ -457,16 +457,17 @@ fn a_label_edit_changes_only_the_labels_and_leaves_the_record_hash() {
 }
 
 #[test]
-fn a_state_with_a_recorded_run_is_not_deleted_and_its_blockers_are_named() {
+fn a_state_with_a_recorded_run_is_not_deleted_and_its_blockers_are_counted() {
     let path = store_with_project("delete");
     let solved = model("Invented project");
     let state = save_state(&path, &solved, "Basis", "000000000000000000000000000000e1", 1_000);
     let first = record(&path, request(&solved, "Run 1"), T0).unwrap();
     let second = record(&path, request(&solved, "Run 2"), T0).unwrap();
     let error = model_states::delete_state_in_store(&path, PROJECT, &state.state_id).unwrap_err();
+    // Runs are counted from their columns (W-12): the run list names each verified run.
     assert_eq!(error, format!(
-        "MODEL-STATE-DELETE-BLOCKED: state \"Basis\" ({}) is the state of recorded runs \"Run 1\" ({}), \"Run 2\" ({}); delete them first. Nothing was deleted.",
-        state.state_id, first.run.recording_id, second.run.recording_id
+        "MODEL-STATE-DELETE-BLOCKED: state \"Basis\" ({}) is the state of 2 recorded runs; delete them first. Nothing was deleted.",
+        state.state_id
     ));
     // The foreign key refuses it on its own.
     let connection = Connection::open(&path).unwrap();
@@ -1272,7 +1273,8 @@ fn large_stored_labels_are_priced_before_they_are_loaded() {
     let memory = PoolReadMemory::unseeded(&small);
     let (outcome, measured) = crate::ingress::counting::measure(|| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, &memory).map(|_| ()));
     let error = outcome.unwrap_err();
-    assert!(error.starts_with("MODEL-STATE-DELETE-BLOCKED: ") && error.len() < 1024 && error.contains("…"), "{error}");
+    // The state's runs are counted from their columns, not named (W-12): no name is loaded.
+    assert!(error.starts_with("MODEL-STATE-DELETE-BLOCKED: ") && error.len() < 1024 && error.contains("the state of 1 recorded run"), "{error}");
     assert!(measured.peak_priced <= memory.peak_reserved(), "peak {} within {}", measured.peak_priced, memory.peak_reserved());
     assert!(assert_within_reservation("read_analysis_run", |memory| read_run_in_store_with(&path, PROJECT, &id, memory)) as usize > LARGE);
     assert!(assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory)) as usize > LARGE);
@@ -1930,7 +1932,21 @@ fn refusals_quote_stored_names_cut_to_a_small_bound() {
     let (path, _) = recorded_fixture("r4-refusals");
     let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM model_states", [], |row| row.get(0)).unwrap();
     let id = id_of(&path);
-    set_column(&path, "analysis_run_labels", "run_name", &"n".repeat(LARGE));
+    // A blocked delete naming a child state with a 3 MiB name (runs are counted, W-12).
+    let child_model_canonical = canonical_json(&model("Child project"));
+    let child = SaveModelStateRequest {
+        project_id: PROJECT.to_string(),
+        expected_base: BASE.to_string(),
+        model_hash: format!("sha256:{}", sha256_hex(&child_model_canonical)),
+        model_canonical: child_model_canonical,
+        state_kind: "design_snapshot".to_string(),
+        parent_state_id: Some(state_id.clone()),
+        labels: labels_from_value(json!({ "state_name": "Child" })).unwrap(),
+    };
+    let allocate = || Ok(("00000000000000000000000000002399".to_string(), 3_000));
+    let between_rows = |_: &Transaction<'_>| Ok(());
+    let child = save_state_in_store(&path, child, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap().state;
+    Connection::open(&path).unwrap().execute("UPDATE model_state_labels SET state_name = ?1 WHERE state_id = ?2", params!["n".repeat(LARGE), child.state_id]).unwrap();
     assert_small_refusal("a blocked delete", "MODEL-STATE-DELETE-BLOCKED: ", |memory| {
         model_states::delete_state_in_store_with(&path, PROJECT, &state_id, memory).map(|_| ())
     });
@@ -1952,7 +1968,8 @@ fn refusals_quote_stored_names_cut_to_a_small_bound() {
         record(&path, request(&solved, &format!("Run {index}")), T0 + index).unwrap();
     }
     let error = model_states::delete_state_in_store(&path, PROJECT, &state.state_id).unwrap_err();
-    assert!(error.contains(" and 2 more") && error.matches("runrec:").count() == 10, "{error}");
+    // Runs are counted from their columns, never named from them (W-12).
+    assert!(error.contains("the state of 12 recorded runs") && error.matches("runrec:").count() == 0, "{error}");
     // The cut itself.
     assert_eq!(stored_read::shown(&"é".repeat(120)), "é".repeat(120));
     assert_eq!(stored_read::shown(&"é".repeat(121)), format!("{}…", "é".repeat(120)));
@@ -2329,9 +2346,9 @@ fn one_cap_names_at_most_ten_blockers_across_children_and_runs() {
         record(&path, request_against(&solved, &format!("Run {index}")), T0 + index as i64).unwrap();
     }
     let error = model_states::delete_state_in_store(&path, PROJECT, &parent.state_id).unwrap_err();
-    // The state itself, then ten blockers in all: six children and four runs.
-    assert_eq!(error.matches("\" (").count(), 11, "{error}");
-    assert!(error.contains("recorded runs ") && error.contains(" and 2 more"), "{error}");
+    // The state itself and its six verified children named; the runs counted (W-12).
+    assert_eq!(error.matches("\" (").count(), 7, "{error}");
+    assert!(error.contains("and the state of 6 recorded runs"), "{error}");
 }
 
 fn request_against(model: &Value, name: &str) -> RecordRunRequest {
@@ -3014,8 +3031,44 @@ fn a_run_recorded_before_rule_pack_resolution_is_refused_by_name_and_the_list_ke
     assert!(readable.contains(&s2_id.as_str()) && readable.contains(&other.run.recording_id.as_str()));
 }
 
+/// The unreadable entries of a run list (the row's id, refusal and handle only).
+fn unreadable_runs(path: &Path, project_id: &str) -> Vec<stored_read::UnreadableRow> {
+    list_run_entries(&Connection::open(path).unwrap(), project_id)
+        .unwrap()
+        .into_iter()
+        .filter_map(|entry| match entry {
+            ListedRun::Unreadable { unreadable } => Some(unreadable),
+            ListedRun::Readable(_) => None,
+        })
+        .collect()
+}
+
+fn unreadable_states(path: &Path) -> Vec<stored_read::UnreadableRow> {
+    model_states::list_state_entries(&Connection::open(path).unwrap(), PROJECT)
+        .unwrap()
+        .into_iter()
+        .filter_map(|entry| match entry {
+            model_states::ListedState::Unreadable { unreadable } => Some(unreadable),
+            model_states::ListedState::Readable(_) => None,
+        })
+        .collect()
+}
+
+fn readable_states(path: &Path) -> Vec<ModelStateSummary> {
+    model_states::list_states(&Connection::open(path).unwrap(), PROJECT).unwrap_or_else(|_| {
+        model_states::list_state_entries(&Connection::open(path).unwrap(), PROJECT)
+            .unwrap()
+            .into_iter()
+            .filter_map(|entry| match entry {
+                model_states::ListedState::Readable(summary) => Some(summary),
+                model_states::ListedState::Unreadable { .. } => None,
+            })
+            .collect()
+    })
+}
+
 #[test]
-fn a_tampered_run_is_listed_as_unreadable_by_id_and_refusal_only_and_may_be_deleted() {
+fn a_tampered_run_is_listed_as_unreadable_by_id_refusal_and_handle_only_and_may_be_deleted_by_its_handle() {
     let (path, _) = recorded_fixture("listed-unreadable-run");
     let tampered = id_of(&path);
     let solved = model("Invented project");
@@ -3026,29 +3079,71 @@ fn a_tampered_run_is_listed_as_unreadable_by_id_and_refusal_only_and_may_be_dele
     let text = serde_json::to_value(&entries).unwrap();
     let unreadable: Vec<&Value> = text.as_array().unwrap().iter().filter(|entry| entry.get("unreadable").is_some()).collect();
     assert_eq!(unreadable.len(), 1);
-    // Only the id and the named refusal: no unverified field.
+    // Only the id, the named refusal, the delete handle and the reference count: no unverified field.
     assert_eq!(unreadable[0].as_object().unwrap().len(), 1);
-    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["id", "refusal"]);
+    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["handle", "id", "references", "refusal"]);
     assert_eq!(unreadable[0]["unreadable"]["id"], json!(tampered));
     let refusal = unreadable[0]["unreadable"]["refusal"].as_str().unwrap();
     assert!(refusal.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{tampered}`: the row's result hash differs")), "{refusal}");
     assert!(refusal.chars().count() <= stored_read::MAX_MESSAGE_CHARS + 1);
     assert!(text.as_array().unwrap().iter().any(|entry| entry["recording_id"] == json!(kept)));
-    // Reads stay refused; the kept run reads.
     assert!(read_run_in_store(&path, PROJECT, &tampered).unwrap_err().starts_with("ANALYSIS-RUN-INTEGRITY"));
     read_run_in_store(&path, PROJECT, &kept).unwrap();
-    // Delete removes the unreadable row (trusting none of it) and its labels.
-    let receipt = delete_run_in_store(&path, PROJECT, &tampered).unwrap();
+    // By its id it is not deleted (only a verified run is); by its handle it is, with its labels.
+    assert!(delete_run_in_store(&path, PROJECT, &tampered).unwrap_err().starts_with("ANALYSIS-RUN-INTEGRITY"));
+    let handle = unreadable[0]["unreadable"]["handle"].as_str().unwrap();
+    let receipt = delete_unreadable_run_in_store(&path, PROJECT, handle).unwrap();
     assert!(receipt.deleted && receipt.message == format!("Deleted unreadable recorded run `{tampered}`; its record was not read."), "{}", receipt.message);
     assert_eq!(row_count(&path, "analysis_runs"), 1);
     assert_eq!(row_count(&path, "analysis_run_labels"), 1);
     assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
-    // An id the store does not hold is still not found.
-    assert!(delete_run_in_store(&path, PROJECT, "runrec:absent").unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    // The handle is stale now; another project's handle is not this one's.
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, handle).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, "run-row:1:1:0000000000000000").unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
 }
 
 #[test]
-fn a_tampered_state_is_listed_as_unreadable_and_is_deleted_only_when_nothing_depends_on_it() {
+fn rows_whose_shown_ids_collide_are_each_deleted_by_their_own_handle_and_a_stale_or_wrong_handle_is_refused() {
+    // Codex: `x`×120 + "tail" and `x`×120 + "…" list identically; each handle deletes exactly its row.
+    let (path, _) = recorded_fixture("colliding-ids");
+    let solved = model("Invented project");
+    record(&path, request(&solved, "Second"), T0 + 5).unwrap();
+    let long = format!("{}tail", "x".repeat(120));
+    let short = format!("{}…", "x".repeat(120));
+    let connection = Connection::open(&path).unwrap();
+    let ids: Vec<String> = connection.prepare("SELECT recording_id FROM analysis_runs ORDER BY rowid").unwrap().query_map([], |row| row.get(0)).unwrap().collect::<Result<_, _>>().unwrap();
+    drop(connection);
+    tamper(&path, "");
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    for (from, to) in [(&ids[0], &long), (&ids[1], &short)] {
+        connection.execute("UPDATE analysis_runs SET recording_id = ?1 WHERE recording_id = ?2", params![to, from]).unwrap();
+        connection.execute("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = ?2", params![to, from]).unwrap();
+    }
+    drop(connection);
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].id, entries[1].id, "they list identically");
+    assert_ne!(entries[0].handle, entries[1].handle);
+    let remaining = |path: &Path| -> Vec<String> {
+        Connection::open(path).unwrap().prepare("SELECT recording_id FROM analysis_runs").unwrap().query_map([], |row| row.get(0)).unwrap().collect::<Result<_, _>>().unwrap()
+    };
+    let long_entry = entries.iter().find(|entry| entry.refusal.contains("tail") || entry.handle.contains(&format!(":{}:", long.len()))).unwrap().clone();
+    let short_entry = entries.iter().find(|entry| entry.handle != long_entry.handle).unwrap().clone();
+    delete_unreadable_run_in_store(&path, PROJECT, &long_entry.handle).unwrap();
+    assert_eq!(remaining(&path), vec![short.clone()], "the long row went, the short one stayed");
+    // A wrong digest on the short row's rowid, and the long row's stale handle, are refused.
+    let mut wrong = short_entry.handle.clone();
+    wrong.replace_range(wrong.len() - 16.., "ffffffffffffffff");
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, &wrong).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, &long_entry.handle).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert!(delete_unreadable_run_in_store(&path, "project:other", &short_entry.handle).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    delete_unreadable_run_in_store(&path, PROJECT, &short_entry.handle).unwrap();
+    assert!(remaining(&path).is_empty());
+}
+
+#[test]
+fn a_tampered_state_is_listed_as_unreadable_and_is_deleted_by_its_handle_only_when_nothing_names_it() {
     let path = store_with_project("listed-unreadable-state");
     let solved = model("Invented project");
     let basis = save_state(&path, &solved, "Basis", "00000000000000000000000000002701", 1_000);
@@ -3059,16 +3154,155 @@ fn a_tampered_state_is_listed_as_unreadable_and_is_deleted_only_when_nothing_dep
     let text = serde_json::to_value(&entries).unwrap();
     let unreadable: Vec<&Value> = text.as_array().unwrap().iter().filter(|entry| entry.get("unreadable").is_some()).collect();
     assert_eq!(unreadable.len(), 1);
-    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["id", "refusal"]);
+    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["handle", "id", "references", "refusal"]);
     assert_eq!(unreadable[0]["unreadable"]["id"], json!(basis.state_id));
+    assert_eq!(unreadable[0]["unreadable"]["references"], json!(1), "its run names it");
     assert!(unreadable[0]["unreadable"]["refusal"].as_str().unwrap().starts_with("MODEL-STATE-INTEGRITY"));
     assert!(text.as_array().unwrap().iter().any(|entry| entry["state_id"] == json!(kept.state_id)));
     assert!(model_states::read_state_in_store(&path, PROJECT, &basis.state_id).unwrap_err().starts_with("MODEL-STATE-INTEGRITY"));
-    // Blocked while its run is recorded against it.
-    let blocked = model_states::delete_state_in_store(&path, PROJECT, &basis.state_id).unwrap_err();
+    let handle = unreadable[0]["unreadable"]["handle"].as_str().unwrap().to_string();
+    // Blocked while its run is recorded against it; the readable run itself is deleted
+    // (its state's readability does not matter), and then the state is.
+    let blocked = model_states::delete_unreadable_state_in_store(&path, PROJECT, &handle).unwrap_err();
     assert_eq!(blocked, format!("MODEL-STATE-DELETE-BLOCKED: unreadable state `{}` is the state of 1 recorded run; delete it first. Nothing was deleted.", basis.state_id));
+    // The run under the unreadable state is listed as readable, and deleted by its id.
+    assert!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().iter().any(|listed| listed.recording_id == run));
     delete_run_in_store(&path, PROJECT, &run).unwrap();
-    let receipt = model_states::delete_state_in_store(&path, PROJECT, &basis.state_id).unwrap();
+    assert_eq!(unreadable_states(&path)[0].references, 0);
+    let receipt = model_states::delete_unreadable_state_in_store(&path, PROJECT, &handle).unwrap();
     assert!(receipt.deleted && receipt.message.starts_with("Deleted unreadable model state"), "{}", receipt.message);
     assert_eq!(model_states::list_states(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+}
+
+#[test]
+fn a_readable_state_presents_only_verified_children_and_counts_the_unreadable_rows_that_name_it() {
+    // Codex: a child whose parent_state_id is forged is unreadable, and is not the
+    // readable parent's child; it is counted, never named.
+    let path = store_with_project("forged-parent");
+    let parent = save_state(&path, &model("Invented project"), "Parent", "00000000000000000000000000002801", 1_000);
+    let child = save_state(&path, &model("Child project"), "Child", "00000000000000000000000000002802", 2_000);
+    tamper(&path, &format!("UPDATE model_states SET parent_state_id = '{}' WHERE state_id = '{}';", parent.state_id, child.state_id));
+    let listed = readable_states(&path);
+    let summary = listed.iter().find(|state| state.state_id == parent.state_id).unwrap();
+    assert!(summary.child_state_ids.is_empty(), "{:?}", summary.child_state_ids);
+    assert_eq!(summary.unreadable_references, 1);
+    assert_eq!(unreadable_states(&path).iter().map(|entry| entry.id.clone()).collect::<Vec<_>>(), vec![child.state_id.clone()]);
+    // The parent's delete names no unverified id and counts the unreadable row.
+    let blocked = model_states::delete_state_in_store(&path, PROJECT, &parent.state_id).unwrap_err();
+    assert_eq!(blocked, format!("MODEL-STATE-DELETE-BLOCKED: state \"Parent\" ({}) is the parent of 1 unreadable saved state row; delete it first. Nothing was deleted.", parent.state_id));
+    assert!(!blocked.contains(&child.state_id));
+}
+
+#[test]
+fn a_child_with_a_3_mib_id_does_not_make_its_parents_list_need_more_than_the_pool() {
+    // Codex: a 3 MiB child id under a readable parent made the list need 9.98 MB.
+    let path = store_with_project("huge-child-id");
+    let parent = save_state(&path, &model("Invented project"), "Parent", "00000000000000000000000000002901", 1_000);
+    let child = save_state(&path, &model("Child project"), "Child", "00000000000000000000000000002902", 2_000);
+    let large = "c".repeat(3 * 1024 * 1024);
+    tamper_with(&path, &format!("UPDATE model_states SET state_id = ?1, parent_state_id = '{}' WHERE state_id = '{}'", parent.state_id, child.state_id), &large);
+    let small = small_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| {
+        model_states::list_states_in_store_with(&path, PROJECT, &memory).map(|listed| {
+            let entries = listed.get();
+            let parent_summary = entries.iter().find_map(|entry| match entry {
+                model_states::ListedState::Readable(summary) if summary.state_id == parent.state_id => Some((summary.child_state_ids.clone(), summary.unreadable_references)),
+                _ => None,
+            });
+            (parent_summary, unreadable_refusals_of_states(entries).len())
+        })
+    });
+    let (parent_summary, unreadable) = outcome.unwrap();
+    assert_eq!(parent_summary, Some((Vec::new(), 1)));
+    assert_eq!(unreadable, 1);
+    assert!(measured.peak_priced < (large.len() as u64) / 4, "the child id is never loaded (peak {})", measured.peak_priced);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+}
+
+#[test]
+fn a_row_with_a_value_of_the_wrong_type_or_not_utf_8_is_listed_as_unreadable_with_a_handle() {
+    // Codex: a run name set to X'FF' (a Blob) hid both runs behind STORE-SQL-ERROR.
+    let (path, _) = recorded_fixture("blob-label");
+    let first = id_of(&path);
+    let solved = model("Invented project");
+    let second = record(&path, request(&solved, "Second"), T0 + 5).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_run_labels SET run_name = X'FF' WHERE recording_id = '{first}';"));
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 1);
+    assert!(entries[0].refusal.starts_with("ANALYSIS-RUN-INTEGRITY") && entries[0].refusal.contains("a stored column cannot be read"), "{}", entries[0].refusal);
+    assert!(entries[0].handle.starts_with("run-row:"));
+    assert!(list_run_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap().iter().any(|entry| matches!(entry, ListedRun::Readable(run) if run.recording_id == second)));
+    assert!(read_run_in_store(&path, PROJECT, &first).unwrap_err().starts_with("ANALYSIS-RUN-INTEGRITY"));
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    assert!(unreadable_runs(&path, PROJECT).is_empty());
+    // An id that is not UTF-8.
+    let third = record(&path, request(&solved, "Third"), T0 + 9).unwrap().run.recording_id;
+    tamper(&path, "");
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    connection.execute("UPDATE analysis_runs SET recording_id = CAST(X'FFFE41' AS TEXT) WHERE recording_id = ?1", params![third]).unwrap();
+    drop(connection);
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 1, "{entries:?}");
+    assert!(entries[0].refusal.starts_with("ANALYSIS-RUN-INTEGRITY"), "{}", entries[0].refusal);
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+    // A saved state's label of the wrong type.
+    let path = store_with_project("blob-state-label");
+    let a = save_state(&path, &model("Invented project"), "A", "00000000000000000000000000003001", 1_000);
+    let b = save_state(&path, &model("Other project"), "B", "00000000000000000000000000003002", 2_000);
+    tamper(&path, &format!("UPDATE model_state_labels SET state_name = X'FF' WHERE state_id = '{}';", a.state_id));
+    let unreadable = unreadable_states(&path);
+    assert_eq!(unreadable.len(), 1);
+    assert!(unreadable[0].handle.starts_with("state-row:"));
+    assert!(readable_states(&path).iter().any(|state| state.state_id == b.state_id));
+    model_states::delete_unreadable_state_in_store(&path, PROJECT, &unreadable[0].handle).unwrap();
+}
+
+#[test]
+fn the_named_refusal_comes_only_after_every_other_check_passes() {
+    // A corrupted S2-shaped run keeps its integrity refusal; the intact one is refused by name.
+    let fixture: Value = serde_json::from_str(S2_UNRESOLVED_RUN).unwrap();
+    let manifest_text = fixture["input_manifest_canonical"].as_str().unwrap().to_string();
+    let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
+    let payload = manifest["model_basis"]["model_payload"].clone();
+    let project_id = payload["project"]["id"].as_str().unwrap().to_string();
+    let path = scratch_store("s2-precedence");
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, &project_id, &payload, BASE);
+    drop(connection);
+    let s2_id = insert_s2_run(&path, &fixture);
+    assert!(read_run_in_store(&path, &project_id, &s2_id).unwrap_err().starts_with("ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED"));
+    // At Record Run: a corrupt S2-shaped submission gets its own refusal first.
+    let now = || Ok(T0);
+    let token = || Ok("000000000000000000000000000052c1".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    let mut corrupt = fixture["run_record"].clone();
+    corrupt["analysis_run"]["run_name"] = json!("edited without a reseal");
+    let submitted = |run_record: Value, state_id: Option<String>| RecordRunRequest {
+        project_id: project_id.clone(),
+        expected_base: BASE.to_string(),
+        run_record,
+        result_json: SOURCE_RESULT.to_string(),
+        input_manifest_canonical: manifest_text.clone(),
+        state_id,
+        new_state: Some(NewStateRequest { labels: labels_from_value(json!({ "state_name": "After solve" })).unwrap(), parent_state_id: None }),
+        run_labels: run_labels("S2 run"),
+    };
+    let error = record_run_in_store(&path, submitted(corrupt, None), &hooks).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-NOT-TRANSIENT: the record's own checksum does not verify"), "{error}");
+    // Naming a state that is not the solved model's: that refusal, not the named one.
+    let other = model_states::list_state_entries(&Connection::open(&path).unwrap(), &project_id).unwrap();
+    assert_eq!(other.len(), 1);
+    let error = record_run_in_store(&path, submitted(fixture["run_record"].clone(), Some("state:absent".to_string())), &hooks).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-STATE-NOT-FOUND"), "{error}");
+    // Intact: refused by name.
+    let error = record_run_in_store(&path, submitted(fixture["run_record"].clone(), None), &hooks).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED"), "{error}");
+    // Its linked state corrupted: the state's integrity refusal, not the named one.
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", fixture["state_id"].as_str().unwrap()));
+    let read = read_run_in_store(&path, &project_id, &s2_id).unwrap_err();
+    assert!(read.starts_with("MODEL-STATE-INTEGRITY"), "{read}");
 }

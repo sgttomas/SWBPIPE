@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
   deleteModelState,
+  deleteUnreadableModelState,
   editModelStateLabels,
   listModelStates,
   MODEL_STATE_STORE_UNAVAILABLE,
@@ -22,6 +23,7 @@ import {
 } from "../../services/modelStateService";
 import {
   deleteAnalysisRun,
+  deleteUnreadableAnalysisRun,
   editAnalysisRunLabels,
   LABELS_DO_NOT_CHANGE_RUN,
   listAnalysisRuns,
@@ -518,17 +520,18 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
-  /** Deletes a row the store listed as unreadable (W-12): a recorded run always (the
-   * delete trusts none of it), a saved state only when nothing depends on it (the store
-   * refuses otherwise, naming its blockers). Nothing of the row is read. */
-  async function deleteUnreadable(kind: "state" | "run", id: string): Promise<boolean> {
+  /** Deletes a row the store listed as unreadable (W-12), by its handle: a recorded run
+   * always (the delete trusts none of it), a saved state only when no stored row names it
+   * (the store refuses otherwise, with the counts). Nothing of the row is read. */
+  async function deleteUnreadable(kind: "state" | "run", handle: string): Promise<boolean> {
     const projectId = statesProjectId;
     const listed = kind === "state" ? unreadable?.states : unreadable?.runs;
-    if (!projectId || !listed?.some((row) => row.id === id)) return false;
+    if (!projectId || !listed?.some((row) => row.handle === handle)) return false;
     const owner = begin();
     if (!owner) return false;
     try {
-      const receipt = kind === "state" ? await deleteModelState(projectId, id) : await deleteAnalysisRun(projectId, id);
+      // By its handle: a shown id is cut and may name another row.
+      const receipt = kind === "state" ? await deleteUnreadableModelState(projectId, handle) : await deleteUnreadableAnalysisRun(projectId, handle);
       setHistoryMessage(receipt.message);
       setHistoryOperation(kind === "state" ? "delete_state" : "delete_run");
       await refreshStates(projectId);

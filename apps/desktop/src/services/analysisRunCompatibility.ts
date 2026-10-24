@@ -417,7 +417,10 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   const rulePackEntries = rulePackRefDiagnosticEntries(run.diagnostics.slice(producerDiagnostics.length));
   if (!rulePackEntries) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
   const recordedRefusal = recordedState ? rulePackDiagnosticsRefusal(rulePackEntries.map((entry) => entry.identity), recordedState.inputManifest) : null;
-  if (recordedRefusal) throw new Error(recordedRefusal);
+  // The named refusal of a run recorded before rule-pack resolution comes only after every
+  // other check below passes (the record checksum last), so corruption keeps its own code.
+  const deferredRefusal = recordedRefusal === RULE_PACKS_NOT_RESOLVED_REFUSAL ? recordedRefusal : null;
+  if (recordedRefusal && !deferredRefusal) throw new Error(recordedRefusal);
   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(source.status.mechanics)) throw new Error("ANALYSIS_SOURCE_MECHANICS_STATUS_INVALID");
   const statuses = run.analysis_status;
   if (!Array.isArray(statuses) || statuses.length !== 3 || new Set(statuses).size !== 3 || !statuses.includes(source.status.mechanics) || !statuses.includes("HUMAN_REVIEW_REQUIRED") || statuses.filter(s => RULE_STATUSES.includes(s)).length !== 1) throw new Error("ANALYSIS_SOURCE_STATUS_MISMATCH");
@@ -440,6 +443,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
       || !same(actual.source_annotation, {kind:row.kind,unit:row.unit,metadata:row.metadata ?? null})) throw new Error("ANALYSIS_ROW_INTERPRETATION_MISMATCH");
   }
   if (await verifyAnalysisRunRecord(record) !== "match") throw new Error("ANALYSIS_RECORD_CHECKSUM_MISMATCH");
+  if (deferredRefusal) throw new Error(deferredRefusal);
 }
 
 /** A pressure-source-1 source is recorded, and a saved record revalidated, only after

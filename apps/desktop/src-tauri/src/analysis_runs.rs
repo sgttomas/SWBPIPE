@@ -625,6 +625,10 @@ pub(crate) struct CheckedSubmission {
     pub(crate) payload_hash: String,
     pub(crate) producer_run_id: String,
     pub(crate) result_hash_hex: String,
+    /// The record was made before rule-pack resolution ([`RULE_PACKS_NOT_RESOLVED`]):
+    /// refused once every other check of Record Run passes, so a corrupt
+    /// submission gets its own refusal first (W-12).
+    pub(crate) rule_packs_not_resolved: bool,
 }
 
 /// The binding of a submission, checked, not asserted:
@@ -754,7 +758,8 @@ pub(crate) fn checked_submission(
     }
     // The record's diagnostics: the result's, then the rule-pack reference
     // diagnostics of exactly the references the manifest leaves out.
-    match diagnostics_difference(transient, &result, &manifest).map_err(|error| refused(MANIFEST, error))? {
+    let difference = diagnostics_difference(transient, &result, &manifest).map_err(|error| refused(MANIFEST, error))?;
+    match difference {
         Some(DiagnosticsDifference::Producer) => return Err(refused(RESULT, "the record's diagnostics do not begin with the result's")),
         Some(DiagnosticsDifference::RulePacks) => {
             return Err(refused(
@@ -762,9 +767,9 @@ pub(crate) fn checked_submission(
                 "the record's rule-pack reference diagnostics are not exactly those of the references the input manifest leaves out of active_rule_packs",
             ))
         }
-        Some(DiagnosticsDifference::NotResolved) => return Err(refused(RULE_PACKS_NOT_RESOLVED, RULE_PACKS_NOT_RESOLVED_DETAIL)),
-        None => {}
+        Some(DiagnosticsDifference::NotResolved) | None => {}
     }
+    let rule_packs_not_resolved = difference == Some(DiagnosticsDifference::NotResolved);
     drop((result, result_reservation));
     Ok(payload_canonical.holding(manifest_reservation).map(|payload_canonical| CheckedSubmission {
         manifest,
@@ -772,6 +777,7 @@ pub(crate) fn checked_submission(
         payload_hash,
         producer_run_id: run_id.to_string(),
         result_hash_hex,
+        rule_packs_not_resolved,
     }))
 }
 
@@ -1124,7 +1130,7 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
 
 /// The identity and time columns a run summary loads, each with the bytes the
 /// store keeps in it (repair r5).
-const RUN_IDENTITY: [stored_read::BoundedColumn; 8] = [
+pub(crate) const RUN_IDENTITY: [stored_read::BoundedColumn; 8] = [
     // The app bounds neither a project id nor a producer's run id: measured
     // and priced, never refused by size (repair r6).
     ("r.project_id", "project_id", stored_read::MEASURED_ONLY),
@@ -1194,13 +1200,12 @@ fn run_summary_load_bytes(record: u64, labels: u64, identity: u64, rows: u64) ->
 /// loaded): the summary's lengths are read first and its loading reserved
 /// before any of it is loaded; the record's and the labels' parses are reserved
 /// before parsing. The returned run holds its reservations.
-fn find_run_with(
-    transaction: &Transaction<'_>,
+pub(crate) fn find_run_with(
+    connection: &Connection,
     project_id: &str,
     recording_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Option<Metered<(AnalysisRunSummary, Value)>>, String> {
-    let connection: &Connection = transaction;
     let lengths: Option<(Option<i64>, Option<i64>, Option<i64>)> = connection
         .query_row(
             &format!(
@@ -1230,7 +1235,15 @@ fn find_run_with(
             summary_row,
         )
         .optional()
-        .map_err(sql)?;
+        .map_err(|error| {
+            // A stored value of the wrong type or not UTF-8 is the row's own failure (W-12).
+            if stored_read::is_row_value_error(&error) {
+                let detail = sql(error);
+                integrity_of(recording_id, format_args!("a stored column cannot be read ({detail})"))
+            } else {
+                sql(error)
+            }
+        })?;
     let Some(row) = row else { return Ok(None) };
     let (summary, record) = summary_from_row(connection, row, memory)?;
     Ok(Some(summary.join(record, |summary, record| (summary, record)).holding(load)))
@@ -1280,27 +1293,60 @@ pub(crate) fn list_runs_in_store_with(
     list_runs_with(&transaction, project_id, memory)
 }
 
+/// The unreadable entry of the run row `rowid`: its id's head, `refusal(id)`,
+/// and its delete handle ([`stored_read::row_handle`]); only the id's head and
+/// ends are loaded.
+pub(crate) fn unreadable_run_entry(
+    connection: &Connection,
+    rowid: i64,
+    refusal: impl FnOnce(&str) -> String,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<stored_read::UnreadableRow>, String> {
+    let (head, head_length, length, first, last): (Vec<u8>, i64, i64, Vec<u8>, Vec<u8>) = connection
+        .query_row(
+            &format!(
+                "SELECT {}, {} FROM analysis_runs WHERE rowid = ?1",
+                stored_read::shown_column("recording_id"),
+                stored_read::handle_columns("recording_id")
+            ),
+            params![rowid],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
+        )
+        .map_err(sql)?;
+    let id = stored_read::shown_head(&head, head_length);
+    let refusal = refusal(&id);
+    stored_read::UnreadableRow::reserved(memory, "an unreadable recorded run's list entry", &id, refusal, stored_read::row_handle(RUN_ROW_HANDLE, rowid, length, &first, &last), 0)
+}
+
+/// The kind of a recorded-run row's delete handle.
+pub(crate) const RUN_ROW_HANDLE: &str = "run-row";
+
 /// The run rows of `project_id` whose identity or time column holds more than
-/// its bound, as unreadable entries: only each id's head and the column named
-/// are loaded (repair r5's refusal, now per row).
+/// its bound, as unreadable entries: only each id's head and ends and the
+/// column named are loaded (repair r5's refusal, now per row).
 fn oversized_run_entries(connection: &Connection, project_id: &str, memory: &dyn ReadMemory) -> Result<Vec<Metered<stored_read::UnreadableRow>>, String> {
     let oversized = stored_read::oversized_column(&RUN_IDENTITY);
-    let mut statement = connection
-        .prepare(&format!(
-            "SELECT {}, {oversized} FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
-             WHERE r.project_id = ?1 AND {oversized} IS NOT NULL ORDER BY r.rowid",
-            stored_read::shown_column("r.recording_id")
-        ))
-        .map_err(sql)?;
-    let mut rows = statement.query(params![project_id]).map_err(sql)?;
-    let mut entries = Vec::new();
-    while let Some(row) = rows.next().map_err(sql)? {
-        let (head, length, column): (Vec<u8>, i64, String) = (row.get(0).map_err(sql)?, row.get(1).map_err(sql)?, row.get(2).map_err(sql)?);
-        let id = stored_read::shown_head(&head, length);
-        let refusal = integrity_of(&id, format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&RUN_IDENTITY, &column)));
-        entries.push(stored_read::UnreadableRow::reserved(memory, "an unreadable recorded run's list entry", &id, refusal)?);
-    }
-    Ok(entries)
+    let found: Vec<(i64, String)> = {
+        let mut statement = connection
+            .prepare(&format!(
+                "SELECT r.rowid, {oversized} FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
+                 WHERE r.project_id = ?1 AND {oversized} IS NOT NULL ORDER BY r.rowid"
+            ))
+            .map_err(sql)?;
+        let rows = statement.query_map(params![project_id], |row| Ok((row.get(0)?, row.get(1)?))).map_err(sql)?;
+        rows.collect::<Result<_, _>>().map_err(sql)?
+    };
+    found
+        .into_iter()
+        .map(|(rowid, column)| {
+            unreadable_run_entry(
+                connection,
+                rowid,
+                |id| integrity_of(id, format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&RUN_IDENTITY, &column))),
+                memory,
+            )
+        })
+        .collect()
 }
 
 /// [`list_run_entries`] within `memory`: before anything is loaded, the
@@ -1341,32 +1387,45 @@ pub(crate) fn list_runs_with(
             run_summary_load_bytes(length(record), length(labels), length(identity), length(Some(rows))),
         ]),
     )?;
-    let mut statement = connection
-        .prepare(&format!(
-            "SELECT {SUMMARY_COLUMNS} FROM analysis_runs r LEFT JOIN analysis_run_labels l
-             ON l.project_id = r.project_id AND l.recording_id = r.recording_id WHERE r.project_id = ?1 AND {oversized} IS NULL
-             ORDER BY r.created_at DESC, r.recording_id"
-        ))
-        .map_err(sql)?;
-    let rows = statement
-        .query_map(params![project_id], summary_row)
-        .map_err(sql)?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(sql)?;
+    // Each row decoded on its own: a stored value of the wrong type or not
+    // UTF-8 makes that row unreadable, not the list (W-12).
+    let rows: Vec<(i64, rusqlite::Result<SummaryRow>)> = {
+        let mut statement = connection
+            .prepare(&format!(
+                "SELECT {SUMMARY_COLUMNS}, r.rowid FROM analysis_runs r LEFT JOIN analysis_run_labels l
+                 ON l.project_id = r.project_id AND l.recording_id = r.recording_id WHERE r.project_id = ?1 AND {oversized} IS NULL
+                 ORDER BY r.created_at DESC, r.recording_id"
+            ))
+            .map_err(sql)?;
+        let mut cursor = statement.query(params![project_id]).map_err(sql)?;
+        let mut rows = Vec::new();
+        while let Some(row) = cursor.next().map_err(sql)? {
+            let rowid: i64 = row.get(12).map_err(sql)?;
+            rows.push((rowid, summary_row(row)));
+        }
+        rows
+    };
     let mut listed = Metered::new(Vec::with_capacity(rows.len() + oversized_entries.len())).holding(load);
-    for row in rows {
-        let recording_id = row.1.clone();
-        let entry = match summary_from_row(connection, row, memory) {
-            Ok(verified) => {
-                let (summary, record) = verified;
-                drop(record);
-                summary.map(ListedRun::Readable)
-            }
-            Err(error) if error.starts_with("ANALYSIS-RUN-INTEGRITY") => {
-                stored_read::UnreadableRow::reserved(memory, "an unreadable recorded run's list entry", &recording_id, error)?
+    for (rowid, row) in rows {
+        let unreadable = |refusal: String| {
+            unreadable_run_entry(connection, rowid, |_| refusal, memory).map(|entry| entry.map(|unreadable| ListedRun::Unreadable { unreadable }))
+        };
+        let entry = match row {
+            Err(error) if stored_read::is_row_value_error(&error) => {
+                let detail = sql(error);
+                unreadable_run_entry(connection, rowid, |id| integrity_of(id, format_args!("a stored column cannot be read ({detail})")), memory)?
                     .map(|unreadable| ListedRun::Unreadable { unreadable })
             }
-            Err(error) => return Err(error),
+            Err(error) => return Err(sql(error)),
+            Ok(row) => match summary_from_row(connection, row, memory) {
+                Ok(verified) => {
+                    let (summary, record) = verified;
+                    drop(record);
+                    summary.map(ListedRun::Readable)
+                }
+                Err(error) if error.starts_with("ANALYSIS-RUN-INTEGRITY") => unreadable(error)?,
+                Err(error) => return Err(error),
+            },
         };
         listed = listed.join(entry, |mut list, entry| {
             list.push(entry);
@@ -1585,6 +1644,10 @@ pub(crate) fn record_run_in_store_finishing<R>(
             }
         },
     };
+    // Every other check has passed (W-12: the named refusal never masks corruption).
+    if submission.get().rule_packs_not_resolved {
+        return Err(refused(RULE_PACKS_NOT_RESOLVED, RULE_PACKS_NOT_RESOLVED_DETAIL));
+    }
     let created_at = allocate_created_at(&transaction, project_id, (hooks.now)()?)?;
     let state_id = state.get().state_id.clone();
     drop(state);
@@ -1736,7 +1799,8 @@ pub(crate) fn read_run_in_store_with(
         return Err(integrity_of(recording_id, format_args!("the record's {name} differs from its stored input manifest")));
     }
     // Both parses are within `parse`'s reservation.
-    match diagnostics_difference(record, &result, &manifest).map_err(|_| refuse("input manifest"))? {
+    let difference = diagnostics_difference(record, &result, &manifest).map_err(|_| refuse("input manifest"))?;
+    match difference {
         Some(DiagnosticsDifference::Producer) => return Err(integrity_of(recording_id, "the record's diagnostics do not begin with its stored result's")),
         Some(DiagnosticsDifference::RulePacks) => {
             return Err(integrity_of(
@@ -1744,14 +1808,11 @@ pub(crate) fn read_run_in_store_with(
                 "the record's rule-pack reference diagnostics differ from the references its stored input manifest leaves out",
             ))
         }
-        Some(DiagnosticsDifference::NotResolved) => {
-            return Err(format!(
-                "{RULE_PACKS_NOT_RESOLVED}: recorded run `{}`: {RULE_PACKS_NOT_RESOLVED_DETAIL}.",
-                stored_read::shown(recording_id)
-            ))
-        }
-        None => {}
+        Some(DiagnosticsDifference::NotResolved) | None => {}
     }
+    // Refused by name only once every other check (below: the linked state and
+    // its model hash) has passed, so corruption keeps its integrity refusal (W-12).
+    let rule_packs_not_resolved = difference == Some(DiagnosticsDifference::NotResolved);
     drop(result);
     let state = model_states::find_summary_with(&transaction, project_id, &run.state_id, memory)?.ok_or_else(|| {
         integrity_of(recording_id, format_args!("its state `{}` is not saved", stored_read::shown(&run.state_id)))
@@ -1765,6 +1826,9 @@ pub(crate) fn read_run_in_store_with(
             recording_id,
             format_args!("the stored input manifest's model payload is not state {}'s model", state_description(state.get())),
         ));
+    }
+    if rule_packs_not_resolved {
+        return Err(format!("{RULE_PACKS_NOT_RESOLVED}: recorded run `{}`: {RULE_PACKS_NOT_RESOLVED_DETAIL}.", stored_read::shown(recording_id)));
     }
     drop(manifest);
     read.hold(parse);
@@ -1877,39 +1941,7 @@ pub(crate) fn delete_run_in_store_finishing<R>(
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
     let not_found = || format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id));
-    let found = match find_run_with(&transaction, project_id, recording_id, memory) {
-        Ok(found) => found.ok_or_else(not_found)?,
-        // An unreadable run may be deleted (W-12; DEL-14-01 Design §3): deleting
-        // removes data and trusts none of it. The row is matched by its exact id;
-        // nothing of it is loaded.
-        Err(error) if error.starts_with("ANALYSIS-RUN-INTEGRITY") => {
-            let present: i64 = transaction
-                .query_row(
-                    "SELECT COUNT(*) FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
-                    params![project_id, recording_id],
-                    |row| row.get(0),
-                )
-                .map_err(sql)?;
-            if present != 1 {
-                return Err(not_found());
-            }
-            let deleted = transaction
-                .execute("DELETE FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2", params![project_id, recording_id])
-                .map_err(sql)?;
-            let finished = finish(Metered::new(AnalysisRunDeleteReceipt {
-                project_id: project_id.to_string(),
-                recording_id: recording_id.to_string(),
-                deleted: deleted == 1,
-                message: format!(
-                    "Deleted unreadable recorded run `{}`; its record was not read.",
-                    stored_read::shown(recording_id)
-                ),
-            }))?;
-            transaction.commit().map_err(sql)?;
-            return Ok(finished);
-        }
-        Err(error) => return Err(error),
-    };
+    let found = find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(not_found)?;
     let deleted = transaction
         .execute(
             "DELETE FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
@@ -1924,6 +1956,65 @@ pub(crate) fn delete_run_in_store_finishing<R>(
     }))?;
     transaction.commit().map_err(sql)?;
     Ok(finished)
+}
+
+/// Deletes the run row a list's unreadable entry names by its `handle`
+/// ([`stored_read::row_handle`]; W-12, DEL-14-01 Design §3), on a
+/// `BEGIN IMMEDIATE` transaction: the row of the project with that rowid whose
+/// stored id still has the handle's length and digest, exactly that row and its
+/// labels. Nothing of the row is loaded beyond its id's head and ends, and none
+/// of it is trusted (deleting removes data). A handle that names no such row, a
+/// stale one included, is not found.
+pub(crate) fn delete_unreadable_run_in_store_finishing<R>(
+    path: &Path,
+    project_id: &str,
+    handle: &str,
+    finish: impl FnOnce(Metered<AnalysisRunDeleteReceipt>) -> Result<R, String>,
+) -> Result<R, String> {
+    let not_found = || {
+        format!(
+            "ANALYSIS-RUN-NOT-FOUND: project `{}` has no unreadable recorded run with handle `{}`.",
+            stored_read::shown(project_id),
+            stored_read::shown(handle)
+        )
+    };
+    let rowid = stored_read::handle_rowid(RUN_ROW_HANDLE, handle).ok_or_else(not_found)?;
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::write_transaction(&mut connection)?;
+    let found: Option<(Vec<u8>, i64, i64, Vec<u8>, Vec<u8>)> = transaction
+        .query_row(
+            &format!(
+                "SELECT {}, {} FROM analysis_runs WHERE rowid = ?1 AND project_id = ?2",
+                stored_read::shown_column("recording_id"),
+                stored_read::handle_columns("recording_id")
+            ),
+            params![rowid, project_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
+        )
+        .optional()
+        .map_err(sql)?;
+    let Some((head, head_length, length, first, last)) = found else { return Err(not_found()) };
+    if stored_read::row_handle(RUN_ROW_HANDLE, rowid, length, &first, &last) != handle {
+        return Err(not_found());
+    }
+    let id = stored_read::shown_head(&head, head_length);
+    let deleted = transaction
+        .execute("DELETE FROM analysis_runs WHERE rowid = ?1 AND project_id = ?2", params![rowid, project_id])
+        .map_err(sql)?;
+    let finished = finish(Metered::new(AnalysisRunDeleteReceipt {
+        project_id: project_id.to_string(),
+        recording_id: id.clone(),
+        deleted: deleted == 1,
+        message: format!("Deleted unreadable recorded run `{id}`; its record was not read."),
+    }))?;
+    transaction.commit().map_err(sql)?;
+    Ok(finished)
+}
+
+/// [`delete_unreadable_run_in_store_finishing`], keeping the receipt (tests).
+#[cfg(test)]
+pub(crate) fn delete_unreadable_run_in_store(path: &Path, project_id: &str, handle: &str) -> Result<AnalysisRunDeleteReceipt, String> {
+    delete_unreadable_run_in_store_finishing(path, project_id, handle, Ok)?.into_unreserved()
 }
 
 // ---------------------------------------------------------------------------
@@ -1986,17 +2077,23 @@ pub(crate) fn edit_analysis_run_labels_args(
         .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
-/// `{projectId, recordingId}`.
+/// `{projectId, recordingId}` or `{projectId, unreadableHandle}`.
 pub(crate) fn delete_analysis_run_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     memory: &dyn ReadMemory,
 ) -> Result<Serialized, CommandError> {
     let project_id: String = args.decode("projectId")?;
-    let recording_id: String = args.decode("recordingId")?;
+    // A readable run by its verified recording id, or a listed unreadable row by its handle.
+    let recording_id: Option<String> = args.decode("recordingId")?;
+    let handle: Option<String> = args.decode("unreadableHandle")?;
     let finish = |receipt| stored_read::serialize_metered(memory, "delete_analysis_run", receipt);
     store()
-        .and_then(|path| delete_run_in_store_finishing(&path, &project_id, &recording_id, memory, finish))
+        .and_then(|path| match (recording_id, handle) {
+            (Some(recording_id), None) => delete_run_in_store_finishing(&path, &project_id, &recording_id, memory, finish),
+            (None, Some(handle)) => delete_unreadable_run_in_store_finishing(&path, &project_id, &handle, finish),
+            _ => Err("ANALYSIS-RUN-DELETE-ARGS: name the run by recordingId or a listed unreadable row by unreadableHandle, not both.".to_string()),
+        })
         .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 

@@ -172,20 +172,48 @@ Python agree.
   `MODEL-STATE-INTEGRITY`, naming the state.
 - **Unreadable rows in the list (W-12, Agent 0's decision; replaces S1 and
   S2's whole-list refusal).** One unreadable row no longer hides a project's
-  history. The list returns each readable state as its summary. A row that
-  cannot be read (an oversized column, or a record or labels row that does
-  not verify) appears only as `{"unreadable": {"id", "refusal"}}`. The id is
-  cut as messages quote it, and the refusal is the named, capped integrity
-  refusal. None of the row's unverified fields is returned. Each such entry is
-  reserved at its bound (`UNREADABLE_ROW_BYTES`), and its oversized columns
-  are never loaded. Memory refusals and SQLite errors still refuse the list.
-  Opening, reading, comparing or recording against an unreadable state stays
-  refused. **Delete:** an unreadable state is deleted only when no child
-  state and no recorded run names it. Its blockers are counted from their
-  rows' columns; otherwise `MODEL-STATE-DELETE-BLOCKED` gives the counts.
-  Deleting removes data and trusts none of it; nothing of the row is
-  loaded. The History panel lists unreadable rows apart from the readable
-  ones, with the refusal and "it can be deleted", and offers only Delete.
+  history. The list returns each readable state as its summary.
+  - **Unreadable entries.** A row that cannot be read appears only as
+    `{"unreadable": {"id", "refusal", "handle", "references"}}`. A row is
+    unreadable when a column is oversized, a stored value has the wrong type
+    or is not UTF-8, or its record or labels row does not verify. Each row is
+    decoded on its own. The `id` is display text, cut as messages quote it.
+    The `refusal` is the named, capped integrity refusal. `references` counts
+    the other stored rows that name the state, from their columns. None of
+    the row's unverified fields is returned. Each entry is reserved at its
+    bound (`UNREADABLE_ROW_BYTES`), and its oversized columns are never
+    loaded. Database-level failures (corruption, I/O, the statement itself)
+    and memory refusals still refuse the list.
+  - **Delete handle.** The `handle` is `state-row:<rowid>:<id byte
+    length>:<digest>`. The digest is the first 16 hex of the SHA-256 of the
+    stored id's first and last 512 bytes, read with `octet_length` and
+    `substr` and never loaded whole. The handle is distinct from the display
+    text, so two rows whose cut ids are equal keep different handles.
+    `delete_model_state {projectId, unreadableHandle}` deletes exactly the
+    project's row with that rowid whose stored id still has the handle's
+    length and digest. A stale or wrong handle is not found. The delete is
+    refused (`MODEL-STATE-DELETE-BLOCKED`, with the counts) while any stored
+    row names the state. A readable state is still deleted by its verified
+    `stateId`; an unreadable one is not deleted by any id.
+  - **Relationships.** A summary presents only verified rows:
+    - `child_state_ids` are the child states that name the state and are
+      themselves readable, each verified as the list verifies it, one at a
+      time within its own reservation.
+    - `unreadable_references` counts the child-state rows that name it but
+      cannot be read.
+    - `recorded_run_count` counts the run rows that name it, from their
+      columns. The runs themselves come, each verified, from the run list,
+      which the History panel groups by state. A state list therefore never
+      loads a run.
+    - Candidate children are loaded only within their bounds, and a related
+      row's oversized column is never measured into another row's summary.
+    - A blocked delete names verified children only and counts the runs and
+      the unreadable rows.
+  - Opening, reading, comparing or recording against an unreadable state
+    stays refused.
+  - **History panel.** Unreadable rows are listed apart from the readable
+    ones, with the refusal and the guidance, and only Delete is offered.
+    Delete is disabled while other rows name the state.
 - **Memory (S2 repairs r1 to r6).** All five state commands are metered as
   §3's As built (S2) describes (`stored_read.rs`): `save_model_state`,
   `list_model_states`, `read_model_state`, the label edit and the delete.
@@ -513,9 +541,17 @@ the History panel and `useModelStateHistory.ts`.
     for a real producer result (`transient_run_input.json`).
 - **Integrity.**
   - **List.** The list reads each run's record, but never its result or
-    manifest. A row that does not verify is listed by its id and refusal
-    only, as for states (§2), and the other runs are listed as usual. It
-    checks the record hash and the identity columns against the record:
+    manifest. A row that does not verify, or has a value of the wrong type
+    or one that is not UTF-8, is listed by its id, refusal and handle only,
+    as for states (§2). Its handle is `run-row:<rowid>:<length>:<digest>`,
+    and `delete_analysis_run {projectId, unreadableHandle}` deletes exactly
+    that row and its labels. The other runs are listed as usual. A readable
+    run is deleted by its verified `recordingId`, whatever its state's
+    readability. A readable run whose state cannot be read is shown in the
+    History panel under "Runs whose state cannot be read", with Check record
+    and Delete. Once nothing names the state, the state can be deleted too.
+    The list checks the record hash and the identity columns against the
+    record:
     - the recording id against the hash;
     - the state id against `model_state_ref`;
     - the producer run id, `created_at` and the result hash against
@@ -543,7 +579,14 @@ the History panel and `useModelStateHistory.ts`.
     manifest's `active_rule_packs` is `[]`, the model has references and no
     exclusion diagnostic is present. Rust, TypeScript and Python refuse such
     a run alike (Agent 0's decision: one current version, no lenient reading).
-    Any other mismatch keeps its code. The list reads no manifest, so such a
+    Any other mismatch keeps its code. **Precedence:** all three give
+    `ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED` only after every other applicable
+    check passes: the record hash and checksums, the identity columns, the
+    manifest binding, the linked state and its model hash, and the
+    diagnostics prefix. Corruption always gets its integrity code first.
+    Natively, the read refuses by name after the linked state's checks, and
+    Record Run after the state resolution. The TypeScript and Python
+    validators refuse by name after the record checksum. The list reads no manifest, so such a
     run lists as its verified summary. Every read of it (Check record,
     compare, export) is refused by name, and the History panel shows the
     refusal with "Re-record this run". The fixture is
@@ -551,12 +594,12 @@ the History panel and `useModelStateHistory.ts`.
     `recordedRunParity.test.ts` along S2's path.
 - **Delete.**
   - **State.** A state with recorded runs is not deleted
-    (`MODEL-STATE-DELETE-BLOCKED`, naming the runs). The `NO ACTION` foreign key
+    (`MODEL-STATE-DELETE-BLOCKED`, counting the runs; W-12). The `NO ACTION` foreign key
     refuses the deletion in SQL as well.
   - **Run.** A run is deleted only as a whole row with its labels; no other row
     depends on a run. An unreadable run may be deleted (W-12, Agent 0's
-    decision). The row is matched by its exact recording id, and nothing of
-    it is loaded or trusted.
+    decision), by its list handle only, never by a shown id. Nothing of it
+    is loaded or trusted.
   - **Project.** Deleting the project row removes its runs, child states,
     states and all their labels in one statement. A Replace keeps all of them.
   - **Replace prompt.** It says how many saved states and recorded runs remain
@@ -958,8 +1001,10 @@ the History panel and `useModelStateHistory.ts`.
     app (tampered or corrupted) is detected by the integrity checks above: the
     record hash, identity columns, exact descriptors and the manifest binding.
     It is refused by name. Since W-12 the lists show such a row individually
-    (id and refusal only) and list the project's other rows; every read of it
-    stays refused, and it can be deleted (a state only when nothing names it).
+    (id, refusal and handle only) and list the project's other rows. Every
+    read of it stays refused. It can be deleted by its handle (a state only
+    when nothing names it). Readable rows never present its id as a
+    relationship.
     S2 claims no memory bound for the work done before such a refusal beyond
     the stage pricing above.
 

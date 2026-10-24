@@ -5,8 +5,10 @@
 // is presented, and nothing that reads it (open, check, compare, record against
 // it) is offered.
 
-/** A stored row the native store could not read: its id (cut as messages quote it) and its refusal. */
-export type UnreadableRow = { id: string; refusal: string };
+/** A stored row the native store could not read: its id (cut as messages quote it, for
+ * display only), its refusal, its delete handle (the only key that deletes it) and how many
+ * other stored rows name it (a state's child states and runs; they block its deletion). */
+export type UnreadableRow = { id: string; refusal: string; handle: string; references: number };
 
 /** The refusal code of a run recorded before rule-pack resolution (re-record it). */
 export const RULE_PACKS_NOT_RESOLVED = "ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED";
@@ -23,8 +25,10 @@ function unreadableOf(entry: unknown): UnreadableRow | null {
   const record = entry as Record<string, unknown>;
   const unreadable = record.unreadable;
   if (Object.keys(record).length !== 1 || !unreadable || typeof unreadable !== "object") return null;
-  const { id, refusal } = unreadable as Record<string, unknown>;
-  return typeof id === "string" && typeof refusal === "string" ? { id, refusal } : null;
+  const { id, refusal, handle, references } = unreadable as Record<string, unknown>;
+  return typeof id === "string" && typeof refusal === "string" && typeof handle === "string" && typeof references === "number"
+    ? { id, refusal, handle, references }
+    : null;
 }
 
 /** A list response split into its readable summaries and its unreadable rows. */
