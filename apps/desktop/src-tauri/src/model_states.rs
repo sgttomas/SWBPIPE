@@ -36,7 +36,7 @@
 
 use crate::command_ingress::{self, respond, Args, ArgsDecoding, CommandError};
 use crate::solve_jobs::SolveJobRegistry;
-use crate::stored_read::{self, PoolReadMemory, ReadMemory, UnmeteredReadMemory};
+use crate::stored_read::{self, Metered, PoolReadMemory, ReadMemory, ReadReservation, UnmeteredReadMemory};
 use open_pipe_stress_operation_applier::{
     canonical_json, sha256_hex, validate_model_document, DocumentDiagnostic,
 };
@@ -103,6 +103,11 @@ pub(crate) const EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES: usize = 256 * 1024;
 
 /// The longest tag, as for model tags (DEL-02-01 `model-document-0.7.0.md` §3.1).
 const MAX_TAG_CHARS: usize = 64;
+/// The most tags, notes and assumptions one set of labels keeps (repair r2).
+pub(crate) const MAX_LABEL_ITEMS: usize = 256;
+/// The most JSON one set of labels keeps (name, tags, notes, assumptions), below
+/// the label edit's 256 KiB argument budget (repair r2).
+pub(crate) const MAX_LABELS_JSON_BYTES: u64 = 192 * 1024;
 const ASSUMPTION_KINDS: [&str; 2] = ["assumption", "open_issue"];
 const ASSUMPTION_STATUSES: [&str; 3] = ["unresolved", "resolved", "rejected"];
 
@@ -382,6 +387,24 @@ pub(crate) fn labels_from_value_in(
     }
     if let Some(key) = map.keys().next() {
         return Err(labels_invalid(code, format_args!("unknown member `{key}`")));
+    }
+    // The write-time bound on labels (repair r2): every path that writes labels
+    // (Save Model State, Record Run, the label edits) keeps at most
+    // MAX_LABEL_ITEMS tags, notes and assumptions together and at most
+    // MAX_LABELS_JSON_BYTES of their JSON, as the label edit's ingress budget
+    // does. Reads still price what is stored, whatever its size.
+    let items = tags.len() + notes.len() + assumptions.len();
+    if items > MAX_LABEL_ITEMS {
+        return Err(labels_invalid(code, format_args!("{items} tags, notes and assumptions are more than the {MAX_LABEL_ITEMS} kept")));
+    }
+    let json_bytes = stored_read::total(&[
+        state_name.len() as u64,
+        stored_read::serialized_length(&tags).unwrap_or(u64::MAX),
+        stored_read::serialized_length(&notes).unwrap_or(u64::MAX),
+        stored_read::serialized_length(&assumptions).unwrap_or(u64::MAX),
+    ]);
+    if json_bytes > MAX_LABELS_JSON_BYTES {
+        return Err(labels_invalid(code, format_args!("the labels hold {json_bytes} bytes of JSON; at most {MAX_LABELS_JSON_BYTES} are kept")));
     }
     Ok(StateLabels {
         state_name,
@@ -947,12 +970,27 @@ fn verified_snapshot(model_canonical: &str, claimed: &str) -> Result<(Value, Str
     Ok((model, hex))
 }
 
+/// Decodes a labels row. Each stored label list is prescanned first (a list
+/// that is not valid JSON is refused before it is parsed), and its parse and
+/// the typed lists it becomes are reserved in `memory` before parsing; the
+/// returned reservation holds the decoded labels.
 fn decode_labels(
+    state_id: &str,
     name: String,
     tags: &str,
     notes: &str,
     assumptions: &str,
-) -> Result<StateLabels, String> {
+    memory: &dyn ReadMemory,
+) -> Result<(StateLabels, ReadReservation), String> {
+    let mut price = 0u64;
+    for text in [tags, notes, assumptions] {
+        price = price.saturating_add(
+            stored_read::parse_bytes(text)
+                .map_err(|detail| integrity_of(state_id, format_args!("a stored label list: {detail}")))?
+                .saturating_mul(2),
+        );
+    }
+    let reservation = memory.reserve(&format!("saved state `{state_id}`'s labels"), price)?;
     let parse = |text: &str| {
         serde_json::from_str::<Value>(text).map_err(|error| {
             format!("MODEL-STATE-INTEGRITY: a stored label is not JSON ({error}).")
@@ -963,14 +1001,84 @@ fn decode_labels(
             format!("MODEL-STATE-INTEGRITY: a stored label list is malformed ({error}).")
         })
     };
-    Ok(StateLabels {
+    let labels = StateLabels {
         state_name: name,
         tags: strings(parse(tags)?)?,
         notes: strings(parse(notes)?)?,
         assumptions: serde_json::from_value(parse(assumptions)?).map_err(|error| {
             format!("MODEL-STATE-INTEGRITY: the stored assumptions are malformed ({error}).")
         })?,
+    };
+    Ok((labels, reservation))
+}
+
+/// The byte lengths a state summary loads, read with `octet_length` and counts
+/// before any of it is loaded: the record, the labels row, the child state ids,
+/// and the recorded runs' ids and names.
+const SUMMARY_LENGTHS: &str = "octet_length(s.record_json) AS record_length,
+    COALESCE(octet_length(l.state_name) + octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.updated_at), 0) AS labels_length,
+    (SELECT COUNT(*) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id) AS child_count,
+    (SELECT COALESCE(SUM(octet_length(c.state_id)), 0) FROM model_states c WHERE c.project_id = s.project_id AND c.parent_state_id = s.state_id) AS child_bytes,
+    (SELECT COUNT(*) FROM analysis_runs r WHERE r.project_id = s.project_id AND r.state_id = s.state_id) AS run_count,
+    (SELECT COALESCE(SUM(octet_length(r.recording_id) + COALESCE(octet_length(rl.run_name), 0)), 0) FROM analysis_runs r
+       LEFT JOIN analysis_run_labels rl ON rl.project_id = r.project_id AND rl.recording_id = r.recording_id
+       WHERE r.project_id = s.project_id AND r.state_id = s.state_id) AS run_bytes";
+
+/// What one or more state summaries load (for a list: the largest record, as
+/// records are verified one at a time, and the sums of the rest).
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct SummaryLengths {
+    pub(crate) record: u64,
+    labels: u64,
+    child_count: u64,
+    child_bytes: u64,
+    run_count: u64,
+    run_bytes: u64,
+    rows: u64,
+}
+
+fn lengths_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<SummaryLengths> {
+    let length = |index: usize| -> rusqlite::Result<u64> {
+        Ok(u64::try_from(row.get::<_, Option<i64>>(index)?.unwrap_or(0)).unwrap_or(0))
+    };
+    Ok(SummaryLengths {
+        record: length(0)?,
+        labels: length(1)?,
+        child_count: length(2)?,
+        child_bytes: length(3)?,
+        run_count: length(4)?,
+        run_bytes: length(5)?,
+        rows: length(6)?,
     })
+}
+
+/// The summary lengths of one state, or `None` when it is not saved.
+fn state_summary_lengths(connection: &Connection, project_id: &str, state_id: &str) -> Result<Option<SummaryLengths>, String> {
+    connection
+        .query_row(
+            &format!(
+                "SELECT {SUMMARY_LENGTHS}, 1 FROM model_states s LEFT JOIN model_state_labels l
+                 ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1 AND s.state_id = ?2"
+            ),
+            params![project_id, state_id],
+            lengths_row,
+        )
+        .optional()
+        .map_err(sql)
+}
+
+/// What loading summaries of these lengths needs before any is loaded: the
+/// largest record's loading and sorted-compact hash text, every labels row,
+/// the id and name lists, and each row's small columns.
+pub(crate) fn summary_load_bytes(lengths: &SummaryLengths) -> u64 {
+    stored_read::total(&[
+        stored_read::loaded_text_bytes(lengths.record),
+        stored_read::text_copy_bytes(lengths.record),
+        stored_read::loaded_text_bytes(lengths.labels),
+        stored_read::string_list_bytes(lengths.child_count, lengths.child_bytes),
+        stored_read::string_list_bytes(lengths.run_count, lengths.run_bytes),
+        lengths.rows.saturating_mul(4096),
+    ])
 }
 
 const SUMMARY_COLUMNS: &str = "s.project_id, s.state_id, s.state_kind, s.created_at, s.parent_state_id, s.model_hash, s.record_hash,
@@ -1164,11 +1272,15 @@ fn stored_record_json(
         .map_err(sql)
 }
 
+/// One summary from its row. The caller has reserved loading it
+/// ([`summary_load_bytes`]); the record's parse is reserved here before parsing
+/// and released once it is verified; the returned reservation holds the decoded
+/// labels.
 fn summary_from_row(
     connection: &Connection,
     row: SummaryRow,
     memory: &dyn ReadMemory,
-) -> Result<ModelStateSummary, String> {
+) -> Result<(ModelStateSummary, ReadReservation), String> {
     let (
         project_id,
         state_id,
@@ -1192,10 +1304,9 @@ fn summary_from_row(
     };
     let record_json = stored_record_json(connection, &project_id, &state_id)?;
     // The record's parse and the projection its hash clones (priced before parsing).
-    let _parse = memory.reserve(
-        &format!("saved state `{state_id}`'s record"),
-        stored_read::parse_bytes(&record_json).saturating_mul(2),
-    )?;
+    let record_parse = stored_read::parse_bytes(&record_json)
+        .map_err(|detail| integrity_of(&state_id, format_args!("the stored record: {detail}")))?;
+    let parse = memory.reserve(&format!("saved state `{state_id}`'s record"), record_parse.saturating_mul(2))?;
     let record = verified_record(
         &IdentityColumns {
             project_id: &project_id,
@@ -1209,7 +1320,7 @@ fn summary_from_row(
         &record_json,
     )?;
     drop(record_json);
-    let analysis_status =
+    let analysis_status: Vec<String> =
         serde_json::from_value(record.get("analysis_status").cloned().unwrap_or(json!([])))
             .map_err(|error| {
                 integrity_of(
@@ -1217,14 +1328,18 @@ fn summary_from_row(
                     format_args!("its analysis status is malformed ({error})"),
                 )
             })?;
+    drop(record);
+    drop(parse);
     let child_state_ids = children(connection, &project_id, &state_id)?;
     let recorded_run_ids = recorded_runs_of(connection, &project_id, &state_id)?
         .into_iter()
         .map(|(recording_id, _)| recording_id)
         .collect();
-    Ok(ModelStateSummary {
+    let (labels, labels_reservation) = decode_labels(&state_id, name, &tags, &notes, &assumptions, memory)?;
+    drop((tags, notes, assumptions));
+    Ok((ModelStateSummary {
         analysis_status,
-        labels: decode_labels(name, &tags, &notes, &assumptions)?,
+        labels,
         project_id,
         state_id,
         state_kind,
@@ -1235,7 +1350,7 @@ fn summary_from_row(
         labels_updated_at: updated_at,
         child_state_ids,
         recorded_run_ids,
-    })
+    }, labels_reservation))
 }
 
 pub(crate) fn find_summary(
@@ -1243,17 +1358,22 @@ pub(crate) fn find_summary(
     project_id: &str,
     state_id: &str,
 ) -> Result<Option<ModelStateSummary>, String> {
-    find_summary_with(connection, project_id, state_id, &UnmeteredReadMemory)
+    Ok(find_summary_with(connection, project_id, state_id, &UnmeteredReadMemory)?.map(|metered| metered.into_parts().0))
 }
 
-/// [`find_summary`] with its record's parse priced by `memory` (the caller has
-/// priced loading the record).
+/// [`find_summary`] within `memory`: the summary's lengths are read first, its
+/// loading is reserved before anything of it is loaded, and the returned
+/// reservations hold the summary.
 pub(crate) fn find_summary_with(
     connection: &Connection,
     project_id: &str,
     state_id: &str,
     memory: &dyn ReadMemory,
-) -> Result<Option<ModelStateSummary>, String> {
+) -> Result<Option<Metered<ModelStateSummary>>, String> {
+    let Some(lengths) = state_summary_lengths(connection, project_id, state_id)? else {
+        return Ok(None);
+    };
+    let load = memory.reserve(&format!("saved state `{state_id}`"), summary_load_bytes(&lengths))?;
     let row = connection
         .query_row(
             &format!(
@@ -1265,56 +1385,46 @@ pub(crate) fn find_summary_with(
         )
         .optional()
         .map_err(sql)?;
-    row.map(|row| summary_from_row(connection, row, memory)).transpose()
+    let Some(row) = row else { return Ok(None) };
+    let (summary, labels) = summary_from_row(connection, row, memory)?;
+    Ok(Some(Metered::new(summary).holding(load).holding(labels)))
 }
 
-/// The project's states, newest first, from columns only.
+/// The project's states, newest first, from columns only (unmetered; the
+/// command uses [`list_states_with`]).
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn list_states(
     connection: &Connection,
     project_id: &str,
 ) -> Result<Vec<ModelStateSummary>, String> {
-    list_states_with(connection, project_id, &UnmeteredReadMemory)
+    Ok(list_states_with(connection, project_id, &UnmeteredReadMemory)?.into_parts().0)
 }
 
-/// The byte lengths a list of `table`'s rows of a project reads: the largest
-/// `record` column (records are loaded, verified and dropped one at a time) and
-/// the sum of the label columns (kept in the response), without loading them.
-pub(crate) fn list_lengths(
-    connection: &Connection,
-    sql_text: &str,
-    project_id: &str,
-) -> Result<(u64, u64), String> {
-    let (largest, labels): (Option<i64>, Option<i64>) = connection
-        .query_row(sql_text, params![project_id], |row| Ok((row.get(0)?, row.get(1)?)))
-        .map_err(sql)?;
-    let length = |value: Option<i64>| u64::try_from(value.unwrap_or(0)).unwrap_or(0);
-    Ok((length(largest), length(labels)))
-}
-
-/// [`list_states`] within `memory`: before any record is loaded, the largest
-/// record's loading and hash copy and the response (labels and columns) are
-/// reserved; each record's parse is reserved after it is loaded and released
-/// once it is verified.
+/// [`list_states`] within `memory`: before anything is loaded, the summaries'
+/// lengths are read and their loading reserved (the largest record, as records
+/// are verified one at a time, and every labels row and id list, which the
+/// list keeps); each record's parse is reserved after it is loaded and released
+/// once it is verified, and each row's decoded labels are held with the list.
 pub(crate) fn list_states_with(
     connection: &Connection,
     project_id: &str,
     memory: &dyn ReadMemory,
-) -> Result<Vec<ModelStateSummary>, String> {
-    let (largest, labels) = list_lengths(
-        connection,
-        "SELECT MAX(octet_length(s.record_json)), SUM(octet_length(l.tags_json) + octet_length(l.notes_json) + octet_length(l.assumptions_json) + octet_length(l.state_name) + 1024)
-         FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id WHERE s.project_id = ?1",
-        project_id,
-    )?;
-    let _list = memory.reserve(
+) -> Result<Metered<Vec<ModelStateSummary>>, String> {
+    let lengths = connection
+        .query_row(
+            &format!(
+                "SELECT MAX(record_length), SUM(labels_length), SUM(child_count), SUM(child_bytes), SUM(run_count), SUM(run_bytes), COUNT(*)
+                 FROM (SELECT {SUMMARY_LENGTHS}
+                 FROM model_states s LEFT JOIN model_state_labels l ON l.project_id = s.project_id AND l.state_id = s.state_id
+                 WHERE s.project_id = ?1)"
+            ),
+            params![project_id],
+            lengths_row,
+        )
+        .map_err(sql)?;
+    let load = memory.reserve(
         &format!("the saved states of project `{project_id}`"),
-        stored_read::total(&[
-            stored_read::READ_OVERHEAD_BYTES,
-            stored_read::loaded_text_bytes(largest),
-            stored_read::text_copy_bytes(largest),
-            stored_read::text_copy_bytes(labels),
-            stored_read::response_bytes(labels),
-        ]),
+        stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, summary_load_bytes(&lengths)]),
     )?;
     let mut statement = connection
         .prepare(&format!(
@@ -1328,9 +1438,13 @@ pub(crate) fn list_states_with(
         .map_err(sql)?
         .collect::<Result<Vec<_>, _>>()
         .map_err(sql)?;
-    rows.into_iter()
-        .map(|row| summary_from_row(connection, row, memory))
-        .collect()
+    let mut listed = Metered::new(Vec::with_capacity(rows.len())).holding(load);
+    for row in rows {
+        let (summary, labels) = summary_from_row(connection, row, memory)?;
+        listed.value.push(summary);
+        listed.hold(labels);
+    }
+    Ok(listed)
 }
 
 /// How many saved states the project id holds (the replacement prompt's count).
@@ -1605,25 +1719,29 @@ fn integrity(detail: String) -> String {
 /// joined in) and its snapshot, after the stored bytes are checked against
 /// both stored hashes. A snapshot whose version is not current, or whose
 /// model-data slots are malformed, is refused by name (as an opened project is).
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn read_state_in_store(
     path: &Path,
     project_id: &str,
     state_id: &str,
 ) -> Result<ModelStateRead, String> {
-    read_state_in_store_with(path, project_id, state_id, &UnmeteredReadMemory)
+    Ok(read_state_in_store_with(path, project_id, state_id, &UnmeteredReadMemory)?.into_parts().0)
 }
 
 /// [`read_state_in_store`] within `memory` (`stored_read`): the snapshot's and
 /// the record's byte lengths are read first, without loading them, and their
-/// loading, hash copies and the response are reserved before either is loaded;
-/// their parses are reserved before they are parsed. A refusal is
+/// loading and hash copies are reserved before either is loaded (the summary
+/// reserves its own); their parses are reserved before they are parsed, and a
+/// stored text the prescan refuses is refused before it is parsed. The
+/// returned reservations hold the read until its response is serialized
+/// ([`stored_read::respond_metered`]). A refusal is
 /// `STORE-READ-MEMORY-UNAVAILABLE` and loads nothing more.
 pub(crate) fn read_state_in_store_with(
     path: &Path,
     project_id: &str,
     state_id: &str,
     memory: &dyn ReadMemory,
-) -> Result<ModelStateRead, String> {
+) -> Result<Metered<ModelStateRead>, String> {
     let (connection, _migration) = crate::open_project_store(path)?;
     let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.");
     let (model_length, record_length): (i64, i64) = connection
@@ -1640,20 +1758,20 @@ pub(crate) fn read_state_in_store_with(
         u64::try_from(record_length).unwrap_or(0),
     );
     let what = format!("saved state `{state_id}`");
-    // Loaded: the snapshot once, the record twice (its summary and this read).
-    // Copies: the snapshot's canonical text; two sorted-compact record texts.
-    let _load = memory.reserve(
+    // Loaded here: the snapshot and the record (the summary reserves its own
+    // load). Copies: the snapshot's canonical text; the record's sorted-compact text.
+    let load = memory.reserve(
         &what,
         stored_read::total(&[
             stored_read::READ_OVERHEAD_BYTES,
             stored_read::loaded_text_bytes(model_length),
             stored_read::text_copy_bytes(model_length),
-            stored_read::loaded_text_bytes(record_length).saturating_mul(2),
-            stored_read::text_copy_bytes(record_length).saturating_mul(2),
-            stored_read::response_bytes(model_length.saturating_add(record_length)),
+            stored_read::loaded_text_bytes(record_length),
+            stored_read::text_copy_bytes(record_length),
         ]),
     )?;
-    let state = find_summary_with(&connection, project_id, state_id, memory)?.ok_or_else(not_found)?;
+    let mut read = Metered::new(()).holding(load);
+    let state = read.absorb(find_summary_with(&connection, project_id, state_id, memory)?.ok_or_else(not_found)?);
     let (model_canonical, record_json): (String, String) = connection
         .query_row(
             "SELECT model_canonical, record_json FROM model_states WHERE project_id = ?1 AND state_id = ?2",
@@ -1662,14 +1780,21 @@ pub(crate) fn read_state_in_store_with(
         )
         .map_err(sql)?;
     // Parsed: the snapshot, and the validators' indexes of it; the record, its
-    // hash projection and the emitted record with the labels joined.
-    let _parse = memory.reserve(
+    // hash projection and the emitted record, whose label items each gain a
+    // provenance object.
+    let model_parse = stored_read::parse_bytes(&model_canonical)
+        .map_err(|detail| integrity(format!("the stored snapshot: {detail}")))?;
+    let record_parse = stored_read::parse_bytes(&record_json)
+        .map_err(|detail| integrity_of(state_id, format_args!("the stored record: {detail}")))?;
+    let label_items = (state.labels.tags.len() + state.labels.notes.len() + state.labels.assumptions.len()) as u64;
+    read.hold(memory.reserve(
         &what,
         stored_read::total(&[
-            stored_read::parse_bytes(&model_canonical).saturating_mul(2),
-            stored_read::parse_bytes(&record_json).saturating_mul(3),
+            model_parse.saturating_mul(2),
+            record_parse.saturating_mul(3),
+            label_items.saturating_mul(8 * 1024),
         ]),
-    )?;
+    )?);
     let hex = sha256_hex(&model_canonical);
     if state.model_hash != format!("sha256:{hex}") {
         return Err(integrity(format!(
@@ -1716,18 +1841,22 @@ pub(crate) fn read_state_in_store_with(
     }
     crate::refuse_malformed_model_slots(&model)?;
     let record = emitted_record(&stored, &state.labels)?;
-    Ok(ModelStateRead {
+    drop(stored);
+    drop(record_json);
+    drop(model_canonical);
+    Ok(read.map(|()| ModelStateRead {
         state,
         record,
         model,
-        model_document_version: serde_json::to_value(version).map_err(|error| error.to_string())?,
-    })
+        model_document_version: serde_json::to_value(version).unwrap_or(Value::Null),
+    }))
 }
 
 /// `edit_model_state_labels` on a given store. Only the labels row changes, so
 /// the record hash and the snapshot are untouched. `expected_updated_at`, when
 /// given, must be the labels' current `updated_at` (`MODEL-STATE-LABELS-MOVED`
 /// otherwise: another window edited them).
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn edit_labels_in_store(
     path: &Path,
     project_id: &str,
@@ -1736,11 +1865,27 @@ pub(crate) fn edit_labels_in_store(
     expected_updated_at: Option<&str>,
     now_millis: i64,
 ) -> Result<ModelStateSummary, String> {
+    Ok(edit_labels_in_store_with(path, project_id, state_id, labels, expected_updated_at, now_millis, &UnmeteredReadMemory)?
+        .into_parts()
+        .0)
+}
+
+/// [`edit_labels_in_store`] within `memory`: the summaries it reads and the
+/// record it checks the labels against are reserved before they are loaded,
+/// and their parses before they are parsed.
+pub(crate) fn edit_labels_in_store_with(
+    path: &Path,
+    project_id: &str,
+    state_id: &str,
+    labels: StateLabels,
+    expected_updated_at: Option<&str>,
+    now_millis: i64,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateSummary>, String> {
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
-    let current = find_summary(&transaction, project_id, state_id)?.ok_or_else(|| {
-        format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.")
-    })?;
+    let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.");
+    let current = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(not_found)?.into_parts().0;
     if let Some(expected) = expected_updated_at {
         if expected != current.labels_updated_at {
             return Err(format!(
@@ -1749,6 +1894,17 @@ pub(crate) fn edit_labels_in_store(
             ));
         }
     }
+    let record_length: i64 = transaction
+        .query_row(
+            "SELECT octet_length(record_json) FROM model_states WHERE project_id = ?1 AND state_id = ?2",
+            params![project_id, state_id],
+            |row| row.get(0),
+        )
+        .map_err(sql)?;
+    let load = memory.reserve(
+        &format!("saved state `{state_id}`'s record"),
+        stored_read::loaded_text_bytes(u64::try_from(record_length).unwrap_or(0)),
+    )?;
     let record_json: String = transaction
         .query_row(
             "SELECT record_json FROM model_states WHERE project_id = ?1 AND state_id = ?2",
@@ -1756,8 +1912,13 @@ pub(crate) fn edit_labels_in_store(
             |row| row.get(0),
         )
         .map_err(sql)?;
+    let parse = memory.reserve(
+        &format!("saved state `{state_id}`'s record"),
+        stored_read::parse_bytes(&record_json).map_err(|detail| integrity_of(state_id, format_args!("the stored record: {detail}")))?,
+    )?;
     let stored: Value = serde_json::from_str(&record_json).map_err(|error| error.to_string())?;
     refuse_assumption_id_collisions(&stored, &labels)?;
+    drop((stored, record_json, parse, load));
     // Strictly later than the labels' last write, so `expected_updated_at`
     // tells two writes apart.
     let previous = parse_iso_millis(&current.labels_updated_at).unwrap_or(i64::MIN);
@@ -1770,7 +1931,7 @@ pub(crate) fn edit_labels_in_store(
         &updated_at,
         false,
     )?;
-    let summary = find_summary(&transaction, project_id, state_id)?
+    let summary = find_summary_with(&transaction, project_id, state_id, memory)?
         .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished."))?;
     transaction.commit().map_err(sql)?;
     Ok(summary)
@@ -1804,28 +1965,62 @@ pub(crate) fn parse_iso_millis(text: &str) -> Option<i64> {
 /// `delete_model_state` on a given store: refused while a saved state names it
 /// as its parent or a recorded run is tied to it (the blockers are named; the
 /// run's foreign key refuses it in SQL as well); its labels row goes with it.
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn delete_state_in_store(
     path: &Path,
     project_id: &str,
     state_id: &str,
 ) -> Result<ModelStateDeleteReceipt, String> {
+    delete_state_in_store_with(path, project_id, state_id, &UnmeteredReadMemory)
+}
+
+/// [`delete_state_in_store`] within `memory`: the state's summary, each blocking
+/// child's summary (one at a time) and the blockers' names in the refusal are
+/// reserved before they are loaded.
+pub(crate) fn delete_state_in_store_with(
+    path: &Path,
+    project_id: &str,
+    state_id: &str,
+    memory: &dyn ReadMemory,
+) -> Result<ModelStateDeleteReceipt, String> {
     let (mut connection, _migration) = crate::open_project_store(path)?;
     let transaction = crate::immediate_transaction(&mut connection)?;
-    let state = find_summary(&transaction, project_id, state_id)?.ok_or_else(|| {
+    let metered = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(|| {
         format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.")
     })?;
+    let (state, _held) = metered.into_parts();
+    // The refusal names every blocker: the children's names and the runs' names.
+    let (child_names, child_count): (i64, i64) = transaction
+        .query_row(
+            "SELECT COALESCE(SUM(octet_length(c.state_id) + COALESCE(octet_length(l.state_name), 0)), 0), COUNT(*) FROM model_states c
+             LEFT JOIN model_state_labels l ON l.project_id = c.project_id AND l.state_id = c.state_id
+             WHERE c.project_id = ?1 AND c.parent_state_id = ?2",
+            params![project_id, state_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .map_err(sql)?;
+    let length = |value: i64| u64::try_from(value).unwrap_or(0);
+    let _names = memory.reserve(
+        &format!("the blockers of saved state `{state_id}`"),
+        stored_read::total(&[
+            stored_read::string_list_bytes(length(child_count), length(child_names)),
+            stored_read::text_copy_bytes(length(child_names).saturating_mul(2)),
+        ]),
+    )?;
     let mut reasons = Vec::new();
     if !state.child_state_ids.is_empty() {
         let blockers = state
             .child_state_ids
             .iter()
             .map(
-                |child| match find_summary(&transaction, project_id, child) {
-                    Ok(Some(summary)) => state_description(&summary),
-                    _ => child.clone(),
+                |child| match find_summary_with(&transaction, project_id, child, memory) {
+                    Ok(Some(summary)) => Ok(state_description(&summary.value)),
+                    Ok(None) => Ok(child.clone()),
+                    Err(error) if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) => Err(error),
+                    Err(_) => Ok(child.clone()),
                 },
             )
-            .collect::<Vec<_>>()
+            .collect::<Result<Vec<_>, String>>()?
             .join(", ");
         reasons.push(format!(
             "the parent of saved state{} {blockers}",
@@ -1891,7 +2086,7 @@ pub(crate) fn list_model_states_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     memory: &dyn ReadMemory,
-) -> Result<Vec<ModelStateSummary>, CommandError> {
+) -> Result<Metered<Vec<ModelStateSummary>>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     store()
         .and_then(|path| {
@@ -1906,7 +2101,7 @@ pub(crate) fn read_model_state_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
     memory: &dyn ReadMemory,
-) -> Result<ModelStateRead, CommandError> {
+) -> Result<Metered<ModelStateRead>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let state_id: String = args.decode("stateId")?;
     store()
@@ -1918,7 +2113,8 @@ pub(crate) fn read_model_state_args(
 pub(crate) fn edit_model_state_labels_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
-) -> Result<ModelStateSummary, CommandError> {
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateSummary>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let state_id: String = args.decode("stateId")?;
     let labels = args.decode_with("labels", |value| {
@@ -1927,13 +2123,14 @@ pub(crate) fn edit_model_state_labels_args(
     let expected: Option<String> = args.decode("expectedUpdatedAt")?;
     store()
         .and_then(|path| {
-            edit_labels_in_store(
+            edit_labels_in_store_with(
                 &path,
                 &project_id,
                 &state_id,
                 labels,
                 expected.as_deref(),
                 now_unix_millis()?,
+                memory,
             )
         })
         .map_err(CommandError::Command)
@@ -1943,11 +2140,12 @@ pub(crate) fn edit_model_state_labels_args(
 pub(crate) fn delete_model_state_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
-) -> Result<ModelStateDeleteReceipt, CommandError> {
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateDeleteReceipt>, CommandError> {
     let project_id: String = args.decode("projectId")?;
     let state_id: String = args.decode("stateId")?;
     store()
-        .and_then(|path| delete_state_in_store(&path, &project_id, &state_id))
+        .and_then(|path| delete_state_in_store_with(&path, &project_id, &state_id, memory).map(Metered::new))
         .map_err(CommandError::Command)
 }
 
@@ -1977,11 +2175,12 @@ pub fn list_model_states(
         ArgsDecoding::Moved,
         LIST_MODEL_STATES_MAX_ARGS_BYTES,
     )?;
-    respond(list_model_states_args(
-        &mut args,
-        || crate::app_store_path(&app),
-        &PoolReadMemory::new(&registry),
-    ))
+    let memory = PoolReadMemory::new(&registry);
+    stored_read::respond_metered(
+        &memory,
+        "list_model_states",
+        list_model_states_args(&mut args, || crate::app_store_path(&app), &memory),
+    )
 }
 
 #[tauri::command]
@@ -1997,11 +2196,12 @@ pub fn read_model_state(
         ArgsDecoding::Moved,
         READ_MODEL_STATE_MAX_ARGS_BYTES,
     )?;
-    respond(read_model_state_args(
-        &mut args,
-        || crate::app_store_path(&app),
-        &PoolReadMemory::new(&registry),
-    ))
+    let memory = PoolReadMemory::new(&registry);
+    stored_read::respond_metered(
+        &memory,
+        "read_model_state",
+        read_model_state_args(&mut args, || crate::app_store_path(&app), &memory),
+    )
 }
 
 #[tauri::command]
@@ -2017,9 +2217,12 @@ pub fn edit_model_state_labels(
         ArgsDecoding::Moved,
         EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES,
     )?;
-    respond(edit_model_state_labels_args(&mut args, || {
-        crate::app_store_path(&app)
-    }))
+    let memory = PoolReadMemory::new(&registry);
+    stored_read::respond_metered(
+        &memory,
+        "edit_model_state_labels",
+        edit_model_state_labels_args(&mut args, || crate::app_store_path(&app), &memory),
+    )
 }
 
 #[tauri::command]
@@ -2035,9 +2238,12 @@ pub fn delete_model_state(
         ArgsDecoding::Moved,
         DELETE_MODEL_STATE_MAX_ARGS_BYTES,
     )?;
-    respond(delete_model_state_args(&mut args, || {
-        crate::app_store_path(&app)
-    }))
+    let memory = PoolReadMemory::new(&registry);
+    stored_read::respond_metered(
+        &memory,
+        "delete_model_state",
+        delete_model_state_args(&mut args, || crate::app_store_path(&app), &memory),
+    )
 }
 
 #[cfg(test)]

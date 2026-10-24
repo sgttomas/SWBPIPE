@@ -5,6 +5,8 @@ use crate::command_ingress::{admit_body_within, INGRESS_ARGS_JSON_V1};
 use crate::memory_pool::test_host::ScriptedHost;
 use crate::model_states::{labels_from_value, save_state_in_store, SaveModelStateRequest};
 use crate::solve_jobs::SolveJobError;
+use crate::stored_read::{self, Metered};
+use serde::Serialize;
 use std::cell::Cell;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::ipc::InvokeBody;
@@ -998,17 +1000,25 @@ fn every_member_the_manifest_fixes_is_derived_from_the_manifest_at_record_run_an
 }
 
 // ---------------------------------------------------------------------------
-// Repair r1: reads take memory-pool leases sized from the stored lengths
-// before they load anything.
+// Repairs r1 and r2: reads take memory-pool leases sized from the stored
+// lengths before they load anything, refuse invalid stored JSON before parsing
+// it, and hold their reservations until the response is serialized.
 // ---------------------------------------------------------------------------
 
 const LARGE: usize = 3 << 20;
-const SMALL_POOL: u64 = 128 * 1024;
+/// A pool (and budget) that admits ordinary reads of these stores but is well
+/// below the large columns' priced need (each test first reads the same kind of
+/// row without its large column under it): Codex r2's 2 MiB probe.
+const SMALL_POOL: u64 = 2 << 20;
 
 fn small_pool() -> crate::solve_jobs::SolveJobRegistry {
-    let small = registry(ScriptedHost::normal());
-    small.configure_pool(SMALL_POOL, SMALL_POOL, false).unwrap();
-    small
+    pool_of(SMALL_POOL)
+}
+
+fn pool_of(bytes: u64) -> crate::solve_jobs::SolveJobRegistry {
+    let pool = registry(ScriptedHost::normal());
+    pool.configure_pool(bytes, bytes, false).unwrap();
+    pool
 }
 
 /// A refused read loads nothing large: its priced allocation peak stays far
@@ -1026,41 +1036,66 @@ fn assert_refused_unloaded<T: std::fmt::Debug>(
     assert_eq!(pool.pool_status().reserved_bytes, 0, "{what}: every lease was released");
 }
 
-/// An admitted read's priced allocation peak stays within what it reserved.
-fn assert_within_reservation<T>(what: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>) -> T {
+/// The same read admitted by `pool` (the baseline that makes a refusal mean the
+/// large column was priced, not the read's fixed overhead).
+fn assert_admitted<T>(pool: &crate::solve_jobs::SolveJobRegistry, what: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>) {
+    let memory = PoolReadMemory::new(pool);
+    if let Err(error) = read(&memory) {
+        panic!("{what}: the baseline read is refused: {error}");
+    }
+    drop(memory);
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+/// An admitted read, through its serialized response: the pool still holds the
+/// read's reservation when the value is handed to serialization, the priced
+/// allocation peak of the read and the serialization stays within the most the
+/// read reserved, and every lease is released once the response exists.
+/// Returns the response's length.
+fn assert_within_reservation<T: Serialize>(what: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<Metered<T>, String>) -> u64 {
     let pool = registry(ScriptedHost::normal());
     let memory = PoolReadMemory::new(&pool);
-    let (outcome, measured) = crate::ingress::counting::measure(|| read(&memory));
-    let value = outcome.unwrap();
-    assert!(memory.peak_reserved() >= LARGE as u64, "{what}: the reservation covers the large column");
+    let (outcome, measured) = crate::ingress::counting::measure(|| {
+        let metered = read(&memory)?;
+        let length = stored_read::serialized_length(&metered.value)?;
+        let held = pool.pool_status().reserved_bytes;
+        let response = stored_read::respond_metered::<T, String>(&memory, what, Ok(metered)).map_err(|error| format!("{error:?}"))?;
+        Ok::<_, String>((held, length, response))
+    });
+    let (held, length, response) = outcome.unwrap();
+    drop(response);
+    assert!(held >= length, "{what}: the read's reservation ({held}) is held when its {length}-byte response is serialized");
     assert!(
         measured.peak_priced <= memory.peak_reserved(),
         "{what}: priced peak {} exceeds the reservation {}",
         measured.peak_priced,
         memory.peak_reserved()
     );
-    assert_eq!(pool.pool_status().reserved_bytes, 0, "{what}: every lease was released");
-    value
+    assert_eq!(pool.pool_status().reserved_bytes, 0, "{what}: every lease was released after the response");
+    length
 }
 
 #[test]
 fn read_model_state_is_refused_before_loading_a_large_snapshot_the_pool_does_not_admit() {
     let path = store_with_project("memory-state");
+    let ordinary = save_state(&path, &model("Invented project"), "Ordinary", "00000000000000000000000000001300", 500);
     let large = model(&"x".repeat(LARGE));
     let state = save_state(&path, &large, "Large", "00000000000000000000000000001301", 1_000);
     let length: i64 = Connection::open(&path)
         .unwrap()
-        .query_row("SELECT octet_length(model_canonical) FROM model_states", [], |row| row.get(0))
+        .query_row("SELECT octet_length(model_canonical) FROM model_states WHERE state_id = ?1", params![state.state_id], |row| row.get(0))
         .unwrap();
     assert!(length as usize > LARGE);
     let small = small_pool();
+    assert_admitted(&small, "an ordinary state", |memory| model_states::read_state_in_store_with(&path, PROJECT, &ordinary.state_id, memory));
     assert_refused_unloaded(&small, &format!("saved state `{}`", state.state_id), |memory| {
         model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)
     });
-    let read = assert_within_reservation("read_model_state", |memory| {
+    let response = assert_within_reservation("read_model_state", |memory| {
         model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)
     });
-    assert_eq!(read.model, large);
+    assert!(response as usize > LARGE);
+    assert_eq!(model_states::read_state_in_store(&path, PROJECT, &state.state_id).unwrap().model, large);
 }
 
 #[test]
@@ -1073,18 +1108,21 @@ fn the_run_read_is_refused_before_loading_a_large_result_the_pool_does_not_admit
         "{{\"run_id\":\"{RUN}\",\"model_ref\":\"{PROJECT}\",\"results\":[{{\"id\":\"result:disp:N-100\",\"value\":1.5,\"padding\":\"{}\"}}],\"diagnostics\":[]}}",
         "p".repeat(LARGE)
     );
+    let ordinary = record(&path, request(&solved, "Ordinary result"), T0).unwrap();
     let mut submitted = request(&solved, "Large result");
     submitted.run_record = transient(&result, &manifest);
     submitted.result_json = result.clone();
     let outcome = record(&path, submitted, T0).unwrap();
     let small = small_pool();
+    assert_admitted(&small, "an ordinary run", |memory| read_run_in_store_with(&path, PROJECT, &ordinary.run.recording_id, memory));
     assert_refused_unloaded(&small, &format!("recorded run `{}`", outcome.run.recording_id), |memory| {
         read_run_in_store_with(&path, PROJECT, &outcome.run.recording_id, memory)
     });
-    let read = assert_within_reservation("read_analysis_run", |memory| {
+    let response = assert_within_reservation("read_analysis_run", |memory| {
         read_run_in_store_with(&path, PROJECT, &outcome.run.recording_id, memory)
     });
-    assert_eq!(read.result_json, result);
+    assert!(response as usize > LARGE);
+    assert_eq!(read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().result_json, result);
 }
 
 #[test]
@@ -1092,16 +1130,23 @@ fn the_lists_and_label_edits_reserve_their_largest_record_before_loading_it() {
     let path = store_with_project("memory-list");
     let solved = model("Invented project");
     save_state(&path, &solved, "Basis", "00000000000000000000000000001501", 1_000);
+    let ordinary = record(&path, request(&solved, "Ordinary record"), T0).unwrap();
+    {
+        let (connection, _) = crate::open_project_store(&path).unwrap();
+        assert_admitted(&small_pool(), "an ordinary list", |memory| list_runs_with(&connection, PROJECT, memory));
+        assert_admitted(&small_pool(), "an ordinary edit", |memory| {
+            edit_run_labels_in_store_with(&path, PROJECT, &ordinary.run.recording_id, run_labels("Renamed"), None, T0, memory)
+        });
+    }
     let mut submitted = request(&solved, "Large record");
     submitted.run_record["analysis_run"]["padding"] = json!("r".repeat(LARGE));
     reseal(&mut submitted.run_record);
     let outcome = record(&path, submitted, T0).unwrap();
-    record(&path, request(&solved, "Small record"), T0).unwrap();
     let small = small_pool();
     let (connection, _) = crate::open_project_store(&path).unwrap();
     assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_with(&connection, PROJECT, memory));
-    let listed = assert_within_reservation("list_analysis_runs", |memory| list_runs_with(&connection, PROJECT, memory));
-    assert_eq!(listed.len(), 2);
+    assert_within_reservation("list_analysis_runs", |memory| list_runs_with(&connection, PROJECT, memory));
+    assert_eq!(list_runs(&connection, PROJECT).unwrap().len(), 2);
     assert_refused_unloaded(&small, &format!("recorded run `{}`", outcome.run.recording_id), |memory| {
         edit_run_labels_in_store_with(&path, PROJECT, &outcome.run.recording_id, run_labels("Renamed"), None, T0, memory)
     });
@@ -1109,18 +1154,222 @@ fn the_lists_and_label_edits_reserve_their_largest_record_before_loading_it() {
         delete_run_in_store_with(&path, PROJECT, &outcome.run.recording_id, memory)
     });
     assert_eq!(row_count(&path, "analysis_runs"), 2, "nothing was deleted");
-    // The state list prices its largest record the same way.
-    let states = assert_within_reservation_states(&connection);
-    assert_eq!(states, 1);
+    assert_within_reservation("edit_analysis_run_labels", |memory| {
+        edit_run_labels_in_store_with(&path, PROJECT, &outcome.run.recording_id, run_labels("Renamed"), None, T0 + 1, memory)
+    });
 }
 
-fn assert_within_reservation_states(connection: &Connection) -> usize {
+/// Rewrites a stored label column outside the store's paths (labels rows are
+/// editable; this bypasses the write-time bound, as a hand edit could).
+fn set_label(path: &Path, table: &str, column: &str, value: &str) {
+    tamper(path, &format!("UPDATE {table} SET {column} = '{}';", quoted(value)));
+}
+
+#[test]
+fn large_stored_labels_are_priced_before_they_are_loaded() {
+    // A run's name: read, list, edit and delete, and the state summary that names its runs.
+    let path = store_with_project("memory-labels-run");
+    let solved = model("Invented project");
+    let state = save_state(&path, &solved, "Basis", "00000000000000000000000000001601", 1_000);
+    let outcome = record(&path, request(&solved, "Run"), T0).unwrap();
+    let id = outcome.run.recording_id.clone();
+    let small = small_pool();
+    let (connection, _) = crate::open_project_store(&path).unwrap();
+    assert_admitted(&small, "the run before", |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
+    assert_admitted(&small, "the runs before", |memory| list_runs_with(&connection, PROJECT, memory));
+    assert_admitted(&small, "the states before", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    set_label(&path, "analysis_run_labels", "run_name", &"n".repeat(LARGE));
+    assert_refused_unloaded(&small, &format!("recorded run `{id}`"), |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
+    assert_refused_unloaded(&small, &format!("the recorded runs of project `{PROJECT}`"), |memory| list_runs_with(&connection, PROJECT, memory));
+    assert_refused_unloaded(&small, &format!("recorded run `{id}`"), |memory| delete_run_in_store_with(&path, PROJECT, &id, memory));
+    // The state summary loads its runs' names (the delete blockers).
+    assert_refused_unloaded(&small, &format!("the saved states of project `{PROJECT}`"), |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    assert_refused_unloaded(&small, &format!("saved state `{}`", state.state_id), |memory| {
+        model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory)
+    });
+    assert!(assert_within_reservation("read_analysis_run", |memory| read_run_in_store_with(&path, PROJECT, &id, memory)) as usize > LARGE);
+    assert!(assert_within_reservation("list_analysis_runs", |memory| list_runs_with(&connection, PROJECT, memory)) as usize > LARGE);
+    assert_within_reservation("list_model_states", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+
+    // A state's labels: its read, list, label edit and delete.
+    let path = store_with_project("memory-labels-state");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000001602", 1_000);
+    {
+        let (connection, _) = crate::open_project_store(&path).unwrap();
+        assert_admitted(&small, "the state before", |memory| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory));
+        assert_admitted(&small, "the states before", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    }
+    let notes: Vec<String> = (0..1024).map(|index| format!("{index}:{}", "t".repeat(LARGE / 1024))).collect();
+    set_label(&path, "model_state_labels", "notes_json", &serde_json::to_string(&notes).unwrap());
+    let what = format!("saved state `{}`", state.state_id);
+    let (connection, _) = crate::open_project_store(&path).unwrap();
+    assert_refused_unloaded(&small, &what, |memory| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory));
+    assert_refused_unloaded(&small, &format!("the saved states of project `{PROJECT}`"), |memory| model_states::list_states_with(&connection, PROJECT, memory));
+    assert_refused_unloaded(&small, &what, |memory| {
+        model_states::edit_labels_in_store_with(&path, PROJECT, &state.state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0, memory)
+    });
+    assert_refused_unloaded(&small, &what, |memory| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, memory));
+    // 1,024 label items each gain a provenance object in the emitted record.
+    assert!(assert_within_reservation("read_model_state", |memory| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)) as usize > LARGE);
+    assert_within_reservation("list_model_states", |memory| model_states::list_states_with(&connection, PROJECT, memory));
+}
+
+#[test]
+fn labels_are_bounded_when_they_are_written() {
+    for (labels, expected) in [
+        (json!({ "state_name": "n", "notes": ["x".repeat(200 * 1024)] }), "bytes of JSON; at most 196608 are kept"),
+        (json!({ "state_name": "n", "tags": (0..257).map(|index| format!("t{index}")).collect::<Vec<_>>() }), "more than the 256 kept"),
+    ] {
+        let error = model_states::labels_from_value(labels.clone()).unwrap_err();
+        assert!(error.starts_with("MODEL-STATE-LABELS-INVALID: ") && error.contains(expected), "{error}");
+        let mut run = labels;
+        let name = run.as_object_mut().unwrap().remove("state_name").unwrap();
+        run["run_name"] = name;
+        let error = run_labels_from_value(run).unwrap_err();
+        assert!(error.starts_with("ANALYSIS-RUN-LABELS-INVALID: ") && error.contains(expected), "{error}");
+    }
+    let ok = json!({ "state_name": "n", "notes": ["x".repeat(150 * 1024)], "tags": (0..200).map(|index| format!("t{index}")).collect::<Vec<_>>() });
+    assert!(model_states::labels_from_value(ok).is_ok());
+}
+
+/// A stored text the prescan refuses: an array of 524,288 integers, then a
+/// syntax error (about 1 MiB), as Codex r2's probe.
+fn invalid_json() -> String {
+    format!("[{}x", "1,".repeat(524_288))
+}
+
+#[test]
+fn prescan_invalid_stored_json_is_refused_before_it_is_parsed() {
+    let invalid = invalid_json();
+    let bound = (invalid.len() as u64) * 16;
+    let refused = |what: &str, error: &str, measured: crate::ingress::counting::Measured, reserved: u64, code: &str| {
+        assert!(error.starts_with(code) && error.contains("the stored JSON is invalid"), "{what}: {error}");
+        assert!(measured.peak_priced < bound, "{what}: refused before parsing (peak {} against the text's {} bytes)", measured.peak_priced, invalid.len());
+        assert!(measured.peak_priced <= reserved, "{what}: peak {} within the reservation {reserved}", measured.peak_priced);
+    };
+    let pool = registry(ScriptedHost::normal());
+    // A run record.
+    let (path, _) = recorded_fixture("invalid-run-record");
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = '{invalid}';"));
+    let id: String = Connection::open(&path).unwrap().query_row("SELECT recording_id FROM analysis_runs", [], |row| row.get(0)).unwrap();
+    let memory = PoolReadMemory::new(&pool);
+    let (outcome, measured) = crate::ingress::counting::measure(|| read_run_in_store_with(&path, PROJECT, &id, &memory).map(|_| ()));
+    refused("run record", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
+    // A run's result.
+    let (path, _) = recorded_fixture("invalid-run-result");
+    tamper(&path, &format!("UPDATE analysis_runs SET result_json = '{invalid}';"));
+    let memory = PoolReadMemory::new(&pool);
+    let (outcome, measured) = crate::ingress::counting::measure(|| read_run_in_store_with(&path, PROJECT, &id_of(&path), &memory).map(|_| ()));
+    refused("run result", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
+    // A run's label list.
+    let (path, _) = recorded_fixture("invalid-run-labels");
+    tamper(&path, &format!("UPDATE analysis_run_labels SET tags_json = '{invalid}';"));
+    let (connection, _) = crate::open_project_store(&path).unwrap();
+    let memory = PoolReadMemory::new(&pool);
+    let (outcome, measured) = crate::ingress::counting::measure(|| list_runs_with(&connection, PROJECT, &memory).map(|_| ()));
+    refused("run labels", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
+    // A state's record and its snapshot.
+    for (column, label) in [("record_json", "state record"), ("model_canonical", "state snapshot")] {
+        let path = store_with_project(&format!("invalid-{column}"));
+        let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000001701", 1_000);
+        tamper(&path, &format!("UPDATE model_states SET {column} = '{invalid}';"));
+        let memory = PoolReadMemory::new(&pool);
+        let (outcome, measured) = crate::ingress::counting::measure(|| model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, &memory).map(|_| ()));
+        refused(label, &outcome.unwrap_err(), measured, memory.peak_reserved(), "MODEL-STATE-INTEGRITY");
+    }
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+fn id_of(path: &Path) -> String {
+    Connection::open(path).unwrap().query_row("SELECT recording_id FROM analysis_runs", [], |row| row.get(0)).unwrap()
+}
+
+/// Replaces the stored state's record with a coherently resealed one holding a
+/// large extra member (its hash, descriptor and column made to agree).
+fn reseal_large_state_record(path: &Path) {
+    let record_json: String = Connection::open(path).unwrap().query_row("SELECT record_json FROM model_states", [], |row| row.get(0)).unwrap();
+    let mut record: Value = serde_json::from_str(&record_json).unwrap();
+    record["padding"] = json!("s".repeat(LARGE));
+    let hash = model_states::record_hash_hex(&record).unwrap();
+    record["hashes"][1]["value"] = json!(hash);
+    tamper(
+        path,
+        &format!("UPDATE model_states SET record_json = '{}', record_hash = '{hash}';", quoted(&serde_json::to_string(&record).unwrap())),
+    );
+}
+
+#[test]
+fn a_run_read_prices_its_states_large_record() {
+    let (path, _) = recorded_fixture("memory-state-record");
+    let id = id_of(&path);
+    let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM model_states", [], |row| row.get(0)).unwrap();
+    let small = small_pool();
+    assert_admitted(&small, "the run before", |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
+    assert_admitted(&small, "the state's edit before", |memory| {
+        model_states::edit_labels_in_store_with(&path, PROJECT, &state_id, labels_from_value(json!({ "state_name": "Before" })).unwrap(), None, T0, memory)
+    });
+    reseal_large_state_record(&path);
+    // The pool admits the run's own columns but not the state's record: the
+    // refusal names the state, and its record was not loaded.
+    assert_refused_unloaded(&small, &format!("saved state `{state_id}`"), |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
+    assert_within_reservation("read_analysis_run", |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
+    // The state's own label edit and delete are metered too.
+    let what = format!("saved state `{state_id}`");
+    assert_refused_unloaded(&small, &what, |memory| {
+        model_states::edit_labels_in_store_with(&path, PROJECT, &state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0, memory)
+    });
+    assert_refused_unloaded(&small, &what, |memory| model_states::delete_state_in_store_with(&path, PROJECT, &state_id, memory));
+    assert_within_reservation("edit_model_state_labels", |memory| {
+        model_states::edit_labels_in_store_with(&path, PROJECT, &state_id, labels_from_value(json!({ "state_name": "Renamed" })).unwrap(), None, T0 + 10, memory)
+    });
+}
+
+#[test]
+fn a_reads_reservation_is_held_until_its_response_is_serialized() {
+    let (path, _) = recorded_fixture("memory-held");
+    let id = id_of(&path);
     let pool = registry(ScriptedHost::normal());
     let memory = PoolReadMemory::new(&pool);
-    let states = model_states::list_states_with(connection, PROJECT, &memory).unwrap();
-    assert!(memory.peak_reserved() > 0);
+    let metered = read_run_in_store_with(&path, PROJECT, &id, &memory).unwrap();
+    let held = pool.pool_status().reserved_bytes;
+    assert!(held > 0, "the returned read still holds its reservation");
+    let length = stored_read::serialized_length(&metered.value).unwrap();
+    let response = stored_read::respond_metered::<_, String>(&memory, "read_analysis_run", Ok(metered)).unwrap();
+    assert_eq!(pool.pool_status().reserved_bytes, 0, "released once the response exists");
+    assert!(memory.peak_reserved() >= held + crate::ingress::allocation_envelope(length).unwrap(), "the response buffer was reserved on top of the held read");
+    drop(response);
+    // A response buffer the pool does not admit is refused by name, before it is serialized.
     let small = small_pool();
-    let error = model_states::list_states_with(connection, PROJECT, &PoolReadMemory::new(&small)).unwrap_err();
-    assert!(error.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading the saved states of project `{PROJECT}`")), "{error}");
-    states.len()
+    let memory = PoolReadMemory::new(&small);
+    let Err(refused) = stored_read::respond_metered::<_, String>(&memory, "read_analysis_run", Ok(Metered::new("r".repeat(LARGE)))) else {
+        panic!("the response buffer was admitted");
+    };
+    assert!(matches!(&refused, CommandError::Command(message) if message.starts_with("STORE-READ-MEMORY-UNAVAILABLE: reading the response to read_analysis_run")), "{refused:?}");
+}
+
+#[test]
+fn record_run_prices_its_extra_parse_before_it_parses() {
+    let path = store_with_project("memory-record-run");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000001801", 1_000);
+    let manifest = manifest_text(&solved);
+    let result = format!(
+        "{{\"run_id\":\"{RUN}\",\"model_ref\":\"{PROJECT}\",\"results\":[{{\"id\":\"result:disp:N-100\",\"value\":1.5,\"padding\":\"{}\"}}],\"diagnostics\":[]}}",
+        "p".repeat(LARGE)
+    );
+    let mut submitted = request(&solved, "Large result");
+    submitted.run_record = transient(&result, &manifest);
+    submitted.result_json = result;
+    let small = small_pool();
+    let now = || Ok(T0);
+    let token = || Ok("0000000000000000000000000000beef".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    let error = record_run_in_store_with(&path, submitted, &hooks, &PoolReadMemory::new(&small)).unwrap_err();
+    assert!(error.starts_with("STORE-READ-MEMORY-UNAVAILABLE: reading the run to record"), "{error}");
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    let mut invalid = request(&solved, "Invalid result");
+    invalid.result_json = invalid_json();
+    let error = record_run_in_store_with(&path, invalid, &hooks, &PoolReadMemory::new(&small)).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-RESULT-MISMATCH: the result: the stored JSON is invalid"), "{error}");
 }
