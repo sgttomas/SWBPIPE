@@ -276,3 +276,95 @@ pub(crate) fn append_scaling_diagnostics(
         vec![component.id.clone()],
     ));
 }
+
+/// W-15 slice d (Design §5): the `section_role` of every `component_body`
+/// record.
+pub(crate) const SECTION_ROLE: &str = "reference_pipe_section";
+
+/// The stress kinds of the two current tables (pressure-2 and
+/// preview-physics-2): every row kind whose physical dimension is stress. A
+/// body member's row of one of these kinds carries the record. Pinned to the
+/// tables by `w15_rigid_scaling_tests::stress_kinds_are_the_tables_stress_rows`.
+pub(crate) const STRESS_KINDS: [&str; 17] = [
+    "component_equal_factor_intensified_bending_stress_v1",
+    "curved_bend_directional_intensified_bending_maximum_v1",
+    "curved_bend_directional_intensified_bending_stress_v1",
+    "element_local_axial_normal_stress",
+    "element_local_bending_normal_stress_y",
+    "element_local_bending_normal_stress_z",
+    "element_local_normal_stress_extreme",
+    "element_local_torsional_shear_stress",
+    "element_local_transverse_shear_stress_maximum",
+    "pipe_axial_membrane_stress_v2",
+    "pipe_elastic_normal_stress_maximum_v2",
+    "pipe_lame_hoop_stress_v2",
+    "pipe_lame_radial_stress_v2",
+    "pipe_section_pressure_hoop_stress",
+    "pipe_section_pressure_longitudinal_stress",
+    "pipe_toroidal_membrane_hoop_stress_v1",
+    "pipe_toroidal_radial_surface_stress_v1",
+];
+
+/// The record of one body member.
+pub(crate) fn body_record(member: &crate::ScaledMember) -> crate::ComponentBody {
+    crate::ComponentBody {
+        component_ref: member.component_id.clone(),
+        stiffness_scale: member.scale,
+        section_role: SECTION_ROLE,
+    }
+}
+
+fn record_value(member: &crate::ScaledMember) -> serde_json::Value {
+    serde_json::to_value(body_record(member)).expect("a finite record serializes")
+}
+
+/// W-15 slice d (Design §5): identify every reference-section result of a
+/// solved envelope. Each stress row whose entity is a body member (every case,
+/// section basis and combination) and each such member's stress extremum
+/// carry the record; each stress-maximum coverage entry lists the body
+/// members when there are any. Nothing changes without a body, so a result
+/// without an applied scale keeps its bytes.
+pub(crate) fn annotate_component_bodies(
+    envelope: &mut crate::MechanicsEnvelope,
+    pipes: &[open_pipe_stress_straight_pipe::StraightPipeElement],
+    bodies: &HashMap<String, crate::ScaledMember>,
+) {
+    if bodies.is_empty() {
+        return;
+    }
+    for row in &mut envelope.results {
+        if STRESS_KINDS.contains(&row.kind.as_str()) {
+            if let Some(member) = bodies.get(&row.entity_ref) {
+                row.component_body = Some(body_record(member));
+            }
+        }
+    }
+    let ordered = pipes
+        .iter()
+        .filter(|pipe| bodies.contains_key(&pipe.element_id))
+        .map(|pipe| serde_json::json!(pipe.element_id))
+        .collect::<Vec<_>>();
+    let Some(evidence) = envelope.contract_evidence.as_mut() else { return };
+    for list in ["preview_cases", "exact_cases"] {
+        let Some(cases) = evidence.get_mut(list).and_then(serde_json::Value::as_array_mut) else { continue };
+        for case in cases {
+            if let Some(extrema) = case.get_mut("pipe_stress_extrema").and_then(serde_json::Value::as_array_mut) {
+                for extremum in extrema {
+                    let pipe = extremum["pipe_id"].as_str().unwrap_or_default().to_string();
+                    if let Some(member) = bodies.get(&pipe) {
+                        extremum["component_body"] = record_value(member);
+                    }
+                }
+            }
+            match case.get_mut("stress_maximum_coverage") {
+                Some(serde_json::Value::Array(entries)) => {
+                    for entry in entries {
+                        entry["component_body_pipe_ids"] = serde_json::json!(ordered);
+                    }
+                }
+                Some(entry @ serde_json::Value::Object(_)) => entry["component_body_pipe_ids"] = serde_json::json!(ordered),
+                _ => {}
+            }
+        }
+    }
+}

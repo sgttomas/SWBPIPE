@@ -110,10 +110,13 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
     const rowHash=await scopedChecksum(row,rowScope,origin.received_carrier_checksum.payload_ref),original=origin.authentic_producer_available?await scopedChecksum(row,'raw_source_row',origin.original_producer_checksum.payload_ref):null;
     const annotation_ref=ref('source_annotation',`source-annotation:${index}`),object_ref=ref('preview_entity',row.entity_ref);
     const basis_ref=row.basis_ref??(disposition==='exported_review'?ref('source_basis',row.metadata!.basis):e.run_ref);
-    annotations.push({annotation_id:annotation_ref.ref_id,source_row_index:index,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref});
+    // W-15 slice d (DEL-03-05 Design §5): a component body's record travels verbatim.
+    const annotation:JsonObject={annotation_id:annotation_ref.ref_id,source_row_index:index,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref};
+    if(row.component_body!==undefined)annotation.component_body=structuredClone(row.component_body);
+    annotations.push(annotation);
     let target:JsonObject,targetPath:string,targetType:string,targetScope:string;
     if(disposition==='exported_quantity'){
-      target={result_id:row.id,family:s!.family,object_ref,basis_ref,magnitude:row.value,unit:row.unit,dimension,provenance:e.provenance,source_kind:row.kind,source_row_index:index,source_annotation_ref:annotation_ref};if(md)target.metadata=md;
+      target={result_id:row.id,family:s!.family,object_ref,basis_ref,magnitude:row.value,unit:row.unit,dimension,provenance:e.provenance,source_kind:row.kind,source_row_index:index,source_annotation_ref:annotation_ref};if(md)target.metadata=md;if(row.component_body!==undefined)target.component_body=structuredClone(row.component_body);
       targetPath=`/result_envelope/result_sets/0/values/${values.length}`;values.push(target);targetType='quantity_result';targetScope='derived_quantity_row';
     }else if(disposition==='exported_review'){
       target={evidence_id:row.id,source_row_index:index,source_result_id:row.id,source_kind:row.kind,evidence_kind:category==='assembled_load_review'?'assembled_load_review':'user_input_review',magnitude:row.value,unit:row.unit,dimension,object_ref,basis_ref,location_ref:ref('source_location',row.metadata!.location),source_annotation_ref:annotation_ref,provenance:e.provenance};
@@ -187,7 +190,9 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
     requireEqual(a.target_ref,ref(type,row.id),'TARGET_REF');requireEqual([target.source_row_index,target.source_kind,target.result_id??target.evidence_id??target.source_result_id],[i,row.kind,row.id],'TARGET_IDENTITY');
     requireEqual(target.object_ref,ref('preview_entity',row.entity_ref),'TARGET_OBJECT');
     const observed={present:Object.hasOwn(row,'dimension'),value:row.dimension??null},annRef=ref('source_annotation',`source-annotation:${i}`);
-    requireEqual(ann,{annotation_id:annRef.ref_id,source_row_index:i,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref:originRef},'SOURCE_ANNOTATION');requireEqual(target.source_annotation_ref,annRef,'ANNOTATION_REF');
+    requireEqual(ann,{annotation_id:annRef.ref_id,source_row_index:i,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref:originRef,...(row.component_body!==undefined?{component_body:row.component_body}:{})},'SOURCE_ANNOTATION');requireEqual(target.source_annotation_ref,annRef,'ANNOTATION_REF');
+    // W-15 slice d (Rust `derivative_agrees`): a quantity carries its row's record verbatim; no other target carries one.
+    if(disposition==='exported_quantity'?!equalJson(target.component_body,row.component_body):Object.hasOwn(target,'component_body'))throw new Error('SOURCE_COMPONENT_BODY_MISMATCH');
     const rowHash=await scopedChecksum(row,rowScope,origin.received_carrier_checksum.payload_ref),original=origin.authentic_producer_available?await scopedChecksum(row,'raw_source_row',origin.original_producer_checksum.payload_ref):null;
     requireEqual(a.received_carrier_row_checksum,rowHash,'SOURCE_ROW_HASH');requireEqual(a.original_producer_row_checksum,original,'SOURCE_ROW_HASH');
     requireEqual(disposition==='disclosed'?[target.source_value,target.source_unit]:[target.magnitude,target.unit],[row.value,row.unit],'SOURCE_TARGET_VALUE');

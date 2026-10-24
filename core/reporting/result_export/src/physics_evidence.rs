@@ -380,6 +380,9 @@ pub(crate) fn validate_physics_evidence_in(
     contract: PressureContract,
 ) -> Check {
     finite_tree(source)?;
+    // W-15 slice d (DEL-03-05 Design §5): the component bodies and their
+    // reference-section records, checked once over rows, extrema and coverage.
+    let bodies = crate::component_body::source_bodies(source, crate::semantic_contract::pressure_rows_contract())?;
     require(
         (composite || source.get("source_block_recovery").is_none())
             && source.get("carrier_evidence").is_none(),
@@ -600,7 +603,7 @@ pub(crate) fn validate_physics_evidence_in(
             }
             require(
                 keys(
-                    ex,
+                    &crate::component_body::without_record(ex),
                     &[
                         "pipe_id",
                         "section_basis",
@@ -1137,10 +1140,15 @@ pub(crate) fn validate_physics_evidence_in(
         )?;
     }
     // T4-U6 (D-5, §2.2): no governing basis; one headline per basis.
+    // W-15 slice d: the headlines range over the non-body members.
     let maxima: Vec<&Value> = array(&source["results"])?
         .iter()
-        .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2")
+        .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2"
+            && !bodies.contains_key(r["entity_ref"].as_str().unwrap_or_default()))
         .collect();
+    for basis in crate::section_basis::BASES {
+        crate::component_body::headline_not_body(&source["summary"][format!("max_open_formula_stress_{basis}")], &bodies)?;
+    }
     crate::section_basis::headlines(&source["summary"], &rows, &maxima, coverage_complete)
 }
 

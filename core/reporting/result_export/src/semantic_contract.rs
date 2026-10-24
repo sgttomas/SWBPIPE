@@ -100,7 +100,7 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7";
-pub const PRESSURE_TABLE_SHA256: &str = "22fe1361f7913c88875d1df3faf027bd9db0d6af7a4bb3c214fade33387c3f95";
+pub const PRESSURE_TABLE_SHA256: &str = "9183ef9b83f879620df45c03994f71808cc9c04c4a093c86b0bedfca2f96e59f";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66;
@@ -141,7 +141,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "d7bc48c919396081495207df35464d3d805436e288a31f9f23f76d28864d382e";
+    "a0dac6244cfbb5b930e439d9d64a6eb45001d95271af6e8eb90939c7b3d323dd";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -681,6 +681,13 @@ pub fn standing_reason(_source: &Value) -> Option<&'static str> {
 /// class. Every binding site calls this helper. (B4/D1 (b) retired the
 /// non-composite source-blocks-1 summary refusal with that identity.)
 pub fn rule_binding_refusal(envelope: &Value, row: &Value) -> Option<&'static str> {
+    // W-15 slice d (DEL-03-05 Design §5): a component body's row is a stress
+    // of its reference pipe section, not of the body; a rule bound to it is
+    // RULE_INPUTS_INCOMPLETE with this reason. A headline binds the row its
+    // `result_ref` names, and never names a body.
+    if row.get(crate::component_body::RECORD).is_some() {
+        return Some(crate::component_body::BODY_REFERENCE_SECTION);
+    }
     if is_retained(envelope) {
         return retained_binding_refusal(envelope, row);
     }

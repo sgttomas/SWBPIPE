@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import section_basis as sb, u4b
+from . import component_body, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -69,7 +69,7 @@ PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_ver
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds.
-TABLE_SHA256 = "22fe1361f7913c88875d1df3faf027bd9db0d6af7a4bb3c214fade33387c3f95"
+TABLE_SHA256 = "9183ef9b83f879620df45c03994f71808cc9c04c4a093c86b0bedfca2f96e59f"
 TABLE_SIGNATURE_COUNT = 129
 TABLE_KIND_COUNT = 66
 
@@ -441,6 +441,8 @@ def _physics(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence")
     _shape(evidence, EVIDENCE_KEYS_0_3_0, "namespace")
     _finite_tree(evidence)
+    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records.
+    bodies = component_body.source_bodies(source, pressure_table())
     _require(isinstance(evidence["connector"], list) and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
     arcs_by_case: dict[str, set[str]] = {}
@@ -519,7 +521,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         for basis in sb.BASES:
             _require(set(extrema_by_basis[basis]) == set(geometries[cid]) - missing_by_basis[basis], "maximum member coverage")
         for pid, extremum in [(pid, ex) for basis in sb.BASES for pid, ex in extrema_by_basis[basis].items()]:
-            _shape(extremum, sb.EXTREMUM_KEYS, "extrema shape")
+            _shape(component_body.without_record(extremum), sb.EXTREMUM_KEYS, "extrema shape")
             _require(_text(extremum["result_id"]) and extremum["result_id"] not in extrema_ids, "duplicate extrema result binding")
             extrema_ids.add(extremum["result_id"])
             row = rows.get(extremum["result_id"], {})
@@ -663,7 +665,7 @@ def _physics(source: Mapping[str, Any]) -> None:
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
     # T4-U6 (D-5, §2.2): no governing basis; one headline per basis.
-    _basis(sb.headlines, source.get("summary"), rows, complete)
+    _basis(sb.headlines, source.get("summary"), rows, complete, bodies)
     for cid, case in cases.items():
         arcs = arcs_by_case.get(cid, set())
         joint_face_sources: set[tuple[str, str, str, str]] = set()

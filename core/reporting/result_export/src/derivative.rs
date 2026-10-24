@@ -288,11 +288,20 @@ pub fn derive_document(
                     run_basis.clone()
                 }
             });
-        annotations.push(json!({"annotation_id":annotation_id,"source_row_index":index,"source_result_id":id,"metadata":row.get("metadata").cloned().unwrap_or(Value::Null),"basis_ref":row.get("basis_ref").cloned().unwrap_or(Value::Null),"source_result_refs":row.get("source_result_refs").cloned().unwrap_or(json!([])),"observed_carrier_dimension":observed,"source_physical_semantic_dimension":math,"derivative_target_dimension":dimension,"source_origin_ref":origin_ref}));
+        let mut annotation = json!({"annotation_id":annotation_id,"source_row_index":index,"source_result_id":id,"metadata":row.get("metadata").cloned().unwrap_or(Value::Null),"basis_ref":row.get("basis_ref").cloned().unwrap_or(Value::Null),"source_result_refs":row.get("source_result_refs").cloned().unwrap_or(json!([])),"observed_carrier_dimension":observed,"source_physical_semantic_dimension":math,"derivative_target_dimension":dimension,"source_origin_ref":origin_ref});
+        // W-15 slice d (DEL-03-05 Design §5): a body row's record, verbatim.
+        let body = crate::component_body::derivative_record(row);
+        if let Some(record) = &body {
+            annotation[crate::component_body::RECORD] = record.clone();
+        }
+        annotations.push(annotation);
         let (target, path_target, target_type, target_scope) = if actual == "exported_quantity" {
             let mut target = json!({"result_id":id,"family":family,"object_ref":obj,"basis_ref":basis,"magnitude":value,"unit":unit,"dimension":dimension,"provenance":provenance,"source_kind":kind,"source_row_index":index,"source_annotation_ref":annotation_ref});
             if let Some(md) = metadata {
                 target["metadata"] = md;
+            }
+            if let Some(record) = body {
+                target[crate::component_body::RECORD] = record;
             }
             let pointer = format!("/result_envelope/result_sets/0/values/{}", values.len());
             values.push(target.clone());
@@ -607,8 +616,16 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
             || ann["derivative_target_dimension"] != dimension
             || ann["source_origin_ref"] != origin_ref
             || target["source_annotation_ref"] != ann_ref
+            || !crate::component_body::derivative_agrees(ann, row)
         {
             return Err("SOURCE_ANNOTATION_MISMATCH".into());
+        }
+        // W-15 slice d: a derivative quantity carries its source row's record
+        // verbatim; a review or disclosure target carries none.
+        if (disposition == "exported_quantity" && !crate::component_body::derivative_agrees(target, row))
+            || (disposition != "exported_quantity" && target.get(crate::component_body::RECORD).is_some())
+        {
+            return Err("SOURCE_COMPONENT_BODY_MISMATCH".into());
         }
         let row_hash = checksum(row, row_scope, carrier_ref.clone())?;
         let original = if authentic {

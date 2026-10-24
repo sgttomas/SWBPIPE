@@ -3,7 +3,7 @@ import { sourceContract } from "../features/results/resultReader";
 import { numericalResultStanding, retainedSourceRecoveryInvocation } from "../features/results/resultStanding";
 import { refuseSurfaceOutput } from "../features/results/outputPolicy";
 import { loadReferenceDisclosure } from "../features/results/loadReferenceDisclosure";
-import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED } from "../features/results/knownSemanticLimitations";
+import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED, COMPONENT_BODY_REFERENCE_SECTION } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invokeWithIngress } from "./nativeIngress";
 import type { MechanicsResult, PreviewModel } from "../types";
@@ -371,7 +371,10 @@ export function ruleBindingPrecheck(
       const reason = ruleBindingRefusal(source, row);
       // U6d: a successor refusal (the only kind since B4/D1 (b)) shows its class notice
       // (D2 4.9.9). Without a validated class (unregistered or refused) the row has no class label.
-      const notice = retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED;
+      // W-15 slice d: a component body's row names its reference section instead.
+      const notice = reason === COMPONENT_BODY_REFERENCE_SECTION && row.component_body
+        ? `stress of the reference pipe section of component body ${row.component_body.component_ref} (stiffness scale ${row.component_body.stiffness_scale}); not a stress of the component body`
+        : retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED;
       if (reason) findings.push({ ...binding, reason, notice });
     }
   }

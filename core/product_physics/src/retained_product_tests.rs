@@ -2341,7 +2341,7 @@ fn i51_first_prepared_native_both_modes() {
 
 
 fn i51_c0_mode_observation() -> ResultItem {
-    ResultItem {id:"result:solver-mode:linear-solve-basis".into(),kind:"linear_solver_mode_basis".into(),
+    ResultItem { component_body: None,id:"result:solver-mode:linear-solve-basis".into(),kind:"linear_solver_mode_basis".into(),
         value:1.,unit:"mode_code".into(),entity_ref:"solver:linear_static_preview".into(),basis_ref:None,source_result_refs:Vec::new(),
         metadata:Some(ResultMetadata{component:"linear_solver_mode".into(),coordinate_system:"reduced_system".into(),
             location:"case".into(),basis:"isolated successful ordinary observation fixture".into(),

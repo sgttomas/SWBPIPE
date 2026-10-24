@@ -2192,6 +2192,7 @@
     "Direct load cases only; derived combinations and state differences are unsupported.",
     "On every member the section normal-stress extremes are Nw/As \u00b1 hypot(My,Mz)/Z (N/A off the pressure family) at each station and basis, and the transverse shear maximum is the straight-annulus Saint-Venant value with the member's authored nu; neither is a code or equivalent stress.",
     "Normal-stress maxima are bounded elastic normal stress, not code or equivalent stress.",
+    "Component bodies (W-15): the stress rows, stress extrema and maximum rows of a member solved with a valve, flange, reducer, rigid or specialty component's DEC-045 stiffness scale carry component_body {component_ref, stiffness_scale, section_role: reference_pipe_section}; they are stresses of the mapped pipe section as a reference section, not of the component body. Each stress-maximum coverage entry lists component_body_pipe_ids, the case maxima and headlines range over the other members, and a rule bound to a body row is RULE_INPUTS_INCOMPLETE (COMPONENT_BODY_REFERENCE_SECTION).",
     "Source evidence and numerical standing do not authenticate a producer or grant engineering acceptance."
   ],
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_in_addition_to_kind_unit_component"

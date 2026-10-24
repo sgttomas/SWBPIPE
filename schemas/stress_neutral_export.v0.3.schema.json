@@ -2321,6 +2321,9 @@
                     },
                     "enclosure_scope": {
                       "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                    },
+                    "component_body": {
+                      "$ref": "#/$defs/ComponentBodyRecord"
                     }
                   }
                 }
@@ -2715,6 +2718,15 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "component_body_pipe_ids": {
+          "type": "array",
+          "minItems": 1,
+          "description": "W-15 slice d: the component body members, present only when there are any; their maxima stay published, but the case maximum and headline range over the other members.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -2995,6 +3007,9 @@
                         },
                         "enclosure_scope": {
                           "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                        },
+                        "component_body": {
+                          "$ref": "#/$defs/ComponentBodyRecord"
                         }
                       }
                     },
@@ -3064,6 +3079,9 @@
                         },
                         "enclosure_scope": {
                           "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        },
+                        "component_body": {
+                          "$ref": "#/$defs/ComponentBodyRecord"
                         }
                       }
                     }
@@ -3091,6 +3109,15 @@
                   },
                   "outside_domain_pipe_ids": {
                     "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "component_body_pipe_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "W-15 slice d: the component body members, present only when there are any; their maxima stay published, but the case maximum and headline range over the other members.",
                     "items": {
                       "type": "string",
                       "minLength": 1
@@ -3742,6 +3769,29 @@
           "minLength": 1
         }
       }
+    },
+    "ComponentBodyRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "W-15 slice d (DEL-03-05 Design rigid-component-stiffness-scaling.md section 5): present only on a component body's stress row, stress extremum and maximum, and on their derivative quantities and source annotations. The row is a stress of the mapped pipe section, a reference section, not of the component body.",
+      "required": [
+        "component_ref",
+        "stiffness_scale",
+        "section_role"
+      ],
+      "properties": {
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stiffness_scale": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "section_role": {
+          "const": "reference_pipe_section"
+        }
+      }
     }
   },
   "oneOf": [
@@ -3968,7 +4018,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             },
             "sha256": {
-              "const": "22fe1361f7913c88875d1df3faf027bd9db0d6af7a4bb3c214fade33387c3f95"
+              "const": "9183ef9b83f879620df45c03994f71808cc9c04c4a093c86b0bedfca2f96e59f"
             }
           }
         },
@@ -4166,7 +4216,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "d7bc48c919396081495207df35464d3d805436e288a31f9f23f76d28864d382e"
+              "const": "a0dac6244cfbb5b930e439d9d64a6eb45001d95271af6e8eb90939c7b3d323dd"
             }
           }
         },

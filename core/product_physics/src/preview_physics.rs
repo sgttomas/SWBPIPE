@@ -242,7 +242,7 @@ fn support_dispositions(
 }
 
 fn maximum_row(case_id: &str, pipe_id: &str, value: f64, arc: bool) -> ResultItem {
-    ResultItem {
+    ResultItem { component_body: None,
         id: format!(
             "result:elastic-maximum:{}:{}:{}:{}",
             case_id.len(),
@@ -477,7 +477,9 @@ struct MemberRender {
     case_max: Option<LocatedQuantity>,
 }
 
-fn render_members(case_id: &str, members: &[MemberRecord], diagnostics: &mut Vec<Diagnostic>) -> MemberRender {
+/// W-15 slice d: `bodies` are the members formed as component bodies; they
+/// keep their maxima and extrema but never enter the case maximum.
+fn render_members(case_id: &str, members: &[MemberRecord], bodies: &HashSet<&str>, diagnostics: &mut Vec<Diagnostic>) -> MemberRender {
     let mut out = MemberRender { maximum_rows: HashMap::new(), extrema: Vec::new(), unavailable: Vec::new(), outside: Vec::new(), case_max: None };
     for member in members {
         match &member.maximum {
@@ -499,7 +501,7 @@ fn render_members(case_id: &str, members: &[MemberRecord], diagnostics: &mut Vec
                 let mut evidence=extrema_evidence(&member.pipe_id,&row.id,maximum,member.arc);
                 evidence["value_upper_pa"]=serde_json::json!(maximum.upper_bound);
                 out.extrema.push(evidence);
-                if out.case_max.as_ref().is_none_or(|q| value > q.value || (value == q.value && member.pipe_id < q.location_ref)) {
+                if !bodies.contains(member.pipe_id.as_str()) && out.case_max.as_ref().is_none_or(|q| value > q.value || (value == q.value && member.pipe_id < q.location_ref)) {
                     out.case_max = Some(LocatedQuantity { value, unit: "Pa".to_string(), location_ref: member.pipe_id.clone(), result_ref: row.id.clone() });
                 }
                 out.maximum_rows.insert(member.pipe_id.clone(), row);
@@ -552,6 +554,7 @@ pub(crate) fn render(
     let restrained: HashSet<usize> = restrained_dofs.iter().copied().collect();
     let ambiguous = ambiguous_supports(&built.supports, &built.nonlinear_supports, &restrained);
     let arc_pipes: HashSet<&str> = built.curved_bend_elements.iter().map(|b| b.pipe_id.as_str()).collect();
+    let bodies: HashSet<&str> = built.scaled_members.keys().map(String::as_str).collect();
     let mut removed_ids = HashSet::new();
     let mut preview_cases = Vec::new();
     let mut incomplete_pipes = BTreeMap::new();
@@ -600,7 +603,7 @@ pub(crate) fn render(
         #[cfg(test)]
         witness_hook::observe(&model.project.id, &record.members);
         let MemberRender { mut maximum_rows, extrema, unavailable, outside, case_max } =
-            render_members(&case_id, &record.members, diagnostics);
+            render_members(&case_id, &record.members, &bodies, diagnostics);
         let complete = unavailable.is_empty() && outside.is_empty();
         for pipe in unavailable.iter().chain(&outside) {
             incomplete_pipes.insert(pipe.clone(), ());
@@ -664,7 +667,7 @@ pub(crate) fn render(
                         stable_suffix(&association.component.id),
                         stable_suffix(&member.pipe_id)
                     );
-                    let row = ResultItem {
+                    let row = ResultItem { component_body: None,
                         id: base_id,
                         kind: INTENSIFIED_KIND.to_string(),
                         value,
@@ -1117,7 +1120,7 @@ mod tests {
             straight("pipe:c", Err("enclosure failed".into())),
             MemberRecord { pipe_id: "pipe:arc".into(), arc: true, maximum: None, end_resultants: [[0.0; 6]; 2], section_modulus: 1.0, certified_end_bending:None },
         ];
-        let out = render_members("case:1", &members, &mut diagnostics);
+        let out = render_members("case:1", &members, &HashSet::new(), &mut diagnostics);
         assert_eq!(out.unavailable, vec!["pipe:c".to_string()]);
         assert_eq!(out.outside, vec!["pipe:arc".to_string()]);
         assert_eq!(out.extrema.len(), 2);

@@ -49,7 +49,7 @@ _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure
 # pressure-2 (`3.0.0/exact_pressure_v3`): the ordinary exact route. Its raw statements are read by the independent
 # `pressure_2` verifier; it is also the exact successor's G7 base (B7b D4 (a)).
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "22fe1361f7913c88875d1df3faf027bd9db0d6af7a4bb3c214fade33387c3f95"
+PRESSURE_CONTRACT_SHA256 = "9183ef9b83f879620df45c03994f71808cc9c04c4a093c86b0bedfca2f96e59f"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
@@ -65,7 +65,7 @@ _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "d7bc48c919396081495207df35464d3d805436e288a31f9f23f76d28864d382e"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "a0dac6244cfbb5b930e439d9d64a6eb45001d95271af6e8eb90939c7b3d323dd"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -421,7 +421,11 @@ def rule_binding_refusal(envelope: Mapping[str, Any], row: Mapping[str, Any]) ->
 
     A successor row is refused by its validated class. B4/D1 (b) retired the
     non-composite source-blocks-1 summary refusal with that identity.
+    W-15 slice d: a component body's row (``component_body``) is refused as
+    ``COMPONENT_BODY_REFERENCE_SECTION``.
     """
+    if isinstance(row, Mapping) and "component_body" in row:
+        return "COMPONENT_BODY_REFERENCE_SECTION"
     if _is_retained(envelope):
         return _retained_binding_refusal(envelope, row)
     return None

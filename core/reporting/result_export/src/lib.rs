@@ -1700,3 +1700,4 @@ pub mod physics_source;
 pub mod source_blocks;
 pub mod retained_precision;
 pub mod reader_verdict;
+pub mod component_body;

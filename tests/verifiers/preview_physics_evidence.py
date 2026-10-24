@@ -18,6 +18,8 @@ from pathlib import Path
 import sys
 from typing import Any
 
+from . import component_body
+
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PROFILE = "product_preview_mechanics_v1"
 ROOT = Path(__file__).resolve().parents[2]
@@ -197,7 +199,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         cases[cid] = case
         _require(isinstance(case["pipe_stress_extrema"], list) and isinstance(case["intensified_measures"], list), "preview case lists")
         coverage = case["stress_maximum_coverage"]
-        _shape(coverage, {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
+        _shape(component_body.without_record(coverage), {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
         _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]) and _strings(coverage["outside_domain_pipe_ids"]), "maximum coverage values")
         _require(not set(coverage["unavailable_pipe_ids"]) & set(coverage["outside_domain_pipe_ids"]), "maximum coverage overlap")
         # T4-U4b (§2.1, review item 6): arcs publish their maximum; no member is outside its domain.
@@ -212,7 +214,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         # A3 2: a support is attributed or withheld, never both.
         _require(not set(attribution["attributed_support_ids"]) & {record["support_id"] for record in attribution["withheld"]}, "support both attributed and withheld")
         for extremum in case["pipe_stress_extrema"]:
-            _shape(extremum, EXTREMA_KEYS, "extrema shape")
+            _shape(component_body.without_record(extremum), EXTREMA_KEYS, "extrema shape")
             # T4-U4b (§2.3): the straight tokens or, on an arc (checked against the rows below), the arc tokens.
             arc_constants = dict(zip(EXTREMA_CONSTANTS, ("arc_closed_form_section_statics", "arc_end_j_force_and_uniform_intensities_binary64_enclosures",
                                                          "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate")))
@@ -277,6 +279,8 @@ def _validate(source: Mapping[str, Any]) -> None:
     _require(len(rows) == len(results), "duplicate result ID")
     from . import u4b
     arcs = u4b.preview_arcs(results)
+    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records.
+    bodies = component_body.source_bodies(source, TABLE)
 
     # 2. Every row kind has a signature.
     for row in results:
@@ -373,8 +377,11 @@ def _validate(source: Mapping[str, Any]) -> None:
 
     complete = bool(cases) and all(case["stress_maximum_coverage"]["complete"] for case in cases.values())
     stress = summary.get("max_open_formula_stress")
-    if complete and maximum_rows:
-        selected = governing(maximum_rows)
+    # W-15 slice d: the stress headline ranges over the non-body members.
+    component_body.headline_not_body(stress, bodies)
+    headline_rows = [row for row in maximum_rows if row["entity_ref"] not in bodies]
+    if complete and headline_rows:
+        selected = governing(headline_rows)
         _require(stress == {"value": selected["value"], "unit": "Pa", "location_ref": selected["entity_ref"], "result_ref": selected["id"]}, "stress headline does not govern")
     else:
         _require(stress is None, "stress headline while coverage is incomplete or no maximum exists")
