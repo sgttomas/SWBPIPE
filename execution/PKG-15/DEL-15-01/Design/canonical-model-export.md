@@ -185,7 +185,9 @@ chooses:
 3. **An existing target is replaced by an atomic swap.** macOS
    `renamex_np(staging, target, RENAME_SWAP)` exchanges the two directories in
    one step, so there is no interval without a target. The swapped-out old
-   package is then deleted.
+   package is deleted only after the published package is checked by identity
+   and verified (`HANDOFF-PUBLISH-UNVERIFIED` otherwise; the previous package is
+   kept).
    - If the volume does not support the swap, the command refuses with
      `HANDOFF-REPLACE-UNSUPPORTED` and asks for a new name.
    - A leftover `*.staging-*` from a crash is ignored, and is reported for the
