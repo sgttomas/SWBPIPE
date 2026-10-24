@@ -26,11 +26,14 @@ use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 /// The frame kernel admits local axes (`FrameOrientation::new`) that are unit
-/// length and mutually orthogonal each to within `AXIS_TOLERANCE` = 1e-12
+/// length and mutually orthogonal each to within `AXIS_TOLERANCE` = t = 1e-12
 /// (`frame_kernel/src/lib.rs`), so R Rᵀ = I + E with |E_ii| ≤ 2t + t² and
-/// |E_ij| ≤ t, and ‖E‖₂ ≤ ‖E‖_F ≤ √18·t < 5t. Since ‖Rᵀf‖² = fᵀ R Rᵀ f, a
-/// rotated vector's norm differs from the operand's by at most ‖E‖·‖f‖. The
-/// bound adds 64 epsilon for the rotation's and the norms' rounding.
+/// |E_ij| ≤ t, and ‖E‖₂ ≤ ‖E‖_F ≤ √(3(2t + t²)² + 6t²) < 5t. Since
+/// ‖Rᵀf‖² = fᵀ R Rᵀ f, a rotated vector's norm differs from the operand's by
+/// at most ‖E‖·‖f‖. The bound adds 64 epsilon for the rotation's and the
+/// norms' rounding. The derived bend end frames (`curved_bend_end_axes` in
+/// `product_physics`) pass no separate admission check; their worst error is
+/// about 2.5t (independent W-7 review, round 2), which this bound covers.
 /// (Independent W-7 review: an admitted near-parallel `y_reference` gives axes
 /// 2.46e-13 from orthogonal and a norm drift of 1.23e-13.)
 const ADMITTED_AXIS_TOLERANCE: f64 = 1.0e-12;

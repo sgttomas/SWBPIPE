@@ -29,8 +29,10 @@ WALL_KIND = "pipe_wall_endpoint_action_v2"
 ENDS = ("end_i", "end_j")
 EPSILON = 2.0 ** -52  # binary64 epsilon
 MIN_POSITIVE = 2.0 ** -1022  # smallest positive normal binary64
-# The frame kernel admits axes unit and mutually orthogonal to within 1e-12 each (AXIS_TOLERANCE), so
-# R R^T = I + E with ||E||_2 <= sqrt(18) t < 5 t, and a rotated norm drifts by at most ||E|| |f|; plus 64 eps rounding.
+# The frame kernel admits axes unit and mutually orthogonal to within t = 1e-12 each (AXIS_TOLERANCE), so
+# R R^T = I + E with ||E||_2 <= ||E||_F <= sqrt(3 (2t + t^2)^2 + 6 t^2) < 5 t, and a rotated norm drifts by at most
+# ||E|| |f|; plus 64 eps rounding. Derived bend end frames (curved_bend_end_axes) pass no separate admission check;
+# their worst error is about 2.5 t (independent W-7 review, round 2), within the bound.
 ADMITTED_AXIS_TOLERANCE = 1.0e-12
 NORM_TOLERANCE = 5 * ADMITTED_AXIS_TOLERANCE + 64 * EPSILON
 METADATA_KEYS = {"component", "coordinate_system", "location", "basis", "sign_convention"}

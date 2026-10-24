@@ -98,9 +98,13 @@ Twelve rows per member per case, after the member's local end rows:
   The readers also check that each end's global vector has the norm of the
   local vector it rotates, an internal-consistency check that does not
   establish direction. Its bound is the frame error the kernel admits
-  (`AXIS_TOLERANCE` = 1e-12 per axis length and per pair: 5·1e-12 relative)
-  plus 64 epsilon of rounding. A near-parallel `y_reference` the kernel admits
-  gives axes 2.46e-13 from orthogonal, which a bound of rounding alone refused.
+  (`AXIS_TOLERANCE` = t = 1e-12 per axis length and per pair) plus 64 epsilon
+  of rounding: R Rᵀ = I + E with |E_ii| ≤ 2t + t² and |E_ij| ≤ t, so
+  ‖E‖₂ ≤ ‖E‖_F ≤ √(3(2t + t²)² + 6t²) < 5t, and the bound is 5t relative.
+  A near-parallel `y_reference` the kernel admits gives axes 2.46e-13 from
+  orthogonal, which a bound of rounding alone refused. The derived bend end
+  frames (`curved_bend_end_axes`) pass no separate admission check; their
+  worst error is about 2.5t (independent review), which the bound covers.
 - **Desktop, exports, verifiers:** the desktop's declared result dimensions,
   the stress-neutral export's family mapping and the Python verifiers read the
   new kinds from the tables or list them explicitly.
