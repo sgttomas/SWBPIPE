@@ -249,7 +249,7 @@
     "core/reporting/result_export/tests/preview_physics_contract.rs": "0170555dba84496c546129ab3b9f8473a1751be56915c9e6c599ec099bdba728",
     "core/reporting/result_export/tests/reader_verdict.rs": "801f8a7fa28319a5dccfe2c20331a3e747aa5c1689eb7f348b673a8d9dd49187",
     "core/reporting/result_export/tests/retained_precision_carriers.rs": "f030a5bcf89507009d5e63a3fb8f9674de14af6490c5dcd2bf2488cc4fbcb655",
-    "core/reporting/result_export/tests/retained_precision_contract.rs": "4bcc619942a688782e318f394ecbe545d685341d671d81cb7b85db3de123e2bc",
+    "core/reporting/result_export/tests/retained_precision_contract.rs": "4db3d61130fd6efc08fd6cab139eef99868f515c104b9808eb70c504bd0b2b65",
     "core/reporting/result_export/tests/retained_precision_derivative_golden.rs": "5d9c5c7c256e57b3c105993b7288bfdeea2358fddbedaa644d73a2a56b3bf15c",
     "core/reporting/result_export/tests/section_bases.rs": "db00d37b684ff7d472f5b5e611c524f400b1c2f7e9b2fe5d6ffb48ac0d3afcfc",
     "core/reporting/result_export/tests/source_blocks.rs": "7a3f99c82b14da7df9f8b206165c4ed921560043e7332a52fca98d20a916826e",
@@ -806,7 +806,7 @@
     "core/reporting/result_export/tests/preview_physics_contract.rs": "0170555dba84496c546129ab3b9f8473a1751be56915c9e6c599ec099bdba728",
     "core/reporting/result_export/tests/reader_verdict.rs": "801f8a7fa28319a5dccfe2c20331a3e747aa5c1689eb7f348b673a8d9dd49187",
     "core/reporting/result_export/tests/retained_precision_carriers.rs": "f030a5bcf89507009d5e63a3fb8f9674de14af6490c5dcd2bf2488cc4fbcb655",
-    "core/reporting/result_export/tests/retained_precision_contract.rs": "4bcc619942a688782e318f394ecbe545d685341d671d81cb7b85db3de123e2bc",
+    "core/reporting/result_export/tests/retained_precision_contract.rs": "4db3d61130fd6efc08fd6cab139eef99868f515c104b9808eb70c504bd0b2b65",
     "core/reporting/result_export/tests/retained_precision_derivative_golden.rs": "5d9c5c7c256e57b3c105993b7288bfdeea2358fddbedaa644d73a2a56b3bf15c",
     "core/reporting/result_export/tests/section_bases.rs": "db00d37b684ff7d472f5b5e611c524f400b1c2f7e9b2fe5d6ffb48ac0d3afcfc",
     "core/reporting/result_export/tests/source_blocks.rs": "7a3f99c82b14da7df9f8b206165c4ed921560043e7332a52fca98d20a916826e",
@@ -1129,7 +1129,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "881161d41d4f699c4a321718c1f0eb7a72c1aa02850c42a31263c1f79c65136e",
+  "inventory_json_sha256": "8a04c726cf467e4ec1b59733c60e802e00ebc03e47f7f962d0047e5e9550b5d3",
   "dependencies": [
     {
       "name": "block-buffer",
