@@ -24,7 +24,8 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "validate_library_import",
   "save_local_library",
   "save_report_package",
-  "save_local_result_json"
+  "save_local_result_json",
+  "save_model_document_file"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

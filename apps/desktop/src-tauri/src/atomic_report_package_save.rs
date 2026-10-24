@@ -1,3 +1,11 @@
+//! The desktop's atomic file writer: same-directory temporary file, write,
+//! flush, file sync, rename over the destination, bounded parent-directory
+//! sync. It is extension-neutral; each caller names its format
+//! ([`AtomicSaveFormat`]), whose one admitted extension, diagnostic code
+//! prefix and owned temporary-file prefix the writer applies. The report
+//! package save (`.opsproj`, [`REPORT_PACKAGE_FORMAT`]) keeps exactly its
+//! former checks, codes and temporary names; File > Save Model Document…
+//! admits `.json` ([`MODEL_DOCUMENT_FORMAT`], DEL-15-01 W-6a).
 use serde::Serialize;
 use std::{
     collections::hash_map::DefaultHasher,
@@ -22,6 +30,39 @@ pub const PATH_CONTAINMENT: &str = "best_effort_non_adversarial";
 pub const TOCTOU_LIMITATION: &str = "Static symlink checks and same-parent create/rename do not protect against a malicious concurrent parent or destination swap. On directory-sync timeout, at most one detached sync worker may remain blocked; later saves suppress additional directory-sync workers until it exits.";
 const DIRECTORY_SYNC_TIMEOUT: Duration = Duration::from_secs(2);
 static ACTIVE_DIRECTORY_SYNC_WORKERS: AtomicUsize = AtomicUsize::new(0);
+
+/// One format the atomic writer admits: the single destination extension it
+/// accepts, the prefix of every diagnostic code it reports, the prefix of the
+/// temporary files it owns, and the label of its log lines.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AtomicSaveFormat {
+    pub extension: &'static str,
+    pub code_prefix: &'static str,
+    pub temp_prefix: &'static str,
+    pub log_label: &'static str,
+}
+
+impl AtomicSaveFormat {
+    fn code(&self, suffix: &str) -> String {
+        format!("{}-{suffix}", self.code_prefix)
+    }
+}
+
+/// The report package (`.opsproj`): the writer's original and unchanged format.
+pub const REPORT_PACKAGE_FORMAT: AtomicSaveFormat = AtomicSaveFormat {
+    extension: "opsproj",
+    code_prefix: "REPORT-PACKAGE",
+    temp_prefix: ".openpipestress-report-package-",
+    log_label: "report-package",
+};
+
+/// The model document (`.json`, File > Save Model Document…).
+pub const MODEL_DOCUMENT_FORMAT: AtomicSaveFormat = AtomicSaveFormat {
+    extension: "json",
+    code_prefix: "MODEL-DOC-SAVE",
+    temp_prefix: ".openpipestress-model-document-",
+    log_label: "model-document",
+};
 
 #[derive(Debug, PartialEq, Eq)]
 enum DirectorySyncResult {
@@ -59,50 +100,61 @@ pub struct AtomicSaveError {
 }
 
 impl AtomicSaveError {
-    fn validation(code: &str, message: impl Into<String>, destination: &Path) -> Self {
+    fn validation(
+        format: &AtomicSaveFormat,
+        code_suffix: &str,
+        message: impl Into<String>,
+        destination: &Path,
+    ) -> Self {
         Self {
-            code: code.to_string(),
+            code: format.code(code_suffix),
             stage: "validate".to_string(),
             message: message.into(),
             os_error_kind: None,
             os_error_code: None,
             cleanup_code: None,
             cleanup_message: None,
-            selected_basename: basename(destination),
+            selected_basename: basename(format, destination),
             path_containment: PATH_CONTAINMENT.to_string(),
             limitation: TOCTOU_LIMITATION.to_string(),
         }
     }
 
-    fn io(stage: &str, code: &str, error: io::Error, destination: &Path) -> Self {
+    fn io(
+        format: &AtomicSaveFormat,
+        stage: &str,
+        code_suffix: &str,
+        error: io::Error,
+        destination: &Path,
+    ) -> Self {
         Self {
-            code: code.to_string(),
+            code: format.code(code_suffix),
             stage: stage.to_string(),
             message: error.to_string(),
             os_error_kind: Some(format!("{:?}", error.kind())),
             os_error_code: error.raw_os_error(),
             cleanup_code: None,
             cleanup_message: None,
-            selected_basename: basename(destination),
+            selected_basename: basename(format, destination),
             path_containment: PATH_CONTAINMENT.to_string(),
             limitation: TOCTOU_LIMITATION.to_string(),
         }
     }
 
-    fn with_cleanup(mut self, cleanup: io::Result<()>) -> Self {
+    fn with_cleanup(mut self, format: &AtomicSaveFormat, cleanup: io::Result<()>) -> Self {
         if let Err(error) = cleanup {
-            self.cleanup_code = Some("REPORT-PACKAGE-TEMP-CLEANUP-FAILED".to_string());
+            self.cleanup_code = Some(format.code("TEMP-CLEANUP-FAILED"));
             self.cleanup_message = Some(error.to_string());
         }
         self
     }
 }
 
-fn basename(path: &Path) -> String {
+fn basename(format: &AtomicSaveFormat, path: &Path) -> String {
     path.file_name()
         .and_then(|item| item.to_str())
-        .unwrap_or("unknown.opsproj")
-        .to_string()
+        .map(str::to_string)
+        .unwrap_or_else(|| format!("unknown.{}", format.extension))
 }
 
 fn parent_diagnostic(parent: &Path) -> (String, String) {
@@ -179,32 +231,36 @@ fn sync_parent_directory_bounded(parent: &Path) -> DirectorySyncResult {
     )
 }
 
-fn validate_destination(destination: &Path) -> Result<(PathBuf, bool), AtomicSaveError> {
-    if destination.extension().and_then(|item| item.to_str()) != Some("opsproj") {
+/// Per-format admission: the destination must carry the format's one
+/// extension and sit in an existing non-symlink parent directory; a symlink or
+/// directory destination is refused.
+fn validate_destination(
+    format: &AtomicSaveFormat,
+    destination: &Path,
+) -> Result<(PathBuf, bool), AtomicSaveError> {
+    if destination.extension().and_then(|item| item.to_str()) != Some(format.extension) {
         return Err(AtomicSaveError::validation(
-            "REPORT-PACKAGE-DESTINATION-EXTENSION",
-            "destination must use the .opsproj extension",
+            format,
+            "DESTINATION-EXTENSION",
+            format!("destination must use the .{} extension", format.extension),
             destination,
         ));
     }
     let parent = destination.parent().ok_or_else(|| {
         AtomicSaveError::validation(
-            "REPORT-PACKAGE-PARENT-MISSING",
+            format,
+            "PARENT-MISSING",
             "destination must have an existing parent directory",
             destination,
         )
     })?;
     let parent_meta = fs::symlink_metadata(parent).map_err(|error| {
-        AtomicSaveError::io(
-            "validate",
-            "REPORT-PACKAGE-PARENT-UNAVAILABLE",
-            error,
-            destination,
-        )
+        AtomicSaveError::io(format, "validate", "PARENT-UNAVAILABLE", error, destination)
     })?;
     if !parent_meta.is_dir() || parent_meta.file_type().is_symlink() {
         return Err(AtomicSaveError::validation(
-            "REPORT-PACKAGE-PARENT-UNSAFE",
+            format,
+            "PARENT-UNSAFE",
             "destination parent must be an existing non-symlink directory",
             destination,
         ));
@@ -212,14 +268,16 @@ fn validate_destination(destination: &Path) -> Result<(PathBuf, bool), AtomicSav
     let replaced_existing = match fs::symlink_metadata(destination) {
         Ok(metadata) if metadata.file_type().is_symlink() => {
             return Err(AtomicSaveError::validation(
-                "REPORT-PACKAGE-DESTINATION-SYMLINK",
+                format,
+                "DESTINATION-SYMLINK",
                 "symlink destinations are refused",
                 destination,
             ))
         }
         Ok(metadata) if metadata.is_dir() => {
             return Err(AtomicSaveError::validation(
-                "REPORT-PACKAGE-DESTINATION-DIRECTORY",
+                format,
+                "DESTINATION-DIRECTORY",
                 "destination must not be a directory",
                 destination,
             ))
@@ -228,8 +286,9 @@ fn validate_destination(destination: &Path) -> Result<(PathBuf, bool), AtomicSav
         Err(error) if error.kind() == io::ErrorKind::NotFound => false,
         Err(error) => {
             return Err(AtomicSaveError::io(
+                format,
                 "validate",
-                "REPORT-PACKAGE-DESTINATION-INSPECTION-FAILED",
+                "DESTINATION-INSPECTION-FAILED",
                 error,
                 destination,
             ))
@@ -238,13 +297,23 @@ fn validate_destination(destination: &Path) -> Result<(PathBuf, bool), AtomicSav
     Ok((parent.to_path_buf(), replaced_existing))
 }
 
+#[cfg(test)]
 fn create_temp(parent: &Path, destination: &Path) -> Result<(PathBuf, File), AtomicSaveError> {
+    create_temp_as(&REPORT_PACKAGE_FORMAT, parent, destination)
+}
+
+fn create_temp_as(
+    format: &AtomicSaveFormat,
+    parent: &Path,
+    destination: &Path,
+) -> Result<(PathBuf, File), AtomicSaveError> {
     for _ in 0..128_u32 {
         let mut token_bytes = [0_u8; 16];
         getrandom::fill(&mut token_bytes).map_err(|error| {
             AtomicSaveError::io(
+                format,
                 "create_temp",
-                "REPORT-PACKAGE-TEMP-RANDOM-FAILED",
+                "TEMP-RANDOM-FAILED",
                 io::Error::other(error.to_string()),
                 destination,
             )
@@ -253,14 +322,15 @@ fn create_temp(parent: &Path, destination: &Path) -> Result<(PathBuf, File), Ato
             .iter()
             .map(|byte| format!("{byte:02x}"))
             .collect::<String>();
-        let path = parent.join(format!(".openpipestress-report-package-{token}.tmp"));
+        let path = parent.join(format!("{}{token}.tmp", format.temp_prefix));
         match OpenOptions::new().write(true).create_new(true).open(&path) {
             Ok(file) => return Ok((path, file)),
             Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
             Err(error) => {
                 return Err(AtomicSaveError::io(
+                    format,
                     "create_temp",
-                    "REPORT-PACKAGE-TEMP-CREATE-FAILED",
+                    "TEMP-CREATE-FAILED",
                     error,
                     destination,
                 ))
@@ -268,7 +338,8 @@ fn create_temp(parent: &Path, destination: &Path) -> Result<(PathBuf, File), Ato
         }
     }
     Err(AtomicSaveError::validation(
-        "REPORT-PACKAGE-TEMP-COLLISION-EXHAUSTED",
+        format,
+        "TEMP-COLLISION-EXHAUSTED",
         "could not allocate an owned same-directory temporary file",
         destination,
     ))
@@ -306,76 +377,80 @@ impl AtomicSaveIo for SystemAtomicSaveIo {
     }
 }
 
+/// The report package save (`.opsproj`), unchanged.
 pub fn atomic_save_bytes(
     destination: &Path,
     bytes: &[u8],
 ) -> Result<AtomicSaveOutcome, AtomicSaveError> {
-    atomic_save_bytes_with_io(destination, bytes, &mut SystemAtomicSaveIo)
+    atomic_save_bytes_as(&REPORT_PACKAGE_FORMAT, destination, bytes)
 }
 
+/// Writes `bytes` to `destination` atomically under `format`'s admission.
+pub fn atomic_save_bytes_as(
+    format: &AtomicSaveFormat,
+    destination: &Path,
+    bytes: &[u8],
+) -> Result<AtomicSaveOutcome, AtomicSaveError> {
+    atomic_save_bytes_as_with_io(format, destination, bytes, &mut SystemAtomicSaveIo)
+}
+
+#[cfg(test)]
 fn atomic_save_bytes_with_io(
     destination: &Path,
     bytes: &[u8],
     operations: &mut impl AtomicSaveIo,
 ) -> Result<AtomicSaveOutcome, AtomicSaveError> {
-    let (parent, replaced_existing) = validate_destination(destination)?;
+    atomic_save_bytes_as_with_io(&REPORT_PACKAGE_FORMAT, destination, bytes, operations)
+}
+
+fn atomic_save_bytes_as_with_io(
+    format: &AtomicSaveFormat,
+    destination: &Path,
+    bytes: &[u8],
+    operations: &mut impl AtomicSaveIo,
+) -> Result<AtomicSaveOutcome, AtomicSaveError> {
+    let (parent, replaced_existing) = validate_destination(format, destination)?;
     let (parent_class, parent_hash) = parent_diagnostic(&parent);
+    let label = format.log_label;
     eprintln!(
-        "report-package atomic save selected basename={} parent_class={} parent_hash={}",
-        basename(destination),
+        "{label} atomic save selected basename={} parent_class={} parent_hash={}",
+        basename(format, destination),
         parent_class,
         parent_hash
     );
     #[cfg(not(target_os = "macos"))]
     if replaced_existing {
         return Err(AtomicSaveError::validation(
-            "REPORT-PACKAGE-REPLACE-UNSUPPORTED-PLATFORM",
+            format,
+            "REPLACE-UNSUPPORTED-PLATFORM",
             "atomic replacement is currently claimed only for macOS",
             destination,
         ));
     }
 
-    let (temp_path, mut temp) = create_temp(&parent, destination)?;
+    let (temp_path, mut temp) = create_temp_as(format, &parent, destination)?;
     if let Err(error) = operations.write_all(&mut temp, bytes) {
         drop(temp);
-        return Err(AtomicSaveError::io(
-            "write",
-            "REPORT-PACKAGE-WRITE-FAILED",
-            error,
-            destination,
-        )
-        .with_cleanup(operations.cleanup_temp(&temp_path)));
+        return Err(AtomicSaveError::io(format, "write", "WRITE-FAILED", error, destination)
+            .with_cleanup(format, operations.cleanup_temp(&temp_path)));
     }
     if let Err(error) = operations.flush(&mut temp) {
         drop(temp);
-        return Err(AtomicSaveError::io(
-            "flush",
-            "REPORT-PACKAGE-FLUSH-FAILED",
-            error,
-            destination,
-        )
-        .with_cleanup(operations.cleanup_temp(&temp_path)));
+        return Err(AtomicSaveError::io(format, "flush", "FLUSH-FAILED", error, destination)
+            .with_cleanup(format, operations.cleanup_temp(&temp_path)));
     }
     if let Err(error) = operations.sync_temp(&temp) {
         drop(temp);
-        return Err(AtomicSaveError::io(
-            "temp_sync",
-            "REPORT-PACKAGE-FILE-SYNC-FAILED",
-            error,
-            destination,
-        )
-        .with_cleanup(operations.cleanup_temp(&temp_path)));
+        return Err(
+            AtomicSaveError::io(format, "temp_sync", "FILE-SYNC-FAILED", error, destination)
+                .with_cleanup(format, operations.cleanup_temp(&temp_path)),
+        );
     }
     drop(temp);
 
     if let Err(error) = operations.rename(&temp_path, destination) {
-        return Err(AtomicSaveError::io(
-            "rename",
-            "REPORT-PACKAGE-RENAME-FAILED",
-            error,
-            destination,
-        )
-        .with_cleanup(operations.cleanup_temp(&temp_path)));
+        return Err(AtomicSaveError::io(format, "rename", "RENAME-FAILED", error, destination)
+            .with_cleanup(format, operations.cleanup_temp(&temp_path)));
     }
 
     let directory_sync = sync_parent_directory_bounded(&parent);
@@ -383,29 +458,29 @@ fn atomic_save_bytes_with_io(
         DirectorySyncResult::Durable => "durable",
         DirectorySyncResult::Failed { kind, raw_os_error } => {
             eprintln!(
-                "report-package directory sync failed after rename basename={} parent_class={} parent_hash={} error_kind={} os_error={:?}",
-                basename(destination), parent_class, parent_hash, kind, raw_os_error
+                "{label} directory sync failed after rename basename={} parent_class={} parent_hash={} error_kind={} os_error={:?}",
+                basename(format, destination), parent_class, parent_hash, kind, raw_os_error
             );
             "saved_durability_uncertain"
         }
         DirectorySyncResult::TimedOut => {
             eprintln!(
-                "report-package directory sync timed out after rename basename={} parent_class={} parent_hash={}; at most one worker remains active and later workers are suppressed until it exits",
-                basename(destination), parent_class, parent_hash
+                "{label} directory sync timed out after rename basename={} parent_class={} parent_hash={}; at most one worker remains active and later workers are suppressed until it exits",
+                basename(format, destination), parent_class, parent_hash
             );
             "saved_durability_uncertain"
         }
         DirectorySyncResult::WorkerAlreadyActive => {
             eprintln!(
-                "report-package directory sync suppressed after rename basename={} parent_class={} parent_hash={} because one prior sync worker remains active",
-                basename(destination), parent_class, parent_hash
+                "{label} directory sync suppressed after rename basename={} parent_class={} parent_hash={} because one prior sync worker remains active",
+                basename(format, destination), parent_class, parent_hash
             );
             "saved_durability_uncertain"
         }
         DirectorySyncResult::WorkerDisconnected => {
             eprintln!(
-                "report-package directory sync worker disconnected after rename basename={} parent_class={} parent_hash={}",
-                basename(destination), parent_class, parent_hash
+                "{label} directory sync worker disconnected after rename basename={} parent_class={} parent_hash={}",
+                basename(format, destination), parent_class, parent_hash
             );
             "saved_durability_uncertain"
         }
@@ -413,7 +488,7 @@ fn atomic_save_bytes_with_io(
     Ok(AtomicSaveOutcome {
         replaced_existing,
         durability: durability.to_string(),
-        selected_basename: basename(destination),
+        selected_basename: basename(format, destination),
         path_containment: PATH_CONTAINMENT.to_string(),
         limitation: TOCTOU_LIMITATION.to_string(),
     })
@@ -740,6 +815,105 @@ mod tests {
         assert_eq!(class, "system_temp");
         assert_eq!(hash.len(), 16);
         assert!(!hash.contains(&root.to_string_lossy().to_string()));
+        fs::remove_dir_all(root).unwrap();
+    }
+}
+
+/// The per-format admission of the extension-neutral writer (DEL-15-01 W-6a).
+/// The report package tests above are unchanged and pin the `.opsproj` format.
+#[cfg(test)]
+mod format_admission_tests {
+    use super::*;
+
+    fn sandbox(label: &str) -> PathBuf {
+        let path = std::env::temp_dir().join(format!(
+            "openpipestress-format-{label}-{}-{}",
+            process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&path).unwrap();
+        path
+    }
+
+    fn temp_files(root: &Path) -> Vec<String> {
+        fs::read_dir(root)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+            .filter(|name| name.starts_with(".openpipestress-"))
+            .collect()
+    }
+
+    #[test]
+    fn the_model_document_format_admits_json_only() {
+        let root = sandbox("model-json");
+        let destination = root.join("invented-model.json");
+        let outcome =
+            atomic_save_bytes_as(&MODEL_DOCUMENT_FORMAT, &destination, b"{\"a\":1}").unwrap();
+        assert_eq!(fs::read(&destination).unwrap(), b"{\"a\":1}");
+        assert!(!outcome.replaced_existing);
+        assert_eq!(outcome.selected_basename, "invented-model.json");
+        assert!(temp_files(&root).is_empty());
+        for refused in ["invented.opsproj", "invented.JSON", "invented.json.txt", "invented"] {
+            let destination = root.join(refused);
+            let error =
+                atomic_save_bytes_as(&MODEL_DOCUMENT_FORMAT, &destination, b"{}").unwrap_err();
+            assert_eq!(error.code, "MODEL-DOC-SAVE-DESTINATION-EXTENSION", "{refused}");
+            assert_eq!(error.stage, "validate");
+            assert!(!destination.exists(), "{refused}");
+        }
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn the_report_package_format_still_refuses_json() {
+        let root = sandbox("report-json");
+        let destination = root.join("invented.json");
+        let error = atomic_save_bytes(&destination, b"{}").unwrap_err();
+        assert_eq!(error.code, "REPORT-PACKAGE-DESTINATION-EXTENSION");
+        assert!(!destination.exists());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn model_document_failures_use_the_model_codes_and_temp_prefix() {
+        struct FailRename;
+        impl AtomicSaveIo for FailRename {
+            fn write_all(&mut self, temp: &mut File, bytes: &[u8]) -> io::Result<()> {
+                temp.write_all(bytes)
+            }
+            fn flush(&mut self, temp: &mut File) -> io::Result<()> {
+                temp.flush()
+            }
+            fn sync_temp(&mut self, temp: &File) -> io::Result<()> {
+                temp.sync_all()
+            }
+            fn rename(&mut self, _: &Path, _: &Path) -> io::Result<()> {
+                Err(io::Error::other("injected rename failure"))
+            }
+            fn cleanup_temp(&mut self, temp_path: &Path) -> io::Result<()> {
+                fs::remove_file(temp_path)
+            }
+        }
+        let root = sandbox("model-rename");
+        let destination = root.join("invented-model.json");
+        fs::write(&destination, b"old bytes").unwrap();
+        let error = atomic_save_bytes_as_with_io(
+            &MODEL_DOCUMENT_FORMAT,
+            &destination,
+            b"new bytes",
+            &mut FailRename,
+        )
+        .unwrap_err();
+        assert_eq!((error.stage.as_str(), error.code.as_str()), ("rename", "MODEL-DOC-SAVE-RENAME-FAILED"));
+        assert_eq!(fs::read(&destination).unwrap(), b"old bytes");
+        assert!(temp_files(&root).is_empty());
+        let (temp, file) = create_temp_as(&MODEL_DOCUMENT_FORMAT, &root, &destination).unwrap();
+        assert!(temp
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .starts_with(".openpipestress-model-document-"));
+        drop(file);
         fs::remove_dir_all(root).unwrap();
     }
 }

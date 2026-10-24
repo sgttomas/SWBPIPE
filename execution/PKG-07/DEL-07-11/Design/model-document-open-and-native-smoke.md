@@ -45,7 +45,19 @@ export use their existing routes unchanged.
   - material `elastic_modulus`, section `properties` and pipe `section`
     quantities (`{value: number, unit: string}`);
   - support `restraints[]` strings;
-  - combination `terms[]` (`load_case`, `factor`).
+  - combination `terms[]` (`load_case`, `factor`);
+  - with W-6a (PR #1588), the members adoption and rendering dereference:
+    every `project.units` value a string; a present `section_ref` a string; a
+    present `components[].completeness` an array of `{diagnostic_code, status}`
+    strings; a present `diagnostics[].id` a string; component `geometry`,
+    `modifiers` and `mechanics_interface` members of their `PreviewComponent`
+    types.
+
+  The Rust save (`src-tauri/src/model_document_shape.rs`) applies the same check,
+  kept equal by the shared corpus `fixtures/model_document/desktop_shape_cases.json`.
+  `modelDocumentAdoption.test.tsx` retypes the demo's string members (433 cases)
+  and requires each to be refused at admission or adopted and rendered without
+  error.
 
   It lives in `src/features/model-file/modelDocumentShape.ts`, beside the type
   it mirrors. As a last guard, the session builds the model index for the
