@@ -4,8 +4,13 @@
 // them. A document that lacks one is refused by name with its JSON path; the
 // desktop never fills a default in, because the session's model hash must be
 // the hash of the document the user opened. Physics validity is the solver's:
-// it reports its own named diagnostics on solve. As a last guard the session
-// also builds the model index for the candidate and refuses it if that throws.
+// it reports its own named diagnostics on solve. Every member the model index
+// reads with a string method is checked here (`pipe_segments[].section_ref`), as
+// is every member the workspace dereferences on adoption (`project.units.*`,
+// `components[].completeness`, the component descriptors, `diagnostics[].id`; pinned by
+// `modelDocumentAdoption.test.tsx`), so a shape-valid document indexes and renders; as a last guard the session still builds the
+// model index for the candidate and refuses it if that throws. The native save
+// runs a port of this check (`src-tauri/src/model_document_shape.rs`).
 import type { PreviewModel } from "../../types";
 import { loadedWasmEngine, WASM_ENGINE_ABSENT_DIAGNOSTIC, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
 
@@ -26,6 +31,15 @@ const ENTITY_STRINGS: ReadonlyArray<[member: string, required: ReadonlyArray<str
   ["combinations", ["id", "label", "basis", "provenance"], true],
   ["diagnostics", ["code", "severity", "message"]]
 ];
+
+/** The component descriptor members the workspace formats or trims on adoption
+ * (the model tree's search text, the rule-check and editor-contract panels), typed
+ * as `PreviewComponent` declares them. A present, non-null member must be of its type. */
+const COMPONENT_DESCRIPTORS: Record<string, Record<string, "string" | "quantity" | "point">> = {
+  geometry: { bend_radius: "quantity", bend_angle: "quantity", bend_plane_orientation: "string", bend_pipe_ref: "string", bend_geometry_source_reference: "string", branch_header_pipe_ref: "string", branch_branch_pipe_ref: "string", branch_run_size: "quantity", branch_header_size: "quantity", branch_connection_angle: "quantity", branch_connection_type: "string", branch_reinforcement_area: "quantity", branch_reinforcement_reference: "string", branch_geometry_source_reference: "string", rigid_pipe_ref: "string", rigid_body_length: "quantity", end_a_size: "quantity", end_b_size: "quantity", weight: "quantity", center_of_gravity: "point", connection_end_a_reference: "string", connection_end_b_reference: "string", stiffness_behavior_reference: "string", rigid_component_source_reference: "string", expansion_joint_pipe_ref: "string", effective_area: "quantity", movement_limit: "quantity", hardware_reference: "string", manufacturer_reference: "string", pressure_thrust_reference: "string", expansion_joint_source_reference: "string" },
+  modifiers: { sif_user_value: "quantity", branch_header_sif_user_value: "quantity", branch_branch_sif_user_value: "quantity", flexibility_factor_user_value: "quantity", sif_in_plane_user_value: "quantity", sif_out_of_plane_user_value: "quantity", stiffness_scaling_user_value: "quantity", linear_stiffness_user_value: "quantity", rotational_stiffness_user_value: "quantity", axial_stiffness_user_value: "quantity", lateral_stiffness_user_value: "quantity", angular_stiffness_user_value: "quantity", torsional_stiffness_user_value: "quantity", source_reference: "string" },
+  mechanics_interface: { solver_consumption: "string", rule_check_consumption: "string" },
+};
 
 function kindOf(value: unknown): Kind | "null" | "other" {
   if (value === null) return "null";
@@ -64,7 +78,10 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
   if (need(doc.project, "project", "object")) {
     const project = doc.project as Record<string, unknown>;
     for (const key of ["id", "name", "description"]) need(project[key], `project.${key}`, "string");
-    need(project.units, "project.units", "object");
+    // Every unit symbol is a string: the unit catalogue trims each (`normalizeSymbol`).
+    if (need(project.units, "project.units", "object")) {
+      for (const [key, value] of Object.entries(project.units as Record<string, unknown>)) need(value, `project.units.${key}`, "string");
+    }
   }
   if (need(doc.analysis_status, "analysis_status", "object")) {
     const status = doc.analysis_status as Record<string, unknown>;
@@ -91,6 +108,42 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
       }
       if (member === "pipe_segments" && need(record.section, `${at}.section`, "object")) {
         for (const [key, value] of Object.entries(record.section as Record<string, unknown>)) quantity(value, `${at}.section.${key}`);
+      }
+      // A present shared-section reference is a string: the model index trims it
+      // (`modelIndex.ts` buildModelIndex). Absent or null opens without one.
+      if (member === "pipe_segments" && record.section_ref !== undefined && record.section_ref !== null) {
+        need(record.section_ref, `${at}.section_ref`, "string");
+      }
+      // The model tree maps a present completeness list and formats each finding's code and status.
+      if (member === "components" && record.completeness !== undefined && record.completeness !== null
+        && need(record.completeness, `${at}.completeness`, "array")) {
+        (record.completeness as unknown[]).forEach((finding, item) => {
+          const findingAt = `${at}.completeness[${item}]`;
+          if (!need(finding, findingAt, "object")) return;
+          need((finding as Record<string, unknown>).diagnostic_code, `${findingAt}.diagnostic_code`, "string");
+          need((finding as Record<string, unknown>).status, `${findingAt}.status`, "string");
+        });
+      }
+      if (member === "components") {
+        for (const [group, members] of Object.entries(COMPONENT_DESCRIPTORS)) {
+          const descriptor = record[group];
+          if (kindOf(descriptor) !== "object") continue;
+          for (const [key, type] of Object.entries(members)) {
+            const value = (descriptor as Record<string, unknown>)[key];
+            if (value === undefined || value === null) continue;
+            const path = `${at}.${group}.${key}`;
+            if (type === "string") need(value, path, "string");
+            else if (type === "quantity") quantity(value, path);
+            else if (need(value, path, "object")) {
+              for (const axis of ["x", "y", "z"]) need((value as Record<string, unknown>)[axis], `${path}.${axis}`, "number");
+              need((value as Record<string, unknown>).unit, `${path}.unit`, "string");
+            }
+          }
+        }
+      }
+      // A present diagnostic id is the tree row's id, rendered as text (absent or null falls back to the code).
+      if (member === "diagnostics" && record.id !== undefined && record.id !== null) {
+        need(record.id, `${at}.id`, "string");
       }
       if (member === "supports" && need(record.restraints, `${at}.restraints`, "array")) {
         (record.restraints as unknown[]).forEach((value, item) => need(value, `${at}.restraints[${item}]`, "string"));

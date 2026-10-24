@@ -7,7 +7,8 @@
 // runs the real app twice against a throwaway HOME (so the project store and
 // Downloads are isolated from the user's own):
 //
-//   1. open-solve-save: three named refusals; then for the milestone model and
+//   1. open-solve-save: File > Save Model Document… on the bundled demo, re-open
+//      the saved file and save it again (W-6a); three named refusals; then for the milestone model and
 //      the demo model, File > Open Model Document…, solve sparse and dense,
 //      read standing, rows, N1 displacement and the solve proof, export the
 //      result JSON where the product offers it, and save as a local project;
@@ -76,6 +77,11 @@ const models = path.join(root, "models");
 mkdirSync(home);
 mkdirSync(path.join(home, "Downloads"));
 mkdirSync(models);
+// W-6a. Where the save chooser is answered: outside HOME's Documents, so the
+// files are the ones this run wrote.
+const savedModels = path.join(root, "saved-model-documents");
+mkdirSync(savedModels);
+const MODEL_DOCUMENT_SAVE = { first: path.join(savedModels, "saved-demo.json"), second: path.join(savedModels, "saved-demo-reopened.json") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -117,6 +123,7 @@ function launch(phase, extra = {}) {
     documents: documents.map(({ case: name, path: file, project_id, modes, probe }, index) => ({ case: name, path: file, project_id, modes, probe: probe ?? null, replace_flows: index === 0 })),
     exact: { path: exactPath, project_id: exactDocument.project.id },
     blank: BLANK,
+    model_document: MODEL_DOCUMENT_SAVE,
     ...extra
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
@@ -170,6 +177,31 @@ function checkObservation(prefix, seen, want, modelHash) {
 
 const first = await launch("open-solve-save");
 check("phase open-solve-save completed", first.ok, first.error);
+// W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
+// the expected bytes and hash are computed from the bundled demo fixture.
+{
+  const saved = first.model_document?.saved;
+  const resaved = first.model_document?.resaved;
+  const demoText = canonical(demo);
+  const demoHash = modelSha256(demo);
+  const fileOf = (file) => (existsSync(file) ? readFileSync(file) : null);
+  const firstBytes = fileOf(MODEL_DOCUMENT_SAVE.first);
+  const secondBytes = fileOf(MODEL_DOCUMENT_SAVE.second);
+  const sha = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  const reported = (shown) => shown?.match(/^Saved model document (\S+) \((\d+) bytes; model hash (sha256:[0-9a-f]{64})\)\.$/);
+  check("save model document: the dialog asks for the explicit intent before the chooser (unchecked; Save disabled; Cancel focused)",
+    saved && !saved.intent_checked_initially && saved.confirm_disabled_before_intent && saved.cancel_focused
+      && saved.intent_label === "Save my model document, including private project data, to a file I choose", saved && { ...saved, message: undefined });
+  check("save model document: the file is the demo's RFC 8785 text, with no trailing newline",
+    firstBytes && firstBytes.toString("utf8") === demoText && firstBytes.at(-1) !== 0x0a, firstBytes?.length);
+  check("save model document: SHA-256 of the file is the demo's model hash, as the status line reports",
+    firstBytes && sha(firstBytes) === demoHash && reported(saved?.message)?.[3] === demoHash
+      && Number(reported(saved?.message)?.[2]) === firstBytes.length && reported(saved?.message)?.[1] === path.basename(MODEL_DOCUMENT_SAVE.first), saved?.message);
+  check("save model document: the saved file re-opens through Open Model Document…",
+    first.model_document?.reopened?.startsWith(`Opened model document ${path.basename(MODEL_DOCUMENT_SAVE.first)} (${firstBytes?.length} bytes; `), first.model_document?.reopened);
+  check("save model document: the re-opened session saves identical bytes under an equal model hash",
+    firstBytes && secondBytes && Buffer.compare(firstBytes, secondBytes) === 0 && reported(resaved?.message)?.[3] === demoHash, resaved?.message);
+}
 for (const want of expected.refusals) {
   const seen = first.refusals?.find((item) => item.file === want.file);
   check(`refusal ${want.file}: ${want.code}`, seen?.message?.includes(`refused (${want.file}): ${want.code}`) && seen.prior_model_kept, seen?.message);

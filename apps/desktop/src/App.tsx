@@ -93,6 +93,7 @@ import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
+import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -266,7 +267,8 @@ function AppSession() {
     handleOpenModelDocument,
     handleSaveProject,
     handleListProjects,
-    replaceProjectPrompt
+    replaceProjectPrompt,
+    modelDocumentSaveRequest
   } = session.project;
   const {
     uiPreferences, setUiPreferences,
@@ -335,8 +337,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
-      // The replace prompt and the units dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null}
+      // The replace prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || modelDocumentSaveRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -351,6 +353,7 @@ function AppSession() {
           issuesOpen={issuesDrawerOpen}
           openMenu={openMenu}
           projectBusy={projectBusy}
+          modelDocumentSaveReady={model !== null && !projectBusy}
           reportPackageReady={!reportPackageUnavailable && Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
           treeCollapsed={treeCollapsed}
@@ -1103,6 +1106,7 @@ function AppSession() {
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
+      <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1157,6 +1161,7 @@ function MenuBar({
   issuesOpen,
   openMenu,
   projectBusy,
+  modelDocumentSaveReady,
   reportPackageReady,
   running,
   treeCollapsed,
@@ -1186,6 +1191,7 @@ function MenuBar({
   issuesOpen: boolean;
   openMenu: MenuId | null;
   projectBusy: boolean;
+  modelDocumentSaveReady: boolean;
   reportPackageReady: boolean;
   running: boolean;
   treeCollapsed: boolean;
@@ -1209,6 +1215,7 @@ function MenuBar({
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
         { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
+        { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
       ]
     },
