@@ -231,6 +231,12 @@ fn sync_parent_directory_bounded(parent: &Path) -> DirectorySyncResult {
     )
 }
 
+/// The bounded directory sync for a writer outside this module (the handoff
+/// directory package, DEL-15-01 W-6b): true when the sync completed.
+pub(crate) fn sync_directory_durable(directory: &Path) -> bool {
+    sync_parent_directory_bounded(directory) == DirectorySyncResult::Durable
+}
+
 /// Per-format admission: the destination must carry the format's one
 /// extension and sit in an existing non-symlink parent directory; a symlink or
 /// directory destination is refused.
