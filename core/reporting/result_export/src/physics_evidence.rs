@@ -843,10 +843,6 @@ pub(crate) fn validate_physics_evidence_in(
         pairs += 1;
     }
     require(2 * pairs == stress_rows, "ROW_BASIS_TWIN")?;
-    // W-7: one global end row per member, end and component; none on a composite.
-    if !composite {
-        crate::global_end_evidence::coverage(published)?;
-    }
     crate::connector_evidence::validate(
         &evidence["connector"],
         &evidence["pressure"],
@@ -1146,6 +1142,12 @@ pub(crate) fn validate_physics_evidence_in(
             contract,
             &evidence["connector"],
         )?;
+    }
+    // W-7: one global end row per member, end and component; none on a composite.
+    // Checked after the published rows' own coverage, so a missing local or wall
+    // end row is refused by that coverage, not by the global row derived from it.
+    if !composite {
+        crate::global_end_evidence::coverage(published)?;
     }
     // T4-U6 (D-5, §2.2): no governing basis; one headline per basis.
     let maxima: Vec<&Value> = array(&source["results"])?
