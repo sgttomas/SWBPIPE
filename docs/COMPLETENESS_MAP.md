@@ -218,7 +218,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-HAND-003 (560) | Should | P | `HandoffPanel.tsx:243` `target_field_coverage: "TBD"` | DEL-15-02 | |
 | FR-HAND-004 (561) | Should | P | Loss reports (`HandoffPanel.tsx:187`, PCF) | DEL-15-02, DEL-17-07 | PF only. |
 | FR-HAND-005 (562) | Could | D | PCF, MBF, adapter and SDK panels (`App.tsx:1009-1017`); observed natively (§5) | DEL-17-04/07/08/09 | The MBF target version is `TBD` (`CaepipeMbfExportPanel.tsx:38`). |
-| Result JSON, stress-neutral | — | D | `App.tsx:1007-1008`; `exactOutputTwins.test.tsx`; observed natively (§5) | DEL-08-04, DEL-17-06 | Both carry the run record's rule-pack exclusion diagnostics (#1602), without duplicating producer diagnostics. |
+| Result JSON, stress-neutral | — | D | `App.tsx:1007-1008`; `exactOutputTwins.test.tsx`; observed natively (§5) | DEL-08-04, DEL-17-06 | Both carry the run record's rule-pack exclusion diagnostics (#1602), without duplicating producer diagnostics. Open issues (#1613): the result-export validator does not check diagnostics; the generic stress-neutral validator binds the witness-withholding findings to the package's own provenance, as the Python validator does (the desktop path binds it to the builder's). |
 | Local FEA handoff | — | O | DEC-078 (D-12 O-B): FR-025 post-beta (DEL-10-03 SOW:486) | DEL-10-03 | A gated panel exists. |
 
 ### 2.5 States, runs, comparison, V&V (PRD §11.6, §15, §21–22)
