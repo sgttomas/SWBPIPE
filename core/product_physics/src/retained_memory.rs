@@ -1198,6 +1198,11 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
+    // W-15 slice b D3 at 600a04436d (component weight and centre of gravity as nodal weight loads;
+    // retained-pricing-rules.md §8.22): the tree is coefficient-identical to §8.21's (1,586
+    // coefficients; only the basis line moves), D1.7 refuses a node load in the generated
+    // self-weight namespace, and no reviewed input moves; the identity, inputs, reader layouts
+    // and threshold are unchanged. W-15's D3 (§8.21) was the previous registration.
     // W-15 D3 (rigid-component stiffness scaling and reference-section identification;
     // retained-pricing-rules.md §8.21): the pressure-2 table's Admitted families sentence names
     // the rigid family and one limitation names the component-body record, so physics-retained-1
@@ -1328,7 +1333,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at c7318c32f9: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at 600a04436d: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
