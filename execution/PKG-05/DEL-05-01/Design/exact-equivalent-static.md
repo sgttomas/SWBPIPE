@@ -64,6 +64,22 @@ optional `equivalent_static` record. It holds the mass method
 generation omit it, so existing bytes hold. The pressure-2 schema and the
 readers bind it.
 
+A source-recovery envelope can also carry the record. Another case in the
+document may select source recovery, and the whole envelope then becomes
+pressure-source-1 (PP `lib.rs` ~3063, ~3099, ~3198). That envelope still
+carries the generated case as an ordinary companion. The record is therefore
+also covered by:
+- the companion's captured closed-key binding (`source_receipt/composite.rs`
+  ~508);
+- the closed source schema (`schemas/physics_source_recovery.schema.json`
+  ~1835);
+- the transport shape check (`result_export/src/physics_source.rs` ~185);
+- the Python mirrors, carriers, pins and D3 registration.
+
+Generated cases stay excluded from selected retained-source recovery
+(`source_recovery.rs` ~903). A mixed regression checks a selected nodal
+source case together with a passing generated ordinary case.
+
 The shared mass calculation keeps the equivalent-static diagnostic codes.
 
 ## 3. Which documents
@@ -73,14 +89,19 @@ generation. The generated primitives are ordinary distributed loads of the
 case, prepared like any other (PP `lib.rs` ~10035, ~4867, ~4292-4322). They
 are mechanical loads: they create no pressure regions and do not change
 closure ownership. Realized arcs take full-span loads per unit arc length, as
-on PF. Partial extents on arcs stay blocked (~11532-11557).
+on PF. On arcs, any explicit extent stays blocked, including [0, 1]
+(~11532-11557). Whole-arc wind is marked through `exposed_pipe_refs`.
 
 **Connector-replaced spans** carry no load, member result or self-weight
 (`joint.rs` ~164). The design keeps them out of generation in two ways:
-- Seismic generation skips a replaced span. The surviving pipes keep their
-  original indices; they are not renumbered.
-- A wind marking on a replaced span is refused by name, with
+- Seismic generation skips a replaced span before its mass is evaluated. The
+  surviving pipes keep their original `element_index`; they are not renumbered.
+- A wind marking on a replaced span, in `exposed_pipe_refs` or
+  `exposed_spans`, is refused by name with
   `EQUIVALENT_STATIC_WIND_SPAN_REPLACED`.
+- The filter applies to generated loads only. Stored primitives keep
+  `JOINT_REPLACED_SPAN_LOAD_UNOWNED` (`joint.rs` ~845), with its existing
+  presence and exclusion rules.
 
 Loads are never moved implicitly to connector nodes. Regressions cover both
 paths.
@@ -88,7 +109,11 @@ paths.
 **Timoshenko and partial-span wind.** On an EX document selecting
 `timoshenko_annulus_energy_v1`, a wind marking of a proper fraction of a
 straight span is refused by name, with
-`EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED`. Both formation
+`EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED`. "Proper"
+means `!(start == 0.0 && end == 1.0)` after ordinary fraction validation,
+matching `straight_pipe` ~761 and the frame kernel ~2230. Exactly [0, 1] is
+full span, whether given through `exposed_pipe_refs` or `exposed_spans`. Any
+near-full extent counts as partial. Both formation
 paths are unavailable for a Timoshenko partial-span uniform load: straight-pipe
 formation returns `CannotBound` (`core/solver/straight_pipe/src/lib.rs`
 ~752-768), and the frame kernel's re-formation reports it unavailable
@@ -134,13 +159,27 @@ under slice b.
 - **DEL-05-01 ScopeOfWork.** Its requirements and acceptance criteria name no
   route, so REQ-05-01-008 and AC-001 do not change. Two evidence descriptions
   are repaired through the owner's wording grant:
-  - **:204.** Currently: "Unit tests cover wind/seismic/occasional explicit
+  - **:204.** OLD: "Unit tests cover wind/seismic/occasional explicit
     equivalent mechanics loads, required equivalent-static basis/provenance
-    refs, and rejection of acceleration/dynamic-placeholder dimensions." The
-    repair adds coverage of DEC-068 generation, route-specific mass and the
-    named unsupported boundaries.
-  - **:284.** "limit … handling to explicit mechanics loads" is qualified to
-    include DEC-068 generation from explicit user inputs.
+    refs, and rejection of acceleration/dynamic-placeholder dimensions."
+    NEW: "Unit tests cover wind/seismic/occasional explicit equivalent
+    mechanics loads, required equivalent-static basis/provenance refs, DEC-068
+    seismic/wind generation from explicit user inputs on PF and eligible EX
+    documents, route-specific seismic mass, EX generated-primitive evidence
+    binding, the named unsupported boundaries in
+    Design/exact-equivalent-static.md, and rejection of
+    acceleration/dynamic-placeholder dimensions."
+  - **:284.** OLD: "Documents limit wind, seismic, and occasional
+    equivalent-static handling to explicit mechanics loads with
+    caller-supplied basis/provenance refs and no dynamic procedure
+    generation." NEW: "Documents describe wind, seismic, and occasional
+    equivalent-static handling as explicit mechanics loads with
+    caller-supplied basis/provenance refs, including DEC-068 seismic/wind
+    generation from explicit user inputs and the model's mass/geometry under
+    the documented route-specific mass bases and named unsupported
+    boundaries; no dynamic procedure generation is provided."
+  - Both NEW texts are the reviewer's own. They go through the wording grant
+    when the slice is implemented.
 - **Byte identity.** b and c ship together, so documents with combinations
   change as well.
 
@@ -165,13 +204,15 @@ exact-rational generator that runs no product code.
   Timoshenko adds qL²/(2GA_s) to the tip. A PF twin, authored without a
   corrosion allowance, shows the documented difference:
   μ_EX − μ_PF = π[ρ_m·c_m(D − 2t + c_m) + ρ_c{2c_a(R − t + c_m) + c_a²}].
-- **Wind.** The load is q_w = p·C·(D + 2t_i) on a·L to b·L. Then:
-  - |R| = q_w(b − a);
-  - |M₀| = q_w(b² − a²)/2;
-  - u_L = q_w[L(b³ − a³) − (b⁴ − a⁴)/4]/(6EI_n).
+- **Wind.** The load is q_w = p·C·(D + 2t_i) on a·L to b·L, where a and b are
+  fractions. Then:
+  - |R| = q_w·L·(b − a);
+  - |M₀| = q_w·L²·(b² − a²)/2;
+  - u_L = q_w·L⁴·[(b³ − a³) − (b⁴ − a⁴)/4]/(6EI_n).
 
-  Timoshenko adds q_w(b² − a²)/(2GA_s) on full spans. The fractions bound the
-  interval; they do not multiply the intensity a second time. The generated
+  On full spans, Timoshenko adds q_w·L²/(2GA_s). The fractions bound the
+  interval; they do not multiply the intensity a second time. The witness
+  uses L ≠ 1 so that a missing length factor shows. The generated
   loads must be equal on PF and EX.
 - **Coverage.**
   - Both solver modes, Euler–Bernoulli and Timoshenko.
@@ -179,21 +220,25 @@ exact-rational generator that runs no product code.
   - Arcs: full spans, with partial spans blocked.
   - Replaced spans, for seismic and for wind (the latter refused).
   - Shared sections, non-SI inputs, and authored and generated loads mixed.
-  - Certified-source controls, including the prefix lookalike.
+  - Certified-source controls, including the prefix lookalike and an exact
+    collision between an authored id and a generated id.
+  - A mixed source-recovery envelope (§2).
   - W-15 body rows: the scale multiplies stiffness, not mass.
 - **Combination.** A combination of a seismic case with a pressure case,
   through slice b.
 - **Negatives.** Every PF code on EX, the load-state refusal (including a case
   not listed in the group), and the retained refusal.
-- **Byte identity.** Every EX document without `equivalent_static` is
-  unchanged, except for the identity sentence.
+- **Byte identity.** Every EX document without `equivalent_static` or
+  combinations is unchanged, except for the identity sentence. Documents with
+  combinations follow slice b.
 
 ## 6. Retained-memory pricing (D3)
 
 The path touches priced files: PP `lib.rs`, `pressure_runtime.rs`,
 `exact_admission.rs`, `self_weight.rs` and `certified_loads.rs` (pinned in
-`b7a_domain_model.py` ~89). It also touches the pressure-2 table, the evidence
-schema and readers with their pins, and the identity TEXT. No frame-kernel or
+`b7a_domain_model.py` ~89). It also touches the pressure-2 table, the evidence schema
+and readers, the pressure-source-1 companion binding, the source schema and
+transport reader with their pins, and the identity TEXT. No frame-kernel or
 `straight_pipe` change is needed, because partial-span Timoshenko is refused. The retained
 route keeps refusing generation. Re-pricing comes with slice b's, behind the
 solver lane's earlier turns.
