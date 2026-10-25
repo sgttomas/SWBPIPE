@@ -160,7 +160,7 @@ fn refresh_plan(model: &Value, typed: &PreviewModel, request: &Value, hash: &str
     if !changed {
         return blocked(Some(hash), "SELF-WEIGHT-REFRESH-NOT-NEEDED", "No stale or modified generated load requires refresh in this case.", "Keep current generated loads and explicitly detached manual loads unchanged.");
     }
-    let plan = SelfWeightOperationPlan { source_model_hash: hash.into(), source_evidence: evidence.clone(), scope_label:"selected_pipe_mass_only".into(),
+    let plan = SelfWeightOperationPlan { source_model_hash: hash.into(), source_evidence: evidence.clone(), scope_label:"selected_pipe_mass_only".into(), warnings: vec![],
         changes: vec![SelfWeightOperationDraft { object_type:"Load".into(), target_ref:case_id.into(), operation_kind:"modify".into(),
             change_kind:"update_load".into(), field_label:"Refresh generated self-weight".into(), field_path:"generated_self_weight".into(),
             before:canonical_json(&Value::Array(current.clone())), after:canonical_json(&Value::Array(updated)), unit:"none".into(), dimension:"dimensionless".into(),
