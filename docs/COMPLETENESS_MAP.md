@@ -257,12 +257,12 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 37 P, 38 D (one of them bounded), 8 O and no R:
-- **P → D (9):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+This map has 37 P, 39 D (including one bounded and one at repository level), 8 O and no R:
+- **P → D (10):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
   near-duplicate nodes (the desktop tolerance control, after the basis), and
-  FR-CMP-003 (W-12 S3a, #1605), and FR-CMP-004 and -006 (W-12 S3b). The
-  first two and the last four were updated in the map by their own changes.
+  FR-CMP-003 (W-12 S3a, #1605), FR-CMP-004 and -006 (W-12 S3b), and FR-SOL-007
+  (W-7, #1581).
 - **D → P (1):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
   (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
