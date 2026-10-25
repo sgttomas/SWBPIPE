@@ -47,6 +47,7 @@ use open_pipe_stress_canonical_json::{canonical_json, canonical_json_checked_v1_
 use open_pipe_stress_operation_applier::sha256_hex;
 use rusqlite::{Connection, Transaction, TransactionBehavior};
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 use serde_json::Value;
 use std::cell::Cell;
 use std::rc::Rc;
@@ -250,42 +251,58 @@ pub(crate) struct UnreadableRow {
 pub(crate) const UNREADABLE_ROW_BYTES: u64 = (SHOWN_COLUMN_BYTES as u64 + 8) + ((MAX_MESSAGE_CHARS as u64 + 1) * 4) + 128 + 256;
 
 impl UnreadableRow {
-    /// The entry for a row shown as `id`, refused by `refusal`, deleted by `handle`, reserved in `memory`.
-    pub(crate) fn reserved(memory: &dyn ReadMemory, what: &str, id: &str, refusal: String, handle: String, references: u64) -> Result<Metered<Self>, String> {
-        let reservation = memory.reserve(what, UNREADABLE_ROW_BYTES)?;
-        Ok(Metered::new(Self { id: shown(id).into_owned(), refusal: capped(refusal), handle, references }).holding(reservation))
+    /// The entry for a row shown as `id`, refused by `refusal`, deleted by
+    /// `handle`; its caller holds its reservation ([`UNREADABLE_ROW_BYTES`]),
+    /// made before anything of the row was read.
+    pub(crate) fn new(id: &str, refusal: String, handle: String, references: u64) -> Self {
+        Self { id: shown(id).into_owned(), refusal: capped(refusal), handle, references }
     }
 }
 
-/// The bytes of a stored id the handle digest reads from each end.
-const HANDLE_ID_END_BYTES: i64 = 512;
+/// The most bytes of a stored id a row handle's digest reads at a time (W-12).
+pub(crate) const HANDLE_CHUNK_BYTES: i64 = 64 * 1024;
 
-/// SQL selecting what a row handle binds of `id_column` without loading the
-/// rest: its byte length and its first and last [`HANDLE_ID_END_BYTES`] bytes
-/// (read as `(i64, Vec<u8>, Vec<u8>)`).
-pub(crate) fn handle_columns(id_column: &str) -> String {
-    format!(
-        "octet_length({id_column}), substr(CAST({id_column} AS BLOB), 1, {HANDLE_ID_END_BYTES}), substr(CAST({id_column} AS BLOB), -{HANDLE_ID_END_BYTES})"
-    )
+/// What a row handle's digest holds while it reads an id: SQLite's value of
+/// one chunk and the statement's copy of it (each chunk is hashed where SQLite
+/// holds it, never copied into the process).
+pub(crate) fn handle_chunk_bytes() -> u64 {
+    envelope(HANDLE_CHUNK_BYTES as u64).saturating_mul(2)
 }
 
 /// A row's delete handle: `<kind>:<rowid>:<id byte length>:<digest>`, the
-/// digest the first 16 hex of the SHA-256 of the id's two ends (the whole id
-/// when it has at most 1024 bytes). The rowid names the row; the length and
-/// digest refuse a stale handle (a rowid reused by another row).
-pub(crate) fn row_handle(kind: &str, rowid: i64, length: i64, head: &[u8], tail: &[u8]) -> String {
-    let mut bytes = Vec::with_capacity(head.len() + tail.len() + 1);
-    bytes.extend_from_slice(head);
-    bytes.push(0);
-    bytes.extend_from_slice(tail);
-    let digest = sha256_hex_bytes(&bytes);
-    format!("{kind}:{rowid}:{length}:{}", &digest[..16])
-}
-
-/// SHA-256 over the bytes' hex text (the bytes need not be UTF-8).
-fn sha256_hex_bytes(bytes: &[u8]) -> String {
-    let hex: String = bytes.iter().map(|byte| format!("{byte:02x}")).collect();
-    sha256_hex(&hex)
+/// digest the first 16 hex of the SHA-256 of the row's whole stored id (its
+/// bytes, as `CAST(id AS BLOB)` gives them). The rowid names the row; the
+/// length and digest refuse a stale handle (a rowid reused by another row).
+/// The id is read on `connection`, the caller's transaction (so every chunk is
+/// of one snapshot), in chunks of at most [`HANDLE_CHUNK_BYTES`], within one
+/// reservation of the chunk buffer ([`handle_chunk_bytes`]); it is never
+/// loaded whole. `table` and `id_column` are the caller's own names. A rowid
+/// no row has is a SQLite error (the caller found the row first).
+pub(crate) fn row_handle(connection: &Connection, table: &str, id_column: &str, kind: &str, rowid: i64, memory: &dyn ReadMemory) -> Result<String, String> {
+    let length: Option<i64> = connection
+        .query_row(&format!("SELECT octet_length({id_column}) FROM {table} WHERE rowid = ?1"), rusqlite::params![rowid], |row| row.get(0))
+        .map_err(|error| sql_error(&error))?;
+    let length = length.unwrap_or(0);
+    let _buffer = memory.reserve("a stored id's delete handle", handle_chunk_bytes())?;
+    let mut statement = connection
+        .prepare(&format!("SELECT substr(CAST({id_column} AS BLOB), ?2, ?3) FROM {table} WHERE rowid = ?1"))
+        .map_err(|error| sql_error(&error))?;
+    let mut hasher = Sha256::new();
+    let mut offset: i64 = 1;
+    while offset <= length {
+        statement
+            .query_row(rusqlite::params![rowid, offset, HANDLE_CHUNK_BYTES], |row| {
+                if let rusqlite::types::ValueRef::Blob(bytes) = row.get_ref(0)? {
+                    hasher.update(bytes);
+                }
+                Ok(())
+            })
+            .map_err(|error| sql_error(&error))?;
+        offset = offset.saturating_add(HANDLE_CHUNK_BYTES);
+    }
+    let digest = hasher.finalize();
+    let hex: String = digest.iter().take(8).map(|byte| format!("{byte:02x}")).collect();
+    Ok(format!("{kind}:{rowid}:{length}:{hex}"))
 }
 
 /// The rowid a handle of `kind` names, or `None` when the text is not such a handle.
@@ -320,6 +337,19 @@ pub(crate) fn is_row_value_error(error: &rusqlite::Error) -> bool {
         error,
         rusqlite::Error::FromSqlConversionFailure(..) | rusqlite::Error::InvalidColumnType(..) | rusqlite::Error::Utf8Error(..) | rusqlite::Error::IntegralValueOutOfRange(..)
     )
+}
+
+/// A stored column fetch's error as a read presents it: a stored value's own
+/// type or text failure ([`is_row_value_error`]) is the row's,
+/// `integrity(detail)` (in a list, the row is unreadable; a single read is
+/// refused by name); any other is the database's ([`sql_error`]).
+pub(crate) fn column_fetch_error(error: rusqlite::Error, integrity: impl FnOnce(String) -> String) -> String {
+    let detail = sql_error(&error);
+    if is_row_value_error(&error) {
+        integrity(format!("a stored column cannot be read ({detail})"))
+    } else {
+        detail
+    }
 }
 
 /// The most characters of any error message a command returns (repair r5): a

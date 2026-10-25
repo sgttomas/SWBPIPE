@@ -180,21 +180,39 @@ Python agree.
     decoded on its own. The `id` is display text, cut as messages quote it.
     The `refusal` is the named, capped integrity refusal. `references` counts
     the other stored rows that name the state, from their columns. None of
-    the row's unverified fields is returned. Each entry is reserved at its
-    bound (`UNREADABLE_ROW_BYTES`), and its oversized columns are never
-    loaded. Database-level failures (corruption, I/O, the statement itself)
-    and memory refusals still refuse the list.
+    the row's unverified fields is returned. Its oversized columns are never
+    loaded. Every separate column fetch (the record, the labels, the
+    snapshot) classifies a value of the wrong type or not UTF-8 as the row's
+    own failure: in a list the row is unreadable, and a single read is
+    refused as `MODEL-STATE-INTEGRITY`. Database-level failures (corruption,
+    I/O, the statement itself) and memory refusals still refuse the list.
+  - **Admission order.** Nothing per row is allocated before it is admitted.
+    The rows with an oversized column are counted first, and all their
+    entries, with their list slots, are reserved together at their bound
+    (`UNREADABLE_ROW_BYTES` each) before any is collected; too many are
+    refused by name (`STORE-READ-MEMORY-UNAVAILABLE`). Every other
+    unreadable entry is reserved at the same bound before anything of its
+    row is read for it.
   - **Delete handle.** The `handle` is `state-row:<rowid>:<id byte
     length>:<digest>`. The digest is the first 16 hex of the SHA-256 of the
-    stored id's first and last 512 bytes, read with `octet_length` and
-    `substr` and never loaded whole. The handle is distinct from the display
-    text, so two rows whose cut ids are equal keep different handles.
+    whole stored id (its bytes). The id is read in the same transaction in
+    64 KiB `substr` chunks, each hashed where SQLite holds it, within one
+    reservation of the chunk buffer; it is never loaded whole into the
+    process. The handle is distinct from the display text, so two rows whose
+    cut ids are equal keep different handles, and a row that reuses a rowid
+    with a different id never matches an old handle.
     `delete_model_state {projectId, unreadableHandle}` deletes exactly the
     project's row with that rowid whose stored id still has the handle's
-    length and digest. A stale or wrong handle is not found. The delete is
-    refused (`MODEL-STATE-DELETE-BLOCKED`, with the counts) while any stored
-    row names the state. A readable state is still deleted by its verified
-    `stateId`; an unreadable one is not deleted by any id.
+    length and digest. A stale or wrong handle is not found. Inside its write
+    transaction the delete re-checks the row by the list's own bounded check;
+    a row that reads now is refused (`MODEL-STATE-ROW-CHANGED`: "this row
+    changed since it was listed; refresh") and nothing is deleted. A
+    replacement with an identical id that is also unreadable may be deleted,
+    which is consistent with the user's intent: it is the row they asked to
+    delete, as listed. No store migration is needed (the store stays v13).
+    The delete is refused (`MODEL-STATE-DELETE-BLOCKED`, with the counts)
+    while any stored row names the state. A readable state is still deleted
+    by its verified `stateId`; an unreadable one is not deleted by any id.
   - **Relationships.** A summary presents only verified rows:
     - `child_state_ids` are the child states that name the state and are
       themselves readable, each verified as the list verifies it, one at a
@@ -202,9 +220,10 @@ Python agree.
     - `unreadable_references` counts the child-state rows that name it but
       cannot be read.
     - `recorded_run_count` counts the run rows that name it, from their
-      columns. The runs themselves come, each verified, from the run list,
-      which the History panel groups by state. A state list therefore never
-      loads a run.
+      columns: an integer, with nothing of the runs loaded or priced. The
+      runs themselves come, each verified, from the run list, which the
+      History panel groups by state. A state list therefore never loads a
+      run.
     - Candidate children are loaded only within their bounds, and a related
       row's oversized column is never measured into another row's summary.
     - A blocked delete names verified children only and counts the runs and
@@ -219,7 +238,7 @@ Python agree.
   `list_model_states`, `read_model_state`, the label edit and the delete.
   - **Before loading.** Each takes memory-pool leases sized from the stored
     lengths before loading anything: records, snapshots, label columns, the
-    child and run lists, and every identity and time column. It measures and
+    child-id lists, and every identity and time column. It measures and
     loads in one transaction.
   - **Identity columns (r5, r6).** A row whose identity or time column exceeds
     a bound the app holds at every write is refused before it is loaded. A
@@ -543,9 +562,16 @@ the History panel and `useModelStateHistory.ts`.
   - **List.** The list reads each run's record, but never its result or
     manifest. A row that does not verify, or has a value of the wrong type
     or one that is not UTF-8, is listed by its id, refusal and handle only,
-    as for states (§2). Its handle is `run-row:<rowid>:<length>:<digest>`,
-    and `delete_analysis_run {projectId, unreadableHandle}` deletes exactly
-    that row and its labels. The other runs are listed as usual. A readable
+    as for states (§2), with the same admission order and the same
+    classification of every column fetch (the record, the result, the
+    manifest; a single read is refused as `ANALYSIS-RUN-INTEGRITY`). Its
+    handle is `run-row:<rowid>:<length>:<digest>`, the digest of the whole
+    stored id read in chunks as for states, and
+    `delete_analysis_run {projectId, unreadableHandle}` deletes exactly
+    that row and its labels, after re-checking it inside its write
+    transaction by the list's own check (`ANALYSIS-RUN-ROW-CHANGED` when it
+    reads now; a replacement with an identical id that is also unreadable
+    may be deleted). The other runs are listed as usual. A readable
     run is deleted by its verified `recordingId`, whatever its state's
     readability. A readable run whose state cannot be read is shown in the
     History panel under "Runs whose state cannot be read", with Check record
@@ -599,7 +625,7 @@ the History panel and `useModelStateHistory.ts`.
   - **Run.** A run is deleted only as a whole row with its labels; no other row
     depends on a run. An unreadable run may be deleted (W-12, Agent 0's
     decision), by its list handle only, never by a shown id. Nothing of it
-    is loaded or trusted.
+    is trusted, and it is loaded only as the list loads it.
   - **Project.** Deleting the project row removes its runs, child states,
     states and all their labels in one statement. A Replace keeps all of them.
   - **Replace prompt.** It says how many saved states and recorded runs remain

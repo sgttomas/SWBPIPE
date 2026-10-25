@@ -86,7 +86,7 @@ async function session(references: RulePackReference[] | null, packs: LocalRuleP
         const state = {
           ...request.new_state.labels, project_id: request.project_id, state_id: `state:${"1".padStart(32, "0")}`, state_kind: "post_solve_snapshot",
           created_at: created, parent_state_id: null, model_hash: (await computeModelHash(manifest.model_basis.model_payload))!.value, record_hash: "r",
-          labels_updated_at: created, child_state_ids: [], recorded_run_ids: [], analysis_status: ["HUMAN_REVIEW_REQUIRED"]
+          labels_updated_at: created, child_state_ids: [], recorded_run_count: 0, analysis_status: ["HUMAN_REVIEW_REQUIRED"]
         } as ModelStateSummary;
         store.states.push(state);
         const recorded = await recordedAnalysisRunRevision(request.run_record, { stateId: state.state_id, createdAt: created, inputManifest: manifest });

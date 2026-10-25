@@ -1078,7 +1078,8 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
             params![project_id, recording_id],
             |row| row.get(0),
         )
-        .map_err(sql)?;
+        // A record of the wrong type or not UTF-8 is the row's own failure (W-12).
+        .map_err(|error| stored_read::column_fetch_error(error, |detail| integrity_of(&recording_id, detail)))?;
     // The record's parse and its hash projection (a clone), priced before
     // parsing and held while the record is; the hash's texts and checked parse
     // are reserved at their exact lengths when they are made. A record the
@@ -1174,10 +1175,7 @@ fn refuse_oversized_runs(connection: &Connection, project_id: &str, recording_id
         .map_err(sql)?;
     match found {
         None => Ok(()),
-        Some((head, length, column)) => Err(integrity_of(
-            &stored_read::shown_head(&head, length),
-            format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&RUN_IDENTITY, &column)),
-        )),
+        Some((head, length, column)) => Err(oversized_run_refusal(&stored_read::shown_head(&head, length), &column)),
     }
 }
 
@@ -1293,60 +1291,109 @@ pub(crate) fn list_runs_in_store_with(
     list_runs_with(&transaction, project_id, memory)
 }
 
+/// Why a run list shows a decoded row as unreadable: a stored value of the
+/// wrong type or not UTF-8 (its detail; the refusal names the row by its id's
+/// head), or the row's own integrity refusal.
+enum RunRowRefusal {
+    Column(String),
+    Integrity(String),
+}
+
+impl RunRowRefusal {
+    fn refusal(self, id: &str) -> String {
+        match self {
+            Self::Column(detail) => integrity_of(id, format_args!("a stored column cannot be read ({detail})")),
+            Self::Integrity(refusal) => refusal,
+        }
+    }
+}
+
+/// The run list's check of one decoded row (W-12, DEL-14-01 Design §3), the
+/// same for the list and for a delete by handle's re-check: its verified run,
+/// or why the list shows it unreadable. Memory refusals and database errors
+/// are the caller's (`Err`).
+fn checked_run_row(connection: &Connection, row: rusqlite::Result<SummaryRow>, memory: &dyn ReadMemory) -> Result<Result<VerifiedRun, RunRowRefusal>, String> {
+    match row {
+        Err(error) if stored_read::is_row_value_error(&error) => Ok(Err(RunRowRefusal::Column(sql(error)))),
+        Err(error) => Err(sql(error)),
+        Ok(row) => match summary_from_row(connection, row, memory) {
+            Ok(verified) => Ok(Ok(verified)),
+            Err(error) if error.starts_with("ANALYSIS-RUN-INTEGRITY") => Ok(Err(RunRowRefusal::Integrity(error))),
+            Err(error) => Err(error),
+        },
+    }
+}
+
+/// The refusal of a run row whose `column` holds more than its bound.
+fn oversized_run_refusal(id: &str, column: &str) -> String {
+    integrity_of(id, format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&RUN_IDENTITY, column)))
+}
+
 /// The unreadable entry of the run row `rowid`: its id's head, `refusal(id)`,
-/// and its delete handle ([`stored_read::row_handle`]); only the id's head and
-/// ends are loaded.
+/// and its delete handle ([`stored_read::row_handle`]); its caller holds its
+/// reservation ([`stored_read::UNREADABLE_ROW_BYTES`]), made before this reads
+/// anything. Only the id's head is loaded; the id is hashed in chunks.
+fn unreadable_run_row(
+    connection: &Connection,
+    rowid: i64,
+    refusal: impl FnOnce(&str) -> String,
+    memory: &dyn ReadMemory,
+) -> Result<stored_read::UnreadableRow, String> {
+    let (head, head_length): (Vec<u8>, i64) = connection
+        .query_row(
+            &format!("SELECT {} FROM analysis_runs WHERE rowid = ?1", stored_read::shown_column("recording_id")),
+            params![rowid],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .map_err(sql)?;
+    let id = stored_read::shown_head(&head, head_length);
+    let handle = stored_read::row_handle(connection, "analysis_runs", "recording_id", RUN_ROW_HANDLE, rowid, memory)?;
+    let refusal = refusal(&id);
+    Ok(stored_read::UnreadableRow::new(&id, refusal, handle, 0))
+}
+
+/// [`unreadable_run_row`] within its own reservation, made first.
 pub(crate) fn unreadable_run_entry(
     connection: &Connection,
     rowid: i64,
     refusal: impl FnOnce(&str) -> String,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<stored_read::UnreadableRow>, String> {
-    let (head, head_length, length, first, last): (Vec<u8>, i64, i64, Vec<u8>, Vec<u8>) = connection
-        .query_row(
-            &format!(
-                "SELECT {}, {} FROM analysis_runs WHERE rowid = ?1",
-                stored_read::shown_column("recording_id"),
-                stored_read::handle_columns("recording_id")
-            ),
-            params![rowid],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
-        )
-        .map_err(sql)?;
-    let id = stored_read::shown_head(&head, head_length);
-    let refusal = refusal(&id);
-    stored_read::UnreadableRow::reserved(memory, "an unreadable recorded run's list entry", &id, refusal, stored_read::row_handle(RUN_ROW_HANDLE, rowid, length, &first, &last), 0)
+    let reservation = memory.reserve("an unreadable recorded run's list entry", stored_read::UNREADABLE_ROW_BYTES)?;
+    Ok(Metered::new(unreadable_run_row(connection, rowid, refusal, memory)?).holding(reservation))
 }
 
 /// The kind of a recorded-run row's delete handle.
 pub(crate) const RUN_ROW_HANDLE: &str = "run-row";
 
 /// The run rows of `project_id` whose identity or time column holds more than
-/// its bound, as unreadable entries: only each id's head and ends and the
-/// column named are loaded (repair r5's refusal, now per row).
-fn oversized_run_entries(connection: &Connection, project_id: &str, memory: &dyn ReadMemory) -> Result<Vec<Metered<stored_read::UnreadableRow>>, String> {
+/// its bound, as unreadable entries (repair r5's refusal, now per row). They
+/// are counted first and every entry, with its list slot, is reserved at its
+/// bound before any is collected (W-12): nothing per row is allocated before
+/// the list is admitted. Only each id's head and the column named are loaded;
+/// each id is hashed in chunks.
+fn oversized_run_entries(connection: &Connection, project_id: &str, memory: &dyn ReadMemory) -> Result<Metered<Vec<stored_read::UnreadableRow>>, String> {
     let oversized = stored_read::oversized_column(&RUN_IDENTITY);
-    let found: Vec<(i64, String)> = {
-        let mut statement = connection
-            .prepare(&format!(
-                "SELECT r.rowid, {oversized} FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
-                 WHERE r.project_id = ?1 AND {oversized} IS NOT NULL ORDER BY r.rowid"
-            ))
-            .map_err(sql)?;
-        let rows = statement.query_map(params![project_id], |row| Ok((row.get(0)?, row.get(1)?))).map_err(sql)?;
-        rows.collect::<Result<_, _>>().map_err(sql)?
-    };
-    found
-        .into_iter()
-        .map(|(rowid, column)| {
-            unreadable_run_entry(
-                connection,
-                rowid,
-                |id| integrity_of(id, format_args!("its {column} is longer than the {} bytes kept", stored_read::column_bound(&RUN_IDENTITY, &column))),
-                memory,
-            )
-        })
-        .collect()
+    let from = format!(
+        "FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
+         WHERE r.project_id = ?1 AND {oversized} IS NOT NULL"
+    );
+    let count: i64 = connection.query_row(&format!("SELECT COUNT(*) {from}"), params![project_id], |row| row.get(0)).map_err(sql)?;
+    let count = usize::try_from(count).unwrap_or(0);
+    let admitted = memory.reserve(
+        &format!("the {count} oversized recorded-run rows' list entries of project `{}`", stored_read::shown(project_id)),
+        (count as u64).saturating_mul(stored_read::UNREADABLE_ROW_BYTES.saturating_add(std::mem::size_of::<ListedRun>() as u64)),
+    )?;
+    let mut entries = Vec::with_capacity(count);
+    let mut statement = connection.prepare(&format!("SELECT r.rowid, {oversized} {from} ORDER BY r.rowid")).map_err(sql)?;
+    let mut rows = statement.query(params![project_id]).map_err(sql)?;
+    while entries.len() < count {
+        let Some(row) = rows.next().map_err(sql)? else { break };
+        let rowid: i64 = row.get(0).map_err(sql)?;
+        let column: String = row.get(1).map_err(sql)?;
+        entries.push(unreadable_run_row(connection, rowid, |id| oversized_run_refusal(id, &column), memory)?);
+    }
+    Ok(Metered::new(entries).holding(admitted))
 }
 
 /// [`list_run_entries`] within `memory`: before anything is loaded, the
@@ -1355,9 +1402,11 @@ fn oversized_run_entries(connection: &Connection, project_id: &str, memory: &dyn
 /// row, which the list keeps); each record's parse is reserved after it is
 /// loaded and released once it is verified, and each row's decoded labels are
 /// held with the list until its response is serialized. A row that cannot be
-/// read (an oversized column, a record or labels row that does not verify) is
-/// listed by its id and refusal only, each such entry reserved at its bound
-/// ([`stored_read::UNREADABLE_ROW_BYTES`]); its unverified fields are not
+/// read (an oversized column, a stored value of the wrong type or not UTF-8, a
+/// record or labels row that does not verify) is listed by its id and refusal
+/// only, each such entry reserved at its bound
+/// ([`stored_read::UNREADABLE_ROW_BYTES`]) before it is made (the oversized
+/// rows counted and reserved together first); its unverified fields are not
 /// returned. Memory refusals and SQLite errors still refuse the list.
 pub(crate) fn list_runs_with(
     transaction: &Transaction<'_>,
@@ -1405,40 +1454,49 @@ pub(crate) fn list_runs_with(
         }
         rows
     };
-    let mut listed = Metered::new(Vec::with_capacity(rows.len() + oversized_entries.len())).holding(load);
+    let mut listed = Metered::new(Vec::with_capacity(rows.len() + oversized_entries.get().len())).holding(load);
     for (rowid, row) in rows {
-        let unreadable = |refusal: String| {
-            unreadable_run_entry(connection, rowid, |_| refusal, memory).map(|entry| entry.map(|unreadable| ListedRun::Unreadable { unreadable }))
-        };
-        let entry = match row {
-            Err(error) if stored_read::is_row_value_error(&error) => {
-                let detail = sql(error);
-                unreadable_run_entry(connection, rowid, |id| integrity_of(id, format_args!("a stored column cannot be read ({detail})")), memory)?
-                    .map(|unreadable| ListedRun::Unreadable { unreadable })
+        let entry = match checked_run_row(connection, row, memory)? {
+            Ok((summary, record)) => {
+                drop(record);
+                summary.map(ListedRun::Readable)
             }
-            Err(error) => return Err(sql(error)),
-            Ok(row) => match summary_from_row(connection, row, memory) {
-                Ok(verified) => {
-                    let (summary, record) = verified;
-                    drop(record);
-                    summary.map(ListedRun::Readable)
-                }
-                Err(error) if error.starts_with("ANALYSIS-RUN-INTEGRITY") => unreadable(error)?,
-                Err(error) => return Err(error),
-            },
+            Err(refusal) => unreadable_run_entry(connection, rowid, |id| refusal.refusal(id), memory)?.map(|unreadable| ListedRun::Unreadable { unreadable }),
         };
         listed = listed.join(entry, |mut list, entry| {
             list.push(entry);
             list
         });
     }
-    for entry in oversized_entries {
-        listed = listed.join(entry, |mut list, unreadable| {
-            list.push(ListedRun::Unreadable { unreadable });
-            list
-        });
+    Ok(listed.join(oversized_entries, |mut list, entries| {
+        list.extend(entries.into_iter().map(|unreadable| ListedRun::Unreadable { unreadable }));
+        list
+    }))
+}
+
+/// Whether the run row `rowid` of `project_id` is still shown unreadable by
+/// the list's own check (a delete by handle's re-check, inside its write
+/// transaction; W-12, DEL-14-01 Design §3): an oversized column, or
+/// [`checked_run_row`] refusing it. The row is loaded only as the list loads
+/// it: its oversized columns never, the rest within the summary's reservation.
+fn run_row_unreadable(connection: &Connection, project_id: &str, rowid: i64, memory: &dyn ReadMemory) -> Result<bool, String> {
+    let oversized = stored_read::oversized_column(&RUN_IDENTITY);
+    let joined = "FROM analysis_runs r LEFT JOIN analysis_run_labels l ON l.project_id = r.project_id AND l.recording_id = r.recording_id
+         WHERE r.rowid = ?1 AND r.project_id = ?2";
+    let column: Option<String> = connection.query_row(&format!("SELECT {oversized} {joined}"), params![rowid, project_id], |row| row.get(0)).map_err(sql)?;
+    if column.is_some() {
+        return Ok(true);
     }
-    Ok(listed)
+    let (record, labels, identity): (Option<i64>, Option<i64>, Option<i64>) = connection
+        .query_row(&format!("SELECT {} {joined}", run_summary_lengths_sql()), params![rowid, project_id], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+        .map_err(sql)?;
+    let length = |value: Option<i64>| u64::try_from(value.unwrap_or(0)).unwrap_or(0);
+    let _load = memory.reserve(
+        "an unreadable recorded run's re-check",
+        stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, run_summary_load_bytes(length(record), length(labels), length(identity), 1)]),
+    )?;
+    let row = connection.query_row(&format!("SELECT {SUMMARY_COLUMNS} {joined}"), params![rowid, project_id], |row| Ok(summary_row(row))).map_err(sql)?;
+    Ok(checked_run_row(connection, row, memory)?.is_err())
 }
 
 /// How many recorded runs the project id holds (the replacement prompt's count).
@@ -1482,7 +1540,7 @@ fn allocate_created_at(transaction: &Transaction<'_>, project_id: &str, now: i64
             params![project_id],
             |row| row.get(0),
         )
-        .map_err(sql)?;
+        .map_err(|error| stored_read::column_fetch_error(error, |detail| format!("ANALYSIS-RUN-INTEGRITY: a recorded run's created_at: {detail}.")))?;
     let after_latest = match latest {
         None => i64::MIN,
         Some(text) => parse_iso_millis(&text)
@@ -1762,7 +1820,7 @@ pub(crate) fn read_run_in_store_with(
             params![project_id, recording_id],
             |row| Ok((row.get(0)?, row.get(1)?)),
         )
-        .map_err(sql)?;
+        .map_err(|error| stored_read::column_fetch_error(error, |detail| integrity_of(recording_id, detail)))?;
     // Parsed: the result (its checked parse, made by the canonicalizer, is
     // reserved with its canonical text) and the manifest. A stored text the
     // prescan refuses is refused before it is parsed.
@@ -1961,14 +2019,19 @@ pub(crate) fn delete_run_in_store_finishing<R>(
 /// Deletes the run row a list's unreadable entry names by its `handle`
 /// ([`stored_read::row_handle`]; W-12, DEL-14-01 Design §3), on a
 /// `BEGIN IMMEDIATE` transaction: the row of the project with that rowid whose
-/// stored id still has the handle's length and digest, exactly that row and its
-/// labels. Nothing of the row is loaded beyond its id's head and ends, and none
-/// of it is trusted (deleting removes data). A handle that names no such row, a
-/// stale one included, is not found.
+/// whole stored id still has the handle's length and digest (hashed in chunks
+/// inside the transaction), exactly that row and its labels. A handle that
+/// names no such row, a stale one included, is not found. Inside the same
+/// transaction the row is re-checked by the list's own check
+/// ([`run_row_unreadable`]): a row that reads now (a replacement with the same
+/// id, or a repair) is refused by name (`ANALYSIS-RUN-ROW-CHANGED`) and
+/// nothing is deleted. Nothing of the row is trusted (deleting removes data);
+/// it is loaded only as the list loads it, within `memory`.
 pub(crate) fn delete_unreadable_run_in_store_finishing<R>(
     path: &Path,
     project_id: &str,
     handle: &str,
+    memory: &dyn ReadMemory,
     finish: impl FnOnce(Metered<AnalysisRunDeleteReceipt>) -> Result<R, String>,
 ) -> Result<R, String> {
     let not_found = || {
@@ -1981,23 +2044,24 @@ pub(crate) fn delete_unreadable_run_in_store_finishing<R>(
     let rowid = stored_read::handle_rowid(RUN_ROW_HANDLE, handle).ok_or_else(not_found)?;
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
-    let found: Option<(Vec<u8>, i64, i64, Vec<u8>, Vec<u8>)> = transaction
+    let found: Option<(Vec<u8>, i64)> = transaction
         .query_row(
-            &format!(
-                "SELECT {}, {} FROM analysis_runs WHERE rowid = ?1 AND project_id = ?2",
-                stored_read::shown_column("recording_id"),
-                stored_read::handle_columns("recording_id")
-            ),
+            &format!("SELECT {} FROM analysis_runs WHERE rowid = ?1 AND project_id = ?2", stored_read::shown_column("recording_id")),
             params![rowid, project_id],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
+            |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .optional()
         .map_err(sql)?;
-    let Some((head, head_length, length, first, last)) = found else { return Err(not_found()) };
-    if stored_read::row_handle(RUN_ROW_HANDLE, rowid, length, &first, &last) != handle {
+    let Some((head, head_length)) = found else { return Err(not_found()) };
+    if stored_read::row_handle(&transaction, "analysis_runs", "recording_id", RUN_ROW_HANDLE, rowid, memory)? != handle {
         return Err(not_found());
     }
     let id = stored_read::shown_head(&head, head_length);
+    if !run_row_unreadable(&transaction, project_id, rowid, memory)? {
+        return Err(format!(
+            "ANALYSIS-RUN-ROW-CHANGED: recorded run `{id}` reads now: this row changed since it was listed; refresh. Nothing was deleted."
+        ));
+    }
     let deleted = transaction
         .execute("DELETE FROM analysis_runs WHERE rowid = ?1 AND project_id = ?2", params![rowid, project_id])
         .map_err(sql)?;
@@ -2014,7 +2078,7 @@ pub(crate) fn delete_unreadable_run_in_store_finishing<R>(
 /// [`delete_unreadable_run_in_store_finishing`], keeping the receipt (tests).
 #[cfg(test)]
 pub(crate) fn delete_unreadable_run_in_store(path: &Path, project_id: &str, handle: &str) -> Result<AnalysisRunDeleteReceipt, String> {
-    delete_unreadable_run_in_store_finishing(path, project_id, handle, Ok)?.into_unreserved()
+    delete_unreadable_run_in_store_finishing(path, project_id, handle, &stored_read::UnmeteredReadMemory, Ok)?.into_unreserved()
 }
 
 // ---------------------------------------------------------------------------
@@ -2091,7 +2155,7 @@ pub(crate) fn delete_analysis_run_args(
     store()
         .and_then(|path| match (recording_id, handle) {
             (Some(recording_id), None) => delete_run_in_store_finishing(&path, &project_id, &recording_id, memory, finish),
-            (None, Some(handle)) => delete_unreadable_run_in_store_finishing(&path, &project_id, &handle, finish),
+            (None, Some(handle)) => delete_unreadable_run_in_store_finishing(&path, &project_id, &handle, memory, finish),
             _ => Err("ANALYSIS-RUN-DELETE-ARGS: name the run by recordingId or a listed unreadable row by unreadableHandle, not both.".to_string()),
         })
         .map_err(|error| CommandError::Command(stored_read::capped(error)))

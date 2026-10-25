@@ -3306,3 +3306,302 @@ fn the_named_refusal_comes_only_after_every_other_check_passes() {
     let read = read_run_in_store(&path, &project_id, &s2_id).unwrap_err();
     assert!(read.starts_with("MODEL-STATE-INTEGRITY"), "{read}");
 }
+
+// ---------------------------------------------------------------------------
+// Repair r6 (W-12): full-id handles and the delete's re-check, admission
+// before per-row collection, per-row classification of column fetches, and
+// state summaries that count runs without pricing their ids.
+// ---------------------------------------------------------------------------
+
+/// The rowid of the only row of `table`.
+fn only_rowid(path: &Path, table: &str) -> i64 {
+    Connection::open(path).unwrap().query_row(&format!("SELECT rowid FROM {table}"), [], |row| row.get(0)).unwrap()
+}
+
+/// Replaces the row `rowid` of `table` by a copy whose `id_column` is `id`,
+/// deleting the old row first and inserting the copy under the same rowid (as a
+/// reused rowid would be), its labels row in `labels_table` moved with it.
+fn replace_with_same_rowid(path: &Path, table: &str, labels_table: &str, id_column: &str, rowid: i64, id: &str) {
+    tamper(path, "");
+    let connection = Connection::open(path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    let columns: Vec<String> =
+        connection.prepare(&format!("PRAGMA table_info({table})")).unwrap().query_map([], |row| row.get(1)).unwrap().collect::<Result<_, _>>().unwrap();
+    let list = columns.join(", ");
+    let old: String = connection.query_row(&format!("SELECT {id_column} FROM {table} WHERE rowid = ?1"), params![rowid], |row| row.get(0)).unwrap();
+    connection
+        .execute_batch(&format!(
+            "CREATE TEMP TABLE replaced AS SELECT rowid AS old_rowid, {list} FROM {table} WHERE rowid = {rowid}; DELETE FROM {table} WHERE rowid = {rowid};"
+        ))
+        .unwrap();
+    connection.execute(&format!("UPDATE replaced SET {id_column} = ?1"), params![id]).unwrap();
+    connection.execute_batch(&format!("INSERT INTO {table} (rowid, {list}) SELECT old_rowid, {list} FROM replaced; DROP TABLE replaced;")).unwrap();
+    connection.execute(&format!("UPDATE {labels_table} SET {id_column} = ?1 WHERE {id_column} = ?2"), params![id, old]).unwrap();
+    assert_eq!(connection.query_row(&format!("SELECT {id_column} FROM {table} WHERE rowid = ?1"), params![rowid], |row| row.get::<_, String>(0)).unwrap(), id);
+}
+
+/// The handle digest of a whole id, as the store must compute it.
+fn full_id_digest(id: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(id).iter().take(8).map(|byte| format!("{byte:02x}")).collect()
+}
+
+#[test]
+fn a_stale_handle_never_deletes_a_replacement_whose_id_shares_its_length_and_ends() {
+    // Codex r6: two ids of one length whose first and last 512 bytes agree, the
+    // second taking the first's rowid. A digest of the ends let the first's
+    // handle delete the second; the whole id's digest refuses it.
+    let first = format!("{}A{}", "e".repeat(600), "e".repeat(600));
+    let second = format!("{}B{}", "e".repeat(600), "e".repeat(600));
+    // A recorded run (unreadable: its result hash is tampered).
+    let (path, _) = recorded_fixture("stale-handle-run");
+    let id = id_of(&path);
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+    let rowid = only_rowid(&path, "analysis_runs");
+    replace_with_same_rowid(&path, "analysis_runs", "analysis_run_labels", "recording_id", rowid, &first);
+    let listed = unreadable_runs(&path, PROJECT);
+    assert_eq!(listed.len(), 1);
+    let stale = listed[0].handle.clone();
+    assert_eq!(stale, format!("run-row:{rowid}:{}:{}", first.len(), full_id_digest(first.as_bytes())));
+    replace_with_same_rowid(&path, "analysis_runs", "analysis_run_labels", "recording_id", rowid, &second);
+    let current = unreadable_runs(&path, PROJECT);
+    assert_eq!(current.len(), 1);
+    assert_eq!(current[0].id, listed[0].id, "they list identically");
+    assert_eq!(current[0].handle, format!("run-row:{rowid}:{}:{}", second.len(), full_id_digest(second.as_bytes())));
+    assert_ne!(current[0].handle, stale, "the same rowid and length; the digest tells them apart");
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, &stale).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert_eq!(row_count(&path, "analysis_runs"), 1, "the replacement was not deleted");
+    delete_unreadable_run_in_store(&path, PROJECT, &current[0].handle).unwrap();
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // A saved state (unreadable: its created_at differs from its record's).
+    let path = store_with_project("stale-handle-state");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000003101", 1_000);
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", state.state_id));
+    let rowid = only_rowid(&path, "model_states");
+    replace_with_same_rowid(&path, "model_states", "model_state_labels", "state_id", rowid, &first);
+    let listed = unreadable_states(&path);
+    assert_eq!(listed.len(), 1);
+    let stale = listed[0].handle.clone();
+    assert_eq!(stale, format!("state-row:{rowid}:{}:{}", first.len(), full_id_digest(first.as_bytes())));
+    replace_with_same_rowid(&path, "model_states", "model_state_labels", "state_id", rowid, &second);
+    let current = unreadable_states(&path);
+    assert_eq!(current[0].id, listed[0].id);
+    assert_ne!(current[0].handle, stale);
+    assert!(model_states::delete_unreadable_state_in_store(&path, PROJECT, &stale).unwrap_err().starts_with("MODEL-STATE-NOT-FOUND"));
+    assert_eq!(row_count(&path, "model_states"), 1, "the replacement was not deleted");
+    model_states::delete_unreadable_state_in_store(&path, PROJECT, &current[0].handle).unwrap();
+    assert_eq!(row_count(&path, "model_states"), 0);
+}
+
+#[test]
+fn a_handle_whose_row_reads_now_is_refused_and_nothing_is_deleted() {
+    // A run listed unreadable, then repaired and replaced by a readable row with
+    // the same id under the same rowid: its handle still matches, and the
+    // delete's re-check refuses it.
+    let (path, _) = recorded_fixture("changed-run");
+    let id = id_of(&path);
+    let hash: String = Connection::open(&path).unwrap().query_row("SELECT result_hash FROM analysis_runs", [], |row| row.get(0)).unwrap();
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+    let handle = unreadable_runs(&path, PROJECT)[0].handle.clone();
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = '{hash}' WHERE recording_id = '{id}';"));
+    replace_with_same_rowid(&path, "analysis_runs", "analysis_run_labels", "recording_id", only_rowid(&path, "analysis_runs"), &id);
+    let error = delete_unreadable_run_in_store(&path, PROJECT, &handle).unwrap_err();
+    assert_eq!(error, format!("ANALYSIS-RUN-ROW-CHANGED: recorded run `{id}` reads now: this row changed since it was listed; refresh. Nothing was deleted."));
+    assert_eq!(row_count(&path, "analysis_runs"), 1);
+    assert_eq!(row_count(&path, "analysis_run_labels"), 1);
+    read_run_in_store(&path, PROJECT, &id).unwrap();
+    // A replacement with the same id that is also unreadable may be deleted by
+    // the handle: it is the row the user asked to delete, as listed.
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+    delete_unreadable_run_in_store(&path, PROJECT, &handle).unwrap();
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // A saved state likewise.
+    let path = store_with_project("changed-state");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000003201", 1_000);
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", state.state_id));
+    let handle = unreadable_states(&path)[0].handle.clone();
+    tamper(&path, &format!("UPDATE model_states SET created_at = '{}' WHERE state_id = '{}';", state.created_at, state.state_id));
+    replace_with_same_rowid(&path, "model_states", "model_state_labels", "state_id", only_rowid(&path, "model_states"), &state.state_id);
+    let error = model_states::delete_unreadable_state_in_store(&path, PROJECT, &handle).unwrap_err();
+    assert_eq!(
+        error,
+        format!("MODEL-STATE-ROW-CHANGED: saved state `{}` reads now: this row changed since it was listed; refresh. Nothing was deleted.", state.state_id)
+    );
+    assert_eq!(row_count(&path, "model_states"), 1);
+    model_states::read_state_in_store(&path, PROJECT, &state.state_id).unwrap();
+}
+
+#[test]
+fn a_large_id_is_hashed_in_chunks_within_the_handles_reservation() {
+    // A 3 MiB + 1 byte recording id (oversized, so listed unreadable): its
+    // handle digests the whole id, read in 64 KiB chunks, never loaded whole,
+    // under a 2 MiB pool, by the list and by the delete alike.
+    let (path, _) = recorded_fixture("chunked-handle");
+    let id = id_of(&path);
+    let large = format!("{}z", "r".repeat(LARGE));
+    tamper_with(&path, &format!("UPDATE analysis_runs SET recording_id = ?1 WHERE recording_id = '{id}'"), &large);
+    tamper_with(&path, &format!("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = '{id}'"), &large);
+    let rowid = only_rowid(&path, "analysis_runs");
+    let small = small_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| {
+        list_runs_in_store_with(&path, PROJECT, &memory).map(|listed| {
+            listed
+                .get()
+                .iter()
+                .filter_map(|entry| match entry {
+                    ListedRun::Unreadable { unreadable } => Some(unreadable.handle.clone()),
+                    ListedRun::Readable(_) => None,
+                })
+                .collect::<Vec<_>>()
+        })
+    });
+    let handles = outcome.unwrap();
+    assert_eq!(handles, vec![format!("run-row:{rowid}:{}:{}", large.len(), full_id_digest(large.as_bytes()))]);
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "the id was never loaded whole (peak {})", measured.peak_priced);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    let memory = PoolReadMemory::unseeded(&small);
+    let (deleted, measured) = crate::ingress::counting::measure(|| {
+        delete_unreadable_run_in_store_finishing(&path, PROJECT, &handles[0], &memory, |receipt| Ok(receipt.get().deleted))
+    });
+    assert!(deleted.unwrap());
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "the delete hashed the id in chunks (peak {})", measured.peak_priced);
+    assert!(memory.peak_reserved() >= stored_read::handle_chunk_bytes(), "the chunk buffer was reserved");
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+}
+
+/// `count` run rows (or state rows) of `PROJECT` whose created_at is longer
+/// than its bound, each with small stored texts, inserted in one statement.
+fn insert_oversized_rows(path: &Path, table: &str, count: i64) {
+    tamper(path, "");
+    let connection = Connection::open(path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    let insert = match table {
+        "analysis_runs" => "INSERT INTO analysis_runs(project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash,
+             input_manifest_json, result_json, result_hash)
+             SELECT ?1, 'oversized-run-' || i, 'state:none', 'producer', '2026-01-01T00:00:00.000Z-oversized-' || i, '{}', 'h-' || i, '{}', '{}', 'r-' || i FROM n",
+        "model_states" => "INSERT INTO model_states(project_id, state_id, state_kind, created_at, parent_state_id, model_canonical, model_hash, record_json, record_hash)
+             SELECT ?1, 'oversized-state-' || i, 'design_snapshot', '2026-01-01T00:00:00.000Z-oversized-' || i, NULL, '{}', 'm-' || i, '{}', 'r-' || i FROM n",
+        other => panic!("{other}"),
+    };
+    connection
+        .execute(&format!("WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < {count}) {insert}"), params![PROJECT])
+        .unwrap();
+}
+
+#[test]
+fn a_hundred_thousand_oversized_rows_are_counted_and_admitted_before_any_entry_is_collected() {
+    // Codex r6: the oversized rows were collected before any reservation.
+    const ROWS: i64 = 100_000;
+    for (table, what) in [("analysis_runs", "recorded-run"), ("model_states", "saved-state")] {
+        let (path, _) = recorded_fixture(&format!("many-oversized-{table}"));
+        insert_oversized_rows(&path, table, ROWS);
+        let small = small_pool();
+        let memory = Recording { inner: PoolReadMemory::unseeded(&small), seen: std::cell::RefCell::new(Vec::new()) };
+        let (outcome, measured) = crate::ingress::counting::measure(|| match table {
+            "analysis_runs" => list_runs_in_store_with(&path, PROJECT, &memory).map(|_| ()),
+            _ => model_states::list_states_in_store_with(&path, PROJECT, &memory).map(|_| ()),
+        });
+        let error = outcome.unwrap_err();
+        let admission = format!("the {ROWS} oversized {what} rows' list entries of project `{PROJECT}`");
+        assert!(error.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading {admission}")), "{table}: {error}");
+        assert_eq!(memory.seen.borrow().iter().map(|(what, _)| what.clone()).collect::<Vec<_>>(), vec![admission], "{table}: the entries' admission is the first reservation");
+        assert!(measured.peak_priced < 256 * 1024, "{table}: nothing per row was allocated before the admission (peak {})", measured.peak_priced);
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+    }
+    // Admitted, the entries stay within their reservations through the response.
+    let (path, _) = recorded_fixture("some-oversized-runs");
+    insert_oversized_rows(&path, "analysis_runs", 1_000);
+    assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory));
+    assert_eq!(unreadable_runs(&path, PROJECT).len(), 1_000);
+    let (path, _) = recorded_fixture("some-oversized-states");
+    insert_oversized_rows(&path, "model_states", 1_000);
+    assert_within_reservation("list_model_states", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
+    assert_eq!(unreadable_states(&path).len(), 1_000);
+}
+
+#[test]
+fn a_stored_column_of_the_wrong_type_makes_only_its_row_unreadable_or_its_read_refused_by_name() {
+    // Codex r6: run_record_json or record_json set to X'FF' hid the whole list
+    // behind STORE-SQL-ERROR.
+    let (path, _) = recorded_fixture("blob-record");
+    let first = id_of(&path);
+    let solved = model("Invented project");
+    let second = record(&path, request(&solved, "Second"), T0 + 5).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = X'FF' WHERE recording_id = '{first}';"));
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].id, first);
+    assert!(
+        entries[0].refusal.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{first}`: a stored column cannot be read")),
+        "{}",
+        entries[0].refusal
+    );
+    assert!(list_run_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap().iter().any(|entry| matches!(entry, ListedRun::Readable(run) if run.recording_id == second)));
+    assert!(read_run_in_store(&path, PROJECT, &first).unwrap_err().starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{first}`: a stored column cannot be read")));
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    // A record that is an integer.
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = 42 WHERE recording_id = '{second}';"));
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.iter().map(|entry| entry.id.clone()).collect::<Vec<_>>(), vec![second.clone()]);
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    // A result of the wrong type: the run lists (the list loads no result) and its read is refused by name.
+    let third = record(&path, request(&solved, "Third"), T0 + 9).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_runs SET result_json = X'FF' WHERE recording_id = '{third}';"));
+    assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+    let error = read_run_in_store(&path, PROJECT, &third).unwrap_err();
+    assert!(error.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{third}`: a stored column cannot be read")), "{error}");
+    // A saved state's record of the wrong type: its row is unreadable, the other state lists.
+    let path = store_with_project("blob-state-record");
+    let a = save_state(&path, &model("Invented project"), "A", "00000000000000000000000000003301", 1_000);
+    let b = save_state(&path, &model("Other project"), "B", "00000000000000000000000000003302", 2_000);
+    tamper(&path, &format!("UPDATE model_states SET record_json = X'FF' WHERE state_id = '{}';", a.state_id));
+    let unreadable = unreadable_states(&path);
+    assert_eq!(unreadable.iter().map(|entry| entry.id.clone()).collect::<Vec<_>>(), vec![a.state_id.clone()]);
+    assert!(unreadable[0].refusal.contains("a stored column cannot be read"), "{}", unreadable[0].refusal);
+    assert!(readable_states(&path).iter().any(|state| state.state_id == b.state_id));
+    assert!(model_states::read_state_in_store(&path, PROJECT, &a.state_id).unwrap_err().starts_with("MODEL-STATE-INTEGRITY"));
+    model_states::delete_unreadable_state_in_store(&path, PROJECT, &unreadable[0].handle).unwrap();
+    // A snapshot of the wrong type: the state lists and its read is refused by name.
+    tamper(&path, &format!("UPDATE model_states SET model_canonical = X'FF' WHERE state_id = '{}';", b.state_id));
+    assert_eq!(readable_states(&path).len(), 1);
+    let error = model_states::read_state_in_store(&path, PROJECT, &b.state_id).unwrap_err();
+    assert!(error.starts_with(&format!("MODEL-STATE-INTEGRITY: saved state `{}`: a stored column cannot be read", b.state_id)), "{error}");
+}
+
+#[test]
+fn a_state_with_a_thousand_runs_of_4096_byte_ids_lists_and_reads_under_2_mib() {
+    // Codex r6: the state summary still priced the removed run-id lists.
+    let (path, _) = recorded_fixture("many-runs-one-state");
+    let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM analysis_runs", [], |row| row.get(0)).unwrap();
+    tamper(&path, "");
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    connection
+        .execute(
+            "WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 1000)
+             INSERT INTO analysis_runs(project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash,
+               input_manifest_json, result_json, result_hash)
+             SELECT ?1, printf('%04d', i) || substr(hex(zeroblob(2048)), 5), ?2, 'producer', '2026-01-01T00:00:00.000Z', '{}', 'h-' || i, '{}', '{}', 'r-' || i FROM n",
+            params![PROJECT, state_id],
+        )
+        .unwrap();
+    let longest: i64 = connection.query_row("SELECT MAX(octet_length(recording_id)) FROM analysis_runs", [], |row| row.get(0)).unwrap();
+    assert_eq!(longest, stored_read::MAX_ID_BYTES);
+    drop(connection);
+    let small = small_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let listed = model_states::list_states_in_store_with(&path, PROJECT, &memory).unwrap();
+    let count = listed.get().iter().find_map(|entry| match entry {
+        model_states::ListedState::Readable(summary) if summary.state_id == state_id => Some(summary.recorded_run_count),
+        _ => None,
+    });
+    assert_eq!(count, Some(1_001));
+    drop(listed);
+    let read = model_states::read_state_in_store_with(&path, PROJECT, &state_id, &memory).unwrap();
+    assert_eq!(read.get().state.recorded_run_count, 1_001);
+    drop(read);
+    drop(memory);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+}
