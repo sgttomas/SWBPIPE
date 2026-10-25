@@ -3901,7 +3901,8 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
             ("classification-array", |p| p["classification"] = json!(["protected_suspected"]), DISPOSITION_MALFORMED),
             ("classification-privacy-null", |p| p["classification"]["privacy_class"] = Value::Null, "saved"),
             ("classification-protected", |p| p["classification"]["redistribution_status"] = json!("protected_suspected"), model_document_save::PROTECTED_CONTENT_BLOCKED),
-            ("nested-classification-object", |p| p["metadata"]["x"] = json!({ "classification": { "review_status": false } }), "saved"),
+            // nested classification objects are malformed outside a rule pack's own classification (W-18a b1 review r1)
+            ("nested-classification-object", |p| p["metadata"]["x"] = json!({ "classification": { "review_status": false } }), DISPOSITION_MALFORMED),
         ];
         for (tag, edit, code) in cases {
             let mut model = witness_model();
@@ -3993,5 +3994,67 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
             .unwrap();
         let result = prepare(&store, &model, &state.state_id);
         assert!(matches!(&result, Err(d) if d.iter().any(|d| d.code == STATE_STORE_UNAVAILABLE)), "{:?}", codes(&result));
+    }
+
+    // W-18a (b1) review round 1: the `classification` exemption is the rule
+    // pack's own object only (`export_disposition_screen::admitted_classification`).
+
+    /// An object-valued `classification` in a stored library record, or in its
+    /// nested provenance, is malformed (before the fix both were saved).
+    #[test]
+    fn b1r1_a_classification_object_in_a_stored_library_is_malformed() {
+        let cases: [(&str, fn(&mut Value), &str, &'static str); 2] = [
+            ("record", |l| l["material_records"][0]["classification"] = json!({"value": "protected_suspected"}),
+                "/material_records/0/classification", "b1b10000b1b10000b1b10000b1b10001"),
+            ("provenance", |l| l["material_records"][0]["provenance"]["classification"] = json!({"value": "protected_suspected"}),
+                "/material_records/0/provenance/classification", "b1b10000b1b10000b1b10000b1b10002"),
+        ];
+        for (place, edit, pointer, token) in cases {
+            let model = witness_model();
+            let store = store(&format!("b1r1-library-{place}"), &model, true);
+            let mut library = material_library();
+            edit(&mut library);
+            let project = model["project"]["id"].as_str().unwrap();
+            crate::upsert_library(&Connection::open(&store.path).unwrap(), project, "material", "library:invented-materials", &library).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", token).state;
+            let result = prepare(&store, &model, &state.state_id);
+            assert!(
+                matches!(&result, Err(d) if d.iter().any(|d| d.code == DISPOSITION_MALFORMED && d.message.contains(&format!("{pointer} is an object")))),
+                "{place}: {:?}",
+                codes(&result)
+            );
+        }
+    }
+
+    /// The rule pack's own `classification` object still saves; a blocking
+    /// value in any of its string members, whatever the key, refuses, and a
+    /// nested object in it is malformed.
+    #[test]
+    fn b1r1_the_rule_pack_classification_object_is_screened_member_by_member() {
+        let cases: [(&str, fn(&mut Value), &str, &'static str); 3] = [
+            ("legitimate", |_| {}, "saved", "b1b20000b1b20000b1b20000b1b20001"),
+            ("blocking-member", |p| p["classification"]["public_repository_policy"] = json!("quarantined"),
+                model_document_save::PROTECTED_CONTENT_BLOCKED, "b1b20000b1b20000b1b20000b1b20002"),
+            ("nested-object", |p| p["classification"]["public_repository_policy"] = json!({"value": "quarantined"}),
+                DISPOSITION_MALFORMED, "b1b20000b1b20000b1b20000b1b20003"),
+        ];
+        for (tag, edit, code, token) in cases {
+            let mut model = witness_model();
+            let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            assert!(pack["classification"].is_object());
+            edit(&mut pack);
+            let hash = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+            pack["checksums"]["rule_pack_checksum"]["value"] = json!(hash);
+            model["rule_pack_refs"][0]["checksum"]["value"] = json!(hash);
+            let store = store(&format!("b1r1-pack-{tag}"), &model, true);
+            crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(), "project:slots", "invented_demo_rule_pack", &pack).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", token).state;
+            let result = prepare(&store, &model, &state.state_id);
+            match (&result, code) {
+                (Ok(_), "saved") => {}
+                (Err(d), code) if d.iter().any(|d| d.code == code && d.message.contains("/classification/public_repository_policy")) => {}
+                _ => panic!("{tag}: {:?}", codes(&result)),
+            }
+        }
     }
 }

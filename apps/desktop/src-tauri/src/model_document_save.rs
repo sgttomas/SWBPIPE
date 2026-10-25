@@ -781,6 +781,25 @@ mod tests {
         assert_eq!(refused[0].code, PROTECTED_CONTENT_BLOCKED);
     }
 
+    /// W-18a (b1) review round 1 probe: W-6a's model save does not run the
+    /// structural screen (its stored-item verdicts are the library import's,
+    /// `disposition_verdicts_match_the_library_import`), so a `classification`
+    /// object is judged as the import judges it. Pinned here so a change to
+    /// that scope is a visible decision.
+    #[test]
+    fn b1r1_classification_objects_follow_the_import_verdict() {
+        let every_slot: Value = serde_json::from_str(EVERY_SLOT).unwrap();
+        let record = every_slot["materials"][0]["provenance_record"]["library_ref"]["record_id"].as_str().unwrap().to_string();
+        let library = stored_library(json!({"provenance": {"review_status": "accepted"}}),
+            json!([{"material_id": record, "provenance": {"review_status": "accepted"}, "classification": {"value": "protected_suspected"}}]));
+        let imported = open_pipe_stress_library_import_document::validate_library_import_tokens(&library, "material", "private").unwrap();
+        let import_blocks = imported.findings.iter().any(|finding| matches!(finding.code.as_str(), "IMPORT_PROTECTED_CONTENT_SUSPECTED" | "IMPORT_REJECTED_SOURCE"));
+        let (result, _) = admit_with_store(canonical_of(EVERY_SLOT), Ok(Some(library)));
+        assert_eq!(result.is_err(), import_blocks, "the stored record: {:?}", codes(result));
+        let (text, hash) = canonical_variant(|d| d["materials"][0]["provenance_record"]["classification"] = json!({"value": "protected_suspected"}));
+        println!("B1R1_W6A_MODEL_PROVENANCE {:?}", codes(admit(text, &hash)));
+    }
+
     #[test]
     fn duplicate_matching_library_records_do_not_hide_a_quarantine() {
         let text = canonical_of(EVERY_SLOT);

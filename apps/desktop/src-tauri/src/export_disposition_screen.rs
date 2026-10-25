@@ -397,13 +397,38 @@ pub(crate) fn pointer_token(key: &str) -> String {
     key.replace('~', "~0").replace('/', "~1")
 }
 
+/// The rule-pack document's `rule_pack_kind` constant
+/// (`schemas/rule_pack.schema.yaml:29-32`).
+const RULE_PACK_KIND: &str = "open_pipe_stress_rule_pack";
+
+/// The one place a schema defines `classification` as an object: the
+/// rule-pack document's own `classification` (`schemas/rule_pack.schema.yaml`
+/// :13 required, :41 `$ref` `#/$defs/RulePackClassification`, defined :1214 as
+/// an object of `privacy_class`, `redistribution_status`,
+/// `public_repository_policy` and two booleans). It is recognised by its
+/// place, a member of an object whose `rule_pack_kind` is the rule-pack
+/// constant, never by the key alone (review round 1 of W-18a (b1)). Every
+/// other object-valued `classification`, at any depth, is malformed.
+fn admitted_classification(parent: &Map<String, Value>, key: &str, child: &Value) -> bool {
+    key == "classification" && child.is_object() && parent.get("rule_pack_kind").and_then(Value::as_str) == Some(RULE_PACK_KIND)
+}
+
+/// The blocking values of the `classification` member, applied to every
+/// string member of an admitted classification object whatever its key.
+fn classification_blocking() -> &'static [&'static str] {
+    SCREENED_MEMBERS.iter().find(|(member, _)| *member == "classification").map(|(_, blocking)| *blocking).expect("classification is screened")
+}
+
 /// The structural screen of one document resolved from the store (review
 /// round 2, finding 2): every object at every depth (a wrapper, its records,
 /// array elements, every `provenance` and `provenance_record` beneath them) is
 /// judged by its own [`SCREENED_MEMBERS`]; nothing is inherited and no field
-/// hides another object's. Returned as `<JSON pointer> <value>`, in document
-/// order; empty when nothing blocks. The whole document is screened before
-/// any of it is mapped into the manifest.
+/// hides another object's. Inside a rule pack's own `classification` object
+/// ([`admitted_classification`]) every string member is judged by the
+/// `classification` values whatever its key, as well as by its own member's.
+/// Returned as `<JSON pointer> <value>`, in document order; empty when
+/// nothing blocks. The whole document is screened before any of it is mapped
+/// into the manifest.
 pub(crate) fn screen_document(document: &Value) -> Vec<String> {
     fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
         match value {
@@ -413,6 +438,16 @@ pub(crate) fn screen_document(document: &Value) -> Vec<String> {
                     if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
                         if blocking.contains(&status) {
                             found.push(format!("{at} {status}"));
+                        }
+                    }
+                    if let Some(members) = child.as_object().filter(|_| admitted_classification(object, key, child)) {
+                        for (member, inner) in members {
+                            let Some(status) = inner.as_str() else { continue };
+                            // A member with its own policy that already blocks is reported once, by the walk below.
+                            let own = SCREENED_MEMBERS.iter().find(|(screened, _)| screened == member).is_some_and(|(_, blocking)| blocking.contains(&status));
+                            if !own && classification_blocking().contains(&status) {
+                                found.push(format!("{at}/{} {status}", pointer_token(member)));
+                            }
                         }
                     }
                     walk(child, &at, found);
@@ -434,8 +469,10 @@ pub(crate) fn screen_document(document: &Value) -> Vec<String> {
 /// The disposition members of a stored document whose value is an array or an
 /// object (review round 6 note 4, narrowed in round 6b by the owner's
 /// decision): either could hide a blocking value, so the save refuses them as
-/// malformed rather than guess. A rule pack's `classification` object is
-/// exempt, since its own members are screened in turn. `null`, booleans and
+/// malformed rather than guess. A rule pack's own `classification` object
+/// ([`admitted_classification`]) is the one object admitted, and any array or
+/// object inside it is malformed; an object-valued `classification` anywhere
+/// else is malformed like any other. `null`, booleans and
 /// numbers are not refused (the library import stores them); they count as
 /// no public disposition and, for privacy members, as private. Returned as
 /// `<JSON pointer> is <JSON value kind>`.
@@ -456,8 +493,18 @@ pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
                 for (key, child) in object {
                     let at = format!("{pointer}/{}", pointer_token(key));
                     let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
-                    if screened && (child.is_array() || child.is_object()) && !(key == "classification" && child.is_object()) {
+                    let admitted = admitted_classification(object, key, child);
+                    if screened && (child.is_array() || child.is_object()) && !admitted {
                         found.push(format!("{at} is {}", kind(child)));
+                    }
+                    if let Some(members) = child.as_object().filter(|_| admitted) {
+                        for (member, inner) in members {
+                            // Screened members are reported by the walk below.
+                            let screened_member = SCREENED_MEMBERS.iter().any(|(screened, _)| screened == member);
+                            if !screened_member && (inner.is_array() || inner.is_object()) {
+                                found.push(format!("{at}/{} is {}", pointer_token(member), kind(inner)));
+                            }
+                        }
                     }
                     walk(child, &at, found);
                 }

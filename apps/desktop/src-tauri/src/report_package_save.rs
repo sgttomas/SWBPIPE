@@ -1020,4 +1020,49 @@ mod tests {
         let error = admit(edited(|r| r["source_basis_refs"] = json!("not a list"))).unwrap_err();
         assert_eq!(error.code, REQUEST_INVALID);
     }
+
+    // Review round 1 (the reviewer's regressions, adopted): an object-valued
+    // `classification` outside a rule pack's own is malformed, in either value.
+    #[test]
+    fn arbitrary_request_classification_objects_are_malformed() {
+        let result = admit(edited(|r| {
+            r["report"]["report_sections"]["provenance_notes"][0]["classification"] =
+                json!({"value": "protected_suspected"});
+        }));
+        let error = match result { Err(e) => e, Ok(_) => panic!("malformed request disposition admitted") };
+        assert_eq!(error.code, DISPOSITION_MALFORMED);
+        assert_eq!(error.diagnostics[0].path, "/request/report/report_sections/provenance_notes/0/classification");
+    }
+
+    #[test]
+    fn arbitrary_model_classification_objects_are_malformed() {
+        let mut m = model();
+        m["nodes"][0]["classification"] = json!({"value": "protected_suspected"});
+        let result = admit(save_request(&desktop_request(&m), &m));
+        let error = match result { Err(e) => e, Ok(_) => panic!("malformed model disposition admitted") };
+        assert_eq!(error.code, DISPOSITION_MALFORMED);
+        assert_eq!(error.diagnostics[0].path, "/model/nodes/0/classification");
+    }
+
+    /// An object shaped as a rule pack keeps its `classification` object, but
+    /// every string member in it is screened whatever its key, and a nested
+    /// list or object in it is malformed.
+    #[test]
+    fn a_rule_pack_classification_object_is_screened_member_by_member() {
+        let pack = |classification: Value| move |r: &mut Value| {
+            r["report"]["report_sections"]["provenance_notes"][0]["invented_pack"] =
+                json!({"rule_pack_kind": "open_pipe_stress_rule_pack", "classification": classification});
+        };
+        let clear = json!({"privacy_class": "private", "redistribution_status": "private_only", "public_repository_policy": "quarantine_required",
+            "protected_content_review_required": true, "private_values_allowed": true});
+        assert!(admit(edited(pack(clear.clone()))).is_ok());
+        let mut blocking = clear.clone();
+        blocking["public_repository_policy"] = json!("quarantined");
+        let (code, paths) = refusal(admit(edited(pack(blocking))));
+        assert_eq!((code.as_str(), paths[0].as_str()), (PROTECTED_CONTENT_BLOCKED, "/request/report/report_sections/provenance_notes/0/invented_pack/classification/public_repository_policy"));
+        let mut nested = clear;
+        nested["public_repository_policy"] = json!({"value": "quarantined"});
+        let (code, paths) = refusal(admit(edited(pack(nested))));
+        assert_eq!((code.as_str(), paths[0].as_str()), (DISPOSITION_MALFORMED, "/request/report/report_sections/provenance_notes/0/invented_pack/classification/public_repository_policy"));
+    }
 }
