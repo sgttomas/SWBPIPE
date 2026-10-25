@@ -964,6 +964,7 @@ mod tests {
         let request = desktop();
         let admitted = admit(save_request(&request, &model())).unwrap();
         assert!(admitted.warnings.is_empty(), "{:?}", admitted.warnings);
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let root = sandbox("read-back");
         let destination = root.join("invented.opsproj");
         let mut asked = Vec::new();
@@ -1323,6 +1324,7 @@ mod tests {
         let manifest = manifest_with(&[(PACK_A, "1.0.0", hex('a'))]);
         let request = with_rule_pack(&desktop_request_for(&model(), &manifest), PACK_A, "1.0.0", &hex('a'));
         let admitted = admit(save_request_with(&request, &model(), &manifest)).unwrap_or_else(|error| panic!("{}", error.message));
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let root = sandbox("rule-packs-agree");
         let receipt = save_admitted_report_package(admitted, |_| Some(Ok(root.join("agreeing.opsproj")))).unwrap();
         assert_eq!(receipt.code, "REPORT-PACKAGE-SAVED");

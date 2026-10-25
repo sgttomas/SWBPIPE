@@ -9483,6 +9483,7 @@ mod tests {
             drop(args);
             let growth = report_package_save::parse_lease_bytes(&decoded.request_text, &decoded.model_text, &decoded.input_manifest_text).unwrap();
             lease.grow_to(lease.bytes() + growth).unwrap();
+            let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
             let root = sandbox("command-path");
             let mut picks = 0usize;
             let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
