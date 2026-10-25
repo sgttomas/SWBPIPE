@@ -347,7 +347,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 >
 > Current contract evidence: `schemas/comparison_mapping.schema.json` defines mapping/unmatched and JSON/CSV export fields; `tests/test_comparison_contracts.py` checks the reference contract. This resolves blanket schema/field absence, but OI-014 tolerance defaults/workflows and actual runtime/export conformance remain open.
 >
-> Current implementation (at `62c1efd75b`): tolerance profiles are in `schemas/comparison_tolerance.schema.json`. The desktop comparison document (`buildPreviewComparison` in `apps/desktop/src/services/previewService.ts`, `document_kind` `openpipestress.technical_preview.comparison`) is a separate shape; it does not read or validate against either comparison schema.
+> Current implementation (at `62c1efd75b`): tolerance profiles are in `schemas/comparison_tolerance.schema.json`. The desktop comparison document (`buildPreviewComparison` in `apps/desktop/src/services/previewService.ts`, `document_kind` `openpipestress.technical_preview.comparison`) is a separate shape; it does not read or validate against either comparison schema. The desktop run comparison (W-12 S3b, `runComparison.ts`) likewise does not validate against either schema and emits no comparison-output document.
 
 ### CLM-027 — Trade-offs
 
