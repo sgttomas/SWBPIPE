@@ -69,9 +69,12 @@ app at the basis.
   health indicator. View the deformed shape, colour members by a result
   quantity, and show support reaction arrows.
 - **Saving:** save the project to the local store and reopen it.
-- **Rule packs:** author a private rule pack. Validation reports static unit
-  findings per check, and running it against results gives
-  `RULE_INPUTS_INCOMPLETE` with the missing inputs named.
+- **Rule packs:** author a private rule pack in format 0.5.0, with stress
+  categories, required load cases and load-case mappings (#1629). Validation
+  reports static unit findings per check, and a pack of another format version
+  is refused by name. Each check runs once per mapped load case or combination,
+  and the demo pack gives `RULE_INPUTS_INCOMPLETE` with the missing inputs
+  named.
 - **Reports:** render a calculation report for a PF result as a local private
   document. Tick "Include known private values in this local rendered report"
   and the render shows a preview and its canonical SHA-256, with Save canonical
@@ -116,10 +119,6 @@ The biggest gaps:
    - Combinations are refused on EX (FR-SOL-009).
    - Imposed displacement is refused on PF (FR-SOL-006); the owner ruled to
      build it there in two stages.
-7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
-   required load cases (FR-RULE-001). In v0.1 by ruling (owner, 2026-10-24,
-   option A: all three; W-17 rest).
-
 ## 2. Outcome table
 
 Each row gives the PRD requirement (`docs/PRD.md` line), its priority and
@@ -193,9 +192,9 @@ class, the evidence, and the deliverables. Paths are under
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-RULE-001 (530) | Must | P | `schemas/rule_pack.schema.yaml`; `RulePackManagerPanel.tsx:302-602`; `e2e/r2-smoke.spec.ts:1175` | DEL-06-01, DEL-07-03 | No stress categories, load-case mappings or required load cases (§17.2). |
+| FR-RULE-001 (530) | Must | D | Format 0.5.0 (#1629): `schemas/rule_pack.schema.yaml`; validator `core/rules/rule_pack_document/src/format.rs`; per-basis runner `rule_check_runner/src/lib.rs`; row selection `src-tauri/src/rule_solver_selection.rs`; authoring `RulePackManagerPanel.tsx`, `DeclarationsEditor.tsx`, `CheckDefinitionsEditor.tsx`. **Tests:** `rule_pack_document/tests/format_0_5_0.rs`, `rule_check_runner/tests/bases_run.rs`, `rule_solver_selection_tests.rs`, `RulePackManagerPanel.format.test.tsx`, `e2e/r2-smoke.spec.ts` | DEL-06-01, DEL-07-03 | Stress categories, required load cases and load-case mappings (§17.2; owner, 2026-10-24, option A) live in the pack and name the model's own load-case ids. One outcome per check and mapped load case; a missing, unsolved or unselectable basis is incomplete. Other format versions are refused by name, without migration (DEL-06-01 Design `rule-pack-0.5.0.md`). |
 | FR-RULE-002 (531) | Must | D | `rule_pack_document/src/lib.rs:1184` calls `check_rule_pack_units` (`:1482`); UI `RulePackManagerPanel.tsx:503-560`; run time `rule_check_runner/src/lib.rs:1286`. **Tests:** `tests/unit_check.rs`, `RulePackManagerPanel.unitCheck.test.tsx`, desktop `lib.rs:8452,8499` | DEL-06-02 | Static findings do not block save or run; an inconsistent check still blocks when it runs. A dimensionless limit declared `1` does not match a ratio formula's `ratio`. |
-| FR-RULE-003 (532) | Must | D | `rule_check_runner/src/lib.rs` (`aggregate_rank`, `status_counts`); desktop `RuleCheckRunPanel.tsx` headline; renderer `user_rule_check_aggregate_headline`. Tests: runner unit tests and `tests/point_path_non_finite_run.rs`, `report_renderer/tests/render.rs`, `RuleCheckRunPanel.test.tsx` ("FR-RULE-003 pack headline"); observed natively on both routes (§5) | DEL-06-03 | W-19 (#1585): while any check is incomplete the pack headlines "INCOMPLETE — n check(s) failed; m check(s) blocked", with each check listed (owner reading, 2026-10-23; DEL-06-03 Design `pack-aggregate-incomplete.md`). A check with missing inputs is never evaluated. |
+| FR-RULE-003 (532) | Must | D | `rule_check_runner/src/lib.rs` (`aggregate_rank`, `status_counts`); desktop `RuleCheckRunPanel.tsx` headline; renderer `user_rule_check_aggregate_headline`. Tests: runner unit tests and `tests/point_path_non_finite_run.rs`, `report_renderer/tests/render.rs`, `RuleCheckRunPanel.test.tsx` ("FR-RULE-003 pack headline"); observed natively on both routes (§5) | DEL-06-03 | W-19 (#1585): while any check is incomplete the pack headlines "INCOMPLETE — n check(s) failed; m check(s) blocked", with each check listed (owner reading, 2026-10-23; DEL-06-03 Design `pack-aggregate-incomplete.md`). A check with missing inputs is never evaluated. Under format 0.5.0 the rule applies over per-load-case outcomes, and the counts count them (#1629). |
 | FR-RULE-004 (533) | Must | D | `rulePackService.ts:241-284` (private by default); local SQLite | DEL-06-04 | No pack file export. |
 | FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; desktop `lib.rs:8593`; `tests/test_library_import_provenance.py`; `LibraryApplySection.tsx`, `libraryApply.ts`, applier `library_apply.rs`; tests `libraryApply.test.ts`, `operation_applier/tests/library_apply.rs` | DEL-03-01, DEL-03-07 | Records feed rule checks (desktop `lib.rs:3029`). Applying them to model entities (#1566): stored material and section records insert as new entities or apply to the selected one through one reviewed batch with one undo (material E/ν or E/G mode; a section apply updates its bound pipes). |
 | FR-RULE-006 (535) | Should | D | Same panel, component kind; `libraryApply.ts` `buildComponentApply` | DEL-03-02, DEL-03-07 | Applying records (#1566): stored component records apply to an existing component of the matching kind by a fixed source-kind table (apply only; no insert). |
@@ -514,6 +513,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Strict inputs: no silent drops of authored input or combination rows (PF closed records, `UNKNOWN_MODEL_FIELD`; duplicate terms and withheld combination rows named) | #1573 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
 | W-17 (b) | Changing project units after creation: `set_project_unit` and the Project units section | #1627 |
+| W-17 (rule packs) | Rule-pack format 0.5.0: stress categories, load-case mappings and required load cases; per-load-case outcomes, also in the report | #1629 |
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
 | W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
 | W-7 | Global-frame element-end forces (FR-SOL-007): twelve global end rows per member and case on PF and EX, their readers and verifiers; the retained route's re-registration (DEL-04-08 §8.20) | #1581 |
@@ -543,7 +543,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
-| W-17 (rest) | Rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
 | W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
