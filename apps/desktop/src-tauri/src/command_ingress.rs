@@ -34,12 +34,13 @@
 //!
 //! Lease rule ([`ArgsDecoding`]): envelope(raw length) + D + the error
 //! allowance, where D = M when the arguments are moved out of the parsed
-//! `Value` (every command except `save_report_package`), and
-//! D = (2 + vec_expansion) * M when a typed request rebuilds `Value` fields
-//! and builds typed vectors (`save_report_package`, see
-//! [`REPORT_PACKAGE_VEC_EXPANSION`]). The counting-allocator tests check the
-//! requested peak against these rules for representative and adversarial
-//! inputs.
+//! `Value` (every command), and D = (2 + vec_expansion) * M when a typed
+//! request rebuilds `Value` fields and builds typed vectors. A command whose
+//! argument is a canonical text it parses (`save_report_package`) grows its
+//! lease by that text's priced parse ([`text_parse_bytes`]; the request's
+//! typed conversion with [`REPORT_PACKAGE_VEC_EXPANSION`]) before parsing it.
+//! The counting-allocator tests check the requested peak against these rules
+//! for representative and adversarial inputs.
 //!
 //! Residual: the command's own working memory and its response serialization
 //! run under the held lease but are not separately bounded; wry/Tauri copies
@@ -85,12 +86,34 @@ pub(crate) enum ArgsDecoding {
 /// The interactive ingress lease for a prescanned body: envelope(raw) + D +
 /// [`ARGS_ERROR_ALLOWANCE_BYTES`] (see the module docs); `None` on overflow.
 pub(crate) fn lease_bytes(bound: IngressBound, decoding: ArgsDecoding) -> Option<u64> {
-    let materialization = bound.materialization_bytes;
-    let decoded = match decoding {
-        ArgsDecoding::Moved => materialization,
-        ArgsDecoding::Rebuilt { vec_expansion } => materialization.checked_mul(vec_expansion.checked_add(2)?)?,
-    };
-    allocation_envelope(bound.raw_len)?.checked_add(decoded)?.checked_add(ARGS_ERROR_ALLOWANCE_BYTES)
+    allocation_envelope(bound.raw_len)?.checked_add(decoded_bytes(bound.materialization_bytes, decoding)?)?.checked_add(ARGS_ERROR_ALLOWANCE_BYTES)
+}
+
+/// D of the lease rule for a materialization M: M when moved, (2 +
+/// vec_expansion) * M when typed-decoded.
+fn decoded_bytes(materialization: u64, decoding: ArgsDecoding) -> Option<u64> {
+    match decoding {
+        ArgsDecoding::Moved => Some(materialization),
+        ArgsDecoding::Rebuilt { vec_expansion } => materialization.checked_mul(vec_expansion.checked_add(2)?),
+    }
+}
+
+/// The priced parse of one canonical-text argument, moved out of the args as a
+/// string (`save_report_package`, DEL-08-01 Design
+/// `report-package-current-results.md` §2.6 item 1): the text's own `Value`
+/// materialization M (bounded by [`ingress::prescan`], which allocates
+/// nothing), decoded as `decoding` says, plus the canonical re-serialization
+/// the binding check builds (one `String` of the text's length and its last
+/// growth transient, 2 * envelope(length)) and the error allowance. The
+/// command grows its ingress lease by this before it parses the text. A text
+/// the prescan refuses is returned as the prescan's finding, unparsed.
+pub(crate) fn text_parse_bytes(text: &str, decoding: ArgsDecoding) -> Result<u64, ingress::IngressInvalid> {
+    let bound = ingress::prescan(text.as_bytes())?;
+    let overflow = ingress::IngressInvalid { reason: "the priced parse overflows", offset: 0 };
+    decoded_bytes(bound.materialization_bytes, decoding)
+        .and_then(|decoded| decoded.checked_add(allocation_envelope(bound.raw_len)?.checked_mul(2)?))
+        .and_then(|bytes| bytes.checked_add(ARGS_ERROR_ALLOWANCE_BYTES))
+        .ok_or(overflow)
 }
 
 /// A command's error: an ingress error (the typed object) or the command's
@@ -583,7 +606,8 @@ impl<'de> de::VariantAccess<'de> for VariantDecoder {
 }
 
 /// `vec_expansion` for `save_report_package`'s typed request
-/// (`open_pipe_stress_report_package::wire::ReportPackageRequest`): decoded
+/// (`open_pipe_stress_report_package::wire::ReportPackageRequest`), converted
+/// from the parsed request text (W-18 slice (b1); [`text_parse_bytes`]): decoded
 /// by [`ValueDecoder`] (no size hints), each `Vec<X>` of a struct X starts
 /// allocating only when its first element has decoded and then grows by
 /// doubling, so with k >= 1 decoded elements it holds a buffer of cap * S_X
@@ -1122,26 +1146,24 @@ mod tests {
         })
     }
 
-    fn decode_report(args: &mut Args) -> Result<wire::ReportPackageRequest, SolveJobError> {
-        args.decode::<wire::ReportPackageRequest>("request")
-    }
-
-    /// The rebuilt decoding of the typed report-package request (version
-    /// 2.0.0) stays within envelope(raw) + (2 + REPORT_PACKAGE_VEC_EXPANSION) M
-    /// + the allowance, for the invented witness and adversarial shapes: many
-    /// one-element struct vectors in array form, long vectors (growth
-    /// transients), many result documents, and refused requests (a failing
-    /// element after many decoded ones, long strings in refused positions).
+    /// The priced parse of `save_report_package`'s texts (DEL-08-01 Design
+    /// §2.6 item 1, W-18 slice (b1)): parsing the request text, its canonical
+    /// re-serialization and its typed conversion, then the model text's parse
+    /// and re-serialization, stay within the lease growth
+    /// `report_package_save::parse_lease_bytes` prices, for the invented
+    /// desktop request and adversarial shapes: many one-element struct
+    /// vectors in array form, long vectors (growth transients), many result
+    /// documents, and refused requests (a failing element after many decoded
+    /// ones, long strings in refused positions). The arguments themselves are
+    /// moved strings, priced by the ingress lease (`ArgsDecoding::Moved`).
     #[test]
-    fn report_package_decoding_stays_within_its_lease() {
-        let decoding = ArgsDecoding::Rebuilt { vec_expansion: REPORT_PACKAGE_VEC_EXPANSION };
-        let witness: Value = serde_json::from_str(include_str!(
-            "../../../../validation/witness/inputs/del1005_export_results_success_input.json"
-        ))
-        .unwrap();
-        let witness_request = witness["export_results"].clone();
+    fn report_package_text_parse_stays_within_its_priced_growth() {
+        use crate::report_package_save::{parse_canonical, parse_lease_bytes, test_support, typed_request};
+        use open_pipe_stress_operation_applier::canonical_json;
+        let model = canonical_json(&test_support::model());
+        let desktop = test_support::desktop_request(&test_support::model());
         let one = json!([["analysis_run", "r"]]);
-        let mut duplicated = witness_request.clone();
+        let mut duplicated = desktop.clone();
         let document = duplicated["result_documents"][0].clone();
         duplicated["result_documents"] = Value::Array(vec![document.clone(); 200]);
         duplicated["source_results"] = Value::Array(vec![document; 200]);
@@ -1154,11 +1176,11 @@ mod tests {
         let mut long_string_refused = report_request(one.clone(), json!([]));
         long_string_refused["audit_manifest"]["professional_boundary"][0] = json!("\u{1}\u{85}".repeat(40_000));
         let cases = [
-            ("witness", witness_request, true),
+            ("desktop", desktop, true),
             ("one_reference", report_request(one.clone(), json!([{}])), true),
             ("long_references", report_request(Value::Array(vec![json!(["load_case", "LC1"]); 5_000]), json!([])), true),
             ("many_documents", report_request(one.clone(), Value::Array(vec![json!({"a": [1, 2, {"b": "c"}]}); 5_000])), true),
-            ("duplicated_witness_documents", duplicated, true),
+            ("duplicated_desktop_documents", duplicated, true),
             ("many_rule_packs", many_rule_packs, true),
             ("failing_after_many", failing, false),
             ("failing_rule_packs", failing_rule_packs, false),
@@ -1166,10 +1188,18 @@ mod tests {
             ("empty_objects", report_request(Value::Array(vec![json!({}); 20_000]), json!([])), false),
         ];
         for (name, request, decodes) in cases {
-            let body = serde_json::to_vec(&json!({ "request": request })).unwrap();
-            let (decoded, measured, available) = check_decode_bound(&body, decoding, |args| decode_report(args).map(drop));
-            assert_eq!(decoded.is_ok(), decodes, "{name}: {decoded:?}");
-            eprintln!("{name}: raw {} priced peak {} lease share {available}", body.len(), measured.peak_priced);
+            let text = canonical_json(&request);
+            drop(request);
+            let growth = parse_lease_bytes(&text, &model).unwrap();
+            let (decoded, measured) = ingress::counting::measure(|| {
+                let request = parse_canonical("request", &text).expect("canonical");
+                let model = parse_canonical("model", &model).expect("canonical");
+                drop(model);
+                typed_request(request).map(drop)
+            });
+            assert_eq!(decoded.is_ok(), decodes, "{name}: {:?}", decoded.err().map(|error| error.message));
+            assert!(measured.peak_priced <= growth, "{name}: priced peak {} exceeds the priced growth {growth}", measured.peak_priced);
+            eprintln!("{name}: text {} priced peak {} growth {growth}", text.len(), measured.peak_priced);
         }
     }
 }

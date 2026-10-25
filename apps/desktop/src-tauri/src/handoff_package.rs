@@ -33,9 +33,14 @@
 
 use crate::command_ingress::Args;
 use crate::handoff_package_publish::{self as publish, PublishHooks, Published};
+use crate::export_disposition_screen::{
+    library_identity, malformed_dispositions, malformed_values, matching_library_records, own_or_provenance, screen_document, screen_value, truthy_str,
+    LibraryLookup,
+};
+#[cfg(test)]
+use crate::export_disposition_screen::{pointer_token, SCREENED_MEMBERS};
 use crate::model_document_save::{
-    self, library_identity, matching_library_records, own_or_provenance, truthy_str, LibraryLookup,
-    ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
+    self, ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
 };
 use crate::model_states::ModelStateSummary;
 use crate::solve_jobs::SolveJobError;
@@ -291,103 +296,6 @@ fn least_permissive<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
 /// The least settled of the review classifications a record includes.
 fn least_reviewed<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
     values.into_iter().max_by_key(|value| rank(&REVIEW_ORDER, value)).unwrap_or("TBD")
-}
-
-/// The disposition members the structural screen judges, with the values that
-/// block: W-6a's policy (`redistribution_status` `protected_suspected` or
-/// `rejected`, `review_status` `quarantined` or `rejected`), the privacy and
-/// classification members' `protected_suspected` (the webview's rule), and a
-/// rule pack's `lifecycle_status` `quarantined` or `rejected`.
-const SCREENED_MEMBERS: [(&str, &[&str]); 6] = [
-    ("redistribution_status", &["protected_suspected", "rejected"]),
-    ("review_status", &["quarantined", "rejected"]),
-    ("privacy_class", &["protected_suspected", "quarantined", "rejected"]),
-    ("privacy_classification", &["protected_suspected", "quarantined", "rejected"]),
-    ("classification", &["protected_suspected", "quarantined", "rejected"]),
-    ("lifecycle_status", &["quarantined", "rejected"]),
-];
-
-/// One RFC 6901 reference token.
-fn pointer_token(key: &str) -> String {
-    key.replace('~', "~0").replace('/', "~1")
-}
-
-/// The structural screen of one document resolved from the store (review
-/// round 2, finding 2): every object at every depth (a wrapper, its records,
-/// array elements, every `provenance` and `provenance_record` beneath them) is
-/// judged by its own [`SCREENED_MEMBERS`]; nothing is inherited and no field
-/// hides another object's. Returned as `<JSON pointer> <value>`, in document
-/// order; empty when nothing blocks. The whole document is screened before
-/// any of it is mapped into the manifest.
-pub(crate) fn screen_document(document: &Value) -> Vec<String> {
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
-                        if blocking.contains(&status) {
-                            found.push(format!("{at} {status}"));
-                        }
-                    }
-                    walk(child, &at, found);
-                }
-            }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
-        }
-    }
-    let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
-}
-
-/// The disposition members of a stored document whose value is an array or an
-/// object (review round 6 note 4, narrowed in round 6b by the owner's
-/// decision): either could hide a blocking value, so the save refuses them as
-/// malformed rather than guess. A rule pack's `classification` object is
-/// exempt, since its own members are screened in turn. `null`, booleans and
-/// numbers are not refused (the library import stores them); they count as
-/// no public disposition and, for privacy members, as private. Returned as
-/// `<JSON pointer> is <JSON value kind>`.
-pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
-    fn kind(value: &Value) -> &'static str {
-        match value {
-            Value::Null => "null",
-            Value::Bool(_) => "a boolean",
-            Value::Number(_) => "a number",
-            Value::String(_) => "a string",
-            Value::Array(_) => "an array",
-            Value::Object(_) => "an object",
-        }
-    }
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
-                    if screened && (child.is_array() || child.is_object()) && !(key == "classification" && child.is_object()) {
-                        found.push(format!("{at} is {}", kind(child)));
-                    }
-                    walk(child, &at, found);
-                }
-            }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
-        }
-    }
-    let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
 }
 
 fn malformed_record(path: &str, record: &str, what: &str, found: &[String]) -> Diagnostic {
@@ -928,8 +836,9 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     let mut refusals = Vec::new();
     for ((kind, id), stored) in &stored_libraries {
         let Some(stored) = stored else { continue };
-        let found_blocking = screen_document(stored);
-        let found_malformed = malformed_dispositions(stored);
+        // A library has no exempt `classification` object (W-18a (b1) review r2).
+        let found_blocking = screen_value(stored);
+        let found_malformed = malformed_values(stored);
         let path = found.iter().find(|reference| &reference.kind == kind && &reference.id == id).map(|reference| reference.path.as_str()).unwrap_or("");
         if !found_blocking.is_empty() {
             refusals.push(blocked_record(path, &format!("{kind}:{id}"), "stored library", &found_blocking));
@@ -2894,7 +2803,7 @@ fn round2_nested_model_provenance_must_not_be_hidden_by_own_fields() {
     #[test]
     fn blocking_dispositions_planted_anywhere_in_a_stored_document_are_found_by_pointer() {
         let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
-        assert!(screen_document(&material_library()).is_empty() && screen_document(&pack).is_empty(), "the bases block nothing");
+        assert!(screen_value(&material_library()).is_empty() && screen_document(&pack).is_empty(), "the bases block nothing");
         let mut random = Xorshift(0x5eed_0002_6b0d_2026);
         for case in 0..4000 {
             let mut document = if case % 2 == 0 { material_library() } else { pack.clone() };
@@ -2906,7 +2815,7 @@ fn round2_nested_model_provenance_must_not_be_hidden_by_own_fields() {
             });
             wanted.sort();
             wanted.dedup();
-            let found = screen_document(&document);
+            let found = if case % 2 == 0 { screen_value(&document) } else { screen_document(&document) };
             for entry in &wanted {
                 assert!(found.contains(entry), "case {case}: {entry} was not found in {found:?}\n{document}");
             }
@@ -3282,8 +3191,8 @@ fn round3_legitimate_stored_library_documents_do_not_over_refuse() {
         let saved = outcome.unwrap();
         assert!(saved.stored, "{kind}: {}", saved.message);
         let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", kind, &saved.library_id).unwrap().unwrap();
-        assert!(screen_document(&row.document).is_empty(), "{kind}: {:?}", screen_document(&row.document));
-        assert!(malformed_dispositions(&row.document).is_empty(), "{kind}: {:?}", malformed_dispositions(&row.document));
+        assert!(screen_value(&row.document).is_empty(), "{kind}: {:?}", screen_value(&row.document));
+        assert!(malformed_values(&row.document).is_empty(), "{kind}: {:?}", malformed_values(&row.document));
     }
     let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
     assert!(screen_document(&pack).is_empty());
@@ -4066,7 +3975,7 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
                     let Ok(saved) = crate::save_local_library_value(|| Ok(store.path.clone()), "project:slots".to_string(), kind.to_string(), doc) else { continue };
                     if !saved.stored { continue }
                     let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", kind, &saved.library_id).unwrap().unwrap();
-                    if !malformed_dispositions(&row.document).is_empty() || !screen_document(&row.document).is_empty() { accepted_then_refused.push(format!("{kind}/{place}/{key}=null")); }
+                    if !malformed_values(&row.document).is_empty() || !screen_value(&row.document).is_empty() { accepted_then_refused.push(format!("{kind}/{place}/{key}=null")); }
                 }
             }
         }
@@ -4087,7 +3996,8 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
             ("classification-array", |p| p["classification"] = json!(["protected_suspected"]), DISPOSITION_MALFORMED),
             ("classification-privacy-null", |p| p["classification"]["privacy_class"] = Value::Null, "saved"),
             ("classification-protected", |p| p["classification"]["redistribution_status"] = json!("protected_suspected"), model_document_save::PROTECTED_CONTENT_BLOCKED),
-            ("nested-classification-object", |p| p["metadata"]["x"] = json!({ "classification": { "review_status": false } }), "saved"),
+            // nested classification objects are malformed outside a rule pack's own classification (W-18a b1 review r1)
+            ("nested-classification-object", |p| p["metadata"]["x"] = json!({ "classification": { "review_status": false } }), DISPOSITION_MALFORMED),
         ];
         for (tag, edit, code) in cases {
             let mut model = witness_model();
@@ -4180,4 +4090,143 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
         let result = prepare(&store, &model, &state.state_id);
         assert!(matches!(&result, Err(d) if d.iter().any(|d| d.code == STATE_STORE_UNAVAILABLE)), "{:?}", codes(&result));
     }
+
+    // W-18a (b1) review round 1: the `classification` exemption is the rule
+    // pack's own object only (`export_disposition_screen::admitted_classification`).
+
+    /// An object-valued `classification` in a stored library record, or in its
+    /// nested provenance, is malformed (before the fix both were saved).
+    #[test]
+    fn b1r1_a_classification_object_in_a_stored_library_is_malformed() {
+        let cases: [(&str, fn(&mut Value), &str, &'static str); 2] = [
+            ("record", |l| l["material_records"][0]["classification"] = json!({"value": "protected_suspected"}),
+                "/material_records/0/classification", "b1b10000b1b10000b1b10000b1b10001"),
+            ("provenance", |l| l["material_records"][0]["provenance"]["classification"] = json!({"value": "protected_suspected"}),
+                "/material_records/0/provenance/classification", "b1b10000b1b10000b1b10000b1b10002"),
+        ];
+        for (place, edit, pointer, token) in cases {
+            let model = witness_model();
+            let store = store(&format!("b1r1-library-{place}"), &model, true);
+            let mut library = material_library();
+            edit(&mut library);
+            let project = model["project"]["id"].as_str().unwrap();
+            crate::upsert_library(&Connection::open(&store.path).unwrap(), project, "material", "library:invented-materials", &library).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", token).state;
+            let result = prepare(&store, &model, &state.state_id);
+            assert!(
+                matches!(&result, Err(d) if d.iter().any(|d| d.code == DISPOSITION_MALFORMED && d.message.contains(&format!("{pointer} is an object")))),
+                "{place}: {:?}",
+                codes(&result)
+            );
+        }
+    }
+
+    /// The rule pack's own `classification` object still saves; a blocking
+    /// value in any of its string members, whatever the key, refuses, and a
+    /// nested object in it is malformed.
+    #[test]
+    fn b1r1_the_rule_pack_classification_object_is_screened_member_by_member() {
+        let cases: [(&str, fn(&mut Value), &str, &'static str); 3] = [
+            ("legitimate", |_| {}, "saved", "b1b20000b1b20000b1b20000b1b20001"),
+            ("blocking-member", |p| p["classification"]["public_repository_policy"] = json!("quarantined"),
+                model_document_save::PROTECTED_CONTENT_BLOCKED, "b1b20000b1b20000b1b20000b1b20002"),
+            ("nested-object", |p| p["classification"]["public_repository_policy"] = json!({"value": "quarantined"}),
+                DISPOSITION_MALFORMED, "b1b20000b1b20000b1b20000b1b20003"),
+        ];
+        for (tag, edit, code, token) in cases {
+            let mut model = witness_model();
+            let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            assert!(pack["classification"].is_object());
+            edit(&mut pack);
+            let hash = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+            pack["checksums"]["rule_pack_checksum"]["value"] = json!(hash);
+            model["rule_pack_refs"][0]["checksum"]["value"] = json!(hash);
+            let store = store(&format!("b1r1-pack-{tag}"), &model, true);
+            crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(), "project:slots", "invented_demo_rule_pack", &pack).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", token).state;
+            let result = prepare(&store, &model, &state.state_id);
+            match (&result, code) {
+                (Ok(_), "saved") => {}
+                (Err(d), code) if d.iter().any(|d| d.code == code && d.message.contains("/classification/public_repository_policy")) => {}
+                _ => panic!("{tag}: {:?}", codes(&result)),
+            }
+        }
+    }
+
+    #[test]
+    fn round2_nested_classification_in_real_rule_pack_must_be_malformed() {
+        let mut model=witness_model();
+        let mut pack: Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        pack["classification"]["rule_pack_kind"]=json!("open_pipe_stress_rule_pack");
+        pack["classification"]["classification"]=json!({"value":"clear"});
+        let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+        pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+        model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+        let store=store("r2-nested-pack",&model,true);
+        crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+        let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30001").state;
+        let result=prepare(&store,&model,&state.state_id);
+        eprintln!("R2 real stored rule pack with nested classification: {:?}",codes(&result));
+        assert!(matches!(result,Err(d) if d.iter().any(|d| d.code==DISPOSITION_MALFORMED)));
+    }
+    #[test]
+    fn independent_round3_stored_pack_and_library_entrypoints_refuse_forged_nesting() {
+        let mut cases=0;
+        for marker in [Value::Null,json!(false),json!(17),json!("wrong"),json!("open_pipe_stress_rule_pack"),json!([]),json!({})] {
+            for inner in [json!({}),json!([]),json!({"value":"protected_suspected"}),json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}})] {
+                for position in 0..4 {
+                    let mut model=witness_model();
+                    let mut pack:Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+                    let nested=json!({"rule_pack_kind":marker,"classification":inner});
+                    match position {
+                        0=>{pack["classification"]["rule_pack_kind"]=marker.clone();pack["classification"]["classification"]=inner.clone();},
+                        1=>pack["metadata"]["review_probe"]=nested,
+                        2=>pack["review_probe"]=json!([{"a/b~c":nested}]),
+                        _=>pack["classification"]["arbitrary"]=nested,
+                    }
+                    let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+                    pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+                    model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+                    let store=store("r3-nested-pack",&model,true);
+                    crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+                    let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30002").state;
+                    let result=prepare(&store,&model,&state.state_id);
+                    assert!(matches!(&result,Err(d) if d.iter().any(|d|d.code==DISPOSITION_MALFORMED)),"{marker} {inner} {position}: {:?}",codes(&result));cases+=1;
+                }
+                for position in 0..2 {
+                    let model=witness_model();let store=store("r3-library-marker",&model,true);
+                    let mut library=material_library();
+                    let nested=json!({"rule_pack_kind":marker,"classification":inner});
+                    if position==0 {library["rule_pack_kind"]=marker.clone();library["classification"]=inner.clone();}
+                    else {library["material_records"][0]["review_probe"]=json!([nested]);}
+                    crate::upsert_library(&Connection::open(&store.path).unwrap(),"project:slots","material","library:invented-materials",&library).unwrap();
+                    let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30003").state;
+                    let result=prepare(&store,&model,&state.state_id);
+                    assert!(matches!(&result,Err(d) if d.iter().any(|d|d.code==DISPOSITION_MALFORMED)),"{marker} {inner} {position}: {:?}",codes(&result));cases+=1;
+                }
+            }
+        }
+        eprintln!("R3 stored pack/library refusals={cases}");
+    }
+    #[test]
+    fn independent_round3_legitimate_rule_pack_and_scalar_classifications_save() {
+        let mut cases=0;
+        for scalar in [Value::Null,json!(false),json!(42),json!("private_only"),json!("unknown")] {
+            let mut model=witness_model();
+            let mut pack:Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            pack["classification"]["review_probe"]=scalar;
+            let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+            pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+            model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+            let store=store("r3-clear-pack",&model,true);
+            crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+            let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30004").state;
+            let prepared=prepare(&store,&model,&state.state_id).unwrap();
+            let target=store.root.join("round3.swbhandoff");
+            assert!(matches!(write(&target,prepared),HandoffSaveOutcome::Saved{..}));
+            assert!(verify_handoff_package(&target).is_ok());cases+=1;
+        }
+        eprintln!("R3 clear scalar-classification handoffs saved and verified={cases}");
+    }
+
 }

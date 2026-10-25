@@ -243,6 +243,8 @@ needs:
     OPS-SPEC; TargetLocation: docs/SPEC.md'
   evidence: execution/PKG-12/DEL-12-02/Datasheet.md
 code_paths:
+- apps/desktop/src-tauri/src/export_disposition_screen.rs
+- apps/desktop/src-tauri/src/report_package_save.rs
 - core/security/redaction/
 - schemas/redaction_export_controls.schema.yaml
 - tools/validation/validate_dependencies_schema.py

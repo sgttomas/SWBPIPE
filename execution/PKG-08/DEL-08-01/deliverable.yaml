@@ -314,6 +314,7 @@ code_paths:
 - apps/desktop/src/features/report/reportRedactionProjector.ts
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src-tauri/src/report_package_bridge.rs
+- apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
 checks:
 - core/reporting/report_package/tests/container.rs
