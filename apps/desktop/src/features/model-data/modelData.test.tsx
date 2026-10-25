@@ -64,9 +64,9 @@ describe("model-data intents", () => {
     expect(reference).toEqual({
       rule_pack_id: "invented_demo_rule_pack",
       name: "Invented Demonstration Rule Pack",
-      rule_pack_version: "0.2.0",
+      rule_pack_version: "0.3.0",
       checksum: { algorithm: "sha256", canonicalization: "JCS", payload_scope: "rule_pack_payload", payload_excludes: ["checksums"],
-        value: "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd" },
+        value: "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f" },
       redistribution_status: "invented_non_engineering_example",
       source_notice: expect.stringContaining("Original invented demonstration data only")
     });
@@ -273,7 +273,7 @@ describe("rule pack manager: use with this model", () => {
     delete model.rule_pack_refs;
     const list: EditorOperationIntent[] = [];
     const entry = { project_id: "project:slots", rule_pack_id: "invented_demo_rule_pack", rule_pack_name: "Invented Demonstration Rule Pack",
-      rule_pack_version: "0.2.0", lifecycle_status: "accepted_public_example", privacy_class: "public_invented_example",
+      rule_pack_version: "0.3.0", lifecycle_status: "accepted_public_example", privacy_class: "public_invented_example",
       storage_mode: "sqlite", created_at_unix: 0, updated_at_unix: 0 };
     const openPack = async () => ({ route: "tauri_backend" as const, envelope: { project_id: "project:slots", rule_pack_id: entry.rule_pack_id,
       storage_mode: "sqlite", created_at_unix: 0, updated_at_unix: 0, document: demoPack(), validation: {} as never, message: "Opened." } });
@@ -283,7 +283,7 @@ describe("rule pack manager: use with this model", () => {
     const add = await queued(list, 1);
     expect(add.change.change_kind).toBe("add_rule_pack_ref");
     model = await apply(model, add);
-    expect(model.rule_pack_refs?.[0].checksum.value).toBe("c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd");
+    expect(model.rule_pack_refs?.[0].checksum.value).toBe("c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f");
 
     // The same pack id stored under two projects renders two distinct entries.
     view.rerender(<RulePackModelReferences model={model} listRefreshed {...props} entries={[entry, { ...entry, project_id: "project:other" }]} />);

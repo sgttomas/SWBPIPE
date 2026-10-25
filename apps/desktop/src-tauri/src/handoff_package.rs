@@ -1950,7 +1950,7 @@ mod tests {
         let pack = &prepared.rule_pack_refs[0];
         let stored: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
         let metadata = json!({
-            "rule_pack_id": "invented_demo_rule_pack", "version": "0.2.0",
+            "rule_pack_id": "invented_demo_rule_pack", "version": "0.3.0",
             "stamped_checksum_value": stored["checksums"]["rule_pack_checksum"]["value"],
             "basis": open_pipe_stress_rule_pack_document::CHECKSUM_BASIS, "grammar_version": stored["grammar_version"]
         });

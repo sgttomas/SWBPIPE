@@ -161,3 +161,4 @@ checks:
 - apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts
 - core/reporting/report_renderer/tests/render.rs
+- core/reporting/report_package/tests/current_result_package.rs

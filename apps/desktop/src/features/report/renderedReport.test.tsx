@@ -987,10 +987,10 @@ describe("PRD §19.2 report context (W-3)", () => {
       rule_pack_id: "invented_demo_rule_pack",
       // Display name from the unchanged demo fixture's metadata.name.
       name: "Invented Demonstration Rule Pack",
-      version: "0.2.0",
+      version: "0.3.0",
       checksum: {
         algorithm: "sha256",
-        value: "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+        value: "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
       },
       redistribution_status: "invented_non_engineering_example",
       completeness_status: "incomplete",
@@ -1025,6 +1025,27 @@ describe("PRD §19.2 report context (W-3)", () => {
       ruleCheckRun: mismatched,
       renderContext: LOCAL_PRIVATE_CONTEXT
     })).rejects.toThrow("REPORT-RULE-CHECK-PACK-MISMATCH");
+  });
+
+  it("projects each outcome's load case or combination, one per check and basis (rule-pack format 0.5.0)", async () => {
+    const ruleCheckRun = await inventedRuleCheckRun();
+    const [outcome] = ruleCheckRun.result.checks;
+    ruleCheckRun.result.checks = [
+      { ...outcome, category_ref: "demo_category_a", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" }, status: "USER_RULE_CHECKED" },
+      { ...outcome, category_ref: "demo_category_a", basis_ref: { ref_type: "load_case", ref_id: "load:L-200" } }
+    ];
+    const input = await buildRenderableReportInput({
+      model: inventedModel(),
+      result: inventedResult(),
+      analysisRun: inventedRun(),
+      projectSummary: null,
+      ruleCheckRun,
+      renderContext: LOCAL_PRIVATE_CONTEXT
+    });
+    expect(input.user_rule_checks?.checks).toEqual([
+      { check_id: "demo_training_check", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" }, status: "USER_RULE_CHECKED", missing_inputs: ["demo_limit_quantity"] },
+      { check_id: "demo_training_check", basis_ref: { ref_type: "load_case", ref_id: "load:L-200" }, status: "RULE_INPUTS_INCOMPLETE", missing_inputs: ["demo_limit_quantity"] }
+    ]);
   });
 
   it("marks required inputs incomplete when any check lacks inputs, even under a failed aggregate", async () => {

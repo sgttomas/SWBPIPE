@@ -86,7 +86,31 @@ import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/resu
 import { ResultsPanel } from "./ResultsPanel";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
 import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
-import { ruleBindingPrecheck, runRuleChecks, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
+import { ruleBindingPrecheck, runRuleChecks, selectSolverRows, solverSelectorForRow, type RuleCheckBasisRef, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
+
+// A binding plan whose solver inputs select the given rows by their 0.5.0
+// selectors, each used by one check on its row's own basis (DEL-06-01 Design
+// `rule-pack-0.5.0.md` §2.4, §2.5): one category and required load case per
+// distinct basis.
+function selectorPlan(source: MechanicsResult, inputs: Array<[string, MechanicsResult["results"][number]]>): RuleCheckBindingPlan {
+  const keys = [...new Set(inputs.flatMap(([, row]) => (row.basis_ref ? [JSON.stringify(row.basis_ref)] : [])))];
+  const requiredLoadCases = keys.map((text, index) => ({ required_load_case_id: `rlc_${index}`, name: "", basis_ref: JSON.parse(text) as RuleCheckBasisRef }));
+  return {
+    solverInputs: inputs.map(([input_id, row]) => ({ input_id, name: input_id, dimension: "x", unit_ref: "x", solver_result_ref: solverSelectorForRow(source, row) })),
+    valueInputs: [], valueSlots: [], libraryInputs: [],
+    requiredLoadCases,
+    stressCategories: keys.map((_, index) => ({ category_id: `cat_${index}`, name: "" })),
+    checks: inputs.map(([input_id, row]) => {
+      const index = row.basis_ref ? keys.indexOf(JSON.stringify(row.basis_ref)) : -1;
+      return { check_id: `check:${input_id}`, category_ref: index >= 0 ? `cat_${index}` : "", bases: index >= 0 ? [requiredLoadCases[index]] : [], input_refs: [input_id] };
+    })
+  };
+}
+// A row the precheck can reach: a basis-bearing row its own selector names alone.
+const selectsAlone = (source: MechanicsResult, row: MechanicsResult["results"][number]) => {
+  const selector = solverSelectorForRow(source, row);
+  return Boolean(selector) && selectSolverRows(source, selector!, row.basis_ref as RuleCheckBasisRef).length === 1;
+};
 import { ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { cancelPreviewMechanicsJob } from "../../services/previewService";
@@ -521,7 +545,8 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     expect(ruleBindingRefusal(received, target)).toBe(RULE_QUANTITY_NOT_COVERED);
     expect(resultRowLabel(target, received)).toBe(N_RP_NOT_COVERED);
     expect(knownSemanticNotices(received).map(n => n.id)).toContain("retained-precision-not-covered:case");
-    expect(ruleBindingPrecheck(received, { solverInputs: [{ input_id: "x", name: "x", dimension: "angle", unit_ref: "rad", solver_result_ref: { result_id: target.id } }], valueInputs: [], valueSlots: [], libraryInputs: [] })).toStrictEqual([{ input_id: "x", result_id: target.id, reason: RULE_QUANTITY_NOT_COVERED, notice: N_RP_NOT_COVERED }]);
+    expect(selectsAlone(received, target)).toBe(true);
+    expect(ruleBindingPrecheck(received, selectorPlan(received, [["x", target]]))).toStrictEqual([{ input_id: "x", basis_ref: target.basis_ref, result_id: target.id, reason: RULE_QUANTITY_NOT_COVERED, notice: N_RP_NOT_COVERED }]);
     expect(classificationSummary(received, model)[0].not_covered).toBe(15 + 12 + 1);
   });
   it("without absolute rows there is no absolute summary notice", async () => {
@@ -577,14 +602,16 @@ describe.each(MODES)("%s: the rule-check gate and binding refusals", (mode) => {
     expect(ruleBindingRefusal(received, { id: "result:absent", kind: "x" })).toBeNull();
     const headline = received.summary.max_open_formula_stress!.result_ref;
     expect(classes.get(headline)!.class).toBe("absolute_verified");
-    const plan: RuleCheckBindingPlan = { solverInputs: [{ input_id: "headline", name: "h", dimension: "stress", unit_ref: "Pa", solver_result_ref: { result_id: headline } }, { input_id: "relative", name: "r", dimension: "force", unit_ref: "N" }], valueInputs: [], valueSlots: [], libraryInputs: [] };
-    const relative = byClass("relative_verified")[0];
-    const findings = ruleBindingPrecheck(received, plan, [{ input_id: "relative", result_id: relative.id }]);
+    const headlineRow = received.results.find(row => row.id === headline)!;
+    const relative = byClass("relative_verified").find(row => selectsAlone(received, row))!;
+    expect(selectsAlone(received, headlineRow)).toBe(true);
+    const plan = selectorPlan(received, [["headline", headlineRow], ["relative", relative]]);
+    const findings = ruleBindingPrecheck(received, plan);
     const label = retainedAbsoluteNotice(classes.get(headline)!.bound_bits!, "Pa");
-    expect(findings).toStrictEqual([{ input_id: "headline", result_id: headline, reason: RULE_QUANTITY_BELOW_VERIFIED_FLOOR, notice: label }]);
+    expect(findings).toStrictEqual([{ input_id: "headline", basis_ref: headlineRow.basis_ref, result_id: headline, reason: RULE_QUANTITY_BELOW_VERIFIED_FLOOR, notice: label }]);
     const copy = structuredClone(received);
     expect(ruleBindingRefusal(copy, relative)).toBe(RULE_QUANTITY_NOT_COVERED);
-    expect(ruleBindingPrecheck(copy, plan, [{ input_id: "relative", result_id: relative.id }]).map(f => [f.reason, f.notice])).toStrictEqual([[RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED], [RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED]]);
+    expect(ruleBindingPrecheck(copy, plan).map(f => [f.reason, f.notice])).toStrictEqual([[RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED], [RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED]]);
     expect(classBindingRefusal("not_covered")).toBe(RULE_QUANTITY_NOT_COVERED);
     expect(classBindingRefusal("absolute_verified")).toBe(RULE_QUANTITY_BELOW_VERIFIED_FLOOR);
     expect(classBindingRefusal(undefined)).toBeNull();
@@ -758,10 +785,17 @@ describe("the declared differences, with TypeScript's expectations", () => {
         expect(rule).toBe("every_row");
         expect(got).toStrictEqual(rows.map(() => code === "none" ? null : code));
         if (expected.notice) {
-          // The display-only precheck shows the declared notice on every row.
-          const plan: RuleCheckBindingPlan = { solverInputs: rows.map(row => ({ input_id: row.id, name: row.id, dimension: "x", unit_ref: "x", solver_result_ref: { result_id: row.id } })), valueInputs: [], valueSlots: [], libraryInputs: [] };
-          const notices = ruleBindingPrecheck(received, plan);
-          expect(notices).toHaveLength(rows.length);
+          // The display-only precheck shows the declared notice on every row a
+          // 0.5.0 selector can bind. Only rows without a basis_ref are out of
+          // scope (design §2.5: never selected); every other row must have a
+          // selector that names it alone, so a selector regression fails here
+          // instead of shrinking the rows the notice is asserted on.
+          const eligible = rows.filter(row => row.basis_ref !== undefined && row.basis_ref !== null);
+          expect(eligible.length).toBeGreaterThan(0);
+          for (const row of eligible) expect([row.id, selectsAlone(received, row)]).toStrictEqual([row.id, true]);
+          const notices = ruleBindingPrecheck(received, selectorPlan(received, eligible.map(row => [row.id, row])));
+          expect(notices).toHaveLength(eligible.length);
+          expect(new Set(notices.map(f => f.result_id))).toStrictEqual(new Set(eligible.map(row => row.id)));
           expect(new Set(notices.map(f => f.notice))).toStrictEqual(new Set([NOTICES[expected.notice]]));
         }
       }
