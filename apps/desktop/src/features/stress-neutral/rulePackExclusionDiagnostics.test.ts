@@ -102,7 +102,10 @@ describe("the stress-neutral package carries the run record's rule-pack exclusio
   }, 120_000);
 
   it("a producer diagnostic naming the same exclusion neither suppresses nor repeats the package's one", async () => {
-    // The producer's diagnostics are not package diagnostics, so the record's projection is the one.
+    // The duplicate case the other outputs test cannot arise here: the package carries none of the
+    // producer's diagnostics, and none of its own (comparison, witness-withholding) has a rule-pack
+    // code, so nothing already in the package can name an exclusion. What can happen is a producer
+    // diagnostic naming it, which must neither suppress nor repeat the record's projection.
     const carried = { id: "invented-producer-diagnostic", code: RULE_PACK_REF_UNRESOLVED, severity: "warning", message: "Invented producer diagnostic.", source: "invented", affected_refs: ["invented-pack-missing@1.0.0"] };
     const session = await solvedWith([HELD, MISSING, CHANGED], (source) => { source.diagnostics.push(carried); });
     expect(session.result.diagnostics).toContainEqual(carried);

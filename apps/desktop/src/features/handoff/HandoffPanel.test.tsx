@@ -35,8 +35,8 @@ it('refuses the retired 0.1.0 carrier as the handoff analysis basis without chan
  expect(JSON.stringify(retired)).toBe(before);
 });
 // DEL-15-01 W-6b: the panel stays a preview; its download says so and points to
-// File › Save Handoff…, and its rule-pack references are the document's the run resolved.
-it('is labelled a preview summary, points to Save Handoff, and names the document rule-pack references the run excluded',async()=>{
+// File › Save Handoff…, and its rule-pack references are the document's.
+it('is labelled a preview summary, points to Save Handoff, and carries the document rule-pack references',async()=>{
  const {render,screen}=await import('@testing-library/react');
  const {HandoffPanel,HANDOFF_PREVIEW_DOWNLOAD_LABEL,HANDOFF_SAVE_POINTER,handoffRulePackRefs}=await import('./HandoffPanel');
  const everySlot=(await import('../../../../../fixtures/model_document/invented_every_slot_model.json')).default as unknown as PreviewModel;
@@ -48,17 +48,17 @@ it('is labelled a preview summary, points to Save Handoff, and names the documen
  const rulePackExclusions=everySlot.rule_pack_refs!.map((ref)=>({rule_pack_id:ref.rule_pack_id,rule_pack_version:ref.rule_pack_version,code:RULE_PACK_REF_UNRESOLVED}) as const);
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest:await manifestFor(model),rulePackExclusions});
  const packet=buildHandoffPackage({model,result,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
- // Every reference is excluded: none is listed, and each is named among the diagnostics.
- expect(packet.library_refs.rule_pack_refs).toEqual([]);
- expect(packet.diagnostic_refs.slice(-1)).toEqual(['diagnostic:rule-pack-ref:invented_demo_rule_pack@0.2.0']);
+ expect(packet.library_refs.rule_pack_refs).toEqual(everySlot.rule_pack_refs);
+ // The excluded reference stays listed; its exclusion is named once among the diagnostics.
+ expect(packet.diagnostic_refs.filter(ref=>ref==='diagnostic:rule-pack-ref:invented_demo_rule_pack@0.2.0')).toHaveLength(1);
  render(<HandoffPanel model={model} knowledge={null} result={result} analysisRun={analysisRun} comparison={null} editorIntents={[]} proposal={null} selectedReviewTarget={null}/>);
  expect(screen.getByTestId('handoff-export-link')).toHaveTextContent(HANDOFF_PREVIEW_DOWNLOAD_LABEL);
  expect(screen.getByTestId('handoff-save-pointer')).toHaveTextContent(HANDOFF_SAVE_POINTER);
  expect(HANDOFF_SAVE_POINTER).toContain('File › Save Handoff…');
 });
 
-// #1602's follow-up: the preview's rule-pack list is the model's references the solve resolved
-// (the run record's exclusions omitted), and each exclusion is named once among its diagnostics.
+// #1602's follow-up: the preview lists every document reference, as Save Handoff's manifest does
+// (W-6b), and names each reference the solve excluded once among its diagnostics.
 describe('the preview handoff summary follows the solve-time rule-pack resolution',()=>{
  const HELD=inventedReference('invented-pack-held',hex('1')),MISSING=inventedReference('invented-pack-missing',hex('2')),CHANGED=inventedReference('invented-pack-changed',hex('3'));
  async function solvedWith(references:RulePackReference[]|null){
@@ -73,11 +73,11 @@ describe('the preview handoff summary follows the solve-time rule-pack resolutio
  const packetOf=(session:Awaited<ReturnType<typeof solvedWith>>,knowledge:DesignKnowledge|null=null)=>buildHandoffPackage({...session,knowledge,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
  const MISSING_ID='diagnostic:rule-pack-ref:invented-pack-missing@1.0.0',CHANGED_ID='diagnostic:rule-pack-ref:invented-pack-changed@1.0.0';
 
- it('lists the resolved references, omits the excluded ones and names each exclusion once',async()=>{
+ it('lists every reference, excluded ones included, and names each exclusion once',async()=>{
   const session=await solvedWith([HELD,MISSING,CHANGED]);
   expect(session.resolution.excluded.map(item=>item.code)).toEqual([RULE_PACK_REF_UNRESOLVED,RULE_PACK_REF_CHECKSUM_MISMATCH]);
   const packet=packetOf(session);
-  expect(packet.library_refs.rule_pack_refs).toEqual([HELD]);
+  expect(packet.library_refs.rule_pack_refs).toEqual([HELD,MISSING,CHANGED]);
   expect(packet.library_refs.rule_pack_refs[0]).not.toBe(session.model.rule_pack_refs![0]);
   const carried=[...session.model.diagnostics,...session.result.diagnostics].map(item=>item.id??item.code);
   expect(packet.diagnostic_refs).toEqual([...carried,MISSING_ID,CHANGED_ID]);

@@ -13,7 +13,7 @@ import type {
   SelectedReviewTarget
 } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
-import { recordRulePackRefAnnotations, rulePackIdentity, rulePackRefAnnotationsToAdd, type RulePackRefDiagnosticAnnotation } from "../../services/rulePackRefDiagnostics";
+import { recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd } from "../../services/rulePackRefDiagnostics";
 
 type HandoffUnitPreservationWitness = {
   witness_id: string;
@@ -49,16 +49,12 @@ export const HANDOFF_PREVIEW_DOWNLOAD_LABEL = "Preview handoff summary (not a ha
 export const HANDOFF_SAVE_POINTER =
   "This is a preview summary, not a handoff manifest. To save a handoff package (the model document and its manifest), use File › Save Handoff….";
 
-/** The document's rule-pack references the run resolved, as the model records them
- * (identity, version, stamped checksum and disposition; no rule content), in the model's
- * order. A reference the solve excluded (`excluded`: the run record's rule-pack reference
- * diagnostics, from the solve-time resolution of #1602) is omitted here and named among the
- * summary's diagnostics instead. */
-export function handoffRulePackRefs(model: PreviewModel, excluded: readonly RulePackRefDiagnosticAnnotation[] = []): RulePackReference[] {
-  const identities = new Set(excluded.map((annotation) => annotation.affected_refs[0]));
-  return (model.rule_pack_refs ?? [])
-    .filter((reference) => !identities.has(rulePackIdentity(reference.rule_pack_id, reference.rule_pack_version)))
-    .map((reference) => structuredClone(reference));
+/** The document's rule-pack references, every one as the model records them (identity,
+ * version, stamped checksum and disposition; no rule content), as Save Handoff's manifest
+ * lists them (W-6b). A reference the solve excluded stays listed; its exclusion is named
+ * among the summary's diagnostics. */
+export function handoffRulePackRefs(model: PreviewModel): RulePackReference[] {
+  return (model.rule_pack_refs ?? []).map((reference) => structuredClone(reference));
 }
 
 export function HandoffPanel({
@@ -262,8 +258,8 @@ export function buildHandoffPackage({
     library_refs: {
       material_refs: model.materials?.map((item) => ({ ref: item.id, provenance: item.provenance })) ?? [],
       component_refs: model.components.map((item) => ({ ref: item.id, provenance: item.provenance })),
-      // The document's rule-pack references the run resolved (identity only; W-13 §3.4).
-      rule_pack_refs: handoffRulePackRefs(model, rulePackExclusions),
+      // The document's rule-pack references (identity only; W-13 §3.4), every one.
+      rule_pack_refs: handoffRulePackRefs(model),
       private_library_payload_included: false
     },
     target_mapping: {
