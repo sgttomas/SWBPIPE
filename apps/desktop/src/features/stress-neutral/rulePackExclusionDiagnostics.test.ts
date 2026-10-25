@@ -15,7 +15,7 @@ import { resolveModelRulePacks } from "../../services/modelRulePackResolution";
 import { modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { buildAnalysisRunPreview, resetSessionResultCustodyForTests, runPreviewMechanics } from "../../services/previewService";
 import { RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED, rulePackRefDiagnostic } from "../../services/rulePackRefDiagnostics";
-import { canonicalJsonString } from "../../services/hashService";
+import { canonicalJsonString, canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket } from "./StressNeutralExportPanel";
 import type { RulePackReference } from "../../types";
 
@@ -66,6 +66,22 @@ async function solvedWith(references: RulePackReference[] | null, edit?: (source
 
 const ruleRefDiagnostics = (packet: Json) => (packet.diagnostics as Json[]).filter((item) => RULE_PACK_CODES.includes(item.code));
 
+async function rawSha(text: string) { const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)); return [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+/** Recomputes every member, manifest and package checksum after a deliberate tamper (the recipe
+ * of `retainedPrecisionStressNeutral.test.tsx`), so that only the relational check can refuse. */
+async function rehash(packet: Json) {
+  const payloads: Json = { "stress_neutral_results.csv": packet.csv_text, "result_rows.json": packet.result_rows, "unit_system_disclosure.json": packet.unit_system_disclosure, "unit_preservation_witnesses.json": packet.unit_preservation_witnesses, "stable_id_map.json": packet.stable_id_map, "loss_report.json": packet.loss_report, "validation_report.json": packet.validation_report, "diagnostics.json": packet.diagnostics };
+  const non = packet.manifest.checksums.filter((x: Json) => x.payload_ref.ref !== "manifest.json");
+  for (const c of non) c.value = c.payload_ref.ref.endsWith(".csv") ? await rawSha(payloads[c.payload_ref.ref]) : await canonicalSha256HexCheckedV1(payloads[c.payload_ref.ref]);
+  const seed = { manifest_id: packet.manifest.manifest_id, source_result_ref: packet.source_result_ref, source_run_ref: packet.source_run_ref, source_model_ref: packet.source_model_ref, received_source_checksums: packet.received_source_checksums, unresolved_assumption_refs: packet.unresolved_assumption_refs, reproducibility_refs: packet.reproducibility_refs, export_profile_ref: packet.manifest.export_profile_ref, boundary_notes: packet.manifest.boundary_notes, member_checksums: non, diagnostics: packet.diagnostics };
+  const m = packet.manifest.checksums.find((x: Json) => x.payload_ref.ref === "manifest.json"); m.value = await canonicalSha256HexCheckedV1(seed);
+  const by = new Map(packet.manifest.checksums.map((x: Json) => [x.payload_ref.ref, x]));
+  for (const member of packet.manifest.package_members) member.checksum = structuredClone(by.get(member.filename));
+  const projection = structuredClone(packet); delete projection.package_checksum;
+  packet.package_checksum.value = await canonicalSha256HexCheckedV1(projection);
+  return packet;
+}
+
 describe("the stress-neutral package carries the run record's rule-pack exclusion diagnostics", () => {
   it("names each excluded reference once, after the package's own diagnostics; the validator holds it to the record", async () => {
     const session = await solvedWith([HELD, MISSING, CHANGED]);
@@ -98,6 +114,30 @@ describe("the stress-neutral package carries the run record's rule-pack exclusio
       const changed = structuredClone(packet);
       tamper(changed);
       await expect(validateStressNeutralExportPacket(changed, session.result, session.analysisRun, basis)).rejects.toThrow("SN-RULE-PACK-REF-DIAGNOSTICS-MISMATCH");
+    }
+  }, 120_000);
+
+  it("the validator finds the exclusion diagnostics by their codes, whatever their class, and expects them from the record alone", async () => {
+    const session = await solvedWith([HELD, MISSING, CHANGED]);
+    const packet = await buildStressNeutralExportPacket(session);
+    const basis = modelLoadBasisRefs(session.model);
+    const unresolved = (p: Json) => (p.diagnostics as Json[]).find((item) => item.code === RULE_PACK_REF_UNRESOLVED);
+    // The restamp alone changes nothing the validator refuses.
+    await expect(validateStressNeutralExportPacket(await rehash(structuredClone(packet)), session.result, session.analysisRun, basis)).resolves.toBeUndefined();
+    for (const tamper of [
+      // (a) An exclusion relabelled to another class, its message and severity altered: it must
+      // not count as one of the package's own diagnostics and so suppress the record's.
+      (p: Json) => { Object.assign(unresolved(p), { class: "comparison", severity: "info", message: "Invented altered message." }); },
+      // (b) An extra reserved-code diagnostic under another class, naming a reference the record
+      // does not exclude.
+      (p: Json) => {
+        const extra = { ...structuredClone(unresolved(p)), class: "stress_neutral_export", affected_object: { object_type: "RulePack", ref: "invented-pack-held@1.0.0" } };
+        p.diagnostics.splice(0, 0, extra);
+      }
+    ]) {
+      const changed = structuredClone(packet);
+      tamper(changed);
+      await expect(validateStressNeutralExportPacket(await rehash(changed), session.result, session.analysisRun, basis)).rejects.toThrow("SN-RULE-PACK-REF-DIAGNOSTICS-MISMATCH");
     }
   }, 120_000);
 

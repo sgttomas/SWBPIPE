@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ObjectRef } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
-import { recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd } from "../../services/rulePackRefDiagnostics";
+import { RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED, recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd } from "../../services/rulePackRefDiagnostics";
 
 const STRESS_NEUTRAL_EXPORT_VERSION = "0.3.0";
 const STRESS_NEUTRAL_EXPORT_PROFILE = "ops.stress_neutral.v3";
@@ -215,6 +215,14 @@ function StressNeutralLine({ label, value, testId }: { label: string; value: str
   );
 }
 
+/** The package's own comparison-semantics diagnostic, the first of its diagnostics. */
+function comparisonSemanticsDiagnostic(exportId: string, packetProvenance: ReturnType<typeof previewProvenance>) {
+  return { code: "SN-DESKTOP-PREVIEW-COMPARISON-TBD", class: "stress_neutral_export", severity: "warning",
+    source: reference("StressNeutralExportPackage", exportId), affected_object: reference("ComparisonSemantics", "stress-neutral:comparison-pass-fail"),
+    message: "Comparison pass/fail semantics and tolerance profiles are not defined by this preview export.",
+    remediation: "Review stress-neutral handoff evidence before use.", provenance: packetProvenance };
+}
+
 /** Version-neutral inputs consumed by the current 0.3 packet construction. */
 function normalizeStressNeutralInputs({ model, result, analysisRun }: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const run = analysisRun.analysis_run;
@@ -278,10 +286,7 @@ function normalizeStressNeutralInputs({ model, result, analysisRun }: { model: P
       check("stable_id_map_per_row", stableIdMap.length === resultRows.length),
       check("loss_report_present", true)
     ] as Array<{ check_id: string; status?: string; blocking?: boolean }>,
-    diagnostics: [{ code: "SN-DESKTOP-PREVIEW-COMPARISON-TBD", class: "stress_neutral_export", severity: "warning",
-      source: reference("StressNeutralExportPackage", exportId), affected_object: reference("ComparisonSemantics", "stress-neutral:comparison-pass-fail"),
-      message: "Comparison pass/fail semantics and tolerance profiles are not defined by this preview export.",
-      remediation: "Review stress-neutral handoff evidence before use.", provenance: previewProvenance() }],
+    diagnostics: [comparisonSemanticsDiagnostic(exportId, previewProvenance())],
     boundary_notes: [
       "The package is not a vendor format, solver input deck, or external target compatibility claim.",
       "Comparison pass/fail and tolerances remain outside this export; validation occurs in the user's accepted professional tools, and this package is screening and handoff evidence."
@@ -422,6 +427,15 @@ function rulePackRefPackageDiagnostics(analysisRun: AnalysisRunEnvelope, result:
     remediation: "Review the excluded rule-pack reference before downstream use; it is not among this run's rule-pack references.",
     provenance: structuredClone(packetProvenance)
   }));
+}
+
+/** Whether a package diagnostic is, or claims to be, a rule-pack exclusion diagnostic: by its
+ * reserved code (`MODEL-RULE-PACK-REF-UNRESOLVED`, `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`)
+ * whatever its class, or by the exclusion class. */
+function isRulePackRefPackageDiagnostic(item: unknown): boolean {
+  if (!item || typeof item !== "object") return false;
+  const { code, class: kind } = item as { code?: unknown; class?: unknown };
+  return code === RULE_PACK_REF_UNRESOLVED || code === RULE_PACK_REF_CHECKSUM_MISMATCH || kind === RULE_PACK_REFERENCE_CLASS;
 }
 
 /** T6S-5: the successor package's boundary note (D2 4.9.7, 4.9.9; CQ-4, CQ-5). */
@@ -628,9 +642,14 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     const codes = [...Object.values(WITHHOLDING_CODES), "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE"];
     if (!await same(packet.unit_preservation_witnesses, expectedWitnesses) || !await same(packet.diagnostics.filter((d: any) => codes.includes(d.code)), expectedFindings)) throw new Error("SN-PRECISION-WITNESS-BINDING-MISMATCH");
     // The run record's rule-pack reference diagnostics, each once, as the builder projects them.
+    // The expected list comes from trusted inputs alone: the record, and the package's own
+    // diagnostics as the builder makes them from the source (comparison, witness withholding),
+    // never from the packet's list. Every packet diagnostic with a reserved exclusion code, or
+    // the exclusion class, is held to it in full and in order, whatever its class.
     if (analysisRun !== undefined && Array.isArray(packet.diagnostics)) {
-      const own = packet.diagnostics.filter((d: any) => d?.class !== RULE_PACK_REFERENCE_CLASS);
-      if (!await same(packet.diagnostics.filter((d: any) => d?.class === RULE_PACK_REFERENCE_CLASS), rulePackRefPackageDiagnostics(analysisRun, source, own, packet.provenance))) throw new Error("SN-RULE-PACK-REF-DIAGNOSTICS-MISMATCH");
+      const trustedOwn = [comparisonSemanticsDiagnostic(`stress-neutral:${safeFileToken(source.run_id)}`, packet.provenance), ...expectedFindings];
+      const expected = [...trustedOwn.filter(isRulePackRefPackageDiagnostic), ...rulePackRefPackageDiagnostics(analysisRun, source, trustedOwn, packet.provenance)];
+      if (!await same(packet.diagnostics.filter(isRulePackRefPackageDiagnostic), expected)) throw new Error("SN-RULE-PACK-REF-DIAGNOSTICS-MISMATCH");
     }
     // T6S-5 (S-d): the class findings are counted in the loss report's exported reason.
     if (sourceRetained) {

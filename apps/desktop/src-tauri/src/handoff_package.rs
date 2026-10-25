@@ -937,6 +937,26 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     if refusals.is_empty() { Ok((refs, warnings)) } else { Err(refusals) }
 }
 
+/// Whether `character` is white space to ECMAScript's `String.prototype.trim`
+/// (WhiteSpace and LineTerminator): U+0009-U+000D, U+0020, U+00A0, U+1680,
+/// U+2000-U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF. Unlike
+/// Rust's `str::trim` (Unicode White_Space), it includes U+FEFF and excludes
+/// U+0085.
+fn is_js_trim_white_space(character: char) -> bool {
+    matches!(
+        character,
+        '\u{0009}'..='\u{000D}' | '\u{0020}' | '\u{00A0}' | '\u{1680}' | '\u{2000}'..='\u{200A}' | '\u{2028}' | '\u{2029}' | '\u{202F}' | '\u{205F}' | '\u{3000}' | '\u{FEFF}'
+    )
+}
+
+/// A string member that is not blank to JavaScript, as written (untrimmed):
+/// the resolution's twin of `text` in `src/services/modelRulePackResolution.ts`
+/// (`value.trim() ? value : null`). Used by `rule_pack_ref_exclusion` only;
+/// `text` keeps Rust's `str::trim`.
+fn js_text<'a>(object: Option<&'a Map<String, Value>>, key: &str) -> Option<&'a str> {
+    object?.get(key).and_then(Value::as_str).filter(|value| !value.chars().all(is_js_trim_white_space))
+}
+
 /// Why a model rule-pack reference is excluded, or `None` when it resolves:
 /// the solve's resolution (#1602; `resolveModelRulePacks` in
 /// `src/services/modelRulePackResolution.ts`), rule for rule, so that a handoff
@@ -944,7 +964,7 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
 /// `stored` is the model's project's pack with the reference's id, if any.
 /// - Unresolved: no stored pack, or its `metadata.rule_pack_id` is not the
 ///   reference's, or it has no `metadata.rule_pack_version` or
-///   `metadata.source_notice` (non-blank text).
+///   `metadata.source_notice` (text not blank to JavaScript's `trim`, `js_text`).
 /// - Checksum mismatch: its stamped `checksums.rule_pack_checksum.value` is not
 ///   64 lowercase hex digits or not the reference's `checksum.value`, the
 ///   document's validation does not report its checksum as `match` (as the open
@@ -959,10 +979,10 @@ pub(crate) fn rule_pack_ref_exclusion(reference: &Map<String, Value>, stored: Op
         .and_then(Value::as_object)
         .and_then(|checksums| checksums.get("rule_pack_checksum"))
         .and_then(Value::as_object)
-        .and_then(|checksum| text(Some(checksum), "value"));
-    let id = text(metadata, "rule_pack_id");
-    let version = text(metadata, "rule_pack_version");
-    if id != reference.get("rule_pack_id").and_then(Value::as_str) || version.is_none() || text(metadata, "source_notice").is_none() {
+        .and_then(|checksum| js_text(Some(checksum), "value"));
+    let id = js_text(metadata, "rule_pack_id");
+    let version = js_text(metadata, "rule_pack_version");
+    if id != reference.get("rule_pack_id").and_then(Value::as_str) || version.is_none() || js_text(metadata, "source_notice").is_none() {
         return Some(RULE_PACK_REF_UNRESOLVED);
     }
     let recomputed_matches = open_pipe_stress_rule_pack_document::validate_rule_pack_document(document, false).checksum.match_status == "match";
@@ -2402,6 +2422,17 @@ mod tests {
     /// shared vector gives the outcome TypeScript's `resolveModelRulePacks` gives
     /// (`src/services/rulePackRefResolutionParity.test.ts`), through the store
     /// lookup the save command wires and through `rule_pack_ref_exclusion` alone.
+    #[test]
+    fn the_resolution_blank_test_is_javascript_trim() {
+        // Every code point JavaScript's `String.prototype.trim` removes (enumerated in node).
+        let javascript: Vec<u32> = vec![0x9, 0xA, 0xB, 0xC, 0xD, 0x20, 0xA0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000, 0xFEFF];
+        let ours: Vec<u32> = (0..=char::MAX as u32).filter_map(char::from_u32).filter(|character| is_js_trim_white_space(*character)).map(u32::from).collect();
+        assert_eq!(ours, javascript);
+        let metadata = |value: &str| json!({ "source_notice": value }).as_object().cloned();
+        assert_eq!(js_text(metadata("\u{FEFF}").as_ref(), "source_notice"), None);
+        assert_eq!(js_text(metadata("\u{0085}").as_ref(), "source_notice"), Some("\u{0085}"));
+        assert_eq!(js_text(metadata(" notice ").as_ref(), "source_notice"), Some(" notice "), "as written, untrimmed");
+    }
     #[test]
     fn rule_pack_ref_resolution_matches_the_solve_on_the_shared_vectors() {
         let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/handoff/rule_pack_ref_resolution_vectors.json")).unwrap();
