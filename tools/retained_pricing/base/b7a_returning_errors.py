@@ -38,10 +38,12 @@ SOURCES = {
 # +16/+36/+85); no owner gains a caller.
 # W-15 D3 (§8.21): every lib.rs owner, site and caller moved with unchanged text (+60 to the case solve, +103/+111
 # after it); retained_product.rs's are in place (its rows only name `component_body: None`); no owner gains a caller.
+# Nested-record closure D3 (§8.NR, provisional; measured): every lib.rs owner, site and caller moves +106 with unchanged
+# text; no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11483,
+    "line": 11589,
     "kind": "format",
     "owner": "core/product_physics/src/lib.rs:11547:exact_straight_summary_extrema",
     "short": "lib.rs:11589",
@@ -55,7 +57,7 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11489,
+    "line": 11595,
     "kind": "format",
     "owner": "core/product_physics/src/lib.rs:11547:exact_straight_summary_extrema",
     "short": "lib.rs:11595",
@@ -69,7 +71,7 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12152,
+    "line": 12258,
     "kind": "to_string",
     "owner": "core/product_physics/src/lib.rs:12239:recover_curved_bend_local_forces",
     "short": "lib.rs:12258",
@@ -140,7 +142,10 @@ MODE_SOURCE = {
            "0955cc3338597f527e0d849d7dc58161059f2d1ea6af59fa04fae572b79448a8",
            # W-15 D3 (§8.21): the same _X emitter, with retained_w1 carried to lib.rs:3745 (its only difference from
            # 0955cc33…).
-           "3f1e9c513fcafda1d2efd9232791644a3a863697d6d5c41d985bf87a72859af7"},
+           "3f1e9c513fcafda1d2efd9232791644a3a863697d6d5c41d985bf87a72859af7",
+           # Nested-record closure D3 (§8.NR, provisional; measured), on W-15: the same _X emitter, with retained_w1
+           # carried to lib.rs:3851 (its only difference from 3f1e9c51…).
+           "0b3f27a00f29063c215802cc587c1e1d03459c3475608729784dd2169b569bb9"},
 }
 
 
