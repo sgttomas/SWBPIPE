@@ -180,9 +180,17 @@ only route" statement is made.
   The desktop `imposed_displacement` primitive solves where supported and is
   refused with a named, readable reason elsewhere. Priced change: D3
   re-registration with independent review.
-- **Stage 2:** the nonlinear active-set loop measures gap closure and
-  lift-off relative to the imposed motion. Design first, with dual numerical
-  review and its own benchmarks.
+- **Stage 2:** imposed motion in a model with nonlinear supports, in two
+  separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
+  as nonzero base prescribed values in the nonlinear active-set loop and its
+  K-D5 confirmation; every nonlinear support's ground stays fixed. (R-b) A
+  primitive on a nonlinear support's own DOF moves that support's ground: gap
+  closure, lift-off and friction slip are measured on the displacement
+  relative to the moved ground, and an active or sticking state prescribes the
+  moved ground (plus or minus the clearance for a gap). Linear springs with a
+  moving base stay refused. Design: DEL-04-03
+  `Design/pf-nonlinear-imposed-motion.md`, with dual numerical review and its
+  own benchmarks; R-b may land as a later slice.
 Stage 1 is built (W-16 slice a; DEL-04-03 Design `pf-imposed-displacement.md`).
 On the pressure-free route a support-targeted `imposed_displacement` primitive
 is one prescribed value on its rigid support's global DOF, solved by the
