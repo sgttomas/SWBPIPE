@@ -1203,12 +1203,18 @@ pub(crate) mod tests {
                 }
                 Ok("{}".to_string())
             }
-            // A valid `{}` result whose frame reports a lifetime peak of `arg0`
-            // bytes (no such memory is used), then a wait for the supervisor's
-            // kill; bounded, so an accepted result fails its test, not hangs it.
+            // Announces itself (`started-<pid>` in the directory `arg1`), sends
+            // a valid `{}` result whose frame reports a lifetime peak of `arg0`
+            // bytes (no such memory is used), then waits for the supervisor's
+            // kill. Not killed within 10 s, it leaves `unkilled-<pid>` and
+            // exits 1, so a missing kill fails its test rather than hangs it.
             "reported_peak" => {
+                let dir = std::path::Path::new(args.splitn(2, ':').nth(1).unwrap());
+                let pid = std::process::id();
+                std::fs::write(dir.join(format!("started-{pid}")), b"").unwrap();
                 crate::worker_alloc::send_frame(TAG_RESULT, 2, arg(0), b"{}");
-                std::thread::sleep(Duration::from_secs(60));
+                std::thread::sleep(Duration::from_secs(10));
+                let _ = std::fs::write(dir.join(format!("unkilled-{pid}")), b"");
                 std::process::exit(1)
             }
             // Evidence for the process reserve: footprints of a real worker.
@@ -1580,13 +1586,15 @@ pub(crate) mod tests {
         assert!(*run.grants.last().unwrap() >= 48 * MIB + reserve);
         assert_reaped(run.pid);
         drop(run);
-        // A budget the footprint itself does not fit: refused, typed.
+        // A budget the footprint itself does not fit: refused, typed. A poll
+        // during the touch may refuse first, correctly, with a part-touched
+        // sample above the budget, so only the budget bounds the footprint.
         let budget = reserve + 24 * MIB;
         let run = super::tests::run(&pool, &*launcher, BODY, budget, reserve);
         match run.outcome {
             WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
                 assert!(grant_bytes >= start && grant_bytes <= budget);
-                assert!(footprint_bytes > 48 * MIB && footprint_bytes > budget, "{footprint_bytes}");
+                assert!(footprint_bytes > budget, "{footprint_bytes}");
             }
             other => panic!("{other:?}"),
         }
