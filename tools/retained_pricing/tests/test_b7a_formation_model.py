@@ -251,7 +251,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     assert len(total) == 1 and total[0]["total"] == "cases*N"
     assert re.search(total[0]["loop"], "for row in &rows")
     assert first("for row in &rows")["bound"] == "P"
-    for key in ("formation_guard.rs:315", "formation_guard.rs:320", "self_weight.rs:869"):
+    for key in ("formation_guard.rs:315", "formation_guard.rs:320", "self_weight.rs:869", "self_weight.rs:1281"):
         assert key not in text["site_zero"]
     for key in ("formation_guard.rs:239", "formation_guard.rs:241", "formation_guard.rs:251", "formation_guard.rs:322"):
         assert key in text["site_total"]
@@ -379,8 +379,9 @@ def test_newly_reached_identifier_audits_bind_exact_production_expressions():
     pp = "core/product_physics/src/"
     assert table[pp+"formation_guard.rs:322"]["dof_label(row.dof)"] == {"bytes":600,"source":"COMP"}
     assert table[pp+"formation_guard.rs:327"]["case_id"] == {"bytes":128,"source":"IN128"}
-    # T4-U6/U8 snapshot lines, unchanged text (B7b: self_weight.rs 814; formation_check.rs 495..635 and 895).
-    assert table[pp+"self_weight.rs:869"] == {
+    # T4-U6/U8 snapshot lines, unchanged text (B7b: self_weight.rs 814; formation_check.rs 495..635 and 895);
+    # W-15 slice b (§8.22): self_weight.rs 869 -> 1281.
+    assert table[pp+"self_weight.rs:1281"] == {
         "case.id":{"bytes":128,"source":"IN128"},
         "pipe":{"bytes":128,"source":"IN128"},
         "case.id.len()":{"bytes":20,"source":"NUM"},

@@ -1134,6 +1134,16 @@ fn every_family_clause_refuses_with_its_fact() {
     }
     assert_eq!(with(&load("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension));
     assert_eq!(with(&load("dimension", json!("force"))), None);
+    // W-15 slice b: a node load in the generated self-weight namespace (the component-weight
+    // lineage `inspect_applied_self_weight` claims for any node id with this prefix) refuses by
+    // its fact; a near id, and a weight-category nodal load under its own id, stay inside D1.7.
+    for id in ["load:self-weight:", "load:self-weight:4:case:C-1:force:y", "load:self-weight:x"] {
+        assert_eq!(with(&load("id", json!(id))), family(C::Loads, F::GeneratedLoadIdentity), "{id}");
+    }
+    for id in ["load:self-weight", "Load:self-weight:x", " load:self-weight:x", "x:load:self-weight:"] {
+        assert_eq!(with(&load("id", json!(id))), None, "{id}");
+    }
+    assert_eq!(with(&load("category", json!("weight"))), None);
     // D1.10, after D1.9: an object provenance, with or without leading ASCII whitespace.
     for provenance in ["{\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration\"}", " \t{", "{"] {
         assert_eq!(with(&load("provenance", json!(provenance))), family(C::Provenance, F::ObjectProvenance), "{provenance:?}");

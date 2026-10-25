@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { computeModelHash } from "../../services/hashService";
-import { generateSelfWeightPlan, type SelfWeightOperationPlan } from "../../services/selfWeightPlanService";
+import { generateSelfWeightPlan, SELF_WEIGHT_SCOPES, type SelfWeightOperationPlan } from "../../services/selfWeightPlanService";
 import { draftIntent, usePreparation, type WorkflowProps } from "../offline-proposal-intake/workflowSupport";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 
 export function selfWeightPlanBatch(plan: SelfWeightOperationPlan, sourceHash: string): OperationBatch {
-  if (plan.source_model_hash !== sourceHash || plan.scope_label !== "selected_pipe_mass_only" || !plan.changes.length)
+  if (plan.source_model_hash !== sourceHash || !(SELF_WEIGHT_SCOPES as readonly string[]).includes(plan.scope_label) || !plan.changes.length)
     throw new Error("The self-weight plan does not match the current model or supported scope. Generate it again.");
   return {
     batch_id: `batch:self-weight:${crypto.randomUUID()}`,
@@ -28,7 +28,7 @@ export function selfWeightPlanBatch(plan: SelfWeightOperationPlan, sourceHash: s
           before: change.before, after: change.after, unit: change.unit,
           dimension: change.dimension, source_note: change.source_note
         },
-        rationale: refresh ? "User-requested reconciliation of existing generated self-weight; preserve the reviewed manual overrides." : "User-requested self-weight plan for selected pipe mass only."
+        rationale: refresh ? "User-requested reconciliation of existing generated self-weight; preserve the reviewed manual overrides." : "User-requested self-weight plan for the selected pipes, with any mapped component's own weight."
       });
     })
   };
@@ -87,7 +87,7 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
   return <section id="self-weight-plan" tabIndex={-1} aria-label="Self-weight planning">
     <h3>Plan self-weight loads</h3>
     {disabledReason && <p id="self-weight-plan-disabled-reason" role="status">{disabledReason}</p>}
-    <p>Uses selected pipe mass only. Components, supports and equipment are excluded. Missing mass inputs are reported; none are assumed.</p>
+    <p>Uses each selected pipe's own mass. A selected member mapped by a valve, flange, reducer, rigid or specialty component in mechanics geometry only carries that component's weight instead, at the component's node with the moment r × F (r: its centre of gravity in global X/Y/Z from the node). Supports and equipment are excluded. Missing mass inputs are reported; none are assumed.</p>
     <fieldset disabled={props.busy || state.pending} aria-describedby={disabledReason ? "self-weight-plan-disabled-reason" : undefined} title={disabledReason}><legend>Load case and gravity</legend>
       <label>Self-weight action<select value={input.mode} onChange={event => setInput({ ...input, mode: event.target.value as "create" | "refresh", caseId: "", preserveModified: false })}>
         <option value="create">Create a self-weight case</option><option value="refresh">Refresh an existing case</option>
@@ -127,7 +127,12 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
     </fieldset>
     {state.error && <p role="alert">{state.error}</p>}
     {current && review && <div>
-      <p>{review.plan.changes.length} proposed changes for {review.plan.source_evidence.length} selected pipes.</p>
+      <p>{review.plan.scope_label === SELF_WEIGHT_SCOPES[1]
+        ? `${review.plan.changes.length} proposed changes for ${review.plan.source_evidence.length} generated loads. A component's weight replaces its mapped member's distributed self-weight; each evidence record names the component and the omitted member.`
+        : `${review.plan.changes.length} proposed changes for ${review.plan.source_evidence.length} selected pipes.`}</p>
+      {review.plan.warnings?.length ? <ul aria-label="Self-weight warnings" data-testid="self-weight-plan-warnings">
+        {review.plan.warnings.map((warning) => <li key={warning.id}>{warning.code}: {warning.message}</li>)}
+      </ul> : null}
       <p>Review the source evidence, then queue the complete plan as one batch.</p>
       <pre aria-label="Self-weight source evidence">{JSON.stringify(review.plan.source_evidence, null, 2)}</pre>
       <details><summary>Proposed changes and model basis</summary><p>{review.plan.source_model_hash}</p>

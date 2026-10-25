@@ -4966,3 +4966,121 @@ fn o4_w1e_mixed_request() -> Value {
 }
 /// The O4 fixture's request: control B, Timoshenko, c_m = 0.5 mm and c_a = 1 mm.
 fn o4_w1e_fixture_request() -> Value { o4_control(O4_TIM, 0.001, Some(0.0005), Some(0.01)) }
+
+// ---- W-15 slice b (DEL-04-08 retained-pricing-rules.md §8.22, W15B-NS): the generated self-weight namespace on a
+// node target ----
+//
+// `self_weight::inspect_applied_self_weight` treats a node-targeted load whose id starts with `load:self-weight:` as
+// generated (its `deterministic_identity` node arm). Without a lineage record it can derive, the load blocks with
+// `SELF_WEIGHT_INPUT_INVALID` on the ordinary routes; D1.7 refuses it at G-A with `GeneratedLoadIdentity`, so the
+// retained route publishes exactly the ordinary route's blocked bytes. The variants are the ones the inspection
+// branches on: the id inside the namespace, the provenance (absent, unparsed text, each non-object JSON kind, and an
+// object that claims or does not claim the component-weight method), and the payload (category and dimension).
+
+/// The base (`raw()` pressure-free or `m3x()` exact) with case 0's `load:2` replaced by `load`.
+fn w15b_with_load(base: &Value, load: Value) -> Value {
+    let mut raw = base.clone();
+    raw["model"]["load_cases"][0]["primitive_loads"][2] = load;
+    raw
+}
+fn w15b_load(id: &str, provenance: Option<&str>, category: &str, direction: &str, dimension: &str) -> Value {
+    let unit = if dimension == "moment" { "N*m" } else { "N" };
+    let mut load = json!({"id": id, "category": category, "target": {"type": "node", "node": "N1"}, "direction": direction,
+        "magnitude": {"value": -2.5, "unit": unit}, "dimension": dimension});
+    if let Some(text) = provenance {
+        load["provenance"] = json!(text);
+    }
+    load
+}
+/// Every way the outcome differs from the premise, for one request on both modes: the ordinary route blocks with
+/// `SELF_WEIGHT_INPUT_INVALID` (`PROVENANCE_INPUT_MISSING` when the load has no provenance), is `MODEL_INCOMPLETE` and has no result, and the retained route refuses at G-A by `GeneratedLoadIdentity` and publishes
+/// the ordinary bytes (no W1, no successor).
+fn w15b_mismatches(label: &str, raw: &Value) -> Vec<String> {
+    // A load without provenance is blocked earlier, by validation's PROVENANCE_INPUT_MISSING.
+    let absent = raw["model"]["load_cases"][0]["primitive_loads"][2].get("provenance").is_none();
+    let code = if absent { "PROVENANCE_INPUT_MISSING" } else { "SELF_WEIGHT_INPUT_INVALID" };
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let mut found = Vec::new();
+    for mode in MODES {
+        let plain = plain(mode, raw);
+        let envelope: Value = serde_json::from_slice(&plain).unwrap();
+        let blocked = envelope["diagnostics"].as_array().unwrap().iter()
+            .any(|d| d["code"] == code && d["severity"] == "blocking");
+        let solved = envelope["status"]["mechanics"] != "MODEL_INCOMPLETE" || !envelope["results"].as_array().is_none_or(Vec::is_empty);
+        if !blocked {
+            let codes: Vec<_> = envelope["diagnostics"].as_array().unwrap().iter()
+                .filter(|d| d["severity"] == "blocking").map(|d| d["code"].as_str().unwrap_or_default().to_owned()).collect();
+            found.push(format!("{label} {mode:?}: the ordinary route does not block with {code} (blocking: {codes:?}; {})",
+                envelope["status"]["mechanics"]));
+        }
+        if solved {
+            found.push(format!("{label} {mode:?}: the ordinary route is not MODEL_INCOMPLETE without results ({})", envelope["status"]["mechanics"]));
+        }
+        let (output, _) = direct(raw, mode);
+        let domain = output.admission().unwrap().law().domain;
+        let expected = Some(AdmissionRefusal::Family(D1Clause::Loads, FamilyFact::GeneratedLoadIdentity));
+        if domain != expected {
+            found.push(format!("{label} {mode:?}: G-A's domain refusal is {domain:?}, not {expected:?}"));
+        }
+        if output.retained().is_some() {
+            found.push(format!("{label} {mode:?}: the retained route ran W1"));
+        }
+        if output.successor().is_some() {
+            found.push(format!("{label} {mode:?}: the retained route formed a successor"));
+        }
+        if published(output) != plain {
+            found.push(format!("{label} {mode:?}: the retained route's bytes differ from the ordinary route's"));
+        }
+    }
+    found
+}
+#[test]
+fn w15b_generated_namespace_node_loads_block_and_are_refused_by_d1() {
+    const COMPONENT_ID: &str = "load:self-weight:4:case:9:component:x:force:y";
+    let ids = ["load:self-weight:", "load:self-weight:x", COMPONENT_ID];
+    let provenances: [Option<&str>; 7] = [None, Some("human note"), Some("\"quoted\""), Some("17"), Some("[1]"), Some("null"), Some("true")];
+    let objects = [
+        format!("{{\"method\":\"{}\"}}", self_weight::COMPONENT_WEIGHT_METHOD),
+        "{\"method\":\"component_weight_at_center_of_gravity_global_offset/v9\"}".to_owned(),
+        " {\"note\":\"x\"}".to_owned(),
+    ];
+    let payloads = [("weight", "global_y", "force"), ("weight", "RZ", "moment"), ("occasional", "global_x", "force"), ("concentrated_moment", "RX", "moment")];
+    let mut found = Vec::new();
+    for (route, base) in [("PF", raw()), ("EX", m3x())] {
+        for id in ids {
+            for provenance in provenances {
+                let raw = w15b_with_load(&base, w15b_load(id, provenance, "weight", "global_y", "force"));
+                found.extend(w15b_mismatches(&format!("{route} {id} {provenance:?}"), &raw));
+            }
+            for object in &objects {
+                let raw = w15b_with_load(&base, w15b_load(id, Some(object), "weight", "global_y", "force"));
+                found.extend(w15b_mismatches(&format!("{route} {id} {object}"), &raw));
+            }
+        }
+        for (category, direction, dimension) in payloads {
+            for provenance in [None, Some("human note")] {
+                let raw = w15b_with_load(&base, w15b_load(COMPONENT_ID, provenance, category, direction, dimension));
+                found.extend(w15b_mismatches(&format!("{route} {category} {dimension} {provenance:?}"), &raw));
+            }
+        }
+    }
+    assert!(found.is_empty(), "{} mismatches:\n{}", found.len(), found.join("\n"));
+}
+
+/// The control: a hand-written nodal `weight` load under any other id is inside D1.7 (G-A's domain does not refuse
+/// it), and both ordinary routes solve it.
+#[test]
+fn w15b_hand_written_nodal_weight_stays_admitted() {
+    for (route, base) in [("PF", raw()), ("EX", m3x())] {
+        for (id, direction, dimension) in [("load:w15b-weight", "global_y", "force"), ("load:self-weight", "RZ", "moment"), ("x:load:self-weight:", "global_z", "force")] {
+            let raw = w15b_with_load(&base, w15b_load(id, Some("invented_t3_p1_detection_input_no_library_data"), "weight", direction, dimension));
+            for mode in MODES {
+                let envelope: Value = serde_json::from_slice(&plain(mode, &raw)).unwrap();
+                assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{route} {id} {mode:?}: {}", envelope["diagnostics"]);
+                assert!(!envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"].as_str().unwrap().starts_with("SELF_WEIGHT")), "{route} {id} {mode:?}");
+                let (output, _) = direct(&raw, mode);
+                assert_eq!(output.admission().unwrap().law().domain, None, "{route} {id} {mode:?}: inside D1");
+            }
+        }
+    }
+}
