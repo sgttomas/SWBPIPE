@@ -1,6 +1,7 @@
 //! W-15 product-path benchmarks (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
-//! §6; PRD §22.2 rigid-link benchmark): the rigid-link cantilever (s = 1, 1/4, 1e3, 1e6;
-//! Euler-Bernoulli on both routes, Timoshenko on the exact route), the thermal and fit
+//! §6; PRD §22.2 rigid-link benchmark): the rigid-link cantilever (s = 1, 1/4 and every
+//! decade from 1e3 to 1e8; Euler-Bernoulli on both routes, Timoshenko on the exact
+//! route), the thermal and fit
 //! series on both thermal producers and on material, named and interpolated bases, a
 //! free scaled body, and the closed-end pressure cantilever with a scaled body.
 //!
@@ -14,7 +15,10 @@
 //! Criterion (DEC-024/DEC-026, unchanged): |obs - exp| <= 1e-9 |exp|; an exactly zero
 //! expectation uses 1e-9 times the case's frozen zero scale of its family. Both solver
 //! modes run against the same reference, and the product's own readers (with the
-//! captured model) admit every envelope.
+//! captured model) admit every envelope. Every case whose body scale is below the
+//! product's precision-warning threshold (1e5, Design §2.5, measured on this
+//! benchmark) asserts the full criterion; at and above it a case asserts only the
+//! warning and the unchanged formation and recovery qualification, and no accuracy.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode, ResultItem};
 use open_pipe_stress_product_physics::result_export::reader_verdict;
 use serde_json::{json, Value};
@@ -24,6 +28,25 @@ const REFERENCES: &str = include_str!("../../../validation/references/w15_rigid_
 const SUMS: &str = include_str!("../../../validation/references/w15_rigid_scaling/SHA256SUMS");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const RELATIVE: f64 = 1.0e-9;
+/// The product's precision-warning threshold (`rigid_component::PRECISION_WARNING_SCALE`,
+/// DEL-03-05 Design §2.5): the lowest decade at which this benchmark has a row outside
+/// [`RELATIVE`] (s = 1e5, Euler-Bernoulli, both routes and modes).
+const PRECISION_WARNING_SCALE: f64 = 1.0e5;
+/// At and above the threshold, the standing the existing screens give each case
+/// (its integrity diagnostic; the precision warning takes no part), as measured
+/// before the threshold moved: Euler-Bernoulli `sensitive` from 1e5, Timoshenko
+/// `checks_passed` at 1e5 and `sensitive` from 1e6, the free body (1e6) `sensitive`.
+const PRECISION_REGIME_STANDING: [(&str, &str); 9] = [
+    ("W15-R-S100000-EB", "sensitive"),
+    ("W15-R-S1000000-EB", "sensitive"),
+    ("W15-R-S10000000-EB", "sensitive"),
+    ("W15-R-S100000000-EB", "sensitive"),
+    ("W15-R-S100000-TIM", "checks_passed"),
+    ("W15-R-S1000000-TIM", "sensitive"),
+    ("W15-R-S10000000-TIM", "sensitive"),
+    ("W15-R-S100000000-TIM", "sensitive"),
+    ("W15-T-FREE-S1000000", "sensitive"),
+];
 const PROV: &str = "w15 invented benchmark input; not library, component, material-catalog or code data";
 const CASE: &str = "case:w15";
 const STATE_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
@@ -65,15 +88,23 @@ fn references_are_the_frozen_bytes() {
 }
 
 // ------------------------------------------------------------------ comparison
-/// The row's error (relative, or |obs|/zero scale for a zero row), or the failure text.
-fn close(observed: f64, expected: f64, zero_scale: f64, what: &str) -> Result<f64, String> {
+/// The row's error (relative, or |obs|/zero scale for a zero row) and, outside
+/// the criterion, the failure text.
+fn close(observed: f64, expected: f64, zero_scale: f64, what: &str) -> (f64, Option<String>) {
     let tolerance = RELATIVE * if expected == 0.0 { zero_scale.abs() } else { expected.abs() };
     let error = if expected == 0.0 { (observed / zero_scale).abs() } else { ((observed - expected) / expected).abs() };
-    if observed.is_finite() && (observed - expected).abs() <= tolerance {
-        Ok(error)
-    } else {
-        Err(format!("{what}: observed {observed:.17e} expected {expected:.17e} tolerance {tolerance:.3e} error {error:.3e}"))
-    }
+    let within = observed.is_finite() && (observed - expected).abs() <= tolerance;
+    (if observed.is_finite() { error } else { f64::INFINITY },
+     (!within).then(|| format!("{what}: observed {observed:.17e} expected {expected:.17e} tolerance {tolerance:.3e} error {error:.3e}")))
+}
+
+/// One run against its frozen rows: the largest relative error over the
+/// nonzero rows, the largest |obs|/zero scale over the zero rows, and every
+/// row outside the criterion.
+struct Measure {
+    rel: f64,
+    zero: f64,
+    failures: Vec<String>,
 }
 
 fn rows<'a>(out: &'a MechanicsEnvelope, kind: &str, entity: &str, component: Option<&str>, location: Option<&str>) -> Vec<&'a ResultItem> {
@@ -94,9 +125,8 @@ fn one(out: &MechanicsEnvelope, kind: &str, entity: &str, component: &str, locat
     (found[0].value, found[0].unit.clone())
 }
 
-/// Compare every frozen row of a case: the largest relative error (nonzero rows)
-/// and |obs|/zero scale (zero rows), or every row outside the criterion.
-fn compare(out: &MechanicsEnvelope, reference: &Value, label: &str) -> Result<(f64, f64), String> {
+/// Compare every frozen row of a case.
+fn measure(out: &MechanicsEnvelope, reference: &Value, label: &str) -> Measure {
     let scales = &reference["zero_scales"];
     let scale = |unit: &str| value(&scales[match unit {
         "N" => "force",
@@ -105,19 +135,16 @@ fn compare(out: &MechanicsEnvelope, reference: &Value, label: &str) -> Result<(f
         "rad" => "rotation",
         other => panic!("unit {other}"),
     }]);
-    let (mut rel, mut zero, mut worst) = (0.0f64, 0.0f64, 0.0f64);
+    let (mut rel, mut zero) = (0.0f64, 0.0f64);
     let mut failures = Vec::new();
     for r in reference["rows"].as_array().unwrap() {
         let (entity, component, unit) = (r["entity"].as_str().unwrap(), r["component"].as_str().unwrap(), r["unit"].as_str().unwrap());
         let expected = value(r);
         let zs = scale(unit);
-        let mut check = |observed: f64, expected: f64, what: String| match close(observed, expected, zs, &what) {
-            Ok(e) if expected == 0.0 => zero = zero.max(e),
-            Ok(e) => rel = rel.max(e),
-            Err(failure) => {
-                worst = worst.max(if expected == 0.0 { (observed / zs).abs() } else { ((observed - expected) / expected).abs() });
-                failures.push(failure)
-            }
+        let mut check = |observed: f64, expected: f64, what: String| {
+            let (e, failure) = close(observed, expected, zs, &what);
+            if expected == 0.0 { zero = zero.max(e) } else { rel = rel.max(e) }
+            failures.extend(failure);
         };
         match r["quantity"].as_str().unwrap() {
             "support_reaction" => {
@@ -159,12 +186,7 @@ fn compare(out: &MechanicsEnvelope, reference: &Value, label: &str) -> Result<(f
             q => panic!("quantity {q}"),
         }
     }
-    if failures.is_empty() {
-        Ok((rel, zero))
-    } else {
-        let count = reference["rows"].as_array().unwrap().len();
-        Err(format!("{label}: {} of {count} rows outside the criterion (largest error {worst:.3e}):\n{}", failures.len(), failures.join("\n")))
-    }
+    Measure { rel, zero, failures }
 }
 
 // ------------------------------------------------------------------ model authoring
@@ -288,16 +310,43 @@ fn solve(wire: &Value, route: Route, mode: PreviewSolverMode, label: &str) -> Me
     out
 }
 
+/// The body's user scale of a case.
+fn body_scale(reference: &Value) -> f64 {
+    rational(&reference["inputs"]["body"]["stiffness_scale"])
+}
+
+/// Run a case in both modes. Below [`PRECISION_WARNING_SCALE`] every frozen row
+/// meets the 1e-9 criterion and no precision warning is stated. At and above it
+/// the run asserts no accuracy: the warning is stated once for the body, the
+/// readers admit the result, and the formation and recovery qualification is
+/// the one the screens give without the warning (the pinned case standing of
+/// [`PRECISION_REGIME_STANDING`]); the measured errors are printed only.
 fn run(id: &str, route: Route, authoring: impl Fn(&Value) -> Authoring) {
     let reference = case_ref(id);
     let wire = request(&reference, route, authoring(&reference));
+    let regime = body_scale(&reference) >= PRECISION_WARNING_SCALE;
     let mut failures = Vec::new();
     for mode in MODES {
         let label = format!("{id} {route:?} {}", mode.as_str());
         let out = solve(&wire, route, mode, &label);
-        match compare(&out, &reference, &label) {
-            Ok((rel, zero)) => println!("W15 {label}: {} rows; max relative error {rel:.3e}; max |zero row|/scale {zero:.3e}", reference["rows"].as_array().unwrap().len()),
-            Err(failure) => failures.push(failure),
+        let warnings: Vec<_> = out.diagnostics.iter().filter(|d| d.code == "RIGID_COMPONENT_SCALE_PRECISION").collect();
+        let m = measure(&out, &reference, &label);
+        let count = reference["rows"].as_array().unwrap().len();
+        if regime {
+            assert_eq!(warnings.len(), 1, "{label}: the precision warning");
+            assert_eq!(warnings[0].severity, "warning", "{label}");
+            assert_eq!(warnings[0].affected_refs, vec!["component:w15-valve".to_string(), "body:b-c".to_string()], "{label}");
+            let pinned = PRECISION_REGIME_STANDING.iter().find(|(case, _)| *case == id).unwrap_or_else(|| panic!("{id}: no pinned standing")).1;
+            let quality = serde_json::to_value(&out.numerical_quality).unwrap();
+            assert_eq!(quality["status"], pinned, "{label}: the qualification");
+            assert!(quality["cases"].as_array().unwrap().iter().all(|c| c["solve_quality"] == pinned), "{label}: {quality}");
+            println!("W15 {label}: precision regime (no accuracy asserted): {count} rows; max relative error {:.3e}; max |zero row|/scale {:.3e}; {} rows outside 1e-9; standing {pinned}", m.rel, m.zero, m.failures.len());
+        } else {
+            assert!(warnings.is_empty(), "{label}: no precision warning below the threshold");
+            println!("W15 {label}: {count} rows; max relative error {:.3e}; max |zero row|/scale {:.3e}", m.rel, m.zero);
+            if !m.failures.is_empty() {
+                failures.push(format!("{label}: {} of {count} rows outside the criterion:\n{}", m.failures.len(), m.failures.join("\n")));
+            }
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
@@ -317,54 +366,23 @@ fn tip_loads(reference: &Value) -> Vec<Value> {
     ]
 }
 
-fn rigid_link_euler_bernoulli(scales: &[&str]) {
-    let mut failures = Vec::new();
-    for s in scales {
-        for route in [Route::Preview, Route::Exact] {
-            let id = format!("W15-R-S{s}-EB");
-            let outcome = std::panic::catch_unwind(|| run(&id, route, |r| Authoring { loads: tip_loads(r), ..Default::default() }));
-            if let Err(panic) = outcome {
-                failures.push(panic.downcast_ref::<String>().cloned().unwrap_or_default());
-            }
-        }
-    }
-    assert!(failures.is_empty(), "{}", failures.join("\n\n"));
-}
-
-fn rigid_link_timoshenko(scales: &[&str]) {
-    for s in scales {
-        run(&format!("W15-R-S{s}-TIM"), Route::Exact, |r| Authoring { loads: tip_loads(r), timoshenko: true, ..Default::default() });
-    }
-}
+/// The frozen rigid-link scales: s = 1, 1/4 and every decade from 1e3 to 1e8.
+const R_SCALES: [&str; 8] = ["1", "1_4", "1000", "10000", "100000", "1000000", "10000000", "100000000"];
 
 #[test]
 fn w15_r_rigid_link_euler_bernoulli_both_routes() {
-    rigid_link_euler_bernoulli(&["1", "1_4", "1000"]);
+    for s in R_SCALES {
+        for route in [Route::Preview, Route::Exact] {
+            run(&format!("W15-R-S{s}-EB"), route, |r| Authoring { loads: tip_loads(r), ..Default::default() });
+        }
+    }
 }
 
 #[test]
 fn w15_r_rigid_link_timoshenko_exact_route() {
-    rigid_link_timoshenko(&["1", "1_4", "1000"]);
-}
-
-/// Design §6 runs s = 1e6 at the 1e-9 criterion. The product misses it: 14 to 20
-/// of the 78 rows per run (the in-plane bending motions, the shear and moment of
-/// the body and of the root pipe, and the reactions Fy and Mz) are off by up to
-/// 6.1e-8 (sparse 2.7e-8 to 6.1e-8, dense 7.6e-9 to 3.4e-8), on both routes and
-/// both modes; at s <= 1e3 every row is within 1e-15. The deviation has the size
-/// of binary64 cancellation in the stiff body's s K u, of order
-/// eps s |K| |u| / |F|. Ignored, not relaxed: the criterion and the run set are
-/// the Design's, and their resolution is the coordinator's (W-15 open point).
-#[test]
-#[ignore = "W-15 open point: s = 1e6 misses the Design's 1e-9 criterion (largest error 6.1e-8)"]
-fn w15_r_rigid_link_s1e6_euler_bernoulli_both_routes() {
-    rigid_link_euler_bernoulli(&["1000000"]);
-}
-
-#[test]
-#[ignore = "W-15 open point: s = 1e6 misses the Design's 1e-9 criterion (largest error 2.7e-8)"]
-fn w15_r_rigid_link_s1e6_timoshenko_exact_route() {
-    rigid_link_timoshenko(&["1000000"]);
+    for s in R_SCALES {
+        run(&format!("W15-R-S{s}-TIM"), Route::Exact, |r| Authoring { loads: tip_loads(r), timoshenko: true, ..Default::default() });
+    }
 }
 
 // ------------------------------------------------------------------ W15-T
@@ -480,3 +498,4 @@ fn w15_p_closed_end_pressure_cantilever_with_a_scaled_body() {
         }
     });
 }
+

@@ -131,6 +131,8 @@ headline-bound rule and the headline-derived local-FEA region onto a reference
 section. Slice a ships only with slice d's identification (§5), in one
 implementation. An info diagnostic per scaled component,
 `RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED`, names the member and the scale.
+It is stated only on a published result whose member was formed with the
+scale; a refused or blocked model states no applied scale.
 
 ### 2.5 Numerical bound
 
@@ -138,10 +140,28 @@ The product accepts any finite positive s; there is no engineering bound. A
 large s does not by itself lose accuracy: a grounded scaled member recovers its
 load accurately. Loss arises when the body's small deformation is recovered
 from much larger nodal motions, or when large elastic and eigenload terms
-nearly cancel. From s ≥ 1e8, half of binary64's decimal digits, a warning,
-`RIGID_COMPONENT_SCALE_PRECISION`, states that the scaled member's forces may
-carry reduced precision. This is a conservative numerical heuristic, not an
-accuracy bound or an engineering limit. The existing screens remain the
+nearly cancel. From s ≥ 1e5 (`PRECISION_WARNING_SCALE`,
+`rigid_component.rs`), a warning, `RIGID_COMPONENT_SCALE_PRECISION`, states
+that the scaled member's forces may carry reduced precision. The threshold is
+measured: it is the lowest decade at which the W-15 rigid-link benchmark (§6)
+has a row outside the DEC-026 1e-9 criterion. Worst relative row error of
+that benchmark (zero rows stay below 2.5e-15 of their scale throughout):
+
+| s | PF EB sparse | PF EB dense | EX EB sparse | EX EB dense | EX TIM sparse | EX TIM dense |
+|---|---|---|---|---|---|---|
+| 1e3 | 9.4e-16 | 9.4e-16 | 4.4e-16 | 4.4e-16 | 4.7e-16 | 4.7e-16 |
+| 1e4 | 9.4e-16 | 9.4e-16 | 4.7e-16 | 4.7e-16 | 4.7e-16 | 4.7e-16 |
+| 1e5 | 3.8e-9 | 3.8e-9 | 3.8e-9 | 1.6e-9 | 4.3e-16 | 4.3e-16 |
+| 1e6 | 5.3e-8 | 7.6e-9 | 6.1e-8 | 3.4e-8 | 2.7e-8 | 7.9e-9 |
+| 1e7 | 4.1e-7 | 7.8e-7 | 4.1e-7 | 1.2e-7 | 6.1e-8 | 2.4e-7 |
+| 1e8 | 3.4e-6 | 1.5e-6 | 2.0e-6 | 3.9e-6 | 2.0e-6 | 2.1e-6 |
+
+The existing screens mark the same cases: each case at and above the first
+failing decade is `sensitive` (Euler–Bernoulli from 1e5, Timoshenko from
+1e6), every case below it `checks_passed`. The threshold remains a numerical
+heuristic measured on one benchmark, not an accuracy bound or an engineering
+limit; another model may lose digits elsewhere, and a grounded body may keep
+them (the free body of §6 meets 1e-9 at s = 1e6). The existing screens remain the
 qualification: the pivot screen (FK `structural.rs` ~1747), the sparse pivot
 ratio (DEC-050), and formation and recovery qualification, including
 force-scaled recovery after a range failure (PP `lib.rs` ~4017-4027). None of
@@ -162,7 +182,7 @@ binary64 value is the blocking `PIPE_SECTION_INPUT_INVALID` of that member.
 | `RIGID_COMPONENT_STIFFNESS_INPUT_MISSING` | warning | the scale or its source reference is missing; the member solves as pipe, unscaled |
 | `RIGID_COMPONENT_STIFFNESS_INPUT_INVALID` | warning | the scale, or a supplied linear or rotational stiffness, is not finite positive; the member solves as pipe, unscaled |
 | `RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED` (replaces `..._REVIEWED`) | info | the scale is applied: names the member and s, and states that the member's stress rows are the reference pipe section's (not a body stress) and that linear/rotational stiffness are not applied |
-| `RIGID_COMPONENT_SCALE_PRECISION` (new) | warning | s ≥ 1e8 (§2.5) |
+| `RIGID_COMPONENT_SCALE_PRECISION` (new) | warning | s ≥ 1e5 (§2.5), on a published result |
 
 These replace the stale texts at PP `validation.rs` ~1386 and ~1426 ("no
 stiffness scaling is silently applied without a valid mapping"; "carries ...
@@ -388,11 +408,15 @@ As implemented (`core/product_physics/src/rigid_component.rs`,
     gives in closed form for finite s: tip displacements and rotations, every
     member's end forces and the support reactions. It also checks the s → ∞
     limit against the rigid-link closed form.
-  - **Runs.** s = 1 (equal to plain pipe), a soft s = 0.25, s = 1e3 and
-    s = 1e6. Euler–Bernoulli on both routes, and Timoshenko on EX, where
-    `timoshenko_annulus_energy_v1` is selectable (PP `pressure_runtime.rs`
-    ~49). Both solver modes, at the 1e-9 relative criterion with W-9's
-    zero-scale rule.
+  - **Runs.** s = 1 (equal to plain pipe), a soft s = 0.25, and every decade
+    from 1e3 to 1e8. Euler–Bernoulli on both routes, and Timoshenko on EX,
+    where `timoshenko_annulus_energy_v1` is selectable (PP `pressure_runtime.rs`
+    ~49). Both solver modes. Below the precision threshold (§2.5, 1e5) every
+    run asserts the 1e-9 relative criterion with W-9's zero-scale rule and no
+    precision warning. At and above it a run asserts no accuracy: only the
+    warning, once for the body, the readers' admission and the screens'
+    unchanged standing of the case; its measured errors are printed. The
+    decades are the measurement that sets the threshold.
 - **Reference formulas** (independent generator):
   - transverse tip load F: δ = F·Σᵢ∫(L−x)²/(sᵢEᵢIᵢ)dx, plus F·Σᵢ Lᵢ/(sᵢκᵢGᵢAᵢ)
     for Timoshenko. Axial and torsional cases use their compliance sums. In
@@ -430,7 +454,9 @@ As implemented (`core/product_physics/src/rigid_component.rs`,
     model-bound reader on material and named bases. Interpolated PF ν already
     skips model-bound recomputation (`u4b_evidence.rs` ~523); that existing
     limit is stated, not closed, here.
-  - The s ≥ 1e8 warning, with formation and recovery qualification unchanged.
+  - The s ≥ 1e5 warning, with formation and recovery qualification unchanged;
+    no applied-scale info or warning on a refused or blocked model (input
+    refusal, mapping conflict, scaled moduli outside the normal range).
   - Slice b: weight replacement, staleness, every gravity axis and sign, and
     wrench components.
   - Slice c: eccentric geometry, accepted and refused.

@@ -24,7 +24,7 @@ They have not yet been independently refuted.
 | File | Role |
 |---|---|
 | `generators/w15_reference.py` | the generator: exact rational arithmetic, closed forms, an exact direct-stiffness cross-check, `references.json` and `SHA256SUMS` |
-| `references.json` | 18 cases, their rows, key values, zero scales and the cross-check results |
+| `references.json` | 26 cases, their rows, key values, zero scales and the cross-check results |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 ## Theory, section and conventions
@@ -58,7 +58,7 @@ Every member lies along +X with `y_reference` (0, 1, 0), so local y is global
 
 ## Cases
 
-### W15-R: rigid-link cantilever (s = 1, 1/4, 1000, 1e6; EB and TIM)
+### W15-R: rigid-link cantilever (s = 1, 1/4 and every decade from 1e3 to 1e8; EB and TIM)
 
 A(0) fixed → B(1) → C(3/2) → D(3) free: pipe A–B, body B–C (a valve at B with
 scale s), pipe C–D. Tip loads at D: Fx = 2000 N, Fy = 1000 N, Mx = 500 N·m.
@@ -120,7 +120,7 @@ eigen end actions for the thermal, fit and Poisson strains, and the caps as
 nodal loads. Every nodal motion, support reaction and element end action is
 compared with the closed form, together with the far-anchor compatibility of
 each series, the rigid-link limit, the s = 1 plain-pipe value and, for W15-P,
-N_m and N_w. All 591 comparisons agree exactly. The out-of-plane problem of
+N_m and N_w. All 1071 comparisons agree exactly. The out-of-plane problem of
 each case is unloaded and stable, so its components are exactly zero.
 
 ## Product binding and criterion
@@ -139,11 +139,12 @@ criterion is unchanged (DEC-024/DEC-026). A nonzero row passes when
 |obs − exp| ≤ 1e-9·|exp|. A zero row passes when |obs| ≤ 1e-9·zero_scale. Both
 solver modes run against the same reference.
 
-The s = 1e6 runs of W15-R (`w15_r_rigid_link_s1e6_*`) are present and ignored:
-on the product they miss the criterion by up to 6.1e-8 in 14 to 20 of 78 rows
-per run, the size of binary64 cancellation in the stiff body's s·K·u. These
-references are not changed for it; resolving the run set or the criterion is
-an open W-15 point for the Design's owner.
+The decades from 1e3 to 1e8 locate the product's precision threshold
+(DEL-03-05 Design §2.5): below it a run is held to the criterion; at and above
+it the test asserts the product's precision warning and its unchanged standing
+only, never an accuracy, and prints its measured errors. These references are
+exact at every s; the decades 1e4, 1e5, 1e7 and 1e8 were added (a re-freeze
+that leaves every earlier case byte for byte).
 
 ## Reproduce and change
 

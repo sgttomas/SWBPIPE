@@ -152,7 +152,7 @@ SECTION_COMPONENTS = ("axial_force", "shear_force_y", "shear_force_z",
                       "torsional_moment", "bending_moment_y", "bending_moment_z")
 STATIONS = (F(0), F(1, 2), F(1))
 STATION_NAMES = ("0", "1/2", "1")
-S_TEXT = {F(1): "1", F(1, 4): "1/4", F(4): "4", F(1000): "1000", F(10 ** 6): "1000000"}
+S_TEXT = {F(1): "1", F(1, 4): "1/4", F(4): "4", **{F(10 ** k): str(10 ** k) for k in range(3, 9)}}
 
 CROSS = []
 
@@ -586,7 +586,9 @@ def publish(reactions, nodes, sections, k_force, k_motion, fallback=None):
 def build_cases():
     cases = []
     for timoshenko in (False, True):
-        for scale in (F(1), F(1, 4), F(1000), F(10 ** 6)):
+        # s = 1, 1/4 and every decade from 1e3 to 1e8: the decades locate the product's
+        # precision threshold (DEL-03-05 Design §2.5); every case is exact for every s.
+        for scale in (F(1), F(1, 4), *(F(10 ** k) for k in range(3, 9))):
             cases.append(case_r(scale, timoshenko))
     # s = 1 equals plain pipe: the scaled cantilever at s = 1 is the unscaled one
     plain, _, _ = cantilever_closed(chain_r(F(1)), R_LENGTH, FX, FY, MX, False)
