@@ -2,8 +2,9 @@
 //! `exact-route-report-sections.md` §3.6 step 0, §5.5): the production command
 //! refuses a coherent invented exact-route input before any further work, a
 //! non-exact input renders as before, the test-only witness set still reaches
-//! the exact render path, and the render's admitted-set forwarding graph is
-//! closed. Every id and digest is invented. Standard claim fence applies
+//! the exact render path, each structured marker refuses while free text equal
+//! to an exact identity does not, and the render's admitted-set forwarding
+//! graph is closed. Every id and digest is invented. Standard claim fence applies
 //! (claims taxonomy per DEC-081).
 
 #[path = "../../../../core/reporting/report_package/src/forwarding_graph_scan.rs"]
@@ -14,13 +15,13 @@ use crate::command_ingress::{respond, ArgsDecoding, CommandError};
 use crate::ingress::counting::measure;
 use crate::memory_pool::test_host::ScriptedHost;
 use crate::report_render_exact::{
-    check_render_route_admitted, render_calculation_report_args_in, EXACT_RENDER_WITNESS_ADMITTED, PRODUCTION,
-    RENDER_ROUTE_NOT_ADMITTED,
+    check_render_route_admitted, render_calculation_report_args_in, EXACT_IDENTITIES, EXACT_RENDER_WITNESS_ADMITTED,
+    PRODUCTION, RENDER_ROUTE_NOT_ADMITTED,
 };
 use forwarding_graph_scan::{scan, Arg, Graph, Row};
 use open_pipe_stress_report_renderer::exact_statements::exact_statement_table;
-use open_pipe_stress_report_renderer::EXACT_ROUTE_SUBHEADING;
-use open_pipe_stress_result_export::semantic_contract::{PHYSICS_RETAINED_ID, PRESSURE_ID};
+use open_pipe_stress_report_renderer::{EXACT_HEADLINES_SUBHEADING, EXACT_LIMITATION_UNREGISTERED, EXACT_ROUTE_SUBHEADING};
+use open_pipe_stress_result_export::semantic_contract::{PHYSICS_RETAINED_ID, PRESSURE_ID, PRESSURE_SOURCE_ID};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -233,53 +234,160 @@ fn step_zero_precedes_the_render_input_decode() {
     assert!(refusal_text(command_body(&json!({"input": broken}))).starts_with("RENDER-INPUT-INVALID"));
 }
 
-/// Every exact marker refuses in production: `exact_route` (even without an
-/// identity), an exact identity named anywhere, and exact limitation entries
-/// without `exact_route`.
+/// The production refusal of `input` through the production root (after the
+/// ingress decode) and through the command body on the raw args body; both
+/// must agree, and the command produces no HTML.
+fn production_refusal(input: &Value) -> String {
+    let registry = registry(ScriptedHost::normal());
+    let (mut args, _lease) =
+        admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": input})).unwrap();
+    let root = refusal_text(crate::render_calculation_report_args(&mut args));
+    assert_eq!(refusal_text(command_body(&json!({"input": input}))), root);
+    root
+}
+
+/// `base`'s exact limitation entries with neither an exact identity nor an
+/// exact id: the copied statements stay, as free text.
+fn without_exact_limitation_markers(mut input: Value) -> Value {
+    for (index, entry) in input["report_sections"]["limitations"].as_array_mut().unwrap().iter_mut().enumerate() {
+        entry["limitation_id"] = json!(format!("invented-copied-limitation-{index}"));
+        entry["source"] = json!({"ref_type": "report_renderer", "ref_id": "invented-render"});
+    }
+    input
+}
+
+/// Each structured marker refuses in production, through the production root
+/// and the raw body: a non-null `exact_route` (even one that names no
+/// identity, or is not an object), an exact identity at an identity field
+/// (`exact_route.semantic_contract_id`, `exact_route.admission.semantic_contract_id`,
+/// a `semantic_contract` limitation source), and exact limitation ids without
+/// `exact_route`.
 #[test]
-fn every_exact_marker_refuses_in_production() {
+fn every_structured_marker_refuses_in_production() {
     let exact = with_exact_route(pressure_free_input());
-    let refused = |input: &Value| check_render_route_admitted(input, PRODUCTION).unwrap_err();
+    let no_identity_text = format!(
+        "{RENDER_ROUTE_NOT_ADMITTED}: the rendered report admits no exact-route identity; found an exact_route section that names no identity."
+    );
+    let found = |id: &str| format!("{RENDER_ROUTE_NOT_ADMITTED}: the rendered report admits no exact-route identity; found {id}.");
     let mut no_identity = exact.clone();
     no_identity["exact_route"].as_object_mut().unwrap().remove("semantic_contract_id");
-    assert_eq!(
-        refused(&no_identity),
-        format!("{RENDER_ROUTE_NOT_ADMITTED}: the rendered report admits no exact-route identity; found an exact_route section that names no identity.")
-    );
-    // Without `exact_route`, the limitation entries still name pressure-2.
+    let mut empty_route = pressure_free_input();
+    empty_route["exact_route"] = json!({});
+    let mut text_route = pressure_free_input();
+    text_route["exact_route"] = json!("invented");
+    let mut retained_route = exact.clone();
+    retained_route["exact_route"]["semantic_contract_id"] = json!(PHYSICS_RETAINED_ID);
+    retained_route["exact_route"]["admission"]["semantic_contract_id"] = json!(PHYSICS_RETAINED_ID);
+    // Without `exact_route`, the limitation entries' sources still name pressure-2.
     let mut limitations_only = exact.clone();
     limitations_only.as_object_mut().unwrap().remove("exact_route");
-    assert_eq!(refused(&limitations_only), PRODUCTION_REFUSAL);
-    // Exact limitation ids alone, with no identity anywhere.
-    for entry in limitations_only["report_sections"]["limitations"].as_array_mut().unwrap() {
+    // A single `semantic_contract` limitation source on a pressure-free input.
+    let mut source_only = pressure_free_input();
+    source_only["report_sections"]["limitations"][0]["source"] = json!({"ref_type": "semantic_contract", "ref_id": PRESSURE_SOURCE_ID});
+    // Exact limitation ids alone, with no exact identity at any identity field.
+    let mut ids_only = limitations_only.clone();
+    for entry in ids_only["report_sections"]["limitations"].as_array_mut().unwrap() {
         entry["source"] = json!({"ref_type": "report_renderer", "ref_id": "invented-render"});
-        if entry["statement"].as_str().unwrap().contains(PRESSURE_ID) {
-            entry["statement"] = json!("Invented statement.");
-        }
     }
-    assert_eq!(
-        refused(&limitations_only),
-        format!("{RENDER_ROUTE_NOT_ADMITTED}: the rendered report admits no exact-route identity; found the exact-route limitation entry limitation:invented-run:exact:1 without an exact_route section.")
-    );
-    // An exact identity named only in some other string, or as a key.
-    let mut named = pressure_free_input();
-    named["report_title"] = json!(PHYSICS_RETAINED_ID);
-    assert!(refused(&named).ends_with(&format!("found {PHYSICS_RETAINED_ID}.")));
-    let mut keyed = pressure_free_input();
-    keyed["calculation_report"]["template_slots"] = json!({PRESSURE_ID: 1});
-    assert_eq!(refused(&keyed), PRODUCTION_REFUSAL);
+    let cases = [
+        ("the coherent exact input", &exact, PRODUCTION_REFUSAL.to_string()),
+        ("an exact_route that names no identity", &no_identity, no_identity_text.clone()),
+        ("an empty exact_route", &empty_route, no_identity_text.clone()),
+        ("an exact_route that is not an object", &text_route, no_identity_text),
+        ("an exact_route naming physics-retained-1", &retained_route, found(PHYSICS_RETAINED_ID)),
+        ("exact limitation entries without exact_route", &limitations_only, PRODUCTION_REFUSAL.to_string()),
+        ("a semantic_contract limitation source", &source_only, found(PRESSURE_SOURCE_ID)),
+        (
+            "exact limitation ids without exact_route",
+            &ids_only,
+            format!("{RENDER_ROUTE_NOT_ADMITTED}: the rendered report admits no exact-route identity; found the exact-route limitation entry limitation:invented-run:exact:1 without an exact_route section."),
+        ),
+    ];
+    for (case, input, expected) in cases {
+        assert_eq!(check_render_route_admitted(input, PRODUCTION).unwrap_err(), expected, "{case}");
+        assert_eq!(production_refusal(input), expected, "{case}");
+    }
     // Below the gate, an admitted route still refuses an unadmitted identity
-    // it names elsewhere, and exact limitations without `exact_route`.
-    let mut retained = exact.clone();
-    retained["report_title"] = json!(PHYSICS_RETAINED_ID);
-    assert!(check_render_route_admitted(&retained, EXACT_RENDER_WITNESS_ADMITTED)
-        .unwrap_err()
-        .ends_with(&format!("found {PHYSICS_RETAINED_ID}.")));
-    assert!(check_render_route_admitted(&limitations_only, EXACT_RENDER_WITNESS_ADMITTED).is_err());
+    // at another identity field, and exact limitations without `exact_route`.
+    let witness_refusal = |input: &Value| check_render_route_admitted(input, EXACT_RENDER_WITNESS_ADMITTED).unwrap_err();
+    let mut retained_admission = exact.clone();
+    retained_admission["exact_route"]["admission"]["semantic_contract_id"] = json!(PHYSICS_RETAINED_ID);
+    assert!(witness_refusal(&retained_admission).ends_with(&format!("found {PHYSICS_RETAINED_ID}.")));
+    let mut retained_source = exact.clone();
+    retained_source["report_sections"]["limitations"][1]["source"]["ref_id"] = json!(PHYSICS_RETAINED_ID);
+    assert!(witness_refusal(&retained_source).ends_with(&format!("found {PHYSICS_RETAINED_ID}.")));
+    assert!(witness_refusal(&limitations_only).ends_with(&format!("found {PRESSURE_ID}.")));
+    assert!(witness_refusal(&ids_only).ends_with("without an exact_route section."));
     // The admitting decision allocates nothing.
     let (admitted, measured) = measure(|| check_render_route_admitted(&exact, EXACT_RENDER_WITNESS_ADMITTED));
     assert!(admitted.is_ok());
     assert_eq!(measured.allocations, 0, "{measured:?}");
+}
+
+/// Codex review round 2 (P2): free text is not route evidence. A pressure-free
+/// input whose load-case label and other free-text fields (the report title,
+/// a result row label, a limitation statement, a provenance source name, a
+/// disclosure explanation, a non-`semantic_contract` reference id) exactly
+/// equal an exact identity renders through the production command, from the
+/// raw body, byte-identically to the unchanged renderer call. Step 0
+/// allocates nothing on it, and an object key equal to an identity is no
+/// marker either.
+#[test]
+fn free_text_equal_to_an_exact_identity_renders_as_before() {
+    for id in EXACT_IDENTITIES {
+        let mut input = pressure_free_input();
+        input["calculation_report"]["load_case_summary"][0]["label"] = json!(id);
+        input["report_title"] = json!(id);
+        input["result_rows"][0]["label"] = json!(id);
+        let sections = &mut input["report_sections"];
+        sections["limitations"][0]["statement"] = json!(id);
+        sections["limitations"][0]["source"]["ref_id"] = json!(id);
+        sections["provenance_notes"][0]["source_name"] = json!(id);
+        sections["analysis_status_disclosures"][0]["explanation"] = json!(id);
+        let before = serde_json::to_string(&crate::render_calculation_report_value(input.clone()).unwrap()).unwrap();
+        assert!(before.contains(id) && !before.contains(EXACT_ROUTE_SUBHEADING), "{id}");
+        assert_eq!(command_body(&json!({"input": input})).expect("free text is not route evidence"), before, "{id}");
+        let registry = registry(ScriptedHost::normal());
+        let (mut args, _lease) =
+            admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": input})).unwrap();
+        assert_eq!(serde_json::to_string(&crate::render_calculation_report_args(&mut args).unwrap()).unwrap(), before);
+        let (outcome, measured) = measure(|| check_render_route_admitted(&input, PRODUCTION));
+        assert!(outcome.is_ok(), "{id}: {outcome:?}");
+        assert_eq!(measured.allocations, 0, "{measured:?}");
+        let mut keyed = pressure_free_input();
+        keyed["calculation_report"]["template_slots"] = json!({id: 1});
+        assert_eq!(check_render_route_admitted(&keyed, PRODUCTION), Ok(()), "{id}");
+    }
+}
+
+/// The renderer facts the structured rule rests on (Codex review round 2): an
+/// input that avoids every marker, here the coherent exact input without
+/// `exact_route` and with its limitation entries' ids and sources renamed
+/// (their statements copied as free text), passes step 0 and renders with no
+/// exact block, standing line or headlines, byte-identically to the unchanged
+/// renderer call. Exact limitation entries without `exact_route` block export
+/// in the renderer itself, below step 0.
+#[test]
+fn a_marker_free_input_produces_no_exact_output() {
+    let mut copied = with_exact_route(pressure_free_input());
+    copied.as_object_mut().unwrap().remove("exact_route");
+    let copied = without_exact_limitation_markers(copied);
+    let before = serde_json::to_string(&crate::render_calculation_report_value(copied.clone()).unwrap()).unwrap();
+    for absent in [EXACT_ROUTE_SUBHEADING, EXACT_HEADLINES_SUBHEADING, "Numerical standing", "integrity checked"] {
+        assert!(!before.contains(absent), "{absent}");
+    }
+    assert_eq!(command_body(&json!({"input": copied})).expect("a marker-free input renders"), before);
+
+    let mut limitations_only = with_exact_route(pressure_free_input());
+    limitations_only.as_object_mut().unwrap().remove("exact_route");
+    let rendered = crate::render_calculation_report_value(limitations_only).unwrap();
+    assert_eq!(rendered["export_blocked"], json!(true));
+    let reasons = rendered["blocking_reasons"].as_array().unwrap();
+    assert!(
+        reasons.iter().any(|reason| reason.as_str().unwrap().contains(EXACT_LIMITATION_UNREGISTERED)),
+        "{reasons:?}"
+    );
+    assert!(!rendered["html"].as_str().unwrap().contains(EXACT_ROUTE_SUBHEADING));
 }
 
 /// A non-exact input renders through the production command byte-identically

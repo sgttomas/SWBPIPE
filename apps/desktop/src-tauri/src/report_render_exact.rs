@@ -8,6 +8,9 @@
 //! already priced and decoded, before any further parse, custody query, lease
 //! growth or render, and it allocates nothing before it decides.
 //!
+//! Step 0 recognizes an exact-route input only by structured markers at
+//! defined paths, never by free text such as a load-case label.
+//!
 //! A [`RenderAdmittedSet`] names the exact identities the render admits. Its
 //! field is private to this module, so no other code can construct one. In a
 //! non-test build [`PRODUCTION`], which wraps the empty
@@ -30,7 +33,8 @@ use std::fmt::Write as _;
 /// `PRESSURE_ID` and `PRESSURE_SOURCE_ID` (§5.1).
 pub(crate) const RENDER_ADMITTED_EXACT_CONTRACTS: [&str; 0] = [];
 
-/// The exact-route identities step 0 recognizes wherever the input names one.
+/// The exact-route identities step 0 recognizes at the input's identity
+/// fields.
 pub(crate) const EXACT_IDENTITIES: [&str; 3] = [PRESSURE_ID, PRESSURE_SOURCE_ID, PHYSICS_RETAINED_ID];
 
 pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED";
@@ -61,13 +65,25 @@ pub(crate) fn render_calculation_report_args_in(args: &mut Args, admitted: Rende
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
 }
 
-/// Step 0 (§3.6). An input is an exact-route input when it carries a non-null
-/// `exact_route`, names an exact identity in any string, or carries an
-/// exact-route limitation entry (an id `limitation:…:exact:…`, the renderer's
-/// predicate). Such an input passes only when its `exact_route` names an
-/// identity in `admitted` and every exact identity it names is in `admitted`.
-/// The walk reads the decoded value in place and allocates nothing; only a
-/// refusal formats its message.
+/// Step 0 (§3.6). It reads only structured markers at the input's defined
+/// paths, never free text (labels, notes, statements, descriptions,
+/// provenance or any other user-supplied value). An input is an exact-route
+/// input when it carries:
+/// - a non-null `exact_route`;
+/// - an exact identity at an identity field: `exact_route.semantic_contract_id`,
+///   `exact_route.admission.semantic_contract_id`, or the `ref_id` of a
+///   `report_sections.limitations[].source` whose `ref_type` is
+///   `semantic_contract`;
+/// - an exact limitation entry: a `report_sections.limitations[].limitation_id`
+///   `limitation:…:exact:…` (the renderer's predicate).
+///
+/// Such an input passes only when its `exact_route` names an identity in
+/// `admitted` and every exact identity at its identity fields is in
+/// `admitted`. An input with no marker renders as before: it has no
+/// `exact_route`, so the renderer emits no exact block, standing line or
+/// headlines, and it has no exact limitation entry. Free text equal to an
+/// exact identity is therefore not route evidence. The walk reads the decoded
+/// value in place and allocates nothing; only a refusal formats its message.
 pub(crate) fn check_render_route_admitted(input: &Value, admitted: RenderAdmittedSet) -> Result<(), String> {
     let route = input.get("exact_route").filter(|route| !route.is_null());
     let Some(route) = route else {
@@ -102,27 +118,40 @@ fn refusal(admitted: RenderAdmittedSet, found: &dyn std::fmt::Display) -> String
     message
 }
 
-/// The first exact identity that `value` names, as a string or an object key,
-/// for which `counts` holds. The decoded value's depth is bounded by the
-/// ingress parse's recursion limit.
-fn first_named<'a>(value: &'a Value, counts: &dyn Fn(&str) -> bool) -> Option<&'a str> {
-    let named = |text: &'a str| EXACT_IDENTITIES.iter().any(|id| *id == text).then_some(text).filter(|id| counts(id));
-    match value {
-        Value::String(text) => named(text),
-        Value::Array(items) => items.iter().find_map(|item| first_named(item, counts)),
-        Value::Object(map) => map.iter().find_map(|(key, item)| named(key).or_else(|| first_named(item, counts))),
-        _ => None,
-    }
+/// The first exact identity at one of `input`'s identity fields, in the order
+/// `exact_route.semantic_contract_id`, `exact_route.admission.semantic_contract_id`,
+/// then each `semantic_contract` limitation source, for which `counts` holds.
+fn first_named<'a>(input: &'a Value, counts: &dyn Fn(&str) -> bool) -> Option<&'a str> {
+    let route = input.get("exact_route");
+    let route_identities = [
+        route.and_then(|route| route.get("semantic_contract_id")),
+        route.and_then(|route| route.get("admission")).and_then(|admission| admission.get("semantic_contract_id")),
+    ];
+    let limitation_sources = limitations(input)
+        .filter_map(|limitation| limitation.get("source"))
+        .filter(|source| source.get("ref_type").and_then(Value::as_str) == Some("semantic_contract"))
+        .map(|source| source.get("ref_id"));
+    route_identities
+        .into_iter()
+        .chain(limitation_sources)
+        .filter_map(|field| field.and_then(Value::as_str))
+        .find(|id| EXACT_IDENTITIES.contains(id) && counts(id))
 }
 
-/// The first exact-route limitation entry id in `report_sections.limitations`.
-fn first_exact_limitation(input: &Value) -> Option<&str> {
+/// The entries of `report_sections.limitations`.
+fn limitations(input: &Value) -> impl Iterator<Item = &Value> {
     // `get`, not `pointer`: a pointer lookup allocates its unescaped tokens.
     input
         .get("report_sections")
         .and_then(|sections| sections.get("limitations"))
-        .and_then(Value::as_array)?
-        .iter()
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+}
+
+/// The first exact-route limitation entry id in `report_sections.limitations`.
+fn first_exact_limitation(input: &Value) -> Option<&str> {
+    limitations(input)
         .filter_map(|limitation| limitation.get("limitation_id").and_then(Value::as_str))
         .find(|id| id.starts_with("limitation:") && id.contains(":exact:"))
 }

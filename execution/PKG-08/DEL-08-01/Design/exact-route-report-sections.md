@@ -516,8 +516,8 @@ means the statement is the producer string byte for byte.
   IPC.
 - **The native render refuses exact identities before opening (§3.6 step
   0).** `render_calculation_report` refuses every exact-route input (one that
-  carries `exact_route`, names an exact identity or carries exact limitation
-  entries) unless its `exact_route` names an identity in the render's
+  carries `exact_route`, an exact identity in an identity field or exact
+  limitation entries; free text is not a marker) unless its `exact_route` names an identity in the render's
   admitted set, which is empty until opening, with
   `REPORT-RENDER-ROUTE-NOT-ADMITTED`. The package's Rust
   boundary does the same at item 0. Before opening, no production path
@@ -869,13 +869,25 @@ package enforces this natively at its Rust identity boundary (item 0,
   the input. It reads, in place, the `input` argument that
   `command_ingress::admit` already priced and decoded, and allocates nothing
   before it decides.
-- It treats as exact-route any input that carries a non-null `exact_route`,
-  names an exact identity (`PRESSURE_ID`, `PRESSURE_SOURCE_ID` or
-  `PHYSICS_RETAINED_ID`) as any string value or object key, or carries an
-  exact limitation entry (an id `limitation:…:exact:…`, the renderer's
-  predicate, §3.5). Such an input passes only when its
-  `exact_route.semantic_contract_id` is in the admitted set and every exact
-  identity it names is too. Otherwise it refuses with
+- It recognizes an exact-route input only by structured markers at defined
+  paths of the input, and never reads free text: labels, notes, statements,
+  descriptions, provenance strings and other user-supplied values are not
+  route evidence. The desktop copies a load-case label verbatim, so a
+  pressure-free report whose label equals an exact identity renders as it
+  does today (Codex review round 2 of #1632). The markers are:
+  - a non-null `exact_route`;
+  - an exact identity (`PRESSURE_ID`, `PRESSURE_SOURCE_ID` or
+    `PHYSICS_RETAINED_ID`) at an identity field:
+    `exact_route.semantic_contract_id`,
+    `exact_route.admission.semantic_contract_id`, or the `ref_id` of a
+    `report_sections.limitations[].source` whose `ref_type` is
+    `semantic_contract` (§2.4);
+  - an exact limitation entry: a `report_sections.limitations[].limitation_id`
+    of the form `limitation:…:exact:…`, the renderer's predicate (§3.5).
+
+  Such an input passes only when its `exact_route.semantic_contract_id` is in
+  the admitted set and every exact identity at its identity fields is too.
+  Otherwise it refuses with
   `REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits no exact-route
   identity; found <identity>.` The found text is the identity, or names an
   `exact_route` without one, or the first exact limitation entry of an input
@@ -884,7 +896,12 @@ package enforces this natively at its Rust identity boundary (item 0,
 - Before opening, a genuine exact render input from a live job, with its
   genuine texts, therefore refuses here. The rest of this section runs on a
   render only under the desktop crate's test-only witness set (§5.5).
-- The render input names its source identity only in `exact_route` (§1.2).
+- An input with no marker has no `exact_route`, so the renderer emits no
+  exact block, standing line or headlines for it (§3.2), and it has no exact
+  limitation entry. Its copied text is ordinary report text. This is the
+  route-blind render below.
+- The render input names its source identity only in `exact_route` and in
+  its exact limitation entries' sources (§1.2, §2.4).
   An input that carries the exact texts without `exact_route` refuses with
   `REPORT-EXACT-SECTIONS-MISMATCH: exact_route` (below). One that carries
   exact limitation entries without it refuses at step 0, and the renderer's
@@ -1002,15 +1019,18 @@ residual.
   every exact identity at step 0, as the package's Rust boundary does at item
   0. The policy cells (§1.2) are the webview's gates. Before opening, no
   production path reaches an exact output. The webview refuses at the cells.
-  The two native boundaries refuse every input that names an exact identity,
-  even when a webview check is bypassed. At opening, the cells, the two native
+  The two native boundaries refuse every input that carries an exact
+  identity in an identity field or another exact-route marker, even when a
+  webview check is bypassed. At opening, the cells, the two native
   admitted sets and the TypeScript identity list change together (§5.1).
   Steps 1-5 and the commands' own checks then bind what an admitted exact
   input claims.
 - **A route-blind input.** The native render cannot recognize an input that
-  names no source identity and carries no exact section: no `exact_route`, no
-  exact texts and no exact limitation entries. Such an input has no exact
-  sections, standing line or headlines, so it is not an exact-route report.
+  carries no step 0 marker and no exact section: no `exact_route`, no exact
+  identity in an identity field, no exact texts and no exact limitation
+  entries. Its free text may equal an exact identity or copy an exact
+  statement. Such an input has no exact sections, standing line or
+  headlines, so it is not an exact-route report.
   The render renders it as it renders any input today (§1.2). This is the
   route-blind render that exists today, and W-11 does not widen it. A native
   check would need every render, pressure-free included, to resubmit its
@@ -1400,7 +1420,7 @@ committed exact corpora below the gate.
 | Slice | Content | Size | Persistence / data boundary |
 |---|---|---|---|
 | **(a) Rust producers, renderer and the statement table** | The fixture writer on the public producer, its guard and the committed fixture (§2.2); no product source changes. `exactReportLimitations.ts` and its test, which writes `exact_report_statements.json`, and the Rust table that embeds it (§3.5); the TypeScript module is imported by nothing until (b). The renderer's `exact_route` (with the admission-binding check and the composed standing line, §3.2), its exact-limitation check, and `library_references`, in `assemble_report_sections`, so HTML and PDF both emit them. Render and emit tests, including byte-identity when absent. In `report_package`: the row suffix in `expected_report_result_rows`, the dormant item 9 and the public `exact_sections` projection (§3.5), the runner-profile refusal in the producer and the reader (§3.5), the `AdmittedSet` type, the crate-private admitted-set variants on their forwarding graph, and the graph scan with its negative test (§5.5), and both parity vector files. The native render's step 0 (`report_render_exact.rs`, `RENDER_ADMITTED_EXACT_CONTRACTS` empty, `REPORT-RENDER-ROUTE-NOT-ADMITTED`) with its witness set and graph scan (§3.6, §5.5), moved here from (b) because the renderer's `exact_route` makes exact reports reachable through the unchanged native render command (Codex review round 1 of #1632). Hosted-CI routing | L (~1.9k lines with tests, plus the generated fixtures and vectors; revision 4: ~1.8k) | None. Numerical meaning untouched. Package and report bytes unchanged for every current input. The native render refuses every exact-route input at step 0 |
-| **(b) Desktop exact sections and admission, behind the gate** | `exactReportAdmission.ts` (§3.1); the exact path of `buildRenderableReportInput` (admission, limitations, profile reference, binding, load/reference line, headlines); the row suffix in `reportResultRows`; `RenderedReportPanel.tsx:171` at surface level, the panel's admission and its pre-IPC re-check; the request builder's split, its pre-IPC re-check and `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`; the native source binding (§3.6): the job's custody digests and `custody_binding`, `deliveredIntakeText`, the resubmitted texts, their priced parses, the native standing, the save's source and model equalities and the render's re-derivation; the `rendered-report` disclosure template; still-refused tests, including the production native render's refusal of a genuine exact result; the witness and substitute requests, the in-crate witness and production-refusal tests (§5.5) and the direct-native substitution tests (§7). The DEL-04-07 memory-budget updates (§8). Texts A.1 G2 and G5 | L (~2.4k, plus the witness requests; revision 4: ~2.2k) | None before opening. The webview cells refuse exact results, and the native render (step 0) and the package's Rust boundary (item 0) refuse every input that names an exact identity, so no production path reaches an exact output. The job registry keeps 65 bytes of digest metadata per job, released with custody. The admission and the native binding are an output gate with new priced parses, so they get targeted regression checks and independent scrutiny |
+| **(b) Desktop exact sections and admission, behind the gate** | `exactReportAdmission.ts` (§3.1); the exact path of `buildRenderableReportInput` (admission, limitations, profile reference, binding, load/reference line, headlines); the row suffix in `reportResultRows`; `RenderedReportPanel.tsx:171` at surface level, the panel's admission and its pre-IPC re-check; the request builder's split, its pre-IPC re-check and `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`; the native source binding (§3.6): the job's custody digests and `custody_binding`, `deliveredIntakeText`, the resubmitted texts, their priced parses, the native standing, the save's source and model equalities and the render's re-derivation; the `rendered-report` disclosure template; still-refused tests, including the production native render's refusal of a genuine exact result; the witness and substitute requests, the in-crate witness and production-refusal tests (§5.5) and the direct-native substitution tests (§7). The DEL-04-07 memory-budget updates (§8). Texts A.1 G2 and G5 | L (~2.4k, plus the witness requests; revision 4: ~2.2k) | None before opening. The webview cells refuse exact results, and the native render (step 0) and the package's Rust boundary (item 0) refuse every input that carries an exact identity in an identity field, so no production path reaches an exact output. The job registry keeps 65 bytes of digest metadata per job, released with custody. The admission and the native binding are an output gate with new priced parses, so they get targeted regression checks and independent scrutiny |
 | **(c) FR-REP-003 on every route** | Material, section, component and support records under one provenance predicate; library references and finding diagnostics; callers pass the findings; the schema check of representative records (§7); regenerated witnesses and witness requests; the memory-budget figures re-measured. Texts A.1 G1, G3 and G4 | M (~0.8k, plus regenerated witnesses) | **Data boundary**: new private content in the open pressure-free report and package |
 
 (a) comes first, because Rust drops unknown report fields (§1.1 item 3) and
@@ -1466,8 +1486,18 @@ native render's admitted set, a few lines).
     `render_calculation_report_args` and from the raw body through
     `command_ingress::admit` as the command does;
   - the refusal precedes the renderer's decode of the input;
-  - an `exact_route` without an identity, an exact identity named elsewhere
-    and exact limitation entries without `exact_route` refuse;
+  - each structured marker refuses, through the production root and the raw
+    body: an `exact_route` without an identity or not an object, an exact
+    identity at `exact_route.semantic_contract_id`,
+    `exact_route.admission.semantic_contract_id` or a `semantic_contract`
+    limitation source, and exact limitation entries without `exact_route`;
+  - free text is not a marker: a pressure-free input whose load-case label
+    and other free-text fields equal each exact identity renders
+    byte-identically to the unchanged renderer call;
+  - an input that avoids every marker (the coherent exact input without
+    `exact_route`, its limitation ids and sources renamed) renders with no
+    exact block, standing line or headlines, and exact limitation entries
+    without `exact_route` block export in the renderer itself;
   - a pressure-free input renders byte-identically to the unchanged renderer
     call, with `exact_route` absent or null, and the admitting decision
     allocates nothing;
@@ -1769,7 +1799,7 @@ Old:
 New:
 
 ```text
-  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that names an exact identity (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that carries an exact identity in an identity field (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
 ```
 
 
@@ -1978,7 +2008,7 @@ Old:
 
 - **Report JSON and rendered report** (`report`, `rendered-report`). Their builders are generic.
   - `selectedResultRefs` picks the single `max_open_formula_stress` headline (`features/report/ReportPanel.tsx:279-298`), but an exact result carries one headline per section basis.
-  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that names an exact identity (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that carries an exact identity in an identity field (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
 
   Opening them needs DEL-08-01's own design of those sections and of the PRD §19.3 notice's place. They keep refusing with the reworded text (§5.3).
 - **Report package.** Since W-18 (DEL-08-01 Design `report-package-current-results.md`) it saves a Current preview-physics-2 result. It refuses the exact identities by policy and Rust identity, not by the fresh-result code: the policy entry `report-package: refused` gives their routes' refusal (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, through `reportPackageUnavailableReason` in `reportPackageRequest.ts`), and the package's Rust boundary admits only preview-physics-2 (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
