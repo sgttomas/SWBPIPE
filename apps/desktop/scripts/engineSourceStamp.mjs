@@ -25,10 +25,15 @@
 // and a context: `rustc -vV` of the rustc cargo runs (RUSTC, else
 // CARGO_BUILD_RUSTC, else `rustc`), the compiler, wrapper, linker, rustflag and
 // profile environment (CONTEXT_ENV), and the bytes of the cargo configuration
-// files cargo would read. A configuration file that names a compiler or wrapper
-// (a `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key in any TOML
-// spelling) is refused by name. Not covered: the contents of a wrapper or linker
-// program (only its name) and files outside the project. The stamp sees an edit
+// files cargo would read. Those files' keys are decoded as TOML (bare, quoted
+// with any escape, literal, dotted, in table headers and inline tables) and a
+// file is refused by name when a key names a compiler or wrapper (`rustc`,
+// `rustc-wrapper`, `rustc-workspace-wrapper`, anywhere), moves cargo's output
+// (`build.build-dir`, `build.target-dir`) or includes another file
+// (`include`), or when it cannot be tokenized with confidence. A
+// `[target.<triple>]` `linker`, `runner` or `rustflags` key is not refused: the
+// file's bytes are in the context. Not covered: the contents of a wrapper or
+// linker program (only its name) and files outside the project. The stamp sees an edit
 // that keeps a file's modification time; `build-wasm-engine.mjs` then builds in
 // a clean target directory, so cargo's mtime-based freshness cannot keep the old
 // output. Build output (`target/`, `node_modules/`, `.git/`) is never an input.
@@ -49,12 +54,15 @@ const SCRIPT_INPUTS = ["apps/desktop/scripts/build-wasm-engine.mjs", "apps/deskt
 // runner) and CARGO_HOST_*, CARGO_PROFILE_*, CARGO_UNSTABLE_* and
 // RUSTUP_TOOLCHAIN. CARGO_TARGET_DIR moves the output, not its bytes.
 const CONTEXT_ENV = /^(RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|RUSTC_BOOTSTRAP|RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTUP_TOOLCHAIN|CARGO_BUILD_.+|CARGO_TARGET_.+|CARGO_HOST_.+|CARGO_PROFILE_.+|CARGO_UNSTABLE_.+)$/;
-const CONTEXT_ENV_IGNORED = new Set(["CARGO_TARGET_DIR"]);
+// The output locations: every cargo the smoke tooling runs has them set to its
+// dedicated directory (`dedicatedCargoEnv`), so they move nothing.
+const CONTEXT_ENV_IGNORED = new Set(["CARGO_TARGET_DIR", "CARGO_BUILD_TARGET_DIR", "CARGO_BUILD_BUILD_DIR"]);
 const MAX_LINK_HOPS = 40;
-// A `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key, bare or quoted,
-// at a line start, after a dot (`build.rustc`), or inside an inline table
-// (`build = { rustc = ... }`).
-const COMPILER_CONFIG_KEY = /(^|[\s{,.])["']?(rustc-workspace-wrapper|rustc-wrapper|rustc)["']?\s*=/m;
+const COMPILER_CONFIG_KEYS = new Set(["rustc", "rustc-wrapper", "rustc-workspace-wrapper"]);
+const OUTPUT_CONFIG_KEYS = new Set(["build-dir", "target-dir"]);
+// The directories cargo descends into inside a profile directory when it builds
+// or cleans (`<dir>/<profile>/` and `<dir>/<triple>/<profile>/`).
+const CARGO_PROFILE_SUBDIRECTORIES = ["deps", "build", ".fingerprint", "incremental", "examples"];
 
 const toPosix = (value) => value.split(path.sep).join("/");
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -225,6 +233,248 @@ export function staticEngineInputs(projectRoot, crateDirectory, readManifest = r
   return [...new Set([...SCRIPT_INPUTS, ...crateClosure(projectRoot, crateDirectory, readManifest).inputs])].sort();
 }
 
+// The decoded key path of every table header and key/value pair in a TOML
+// document (`[a."b"]` then `c.'d' = { e = 1 }` gives [a,b], [a,b,c,d] and
+// [a,b,c,d,e]). Throws when the text is not TOML this scanner reads with
+// confidence; values are skipped, not interpreted.
+export function tomlKeyPaths(text) {
+  const src = text.startsWith("﻿") ? text.slice(1) : text;
+  const paths = [];
+  let i = 0;
+  const fail = (why) => {
+    const line = src.slice(0, i).split("\n").length;
+    throw new Error(`${why} at line ${line}`);
+  };
+  const at = (literal) => src.startsWith(literal, i);
+  const blank = () => {
+    while (i < src.length && (src[i] === " " || src[i] === "\t")) i += 1;
+  };
+  const comment = () => {
+    if (src[i] !== "#") return;
+    while (i < src.length && src[i] !== "\n") i += 1;
+  };
+  const newline = () => {
+    if (at("\r\n")) i += 2;
+    else if (src[i] === "\n") i += 1;
+    else return false;
+    return true;
+  };
+  // Whitespace, newlines and comments (inside arrays and inline tables).
+  const filler = () => {
+    for (;;) {
+      blank();
+      comment();
+      if (!newline()) return;
+    }
+  };
+  const lineEnd = () => {
+    blank();
+    comment();
+    if (i < src.length && !newline()) fail("unexpected text after a value");
+  };
+  const hex = (count) => {
+    const digits = src.slice(i, i + count);
+    if (!new RegExp(`^[0-9A-Fa-f]{${count}}$`).test(digits)) fail("bad escape");
+    i += count;
+    const code = Number.parseInt(digits, 16);
+    if (code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)) fail("escape is not a Unicode scalar value");
+    return String.fromCodePoint(code);
+  };
+  const ESCAPES = { b: "\b", t: "\t", n: "\n", f: "\f", r: "\r", e: "\u001b", '"': '"', "\\": "\\" };
+  // A one-line basic string, decoded; `i` is at its opening quote.
+  const basicString = () => {
+    i += 1;
+    let out = "";
+    for (;;) {
+      if (i >= src.length || src[i] === "\n" || src[i] === "\r") fail("unterminated string");
+      const char = src[i];
+      i += 1;
+      if (char === '"') return out;
+      if (char !== "\\") {
+        out += char;
+        continue;
+      }
+      const escape = src[i];
+      i += 1;
+      if (escape in ESCAPES) out += ESCAPES[escape];
+      else if (escape === "u") out += hex(4);
+      else if (escape === "U") out += hex(8);
+      else if (escape === "x") out += hex(2);
+      else fail("unknown escape");
+    }
+  };
+  const literalString = () => {
+    const end = src.indexOf("'", i + 1);
+    const value = end < 0 ? null : src.slice(i + 1, end);
+    if (value === null || /[\r\n]/.test(value)) fail("unterminated string");
+    i = end + 1;
+    return value;
+  };
+  // A multi-line string; its content is not a key, so only its end matters.
+  const multiline = (quote) => {
+    i += 3;
+    for (;;) {
+      if (i >= src.length) fail("unterminated multi-line string");
+      if (quote === '"' && src[i] === "\\") {
+        i += 2;
+        continue;
+      }
+      if (at(quote.repeat(3))) {
+        i += 3;
+        // Up to two more quotes belong to the content.
+        for (let extra = 0; extra < 2 && src[i] === quote; extra += 1) i += 1;
+        return;
+      }
+      i += 1;
+    }
+  };
+  const simpleKey = () => {
+    if (src[i] === '"') return basicString();
+    if (src[i] === "'") return literalString();
+    const match = /^[A-Za-z0-9_-]+/.exec(src.slice(i));
+    if (!match) fail("expected a key");
+    i += match[0].length;
+    return match[0];
+  };
+  const dottedKey = () => {
+    const key = [];
+    for (;;) {
+      blank();
+      key.push(simpleKey());
+      blank();
+      if (src[i] !== ".") return key;
+      i += 1;
+    }
+  };
+  const SCALAR = /^(true|false|[+-]?(inf|nan)|[+-]?[0-9][0-9_]*(\.[0-9_]+)?([eE][+-]?[0-9_]+)?|0x[0-9A-Fa-f_]+|0o[0-7_]+|0b[01_]+|[0-9]{4}-[0-9]{2}-[0-9]{2}([Tt ][0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?([Zz]|[+-][0-9]{2}:[0-9]{2})?)?|[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?)$/;
+  const value = (prefix) => {
+    if (at('"""') || at("'''")) return multiline(src[i]);
+    if (src[i] === '"') return void basicString();
+    if (src[i] === "'") return void literalString();
+    if (src[i] === "[") {
+      i += 1;
+      for (;;) {
+        filler();
+        if (src[i] === "]") break;
+        value(prefix);
+        filler();
+        if (src[i] === ",") i += 1;
+        else if (src[i] !== "]") fail("expected , or ] in an array");
+      }
+      i += 1;
+      return undefined;
+    }
+    if (src[i] === "{") {
+      i += 1;
+      for (;;) {
+        filler();
+        if (src[i] === "}") break;
+        keyValue(prefix);
+        filler();
+        if (src[i] === ",") i += 1;
+        else if (src[i] !== "}") fail("expected , or } in an inline table");
+      }
+      i += 1;
+      return undefined;
+    }
+    let match = /^[0-9A-Za-z_+.:-]+/.exec(src.slice(i));
+    // A date and time separated by a space.
+    if (match && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(match[0])) match = /^[0-9]{4}-[0-9]{2}-[0-9]{2}( [0-9]{2}:[0-9A-Za-z_+.:-]+)?/.exec(src.slice(i));
+    if (!match || !SCALAR.test(match[0])) fail("unrecognised value");
+    i += match[0].length;
+    return undefined;
+  };
+  const keyValue = (prefix) => {
+    const key = [...prefix, ...dottedKey()];
+    paths.push(key);
+    if (src[i] !== "=") fail("expected =");
+    i += 1;
+    blank();
+    value(key);
+  };
+  let table = [];
+  while (i < src.length) {
+    blank();
+    comment();
+    if (newline() || i >= src.length) continue;
+    if (src[i] === "[") {
+      const array = at("[[");
+      i += array ? 2 : 1;
+      table = dottedKey();
+      if (!at(array ? "]]" : "]")) fail("unterminated table header");
+      i += array ? 2 : 1;
+      paths.push(table);
+      lineEnd();
+      continue;
+    }
+    keyValue(table);
+    lineEnd();
+  }
+  return paths;
+}
+
+// Why a cargo configuration file's text is refused, or null. A key named for a
+// compiler or wrapper is refused wherever it appears (conservatively: only
+// `build.<key>` selects one); an output directory under `build`; `include`.
+export function refusedCargoConfig(text) {
+  let paths;
+  try {
+    paths = tomlKeyPaths(text);
+  } catch (error) {
+    return `cannot be read as TOML with confidence (${error.message}), so the compiler and output keys it may set are unknown; the stamp refuses it`;
+  }
+  for (const key of paths) {
+    const compiler = key.find((segment) => COMPILER_CONFIG_KEYS.has(segment));
+    if (compiler) return `sets ${compiler} (a compiler or wrapper key), which the stamp cannot identify; remove it and set RUSTC or RUSTC_WRAPPER instead`;
+    if (key[0] === "build" && OUTPUT_CONFIG_KEYS.has(key[1])) {
+      return `sets build.${key[1]} (an output directory key), which could move cargo's build out of the smoke's dedicated directory; remove it`;
+    }
+    if (key[0] === "include") return "sets include (another configuration file), which the stamp does not read; remove it";
+  }
+  return null;
+}
+
+// The environment that puts cargo's output and intermediate artifacts in
+// `directory`: it overrides any inherited CARGO_TARGET_DIR, CARGO_BUILD_TARGET_DIR
+// or CARGO_BUILD_BUILD_DIR and any configuration file.
+export function dedicatedCargoEnv(directory) {
+  return { CARGO_TARGET_DIR: directory, CARGO_BUILD_TARGET_DIR: directory, CARGO_BUILD_BUILD_DIR: directory };
+}
+
+// Refuse, by name, a dedicated cargo directory that is, or holds, a symbolic
+// link where cargo descends when it builds or cleans (every entry one and two
+// levels down: `<profile>`, `<triple>`, `<profile>/deps`, ...; and `deps`,
+// `build`, `.fingerprint`, `incremental` and `examples` of `<triple>/<profile>`),
+// or that resolves outside `container`. Cargo would follow such a link and write
+// or delete another tree's files. Absent: nothing to check.
+export function refuseLinkedCargoTree(directory, container) {
+  const top = lstatSync(directory, { throwIfNoEntry: false });
+  if (!top) return;
+  const refuse = (where, why) => {
+    throw new Error(`refusing to let cargo build or clean in ${directory}: ${where} ${why}`);
+  };
+  if (top.isSymbolicLink()) refuse(directory, "is a symbolic link");
+  const realDirectory = realpathSync.native(directory);
+  if (!within(realpathSync.native(container), realDirectory)) refuse(directory, `resolves outside ${container}`);
+  const check = (candidate) => {
+    const stat = lstatSync(candidate, { throwIfNoEntry: false });
+    if (!stat) return false;
+    if (stat.isSymbolicLink()) refuse(candidate, "is a symbolic link");
+    if (!stat.isDirectory()) return false;
+    if (!within(realDirectory, realpathSync.native(candidate))) refuse(candidate, `resolves outside ${directory}`);
+    return true;
+  };
+  for (const first of readdirSync(directory)) {
+    const level1 = path.join(directory, first);
+    if (!check(level1)) continue;
+    for (const second of readdirSync(level1)) {
+      const level2 = path.join(level1, second);
+      if (!check(level2)) continue;
+      for (const name of CARGO_PROFILE_SUBDIRECTORIES) check(path.join(level2, name));
+    }
+  }
+}
+
 // The build context that changes the output without being a project file.
 export function engineStampContext(cargoCwd, env = process.env) {
   const context = [];
@@ -247,13 +497,12 @@ export function engineStampContext(cargoCwd, env = process.env) {
   for (const config of [...new Set(configs)]) {
     if (!existsSync(config) || !statSync(config).isFile()) continue;
     const bytes = readFileSync(config);
-    // The compiler or wrapper named there would be the one to identify; this
-    // stamp does not resolve cargo configuration, so it refuses rather than
-    // mislabel, on a conservative textual match of the key in any spelling.
-    const key = bytes.toString("utf8").match(COMPILER_CONFIG_KEY);
-    if (key) {
-      throw new Error(`engine stamp: ${config} sets ${key[2]} (a compiler or wrapper key), which the stamp cannot identify; remove it and set RUSTC or RUSTC_WRAPPER instead`);
-    }
+    // The compiler or wrapper named there would be the one to identify, and an
+    // output directory there would move the build out of the smoke's dedicated
+    // directory; this stamp does not resolve cargo configuration, so it refuses
+    // rather than mislabel.
+    const problem = refusedCargoConfig(bytes.toString("utf8"));
+    if (problem) throw new Error(`engine stamp: ${config} ${problem}`);
     context.push([`cargo config ${config}`, sha256(bytes)]);
   }
   return context;

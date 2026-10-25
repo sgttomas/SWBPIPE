@@ -25,8 +25,12 @@
 //   - `build`: the cargo command and the smoke's TAURI_CONFIG;
 //   - `binary`: the path cargo reported for the executable, its size and SHA-256.
 //
-// Cargo runs with CARGO_TARGET_DIR set to `src-tauri/target`, the crate's own
-// directory in this checkout, and `--message-format=json-render-diagnostics`; the
+// Cargo (build and clean) runs with CARGO_TARGET_DIR, CARGO_BUILD_TARGET_DIR and
+// CARGO_BUILD_BUILD_DIR set to `src-tauri/target`, the crate's own directory in
+// this checkout, so neither output nor intermediates can be inherited from or
+// cleaned in another tree; that directory, or one cargo descends into beneath
+// it (`debug`, `debug/deps`, `debug/build`, ...), being a symbolic link or
+// resolving outside the crate is refused by name before each cargo run. And `--message-format=json-render-diagnostics`; the
 // executable is the one cargo's `compiler-artifact` message reports, which must
 // lie in that directory, and nothing else is bound or launched. When the app
 // sources are not the ones a valid record names, `cargo clean -p` removes the
@@ -40,12 +44,13 @@
 // app alone when the engine stamps, app sources, build or binary differ. The log
 // names which applies.
 import { createHash } from "node:crypto";
-import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   compileReadsFromDepInfo,
   crateClosure,
   decideEngine,
+  dedicatedCargoEnv,
   digestInputs,
   hashDigests,
   inputDrift,
@@ -53,7 +58,8 @@ import {
   listTreeFiles,
   projectRelative,
   readCrateManifest,
-  readStampText
+  readStampText,
+  refuseLinkedCargoTree
 } from "./engineSourceStamp.mjs";
 
 export const BINDING_FORMAT = "openpipestress.native-smoke-app-binding.v2";
@@ -307,7 +313,16 @@ export function prepareSmokeApp({
   // No record survives a failed or interrupted build.
   rmSync(bindingPath, { force: true });
   const engines = engineHashes();
-  const env = { CARGO_TARGET_DIR: targetDirectory, TAURI_CONFIG: build.tauri_config };
+  const cargoDirectories = dedicatedCargoEnv(targetDirectory);
+  const env = { ...cargoDirectories, TAURI_CONFIG: build.tauri_config };
+  // Checked right before each cargo run: cargo would follow a link it descends through.
+  const checkTarget = () => {
+    try {
+      refuseLinkedCargoTree(targetDirectory, tauriDir);
+    } catch (error) {
+      throw new Error(`native smoke: ${error.message}; the smoke builds and cleans only the app's own target directory`);
+    }
+  };
   // Sources other than a valid record's: clean the closure's own packages, so
   // that cargo's mtime-based freshness cannot keep an old binary.
   let clean = binding.problem ?? (binding.record.app_sources.hash !== appSourcesNow ? "the app's Rust sources differ from the binding record" : null);
@@ -316,14 +331,13 @@ export function prepareSmokeApp({
   for (let attempt = 1; attempt <= MAX_STABLE_APP_BUILD_ATTEMPTS; attempt += 1) {
     const before = appInputs({ projectRoot, tauriDir, compileReads: reads, readManifest });
     if (clean !== null) {
-      if (lstatSync(targetDirectory, { throwIfNoEntry: false })?.isSymbolicLink()) {
-        throw new Error(`native smoke: ${targetDirectory} is a symbolic link; the smoke cleans only the app's own target directory`);
-      }
+      checkTarget();
       log(`native smoke: cleaning the app's own packages in ${path.relative(projectRoot, targetDirectory)} (${clean})`);
-      runCargo(["cargo", "clean", "--offline", ...before.packages.flatMap((name) => ["-p", name])], { CARGO_TARGET_DIR: targetDirectory });
+      runCargo(["cargo", "clean", "--offline", ...before.packages.flatMap((name) => ["-p", name])], cargoDirectories);
     }
     const beforeDigests = digestInputs(projectRoot, before.all);
     const distBefore = treeDigest(distDirectory);
+    checkTarget();
     const binary = appExecutableFromCargoMessages(runCargo(build.command, env), path.join(tauriDir, "Cargo.toml"), binName);
     if (path.relative(targetDirectory, binary).startsWith("..") || path.isAbsolute(path.relative(targetDirectory, binary))) {
       throw new Error(`native smoke: cargo reported the app executable at ${binary}, outside ${targetDirectory}; nothing is bound or launched`);

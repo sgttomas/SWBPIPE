@@ -6,7 +6,8 @@
 // dispatch a menu click uses, buttons are clicked, and every observation is read
 // from what the window shows. The only substitution is the model-document,
 // handoff and report-package choosers (open and save): the driver names the file
-// it returns. It records what it saw; `run.mjs` judges.
+// it returns. It records what it saw; `run.mjs` judges. What the smoke's build
+// binding guards against, and what it does not: the header of `run.mjs`.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});

@@ -27,6 +27,22 @@
 // against an RFC 8785 JCS SHA-256 of the files it opened, the saved projects
 // in the SQLite store, and the exported file. It prints one line per check and
 // exits non-zero on any failure. This is evidence, not the owner's witness.
+//
+// What the engine stamps and the app binding guard against. In scope, and to be
+// closed: accidental staleness or mis-binding in our own environments: ordinary
+// edits (including ones that keep a file's modification time), branch switches,
+// reused worktrees, the environment our wrappers set and the smoke inherits
+// (CARGO_TARGET_DIR, CARGO_BUILD_BUILD_DIR and the like: every cargo build,
+// clean and target-reporting metadata the smoke tooling runs has its output and
+// build directories set to its own dedicated directory), and shared or linked
+// target directories. Out of scope, documented
+// limits: local cargo configuration or filesystem tricks deliberately
+// constructed to defeat the check (for example a wrapper or linker program whose
+// contents change under the same name, or a file swapped between the check and
+// cargo's read). Some refusals (cargo configuration keys in any TOML spelling)
+// also stop such constructions where that was cheap; that does not bring them in
+// scope. DEL-07-11 Design `model-document-open-and-native-smoke.md` lists the
+// remaining limits.
 import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";

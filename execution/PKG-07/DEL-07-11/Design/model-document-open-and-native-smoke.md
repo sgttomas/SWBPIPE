@@ -361,11 +361,26 @@ build time, by the path cargo reported, with every symbolic link on that path
 and its target), the bytes of the cargo configuration files, `rustc -vV` of the
 rustc cargo runs, and the compiler, wrapper, linker, rustflag and profile
 environment (`RUSTC*`, `CARGO_BUILD_*`, `CARGO_TARGET_<triple>_*`,
-`CARGO_PROFILE_*` and similar). Refused by name: a cargo configuration file
-with a `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key in any TOML
-spelling (a textual check, so a comment naming one is refused too), and a
-compile read whose path has a `..` that cancels a symbolic link. Each engine
-builds in its own target directory, `apps/desktop/target/wasm-engines/<engine>`.
+`CARGO_PROFILE_*` and similar). The cargo configuration files' keys are
+decoded as TOML (bare, basic-string with every escape, literal-string, dotted,
+in table headers and inline tables). Refused by name: a configuration file with
+a `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key anywhere, a
+`build.build-dir` or `build.target-dir` key, or an `include` key; one the
+scanner cannot tokenize with confidence; and a compile read whose path has a
+`..` that cancels a symbolic link. A `[target.<triple>]` `linker`, `runner` or
+`rustflags` key is not refused: the file's bytes are in the stamp. Each engine
+builds in its own target directory, `apps/desktop/target/wasm-engines/<engine>`:
+every cargo that builds, cleans or reports the target directory (the engine
+build and its `cargo metadata`, the app build and the app's `cargo clean -p`;
+the manifest-reading `cargo metadata --no-deps` writes into neither) has `CARGO_TARGET_DIR`,
+`CARGO_BUILD_TARGET_DIR` and `CARGO_BUILD_BUILD_DIR` set to its dedicated
+directory, so an inherited build directory can neither keep intermediate
+artifacts outside it nor be cleaned. That directory, or one cargo descends into
+beneath it (each entry one and two levels down, such as `debug`, `debug/deps`
+or `wasm32-unknown-unknown/release`, and the `deps`, `build`, `.fingerprint`,
+`incremental` and `examples` of each `<triple>/<profile>`), being a symbolic
+link or resolving outside it is refused by name before each cargo run and
+before the directory is deleted.
 When the stamp is missing or differs, that directory is deleted and the engine
 is built clean, so an edit that kept a file's modification time, or a link
 retargeted to an older file, is built rather than kept by cargo's mtime-based
@@ -378,7 +393,7 @@ differs, also under `--skip-build`. It logs `engine rebuilt: <engine>
 (<reason>; stamp <hash>)` or `engine current, stamp <hash>`.
 
 The app embeds `dist/` when cargo builds it. `run.mjs` builds it with
-`CARGO_TARGET_DIR` set to `src-tauri/target` and
+the target and build directories set to `src-tauri/target` and
 `--message-format=json-render-diagnostics`, and binds and launches only the
 executable cargo's `compiler-artifact` message reports, which must lie in that
 directory; no report, or one elsewhere, stops the run by name before anything is
@@ -405,11 +420,31 @@ unreadable, or the frontend hash or `dist/` digest differs; the app alone when
 the engine stamps, the Rust inputs, the build or the executable differ. The log
 names which applies.
 
-Not covered: the contents of a wrapper or linker program (only its name);
-files outside the project (registry crates and npm packages beyond their lock
-files, the Rust toolchain beyond `rustc -vV`, system SDKs); and a frontend
-import the textual scan does not see (a computed specifier or an
-`import.meta.glob`). `native-smoke/engine-stamp.test.mjs`,
+What this guards against. In scope, and to be closed: accidental staleness or
+mis-binding in our own environments: ordinary edits (including ones that keep a
+file's modification time), branch switches, reused worktrees, the environment
+our wrappers set and the smoke inherits (`CARGO_TARGET_DIR`,
+`CARGO_BUILD_BUILD_DIR` and the like) and shared or linked target directories.
+Out of scope, documented limits: local cargo configuration or filesystem tricks
+deliberately constructed to defeat the check. The refusal of compiler and
+output keys in any TOML spelling, and of files the scanner cannot tokenize,
+also stops such constructions where that was cheap; these limits remain: the
+contents of a wrapper or linker program (only its name); a file swapped between
+the check and cargo's read, or a link created during a build; and cargo
+configuration read from places other than the working directory's ancestry and
+`CARGO_HOME` (command-line `--config`, which the smoke does not pass).
+
+Not covered: files outside the project (registry crates and npm packages beyond
+their lock files, the Rust toolchain beyond `rustc -vV`, system SDKs). The
+frontend binding's textual import scan sees every import in production sources;
+the only computed URLs there load the engine glue from `public/`, which the
+engine stamps cover. It does not see test-only inputs: the `import.meta.glob`
+in `src/features/solve/LoadReferenceStatesBlock.test.tsx`,
+`src/features/workspace/resultsSessionState.test.ts`,
+`src/features/results/pressureSourceIntegration.test.tsx` and
+`src/features/results/PhysicsSourceEvidencePanel.test.tsx`, and the computed
+generator path in `src/design/tokens.test.ts`. Those are not in `dist/` and are
+not bound. `native-smoke/engine-stamp.test.mjs`,
 `native-smoke/app-binding.test.mjs` and `scripts/build-wasm-engine.test.mjs`
 test the stamp, the clean and stable-build rules and these decisions.
 

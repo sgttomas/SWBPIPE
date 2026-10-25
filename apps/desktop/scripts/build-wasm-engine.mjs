@@ -21,8 +21,13 @@
 // digest means cargo builds again, up to MAX_STABLE_BUILD_ATTEMPTS, then the
 // build fails naming the inputs.
 // Each engine builds in its own target directory, `target/wasm-engines/<engine>`
-// under this app (CARGO_TARGET_DIR is set to it; cargo metadata must report it
-// back). When the engine's stamp is missing or differs from its sources, and
+// under this app: every cargo this script runs has CARGO_TARGET_DIR,
+// CARGO_BUILD_TARGET_DIR and CARGO_BUILD_BUILD_DIR set to it, so an inherited
+// build directory cannot keep intermediate artifacts elsewhere (cargo metadata
+// must report it back; a cargo configuration file setting either directory is
+// refused by `engineSourceStamp.mjs`). That directory, or one cargo descends
+// into beneath it, being a symbolic link or resolving outside it is refused by
+// name before each build and before it is deleted. When the engine's stamp is missing or differs from its sources, and
 // before every further attempt after an unstamped build, that directory is
 // deleted first, so the build is clean: cargo's freshness check, which relies
 // on modification times, cannot keep an old artifact after an edit that kept a
@@ -38,12 +43,14 @@ import {
   STAMP_FILENAME,
   checkEngine,
   compileReadsFromDepInfo,
+  dedicatedCargoEnv,
   digestInputs,
   engineInputs,
   engineStampContext,
   inputDrift,
   parseStampText,
   readStampText,
+  refuseLinkedCargoTree,
   stampFromDigests
 } from "./engineSourceStamp.mjs";
 
@@ -118,22 +125,29 @@ export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open
 const engineTargetsRoot = path.join(desktopRoot, "target", "wasm-engines");
 export const engineTargetDirectory = (engine) => path.join(engineTargetsRoot, engine);
 
-// Delete an engine's dedicated target directory, after checking that it is one:
+// Check that `directory` is an engine's dedicated target directory,
 // `<app>/target/wasm-engines/<engine>` for an engine this script builds, with no
-// symbolic link from the app down to it.
-export function removeEngineTargetDirectory(directory, engines = ENGINE_BUILDS.map(({ destination }) => path.basename(destination))) {
+// symbolic link from the app down to it or where cargo descends beneath it, and
+// no resolution outside the app (`verb` names the act refused).
+export function checkEngineTargetDirectory(directory, verb, engines = ENGINE_BUILDS.map(({ destination }) => path.basename(destination))) {
   const engine = path.basename(directory);
   if (!engines.includes(engine) || directory !== engineTargetDirectory(engine)) {
-    throw new Error(`refusing to delete ${directory}: not an engine's dedicated target directory`);
+    throw new Error(`refusing to ${verb} ${directory}: not an engine's dedicated target directory`);
   }
   for (const step of [path.dirname(engineTargetsRoot), engineTargetsRoot, directory]) {
-    if (lstatSync(step, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error(`refusing to delete ${directory}: ${step} is a symbolic link`);
+    if (lstatSync(step, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error(`refusing to ${verb} ${directory}: ${step} is a symbolic link`);
   }
-  if (!existsSync(directory)) return;
+  if (!existsSync(directory)) return false;
   if (realpathSync(path.dirname(directory)) !== path.join(realpathSync(desktopRoot), "target", "wasm-engines")) {
-    throw new Error(`refusing to delete ${directory}: it does not resolve inside ${desktopRoot}`);
+    throw new Error(`refusing to ${verb} ${directory}: it does not resolve inside ${desktopRoot}`);
   }
-  rmSync(directory, { recursive: true, force: true });
+  refuseLinkedCargoTree(directory, engineTargetsRoot);
+  return true;
+}
+
+// Delete an engine's dedicated target directory, checked just before.
+export function removeEngineTargetDirectory(directory, engines) {
+  if (checkEngineTargetDirectory(directory, "delete", engines)) rmSync(directory, { recursive: true, force: true });
 }
 
 const CARGO_BUILD_ARGS = [
@@ -244,7 +258,12 @@ for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; at
     fail(["Could not list the engine's source inputs for its stamp:", error.message]);
   }
   console.log(`[build-wasm-engine] cargo ${CARGO_BUILD_ARGS.join(" ")} (${crateLabel}, attempt ${attempt}/${MAX_STABLE_BUILD_ATTEMPTS})`);
-  const cargoEnv = { CARGO_TARGET_DIR: targetDirectory };
+  const cargoEnv = dedicatedCargoEnv(targetDirectory);
+  try {
+    checkEngineTargetDirectory(targetDirectory, "build in");
+  } catch (error) {
+    fail([error.message]);
+  }
   const build = tryRun("cargo", [...CARGO_BUILD_ARGS, "--manifest-path", crateManifest], { env: cargoEnv });
   if (!build.ok) {
     fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);

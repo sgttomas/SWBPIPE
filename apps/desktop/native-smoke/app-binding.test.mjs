@@ -5,7 +5,7 @@
 //   node --test apps/desktop/native-smoke/app-binding.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { BINDING_FORMAT, bindingPathFor, fileIdentity, frontendInputs, planAppBuild, prepareSmokeApp } from "../scripts/appBinaryBinding.mjs";
@@ -23,6 +23,9 @@ const stampText = (letter) => JSON.stringify({ format: STAMP_FORMAT, hash: hash(
 // freshness by modification time), and reports it in a compiler-artifact
 // message. `cargo.mode`: "elsewhere" builds and reports another directory;
 // "silent" reports nothing; "touch-dist" edits dist/ while it builds; "fail" fails.
+// Like run.mjs, the fake runs with `cargo.inherited` (the environment the smoke
+// inherits) under the env it is given, and keeps an intermediate in the build
+// directory (CARGO_BUILD_BUILD_DIR, else the target directory), which clean removes.
 function workspace() {
   const root = realpathSync(mkdtempSync(path.join(tmpdir(), "app-binding-")));
   const write = (relative, text) => {
@@ -60,7 +63,7 @@ function workspace() {
     return manifests[manifest];
   };
   const calls = [];
-  const cargo = { mode: "ok" };
+  const cargo = { mode: "ok", inherited: {}, envs: [] };
   let engine = "a";
   const runFrontend = () => {
     calls.push("frontend");
@@ -69,15 +72,21 @@ function workspace() {
   };
   const runCargo = (command, env) => {
     calls.push(command.slice(0, 2).join(" ") + (command[1] === "clean" ? ` ${command.filter((arg, index) => command[index - 1] === "-p").join(",")}` : ""));
-    const target = cargo.mode === "elsewhere" ? path.join(root, "elsewhere") : env.CARGO_TARGET_DIR;
+    cargo.envs.push(env);
+    const merged = { ...cargo.inherited, ...env };
+    const target = cargo.mode === "elsewhere" ? path.join(root, "elsewhere") : merged.CARGO_TARGET_DIR;
     const exe = path.join(target, "debug", "app");
+    const intermediate = path.join(merged.CARGO_BUILD_BUILD_DIR ?? target, "debug", "deps", "app-intermediate");
     if (command[1] === "clean") {
       rmSync(exe, { force: true });
       rmSync(`${exe}.d`, { force: true });
+      rmSync(intermediate, { force: true });
       return "";
     }
     if (cargo.mode === "fail") throw new Error("cargo build failed");
     mkdirSync(path.dirname(exe), { recursive: true });
+    mkdirSync(path.dirname(intermediate), { recursive: true });
+    writeFileSync(intermediate, "intermediate\n");
     const main = path.join(tauriDir, "src/main.rs");
     const dist = path.join(desktopRoot, "dist/index.html");
     const fresh = existsSync(exe) && existsSync(`${exe}.d`) && [main, dist].every((input) => statSync(input).mtimeMs <= statSync(`${exe}.d`).mtimeMs);
@@ -324,4 +333,48 @@ test("without --skip-build both are built; a rebuilt engine rebuilds frontend an
   const rebuilt = planAppBuild({ skipBuild: true, staleEngines: ["wasm-engine"] });
   assert.deepEqual([rebuilt.frontend, rebuilt.app], [true, true]);
   assert.match(rebuilt.log, /wasm-engine rebuilt/);
+});
+
+test("Codex r3: an inherited CARGO_BUILD_BUILD_DIR or CARGO_TARGET_DIR neither moves the app's build nor lets cargo clean another tree", () => {
+  const w = workspace();
+  try {
+    w.write("other-worktree/build/debug/deps/app-intermediate", "other worktree\n");
+    w.cargo.inherited = { CARGO_BUILD_BUILD_DIR: path.join(w.root, "other-worktree/build"), CARGO_TARGET_DIR: path.join(w.root, "other-worktree/target") };
+    w.prepare(false);
+    assert.deepEqual(w.take().calls, ["frontend", "cargo clean app,lib", "cargo build", "cargo clean app,lib", "cargo build"]);
+    assert.equal(w.read("other-worktree/build/debug/deps/app-intermediate"), "other worktree\n");
+    assert.ok(!existsSync(path.join(w.root, "other-worktree/target")));
+    assert.equal(w.read("apps/desktop/src-tauri/target/debug/deps/app-intermediate"), "intermediate\n");
+    const target = path.join(w.tauriDir, "target");
+    for (const env of w.cargo.envs) {
+      assert.deepEqual([env.CARGO_TARGET_DIR, env.CARGO_BUILD_TARGET_DIR, env.CARGO_BUILD_BUILD_DIR], [target, target, target]);
+    }
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("Codex r3: with target/debug, or target/debug/deps, a link to another worktree's output, cargo neither cleans nor builds there", () => {
+  const w = workspace();
+  try {
+    const target = path.join(w.tauriDir, "target");
+    w.write("other-worktree/target/debug/app", "other worktree's binary\n");
+    w.write("other-worktree/target/debug/deps/app-intermediate", "other worktree's intermediate\n");
+    mkdirSync(target);
+    symlinkSync(path.join(w.root, "other-worktree/target/debug"), path.join(target, "debug"));
+    const refused = (where) => {
+      assert.throws(() => w.prepare(false), new RegExp(`native smoke: refusing to let cargo build or clean in .*src-tauri/target: .*src-tauri/target/${where} is a symbolic link`));
+      assert.ok(!w.take().calls.some((call) => call.startsWith("cargo")), "no cargo ran");
+      assert.equal(w.record(), null);
+      assert.equal(w.read("other-worktree/target/debug/app"), "other worktree's binary\n");
+      assert.equal(w.read("other-worktree/target/debug/deps/app-intermediate"), "other worktree's intermediate\n");
+    };
+    refused("debug");
+    unlinkSync(path.join(target, "debug"));
+    mkdirSync(path.join(target, "debug"));
+    symlinkSync(path.join(w.root, "other-worktree/target/debug/deps"), path.join(target, "debug/deps"));
+    refused("debug/deps");
+  } finally {
+    w.cleanup();
+  }
 });

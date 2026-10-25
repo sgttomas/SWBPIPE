@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { realpathSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, readFileSync, rmSync, existsSync, statSync, utimesSync, symlinkSync, unlinkSync } from 'node:fs';
+import { realpathSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, readFileSync, readdirSync, rmSync, existsSync, statSync, utimesSync, symlinkSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -8,9 +8,11 @@ import { resolveWasmArtifact } from './build-wasm-engine.mjs';
 import { STAMP_FORMAT, checkEngine, engineStampContext } from './engineSourceStamp.mjs';
 
 // Fake cargo/rustup/rustc/wasm-bindgen. `cargo build` "reads" fixtures/read.json
-// into the wasm artifact in CARGO_TARGET_DIR (else the fixed target) and writes
-// the dep-info naming it; like cargo, it keeps an existing artifact whose
-// dep-info is newer than every input (freshness by modification time). With
+// into an intermediate in the build directory (CARGO_BUILD_BUILD_DIR, else the
+// target directory), uplifts it to the wasm artifact in CARGO_TARGET_DIR (else
+// the fixed target) and writes the dep-info naming it; like cargo, it keeps an
+// existing intermediate whose dep-info is newer than every input (freshness by
+// modification time). With
 // MUTATE_BUILDS=n the first n builds then edit the fixture, as an editor saving
 // it after cargo read it would. Each build appends to BUILD_LOG when set.
 function fakeToolchain(root, target) {
@@ -26,11 +28,12 @@ if(command==='cargo') {
     const crate=path.dirname(args[m+1]); const name=crate.includes('self_weight')?'self_weight_wasm':'operation_applier';
     const dir=path.join(target,'wasm32-unknown-unknown/release'); fs.mkdirSync(dir,{recursive:true});
     const wasm=path.join(dir,'open_pipe_stress_'+name+'.wasm'), dep=path.join(dir,'open_pipe_stress_'+name+'.d'), read=path.join(root,'fixtures/read.json');
-    const fresh=fs.existsSync(wasm)&&fs.existsSync(dep)&&[read,path.join(crate,'src/lib.rs')].every((input)=>fs.statSync(input).mtimeMs<=fs.statSync(dep).mtimeMs);
-    if(!fresh){
-      fs.writeFileSync(wasm,'wasm:'+fs.readFileSync(read,'utf8'));
-      fs.writeFileSync(dep,target+'/x.wasm: '+crate+'/src/lib.rs '+root+'/fixtures/read.json '+target+'/out/generated.rs\\n');
-    }
+    const deps=path.join(process.env.CARGO_BUILD_BUILD_DIR||target,'wasm32-unknown-unknown/release/deps'); fs.mkdirSync(deps,{recursive:true});
+    const cached=path.join(deps,name+'.wasm'), cachedDep=path.join(deps,name+'.d');
+    const fresh=fs.existsSync(cached)&&fs.existsSync(cachedDep)&&[read,path.join(crate,'src/lib.rs')].every((input)=>fs.statSync(input).mtimeMs<=fs.statSync(cachedDep).mtimeMs);
+    if(!fresh){ fs.writeFileSync(cached,'wasm:'+fs.readFileSync(read,'utf8')); fs.writeFileSync(cachedDep,'deps'); }
+    fs.copyFileSync(cached,wasm);
+    fs.writeFileSync(dep,target+'/x.wasm: '+crate+'/src/lib.rs '+root+'/fixtures/read.json '+target+'/out/generated.rs\\n');
     if(process.env.BUILD_LOG) fs.appendFileSync(process.env.BUILD_LOG,name+'\\n');
     const counter=path.join(root,'mutations'); const done=fs.existsSync(counter)?Number(fs.readFileSync(counter,'utf8')):0;
     if(done<Number(process.env.MUTATE_BUILDS||0)){fs.writeFileSync(read,'{"edit":'+(done+1)+'}');fs.writeFileSync(counter,String(done+1));}
@@ -198,5 +201,68 @@ test('the clean build deletes only an engine\'s dedicated target directory, neve
     assert.ok(failure, 'the build must refuse');
     assert.match(failure.stderr, /refusing to delete .*wasm-engines\/wasm-engine: .*target is a symbolic link/);
     assert.equal(readFileSync(path.join(shared, 'wasm-engines/wasm-engine/keep'), 'utf8'), 'shared');
+  } finally { p.cleanup(); }
+});
+
+test('Codex r3: an inherited CARGO_BUILD_BUILD_DIR cannot keep stale intermediates; cargo configuration moving the output is refused by name', () => {
+  const p = fakeProject();
+  try {
+    const external = path.join(p.root, 'external-build');
+    const inherited = { CARGO_BUILD_BUILD_DIR: external };
+    const outDir = path.join(p.root, 'apps/desktop/public/wasm-engine');
+    const published = () => readFileSync(path.join(outDir, 'engine.wasm'), 'utf8');
+    p.build(inherited);
+    assert.equal(published(), 'wasm:{}');
+    // New bytes, old modification time: an intermediate kept outside the deleted
+    // target directory would be fresh by cargo's check and published as current.
+    const fixture = path.join(p.root, 'fixtures/read.json');
+    const old = statSync(fixture);
+    writeFileSync(fixture, '{"v":2}');
+    utimesSync(fixture, old.atime, old.mtime);
+    assert.match(p.build(inherited), /operation_applier: clean build in target\/wasm-engines\/wasm-engine/);
+    assert.equal(published(), 'wasm:{"v":2}');
+    assert.ok(!existsSync(external), 'cargo built nothing outside the dedicated directory');
+    // A configuration file setting either directory, in any spelling, is refused.
+    const home = path.join(p.root, 'cargo-home');
+    mkdirSync(home);
+    for (const [text, key] of [
+      ['[build]\nbuild-dir = "/tmp/elsewhere"\n', 'build-dir'],
+      ['build = { "target-dir" = "/tmp/elsewhere" }\n', 'target-dir'],
+      ['[ "build" ]\n"\\u0062uild-dir" = "/tmp/elsewhere"\n', 'build-dir']
+    ]) {
+      writeFileSync(path.join(home, 'config.toml'), text);
+      let failure = null;
+      try { p.build({ CARGO_HOME: home }); } catch (error) { failure = error; }
+      assert.ok(failure, text);
+      assert.match(failure.stderr, new RegExp(`cargo-home/config\\.toml sets build\\.${key} \\(an output directory key\\)`), text);
+    }
+  } finally { p.cleanup(); }
+});
+
+test('Codex r3: a symbolic link where cargo descends beneath an engine target directory is refused before cargo builds or the directory is deleted', () => {
+  const p = fakeProject();
+  try {
+    p.build();
+    const engineTarget = path.join(p.root, 'apps/desktop/target/wasm-engines/wasm-engine');
+    // `wasm32-unknown-unknown/release` a link to another worktree's output.
+    const other = path.join(p.root, 'other-worktree/target/release');
+    mkdirSync(path.join(other, 'deps'), { recursive: true });
+    writeFileSync(path.join(other, 'deps/keep'), 'other');
+    rmSync(path.join(engineTarget, 'wasm32-unknown-unknown'), { recursive: true });
+    mkdirSync(path.join(engineTarget, 'wasm32-unknown-unknown'));
+    symlinkSync(other, path.join(engineTarget, 'wasm32-unknown-unknown/release'));
+    const refused = () => {
+      let failure = null;
+      try { p.build(); } catch (error) { failure = error; }
+      assert.ok(failure, 'the build must refuse');
+      assert.match(failure.stderr, /refusing to let cargo build or clean in .*wasm-engines\/wasm-engine: .*wasm32-unknown-unknown\/release is a symbolic link/);
+    };
+    // Current stamp (an incremental build) and a changed source (a clean build).
+    refused();
+    writeFileSync(path.join(p.root, 'fixtures/read.json'), '{"v":4}');
+    refused();
+    assert.deepEqual(readdirSync(other), ['deps']);
+    assert.deepEqual(readdirSync(path.join(other, 'deps')), ['keep']);
+    assert.equal(readFileSync(path.join(other, 'deps/keep'), 'utf8'), 'other');
   } finally { p.cleanup(); }
 });

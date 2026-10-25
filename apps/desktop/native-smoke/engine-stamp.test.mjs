@@ -5,7 +5,7 @@
 //   node --test apps/desktop/native-smoke/engine-stamp.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
@@ -367,6 +367,46 @@ test("Codex r2: cargo configuration naming a compiler or wrapper is refused by n
     mkdirSync(path.join(p.root, ".cargo"));
     writeFileSync(path.join(p.root, ".cargo/config.toml"), "[build]\nbuild = 1\nx = { y = 1, rustc = \"r\" }\n");
     assert.throws(() => engineStampContext(path.join(p.root, "core/engine"), env), /\.cargo\/config\.toml sets rustc/);
+  } finally {
+    p.cleanup();
+  }
+});
+
+test("Codex r3: cargo configuration keys are decoded as TOML: escaped, literal and quoted-header spellings are refused by name; an unreadable file is refused", () => {
+  const p = project();
+  try {
+    const home = path.join(p.root, "cargo-home");
+    mkdirSync(home);
+    const config = path.join(home, "config.toml");
+    const env = { PATH: process.env.PATH, HOME: process.env.HOME, CARGO_HOME: home, RUSTC: "rustc" };
+    const refused = (text, pattern) => {
+      writeFileSync(config, text);
+      assert.throws(() => engineStampContext(p.root, env), pattern, text);
+    };
+    const compiler = (key) => new RegExp(`config\\.toml sets ${key} \\(a compiler or wrapper key\\)`);
+    const output = (key) => new RegExp(`config\\.toml sets build\\.${key} \\(an output directory key\\)`);
+    // Basic-string keys with escapes, as cargo decodes them.
+    refused("[build]\n\"rustc\" = \"/opt/rustc\"\n", compiler("rustc"));
+    refused("[build]\n\"\\u0072ustc\" = \"/opt/rustc\"\n", compiler("rustc"));
+    refused("[build]\n\"\\U00000072ustc-wrapper\" = \"sccache\"\n", compiler("rustc-wrapper"));
+    refused("build.\"rustc\\u002dworkspace-wrapper\" = \"clippy-driver\"\n", compiler("rustc-workspace-wrapper"));
+    // Literal-string keys and quoted, spaced header segments.
+    refused("[build]\n'rustc' = '/opt/rustc'\n", compiler("rustc"));
+    refused("[build]\n'target-dir' = '/tmp/elsewhere'\n", output("target-dir"));
+    refused("[ \"build\" ]\n\"build-dir\" = \"/tmp/elsewhere\"\n", output("build-dir"));
+    refused("[ 'b\\u0075ild' ]\nx = 1\n[\"b\\u0075ild\"]\ntarget-dir = \"x\"\n", output("target-dir"));
+    refused("build = { jobs = 2, 'build-dir' = \"x\" }\n", output("build-dir"));
+    refused("include = \"other.toml\"\n", /config\.toml sets include/);
+    // Not tokenizable with confidence: refused, not guessed.
+    refused("[build\nrustc = 1\n", /config\.toml cannot be read as TOML with confidence \(unterminated table header/);
+    refused("[build]\n\"rus\\qtc\" = 1\n", /config\.toml cannot be read as TOML with confidence \(unknown escape/);
+    refused("[build]\n\"\\uD800\" = 1\n", /cannot be read as TOML with confidence \(escape is not a Unicode scalar value/);
+    // Names in comments, string values and other tables are not keys; target
+    // linker, runner and rustflags are in the context through the file's bytes.
+    writeFileSync(config, "# rustc = \"x\"\n[build]\njobs = 4 # target-dir\nrustflags = [\"-C\", \"rustc = 1\"]\n[target.'cfg(target_arch = \"wasm32\")']\nlinker = \"rust-lld\"\nrunner = '''\nrustc = 1'''\n[env]\nRUSTC_NOTE = { value = \"build-dir\", force = true }\nwhen = 1979-05-27 07:32:00Z\n");
+    const before = engineStampContext(p.root, env);
+    writeFileSync(config, readFileSync(config, "utf8").replace("rust-lld", "wasm-ld"));
+    assert.notDeepEqual(engineStampContext(p.root, env), before);
   } finally {
     p.cleanup();
   }
