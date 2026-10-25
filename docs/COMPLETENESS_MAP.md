@@ -95,8 +95,8 @@ The biggest gaps:
    every report (ruling 10A). Save Report Package refuses every current result
    (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
-2. **No model states, run history or comparison between states or runs.** These
-   are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
+2. **Desktop run comparison is still missing.** Model states, run history and
+   comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
    #1589): save, open, label and delete, kept only in the SQLite store. Runs are
    recorded against states (W-12 S2, #1596), with the model's rule packs
    resolved at solve (#1602). Two saved states are compared in the desktop
@@ -259,11 +259,12 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 41 P, 35 D, 8 O and no R:
-- **P → D (6):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
-  §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), and §12.8
-  near-duplicate nodes (the desktop tolerance control, after the basis). The
-  first two and the last were updated in the map by their own changes.
+This map has 40 P, 36 D, 8 O and no R:
+- **P → D (7):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+  §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
+  near-duplicate nodes (the desktop tolerance control, after the basis), and
+  FR-CMP-003 (W-12 S3a, #1605). The
+  first two and the last two were updated in the map by their own changes.
 - **D → P (2):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
   (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
@@ -525,7 +526,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-13 S1b | Model document 0.7.0: the new member slots, one document validator, `model_settings.node_proximity_tolerance` (default 5 mm) | #1564; native smoke with no change beyond the five stale `expected.json` values (§3 rows 1–5) |
 | W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
 | W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
-| W-12 S3a | Comparing two saved model states in the desktop: fail-closed flattening of every 0.7.0 member, stable-id classification, field paths, parity with the reference engine | (this PR) |
+| W-12 S3a | Comparing two saved model states in the desktop: fail-closed flattening of every 0.7.0 member, stable-id classification, field paths, parity with the reference engine | #1605 |
 | W-12 S2 | Analysis runs recorded against saved model states (store v13, Record Run with a checked manifest and model binding, run labels, recorded-form validators in TS and Python), with stored-length read admission for states and runs | #1596 |
 | W-12 S1 | Named immutable model states in the desktop (store v12, Save/Open State, History panel with labels); one unsaved-changes guard for Open Project, New, Open Model Document and Open State | #1589 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
