@@ -200,6 +200,9 @@ function AppSession() {
     ruleCheckRunBasis,
     dormantOutputBasis,
     comparison,
+    withinRun,
+    withinRunDisabledReason,
+    handleSelectWithinRunBases,
     proposal,
     selectedReviewTarget,
     solveJob,
@@ -678,7 +681,12 @@ function AppSession() {
                   setIssuesDrawerOpen(true);
                 }}
               />}
-              <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
+              <ComparisonPanel
+                comparison={withinRun.status === "ready" ? withinRun.comparison : null}
+                result={currentSolvedResult}
+                onSelectResult={handleSelectResult}
+                withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packagedComparisonId: comparison?.comparison_id ?? null }}
+              />
               <DesignWorkspacePanel
                 model={model}
                 knowledge={knowledge}

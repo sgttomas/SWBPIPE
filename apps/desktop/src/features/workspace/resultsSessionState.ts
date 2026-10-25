@@ -20,6 +20,7 @@ import type { ControlledRouteExport } from "../redaction-controls/redactionExpor
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { RuleRevisionGenerationGate, SolveRunGenerationGate } from "./solveGates";
 import { initialSolveJob } from "./solveJobAudit";
+import { packagedComparison, resolveWithinRun, type HeldWithinRunSelection } from "../comparison/withinRunComparison";
 import type { SolveProofEvidence } from "./solveProof";
 
 /**
@@ -63,7 +64,8 @@ export function currentRequirementsExceptNumericalEligibility({ result, analysis
  * the solve job, the solve proof, the running flag and the solver mode; the
  * report-package cells and refs; the two generation gates; the current-result
  * and current-manifest refs with their render-time assignments; the active
- * solve job, the cancellation tombstones and the comparison. It declares no
+ * solve job, the cancellation tombstones, the comparison and the "Within this
+ * run" choice (W-12 S3c) with its view. It declares no
  * effect and no handler.
  *
  * Called only by the session, which is `useWorkspaceSession` in
@@ -145,10 +147,25 @@ export function useResultsSessionState() {
     requested: boolean;
     dispatched: boolean;
   }>());
-  const comparison = useMemo(
+  const defaultComparison = useMemo(
     () => (currentSolvedResult && analysisRun ? buildPreviewComparison({ result: currentSolvedResult, analysisRun }) : null),
     [analysisRun, currentSolvedResult]
   );
+  // "Within this run" (W-12 S3c): the user's load case and combination, held with
+  // the basis key of the run they were chosen on, as the Results panel holds its
+  // page with its run. A new solve, an edit (which clears the result) or a project
+  // replacement gives a new key, so the default reads in the very render that
+  // first shows the new run; an id the run does not offer is never compared.
+  const [heldWithinRunSelection, setHeldWithinRunSelection] = useState<HeldWithinRunSelection | null>(null);
+  const withinRunBasis = `${resultBasisRef.current.sequence}:${analysisBasisRef.current.sequence}`;
+  const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
+  const withinRun = useMemo(
+    () => resolveWithinRun({ result: currentSolvedResult, analysisRun, model: solvedModel, held: heldWithinRunSelection, basis: withinRunBasis, defaultComparison }),
+    [analysisRun, currentSolvedResult, defaultComparison, heldWithinRunSelection, solvedModel, withinRunBasis]
+  );
+  // The report, handoff and export packages: the choice when one is held for this
+  // run, else the fixed-pair comparison exactly as before.
+  const comparison = packagedComparison(withinRun, defaultComparison);
   return {
     result, setResult,
     historicalRun, setHistoricalRun,
@@ -182,6 +199,9 @@ export function useResultsSessionState() {
     currentInputManifestRef,
     activeSolveJob,
     solveCancellationTombstones,
-    comparison
+    comparison,
+    withinRun,
+    withinRunBasis,
+    setHeldWithinRunSelection
   };
 }

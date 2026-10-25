@@ -1461,6 +1461,34 @@ store's `admit_analysis_run_comparison` (`analysis_runs.rs`).
 - **"Within this run"** keeps today's comparison. The user selects the case and
   the combination instead of the hard-coded ids.
 
+**As built (S3c, within this run).** `apps/desktop/src/features/comparison/withinRunComparison.ts`
+(options, default, held choice and packaged comparison), the Comparison panel's
+"Within this run" selects (`ComparisonPanel.tsx`), the session's cell
+(`resultsSessionState.ts`) and handler (`workspaceSession.ts`). The selects
+offer each load case and combination that has result rows in the Current run
+(`basis_ref` of type `load_case` or `combination`, with its row count), in the
+solved model's order and then code-point order. The default is
+`load:L-100` → `combination:C-OPER-ALT` when both are offered, else the first
+case and combination; with no case or no combination the panel says so instead
+of showing an empty comparison (the demo's combination is withheld, so it says
+there is no combination with rows). The comparison is `buildPreviewComparison`,
+unchanged, for the chosen pair; a builder refusal is shown by name. A choice is
+held with the session's result and analysis-run sequences, so a new solve, an
+edit or a project replacement reads the default in the first render that shows
+the new run, and a held id the run does not offer is never compared (the
+producer's `run_id` repeats across solves, so the run id alone is not the key).
+The selects are disabled with the reason, and a choice is refused, while a
+project operation or prompt owns the session, a solve runs or a report package
+is prepared. **Packages (ordinary decision).** The report package, handoff,
+export review, report panel and design-workspace evidence carry the user's
+choice for the current run; without one they carry the fixed-pair comparison
+exactly as before S3c, and the panel names it when it differs from the one
+shown. Residual: the combination rows of the committed producer outputs (range
+envelope, unicode ids) include kinds the builder declares no source dimension
+for (`support_reaction_*_v2`, `combination_modulus_basis_record`), so such a
+combination is refused (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`, the known
+gap routed to T6).
+
 ## 5. Consumers
 
 - `stateComparisonHandoffSections.ts` emits real state and recorded-run records

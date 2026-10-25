@@ -658,11 +658,18 @@ export function declaredSourceResultDimension(
   return declared;
 }
 
+/** The bases `buildPreviewComparison` compares when the caller names none: the
+ * preview fixtures' reference load case and user-defined combination. The report,
+ * handoff and export packages keep this comparison until the user chooses a case
+ * and a combination in "Within this run" (W-12 S3c, `withinRunComparison.ts`). */
+export const DEFAULT_COMPARISON_LEFT_BASIS_REF = "load:L-100";
+export const DEFAULT_COMPARISON_RIGHT_BASIS_REF = "combination:C-OPER-ALT";
+
 export function buildPreviewComparison({
   result,
   analysisRun,
-  leftBasisRef = "load:L-100",
-  rightBasisRef = "combination:C-OPER-ALT",
+  leftBasisRef = DEFAULT_COMPARISON_LEFT_BASIS_REF,
+  rightBasisRef = DEFAULT_COMPARISON_RIGHT_BASIS_REF,
 }: {
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
