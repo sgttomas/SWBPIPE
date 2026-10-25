@@ -614,10 +614,12 @@ use open_pipe_stress_report_renderer::{
     EXACT_ROUTE_SUBHEADING, NOT_AVAILABLE,
 };
 
-/// The base commit's canonical HTML hashes of the existing invented inputs
-/// (`3a104e1e71`, before W-11): the fields' absence keeps their bytes.
+/// The base commit's canonical HTML hashes of the existing invented inputs,
+/// captured on main without W-11 (`aed4de9fbd`): the fields' absence keeps
+/// their bytes. The private input's hash carries W-17's rule-check section
+/// (#1629); the base and public hashes equal their `3a104e1e71` captures.
 const BASE_HTML_SHA256: &str = "a137f51d3b16723e221d19c0041de670d328a3e0f904b19bfe3e909e5059f5f2";
-const PRIVATE_HTML_SHA256: &str = "acc7f8564b16c51a2a5b5b4f5238dcf479a068a25f0162f17ce7f170d067c6fc";
+const PRIVATE_HTML_SHA256: &str = "e962c4aeeed5fe94ac2e70e7584e8d253e165cf85dfd10d8ab0aa24ed5ca51eb";
 const PUBLIC_HTML_SHA256: &str = "43f9ac50b08818080dc8b2769d8b4db9cfb6b9ccb76a62ca2118c310917562c9";
 
 const COVERAGE: &str = include_str!("../../../../fixtures/reports/exact_route_limitations.json");

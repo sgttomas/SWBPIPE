@@ -1029,8 +1029,9 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
 
 /// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6, slice (a)):
 /// package bytes are unchanged for every current input. The base commit's
-/// container and package-identity hashes (`3a104e1e71`, before W-11) of the
-/// committed runner witness and its desktop-profile basis.
+/// container and package-identity hashes, captured on main without W-11
+/// (`aed4de9fbd`; equal to the `3a104e1e71` capture), of the committed runner
+/// witness and its desktop-profile basis.
 #[test]
 fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
     for (request, container, identity) in [

@@ -377,8 +377,9 @@ fn a_recorded_rule_fail_with_a_blocked_check_is_bannered_incomplete() {
 #[path = "../../report_renderer/tests/common/exact_input.rs"]
 mod exact_input;
 
-/// The base commit's PDF and canonical HTML hashes of the fixture input
-/// (`3a104e1e71`, before W-11).
+/// The base commit's PDF and canonical HTML hashes of the fixture input,
+/// captured on main without W-11 (`aed4de9fbd`; equal to the `3a104e1e71`
+/// capture).
 const BASE_PDF_SHA256: &str = "38f385b297869011df0a0e80b923a7a878bdf2ef079786533141351c25dfe09d";
 const BASE_HTML_SHA256: &str = "a0a80cd6af6b0231c32622e5c198603a674cc413808c5d9429bb07eaa3e8777f";
 
