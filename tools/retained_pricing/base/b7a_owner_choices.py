@@ -48,7 +48,7 @@ BOUNDS = {3389:46,3412:37,3418:140,3443:143,3470:158,3489:162,
           3523:188,3524:338,3558:169,3573:163,3594:173,3599:322}
 ERROR_SITES = {2803:149,3366:1049,3631:1046}
 ROWS_ERROR_LINE = 2803          # the one error site owned by bind_rows_subject (inside its row loop)
-HELPER_FNS = (PP + "lib.rs:14275:qualified_load_case_result_id", PP + "lib.rs:14696:stable_suffix")
+HELPER_FNS = (PP + "lib.rs:14426:qualified_load_case_result_id", PP + "lib.rs:14847:stable_suffix")
 ERROR_OWNER = PP+'retained_product.rs:2553:bind_rows_subject'
 ERROR_WHY = "B7a metadata first error: immediate propagation out of whole bind_rows_subject; full owner M/content/capacity and independent errors/detail copies retained"
 SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallback "
@@ -330,19 +330,21 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1238:audit_load_fidelity',
 # Model document 0.7.0 D3 (§8.17): -> 14056/14057/14477/14478 (`model_settings`), unchanged text.
 # W-7 D3 (§8.20): -> 14275/14276/14696/14697 (append_element_global_end_results precedes them), and the
 # retained_product.rs rows and validate_final_metadata +16 to +85 (the global end binding and completion), unchanged text.
+# Nested-record closure D3 (§8.22, measured): -> 14426/14427/14847/14848 (the closed nested wire records precede
+# them), unchanged text.
  # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
-                  'line': 14276,
+                  'line': 14427,
                   'kind': 'format',
                   'template': 'result:loadcase:{}:{}',
                   'literal_bytes': 17,
                   'placeholders': [{'spec': '', 'arg': 'stable_suffix(load_case_id)'},
                                    {'spec': '', 'arg': 'result_tail(base_id)'}],
-                  'fn': 'core/product_physics/src/lib.rs:14275:qualified_load_case_result_id'},
+                  'fn': 'core/product_physics/src/lib.rs:14426:qualified_load_case_result_id'},
                  {'file': 'core/product_physics/src/lib.rs',
-                  'line': 14697,
+                  'line': 14848,
                   'kind': 'replace',
-                  'fn': 'core/product_physics/src/lib.rs:14696:stable_suffix',
+                  'fn': 'core/product_physics/src/lib.rs:14847:stable_suffix',
                   'receiver': 'id',
                   'literal_bytes': None,
                   'arg': '\' \', " "'}],
@@ -354,11 +356,11 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1238:audit_load_fidelity',
                                                                       'super::result_tail(&expected)': {'bytes': 1024,
                                                                                                         'source': 'RES'}},
                 'core/product_physics/src/retained_product.rs:3546': None,
-                'core/product_physics/src/lib.rs:14276': {'result_tail(base_id)': {'bytes': 600,
+                'core/product_physics/src/lib.rs:14427': {'result_tail(base_id)': {'bytes': 600,
                                                                                    'source': 'COMP'},
                                                           'stable_suffix(load_case_id)': {'bytes': 128,
                                                                                           'source': 'IN128'}},
-                'core/product_physics/src/lib.rs:14697': {'id': {'bytes': 128, 'source': 'IN128'}},
+                'core/product_physics/src/lib.rs:14848': {'id': {'bytes': 128, 'source': 'IN128'}},
                 'core/product_physics/src/retained_product.rs:2803': {'r.kind': {'bytes': 128,
                                                                                  'source': 'STATIC'}},
                 'core/product_physics/src/retained_product.rs:3366': {'row.id': {'bytes': 1024,

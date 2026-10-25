@@ -185,7 +185,9 @@ def inspect_directed_helpers(snapshot):
 # Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines add no `.min(`/`.max(` call.
 # Branch-warning statement D3 (§8.18): lib.rs's one changed line adds no `.min(`/`.max(` call.
 # Silent-drop guard D3 (§8.19): lib.rs's closed records and its one refusal call add no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '8fbc112204c483d0b91e7e9c7e6975290df3ab2bc2cf669eec7d002ef6a25979'
+# Nested-record closure D3 (§8.22, measured): lib.rs's closed nested records and material wire add or remove no
+# `.min(`/`.max(` call, and the observation lane stays deleted (E14); E13's retired preimage is unchanged.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd06066c8fd67020c1315d14374080e82fea96c412cb927972de84b394eec803d'
 
 
 def primitive_lib_minmax_callers(snapshot):
