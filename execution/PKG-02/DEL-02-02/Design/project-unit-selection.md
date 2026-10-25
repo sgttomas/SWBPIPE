@@ -184,9 +184,11 @@ keys, including `angle` (§5); the rest still applies.
      its entered unit. The solver reads only `project.units.length`
      (`core/product_physics/src/lib.rs`, position normalization), so a change
      to any other key cannot move a solver result.
-   - **The model document.** No member is added and the schema is unchanged:
-     model document 0.7.0 already admits the seven keys. The document hash
-     changes, as for any edit.
+   - **The model document.** The schema is unchanged: model document 0.7.0
+     already admits the seven keys. Changing a present key replaces one string.
+     Setting an absent key adds that key, and setting a key when the map itself
+     is absent adds the map holding it. The document hash changes, as for any
+     edit.
    - **Defaults and preconditions.** New fields default to the new key's unit
      (§1 "Desktop defaults", §2.4); fields already authored keep theirs. The
      applier's preconditions read the new key on the next operation.
@@ -196,9 +198,10 @@ keys, including `angle` (§5); the rest still applies.
      restore the checkpoint and clear them the same way. The user solves again.
    - **Saved states.** A state is the canonical text of the whole document, so
      a state saved before the change keeps its units. Nothing rewrites it.
-     Comparing it with a later state shows one `changed` field at
-     `project.units.<key>` on the `model` row (`stateComparison.ts`). It is not
-     a `unit_changed` row, because that kind is for `{value, unit}` quantities.
+     Comparing it with a later state shows one field at `project.units.<key>`
+     on the `model` row (`stateComparison.ts`): `changed` when a present key
+     was replaced, `added` when an absent key was set. It is not a
+     `unit_changed` row, because that kind is for `{value, unit}` quantities.
    - **Recorded runs.** A run keeps its input manifest, whose
      `unit_basis.project_units` records the units at the run, and nothing
      rewrites it. Result rows carry the solver's own units, so run comparison
