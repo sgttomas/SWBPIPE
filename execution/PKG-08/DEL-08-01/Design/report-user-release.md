@@ -48,6 +48,22 @@ Standard claim fence applies (claims taxonomy per DEC-081).
 - **DEC-028 (owner, 2026-10-10):** "Close: one version". The package has one
   version, 2.0.0 today (`report_package/src/lib.rs:75`); the reader refuses
   every other version by name (`reader.rs:269-293`).
+- **Owner, 2026-10-25 (W-18b decisions):** "I approve your recommended options
+  for the three W-18b decisions." As relayed by HELP_HUMAN, the approved
+  recommendations are:
+  - **Scope R first.** One result member. No rule outcomes, comparisons or
+    handoff records. Library-referenced models are refused. A minimal native
+    renderer input. Solve attestation, and no rule-check attestation. The rest
+    (rule outcomes at safe metadata, library-referenced models, comparisons)
+    stays in v0.1 as a later slice on the same mechanism; it is not dropped.
+  - **O-A = V1.** The package stays at 2.0.0 with the optional record.
+    DEC-028's "one version" is read as admitting an optional writer-defined
+    record that the reader at the same head accepts.
+  - **O-G: equality-only guarantee,** stated plainly in the reader text and in
+    DEL-02-05 (A8).
+
+  O-E is moot under R. O-B, O-C, O-D and O-F stay as recommended (HELP_HUMAN,
+  2026-10-25).
 
 **Naming rule.** The word "release" never appears alone in a product text,
 identifier or record. It is always "user release", "user-released" or "release
