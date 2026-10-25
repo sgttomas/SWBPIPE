@@ -188,11 +188,16 @@ chooses:
    confirmed, by identity and by a final byte-for-byte re-read through its
    descriptor, to be what the save wrote and verified in memory, and only if the
    old package's members, re-read through admission's descriptors, still hold
-   the bytes admission verified; otherwise it is kept under the staging name
-   (`HANDOFF-OLD-PACKAGE-LEFT`). Otherwise the
-   save is refused: the swap is undone only if both names still hold what the
-   swap left there (`HANDOFF-PUBLISH-UNVERIFIED`), else nothing is moved
-   (`HANDOFF-ROLLBACK-WITHHELD`), and the previous package is never deleted. If the
+   the bytes admission verified; otherwise the following holds.
+   If the old package's members no longer hold those bytes after the swap, it is
+   kept under the staging name and the confirmed new package is saved with the
+   warning `HANDOFF-OLD-PACKAGE-LEFT`; if they no longer hold them before the
+   swap, nothing is replaced and the save is refused
+   `HANDOFF-DESTINATION-CHANGED`. If a published member is not confirmed, the
+   save is refused and the old package is never deleted: the swap is undone only
+   if both names still hold what the swap left there
+   (`HANDOFF-PUBLISH-UNVERIFIED`), and otherwise nothing is moved
+   (`HANDOFF-ROLLBACK-WITHHELD`). If the
    destination was replaced between the pre-swap check and the swap, the swap is
    likewise undone only while both names still hold what the swap left there,
    and the save is refused `HANDOFF-DESTINATION-CHANGED`. A
@@ -203,8 +208,9 @@ chooses:
    a check and its call.
    - If the volume does not support the swap, the command refuses with
      `HANDOFF-REPLACE-UNSUPPORTED` and asks for a new name.
-   - A leftover `*.staging-*` from a crash is ignored, and is reported for the
-     user to delete.
+   - A leftover `*.staging-*` is ignored and reported. It may hold a previous
+     package, so the report asks the user to check what it holds before deleting
+     it.
 4. **Failure tests.** A failure injected between the member writes, or before
    the swap, leaves the previous package intact.
 
