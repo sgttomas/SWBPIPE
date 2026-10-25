@@ -1248,7 +1248,7 @@ History panel and `useModelStateHistory.ts` (Compare…), and the store's
   entity's field paths with both
   values as stored (a quantity with its own unit). View-only, with no export
   (FR-CMP-010 is v0.2), and no wording of standing. The within-run
-  `ComparisonPanel.tsx` is unchanged (S3b).
+  `ComparisonPanel.tsx` is unchanged (its case and combination selection is S3c).
 
 ### 4.2 Run comparison
 
@@ -1296,6 +1296,160 @@ identity fields are tested separately.
 **Memory.** The combined size of two stored results is checked against the
 ingress budget. If it is over, the comparison is refused with a named
 diagnostic.
+
+**As built (S3b, run comparison).** `apps/desktop/src/features/comparison/runComparison.ts`
+(identity, mapping, gate, context and diagnostics), `runComparisonSides.ts` (the
+two sides and their standing) and `RunComparisonView.tsx` beside them (the view),
+the History panel and `useModelStateHistory.ts` (Compare… of runs), and the
+store's `admit_analysis_run_comparison` (`analysis_runs.rs`).
+- **Sides.** Two recorded runs of the session's project, or one and the
+  session's current run. The current run is offered only while the session
+  holds its solve with the input manifest the record names (`recordableRun`); a
+  run restored from the saved project has none and is not offered, with the
+  reason. The earlier-recorded run is the left side; the current run is always
+  the right. A comparison with the current run holds only for that slot (its
+  result, record and manifest objects): if an edit, another solve, a cleared
+  result or a project replacement changes the slot while the comparison is
+  prepared, it is refused (`COMPARISON-CURRENT-RUN-CHANGED`), and a shown one is
+  closed with the reason in the status (Codex r1 on #1617); a comparison of two
+  recorded runs is unaffected.
+- **Row identity.** `flattenRunResult` reads each row's `family` (a physical
+  quantity's family, else null) and `dimension` (the signature's
+  `source_physical_semantic_dimension`, the record's `source_dimension`) through
+  the Rust reader's row semantics of that result; `object_ref` is the row's
+  `entity_ref`, `basis_ref` its `{ref_type, ref_id}`, and the five metadata
+  members are read as text or null. Rows map when all ten are equal. A result id
+  repeated within either run, or a row without one, maps to nothing (as the
+  reference's `_unique_quantity_records`). An unmapped row is listed on its side
+  with its reason: no row with this id in the other run, `identity_differs`
+  (naming the members), `duplicate_result_id` or `result_id_missing`.
+  - The reader's signature is per kind and unit, so a row whose unit changed
+    reads under another signature (or none): it is unmapped as
+    `identity_differs` (family, dimension), not compared as `units_differ`. The
+    unit condition stays as a check.
+  - A row whose metadata `basis` text names the solve (the solver-mode row, the
+    nonlinear support rows) differs between a sparse and a dense solve, so such
+    rows do not map across solver modes.
+- **Gate.** The whole-run conditions are each run's
+  `numericalResultStanding(...).eligible` and an equal semantic identity: the
+  reader's route with its table binding (contract id and sha256), else the
+  producer's claimed contract id. A mapped pair is then compared only when the
+  units are equal and non-empty, both values are finite numbers, and its family
+  is one of the reference's `SUPPORTED_RESULT_FAMILIES` (an ordinary decision: as
+  the reference refuses other families, no delta of a solver-mode code or a
+  residual count is given). Otherwise it is `not_compared` with every reason that
+  applies, in a fixed order. The delta is `right − left` in binary64, in the rows'
+  own unit; nothing is converted, and no tolerance is applied.
+- **Standing.** A recorded run is evaluated by `numericalResultStanding` over its
+  stored result and the solved model its stored manifest holds (the snapshot,
+  bound by the store to the state's model hash), after the checks below. Nothing
+  registers a recorded result, so a run on the pressure-source or retained route
+  reads `needs_recompute`, and the view says why. The current run uses the call
+  the session's own verdict makes (`resultsSessionState.ts`), on the session's
+  result object, so a pressure-source solve this session registered keeps its
+  live registration.
+- **The comparison read.** Compare… reads each recorded run through
+  `read_analysis_run`, Check record's read, unchanged: its metering, working-set
+  reservation, integrity checks and refusals all apply. That read refuses nothing
+  for opening or display only, so no separate comparison read is needed. A run
+  recorded before rule-pack resolution is refused by name
+  (`ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED`). The list reads no manifest and cannot
+  tell such a run, so once Check record or Compare… has been refused by that name,
+  the session keeps the refusal (runs are immutable) and the History panel shows
+  that run's compare selection disabled with it. An unreadable run row has a
+  disabled selection with the reason.
+- **Exactness at the webview boundary.** Each received recorded run is checked
+  again in the webview (`buildRecordedRunContext`): its result is re-hashed in the
+  checked profile and compared with the record's received-result hash, its
+  snapshot with the state's model hash, its manifest with the record's manifest
+  hash, and the record with its own hash, each in the store's canonical form. A
+  hash that differs is refused as `COMPARISON-RUN-NOT-EXACT` ("the recorded run …
+  holds values the desktop cannot represent exactly (its … as received does not
+  hash to the stored hash)", as `notExactReason` words it for states). Any other
+  disagreement with the stored state and record is refused as
+  `COMPARISON-RUN-RECORD-MISMATCH`, naming the findings. The result's checked
+  profile admits only binary64-exact numbers, so in practice the gap is in the
+  snapshot and manifest (JCS); the regression holds 9007199254740993 in the solved
+  model.
+- **Context deltas.** `runContext` makes one flat map from each run's manifest:
+  `solver_name`, `solver_version`, `solver_build_ref`, `solver_mode`,
+  `settings.<key>` for each solver setting, and `load_case:<id>` and
+  `combination:<id>` for each member of the load basis. `contextDeltas` is the
+  reference's `_settings_deltas` over two such maps (keys in code-point order;
+  added, removed or changed). Equal JSON data are equal whatever their member
+  order.
+- **Diagnostics.** A run's solve diagnostics are its record's (the producer's,
+  then the rule-pack reference diagnostics). They are compared as multisets keyed
+  by code and the affected-ref list as given: removed (left only), added (right
+  only), and a count in both.
+- **Size admission (Memory).** `admit_analysis_run_comparison {projectId,
+  recordingIds, currentRunBytes?}` takes 256 KiB of arguments, as the history
+  commands do. It names two different recorded runs, or one and
+  `currentRunBytes`; anything else is `COMPARISON-RUNS-ARGS`. In one read
+  transaction it first reserves SQLite's working set (#1602's rule). It then
+  finds and verifies each run as the run list does (`find_run_with`: identity
+  columns bounded before they load, the record and labels metered and checked),
+  so a run not of the project is `ANALYSIS-RUN-NOT-FOUND` and an unreadable row
+  is refused with its integrity refusal. It reads the stored lengths of each run's
+  result and input manifest (`octet_length`, header-only); the manifest is
+  counted because the comparison reads it for the snapshot. When their sum,
+  plus the current run's result and manifest text as the webview counts them
+  (UTF-8 bytes), exceeds the per-invocation budget, it refuses by name
+  (`COMPARISON-RUNS-TOO-LARGE`) before either run is read. The response is the
+  lengths only, with no id echoed. Every reservation is released when it
+  returns.
+  - This is a 1× cap on the stored input size, not a bound on webview memory. It
+    is a check, not a lease, and has no multiplier. The webview's parse,
+    flatten, compare and render memory is unpriced under the documented residual
+    ("command working memory and responses are not separately bounded",
+    DEL-04-07), as are the read responses' IPC copies (§3, Memory).
+- **Parity.** `fixtures/comparison/analysis_run_comparison_golden.json`
+  (about 263 KiB) holds three runs as the desktop flattened them: the connected
+  preview pair's sparse and dense producer results, and invented edits of the
+  sparse one (changed values, a unit change, rows removed, added, repeated and
+  moved to another entity, and setting and load-case changes). It also holds
+  three pairs with the desktop's comparison under an open gate (both eligible,
+  one identity). It is written by `runComparisonParity.test.ts`
+  (`OPENPIPESTRESS_WRITE_RUN_COMPARISON_GOLDEN`) and checked by
+  `tests/test_analysis_run_comparison_parity.py`. The adapter maps a row to a
+  `quantity_result` (`object_ref` as an `Entity` reference, `magnitude` its value)
+  and the contexts to `left_settings`/`right_settings`. The pytest requires:
+  - the reference's mappings (`derive_exact_result_id_mappings`) to be the
+    desktop's, apart from rows the desktop leaves unmapped because only its
+    metadata members differ;
+  - equal raw magnitudes and raw deltas for every compared pair;
+  - the reference's family or unit refusal and no delta for every pair that is
+    not compared;
+  - equal settings deltas.
+
+  The gate, the extra identity fields, the diagnostics and the current-run side
+  are tested in vitest (`runComparison.test.ts`, `compareRuns.test.tsx`).
+- **View.** The view shows:
+  - each side's description, recording time, state, and its standing as the
+    reader gives it (status, route and findings);
+  - the basis of the mapping and the gate, and a note when no pair is compared;
+  - counts: mapped, compared, non-zero, not compared, left only, right only,
+    context differences, and diagnostics added and removed;
+  - the context deltas and the diagnostic changes;
+  - a table of mapped pairs and unmatched rows, filterable by status
+    (compared, non-zero, not compared, either side only), family and result id,
+    paged at 200 rows as §4.1's. A compared row shows both values and the delta
+    with the unit; any other row shows its reasons.
+
+  It is view-only, with no export (FR-CMP-010 is v0.2), and has no wording of
+  standing beyond the reader's own status.
+- **Compare….** The one Compare… now takes two saved states or two runs.
+  Selecting a run clears the selected states, and selecting a state clears the
+  runs. It goes through the one-owner check and the busy refusal, and is
+  disabled with the stated reason when busy, when fewer than two are selected, or
+  when a selected run was refused. A third selection is disabled with its reason.
+- **Residuals.**
+  - FR-CMP-005/007/008/009/010 stay v0.2, and no unit is converted.
+  - No per-case gate: standing is per envelope (above).
+  - The diagnostics comparison is shown, not part of the reference parity (the
+    reference lists run diagnostics but does not diff them).
+  - The comparison is not persisted and is not a DEL-14-05 comparison-output
+    document (SCA-011 holds).
 
 ### 4.3 UI
 

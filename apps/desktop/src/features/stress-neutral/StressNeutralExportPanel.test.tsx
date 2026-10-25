@@ -18,7 +18,7 @@ import {readRetainedPrecisionCorpus} from '../../test-support/retainedPrecisionC
 import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
-import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,validateStressNeutralCsv,precisionStressRow,strictWitnessDisposition} from './StressNeutralExportPanel';
+import {buildStressNeutralExportPacket,validateDesktopStressNeutralExportPacket,validateStressNeutralExportPacket,validateStressNeutralCsv,precisionStressRow,strictWitnessDisposition} from './StressNeutralExportPanel';
 import {StressNeutralExportPanel} from './StressNeutralExportPanel';
 import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
 import type {PreviewModel,MechanicsResult} from '../../types';
@@ -311,6 +311,36 @@ it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',asy
  await rehash(withheldPacket);
  await expect(validateStressNeutralExportPacket(withheldPacket,withheldSource)).rejects.toThrow('SN-PRECISION-WITNESS-BINDING-MISMATCH');
  result.numerical_quality!.status='not_assessed';await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow('SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE');
+});
+
+it('binds the witness-withholding findings to the builder provenance on the desktop path; the generic validator keeps them bound to the top level',async()=>{
+ // The withheld-row fixture of the test above (an unknown semantic), built by the desktop builder.
+ const model=structuredClone(modelJson) as PreviewModel,result=minimalPreviewStatement({run_id:'run:transport-vectors',model_ref:model.project.id,
+  rows:transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',entity_ref:'node:transport',value:JSON.parse(v.decimal),unit:'rad',metadata:{component:'nodal_rotation_x',coordinate_system:'global',location:'summary',basis:'synthetic consumer transport fixture',sign_convention:'synthetic signed scalar'}})),
+  diagnostics:[{id:'gate:test',code:'SYNTHETIC_GATE',severity:'info',message:'Consumer fixture only'}],
+  cases:model.load_cases.map(c=>({basis_ref:{ref_type:'load_case',ref_id:c.id},structural_status:'passive_model_basis',solve_quality:'checks_passed',model_matrix_fidelity:'represented_equations_retained',accuracy_evidence:'not_claimed',evidence_refs:['gate:test']}))});
+ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:'0.2.0',solver_build_ref:'test',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+ const withheldSource=structuredClone(result);
+ withheldSource.results=[{id:'unknown:interop',entity_ref:'nonlinear_supports',kind:'nonlinear_support_free_dof_work_residual',value:1,unit:'N*m',metadata:{coordinate_system:'solver_iteration',location:'final_iteration',basis:'invented transport fixture',sign_convention:'nonnegative max absolute free-DOF residual work product in the final linearized solve'}} as never];
+ const analysisRun=await buildAnalysisRunPreview(withheldSource,{inputManifest}),basis=modelLoadBasisRefs(model);
+ const packet=await buildStressNeutralExportPacket({model,result:withheldSource,analysisRun});
+ const withholding=(d:any)=>d.code.startsWith('SN-UNIT-WITNESS-WITHHELD')||d.code==='SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE';
+ expect(packet.diagnostics.filter(withholding).map((d:any)=>d.code)).toEqual(['SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC','SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE']);
+ for(const d of packet.diagnostics.filter(withholding))expect(d.provenance).toStrictEqual(packet.provenance);
+ await expect(validateDesktopStressNeutralExportPacket(packet,withheldSource,analysisRun,basis)).resolves.toBeUndefined();
+ const restrictive={...structuredClone(packet.provenance),redistribution_status:'protected_suspected',review_status:'quarantined'};
+ // One finding restamped alone: the top level still binds on the desktop path, and the finding no longer follows it.
+ for(const code of ['SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC','SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE']) {
+   const one=structuredClone(packet);one.diagnostics.find((d:any)=>d.code===code).provenance=structuredClone(restrictive);await rehash(one);
+   await expect(validateDesktopStressNeutralExportPacket(one,withheldSource,analysisRun,basis)).rejects.toThrow('SN-PRECISION-WITNESS-BINDING-MISMATCH');
+   await expect(validateStressNeutralExportPacket(one,withheldSource,analysisRun,basis)).rejects.toThrow('SN-PRECISION-WITNESS-BINDING-MISMATCH');
+ }
+ // Restamped with the top level: the generic validator admits it (another exporter's own provenance); the desktop path does not.
+ const coordinated=structuredClone(packet);coordinated.provenance=structuredClone(restrictive);
+ for(const d of coordinated.diagnostics)if(withholding(d))d.provenance=structuredClone(restrictive);
+ await rehash(coordinated);
+ await expect(validateStressNeutralExportPacket(coordinated,withheldSource,analysisRun,basis)).resolves.toBeUndefined();
+ await expect(validateDesktopStressNeutralExportPacket(coordinated,withheldSource,analysisRun,basis)).rejects.toThrow('SN-DESKTOP-PROVENANCE-MISMATCH');
 });
 
 it('projects row location and missing component without guessed semantics',()=>{

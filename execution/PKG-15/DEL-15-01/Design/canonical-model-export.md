@@ -268,7 +268,7 @@ is hard-coded to look complete.
   its provenance `source_name` when there is none.
 - `provenance` is the library's provenance mapped to the eight handoff fields
   (as the `provenance` row maps them). |
-| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance` |
+| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance`. **Resolution** is the solve's (#1602; `rule_pack_ref_exclusion`, a port of `resolveModelRulePacks`, pinned by `fixtures/handoff/rule_pack_ref_resolution_vectors.json`): only the pack stored under the model's own project counts. It is unresolved (`MODEL-RULE-PACK-REF-UNRESOLVED`) when none is stored or its metadata lacks the reference's id, a version or a source notice (text that is blank by JavaScript's `trim`, U+FEFF included and U+0085 excluded, counts as absent, as in the solve). It is a checksum mismatch (`MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`) when its stamp is not 64 lowercase hex or not the reference's, its recomputed checksum does not match its stamp, or its version is not the reference's. An excluded reference stays listed with that warning, so a handoff warns of exactly the references a run of the same model excludes. A store read error refuses the save (`HANDOFF-RULE-PACK-STORE-UNAVAILABLE`), stricter than the solve, which records the reference as unresolved |
 | `unresolved_assumptions` | The document's records with `status: unresolved`: `assumption_id`, `statement`, `status: unresolved`, `affected_refs` (below), `provenance` |
 | `warnings`, `diagnostics` | The document validator's and the solve-independent model diagnostics, mapped to the handoff `Diagnostic` (`code`, `class` by fixed table from code family, `severity`, `source`, `affected_object`, `message`, `remediation`, `provenance`) |
 | `unsupported_behavior_flags`, `target_mapping_metadata` | `reserved_metadata_only`, per DEL-15-02. Nothing target-specific is claimed |
@@ -309,7 +309,10 @@ The vocabulary is not extended here.
 **The preview panels.**
 - `HandoffPanel` stays a preview. Its download is relabelled "Preview handoff
   summary (not a handoff manifest)" and it points to File › Save Handoff….
-- Its hard-coded `rule_pack_refs: []` takes the document's references.
+- Its hard-coded `rule_pack_refs: []` takes the document's references, every
+  one, as Save Handoff lists them. A reference the solve excluded stays listed;
+  the run record's exclusion diagnostic is named once in its `diagnostic_refs`
+  (`services/rulePackRefDiagnostics.ts`), never duplicating one already carried.
 - `NativePackagePanel` is PKG-17 and unchanged.
 
 ## 4. Verification
