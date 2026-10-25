@@ -40,12 +40,24 @@
 //!   (precedent `DEC-038` / `library_value_ref`); equality acceptance is a
 //!   deliberate non-goal of the member.
 //!
-//! ## Input binding (C4-defined minimal mechanism)
+//! ## Bases (rule-pack format 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md`)
 //!
-//! The schema carries no selector tying a `solver_result` required input to a
-//! solved result row, so the binding is **caller-supplied**: solver values via
-//! [`SolverResultBinding`] (the caller extracts `{value, unit}` for an
-//! `input_id` from a solved mechanics envelope), user values and limit slots
+//! Each check names a stress category; the category's one load-case mapping
+//! lists the required load cases (model load cases or combinations) the check
+//! is evaluated on, its **bases**. The run yields one [`CheckOutcome`] per
+//! check and basis, in check order and then mapping order (§2.7), each
+//! evaluated with only that basis's solver values, refusals and bounds; a
+//! basis the caller reports unavailable ([`UnavailableBasis`], §2.6) is
+//! incomplete and never evaluated. The pack aggregate keeps its rule
+//! (incomplete above failed above checked) over all outcomes.
+//!
+//! ## Input binding
+//!
+//! The caller resolves each `solver_result` input on each basis from the
+//! pack's own selector (`solver_result_ref`, §2.5) and passes the one matched
+//! row's value as a [`SolverResultBinding`] naming its basis, or a
+//! [`RefusedSolverResult`] when no row, more than one row, or a refused row
+//! matched; user values and limit slots
 //! via [`SuppliedValueBinding`]. `private_library_value` inputs are resolved via
 //! [`LibraryValueBinding`] (C3 rule-pack ↔ library reference wiring): the caller
 //! reads `{value, unit}` from the referenced private library record's value slot
@@ -71,7 +83,12 @@ use open_pipe_stress_expression_evaluator::{
     FindingCode, IntervalBinding, IntervalEvaluationResult, IntervalNoteCode, IntervalValue,
     Quantity, Truth, VariableBinding,
 };
-use open_pipe_stress_rule_pack_document::{decode_dimension, decode_expression, encode_dimension};
+use open_pipe_stress_rule_pack_document::{
+    decode_dimension, decode_expression, encode_dimension, plan_check_bases,
+};
+/// The load case or combination an outcome is evaluated on (rule-pack format
+/// 0.5.0, DEL-06-01 Design `rule-pack-0.5.0.md` §2.3).
+pub use open_pipe_stress_rule_pack_document::BasisRef;
 use open_pipe_stress_units::{convert_for_dimension, unit_by_symbol, Dimension as UnitDimension};
 
 /// Document kind tag on a serialized run result.
@@ -84,10 +101,14 @@ pub const PROFESSIONAL_BOUNDARY_NOTICE: &str =
      user-supplied rules and data. Human review remains required.";
 
 /// One solver value the caller resolved from a solved mechanics envelope for a
-/// `solver_result` required input.
+/// `solver_result` required input on one basis (design §2.5): the one row the
+/// input's selector matched among the rows whose `basis_ref` is `basis_ref`.
+/// It binds on that basis only.
 #[derive(Debug, Clone)]
 pub struct SolverResultBinding {
     pub input_id: String,
+    pub basis_ref: BasisRef,
+    /// The matched row's id, reported on the outcome's bound input.
     pub result_id: String,
     pub value: f64,
     pub unit: String,
@@ -101,9 +122,15 @@ pub struct SolverResultBinding {
 /// interval mode; `b == 0` binds the exact point `q`. A bound that is not a
 /// finite non-negative number, or more than one bound for the same input id,
 /// blocks the input (treated as unsupplied).
+///
+/// A bound names its input and its basis and applies to that basis only
+/// (design §2.8); one input's bound never affects another basis. A bound
+/// without a basis (`basis_ref: None`) is refused: its input is treated as
+/// unsupplied on every basis, with a finding, never bound unwidened.
 #[derive(Debug, Clone)]
 pub struct SolverResultBound {
     pub input_id: String,
+    pub basis_ref: Option<BasisRef>,
     pub absolute_bound: f64,
 }
 
@@ -120,13 +147,34 @@ pub const RULE_RESULT_INDETERMINATE: &str = "RULE_RESULT_INDETERMINATE";
 /// Interval-mode finding (D2 §4.11.3): a divisor range contains zero.
 pub const RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE: &str = "RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE";
 
-/// A `solver_result` input the caller refused to bind, with the refusal reason
-/// (T0R: `result_export::semantic_contract::rule_binding_refusal`). The runner
-/// reports the input as `RULE_INPUTS_INCOMPLETE` with the reason, never a pass.
+/// A `solver_result` input the caller could not bind on one basis, with the
+/// reason code: a row refusal (T0R:
+/// `result_export::semantic_contract::rule_binding_refusal`), or no row or
+/// more than one row matching the input's selector on the basis
+/// (`RULE_SOLVER_RESULT_ROW_MISSING`, `RULE_SOLVER_RESULT_ROW_AMBIGUOUS`;
+/// design §2.5). The runner reports the input as unsupplied on that basis
+/// only, so that outcome is `RULE_INPUTS_INCOMPLETE` with the reason, never a
+/// pass. `message`, when present, replaces the generic refusal message.
 #[derive(Debug, Clone, Serialize)]
 pub struct RefusedSolverResult {
     pub input_id: String,
+    pub basis_ref: BasisRef,
     pub reason: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+}
+
+/// A required load case the run cannot evaluate on (design §2.6): absent from
+/// the model (`RULE_REQUIRED_LOAD_CASE_MISSING`) or present with no rows in
+/// the solved envelope (`RULE_REQUIRED_LOAD_CASE_UNSOLVED`). Every check whose
+/// category maps it is `RULE_INPUTS_INCOMPLETE` on that basis with a finding
+/// naming it, and is never evaluated there; its other bases are unaffected.
+#[derive(Debug, Clone, Serialize)]
+pub struct UnavailableBasis {
+    pub basis_ref: BasisRef,
+    pub required_load_case_id: String,
+    pub code: String,
+    pub message: String,
 }
 
 /// One user-entered value for a `user_supplied_rule_value` required input or a
@@ -165,9 +213,12 @@ pub struct RuleCheckRunInput<'a> {
     /// document validation; the runner surfaces structural findings (missing
     /// references) but does not re-validate the checksum or lifecycle.
     pub rule_pack_document: &'a Value,
+    /// Per-basis solver values (design §2.5); each binds on its basis only.
     pub solver_results: Vec<SolverResultBinding>,
-    /// Solver-result inputs refused at the binding site; empty when none were.
+    /// Solver-result inputs refused or unmatched on a basis; empty when none were.
     pub refused_solver_results: Vec<RefusedSolverResult>,
+    /// Required load cases missing from the model or unsolved (design §2.6).
+    pub unavailable_bases: Vec<UnavailableBasis>,
     pub supplied_values: Vec<SuppliedValueBinding>,
     /// Values resolved from saved private libraries for `private_library_value`
     /// required inputs (caller-resolved from the local store).
@@ -245,10 +296,21 @@ pub struct RunFinding {
     pub message: String,
 }
 
-/// The outcome of one `check_definition`.
+/// The outcome of one `check_definition` on one of its bases (design §2.7).
+/// A check has one outcome per required load case its category maps, in
+/// mapping order; every member is for that basis alone and nothing is merged
+/// across bases. Outcome identity is (`check_id`, `basis_ref.ref_type`,
+/// `basis_ref.ref_id`).
 #[derive(Debug, Clone, Serialize)]
 pub struct CheckOutcome {
     pub check_id: String,
+    /// The check's stress category (`category_ref.ref_id`).
+    pub category_ref: String,
+    /// The load case or combination this outcome was evaluated on. `None`
+    /// (serialized `null`) only when the pack's structure gives the check no
+    /// basis list, a defect validation blocks before any run (§2.9); that
+    /// outcome is `RULE_INPUTS_INCOMPLETE`, never a pass.
+    pub basis_ref: Option<BasisRef>,
     pub status: RuleCheckStatus,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub computed_value: Option<ComputedQuantity>,
@@ -277,8 +339,10 @@ pub struct RuleCheckRunResult {
     pub professional_boundary_notice: String,
 }
 
-/// How many of a run's checks ended in each status: the counts behind the
-/// pack headline "INCOMPLETE — n check(s) failed; m check(s) blocked".
+/// How many of a run's outcomes ended in each status: the counts behind the
+/// pack headline "INCOMPLETE — n check(s) failed; m check(s) blocked". Since
+/// format 0.5.0 they count outcomes, one per check and basis (design §2.7),
+/// so one check can contribute more than once.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct RuleCheckStatusCounts {
     pub failed: usize,
@@ -300,9 +364,10 @@ impl RuleCheckRunResult {
     }
 }
 
-/// Run every `check_definition` in the rule pack against the caller-resolved
-/// values and return per-check outcomes plus the pack aggregate (incomplete if
-/// any check is incomplete, else failed if any check failed, else checked).
+/// Run every `check_definition` in the rule pack on each of its bases against
+/// the caller-resolved values and return one outcome per check and basis plus
+/// the pack aggregate over the outcomes (incomplete if any outcome is
+/// incomplete, else failed if any failed, else checked; FR-RULE-003).
 pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
     run_rule_checks_with_bounds(input, &[])
 }
@@ -336,50 +401,99 @@ pub fn run_rule_checks_with_bounds(
         .unwrap_or_default()
         .to_string();
 
-    let ctx = RunContext {
-        required_index: index_by(doc, "required_inputs", "input_id"),
-        value_slot_index: index_by(doc, "value_slots", "slot_id"),
-        formula_index: index_by(doc, "formula_declarations", "formula_id"),
-        solver_by_input: input
-            .solver_results
-            .iter()
-            .map(|b| (b.input_id.as_str(), b))
-            .collect(),
-        refused_by_input: input
-            .refused_solver_results
-            .iter()
-            .map(|r| (r.input_id.as_str(), r))
-            .collect(),
-        supplied_by_ref: input
-            .supplied_values
-            .iter()
-            .map(|b| (b.ref_id.as_str(), b))
-            .collect(),
-        library_by_input: input
-            .library_values
-            .iter()
-            .map(|b| (b.input_id.as_str(), b))
-            .collect(),
-        bound_by_input: {
-            // A second bound for the same input marks it refused (`None`),
-            // never last-wins.
-            let mut map: HashMap<&str, Option<f64>> = HashMap::new();
-            for b in bounds {
-                map.entry(b.input_id.as_str())
-                    .and_modify(|entry| *entry = None)
-                    .or_insert(Some(b.absolute_bound));
-            }
-            map
-        },
-        current_statuses: &input.current_statuses,
-        grammar_version: grammar_version.as_str(),
-    };
-
-    let checks: Vec<CheckOutcome> = doc
+    let required_index = index_by(doc, "required_inputs", "input_id");
+    let value_slot_index = index_by(doc, "value_slots", "slot_id");
+    let formula_index = index_by(doc, "formula_declarations", "formula_id");
+    // User-supplied values, value slots and library values are the same for
+    // every basis (design §2.5, last bullet).
+    let supplied_by_ref: HashMap<&str, &SuppliedValueBinding> = input
+        .supplied_values
+        .iter()
+        .map(|b| (b.ref_id.as_str(), b))
+        .collect();
+    let library_by_input: HashMap<&str, &LibraryValueBinding> = input
+        .library_values
+        .iter()
+        .map(|b| (b.input_id.as_str(), b))
+        .collect();
+    let check_definitions: &[Value] = doc
         .get("check_definitions")
         .and_then(Value::as_array)
-        .map(|arr| arr.iter().map(|c| run_one_check(&ctx, c)).collect())
-        .unwrap_or_default();
+        .map(Vec::as_slice)
+        .unwrap_or(&[]);
+
+    // Design §2.7: one outcome per check and basis, in check order and then
+    // mapping order. Each basis gets its own context: only the solver values,
+    // refusals and bounds of that basis are visible to it, so nothing binds
+    // or is reported on a basis it did not come from.
+    let mut checks: Vec<CheckOutcome> = Vec::new();
+    for (check, plan) in check_definitions.iter().zip(plan_check_bases(doc)) {
+        let planned: Vec<(Option<&BasisRef>, Option<RunFinding>)> = match &plan.bases {
+            Ok(bases) => bases
+                .iter()
+                .map(|basis| {
+                    // §2.6: a required load case missing from the model or
+                    // unsolved makes this basis incomplete, with a finding
+                    // naming it; the check is never evaluated on it.
+                    let unavailable = input
+                        .unavailable_bases
+                        .iter()
+                        .find(|u| u.basis_ref == basis.basis_ref)
+                        .map(|u| RunFinding {
+                            code: u.code.clone(),
+                            severity: "blocking".to_string(),
+                            subject_id: basis.required_load_case_id.clone(),
+                            message: u.message.clone(),
+                        });
+                    (Some(&basis.basis_ref), unavailable)
+                })
+                .collect(),
+            // The pack gives this check no basis list (a structural defect
+            // validation blocks before any run, §2.9): one incomplete outcome
+            // with no basis, never evaluated and never a pass.
+            Err(message) => vec![(
+                None,
+                Some(RunFinding {
+                    code: open_pipe_stress_rule_pack_document::RULE_PACK_MAPPING_INCOMPLETE
+                        .to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: plan.check_id.clone(),
+                    message: format!("{message}; the check has no load case to be evaluated on"),
+                }),
+            )],
+        };
+        for (basis, blocking) in planned {
+            let available = blocking.is_none();
+            let on_basis = |b: &BasisRef| available && basis == Some(b);
+            let ctx = RunContext {
+                required_index: required_index.clone(),
+                value_slot_index: value_slot_index.clone(),
+                formula_index: formula_index.clone(),
+                solver_by_input: input
+                    .solver_results
+                    .iter()
+                    .filter(|b| on_basis(&b.basis_ref))
+                    .map(|b| (b.input_id.as_str(), b))
+                    .collect(),
+                refused_by_input: input
+                    .refused_solver_results
+                    .iter()
+                    .filter(|r| on_basis(&r.basis_ref))
+                    .map(|r| (r.input_id.as_str(), r))
+                    .collect(),
+                supplied_by_ref: supplied_by_ref.clone(),
+                library_by_input: library_by_input.clone(),
+                bound_by_input: bounds_on_basis(bounds, basis),
+                basis_findings: blocking.into_iter().collect(),
+                current_statuses: &input.current_statuses,
+                grammar_version: grammar_version.as_str(),
+            };
+            let mut outcome = run_one_check(&ctx, check);
+            outcome.category_ref = plan.category_ref.clone();
+            outcome.basis_ref = basis.cloned();
+            checks.push(outcome);
+        }
+    }
 
     let aggregate_status = if checks.is_empty() {
         RuleCheckStatus::RuleInputsIncomplete
@@ -415,11 +529,47 @@ struct RunContext<'a> {
     refused_by_input: HashMap<&'a str, &'a RefusedSolverResult>,
     supplied_by_ref: HashMap<&'a str, &'a SuppliedValueBinding>,
     library_by_input: HashMap<&'a str, &'a LibraryValueBinding>,
-    /// Verified absolute bounds by `solver_result` input id (D2 §4.11.2);
-    /// `None` when more than one bound was supplied for the id.
-    bound_by_input: HashMap<&'a str, Option<f64>>,
+    /// Verified absolute bounds of this basis by `solver_result` input id
+    /// (D2 §4.11.2; design §2.8).
+    bound_by_input: HashMap<&'a str, BoundEntry>,
+    /// Blocking findings that make this basis incomplete before any binding
+    /// (a required load case missing or unsolved, design §2.6). When present
+    /// no solver value is visible to the basis and the check is not evaluated.
+    basis_findings: Vec<RunFinding>,
     current_statuses: &'a [AnalysisStatus],
     grammar_version: &'a str,
+}
+
+/// The bound of one input on one basis (design §2.8).
+#[derive(Debug, Clone, Copy)]
+enum BoundEntry {
+    Bound(f64),
+    /// More than one bound for the input on this basis: refused, never
+    /// last-wins.
+    Duplicate,
+    /// A bound for the input that names no basis: refused on every basis.
+    NoBasis,
+}
+
+/// The bounds that apply on `basis` (design §2.8): those naming the basis,
+/// keyed by input. A bound naming no basis refuses its input on every basis;
+/// a bound naming another basis is invisible here.
+fn bounds_on_basis<'a>(
+    bounds: &'a [SolverResultBound],
+    basis: Option<&BasisRef>,
+) -> HashMap<&'a str, BoundEntry> {
+    let mut map: HashMap<&str, BoundEntry> = HashMap::new();
+    for b in bounds.iter().filter(|b| b.basis_ref.as_ref() == basis) {
+        map.entry(b.input_id.as_str())
+            .and_modify(|entry| *entry = BoundEntry::Duplicate)
+            .or_insert(BoundEntry::Bound(b.absolute_bound));
+    }
+    // A basis-less bound wins over any bound of this basis: the input is
+    // refused, never bound with a bound whose basis is unknown.
+    for b in bounds.iter().filter(|b| b.basis_ref.is_none()) {
+        map.insert(b.input_id.as_str(), BoundEntry::NoBasis);
+    }
+    map
 }
 
 /// A value resolved for a required input, ready to bind into the evaluator.
@@ -451,7 +601,9 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         .unwrap_or_default();
     let diagnostic_policy = check.get("diagnostic_policy");
 
-    let mut completeness_findings: Vec<RunFinding> = Vec::new();
+    // A basis the run cannot evaluate on (design §2.6) carries its blocking
+    // finding first; completeness then stops the check before evaluation.
+    let mut completeness_findings: Vec<RunFinding> = ctx.basis_findings.clone();
     let mut evaluator_findings: Vec<RunFinding> = Vec::new();
     let mut diagnostic_codes: Vec<String> = Vec::new();
     let mut bound_inputs: Vec<BoundInput> = Vec::new();
@@ -553,10 +705,12 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 code: refusal.reason.clone(),
                 severity: "blocking".to_string(),
                 subject_id: ref_id.to_string(),
-                message: format!(
-                    "solver result refused for rule binding ({}); the input is treated as unsupplied",
-                    refusal.reason
-                ),
+                message: refusal.message.clone().unwrap_or_else(|| {
+                    format!(
+                        "solver result refused for rule binding ({}); the input is treated as unsupplied",
+                        refusal.reason
+                    )
+                }),
             });
         }
         let (raw_value, raw_unit, result_id, binding_source, note) = match source_kind {
@@ -632,7 +786,26 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         };
         let (raw_value, raw_unit, note, interval_source) = match bound {
             None => (raw_value, raw_unit, note, None),
-            Some(None) => {
+            // Design §2.8: a bound without a basis is refused; the input is
+            // unsupplied on every basis rather than bound unwidened.
+            Some(BoundEntry::NoBasis) => {
+                completeness_findings.push(RunFinding {
+                    code: "RULE_EVALUATOR_ERROR".to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: ref_id.to_string(),
+                    message: "an absolute bound for this solver result names no load case or \
+                              combination; a bound applies to one basis only, so the input is \
+                              treated as unsupplied"
+                        .to_string(),
+                });
+                (
+                    None,
+                    None,
+                    Some("absolute bound without a basis: treated as unsupplied".to_string()),
+                    None,
+                )
+            }
+            Some(BoundEntry::Duplicate) => {
                 completeness_findings.push(RunFinding {
                     code: "RULE_EVALUATOR_ERROR".to_string(),
                     severity: "blocking".to_string(),
@@ -648,7 +821,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                     None,
                 )
             }
-            Some(Some(b)) if !(b.is_finite() && b >= 0.0) => {
+            Some(BoundEntry::Bound(b)) if !(b.is_finite() && b >= 0.0) => {
                 completeness_findings.push(RunFinding {
                     code: "RULE_EVALUATOR_ERROR".to_string(),
                     severity: "blocking".to_string(),
@@ -668,8 +841,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 )
             }
             // b = 0 binds the exact point q, with no widening (D2 §4.11.2).
-            Some(Some(b)) if b == 0.0 => (raw_value, raw_unit, note, None),
-            Some(Some(b)) => {
+            Some(BoundEntry::Bound(b)) if b == 0.0 => (raw_value, raw_unit, note, None),
+            Some(BoundEntry::Bound(b)) => {
                 let source = raw_value.zip(raw_unit.clone()).map(|(q, u)| (q, u, b));
                 (
                     raw_value,
@@ -788,6 +961,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         );
         return CheckOutcome {
             check_id,
+            category_ref: String::new(),
+            basis_ref: None,
             status,
             computed_value: None,
             limit_value: None,
@@ -991,6 +1166,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
             let status = enforce_declared(status, &result_statuses, &mut evaluator_findings);
             CheckOutcome {
                 check_id,
+                category_ref: String::new(),
+                basis_ref: None,
                 status,
                 computed_value: None,
                 limit_value: None,
@@ -1026,6 +1203,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                     );
                     return CheckOutcome {
                         check_id,
+                        category_ref: String::new(),
+                        basis_ref: None,
                         status,
                         computed_value: Some(quantity_to_computed(&formula_quantity)),
                         limit_value: None,
@@ -1053,6 +1232,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                     );
                     return CheckOutcome {
                         check_id,
+                        category_ref: String::new(),
+                        basis_ref: None,
                         status,
                         computed_value,
                         limit_value: None,
@@ -1080,6 +1261,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 );
                 return CheckOutcome {
                     check_id,
+                    category_ref: String::new(),
+                    basis_ref: None,
                     status,
                     computed_value,
                     limit_value: None,
@@ -1111,6 +1294,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                     );
                     return CheckOutcome {
                         check_id,
+                        category_ref: String::new(),
+                        basis_ref: None,
                         status,
                         computed_value,
                         limit_value: None,
@@ -1155,6 +1340,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
             let status = enforce_declared(status, &result_statuses, &mut evaluator_findings);
             CheckOutcome {
                 check_id,
+                category_ref: String::new(),
+                basis_ref: None,
                 status,
                 computed_value,
                 limit_value: limit_computed,
@@ -1398,6 +1585,8 @@ fn blocked_after_completeness(
     );
     CheckOutcome {
         check_id,
+        category_ref: String::new(),
+        basis_ref: None,
         status,
         computed_value: None,
         limit_value: None,
@@ -1431,6 +1620,8 @@ impl CheckRecords {
     ) -> CheckOutcome {
         CheckOutcome {
             check_id,
+            category_ref: String::new(),
+            basis_ref: None,
             status,
             // An interval check computes an enclosure, not one value; the
             // enclosure is reported in the outcome finding (D2 §4.11.5).
@@ -1955,9 +2146,24 @@ mod tests {
 
     /// A minimal invented rule pack: one ratio check `actual / limit` against a
     /// ratio limit value slot. All values are invented non-engineering content.
+    /// The one basis of the single-basis test packs (format 0.5.0).
+    fn basis() -> BasisRef {
+        BasisRef::new("load_case", "load:L-1")
+    }
+
     fn demo_pack() -> Value {
         json!({
+            "schema_version": "0.5.0",
             "grammar_version": "1.0.0",
+            "required_load_cases": [
+                { "required_load_case_id": "rlc:one", "name": "Invented case one",
+                  "basis_ref": { "ref_type": "load_case", "ref_id": "load:L-1" } }
+            ],
+            "stress_categories": [ { "category_id": "cat:A", "name": "Invented category A" } ],
+            "load_case_mappings": [
+                { "mapping_id": "map:A", "category_ref": { "ref_type": "stress_category", "ref_id": "cat:A" },
+                  "required_load_case_refs": [ { "ref_type": "required_load_case", "ref_id": "rlc:one" } ] }
+            ],
             "metadata": { "rule_pack_id": "test_demo_pack" },
             "required_inputs": [
                 {
@@ -2013,6 +2219,7 @@ mod tests {
             "check_definitions": [
                 {
                     "check_id": "ratio_check",
+                    "category_ref": { "ref_type": "stress_category", "ref_id": "cat:A" },
                     "required_input_refs": [
                         { "ref_id": "actual", "ref_type": "required_input" },
                         { "ref_id": "limit", "ref_type": "required_input" }
@@ -2034,6 +2241,7 @@ mod tests {
     fn solver(input_id: &str, value: f64) -> SolverResultBinding {
         SolverResultBinding {
             input_id: input_id.to_string(),
+            basis_ref: basis(),
             result_id: format!("result:stress:{input_id}"),
             value,
             unit: "demo_unit".to_string(),
@@ -2067,6 +2275,7 @@ mod tests {
             rule_pack_document: pack,
             solver_results,
             refused_solver_results: Vec::new(),
+            unavailable_bases: Vec::new(),
             supplied_values,
             library_values,
             current_statuses: vec![AnalysisStatus::MechanicsSolved],
@@ -2141,8 +2350,11 @@ mod tests {
             solver_results: vec![solver("actual", 50.0)],
             refused_solver_results: vec![RefusedSolverResult {
                 input_id: "actual".to_string(),
+                basis_ref: basis(),
                 reason: "RULE_QUANTITY_NOT_COVERED".to_string(),
+                message: None,
             }],
+            unavailable_bases: Vec::new(),
             supplied_values,
             library_values: Vec::new(),
             current_statuses: vec![AnalysisStatus::MechanicsSolved],

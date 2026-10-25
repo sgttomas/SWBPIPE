@@ -4,6 +4,7 @@ import {
   Field,
   TextField,
   readRequiredInputIds,
+  readStressCategoryIds,
   readValueSlotIds,
   uniqueDeclarationId,
   type DeclarationDocument
@@ -34,6 +35,11 @@ import {
 // code or standards value. Lossless: a patched check keeps every member it
 // already carried (provenance, description, any extra ref fields), and
 // untouched sibling checks round-trip verbatim.
+//
+// Format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.4, §3): each check
+// names its stress category (`category_ref`), chosen from the pack's declared
+// categories; it is evaluated once for each required load case the category's
+// mapping lists.
 
 // Editable enum vocabularies, copied verbatim from rule_pack.schema.yaml so the
 // controls can only emit schema-valid tokens (the codec rejects any other).
@@ -164,12 +170,14 @@ export function defaultCheckDefinition(
   existingCheckIds: string[],
   inputIds: string[],
   slotIds: string[],
-  formulaIds: string[]
+  formulaIds: string[],
+  categoryIds: string[] = []
 ): Record<string, unknown> {
   return {
     check_id: uniqueDeclarationId("user_check", existingCheckIds),
     name: "User-defined check (placeholder)",
     description: "Replace with the user-defined acceptability check.",
+    category_ref: { ref_id: categoryIds[0] ?? "TBD", ref_type: "stress_category" },
     required_input_refs: [{ ref_id: inputIds[0] ?? "TBD", ref_type: "required_input" }],
     value_slot_refs: [{ ref_id: slotIds[0] ?? "TBD", ref_type: "value_slot" }],
     formula_ref: { ref_id: formulaIds[0] ?? "TBD", ref_type: "formula" },
@@ -203,13 +211,15 @@ function RefSelect({
   options,
   value,
   disabled,
-  onChange
+  onChange,
+  labels
 }: {
   testId: string;
   options: string[];
   value: string;
   disabled: boolean;
   onChange: (next: string) => void;
+  labels?: Record<string, string>;
 }) {
   // A ref may point at an id that is not (or no longer) declared — a
   // declaration was renamed/removed, or the default "TBD" placeholder stands in
@@ -227,7 +237,7 @@ function RefSelect({
       {!known ? <option value={value}>(unresolved) {value || "(empty)"}</option> : null}
       {options.map((option) => (
         <option key={option} value={option}>
-          {option}
+          {labels?.[option] ? `${labels[option]} (${option})` : option}
         </option>
       ))}
     </select>
@@ -304,6 +314,14 @@ export function CheckDefinitionsEditor({
   const inputIds = readRequiredInputIds(document);
   const slotIds = readValueSlotIds(document);
   const formulaIds = readFormulaDeclarationIds(document);
+  const categoryIds = readStressCategoryIds(document);
+  const categoryLabels: Record<string, string> = {};
+  for (const entry of asArray(document.stress_categories)) {
+    const record = asObject(entry);
+    const id = asString(record?.category_id);
+    const name = asString(record?.name);
+    if (id && name) categoryLabels[id] = name;
+  }
 
   // Patch one check by index; untouched checks round-trip verbatim.
   const updateCheck = (index: number, patch: Record<string, unknown>) =>
@@ -320,7 +338,7 @@ export function CheckDefinitionsEditor({
     onChange(
       setCheckDefinitions(document, [
         ...rawChecks,
-        defaultCheckDefinition(checkIds, inputIds, slotIds, formulaIds)
+        defaultCheckDefinition(checkIds, inputIds, slotIds, formulaIds, categoryIds)
       ])
     );
 
@@ -354,6 +372,11 @@ export function CheckDefinitionsEditor({
     const refs = readRefs(index, member);
     if (refs.length <= 1) return;
     updateCheck(index, { [member]: refs.filter((_, position) => position !== refIndex) });
+  };
+
+  const updateCategoryRef = (index: number, refId: string) => {
+    const existing = asObject(asObject(rawChecks[index])?.category_ref) ?? {};
+    updateCheck(index, { category_ref: { ...existing, ref_id: refId, ref_type: "stress_category" } });
   };
 
   const updateFormulaRef = (index: number, refId: string) => {
@@ -401,6 +424,7 @@ export function CheckDefinitionsEditor({
           const inputRefs = asArray(record.required_input_refs);
           const slotRefs = asArray(record.value_slot_refs);
           const formulaRef = asObject(record.formula_ref) ?? {};
+          const categoryRef = asObject(record.category_ref) ?? {};
           const policy = asObject(record.diagnostic_policy) ?? {};
           const resultStatuses = asStringArray(record.result_statuses);
           return (
@@ -430,6 +454,17 @@ export function CheckDefinitionsEditor({
                 disabled={disabled}
                 onChange={(next) => updateCheck(index, { description: next })}
               />
+
+              <Field label="category_ref (stress category)">
+                <RefSelect
+                  testId="rule-pack-check-category-ref"
+                  options={categoryIds}
+                  labels={categoryLabels}
+                  value={asString(categoryRef.ref_id) ?? ""}
+                  disabled={disabled}
+                  onChange={(next) => updateCategoryRef(index, next)}
+                />
+              </Field>
 
               <Field label="formula_ref">
                 <RefSelect
