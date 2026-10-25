@@ -16,7 +16,7 @@ import re
 # Pre-0.4 failure unification D3 (§8.14): source_receipt.rs makes CapturedInvocation::requested pub(super) with a doc
 # comment and the fallback test module pub(crate); the retired constructors stay deleted and finalize_composite and
 # finalize_for stay unique.
-SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '4b13fb633565bc92bd219c66032df9c5ca16a700d815a27a8980472f00c217a6','core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5'}
+SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '539e1cbd60a0de35959e30b38076adcd6bae5451decaafc403970af1be1a26a4','core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5'}
 ROW_FILE = "core/product_physics/src/source_receipt/rows.rs"
 RETIRED_IDS = {
     ROW_FILE + ":390": {"primary[&s.functional_indices[c]].id": {"bytes": 1024, "source": "RES"}},
