@@ -1135,7 +1135,9 @@ fn u6_semantic_seams_have_only_governed_product_callers() {
         product_lines += product.lines().count();
         // Product code after a file's first #[cfg(test)] is scanned (RV92/RV88 G1).
         for (path, function) in [
-            ("apps/desktop/src-tauri/src/lib.rs", "fn solver_result_row_value("),
+            // Rule-pack 0.5.0 moved row binding to `rule_solver_selection.rs`;
+            // the rule-binding gate stays here, after the first #[cfg(test)].
+            ("apps/desktop/src-tauri/src/lib.rs", "fn qualify_rule_mechanics_with_context("),
             ("apps/desktop/src-tauri/src/lib.rs", "pub fn run()"),
             ("core/runner/headless/src/lib.rs", "fn invented_provenance()"),
             ("core/product_physics/src/lib.rs", "pub fn nonlinear_assembled_loop_context()"),

@@ -173,7 +173,11 @@ describe("shared display preference in result renderers", () => {
     const before = JSON.stringify(result);
     const packText = JSON.stringify({ metadata: {rule_pack_id:"display:pack"}, required_inputs: [
       {input_id:"authored", name:"Authored force", source_kind:"solver_result", quantity_intent:{dimension:"force",unit_ref:"N"}, solver_result_ref:{result_kind:"element_local_axial_force", entity_ref:"pipe:1", location:"end_i", component:"axial_force"}}
-    ], required_load_cases: [{required_load_case_id:"rlc", name:"Invented case", basis_ref:{ref_type:"load_case", ref_id:"load:1"}}] });
+    ], required_load_cases: [{required_load_case_id:"rlc", name:"Invented case", basis_ref:{ref_type:"load_case", ref_id:"load:1"}}],
+    stress_categories: [{category_id:"cat", name:"Invented category"}],
+    load_case_mappings: [{mapping_id:"map", category_ref:{ref_type:"stress_category", ref_id:"cat"}, required_load_case_refs:[{ref_type:"required_load_case", ref_id:"rlc"}]}],
+    // The preview covers the bases of the checks that use the input (§3).
+    check_definitions: [{check_id:"c", category_ref:{ref_type:"stress_category", ref_id:"cat"}, required_input_refs:[{ref_type:"required_input", ref_id:"authored"}]}] });
     render(<DisplayUnitsProvider converter={converter()}><DisplayUnitSelector /><RuleCheckRunPanel model={sourceModel} result={result} /></DisplayUnitsProvider>);
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), {target:{value:packText}});
     fireEvent.click(screen.getByTestId("rule-check-solver-preview-authored"));

@@ -409,6 +409,17 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
     On its ten forms (125 rows each) this is all 125 rows, as on `main` before
     0.5.0.
 
+- **Seam scanner witness.** `core/reporting/result_export/tests/retained_precision_carriers.rs`
+  `u6_semantic_seams_have_only_governed_product_callers` checks its scanner
+  with four product functions that sit after a file's first `#[cfg(test)]`.
+  One of them, `lib.rs` `solver_result_row_value`, was removed when row binding
+  moved to `rule_solver_selection.rs`. Its replacement is `lib.rs`
+  `qualify_rule_mechanics_with_context`, the rule-binding gate, which sits in
+  the same position, so the check keeps four witnesses. The edit is in
+  `tests/`, which retained pricing does not scan. The file's runtime-read
+  declaration in `tools/hosted-ci-routing.json` is restamped; its inputs are
+  unchanged.
+
 ## 7. Review findings resolved
 
 The Codex design review of `b1d55e38ea` found these; the design above resolves
