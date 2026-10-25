@@ -185,11 +185,17 @@ chooses:
 3. **An existing target is replaced by an atomic swap.** macOS
    `renamex_np(staging, target, RENAME_SWAP)` exchanges the two directories in
    one step, so there is no interval without a target. The swapped-out old package is deleted only after each published member is
-   confirmed, by identity, bytes and a final re-check of every member's
-   descriptor, to be what the save wrote and verified in memory. Otherwise the
+   confirmed, by identity and by a final byte-for-byte re-read through its
+   descriptor, to be what the save wrote and verified in memory, and only if the
+   old package's members, re-read through admission's descriptors, still hold
+   the bytes admission verified; otherwise it is kept under the staging name
+   (`HANDOFF-OLD-PACKAGE-LEFT`). Otherwise the
    save is refused: the swap is undone only if both names still hold what the
    swap left there (`HANDOFF-PUBLISH-UNVERIFIED`), else nothing is moved
-   (`HANDOFF-ROLLBACK-WITHHELD`), and the previous package is never deleted. A
+   (`HANDOFF-ROLLBACK-WITHHELD`), and the previous package is never deleted. If the
+   destination was replaced between the pre-swap check and the swap, the swap is
+   likewise undone only while both names still hold what the swap left there,
+   and the save is refused `HANDOFF-DESTINATION-CHANGED`. A
    new name on a volume without exclusive rename is refused
    (`HANDOFF-NEW-NAME-UNSUPPORTED`). The module documents the residual: a
    same-user process can still rewrite the folder after the final check, or
