@@ -1203,6 +1203,14 @@ pub(crate) mod tests {
                 }
                 Ok("{}".to_string())
             }
+            // A valid `{}` result whose frame reports a lifetime peak of `arg0`
+            // bytes (no such memory is used), then a wait for the supervisor's
+            // kill; bounded, so an accepted result fails its test, not hangs it.
+            "reported_peak" => {
+                crate::worker_alloc::send_frame(TAG_RESULT, 2, arg(0), b"{}");
+                std::thread::sleep(Duration::from_secs(60));
+                std::process::exit(1)
+            }
             // Evidence for the process reserve: footprints of a real worker.
             #[cfg(target_os = "macos")]
             "probe" => {
@@ -1276,11 +1284,13 @@ pub(crate) mod tests {
             // not return here to sample again.
             if let Some(dir) = self.excursion_gate.take() {
                 std::fs::write(dir.join("excursion-go"), b"").unwrap();
-                // A hang guard: on expiry the test's own assertions decide.
+                // A hang guard: the hold ends after 60 s, and then only with the excursion over.
                 let deadline = Instant::now() + Duration::from_secs(60);
                 while dir.is_dir() && !dir.join("excursion-done").exists() && Instant::now() < deadline {
                     std::thread::sleep(Duration::from_millis(2));
                 }
+                // Unwinding kills and reaps the worker (its handle's drop) and removes the gate.
+                assert!(dir.join("excursion-done").exists(), "the worker's excursion was not over within the hold: {}", dir.display());
             }
         }
     }

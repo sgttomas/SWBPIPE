@@ -1619,12 +1619,17 @@ mod tests {
         assert_eq!(registry.pool().reserved_total(), 0);
     }
 
-    /// The lifetime-peak footprint is recorded in the job's resource and a
-    /// peak beyond the budget refuses the result before anything is released.
+    /// An over-budget lifetime peak reported with a worker's result propagates
+    /// through the job: it is recorded in the job's resource, refuses the
+    /// result before anything is released and keeps no lease. The worker
+    /// reports an 81 MiB peak in a valid result frame without using that
+    /// memory, so no poll can see it first. The real kernel lifetime-maximum
+    /// excursion is covered deterministically by
+    /// `solve_worker::tests::the_lifetime_peak_footprint_is_checked_at_the_result`.
     #[test]
-    fn a_peak_footprint_beyond_the_budget_refuses_the_result() {
+    fn an_over_budget_reported_result_peak_refuses_the_job() {
         let host = ScriptedHost::normal();
-        let registry = registry(&host, TestLauncher::scripted(format!("transient_mmap:{}", 80 * MIB)));
+        let registry = registry(&host, TestLauncher::scripted(format!("reported_peak:{}", 81 * MIB)));
         registry.configure_pool(12 * GIB, start_grant(), false).unwrap();
         let job = registry.start(MODEL, None).unwrap();
         let status = wait_terminal(&registry, &job.job_id);
