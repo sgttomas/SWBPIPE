@@ -802,9 +802,14 @@ fn gate_reason(
     if rendered.nonlinear {
         return Some("NONLINEAR_COMBINATION_REQUIRES_SOLVE");
     }
-    let sum: f64 = combination.terms.iter().map(|t| t.factor).sum();
-    let abs_sum: f64 = combination.terms.iter().map(|t| t.factor.abs()).sum();
-    if rendered.consuming_constant_effort && (sum - 1.0).abs() > 64.0 * f64::EPSILON * abs_sum.max(1.0) {
+    // The unit factor-sum rule (option C): the exact sum of the binary64 factors, admitted
+    // iff |sum - 1| <= 64*epsilon, compared exactly, with no sum(|f|) scaling. A non-finite
+    // factor (already refused by validation's LOAD_COMBINATION_FACTOR_INVALID) or an
+    // accumulator error does not establish a unit sum, so it withholds under this code.
+    if rendered.consuming_constant_effort
+        && !open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance(combination.terms.iter().map(|t| t.factor))
+            .unwrap_or(false)
+    {
         return Some("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE");
     }
     let mut scratch = Vec::new();
@@ -1213,5 +1218,43 @@ mod tests {
         let linear: Vec<&str> = table["combination_policy"]["linear_state_kinds"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();
         assert_eq!(linear, LINEAR_STATE_KINDS.to_vec());
         assert!(table["rows"].as_array().unwrap().iter().any(|r| r["kind"] == INTENSIFIED_KIND));
+    }
+
+    /// The gate's own refusal of a factor sum it cannot evaluate. Validation refuses a
+    /// non-finite factor first (LOAD_COMBINATION_FACTOR_INVALID); the gate still withholds
+    /// by name rather than reading a NaN or infinite fold as a unit sum (main's
+    /// `(sum - 1).abs() > bound` was false for NaN and for inf against an inf bound).
+    #[test]
+    fn constant_effort_gate_withholds_a_factor_sum_it_cannot_evaluate() {
+        let model: PreviewModel = serde_json::from_value(serde_json::json!({
+            "schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
+            "project":{"id":"project:t","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
+            "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
+            "nodes":[],"pipe_segments":[],"supports":[],"components":[],"materials":[],
+            "load_cases":[{"id":"case:W1","primitive_loads":[],"provenance":"t"},{"id":"case:W2","primitive_loads":[],"provenance":"t"}],
+            "combinations":[]
+        }))
+        .unwrap();
+        let combination = |factors: [f64; 2]| {
+            let mut c: PreviewCombination = serde_json::from_value(serde_json::json!({"id":"comb:c","basis":"mechanics",
+                "terms":[{"load_case":"case:W1","factor":0.5},{"load_case":"case:W2","factor":0.5}],"provenance":"t"}))
+            .unwrap();
+            c.terms[0].factor = factors[0];
+            c.terms[1].factor = factors[1];
+            c
+        };
+        let rendered = |consuming_constant_effort| Rendered { preview_cases: Vec::new(), nonlinear: false, consuming_constant_effort };
+        let ce = Some("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE");
+        for factors in [[f64::NAN, 1.0], [f64::INFINITY, -f64::INFINITY], [0.5, f64::NEG_INFINITY]] {
+            assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), ce, "{factors:?}");
+        }
+        for factors in [[2f64.powi(53), -2f64.powi(53)], [f64::MAX, f64::MAX]] {
+            assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), ce, "{factors:?}");
+            // Without a consuming constant-effort support the factor sum is not a gate.
+            assert_eq!(gate_reason(&rendered(false), &model, &combination(factors)), None, "{factors:?}");
+        }
+        for factors in [[0.5, 0.5], [0.3, 0.7], [1.2, -0.2], [1.0 / 3.0, 2.0 / 3.0]] {
+            assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), None, "{factors:?}");
+        }
     }
 }

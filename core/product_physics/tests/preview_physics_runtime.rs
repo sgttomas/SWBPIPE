@@ -9,7 +9,9 @@
 //! Every model goes through the captured value entry the desktop uses. Criterion:
 //! |observed - expected| <= 1e-9 * max(|expected|, zero scale). No new tolerance.
 use open_pipe_stress_correct_norm::norm2;
-use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
+};
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
@@ -675,6 +677,102 @@ fn constant_effort_counted_once_and_gated_when_factors_do_not_sum_to_one() {
         let e: Vec<f64> = vec3(&nc["anchor_F_W1"]).into_iter().chain(vec3(&nc["anchor_M_W1"])).collect();
         close6(case_action(&v, "support:a", "case:W1"), &e, NO_FROZEN_SCALE, NO_FROZEN_SCALE, "non-consuming anchor");
         assert_eq!(diag(&v, "CONSTANT_EFFORT_NOT_CONSUMED").len(), 1);
+    }
+}
+
+/// The constant-effort gate's unit factor-sum rule (option C, the shared
+/// `factor_sum_within_unit_tolerance`): the exact dyadic sum of the binary64 factors,
+/// admitted iff |sum - 1| <= 64*epsilon = 2^-46, compared exactly, with no sum(|f|)
+/// scaling. "before" is main `b7cbcf411d`'s rounded, sum(|f|)-scaled test.
+#[test]
+fn constant_effort_gate_uses_the_exact_unit_factor_sum() {
+    const P52: f64 = 4_503_599_627_370_496.0; // 2^52, inside the checked-JSON safe-integer domain
+    const P53: f64 = 9_007_199_254_740_992.0; // 2^53, outside it
+    let bound = 2f64.powi(-46);
+    let tiny = f64::from_bits(1); // 2^-1074
+    let ce_support = json!({"id":"support:ce","node":"node:b","family":"constant_effort_support","restraints":["UY"],
+        "hanger":{"hanger_type":"constant_effort_support","constant_load":{"value":375.0,"unit":"N"},"travel_range":{"value":0.05,"unit":"m"},"source_reference":"t0r_invented"},"provenance":"t0r"});
+    let cases = json!([
+        case("case:W1", json!([force("w1", "node:b", "global_y", -1000.0)])),
+        case("case:W2", json!([force("w2", "node:b", "global_y", -500.0)])),
+        case("case:W3", json!([force("w3", "node:b", "global_z", 250.0)])),
+    ]);
+    let three = |a: f64, b: f64, c: f64| vec![("case:W1", a), ("case:W2", b), ("case:W3", c)];
+    let two = |a: f64, b: f64| vec![("case:W1", a), ("case:W2", b)];
+    // (id, terms, withheld)
+    let vectors: Vec<(&str, Vec<(&str, f64)>, bool)> = vec![
+        // Refused after the fix; the cancellation and the boundary steps were admitted
+        // before (sum 0 against main's bound 64*eps*2^53 = 128).
+        ("comb:cancel-2p52", two(P52, -P52), true),
+        ("comb:off-1e-12", three(0.3, 0.7, 1e-12), true),
+        ("comb:above-bound", three(1.0, bound, tiny), true),
+        ("comb:below-bound", three(1.0, -bound, -tiny), true),
+        // Admitted.
+        ("comb:one", vec![("case:W1", 1.0)], false),
+        ("comb:halves", two(0.5, 0.5), false),
+        ("comb:0.3+0.7", two(0.3, 0.7), false),
+        ("comb:1.2-0.2", two(1.2, -0.2), false),
+        ("comb:thirds", two(1.0 / 3.0, 2.0 / 3.0), false),
+        ("comb:at-upper-bound", two(1.0, bound), false),
+        ("comb:at-lower-bound", two(1.0, -bound), false),
+    ];
+    let combos = Value::Array(vectors.iter().map(|(id, terms, _)| mechanics(id, terms)).collect());
+    let wire = cantilever(vec![ce_support], cases, combos);
+    for mode in MODES {
+        let v = solved(&wire, mode);
+        for (id, _, withheld) in &vectors {
+            let expected = if *withheld {
+                json!({"combination_id":id,"withheld":true,"reason":"CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"})
+            } else {
+                json!({"combination_id":id,"withheld":false,"reason":null})
+            };
+            assert_eq!(gate(&v, id), expected, "{mode:?} {id}");
+            assert_eq!(combination_rows(&v, id).is_empty(), *withheld, "{mode:?} {id} rows");
+        }
+        assert_eq!(diag(&v, "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE").len(), 4, "{mode:?}");
+        // An admitted unit sum counts the constant effort once: 0.5 W1 + 0.5 W2 matches REF-CE.
+        let half = &r2()["REF-CE"]["comb_0.5W1_0.5W2_sum_factors_1"];
+        close(row_value(&v, "constant_effort_support_applied_load", "support:ce", None, None, "combination", "comb:halves"), num(&half["ce_applied_N"]), 0.0, "halves CE applied");
+    }
+    // Factors outside the checked-JSON safe-integer domain (2^53, f64::MAX) are refused
+    // at the value entry; the typed entry reaches the gate with them. Before: 2^53 - 2^53 = 0
+    // was admitted (bound 256) and published its rows with the constant effort counted zero
+    // times; MAX + MAX overflowed the fold to inf (inf > inf is false), was admitted, and the
+    // run ended MODEL_INCOMPLETE. Now both are withheld and the run solves.
+    for factors in [[P53, -P53], [f64::MAX, f64::MAX]] {
+        let mut out_of_domain = wire.clone();
+        // combinations[0] is comb:cancel-2p52; its two terms take the out-of-domain factors.
+        assert_eq!(wire["model"]["combinations"][0]["id"], "comb:cancel-2p52");
+        out_of_domain["model"]["combinations"][0]["terms"] = json!([{"load_case":"case:W1","factor":factors[0]},{"load_case":"case:W2","factor":factors[1]}]);
+        for mode in MODES {
+            let refused = run_linear_static_preview_value_with_mode(out_of_domain.clone(), mode).map(|_| ()).unwrap_err();
+            assert!(refused.starts_with("CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT"), "{refused}");
+        }
+        let mut request: LinearStaticPreviewRequest = serde_json::from_value(wire.clone()).unwrap();
+        request.model.combinations[0].terms[0].factor = factors[0];
+        request.model.combinations[0].terms[1].factor = factors[1];
+        for mode in MODES {
+            let v = serde_json::to_value(run_linear_static_preview_with_mode(request.clone(), mode)).unwrap();
+            assert_eq!(v["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?} {factors:?}");
+            assert_eq!(gate(&v, "comb:off-1e-12")["withheld"], true);
+            assert_eq!(gate(&v, "comb:halves")["withheld"], false);
+            assert_eq!(gate(&v, "comb:cancel-2p52"), json!({"combination_id":"comb:cancel-2p52","withheld":true,"reason":"CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"}), "{mode:?} {factors:?}");
+            assert!(combination_rows(&v, "comb:cancel-2p52").is_empty());
+        }
+    }
+    // A non-finite factor cannot be written in JSON; on the typed entry, validation
+    // refuses it by name before any gate.
+    for factor in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        let mut request: LinearStaticPreviewRequest = serde_json::from_value(wire.clone()).unwrap();
+        request.model.combinations[1].terms[0].factor = factor;
+        for mode in MODES {
+            let v = serde_json::to_value(run_linear_static_preview_with_mode(request.clone(), mode)).unwrap();
+            assert_eq!(v["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?} {factor}");
+            let refused = diag(&v, "LOAD_COMBINATION_FACTOR_INVALID");
+            assert_eq!(refused.len(), 1, "{mode:?} {factor}");
+            assert_eq!(refused[0]["affected_refs"], json!(["comb:off-1e-12", "case:W1"]));
+            assert!(results(&v).is_empty());
+        }
     }
 }
 

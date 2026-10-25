@@ -8,6 +8,7 @@ from copy import deepcopy
 import hashlib
 import json
 import math
+import sys
 from pathlib import Path
 
 import pytest
@@ -19,7 +20,8 @@ from core.analysis_runs.compatibility import (
     standing_reason, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
 from tests.verifiers.preview_physics_evidence import (
-    LIMITATIONS, validate_preview_physics_evidence, validate_transport_metadata,
+    LIMITATIONS, UNIT_FACTOR_SUM_BOUND, FactorSumError, factor_sum_within_unit_tolerance,
+    validate_preview_physics_evidence, validate_transport_metadata,
 )
 from schema_validation import schema_for_definition, validate_instance
 from preview_transport_source import RETIRED_PRECISION_CONTRACT_ID
@@ -1066,3 +1068,76 @@ def test_shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required():
     ):
         with pytest.raises(ValueError):
             validate_preview_physics_evidence(json.loads(text.replace(good, bad)))
+
+
+# The constant-effort gate's unit factor-sum rule (option C), mirrored with exact rationals.
+# "before" is main b7cbcf411d's rounded, sum(|f|)-scaled test in preview_physics.rs gate_reason.
+TWO_53 = 2.0**53
+SUBNORMAL = 5e-324  # 2^-1074, the finest step of a sum of binary64 factors
+BOUND = float(UNIT_FACTOR_SUM_BOUND)
+
+
+def _replaced_rule_admits(factors):
+    total = 0.0
+    abs_total = 0.0
+    for factor in factors:
+        total += factor
+        abs_total += abs(factor)
+    return not (abs(total - 1.0) > 64.0 * sys.float_info.epsilon * max(abs_total, 1.0))
+
+
+def test_factor_sum_bound_is_exactly_two_to_minus_46():
+    from fractions import Fraction
+    assert UNIT_FACTOR_SUM_BOUND == Fraction(64 * sys.float_info.epsilon) == Fraction(1, 2**46)
+    assert Fraction(SUBNORMAL) == Fraction(1, 2**1074)
+
+
+@pytest.mark.parametrize("factors", [[TWO_53, -TWO_53], [2.0**52, -2.0**52], [sys.float_info.max, sys.float_info.max]])
+def test_factor_sum_refuses_what_the_scaled_rule_admitted(factors):
+    assert _replaced_rule_admits(factors)  # before: admitted
+    assert factor_sum_within_unit_tolerance(factors) is False  # after: refused
+
+
+@pytest.mark.parametrize(("factors", "index"), [([math.nan, 1.0], 0), ([0.5, math.inf], 1), ([1.0, 0.0, -math.inf], 2), ([1.0, 10**400], 1), ([True], 0), (["1"], 0)])
+def test_factor_sum_names_a_non_finite_factor(factors, index):
+    """A NaN, an infinity, an int beyond binary64 range, or a non-number is refused by index."""
+    with pytest.raises(FactorSumError) as raised:
+        factor_sum_within_unit_tolerance(factors)
+    assert raised.value.index == index
+
+
+@pytest.mark.parametrize("factors", [[0.3, 0.7, 1e-12], [1.0, 0.5], [0.5], [], [2.0, -0.5]])
+def test_factor_sum_refuses_sums_beyond_the_bound(factors):
+    assert factor_sum_within_unit_tolerance(factors) is False
+
+
+@pytest.mark.parametrize(("factors", "offset"), [
+    ([1.0], 0), ([0.5, 0.5], 0), ([0.25, 0.25, 0.5], 0), ([2.0, -1.0], 0),
+    ([0.3, 0.7], -1), ([1.2, -0.2], -1), ([1 / 3, 2 / 3], -1),
+])
+def test_factor_sum_admits_unit_sums_and_their_binary64_spellings(factors, offset):
+    from fractions import Fraction
+    # Exact sums: 1, or 1 - 2^-54 (about 1 - 5.55e-17).
+    assert sum(map(Fraction, factors)) - 1 == offset * Fraction(1, 2**54)
+    assert _replaced_rule_admits(factors)
+    assert factor_sum_within_unit_tolerance(factors) is True
+
+
+def test_factor_sum_bound_is_closed_and_the_next_dyadic_is_refused():
+    from fractions import Fraction
+    exact = lambda factors: sum(map(Fraction, factors))
+    bound = UNIT_FACTOR_SUM_BOUND
+    # Exactly 1 + 2^-46 and 1 - 2^-46: admitted.
+    for factors, target in (([1.0, BOUND], 1 + bound), ([1.0, -BOUND], 1 - bound), ([1.0 + BOUND], 1 + bound), ([1.0 - BOUND], 1 - bound)):
+        assert exact(factors) == target
+        assert factor_sum_within_unit_tolerance(factors) is True
+    # The next dyadic beyond each, 1 +- (2^-46 + 2^-1074): refused; the scaled rule admitted both.
+    above, below = [1.0, BOUND, SUBNORMAL], [1.0, -BOUND, -SUBNORMAL]
+    assert exact(above) == 1 + bound + Fraction(1, 2**1074) and exact(below) == 1 - bound - Fraction(1, 2**1074)
+    assert _replaced_rule_admits(above) and _replaced_rule_admits(below)
+    assert factor_sum_within_unit_tolerance(above) is False and factor_sum_within_unit_tolerance(below) is False
+    # The next binary64 factor beyond each single-factor bound: refused.
+    next_up, next_down = math.nextafter(1.0 + BOUND, 2.0), math.nextafter(1.0 - BOUND, 0.0)
+    assert exact([next_up]) == 1 + bound + Fraction(1, 2**52) and exact([next_down]) == 1 - bound - Fraction(1, 2**53)
+    assert factor_sum_within_unit_tolerance([next_up]) is False and factor_sum_within_unit_tolerance([next_down]) is False
+
