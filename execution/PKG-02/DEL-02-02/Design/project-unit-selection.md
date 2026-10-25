@@ -270,8 +270,17 @@ keys, including `angle` (§5); the rest still applies.
     native command (`stored_model_document_export.rs`) writes the stored text
     unchanged (a project's `model_json`, a state's canonical text), screens its
     dispositions as the save does, and uses the save's chooser and writer.
-    Nothing is adopted, and the store is only read. The user adds the map and
-    opens the file with Open Model Document.
+    Nothing is adopted. The store is opened read-only and never migrated: a
+    store at another schema version is refused
+    (`MODEL-DOC-EXPORT-STORE-NOT-CURRENT`). The read is admitted by the memory
+    pool as the saved-state reader's is (`stored_read`), and the reservation
+    of the text is held through the write (`STORE-READ-MEMORY-UNAVAILABLE`). A
+    row above the model-document file cap is refused from its measured length
+    before it is loaded (`MODEL-DOC-SAVE-TOO-LARGE`). A text that holds an
+    object member twice is refused before screening
+    (`MODEL-DOC-EXPORT-DUPLICATE-MEMBER`), so the document screened is the
+    document written. The user adds the map and opens the file with Open
+    Model Document.
 - **Entity editors with a missing key** refuse by name; nothing is assumed
   (`features/project-units/missingProjectUnit.ts`).
   - **Fields with their own unit selector:** the unit starts unselected, and
@@ -351,8 +360,10 @@ keys, including `angle` (§5); the rest still applies.
 - **Recovery export.** The refused open offers the export behind the explicit
   intent, sends only the row's identity and adopts nothing
   (`model-file/storedDocumentExport.test.tsx`, `compareStates.test.tsx`). The
-  native read returns the stored bytes and writes nothing to the store, the
-  written file holds those bytes, and a blocked disposition refuses
+  written file holds the stored bytes and the store file is unchanged; a
+  blocked disposition, a duplicate member, a refused memory admission, a row
+  above the cap and a store at another schema version each refuse by name,
+  show no chooser and write nothing, and the store is left unchanged
   (`src-tauri/src/stored_model_document_export.rs`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.

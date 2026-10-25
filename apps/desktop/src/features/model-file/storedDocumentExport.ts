@@ -8,8 +8,11 @@
 // Nothing is adopted into the session and nothing is computed from the
 // document here: the webview sends only the stored row's identity and the
 // explicit intent. The native command (`src-tauri/src/stored_model_document_export.rs`)
-// reads the row, screens its dispositions as Save Model Document does, shows the
-// Save Model Document chooser and writes the bytes unchanged. The store is only read.
+// opens the store read-only (a store needing migration is refused, never
+// migrated), reads the row within the memory pool's admission and the model
+// document file cap, refuses a text with a duplicate object member, screens its
+// dispositions as Save Model Document does, shows the Save Model Document
+// chooser and writes the bytes unchanged.
 import { invoke } from "@tauri-apps/api/core";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { isTauriRuntime } from "../../services/nativeMenu";

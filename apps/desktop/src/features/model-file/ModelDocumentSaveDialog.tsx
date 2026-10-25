@@ -78,7 +78,7 @@ export function ModelDocumentSaveDialog({ request }: { request: ModelDocumentSav
               Not opened: {request.recovery.refusal} You can save {request.recovery.description} to a file you choose,
               exactly as the local store holds it, starting in your Documents folder. Add project.units to the file, then
               open it with Open Model Document…. It holds your private project data. Nothing is sent anywhere, the store
-              is not changed, and the session's model and results are unchanged.
+              is opened read-only and is not changed, and the session's model and results are unchanged.
             </p>
           </>
         ) : (
