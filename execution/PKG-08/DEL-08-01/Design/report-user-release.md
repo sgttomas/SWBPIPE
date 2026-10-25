@@ -66,6 +66,18 @@ Standard claim fence applies (claims taxonomy per DEC-081).
 
   O-E is moot under R. O-B, O-C, O-D and O-F stay as recommended (HELP_HUMAN,
   2026-10-25).
+- **HELP_HUMAN, 2026-10-25: V1 covers R's package form.** The ruling adopted the
+  recommended V1 in full, including its second clause: "the reader at each
+  head accepts what the writer at that head emits". A user-released package
+  with no state/comparison/handoff member is emitted by this head's writer and
+  accepted by its reader, so no handoff set is kept (§2.1, §4).
+- **HELP_HUMAN, 2026-10-25: rule-pack-referenced models are refused under R**
+  (`REPORT-USER-RELEASE-RULE-PACK-REFERENCED`, §2.7). This is a stated
+  consequence of the owner's "no rule outcomes" together with W-18a's rule
+  that a package names every active rule pack of the solve. It is sequencing
+  within the ruled scope, not a narrowing of v0.1: the later slice, kept in
+  v0.1 (§10), lifts it together with the library refusal. The dialog says
+  plainly which models cannot be shared yet, and why (§2.1).
 
 §2.1 states scope R as an exact member contract. §10 lists what the later
 slice adds on the same mechanism.
@@ -298,9 +310,10 @@ close it and discard the selection. Exact proposed wording:
 > [Save Shareable Report Package…] [Cancel]
 
 When the webview's early check finds a library or rule-pack reference (§2.7),
-the dialog shows, in place of the checkbox: "This model has a library or
-rule-pack reference, so a shareable package cannot be saved for it." The save
-button stays disabled.
+the dialog shows, in place of the checkbox: "This model uses a library record
+or a rule pack. Shareable packages do not yet carry library record values or
+rule-pack checks, so a shareable package cannot be saved for this model. Its
+local private package is unaffected." The save button stays disabled.
 
 The save button is disabled until the checkbox is ticked. The checkbox starts
 unticked every time the dialog opens.
