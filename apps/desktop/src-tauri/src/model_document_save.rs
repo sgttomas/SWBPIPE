@@ -167,9 +167,19 @@ pub fn validate_model_document_save_evidence(
     screening: &ModelDocumentSaveScreening,
     local_first: &ModelDocumentSaveLocalFirst,
 ) -> Result<(), ModelDocumentSaveDiagnostic> {
+    validate_local_private_route_evidence(MODEL_DOCUMENT_SAVE_ROUTE_ID, screening, local_first)
+}
+
+/// The same re-check for another governed local-private, lossless route with
+/// explicit intent (File > Save Handoff…, `DOTH-HANDOFF-PACKAGE-008`, W-6b).
+pub fn validate_local_private_route_evidence(
+    route_id: &str,
+    screening: &ModelDocumentSaveScreening,
+    local_first: &ModelDocumentSaveLocalFirst,
+) -> Result<(), ModelDocumentSaveDiagnostic> {
     let s = screening;
     let l = local_first;
-    let admitted = s.route_id == MODEL_DOCUMENT_SAVE_ROUTE_ID
+    let admitted = s.route_id == route_id
         && s.export_context == "local_private"
         && s.explicit_local_private_intent
         && !s.blocked
@@ -177,7 +187,7 @@ pub fn validate_model_document_save_evidence(
         && s.lossless_required
         && s.exact_payload_match
         && s.blocking_count == 0
-        && l.route_id == MODEL_DOCUMENT_SAVE_ROUTE_ID
+        && l.route_id == route_id
         && l.export_context == "local_private"
         && l.storage_context == "local_private"
         && l.action == "include_metadata_only"
@@ -191,7 +201,7 @@ pub fn validate_model_document_save_evidence(
         Err(diagnostic(
             EVIDENCE_INVALID,
             "",
-            format!("{MODEL_DOCUMENT_SAVE_ROUTE_ID} local-private, lossless route evidence with explicit intent is missing or blocked."),
+            format!("{route_id} local-private, lossless route evidence with explicit intent is missing or blocked."),
         ))
     }
 }
@@ -212,7 +222,7 @@ pub struct AdmittedModelDocument {
 pub type LibraryLookup<'a> = dyn FnMut(&str, &str, &str) -> Result<Option<Value>, String> + 'a;
 
 /// `truthy_str` of the library import: a non-empty string, else nothing.
-fn truthy_str(value: Option<&Value>) -> Option<&str> {
+pub(crate) fn truthy_str(value: Option<&Value>) -> Option<&str> {
     match value {
         Some(Value::String(text)) if !text.is_empty() => Some(text.as_str()),
         _ => None,
@@ -221,7 +231,7 @@ fn truthy_str(value: Option<&Value>) -> Option<&str> {
 
 /// The library import's status resolution: the item's own field wins when
 /// usable, otherwise its `provenance`'s.
-fn own_or_provenance<'a>(item: &'a Map<String, Value>, key: &str) -> Option<&'a str> {
+pub(crate) fn own_or_provenance<'a>(item: &'a Map<String, Value>, key: &str) -> Option<&'a str> {
     truthy_str(item.get(key)).or_else(|| truthy_str(item.get("provenance").and_then(Value::as_object).and_then(|provenance| provenance.get(key))))
 }
 

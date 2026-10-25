@@ -4,9 +4,9 @@
 //
 // It works the app as a person would: native menu commands go through the same
 // dispatch a menu click uses, buttons are clicked, and every observation is read
-// from what the window shows. The only substitution is the model-document
-// chooser (open and save): the driver names the file it returns. It records
-// what it saw; `run.mjs` judges.
+// from what the window shows. The only substitution is the model-document and
+// handoff choosers (open and save): the driver names the file it returns. It
+// records what it saw; `run.mjs` judges.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
@@ -110,6 +110,64 @@
     await waitFor("re-opened document in the model tree", () => treeRow(plan.bundled_project_id));
     const resaved = await saveModelDocument(second, "model-document/reopened/save");
     report.model_document = { saved, reopened, resaved };
+  }
+
+  // W-6b. File > Save Handoff…, answering the folder chooser with `path`. The
+  // dialog's basis and its own controls are recorded as shown, then chosen (the
+  // new-state confirmation too, when the model is not a saved state yet). A
+  // request refused only because the model hash is still being computed is asked
+  // again; the queued chooser path is consumed only by a save that reaches it.
+  async function saveHandoff(path, label) {
+    await call("native_smoke_choose", { path });
+    for (let attempt = 0; ; attempt += 1) {
+      const before = message();
+      await menu("file.save-handoff");
+      const opened = await waitFor(`${label}: handoff dialog`, () => byTestId("handoff-save-dialog") ? "dialog"
+        : message() !== before && message().startsWith("Save handoff") ? "refused" : null);
+      if (opened === "refused") {
+        if (message().includes("MODEL-DOC-SAVE-HASH-PENDING") && attempt < 20) { await sleep(500); continue; }
+        throw new Error(`${label}: ${message()}`);
+      }
+      // The dialog focuses Cancel in an effect that runs after it is first
+      // painted; under host load the dialog can be seen before that. Give it a
+      // bounded moment (the check below still requires Cancel to have focus).
+      await waitFor(`${label}: Cancel focused`, () => document.activeElement === byTestId("handoff-save-cancel"), 2000).catch(() => null);
+      const dialog = {
+        label,
+        basis: text("handoff-save-basis"),
+        new_state: Boolean(byTestId("handoff-save-state-confirm")),
+        state_name: byTestId("handoff-save-state-name")?.value ?? null,
+        intent_label: byTestId("handoff-save-intent")?.closest("label")?.textContent?.trim() ?? null,
+        intent_checked_initially: byTestId("handoff-save-intent")?.checked === true,
+        confirm_disabled_before_intent: byTestId("handoff-save-confirm")?.disabled === true,
+        cancel_focused: document.activeElement === byTestId("handoff-save-cancel")
+      };
+      click("handoff-save-intent");
+      if (dialog.new_state) {
+        await sleep(100);
+        dialog.confirm_disabled_before_state_confirmed = byTestId("handoff-save-confirm")?.disabled === true;
+        click("handoff-save-state-confirm");
+      }
+      await waitFor(`${label}: confirm enabled`, () => byTestId("handoff-save-confirm")?.disabled === false);
+      click("handoff-save-confirm");
+      const shown = await waitFor(`${label}: saved`, () => {
+        const now = message();
+        return now !== before && (now.startsWith("Saved handoff package ") || now.startsWith("Save handoff")) ? now : null;
+      });
+      await log(`${label}: ${shown}`);
+      if (!shown.startsWith("Saved handoff package ")) throw new Error(`${label}: ${shown}`);
+      const verified = await call("native_smoke_verify_handoff_package", { path }).then((value) => value, (error) => ({ error: String(error) }));
+      return { ...dialog, message: shown, verified };
+    }
+  }
+
+  // W-6b. Save Handoff… on the stored demo twice: first with a new handoff-basis
+  // state, then over the same package, which is replaced and keeps that basis.
+  async function handoffRoundTrip(plan, report, previousId) {
+    const opened = await openProjectById(plan.bundled_project_id, previousId);
+    const first = await saveHandoff(plan.handoff.path, "handoff/save");
+    const second = await saveHandoff(plan.handoff.path, "handoff/replace");
+    report.handoff = { opened, first, second };
   }
 
   async function observe(label, projectId, probe) {
@@ -593,7 +651,10 @@
     if (plan.blank?.project_id) {
       report.opened.push({ case: "blank", message: await openProjectById(plan.blank.project_id, previousId) });
       report.blank = { solve: await solveCurrent("blank/reopened", plan.blank.project_id, plan.blank.probe) };
+      previousId = plan.blank.project_id;
     }
+    // W-6b: last, so nothing the earlier checks observe changes.
+    if (plan.handoff) await handoffRoundTrip(plan, report, previousId);
   }
 
   (async () => {

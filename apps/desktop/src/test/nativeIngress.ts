@@ -30,12 +30,15 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "read_model_state",
   "edit_model_state_labels",
   "delete_model_state",
+  "admit_model_state_comparison",
+  "read_model_state_for_comparison",
   "record_analysis_run",
   "list_analysis_runs",
   "read_analysis_run",
   "edit_analysis_run_labels",
   "delete_analysis_run",
-  "save_model_document_file"
+  "save_model_document_file",
+  "save_handoff_package"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

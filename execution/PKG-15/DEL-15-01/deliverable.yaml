@@ -207,6 +207,10 @@ code_paths:
 - apps/desktop/src-tauri/src/model_document_shape.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
 - apps/desktop/src/services/libraryImportService.ts
+- apps/desktop/src/features/handoff/handoffPackageSave.ts
+- apps/desktop/src/features/handoff/HandoffSaveDialog.tsx
+- apps/desktop/src-tauri/src/handoff_package.rs
+- apps/desktop/src-tauri/src/handoff_package_publish.rs
 checks:
 - tests/test_handoff_package_schema.py
 - apps/desktop/src/features/handoff/HandoffPanel.test.tsx
@@ -214,3 +218,6 @@ checks:
 - apps/desktop/src/services/libraryRefSites.test.ts
 - tests/security/test_redaction_export_controls.py
 - apps/desktop/native-smoke/run.mjs
+- apps/desktop/src/features/handoff/handoffPackageSave.test.tsx
+- tests/test_handoff_package_witness.py
+- tests/verifiers/handoff_package.py

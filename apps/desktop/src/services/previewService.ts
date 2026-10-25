@@ -23,6 +23,7 @@ import {
   type CurrentSessionInputManifestEvidence,
 } from "./inputManifestService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
+import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError } from "./memoryPool";
 export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
@@ -566,15 +567,18 @@ export async function buildAnalysisRunPreview(
   {
     inputManifest,
     ruleCheckAggregate,
+    rulePackExclusions = [],
   }: {
     inputManifest: CurrentSessionInputManifestEvidence;
     ruleCheckAggregate?: string | null;
+    /** The model's rule-pack references the solve left out of the manifest (recorded as diagnostics). */
+    rulePackExclusions?: readonly ExcludedRulePackRef[];
   },
 ): Promise<AnalysisRunEnvelope> {
   await verifyCurrentSessionInputManifest(inputManifest);
   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
+  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload), rulePackExclusions);
 }
 
 export function declaredSourceResultDimension(

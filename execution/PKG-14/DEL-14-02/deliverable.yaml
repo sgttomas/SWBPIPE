@@ -204,8 +204,14 @@ code_paths:
 - apps/desktop/src-tauri/src/analysis_runs.rs
 - apps/desktop/src-tauri/src/stored_read.rs
 - apps/desktop/src/services/analysisRunService.ts
+- apps/desktop/src/services/inputManifestService.ts
+- apps/desktop/src/services/modelRulePackResolution.ts
+- apps/desktop/src/services/rulePackRefDiagnostics.ts
 - fixtures/persistence/transient_run_input.json
 - fixtures/persistence/recorded_run_witness.json
+- fixtures/persistence/transient_run_input_rule_packs.json
+- fixtures/persistence/recorded_run_witness_rule_packs.json
+- fixtures/persistence/s2_unresolved_rule_pack_run.json
 checks:
 - tests/test_analysis_run_compatibility.py
 - tests/test_analysis_run_schema.py
@@ -219,3 +225,6 @@ checks:
 - apps/desktop/src/services/recordedRunParity.test.ts
 - apps/desktop/src/features/results/recordedRunContext.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx
+- apps/desktop/src/services/inputManifestService.test.ts
+- apps/desktop/src/services/modelRulePackResolution.test.tsx
+- apps/desktop/src/features/workspace/solveRulePacks.session.test.tsx

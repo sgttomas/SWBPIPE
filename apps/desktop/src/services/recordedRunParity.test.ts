@@ -23,6 +23,9 @@ import { buildCurrentSessionInputManifest, type CurrentSessionInputManifest } fr
 import { buildAnalysisRunPreview } from "./previewService";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../types";
 import siteTable from "../../../../fixtures/model_document/library_ref_sites.json";
+import { resolveModelRulePacks } from "./modelRulePackResolution";
+import { ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED, buildAnalysisRunV03 } from "./analysisRunCompatibility";
+import { hex, inventedEnvelope, inventedReference } from "../test/inventedRulePacks";
 
 function codePointCompareForTest(left: string, right: string): number {
   const a = [...left].map((c) => c.codePointAt(0)!);
@@ -35,13 +38,42 @@ const PERSISTENCE_FIXTURES = resolve(__dirname, "../../../../fixtures/persistenc
 const INPUT_PATH = resolve(PERSISTENCE_FIXTURES, "transient_run_input.json");
 const WITNESS_PATH = resolve(PERSISTENCE_FIXTURES, "recorded_run_witness.json");
 const WRITE_INPUT_ENV = "OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT";
+// The same pair with invented model rule-pack references: one resolved, one unresolved and one
+// checksum-mismatched, so its transient record carries rule-pack reference diagnostics.
+const RULE_PACK_INPUT_PATH = resolve(PERSISTENCE_FIXTURES, "transient_run_input_rule_packs.json");
+const RULE_PACK_WITNESS_PATH = resolve(PERSISTENCE_FIXTURES, "recorded_run_witness_rule_packs.json");
+const WRITE_RULE_PACK_INPUT_ENV = "OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT_RULE_PACKS";
+// A run of a model with rule-pack references recorded by S2's path (#1596), before
+// rule-pack resolution: the manifest's active_rule_packs is [] and the record names no
+// exclusion. Every current reader refuses it by name (ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED).
+const S2_RUN_PATH = resolve(PERSISTENCE_FIXTURES, "s2_unresolved_rule_pack_run.json");
+const WRITE_S2_RUN_ENV = "OPENPIPESTRESS_WRITE_S2_UNRESOLVED_RULE_PACK_RUN";
 
 type TransientInput = { description: string; source_result_ref: string; run_record: AnalysisRunEnvelope; input_manifest_canonical: string };
 type Witness = { state_id: string; state_model_hash: string; created_at: string; recording_id: string; run_record_hash: string; recorded_record: AnalysisRunEnvelope };
 
-/** The transient record a sparse solve of the preview pair gets in the session (`workspaceSession.ts`). */
-async function sessionTransient() {
+/** The transient record a sparse solve of the preview pair gets in the session (`workspaceSession.ts`).
+ * With `rulePacks`, its model carries invented rule-pack references resolved against an invented
+ * store (the producer's result does not depend on them; the solve never reads them). */
+async function sessionTransient(options: { rulePacks?: boolean } = {}) {
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  let excluded: Awaited<ReturnType<typeof resolveModelRulePacks>>["excluded"] = [];
+  let active: Awaited<ReturnType<typeof resolveModelRulePacks>>["active_rule_packs"] = [];
+  if (options.rulePacks) {
+    // `@` and `%` in ids and versions: the two unresolved references would share one
+    // flattened `<id>@<version>` string; percent-encoded they do not.
+    pair.model.rule_pack_refs = [
+      inventedReference("invented-pack@held", hex("1")),
+      inventedReference("invented-pack@branch", hex("2")),
+      inventedReference("invented-pack", hex("4"), "branch@1.0.0"),
+      inventedReference("invented-pack-changed", hex("3"), "2.0%")
+    ];
+    const store = new Map([
+      ["invented-pack@held", inventedEnvelope(pair.model.project.id, "invented-pack@held", hex("1"))],
+      ["invented-pack-changed", inventedEnvelope(pair.model.project.id, "invented-pack-changed", hex("9"), { version: "2.0%" })]
+    ]);
+    ({ active_rule_packs: active, excluded } = await resolveModelRulePacks(pair.model, async (_projectId, id) => ({ route: "tauri_backend", envelope: store.get(id) ?? null })));
+  }
   const manifest = await buildCurrentSessionInputManifest({
     model: pair.model,
     solver: {
@@ -51,10 +83,10 @@ async function sessionTransient() {
       solver_mode: pair.mode,
       settings: { nonlinear_iteration_policy: "DEC-046-CV-B-product-preview-active-set-count-v1", sparse_evidence_lane: true }
     },
-    active_rule_packs: [],
+    active_rule_packs: active,
     external_assets: []
   });
-  const record = await buildAnalysisRunPreview(pair.source, { inputManifest: manifest });
+  const record = await buildAnalysisRunPreview(pair.source, { inputManifest: manifest, rulePackExclusions: excluded });
   return { pair, manifest, record };
 }
 
@@ -237,5 +269,131 @@ describe("the recorded form derives every manifest-fixed member from the stored 
     expect(structurallyEqual({ a: 1, b: [1, 2] }, { b: [1, 2], a: 1 })).toBe(true);
     expect(structurallyEqual({ a: 1 }, { a: 1, b: undefined })).toBe(false);
     expect(structurallyEqual([1, 2], [2, 1])).toBe(false);
+  });
+});
+
+describe("the recorded revision of a transient record with rule-pack reference diagnostics", () => {
+  it("the committed input is the session's record of the preview pair with invented rule-pack references (the writer)", async () => {
+    const { manifest, record } = await sessionTransient({ rulePacks: true });
+    const input: TransientInput = {
+      description: "A transient analysis_run.v0.3 record built by the desktop session's builder (buildAnalysisRunPreview) for fixtures/results/preview_physics_connected_sparse.json and fixtures/model_operations/precision_connected_ui_model.json given four invented rule_pack_refs (one resolved, two unresolved whose flattened identities would collide, one checksum-mismatched against an invented store; ids and versions carry `@` and `%`), with its input manifest's canonical text. The excluded references are rule-pack reference diagnostics after the producer's. Written by apps/desktop/src/services/recordedRunParity.test.ts with OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT_RULE_PACKS=<path>; apps/desktop/src-tauri/src/analysis_runs_tests.rs records it to fixtures/persistence/recorded_run_witness_rule_packs.json.",
+      source_result_ref: "fixtures/results/preview_physics_connected_sparse.json",
+      run_record: record,
+      input_manifest_canonical: manifest.canonical_bytes
+    };
+    const text = `${JSON.stringify(input, null, 2)}\n`;
+    const target = process.env[WRITE_RULE_PACK_INPUT_ENV];
+    if (target) { writeFileSync(target, text); return; }
+    expect(readFileSync(RULE_PACK_INPUT_PATH, "utf8"), `the committed input is stale; regenerate it with ${WRITE_RULE_PACK_INPUT_ENV}`).toBe(text);
+  });
+
+  it("the TypeScript builder gives the native store's witness, which keeps the diagnostics unchanged under its hash", async () => {
+    const input = JSON.parse(readFileSync(RULE_PACK_INPUT_PATH, "utf8")) as TransientInput;
+    const witness = JSON.parse(readFileSync(RULE_PACK_WITNESS_PATH, "utf8")) as Witness;
+    const manifest = JSON.parse(input.input_manifest_canonical) as CurrentSessionInputManifest;
+    const rebuilt = await recordedAnalysisRunRevision(input.run_record, { stateId: witness.state_id, createdAt: witness.created_at, inputManifest: manifest });
+    expect(await canonicalJsonString(rebuilt)).toBe(await canonicalJsonString(witness.recorded_record));
+    expect(rebuilt.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value).toBe(witness.run_record_hash);
+    const run = witness.recorded_record.analysis_run;
+    expect(run.diagnostics).toEqual(input.run_record.analysis_run.diagnostics);
+    expect(run.diagnostics!.slice(-3).map((item) => (item.source_annotation as { code: string; affected_refs: string[] })))
+      .toEqual([
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-UNRESOLVED", affected_refs: ["invented-pack%40branch@1.0.0"] }),
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-UNRESOLVED", affected_refs: ["invented-pack@branch%401.0.0"] }),
+        expect.objectContaining({ code: "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH", affected_refs: ["invented-pack-changed@2.0%25"] })
+      ]);
+    expect(run.rule_pack_refs).toEqual([{ object_type: "RulePack", ref: "invented-pack%40held@1.0.0" }]);
+    expect(manifest.active_rule_packs.map((pack) => pack.rule_pack_id)).toEqual(["invented-pack@held"]);
+  });
+
+  it("the validator accepts both forms and refuses a recorded revision whose diagnostics do not name the manifest's exclusions", async () => {
+    const input = JSON.parse(readFileSync(RULE_PACK_INPUT_PATH, "utf8")) as TransientInput;
+    const witness = JSON.parse(readFileSync(RULE_PACK_WITNESS_PATH, "utf8")) as Witness;
+    const source = JSON.parse(readFileSync(resolve(PERSISTENCE_FIXTURES, "..", "..", input.source_result_ref), "utf8")) as MechanicsResult;
+    const manifest = JSON.parse(input.input_manifest_canonical) as CurrentSessionInputManifest;
+    const basis = modelLoadBasisRefs(manifest.model_basis.model_payload);
+    const binding = { stateId: witness.state_id, modelHash: witness.state_model_hash, inputManifest: manifest };
+    await validateAnalysisRunV03(input.run_record, source, basis);
+    await validateAnalysisRunV03(witness.recorded_record, source, basis, binding);
+    const dropped = structuredClone(witness.recorded_record);
+    dropped.analysis_run.diagnostics!.pop();
+    await reseal(dropped);
+    expect(await verifyAnalysisRunRecord(dropped)).toBe("match");
+    await expect(validateAnalysisRunV03(dropped, source, basis, binding)).rejects.toThrow(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
+    const swapped = structuredClone(witness.recorded_record);
+    swapped.analysis_run.diagnostics!.push(swapped.analysis_run.diagnostics!.splice(-3, 1)[0]);
+    await reseal(swapped);
+    await expect(validateAnalysisRunV03(swapped, source, basis, binding)).rejects.toThrow(ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH);
+  });
+});
+
+type S2Run = TransientInput & { state_id: string; state_model_hash: string; created_at: string; recorded_record: AnalysisRunEnvelope };
+
+/** S2's path (#1596) for a model with rule-pack references: the session's manifest with
+ * `active_rule_packs: []`, the transient record built without rule-pack resolution (S2's
+ * builder read no `rule_pack_refs`, so the record is built over the manifest with them
+ * hidden from the current builder's resolution check; its bytes are S2's), and S2's recorded
+ * revision (`recordedAnalysisRunRevision`, which the native store's witness binds). */
+async function s2UnresolvedRun(): Promise<S2Run> {
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  pair.model.rule_pack_refs = [inventedReference("invented-pack-s2", hex("5"))];
+  const manifest = await buildCurrentSessionInputManifest({
+    model: pair.model,
+    solver: {
+      solver_name: pair.source.producer!.component_name,
+      solver_version: pair.source.producer!.component_version,
+      solver_build_ref: `${pair.source.producer!.component_name}@${pair.source.producer!.component_version}`,
+      solver_mode: pair.mode,
+      settings: { nonlinear_iteration_policy: "DEC-046-CV-B-product-preview-active-set-count-v1", sparse_evidence_lane: true }
+    },
+    active_rule_packs: [],
+    external_assets: []
+  });
+  const s2View = { ...manifest, manifest: { ...manifest.manifest, model_basis: { ...manifest.manifest.model_basis, model_payload: { ...manifest.manifest.model_basis.model_payload, rule_pack_refs: undefined } } } };
+  const record = await buildAnalysisRunV03(pair.source, s2View, undefined, modelLoadBasisRefs(pair.model));
+  const stateId = "state:000000000000000000000000000052a1";
+  const createdAt = "2026-10-24T08:00:00.000Z";
+  const recorded = await recordedAnalysisRunRevision(record, { stateId, createdAt, inputManifest: manifest.manifest });
+  return {
+    description: "A recorded run of fixtures/model_operations/precision_connected_ui_model.json given one invented rule_pack_refs entry, as W-12 S2 (#1596) recorded it before rule-pack resolution: its input manifest's active_rule_packs is [] and its records name no exclusion. run_record is the transient record, recorded_record S2's recorded revision of it (state_id, created_at). Every current reader refuses it by name (ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED). Written by apps/desktop/src/services/recordedRunParity.test.ts with OPENPIPESTRESS_WRITE_S2_UNRESOLVED_RULE_PACK_RUN=<path>.",
+    source_result_ref: "fixtures/results/preview_physics_connected_sparse.json",
+    run_record: record,
+    input_manifest_canonical: manifest.canonical_bytes,
+    state_id: stateId,
+    state_model_hash: `sha256:${await canonicalSha256Hex(pair.model)}`,
+    created_at: createdAt,
+    recorded_record: recorded
+  };
+}
+
+describe("a run recorded before rule-pack resolution (S2, #1596)", () => {
+  it("the committed fixture is S2's record of a model with rule-pack references (the writer)", async () => {
+    const text = `${JSON.stringify(await s2UnresolvedRun(), null, 2)}\n`;
+    const target = process.env[WRITE_S2_RUN_ENV];
+    if (target) { writeFileSync(target, text); return; }
+    expect(readFileSync(S2_RUN_PATH, "utf8"), `the committed fixture is stale; regenerate it with ${WRITE_S2_RUN_ENV}`).toBe(text);
+  });
+
+  it("is refused by name in both forms; the current builder refuses to build it", async () => {
+    const run = JSON.parse(readFileSync(S2_RUN_PATH, "utf8")) as S2Run;
+    const source = JSON.parse(readFileSync(resolve(PERSISTENCE_FIXTURES, "..", "..", run.source_result_ref), "utf8")) as MechanicsResult;
+    const manifest = JSON.parse(run.input_manifest_canonical) as CurrentSessionInputManifest;
+    const basis = modelLoadBasisRefs(manifest.model_basis.model_payload);
+    expect(manifest.active_rule_packs).toEqual([]);
+    expect(manifest.model_basis.model_payload.rule_pack_refs).toHaveLength(1);
+    await expect(validateAnalysisRunV03(run.recorded_record, source, basis, { stateId: run.state_id, modelHash: run.state_model_hash, inputManifest: manifest }))
+      .rejects.toThrow(`${ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}: recorded before rule-pack resolution; re-record this run`);
+    const evidence = { manifest_ref: run.run_record.analysis_run.reproducibility.input_manifest_refs[0], manifest_sha256: run.run_record.analysis_run.reproducibility.input_manifest_hashes[0].value, manifest };
+    await expect(buildAnalysisRunV03(source, evidence, undefined, basis)).rejects.toThrow(ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED);
+    // Corruption keeps its integrity code (the named refusal comes only after every other check).
+    const corrupted = structuredClone(run.recorded_record);
+    corrupted.analysis_run.run_name = "edited without a reseal";
+    await expect(validateAnalysisRunV03(corrupted, source, basis, { stateId: run.state_id, modelHash: run.state_model_hash, inputManifest: manifest })).rejects.toThrow("ANALYSIS_RECORD_CHECKSUM_MISMATCH");
+    await expect(validateAnalysisRunV03(run.recorded_record, source, basis, { stateId: run.state_id, modelHash: `sha256:${"0".repeat(64)}`, inputManifest: manifest })).rejects.toThrow("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH");
+    // Any other mismatch keeps its code: one exclusion named, not the model's.
+    const other = structuredClone(run.recorded_record);
+    other.analysis_run.diagnostics!.push({ source_annotation: { id: "diagnostic:rule-pack-ref:x@1", code: "MODEL-RULE-PACK-REF-UNRESOLVED", severity: "warning", message: "x", source: "desktop/solve-rule-pack-resolution", affected_refs: ["x@1"] } });
+    await reseal(other);
+    await expect(validateAnalysisRunV03(other, source, basis, { stateId: run.state_id, modelHash: run.state_model_hash, inputManifest: manifest })).rejects.toThrow("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
   });
 });

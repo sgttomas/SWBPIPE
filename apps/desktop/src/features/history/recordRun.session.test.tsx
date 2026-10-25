@@ -113,7 +113,7 @@ async function session(options: { stored?: boolean; foreign?: StoredProjectEntry
           const hash = (await computeModelHash(JSON.parse(request.input_manifest_canonical).model_basis.model_payload))!.value;
           state = { ...request.new_state.labels, project_id: request.project_id, state_id: `state:${String(store.records.length).padStart(32, "0")}`,
             state_kind: "post_solve_snapshot", created_at: created, parent_state_id: request.new_state.parent_state_id, model_hash: hash,
-            record_hash: "r", labels_updated_at: created, child_state_ids: [], recorded_run_ids: [], analysis_status: ["HUMAN_REVIEW_REQUIRED"] } as ModelStateSummary;
+            record_hash: "r", labels_updated_at: created, child_state_ids: [], recorded_run_count: 0, analysis_status: ["HUMAN_REVIEW_REQUIRED"] } as ModelStateSummary;
           store.states.push(state);
         }
         const run: AnalysisRunSummary = { ...request.run_labels, project_id: request.project_id, recording_id: `runrec:${String(store.records.length).padStart(32, "0")}`,

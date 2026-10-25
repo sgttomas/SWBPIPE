@@ -1,5 +1,7 @@
 mod atomic_report_package_save;
 mod command_ingress;
+mod handoff_package;
+mod handoff_package_publish;
 mod host_memory;
 mod ingress;
 mod memory_pool;
@@ -1942,6 +1944,145 @@ fn choose_model_document_save_path(
         .file()
         .set_file_name(suggested_file_name)
         .add_filter("SWBPIPE model document", &["json"]);
+    if let Some(directory) = directory {
+        chooser = chooser.set_directory(directory);
+    }
+    let Some(selected) = chooser.blocking_save_file() else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
+}
+
+/// File > Save Handoff… (DEL-15-01 W-6b): the session's model document as its
+/// RFC 8785 canonical text, with the saved basis state the webview resolved or
+/// created first (W-12 S1's store) and the package label. `handoff_package`
+/// admits it (route evidence, W-6a's admission and screening, the basis state,
+/// every manifest part) before the chooser is shown; the directory package is
+/// then published atomically (`handoff_package_publish`). Cancel is an outcome,
+/// not an error. The ingress lease is held through admission, the chooser and
+/// the write.
+#[tauri::command]
+async fn save_handoff_package(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_handoff_package", ArgsDecoding::Moved)?;
+    let request = handoff_package::save_handoff_package_args(&mut args)?;
+    drop(args);
+    // The lease is held until the command returns; each store read is metered
+    // against the pool with it (W-12 S2's `PoolReadMemory`).
+    let lease = std::sync::Arc::new(lease);
+    respond(Ok(save_handoff_package_decoded(app, request, lease).await))
+}
+
+/// The stored rule-pack documents with `rule_pack_id`, the model's project's
+/// first (the Rule Pack Manager lets a model use a pack stored under any project).
+fn stored_rule_packs_with_id(connection: &Connection, project_id: &str, rule_pack_id: &str) -> Result<Vec<Value>, String> {
+    let mut statement = connection
+        .prepare("SELECT document_json FROM local_rule_packs WHERE rule_pack_id = ?1 ORDER BY project_id = ?2 DESC, project_id")
+        .map_err(|error| error.to_string())?;
+    let rows = statement
+        .query_map(params![rule_pack_id, project_id], |row| row.get::<_, String>(0))
+        .map_err(|error| error.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())?;
+    rows.iter().map(|text| serde_json::from_str(text).map_err(|error| error.to_string())).collect()
+}
+
+async fn save_handoff_package_decoded(
+    app: AppHandle,
+    request: handoff_package::HandoffSaveRequest,
+    lease: std::sync::Arc<memory_pool::Lease>,
+) -> handoff_package::HandoffSaveOutcome {
+    use handoff_package::{HandoffSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    if let Err(diagnostic) = handoff_package::validate_handoff_evidence(&request.screening, &request.local_first) {
+        return Outcome::Refused { diagnostics: vec![diagnostic] };
+    }
+    let handoff_package::HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
+    let store_app = app.clone();
+    let store_lease = std::sync::Arc::clone(&lease);
+    let prepared = match tauri::async_runtime::spawn_blocking(move || {
+        let registry = store_app.state::<SolveJobRegistry>();
+        let memory = stored_read::PoolReadMemory::new(&registry, &store_lease);
+        // One store connection, opened on first use, as the model-document save opens it.
+        let connection: std::cell::RefCell<Option<Connection>> = std::cell::RefCell::new(None);
+        let with_store = |read: &mut dyn FnMut(&Connection) -> Result<(), String>| -> Result<(), String> {
+            let mut held = connection.borrow_mut();
+            if held.is_none() {
+                *held = Some(open_project_store(&app_store_path(&store_app)?)?.0);
+            }
+            read(held.as_ref().expect("opened above"))
+        };
+        let mut states = |project_id: &str, state_id: &str| {
+            handoff_package::stored_state(&app_store_path(&store_app)?, project_id, state_id, &memory)
+        };
+        let mut libraries = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
+            let mut found = None;
+            with_store(&mut |connection| {
+                found = load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim())?.map(|row| row.document);
+                Ok(())
+            })?;
+            Ok(found)
+        };
+        let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
+            let mut found = Vec::new();
+            with_store(&mut |connection| {
+                found = stored_rule_packs_with_id(connection, project_id, rule_pack_id)?;
+                Ok(())
+            })?;
+            Ok(found)
+        };
+        handoff_package::prepare_handoff(
+            canonical_text,
+            &claimed_model_hash,
+            &screening.payload_sha256,
+            &basis_state_id,
+            &package_label,
+            &mut states,
+            &mut libraries,
+            &mut rule_packs,
+        )
+    })
+    .await
+    {
+        Ok(Ok(prepared)) => prepared,
+        Ok(Err(diagnostics)) => return Outcome::Refused { diagnostics },
+        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The handoff's admission worker did not complete."),
+    };
+    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+    let destination = match choose_handoff_package_path(&app, &prepared.suggested_package_name, directory) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return Outcome::Cancelled,
+        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
+    };
+    let write_app = app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        // The basis state is read again immediately before publication.
+        let registry = write_app.state::<SolveJobRegistry>();
+        let memory = stored_read::PoolReadMemory::new(&registry, &lease);
+        let mut states = |project_id: &str, state_id: &str| {
+            handoff_package::stored_state(&app_store_path(&write_app)?, project_id, state_id, &memory)
+        };
+        if let Err(diagnostics) = handoff_package::confirm_basis_state(&prepared, &mut states) {
+            return Outcome::Refused { diagnostics };
+        }
+        handoff_package::write_handoff_package(&destination, prepared, &handoff_package::local_iso_now(), &handoff_package_publish::PRODUCTION_HOOKS)
+    })
+    .await
+    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The handoff's write worker did not complete; the destination may be unchanged."))
+}
+
+fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
+    let mut chooser = app
+        .dialog()
+        .file()
+        .set_file_name(suggested_name)
+        .add_filter("SWBPIPE handoff package", &[handoff_package_publish::PACKAGE_EXTENSION]);
     if let Some(directory) = directory {
         chooser = chooser.set_directory(directory);
     }
@@ -4513,6 +4654,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         ("file.open-local", !state.project_busy),
         ("file.save-local", !state.project_busy),
         ("file.save-model-document", !state.project_busy),
+        ("file.save-handoff", !state.project_busy),
         ("file.list-local", !state.project_busy),
         ("view.view.table", true),
         ("view.view.model", state.stage != "review"),
@@ -4671,6 +4813,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .separator()
         .text("file.save-local", "Save Local Project")
         .text("file.save-model-document", "Save Model Document…")
+        .text("file.save-handoff", "Save Handoff…")
         .text("file.save-report-package", "Save Report Package…")
         .build()?;
 
@@ -5229,6 +5372,7 @@ macro_rules! app_invoke_handler {
             load_design_knowledge,
             open_model_document_file,
             save_model_document_file,
+            save_handoff_package,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
@@ -5256,6 +5400,8 @@ macro_rules! app_invoke_handler {
             model_states::read_model_state,
             model_states::edit_model_state_labels,
             model_states::delete_model_state,
+            model_states::admit_model_state_comparison,
+            model_states::read_model_state_for_comparison,
             analysis_runs::record_analysis_run,
             analysis_runs::list_analysis_runs,
             analysis_runs::read_analysis_run,
@@ -5301,6 +5447,7 @@ pub fn run() {
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_log,
         native_smoke::native_smoke_external_save,
+        native_smoke::native_smoke_verify_handoff_package,
         native_smoke::native_smoke_finish,
     ));
     builder
@@ -5963,7 +6110,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.save-handoff", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));

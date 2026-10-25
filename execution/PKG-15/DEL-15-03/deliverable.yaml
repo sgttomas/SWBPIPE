@@ -230,6 +230,7 @@ code_paths:
 - apps/desktop/src/features/native-package/NativePackagePanel.tsx
 checks:
 - tests/test_handoff_export_workflow.py
+- tests/test_handoff_package_witness.py
 - apps/desktop/src/features/handoff/HandoffPanel.test.tsx
 - apps/desktop/src/features/native-package/NativePackagePanel.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
