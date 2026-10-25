@@ -742,8 +742,26 @@ used and the packs the rule check evaluated can differ. FR-REP-001 asks for
   rule-check run's packs as two separately labelled sets in the report input and
   the audit manifest, each bound to its own source.
 
-(b2) chooses one, records it here, and tests the differing case. If #1602 has not
-merged by then, (b2) builds on its design.
+**Decided (manager, (b2)): agree.** #1602 has merged: the solve resolves the
+model's `rule_pack_refs` and the run's input manifest records the resolved ones in
+`active_rule_packs` (`modelRulePackResolution.ts`). The package's rule-pack set
+must equal the solve's, compared as sets of `{rule_pack_id, version, checksum
+value}`:
+- the package's set is the rule-check run's pack when a run is present
+  (`rulePackReference`), else empty;
+- the solve's set is the current result's input-manifest `active_rule_packs`;
+- when they differ, assembly refuses with `REPORT-PACKAGE-RULE-PACKS-DISAGREE`,
+  naming both sets. The remedy is to run the rule check with the model's pack,
+  or to change the model's references and solve again.
+
+So a model with no references and no rule check saves as before, and a rule check
+of a pack the solve did not use cannot stand in for the solve's packs, nor the
+reverse. An excluded reference is not in `active_rule_packs`; it reaches the
+package through the result member's diagnostics (#1613). Labelling both sets
+was not chosen: it changes the renderer's `RulePackRef` input, its schema, the
+reader and the witnesses for no gain in what the package states. Tests cover
+equal sets, a rule check of a different pack, a solve pack with no rule check,
+and a rule check with no solve pack.
 
 ### 2.6 Native admission and screening (Tauri)
 
