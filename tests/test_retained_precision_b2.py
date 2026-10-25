@@ -87,7 +87,10 @@ def test_b2_combination_successor_reads_bound_unbound_and_transport(mode):
     # five moment support magnitudes, which are certified rows too, is classified by G5c as a case's row is.
     assert result["classifications"] == cases + combined
     assert [c["result_id"] for c in combined] == body(source)["combinations"][0]["result_ids"]
-    assert {c["class"] for c in combined} == {"absolute_verified", "relative_verified", "input_derived"}
+    # W-7: the combination's twelve global end rows per member are not covered (its selection lists them).
+    assert {c["class"] for c in combined} == {"absolute_verified", "relative_verified", "input_derived", "not_covered"}
+    assert sorted(c["result_id"] for c in combined if c["class"] == "not_covered") == sorted(body(source)["combinations"][0]["selection"]["not_covered"])
+    assert all("element-global-end" in c["result_id"] for c in combined if c["class"] == "not_covered")
     assert sorted(c["result_id"] for c in combined if c["class"] == "absolute_verified") == sorted(x["result_id"] for x in body(source)["combinations"][0]["selection"]["absolute_verified"])
     unbound = rp.validate_retained_precision(deepcopy(source))
     assert (unbound["invocation_bound"], unbound["numerical_eligible"], unbound["standing"]) == (False, False, "needs_recompute")

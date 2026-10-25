@@ -22,7 +22,9 @@ PINS = {
         # staging and the prepared-pressure calls are unchanged.
         # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
         # cause String and the route-neutral cause records (PU-TX); carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "96aab83751549846c8898defa59da887fdde529a74d231862b2ef454f109c4e8",
+        # W-7 D3 (§8.20, W7-GE): the member's twelve global end rows or one blocking diagnostic, priced at their own
+        # sites; carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "533f046490187db7edca7dd19177046a893a48cd2f6eba5334c58d42608be820",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the

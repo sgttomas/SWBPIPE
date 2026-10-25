@@ -48,7 +48,7 @@ async function inspectBundledReference(page: Page) {
   await expect(page.getByTestId("workspace-section-results")).toBeVisible();
   const reference = page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true });
   await expect(reference).toBeVisible();
-  await expect(reference.getByTestId("result-filter-summary")).toHaveText("745 of 745 results match filter");
+  await expect(reference.getByTestId("result-filter-summary")).toHaveText("841 of 841 results match filter");
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
   return reference;
 }

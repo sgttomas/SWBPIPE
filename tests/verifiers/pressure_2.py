@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import section_basis as sb, u4b
+from . import global_end, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -68,10 +68,11 @@ PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
-# T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds.
-TABLE_SHA256 = "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba"
-TABLE_SIGNATURE_COUNT = 129
-TABLE_KIND_COUNT = 66
+# T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
+# signatures: 135 over 68.
+TABLE_SHA256 = "a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815"
+TABLE_SIGNATURE_COUNT = 135
+TABLE_KIND_COUNT = 68
 
 # Refusals by name.
 CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
@@ -657,6 +658,12 @@ def _physics(source: Mapping[str, Any]) -> None:
             metadata = row.get("metadata") or {}
             _require(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component") and entry.get("source_basis") == metadata.get("basis")]) == 1, "physical signature")
             u4b.row_semantics(row, True, row["entity_ref"] in marked)
+        # W-7 (DEL-04-01 Design global-end-actions.md): the global end actions, the wall basis admitted.
+        if row.get("kind") in global_end.KINDS:
+            metadata = row.get("metadata") or {}
+            _require(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component")]) == 1, "physical signature")
+            global_end.row_semantics(row, True)
+    global_end.coverage(list(rows.values()))
     _u4b(source, evidence, rows, sections, marked, arc_extrema)
     _twins(rows, sections, owners, region_pressures)
     _validate_connectors(evidence["connector"], evidence["pressure"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")

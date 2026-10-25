@@ -225,6 +225,10 @@ DERIVED = (
 O4_CONTROLS = "fixtures/product_preview/pressure_source/o4/o4_source_controls.json"
 J2_CORPUS = "fixtures/results/pressure_source_reader_corpus.json"
 J7_CENSUS = "fixtures/results/j7_rf_census_expected.json"
+# W-7's global end rows (DEL-04-01 Design `global-end-actions.md`) later moved the census's ordinary
+# pressure-2 envelope and results digests (W-7 global end rows added; no other number moved). R-A's
+# check reads the census at the S1b base, before W-7; `test_o4_text_only_envelope_diff`'s
+# `..._w7_moves_only_added_global_end_rows` binds the committed census to main's bytes before W-7.
 J7_PUBLISHED = {
     (f"RF-SKEW-T-PIN-OFF-345-{tolerance}", mode)
     for tolerance in ("r1e-08", "r1e-12")

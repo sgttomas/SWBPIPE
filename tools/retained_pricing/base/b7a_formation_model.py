@@ -14,7 +14,7 @@ import runpy
 
 # W1-L1a: borrow/lifetime annotations only; source traversal bounds unchanged.
 SOURCE_FILES = {
-    "core/product_physics/src/formation_guard.rs": "5c67a95ea2f1e8d6eab2eac3928fb65e1eb790bea32317b05ca4241637aa9c0c",
+    "core/product_physics/src/formation_guard.rs": "9de2c2afdc7350c8928ba341c309a2e47326e2eefeabce1eabed2d6b1f11a1a6",
     # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.

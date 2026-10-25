@@ -294,6 +294,11 @@ _C7_UP = field_upper(_C7_FIELDS)
 _C7_A = align_expr(_C7_FIELDS + ["open_pipe_stress_result_export::retained_precision::ValidationError", "usize"])
 BIND.update({
     "Node((&str,&str),())": node("(&'static str, &'static str)", "()"),
+    # W-7 D3 (retained-pricing-rules.md §8.20, W7-RD): the readers' global end coverage maps (w7_owners_model.py)
+    "Node((&str,&str),[[Option<f64>;6];2])": node("(&'static str, &'static str)", "[[Option<f64>; 6]; 2]"),
+    "Node((&str,&str),[Option<f64>;2])": node("(&'static str, &'static str)", "[Option<f64>; 2]"),
+    "Node((&str,&str),[BTreeSet<bool>;2])": node("(&'static str, &'static str)", "[std::collections::BTreeSet<bool>; 2]"),
+    "Node(bool,())": node("bool", "()"),
     "s(BTreeSetBorrowed)": sz("std::collections::BTreeSet<(&'static str, &'static str)>"),
     "s(PairBorrowed)": sz("(&'static str, &'static str)"),
     "s(NumericCaseBorrowed)": upr(_C7_UP,

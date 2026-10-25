@@ -495,7 +495,8 @@ it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',com
  const before=checkedJsonText(source),packet=await buildStressNeutralExportPacket({model,result:source,analysisRun});
  expect(checkedJsonText(source)).toBe(before);
  const combinationRows=source.results.filter(r=>r.basis_ref?.ref_type==='combination');
- expect(combinationRows.length).toBe(111);
+ // W-7: the combination's 12 global end rows (111 + 12).
+ expect(combinationRows.length).toBe(111 + 12);
  for(const row of combinationRows){const packed=packet.result_rows.find((x:any)=>x.result_id===row.id);expect(packed.load_case_ref).toEqual({object_type:'Combination',ref:'combination:ab'});expect(packed.value).toBe(row.value);}
  expect(sourceBasisReference(combinationRows[0].basis_ref)).toEqual({object_type:'Combination',ref:'combination:ab'});
  const classes=(await validateRetainedPrecision(source)).classifications,combinationClasses=classes.filter(c=>c.basis_ref.ref_type==='combination');
@@ -507,8 +508,12 @@ it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',com
  for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,absolute.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
  // Relative-verified and input-derived combination rows keep their witnesses.
  for(const c of combinationClasses.filter(c=>c.class==='relative_verified'||c.class==='input_derived'))expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===c.result_id)).toBe(true);
- // No combination row is not_covered; the load cases' T4-U4b derived rows are (never combined).
- expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED'&&combinationRows.some(r=>r.id===d.source.ref))).toBe(false);
+ // The load cases' T4-U4b derived rows are not_covered and never combined; W-7: the combination's only not_covered
+ // rows are its 12 global end rows, each withheld with the not-covered finding.
+ const notCovered=combinationClasses.filter(c=>c.class==='not_covered').map(c=>c.result_id).sort();
+ expect(notCovered).toHaveLength(12);
+ expect(notCovered.every(id=>id.includes(':element-global-end:'))).toBe(true);
+ expect(packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED'&&combinationRows.some(r=>r.id===d.source.ref)).map((d:any)=>d.source.ref).sort()).toEqual(notCovered);
  await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
  await expect(validateStressNeutralExportPacket(structuredClone(packet))).resolves.toBeUndefined();
 }, 120_000); // heavy build; the hosted full-suite runner is several times slower than local

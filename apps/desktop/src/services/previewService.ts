@@ -611,6 +611,9 @@ export function declaredSourceResultDimension(
   const declarations: Record<string, CanonicalResultDimension> = {
     component_user_stress_multiplier_review: "stress",
     displacement_magnitude: "length",
+    // W-7 (DEL-04-01 Design global-end-actions.md): member end actions in global coordinates.
+    element_global_end_force_v1: "force",
+    element_global_end_moment_v1: "moment",
     element_local_axial_force: "force",
     element_local_axial_normal_stress: "stress",
     element_local_bending_moment_y: "moment",
