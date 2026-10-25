@@ -6753,7 +6753,7 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         // list of distinct member ids when present; the raw reader binds it to rows.
         demand(
             shape(
-                &crate::component_body::without_record(coverage),
+                &crate::component_body::coverage_without_bodies(coverage),
                 &[
                     "complete",
                     "unavailable_pipe_ids",
@@ -6817,7 +6817,7 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         )?;
         for x in list(&c["pipe_stress_extrema"]) {
             // W-15 slice d: an extremum of a body carries its closed record.
-            demand(shape(&crate::component_body::without_record(x), &EXTREMA), "extrema shape")?;
+            demand(shape(&crate::component_body::extremum_without_record(x), &EXTREMA), "extrema shape")?;
             demand(
                 x.get(crate::component_body::RECORD).is_none_or(crate::component_body::record_shape),
                 "extrema body record",

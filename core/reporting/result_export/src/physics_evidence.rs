@@ -603,7 +603,7 @@ pub(crate) fn validate_physics_evidence_in(
             }
             require(
                 keys(
-                    &crate::component_body::without_record(ex),
+                    &crate::component_body::extremum_without_record(ex),
                     &[
                         "pipe_id",
                         "section_basis",

@@ -521,7 +521,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         for basis in sb.BASES:
             _require(set(extrema_by_basis[basis]) == set(geometries[cid]) - missing_by_basis[basis], "maximum member coverage")
         for pid, extremum in [(pid, ex) for basis in sb.BASES for pid, ex in extrema_by_basis[basis].items()]:
-            _shape(component_body.without_record(extremum), sb.EXTREMUM_KEYS, "extrema shape")
+            _shape(component_body.extremum_without_record(extremum), sb.EXTREMUM_KEYS, "extrema shape")
             _require(_text(extremum["result_id"]) and extremum["result_id"] not in extrema_ids, "duplicate extrema result binding")
             extrema_ids.add(extremum["result_id"])
             row = rows.get(extremum["result_id"], {})

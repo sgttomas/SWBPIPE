@@ -424,7 +424,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         let coverage = &case["stress_maximum_coverage"];
         require(
             keys(
-                &crate::component_body::without_record(coverage),
+                &crate::component_body::coverage_without_bodies(coverage),
                 &[
                     "complete",
                     "unavailable_pipe_ids",
@@ -450,7 +450,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             require(partition.insert(*pipe), "STRESS_COVERAGE_PARTITION")?;
         }
         for extrema in array(&case["pipe_stress_extrema"])? {
-            require(keys(&crate::component_body::without_record(extrema), EXTREMA_KEYS), "EXTREMA_SHAPE")?;
+            require(keys(&crate::component_body::extremum_without_record(extrema), EXTREMA_KEYS), "EXTREMA_SHAPE")?;
             let pipe = text(&extrema["pipe_id"])?;
             require(partition.insert(pipe), "STRESS_COVERAGE_PARTITION")?;
             let id = text(&extrema["result_id"])?;

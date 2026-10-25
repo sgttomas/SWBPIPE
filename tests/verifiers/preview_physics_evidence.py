@@ -199,7 +199,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         cases[cid] = case
         _require(isinstance(case["pipe_stress_extrema"], list) and isinstance(case["intensified_measures"], list), "preview case lists")
         coverage = case["stress_maximum_coverage"]
-        _shape(component_body.without_record(coverage), {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
+        _shape(component_body.coverage_without_bodies(coverage), {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
         _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]) and _strings(coverage["outside_domain_pipe_ids"]), "maximum coverage values")
         _require(not set(coverage["unavailable_pipe_ids"]) & set(coverage["outside_domain_pipe_ids"]), "maximum coverage overlap")
         # W-15 slice d: the optional body list is a nonempty list of distinct member ids (the raw reader binds it to rows).
@@ -216,7 +216,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         # A3 2: a support is attributed or withheld, never both.
         _require(not set(attribution["attributed_support_ids"]) & {record["support_id"] for record in attribution["withheld"]}, "support both attributed and withheld")
         for extremum in case["pipe_stress_extrema"]:
-            _shape(component_body.without_record(extremum), EXTREMA_KEYS, "extrema shape")
+            _shape(component_body.extremum_without_record(extremum), EXTREMA_KEYS, "extrema shape")
             _require(component_body.RECORD not in extremum or component_body.record_shape(extremum[component_body.RECORD]), "extrema body record")
             # T4-U4b (§2.3): the straight tokens or, on an arc (checked against the rows below), the arc tokens.
             arc_constants = dict(zip(EXTREMA_CONSTANTS, ("arc_closed_form_section_statics", "arc_end_j_force_and_uniform_intensities_binary64_enclosures",

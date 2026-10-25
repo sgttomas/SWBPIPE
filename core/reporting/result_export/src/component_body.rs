@@ -68,15 +68,28 @@ fn same_record(a: &Value, b: &Value) -> bool {
         && a["stiffness_scale"].as_f64().map(f64::to_bits) == b["stiffness_scale"].as_f64().map(f64::to_bits)
 }
 
-/// A copy of `value` without the slice-d members, for the readers' closed
-/// shape checks of a record that may carry them.
-pub fn without_record(value: &Value) -> Value {
+fn without(value: &Value, member: &str) -> Value {
     let mut copy = value.clone();
     if let Some(o) = copy.as_object_mut() {
-        o.remove(RECORD);
-        o.remove(COVERAGE_KEY);
+        o.remove(member);
     }
     copy
+}
+
+/// A stress-maximum coverage entry without its optional body list, for the
+/// readers' closed shape check: only `component_body_pipe_ids` is permitted
+/// there, so a `component_body` record on a coverage entry stays a shape
+/// refusal ([`source_bodies`] checks the list itself).
+pub fn coverage_without_bodies(entry: &Value) -> Value {
+    without(entry, COVERAGE_KEY)
+}
+
+/// A stress extremum without its optional record, for the readers' closed
+/// shape check: only `component_body` is permitted there, so a
+/// `component_body_pipe_ids` list on an extremum stays a shape refusal
+/// ([`source_bodies`] checks the record itself).
+pub fn extremum_without_record(extremum: &Value) -> Value {
+    without(extremum, RECORD)
 }
 
 fn evidence_cases(source: &Value) -> Vec<&Value> {

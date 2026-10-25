@@ -345,7 +345,7 @@ def coverage(value: Any) -> list[tuple[set[str], bool]]:
     _require(isinstance(value, list) and len(value) == 2, "maximum coverage")
     out = []
     for entry, basis in zip(value, BASES):
-        _require(isinstance(entry, Mapping) and set(component_body.without_record(entry)) == {"section_basis", "complete", "unavailable_pipe_ids"} and entry["section_basis"] == basis, "maximum coverage")
+        _require(isinstance(entry, Mapping) and set(component_body.coverage_without_bodies(entry)) == {"section_basis", "complete", "unavailable_pipe_ids"} and entry["section_basis"] == basis, "maximum coverage")
         ids = entry["unavailable_pipe_ids"]
         _require(isinstance(ids, list) and all(isinstance(i, str) and i for i in ids) and len(set(ids)) == len(ids) and type(entry["complete"]) is bool, "maximum coverage values")
         _require(entry["complete"] == (not ids), "maximum coverage contradiction")

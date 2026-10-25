@@ -47,9 +47,16 @@ def _same(a: Mapping[str, Any], b: Mapping[str, Any]) -> bool:
             and _bits(float(a["stiffness_scale"])) == _bits(float(b["stiffness_scale"])))
 
 
-def without_record(value: Mapping[str, Any]) -> dict[str, Any]:
-    """A copy without the slice-d members, for closed shape checks."""
-    return {key: item for key, item in value.items() if key not in (RECORD, COVERAGE_KEY)}
+def coverage_without_bodies(entry: Mapping[str, Any]) -> dict[str, Any]:
+    """A coverage entry without its optional body list (the only slice-d member permitted there), for closed shape
+    checks; a ``component_body`` record on a coverage entry stays a shape refusal."""
+    return {key: item for key, item in entry.items() if key != COVERAGE_KEY}
+
+
+def extremum_without_record(extremum: Mapping[str, Any]) -> dict[str, Any]:
+    """A stress extremum without its optional record (the only slice-d member permitted there), for closed shape
+    checks; a ``component_body_pipe_ids`` list on an extremum stays a shape refusal."""
+    return {key: item for key, item in extremum.items() if key != RECORD}
 
 
 def _cases(source: Mapping[str, Any]) -> list[Mapping[str, Any]]:

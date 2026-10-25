@@ -339,6 +339,30 @@ fn w15_missing_forged_and_inconsistent_records_are_refused() {
             let extremum = evidence[key][0]["pipe_stress_extrema"].as_array_mut().unwrap().iter_mut().find(|e| e["pipe_id"] == BODY).unwrap();
             extremum.as_object_mut().unwrap().remove("component_body");
         });
+        // Each slice-d member is permitted on one object only: a record on a
+        // coverage entry, or a body list on an extremum, stays a closed-shape
+        // refusal (scrutiny of #1604: the readers once stripped both from both).
+        tamper("a record on stress-maximum coverage", "SHAPE", false, &|s| {
+            let evidence = &mut s["contract_evidence"];
+            let key = if evidence.get("preview_cases").is_some() { "preview_cases" } else { "exact_cases" };
+            match &mut evidence[key][0]["stress_maximum_coverage"] {
+                Value::Array(entries) => {
+                    for entry in entries {
+                        entry["component_body"] = json!("garbage");
+                    }
+                }
+                entry => entry["component_body"] = json!("garbage"),
+            }
+        });
+        tamper("a body list on every stress extremum", "SHAPE", false, &|s| {
+            let evidence = &mut s["contract_evidence"];
+            let key = if evidence.get("preview_cases").is_some() { "preview_cases" } else { "exact_cases" };
+            for case in evidence[key].as_array_mut().unwrap() {
+                for extremum in case["pipe_stress_extrema"].as_array_mut().unwrap() {
+                    extremum["component_body_pipe_ids"] = json!(["nonexistent"]);
+                }
+            }
+        });
         tamper("headline on the body", "HEADLINE", false, &|s| {
             let body = s["results"].as_array().unwrap().iter().find(|r| r["entity_ref"] == BODY && r["kind"] == MAXIMUM).unwrap().clone();
             let key = if route == Route::Preview { "max_open_formula_stress".to_string() } else {

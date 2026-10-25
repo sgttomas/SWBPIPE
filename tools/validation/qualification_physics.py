@@ -48,8 +48,9 @@ DEPENDENCIES = {
     # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (merged with S4;
     # was c7699864..., 56f18624..., 58491ca8... and 20337f1c...);
     # then W-15 slice d (DEL-03-05 Design §5): the component-body records, bodies out of the maxima and
-    # headlines (was 520e7189...).
-    MODULE: 'd34664e237d36c729810c7c995609eb7bf5f3b7f1164ba1576b7200780a0ae68',
+    # headlines (was 520e7189...); then its scrutiny repair: the extremum shape check strips only the record, not
+    # the coverage key (was d34664e2...).
+    MODULE: '420e60e47770cadaed98f33a6bfa1220b086853b83b3fbc1feefd5c41ea240ac',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

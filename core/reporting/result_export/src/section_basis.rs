@@ -500,7 +500,7 @@ pub fn coverage(v: &Value) -> Result<[(Vec<&str>, bool); 2], String> {
     let mut out: [(Vec<&str>, bool); 2] = [(Vec::new(), true), (Vec::new(), true)];
     for ((entry, basis), slot) in entries.iter().zip(BASES).zip(out.iter_mut()) {
         require(
-            keys(&crate::component_body::without_record(entry), &["section_basis", "complete", "unavailable_pipe_ids"]) && entry["section_basis"] == basis,
+            keys(&crate::component_body::coverage_without_bodies(entry), &["section_basis", "complete", "unavailable_pipe_ids"]) && entry["section_basis"] == basis,
             "STRESS_COVERAGE_SHAPE",
         )?;
         let ids = entry["unavailable_pipe_ids"].as_array().ok_or("SOURCE_PHYSICS_STRESS_COVERAGE_SHAPE")?;
