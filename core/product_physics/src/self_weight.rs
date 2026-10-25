@@ -601,6 +601,9 @@ fn primitive_payload(load: &super::PreviewPrimitiveLoad) -> Value {
     let target = match &load.target {
         super::LoadTargetInput::Node { node } => json!({"type":"node","node":node}),
         super::LoadTargetInput::Element { pipe } => json!({"type":"element","pipe":pipe}),
+        super::LoadTargetInput::Support { support, dof } => {
+            json!({"type":"support","support":support,"dof":dof})
+        }
     };
     json!({"id":load.id,"category":load.category,"target":target,"direction":load.direction,
         "magnitude":quantity(&load.magnitude),"dimension":load.dimension})
@@ -874,7 +877,7 @@ pub fn inspect_applied_self_weight(
                             pipe
                         )
                 }
-                super::LoadTargetInput::Node { .. } => false,
+                super::LoadTargetInput::Node { .. } | super::LoadTargetInput::Support { .. } => false,
             };
             let looks_generated = claimed_method_family || deterministic_identity;
             if !recognized && !looks_generated {

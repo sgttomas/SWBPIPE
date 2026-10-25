@@ -433,6 +433,10 @@ impl TypedWalk {
                 match &load.target {
                     crate::LoadTargetInput::Node { node } => self.string(node)?,
                     crate::LoadTargetInput::Element { pipe } => self.string(pipe)?,
+                    crate::LoadTargetInput::Support { support, dof } => {
+                        self.string(support)?;
+                        self.string(dof)?;
+                    }
                 }
                 self.quantity(&load.magnitude)?;
             }
@@ -994,6 +998,10 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
                     if self_weight_form(&load.id, &case.id, pipe) {
                         return refuse(C::Loads, F::GeneratedLoadIdentity);
                     }
+                }
+                // W-16 slice a: an imposed displacement is outside D1 on both routes.
+                crate::LoadTargetInput::Support { .. } => {
+                    return refuse(C::Loads, F::LoadTarget);
                 }
             }
         }

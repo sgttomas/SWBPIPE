@@ -4579,6 +4579,8 @@ impl ProductCapture {
                     && load.category=="distributed_force" && load.dimension=="force_per_length"
                     && matches!(load.direction.as_str(),"global_x"|"global_y"|"global_z")
                     && raw.get("extent").is_none(),
+                // D1.7 refuses a support target before any capture.
+                LoadTargetInput::Support{..}=>false,
             };
             if raw["id"]!=load.id || raw["category"]!=load.category || raw["direction"]!=load.direction
                 || raw["dimension"]!=load.dimension || !target_matches

@@ -3140,6 +3140,31 @@ fn b7a_d1_exact_route_keeps_member_loads_and_selectors_out() {
     }
 }
 
+/// W-16 slice a (DEL-04-03 Design `pf-imposed-displacement.md` §3): the census reads a
+/// support target's two strings and D1.7 refuses it by its target fact on both branches, as
+/// the first or last primitive of the first or last of C cases. D1 alone, so this holds in
+/// any build, registered or not.
+#[test]
+fn w16_d1_refuses_support_targeted_imposed_displacement_on_both_branches() {
+    use D1Clause as C;
+    use FamilyFact as F;
+    let motion = json!({"id": "motion", "category": "imposed_displacement", "target": {"type": "support", "support": "rigid:N0", "dof": "UY"},
+        "direction": "UY", "magnitude": {"value": 0.001, "unit": "m"}, "dimension": "displacement"});
+    for (branch, base) in [("L", milestone_cases(caps::LOAD_CASES)), ("E", exact3(milestone_cases(caps::LOAD_CASES)))] {
+        assert_eq!(domain(base.clone()), None, "branch {branch} inside D1");
+        for case in [0, caps::LOAD_CASES - 1] {
+            for first in [true, false] {
+                let mut raw = base.clone();
+                let loads = raw["model"]["load_cases"][case]["primitive_loads"].as_array_mut().unwrap();
+                if first { loads.insert(0, motion.clone()) } else { loads.push(motion.clone()) }
+                let report = admitted(raw);
+                assert!(report.census_complete(), "branch {branch} case {case}");
+                assert_eq!(report.law().domain, family(C::Loads, F::LoadTarget), "branch {branch} case {case} first {first}");
+            }
+        }
+    }
+}
+
 /// B3b-A's Direct-entry oracle, after B3b-P (lane P, I105; ROOT's one-off edit on b2, refined
 /// by RV123's interim review). `permitted_run` sends a permitted exact model to W1's exact route
 /// (B3-D P-1, P-2). In the registered build, in both modes:

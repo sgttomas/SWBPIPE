@@ -1082,61 +1082,6 @@ pub(crate) fn append_combination_results(
     gates
 }
 
-/// SF-E: a pre-0.4 request whose primitive load targets a support is refused
-/// with a targeted diagnostic. Nothing is solved from the cleaned clone.
-pub(crate) fn imposed_displacement_refusal(
-    actual_request: &serde_json::Value,
-) -> Option<Result<MechanicsEnvelope, String>> {
-    let model = actual_request.get("model")?;
-    if crate::carries_load_reference_state(model)
-        || actual_request.get("materials").and_then(serde_json::Value::as_array)
-            .is_some_and(|materials| materials.iter().any(|material|
-                material.as_object().is_some_and(|record| record.contains_key("expansion_laws")))) {
-        return None;
-    }
-    let mut offending = Vec::new();
-    for case in model.get("load_cases")?.as_array()? {
-        let case_id = case.get("id").and_then(|v| v.as_str()).unwrap_or("");
-        for load in case.get("primitive_loads").and_then(|v| v.as_array()).into_iter().flatten() {
-            if load.pointer("/target/type").and_then(|v| v.as_str()) == Some("support") {
-                offending.push((
-                    case_id.to_string(),
-                    load.get("id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                    load.pointer("/target/support").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                ));
-            }
-        }
-    }
-    if offending.is_empty() {
-        return None;
-    }
-    let mut clone = actual_request.clone();
-    if let Some(cases) = clone.pointer_mut("/model/load_cases").and_then(|v| v.as_array_mut()) {
-        for case in cases {
-            if let Some(loads) = case.get_mut("primitive_loads").and_then(|v| v.as_array_mut()) {
-                loads.retain(|load| load.pointer("/target/type").and_then(|v| v.as_str()) != Some("support"));
-            }
-        }
-    }
-    let request: LinearStaticPreviewRequest = match serde_json::from_value(clone) {
-        Ok(request) => request,
-        Err(_) => return None,
-    };
-    let diagnostics = offending
-        .into_iter()
-        .map(|(case_id, load_id, support_id)| {
-            diag(
-                &format!("diagnostic:preview-physics:imposed-displacement:{}", identity(&[&case_id, &load_id])),
-                "IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL",
-                "blocking",
-                format!("load {load_id} in {case_id} imposes a displacement on support {support_id}; this model version has no load-state boundary motion, so the request is refused and nothing is solved (author it in a load-state model)"),
-                vec![load_id, case_id, support_id],
-            )
-        })
-        .collect();
-    Some(Ok(blocked_envelope(request.model, diagnostics)))
-}
-
 #[cfg(test)]
 #[path = "silent_drop_unit_tests.rs"]
 mod silent_drop_unit_tests;
