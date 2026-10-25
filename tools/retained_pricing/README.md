@@ -312,5 +312,5 @@ a changed or partly present owner stops the run. See the governing rules' §8.21
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
-registration additionally requires native atoms, all 70 budget evaluations,
+registration additionally requires native atoms, all 80 budget evaluations,
 reviewed inputs/layouts and independent source/pricing scrutiny.
