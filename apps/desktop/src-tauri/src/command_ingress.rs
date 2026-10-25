@@ -1164,10 +1164,9 @@ mod tests {
         let model = canonical_json(&test_support::model());
         // The input manifest embeds the model and repeats its load cases, as
         // the session's does (`inputManifestService.ts`).
-        let mut manifest = test_support::input_manifest(Value::Array(
+        let mut manifest = test_support::input_manifest(&test_support::model(), Value::Array(
             (0..200).map(|index| test_support::active_pack(&format!("invented-pack-{index}"), "1.0.0", &"a".repeat(64))).collect(),
         ));
-        manifest["model_basis"]["model_payload"] = test_support::model();
         manifest["load_basis"] = json!({"load_cases": test_support::model()["load_cases"].clone(), "combinations": []});
         let manifest = canonical_json(&manifest);
         let desktop = test_support::desktop_request(&test_support::model());

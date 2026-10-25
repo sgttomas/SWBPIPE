@@ -406,7 +406,10 @@ each with a named `REPORT-PACKAGE-…` code:
        ref.
      - When the origin class is `received_current_dimension_absent` (the
        desktop), the origin's `qualification_ref` is
-       `current_manifest:<that payload ref>`.
+       `current_manifest:<that payload ref>`, and `a.manifest_id` is that
+       payload ref (§2.4), so the document's `audit_manifest_ref` and the
+       input-manifest references name one manifest. The runner names its
+       audit manifest by its run, so this equality is the desktop's.
 
      The input manifest itself is not in the request, so its digest is bound,
      not recomputed.
@@ -537,11 +540,14 @@ producer's check. Its module text (`reader.rs:30-37`) is updated to say so.
   sets the audit manifest's `manifest_id` to the input-manifest reference
   `inputManifest.manifest_ref.ref`. So the result member stays canonically equal
   to Export Result JSON's document, and the derivative goldens that build from
-  `currentResultDocumentBase` are untouched. Precedent: the headless witness
-  already names its audit manifest by its input manifest
-  (`del1005_export_results_success_input.json`, `manifest_id` =
-  `input_manifest_hash.payload_ref` = `manifest-1`). What differs from the 1.0.0
-  path: only the audit member's `manifest_id`.
+  `currentResultDocumentBase` are untouched. The headless witness names its
+  audit manifest by its run instead
+  (`del1005_export_results_success_input.json`, `manifest_id`
+  `audit-manifest:run:…`, `input_manifest_hash.payload_ref`
+  `input-manifest:del1005-invented`), so the shared producer requires
+  `manifest_id` = `input_manifest_hash.payload_ref` for the desktop profile
+  only (§2.3 item 5). What differs from the 1.0.0 path: only the audit
+  member's `manifest_id`.
 - **Unit system.** The audit manifest's `unit_system_ref` takes the document's
   `<model id>:units` (`resultExportAdapter.ts:231`), not the DEC-018 display ref
   (`reportPackageRequest.ts:34,404`). The report keeps the DEC-018 ref as its
@@ -819,9 +825,15 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
    Parse `inputManifestCanonicalText` likewise and refuse unless its SHA-256
    equals the raw request's `/audit_manifest/input_manifest_hash/value`
    (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`). That is the `rfc8785_jcs`
-   basis the analysis record and the audit manifest label it with. Its
-   `active_rule_packs` must be a complete inventory: a non-empty id and version
-   and a bare 64-hex `checksum_sha256` per entry
+   basis the analysis record and the audit manifest label it with. The
+   manifest must record a solve of the bound model, or the save refuses with
+   the same code: its `model_basis.model_ref` is the model text's `project.id`,
+   and the SHA-256 of its embedded `model_basis.model_payload` in RFC 8785 form
+   is the model text's, so the payload is canonically the model text
+   (`inputManifestService.ts` embeds the solved model; `resultExportAdapter.ts`
+   requires it equal to the session model, `CURRENT_MODEL_PAYLOAD_MISMATCH`).
+   Its `active_rule_packs` must be a complete inventory: a non-empty id and
+   version and a bare 64-hex `checksum_sha256` per entry
    (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-INVALID`).
 4. **Disposition screening of content**, on a blocking worker with the
    local-store lookup. Both screens run over **both** parsed values: the request
@@ -876,9 +888,14 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
      for the input-manifest text, `input-manifest:<model id>:<sha256>`
      (`analysis_runs::input_manifest_ref`, as `inputManifestService.ts` derives
      it), or the save refuses with `REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`.
-     The shared producer binds that reference to the result document's
-     `audit_manifest_ref` and origin `qualification_ref`, the report's
-     `input_manifest_ref` and the handoff records (§2.3 item 5).
+     The shared producer binds that reference to the audit `manifest_id`
+     (the desktop profile's rule, §2.4), and through it to the result
+     document's `audit_manifest_ref`, and to the origin `qualification_ref`,
+     the report's `input_manifest_ref` and the handoff records (§2.3 item 5);
+     a request whose `manifest_id` names another manifest is refused there
+     (`REPORT-PACKAGE-BINDING-MISMATCH`). With item 3, the model, the
+     input-manifest text and every input-manifest reference of the package
+     name one solve.
    - §2.5's rule: the input manifest's `active_rule_packs` equal, as a set of
      `{rule_pack_id, version, checksum value}`, both
      `/report/calculation_report/rule_pack_refs` (`version`, `checksum.value`)
