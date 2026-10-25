@@ -513,6 +513,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Refusal of load cases that apply nothing (silent zero) | #1568 |
 | — | Strict inputs: no silent drops of authored input or combination rows (PF closed records, `UNKNOWN_MODEL_FIELD`; duplicate terms and withheld combination rows named) | #1573 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
+| W-17 (b) | Changing project units after creation: `set_project_unit` and the Project units section | #1627 |
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
 | W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
 | W-7 | Global-frame element-end forces (FR-SOL-007): twelve global end rows per member and case on PF and EX, their readers and verifiers; the retained route's re-registration (DEL-04-08 §8.20) | #1581 |
@@ -530,7 +531,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 
 | # | Unit | PR or branch |
 |---|---|---|
-| W-17 (b) | Units after creation (`set_project_unit`, Project units section) | #1627 |
 | — | DBM concordance review | #1567 |
 | W-20 | Pressure stress benchmark family in the DEL-09-02 suite (hoop and longitudinal stress against closed forms) | #1599 |
 
