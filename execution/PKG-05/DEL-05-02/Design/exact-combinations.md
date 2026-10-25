@@ -129,9 +129,16 @@ Every other absence is a missing source. This covers:
 
 As on PF (`preview_physics.rs` ~936-979), the affected row is omitted under
 `LOAD_COMBINATION_SOURCE_RESULT_MISSING` alone, and the other rows publish.
-`LOAD_COMBINATION_ROW_WITHHELD` names the rows withheld for other reasons:
-missing key fields and tie rods. Support groups still publish whole or not
-at all (~987-1049).
+`LOAD_COMBINATION_ROW_WITHHELD` names the rows withheld for other reasons,
+naming each row or group and its reason, as #1573 preserves
+(`pressure-contract.md` ~151-155). Those reasons are:
+- a support group that does not publish whole, because an operand lacks one
+  of its components or the whole group. As on PF, the group publishes whole or
+  not at all (`preview_physics.rs` ~987-1049).
+- an algebra-refused row;
+- a dimensionless row;
+- a row missing key fields;
+- a tie-rod row.
 
 **Tie rods.** Tie-rod rows share their connector's entity, component, frame
 and location. Their rod identity lives only in their ids and in the connector
@@ -336,7 +343,8 @@ axial compliances.
   carrying A's and B's loads together, in every range mode.
 - **Connectors and rods.**
   - Connectors with nonzero installed references. These pass: 1; 0.3 + 0.7;
-    a sum within 64ε of 1. These are withheld: 2, 0, 2^53 + (−2^53), and a sum
+    [1.0, 2^−54], whose exact sum is not 1, but which is within 64ε; a sum
+    within 64ε of 1. These are withheld: 2, 0, 2^53 + (−2^53), and a sum
     just outside 64ε. A non-finite factor is refused.
   - A null-space q_ref.
   - Two distinct rods, whose rows are withheld by name.
