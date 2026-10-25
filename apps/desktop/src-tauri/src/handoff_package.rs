@@ -33,9 +33,13 @@
 
 use crate::command_ingress::Args;
 use crate::handoff_package_publish::{self as publish, PublishHooks, Published};
+use crate::export_disposition_screen::{
+    library_identity, malformed_dispositions, matching_library_records, own_or_provenance, screen_document, truthy_str, LibraryLookup,
+};
+#[cfg(test)]
+use crate::export_disposition_screen::{pointer_token, SCREENED_MEMBERS};
 use crate::model_document_save::{
-    self, library_identity, matching_library_records, own_or_provenance, truthy_str, LibraryLookup,
-    ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
+    self, ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
 };
 use crate::model_states::ModelStateSummary;
 use crate::solve_jobs::SolveJobError;
@@ -288,103 +292,6 @@ fn least_permissive<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
 /// The least settled of the review classifications a record includes.
 fn least_reviewed<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
     values.into_iter().max_by_key(|value| rank(&REVIEW_ORDER, value)).unwrap_or("TBD")
-}
-
-/// The disposition members the structural screen judges, with the values that
-/// block: W-6a's policy (`redistribution_status` `protected_suspected` or
-/// `rejected`, `review_status` `quarantined` or `rejected`), the privacy and
-/// classification members' `protected_suspected` (the webview's rule), and a
-/// rule pack's `lifecycle_status` `quarantined` or `rejected`.
-const SCREENED_MEMBERS: [(&str, &[&str]); 6] = [
-    ("redistribution_status", &["protected_suspected", "rejected"]),
-    ("review_status", &["quarantined", "rejected"]),
-    ("privacy_class", &["protected_suspected", "quarantined", "rejected"]),
-    ("privacy_classification", &["protected_suspected", "quarantined", "rejected"]),
-    ("classification", &["protected_suspected", "quarantined", "rejected"]),
-    ("lifecycle_status", &["quarantined", "rejected"]),
-];
-
-/// One RFC 6901 reference token.
-fn pointer_token(key: &str) -> String {
-    key.replace('~', "~0").replace('/', "~1")
-}
-
-/// The structural screen of one document resolved from the store (review
-/// round 2, finding 2): every object at every depth (a wrapper, its records,
-/// array elements, every `provenance` and `provenance_record` beneath them) is
-/// judged by its own [`SCREENED_MEMBERS`]; nothing is inherited and no field
-/// hides another object's. Returned as `<JSON pointer> <value>`, in document
-/// order; empty when nothing blocks. The whole document is screened before
-/// any of it is mapped into the manifest.
-pub(crate) fn screen_document(document: &Value) -> Vec<String> {
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
-                        if blocking.contains(&status) {
-                            found.push(format!("{at} {status}"));
-                        }
-                    }
-                    walk(child, &at, found);
-                }
-            }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
-        }
-    }
-    let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
-}
-
-/// The disposition members of a stored document whose value is an array or an
-/// object (review round 6 note 4, narrowed in round 6b by the owner's
-/// decision): either could hide a blocking value, so the save refuses them as
-/// malformed rather than guess. A rule pack's `classification` object is
-/// exempt, since its own members are screened in turn. `null`, booleans and
-/// numbers are not refused (the library import stores them); they count as
-/// no public disposition and, for privacy members, as private. Returned as
-/// `<JSON pointer> is <JSON value kind>`.
-pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
-    fn kind(value: &Value) -> &'static str {
-        match value {
-            Value::Null => "null",
-            Value::Bool(_) => "a boolean",
-            Value::Number(_) => "a number",
-            Value::String(_) => "a string",
-            Value::Array(_) => "an array",
-            Value::Object(_) => "an object",
-        }
-    }
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
-                    if screened && (child.is_array() || child.is_object()) && !(key == "classification" && child.is_object()) {
-                        found.push(format!("{at} is {}", kind(child)));
-                    }
-                    walk(child, &at, found);
-                }
-            }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
-        }
-    }
-    let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
 }
 
 fn malformed_record(path: &str, record: &str, what: &str, found: &[String]) -> Diagnostic {

@@ -1,5 +1,6 @@
 mod atomic_report_package_save;
 mod command_ingress;
+mod export_disposition_screen;
 mod handoff_package;
 mod handoff_package_publish;
 mod host_memory;
@@ -109,21 +110,6 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
         .map(|selected| selected.into_path().map_err(|error| error.to_string()))
 }
 
-/// The W-18 slice (a) native hold (DEL-08-01 Design
-/// `report-package-current-results.md` §2.6, "Slice (a) hold"). From package
-/// version 2.0.0 the shared producer admits Current pressure-free requests,
-/// and the TypeScript availability gate is not an IPC boundary. Until slice
-/// (b1) installs the content-screened admission, this desktop command refuses
-/// every request before evidence use, package assembly, the save dialog or any
-/// write. It does not close the shared producer or the headless runner. Slice
-/// (b1) removes this hold and its test.
-const REPORT_PACKAGE_SAVE_HOLD: &str =
-    "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
-
-fn report_package_save_hold() -> Result<(), ReportPackageSaveCommandError> {
-    Err(ReportPackageSaveCommandError::bridge(REPORT_PACKAGE_SAVE_HOLD.to_string()))
-}
-
 /// The save after argument decoding: the native admission
 /// (`report_package_save::admit_report_package`), then the save dialog and the
 /// atomic write. `choose` is the save dialog (a counting seam in tests).
@@ -133,7 +119,6 @@ fn save_report_package_with_picker(
     lookup: &mut model_document_save::LibraryLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
 ) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
-    report_package_save_hold()?;
     let admitted = report_package_save::admit_report_package(request, software, lookup)?;
     report_package_save::save_admitted_report_package(admitted, choose)
 }
@@ -4187,7 +4172,7 @@ fn library_ref_findings(
     project_id: &str,
     references: &[ModelLibraryRef],
 ) -> Result<Vec<LibraryRefFinding>, String> {
-    use model_document_save::{library_identity, matching_library_records};
+    use export_disposition_screen::{library_identity, matching_library_records};
     let mut findings = Vec::new();
     for reference in references {
         let finding = |code, stored_version: Option<String>, message: String| LibraryRefFinding {
@@ -9485,36 +9470,57 @@ mod tests {
             fs::remove_dir_all(store.parent().unwrap()).unwrap();
         }
 
-        /// W-18 slice (a) native hold (DEL-08-01 Design §2.6): an otherwise
-        /// valid 2.0.0 request with clean, bound caller-supplied evidence,
-        /// decoded through the command's own argument path, is refused before
-        /// the save dialog or any write. Control: the native admission alone
-        /// admits the same request, so the refusal is the hold's. Slice (b1)
-        /// replaces this test with the screened admission's.
+        /// The screened admission through the command's own path (DEL-08-01
+        /// Design §2.6; it replaces slice (a)'s hold): arguments decoded from
+        /// a raw body under the moved lease rule, the priced parse, admission,
+        /// one save dialog and the atomic write; the saved package reads back.
         #[test]
-        fn report_package_save_is_held_until_native_screening() {
+        fn report_package_save_admits_screened_requests_through_the_command_path() {
             use report_package_save::test_support::{args_body, desktop_request, model, no_store, sandbox, save_request, software};
-            let request = save_request(&desktop_request(&model()), &model());
-            let body = args_body(&request);
-            let control = report_package_save::admit_report_package(request, &software(), &mut no_store).expect("the request is admitted");
-            assert!(!control.package.export_blocked, "{:?}", control.package.blocking_reasons);
+            let body = args_body(&save_request(&desktop_request(&model()), &model()));
+            let registry = registry(ScriptedHost::normal());
+            let (mut args, mut lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
+            let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
+            drop(args);
+            let growth = report_package_save::parse_lease_bytes(&decoded.request_text, &decoded.model_text).unwrap();
+            lease.grow_to(lease.bytes() + growth).unwrap();
+            let root = sandbox("command-path");
+            let mut picks = 0usize;
+            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+                picks += 1;
+                Some(Ok(root.join("admitted.opsproj")))
+            })
+            .unwrap_or_else(|error| panic!("refused: {}", error.message));
+            assert_eq!((receipt.outcome.as_str(), picks), ("saved", 1));
+            let bytes = fs::read(root.join("admitted.opsproj")).unwrap();
+            let read = open_pipe_stress_report_package::read_report_package_container(&bytes).unwrap();
+            assert!(!read.export_blocked);
+            assert_eq!(read.package_identity_sha256_hex, receipt.package_identity_sha256_hex);
+            fs::remove_dir_all(&root).unwrap();
+        }
 
+        /// Clean, bound caller evidence over blocked content is refused
+        /// through the command path before the save dialog, and nothing is written.
+        #[test]
+        fn report_package_save_refuses_forged_evidence_before_the_dialog() {
+            use report_package_save::test_support::{args_body, desktop_request, model, no_store, sandbox, save_request, software};
+            let mut request = desktop_request(&model());
+            request["source_results"][0]["results"][0]["metadata"] = json!({"component": "c", "provenance": {"review_status": "quarantined"}});
+            let body = args_body(&save_request(&request, &model()));
             let registry = registry(ScriptedHost::normal());
             let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
-            let root = sandbox("hold");
+            let root = sandbox("forged");
             let mut picks = 0usize;
-            let outcome = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
                 picks += 1;
-                Some(Ok(root.join("held.opsproj")))
-            });
-            let error = match outcome {
+                Some(Ok(root.join("forged.opsproj")))
+            }) {
                 Err(error) => error,
-                Ok(receipt) => panic!("the hold must refuse, got {}", receipt.code),
+                Ok(receipt) => panic!("admitted: {}", receipt.code),
             };
-            assert_eq!(error.code, "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE");
-            assert_eq!(error.message, REPORT_PACKAGE_SAVE_HOLD);
-            assert_eq!(error.stage, "assemble");
+            assert_eq!((error.code.as_str(), error.stage.as_str()), (report_package_save::PROTECTED_CONTENT_BLOCKED, "admit"));
+            assert_eq!(error.diagnostics[0].path, "/request/source_results/0/results/0/metadata/provenance/review_status");
             assert_eq!(picks, 0, "no save dialog is requested");
             assert_eq!(fs::read_dir(&root).unwrap().count(), 0, "nothing is written");
             fs::remove_dir_all(&root).unwrap();

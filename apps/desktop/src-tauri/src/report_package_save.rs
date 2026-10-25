@@ -16,8 +16,12 @@
 //!    (`REPORT-PACKAGE-SAVE-MODEL-UNBOUND`);
 //! 3. screens the dispositions of both parsed values itself (the request: the
 //!    report input, result document, source carrier, audit manifest and
-//!    handoff records; and the model), with every `library_ref` resolved in
-//!    the model project's local library store; a store read error refuses;
+//!    handoff records; and the model) with both shared screens
+//!    (`export_disposition_screen`): W-6b's structural screen, which judges
+//!    every object at every depth by its own disposition members and refuses
+//!    an array or object disposition value as malformed, and W-6a's
+//!    store-resolved screen, with every `library_ref` resolved in the model
+//!    project's local library store; a store read error refuses;
 //! 4. binds the raw report context and the model text: `local_private`, the
 //!    desktop export profile, the model's project id, name and units, and the
 //!    application's own name and version;
@@ -33,7 +37,9 @@
 use crate::atomic_report_package_save::{self, AtomicSaveError};
 use crate::command_ingress::{Args, ArgsDecoding, ValueDecoder, REPORT_PACKAGE_VEC_EXPANSION};
 use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
-use crate::model_document_save::{screen_dispositions_in, LibraryLookup, ModelDocumentSaveDiagnostic as Diagnostic};
+use crate::export_disposition_screen::{
+    malformed_dispositions, screen_dispositions_in, screen_document, DispositionDiagnostic as Diagnostic, LibraryLookup, PathStyle,
+};
 use crate::report_package_bridge::{self, ReportPackageRequest};
 use crate::solve_jobs::SolveJobError;
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
@@ -60,8 +66,9 @@ pub const REQUEST_INVALID: &str = "REPORT-PACKAGE-SAVE-REQUEST-INVALID";
 pub const PRODUCER_BLOCKED: &str = "REPORT-PACKAGE-PRODUCER-BLOCKED";
 pub const PICKER_PATH_INVALID: &str = "REPORT-PACKAGE-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
+pub const DISPOSITION_MALFORMED: &str = "REPORT-PACKAGE-SAVE-DISPOSITION-MALFORMED";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
-pub use crate::model_document_save::PROTECTED_CONTENT_BLOCKED;
+pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
 
 /// The largest request text admitted. The request carries the report input,
 /// the result document, its source carrier and the handoff records, each a
@@ -186,9 +193,9 @@ pub struct ReportPackageSaveCommandError {
     pub selected_basename: String,
     pub path_containment: String,
     pub limitation: String,
-    /// Every finding of a native admission refusal, with its path: a binding's
-    /// JSON pointer under `/request` or `/model`, or a screen's member path
-    /// rooted at `request` or `model`. Empty for producer and writer errors.
+    /// Every finding of a native admission refusal, with its JSON pointer
+    /// under `/request` or `/model` (or "" for the evidence). Empty for
+    /// producer and writer errors.
     pub diagnostics: Vec<Diagnostic>,
 }
 
@@ -351,14 +358,44 @@ fn text_at<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
     value.pointer(pointer).and_then(Value::as_str)
 }
 
-/// The disposition screens of §2.6 item 4 over both parsed values, with the
-/// model project's store: the blocking findings of either refuse, a store
-/// read error refuses, unresolved references are warnings.
+/// The disposition screens of §2.6 item 4 over both parsed values, each
+/// finding named by its JSON pointer under `/request` or `/model`:
+/// - the structural screen (W-6b's [`screen_document`] and
+///   [`malformed_dispositions`]): a blocking disposition member at any depth
+///   is `PROTECTED_CONTENT_BLOCKED`, an array or object disposition value is
+///   [`DISPOSITION_MALFORMED`] (it could hide a blocking value);
+/// - the store-resolved screen (W-6a's, [`screen_dispositions_in`]), with the
+///   model project's store: a blocking record or stored library is
+///   `PROTECTED_CONTENT_BLOCKED`, a store read error refuses, and an
+///   unresolved reference is a warning.
 fn screen_content(request: &Value, model: &Value, project_id: &str, lookup: &mut LibraryLookup<'_>) -> Result<Vec<Diagnostic>, ReportPackageSaveCommandError> {
+    let roots = [("/request", request), ("/model", model)];
     let mut blocking = Vec::new();
+    for (root, value) in roots {
+        for found in screen_document(value) {
+            // `<pointer> <status>`; the blocking statuses contain no space.
+            let (pointer, status) = found.rsplit_once(' ').expect("pointer and status");
+            blocking.push(finding(
+                PROTECTED_CONTENT_BLOCKED,
+                &format!("{root}{pointer}"),
+                format!("The disposition `{status}` blocks the save; request human review of the record's disposition first."),
+            ));
+        }
+        for found in malformed_dispositions(value) {
+            let (pointer, kind) = [" is an array", " is an object"]
+                .iter()
+                .find_map(|suffix| found.strip_suffix(suffix).map(|pointer| (pointer, &suffix[4..])))
+                .expect("pointer and value kind");
+            blocking.push(finding(
+                DISPOSITION_MALFORMED,
+                &format!("{root}{pointer}"),
+                format!("The disposition member is {kind}, not text, so its disposition cannot be judged; nothing was saved."),
+            ));
+        }
+    }
     let mut warnings = Vec::new();
-    for (root, value) in [("request", request), ("model", model)] {
-        match screen_dispositions_in(value, root, project_id, LIBRARY_STORE_UNAVAILABLE, lookup) {
+    for (root, value) in roots {
+        match screen_dispositions_in(value, root, PathStyle::Pointer, project_id, LIBRARY_STORE_UNAVAILABLE, lookup) {
             Ok(found) => warnings.extend(found),
             Err(found) if found.iter().any(|item| item.code == LIBRARY_STORE_UNAVAILABLE) => {
                 return Err(ReportPackageSaveCommandError::refused(found));
@@ -833,7 +870,7 @@ mod tests {
             assert!(validate_report_package_save_evidence(&request.screening, request.local_first.as_ref()).is_ok());
             let (code, paths) = refusal(admit(request));
             assert_eq!(code, PROTECTED_CONTENT_BLOCKED, "{label}");
-            assert!(paths.iter().all(|path| path.starts_with("request.")), "{label}: {paths:?}");
+            assert!(!paths.is_empty() && paths.iter().all(|path| path.starts_with("/request/")), "{label}: {paths:?}");
         }
     }
 
@@ -845,7 +882,57 @@ mod tests {
         blocked["materials"][0]["provenance_record"] = json!({"source_name": "invented", "review_status": "quarantined"});
         let request = desktop_request(&blocked);
         let (code, paths) = refusal(admit(save_request(&request, &blocked)));
-        assert_eq!((code.as_str(), paths), (PROTECTED_CONTENT_BLOCKED, vec!["model.materials[0].provenance_record".to_string()]));
+        assert_eq!(code, PROTECTED_CONTENT_BLOCKED);
+        // The structural screen names the member, the store-resolved screen the record.
+        assert_eq!(paths, vec!["/model/materials/0/provenance_record/review_status".to_string(), "/model/materials/0/provenance_record".to_string()]);
+    }
+
+    /// The structural screen: what W-6a's record screen does not judge
+    /// (§2.6 item 4) is refused in either value, every object at every depth.
+    #[test]
+    fn the_structural_screen_judges_every_object_in_both_values() {
+        let model_cases: Vec<(&str, fn(&mut Value), &str)> = vec![
+            ("privacy class", |m| m["materials"][0]["provenance_record"] = json!({"privacy_classification": "protected_suspected"}),
+                "/model/materials/0/provenance_record/privacy_classification"),
+            ("direct member", |m| m["nodes"][0]["review_status"] = json!("rejected"), "/model/nodes/0/review_status"),
+            ("nested member", |m| m["nodes"][0]["invented"] = json!({"deep": [{"redistribution_status": "protected_suspected"}]}),
+                "/model/nodes/0/invented/deep/0/redistribution_status"),
+            ("escaped key", |m| m["nodes"][0]["a/b~c"] = json!({"lifecycle_status": "quarantined"}), "/model/nodes/0/a~1b~0c/lifecycle_status"),
+        ];
+        for (label, edit, path) in model_cases {
+            let mut blocked = model();
+            edit(&mut blocked);
+            let (code, paths) = refusal(admit(save_request(&desktop_request(&blocked), &blocked)));
+            assert_eq!((code.as_str(), paths[0].as_str()), (PROTECTED_CONTENT_BLOCKED, path), "{label}");
+        }
+        let request_cases: Vec<(&str, fn(&mut Value), &str)> = vec![
+            ("report provenance", |r| r["report"]["report_sections"]["provenance_notes"][0]["review_status"] = json!("quarantined"),
+                "/request/report/report_sections/provenance_notes/0/review_status"),
+            ("document", |r| r["result_documents"][0]["result_envelope"]["invented"] = json!({"privacy_classification": "protected_suspected"}),
+                "/request/result_documents/0/result_envelope/invented/privacy_classification"),
+            ("audit rule pack", |r| r["audit_manifest"]["rule_pack_refs"] = json!([{"redistribution_status": "rejected"}]),
+                "/request/audit_manifest/rule_pack_refs/0/redistribution_status"),
+        ];
+        for (label, edit, path) in request_cases {
+            let (code, paths) = refusal(admit(edited(edit)));
+            assert_eq!((code.as_str(), paths[0].as_str()), (PROTECTED_CONTENT_BLOCKED, path), "{label}");
+        }
+        // Non-blocking dispositions at depth are admitted.
+        let mut clear = model();
+        clear["nodes"][0]["provenance_record"] = json!({"redistribution_status": "private_only", "review_status": "unknown", "privacy_classification": "private_project_data"});
+        assert!(admit(save_request(&desktop_request(&clear), &clear)).is_ok());
+    }
+
+    /// A disposition member whose value is a list or an object could hide a
+    /// blocking value: refused as malformed, in either value.
+    #[test]
+    fn non_string_disposition_values_are_refused() {
+        let (code, paths) = refusal(admit(edited(|r| r["report"]["report_sections"]["provenance_notes"][0]["review_status"] = json!(["accepted", "quarantined"]))));
+        assert_eq!((code.as_str(), paths[0].as_str()), (DISPOSITION_MALFORMED, "/request/report/report_sections/provenance_notes/0/review_status"));
+        let mut malformed = model();
+        malformed["nodes"][0]["redistribution_status"] = json!({"value": "private_only"});
+        let (code, paths) = refusal(admit(save_request(&desktop_request(&malformed), &malformed)));
+        assert_eq!((code.as_str(), paths[0].as_str()), (DISPOSITION_MALFORMED, "/model/nodes/0/redistribution_status"));
     }
 
     fn stored(review_status: &str) -> Value {

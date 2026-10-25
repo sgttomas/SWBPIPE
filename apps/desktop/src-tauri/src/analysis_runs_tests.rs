@@ -795,7 +795,7 @@ fn library_refs_follow_the_shared_site_table() {
     let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_sites.json")).unwrap();
     let document = &table["document"];
     // serde_json's maps keep keys sorted, so the walk visits them in key order.
-    let mut walked: Vec<String> = crate::model_document_save::library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
+    let mut walked: Vec<String> = crate::export_disposition_screen::library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
     let mut tabled: Vec<String> = table["sites"].as_array().unwrap().iter().map(|site| site["path"].as_str().unwrap().to_string()).collect();
     walked.sort();
     tabled.sort();
