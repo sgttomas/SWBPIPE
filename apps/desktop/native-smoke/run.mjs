@@ -12,7 +12,9 @@
 //      the demo model, File > Open Model Document…, solve sparse and dense,
 //      read standing, rows, N1 displacement and the solve proof, export the
 //      result JSON where the product offers it, and save as a local project;
-//   2. reopen: a fresh process opens each saved project and solves it again.
+//   2. reopen: a fresh process opens each saved project and solves it again,
+//      then File > Save Handoff… on the stored demo twice: a new handoff-basis
+//      state and package, then the same package replaced (W-6b).
 //
 // It then checks the observations against `expected.json`, the model hash
 // against an RFC 8785 JCS SHA-256 of the files it opened, the saved projects
@@ -82,6 +84,10 @@ mkdirSync(models);
 const savedModels = path.join(root, "saved-model-documents");
 mkdirSync(savedModels);
 const MODEL_DOCUMENT_SAVE = { first: path.join(savedModels, "saved-demo.json"), second: path.join(savedModels, "saved-demo-reopened.json") };
+// W-6b. Where the handoff folder chooser is answered, outside HOME's Documents.
+const savedHandoffs = path.join(root, "saved-handoffs");
+mkdirSync(savedHandoffs);
+const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -401,7 +407,7 @@ for (const doc of documents) {
 if (documents.some((doc) => (doc.result_export ?? { offered: true }).offered)) check("at least one result export written", exported.length > 0, exported);
 else check("no result export written: no case offers one", exported.length === 0, exported);
 
-const second = await launch("reopen", blankId ? { blank: { ...BLANK, project_id: blankId } } : {});
+const second = await launch("reopen", { handoff: HANDOFF_SAVE, ...(blankId ? { blank: { ...BLANK, project_id: blankId } } : {}) });
 check("phase reopen completed", second.ok, second.error);
 {
   const bundled = promptFor(second, "bundled-demo/save");
@@ -427,6 +433,65 @@ for (const doc of documents) {
   check("from blank, reopened: same rows, tip value and model hash as before save", after && before && after.proof_rows === before.proof_rows && after.probe_entered === before.probe_entered && after.proof_model_sha256 === before.proof_model_sha256, `${after?.proof_rows}; ${after?.probe_entered}`);
   check("from blank, reopened: tip deflection still equals PL^3/3EI, along +Y only", withinCriterion(tipMm(after)) && signedTip(after), after?.components);
   check("from blank, reopened: the unfiltered results count every solved row", after && after.all_rows_summary === `${after.proof_rows} of ${after.proof_rows} results match filter`, after?.all_rows_summary);
+}
+
+// W-6b (DEL-15-01 Design canonical-model-export.md §3). File > Save Handoff… on
+// the stored demo, twice. Nothing here is pinned: the bytes and hashes are
+// computed from the stored demo model and from the saved package itself.
+{
+  const handoff = second.handoff;
+  const firstSave = handoff?.first;
+  const replaced = handoff?.second;
+  const demoDoc = documents.find((doc) => doc.project_id === expected.bundled_project_id);
+  const demoModel = demoDoc?.saved_model ?? null;
+  const reported = (shown) => shown?.match(/^Saved handoff package (\S+) \(model hash (sha256:[0-9a-f]{64}); export hash (sha256:[0-9a-f]{64}); basis state (\S+)\)\./);
+  const sha = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  const packageDir = HANDOFF_SAVE.path;
+  const listing = (dir) => (existsSync(dir) ? readdirSync(dir).sort() : null);
+  check("save handoff: the dialog asks for the explicit intent and confirms the new basis state before the chooser",
+    firstSave && !firstSave.intent_checked_initially && firstSave.confirm_disabled_before_intent && firstSave.cancel_focused
+      && firstSave.new_state && firstSave.confirm_disabled_before_state_confirmed && /^Handoff \d{4}-\d{2}-\d{2}$/.test(firstSave.state_name ?? "")
+      && firstSave.intent_label === "Save my handoff package, including private project data, to a folder I choose", firstSave && { ...firstSave, message: undefined, verified: undefined });
+  const shown = reported(firstSave?.message);
+  check("save handoff: saved with a new handoff-basis model state", shown && firstSave.message.includes(`Saved model state "${firstSave.state_name}" (${shown[4]}) as the handoff basis`), firstSave?.message);
+  check("save handoff: the package folder holds exactly handoff_package.json and model/model.json",
+    canonical(listing(packageDir)) === canonical(["handoff_package.json", "model"]) && canonical(listing(path.join(packageDir, "model"))) === canonical(["model.json"]), listing(packageDir));
+  check("save handoff: the folder beside it holds only the package (no staging folder, the replaced package removed)",
+    canonical(listing(savedHandoffs)) === canonical([path.basename(packageDir)]), listing(savedHandoffs));
+  const modelBytes = existsSync(path.join(packageDir, "model", "model.json")) ? readFileSync(path.join(packageDir, "model", "model.json")) : null;
+  const manifestBytes = existsSync(path.join(packageDir, "handoff_package.json")) ? readFileSync(path.join(packageDir, "handoff_package.json")) : null;
+  const finalShown = reported(replaced?.message);
+  check("save handoff: model/model.json is the stored demo's RFC 8785 text, its SHA-256 the model hash the status line and the verifier report",
+    modelBytes && demoModel && modelBytes.toString("utf8") === canonical(demoModel) && sha(modelBytes) === modelSha256(demoModel)
+      && finalShown?.[2] === sha(modelBytes) && replaced?.verified?.model_hash === sha(modelBytes), finalShown?.[2] ?? replaced?.message);
+  let manifest = null;
+  try { manifest = manifestBytes ? JSON.parse(manifestBytes.toString("utf8")) : null; } catch { manifest = null; }
+  const inner = manifest?.handoff_package_manifest;
+  const { checksums: _checksums, ...unsealed } = inner ?? {};
+  void _checksums;
+  const exportHash = inner ? `sha256:${createHash("sha256").update(canonical(unsealed), "utf8").digest("hex")}` : null;
+  check("save handoff: handoff_package.json is its own RFC 8785 text, and its recomputed export hash is the verifier's and the status line's",
+    manifest && manifestBytes.toString("utf8") === canonical(manifest) && exportHash === replaced?.verified?.export_hash && exportHash === finalShown?.[3], exportHash);
+  check("save handoff: the manifest binds model/model.json by its SHA-256 and claims nothing embedded",
+    inner && inner.checksums?.[0]?.value === sha(modelBytes ?? Buffer.alloc(0)).slice(7) && inner.model_hash?.value === inner.checksums[0].value
+      && inner.privacy?.private_payload_embedded === false && inner.professional_boundary?.human_review_required === true, inner?.checksums);
+  check("save handoff: the manifest's basis is the new handoff_basis state the status line names",
+    inner && shown && inner.model_state_refs?.[0]?.model_state_ref?.ref === shown[4] && inner.model_state_refs[0].state_kind === "handoff_basis"
+      && inner.model_basis?.basis_state_ref?.ref === shown[4], inner?.model_state_refs?.[0]?.model_state_ref);
+  check("save handoff: the product's verifier verified both saves", firstSave?.verified?.model_hash && !firstSave.verified.error && replaced?.verified?.export_hash && !replaced.verified.error,
+    { first: firstSave?.verified, second: replaced?.verified });
+  check("save handoff again: the dialog names the saved basis state, the same package is replaced, the state reused",
+    replaced && !replaced.new_state && replaced.basis?.includes(`(${shown?.[4]})`) && finalShown?.[4] === shown?.[4]
+      && finalShown?.[1] === path.basename(packageDir) && replaced.verified?.export_hash !== firstSave?.verified?.export_hash, replaced && { basis: replaced.basis, message: replaced.message });
+  let storedState = null;
+  if (existsSync(storePath) && shown) {
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync(storePath, { readOnly: true });
+    storedState = db.prepare("SELECT state_kind, model_hash FROM model_states WHERE project_id = ? AND state_id = ?").get(expected.bundled_project_id, shown[4]) ?? null;
+    db.close();
+  }
+  check("save handoff: the basis state is in the local store as handoff_basis with the package's model hash",
+    storedState?.state_kind === "handoff_basis" && storedState.model_hash === sha(modelBytes ?? Buffer.alloc(0)), storedState);
 }
 
 const failed = checks.filter((item) => !item.ok);

@@ -184,12 +184,33 @@ chooses:
    point.
 3. **An existing target is replaced by an atomic swap.** macOS
    `renamex_np(staging, target, RENAME_SWAP)` exchanges the two directories in
-   one step, so there is no interval without a target. The swapped-out old
-   package is then deleted.
+   one step, so there is no interval without a target. The swapped-out old package is deleted only after each published member is
+   confirmed, by identity and by a final byte-for-byte re-read through its
+   descriptor, to be what the save wrote and verified in memory, and only if the
+   old package's members, re-read through admission's descriptors, still hold
+   the bytes admission verified; otherwise the following holds.
+   If the old package's members no longer hold those bytes after the swap, it is
+   kept under the staging name and the confirmed new package is saved with the
+   warning `HANDOFF-OLD-PACKAGE-LEFT`; if they no longer hold them before the
+   swap, nothing is replaced and the save is refused
+   `HANDOFF-DESTINATION-CHANGED`. If a published member is not confirmed, the
+   save is refused and the old package is never deleted: the swap is undone only
+   if both names still hold what the swap left there
+   (`HANDOFF-PUBLISH-UNVERIFIED`), and otherwise nothing is moved
+   (`HANDOFF-ROLLBACK-WITHHELD`). If the
+   destination was replaced between the pre-swap check and the swap, the swap is
+   likewise undone only while both names still hold what the swap left there,
+   and the save is refused `HANDOFF-DESTINATION-CHANGED`. A
+   new name on a volume without exclusive rename is refused
+   (`HANDOFF-NEW-NAME-UNSUPPORTED`). The module documents the residual: a
+   same-user process can still rewrite the folder after the final check, or
+   substitute one entry, including a non-empty folder through the swap, between
+   a check and its call.
    - If the volume does not support the swap, the command refuses with
      `HANDOFF-REPLACE-UNSUPPORTED` and asks for a new name.
-   - A leftover `*.staging-*` from a crash is ignored, and is reported for the
-     user to delete.
+   - A leftover `*.staging-*` is ignored and reported. It may hold a previous
+     package, so the report asks the user to check what it holds before deleting
+     it.
 4. **Failure tests.** A failure injected between the member writes, or before
    the swap, leaves the previous package intact.
 
@@ -251,7 +272,7 @@ is hard-coded to look complete.
 | `unresolved_assumptions` | The document's records with `status: unresolved`: `assumption_id`, `statement`, `status: unresolved`, `affected_refs` (below), `provenance` |
 | `warnings`, `diagnostics` | The document validator's and the solve-independent model diagnostics, mapped to the handoff `Diagnostic` (`code`, `class` by fixed table from code family, `severity`, `source`, `affected_object`, `message`, `remediation`, `provenance`) |
 | `unsupported_behavior_flags`, `target_mapping_metadata` | `reserved_metadata_only`, per DEL-15-02. Nothing target-specific is claimed |
-| `checksums` | The member inventory: (1) `model/model.json`, sha256 of its bytes, `canonicalization: JCS` (the bytes are JCS), `payload_scope: model_payload`; (2) the export hash, sha256 of the JCS of the instance's `handoff_package_manifest` object with its `checksums` member removed, `payload_scope: handoff_package_manifest`. The verifier is `verify_handoff_package` (Rust, in the desktop crate; a Python twin under `tests/verifiers/`). It recomputes both and is run by the tamper witnesses: one byte changed in each member must fail |
+| `checksums` | The member inventory: (1) `model/model.json`, sha256 of its bytes, `canonicalization: JCS` (the bytes are JCS), `payload_scope: model_payload`; (2) the export hash, sha256 of the JCS of the instance's `handoff_package_manifest` object with its `checksums` member removed, `payload_scope: handoff_package_manifest`. The verifier is `verify_handoff_package` (Rust, in the desktop crate; a Python twin under `tests/verifiers/`). It recomputes both and is run by the tamper witnesses: one byte changed in each member must fail. The verifier proves the package's internal consistency only, not that the records it references outside the package exist or hold what their digests say (the basis state and its record hash, the stored libraries and rule packs): references rewritten together with their digests pass it. Only the local store can confirm them; the save re-reads the basis state from the store immediately before publication. The twins' verdicts are pinned case by case, on the same bytes, by `fixtures/handoff/verifier_parity_cases.json` |
 | `privacy` | `local_only: true`, `telemetry_allowed: false`, `private_payload_embedded: false`, and the other required flags as they actually hold |
 | `redistribution_classification`, `review_classification` | `private_only` / `unreviewed` unless every included record is public, in which case it is the least permissive of them |
 | `provenance` | A product-generated handoff `Provenance` with all eight required fields: `source_name` "SWBPIPE desktop", `source_location` (the package name), `source_license` "user_private_project_data", `contributor` (the local user label), `contributor_attestation` (W-13's `contributor_certification` maps here wherever it is copied), `redistribution_status: private_only`, `review_classification: unreviewed`, `privacy_classification: private_project_data` |

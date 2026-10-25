@@ -11,7 +11,7 @@
 //!
 //! The harness substitutes exactly two things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
-//! the Open Model Document… and Save Model Document… choosers) instead of
+//! the Open Model Document…, Save Model Document… and Save Handoff… choosers) instead of
 //! showing the chooser, and it delivers native menu commands through the same
 //! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
@@ -113,4 +113,12 @@ pub fn install<R: Runtime>(builder: Builder<R>) -> Builder<R> {
             Err(error) => eprintln!("[native-smoke] {driver}: {error}"),
         }
     })
+}
+
+/// Runs the product's handoff verifier (`verify_handoff_package`, DEL-15-01
+/// W-6b) on a saved package, so the smoke checks what the save wrote with the
+/// verifier the design names.
+#[tauri::command]
+pub fn native_smoke_verify_handoff_package(path: String) -> Result<crate::handoff_package_publish::HandoffVerification, String> {
+    crate::handoff_package_publish::verify_handoff_package(std::path::Path::new(&path))
 }

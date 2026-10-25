@@ -96,6 +96,7 @@ import { HistoryPanel } from "./features/history/HistoryPanel";
 import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
+import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -270,7 +271,8 @@ function AppSession() {
     handleSaveProject,
     handleListProjects,
     replaceProjectPrompt,
-    modelDocumentSaveRequest
+    modelDocumentSaveRequest,
+    handoffSaveRequest
   } = session.project;
   const { unsavedChangesPrompt } = session.project;
   const {
@@ -341,7 +343,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1113,6 +1115,7 @@ function AppSession() {
       <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
+      <HandoffSaveDialog request={handoffSaveRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1222,6 +1225,7 @@ function MenuBar({
         { kind: "separator" },
         { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
+        { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
       ]
     },

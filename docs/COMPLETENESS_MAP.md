@@ -212,9 +212,9 @@ class, the evidence, and the deliverables. Paths are under
 | FR-REP-004 (581) | Should | P | Within-run comparison summary (`ReportPanel.tsx:210-214,663-665`) | DEL-08-06 | No comparison section in the renderer; the package that carries one is refused. |
 | FR-REP-005 (582) | Must | D | `core/reporting/protected_content_linter`; `tests/test_report_protected_content_linter.py` | DEL-08-05 | |
 | §19.1 report types (no row before) | — | P | — | DEL-08-06 | No state-comparison, run-comparison or handoff-manifest report a user can reach. |
-| FR-HAND-001 (558) | Must | P | W-6a: File › Save Model Document… saves the canonical model document on either route with no solve (`modelDocumentSave.ts`, `model_document_save.rs`); `HandoffPanel.tsx:211-283`, `NativePackagePanel.tsx:217-229` produce preview documents; `core/handoff/exporter/workflow.py:57` is called only by tests | DEL-15-01, DEL-15-03, DEL-17-03, DEL-07-12 | The handoff manifest and package (W-6b) are designed, not built; they wait for W-12's state store. The handoff preview needs a solved PF result; EX refused (10A). |
-| FR-HAND-002 (559) | Must | P | `HandoffPanel.tsx:237` `rule_pack_refs: []` hard-coded | DEL-15-01 | No model or export hash. |
-| §16.1–16.3 handoff contents and workflow (no row before) | — | P | — | DEL-15-01 | Export hash, model hash, rule-pack manifest and entity manifests in schema form; state names, tags and notes. Covered by W-6, W-12 and W-13. |
+| FR-HAND-001 (558) | Must | P | W-6a: File › Save Model Document… saves the canonical model document on either route with no solve (`modelDocumentSave.ts`, `model_document_save.rs`); `HandoffPanel.tsx:211-283`, `NativePackagePanel.tsx:217-229` produce preview documents; `core/handoff/exporter/workflow.py:57` is called only by tests | DEL-15-01, DEL-15-03, DEL-17-03, DEL-07-12 | W-6b: File › Save Handoff… writes a verified directory package (model member plus schema manifest) on a saved model state (`handoff_package.rs`, `handoffPackageSave.ts`). Runs are not referenced in v0.1 (`AnalysisRunRef` const). The preview panel needs a solved PF result; EX refused (10A). |
+| FR-HAND-002 (559) | Must | P | W-6b manifest: model hash, units manifest, entity ids, library and rule-pack references, warnings, diagnostics and unresolved assumptions from the document (`handoff_package.rs`); witness `tests/test_handoff_package_witness.py`; verifier and tamper checks | DEL-15-01 | Hanger library kind has no schema value (`TBD`); run references are empty. |
+| §16.1–16.3 handoff contents and workflow (no row before) | — | P | — | DEL-15-01 | Export hash, model hash, rule-pack manifest and entity manifests in schema form (W-6b); the basis model state (W-12 S1); state names, tags and notes (W-12). Run references wait for an `AnalysisRunRef` contract edit. |
 | FR-HAND-003 (560) | Should | P | `HandoffPanel.tsx:243` `target_field_coverage: "TBD"` | DEL-15-02 | |
 | FR-HAND-004 (561) | Should | P | Loss reports (`HandoffPanel.tsx:187`, PCF) | DEL-15-02, DEL-17-07 | PF only. |
 | FR-HAND-005 (562) | Could | D | PCF, MBF, adapter and SDK panels (`App.tsx:1009-1017`); observed natively (§5) | DEL-17-04/07/08/09 | The MBF target version is `TBD` (`CaepipeMbfExportPanel.tsx:38`). |
@@ -284,8 +284,8 @@ This map has 41 P, 35 D, 8 O and no R:
   - runs tied to states (partial; W-12);
   - basic report generation (local-private PF render only; W-11 and the
     package);
-  - canonical model package export (the model document saves on either route,
-    W-6a; the handoff manifest and package are W-6b).
+  - canonical model package export (the model document, W-6a; the handoff
+    directory package with its manifest, W-6b).
 
 **§24 milestones, factually:**
 - **R0:** met.

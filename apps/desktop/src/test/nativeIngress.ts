@@ -35,7 +35,8 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "read_analysis_run",
   "edit_analysis_run_labels",
   "delete_analysis_run",
-  "save_model_document_file"
+  "save_model_document_file",
+  "save_handoff_package"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

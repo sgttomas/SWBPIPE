@@ -109,3 +109,75 @@ def canonical_json(value: Any) -> str:
 
 def canonical_sha256(value: Any) -> str:
     return sha256(canonical_json(value).encode("utf-8")).hexdigest()
+
+
+# --- The unchecked text (W-6a's serializer) ----------------------------------
+#
+# The desktop's model hash and the handoff package members are the *unchecked*
+# RFC 8785 text of `core/serialization/canonical_json` (`canonical_json`, through
+# `open_pipe_stress_operation_applier`): a document as serde_json reads it. An
+# integer literal inside i64/u64 keeps its exact decimal text; any other number
+# (a fraction, an exponent, an integer outside i64/u64) is a binary64 rendered as
+# ECMAScript `Number::toString`. Nothing inside the JSON grammar is refused
+# except what serde_json refuses (non-finite results, lone surrogates).
+# `fixtures/handoff/canonical_text_vectors.json` pins it across the languages.
+
+I64_MIN = -(2**63)
+U64_MAX = 2**64 - 1
+
+
+def _unchecked_number(value: int | float) -> str:
+    if type(value) is int:
+        if I64_MIN <= value <= U64_MAX:
+            return str(value)
+        value = float(value)  # serde_json reads it as the nearest binary64
+    if not math.isfinite(value):
+        raise ValueError("CANONICAL-JSON-NON-FINITE")
+    return ecma_number(value)
+
+
+def _write_unchecked(value: Any, out: list[str]) -> None:
+    if value is None:
+        out.append("null")
+    elif value is True:
+        out.append("true")
+    elif value is False:
+        out.append("false")
+    elif isinstance(value, str):
+        out.append(_string(value))
+    elif type(value) in (int, float):
+        out.append(_unchecked_number(value))
+    elif type(value) is list:
+        out.append("[")
+        for index, item in enumerate(value):
+            if index:
+                out.append(",")
+            _write_unchecked(item, out)
+        out.append("]")
+    elif type(value) is dict:
+        out.append("{")
+        for index, key in enumerate(sorted(value, key=lambda key: key.encode("utf-16-be", "surrogatepass"))):
+            if index:
+                out.append(",")
+            out.append(_string(key))
+            out.append(":")
+            _write_unchecked(value[key], out)
+        out.append("}")
+    else:
+        raise ValueError(f"CANONICAL-JSON-UNSUPPORTED-TYPE: {type(value).__name__}")
+
+
+def _refuse_constant(name: str) -> Any:
+    raise ValueError(f"CANONICAL-JSON-NOT-JSON: {name}")
+
+
+def parse_json(text: str) -> Any:
+    """JSON text as serde_json reads it: NaN and Infinity are not JSON."""
+    return json.loads(text, parse_constant=_refuse_constant)
+
+
+def canonical_json_unchecked(value: Any) -> str:
+    """The unchecked RFC 8785 text of a parsed JSON value (see above)."""
+    out: list[str] = []
+    _write_unchecked(value, out)
+    return "".join(out)
