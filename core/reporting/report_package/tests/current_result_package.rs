@@ -998,3 +998,20 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
     assert!(open_pipe_stress_report_generator::validate_report(&report).is_blocked(),
         "a model_payload checksum was rendered as a rule-pack checksum");
 }
+
+/// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6, slice (a)):
+/// package bytes are unchanged for every current input. The base commit's
+/// container and package-identity hashes (`3a104e1e71`, before W-11) of the
+/// committed runner witness and its desktop-profile basis.
+#[test]
+fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
+    for (request, container, identity) in [
+        (runner(), "351f041be0a9c1a446b2ad46575ddfd6438703f0eda6c1ad2a50e8b1ceca1c6a", "915751165e4389276d0b68ea25e10a4bf7c954f2e3131d1dfadeb8ae8053a50c"),
+        (desktop(), "aa96dee4cffbb162b40cfe2bfbdebec8d24822d4d4d72ae05151b99a96edd1c4", "8fbfe6bbb108525ba942ee28c78e4eb2c318aed93329683cb3fabf1cc31628bb"),
+    ] {
+        let outcome = unblocked(&request);
+        assert_eq!(outcome.container_sha256_hex, container);
+        assert_eq!(outcome.package_identity_sha256_hex, identity);
+        assert!(request["report"].get("exact_route").is_none() && request["report"].get("library_references").is_none());
+    }
+}

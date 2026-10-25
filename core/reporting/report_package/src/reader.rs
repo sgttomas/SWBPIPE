@@ -48,6 +48,8 @@ use open_pipe_stress_canonical_json::canonical_json;
 use serde_json::{Map, Value};
 
 use super::document_form;
+use super::exact_sections;
+use crate::admitted::{self, AdmittedSet};
 use super::{
     build_deterministic_zip, crc32, package_manifest_document, sanitize_component, sha256_hex,
     ContainerMember, ManifestFields, PackageRef, CONTAINER_DOCUMENT_KIND, HASH_BASIS_EXACT,
@@ -161,6 +163,16 @@ impl std::error::Error for PackageReadRefusal {}
 pub fn read_report_package_container(
     bytes: &[u8],
 ) -> Result<ReadReportPackage, PackageReadRefusal> {
+    read_report_package_container_in(bytes, admitted::PRODUCTION)
+}
+
+/// [`read_report_package_container`] against `admitted` (W-11, DEL-08-01
+/// Design `exact-route-report-sections.md` §5.5), forwarded to the members'
+/// item-0 check.
+pub(crate) fn read_report_package_container_in(
+    bytes: &[u8],
+    admitted: AdmittedSet,
+) -> Result<ReadReportPackage, PackageReadRefusal> {
     // 1. Locate the central directory and the first member only.
     let layout = parse_eocd(bytes)?;
     let (manifest_entry, next) = parse_entry(
@@ -220,7 +232,7 @@ pub fn read_report_package_container(
     }
     let fields = manifest_fields(manifest_object)?;
     let rows = manifest_member_rows(manifest_object)?;
-    let members = verify_members(bytes, &archive, &rows, fields.export_blocked)?;
+    let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, admitted)?;
 
     let rebuilt = package_manifest_document(
         &ManifestFields {
@@ -809,6 +821,8 @@ fn verify_members(
     archive: &Archive,
     rows: &[MemberRow],
     export_blocked: bool,
+    export_profile_id: &str,
+    admitted: AdmittedSet,
 ) -> Result<Vec<ContainerMember>, PackageReadRefusal> {
     let content_entries = &archive.entries[1..];
     if rows.len() != content_entries.len() {
@@ -927,7 +941,9 @@ fn verify_members(
                     ROLE_RESULT_EXPORT => {
                         document_form::check_result_member_form(&document).map_err(&defect)?;
                         if !export_blocked {
-                            document_form::check_route_admitted(&document).map_err(&defect)?;
+                            document_form::check_route_admitted_in(&document, admitted).map_err(&defect)?;
+                            // W-11 §3.5: the runner profile packages no exact identity.
+                            exact_sections::check_runner_profile(export_profile_id, &document).map_err(&defect)?;
                             let (manifest_id, model_hash) = audit_identity
                                 .as_ref()
                                 .ok_or_else(|| defect("no audit manifest precedes the result member".to_string()))?;

@@ -51,11 +51,17 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+pub(crate) mod admitted;
 pub mod bindings;
 pub mod document_form;
+pub mod exact_sections;
 pub mod reader;
 pub mod schema_eval;
 pub mod wire;
+#[cfg(test)]
+mod admitted_tests;
+
+use crate::admitted::AdmittedSet;
 
 pub use reader::{
     read_report_package_container, PackageReadRefusal, ReadReportPackage, SUPPORTED_PACKAGE_VERSION,
@@ -190,6 +196,16 @@ pub struct ReportPackageContainerOutcome {
 pub fn assemble_report_package_container(
     input: &ReportPackageContainerInput,
 ) -> ReportPackageContainerOutcome {
+    assemble_report_package_container_in(input, admitted::PRODUCTION)
+}
+
+/// [`assemble_report_package_container`] against `admitted` (W-11, DEL-08-01
+/// Design `exact-route-report-sections.md` §5.5), forwarded to its item-0
+/// check.
+pub(crate) fn assemble_report_package_container_in(
+    input: &ReportPackageContainerInput,
+    admitted: AdmittedSet,
+) -> ReportPackageContainerOutcome {
     let mut blocking_reasons: Vec<String> = Vec::new();
 
     if input.package_id.trim().is_empty() {
@@ -238,7 +254,7 @@ pub fn assemble_report_package_container(
             .and_then(Value::as_str)
             .unwrap_or("");
         for check in [
-            document_form::check_route_admitted(document),
+            document_form::check_route_admitted_in(document, admitted),
             document_form::check_result_member_form(document),
             document_form::check_audit_equalities(document, &input.audit_manifest.manifest_id, audit_model_hash),
             document_form::check_document_subjects(document),
