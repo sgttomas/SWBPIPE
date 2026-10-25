@@ -28,6 +28,7 @@ export type CurrentSessionInputManifestArgs = {
     solver_mode: string;
     settings: Record<string, unknown>;
   };
+  /** The model's resolved rule-pack references, in the model's order (`resolveModelRulePacks`). */
   active_rule_packs: InputManifestRulePack[];
   external_assets: InputManifestExternalAsset[];
 };
@@ -93,9 +94,8 @@ export async function buildCurrentSessionInputManifest(
       load_cases: structuredClone(args.model.load_cases),
       combinations: structuredClone(args.model.combinations ?? []),
     },
-    active_rule_packs: args.active_rule_packs
-      .map((item) => ({ ...item }))
-      .sort((left, right) => left.rule_pack_id.localeCompare(right.rule_pack_id)),
+    // The caller's order: the solve passes the model's reference order.
+    active_rule_packs: args.active_rule_packs.map((item) => ({ ...item })),
     external_assets: args.external_assets
       .map((item) => ({ ...item }))
       .sort((left, right) => left.asset_ref.localeCompare(right.asset_ref)),

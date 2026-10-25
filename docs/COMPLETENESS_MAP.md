@@ -35,7 +35,6 @@ the previous map left open; rows cite them where they apply.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
 
 **Not on main, so not counted here (in flight):**
-- #1573 (strict inputs, no silent drops of authored input or combination rows);
 - branch `claude/piping-w7-global-end-forces-20261023` (W-7, no PR yet);
 - #1567 (DBM concordance review).
 
@@ -99,8 +98,8 @@ The biggest gaps:
 2. **No model states, run history or comparison between states or runs.** These
    are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
    #1589): save, open, label and delete, kept only in the SQLite store. Runs are
-   recorded against states (W-12 S2, #1596), with empty rule-pack references
-   until the session solve passes the model's rule packs. Both comparisons exist
+   recorded against states (W-12 S2, #1596), with the model's rule packs
+   resolved at solve (#1602). Both comparisons exist
    as schemas and headless Python engines only (W-12 S3). Affected:
    FR-CMP-001..004, -006.
 3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
@@ -232,7 +231,7 @@ MVP requirement (PRD §15.6).
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
 | FR-CMP-001 (542) | Must | P | **Store:** desktop `src-tauri/src/model_states.rs` (store v12: `model_states`, `model_state_labels`, immutability triggers; save, list, read, label edit, delete), with its tests there. **UI:** `features/history/HistoryPanel.tsx`, `useModelStateHistory.ts`; `modelStateHistory.session.test.tsx`. **Record:** `model_state.schema.json` record with Python-pinned record hash; `tests/test_model_state_record_parity.py` | DEL-14-01, DEL-07-08 | Save, reopen, tag and delete named immutable states in the desktop (W-12 S1, #1589); SQLite-only, with history export open under OI-015. Compare is W-12 S3. The desktop crate's Rust store tests do not run in hosted CI. |
-| FR-CMP-002 (543) | Must | P | **Store:** desktop `src-tauri/src/analysis_runs.rs` (store v13, Record Run, list, read, label edit, delete) with `analysis_runs_tests.rs`. **UI:** `features/history/HistoryPanel.tsx`; `recordRun.session.test.tsx`. **Record:** `analysisRunCompatibility.ts` recorded form, `core/analysis_runs/compatibility.py`, `tests/test_recorded_run_record.py` | DEL-14-02, DEL-07-08 | Record Run (W-12 S2, #1596) stores an immutable v0.3 revision tied to a saved state (`{ModelState, id}`), checked against the stored input manifest's model payload. The manifest binds the solver, settings, units and load cases, and many runs can be recorded per state. Library refs come from the shared `library_ref` walk. Rule-pack refs come from the manifest's `active_rule_packs`, which the session solve leaves empty today (follow-up). |
+| FR-CMP-002 (543) | Must | P | **Store:** desktop `src-tauri/src/analysis_runs.rs` (store v13, Record Run, list, read, label edit, delete) with `analysis_runs_tests.rs`. **UI:** `features/history/HistoryPanel.tsx`; `recordRun.session.test.tsx`. **Record:** `analysisRunCompatibility.ts` recorded form, `core/analysis_runs/compatibility.py`, `tests/test_recorded_run_record.py`. **Rule packs:** `services/modelRulePackResolution.ts`; `features/workspace/solveRulePacks.session.test.tsx`; fixtures `persistence/transient_run_input_rule_packs.json`, `recorded_run_witness_rule_packs.json` | DEL-14-02, DEL-07-08 | Record Run (W-12 S2, #1596) stores an immutable v0.3 revision tied to a saved state (`{ModelState, id}`), checked against the stored input manifest's model payload. The manifest binds the solver, settings, units and load cases, and many runs can be recorded per state. Library refs come from the shared `library_ref` walk. Rule-pack refs come from the manifest's `active_rule_packs`: at solve the session resolves the model's `rule_pack_refs` against the local rule-pack store (`modelRulePackResolution.ts`), in the model's order; an unresolved or changed reference is excluded and recorded as a run-record diagnostic (`MODEL-RULE-PACK-REF-UNRESOLVED`, `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`), kept by the recorded revision under its hash (#1602). Exports and the handoff do not yet carry those diagnostics (reports lane). |
 | FR-CMP-003 (544) | Must | P | `core/comparison/model_state/engine.py:64`; `tests/test_model_state_comparison.py` | DEL-14-03 | Headless only. |
 | FR-CMP-004 (545) | Must | P | `core/comparison/analysis_run/engine.py:165`; `tests/test_analysis_run_comparison.py` | DEL-14-04 | Headless only. |
 | FR-CMP-005, -007 (546, 548) | Should | P | `schemas/comparison_mapping.schema.json`; `model_state/engine.py:232` | DEL-14-05 | No editor. |
@@ -519,6 +518,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Viewport result colour and reaction arrows (OD-5) | #1556 |
 | — | Numerical health indicator (FR-SOL-015 display) | #1544 |
 | — | Refusal of load cases that apply nothing (silent zero) | #1568 |
+| — | Strict inputs: no silent drops of authored input or combination rows (PF closed records, `UNKNOWN_MODEL_FIELD`; duplicate terms and withheld combination rows named) | #1573 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
 | W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
@@ -534,7 +534,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | PR or branch |
 |---|---|---|
 | W-7 | Global-frame element-end forces (FR-SOL-007) | branch `claude/piping-w7-global-end-forces-20261023` (no PR) |
-| — | Strict inputs: no silent drops of authored input or combination rows | #1573 |
 | — | DBM concordance review | #1567 |
 | W-20 | Pressure stress benchmark family in the DEL-09-02 suite (hoop and longitudinal stress against closed forms) | #1599 |
 
@@ -547,7 +546,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
 | W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..004, -006) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
-| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
+| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
 | W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness with the desktop still closed, is on branch `claude/piping-reports-w18a-20261024`; (b1) native screening and (b2) desktop opening remain (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
@@ -559,8 +558,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-12, W-15, W-16, W-20 (#1599), W-11 and the in-flight W-7, #1573
-  and #1574. The R6 reproduction bundle (W-2) is then made at the validation
+- **Before validation:** W-12, W-15, W-16, W-20 (#1599), W-11 and the in-flight W-7.
+  The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 
 ## 5. Checks run for this map

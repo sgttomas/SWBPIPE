@@ -35,8 +35,10 @@ unchanged: no new slot renames or re-keys an entity.
   document, version 0.6.0.
 - **Rust decoding.** `PreviewModel` (`core/product_physics/src/lib.rs:209`,
   wire form `:249`) decodes it.
-  - The top level and the node, pipe, support, material and component records
-    ignore unknown keys.
+  - The node, pipe, support, material and component records ignore unknown
+    keys. The top level, load cases, primitive loads and combinations did too
+    at this design's basis; they are closed since the silent-drop guard (§2,
+    "Strict solve inputs").
   - The load/reference-state group (`case_state/input.rs:1-77`) and the pressure
     contract (`pressure_runtime.rs:57,65,79`) are `deny_unknown_fields`.
   - Section `provenance` is a `serde_json::Value` (`lib.rs:402`), so it may be a
@@ -308,7 +310,12 @@ third vocabulary:
 - **UI.** References are added and removed from the Rule Pack Manager ("Use with
   this model"). A reference whose pack is no longer in the local store reports
   `MODEL-RULE-PACK-REF-UNRESOLVED` (warning). A reference never makes a check
-  pass.
+  pass. At solve, the session resolves each reference against the local store
+  for the run's input manifest: a matching pack enters `active_rule_packs`, and
+  an unresolved or changed one is excluded and recorded as a diagnostic of the
+  run's analysis record, `MODEL-RULE-PACK-REF-UNRESOLVED` or
+  `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (warnings, W-12; DEL-14-01 Design
+  `desktop-states-runs-comparison.md` §3).
 
 ### 3.5 Structured provenance (FR-MOD-005, PRD §20.2)
 
@@ -746,7 +753,9 @@ the text above, the code's reading within this section's intent is:
 - **Desktop.** Edits queue structured operations for review and apply. The
   model-data records live in the operations area's Model records tab.
   `MODEL-RULE-PACK-REF-UNRESOLVED` is shown in the Rule Pack Manager after a
-  list refresh, not in the diagnostics list. Save Local Project and the
+  list refresh, not in the diagnostics list. It and
+  `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` are also shown with a solve, the
+  Record Run form and a recorded run's check (W-12). Save Local Project and the
   browser-preview store refuse a document with a blocking finding, and the
   browser-preview store also refuses, by name, when the wasm engine holding
   the validator is absent; the diagnostics list then says the slots were not

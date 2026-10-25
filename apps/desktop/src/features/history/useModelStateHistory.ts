@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
   deleteModelState,
+  deleteUnreadableModelState,
   editModelStateLabels,
   listModelStates,
   MODEL_STATE_STORE_UNAVAILABLE,
@@ -22,6 +23,7 @@ import {
 } from "../../services/modelStateService";
 import {
   deleteAnalysisRun,
+  deleteUnreadableAnalysisRun,
   editAnalysisRunLabels,
   LABELS_DO_NOT_CHANGE_RUN,
   listAnalysisRuns,
@@ -35,6 +37,8 @@ import {
 } from "../../services/analysisRunService";
 import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
 import { computeModelHash } from "../../services/hashService";
+import type { UnreadableRow } from "../../services/historyListEntries";
+import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
 import type { LocalProjectSummary, ModelHashEvidence, PreviewModel, ProjectEnvelopeHashEvidence } from "../../types";
@@ -94,7 +98,20 @@ export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 export type RecordRunForm = { labels: RunLabels; snapshotName: string | null };
 
 /** A recorded run read and checked against its stored state (`buildRecordedRunContext`). */
-export type RecordedRunCheck = { recordingId: string; context: HistoricalRunContext | null; failure: string | null };
+export type RecordedRunCheck = {
+  recordingId: string; context: HistoricalRunContext | null; failure: string | null;
+  /** The stored input manifest, for the rule-pack references it records (null when unreadable). */
+  manifest?: CurrentSessionInputManifest | null;
+};
+
+function parsedManifest(text: string): CurrentSessionInputManifest | null {
+  try {
+    const value: unknown = JSON.parse(text);
+    return value && typeof value === "object" && !Array.isArray(value) ? value as CurrentSessionInputManifest : null;
+  } catch {
+    return null;
+  }
+}
 
 function storeAvailable(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -103,6 +120,8 @@ function storeAvailable(): boolean {
 export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const [states, setStates] = useState<ModelStateSummary[] | null>(null);
   const [runs, setRuns] = useState<AnalysisRunSummary[] | null>(null);
+  // The rows the store listed as unreadable (W-12): ids and refusals only.
+  const [unreadable, setUnreadable] = useState<{ states: UnreadableRow[]; runs: UnreadableRow[] } | null>(null);
   const [runCheck, setRunCheck] = useState<RecordedRunCheck | null>(null);
   // The model hash of the slot's solved model (its input manifest's payload), for
   // naming the state Record Run ties the run to.
@@ -127,6 +146,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     if (!storeAvailable()) {
       setStates(null);
       setRuns(null);
+      setUnreadable(null);
       setStatesProjectId(forProjectId);
       setHistoryMessage(MODEL_STATE_STORE_UNAVAILABLE);
       setHistoryOperation("store_unavailable");
@@ -135,13 +155,15 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     try {
       const [listed, listedRuns] = await Promise.all([listModelStates(forProjectId), listAnalysisRuns(forProjectId)]);
       if (request !== listRequest.current) return;
-      setStates(listed);
-      setRuns(listedRuns);
+      setStates(listed.states);
+      setRuns(listedRuns.runs);
+      setUnreadable({ states: listed.unreadable, runs: listedRuns.unreadable });
       setStatesProjectId(forProjectId);
     } catch (error) {
       if (request !== listRequest.current) return;
       setStates(null);
       setRuns(null);
+      setUnreadable(null);
       setStatesProjectId(forProjectId);
       setHistoryMessage(`List failed: ${nativeFailureText(error)}`);
       setHistoryOperation("list_failed");
@@ -498,6 +520,31 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
+  /** Deletes a row the store listed as unreadable (W-12), by its handle: a recorded run
+   * always (the delete trusts none of it), a saved state only when no stored row names it
+   * (the store refuses otherwise, with the counts). Nothing of the row is read. */
+  async function deleteUnreadable(kind: "state" | "run", handle: string): Promise<boolean> {
+    const projectId = statesProjectId;
+    const listed = kind === "state" ? unreadable?.states : unreadable?.runs;
+    if (!projectId || !listed?.some((row) => row.handle === handle)) return false;
+    const owner = begin();
+    if (!owner) return false;
+    try {
+      // By its handle: a shown id is cut and may name another row.
+      const receipt = kind === "state" ? await deleteUnreadableModelState(projectId, handle) : await deleteUnreadableAnalysisRun(projectId, handle);
+      setHistoryMessage(receipt.message);
+      setHistoryOperation(kind === "state" ? "delete_state" : "delete_run");
+      await refreshStates(projectId);
+      return true;
+    } catch (error) {
+      setHistoryMessage(`Not deleted: ${nativeFailureText(error)}`);
+      setHistoryOperation(kind === "state" ? "delete_state_failed" : "delete_run_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
   /** Reads a recorded run (the store verifies its bytes) and checks it against its
    * stored state in this session. Nothing about the session changes. */
   async function checkRun(recordingId: string): Promise<boolean> {
@@ -510,7 +557,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const read = await readAnalysisRun(run.project_id, recordingId);
       const context = await buildRecordedRunContext(read);
       if (generation !== depsRef.current.projectSessionGenerationRef.current) return false;
-      setRunCheck({ recordingId, context, failure: null });
+      setRunCheck({ recordingId, context, failure: null, manifest: parsedManifest(read.input_manifest_canonical) });
       setHistoryOperation("check_run");
       return true;
     } catch (error) {
@@ -525,8 +572,15 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
 
   return {
     runs: statesProjectId === projectId ? runs : null,
+    /** The rows the store could not read, by id and refusal only. */
+    unreadable: statesProjectId === projectId ? unreadable : null,
+    deleteUnreadable,
     runCheck,
     recordRunUnavailableReason: recordable.reason,
+    /** The recordable run's input manifest (its rule-pack references), shown in the Record Run form. */
+    recordRunManifest: recordable.run?.inputManifest.manifest ?? null,
+    /** The recordable run's transient record (its rule-pack reference diagnostics). */
+    recordRunRecord: recordable.run?.analysisRun ?? null,
     recordRunState,
     recordRun,
     editRunLabels,

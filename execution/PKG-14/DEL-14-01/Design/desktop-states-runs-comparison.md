@@ -169,14 +169,77 @@ Python agree.
   (algorithm, canonicalization, scope, payload ref and value). A duplicate,
   extra or missing entry is refused. A read also checks the snapshot:
   its JCS hash and its project id. Any difference is refused as
-  `MODEL-STATE-INTEGRITY`, naming the state; a list with such a row is
-  refused.
+  `MODEL-STATE-INTEGRITY`, naming the state.
+- **Unreadable rows in the list (W-12, Agent 0's decision; replaces S1 and
+  S2's whole-list refusal).** One unreadable row no longer hides a project's
+  history. The list returns each readable state as its summary.
+  - **Unreadable entries.** A row that cannot be read appears only as
+    `{"unreadable": {"id", "refusal", "handle", "references"}}`. A row is
+    unreadable when a column is oversized, a stored value has the wrong type
+    or is not UTF-8, or its record or labels row does not verify. Each row is
+    decoded on its own. The `id` is display text, cut as messages quote it.
+    The `refusal` is the named, capped integrity refusal. `references` counts
+    the other stored rows that name the state, from their columns. None of
+    the row's unverified fields is returned. Its oversized columns are never
+    loaded. Every separate column fetch (the record, the labels, the
+    snapshot) classifies a value of the wrong type or not UTF-8 as the row's
+    own failure: in a list the row is unreadable, and a single read is
+    refused as `MODEL-STATE-INTEGRITY`. Database-level failures (corruption,
+    I/O, the statement itself) and memory refusals still refuse the list.
+  - **Admission order.** Nothing per row is allocated before it is admitted.
+    The rows with an oversized column are counted first, and all their
+    entries, with their list slots, are reserved together at their bound
+    (`UNREADABLE_ROW_BYTES` each) before any is collected; too many are
+    refused by name (`STORE-READ-MEMORY-UNAVAILABLE`). Every other
+    unreadable entry is reserved at the same bound before anything of its
+    row is read for it.
+  - **Delete handle.** The `handle` is `state-row:<rowid>:<id byte
+    length>:<digest>`. The digest is the first 16 hex of the SHA-256 of the
+    whole stored id (its bytes). The id is read in the same transaction in
+    64 KiB `substr` chunks, each hashed where SQLite holds it, within one
+    reservation of the chunk buffer; it is never copied whole into Rust.
+    SQLite still materializes the whole value for each chunk, within the
+    command's reserved SQLite working set (§3, Memory). The handle is distinct from the display text, so two rows whose
+    cut ids are equal keep different handles, and a row that reuses a rowid
+    with a different id never matches an old handle.
+    `delete_model_state {projectId, unreadableHandle}` deletes exactly the
+    project's row with that rowid whose stored id still has the handle's
+    length and digest. A stale or wrong handle is not found. Inside its write
+    transaction the delete re-checks the row by the list's own bounded check;
+    a row that reads now is refused (`MODEL-STATE-ROW-CHANGED`: "this row
+    changed since it was listed; refresh") and nothing is deleted. A
+    replacement with an identical id that is also unreadable may be deleted,
+    which is consistent with the user's intent: it is the row they asked to
+    delete, as listed. No store migration is needed (the store stays v13).
+    The delete is refused (`MODEL-STATE-DELETE-BLOCKED`, with the counts)
+    while any stored row names the state. A readable state is still deleted
+    by its verified `stateId`; an unreadable one is not deleted by any id.
+  - **Relationships.** A summary presents only verified rows:
+    - `child_state_ids` are the child states that name the state and are
+      themselves readable, each verified as the list verifies it, one at a
+      time within its own reservation.
+    - `unreadable_references` counts the child-state rows that name it but
+      cannot be read.
+    - `recorded_run_count` counts the run rows that name it, from their
+      columns: an integer, with nothing of the runs loaded or priced. The
+      runs themselves come, each verified, from the run list, which the
+      History panel groups by state. A state list therefore never loads a
+      run.
+    - Candidate children are loaded only within their bounds, and a related
+      row's oversized column is never measured into another row's summary.
+    - A blocked delete names verified children only and counts the runs and
+      the unreadable rows.
+  - Opening, reading, comparing or recording against an unreadable state
+    stays refused.
+  - **History panel.** Unreadable rows are listed apart from the readable
+    ones, with the refusal and the guidance, and only Delete is offered.
+    Delete is disabled while other rows name the state.
 - **Memory (S2 repairs r1 to r6).** All five state commands are metered as
   §3's As built (S2) describes (`stored_read.rs`): `save_model_state`,
   `list_model_states`, `read_model_state`, the label edit and the delete.
   - **Before loading.** Each takes memory-pool leases sized from the stored
     lengths before loading anything: records, snapshots, label columns, the
-    child and run lists, and every identity and time column. It measures and
+    child-id lists, and every identity and time column. It measures and
     loads in one transaction.
   - **Identity columns (r5, r6).** A row whose identity or time column exceeds
     a bound the app holds at every write is refused before it is loaded. A
@@ -291,10 +354,47 @@ Python agree.
      even when clock readings are equal. Rust then computes the v0.3 hashes. A
      parity test checks them against the TypeScript builder;
    - sets the real `model_state_ref` `{ModelState, <state id>}`;
-   - takes `rule_pack_refs` from the input manifest's `active_rule_packs` (what
-     the solve used, not the document's identity-only references) and
+   - takes `rule_pack_refs` from the input manifest's `active_rule_packs` and
      `library_refs` from the model's `library_ref`s, as the model document's
-     one walk finds them;
+     one walk finds them. At solve time the session resolves the model's
+     `rule_pack_refs` against the local rule-pack store, for the model's
+     project (`modelRulePackResolution.ts`). A reference enters
+     `active_rule_packs`, in the model's order, as `{rule_pack_id, version,
+     checksum_sha256, source_notice}` from the stored pack, when the store holds
+     the pack, the stored document's stamped checksum equals the reference's,
+     and the document recomputes to that checksum. Any other reference is left
+     out of the manifest and becomes a diagnostic of the run's analysis record,
+     not a manifest member (the manifest stays 1.0.0 and is stored with
+     recorded runs). The diagnostics follow the producer's in the record's
+     `diagnostics`, in the model's order, in the producer's diagnostic shape:
+     code `MODEL-RULE-PACK-REF-UNRESOLVED` (the pack is absent, or the store is
+     unavailable or fails) or `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (the
+     checksums differ), severity `warning`, `affected_refs` `[<identity>]`
+     with the pack's identity as `rule_pack_refs` name it (below), the `id`
+     `diagnostic:rule-pack-ref:<identity>`, and a fixed message, with the
+     identity shown to at most 160 code points, that says the pack is not
+     among the run's rule-pack references. The recorded revision keeps them
+     unchanged under its record hash (Rust, TypeScript and Python). The
+     validators (TypeScript and Python) and the native Record Run and read
+     accept, after the producer's diagnostics, only diagnostics exactly as
+     their code and identity determine them, with no identity repeated. A
+     recorded revision's, and natively a submitted transient record's, must
+     name exactly the model references
+     (`model_basis.model_payload.rule_pack_refs`) its stored manifest leaves
+     out of `active_rule_packs`, compared as (id, version) pairs, in order
+     (`ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH` in the validators;
+     natively `ANALYSIS-RUN-MANIFEST-MISMATCH` at Record Run, or
+     `ANALYSIS-RUN-RESULT-MISMATCH` when the result's diagnostics are not
+     first, and `ANALYSIS-RUN-INTEGRITY` at read). The reason
+     (which code) is not derivable from the manifest and is protected by the
+     record hash. A rule-check revision of the transient record carries them
+     over. They are shown with the solve, in the Record Run form and in a
+     recorded run's check, read from the record. A model without references
+     makes no store call, and its manifest (`active_rule_packs: []`) and
+     transient record keep their earlier bytes. The resolution only records
+     identity. The solve does not read, apply or check a pack, nothing in it
+     reaches the native solve, and a reference never makes a check pass. The
+     browser preview refuses the solve before building a manifest;
    - drops the `created_at_unavailable` determinism note, in both TypeScript
      (`analysisRunCompatibility.ts:169` hard-codes it today) and Python
      (`compatibility.py:147` already drops it when `created_at` is set);
@@ -417,8 +517,16 @@ the History panel and `useModelStateHistory.ts`.
   - Rust does not re-derive the rest of the record's semantics; the validators
     do.
 - **The revision.**
-  - `rule_pack_refs` are `{RulePack, "<rule_pack_id>@<version>"}`, in the
-    manifest's order (the manifest sorts them when it is built).
+  - `rule_pack_refs` are `{RulePack, <identity>}`, in the manifest's order,
+    which is the model's reference order (the manifest no longer sorts them).
+    A pack's identity is `<rule_pack_id>@<version>` with `%` (as `%25`) and
+    then `@` (as `%40`) percent-encoded in each component, so the one `@`
+    left separates them and distinct (id, version) pairs never share a string
+    (`invented@branch` 1.0.0 is `invented%40branch@1.0.0`; `invented`
+    `branch@1.0.0` is `invented@branch%401.0.0`). An id and version without
+    `%` or `@` are unchanged. Rust (`rule_pack_identity`), TypeScript
+    (`rulePackIdentity`) and Python (`rule_pack_identity`) encode the same.
+    Comparisons use the (id, version) pairs.
   - `library_refs` are `{Library, "library:<kind>/<id>[@<version>][#<record id>]"}`,
     deduplicated and sorted by code point.
     - **Sites.** The sites are every `library_ref` object at any depth and
@@ -453,7 +561,23 @@ the History panel and `useModelStateHistory.ts`.
     for a real producer result (`transient_run_input.json`).
 - **Integrity.**
   - **List.** The list reads each run's record, but never its result or
-    manifest. It checks the record hash and the identity columns against the
+    manifest. A row that does not verify, or has a value of the wrong type
+    or one that is not UTF-8, is listed by its id, refusal and handle only,
+    as for states (§2), with the same admission order and the same
+    classification of every column fetch (the record, the result, the
+    manifest; a single read is refused as `ANALYSIS-RUN-INTEGRITY`). Its
+    handle is `run-row:<rowid>:<length>:<digest>`, the digest of the whole
+    stored id read in chunks as for states, and
+    `delete_analysis_run {projectId, unreadableHandle}` deletes exactly
+    that row and its labels, after re-checking it inside its write
+    transaction by the list's own check (`ANALYSIS-RUN-ROW-CHANGED` when it
+    reads now; a replacement with an identical id that is also unreadable
+    may be deleted). The other runs are listed as usual. A readable
+    run is deleted by its verified `recordingId`, whatever its state's
+    readability. A readable run whose state cannot be read is shown in the
+    History panel under "Runs whose state cannot be read", with Check record
+    and Delete. Once nothing names the state, the state can be deleted too.
+    The list checks the record hash and the identity columns against the
     record:
     - the recording id against the hash;
     - the state id against `model_state_ref`;
@@ -474,12 +598,35 @@ the History panel and `useModelStateHistory.ts`.
   - A coherently resealed forgery, one that names another state or contradicts
     its manifest, is refused there.
   - Any difference is refused as `ANALYSIS-RUN-INTEGRITY`, naming the run.
+  - **Runs recorded before rule-pack resolution.** S2-era runs (#1596) of a
+    model with `rule_pack_refs` have `active_rule_packs: []` in their
+    manifest and only the producer's diagnostics. Read and Record Run refuse
+    them by name with `ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED`: "recorded before
+    rule-pack resolution; re-record this run". The code applies when the
+    manifest's `active_rule_packs` is `[]`, the model has references and no
+    exclusion diagnostic is present. Rust, TypeScript and Python refuse such
+    a run alike (Agent 0's decision: one current version, no lenient reading).
+    Any other mismatch keeps its code. **Precedence:** all three give
+    `ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED` only after every other applicable
+    check passes: the record hash and checksums, the identity columns, the
+    manifest binding, the linked state and its model hash, and the
+    diagnostics prefix. Corruption always gets its integrity code first.
+    Natively, the read refuses by name after the linked state's checks, and
+    Record Run after the state resolution. The TypeScript and Python
+    validators refuse by name after the record checksum. The list reads no manifest, so such a
+    run lists as its verified summary. Every read of it (Check record,
+    compare, export) is refused by name, and the History panel shows the
+    refusal with "Re-record this run". The fixture is
+    `fixtures/persistence/s2_unresolved_rule_pack_run.json`, written by
+    `recordedRunParity.test.ts` along S2's path.
 - **Delete.**
   - **State.** A state with recorded runs is not deleted
-    (`MODEL-STATE-DELETE-BLOCKED`, naming the runs). The `NO ACTION` foreign key
+    (`MODEL-STATE-DELETE-BLOCKED`, counting the runs; W-12). The `NO ACTION` foreign key
     refuses the deletion in SQL as well.
   - **Run.** A run is deleted only as a whole row with its labels; no other row
-    depends on a run.
+    depends on a run. An unreadable run may be deleted (W-12, Agent 0's
+    decision), by its list handle only, never by a shown id. Nothing of it
+    is trusted, and it is loaded only as the list loads it.
   - **Project.** Deleting the project row removes its runs, child states,
     states and all their labels in one statement. A Replace keeps all of them.
   - **Replace prompt.** It says how many saved states and recorded runs remain
@@ -577,6 +724,7 @@ the History panel and `useModelStateHistory.ts`.
       run id are measured only.
     - **Refusal.** Before anything of a row loads, a row whose column exceeds
       its bound is an integrity refusal, naming the row by the head of its id.
+      The list shows that row as unreadable and lists the others.
     - **The auxiliary loads are bounded too:**
       - the latest `created_at` Record Run reads, after every run's
         `created_at` is checked against its bound;
@@ -843,10 +991,73 @@ the History panel and `useModelStateHistory.ts`.
     whole-command bounds:
     - **Tauri and IPC.** The `Response` handed to Tauri, and the IPC copies
       made after the command returns.
-    - **SQLite.** SQLite's own allocations, including its reads of whole
-      values for `substr` and `octet_length`. They are priced only by the load
-      estimate (three envelopes of each loaded column), not measured: the
-      tests' counting allocator counts Rust allocations, not SQLite's.
+    - **SQLite.** SQLite's own allocations are priced by estimates, not
+      bounded by measurement in each command:
+      - **Loaded columns.** A column a command loads (a record, result,
+        manifest, snapshot or label text) is priced by the load estimate,
+        three envelopes of its length.
+      - **Reserved working set (W-12, repair r7).** SQLite materializes
+        the whole stored value whenever a statement compares, joins, sorts,
+        seeks an index by, takes a `substr` of or deletes it. An index seek
+        can also materialize another row's key on its search path. Every
+        state and run command (list, read, label edit, delete by id or by
+        handle, Save Model State, Record Run) therefore reserves SQLite's
+        working set first in its transaction, before any other statement
+        touches a row. The working set is 8 times the bytes of the largest
+        stored keyed row, measured over every row of the history tables.
+        Its columns are the key, identity and time columns of
+        `analysis_runs`, `model_states` and both label tables, and the
+        project id in `local_projects`. The project name is read only for
+        the `PROJECT-BASE-MOVED` refusal's head; that read first reserves 8
+        times the stored name's length.
+      - **How it is measured.** The measurement uses only `octet_length`
+        under `NOT INDEXED`, which reads record headers and loads no value
+        (SQLite 3.43+; the bundled SQLite is 3.46.0).
+      - **Refusal.** A store whose working set does not fit is refused by
+        name (`STORE-READ-MEMORY-UNAVAILABLE`) before SQLite loads the
+        value.
+      - **Basis for the factor.** The factor comes from
+        `sqlite3_status64(SQLITE_STATUS_MEMORY_USED)` peaks, measured for a
+        row whose 8 MiB id is also its labels row's key:
+        - a list peaks at 2.04 times the id;
+        - a run's delete by handle at 5.33 times;
+        - a state's delete by handle at 6.34 times. That covers its shown
+          head, the chunked digest, the re-check, the index and page work,
+          and the labels cascade.
+
+        8 covers the largest of these with about 26% margin.
+      - **Regression test.** The test reruns itself in its own process
+        (SQLite's status is process-wide) and checks the following:
+        - under a 2 MiB pool, the list and the delete of such a row are
+          refused, with SQLite's peak below a quarter of the id;
+        - under a large pool, both succeed with SQLite's peak within the
+          working set;
+        - normal-size rows list and delete under the 2 MiB pool.
+      - **Page cache (accepted residual estimate).** SQLite's page cache is
+        not reserved per command. It is the accepted residual estimate, not
+        a measured bound and not within the fixed 512 KiB read overhead:
+        - a header scan of 100,000 rows peaked at 2.56 MB;
+        - a state delete with many large keys peaked at 9.05 MB against
+          8.52 MB reserved, with cache allocation separately peaking at
+          2.48 MB (Codex review r8).
+
+        The default cache limit (about 2 MB per connection) bounds it. The
+        regression tests allow 3 MiB of SQLite allocation above what a
+        command holds.
+      - **Other columns (repair r8).** A column a refusal reads from a
+        non-history table is loaded only when it can be priced. The stale
+        project guard reads the project's `updated_at_unix` only when
+        `typeof` (header-only) says it is an integer; SQLite keeps any text
+        in that column. Otherwise the guard refuses by name
+        (`PROJECT-BASE-MOVED`, "its last save time cannot be read") without
+        loading the value.
+      - **Blocker names.** A blocked delete names each verified child from
+        the bounded display text kept at its verification (at most ten,
+        priced with the summary). It never reloads a name after the child's
+        reservation is released: S1-era labels have no size bound.
+      - **Not covered.** The project commands (Save Local Project and the
+        project row's cascade to states and runs) are outside this
+        reservation. No command deletes a project.
     - **Unpriced working memory.** Two items are not separately priced:
       - Record Run's transient record copies (the hash projection and the
         recorded revision);
@@ -879,8 +1090,13 @@ the History panel and `useModelStateHistory.ts`.
   - **Stores modified outside the app (class B).** A row changed outside the
     app (tampered or corrupted) is detected by the integrity checks above: the
     record hash, identity columns, exact descriptors and the manifest binding.
-    It is refused by name. S2 claims no memory bound for the work done before
-    such a refusal beyond the stage pricing above.
+    It is refused by name. Since W-12 the lists show such a row individually
+    (id, refusal and handle only) and list the project's other rows. Every
+    read of it stays refused. It can be deleted by its handle (a state only
+    when nothing names it). Readable rows never present its id as a
+    relationship.
+    S2 claims no memory bound for the work done before such a refusal beyond
+    the stage pricing above.
 
 ## 4. Comparison (FR-CMP-003, -004, -006)
 

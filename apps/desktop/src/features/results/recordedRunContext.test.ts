@@ -24,7 +24,7 @@ const projectId = JSON.parse(input.input_manifest_canonical).model_basis.model_r
 function read(): AnalysisRunRead {
   const state = {
     project_id: projectId, state_id: witness.state_id, state_kind: "post_solve_snapshot", created_at: witness.created_at, parent_state_id: null,
-    model_hash: witness.state_model_hash, record_hash: "r", labels_updated_at: witness.created_at, child_state_ids: [], recorded_run_ids: [witness.recording_id],
+    model_hash: witness.state_model_hash, record_hash: "r", labels_updated_at: witness.created_at, child_state_ids: [], recorded_run_count: 1,
     analysis_status: ["HUMAN_REVIEW_REQUIRED"], state_name: "After solve", tags: [], notes: [], assumptions: []
   } as ModelStateSummary;
   return {
