@@ -34,10 +34,10 @@ LN = {
     'format': 166,        # `&format!(` (167) [155]
     'join': 168,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    'unit_message': 9831, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 14478,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 14427,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 14477,   # lib.rs fn stable_suffix (13613) [13618]
+    'unit_message': 9894, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 14541,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 14490,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 14540,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'

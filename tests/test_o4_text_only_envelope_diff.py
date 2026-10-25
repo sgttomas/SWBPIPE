@@ -48,6 +48,15 @@ their diagnostics only. This check reads those two at the repair's parent
 `be7d474958`, and `..._diagnostics_repair_moves_only_the_diagnostics` binds all four
 committed goldens to it.
 
+The silent-drop guard (DEL-04-07 Design `pressure-contract.md`, "Pressure-free input
+closure") closed the model root, so W-CB1's and W-CB1z's inputs carry their depth-16
+raw-only value on the declared `diagnostics` member instead of the unknown
+`unknown_depth_witness` member. Its three regenerated corpus bases (`SILENT_DROP_MOVED`)
+are bound by `..._retained_corpus_moves_since_main_are_the_silent_drop_carrier` to main's
+bytes at the merge base `SD_BASE`: with that one request key restored, they differ only by
+binding hashes (the invocation hash, the receipt and the successor-bytes digests), and every
+other entry and member is unchanged.
+
 The silent-zero guard (DEL-04-07 Design `pressure-contract.md`, "Load cases that apply
 nothing") regenerated the connected load/reference-state raws and their AnalysisRun
 carriers with two added `LOAD_STATE_SOURCE_EXCLUDED` warnings: silent-zero diagnostic
@@ -130,6 +139,15 @@ W8_MOVED = {
 }
 # Where W-8's one warning sits in each moved case's diagnostics: first (pre-solve).
 W8_POSITION = 0
+# The silent-drop guard's regenerated bases (the request's depth-16 member renamed), against main at the
+# merge that brought model document 0.7.0 and W-8 under the guard.
+SD_BASE = "f1da661c6d4f681df2dabed06a65f16fc50ff623"
+SILENT_DROP_MOVED = {
+    "cases": frozenset({"w_cb1_sparse_interactive", "w_cb1_dense_scrutiny", "w_cb1z_sparse_interactive"}),
+    "mutations": frozenset(),
+    "must_pass": frozenset(),
+}
+SILENT_DROP_KEY = ("unknown_depth_witness", "diagnostics")
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -631,6 +649,70 @@ def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
     mutation["edits"][0]["path"][1] -= 1
     with pytest.raises(AssertionError, match="b2o_m31_combination_selected_diagnostic_removed"):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+
+
+def _silent_drop_restored(key, entry):
+    """The entry with its request's `diagnostics` member renamed back to `unknown_depth_witness`,
+    in that member's original (sorted, last) position; asserts the member moved exactly so."""
+    old, new = SILENT_DROP_KEY
+    invocation = dict(entry)["invocation"]
+    model = dict(dict(invocation)["request"])["model"]
+    names = [k for k, _ in model]
+    assert new in names and old not in names, (key, names)
+    value = dict(model)[new]
+    restored = Obj(sorted([(k, v) for k, v in model if k != new] + [(old, value)], key=lambda pair: pair[0]))
+    assert [k for k, _ in restored] == sorted([k for k, _ in restored]), key
+
+    def replace(obj, name, value):
+        return Obj([(k, value if k == name else v) for k, v in obj])
+    request = replace(dict(invocation)["request"], "model", restored)
+    return replace(entry, "invocation", replace(invocation, "request", request))
+
+
+def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=None):
+    """The silent-drop guard: the committed retained corpus against main's bytes at `SD_BASE`. The same
+    entries in the same order; its three enumerated bases differ, with the request's depth-16 member
+    renamed back, only by binding hashes (no number, status, class or work counter); every other entry
+    and member is unchanged."""
+    base = subprocess.run(
+        ["git", "show", f"{SD_BASE}:projects/chirality-piping/{RETAINED_CORPUS}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    for member in ("cases", "mutations", "must_pass"):
+        before = _entries(base, member, _pair_id)
+        after = _entries(now, member, _pair_id)
+        assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
+        known = dict(before)
+        moved = {k for k, entry in after if classify(known[k], entry)}
+        assert moved == SILENT_DROP_MOVED[member], (member, sorted(moved ^ SILENT_DROP_MOVED[member]))
+        for key, entry in after:
+            if key in moved:
+                leaves = classify(known[key], _silent_drop_restored(key, entry))
+                assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
+    before, after = dict(load(base)), dict(load(now))
+    assert list(before) == list(after)
+    for member in before:
+        if member not in ("cases", "mutations", "must_pass"):
+            assert not classify(before[member], after[member]), member
+
+
+def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves():
+    """A value planted in a silent-drop base or in an entry it did not move, or the carrier left under
+    another key, fails the silent-drop enumeration."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    for ident in ("w_cb1_sparse_interactive", "w_cb2_sparse_interactive"):
+        document = storage.expand(committed)
+        entry = next(e for e in document["cases"] if e.get("id") == ident)
+        assert _plant(entry["source"]), ident
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+    document = storage.expand(committed)
+    model = next(e for e in document["cases"] if e.get("id") == "w_cb1_dense_scrutiny")["invocation"]["request"]["model"]
+    model["notes"] = model.pop("diagnostics")
+    with pytest.raises(AssertionError, match="w_cb1_dense_scrutiny"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
 
 
 def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():

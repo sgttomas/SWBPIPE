@@ -275,6 +275,16 @@ node-proximity tolerance (§8.18) adds W8-BF (the branch warning's statement of 
 components, at multiplicity 0 by W8-BT's premise) and NP-MS
 and NP-PT (validation's refusal of a malformed `model_settings.node_proximity_tolerance` and the accessor's texts).
 
+### Silent-drop guard actual-source owners
+
+`base/sd_owners_model.py` binds, by their exact statements in their functions, the owners the pressure-free input
+closure adds outside the TEXT inventory and prices them positively in `ordinary_caps.py`: SD-WH (the combination
+callee's withheld names, the warning's cloned list and a support group's rows, route L with combinations), SD-HS
+(validation's duplicate-term set) and SD-PB (the closed-record scan's probe error). `rules/o10_rules.py` zeroes the
+scan's finding and refusal sites by its place before admission (SD-NF, guarded), bounds its loops (SD-L1) and texts
+(SD-ID, SD-WT, SD-DT) and the duplicate loops (SD-DL) and removes one by-name false edge (SD-EV); `rules/sq2_decisions_common.py` re-keys two replaced
+combination audit keys by name (SD-RK). A snapshot without the guard adds nothing. See the governing rules' §8.19.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

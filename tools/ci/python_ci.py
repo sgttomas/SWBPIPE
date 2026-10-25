@@ -11,7 +11,8 @@ import sys
 PREFIX = 'projects/chirality-piping/'
 BASE = ['tests/security', 'tests/test_constraint_validation.py', 'tests/test_source_block_schema_contract.py']
 FAMILIES = {
-    'schema': ['tests/test_*schema.py', 'tests/test_*schemas.py'],
+    # The report package's schema evaluator against the Draft 2020-12 oracle over the results schemas.
+    'schema': ['tests/test_*schema.py', 'tests/test_*schemas.py', 'tests/test_schema_eval_parity.py'],
     'qualification': ['tests/test_qualification*.py'],
     'canonical': ['tests/test_*canonical_json_adapter.py'],
 }
@@ -161,6 +162,8 @@ def select(project, plan):
                                  'tests/test_physical_to_analytical_transform.py'])
             if local.startswith('core/model_operations/validation_preview/'):
                 patterns.append('tests/test_operation_validation_preview.py')
+            if local.startswith('core/reporting/report_package/'):
+                patterns.append('tests/test_schema_eval_parity.py')
             if local.startswith('tools/retained_pricing/'):
                 patterns.append('tests/test_retained_pricing_tool.py')
             # Run an edited test itself, in addition to its affected family.

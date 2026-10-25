@@ -180,7 +180,8 @@ def inspect_directed_helpers(snapshot):
 # load-state branch; it adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
 # Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines add no `.min(`/`.max(` call.
 # Branch-warning statement D3 (§8.18): lib.rs's one changed line adds no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '2e95bd8f7aa787fe672b9065be9b786aab16bb9f3635f338d9d51a6fa96ed051'
+# Silent-drop guard D3 (§8.19): lib.rs's closed records and its one refusal call add no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '86bc015fc0625b425327b2e292362d1c8b2b1568798d95407c73d2e9e5f8dc35'
 
 
 def primitive_lib_minmax_callers(snapshot):

@@ -4040,19 +4040,31 @@ fn b2p_custody_binds_the_combination_rows() {
     assert!(run(&|_| {}).is_ok(), "control: the untampered layout reaches precommit and validates (B2's RS reader)");
 }
 
-/// B2-P (C-1): a mechanics combination naming one case twice is `ordinary` (the ordinary route
-/// publishes no row for it), not retained.
+/// B2-P (C-1), since the silent-drop guard (2026-10-23): a mechanics combination naming one case
+/// twice is refused before solving (`LOAD_COMBINATION_DUPLICATE_TERM`, blocking), so no route
+/// publishes a row, a successor or a retained attempt for it. (It used to solve with the
+/// combination's rows silently dropped and classify `ordinary`; the `ordinary` disposition of a
+/// published combination stays pinned by W-CB4a, W-CB4b and W-CB5.)
 #[test]
-fn b2p_repeated_case_combination_is_ordinary() {
+fn b2p_repeated_case_combination_is_refused() {
     let mut raw = raw();
     raw["model"]["combinations"] = json!([{"id": "combination:twice", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0},
         {"load_case": "case", "factor": 1.0}], "provenance": B2P}]);
     for mode in MODES {
-        let (_, s) = b2p_successor(&raw, mode);
-        let b = &s["retained_precision"]["body"];
-        assert_eq!((&b["combinations"][0]["disposition"], &b["combinations"][0]["result_ids"]), (&json!("ordinary"), &json!([])), "{mode:?}");
-        assert_eq!(b["calls"].as_array().unwrap().len(), 1, "{mode:?}: no combination Call");
+        let plain: Value = serde_json::from_slice(&plain(mode, &raw)).unwrap();
+        assert_duplicate_term_refused(&plain, "combination:twice", &format!("plain {mode:?}"));
+        let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, RETAINED_LIMIT).unwrap();
+        assert!(direct.successor().is_none(), "{mode:?}: no successor");
+        let published: Value = serde_json::to_value(direct.envelope()).unwrap();
+        assert_eq!(published, plain, "{mode:?}: the Direct entry publishes the same refusal");
     }
+}
+fn assert_duplicate_term_refused(envelope: &Value, combination: &str, label: &str) {
+    assert_eq!(envelope["status"]["mechanics"], json!("MODEL_INCOMPLETE"), "{label}");
+    assert_eq!(envelope["results"], json!([]), "{label}: nothing is published");
+    let refusal = envelope["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == "LOAD_COMBINATION_DUPLICATE_TERM")
+        .unwrap_or_else(|| panic!("{label}: {}", envelope["diagnostics"]));
+    assert_eq!((&refusal["severity"], &refusal["affected_refs"][0]), (&json!("blocking"), &json!(combination)), "{label}");
 }
 
 /// B2-P (REVISION_01 §1.2; DEF-C r2 `stages.observables`): the combination observables stage on
@@ -4120,15 +4132,37 @@ fn b2p_combination_expressions() {
 }
 
 /// B2-P (T-2′; REVISION_01 S-1): the capture's normalization refuses a combination D1.4 does not
-/// admit (here h = 4), by the predicate T-4's re-check uses, so custody refuses with that cause.
+/// admit (here h = 4 distinct terms over four cases), by the predicate T-4's re-check uses, so
+/// custody refuses with that cause while the ordinary route solves it. The former input named one
+/// case four times; since the silent-drop guard a duplicate term blocks before solving, so that
+/// form now pins the refusal instead and the D1.4 property moves to distinct terms.
 #[test]
 fn b2p_capture_refuses_combinations_outside_d14() {
-    let mut raw = raw();
-    raw["model"]["combinations"] = json!([{"id": "combination:four", "basis": "mechanics", "terms": vec![json!({"load_case": "case", "factor": 1.0}); 4], "provenance": B2P}]);
-    let (_, observer, ordinary) = observed(PreviewSolverMode::SparseInteractive, &raw);
+    let mut four = raw();
+    let template = four["model"]["load_cases"][0].clone();
+    let cases: Vec<Value> = ["case", "case:2", "case:3", "case:4"].iter().enumerate().map(|(k, id)| {
+        let loads = json!(template["primitive_loads"].as_array().unwrap().iter().map(|load| {
+            let mut load = load.clone();
+            if k > 0 {
+                load["id"] = json!(format!("{}:{k}", load["id"].as_str().unwrap()));
+            }
+            load
+        }).collect::<Vec<_>>());
+        b2w_case(id, loads, &template)
+    }).collect();
+    four["model"]["load_cases"] = json!(cases);
+    let terms: Vec<Value> = ["case", "case:2", "case:3", "case:4"].iter().map(|id| json!({"load_case": id, "factor": 1.0})).collect();
+    four["model"]["combinations"] = json!([{"id": "combination:four", "basis": "mechanics", "terms": terms, "provenance": B2P}]);
+    let (_, observer, ordinary) = observed(PreviewSolverMode::SparseInteractive, &four);
     assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "the ordinary route solves it");
+    assert!(ordinary.results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_id == "combination:four")), "and publishes its rows");
     assert_eq!(observer.error.as_ref().map(|e| e.to_string()).as_deref(), Some("outside private ordinary no-component/no-combination scope"));
     assert!(observer.prepare_cases(ordinary, 1, &[0]).is_err(), "custody refuses");
+    // The former input, one case named four times, is refused before solving.
+    let mut repeated = raw();
+    repeated["model"]["combinations"] = json!([{"id": "combination:four", "basis": "mechanics", "terms": vec![json!({"load_case": "case", "factor": 1.0}); 4], "provenance": B2P}]);
+    let plain: Value = serde_json::from_slice(&plain(PreviewSolverMode::SparseInteractive, &repeated)).unwrap();
+    assert_duplicate_term_refused(&plain, "combination:four", "four repeated terms");
 }
 
 // ---- W-CB1's inputs: SW's cap-maximal cases A and B (R/I86 `gen_inputs.py` `build_i3`, c1), and
@@ -4215,7 +4249,12 @@ fn sw_materials() -> Value {
     json!((0..4).map(|i| json!({"id": format!("mat:{i}"), "elastic_modulus": {"value": 200000000000.0, "unit": "Pa"},
         "shear_modulus": {"value": 80000000000.0, "unit": "Pa"}, "provenance": SW_PROV, "temperature_points": points})).collect::<Vec<_>>())
 }
-/// I86's `stressed`: every provenance string escaped, and a depth-16 unknown member.
+/// I86's `stressed`: every provenance string escaped, and a depth-16 raw-only value carried by
+/// the model's declared, solve-ignored `diagnostics` member: since the model root is closed
+/// (silent-drop guard, 2026-10-23) an unknown root member refuses, and `diagnostics` is read as
+/// `serde::de::IgnoredAny`, so it accepts this raw-only value unchanged. Of the carriers that keep
+/// the same maximum raw depth (16) it changes the fewest bytes: the same value at the same depth
+/// under a different key (an open record would need two fewer array levels and move the value).
 fn sw_stressed(mut raw: Value) -> Value {
     fn escape(v: &mut Value) {
         match v {
@@ -4231,7 +4270,7 @@ fn sw_stressed(mut raw: Value) -> Value {
     for _ in 0..14 {
         deep = json!([deep]);
     }
-    raw["model"]["unknown_depth_witness"] = deep;
+    raw["model"]["diagnostics"] = deep;
     raw
 }
 /// I86's `build_model` (7 copies, 16 points) with one case `case_id` of `loads`, stressed.
@@ -4309,15 +4348,18 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
+/// Silent-drop guard re-pin (2026-10-23): W-CB1's and W-CB1z's request carries its depth-16 value
+/// on the declared `diagnostics` member instead of an unknown root member (`sw_stressed`), so
+/// their four rows moved with the request-bound hashes only (scratch structural proof).
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "2a8ba9f9d064fbf5e30cb2b5b8dc6ac7745f5a1a811601319aa053113c1df2de",
-        "c1e53e892f4167cb29f1a136193c780f614ad2d1ce962a82fc697f2070ed923b"),
-    ("w_cb1", "dense_scrutiny", "f815d4b922fa5b6ae9215b2ccb49f298a6c7d4a66841880faa93558ca6d77dad",
-        "c60865dcf4c595a088aac1ba8ffd701bfd6d35c73b68b0d1022b571c10f15797"),
-    ("w_cb1z", "sparse_interactive", "ca5e337900d52db62d261d9d28e5f1487c28f19b5f438bd9311b5ca576d54904",
-        "0b9d15014801fdbd2df7f4ba95b11dee6dbea914fcb10f13a18910f23c887177"),
-    ("w_cb1z", "dense_scrutiny", "bacba3ec9eb42d71ed0a907a307edafb6173a1a50b25248fa22c76a71dfcf113",
-        "2e8ffaeb3af922096ec0b1808549479eaf5b25e4a2fcdd73c58256fecc1b92a4"),
+    ("w_cb1", "sparse_interactive", "4f7b2c2e7eec221b1ae10c25a08a96029fd5625d3ccfcb6f5bf0fa1ca2d5d6db",
+        "fe3ab03ac6749e3920148a07c0322fe4f0722cf1cd58d5a63009a80e780e0f29"),
+    ("w_cb1", "dense_scrutiny", "c8c64551f55d60176e70c31b45507aca4b7dec749f351d834c3e4e4e083cb9c3",
+        "315669fcf04298560602798471d32cc930e9bb0bbb5ad92cf525289d7e35cb2a"),
+    ("w_cb1z", "sparse_interactive", "182181c22e5eabdf011f179bd23ee36d3992277c25c9e10fb20014974653726b",
+        "9869ad87317d3b65223b01f4778eac9e30691d3cec98513f8c0795b405f658d2"),
+    ("w_cb1z", "dense_scrutiny", "491865061285ba4a54101042d1c42b1dcdfe34ff5a194c8904dbfc7e642c070f",
+        "59a37dfc7e7f8e89bfdf3cd77e84cdad8b60907b9026491fbf70a94db51b0d64"),
     ("w_cb2", "sparse_interactive", "6085c0eed2199574de20279dbbcfdc5c05ba97f6c6bd6a2377a9942c06bb2aca",
         "e9434ff8b76ed346b6a4aecaddcde3f56a06b7dcdee013c6f39f3d1fd049cc12"),
     ("w_cb2", "dense_scrutiny", "6363dd535279fd3980525ffd3331c873d2c7742949cdd5f0d8b032983e7ca618",
@@ -4372,9 +4414,10 @@ fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value)
 }
 /// W-CB1's and W-CB1z's request Value sha256s (`w_cb1`, `w_cb1z`; JSON-equal to I98's
 /// `r7_cb1_halfb` and `r7_cb1`, checked on the records, apart from the model version: B7a
-/// re-authored the witnesses' model to 0.5.0, T4-S1 to 0.6.0 and W-13 S1b to 0.7.0, each of which moved all four input pins).
-const W_CB1_INPUT_SHA256: &str = "01daddbdc884b92920ce8d4b3389494269dab9e4e8b72cce05260c9b99cc96ba";
-const W_CB1Z_INPUT_SHA256: &str = "462516332b721dc1498362d8d8f7d3593ac88559c82cb12870eb26444c850117";
+/// re-authored the witnesses' model to 0.5.0, T4-S1 to 0.6.0 and W-13 S1b to 0.7.0, each of which moved all four input pins;
+/// the silent-drop guard's `diagnostics` carrier moved W-CB1's and W-CB1z's).
+const W_CB1_INPUT_SHA256: &str = "a1b8f27b97240a2fbe921b68a09a06322543f0fa8de134a182057561fe0374be";
+const W_CB1Z_INPUT_SHA256: &str = "89ce33bd24aac402d90ae499644057d73ae0d0b3f21189979e7be5937f9577a7";
 /// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
 /// W-CB1z its `r7_cb1_halfb` and `r7_cb1` (JSON-equal, checked on the records); their Value
 /// sha256s. With `I105_B2P_OUT` set, W-CB1's and W-CB1z's requests are written there.

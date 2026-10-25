@@ -8,6 +8,8 @@ mod model_document_save;
 mod model_document_shape;
 mod model_document_version;
 mod model_states;
+mod analysis_runs;
+mod stored_read;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
@@ -213,6 +215,40 @@ async fn save_report_package_decoded(
     redaction_evidence: ReportPackageRedactionEvidence,
     local_first_evidence: Option<ReportPackageLocalFirstEvidence>,
 ) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    save_report_package_with_picker(request, redaction_evidence, local_first_evidence, |file_name| {
+        app.dialog()
+            .file()
+            .set_file_name(file_name)
+            .add_filter("SWBPIPE Project Package", &["opsproj"])
+            .blocking_save_file()
+            .map(|selected| selected.into_path().map_err(|error| error.to_string()))
+    })
+}
+
+/// The W-18 slice (a) native hold (DEL-08-01 Design
+/// `report-package-current-results.md` §2.6, "Slice (a) hold"). From package
+/// version 2.0.0 the shared producer admits Current pressure-free requests,
+/// and the TypeScript availability gate is not an IPC boundary. Until slice
+/// (b1) installs the content-screened admission, this desktop command refuses
+/// every request before evidence use, package assembly, the save dialog or any
+/// write. It does not close the shared producer or the headless runner. Slice
+/// (b1) removes this hold and its test.
+const REPORT_PACKAGE_SAVE_HOLD: &str =
+    "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
+
+fn report_package_save_hold() -> Result<(), ReportPackageSaveCommandError> {
+    Err(ReportPackageSaveCommandError::bridge(REPORT_PACKAGE_SAVE_HOLD.to_string()))
+}
+
+/// The save after argument decoding; `choose` is the save dialog (a counting
+/// seam in tests): `None` is a cancel, `Some(Err)` an unusable path.
+fn save_report_package_with_picker(
+    request: report_package_bridge::ReportPackageRequest,
+    redaction_evidence: ReportPackageRedactionEvidence,
+    local_first_evidence: Option<ReportPackageLocalFirstEvidence>,
+    choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
+) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    report_package_save_hold()?;
     if redaction_evidence.route_id != "DREP-PACKAGE-SAVE-009"
         || redaction_evidence.blocking_count != 0
     {
@@ -231,13 +267,7 @@ async fn save_report_package_decoded(
         )));
     }
 
-    let selected = app
-        .dialog()
-        .file()
-        .set_file_name(&package.container_file_name)
-        .add_filter("SWBPIPE Project Package", &["opsproj"])
-        .blocking_save_file();
-    let Some(selected) = selected else {
+    let Some(selected) = choose(&package.container_file_name) else {
         return Ok(ReportPackageSaveReceipt {
             outcome: "cancelled".to_string(),
             stage: "picker".to_string(),
@@ -304,7 +334,7 @@ async fn save_report_package_decoded(
             limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
         });
     };
-    let destination = selected.into_path().map_err(|error| {
+    let destination = selected.map_err(|error| {
         ReportPackageSaveCommandError::bridge(format!(
             "REPORT-PACKAGE-PICKER-PATH-INVALID: {error}"
         ))
@@ -723,7 +753,7 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 12;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 13;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -890,11 +920,18 @@ fn store_migrations() -> Vec<StoreMigration> {
             },
         },
         // Named immutable model states and their labels (W-12 S1, DEL-14-01
-        // Design `desktop-states-runs-comparison.md` §2). Recorded runs are S2's v13.
+        // Design `desktop-states-runs-comparison.md` §2).
         StoreMigration {
             version: 12,
             migration_id: "store-v12-model-states-tables",
             apply: model_states::migrate_v12_model_states,
+        },
+        // Analysis runs recorded against model states, and their labels (W-12
+        // S2, the same design §3).
+        StoreMigration {
+            version: 13,
+            migration_id: "store-v13-analysis-runs-tables",
+            apply: analysis_runs::migrate_v13_analysis_runs,
         },
     ]
 }
@@ -1405,9 +1442,13 @@ fn refuse_unconfirmed_replacement(
     let Some(entry) = stored_project_entry(connection, project_id)? else {
         return Ok(());
     };
+    // The stored name is quoted as every message quotes stored names (at most
+    // 120 characters, `stored_read::shown`); the decision is unchanged.
     let stored = format!(
         "project `{}` (\"{}\", last saved at unix {})",
-        entry.project_id, entry.project_name, entry.updated_at_unix
+        stored_read::shown(&entry.project_id),
+        stored_read::shown(&entry.project_name),
+        entry.updated_at_unix
     );
     if let Some(confirmed) = confirmed_revision {
         return if confirmed == stored_revision(connection, &entry)? {
@@ -1439,6 +1480,9 @@ struct StoredProjectEntry {
     /// The saved model states attached to this project id; a Replace keeps
     /// them, and the prompt says how many (W-12 §2).
     saved_state_count: i64,
+    /// The recorded analysis runs attached to this project id; a Replace keeps
+    /// them too, and the prompt counts them (W-12 §3).
+    recorded_run_count: i64,
 }
 
 /// The stored project with this id, if any, and its revision, for the replace prompt.
@@ -1451,6 +1495,7 @@ fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<Store
             Ok(StoredProjectEntry {
                 revision: stored_revision(&connection, &entry)?,
                 saved_state_count: model_states::saved_state_count(&connection, &entry.project_id)?,
+                recorded_run_count: analysis_runs::recorded_run_count(&connection, &entry.project_id)?,
                 entry,
             })
         })
@@ -5211,6 +5256,11 @@ macro_rules! app_invoke_handler {
             model_states::read_model_state,
             model_states::edit_model_state_labels,
             model_states::delete_model_state,
+            analysis_runs::record_analysis_run,
+            analysis_runs::list_analysis_runs,
+            analysis_runs::read_analysis_run,
+            analysis_runs::edit_analysis_run_labels,
+            analysis_runs::delete_analysis_run,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
@@ -6283,6 +6333,10 @@ mod tests {
             json!({"ref_type": "project", "ref_id": model_id});
         fixture["calculation_report"]["model_input_summary"]["model_ref"] =
             json!({"ref_type": "model", "ref_id": model_id});
+        // The model hash names the summary's model (checksum subjects,
+        // DEL-08-01 Design §2.4).
+        fixture["calculation_report"]["model_input_summary"]["model_hash"]["payload_ref"] =
+            json!({"ref_type": "model", "ref_id": model_id});
         fixture["calculation_report"]["model_input_summary"]["persistence_ref"] = json!({"ref_type": "project_persistence", "ref_id": "session_state_only_not_yet_saved"});
         fixture["calculation_report"]["model_input_summary"]["unit_system_ref"] =
             json!({"ref_type": "unit_system", "ref_id": "a12-rehearsal-si-local"});
@@ -7143,11 +7197,12 @@ mod tests {
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
+                "store-v13-analysis-runs-tables",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v12"
+            "migrated_on_open_store_schema_v0_to_v13"
         );
 
         let second_open =
@@ -7164,7 +7219,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v12_no_pending_migrations"
+            "current_store_schema_v13_no_pending_migrations"
         );
     }
 
@@ -7201,10 +7256,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 12);
+        assert_eq!(migration.migrations_applied_on_open.len(), 13);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v12"
+            "migrated_on_open_store_schema_v0_to_v13"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -7273,12 +7328,13 @@ mod tests {
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
-                "store-v12-model-states-tables"
+                "store-v12-model-states-tables",
+                "store-v13-analysis-runs-tables"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v12"
+            "migrated_on_open_store_schema_v7_to_v13"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))
@@ -9618,6 +9674,43 @@ mod tests {
                 "action": "include_metadata_only", "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED", "blocked": false,
                 "metadata_only": true, "explicit_local_private_intent": true
             })
+        }
+
+        /// W-18 slice (a) native hold (DEL-08-01 Design §2.6): an otherwise
+        /// valid 2.0.0 request with clean caller-supplied evidence, decoded
+        /// through the command's own argument path, is refused before the save
+        /// dialog or any write. Control: the shared producer alone assembles
+        /// the same request unblocked, so the refusal is the hold's. Slice (b1)
+        /// replaces this test with the screened admission's.
+        #[test]
+        fn report_package_save_is_held_until_native_screening() {
+            let request = witness_report_request();
+            let direct: report_package_bridge::ReportPackageRequest = serde_json::from_value(request.clone()).unwrap();
+            let control = report_package_bridge::assemble_request(direct).expect("the witness request assembles");
+            assert!(!control.export_blocked, "{:?}", control.blocking_reasons);
+
+            let registry = registry(ScriptedHost::normal());
+            let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
+            let body = json!({"request": request, "redactionEvidence": redaction_evidence(), "localFirstEvidence": local_first_evidence()});
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", decoding, &body).unwrap();
+            let (decoded, redaction, local_first) = save_report_package_args(&mut args).unwrap();
+            let sandbox = std::env::temp_dir().join(format!("ops-w18a-hold-{}", std::process::id()));
+            fs::create_dir_all(&sandbox).unwrap();
+            let mut picks = 0usize;
+            let outcome = save_report_package_with_picker(decoded, redaction, local_first, |_| {
+                picks += 1;
+                Some(Ok(sandbox.join("held.opsproj")))
+            });
+            let error = match outcome {
+                Err(error) => error,
+                Ok(receipt) => panic!("the hold must refuse, got {}", receipt.code),
+            };
+            assert_eq!(error.code, "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE");
+            assert_eq!(error.message, REPORT_PACKAGE_SAVE_HOLD);
+            assert_eq!(error.stage, "assemble");
+            assert_eq!(picks, 0, "no save dialog is requested");
+            assert_eq!(fs::read_dir(&sandbox).unwrap().count(), 0, "nothing is written");
+            fs::remove_dir_all(&sandbox).unwrap();
         }
 
         #[test]

@@ -158,6 +158,7 @@ code_paths:
 - tests/test_*canonical_json_adapter.py
 - core/reporting/audit_manifest/**
 - apps/desktop/src/features/report/reportPackageRequest.ts
+- core/reporting/report_package/src/bindings.rs
 checks:
 - core/serialization/canonical_json/src/lib.rs
 - core/serialization/canonical_json/tests/checked_profile.rs
@@ -167,4 +168,5 @@ checks:
 - tests/test_binary64_canonical_json_adapter.py
 - core/reporting/audit_manifest/src/lib.rs
 - core/reporting/report_package/tests/container.rs
+- core/reporting/report_package/tests/current_result_package.rs
 - apps/desktop/src/features/report/reportPackageRequest.test.ts

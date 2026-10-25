@@ -11,7 +11,7 @@
         },
         "class": "RUNNER_BLOCKING",
         "code": "HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH",
-        "message": "runner model_ref does not equal package source_model_ref",
+        "message": "runner model_ref does not equal the result document's request_model_ref",
         "provenance": {
           "contributor": "OpenPipeStress",
           "contributor_certification": "diagnostic metadata only",

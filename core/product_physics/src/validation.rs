@@ -1922,7 +1922,33 @@ fn validate_mechanics_combination(
             vec![combination.id.clone()],
         ));
     }
-    for term in &combination.terms {
+    let mut seen = HashSet::new();
+    for (index, term) in combination.terms.iter().enumerate() {
+        // The load-case algebra refuses a repeated operand, which would leave
+        // every combined row unevaluated; block it by name here instead, once
+        // per repeated case (at its second occurrence), so the diagnostic id
+        // stays unique however often the case repeats.
+        if !seen.insert(term.load_case.as_str()) {
+            let earlier = combination.terms[..index]
+                .iter()
+                .filter(|other| other.load_case == term.load_case)
+                .count();
+            if earlier != 1 {
+                continue;
+            }
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:combination:{}:{}:duplicate",
+                    stable_suffix(&combination.id),
+                    stable_suffix(&term.load_case)
+                ),
+                "LOAD_COMBINATION_DUPLICATE_TERM",
+                "blocking",
+                "mechanics combination terms must name each load case once; a duplicate term is blocked",
+                vec![combination.id.clone(), term.load_case.clone()],
+            ));
+            continue;
+        }
         if !term.factor.is_finite() {
             diagnostics.push(diag(
                 &format!(
@@ -2032,8 +2058,12 @@ fn validate_range_envelope_combination(
         return;
     }
     let mut seen = HashSet::new();
-    for operand_id in operand_ids {
+    for (index, operand_id) in operand_ids.iter().enumerate() {
+        // Once per repeated operand (at its second occurrence), so the id stays unique.
         if !seen.insert(operand_id.as_str()) {
+            if operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1 {
+                continue;
+            }
             diagnostics.push(diag(
                 &format!(
                     "diagnostic:combination:{}:{}:duplicate",

@@ -18,6 +18,7 @@ pub use case_state::input::{
 };
 pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID};
 mod model_format;
+mod model_fields;
 pub mod model_settings;
 pub use model_settings::{ModelSettingError, ModelSettings, DEFAULT_NODE_PROXIMITY_TOLERANCE_M};
 pub use model_format::{
@@ -253,7 +254,14 @@ struct MaterialRecordWire<L> {
 /// Wire form of `PreviewModel`; identical fields and defaults, except that each
 /// material record is split into its unchanged `MaterialInput` and its optional
 /// `expansion_laws`, so the new key is never silently discarded.
+///
+/// Closed record (`model_fields`): an undeclared key refuses by name instead of
+/// being dropped. `data_boundary` and `diagnostics`, and model document 0.7.0's
+/// `lines`, `unresolved_assumptions`, `constraints`, `equipment_interfaces` and
+/// `rule_pack_refs`, are declared document members the solve never reads
+/// (accepted and ignored).
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct PreviewModelWire {
     #[serde(default, deserialize_with = "deserialize_present_object")]
     pressure_contract: Option<PressureContractInput>,
@@ -281,6 +289,27 @@ struct PreviewModelWire {
     reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
     #[serde(default, deserialize_with = "deserialize_present_object")]
     model_settings: Option<ModelSettings>,
+    #[serde(default)]
+    #[allow(dead_code)]
+    data_boundary: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    diagnostics: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    lines: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    unresolved_assumptions: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    constraints: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    equipment_interfaces: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    rule_pack_refs: serde::de::IgnoredAny,
 }
 
 impl<'de> Deserialize<'de> for PreviewModel {
@@ -663,7 +692,11 @@ pub struct FrictionNormalReactionSourceInput {
     pub dof: String,
 }
 
+/// Closed record (`model_fields`). `kind`, `label` and `status`, and model
+/// document 0.7.0's `tags` and `notes`, are declared document members the solve
+/// never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewLoadCase {
     #[serde(default)]
     pub pressure_regions: Option<Vec<PressureRegionInput>>,
@@ -688,7 +721,7 @@ pub struct PreviewLoadCase {
     /// interpolated between the two adjacent user-entered temperature points.
     /// Requests at or outside the stored range edges are blocking;
     /// extrapolation and base-property fallback are never performed.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub modulus_basis_temperature: Option<Quantity>,
     #[serde(default)]
     pub provenance: Option<String>,
@@ -696,9 +729,20 @@ pub struct PreviewLoadCase {
     /// 0.4.0). It is the complete resolved-state and ordinary-source request.
     #[serde(default)]
     pub analysis_state: Authored<AnalysisStateInput>,
+    #[serde(default)]
+    pub kind: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub label: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub status: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EquivalentStaticGenerationInput {
     #[serde(default)]
     pub seismic: Option<SeismicGenerationInput>,
@@ -709,6 +753,7 @@ pub struct EquivalentStaticGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SeismicGenerationInput {
     /// User-entered gravity acceleration; an explicit input, not an
     /// embedded physical-constant default.
@@ -723,6 +768,7 @@ pub struct SeismicGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WindGenerationInput {
     #[serde(default)]
     pub pressure: Option<Quantity>,
@@ -746,6 +792,7 @@ pub struct WindGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WindExposedSpanInput {
     /// User-marked pipe id the partial extent applies to.
     #[serde(default)]
@@ -758,7 +805,10 @@ pub struct WindExposedSpanInput {
     pub end_fraction: Option<Quantity>,
 }
 
+/// Closed record (`model_fields`). Model document 0.7.0's `tags` and `notes`
+/// are declared document members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewCombination {
     pub id: String,
     #[serde(default)]
@@ -780,20 +830,29 @@ pub struct PreviewCombination {
     pub mode: Option<String>,
     #[serde(default)]
     pub provenance: Option<String>,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
+/// Closed record (`model_fields`).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewCombinationTerm {
     pub load_case: String,
     pub factor: f64,
 }
 
+/// Closed record (`model_fields`), including its target and magnitude.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewPrimitiveLoad {
     pub id: String,
     pub category: String,
     pub target: LoadTargetInput,
     pub direction: String,
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
     pub magnitude: Quantity,
     pub dimension: String,
     #[serde(default)]
@@ -801,7 +860,7 @@ pub struct PreviewPrimitiveLoad {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum LoadTargetInput {
     Node { node: String },
     Element { pipe: String },
@@ -2547,6 +2606,10 @@ fn run_linear_static_preview_value_dispatch(
     solver_mode: PreviewSolverMode,
     retained_entry: Option<(retained_memory::Entry<'_>, RetainedByteLimit)>,
 ) -> Result<RetainedPreviewOutput, String> {
+    // Closed model records: an undeclared key refuses by name before any route.
+    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {
+        return Err(refusal);
+    }
     if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
         return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None, retained: None });
     }
@@ -17517,6 +17580,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_no_code_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         }];
         request
     }
@@ -21581,6 +21646,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         });
         request.model.combinations.push(PreviewCombination {
             id: "combination:C-OWNER".to_string(),
@@ -21592,6 +21659,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         });
 
         let result = run_linear_static_preview(request);
@@ -21623,6 +21692,8 @@ mod tests {
             provenance: Some(
                 "invented_example_user_defined_subtraction_no_code_default".to_string(),
             ),
+            tags: Default::default(),
+            notes: Default::default(),
         }
     }
 
@@ -21639,6 +21710,8 @@ mod tests {
             provenance: Some(
                 "invented_example_user_defined_range_envelope_no_code_default".to_string(),
             ),
+            tags: Default::default(),
+            notes: Default::default(),
         }
     }
 

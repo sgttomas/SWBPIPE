@@ -3234,7 +3234,8 @@ export function useWorkspaceSession() {
   const history = useModelStateHistory({
     model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
-    saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy
+    saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy,
+    runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run" }
   });
 
   return {

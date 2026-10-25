@@ -35,7 +35,6 @@ the previous map left open; rows cite them where they apply.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
 
 **Not on main, so not counted here (in flight):**
-- #1573 (strict inputs, no silent drops of authored input or combination rows);
 - branch `claude/piping-w7-global-end-forces-20261023` (W-7, no PR yet);
 - #1567 (DBM concordance review).
 
@@ -98,9 +97,11 @@ The biggest gaps:
    sections and library records. Affected: FR-REP-001..004.
 2. **No model states, run history or comparison between states or runs.** These
    are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
-   #1589): save, open, label and delete, kept only in the SQLite store. Runs tied
-   to states and both comparisons exist as schemas and headless Python engines
-   only (W-12 S2, S3). Affected: FR-CMP-001..004, -006.
+   #1589): save, open, label and delete, kept only in the SQLite store. Runs are
+   recorded against states (W-12 S2, #1596), with empty rule-pack references
+   until the session solve passes the model's rule packs. Both comparisons exist
+   as schemas and headless Python engines only (W-12 S3). Affected:
+   FR-CMP-001..004, -006.
 3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
    validated but never applied, and EX refuses these components. Affected:
    FR-SOL-004/012.
@@ -141,7 +142,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-MOD-003 (478) | Must | D | Identity changes refused: `operation_applier/src/rich_authoring.rs:1092`, test `:864`; `atomic_batch.rs:690`; reconnect keeps ids (`pipe_reconnect.rs`) | DEL-02-01, DEL-16-06 | No all-operations id-survival test. |
 | FR-MOD-004 (479) | Must | P | Only `project.name` and entity `label` | DEL-02-01 | Tags and notes have 0.7.0 slots (#1564), authored in the inspector for every entity and the project (#1565). |
 | FR-MOD-005 (480) | Must | P | Library records carry structured provenance: `core/library_import/library_import_document/src/lib.rs:339-402`. Library insert and apply set the entity's `provenance_record` with `library_ref` (record digest `library_version`): `apps/desktop/src/features/library/libraryApply.ts`; tests `libraryApply.test.ts`, `operation_applier/tests/library_apply.rs` | DEL-03-01, DEL-03-07 | 0.7.0 adds a structured `provenance_record` with `library_ref` (#1564). Applying library records (#1566): entities written from a library carry a combined `provenance_record`, and the store check warns on unresolved or changed records (`check_model_library_refs`). |
-| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | 0.7.0 adds the slot (#1564); the Model records tab enters, resolves and rejects them (#1565). State-level assumptions are labels on a saved state, carried into its `ModelStateRecord` (W-12 S1, #1589). The run level is W-12 S2. |
+| FR-MOD-006 (481) | Must | P | `unresolved_assumptions` exists in `schemas/physical_transform_model.schema.yaml`, `model_state.schema.json:364` and `handoff_package.schema.json:477`, not in the desktop model document | DEL-02-01, DEL-13-01 | 0.7.0 adds the slot (#1564); the Model records tab enters, resolves and rejects them (#1565). State-level assumptions are labels on a saved state, carried into its `ModelStateRecord` (W-12 S1, #1589). Run-level assumptions are labels on a recorded run, shown with it; analysis_run 0.3 has no assumption slot (W-12 S2, #1596). |
 | FR-MOD-007 (482) | Must | D (bounded) | On the live solve path the product derives its analytical model (`BuiltModel`, PP `lib.rs:2261`; `build_model` `:7930`) from the supported canonical-document fields and records diagnostics (PP `lib.rs:2635-2739`) | DEL-13-04, DEL-04-07 | Owner reading (2026-10-23, accepted): D bounded to this derivation. The richer PKG-13 transform contract (`core/model_transform/physical_to_analytical/contract.py`, test-only) stays deferred under OD-1. |
 | FR-KNOW-001 (488) | Must | O | OD-3 (DEL-13-01 SOW:15). Desktop `lib.rs:1773` returns a bundled fixture; `KnowledgePanel.tsx` has no inputs | DEL-13-01 | |
 | FR-KNOW-002 (489) | Must | D | W-8: `core/product_physics/src/topology.rs:46`, called once at PP `lib.rs:2739` on the shared path of both routes; `MODEL_TOPOLOGY_DISCONNECTED` (`topology.rs:136`), `BRANCH_TOPOLOGY_INVALID` (`validation.rs:1310-1320`); unsupported parts still refused (PP `lib.rs:15412`); EX pressure-region topology (`pressure_runtime.rs:1538,1548,1595`). **Tests:** `tests/topology_checks_runtime.rs` (9). **Desktop:** Diagnostics panel (`App.test.tsx:10877`) | DEL-04-06 | Findings are warnings; PRD §14.4 lists topology under "blocking for model validity" (§6). Tests use PF requests only. The bundled demo now warns `BRANCH_TOPOLOGY_INVALID` (tee C-120). |
@@ -192,7 +193,7 @@ class, the evidence, and the deliverables. Paths are under
 | §12.8 near-duplicate nodes (775) | — | D | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193`. The desktop's Project page sets and resets it (`ModelSettingsSection.tsx`; applier `set_model_setting`/`clear_model_setting`, `model_settings_authoring.rs`); through-solve tests `operation_applier/tests/model_settings_authoring.rs`, src-tauri `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` | DEL-04-06, DEL-02-01 | REQ-04-06-012 (owner) is met on both routes, and a desktop user can see the effective value ("5 mm (default)") and change it. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
-| §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b | DEL-09-02 | The DEL-09-02 stress suite itself has no pressure family, although DEL-09-02 commits pressure coverage (W-20). |
+| §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b; the suite's pressure family `STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL` (W-20, #1599: Lamé hoop and radial, closed-end, open-end and restrained membrane, on both section bases, through the exact-pressure preview entry) | DEL-09-02 | The headless runner has no binding for the pressure family (its comparison is the suite's relative check), so it fails closed there. |
 
 ### 2.4 Rule packs, reporting, handoff and export (PRD §11.5, §11.7, §11.9, §16–19)
 
@@ -230,7 +231,7 @@ MVP requirement (PRD §15.6).
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
 | FR-CMP-001 (542) | Must | P | **Store:** desktop `src-tauri/src/model_states.rs` (store v12: `model_states`, `model_state_labels`, immutability triggers; save, list, read, label edit, delete), with its tests there. **UI:** `features/history/HistoryPanel.tsx`, `useModelStateHistory.ts`; `modelStateHistory.session.test.tsx`. **Record:** `model_state.schema.json` record with Python-pinned record hash; `tests/test_model_state_record_parity.py` | DEL-14-01, DEL-07-08 | Save, reopen, tag and delete named immutable states in the desktop (W-12 S1, #1589); SQLite-only, with history export open under OI-015. Compare is W-12 S3. The desktop crate's Rust store tests do not run in hosted CI. |
-| FR-CMP-002 (543) | Must | P | `analysisRunCompatibility.ts:164,167` | DEL-14-02 | Synthetic `model_state_ref`; empty rule-pack and library refs; one run per project. |
+| FR-CMP-002 (543) | Must | P | **Store:** desktop `src-tauri/src/analysis_runs.rs` (store v13, Record Run, list, read, label edit, delete) with `analysis_runs_tests.rs`. **UI:** `features/history/HistoryPanel.tsx`; `recordRun.session.test.tsx`. **Record:** `analysisRunCompatibility.ts` recorded form, `core/analysis_runs/compatibility.py`, `tests/test_recorded_run_record.py` | DEL-14-02, DEL-07-08 | Record Run (W-12 S2, #1596) stores an immutable v0.3 revision tied to a saved state (`{ModelState, id}`), checked against the stored input manifest's model payload. The manifest binds the solver, settings, units and load cases, and many runs can be recorded per state. Library refs come from the shared `library_ref` walk. Rule-pack refs come from the manifest's `active_rule_packs`, which the session solve leaves empty today (follow-up). |
 | FR-CMP-003 (544) | Must | P | `core/comparison/model_state/engine.py:64`; `tests/test_model_state_comparison.py` | DEL-14-03 | Headless only. |
 | FR-CMP-004 (545) | Must | P | `core/comparison/analysis_run/engine.py:165`; `tests/test_analysis_run_comparison.py` | DEL-14-04 | Headless only. |
 | FR-CMP-005, -007 (546, 548) | Should | P | `schemas/comparison_mapping.schema.json`; `model_state/engine.py:232` | DEL-14-05 | No editor. |
@@ -517,12 +518,14 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | Viewport result colour and reaction arrows (OD-5) | #1556 |
 | — | Numerical health indicator (FR-SOL-015 display) | #1544 |
 | — | Refusal of load cases that apply nothing (silent zero) | #1568 |
+| — | Strict inputs: no silent drops of authored input or combination rows (PF closed records, `UNKNOWN_MODEL_FIELD`; duplicate terms and withheld combination rows named) | #1573 |
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
 | W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
 | W-13 S1b | Model document 0.7.0: the new member slots, one document validator, `model_settings.node_proximity_tolerance` (default 5 mm) | #1564; native smoke with no change beyond the five stale `expected.json` values (§3 rows 1–5) |
 | W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
 | W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
+| W-12 S2 | Analysis runs recorded against saved model states (store v13, Record Run with a checked manifest and model binding, run labels, recorded-form validators in TS and Python), with stored-length read admission for states and runs | #1596 |
 | W-12 S1 | Named immutable model states in the desktop (store v12, Save/Open State, History panel with labels); one unsaved-changes guard for Open Project, New, Open Model Document and Open State | #1589 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
 
@@ -531,8 +534,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | PR or branch |
 |---|---|---|
 | W-7 | Global-frame element-end forces (FR-SOL-007) | branch `claude/piping-w7-global-end-forces-20261023` (no PR) |
-| — | Strict inputs: no silent drops of authored input or combination rows | #1573 |
 | — | DBM concordance review | #1567 |
+| W-20 | Pressure stress benchmark family in the DEL-09-02 suite (hoop and longitudinal stress against closed forms) | #1599 |
 
 **Remaining:**
 
@@ -543,10 +546,9 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
 | W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..004, -006) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
-| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | #1573 for combination rows | No |
+| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
-| W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private) | M | desktop + Rust | heavy | W-3 | A shareable path needs a DEL-12-02 design check |
-| W-20 (new) | Pressure stress benchmark family in the DEL-09-02 suite: pressure-derived hoop and longitudinal stress against closed forms (DEL-09-02 commits pressure coverage; the suite's families have none) | S | numerical | heavy, scrutiny | — | No |
+| W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness with the desktop still closed, is on branch `claude/piping-reports-w18a-20261024`; (b1) native screening and (b2) desktop opening remain (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
@@ -556,8 +558,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-12, W-15, W-16, W-20, W-11 and the in-flight W-7, #1573
-  and #1574. The R6 reproduction bundle (W-2) is then made at the validation
+- **Before validation:** W-12, W-15, W-16, W-20 (#1599), W-11 and the in-flight W-7.
+  The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 
 ## 5. Checks run for this map
