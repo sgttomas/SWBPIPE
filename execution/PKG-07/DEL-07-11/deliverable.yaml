@@ -144,6 +144,7 @@ code_paths:
 - apps/desktop/native-smoke/**
 - apps/desktop/scripts/engineSourceStamp.mjs
 - apps/desktop/scripts/appBinaryBinding.mjs
+- apps/desktop/scripts/worktreeBuildLock.mjs
 - apps/desktop/e2e/r2-smoke.spec.ts
 - apps/desktop/src/services/projectService.ts
 - apps/desktop/src/services/nativeMenu.ts
@@ -163,3 +164,4 @@ checks:
 - apps/desktop/native-smoke/engine-stamp.test.mjs
 - apps/desktop/native-smoke/app-binding.test.mjs
 - apps/desktop/scripts/build-wasm-engine.test.mjs
+- apps/desktop/scripts/worktreeBuildLock.test.mjs

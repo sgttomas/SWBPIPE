@@ -381,15 +381,15 @@ or `wasm32-unknown-unknown/release`, and the `deps`, `build`, `.fingerprint`,
 `incremental` and `examples` of each `<triple>/<profile>`), being a symbolic
 link or resolving outside it is refused by name before each cargo run and
 before the directory is deleted.
-When the stamp is missing or differs, that directory is deleted and the engine
-is built clean, so an edit that kept a file's modification time, or a link
-retargeted to an older file, is built rather than kept by cargo's mtime-based
-freshness. A current stamp builds incrementally only when the directory's trust
-marker, `openpipestress-published-stamp.json`, holds the published stamp's text:
-the marker is deleted before every cargo build and written only after the
-build, its stamp and its glue are published, so a build that failed after cargo
-compiled (glue generation, say) leaves its artifacts untrusted, and they are
-deleted before the next build rather than published under the old stamp. The
+An engine whose published stamp equals its current inputs is not built at
+all: nothing is compiled and nothing is republished. Any build, for whatever
+reason (a missing or different stamp, inputs that moved during an attempt),
+first deletes that directory, so every build is clean: neither an edit that
+kept a file's modification time, nor a link retargeted to an older file, nor
+an ordinary cargo build run in that directory since (of other sources, later
+restored with their old times) leaves cargo's mtime-based freshness check an
+artifact to publish under the new stamp. A clean build of both engines costs
+about a minute (58 s measured for both together on the development host). The
 stamp is written only when
 the complete input set, digested before cargo runs and again after, held
 still; a newly revealed compile read or a changed input means another clean
@@ -397,6 +397,25 @@ build, and after three the build fails naming the inputs. `run.mjs` recomputes
 each stamp and runs `build:wasm` when a folder or stamp is missing or the hash
 differs, also under `--skip-build`. It logs `engine rebuilt: <engine>
 (<reason>; stamp <hash>)` or `engine current, stamp <hash>`.
+
+One per-worktree build lock, `apps/desktop/target/build.lock`
+(`scripts/worktreeBuildLock.mjs`), is held for the whole engine check, build,
+glue and publication of `build:wasm` (a direct `npm run build:wasm` takes it)
+and by `run.mjs` from its engine check through the app build and binding,
+released before the launches; `build:wasm` under the smoke inherits it through
+the token the lock records. So two builds or smokes in one worktree never
+interleave, and the `.tmp-`/`.old-` cleanup never removes another active run's
+directories. The lock is created atomically (a complete record hard-linked into
+place) with the holder's pid, the start time `ps` reports for it, its purpose
+and a token. A second taker logs `waiting for the build lock held by pid N`,
+waits at most `OPENPIPESTRESS_BUILD_LOCK_WAIT_MS` (default 30 minutes) and then
+refuses by name. A lock is broken, with a log line, only when its pid is not
+running or is running with another start time (a reused pid); a live holder's
+lock is never broken. Lock order: the host slot first (`t3_slot.sh`,
+`t3_cargo.sh` or `t3_exclusive.sh`, taken by the wrapper that launches the
+build or smoke), then the worktree lock; code holding the worktree lock never
+acquires a host slot, and a command that resolves to one of those wrappers, or
+to a script naming them, is refused by name.
 
 The app embeds `dist/` when cargo builds it. `run.mjs` builds it with
 the target and build directories set to `src-tauri/target` and
