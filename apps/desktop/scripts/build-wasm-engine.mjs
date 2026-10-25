@@ -32,7 +32,13 @@
 // deleted first, so the build is clean: cargo's freshness check, which relies
 // on modification times, cannot keep an old artifact after an edit that kept a
 // file's time or a symbolic link retargeted to an older file. A current stamp
-// builds incrementally.
+// builds incrementally only when that directory's trust marker
+// (`ENGINE_TRUST_MARKER`) equals the published stamp: the marker is deleted
+// before every cargo build and written, with the stamp's text, only after the
+// build, its stamp and its glue are complete and published. A build that failed
+// after cargo compiled (glue generation, publication) leaves no marker, so its
+// artifacts, which no published stamp describes, are deleted before the next
+// build rather than reused under the old stamp.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
@@ -56,6 +62,9 @@ import {
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
 export const MAX_STABLE_BUILD_ATTEMPTS = 3;
+// In an engine's dedicated target directory: the stamp text of the published
+// build its cache produced.
+export const ENGINE_TRUST_MARKER = "openpipestress-published-stamp.json";
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const projectRoot = path.resolve(desktopRoot, "..", "..");
@@ -226,6 +235,7 @@ const crateManifest = path.join(crateDirectory, "Cargo.toml");
 const outDir = destination;
 const crateLabel = path.relative(projectRoot, crateDirectory);
 const targetDirectory = engineTargetDirectory(path.basename(outDir));
+const trustMarker = path.join(targetDirectory, ENGINE_TRUST_MARKER);
 // 4. Compile the engine to wasm32 with the wasm feature, in its own target
 //    directory, until a build's complete input set held still across it (4b).
 //    A missing or stale stamp, or inputs that moved, mean a clean build.
@@ -235,6 +245,12 @@ try {
   clean = current.action === "rebuild" ? current.reason : null;
 } catch (error) {
   fail(["Could not check the engine's source stamp:", error.message]);
+}
+// The cache is reused only when it produced the published build.
+if (clean === null) {
+  const marker = existsSync(trustMarker) ? readFileSync(trustMarker, "utf8") : null;
+  if (marker === null) clean = "no trust marker: the cached artifacts are not known to be the published build's";
+  else if (marker !== readStampText(outDir)) clean = "the trust marker names another build than the published stamp";
 }
 let knownReads = parseStampText(readStampText(outDir)).stamp?.compile_reads ?? [];
 let wasmArtifact;
@@ -264,6 +280,8 @@ for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; at
   } catch (error) {
     fail([error.message]);
   }
+  // From here until publication the cache describes no published stamp.
+  rmSync(trustMarker, { force: true });
   const build = tryRun("cargo", [...CARGO_BUILD_ARGS, "--manifest-path", crateManifest], { env: cargoEnv });
   if (!build.ok) {
     fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
@@ -335,7 +353,8 @@ if (!bindgen.ok) {
   rmSync(tmpDir, { recursive: true, force: true });
   fail(["`wasm-bindgen` glue generation failed:", bindgen.stderr]);
 }
-writeFileSync(path.join(tmpDir, STAMP_FILENAME), `${JSON.stringify(stamp, null, 2)}\n`);
+const stampText = `${JSON.stringify(stamp, null, 2)}\n`;
+writeFileSync(path.join(tmpDir, STAMP_FILENAME), stampText);
 
 if (existsSync(outDir)) {
   renameSync(outDir, oldDir);
@@ -347,6 +366,13 @@ try {
   throw error;
 }
 rmSync(oldDir, { recursive: true, force: true });
+// The build is complete and published: its cache may serve the next one.
+try {
+  checkEngineTargetDirectory(targetDirectory, "mark");
+} catch (error) {
+  fail([error.message]);
+}
+writeFileSync(trustMarker, stampText);
 
 console.log(
   `[build-wasm-engine] OK — wasm operation engine generated at ${path.relative(desktopRoot, outDir)} ` +

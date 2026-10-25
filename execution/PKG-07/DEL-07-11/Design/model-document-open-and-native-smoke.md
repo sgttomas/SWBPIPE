@@ -384,7 +384,13 @@ before the directory is deleted.
 When the stamp is missing or differs, that directory is deleted and the engine
 is built clean, so an edit that kept a file's modification time, or a link
 retargeted to an older file, is built rather than kept by cargo's mtime-based
-freshness; a current stamp builds incrementally. The stamp is written only when
+freshness. A current stamp builds incrementally only when the directory's trust
+marker, `openpipestress-published-stamp.json`, holds the published stamp's text:
+the marker is deleted before every cargo build and written only after the
+build, its stamp and its glue are published, so a build that failed after cargo
+compiled (glue generation, say) leaves its artifacts untrusted, and they are
+deleted before the next build rather than published under the old stamp. The
+stamp is written only when
 the complete input set, digested before cargo runs and again after, held
 still; a newly revealed compile read or a changed input means another clean
 build, and after three the build fails naming the inputs. `run.mjs` recomputes
@@ -408,9 +414,11 @@ inputs (the `src-tauri` crate closure by the same cargo-metadata method, every
 file at the top of `src-tauri/` including `tauri.conf.json` and `build.rs`,
 `icons/`, `capabilities/`, and the dep-info compile reads, which are recorded);
 the build command and smoke configuration; and the executable's path, size and
-SHA-256. When the Rust inputs are not those a valid record names,
-`cargo clean -p` removes the closure's own packages from `src-tauri/target`
-first, so the build is clean for them. `dist/` changing while cargo builds, or
+SHA-256. Before every app build the smoke performs, `cargo clean -p` removes the
+closure's own packages from `src-tauri/target`, so the build is clean for them:
+neither a valid record nor matching Rust inputs say what the directory holds,
+since an ordinary cargo build after the binding (of other sources, later
+restored with their old times) leaves artifacts cargo would take as fresh. `dist/` changing while cargo builds, or
 the frontend inputs changing while Vite builds, stops the run by name with no
 binding and no launch; a changed or newly revealed Rust input means another
 build, up to three. The executable's identity is checked again before each

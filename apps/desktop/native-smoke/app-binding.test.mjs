@@ -125,7 +125,7 @@ function workspace() {
     return taken;
   };
   const record = () => (existsSync(bindingPathFor(desktopRoot)) ? JSON.parse(readFileSync(bindingPathFor(desktopRoot), "utf8")) : null);
-  return { root, write, read, desktopRoot, tauriDir, cargo, prepare, take, setEngine, record, cleanup: () => rmSync(root, { recursive: true, force: true }) };
+  return { root, write, read, desktopRoot, tauriDir, cargo, runCargo, prepare, take, setEngine, record, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
 test("the binding record names the engines, frontend, dist/, app sources, build and the binary cargo reported", () => {
@@ -223,13 +223,13 @@ test("Codex r2: under --skip-build a frontend .ts edit rebuilds frontend and app
     w.write("apps/desktop/src/x.ts", "export const x = 2;\n");
     w.prepare(true);
     let step = w.take();
-    assert.deepEqual(step.calls, ["frontend", "cargo build"]);
+    assert.deepEqual(step.calls, ["frontend", "cargo clean app,lib", "cargo build"]);
     assert.match(step.logs[0], /--skip-build overridden \(the frontend sources differ from those dist\/ was built from\); the app embeds dist\/, so the frontend and app are rebuilt/);
 
     // A fixture the frontend imports from outside src/ is a frontend input too.
     w.write("fixtures/data.json", "{\"d\":2}\n");
     w.prepare(true);
-    assert.deepEqual(w.take().calls, ["frontend", "cargo build"]);
+    assert.deepEqual(w.take().calls, ["frontend", "cargo clean app,lib", "cargo build"]);
 
     w.write("apps/desktop/src-tauri/src/main.rs", "fn main() { two() }\n");
     w.prepare(true);
@@ -275,7 +275,10 @@ test("Codex r1: engines and dist/ rebuilt, cargo failed: a retry with --skip-bui
     w.take();
     w.prepare(true);
     const retry = w.take();
-    assert.deepEqual(retry.calls, ["frontend", "cargo clean app,lib", "cargo build"]);
+    // The clean before the failed build removed the last dep-info, so, with no
+    // record either, the retry's first build reveals a compile read and a second
+    // (clean) build is the one bound.
+    assert.deepEqual(retry.calls, ["frontend", "cargo clean app,lib", "cargo build", "cargo clean app,lib", "cargo build"]);
     assert.match(retry.logs[0], /--skip-build overridden \(no app binding record/);
     assert.deepEqual(w.record().engines, { "wasm-engine": hash("b") });
   } finally {
@@ -292,7 +295,7 @@ test("a replaced or missing binary, other engine stamps or another build command
     writeFileSync(exe, "replaced\n");
     w.prepare(true);
     let step = w.take();
-    assert.deepEqual(step.calls, ["cargo build"]);
+    assert.deepEqual(step.calls, ["cargo clean app,lib", "cargo build"]);
     assert.match(step.logs[0], /the app binary changed since its binding was written/);
     rmSync(exe);
     w.prepare(true);
@@ -305,7 +308,7 @@ test("a replaced or missing binary, other engine stamps or another build command
     w.setEngine("c");
     w.prepare(true);
     step = w.take();
-    assert.deepEqual(step.calls, ["frontend", "cargo build"]);
+    assert.deepEqual(step.calls, ["frontend", "cargo clean app,lib", "cargo build"]);
     assert.match(step.logs[0], /dist\/wasm-engine: inputs changed since stamp/);
     // An unreadable record rebuilds both.
     writeFileSync(bindingPathFor(w.desktopRoot), "{ nope");
@@ -374,6 +377,38 @@ test("Codex r3: with target/debug, or target/debug/deps, a link to another workt
     mkdirSync(path.join(target, "debug"));
     symlinkSync(path.join(w.root, "other-worktree/target/debug/deps"), path.join(target, "debug/deps"));
     refused("debug/deps");
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("Codex r4: an app binary an ordinary cargo build changed after the binding is never rebound to the restored sources", () => {
+  const w = workspace();
+  try {
+    const main = path.join(w.tauriDir, "src/main.rs");
+    const target = path.join(w.tauriDir, "target");
+    const binary = () => w.read("apps/desktop/src-tauri/target/debug/app");
+    // Revision A bound.
+    w.prepare(false);
+    w.take();
+    assert.match(binary(), /^binary fn main\(\) \{\}\n/);
+    const a = statSync(main);
+    // Revision B built by an ordinary cargo build in the same target.
+    writeFileSync(main, "fn main() { b() }\n");
+    w.runCargo(["cargo", "build"], { CARGO_TARGET_DIR: target });
+    assert.match(binary(), /b\(\)/);
+    // A's sources restored with their old times: they match the record, and cargo would take B as fresh.
+    writeFileSync(main, "fn main() {}\n");
+    utimesSync(main, a.atime, a.mtime);
+    w.take();
+    const app = w.prepare(true);
+    const step = w.take();
+    assert.match(step.logs[0], /the app binary changed since its binding was written/);
+    // The executable bound and launched is A's.
+    assert.match(binary(), /^binary fn main\(\) \{\}\n/);
+    assert.deepEqual(step.calls, ["cargo clean app,lib", "cargo build"]);
+    assert.deepEqual(app.identity, fileIdentity(app.binary));
+    assert.deepEqual(w.record().binary, { path: app.binary, ...fileIdentity(app.binary) });
   } finally {
     w.cleanup();
   }

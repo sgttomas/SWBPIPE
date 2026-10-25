@@ -266,3 +266,41 @@ test('Codex r3: a symbolic link where cargo descends beneath an engine target di
     assert.equal(readFileSync(path.join(other, 'deps/keep'), 'utf8'), 'other');
   } finally { p.cleanup(); }
 });
+
+test('Codex r4: a build that failed after cargo compiled leaves no trusted cache; a retry on restored sources publishes their bytes', () => {
+  const p = fakeProject();
+  const previousPath = process.env.PATH;
+  try {
+    process.env.PATH = p.env.PATH;
+    const fixture = path.join(p.root, 'fixtures/read.json');
+    const crate = path.join(p.root, 'core/loads/self_weight_wasm');
+    const outDir = path.join(p.root, 'apps/desktop/public/self-weight-engine');
+    const marker = path.join(p.root, 'apps/desktop/target/wasm-engines/self-weight-engine/openpipestress-published-stamp.json');
+    const published = () => readFileSync(path.join(outDir, 'engine.wasm'), 'utf8');
+    const context = engineStampContext(process.cwd(), p.env);
+    // A built and published.
+    p.build();
+    assert.equal(published(), 'wasm:{}');
+    const stampA = readFileSync(path.join(outDir, 'source-stamp.json'), 'utf8');
+    // B: cargo compiles it, then the self-weight glue generation fails; A's stamp stays published.
+    const a = statSync(fixture);
+    writeFileSync(fixture, '{"v":"B"}');
+    assert.throws(() => p.build({ FAIL_SELF: '1' }));
+    assert.equal(readFileSync(path.join(outDir, 'source-stamp.json'), 'utf8'), stampA);
+    // A restored with its old modification time: the published stamp matches,
+    // and cargo's freshness check would reuse B's intermediate.
+    writeFileSync(fixture, '{}');
+    utimesSync(fixture, a.atime, a.mtime);
+    assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'current');
+    const output = p.build();
+    assert.equal(published(), 'wasm:{}');
+    assert.equal(readFileSync(path.join(outDir, 'source-stamp.json'), 'utf8'), stampA);
+    assert.match(output, /self_weight_wasm: clean build in target\/wasm-engines\/self-weight-engine \(no trust marker/);
+    // Built and published again, the cache is trusted (its marker is the published stamp): no clean build.
+    assert.equal(readFileSync(marker, 'utf8'), stampA);
+    assert.doesNotMatch(p.build(), /self_weight_wasm: clean build/);
+    // A failed build, even on current sources, leaves the cache untrusted.
+    assert.throws(() => p.build({ FAIL_SELF: '1' }));
+    assert.ok(!existsSync(marker));
+  } finally { process.env.PATH = previousPath; p.cleanup(); }
+});

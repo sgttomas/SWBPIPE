@@ -32,10 +32,13 @@
 // it (`debug`, `debug/deps`, `debug/build`, ...), being a symbolic link or
 // resolving outside the crate is refused by name before each cargo run. And `--message-format=json-render-diagnostics`; the
 // executable is the one cargo's `compiler-artifact` message reports, which must
-// lie in that directory, and nothing else is bound or launched. When the app
-// sources are not the ones a valid record names, `cargo clean -p` removes the
-// closure's own packages from that directory first, so cargo's mtime-based
-// freshness cannot keep an old binary. `dist/` changing while cargo builds, or
+// lie in that directory, and nothing else is bound or launched. Before every
+// app build the smoke performs, `cargo clean -p` removes the closure's own
+// packages from that directory, so cargo's mtime-based freshness cannot keep an
+// old binary or intermediate: neither a valid record nor matching sources say
+// what the directory holds, since an ordinary cargo build after the binding (for
+// example of other sources, later restored with their old times) leaves
+// artifacts cargo would take as fresh. `dist/` changing while cargo builds, or
 // frontend inputs changing while Vite builds, aborts the run by name.
 //
 // Under `--skip-build` the frontend is rebuilt (and with it the app) when an
@@ -323,18 +326,21 @@ export function prepareSmokeApp({
       throw new Error(`native smoke: ${error.message}; the smoke builds and cleans only the app's own target directory`);
     }
   };
-  // Sources other than a valid record's: clean the closure's own packages, so
-  // that cargo's mtime-based freshness cannot keep an old binary.
-  let clean = binding.problem ?? (binding.record.app_sources.hash !== appSourcesNow ? "the app's Rust sources differ from the binding record" : null);
+  // Every app build cleans the closure's own packages first, so that cargo's
+  // mtime-based freshness cannot keep a binary or intermediate the record does
+  // not describe (one an ordinary cargo build left since the binding, say).
+  let clean =
+    binding.problem ??
+    (binding.record.app_sources.hash !== appSourcesNow
+      ? "the app's Rust sources differ from the binding record"
+      : "every app build starts clean: the target may hold artifacts built since the binding");
   let reads = knownReads;
   let drift = [];
   for (let attempt = 1; attempt <= MAX_STABLE_APP_BUILD_ATTEMPTS; attempt += 1) {
     const before = appInputs({ projectRoot, tauriDir, compileReads: reads, readManifest });
-    if (clean !== null) {
-      checkTarget();
-      log(`native smoke: cleaning the app's own packages in ${path.relative(projectRoot, targetDirectory)} (${clean})`);
-      runCargo(["cargo", "clean", "--offline", ...before.packages.flatMap((name) => ["-p", name])], cargoDirectories);
-    }
+    checkTarget();
+    log(`native smoke: cleaning the app's own packages in ${path.relative(projectRoot, targetDirectory)} (${clean})`);
+    runCargo(["cargo", "clean", "--offline", ...before.packages.flatMap((name) => ["-p", name])], cargoDirectories);
     const beforeDigests = digestInputs(projectRoot, before.all);
     const distBefore = treeDigest(distDirectory);
     checkTarget();
