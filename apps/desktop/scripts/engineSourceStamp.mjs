@@ -38,6 +38,7 @@
 // a clean target directory, so cargo's mtime-based freshness cannot keep the old
 // output. Build output (`target/`, `node_modules/`, `.git/`) is never an input.
 import { execFileSync } from "node:child_process";
+import { refuseHostSlotCommand } from "./worktreeBuildLock.mjs";
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readdirSync, readFileSync, readlinkSync, realpathSync, statSync } from "node:fs";
 import os from "node:os";
@@ -174,6 +175,7 @@ export function hashInputs(projectRoot, relativePaths, context = []) {
 
 // One crate's manifest facts through `cargo metadata --no-deps` (no network, no lock change).
 export function readCrateManifest(manifestPath) {
+  refuseHostSlotCommand("cargo");
   const stdout = execFileSync(
     "cargo",
     ["metadata", "--format-version", "1", "--no-deps", "--offline", "--manifest-path", manifestPath],
@@ -480,6 +482,7 @@ export function engineStampContext(cargoCwd, env = process.env) {
   const context = [];
   // Cargo prefers RUSTC, then build.rustc (CARGO_BUILD_RUSTC or configuration).
   const rustcProgram = env.RUSTC || env.CARGO_BUILD_RUSTC || "rustc";
+  refuseHostSlotCommand(rustcProgram, [], env);
   const rustc = execFileSync(rustcProgram, ["-vV"], { encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] });
   context.push(["rustc -vV", rustc.trim()]);
   for (const name of Object.keys(env).filter((key) => CONTEXT_ENV.test(key) && !CONTEXT_ENV_IGNORED.has(key)).sort()) {

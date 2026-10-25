@@ -43,6 +43,21 @@
 // also stop such constructions where that was cheap; that does not bring them in
 // scope. DEL-07-11 Design `model-document-open-and-native-smoke.md` lists the
 // remaining limits.
+//
+// Build lock and lock order. The engine and app check, build and binding run
+// under the per-worktree build lock (`scripts/worktreeBuildLock.mjs`,
+// `apps/desktop/target/build.lock`), which `build:wasm` also takes (inherited
+// here through OPENPIPESTRESS_BUILD_LOCK_TOKEN), so two smokes, or a smoke and
+// a direct `npm run build:wasm`, in one worktree never interleave their builds;
+// it is released before the app is launched (the executable's identity is
+// checked again before each launch). A second taker waits, logging `waiting for
+// the build lock held by pid N`, at most OPENPIPESTRESS_BUILD_LOCK_WAIT_MS
+// (default 30 minutes), then refuses by name; a lock whose pid is not running,
+// or was reused (another start time), is broken with a log line, a live
+// holder's never. One order: the host slot first (`t3_slot.sh`, `t3_cargo.sh`
+// or `t3_exclusive.sh`, taken by the wrapper that launches this script), then
+// the worktree lock. While holding it, no command that would acquire a host
+// slot runs: such a command is refused by name.
 import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -52,6 +67,7 @@ import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, refuseHostSlotCommand } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -74,14 +90,24 @@ if (process.platform !== "darwin") {
 }
 
 function run(command, commandArgs, cwd, env = {}) {
+  refuseHostSlotCommand(command, commandArgs);
   console.log(`$ (${path.relative(project, cwd) || "."}) ${command} ${commandArgs.join(" ")}`);
   execFileSync(command, commandArgs, { cwd, stdio: "inherit", env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
 }
 
 // A stale engine is never acceptable: each engine's stamp is recomputed from
 // its sources, with or without --skip-build, and `build:wasm` (which builds
-// every engine) runs when any is missing, unstamped or stale.
+// each missing, unstamped or stale engine, clean) runs when any is.
 const skipBuild = args.has("--skip-build");
+let buildLock;
+try {
+  buildLock = acquireBuildLock({ purpose: "native smoke", log: (line) => console.log(`native smoke: ${line}`) });
+} catch (error) {
+  console.error(`native smoke: ${error.message}`);
+  process.exit(2);
+}
+// `build:wasm` and the other builds below run under this lock.
+process.env[BUILD_LOCK_TOKEN_ENV] = buildLock.token;
 const stampContext = engineStampContext(desktop);
 const engineStates = () =>
   ENGINE_BUILDS.map(({ crateDirectory, destination }) => ({
@@ -99,8 +125,8 @@ if (staleEngines.length > 0) {
       process.exit(2);
     }
     const before = enginesBefore.find((entry) => entry.name === engine.name);
-    const reason = before.action === "rebuild" ? before.reason : "was current; build:wasm builds every engine";
-    console.log(`engine rebuilt: ${engine.name} (${reason}; stamp ${engine.hash})`);
+    if (before.action === "rebuild") console.log(`engine rebuilt: ${engine.name} (${before.reason}; stamp ${engine.hash})`);
+    else console.log(`engine current, stamp ${engine.hash} (${engine.name}; build:wasm did not build it)`);
   }
 } else {
   for (const engine of enginesBefore) console.log(`engine current, stamp ${engine.hash} (${engine.name})`);
@@ -126,6 +152,7 @@ try {
     context: engineStampContext(tauriDir),
     runFrontend: () => run("npm", ["run", "build"], desktop),
     runCargo: ([command, ...commandArgs], env) => {
+      refuseHostSlotCommand(command, commandArgs);
       console.log(`$ (${path.relative(project, tauriDir)}) ${command} ${commandArgs.join(" ")}`);
       return execFileSync(command, commandArgs, {
         cwd: tauriDir,
@@ -140,6 +167,10 @@ try {
   console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: app build failed: ${error.message}`);
   process.exit(2);
 }
+// Checked, built and bound: the builds are done, and the lock is released
+// before the launches.
+buildLock.release();
+delete process.env[BUILD_LOCK_TOKEN_ENV];
 const binary = app.binary;
 console.log(`native smoke: launching ${binary} (${app.identity.sha256})`);
 

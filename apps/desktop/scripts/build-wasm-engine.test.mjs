@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { realpathSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, readFileSync, readdirSync, rmSync, existsSync, statSync, utimesSync, symlinkSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { resolveWasmArtifact } from './build-wasm-engine.mjs';
 import { STAMP_FORMAT, checkEngine, engineStampContext } from './engineSourceStamp.mjs';
 
@@ -41,7 +41,7 @@ if(command==='cargo') {
 }
 if(command==='rustc') console.log('rustc fake');
 if(command==='rustup') console.log('wasm32-unknown-unknown');
-if(command==='wasm-bindgen') {if(args[0]==='--version') console.log('wasm-bindgen 0.2.123'); else {if(process.env.FAIL_SELF==='1' && args.at(-1).includes('self_weight')) process.exit(3); const out=args[args.indexOf('--out-dir')+1];fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'artifact'),'new');fs.copyFileSync(args.at(-1),path.join(out,'engine.wasm'));}}
+if(command==='wasm-bindgen') {if(args[0]==='--version') console.log('wasm-bindgen 0.2.123'); else {if(process.env.FAIL_SELF==='1' && args.at(-1).includes('self_weight')) process.exit(3); if(process.env.PAUSE_DIR && args.at(-1).includes('operation_applier')){fs.writeFileSync(path.join(process.env.PAUSE_DIR,'paused'),'');const t=Date.now();while(!fs.existsSync(path.join(process.env.PAUSE_DIR,'go'))&&Date.now()-t<60000)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,20);} const out=args[args.indexOf('--out-dir')+1];fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'artifact'),'new');fs.copyFileSync(args.at(-1),path.join(out,'engine.wasm'));}}
 `;
 }
 
@@ -54,7 +54,7 @@ function fakeProject() {
   mkdirSync(scripts, {recursive:true}); mkdirSync(bin);
   for (const dir of ["core/model_operations/operation_applier", "core/loads/self_weight_wasm"]) { mkdirSync(path.join(root,dir,'src'),{recursive:true}); writeFileSync(path.join(root,dir,'Cargo.toml'),'[package]\n'); writeFileSync(path.join(root,dir,'src/lib.rs'),'// lib\n'); }
   mkdirSync(path.join(root,'fixtures'),{recursive:true}); writeFileSync(path.join(root,'fixtures/read.json'),'{}');
-  for (const name of ['build-wasm-engine.mjs','engineSourceStamp.mjs']) copyFileSync(new URL(`./${name}`, import.meta.url), path.join(scripts, name));
+  for (const name of ['build-wasm-engine.mjs','engineSourceStamp.mjs','worktreeBuildLock.mjs']) copyFileSync(new URL(`./${name}`, import.meta.url), path.join(scripts, name));
   const target = path.join(root,'custom-target');
   for (const name of ['cargo','rustup','rustc','wasm-bindgen']) writeFileSync(path.join(bin,name),fakeToolchain(root, target),{mode:0o755});
   writeFileSync(path.join(bin,'package.json'),'{"type":"module"}');
@@ -73,7 +73,7 @@ test('dual artifact build resolves Cargo target paths and preserves old selfweig
     const crates = ["core/model_operations/operation_applier", "core/loads/self_weight_wasm"];
     for (const dir of crates) { mkdirSync(path.join(root,dir,'src'),{recursive:true}); writeFileSync(path.join(root,dir,'Cargo.toml'),'[package]\n'); writeFileSync(path.join(root,dir,'src/lib.rs'),'// lib\n'); }
     mkdirSync(path.join(root,'fixtures'),{recursive:true}); writeFileSync(path.join(root,'fixtures/read.json'),'{}');
-    for (const name of ['build-wasm-engine.mjs','engineSourceStamp.mjs']) copyFileSync(new URL(`./${name}`, import.meta.url), path.join(scripts, name));
+    for (const name of ['build-wasm-engine.mjs','engineSourceStamp.mjs','worktreeBuildLock.mjs']) copyFileSync(new URL(`./${name}`, import.meta.url), path.join(scripts, name));
     const target = path.join(root,'custom-target');
     const fake = fakeToolchain(root, target);
     for (const name of ['cargo','rustup','rustc','wasm-bindgen']) writeFileSync(path.join(bin,name),fake,{mode:0o755});
@@ -99,6 +99,8 @@ test('dual artifact build resolves Cargo target paths and preserves old selfweig
     }
     const selfWeightStamp = readFileSync(path.join(root,'apps/desktop/public/self-weight-engine/source-stamp.json'),'utf8');
     writeFileSync(path.join(root,'apps/desktop/public/self-weight-engine/artifact'),'previous');
+    // Only a stale engine is built: edit the self-weight crate.
+    writeFileSync(path.join(root,crates[1],'src/lib.rs'),'// lib v2\n');
     assert.throws(()=>execFileSync(process.execPath,[path.join(scripts,'build-wasm-engine.mjs')],{env:{...process.env,FAIL_SELF:'1'},stdio:'pipe'}));
     assert.equal(readFileSync(path.join(root,'apps/desktop/public/self-weight-engine/artifact'),'utf8'),'previous');
     // A failed build writes no stamp: the previous one stays with the previous artifacts.
@@ -119,7 +121,8 @@ test('Codex r1: a compile read edited after cargo read it is not stamped; cargo 
     const context = engineStampContext(process.cwd(), p.env);
     assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'current');
     rmSync(log);
-    // The fixture is saved again after the first engine's cargo read it.
+    // The engine is edited, and the fixture is saved again after its cargo read it.
+    writeFileSync(path.join(crate, 'src/lib.rs'), '// lib v2\n');
     const output = p.build({ BUILD_LOG: log, MUTATE_BUILDS: '1' });
     assert.match(output, /operation_applier: not stamped \(inputs changed during the build: fixtures\/read\.json\); building again/);
     assert.deepEqual(readFileSync(log, 'utf8').trim().split('\n'), ['operation_applier', 'operation_applier', 'self_weight_wasm']);
@@ -142,6 +145,7 @@ test('a fresh build verifies its newly discovered compile reads with a second bu
     assert.deepEqual(readFileSync(log, 'utf8').trim().split('\n'), ['operation_applier', 'operation_applier', 'self_weight_wasm', 'self_weight_wasm']);
     const stampPath = path.join(p.root, 'apps/desktop/public/wasm-engine/source-stamp.json');
     const stamp = readFileSync(stampPath, 'utf8');
+    writeFileSync(path.join(p.root, 'core/model_operations/operation_applier/src/lib.rs'), '// lib v2\n');
     let failure = null;
     try { p.build({ MUTATE_BUILDS: '99' }); } catch (error) { failure = error; }
     assert.ok(failure, 'the build must fail');
@@ -163,8 +167,10 @@ test('Codex r2: an edit that keeps the modification time, or a link retargeted t
     const context = engineStampContext(process.cwd(), p.env);
     const published = () => readFileSync(path.join(outDir, 'engine.wasm'), 'utf8');
     assert.equal(published(), 'wasm:{}');
-    // A current stamp builds incrementally: no clean build.
-    assert.doesNotMatch(p.build(), /clean build/);
+    // A current stamp builds nothing.
+    const log = path.join(p.root, 'builds.log');
+    assert.match(p.build({ BUILD_LOG: log }), /operation_applier: the published engine matches its sources \(stamp sha256:[0-9a-f]{64}\); nothing built/);
+    assert.ok(!existsSync(log), 'cargo built nothing');
     // New bytes, old modification time: cargo's freshness check would keep the old artifact.
     const old = statSync(fixture);
     writeFileSync(fixture, '{"v":2}');
@@ -199,7 +205,8 @@ test('the clean build deletes only an engine\'s dedicated target directory, neve
     let failure = null;
     try { p.build(); } catch (error) { failure = error; }
     assert.ok(failure, 'the build must refuse');
-    assert.match(failure.stderr, /refusing to delete .*wasm-engines\/wasm-engine: .*target is a symbolic link/);
+    // Refused before anything is locked, built or deleted there.
+    assert.match(failure.stderr, /refusing to take the build lock .*target\/build\.lock: .*apps\/desktop\/target is a symbolic link/);
     assert.equal(readFileSync(path.join(shared, 'wasm-engines/wasm-engine/keep'), 'utf8'), 'shared');
   } finally { p.cleanup(); }
 });
@@ -257,8 +264,8 @@ test('Codex r3: a symbolic link where cargo descends beneath an engine target di
       assert.ok(failure, 'the build must refuse');
       assert.match(failure.stderr, /refusing to let cargo build or clean in .*wasm-engines\/wasm-engine: .*wasm32-unknown-unknown\/release is a symbolic link/);
     };
-    // Current stamp (an incremental build) and a changed source (a clean build).
-    refused();
+    // A current stamp builds nothing, so cargo touches nothing there; a changed source is refused before the clean build.
+    assert.match(p.build(), /operation_applier: the published engine matches its sources/);
     writeFileSync(path.join(p.root, 'fixtures/read.json'), '{"v":4}');
     refused();
     assert.deepEqual(readdirSync(other), ['deps']);
@@ -267,7 +274,7 @@ test('Codex r3: a symbolic link where cargo descends beneath an engine target di
   } finally { p.cleanup(); }
 });
 
-test('Codex r4: a build that failed after cargo compiled leaves no trusted cache; a retry on restored sources publishes their bytes', () => {
+test('Codex r4: a build that failed after cargo compiled leaves the published engine; restored sources build nothing and keep its bytes', () => {
   const p = fakeProject();
   const previousPath = process.env.PATH;
   try {
@@ -275,7 +282,6 @@ test('Codex r4: a build that failed after cargo compiled leaves no trusted cache
     const fixture = path.join(p.root, 'fixtures/read.json');
     const crate = path.join(p.root, 'core/loads/self_weight_wasm');
     const outDir = path.join(p.root, 'apps/desktop/public/self-weight-engine');
-    const marker = path.join(p.root, 'apps/desktop/target/wasm-engines/self-weight-engine/openpipestress-published-stamp.json');
     const published = () => readFileSync(path.join(outDir, 'engine.wasm'), 'utf8');
     const context = engineStampContext(process.cwd(), p.env);
     // A built and published.
@@ -295,12 +301,110 @@ test('Codex r4: a build that failed after cargo compiled leaves no trusted cache
     const output = p.build();
     assert.equal(published(), 'wasm:{}');
     assert.equal(readFileSync(path.join(outDir, 'source-stamp.json'), 'utf8'), stampA);
-    assert.match(output, /self_weight_wasm: clean build in target\/wasm-engines\/self-weight-engine \(no trust marker/);
-    // Built and published again, the cache is trusted (its marker is the published stamp): no clean build.
-    assert.equal(readFileSync(marker, 'utf8'), stampA);
-    assert.doesNotMatch(p.build(), /self_weight_wasm: clean build/);
-    // A failed build, even on current sources, leaves the cache untrusted.
-    assert.throws(() => p.build({ FAIL_SELF: '1' }));
-    assert.ok(!existsSync(marker));
+    assert.match(output, /self_weight_wasm: the published engine matches its sources .*; nothing built/);
   } finally { process.env.PATH = previousPath; p.cleanup(); }
+});
+
+test('Codex r5: an ordinary cargo build of other sources in the engine target directory is never published under the current stamp', () => {
+  const p = fakeProject();
+  const previousPath = process.env.PATH;
+  try {
+    process.env.PATH = p.env.PATH;
+    const fixture = path.join(p.root, 'fixtures/read.json');
+    const crate = path.join(p.root, 'core/model_operations/operation_applier');
+    const outDir = path.join(p.root, 'apps/desktop/public/wasm-engine');
+    const engineTarget = path.join(p.root, 'apps/desktop/target/wasm-engines/wasm-engine');
+    const published = () => readFileSync(path.join(outDir, 'engine.wasm'), 'utf8');
+    const context = engineStampContext(process.cwd(), p.env);
+    // A published.
+    p.build();
+    assert.equal(published(), 'wasm:{}');
+    const stampA = readFileSync(path.join(outDir, 'source-stamp.json'), 'utf8');
+    // An ordinary cargo build of B in the engine's dedicated target directory.
+    const a = statSync(fixture);
+    writeFileSync(fixture, '{"v":"B"}');
+    execFileSync('cargo', ['build', '--release', '--manifest-path', path.join(crate, 'Cargo.toml')], { env: { ...p.env, CARGO_TARGET_DIR: engineTarget, CARGO_BUILD_BUILD_DIR: engineTarget } });
+    assert.equal(readFileSync(path.join(engineTarget, 'wasm32-unknown-unknown/release/open_pipe_stress_operation_applier.wasm'), 'utf8'), 'wasm:{"v":"B"}');
+    // A restored with its old modification time: B's intermediate is fresh by cargo's check.
+    writeFileSync(fixture, '{}');
+    utimesSync(fixture, a.atime, a.mtime);
+    assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'current');
+    const output = p.build();
+    assert.match(output, /operation_applier: the published engine matches its sources .*; nothing built/);
+    assert.equal(published(), 'wasm:{}');
+    assert.equal(readFileSync(path.join(outDir, 'source-stamp.json'), 'utf8'), stampA);
+    // Any build is clean: B's intermediate cannot serve a later build of C either.
+    const c = statSync(fixture);
+    writeFileSync(fixture, '{"v":"C"}');
+    execFileSync('cargo', ['build', '--release', '--manifest-path', path.join(crate, 'Cargo.toml')], { env: { ...p.env, CARGO_TARGET_DIR: engineTarget, CARGO_BUILD_BUILD_DIR: engineTarget } });
+    writeFileSync(fixture, '{"v":"D"}');
+    utimesSync(fixture, c.atime, c.mtime);
+    assert.match(p.build(), /operation_applier: clean build in target\/wasm-engines\/wasm-engine \(inputs changed since stamp/);
+    assert.equal(published(), 'wasm:{"v":"D"}');
+  } finally { process.env.PATH = previousPath; p.cleanup(); }
+});
+
+// Run the build script as a child; resolves with its exit code and output.
+function startBuild(p, extra) {
+  const child = spawn(process.execPath, [path.join(p.root, 'apps/desktop/scripts/build-wasm-engine.mjs')], { env: { ...p.env, ...extra }, stdio: ['ignore', 'pipe', 'pipe'] });
+  let output = '';
+  child.stdout.on('data', (chunk) => { output += chunk; });
+  child.stderr.on('data', (chunk) => { output += chunk; });
+  const done = new Promise((resolve) => child.on('exit', (code) => resolve(code)));
+  return { child, done, output: () => output };
+}
+
+async function until(condition, what, ms = 30000) {
+  const start = Date.now();
+  while (!condition()) {
+    if (Date.now() - start > ms) throw new Error(`timed out waiting for ${what}`);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+}
+
+test('Codex r5: two builds in one worktree do not interleave; the second waits for the build lock and nothing is misbound', async () => {
+  const p = fakeProject();
+  const previousPath = process.env.PATH;
+  try {
+    process.env.PATH = p.env.PATH;
+    const fixture = path.join(p.root, 'fixtures/read.json');
+    const crate = path.join(p.root, 'core/model_operations/operation_applier');
+    const outDir = path.join(p.root, 'apps/desktop/public/wasm-engine');
+    const pause = path.join(p.root, 'pause');
+    mkdirSync(pause);
+    // The first build compiles and stamps A, then pauses before its glue reads the artifact.
+    const first = startBuild(p, { PAUSE_DIR: pause });
+    await until(() => existsSync(path.join(pause, 'paused')), 'the first build to pause');
+    // The second build starts on B while the first is paused.
+    writeFileSync(fixture, '{"v":"B"}');
+    const second = startBuild(p, { OPENPIPESTRESS_BUILD_LOCK_WAIT_MS: '60000' });
+    const waiting = `waiting for the build lock held by pid ${first.child.pid}`;
+    let secondCode = null;
+    second.done.then((code) => { secondCode = code; });
+    await until(() => second.output().includes(waiting) || secondCode !== null, 'the second build to wait or finish');
+    writeFileSync(path.join(pause, 'go'), '');
+    const [firstCode] = await Promise.all([first.done, second.done]);
+    assert.equal(firstCode, 0, first.output());
+    assert.equal(secondCode, 0, second.output());
+    assert.ok(second.output().includes(waiting), second.output());
+    // The published bytes are the ones the published stamp describes.
+    const context = engineStampContext(process.cwd(), p.env);
+    assert.equal(readFileSync(path.join(outDir, 'engine.wasm'), 'utf8'), 'wasm:{"v":"B"}');
+    assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'current');
+    assert.ok(!existsSync(path.join(p.root, 'apps/desktop/target/build.lock')), 'the lock is released');
+  } finally { process.env.PATH = previousPath; p.cleanup(); }
+});
+
+test('a build holding the worktree lock refuses by name a cargo that would take a host slot', () => {
+  const p = fakeProject();
+  try {
+    const shim = path.join(p.root, 'shim');
+    mkdirSync(shim);
+    writeFileSync(path.join(shim, 'cargo'), '#!/bin/sh\nexec /opt/host/tools/t3_cargo.sh "$@"\n', { mode: 0o755 });
+    let failure = null;
+    try { p.build({ PATH: `${shim}:${p.env.PATH}` }); } catch (error) { failure = error; }
+    assert.ok(failure, 'the build must refuse');
+    assert.match(failure.stderr, /refusing to run cargo \(.*shim\/cargo\) while holding the worktree build lock .*build\.lock: it would acquire a host slot \(t3_cargo\.sh\)/);
+    assert.ok(!existsSync(path.join(p.root, 'apps/desktop/target/build.lock')), 'the lock is released on exit');
+  } finally { p.cleanup(); }
 });
