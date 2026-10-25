@@ -10855,6 +10855,55 @@ describe("SWBPIPE desktop preview", () => {
     expect(JSON.stringify(basis)).toBe(before);
   });
 
+  it("projects a branch record's header and branch SIF provenance into the report packet", async () => {
+    // The bundled demo no longer declares a tee (C-120 fix), so this copy of the demo carries a test-local
+    // branch record: the removed component:C-120, unchanged.
+    const basis = await referenceAnalysis(), { result, analysisRun } = basis;
+    const model = structuredClone(basis.model);
+    model.components.splice(1, 0, {
+      id: "component:C-120", label: "Invented branch connection marker", kind: "branch", node: "node:N-120",
+      geometry: {
+        branch_header_pipe_ref: "pipe:P-120", branch_branch_pipe_ref: "pipe:P-110", branch_run_size: { value: 0.168, unit: "m" },
+        branch_header_size: { value: 0.168, unit: "m" }, branch_connection_angle: { value: 1.5707963268, unit: "rad" },
+        branch_connection_type: "invented_unreinforced_tee_preview", branch_reinforcement_reference: "invented_user_entered_no_reinforcement_for_preview",
+        branch_geometry_source_reference: "invented_user_entered_branch_preview_geometry",
+      },
+      modifiers: {
+        branch_header_sif_user_value: { value: 1.22, unit: "none" }, branch_branch_sif_user_value: { value: 1.31, unit: "none" },
+        flexibility_factor_user_value: { value: 1.05, unit: "none" }, source_reference: "invented_user_entered_branch_modifiers_no_code_table",
+      },
+      mechanics_interface: { solver_consumption: "mechanics_geometry_only", rule_check_consumption: "user_rule_pack_inputs_only" },
+      completeness: [{ finding_id: "finding:C-120:branch-geometry", status: "complete", diagnostic_code: "BRANCH_RULE_INPUT_MISSING", missing_field_kinds: [] }],
+      provenance: "invented_example_user_entered_branch_values_no_code_table",
+    } as PreviewModel["components"][number]);
+    const knowledge = await loadDesignKnowledge(), comparison = buildPreviewComparison({ result, analysisRun });
+    const before = JSON.stringify(basis);
+    const policy = await import("./features/report/reportRedactionProjector"), actualControl = policy.controlReportDomAndJson;
+    let observed: any;
+    vi.spyOn(policy, "controlReportDomAndJson").mockImplementation(input => { observed = input; return actualControl(input); });
+    render(<ReportPanel model={model} knowledge={knowledge} result={result} analysisRun={analysisRun} comparison={comparison} editorIntents={[]} projectOperation="reference_inspection" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
+    expect(observed).toBeDefined();
+    expect(observed.component_provenance.map((item: { component_ref: string }) => item.component_ref)).toEqual([
+      "component:C-110", "component:C-120", "component:C-130", "component:C-140",
+    ]);
+    expect(observed.component_provenance[1]).toEqual(
+      expect.objectContaining({
+        component_ref: "component:C-120",
+        component_kind: "branch",
+        node_ref: "node:N-120",
+        geometry_source_ref: "invented_user_entered_branch_preview_geometry",
+        modifier_source_ref: "invented_user_entered_branch_modifiers_no_code_table",
+        solver_consumption: "mechanics_geometry_only",
+        user_entered_sif: null,
+        user_entered_header_sif: { value: 1.22, unit: "none" },
+        user_entered_branch_sif: { value: 1.31, unit: "none" },
+        user_entered_flexibility_factor: { value: 1.05, unit: "none" },
+        protected_content_included: false,
+      }),
+    );
+    expect(JSON.stringify(basis)).toBe(before);
+  });
+
   it("reads recorded knowledge quantities from reference results without invoking a solver", async () => {
     const reference = await loadBundledMechanicsReference(), knowledge = await loadDesignKnowledge();
     render(<KnowledgePanel knowledge={knowledge} result={reference.source} />);
