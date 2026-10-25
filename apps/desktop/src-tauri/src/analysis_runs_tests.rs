@@ -1102,6 +1102,15 @@ fn small_pool() -> crate::solve_jobs::SolveJobRegistry {
     pool_of(SMALL_POOL)
 }
 
+/// The 2 MiB pool plus SQLite's working set for one keyed column of `LARGE`
+/// bytes (W-12, repair r7): SQLite materializes such a column, so the 2 MiB
+/// pool alone refuses the command before SQLite reads it
+/// (`sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it`).
+/// Under this pool the process-side peak is still checked against the column.
+fn working_set_pool() -> crate::solve_jobs::SolveJobRegistry {
+    pool_of(SMALL_POOL + stored_read::SQLITE_WORKING_SET_FACTOR * (LARGE as u64 + (64 << 10)))
+}
+
 fn pool_of(bytes: u64) -> crate::solve_jobs::SolveJobRegistry {
     let pool = registry(ScriptedHost::normal());
     pool.configure_pool(bytes, bytes, false).unwrap();
@@ -2155,7 +2164,7 @@ fn unreadable_refusals_of_states(entries: &[model_states::ListedState]) -> Vec<S
 /// refusal, before it is loaded and within the reservations, under the 2 MiB
 /// pool. `list` gives the list's unreadable refusals and its readable count.
 fn assert_oversized_listed(what: &str, column: &str, list: impl FnOnce(&PoolReadMemory<'_>) -> Result<(Vec<String>, usize), String>) {
-    let small = small_pool();
+    let small = working_set_pool();
     let memory = PoolReadMemory::unseeded(&small);
     let (outcome, measured) = crate::ingress::counting::measure(|| list(&memory));
     let (refusals, readable) = outcome.unwrap();
@@ -2171,7 +2180,7 @@ fn assert_oversized_listed(what: &str, column: &str, list: impl FnOnce(&PoolRead
 /// it is loaded, by the head of its id, within the reservations, under the
 /// 2 MiB pool.
 fn assert_oversized_refused<T: std::fmt::Debug>(what: &str, column: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>) {
-    let small = small_pool();
+    let small = working_set_pool();
     let memory = PoolReadMemory::unseeded(&small);
     let (outcome, measured) = crate::ingress::counting::measure(|| read(&memory));
     let error = outcome.unwrap_err();
@@ -3201,7 +3210,7 @@ fn a_child_with_a_3_mib_id_does_not_make_its_parents_list_need_more_than_the_poo
     let child = save_state(&path, &model("Child project"), "Child", "00000000000000000000000000002902", 2_000);
     let large = "c".repeat(3 * 1024 * 1024);
     tamper_with(&path, &format!("UPDATE model_states SET state_id = ?1, parent_state_id = '{}' WHERE state_id = '{}'", parent.state_id, child.state_id), &large);
-    let small = small_pool();
+    let small = working_set_pool();
     let memory = PoolReadMemory::unseeded(&small);
     let (outcome, measured) = crate::ingress::counting::measure(|| {
         model_states::list_states_in_store_with(&path, PROJECT, &memory).map(|listed| {
@@ -3434,15 +3443,16 @@ fn a_handle_whose_row_reads_now_is_refused_and_nothing_is_deleted() {
 #[test]
 fn a_large_id_is_hashed_in_chunks_within_the_handles_reservation() {
     // A 3 MiB + 1 byte recording id (oversized, so listed unreadable): its
-    // handle digests the whole id, read in 64 KiB chunks, never loaded whole,
-    // under a 2 MiB pool, by the list and by the delete alike.
+    // handle digests the whole id, read in 64 KiB chunks, never copied whole
+    // into Rust, by the list and by the delete alike (under the 2 MiB pool
+    // plus SQLite's working set for the id).
     let (path, _) = recorded_fixture("chunked-handle");
     let id = id_of(&path);
     let large = format!("{}z", "r".repeat(LARGE));
     tamper_with(&path, &format!("UPDATE analysis_runs SET recording_id = ?1 WHERE recording_id = '{id}'"), &large);
     tamper_with(&path, &format!("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = '{id}'"), &large);
     let rowid = only_rowid(&path, "analysis_runs");
-    let small = small_pool();
+    let small = working_set_pool();
     let memory = PoolReadMemory::unseeded(&small);
     let (outcome, measured) = crate::ingress::counting::measure(|| {
         list_runs_in_store_with(&path, PROJECT, &memory).map(|listed| {
@@ -3506,7 +3516,10 @@ fn a_hundred_thousand_oversized_rows_are_counted_and_admitted_before_any_entry_i
         let error = outcome.unwrap_err();
         let admission = format!("the {ROWS} oversized {what} rows' list entries of project `{PROJECT}`");
         assert!(error.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading {admission}")), "{table}: {error}");
-        assert_eq!(memory.seen.borrow().iter().map(|(what, _)| what.clone()).collect::<Vec<_>>(), vec![admission], "{table}: the entries' admission is the first reservation");
+        let seen: Vec<String> = memory.seen.borrow().iter().map(|(what, _)| what.clone()).collect();
+        assert_eq!(seen.len(), 2, "{table}: {seen:?}");
+        assert!(seen[0].starts_with("SQLite's working set for the stored history"), "{table}: {seen:?}");
+        assert_eq!(seen[1], admission, "{table}: the entries' admission follows only SQLite's working set");
         assert!(measured.peak_priced < 256 * 1024, "{table}: nothing per row was allocated before the admission (peak {})", measured.peak_priced);
         assert_eq!(small.pool_status().reserved_bytes, 0);
     }
@@ -3604,4 +3617,145 @@ fn a_state_with_a_thousand_runs_of_4096_byte_ids_lists_and_reads_under_2_mib() {
     drop(read);
     drop(memory);
     assert_eq!(small.pool_status().reserved_bytes, 0);
+}
+
+/// Runs `body` alone in a child process of this test binary (SQLite's memory
+/// status is process-wide, so other tests' statements would move it): the
+/// parent re-runs the test `name` with `--exact --test-threads=1`.
+fn in_own_process(name: &str, body: impl FnOnce()) {
+    const CHILD: &str = "OPENPIPESTRESS_SQLITE_STATUS_CHILD";
+    if std::env::var_os(CHILD).is_some() {
+        body();
+        return;
+    }
+    let path = format!("{}::{name}", module_path!().split_once("::").map(|(_, rest)| rest).unwrap_or(module_path!()));
+    let output = std::process::Command::new(std::env::current_exe().unwrap())
+        .args([path.as_str(), "--exact", "--test-threads=1", "--nocapture"])
+        .env(CHILD, "1")
+        .output()
+        .unwrap();
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success() && stdout.contains("1 passed"), "{stdout}\n{}", String::from_utf8_lossy(&output.stderr));
+}
+
+/// `f`'s result and SQLite's own allocation peak during it, above what SQLite
+/// held when it began (`sqlite3_status64(SQLITE_STATUS_MEMORY_USED)`).
+fn sqlite_peak_during<T>(f: impl FnOnce() -> T) -> (T, u64) {
+    let (mut current, mut high) = (0i64, 0i64);
+    // SAFETY: plain out-pointers to two live i64s; the status call takes no other state.
+    unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 1) };
+    let start = current;
+    let out = f();
+    // SAFETY: as above.
+    unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 0) };
+    (out, u64::try_from(high - start).unwrap_or(0))
+}
+
+/// The working set a store whose largest keyed row holds `bytes` reserves.
+fn sqlite_working_set(bytes: u64) -> u64 {
+    bytes.saturating_mul(stored_read::SQLITE_WORKING_SET_FACTOR)
+}
+
+#[test]
+fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() {
+    // Codex r7: an 8 MiB id was listed and deleted under a 2 MiB pool while
+    // SQLite's own peak grew by 17 MB (list) and 44.7 MB (delete).
+    in_own_process("sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it", || {
+        const BIG: usize = 8 << 20;
+        let big = "q".repeat(BIG);
+        let large_pool = pool_of(512 << 20);
+        for kind in ["run", "state"] {
+            // A row whose 8 MiB id is also its labels row's key.
+            let path = match kind {
+                "run" => {
+                    let (path, _) = recorded_fixture("sqlite-big-run-id");
+                    let id = id_of(&path);
+                    tamper_with(&path, &format!("UPDATE analysis_runs SET recording_id = ?1 WHERE recording_id = '{id}'"), &big);
+                    tamper_with(&path, &format!("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = '{id}'"), &big);
+                    path
+                }
+                _ => {
+                    let path = store_with_project("sqlite-big-state-id");
+                    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000004001", 1_000);
+                    tamper_with(&path, &format!("UPDATE model_states SET state_id = ?1 WHERE state_id = '{}'", state.state_id), &big);
+                    tamper_with(&path, &format!("UPDATE model_state_labels SET state_id = ?1 WHERE state_id = '{}'", state.state_id), &big);
+                    path
+                }
+            };
+            let row_bytes: i64 = Connection::open(&path)
+                .unwrap()
+                .query_row(
+                    if kind == "run" {
+                        "SELECT MAX(octet_length(project_id) + octet_length(recording_id) + octet_length(state_id) + octet_length(producer_run_id)
+                         + octet_length(created_at) + octet_length(run_record_hash) + octet_length(result_hash)) FROM analysis_runs"
+                    } else {
+                        "SELECT MAX(octet_length(project_id) + octet_length(state_id) + octet_length(state_kind) + octet_length(created_at)
+                         + COALESCE(octet_length(parent_state_id), 0) + octet_length(model_hash) + octet_length(record_hash)) FROM model_states"
+                    },
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let working_set = sqlite_working_set(row_bytes as u64);
+            let list = |memory: &PoolReadMemory<'_>| match kind {
+                "run" => list_runs_in_store_with(&path, PROJECT, memory).map(|listed| listed.get().len()),
+                _ => model_states::list_states_in_store_with(&path, PROJECT, memory).map(|listed| listed.get().len()),
+            };
+            let refusal = "STORE-READ-MEMORY-UNAVAILABLE: reading SQLite's working set for the stored history";
+            // Under a 2 MiB pool: refused before SQLite loads the id.
+            let small = small_pool();
+            let memory = PoolReadMemory::unseeded(&small);
+            let (outcome, peak) = sqlite_peak_during(|| list(&memory));
+            assert!(outcome.as_ref().unwrap_err().starts_with(refusal), "{kind} list: {outcome:?}");
+            assert!(peak < (BIG as u64) / 4, "{kind} list: SQLite never loaded the id (peak {peak})");
+            // Under a large pool: listed, SQLite's peak within the working set.
+            let memory = PoolReadMemory::unseeded(&large_pool);
+            let (outcome, peak) = sqlite_peak_during(|| list(&memory));
+            assert_eq!(outcome.unwrap(), 1, "{kind} list");
+            println!("{kind} list: SQLite peak {peak} = {:.2} x the id; working set {working_set}", peak as f64 / BIG as f64);
+            assert!(peak <= working_set, "{kind} list: SQLite peak {peak} within the working set {working_set}");
+            let handle = match kind {
+                "run" => unreadable_runs(&path, PROJECT)[0].handle.clone(),
+                _ => unreadable_states(&path)[0].handle.clone(),
+            };
+            let delete = |memory: &PoolReadMemory<'_>| match kind {
+                "run" => delete_unreadable_run_in_store_finishing(&path, PROJECT, &handle, memory, |receipt| Ok(receipt.get().deleted)),
+                _ => model_states::delete_unreadable_state_in_store_finishing(&path, PROJECT, &handle, memory, |receipt| Ok(receipt.get().deleted)),
+            };
+            let memory = PoolReadMemory::unseeded(&small);
+            let (outcome, peak) = sqlite_peak_during(|| delete(&memory));
+            assert!(outcome.as_ref().unwrap_err().starts_with(refusal), "{kind} delete: {outcome:?}");
+            assert!(peak < (BIG as u64) / 4, "{kind} delete: SQLite never loaded the id (peak {peak})");
+            let table = if kind == "run" { "analysis_runs" } else { "model_states" };
+            assert_eq!(row_count(&path, table), 1, "{kind}: nothing was deleted");
+            let memory = PoolReadMemory::unseeded(&large_pool);
+            let (outcome, peak) = sqlite_peak_during(|| delete(&memory));
+            assert!(outcome.unwrap(), "{kind} delete");
+            println!("{kind} delete: SQLite peak {peak} = {:.2} x the id; working set {working_set}", peak as f64 / BIG as f64);
+            assert!(peak <= working_set, "{kind} delete: SQLite peak {peak} within the working set {working_set}");
+            assert_eq!(row_count(&path, table), 0);
+            assert_eq!(small.pool_status().reserved_bytes, 0);
+            assert_eq!(large_pool.pool_status().reserved_bytes, 0);
+        }
+        // Normal-size rows: listed and deleted under the 2 MiB pool, SQLite's
+        // peak (its page cache) within what the command reserved.
+        let (path, _) = recorded_fixture("sqlite-normal-rows");
+        let id = id_of(&path);
+        tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+        let small = small_pool();
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = sqlite_peak_during(|| list_runs_in_store_with(&path, PROJECT, &memory).map(|listed| listed.get().len()));
+        assert_eq!(outcome.unwrap(), 1);
+        assert!(peak <= memory.peak_reserved(), "normal list: SQLite peak {peak} within {}", memory.peak_reserved());
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = sqlite_peak_during(|| model_states::list_states_in_store_with(&path, PROJECT, &memory).map(|listed| listed.get().len()));
+        assert_eq!(outcome.unwrap(), 1);
+        assert!(peak <= memory.peak_reserved(), "normal state list: SQLite peak {peak} within {}", memory.peak_reserved());
+        let handle = unreadable_runs(&path, PROJECT)[0].handle.clone();
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = sqlite_peak_during(|| delete_unreadable_run_in_store_finishing(&path, PROJECT, &handle, &memory, |receipt| Ok(receipt.get().deleted)));
+        assert!(outcome.unwrap());
+        assert!(peak <= memory.peak_reserved(), "normal delete: SQLite peak {peak} within {}", memory.peak_reserved());
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+    });
 }

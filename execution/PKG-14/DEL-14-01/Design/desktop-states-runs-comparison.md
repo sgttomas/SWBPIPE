@@ -197,8 +197,9 @@ Python agree.
     length>:<digest>`. The digest is the first 16 hex of the SHA-256 of the
     whole stored id (its bytes). The id is read in the same transaction in
     64 KiB `substr` chunks, each hashed where SQLite holds it, within one
-    reservation of the chunk buffer; it is never loaded whole into the
-    process. The handle is distinct from the display text, so two rows whose
+    reservation of the chunk buffer; it is never copied whole into Rust.
+    SQLite still materializes the whole value for each chunk, within the
+    command's reserved SQLite working set (§3, Memory). The handle is distinct from the display text, so two rows whose
     cut ids are equal keep different handles, and a row that reuses a rowid
     with a different id never matches an old handle.
     `delete_model_state {projectId, unreadableHandle}` deletes exactly the
@@ -990,10 +991,52 @@ the History panel and `useModelStateHistory.ts`.
     whole-command bounds:
     - **Tauri and IPC.** The `Response` handed to Tauri, and the IPC copies
       made after the command returns.
-    - **SQLite.** SQLite's own allocations, including its reads of whole
-      values for `substr` and `octet_length`. They are priced only by the load
-      estimate (three envelopes of each loaded column), not measured: the
-      tests' counting allocator counts Rust allocations, not SQLite's.
+    - **SQLite.** SQLite's own allocations are priced by estimates, not
+      bounded by measurement in each command:
+      - **Loaded columns.** A column a command loads (a record, result,
+        manifest, snapshot or label text) is priced by the load estimate,
+        three envelopes of its length.
+      - **Reserved working set (W-12, repair r7).** SQLite materializes
+        the whole stored value whenever a statement compares, joins, sorts,
+        seeks an index by, takes a `substr` of or deletes it. An index seek
+        can also materialize another row's key on its search path. Every
+        state and run command (list, read, label edit, delete by id or by
+        handle, Save Model State, Record Run) therefore reserves SQLite's
+        working set first in its transaction, before any other statement
+        touches a row. The working set is 8 times the bytes of the largest
+        stored keyed row, measured over every row of the history tables.
+        Its columns are the key, identity and time columns of
+        `analysis_runs`, `model_states` and both label tables, and the
+        project id in `local_projects`. The project name is read only for
+        the `PROJECT-BASE-MOVED` refusal's head; that read first reserves 8
+        times the stored name's length.
+      - **How it is measured.** The measurement uses only `octet_length`
+        under `NOT INDEXED`, which reads record headers and loads no value
+        (SQLite 3.43+; the bundled SQLite is 3.46.0).
+      - **Refusal.** A store whose working set does not fit is refused by
+        name (`STORE-READ-MEMORY-UNAVAILABLE`) before SQLite loads the
+        value.
+      - **Basis for the factor.** The factor comes from
+        `sqlite3_status64(SQLITE_STATUS_MEMORY_USED)` peaks, measured for a
+        row whose 8 MiB id is also its labels row's key:
+        - a list peaks at 2.04 times the id;
+        - a run's delete by handle at 5.33 times;
+        - a state's delete by handle at 6.34 times. That covers its shown
+          head, the chunked digest, the re-check, the index and page work,
+          and the labels cascade.
+
+        8 covers the largest of these with about 26% margin.
+      - **Regression test.** The test reruns itself in its own process
+        (SQLite's status is process-wide) and checks the following:
+        - under a 2 MiB pool, the list and the delete of such a row are
+          refused, with SQLite's peak below a quarter of the id;
+        - under a large pool, both succeed with SQLite's peak within the
+          working set;
+        - normal-size rows list and delete under the 2 MiB pool.
+      - **Not covered.** SQLite's page cache stays within the fixed read
+        overhead. The project commands (Save Local Project and the project
+        delete, which cascades to states and runs) are outside this
+        reservation.
     - **Unpriced working memory.** Two items are not separately priced:
       - Record Run's transient record copies (the hash projection and the
         recorded revision);

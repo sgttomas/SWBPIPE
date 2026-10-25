@@ -1632,6 +1632,7 @@ pub(crate) fn list_states_in_store_with(
 ) -> Result<Metered<Vec<ListedState>>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     list_states_with(&transaction, project_id, memory)
 }
 
@@ -1949,6 +1950,11 @@ pub(crate) fn require_project_base(
     if !expected_base.is_empty() && expected_base == stored_base {
         return Ok(());
     }
+    // The name's head is a `substr`: SQLite materializes the whole name (W-12, repair r7).
+    let stored_name_length: Option<i64> = transaction
+        .query_row("SELECT octet_length(project_name) FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
+        .map_err(sql)?;
+    let _name = stored_read::reserve_sqlite_value(memory, &format!("project `{}`'s name in SQLite", stored_read::shown(project_id)), stored_name_length.unwrap_or(0))?;
     let (head, name_length, updated_at_unix): (Vec<u8>, i64, i64) = transaction
         .query_row(
             &format!("SELECT {}, updated_at_unix FROM local_projects WHERE project_id = ?1", stored_read::shown_column("project_name")),
@@ -2183,6 +2189,7 @@ pub(crate) fn save_state_in_store_finishing<R>(
     )?;
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     require_project_base(
         &transaction,
         &request.project_id,
@@ -2300,6 +2307,7 @@ pub(crate) fn read_state_in_store_with(
 ) -> Result<Metered<ModelStateRead>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id));
     let (model_length, record_length): (i64, i64) = transaction
         .query_row(
@@ -2457,6 +2465,7 @@ pub(crate) fn edit_labels_in_store_finishing<R>(
 ) -> Result<R, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let not_found = || format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id));
     let current = find_summary_with(&transaction, project_id, state_id, memory)?.ok_or_else(not_found)?;
     if let Some(expected) = expected_updated_at {
@@ -2573,6 +2582,7 @@ pub(crate) fn delete_state_in_store_finishing<R>(
 ) -> Result<R, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let not_found = || {
         format!("MODEL-STATE-NOT-FOUND: project `{project_id}` has no saved state `{state_id}`.", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id))
     };
@@ -2677,6 +2687,7 @@ pub(crate) fn delete_unreadable_state_in_store_finishing<R>(
     let rowid = stored_read::handle_rowid(STATE_ROW_HANDLE, handle).ok_or_else(not_found)?;
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let found: Option<(Vec<u8>, i64)> = transaction
         .query_row(
             &format!("SELECT {} FROM model_states WHERE rowid = ?1 AND project_id = ?2", stored_read::shown_column("state_id")),

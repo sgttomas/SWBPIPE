@@ -1288,6 +1288,7 @@ pub(crate) fn list_runs_in_store_with(
 ) -> Result<Metered<Vec<ListedRun>>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     list_runs_with(&transaction, project_id, memory)
 }
 
@@ -1631,6 +1632,7 @@ pub(crate) fn record_run_in_store_finishing<R>(
     )?;
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     model_states::require_project_base(
         &transaction,
         project_id,
@@ -1788,6 +1790,7 @@ pub(crate) fn read_run_in_store_with(
 ) -> Result<Metered<AnalysisRunRead>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let not_found = || format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id));
     let lengths: (i64, i64) = transaction
         .query_row(
@@ -1944,6 +1947,7 @@ pub(crate) fn edit_run_labels_in_store_finishing<R>(
 ) -> Result<R, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let current = find_run_with(&transaction, project_id, recording_id, memory)?
         .ok_or_else(|| format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id)))?;
     let (run, _) = current.get();
@@ -1998,6 +2002,7 @@ pub(crate) fn delete_run_in_store_finishing<R>(
 ) -> Result<R, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let not_found = || format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id));
     let found = find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(not_found)?;
     let deleted = transaction
@@ -2044,6 +2049,7 @@ pub(crate) fn delete_unreadable_run_in_store_finishing<R>(
     let rowid = stored_read::handle_rowid(RUN_ROW_HANDLE, handle).ok_or_else(not_found)?;
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let found: Option<(Vec<u8>, i64)> = transaction
         .query_row(
             &format!("SELECT {} FROM analysis_runs WHERE rowid = ?1 AND project_id = ?2", stored_read::shown_column("recording_id")),

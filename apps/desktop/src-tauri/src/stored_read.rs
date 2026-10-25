@@ -259,6 +259,70 @@ impl UnreadableRow {
     }
 }
 
+/// SQLite's working set per byte of the largest stored keyed row (W-12, repair
+/// r7; DEL-14-01 Design §3). SQLite allocates inside the desktop process: a
+/// query that compares, joins, seeks an index by, takes a `substr` of or
+/// deletes a stored value materializes the whole value, and index seeks may
+/// materialize other rows' keys on the search path. Measured with
+/// `sqlite3_status64(SQLITE_STATUS_MEMORY_USED)` for a row whose 8 MiB id is
+/// also its labels row's key: a list peaks at 2.03 times the id, a run's
+/// delete by handle at 5.33 times and a state's at 6.34 times (its index and
+/// page work, the foreign-key cascade, the shown head, the chunked digest and
+/// the re-check). 8 covers the largest with margin.
+pub(crate) const SQLITE_WORKING_SET_FACTOR: u64 = 8;
+
+/// The history tables' columns SQLite may materialize beyond what a command
+/// prices when it loads them: every key, identity and time column (the record,
+/// result, manifest, snapshot and label texts are priced at their loaded
+/// lengths when they are loaded; the project name, read only for a refusal's
+/// head, reserves its own, [`reserve_sqlite_value`]).
+const SQLITE_KEYED_COLUMNS: [(&str, &[&str]); 5] = [
+    ("analysis_runs", &["project_id", "recording_id", "state_id", "producer_run_id", "created_at", "run_record_hash", "result_hash"]),
+    ("analysis_run_labels", &["project_id", "recording_id", "updated_at"]),
+    ("model_states", &["project_id", "state_id", "state_kind", "created_at", "parent_state_id", "model_hash", "record_hash"]),
+    ("model_state_labels", &["project_id", "state_id", "updated_at"]),
+    ("local_projects", &["project_id"]),
+];
+
+/// SQL measuring the largest stored keyed row of the history tables, in
+/// bytes, without SQLite loading any value: `octet_length` of a column reads
+/// only the record header (SQLite 3.43+), and `NOT INDEXED` scans each table's
+/// own b-tree, so no index key is compared.
+fn sqlite_keyed_row_sql() -> String {
+    let tables: Vec<String> = SQLITE_KEYED_COLUMNS
+        .iter()
+        .map(|(table, columns)| {
+            let sum: Vec<String> = columns.iter().map(|column| format!("COALESCE(octet_length({column}), 0)")).collect();
+            format!("(SELECT COALESCE(MAX({}), 0) FROM {table} NOT INDEXED)", sum.join(" + "))
+        })
+        .collect();
+    format!("SELECT MAX({})", tables.join(", "))
+}
+
+/// Reserves SQLite's working set for a history command on `connection`, its
+/// transaction, before any other statement of it touches a stored row
+/// (W-12, repair r7): [`SQLITE_WORKING_SET_FACTOR`] times the bytes of the
+/// largest stored keyed row of the history tables, measured over every row (an index
+/// seek may materialize another project's key). A store holding an oversized
+/// key is refused by name (`STORE-READ-MEMORY-UNAVAILABLE`) when its working
+/// set does not fit, before SQLite loads it. The caller holds the reservation
+/// until its transaction ends.
+pub(crate) fn admit_sqlite_working_set(connection: &Connection, memory: &dyn ReadMemory) -> Result<ReadReservation, String> {
+    let largest: i64 = connection.query_row(&sqlite_keyed_row_sql(), [], |row| row.get(0)).map_err(|error| sql_error(&error))?;
+    let largest = u64::try_from(largest).unwrap_or(0);
+    memory.reserve(
+        &format!("SQLite's working set for the stored history (its largest keyed row holds {largest} bytes)"),
+        largest.saturating_mul(SQLITE_WORKING_SET_FACTOR),
+    )
+}
+
+/// Reserves SQLite's working set for one statement that materializes a stored
+/// value of `length` bytes outside the history's keyed rows
+/// ([`admit_sqlite_working_set`]), before the statement runs.
+pub(crate) fn reserve_sqlite_value(memory: &dyn ReadMemory, what: &str, length: i64) -> Result<ReadReservation, String> {
+    memory.reserve(what, u64::try_from(length).unwrap_or(0).saturating_mul(SQLITE_WORKING_SET_FACTOR))
+}
+
 /// The most bytes of a stored id a row handle's digest reads at a time (W-12).
 pub(crate) const HANDLE_CHUNK_BYTES: i64 = 64 * 1024;
 
