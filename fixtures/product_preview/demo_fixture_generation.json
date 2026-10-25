@@ -204,7 +204,7 @@
     "core/product_physics/tests/t4_u6_section_bases.rs": "0c098c33bef40436962c7f8f8d869a22221848044bb6c935c1298f95ec18206b",
     "core/product_physics/tests/t4_u8_timoshenko_references.rs": "74c78d29a77e7f7b787cff82720fde5cef38cd5b06d802a455431412c5809342",
     "core/product_physics/tests/topology_checks_runtime.rs": "374e5fc5534a0434614b784473888b9b4cad8cb7972d7792c6e21c08ccf2260b",
-    "core/product_physics/tests/w15_component_body.rs": "5eed581b401b6c9e2347b3017d4667b25cb60eeb1be0dcd67021cedcced8e2bf",
+    "core/product_physics/tests/w15_component_body.rs": "e3b4230c41e21d7f37a7c112471e2111854a52e7e4c2a5b91101b0754a21ce23",
     "core/product_physics/tests/w15_rigid_scaling_benchmarks.rs": "99e02741af1fe06970d8442662de9165afac93e28f41f491996ccea0a80da44f",
     "core/product_physics/tests/w9_solver_benchmarks.rs": "0623e5c76312c6868820b566c5f522a744db4f6d4d0c43a042be46f3461c6c01",
     "core/reporting/result_export/.gitignore": "9cc2c8cc102e0b2a0a177c8f594abc9b9776300a04473c24b45d52c1007a4119",
@@ -764,7 +764,7 @@
     "core/product_physics/tests/t4_u6_section_bases.rs": "0c098c33bef40436962c7f8f8d869a22221848044bb6c935c1298f95ec18206b",
     "core/product_physics/tests/t4_u8_timoshenko_references.rs": "74c78d29a77e7f7b787cff82720fde5cef38cd5b06d802a455431412c5809342",
     "core/product_physics/tests/topology_checks_runtime.rs": "374e5fc5534a0434614b784473888b9b4cad8cb7972d7792c6e21c08ccf2260b",
-    "core/product_physics/tests/w15_component_body.rs": "5eed581b401b6c9e2347b3017d4667b25cb60eeb1be0dcd67021cedcced8e2bf",
+    "core/product_physics/tests/w15_component_body.rs": "e3b4230c41e21d7f37a7c112471e2111854a52e7e4c2a5b91101b0754a21ce23",
     "core/product_physics/tests/w15_rigid_scaling_benchmarks.rs": "99e02741af1fe06970d8442662de9165afac93e28f41f491996ccea0a80da44f",
     "core/product_physics/tests/w9_solver_benchmarks.rs": "0623e5c76312c6868820b566c5f522a744db4f6d4d0c43a042be46f3461c6c01",
     "core/reporting/result_export/.gitignore": "9cc2c8cc102e0b2a0a177c8f594abc9b9776300a04473c24b45d52c1007a4119",
@@ -1135,7 +1135,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "e5afa3bd8c9e87f2635bde68a6693a0aa58fb55ff9e4c0920066b8af84c24881",
+  "inventory_json_sha256": "f124f3b20ffe9bca7c15fed7b973c013defb6be39492cb739af2faddf0591a82",
   "dependencies": [
     {
       "name": "block-buffer",
