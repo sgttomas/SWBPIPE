@@ -45,21 +45,74 @@ scope.
 
 Wind does not depend on mass, and is identical on both routes.
 
+**The certified producer.** The certified load producer must form the same
+mass as the generator. Today it builds mass with `corrosion_allowance: None`
+(PP `certified_loads.rs` ~198-213) and uses it in its seismic branch
+(~246-254). The frame kernel then re-forms PF mass
+(`structural/formation_check.rs` ~1783-1849).
+
+On EX, the producer instead selects the section's `Some(c_a)`, including an
+authored zero. It keeps `None` on PF. Tests check:
+- the raw-source re-formation;
+- its binding to the applied loads;
+- that an authored load id resembling the generated prefix is not mistaken
+  for a generated one (the producer dispatches by prefix, ~233-259).
+
+**Evidence.** For a case with generated loads, `exact_cases[]` gains a closed,
+optional `equivalent_static` record. It holds the mass method
+(`EXACT_MASS_METHOD`) and the ids of the generated primitives. Cases without
+generation omit it, so existing bytes hold. The pressure-2 schema and the
+readers bind it.
+
+The shared mass calculation keeps the equivalent-static diagnostic codes.
+
 ## 3. Which documents
 
 **Plain v3 documents** (without the load/reference-state group) admit
 generation. The generated primitives are ordinary distributed loads of the
-case, prepared like any other.
+case, prepared like any other (PP `lib.rs` ~10035, ~4867, ~4292-4322). They
+are mechanical loads: they create no pressure regions and do not change
+closure ownership. Realized arcs take full-span loads per unit arc length, as
+on PF. Partial extents on arcs stay blocked (~11532-11557).
+
+**Connector-replaced spans** carry no load, member result or self-weight
+(`joint.rs` ~164). The design keeps them out of generation in two ways:
+- Seismic generation skips a replaced span. The surviving pipes keep their
+  original indices; they are not renumbered.
+- A wind marking on a replaced span is refused by name, with
+  `EQUIVALENT_STATIC_WIND_SPAN_REPLACED`.
+
+Loads are never moved implicitly to connector nodes. Regressions cover both
+paths.
+
+**Timoshenko and partial-span wind.** On an EX document selecting
+`timoshenko_annulus_energy_v1`, a wind marking of a proper fraction of a
+straight span is refused by name, with
+`EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED`. Both formation
+paths are unavailable for a Timoshenko partial-span uniform load: straight-pipe
+formation returns `CannotBound` (`core/solver/straight_pipe/src/lib.rs`
+~752-768), and the frame kernel's re-formation reports it unavailable
+(`structural/formation_check.rs` ~2225-2235). The refusal keeps that path
+unreachable, as DEL-05-03 states (~161), and every case keeps its formation
+checks. Full-span wind on Timoshenko is admitted. Euler–Bernoulli admits both
+full and partial spans.
 
 **Load/reference-state documents** refuse a case's `equivalent_static` by name,
-with `EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`. The load-state contract
+with `EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`. The document-level
+detector (PP `case_state/mod.rs` ~30-40) decides which documents these are,
+including an authored null group. The scan covers every authored case
+before resolution. That includes cases no combination uses and cases with no
+state record. Without the refusal, effective-case construction would keep
+`equivalent_static` and apply loads outside the ledger (`resolve.rs`
+~1090-1105). The load-state contract
 states that a case's loads are "exactly the case's declared source ledger" and
 that "per-case mass selection [is] not provided" (PP `exact_admission.rs`
 ~107). Generated loads have no ledger class, so admitting them there needs its
 own design. The refusal is checked before the effective cases are selected.
 
 **The retained sub-route** keeps refusing `equivalent_static` on every branch
-(`retained_memory.rs` ~942-944).
+(`retained_memory.rs` ~942-944). **Source recovery** keeps declining
+equivalent-static and non-nodal producers (`source_recovery.rs` ~903-912).
 
 **Combinations.** A generated case combines like any other primitive case
 under slice b.
@@ -75,8 +128,21 @@ under slice b.
   load-state documents.
 - **DEL-04-07 `pressure-contract.md`** ~7.
 - **Completeness map:** the §12.5 row.
-- **DEL-05-01 ScopeOfWork:** no change. Its REQ-05-01-008 and the DEC-068 rows
-  do not name a route.
+- **DEL-05-03 `section-bases-and-timoshenko.md`** ~161, the statement that
+  partial-span Timoshenko is unreachable. It now names the new refusal. The
+  identity quotations at ~89 and ~93 are reconciled with W-15.
+- **DEL-05-01 ScopeOfWork.** Its requirements and acceptance criteria name no
+  route, so REQ-05-01-008 and AC-001 do not change. Two evidence descriptions
+  are repaired through the owner's wording grant:
+  - **:204.** Currently: "Unit tests cover wind/seismic/occasional explicit
+    equivalent mechanics loads, required equivalent-static basis/provenance
+    refs, and rejection of acceleration/dynamic-placeholder dimensions." The
+    repair adds coverage of DEC-068 generation, route-specific mass and the
+    named unsupported boundaries.
+  - **:284.** "limit … handling to explicit mechanics loads" is qualified to
+    include DEC-068 generation from explicit user inputs.
+- **Byte identity.** b and c ship together, so documents with combinations
+  change as well.
 
 ## 5. Verification
 
@@ -84,14 +150,37 @@ Independent references go in
 `validation/references/w16_exact_equivalent_static/`. They come from an
 exact-rational generator that runs no product code.
 - **Seismic.** An invented EX cantilever with a corrosion allowance and mill
-  tolerance, contents and insulation, under a lateral g-factor. The reference
-  computes the D-5 mass per length (metal on the nominal wall, contents on the
-  pressure bore, plus insulation) independently. It checks the distributed
-  load, tip displacement, root reactions and section actions on both bases.
-  The same model on PF demonstrates the documented mass difference.
-- **Wind.** A marked span and fraction, in a global direction, with
-  insulation. The load and response are compared with the closed form, and
-  the generated loads are checked equal on PF and EX.
+  tolerance, contents and insulation, under a lateral g-factor. The
+  definitions are t_r = (t − c_m) − c_a, r_n = R − t and r_p = R − t_r. Then:
+  - mass per length:
+    μ = π[ρ_m(R² − r_n²) + ρ_c·r_p² + ρ_i((R + t_i)² − R²)];
+  - load: q = μ·k_g·g;
+  - nominal second moment: I_n = π(R⁴ − r_n⁴)/4;
+  - tip: u_L = qL⁴/(8EI_n) and θ_L = qL³/(6EI_n);
+  - reactions: qL and qL²/2;
+  - section actions: V = q(L − x) and M = q(L − x)²/2;
+  - bending stress: one set of actions, stressed on both bases, M/Z_n and
+    M/Z_r.
+
+  Timoshenko adds qL²/(2GA_s) to the tip. A PF twin, authored without a
+  corrosion allowance, shows the documented difference:
+  μ_EX − μ_PF = π[ρ_m·c_m(D − 2t + c_m) + ρ_c{2c_a(R − t + c_m) + c_a²}].
+- **Wind.** The load is q_w = p·C·(D + 2t_i) on a·L to b·L. Then:
+  - |R| = q_w(b − a);
+  - |M₀| = q_w(b² − a²)/2;
+  - u_L = q_w[L(b³ − a³) − (b⁴ − a⁴)/4]/(6EI_n).
+
+  Timoshenko adds q_w(b² − a²)/(2GA_s) on full spans. The fractions bound the
+  interval; they do not multiply the intensity a second time. The generated
+  loads must be equal on PF and EX.
+- **Coverage.**
+  - Both solver modes, Euler–Bernoulli and Timoshenko.
+  - Full-span and partial-span wind on Timoshenko (the latter refused).
+  - Arcs: full spans, with partial spans blocked.
+  - Replaced spans, for seismic and for wind (the latter refused).
+  - Shared sections, non-SI inputs, and authored and generated loads mixed.
+  - Certified-source controls, including the prefix lookalike.
+  - W-15 body rows: the scale multiplies stiffness, not mass.
 - **Combination.** A combination of a seismic case with a pressure case,
   through slice b.
 - **Negatives.** Every PF code on EX, the load-state refusal (including a case
@@ -102,6 +191,9 @@ exact-rational generator that runs no product code.
 ## 6. Retained-memory pricing (D3)
 
 The path touches priced files: PP `lib.rs`, `pressure_runtime.rs`,
-`exact_admission.rs` and `self_weight.rs`, plus the identity TEXT. The retained
+`exact_admission.rs`, `self_weight.rs` and `certified_loads.rs` (pinned in
+`b7a_domain_model.py` ~89). It also touches the pressure-2 table, the evidence
+schema and readers with their pins, and the identity TEXT. No frame-kernel or
+`straight_pipe` change is needed, because partial-span Timoshenko is refused. The retained
 route keeps refusing generation. Re-pricing comes with slice b's, behind the
 solver lane's earlier turns.
