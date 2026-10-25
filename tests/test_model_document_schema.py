@@ -99,6 +99,10 @@ UNBOUND_FROZEN_INPUTS = {
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
 EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {
+    **{("fixtures/comparison/model_state_comparison_golden.json", f"/pairs/{pair}/{side}_entities/0/fields"):
+       "the `model` entity of a state-comparison parity pair: the document's own members as flattened comparison "
+       "fields of invented inputs (DEL-14-01 Design §4.1), not a model document"
+       for pair in range(8) for side in ("left", "right")},
 }
 
 
