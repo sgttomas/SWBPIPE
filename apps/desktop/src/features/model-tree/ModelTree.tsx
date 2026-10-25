@@ -33,6 +33,10 @@ type Props = {
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   onApplyCellIntent?: (intent: EditorOperationIntent) => Promise<TableApplyResult>;
   operationBusy?: boolean;
+  // Tree-layout records beneath the tree rows (the Lines section). It stays
+  // mounted, so drafts survive a layout switch, but only the Tree layout shows
+  // it: the Grid layout owns the whole bounded host.
+  treeRecords?: React.ReactNode;
 };
 
 type LayoutMode = "tree" | "grid";
@@ -57,7 +61,7 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy }: Props) {
+export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords }: Props) {
   const [columnTarget, setColumnTarget] = useState<HTMLDivElement | null>(null);
   const [chromeOwner, setChromeOwner] = useState<string | null>(null);
   const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(null);
@@ -293,6 +297,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
             </p>
         )
       ) : null}
+      {treeRecords ? <div className="model-tree-records" hidden={layoutMode === "grid"} inert={layoutMode === "grid"}>{treeRecords}</div> : null}
     </div>
     </TableChromeContext.Provider>
   );

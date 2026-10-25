@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { createReadStream, existsSync } from "node:fs";
+import { createReadStream } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, type Browser, type Locator, type Page, type TestInfo } from "@playwright/test";
@@ -41,15 +41,16 @@ export async function attachBrowserIdentity(browser: Browser, testInfo: TestInfo
   } finally {
     await session.detach();
   }
-  const configuredChrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-  const macChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-  const executablePath = configuredChrome && existsSync(configuredChrome)
-    ? configuredChrome
-    : existsSync(macChrome) ? macChrome : null;
+  // The configs launch Playwright's pinned Chromium unless
+  // PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH overrides it. The version fields
+  // identify the pinned build; only an override has a path to hash here.
+  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || null;
   await testInfo.attach("browser-identity", {
     body: JSON.stringify({
       cdpVersion,
       playwrightBrowserVersion: browser.version(),
+      playwrightVersion: testInfo.config.version,
+      executableSource: executablePath ? "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH" : "playwright-pinned",
       executablePath,
       executableSha256: executablePath ? await sha256File(executablePath) : null,
     }, null, 2),

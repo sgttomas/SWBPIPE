@@ -713,7 +713,10 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
   the project.
 - Materials, sections, components and supports get a Provenance record section.
 - The model tree gets a Lines section: create a line from the selected pipes,
-  rename it, remove it.
+  rename it, remove it. The section belongs to the model tree's Tree layout,
+  below the tree rows (`ModelTree`'s `treeRecords`). The Grid layout owns the
+  whole height-bounded table host, so the section stays mounted there, with
+  its drafts, but is hidden and inert.
 - An Assumptions and open issues panel lets the user add, edit, resolve and
   reject, and filter by status and subject.
 - A Constraints and interfaces list lets the user add and edit records only;
