@@ -60,6 +60,8 @@ pub mod schema_eval;
 pub mod wire;
 #[cfg(test)]
 mod admitted_tests;
+#[cfg(test)]
+mod forwarding_graph_scan;
 
 use crate::admitted::AdmittedSet;
 
