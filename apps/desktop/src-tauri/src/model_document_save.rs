@@ -457,9 +457,24 @@ pub fn screen_model_document_dispositions(
     document: &Value,
     lookup: &mut LibraryLookup<'_>,
 ) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
+    let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("");
+    screen_dispositions_in(document, "", project_id, LIBRARY_STORE_UNAVAILABLE, lookup)
+}
+
+/// The screen of [`screen_model_document_dispositions`] over any parsed value
+/// (W-18 slice (b1): the report package's request and model): paths start at
+/// `root`, every `library_ref` is resolved in `project_id`'s store (trimmed),
+/// and a store read error refuses with the caller's `store_unavailable` code.
+pub(crate) fn screen_dispositions_in(
+    value: &Value,
+    root: &str,
+    project_id: &str,
+    store_unavailable: &str,
+    lookup: &mut LibraryLookup<'_>,
+) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
     let mut screen = DispositionScreen::default();
-    screen.walk(document, "");
-    let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("").trim().to_string();
+    screen.walk(value, root);
+    let project_id = project_id.trim().to_string();
     let mut warnings = Vec::new();
     for ((kind, id), references) in std::mem::take(&mut screen.library_refs) {
         let named = format!("{kind}:{id}");
@@ -467,7 +482,7 @@ pub fn screen_model_document_dispositions(
             Ok(stored) => stored,
             Err(error) => {
                 return Err(vec![diagnostic(
-                    LIBRARY_STORE_UNAVAILABLE,
+                    store_unavailable,
                     &references[0].0,
                     format!("The local library store could not be read to resolve {named} ({error}); nothing was saved."),
                 )]);
