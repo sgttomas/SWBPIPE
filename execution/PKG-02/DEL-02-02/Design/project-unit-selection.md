@@ -260,9 +260,18 @@ keys, including `angle` (§5); the rest still applies.
   - Open local project, in the browser preview and natively
     (`projectService.ts`);
   - Open saved state (`useModelStateHistory.ts`).
-  The bundled demo and the blank builders always carry all seven keys. Undo,
-  redo, applied operations and Save as new project start from a session
+  The bundled demo carries the map; the blank builders carry all seven keys.
+  Undo, redo, applied operations and Save as new project start from a session
   model. Missing individual keys remain allowed.
+  - **Recovery export.** A refused stored project or saved state is offered
+    "Save the stored document to a file…": the Save Model Document dialog with
+    its own explicit intent, raised by the refused open of a stored project
+    and offered as a History panel button for a refused saved state. The
+    native command (`stored_model_document_export.rs`) writes the stored text
+    unchanged (a project's `model_json`, a state's canonical text), screens its
+    dispositions as the save does, and uses the save's chooser and writer.
+    Nothing is adopted, and the store is only read. The user adds the map and
+    opens the file with Open Model Document.
 - **Entity editors with a missing key** refuse by name; nothing is assumed
   (`features/project-units/missingProjectUnit.ts`).
   - **Fields with their own unit selector:** the unit starts unselected, and
@@ -278,6 +287,9 @@ keys, including `angle` (§5); the rest still applies.
     unit does not lift it.
   - **The table** refuses to queue such a cell: "Not queued: <column> of <id>
     has no unit." followed by the field's notice.
+  - **The viewport's creation forms** show the same notices: component
+    creation for each unselected unit, node creation for a missing `length`
+    (the hard lock when nodes exist), and pipe creation while its unit is unset.
   - The former defaults `m`, `rad`, `N` and `Pa` are removed from the property
     inspector, the component draft, the viewport and the table.
   - The load fields' fixed defaults `K` and `m/s^2` do not come from
@@ -334,7 +346,14 @@ keys, including `angle` (§5); the rest still applies.
   (`model-tree/missingProjectUnitEditors.test.tsx`). A document without the
   map is refused by name when opened as a model document
   (`modelDocumentOpen.test.tsx`), as a local project in each runtime, and as a
-  saved state (`compareStates.test.tsx`).
+  saved state (`compareStates.test.tsx`). The viewport's forms name the
+  missing key (`viewport/PipeViewport.missingProjectUnit.test.tsx`).
+- **Recovery export.** The refused open offers the export behind the explicit
+  intent, sends only the row's identity and adopts nothing
+  (`model-file/storedDocumentExport.test.tsx`, `compareStates.test.tsx`). The
+  native read returns the stored bytes and writes nothing to the store, the
+  written file holds those bytes, and a blocked disposition refuses
+  (`src-tauri/src/stored_model_document_export.rs`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
 - **e2e.** Specs that click "New blank" gain the dialog's Create click.
