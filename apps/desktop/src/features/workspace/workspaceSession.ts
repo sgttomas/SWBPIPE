@@ -138,6 +138,7 @@ import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
+import { withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
 import { listModelStates, modelStateDescription, saveModelState, type ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
@@ -394,7 +395,13 @@ export function useWorkspaceSession() {
     currentInputManifestRef,
     activeSolveJob,
     solveCancellationTombstones,
-    comparison
+    comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
+    withinRun,
+    droppedWithinRunBases,
+    setHeldWithinRunSelection,
+    setDroppedWithinRunBases
   } = useResultsSessionState();
   // Reference inspection is a transient view. Keep genuine persistence bytes
   // separate, scoped to the unchanged model/session, without retaining Current.
@@ -2842,6 +2849,23 @@ export function useWorkspaceSession() {
     if (route.surface !== "inspector") setToolkitFocus({ testId: route.focusTestId, elementId: route.elementId });
   }
 
+  // "Within this run" (W-12 S3c): the load case and combination choice. It is
+  // disabled with the stated reason, and refused, while another project operation
+  // or prompt owns the session (the one-owner check and the modal holds), a solve
+  // runs or a report package is being prepared. The choice is the
+  // session's choice, revalidated against every Current run (resultsSessionState.ts);
+  // a new choice clears the notice of a dropped one.
+  const withinRunDisabledReason = withinRunBusyReason({ projectBusy, running, reportPackageBusy });
+  const withinRunBusyRef = useRef<string | null>(null);
+  withinRunBusyRef.current = withinRunDisabledReason;
+  function handleSelectWithinRunBases(pair: WithinRunPair) {
+    // The latest render's reason, the one owner and an active solve, read at the
+    // call: a handler from an earlier render cannot choose while the session is busy.
+    if (withinRunBusyRef.current || projectSessionBusy() || solveRunGate.current.current() !== null || reportPackageBusyGenerationRef.current !== null) return;
+    setHeldWithinRunSelection({ left: pair.left, right: pair.right });
+    setDroppedWithinRunBases(null);
+  }
+
   async function handleSaveReportPackage() {
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
@@ -2853,6 +2877,7 @@ export function useWorkspaceSession() {
       inputManifest,
       analysisRun,
       comparison,
+      comparisonUnavailable,
       projectSummary,
       ruleCheckAggregate,
       ruleCheckRun: ruleCheckReportRun,
@@ -2881,6 +2906,7 @@ export function useWorkspaceSession() {
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
         comparison: basis.comparison,
+        comparisonUnavailable: basis.comparisonUnavailable,
         ruleCheckAggregate: basis.ruleCheckAggregate,
         ruleCheckRun: basis.ruleCheckRun
       });
@@ -3444,6 +3470,12 @@ export function useWorkspaceSession() {
       ruleCheckRunBasis,
       dormantOutputBasis,
       comparison,
+      comparisonUnavailable,
+      packagedWithinRun,
+      withinRun,
+      droppedWithinRunBases,
+      withinRunDisabledReason,
+      handleSelectWithinRunBases,
       proposal,
       selectedReviewTarget,
       solveJob,

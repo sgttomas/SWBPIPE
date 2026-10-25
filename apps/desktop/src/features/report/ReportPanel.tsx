@@ -1,3 +1,4 @@
+import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { N_INTENSIFIED, PREVIEW_INTENSIFIED_KIND } from "../results/knownSemanticLimitations";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
@@ -27,6 +28,7 @@ export function ReportPanel({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   projectOperation,
   projectSummary,
@@ -42,6 +44,8 @@ export function ReportPanel({
   numericalHealth?: NumericalHealthView | null;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   projectOperation: string;
   projectSummary: LocalProjectSummary | null;
@@ -77,6 +81,7 @@ export function ReportPanel({
         result,
         analysisRun,
         comparison,
+        comparisonUnavailable,
         editorIntents,
         persistenceEvidence,
         proposal,
@@ -207,10 +212,10 @@ export function ReportPanel({
                 <ReportLine label="Run boundary" value={boundarySummary(run.professional_boundary)} />
               </>
             ) : null}
-            {comparison ? (
+            {reportComparisonLine(comparison, comparisonUnavailable) !== null ? (
               <ReportLine
                 label="Comparison"
-                value={formatComparisonSummary(comparison)}
+                value={reportComparisonLine(comparison, comparisonUnavailable)!}
                 testId="report-comparison-summary"
               />
             ) : null}
@@ -569,6 +574,7 @@ function reportExportPacket({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   persistenceEvidence,
   proposal,
@@ -584,6 +590,8 @@ function reportExportPacket({
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   persistenceEvidence: ReturnType<typeof reportPersistenceEvidence>;
   proposal: AgentProposal | null;
@@ -659,10 +667,7 @@ function reportExportPacket({
       envelope_hash_scopes: run?.hashes.map((item) => item.payload_scope) ?? []
     },
     run_audit: run ? runAuditExport({ analysisRun, result }) : null,
-    comparison_ref: comparison?.comparison_id ?? "not generated",
-    comparison_summary: comparison ? comparisonExportSummary(comparison) : null,
-    comparison_top_deltas: comparison?.result_deltas.slice(0, 8) ?? [],
-    comparison_professional_boundary: comparison?.professional_boundary ?? null,
+    ...reportComparisonFields(comparison, comparisonUnavailable),
     persistence_evidence: persistenceEvidence,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     editor_intent_summary: editorIntentExportSummary(editorIntents),
@@ -971,6 +976,25 @@ function editorIntentExport(intent: EditorOperationIntent) {
     protected_content_included: false,
     private_payload_included: false,
     release_or_professional_claim: false
+  };
+}
+
+/** The report's Comparison line: the comparison's summary, or the chosen pair's
+ * refusal (W-12 S3c); null when there is neither. */
+export function reportComparisonLine(comparison: PreviewComparison | null, comparisonUnavailable: PreviewComparisonUnavailable | null): string | null {
+  if (comparison) return formatComparisonSummary(comparison);
+  return comparisonUnavailable ? `${comparisonUnavailable.comparison_id}; not included: ${comparisonUnavailable.reason}` : null;
+}
+
+/** The report export packet's comparison members, in their order. Without an
+ * unavailable record they are exactly those before W-12 S3c. */
+export function reportComparisonFields(comparison: PreviewComparison | null, comparisonUnavailable: PreviewComparisonUnavailable | null) {
+  return {
+    comparison_ref: comparison?.comparison_id ?? comparisonUnavailable?.comparison_id ?? "not generated",
+    ...(comparisonUnavailable ? { comparison_unavailable: comparisonUnavailable } : {}),
+    comparison_summary: comparison ? comparisonExportSummary(comparison) : null,
+    comparison_top_deltas: comparison?.result_deltas.slice(0, 8) ?? [],
+    comparison_professional_boundary: comparison?.professional_boundary ?? null
   };
 }
 

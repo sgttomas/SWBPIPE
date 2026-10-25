@@ -94,15 +94,7 @@ The biggest gaps:
    every report and the report package (ruling 10A). Save Report Package saves
    a local private package for a pressure-free result (W-18 (b2)). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
-2. **Within-run comparison still uses hard-coded case ids (W-12 S3c).** Model
-   states, run history and comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
-   #1589): save, open, label and delete, kept only in the SQLite store. Runs are
-   recorded against states (W-12 S2, #1596), with the model's rule packs
-   resolved at solve (#1602). Two saved states are compared in the desktop
-   (W-12 S3a, #1605), and two runs (W-12 S3b). The "Within this run" view still
-   compares fixed case ids. Comparison is view-only; mapping editor, tolerance
-   profiles, graphical diffs and export are v0.2. Affected: FR-CMP-001..004,
-   -006, FR-GUI-007.
+2. **Saved-state and run comparisons are view-only; selected within-run comparison context is packaged.** Model states, run history and comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1, #1589): save, open, label and delete, kept only in the SQLite store. Runs are recorded against states (W-12 S2, #1596), with the model’s rule packs resolved at solve (#1602). Two saved states are compared in the desktop (W-12 S3a, #1605), and two runs (W-12 S3b, #1617). “Within this run” lets the user choose the load case and combination (W-12 S3c). The report line and JSON, preview handoff summary, export review and design-workspace downloads, and the saved local-private report package for a Current pressure-free result (W-18b2) carry the chosen comparison context. A combination whose rows include a kind with no declared dimension is refused by name (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`); those consumers carry its bases, run and reason in a `comparison_unavailable` record. The saved `.swbhandoff` carries no comparison. Mapping editor, tolerance profiles, graphical diffs and DEL-14-05 comparison-output export remain v0.2. Affected: FR-CMP-001..004, -006, FR-GUI-007.
 3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
    validated but never applied, and EX refuses these components. Affected:
    FR-SOL-004/012.
@@ -163,7 +155,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-GUI-004 (501) | Must | D | Create, modify, move, delete (refuses while any record names the pipe; `tests/pipe_delete_dependents.rs`); split, copy, rotate, mirror (`geometry_operations.rs`); reconnect (`operation_applier/src/pipe_reconnect.rs`, `tests/pipe_reconnect.rs`, `e2e/pipe-reconnect.spec.ts:52`; UI `GeometryToolsPanel.tsx:65-88`) | DEL-07-01, DEL-16-06 | Declared v0.1 limitation (DEL-16-06 SOW:79): reconnect refuses component-bearing and pressure-region pipes. All four demo pipes are refused. |
 | FR-GUI-005 (502) | Should | D | `workspaceSession.ts` (depth 25); `e2e/b3a-session-status.spec.ts` | DEL-00-05, DEL-07-11 | Session-only. |
 | FR-GUI-006 (503) | Must | D | `MissingDataBlockingPanel.tsx:24,148-181`; `App.test.tsx`; `e2e/gui-workflow-validation.spec.ts:110` | DEL-07-04 | Topology findings are warnings, not blocking. |
-| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts` (`single_run_load_basis_review`); `StateComparisonView.tsx`; `RunComparisonView.tsx` | DEL-07-08, DEL-14-05 | A saved-state comparison view (W-12 S3a: table of changed entities and field paths) and a run comparison view (W-12 S3b: mapped rows with deltas, `not_compared` reasons, context deltas and unmatched rows) sit beside the within-run deltas. No graphical overlays (FR-CMP-009, v0.2). |
+| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts` (`single_run_load_basis_review`); `StateComparisonView.tsx`; `RunComparisonView.tsx`; `withinRunComparison.ts` | DEL-07-08, DEL-14-05 | A saved-state comparison view (W-12 S3a: table of changed entities and field paths) and a run comparison view (W-12 S3b: mapped rows with deltas, `not_compared` reasons, context deltas and unmatched rows) sit beside the within-run deltas, whose load case and combination the user selects (W-12 S3c). No graphical overlays (FR-CMP-009, v0.2). |
 | FR-AGENT-001 (568) | Should | D | `OfflineProposalIntakePanel.tsx` → `atomic_batch.rs:285-345` | DEL-16-01, DEL-16-06 | The live provider is O (D-22/DEC-041). |
 | FR-AGENT-002 (569) | Should | D | `atomic_batch.rs:8,112`; tests `:529,593,690,746,806` | DEL-16-02, DEL-16-06 | |
 | FR-AGENT-003 (570) | Should | D | Diff review and explicit Apply (`workspaceSession.ts:1345,1496`) | DEL-07-08, DEL-16-06 | No e2e for offline intake. |
@@ -292,7 +284,7 @@ This map has 37 P, 39 D (including one bounded and one at repository level), 8 O
 - **R1:** partly. Rigid elements are absent; §22.2 lacks the rigid link.
 - **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The native smoke now runs
   a GUI-authored model through solve, review, save and reopen (W-4).
-- **R3 (States, Runs, Comparison):** partly. States, run history and basic state and run comparison are in the desktop (v0.1 by OD-1; W-12 S1–S3b); within-run case selection is W-12 S3c. Mapping editor/manual mappings, tolerance profiles, graphical diffs and comparison export remain in v0.2 R3.
+- **R3 (States, Runs, Comparison):** partly. States, run history and basic state and run comparison are in the desktop (v0.1 by OD-1; W-12 S1–S3c). Mapping editor/manual mappings, tolerance profiles, graphical diffs and comparison export remain in v0.2 R3.
 - **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). A report
   is obtainable only as a local private PF document.
 - **R6:** partly. Design knowledge is deferred (OD-3); no fresh reproduction
@@ -526,7 +518,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
 | W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
 | W-12 S3a | Comparing two saved model states in the desktop: fail-closed flattening of every 0.7.0 member, stable-id classification, field paths, parity with the reference engine | #1605 |
-| W-12 S3b | Comparing two runs in the desktop: automatic row mapping, the whole-run standing gate, deltas with units, context and diagnostic deltas, exactness and S2-era refusals, parity with the reference engine | (this PR) |
+| W-12 S3b | Comparing two runs in the desktop: automatic row mapping, the whole-run standing gate, deltas with units, context and diagnostic deltas, exactness and S2-era refusals, parity with the reference engine | #1617 |
+| W-12 S3c | "Within this run" selects its load case and combination from the bases with result rows, held to the current run | (this PR) |
 | W-12 S2 | Analysis runs recorded against saved model states (store v13, Record Run with a checked manifest and model binding, run labels, recorded-form validators in TS and Python), with stored-length read admission for states and runs | #1596 |
 | W-12 S1 | Named immutable model states in the desktop (store v12, Save/Open State, History panel with labels); one unsaved-changes guard for Open Project, New, Open Model Document and Open State | #1589 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
