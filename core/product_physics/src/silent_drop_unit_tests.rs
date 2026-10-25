@@ -343,3 +343,254 @@ mod nested_records {
         assert!(refusal.contains("; and 4 more."), "{refusal}");
     }
 }
+
+/// The material record reads exactly as main's flattened wire read it, from the
+/// raw text and from a value, except that an unknown key is refused (Agent 0,
+/// binding: no wire change). Main's definitions are kept here verbatim, renamed
+/// (`25b7df82ae` lib.rs `MaterialRecordWire`, `MaterialInput`,
+/// `MaterialTemperaturePointInput`). With `MATERIAL_WIRE_CORPUS=<a
+/// projects/chirality-piping directory>`, `every_committed_material_record_reads_as_at_main`
+/// compares every element of every `materials` array in its JSON files, sliced
+/// from the raw text, and prints the counts.
+mod material_wire {
+    use crate::{Authored, ClosedMaterialRecord, ExpansionLawInput, Quantity};
+    use serde::de::{DeserializeOwned, IgnoredAny};
+    use serde::Deserialize;
+    use serde_json::Value;
+
+    #[derive(Deserialize)]
+    #[serde(bound(deserialize = "L: Deserialize<'de> + Default"))]
+    struct MaterialRecordWireAtMain<L> {
+        #[serde(flatten)]
+        material: MaterialInputAtMain,
+        #[serde(default)]
+        expansion_laws: Authored<L>,
+    }
+
+    #[derive(Debug, Clone, Deserialize)]
+    pub struct MaterialInputAtMain {
+        #[serde(default)]
+        pub constitutive_basis: Option<String>,
+        #[serde(default)]
+        pub poisson_ratio: Option<Quantity>,
+        pub id: String,
+        pub elastic_modulus: Quantity,
+        #[serde(default)]
+        pub shear_modulus: Option<Quantity>,
+        #[serde(default)]
+        pub thermal_expansion_coefficient: Option<Quantity>,
+        #[serde(default)]
+        pub temperature_points: Vec<MaterialTemperaturePointInputAtMain>,
+        #[serde(default)]
+        pub provenance: Option<String>,
+    }
+
+    #[derive(Debug, Clone, Deserialize)]
+    pub struct MaterialTemperaturePointInputAtMain {
+        #[serde(default)]
+        pub poisson_ratio: Option<Quantity>,
+        pub id: String,
+        #[serde(default)]
+        pub temperature: Option<Quantity>,
+        #[serde(default)]
+        pub elastic_modulus: Option<Quantity>,
+        #[serde(default)]
+        pub shear_modulus: Option<Quantity>,
+        #[serde(default)]
+        pub thermal_expansion_coefficient: Option<Quantity>,
+        #[serde(default)]
+        pub provenance: Option<String>,
+    }
+
+    /// A parse's outcome: the parsed value's `Debug` text, or the refusal.
+    type Outcome = Result<String, String>;
+
+    fn at_main<L: DeserializeOwned + Default + std::fmt::Debug>(parse: Result<MaterialRecordWireAtMain<L>, serde_json::Error>) -> Outcome {
+        parse
+            .map(|r| format!("{:?} {:?}", r.material, r.expansion_laws).replace("InputAtMain", "Input"))
+            .map_err(|e| e.to_string())
+    }
+
+    fn at_head<L: DeserializeOwned + Default + std::fmt::Debug>(parse: Result<ClosedMaterialRecord<L>, serde_json::Error>) -> Outcome {
+        parse.map(|r| format!("{:?} {:?}", r.material, r.expansion_laws)).map_err(|e| e.to_string())
+    }
+
+    /// Both levels' records (the model's laws typed, the request's ignored),
+    /// read from the text and, where the text is a JSON value, from the value.
+    fn outcomes(text: &str) -> Vec<(&'static str, Outcome, Outcome)> {
+        let mut pairs = vec![
+            ("model text", at_main(serde_json::from_str::<MaterialRecordWireAtMain<Vec<ExpansionLawInput>>>(text)),
+             at_head(serde_json::from_str::<ClosedMaterialRecord<Vec<ExpansionLawInput>>>(text))),
+            ("request text", at_main(serde_json::from_str::<MaterialRecordWireAtMain<IgnoredAny>>(text)),
+             at_head(serde_json::from_str::<ClosedMaterialRecord<IgnoredAny>>(text))),
+        ];
+        if let Ok(value) = serde_json::from_str::<Value>(text) {
+            pairs.push(("model value", at_main(serde_json::from_value::<MaterialRecordWireAtMain<Vec<ExpansionLawInput>>>(value.clone())),
+                        at_head(serde_json::from_value::<ClosedMaterialRecord<Vec<ExpansionLawInput>>>(value.clone()))));
+            pairs.push(("request value", at_main(serde_json::from_value::<MaterialRecordWireAtMain<IgnoredAny>>(value.clone())),
+                        at_head(serde_json::from_value::<ClosedMaterialRecord<IgnoredAny>>(value))));
+        }
+        pairs
+    }
+
+    /// How a record's outcomes compare: the same value, both refused, or the
+    /// intended change (main accepted, the head refuses an unknown key).
+    #[derive(Debug, PartialEq)]
+    enum Compared {
+        Same,
+        BothRefused,
+        UnknownKeyRefused,
+    }
+
+    fn compare(text: &str) -> Compared {
+        let mut verdicts = Vec::new();
+        for (level, main, head) in outcomes(text) {
+            verdicts.push(match (&main, &head) {
+                (Ok(a), Ok(b)) if a == b => Compared::Same,
+                (Err(_), Err(_)) => Compared::BothRefused,
+                (Ok(_), Err(e)) if e.contains("unknown field `") => Compared::UnknownKeyRefused,
+                _ => panic!("{level}: the material record reads differently from main:\n  text {text}\n  main {main:?}\n  head {head:?}"),
+            });
+        }
+        // The text's verdict; a value has no duplicate key, so its levels may read the same where the text is refused.
+        verdicts.remove(0)
+    }
+
+    const Q: &str = r#""elastic_modulus":{"value":200,"unit":"GPa"}"#;
+
+    #[test]
+    fn regression_cases_read_as_at_main() {
+        use Compared::*;
+        let cases: Vec<(String, Compared)> = vec![
+            (format!(r#"{{"id":"m",{Q}}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"label":"a","label":"b"}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"notes":"a","notes":["b"]}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"tags":["a"],"tags":["b"]}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"provenance_record":{{"a":1}},"provenance_record":{{"b":2}}}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"notes":1e400}}"#), BothRefused),
+            (format!(r#"{{"id":"m",{Q},"label":[1e400]}}"#), BothRefused),
+            (format!(r#"{{"id":"m","elastic_modulus":{{"value":1e400,"unit":"GPa"}}}}"#), BothRefused),
+            (format!(r#"{{"id":"m",{Q},{}}}"#, Q.replace("200", "1")), BothRefused),
+            (format!(r#"{{"id":"m","id":"n",{Q}}}"#), BothRefused),
+            (format!(r#"{{"id":"m",{Q},"expansion_laws":null,"expansion_laws":null}}"#), BothRefused),
+            (format!(r#"{{"notes":"n",{Q},"expansion_laws":null,"provenance":"p","id":"m"}}"#), Same),
+            (format!(r#"{{"provenance":"p","temperature_points":[],"id":"m",{Q},"label":"l"}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"shear_modulus":null,"provenance":null,"constitutive_basis":null}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"temperature_points":null}}"#), BothRefused),
+            (format!(r#"{{"id":"m",{Q},"expansion_laws":null}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"temperature_points":[{{"id":"t","temperature":{{"value":20,"unit":"degC"}},"elastic_modulus":null}}]}}"#), Same),
+            (format!(r#"{{"id":"m",{Q},"temperature_points":[[null,"t"]]}}"#), Same),
+            (format!(r#"{{"id":"m","elastic_modulus":[200,"GPa"]}}"#), Same),
+            (format!(r#"["m",{{"value":200,"unit":"GPa"}}]"#), BothRefused),
+            ("null".to_string(), BothRefused),
+            (format!(r#"{{"id":"m",{Q},"lable":"a"}}"#), UnknownKeyRefused),
+            (format!(r#"{{"id":"m",{Q},"x":1,"x":2}}"#), UnknownKeyRefused),
+            (format!(r#"{{"id":"m","elastic_modulus":{{"value":200,"unit":"GPa","basis":"x"}}}}"#), UnknownKeyRefused),
+            (format!(r#"{{"id":"m",{Q},"temperature_points":[{{"id":"t","tempreature":{{"value":20,"unit":"degC"}}}}]}}"#), UnknownKeyRefused),
+        ];
+        for (text, expected) in cases {
+            assert_eq!(compare(&text), expected, "{text}");
+        }
+        // Duplicate known keys keep their typed refusal, with a position from the text.
+        let text = format!(r#"{{"id":"m",{Q},{}}}"#, Q.replace("200", "1"));
+        let refusal = serde_json::from_str::<ClosedMaterialRecord<IgnoredAny>>(&text).map(drop).unwrap_err().to_string();
+        assert!(refusal.contains("duplicate field `elastic_modulus`") && refusal.contains("line 1 column"), "{refusal}");
+    }
+
+    /// The text of every element of an array held under a `materials` key, at
+    /// any depth of a JSON text (the raw slices, never a parsed value).
+    fn material_slices(text: &str) -> Vec<&str> {
+        struct Scan<'a> { b: &'a [u8], i: usize, found: Vec<(usize, usize)> }
+        impl Scan<'_> {
+            fn ws(&mut self) { while self.i < self.b.len() && self.b[self.i].is_ascii_whitespace() { self.i += 1; } }
+            fn string(&mut self) -> (usize, usize) {
+                let start = self.i + 1;
+                self.i += 1;
+                while self.b[self.i] != b'"' { self.i += if self.b[self.i] == b'\\' { 2 } else { 1 }; }
+                self.i += 1;
+                (start, self.i - 1)
+            }
+            fn value(&mut self, materials: bool) {
+                self.ws();
+                match self.b[self.i] {
+                    b'{' => {
+                        self.i += 1;
+                        loop {
+                            self.ws();
+                            if self.b[self.i] == b'}' { self.i += 1; break; }
+                            let (a, z) = self.string();
+                            self.ws();
+                            self.i += 1; // ':'
+                            self.value(&self.b[a..z] == b"materials");
+                            self.ws();
+                            if self.b[self.i] == b',' { self.i += 1; }
+                        }
+                    }
+                    b'[' => {
+                        self.i += 1;
+                        loop {
+                            self.ws();
+                            if self.b[self.i] == b']' { self.i += 1; break; }
+                            let start = self.i;
+                            self.value(false);
+                            if materials && self.b[start] == b'{' { self.found.push((start, self.i)); }
+                            self.ws();
+                            if self.b[self.i] == b',' { self.i += 1; }
+                        }
+                    }
+                    b'"' => { self.string(); }
+                    _ => { while self.i < self.b.len() && !b",}] \t\r\n".contains(&self.b[self.i]) { self.i += 1; } }
+                }
+            }
+        }
+        let mut scan = Scan { b: text.as_bytes(), i: 0, found: Vec::new() };
+        scan.value(false);
+        scan.found.into_iter().map(|(a, z)| &text[a..z]).collect()
+    }
+
+    #[test]
+    fn the_raw_slicer_finds_nested_material_arrays() {
+        let text = r#"{"a":{"materials":[{"id":"x" , "s":"]}\""},1,[2]]},"materials":[ {"id":"y"} ],"b":["materials",{"materials":[]}]}"#;
+        assert_eq!(material_slices(text), vec![r#"{"id":"x" , "s":"]}\""}"#, r#"{"id":"y"}"#]);
+    }
+
+    #[test]
+    fn every_committed_material_record_reads_as_at_main() {
+        let Some(root) = std::env::var_os("MATERIAL_WIRE_CORPUS") else { return };
+        fn files(dir: &std::path::Path, found: &mut Vec<std::path::PathBuf>) {
+            let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|entry| entry.unwrap().path()).collect();
+            entries.sort();
+            for path in entries {
+                let name = path.file_name().unwrap().to_string_lossy().to_string();
+                if path.is_dir() && !["node_modules", "target", ".git"].contains(&name.as_str()) {
+                    files(&path, found);
+                } else if name.ends_with(".json") {
+                    found.push(path);
+                }
+            }
+        }
+        let mut paths = Vec::new();
+        files(std::path::Path::new(&root), &mut paths);
+        let (mut records, mut with, mut same, mut refused, mut unknown) = (0, 0, 0, 0, 0);
+        let mut distinct = std::collections::BTreeSet::new();
+        for path in paths {
+            let text = std::fs::read_to_string(&path).unwrap();
+            if serde_json::from_str::<IgnoredAny>(&text).is_err() {
+                continue;
+            }
+            let slices = material_slices(&text);
+            with += usize::from(!slices.is_empty());
+            for slice in slices {
+                records += 1;
+                distinct.insert(slice.to_string());
+                match compare(slice) {
+                    Compared::Same => same += 1,
+                    Compared::BothRefused => refused += 1,
+                    Compared::UnknownKeyRefused => unknown += 1,
+                }
+            }
+        }
+        eprintln!("MATERIAL_WIRE_CORPUS: {records} records ({} distinct texts) in {with} files: {same} read the same value, {refused} refused by both, {unknown} refused for an unknown key only at the head", distinct.len());
+        assert!(records > 0);
+    }
+}

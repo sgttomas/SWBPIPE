@@ -237,90 +237,39 @@ pub struct PreviewModel {
     pub(crate) request_material_expansion_laws: Vec<usize>,
 }
 
-/// One material record as authored: the unchanged `MaterialInput` fields and
-/// the material-owned `expansion_laws` key. It is read only as a map, as its
-/// former flattened form was (a positional record is refused), through its
-/// closed record `MaterialRecordFields`.
+/// One material record as authored: the unchanged `MaterialInput` fields
+/// (typed, so duplicate keys and positions keep their serde errors) and the
+/// material-owned `expansion_laws` key. Every other key is collected in
+/// `others` exactly as the flattened form buffers it; `ClosedMaterialRecord`
+/// accepts only model document 0.7.0's annotations there.
+#[derive(Deserialize)]
 struct MaterialRecordWire<L> {
+    #[serde(flatten)]
+    material: MaterialInput,
+    #[serde(default)]
+    expansion_laws: Authored<L>,
+    #[serde(flatten)]
+    others: BTreeMap<String, serde::de::IgnoredAny>,
+}
+
+/// The material record's declared members the solve never reads (model
+/// document 0.7.0), accepted unread as the flattened form always accepted them.
+const MATERIAL_ANNOTATIONS: [&str; 4] = ["label", "tags", "notes", "provenance_record"];
+
+/// Closed record (`model_fields`): a material record whose keys are
+/// `MaterialInput`'s, `expansion_laws` and the annotations. It reads exactly as
+/// the flattened `MaterialRecordWire` reads, and then refuses any other key.
+struct ClosedMaterialRecord<L> {
     material: MaterialInput,
     expansion_laws: Authored<L>,
 }
 
-/// Closed record (`model_fields`): `MaterialInput`'s fields, each declared as
-/// `MaterialInput` declares it apart from its closed quantities, and
-/// `expansion_laws`. Model document 0.7.0's `label`, `tags`, `notes` and
-/// `provenance_record` are declared document members the solve never reads
-/// (accepted and ignored).
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct MaterialRecordFields<L> {
-    #[serde(default)]
-    constitutive_basis: Option<String>,
-    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
-    poisson_ratio: Option<Quantity>,
-    id: String,
-    #[serde(deserialize_with = "model_fields::closed_quantity")]
-    elastic_modulus: Quantity,
-    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
-    shear_modulus: Option<Quantity>,
-    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
-    thermal_expansion_coefficient: Option<Quantity>,
-    #[serde(default)]
-    temperature_points: Vec<MaterialTemperaturePointInput>,
-    #[serde(default)]
-    provenance: Option<String>,
-    #[serde(default)]
-    expansion_laws: Authored<L>,
-    #[serde(default)]
-    #[allow(dead_code)]
-    label: serde::de::IgnoredAny,
-    #[serde(default)]
-    #[allow(dead_code)]
-    tags: serde::de::IgnoredAny,
-    #[serde(default)]
-    #[allow(dead_code)]
-    notes: serde::de::IgnoredAny,
-    #[serde(default)]
-    #[allow(dead_code)]
-    provenance_record: serde::de::IgnoredAny,
-}
-
-impl<'de, L: Deserialize<'de> + Default> Deserialize<'de> for MaterialRecordWire<L> {
+impl<'de, L: Deserialize<'de> + Default> Deserialize<'de> for ClosedMaterialRecord<L> {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        struct RecordVisitor<L>(std::marker::PhantomData<L>);
-        impl<'de, L: Deserialize<'de> + Default> serde::de::Visitor<'de> for RecordVisitor<L> {
-            type Value = MaterialRecordFields<L>;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("struct MaterialRecordWire")
-            }
-
-            fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Self::Value, A::Error> {
-                MaterialRecordFields::deserialize(serde::de::value::MapAccessDeserializer::new(map))
-            }
+        let MaterialRecordWire { material, expansion_laws, others } = MaterialRecordWire::deserialize(deserializer)?;
+        if let Some(key) = others.keys().find(|key| !MATERIAL_ANNOTATIONS.contains(&key.as_str())) {
+            return Err(serde::de::Error::unknown_field(key, model_fields::MATERIAL_FIELDS));
         }
-        let MaterialRecordFields {
-            constitutive_basis,
-            poisson_ratio,
-            id,
-            elastic_modulus,
-            shear_modulus,
-            thermal_expansion_coefficient,
-            temperature_points,
-            provenance,
-            expansion_laws,
-            ..
-        } = deserializer.deserialize_map(RecordVisitor(std::marker::PhantomData))?;
-        let material = MaterialInput {
-            constitutive_basis,
-            poisson_ratio,
-            id,
-            elastic_modulus,
-            shear_modulus,
-            thermal_expansion_coefficient,
-            temperature_points,
-            provenance,
-        };
         Ok(Self { material, expansion_laws })
     }
 }
@@ -354,7 +303,7 @@ struct PreviewModelWire {
     #[serde(default)]
     components: Vec<PreviewComponent>,
     #[serde(default)]
-    materials: Vec<MaterialRecordWire<Vec<ExpansionLawInput>>>,
+    materials: Vec<ClosedMaterialRecord<Vec<ExpansionLawInput>>>,
     #[serde(default)]
     load_cases: Vec<PreviewLoadCase>,
     #[serde(default)]
@@ -511,7 +460,6 @@ pub struct PreviewPipe {
     pub id: String,
     pub from: String,
     pub to: String,
-    #[serde(deserialize_with = "model_fields::closed_pipe_section")]
     pub section: PipeSectionInput,
     #[serde(default)]
     pub section_ref: Option<String>,
@@ -550,36 +498,36 @@ pub struct PreviewSection {
     pub provenance_record: serde::de::IgnoredAny,
 }
 
-/// A pipe segment's section. A model's pipe segment reads it closed
-/// (`model_fields::closed_pipe_section`); this derive stays open for the
-/// self-weight evidence readers, which rebuild a section from generated
-/// provenance that carries other keys (`normalized_dependencies`'
-/// `section_ref`).
+/// A pipe segment's section. Closed record (`model_fields`), with closed
+/// quantities; the self-weight evidence readers read it closed too.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PipeSectionInput {
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
     pub outside_diameter: Quantity,
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
     pub wall_thickness: Quantity,
     /// User-entered absolute mill-tolerance thickness reduction (length).
     /// Absence means no reduction; absence is not a default value of zero.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub mill_tolerance: Option<Quantity>,
     /// Explicit user-owned length. Exact pressure requires an authored value;
     /// neither omission nor a present null supplies zero.
-    #[serde(default, deserialize_with = "deserialize_present_object")]
+    #[serde(default, deserialize_with = "model_fields::closed_present_quantity")]
     pub corrosion_allowance: Option<Quantity>,
     /// User-entered pipe material density for the model's own computed mass
     /// distribution. Optional; equivalent-static generation blocks when it
     /// needs mass and this is absent (absence is not a default of zero).
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub material_density: Option<Quantity>,
     /// User-entered contents density over the effective inside area.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub contents_density: Option<Quantity>,
     /// User-entered insulation annulus thickness outside the pipe.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub insulation_thickness: Option<Quantity>,
     /// User-entered insulation density over the insulation annulus.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub insulation_density: Option<Quantity>,
 }
 
@@ -1017,22 +965,29 @@ pub enum LoadTargetInput {
     Element { pipe: String },
 }
 
-/// A material as the solve reads it, from its authored record
-/// (`MaterialRecordFields`, which declares each field's default).
-#[derive(Debug, Clone)]
+/// A material's solve members, read through its record (`ClosedMaterialRecord`),
+/// with closed quantities.
+#[derive(Debug, Clone, Deserialize)]
 pub struct MaterialInput {
+    #[serde(default)]
     pub constitutive_basis: Option<String>,
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub poisson_ratio: Option<Quantity>,
     pub id: String,
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
     pub elastic_modulus: Quantity,
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub shear_modulus: Option<Quantity>,
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub thermal_expansion_coefficient: Option<Quantity>,
     /// User-entered temperature-indexed property points (DEC-068 item 1).
     /// A load case may name one point id as its exact modulus basis or supply
     /// a solve temperature for DEC-077 linear interpolation between adjacent
     /// points. All values remain user-entered; selected bases require explicit
     /// point G values, and extrapolation or base-G fallback is blocked.
+    #[serde(default)]
     pub temperature_points: Vec<MaterialTemperaturePointInput>,
+    #[serde(default)]
     pub provenance: Option<String>,
 }
 
@@ -1068,7 +1023,7 @@ pub struct LinearStaticPreviewRequest {
 struct LinearStaticPreviewRequestWire {
     model: PreviewModel,
     #[serde(default)]
-    materials: Vec<MaterialRecordWire<serde::de::IgnoredAny>>,
+    materials: Vec<ClosedMaterialRecord<serde::de::IgnoredAny>>,
 }
 
 impl<'de> Deserialize<'de> for LinearStaticPreviewRequest {

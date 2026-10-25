@@ -19,20 +19,22 @@
 
 use crate::{
     ComponentGeometryInput, ComponentMechanicsInterfaceInput, ComponentModifierInput,
-    EquivalentStaticGenerationInput, FrictionNormalReactionSourceInput, MaterialRecordFields,
+    EquivalentStaticGenerationInput, FrictionNormalReactionSourceInput,
     MaterialTemperaturePointInput, NonlinearSupportInput, PipeSectionInput, PreviewCombination,
     PreviewCombinationTerm, PreviewComponent, PreviewLoadCase, PreviewModel, PreviewNode, PreviewPipe,
     PreviewPrimitiveLoad, PreviewSection, PreviewSupport, Quantity, SeismicGenerationInput,
     SpringHangerInput, SupportStiffnessInput, Vec3, VectorQuantity, WindExposedSpanInput,
     WindGenerationInput,
 };
-use serde::de::{self, DeserializeOwned, IgnoredAny, Visitor};
+use serde::de::{self, DeserializeOwned, Visitor};
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::BTreeMap;
 
 /// Request-boundary refusal code (an `Err` of the value entries).
 pub(crate) const UNKNOWN_MODEL_FIELD: &str = "UNKNOWN_MODEL_FIELD";
+/// Request-boundary refusal code for a record that is not an object.
+pub(crate) const MODEL_RECORD_NOT_OBJECT: &str = "MODEL_RECORD_NOT_OBJECT";
 /// Unknown keys named in one refusal; the rest are counted.
 const NAMED_LIMIT: usize = 8;
 
@@ -60,7 +62,7 @@ pub(crate) fn closed_quantity<'de, D: de::Deserializer<'de>>(
 
 /// An optional closed quantity that, when present, must be an object (as
 /// `deserialize_present_object` reads a pipe section's corrosion allowance).
-fn closed_present_quantity<'de, D: de::Deserializer<'de>>(
+pub(crate) fn closed_present_quantity<'de, D: de::Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<Quantity>, D::Error> {
     Ok(crate::deserialize_present_object::<D, ClosedQuantity>(deserializer)?
@@ -113,54 +115,6 @@ pub(crate) fn closed_optional_vector_quantity<'de, D: de::Deserializer<'de>>(
 ) -> Result<Option<VectorQuantity>, D::Error> {
     Ok(Option::<ClosedVectorQuantity>::deserialize(deserializer)?
         .map(|ClosedVectorQuantity { x, y, z, unit }| VectorQuantity { x, y, z, unit }))
-}
-
-/// A pipe segment's section as the model authors it: `PipeSectionInput`'s
-/// fields with their defaults, closed, and its quantities closed.
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct ClosedPipeSection {
-    #[serde(deserialize_with = "closed_quantity")]
-    outside_diameter: Quantity,
-    #[serde(deserialize_with = "closed_quantity")]
-    wall_thickness: Quantity,
-    #[serde(default, deserialize_with = "closed_optional_quantity")]
-    mill_tolerance: Option<Quantity>,
-    #[serde(default, deserialize_with = "closed_present_quantity")]
-    corrosion_allowance: Option<Quantity>,
-    #[serde(default, deserialize_with = "closed_optional_quantity")]
-    material_density: Option<Quantity>,
-    #[serde(default, deserialize_with = "closed_optional_quantity")]
-    contents_density: Option<Quantity>,
-    #[serde(default, deserialize_with = "closed_optional_quantity")]
-    insulation_thickness: Option<Quantity>,
-    #[serde(default, deserialize_with = "closed_optional_quantity")]
-    insulation_density: Option<Quantity>,
-}
-
-pub(crate) fn closed_pipe_section<'de, D: de::Deserializer<'de>>(
-    deserializer: D,
-) -> Result<PipeSectionInput, D::Error> {
-    let ClosedPipeSection {
-        outside_diameter,
-        wall_thickness,
-        mill_tolerance,
-        corrosion_allowance,
-        material_density,
-        contents_density,
-        insulation_thickness,
-        insulation_density,
-    } = ClosedPipeSection::deserialize(deserializer)?;
-    Ok(PipeSectionInput {
-        outside_diameter,
-        wall_thickness,
-        mill_tolerance,
-        corrosion_allowance,
-        material_density,
-        contents_density,
-        insulation_thickness,
-        insulation_density,
-    })
 }
 
 /// The members of objective connector 1.0.0 (`ObjectiveConnector` in
@@ -280,7 +234,7 @@ pub(crate) fn record_fields() -> RecordFields {
         node: declared_fields::<PreviewNode>(),
         vector: declared_fields::<ClosedVec3>(),
         pipe: declared_fields::<PreviewPipe>(),
-        pipe_section: declared_fields::<ClosedPipeSection>(),
+        pipe_section: declared_fields::<PipeSectionInput>(),
         section: declared_fields::<PreviewSection>(),
         support: declared_fields::<PreviewSupport>(),
         stiffness: declared_fields::<SupportStiffnessInput>(),
@@ -292,10 +246,30 @@ pub(crate) fn record_fields() -> RecordFields {
         vector_quantity: declared_fields::<ClosedVectorQuantity>(),
         modifiers: declared_fields::<ComponentModifierInput>(),
         mechanics_interface: declared_fields::<ComponentMechanicsInterfaceInput>(),
-        material: declared_fields::<MaterialRecordFields<IgnoredAny>>(),
+        material: MATERIAL_FIELDS,
         temperature_point: declared_fields::<MaterialTemperaturePointInput>(),
     }
 }
+
+/// A material record's keys: `MaterialInput`'s, the material-owned
+/// `expansion_laws` and model document 0.7.0's annotations (`lib.rs`
+/// `MATERIAL_ANNOTATIONS`), bound to the schema and to `MaterialInput` by the
+/// key test. The record is read in its flattened form, so this list is stated.
+pub(crate) const MATERIAL_FIELDS: &[&str] = &[
+    "constitutive_basis",
+    "poisson_ratio",
+    "id",
+    "elastic_modulus",
+    "shear_modulus",
+    "thermal_expansion_coefficient",
+    "temperature_points",
+    "provenance",
+    "expansion_laws",
+    "label",
+    "tags",
+    "notes",
+    "provenance_record",
+];
 
 /// The quantity members of the nested closed records, each a closed quantity.
 const PIPE_SECTION_QUANTITIES: [&str; 8] = [
@@ -351,6 +325,37 @@ struct Finding {
     path: String,
 }
 
+/// A record of a collection that is not an object, by its path.
+struct NonObject {
+    path: String,
+    is: &'static str,
+}
+
+/// One scan's findings: the first `NAMED_LIMIT` formed and kept, the rest only
+/// counted, so a request with many findings costs no more than eight.
+struct Findings<T> {
+    kept: Vec<T>,
+    more: usize,
+}
+
+impl<T> Default for Findings<T> {
+    fn default() -> Self {
+        Findings { kept: Vec::new(), more: 0 }
+    }
+}
+
+impl<T> Findings<T> {
+    /// Keeps the finding, formed only while fewer than `NAMED_LIMIT` are kept;
+    /// counts it otherwise.
+    fn keep_finding(&mut self, finding: impl FnOnce() -> T) {
+        if self.kept.len() < NAMED_LIMIT {
+            self.kept.push(finding());
+        } else {
+            self.more += 1;
+        }
+    }
+}
+
 fn id_of(record: &serde_json::Map<String, Value>) -> Option<&str> {
     record.get("id").and_then(Value::as_str)
 }
@@ -360,11 +365,11 @@ fn check(
     accepted: &[&str],
     name: impl Fn() -> String,
     path: &str,
-    findings: &mut Vec<Finding>,
+    findings: &mut Findings<Finding>,
 ) {
     for key in record.keys() {
         if !accepted.contains(&key.as_str()) {
-            findings.push(Finding { field: key.clone(), record: name(), path: path.to_string() });
+            findings.keep_finding(|| Finding { field: key.clone(), record: name(), path: path.to_string() });
         }
     }
 }
@@ -427,10 +432,10 @@ impl<'a> At<'a> {
 }
 
 /// `check` for a nested record, which is named and placed only for a finding.
-fn check_nested(record: &serde_json::Map<String, Value>, accepted: &[&str], at: &At<'_>, findings: &mut Vec<Finding>) {
+fn check_nested(record: &serde_json::Map<String, Value>, accepted: &[&str], at: &At<'_>, findings: &mut Findings<Finding>) {
     for key in record.keys() {
         if !accepted.contains(&key.as_str()) {
-            findings.push(Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });
+            findings.keep_finding(|| Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });
         }
     }
 }
@@ -442,7 +447,7 @@ fn nested_member<'a>(
     key: &'a str,
     accepted: &[&str],
     parent: &'a At<'a>,
-    findings: &mut Vec<Finding>,
+    findings: &mut Findings<Finding>,
 ) -> Option<(&'a serde_json::Map<String, Value>, At<'a>)> {
     let object = record.get(key)?.as_object()?;
     let at = At::Member { parent, key };
@@ -456,7 +461,7 @@ fn nested_quantities(
     keys: &[&'static str],
     accepted: &[&str],
     parent: &At<'_>,
-    findings: &mut Vec<Finding>,
+    findings: &mut Findings<Finding>,
 ) {
     for key in keys {
         nested_member(record, key, accepted, parent, findings);
@@ -464,7 +469,7 @@ fn nested_quantities(
 }
 
 /// A support stiffness record and its value.
-fn nested_stiffness(record: &serde_json::Map<String, Value>, fields: &RecordFields, parent: &At<'_>, findings: &mut Vec<Finding>) {
+fn nested_stiffness(record: &serde_json::Map<String, Value>, fields: &RecordFields, parent: &At<'_>, findings: &mut Findings<Finding>) {
     if let Some((stiffness, at)) = nested_member(record, "stiffness", fields.stiffness, parent, findings) {
         nested_member(stiffness, "value", fields.magnitude, &at, findings);
     }
@@ -475,7 +480,7 @@ fn nested_records(
     request: &serde_json::Map<String, Value>,
     model: &serde_json::Map<String, Value>,
     fields: &RecordFields,
-    findings: &mut Vec<Finding>,
+    findings: &mut Findings<Finding>,
 ) {
     for (i, node) in objects(model, "nodes") {
         let at = At::in_collection("model.nodes", "node", i, node);
@@ -542,14 +547,66 @@ fn nested_records(
     }
 }
 
-/// The named refusal for undeclared keys on the closed records of the actual
-/// request's model and on its materials, or `None`. Shapes other than unknown keys (a missing or
+/// The model's record collections; the request's are its materials.
+const RECORD_COLLECTIONS: [&str; 8] =
+    ["load_cases", "combinations", "nodes", "pipe_segments", "sections", "supports", "components", "materials"];
+
+/// What a record that is not an object is.
+fn value_kind(value: &Value) -> &'static str {
+    match value {
+        Value::Array(_) => "an array (a positional record)",
+        Value::Null => "null",
+        Value::Bool(_) => "a boolean",
+        Value::Number(_) => "a number",
+        Value::String(_) => "a string",
+        Value::Object(_) => "an object",
+    }
+}
+
+/// Every element of a record collection that is not an object. Serde's
+/// derives also read a record in positional (array) form, whose keys the scan
+/// cannot name, so such a record is refused by its path.
+fn non_object_records(
+    request: &serde_json::Map<String, Value>,
+    model: &serde_json::Map<String, Value>,
+    findings: &mut Findings<NonObject>,
+) {
+    let request_collections: &[&str] = &["materials"];
+    for (owner, prefix, collections) in [(model, "model.", &RECORD_COLLECTIONS[..]), (request, "", request_collections)] {
+        for collection in collections {
+            for (i, record) in owner.get(*collection).and_then(Value::as_array).into_iter().flatten().enumerate() {
+                if !record.is_object() {
+                    findings.keep_finding(|| NonObject { path: format!("{prefix}{collection}[{i}]"), is: value_kind(record) });
+                }
+            }
+        }
+    }
+}
+
+/// A refusal naming the kept findings and counting the rest.
+fn listed_refusal<T>(code: &str, findings: &Findings<T>, each: impl Fn(&T) -> String, remedy: &str) -> String {
+    let mut listed = findings.kept.iter().map(each).collect::<Vec<_>>().join("; ");
+    if findings.more > 0 {
+        listed.push_str(&format!("; and {} more", findings.more));
+    }
+    format!("{code}: request: {listed}. {remedy}")
+}
+
+/// The named refusal for a record that is not an object, or for undeclared
+/// keys on the closed records of the actual request's model and on its
+/// materials, or `None`. Shapes other than unknown keys (a missing or
 /// mistyped member, a non-object record) are left to the typed parse.
 pub(crate) fn unknown_field_refusal(actual_request: &Value) -> Option<String> {
     let request = actual_request.as_object()?;
     let model = request.get("model")?.as_object()?;
+    let mut non_objects = Findings::default();
+    non_object_records(request, model, &mut non_objects);
+    if !non_objects.kept.is_empty() {
+        return Some(listed_refusal(MODEL_RECORD_NOT_OBJECT, &non_objects, |f| format!("{} is {}", f.path, f.is),
+            "A model record is an object of named members; a record in another form cannot have its keys checked, so nothing is solved. Write each record as an object."));
+    }
     let fields = record_fields();
-    let mut findings = Vec::new();
+    let mut findings = Findings::default();
     check(model, fields.model, || "the model".into(), "model", &mut findings);
     for (i, case) in objects(model, "load_cases") {
         let case_name = named("load case", id_of(case), i);
@@ -596,26 +653,17 @@ pub(crate) fn unknown_field_refusal(actual_request: &Value) -> Option<String> {
         }
     }
     nested_records(request, model, &fields, &mut findings);
-    if findings.is_empty() {
+    if findings.kept.is_empty() {
         return None;
     }
-    let mut named_findings = findings
-        .iter()
-        .take(NAMED_LIMIT)
-        .map(|f| format!("unknown field `{}` in {} ({})", f.field, f.record, f.path))
-        .collect::<Vec<_>>()
-        .join("; ");
-    if findings.len() > NAMED_LIMIT {
-        named_findings.push_str(&format!("; and {} more", findings.len() - NAMED_LIMIT));
-    }
-    Some(format!(
-        "{UNKNOWN_MODEL_FIELD}: request: {named_findings}. The model document does not define these keys, so they would be ignored; nothing is solved. Correct or remove each key."
-    ))
+    Some(listed_refusal(UNKNOWN_MODEL_FIELD, &findings, |f| format!("unknown field `{}` in {} ({})", f.field, f.record, f.path),
+        "The model document does not define these keys, so they would be ignored; nothing is solved. Correct or remove each key."))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::MaterialInput;
     use std::collections::BTreeSet;
 
     fn set(keys: &[&str]) -> BTreeSet<String> {
@@ -733,8 +781,10 @@ mod tests {
             keys(&d["NonlinearSupport"]["properties"]["normal_reaction_source"], "normal reaction source"),
             "normal reaction source"
         );
-        // The closed pipe section accepts exactly `PipeSectionInput`'s fields.
-        assert_eq!(set(fields.pipe_section), set(declared_fields::<PipeSectionInput>()), "the closed and the evidence section agree");
+        // The material record's stated keys are `MaterialInput`'s, `expansion_laws` and the annotations.
+        let mut material = set(declared_fields::<MaterialInput>());
+        material.extend(set(&["expansion_laws"]).into_iter().chain(set(&crate::MATERIAL_ANNOTATIONS)));
+        assert_eq!(set(MATERIAL_FIELDS), material, "material record");
         // The scan checks every quantity and vector member of the records it walks.
         for (record, scanned, name) in [
             ("pipe section", &PIPE_SECTION_QUANTITIES[..], "PipeSection"),
@@ -758,6 +808,40 @@ mod tests {
         assert_eq!(refs(&d["SpringHanger"], "SupportStiffness"), set(&["stiffness"]));
         assert_eq!(refs(&d["Support"], "SupportStiffness"), set(&["stiffness"]));
         assert_eq!(d["Section"]["properties"]["properties"]["additionalProperties"]["$ref"], "#/$defs/Quantity");
+    }
+
+    #[test]
+    fn a_scan_keeps_at_most_eight_findings_and_counts_the_rest() {
+        // A 16 KiB id and 1,024 unknown keys: eight findings are formed and kept, the rest counted.
+        let mut record = serde_json::Map::new();
+        record.insert("id".into(), Value::String("n".repeat(16 * 1024)));
+        for k in 0..1024 {
+            record.insert(format!("extra_{k:04}"), Value::from(k));
+        }
+        let formed = std::cell::Cell::new(0);
+        let mut findings = Findings::default();
+        check(&record, &["id"], || { formed.set(formed.get() + 1); "the record".into() }, "model", &mut findings);
+        assert_eq!((findings.kept.len(), findings.more, formed.get()), (NAMED_LIMIT, 1016, NAMED_LIMIT));
+        let at = At::in_collection("model.nodes", "node", 0, &record);
+        let mut nested = Findings::default();
+        check_nested(&record, &["id"], &at, &mut nested);
+        assert_eq!((nested.kept.len(), nested.more), (NAMED_LIMIT, 1016));
+        let refusal = unknown_field_refusal(&serde_json::json!({"model": {"nodes": [record]}})).unwrap();
+        assert_eq!(refusal.matches("unknown field `extra_").count(), NAMED_LIMIT, "{}", &refusal[..200]);
+        assert!(refusal.contains("; and 1016 more. "), "{}", &refusal[refusal.len() - 200..]);
+    }
+
+    #[test]
+    fn a_record_that_is_not_an_object_is_refused_by_its_path() {
+        let refusal = |request: Value| unknown_field_refusal(&request).unwrap();
+        let positional = serde_json::json!({"model": {"nodes": [["n", {"x": 0, "y": 0, "z": 0, "extra": 1}, null, null, null, null]]}});
+        assert_eq!(refusal(positional), format!("{MODEL_RECORD_NOT_OBJECT}: request: model.nodes[0] is an array (a positional record). A model record is an object of named members; a record in another form cannot have its keys checked, so nothing is solved. Write each record as an object."));
+        let mixed = serde_json::json!({"model": {"load_cases": [null], "supports": [{"id": "s"}, "s"], "nodes": [{"extra": 1}]}, "materials": [7]});
+        let text = refusal(mixed);
+        for named in ["model.load_cases[0] is null", "model.supports[1] is a string", "materials[0] is a number"] {
+            assert!(text.contains(named), "{text}");
+        }
+        assert!(!text.contains("unknown field"), "the record form is refused first: {text}");
     }
 
     #[test]

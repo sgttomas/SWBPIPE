@@ -21,12 +21,8 @@
 //!   presence; a combination that publishes keeps its rows and diagnostics.
 //!   Setting `SILENT_DROP_GUARD_DUMP=<dir>` writes the control envelopes' exact
 //!   bytes there, for a byte comparison against another tree.
-//! - The material record's closed wire reads every committed material record as
-//!   the former flattened wire did: `material_records_parse_as_before` (run with
-//!   `MATERIAL_WIRE_DUMP=<checkout's projects/chirality-piping>:<out file>`)
-//!   writes each `materials` array element's parsed model and request values;
-//!   the same function, copied into a checkout of the former wire, writes the
-//!   lines to compare.
+//! - A record that is not an object (a positional array, null or a scalar)
+//!   refuses by its path (`MODEL_RECORD_NOT_OBJECT`) before anything is solved.
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, LinearStaticPreviewRequest, MechanicsEnvelope,
     PreviewSolverMode,
@@ -383,6 +379,23 @@ fn the_desktop_hand_edit_is_refused_with_this_text() {
 }
 
 #[test]
+fn a_positional_record_is_refused_by_its_path() {
+    let mut model = demo();
+    model["nodes"][2] = json!(["node:N-120", {"x": 0, "y": 0, "z": 0, "extra": 1}, null, null, null, null]);
+    for mode in MODES {
+        let error = refusal(&model, mode, "a positional node");
+        assert!(error.starts_with("MODEL_RECORD_NOT_OBJECT: request: model.nodes[2] is an array (a positional record). "), "{mode:?}: {error}");
+    }
+    // A positional record that serde would read: refused by the scan all the same.
+    let mut short = demo();
+    short["nodes"][2] = json!(["node:N-120", {"x": 0, "y": 0, "z": 0}, null]);
+    assert!(serde_json::from_value::<LinearStaticPreviewRequest>(request(&short)).is_ok(), "serde reads the positional form");
+    for mode in MODES {
+        assert!(refusal(&short, mode, "a readable positional node").starts_with("MODEL_RECORD_NOT_OBJECT: "), "{mode:?}");
+    }
+}
+
+#[test]
 fn every_unknown_key_is_named_with_a_bounded_list() {
     let mut model = linear();
     for index in 0..12 {
@@ -520,68 +533,3 @@ const NESTED_DECLARED: [(&str, &[&str]); 5] = [
     ("components", &["completeness", "tags", "notes", "provenance_record"]),
     ("materials", &["label", "tags", "notes", "provenance_record"]),
 ];
-
-/// Every element of an array under a `materials` key of every JSON file below
-/// the root (skipping build and dependency trees), parsed through the model's
-/// and the request's material wire, one line each: file, pointer, level and the
-/// parsed value's `Debug` text or the refusal. Runs only with `MATERIAL_WIRE_DUMP`.
-#[test]
-fn material_records_parse_as_before() {
-    let Some(spec) = std::env::var_os("MATERIAL_WIRE_DUMP") else { return };
-    let spec = spec.into_string().unwrap();
-    let (root, out) = spec.split_once(':').expect("<root>:<out file>");
-    fn files(dir: &std::path::Path, found: &mut Vec<std::path::PathBuf>) {
-        let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|entry| entry.unwrap().path()).collect();
-        entries.sort();
-        for path in entries {
-            let name = path.file_name().unwrap().to_string_lossy().to_string();
-            if path.is_dir() && !["node_modules", "target", "dist", ".git"].contains(&name.as_str()) {
-                files(&path, found);
-            } else if name.ends_with(".json") {
-                found.push(path);
-            }
-        }
-    }
-    fn records(value: &Value, pointer: String, found: &mut Vec<(String, Value)>) {
-        match value {
-            Value::Object(members) => {
-                for (index, record) in members.get("materials").and_then(Value::as_array).into_iter().flatten().enumerate() {
-                    if record.is_object() {
-                        found.push((format!("{pointer}/materials/{index}"), record.clone()));
-                    }
-                }
-                for (key, member) in members {
-                    records(member, format!("{pointer}/{key}"), found);
-                }
-            }
-            Value::Array(items) => items.iter().enumerate().for_each(|(index, item)| records(item, format!("{pointer}/{index}"), found)),
-            _ => {}
-        }
-    }
-    let model = |materials: Vec<Value>| json!({"schema_version": "0.7.0", "document_kind": "model", "project": {"id": "project:probe"},
-        "analysis_status": {"mechanics": "m", "rule_check": "r", "professional_acceptance": "a"},
-        "nodes": [], "pipe_segments": [], "supports": [], "materials": materials});
-    let root = std::path::Path::new(root);
-    let mut paths = Vec::new();
-    files(root, &mut paths);
-    let mut lines = Vec::new();
-    for path in paths {
-        let Ok(document) = serde_json::from_slice::<Value>(&std::fs::read(&path).unwrap()) else { continue };
-        let mut found = Vec::new();
-        records(&document, String::new(), &mut found);
-        let file = path.strip_prefix(root).unwrap().display().to_string();
-        for (pointer, record) in found {
-            let as_model = match serde_json::from_value::<open_pipe_stress_product_physics::PreviewModel>(model(vec![record.clone()])) {
-                Ok(parsed) => format!("OK {:?} {:?}", parsed.materials, parsed.material_expansion_laws),
-                Err(error) => format!("ERR {error}"),
-            };
-            let as_request = match serde_json::from_value::<LinearStaticPreviewRequest>(json!({"model": model(vec![]), "materials": [record]})) {
-                Ok(parsed) => format!("OK {parsed:?}"),
-                Err(error) => format!("ERR {error}"),
-            };
-            lines.push(format!("{file}\t{pointer}\tmodel\t{as_model}"));
-            lines.push(format!("{file}\t{pointer}\trequest\t{as_request}"));
-        }
-    }
-    std::fs::write(out, lines.join("\n") + "\n").unwrap();
-}
