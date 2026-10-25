@@ -1162,7 +1162,9 @@ export type EditorOperationIntent = {
       | "apply_library_record"
       // Model settings (DEL-02-01 Design model-document-0.7.0.md §3.8).
       | "set_model_setting"
-      | "clear_model_setting";
+      | "clear_model_setting"
+      // Project units (DEL-02-02 Design project-unit-selection.md §2.7).
+      | "set_project_unit";
     field_label: string;
     field_path: string;
     before: string;
