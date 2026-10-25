@@ -237,7 +237,10 @@ are #1461 (15 rows per member per case) and #1387 E14 (no dense parity row)
 and E15 (correctly rounded norm3); see DEL-07-05 Design `owner-mac-check.md`.
 W-7 (#1581) then added 12 global end rows per member per case, and the owner's
 ruling of 2026-10-25 ("I approve W-7's native-smoke values") set the rows to
-milestone 125 and demo 841 in both modes.
+milestone 125 and demo 841 in both modes. The C-120 fix (#1620) then removed
+the demo's malformed tee and its 4 intensified rows, and the owner's ruling of
+2026-10-25 ("Both decisions I approve your recommended options.") set the demo
+rows to 837 in both modes.
 It also checks:
 
 - the proof hash against its own JCS hash of each file;
