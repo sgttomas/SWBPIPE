@@ -114,9 +114,11 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
      `metadata.basis` with a malformed token matches nothing.
    - `tie_rod` names one rod of a connector's `tie_rods` record. A
      `connector_tie_rod_force_v1` row carries its rod only in its id, so the
-     match uses the result reader's existing binding of a rod row id to its
-     rod (`core/reporting/result_export/src/connector_evidence.rs`
-     `tie_rod_row_tail`, `is_tie_rod_row_id`), shared rather than copied. Two
+     match follows the result reader's binding of a rod row id to its rod
+     (`core/reporting/result_export/src/connector_evidence.rs`
+     `tie_rod_row_tail`, `is_tie_rod_row_id`; as built, §6a). The selector's
+     `tie_rod` must equal that rod's id exactly, so an alias that encodes to
+     the same row id (`rod-yp` for `rod:yp`) binds nothing. Two
      rods of one connector otherwise publish rows that the other members
      cannot separate (`fixtures/results/pressure_v3_connector_reader_corpus.json`,
      `load:U5A`, `component:C-J`, rods `yp` and `ym`).
@@ -211,6 +213,11 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
      `RULE_PACK_MAPPING_INCOMPLETE`. Without this, a required load case mapped
      only to a category with no checks would produce no outcome, and a missing
      load case could escape the aggregate.
+   - a required load case or stress category without `name`, with a
+     non-string `description`, or without `provenance`:
+     `RULE_PACK_RECORD_INCOMPLETE`; a provenance record missing any of its
+     members or holding a value outside its allowed set:
+     `RULE_PACK_PROVENANCE_INCOMPLETE`.
    Whether a named load case exists in a model is a run-time question (§2.6),
    not a static one, because a pack is validated without a model.
 10. **Checksum.** The new members sit inside the JCS-canonical payload hashed by
@@ -235,7 +242,9 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
   gains a prop for the current result; it receives only the model today).
 - **Run panel** (`RuleCheckRunPanel.tsx`): the per-input selector dropdown and
   `solverResultBindings` are removed; it shows each check's category and
-  bases.
+  bases. Its input preview and binding pre-check cover only the bases of the
+  checks that use each input (`ruleCheckService.ts` `solverInputBases`), the
+  runner's own scope.
 - **Validation** shows the §2.9 findings and the version refusal by code. A
   stored `0.4.0` pack shows the refusal and offers delete only.
 
@@ -339,9 +348,13 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
   - **Tie rods.** `connector_evidence.rs` is priced by the retained-pricing
     rules, so it is not changed. The module restates the rod-row id convention,
     citing `connector_evidence.rs` and `core/product_physics/src/joint.rs`.
-    A test cross-checks it on the reader corpus: the reader accepts the
-    corpus, the matcher binds each rod row to exactly one rod, and a forged rod
-    fails both. The convention covers load-case rows only, so a tie-rod row on
+    `row_tie_rod` reads the rod ids from the envelope's connector records, the
+    records the reader binds to. A row has a rod only when its connector has
+    exactly one record and exactly one of that record's rods encodes to the
+    row id; the selector's `tie_rod` must then equal that id exactly. The TS
+    mirror is `ruleCheckService.ts` `rowTieRod`. A test cross-checks both the
+    matcher and `row_tie_rod` against the reader on its corpus, and a forged
+    rod fails both. The convention covers load-case rows only, so a tie-rod row on
     a combination would be row-missing; no committed envelope has one.
 - **Gates.** Mechanics qualification runs once per run, as before;
   `rule_binding_refusal` runs on every matched row.
@@ -390,8 +403,11 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
     that no caller control exists.
   - The display-units picker checks went with the picker; the selector
     preview's unit conversion is still checked.
-  - The retained-precision notice test covers every row a selector can bind,
-    since rows without a basis cannot be bound.
+  - The retained-precision notice test excludes only rows without a
+    `basis_ref`, which cannot be bound. It asserts that every other row has a
+    selector that selects it alone, and checks the notice over all of them.
+    On its ten forms (125 rows each) this is all 125 rows, as on `main` before
+    0.5.0.
 
 ## 7. Review findings resolved
 
@@ -416,6 +432,17 @@ Round 2 (`8d5b6495da`) confirmed those and found:
 7. **Count scope** is stated beside the headline (§2.7).
 
 Both rounds reviewed the ScopeOfWork wording in §8 and approved it as written.
+
+The implementation review of `c5b6f6a17d` found:
+8. **A tie-rod alias bound the real rod (blocking).** Exact rod-id equality
+   against the connector record (§2.5, §6a).
+9. **The new records' required members were not validated.** Two blocking
+   codes (§2.9).
+10. **The run panel previewed an input on load cases it does not use.** The
+    preview follows the runner's basis plan (§3).
+11. **The retained-notice test's scope was filtered through the selector.** It
+    now excludes only unbindable rows and asserts selector uniqueness for the
+    rest (§6b).
 
 ## 8. ScopeOfWork wording (applied)
 
