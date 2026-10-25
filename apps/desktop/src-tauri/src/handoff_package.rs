@@ -615,8 +615,19 @@ pub(crate) fn stored_state(
     state_id: &str,
     memory: &dyn crate::stored_read::ReadMemory,
 ) -> Result<Option<ModelStateSummary>, String> {
+    use crate::model_states::ListedState;
     let listed = crate::model_states::list_states_in_store_with(path, project_id, memory)?;
-    Ok(listed.get().iter().find(|state| state.state_id == state_id).cloned())
+    for entry in listed.get() {
+        match entry {
+            ListedState::Readable(summary) if summary.state_id == state_id => return Ok(Some(summary.clone())),
+            // The basis state's row cannot be read (W-12 #1602 lists such a
+            // row by its id and refusal): the handoff refuses with that
+            // refusal, never as a missing state.
+            ListedState::Unreadable { unreadable } if unreadable.id == state_id => return Err(unreadable.refusal.clone()),
+            _ => {}
+        }
+    }
+    Ok(None)
 }
 
 fn basis_state(states: &mut StateLookup<'_>, project_id: &str, state_id: &str, model_hex: &str) -> Result<BasisState, Vec<Diagnostic>> {
@@ -4057,5 +4068,23 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
         let (ptr, len) = mapping.get();
         if ptr != 0 { unsafe { libc::munmap(ptr as *mut libc::c_void, len) }; }
         assert!(verdict.is_err(), "verified bytes no longer on disk: {verdict:?}");
+    }
+
+    /// #1602 merge: a basis state whose stored row cannot be read refuses the
+    /// handoff with the row's refusal (`HANDOFF-STATE-STORE-UNAVAILABLE`), not
+    /// as a missing state; the other rows still list.
+    #[test]
+    fn an_unreadable_basis_state_row_refuses_by_its_refusal() {
+        let model: Value = serde_json::from_str(DEMO).unwrap();
+        let store = store("merge-1602-unreadable", &model, false);
+        let state = save_state(&store, &model, "handoff_basis", "16020000160200001602000016020000").state;
+        assert!(prepare(&store, &model, &state.state_id).is_ok());
+        // Tampered as the W-12 tests tamper a row (the immutability trigger dropped first).
+        Connection::open(&store.path)
+            .unwrap()
+            .execute_batch("DROP TRIGGER IF EXISTS model_states_immutable; UPDATE model_states SET record_json = replace(record_json, 'HUMAN_REVIEW_REQUIRED', 'MECHANICS_SOLVED');")
+            .unwrap();
+        let result = prepare(&store, &model, &state.state_id);
+        assert!(matches!(&result, Err(d) if d.iter().any(|d| d.code == STATE_STORE_UNAVAILABLE)), "{:?}", codes(&result));
     }
 }

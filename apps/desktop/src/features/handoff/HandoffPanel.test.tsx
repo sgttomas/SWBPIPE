@@ -3,6 +3,7 @@ import modelJson from '../../../../../fixtures/product_preview/invented_demo_mod
 import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json';
 import {buildHandoffPackage} from './HandoffPanel';
 import {buildAnalysisRunPreview} from '../../services/previewService';
+import {RULE_PACK_REF_UNRESOLVED} from '../../services/rulePackRefDiagnostics';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import previewText from '../../../../../fixtures/results/preview_physics_connected_sparse.json?raw';
 import previewModelJson from '../../../../../fixtures/model_operations/precision_connected_ui_model.json';
@@ -39,7 +40,9 @@ it('is labelled a preview summary, points to Save Handoff, and carries the docum
  expect(handoffRulePackRefs(everySlot)).toEqual(everySlot.rule_pack_refs);
  expect(handoffRulePackRefs(everySlot)[0]).not.toBe(everySlot.rule_pack_refs![0]);
  const model={...(previewModelJson as unknown as PreviewModel),rule_pack_refs:everySlot.rule_pack_refs},result=JSON.parse(previewText) as MechanicsResult;
- const analysisRun=await buildAnalysisRunPreview(result,{inputManifest:await manifestFor(model)});
+ // #1602: a run records the model's rule-pack references the manifest leaves out (none is stored here).
+ const rulePackExclusions=everySlot.rule_pack_refs!.map((ref)=>({rule_pack_id:ref.rule_pack_id,rule_pack_version:ref.rule_pack_version,code:RULE_PACK_REF_UNRESOLVED}) as const);
+ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest:await manifestFor(model),rulePackExclusions});
  const packet=buildHandoffPackage({model,result,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
  expect(packet.library_refs.rule_pack_refs).toEqual(everySlot.rule_pack_refs);
  render(<HandoffPanel model={model} knowledge={null} result={result} analysisRun={analysisRun} comparison={null} editorIntents={[]} proposal={null} selectedReviewTarget={null}/>);

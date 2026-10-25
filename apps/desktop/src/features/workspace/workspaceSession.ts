@@ -2442,7 +2442,9 @@ export function useWorkspaceSession() {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     let basis: HandoffBasis;
     try {
-      basis = handoffBasis(await listModelStates(saveModel.project.id), saveModel.project.id, saveHash.value);
+      // The basis is chosen among the readable saved states; a row the store
+      // cannot read (W-12) is never a basis.
+      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHash.value);
     } catch (error) {
       setProjectMessage(handoffSaveFailureMessage(error));
       setProjectOperation("save_handoff_failed");
