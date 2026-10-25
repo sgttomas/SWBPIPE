@@ -425,3 +425,34 @@ fn w15_an_unsolved_result_carries_no_body_whatever_the_model_declares() {
         admitted(route, &source, &wire["model"], &format!("{route:?} unsolved"));
     }
 }
+
+/// §5 Row record, on combination rows (#1573's preview combination rows; the
+/// exact route refuses a combination by name, EXACT_PRESSURE_FAMILY_NOT_ADMITTED):
+/// a combination of the case publishes the body's combined stress rows with its
+/// record, the headline stays off the body, and the readers admit the result
+/// with its model.
+#[test]
+fn w15_combination_rows_of_a_body_carry_its_record() {
+    for route in [Route::Preview] {
+        let mut wire = request(route, vec![valve(VALVE, "node:b", BODY, 4.0)]);
+        wire["model"]["combinations"] = json!([{"id": "combination:w15", "basis": "mechanics", "terms": [{"load_case": CASE, "factor": 1.5}],
+            "provenance": PROV}]);
+        for mode in MODES {
+            let label = format!("{route:?} {}", mode.as_str());
+            let source = solve(&wire, mode);
+            admitted(route, &source, &wire["model"], &label);
+            let combined: Vec<&Value> = source["results"].as_array().unwrap().iter()
+                .filter(|r| r["basis_ref"]["ref_type"] == "combination").collect();
+            assert!(!combined.is_empty(), "{label}: combination rows are published");
+            let body_stress: Vec<&&Value> = combined.iter().filter(|r| r["entity_ref"] == BODY && stress_kind(route, r["kind"].as_str().unwrap())).collect();
+            assert!(!body_stress.is_empty(), "{label}: the body's combined stress rows");
+            for row in combined {
+                let expected = row["entity_ref"] == BODY && stress_kind(route, row["kind"].as_str().unwrap());
+                assert_eq!(row.get("component_body"), expected.then(|| record(4.0)).as_ref(), "{label}: {}", row["id"]);
+            }
+            for headline in headlines(route, &source) {
+                assert!(headline.is_null() || headline["location_ref"] == PIPE, "{label}: {headline}");
+            }
+        }
+    }
+}
