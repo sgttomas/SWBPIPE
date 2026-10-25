@@ -133,7 +133,7 @@ export function StressNeutralExportPanel({
               nativeCurrentBinding={binding}
               download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.json`}
               href={jsonDataHref(currentPacket)}
-              validateDecodedPayload={(payload) => validateStressNeutralExportPacket(payload, binding?.[1], binding?.[2], binding ? modelLoadBasisRefs(binding[0]) : undefined)}
+              validateDecodedPayload={(payload) => validateDesktopStressNeutralExportPacket(payload, binding?.[1], binding?.[2], binding ? modelLoadBasisRefs(binding[0]) : undefined)}
             >
               <Download size={14} aria-hidden="true" />
               Package JSON
@@ -575,8 +575,24 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
   packet.manifest.checksums = [...checksums, manifestChecksum];
   packet.manifest.package_members = STRICT_MEMBER_NAMES.map((filename) => ({ filename, checksum: packet.manifest.checksums.find((item: any) => item.payload_ref.ref === filename) }));
   packet.package_checksum = { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "complete_package_excluding_self_checksum", payload_ref: { object_type: "StressNeutralExportPackage", ref: packet.export_id }, value: await canonicalSha256HexCheckedV1(packet) };
-  await validateStressNeutralExportPacket(packet, args.result, args.analysisRun, modelLoadBasisRefs(args.model));
+  await validateDesktopStressNeutralExportPacket(packet, args.result, args.analysisRun, modelLoadBasisRefs(args.model));
   return packet;
+}
+
+/** The desktop publication path: the builder's self-check and the panel's package JSON link,
+ * whose browser download and native save are both offered only after this check passes. Before
+ * the generic checks, the package's top-level provenance must equal this builder's fixed one
+ * exactly (canonical JSON), so a package restamped with other dispositions is refused here; the
+ * witness-withholding findings, which the generic validator binds to the top level, follow. The
+ * generic validator below still admits another exporter's package with its own provenance. */
+export async function validateDesktopStressNeutralExportPacket(packet: any, source?: MechanicsResult, analysisRun?: AnalysisRunEnvelope, expectedBasisRefs?: ObjectRef[]): Promise<void> {
+  let bound = false;
+  try {
+    bound = packet !== null && typeof packet === "object" && Object.hasOwn(packet, "provenance")
+      && await canonicalSha256HexCheckedV1(packet.provenance) === await canonicalSha256HexCheckedV1(previewProvenance());
+  } catch { bound = false; }
+  if (!bound) throw new Error("SN-DESKTOP-PROVENANCE-MISMATCH");
+  await validateStressNeutralExportPacket(packet, source, analysisRun, expectedBasisRefs);
 }
 
 export async function validateStressNeutralExportPacket(packet: any, source?: MechanicsResult, analysisRun?: AnalysisRunEnvelope, expectedBasisRefs?: ObjectRef[]): Promise<void> {

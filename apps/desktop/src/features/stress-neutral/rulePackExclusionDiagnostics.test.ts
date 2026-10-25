@@ -16,7 +16,7 @@ import { modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { buildAnalysisRunPreview, resetSessionResultCustodyForTests, runPreviewMechanics } from "../../services/previewService";
 import { RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED, rulePackRefDiagnostic } from "../../services/rulePackRefDiagnostics";
 import { canonicalJsonString, canonicalSha256HexCheckedV1 } from "../../services/hashService";
-import { buildStressNeutralExportPacket, validateStressNeutralExportPacket } from "./StressNeutralExportPanel";
+import { buildStressNeutralExportPacket, validateDesktopStressNeutralExportPacket, validateStressNeutralExportPacket } from "./StressNeutralExportPanel";
 import type { RulePackReference } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -159,6 +159,38 @@ describe("the stress-neutral package carries the run record's rule-pack exclusio
     interop.provenance = structuredClone(substituted);
     for (const item of interop.diagnostics as Json[]) if (withholding(item)) item.provenance = structuredClone(substituted);
     await expect(validateStressNeutralExportPacket(await rehash(interop), session.result, session.analysisRun, basis)).resolves.toBeUndefined();
+  }, 120_000);
+
+  it("the desktop publication path binds the package's top-level provenance to the builder's; the generic validator still admits another's", async () => {
+    const session = await solvedWith([HELD, MISSING, CHANGED]);
+    const packet = await buildStressNeutralExportPacket(session);
+    const basis = modelLoadBasisRefs(session.model);
+    const withholding = (item: Json) => typeof item.code === "string" && (item.code.startsWith("SN-UNIT-WITNESS-WITHHELD") || item.code === "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE");
+    // (d) The desktop-built package passes the desktop path (the builder's self-check ran it too).
+    await expect(validateDesktopStressNeutralExportPacket(packet, session.result, session.analysisRun, basis)).resolves.toBeUndefined();
+    // Codex round 3: restrictive top-level dispositions, the witness-withholding findings (bound
+    // to the top level) updated to match, the exclusion diagnostics untouched, every hash restamped.
+    const restrictive = structuredClone(packet);
+    restrictive.provenance = { ...structuredClone(packet.provenance), redistribution_status: "protected_suspected", review_status: "quarantined" };
+    for (const item of restrictive.diagnostics as Json[]) if (withholding(item)) item.provenance = structuredClone(restrictive.provenance);
+    await rehash(restrictive);
+    // (b) The generic validator, which both desktop callers ran before this binding, admits it:
+    // another exporter's package carries its own provenance.
+    await expect(validateStressNeutralExportPacket(restrictive, session.result, session.analysisRun, basis)).resolves.toBeUndefined();
+    // (a) The desktop path refuses it, as it does a removed, extended or altered provenance.
+    await expect(validateDesktopStressNeutralExportPacket(restrictive, session.result, session.analysisRun, basis)).rejects.toThrow("SN-DESKTOP-PROVENANCE-MISMATCH");
+    await expect(validateDesktopStressNeutralExportPacket(restrictive)).rejects.toThrow("SN-DESKTOP-PROVENANCE-MISMATCH");
+    for (const tamper of [
+      (p: Json) => { delete p.provenance; },
+      (p: Json) => { p.provenance.professional_claim = false; },
+      (p: Json) => { p.provenance.review_status = "accepted"; },
+      (p: Json) => { p.provenance = null; }
+    ]) {
+      const changed = structuredClone(packet);
+      tamper(changed);
+      await expect(validateDesktopStressNeutralExportPacket(await rehash(changed), session.result, session.analysisRun, basis)).rejects.toThrow("SN-DESKTOP-PROVENANCE-MISMATCH");
+    }
+    for (const value of [null, "invented", 1]) await expect(validateDesktopStressNeutralExportPacket(value)).rejects.toThrow("SN-DESKTOP-PROVENANCE-MISMATCH");
   }, 120_000);
 
   it("a producer diagnostic naming the same exclusion neither suppresses nor repeats the package's one", async () => {
