@@ -3123,8 +3123,8 @@ function storedProjectUnits(model: PreviewModel): Readonly<Partial<Record<string
 }
 
 // The component draft reads `project.units` as present; it gets a read-only view
-// in which an absent map is empty, so it does not throw. Its length, force and
-// pressure units then start as missing ("TBD"); its angle unit still falls back
+// in which an absent map is empty, so it does not throw. Its length and force
+// units then start as missing ("TBD"); its angle unit still falls back
 // to `rad` inside `defaultComponentDraft` (a separate, open item).
 function componentDraftFor(...[model, ...rest]: Parameters<typeof defaultComponentDraft>): ComponentDraft {
   const view = model.project.units === undefined ? { ...model, project: { ...model.project, units: {} } } : model;
