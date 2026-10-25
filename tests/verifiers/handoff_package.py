@@ -335,6 +335,12 @@ def verify_handoff_package(directory: Path | str) -> dict[str, str]:
     package (the basis state and its record hash, the stored libraries and rule
     packs) exist or hold what their digests say. References rewritten together
     with their digests pass it; only the local store can confirm them.
+
+    It verifies a package at rest: after its layout check it reads each member
+    again by path, so a package changed while it runs (a member replaced, or a
+    link substituted between the check and the read) can be judged on bytes
+    other than the ones the layout check saw. The Rust twin reads each member
+    through one descriptor and re-checks it; the save relies only on that.
     """
     directory = Path(directory)
     if not _layout_ok(directory):

@@ -242,9 +242,22 @@ fn reference_privacy(redistribution: &str, privacy_values: &[&str], private: &'s
 }
 
 /// Every `privacy_class` and `privacy_classification` string at any depth of `value`.
+/// A present member whose value is not a string (`null`, a boolean, a number,
+/// an array, an object) is recorded as the empty string, which no allow-list
+/// holds, so it counts as private (review round 5, should-fix 3).
 fn privacy_values<'a>(value: &'a Value, out: &mut Vec<&'a str>) {
-    members_at_any_depth(value, "privacy_class", out);
-    members_at_any_depth(value, "privacy_classification", out);
+    match value {
+        Value::Object(object) => {
+            for (key, child) in object {
+                if key == "privacy_class" || key == "privacy_classification" {
+                    out.push(child.as_str().unwrap_or(""));
+                }
+                privacy_values(child, out);
+            }
+        }
+        Value::Array(items) => items.iter().for_each(|item| privacy_values(item, out)),
+        _ => {}
+    }
 }
 
 /// Redistribution dispositions from most to least permissive; anything
@@ -907,8 +920,8 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
         let mut privacies = Vec::new();
         for object in &covered {
             for (key, child) in object.iter() {
-                if let ("privacy_class" | "privacy_classification", Some(value)) = (key.as_str(), child.as_str()) {
-                    privacies.push(value);
+                if key == "privacy_class" || key == "privacy_classification" {
+                    privacies.push(child.as_str().unwrap_or(""));
                 }
                 privacy_values(child, &mut privacies);
             }
@@ -3006,10 +3019,22 @@ fn round3_replacement_must_check_what_it_published_before_deleting_old_package()
             };
             let (_other, next) = prepared_demo(&format!("round3-commit-swap-next-{mode}"));
             let outcome = write_handoff_package(&target, next, CREATED_AT, &PublishHooks { swap: Some(&swap), ..PRODUCTION_HOOKS });
-            assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::PUBLISH_UNVERIFIED), "swap {mode}: {outcome:?}");
-            assert_eq!(calls.get(), 2, "swap {mode}: the swap was not undone");
-            assert_eq!(package_bytes(&target), old, "swap {mode}: the previous package was not restored unchanged");
-            assert!(verify_handoff_package(&target).is_ok(), "swap {mode}");
+            if mode == "model-file" {
+                // This save's own folder is under the name: the swap is undone.
+                assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::PUBLISH_UNVERIFIED), "swap {mode}: {outcome:?}");
+                assert_eq!(calls.get(), 2, "swap {mode}: the swap was not undone");
+                assert_eq!(package_bytes(&target), old, "swap {mode}: the previous package was not restored unchanged");
+                assert!(verify_handoff_package(&target).is_ok(), "swap {mode}");
+            } else {
+                // A folder this save does not own is under the name: nothing is
+                // moved back (review round 5), and the previous package is left
+                // unchanged under the staging name the refusal gives.
+                assert!(matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::ROLLBACK_WITHHELD), "swap {mode}: {outcome:?}");
+                assert_eq!(calls.get(), 1, "swap {mode}: a folder this save does not own was moved back");
+                let left = staging_left(&store.root);
+                assert_eq!(left.len(), 1, "swap {mode}: {left:?}");
+                assert_eq!(package_bytes(&store.root.join(&left[0])), old, "swap {mode}: the previous package changed");
+            }
         }
     }
 
@@ -3277,13 +3302,17 @@ fn round4_member_replaced_during_verification_must_not_return_saved_and_delete_o
     /// Review round 4, should-fix 2: commits are serialized per destination
     /// only; a save of another name commits while one is held inside its commit.
     #[test]
-    fn a_commit_held_open_does_not_stall_a_save_of_another_destination() {
+    fn a_commit_held_open_does_not_stall_a_save_into_another_folder() {
         use std::sync::mpsc;
         use std::time::Duration;
         let (store, held) = prepared_demo("round4-keyed-held");
         let (_other, free) = prepared_demo("round4-keyed-free");
+        // Commits serialize per parent folder (review round 5): the free save
+        // goes to another folder.
         let held_target = store.root.join("held.swbhandoff");
-        let free_target = store.root.join("free.swbhandoff");
+        let other_folder = store.root.join("other-folder");
+        fs::create_dir(&other_folder).unwrap();
+        let free_target = other_folder.join("free.swbhandoff");
         let (entered_tx, entered_rx) = mpsc::channel();
         let (release_tx, release_rx) = mpsc::channel::<()>();
         let holder = std::thread::spawn(move || {
@@ -3309,5 +3338,262 @@ fn round4_member_replaced_during_verification_must_not_return_saved_and_delete_o
         assert!(independent, "a save of another destination waited for a held commit");
         assert!(matches!(held, HandoffSaveOutcome::Saved { .. }), "{held:?}");
         assert!(matches!(unrelated, HandoffSaveOutcome::Saved { .. }), "{unrelated:?}");
+    }
+
+#[test]
+fn round5_rollback_does_not_move_a_known_unrelated_folder() {
+    let mut failures = Vec::new();
+    for substitute in ["target", "staging"] {
+        let (store, first) = prepared_demo(&format!("round5-rollback-{substitute}"));
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+        let old = package_bytes(&target);
+        let (_other, next) = prepared_demo("round5-rollback-next");
+        let staging = store.root.join("target.swbhandoff.staging-round5");
+        let retained = store.root.join("retained-by-other-process");
+        let changed = if substitute == "target" { target.clone() } else { staging.clone() };
+        let changed2 = changed.clone();
+        let target2 = target.clone();
+        let retained2 = retained.clone();
+        publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+            fs::rename(&changed2, &retained2).unwrap();
+            fs::create_dir(&changed2).unwrap();
+            fs::write(changed2.join("unrelated.txt"), b"do not move this folder").unwrap();
+            if substitute == "staging" {
+                fs::write(target2.join(MANIFEST_MEMBER), b"{}").unwrap();
+            }
+        })));
+        let token = || Ok("round5".to_string());
+        let out = write_handoff_package(&target, next, CREATED_AT, &PublishHooks { token: &token, ..PRODUCTION_HOOKS });
+        let unchanged_name = changed.join("unrelated.txt").exists();
+        let old_at_staging = staging.join(MANIFEST_MEMBER).exists() && package_bytes(&staging) == old;
+        println!("ROUND5_ROLLBACK {substitute}: {out:?}; unrelated_at_original_name={unchanged_name}; previous_at_staging={old_at_staging}; target_unrelated={}", target.join("unrelated.txt").exists());
+        assert!(matches!(out, HandoffSaveOutcome::Refused { .. }));
+        if !unchanged_name { failures.push(substitute); }
+    }
+    assert!(failures.is_empty(), "rollback knowingly moved unrelated folders after verification detected substitution: {failures:?}");
+}
+
+#[test]
+fn round5_case_alias_saves_do_not_leave_committed_packages_in_staging() {
+    use std::sync::mpsc;
+    use std::time::Duration;
+    let (store, first) = prepared_demo("round5-case-alias");
+    let target = store.root.join("target.swbhandoff");
+    let alias = store.root.join("TARGET.swbhandoff");
+    assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+    use std::os::unix::fs::MetadataExt;
+    assert_eq!(fs::metadata(&target).unwrap().ino(), fs::metadata(&alias).unwrap().ino(), "probe requires a case-insensitive volume");
+    let (_sa, a) = prepared_demo("round5-case-a");
+    let (_sb, b) = prepared_demo("round5-case-b");
+    let (a_entered_tx, a_entered_rx) = mpsc::channel();
+    let (b_entered_tx, b_entered_rx) = mpsc::channel();
+    let (release_tx, release_rx) = mpsc::channel();
+    let (a_swapped_tx, a_swapped_rx) = mpsc::channel();
+    let (b_swapped_tx, b_swapped_rx) = mpsc::channel();
+    let (a_done_tx, a_done_rx) = mpsc::channel();
+    let (b_staged_tx, b_staged_rx) = mpsc::channel();
+    let aa = std::thread::spawn(move || {
+        let calls = std::cell::Cell::new(0);
+        let swap = |s: &Path, t: &Path| {
+            calls.set(calls.get() + 1);
+            if calls.get() == 1 {
+                a_entered_tx.send(()).unwrap();
+                release_rx.recv_timeout(Duration::from_secs(10)).unwrap();
+                publish::platform_swap(s, t)?;
+                a_swapped_tx.send(()).unwrap();
+                let _ = b_swapped_rx.recv_timeout(Duration::from_secs(1));
+                Ok(())
+            } else { publish::platform_swap(s, t) }
+        };
+        write_handoff_package(&target, a, CREATED_AT, &PublishHooks { swap: Some(&swap), ..PRODUCTION_HOOKS })
+    });
+    a_entered_rx.recv_timeout(Duration::from_secs(10)).unwrap();
+    let bb = std::thread::spawn(move || {
+        let swap = |s: &Path, t: &Path| {
+            b_entered_tx.send(()).unwrap();
+            a_swapped_rx.recv_timeout(Duration::from_secs(10)).unwrap();
+            publish::platform_swap(s, t)?;
+            b_swapped_tx.send(()).unwrap();
+            a_done_rx.recv_timeout(Duration::from_secs(10)).unwrap();
+            Ok(())
+        };
+        let before = || { b_staged_tx.send(()).unwrap(); Ok(()) };
+        write_handoff_package(&alias, b, CREATED_AT, &PublishHooks { before_commit: &before, swap: Some(&swap), ..PRODUCTION_HOOKS })
+    });
+    b_staged_rx.recv_timeout(Duration::from_secs(10)).unwrap();
+    let overlap = b_entered_rx.recv_timeout(Duration::from_millis(300)).is_ok();
+    release_tx.send(()).unwrap();
+    let a = aa.join().unwrap();
+    let _ = a_done_tx.send(());
+    let b = bb.join().unwrap();
+    let leftovers = staging_left(&store.root);
+    println!("ROUND5_ALIAS overlap={overlap}; A={a:?}; B={b:?}; leftovers={leftovers:?}");
+    assert!(!overlap && leftovers.is_empty(), "saves within the app interleaved through case aliases of the same destination");
+}
+
+#[test]
+fn round5_member_substitution_matrix_refuses_and_keeps_previous() {
+    let mut checked = 0;
+    for member in ["model/model.json", "handoff_package.json"] {
+        for mode in ["file", "symlink", "fifo", "directory", "hardlink", "rewrite"] {
+            for replacing in [false, true] {
+                let (store, first) = prepared_demo("round5-members");
+                let target = store.root.join("target.swbhandoff");
+                let old = if replacing {
+                    assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+                    Some(package_bytes(&target))
+                } else { None };
+                let outside = store.root.join("outside.json");
+                fs::write(&outside, b"outside must survive").unwrap();
+                let (_next_store, next) = prepared_demo("round5-members-next");
+                let target2 = target.clone();
+                let outside2 = outside.clone();
+                publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                    let substitute = move || {
+                        let file = target2.join(member);
+                        let bytes = fs::read(&file).unwrap();
+                        if mode == "rewrite" { fs::write(&file, b"{}").unwrap(); return; }
+                        fs::rename(&file, file.with_extension("retained")).unwrap();
+                        match mode {
+                            "file" => fs::write(&file, bytes).unwrap(),
+                            "symlink" => std::os::unix::fs::symlink(&outside2, &file).unwrap(),
+                            "hardlink" => fs::hard_link(&outside2, &file).unwrap(),
+                            "directory" => fs::create_dir(&file).unwrap(),
+                            "fifo" => {
+                                use std::os::unix::ffi::OsStrExt;
+                                let file = std::ffi::CString::new(file.as_os_str().as_bytes()).unwrap();
+                                assert_eq!(unsafe { libc::mkfifo(file.as_ptr(), 0o600) }, 0);
+                            }
+                            _ => unreachable!(),
+                        }
+                    };
+                    publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                        if member == "handoff_package.json" {
+                            publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(substitute)));
+                        } else { substitute(); }
+                    })));
+                })));
+                let out = write(&target, next);
+                assert!(matches!(out, HandoffSaveOutcome::Refused { .. }), "{member}/{mode}/{replacing}: {out:?}");
+                if let Some(old) = old { assert_eq!(package_bytes(&target), old, "{member}/{mode}"); }
+                assert_eq!(fs::read(&outside).unwrap(), b"outside must survive");
+                checked += 1;
+            }
+        }
+    }
+    println!("ROUND5_MEMBER_SUBSTITUTIONS {checked} cases passed");
+}
+
+#[test]
+fn round5_nonstring_privacy_classifications_are_not_public() {
+    let mut failures = Vec::new();
+    for value in [Value::Null, json!(false), json!(0), json!([]), json!({}), json!(["private_user_data"])] {
+        let mut model = witness_model();
+        let reference = &mut model["materials"][0]["provenance_record"]["library_ref"];
+        reference.as_object_mut().unwrap().remove("record_id");
+        let mut lib: Value = serde_json::from_str(include_str!("../../../../fixtures/material/invented_material_library_valid.json")).unwrap();
+        fn public(v: &mut Value) {
+            match v {
+                Value::Object(m) => for (k,v) in m { if k == "redistribution_status" { *v=json!("public_permissive"); } else { public(v); } },
+                Value::Array(a) => for v in a { public(v); },
+                _ => {},
+            }
+        }
+        public(&mut lib);
+        lib["material_library"]["privacy_class"] = value.clone();
+        reference["library_id"] = lib["material_library"]["library_id"].clone();
+        let store = store("round5-nonstrings", &model, false);
+        let saved = crate::save_local_library_value(|| Ok(store.path.clone()), "project:slots".to_string(), "material".to_string(), lib.clone()).unwrap();
+        assert!(saved.stored, "normal private import refused {value}: {}", saved.message);
+        let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", &saved.library_id).unwrap().unwrap();
+        let mut lookup = |_: &str, _: &str, _: &str| Ok(Some(row.document.clone()));
+        let (refs, _) = library_refs(&model, "project:slots", &mut lookup).unwrap();
+        let classification = refs[0]["privacy_classification"].clone();
+        println!("ROUND5_NONSTRING_PRIVACY {value} => {classification}");
+        if classification != json!("private_library_data") { failures.push(value); }
+        if let Ok(out) = std::env::var("W6B_REVIEW_EVIDENCE") {
+            fs::write(PathBuf::from(out).join("nonstring-privacy-library.json"), serde_json::to_vec_pretty(&lib).unwrap()).unwrap();
+        }
+    }
+    assert!(failures.is_empty(), "malformed non-string classifications were silently omitted: {failures:?}");
+}
+
+#[test]
+fn round5_unsupported_new_name_refuses_with_its_named_diagnostic() {
+    let (store, prepared) = prepared_demo("round5-no-exclusive-rename");
+    let target = store.root.join("target.swbhandoff");
+    let unsupported = |_: &Path, _: &Path| Err(io::Error::from_raw_os_error(libc::ENOTSUP));
+    let out = write_handoff_package(&target, prepared, CREATED_AT, &PublishHooks { rename_new: Some(&unsupported), ..PRODUCTION_HOOKS });
+    assert!(matches!(&out, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == "HANDOFF-NEW-NAME-UNSUPPORTED"), "{out:?}");
+    assert!(!target.exists());
+    assert!(staging_left(&store.root).is_empty());
+}
+
+// Characterization only: a same-inode rewrite after the model's final read,
+// while the manifest is still being opened. This is separate from regression
+// assertions so it does not encode Saved as the required behavior.
+#[test]
+fn review5_residual_rewrite_after_the_models_read() {
+    let (store, first) = prepared_demo("review5-residual");
+    let target = store.root.join("target.swbhandoff");
+    assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+    let (_next_store, next) = prepared_demo("review5-residual-next");
+    let target2 = target.clone();
+    publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+        publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+            publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                fs::write(target2.join(publish::MODEL_MEMBER), b"{}").unwrap();
+            })));
+        })));
+    })));
+    let out = write(&target, next);
+    let verification = verify_handoff_package(&target);
+    println!("REVIEW5_RESIDUAL outcome={out:?}; verifier_afterwards={verification:?}; leftovers={:?}", staging_left(&store.root));
+}
+
+#[test]
+fn review5_residual_swap_can_move_a_nonempty_substitute() {
+    let root = sandbox("review5-residual-swap");
+    let staging = root.join("staging");
+    let target = root.join("target");
+    fs::create_dir(&staging).unwrap();
+    fs::create_dir(&target).unwrap();
+    fs::write(staging.join("written.txt"), b"new").unwrap();
+    fs::write(target.join("unrelated.txt"), b"non-empty substituted folder").unwrap();
+    publish::platform_swap(&staging, &target).unwrap();
+    assert!(staging.join("unrelated.txt").exists());
+    println!("REVIEW5_RESIDUAL_SWAP a nonempty unrelated target folder was moved to staging by RENAME_SWAP");
+    fs::remove_dir_all(&root).unwrap();
+}
+
+
+    /// Review round 5, finding 4: a same-inode rewrite of an already-read
+    /// member while the other is read is caught by re-checking every member's
+    /// descriptor (identity, size, change time) after the last read.
+    #[test]
+    fn a_member_rewritten_after_its_read_but_before_the_last_check_is_refused() {
+        for rewritten in [publish::MODEL_MEMBER] {
+            let (store, first) = prepared_demo("round5-ctime");
+            let target = store.root.join("target.swbhandoff");
+            assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+            let old = package_bytes(&target);
+            let (_next_store, next) = prepared_demo("round5-ctime-next");
+            let member = target.join(rewritten);
+            // The rewrite lands after the model's read, before the manifest's open
+            // (same inode, same length, so only the change time shows it).
+            publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                    publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                        let bytes = fs::read(&member).unwrap();
+                        let mut file = fs::OpenOptions::new().write(true).open(&member).unwrap();
+                        io::Write::write_all(&mut file, &bytes).unwrap();
+                    })));
+                })));
+            })));
+            let out = write(&target, next);
+            assert!(matches!(&out, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::PUBLISH_UNVERIFIED), "{rewritten}: {out:?}");
+            assert_eq!(package_bytes(&target), old, "{rewritten}: the previous package was not restored");
+        }
     }
 }

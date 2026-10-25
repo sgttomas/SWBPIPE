@@ -38,9 +38,13 @@
 //! 4. After the rename or swap, what is published under the name must be the
 //!    entries this save created (by identity, through the parent's handle),
 //!    and each member must read back as exactly the in-memory bytes verified
-//!    (step 1's read). Otherwise the save is refused
-//!    `HANDOFF-PUBLISH-UNVERIFIED`: a replacement is swapped back, and a new
-//!    name is left as found. `Saved` is reported only after this check, with
+//!    (step 1's read), and after the last read every member's descriptor must
+//!    still show the same identity, size and change time. Otherwise the save
+//!    is refused `HANDOFF-PUBLISH-UNVERIFIED`: a new name is left as found; a
+//!    replacement is swapped back only if, immediately before, the name still
+//!    holds this save's folder and the staging name the entry the swap moved
+//!    out; if either changed, nothing is moved (`HANDOFF-ROLLBACK-WITHHELD`,
+//!    naming where the previous package is). `Saved` is reported only after this check, with
 //!    the receipt computed from the in-memory bytes. What the swap moved out
 //!    must also be the package admitted (else the swap is undone); only when
 //!    both hold is it removed, member by member and only while each entry is
@@ -48,9 +52,9 @@
 //! 5. A leftover `<name>.swbhandoff.staging-*` from an earlier crash is ignored
 //!    and reported for the user to delete.
 //!
-//! Commits (step 3 to the removal in step 4) of the same destination (parent
-//! folder identity and name) run one at a time in this process; saves of other
-//! destinations do not wait for them.
+//! Commits (step 3 to the removal in step 4) into the same parent folder (by
+//! its identity, so case or normalization aliases of one name share it) run
+//! one at a time in this process; saves into other folders do not wait.
 //!
 //! Removal (cleanup of the staging directory, the replaced package) unlinks an
 //! entry only while it is, by device and inode, the one this save created or
@@ -58,23 +62,24 @@
 //! symlink, folder or file is left in place and reported; a hard-linked member
 //! loses only the package's link.
 //!
-//! Residual (restated after review round 4: what cannot be closed, and why):
-//! - Another process that can write the folder can rewrite or replace the
-//!   published package after step 4's last check, before or after `Saved` is
-//!   returned. No call lets one process stop another of the same user from
-//!   writing its files (macOS has no mandatory locks); the save can only
-//!   check what it published, and does.
-//! - Between an identity check and the name-based call it guards (`unlinkat`
-//!   and `unlinkat(AT_REMOVEDIR)` of the previous package's entries, the swap
-//!   and the swap-back), such a process can substitute that one entry, which
-//!   the call then acts on instead. macOS has no unlink, rename or exchange
-//!   that is conditional on the entry's identity or acts on an open
-//!   descriptor (no `funlinkat`), so the window between check and call cannot
-//!   be removed. Its reach is bounded: only that entry itself (never a
-//!   symlink's target, never a non-empty folder, never a file's other hard
-//!   links), and only for an entry put there in that window. If a swap-back
-//!   fails, the previous package is left unchanged and undeleted under the
-//!   staging name the refusal gives.
+//! Residual (restated after review round 5: what cannot be closed, and why):
+//! - Content: every member is checked through its open descriptor after the
+//!   last read (identity, size, change time) and every name re-checked, so a
+//!   rewrite of either member up to that final check is detected. A rewrite
+//!   or replacement after the final check, before or after `Saved` is
+//!   returned, is not: no call lets one process stop another of the same
+//!   user from writing its files (macOS has no mandatory locks).
+//! - Check-to-call window: between an identity check and the name-based call
+//!   it guards, such a process can substitute that one entry, and the call
+//!   acts on the substitute. macOS has no unlink, rename or exchange that is
+//!   conditional on an entry's identity or acts on a descriptor (no
+//!   `funlinkat`). For `unlinkat` the reach is that entry itself (never a
+//!   symlink's target or a file's other hard links), and `unlinkat
+//!   (AT_REMOVEDIR)` removes only an empty folder. For the commit swap and the
+//!   rollback swap (`RENAME_SWAP`), which exchanges two directories whatever
+//!   they hold, a folder substituted in that window, non-empty included, is
+//!   moved to the other name; nothing of it is removed, because removal
+//!   checks each entry's identity again.
 //!
 //! Every failure before the commit removes this run's staging directory (as
 //! above) and leaves the previous package as it was.
@@ -118,6 +123,7 @@ pub const OLD_PACKAGE_LEFT: &str = "HANDOFF-OLD-PACKAGE-LEFT";
 pub const VERIFY_FAILED: &str = "HANDOFF-VERIFY-FAILED";
 pub const PUBLISH_UNVERIFIED: &str = "HANDOFF-PUBLISH-UNVERIFIED";
 pub const NEW_NAME_UNSUPPORTED: &str = "HANDOFF-NEW-NAME-UNSUPPORTED";
+pub const ROLLBACK_WITHHELD: &str = "HANDOFF-ROLLBACK-WITHHELD";
 
 fn diagnostic(code: &str, path: &str, message: impl Into<String>) -> Diagnostic {
     Diagnostic { code: code.to_string(), path: path.to_string(), message: message.into() }
@@ -371,7 +377,7 @@ impl Dir {
     /// descriptor must show a regular file and, when given, the `expected`
     /// identity; after reading, the descriptor must still be that file at the
     /// size read, still linked, and `name` must still name it.
-    fn read_member(&self, name: &str, limit: u64, expected: Option<EntryId>) -> io::Result<(Vec<u8>, EntryId)> {
+    fn read_member(&self, name: &str, limit: u64, expected: Option<EntryId>) -> io::Result<MemberRead> {
         use std::io::Read;
         use std::os::unix::fs::MetadataExt;
         let c = c_name(name)?;
@@ -410,7 +416,11 @@ impl Dir {
         if self.child_id(name)? != id {
             return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} was replaced while it was read")));
         }
-        Ok((bytes, id))
+        let ctime = (metadata.ctime(), metadata.ctime_nsec());
+        if (after.ctime(), after.ctime_nsec()) != ctime {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{name} changed while it was read")));
+        }
+        Ok(MemberRead { bytes, id, ctime, file })
     }
 
     /// Removes the non-directory entry `name` if it is still `expected`.
@@ -483,6 +493,29 @@ impl Dir {
             let _ = (from, to);
             Err(io::Error::from(io::ErrorKind::Unsupported))
         }
+    }
+}
+
+/// One member as read: its bytes, and the descriptor they were read through
+/// with its identity and change time then.
+#[derive(Debug)]
+struct MemberRead {
+    bytes: Vec<u8>,
+    id: EntryId,
+    ctime: (i64, i64),
+    file: File,
+}
+
+impl MemberRead {
+    /// The file read is still, by its descriptor, unchanged since its first
+    /// `fstat`: the same identity and size, still linked, and the same change
+    /// time. Any write (or `utimes`) since sets the change time, which no
+    /// unprivileged process can set back (review round 5, finding 4).
+    fn unchanged(&self) -> bool {
+        use std::os::unix::fs::MetadataExt;
+        self.file.metadata().is_ok_and(|now| {
+            (now.dev(), now.ino()) == self.id && now.len() == self.bytes.len() as u64 && now.nlink() > 0 && (now.ctime(), now.ctime_nsec()) == self.ctime
+        })
     }
 }
 
@@ -729,14 +762,15 @@ fn failed(stage: &str, error: impl std::fmt::Display, parent: &Dir, staging_name
     )
 }
 
-/// The destinations whose commit is running in this process, by the parent
-/// folder's identity and the package name (review round 4): two saves of the
-/// same destination commit one at a time; unrelated destinations never wait.
-static COMMITS: std::sync::Mutex<std::collections::BTreeSet<(EntryId, String)>> = std::sync::Mutex::new(std::collections::BTreeSet::new());
+/// The parent folders in which a commit is running in this process, by the
+/// folder's identity (review round 5, owner's decision): all saves into one
+/// folder commit one at a time, whatever names (case or normalization aliases
+/// of one entry included) they use; saves into other folders do not wait.
+static COMMITS: std::sync::Mutex<std::collections::BTreeSet<EntryId>> = std::sync::Mutex::new(std::collections::BTreeSet::new());
 static COMMIT_FREED: std::sync::Condvar = std::sync::Condvar::new();
 
-/// Holds one destination's commit; released on drop (also while unwinding).
-struct CommitGuard((EntryId, String));
+/// Holds one parent folder's commit; released on drop (also while unwinding).
+struct CommitGuard(EntryId);
 
 impl Drop for CommitGuard {
     fn drop(&mut self) {
@@ -746,13 +780,13 @@ impl Drop for CommitGuard {
     }
 }
 
-fn commit_destination(parent: &Dir, name: &str) -> io::Result<CommitGuard> {
-    let key = (parent.id()?, name.to_string());
+fn commit_in(parent: &Dir) -> io::Result<CommitGuard> {
+    let key = parent.id()?;
     let mut running = COMMITS.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     while running.contains(&key) {
         running = COMMIT_FREED.wait(running).unwrap_or_else(std::sync::PoisonError::into_inner);
     }
-    running.insert(key.clone());
+    running.insert(key);
     Ok(CommitGuard(key))
 }
 
@@ -782,13 +816,18 @@ fn published_is_ours(parent: &Dir, name: &str, staged: PackageIdentity, model: &
         }
     });
     let limit = crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
-    let (model_read, _) = model_dir.read_member(MODEL_FILE, limit, Some(staged.model_file)).map_err(|error| format!("{MODEL_MEMBER}: {error}"))?;
-    if model_read != model {
+    let model_read = model_dir.read_member(MODEL_FILE, limit, Some(staged.model_file)).map_err(|error| format!("{MODEL_MEMBER}: {error}"))?;
+    if model_read.bytes != model {
         return Err(format!("{MODEL_MEMBER} does not hold the bytes this save wrote"));
     }
-    let (manifest_read, _) = dir.read_member(MANIFEST_MEMBER, MAX_MANIFEST_BYTES, Some(staged.manifest)).map_err(|error| format!("{MANIFEST_MEMBER}: {error}"))?;
-    if manifest_read != manifest {
+    let manifest_read = dir.read_member(MANIFEST_MEMBER, MAX_MANIFEST_BYTES, Some(staged.manifest)).map_err(|error| format!("{MANIFEST_MEMBER}: {error}"))?;
+    if manifest_read.bytes != manifest {
         return Err(format!("{MANIFEST_MEMBER} does not hold the bytes this save wrote"));
+    }
+    // After the last read: both members unchanged since they were opened, and
+    // every name still naming the same entry.
+    if !model_read.unchanged() || !manifest_read.unchanged() {
+        return Err(format!("a member of `{name}` changed while the package was checked"));
     }
     match layout_identity(&dir) {
         Ok(Some((identity, _))) if identity == staged && parent.child_id(name).ok() == Some(staged.folder) => Ok(()),
@@ -859,7 +898,7 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
     // This process's commits (checks, rename or swap, verification of what was
     // published, removal of the replaced package) run one at a time, so two
     // saves in the app never interleave inside each other's check and act.
-    let _commit = match commit_destination(&parent, &name) {
+    let _commit = match commit_in(&parent) {
         Ok(guard) => guard,
         Err(error) => return Err(failed("commit", error, &parent, &staging_name, created)),
     };
@@ -898,30 +937,50 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             return Err(failed("swap", error, &parent, &staging_name, created));
         }
         // What the swap moved out must be the package admitted, and what it
-        // published the staging folder this save verified. If the destination
-        // was replaced between the check and the swap, or the staging source
-        // was, the swap is undone, so the other folder is back under its name,
-        // and nothing of either is removed.
-        let moved_out_admitted = identity_at(&parent, &staging_name) == Some(admitted);
-        if moved_out_admitted {
-            if let Err(why) = published_is_ours(&parent, &name, staged, model, manifest) {
-                let restored = exchange().is_ok() && identity_at(&parent, &name) == Some(admitted);
-                let outcome = if restored {
-                    format!("The previous package is back as `{name}`, unchanged; the substituted folder is left as {staging_name}. Save again.")
+        // published the staging folder this save verified. Otherwise the swap
+        // is undone, but only while both names still hold exactly what the
+        // swap left there (review round 5, finding 1): this save's folder
+        // under the name, and under the staging name the entry the swap moved
+        // out. If either changed, nothing is moved and nothing is removed.
+        let moved_out = parent.child_id(&staging_name).ok();
+        let moved_out_admitted = moved_out == Some(admitted.folder) && identity_at(&parent, &staging_name) == Some(admitted);
+        let unverified_why = if moved_out_admitted { published_is_ours(&parent, &name, staged, model, manifest).err() } else { None };
+        if !moved_out_admitted || unverified_why.is_some() {
+            let as_left = parent.child_id(&name).ok() == Some(staged.folder)
+                && parent.child_id(&staging_name).ok() == moved_out
+                && moved_out.is_some()
+                && (!moved_out_admitted || identity_at(&parent, &staging_name) == Some(admitted));
+            let rolled_back = as_left && exchange().is_ok();
+            let previous_at = if identity_at(&parent, &name) == Some(admitted) {
+                format!("as `{name}`")
+            } else if identity_at(&parent, &staging_name) == Some(admitted) {
+                format!("unchanged, as {staging_name}")
+            } else {
+                format!("no longer under `{name}` or {staging_name} (something else moved it)")
+            };
+            if !as_left {
+                let why = unverified_why.unwrap_or_else(|| format!("`{name}` was replaced before the swap"));
+                return Err(diagnostic(
+                    ROLLBACK_WITHHELD,
+                    "",
+                    format!(
+                        "The handoff package was not saved ({why}), and nothing was moved back: `{name}` or {staging_name} changed after the check, so undoing the swap could move a folder this save does not own. The previous package is {previous_at}. Check `{name}` and {staging_name} before deleting either."
+                    ),
+                ));
+            }
+            if let Some(why) = unverified_why {
+                let outcome = if rolled_back {
+                    format!("The swap was undone: the previous package is {previous_at}, unchanged; what was published is left as {staging_name}. Save again.")
                 } else {
-                    format!("The previous package could not be swapped back and is left, unchanged, as {staging_name}; `{name}` holds the unverified folder. Check both before deleting either.")
+                    format!("The swap could not be undone: the previous package is {previous_at}; `{name}` holds the unverified folder. Check both before deleting either.")
                 };
                 return Err(unverified(&name, &why, &outcome));
             }
-        }
-        if !moved_out_admitted {
-            let ours_published = parent.child_id(&name).ok() == created.folder;
-            let restored = ours_published && exchange().is_ok();
-            if restored {
+            if rolled_back {
                 let _ = remove_known(&parent, &staging_name, created);
             }
             let mut refusal = changed();
-            if !restored {
+            if !rolled_back {
                 refusal.message.push_str(&format!(
                     " The folder that was there is now {staging_name}; the new package is `{name}`. Check both before deleting either."
                 ));
@@ -1027,17 +1086,18 @@ fn verify_dir(dir: &Dir) -> Result<(HandoffVerification, PackageIdentity), Strin
         Ok(None) => return Err(fail(format!("the folder does not hold exactly {MANIFEST_MEMBER} and {MODEL_MEMBER}"))),
         Err(error) => return Err(fail(format!("the folder could not be read ({error})"))),
     };
-    let (model_bytes, _) = model_folder
+    let model_read = model_folder
         .read_member(MODEL_FILE, crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES, Some(identity.model_file))
         .map_err(|error| fail(format!("{MODEL_MEMBER}: {error}")))?;
-    let (manifest_bytes, _) = dir
+    let manifest_read = dir
         .read_member(MANIFEST_MEMBER, MAX_MANIFEST_BYTES, Some(identity.manifest))
         .map_err(|error| fail(format!("{MANIFEST_MEMBER}: {error}")))?;
+    let unchanged = model_read.unchanged() && manifest_read.unchanged();
     match layout_identity(dir) {
-        Ok(Some((after, _))) if after == identity => {}
+        Ok(Some((after, _))) if after == identity && unchanged => {}
         _ => return Err(fail("the folder changed while it was read".to_string())),
     }
-    Ok((verify_bytes(&model_bytes, &manifest_bytes)?, identity))
+    Ok((verify_bytes(&model_read.bytes, &manifest_read.bytes)?, identity))
 }
 
 /// `verify_handoff_package`'s rules on the two members' bytes.
@@ -1089,5 +1149,63 @@ mod review3_fallback {
         assert_eq!(std::fs::read(root.join("review3-source/kept.json")).unwrap(), b"invented");
         assert_eq!(std::fs::read_dir(root.join("target")).unwrap().count(), 0, "the empty destination was replaced");
         std::fs::remove_dir_all(&root).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod review5_noexcl {
+    use super::*;
+    #[test]
+    fn review5_noexcl_new_name_is_unsupported_before_any_plain_rename() {
+        let root = std::env::temp_dir().join(format!("swbpipe-review5-noexcl-{}", std::process::id()));
+        std::fs::create_dir(&root).unwrap();
+        let parent = Dir::open_path(&root).unwrap();
+        let source = parent.create_dir("review3-source").unwrap();
+        source.create_file("kept.json", b"invented").unwrap();
+        let result = parent.rename_new("review3-source", "target");
+        println!("REVIEW5_NOEXCL result={result:?}; source_exists={}; target_exists={}", root.join("review3-source").exists(), root.join("target").exists());
+        assert!(result.as_ref().is_err_and(unsupported), "an unsupported exclusive rename must not fall back to plain rename: {result:?}");
+        assert_eq!(std::fs::read(root.join("review3-source/kept.json")).unwrap(), b"invented");
+        assert!(!root.join("target").exists());
+        std::fs::remove_dir_all(&root).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod review5_nonblock {
+    use super::*;
+    #[test]
+    fn review5_fifo_read_refuses_without_waiting_for_a_writer() {
+        use std::os::unix::ffi::OsStrExt;
+        use std::os::unix::fs::OpenOptionsExt;
+        use std::sync::mpsc;
+        use std::time::Duration;
+        let root = std::env::temp_dir().join(format!("review5-nonblock-{}", std::process::id()));
+        std::fs::create_dir(&root).unwrap();
+        let fifo = root.join("member");
+        let name = std::ffi::CString::new(fifo.as_os_str().as_bytes()).unwrap();
+        assert_eq!(unsafe { libc::mkfifo(name.as_ptr(), 0o600) }, 0);
+        let dir = Dir::open_path(&root).unwrap();
+        let (ready_tx, ready_rx) = mpsc::channel();
+        let (done_tx, done_rx) = mpsc::channel();
+        let reader = std::thread::spawn(move || {
+            R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || ready_tx.send(()).unwrap())));
+            done_tx.send(dir.read_member("member", 4096, None)).unwrap();
+        });
+        ready_rx.recv_timeout(Duration::from_secs(10)).unwrap();
+        let early = done_rx.recv_timeout(Duration::from_secs(2));
+        let blocked = early.is_err();
+        let result = match early {
+            Ok(result) => result,
+            Err(_) => {
+                let writer = std::fs::OpenOptions::new().write(true).custom_flags(libc::O_NONBLOCK).open(&fifo).unwrap();
+                drop(writer);
+                done_rx.recv_timeout(Duration::from_secs(10)).unwrap()
+            }
+        };
+        reader.join().unwrap();
+        std::fs::remove_dir_all(&root).unwrap();
+        println!("REVIEW5_NONBLOCK blocked={blocked}; result={result:?}");
+        assert!(!blocked && result.is_err(), "a special member blocked until a writer arrived");
     }
 }
